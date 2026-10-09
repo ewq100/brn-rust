@@ -385,6 +385,7 @@ fn action_proposal_full_replace_sources_and_original_replay_preserve_newer_revie
     std::fs::remove_file(fixture.base.path().join("vault/source.md")).unwrap();
     std::fs::remove_file(fixture.base.path().join("vault/archive/old.md")).unwrap();
     let completion = crate::action_completion::CompleteActionRequest {
+        sent_source: None,
         operation_id: Uuid::new_v4(),
         before: Box::new(before.clone()),
     };
@@ -654,6 +655,7 @@ fn action_member_references_resolve_mixed_drafts_and_full_approval_still_checks_
     );
     assert_eq!(review.draft.action_changes[1].id(), before.origin.id);
     let completion = crate::action_completion::CompleteActionRequest {
+        sent_source: None,
         operation_id: Uuid::new_v4(),
         before: Box::new(before),
     };

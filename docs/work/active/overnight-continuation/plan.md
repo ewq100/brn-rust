@@ -77,62 +77,71 @@ requires exact final-candidate review, applicable local checks and actual requir
 CI. No weakening, bypass or rushed merge. Record failures and repair real defects.
 Known informational platform failures remain visible and separate.
 
-## Durable checkpoint — 09 October 01:08 UTC
+## Durable checkpoint — 09 October 01:28 UTC
 
-Continue to05:00UTC/08:00Tallinn, final qualification from04:30. Authoritative
-lead/checkpoint and single morningtask NOWbudgetcheckout
-`/Users/evokessler/repos/brn-p3-work-budgets`, branchcodex/p7-sent-evidence-completion
-based qualified ordering4fef278a4cdf9cbb92c8afbc98a606aacb95826e. Selected next
-[explicit sent-evidence completion plan](sent-evidence-completion.md) fixes interfaces,
-acceptance/reuse and exact ownership. Source capture/approval then direct sent-source
-binding + complete, preexisting thread only; no external sending or AI Complete.
-No new SQL table/engine/provider/dependency; canonical historical None stays omitted.
+Continue to05:00UTC/08:00Tallinn; final qualification from04:30. Lead checkout
+`/Users/evokessler/repos/brn-p3-work-budgets`, branch
+`codex/p7-sent-evidence-completion`, plan cab019585cd9f0108db22c79e11ca32ababfad1b
+based qualified ordering4fef278a4cdf9cbb92c8afbc98a606aacb95826e. Task-owned dirty
+Store/Workflow/CLI/Desktop/tests/docs implement [actual sent-evidence completion](sent-evidence-completion.md).
+Already approved actual Text Source, explicit existing Action thread, exact review
+then direct owner completion; no external sending/AI Complete/schema/new engine.
+Historical omitted None canonical bytes unchanged. Not frozen/reviewed/qualified/merged.
 
-Main d5f324ec558e9ecce898ac2373c36eec8242649c includes normal PR90–103. All4required
-candidate/docs passed90–103; all4post/docs passed90–102. PR103 post37867421354
-active; exact mergedtree1542187148b2ffac4158aceccf309610283caf64 equals c086.
-Raw complete/correction reviews clean after actual-worker P1 delegation red/fix;
-fresh1287affecteddefault/18,455native/16,601combined/allotherlocalgates pass. Final
-paired raw trials useful, allmaterial facts/unclassified status retained; exact
-savedreplay no inference/effects. Historical report safely committed/pushed on
-codex/raw-evidence-qualification-record04497d9, noPR needed; content carriedforward.
+PR104 normally merged c1a97ef3f3f079cd1c39e159e08ce23184006996 at01:19:30UTC
+following all4required candidate checks/docs37867760857. Fetched main tree
+87cc4c0082cdb1e1e394e6978bb5355b1701a172 equals qualified4fef head. Post-main
+37869224076: UbuntuCore/MacUI/docs passed, MacCore/MacCombined still running.
+Inspected candidate Windows113618497316: same4existing UnixMetadataExt/
+OpenOptionsExt/mode/nlink diagnostics. No port/suppression. PR103d5f324e
+all4required post-main/docs passed37867421354. PR90–103 all required candidate
+and post-main/docs passed. Parent104 must be incorporated into P7 after clean
+candidate commit; no functional delta, same tree.
 
-Other intakecheckout clean on candidate4fef278, PR104 attached/pushed, required CI
-running. Complete11file review and6file correction clean; tree87cc4c0082cdb1e1e394e6978bb5355b1701a172
-identical correctionc7fe2d6 after raw-main merge. Allocation borrow improvement,
-no measured introduced regression; standalone checkbox advisory not reproduced,
-coverage/explicitnotify added honestly. Final10gates ALLPASS:292Desktopdefault,
-607combinedDesktopCLI/doctests/strictdefault+combinedworkspaceClippy/shipping/helper/
-52fixtures/links/diff. Reuse unchanged workflow/Store/fullsize fromPR103. No active
-Cargo now; new Store helper will own budget target for Store checks when assigned.
-Normal protected104merge wheneligible, verify main; do not change frozen104code.
+Store helper complete/released Cargo: full498 passed before tiny u64 approval
+bound refinement; final20focused and strict all-target Store Clippy passed. Root
+Workflow action_completion focus10passed/0failed/1existing crash-child ignore,
+including5new sent witnesses and6crash recovery combinations. Initial5new failures
+were fixture thread links missing exact captured SourceVersion, fixed; subsequent
+compile mismatch corrected. Production API compiled. CLI process/preflight tests
+and Workflow/CLI contracts added; final targeted process1/preflight1 passed. CLI actual dispatch includes
+new prepare command. Desktop helper released Cargo: state11passed (5new), widgets7passed (2new),
+strict default+combined Desktop Clippy passed. CLI actual-process test1passed;
+preflight targeted command incorrectly used nonexistent brn library; corrected
+binary target then exposed fixture initial-origin mismatch, corrected and1passed.
+Root sole Cargo for final full integration gates. No helpers active. Root owns Workflow/CLI/shared
+docs/cases/integration. Complete independent read-only review and final applicable
+full changed gates, matching shipping runtime, required CI and normal protected
+integration remain mandatory. Do not claim focused tests as full qualification.
 
-Latest local qualified immutable captured-order-runtime source4fef under
-brn-overnight-artifacts-20261008: CLI0b50908a042708923bf824068727dc628fb2e960be4f0445ce5f543a5444c3ce,
+Latest qualified immutable runtime remains captured-order-runtime source4fef:
+CLI0b50908a042708923bf824068727dc628fb2e960be4f0445ce5f543a5444c3ce,
 Desktop2a0cb8b945a945fb18f122793bbce2163854d395545bfe15789e2cf6e2e90e20,
-helper7f058c35 unchanged. Synthetic WorkspaceK captured-order-case prepared with
-three Draftv2 owner-commented notes in groupfe501e08-0c0a-4ba1-9074-44889684dd20;
-Alpha47118139-af95-4342-86a9-797cca64b99b,Beta161e203a-08b6-45a7-a6c1-28b2d115f3fa,
-Gammad197fbbf-5d0e-40e6-9ed8-2ea0ad62cfd0. AllremainDraft/noeffects, zeroInference.
-Update ONE morningtask runtime/Kstep20 exactpaths/IDs before next freeze. CasesA–K
-retained, never rerun guardedpreparation/relocateboundstate/oldbinaryaftermigration.
-Evidencearchive refreshed1090files1,006,656,350bytes01:03; later refresh at milestone.
+helper7f058c35. It does NOT contain P7. CasesA–K retained; single morningtask
+matches this runtime, step20Kordering andFSourcepinning. P7 WorkspaceL/step21
+must be prepared against matching qualified P7 runtime later. All actual GUI and
+personal acceptance pending. Never rerun guardedpreparation/relocate bound state/
+use old binaries after migration. Archive1090files1,006,656,350bytes01:03; refresh
+at meaningful milestone. Historical raw report04497d9 safely pushed, noPR needed.
 
-Campaign /private/tmp/brn-overnight-20261008/campaign-ledger.json 16/16USED,Luna8/Sol8;
-NO further live allowance, no activeprovider/retry/newconditions/substitution/reset.
-Usage66%weeklyused/34%remaining accountwide00:52, shortwindow/token/internal/spend
-unknown. NoGUI/computer/browser/accessibility/screenshot/unlock/interactive launch;
-all actualUI/personalacceptance pending. No privatevault/email/docs/credentialcontents,
+Campaign canonical /private/tmp/brn-overnight-20261008/campaign-ledger.json
+16/16USED,Luna8/Sol8, NO further live allowance/activeprovider/retry/newcondition/
+substitution/reset. Latestusage66%weeklyused/34%remaining accountwide00:52;
+shortwindow/tokens/internalturns/spendunknown. Jpair useful on explicit indexed
+near1MiB synthetic raw path; exact saved replay noInference/effects. No broad
+model ranking or personal acceptance. No GUI/computer/browser/accessibility/
+screenshot/unlock/interactive launch, privatevault/email/docs/credentialcontents,
 accountswitch/purchase/paidfallback/modeldownload/ports/release/signing/globalconfig/
-unrelatedmerge. Primary18f3891+DSStore/researchPRs/userdata untouched. <=2helpers,
-no recursion, oneCargo acrosscheckouts; rootselectedmodel/effort unchanged.
+unrelatedmerge. Primary18f3891+DSStore/researchPRs/userdata untouched. <=2active
+helpers/no recursion/oneCargo acrosscheckouts; selected lead model/effort unchanged.
 
-Parked retry8f8fc2e unqualified/pushed/noPR; pinnedRigResponses decoder mismatch,
-no fork/partialroute salvage. Crossfolderrelative-reference/originalparentpolicy,
-regroup/split identity/comments, websourcecapture/hostedbudgets and autoarchiveclock
-remain parked. Continue ready work, don't waitonowner or stopafteronePR. Keep durable
-checkpoint and disableheartbeat at05UTC/cancel/runtime-limit/all-useful-blocked;
-noarchivechat. Safelycommit/pushunfinished, exactmorningreport and nextstep atcutoff.
+Parked retry8f8fc2e pushed/unqualified/noPR: pinnedRigResponses decoder mismatch,
+no fork/partialroute salvage. Crossfolder relative references/originalparent,
+regroup/split identity/comments, attributable webcapture/hostedbudgets and
+session-autoarchive clock choices parked. Continue useful readyV1, don't wait on
+owner or stop at onePR. Heartbeat active, authoritative entrypoint here; disable
+at05UTC/cancel/runtime-limit/all-useful-blocked, no archivechat. Safelycommit/push
+unfinished and provide exact final morning report/next step at cutoff.
 
 ## Selected first evidence slice
 

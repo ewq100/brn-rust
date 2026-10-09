@@ -646,3 +646,21 @@ They do not establish widget rendering, IME/accessibility behavior, OS chooser
 usability or human acceptance. Those still require native observation.
 
 Read the [architecture overview](../../docs/architecture/overview.md), [invariants](../../docs/architecture/invariants.md) and [verification guide](../../docs/development/verification.md) before changing contracts.
+
+
+Dashboard **Sent Source path** is retained owner input. Capture the actual sent text
+through Text Inbox and approve its protected Source first. Select an unfinished
+Action with an existing explicit thread, enter its saved Source path and choose
+**Read saved sent Source**. Preparation is read only. The separate **Review actual
+sent version and completion…** confirmation displays the complete saved Source,
+exact Action baseline and full approval/identity/fingerprint proof. Its final
+button asserts that these bytes are the actual sent version and completes that
+identified Action, adding the Source once while preserving its thread.
+Ordinary **Complete…** stays independent of every sent preview. Changed selection,
+navigation, path, Action or malformed/late preparation replies cannot admit a stale
+confirmation. Failed completion retains the exact optional binding for explicit
+retry; Source is already retained and completion is unconfirmed until the exact
+receipt arrives. Inspect the current Action and retained attempt after a failure.
+State and headless widget checks cover correlation, full text, separate
+confirmation, ordinary isolation and retry; GUI/IME/accessibility and owner
+acceptance remain pending in the morning task.

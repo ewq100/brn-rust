@@ -48,7 +48,7 @@ pub(crate) fn page(record: ActionRecord) -> DashboardPage {
         next_before: None,
     }
 }
-fn loaded() -> AiState {
+pub(crate) fn loaded() -> AiState {
     let mut ai = AiState {
         ready: true,
         ..Default::default()
@@ -64,9 +64,14 @@ fn loaded() -> AiState {
     assert!(ai.select_dashboard_action(Uuid::from_u128(200)));
     ai
 }
-fn complete(request: &CompleteActionRequest) -> ActionCompletion {
+pub(crate) fn complete(request: &CompleteActionRequest) -> ActionCompletion {
     let mut after = *request.before.clone();
     after.data.state = ActionState::Completed;
+    if let Some(sent) = &request.sent_source
+        && !after.data.sources.contains(&sent.note_id)
+    {
+        after.data.sources.push(sent.note_id);
+    }
     after.version += 1;
     after.updated_at_ms += 1;
     after.completed_at_ms = Some(after.updated_at_ms);
@@ -423,4 +428,209 @@ fn real_worker_approved_action_completion_dashboard_refresh_and_restart_need_no_
     worker.shutdown().unwrap();
     assert_eq!(fs::read_dir(credentials).unwrap().count(), 0);
     assert!(!data.join("index.sqlite").exists());
+}
+
+pub(crate) fn sent_preview(
+    request: &brn_workflow::action_completion::PrepareSentCompletionRequest,
+) -> brn_workflow::action_completion::SentCompletionPreview {
+    use brn_store::files::FileFingerprint;
+    use brn_workflow::{
+        action_completion::{SentCompletionPreview, SentSourceBinding},
+        proposals::{ProposalSource, SourceVersion},
+    };
+    let note_id = Uuid::from_u128(800);
+    let text = format!(
+        "---\nbrn_id: {note_id}\nbrn_kind: source\nbrn_state: current\n---\n```text\nActual sent text differs from draft õ 🧭\r\n{}TAIL SENT VERSION\n```\n",
+        "Retained exact line λ\n".repeat(3000)
+    );
+    let source = SourceVersion {
+        path: request.source_path.clone(),
+        fingerprint: FileFingerprint {
+            device: 1,
+            inode: 800,
+            len: text.len() as u64,
+            sha256: brn_intake::digest(text.as_bytes()),
+        },
+    };
+    let preview = SentCompletionPreview {
+        request: CompleteActionRequest {
+            operation_id: Uuid::new_v4(),
+            before: request.before.clone(),
+            sent_source: Some(SentSourceBinding {
+                source_approval: ApprovalRequest {
+                    operation_id: Uuid::from_u128(801),
+                    expected: brn_workflow::proposals::ProposalStamp {
+                        id: Uuid::from_u128(802),
+                        version: 1,
+                    },
+                },
+                source: source.clone(),
+                note_id,
+            }),
+        },
+        source: ProposalSource { source, text },
+        title: "Approved actual sent text".into(),
+    };
+    preview.validate_for(request).unwrap();
+    preview
+}
+fn prepared(ai: &mut AiState) -> brn_workflow::action_completion::SentCompletionPreview {
+    ai.edit_sent_source_path("actual-sent.md".into());
+    let (id, AppCommand::PrepareSentActionCompletion(request)) =
+        ai.prepare_sent_action_completion().unwrap()
+    else {
+        panic!("prepare")
+    };
+    let preview = sent_preview(&request);
+    ai.apply(
+        id,
+        AppEvent::SentActionCompletionPrepared(Box::new(preview.clone())),
+    );
+    preview
+}
+
+#[test]
+fn sent_preparation_requires_explicit_thread_and_retains_invalid_path() {
+    let mut ai = loaded();
+    ai.edit_sent_source_path("../unsafe.md".into());
+    assert!(ai.prepare_sent_action_completion().is_none());
+    assert_eq!(ai.dashboard.sent_source_path, "../unsafe.md");
+    assert!(ai.dashboard.sent_error.is_some());
+    ai.edit_sent_source_path("actual-sent.md".into());
+    ai.dashboard.selected.as_mut().unwrap().action.data.thread = None;
+    assert!(ai.prepare_sent_action_completion().is_none());
+    assert!(ai.dashboard.attempts.is_empty());
+}
+
+#[test]
+fn wrong_or_late_sent_preview_cannot_settle_current_read_or_replace_retained_preview() {
+    let mut ai = loaded();
+    let retained = prepared(&mut ai);
+    let (id, AppCommand::PrepareSentActionCompletion(request)) =
+        ai.prepare_sent_action_completion().unwrap()
+    else {
+        panic!("prepare")
+    };
+    let exact = sent_preview(&request);
+    let mut wrong = exact.clone();
+    wrong.source.text.push_str("uncaptured");
+    ai.apply(id, AppEvent::SentActionCompletionPrepared(Box::new(wrong)));
+    assert!(ai.pending.contains_key(&id));
+    assert_eq!(
+        ai.dashboard.sent_preview.as_ref().unwrap().preview,
+        retained
+    );
+    let mut wrong = exact.clone();
+    wrong.request.before.data.title.push_str("wrong Action");
+    ai.apply(id, AppEvent::SentActionCompletionPrepared(Box::new(wrong)));
+    assert!(ai.pending.contains_key(&id));
+    ai.edit_sent_source_path("different.md".into());
+    let (next, AppCommand::PrepareSentActionCompletion(next_request)) =
+        ai.prepare_sent_action_completion().unwrap()
+    else {
+        panic!("next")
+    };
+    ai.apply(id, AppEvent::SentActionCompletionPrepared(Box::new(exact)));
+    assert!(!ai.pending.contains_key(&id));
+    assert!(ai.pending.contains_key(&next));
+    assert_eq!(
+        ai.dashboard.sent_preview.as_ref().unwrap().preview,
+        retained
+    );
+    ai.apply(
+        next,
+        AppEvent::SentActionCompletionPrepared(Box::new(sent_preview(&next_request))),
+    );
+    assert_eq!(ai.dashboard.sent_source_path, "different.md");
+    assert!(ai.capture_sent_action_completion().is_some());
+    assert!(ai.dashboard.attempts.is_empty());
+}
+
+#[test]
+fn sent_confirmation_and_ordinary_completion_are_separate_and_navigation_invalidates_capture() {
+    let mut ai = loaded();
+    let preview = prepared(&mut ai);
+    let sent = ai.capture_sent_action_completion().unwrap();
+    assert_eq!(sent.request(), &preview.request);
+    assert!(
+        ai.capture_action_completion()
+            .unwrap()
+            .request()
+            .sent_source
+            .is_none()
+    );
+    ai.select_dashboard_action(Uuid::from_u128(200));
+    assert!(ai.confirm_action_completion(&sent).is_none());
+    assert!(ai.capture_sent_action_completion().is_none());
+    let _ = prepared(&mut ai);
+    let sent = ai.capture_sent_action_completion().unwrap();
+    ai.close_dashboard();
+    assert_eq!(ai.dashboard.sent_source_path, "actual-sent.md");
+    assert!(ai.dashboard.sent_preview.is_some());
+    assert!(ai.confirm_action_completion(&sent).is_none());
+}
+
+#[test]
+fn sent_receipt_requires_exact_binding_and_uncertain_retry_preserves_request_after_navigation() {
+    let mut ai = loaded();
+    let preview = prepared(&mut ai);
+    let capture = ai.capture_sent_action_completion().unwrap();
+    let (id, _) = ai.confirm_action_completion(&capture).unwrap();
+    let mut wrong = complete(&preview.request);
+    wrong
+        .request
+        .sent_source
+        .as_mut()
+        .unwrap()
+        .source_approval
+        .operation_id = Uuid::new_v4();
+    ai.apply(id, AppEvent::ActionCompleted(Box::new(wrong)));
+    assert!(ai.pending.contains_key(&id));
+    ai.apply(
+        id,
+        AppEvent::Failed(WorkflowError {
+            kind: ErrorKind::SaveUncertain,
+            message: "unknown publication".into(),
+        }),
+    );
+    assert!(ai.notice.contains("not confirmed"));
+    assert!(ai.notice.contains("Inspect the current Action"));
+    ai.close_dashboard();
+    ai.edit_sent_source_path("later-input.md".into());
+    let (retry, command) = ai.retry_action_completion(id).unwrap();
+    assert_eq!(retry, id);
+    assert!(
+        matches!(command, AppCommand::CompleteAction(ref request) if request == &preview.request)
+    );
+    ai.apply(
+        id,
+        AppEvent::ActionCompleted(Box::new(complete(&preview.request))),
+    );
+    assert_eq!(
+        ai.dashboard.attempts[0].receipt.as_ref().unwrap().request,
+        preview.request
+    );
+    assert_eq!(ai.dashboard.sent_source_path, "later-input.md");
+}
+
+#[test]
+fn failed_sent_read_retains_path_and_previous_preview_until_explicit_read() {
+    let mut ai = loaded();
+    let previous = prepared(&mut ai);
+    let (id, _) = ai.prepare_sent_action_completion().unwrap();
+    ai.apply(id, AppEvent::Failed(WorkflowError::msg("Source changed")));
+    assert_eq!(
+        ai.dashboard.sent_preview.as_ref().unwrap().preview,
+        previous
+    );
+    assert!(ai.capture_sent_action_completion().is_none());
+    assert_eq!(ai.dashboard.sent_source_path, "actual-sent.md");
+    assert!(
+        ai.dashboard
+            .sent_error
+            .as_ref()
+            .unwrap()
+            .contains("Input retained")
+    );
+    assert!(ai.prepare_sent_action_completion().is_some());
 }

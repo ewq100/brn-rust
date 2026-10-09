@@ -483,10 +483,29 @@ hashes, canonical indexed identities, exact owned schema and the retained
 Completed record are validated before quick_check. Readable semantic damage
 refuses the main database; invalid backup candidates are skipped.
 
+`CompleteActionRequest.sent_source` optionally binds an existing protected Text
+Inbox Source through `SentSourceBinding` (exact `ApprovalRequest`, `SourceVersion`
+and note UUID). Omitted/None values retain historical canonical JSON and hashes;
+V11 schema is unchanged. Pure validation bounds the path at 512 UTF-8 bytes, the
+full Source at 1 MiB and compact binding at 8 KiB. Sent completion requires an
+existing Action thread, appends the Source UUID once and preserves all other
+content and immutable origin. Source-count and encoded bounds precede publication.
+
+`sent_source_binding` and `validate_sent_source_binding` check the unique exact
+current Applied Source receipt and protected original Text proof in a read-only
+transaction. They do not read files or claim current physical freshness; workflow
+qualifies the complete saved bytes, identity and original. Fresh completion repeats
+this retained authority check under its writer transaction. Exact replay precedes
+fresh Source eligibility. Recovery/startup instead require the exact historical
+Applied journal and Source body proof, without requiring current Source proposal
+eligibility or restoring any Source file. Import that Source lineage before its
+completion; absent approval evidence refuses. The encoded completion reserve grows
+only by the bounded 8 KiB binding allowance.
+
 Workflow/AppWorker now qualifies publication, startup recovery, uncertainty,
 operation correlation and shutdown draining; the CLI exposes exact Complete.
-Native controls remain a later slice. Clients continue through workflow/AppWorker;
-they do not call these storage APIs or write SQLite directly.
+Clients continue through workflow/AppWorker; they do not call these storage APIs
+or write SQLite directly.
 
 [Dashboard queries](src/work/actions/dashboard.rs) project one checked read
 transaction, without a schema change or stored cache. An explicit canonical

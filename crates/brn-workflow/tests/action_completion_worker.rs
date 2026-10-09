@@ -138,6 +138,7 @@ fn exact_direct_completion_and_new_approved_follow_up_survive_restart_without_pr
     let mut worker = f.worker();
     let before = approved(&worker, None);
     let request = CompleteActionRequest {
+        sent_source: None,
         operation_id: Uuid::new_v4(),
         before: Box::new(before.clone()),
     };
@@ -183,6 +184,7 @@ fn stale_full_baseline_operation_reuse_invalid_input_and_correlation_refuse() {
     let mut worker = f.worker();
     let before = approved(&worker, None);
     let request = CompleteActionRequest {
+        sent_source: None,
         operation_id: Uuid::new_v4(),
         before: Box::new(before.clone()),
     };
@@ -202,6 +204,7 @@ fn stale_full_baseline_operation_reuse_invalid_input_and_correlation_refuse() {
         matches!(query(&worker, AppCommand::CompleteAction(stale)), AppEvent::Failed(error) if error.kind == ErrorKind::OperationConflict)
     );
     let again = CompleteActionRequest {
+        sent_source: None,
         operation_id: Uuid::new_v4(),
         before: Box::new(receipt.after.clone()),
     };
@@ -209,6 +212,7 @@ fn stale_full_baseline_operation_reuse_invalid_input_and_correlation_refuse() {
         matches!(query(&worker, AppCommand::CompleteAction(again)), AppEvent::Failed(error) if error.kind == ErrorKind::ToolRejected)
     );
     let nil = CompleteActionRequest {
+        sent_source: None,
         operation_id: Uuid::nil(),
         before: request.before.clone(),
     };
@@ -226,6 +230,7 @@ fn completion_evidence_reconstructs_a_fresh_database_before_worker_ready() {
     let mut worker = f.worker();
     let before = approved(&worker, None);
     let request = CompleteActionRequest {
+        sent_source: None,
         operation_id: Uuid::new_v4(),
         before: Box::new(before),
     };

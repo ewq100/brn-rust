@@ -34,7 +34,7 @@ pub(crate) mod citation_review_state;
 #[path = "citation_review_state_tests.rs"]
 pub(crate) mod citation_review_state_tests;
 #[path = "dashboard_state.rs"]
-mod dashboard_state;
+pub(crate) mod dashboard_state;
 #[cfg(all(test, target_os = "macos"))]
 #[path = "dashboard_state_tests.rs"]
 pub(crate) mod dashboard_state_tests;
@@ -193,6 +193,7 @@ pub enum Pending {
     InboxGuided(Box<inbox_state::GuidedPending>),
     Dashboard(dashboard_state::DashboardQuery),
     ActionComplete(Box<dashboard_state::CompletionCapture>),
+    PrepareSentCompletion(Box<dashboard_state::SentPreparationCapture>),
     Status,
     Selection,
     Select,
@@ -2688,6 +2689,7 @@ impl AiState {
             | AppEvent::Finding(_)
             | AppEvent::Findings(_)
             | AppEvent::Action(_)
+            | AppEvent::SentActionCompletionPrepared(_)
             | AppEvent::ActionCompleted(_)
             | AppEvent::Actions(_)
             | AppEvent::ActionDashboard(_)

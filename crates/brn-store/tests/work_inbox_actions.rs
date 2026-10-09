@@ -2690,6 +2690,7 @@ fn removal_snapshot_tracks_current_actions_completions_and_running_rewrite_witho
     let completion = store
         .complete_action_with(
             &CompleteActionRequest {
+                sent_source: None,
                 operation_id: Uuid::new_v4(),
                 before: Box::new(before.actions[0].clone()),
             },
@@ -2896,6 +2897,7 @@ fn removal_snapshot_refuses_missing_known_applied_action_or_completion_authority
             store
                 .complete_action_with(
                     &CompleteActionRequest {
+                        sent_source: None,
                         operation_id: Uuid::new_v4(),
                         before: Box::new(action.clone()),
                     },
