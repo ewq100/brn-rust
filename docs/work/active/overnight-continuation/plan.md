@@ -77,10 +77,19 @@ requires exact final-candidate review, applicable local checks and actual requir
 CI. No weakening, bypass or rushed merge. Record failures and repair real defects.
 Known informational platform failures remain visible and separate.
 
-## Durable checkpoint — 09 October 03:50 UTC
+## Durable checkpoint — 09 October 04:03 UTC
 
 Continue through05UTC/08Tallinn; finalqualification04:30. AUTHORITATIVE lead andONE
 morningtask /Users/evokessler/repos/brn-p3-work-budgets codex/user-scale-cli-qualification.
+Scaleprobe freezee66fec8c564a2d75658e29a91486a80d138e0f2d ONLY511linescript;
+complete7fileindependentreview41059022cc6ebab0e2b28ab8dd2a63aae46b9ae2bfa92b2b3c110d6ce574d182
+foundONEP2 spawn→registration cancellationwindow. RootVALIDATEDred deterministic
+stubtraceSIGINT beforeactiveassignment: no kill/reap; loguser-scale-spawn-boundary-red.
+CampaignUNEXECUTED/no5000fixture. HelperNOWfixesscript+ONEscripts/tests/test_user_scale_cli.py
+viaCampaign.interrupt deferredsignalsduringPopen/registration, no childsignalblocking,
+first-registerthendeliverpendingcancel/kill-reap. Rootwaitsfreshcorrectionreview before
+actual60s/600s campaign. No product/runtime/sourcechanges fromthisprobe.
+
 Frozen locallyqualified b873f273832f881f03b483c079c94fd06a1a6d51 afterhelper9a3e8ab:
 [Activityinventory](activity-action-inventory.md) fixed Applied-only orderedbodyfree
 historicalActionUUID/title/Created-Replaced, existingUndo/fullapproval/paging. No
@@ -107,7 +116,9 @@ usehistoricalbinaryonnewerschema. Sources/originals/ownerbuffers/recovery preser
 Activityfinal5docs279395d56ab744d1a1d0138ca069fa92294c4d39 pushed/independently
 CLEAN698a59eb78a2aa4d73079a3f5d2b763fd904d7f95deba096c3b1041120904569;
 PR110https://github.com/ewq100/brn-rust/pull/110 attached/ready, actualrequiredCI
-37880800850running. Reviewfoundcountundercount valid:threevault_evidenceintegration
+37880800850ALL4required/docsPASS. Activity110NORMALMERGED
+c2dbf5e42a42cbad11657d19f6c60a5d87cf01e2 at04:00:04, exactqualifiedtree
+8093e6f000d38a3f4fdbc628120d9f8fbcf791e7 verified. Postmain37881829445pending. Reviewfoundcountundercount valid:threevault_evidenceintegration
 tests hadbeenoverwrittenbyfollowingzeroentrydoctest inhelperparser. Correct1182/17
 Workflow650CLI219Desktop313; rootverifiedrawalltestresults, correctionreceipt retained
 withoutrewritingimmutableoriginalmanifest. Rootfirstassumeddoctests,caught/fixedreason
@@ -128,8 +139,8 @@ failure. P8/Graph/Action/Linkedallscope/reviews/initialfailures/qualifiedruntime
 
 Rootowns integration/shareddocs/runtime/fixtures/CI. NextselectedREADYqualification
 [5000CurrentCLI](user-scale-cli-qualification.md) plance88a5f usesVision44/existing
-shippingreaders, no productchange/newSLA. Helpernext_v1_readiness implementsONLY
-scripts/qualify-user-scale-cli.py; no Cargo/fixtureexecution/provider/GUI/spawn. New
+shippingreaders, no productchange/newSLA. Helpernext_v1_readiness implementsONLYscript+focusedcancellationtestforvalidatedP2;
+no Cargo/BRNfixtureexecution/provider/GUI/spawn. New
 owneduser-scale-case,60sperprocess600stotal stop-preserve,2x25pages5000UUID/hash,
 3uniquetokens/fullreads/restarts/disposableownedindexrebuild,typedDraft/Inboxoriginal
 preservation,emptycredentials/models. Rootexecutesonlyafterfreshindependentreview.
