@@ -77,7 +77,7 @@ requires exact final-candidate review, applicable local checks and actual requir
 CI. No weakening, bypass or rushed merge. Record failures and repair real defects.
 Known informational platform failures remain visible and separate.
 
-## Durable checkpoint — 09 October 04:28 UTC
+## Durable checkpoint — 09 October 04:38 UTC
 
 Objective: finish owner-authorized BRN overnight work by05UTC/08Tallinn, with
 qualification/integration/report priority from04:30. Product work PR90–110 and
@@ -91,7 +91,8 @@ Stable qualification branchcodex/user-scale-cli-qualification finala74d95d888649
 is untouched forCI. Current main `33edae13f74584d7062483447e00ceb334d58a7f`, exact qualified tree `9d31083b092f234bb0c918130cf7d676b49194ed`.
 PR111normalmerge04:25:11 after all4required candidate37882759360/docs and parent
 Activity110post37881829445/docs passed. PR90–111 allrequiredcandidate/docsPASS;
-PR90–110 allrequiredpost-main/docsPASS. FINALPOSTMAIN37883790450 pending.
+PR90–110 allrequiredpost-main/docsPASS. FINALPOSTMAIN37883790450 pending: at04:37
+CoreUbuntu, NativeUI Mac, CombinedMac and docs passed; CoreMac still running.
 Next action: inspect those actual4required/docs, preserve informational failures,
 verify unchanged resultingmain, update finalreport/morningreceipt/record, safely
 commit/push finalhandoff and disableheartbeat at05UTC. No more productdevelopment.
@@ -135,7 +136,7 @@ Canonical BRNlivecampaign16/16USED Luna8/Sol8; owner's10extraalreadycounted. NO
 more livecalls/retries/effortconditions/substitution/reset. Existingauth/catalog were
 confirmed beforequalification; no login needed. Accountwide03:55 ordinarytrue80%used/
 20%remainingweekly, NOTnightspend; shortwindow/HTTP/tokens/internalreasoning/spendunknown.
-Archive2743files1,062,569,591B04:13, refreshfinalCI/reportmilestone andcutoff. Only
+Archive2755files1,062,704,210B04:38, refreshfinalCI/reportmilestone andcutoff. Only
 synthetic/publicdata; no privatevault/email/docs/credentialcontents/accountswitch/
 purchase/paidfallback/modeldownload/release/sign/ports/globalconfig/unrelatedmerge.
 Preserveprimary18f3891+DSStore/researchPR80/82/84/userdata/ownerbuffers/approval/
@@ -148,6 +149,13 @@ asset semantics,split/regroupownership,webcapture/hostedbudgets,autoarchiveclock
 PDF/layout,SessionDeletecapturewarnings/retention/rename. No architectureauditrepeat.
 [Morningreport](morning-report.md) and[UItask](morning-ui-acceptance.md) owndeliverables.
 Finalrecordbranch factualhandoff is safelypushed separately fromproductintegration.
+Independent final five-document consistency review CLEANf504; delta
+d186c377861ebe47399a198eb0939df04020cec24bddb8aa0337eae4671abc7f,
+report/private/tmp/brn-overnight-20261008/final-handoff-consistency-review.txt.
+Root04:38 final-main-runtime-proof.json confirms exactmain/tree/productdiffempty
+and three runtimehashes again. Status consolidation removes stale later-slice
+pending descriptions; factual narrow review CLEAN930b599cd7fe02c2238f96ac3a98ecca08c233ced5e95cbbf92af4b8991772c2,
+report final-status-consolidation-review.txt. No product/script/test change.
 At05UTC no newdevelopment/live, exactselfcontainedreport+pauseheartbeat; disablealso
 owner cancellation/account-runtime-limit/allusefulauthorizedblocked. Noarchivechat.
 

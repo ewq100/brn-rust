@@ -1,88 +1,72 @@
 # Current development status
 
-## Overnight implementation and model qualification — 2026-10-08
+## Overnight implementation and model qualification — 9 October 2026
 
-Current main is `33edae13f74584d7062483447e00ceb334d58a7f` (scale qualification PR111).
-PR90–108 required candidate and post-main checks/docs passed. Linked109 required
-candidate checks/docs passed and merged normally with exact qualified tree;
-allrequiredpost-main/docsPASS37880350055. The selected
-[affected Actions in Activity](work/active/overnight-continuation/activity-action-inventory.md)
-merged normally as [PR110](https://github.com/ewq100/brn-rust/pull/110) after all required
-candidate checks/docs passed; exact qualified tree verified. All required post-main checks/docs passed in37881829445. Build sourceb873f27 stays the matching qualified runtime.
-It exposes exact historical approved Action UUID/title/order without current lookups.
-Full1182affecteddefault/17existingignores,438combined and all8root gates/shipping/
-52fixtures passed. RetainedN CLI parity and restart passed without inference. The
-[single morning task](work/active/overnight-continuation/morning-ui-acceptance.md)
-records matching latest runtime and27ordered steps, including optional scale observation;
-all actual UI acceptance pending. The selected [5,000-note CLI qualification](work/active/overnight-continuation/user-scale-cli-qualification.md) passed83fresh processes
-in80.957seconds with exact inventories/search/restart/index rebuild and unchanged
-retained work. Its reviewed scripts/records merged normally as [PR111](https://github.com/ewq100/brn-rust/pull/111) after all required candidate checks/docs passed;
-resulting tree verified, final post-main37883790450 pending;
-product source/runtime is unchanged.
-[PR90](https://github.com/ewq100/brn-rust/pull/90) added exact evidence ranges and
-intake guidance; [PR91](https://github.com/ewq100/brn-rust/pull/91) added recorded
-work budgets/cancellation; [PR92](https://github.com/ewq100/brn-rust/pull/92) added
-provisional conflict recommendations and qualified consequence/History recovery;
-[PR93](https://github.com/ewq100/brn-rust/pull/93) added explicit owner predecessor
-attachment with revised-version approval. All four required candidate and
-post-merge checks plus documentation passed for each. Known informational
-Windows/Linux failures remain visible; no protection bypass or platform port.
+Product work [PR90–110](work/active/overnight-continuation/morning-report.md#implemented-and-merged-changes)
+and the [5,000-note qualification PR111](https://github.com/ewq100/brn-rust/pull/111)
+are normally merged. Final main is `33edae13f74584d7062483447e00ceb334d58a7f`,
+with exact qualified tree `9d31083b092f234bb0c918130cf7d676b49194ed`.
+All four required candidate checks plus documentation passed for PR90–111.
+All required resulting-main checks/docs passed through PR110; final PR111
+post-main run **37883790450 remains pending**. Known informational Windows/Linux
+failures remain visible. No protection bypass, platform port or overall-green
+workflow claim is made.
 
-[PR94](https://github.com/ewq100/brn-rust/pull/94) enables exact Applied private-intake
-Finding lineage and merged after all required checks; [PR95](https://github.com/ewq100/brn-rust/pull/95) clarifies useful
-follow-up drafts under unresolved execution authority. Both merged after independent review and required candidate checks. PR94
-post-merge checks passed; PR95 post-merge checks passed.
-[PR96](https://github.com/ewq100/brn-rust/pull/96) merged accurate MIME caveats
-and complete ordered decoded identifiers; all required candidate/post-merge checks
-and docs passed. Old snapshots unchanged. [PR97](https://github.com/ewq100/brn-rust/pull/97)
-merged manual reversible session Archive/Restore after full independent review,
-local qualification and all required CI; post-merge required checks/docs passed. Automatic archival,
-Delete/preferences stay separate. The selected
-[partial attributed PPTX slice](work/active/overnight-continuation/pptx-partial-intake.md)
-merged as [PR98](https://github.com/ewq100/brn-rust/pull/98) after independent review,
-final local/CLI/live usefulness qualification and all required candidate CI;
-all required post-merge checks and docs passed. Automatic during-session internal
-checkpoints merged as [PR99](https://github.com/ewq100/brn-rust/pull/99) after
-independent review, full local qualification and all required candidate checks;
-all required resulting-main checks passed. Action-only replacement compensation
-merged as [PR100](https://github.com/ewq100/brn-rust/pull/100) after independent review,
-final local composition qualification and all required candidate checks,
-preserving exact before/after and refusing changed/completed work, creation and
-mixed file/Action Undo. PR100 required resulting-main checks and docs passed. Same-folder new-note destination rename is independently reviewed and locally
-qualified and normally merged in [PR101](https://github.com/ewq100/brn-rust/pull/101)
-after all required candidate checks/docs passed; resulting tree matches the
-qualified candidate; all required post-main checks/docs passed in37861908706. The next selected ready P4 slice
-is [read-only citation evidence review](work/active/overnight-continuation/citation-evidence-review.md):
-Current consumer discovery with exact saved-source details and honest coverage.
-Complete independent review found malformed Inbox metadata blocking discovery;
-correction reviewed clean and observed red-to-green. Final local coverage1816
-default/18 existing ignores,447native/16,597combined plus Clippy/shipping/52fixtures
-passed, reusing unchanged full-size baseline witnesses. Revised PR102 all required
-CI/docs passed and normal merge77960d1 completed; all required post-main checks/docs passed in37865065354.
-The next ready P3 slice is [explicit raw saved-evidence reading](work/active/overnight-continuation/raw-evidence-reading.md),
-so metadata-invalid files remain inspectable without Current authority. The independently reviewed [owner ordering of captured group approvals](work/active/overnight-continuation/captured-approval-order.md) is locally qualified (292Desktop/607combined, strictClippy/shipping/52fixtures), normally merged in [PR104](https://github.com/ewq100/brn-rust/pull/104) as c1a97ef after all required candidate CI/docs passed; identical qualified tree verified, all required post-main checks/docs passed in37869224076. Next selected [actual sent-evidence completion](work/active/overnight-continuation/sent-evidence-completion.md) reuses protected Text Source approval and exact completion; draft [PR105](https://github.com/ewq100/brn-rust/pull/105) is independently reviewed/locally qualified at5120e39 after preview-provenance red/fix and clean correction refresh. Full baseline1860/18,460native/16,616combined and corrected512CLI/Desktop,11nativecompletion/1,616combined/Clippy/shipping/52fixtures passed with unchanged full-size evidence reused. Matching runtime/WorkspaceL headless exactSource completion/replay/refusal/noInference passed; required candidate CI/docs passed and normally merged56b6a02; identical qualified tree verified, all required post-main checks/docs passed in37871879950. Next independently ready [Person/Project context](work/active/overnight-continuation/profile-context.md) is implemented with focused backend/CLI/state/widgets passed; complete independent review found reference identity P2, reproduced pure/native red and corrected; full baseline/default/native passed but combined exposed minimum-height control regression, reproduced/fixed with unchanged widget nowpassing. Independent correction refresh clean; all11corrected gates passed (523CLI/defaultDesktop,8nativecontext,632combined/strictworkspaceClippy/shipping/52fixtures/links). Matching immutable profile-context-runtime and WorkspaceM30Actions/34relationships/paging/lenses/restart/indexloss/unchangedrecords/zeroInference passed. [PR106](https://github.com/ewq100/brn-rust/pull/106) revised requiredCI running after a required Ubuntu pureCLI fixture failed on macOS-only Save; portable exact typed setup preserves all assertions,1focused/78CLI/strictClippy and independent refresh passed. PR106 normal merge3cca35f completed after all4required finala27 candidate checks/docs passed; exact qualified tree verified, all required post-main checks/docs passed in37877128892. The [displayed-page graph](work/active/overnight-continuation/profile-context-graph.md) is implemented/composed, independent complete review clean,9focused/641combined/strictworkspaceClippy/shipping/52fixtures passed; matching graph runtime and WorkspaceM parity retained. PR107 normal merge6826c20 after all required candidate checks/docs passed; exact qualifiedtree verified, post-main37878346319 pending. The [owner Action editing slice](work/active/overnight-continuation/action-edit-initiation.md) is implemented/composed and independently reviewed clean; all10final local gates527default/648combined/strictworkspaceClippy/shipping/52fixtures passed. Matching action-edit-runtime/WorkspaceN retained nativeWaiting and shippingCLI rejection/approval/Undo/restart/replay/unchangedbytes/noInference passed. Parent/own hosted integration pending. The [explicit linked Action inspection](work/active/overnight-continuation/linked-action-inspection.md) is implemented/independently reviewed clean; exact unchanged313default/437combined Desktop suites reused, all8remainingrootworkspace/shipping/52fixtures gates passed, matching runtime/WorkspaceO ready with shippingCLI unchangedtypedrecords/noInference. Own requiredCI/integration pending. Actual GUI remains morning steps22–25. Focused
-AI153/1existingignore,Workflow7,CLI3+3citation,Desktop1 and strictaffectedClippy
-passed. [PR103](https://github.com/ewq100/brn-rust/pull/103) complete independent review
-found a valid missing delegation in the actual application tool wrapper; a real
-Ask admission regression reproduced it and the delegation is corrected. Independent correction review is clean; final affected1287default/18,455native/16,601combined plusClippy/shipping/52fixtures passed. Final paired raw long-evidence calls retained all material facts and unclassified authority; exact replay passed. PR103 allrequiredcandidateCI/docs passed and normalmerge d5f324e completed with identical qualifiedtree; all required resulting-main checks/docs passed in37867421354. A separate read-call correction is
-parked unqualified on pushed8f8fc2e: pinned Responses drops malformed args before
-its recovery hook. No retry or admitted-request policy from that branch ships. No semantic Findings or authoritative edits occur automatically.
+The retained email/attachment → Source → investigation → exact proposal/Action
+review → approval → restart journey now includes ranged evidence access,
+configurable budgets/cancellation, retained revision, two-source conflict review,
+explicit predecessor/History binding and exact Applied intake lineage. Further
+merged behavior includes accurate MIME caveats, partial attributed PPTX evidence,
+manual session Archive/Restore, operational backup checkpoints, bounded Action
+Undo, same-folder proposal filename revision, citation issue review, raw saved
+evidence access and owner-selected captured approval order. The Mac build also
+supports actual-sent Source confirmation, unfinished Action editing, Person/Project
+context, displayed-page graphs, explicit linked-Action inspection and historical
+affected-Action inventory in Activity. All changes preserve approval/provenance,
+owner edits, Current/History separation, originals and recovery.
 
-The [overnight checkpoint](work/active/overnight-continuation/plan.md) owns exact
-branches, builds, verification and continuation. All sixteen authorized live investigations are used, eight Luna/eight Sol,
-including one failed attempt and its separately counted manual retry. Results include
-improved retention of original budget/review date, North Quay conflict uncertainty
-Cedar near-limit ranged evidence and useful Linden Applied-private-intake Findings; usefulness limitations and unknown telemetry
-remain explicit in the [live evidence record](work/active/overnight-continuation/live-model-evidence.md).
-Live History selection remains unqualified; retained outputs support approval
-without repeat inference. Full P3/P4 and personal acceptance remain pending.
+The matching immutable runtime is `activity-action-runtime`, source
+`b873f273832f881f03b483c079c94fd06a1a6d51`; its product crates/Cargo/vendor exactly
+match final main. Latest affected default checks passed **1,182 tests** with
+17 existing ignores (Workflow650, CLI219, Desktop313); combined Desktop passed438.
+Strict workspace lint, shipping builds/helper,52 offline fixtures and19 Python
+tooling tests passed. Relevant unchanged checks and full-size recovery/Undo
+witnesses were reused. The three-test manifest undercount has a separate preserved
+erratum. The scale campaign passed83 fresh CLI processes over5,000 Current notes,
+including exact full inventories, keyword quotes/reads, restart and disposable
+index reconstruction, with retained work and physical byte proofs unchanged.
+These are bounded CLI correctness and wall-time observations, not an SLA or GUI
+performance result.
 
-The owner authorizes small V1 slices and normal protected integration until
-08:00 Europe/Tallinn on 9 October. Earlier pause/prepare-only/stop-after-PR entries
-are dated history. All interactive checks remain pending in the
-[single morning task](work/active/overnight-continuation/morning-ui-acceptance.md).
-No overnight GUI testing, private-data operation, optional download or release;
-other research PRs and unrelated user data remain untouched.
+All **16 authorized live BRN investigations are used**, eight Luna/eight Sol,
+including one failed attempt and its separately counted manual retry. Improved
+retention of the original budget/review date and fresh conflict, near-limit,
+PPTX and raw-evidence cases are recorded with usefulness limits and unknown
+telemetry in the [live evidence record](work/active/overnight-continuation/live-model-evidence.md).
+No further allowance remains; inspection/approval/replay needs no repeat inference.
+
+The [readable morning report](work/active/overnight-continuation/morning-report.md)
+contains all PR links, actual results, exact build identities, remaining decisions
+and the recommended next step. The [durable checkpoint](work/active/overnight-continuation/plan.md)
+owns final CI and cutoff continuation. The **single**
+[morning UI acceptance task](work/active/overnight-continuation/morning-ui-acceptance.md)
+contains27 ordered A–P steps, exact launch/fixture paths, expected results, failure
+evidence and one ready-to-paste agent prompt. Allow75–105minutes for the essential
+path or220–305minutes for the full journey including optional scale observation.
+All actual GUI/IME/accessibility/native usability and owner acceptance remain
+pending. The next development step is that essential native approval/restart
+journey with the Mac unlocked and owner available, followed by qualification of
+any concrete acceptance defect.
+
+Full V1 remains incomplete. The pushed unqualified response-correction experiment
+`8f8fc2e` has no PR and is excluded from production. Live History selection,
+cross-folder retargeting, split/regroup ownership, attributable web capture,
+autoarchive clock/grace policy, broader format/layout choices and session
+Delete/rename contracts remain unqualified or parked. No private-data operation,
+optional download, release or unrelated work was performed. The final factual
+handoff is safely pushed on `codex/overnight-final-record`, separate from product
+integration and owner acceptance. Product development ended for final qualification
+at04:30UTC; the authorized cutoff is05UTC/08:00Tallinn.
 
 The entries below preserve dated implementation/evidence checkpoints; they do
 not override the current baseline or overnight authorization above.

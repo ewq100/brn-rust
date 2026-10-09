@@ -1,4 +1,4 @@
-# Overnight BRN report — interim 04:23 UTC, 9 October 2026
+# Overnight BRN report — interim 04:37 UTC, 9 October 2026
 
 Product work through PR110 and scale qualification PR111 are merged. All required
 candidate checks/docs passed for PR90–111; all required resulting-main checks/docs
