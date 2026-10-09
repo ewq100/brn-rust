@@ -64,6 +64,16 @@ impl SentCompletionPreview {
             .as_ref()
             .ok_or_else(|| rejected("sent preview has no exact Source binding"))?;
         let metadata = saved_metadata(&self.source.text, &self.source.source.path);
+        let plain_text = matches!(
+            brn_store::work::inbox_source::read_provenance(&self.source.text),
+            Ok(Some(brn_store::work::inbox_source::InboxSourceProvenance {
+                kind: crate::inbox::InboxKind::Text,
+                format: crate::inbox_processing::InboxConversionFormat::LiteralTextV1,
+                extraction: None,
+                visual: None,
+                ..
+            }))
+        );
         if self.request.before != expected.before
             || binding.source.path != expected.source_path
             || binding.source != self.source.source
@@ -72,7 +82,7 @@ impl SentCompletionPreview {
             || metadata.issue.is_some()
             || !metadata.source
             || metadata.note_id != Some(binding.note_id)
-            || brn_store::work::inbox_source::read_provenance(&self.source.text).is_err()
+            || !plain_text
         {
             return Err(rejected(
                 "sent preview differs from its exact Action and saved Source selection",

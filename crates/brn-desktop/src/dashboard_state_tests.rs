@@ -439,9 +439,31 @@ pub(crate) fn sent_preview(
         proposals::{ProposalSource, SourceVersion},
     };
     let note_id = Uuid::from_u128(800);
-    let text = format!(
-        "---\nbrn_id: {note_id}\nbrn_kind: source\nbrn_state: current\n---\n```text\nActual sent text differs from draft õ 🧭\r\n{}TAIL SENT VERSION\n```\n",
+    let actual = format!(
+        "Actual sent text differs from draft õ 🧭\r\n{}TAIL SENT VERSION\n",
         "Retained exact line λ\n".repeat(3000)
+    );
+    let provenance = brn_store::work::inbox_source::InboxSourceProvenance {
+        extraction: None,
+        visual: None,
+        item_id: Uuid::from_u128(803),
+        kind: brn_workflow::inbox::InboxKind::Text,
+        title: "Actual sent text".into(),
+        original_name: None,
+        received_at_ms: 1,
+        original_byte_len: actual.len() as u64,
+        original_sha256: brn_intake::digest(actual.as_bytes()),
+        format: brn_workflow::inbox_processing::InboxConversionFormat::LiteralTextV1,
+    };
+    let (_, body) = brn_store::work::inbox_source::convert_original(
+        provenance.kind,
+        &actual,
+        &std::sync::atomic::AtomicBool::new(false),
+    )
+    .unwrap();
+    let text = format!(
+        "---\nbrn_id: {note_id}\nbrn_kind: source\nbrn_state: current\nbrn_inbox_source: {}\n---\n{body}",
+        serde_json::to_string(&provenance).unwrap(),
     );
     let source = SourceVersion {
         path: request.source_path.clone(),

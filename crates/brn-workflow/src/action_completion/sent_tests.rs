@@ -321,6 +321,49 @@ fn sent_crash_recovery_imports_source_journals_before_completion_without_resurre
 }
 
 #[test]
+fn sent_preview_rejects_missing_and_non_text_provenance_even_with_matching_full_hashes() {
+    let f = Fixture::new();
+    let (preview, _) = ready(&f);
+    let request = PrepareSentCompletionRequest {
+        before: preview.request.before.clone(),
+        source_path: preview.source.source.path.clone(),
+    };
+    let line = preview
+        .source
+        .text
+        .split_inclusive('\n')
+        .find(|line| line.starts_with("brn_inbox_source: "))
+        .unwrap()
+        .to_owned();
+    for kind in [None, Some("email")] {
+        let mut changed = preview.clone();
+        let replacement = if let Some(kind) = kind {
+            let mut provenance: serde_json::Value =
+                serde_json::from_str(line.strip_prefix("brn_inbox_source: ").unwrap().trim_end())
+                    .unwrap();
+            provenance["kind"] = serde_json::json!(kind);
+            format!(
+                "brn_inbox_source: {}\n",
+                serde_json::to_string(&provenance).unwrap()
+            )
+        } else {
+            String::new()
+        };
+        changed.source.text = changed.source.text.replacen(&line, &replacement, 1);
+        changed.source.source.fingerprint.len = changed.source.text.len() as u64;
+        changed.source.source.fingerprint.sha256 =
+            brn_intake::digest(changed.source.text.as_bytes());
+        changed.request.sent_source.as_mut().unwrap().source = changed.source.source.clone();
+        // The witness is not an invalid JSON/hash case. Existing provenance
+        // parsing accepts both absence and a syntactically valid Email profile.
+        let provenance =
+            brn_store::work::inbox_source::read_provenance(&changed.source.text).unwrap();
+        assert_eq!(provenance.is_some(), kind.is_some());
+        assert!(changed.validate_for(&request).is_err(), "kind={kind:?}");
+    }
+}
+
+#[test]
 fn sent_preview_refuses_changed_before_path_source_bytes_identity_and_missing_binding() {
     let f = Fixture::new();
     let (preview, _) = ready(&f);

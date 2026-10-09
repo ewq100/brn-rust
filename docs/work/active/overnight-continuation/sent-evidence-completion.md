@@ -2,9 +2,9 @@
 
 Selected P7 slice, 9 October 2026 01:08 UTC. Reuse budget checkout on
 `codex/p7-sent-evidence-completion`, baseline qualified ordering4fef278a4cdf9cbb92c8afbc98a606aacb95826e.
-Parent PR104 has complete independent/correction review and all local gates passed;
-required CI runs. Merge eligible parent normally before this candidate. Main
-raw PR103d5f324e is merged; required post-main qualification continues independently.
+Parent PR104 normally merged c1a97ef; all required candidate and post-main
+checks/docs passed. Main raw PR103d5f324e is merged with required post-main checks
+passed. This candidate incorporates the qualified parent with no functional delta.
 Owner authorizes remaining small V1 slices until05:00UTC, no new live calls (16/16
 spent), no GUI/private data/credentials/sending/account/release/config changes.
 
@@ -72,7 +72,8 @@ strict and pure validate before workspace: unfinished exact Action, thread prese
 source path safe/<=512. Host mints the new completion operation UUID.
 `SentCompletionPreview { request: CompleteActionRequest, source: ProposalSource,
 title: String }` and `validate_for(&PrepareSentCompletionRequest)` prove exact before,
-selected path/fingerprint, nonempty bounded title, mandatory sent binding, complete
+selected path/fingerprint, nonempty bounded title, mandatory sent binding, mandatory
+valid protected Text/LiteralTextV1 provenance without extraction/visual, complete
 Source text length/hash and source UUID/classification observations. No text clipping.
 
 App::prepare_sent_action_completion(&mut self,&request)->Result<SentCompletionPreview>:
