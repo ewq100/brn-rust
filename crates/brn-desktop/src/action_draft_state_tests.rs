@@ -68,7 +68,7 @@ fn vaultless_form_requires_exact_approval_and_completed_followup_is_new_restarta
     let original = action(&worker, id);
     assert_eq!(original.data.title.as_bytes(), "\u{feff}Initial λ 日本語\r\n".as_bytes());
     assert_eq!(original.data.description.as_bytes(), TEXT.as_bytes());
-    let completion = CompleteActionRequest { operation_id: Uuid::new_v4(), before: Box::new(original) };
+    let completion = CompleteActionRequest { operation_id: Uuid::new_v4(), before: Box::new(original), sent_source: None };
     assert!(matches!(reply(&worker, (completion.operation_id, AppCommand::CompleteAction(completion))).1,
         AppEvent::ActionCompleted(_)));
     let completed = action(&worker, id);

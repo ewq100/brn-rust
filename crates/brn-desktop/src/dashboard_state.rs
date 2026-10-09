@@ -2,7 +2,10 @@
 use super::{AiState, Pending};
 use brn_workflow::{
     WorkflowError,
-    action_completion::{ActionCompletion, CompleteActionRequest},
+    action_completion::{
+        ActionCompletion, CompleteActionRequest, PrepareSentCompletionRequest,
+        SentCompletionPreview,
+    },
     actions::ActionState,
     app_worker::{AppCommand, AppEvent},
     dashboard::{DashboardEntry, DashboardFilter, DashboardPage, DashboardRequest},
@@ -16,11 +19,25 @@ pub struct DashboardQuery {
     request: DashboardRequest,
 }
 #[derive(Clone)]
+pub struct SentPreparationCapture {
+    view: u64,
+    page: u64,
+    selection: u64,
+    generation: u64,
+    request: PrepareSentCompletionRequest,
+}
+#[derive(Clone)]
+pub struct PreparedSentCompletion {
+    capture: SentPreparationCapture,
+    pub preview: SentCompletionPreview,
+}
+#[derive(Clone)]
 pub struct CompletionCapture {
     view: u64,
     page: u64,
     selection: u64,
     request: CompleteActionRequest,
+    sent: Option<PreparedSentCompletion>,
 }
 impl CompletionCapture {
     pub fn request(&self) -> &CompleteActionRequest {
@@ -42,6 +59,10 @@ pub struct DashboardView {
     /// Transient input/outcomes retained across view navigation. Durable recovery
     /// remains in the application, not in this presentation list.
     pub attempts: Vec<CompletionAttempt>,
+    pub sent_source_path: String,
+    pub sent_preview: Option<PreparedSentCompletion>,
+    pub sent_error: Option<String>,
+    sent_generation: u64,
     view: u64,
     page_generation: u64,
     selection: u64,
@@ -152,6 +173,7 @@ impl AiState {
         let request = CompleteActionRequest {
             operation_id: Uuid::new_v4(),
             before: Box::new(before.clone()),
+            sent_source: None,
         };
         request.validate().ok()?;
         Some(CompletionCapture {
@@ -159,6 +181,7 @@ impl AiState {
             page: self.dashboard.page_generation,
             selection: self.dashboard.selection,
             request,
+            sent: None,
         })
     }
     pub fn action_completion_capture_current(&self, capture: &CompletionCapture) -> bool {
@@ -177,6 +200,14 @@ impl AiState {
                 .as_ref()
                 .is_some_and(|entry| entry.action == *capture.request.before)
             && capture.request.validate().is_ok()
+            && match &capture.sent {
+                Some(sent) => {
+                    self.sent_capture_current(&sent.capture)
+                        && sent.preview.validate_for(&sent.capture.request).is_ok()
+                        && sent.preview.request == capture.request
+                }
+                None => capture.request.sent_source.is_none(),
+            }
             && !self
                 .dashboard
                 .attempts
@@ -216,6 +247,7 @@ impl AiState {
             page: self.dashboard.page_generation,
             selection: self.dashboard.selection,
             request,
+            sent: None,
         })
     }
     fn submit_completion(&mut self, capture: CompletionCapture) -> Option<(Uuid, AppCommand)> {
@@ -234,6 +266,79 @@ impl AiState {
             .insert(operation, Pending::ActionComplete(Box::new(capture)));
         Some((operation, command))
     }
+    pub fn edit_sent_source_path(&mut self, path: String) {
+        if self.dashboard.sent_source_path != path {
+            self.dashboard.sent_source_path = path;
+            self.dashboard.sent_generation = self.dashboard.sent_generation.wrapping_add(1);
+            self.dashboard.sent_error = None;
+        }
+    }
+    pub fn sent_completion_loading(&self) -> bool {
+        self.pending.values().any(|pending| {
+            matches!(pending,
+            Pending::PrepareSentCompletion(capture) if self.sent_capture_current(capture))
+        })
+    }
+    fn sent_capture_current(&self, capture: &SentPreparationCapture) -> bool {
+        self.dashboard.visible
+            && self.dashboard.view == capture.view
+            && self.dashboard.page_generation == capture.page
+            && self.dashboard.selection == capture.selection
+            && self.dashboard.sent_generation == capture.generation
+            && self.dashboard.sent_source_path == capture.request.source_path
+            && self
+                .dashboard
+                .selected
+                .as_ref()
+                .is_some_and(|entry| entry.action == *capture.request.before)
+    }
+    pub fn prepare_sent_action_completion(&mut self) -> Option<(Uuid, AppCommand)> {
+        if !self.action_completion_available() || self.sent_completion_loading() {
+            return None;
+        }
+        let request = PrepareSentCompletionRequest {
+            before: Box::new(self.dashboard.selected.as_ref()?.action.clone()),
+            source_path: self.dashboard.sent_source_path.clone(),
+        };
+        if let Err(error) = request.validate() {
+            self.dashboard.sent_error = Some(error.to_string());
+            return None;
+        }
+        self.dashboard.sent_generation = self.dashboard.sent_generation.wrapping_add(1);
+        self.dashboard.sent_error = None;
+        let capture = SentPreparationCapture {
+            view: self.dashboard.view,
+            page: self.dashboard.page_generation,
+            selection: self.dashboard.selection,
+            generation: self.dashboard.sent_generation,
+            request: request.clone(),
+        };
+        Some(self.command(
+            Pending::PrepareSentCompletion(Box::new(capture)),
+            AppCommand::PrepareSentActionCompletion(request),
+        ))
+    }
+    pub fn sent_action_completion_available(&self) -> bool {
+        self.action_completion_available()
+            && !self.sent_completion_loading()
+            && self.dashboard.sent_preview.as_ref().is_some_and(|sent| {
+                self.sent_capture_current(&sent.capture)
+                    && sent.preview.validate_for(&sent.capture.request).is_ok()
+            })
+    }
+    pub fn capture_sent_action_completion(&self) -> Option<CompletionCapture> {
+        if !self.sent_action_completion_available() {
+            return None;
+        }
+        let sent = self.dashboard.sent_preview.as_ref()?;
+        Some(CompletionCapture {
+            view: self.dashboard.view,
+            page: self.dashboard.page_generation,
+            selection: self.dashboard.selection,
+            request: sent.preview.request.clone(),
+            sent: Some(sent.clone()),
+        })
+    }
     fn dashboard_query_current(&self, query: &DashboardQuery) -> bool {
         self.dashboard.visible
             && self.dashboard.view == query.view
@@ -247,6 +352,32 @@ impl AiState {
     ) -> Option<Vec<(Uuid, AppCommand)>> {
         let pending = self.pending.get(&id).cloned();
         match pending {
+            Some(Pending::PrepareSentCompletion(capture)) => {
+                if !self.sent_capture_current(&capture) {
+                    self.pending.remove(&id);
+                    return Some(Vec::new());
+                }
+                match event {
+                    AppEvent::SentActionCompletionPrepared(preview)
+                        if preview.validate_for(&capture.request).is_ok() =>
+                    {
+                        self.dashboard.sent_preview = Some(PreparedSentCompletion {
+                            capture: *capture,
+                            preview: (**preview).clone(),
+                        });
+                        self.dashboard.sent_error = None;
+                    }
+                    AppEvent::Failed(error) => {
+                        self.dashboard.sent_error = Some(format!(
+                            "Source preparation failed: {}. Input retained; read again explicitly.",
+                            error.message
+                        ))
+                    }
+                    _ => return Some(Vec::new()),
+                }
+                self.pending.remove(&id);
+                Some(Vec::new())
+            }
             Some(Pending::Dashboard(query)) => {
                 if !self.dashboard_query_current(&query) {
                     self.pending.remove(&id);
@@ -297,8 +428,14 @@ impl AiState {
                     AppEvent::Failed(error) => {
                         self.dashboard.attempts[index].error = Some(error.clone());
                         self.notice = format!(
-                            "Completion {}: {}. Exact request retained for retry.",
-                            id, error.message
+                            "{}Completion {} not confirmed: {}. Inspect the current Action and retained attempt; exact request retained for retry.",
+                            if capture.request.sent_source.is_some() {
+                                "Source already retained. "
+                            } else {
+                                ""
+                            },
+                            id,
+                            error.message
                         );
                         self.pending.remove(&id);
                     }

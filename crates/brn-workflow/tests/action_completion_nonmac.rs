@@ -83,6 +83,7 @@ fn unsupported_direct_completion_preserves_checked_action_and_has_no_recovery_ef
     )
     .unwrap();
     let request = CompleteActionRequest {
+        sent_source: None,
         operation_id: Uuid::new_v4(),
         before: Box::new(before.clone()),
     };

@@ -67,6 +67,7 @@ fn upgrade(restored: bool) {
     let proposal = store.proposal(record.draft.id).unwrap().unwrap();
     let before = store.action(action_id).unwrap().unwrap();
     let completion = brn_store::work::action_completion::CompleteActionRequest {
+        sent_source: None,
         operation_id: Uuid::new_v4(),
         before: Box::new(before),
     };

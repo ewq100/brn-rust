@@ -85,6 +85,7 @@ fn approved(
         store
             .complete_action_with(
                 &CompleteActionRequest {
+                    sent_source: None,
                     operation_id: Uuid::new_v4(),
                     before: Box::new(before),
                 },
@@ -225,6 +226,7 @@ fn dependencies_are_same_snapshot_exact_order_and_missing_never_means_completed(
     store
         .complete_action_with(
             &CompleteActionRequest {
+                sent_source: None,
                 operation_id: Uuid::new_v4(),
                 before: Box::new(waiting),
             },
@@ -264,6 +266,7 @@ fn explicit_completion_removes_date_signals_without_reopening_or_changing_other_
     let completion = store
         .complete_action_with(
             &CompleteActionRequest {
+                sent_source: None,
                 operation_id: Uuid::new_v4(),
                 before: Box::new(before),
             },

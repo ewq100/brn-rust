@@ -415,3 +415,266 @@ fn new_action_navigation_is_available_without_a_vault_or_provider(
         assert!(this.ai.as_ref().unwrap().selection.is_none());
     });
 }
+
+fn load_sent_preview(
+    desktop: &Entity<Desktop>,
+    window: &mut Window,
+    cx: &mut App,
+) -> brn_workflow::action_completion::SentCompletionPreview {
+    desktop.update(cx, |this, cx| {
+        let ai = this.ai.as_mut().unwrap();
+        ai.edit_sent_source_path("actual-sent.md".into());
+        let (id, brn_workflow::app_worker::AppCommand::PrepareSentActionCompletion(request)) =
+            ai.prepare_sent_action_completion().unwrap()
+        else {
+            panic!("prepare");
+        };
+        let preview = crate::ai::dashboard_state_tests::sent_preview(&request);
+        ai.apply(
+            id,
+            brn_workflow::app_worker::AppEvent::SentActionCompletionPrepared(Box::new(
+                preview.clone(),
+            )),
+        );
+        this.sync_dashboard_widgets(window, cx);
+        cx.notify();
+        preview
+    })
+}
+
+#[gpui_kit::test]
+fn sent_source_full_text_is_readonly_copyable_and_separate_final_confirmation_captures_exact_binding(
+    cx: &mut gpui_kit::TestAppContext,
+) {
+    let (_fixture, handle, desktop) = window(cx, true);
+    let mut visual = VisualTestContext::from_window(handle.into(), cx);
+    visual.run_until_parked();
+    visual.update(|window, cx| load_dashboard(&desktop, window, cx));
+    let preview = visual.update(|window, cx| {
+        let retained = load_sent_preview(&desktop, window, cx);
+        desktop.update(cx, |this, cx| {
+            let ai = this.ai.as_mut().unwrap();
+            let (id, brn_workflow::app_worker::AppCommand::PrepareSentActionCompletion(request)) =
+                ai.prepare_sent_action_completion().unwrap()
+            else {
+                panic!("fresh read");
+            };
+            let exact = crate::ai::dashboard_state_tests::sent_preview(&request);
+            let mut wrong = exact.clone();
+            wrong.source.text.push_str("unbound trailing bytes");
+            ai.apply(
+                id,
+                brn_workflow::app_worker::AppEvent::SentActionCompletionPrepared(Box::new(wrong)),
+            );
+            assert!(ai.pending.contains_key(&id));
+            this.sync_dashboard_widgets(window, cx);
+            assert_eq!(
+                this.dashboard.sent_source.read(cx).value().as_ref(),
+                retained.source.text
+            );
+            this.ai.as_mut().unwrap().apply(
+                id,
+                brn_workflow::app_worker::AppEvent::SentActionCompletionPrepared(Box::new(
+                    exact.clone(),
+                )),
+            );
+            this.sync_dashboard_widgets(window, cx);
+            cx.notify();
+            exact
+        })
+    });
+    visual.run_until_parked();
+    scroll_to(&mut visual, "copy-sent-source");
+    visual.update(|window, cx| {
+        let editor = desktop.read(cx).dashboard.sent_source.clone();
+        assert_eq!(editor.read(cx).value().as_ref(), preview.source.text);
+        editor.update(cx, |editor, cx| {
+            editor.focus(window, cx);
+            editor.replace_text_in_range(Some(0..0), "forbidden", window, cx);
+            assert_eq!(editor.value().as_ref(), preview.source.text);
+        });
+        window.click("copy-sent-source", cx);
+        assert_eq!(
+            cx.read_from_clipboard()
+                .and_then(|item| item.text())
+                .as_deref(),
+            Some(preview.source.text.as_str())
+        );
+        assert!(preview.source.text.ends_with("TAIL SENT VERSION\n```\n"));
+        assert!(
+            desktop
+                .read(cx)
+                .ai
+                .as_ref()
+                .unwrap()
+                .dashboard
+                .attempts
+                .is_empty()
+        );
+    });
+    scroll_to(&mut visual, "review-sent-action-completion");
+    visual.update(|window, cx| window.click("review-sent-action-completion", cx));
+    visual.run_until_parked();
+    visual.update(|window, cx| {
+        window.render_frame(cx);
+        let modal = window.within("exact-completion-capture");
+        assert_eq!(
+            modal.find("action-0-before-field-0").label(),
+            Some(format!("Title: {}", preview.request.before.data.title).as_str())
+        );
+        window.scroll(
+            "dialog-0",
+            gpui_kit::ScrollDelta::Pixels(point(px(0.), px(-10000.))),
+            cx,
+        );
+        window.render_frame(cx);
+        assert!(window.find("confirm-sent-action-completion").visible());
+        window.click("copy-sent-confirmation-source", cx);
+        assert_eq!(
+            cx.read_from_clipboard()
+                .and_then(|item| item.text())
+                .as_deref(),
+            Some(preview.source.text.as_str())
+        );
+        window.click("copy-sent-confirmation-proof", cx);
+        let copied: brn_workflow::action_completion::SentCompletionPreview = serde_json::from_str(
+            &cx.read_from_clipboard()
+                .and_then(|item| item.text())
+                .unwrap(),
+        )
+        .unwrap();
+        assert_eq!(copied, preview);
+        assert_eq!(
+            window.find("confirm-sent-action-completion").label(),
+            Some("Confirm actual sent version and complete captured Action")
+        );
+        window.click("confirm-sent-action-completion", cx);
+        let ai = desktop.read(cx).ai.as_ref().unwrap();
+        assert_eq!(ai.dashboard.attempts.len(), 1);
+        assert_eq!(ai.dashboard.attempts[0].request, preview.request);
+        // Test window has an intentionally shut-down worker: admission failure is retained.
+        assert!(ai.dashboard.attempts[0].receipt.is_none());
+        assert!(ai.dashboard.attempts[0].error.is_some());
+        assert!(ai.notice.contains("Source already retained"));
+        window.close_dialog(cx);
+    });
+    scroll_to(&mut visual, "complete-selected-action");
+    visual.update(|window, cx| window.click("complete-selected-action", cx));
+    visual.run_until_parked();
+    visual.update(|window, cx| {
+        window.scroll(
+            "dialog-0",
+            gpui_kit::ScrollDelta::Pixels(point(px(0.), px(-10000.))),
+            cx,
+        );
+        window.render_frame(cx);
+        assert!(window.find("confirm-exact-action-completion").visible());
+        window.click("confirm-exact-action-completion", cx);
+        let ai = desktop.read(cx).ai.as_ref().unwrap();
+        assert_eq!(ai.dashboard.attempts.len(), 2);
+        assert!(ai.dashboard.attempts[1].request.sent_source.is_none());
+        assert_eq!(ai.dashboard.attempts[0].request, preview.request);
+        window.close_dialog(cx);
+    });
+}
+
+#[gpui_kit::test]
+fn sent_path_input_error_and_exact_retry_survive_navigation_and_changed_selection_blocks_confirmation(
+    cx: &mut gpui_kit::TestAppContext,
+) {
+    let (_fixture, handle, desktop) = window(cx, true);
+    let mut visual = VisualTestContext::from_window(handle.into(), cx);
+    visual.run_until_parked();
+    visual.update(|window, cx| load_dashboard(&desktop, window, cx));
+    let preview = visual.update(|window, cx| load_sent_preview(&desktop, window, cx));
+    visual.run_until_parked();
+    scroll_to(&mut visual, "review-sent-action-completion");
+    visual.update(|window, cx| window.click("review-sent-action-completion", cx));
+    visual.run_until_parked();
+    visual.update(|window, cx| {
+        desktop.update(cx, |this, cx| {
+            this.ai
+                .as_mut()
+                .unwrap()
+                .select_dashboard_action(Uuid::from_u128(200));
+            cx.notify();
+        });
+        window.render_frame(cx);
+        window.scroll(
+            "dialog-0",
+            gpui_kit::ScrollDelta::Pixels(point(px(0.), px(-10000.))),
+            cx,
+        );
+        window.render_frame(cx);
+        window.click("confirm-sent-action-completion", cx);
+        assert!(
+            desktop
+                .read(cx)
+                .ai
+                .as_ref()
+                .unwrap()
+                .dashboard
+                .attempts
+                .is_empty()
+        );
+        assert!(window.has_active_dialog(cx));
+        window.close_dialog(cx);
+        desktop.update(cx, |this, cx| {
+            let ai = this.ai.as_mut().unwrap();
+            assert_eq!(ai.dashboard.sent_source_path, "actual-sent.md");
+            assert!(ai.capture_sent_action_completion().is_none());
+            this.dashboard
+                .sent_path
+                .update(cx, |input, cx| input.set_value("../unsafe.md", window, cx));
+        });
+    });
+    scroll_to(&mut visual, "prepare-sent-action-completion");
+    visual.update(|window, cx| {
+        window.click("prepare-sent-action-completion", cx);
+        let ai = desktop.read(cx).ai.as_ref().unwrap();
+        assert_eq!(ai.dashboard.sent_source_path, "../unsafe.md");
+        assert!(ai.dashboard.sent_error.is_some());
+        assert_eq!(ai.dashboard.sent_preview.as_ref().unwrap().preview, preview);
+        assert!(ai.dashboard.attempts.is_empty());
+    });
+    let current = visual.update(|window, cx| load_sent_preview(&desktop, window, cx));
+    scroll_to(&mut visual, "review-sent-action-completion");
+    visual.update(|window, cx| window.click("review-sent-action-completion", cx));
+    visual.run_until_parked();
+    visual.update(|window, cx| {
+        window.scroll(
+            "dialog-0",
+            gpui_kit::ScrollDelta::Pixels(point(px(0.), px(-10000.))),
+            cx,
+        );
+        window.render_frame(cx);
+        window.click("confirm-sent-action-completion", cx);
+        window.close_dialog(cx);
+        desktop.update(cx, |this, cx| {
+            this.ai.as_mut().unwrap().close_dashboard();
+            this.open_doc = None;
+            cx.notify();
+        });
+        load_dashboard(&desktop, window, cx);
+        assert_eq!(
+            desktop
+                .read(cx)
+                .dashboard
+                .sent_path
+                .read(cx)
+                .value()
+                .as_ref(),
+            "actual-sent.md"
+        );
+    });
+    let retry = format!("retry-completion-{}", current.request.operation_id);
+    scroll_to(&mut visual, &retry);
+    visual.update(|window, cx| {
+        window.click(retry, cx);
+        let ai = desktop.read(cx).ai.as_ref().unwrap();
+        assert_eq!(ai.dashboard.attempts.len(), 1);
+        assert_eq!(ai.dashboard.attempts[0].request, current.request);
+        assert!(ai.dashboard.attempts[0].error.is_some());
+        assert!(ai.dashboard.attempts[0].receipt.is_none());
+    });
+}

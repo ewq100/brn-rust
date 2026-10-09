@@ -74,6 +74,7 @@ fn seed(fixture: &Fixture, large: bool) -> Vec<ActionRecord> {
         .unwrap();
         if index == 3 {
             app.complete_action(&crate::action_completion::CompleteActionRequest {
+                sent_source: None,
                 operation_id: Uuid::new_v4(),
                 before: Box::new(app.action(id).unwrap()),
             })

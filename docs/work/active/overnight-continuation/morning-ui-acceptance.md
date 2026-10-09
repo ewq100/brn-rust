@@ -18,21 +18,21 @@ checks/docs; all required post-merge checks/docs passed in 37844389582.
 Refresh this receipt after subsequent changes and before cutoff; qualification is
 separate from personal acceptance.
 
-Checkout/current authoritative morning task: `/Users/evokessler/repos/brn-p2-email-docx-intake`.
-Latest qualified combined build source: `c086849198fe503d3454e5855d98f62e05f3627b`
-(merged prior slices plus independently reviewed and corrected raw-evidence reader; PR103 merged after all requiredCI passed; post-main pending). Main is
-`d5f324ec558e9ecce898ac2373c36eec8242649c`; PR90–PR100 required candidate checks
+Checkout/current authoritative morning task: `/Users/evokessler/repos/brn-p3-work-budgets`.
+Latest qualified combined build source: `4fef278a4cdf9cbb92c8afbc98a606aacb95826e`
+(merged raw reader plus independently reviewed and locally qualified captured approval ordering; PR104 merged c1a97ef after all required candidate and post-main checks/docs passed). Main is
+`c1a97ef3f3f079cd1c39e159e08ce23184006996`; PR90–PR100 required candidate checks
 passed. PR90–PR99 required post-merge checks passed. PR100 post-merge run37859299854
 passed all required checks/docs. Action compensation is merged and locally qualified. Immutable shipping runtime:
-`/Users/evokessler/repos/brn-overnight-artifacts-20261008/raw-evidence-runtime`.
-Desktop: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/raw-evidence-runtime/brn-desktop`,
-SHA-256 `ff3e115ba2af8ddda39698dbec7c46138b408185455dc9bf436ccf51ff255c8a`.
-CLI: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/raw-evidence-runtime/brn`,
-SHA-256 `73288a1d4559bd8b69b60190c59747456925d98ac092b5c7c0935d4884a092c7`.
-Helper: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/raw-evidence-runtime/brn-intake-helper`,
+`/Users/evokessler/repos/brn-overnight-artifacts-20261008/captured-order-runtime`.
+Desktop: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/captured-order-runtime/brn-desktop`,
+SHA-256 `2a0cb8b945a945fb18f122793bbce2163854d395545bfe15789e2cf6e2e90e20`.
+CLI: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/captured-order-runtime/brn`,
+SHA-256 `0b50908a042708923bf824068727dc628fb2e960be4f0445ce5f543a5444c3ce`.
+Helper: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/captured-order-runtime/brn-intake-helper`,
 SHA-256 `7f058c359a092559cda55b07c3880b44e637257818ad60c725da8b1d99a9f8e5`.
-Manifest: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/raw-evidence-runtime/build-manifest.json`.
-This runtime includes SessionV18, PPTX, automatic backups, Action compensation, filename revision, read-only citation evidence review and explicit raw saved-evidence reading. PR102 revised requiredCI passed and normal merge77960d1 completed; all required post-main checks/docs passed in37865065354. PR101 required candidate CI passed and normal merge6a63173 completed; all required post-main checks/docs passed in37861908706. Refresh final receipt before cutoff and
+Manifest: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/captured-order-runtime/build-manifest.json`.
+This runtime includes SessionV18, PPTX, automatic backups, Action compensation, filename revision, read-only citation evidence review and explicit raw saved-evidence reading and captured group approval ordering. PR102 revised requiredCI passed and normal merge77960d1 completed; all required post-main checks/docs passed in37865065354. PR101 required candidate CI passed and normal merge6a63173 completed; all required post-main checks/docs passed in37861908706. Refresh final receipt before cutoff and
 never use historical executables after newer schema migration. Bound state/vault
 folders remain in place.
 Actual GUI/personal acceptance remains pending.
@@ -168,6 +168,18 @@ Finding/Action effects verified. Compare retained answers without new inference.
 The entire night campaign is16/16 used; no additional live investigation remains.
 Do not rerun `prepare-raw-evidence-morning.py` or `paired-raw-evidence.py`.
 
+Workspace K (captured approval ordering, zero inference):
+`/private/tmp/brn-overnight-20261008/captured-order-case/{data,vault,inputs,receipts}`.
+Group `fe501e08-0c0a-4ba1-9074-44889684dd20` retains three Draft/version2 notes:
+Alpha `47118139-af95-4342-86a9-797cca64b99b`,
+Beta `161e203a-08b6-45a7-a6c1-28b2d115f3fa`,
+Gamma `d197fbbf-5d0e-40e6-9ed8-2ea0ad62cfd0`.
+Each has exact BOM/CRLF/Unicode text and a temporary owner comment. No destination
+files exist. `ready.json` records full current records. Do not rerun
+`prepare-captured-order-morning.py`. Native final confirmation should apply only
+Gamma and Alpha; leave Beta Draft as a selection witness. Source pinning is checked
+with the existing pending Source group in F before that group's approval.
+
 ## Preparation and launch after unlock
 
 Confirm final commit/build hashes and that no process owns the selected synthetic
@@ -175,7 +187,7 @@ folder. Do not delete locks, reset or migrate data if busy; record the condition
 Launch Workspace A from the checkout (ordinary desktop flags):
 
 ```sh
-/Users/evokessler/repos/brn-overnight-artifacts-20261008/raw-evidence-runtime/brn-desktop \
+/Users/evokessler/repos/brn-overnight-artifacts-20261008/captured-order-runtime/brn-desktop \
   --data-dir /private/tmp/brn-retained-qualification-bi3q58kf/headless/data \
   --vault /private/tmp/brn-retained-qualification-bi3q58kf/headless/vault
 ```
@@ -195,7 +207,7 @@ than passed whenever a control/result cannot be exercised.
 
 ## One ordered journey
 
-Allow 125–170 minutes for all workspaces/new controls. Essential path: steps 1–5 and 8–9, about 30–40 minutes.
+Allow 130–180 minutes for all workspaces/new controls. Essential path: steps 1–5 and 8–9, about 30–40 minutes.
 
 | Step / user action | Expected result | Evidence / failure record |
 | --- | --- | --- |
@@ -221,7 +233,7 @@ Allow 125–170 minutes for all workspaces/new controls. Essential path: steps 1
 | 18. Once citation review is qualified and in the final build, quit H and open I, choose Needs Review → Citation evidence, inspect rows and complete saved consumer/source details, Load more, Refresh, switch to Findings and restart | Changed/Absent/Ambiguous rows have exact reasons and preserved original quotes. Moved unchanged archived evidence remains Matched and absent from issue rows. Malformed metadata gives explicit incomplete coverage. Sparse pages still offer Load more; refreshed rows/detail are bound to exact consumer hash. Derived rows have no Resolve/Dismiss/approval/capture/automatic analysis controls; owner composer/editor/review and pending navigation remain recoverable | Record row paths/outcomes, complete copied consumer/proof/quotes, coverage and cursor progress, stale/error behavior, buffer preservation and restart. Backend11 focused plus10 existing provenance tests, native5state/8widgets,4Findings regressions andCLI3 passed. Complete review found one coverage defect, corrected red-to-green; independent correction review and final affected gates passed; revised requiredCI passed and normal merge completed; all required post-main checks/docs passed in37865065354. Actual UI acceptance pending |
 
 | 19. Quit I, open J and reopen the retained Luna and Sol sessions; inspect their saved raw-evidence answers, metadata diagnostic and final-appendix range proof, open the malformed saved Markdown for inspection, then restart | Saved answers disclose unclassified evidence and preserve €8,200 panels-only/exclusions,47vs50dB, separate10/14November dates and Mara-only authority; fullhash-bound appendix is949000..949968. Damaged metadata grants no Current facts. Saved bytes/answers reopen without inference or metadata repair | Record session/turn IDs, exact copied saved answers, rawtext/hash/range, metadata issue and authority wording, restart/failure. Complete review found actual-worker delegation defect, corrected red-to-green and independently reviewed clean. Final1287affecteddefault/18,455native/16,601combined plusClippy/shipping/52fixtures passed; both live calls3responses/2rawrounds completed and exact replay passed. PR103 requiredCI passed and merged; post-main pending; actual UI acceptance pending |
-| 20. Once captured group ordering is in the final build, review a retained group (use one model comparison only), move a non-Source Action earlier/later, deselect/reselect by title and inspect exact numbered snapshots before confirmation | Order changes only transient confirmation order; full records/comments/stamps/operation IDs stay paired. Pending Sources remain visibly first and cannot move. Selected consequences apply in displayed non-Source order; stale review or busy work refuses and preserves retained owner work. Closing/reopening restores capture inventory order | Record complete ordered proposal titles/IDs/versions/operation IDs, selection after moves, Source positions, exact submitted/returned receipts and failure.6 focused state/worker/headlesswidget tests plusstrictaffectedClippy passed; independentreview/finalgates/CI pending; actual UIacceptance pending |
+| 20. Quit J, open K, review the exact group, move Gamma earlier twice; deselect/reselect Beta without moving to observe immediate selection, then deselect Beta again. Inspect exact Gamma/Alpha numbered snapshots and operation IDs, confirm only those two and restart. In F before its pending group approval, inspect pinned Source-first controls | Captured order becomes Gamma, Alpha, Beta; selection follows identity and every record/stamp/comment/operation remains paired. Only gamma.md and alpha.md are created with exact text; their comments clear after application. Beta stays Draft/version2 with its comment; pending Sources run first and cannot cross or move. Stale review or busy work refuses while retaining owner work | Record ordered titles/IDs/versions/operation pairs, standalone checkbox states, submitted/returned receipt order, exact files, retained Beta/comment and restart. Complete11file review + clean6file correction refresh passed; final292Desktop/607combined andClippy/shipping/52fixtures passed. PR104 merged c1a97ef after all required candidate and post-main checks/docs passed; actual UI acceptance pending |
 
 ## Headless evidence already passed; interactive acceptance pending
 

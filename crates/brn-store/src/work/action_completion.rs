@@ -16,13 +16,19 @@ CREATE TABLE action_completions (
  completion_json BLOB NOT NULL,
  completion_sha256 BLOB NOT NULL
 );";
-const MAX_COMPLETION_BYTES: usize = 2 * actions::MAX_STORED_BYTES + 1024;
+// Keep the historical Action pair allowance and reserve only the bounded binding.
+const MAX_COMPLETION_BYTES: usize = 2 * actions::MAX_STORED_BYTES + 1024 + 8192;
+
+mod sent_source;
+pub use sent_source::SentSourceBinding;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct CompleteActionRequest {
     pub operation_id: Uuid,
     pub before: Box<ActionRecord>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sent_source: Option<SentSourceBinding>,
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -38,6 +44,19 @@ impl CompleteActionRequest {
         self.before.validate()?;
         if self.before.data.state == ActionState::Completed {
             return Err(invalid("Completed Action cannot be completed again"));
+        }
+        if let Some(binding) = &self.sent_source {
+            binding.validate()?;
+            if self.before.data.thread.is_none() {
+                return Err(invalid(
+                    "Sent Source completion requires an existing Action thread",
+                ));
+            }
+            let mut data = self.before.data.clone();
+            if !data.sources.contains(&binding.note_id) {
+                data.sources.push(binding.note_id);
+            }
+            data.validate(self.before.origin.id)?;
         }
         Ok(())
     }
@@ -68,6 +87,11 @@ fn completed(request: &CompleteActionRequest, at_ms: u64) -> Result<ActionRecord
         .checked_add(1)
         .filter(|version| *version <= i64::MAX as u64)
         .ok_or_else(|| invalid("Action completion revision exceeds SQLite integer range"))?;
+    if let Some(binding) = &request.sent_source
+        && !after.data.sources.contains(&binding.note_id)
+    {
+        after.data.sources.push(binding.note_id);
+    }
     after.data.state = ActionState::Completed;
     after.updated_at_ms = at_ms.max(after.updated_at_ms);
     after.waiting_since_ms = None;
@@ -210,6 +234,9 @@ pub(super) fn require_retained_completion(
     conn: &Connection,
     completion: &ActionCompletion,
 ) -> Result<()> {
+    if let Some(binding) = &completion.request.sent_source {
+        sent_source::validate_retained(conn, binding, false)?;
+    }
     let current = actions::read(conn, completion.after.origin.id)?
         .ok_or_else(|| invalid("Stored Action completion has no retained Action"))?;
     if current.origin != completion.after.origin
@@ -278,6 +305,9 @@ impl WorkStore {
                 "Action differs from its exact completion baseline".into(),
             ));
         }
+        if let Some(binding) = &request.sent_source {
+            sent_source::validate_retained(&tx, binding, true)?;
+        }
         let completion = ActionCompletion {
             request: request.clone(),
             after: completed(request, at_ms)?,
@@ -302,6 +332,9 @@ impl WorkStore {
             .transaction_with_behavior(TransactionBehavior::Immediate)?;
         check_schema(&tx)?;
         actions::check_schema(&tx)?;
+        if let Some(binding) = &completion.request.sent_source {
+            sent_source::validate_retained(&tx, binding, false)?;
+        }
         let existing = read(&tx, completion.request.operation_id)?;
         if existing
             .as_ref()
@@ -405,6 +438,7 @@ mod tests {
             .unwrap();
         let before = store.action(id).unwrap().unwrap();
         let request = CompleteActionRequest {
+            sent_source: None,
             operation_id: Uuid::new_v4(),
             before: Box::new(before.clone()),
         };
