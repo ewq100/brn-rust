@@ -8,8 +8,7 @@ candidate checks/docs passed and merged normally with exact qualified tree;
 allrequiredpost-main/docsPASS37880350055. The selected
 [affected Actions in Activity](work/active/overnight-continuation/activity-action-inventory.md)
 merged normally as [PR110](https://github.com/ewq100/brn-rust/pull/110) after all required
-candidate checks/docs passed; exact qualified tree verified. Post-main37881829445
-checks remain pending. Build sourceb873f27 stays the matching qualified runtime.
+candidate checks/docs passed; exact qualified tree verified. All required post-main checks/docs passed in37881829445. Build sourceb873f27 stays the matching qualified runtime.
 It exposes exact historical approved Action UUID/title/order without current lookups.
 Full1182affecteddefault/17existingignores,438combined and all8root gates/shipping/
 52fixtures passed. RetainedN CLI parity and restart passed without inference. The

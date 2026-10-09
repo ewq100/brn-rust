@@ -4,7 +4,7 @@ This is a developing report, not the final cutoff receipt. The current authorita
 checkpoint is [plan.md](plan.md). Current main is
 `c2dbf5e42a42cbad11657d19f6c60a5d87cf01e2` (normal protected Activity PR110).
 All required candidate checks passed for PR90–110. All required post-main checks
-and documentation passed for PR90–109 in the recorded resulting-main runs.
+and documentation passed for PR90–110 in the recorded resulting-main runs.
 Actual interactive GUI/IME/accessibility and owner acceptance are pending throughout.
 
 ## What is implemented and merged
@@ -44,7 +44,7 @@ explicit dependency/parent/follows-up work, including Completed targets outside 
 filter, while preserving selection and owner buffers.
 [Activity PR110](https://github.com/ewq100/brn-rust/pull/110) merged normally at
 `c2dbf5e` after all required candidate checks/docs passed; its exact qualified tree
-was verified and post-main37881829445 is pending. Activity identifies affected Actions
+was verified and all required post-main checks/docs passed in37881829445. Activity identifies affected Actions
 by ordered historical approved UUID/title/kind, preserving full recorded inspection
 and Undo. Full affected1,182default/17existingignores,438combined and all8root gates
 passed; retainedN shippingCLI inspection/restart preserved all state without inference.
@@ -60,8 +60,9 @@ search median1.049seconds. These are this fixture's CLI wall times, not a numeri
 SLA, optimization gain, semantic retrieval or native UI performance qualification.
 Independent review found a cancellation gap in this qualification harness; it was
 reproduced and fixed before the campaign, with seven focused subcases and a clean
-correction review. No BRN product/runtime code changed. Final script/record CI and
-integration remain pending; actual GUI/owner acceptance remains pending.
+correction review. No BRN product/runtime code changed. [Scale qualification PR111](https://github.com/ewq100/brn-rust/pull/111) is independently
+reviewed and locally verified, with required CI/integration still pending. All actual
+GUI/owner acceptance remains pending.
 
 ## Actual verification and model observations
 
