@@ -2,7 +2,7 @@
 
 ## Overnight implementation and model qualification — 2026-10-08
 
-Current main is `77960d1d8affa71b14ec0a4e3c99fe52663b5cf2`.
+Current main is `d5f324ec558e9ecce898ac2373c36eec8242649c`.
 [PR90](https://github.com/ewq100/brn-rust/pull/90) added exact evidence ranges and
 intake guidance; [PR91](https://github.com/ewq100/brn-rust/pull/91) added recorded
 work budgets/cancellation; [PR92](https://github.com/ewq100/brn-rust/pull/92) added
@@ -48,7 +48,7 @@ so metadata-invalid files remain inspectable without Current authority. The next
 AI153/1existingignore,Workflow7,CLI3+3citation,Desktop1 and strictaffectedClippy
 passed. [PR103](https://github.com/ewq100/brn-rust/pull/103) complete independent review
 found a valid missing delegation in the actual application tool wrapper; a real
-Ask admission regression reproduced it and the delegation is corrected. Independent correction review is clean; final affected1287default/18,455native/16,601combined plusClippy/shipping/52fixtures passed. Final paired raw long-evidence calls retained all material facts and unclassified authority; exact replay passed. RequiredPR103CI pending; not merged. A separate read-call correction is
+Ask admission regression reproduced it and the delegation is corrected. Independent correction review is clean; final affected1287default/18,455native/16,601combined plusClippy/shipping/52fixtures passed. Final paired raw long-evidence calls retained all material facts and unclassified authority; exact replay passed. PR103 allrequiredcandidateCI/docs passed and normalmerge d5f324e completed with identical qualifiedtree; resulting-main37867421354 active. A separate read-call correction is
 parked unqualified on pushed8f8fc2e: pinned Responses drops malformed args before
 its recovery hook. No retry or admitted-request policy from that branch ships. No semantic Findings or authoritative edits occur automatically.
 

@@ -107,8 +107,42 @@ fn captured_group_widget_moves_keep_selection_ids_and_submit_latest_exact_sequen
             .map(|record| operation(window, record.draft.id))
             .collect::<Vec<_>>();
         window.click(format!("approve-selected-{}", records[1].draft.id), cx);
-        window.click(format!("approval-move-earlier-{}", records[2].draft.id), cx);
         operations
+    });
+    visual.run_until_parked();
+    visual.update(|window, cx| {
+        window.render_frame(cx);
+        assert_eq!(
+            window
+                .find(format!("approve-selected-{}", records[1].draft.id))
+                .checked(),
+            Some(false),
+            "standalone deselection must rerender without an order move"
+        );
+        window.click(format!("approve-selected-{}", records[1].draft.id), cx);
+    });
+    visual.run_until_parked();
+    visual.update(|window, cx| {
+        window.render_frame(cx);
+        assert_eq!(
+            window
+                .find(format!("approve-selected-{}", records[1].draft.id))
+                .checked(),
+            Some(true),
+            "standalone reselection must rerender"
+        );
+        window.click(format!("approve-selected-{}", records[1].draft.id), cx);
+    });
+    visual.run_until_parked();
+    visual.update(|window, cx| {
+        window.render_frame(cx);
+        assert_eq!(
+            window
+                .find(format!("approve-selected-{}", records[1].draft.id))
+                .checked(),
+            Some(false)
+        );
+        window.click(format!("approval-move-earlier-{}", records[2].draft.id), cx);
     });
     visual.run_until_parked();
     visual.update(|window, cx| {

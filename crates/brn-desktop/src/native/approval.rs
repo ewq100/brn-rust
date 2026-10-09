@@ -513,7 +513,7 @@ impl Desktop {
         ));
         let capture = std::rc::Rc::new(std::cell::RefCell::new(capture));
         window.open_dialog(cx, move |dialog, _, cx| {
-            let ordered = capture.borrow().clone();
+            let ordered = capture.borrow();
             let current = desktop.upgrade();
             let disabled = current
                 .as_ref()
@@ -533,12 +533,16 @@ impl Desktop {
                 if ordered.group_id().is_some() {
                     let selected = selected.clone();
                     let checked = selected.borrow().contains(&proposal_id);
+                    let checkbox_desktop = desktop.clone();
                     let order_label = format!("Approval order {} · {}{}", index + 1, record.draft.title, if record.draft.inbox_source.is_some() { " · Source runs first · pinned" } else { "" });
                     member = member.child(div().id(format!("approval-order-{proposal_id}")).test_support().aria_label(order_label.clone()).child(order_label));
                     member = member.child(Checkbox::new(format!("approve-selected-{proposal_id}"))
                         .label(format!("Include this exact proposal {}", record.draft.title)).checked(checked)
                         .disabled(disabled)
-                        .on_change(move |checked, _, _| { if *checked { selected.borrow_mut().insert(proposal_id); } else { selected.borrow_mut().remove(&proposal_id); } }));
+                        .on_change(move |checked, _, cx| {
+                            if *checked { selected.borrow_mut().insert(proposal_id); } else { selected.borrow_mut().remove(&proposal_id); }
+                            let _ = checkbox_desktop.update(cx, |_, cx| cx.notify());
+                        }));
                     for (earlier, label) in [(true, "Move earlier"), (false, "Move later")] {
                         let adjacent = if earlier { index.checked_sub(1) } else { index.checked_add(1) };
                         let possible = record.draft.inbox_source.is_none() && adjacent.and_then(|index| ordered.records().get(index)).is_some_and(|record| record.draft.inbox_source.is_none());

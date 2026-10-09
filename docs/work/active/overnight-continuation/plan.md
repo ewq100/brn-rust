@@ -46,10 +46,10 @@ product limits. Preserve outputs and reuse them for approval/replay.
 Local receipts: `/private/tmp/brn-overnight-20261008`; script
 `paired-baseline.py` uses the same already-approved synthetic `plural.eml`
 Source/binding and exact executable for both models, without application between
-runs. Current ledger: fourteen investigations started, seven Luna/seven Sol, including one
-failed Sol attempt and a separately counted manual retry. Two remain authorized,
-at most one Luna/one Sol. Do not spend them to repeat approval/replay or answer questions
-that retained evidence and deterministic tests can resolve. Baseline, first-slice
+runs. Current ledger: sixteen investigations started, eight Luna/eight Sol, including one
+failed Sol attempt and a separately counted manual retry. All sixteen calls are used;
+NO LIVE ALLOWANCE remains. Saved outputs and deterministic tests answer subsequent
+inspection, approval and replay questions without new inference. Baseline, first-slice
 and North Quay pairs are retained in the local ledger. Every CLI call retains
 the 180-second deadline/nine responses/eight tool rounds and no automatic retry.
 Source/asset proofs remained unchanged; retained outputs serve approval/replay.
@@ -77,7 +77,7 @@ requires exact final-candidate review, applicable local checks and actual requir
 CI. No weakening, bypass or rushed merge. Record failures and repair real defects.
 Known informational platform failures remain visible and separate.
 
-## Durable checkpoint — 09 October 00:57 UTC
+## Durable checkpoint — 09 October 01:01 UTC
 
 Continue authorized small complete V1 slices until05:00UTC/08:00Tallinn; final
 qualification/integration/report from04:30UTC. Authoritative checkpoint/single morning task NOWintakecheckout
@@ -89,10 +89,11 @@ Primarycheckout18f3891/DSStore/researchPRs/userdata untouched. NoGUI/private
 credentials/paidfallback/reset/download/ports/release/globalconfig. All actualUI/
 personalacceptance pending. OneCargo acrosscheckouts, <=2helpers/no recursion.
 
-Main77960d1 includes normalprotectedPR90–102; ALL requiredcandidate/post-main/docs
-passed90–102 (102post37865065354). RawPR103 attached/pushedc086, requiredcorrected
-run37866277198 UbuntuCore/MacUI/MacCombinedpassed; MacCoreactive. Inspectactual
-requiredchecks, normalprotectedmergec086 wheneligible, verifyresultingtree/main.
+Maind5f324ec558e9ecce898ac2373c36eec8242649c includes normalprotectedPR90–103.
+ALL requiredcandidate/post-main/docs passed90–102 (102post37865065354). RawPR103
+correctedrequired37866277198 all4/docs passed; normalprotectedmerge at00:57:58UTC,
+mainexactqualifiedtree1542187148b2ffac4158aceccf309610283caf64. Post-main37867421354
+active; inspectactualrequiredchecks. Windowscandidate4knownUnixAPIerrorsinspected.
 Initialfrozen87bb patch86145d5 completeindependentreviewfound1validP1 missing
 ApplicationReads rawdelegation. ActualAsk tools regressionred0/1ToolRejected;
 6lineforwardingfixed,all7applicationlanetests green, correctionreviewclean c086/
@@ -121,8 +122,8 @@ shortwindow/tokens/internalturns/spendunknown,accountwide. No furtherlivecall.
 
 Nextslice selectedready: capturedgroupapprovalordering, plan
 `captured-approval-order.md` in OTHERcheckout `/Users/evokessler/repos/brn-p2-email-docx-intake`,
-branchcodex/p4-captured-approval-order HEADb26fd4d plushelper-owneddesktopdirtyfiles.
-Basedc086; integrate rawmain withoutfunctionalchange after103merge. Helpercaptured_approval_order_impl completed/releasedCargo:3capturestate,1actual
+branchcodex/p4-captured-approval-order frozen9fcfafed plusleadcorrections/tests/docs.
+Basedc086; integrate rawmain withoutfunctionalchange aftercorrectionreview. Helpercaptured_approval_order_impl completed/releasedCargo:3capturestate,1actual
 AppWorker/receipts,2realheadlesswidgets passed; strictaffecteddefault/combined
 DesktopClippy/rustfmt/diff passed. Initialwidgetattempt1/2failedonunsupported
 headlessdisabled-metadata observation; removedonlymetadataassertion andretained
@@ -450,3 +451,16 @@ budget test/docs delta, build the P4 CLI and prepare the isolated synthetic case
 Then use the remaining one Luna/one Sol Medium investigation, each explicitly
 8 tool rounds/nine model responses/180 seconds, with the shared campaign ledger
 written before invocation. No new call has been spent. All GUI checks stay pending.
+
+### Captured ordering review disposition — 09 October01:01UTC
+
+Complete11file9fcfafed/diff1d0323344e3c73c294b91b437562bc5b8f133ab11580c87ae70c869a4b045c8e
+independentreview found fullcapture clone on eachmodalrender. Replaced withsync
+Refborrow, callbackRc handlesretainownedauthority. Validallocationimprovement;
+parentalso clonedwholecaptureforconfirmbutton eachrender, so no measurednew
+regression/latencyclaim. Sources/pairs/IDs/currentchecks/receiptorder reviewedclean.
+Staleheader14/16fixedto16/16/noallowance. Checkboxnotifyadvisorydidnotreproduce:
+standaloneactualwidgetdeselect/reselectwithoutmove passedbeforecorrection. Added
+thatcoverage andexplicitowningentitynotification toaligncontrolledwidgetcontract,
+notclaimingred/greenbug. Baselinefinal10stepsallpassed at9fc; correctedaffected
+gates/reviewfollow. AllactualGUIacceptancepending. LeadsoleCargo, noactiveprovider.
