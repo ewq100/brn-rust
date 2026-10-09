@@ -9,7 +9,7 @@ post-main37880350055 pending. The selected
 [affected Actions in Activity](work/active/overnight-continuation/activity-action-inventory.md)
 is implemented, independently reviewed and locally qualified atb873f27, not yet merged.
 It exposes exact historical approved Action UUID/title/order without current lookups.
-Full1179affecteddefault/17existingignores,438combined and all8root gates/shipping/
+Full1182affecteddefault/17existingignores,438combined and all8root gates/shipping/
 52fixtures passed. RetainedN CLI parity and restart passed without inference. The
 [single morning task](work/active/overnight-continuation/morning-ui-acceptance.md)
 records matching latest runtime and26ordered steps; all actual UI acceptance pending.

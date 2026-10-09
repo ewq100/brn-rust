@@ -87,7 +87,7 @@ historicalActionUUID/title/Created-Replaced, existingUndo/fullapproval/paging. N
 currentlookup/schema/deps/newquery/provider. Complete13-file independent reviewCLEAN
 04f5da0... and mechanical2-testparity/CLIformatter correctionrefreshCLEAN4dde81f00...
 owned8patcha90d5f6...; reports/freeze hashes retained. Meaningfulred→green, focused5,
-fullaffecteddefault1179/17existingignores (Workflow647CLI219Desktop313), fullcombined
+fullaffecteddefault1182/17existingignores (Workflow650CLI219Desktop313), fullcombined
 Desktop438PASS. Full-size assetrecovery/Undo unchangedpassedagain. Correctedportable2+
 all4Activityintegrations/strictaffectedbothPASS; all8rootfmt/workspacestrictboth/
 shippinghelper52fixtureslinksPASS. Rootverifiedexactunchangedproduction/hashreuse.

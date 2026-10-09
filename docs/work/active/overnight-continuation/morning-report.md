@@ -44,7 +44,7 @@ its post-main checks remain pending. It reads explicit dependency/parent/follows
 work, including Completed targets outside the filter, preserving selection/buffers.
 The next [Activity affected-Action inventory](activity-action-inventory.md) is
 implemented, independently reviewed and locally qualified atb873f27: exact body-free
-historical Action identities/titles, no current lookup. Fullaffected1179default/17
+historical Action identities/titles, no current lookup. Fullaffected1182default/17
 existingignores and438combined plusall8root/workspace/shipping/52fixtures passed.
 ShippingCLI retainedN fourapprovals/fiveActionmembers/paging/restart/unchangedbytes
 passed without inference. Activity requiredCI/integration is still pending.
