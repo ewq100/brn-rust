@@ -66,8 +66,17 @@ impl Fixture {
         envelope["data"].clone()
     }
     fn request(&self) -> Value {
-        let profile = self.ok(&["proposals", "source", "profile.md"], "proposals.source");
-        json!({"profile": profile["source"], "note_id": self.id, "lens": "person", "action_offset": 0, "relationship_offset": 0, "limit": 25})
+        // Capture the exact fixture bytes directly. This read-only query must
+        // not depend on the separate macOS Markdown Save/source-capture route.
+        use std::os::unix::fs::MetadataExt;
+        let path = self.vault.join("profile.md");
+        let metadata = fs::metadata(&path).unwrap();
+        let bytes = fs::read(path).unwrap();
+        let profile = json!({"path": "profile.md", "fingerprint": {
+            "device": metadata.dev(), "inode": metadata.ino(),
+            "len": bytes.len(), "sha256": brn_intake::digest(&bytes),
+        }});
+        json!({"profile": profile, "note_id": self.id, "lens": "person", "action_offset": 0, "relationship_offset": 0, "limit": 25})
     }
     fn file(&self, value: &Value) -> PathBuf {
         let path = self.data.path().parent().unwrap().join("request.json");
@@ -158,6 +167,9 @@ fn actual_process_returns_full_saved_profile_exact_actions_and_lens_distinction_
     f.file(&request);
     assert_eq!(f.ok(&args, "context.inspect")["actions"], json!([project]));
     assert_eq!(fs::read_dir(&f.credentials).unwrap().count(), 0);
+    let (store, _) = WorkStore::open(f.data.path()).unwrap();
+    assert!(store.setting("vault.editor_identity").unwrap().is_none());
+    drop(store);
     let original = fs::read(f.vault.join("profile.md")).unwrap();
     fs::write(f.vault.join("profile.md"), "Changed profile").unwrap();
     let stale = f.process(&args, true);
