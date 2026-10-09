@@ -19,20 +19,20 @@ Refresh this receipt after subsequent changes and before cutoff; qualification i
 separate from personal acceptance.
 
 Checkout: `/Users/evokessler/repos/brn-p2-email-docx-intake`.
-Latest qualified combined candidate: `182cb8e1247f288b045957128070dd88bb5882ab`
-(merged PPTX/backups/Action compensation plus independently reviewed filename revision). Main is
+Latest qualified combined build source: `538b160f6ea16f9c6c6f6a8823c0ee4119640657`
+(merged prior slices plus independently reviewed and corrected citation evidence review). Main is
 `6a63173fb6e33b4ba239ad6aade23bde976ee051`; PR90–PR100 required candidate checks
 passed. PR90–PR99 required post-merge checks passed. PR100 post-merge run37859299854
 passed all required checks/docs. Action compensation is merged and locally qualified. Immutable shipping runtime:
-`/Users/evokessler/repos/brn-overnight-artifacts-20261008/create-rename-runtime`.
-Desktop: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/create-rename-runtime/brn-desktop`,
-SHA-256 `259a45c361d1c3576aec1b5b4b9df69677a09678a32cca504f1ee7d51ff2bdb6`.
-CLI: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/create-rename-runtime/brn`,
-SHA-256 `e31c170e8505369779bdd38fcf1644a1de2fd81c83575d4335548aafe874b1b6`.
-Helper: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/create-rename-runtime/brn-intake-helper`,
+`/Users/evokessler/repos/brn-overnight-artifacts-20261008/citation-review-runtime`.
+Desktop: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/citation-review-runtime/brn-desktop`,
+SHA-256 `a875867188f6798b48aba2bc5c6d7973e1aed89351135d8944dd011ba5bc82e6`.
+CLI: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/citation-review-runtime/brn`,
+SHA-256 `e435ce342a55686cd6a70b2cf129d454de801f51277569e04a513deb28636b81`.
+Helper: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/citation-review-runtime/brn-intake-helper`,
 SHA-256 `7f058c359a092559cda55b07c3880b44e637257818ad60c725da8b1d99a9f8e5`.
-Manifest: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/create-rename-runtime/build-manifest.json`.
-This runtime includes SessionV18, PPTX, automatic backups, Action compensation and filename revision. PR101 required candidate CI passed and normal merge6a63173 completed; all required post-main checks/docs passed in37861908706. Refresh final receipt before cutoff and
+Manifest: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/citation-review-runtime/build-manifest.json`.
+This runtime includes SessionV18, PPTX, automatic backups, Action compensation, filename revision and read-only citation evidence review. PR102 revised required CI pending. PR101 required candidate CI passed and normal merge6a63173 completed; all required post-main checks/docs passed in37861908706. Refresh final receipt before cutoff and
 never use historical executables after newer schema migration. Bound state/vault
 folders remain in place.
 Actual GUI/personal acceptance remains pending.
@@ -148,8 +148,10 @@ citations; moved-consumer.md cites unchanged archived evidence and is expected
 Matched. Thirty-one00-healthy prefix notes have no citations, so the first native
 page is intentionally empty with enabled Load more; the next page has issue rows.
 malformed-consumer.md gives incomplete
-coverage. Details requests are retained under inputs. CLI qualification with the
-new candidate is pending; preparation uses qualified rename runtime and explicit
+coverage. Details requests are retained under inputs. Corrected final-runtime CLI qualification passed: first25 empty then exact
+Absent/Ambiguous/Changed rows, moved Matched and complete exact details. Both
+malformed citation and Inbox metadata give2 coverage diagnostics. Preparation
+used qualified rename runtime and explicit
 synthetic approval, no inference. Never rerun preparation or relocate folders.
 
 ## Preparation and launch after unlock
@@ -159,7 +161,7 @@ folder. Do not delete locks, reset or migrate data if busy; record the condition
 Launch Workspace A from the checkout (ordinary desktop flags):
 
 ```sh
-/Users/evokessler/repos/brn-overnight-artifacts-20261008/create-rename-runtime/brn-desktop \
+/Users/evokessler/repos/brn-overnight-artifacts-20261008/citation-review-runtime/brn-desktop \
   --data-dir /private/tmp/brn-retained-qualification-bi3q58kf/headless/data \
   --vault /private/tmp/brn-retained-qualification-bi3q58kf/headless/vault
 ```
@@ -202,7 +204,7 @@ Allow 110–150 minutes for all workspaces/new controls. Essential path: steps 1
 | 17. Once rename is qualified and included in the final build, select a retained new-note Draft, save owner text/comments, change its filename within the same folder, inspect the complete revised review, approve the revised version and restart | Text/UUID/comments/evidence/History and other members remain exact; changed destination advances approval version once, no file effect until approval. Same-path no-op stays exact. Stale/occupied/unsafe/cross-folder requests refuse while retaining owner work; Observe after refusal must preserve the entered filename and queued navigation until explicit Retry/Discard | Original/new filename, request/returned version, complete before/after, comments, stale approval/refusal and saved note after restart. Independent review and final local gates passed:1796 default coverage/18 existing ignores,436 native workflow/models/16,585 combined desktopCLI; required PR101 candidate CI passed and normal merge completed; all required post-main checks/docs passed in37861908706. Actual GUI acceptance pending |
 
 
-| 18. Once citation review is qualified and in the final build, quit H and open I, choose Needs Review → Citation evidence, inspect rows and complete saved consumer/source details, Load more, Refresh, switch to Findings and restart | Changed/Absent/Ambiguous rows have exact reasons and preserved original quotes. Moved unchanged archived evidence remains Matched and absent from issue rows. Malformed metadata gives explicit incomplete coverage. Sparse pages still offer Load more; refreshed rows/detail are bound to exact consumer hash. Derived rows have no Resolve/Dismiss/approval/capture/automatic analysis controls; owner composer/editor/review and pending navigation remain recoverable | Record row paths/outcomes, complete copied consumer/proof/quotes, coverage and cursor progress, stale/error behavior, buffer preservation and restart. Backend11 focused plus10 existing provenance tests, native5state/8widgets,4Findings regressions andCLI3 passed. Complete review found one coverage defect, corrected red-to-green; independent correction review/final affected gates/revised CI pending. Actual UI acceptance pending |
+| 18. Once citation review is qualified and in the final build, quit H and open I, choose Needs Review → Citation evidence, inspect rows and complete saved consumer/source details, Load more, Refresh, switch to Findings and restart | Changed/Absent/Ambiguous rows have exact reasons and preserved original quotes. Moved unchanged archived evidence remains Matched and absent from issue rows. Malformed metadata gives explicit incomplete coverage. Sparse pages still offer Load more; refreshed rows/detail are bound to exact consumer hash. Derived rows have no Resolve/Dismiss/approval/capture/automatic analysis controls; owner composer/editor/review and pending navigation remain recoverable | Record row paths/outcomes, complete copied consumer/proof/quotes, coverage and cursor progress, stale/error behavior, buffer preservation and restart. Backend11 focused plus10 existing provenance tests, native5state/8widgets,4Findings regressions andCLI3 passed. Complete review found one coverage defect, corrected red-to-green; independent correction review and final affected gates passed; revised required CI pending. Actual UI acceptance pending |
 
 ## Headless evidence already passed; interactive acceptance pending
 

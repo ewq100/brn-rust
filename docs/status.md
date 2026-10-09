@@ -38,8 +38,11 @@ after all required candidate checks/docs passed; resulting tree matches the
 qualified candidate; all required post-main checks/docs passed in37861908706. The next selected ready P4 slice
 is [read-only citation evidence review](work/active/overnight-continuation/citation-evidence-review.md):
 Current consumer discovery with exact saved-source details and honest coverage.
-Backend focused tests/Clippy passed; native/CLI qualification and complete review
-are underway. No semantic Findings or authoritative edits occur automatically.
+Complete independent review found malformed Inbox metadata blocking discovery;
+correction reviewed clean and observed red-to-green. Final local coverage1816
+default/18 existing ignores,447native/16,597combined plus Clippy/shipping/52fixtures
+passed, reusing unchanged full-size baseline witnesses. Revised PR102 required CI
+and normal protected integration remain pending. No semantic Findings or authoritative edits occur automatically.
 
 The [overnight checkpoint](work/active/overnight-continuation/plan.md) owns exact
 branches, builds, verification and continuation. Fourteen of sixteen authorized live investigations are used, seven Luna/seven Sol,

@@ -77,7 +77,7 @@ requires exact final-candidate review, applicable local checks and actual requir
 CI. No weakening, bypass or rushed merge. Record failures and repair real defects.
 Known informational platform failures remain visible and separate.
 
-## Durable checkpoint — 09 October 00:10 UTC
+## Durable checkpoint — 09 October 00:14 UTC
 
 Continue authorized V1 work until 05:00 UTC / 08:00 Tallinn; final qualification
 from04:30 UTC. All GUI/computer use deferred to [one morning task](morning-ui-acceptance.md).
@@ -98,7 +98,7 @@ all four required checks/docs passed. Normal protected merge6a63173; exact resul
 filesystem API errors. Verify required post-main checks. Resulting main incorporated into citation branch with no functional delta. Do not restart CI for reports.
 
 Lead checkout `/Users/evokessler/repos/brn-p2-email-docx-intake`, branch
-codex/p4-citation-evidence-review, HEADb433d9897b880975417d9d22fff14ec0356d1e7f, clean production with reporting docs dirty,
+codex/p4-citation-evidence-review, qualified code538b160f6ea16f9c6c6f6a8823c0ee4119640657, reporting docs updated,
 based on182. Selected [read-only citation evidence review](citation-evidence-review.md)
 plan2182deb and fixed interfaces09625d5. Backend/native/CLI implementation complete, task-owned candidate ready for
 commit and independent complete review. Lead owns CLI/tests/docs/cases/integration. Two helpers, no recursion:
@@ -107,8 +107,11 @@ pinned1.98.1/DYLD). citation_review_desktop owns native/state/tests.
 No concurrent Cargo. CLI3 real-process tests passed; final full gate next. Both implementation helpers done. Read-only web_research_readiness helper investigates smallest ready P6 slice, no Cargo/provider/edits. Complete independent reviewer finished on frozen b433; one valid finding above. Readiness complete: native web full capture parked on source-text and hosted
 budget gaps. Next bounded read-call correction (plan in budget checkout) selected
 in budget checkout codex/p3-read-call-correction plan5219761; implementation helper
-read_call_correction_impl coding AI hooks/provider tests/budget label, NO Cargo
-until root releases. At most2 active helpers including citation correction reviewer.
+read_call_correction_impl found pinned Responses decoder DROPS malformed args
+before hook and dispatches valid peers. Selected retry slice NOT QUALIFIED/PARKED;
+no custom parser/vendor fork. Preserve failing witnesses/unfinished branch5219761+
+task-owned dirty code, no merge. Helper releasing sole Cargo and writing blocker
+record. Next select another independently ready P3 outcome. At most2 active helpers including citation correction reviewer.
 Do not confuse budgets/targets or overwrite authoritative lead morning task.
 [PR102](https://github.com/ewq100/brn-rust/pull/102), attached, candidateb433,
 required run37862406544 active. Complete independent review c56cfb40 found one
@@ -119,15 +122,15 @@ Frozen baseline fullgate67708 PASSED/released:1815default/18,446native/16,
 observed red, narrow eligibility correction applied,11backend+3CLI green. Required
 Ubuntu firstcandidate failed because CLI setup called Mac-only provenance.capture;
 portable pure fixture setup replaces it with no skips/weakened read assertions,
-and adds malformed Inbox coverage. Root sole Cargo for final affected gates;
-independent correction review/revised candidate CI pending. Patch/test prepared
-outside checkout: citation-malformed-intake-fix.patch / -regression.txt. Frozen baseline gate complete; reviewed correction is now task-owned dirty. Fresh final qualification and
+and adds malformed Inbox coverage. Root final affected gate22063 passed/released;
+Independent correction review clean at538b160; final corrected affected gates passed/released. Revised candidate CI next. Patch/test prepared
+outside checkout: citation-malformed-intake-fix.patch / -regression.txt. Frozen baseline gate complete; reviewed correction is now task-owned dirty. Final local qualification passed; revised required CI and
 protected integration remain pending; unchanged Store/witnesses reusable.
 Reuse IdentityInventory, durable provenance, Current metadata and NeedsReview;
 no automatic Finding/effect/inference. Incomplete means unknown coverage, not truth.
 
-Latest qualified immutable runtime create-rename-runtime under
-`/Users/evokessler/repos/brn-overnight-artifacts-20261008`, source182; hashes in
+Latest qualified immutable runtime citation-review-runtime under
+`/Users/evokessler/repos/brn-overnight-artifacts-20261008`, source538b160; hashes in
 morning task. WorkspaceH create-rename-case ready: pending owner-edited/commented
 Draft28284703-6122-43ad-bffa-e10b937b3483 v3; occupied refusal996b839f-9aeb-4787-b6de-fb7ee331b26a;
 Applied/replayedc7d3967a-04df-4465-b6b6-677c7ac7fa6a. Prepared zero inference,

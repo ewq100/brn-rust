@@ -183,3 +183,21 @@ unchanged Store/crash/Undo and native state/widget evidence. Final affected
 backend/native knowledge/CLI/Clippy/shipping gates and independent correction
 review remain pending. PR101 all four required post-main checks/docs passed in
 37861908706; resulting main is verified.
+
+## Final local result — 09 October 00:14 UTC
+
+Correction independently reviewed clean at538b160f6ea16f9c6c6f6a8823c0ee4119640657;
+delta hash6ed42ea7ea8e05000291d3e995a629c83088c64668eeea547cd137e9024ddbae.
+Final corrected native knowledge26, strict default/combined workspace Clippy,
+shipping,52fixtures and links passed. Combined with unchanged frozen baseline
+and new default11/CLI3 evidence, final coverage1816default/18 existing ignores,
+447native workflow/models/16 and597combineddesktopCLI. Counts explicitly include
+reused unchanged Store/full-size crash/recovery/Undo and native widget witnesses,
+not a second full-suite execution after the isolated correction. No open finding.
+
+Immutable citation-review-runtime source538b160 is recorded in the morning task.
+Actual final shipping CLI repeats WorkspaceI sparse paging, exact changed/absent/
+ambiguous details and moved Matched with2 honest coverage diagnostics (both malformed
+managed fields); all passed, zero inference. Receipt directory
+citation-review-case/receipts/corrected-final-citation-review. Revised requiredCI
+and protected integration remain pending. All GUI acceptance remains pending.
