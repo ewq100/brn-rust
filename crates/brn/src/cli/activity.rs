@@ -1,6 +1,6 @@
 //! Bounded approved activity through the shared application worker.
 use super::{
-    Globals, Output, Scanned, Tokens, error::CliError, expect_positionals, scan, sub_word, usage,
+    error::CliError, expect_positionals, scan, sub_word, usage, Globals, Output, Scanned, Tokens,
 };
 use brn_workflow::activity::{
     ActivityActionChangeKind, ActivityChangeKind, ActivityPage, ActivityRequest,
@@ -159,11 +159,9 @@ mod tests {
             entries: vec![entry],
             next_before: Some(operation),
         });
-        assert!(
-            result
-                .text
-                .contains("Approved at admission: 123 ms since Unix epoch")
-        );
+        assert!(result
+            .text
+            .contains("Approved at admission: 123 ms since Unix epoch"));
         assert!(result.text.contains("Review 日本語\\n\\u{1b}[31m"));
         assert!(result.text.contains("3 notes\\r\\t"));
         assert!(result.text.contains("Created: new\\n日本語.md"));
@@ -285,11 +283,9 @@ mod tests {
             next_before: None,
         });
         assert!(result.text.contains(&format!("Undo of: {source}")));
-        assert!(
-            result
-                .text
-                .contains(&format!("Trash restore of: {source} (zero-based member 2)"))
-        );
+        assert!(result
+            .text
+            .contains(&format!("Trash restore of: {source} (zero-based member 2)")));
         assert_eq!(
             result.data["entries"][0]["undo"]["operation_id"],
             source.to_string()
