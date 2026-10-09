@@ -100,6 +100,13 @@ Retrievaldownload source/tests unchanged from prePR90 baseline. Rootmain/tree/
 productdiff/runtimehash proof passed. Next: finalize safe report push/archive and
 pauseheartbeat at05UTC. No technical integration gate remains, no more productdevelopment.
 No protection bypass, shortened witnesses or unqualified merge. Helpersidle/CargoFREE.
+Final hosted raw Mac logs independently reviewed CLEAN; report
+final-hosted-ci-receipt-review.txt SHA3e6dfd5294a6e1be6d2311d52e93ac71f80bb2a6255e9edbf2620cfc7b47155b.
+Exact per-step totals: workspace1892/18existingignored; intake41; provider156/1;
+nativeRetrieval15; nativeWorkflow463/16; combinedstate328; nativeUIstate328;
+nativewidgets125. Doctests/full-size assetrecoveryUndo retained/passed. Scopes
+separate from localaffected1182/17 and combined438; never add repeatedjobs.
+No local/provider test repeated. All actual GUI acceptance remains pending.
 
 Latest immutable runtime remains activity-action-runtime, compiledsource
 b873f273832f881f03b483c079c94fd06a1a6d51, treee9ba581c1a32555c3678835072f1b957d44e7077.

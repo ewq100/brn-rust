@@ -75,6 +75,26 @@ native and full-size crash/recovery/Undo evidence was reused; the existing full-
 asset recovery/Undo witness also ran unchanged and passed again. These are affected
 gates, not a new combined count of every historical suite.
 
+Final resulting-main Mac CI also passed these exact hosted steps. They are
+separate scopes, and repeated suites are not added into one total:
+
+| Hosted step | Passed | Existing ignores |
+| --- | ---: | ---: |
+| Default workspace (doctests retained) | 1,892 | 18 |
+| Maintained intake helper | 41 | 0 |
+| Provider capability fixtures | 156 | 1 |
+| Native retrieval without model assets | 15 | 0 |
+| Native retrieval Workflow | 463 | 16 |
+| Combined native Desktop state | 328 | 0 |
+| Native UI state | 328 | 0 |
+| Native macOS widgets | 125 | 0 |
+
+The final raw log confirms the full-size asset replacement/recovery/Undo witness
+passed. An independent receipt review verified every result row and log hash,
+including zero-entry doctests. Hosted feature selections differ from the local
+affected suites; state/widget automation still does not establish interactive UI
+acceptance. No local or live-model test was repeated for this receipt check.
+
 Independent review caught and corrected real identity, lifecycle, visibility and
 cancellation defects. Two required Ubuntu fixtures using macOS Save were repaired
 without dropping assertions or adding platform skips. A test-count parser omitted
