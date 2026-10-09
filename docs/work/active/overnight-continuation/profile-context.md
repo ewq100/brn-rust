@@ -195,3 +195,14 @@ passed locally. Production/shipping behavior is unchanged and earlier relevant
 qualification remains valid. Revised actual required Ubuntu and all final-head
 checks must pass before protected integration; no bypass. Actual Windows log
 113639779794 retains the same four known UnixAPI errors, informational Mac scope.
+
+
+The revised Ubuntu run37875138258 passed the corrected78unit tests, then exposed
+the same fixture dependency in actual-process cli_profile_context: request setup
+called proposals.source before the read-only context query. Capture that fixture's
+exact dev/inode/length/fullhash directly using existing Unix metadata/digest, as
+the real Workflow context tests already do. All actual-process fullprofile/Action/
+lens/reference/terminalescaping/stalerefusal assertions remain; add an assertion
+that context does not create vault.editor_identity. No platform skip or production
+port/change. Both actualCLI integration tests and strictCLI all-target Clippy passed locally.
+Revised required final-head CI must still pass; initial/revised failures remain preserved.
