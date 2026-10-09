@@ -91,6 +91,7 @@ pub enum AppCommand {
     ActionDashboard(crate::dashboard::DashboardRequest),
     Action(Uuid),
     CompleteAction(crate::action_completion::CompleteActionRequest),
+    PrepareSentActionCompletion(crate::action_completion::PrepareSentCompletionRequest),
     CaptureInbox(crate::inbox::CaptureInboxRequest),
     CaptureBinaryInbox(crate::inbox::CaptureBinaryInboxRequest),
     InboxItems(crate::inbox::InboxListRequest),
@@ -233,6 +234,7 @@ pub enum AppEvent {
     Actions(Box<crate::actions::ActionPage>),
     ActionDashboard(Box<crate::dashboard::DashboardPage>),
     ActionCompleted(Box<crate::action_completion::ActionCompletion>),
+    SentActionCompletionPrepared(Box<crate::action_completion::SentCompletionPreview>),
     InboxCaptured(Box<crate::inbox::InboxItem>),
     InboxItems(Box<crate::inbox::InboxInventory>),
     InboxItem(Box<crate::inbox::InboxRead>),
@@ -1488,6 +1490,9 @@ fn dispatch(
         AppCommand::CompleteAction(request) => {
             AppEvent::ActionCompleted(Box::new(app.complete_action(&request)?))
         }
+        AppCommand::PrepareSentActionCompletion(request) => AppEvent::SentActionCompletionPrepared(
+            Box::new(app.prepare_sent_action_completion(&request)?),
+        ),
         AppCommand::Findings(request) => AppEvent::Findings(Box::new(app.findings(&request)?)),
         AppCommand::NoteConflicts(request) => {
             AppEvent::NoteConflicts(Box::new(app.note_conflicts(&request)?))

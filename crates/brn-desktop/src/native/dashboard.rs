@@ -4,17 +4,44 @@ use brn_workflow::dashboard::DashboardFilter;
 use gpui_kit::{
     AnyElement, TestSupportExt,
     base::Disableable,
-    component::{Selectable, WindowExt},
+    component::{Selectable, WindowExt, input::Textarea},
 };
 
 pub(super) struct DashboardPane {
     pub proof: Entity<EditorState>,
     pub scroll: ScrollHandle,
     pub attempt: Option<Uuid>,
+    pub sent_path: Entity<TextareaState>,
+    pub sent_source: Entity<EditorState>,
+    _subscription: Subscription,
 }
 impl DashboardPane {
     pub(super) fn new(window: &mut Window, cx: &mut Context<Desktop>) -> Self {
+        let sent_path = cx.new(|cx| {
+            TextareaState::new(window, cx)
+                .auto_grow(1, 2)
+                .default_value("")
+        });
+        let subscription = cx.subscribe_in(
+            &sent_path,
+            window,
+            |this, input, event: &InputEvent, window, cx| {
+                if matches!(event, InputEvent::Change)
+                    && !this.dashboard_blocked()
+                    && !window.has_active_dialog(cx)
+                {
+                    this.ai
+                        .as_mut()
+                        .unwrap()
+                        .edit_sent_source_path(input.read(cx).value().to_string());
+                    cx.notify();
+                }
+            },
+        );
         Self {
+            sent_path,
+            sent_source: cx.new(|cx| EditorState::new(window, cx).default_value("")),
+            _subscription: subscription,
             proof: cx.new(|cx| EditorState::new(window, cx).default_value("")),
             scroll: ScrollHandle::new(),
             attempt: None,
@@ -73,6 +100,23 @@ fn copy(id: String, label: &str, text: String) -> Button {
 }
 impl Desktop {
     pub(super) fn sync_dashboard_widgets(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        let ai = self.ai.as_ref().unwrap();
+        let source = ai
+            .dashboard
+            .sent_preview
+            .as_ref()
+            .map_or("", |sent| sent.preview.source.text.as_str());
+        if self.dashboard.sent_source.read(cx).value().as_ref() != source {
+            self.dashboard
+                .sent_source
+                .update(cx, |editor, cx| editor.set_value(source, window, cx));
+        }
+        let path = &ai.dashboard.sent_source_path;
+        if self.dashboard.sent_path.read(cx).value().as_ref() != path {
+            self.dashboard
+                .sent_path
+                .update(cx, |input, cx| input.set_value(path, window, cx));
+        }
         let text = proof_text(self.ai.as_ref().unwrap(), self.dashboard.attempt);
         if self.dashboard.proof.read(cx).value().as_ref() != text {
             self.dashboard
@@ -112,6 +156,44 @@ impl Desktop {
         let Some(capture) = self.ai.as_ref().unwrap().capture_action_completion() else {
             return;
         };
+        self.open_completion_capture(capture, None, window, cx);
+    }
+    fn open_sent_action_completion(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        if self.dashboard_blocked() || window.has_active_dialog(cx) {
+            return;
+        }
+        let Some(capture) = self.ai.as_ref().unwrap().capture_sent_action_completion() else {
+            return;
+        };
+        let preview = self
+            .ai
+            .as_ref()
+            .unwrap()
+            .dashboard
+            .sent_preview
+            .as_ref()
+            .unwrap()
+            .preview
+            .clone();
+        self.open_completion_capture(capture, Some(preview), window, cx);
+    }
+    fn open_completion_capture(
+        &mut self,
+        capture: crate::ai::dashboard_state::CompletionCapture,
+        sent: Option<brn_workflow::action_completion::SentCompletionPreview>,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        let sent_editor = sent.as_ref().map(|preview| {
+            cx.new(|cx| EditorState::new(window, cx).default_value(preview.source.text.clone()))
+        });
+        let sent_proof = sent.as_ref().map(|preview| {
+            serde_json::to_string_pretty(preview).expect("checked sent preview JSON")
+        });
+        let proof_editor = sent_proof
+            .as_ref()
+            .map(|proof| cx.new(|cx| EditorState::new(window, cx).default_value(proof.clone())));
+        let is_sent = sent.is_some();
         let desktop = cx.entity().downgrade();
         window.open_dialog(cx, move |dialog, _, cx| {
             let current = desktop.upgrade();
@@ -123,6 +205,16 @@ impl Desktop {
                 .child("Confirm that this exact identified real-world Action is complete. Its fields and immutable origin are captured below. Follow-up work is a new related Action.")
                 .child(format!("Completion operation {}", capture.request().operation_id))
                 .child(action_review::before_body(0, &capture.request().before));
+            if let Some(preview) = &sent {
+                body = body.child("I confirm that the complete displayed saved Source is the actual version I sent, and this exact identified Action is complete.")
+                    .child(format!("Actual sent Source: {} · {}", preview.title, preview.source.source.path))
+                    .child("Complete saved Source · read only")
+                    .child(div().h(px(180.)).flex_shrink_0().child(Editor::new(sent_editor.as_ref().unwrap()).h_full().readonly(true).aria_label("Complete actual sent Source for final confirmation")))
+                    .child(copy("copy-sent-confirmation-source".into(), "Copy complete actual sent Source", preview.source.text.clone()))
+                    .child("Complete captured Source approval, identity, fingerprint and Action baseline")
+                    .child(div().h(px(160.)).flex_shrink_0().child(Editor::new(proof_editor.as_ref().unwrap()).h_full().readonly(true).aria_label("Exact sent completion confirmation proof")))
+                    .child(copy("copy-sent-confirmation-proof".into(), "Copy complete captured sent confirmation", sent_proof.clone().unwrap()));
+            }
             if disabled {
                 body = body.child("The captured selection changed or current work prevents admission. Close this confirmation and inspect the current Action.");
             }
@@ -131,8 +223,8 @@ impl Desktop {
             }
             let capture = capture.clone();
             let desktop = desktop.clone();
-            dialog.title("Complete captured Action").w(px(840.)).child(body)
-                .child(Button::new("confirm-exact-action-completion").label("Complete captured Action").disabled(disabled)
+            dialog.title(if is_sent { "Confirm actual sent Source and complete Action" } else { "Complete captured Action" }).w(px(840.)).child(body)
+                .child(Button::new(if is_sent { "confirm-sent-action-completion" } else { "confirm-exact-action-completion" }).label(if is_sent { "Confirm actual sent version and complete captured Action" } else { "Complete captured Action" }).disabled(disabled)
                     .on_click(move |_, window, cx| {
                         let mut admitted = false;
                         let _ = desktop.update(cx, |this, cx| {
@@ -296,6 +388,54 @@ impl Desktop {
                     ),
             );
         }
+        content = content.child("Actual sent evidence · capture and approve actual text through Inbox first. Then explicitly read its saved Source here.")
+            .child("Sent Source path")
+            .child(Textarea::new(&self.dashboard.sent_path).disabled(blocked).aria_label("Sent Source path"))
+            .child(Button::new("prepare-sent-action-completion").label("Read saved sent Source")
+                .disabled(blocked || !ai.action_completion_available() || ai.sent_completion_loading())
+                .on_click(cx.listener(|this, _, window, cx| {
+                    if this.dashboard_blocked() || window.has_active_dialog(cx) { return; }
+                    let path = this.dashboard.sent_path.read(cx).value().to_string();
+                    this.ai.as_mut().unwrap().edit_sent_source_path(path);
+                    if let Some(command) = this.ai.as_mut().unwrap().prepare_sent_action_completion() { this.simple_send(command, cx); }
+                    this.sync_dashboard_widgets(window, cx);
+                    cx.notify();
+                })));
+        if ai.sent_completion_loading() {
+            content = content.child("Reading saved Source and exact Applied approval…");
+        }
+        if let Some(error) = &state.sent_error {
+            content = content.child(error.clone());
+        }
+        if let Some(sent) = &state.sent_preview {
+            content = content
+                .child(format!(
+                    "Retained Source preview: {} · {}",
+                    sent.preview.title, sent.preview.source.source.path
+                ))
+                .child("Complete saved Source · read only")
+                .child(
+                    div().h(px(220.)).flex_shrink_0().child(
+                        Editor::new(&self.dashboard.sent_source)
+                            .h_full()
+                            .readonly(true)
+                            .aria_label("Complete saved sent Source"),
+                    ),
+                )
+                .child(copy(
+                    "copy-sent-source".into(),
+                    "Copy complete saved sent Source",
+                    sent.preview.source.text.clone(),
+                ))
+                .child(
+                    Button::new("review-sent-action-completion")
+                        .label("Review actual sent version and completion…")
+                        .disabled(blocked || !ai.sent_action_completion_available())
+                        .on_click(cx.listener(|this, _, window, cx| {
+                            this.open_sent_action_completion(window, cx)
+                        })),
+                );
+        }
         if let Some(entry) = state.selected.as_ref().filter(|entry| {
             entry.action.data.state == brn_workflow::actions::ActionState::Completed
         }) {
@@ -348,6 +488,8 @@ impl Desktop {
             let operation = attempt.request.operation_id;
             let status = if attempt.receipt.is_some() {
                 "Acknowledged Completed"
+            } else if attempt.error.is_some() && attempt.request.sent_source.is_some() {
+                "Source already retained; completion not confirmed. Inspect the current Action and retained attempt"
             } else if attempt.error.is_some() {
                 "Response failed; outcome not inferred"
             } else {
@@ -402,6 +544,7 @@ impl Desktop {
                                 this.dashboard.attempt = Some(operation);
                                 this.simple_send(command, cx);
                                 this.sync_dashboard_widgets(window, cx);
+                                cx.notify();
                             }
                         })),
                 );

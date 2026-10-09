@@ -66,6 +66,7 @@ fn approved(store: &mut WorkStore) -> ActionRecord {
 }
 fn complete_request(before: &ActionRecord) -> CompleteActionRequest {
     CompleteActionRequest {
+        sent_source: None,
         operation_id: Uuid::new_v4(),
         before: Box::new(before.clone()),
     }
@@ -604,3 +605,6 @@ fn physically_corrupt_main_skips_a_semantically_invalid_completion_backup() {
     assert!(store.action(before.origin.id).unwrap().is_none());
     assert_eq!(count(dir.path()), 0);
 }
+
+#[path = "work_action_completion/sent_source.rs"]
+mod sent_source;

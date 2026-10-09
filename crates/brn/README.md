@@ -65,6 +65,7 @@ brn inbox action-analysis UUID
 brn inbox analyze --file REQUEST_JSON [--timeout-seconds N]
 brn inbox analysis UUID
 brn actions complete --file REQUEST.json
+brn actions prepare-sent-completion --file REQUEST.json
 brn actions show UUID
 brn actions list [--state open|waiting|blocked|completed|all] [--limit N] [--before-created-at-ms N --before-id UUID]
 brn actions dashboard [--as-of YYYY-MM-DD] [--filter active|open|waiting|blocked|completed|overdue|follow-up|all] [--limit N] [--before-created-at-ms N --before-id UUID]
@@ -284,6 +285,18 @@ preserving its approved origin and all candidate fields except state. Reuse the
 same file and operation UUID to replay the full completion receipt after restart;
 a changed request conflicts and a stale full baseline refuses. Completion recovery
 currently uses the macOS file adapter.
+For actual sent evidence, retain the externally sent text with `inbox add --kind
+text`, process it, create the prepared Source and explicitly approve that Source.
+Then `actions prepare-sent-completion --file REQUEST.json` takes the entire exact
+unfinished Action in `before` and the approved Source's `source_path`. The Action
+must already identify a thread. Inspect the returned full `source.text`, title,
+approval binding and `request` before submitting that exact `request` through
+`actions complete`. This final command asserts that the displayed text was the
+actual sent version, completes the Action and appends the Source UUID once.
+Preparation, planned-reply approval and Source approval leave the Action unfinished.
+No message is sent by BRN. Changed or missing Source evidence refuses fresh
+confirmation; exact completed replay still works after later Source edits/removal.
+Ordinary completion continues to omit `sent_source`.
 For manual acceptance on
 a fresh empty data folder, run `actions list --json`, then `actions show` with a
 fresh non-nil UUID: expect an empty page and typed NOT_FOUND, with no credential

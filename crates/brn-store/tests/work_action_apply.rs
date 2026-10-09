@@ -1103,6 +1103,7 @@ fn action_replacement_undo_previews_complete_data_and_compensates_at_a_new_revis
     let completed = store
         .complete_action_with(
             &CompleteActionRequest {
+                sent_source: None,
                 operation_id: Uuid::new_v4(),
                 before: Box::new(later),
             },
@@ -1198,6 +1199,7 @@ fn action_compensation_requires_every_exact_live_record_at_admission_and_settlem
                 store
                     .complete_action_with(
                         &CompleteActionRequest {
+                            sent_source: None,
                             operation_id: Uuid::new_v4(),
                             before: Box::new(changed),
                         },

@@ -2,7 +2,11 @@
 use crate::files::recovery::{ApplyRecoveryFiles, CompletionRecoverySnapshot};
 use crate::{ErrorKind, Result, WorkflowError, app::App, editor::file_error};
 use brn_store::WorkStore;
-pub use brn_store::work::action_completion::{ActionCompletion, CompleteActionRequest};
+pub use brn_store::work::action_completion::{
+    ActionCompletion, CompleteActionRequest, SentSourceBinding,
+};
+mod sent;
+pub use sent::{PrepareSentCompletionRequest, SentCompletionPreview};
 
 /// Approval evidence is imported first. Completion needs neither a vault nor a provider.
 pub(crate) fn restore_action_completions(
@@ -75,6 +79,9 @@ impl App {
             }
         }
         self.require_current_evidence()?;
+        if let Some(binding) = &request.sent_source {
+            self.validate_sent_action_source(binding)?;
+        }
         let records = self.apply_records.as_ref().expect("opened recovery files");
         let mut publication_error = None;
         let mut published = false;

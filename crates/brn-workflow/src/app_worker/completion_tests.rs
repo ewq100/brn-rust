@@ -58,6 +58,7 @@ fn shutdown_drains_an_admitted_exact_completion_and_refuses_new_admission() {
         })
         .unwrap();
         CompleteActionRequest {
+            sent_source: None,
             operation_id: Uuid::new_v4(),
             before: Box::new(app.action(id).unwrap()),
         }

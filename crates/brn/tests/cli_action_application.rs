@@ -110,6 +110,100 @@ fn create(id: Uuid, data: Value) -> Value {
 }
 
 #[test]
+fn actual_sent_text_source_is_explicitly_reviewed_completed_and_replayed_across_processes() {
+    let f = Fixture::new();
+    let thread = Uuid::new_v4();
+    let action = Uuid::new_v4();
+    let proposal = Uuid::new_v4();
+    let mut planned = data("Confirm revised access");
+    planned["thread"] = json!(thread);
+    let mut input = draft(proposal, None, json!([create(action, planned.clone())]));
+    input["changes"] = json!([{"kind":"create","path":"planned.md",
+        "text":format!("---\r\nbrn_id: {thread}\r\n---\r\nPlanned reply: Monday.\r\n")}]);
+    ok(f.write("create", &input, true));
+    ok(f.approve(proposal, 1, Uuid::new_v4()));
+    let before = f.show(action);
+    let planned_bytes = fs::read(f.vault.join("planned.md")).unwrap();
+    let actual = "\u{feff}Actually sent: Tuesday, õ 日本語 🦀.\r\nPlease confirm.\r\n";
+    fs::write(&f.input, actual).unwrap();
+    let item = ok(f.run(&[
+        "inbox",
+        "add",
+        "--id",
+        &Uuid::new_v4().to_string(),
+        "--kind",
+        "text",
+        "--title",
+        "Actual sent version",
+        "--file",
+        f.input.to_str().unwrap(),
+    ]));
+    let batch = Uuid::new_v4();
+    fs::write(
+        &f.input,
+        serde_json::to_vec(&json!({"id":batch,"items":[item]})).unwrap(),
+    )
+    .unwrap();
+    ok(f.run(&["inbox", "process", "--file", f.input.to_str().unwrap()]));
+    let source_proposal = Uuid::new_v4();
+    let source_id = Uuid::new_v4();
+    fs::write(&f.input, serde_json::to_vec(&json!({"candidate":{"batch_id":batch,"index":0},
+        "proposal_id":source_proposal,"note_id":source_id,"path":"actual-sent.md","title":"Actual sent reply"})).unwrap()).unwrap();
+    let source_draft = ok(f.run(&["inbox", "source", "--file", f.input.to_str().unwrap()]));
+    ok(f.write("create", &source_draft, false));
+    ok(f.approve(source_proposal, 1, Uuid::new_v4()));
+    assert_eq!(
+        f.show(action),
+        before,
+        "draft and Source approvals leave Action open"
+    );
+    let source_bytes = fs::read(f.vault.join("actual-sent.md")).unwrap();
+    let prepare = json!({"before":before,"source_path":"actual-sent.md"});
+    fs::write(&f.input, serde_json::to_vec(&prepare).unwrap()).unwrap();
+    let preview = ok(f.run(&[
+        "actions",
+        "prepare-sent-completion",
+        "--file",
+        f.input.to_str().unwrap(),
+    ]));
+    assert_eq!(preview["request"]["before"], before);
+    assert_eq!(
+        preview["request"]["sent_source"]["note_id"],
+        json!(source_id)
+    );
+    assert!(preview["source"]["text"].as_str().unwrap().contains(actual));
+    assert_eq!(f.show(action), before, "preparation is read-only");
+    let request = preview["request"].clone();
+    fs::write(f.vault.join("actual-sent.md"), "Externally changed.\r\n").unwrap();
+    fs::write(&f.input, serde_json::to_vec(&request).unwrap()).unwrap();
+    refused(
+        f.run(&["actions", "complete", "--file", f.input.to_str().unwrap()]),
+        "CONTEXT_STALE",
+    );
+    assert_eq!(f.show(action), before);
+    fs::write(f.vault.join("actual-sent.md"), &source_bytes).unwrap();
+    let completed = ok(f.run(&["actions", "complete", "--file", f.input.to_str().unwrap()]));
+    let mut expected = planned;
+    expected["state"] = json!("completed");
+    expected["sources"] = json!([source_id]);
+    assert_eq!(completed["after"]["data"], expected);
+    assert_eq!(completed["after"]["origin"], before["origin"]);
+    assert_eq!(
+        fs::read(f.vault.join("actual-sent.md")).unwrap(),
+        source_bytes
+    );
+    assert_eq!(fs::read(f.vault.join("planned.md")).unwrap(), planned_bytes);
+    fs::remove_file(f.vault.join("actual-sent.md")).unwrap();
+    assert_eq!(
+        ok(f.run(&["actions", "complete", "--file", f.input.to_str().unwrap()])),
+        completed
+    );
+    assert!(!f.vault.join("actual-sent.md").exists());
+    assert_eq!(f.show(action), completed["after"]);
+    f.quiet();
+}
+
+#[test]
 fn vaultless_review_approval_replace_and_replay_preserve_exact_records() {
     let f = Fixture::new();
     let id = Uuid::new_v4();

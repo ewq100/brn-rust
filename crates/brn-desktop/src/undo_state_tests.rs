@@ -705,6 +705,7 @@ fn action_completed_after_preview_refuses_compensation_and_retains_identified_re
     let completion = CompleteActionRequest {
         operation_id: Uuid::new_v4(),
         before: Box::new(installed[0].clone()),
+        sent_source: None,
     };
     assert!(matches!(
         reply(

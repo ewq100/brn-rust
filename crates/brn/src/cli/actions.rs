@@ -4,7 +4,7 @@ use super::{
     Globals, Output, Scanned, Tokens,
 };
 use brn_workflow::{
-    action_completion::CompleteActionRequest,
+    action_completion::{CompleteActionRequest, PrepareSentCompletionRequest},
     actions::{ActionCursor, ActionListRequest, ActionState},
     app_worker::{AppCommand, AppEvent},
     dashboard::{DashboardFilter, DashboardRequest},
@@ -16,6 +16,7 @@ pub enum ActionsCommand {
     Show(Uuid),
     List(ActionListRequest),
     Complete(PathBuf),
+    PrepareSentCompletion(PathBuf),
     Dashboard(DashboardRequest),
 }
 
@@ -25,6 +26,7 @@ impl ActionsCommand {
             Self::Show(_) => "actions.show",
             Self::List(_) => "actions.list",
             Self::Complete(_) => "actions.complete",
+            Self::PrepareSentCompletion(_) => "actions.prepare-sent-completion",
             Self::Dashboard(_) => "actions.dashboard",
         }
     }
@@ -35,10 +37,15 @@ pub(super) fn scan_command(
     globals: &mut Globals,
     name: &mut Option<&'static str>,
 ) -> Result<Scanned, CliError> {
-    let sub = sub_word(tokens, "actions", "show|list|complete|dashboard")?;
+    let sub = sub_word(
+        tokens,
+        "actions",
+        "show|list|complete|prepare-sent-completion|dashboard",
+    )?;
     let (label, options): (_, &[(&str, bool)]) = match sub.as_str() {
         "show" => ("actions.show", &[]),
         "complete" => ("actions.complete", &[("file", true)]),
+        "prepare-sent-completion" => ("actions.prepare-sent-completion", &[("file", true)]),
         "dashboard" => (
             "actions.dashboard",
             &[
@@ -60,7 +67,7 @@ pub(super) fn scan_command(
         ),
         _ => {
             return Err(usage(
-                "unknown actions subcommand (expected show|list|complete|dashboard)",
+                "unknown actions subcommand (expected show|list|complete|prepare-sent-completion|dashboard)",
             ))
         }
     };
@@ -129,7 +136,7 @@ pub(super) fn validate(command: &ActionsCommand) -> Result<(), CliError> {
     match command {
         ActionsCommand::Show(id) if id.is_nil() => Err(usage("Action UUID must not be nil")),
         ActionsCommand::Show(_) => Ok(()),
-        ActionsCommand::Complete(path) => {
+        ActionsCommand::Complete(path) | ActionsCommand::PrepareSentCompletion(path) => {
             if path.as_os_str().is_empty() {
                 Err(usage("missing --file"))
             } else {
@@ -154,6 +161,15 @@ pub(super) fn parse_command(name: &str, scanned: &Scanned) -> Result<ActionsComm
         "actions.complete" => {
             expect_positionals(scanned, 0)?;
             ActionsCommand::Complete(
+                scanned
+                    .value("file")
+                    .map(PathBuf::from)
+                    .ok_or_else(|| usage("missing --file"))?,
+            )
+        }
+        "actions.prepare-sent-completion" => {
+            expect_positionals(scanned, 0)?;
+            ActionsCommand::PrepareSentCompletion(
                 scanned
                     .value("file")
                     .map(PathBuf::from)
@@ -195,6 +211,13 @@ pub(super) fn prepare(command: &ActionsCommand) -> Result<AppCommand, CliFailure
         ActionsCommand::Show(id) => AppCommand::Action(*id),
         ActionsCommand::List(request) => AppCommand::Actions(request.clone()),
         ActionsCommand::Dashboard(request) => AppCommand::ActionDashboard(request.clone()),
+        ActionsCommand::PrepareSentCompletion(path) => {
+            let request: PrepareSentCompletionRequest = super::proposals::input(path)?;
+            request
+                .validate()
+                .map_err(|error| usage(error.to_string()))?;
+            AppCommand::PrepareSentActionCompletion(request)
+        }
         ActionsCommand::Complete(path) => {
             let request: CompleteActionRequest = super::proposals::input(path)?;
             request
@@ -250,6 +273,13 @@ pub(super) fn output(command: &AppCommand, event: AppEvent) -> Result<Output, Cl
                 text.push('\n');
             }
             (serde_json::json!(*page), text)
+        }
+        (
+            AppCommand::PrepareSentActionCompletion(request),
+            AppEvent::SentActionCompletionPrepared(preview),
+        ) if preview.validate_for(request).is_ok() => {
+            let text = format!("{}\n", record_text(&preview));
+            (serde_json::json!(*preview), text)
         }
         (AppCommand::CompleteAction(request), AppEvent::ActionCompleted(completion))
             if completion.request == *request && completion.validate().is_ok() =>
@@ -603,6 +633,7 @@ mod tests {
             priority: None,
         };
         let request = CompleteActionRequest {
+            sent_source: None,
             operation_id: Uuid::new_v4(),
             before: Box::new(ActionRecord {
                 origin: ActionOrigin {
@@ -734,6 +765,61 @@ mod tests {
                 b"synthetic marker"
             );
             assert_eq!(std::fs::read_dir(&data).unwrap().count(), 1);
+            assert!(!credentials.exists());
+        }
+    }
+
+    #[test]
+    fn sent_preparation_malformed_inputs_refuse_before_workspace_or_credentials() {
+        let owner = tempfile::tempdir().unwrap();
+        let data = owner.path().join("data");
+        let credentials = owner.path().join("credentials");
+        let file = owner.path().join("prepare.json");
+        let mut before = completion_request().before;
+        before.data.thread = Some(Uuid::new_v4());
+        before.origin.data.thread = before.data.thread;
+        let request = PrepareSentCompletionRequest {
+            before,
+            source_path: "actual-sent.md".into(),
+        };
+        request.validate().unwrap();
+        for case in [
+            "unknown",
+            "nested",
+            "no_thread",
+            "outside",
+            "partial",
+            "directory",
+        ] {
+            let mut value = serde_json::to_value(&request).unwrap();
+            match case {
+                "unknown" => value["extra"] = serde_json::json!(true),
+                "nested" => value["before"]["extra"] = serde_json::json!(true),
+                "no_thread" => value["before"]["data"]["thread"] = serde_json::Value::Null,
+                "outside" => value["source_path"] = serde_json::json!("../escape.md"),
+                "partial" => value["before"] = serde_json::json!({"id":Uuid::new_v4()}),
+                _ => {}
+            }
+            std::fs::write(&file, serde_json::to_vec(&value).unwrap()).unwrap();
+            let invocation = Invocation {
+                json: true,
+                data_dir: data.clone(),
+                model_dir: None,
+                vault: None,
+                credentials_dir: Some(credentials.clone()),
+                command: Command::Actions(ActionsCommand::PrepareSentCompletion(
+                    if case == "directory" {
+                        owner.path().to_owned()
+                    } else {
+                        file.clone()
+                    },
+                )),
+            };
+            let failure = super::super::execute(&invocation)
+                .err()
+                .expect("pre-admission refusal");
+            assert_eq!(failure.error.code(), "USAGE", "{case}");
+            assert!(!data.exists());
             assert!(!credentials.exists());
         }
     }

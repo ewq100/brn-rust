@@ -415,6 +415,7 @@ mod tests {
                 .finish_proposal_apply(op, ApplyOutcome::Applied, Some(&[]))
                 .unwrap();
             let request = CompleteActionRequest {
+                sent_source: None,
                 operation_id: Uuid::new_v4(),
                 before: Box::new(store.action(id).unwrap().unwrap()),
             };

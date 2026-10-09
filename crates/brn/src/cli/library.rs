@@ -565,6 +565,9 @@ fn execute(
         Command::Actions(_) => {
             let prepared = knowledge.expect("Action input prepared before startup");
             let event = match &prepared {
+                AppCommand::PrepareSentActionCompletion(request) => {
+                    lane.query(AppCommand::PrepareSentActionCompletion(request.clone()))?
+                }
                 AppCommand::CompleteAction(request) => lane.query_with_id(
                     request.operation_id,
                     AppCommand::CompleteAction(request.clone()),

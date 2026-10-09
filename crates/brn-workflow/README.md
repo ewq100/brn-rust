@@ -369,6 +369,19 @@ re-syncs checked evidence and reconstructs completion, preserving newer Complete
 work and refusing incompatible origins/forks. Startup imports approved snapshots
 first, then completions before credentials/model loading and AppWorker Ready.
 Terminal replay precedes fresh eligibility and never refreshes time or republishes.
+Explicit sent-evidence completion additionally accepts an omitted-by-default
+`sent_source`. The owner first retains and approves the actual externally sent
+text through the existing Text Inbox Source route; approving a planned reply or
+Source alone leaves the Action unfinished. `PrepareSentActionCompletion` captures
+the entire exact Action, already approved plain-text Source, approval receipt,
+managed identity and full physical fingerprint in a read-only review. It requires
+an existing explicit Action thread. Final `CompleteAction` with that exact binding
+is the owner's assertion that these displayed bytes were actually sent. It appends
+the Source UUID once, preserving thread, content and immutable Action origin.
+Fresh confirmation refuses changed, missing or ambiguous Source evidence. Retained
+historical proof supports replay and crash recovery after later Source edits or
+removal, without rewriting or resurrecting files. Ordinary completion stays
+vaultless; no sending service, AI Complete tool or inference is introduced.
 Admitted Complete drains during shutdown; its outer command ID must equal the
 typed operation UUID. Fresh publication currently requires macOS; other platforms
 refuse before effects. [CLI acceptance](../brn/README.md#manual-action-acceptance)

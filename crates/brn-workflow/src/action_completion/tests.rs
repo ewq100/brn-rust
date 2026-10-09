@@ -33,7 +33,15 @@ impl Fixture {
         open(&self.base)
     }
     fn prepare(&self) -> CompleteActionRequest {
+        self.prepare_with_thread(None)
+    }
+    fn prepare_with_thread(&self, thread: Option<Uuid>) -> CompleteActionRequest {
         let mut app = self.app();
+        let sources = if thread.is_some() {
+            vec![app.proposal_evidence_source("thread.md").unwrap().source]
+        } else {
+            vec![]
+        };
         let id = Uuid::new_v4();
         let review = app
             .create_proposal(&DraftRequest {
@@ -46,7 +54,7 @@ impl Fixture {
                 session_id: None,
                 title: "User review λ".into(),
                 changes: vec![],
-                sources: vec![],
+                sources,
                 action_changes: vec![ActionChange::Create {
                     id,
                     data: ActionData {
@@ -57,7 +65,7 @@ impl Fixture {
                         related_person: None,
                         related_project: None,
                         sources: vec![],
-                        thread: None,
+                        thread,
                         due_on: None,
                         follow_up_on: None,
                         dependencies: vec![],
@@ -74,6 +82,7 @@ impl Fixture {
         })
         .unwrap();
         let request = CompleteActionRequest {
+            sent_source: None,
             operation_id: Uuid::new_v4(),
             before: Box::new(app.action(id).unwrap()),
         };
@@ -445,3 +454,6 @@ fn crash_child() {
     app.complete_action(&request).unwrap();
     panic!("selected completion checkpoint not reached");
 }
+
+#[path = "sent_tests.rs"]
+mod sent;
