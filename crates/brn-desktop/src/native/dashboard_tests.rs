@@ -678,3 +678,333 @@ fn sent_path_input_error_and_exact_retry_survive_navigation_and_changed_selectio
         assert!(ai.dashboard.attempts[0].receipt.is_none());
     });
 }
+
+fn load_linked_dashboard(
+    desktop: &Entity<Desktop>,
+    completed: bool,
+    window: &mut Window,
+    cx: &mut App,
+) {
+    desktop.update(cx, |this, cx| {
+        this.ai = Some(crate::ai::dashboard_state_tests::linked_loaded(completed));
+        this.ai.as_mut().unwrap().dashboard.sent_source_path = "retained õ\r\nλ".into();
+        this.open_doc = Some(DocRef::Dashboard);
+        for editor in [&this.query, &this.note_editor, &this.review_comment] {
+            editor.update(cx, |editor, cx| {
+                editor.set_value("owner õ\r\n日本語 λ", window, cx)
+            });
+        }
+        this.draft_title.update(cx, |input, cx| {
+            input.set_value("retained form õ", window, cx)
+        });
+        this.sync_dashboard_widgets(window, cx);
+        cx.notify();
+    });
+}
+fn linked_result(id: u128) -> brn_workflow::actions::ActionRecord {
+    let mut record = crate::ai::dashboard_state_tests::record(id);
+    record.data.description = format!(
+        "\u{feff}Linked õ 日本語\r\n{}\rTAIL λ",
+        "full long description\n".repeat(400)
+    );
+    record.data.state = brn_workflow::actions::ActionState::Completed;
+    record.completed_at_ms = Some(record.updated_at_ms);
+    record.waiting_since_ms = None;
+    record.validate().unwrap();
+    record
+}
+#[gpui_kit::test]
+fn linked_action_all_roles_completed_full_readonly_copy_and_buffers_at_480(
+    cx: &mut gpui_kit::TestAppContext,
+) {
+    let (_fixture, handle, desktop) = window(cx, false);
+    let mut visual = VisualTestContext::from_window(handle.into(), cx);
+    visual.run_until_parked();
+    visual.update(|window, cx| load_linked_dashboard(&desktop, true, window, cx));
+    visual.run_until_parked();
+    let source = visual.update(|_, cx| {
+        desktop
+            .read(cx)
+            .ai
+            .as_ref()
+            .unwrap()
+            .dashboard
+            .selected
+            .clone()
+            .unwrap()
+    });
+    for (role, target) in [("Dependency", 500), ("Parent", 501), ("FollowsUp", 502)] {
+        let control = format!("linked-action-{role}-{}", Uuid::from_u128(target));
+        scroll_to(&mut visual, &control);
+        visual.update(|window, cx| {
+            let bounds = window.find(control.clone()).bounds();
+            assert!(
+                bounds.origin.x >= px(0.) && bounds.right() <= window.viewport_size().width,
+                "linked control must fit 480px: {bounds:?}"
+            );
+            window.click(control.clone(), cx);
+            desktop.update(cx, |this, cx| {
+                let ai = this.ai.as_mut().unwrap();
+                // The widget fixture intentionally has no worker; the actual click
+                // gets the normal explicit submission error. Admit a synthetic
+                // retry directly so a checked reply can qualify the detail widget.
+                assert_eq!(ai.dashboard.linked.as_ref().unwrap().error.as_ref().unwrap().kind, brn_workflow::ErrorKind::Cancelled);
+                let (pending, command) = ai.retry_linked_action().unwrap();
+                assert!(matches!(command, brn_workflow::app_worker::AppCommand::Action(id) if id == Uuid::from_u128(target)));
+                assert_eq!(
+                    ai.dashboard.linked.as_ref().unwrap().capture.target,
+                    Uuid::from_u128(target)
+                );
+                ai.apply(
+                    pending,
+                    brn_workflow::app_worker::AppEvent::Action(Box::new(linked_result(target))),
+                );
+                this.sync_dashboard_widgets(window, cx);
+                cx.notify();
+            });
+        });
+        visual.run_until_parked();
+        scroll_to(&mut visual, "copy-linked-action");
+        visual.update(|window, cx| {
+            let record = linked_result(target);
+            let expected = serde_json::to_string_pretty(&record).unwrap();
+            let editor = desktop.read(cx).dashboard.linked_action.clone();
+            assert_eq!(editor.read(cx).value().as_ref(), expected);
+            editor.update(cx, |editor, cx| {
+                editor.focus(window, cx);
+                editor.replace_text_in_range(Some(0..0), "forbidden", window, cx);
+                assert_eq!(editor.value().as_ref(), expected);
+            });
+            window.click("copy-linked-action", cx);
+            let copied = cx
+                .read_from_clipboard()
+                .and_then(|item| item.text())
+                .unwrap();
+            assert_eq!(copied, expected);
+            assert_eq!(
+                serde_json::from_str::<brn_workflow::actions::ActionRecord>(&copied).unwrap(),
+                record
+            );
+            let this = desktop.read(cx);
+            let ai = this.ai.as_ref().unwrap();
+            assert_eq!(ai.dashboard.selected.as_ref(), Some(&source));
+            assert_eq!(ai.dashboard.sent_source_path, "retained õ\r\nλ");
+            assert_eq!(
+                this.dashboard.sent_path.read(cx).value().as_ref(),
+                "retained õ\r\nλ"
+            );
+            assert!(ai.dashboard.attempts.is_empty());
+            assert!(ai.draft.is_none());
+            assert_eq!(this.open_doc, Some(DocRef::Dashboard));
+            for editor in [&this.query, &this.note_editor, &this.review_comment] {
+                assert_eq!(editor.read(cx).value().as_ref(), "owner õ\r\n日本語 λ");
+            }
+            assert_eq!(
+                this.draft_title.read(cx).value().as_ref(),
+                "retained form õ"
+            );
+        });
+        scroll_to(&mut visual, "close-linked-action");
+        visual.update(|window, cx| {
+            window.click("close-linked-action", cx);
+            assert!(
+                desktop
+                    .read(cx)
+                    .ai
+                    .as_ref()
+                    .unwrap()
+                    .dashboard
+                    .linked
+                    .is_none()
+            );
+        });
+        visual.run_until_parked();
+    }
+}
+#[gpui_kit::test]
+fn linked_action_painted_callback_rejects_changed_record_and_same_id_reselection(
+    cx: &mut gpui_kit::TestAppContext,
+) {
+    use gpui_kit::{InputEvent as _, MouseButton, MouseDownEvent, MouseUpEvent};
+    let (_fixture, handle, desktop) = window(cx, false);
+    let mut visual = VisualTestContext::from_window(handle.into(), cx);
+    let control = format!("linked-action-Dependency-{}", Uuid::from_u128(500));
+    for case in 0..3 {
+        visual.update(|window, cx| load_linked_dashboard(&desktop, false, window, cx));
+        visual.run_until_parked();
+        scroll_to(&mut visual, &control);
+        visual.update(|window, cx| {
+            window.render_frame(cx);
+            let position = window.find(control.clone()).bounds().center();
+            desktop.update(cx, |this, _| {
+                let ai = this.ai.as_mut().unwrap();
+                if case == 0 {
+                    ai.dashboard
+                        .selected
+                        .as_mut()
+                        .unwrap()
+                        .action
+                        .data
+                        .description
+                        .push_str(" changed");
+                } else if case == 1 {
+                    assert!(ai.select_dashboard_action(Uuid::from_u128(200)));
+                }
+            });
+            window.dispatch_event(
+                MouseDownEvent {
+                    button: MouseButton::Left,
+                    position,
+                    modifiers: Default::default(),
+                    click_count: 1,
+                    first_mouse: false,
+                }
+                .to_platform_input(),
+                cx,
+            );
+            window.dispatch_event(
+                MouseUpEvent {
+                    button: MouseButton::Left,
+                    position,
+                    modifiers: Default::default(),
+                    click_count: 1,
+                }
+                .to_platform_input(),
+                cx,
+            );
+            assert_eq!(
+                desktop
+                    .read(cx)
+                    .ai
+                    .as_ref()
+                    .unwrap()
+                    .dashboard
+                    .linked
+                    .is_some(),
+                case == 2,
+                "fresh pointer events must exercise the same painted callback"
+            );
+        });
+    }
+}
+#[gpui_kit::test]
+fn linked_action_error_retry_close_and_stale_copy_controls_are_bounded(
+    cx: &mut gpui_kit::TestAppContext,
+) {
+    use brn_workflow::app_worker::AppEvent;
+    use gpui_kit::{InputEvent as _, MouseButton, MouseDownEvent, MouseUpEvent};
+    let (_fixture, handle, desktop) = window(cx, false);
+    let mut visual = VisualTestContext::from_window(handle.into(), cx);
+    visual.update(|window, cx| load_linked_dashboard(&desktop, false, window, cx));
+    visual.run_until_parked();
+    let control = format!("linked-action-Dependency-{}", Uuid::from_u128(500));
+    scroll_to(&mut visual, &control);
+    let first = visual.update(|window, cx| {
+        window.click(control.clone(), cx);
+        desktop.update(cx, |this, cx| {
+            let ai = this.ai.as_mut().unwrap();
+            assert_eq!(
+                ai.dashboard
+                    .linked
+                    .as_ref()
+                    .unwrap()
+                    .error
+                    .as_ref()
+                    .unwrap()
+                    .kind,
+                brn_workflow::ErrorKind::Cancelled
+            );
+            let (id, _) = ai.retry_linked_action().unwrap();
+            ai.apply(
+                id,
+                AppEvent::Failed(brn_workflow::WorkflowError {
+                    kind: brn_workflow::ErrorKind::NotFound,
+                    message: "Missing linked Action".into(),
+                }),
+            );
+            this.sync_dashboard_widgets(window, cx);
+            cx.notify();
+            id
+        })
+    });
+    visual.run_until_parked();
+    scroll_to(&mut visual, "retry-linked-action");
+    visual.update(|window, cx| {
+        window.click("retry-linked-action", cx);
+        desktop.update(cx, |this, cx| {
+            let ai = this.ai.as_mut().unwrap();
+            // The actual Retry button sends through the same disconnected fixture;
+            // that explicit Cancelled result remains recoverable.
+            assert_eq!(
+                ai.dashboard
+                    .linked
+                    .as_ref()
+                    .unwrap()
+                    .error
+                    .as_ref()
+                    .unwrap()
+                    .kind,
+                brn_workflow::ErrorKind::Cancelled
+            );
+            let (next, _) = ai.retry_linked_action().unwrap();
+            assert_ne!(next, first);
+            ai.apply(first, AppEvent::Action(Box::new(linked_result(500))));
+            assert_eq!(ai.dashboard.linked.as_ref().unwrap().intent, Some(next));
+            ai.apply(next, AppEvent::Action(Box::new(linked_result(500))));
+            this.sync_dashboard_widgets(window, cx);
+            cx.notify();
+        });
+    });
+    visual.run_until_parked();
+    scroll_to(&mut visual, "copy-linked-action");
+    visual.update(|window, cx| {
+        window.render_frame(cx);
+        let position = window.find("copy-linked-action").bounds().center();
+        cx.write_to_clipboard(gpui_kit::ClipboardItem::new_string(
+            "keep owner clipboard".into(),
+        ));
+        desktop.update(cx, |this, _| {
+            this.ai
+                .as_mut()
+                .unwrap()
+                .select_dashboard_action(Uuid::from_u128(200));
+        });
+        window.dispatch_event(
+            MouseDownEvent {
+                button: MouseButton::Left,
+                position,
+                modifiers: Default::default(),
+                click_count: 1,
+                first_mouse: false,
+            }
+            .to_platform_input(),
+            cx,
+        );
+        window.dispatch_event(
+            MouseUpEvent {
+                button: MouseButton::Left,
+                position,
+                modifiers: Default::default(),
+                click_count: 1,
+            }
+            .to_platform_input(),
+            cx,
+        );
+        assert_eq!(
+            cx.read_from_clipboard()
+                .and_then(|item| item.text())
+                .as_deref(),
+            Some("keep owner clipboard")
+        );
+        assert!(
+            desktop
+                .read(cx)
+                .ai
+                .as_ref()
+                .unwrap()
+                .dashboard
+                .linked
+                .is_none()
+        );
+    });
+}

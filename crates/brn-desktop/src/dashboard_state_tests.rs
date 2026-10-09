@@ -656,3 +656,450 @@ fn failed_sent_read_retains_path_and_previous_preview_until_explicit_read() {
     );
     assert!(ai.prepare_sent_action_completion().is_some());
 }
+
+pub(crate) fn linked_loaded(completed: bool) -> AiState {
+    let mut source = record(200);
+    source.data.dependencies = vec![Uuid::from_u128(500)];
+    source.data.parent = Some(Uuid::from_u128(501));
+    source.data.follows_up = Some(Uuid::from_u128(502));
+    if completed {
+        source.data.state = ActionState::Completed;
+        source.waiting_since_ms = None;
+        source.completed_at_ms = Some(source.updated_at_ms);
+    }
+    source.validate().unwrap();
+    let mut observed = page(source);
+    if completed {
+        observed.counts.open = 0;
+        observed.counts.completed = 1;
+        observed.entries[0].dependency_blocked = false;
+    }
+    let mut ai = AiState {
+        ready: true,
+        ..Default::default()
+    };
+    ai.open_dashboard();
+    let query = ai.refresh_dashboard(DashboardFilter::All, false).unwrap();
+    ai.apply(query.0, AppEvent::ActionDashboard(Box::new(observed)));
+    assert!(ai.select_dashboard_action(Uuid::from_u128(200)));
+    ai
+}
+
+#[test]
+fn linked_action_roles_completed_records_and_full_correlation_are_read_only() {
+    use super::dashboard_state::LinkedActionRole;
+    let mut ai = linked_loaded(true);
+    let source = ai.dashboard.selected.clone().unwrap();
+    let page = ai.dashboard.page.clone().unwrap();
+    for (role, target) in [
+        (LinkedActionRole::Dependency, 500),
+        (LinkedActionRole::Parent, 501),
+        (LinkedActionRole::FollowsUp, 502),
+    ] {
+        assert!(ai.capture_linked_action(role, Uuid::nil()).is_none());
+        assert!(
+            ai.capture_linked_action(role, Uuid::from_u128(999))
+                .is_none()
+        );
+        let capture = ai
+            .capture_linked_action(role, Uuid::from_u128(target))
+            .unwrap();
+        let (id, command) = ai.inspect_linked_action(&capture).unwrap();
+        assert!(matches!(command, AppCommand::Action(actual) if actual == Uuid::from_u128(target)));
+        assert!(ai.linked_action_loading());
+        assert!(ai.inspect_linked_action(&capture).is_none());
+        let mut expected = record(target);
+        expected.data.description = "\u{feff}Full linked õ 日本語\r\nlast λ\r".into();
+        expected.data.state = ActionState::Completed;
+        expected.completed_at_ms = Some(expected.updated_at_ms);
+        expected.waiting_since_ms = None;
+        expected.validate().unwrap();
+        ai.apply(id, AppEvent::Action(Box::new(record(999))));
+        let mut invalid = expected.clone();
+        invalid.version = 0;
+        ai.apply(id, AppEvent::Action(Box::new(invalid)));
+        ai.apply(id, AppEvent::ActionDashboard(Box::new(page.clone())));
+        assert!(ai.pending.contains_key(&id));
+        assert!(ai.dashboard.linked.as_ref().unwrap().record.is_none());
+        ai.apply(id, AppEvent::Action(Box::new(expected.clone())));
+        assert!(!ai.pending.contains_key(&id));
+        assert_eq!(
+            ai.dashboard.linked.as_ref().unwrap().record.as_ref(),
+            Some(&expected)
+        );
+        assert_eq!(ai.dashboard.selected.as_ref().unwrap(), &source);
+        assert_eq!(ai.dashboard.page.as_ref().unwrap(), &page);
+        assert!(ai.dashboard.attempts.is_empty());
+    }
+    assert!(
+        ai.capture_linked_action(LinkedActionRole::Parent, Uuid::from_u128(500))
+            .is_none()
+    );
+}
+
+#[test]
+fn linked_action_error_retry_close_and_out_of_order_replies_preserve_current_intent() {
+    use super::dashboard_state::LinkedActionRole;
+    let mut ai = linked_loaded(false);
+    let capture = ai
+        .capture_linked_action(LinkedActionRole::Dependency, Uuid::from_u128(500))
+        .unwrap();
+    let old = ai.inspect_linked_action(&capture).unwrap();
+    ai.clear_linked_action();
+    let capture = ai
+        .capture_linked_action(LinkedActionRole::Parent, Uuid::from_u128(501))
+        .unwrap();
+    let current = ai.inspect_linked_action(&capture).unwrap();
+    let notice = ai.notice.clone();
+    ai.apply(old.0, AppEvent::Failed(WorkflowError::msg("stale read")));
+    assert_eq!(ai.notice, notice);
+    assert_eq!(
+        ai.dashboard.linked.as_ref().unwrap().intent,
+        Some(current.0)
+    );
+    assert!(ai.pending.contains_key(&current.0));
+    ai.apply(
+        current.0,
+        AppEvent::Failed(WorkflowError {
+            kind: ErrorKind::NotFound,
+            message: "Linked Action does not exist".into(),
+        }),
+    );
+    assert!(!ai.linked_action_loading());
+    assert_eq!(
+        ai.dashboard
+            .linked
+            .as_ref()
+            .unwrap()
+            .error
+            .as_ref()
+            .unwrap()
+            .kind,
+        ErrorKind::NotFound
+    );
+    let retry = ai.retry_linked_action().unwrap();
+    assert_ne!(retry.0, current.0);
+    assert!(ai.retry_linked_action().is_none());
+    ai.apply(current.0, AppEvent::Action(Box::new(record(501))));
+    assert_eq!(ai.dashboard.linked.as_ref().unwrap().intent, Some(retry.0));
+    ai.apply(retry.0, AppEvent::Action(Box::new(record(501))));
+    assert_eq!(
+        ai.dashboard.linked.as_ref().unwrap().record.as_ref(),
+        Some(&record(501))
+    );
+    let owner = ai.command(Pending::Effort, AppCommand::Effort);
+    ai.apply(owner.0, AppEvent::Action(Box::new(record(501))));
+    assert!(ai.pending.contains_key(&owner.0));
+}
+
+#[test]
+fn linked_action_selection_refresh_view_lifecycle_and_mutation_invalidate_controls_and_replies() {
+    use super::dashboard_state::LinkedActionRole;
+    for change in 0..7 {
+        let mut ai = linked_loaded(false);
+        let capture = ai
+            .capture_linked_action(LinkedActionRole::Dependency, Uuid::from_u128(500))
+            .unwrap();
+        let pending = ai.inspect_linked_action(&capture).unwrap();
+        match change {
+            0 => {
+                ai.select_dashboard_action(Uuid::from_u128(200));
+            }
+            1 => {
+                ai.refresh_dashboard(DashboardFilter::Waiting, false);
+            }
+            2 => ai.close_dashboard(),
+            3 => {
+                ai.dashboard
+                    .selected
+                    .as_mut()
+                    .unwrap()
+                    .action
+                    .data
+                    .description
+                    .push_str(" new source");
+            }
+            4 => {
+                ai.command(Pending::Refresh, AppCommand::Refresh);
+            }
+            5 => {
+                let session = Uuid::new_v4();
+                ai.conversation = Some(session);
+                ai.session_history.lifecycle.insert(
+                    session,
+                    super::session_state_tests::summary(
+                        session,
+                        1,
+                        brn_workflow::conversations::ConversationState::Active,
+                    )
+                    .lifecycle,
+                );
+                assert!(
+                    ai.set_selected_session_lifecycle(
+                        brn_workflow::conversations::ConversationState::Archived
+                    )
+                    .is_some()
+                );
+            }
+            _ => {
+                ai.navigate(None);
+            }
+        }
+        assert!(!ai.linked_action_capture_current(&capture));
+        assert!(ai.inspect_linked_action(&capture).is_none());
+        ai.apply(pending.0, AppEvent::Action(Box::new(record(500))));
+        assert!(ai.dashboard.linked.is_none());
+        assert!(!ai.pending.contains_key(&pending.0));
+    }
+    let mut ai = linked_loaded(false);
+    let capture = ai
+        .capture_linked_action(LinkedActionRole::Dependency, Uuid::from_u128(500))
+        .unwrap();
+    let pending = ai.inspect_linked_action(&capture).unwrap();
+    let completion = ai.capture_action_completion().unwrap();
+    ai.confirm_action_completion(&completion).unwrap();
+    assert!(ai.dashboard.linked.is_none());
+    ai.apply(pending.0, AppEvent::Action(Box::new(record(500))));
+    assert!(ai.dashboard.linked.is_none());
+}
+
+#[test]
+fn linked_action_real_worker_reads_outside_filter_completed_targets_and_restart_without_effects() {
+    use super::dashboard_state::LinkedActionRole;
+    use brn_workflow::{
+        actions::ActionListRequest,
+        app::AppConfig,
+        app_worker::AppWorker,
+        proposal_apply::ApprovalRequest,
+        proposals::{ActionChange, DraftRequest},
+    };
+    use std::{
+        fs,
+        time::{Duration, Instant},
+    };
+    let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let data = root.path().join("data");
+    let credentials = root.path().join("credentials");
+    fs::create_dir(&data).unwrap();
+    let start = || {
+        let worker = AppWorker::start(
+            data.clone(),
+            AppConfig {
+                vault_root: None,
+                credentials_dir: Some(credentials.clone()),
+                model_dir: None,
+            },
+        )
+        .unwrap();
+        assert!(matches!(
+            worker
+                .recv_event_timeout(Duration::from_secs(10))
+                .unwrap()
+                .1,
+            AppEvent::Ready { .. }
+        ));
+        worker
+    };
+    let reply = |worker: &AppWorker, (id, command): (Uuid, AppCommand)| {
+        worker.submit(id, command).unwrap();
+        let deadline = Instant::now() + Duration::from_secs(10);
+        loop {
+            let (actual, event) = worker
+                .recv_event_timeout(deadline.saturating_duration_since(Instant::now()))
+                .unwrap();
+            if actual == id {
+                break (id, event);
+            }
+        }
+    };
+    let read = |worker: &AppWorker, id| {
+        let (_, AppEvent::Action(record)) = reply(worker, (Uuid::new_v4(), AppCommand::Action(id)))
+        else {
+            panic!("Action read")
+        };
+        *record
+    };
+    let mut worker = start();
+    let target_id = Uuid::new_v4();
+    let source_id = Uuid::new_v4();
+    let mut target = record(500).data;
+    target.related_person = None;
+    target.related_project = None;
+    target.sources.clear();
+    target.thread = None;
+    target.dependencies.clear();
+    target.parent = None;
+    target.follows_up = None;
+    target.state = ActionState::Waiting;
+    target.description = "\u{feff}Outside page õ 日本語\r\nwhole λ\r".into();
+    let mut source = target.clone();
+    source.state = ActionState::Open;
+    source.dependencies = vec![target_id];
+    source.parent = Some(target_id);
+    source.follows_up = Some(target_id);
+    let draft = DraftRequest {
+        intake: None,
+        inbox_visual: None,
+        inbox_knowledge: None,
+        inbox_source: None,
+        id: Uuid::new_v4(),
+        group_id: None,
+        session_id: None,
+        title: "Linked owner work".into(),
+        changes: vec![],
+        sources: vec![],
+        action_changes: vec![
+            ActionChange::Create {
+                id: target_id,
+                data: target,
+            },
+            ActionChange::Create {
+                id: source_id,
+                data: source,
+            },
+        ],
+    };
+    let (_, AppEvent::Proposal(review)) =
+        reply(&worker, (Uuid::new_v4(), AppCommand::CreateProposal(draft)))
+    else {
+        panic!("review")
+    };
+    let approval = ApprovalRequest {
+        operation_id: Uuid::new_v4(),
+        expected: review.stamp(),
+    };
+    assert!(matches!(
+        reply(
+            &worker,
+            (Uuid::new_v4(), AppCommand::ApproveProposal(approval))
+        )
+        .1,
+        AppEvent::ProposalApplied(_)
+    ));
+    let mut ai = AiState {
+        ready: true,
+        ..Default::default()
+    };
+    ai.open_dashboard();
+    let query = ai.refresh_dashboard(DashboardFilter::Open, false).unwrap();
+    let (id, event) = reply(&worker, query);
+    ai.apply(id, event);
+    assert_eq!(ai.dashboard.page.as_ref().unwrap().entries.len(), 1);
+    assert!(ai.select_dashboard_action(source_id));
+    let original_selection = ai.dashboard.selected.clone().unwrap();
+    let target_before = read(&worker, target_id);
+    let completion = CompleteActionRequest {
+        operation_id: Uuid::new_v4(),
+        before: Box::new(target_before),
+        sent_source: None,
+    };
+    assert!(matches!(
+        reply(
+            &worker,
+            (
+                completion.operation_id,
+                AppCommand::CompleteAction(completion)
+            )
+        )
+        .1,
+        AppEvent::ActionCompleted(_)
+    ));
+    let expected = read(&worker, target_id);
+    assert_eq!(expected.data.state, ActionState::Completed);
+    assert_eq!(
+        original_selection.dependencies[0].state,
+        Some(ActionState::Waiting)
+    );
+    assert!(original_selection.dependency_blocked);
+    let (_, AppEvent::Proposals(proposals_before)) =
+        reply(&worker, (Uuid::new_v4(), AppCommand::Proposals(None)))
+    else {
+        panic!("proposals before")
+    };
+    let (_, AppEvent::Conversations(conversations_before)) =
+        reply(&worker, (Uuid::new_v4(), AppCommand::Conversations))
+    else {
+        panic!("conversations before")
+    };
+    let before = reply(
+        &worker,
+        (
+            Uuid::new_v4(),
+            AppCommand::Actions(ActionListRequest::default()),
+        ),
+    )
+    .1;
+    for role in [
+        LinkedActionRole::Dependency,
+        LinkedActionRole::Parent,
+        LinkedActionRole::FollowsUp,
+    ] {
+        let capture = ai.capture_linked_action(role, target_id).unwrap();
+        let (id, event) = reply(&worker, ai.inspect_linked_action(&capture).unwrap());
+        ai.apply(id, event);
+        assert_eq!(
+            ai.dashboard.linked.as_ref().unwrap().record.as_ref(),
+            Some(&expected)
+        );
+        assert_eq!(ai.dashboard.selected.as_ref().unwrap(), &original_selection);
+    }
+    let after = reply(
+        &worker,
+        (
+            Uuid::new_v4(),
+            AppCommand::Actions(ActionListRequest::default()),
+        ),
+    )
+    .1;
+    assert!(matches!((before, after), (AppEvent::Actions(a), AppEvent::Actions(b)) if a == b));
+    assert!(
+        matches!(reply(&worker, (Uuid::new_v4(), AppCommand::Proposals(None))).1, AppEvent::Proposals(records) if records == proposals_before)
+    );
+    assert!(
+        matches!(reply(&worker, (Uuid::new_v4(), AppCommand::Conversations)).1, AppEvent::Conversations(records) if serde_json::to_value(&records).unwrap() == serde_json::to_value(&conversations_before).unwrap())
+    );
+    let completed_source = CompleteActionRequest {
+        operation_id: Uuid::new_v4(),
+        before: Box::new(read(&worker, source_id)),
+        sent_source: None,
+    };
+    assert!(matches!(
+        reply(
+            &worker,
+            (
+                completed_source.operation_id,
+                AppCommand::CompleteAction(completed_source)
+            )
+        )
+        .1,
+        AppEvent::ActionCompleted(_)
+    ));
+    worker.shutdown().unwrap();
+    worker = start();
+    let (id, event) = reply(
+        &worker,
+        ai.refresh_dashboard(DashboardFilter::Completed, false)
+            .unwrap(),
+    );
+    ai.apply(id, event);
+    assert!(ai.select_dashboard_action(source_id));
+    let capture = ai
+        .capture_linked_action(LinkedActionRole::Dependency, target_id)
+        .unwrap();
+    let (id, event) = reply(&worker, ai.inspect_linked_action(&capture).unwrap());
+    ai.apply(id, event);
+    assert_eq!(
+        ai.dashboard.linked.as_ref().unwrap().record.as_ref(),
+        Some(&expected)
+    );
+    assert_eq!(read(&worker, target_id), expected);
+    assert!(
+        matches!(reply(&worker, (Uuid::new_v4(), AppCommand::Proposals(None))).1, AppEvent::Proposals(records) if records.len() == 1)
+    );
+    assert!(
+        matches!(reply(&worker, (Uuid::new_v4(), AppCommand::Conversations)).1, AppEvent::Conversations(records) if records.is_empty())
+    );
+    worker.shutdown().unwrap();
+    assert_eq!(fs::read_dir(credentials).unwrap().count(), 0);
+    assert!(!data.join("index.sqlite").exists());
+}
