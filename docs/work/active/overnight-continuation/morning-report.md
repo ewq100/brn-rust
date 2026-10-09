@@ -1,4 +1,4 @@
-# Overnight BRN report — 04:41 UTC, 9 October 2026
+# Overnight BRN report — 05:00 UTC, 9 October 2026
 
 Product work through PR110 and scale qualification PR111 are merged. All four
 required candidate and resulting-main checks plus documentation passed for
@@ -196,3 +196,8 @@ The final required CI proof and informational failure receipts are retained.
 Product development ended for qualification at 04:30 UTC; the overnight cutoff is
 05 UTC/08:00 Tallinn. Useful synthetic data remains bound in place; durable copied
 qualification evidence is under the artifact folder with a SHA-256 archive manifest.
+
+The08:00Tallinn/05:00UTC cutoff is reached. The overnight heartbeat is confirmed
+paused. Product integration and final qualification are complete for the listed
+slices; actual UI and owner acceptance remain pending. No new development or
+inference continues under this overnight instruction.

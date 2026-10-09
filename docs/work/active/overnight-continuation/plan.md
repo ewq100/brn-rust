@@ -77,7 +77,7 @@ requires exact final-candidate review, applicable local checks and actual requir
 CI. No weakening, bypass or rushed merge. Record failures and repair real defects.
 Known informational platform failures remain visible and separate.
 
-## Durable checkpoint — 09 October 04:41 UTC
+## Durable checkpoint — 09 October 05:00 UTC
 
 Objective: finish owner-authorized BRN overnight work by05UTC/08Tallinn, with
 qualification/integration/report priority from04:30. Product work PR90–110 and
@@ -97,8 +97,11 @@ andfive informational failurelogs inspected/retained. Overallrunred is acknowled
 Windowscore/UI fourUnixAPI errors; nativeRetrieval fourteenUnixAPI errors; Linux
 three unsupported exclusive-install tests, unusedimports andPR97-addedlegacyhelper.
 Retrievaldownload source/tests unchanged from prePR90 baseline. Rootmain/tree/
-productdiff/runtimehash proof passed. Next: finalize safe report push/archive and
-pauseheartbeat at05UTC. No technical integration gate remains, no more productdevelopment.
+productdiff/runtimehash proof passed. Cutoff05UTC/08Tallinn reached; heartbeat
+PAUSED confirmed through app tool. Final factual report commit/push and evidence
+copy are handoff-only. No technical integration gate remains, no new development
+or inference. Next owner action: essential consolidated UI acceptance path with
+unlocked Mac/available owner, preserving the listed synthetic workspaces.
 No protection bypass, shortened witnesses or unqualified merge. Helpersidle/CargoFREE.
 Final hosted raw Mac logs independently reviewed CLEAN; report
 final-hosted-ci-receipt-review.txt SHA3e6dfd5294a6e1be6d2311d52e93ac71f80bb2a6255e9edbf2620cfc7b47155b.
@@ -146,7 +149,7 @@ Canonical BRNlivecampaign16/16USED Luna8/Sol8; owner's10extraalreadycounted. NO
 more livecalls/retries/effortconditions/substitution/reset. Existingauth/catalog were
 confirmed beforequalification; no login needed. Accountwide03:55 ordinarytrue80%used/
 20%remainingweekly, NOTnightspend; shortwindow/HTTP/tokens/internalreasoning/spendunknown.
-Archive2768files1,062,940,474B04:42 includesfinalCI/logs/reviews/reportcopies; finalcutoff receipt refresh follows. Only
+Archive refreshed04:52 with2775files/1,064,002,299B, includingfinal hostedCI/review/reportcopies. Cutoff refresh follows; consult artifact archive-manifest.json for the final exact inventory. Only
 synthetic/publicdata; no privatevault/email/docs/credentialcontents/accountswitch/
 purchase/paidfallback/modeldownload/release/sign/ports/globalconfig/unrelatedmerge.
 Preserveprimary18f3891+DSStore/researchPR80/82/84/userdata/ownerbuffers/approval/
@@ -166,8 +169,8 @@ Root04:38 final-main-runtime-proof.json confirms exactmain/tree/productdiffempty
 and three runtimehashes again. Status consolidation removes stale later-slice
 pending descriptions; factual narrow review CLEAN930b599cd7fe02c2238f96ac3a98ecca08c233ced5e95cbbf92af4b8991772c2,
 report final-status-consolidation-review.txt. No product/script/test change.
-At05UTC no newdevelopment/live, exactselfcontainedreport+pauseheartbeat; disablealso
-owner cancellation/account-runtime-limit/allusefulauthorizedblocked. Noarchivechat.
+At05UTC heartbeat pause confirmed. No newdevelopment/live. Final self-contained
+morning report and the one canonical UI prompt are delivered; no chat archival.
 
 ## Selected first evidence slice
 
