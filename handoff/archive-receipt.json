@@ -1,0 +1,22 @@
+{
+  "checked_at_utc": "2026-10-09T06:58:42.195388+00:00",
+  "archive": "/Users/evokessler/repos/brn-morning-handoff-20261009/BRN-morning-handoff-20261009.tar.gz",
+  "sha256": "55a3bda501686e5fdfaa184f84eb946afe4f7b42771509257719a87c8ff101a3",
+  "bytes": 101466636,
+  "file_entries": 6587,
+  "top_level": "bundle",
+  "absolute_or_parent_paths": 0,
+  "links_or_devices": 0,
+  "credential_directories": 0,
+  "manifest_file_set_exact": true,
+  "fresh_extraction": "/Users/evokessler/repos/brn-morning-handoff-20261009/verified-extraction-final",
+  "extracted_verification": {
+    "files_verified": 6586,
+    "bytes_verified": 467322190,
+    "sqlite_readonly_integrity": "ok",
+    "native_acceptance": "not established by this verifier"
+  },
+  "extracted_sqlite_logical_parity_count": 113,
+  "public_upload": false,
+  "native_acceptance": "blocked / unexercised; Mac mini locked, owner unable to unlock"
+}
