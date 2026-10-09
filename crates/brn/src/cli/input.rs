@@ -3,6 +3,36 @@ use super::error::CliError;
 use brn_workflow::MAX_NOTE_BYTES;
 use std::{fs, io::Read, path::Path};
 
+/// Small strict typed request, decoded without waiting for a FIFO writer.
+pub(super) fn read_small_json_file<T: serde::de::DeserializeOwned>(
+    path: &Path,
+    kind: &str,
+) -> Result<T, CliError> {
+    use std::os::unix::fs::OpenOptionsExt;
+    const MAX: usize = 64 * 1024;
+    let io = |error: std::io::Error| CliError::Workflow(error.to_string());
+    let mut file = fs::File::options()
+        .read(true)
+        .custom_flags(libc::O_NONBLOCK)
+        .open(path)
+        .map_err(io)?;
+    let metadata = file.metadata().map_err(io)?;
+    if !metadata.is_file() || metadata.len() > MAX as u64 {
+        return Err(super::usage(format!(
+            "{kind} needs a regular JSON file up to 64 KiB"
+        )));
+    }
+    let mut bytes = Vec::new();
+    Read::by_ref(&mut file)
+        .take((MAX + 1) as u64)
+        .read_to_end(&mut bytes)
+        .map_err(io)?;
+    if bytes.len() > MAX {
+        return Err(super::usage(format!("{kind} JSON exceeds 64 KiB")));
+    }
+    serde_json::from_slice(&bytes).map_err(|_| super::usage(format!("invalid {kind} JSON schema")))
+}
+
 /// Read once, bounded by bytes, without newline or Unicode normalization.
 pub(super) fn read_text_file(path: &Path, kind: &str) -> Result<String, CliError> {
     fn io(error: std::io::Error) -> CliError {

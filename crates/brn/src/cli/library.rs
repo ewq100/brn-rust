@@ -645,6 +645,21 @@ fn execute(
             };
             Ok(output(data))
         }
+        Command::Evidence(super::evidence::EvidenceCommand::ReadRaw(request)) => {
+            let AppEvent::RawEvidence(reply) =
+                lane.query(knowledge.expect("raw evidence prepared before startup"))?
+            else {
+                return Err(unexpected());
+            };
+            reply
+                .validate_for(request)
+                .map_err(|error| classify_workflow(error.into()))?;
+            let data = json!(reply);
+            Ok(Output {
+                text: serde_json::to_string_pretty(&data).expect("safe DTO"),
+                data,
+            })
+        }
         Command::Evidence(super::evidence::EvidenceCommand::Read(path)) => {
             let AppEvent::EvidenceNote(note) =
                 lane.query(knowledge.expect("evidence input prepared before startup"))?

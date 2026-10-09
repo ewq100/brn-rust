@@ -8,7 +8,7 @@ use brn_workflow::{
     knowledge::{CitationReviewCursor, CitationReviewDetailRequest, CitationReviewRequest},
 };
 use serde::de::DeserializeOwned;
-use std::{fs::File, io::Read, os::unix::fs::OpenOptionsExt, path::Path};
+use std::path::Path;
 
 pub enum NeedsReviewCommand {
     Citations(CitationReviewRequest),
@@ -43,28 +43,7 @@ pub(super) fn scan_command(
 
 // Both small request schemas are decoded once before opening any workspace.
 fn input<T: DeserializeOwned>(path: &Path) -> Result<T, CliError> {
-    const MAX: usize = 64 * 1024;
-    let io = |error: std::io::Error| CliError::Workflow(error.to_string());
-    let mut file = File::options()
-        .read(true)
-        .custom_flags(libc::O_NONBLOCK)
-        .open(path)
-        .map_err(io)?;
-    let metadata = file.metadata().map_err(io)?;
-    if !metadata.is_file() || metadata.len() > MAX as u64 {
-        return Err(usage(
-            "citation review needs a regular JSON file up to 64 KiB",
-        ));
-    }
-    let mut bytes = Vec::new();
-    Read::by_ref(&mut file)
-        .take((MAX + 1) as u64)
-        .read_to_end(&mut bytes)
-        .map_err(io)?;
-    if bytes.len() > MAX {
-        return Err(usage("citation review JSON exceeds 64 KiB"));
-    }
-    serde_json::from_slice(&bytes).map_err(|_| usage("invalid citation review JSON schema"))
+    super::input::read_small_json_file(path, "citation review")
 }
 
 pub(super) fn validate(command: &NeedsReviewCommand) -> Result<(), CliError> {

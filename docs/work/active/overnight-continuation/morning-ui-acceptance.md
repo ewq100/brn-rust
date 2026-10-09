@@ -18,10 +18,10 @@ checks/docs; all required post-merge checks/docs passed in 37844389582.
 Refresh this receipt after subsequent changes and before cutoff; qualification is
 separate from personal acceptance.
 
-Checkout: `/Users/evokessler/repos/brn-p2-email-docx-intake`.
+Checkout/current authoritative morning task: `/Users/evokessler/repos/brn-p3-work-budgets`.
 Latest qualified combined build source: `538b160f6ea16f9c6c6f6a8823c0ee4119640657`
 (merged prior slices plus independently reviewed and corrected citation evidence review). Main is
-`6a63173fb6e33b4ba239ad6aade23bde976ee051`; PR90–PR100 required candidate checks
+`77960d1d8affa71b14ec0a4e3c99fe52663b5cf2`; PR90–PR100 required candidate checks
 passed. PR90–PR99 required post-merge checks passed. PR100 post-merge run37859299854
 passed all required checks/docs. Action compensation is merged and locally qualified. Immutable shipping runtime:
 `/Users/evokessler/repos/brn-overnight-artifacts-20261008/citation-review-runtime`.
@@ -32,7 +32,7 @@ SHA-256 `e435ce342a55686cd6a70b2cf129d454de801f51277569e04a513deb28636b81`.
 Helper: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/citation-review-runtime/brn-intake-helper`,
 SHA-256 `7f058c359a092559cda55b07c3880b44e637257818ad60c725da8b1d99a9f8e5`.
 Manifest: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/citation-review-runtime/build-manifest.json`.
-This runtime includes SessionV18, PPTX, automatic backups, Action compensation, filename revision and read-only citation evidence review. PR102 revised required CI pending. PR101 required candidate CI passed and normal merge6a63173 completed; all required post-main checks/docs passed in37861908706. Refresh final receipt before cutoff and
+This runtime includes SessionV18, PPTX, automatic backups, Action compensation, filename revision and read-only citation evidence review. PR102 revised requiredCI passed and normal merge77960d1 completed; post-main37865065354 active. PR101 required candidate CI passed and normal merge6a63173 completed; all required post-main checks/docs passed in37861908706. Refresh final receipt before cutoff and
 never use historical executables after newer schema migration. Bound state/vault
 folders remain in place.
 Actual GUI/personal acceptance remains pending.
@@ -181,7 +181,7 @@ than passed whenever a control/result cannot be exercised.
 
 ## One ordered journey
 
-Allow 110–150 minutes for all workspaces/new controls. Essential path: steps 1–5 and 8–9, about 30–40 minutes.
+Allow 120–160 minutes for all workspaces/new controls. Essential path: steps 1–5 and 8–9, about 30–40 minutes.
 
 | Step / user action | Expected result | Evidence / failure record |
 | --- | --- | --- |
@@ -204,7 +204,9 @@ Allow 110–150 minutes for all workspaces/new controls. Essential path: steps 1
 | 17. Once rename is qualified and included in the final build, select a retained new-note Draft, save owner text/comments, change its filename within the same folder, inspect the complete revised review, approve the revised version and restart | Text/UUID/comments/evidence/History and other members remain exact; changed destination advances approval version once, no file effect until approval. Same-path no-op stays exact. Stale/occupied/unsafe/cross-folder requests refuse while retaining owner work; Observe after refusal must preserve the entered filename and queued navigation until explicit Retry/Discard | Original/new filename, request/returned version, complete before/after, comments, stale approval/refusal and saved note after restart. Independent review and final local gates passed:1796 default coverage/18 existing ignores,436 native workflow/models/16,585 combined desktopCLI; required PR101 candidate CI passed and normal merge completed; all required post-main checks/docs passed in37861908706. Actual GUI acceptance pending |
 
 
-| 18. Once citation review is qualified and in the final build, quit H and open I, choose Needs Review → Citation evidence, inspect rows and complete saved consumer/source details, Load more, Refresh, switch to Findings and restart | Changed/Absent/Ambiguous rows have exact reasons and preserved original quotes. Moved unchanged archived evidence remains Matched and absent from issue rows. Malformed metadata gives explicit incomplete coverage. Sparse pages still offer Load more; refreshed rows/detail are bound to exact consumer hash. Derived rows have no Resolve/Dismiss/approval/capture/automatic analysis controls; owner composer/editor/review and pending navigation remain recoverable | Record row paths/outcomes, complete copied consumer/proof/quotes, coverage and cursor progress, stale/error behavior, buffer preservation and restart. Backend11 focused plus10 existing provenance tests, native5state/8widgets,4Findings regressions andCLI3 passed. Complete review found one coverage defect, corrected red-to-green; independent correction review and final affected gates passed; revised required CI pending. Actual UI acceptance pending |
+| 18. Once citation review is qualified and in the final build, quit H and open I, choose Needs Review → Citation evidence, inspect rows and complete saved consumer/source details, Load more, Refresh, switch to Findings and restart | Changed/Absent/Ambiguous rows have exact reasons and preserved original quotes. Moved unchanged archived evidence remains Matched and absent from issue rows. Malformed metadata gives explicit incomplete coverage. Sparse pages still offer Load more; refreshed rows/detail are bound to exact consumer hash. Derived rows have no Resolve/Dismiss/approval/capture/automatic analysis controls; owner composer/editor/review and pending navigation remain recoverable | Record row paths/outcomes, complete copied consumer/proof/quotes, coverage and cursor progress, stale/error behavior, buffer preservation and restart. Backend11 focused plus10 existing provenance tests, native5state/8widgets,4Findings regressions andCLI3 passed. Complete review found one coverage defect, corrected red-to-green; independent correction review and final affected gates passed; revised requiredCI passed and normal merge completed; post-main37865065354 active. Actual UI acceptance pending |
+
+| 19. Once raw evidence qualifies in the final build, inspect retained WorkspaceJ results and the malformed saved Markdown; read the exact saved answer and raw metadata/range proof, then restart | Explicit raw reading preserves BOM/CRLF/Unicode, fullhash and exact ranges; damaged metadata supplies no Current facts. Source changes refuse an old fullhash, ordinary Current lookup stays strict, and no metadata repair/new effects occur. Saved results reopen without inference | Final fixture/build/turnIDs and exact rawtext/range/hash, metadata issue and disclosed authority, restart. AI153/1existingignore,Workflow7/CLI3/Desktop1 focused passed; complete review/final gates/CI pending. WorkspaceJ not yet prepared; do not fabricate IDs or rerun inference for inspection |
 
 ## Headless evidence already passed; interactive acceptance pending
 
@@ -230,7 +232,7 @@ Owner added ten shared trials; fourteen of sixteen used, leaving at most one per
 ## Ready-to-paste morning agent prompt
 
 > Read `docs/work/active/overnight-continuation/morning-ui-acceptance.md` and the
-> latest overnight checkpoint in `/Users/evokessler/repos/brn-p2-email-docx-intake`.
+> latest overnight checkpoint in `/Users/evokessler/repos/brn-p3-work-budgets`.
 > The Mac is unlocked and I am available. Verify final commit/build hashes and
 > use only the recorded synthetic workspaces. Execute this single ordered UI
 > journey, essential path first if time is limited. Record actual observations
@@ -244,7 +246,9 @@ Owner added ten shared trials; fourteen of sixteen used, leaving at most one per
 > once the recorded final build contains them. Include same-folder new-note
 > filename revision, stale approval refusal and restart once qualified. Include
 > Needs Review Citation evidence discovery, exact detail/quotes, sparse pagination,
-> coverage diagnostics, Refresh and preserved owner buffers once qualified.
+> coverage diagnostics, Refresh and preserved owner buffers once qualified. Include
+> raw metadata-invalid saved evidence and exact hashbound ranges using retained
+> WorkspaceJ results once its final receipt exists.
 > Preserve failures, drafts and exact evidence; do not reset data or touch my real
 > vault. Report concrete defects and pending owner acceptance; mark unobserved
 > or unavailable checks pending. A new live cancellation trial requires an explicit

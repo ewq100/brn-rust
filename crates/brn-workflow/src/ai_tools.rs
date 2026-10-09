@@ -6,16 +6,19 @@ use crate::library::{
 use crate::vault::{self, EvidencePath, VaultPath};
 use brn_ai::{
     AiError, AiErrorKind, AiResult, ConflictKnowledge, NoteEntry, NoteFacts, NotePage,
-    NoteRangeRequest, Passage, ReadScope, ReadTools, ToolNote, ToolNoteRange, ToolSearch,
+    NoteRangeRequest, Passage, RawEvidence, RawEvidenceRequest, ReadScope, ReadTools, ToolNote,
+    ToolNoteRange, ToolSearch,
 };
 use brn_retrieval::note_index::{IndexedNote, NoteIndexReader};
 use std::{
+    os::unix::fs::MetadataExt,
     path::{Path, PathBuf},
     sync::Mutex,
 };
 
 pub struct AiTools {
     root: PathBuf,
+    raw_root_identity: Option<brn_store::files::VaultIdentity>,
     current_fence: Mutex<(u64, bool)>,
     reader: Mutex<NoteIndexReader>,
     embedder: Option<SharedEmbedder>,
@@ -36,6 +39,14 @@ impl AiTools {
     ) -> crate::Result<Self> {
         Ok(Self {
             root: root.to_owned(),
+            raw_root_identity: root
+                .symlink_metadata()
+                .ok()
+                .filter(|meta| meta.is_dir() && !meta.file_type().is_symlink())
+                .map(|meta| brn_store::files::VaultIdentity {
+                    device: meta.dev(),
+                    inode: meta.ino(),
+                }),
             current_fence: Mutex::new((0, false)),
             reader: Mutex::new(NoteIndexReader::open(index)?),
             embedder,
@@ -70,6 +81,22 @@ impl AiTools {
             .is_ok_and(|m| m.is_dir() && !m.file_type().is_symlink())
         {
             Ok(epoch)
+        } else {
+            Err(stale())
+        }
+    }
+
+    fn check_raw_root(&self) -> AiResult<()> {
+        let meta = self.root.symlink_metadata().map_err(|_| stale())?;
+        let current = brn_store::files::VaultIdentity {
+            device: meta.dev(),
+            inode: meta.ino(),
+        };
+        if meta.is_dir()
+            && !meta.file_type().is_symlink()
+            && self.raw_root_identity.as_ref() == Some(&current)
+        {
+            Ok(())
         } else {
             Err(stale())
         }
@@ -201,6 +228,58 @@ pub(crate) fn note_page_scoped(
 }
 
 impl ReadTools for AiTools {
+    fn read_raw_evidence(&self, request: &RawEvidenceRequest) -> AiResult<RawEvidence> {
+        request.validate()?;
+        let path = EvidencePath::parse(&request.path).map_err(|_| rejected())?;
+        let epoch = self.check_root()?;
+        self.check_raw_root()?;
+        let note = vault::read_evidence(&self.root, &path).map_err(|_| rejected())?;
+        if request
+            .expected_sha256
+            .is_some_and(|hash| hash != note.sha256)
+        {
+            return Err(stale());
+        }
+        let remaining = note.text.get(request.start_byte..).ok_or_else(rejected)?;
+        let end_byte = request
+            .end_byte
+            .unwrap_or_else(|| request.start_byte + brn_ai::capped_text(remaining).0.len());
+        let text = note
+            .text
+            .get(request.start_byte..end_byte)
+            .ok_or_else(rejected)?;
+        let metadata_issue = saved_metadata(&note.text, &request.path).issue.or_else(|| {
+            brn_store::work::inbox_source::read_provenance(&note.text)
+                .err()
+                .map(|error| error.to_string())
+        });
+        let facts = if metadata_issue.is_none() {
+            Some(checked_facts(
+                &note.text,
+                &request.path,
+                KnowledgeScope::All,
+                note.sha256,
+            )?)
+        } else {
+            None
+        };
+        let reply = RawEvidence {
+            path: request.path.clone(),
+            sha256: note.sha256,
+            start_byte: request.start_byte,
+            end_byte,
+            total_bytes: note.text.len(),
+            text: text.to_owned(),
+            partial: request.start_byte > 0 || end_byte < note.text.len(),
+            facts,
+            metadata_issue,
+        };
+        self.check_current_epoch(epoch)?;
+        self.check_raw_root()?;
+        reply.validate_for(request)?;
+        Ok(reply)
+    }
+
     fn search_notes(&self, query: &str, limit: usize) -> AiResult<ToolSearch> {
         self.search_notes_scoped(query, limit, ReadScope::Current)
     }

@@ -1175,3 +1175,15 @@ exact consumer text plus saved-source proofs. Changed consumer hashes refuse.
 Coverage diagnostics mean unavailable observation, never a healthy or absent
 source. Requests/cursors are bounded regular JSON files up to64KiB; unknown fields
 and invalid requests refuse before opening storage. No inference or effects occur.
+
+## Raw saved evidence
+
+`evidence read-raw --file REQUEST.json` reads explicit saved Markdown even when
+managed metadata is invalid. A default `{"path":"note.md"}` returns a UTF8-bounded
+prefix, complete-file hash/length and metadata observations. Copy that hash into
+`expected_sha256` whenever supplying `start_byte` or `end_byte`; offsets are exact
+half-open UTF8 bytes including BOM/frontmatter/CRLF, with no clipping.
+`facts:null` and `metadata_issue` mean raw unclassified evidence, not Current
+knowledge or approval authority. Ordinary Current validation remains unchanged.
+Requests are strict regular JSON<=64KiB; responses refuse malformed proof/oversized
+metadata diagnostics. Reads never repair metadata or alter source bytes.

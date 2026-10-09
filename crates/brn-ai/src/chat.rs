@@ -1,8 +1,8 @@
 use crate::auth::OwnedClient;
 use crate::error::map_provider;
 use crate::tools::{
-    ListActions, ListNotes, ReadAction, ReadConflicts, ReadNote, ReadNoteRange, SearchNotes,
-    ToolRounds,
+    ListActions, ListNotes, ReadAction, ReadConflicts, ReadNote, ReadNoteRange, ReadRawEvidence,
+    SearchNotes, ToolRounds,
 };
 use crate::{AiError, AiErrorKind, Provider, ProviderClient, ReadTools};
 use futures::StreamExt;
@@ -499,6 +499,7 @@ async fn run_model_images(
         .tool(SearchNotes(tools.clone()))
         .tool(ReadNote(tools.clone()))
         .tool(ReadNoteRange(tools.clone()))
+        .tool(ReadRawEvidence(tools.clone()))
         .tool(ListNotes(tools.clone()))
         .tool(ReadAction(tools.clone()))
         .tool(ListActions(tools.clone()))
@@ -610,6 +611,7 @@ pub(crate) async fn collect_stream(
                     "search_notes"
                         | "read_note"
                         | "read_note_range"
+                        | "read_raw_evidence"
                         | "list_notes"
                         | "read_action"
                         | "list_actions"
