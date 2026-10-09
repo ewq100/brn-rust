@@ -201,6 +201,7 @@ fn lenses_complete_records_cross_scope_proofs_and_independent_paging_ignore_firs
     let req = f.request(&mut app, ProfileLens::Person, 2);
     let completed = app
         .complete_action(&CompleteActionRequest {
+            sent_source: None,
             operation_id: Uuid::new_v4(),
             before: Box::new(person.clone()),
         })
