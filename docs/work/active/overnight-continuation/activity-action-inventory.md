@@ -107,7 +107,7 @@ proof; exactqualifiedtree3dad850c9e14e5b2419ebe172a20d3c47d6c8028. Linkedpost
 37880350055pending. This Activitycandidate needs actualrequiredCI/docs and eligible
 Linkedpost before normal protected merge/exactresultingmain/postCI. No unqualifiedmerge.
 
-Independent final-document review found three passing Workflow doctests omitted by
+Independent final-document review found three passing Workflow vault-evidence integration tests omitted by
 the helper count parser. Correct totals are1182/17(default),Workflow650+CLI219+
 Desktop313. Original immutable build manifest underreports1179/647 and is retained
 as historical evidence; activity-inventory-count-correction.json records this erratum.

@@ -40,7 +40,7 @@ SHA-256 `e7ddbdc2ce0107bf8341db982049988ed8c81b609dc18c8bd632270019b9bff0`.
 Helper: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/activity-action-runtime/brn-intake-helper`,
 SHA-256 `7f058c359a092559cda55b07c3880b44e637257818ad60c725da8b1d99a9f8e5`.
 Count erratum: the original immutable manifest underreports1179/Workflow647 by three
-passing doctests; corrected1182/Workflow650 totals are recorded in
+passing vault-evidence integration tests; corrected1182/Workflow650 totals are recorded in
 `/private/tmp/brn-overnight-20261008/activity-inventory-count-correction.json`.
 Manifest `build-manifest.json` records exact source/tree, binary hashes and local
 qualification. This includes all earlier overnight changes through Person/Project
