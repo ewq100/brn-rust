@@ -48,13 +48,12 @@ so metadata-invalid files remain inspectable without Current authority. Focused
 AI153/1existingignore,Workflow7,CLI3+3citation,Desktop1 and strictaffectedClippy
 passed. [PR103](https://github.com/ewq100/brn-rust/pull/103) complete independent review
 found a valid missing delegation in the actual application tool wrapper; a real
-Ask admission regression reproduced it and the delegation is corrected. Correction
-qualification/review, final gates and requiredCI remain pending; not merged. A separate read-call correction is
+Ask admission regression reproduced it and the delegation is corrected. Independent correction review is clean; final affected1287default/18,455native/16,601combined plusClippy/shipping/52fixtures passed. Final paired raw long-evidence calls retained all material facts and unclassified authority; exact replay passed. RequiredPR103CI pending; not merged. A separate read-call correction is
 parked unqualified on pushed8f8fc2e: pinned Responses drops malformed args before
 its recovery hook. No retry or admitted-request policy from that branch ships. No semantic Findings or authoritative edits occur automatically.
 
 The [overnight checkpoint](work/active/overnight-continuation/plan.md) owns exact
-branches, builds, verification and continuation. Fourteen of sixteen authorized live investigations are used, seven Luna/seven Sol,
+branches, builds, verification and continuation. All sixteen authorized live investigations are used, eight Luna/eight Sol,
 including one failed attempt and its separately counted manual retry. Results include
 improved retention of original budget/review date, North Quay conflict uncertainty
 Cedar near-limit ranged evidence and useful Linden Applied-private-intake Findings; usefulness limitations and unknown telemetry
