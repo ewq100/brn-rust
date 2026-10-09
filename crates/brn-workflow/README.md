@@ -48,6 +48,18 @@ source proof lists. Both request validators, page `validate_for` and detail
 `validate_for` are pure shared client checks. Discovery and detail are read-only;
 they create no Finding, proposal, scheduler or inference request.
 
+## Approved Activity Action inventory
+
+`ActivityEntry.action_changes` is an ordered, body-free projection of the same
+checked Applied approval journal as the note changes. Each `ActivityActionChange`
+contains `kind` (`created` or `replaced`), `action_id` and the complete historical
+approved after-title. The field defaults to an empty list when reading an older
+DTO and is always serialized. It does not read current Actions or include their
+descriptions, origins, proofs or full records. Later edits/completion do not
+rewrite history. Compensation retains its ordinary replacement inventory and
+existing Undo source identity. Existing 64-member and 20/default, 100/maximum
+Activity page bounds, successful-outcome fence and full journal reader remain.
+
 ## Interfaces and source
 
 [Application](src/app.rs), [commands/events](src/app_worker.rs), [chat lane](src/chat_worker.rs), [editor](src/editor.rs), [Inbox boundary](src/inbox.rs), [proposal review](src/proposals.rs), [proposal application](src/proposal_apply.rs), [durable provenance](src/knowledge/provenance.rs), [activity](src/activity.rs), [file adapter](src/files/mod.rs).

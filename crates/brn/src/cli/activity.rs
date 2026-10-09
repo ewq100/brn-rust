@@ -2,7 +2,9 @@
 use super::{
     error::CliError, expect_positionals, scan, sub_word, usage, Globals, Output, Scanned, Tokens,
 };
-use brn_workflow::activity::{ActivityChangeKind, ActivityPage, ActivityRequest};
+use brn_workflow::activity::{
+    ActivityActionChangeKind, ActivityChangeKind, ActivityPage, ActivityRequest,
+};
 use std::fmt::Write as _;
 
 pub(super) fn scan_command(
@@ -72,6 +74,19 @@ pub(super) fn output(page: ActivityPage) -> Output {
             };
             writeln!(text, "  {kind}: {}", escape(&change.path)).expect("String write");
         }
+        for change in &entry.action_changes {
+            let kind = match change.kind {
+                ActivityActionChangeKind::Created => "Created",
+                ActivityActionChangeKind::Replaced => "Replaced",
+            };
+            writeln!(
+                text,
+                "  {kind} Action {} · historical approved title: {}",
+                change.action_id,
+                escape(&change.title)
+            )
+            .expect("String write");
+        }
         writeln!(text, "Operation: {}", entry.operation_id).expect("String write");
         writeln!(text, "Proposal: {}", entry.proposal_id).expect("String write");
         if let Some(undo) = &entry.undo {
@@ -124,6 +139,7 @@ mod tests {
             approved_at_utc: None,
             summary: "3 notes\r\t".into(),
             undo: None,
+            action_changes: vec![],
             changes: vec![
                 ActivityChange {
                     kind: ActivityChangeKind::Created,
@@ -171,6 +187,60 @@ mod tests {
     }
 
     #[test]
+    fn activity_action_inventory_human_and_json_keep_all_64_historical_identities_and_exact_titles()
+    {
+        use brn_workflow::activity::{ActivityActionChange, ActivityActionChangeKind};
+        let changes: Vec<_> = (0..64)
+            .map(|index| ActivityActionChange {
+                kind: if index % 2 == 0 {
+                    ActivityActionChangeKind::Created
+                } else {
+                    ActivityActionChangeKind::Replaced
+                },
+                action_id: Uuid::from_u128(index + 1),
+                title: format!(
+                    "{index} õ 日本語\r\n\t\u{1b}[31m\u{2028}{}TAIL",
+                    "λ".repeat(200)
+                ),
+            })
+            .collect();
+        let output = output(ActivityPage {
+            entries: vec![ActivityEntry {
+                operation_id: Uuid::new_v4(),
+                proposal_id: Uuid::new_v4(),
+                group_id: None,
+                session_id: None,
+                title: "Action history".into(),
+                approved_at_ms: 1,
+                approved_at_utc: None,
+                summary: "Created 32 actions; updated 32 actions.".into(),
+                changes: vec![],
+                undo: None,
+                action_changes: changes.clone(),
+            }],
+            next_before: None,
+        });
+        assert_eq!(
+            output.data["entries"][0]["action_changes"],
+            serde_json::to_value(&changes).unwrap()
+        );
+        for item in changes {
+            assert!(output.text.contains(&format!(
+                "Action {} · historical approved title: {}",
+                item.action_id,
+                escape(&item.title)
+            )));
+        }
+        for control in ['\r', '\t', '\u{1b}', '\u{2028}'] {
+            assert!(!output.text.contains(control));
+        }
+        assert_eq!(
+            output.text.matches("historical approved title:").count(),
+            64
+        );
+    }
+
+    #[test]
     fn empty_activity_explains_that_no_approved_changes_exist() {
         let result = output(ActivityPage {
             entries: Vec::new(),
@@ -197,6 +267,7 @@ mod tests {
                 approved_at_ms: 123,
                 approved_at_utc: Some("2026-10-03T00:00:00Z".into()),
                 summary: "1 note restored".into(),
+                action_changes: vec![],
                 changes: vec![ActivityChange {
                     kind: ActivityChangeKind::Created,
                     path: "restored.md".into(),

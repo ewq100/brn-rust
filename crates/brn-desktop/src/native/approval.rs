@@ -1,6 +1,7 @@
 //! Exact captured approval and read-only application history presentation.
 use super::*;
 use brn_workflow::{
+    activity::ActivityActionChangeKind,
     proposal_apply::{ApplyJournal, ApplyOutcome, RepairDirection},
     proposals::{CommentTarget, NoteChange, ProposalDraft, ProposalRecord},
 };
@@ -14,6 +15,10 @@ use sha2::{Digest, Sha256};
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
 #[path = "approval_order_tests.rs"]
 mod ordering_tests;
+
+#[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
+#[path = "activity_tests.rs"]
+mod activity_tests;
 
 fn sha256(bytes: &[u8; 32]) -> String {
     bytes.iter().map(|byte| format!("{byte:02x}")).collect()
@@ -675,6 +680,7 @@ impl Desktop {
         let p = self.palette();
         let mut body = div()
             .id("approved-activity-and-recovery")
+            .test_support()
             .flex()
             .flex_col()
             .flex_1()
@@ -713,6 +719,7 @@ impl Desktop {
                     div()
                         .flex()
                         .flex_col()
+                        .flex_shrink_0()
                         .gap_2()
                         .p_3()
                         .border_1()
@@ -728,6 +735,33 @@ impl Desktop {
                         ));
                 for change in &entry.changes {
                     row = row.child(format!("{:?} · {}", change.kind, change.path));
+                }
+                if !entry.action_changes.is_empty() {
+                    row = row
+                        .child("Affected Actions · historical approved values, not current state");
+                }
+                for (index, change) in entry.action_changes.iter().enumerate() {
+                    let kind = match change.kind {
+                        ActivityActionChangeKind::Created => "Created",
+                        ActivityActionChangeKind::Replaced => "Replaced",
+                    };
+                    let label = format!(
+                        "{kind} Action {} · historical approved title: {}",
+                        change.action_id, change.title
+                    );
+                    row = row.child(
+                        div()
+                            .id(format!("activity-action-{}-{index}", entry.operation_id))
+                            .test_support()
+                            .aria_label(label)
+                            .w_full()
+                            .min_w(px(0.))
+                            .flex()
+                            .flex_col()
+                            .gap_1()
+                            .child(format!("{kind} Action {}", change.action_id))
+                            .child(full_text("Historical approved title", &change.title)),
+                    );
                 }
                 if let Some(undo) = &entry.undo {
                     row = row.child(format!(

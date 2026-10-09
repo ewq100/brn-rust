@@ -54,6 +54,34 @@ pub struct ActivityChange {
     pub kind: ActivityChangeKind,
     pub path: String,
 }
+/// Body-free identity of an Action affected by this recorded approval.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ActivityActionChangeKind {
+    Created,
+    Replaced,
+}
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ActivityActionChange {
+    pub kind: ActivityActionChangeKind,
+    pub action_id: Uuid,
+    /// Complete title in the historical approved after-data, never a current lookup.
+    pub title: String,
+}
+impl From<&ActionChange> for ActivityActionChange {
+    fn from(change: &ActionChange) -> Self {
+        Self {
+            kind: match change {
+                ActionChange::Create { .. } => ActivityActionChangeKind::Created,
+                ActionChange::Replace { .. } => ActivityActionChangeKind::Replaced,
+            },
+            action_id: change.id(),
+            title: change.data().title.clone(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ActivityUndo {
@@ -76,6 +104,9 @@ pub struct ActivityEntry {
     pub approved_at_utc: Option<String>,
     pub summary: String,
     pub changes: Vec<ActivityChange>,
+    /// Ordered members from the same checked Applied approval as the note changes.
+    #[serde(default)]
+    pub action_changes: Vec<ActivityActionChange>,
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -170,6 +201,11 @@ impl App {
                     approved_at_ms: journal.started_at_ms,
                     approved_at_utc: utc_time(journal.started_at_ms),
                     summary: summary(&changes, &draft.action_changes),
+                    action_changes: draft
+                        .action_changes
+                        .iter()
+                        .map(ActivityActionChange::from)
+                        .collect(),
                     changes,
                 })
             })
@@ -248,6 +284,107 @@ fn summary(changes: &[ActivityChange], actions: &[ActionChange]) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn action_change(index: usize) -> ActionChange {
+        use brn_store::work::{
+            actions::{ActionData, ActionOrigin, ActionRecord, ActionState},
+            proposals::ProposalStamp,
+        };
+        let id = Uuid::from_u128(index as u128 + 1);
+        let data = ActionData {
+            title: format!("{index:02} õ 日本語\r\n{}", "λ".repeat(230)),
+            description: "PRIVATE FULL ACTION BODY".repeat(2000),
+            state: ActionState::Open,
+            owner: None,
+            related_person: None,
+            related_project: None,
+            sources: vec![],
+            thread: None,
+            due_on: None,
+            follow_up_on: None,
+            dependencies: vec![],
+            parent: None,
+            follows_up: None,
+            priority: None,
+        };
+        data.validate(id).unwrap();
+        if index.is_multiple_of(2) {
+            ActionChange::Create { id, data }
+        } else {
+            let before = ActionRecord {
+                origin: ActionOrigin {
+                    id,
+                    proposal: ProposalStamp {
+                        id: Uuid::from_u128(1000 + index as u128),
+                        version: 1,
+                    },
+                    data: data.clone(),
+                    created_at_ms: 1,
+                },
+                version: 1,
+                data: data.clone(),
+                updated_at_ms: 1,
+                waiting_since_ms: None,
+                completed_at_ms: None,
+            };
+            before.validate().unwrap();
+            ActionChange::Replace {
+                before: Box::new(before),
+                data,
+            }
+        }
+    }
+    #[test]
+    fn activity_action_inventory_portable_projection_retains_all_64_ordered_members_without_bodies()
+    {
+        let changes: Vec<_> = (0..brn_store::work::proposals::MAX_PROPOSAL_CHANGES)
+            .map(action_change)
+            .collect();
+        let inventory: Vec<_> = changes.iter().map(ActivityActionChange::from).collect();
+        assert_eq!(inventory.len(), 64);
+        for (index, (original, item)) in changes.iter().zip(&inventory).enumerate() {
+            assert_eq!(item.action_id, original.id());
+            assert_eq!(item.title, original.data().title);
+            assert_eq!(
+                item.kind,
+                if index.is_multiple_of(2) {
+                    ActivityActionChangeKind::Created
+                } else {
+                    ActivityActionChangeKind::Replaced
+                }
+            );
+        }
+        let encoded = serde_json::to_string(&inventory).unwrap();
+        for private in [
+            "PRIVATE FULL ACTION BODY",
+            "description",
+            "origin",
+            "before",
+            "state",
+        ] {
+            assert!(!encoded.contains(private));
+        }
+        assert_eq!(
+            serde_json::from_str::<Vec<ActivityActionChange>>(&encoded).unwrap(),
+            inventory
+        );
+        assert!(
+            serde_json::from_value::<ActivityActionChange>(
+                serde_json::json!({"kind":"trashed","action_id":Uuid::new_v4(),"title":"invalid"})
+            )
+            .is_err()
+        );
+    }
+    #[test]
+    fn activity_action_inventory_legacy_dto_defaults_to_consistently_serialized_empty_list() {
+        let old = serde_json::json!({"operation_id":Uuid::new_v4(),"proposal_id":Uuid::new_v4(),"group_id":null,"session_id":null,"title":"Historical note only","approved_at_ms":1,"approved_at_utc":null,"summary":"Created 1 note.","changes":[]});
+        let entry: ActivityEntry = serde_json::from_value(old).unwrap();
+        assert!(entry.action_changes.is_empty());
+        assert_eq!(
+            serde_json::to_value(entry).unwrap()["action_changes"],
+            serde_json::json!([])
+        );
+    }
 
     #[test]
     fn timestamps_render_utc_without_wrapping_unrepresentable_values() {

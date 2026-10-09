@@ -380,3 +380,194 @@ fn pages_have_exact_exclusive_cursors_without_repeating_entries() {
     );
     assert!(third.next_before.is_none());
 }
+
+fn action_data(title: &str) -> brn_workflow::actions::ActionData {
+    brn_workflow::actions::ActionData {
+        title: title.into(),
+        description: "PRIVATE ACTION DESCRIPTION must stay outside Activity pages".into(),
+        state: brn_workflow::actions::ActionState::Open,
+        owner: None,
+        related_person: None,
+        related_project: None,
+        sources: vec![],
+        thread: None,
+        due_on: None,
+        follow_up_on: None,
+        dependencies: vec![],
+        parent: None,
+        follows_up: None,
+        priority: None,
+    }
+}
+#[test]
+fn activity_action_inventory_is_historical_ordered_body_free_through_edit_undo_complete_and_restart()
+ {
+    use brn_workflow::{
+        action_completion::CompleteActionRequest, proposal_apply::UndoRequest,
+        proposals::ActionChange,
+    };
+    let f = Fixture::new();
+    let mut app = f.app();
+    let ids = [Uuid::new_v4(), Uuid::new_v4()];
+    let titles = ["Created õ\r\n日本語\u{1b}[31m", "Second λ"];
+    let review = app
+        .create_proposal(&DraftRequest {
+            intake: None,
+            inbox_visual: None,
+            inbox_knowledge: None,
+            inbox_source: None,
+            id: Uuid::new_v4(),
+            group_id: None,
+            session_id: None,
+            title: "Mixed historical inventory".into(),
+            changes: vec![DraftNoteChange::Create {
+                path: "retained.md".into(),
+                text: "Exact retained note õ\r\n".into(),
+            }],
+            sources: vec![],
+            action_changes: ids
+                .iter()
+                .zip(titles)
+                .map(|(id, title)| ActionChange::Create {
+                    id: *id,
+                    data: action_data(title),
+                })
+                .collect(),
+        })
+        .unwrap();
+    let created_request = approval(&review);
+    let created_receipt = app.approve_proposal(&created_request).unwrap();
+    let created_page = app.activity(&ActivityRequest::default()).unwrap();
+    let created_json = serde_json::to_value(&created_page).unwrap();
+    assert_eq!(
+        created_json["entries"][0]["action_changes"],
+        serde_json::json!([
+            {"kind":"created", "action_id":ids[0], "title":titles[0]}, {"kind":"created", "action_id":ids[1], "title":titles[1]}
+        ])
+    );
+    assert_eq!(created_page.entries[0].changes.len(), 1);
+    let before = app.action(ids[0]).unwrap();
+    let mut changed = before.data.clone();
+    changed.title = "Approved edited õ\nλ".into();
+    let edit = app
+        .create_proposal(&DraftRequest {
+            intake: None,
+            inbox_visual: None,
+            inbox_knowledge: None,
+            inbox_source: None,
+            id: Uuid::new_v4(),
+            group_id: None,
+            session_id: None,
+            title: "Replace named Action".into(),
+            changes: vec![],
+            sources: vec![],
+            action_changes: vec![ActionChange::Replace {
+                before: Box::new(before.clone()),
+                data: changed.clone(),
+            }],
+        })
+        .unwrap();
+    let edited_request = approval(&edit);
+    let edited_receipt = app.approve_proposal(&edited_request).unwrap();
+    let edited_page = app.activity(&ActivityRequest::default()).unwrap();
+    let edited_entry = edited_page
+        .entries
+        .iter()
+        .find(|entry| entry.operation_id == edited_request.operation_id)
+        .unwrap();
+    assert_eq!(
+        serde_json::to_value(edited_entry).unwrap()["action_changes"],
+        serde_json::json!([{"kind":"replaced", "action_id":ids[0], "title":changed.title}])
+    );
+    assert_eq!(
+        edited_page
+            .entries
+            .iter()
+            .find(|entry| entry.operation_id == created_request.operation_id)
+            .unwrap(),
+        &created_page.entries[0]
+    );
+    let undo = UndoRequest {
+        operation_id: Uuid::new_v4(),
+        target_operation_id: edited_request.operation_id,
+        trash_member: None,
+    };
+    app.preview_proposal_undo(&undo).unwrap();
+    let undo_receipt = app.undo_proposal(&undo).unwrap();
+    assert_eq!(undo_receipt.outcome, ApplyOutcome::Applied);
+    let history = app.activity(&ActivityRequest::default()).unwrap();
+    let undo_entry = history
+        .entries
+        .iter()
+        .find(|entry| entry.operation_id == undo.operation_id)
+        .unwrap();
+    assert_eq!(
+        undo_entry.undo.as_ref().unwrap().operation_id,
+        edited_request.operation_id
+    );
+    assert_eq!(
+        serde_json::to_value(undo_entry).unwrap()["action_changes"],
+        serde_json::json!([{"kind":"replaced", "action_id":ids[0], "title":titles[0]}])
+    );
+    let completion = CompleteActionRequest {
+        operation_id: Uuid::new_v4(),
+        before: Box::new(app.action(ids[0]).unwrap()),
+        sent_source: None,
+    };
+    let completed = app.complete_action(&completion).unwrap();
+    assert_eq!(app.activity(&ActivityRequest::default()).unwrap(), history);
+    assert_eq!(
+        app.approve_proposal(&created_request).unwrap(),
+        created_receipt
+    );
+    assert_eq!(
+        app.approve_proposal(&edited_request).unwrap(),
+        edited_receipt
+    );
+    assert_eq!(app.undo_proposal(&undo).unwrap(), undo_receipt);
+    assert_eq!(app.action(ids[0]).unwrap(), completed.after);
+    assert_eq!(app.activity(&ActivityRequest::default()).unwrap(), history);
+    let encoded = serde_json::to_string(&history).unwrap();
+    for body in [
+        "PRIVATE ACTION DESCRIPTION",
+        "description",
+        "origin",
+        "fingerprint",
+        "Exact retained note",
+        "before_text",
+    ] {
+        assert!(!encoded.contains(body), "Activity must omit {body}");
+    }
+    let mut cursor = None;
+    let mut operations = vec![];
+    loop {
+        let page = app
+            .activity(&ActivityRequest {
+                limit: 1,
+                before: cursor,
+            })
+            .unwrap();
+        assert_eq!(page.entries.len(), 1);
+        operations.push(page.entries[0].operation_id);
+        cursor = page.next_before;
+        if cursor.is_none() {
+            break;
+        }
+    }
+    assert_eq!(
+        operations,
+        history
+            .entries
+            .iter()
+            .map(|entry| entry.operation_id)
+            .collect::<Vec<_>>()
+    );
+    drop(app);
+    let app = f.app();
+    assert_eq!(app.activity(&ActivityRequest::default()).unwrap(), history);
+    assert_eq!(app.action(ids[0]).unwrap(), completed.after);
+    assert_eq!(
+        fs::read(f.vault.join("retained.md")).unwrap(),
+        b"Exact retained note \xc3\xb5\r\n"
+    );
+}

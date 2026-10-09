@@ -211,7 +211,12 @@ the dialog discards only this transient order; stored groups and owner edits sta
 intact. Headless state/widget checks do not establish interactive usability.
 Controls remain guarded until
 the application outcome and current review are acknowledged. Activity pages show
-recorded successful changes and full historical approval snapshots; recovery
+recorded successful changes and full historical approval snapshots. Every affected
+Action is listed in recorded member order with Created/Replaced kind, exact UUID
+and complete historical approved title, explicitly separate from current state.
+Descriptions and full Action proofs stay in **Inspect full recorded approval**.
+Later edits/completion preserve these historical values; compensation retains the
+same Action identity and its existing Undo linkage. Recovery
 inspection/reconciliation reports actual pending/uncertain outcomes without
 repeating installation. Failed application refreshes journals because an error
 can follow recorded file effects. Activity exposes full historical Undo review;
