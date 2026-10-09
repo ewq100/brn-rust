@@ -357,6 +357,7 @@ pub fn run(i: &Invocation) -> Result<Output, CliFailure> {
         Command::Provenance(command) => Some(super::provenance::prepare(command)?),
         Command::Links(command) => Some(super::links::prepare(command)?),
         Command::Findings(command) => Some(super::findings::prepare(command)?),
+        Command::NeedsReview(command) => Some(super::needs_review::prepare(command)?),
         Command::Actions(command) => Some(super::actions::prepare(command)?),
         Command::Inbox(command) => Some(super::inbox::prepare(command)?),
         Command::Relationships(request) => Some(super::relationships::prepare(request)?),
@@ -452,6 +453,10 @@ fn execute(
                 text: format!("Last internal checkpoint: {}", status.latest_path.display()),
                 data: json!(status),
             })
+        }
+        Command::NeedsReview(command) => {
+            let event = lane.query(knowledge.expect("citation review prepared before startup"))?;
+            super::needs_review::output(command, event)
         }
         Command::Findings(command) => {
             let event = lane.query(knowledge.expect("finding input prepared before startup"))?;

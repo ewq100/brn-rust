@@ -474,6 +474,26 @@ do not promise a snapshot across requests. Selected proofs are read-only and
 discards late replies; known Save/Reload/application effects invalidate affected
 observations. Inspection creates no proposal and writes no Markdown.
 
+**Needs Review** offers **Findings** and **Citation evidence** modes. Citation
+evidence inspects saved Current notes in bounded 25-consumer pages and lists
+Changed, Absent, Ambiguous and Incomplete citation observations. Incomplete means
+unavailable or uncertain lookup; these observations do not establish that a claim
+is false or stale. No or empty citations do not create a row. Coverage shows the
+complete diagnostic count and explicitly labels a truncated diagnostic list.
+An empty page can still offer **Load more** when uninspected consumers remain.
+
+Selecting a citation row opens its complete exact saved consumer, full saved-source
+provenance and original quotes inside Needs Review. These use separate read-only
+widgets and exact Copy actions. The request binds the row's complete consumer
+hash; changed or malformed replies require Refresh. View, page, row and selection
+generations reject late replies and callbacks. This mode offers no Finding
+capture, Resolve, Dismiss or inference. Refresh starts a fresh observation;
+continuations are bound to the workflow's evidence digest. A confirmed vault
+rebind or changed root clears derived proof and requires Refresh. Existing guarded
+navigation retains unfinished note recovery, proposal input, review/comment input
+and the composer. Automated headless state/widget verification does not qualify
+interactive native usability; that remains in the single morning acceptance task.
+
 **Needs Review** in History lists tentative findings in fresh 25-record pages,
 filtered by Open, Resolved, Dismissed or All. Select a row to read and copy its
 complete retained record, original source fingerprints and exact quotes. Inspect

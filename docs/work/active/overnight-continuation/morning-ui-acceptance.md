@@ -19,20 +19,20 @@ Refresh this receipt after subsequent changes and before cutoff; qualification i
 separate from personal acceptance.
 
 Checkout: `/Users/evokessler/repos/brn-p2-email-docx-intake`.
-Latest qualified combined candidate: `8bf40d42202b4e93e8d41bb584b911baf9577ac9`
-(merged PPTX/backups plus reviewed Action compensation). Main is
-`e1d6b0fab69c13ceceb09014d6c034ef2178882f`; PR90–PR100 required candidate checks
+Latest qualified combined build source: `538b160f6ea16f9c6c6f6a8823c0ee4119640657`
+(merged prior slices plus independently reviewed and corrected citation evidence review). Main is
+`6a63173fb6e33b4ba239ad6aade23bde976ee051`; PR90–PR100 required candidate checks
 passed. PR90–PR99 required post-merge checks passed. PR100 post-merge run37859299854
 passed all required checks/docs. Action compensation is merged and locally qualified. Immutable shipping runtime:
-`/Users/evokessler/repos/brn-overnight-artifacts-20261008/action-backup-runtime`.
-Desktop: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/action-backup-runtime/brn-desktop`,
-SHA-256 `a7dcfd2ccfbf5d8317145878636a2231d8b1a206cd2de2788962f454fa00e32c`.
-CLI: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/action-backup-runtime/brn`,
-SHA-256 `5b11838bc6a9519f4dbf3a33fb3591ce14cb052aa0ec31592d535133dfa8e4cf`.
-Helper: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/action-backup-runtime/brn-intake-helper`,
+`/Users/evokessler/repos/brn-overnight-artifacts-20261008/citation-review-runtime`.
+Desktop: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/citation-review-runtime/brn-desktop`,
+SHA-256 `a875867188f6798b48aba2bc5c6d7973e1aed89351135d8944dd011ba5bc82e6`.
+CLI: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/citation-review-runtime/brn`,
+SHA-256 `e435ce342a55686cd6a70b2cf129d454de801f51277569e04a513deb28636b81`.
+Helper: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/citation-review-runtime/brn-intake-helper`,
 SHA-256 `7f058c359a092559cda55b07c3880b44e637257818ad60c725da8b1d99a9f8e5`.
-Manifest: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/action-backup-runtime/build-manifest.json`.
-This runtime includes SessionV18, PPTX, automatic backups and Action compensation. Refresh final receipt before cutoff and
+Manifest: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/citation-review-runtime/build-manifest.json`.
+This runtime includes SessionV18, PPTX, automatic backups, Action compensation, filename revision and read-only citation evidence review. PR102 revised required CI pending. PR101 required candidate CI passed and normal merge6a63173 completed; all required post-main checks/docs passed in37861908706. Refresh final receipt before cutoff and
 never use historical executables after newer schema migration. Bound state/vault
 folders remain in place.
 Actual GUI/personal acceptance remains pending.
@@ -112,7 +112,7 @@ with exact replay and Original identities preserved. `ready.json` has all exact
 IDs/proofs/receipt paths. Harbor chart facts are absent; inspect the original.
 Quay notes are distinct, hidden slide order retained; twin canonical/generic MIME
 attachments preserve separate children and six occurrences sharing two assets.
-PPTX final combined local gates/build passed; required hosted CI/integration pending.
+PPTX final combined local and required candidate/post-main gates passed; PR98 merged.
 Paired saved investigations13/14 retained under receipts/paired-private-investigation;
 all model proposals remain Draft. Approve only a selected group with exact Source
 prerequisite; do not approve both comparisons or ask for repeat inference.
@@ -130,6 +130,30 @@ fresh confirms already refused headlessly for the completed/changed cases.
 Use fresh native captures. No model calls were used, and actual GUI acceptance is
 pending. Do not rerun the guarded preparation script or reset these folders.
 
+Workspace H (filename revision, zero inference preparation):
+`/private/tmp/brn-overnight-20261008/create-rename-case/{data,vault,inputs,receipts}`.
+`ready.json` retains exact requests/reviews/evidence and replay receipts. Native
+pending Draft28284703-6122-43ad-bffa-e10b937b3483 v3 has saved owner text and an
+anchored comment; suggested same-folder filename owner-corrected.md. Refusal
+Draft996b839f-9aeb-4787-b6de-fb7ee331b26a uses occupied.md: enter it, request rename,
+then Observe and try navigation; expected filename/queued navigation remain until
+explicit Retry/Discard. Applied/replayedc7d3967a-04df-4465-b6b6-677c7ac7fa6a is a
+separate headless case. Never rerun preparation or reset these folders.
+
+Workspace I (citation evidence observations, zero inference preparation):
+`/private/tmp/brn-overnight-20261008/citation-review-case/{data,vault,inputs,receipts}`.
+`ready.json` retains exact Source/consumer/proposal/approval IDs and original hashes.
+Synthetic changed, absent and ambiguous consumers deliberately retain original
+citations; moved-consumer.md cites unchanged archived evidence and is expected
+Matched. Thirty-one00-healthy prefix notes have no citations, so the first native
+page is intentionally empty with enabled Load more; the next page has issue rows.
+malformed-consumer.md gives incomplete
+coverage. Details requests are retained under inputs. Corrected final-runtime CLI qualification passed: first25 empty then exact
+Absent/Ambiguous/Changed rows, moved Matched and complete exact details. Both
+malformed citation and Inbox metadata give2 coverage diagnostics. Preparation
+used qualified rename runtime and explicit
+synthetic approval, no inference. Never rerun preparation or relocate folders.
+
 ## Preparation and launch after unlock
 
 Confirm final commit/build hashes and that no process owns the selected synthetic
@@ -137,7 +161,7 @@ folder. Do not delete locks, reset or migrate data if busy; record the condition
 Launch Workspace A from the checkout (ordinary desktop flags):
 
 ```sh
-/Users/evokessler/repos/brn-overnight-artifacts-20261008/action-backup-runtime/brn-desktop \
+/Users/evokessler/repos/brn-overnight-artifacts-20261008/citation-review-runtime/brn-desktop \
   --data-dir /private/tmp/brn-retained-qualification-bi3q58kf/headless/data \
   --vault /private/tmp/brn-retained-qualification-bi3q58kf/headless/vault
 ```
@@ -157,7 +181,7 @@ than passed whenever a control/result cannot be exercised.
 
 ## One ordered journey
 
-Allow 100–140 minutes for all workspaces/new controls. Essential path: steps 1–5 and 8–9, about 30–40 minutes.
+Allow 110–150 minutes for all workspaces/new controls. Essential path: steps 1–5 and 8–9, about 30–40 minutes.
 
 | Step / user action | Expected result | Evidence / failure record |
 | --- | --- | --- |
@@ -177,9 +201,10 @@ Allow 100–140 minutes for all workspaces/new controls. Essential path: steps 1
 | 14. Once final PPTX qualification/build is recorded, open the retained Harbor and unrelated Quay presentations and repeated email attachments, inspect slide/notes/table/image evidence, exact Source/assets approval and restart | Presentation order and hidden labels are explicit; notes distinct from slide text; repeated picture occurrences retain parents/shared bytes; chart/SmartArt/layout gaps remain visible without invented facts. Reopen without conversion/inference | Final fixture/candidate/snapshot/Source IDs and asset hashes, slide/notes locators, partial gaps and approval receipts. PPTX implemented/reviewed clean;41 intake,1729default including reused Store461,426native workflow/models,549desktopCLI,Clippy/shipping/fixtures passed. PR98 merged after required candidate CI passed; required post-merge checks passed. Do not mark observed |
 | 15. Once final backup build is recorded, inspect Settings backup status, change a disposable draft/comment, checkpoint, refresh and restart; inspect warning fixture only if recorded | Last known usable copy/path/time or unknown startup time is distinct from failure/retention warning. Automatic changed-state copies and final joined shutdown preserve complete state. A backup warning never turns a committed approval/Save/chat into failed/retryable work, and owner buffers remain | Exact checkpoint path/status, retained changed draft/comments/session/budget/Actions/Findings and warning. Backup implementation, complete/merge-delta independent reviews and final local qualification passed; required candidate/post-merge CI passed and PR99 merged. No destructive Restore or private data test |
 | 16. Quit the prior workspace, open G, preview Undo on the recorded ready Action-only replacement; inspect complete prior/current details, confirm, restart/replay, then inspect a changed/completed refusal | Prior details return as a new revision with immutable origin/history preserved. Waiting clock semantics are shown honestly; changed or Completed work refuses. Creation/mixed Undo remain unsupported. Preview has no effect and exact replay never overwrites later edits | Source/compensation operation UUIDs, complete before/after, versions/origin, Waiting dates, refusal text and replay receipt. Implementation and independent review passed; final composed 1769 default/18 existing ignores,434 native/16,565 desktopCLI,Clippy/shipping/fixtures passed; required candidate CI passed and PR100 merged; required post-merge checks passed. Actual native acceptance pending |
+| 17. Once rename is qualified and included in the final build, select a retained new-note Draft, save owner text/comments, change its filename within the same folder, inspect the complete revised review, approve the revised version and restart | Text/UUID/comments/evidence/History and other members remain exact; changed destination advances approval version once, no file effect until approval. Same-path no-op stays exact. Stale/occupied/unsafe/cross-folder requests refuse while retaining owner work; Observe after refusal must preserve the entered filename and queued navigation until explicit Retry/Discard | Original/new filename, request/returned version, complete before/after, comments, stale approval/refusal and saved note after restart. Independent review and final local gates passed:1796 default coverage/18 existing ignores,436 native workflow/models/16,585 combined desktopCLI; required PR101 candidate CI passed and normal merge completed; all required post-main checks/docs passed in37861908706. Actual GUI acceptance pending |
 
-| 17. Once rename is qualified and included in the final build, select a retained new-note Draft, save owner text/comments, change its filename within the same folder, inspect the complete revised review, approve the revised version and restart | Text/UUID/comments/evidence/History and other members remain exact; changed destination advances approval version once, no file effect until approval. Same-path no-op stays exact. Stale/occupied/unsafe/cross-folder requests refuse while retaining owner work; Observe after refusal must preserve the entered filename and queued navigation until explicit Retry/Discard | Original/new filename, request/returned version, complete before/after, comments, stale approval/refusal and saved note after restart. Implementation/qualification in progress; actual GUI acceptance pending |
 
+| 18. Once citation review is qualified and in the final build, quit H and open I, choose Needs Review → Citation evidence, inspect rows and complete saved consumer/source details, Load more, Refresh, switch to Findings and restart | Changed/Absent/Ambiguous rows have exact reasons and preserved original quotes. Moved unchanged archived evidence remains Matched and absent from issue rows. Malformed metadata gives explicit incomplete coverage. Sparse pages still offer Load more; refreshed rows/detail are bound to exact consumer hash. Derived rows have no Resolve/Dismiss/approval/capture/automatic analysis controls; owner composer/editor/review and pending navigation remain recoverable | Record row paths/outcomes, complete copied consumer/proof/quotes, coverage and cursor progress, stale/error behavior, buffer preservation and restart. Backend11 focused plus10 existing provenance tests, native5state/8widgets,4Findings regressions andCLI3 passed. Complete review found one coverage defect, corrected red-to-green; independent correction review and final affected gates passed; revised required CI pending. Actual UI acceptance pending |
 
 ## Headless evidence already passed; interactive acceptance pending
 
@@ -217,7 +242,9 @@ Owner added ten shared trials; fourteen of sixteen used, leaving at most one per
 > retained PPTX slides/notes/tables/image occurrences/original inspection. Include
 > backup Settings/status/checkpoint and Action replacement compensation checks
 > once the recorded final build contains them. Include same-folder new-note
-> filename revision, stale approval refusal and restart once qualified.
+> filename revision, stale approval refusal and restart once qualified. Include
+> Needs Review Citation evidence discovery, exact detail/quotes, sparse pagination,
+> coverage diagnostics, Refresh and preserved owner buffers once qualified.
 > Preserve failures, drafts and exact evidence; do not reset data or touch my real
 > vault. Report concrete defects and pending owner acceptance; mark unobserved
 > or unavailable checks pending. A new live cancellation trial requires an explicit

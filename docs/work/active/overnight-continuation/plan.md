@@ -77,70 +77,74 @@ requires exact final-candidate review, applicable local checks and actual requir
 CI. No weakening, bypass or rushed merge. Record failures and repair real defects.
 Known informational platform failures remain visible and separate.
 
-## Durable checkpoint — 08 October 23:28 UTC
+## Durable checkpoint — 09 October 00:14 UTC
 
-Continue authorized V1 work until 05:00 UTC / 08:00 Tallinn, final qualification
-from 04:30 UTC. All GUI/computer use stays deferred to [one morning task](morning-ui-acceptance.md).
-Preserve unrelated work/data and exact approval/provenance/recovery.
+Continue authorized V1 work until 05:00 UTC / 08:00 Tallinn; final qualification
+from04:30 UTC. All GUI/computer use deferred to [one morning task](morning-ui-acceptance.md).
+Main6a63173fb6e33b4ba239ad6aade23bde976ee051 includes PR90–101; PR90–100 each required
+candidate and post-main checks/docs passed. No protection bypass or platform port.
 
-Main `e1d6b0fab69c13ceceb09014d6c034ef2178882f` includes normally protected
-PR90–100. Required candidate checks/docs passed for each. PR90–98 post-merge
-required checks/docs passed. PR99 post-main37857753049: all four required checks/docs passed. No bypass/port/suppression.
+[Create rename PR101](https://github.com/ewq100/brn-rust/pull/101), attached,
+head182cb8e1247f288b045957128070dd88bb5882ab remains frozen in
+`/Users/evokessler/repos/brn-p3-work-budgets`, branch codex/p3-create-destination-rename.
+Complete independent review found one native Observe/navigation fence defect;
+correction and regressions independently reviewed clean atf3e8a4f7 (exact hashes
+in slice plan). Final local gates passed/released:1796 default coverage/18 existing
+ignores,436 native workflow/models/16,585 combined desktop/CLI, doctests, strict
+Clippy, shipping,52fixtures and links. Unchanged Store/workflow/full-size witnesses
+reused after the one Desktop correction. Original combined count580 (older577
+was a reporting typo). Required run37860893873: UbuntuCore/NativeUI/docs passed;
+all four required checks/docs passed. Normal protected merge6a63173; exact resulting tree matches182. All four required post-main37861908706 checks/docs passed; main verified. Windows raw log inspected: same informational Unix
+filesystem API errors. Verify required post-main checks. Resulting main incorporated into citation branch with no functional delta. Do not restart CI for reports.
 
-[Action compensation PR100](https://github.com/ewq100/brn-rust/pull/100), attached,
-head `8bf40d42202b4e93e8d41bb584b911baf9577ac9`, remains in lead checkout
-`/Users/evokessler/repos/brn-p2-email-docx-intake` on
-`codex/p7-action-replacement-compensation`. Complete production review810237f8,
-final test-only reviewb410e9d3, fresh complete composition reviewb8abe1f2 and
-backup integration delta reviewa21d5521 clean; exact hashes in slice plan.
-Serial final composition gate55052 PASSED and RELEASED Cargo: 1769 default /
-18 existing ignores, 434 native workflow/models / 16, 565 combined desktop/CLI,
-doctests, strict default/combined Clippy, shipping, 52 fixtures and links.
-Required candidate run37858092859: all four required checks/docs passed. Normal
-merge completed at e1d6b0f, resulting tree exactly matching qualified8bf40d4.
-Post-main run37859299854: all four required checks/docs passed. PR body records final counts/merge identity.
-Action integration is verified; interactive acceptance remains pending.
-The original future rename plan remains untracked here and is excluded from PR100.
+Lead checkout `/Users/evokessler/repos/brn-p2-email-docx-intake`, branch
+codex/p4-citation-evidence-review, qualified code538b160f6ea16f9c6c6f6a8823c0ee4119640657, reporting docs updated,
+based on182. Selected [read-only citation evidence review](citation-evidence-review.md)
+plan2182deb and fixed interfaces09625d5. Backend/native/CLI implementation complete, task-owned candidate ready for
+commit and independent complete review. Lead owns CLI/tests/docs/cases/integration. Two helpers, no recursion:
+citation_review_workflow owns backend/resolver/AppWorker/tests,10 new/10 existing provenance tests plus strictClippy passed/released. citation_review_desktop5state/8native+widgets/4Findings regressions and strict desktop Clippy passed/released. Lead currently sole Cargo(target/intake-ui, CARGO_INCREMENTAL=0, TMPDIR=/private/tmp/brn-p2-fixtures,
+pinned1.98.1/DYLD). citation_review_desktop owns native/state/tests.
+No concurrent Cargo. CLI3 real-process tests passed; final full gate next. Both implementation helpers done. Read-only web_research_readiness helper investigates smallest ready P6 slice, no Cargo/provider/edits. Complete independent reviewer finished on frozen b433; one valid finding above. Readiness complete: native web full capture parked on source-text and hosted
+budget gaps. Next bounded read-call correction (plan in budget checkout) selected
+in budget checkout codex/p3-read-call-correction plan5219761; implementation helper
+read_call_correction_impl found pinned Responses decoder DROPS malformed args
+before hook and dispatches valid peers. Selected retry slice NOT QUALIFIED/PARKED;
+no custom parser/vendor fork. Preserve failing witnesses/unfinished branch5219761+
+task-owned dirty code, no merge. Helper releasing sole Cargo and writing blocker
+record. Next select another independently ready P3 outcome. At most2 active helpers including citation correction reviewer.
+Do not confuse budgets/targets or overwrite authoritative lead morning task.
+[PR102](https://github.com/ewq100/brn-rust/pull/102), attached, candidateb433,
+required run37862406544 active. Complete independent review c56cfb40 found one
+valid P2 malformed Inbox metadata coverage defect, reproduced actual CLI in
+citation-malformed-intake-repro/before-fix.json. No other findings. Keep unmerged.
+Frozen baseline fullgate67708 PASSED/released:1815default/18,446native/16,
+597combined,doctests/Clippy/shipping/helper/52fixtures/links. Root new regression
+observed red, narrow eligibility correction applied,11backend+3CLI green. Required
+Ubuntu firstcandidate failed because CLI setup called Mac-only provenance.capture;
+portable pure fixture setup replaces it with no skips/weakened read assertions,
+and adds malformed Inbox coverage. Root final affected gate22063 passed/released;
+Independent correction review clean at538b160; final corrected affected gates passed/released. Revised candidate CI next. Patch/test prepared
+outside checkout: citation-malformed-intake-fix.patch / -regression.txt. Frozen baseline gate complete; reviewed correction is now task-owned dirty. Final local qualification passed; revised required CI and
+protected integration remain pending; unchanged Store/witnesses reusable.
+Reuse IdentityInventory, durable provenance, Current metadata and NeedsReview;
+no automatic Finding/effect/inference. Incomplete means unknown coverage, not truth.
 
-Lead now implements [same-folder Create rename](create-destination-rename.md) in
-reused checkout `/Users/evokessler/repos/brn-p3-work-budgets`, branch
-`codex/p3-create-destination-rename`, plan9f1d66e, baseline8bf40d4. Task-owned
-Store/desktop/workflow/CLI code/tests dirty; no rename production commit/PR yet.
-Fixed public request/worker/CLI and private earliest-original-path lineage are
-implemented. Lineage is sorted/unique, <=64 KiB encoded, default/omit-empty; public
-ProposalRecord unchanged. Recovery normalizes original paths with directional
-lineage compatibility, exact equal-version binding and no newer-lineage clobber.
-Original creation replay/callback returns the current reviewed path. Pending Source
-permits preparation; fresh exact approval still needs Applied Source. Bound Source,
-visual, asset/Replace retarget and cross-folder/split/regroup remain separate.
-
-Exactly two bounded implementation helpers, no recursion: create_rename_store owns
-Store lineage/CAS/journals/recovery/tests; create_rename_desktop owns capture/state/
-native controls/tests. Lead owns workflow/CLI/tests/docs/integration. Store200 + extra rename/race and strictClippy passed/released. Lead workflow2,
-integration3 andCLI2 passed; pending-Source preparation bug fixed/tested. Desktop
-now owns sole Cargo for default/native rename and strictClippy. Full original candidate1795default/18,436native/16,577combined andallshipping
-gates passed. Complete independent review found one valid Observe/navigation
-fence defect; narrow correction/regressions independently reviewed clean atf3e8a4f7.
-Corrected default11passed, desktophelper soleCargo16261 completesnative/Clippy.
-Lead next repeats affected completeDesktop/combined/shipping gates, commits/pushes
-reviewedcandidate andopensPR101; requiredCI/protectedmerge remainpending. No new inference for mechanics.
-
-Latest qualified immutable runtime:
-`/Users/evokessler/repos/brn-overnight-artifacts-20261008/action-backup-runtime`,
-source8bf40d4, includes SessionV18/PPTX/backups/Action compensation. Matching binary
-hashes/manifest are in morning task; GUI acceptance pending. Synthetic WorkspaceG
-`/private/tmp/brn-overnight-20261008/action-compensation-case` retains one ready
-un-compensated Action replacement plus completed/changed refusal cases, exact
-receipts and original/current records. Prepared with zero inference; actual fresh
-confirm refusals passed for both ineligible cases. Guarded prepare script must not
-rerun. Bound case folders stay in place. Refresh final runtime/archive before cutoff.
+Latest qualified immutable runtime citation-review-runtime under
+`/Users/evokessler/repos/brn-overnight-artifacts-20261008`, source538b160; hashes in
+morning task. WorkspaceH create-rename-case ready: pending owner-edited/commented
+Draft28284703-6122-43ad-bffa-e10b937b3483 v3; occupied refusal996b839f-9aeb-4787-b6de-fb7ee331b26a;
+Applied/replayedc7d3967a-04df-4465-b6b6-677c7ac7fa6a. Prepared zero inference,
+exact evidence retained. WorkspaceG Action compensation remains ready. Never rerun
+guarded preparation or relocate bound state/vault folders. Refresh final runtime
+and qualification archive after meaningful milestones and before cutoff.
 
 Live ledger `/private/tmp/brn-overnight-20261008/campaign-ledger.json`:14/16 used,
-Luna7/Sol7; one remaining each exact Medium condition, no active provider. Reserve
-before calls; 180-second cancellation/eight rounds/nine responses, failures count,
-no automatic retry/substitution/reset/purchase. Last account-wide weekly usage60%
-used/40% remaining at23:28 UTC; short window/tokens/internal turns/spend unknown.
-Retained outputs and [usefulness evidence](live-model-evidence.md) remain preserved.
+Luna7/Sol7, one each exact Medium condition remains, no active provider. Reserve
+before calls;180second deadline/eight rounds/nine responses; failures count/no
+substitution/retry/reset/purchase. Last weekly usage60%used/40%remaining23:28UTC;
+short window/tokens/internal turns/spend unknown. Retained outputs answer mechanics.
+Autoarchive readiness parked: Restore/Rewrite activity-clock decisions unresolved;
+no naive expiry implementation. Continue other ready work after citation slice.
 
 ## Selected first evidence slice
 

@@ -111,6 +111,8 @@ impl AiState {
         if !self.ready {
             return None;
         }
+        self.close_citation_review();
+        self.needs_review_mode = super::citation_review_state::NeedsReviewMode::Findings;
         self.finding_queue.visible = true;
         self.finding_queue.view = self.finding_queue.view.wrapping_add(1);
         self.finding_queue.selection = self.finding_queue.selection.wrapping_add(1);
@@ -120,6 +122,7 @@ impl AiState {
         self.refresh_findings(self.finding_queue.state, None)
     }
     pub fn close_findings(&mut self) {
+        self.close_citation_review();
         self.finding_queue.visible = false;
         self.finding_queue.view = self.finding_queue.view.wrapping_add(1);
     }

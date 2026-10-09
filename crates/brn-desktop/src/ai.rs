@@ -28,6 +28,11 @@ use std::{
     time::{Duration, Instant},
 };
 use uuid::Uuid;
+#[path = "citation_review_state.rs"]
+pub(crate) mod citation_review_state;
+#[cfg(test)]
+#[path = "citation_review_state_tests.rs"]
+pub(crate) mod citation_review_state_tests;
 #[path = "dashboard_state.rs"]
 mod dashboard_state;
 #[cfg(all(test, target_os = "macos"))]
@@ -267,6 +272,14 @@ pub enum Pending {
         capture: link_preparation_state::LinkCapture,
         request: Box<brn_workflow::knowledge::LinkRequest>,
     },
+    CitationReview {
+        capture: citation_review_state::PageCapture,
+        request: brn_workflow::knowledge::CitationReviewRequest,
+    },
+    CitationReviewDetail {
+        capture: citation_review_state::SelectionCapture,
+        request: brn_workflow::knowledge::CitationReviewDetailRequest,
+    },
     Findings {
         capture: finding_state::PageCapture,
         request: brn_workflow::findings::FindingListRequest,
@@ -380,6 +393,8 @@ pub struct AiState {
     pub activity_generation: u64,
     pub draft: Option<crate::draft::DraftForm>,
     pub link_preparation: link_preparation_state::LinkPreparation,
+    pub needs_review_mode: citation_review_state::NeedsReviewMode,
+    pub citation_review: citation_review_state::CitationReviewView,
     pub finding_queue: finding_state::FindingQueue,
     pub inbox_queue: inbox_state::InboxQueue,
     pub inbox_copy: inbox_copy_state::InboxCopyView,
@@ -2092,6 +2107,9 @@ impl AiState {
         if let Some(commands) = self.received_dashboard(id, &event) {
             return commands;
         }
+        if let Some(commands) = self.received_citation_review(id, &event) {
+            return commands;
+        }
         if let Some(commands) = self.received_findings(id, &event) {
             return commands;
         }
@@ -2452,6 +2470,9 @@ impl AiState {
             }
             AppEvent::Restored { backup } => self.restored = Some(backup),
             AppEvent::Status(status) => {
+                if self.vault_root != status.vault_root {
+                    self.invalidate_citation_review();
+                }
                 self.vault_root = status.vault_root;
                 self.model_installed = status.model_installed;
             }
@@ -2477,6 +2498,7 @@ impl AiState {
                 commands.push(self.command(Pending::Effort, AppCommand::Effort))
             }
             AppEvent::VaultBound => {
+                self.invalidate_citation_review();
                 self.vault_bound = true;
                 commands.push(self.command(Pending::Status, AppCommand::Status));
                 commands.push(self.command(Pending::Refresh, AppCommand::Refresh));
@@ -3067,7 +3089,9 @@ impl AiState {
             AppEvent::TurnCancelRequested { .. }
             | AppEvent::AccountCancelRequested { .. }
             | AppEvent::ModelCancelRequested { .. } => return commands,
-            AppEvent::ConversationSummaries { .. }
+            AppEvent::CitationReview(_)
+            | AppEvent::CitationReviewDetail(_)
+            | AppEvent::ConversationSummaries { .. }
             | AppEvent::ConversationLifecycle(_)
             | AppEvent::ConversationLifecycleChanged(_)
             | AppEvent::ProposalRewrite(_)

@@ -14,6 +14,7 @@ pub mod inbox;
 mod input;
 pub mod library;
 pub mod links;
+pub mod needs_review;
 pub(crate) mod out;
 pub mod proposals;
 pub mod provenance;
@@ -45,6 +46,7 @@ pub enum Command {
     Provenance(provenance::ProvenanceCommand),
     Links(links::LinksCommand),
     Findings(findings::FindingsCommand),
+    NeedsReview(needs_review::NeedsReviewCommand),
     Actions(actions::ActionsCommand),
     Inbox(inbox::InboxCommand),
     Relationships(brn_workflow::knowledge::RelationshipRequest),
@@ -151,6 +153,8 @@ Commands:
   brn links show PATH
   brn links prepare --file REQUEST.json
   brn relationships list [--scope current|source|history|all] [--offset N] [--limit N]
+  brn needs-review citations [--limit N] [--cursor CURSOR.json]
+  brn needs-review show --file REQUEST.json
   brn findings capture --file REQUEST.json
   brn findings list [--state open|resolved|dismissed|all] [--limit N] [--before UUID]
   brn findings show UUID
@@ -622,6 +626,7 @@ fn parse_inner(
         "provenance" => provenance::scan_command(&mut tokens, g, command)?,
         "links" => links::scan_command(&mut tokens, g, command)?,
         "findings" => findings::scan_command(&mut tokens, g, command)?,
+        "needs-review" => needs_review::scan_command(&mut tokens, g, command)?,
         "actions" => actions::scan_command(&mut tokens, g, command)?,
         "inbox" => inbox::scan_command(&mut tokens, g, command)?,
         "relationships" => relationships::scan_command(&mut tokens, g, command)?,
@@ -723,6 +728,9 @@ fn parse_inner(
         "provenance" => Command::Provenance(provenance::parse_command(command.unwrap(), &scanned)?),
         "links" => Command::Links(links::parse_command(command.unwrap(), &scanned)?),
         "findings" => Command::Findings(findings::parse_command(command.unwrap(), &scanned)?),
+        "needs-review" => {
+            Command::NeedsReview(needs_review::parse_command(command.unwrap(), &scanned)?)
+        }
         "actions" => Command::Actions(actions::parse_command(command.unwrap(), &scanned)?),
         "inbox" => Command::Inbox(inbox::parse_command(command.unwrap(), &scanned)?),
         "relationships" => Command::Relationships(relationships::parse_command(&scanned)?),
@@ -985,6 +993,9 @@ pub fn execute(invocation: &Invocation) -> Result<Output, CliFailure> {
     }
     if let Command::Actions(command) = &invocation.command {
         actions::validate(command)?;
+    }
+    if let Command::NeedsReview(command) = &invocation.command {
+        needs_review::validate(command)?;
     }
     library::validate_workspace(invocation)?;
     library::run(invocation)

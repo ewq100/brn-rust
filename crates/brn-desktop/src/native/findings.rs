@@ -87,7 +87,7 @@ impl Desktop {
                 .update(cx, |editor, cx| editor.set_value(text, window, cx));
         }
     }
-    fn findings_blocked(&self) -> bool {
+    pub(super) fn findings_blocked(&self) -> bool {
         !self.ai.as_ref().unwrap().ready
             || self.simple_transition.is_some()
             || self.closing.is_some()
@@ -100,7 +100,11 @@ impl Desktop {
         before: Option<Uuid>,
         cx: &mut Context<Self>,
     ) {
-        if self.findings_blocked() || self.open_doc != Some(DocRef::Findings) {
+        if self.findings_blocked()
+            || self.open_doc != Some(DocRef::Findings)
+            || self.ai.as_ref().unwrap().needs_review_mode
+                != crate::ai::citation_review_state::NeedsReviewMode::Findings
+        {
             return;
         }
         let command = self.ai.as_mut().unwrap().refresh_findings(state, before);
@@ -111,7 +115,11 @@ impl Desktop {
         cx.notify();
     }
     fn select_finding(&mut self, id: Uuid, cx: &mut Context<Self>) {
-        if self.findings_blocked() || self.open_doc != Some(DocRef::Findings) {
+        if self.findings_blocked()
+            || self.open_doc != Some(DocRef::Findings)
+            || self.ai.as_ref().unwrap().needs_review_mode
+                != crate::ai::citation_review_state::NeedsReviewMode::Findings
+        {
             return;
         }
         let command = self.ai.as_mut().unwrap().select_finding(id);
@@ -121,7 +129,11 @@ impl Desktop {
         cx.notify();
     }
     fn inspect_finding(&mut self, cx: &mut Context<Self>) {
-        if self.findings_blocked() || self.open_doc != Some(DocRef::Findings) {
+        if self.findings_blocked()
+            || self.open_doc != Some(DocRef::Findings)
+            || self.ai.as_ref().unwrap().needs_review_mode
+                != crate::ai::citation_review_state::NeedsReviewMode::Findings
+        {
             return;
         }
         let command = self.ai.as_mut().unwrap().inspect_selected_finding();
@@ -131,7 +143,11 @@ impl Desktop {
         cx.notify();
     }
     pub(super) fn close_finding(&mut self, state: FindingState, cx: &mut Context<Self>) {
-        if self.findings_blocked() || self.open_doc != Some(DocRef::Findings) {
+        if self.findings_blocked()
+            || self.open_doc != Some(DocRef::Findings)
+            || self.ai.as_ref().unwrap().needs_review_mode
+                != crate::ai::citation_review_state::NeedsReviewMode::Findings
+        {
             return;
         }
         let command = self.ai.as_mut().unwrap().close_selected_finding(state);
@@ -141,7 +157,11 @@ impl Desktop {
         cx.notify();
     }
     fn retry_finding_capture(&mut self, cx: &mut Context<Self>) {
-        if self.findings_blocked() || self.open_doc != Some(DocRef::Findings) {
+        if self.findings_blocked()
+            || self.open_doc != Some(DocRef::Findings)
+            || self.ai.as_ref().unwrap().needs_review_mode
+                != crate::ai::citation_review_state::NeedsReviewMode::Findings
+        {
             return;
         }
         let command = self.ai.as_mut().unwrap().retry_finding_capture();
@@ -151,7 +171,11 @@ impl Desktop {
         cx.notify();
     }
     fn retry_finding_close(&mut self, cx: &mut Context<Self>) {
-        if self.findings_blocked() || self.open_doc != Some(DocRef::Findings) {
+        if self.findings_blocked()
+            || self.open_doc != Some(DocRef::Findings)
+            || self.ai.as_ref().unwrap().needs_review_mode
+                != crate::ai::citation_review_state::NeedsReviewMode::Findings
+        {
             return;
         }
         let command = self.ai.as_mut().unwrap().retry_finding_close();
@@ -209,6 +233,11 @@ impl Desktop {
         cx.notify();
     }
     pub(super) fn render_findings(&self, cx: &mut Context<Self>) -> AnyElement {
+        if self.ai.as_ref().unwrap().needs_review_mode
+            == crate::ai::citation_review_state::NeedsReviewMode::CitationEvidence
+        {
+            return self.render_citation_review(cx);
+        }
         let ai = self.ai.as_ref().unwrap();
         let queue = &ai.finding_queue;
         let full_text = display_text(ai);
@@ -238,6 +267,7 @@ impl Desktop {
         let before = queue.page.as_ref().and_then(|page| page.next_before);
         let mut content = div().id("findings-scroll").track_scroll(&self.findings.scroll).overflow_y_scroll().vertical_scrollbar(&self.findings.scroll).flex_1().min_h(px(0.)).flex().flex_col().gap_2().p_2()
             .child("Needs Review")
+            .child(self.render_needs_review_modes(cx))
             .child("Tentative findings retain saved evidence. Resolve or Dismiss changes this queue only; correcting knowledge requires a reviewed proposal.")
             .child(filters)
             .child(div().flex().flex_wrap().gap_1()

@@ -1159,3 +1159,19 @@ exact-record/reference checks. It preserves immutable origin/history and refuses
 changed or Completed Actions. Creation and mixed file/Action Undo remain refused;
 scoped Trash does not select Actions. Replaying the same operation returns its
 receipt without overwriting later work. No provider request is involved.
+
+## Citation evidence review
+
+`needs-review citations --limit 25` lists Current consumers with Changed, Absent,
+Ambiguous or Incomplete durable citation observations. These are read-only evidence
+observations, not Findings or semantic truth judgments. Save the returned
+`next_cursor` object to a regular JSON file and pass `--cursor CURSOR.json`; empty
+pages may still have a next cursor because the limit counts inspected consumers.
+Vault changes invalidate the cursor and require a fresh first page.
+
+`needs-review show --file REQUEST.json` takes a strict JSON object with `path` and the listed row’s
+`expected_sha256` array of32 byte integers and returns complete
+exact consumer text plus saved-source proofs. Changed consumer hashes refuse.
+Coverage diagnostics mean unavailable observation, never a healthy or absent
+source. Requests/cursors are bounded regular JSON files up to64KiB; unknown fields
+and invalid requests refuse before opening storage. No inference or effects occur.
