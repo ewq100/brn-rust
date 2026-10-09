@@ -316,6 +316,21 @@ than passed whenever a control/result cannot be exercised.
 
 ## One ordered journey
 
+For optional Workspace P, use the existing saved empty credentials setting and
+an explicit empty model directory. The desktop does not accept a credentials flag;
+its ordinary workflow reuses the protected path saved by the CLI campaign.
+
+```sh
+/Users/evokessler/repos/brn-overnight-artifacts-20261008/activity-action-runtime/brn-desktop \
+  --data-dir /private/tmp/brn-overnight-20261008/user-scale-case/data \
+  --vault /private/tmp/brn-overnight-20261008/user-scale-case/vault \
+  --model-dir /private/tmp/brn-overnight-20261008/user-scale-case/data/models
+```
+
+Do not connect an account or download models for this optional keyword-only check.
+This launch command was checked against the saved configuration and argument parser;
+it was not launched or interactively observed overnight.
+
 Allow 220–305 minutes including optional scale observation for all workspaces/new controls. Essential path: steps1–5,8–9,21 and the first lens/proof/restart checks in22, and one graph edge/proof/restart from23, and the edit/review/restart path in24, and one linked reference/full copy from25, and one historical Action/full-approval check from26, about75–105minutes. Active live cancellation remains pending without fresh authorization.
 
 | Step / user action | Expected result | Evidence / failure record |
