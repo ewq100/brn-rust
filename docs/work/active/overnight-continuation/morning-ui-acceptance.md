@@ -18,7 +18,7 @@ checks/docs; all required post-merge checks/docs passed in 37844389582.
 Refresh this receipt after subsequent changes and before cutoff; qualification is
 separate from personal acceptance.
 
-Checkout/current authoritative morning task: `/Users/evokessler/repos/brn-p2-email-docx-intake`.
+Checkout/current authoritative morning task: `/Users/evokessler/repos/brn-p3-work-budgets`.
 Latest locally qualified combined build source: `0d32ac2ac65676bd58fd005e8af699b04dac4cd0`
 (Dashboard owner Action editing, composed with Graphccbeef4 and P8a27cb5a; complete
 independent11-file Action review clean and all ten final local gates passed).
@@ -39,7 +39,8 @@ SHA-256 `7f058c359a092559cda55b07c3880b44e637257818ad60c725da8b1d99a9f8e5`.
 Manifest `build-manifest.json` records exact source/tree, binary hashes and pending
 integration gates. This contains all earlier overnight changes through explicit
 Person/Project context, displayed-page graph and owner-initiated unfinished Action
-replacement. No new schema migration. Bound folders stay in place; never use old
+replacement. The separately prepared linked-Action inspection is not in this
+build yet. No new schema migration. Bound folders stay in place; never use old
 executables on newer schema state. Actual GUI/IME/accessibility/personal acceptance
 remains pending. Local qualification is separate from integration and acceptance.
 
@@ -339,7 +340,7 @@ Owner added ten shared trials; all sixteen are used, including the final paired 
 ## Ready-to-paste morning agent prompt
 
 > Read `docs/work/active/overnight-continuation/morning-ui-acceptance.md` and the
-> latest overnight checkpoint in `/Users/evokessler/repos/brn-p2-email-docx-intake`.
+> latest overnight checkpoint in `/Users/evokessler/repos/brn-p3-work-budgets`.
 > The Mac is unlocked and I am available. Verify final commit/build hashes and
 > use only the recorded synthetic workspaces. Execute this single ordered UI
 > journey, essential path first if time is limited. Record actual observations

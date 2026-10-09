@@ -77,74 +77,89 @@ requires exact final-candidate review, applicable local checks and actual requir
 CI. No weakening, bypass or rushed merge. Record failures and repair real defects.
 Known informational platform failures remain visible and separate.
 
-## Durable checkpoint — 09 October 02:49 UTC
+## Durable checkpoint — 09 October 02:57 UTC
 
-Continue through05UTC/08Tallinn, finalqualification04:30. AUTHORITATIVE lead/ONE
-morning task NOW `/Users/evokessler/repos/brn-p2-email-docx-intake`, branch
-`codex/action-edit-initiation`. Candidate0d32ac2 composedGraphccbeef4/P8a27; complete
-11file independent Actionreview CLEAN patch e7943c9a41c892e0c52b92996ad1f905db9577d27b0c8646d6a71d227b5a8fff.
-Implementation75cbb7 exactunfinishedfullbefore/sameUUID/prefilledfields/ordinary
-Replace/sourcecapturehistoricalrefs/separateproposalidentity/wholeDashboardview-
-page-selectionrecordguards/queuednavigation/fullbaselinecopy. All10rootfinalgates
-PASS527defaultCLI/Desktop,648combined,strictworkspaceboth/shippinghelper52fixtures/
-links/diff. RootCargoFREE, codehelperdone/released, no activeproviders. [Actionplan](action-edit-initiation.md)
-records scope/reuse/tests. Final shared qualification docscommit/push/PRnext;
-actualrequiredCI/eligibleP8+Graphmain/normalmerge/resultmain pending, no bypass.
+Continue until05UTC/08Tallinn, finalqualification04:30. AUTHORITATIVE lead/ONE
+morning task NOW /Users/evokessler/repos/brn-p3-work-budgets, branch
+codex/linked-action-inspection plan6d29daba9c30fb6c75bd9b21de0fc8d1bce30a08 based
+Action62fe158. [Fixed linked-work plan](linked-action-inspection.md)86lines selects
+readonly one-hop explicit dependencies/parent/follows_up→existingActionread, exact
+whole source/view/page/selection/role/UUID/queryintent, completedsource+target,
+fullJSONcopy/fresh-target-vs-older-source observation/missing/error/retry/ownerbuffer/
+480px+actualstalecallbackguards. No backend/RPC/schema/deps/provider/newpolicy.
+Helpernext_v1_readiness ownsDesktopONLY dashboard_state.rs,ai.rs,native/dashboard.rs,
+focusedexistingtests/README; preparingcode/tests NOW. SoleCargo GRANTED02:53 target/
+budgets canonicalrustupwrapper+DYLD1.98.1; ROOT NO Cargo untilreleased. Helpermay
+commitONLYownedfilesaftermeaningfulfocused/strictchecks; rootownsallshared docs/
+fixtures/runtime/review/CI/integration. Atmost2activehelpers/no recursive spawn,
+selectedleadmodel/effortunchanged. Otherreviewhelperscompleted. No newlivecalls.
 
-Immutable action-edit-runtime source0d32ac2 (all changes through Actionediting), CLI
-28ed910b7a03910e50eb86dbf1dec242aa37bf2ce7f5dd9896fe674c38ed2bc4,
-Desktop 859d211eaa6caadf7879e3f48d4effad0b34f5c4550fb63f7292f30d5c4bb252,helper7f058c35.
-Guarded WorkspaceN shippingCLI rejection/noeffects, separatecompleteexample,
-approvedsameUUIDedit/readonlyUndopreview/compensation/restart/exactreplay/origin/
-freshWaitingclock/unchangedSource-thread-notes-nativeWaiting/zeroInference PASS.
-NativeAction 9a5bdb5f-9587-42b0-9064-0954aae4e819 Waitingv1 retainedformorning;
-Completedexample 16c98513-62d3-429f-abd7-0f49805eefa2; compensated
-comparison 2e2ff0b5-6ddd-4960-b532-410eb5705e15. CasesA–N retained; ONE morning
-latestActionbuild/step24,190–265minfull/65–90essential. AllactualGUI/IME/accessibility/
-owneracceptancepending; no interactiveGUI tonight. Neverreprepare/reset/relocate
-boundstate/useoldbinariesafternewmigration. Sourceoriginals/recovery exact preserved.
+Latest qualified visible build remains Actionediting0d32ac2, NOTlinkedinspection:
+immutable /Users/evokessler/repos/brn-overnight-artifacts-20261008/action-edit-runtime,
+CLI28ed910b7a03910e50eb86dbf1dec242aa37bf2ce7f5dd9896fe674c38ed2bc4,
+Desktop859d211eaa6caadf7879e3f48d4effad0b34f5c4550fb63f7292f30d5c4bb252/helper7f058c35.
+ONE morningtask latestActionruntime/casesA–N/step24,190–265minfull/65–90essential;
+headercanonicalpathupdatedHERE. NativeN9a5bdb5f-9587-42b0-9064-0954aae4e819Waitingv1
+retained. SeparateRejected→Completeexample16c98513 andapprovededit→Undo→replay
+comparison2e2ff0b5retained; shippingCLI Source/thread/origin/Waitingclock/unchanged
+notes/noinference passed. AllactualGUI/IME/accessibility/personalacceptancepending;
+neverrerunpreparers/reset/relocateboundfolders/useoldbinariesafternewmigration.
 
-P8PR106 ready finala27cb5a62acd4149cb00b0be0ed7564f9011a834 actualCI37875841656
-started02:43, docs+requiredUbuntu+MacUI PASS02:50, requiredMacCore/Combinedrunning. PriorrequiredUbuntu19ca failedpureCLI
-unitsetup Save(Mac-only); a356fixedpuretypedreply (1/78/strictPASS/indepclean22f08d51).
-RevisedrequiredUbuntu a356passed78unit thenactualCLIprocesssetup usedproposals.source
-sameSave dependency. a27capturesrealfixturedev/inode/len/hashdirectly, preservesALL
-assertions/addsnoeditoridentitysettingproof/no cfgskip/noport; actualCLI2/strictPASS/
-indepclean3fda431819ddde1730a8026f3a04c433ae177f2205314e3d001a8bac0913dca6.
-Bothfailures retained; production unchanged. Detachedtaskworktree /private/tmp/
-brn-overnight-20261008/p8-ci-fixture-correction cleancommitted/pusheda27;
-localbranchcodex/p8-profile-contextsame. Inspect actualrevised4required+docs/normal
-P8merge/resultmain. Oldrequiredwatch77380mayreferssupersededa356; refreshheadasneeded.
+ActionPR108 https://github.com/ewq100/brn-rust/pull/108 ready62fe158ac3a40c670141f5a31f4fe0ad6fe6b0b7,
+actualCI37876519735 started02:51 docsPASS/requiredpending02:54. Otherintakecheckout
+/Users/evokessler/repos/brn-p2-email-docx-intake cleancodex/action-edit-initiation62fe.
+Complete11filereview0d32 CLEANe7943c9a +fourfinaldocsrefresh62feCLEAN2ed36a9e;
+all10rootfinalgates527default/648combined/strictworkspaceboth/shippinghelper52fixtures/
+linksPASS. Focused4form7realworker11formwidgets incl7actualheadless/sevennewwitnesses.
+ExactordinaryunfinishedReplace/sameUUID/fullbefore/capturedrefs/history/separate
+proposal/queuedguards/beforecopy; no backendchange. Runtime/WorkspaceNready.
 
-GraphPR107 readyccbeef4eec157d0db7974668e6d10096115165be actualCI37875878291
-started02:43; docs+requiredUbuntu+MacUI PASS02:50, requiredMacCore/Combinedrunning. DependsP8eligiblemain,
-incorporatebeforeGraphintegration. Otherbudgetcheckout codex/p8-context-graph clean
-pushedccbeef. Complete8fileGraphreviewe763 CLEAN67fb39a6 +final4docs755f227refresh
-CLEAN659933ff; twoP8test-onlyfixesreviewed/composed, no Graphproductiondelta. All9
-localgates641combined/strictworkspaceboth/shipping52fixtures,9focused2pure7actual
-headless/26disjointbounds/480scroll/proofs/staleloadingcallback guardsPASS. Matching
-priorgraph-runtimee763/sixWorkspaceMcontextreplyparity/vaultunchanged/noinfer retained.
-UsefinalActionruntimeformorning. PR90–105 ALL4requiredcandidate/postmain/docsPASS,
-currentmain56b6a02 PR105 identicalqualified5120treebc7a. FinalWindowsP8a27 job113644216332 andGraphccbeef job113644323785 actuallogs
-inspected02:50: same4knownUnixAPIerrors; no newdiagnostic.
-No port/suppression; requiredUbuntu failures trulyfixed, not calledinformational.
+P8PR106 readyfinala27cb5a62acd4149cb00b0be0ed7564f9011a834, CI37875841656 actual
+requiredUbuntu+MacUI+MacCombined/docsPASS02:54; requiredMacCorefullworkspace running
+since02:44. ParentP7 defaultworkspace7minbaseline, P8addedfull205row/edge witnesses;
+no witness shrinking/timeout/protection bypass. Originalcomplete31review3e06 +valid
+P2referencealias/knownAbsentredfix45aff9reviewclean; existing480pxregressionfixed
+unchangedtestPASS. All11correctedlocal523default8native632combined strictshipping52PASS,
+reuse1168affectedbaseline/17,461native/16/backendfullsize. InitialrequiredUbuntuunit
+fixture SaveMacdependencyfixeda356puretypedreply1/78/strict+indepclean22f08d51;
+revisedUbuntuactualprocessfixtureSavecapturefixeda27realdev/inode/len/hash, allasserts
+remain/addnoeditoridentityproof,CLI2/strict+indepclean3fda4318. RevisedactualUbuntu
+PASS, bothfailedlogsretained; no cfg/ignore/productionport. Detachedtaskworktree
+/private/tmp/brn-overnight-20261008/p8-ci-fixture-correction cleanpusheda27, local
+codex/p8-profile-contextsame. InspectremainingrequiredMacCore then normalP8merge/
+actualresultmain exacttree/postmainCI, noauto/admin/bypass.
 
-Helpernext_v1_readiness nowboundedread-only nextacceptedreadyoutcome afterAction,
-noCargo/provider/GUI/spawn; no repeatedarchitectureaudit orparkeddecisioninventing.
-Atmost2activehelpers includinglaterfinaldocsreview; selectedleadmodel/effortunchanged.
-Canonicalcampaign16/16USED Luna8Sol8 NO live/retries/newconditions/substitution/reset;
-owner10additionalalreadycounted. Usage70%weeklyused30%remainingaccountwide01:41
-ordinarytrue;shortwindow/tokens/internal/spendunknown. Archive1329files1,009,856,177B
-02:26; refreshmilestones/cutoff. Synthetic/publicONLY; no computer/browser/GUI/
-accessibility/screenshots/unlock/interactivelaunch/privatevault/email/docs/credential
-contents/accountswitch/purchase/paidfallback/modeldownload/ports/releases/signing/
-globalconfig/unrelatedmerge. Preserveprimary18f3891+DSStore/researchPR80/82/84/userdata/
-approval/provenance/CurrentHistory/originalretention/recovery/owneredits. Parkedretry
-8f8fc2e pushedunqualified/noPR/RigResponsesmismatch/nofork;crossfolder/split/regroup/
-webcapture/autoarchive/PDF/SessionDeletewarningspecparked. Don'tstopatonePR/waitowner;
-continue usefulreadywork. HeartbeatmustpointHERE; disable05UTC/cancel/runtime-limit/
-allusefulauthorizedblocked,noarchivechat. Safelycommit/pushunfinished/exactmorning
-report andnextstepatcutoff.
+GraphPR107 readyccbeef4eec157d0db7974668e6d10096115165be CI37875878291 actual
+requiredUbuntu+MacUI+MacCombined/docsPASS02:54; MacCorefullworkspace running02:49.
+Localcodex/p8-context-graphfree(cleanbranchheadccbeef; budgetcheckoutnowLinked).
+Complete8Graphreviewe763 CLEAN67fb39a6 +4docs755refreshCLEAN659933ff; twoP8test-only
+fixesreviewed/composedwithoutGraphproductiondelta. All9local641combined/strictboth/
+shippinghelper52fixtureslinksPASS;9focused2pure7headless/26disjoint480scroll/quote/
+copy/staleloadingcallbackguards. SixWorkspaceMactualGraphCLIcontexts identical/
+vaultunchanged/noinference. NeedeligibleP8main beforeGraphnormalmerge; candidate
+alreadycontainsfinalP8a27, so verify gitmerge-tree origin/main ccbeef equalscandidate
+tree and reuse unchangedrelevantchecks ratherthanunnecessarycode-free branchmerge.
+Sameprospective-treecomposition forAction afterGraphmain; ifactualdeltafix/review/
+qualify beforeintegration. Allresultmain/postCIrequired separately.
+
+PR90–105 ALL4requiredcandidate+postmain/docsPASS; currentmain56b6a02 PR105treeidentical
+qualified5120bc7a. FinalWindowsP8a27job113644216332 andGraphccbeef113644323785 actual
+same4knownUnixAPIerrors inspected02:50; no newdiagnostic/port/suppression. Action
+Windows113646276923 needsactualfinal-headinspection. Archive refresh44328running
+02:56; previous1329files1,009,856,177B02:26,refreshmilestones/cutoff.
+Canonicalcampaignledger16/16USED Luna8Sol8 NO live/retry/newconditions/substitution/
+reset; owner10extraalreadycounted. Accountusage02:56ordinarytrue76%weeklyused/24%
+remainingaccountwide, notnightspend;shortwindow/tokens/internal/spendunknown. Sanitized
+receipt usage-sanitized-20261009-0256.json, noreset/accountswitch/purchase.
+Synthetic/publicONLY; NO GUI/computer/browser/accessibility/screenshots/unlock/
+interactivelaunch/privatevault/email/docs/credentialcontents/accountswitch/paidfallback/
+modeldownload/ports/releases/signing/globalconfig/unrelatedmerge. Preserveprimary
+18f3891+DSStore/researchPR80/82/84/userdata/exactapproval/provenance/CurrentHistory/
+originalretention/recovery/owneredits. Parkedretry8f8fc2e pushedunqualified/noPR/Rig
+Responsesmismatch/nofork;crossfolder/split/regroup/webcapture/autoarchive/PDF/Session
+Deletewarningspecparked. Continueusefulreadywork/don'tstopatonePR/waitowner. Heartbeat
+mustpointHERE/currenthelpers/Cargo; disable05UTC/cancel/runtime-limit/alluseful
+blocked,noarchivechat. Safelycommit/pushunfinished,exactmorningreport/nextstepatcutoff.
 
 ## Selected first evidence slice
 
