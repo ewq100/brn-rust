@@ -31,6 +31,7 @@ pub(super) enum EditorTransition {
     InboxSourceDraft,
     Draft(Option<Uuid>),
     ActionDraft(Option<Uuid>),
+    ActionReplace(Box<brn_workflow::actions::ActionRecord>),
     Hide,
     Close(CloseRoute),
 }
@@ -404,6 +405,16 @@ impl Desktop {
             self.ai.as_mut().unwrap().notice = "Waiting for latest buffer recovery before leaving. Closing does not save Markdown.".into();
             return;
         }
+        if matches!(
+            self.simple_transition,
+            Some(EditorTransition::ActionReplace(_))
+        ) && self.ai.as_ref().is_some_and(|ai| {
+            !ai.ready || ai.application_busy() || ai.active.is_some() || ai.rewrite.is_some()
+        }) {
+            self.ai.as_mut().unwrap().notice =
+                "Waiting for current work before opening the captured Action edit.".into();
+            return;
+        }
         let transition = self.simple_transition.take().unwrap();
         self.clear_profile_panel();
         if let EditorTransition::Finding { analysis, id } = &transition
@@ -427,6 +438,7 @@ impl Desktop {
                 | EditorTransition::Finding { .. }
                 | EditorTransition::Draft(_)
                 | EditorTransition::ActionDraft(_)
+                | EditorTransition::ActionReplace(_)
         ) {
             self.ai.as_mut().unwrap().close_findings();
         }
@@ -440,10 +452,19 @@ impl Desktop {
                 | EditorTransition::InboxSourceDraft
                 | EditorTransition::Draft(_)
                 | EditorTransition::ActionDraft(_)
+                | EditorTransition::ActionReplace(_)
         ) {
             self.ai.as_mut().unwrap().close_inbox();
         }
         let action_draft = matches!(&transition, EditorTransition::ActionDraft(_));
+        let action_replace = match &transition {
+            EditorTransition::ActionReplace(before) => Some((**before).clone()),
+            _ => None,
+        };
+        let draft_turn = match &transition {
+            EditorTransition::Draft(turn) | EditorTransition::ActionDraft(turn) => *turn,
+            _ => None,
+        };
         let analysis_path = match &transition {
             EditorTransition::AnalyzeInboxSource(path) => Some(path.clone()),
             _ => None,
@@ -575,11 +596,15 @@ impl Desktop {
                 self.open_doc = Some(DocRef::Draft);
                 self.centre_tab = CentreTab::Document;
             }
-            EditorTransition::Draft(turn) | EditorTransition::ActionDraft(turn) => {
-                let started = if action_draft {
-                    self.ai.as_mut().unwrap().begin_action_draft(turn)
+            EditorTransition::Draft(_)
+            | EditorTransition::ActionDraft(_)
+            | EditorTransition::ActionReplace(_) => {
+                let started = if let Some(before) = action_replace {
+                    self.ai.as_mut().unwrap().begin_action_replace_draft(before)
+                } else if action_draft {
+                    self.ai.as_mut().unwrap().begin_action_draft(draft_turn)
                 } else {
-                    self.ai.as_mut().unwrap().begin_draft(turn)
+                    self.ai.as_mut().unwrap().begin_draft(draft_turn)
                 };
                 if !started {
                     cx.notify();

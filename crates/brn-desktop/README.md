@@ -701,3 +701,25 @@ receipt arrives. Inspect the current Action and retained attempt after a failure
 State and headless widget checks cover correlation, full text, separate
 confirmation, ordinary isolation and retry; GUI/IME/accessibility and owner
 acceptance remain pending in the morning task.
+
+### Owner editing of an existing Action
+
+Select an unfinished Dashboard Action and choose **Edit Action…**. The retained
+form begins with every displayed field and the complete exact Action baseline.
+**Create review draft** prepares an ordinary replacement proposal; the Action
+changes only after its exact before/after review is approved. Completed Actions
+keep their separate **New related follow-up…** path and cannot be reopened here.
+
+The form shows its captured baseline and explicitly captured source bindings as
+read-only details; **Copy all raw Action input / proofs** preserves the full
+baseline and local fields. Existing references need no automatic recapture.
+New or changed note references still require explicit saved-source capture under
+the ordinary proposal checks. Competing changes refuse without silently rebasing
+or discarding owner input. Starting a separate replacement proposal keeps the
+same Action UUID and original baseline while assigning a new proposal UUID.
+
+Dashboard callbacks bind the whole displayed record and view/page/selection.
+Guarded navigation carries that captured baseline through pending editor recovery
+or retained review comments. Approval, restart and Activity compensation use the
+existing replacement lifecycle. Headless behavioral/widget qualification and
+interactive owner acceptance remain distinct.

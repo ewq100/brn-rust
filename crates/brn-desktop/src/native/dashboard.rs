@@ -388,6 +388,42 @@ impl Desktop {
                     ),
             );
         }
+        if let Some(entry) = state.selected.as_ref().filter(|entry| {
+            entry.action.data.state != brn_workflow::actions::ActionState::Completed
+        }) {
+            let before = entry.action.clone();
+            // Reuse the existing full record/view/page/selection capture solely
+            // as a navigation guard. This control sends no Complete command.
+            let capture = ai.capture_action_completion();
+            content = content.child(
+                Button::new("edit-selected-action")
+                    .label("Edit Action…")
+                    .disabled(blocked || loading || ai.application_busy() || capture.is_none())
+                    .on_click(cx.listener(move |this, _, window, cx| {
+                        let ai = this.ai.as_ref().unwrap();
+                        if this.dashboard_blocked()
+                            || window.has_active_dialog(cx)
+                            || ai.dashboard_loading()
+                            || ai.application_busy()
+                            || !ai.dashboard.visible
+                            || ai
+                                .dashboard
+                                .selected
+                                .as_ref()
+                                .is_none_or(|entry| entry.action != before)
+                            || capture.as_ref().is_none_or(|capture| {
+                                !ai.action_completion_capture_current(capture)
+                            })
+                        {
+                            return;
+                        }
+                        this.simple_leave(
+                            simple::EditorTransition::ActionReplace(Box::new(before.clone())),
+                            cx,
+                        );
+                    })),
+            );
+        }
         content = content.child("Actual sent evidence · capture and approve actual text through Inbox first. Then explicitly read its saved Source here.")
             .child("Sent Source path")
             .child(Textarea::new(&self.dashboard.sent_path).disabled(blocked).aria_label("Sent Source path"))

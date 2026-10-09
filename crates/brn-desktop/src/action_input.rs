@@ -2,19 +2,21 @@
 use super::*;
 use crate::review::action_fields::ActionFields;
 use brn_workflow::{
-    actions::ActionState,
+    actions::{ActionRecord, ActionState},
     proposals::{ActionChange, MAX_PROPOSAL_CHANGES},
 };
 
 #[derive(Clone, Debug, PartialEq, Eq, serde::Serialize)]
 pub struct InitialAction {
     pub id: Uuid,
+    pub before: Option<Box<ActionRecord>>,
     pub fields: ActionFields,
     pub sources: Vec<ProposalSource>,
 }
 impl InitialAction {
     pub fn pristine(&self) -> bool {
-        self.fields.values.iter().all(String::is_empty)
+        self.before.is_none()
+            && self.fields.values.iter().all(String::is_empty)
             && self.fields.state == ActionState::Open
             && self.fields.priority.is_none()
             && self.sources.is_empty()
@@ -34,7 +36,23 @@ impl DraftForm {
         fields.values[11] = follows_up.map(|id| id.to_string()).unwrap_or_default();
         form.action = Some(Box::new(InitialAction {
             id: Uuid::new_v4(),
+            before: None,
             fields,
+            sources: vec![],
+        }));
+        Some(form)
+    }
+    pub fn replace_action(before: ActionRecord) -> Option<Self> {
+        before.validate().ok()?;
+        if before.data.state == ActionState::Completed {
+            return None;
+        }
+        let mut form = Self::new(None)?;
+        form.title = before.data.title.clone();
+        form.action = Some(Box::new(InitialAction {
+            id: before.origin.id,
+            fields: ActionFields::from(&before.data),
+            before: Some(Box::new(before)),
             sources: vec![],
         }));
         Some(form)
@@ -132,9 +150,20 @@ impl DraftForm {
                 .iter()
                 .map(|capture| capture.source.clone())
                 .collect(),
-            action_changes: vec![ActionChange::Create {
-                id: action.id,
-                data,
+            action_changes: vec![match &action.before {
+                Some(before) if before.origin.id == action.id => ActionChange::Replace {
+                    before: before.clone(),
+                    data,
+                },
+                Some(_) => {
+                    return Err(brn_workflow::WorkflowError::msg(
+                        "Replacement Action identity changed.",
+                    ));
+                }
+                None => ActionChange::Create {
+                    id: action.id,
+                    data,
+                },
             }],
         };
         request.validate()?;

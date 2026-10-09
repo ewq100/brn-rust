@@ -293,6 +293,216 @@ fn completed_dashboard_selection_seeds_new_open_related_work(cx: &mut gpui_kit::
     });
 }
 
+fn load_edit_action(
+    desktop: &Entity<Desktop>,
+    before: &brn_workflow::actions::ActionRecord,
+    window: &mut Window,
+    cx: &mut App,
+) {
+    desktop.update(cx, |this, cx| {
+        let ai = this.ai.as_mut().unwrap();
+        let command = ai.open_dashboard().unwrap();
+        ai.apply(
+            command.0,
+            AppEvent::ActionDashboard(Box::new(crate::ai::dashboard_state_tests::page(
+                before.clone(),
+            ))),
+        );
+        assert!(ai.select_dashboard_action(before.origin.id));
+        this.open_doc = Some(DocRef::Dashboard);
+        this.sync_dashboard_widgets(window, cx);
+        cx.notify();
+    });
+}
+
+#[gpui_kit::test]
+fn dashboard_edit_prefills_exact_baseline_and_owner_fields_at_480(
+    cx: &mut gpui_kit::TestAppContext,
+) {
+    let (_fixture, handle, desktop) = dashboard_tests::action_window(cx, false);
+    let mut visual = VisualTestContext::from_window(handle.into(), cx);
+    let before = crate::ai::dashboard_state_tests::record(200);
+    visual.update(|window, cx| load_edit_action(&desktop, &before, window, cx));
+    visual.run_until_parked();
+    scroll(&mut visual, "dashboard-scroll", "edit-selected-action");
+    visual.update(|window, cx| {
+        window.click("edit-selected-action", cx);
+        desktop.update(cx, |this, cx| this.sync_draft_widgets(window, cx));
+        let this = desktop.read(cx);
+        assert_eq!(this.open_doc, Some(DocRef::Draft));
+        let action = this
+            .ai
+            .as_ref()
+            .unwrap()
+            .draft
+            .as_ref()
+            .unwrap()
+            .action
+            .as_ref()
+            .unwrap();
+        assert_eq!(action.id, before.origin.id);
+        assert_eq!(action.before.as_deref(), Some(&before));
+        assert_eq!(action.fields.data().unwrap(), before.data);
+        assert!(action.sources.is_empty());
+        let observed: serde_json::Value =
+            serde_json::from_str(this.draft_link_proofs.read(cx).value().as_ref()).unwrap();
+        assert_eq!(observed["before"], serde_json::to_value(&before).unwrap());
+    });
+    visual.run_until_parked();
+    for index in 0..12 {
+        scroll(
+            &mut visual,
+            "initial-action-form",
+            &format!("initial-action-field-{index}"),
+        );
+    }
+    scroll(
+        &mut visual,
+        "initial-action-form",
+        "initial-action-state-Blocked",
+    );
+    visual.update(|window, cx| {
+        type_field(
+            &desktop,
+            1,
+            "\u{feff}Edited õ 日本語\r\nexact λ",
+            window,
+            cx,
+        );
+        window.click("initial-action-state-Blocked", cx);
+    });
+    scroll(
+        &mut visual,
+        "initial-action-form",
+        "copy-initial-action-input",
+    );
+    visual.update(|window, cx| {
+        window.click("copy-initial-action-input", cx);
+        let copied: serde_json::Value =
+            serde_json::from_str(&cx.read_from_clipboard().unwrap().text().unwrap()).unwrap();
+        assert_eq!(
+            copied["action"]["before"],
+            serde_json::to_value(&before).unwrap()
+        );
+        assert_eq!(
+            copied["action"]["fields"]["values"][1],
+            "\u{feff}Edited õ 日本語\r\nexact λ"
+        );
+    });
+    scroll(
+        &mut visual,
+        "initial-action-form",
+        "create-initial-review-draft",
+    );
+    visual.update(|window, cx| {
+        window.click("create-initial-review-draft", cx);
+        let this = desktop.read(cx);
+        let request = &this.ai.as_ref().unwrap().draft.as_ref().unwrap().submitted.as_ref().unwrap().request;
+        assert!(matches!(&request.action_changes[0], brn_workflow::proposals::ActionChange::Replace { before: captured, data } if captured.as_ref() == &before && data.state == ActionState::Blocked && data.description == "\u{feff}Edited õ 日本語\r\nexact λ"));
+        assert_eq!(this.ai.as_ref().unwrap().dashboard.attempts.len(), 0);
+    });
+}
+
+#[gpui_kit::test]
+fn painted_edit_callback_rejects_changed_record_and_same_id_reselection(
+    cx: &mut gpui_kit::TestAppContext,
+) {
+    use gpui_kit::{InputEvent as _, MouseButton, MouseDownEvent, MouseUpEvent};
+    let (_fixture, handle, desktop) = dashboard_tests::action_window(cx, false);
+    let mut visual = VisualTestContext::from_window(handle.into(), cx);
+    let before = crate::ai::dashboard_state_tests::record(200);
+    for case in 0..3 {
+        visual.update(|window, cx| load_edit_action(&desktop, &before, window, cx));
+        visual.run_until_parked();
+        scroll(&mut visual, "dashboard-scroll", "edit-selected-action");
+        visual.update(|window, cx| {
+            window.render_frame(cx);
+            let position = window.find("edit-selected-action").bounds().center();
+            // Keep the painted callback, then change its authoritative selection
+            // without a new render. Dispatch the real pointer events against it.
+            desktop.update(cx, |this, _| {
+                let ai = this.ai.as_mut().unwrap();
+                if case == 0 {
+                    let selected = &mut ai.dashboard.selected.as_mut().unwrap().action;
+                    selected.version += 1;
+                    selected.updated_at_ms += 1;
+                    selected.data.description.push_str(" newer");
+                } else if case == 1 {
+                    assert!(ai.select_dashboard_action(before.origin.id));
+                }
+            });
+            window.dispatch_event(
+                MouseDownEvent {
+                    button: MouseButton::Left,
+                    position,
+                    modifiers: Default::default(),
+                    click_count: 1,
+                    first_mouse: false,
+                }
+                .to_platform_input(),
+                cx,
+            );
+            window.dispatch_event(
+                MouseUpEvent {
+                    button: MouseButton::Left,
+                    position,
+                    modifiers: Default::default(),
+                    click_count: 1,
+                }
+                .to_platform_input(),
+                cx,
+            );
+            assert_eq!(
+                desktop.read(cx).open_doc,
+                Some(if case == 2 {
+                    DocRef::Draft
+                } else {
+                    DocRef::Dashboard
+                })
+            );
+            assert_eq!(
+                desktop.read(cx).ai.as_ref().unwrap().draft.is_some(),
+                case == 2,
+                "fresh events must exercise the same painted callback"
+            );
+        });
+    }
+}
+
+#[gpui_kit::test]
+fn queued_edit_keeps_original_baseline_through_retained_comment_guard(
+    cx: &mut gpui_kit::TestAppContext,
+) {
+    let (_fixture, handle, desktop) = dashboard_tests::action_window(cx, false);
+    let mut visual = VisualTestContext::from_window(handle.into(), cx);
+    let before = crate::ai::dashboard_state_tests::record(200);
+    visual.update(|window, cx| load_edit_action(&desktop, &before, window, cx));
+    visual.run_until_parked();
+    scroll(&mut visual, "dashboard-scroll", "edit-selected-action");
+    visual.update(|window, cx| {
+        desktop.update(cx, |this, cx| {
+            this.review_comment_draft = Some((Uuid::new_v4(), None));
+            this.review_comment.update(cx, |editor, cx| editor.set_value("Retained comment λ", window, cx));
+        });
+        window.render_frame(cx);
+        window.click("edit-selected-action", cx);
+        assert!(matches!(desktop.read(cx).simple_transition.as_ref(), Some(simple::EditorTransition::ActionReplace(captured)) if captured.as_ref() == &before));
+        assert_eq!(desktop.read(cx).open_doc, Some(DocRef::Dashboard));
+        desktop.update(cx, |this, cx| {
+            let selected = &mut this.ai.as_mut().unwrap().dashboard.selected.as_mut().unwrap().action;
+            selected.version += 1;
+            selected.updated_at_ms += 1;
+            selected.data.description.push_str(" changed while queued");
+            this.review_comment.update(cx, |editor, cx| editor.set_value("", window, cx));
+            this.simple_progress_transition(cx);
+            this.sync_draft_widgets(window, cx);
+        });
+        let this = desktop.read(cx);
+        assert_eq!(this.open_doc, Some(DocRef::Draft));
+        assert_eq!(this.ai.as_ref().unwrap().draft.as_ref().unwrap().action.as_ref().unwrap().before.as_deref(), Some(&before));
+    });
+}
+
 #[gpui_kit::test]
 fn captured_discard_refuses_later_action_input_then_explicit_current_discard_works(
     cx: &mut gpui_kit::TestAppContext,
