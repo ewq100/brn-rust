@@ -4,7 +4,7 @@ This is a developing report, not the final cutoff receipt. The current authorita
 checkpoint is [plan.md](plan.md). Current main is
 `e1df48576e2bc9d345156224cdacfc41bad75f22` (normal protected Linked-Action PR109).
 All required candidate checks passed for PR90–109. All required post-main checks
-and documentation passed for PR90–108; PR109post37880350055 remains pending.
+and documentation passed for PR90–109 in the recorded resulting-main runs.
 Actual interactive GUI/IME/accessibility and owner acceptance are pending throughout.
 
 ## What is implemented and merged

@@ -101,10 +101,10 @@ reopening matches, humanhistorical label and exactUUID/title retained, no descri
 in page, Actions/proposals/conversations/vaultbytes unchanged, no inference. Actual
 GUI/IME/accessibility/personalacceptance pending ONLYmorningstep26; no new workspace.
 
-PR90–108 allrequiredcandidate ANDpost-main/docsPASS. Linked109 normallymerged
+PR90–109 allrequiredcandidate ANDpost-main/docsPASS. Linked109 normallymerged
 e1df48576e2bc9d345156224cdacfc41bad75f22 afterallrequiredcandidate/docs andActionpost
 proof; exactqualifiedtree3dad850c9e14e5b2419ebe172a20d3c47d6c8028. Linkedpost
-37880350055pending. This Activitycandidate needs actualrequiredCI/docs and eligible
+37880350055all4required/docsPASS. This Activitycandidate needs actualrequiredCI/docs and eligible
 Linkedpost before normal protected merge/exactresultingmain/postCI. No unqualifiedmerge.
 
 Independent final-document review found three passing Workflow vault-evidence integration tests omitted by

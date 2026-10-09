@@ -5,7 +5,7 @@
 Current main is `e1df48576e2bc9d345156224cdacfc41bad75f22` (Linked-Action PR109).
 PR90–108 required candidate and post-main checks/docs passed. Linked109 required
 candidate checks/docs passed and merged normally with exact qualified tree;
-post-main37880350055 pending. The selected
+allrequiredpost-main/docsPASS37880350055. The selected
 [affected Actions in Activity](work/active/overnight-continuation/activity-action-inventory.md)
 is implemented, independently reviewed and locally qualified atb873f27, not yet merged.
 It exposes exact historical approved Action UUID/title/order without current lookups.
