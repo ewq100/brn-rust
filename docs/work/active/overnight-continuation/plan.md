@@ -77,76 +77,62 @@ requires exact final-candidate review, applicable local checks and actual requir
 CI. No weakening, bypass or rushed merge. Record failures and repair real defects.
 Known informational platform failures remain visible and separate.
 
-## Durable checkpoint — 09 October 01:01 UTC
+## Durable checkpoint — 09 October 01:08 UTC
 
-Continue authorized small complete V1 slices until05:00UTC/08:00Tallinn; final
-qualification/integration/report from04:30UTC. Authoritative checkpoint/single morning task NOWintakecheckout
-`/Users/evokessler/repos/brn-p2-email-docx-intake`, branchcodex/p4-captured-approval-order
-basec086849 plus planb26fd4d/completehelperdesktopchanges andcurrentreports.
-Rawbudgetcheckout codeHEADc086/PR103 retained; report-onlydocs dirtyhistoricalcopy
-will be safely committedafter103merge without changing103candidate. Do notreset.
-Primarycheckout18f3891/DSStore/researchPRs/userdata untouched. NoGUI/private
-credentials/paidfallback/reset/download/ports/release/globalconfig. All actualUI/
-personalacceptance pending. OneCargo acrosscheckouts, <=2helpers/no recursion.
+Continue to05:00UTC/08:00Tallinn, final qualification from04:30. Authoritative
+lead/checkpoint and single morningtask NOWbudgetcheckout
+`/Users/evokessler/repos/brn-p3-work-budgets`, branchcodex/p7-sent-evidence-completion
+based qualified ordering4fef278a4cdf9cbb92c8afbc98a606aacb95826e. Selected next
+[explicit sent-evidence completion plan](sent-evidence-completion.md) fixes interfaces,
+acceptance/reuse and exact ownership. Source capture/approval then direct sent-source
+binding + complete, preexisting thread only; no external sending or AI Complete.
+No new SQL table/engine/provider/dependency; canonical historical None stays omitted.
 
-Maind5f324ec558e9ecce898ac2373c36eec8242649c includes normalprotectedPR90–103.
-ALL requiredcandidate/post-main/docs passed90–102 (102post37865065354). RawPR103
-correctedrequired37866277198 all4/docs passed; normalprotectedmerge at00:57:58UTC,
-mainexactqualifiedtree1542187148b2ffac4158aceccf309610283caf64. Post-main37867421354
-active; inspectactualrequiredchecks. Windowscandidate4knownUnixAPIerrorsinspected.
-Initialfrozen87bb patch86145d5 completeindependentreviewfound1validP1 missing
-ApplicationReads rawdelegation. ActualAsk tools regressionred0/1ToolRejected;
-6lineforwardingfixed,all7applicationlanetests green, correctionreviewclean c086/
-delta7eeb7fe. Originalinitialdefaultgate deliberatelyinterrupted; preserved, notpass.
-Final11gate stepsALLexit0 oncodec086: fresh1287affecteddefault/18existingignore,
-455nativeworkflow/models/16,601combinedDesktopCLI,doctests,strictdefault+combined
-workspaceClippy,shipping/helper,52fixtures,links/diff. ReuseunchangedStore/retrieval/
-intake/fullsizebaselineevidencefromqualifiedPR102; no fullworkspacefreshclaim.
+Main d5f324ec558e9ecce898ac2373c36eec8242649c includes normal PR90–103. All4required
+candidate/docs passed90–103; all4post/docs passed90–102. PR103 post37867421354
+active; exact mergedtree1542187148b2ffac4158aceccf309610283caf64 equals c086.
+Raw complete/correction reviews clean after actual-worker P1 delegation red/fix;
+fresh1287affecteddefault/18,455native/16,601combined/allotherlocalgates pass. Final
+paired raw trials useful, allmaterial facts/unclassified status retained; exact
+savedreplay no inference/effects. Historical report safely committed/pushed on
+codex/raw-evidence-qualification-record04497d9, noPR needed; content carriedforward.
 
-Immutablefinalraw-evidence-runtime sourcec086 underbrn-overnight-artifacts-20261008,
-matchingCLI73288a1d4559bd8b69b60190c59747456925d98ac092b5c7c0935d4884a092c7,
-Desktopff3e115ba2af8ddda39698dbec7c46138b408185455dc9bf436ccf51ff255c8a,
-helper7f058c35 unchanged. SyntheticWorkspaceJ prepared/CLIqualifiedexactprefix/tail/
-restart/indexloss/strictscopedrefusal/noeffects. LiveLuna6.628sec/Sol16.524sec both
-3responses/2rawreadrounds reachedindexedappendix949000..949968 and retainedall
-materialbudget/performance/dates/authority/unknownfacts. Completeexactreplays and
-saved-sessionreopenwithoutnewinference; files/proposals/Actions/Findingsunchanged.
-[Liveevidence](live-model-evidence.md) and [singlemorningtask](morning-ui-acceptance.md)
-recordexactruntime/Jsession/turnIDs. CasesA–J retained; neverrerunguardedpreparation/
-moveboundstate/usehistoricalbinaryaftermigration. Evidencearchive refreshdue.
+Other intakecheckout clean on candidate4fef278, PR104 attached/pushed, required CI
+running. Complete11file review and6file correction clean; tree87cc4c0082cdb1e1e394e6978bb5355b1701a172
+identical correctionc7fe2d6 after raw-main merge. Allocation borrow improvement,
+no measured introduced regression; standalone checkbox advisory not reproduced,
+coverage/explicitnotify added honestly. Final10gates ALLPASS:292Desktopdefault,
+607combinedDesktopCLI/doctests/strictdefault+combinedworkspaceClippy/shipping/helper/
+52fixtures/links/diff. Reuse unchanged workflow/Store/fullsize fromPR103. No active
+Cargo now; new Store helper will own budget target for Store checks when assigned.
+Normal protected104merge wheneligible, verify main; do not change frozen104code.
 
-Sharedcampaignledger `/private/tmp/brn-overnight-20261008/campaign-ledger.json` now
-16/16used, Luna8/Sol8, NO LIVEALLOWANCE LEFT. Noactiveprovider; noautomaticretry/
-substitution/newconditions/reset. Lastaccountusage66%weeklyused/34%remaining00:52;
-shortwindow/tokens/internalturns/spendunknown,accountwide. No furtherlivecall.
+Latest local qualified immutable captured-order-runtime source4fef under
+brn-overnight-artifacts-20261008: CLI0b50908a042708923bf824068727dc628fb2e960be4f0445ce5f543a5444c3ce,
+Desktop2a0cb8b945a945fb18f122793bbce2163854d395545bfe15789e2cf6e2e90e20,
+helper7f058c35 unchanged. Synthetic WorkspaceK captured-order-case prepared with
+three Draftv2 owner-commented notes in groupfe501e08-0c0a-4ba1-9074-44889684dd20;
+Alpha47118139-af95-4342-86a9-797cca64b99b,Beta161e203a-08b6-45a7-a6c1-28b2d115f3fa,
+Gammad197fbbf-5d0e-40e6-9ed8-2ea0ad62cfd0. AllremainDraft/noeffects, zeroInference.
+Update ONE morningtask runtime/Kstep20 exactpaths/IDs before next freeze. CasesA–K
+retained, never rerun guardedpreparation/relocateboundstate/oldbinaryaftermigration.
+Evidencearchive refreshed1090files1,006,656,350bytes01:03; later refresh at milestone.
 
-Nextslice selectedready: capturedgroupapprovalordering, plan
-`captured-approval-order.md` in OTHERcheckout `/Users/evokessler/repos/brn-p2-email-docx-intake`,
-branchcodex/p4-captured-approval-order frozen9fcfafed plusleadcorrections/tests/docs.
-Basedc086; integrate rawmain withoutfunctionalchange aftercorrectionreview. Helpercaptured_approval_order_impl completed/releasedCargo:3capturestate,1actual
-AppWorker/receipts,2realheadlesswidgets passed; strictaffecteddefault/combined
-DesktopClippy/rustfmt/diff passed. Initialwidgetattempt1/2failedonunsupported
-headlessdisabled-metadata observation; removedonlymetadataassertion andretained
-actualblockedclick/pinnedsource/order/currentchanged/reopenbehavioralchecks, all2
-green. No weakenshippingassertion. LeadnowsoleCargo target/intake-ui forfinalgates.
-No overlapping sourceedits. Leadownsnextdocs/morning/integration. Readinesshelper
-completed. Nextfreezecompleteorderingcandidate, onefreshcompleteindependentreview,
-finalapplicableDesktop/combined/shippinggates,reuseunchangedworkflow/Store,requiredCI/
-protectedmerge/postmain. ReadyP7 actualsentversioncapturepacket available:
-existingplainTextSourcecapture/approval then optionalexactAppliedSourcebinding in
-explicitActioncompletion, already-explicitthreadrequired; no external sending orAI
-completion. Definefixedsmallinterfaces/acceptancebeforeimplementation; fullpacket
-returnedbystructural_revision_readiness (completed), notyetimplemented.
+Campaign /private/tmp/brn-overnight-20261008/campaign-ledger.json 16/16USED,Luna8/Sol8;
+NO further live allowance, no activeprovider/retry/newconditions/substitution/reset.
+Usage66%weeklyused/34%remaining accountwide00:52, shortwindow/token/internal/spend
+unknown. NoGUI/computer/browser/accessibility/screenshot/unlock/interactive launch;
+all actualUI/personalacceptance pending. No privatevault/email/docs/credentialcontents,
+accountswitch/purchase/paidfallback/modeldownload/ports/release/signing/globalconfig/
+unrelatedmerge. Primary18f3891+DSStore/researchPRs/userdata untouched. <=2helpers,
+no recursion, oneCargo acrosscheckouts; rootselectedmodel/effort unchanged.
 
-Parkedretrybranch8f8fc2e safelycommitted/pushedunqualified/noPR/unmerged: actualRig
-Responsesdecoder dropsmalformedargsbeforehook, validproposalpeerdispatches;Chat
-rollbackworks. Focused0/7failed+mockdiagnosticretained; separatependingstreamtest
-unqualified. No fork/customparser/partialroute/live salvage. Crossfolderretarget
-relative-reference/original-parent lineage policy parked; structuralregroup/split
-largeridentity/commentsemantics. Webcapture parkedrealsourcetext/hostedbudgetgaps;
-autoarchiveRestore/Rewriteactivityclock unresolved. Continueotherreadywork, do not
-stopafteronePR or waitonowner/unrelatedchoice. Heartbeatmustreadthischeckpoint/
-actualledger anddisableatcutoff/cancel/runtime-limit/all-usefulblocked; noarchivechat.
+Parked retry8f8fc2e unqualified/pushed/noPR; pinnedRigResponses decoder mismatch,
+no fork/partialroute salvage. Crossfolderrelative-reference/originalparentpolicy,
+regroup/split identity/comments, websourcecapture/hostedbudgets and autoarchiveclock
+remain parked. Continue ready work, don't waitonowner or stopafteronePR. Keep durable
+checkpoint and disableheartbeat at05UTC/cancel/runtime-limit/all-useful-blocked;
+noarchivechat. Safelycommit/pushunfinished, exactmorningreport and nextstep atcutoff.
 
 ## Selected first evidence slice
 
