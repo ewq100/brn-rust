@@ -13,7 +13,7 @@ at most2 helpers/no recursion and one Cargo across checkouts. Synthetic/public o
 no GUI/computer/private data/credentials/accounts/downloads/paid fallback/ports/release.
 Shared live ledger14/16 used7each; root alone may choose later bounded qualification,
 not helpers. No inference for mechanics. One authoritative morning task remains in
-lead checkout /Users/evokessler/repos/brn-p2-email-docx-intake.
+lead checkout /Users/evokessler/repos/brn-p3-work-budgets.
 
 ## Outcome, baseline and reuse
 
@@ -110,3 +110,19 @@ fixed2test-style lints; final affected Clippy passed. No open failed behavioral
 check. Fresh complete independent review/final default/native/shipping/CI pending.
 PR102 prerequisite normally merged77960d1 with exact checked tree; incorporated
 without functionaldelta. No livecall used, WorkspaceJ pending.
+
+## Independent review and correction — 09 October 00:44UTC
+
+Frozen87bb821/full25file patch86145d5c7661599f59d93a7ed25621c9fa267feb1181ed657365368409d49b15
+received one fresh complete read-only independent review. One valid P1: the real
+ApplicationReads wrapper omitted raw delegation, so normal Ask/Inbox/Rewrite
+would reach the legacy default refusal despite direct App/raw CLI success.
+The actual admitted Ask tools regression reproduced ToolRejected (0passed/1failed),
+then the wrapper was corrected to delegate through the existing guarded notes.
+The regression checks unclassified prefix, exact fullhash-bound tail and continued
+ordinary scoped refusal; the existing application-lane/drain tests run alongside.
+No other actionable finding. Refresh independent correction review and final gates.
+The initial default-test gate was deliberately interrupted after this demonstrated
+defect; it is not a pass or a new product-test failure. Preserve initial logs and
+rerun the affected final candidate. PR103 is pushed/attached, not merged.
+PR102 all required resulting-main checks and docs passed in37865065354.

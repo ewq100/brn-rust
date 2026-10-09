@@ -42,11 +42,14 @@ Complete independent review found malformed Inbox metadata blocking discovery;
 correction reviewed clean and observed red-to-green. Final local coverage1816
 default/18 existing ignores,447native/16,597combined plus Clippy/shipping/52fixtures
 passed, reusing unchanged full-size baseline witnesses. Revised PR102 all required
-CI/docs passed and normal merge77960d1 completed; post-main37865065354 active.
+CI/docs passed and normal merge77960d1 completed; all required post-main checks/docs passed in37865065354.
 The next ready P3 slice is [explicit raw saved-evidence reading](work/active/overnight-continuation/raw-evidence-reading.md),
 so metadata-invalid files remain inspectable without Current authority. Focused
 AI153/1existingignore,Workflow7,CLI3+3citation,Desktop1 and strictaffectedClippy
-passed; complete review/final gates/CI pending. A separate read-call correction is
+passed. [PR103](https://github.com/ewq100/brn-rust/pull/103) complete independent review
+found a valid missing delegation in the actual application tool wrapper; a real
+Ask admission regression reproduced it and the delegation is corrected. Correction
+qualification/review, final gates and requiredCI remain pending; not merged. A separate read-call correction is
 parked unqualified on pushed8f8fc2e: pinned Responses drops malformed args before
 its recovery hook. No retry or admitted-request policy from that branch ships. No semantic Findings or authoritative edits occur automatically.
 

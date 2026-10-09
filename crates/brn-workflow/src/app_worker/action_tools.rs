@@ -215,6 +215,12 @@ struct ApplicationReads {
     actions: ActionReads,
 }
 impl ReadTools for ApplicationReads {
+    fn read_raw_evidence(
+        &self,
+        request: &brn_ai::RawEvidenceRequest,
+    ) -> AiResult<brn_ai::RawEvidence> {
+        self.notes.read_raw_evidence(request)
+    }
     fn read_note_range(
         &self,
         request: &brn_ai::NoteRangeRequest,
@@ -544,6 +550,100 @@ mod tests {
             reply,
         }
         .settle(&mut app, false);
+    }
+
+    #[test]
+    fn actual_ask_tools_read_unclassified_prefix_and_bound_tail_without_relaxing_current() {
+        let (base, mut config) = fixture();
+        let vault = base.path().join("vault");
+        std::fs::create_dir(&vault).unwrap();
+        let text = format!(
+            "\u{feff}---\r\nbrn_id: invalid\r\n---\r\n# Raw evidence\r\n{}\r\nTAIL õ 日本語 🦀\r\n",
+            "x".repeat(70_000)
+        );
+        std::fs::write(vault.join("raw.md"), &text).unwrap();
+        config.vault_root = Some(vault.clone());
+        let (lease, received) = mpsc::channel();
+        let hook: crate::simple_worker_tests::AnswerHook =
+            Arc::new(move |_, _, tools, cancel, _| {
+                lease.send(tools.clone()).unwrap();
+                Box::pin(async move {
+                    cancel.cancelled().await;
+                    drop(tools);
+                    brn_ai::AiAnswer {
+                        text: "synthetic raw read".into(),
+                        terminal: brn_ai::AiTerminal::Interrupted,
+                    }
+                })
+            });
+        let mut worker = AppWorker::start_owned(
+            base.path().join("data"),
+            config,
+            Hooks {
+                chat: chat_worker::Hooks {
+                    answer: Some(hook),
+                    ..chat_worker::Hooks::default()
+                },
+                ..Hooks::default()
+            },
+        )
+        .unwrap();
+        assert!(matches!(
+            worker
+                .recv_event_timeout(Duration::from_secs(10))
+                .unwrap()
+                .1,
+            AppEvent::Ready { .. }
+        ));
+        let id = Uuid::new_v4();
+        worker
+            .submit(
+                id,
+                AppCommand::Ask(AskRequest {
+                    budget: None,
+                    id,
+                    conversation: None,
+                    question: "Read synthetic raw evidence".into(),
+                    selection: Selection {
+                        provider: Provider::Chatgpt,
+                        model: "gpt-6-luna".into(),
+                    },
+                    effort: Some(ReasoningEffort::Medium),
+                    generation: 7,
+                }),
+            )
+            .unwrap();
+        // These are the actual admitted tools: DrainedTools -> ApplicationReads -> AiTools.
+        let tools = received.recv_timeout(Duration::from_secs(10)).unwrap();
+        let result: AiResult<_> = (|| {
+            let prefix = tools.read_raw_evidence(&brn_ai::RawEvidenceRequest {
+                path: "raw.md".into(),
+                start_byte: 0,
+                end_byte: None,
+                expected_sha256: None,
+            })?;
+            let tail = tools.read_raw_evidence(&brn_ai::RawEvidenceRequest {
+                path: "raw.md".into(),
+                start_byte: text.find("TAIL").unwrap(),
+                end_byte: Some(text.len()),
+                expected_sha256: Some(prefix.sha256),
+            })?;
+            Ok((prefix, tail))
+        })();
+        let scoped = tools.read_note_scoped("raw.md", ReadScope::All);
+        drop(tools);
+        worker.shutdown().unwrap();
+        // Always release the live lease and settle the worker before checking the RED result.
+        let (prefix, tail) = result.unwrap();
+        assert_eq!(prefix.text, text[..50_000]);
+        assert_eq!(prefix.facts, None);
+        assert!(prefix.metadata_issue.is_some());
+        assert!(prefix.partial);
+        assert_eq!(tail.text, "TAIL õ 日本語 🦀\r\n");
+        assert_eq!(tail.sha256, prefix.sha256);
+        assert_eq!(tail.facts, None);
+        assert_eq!(scoped.unwrap_err().kind, AiErrorKind::ToolRejected);
+        assert_eq!(std::fs::read_to_string(vault.join("raw.md")).unwrap(), text);
     }
 
     #[test]

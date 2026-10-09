@@ -77,7 +77,7 @@ requires exact final-candidate review, applicable local checks and actual requir
 CI. No weakening, bypass or rushed merge. Record failures and repair real defects.
 Known informational platform failures remain visible and separate.
 
-## Durable checkpoint — 09 October 00:37 UTC
+## Durable checkpoint — 09 October 00:44 UTC
 
 Continue authorized small complete V1 slices until05:00UTC/08:00Tallinn; final
 qualification/integration/report from04:30UTC. Current authoritative checkpoint
@@ -91,7 +91,7 @@ Main77960d1d8affa71b14ec0a4e3c99fe52663b5cf2 includes protected PR90–102.
 PR90–101 all required candidate/post-main checks/docs passed. PR102 corrected
 candidate19bc465d2c5dc58344385688bc06a570cb921ba9 required run37863707634 all4/docs
 passed; normal merge77960d1 exact checked treefacb6b7602f094da8fe356089810b30093a82ae6.
-Post-main37865065354 active; inspect actual required checks and update receipt.
+Post-main37865065354 all4required/docs passed; resulting main remains77960d1.
 Original review c56cfb40 found1valid malformed Inbox coverage defect; reproduced
 actualCLI/red regression, corrected/reviewed clean538b160/delta6ed42ea7. Required
 Ubuntu fixture failure fixed with portable pure metadata setup and same assertions,
@@ -100,9 +100,12 @@ Citation finalcoverage1816default/18,447native/16,597combined includes reused
 unchanged1815baseline/Store/fullsizewitnesses; corrected11backend/3CLI/26native
 knowledge, allstrictClippy/shipping/52fixtures/links passed. No unresolvedfinding.
 
-Lead reuses budget checkout, branch codex/p3-raw-evidence HEAD9a293826d6891a20750ddd4e893dea787273ab8a
-(before candidate commit), based qualified19bc465 plus main779merge, task-owned
-dirty AI/Workflow/CLI/tests/docs. [Selected raw evidence plan](raw-evidence-reading.md)
+Lead reuses budget checkout, branch codex/p3-raw-evidence frozen87bb821, pushed
+as PR103. Complete independent review found1valid missing ApplicationReads raw
+delegation; actual Ask regression red0/1, existing wrapper corrected. Task-owned
+correction/test/docs dirty; run green, refresh independent correction review then
+final affected gates and push. Initial defaulttests deliberately interrupted to
+correct the demonstrated defect; preserve initial receipt, never claim it passed. [Selected raw evidence plan](raw-evidence-reading.md)
 fixes public DTO/request/reply/trait/tool/worker/CLI interfaces. Existing ordinary
 Current/scope/proposal/approval validation stays strict; explicit raw invalidmetadata
 has facts=None/issue, fullhash/ranges, no effects or metadata repair. Physical raw
@@ -111,11 +114,11 @@ drain preserved. Same existing1MiB file/50kUTF8 response limits, no dependency/s
 AI helper raw_evidence_ai complete:153passed/1existingignore, strictAIClippy and
 3mockedRigroute/protocol tests passed/released. Root Workflow7(including drain),
 CLI3new+3citationregressions andDesktop1ownerpending/partial passed.2test-style
-Clippy errors fixed; final affected defaultClippy passed/released. No activeCargo
-or helper at this checkpoint. Next freeze/commit complete candidate, one fresh
-complete independent read-only review, final affected default/native/combined/
-shipping gates (reuse unchanged Store/fullsize), actual requiredCI/protectedmerge/
-post-main. Root retains selected lead model/effort, <=2helpers/no recursion/oneCargo.
+Clippy errors fixed; final affected defaultClippy passed/released. Lead soleCargo runs wrapper green suite. Reviewer completed full25file frozen
+review; structural_revision_readiness helper performs bounded read-only inspection
+for nextP3 slice. Next freeze correction, independent delta review, final affected
+default/native/combined/shipping gates (reuse unchanged Store/fullsize), actual
+requiredCI/protectedmerge/post-main. Root retains selected lead model/effort, <=2helpers/no recursion/oneCargo.
 
 Parked read-call correction branch8f8fc2e7621bd744778a86dc149357be2fbc59fc is safely
 committed/pushed, NOT QUALIFIED/not merged/no PR. Focused0/7failed: pinned RigCore
