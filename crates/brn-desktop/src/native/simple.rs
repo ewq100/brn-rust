@@ -1517,6 +1517,41 @@ impl Desktop {
             .flex_col()
             .gap_2()
             .p_3();
+        body = body.child(
+            div()
+                .flex()
+                .flex_wrap()
+                .flex_shrink_0()
+                .gap_2()
+                .child(
+                    Button::new("person-context")
+                        .label("Person context")
+                        .compact()
+                        .disabled(leaving || !ai.profile_context_available())
+                        .on_click(cx.listener(|this, _, _, cx| {
+                            this.inspect_profile(
+                                brn_workflow::knowledge::ProfileLens::Person,
+                                0,
+                                0,
+                                cx,
+                            )
+                        })),
+                )
+                .child(
+                    Button::new("project-context")
+                        .label("Project context")
+                        .compact()
+                        .disabled(leaving || !ai.profile_context_available())
+                        .on_click(cx.listener(|this, _, _, cx| {
+                            this.inspect_profile(
+                                brn_workflow::knowledge::ProfileLens::Project,
+                                0,
+                                0,
+                                cx,
+                            )
+                        })),
+                ),
+        );
         if let Some(editor) = &ai.editor {
             body = body.child(editor.status());
             if let Some(error) = &editor.error {
@@ -1603,7 +1638,6 @@ impl Desktop {
             .child(
                 div()
                     .flex()
-                    .flex_wrap()
                     .items_center()
                     .gap_2()
                     .p_2()
@@ -1614,34 +1648,6 @@ impl Desktop {
                             .overflow_hidden()
                             .whitespace_nowrap()
                             .child(self.simple_note_path.clone().unwrap_or_default()),
-                    )
-                    .child(
-                        Button::new("person-context")
-                            .label("Person context")
-                            .compact()
-                            .disabled(leaving || !ai.profile_context_available())
-                            .on_click(cx.listener(|this, _, _, cx| {
-                                this.inspect_profile(
-                                    brn_workflow::knowledge::ProfileLens::Person,
-                                    0,
-                                    0,
-                                    cx,
-                                )
-                            })),
-                    )
-                    .child(
-                        Button::new("project-context")
-                            .label("Project context")
-                            .compact()
-                            .disabled(leaving || !ai.profile_context_available())
-                            .on_click(cx.listener(|this, _, _, cx| {
-                                this.inspect_profile(
-                                    brn_workflow::knowledge::ProfileLens::Project,
-                                    0,
-                                    0,
-                                    cx,
-                                )
-                            })),
                     )
                     .child(
                         Button::new("saved-note-sources")

@@ -217,6 +217,34 @@ fn settle(
     state.apply(id, AppEvent::ProfileContext(Box::new(context.clone())));
     context
 }
+
+#[test]
+fn profile_path_rebound_to_other_reference_cannot_settle_or_replace_retained_context() {
+    let mut state = context_state();
+    let retained = settle(&mut state, ProfileLens::Person, 1, 0);
+    let (id, AppCommand::ProfileContext(request)) = state
+        .inspect_profile_context(ProfileLens::Person, 0, 0)
+        .unwrap()
+    else {
+        panic!("context")
+    };
+    let exact = context(request.clone(), 1, 0);
+    let mut malformed = exact.clone();
+    let reference = &mut malformed.references[0];
+    reference.matches[0].note.path = request.profile.path.clone();
+    reference.matches[0].note.sha256 = request.profile.fingerprint.sha256;
+    reference.matches[0].scope = Some(KnowledgeScope::Current);
+    reference.resolution.matches[0] = reference.matches[0].note.clone();
+    state.apply(id, AppEvent::ProfileContext(Box::new(malformed)));
+    assert!(
+        state.pending.contains_key(&id),
+        "malformed reply settled the current intent"
+    );
+    assert_eq!(state.profile_context.context.as_ref(), Some(&retained));
+    state.apply(id, AppEvent::ProfileContext(Box::new(exact.clone())));
+    assert!(!state.pending.contains_key(&id));
+    assert_eq!(state.profile_context.context.as_ref(), Some(&exact));
+}
 #[test]
 fn explicit_lenses_capture_full_saved_identity_and_keep_completed_and_whole_records() {
     let mut state = context_state();

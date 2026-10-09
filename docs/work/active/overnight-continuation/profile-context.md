@@ -48,7 +48,9 @@ In knowledge/context.rs, reexport through knowledge.rs:
   Include exact union of displayed Action.sources and thread, once per UUID,
   sorted; matches correspond exactly to resolution.matches. Missing/duplicate/
   incomplete identity remains explicit; only Unique valid classified matches
-  permit native navigation.
+  permit native navigation. A path cannot name different UUIDs across profile,
+  edges or references, and a reference to the captured profile cannot claim absence
+  or uncertain identity.
 - ProfileContext { request: ProfileContextRequest, profile: ProposalSource,
   action_total: usize, actions: Vec<ActionRecord>, relationship_total: usize,
   relationships: Vec<ProfileRelationship>, references: Vec<ProfileReference>,

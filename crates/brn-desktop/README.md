@@ -650,7 +650,7 @@ Read the [architecture overview](../../docs/architecture/overview.md), [invarian
 ### Explicit saved person/project context
 
 A clean, acknowledged saved Current managed note offers **Person context** and
-**Project context**. These are explicit query lenses over that exact saved UUID;
+**Project context** in the scrollable document body. These are explicit query lenses over that exact saved UUID;
 no stored profile type is inferred. The read-only panel keeps the complete saved
 Markdown and matching retained Actions, including Completed, with full records in
 copyable context details. Actions and direct relationships have independent page
