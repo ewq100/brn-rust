@@ -84,3 +84,48 @@ morning WorkspaceO/step25 with matching finalruntime/retained synthetic referenc
 Stop at one-hop readonly explicit linked-work inspection. No recursive Action graph,
 new filters, semantic maintenance thresholds, automatic unblocking, mutation, generic
 Source/thread aggregation or broad UI redesign. Continue independent work on blocks.
+
+
+## Locally qualified candidate — 03:16 UTC
+
+Implementation/frozen27de86ddec07ca3ceef320ea2e047eb2b2419ceb vsAction62fe158.
+Complete10-file independent read-only review is clean; exact patch SHA-256
+`ee3a389177a5f8f8d74bf4f82afb2185fa75f03977e4fe34303bfe985f18a0cb`.
+Six Desktop files plus fixed plan/status/checkpoint/singlemorning changes inspected;
+no production correction requested. The report and exact freeze evidence are retained.
+
+Focused7PASS=4state/realworker+3actualnative. Initial native fixture attempts hit the
+intentional absent-worker Cancellation path; corrected tests explicitly assert it,
+then admit a synthetic retry before supplying a checked reply. Actual AppWorker/
+restart observation is separate and passed. Failed native1/2/3 logs retained; final
+native4passes7. Real worker preserves full Action/proposal/conversation listings and
+source Dashboard observations across current Completed target reads; actual session
+Archive admission invalidates pending linked reads. No recursive inspection/mutation.
+
+Final affected fullDesktop default306+7CLI andcombined430+7CLI plusstrictDesktop
+both configurations passed. Freeze record compares every six-file SHA-256 and confirms
+no edits through final gates; root independently verified exact frozen patch/hash
+before reusing these full suites. All eight remaining root gates passed:fmt,strict
+workspace default/combinedClippy,shipping/helper,52fixtures,links/diff. UnchangedCLI218
+and all Workflow/Store/AI/retrieval/intake/full-size crash/recovery/Undo qualification
+reused; no shrink/skip or redundant inference. Complete review is independent of lead.
+
+Matching immutable linked-action-runtime source27de has exact tree/binary hashes
+in morning header. Guarded WorkspaceO ordinary proposal approval created5Actions;
+explicit owner completions then left selected manually Blocked Action unchanged.
+All three explicit roles have Completed targets outside Blocked filter; a separate
+Completed source retains the same roles. ShippingCLI reads/restart/fullrecord/older-
+versus-current observations/unchanged typedActions-proposals-conversations/emptyvault/
+zeroInference passed. Direct unrelated missingUUID givesNOT_FOUND; no dangling
+approved reference/invalid data was fabricated for native error display. GUI error/
+stale races remain pending when unavailable; deterministic tests cover them.
+
+P8PR106 all required candidate ANDpostmain/docsPASS, normalmerge3cca35f exactqualified
+tree. GraphPR107 allrequiredcandidate/docsPASS, normalmerge6826c20 exactqualifiedtree,
+postmain37878346319 pending. Action108 allrequiredcandidate/docsPASS waitsGraphpost
+beforemerge because workflow concurrency cancels older mainruns. Prospective eligible
+Graphmain+Action62fe equals testedActiontree951f75c; no codechange/repeatedgates needed.
+This linked candidate's actual requiredCI, eligibleparent normal integration and
+resultmain/postCI remain pending. All actualGUI/IME/accessibility/owneracceptance is
+solely morningstep25 pending. No authority/type inference, automatic unblocking,
+background retry, newquery/schema/dependency or provider work.
