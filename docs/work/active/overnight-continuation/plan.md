@@ -77,7 +77,7 @@ requires exact final-candidate review, applicable local checks and actual requir
 CI. No weakening, bypass or rushed merge. Record failures and repair real defects.
 Known informational platform failures remain visible and separate.
 
-## Durable checkpoint — 08 October 23:58 UTC
+## Durable checkpoint — 09 October 00:10 UTC
 
 Continue authorized V1 work until 05:00 UTC / 08:00 Tallinn; final qualification
 from04:30 UTC. All GUI/computer use deferred to [one morning task](morning-ui-acceptance.md).
@@ -94,18 +94,35 @@ ignores,436 native workflow/models/16,585 combined desktop/CLI, doctests, strict
 Clippy, shipping,52fixtures and links. Unchanged Store/workflow/full-size witnesses
 reused after the one Desktop correction. Original combined count580 (older577
 was a reporting typo). Required run37860893873: UbuntuCore/NativeUI/docs passed;
-all four required checks/docs passed. Normal protected merge6a63173; exact resulting tree matches182. Required post-main37861908706 checks pending. Windows raw log inspected: same informational Unix
+all four required checks/docs passed. Normal protected merge6a63173; exact resulting tree matches182. All four required post-main37861908706 checks/docs passed; main verified. Windows raw log inspected: same informational Unix
 filesystem API errors. Verify required post-main checks. Resulting main incorporated into citation branch with no functional delta. Do not restart CI for reports.
 
 Lead checkout `/Users/evokessler/repos/brn-p2-email-docx-intake`, branch
-codex/p4-citation-evidence-review, HEADa994ad9be2a499aa88aabf1ef6808a9066e3f755 (before candidate commit),
+codex/p4-citation-evidence-review, HEADb433d9897b880975417d9d22fff14ec0356d1e7f, clean production with reporting docs dirty,
 based on182. Selected [read-only citation evidence review](citation-evidence-review.md)
 plan2182deb and fixed interfaces09625d5. Backend/native/CLI implementation complete, task-owned candidate ready for
 commit and independent complete review. Lead owns CLI/tests/docs/cases/integration. Two helpers, no recursion:
 citation_review_workflow owns backend/resolver/AppWorker/tests,10 new/10 existing provenance tests plus strictClippy passed/released. citation_review_desktop5state/8native+widgets/4Findings regressions and strict desktop Clippy passed/released. Lead currently sole Cargo(target/intake-ui, CARGO_INCREMENTAL=0, TMPDIR=/private/tmp/brn-p2-fixtures,
 pinned1.98.1/DYLD). citation_review_desktop owns native/state/tests.
-No concurrent Cargo. CLI3 real-process tests passed; final full gate next. Both implementation helpers done. Read-only web_research_readiness helper investigates smallest ready P6 slice, no Cargo/provider/edits. Complete independent reviewer to be assigned to frozen commit.
-Fresh independent complete review/final qualification/CI/integration still pending.
+No concurrent Cargo. CLI3 real-process tests passed; final full gate next. Both implementation helpers done. Read-only web_research_readiness helper investigates smallest ready P6 slice, no Cargo/provider/edits. Complete independent reviewer finished on frozen b433; one valid finding above. Readiness complete: native web full capture parked on source-text and hosted
+budget gaps. Next bounded read-call correction (plan in budget checkout) selected
+in budget checkout codex/p3-read-call-correction plan5219761; implementation helper
+read_call_correction_impl coding AI hooks/provider tests/budget label, NO Cargo
+until root releases. At most2 active helpers including citation correction reviewer.
+Do not confuse budgets/targets or overwrite authoritative lead morning task.
+[PR102](https://github.com/ewq100/brn-rust/pull/102), attached, candidateb433,
+required run37862406544 active. Complete independent review c56cfb40 found one
+valid P2 malformed Inbox metadata coverage defect, reproduced actual CLI in
+citation-malformed-intake-repro/before-fix.json. No other findings. Keep unmerged.
+Frozen baseline fullgate67708 PASSED/released:1815default/18,446native/16,
+597combined,doctests/Clippy/shipping/helper/52fixtures/links. Root new regression
+observed red, narrow eligibility correction applied,11backend+3CLI green. Required
+Ubuntu firstcandidate failed because CLI setup called Mac-only provenance.capture;
+portable pure fixture setup replaces it with no skips/weakened read assertions,
+and adds malformed Inbox coverage. Root sole Cargo for final affected gates;
+independent correction review/revised candidate CI pending. Patch/test prepared
+outside checkout: citation-malformed-intake-fix.patch / -regression.txt. Frozen baseline gate complete; reviewed correction is now task-owned dirty. Fresh final qualification and
+protected integration remain pending; unchanged Store/witnesses reusable.
 Reuse IdentityInventory, durable provenance, Current metadata and NeedsReview;
 no automatic Finding/effect/inference. Incomplete means unknown coverage, not truth.
 

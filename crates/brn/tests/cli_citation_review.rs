@@ -185,15 +185,33 @@ fn paging_restart_exact_detail_and_stale_proof_have_no_review_effects() {
         .clone();
     let quote = "Exact õ 日本語 🦀 quote\r\n";
     let start = source.find(quote).unwrap();
-    let captured = ok(f.input("provenance", "capture", &json!({"note_id":source_id,"expected_sha256":hash,"start_byte":start,"end_byte":start+quote.len()})));
-    let draft = ok(f.input("provenance", "prepare", &json!({"path":"z-review.md","proposal_id":Uuid::new_v4(),"title":"Synthetic citation","citations":[captured["citation"].clone()]})));
-    let consumer = draft["changes"][0]["text"].as_str().unwrap();
-    fs::write(f.vault.join("z-review.md"), consumer).unwrap();
+    // Pure portable fixture construction: capture/preparation commands have a
+    // macOS Save dependency; this test qualifies read-only review on Unix.
+    let citation = serde_json::from_value::<brn_store::note_provenance::VaultCitation>(json!({
+        "note_id": source_id, "sha256": hash, "start_byte": start,
+        "end_byte": start + quote.len(), "quote": quote
+    }))
+    .unwrap();
+    let consumer =
+        brn_store::note_provenance::write("# Consumer\r\nOwner preserved text õ\r\n", &[citation])
+            .unwrap();
+    fs::write(f.vault.join("z-review.md"), &consumer).unwrap();
+    fs::write(
+        f.vault.join("0-malformed-intake.md"),
+        "---\nbrn_inbox_source: invalid\n---\n# Unavailable metadata\n",
+    )
+    .unwrap();
     // Synthetic owner file edit changes source evidence after the durable quote was captured.
     fs::write(f.vault.join("source.md"), source.replace("Exact", "Other")).unwrap();
     let first = ok(f.run(&["needs-review", "citations", "--limit", "1"]));
     assert_eq!(first["entries"], json!([]));
     assert_eq!(first["inspected_count"], 1);
+    assert_eq!(first["coverage"]["incomplete"], true);
+    assert_eq!(first["coverage"]["diagnostic_count"], 1);
+    assert_eq!(
+        first["coverage"]["diagnostics"][0]["path"],
+        "0-malformed-intake.md"
+    );
     assert!(first["next_cursor"].is_object());
     fs::write(&f.input, serde_json::to_vec(&first["next_cursor"]).unwrap()).unwrap();
     let second = ok(f.run(&[

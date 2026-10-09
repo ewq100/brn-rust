@@ -35,7 +35,7 @@ preserving exact before/after and refusing changed/completed work, creation and
 mixed file/Action Undo. PR100 required resulting-main checks and docs passed. Same-folder new-note destination rename is independently reviewed and locally
 qualified and normally merged in [PR101](https://github.com/ewq100/brn-rust/pull/101)
 after all required candidate checks/docs passed; resulting tree matches the
-qualified candidate and post-main checks are pending. The next selected ready P4 slice
+qualified candidate; all required post-main checks/docs passed in37861908706. The next selected ready P4 slice
 is [read-only citation evidence review](work/active/overnight-continuation/citation-evidence-review.md):
 Current consumer discovery with exact saved-source details and honest coverage.
 Backend focused tests/Clippy passed; native/CLI qualification and complete review

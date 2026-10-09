@@ -481,7 +481,12 @@ impl App {
                 return Err(stale());
             }
             let metadata = saved_metadata(&note.text, &identity.path);
-            if let Some(reason) = metadata.issue {
+            let issue = metadata.issue.or_else(|| {
+                brn_store::work::inbox_source::read_provenance(&note.text)
+                    .err()
+                    .map(|error| error.to_string())
+            });
+            if let Some(reason) = issue {
                 diagnostics.push(IdentityIssue {
                     path: identity.path.clone(),
                     reason,
@@ -655,6 +660,68 @@ mod tests {
             self.write(path, &text);
             text
         }
+    }
+
+    #[test]
+    fn malformed_inbox_consumer_is_coverage_not_a_page_blocker() {
+        let fixture = Fixture::new();
+        let broken = "---\nbrn_inbox_source: invalid\n---\n# Broken no-citation Current\n";
+        fixture.write("00-broken.md", broken);
+        fixture.write("01-healthy.md", "# No citation\n");
+        let mut missing = fixture.source("archive/source.md");
+        missing.note_id = Uuid::new_v4();
+        let original = fixture.consumer("z-affected.md", &[missing]);
+        let mut app = fixture.app();
+        let first = app
+            .citation_review(&CitationReviewRequest {
+                limit: 1,
+                cursor: None,
+            })
+            .unwrap();
+        assert!(first.entries.is_empty());
+        assert_eq!(first.inspected_count, 1);
+        assert!(first.coverage.incomplete);
+        assert_eq!(first.coverage.diagnostic_count, 1);
+        assert_eq!(first.coverage.diagnostics[0].path, "00-broken.md");
+        assert!(
+            first.coverage.diagnostics[0]
+                .reason
+                .contains("Inbox provenance")
+        );
+        let cursor = first.next_cursor.unwrap();
+        assert_eq!(cursor.after_path, "01-healthy.md");
+        let next = app
+            .citation_review(&CitationReviewRequest {
+                limit: 1,
+                cursor: Some(cursor),
+            })
+            .unwrap();
+        assert_eq!(next.entries.len(), 1);
+        assert_eq!(next.entries[0].path, "z-affected.md");
+        assert_eq!(
+            next.entries[0].citations[0].outcome,
+            CitationOutcome::Absent
+        );
+        assert!(next.next_cursor.is_none());
+        let detail = app
+            .citation_review_detail(&CitationReviewDetailRequest {
+                path: next.entries[0].path.clone(),
+                expected_sha256: next.entries[0].sha256,
+            })
+            .unwrap();
+        assert_eq!(detail.text, original);
+        assert_eq!(
+            fs::read_to_string(fixture.vault.join("00-broken.md")).unwrap(),
+            broken
+        );
+        assert!(app.work_store().proposals(None).unwrap().is_empty());
+        assert!(
+            app.work_store()
+                .findings(&Default::default())
+                .unwrap()
+                .entries
+                .is_empty()
+        );
     }
 
     #[test]

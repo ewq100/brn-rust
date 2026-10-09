@@ -128,3 +128,58 @@ approved synthetic citation consumers, changed/absent/ambiguous/moved evidence,
 Preparation used qualified runtime182; new-candidate CLI qualification pending.
 All interactive acceptance remains in the single morning task. PR101 normally
 merged6a63173 with identical qualified tree; post-main37861908706 pending.
+
+## Independent review and disposition — 09 October 00:02 UTC
+
+Fresh complete read-only reviewer citation_evidence_review inspected all28 changed
+production/test/doc files atb433d9897b880975417d9d22fff14ec0356d1e7f against
+main6a63173. Complete binary patch SHA256
+`c56cfb40bd0985fc53fce008ee9a7fe31066d4fb4c42d48e34e2842b37c85c6c`.
+One P2 finding, **valid / correction pending**: malformed managed brn_inbox_source
+is not checked by saved_metadata eligibility, so a no-citation Current file can
+abort the entire page during provenance resolution. Lead reproduced actual
+CLIexit1 WORKFLOW_ERROR in citation-malformed-intake-repro/before-fix.json.
+Expected behavior is incomplete coverage, excluded malformed consumer and
+continued sparse-page discovery of later affected consumers. No other findings.
+
+Root prepared a narrow observation validation patch and regression outside the
+checkout under /private/tmp/brn-overnight-20261008/citation-malformed-intake-*.
+Apply only after frozen baseline full gate67708 releases Cargo, demonstrate
+regression red then green, obtain independent correction review and rerun final
+affected Workflow/CLI/Clippy/shipping gates. Existing unchanged full-size Store
+crash/recovery/Undo witnesses may be reused. PR102 candidate b433 remains
+unmerged; required run37862406544 is active, and corrected candidate needs its
+own actual required checks. No integrity bypass.
+
+New-candidate defaultCLI qualification of WorkspaceI passed zero-inference at
+23:59:25UTC: first page25 inspected/zero issues/continuation; second page exact
+Absent/Ambiguous/Changed rows; moved source Matched; all four exact details and
+malformed coverage retained. CLI SHA
+cc835950863df76f35bf0ab8d1dfac98666abc208890fca744a6da875f63911f.
+Receipts are in citation-review-case/receipts/candidate-citation-review. This does
+not qualify the newly identified malformed Inbox field or establish GUI acceptance.
+
+## Correction qualified — 09 October 00:10 UTC
+
+The new malformed Inbox consumer regression was observed red on the original
+production code (WORKFLOW_ERROR strict single-line JSON), then green after adding
+existing Inbox provenance validation to observation eligibility. Invalid consumers
+now give sorted incomplete coverage and are excluded; sparse pages continue to
+later affected notes. No writer/authority or public DTO change. All11 citation
+backend tests and3 actual CLI process tests passed after correction.
+
+Required Ubuntu CI onb433 also found the new read-only CLI test used macOS-only
+provenance.capture during fixture setup. Replace only setup with the existing pure
+Store citation metadata writer and inventory hash; keep every read-only assertion
+on Unix and add malformed Inbox coverage assertion. No test skip, suppression,
+weaker assertion or product platform expansion. Revised required Ubuntu CI must
+confirm this fixture correction. Raw receipt pr102-ubuntu-first-failure.log retained.
+
+Frozen baseline full qualification completed:1815 default/18 existing ignores,
+446 native workflow/models/16,597 combined desktopCLI, all doctests, strict default/
+combined workspace Clippy, shipping/helper,52fixtures and608 links. Only the new
+observation validation/regression and portable CLI setup changed afterward; reuse
+unchanged Store/crash/Undo and native state/widget evidence. Final affected
+backend/native knowledge/CLI/Clippy/shipping gates and independent correction
+review remain pending. PR101 all four required post-main checks/docs passed in
+37861908706; resulting main is verified.
