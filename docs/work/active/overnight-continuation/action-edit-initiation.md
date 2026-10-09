@@ -90,3 +90,41 @@ Dependencies: incorporate eligible correctedP8 and graph normally before final
 qualification/integration. Implementation can remain independent once graphhelper
 releases Desktop ownership; root owns composition and soleCargo scheduling. Stop
 only dependent work for unresolved integrity/product semantics; continue safe work.
+
+
+## Locally qualified candidate — 02:49 UTC
+
+Implementation75cbb7169ea9a8c1d7b5ab25ed4aff282207cffe, composed candidate
+`0d32ac2ac65676bd58fd005e8af699b04dac4cd0` vsGraphccbeef4 (includes correctedP8a27).
+Complete11file independent read-only review is clean; exact patch SHA-256
+`e7943c9a41c892e0c52b92996ad1f905db9577d27b0c8646d6a71d227b5a8fff`.
+All ten Desktop files, fixed plan and shared ordinary validator/transition/ack/source
+composition were inspected. No requested production correction. Report preserved
+in the qualification archive; lead inspection is separate from independence.
+
+Focused4form,7actual real-worker state and11combinedform/widget tests passed (7
+actual headless widgets,3new). Seven new witnesses cover exact prefill/separation,
+review/reject/approve/restart/Undo/stale creation+approval, unchanged/new explicit
+reference proofs,480px/stale painted callback/queued comment navigation. Positive
+unchanged-pointer control proves the same actual callback route is exercised.
+Initial shellPATH/directLLVM environment failures are retained; corrected canonical
+rustupwrapper+DYLD final checks passed. Initial zero-test selector is excluded.
+
+All10rootfinalaffected gates passed:fmt,strictworkspace defaultClippy,527fullCLI+
+Desktopdefault,648fullcombinedDesktop/CLI,strictworkspacecombinedClippy,shipping/
+helper,52fixtures,links/diff. Reuse unchanged qualified Workflow/Store/AI/retrieval/
+intake and full-size crash/recovery/Undo witnesses from P7/P8; no tests weakened or
+shrunk. Corrected P8 two CLI fixture setups preserve every assertion/add no-editor-
+identity proof; production/backend unchanged. Both fixture refreshes independent
+clean. Eligible P8/Graph main composition and own actual requiredCI/protectedmerge/
+resultmain remain pending; local tests do not establish integration.
+
+Immutable action-edit-runtime source0d32ac2 records exact tree/binary hashes in
+morning header. Guarded WorkspaceN preparation passed actual shippingCLI: retained
+native WaitingAction; separate rejected Draft with no effect then explicit completed
+example; separate approved sameUUID replacement→readonlyUndo preview→compensation→
+restart/exactreplay, full immutableorigin/reference retention, correct freshWaiting
+clock, unchanged Source/original/thread/note bytes and zero inference/conversations.
+Only the intended synthetic consequences were approved. Never reprepare/reset or
+apply comparison receipts as new work. Native edit/create/review/approval/Undo,
+480px/IME/accessibility and personal acceptance remain solely morningstep24 pending.
