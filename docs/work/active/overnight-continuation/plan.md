@@ -103,7 +103,7 @@ strict beforeintegration; finalcandidate checks supersede thosewherechanged.
 No activeproviders/live. Freshcomplete reviewrawreport profile-context-independent-review.txt;
 correctionreviewwilluseactualfinalhead+delta, no selfreviewasindependent.
 
-Nextready [functionalcurrentpageGraph](profile-context-graph.md) plan inOTHERbudget
+Next ready functional current-page Graph plan lives only in the other budget
 checkout /Users/evokessler/repos/brn-p3-work-budgets, branchcodex/p8-context-graph,
 plancfb89fca297063a2ad0011167d04a873b115698f basedP8first3e06. Helperprofile_context_graph
 ownsDesktopONLY, code/puregeometry+realheadlesswidgettests prepared, NOCargo until
