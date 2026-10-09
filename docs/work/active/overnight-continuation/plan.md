@@ -77,10 +77,10 @@ requires exact final-candidate review, applicable local checks and actual requir
 CI. No weakening, bypass or rushed merge. Record failures and repair real defects.
 Known informational platform failures remain visible and separate.
 
-## Durable checkpoint — 09 October 03:46 UTC
+## Durable checkpoint — 09 October 03:50 UTC
 
 Continue through05UTC/08Tallinn; finalqualification04:30. AUTHORITATIVE lead andONE
-morningtask /Users/evokessler/repos/brn-p3-work-budgets codex/activity-action-inventory.
+morningtask /Users/evokessler/repos/brn-p3-work-budgets codex/user-scale-cli-qualification.
 Frozen locallyqualified b873f273832f881f03b483c079c94fd06a1a6d51 afterhelper9a3e8ab:
 [Activityinventory](activity-action-inventory.md) fixed Applied-only orderedbodyfree
 historicalActionUUID/title/Created-Replaced, existingUndo/fullapproval/paging. No
@@ -104,8 +104,14 @@ steps,210–290minfull/75–105essential, latestmatchingruntime. AllactualGUI/IM
 accessibility/personalacceptancepending. Neverreset/reprepare/relocateboundstate or
 usehistoricalbinaryonnewerschema. Sources/originals/ownerbuffers/recovery preserved.
 
-NEXT commit/push5finalqualificationdocs, freshindependentdocsrefresh (completecode
-reviewcarries), create/attachreviewableActivityPR andactualrequired4CI/docs. WaitLinked
+Activityfinal5docs279395d56ab744d1a1d0138ca069fa92294c4d39 pushed/independently
+CLEAN698a59eb78a2aa4d73079a3f5d2b763fd904d7f95deba096c3b1041120904569;
+PR110https://github.com/ewq100/brn-rust/pull/110 attached/ready, actualrequiredCI
+37880800850running. Reviewfoundcountundercount valid:threevault_evidenceintegration
+tests hadbeenoverwrittenbyfollowingzeroentrydoctest inhelperparser. Correct1182/17
+Workflow650CLI219Desktop313; rootverifiedrawalltestresults, correctionreceipt retained
+withoutrewritingimmutableoriginalmanifest. Rootfirstassumeddoctests,caught/fixedreason
+inchildrecord4d0bec3 afterf5b9bc6; no test/productionchange. WaitLinked
 postall4/docs beforeActivitynormalprotectedmerge, exactmain/prospectivetree+postCI.
 No rushedmerge. No codefreebranchmerge/redundanttests: latestLinkedmain+preformat
 Activity9a3 treeb7c179... exactlyqualified9a3; reprovefinalb873 beforeintegration.
@@ -120,12 +126,15 @@ LinuxUIoldCommandStdio+PR97unusedlegacyreviewhelper/Linuxcombinedsame3unsupporte
 ExclusiveInstall failures inspected; no newdiag/ports/suppression. Overallred≠required
 failure. P8/Graph/Action/Linkedallscope/reviews/initialfailures/qualifiedruntimes retained.
 
-Rootowns integration/shareddocs/runtime/fixtures/CI. Helpernext_v1_readiness NOW
-boundedREADONLYassessment nextindependentV1qualification of5000Currentnotes using
-shippingCLI(Vision44), no code/Cargo/provider/GUI/spawn. No productionchange/SLA
-invented. Exactprobedesign/readiness pending; do not repeat architectureaudit or
-parkedchoices. Revieweraction_edit_review finishedcomplete+mechanicalActivityreview
-CLEAN; available final5docsrefresh. Atmost2activehelpers/no recursion/oneCargo;
+Rootowns integration/shareddocs/runtime/fixtures/CI. NextselectedREADYqualification
+[5000CurrentCLI](user-scale-cli-qualification.md) plance88a5f usesVision44/existing
+shippingreaders, no productchange/newSLA. Helpernext_v1_readiness implementsONLY
+scripts/qualify-user-scale-cli.py; no Cargo/fixtureexecution/provider/GUI/spawn. New
+owneduser-scale-case,60sperprocess600stotal stop-preserve,2x25pages5000UUID/hash,
+3uniquetokens/fullreads/restarts/disposableownedindexrebuild,typedDraft/Inboxoriginal
+preservation,emptycredentials/models. Rootexecutesonlyafterfreshindependentreview.
+Revieweraction_edit_review finishedcomplete+mechanical+5docsActivityreviewsCLEAN,
+available freshscaleprobe review. Donotrepeataudit/parkedchoices. Atmost2activehelpers/no recursion/oneCargo;
 selectedmodel/effort unchanged/noAstra. Campaign16/16USED Luna8Sol8; owner10extra
 alreadycounted, no live/retry/newconditions/substitution/reset. Accountweekly78%used/
 22%remaining03:26 ordinarytrue, accountwideNOTnightspend;shortwindow/tokens/internal/
