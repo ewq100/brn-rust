@@ -1159,8 +1159,14 @@ Historical unfinished reservations cannot silently acquire a budget/restart.
 AppCommand::RunBudget queries metadata separately; InboxActionAnalysis includes
 it in the inspection wrapper. Rewrite keeps its separate existing contract.
 
-BudgetProgress reports the frozen budget/completed model responses/admitted tool
-rounds, first0/0 after cancellation registration. The owned deadline begins at
+BudgetProgress reports the frozen budget/model requests admitted/admitted tool
+rounds, first0/0 after cancellation registration. The compatibility `model_turns`
+field counts admission to Rig's completion-call boundary after cancellation checks,
+not HTTP requests, provider reasoning turns, tokens or spend. A single malformed
+read-call correction uses an existing model-call slot and admits no tool round;
+proposal-capable Ask and Inbox use the same policy. Rejected-response peer tools
+never dispatch, earlier drafts/partial text remain recoverable, and the final
+model-call slot must be tool-free even when tool rounds remain. The owned deadline begins at
 durable turn admission before authentication; expiry fences the shared proposal
 token, emits BudgetStopping, awaits operation and retained blocking read leases,
 then persists failed/time_limit_reached. It retains ordinary semantic partial

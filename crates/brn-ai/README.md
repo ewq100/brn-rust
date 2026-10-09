@@ -165,7 +165,7 @@ There is no production fake-provider feature or dynamic provider registry.
 subscription Responses dialect; Copilot uses Rig's model-based routing to Chat
 Completions or Responses. Authentication uses actual Rig configuration
 `.connect(http).authenticate(...)`; ordinary client acquisition disables device
-flow. No provider/model/account fallback or application retry is installed.
+flow. No provider/model/account fallback or automatic transport/top-level retry is installed.
 The pinned `rig-reqwest` shared client retains reqwest 0.13.5's default transport
 policy: at most two extra sends for safe HTTP/2 protocol rejections (remote
 GOAWAY `NO_ERROR` / `REFUSED_STREAM`). BRN does not retry HTTP statuses, model
@@ -327,9 +327,10 @@ parse diagnostic transiently to the model that generated the invalid argument;
 local progress still exposes only allowlisted tool names and typed BRN errors.
 BRN's repository-owned exact Rig0.43.0 [safety patch](../../vendor/README.md)
 removes one unconditional dependency stderr print before invalid-tool hooks.
-All three synthetic provider routes retain InvalidToolUse/no dispatch/no retry;
-a child-process regression checks private arguments and prior partial text never
-reach stderr. This does not authorize verbose upstream tracing or establish a
+Unknown tools and malformed proposal/mutation tools retain InvalidToolUse,
+with no dispatch or correction. Strict Rewrite and standalone visual interpretation
+remain unchanged. A child-process regression checks private arguments, correction
+feedback and prior partial text never reach stderr. This does not authorize verbose upstream tracing or establish a
 general provider logging guarantee.
 
 History is limited to the last 20 earlier `HistoryPair` values, converted to
@@ -340,10 +341,25 @@ tool-containing response once, including parallel calls. Compatibility entrypoin
 allow eight rounds and a ninth final answer. Investigation entrypoint
 `answer_with_proposals_and_images_with_limit` accepts validated1..32 rounds;
 Rig max_turns is rounds+1 and an excess tool round stops **before dispatch**.
-Invalid-tool retries are explicitly zero. Investigation `BudgetProgress` reports
-completed model responses and admitted tool rounds, including a refused final
-response in the model count; parallel calls consume one round. A run-owned atomic flag classifies
-`ToolLimitReached`, independently of Rig's stop-reason wording.
+Standard Ask and Inbox investigations, including proposal-capable Ask, permit
+one correction of syntactically non-JSON arguments for an allowlisted read tool
+that is both available and allowed. Pinned Rig's `InvalidToolCallAction::retry`
+abandons the entire rejected response before dispatch, including valid read or
+proposal peers, and supplies static JSON/schema feedback without raw arguments or
+parser diagnostics. The first surfaced invalid call controls this decision; peers
+later in the abandoned stream are drained without parsing or dispatch. The rejected response consumes one existing model-call slot
+and no tool round; it adds no allowance. A second malformed call refuses. Typed
+schema/domain/backend failures retain normal tool-result continuation. Rewrite
+and standalone visual interpretation keep zero invalid-call retries.
+
+The final model-call slot must be tool-free, even if a malformed response left
+unused tool rounds. Investigation `BudgetProgress.model_turns` retains its field
+name but counts **model requests admitted** at Rig's completion-call boundary,
+after the cancellation guard; the one-based index includes malformed responses
+and refused final responses. Progress repeats the same model count when a valid
+tool round is admitted; parallel calls consume one round. These counters are not
+HTTP sends, provider reasoning turns, token use or spend. A run-owned atomic flag
+classifies `ToolLimitReached`, independently of Rig's stop-reason wording.
 
 For `answer`, `AiEvent::Text` appends/emits each fragment exactly once;
 `AiEvent::ToolStarted` contains only an allowlisted tool name, never its

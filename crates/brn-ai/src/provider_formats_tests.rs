@@ -1574,12 +1574,21 @@ fn tool_sse(responses: bool, calls: &[(&str, Value)]) -> String {
 }
 
 fn tool_sse_with_prefix(responses: bool, calls: &[(&str, Value)], prefix: &str) -> String {
+    let calls = calls
+        .iter()
+        .map(|(name, args)| (*name, args.to_string()))
+        .collect::<Vec<_>>();
+    raw_tool_sse_with_prefix(responses, &calls, prefix)
+}
+
+// Preserve exact wire argument bytes, including non-JSON, through real Rig SSE decoding.
+fn raw_tool_sse_with_prefix(responses: bool, calls: &[(&str, String)], prefix: &str) -> String {
     if responses {
         let mut s = String::new();
         let mut output = vec![];
         for (i, (name, args)) in calls.iter().enumerate() {
             let item = json!({"type":"function_call","id":format!("{prefix}fc_{i}"),
-                "arguments":args.to_string(),"call_id":format!("{prefix}call_{i}"),
+                "arguments":args.as_str(),"call_id":format!("{prefix}call_{i}"),
                 "name":name,"status":"completed"});
             s += &event(json!({"type":"response.output_item.added","output_index":i,
             "sequence_number":i*3+1,"item":{
@@ -1588,7 +1597,7 @@ fn tool_sse_with_prefix(responses: bool, calls: &[(&str, Value)], prefix: &str) 
             }}));
             s += &event(json!({"type":"response.function_call_arguments.delta",
                 "output_index":i,"item_id":format!("{prefix}fc_{i}"),
-                "sequence_number":i*3+2,"delta":args.to_string()}));
+                "sequence_number":i*3+2,"delta":args.as_str()}));
             s += &event(json!({"type":"response.output_item.done",
                 "output_index":i,"sequence_number":i*3+3,"item":item}));
             output.push(item);
@@ -1599,7 +1608,7 @@ fn tool_sse_with_prefix(responses: bool, calls: &[(&str, Value)], prefix: &str) 
             "created":1,"model":"synthetic","choices":[{"index":0,"delta":{
                 "role":"assistant","tool_calls":calls.iter().enumerate().map(|(i,(name,args))|
                     json!({"index":i,"id":format!("{prefix}call_{i}"),"type":"function",
-                        "function":{"name":name,"arguments":args.to_string()}})
+                        "function":{"name":name,"arguments":args.as_str()}})
                 ).collect::<Vec<_>>()
             },"finish_reason":null}]
         })) + &event(json!({"id":"synthetic","object":"chat.completion.chunk",
@@ -6270,13 +6279,13 @@ mod investigation_budget_tests {
                         _ => None,
                     })
                     .collect::<Vec<_>>();
-                assert_eq!(progress.len(), usize::from(limit) + 1);
+                assert_eq!(progress.len(), usize::from(limit) * 2 + 1);
                 assert_eq!(progress.last(), Some(&(limit + 1, limit, limit)));
-                assert!(progress.iter().take(usize::from(limit)).enumerate().all(
-                    |(index, &(turns, rounds, cap))| usize::from(turns) == index + 1
-                        && turns == rounds
-                        && cap == limit
-                ));
+                for turn in 1..=limit {
+                    let index = usize::from(turn - 1) * 2;
+                    assert_eq!(progress[index], (turn, turn - 1, limit));
+                    assert_eq!(progress[index + 1], (turn, turn, limit));
+                }
             }
         }
     }
@@ -6336,3 +6345,6 @@ mod investigation_budget_tests {
         }
     }
 }
+
+#[path = "read_call_correction_tests.rs"]
+mod read_call_correction_tests;

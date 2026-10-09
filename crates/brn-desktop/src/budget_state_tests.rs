@@ -129,7 +129,7 @@ fn progress_requires_exact_uuid_generation_and_captured_budget_and_remains_monot
     assert!(
         active
             .budget_label()
-            .contains("2 model turns completed · 1 tool rounds admitted")
+            .contains("2 model requests admitted · 1 tool rounds admitted")
     );
 }
 

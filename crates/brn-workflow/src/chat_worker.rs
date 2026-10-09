@@ -39,7 +39,7 @@ pub struct AskRequest {
 
 #[derive(Clone, Debug)]
 pub enum ChatEvent {
-    /// Frozen limits and completed-model/admitted-tool-round counters, initially zero.
+    /// Frozen limits and admitted-model-request/tool-round counters, initially zero.
     BudgetProgress {
         id: Uuid,
         generation: u64,

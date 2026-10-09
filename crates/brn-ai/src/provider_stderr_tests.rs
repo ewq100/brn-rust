@@ -70,7 +70,7 @@ async fn provider_stderr_child() {
                 "delta":{"role":"assistant","content":prior},"finish_reason":null}]}))
         };
         let sse = partial + &tool_sse(responses, &[(name.as_str(), json!({"private":argument}))]);
-        let (_root, client, http) = client(provider, model, vec![success(sse)]).await;
+        let (_root, client, http) = super::client(provider, model, vec![success(sse)]).await;
         let notes = Arc::new(Notes::default());
         let (answer, events) = run(client, notes.clone(), CancellationToken::new()).await;
         assert!(
@@ -92,6 +92,46 @@ async fn provider_stderr_child() {
         );
         assert_eq!(events.len(), 1);
         http.assert_consumed();
+
+        // Exercise the malformed-JSON hook and its retry feedback in the real
+        // subprocess too; the vendor safety patch remains unchanged.
+        for repeat_malformed in [false, true] {
+            let raw = format!("{argument}: not JSON");
+            let rejected =
+                raw_tool_sse_with_prefix(responses, &[("read_note", raw.clone())], "stderr_bad_");
+            let first = rewrite_tests::partial_sse(responses, &prior) + &rejected;
+            let second = if repeat_malformed {
+                raw_tool_sse_with_prefix(responses, &[("read_note", raw)], "stderr_second_")
+            } else {
+                text_sse(responses, "safe final")
+            };
+            let (_root, client, http) =
+                super::client(provider, model, vec![success(first), success(second)]).await;
+            let notes = Arc::new(Notes::default());
+            let (answer, events) = run(client, notes.clone(), CancellationToken::new()).await;
+            if repeat_malformed {
+                assert!(matches!(
+                    answer.terminal,
+                    AiTerminal::Failed(AiError {
+                        kind: AiErrorKind::InvalidToolUse,
+                        ..
+                    })
+                ));
+                assert_eq!(answer.text, prior);
+            } else {
+                assert!(matches!(answer.terminal, AiTerminal::Completed));
+                assert_eq!(answer.text, format!("{prior}safe final"));
+            }
+            assert_eq!(notes.calls.load(Ordering::SeqCst), 0);
+            assert!(!format!("{answer:?} {events:?}").contains(&argument));
+            let outputs =
+                read_call_correction_tests::feedback_outputs(&http.bodies()[1], responses);
+            assert_eq!(outputs, [read_call_correction_tests::FEEDBACK]);
+            for marker in [&argument, &prior, &name] {
+                assert!(outputs.iter().all(|output| !output.contains(marker)));
+            }
+            http.assert_consumed();
+        }
     }
     println!("R4_ROUTES_VALIDATED:3");
 }

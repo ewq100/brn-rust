@@ -23,7 +23,7 @@ impl ActiveTurn {
         let ceiling = budget_label(self.request.budget());
         match self.budget_progress {
             Some((model_turns, tool_rounds)) => format!(
-                "{ceiling} · {model_turns} model turns completed · {tool_rounds} tool rounds admitted"
+                "{ceiling} · {model_turns} model requests admitted · {tool_rounds} tool rounds admitted"
             ),
             None => format!("{ceiling} · awaiting admission"),
         }

@@ -1,0 +1,52 @@
+Captured tool output excerpts from first focused test invocation, 2026-10-09.
+Checkout: /Users/evokessler/repos/brn-p3-work-budgets
+HEAD: 5219761c90b5f9973ed50f281d0009b4eba7353d plus isolated unstaged read-call candidate.
+Command: cargo test -p brn-ai --lib --locked --offline read_call_correction_tests
+Environment: PATH=/opt/homebrew/opt/rustup/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin
+CARGO_TARGET_DIR=$PWD/target/budgets CARGO_INCREMENTAL=0 TMPDIR=/private/tmp/brn-budget-fixtures
+DYLD_LIBRARY_PATH=/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib
+DYLD_FALLBACK_LIBRARY_PATH=/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib
+
+    Finished `test` profile [optimized] target(s) in 6.97s
+     Running unittests src/lib.rs (target/budgets/debug/deps/brn_ai-3228d18f530e98ee)
+
+running 7 tests
+test provider_formats_tests::read_call_correction_tests::unknown_mutation_rewrite_and_visual_keep_strict_no_correction_policy ... FAILED
+test provider_formats_tests::read_call_correction_tests::final_slot_is_tool_free_even_with_unused_rounds_or_malformed_call ... FAILED
+test provider_formats_tests::read_call_correction_tests::all_seven_registered_reads_can_correct_non_json_but_second_malformed_fails ... FAILED
+test provider_formats_tests::read_call_correction_tests::proposal_capable_ask_and_inbox_correct_once_with_existing_calls_and_progress ... FAILED
+test provider_formats_tests::read_call_correction_tests::typed_schema_error_continues_and_does_not_consume_non_json_correction ... FAILED
+test provider_formats_tests::read_call_correction_tests::mixed_proposal_invalid_read_rolls_back_both_orders_and_retains_prior_draft_and_text_exactly ... FAILED
+test provider_formats_tests::read_call_correction_tests::stop_and_deadline_token_before_correction_send_no_late_request ... FAILED
+
+Unknown/mutation strict refusal and final-slot refusal each instead observed:
+AiAnswer { text: "", terminal: Completed }
+
+All-seven-reads progress assertion:
+  left: [(1, 0, 1)]
+ right: [(1, 0, 1), (2, 0, 1)]
+
+Proposal-capable Ask/Inbox final text assertion:
+  left: ""
+ right: "Exact final õ\r\n"
+
+Typed schema error then non-JSON correction progress assertion:
+  left: [(1, 0, 2), (1, 1, 2), (2, 1, 2)]
+ right: [(1, 0, 2), (1, 1, 2), (2, 1, 2), (3, 1, 2)]
+
+Mixed-proposal/invalid-read assertion observed two retained drafts, titled:
+  Earlier retained \u{feff}draft\r\n日本語
+  Rejected peer must never dispatch
+Expected only the earlier draft. Both serialized candidate objects retained their
+synthetic complete ActionData fields. The unweakened assertion remains in source.
+
+Pending-stream deadline fixture assertion:
+deadline true: AiAnswer { text: "", terminal: Failed(AiError { kind: Other, retry_after_seconds: None }) }
+This fixture is separately unqualified: with_chunks(cancel=None) ends at EOF,
+so the timed branch did not hold transport pending until deadline. No result from
+this failing test establishes the cancellation boundary.
+
+test result: FAILED. 0 passed; 7 failed; 0 ignored; 0 measured; 148 filtered out; finished in 0.06s
+
+error: test failed, to rerun pass `-p brn-ai --lib`
+Exit status: 101

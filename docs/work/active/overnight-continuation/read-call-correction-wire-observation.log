@@ -1,0 +1,22 @@
+Captured output from bounded manual pinned-provider observation, 2026-10-09.
+Same checkout, HEAD, dirty candidate and environment as failed-test log.
+Command: cargo test -p brn-ai --lib --locked --offline pinned_wire_malformed_observation -- --ignored --nocapture --test-threads=1
+This diagnostic had started before the lead's final park instruction; no further Cargo followed.
+
+    Finished `test` profile [optimized] target(s) in 6.53s
+     Running unittests src/lib.rs (target/budgets/debug/deps/brn_ai-3228d18f530e98ee)
+
+running 1 test
+test provider_formats_tests::read_call_correction_tests::pinned_wire_malformed_observation ... PINNED_WIRE provider=Chatgpt model=gpt-6-luna responses=true invalid_first=false completed=true requests=2 reads=0 drafts=1 progress=[(1, 0, 2), (1, 1, 2), (2, 1, 2)]
+PINNED_WIRE provider=Chatgpt model=gpt-6-luna responses=true invalid_first=true completed=true requests=2 reads=0 drafts=1 progress=[(1, 0, 2), (1, 1, 2), (2, 1, 2)]
+PINNED_WIRE provider=Copilot model=gpt-5.5 responses=false invalid_first=false completed=true requests=2 reads=0 drafts=0 progress=[(1, 0, 2), (2, 0, 2)]
+PINNED_WIRE provider=Copilot model=gpt-5.5 responses=false invalid_first=true completed=true requests=2 reads=0 drafts=0 progress=[(1, 0, 2), (2, 0, 2)]
+PINNED_WIRE provider=Copilot model=gpt-5.3-codex responses=true invalid_first=false completed=true requests=2 reads=0 drafts=1 progress=[(1, 0, 2), (1, 1, 2), (2, 1, 2)]
+PINNED_WIRE provider=Copilot model=gpt-5.3-codex responses=true invalid_first=true completed=true requests=2 reads=0 drafts=1 progress=[(1, 0, 2), (1, 1, 2), (2, 1, 2)]
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 155 filtered out; finished in 0.05s
+Exit status: 0
+
+This pass confirms the pinned incompatibility. It does not qualify the candidate.
+The normal whole-response rollback acceptance tests remain failing and unchanged.

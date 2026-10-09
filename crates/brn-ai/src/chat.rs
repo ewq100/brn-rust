@@ -7,8 +7,9 @@ use crate::tools::{
 use crate::{AiError, AiErrorKind, Provider, ProviderClient, ReadTools};
 use futures::StreamExt;
 use rig::agent::{
-    AgentHook, HookContext, ModelTurnAction, ModelTurnFinished, MultiTurnStreamItem,
-    StreamingError, StreamingResult,
+    AgentHook, CompletionCallAction, CompletionCallEvent, HookContext, InvalidToolCallAction,
+    InvalidToolCallContext, InvalidToolCallReason, ModelTurnAction, ModelTurnFinished,
+    MultiTurnStreamItem, StreamingError, StreamingResult,
 };
 use rig::completion::{Message, PromptError};
 use rig::message::AssistantContent;
@@ -66,7 +67,7 @@ pub enum AiEvent {
     ToolStarted {
         name: String,
     },
-    /// Completed model responses and admitted tool rounds, never individual tools.
+    /// Model requests admitted to Rig and admitted tool rounds, never provider telemetry.
     BudgetProgress {
         model_turns: u16,
         tool_rounds: u16,
@@ -92,31 +93,101 @@ struct RoundHook {
     limited: Arc<AtomicBool>,
     model_turns: AtomicU16,
     limit: u16,
+    cancel: CancellationToken,
+    correct_read_call: bool,
+    correction_used: AtomicBool,
     progress: Option<Arc<dyn Fn(AiEvent) + Send + Sync>>,
 }
 
+// Only malformed wire JSON for these registered reads may receive static feedback.
+const READ_CALL_CORRECTION: &str = "Use valid JSON arguments matching the advertised tool schema. No tools in the rejected response executed.";
+
+impl RoundHook {
+    fn emit_progress(&self, used: u16) {
+        if let Some(emit) = &self.progress {
+            emit(AiEvent::BudgetProgress {
+                model_turns: self.model_turns.load(Ordering::SeqCst),
+                tool_rounds: used,
+                max_tool_rounds: self.limit,
+            });
+        }
+    }
+}
+
 impl AgentHook for RoundHook {
-    async fn on_model_turn_finished(
+    async fn on_completion_call(
         &self,
         _: &HookContext,
+        event: CompletionCallEvent<'_>,
+    ) -> CompletionCallAction {
+        if self.cancel.is_cancelled() {
+            return CompletionCallAction::stop("investigation cancelled");
+        }
+        // Pinned Rig increments this one-based index before the completion hook,
+        // including invalid-call corrections; max_turns bounds it to limit + 1.
+        let admitted = u16::try_from(event.turn).expect("bounded Rig model-call index");
+        self.model_turns.store(admitted, Ordering::SeqCst);
+        let used = self.rounds.lock().expect("run-owned budget").used();
+        self.emit_progress(used);
+        CompletionCallAction::Continue
+    }
+
+    async fn on_invalid_tool_call(
+        &self,
+        ctx: &HookContext,
+        event: &InvalidToolCallContext,
+    ) -> Option<InvalidToolCallAction> {
+        // Even unused tool rounds cannot spend the final response allowance.
+        if self.correct_read_call && ctx.turn() > usize::from(self.limit) {
+            self.limited.store(true, Ordering::SeqCst);
+            return Some(InvalidToolCallAction::fail());
+        }
+        let allowed_read = matches!(
+            event.tool_name.as_str(),
+            "search_notes"
+                | "read_note"
+                | "read_note_range"
+                | "list_notes"
+                | "read_action"
+                | "list_actions"
+                | "read_conflicts"
+        ) && event.available_tools.contains(&event.tool_name)
+            && event.allowed_tools.contains(&event.tool_name);
+        if self.correct_read_call
+            && !self.cancel.is_cancelled()
+            && matches!(
+                event.reason,
+                InvalidToolCallReason::MalformedArguments { .. }
+            )
+            && allowed_read
+            && !self.correction_used.swap(true, Ordering::SeqCst)
+        {
+            // Rig abandons this entire response before dispatch, including valid
+            // proposal peers, then uses the next existing model-call allowance.
+            Some(InvalidToolCallAction::retry(READ_CALL_CORRECTION))
+        } else {
+            Some(InvalidToolCallAction::fail())
+        }
+    }
+
+    async fn on_model_turn_finished(
+        &self,
+        ctx: &HookContext,
         event: ModelTurnFinished<'_>,
     ) -> ModelTurnAction {
         let contains_tools = event
             .content
             .iter()
             .any(|c| matches!(c, AssistantContent::ToolCall(_)));
-        let (refused, used) = {
+        let (refused, used, changed) = {
             let mut rounds = self.rounds.lock().expect("run-owned budget");
-            (rounds.admit(contains_tools).is_err(), rounds.used())
+            let before = rounds.used();
+            let refused = (contains_tools && ctx.turn() > usize::from(self.limit))
+                || rounds.admit(contains_tools).is_err();
+            (refused, rounds.used(), rounds.used() != before)
         };
-        // Rig bounds this hook to at most 33 completed responses per run.
-        let completed = self.model_turns.fetch_add(1, Ordering::SeqCst) + 1;
-        if let Some(emit) = &self.progress {
-            emit(AiEvent::BudgetProgress {
-                model_turns: completed,
-                tool_rounds: used,
-                max_tool_rounds: self.limit,
-            });
+        if changed {
+            self.emit_progress(used);
         }
         if refused {
             self.limited.store(true, Ordering::SeqCst);
@@ -494,6 +565,7 @@ async fn run_model_images(
             };
         }
     };
+    let correct_read_call = !matches!(mode, RunMode::Rewrite { .. });
     let mut builder = rig::AgentBuilder::new(model)
         .preamble(&preamble)
         .tool(SearchNotes(tools.clone()))
@@ -508,6 +580,9 @@ async fn run_model_images(
             limited: limited.clone(),
             model_turns: AtomicU16::new(0),
             limit: max_tool_rounds,
+            cancel: cancel.clone(),
+            correct_read_call,
+            correction_used: AtomicBool::new(false),
             progress: progress.then(|| emit.clone()),
         });
     if behavior.actions()
@@ -547,7 +622,7 @@ async fn run_model_images(
         .prompt(input)
         .history(history)
         .max_turns(usize::from(max_tool_rounds) + 1)
-        .max_invalid_tool_call_retries(0)
+        .max_invalid_tool_call_retries(usize::from(correct_read_call))
         .tool_concurrency(2)
         .stream();
     collect_stream(

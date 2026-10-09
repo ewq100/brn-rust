@@ -80,3 +80,64 @@ validate/fix findings, final affected AI/workflow/native/CLI/Clippy/shipping gat
 actual required CI, normal protected merge and resulting-main verification. Compose
 with citation review without replacing the authoritative morning task. Keep pending
 GUI acceptance separate from implemented/verified/merged.
+
+## BLOCKED / NOT QUALIFIED — 2026-10-09 pinned wire evidence
+
+The isolated candidate at HEAD5219761c90b5f9973ed50f281d0009b4eba7353d plus
+unstaged changes **must not merge or ship**. Implementation stopped when the
+required real-provider mixed-batch witness falsified the reuse assumption. The
+candidate hook/policy, tests, runtime copy and README edits are preserved only for
+reviewable continuation; they do not establish implemented/qualified behavior.
+No independent review, affected Clippy/full AI/native/workflow gates or CI ran.
+No live calls, dependency/vendor edits, custom parser, staging, commit, push or PR.
+Cargo was released after both bounded test processes exited; no helper processes
+remain. Lead owns preservation and next independent slice selection.
+
+Pinned rig-core0.43.0 source under the local registry
+`src/providers/openai/responses_api/streaming.rs:762–800` closes a completed
+FunctionCall at line799 with `out.close_pending(index, IfMalformed::Drop)`.
+The response-end path at903–907 also drops pending malformed arguments. Thus a
+syntactically non-JSON completed read never reaches AgentRun's
+`InvalidToolCallReason::MalformedArguments`/RoundHook seam on Responses. A valid
+proposal peer survives and dispatches in either ordering. The ChatGPT Responses
+owner Ask path and Copilot Responses path both reproduce this defect; Copilot
+Chat uses `IfMalformed::Fail` except explicit Length in
+`src/providers/openai/wire/chat.rs:1311–1317` and does reach the rollback hook.
+The registry source is unmodified; vendored rig-agent's credential/error safety
+patch is unchanged.
+
+The existing AgentRun mechanism itself is reusable: `run/mod.rs:901` increments
+the model-call index before `CallModel`, engine `on_completion_call` receives that
+one-based index, and streamed Retry abandons the surfaced invalid response before
+dispatch. It cannot supply the required three-route product outcome while the
+Responses decoder discards the invalid call first. The first surfaced invalid
+call controls the existing hook; later peers in an abandoned stream are drained
+without separate classification. No bespoke pre-parser or second loop was added.
+
+Reproduction uses the granted pinned environment (recorded with the logs),
+`CARGO_TARGET_DIR=$PWD/target/budgets`, existing physical synthetic TMPDIR and no
+provider network/account work:
+
+- `cargo test -p brn-ai --lib --locked --offline read_call_correction_tests`:
+  exit101,0passed/7failed. Required mixed proposal/non-JSON-read witness observed
+  both the earlier retained draft and the rejected peer draft. Other Responses
+  cases completed with empty text instead of entering correction/refusal.
+  [First output excerpts](read-call-correction-failed-test.log) explicitly retain
+  the separate unqualified pending-stream cancellation-fixture failure; that
+  failure is not evidence of the cancellation boundary.
+- `cargo test -p brn-ai --lib --locked --offline pinned_wire_malformed_observation -- --ignored --nocapture --test-threads=1`:
+  exit0,1manual diagnostic passed (155filtered). The diagnostic had begun before
+  the final park instruction. Both Responses routes dispatched1proposal in both
+  orders; Chat dispatched0. All used2mock requests. This confirms incompatibility,
+  **not candidate acceptance**. [Exact diagnostic output](read-call-correction-wire-observation.log).
+- Direct pinned rustfmt completed after an initial PATH-only `rustfmt` lookup
+  failed; `git diff --check` and Markdown links passed before the park note.
+
+Next dependency decision: qualify a maintained Rig provider release/fix that
+surfaces completed malformed Responses tool arguments to the existing hook, or
+explicitly authorize a separately reviewed narrow upstream/provider correction.
+Re-run unchanged mixed-peer witnesses in both orders across all three routes
+before treating this slice as Build-ready. Do not ship Chat-only recovery or
+admitted-request copy as a substitute for normal owner Ask. Repair the pending
+cancellation test transport before claiming that acceptance criterion. The lead
+must separately decide whether to resume or replace this parked slice.
