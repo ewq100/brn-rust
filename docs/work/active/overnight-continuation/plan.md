@@ -77,60 +77,66 @@ requires exact final-candidate review, applicable local checks and actual requir
 CI. No weakening, bypass or rushed merge. Record failures and repair real defects.
 Known informational platform failures remain visible and separate.
 
-## Durable checkpoint — 09 October 02:23 UTC
+## Durable checkpoint — 09 October 02:36 UTC
 
-Continue until05UTC/08Tallinn, final qualification04:30. Authoritative lead and ONE
-morning task remain `/Users/evokessler/repos/brn-p2-email-docx-intake`, branch
-`codex/p8-profile-context`. P8 behavior45aff613 independently reviewed clean after
-validP2 reference identity correction; complete31file +9file refresh hashes/review
-and actual initial480px failure/red-to-green are in [P8 record](profile-context.md).
-All11corrected local gates PASS:523CLI/defaultDesktop,8nativecontext,632combined,
-strictworkspacedefault/combinedClippy/shipping/helper/52fixtures/links/diff. Reuse
-unchanged1168affectedbaseline/17 and461nativeWorkflowmodels/16 plus P7 full-size
-witnesses honestly. PR106 draft attached; pushed0ed717d documentation link repair
-followed initial hosted docs failure (graph plan only existed in another branch).
-Actual revised docs PASS;4required checks running. Final docs record update next,
-then inspect actual final-headCI/normalprotectedmerge/resultmain. No unqualified
-merge. RootCargo FREE and granted soleCargo to Graphhelper target/budgets.
+Continue through05UTC/08Tallinn; finalqualification04:30. AUTHORITATIVE lead/ONE
+morning task NOW `/Users/evokessler/repos/brn-p3-work-budgets`, branch
+`codex/p8-context-graph`. Graph code50898d6 +correctedP8parent19ca composede763adde;
+complete8file independent review CLEAN, patch67fb39a64f6097f9aff95ce63af5c9775147be66614e0a6acc84f58bbae98e78.
+All9finallocalgates PASS including641fullcombined/strictworkspaceboth/shipping/helper/
+52fixtures/links. Focused9=2pure+7actualheadless; initialfixture/testmechanicsfailures
+retained, actual480scroll/26disjointbounds/quote/copy/stalecallbackguards pass.
+No newbackend/store/schema/deps/model/authority. [Graphrecord](profile-context-graph.md)
+contains exact reuse/qualification/remainingdependency. Graphrootdocs update/commit/
+push and draftPR next; mustincorporateeligibleP8mainbefore normalGraphintegration.
 
-Immutable profile-context-runtime source `0ed717d308365977ed0c46277aed2b6c07af9424`,
-CLI `28ed910b7a03910e50eb86dbf1dec242aa37bf2ce7f5dd9896fe674c38ed2bc4`,
-Desktop `67ebc25334733b3b131d3c26f64d8540f4d8d0601c6421286603405d6d381f3e`, helper7f058c35. Matching WorkspaceM prepared without
-inference; initial missing binding refusal retained, continuation supplied exact
-captures,30Actions/34edges/paging/lenses/Completed/Absent/restart/indexloss/unchanged
-records PASS. A–M retained, morningstep22/160–225minfull/50–65essential. Graph not in
-this runtime. Never reprepare/reset/relocateboundfolders/useoldbinariesafter migration.
-AllactualGUI/IME/accessibility/personalacceptancepending; no computeruse overnight.
+P8PR106 sourcea356ea35d210e419a9f8796c122b5bee053baaf3, readyforreview, revisedCI
+37875138258 started02:34 docsPASS/4requiredpending. Prior19ca requiredUbuntu failed
+newpureCLI testsetup App::proposal_source(macOS-onlySave). Minimaltest-onlyportable
+exacttypedreply+existingdigest preserves ALLassertions/no cfg/ignore/deps. Focused1/
+fullCLI78/strictCLI PASS and independent2file refresh CLEAN, patch22f08d519300084a9fc726b1bf9c6c11af6efc8c999f66b8ce8d8a2f88f24646.
+Isolateddetachedworktree /private/tmp/brn-overnight-20261008/p8-ci-fixture-correction
+cleancommitted/pusheda356; localbranchcodex/p8-profile-context updatedsame. Original
+31file/full9correctionreviews remainclean andproductionunchanged. Graphcomposed
+P8testcorrectione63d67e andfocusedCLI1PASS. Actual revisedrequiredCI/normalmerge/
+resultmain pending, no unqualifiedmerge. Old requiredwatch56814 observed19ca failure;
+startfreshwatchonnewhead ifneeded. Initial docslink and480px/identity failures retained.
 
-Graphhelperprofile_context_graph ownsDesktopONLY in other budgetcheckout
-`/Users/evokessler/repos/brn-p3-work-budgets`, codex/p8-context-graph plan cfb89fca
-based3e06; dirtycode/tests prepared. SoleCargo GRANTED02:21, root noCargo until
-released. Current-page25edge onehop projection, pinnedGPUIcanvas/ordinaryButtons,
-exactgeneration/intent/page/fullprofile/endpointedgebinding; no newstore/engine/
-schema/deps/query/inference. Incorporate corrected eligibleP8main before Graph
-finalqualification/review/CI/integration. Root owns shared docs/cases/integration.
-Second helper next_v1_readiness now boundedread-only selecting next accepted ready
-slice afterGraph, no duplicate parked investigations/recursion/Cargo/provider/GUI.
-Atmost2activehelpers. Root selectedmodel/effort unchanged/noAstra.
+ROOT Cargo FREE and granted soleCargo02:34 to Actionhelpernext_v1_readiness in
+OTHERintake checkout /Users/evokessler/repos/brn-p2-email-docx-intake, branch
+codex/action-edit-initiation plan9a30739 based19ca. Fixed92lineaction-edit-initiation.md
+there; helperDesktopONLY action/draft/ai/nativeActionform/dashboard/simple/tests/
+README. Implementation/tests prepared: exactunfinishedbefore+sameUUID/prefilled
+fields/ordinaryReplace, guardedwholeDashboardcapture/queuednavigation, separate
+proposalidentity, readonlybaseline/copy. Focused/realworker/native/strictchecks now
+running canonicalintake-ui wrapper+DYLD afterinitialshellenvironmentfailures;
+no finaltestclaims yet. RootNO Cargo untilhelperreleases. Rootowns integration/
+shareddocs/cases/runtime/CI. MustincorporateeligibleP8+Graph beforeActionfinalqual.
+Atmost2activehelpers, no recursion/provider/GUI; selectedleadmodel/effort unchanged.
 
-PR90–105 all4requiredcandidate+postmain/docsPASS. Main56b6a02 PR105 merge01:52:42
-identical qualified5120treebc7a; runs37870984751/37871879950. Known Windows4UnixAPI
-errors actualinspected, no port/suppression. P7full1860/18,460native/16,616combined
-and corrected512/11nativecompletion1ignore/616/strictshipping passed. P7qualification
-report c84e8b1 pushed andcarriedf4d88c0. Latestprior sent-source-runtime/L retained.
+Latest immutable profile-graph-runtime sourcee763adde (NOTActionediting), CLI
+a63c8d72761f3ba85445b18fe01146e8d86efb5fc5de137061637a7cbe4cfa9b, Desktop90297ef6fc7e362055557d4f65037d825d4174882562f121fed9120223f63518,
+helper7f058c35. CasesA–Mretained; M30Actions/34edges/independentpaging/lenses/Completed/
+Absent/restart/indexloss/unchangedoperational+vault PASS, sixnewGraphCLIrepliesexact
+same/vaultunchanged/zeroInference. ONE morningtask latestgraphbuild/steps22–23,
+175–245minfull/55–75essential. AllactualGUI/IME/accessibility/personalacceptancepending.
+Neverrerunpreparers/reset/relocateboundstate/oldbinariesafternewmigration.
 
-Campaign canonical /private/tmp/brn-overnight-20261008/campaign-ledger.json16/16USED
-Luna8/Sol8, NO LIVE allowance/retries/newconditions/substitution/reset. Owner10extra
-alreadycounted. Usage70%weeklyused30%remaining01:41accountwide ordinarytrue, short
-window/tokens/internal/spendunknown. Archive1218files1,007,683,645B01:49; refresh
-milestones/cutoff. No privatevault/email/docs/credentialcontents/accountswitch/
-purchase/paidfallback/modeldownload/ports/releases/signing/globalconfig/unrelated
-merge. Preserveprimary18f3891+DSStore/researchPRs/userdata/exactapproval/provenance/
-CurrentHistory/originals/recovery/owneredits. Parkedretry8f8fc2e pushedunqualified/noPR/
-RigResponsesmismatch/nofork;crossfolder/split/regroup/webcapture/autoarchive/PDF/
-SessionDeletewarningspec parked. Continue usefulreadywork; don'tstopatonePR/waitowner.
-HeartbeatpointsHERE; disable05UTC/cancel/runtime-limit/allusefulauthorizedblocked,
-noarchivechat. Safelycommit/pushunfinished and exactmorningreport/nextstep atcutoff.
+PR90–105 ALL4requiredcandidate/postmain/docsPASS, main56b6a02 PR105mergeidentical
+qualified5120treebc7a. ActualWindows19ca job113639779794 same4knownUnixAPIs inspected,
+noport/suppression. P7/P8fullsize/backend evidence reused honestly. Archive1329files
+1,009,856,177B02:26; refreshmilestones/cutoff. Canonicalcampaignledger16/16USED Luna8/
+Sol8 NO live/retry/newconditions/substitutions/reset. Owner10extraalreadycounted.
+Accountweekly70%used30%remaining01:41ordinarytrue;shortwindow/tokens/internal/spend
+unknown. Synthetic/publiconly: NO computer/browser/GUI/accessibility/screenshots/
+unlock/interactivelaunch/privatevault/email/docs/credentialcontents/accountswitch/
+purchase/paidfallback/modeldownload/ports/releases/signing/globalconfig/unrelatedmerge.
+Preserveprimary18f3891+DSStore/researchPR80/82/84/userdata/approval/provenance/Current-
+History/originals/recovery/owneredits. Parkedretry8f8fc2e pushedunqualified/noPR/Rig
+Responsesmismatch/nofork;crossfolder/split/regroup/webcapture/autoarchive/PDF/Session
+Deletewarningspec parked. Don'tstopatonePR/waitowner. HeartbeatmustpointHERE and
+currentCargo/branches; disable05UTC/cancel/runtime-limit/allusefulauthorizedblocked,
+noarchivechat. Safelycommit/pushunfinished, exactmorningreport/nextstep atcutoff.
 
 ## Selected first evidence slice
 

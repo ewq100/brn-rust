@@ -91,3 +91,46 @@ competingCargo. Directpinnedrustfmt/read/edits allowed. No commits/push/PR/merge
 GUI/computer/browser/provider/live/privatecredentials/download/accounts/release/
 ports/config actions by helper. Stop/reassess only dependent unresolved product/
 integrity issue; routine implementation proceeds. Do not stop overnight at onePR.
+
+
+## Local qualification and dependency checkpoint — 02:36 UTC
+
+Desktop implementation50898d6 is composed with corrected P8 final19ca790 in
+candidatee763adde1a8faa9d365c42795e71ee3b6b8adbd4. Complete eight-file independent
+review is clean; patch SHA-256
+`67fb39a64f6097f9aff95ce63af5c9775147be66614e0a6acc84f58bbae98e78`.
+Review covers fixed plan plus all seven Desktop code/test/contract files. No
+production correction requested. Reports are retained in the qualification archive.
+
+Focused final9PASS =2pure+7actual headless native witnesses. Initial invalid
+outgoing Explicit fixture quotes were correctly rejected; fixtures corrected to
+profile bytes. Other initial failures concerned offscreen disabled-observation
+and pinned toolkit diagonal scroll behavior; final tests click disabled controls
+for inertness and use separate real horizontal/vertical gestures. Explicit width/
+minimum-width constraints keep graph extent within the scrollable viewport.
+Failed logs remain; no claim all initial tests passed. Tests retain actual26disjoint
+bounds, last node/edge reach, separate complete quotes/copy, guarded navigation,
+stale painted callback dispatch, generation/lifecycle and retained-loading binding.
+
+Helper default304, strictDesktopdefault/combinedClippy and shipping passed before
+parent composition. All nine composed root gates passed:format,strictworkspace
+both configurations,641fullcombinedDesktop/CLI,shipping/helper,52fixtures,links/diff.
+Reuse unchanged P8 final523defaultCLI/Desktop,1168affectedbaseline/17 and461native
+Workflow/models/16 plus8finalnativecontext, and unchanged P7 backend/fullsize
+witnesses. No Workflow/Store/CLI production change. This is local qualification;
+eligible parent main and final hosted integration remain pending.
+
+P8requiredUbuntu failed a new pureCLI fixture using macOS Save to construct its
+reply. Test-onlya356ea3 supplies an exact typed reply using existing digest; all
+assertions remain, no cfg/ignore/newdependency. Focused1/fullCLI78/strictCLI passed,
+independent correction refresh clean. Composed into Graph e63d67e with no production
+delta; composed focused CLI1 passed. P8 revised actualrequired CI must pass, normal
+parent merge/resultmain must be incorporated before Graph integration. No bypass.
+
+Immutable graph runtime e763adde is recorded in morning header; only test/docs
+changed afterward. WorkspaceM reused without reprepare/inference: six exact context
+replies and unchanged saved vault proofs passed using actual shippingCLI. Graph
+render/callback behavior is headless-tested; no interactive GUI was observed.
+One morning step23 owns actual graph usability/accessibility/480px checks. Source/
+History labels are observation classifications and inferred provenance remains
+explicitly distinct. No whole-vault graph, semantic membership or new authority.
