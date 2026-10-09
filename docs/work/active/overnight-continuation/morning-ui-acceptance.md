@@ -395,47 +395,22 @@ Owner added ten shared trials; all sixteen are used, including the final paired 
 
 ## Ready-to-paste morning agent prompt
 
-> Read `docs/work/active/overnight-continuation/morning-ui-acceptance.md` and the
-> latest overnight checkpoint in `/Users/evokessler/repos/brn-p3-work-budgets`.
-> The Mac is unlocked and I am available. Verify final commit/build hashes and
-> use only the recorded synthetic workspaces. Execute this single ordered UI
-> journey, essential path first if time is limited. Record actual observations
-> separately from expected behavior and prior headless evidence. Reuse retained
-> outputs; do not repeat inference for review/approval. Exercise native approval,
-> full quit/restart, reading, saved notes, Actions/dashboard, recorded budget/error
-> states, conflict review, Applied-private-intake Findings, qualified predecessor/
-> owner-comment revision, session Archive/Restore, accurate email caveats and
-> retained PPTX slides/notes/tables/image occurrences/original inspection. Include
-> backup Settings/status/checkpoint and Action replacement compensation checks
-> once the recorded final build contains them. Include same-folder new-note
-> filename revision, stale approval refusal and restart once qualified. Include
-> Needs Review Citation evidence discovery, exact detail/quotes, sparse pagination,
-> coverage diagnostics, Refresh and preserved owner buffers once qualified. Include
-> raw metadata-invalid saved evidence and exact hashbound ranges using retained
-> WorkspaceJ results, captured ordering in K, and actual sent-evidence completion
-> in L using retained actual Text Source and exact separate confirmation. Include
-> M explicit Person/Project lenses, independent paging, exact cross-scope proofs,
-> missing references, full copy, unsaved-work guards,480px reach and restart.
-> Include M current-page Graph, separate directed/origin edge proofs, scoped node
-> navigation/owner-work guards, page/Refresh invalidation, isolated center,480px
-> scrolling and restart. Include N Dashboard Edit Action, exact prefilled baseline/
-> sameUUID, retained owner edits, ordinary replacement review/approval, ActivityUndo,
-> stale/Completed refusal, owner-work guards and restart. Use only the recorded
-> qualified build and final CI receipt. Include O explicit dependency/parent/
-> follows_up inspection, Completed source/target, full copy, filter/selection/buffer
-> preservation, fresh target versus older Dashboard observation, error/retry where
-> available and480px/restart. Reopen N for historical affected-Action Activity
-> inventory, exactUUID/approvedtitle/order/Create-Replace/Undo linkage versus later
-> current changes, complete recorded approval,480px/paging/Refresh/restart.
-> Optionally use P for5,000-note browsing, three exact keyword anchors/full reads
-> and restart; retain the unapproved Draft/original, collect actual UI timings
-> without assuming a numerical SLA or downloading models.
-> No repeat inference for these operations.
-> Preserve failures, drafts and exact evidence; do not reset data or touch my real
-> vault. Report concrete defects and pending owner acceptance; mark unobserved
-> or unavailable checks pending. A new live cancellation trial requires separate
-> owner authorization for a new allowance and selected run/budget; none is included
-> by this prompt or required to inspect or approve retained results.
+> The Mac is unlocked and I am available. Execute the essential path first in
+> `/Users/evokessler/repos/brn-p3-work-budgets/docs/work/active/overnight-continuation/morning-ui-acceptance.md`,
+> then continue its ordered journey if time permits; Workspace P is optional.
+> Verify the exact final commit, runtime hashes and synthetic fixture paths in
+> the header before launch. Use the retained results and only the listed synthetic
+> approvals; do not repeat inference, imports or conversion merely to inspect,
+> edit, approve or replay them. Preserve owner buffers, exact approval versions,
+> source/original proofs, current/history separation and recoverable failures.
+> Do not reset or relocate fixtures, delete locks, download models, change accounts
+> or touch my real vault/email/documents. Record actual pass/fail/unavailable results,
+> exact case/step/version, relevant synthetic UI evidence and a reproducible failure.
+> Distinguish headless checks already passed from UI behavior observed now; leave
+> unobserved or unavailable checks pending. A fresh live cancellation trial needs
+> a separately authorized new allowance and selected run budget; this prompt grants
+> none. Finish with observed results, concrete defects, pending owner acceptance
+> and the next development step.
 
 Session headless qualification: 1724 default tests (including reused unchanged
 Store461),17 existing ignores;423 native workflow/models with15 existing ignores;
