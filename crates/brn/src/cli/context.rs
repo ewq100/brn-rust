@@ -51,17 +51,15 @@ mod tests {
     use super::*;
     use crate::cli::{Command, Invocation};
     use brn_workflow::{
-        app::{App, AppConfig},
-        knowledge::ProfileLens,
+        knowledge::{ProfileContext, ProfileLens},
+        proposals::{ProposalSource, SourceVersion},
     };
     use uuid::Uuid;
 
     #[test]
     fn direct_invalid_requests_and_wrong_or_malformed_replies_have_no_workspace_effects() {
         let owner = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
-        let data = owner.path().join("opened");
         let vault = owner.path().join("vault");
-        std::fs::create_dir(&data).unwrap();
         std::fs::create_dir(&vault).unwrap();
         let id = Uuid::new_v4();
         std::fs::write(
@@ -69,24 +67,40 @@ mod tests {
             format!("---\nbrn_id: {id}\n---\nExact profile"),
         )
         .unwrap();
-        let mut app = App::open(
-            &data,
-            AppConfig {
-                vault_root: Some(vault.clone()),
-                credentials_dir: Some(owner.path().join("opened.credentials")),
-                model_dir: None,
-            },
-        )
-        .unwrap();
+        // This test qualifies pure CLI reply/preflight validation. Construct its
+        // exact typed evidence directly; Markdown Save is a macOS-only workflow.
+        let text = std::fs::read_to_string(vault.join("profile.md")).unwrap();
         let request = ProfileContextRequest {
-            profile: app.proposal_source("profile.md").unwrap().source,
+            profile: SourceVersion {
+                path: "profile.md".into(),
+                fingerprint: brn_store::files::FileFingerprint {
+                    device: 1,
+                    inode: 1,
+                    len: text.len() as u64,
+                    sha256: brn_intake::digest(text.as_bytes()),
+                },
+            },
             note_id: id,
             lens: ProfileLens::Person,
             action_offset: 0,
             relationship_offset: 0,
             limit: 25,
         };
-        let context = app.profile_context(&request).unwrap();
+        let context = ProfileContext {
+            profile: ProposalSource {
+                source: request.profile.clone(),
+                text,
+            },
+            request: request.clone(),
+            action_total: 0,
+            actions: vec![],
+            relationship_total: 0,
+            relationships: vec![],
+            references: vec![],
+            issues: vec![],
+            duplicates: vec![],
+            complete: true,
+        };
         assert!(output(
             &request,
             AppEvent::ProfileContext(Box::new(context.clone()))
