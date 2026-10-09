@@ -91,6 +91,8 @@ class Campaign:
         self.binary = runtime / "brn"
         self.manifest_path = runtime / "build-manifest.json"
         self.active = None
+        self.spawning = False
+        self.pending_signal = None
         self.identities = {}
         self.commands = []
         self.notes = {}
@@ -171,16 +173,27 @@ class Campaign:
                 self.env[key] = os.environ[key]
         self.result["environment"]["child_environment"] = self.env
 
-    def stop_child(self):
-        if self.active is not None:
-            process = self.active
+    def interrupt(self, signum, _frame=None):
+        # Defer Python-level cancellation until Popen's returned child is owned.
+        # Do not block OS signals: the child must not inherit a blocked mask.
+        if self.spawning:
+            self.pending_signal = self.pending_signal or signum
+            return
+        self.stop_child()
+        raise QualificationError("Aggregate campaign deadline reached" if signum == signal.SIGALRM
+                                 else f"Campaign interrupted by signal {signum}")
+
+    def stop_child(self, process=None):
+        process = self.active if process is None else process
+        if process is not None:
             if process.poll() is None:
                 try:
                     os.killpg(process.pid, signal.SIGKILL)
                 except ProcessLookupError:
                     pass
             process.wait()
-            self.active = None
+            if self.active is process:
+                self.active = None
 
     def run(self, label, arguments, command):
         self.check_owned()
@@ -204,10 +217,17 @@ class Campaign:
         process = None
         try:
             with prefix.with_suffix(".stdout").open("xb") as stdout, prefix.with_suffix(".stderr").open("xb") as stderr:
-                process = subprocess.Popen(argv, stdin=subprocess.DEVNULL, stdout=stdout,
-                                           stderr=stderr, env=self.env, start_new_session=True)
-                self.active = process
-                metadata["pid"] = process.pid
+                self.spawning = True
+                try:
+                    process = subprocess.Popen(argv, stdin=subprocess.DEVNULL, stdout=stdout,
+                                               stderr=stderr, env=self.env, start_new_session=True)
+                    self.active = process
+                    metadata["pid"] = process.pid
+                finally:
+                    self.spawning = False
+                    if self.pending_signal is not None:
+                        signum, self.pending_signal = self.pending_signal, None
+                        self.interrupt(signum)
                 try:
                     code = process.wait(timeout=max(0, child_deadline - time.monotonic()))
                 except subprocess.TimeoutExpired as error:
@@ -231,6 +251,9 @@ class Campaign:
             self.stop_child()
             raise
         finally:
+            # Also own any returned local child if registration failed unusually.
+            if process is not None and process.returncode is None:
+                self.stop_child(process)
             metadata["wall_seconds"] = time.monotonic() - started
             if process is not None:
                 metadata["returncode"] = process.returncode
@@ -469,7 +492,7 @@ def main():
 
     def interrupted(signum, _frame):
         if campaign is not None:
-            campaign.stop_child()
+            return campaign.interrupt(signum)
         raise QualificationError("Aggregate campaign deadline reached" if signum == signal.SIGALRM
                                  else f"Campaign interrupted by signal {signum}")
 
