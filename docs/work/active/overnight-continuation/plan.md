@@ -161,6 +161,23 @@ Deletewarningspecparked. Continueusefulreadywork/don'tstopatonePR/waitowner. Hea
 mustpointHERE/currenthelpers/Cargo; disable05UTC/cancel/runtime-limit/alluseful
 blocked,noarchivechat. Safelycommit/pushunfinished,exactmorningreport/nextstepatcutoff.
 
+## Protected integration update — 03:00 UTC
+
+PR106 normal protected merge completed02:58:48 as
+`3cca35fb56fc37daf89bdb8b33bf96803f9d2009` after all4required finala27 candidate
+checks/docs passed in37875841656. Exact candidate/main tree
+`d9abad699ef26c4c8bb8f2bdbbb13992aa7392a0` matches. Post-main37877128892 queued,
+not yet qualified. Root merge receipt/profile-context-protected-merge-receipt.json
+retains actual proof. Prospective merge ofeligibleorigin/main withGraphccbeef gives
+`757ea9ae3b4737b91ff9c5eede7be087c114d542`, identical testedGraphcandidate tree;
+no branchcodechange/repeatedCargo is needed forparentcomposition. PR107 three
+required+docsPASS, remainingMacCore stillrunning as02:58; normalmerge onlyafterall4.
+ActionPR10862fe ready with complete/finaldocsreviewsCLEAN, requiredUbuntu+MacUI/docs
+PASS02:58, MacCore/Combinedpending. ItsfinalWindows113646276923 requires actual
+inspection. ROOT NO Cargo, Linkedhelpernext_v1_readiness owns solebudgetCargo; no
+additionalmodels/livecalls. Archive2326files1,043,960,369B refreshed02:57, newmerge
+receipt refreshnextmilestone. Accountweekly24%remaining02:56, ordinarytrue.
+
 ## Selected first evidence slice
 
 **Outcome:** reliable access to longer saved evidence plus clearer retained-intake
