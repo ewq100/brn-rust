@@ -132,3 +132,50 @@ Do not edit other checkout or shared status/docs outside owned contract. Stop/re
 on unresolved product semantics or unsafe scan/lifecycle requirement; ordinary
 technical implementation choices proceed. P8 independently ready from c1a97ef but
 must incorporate P7 eligible main before integration; no second engine or rewrite.
+
+
+## Qualified candidate — 9 October 02:23 UTC
+
+Behavior candidate `45aff613b01cad6932c9c3e87bb581039b65da4c`; documentation-only
+link repair `0ed717d308365977ed0c46277aed2b6c07af9424`. [PR106](https://github.com/ewq100/brn-rust/pull/106)
+is pushed/draft with hosted checks running. Parent/main56b6a02 is integrated PR105;
+all preceding required candidate/post-main checks/docs passed.
+
+Complete31-file independent review at3e06ace found one valid P2: a reference could
+reuse the profile/another reference path for a different UUID, or claim the known
+profile Absent. Pure regression accepted all three and native acknowledgement
+settled the malformed reply. A minimal known-path UUID map and known-profile
+Unique requirement fix it;8Workflow context and8native state tests pass. Independent
+nine-file correction refresh at45aff613 is clean; original patch SHA-256
+`3e1cd86083c6328640a60344ec9dc9133314ef2dae3b6ee8fa68f3ff91384cc9`, correction
+`b34a2aa6ec102e9891bdb81e77a58985fde13050890ef8f16132c9d16bf5dbce`.
+Reports are preserved in the qualification archive. Lead inspection is separate.
+
+Initial final gates passed1168affected default/17existing ignores and461native
+Workflow/models/16existing ignores. Combined failed405Desktop passes/1failure at
+the unchanged480px full-document inspection witness. Standalone reproduction
+failed; new Person/Project controls moved from the wrapping fixed header to the
+existing scrollable body, restoring the header. The original unchanged witness
+then passed. Initial failure remains evidence, not a passed qualification.
+
+All eleven corrected final gates passed: format, strict workspace default Clippy,
+523fullCLI/defaultDesktop,8nativeWorkflow context,632fullcombinedDesktop/CLI,
+strict combinedworkspaceClippy, shipping helper and combined binaries,52fixtures,
+links and diff. Reuse unchanged full Workflow/shared-reader/native recovery from
+the first P8 run, plus unchanged Store/AI/retrieval/intake/full-size crash/recovery/
+Undo from qualified P7; no shrinking or skipping witnesses. Documentation link
+repair has no behavior/configuration effect; independent review inapplicable to
+that one mechanical reference, with local and hosted documentation checks passed.
+
+Immutable `0ed717d308365977ed0c46277aed2b6c07af9424` runtime at
+`/Users/evokessler/repos/brn-overnight-artifacts-20261008/profile-context-runtime`
+contains exact manifest/binary hashes. Guarded WorkspaceM preparation retained
+an initial missing-target-binding refusal with no Actions; continuation supplied
+exact captures without reimport/conversion. Actual shippingCLI then qualified
+30Actions/34relationships,25+5 and25+9 independent pages,3Person matches/zero wrong
+lens/isolatedempty, Completed and Absent, fresh-process/index-loss reconstruction,
+unchanged full Markdown and operational listings, zero inference. A manually
+seeded History fixture establishes classification only, not supersession history.
+All actual GUI/IME/accessibility/personal acceptance remains pending exclusively
+in morning step22. Required final-head CI, normal merge and resulting-main
+verification remain pending; this record does not claim integration.
