@@ -7,8 +7,8 @@ and the [5,000-note qualification PR111](https://github.com/ewq100/brn-rust/pull
 are normally merged. Final main is `33edae13f74584d7062483447e00ceb334d58a7f`,
 with exact qualified tree `9d31083b092f234bb0c918130cf7d676b49194ed`.
 All four required candidate checks plus documentation passed for PR90–111.
-All required resulting-main checks/docs passed through PR110; final PR111
-post-main run **37883790450 remains pending**. Known informational Windows/Linux
+All required resulting-main checks/docs passed through PR111, including final
+post-main run **37883790450** (last required job04:39:13UTC). Informational Windows/Linux
 failures remain visible. No protection bypass, platform port or overall-green
 workflow claim is made.
 

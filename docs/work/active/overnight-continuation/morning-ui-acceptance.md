@@ -27,10 +27,10 @@ combinedDesktop438passed; all8root workspace/build/fixture gates passed after th
 mechanical lint/CLIformatter corrections. Unchanged backend/native/full-size evidence
 was reused; unchanged full-size asset recovery also passed again in the default gate.
 PR90–111 required candidate checks/docs passed, and all required resulting-main
-checks/docs passed through PR110. Scale PR111 merged normally at04:25:11UTC;
+checks/docs passed through PR111. Scale PR111 merged normally at04:25:11UTC;
 final main is `33edae13f74584d7062483447e00ceb334d58a7f`, tree
 `9d31083b092f234bb0c918130cf7d676b49194ed`, exactly matching qualified a74d95d.
-Final post-main37883790450 is pending; refresh this receipt before cutoff. The
+Final post-main37883790450 all four required checks/docs passed (last04:39:13UTC). The
 saved executable remains sourceb873: product crates/Cargo/vendor are identical to
 resulting main, and the later qualification adds only scripts/tests/records.
 The actual 5,000-note campaign passed with this exact runtime. No new build needed.
@@ -59,7 +59,8 @@ outputs, review/approval receipts, scripts, logs and historical executables.
 Bound `data`/`vault` folders and credentials are excluded and remain in their
 recorded locations. Use the final runtime above for acceptance; historical
 executables are evidence and must not reopen state migrated by a newer schema.
-Running gate logs may be partial until the final refresh.
+Final required CI and informational failure logs are retained; historical intermediate
+failure/partial logs remain labelled as evidence.
 
 Workspace A (email/DOCX/core journey):
 `/private/tmp/brn-retained-qualification-bi3q58kf/headless/{data,vault,results}`.

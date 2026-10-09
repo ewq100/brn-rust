@@ -1,8 +1,8 @@
-# Overnight BRN report — interim 04:37 UTC, 9 October 2026
+# Overnight BRN report — 04:41 UTC, 9 October 2026
 
-Product work through PR110 and scale qualification PR111 are merged. All required
-candidate checks/docs passed for PR90–111; all required resulting-main checks/docs
-passed through PR110. PR111's final post-main run37883790450 is pending.
+Product work through PR110 and scale qualification PR111 are merged. All four
+required candidate and resulting-main checks plus documentation passed for
+PR90–111, including final post-main run 37883790450 (last required job 04:39:13 UTC).
 Interactive GUI, IME/accessibility and owner acceptance remain pending; no interactive
 UI was tested overnight. The [checkpoint](plan.md) owns the current continuation.
 
@@ -28,7 +28,7 @@ Native usability and personal usefulness still need the morning acceptance journ
 
 Every PR below merged normally after independent review, applicable final local
 checks and all four required candidate checks plus documentation. All required
-resulting-main checks/docs have passed for PR90–110. Main is now
+resulting-main checks/docs have passed for PR90–111. Main is now
 `33edae13f74584d7062483447e00ceb334d58a7f`; its tree
 `9d31083b092f234bb0c918130cf7d676b49194ed` exactly matches qualified PR111.
 
@@ -56,10 +56,11 @@ resulting-main checks/docs have passed for PR90–110. Main is now
 | [PR109](https://github.com/ewq100/brn-rust/pull/109) | Inspect explicit dependency, parent and follows-up Actions, including Completed work outside the current filter |
 | [PR110](https://github.com/ewq100/brn-rust/pull/110) | Identify every affected Action by historical approved UUID/title/kind in Activity, preserving full inspection and Undo |
 
-[PR111](https://github.com/ewq100/brn-rust/pull/111) merged normally at04:25:11UTC
+[PR111](https://github.com/ewq100/brn-rust/pull/111) merged normally at 04:25:11 UTC
 after all required candidate checks/docs and parent post-main proof passed. It adds
 the reviewed 5,000-note probe, cancellation regression and records; resulting main
-exactly matches the qualified candidate. Final post-main37883790450 is pending.
+exactly matches the qualified candidate. All four required post-main checks and
+documentation passed in [run 37883790450](https://github.com/ewq100/brn-rust/actions/runs/37883790450).
 It changes no BRN product source,
 dependencies, schema, CI job count or runtime. Final head:
 `a74d95d88864963f7335697f84f437003848c4f6`.
@@ -67,9 +68,9 @@ dependencies, schema, CI job count or runtime. Final head:
 ## Automated and live results
 
 The latest affected default gate passed **1,182 tests**, with 17 existing ignores:
-Workflow650, CLI219 and Desktop313. Combined Desktop passed438. Strict workspace
-lint in default and combined configurations, shipping builds/helper and52 offline
-fixtures passed. All19 Python tooling tests passed. Relevant unchanged backend,
+Workflow 650, CLI 219 and Desktop 313. Combined Desktop passed 438. Strict workspace
+lint in default and combined configurations, shipping builds/helper and 52 offline
+fixtures passed. All 19 Python tooling tests passed. Relevant unchanged backend,
 native and full-size crash/recovery/Undo evidence was reused; the existing full-size
 asset recovery/Undo witness also ran unchanged and passed again. These are affected
 gates, not a new combined count of every historical suite.
@@ -77,9 +78,10 @@ gates, not a new combined count of every historical suite.
 Independent review caught and corrected real identity, lifecycle, visibility and
 cancellation defects. Two required Ubuntu fixtures using macOS Save were repaired
 without dropping assertions or adding platform skips. A test-count parser omitted
-three passing vault-evidence integrations; the correct Workflow650/total1182 counts
+three passing vault-evidence integrations; the correct Workflow 650/total 1182 counts
 are in a separate erratum, preserving the original immutable manifest. Informational
-Windows Unix-API errors and Linux native install/unused-helper failures were inspected
+Windows Unix-API errors (four in core/UI, fourteen in native retrieval) and Linux
+native install/unused-helper failures were inspected on final main
 and remain visible. The Linux unused `acknowledge_legacy_review` diagnostic was
 introduced by PR97; the other listed Unix-API/unsupported-install failures predate
 these slices. They are informational for the current Mac delivery scope and were
@@ -88,14 +90,14 @@ neither suppressed nor ported. An overall red workflow is not described as fully
 The full live allowance is used: **16 BRN investigations**, eight exact
 `gpt-6-luna` Medium and eight exact `gpt-6.1-sol` Medium. Fifteen completed; one
 failed Sol attempt and its separately counted manual retry consume two slots.
-Each invocation retained the180-second cancellation deadline, eight tool rounds
+Each invocation retained the 180-second cancellation deadline, eight tool rounds
 and nine-response ceiling. No automatic campaign retry, provider/model/account
 substitution or paid fallback was used. Approval, inspection, restart and exact
 completed replay reused retained outputs without inference. Existing subscription
 authentication was connected and exact model identifiers were discovered before
 qualification; no login intervention was needed. [Complete live evidence](live-model-evidence.md).
 
-The original €4,000/12October omissions were not caused by missing input. A shared
+The original €4,000/12 October omissions were not caused by missing input. A shared
 pending-versus-Applied Source instruction contradiction was fixed with generic
 material-detail and literal-quote guidance and ranged evidence access. The next
 Luna result retained both facts; Sol retained them with more proposals. Fresh Cedar,
@@ -107,12 +109,12 @@ do not establish broad completeness, prompt causality, a model ranking or owner
 acceptance. Provider HTTP requests, tokens, internal reasoning and spend are unknown
 where unavailable; completed responses/tool rounds are recorded where exposed.
 
-The 5,000-note campaign passed **83 fresh CLI processes in80.957seconds**, on
-4,745,663bytes across50folders. Both complete25-page inventories matched all UUIDs
+The 5,000-note campaign passed **83 fresh CLI processes in 80.957 seconds**, on
+4,745,663 bytes across 50 folders. Both complete 25-page inventories matched all UUIDs
 and full hashes; first/middle/last exact keyword quotes/full reads, restart and
 rebuilding the retained disposable index passed. Draft work, Inbox original proofs,
 all note physical/byte proofs and empty Actions/conversations stayed unchanged.
-Observed cold/restart/rebuild startup:1.452/0.613/1.424seconds; page median1.098seconds.
+Observed cold/restart/rebuild startup: 1.452/0.613/1.424 seconds; page median 1.098 seconds.
 This qualifies this fixture's CLI correctness/retention and observed wall times,
 not a numerical SLA, optimization gain, semantic retrieval, larger History workload
 or native UI performance. Review found a qualification-harness spawn cancellation
@@ -120,7 +122,7 @@ gap; it was reproduced and fixed before the campaign. Seven signal-boundary subc
 including a real short child, and fresh independent correction/result reviews passed.
 No provider, account activity, model assets, downloads or inference was involved.
 
-Account-wide weekly usage was80%used/20%remaining at03:55UTC, ordinary usage allowed.
+Account-wide weekly usage was 80% used/20% remaining at 03:55 UTC, ordinary usage allowed.
 It includes other Codex work and is not overnight or BRN spend. Short-window telemetry
 was unavailable. No reset, purchase, new account or subscription change was used.
 
@@ -139,10 +141,10 @@ count underreport is explained by `activity-inventory-count-correction.json`.
 | brn-desktop | 6d62c507de452b6d9403b4e91e03862389d06b602d47c2e2358368a4b05d6cca |
 | brn-intake-helper | 7f058c359a092559cda55b07c3880b44e637257818ad60c725da8b1d99a9f8e5 |
 
-The only [morning UI acceptance task](morning-ui-acceptance.md) contains27 ordered
+The only [morning UI acceptance task](morning-ui-acceptance.md) contains 27 ordered
 steps, exact A–P fixture paths, launch instructions, expected outcomes, evidence
-and failure recording. Allow220–305minutes including optional scale observation;
-the essential path is75–105minutes. Its
+and failure recording. Allow 220–305 minutes including optional scale observation;
+the essential path is 75–105 minutes. Its
 [one ready-to-paste prompt](morning-ui-acceptance.md#ready-to-paste-morning-agent-prompt)
 starts with an unlocked Mac and available owner. Retained outputs eliminate any
 need to repeat inference merely to inspect or approve. All GUI/IME/accessibility,
@@ -157,8 +159,8 @@ retention exposes native chart/layout gaps; broader required formats and PDF/lay
 choices remain. Cross-folder retarget/link semantics, split/regroup ownership,
 attributable web capture/hosted budgets, autoarchive inactivity/grace policy and
 SessionDelete warnings/retention or rename contracts are parked decisions. Full XLSX
-and standalone-image import remain outsideV1. The unqualified Rig response-correction
-experiment8f8fc2e is safely pushed, has no PR and is excluded from production;
+and standalone-image import remain outside V1. The unqualified Rig response-correction
+experiment 8f8fc2e is safely pushed, has no PR and is excluded from production;
 Responses invalid-call dropping remains a capability limitation. There was no broad
 rewrite, private-data inspection, release/signing/distribution or platform port.
 
@@ -170,6 +172,7 @@ Continue any unmerged candidate only through its recorded remaining gates.
 
 The final report record is safely committed/pushed on `codex/overnight-final-record`;
 it is a factual handoff, separate from product integration and owner acceptance.
-This interim receipt will be updated with PR111's actual integration/post-main result
-before the05UTC cutoff. Useful synthetic data remains bound in place; durable copied
+The final required CI proof and informational failure receipts are retained.
+Product development ended for qualification at 04:30 UTC; the overnight cutoff is
+05 UTC/08:00 Tallinn. Useful synthetic data remains bound in place; durable copied
 qualification evidence is under the artifact folder with a SHA-256 archive manifest.

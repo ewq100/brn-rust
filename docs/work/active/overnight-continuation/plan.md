@@ -77,7 +77,7 @@ requires exact final-candidate review, applicable local checks and actual requir
 CI. No weakening, bypass or rushed merge. Record failures and repair real defects.
 Known informational platform failures remain visible and separate.
 
-## Durable checkpoint — 09 October 04:38 UTC
+## Durable checkpoint — 09 October 04:41 UTC
 
 Objective: finish owner-authorized BRN overnight work by05UTC/08Tallinn, with
 qualification/integration/report priority from04:30. Product work PR90–110 and
@@ -91,11 +91,14 @@ Stable qualification branchcodex/user-scale-cli-qualification finala74d95d888649
 is untouched forCI. Current main `33edae13f74584d7062483447e00ceb334d58a7f`, exact qualified tree `9d31083b092f234bb0c918130cf7d676b49194ed`.
 PR111normalmerge04:25:11 after all4required candidate37882759360/docs and parent
 Activity110post37881829445/docs passed. PR90–111 allrequiredcandidate/docsPASS;
-PR90–110 allrequiredpost-main/docsPASS. FINALPOSTMAIN37883790450 pending: at04:37
-CoreUbuntu, NativeUI Mac, CombinedMac and docs passed; CoreMac still running.
-Next action: inspect those actual4required/docs, preserve informational failures,
-verify unchanged resultingmain, update finalreport/morningreceipt/record, safely
-commit/push finalhandoff and disableheartbeat at05UTC. No more productdevelopment.
+PR90–111 allrequiredpost-main/docsPASS. FINALPOSTMAIN37883790450 completed;
+all4required/docsPASS, lastCoreMac04:39:13. Full actualCI JSON/protectedmerge receipt
+andfive informational failurelogs inspected/retained. Overallrunred is acknowledged.
+Windowscore/UI fourUnixAPI errors; nativeRetrieval fourteenUnixAPI errors; Linux
+three unsupported exclusive-install tests, unusedimports andPR97-addedlegacyhelper.
+Retrievaldownload source/tests unchanged from prePR90 baseline. Rootmain/tree/
+productdiff/runtimehash proof passed. Next: finalize safe report push/archive and
+pauseheartbeat at05UTC. No technical integration gate remains, no more productdevelopment.
 No protection bypass, shortened witnesses or unqualified merge. Helpersidle/CargoFREE.
 
 Latest immutable runtime remains activity-action-runtime, compiledsource
@@ -136,7 +139,7 @@ Canonical BRNlivecampaign16/16USED Luna8/Sol8; owner's10extraalreadycounted. NO
 more livecalls/retries/effortconditions/substitution/reset. Existingauth/catalog were
 confirmed beforequalification; no login needed. Accountwide03:55 ordinarytrue80%used/
 20%remainingweekly, NOTnightspend; shortwindow/HTTP/tokens/internalreasoning/spendunknown.
-Archive2755files1,062,704,210B04:38, refreshfinalCI/reportmilestone andcutoff. Only
+Archive2768files1,062,940,474B04:42 includesfinalCI/logs/reviews/reportcopies; finalcutoff receipt refresh follows. Only
 synthetic/publicdata; no privatevault/email/docs/credentialcontents/accountswitch/
 purchase/paidfallback/modeldownload/release/sign/ports/globalconfig/unrelatedmerge.
 Preserveprimary18f3891+DSStore/researchPR80/82/84/userdata/ownerbuffers/approval/
