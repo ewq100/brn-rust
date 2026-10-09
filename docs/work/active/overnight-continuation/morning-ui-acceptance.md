@@ -19,23 +19,25 @@ Refresh this receipt after subsequent changes and before cutoff; qualification i
 separate from personal acceptance.
 
 Checkout/current authoritative morning task: `/Users/evokessler/repos/brn-p3-work-budgets`.
-Latest qualified combined build source: `4fef278a4cdf9cbb92c8afbc98a606aacb95826e`
-(merged raw reader plus independently reviewed and locally qualified captured approval ordering; PR104 merged c1a97ef after all required candidate and post-main checks/docs passed). Main is
-`c1a97ef3f3f079cd1c39e159e08ce23184006996`; PR90–PR100 required candidate checks
-passed. PR90–PR99 required post-merge checks passed. PR100 post-merge run37859299854
-passed all required checks/docs. Action compensation is merged and locally qualified. Immutable shipping runtime:
-`/Users/evokessler/repos/brn-overnight-artifacts-20261008/captured-order-runtime`.
-Desktop: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/captured-order-runtime/brn-desktop`,
-SHA-256 `2a0cb8b945a945fb18f122793bbce2163854d395545bfe15789e2cf6e2e90e20`.
-CLI: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/captured-order-runtime/brn`,
-SHA-256 `0b50908a042708923bf824068727dc628fb2e960be4f0445ce5f543a5444c3ce`.
-Helper: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/captured-order-runtime/brn-intake-helper`,
+Latest qualified combined build source: `5120e397215400c68a82b22443c2fbe4d62f3268`
+(P7 actual sent-evidence completion, independently reviewed and locally qualified;
+PR105 required CI pending). Current main is `c1a97ef3f3f079cd1c39e159e08ce23184006996`;
+PR90–PR104 all four required candidate and post-main checks plus docs passed.
+Immutable shipping runtime:
+`/Users/evokessler/repos/brn-overnight-artifacts-20261008/sent-source-runtime`.
+Desktop: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/sent-source-runtime/brn-desktop`,
+SHA-256 `d0be83ac1f2030f96736490256fb2702d44a0b39f866c94c7cf2985d9a37861a`.
+CLI: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/sent-source-runtime/brn`,
+SHA-256 `62df26ec150795b77b64c0ea8b742468acd71bb4d778ab00eccb943166b8e984`.
+Helper: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/sent-source-runtime/brn-intake-helper`,
 SHA-256 `7f058c359a092559cda55b07c3880b44e637257818ad60c725da8b1d99a9f8e5`.
-Manifest: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/captured-order-runtime/build-manifest.json`.
-This runtime includes SessionV18, PPTX, automatic backups, Action compensation, filename revision, read-only citation evidence review and explicit raw saved-evidence reading and captured group approval ordering. PR102 revised requiredCI passed and normal merge77960d1 completed; all required post-main checks/docs passed in37865065354. PR101 required candidate CI passed and normal merge6a63173 completed; all required post-main checks/docs passed in37861908706. Refresh final receipt before cutoff and
-never use historical executables after newer schema migration. Bound state/vault
-folders remain in place.
-Actual GUI/personal acceptance remains pending.
+Manifest `build-manifest.json` records exact source/tree, binary hashes and baseline/
+corrected gates. This includes SessionV18, partial PPTX, automatic backups, Action
+compensation, filename revision, citation review, raw saved evidence, captured group
+ordering and actual sent-evidence completion. P7 adds no schema migration.
+Refresh final commit/CI receipt at cutoff. Never use historical executables on newer
+schema state; bound data/vault folders remain in place. All actual GUI/personal
+acceptance remains pending.
 
 A separate durable evidence copy is under
 `/Users/evokessler/repos/brn-overnight-artifacts-20261008/qualification-evidence`,
@@ -180,6 +182,23 @@ files exist. `ready.json` records full current records. Do not rerun
 Gamma and Alpha; leave Beta Draft as a selection witness. Source pinning is checked
 with the existing pending Source group in F before that group's approval.
 
+Workspace L (actual sent-evidence completion, zero inference):
+`/private/tmp/brn-overnight-20261008/sent-source-case/{data,vault,inputs,receipts}`.
+`ready.json` preserves exact records/runtime and all preparation/qualification receipts.
+Native Action `bdd3cb6a-a069-4871-ba96-1ba3e7bfc34d` is Waiting and already references
+thread `c1cfcae6-1eea-4fc2-a8bb-ec51296ff2b5`. Approved `planned-reply.md` says Monday.
+Actual text in `inputs/actual-sent.txt` says Tuesday13October10:30Europe/Tallinn,
+€4,200 ceiling and no new order authorization, with BOM/CRLF/Unicode.
+Actual protected Text Source proposal `57231513-8ce0-4aa6-bbd8-5281d5ff96ce` remains
+Draft/version2 with owner comment, note UUID `349faebe-659c-4af7-bdfe-b9277406b4f1`,
+destination `actual-sent-native.md`. Native Source approval must leave the Action
+Waiting; then Dashboard explicitly reads that saved path and confirms it as sent.
+Separate headless comparison Action `e8d5d0ae-1560-4d64-ac78-7751fc1995f7` is already
+Completed, Source `actual-sent-headless.md` retained and exact completion operation
+`fd4665e9-d11b-402b-81ac-28a553feb2b6` replayed across fresh processes. Changed-byte
+refusal, unchanged planned/Source bytes and zero inference already verified.
+Do not rerun `prepare-sent-source-morning.py` or treat the comparison as new work.
+
 ## Preparation and launch after unlock
 
 Confirm final commit/build hashes and that no process owns the selected synthetic
@@ -187,7 +206,7 @@ folder. Do not delete locks, reset or migrate data if busy; record the condition
 Launch Workspace A from the checkout (ordinary desktop flags):
 
 ```sh
-/Users/evokessler/repos/brn-overnight-artifacts-20261008/captured-order-runtime/brn-desktop \
+/Users/evokessler/repos/brn-overnight-artifacts-20261008/sent-source-runtime/brn-desktop \
   --data-dir /private/tmp/brn-retained-qualification-bi3q58kf/headless/data \
   --vault /private/tmp/brn-retained-qualification-bi3q58kf/headless/vault
 ```
@@ -196,8 +215,9 @@ Fully quit before launching Workspace B with its corresponding `data` and `vault
 paths. Use only these synthetic workspaces and ordinary existing-account login
 if required. Never inspect credential contents or real email/vault/documents.
 Do not repeat inference to inspect, edit or approve retained results. A fresh live
-cancellation trial requires a deliberately selected morning run and budget; it is
-not a prerequisite for inspection of the saved results.
+cancellation trial requires separate owner authorization for a new allowance and
+a deliberately selected run/budget. It is not included in this task by default.
+Inspection/approval of saved results requires no inference.
 
 Record date, final commit, executable hash, workspace and each observed outcome.
 For failures retain exact error text, proposal/version, user action and before/after
@@ -207,7 +227,7 @@ than passed whenever a control/result cannot be exercised.
 
 ## One ordered journey
 
-Allow 130–180 minutes for all workspaces/new controls. Essential path: steps 1–5 and 8–9, about 30–40 minutes.
+Allow 145–205 minutes for all workspaces/new controls. Essential path: steps1–5,8–9 and21, about40–55minutes. Active live cancellation remains pending without fresh authorization.
 
 | Step / user action | Expected result | Evidence / failure record |
 | --- | --- | --- |
@@ -217,7 +237,7 @@ Allow 130–180 minutes for all workspaces/new controls. Essential path: steps 1
 | 4. Fully quit/reopen; inspect saved notes, Actions and dashboard | Approved effects persist with citations, dates, unassigned owners where uncertain and open state | Note/Action UUIDs, status, dashboard discrepancies |
 | 5. Reopen completed group and replay where exposed | No duplicate effects/new inference; Source and asset unchanged | Effect counts/replay receipt; compare retained headless hashes |
 | 6. In C, open long Current, inspect its final appendix, saved Sol answer and exact Finding evidence | Tail ranges retain complete-byte proof, exact offsets and scope; stale proof refuses. Saved Sol investigation observed two range calls and captured an exact tail quote. Individual range replies are not retained; direct interactive agent-tool exercise remains pending without a separately selected fresh trial | Range/proof/result/error and selection. Deterministic near-1MiB range tests already passed |
-| 7. Inspect Settings, saved budgets/history and error states; optionally select a separate disposable synthetic live cancellation trial | Defaults 8 rounds/300 seconds; presets 4/8/16/32 and 60/180/300/600. Ask/Inbox summary reflects selection. Active choice frozen, progress shows completed responses/admitted rounds. Stop/timeout/tool-limit causes distinguishable, retained drafts/ordinary partials remain; strict visual JSON stays completion-only. Legacy history budget unavailable | Selected/frozen values, progress, stopping/final cause, saved IDs, restart history. Without a fresh trial, active cancellation observation remains pending |
+| 7. Inspect Settings, saved budgets/history and error states; leave active cancellation pending unless the owner separately authorizes a new disposable synthetic live allowance | Defaults 8 rounds/300 seconds; presets 4/8/16/32 and 60/180/300/600. Ask/Inbox summary reflects selection. Active choice frozen, progress shows completed responses/admitted rounds. Stop/timeout/tool-limit causes distinguishable, retained drafts/ordinary partials remain; strict visual JSON stays completion-only. Legacy history budget unavailable | Selected/frozen values, progress, stopping/final cause, saved IDs, restart history. Without a fresh trial, active cancellation observation remains pending |
 | 8. Quit A, launch B; read both Sources and approved Current, then saved Sol answer/Finding/proposals | Carrier cancellation risks the target but does not authorize a new commitment. Copied Kaia is not authorization. Exact opposing quotes, reasons, alternatives, unknown price/availability and reply timezone visible | Source/Current IDs, Finding state/proofs, displayed reasons and uncertainty; any misleading authority |
 | 9. Review selected B proposals and their exact versions; approve only the intended consequences, restart and inspect | Current live Knowledge is a supplement, not a supersession. Two Actions remain distinct; due date/time and authorization boundary retained. Finding closure remains a separate explicit choice. Only approved effects persist | Approval requests/receipts, notes/Actions/Finding state, restart/replay; do not approve both model comparisons |
 | 10. Explicitly select the Current predecessor on a suitable Draft, review generated protected History and successor, then approve the revised version | No silent semantic rewrite; owner text/comments/citations remain. Old stamp refuses. Generated History is readonly, successor editable, and exact pair persists after restart | Exact predecessor proof, before/after, version change, comments, stale/error states and history links. Implemented, independently reviewed, final shipping and required candidate/post-merge CI passed; interactive acceptance pending |
@@ -228,14 +248,21 @@ Allow 130–180 minutes for all workspaces/new controls. Essential path: steps 1
 | 15. Once final backup build is recorded, inspect Settings backup status, change a disposable draft/comment, checkpoint, refresh and restart; inspect warning fixture only if recorded | Last known usable copy/path/time or unknown startup time is distinct from failure/retention warning. Automatic changed-state copies and final joined shutdown preserve complete state. A backup warning never turns a committed approval/Save/chat into failed/retryable work, and owner buffers remain | Exact checkpoint path/status, retained changed draft/comments/session/budget/Actions/Findings and warning. Backup implementation, complete/merge-delta independent reviews and final local qualification passed; required candidate/post-merge CI passed and PR99 merged. No destructive Restore or private data test |
 | 16. Quit the prior workspace, open G, preview Undo on the recorded ready Action-only replacement; inspect complete prior/current details, confirm, restart/replay, then inspect a changed/completed refusal | Prior details return as a new revision with immutable origin/history preserved. Waiting clock semantics are shown honestly; changed or Completed work refuses. Creation/mixed Undo remain unsupported. Preview has no effect and exact replay never overwrites later edits | Source/compensation operation UUIDs, complete before/after, versions/origin, Waiting dates, refusal text and replay receipt. Implementation and independent review passed; final composed 1769 default/18 existing ignores,434 native/16,565 desktopCLI,Clippy/shipping/fixtures passed; required candidate CI passed and PR100 merged; required post-merge checks passed. Actual native acceptance pending |
 | 17. Once rename is qualified and included in the final build, select a retained new-note Draft, save owner text/comments, change its filename within the same folder, inspect the complete revised review, approve the revised version and restart | Text/UUID/comments/evidence/History and other members remain exact; changed destination advances approval version once, no file effect until approval. Same-path no-op stays exact. Stale/occupied/unsafe/cross-folder requests refuse while retaining owner work; Observe after refusal must preserve the entered filename and queued navigation until explicit Retry/Discard | Original/new filename, request/returned version, complete before/after, comments, stale approval/refusal and saved note after restart. Independent review and final local gates passed:1796 default coverage/18 existing ignores,436 native workflow/models/16,585 combined desktopCLI; required PR101 candidate CI passed and normal merge completed; all required post-main checks/docs passed in37861908706. Actual GUI acceptance pending |
-
-
 | 18. Once citation review is qualified and in the final build, quit H and open I, choose Needs Review → Citation evidence, inspect rows and complete saved consumer/source details, Load more, Refresh, switch to Findings and restart | Changed/Absent/Ambiguous rows have exact reasons and preserved original quotes. Moved unchanged archived evidence remains Matched and absent from issue rows. Malformed metadata gives explicit incomplete coverage. Sparse pages still offer Load more; refreshed rows/detail are bound to exact consumer hash. Derived rows have no Resolve/Dismiss/approval/capture/automatic analysis controls; owner composer/editor/review and pending navigation remain recoverable | Record row paths/outcomes, complete copied consumer/proof/quotes, coverage and cursor progress, stale/error behavior, buffer preservation and restart. Backend11 focused plus10 existing provenance tests, native5state/8widgets,4Findings regressions andCLI3 passed. Complete review found one coverage defect, corrected red-to-green; independent correction review and final affected gates passed; revised requiredCI passed and normal merge completed; all required post-main checks/docs passed in37865065354. Actual UI acceptance pending |
-
-| 19. Quit I, open J and reopen the retained Luna and Sol sessions; inspect their saved raw-evidence answers, metadata diagnostic and final-appendix range proof, open the malformed saved Markdown for inspection, then restart | Saved answers disclose unclassified evidence and preserve €8,200 panels-only/exclusions,47vs50dB, separate10/14November dates and Mara-only authority; fullhash-bound appendix is949000..949968. Damaged metadata grants no Current facts. Saved bytes/answers reopen without inference or metadata repair | Record session/turn IDs, exact copied saved answers, rawtext/hash/range, metadata issue and authority wording, restart/failure. Complete review found actual-worker delegation defect, corrected red-to-green and independently reviewed clean. Final1287affecteddefault/18,455native/16,601combined plusClippy/shipping/52fixtures passed; both live calls3responses/2rawrounds completed and exact replay passed. PR103 requiredCI passed and merged; post-main pending; actual UI acceptance pending |
+| 19. Quit I, open J and reopen the retained Luna and Sol sessions; inspect their saved raw-evidence answers, metadata diagnostic and final-appendix range proof, open the malformed saved Markdown for inspection, then restart | Saved answers disclose unclassified evidence and preserve €8,200 panels-only/exclusions,47vs50dB, separate10/14November dates and Mara-only authority; fullhash-bound appendix is949000..949968. Damaged metadata grants no Current facts. Saved bytes/answers reopen without inference or metadata repair | Record session/turn IDs, exact copied saved answers, rawtext/hash/range, metadata issue and authority wording, restart/failure. Complete review found actual-worker delegation defect, corrected red-to-green and independently reviewed clean. Final1287affecteddefault/18,455native/16,601combined plusClippy/shipping/52fixtures passed; both live calls3responses/2rawrounds completed and exact replay passed. PR103 required candidate and post-main checks/docs passed and merged; actual UI acceptance pending |
 | 20. Quit J, open K, review the exact group, move Gamma earlier twice; deselect/reselect Beta without moving to observe immediate selection, then deselect Beta again. Inspect exact Gamma/Alpha numbered snapshots and operation IDs, confirm only those two and restart. In F before its pending group approval, inspect pinned Source-first controls | Captured order becomes Gamma, Alpha, Beta; selection follows identity and every record/stamp/comment/operation remains paired. Only gamma.md and alpha.md are created with exact text; their comments clear after application. Beta stays Draft/version2 with its comment; pending Sources run first and cannot cross or move. Stale review or busy work refuses while retaining owner work | Record ordered titles/IDs/versions/operation pairs, standalone checkbox states, submitted/returned receipt order, exact files, retained Beta/comment and restart. Complete11file review + clean6file correction refresh passed; final292Desktop/607combined andClippy/shipping/52fixtures passed. PR104 merged c1a97ef after all required candidate and post-main checks/docs passed; actual UI acceptance pending |
+| 21. Quit K, open L, compare planned Monday reply with retained actual Tuesday Text original. Approve only the retained Source Draft/version2, verify native Action remains Waiting, then select it in Dashboard, enter actual-sent-native.md and Read saved sent Source. Inspect complete Source/proof; open and cancel ordinary Complete to verify isolation. Re-read saved Source if needed, open Confirm actual sent Source and complete Action, inspect exact complete Source and Action before final confirmation, then restart | Draft and Source approval alone do not complete. Read/prepare has no effects. Final separate owner confirmation binds the actual Tuesday Source UUID/approval/full fingerprint to one exact Action; thread/origin/content retained, Source appended once, Waiting cleared. Source/original/planned bytes stay exact; restart shows same Completed record/time. Stale changed/missing/ambiguous evidence refuses, retained Source/attempt survives error, no automatic retry/inference or external sending | Record Source/Action UUIDs, source version/comment, complete copied text/binding/Action JSON, ordinary isolation, final operation/receipt/time/thread/source list and restart hashes. Headless same journey/refusal/replay already passed; original complete review found P2 malformed preview acceptance, regression reproduced and correction independently reviewed clean. All corrected local gates passed; required PR105CI pending. Actual native acceptance pending |
 
 ## Headless evidence already passed; interactive acceptance pending
+
+P7: complete39file review plus clean7file correction refresh, rehashed malformed
+preview red/fix,11focused ordinary/native completion witnesses (1existing child
+entry ignore), full baseline1860workspace/18existing ignores,460native/models/16,
+616combined; corrected512CLI/defaultDesktop,11nativecompletion/1,616combined,
+strictworkspaceClippy/shipping/helper/52fixtures/links/diff passed. Unchanged Store/
+AI/retrieval/intake/full-size Workflow evidence reused from full baseline. Actual
+shipping WorkspaceL fresh-process Source approval/Action-open, stale refusal, exact
+completion/replay/unchanged bytes/no inference passed; native interaction pending.
 
 PR90 local/required/postmerge gates passed. Fresh-process Action-first approval and
 exact replay preserved Source/assets with no duplicate effects or inference.
@@ -249,11 +276,11 @@ context guards 3; native AI/workflow Clippy, shipping CLI/desktop, 52 fixtures a
 
 PR94 final Store 450, AI 146/one ignore and native workflow/models 420/15 ignores, combined Clippy/shipping/52 fixtures/603 links passed; required candidate and post-merge CI passed and merged. PR95 final combined AI 147/one ignore and AI Clippy/shipping passed; required candidate CI passed and merged; post-merge passed. Both complete implementations received independent read-only reviews with no actionable findings. Their new interactive states remain pending and must be included once the combined final build lands.
 
-Fourteen live CLI investigations attempted: seven Luna, seven Sol, including one generic failed Sol run and a separately counted manual retry. Linden completed Applied-private-intake Finding and four exact consequences; Action-first approval/restart/replay passed without inference and full evidence identities stayed unchanged. Cedar Sol used range calls and retained tail evidence/review consequences; Luna found facts through search but submitted no drafts. North Quay Luna retained one Action/one
+Sixteen live CLI investigations attempted: eight Luna, eight Sol, including one generic failed Sol run and a separately counted manual retry. Linden completed Applied-private-intake Finding and four exact consequences; Action-first approval/restart/replay passed without inference and full evidence identities stayed unchanged. Cedar Sol used range calls and retained tail evidence/review consequences; Luna found facts through search but submitted no drafts. North Quay Luna retained one Action/one
 Knowledge without a formal Finding; Sol retained two Actions/one Knowledge and a
 reasoned Finding. Neither chose History: live History selection is unqualified;
 deterministic supersession/History/recovery mechanics were exercised separately.
-Owner added ten shared trials; fourteen of sixteen used, leaving at most one per existing Medium condition. The North Quay owner-comment Rewrite is retained Draft/version4 with the owner note unchanged. The PPTX pair retained five drafts and did not invent chart capacity; missing-year clarity remains a Luna limitation. Use the canonical ledger for later totals.
+Owner added ten shared trials; all sixteen are used, including the final paired raw-evidence case. No allowance remains. The North Quay owner-comment Rewrite is retained Draft/version4 with the owner note unchanged. The PPTX pair retained five drafts and did not invent chart capacity; missing-year clarity remains a Luna limitation. The final raw pair both retained all material tail facts and unclassified authority,3responses/2rawreadrounds each; exact saved replay used no inference/effects. Use the canonical ledger for exact inputs/runtime/latency/errors and unknown telemetry.
 **No interactive native result or personal acceptance has been established.**
 
 ## Ready-to-paste morning agent prompt
@@ -275,11 +302,13 @@ Owner added ten shared trials; fourteen of sixteen used, leaving at most one per
 > Needs Review Citation evidence discovery, exact detail/quotes, sparse pagination,
 > coverage diagnostics, Refresh and preserved owner buffers once qualified. Include
 > raw metadata-invalid saved evidence and exact hashbound ranges using retained
-> WorkspaceJ results once its final receipt exists.
+> WorkspaceJ results, captured ordering in K, and actual sent-evidence completion
+> in L using retained actual Text Source and exact separate confirmation.
 > Preserve failures, drafts and exact evidence; do not reset data or touch my real
 > vault. Report concrete defects and pending owner acceptance; mark unobserved
-> or unavailable checks pending. A new live cancellation trial requires an explicit
-> selected run and budget rather than being silently included.
+> or unavailable checks pending. A new live cancellation trial requires separate
+> owner authorization for a new allowance and selected run/budget; none is included
+> by this prompt or required to inspect or approve retained results.
 
 Session headless qualification: 1724 default tests (including reused unchanged
 Store461),17 existing ignores;423 native workflow/models with15 existing ignores;
