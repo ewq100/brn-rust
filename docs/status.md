@@ -14,7 +14,11 @@ It exposes exact historical approved Action UUID/title/order without current loo
 Full1182affecteddefault/17existingignores,438combined and all8root gates/shipping/
 52fixtures passed. RetainedN CLI parity and restart passed without inference. The
 [single morning task](work/active/overnight-continuation/morning-ui-acceptance.md)
-records matching latest runtime and26ordered steps; all actual UI acceptance pending.
+records matching latest runtime and27ordered steps, including optional scale observation;
+all actual UI acceptance pending. The selected [5,000-note CLI qualification](work/active/overnight-continuation/user-scale-cli-qualification.md) passed83fresh processes
+in80.957seconds with exact inventories/search/restart/index rebuild and unchanged
+retained work. Its scripts/records await final hosted qualification/integration;
+product source/runtime is unchanged.
 [PR90](https://github.com/ewq100/brn-rust/pull/90) added exact evidence ranges and
 intake guidance; [PR91](https://github.com/ewq100/brn-rust/pull/91) added recorded
 work budgets/cancellation; [PR92](https://github.com/ewq100/brn-rust/pull/92) added

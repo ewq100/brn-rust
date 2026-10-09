@@ -63,3 +63,52 @@ ActivityCI/merge andreview. Atmost2helpers/no recursion/oneCargo. Campaign16/16B
 investigationsused, no newmodelallowance. Finalqualification04:30UTC,cutoff05UTC;
 stop/reassess for timeout/newauthority/current-private-data dependency. Preserve all
 existing fixtures/branches/userwork and exactapproval/provenance/recovery guarantees.
+
+
+## Qualified result — 9 October 04:11 UTC
+
+The reviewed corrected script at `8c4524c2f3846c40bc1f0c8b6723cb972d0809f0`
+(SHA-256 `ab6213c009a6ef8db45094cec1e2aef83d9afc5adcd8681cb0d058fcb302b3ec`)
+passed the complete campaign in **80.957 seconds**. All **83 fresh CLI processes**
+completed successfully within both deadlines. Dataset: 5,000 Current managed notes,
+50 folders, 4,745,663 bytes, including Unicode, BOM and CRLF. No provider calls,
+model assets, downloads, account activity or GUI observation occurred.
+
+Both complete 25-page inventories matched all paths, UUIDs and full note hashes.
+First/middle/last unique-token searches returned exact paths and UTF-8 quote ranges;
+full reads matched manifest hashes before restart, after restart and after ordinary
+rebuild of the retained disposable index. The unapproved proposal, Text Inbox
+original/physical proof, all 5,000 note byte/identity proofs and empty Actions,
+conversations, credentials and model folders stayed exact. No reset/recreation,
+re-import, conversion or inference was needed. Every input/output/error/timing and
+index-retention receipt remains in `/private/tmp/brn-overnight-20261008/user-scale-case`; do not rerun this guarded case.
+
+| Observed CLI operation | Seconds |
+| --- | --- |
+| Cold startup/status | 1.452 |
+| Fresh-process restart/status | 0.613 |
+| Index rebuild/startup | 1.424 |
+| Inventory page, median / maximum of 50 | 1.098 / 1.113 |
+| Anchor search, median / maximum of 9 | 1.049 / 1.076 |
+| Full anchor read, median / maximum of 9 | 0.591 / 0.634 |
+
+These are wall times on this Mac and short synthetic Current notes, including
+fresh process startup/scans. They establish this bounded correctness/retention
+witness, not a numerical SLA, an optimization gain, in-process latency, native UI
+performance, semantic retrieval, larger History or complex approval recovery.
+
+Complete seven-file independent review found one P2: cancellation between child
+creation and cleanup registration could leave a child unjoined. The lead reproduced
+it with a deterministic signal-boundary witness before executing any BRN campaign.
+It was fixed by deferring handled signals during creation/registration, registering
+the child, then immediately killing/reaping before reporting interruption. Child
+signals are not masked. A local finally cleanup also owns returned children.
+One regression test passed seven subcases: all three handled signals at two
+boundaries plus one real short Python child. The original red witness passed after
+correction. Fresh independent correction review is clean at8c4524c; complete delta
+`e6132973869da0028963dd16bfb5da94adb7d65d8716315d4a57f688c76be2c5`.
+Initial review patch: `41059022cc6ebab0e2b28ab8dd2a63aae46b9ae2bfa92b2b3c110d6ce574d182`.
+No product code, dependencies or runtime changed; existing product qualification
+and exact shipping runtime were reused. All-candidate Python tooling/links checks,
+final documentation review and required hosted CI/protected integration remain gates.
+Optional native scale observation is solely morning Workspace P / step27.

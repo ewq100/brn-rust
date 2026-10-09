@@ -77,7 +77,7 @@ requires exact final-candidate review, applicable local checks and actual requir
 CI. No weakening, bypass or rushed merge. Record failures and repair real defects.
 Known informational platform failures remain visible and separate.
 
-## Durable checkpoint — 09 October 04:07 UTC
+## Durable checkpoint — 09 October 04:11 UTC
 
 Continue through05UTC/08Tallinn; finalqualification04:30. AUTHORITATIVE lead andONE
 morningtask /Users/evokessler/repos/brn-p3-work-budgets codex/user-scale-cli-qualification.
@@ -91,11 +91,16 @@ owned2patch89a74054...; productionCampaign.interrupt deferssignalsduringfullPope
 registration thenkill/reap/raise, no childmaskblocking; finallyalsoownsreturnedlocal.
 RootredwitnessGREENandregression1test/7subcases(all3signalsbothboundaries+actual
 shortPythonchild)PASS. No product/runtime/BRNmodelcalls.
-RootNOWRUNNING reviewedscript campaign session15301 started04:06:42UTC, log
-/private/tmp/brn-overnight-20261008/user-scale-campaign.log, newowneduser-scale-case.
-60secperprocess/600secaggregate stop-preserve (deadline~04:16:42). DO NOT rerun/reset/
-relocatecase or startsecondcampaign. Inspectexistingresult.json/commands/receipts;
-rootowns supervision, actualresults pending. CargoFREE. No newinference.
+Reviewed scale campaign COMPLETE/PASS: session15301 exited0,83freshCLI processes,
+80.9568seconds,5,000Currentnotes/50folders/4,745,663bytes. Both25-page inventories/
+UUID/fullSHA,3anchors exactrangequote/fullreads before-restart-afterrebuild, retained
+Draft/TextInboxoriginal/5kphysicalproofs/emptyActionsConversationscredentialsmodels
+passed unchanged. No inference/account/models/GUI. Case/result.json and all83command
+receipts retained; DO NOT rerun/reset/reprepare/relocate. Timing1.452cold/0.613restart/
+1.424rebuild, page1.098median1.113max, noSLA/nativeUIclaim. CargoFREE.
+NEXT finalrecord+allPython/links gates, final independent docs/result refresh, push/
+createattachqualificationPR/actualrequiredCI, eligibleparent110postproof and normal
+protected merge/exactmain/postCI. No further product code changes in this slice.
 
 Frozen locallyqualified b873f273832f881f03b483c079c94fd06a1a6d51 afterhelper9a3e8ab:
 [Activityinventory](activity-action-inventory.md) fixed Applied-only orderedbodyfree
@@ -115,8 +120,8 @@ e7ddbdc2ce0107bf8341db982049988ed8c81b609dc18c8bd632270019b9bff0,Desktop
 6d62c507de452b6d9403b4e91e03862389d06b602d47c2e2358368a4b05d6cca,helper7f058c35.
 ActualshippingCLIreusedN withoutreprepare:4approvals/5Actionmembers/Create-Replace-
 Undo/order/historicaltitle/bodyfree/fullpage=2rowpaging/reopen/unchangedActions-
-proposals-conversations/vaultbytes/noInferencePASS. ONE morningtasknowA–O26ordered
-steps,210–290minfull/75–105essential, latestmatchingruntime. AllactualGUI/IME/
+proposals-conversations/vaultbytes/noInferencePASS. ONE morningtasknowA–P27ordered
+steps,220–305minfullincludingoptionalP/75–105essential, latestmatchingruntime. AllactualGUI/IME/
 accessibility/personalacceptancepending. Neverreset/reprepare/relocateboundstate or
 usehistoricalbinaryonnewerschema. Sources/originals/ownerbuffers/recovery preserved.
 
@@ -150,7 +155,7 @@ shippingreaders, no productchange/newSLA. Helpernext_v1_readiness implementsONLY
 no Cargo/BRNfixtureexecution/provider/GUI/spawn. New
 owneduser-scale-case,60sperprocess600stotal stop-preserve,2x25pages5000UUID/hash,
 3uniquetokens/fullreads/restarts/disposableownedindexrebuild,typedDraft/Inboxoriginal
-preservation,emptycredentials/models. Rootexecution15301startedaftercleanfreshcorrectionreview; superviseexistingcaseonly.
+preservation,emptycredentials/models. Rootexecution15301passedaftercleanfreshcorrectionreview; inspectretainedresultonly.
 Revieweraction_edit_review finishedcomplete+mechanical+5docsActivityreviewsCLEAN,
 available freshscaleprobe review. Donotrepeataudit/parkedchoices. Atmost2activehelpers/no recursion/oneCargo;
 selectedmodel/effort unchanged/noAstra. Campaign16/16USED Luna8Sol8; owner10extra
