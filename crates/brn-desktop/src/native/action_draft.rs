@@ -49,13 +49,15 @@ impl Desktop {
         let form = self.ai.as_ref().unwrap().draft.as_ref().unwrap();
         let action = form.action.as_ref().unwrap();
         let id = form.id;
-        let proofs = serde_json::to_string_pretty(
-            &action
-                .sources
-                .iter()
-                .map(|source| &source.source)
-                .collect::<Vec<_>>(),
-        )
+        let sources = action
+            .sources
+            .iter()
+            .map(|source| &source.source)
+            .collect::<Vec<_>>();
+        let proofs = serde_json::to_string_pretty(&serde_json::json!({
+            "before": action.before,
+            "sources": sources,
+        }))
         .expect("captured source bindings JSON");
         if self.draft_link_proofs.read(cx).value().as_ref() != proofs {
             self.draft_link_proofs
@@ -135,8 +137,8 @@ impl Desktop {
         let mut body = div().id("initial-action-form").test_support()
             .track_scroll(&self.draft_scroll).overflow_y_scroll().vertical_scrollbar(&self.draft_scroll)
             .flex().flex_col().flex_1().min_h(px(0.)).gap_2().p_3()
-            .child("New Action proposal")
-            .child("Create retains review work. The Action exists only after exact proposal approval. Completed work stays completed; a follow-up is a new related Action.")
+            .child(if action.before.is_some() { "Edit existing Action proposal" } else { "New Action proposal" })
+            .child(if action.before.is_some() { "Create retains an exact replacement review. The existing Action changes only after approval. The captured baseline is retained; competing changes require a fresh explicit proposal." } else { "Create retains review work. The Action exists only after exact proposal approval. Completed work stays completed; a follow-up is a new related Action." })
             .child(format!("Proposal {} · Action {} · input generation {}", form.id, action.id, form.generation));
         if self.initial_action.form != Some(form.id) || self.draft_widget_id != Some(form.id) {
             return body
@@ -214,7 +216,8 @@ impl Desktop {
                     this.capture_initial_action_widgets(cx);
                     if let Some(command) = this.ai.as_mut().unwrap().draft_source() { this.simple_send(command, cx); }
                 })))
-            .child(div().h(px(200.)).flex_shrink_0().child(Editor::new(&self.draft_link_proofs).h_full().readonly(true).aria_label("Complete captured Action source bindings")));
+            .child("Complete captured Action baseline and explicit source bindings")
+            .child(div().h(px(200.)).flex_shrink_0().child(Editor::new(&self.draft_link_proofs).h_full().readonly(true).aria_label("Complete captured Action baseline and source bindings")));
         if form.source_operation.is_some() {
             body =
                 body.child("Capturing source… Create and leaving wait for the current response.");

@@ -158,3 +158,62 @@ fn action_submission_freezes_ids_and_full_payload_preserving_later_raw_fields() 
     assert!(retry.prepare().is_none());
     assert_eq!(retry.submitted.as_ref().unwrap().request, first.request);
 }
+
+#[test]
+fn replacement_form_preserves_complete_baseline_separation_and_later_input() {
+    let (_, original) = action_review();
+    let ActionChange::Replace { before, .. } = &original.draft.action_changes[1] else {
+        panic!("baseline")
+    };
+    let before = before.as_ref().clone();
+    let mut form = DraftForm::replace_action(before.clone()).unwrap();
+    let input = form.action.as_ref().unwrap();
+    assert_eq!(input.before.as_deref(), Some(&before));
+    assert_eq!(input.id, before.origin.id);
+    assert_eq!(input.fields.data().unwrap(), before.data);
+    assert!(input.sources.is_empty());
+    assert!(!form.can_leave());
+    let mut fields = input.fields.clone();
+    fields.state = ActionState::Blocked;
+    fields.values[1] = "\u{feff}Owner edited õ 日本語\r\nexact λ\r".into();
+    fields.values[2] = "Explicit owner".into();
+    fields.values[7] = "2028-03-01".into();
+    fields.values[8] = "2028-03-02".into();
+    form.edit_action_fields(fields.clone());
+    let submitted = form.prepare().unwrap();
+    assert_eq!(
+        submitted.request.action_changes,
+        vec![ActionChange::Replace {
+            before: Box::new(before.clone()),
+            data: fields.data().unwrap()
+        }]
+    );
+    fields.values[1].push_str(" later typing");
+    form.edit_action_fields(fields.clone());
+    form.failed(submitted.operation, "Retained failure".into());
+    assert!(form.prepare().is_none());
+    let separate = form.separate().unwrap();
+    assert_ne!(separate.id, form.id);
+    assert_eq!(separate.action.as_ref().unwrap().id, before.origin.id);
+    assert_eq!(
+        separate.action.as_ref().unwrap().before.as_deref(),
+        Some(&before)
+    );
+    assert_eq!(separate.action.as_ref().unwrap().fields, fields);
+    assert!(separate.submitted.is_none());
+    assert_eq!(form.submitted.as_ref().unwrap().request, submitted.request);
+    let mut wrong = original.clone();
+    wrong.draft.id = separate.id;
+    assert!(!form.created(submitted.operation, wrong));
+    let mut completed = before;
+    completed.data.state = ActionState::Completed;
+    completed.waiting_since_ms = None;
+    completed.completed_at_ms = Some(completed.updated_at_ms);
+    completed.validate().unwrap();
+    assert!(DraftForm::replace_action(completed).is_none());
+    let mut completion = separate;
+    let mut fields = completion.action.as_ref().unwrap().fields.clone();
+    fields.state = ActionState::Completed;
+    completion.edit_action_fields(fields);
+    assert!(completion.request().is_err());
+}

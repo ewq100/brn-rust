@@ -51,6 +51,236 @@ fn approve(worker: &AppWorker, record: &ProposalRecord) {
 }
 
 #[test]
+fn owner_replacement_review_approval_restart_and_existing_undo_preserve_action_history() {
+    use brn_workflow::{
+        proposal_apply::{ApplyOutcome, UndoRequest},
+        proposals::ActionChange,
+    };
+    let fixture = Fixture::new();
+    let mut worker = vaultless(&fixture);
+    let mut state = ready();
+    state.vault_bound = false;
+    assert!(state.begin_action_draft(None));
+    fields(&mut state, "Original waiting work");
+    let mut input = state
+        .draft
+        .as_ref()
+        .unwrap()
+        .action
+        .as_ref()
+        .unwrap()
+        .fields
+        .clone();
+    input.state = ActionState::Waiting;
+    state.draft.as_mut().unwrap().edit_action_fields(input);
+    let created = create_form(&worker, &mut state);
+    let action_id = created.draft.action_changes[0].id();
+    approve(&worker, &created);
+    let before = action(&worker, action_id);
+    assert!(state.begin_action_replace_draft(before.clone()));
+    fields(&mut state, "Updated exact owner work");
+    let mut input = state
+        .draft
+        .as_ref()
+        .unwrap()
+        .action
+        .as_ref()
+        .unwrap()
+        .fields
+        .clone();
+    input.state = ActionState::Blocked;
+    input.values[2] = "Owner õ".into();
+    input.values[7] = "2028-03-01".into();
+    input.values[8] = "2028-03-02".into();
+    state
+        .draft
+        .as_mut()
+        .unwrap()
+        .edit_action_fields(input.clone());
+    let rejected = create_form(&worker, &mut state);
+    assert!(
+        matches!(&rejected.draft.action_changes[0], ActionChange::Replace { before: bound, data } if bound.as_ref() == &before && data == &input.data().unwrap())
+    );
+    assert_eq!(action(&worker, action_id), before);
+    assert!(matches!(
+        reply(
+            &worker,
+            (Uuid::new_v4(), AppCommand::RejectProposal(rejected.stamp()))
+        )
+        .1,
+        AppEvent::Proposal(_)
+    ));
+    assert_eq!(action(&worker, action_id), before);
+    assert!(state.separate_draft());
+    let reviewed = create_form(&worker, &mut state);
+    let approval = ApprovalRequest {
+        operation_id: Uuid::new_v4(),
+        expected: reviewed.stamp(),
+    };
+    assert!(
+        matches!(reply(&worker, (Uuid::new_v4(), AppCommand::ApproveProposal(approval.clone()))).1, AppEvent::ProposalApplied(receipt) if receipt.outcome == ApplyOutcome::Applied)
+    );
+    let after = action(&worker, action_id);
+    assert_eq!(after.origin, before.origin);
+    assert_eq!(after.version, before.version + 1);
+    assert_eq!(after.data, input.data().unwrap());
+    assert!(after.waiting_since_ms.is_none());
+    worker.shutdown().unwrap();
+    worker = vaultless(&fixture);
+    assert_eq!(action(&worker, action_id), after);
+    assert!(matches!(
+        reply(
+            &worker,
+            (
+                Uuid::new_v4(),
+                AppCommand::ApproveProposal(approval.clone())
+            )
+        )
+        .1,
+        AppEvent::ProposalApplied(_)
+    ));
+    assert_eq!(action(&worker, action_id), after);
+    let undo = UndoRequest {
+        operation_id: Uuid::new_v4(),
+        target_operation_id: approval.operation_id,
+        trash_member: None,
+    };
+    assert!(
+        matches!(reply(&worker, (Uuid::new_v4(), AppCommand::UndoProposal(undo))).1, AppEvent::ProposalApplied(receipt) if receipt.outcome == ApplyOutcome::Applied)
+    );
+    let restored = action(&worker, action_id);
+    assert_eq!(restored.origin, before.origin);
+    assert_eq!(restored.data, before.data);
+    assert_eq!(restored.version, after.version + 1);
+    // A retained original baseline never silently rebases after approval/Undo.
+    assert!(state.begin_action_replace_draft(before.clone()));
+    fields(&mut state, "Stale owner input retained");
+    let command = state.create_draft().unwrap();
+    let (id, event) = reply(&worker, command);
+    assert!(matches!(&event, AppEvent::Failed(error) if error.kind == ErrorKind::ContextStale));
+    state.apply(id, event);
+    assert_eq!(
+        state
+            .draft
+            .as_ref()
+            .unwrap()
+            .action
+            .as_ref()
+            .unwrap()
+            .before
+            .as_deref(),
+        Some(&before)
+    );
+    assert_eq!(
+        state
+            .draft
+            .as_ref()
+            .unwrap()
+            .action
+            .as_ref()
+            .unwrap()
+            .fields
+            .values[0],
+        "Stale owner input retained"
+    );
+    assert_eq!(action(&worker, action_id), restored);
+    worker.shutdown().unwrap();
+}
+
+#[test]
+fn replacement_retains_historical_references_and_new_role_needs_explicit_source_capture() {
+    let fixture = Fixture::new();
+    let note_id = Uuid::new_v4();
+    let text = format!("---\nbrn_id: {note_id}\n---\n# Exact referenced note\r\n");
+    fs::write(fixture.vault().join("person.md"), &text).unwrap();
+    let mut worker = fixture.worker();
+    let capture = source(&worker, "person.md");
+    let mut state = ready();
+    assert!(state.begin_action_draft(None));
+    fields(&mut state, "Referenced original");
+    let form = state.draft.as_mut().unwrap();
+    let mut input = form.action.as_ref().unwrap().fields.clone();
+    input.values[3] = note_id.to_string();
+    form.edit_action_fields(input);
+    form.edit_action_source_path("person.md".into());
+    assert!(form.retain_action_source(capture.clone()));
+    let created = create_form(&worker, &mut state);
+    approve(&worker, &created);
+    let before = action(&worker, created.draft.action_changes[0].id());
+    assert!(state.begin_action_replace_draft(before.clone()));
+    fields(&mut state, "Historical reference retained");
+    assert!(
+        state
+            .draft
+            .as_ref()
+            .unwrap()
+            .action
+            .as_ref()
+            .unwrap()
+            .sources
+            .is_empty()
+    );
+    let reviewed = create_form(&worker, &mut state);
+    approve(&worker, &reviewed);
+    let before = action(&worker, before.origin.id);
+    assert_eq!(before.data.related_person, Some(note_id));
+    assert!(state.begin_action_replace_draft(before.clone()));
+    let form = state.draft.as_mut().unwrap();
+    let mut input = form.action.as_ref().unwrap().fields.clone();
+    input.values[4] = note_id.to_string();
+    form.edit_action_fields(input);
+    let command = state.create_draft().unwrap();
+    let (id, event) = reply(&worker, command);
+    assert!(matches!(&event, AppEvent::Failed(_)));
+    state.apply(id, event);
+    assert_eq!(action(&worker, before.origin.id), before);
+    assert!(state.separate_draft());
+    let form = state.draft.as_mut().unwrap();
+    form.edit_action_source_path("person.md".into());
+    assert!(form.retain_action_source(capture));
+    let reviewed = create_form(&worker, &mut state);
+    approve(&worker, &reviewed);
+    assert_eq!(
+        action(&worker, before.origin.id).data.related_project,
+        Some(note_id)
+    );
+    assert_eq!(
+        fs::read(fixture.vault().join("person.md")).unwrap(),
+        text.as_bytes()
+    );
+    worker.shutdown().unwrap();
+}
+
+#[test]
+fn owner_replacement_stale_approval_cannot_reopen_completed_work_or_erase_input() {
+    let fixture = Fixture::new();
+    let mut worker = vaultless(&fixture);
+    let mut state = ready();
+    state.vault_bound = false;
+    assert!(state.begin_action_draft(None));
+    fields(&mut state, "Original real work");
+    let created = create_form(&worker, &mut state);
+    approve(&worker, &created);
+    let before = action(&worker, created.draft.action_changes[0].id());
+    assert!(state.begin_action_replace_draft(before.clone()));
+    fields(&mut state, "Owner replacement input");
+    // Direct construction also respects an unresolved retained form.
+    assert!(!state.begin_action_replace_draft(before.clone()));
+    assert_eq!(state.draft.as_ref().unwrap().action.as_ref().unwrap().fields.values[0], "Owner replacement input");
+    let reviewed = create_form(&worker, &mut state);
+    let completion = CompleteActionRequest { operation_id: Uuid::new_v4(), before: Box::new(before.clone()), sent_source: None };
+    assert!(matches!(reply(&worker, (completion.operation_id, AppCommand::CompleteAction(completion))).1, AppEvent::ActionCompleted(_)));
+    let completed = action(&worker, before.origin.id);
+    let approval = ApprovalRequest { operation_id: Uuid::new_v4(), expected: reviewed.stamp() };
+    assert!(matches!(reply(&worker, (Uuid::new_v4(), AppCommand::ApproveProposal(approval))).1, AppEvent::Failed(_)));
+    assert_eq!(action(&worker, before.origin.id), completed);
+    assert!(!state.begin_action_replace_draft(completed));
+    assert_eq!(state.draft.as_ref().unwrap().action.as_ref().unwrap().before.as_deref(), Some(&before));
+    assert_eq!(state.draft.as_ref().unwrap().action.as_ref().unwrap().fields.values[0], "Owner replacement input");
+    worker.shutdown().unwrap();
+}
+
+#[test]
 fn vaultless_form_requires_exact_approval_and_completed_followup_is_new_restartable_work() {
     let fixture = Fixture::new();
     let mut worker = vaultless(&fixture);

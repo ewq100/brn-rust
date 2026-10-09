@@ -860,6 +860,26 @@ impl AiState {
         self.link_preparation = Default::default();
         true
     }
+    pub fn begin_action_replace_draft(
+        &mut self,
+        before: brn_workflow::actions::ActionRecord,
+    ) -> bool {
+        if !self.ready
+            || !self.review_can_leave()
+            || self.active.is_some()
+            || self.rewrite.is_some()
+            || self.application_busy()
+            || self.draft.as_ref().is_some_and(|draft| !draft.can_leave())
+        {
+            return false;
+        }
+        let Some(draft) = crate::draft::DraftForm::replace_action(before) else {
+            return false;
+        };
+        self.draft = Some(draft);
+        self.link_preparation = Default::default();
+        true
+    }
     pub fn separate_draft(&mut self) -> bool {
         let Some(draft) = self.draft.as_ref().and_then(|draft| draft.separate()) else {
             return false;

@@ -175,7 +175,9 @@ impl DraftForm {
         next.session_id = self.session_id;
         next.source = self.source.clone();
         next.action = self.action.clone().map(|mut action| {
-            action.id = Uuid::new_v4();
+            if action.before.is_none() {
+                action.id = Uuid::new_v4();
+            }
             action
         });
         next.prepared = self.prepared.clone().map(|mut request| {
