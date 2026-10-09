@@ -77,10 +77,17 @@ requires exact final-candidate review, applicable local checks and actual requir
 CI. No weakening, bypass or rushed merge. Record failures and repair real defects.
 Known informational platform failures remain visible and separate.
 
-## Durable checkpoint — 09 October 03:16 UTC
+## Durable checkpoint — 09 October 03:33 UTC
 
 Continue through05UTC/08Tallinn, finalqualification04:30. AUTHORITATIVE lead/ONE
-morningtask /Users/evokessler/repos/brn-p3-work-budgets codex/linked-action-inspection.
+morningtask /Users/evokessler/repos/brn-p3-work-budgets codex/activity-action-inventory.
+ParentLinked final6fb5f4ae440e2b2bcb5623538e95a604833bb6bc pushedPR109 draft;
+finalfourdocs independentCLEAN bbf659f508301dd825c32e60e2955f7a0482054732c7ea475c7959f011d1dffb.
+ActualcandidateCI37879111324 running. Activityfixedplan d925989 selected;
+[affectedActioninventory](activity-action-inventory.md) ownscontract/reuse/acceptance.
+Helpernext_v1_readiness implements boundedWorkflow/CLI/nativeinventory; NOWsoleCargo
+grant target/budgets; ROOTNO Cargo untilrelease. ExistingAppliedreceiptfence and
+checkedhistoricalapprovedUUID/title order retained, no currentlookup/bodies/schema/query.
 FrozenLinked27de86ddec07ca3ceef320ea2e047eb2b2419ceb (afterrootdocs3725) complete10file
 independent reviewCLEAN ee3a389177a5f8f8d74bf4f82afb2185fa75f03977e4fe34303bfe985f18a0cb.
 SixDesktopfiles fixedreadonlyexplicitdependency/parent/followsup, generalwholeSource/
@@ -90,9 +97,8 @@ sourceobservation, no sourceupdate/unblocking/selectionchange/ownerbufferloss.
 All7focused4state3native/fullDesktop313default437combined/strictDesktopbothPASS.
 Rootverifiedexactfilehashes unchangedthroughallhelpergates/freeze27de; reusedfull
 suites plusunchangedCLI218/backend/fullsize, all8remainingrootfmt/workspacestrictboth/
-shippinghelper52fixtures/linksPASS. NoCargoactive. [Linkedrecord](linked-action-inspection.md)
-ownsscope/reuse/reviews/failedinitialfixturelogs/replay. Finalqualificationdocscommit/
-push/PR109(nextnumbernotassumed) next, thenactualrequiredCI/eligibleActionmain/
+shippinghelper52fixtures/linksPASS. LinkedCargo released; Activityhelpernowownsgrant. [Linkedrecord](linked-action-inspection.md)
+ownsscope/reuse/reviews/failedinitialfixturelogs/replay. Finalqualificationdocscommitted/pushed6fb5, PR109attached, thenactualrequiredCI/eligibleActionmain/
 normalprotectedmerge/exactresultmain/postCI. No unqualifiedmerge or protection bypass.
 
 Matching immutable linked-action-runtime source27de (latestallchanges), CLI
@@ -118,7 +124,7 @@ combined and1168/17baseline461native/16/backendfullsizeevidence retained/reused.
 
 GraphPR107 NORMALMERGED6826c20661625b99b7fe70932c3e17734f0cd8d8 at03:14:16 after
 ALL4candidate/docsPASS37875878291 andP8postproof. Exacttree757ea9ae3b4737b91ff9c5eede7be087c114d542
-matchesqualifiedccbeef. POSTMAIN37878346319 running/pending, verifyall4required+docs
+matchesqualifiedccbeef. POSTMAIN37878346319 three required+docsPASS03:31, CoreMacrunning; verifyall4required+docs
 beforeActionmerge toavoidmainworkflowcancel-in-progress. FullGraph8review+4docs
 refreshclean;9focused/641combined/strictworkspaceboth/shipping52fixturesPASS,
 matchingpriorGraphruntimee763/sixWorkspaceMparityretained. Rootprospectivemerge-tree
@@ -138,9 +144,10 @@ ExclusiveInstall failures. FinalWindowsP8a27/Graphccbeef/Action62fe actualsame4k
 UnixAPIerrors inspected; no newdiagnostics/port/suppression, globalworkflowred≠required
 failure. Logpathspr106-post-linux-*,pr108-final-windows-failure retained.
 
-Helpernext_v1_readiness nowboundedREADONLYnextacceptedreadyoutcome afterLinked,
-no Cargo/code/provider/GUI/spawn/repeatedparkedarchitectureinvestigations. Atmost2
-activeincludingupcomingfinaldocsreview; inheritedselectedmodel/effortunchanged/noAstra.
+Helpernext_v1_readiness nowboundedfixedinterfaceActivityimplementation withsoleCargo;
+rootowns sharedfiles/integration. action_edit_review finishedLinkedfinaldocsCLEAN and
+available forfreshActivitycompletecandidateindependentreview. Atmost2active, no
+recursion; inheritedselectedmodel/effortunchanged/noAstra.
 Canonicalcampaign16/16USED Luna8Sol8 NO live/retry/newconditions/substitution/reset;
 owner10extraalreadycounted. Accountweekly76%used24%remainingaccountwide02:56 ordinary
 true, notnightspend;shortwindow/tokens/internal/spendunknown. Sanitizedreceipt only.

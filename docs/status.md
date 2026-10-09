@@ -2,7 +2,12 @@
 
 ## Overnight implementation and model qualification — 2026-10-08
 
-Current main is `d5f324ec558e9ecce898ac2373c36eec8242649c`.
+Current main is `6826c20661625b99b7fe70932c3e17734f0cd8d8` (Graph PR107);
+its required post-main Mac core job remains pending. Qualified Action-edit PR108
+awaits that proof, and independently reviewed/local-qualified Linked-Action PR109
+is running candidate CI. The next selected small slice is
+[affected Actions in Activity](work/active/overnight-continuation/activity-action-inventory.md);
+implementation is in progress and not yet qualified or merged.
 [PR90](https://github.com/ewq100/brn-rust/pull/90) added exact evidence ranges and
 intake guidance; [PR91](https://github.com/ewq100/brn-rust/pull/91) added recorded
 work budgets/cancellation; [PR92](https://github.com/ewq100/brn-rust/pull/92) added
