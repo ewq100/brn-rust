@@ -85,6 +85,7 @@ pub enum AppCommand {
     NoteLinks(String),
     PrepareNoteLink(crate::knowledge::LinkRequest),
     Relationships(crate::knowledge::RelationshipRequest),
+    ProfileContext(crate::knowledge::ProfileContextRequest),
     CaptureFinding(crate::findings::CaptureFindingRequest),
     Actions(crate::actions::ActionListRequest),
     ActionDashboard(crate::dashboard::DashboardRequest),
@@ -226,6 +227,7 @@ pub enum AppEvent {
     NoteLinks(Box<crate::knowledge::NoteLinks>),
     NoteLinkDraft(Box<crate::proposals::DraftRequest>),
     Relationships(Box<crate::knowledge::RelationshipPage>),
+    ProfileContext(Box<crate::knowledge::ProfileContext>),
     Finding(Box<crate::findings::FindingRecord>),
     Action(Box<crate::actions::ActionRecord>),
     Actions(Box<crate::actions::ActionPage>),
@@ -1345,6 +1347,9 @@ fn dispatch(
         AppCommand::NoteLinks(path) => AppEvent::NoteLinks(Box::new(app.note_links(&path)?)),
         AppCommand::PrepareNoteLink(request) => {
             AppEvent::NoteLinkDraft(Box::new(app.prepare_note_link(&request)?))
+        }
+        AppCommand::ProfileContext(request) => {
+            AppEvent::ProfileContext(Box::new(app.profile_context(&request)?))
         }
         AppCommand::Relationships(request) => {
             AppEvent::Relationships(Box::new(app.relationships(&request)?))

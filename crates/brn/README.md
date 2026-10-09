@@ -1187,3 +1187,15 @@ half-open UTF8 bytes including BOM/frontmatter/CRLF, with no clipping.
 knowledge or approval authority. Ordinary Current validation remains unchanged.
 Requests are strict regular JSON<=64KiB; responses refuse malformed proof/oversized
 metadata diagnostics. Reads never repair metadata or alter source bytes.
+
+`brn context inspect --file REQUEST.json` reads an explicit saved Person or Project
+context through AppWorker. Obtain the complete saved proof with `brn proposals
+source profile.md`; use its `source` as `profile`, the managed `note_id`, explicit
+`lens` (`person` or `project`), `action_offset`, `relationship_offset`, and a `limit`
+from 1 to 200. The strict bounded regular JSON request is captured and validated
+before workspace startup. Offsets independently page matching Actions and direct
+All-scope saved relationships; Completed Actions remain visible. `--json` returns
+the complete correlated workflow DTO, including exact saved profile/Action/proof
+bytes, explicit Source/thread resolutions and coverage diagnostics. Human output
+quotes terminal controls. A stale, ambiguous or incompletely inspected profile
+refuses; source uncertainty is reported without guessed classification or authority.

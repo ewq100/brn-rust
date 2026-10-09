@@ -1245,3 +1245,32 @@ before/after reading and preserve existing epoch/uncertain-operation fencing.
 Invalid managed metadata returns absent facts plus an issue; valid metadata
 remains an observation, not truth. No metadata repair, inferred Current authority,
 new persisted registration, scanner, schema or effects.
+
+## Explicit saved profile context
+
+`ProfileContext(request)` composes one saved Current managed note with checked
+retained Actions selected by the explicit Person (`related_person`) or Project
+(`related_project`) UUID field. The lens creates no profile type or membership.
+Completed Actions remain visible. All checked Action pages are consumed before
+filtering and independent Action/relationship offsets are applied to matching
+records; counts describe fresh observations, never semantic completeness.
+
+The query reuses one fresh All-scope identity/relationship collection, selecting
+direct incoming/outgoing edges only after endpoint classification. History takes
+precedence over Source when saved flags overlap or a Source is archived; otherwise
+Source and Current retain their existing metadata meaning. Unreadable/changed or
+invalid classifications remain unknown with diagnostics. Saved citations whose
+identity or exact hash/proof no longer matches are reported without certifying an
+inferred relationship. Exact profile bytes, Action records, edge proofs and the
+sorted union of displayed Actions' Source/thread resolutions remain available.
+
+`ProfileContextRequest::validate` and `ProfileContext::validate_for` are pure
+shared client checks. The application additionally checks the exact physical
+saved profile fingerprint and unique identity, Current classification and current
+workspace fences, then rechecks profile proof and fences before returning. These
+fresh filesystem observations are not an atomic snapshot. No note or operational
+record is written; the existing disposable index refresh may rebuild metadata.
+The existing vault exact-byte reader additionally exposes its opened-file physical
+fingerprint privately for this query; it avoids the editor adapter’s lazy persisted
+identity registration. Existing citation-review root identity and current epoch
+fences are reused at both boundaries, without a second reader or authority path.

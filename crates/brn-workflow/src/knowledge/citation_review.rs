@@ -429,7 +429,7 @@ impl App {
         Ok(detail)
     }
 
-    fn citation_review_boundary(&self) -> Result<(Arc<AiTools>, u64, VaultRecord)> {
+    pub(super) fn citation_review_boundary(&self) -> Result<(Arc<AiTools>, u64, VaultRecord)> {
         self.require_current_evidence().map_err(|_| stale())?;
         let tools = self.guarded_tools()?;
         let epoch = tools.check_root().map_err(|_| stale())?;
@@ -562,7 +562,12 @@ impl App {
         Ok(())
     }
 
-    fn citation_review_end(&self, tools: &AiTools, epoch: u64, vault: &VaultRecord) -> Result<()> {
+    pub(super) fn citation_review_end(
+        &self,
+        tools: &AiTools,
+        epoch: u64,
+        vault: &VaultRecord,
+    ) -> Result<()> {
         tools.check_current_epoch(epoch).map_err(|_| stale())?;
         self.require_current_evidence().map_err(|_| stale())?;
         if self.citation_review_vault()? != *vault {

@@ -64,6 +64,11 @@ pub use inbox_copy_state::{InboxCopyConfirmation, InboxCopyRequest};
 mod inbox_state_tests;
 #[path = "link_preparation_state.rs"]
 mod link_preparation_state;
+#[path = "profile_context_state.rs"]
+mod profile_context_state;
+#[cfg(test)]
+#[path = "profile_context_state_tests.rs"]
+pub(crate) mod profile_context_state_tests;
 #[path = "relationship_state.rs"]
 mod relationship_state;
 
@@ -322,6 +327,7 @@ pub enum Pending {
         document_generation: u64,
         inspection_generation: u64,
     },
+    ProfileContext(profile_context_state::ContextCapture),
     Relationships {
         scope: KnowledgeScope,
         offset: usize,
@@ -429,6 +435,7 @@ pub struct AiState {
     pub links: Option<brn_workflow::knowledge::NoteLinks>,
     pub links_error: Option<String>,
     links_generation: u64,
+    pub profile_context: profile_context_state::ProfileContextView,
     pub relationships: Option<brn_workflow::knowledge::RelationshipPage>,
     pub relationships_error: Option<String>,
     relationships_generation: u64,
@@ -1235,6 +1242,7 @@ impl AiState {
     ) -> Vec<(Uuid, AppCommand)> {
         self.clear_links();
         self.clear_relationships();
+        self.clear_profile_context();
         let mut commands = vec![self.command(Pending::Proposals, AppCommand::Proposals(None))];
         if generation == self.review_generation
             && self
@@ -1507,6 +1515,7 @@ impl AiState {
         }
         self.knowledge_scope = scope;
         self.clear_relationships();
+        self.clear_profile_context();
         self.composer_changed();
         self.refresh_notes()
     }
@@ -1568,6 +1577,7 @@ impl AiState {
     pub fn open_evidence(&mut self, path: String, scope: KnowledgeScope) -> (Uuid, AppCommand) {
         self.clear_provenance();
         self.clear_links();
+        self.clear_profile_context();
         self.note_generation = self.note_generation.wrapping_add(1);
         self.editor = None;
         self.note_error = None;
@@ -1650,6 +1660,18 @@ impl AiState {
         })
     }
     pub fn command(&mut self, pending: Pending, command: AppCommand) -> (Uuid, AppCommand) {
+        if matches!(
+            pending,
+            Pending::Bind
+                | Pending::Refresh
+                | Pending::Approval { .. }
+                | Pending::ApplyReconcile { .. }
+                | Pending::Undo { .. }
+                | Pending::Repair { .. }
+                | Pending::EditorReconcile
+        ) {
+            self.clear_profile_context();
+        }
         let id = Uuid::new_v4();
         self.pending.insert(id, pending);
         (id, command)
@@ -1657,6 +1679,7 @@ impl AiState {
     pub fn open_editor(&mut self, path: String) -> (Uuid, AppCommand) {
         self.clear_provenance();
         self.clear_links();
+        self.clear_profile_context();
         self.note_generation = self.note_generation.wrapping_add(1);
         self.editor = None;
         self.evidence = None;
@@ -1671,6 +1694,7 @@ impl AiState {
     }
     pub fn refresh_editor(&mut self) -> Option<(Uuid, AppCommand)> {
         let path = self.editor.as_ref()?.view.record.path.clone();
+        self.clear_profile_context();
         Some(self.command(
             Pending::Editor {
                 generation: self.note_generation,
@@ -1695,6 +1719,7 @@ impl AiState {
         }
         let id = Uuid::new_v4();
         let edit = editor.begin(id, destination.clone())?;
+        self.clear_profile_context();
         self.pending.insert(id, Pending::EditorSave);
         Some((
             id,
@@ -1718,6 +1743,7 @@ impl AiState {
         let id = Uuid::new_v4();
         editor.begin(id, None)?;
         editor.pending.as_mut()?.reload_text = Some(reviewed);
+        self.clear_profile_context();
         self.pending.insert(id, Pending::EditorReload);
         Some((id, AppCommand::ReloadEditor(request)))
     }
@@ -1870,6 +1896,9 @@ impl AiState {
                 self.backup_request_error = Some(error.message);
                 self.pending.remove(&id);
             }
+            return commands;
+        }
+        if self.apply_profile_context_event(id, &event) {
             return commands;
         }
         if let Some(commands) = self.apply_session_event(id, &event) {
@@ -2476,6 +2505,7 @@ impl AiState {
             AppEvent::Restored { backup } => self.restored = Some(backup),
             AppEvent::Status(status) => {
                 if self.vault_root != status.vault_root {
+                    self.clear_profile_context();
                     self.invalidate_citation_review();
                 }
                 self.vault_root = status.vault_root;
@@ -2503,6 +2533,7 @@ impl AiState {
                 commands.push(self.command(Pending::Effort, AppCommand::Effort))
             }
             AppEvent::VaultBound => {
+                self.clear_profile_context();
                 self.invalidate_citation_review();
                 self.vault_bound = true;
                 commands.push(self.command(Pending::Status, AppCommand::Status));
@@ -2510,6 +2541,7 @@ impl AiState {
             }
             AppEvent::Refreshed(report) => {
                 self.clear_relationships();
+                self.clear_profile_context();
                 self.refresh = Some(report);
                 if let Some(command) = self.refresh_notes() {
                     commands.push(command);
@@ -2704,6 +2736,7 @@ impl AiState {
             | AppEvent::ProposalApplied(_)
             | AppEvent::ProposalGroupApplied(_)
             | AppEvent::ProposalApplies(_) => {}
+            AppEvent::ProfileContext(_) => unreachable!(),
             AppEvent::NoteLinks(links) => self.received_links(pending.as_ref(), *links),
             AppEvent::Relationships(page) => self.received_relationships(pending.as_ref(), *page),
             AppEvent::NoteProvenance(provenance) => {
@@ -2750,6 +2783,7 @@ impl AiState {
                         self.clear_provenance();
                         self.clear_links();
                         self.clear_relationships();
+                        self.clear_profile_context();
                     }
                     if let Some(editor) = &mut self.editor {
                         if matches!(pending, Some(Pending::EditorReload)) {
@@ -2782,6 +2816,7 @@ impl AiState {
                         // formerly absent target even with the original intact.
                         self.clear_links();
                         self.clear_relationships();
+                        self.clear_profile_context();
                     }
                     if let Some(editor) = &mut self.editor {
                         if matches!(pending, Some(Pending::EditorReconcile)) {

@@ -95,6 +95,7 @@ fn command_name(command: &cli::Command) -> &'static str {
         cli::Command::Actions(command) => command.name(),
         cli::Command::Inbox(command) => command.name(),
         cli::Command::Relationships(_) => "relationships.list",
+        cli::Command::Context(_) => "context.inspect",
         cli::Command::Activity(_) => "activity.list",
         cli::Command::Ai(command) => command.name(),
         cli::Command::ModelDownload { .. } => "models.download",

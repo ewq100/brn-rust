@@ -1,5 +1,6 @@
 use super::path::{EvidencePath, VaultPath};
 use crate::MAX_NOTE_BYTES;
+use brn_store::files::FileFingerprint;
 use sha2::{Digest, Sha256};
 use std::{
     fs::File,
@@ -51,16 +52,30 @@ impl From<std::io::Error> for ReadError {
 /// Reads a note's exact bytes, refusing symlinked path parts and a file swapped
 /// before opening (see the accepted parent-folder race limit below).
 pub fn read_note(root: &Path, path: &VaultPath) -> Result<NoteText, ReadError> {
-    read_path(root, path.as_str())
+    read_path(root, path.as_str()).map(|(note, _)| note)
 }
 
 /// Reads explicit saved evidence, including archives, with the same exact-byte
 /// and supported-file checks as current-note reading.
 pub fn read_evidence(root: &Path, path: &EvidencePath) -> Result<NoteText, ReadError> {
-    read_path(root, path.as_str())
+    read_path(root, path.as_str()).map(|(note, _)| note)
 }
 
-fn read_path(root: &Path, path: &str) -> Result<NoteText, ReadError> {
+pub(crate) fn read_evidence_source(
+    root: &Path,
+    path: &EvidencePath,
+) -> Result<crate::proposals::ProposalSource, ReadError> {
+    let (note, fingerprint) = read_path(root, path.as_str())?;
+    Ok(crate::proposals::ProposalSource {
+        source: crate::proposals::SourceVersion {
+            path: path.as_str().into(),
+            fingerprint,
+        },
+        text: note.text,
+    })
+}
+
+fn read_path(root: &Path, path: &str) -> Result<(NoteText, FileFingerprint), ReadError> {
     let mut current = root.to_path_buf();
     let mut checked = None;
     for part in path.split('/') {
@@ -99,5 +114,11 @@ fn read_path(root: &Path, path: &str) -> Result<NoteText, ReadError> {
     }
     let sha256 = Sha256::digest(&bytes).into();
     let text = String::from_utf8(bytes).map_err(|_| ReadError::NotUtf8)?;
-    Ok(NoteText { text, sha256 })
+    let fingerprint = FileFingerprint {
+        device: opened.dev(),
+        inode: opened.ino(),
+        len: text.len() as u64,
+        sha256,
+    };
+    Ok((NoteText { text, sha256 }, fingerprint))
 }

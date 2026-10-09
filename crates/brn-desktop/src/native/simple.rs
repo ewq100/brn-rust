@@ -202,6 +202,7 @@ impl Desktop {
         self.sync_draft_widgets(window, cx);
         self.sync_provenance_widgets(window, cx);
         self.sync_relationship_widgets(window, cx);
+        self.sync_profile_context_widgets(window, cx);
         self.sync_finding_widgets(window, cx);
         self.sync_citation_review_widgets(window, cx);
         self.sync_inbox_widgets(window, cx);
@@ -404,6 +405,7 @@ impl Desktop {
             return;
         }
         let transition = self.simple_transition.take().unwrap();
+        self.clear_profile_panel();
         if let EditorTransition::Finding { analysis, id } = &transition
             && self
                 .ai
@@ -1502,7 +1504,8 @@ impl Desktop {
         let p = self.palette();
         let ai = self.ai.as_ref().unwrap();
         let leaving = self.simple_transition.is_some() || self.closing.is_some() || self.closed;
-        let inspection_open = self.provenance_open || self.saved_links.open;
+        let inspection_open =
+            self.provenance_open || self.saved_links.open || self.profile_context.open;
         let mut body = div()
             .id("saved-note-body")
             .overflow_y_scroll()
@@ -1589,6 +1592,9 @@ impl Desktop {
         if let Some(links) = self.render_saved_links(cx) {
             body = body.child(links);
         }
+        if let Some(context) = self.render_profile_context(cx) {
+            body = body.child(context);
+        }
         div()
             .size_full()
             .flex()
@@ -1597,6 +1603,7 @@ impl Desktop {
             .child(
                 div()
                     .flex()
+                    .flex_wrap()
                     .items_center()
                     .gap_2()
                     .p_2()
@@ -1607,6 +1614,34 @@ impl Desktop {
                             .overflow_hidden()
                             .whitespace_nowrap()
                             .child(self.simple_note_path.clone().unwrap_or_default()),
+                    )
+                    .child(
+                        Button::new("person-context")
+                            .label("Person context")
+                            .compact()
+                            .disabled(leaving || !ai.profile_context_available())
+                            .on_click(cx.listener(|this, _, _, cx| {
+                                this.inspect_profile(
+                                    brn_workflow::knowledge::ProfileLens::Person,
+                                    0,
+                                    0,
+                                    cx,
+                                )
+                            })),
+                    )
+                    .child(
+                        Button::new("project-context")
+                            .label("Project context")
+                            .compact()
+                            .disabled(leaving || !ai.profile_context_available())
+                            .on_click(cx.listener(|this, _, _, cx| {
+                                this.inspect_profile(
+                                    brn_workflow::knowledge::ProfileLens::Project,
+                                    0,
+                                    0,
+                                    cx,
+                                )
+                            })),
                     )
                     .child(
                         Button::new("saved-note-sources")

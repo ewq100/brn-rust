@@ -46,11 +46,31 @@ pub struct RelationshipPage {
     pub duplicates: Vec<DuplicateIdentity>,
 }
 
+pub(super) struct RelationshipObservation {
+    pub inventory: IdentityInventory,
+    pub edges: Vec<NoteEdge>,
+    pub issues: Vec<IdentityIssue>,
+}
+
 impl App {
     /// Rebuilds a disposable observation from saved evidence, without AI or writes
     /// to knowledge. Exact endpoint witnesses do not imply a vault transaction.
     pub fn relationships(&mut self, request: &RelationshipRequest) -> Result<RelationshipPage> {
         request.validate()?;
+        let observation = self.collect_relationships()?;
+        let page = self.cache_relationships(&observation.edges, request)?;
+        Ok(RelationshipPage {
+            scope: page.scope,
+            offset: page.offset,
+            total: page.total,
+            edges: page.edges,
+            issues: observation.issues,
+            duplicates: observation.inventory.duplicates,
+        })
+    }
+
+    /// One fresh All-scope observation shared by relationship and profile queries.
+    pub(super) fn collect_relationships(&mut self) -> Result<RelationshipObservation> {
         self.refresh()?;
         let inventory = self.identity_inventory()?;
         let mut issues = inventory.issues.clone();
@@ -108,16 +128,12 @@ impl App {
         edges.retain(|edge| {
             !changed.contains(&edge.source.path) && !changed.contains(&edge.target.path)
         });
-        let page = self.cache_relationships(&edges, request)?;
         issues.sort_by(|a, b| a.path.cmp(&b.path).then(a.reason.cmp(&b.reason)));
         issues.dedup();
-        Ok(RelationshipPage {
-            scope: page.scope,
-            offset: page.offset,
-            total: page.total,
-            edges: page.edges,
+        Ok(RelationshipObservation {
+            inventory,
+            edges,
             issues,
-            duplicates: inventory.duplicates,
         })
     }
 
@@ -183,10 +199,21 @@ impl App {
         {
             let resolution = inventory.resolution(citation.note_id);
             if resolution.outcome != IdentityOutcome::Unique {
+                issues.push(IdentityIssue {
+                    path: source.path.clone(),
+                    reason: format!(
+                        "Saved citation {} is {:?}; no relationship was certified.",
+                        citation.note_id, resolution.outcome
+                    ),
+                });
                 continue;
             }
             let target = &resolution.matches[0];
             if target.sha256 != citation.sha256 {
+                issues.push(IdentityIssue {
+                    path: source.path.clone(),
+                    reason: format!("Saved citation {} has changed source bytes; no relationship was certified.", citation.note_id),
+                });
                 continue;
             }
             let target_note = self.evidence_note(&target.path)?;
@@ -197,6 +224,10 @@ impl App {
                     .issue
                     .is_some()
             {
+                issues.push(IdentityIssue {
+                    path: source.path.clone(),
+                    reason: format!("Saved citation {} changed or has invalid source metadata; no relationship was certified.", citation.note_id),
+                });
                 continue;
             }
             merge(
