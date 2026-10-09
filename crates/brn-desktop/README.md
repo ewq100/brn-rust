@@ -202,7 +202,14 @@ acknowledged or explicitly discarded. Rewrite freezes provider/model/effort and
 supports Stop; a late result retains conflicting local text instead of replacing
 it. These review operations keep vault knowledge unchanged. Exact approval opens
 a full captured confirmation; group approval includes only its displayed records
-and may stop after an earlier independent proposal. Controls remain guarded until
+and may stop after an earlier independent proposal.
+Captured group confirmation numbers its complete snapshots and offers **Move
+earlier / Move later** for consequences. Sources remain first and pinned;
+selection follows each proposal across moves. Confirmation uses the latest
+captured order with the original operation IDs and exact review stamps. Closing
+the dialog discards only this transient order; stored groups and owner edits stay
+intact. Headless state/widget checks do not establish interactive usability.
+Controls remain guarded until
 the application outcome and current review are acknowledged. Activity pages show
 recorded successful changes and full historical approval snapshots; recovery
 inspection/reconciliation reports actual pending/uncertain outcomes without

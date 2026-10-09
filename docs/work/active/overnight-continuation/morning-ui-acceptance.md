@@ -18,21 +18,21 @@ checks/docs; all required post-merge checks/docs passed in 37844389582.
 Refresh this receipt after subsequent changes and before cutoff; qualification is
 separate from personal acceptance.
 
-Checkout/current authoritative morning task: `/Users/evokessler/repos/brn-p3-work-budgets`.
-Latest qualified combined build source: `538b160f6ea16f9c6c6f6a8823c0ee4119640657`
-(merged prior slices plus independently reviewed and corrected citation evidence review). Main is
+Checkout/current authoritative morning task: `/Users/evokessler/repos/brn-p2-email-docx-intake`.
+Latest qualified combined build source: `c086849198fe503d3454e5855d98f62e05f3627b`
+(merged prior slices plus independently reviewed and corrected raw-evidence reader; PR103 requiredCI pending). Main is
 `77960d1d8affa71b14ec0a4e3c99fe52663b5cf2`; PR90–PR100 required candidate checks
 passed. PR90–PR99 required post-merge checks passed. PR100 post-merge run37859299854
 passed all required checks/docs. Action compensation is merged and locally qualified. Immutable shipping runtime:
-`/Users/evokessler/repos/brn-overnight-artifacts-20261008/citation-review-runtime`.
-Desktop: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/citation-review-runtime/brn-desktop`,
-SHA-256 `a875867188f6798b48aba2bc5c6d7973e1aed89351135d8944dd011ba5bc82e6`.
-CLI: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/citation-review-runtime/brn`,
-SHA-256 `e435ce342a55686cd6a70b2cf129d454de801f51277569e04a513deb28636b81`.
-Helper: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/citation-review-runtime/brn-intake-helper`,
+`/Users/evokessler/repos/brn-overnight-artifacts-20261008/raw-evidence-runtime`.
+Desktop: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/raw-evidence-runtime/brn-desktop`,
+SHA-256 `ff3e115ba2af8ddda39698dbec7c46138b408185455dc9bf436ccf51ff255c8a`.
+CLI: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/raw-evidence-runtime/brn`,
+SHA-256 `73288a1d4559bd8b69b60190c59747456925d98ac092b5c7c0935d4884a092c7`.
+Helper: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/raw-evidence-runtime/brn-intake-helper`,
 SHA-256 `7f058c359a092559cda55b07c3880b44e637257818ad60c725da8b1d99a9f8e5`.
-Manifest: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/citation-review-runtime/build-manifest.json`.
-This runtime includes SessionV18, PPTX, automatic backups, Action compensation, filename revision and read-only citation evidence review. PR102 revised requiredCI passed and normal merge77960d1 completed; post-main37865065354 active. PR101 required candidate CI passed and normal merge6a63173 completed; all required post-main checks/docs passed in37861908706. Refresh final receipt before cutoff and
+Manifest: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/raw-evidence-runtime/build-manifest.json`.
+This runtime includes SessionV18, PPTX, automatic backups, Action compensation, filename revision, read-only citation evidence review and explicit raw saved-evidence reading. PR102 revised requiredCI passed and normal merge77960d1 completed; all required post-main checks/docs passed in37865065354. PR101 required candidate CI passed and normal merge6a63173 completed; all required post-main checks/docs passed in37861908706. Refresh final receipt before cutoff and
 never use historical executables after newer schema migration. Bound state/vault
 folders remain in place.
 Actual GUI/personal acceptance remains pending.
@@ -154,6 +154,20 @@ malformed citation and Inbox metadata give2 coverage diagnostics. Preparation
 used qualified rename runtime and explicit
 synthetic approval, no inference. Never rerun preparation or relocate folders.
 
+Workspace J (unclassified raw long evidence and saved answers):
+`/private/tmp/brn-overnight-20261008/raw-evidence-case/{data,vault,inputs,receipts}`.
+`ready.json` records949,968-byte `raw-meadow-hall.md`, complete SHA-256 and
+appendix949000..949968. Original exact bytes are preserved in inputs. Deliberately
+invalid brn_id remains; do not repair or turn it into Current knowledge.
+Luna session `e6216ab7-20fb-478e-b1fa-6f4db134ce95`, turn
+`31b8c1d5-dbe8-4f96-9d4f-284fa32c7bf2`; Sol session
+`7fbb3b8d-1091-4cdc-a04a-0ad9965d39a8`, turn
+`1c31b2c1-2c92-4556-9629-06eab6137d9d`. Both completed with3responses/2rawread
+rounds, saved-session reopening/exact completed replay and no file/proposal/
+Finding/Action effects verified. Compare retained answers without new inference.
+The entire night campaign is16/16 used; no additional live investigation remains.
+Do not rerun `prepare-raw-evidence-morning.py` or `paired-raw-evidence.py`.
+
 ## Preparation and launch after unlock
 
 Confirm final commit/build hashes and that no process owns the selected synthetic
@@ -161,7 +175,7 @@ folder. Do not delete locks, reset or migrate data if busy; record the condition
 Launch Workspace A from the checkout (ordinary desktop flags):
 
 ```sh
-/Users/evokessler/repos/brn-overnight-artifacts-20261008/citation-review-runtime/brn-desktop \
+/Users/evokessler/repos/brn-overnight-artifacts-20261008/raw-evidence-runtime/brn-desktop \
   --data-dir /private/tmp/brn-retained-qualification-bi3q58kf/headless/data \
   --vault /private/tmp/brn-retained-qualification-bi3q58kf/headless/vault
 ```
@@ -181,7 +195,7 @@ than passed whenever a control/result cannot be exercised.
 
 ## One ordered journey
 
-Allow 120–160 minutes for all workspaces/new controls. Essential path: steps 1–5 and 8–9, about 30–40 minutes.
+Allow 125–170 minutes for all workspaces/new controls. Essential path: steps 1–5 and 8–9, about 30–40 minutes.
 
 | Step / user action | Expected result | Evidence / failure record |
 | --- | --- | --- |
@@ -204,9 +218,10 @@ Allow 120–160 minutes for all workspaces/new controls. Essential path: steps 1
 | 17. Once rename is qualified and included in the final build, select a retained new-note Draft, save owner text/comments, change its filename within the same folder, inspect the complete revised review, approve the revised version and restart | Text/UUID/comments/evidence/History and other members remain exact; changed destination advances approval version once, no file effect until approval. Same-path no-op stays exact. Stale/occupied/unsafe/cross-folder requests refuse while retaining owner work; Observe after refusal must preserve the entered filename and queued navigation until explicit Retry/Discard | Original/new filename, request/returned version, complete before/after, comments, stale approval/refusal and saved note after restart. Independent review and final local gates passed:1796 default coverage/18 existing ignores,436 native workflow/models/16,585 combined desktopCLI; required PR101 candidate CI passed and normal merge completed; all required post-main checks/docs passed in37861908706. Actual GUI acceptance pending |
 
 
-| 18. Once citation review is qualified and in the final build, quit H and open I, choose Needs Review → Citation evidence, inspect rows and complete saved consumer/source details, Load more, Refresh, switch to Findings and restart | Changed/Absent/Ambiguous rows have exact reasons and preserved original quotes. Moved unchanged archived evidence remains Matched and absent from issue rows. Malformed metadata gives explicit incomplete coverage. Sparse pages still offer Load more; refreshed rows/detail are bound to exact consumer hash. Derived rows have no Resolve/Dismiss/approval/capture/automatic analysis controls; owner composer/editor/review and pending navigation remain recoverable | Record row paths/outcomes, complete copied consumer/proof/quotes, coverage and cursor progress, stale/error behavior, buffer preservation and restart. Backend11 focused plus10 existing provenance tests, native5state/8widgets,4Findings regressions andCLI3 passed. Complete review found one coverage defect, corrected red-to-green; independent correction review and final affected gates passed; revised requiredCI passed and normal merge completed; post-main37865065354 active. Actual UI acceptance pending |
+| 18. Once citation review is qualified and in the final build, quit H and open I, choose Needs Review → Citation evidence, inspect rows and complete saved consumer/source details, Load more, Refresh, switch to Findings and restart | Changed/Absent/Ambiguous rows have exact reasons and preserved original quotes. Moved unchanged archived evidence remains Matched and absent from issue rows. Malformed metadata gives explicit incomplete coverage. Sparse pages still offer Load more; refreshed rows/detail are bound to exact consumer hash. Derived rows have no Resolve/Dismiss/approval/capture/automatic analysis controls; owner composer/editor/review and pending navigation remain recoverable | Record row paths/outcomes, complete copied consumer/proof/quotes, coverage and cursor progress, stale/error behavior, buffer preservation and restart. Backend11 focused plus10 existing provenance tests, native5state/8widgets,4Findings regressions andCLI3 passed. Complete review found one coverage defect, corrected red-to-green; independent correction review and final affected gates passed; revised requiredCI passed and normal merge completed; all required post-main checks/docs passed in37865065354. Actual UI acceptance pending |
 
-| 19. Once raw evidence qualifies in the final build, inspect retained WorkspaceJ results and the malformed saved Markdown; read the exact saved answer and raw metadata/range proof, then restart | Explicit raw reading preserves BOM/CRLF/Unicode, fullhash and exact ranges; damaged metadata supplies no Current facts. Source changes refuse an old fullhash, ordinary Current lookup stays strict, and no metadata repair/new effects occur. Saved results reopen without inference | Final fixture/build/turnIDs and exact rawtext/range/hash, metadata issue and disclosed authority, restart. AI153/1existingignore,Workflow7/CLI3/Desktop1 focused passed; complete review/final gates/CI pending. WorkspaceJ not yet prepared; do not fabricate IDs or rerun inference for inspection |
+| 19. Quit I, open J and reopen the retained Luna and Sol sessions; inspect their saved raw-evidence answers, metadata diagnostic and final-appendix range proof, open the malformed saved Markdown for inspection, then restart | Saved answers disclose unclassified evidence and preserve €8,200 panels-only/exclusions,47vs50dB, separate10/14November dates and Mara-only authority; fullhash-bound appendix is949000..949968. Damaged metadata grants no Current facts. Saved bytes/answers reopen without inference or metadata repair | Record session/turn IDs, exact copied saved answers, rawtext/hash/range, metadata issue and authority wording, restart/failure. Complete review found actual-worker delegation defect, corrected red-to-green and independently reviewed clean. Final1287affecteddefault/18,455native/16,601combined plusClippy/shipping/52fixtures passed; both live calls3responses/2rawrounds completed and exact replay passed. RequiredPR103CI pending; actual UI acceptance pending |
+| 20. Once captured group ordering is in the final build, review a retained group (use one model comparison only), move a non-Source Action earlier/later, deselect/reselect by title and inspect exact numbered snapshots before confirmation | Order changes only transient confirmation order; full records/comments/stamps/operation IDs stay paired. Pending Sources remain visibly first and cannot move. Selected consequences apply in displayed non-Source order; stale review or busy work refuses and preserves retained owner work. Closing/reopening restores capture inventory order | Record complete ordered proposal titles/IDs/versions/operation IDs, selection after moves, Source positions, exact submitted/returned receipts and failure.6 focused state/worker/headlesswidget tests plusstrictaffectedClippy passed; independentreview/finalgates/CI pending; actual UIacceptance pending |
 
 ## Headless evidence already passed; interactive acceptance pending
 

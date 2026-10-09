@@ -95,7 +95,7 @@ fn create(worker: &AppWorker, path: &str, group: Option<Uuid>) -> ProposalRecord
                 intake: None,
                 inbox_visual: None,
                 inbox_knowledge: None,
-        inbox_source: None,
+                inbox_source: None,
                 action_changes: Vec::new(),
                 id: Uuid::new_v4(),
                 group_id: group,
@@ -330,6 +330,72 @@ fn exact_approval_requires_current_ack_and_replay_preserves_later_manual_bytes()
 }
 
 #[test]
+fn reordered_capture_submits_exact_selected_pairs_and_actual_receipts_keep_owner_order() {
+    let fixture = Fixture::new();
+    let mut worker = fixture.worker();
+    let group = Uuid::new_v4();
+    let a = create(&worker, "a.md", Some(group));
+    let b = create(&worker, "b.md", Some(group));
+    let c = create(&worker, "c.md", Some(group));
+    let mut state = ready();
+    open(&worker, &mut state, a.draft.id);
+    load_proposals(&worker, &mut state);
+    // Fix the initial inventory order explicitly, independent of storage timestamps.
+    state.proposals = vec![a.clone(), b.clone(), c.clone()];
+    let capture = state.capture_approval(true).unwrap();
+    let ordered = capture
+        .move_earlier(c.draft.id)
+        .unwrap()
+        .move_earlier(c.draft.id)
+        .unwrap();
+    let selected = ordered
+        .select(&[a.draft.id, c.draft.id].into_iter().collect())
+        .unwrap();
+    assert_eq!(selected.records(), &[c.clone(), a.clone()]);
+    assert_eq!(
+        selected.requests(),
+        &[capture.requests()[2].clone(), capture.requests()[0].clone()]
+    );
+    for before in [&a, &b, &c] {
+        assert_eq!(record(&worker, before.draft.id), *before);
+    }
+    let late = create(&worker, "late.md", Some(group));
+    load_proposals(&worker, &mut state);
+    let command = state.confirm_approval(&selected).unwrap();
+    let outer = command.0;
+    let AppCommand::ApproveProposalGroup(request) = &command.1 else {
+        panic!("exact group command")
+    };
+    assert_eq!(request.approvals, selected.requests());
+    assert!(state.confirm_approval(&selected).is_none());
+    let (_, AppEvent::ProposalGroupApplied(result)) = reply(&worker, command) else {
+        panic!("actual group receipt")
+    };
+    assert!(selected.accepts_group(&result));
+    assert_eq!(
+        result
+            .receipts
+            .iter()
+            .map(|receipt| receipt.proposal_id)
+            .collect::<Vec<_>>(),
+        vec![c.draft.id, a.draft.id]
+    );
+    let reads = state.apply(outer, AppEvent::ProposalGroupApplied(result));
+    drain_reads(&worker, &mut state, reads);
+    for applied in [&c, &a] {
+        assert_eq!(
+            fs::read(fixture.vault().join(applied.draft.changes[0].path())).unwrap(),
+            applied.draft.changes[0].text().unwrap().as_bytes()
+        );
+    }
+    assert_eq!(record(&worker, b.draft.id), b);
+    assert_eq!(record(&worker, late.draft.id), late);
+    assert!(!fixture.vault().join("b.md").exists());
+    assert!(!fixture.vault().join("late.md").exists());
+    worker.shutdown().unwrap();
+}
+
+#[test]
 fn captured_group_excludes_late_arrival_and_stops_after_second_preflight_refusal() {
     let fixture = Fixture::new();
     let mut worker = fixture.worker();
@@ -490,7 +556,7 @@ fn failed_preparation_records_not_applied_and_explicit_reconcile_preserves_origi
                 intake: None,
                 inbox_visual: None,
                 inbox_knowledge: None,
-        inbox_source: None,
+                inbox_source: None,
                 action_changes: Vec::new(),
                 id: Uuid::new_v4(),
                 group_id: None,

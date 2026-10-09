@@ -77,75 +77,75 @@ requires exact final-candidate review, applicable local checks and actual requir
 CI. No weakening, bypass or rushed merge. Record failures and repair real defects.
 Known informational platform failures remain visible and separate.
 
-## Durable checkpoint — 09 October 00:44 UTC
+## Durable checkpoint — 09 October 00:57 UTC
 
 Continue authorized small complete V1 slices until05:00UTC/08:00Tallinn; final
-qualification/integration/report from04:30UTC. Current authoritative checkpoint
-and single morning task are NOW in `/Users/evokessler/repos/brn-p3-work-budgets`.
-Other checkout `/Users/evokessler/repos/brn-p2-email-docx-intake` stays clean on
-finished citation PR102. Primary checkout18f3891/unrelatedDSStore/researchPRs untouched.
-No GUI/computer use/private data/credentials/paidfallback/reset/modeldownload/port/
-release/signing/globalconfiguration. All actual UI/personal acceptance pending.
+qualification/integration/report from04:30UTC. Authoritative checkpoint/single morning task NOWintakecheckout
+`/Users/evokessler/repos/brn-p2-email-docx-intake`, branchcodex/p4-captured-approval-order
+basec086849 plus planb26fd4d/completehelperdesktopchanges andcurrentreports.
+Rawbudgetcheckout codeHEADc086/PR103 retained; report-onlydocs dirtyhistoricalcopy
+will be safely committedafter103merge without changing103candidate. Do notreset.
+Primarycheckout18f3891/DSStore/researchPRs/userdata untouched. NoGUI/private
+credentials/paidfallback/reset/download/ports/release/globalconfig. All actualUI/
+personalacceptance pending. OneCargo acrosscheckouts, <=2helpers/no recursion.
 
-Main77960d1d8affa71b14ec0a4e3c99fe52663b5cf2 includes protected PR90–102.
-PR90–101 all required candidate/post-main checks/docs passed. PR102 corrected
-candidate19bc465d2c5dc58344385688bc06a570cb921ba9 required run37863707634 all4/docs
-passed; normal merge77960d1 exact checked treefacb6b7602f094da8fe356089810b30093a82ae6.
-Post-main37865065354 all4required/docs passed; resulting main remains77960d1.
-Original review c56cfb40 found1valid malformed Inbox coverage defect; reproduced
-actualCLI/red regression, corrected/reviewed clean538b160/delta6ed42ea7. Required
-Ubuntu fixture failure fixed with portable pure metadata setup and same assertions,
-not skips. Windows corrected log inspected: same4 informational Unix API errors.
-Citation finalcoverage1816default/18,447native/16,597combined includes reused
-unchanged1815baseline/Store/fullsizewitnesses; corrected11backend/3CLI/26native
-knowledge, allstrictClippy/shipping/52fixtures/links passed. No unresolvedfinding.
+Main77960d1 includes normalprotectedPR90–102; ALL requiredcandidate/post-main/docs
+passed90–102 (102post37865065354). RawPR103 attached/pushedc086, requiredcorrected
+run37866277198 UbuntuCore/MacUI/MacCombinedpassed; MacCoreactive. Inspectactual
+requiredchecks, normalprotectedmergec086 wheneligible, verifyresultingtree/main.
+Initialfrozen87bb patch86145d5 completeindependentreviewfound1validP1 missing
+ApplicationReads rawdelegation. ActualAsk tools regressionred0/1ToolRejected;
+6lineforwardingfixed,all7applicationlanetests green, correctionreviewclean c086/
+delta7eeb7fe. Originalinitialdefaultgate deliberatelyinterrupted; preserved, notpass.
+Final11gate stepsALLexit0 oncodec086: fresh1287affecteddefault/18existingignore,
+455nativeworkflow/models/16,601combinedDesktopCLI,doctests,strictdefault+combined
+workspaceClippy,shipping/helper,52fixtures,links/diff. ReuseunchangedStore/retrieval/
+intake/fullsizebaselineevidencefromqualifiedPR102; no fullworkspacefreshclaim.
 
-Lead reuses budget checkout, branch codex/p3-raw-evidence frozen87bb821, pushed
-as PR103. Complete independent review found1valid missing ApplicationReads raw
-delegation; actual Ask regression red0/1, existing wrapper corrected. Task-owned
-correction/test/docs dirty; run green, refresh independent correction review then
-final affected gates and push. Initial defaulttests deliberately interrupted to
-correct the demonstrated defect; preserve initial receipt, never claim it passed. [Selected raw evidence plan](raw-evidence-reading.md)
-fixes public DTO/request/reply/trait/tool/worker/CLI interfaces. Existing ordinary
-Current/scope/proposal/approval validation stays strict; explicit raw invalidmetadata
-has facts=None/issue, fullhash/ranges, no effects or metadata repair. Physical raw
-root identity captured/read-checked before/after, epoch/uncertain fence and blocking
-drain preserved. Same existing1MiB file/50kUTF8 response limits, no dependency/schema.
-AI helper raw_evidence_ai complete:153passed/1existingignore, strictAIClippy and
-3mockedRigroute/protocol tests passed/released. Root Workflow7(including drain),
-CLI3new+3citationregressions andDesktop1ownerpending/partial passed.2test-style
-Clippy errors fixed; final affected defaultClippy passed/released. Lead soleCargo runs wrapper green suite. Reviewer completed full25file frozen
-review; structural_revision_readiness helper performs bounded read-only inspection
-for nextP3 slice. Next freeze correction, independent delta review, final affected
-default/native/combined/shipping gates (reuse unchanged Store/fullsize), actual
-requiredCI/protectedmerge/post-main. Root retains selected lead model/effort, <=2helpers/no recursion/oneCargo.
+Immutablefinalraw-evidence-runtime sourcec086 underbrn-overnight-artifacts-20261008,
+matchingCLI73288a1d4559bd8b69b60190c59747456925d98ac092b5c7c0935d4884a092c7,
+Desktopff3e115ba2af8ddda39698dbec7c46138b408185455dc9bf436ccf51ff255c8a,
+helper7f058c35 unchanged. SyntheticWorkspaceJ prepared/CLIqualifiedexactprefix/tail/
+restart/indexloss/strictscopedrefusal/noeffects. LiveLuna6.628sec/Sol16.524sec both
+3responses/2rawreadrounds reachedindexedappendix949000..949968 and retainedall
+materialbudget/performance/dates/authority/unknownfacts. Completeexactreplays and
+saved-sessionreopenwithoutnewinference; files/proposals/Actions/Findingsunchanged.
+[Liveevidence](live-model-evidence.md) and [singlemorningtask](morning-ui-acceptance.md)
+recordexactruntime/Jsession/turnIDs. CasesA–J retained; neverrerunguardedpreparation/
+moveboundstate/usehistoricalbinaryaftermigration. Evidencearchive refreshdue.
 
-Parked read-call correction branch8f8fc2e7621bd744778a86dc149357be2fbc59fc is safely
-committed/pushed, NOT QUALIFIED/not merged/no PR. Focused0/7failed: pinned RigCore
-Responses decoder drops malformed args before hook, valid proposal peer dispatches;
-Chat route rollback works. Both Responses routes/allpeerorders mocked diagnostic
-retained; no livecalls/vendorfork/customparser. Separate pending-stream cancellation
-fixture unqualified. Plan/logs/code preserved in branch and parked-* receipts.
-Full web capture parked on real source-text and hosted-call budget gaps; no native
-web toggle/partial source fabrication. Autoarchive Restore/Rewrite clock decisions
-remain parked. Continue ready work, do not wait on owner/unrelated decisions.
+Sharedcampaignledger `/private/tmp/brn-overnight-20261008/campaign-ledger.json` now
+16/16used, Luna8/Sol8, NO LIVEALLOWANCE LEFT. Noactiveprovider; noautomaticretry/
+substitution/newconditions/reset. Lastaccountusage66%weeklyused/34%remaining00:52;
+shortwindow/tokens/internalturns/spendunknown,accountwide. No furtherlivecall.
 
-Latest immutable qualified runtime citation-review-runtime source538b160 under
-`/Users/evokessler/repos/brn-overnight-artifacts-20261008`; matchinghashes/launch in
-single morning task. WorkspaceI finalshippingCLI sparse25empty/continuation then
-exactAbsent/Ambiguous/Changed, movedMatched/fullquotes and2metadata diagnostics
-passed zero-inference. CasesA–I retained; GActionUndo/Hfilename remain ready. Never
-rerun guardedpreparation or relocate bound data/vault folders. Raw WorkspaceJ not
-yet prepared; wait finalmatchingCLI. Refresh runtime/evidencearchive at milestone.
+Nextslice selectedready: capturedgroupapprovalordering, plan
+`captured-approval-order.md` in OTHERcheckout `/Users/evokessler/repos/brn-p2-email-docx-intake`,
+branchcodex/p4-captured-approval-order HEADb26fd4d plushelper-owneddesktopdirtyfiles.
+Basedc086; integrate rawmain withoutfunctionalchange after103merge. Helpercaptured_approval_order_impl completed/releasedCargo:3capturestate,1actual
+AppWorker/receipts,2realheadlesswidgets passed; strictaffecteddefault/combined
+DesktopClippy/rustfmt/diff passed. Initialwidgetattempt1/2failedonunsupported
+headlessdisabled-metadata observation; removedonlymetadataassertion andretained
+actualblockedclick/pinnedsource/order/currentchanged/reopenbehavioralchecks, all2
+green. No weakenshippingassertion. LeadnowsoleCargo target/intake-ui forfinalgates.
+No overlapping sourceedits. Leadownsnextdocs/morning/integration. Readinesshelper
+completed. Nextfreezecompleteorderingcandidate, onefreshcompleteindependentreview,
+finalapplicableDesktop/combined/shippinggates,reuseunchangedworkflow/Store,requiredCI/
+protectedmerge/postmain. ReadyP7 actualsentversioncapturepacket available:
+existingplainTextSourcecapture/approval then optionalexactAppliedSourcebinding in
+explicitActioncompletion, already-explicitthreadrequired; no external sending orAI
+completion. Definefixedsmallinterfaces/acceptancebeforeimplementation; fullpacket
+returnedbystructural_revision_readiness (completed), notyetimplemented.
 
-Live ledger `/private/tmp/brn-overnight-20261008/campaign-ledger.json`:14/16 used,
-Luna7/Sol7, max1each exactgpt-6-luna Medium/gpt-6.1-sol Medium remains. No active
-provider. Reserve BEFORE calls;180sec cancellation/eighttoolrounds/nineresponses,
-failures/retriescount/no automatic top-levelretry/substitution/reset/purchase. No
-inference for mechanics/replay. Later paired raw unclassified long-evidence trial
-may be useful only after newcapability qualifies; not yetreserved/started. Last
-weekly accountusage60%used/40%remaining23:28UTC; othertelemetryunknown. Root-only
-campaign, helpersnever live. Retainedoutputs remain ownerreviewablewithoutinfer.
+Parkedretrybranch8f8fc2e safelycommitted/pushedunqualified/noPR/unmerged: actualRig
+Responsesdecoder dropsmalformedargsbeforehook, validproposalpeerdispatches;Chat
+rollbackworks. Focused0/7failed+mockdiagnosticretained; separatependingstreamtest
+unqualified. No fork/customparser/partialroute/live salvage. Crossfolderretarget
+relative-reference/original-parent lineage policy parked; structuralregroup/split
+largeridentity/commentsemantics. Webcapture parkedrealsourcetext/hostedbudgetgaps;
+autoarchiveRestore/Rewriteactivityclock unresolved. Continueotherreadywork, do not
+stopafteronePR or waitonowner/unrelatedchoice. Heartbeatmustreadthischeckpoint/
+actualledger anddisableatcutoff/cancel/runtime-limit/all-usefulblocked; noarchivechat.
 
 ## Selected first evidence slice
 

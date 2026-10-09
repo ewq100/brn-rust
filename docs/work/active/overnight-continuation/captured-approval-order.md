@@ -69,3 +69,15 @@ ports/release/globalconfig; synthetic tests only.
   combined desktop/CLI, strictaffectedClippy/shipping, fixtures/links, one fresh
   complete independent read-only review, actual requiredCI, normal protectedmerge
   and resulting-main verification. Reuse unchanged Store/recovery evidence.
+
+## Focused implementation qualification — 09 October00:57UTC
+
+Six desktop-owned files implement stableSource-first capture, immutablepair moves,
+localnativeorder/selection and exactsubmission.3capturetests,1realAppWorker
+application/receipt test and2realheadlesswidgettests passed; strictdefault/combined
+DesktopalltargetClippy/rustfmt/diff passed. Firstwidgetattempt1/2failedonunsupported
+toolkitsnapshotdisabledmetadata (None), beforebehavioralclicks. Removedonlythat
+unsupportedassertion; actualvalidlater+earlier/blockedclick/pinnedSource/current
+changed/refusal/reopenbehavior allremainasserted andpassed. Logs captured-order-
+focused-* retained. NoGUI/personalacceptanceclaim. HelperreleasedCargo; leadowns
+finalbroaderDesktop/combined/shippinggates, freshcompleteindependentreview/CI/merge.

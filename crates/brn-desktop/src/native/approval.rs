@@ -11,6 +11,10 @@ use gpui_kit::{
 };
 use sha2::{Digest, Sha256};
 
+#[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
+#[path = "approval_order_tests.rs"]
+mod ordering_tests;
+
 fn sha256(bytes: &[u8; 32]) -> String {
     bytes.iter().map(|byte| format!("{byte:02x}")).collect()
 }
@@ -507,32 +511,54 @@ impl Desktop {
                 .map(|r| r.draft.id)
                 .collect::<std::collections::HashSet<_>>(),
         ));
+        let capture = std::rc::Rc::new(std::cell::RefCell::new(capture));
         window.open_dialog(cx, move |dialog, _, cx| {
+            let ordered = capture.borrow().clone();
             let current = desktop.upgrade();
             let disabled = current
                 .as_ref()
                 .is_none_or(|desktop| desktop.read(cx).approval_native_blocked(cx));
             let mut content = div().id("exact-approval-capture").test_support().flex().flex_col().gap_3();
-            if let Some(group_id) = capture.group_id() {
+            if let Some(group_id) = ordered.group_id() {
                 content = content.child(format!(
                     "Approve these {} captured proposals in group {group_id}? Each proposal is independent. Application may stop after an earlier proposal; later proposals remain unapplied. New arrivals are not included.",
-                    capture.records().len()
+                    ordered.records().len()
                 ));
             } else {
                 content = content.child("Approve this exact full proposal? This applies the captured Markdown and Action changes. Temporary comments are deleted only after successful application.");
             }
-            for (index, (record, request)) in capture.records().iter().zip(capture.requests()).enumerate() {
-                if capture.group_id().is_some() {
-                    let proposal_id = record.draft.id;
+            for (index, (record, request)) in ordered.records().iter().zip(ordered.requests()).enumerate() {
+                let proposal_id = record.draft.id;
+                let mut member = div().id(format!("captured-proposal-{proposal_id}")).test_support().flex().flex_col().gap_2();
+                if ordered.group_id().is_some() {
                     let selected = selected.clone();
                     let checked = selected.borrow().contains(&proposal_id);
-                    content = content.child(Checkbox::new(format!("approve-selected-{index}"))
+                    let order_label = format!("Approval order {} · {}{}", index + 1, record.draft.title, if record.draft.inbox_source.is_some() { " · Source runs first · pinned" } else { "" });
+                    member = member.child(div().id(format!("approval-order-{proposal_id}")).test_support().aria_label(order_label.clone()).child(order_label));
+                    member = member.child(Checkbox::new(format!("approve-selected-{proposal_id}"))
                         .label(format!("Include this exact proposal {}", record.draft.title)).checked(checked)
+                        .disabled(disabled)
                         .on_change(move |checked, _, _| { if *checked { selected.borrow_mut().insert(proposal_id); } else { selected.borrow_mut().remove(&proposal_id); } }));
+                    for (earlier, label) in [(true, "Move earlier"), (false, "Move later")] {
+                        let adjacent = if earlier { index.checked_sub(1) } else { index.checked_add(1) };
+                        let possible = record.draft.inbox_source.is_none() && adjacent.and_then(|index| ordered.records().get(index)).is_some_and(|record| record.draft.inbox_source.is_none());
+                        let capture = capture.clone();
+                        let desktop = desktop.clone();
+                        member = member.child(Button::new(format!("approval-move-{}-{proposal_id}", if earlier { "earlier" } else { "later" }))
+                            .label(label).disabled(disabled || !possible)
+                            .on_click(move |_, _, cx| {
+                                let _ = desktop.update(cx, |this, cx| {
+                                    if this.approval_native_blocked(cx) { return; }
+                                    let next = { let current = capture.borrow(); if earlier { current.move_earlier(proposal_id) } else { current.move_later(proposal_id) } };
+                                    if let Some(next) = next { *capture.borrow_mut() = next; cx.notify(); }
+                                });
+                            }));
+                    }
                 }
-                content = content
-                    .child(format!("Approval operation {}", request.operation_id))
-                    .child(snapshot(record));
+                let operation_label = format!("Approval operation {}", request.operation_id);
+                content = content.child(member
+                    .child(div().id(format!("approval-operation-{proposal_id}")).test_support().aria_label(operation_label.clone()).child(operation_label))
+                    .child(snapshot(record)));
             }
             if let Some(desktop) = &current {
                 let ai = desktop.read(cx).ai.as_ref().unwrap();
@@ -561,7 +587,7 @@ impl Desktop {
                                     cx.notify();
                                     return;
                                 }
-                                let selected_capture = if capture.group_id().is_some() { capture.select(&selected.borrow()) } else { Some(capture.clone()) };
+                                let selected_capture = { let capture = capture.borrow(); if capture.group_id().is_some() { capture.select(&selected.borrow()) } else { Some(capture.clone()) } };
                                 let Some(selected_capture) = selected_capture else {
                                     this.ai.as_mut().unwrap().notice = "Select at least one exact proposal and include every pending Source prerequisite for selected knowledge or Actions.".into(); cx.notify(); return;
                                 };
