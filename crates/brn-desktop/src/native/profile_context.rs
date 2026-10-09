@@ -9,9 +9,13 @@ use gpui_kit::{AnyElement, TestSupportExt, base::Disableable};
 pub(super) struct ProfileContextPane {
     pub(super) open: bool,
     snapshot: Option<ProfileContext>,
+    generation: u64,
+    pub(super) graph: bool,
+    pub(super) graph_scroll: ScrollHandle,
+    pub(super) graph_selection: Option<String>,
     action: usize,
-    relationship: usize,
-    proof: usize,
+    pub(super) relationship: usize,
+    pub(super) proof: usize,
     pub(super) profile: Entity<EditorState>,
     pub(super) details: Entity<EditorState>,
     pub(super) quote: Entity<EditorState>,
@@ -22,6 +26,10 @@ impl ProfileContextPane {
         Self {
             open: false,
             snapshot: None,
+            generation: 0,
+            graph: false,
+            graph_scroll: ScrollHandle::new(),
+            graph_selection: None,
             action: 0,
             relationship: 0,
             proof: 0,
@@ -102,9 +110,16 @@ impl Desktop {
         cx: &mut Context<Self>,
     ) {
         let context = self.ai.as_ref().unwrap().profile_context.context.as_ref();
-        let changed = self.profile_context.snapshot.as_ref() != context;
+        let generation = self.ai.as_ref().unwrap().profile_context.generation();
+        let changed = self.profile_context.snapshot.as_ref() != context
+            || self.profile_context.generation != generation;
         if changed {
             self.profile_context.snapshot = context.cloned();
+            self.profile_context.generation = generation;
+            self.profile_context.graph_selection = None;
+            self.profile_context
+                .graph_scroll
+                .set_offset(point(px(0.), px(0.)));
             self.profile_context.action = 0;
             self.profile_context.relationship = 0;
             self.profile_context.proof = 0;
@@ -157,6 +172,9 @@ impl Desktop {
     }
     pub(super) fn clear_profile_panel(&mut self) {
         self.profile_context.open = false;
+        self.profile_context.graph_selection = None;
+        self.profile_context.relationship = 0;
+        self.profile_context.proof = 0;
         self.ai.as_mut().unwrap().clear_profile_context();
     }
     fn step_profile_item(
@@ -190,6 +208,7 @@ impl Desktop {
             *index = next;
             if matches!(item, Item::Relationship) {
                 pane.proof = 0;
+                pane.graph_selection = None;
             }
             self.sync_profile_context_widgets(window, cx);
             cx.notify();
@@ -261,19 +280,37 @@ impl Desktop {
             .gap_2()
             .p_2();
         if ai.profile_context_loading() {
-            content = content
-                .child("Reading saved profile context… Previous observation retained below.");
+            let label = "Reading saved profile context… Previous observation retained below.";
+            content = content.child(
+                div()
+                    .id("profile-context-loading")
+                    .aria_label(label)
+                    .child(label)
+                    .test_support(),
+            );
         }
         if let Some(error) = &ai.profile_context.error {
-            content = content.child(format!("Context unavailable: {error}"));
+            let label = format!("Context unavailable: {error}");
+            content = content.child(
+                div()
+                    .id("profile-context-error")
+                    .aria_label(label.clone())
+                    .child(label)
+                    .test_support(),
+            );
         }
         if let Some(context) = &ai.profile_context.context {
+            let coverage = if context.complete {
+                "Coverage: complete fresh observation; filesystem changes are not atomic."
+            } else {
+                "Coverage: incomplete; issues or duplicate identities prevent a certified empty result."
+            };
             content = content.child(format!("{} context · {} · UUID {}", match context.request.lens { ProfileLens::Person => "Person", ProfileLens::Project => "Project" }, context.profile.source.path, context.request.note_id))
                 .child("Explicit query lens; no saved profile type is inferred.")
                 .child(format!("Saved profile SHA-256: {}", digest(&context.profile.source.fingerprint.sha256)))
                 .child(div().h(px(160.)).flex_shrink_0().child(exact_editor(&pane.profile, "Full saved profile Markdown")))
                 .child(copy("copy-profile-markdown", "Copy full saved profile", &pane.profile))
-                .child(if context.complete { "Coverage: complete fresh observation; filesystem changes are not atomic." } else { "Coverage: incomplete; issues or duplicate identities prevent a certified empty result." })
+                .child(div().id("profile-context-coverage").aria_label(coverage).child(coverage).test_support())
                 .child(format!("Actions: offset {} · {} displayed · {} matching retained Actions (including Completed)", context.request.action_offset, context.actions.len(), context.action_total))
                 .child(item_controls("action", "Action", pane.action, context.actions.len(), Item::Action, cx));
             if let Some(action) = context.actions.get(pane.action) {
@@ -368,6 +405,9 @@ impl Desktop {
                     Item::Relationship,
                     cx,
                 ));
+            if pane.graph {
+                content = content.child(self.render_profile_graph(context, cx));
+            }
             if let Some(relationship) = context.relationships.get(pane.relationship) {
                 let edge = &relationship.edge;
                 let direction = match (
@@ -461,6 +501,21 @@ impl Desktop {
             .gap_1()
             .p_1()
             .child("Saved profile context");
+        for (id, label, graph) in [
+            ("profile-view-list", "List", false),
+            ("profile-view-graph", "Graph", true),
+        ] {
+            header = header.child(
+                Button::new(id)
+                    .label(label)
+                    .compact()
+                    .disabled(pane.graph == graph)
+                    .on_click(cx.listener(move |this, _, _, cx| {
+                        this.profile_context.graph = graph;
+                        cx.notify();
+                    })),
+            );
+        }
         for (id, label, actions, next) in [
             (
                 "profile-actions-previous",

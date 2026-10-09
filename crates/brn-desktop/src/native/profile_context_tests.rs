@@ -30,7 +30,7 @@ impl Render for ContextProbe {
         })
     }
 }
-fn window(
+pub(super) fn window(
     cx: &mut gpui_kit::TestAppContext,
     full: bool,
 ) -> (
@@ -86,7 +86,7 @@ fn window(
     let desktop = capture.borrow().clone().unwrap();
     (fixture, handle, desktop)
 }
-fn scroll_to(visual: &mut VisualTestContext, target: &str) {
+pub(super) fn scroll_to(visual: &mut VisualTestContext, target: &str) {
     visual.update(|window, cx| {
         window.render_frame(cx);
         let panel = window.find("profile-context-scroll");

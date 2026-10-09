@@ -71,6 +71,9 @@ mod login_tests;
 mod profile_context;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
 mod profile_context_tests;
+mod profile_graph;
+#[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
+mod profile_graph_tests;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
 mod provenance_tests;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
