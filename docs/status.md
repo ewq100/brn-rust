@@ -2,12 +2,17 @@
 
 ## Overnight implementation and model qualification — 2026-10-08
 
-Current main is `e204e626858a90ffcd7eaf1f8e3cf8fc642de33d` (Action-edit PR108);
-its required post-main checks remain pending. Graph PR107 required post-main
-checks/docs passed, and independently reviewed/local-qualified Linked-Action PR109
-is running candidate CI. The next selected small slice is
-[affected Actions in Activity](work/active/overnight-continuation/activity-action-inventory.md);
-implementation is in progress and not yet qualified or merged.
+Current main is `e1df48576e2bc9d345156224cdacfc41bad75f22` (Linked-Action PR109).
+PR90–108 required candidate and post-main checks/docs passed. Linked109 required
+candidate checks/docs passed and merged normally with exact qualified tree;
+post-main37880350055 pending. The selected
+[affected Actions in Activity](work/active/overnight-continuation/activity-action-inventory.md)
+is implemented, independently reviewed and locally qualified atb873f27, not yet merged.
+It exposes exact historical approved Action UUID/title/order without current lookups.
+Full1179affecteddefault/17existingignores,438combined and all8root gates/shipping/
+52fixtures passed. RetainedN CLI parity and restart passed without inference. The
+[single morning task](work/active/overnight-continuation/morning-ui-acceptance.md)
+records matching latest runtime and26ordered steps; all actual UI acceptance pending.
 [PR90](https://github.com/ewq100/brn-rust/pull/90) added exact evidence ranges and
 intake guidance; [PR91](https://github.com/ewq100/brn-rust/pull/91) added recorded
 work budgets/cancellation; [PR92](https://github.com/ewq100/brn-rust/pull/92) added

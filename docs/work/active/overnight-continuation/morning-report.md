@@ -1,10 +1,10 @@
-# Overnight development report — interim 9 October03:30UTC
+# Overnight development report — interim 9 October03:46UTC
 
 This is a developing report, not the final cutoff receipt. The current authoritative
 checkpoint is [plan.md](plan.md). Current main is
-`e204e626858a90ffcd7eaf1f8e3cf8fc642de33d` (normal protected Action-edit PR108).
-All required candidate checks passed for PR90–108. All required post-main checks
-and documentation passed for PR90–107; PR108post37879299989 remains pending.
+`e1df48576e2bc9d345156224cdacfc41bad75f22` (normal protected Linked-Action PR109).
+All required candidate checks passed for PR90–109. All required post-main checks
+and documentation passed for PR90–108; PR109post37880350055 remains pending.
 Actual interactive GUI/IME/accessibility and owner acceptance are pending throughout.
 
 ## What is implemented and merged
@@ -38,13 +38,16 @@ The work also adds practical context and inspection around those consequences.
 | [PR107](https://github.com/ewq100/brn-rust/pull/107) | Displayed-page one-hop note relationship graph and full edge inspection |
 | [PR108](https://github.com/ewq100/brn-rust/pull/108) | Edit unfinished Actions through exact ordinary replacement proposals |
 
-[Linked-Action inspection PR109](https://github.com/ewq100/brn-rust/pull/109) is
-implemented, independently reviewed and locally qualified at6fb5f4a, with required
-candidate CI pending. It reads explicit dependency/parent/follows-up work, including
-Completed targets outside the current filter, while preserving source selection and
-owner buffers. It is not yet merged. The next selected
-[Activity affected-Action inventory](activity-action-inventory.md) is implementing
-exact body-free historical Action identities/titles, not yet fully qualified.
+[Linked-Action inspection PR109](https://github.com/ewq100/brn-rust/pull/109) merged
+normally at e1df485 after all required candidate checks and parent post-main proof;
+its post-main checks remain pending. It reads explicit dependency/parent/follows-up
+work, including Completed targets outside the filter, preserving selection/buffers.
+The next [Activity affected-Action inventory](activity-action-inventory.md) is
+implemented, independently reviewed and locally qualified atb873f27: exact body-free
+historical Action identities/titles, no current lookup. Fullaffected1179default/17
+existingignores and438combined plusall8root/workspace/shipping/52fixtures passed.
+ShippingCLI retainedN fourapprovals/fiveActionmembers/paging/restart/unchangedbytes
+passed without inference. Activity requiredCI/integration is still pending.
 
 ## Actual verification and model observations
 
@@ -84,17 +87,17 @@ is unavailable. No reset, purchase, account switch or paid fallback was used.
 ## Morning acceptance and remaining work
 
 The only UI acceptance task is [morning-ui-acceptance.md](morning-ui-acceptance.md),
-currently25ordered steps with A–O exact retained synthetic workspaces. Full estimate
-200–280minutes; essential path70–100minutes. Its header records the exact immutable
+currently26ordered steps with A–O exact retained synthetic workspaces. Full estimate
+210–290minutes; essential path75–105minutes. Its header records the exact immutable
 runtime/source/tree/binary hashes and launch commands, and its final section is the
 ready-to-paste morning agent prompt. Expected GUI behavior is labelled expected;
 actual UI acceptance is pending. Retained drafts/outputs remove any need for repeat
 inference merely to inspect or approve.
 
 Current latest locally qualified runtime is
-`/Users/evokessler/repos/brn-overnight-artifacts-20261008/linked-action-runtime`, source
-`27de86ddec07ca3ceef320ea2e047eb2b2419ceb`. The final cutoff report must refresh it
-if Activity qualifies. Do not run historical binaries on newer-schema workspaces,
+`/Users/evokessler/repos/brn-overnight-artifacts-20261008/activity-action-runtime`, source
+`b873f273832f881f03b483c079c94fd06a1a6d51`. The final cutoff report must refresh
+the integration receipt and exact recommended final source. Do not run historical binaries on newer-schema workspaces,
 rerun guarded preparers, reset/relocate bound state or use private owner data.
 
 Remaining blocked product choices: cross-folder retargeting and relative-link/asset
