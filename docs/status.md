@@ -2,9 +2,9 @@
 
 ## Overnight implementation and model qualification — 2026-10-08
 
-Current main is `6826c20661625b99b7fe70932c3e17734f0cd8d8` (Graph PR107);
-its required post-main Mac core job remains pending. Qualified Action-edit PR108
-awaits that proof, and independently reviewed/local-qualified Linked-Action PR109
+Current main is `e204e626858a90ffcd7eaf1f8e3cf8fc642de33d` (Action-edit PR108);
+its required post-main checks remain pending. Graph PR107 required post-main
+checks/docs passed, and independently reviewed/local-qualified Linked-Action PR109
 is running candidate CI. The next selected small slice is
 [affected Actions in Activity](work/active/overnight-continuation/activity-action-inventory.md);
 implementation is in progress and not yet qualified or merged.
