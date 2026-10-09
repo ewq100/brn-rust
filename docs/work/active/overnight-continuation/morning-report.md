@@ -1,10 +1,10 @@
-# Overnight development report — interim 9 October03:46UTC
+# Overnight development report — interim 9 October04:11UTC
 
 This is a developing report, not the final cutoff receipt. The current authoritative
 checkpoint is [plan.md](plan.md). Current main is
-`e1df48576e2bc9d345156224cdacfc41bad75f22` (normal protected Linked-Action PR109).
-All required candidate checks passed for PR90–109. All required post-main checks
-and documentation passed for PR90–108; PR109post37880350055 remains pending.
+`c2dbf5e42a42cbad11657d19f6c60a5d87cf01e2` (normal protected Activity PR110).
+All required candidate checks passed for PR90–110. All required post-main checks
+and documentation passed for PR90–109 in the recorded resulting-main runs.
 Actual interactive GUI/IME/accessibility and owner acceptance are pending throughout.
 
 ## What is implemented and merged
@@ -39,15 +39,29 @@ The work also adds practical context and inspection around those consequences.
 | [PR108](https://github.com/ewq100/brn-rust/pull/108) | Edit unfinished Actions through exact ordinary replacement proposals |
 
 [Linked-Action inspection PR109](https://github.com/ewq100/brn-rust/pull/109) merged
-normally at e1df485 after all required candidate checks and parent post-main proof;
-its post-main checks remain pending. It reads explicit dependency/parent/follows-up
-work, including Completed targets outside the filter, preserving selection/buffers.
-The next [Activity affected-Action inventory](activity-action-inventory.md) is
-implemented, independently reviewed and locally qualified atb873f27: exact body-free
-historical Action identities/titles, no current lookup. Fullaffected1179default/17
-existingignores and438combined plusall8root/workspace/shipping/52fixtures passed.
-ShippingCLI retainedN fourapprovals/fiveActionmembers/paging/restart/unchangedbytes
-passed without inference. Activity requiredCI/integration is still pending.
+normally, with all required candidate and post-main checks/docs passed. It reads
+explicit dependency/parent/follows-up work, including Completed targets outside the
+filter, while preserving selection and owner buffers.
+[Activity PR110](https://github.com/ewq100/brn-rust/pull/110) merged normally at
+`c2dbf5e` after all required candidate checks/docs passed; its exact qualified tree
+was verified and post-main37881829445 is pending. Activity identifies affected Actions
+by ordered historical approved UUID/title/kind, preserving full recorded inspection
+and Undo. Full affected1,182default/17existingignores,438combined and all8root gates
+passed; retainedN shippingCLI inspection/restart preserved all state without inference.
+The original immutable manifest underreports three vault-evidence integration tests;
+a separate correction receipt records Workflow650/total1182. Outcomes/hashes unchanged.
+
+The next [5,000-note CLI qualification](user-scale-cli-qualification.md) passed
+83fresh CLI processes in80.957seconds on4,745,663bytes across50folders. Both25-page
+inventories, exact UUID/full hashes, first/middle/last keyword ranges/full reads,
+restart/index rebuild and unchanged Draft/Inbox-original/note proofs passed.
+Observed cold/restart/rebuild startup:1.452/0.613/1.424seconds; page median1.098,
+search median1.049seconds. These are this fixture's CLI wall times, not a numerical
+SLA, optimization gain, semantic retrieval or native UI performance qualification.
+Independent review found a cancellation gap in this qualification harness; it was
+reproduced and fixed before the campaign, with seven focused subcases and a clean
+correction review. No BRN product/runtime code changed. Final script/record CI and
+integration remain pending; actual GUI/owner acceptance remains pending.
 
 ## Actual verification and model observations
 
@@ -80,15 +94,15 @@ observations establish neither broad completeness nor a model ranking or owner
 acceptance. Token/internal reasoning/provider HTTP request counts/spend are unknown
 where unavailable; completed responses/admitted tool rounds are recorded when exposed.
 
-Account-wide weekly usage was78%used/22%remaining03:26UTC, ordinary usage allowed;
+Account-wide weekly usage was80%used/20%remaining03:55UTC, ordinary usage allowed;
 this includes other Codex work and is not overnight or BRN spend. Short-window telemetry
 is unavailable. No reset, purchase, account switch or paid fallback was used.
 
 ## Morning acceptance and remaining work
 
 The only UI acceptance task is [morning-ui-acceptance.md](morning-ui-acceptance.md),
-currently26ordered steps with A–O exact retained synthetic workspaces. Full estimate
-210–290minutes; essential path75–105minutes. Its header records the exact immutable
+currently27ordered steps with A–P exact retained synthetic workspaces. Full estimate
+220–305minutes including optional scale observation; essential path75–105minutes. Its header records the exact immutable
 runtime/source/tree/binary hashes and launch commands, and its final section is the
 ready-to-paste morning agent prompt. Expected GUI behavior is labelled expected;
 actual UI acceptance is pending. Retained drafts/outputs remove any need for repeat

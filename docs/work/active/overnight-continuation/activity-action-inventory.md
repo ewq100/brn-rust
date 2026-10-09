@@ -80,8 +80,8 @@ edit/compensation/Complete/replay/restart/paging with immutable history and note
 Five focused witnesses passed:2portableWorkflow,1genuine lifecycle,1CLI64member
 Unicode/control/exactJSON and1actual480px native with two64member entries/longtitle/
 scrolling/full recorded approval clicks. Initial native observation-seam failures
-were corrected without reducing fixtures/assertions. Full affected default1179PASS/
-17existingignores =Workflow647+CLI219+Desktop313; fullcombinedDesktop438PASS.
+were corrected without reducing fixtures/assertions. Full affected default1182PASS/
+17existingignores =Workflow650+CLI219+Desktop313; fullcombinedDesktop438PASS.
 Existing full-size asset recovery/Undo ran unchanged and passed again. Strict affected
 both passed after a test-only Clippy parity correction; corrected portable2 and all
 fourActivityintegrations passed. Full-runtime tests reused for that mechanical delta.
@@ -101,8 +101,14 @@ reopening matches, humanhistorical label and exactUUID/title retained, no descri
 in page, Actions/proposals/conversations/vaultbytes unchanged, no inference. Actual
 GUI/IME/accessibility/personalacceptance pending ONLYmorningstep26; no new workspace.
 
-PR90–108 allrequiredcandidate ANDpost-main/docsPASS. Linked109 normallymerged
+PR90–109 allrequiredcandidate ANDpost-main/docsPASS. Linked109 normallymerged
 e1df48576e2bc9d345156224cdacfc41bad75f22 afterallrequiredcandidate/docs andActionpost
 proof; exactqualifiedtree3dad850c9e14e5b2419ebe172a20d3c47d6c8028. Linkedpost
-37880350055pending. This Activitycandidate needs actualrequiredCI/docs and eligible
+37880350055all4required/docsPASS. This Activitycandidate needs actualrequiredCI/docs and eligible
 Linkedpost before normal protected merge/exactresultingmain/postCI. No unqualifiedmerge.
+
+Independent final-document review found three passing Workflow vault-evidence integration tests omitted by
+the helper count parser. Correct totals are1182/17(default),Workflow650+CLI219+
+Desktop313. Original immutable build manifest underreports1179/647 and is retained
+as historical evidence; activity-inventory-count-correction.json records this erratum.
+All source/binary hashes, test outcomes and qualification remain unchanged.

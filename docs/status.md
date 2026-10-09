@@ -2,17 +2,23 @@
 
 ## Overnight implementation and model qualification — 2026-10-08
 
-Current main is `e1df48576e2bc9d345156224cdacfc41bad75f22` (Linked-Action PR109).
+Current main is `c2dbf5e42a42cbad11657d19f6c60a5d87cf01e2` (Activity PR110).
 PR90–108 required candidate and post-main checks/docs passed. Linked109 required
 candidate checks/docs passed and merged normally with exact qualified tree;
-post-main37880350055 pending. The selected
+allrequiredpost-main/docsPASS37880350055. The selected
 [affected Actions in Activity](work/active/overnight-continuation/activity-action-inventory.md)
-is implemented, independently reviewed and locally qualified atb873f27, not yet merged.
+merged normally as [PR110](https://github.com/ewq100/brn-rust/pull/110) after all required
+candidate checks/docs passed; exact qualified tree verified. Post-main37881829445
+checks remain pending. Build sourceb873f27 stays the matching qualified runtime.
 It exposes exact historical approved Action UUID/title/order without current lookups.
-Full1179affecteddefault/17existingignores,438combined and all8root gates/shipping/
+Full1182affecteddefault/17existingignores,438combined and all8root gates/shipping/
 52fixtures passed. RetainedN CLI parity and restart passed without inference. The
 [single morning task](work/active/overnight-continuation/morning-ui-acceptance.md)
-records matching latest runtime and26ordered steps; all actual UI acceptance pending.
+records matching latest runtime and27ordered steps, including optional scale observation;
+all actual UI acceptance pending. The selected [5,000-note CLI qualification](work/active/overnight-continuation/user-scale-cli-qualification.md) passed83fresh processes
+in80.957seconds with exact inventories/search/restart/index rebuild and unchanged
+retained work. Its scripts/records await final hosted qualification/integration;
+product source/runtime is unchanged.
 [PR90](https://github.com/ewq100/brn-rust/pull/90) added exact evidence ranges and
 intake guidance; [PR91](https://github.com/ewq100/brn-rust/pull/91) added recorded
 work budgets/cancellation; [PR92](https://github.com/ewq100/brn-rust/pull/92) added
