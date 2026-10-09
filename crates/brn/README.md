@@ -453,6 +453,12 @@ Entries include the approved title, summary, affected paths/kinds and operation,
 proposal, group and session identities. The time is recorded approval admission,
 not an exact completion time. Note bodies, comments, proofs and transcripts are
 excluded. JSON returns `{entries, next_before}` in an `activity.list` envelope.
+Each entry also includes ordered `action_changes` with `kind` (`created` or
+`replaced`), exact `action_id` and complete `title`. Human output labels these as
+historical approved titles, escaping control characters while retaining Unicode.
+These values come from the recorded approval, independently of current Action
+state; later editing/completion cannot rewrite them. Full Action bodies remain
+available through the identified recorded approval, outside these bounded pages.
 
 The default page contains up to 20 entries, with `--limit` accepting 1–100.
 Pass `next_before` as `--before` to fetch the exclusive older page. Unknown or
