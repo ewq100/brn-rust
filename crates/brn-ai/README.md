@@ -4,7 +4,7 @@
 
 Thin, fixed ChatGPT/Copilot subscription authentication and streamed
 chat over Rig **0.43.0**. Contains account/selection DTOs, safe errors, checked
-credential storage, owned clients, seven read tools and one separate review-proposal capability. It does not contain
+credential storage, owned clients, eight read tools and one separate review-proposal capability. It does not contain
 workers, SQL, selection persistence or frontend state.
 
 `answer_with_effort` freezes an explicit low/medium/high choice with the selected
@@ -174,10 +174,10 @@ wire policy and cannot establish the number of real network sends.
 
 Implement the synchronous `ReadTools: Send + Sync` seam in workflow and pass it
 as `Arc<dyn ReadTools>`. Rig tool calls dispatch blocking reads via
-`tokio::task::spawn_blocking`, with at most two concurrent calls. `search_notes`, `read_note`, `list_notes`, `read_action`, `list_actions` and `read_conflicts` are the
+`tokio::task::spawn_blocking`, with at most two concurrent calls. `search_notes`, `read_note`, `read_note_range`, `read_raw_evidence`, `list_notes`, `read_action`, `list_actions` and `read_conflicts` are the
 fixed read tools:
 
-The three note tools accept a `scope` enum (`current`, `source`, `history`, `all`), defaulting
+Scoped note tools accept a `scope` enum (`current`, `source`, `history`, `all`), defaulting
 to Current when omitted. Serialized results label that scope alongside existing
 fields. `ReadTools` scoped methods support this selection; old implementers
 delegate omitted/Current calls and reject other scopes rather than substituting
@@ -186,7 +186,7 @@ selects read-only evidence, never approval or mutation authority. The pinned
 Copilot Responses strict schema makes every property required on the wire;
 Rust omission compatibility remains supported and verified separately.
 
-Each passage, read and list row requires `NoteFacts`: optional canonical managed
+Each scoped passage, read and list row requires `NoteFacts`: optional canonical managed
 UUID string, complete saved-note SHA256 as the existing 32-byte JSON array,
 independent `source`/`history` flags and tagged `conflicts: {status: "unknown"}`.
 Workflow derives these from the same complete checked bytes before any text cap;
@@ -200,6 +200,24 @@ and provenance are evidence, never semantic truth. No eager conflict lookup occu
 - Reads preserve the exact prefix, capped at `READ_NOTE_BYTES = 50_000`, cutting
   only at a UTF-8 boundary. `ToolNote.truncated` preserves an adapter's existing
   truncation flag or records this cap. No BOM/whitespace/CRLF normalization.
+- `read_raw_evidence` reads bounded saved Markdown even when metadata is invalid.
+  `RawEvidenceRequest` defaults to start0/endnull and an unbound prefix capped at
+  50,000 UTF-8 bytes; a nonzero start or explicit end requires the complete saved
+  `expected_sha256` copied from an earlier result. Explicit intervals, including
+  empty intervals, preserve exact half-open UTF-8 byte offsets without clipping.
+  Prefix caps round down only at UTF-8 boundaries. Whole files remain bounded at
+  1 MiB; the full hash includes BOM, frontmatter and CRLF. `RawEvidence` returns
+  exact text/offsets/total size, full `sha256` and an honest `partial` flag.
+  Valid metadata has existing `NoteFacts`; invalid saved or Inbox metadata has
+  `facts: null` and a nonempty `metadata_issue`, never invented Current, Source,
+  History or managed identity. Shared request/reply validation rejects malformed
+  backends, mismatched hashes and inconsistent classification. Metadata issues
+  over4096 UTF-8 bytes and blank/over64-byte fact identities are refused whole,
+  never truncated. Workflow owns
+  containment, fresh complete bytes and exact UTF-8 boundaries. Missing, changed,
+  out-of-file and nonboundary reads refuse wholly. Legacy backends safely refuse.
+  Saved text remains untrusted evidence, never instructions or approval authority;
+  this tool cannot repair metadata or relax ordinary scope/proposal validation.
 - List accepts optional folder/cursor and rejects adapter pages over 200 rows.
   Workflow owns vault/path/cursor validation, exclusion rules and fresh reads.
 - AI Action reads return full approved current records, including immutable origins,

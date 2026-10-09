@@ -830,6 +830,13 @@ impl brn_ai::ProposalTools for DrainedProposals {
     }
 }
 impl ReadTools for DrainedTools {
+    fn read_raw_evidence(
+        &self,
+        request: &brn_ai::RawEvidenceRequest,
+    ) -> brn_ai::AiResult<brn_ai::RawEvidence> {
+        self.tools.read_raw_evidence(request)
+    }
+
     fn read_note_range(
         &self,
         request: &brn_ai::NoteRangeRequest,
@@ -1386,6 +1393,85 @@ mod ranged_read_drain_tests {
                 .unwrap();
             Err(AiError::new(AiErrorKind::IndexStale))
         }
+    }
+
+    struct BlockingRaw {
+        started: Mutex<Option<oneshot::Sender<brn_ai::RawEvidenceRequest>>>,
+        release: Mutex<mpsc::Receiver<()>>,
+    }
+    impl ReadTools for BlockingRaw {
+        fn search_notes(&self, _: &str, _: usize) -> brn_ai::AiResult<brn_ai::ToolSearch> {
+            panic!("unexpected")
+        }
+        fn read_note(&self, _: &str) -> brn_ai::AiResult<brn_ai::ToolNote> {
+            panic!("unexpected")
+        }
+        fn list_notes(
+            &self,
+            _: Option<&str>,
+            _: Option<&str>,
+        ) -> brn_ai::AiResult<brn_ai::NotePage> {
+            panic!("unexpected")
+        }
+        fn read_raw_evidence(
+            &self,
+            request: &brn_ai::RawEvidenceRequest,
+        ) -> brn_ai::AiResult<brn_ai::RawEvidence> {
+            self.started
+                .lock()
+                .unwrap()
+                .take()
+                .unwrap()
+                .send(request.clone())
+                .unwrap();
+            self.release
+                .lock()
+                .unwrap()
+                .recv_timeout(std::time::Duration::from_secs(10))
+                .unwrap();
+            Err(AiError::new(AiErrorKind::IndexStale))
+        }
+    }
+
+    #[tokio::test]
+    async fn raw_blocking_read_keeps_drain_lease_after_turn_handle_is_dropped() {
+        let (started, start) = oneshot::channel();
+        let (release, wait) = mpsc::channel();
+        let (drained, mut drain) = oneshot::channel();
+        let tools: Arc<dyn ReadTools> = Arc::new(DrainedTools {
+            tools: Arc::new(BlockingRaw {
+                started: Mutex::new(Some(started)),
+                release: Mutex::new(wait),
+            }),
+            _drained: Arc::new(DrainSignal(Some(drained))),
+        });
+        let request = brn_ai::RawEvidenceRequest {
+            path: "raw.md".into(),
+            start_byte: 0,
+            end_byte: None,
+            expected_sha256: None,
+        };
+        let expected = request.clone();
+        let blocking_tools = tools.clone();
+        let read = tokio::task::spawn_blocking(move || blocking_tools.read_raw_evidence(&request));
+        assert_eq!(
+            tokio::time::timeout(std::time::Duration::from_secs(5), start)
+                .await
+                .unwrap()
+                .unwrap(),
+            expected
+        );
+        drop(tools);
+        assert!(matches!(
+            drain.try_recv(),
+            Err(oneshot::error::TryRecvError::Empty)
+        ));
+        release.send(()).unwrap();
+        assert_eq!(
+            read.await.unwrap().unwrap_err().kind,
+            AiErrorKind::IndexStale
+        );
+        drain.await.unwrap();
     }
 
     #[tokio::test]

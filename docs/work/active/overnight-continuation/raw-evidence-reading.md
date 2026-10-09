@@ -50,6 +50,7 @@ Public brn-ai DTOs reexported from workflow::knowledge for CLI:
 - RawEvidenceRequest::validate(), RawEvidence::validate_for(&request) shared across
   adapters. Exact requested path/start/end/hash, UTF8 byte length, <=50k/whole1MiB,
   honest partial flag, facts fullhash agreement and exclusive facts/issue state.
+  Reject metadata_issue>4096UTF8bytes and blank/facts.note_id>64bytes; never truncate.
   Default prefix may round its50000 cap down only to UTF8 boundary; explicit ranges
   never clip or normalize. Missing/hash-changed/out-of-file/nonboundary reads refuse
   whole without partial data. Empty file/default0..0 valid.
@@ -57,6 +58,10 @@ Public brn-ai DTOs reexported from workflow::knowledge for CLI:
 ReadTools::read_raw_evidence(&RawEvidenceRequest)->AiResult<RawEvidence>, default
 refusal for older backends. DrainedTools delegates while retaining its existing Arc
 lease; AiTools provides contained full-read/facts/hash/range and root/epoch checks.
+Capture read-only physical VaultIdentity at AiTools open for raw queries, verify
+it before/after each raw read; unavailable/replaced roots refuse. This adds no
+persisted registration or writer authority and leaves existing scoped-tool root
+behavior unchanged.
 App::raw_evidence(&RawEvidenceRequest), AppCommand::RawEvidence(request) and boxed
 AppEvent::RawEvidence(reply) share the owner headless boundary. CLI adds
 `evidence read-raw --file REQUEST.json`; existing evidence read unchanged. Strict
@@ -94,3 +99,14 @@ applicable AI/Workflow/CLI/default/native/Clippy/shipping checks and requiredCI,
 normal protected merge/resulting-main verification. Reuse unchanged fullsize witnesses;
 no weakening/suppression. Retain synthetic raw input/requests/results; actual GUI
 acceptance pending in the existing single morning task, never a separate UI checklist.
+
+## Implementation checkpoint — 09 October 00:37UTC
+
+AI complete153passed/1existingignored, strictAIClippy; all3mockedRig routes verify
+raw replies/refusals and existing budgets/cancel policy unchanged. Workflow7
+including physicalroot/hash/metadata/boundaries/drain/worker, actualCLI3 plus3
+citation shared-JSON regressions andDesktop1ownerpending/partial passed. Root
+fixed2test-style lints; final affected Clippy passed. No open failed behavioral
+check. Fresh complete independent review/final default/native/shipping/CI pending.
+PR102 prerequisite normally merged77960d1 with exact checked tree; incorporated
+without functionaldelta. No livecall used, WorkspaceJ pending.

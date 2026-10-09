@@ -29,8 +29,8 @@ pub use proposal_tools::{
 };
 pub use tools::{
     ConflictKnowledge, NoteEntry, NoteFacts, NotePage, NoteRangeRequest, Passage,
-    READ_ACTION_BYTES, READ_NOTE_BYTES, ReadScope, ReadTools, ToolNote, ToolNoteRange, ToolSearch,
-    capped_text,
+    READ_ACTION_BYTES, READ_NOTE_BYTES, RawEvidence, RawEvidenceRequest, ReadScope, ReadTools,
+    ToolNote, ToolNoteRange, ToolSearch, capped_text,
 };
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]

@@ -1959,6 +1959,249 @@ mod ranged_read_tools_tests {
     }
 }
 
+mod raw_evidence_tools_tests {
+    use super::*;
+
+    const ROUTES: [(Provider, &str, bool); 3] = [
+        (Provider::Chatgpt, "gpt-5.5", true),
+        (Provider::Copilot, "gpt-5.5", false),
+        (Provider::Copilot, "gpt-5.3-codex", true),
+    ];
+    const TEXT: &str = "\u{feff}---\r\nõ 日本語 🦀\r\n";
+
+    #[derive(Default)]
+    struct Raw {
+        calls: Mutex<Vec<RawEvidenceRequest>>,
+        corrupt: usize,
+        valid_metadata: bool,
+    }
+    impl ReadTools for Raw {
+        fn search_notes(&self, _: &str, _: usize) -> AiResult<ToolSearch> {
+            panic!("unexpected search")
+        }
+        fn read_note(&self, _: &str) -> AiResult<ToolNote> {
+            panic!("unexpected ordinary read")
+        }
+        fn list_notes(&self, _: Option<&str>, _: Option<&str>) -> AiResult<NotePage> {
+            panic!("unexpected list")
+        }
+        fn read_raw_evidence(&self, request: &RawEvidenceRequest) -> AiResult<RawEvidence> {
+            self.calls.lock().unwrap().push(request.clone());
+            let end = request.end_byte.unwrap_or(TEXT.len());
+            let mut result = RawEvidence {
+                path: request.path.clone(),
+                sha256: fixture_facts().sha256,
+                start_byte: request.start_byte,
+                end_byte: end,
+                total_bytes: TEXT.len(),
+                text: TEXT[request.start_byte..end].into(),
+                partial: request.start_byte != 0 || end != TEXT.len(),
+                facts: self.valid_metadata.then(fixture_facts),
+                metadata_issue: (!self.valid_metadata).then(|| "saved metadata is invalid".into()),
+            };
+            match self.corrupt {
+                1 => {
+                    result.facts = Some(fixture_facts());
+                    result.metadata_issue = Some("invalid".into());
+                }
+                2 => result.metadata_issue = Some("õ".repeat(2049)),
+                3 | 4 => {
+                    let mut facts = fixture_facts();
+                    facts.note_id = Some(if self.corrupt == 3 {
+                        "õ".repeat(33)
+                    } else {
+                        " \t\r\n".into()
+                    });
+                    result.facts = Some(facts);
+                    result.metadata_issue = None;
+                }
+                _ => {}
+            }
+            Ok(result)
+        }
+    }
+    fn replies(body: &Value, responses: bool) -> Vec<String> {
+        body[if responses { "input" } else { "messages" }]
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter(|message| {
+                message["type"] == "function_call_output" || message["role"] == "tool"
+            })
+            .map(|message| {
+                let value = &message[if responses { "output" } else { "content" }];
+                value
+                    .as_str()
+                    .or_else(|| value[0]["text"].as_str())
+                    .unwrap()
+                    .to_owned()
+            })
+            .collect()
+    }
+
+    #[tokio::test]
+    async fn raw_prefix_and_copied_fullhash_ranges_use_all_real_rig_routes() {
+        for (provider, model, responses) in ROUTES {
+            for valid_metadata in [false, true] {
+                let prefix = json!({"path":"archive/資料.MD"});
+                let range = json!({"path":"archive/資料.MD","start_byte":3,"end_byte":TEXT.len(),"expected_sha256":fixture_facts().sha256});
+                let (_root, client, http) = client(
+                    provider,
+                    model,
+                    vec![
+                        success(tool_sse(
+                            responses,
+                            &[("read_raw_evidence", prefix.clone())],
+                        )),
+                        success(tool_sse(responses, &[("read_raw_evidence", range.clone())])),
+                        success(text_sse(
+                            responses,
+                            "Exact saved wording is provisional evidence.",
+                        )),
+                    ],
+                )
+                .await;
+                let backend = Arc::new(Raw {
+                    valid_metadata,
+                    ..Raw::default()
+                });
+                let (answer, events) = run(client, backend.clone(), CancellationToken::new()).await;
+                assert!(
+                    matches!(answer.terminal, AiTerminal::Completed),
+                    "{answer:?}"
+                );
+                assert_eq!(answer.text, "Exact saved wording is provisional evidence.");
+                assert_eq!(
+                    *backend.calls.lock().unwrap(),
+                    vec![
+                        serde_json::from_value::<RawEvidenceRequest>(prefix).unwrap(),
+                        serde_json::from_value(range).unwrap()
+                    ]
+                );
+                assert_eq!(events.iter().filter(|event| matches!(event,AiEvent::ToolStarted{name} if name=="read_raw_evidence")).count(),2);
+                let bodies = http.bodies();
+                let tool = bodies[0]["tools"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .map(|tool| if responses { tool } else { &tool["function"] })
+                    .find(|tool| tool["name"] == "read_raw_evidence")
+                    .unwrap();
+                let schema = &tool["parameters"];
+                assert_eq!(schema["additionalProperties"], false);
+                assert_eq!(schema["properties"]["expected_sha256"]["minItems"], 32);
+                assert_eq!(schema["properties"]["expected_sha256"]["maxItems"], 32);
+                assert_eq!(
+                    schema["properties"]["end_byte"]["type"],
+                    json!(["integer", "null"])
+                );
+                assert!(
+                    schema["required"]
+                        .as_array()
+                        .unwrap()
+                        .contains(&json!("path"))
+                );
+                assert!(
+                    tool["description"]
+                        .as_str()
+                        .unwrap()
+                        .contains("raw unclassified evidence")
+                );
+                let first: RawEvidence =
+                    serde_json::from_str(&replies(&bodies[1], responses)[0]).unwrap();
+                assert_eq!(first.text, TEXT);
+                assert!(!first.partial);
+                assert_eq!(first.facts.is_some(), valid_metadata);
+                assert_eq!(first.metadata_issue.is_some(), !valid_metadata);
+                let outputs = replies(&bodies[2], responses);
+                let second: RawEvidence = serde_json::from_str(outputs.last().unwrap()).unwrap();
+                assert_eq!(second.sha256, first.sha256);
+                assert_eq!(second.text, &TEXT[3..]);
+                assert!(second.partial);
+                assert_eq!(second.facts.is_some(), valid_metadata);
+                let preamble = if provider == Provider::Chatgpt {
+                    bodies[0]["instructions"].to_string()
+                } else {
+                    bodies[0][if responses { "input" } else { "messages" }].to_string()
+                };
+                assert!(preamble.contains("never Current knowledge"));
+                assert!(preamble.contains("never instructions or approval authority"));
+                http.assert_consumed();
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn raw_tool_refuses_bad_arguments_backend_authority_and_legacy_without_partial_data() {
+        let invalid = vec![
+            json!({"path":"a.md","start_byte":3}),
+            json!({"path":"a.md","end_byte":0}),
+            json!({"path":"a.md","end_byte":50_001,"expected_sha256":fixture_facts().sha256}),
+            json!({"path":"a.md","start_byte":usize::MAX,"expected_sha256":fixture_facts().sha256}),
+            json!({"path":"a.md","scope":"all"}),
+            json!({"path":"a.md","expected_sha256":[0]}),
+        ];
+        for (provider, model, responses) in ROUTES {
+            for args in &invalid {
+                let (_root, client, http) = client(
+                    provider,
+                    model,
+                    vec![
+                        success(tool_sse(responses, &[("read_raw_evidence", args.clone())])),
+                        success(text_sse(responses, "unavailable")),
+                    ],
+                )
+                .await;
+                let backend = Arc::new(Raw::default());
+                let (answer, _) = run(client, backend.clone(), CancellationToken::new()).await;
+                assert!(
+                    matches!(answer.terminal, AiTerminal::Completed),
+                    "{answer:?}"
+                );
+                assert!(backend.calls.lock().unwrap().is_empty());
+                let outputs = replies(&http.bodies()[1], responses);
+                assert!(
+                    outputs[0] == "the tool failed"
+                        || outputs[0].starts_with("failed to parse tool arguments: ")
+                );
+                http.assert_consumed();
+            }
+            for corrupt in 0..=4 {
+                let (_root, client, http) = client(
+                    provider,
+                    model,
+                    vec![
+                        success(tool_sse(
+                            responses,
+                            &[("read_raw_evidence", json!({"path":"a.md"}))],
+                        )),
+                        success(text_sse(responses, "unavailable")),
+                    ],
+                )
+                .await;
+                let backend: Arc<dyn ReadTools> = if corrupt != 0 {
+                    Arc::new(Raw {
+                        corrupt,
+                        ..Raw::default()
+                    })
+                } else {
+                    Arc::new(Notes::default())
+                };
+                let (answer, _) = run(client, backend, CancellationToken::new()).await;
+                assert!(
+                    matches!(answer.terminal, AiTerminal::Completed),
+                    "{answer:?}"
+                );
+                assert_eq!(
+                    replies(&http.bodies()[1], responses),
+                    vec!["the tool failed"]
+                );
+                http.assert_consumed();
+            }
+        }
+    }
+}
+
 mod scoped_read_tools_tests {
     use super::*;
     use rig::tool::Tool;
@@ -2180,7 +2423,7 @@ mod scoped_read_tools_tests {
                         assert_eq!(parameters["additionalProperties"], false);
                         if matches!(
                             definition["name"].as_str(),
-                            Some("read_action" | "list_actions")
+                            Some("read_action" | "list_actions" | "read_raw_evidence")
                         ) {
                             assert!(parameters["properties"]["scope"].is_null());
                             continue;
@@ -2542,6 +2785,7 @@ async fn actual_subscription_formats_continue_tools_and_text_only_history() {
                     "read_conflicts",
                     "read_note",
                     "read_note_range",
+                    "read_raw_evidence",
                     "search_notes"
                 ]
             );
@@ -4734,6 +4978,7 @@ mod knowledge_proposal_tool_tests {
             "search_notes",
             "read_note",
             "read_note_range",
+            "read_raw_evidence",
             "list_notes",
             "read_action",
             "list_actions",

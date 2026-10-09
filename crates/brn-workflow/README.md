@@ -1233,3 +1233,15 @@ including after attachment, subsequent edits and restart/Source loss. Existing
 same-shape replay and complete-pair ApplyJournal/recovery formats are unchanged.
 The operation does not decide semantic replacement, alter original captures or
 close Findings. Only the revised reviewed version can admit effects.
+
+## Raw saved evidence investigation
+
+App::raw_evidence / AppCommand::RawEvidence / boxed AppEvent::RawEvidence and
+`ReadTools::read_raw_evidence` share the explicit contained saved-byte reader.
+The existing synchronous blocking-read drain lease survives cancelled/dropped
+turn handles. Full hashes bind ranges even when size/mtime or requested bytes
+are unchanged. Raw queries verify the physical root captured at AiTools open
+before/after reading and preserve existing epoch/uncertain-operation fencing.
+Invalid managed metadata returns absent facts plus an issue; valid metadata
+remains an observation, not truth. No metadata repair, inferred Current authority,
+new persisted registration, scanner, schema or effects.

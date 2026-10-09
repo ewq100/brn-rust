@@ -147,6 +147,7 @@ Commands:
   brn identity inventory
   brn identity resolve NOTE_ID
   brn evidence read PATH
+  brn evidence read-raw --file REQUEST.json
   brn provenance show PATH
   brn provenance capture --file REQUEST.json
   brn provenance prepare --file REQUEST.json
@@ -724,7 +725,7 @@ fn parse_inner(
     let built = match word.as_str() {
         "edit" => Command::Editor(editor::parse_command(command.unwrap(), &scanned)?),
         "identity" => Command::Identity(identity::parse_command(command.unwrap(), &scanned)?),
-        "evidence" => Command::Evidence(evidence::parse_command(&scanned)?),
+        "evidence" => Command::Evidence(evidence::parse_command(command.unwrap(), &scanned)?),
         "provenance" => Command::Provenance(provenance::parse_command(command.unwrap(), &scanned)?),
         "links" => Command::Links(links::parse_command(command.unwrap(), &scanned)?),
         "findings" => Command::Findings(findings::parse_command(command.unwrap(), &scanned)?),

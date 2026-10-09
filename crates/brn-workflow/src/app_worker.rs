@@ -81,6 +81,7 @@ pub enum AppCommand {
     NoteProvenance(String),
     CitationReview(crate::knowledge::CitationReviewRequest),
     CitationReviewDetail(crate::knowledge::CitationReviewDetailRequest),
+    RawEvidence(crate::knowledge::RawEvidenceRequest),
     NoteLinks(String),
     PrepareNoteLink(crate::knowledge::LinkRequest),
     Relationships(crate::knowledge::RelationshipRequest),
@@ -221,6 +222,7 @@ pub enum AppEvent {
     NoteProvenance(Box<crate::knowledge::NoteProvenance>),
     CitationReview(Box<crate::knowledge::CitationReviewPage>),
     CitationReviewDetail(Box<crate::knowledge::CitationReviewDetail>),
+    RawEvidence(Box<crate::knowledge::RawEvidence>),
     NoteLinks(Box<crate::knowledge::NoteLinks>),
     NoteLinkDraft(Box<crate::proposals::DraftRequest>),
     Relationships(Box<crate::knowledge::RelationshipPage>),
@@ -1336,6 +1338,9 @@ fn dispatch(
         }
         AppCommand::CitationReviewDetail(request) => {
             AppEvent::CitationReviewDetail(Box::new(app.citation_review_detail(&request)?))
+        }
+        AppCommand::RawEvidence(request) => {
+            AppEvent::RawEvidence(Box::new(app.raw_evidence(&request)?))
         }
         AppCommand::NoteLinks(path) => AppEvent::NoteLinks(Box::new(app.note_links(&path)?)),
         AppCommand::PrepareNoteLink(request) => {

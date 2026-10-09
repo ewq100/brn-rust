@@ -1844,6 +1844,11 @@ impl AiState {
     }
     pub fn apply(&mut self, id: Uuid, event: AppEvent) -> Vec<(Uuid, AppCommand)> {
         let mut commands = Vec::new();
+        // Native views issue no standalone raw query; an unrelated headless
+        // response must not settle an owner operation or replace its buffers.
+        if matches!(&event, AppEvent::RawEvidence(_)) {
+            return commands;
+        }
         // Backup notifications are independent of the operation whose commit made
         // state dirty. Never let them settle that operation or replace its buffers.
         let backup_request = matches!(
@@ -3090,6 +3095,7 @@ impl AiState {
             | AppEvent::AccountCancelRequested { .. }
             | AppEvent::ModelCancelRequested { .. } => return commands,
             AppEvent::CitationReview(_)
+            | AppEvent::RawEvidence(_)
             | AppEvent::CitationReviewDetail(_)
             | AppEvent::ConversationSummaries { .. }
             | AppEvent::ConversationLifecycle(_)
@@ -3181,6 +3187,35 @@ mod tests {
         state.effort = Some(ReasoningEffort::High);
         state
     }
+    #[test]
+    fn headless_raw_reply_cannot_settle_owner_ask_or_clear_partial() {
+        let mut state = ready();
+        let ask = state.ask("Owner question".into()).unwrap();
+        let (id, _) = state.command(Pending::Refresh, AppCommand::Refresh);
+        state.active.as_mut().unwrap().partial = "Owner retained partial õ".into();
+        let commands = state.apply(
+            id,
+            AppEvent::RawEvidence(Box::new(brn_workflow::knowledge::RawEvidence {
+                path: "raw.md".into(),
+                sha256: [0; 32],
+                start_byte: 0,
+                end_byte: 0,
+                total_bytes: 0,
+                text: String::new(),
+                partial: false,
+                facts: None,
+                metadata_issue: Some("Unclassified".into()),
+            })),
+        );
+        assert!(commands.is_empty());
+        assert!(state.pending.contains_key(&id));
+        assert_eq!(state.active.as_ref().unwrap().request.id(), ask.id);
+        assert_eq!(
+            state.active.as_ref().unwrap().partial,
+            "Owner retained partial õ"
+        );
+    }
+
     #[test]
     fn effort_choice_requires_acknowledgement_and_cannot_change_active_or_history() {
         let mut state = ready();

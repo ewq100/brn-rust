@@ -13,6 +13,8 @@ use uuid::Uuid;
 pub use brn_store::note_identity;
 mod citation_review;
 pub use citation_review::*;
+mod raw_evidence;
+pub use brn_ai::{RawEvidence, RawEvidenceRequest};
 mod provenance;
 pub use provenance::*;
 mod links;
