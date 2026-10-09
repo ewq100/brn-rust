@@ -77,7 +77,7 @@ requires exact final-candidate review, applicable local checks and actual requir
 CI. No weakening, bypass or rushed merge. Record failures and repair real defects.
 Known informational platform failures remain visible and separate.
 
-## Durable checkpoint — 09 October 01:39 UTC
+## Durable checkpoint — 09 October 01:47 UTC
 
 Continue to05UTC/08Tallinn; final qualification from04:30. Authoritative lead/
 checkpoint/single morning task remain budget checkout
@@ -90,16 +90,18 @@ missing/nonTextprovenance, enabling malformed native confirmation though backend
 lineage refused effects. Rehashed missing-provenance regression FAILED0/1, then
 minimalSomeText/LiteralText/noextraction/visual shape check + real converted Desktop
 fixture corrected it. Fullfocused completion11passed/1existingcrashchildignore,
-including missing+Email refusal, exact replay/freshness/recovery. Correction freeze/
-independent refresh/final affected gates/actual requiredCI/normalmerge still pending.
+including missing+Email refusal, exact replay/freshness/recovery. Correction5120e397215400c68a82b22443c2fbe4d62f3268 independent7file refresh clean.
+All11corrected gates passed:512CLI/defaultDesktop,11nativecompletion/1ignore,
+616combined/strictworkspaceClippy/shipping/helper/52fixtures/links/diff. Exact-head
+required CI/normalmerge pending. Qualification docs now on task-owned
+codex/sent-source-qualification-record; code/runtime remains5120, no productiondelta.
 
 First candidate ALL11 local gate steps passed: fresh fullworkspace1860/18existing
 ignores, nativeWorkflow/models460/16, combinedDesktopCLI616/0, doctests, strict
 workspace default/combinedClippy, shipping/helper,52fixtures,links/diff. Preserve
 sent-source-final-* as BASELINE before correction. Corrected final gate reuses
 unchanged Store/AI/retrieval/intake/full-size Workflow witnesses and reruns affected
-CLI/defaultDesktop/nativecompletion/combined/strict/shipping/fixtures. Root sole
-Cargo target/budgets, no otherCargo/providers. Store/Desktop implementation helpers
+CLI/defaultDesktop/nativecompletion/combined/strict/shipping/fixtures. Root Cargo released; P8backend NOW soleCargo target/intake-ui, no otherCargo/providers. Store/Desktop implementation helpers
 complete; focusedStorefinal20/full498/strict, Desktop11state/7widget/strict recorded.
 
 PR90–104 all4required candidate AND post-main checks/docs passed. PR104 normal
@@ -117,26 +119,25 @@ on savedCurrentUUID, existing role Actions + direct ALL-scope edges with honest
 Source/History classifications/references/coverage, no inferredprofiletype/store/
 graphengine/provider. Backend helper ownsWorkflow/CLI, Desktop helper ownsDesktop;
 root allshared docs/cases/integration. BOTH initial noCargo. Backend active coding;
-Desktop temporarily interrupted with checkpoint so P7 correctionreview can run
-within<=2activehelpers. ResumeDesktop byfollowup_task whenP7reviewdone. Root owns
-Cargo until corrected P7gates complete, then explicitBackend solegranttarget/intake-ui.
+Desktop resumed after P7correctionreview. Backend focused qualification running
+with soleCargo explicitgrant; Desktop still noCargo until release/rootgrant.
 P8 must incorporate eligible mergedP7main before integration. No recursivehelpers.
 
-Latest immutable runtime still captured-order-runtime source4fef, notP7:
-CLI0b50908a042708923bf824068727dc628fb2e960be4f0445ce5f543a5444c3ce,
-Desktop2a0cb8b945a945fb18f122793bbce2163854d395545bfe15789e2cf6e2e90e20,
-helper7f058c35. CasesA–K retained; singlemorning matchesparentruntime. Guarded
-prepare-sent-source-morning.py written/pycompiled, NOTRUN; requires matching qualified
-sent-source-runtime and nonexistent sent-source-case. Will preserve SourceDraftv2/
-Waiting nativeAction plus separately approved/completed headlesscomparison, exact
-actualTuesday vsplannedMonday, freshstale refusal/replay/zeroInference. AddWorkspaceL/
-step21 after qualifiedruntime/preparation. Never rerun guards/relocate boundstate/
+Latest immutable sent-source-runtime source5120e39:
+CLI62df26ec150795b77b64c0ea8b742468acd71bb4d778ab00eccb943166b8e984,
+Desktopd0be83ac1f2030f96736490256fb2702d44a0b39f866c94c7cf2985d9a37861a,
+helper7f058c35. CasesA–L retained; singlemorning updated to matching P7runtime andWorkspaceL/step21.
+Guarded prepare-sent-source-morning.py succeeded01:45; NEVERrerun. SourceDraftv2
+57231513-8ce0-4aa6-bbd8-5281d5ff96ce/WaitingnativeActionbdd3cb6a-a069-4871-ba96-1ba3e7bfc34d
+retained, plus separately completed comparisone8d5d0ae-1560-4d64-ac78-7751fc1995f7.
+ActualTuesday vsplannedMonday, changed-byte refusal/replay/unchangedbytes/zeroInference
+all passedactualshippingprocesses. Morningtable consolidated, stale14/16 ledgerfixed. Never rerun guards/relocate boundstate/
 use oldbinary aftermigration. AllactualGUI/personalacceptance pending, no overnight
 GUI/computer/browser/accessibility/screenshot/unlock/interactive launch.
 
 Campaigncanonical /private/tmp/brn-overnight-20261008/campaign-ledger.json16/16USED,
-Luna8/Sol8, NO furtherlive/retry/newcondition/substitution/reset. Latestusage66%
-weeklyused/34%remainingaccountwide00:52, shortwindow/tokens/internal/spendunknown.
+Luna8/Sol8, NO furtherlive/retry/newcondition/substitution/reset. Latestusage70%
+weeklyused/30%remainingaccountwide01:41, shortwindow/tokens/internal/spendunknown.
 Jrawpaired explicitindexednear1MiBcase useful; no broadmodelranking, savedreplay no
 infer/effects. Archive1090files1,006,656,350bytes01:03; refresh milestone/cutoff.
 No privatevault/email/docs/credentialcontents, account/purchase/paidfallback/model
