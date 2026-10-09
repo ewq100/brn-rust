@@ -228,7 +228,7 @@ pub(super) fn prepare(command: &ActionsCommand) -> Result<AppCommand, CliFailure
     })
 }
 
-fn record_text(record: &impl serde::Serialize) -> String {
+pub(super) fn record_text(record: &impl serde::Serialize) -> String {
     let json = serde_json::to_string_pretty(record).expect("Action DTO serializes");
     // serde_json escapes C0, but leaves DEL/C1 controls raw. Preserve JSON's
     // formatting newlines and quote the remaining user-supplied controls too.

@@ -4,6 +4,7 @@
 pub mod actions;
 pub mod activity;
 pub mod ai;
+mod context;
 mod conversations;
 pub mod editor;
 pub mod error;
@@ -50,6 +51,7 @@ pub enum Command {
     Actions(actions::ActionsCommand),
     Inbox(inbox::InboxCommand),
     Relationships(brn_workflow::knowledge::RelationshipRequest),
+    Context(brn_workflow::knowledge::ProfileContextRequest),
     Proposals(proposals::ProposalCommand),
     Ai(ai::AiCommand),
     ModelDownload {
@@ -153,6 +155,7 @@ Commands:
   brn provenance prepare --file REQUEST.json
   brn links show PATH
   brn links prepare --file REQUEST.json
+  brn context inspect --file REQUEST.json
   brn relationships list [--scope current|source|history|all] [--offset N] [--limit N]
   brn needs-review citations [--limit N] [--cursor CURSOR.json]
   brn needs-review show --file REQUEST.json
@@ -631,6 +634,7 @@ fn parse_inner(
         "needs-review" => needs_review::scan_command(&mut tokens, g, command)?,
         "actions" => actions::scan_command(&mut tokens, g, command)?,
         "inbox" => inbox::scan_command(&mut tokens, g, command)?,
+        "context" => context::scan_command(&mut tokens, g, command)?,
         "relationships" => relationships::scan_command(&mut tokens, g, command)?,
         "proposals" => proposals::scan_command(&mut tokens, g, command)?,
         "activity" => activity::scan_command(&mut tokens, g, command)?,
@@ -735,6 +739,7 @@ fn parse_inner(
         }
         "actions" => Command::Actions(actions::parse_command(command.unwrap(), &scanned)?),
         "inbox" => Command::Inbox(inbox::parse_command(command.unwrap(), &scanned)?),
+        "context" => Command::Context(context::parse_command(&scanned)?),
         "relationships" => Command::Relationships(relationships::parse_command(&scanned)?),
         "proposals" => Command::Proposals(proposals::parse_command(command.unwrap(), &scanned)?),
         "activity" => Command::Activity(activity::parse_command(&scanned)?),
@@ -998,6 +1003,9 @@ pub fn execute(invocation: &Invocation) -> Result<Output, CliFailure> {
     }
     if let Command::NeedsReview(command) = &invocation.command {
         needs_review::validate(command)?;
+    }
+    if let Command::Context(request) = &invocation.command {
+        request.validate().map_err(|error| usage(error.message))?;
     }
     library::validate_workspace(invocation)?;
     library::run(invocation)

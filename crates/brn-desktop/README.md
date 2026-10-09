@@ -647,6 +647,31 @@ usability or human acceptance. Those still require native observation.
 
 Read the [architecture overview](../../docs/architecture/overview.md), [invariants](../../docs/architecture/invariants.md) and [verification guide](../../docs/development/verification.md) before changing contracts.
 
+### Explicit saved person/project context
+
+A clean, acknowledged saved Current managed note offers **Person context** and
+**Project context** in the scrollable document body. These are explicit query lenses over that exact saved UUID;
+no stored profile type is inferred. The read-only panel keeps the complete saved
+Markdown and matching retained Actions, including Completed, with full records in
+copyable context details. Actions and direct relationships have independent page
+controls and honest totals. Relationships label incoming/outgoing direction,
+Current/Source/History endpoints and explicit-link/inferred-provenance origin;
+every complete quote and byte/hash proof is inspectable and exactly copyable.
+
+Displayed Actions' explicit Source and thread UUIDs show their saved identity
+resolution and observed scope. Only Unique classified reference matches offer
+supporting navigation. Missing, ambiguous, incomplete and unknown classifications,
+scan issues and duplicate UUIDs remain visible. Counts describe fresh observations,
+not an atomic snapshot or a semantic conclusion. Supporting saved Markdown opens
+through the existing editor recovery and retained-comment guards.
+
+Queries bind the operation, document/editor generations, complete saved bytes and
+fingerprint, UUID, lens and both page offsets. Wrong, late or malformed replies
+cannot replace the retained view or settle another intent. Note/scope navigation,
+Refresh, Save, application and vault rebind invalidate context. Headless state and
+widget tests qualify these mechanics; native usability and owner acceptance remain
+pending in the single morning acceptance journey.
+### Actual sent evidence and completion
 
 Dashboard **Sent Source path** is retained owner input. Capture the actual sent text
 through Text Inbox and approve its protected Source first. Select an unfinished

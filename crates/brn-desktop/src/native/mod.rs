@@ -68,6 +68,9 @@ mod inbox_tests;
 mod intake_preview;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
 mod login_tests;
+mod profile_context;
+#[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
+mod profile_context_tests;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
 mod provenance_tests;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
@@ -160,6 +163,7 @@ struct Desktop {
     document_scroll: ScrollHandle,
     saved_links: relationships::SavedLinksPane,
     relationships: relationships::RelationshipsPane,
+    profile_context: profile_context::ProfileContextPane,
     citation_review: citation_review::CitationReviewPane,
     findings: findings::FindingsPane,
     inbox: inbox::InboxPane,
@@ -512,6 +516,7 @@ impl Desktop {
             document_scroll: ScrollHandle::new(),
             saved_links: relationships::SavedLinksPane::new(window, cx),
             relationships: relationships::RelationshipsPane::new(window, cx),
+            profile_context: profile_context::ProfileContextPane::new(window, cx),
             citation_review: citation_review::CitationReviewPane::new(window, cx),
             findings: findings::FindingsPane::new(window, cx),
             inbox: inbox::InboxPane::new(window, cx),

@@ -262,6 +262,7 @@ impl AiState {
             .find(|attempt| attempt.request == capture.request)?;
         attempt.error = None;
         let command = AppCommand::CompleteAction(capture.request.clone());
+        self.clear_profile_context();
         self.pending
             .insert(operation, Pending::ActionComplete(Box::new(capture)));
         Some((operation, command))

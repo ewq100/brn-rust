@@ -77,77 +77,60 @@ requires exact final-candidate review, applicable local checks and actual requir
 CI. No weakening, bypass or rushed merge. Record failures and repair real defects.
 Known informational platform failures remain visible and separate.
 
-## Durable checkpoint — 09 October 01:39 UTC
+## Durable checkpoint — 09 October 02:23 UTC
 
-Continue to05UTC/08Tallinn; final qualification from04:30. Authoritative lead/
-checkpoint/single morning task remain budget checkout
-`/Users/evokessler/repos/brn-p3-work-budgets`, branchcodex/p7-sent-evidence-completion.
-P7 [actual sent-evidence completion](sent-evidence-completion.md) first complete
-candidate381b499dea01f05f49091cc0b082eec39edb7654 incorporates mainc1a97ef and is
-pushed/attached as draft [PR105](https://github.com/ewq100/brn-rust/pull/105).
-Complete39file independent review found validP2: pure sent preview accepted
-missing/nonTextprovenance, enabling malformed native confirmation though backend
-lineage refused effects. Rehashed missing-provenance regression FAILED0/1, then
-minimalSomeText/LiteralText/noextraction/visual shape check + real converted Desktop
-fixture corrected it. Fullfocused completion11passed/1existingcrashchildignore,
-including missing+Email refusal, exact replay/freshness/recovery. Correction freeze/
-independent refresh/final affected gates/actual requiredCI/normalmerge still pending.
+Continue until05UTC/08Tallinn, final qualification04:30. Authoritative lead and ONE
+morning task remain `/Users/evokessler/repos/brn-p2-email-docx-intake`, branch
+`codex/p8-profile-context`. P8 behavior45aff613 independently reviewed clean after
+validP2 reference identity correction; complete31file +9file refresh hashes/review
+and actual initial480px failure/red-to-green are in [P8 record](profile-context.md).
+All11corrected local gates PASS:523CLI/defaultDesktop,8nativecontext,632combined,
+strictworkspacedefault/combinedClippy/shipping/helper/52fixtures/links/diff. Reuse
+unchanged1168affectedbaseline/17 and461nativeWorkflowmodels/16 plus P7 full-size
+witnesses honestly. PR106 draft attached; pushed0ed717d documentation link repair
+followed initial hosted docs failure (graph plan only existed in another branch).
+Actual revised docs PASS;4required checks running. Final docs record update next,
+then inspect actual final-headCI/normalprotectedmerge/resultmain. No unqualified
+merge. RootCargo FREE and granted soleCargo to Graphhelper target/budgets.
 
-First candidate ALL11 local gate steps passed: fresh fullworkspace1860/18existing
-ignores, nativeWorkflow/models460/16, combinedDesktopCLI616/0, doctests, strict
-workspace default/combinedClippy, shipping/helper,52fixtures,links/diff. Preserve
-sent-source-final-* as BASELINE before correction. Corrected final gate reuses
-unchanged Store/AI/retrieval/intake/full-size Workflow witnesses and reruns affected
-CLI/defaultDesktop/nativecompletion/combined/strict/shipping/fixtures. Root sole
-Cargo target/budgets, no otherCargo/providers. Store/Desktop implementation helpers
-complete; focusedStorefinal20/full498/strict, Desktop11state/7widget/strict recorded.
+Immutable profile-context-runtime source `0ed717d308365977ed0c46277aed2b6c07af9424`,
+CLI `28ed910b7a03910e50eb86dbf1dec242aa37bf2ce7f5dd9896fe674c38ed2bc4`,
+Desktop `67ebc25334733b3b131d3c26f64d8540f4d8d0601c6421286603405d6d381f3e`, helper7f058c35. Matching WorkspaceM prepared without
+inference; initial missing binding refusal retained, continuation supplied exact
+captures,30Actions/34edges/paging/lenses/Completed/Absent/restart/indexloss/unchanged
+records PASS. A–M retained, morningstep22/160–225minfull/50–65essential. Graph not in
+this runtime. Never reprepare/reset/relocateboundfolders/useoldbinariesafter migration.
+AllactualGUI/IME/accessibility/personalacceptancepending; no computeruse overnight.
 
-PR90–104 all4required candidate AND post-main checks/docs passed. PR104 normal
-merge c1a97ef3f3f079cd1c39e159e08ce23184006996 at01:19:30UTC, tree
-87cc4c0082cdb1e1e394e6978bb5355b1701a172 identical qualified4fef; candidate37867760857
-and post37869224076 all4/docsPASS. CandidateWindows actualsame4Unixerrors inspected,
-no port/suppression. PR103d5f324e post37867421354 all4/docsPASS. Initial105CI
-37870167048 runs unfixed381 candidate; do notmerge despite checks passing until
-corrected head review/local/actual requiredCI settle. PR descriptions updated104/103.
+Graphhelperprofile_context_graph ownsDesktopONLY in other budgetcheckout
+`/Users/evokessler/repos/brn-p3-work-budgets`, codex/p8-context-graph plan cfb89fca
+based3e06; dirtycode/tests prepared. SoleCargo GRANTED02:21, root noCargo until
+released. Current-page25edge onehop projection, pinnedGPUIcanvas/ordinaryButtons,
+exactgeneration/intent/page/fullprofile/endpointedgebinding; no newstore/engine/
+schema/deps/query/inference. Incorporate corrected eligibleP8main before Graph
+finalqualification/review/CI/integration. Root owns shared docs/cases/integration.
+Second helper next_v1_readiness now boundedread-only selecting next accepted ready
+slice afterGraph, no duplicate parked investigations/recursion/Cargo/provider/GUI.
+Atmost2activehelpers. Root selectedmodel/effort unchanged/noAstra.
 
-Next ready P8 read-only Person/Project context selected in OTHER intakecheckout
-`/Users/evokessler/repos/brn-p2-email-docx-intake`, branchcodex/p8-profile-context,
-fixedplan36aa15e93fc6373b47faa6156a1381b2ab1c2f59 profile-context.md. Explicit lens
-on savedCurrentUUID, existing role Actions + direct ALL-scope edges with honest
-Source/History classifications/references/coverage, no inferredprofiletype/store/
-graphengine/provider. Backend helper ownsWorkflow/CLI, Desktop helper ownsDesktop;
-root allshared docs/cases/integration. BOTH initial noCargo. Backend active coding;
-Desktop temporarily interrupted with checkpoint so P7 correctionreview can run
-within<=2activehelpers. ResumeDesktop byfollowup_task whenP7reviewdone. Root owns
-Cargo until corrected P7gates complete, then explicitBackend solegranttarget/intake-ui.
-P8 must incorporate eligible mergedP7main before integration. No recursivehelpers.
+PR90–105 all4requiredcandidate+postmain/docsPASS. Main56b6a02 PR105 merge01:52:42
+identical qualified5120treebc7a; runs37870984751/37871879950. Known Windows4UnixAPI
+errors actualinspected, no port/suppression. P7full1860/18,460native/16,616combined
+and corrected512/11nativecompletion1ignore/616/strictshipping passed. P7qualification
+report c84e8b1 pushed andcarriedf4d88c0. Latestprior sent-source-runtime/L retained.
 
-Latest immutable runtime still captured-order-runtime source4fef, notP7:
-CLI0b50908a042708923bf824068727dc628fb2e960be4f0445ce5f543a5444c3ce,
-Desktop2a0cb8b945a945fb18f122793bbce2163854d395545bfe15789e2cf6e2e90e20,
-helper7f058c35. CasesA–K retained; singlemorning matchesparentruntime. Guarded
-prepare-sent-source-morning.py written/pycompiled, NOTRUN; requires matching qualified
-sent-source-runtime and nonexistent sent-source-case. Will preserve SourceDraftv2/
-Waiting nativeAction plus separately approved/completed headlesscomparison, exact
-actualTuesday vsplannedMonday, freshstale refusal/replay/zeroInference. AddWorkspaceL/
-step21 after qualifiedruntime/preparation. Never rerun guards/relocate boundstate/
-use oldbinary aftermigration. AllactualGUI/personalacceptance pending, no overnight
-GUI/computer/browser/accessibility/screenshot/unlock/interactive launch.
-
-Campaigncanonical /private/tmp/brn-overnight-20261008/campaign-ledger.json16/16USED,
-Luna8/Sol8, NO furtherlive/retry/newcondition/substitution/reset. Latestusage66%
-weeklyused/34%remainingaccountwide00:52, shortwindow/tokens/internal/spendunknown.
-Jrawpaired explicitindexednear1MiBcase useful; no broadmodelranking, savedreplay no
-infer/effects. Archive1090files1,006,656,350bytes01:03; refresh milestone/cutoff.
-No privatevault/email/docs/credentialcontents, account/purchase/paidfallback/model
-download/ports/release/signing/globalconfig/unrelatedmerge. Primary18f3891+DSStore/
-researchPRs/userdata untouched. Selected leadmodel/effort unchanged. Parkedretry
-8f8fc2eunqualifiedpushed/noPR/RigResponses mismatch/nofork; crossfolder/split/regroup/
-webcapture/autoarchive/PDFchoices parked. SessionDelete needs exact retentionwarning
-spec, P8 ready instead. Continue readywork, don'tstopatonePR/waitowner. Heartbeat
-active authoritativeentrypoint here; update meaningfulmilestones, disable05UTC/
-cancel/runtime-limit/all-useful-blocked, noarchivechat. Safecommit/pushunfinished,
-exactmorningreport andnextstep atcutoff.
+Campaign canonical /private/tmp/brn-overnight-20261008/campaign-ledger.json16/16USED
+Luna8/Sol8, NO LIVE allowance/retries/newconditions/substitution/reset. Owner10extra
+alreadycounted. Usage70%weeklyused30%remaining01:41accountwide ordinarytrue, short
+window/tokens/internal/spendunknown. Archive1218files1,007,683,645B01:49; refresh
+milestones/cutoff. No privatevault/email/docs/credentialcontents/accountswitch/
+purchase/paidfallback/modeldownload/ports/releases/signing/globalconfig/unrelated
+merge. Preserveprimary18f3891+DSStore/researchPRs/userdata/exactapproval/provenance/
+CurrentHistory/originals/recovery/owneredits. Parkedretry8f8fc2e pushedunqualified/noPR/
+RigResponsesmismatch/nofork;crossfolder/split/regroup/webcapture/autoarchive/PDF/
+SessionDeletewarningspec parked. Continue usefulreadywork; don'tstopatonePR/waitowner.
+HeartbeatpointsHERE; disable05UTC/cancel/runtime-limit/allusefulauthorizedblocked,
+noarchivechat. Safelycommit/pushunfinished and exactmorningreport/nextstep atcutoff.
 
 ## Selected first evidence slice
 

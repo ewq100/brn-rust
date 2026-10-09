@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use uuid::Uuid;
 
-pub use brn_store::note_identity;
+pub use brn_store::{note_identity, note_metadata};
 mod citation_review;
 pub use citation_review::*;
 mod raw_evidence;
@@ -19,6 +19,8 @@ mod provenance;
 pub use provenance::*;
 mod links;
 pub use links::*;
+mod context;
+pub use context::*;
 mod relationships;
 pub use relationships::*;
 

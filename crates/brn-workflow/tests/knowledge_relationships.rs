@@ -295,6 +295,12 @@ fn unchanged_source_does_not_cache_target_changes_moves_or_duplicate_identities(
     assert_eq!(changed.total, 2);
     assert!(
         changed
+            .issues
+            .iter()
+            .any(|issue| issue.path == "a.md" && issue.reason.contains("changed source bytes"))
+    );
+    assert!(
+        changed
             .edges
             .iter()
             .all(|edge| edge.origin == EdgeOrigin::ExplicitLink)

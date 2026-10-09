@@ -360,6 +360,7 @@ pub fn run(i: &Invocation) -> Result<Output, CliFailure> {
         Command::NeedsReview(command) => Some(super::needs_review::prepare(command)?),
         Command::Actions(command) => Some(super::actions::prepare(command)?),
         Command::Inbox(command) => Some(super::inbox::prepare(command)?),
+        Command::Context(request) => Some(AppCommand::ProfileContext(request.clone())),
         Command::Relationships(request) => Some(super::relationships::prepare(request)?),
         _ => None,
     };
@@ -673,6 +674,11 @@ fn execute(
                 text: note.text.clone(),
                 data: json!({"path": path, "text": note.text}),
             })
+        }
+        Command::Context(request) => {
+            let event =
+                lane.query(knowledge.expect("profile context input captured before startup"))?;
+            super::context::output(request, event)
         }
         Command::Relationships(request) => {
             let AppEvent::Relationships(page) =
