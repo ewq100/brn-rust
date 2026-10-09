@@ -122,6 +122,77 @@ impl Fixture {
 fn managed(id: Uuid, body: &str) -> String {
     format!("---\nbrn_id: {id}\n---\n{body}")
 }
+
+#[test]
+fn pure_reply_rejects_conflicting_reference_paths_and_absence_of_the_known_profile() {
+    let f = Fixture::new();
+    let source = Uuid::new_v4();
+    let other = Uuid::new_v4();
+    f.write("source.md", &managed(source, "First source"));
+    f.write("other.md", &managed(other, "Other source"));
+    f.seed(action(
+        Some(f.profile),
+        None,
+        vec![source, other],
+        Some(f.profile),
+    ));
+    let mut app = f.app();
+    let request = f.request(&mut app, ProfileLens::Person, 25);
+    let context = app.profile_context(&request).unwrap();
+    assert!(context.relationships.is_empty());
+    let rebind = |context: &mut ProfileContext, id, path: String, sha256| {
+        let reference = context
+            .references
+            .iter_mut()
+            .find(|reference| reference.resolution.note_id == id)
+            .unwrap();
+        reference.matches[0].note.path = path;
+        reference.matches[0].note.sha256 = sha256;
+        reference.matches[0].scope = Some(KnowledgeScope::Current);
+        reference.resolution.matches[0] = reference.matches[0].note.clone();
+    };
+    let mut profile_alias = context.clone();
+    rebind(
+        &mut profile_alias,
+        source,
+        request.profile.path.clone(),
+        request.profile.fingerprint.sha256,
+    );
+    let mut reference_alias = context.clone();
+    let first = context
+        .references
+        .iter()
+        .find(|reference| reference.resolution.note_id == source)
+        .unwrap();
+    rebind(
+        &mut reference_alias,
+        other,
+        first.matches[0].note.path.clone(),
+        first.matches[0].note.sha256,
+    );
+    let mut absent_profile = context.clone();
+    let known = absent_profile
+        .references
+        .iter_mut()
+        .find(|reference| reference.resolution.note_id == f.profile)
+        .unwrap();
+    known.resolution.matches.clear();
+    known.matches.clear();
+    known.resolution.outcome = IdentityOutcome::Absent;
+    let accepted = [
+        ("profile alias", profile_alias),
+        ("reference alias", reference_alias),
+        ("known profile absent", absent_profile),
+    ]
+    .into_iter()
+    .filter_map(|(name, reply)| reply.validate_for(&request).is_ok().then_some(name))
+    .collect::<Vec<_>>();
+    assert!(
+        accepted.is_empty(),
+        "accepted contradictory identity claims: {accepted:?}"
+    );
+    context.validate_for(&request).unwrap();
+}
 fn action(
     person: Option<Uuid>,
     project: Option<Uuid>,

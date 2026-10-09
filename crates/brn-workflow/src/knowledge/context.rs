@@ -356,8 +356,20 @@ impl ProfileContext {
                 "Profile reference union differs from displayed Action sources/thread.",
             ));
         }
+        let mut reference_paths = endpoints
+            .iter()
+            .map(|(path, (id, _, _))| (*path, *id))
+            .collect::<BTreeMap<_, _>>();
+        reference_paths.insert(request.profile.path.as_str(), request.note_id);
         for reference in &self.references {
             let resolution = &reference.resolution;
+            if resolution.note_id == request.note_id
+                && (resolution.outcome != IdentityOutcome::Unique || resolution.matches.len() != 1)
+            {
+                return Err(rejected(
+                    "The captured profile cannot be an absent or uncertain reference.",
+                ));
+            }
             if reference
                 .matches
                 .iter()
@@ -407,6 +419,14 @@ impl ProfileContext {
             for item in &reference.matches {
                 EvidencePath::parse(&item.note.path)
                     .map_err(|error| rejected(error.to_string()))?;
+                if reference_paths
+                    .insert(item.note.path.as_str(), resolution.note_id)
+                    .is_some_and(|known_id| known_id != resolution.note_id)
+                {
+                    return Err(rejected(
+                        "Reference path contradicts an already observed note identity.",
+                    ));
+                }
                 if item.note.note_id != Some(resolution.note_id)
                     || item.scope.is_some_and(|scope| !known(scope))
                     || resolution.outcome == IdentityOutcome::Unique && item.scope.is_none()
