@@ -2,7 +2,7 @@
 
 ## Overnight implementation and model qualification — 2026-10-08
 
-Current main is `77960d1d8affa71b14ec0a4e3c99fe52663b5cf2`.
+Current main is `d5f324ec558e9ecce898ac2373c36eec8242649c`.
 [PR90](https://github.com/ewq100/brn-rust/pull/90) added exact evidence ranges and
 intake guidance; [PR91](https://github.com/ewq100/brn-rust/pull/91) added recorded
 work budgets/cancellation; [PR92](https://github.com/ewq100/brn-rust/pull/92) added
@@ -44,17 +44,16 @@ default/18 existing ignores,447native/16,597combined plus Clippy/shipping/52fixt
 passed, reusing unchanged full-size baseline witnesses. Revised PR102 all required
 CI/docs passed and normal merge77960d1 completed; all required post-main checks/docs passed in37865065354.
 The next ready P3 slice is [explicit raw saved-evidence reading](work/active/overnight-continuation/raw-evidence-reading.md),
-so metadata-invalid files remain inspectable without Current authority. Focused
+so metadata-invalid files remain inspectable without Current authority. The next bounded native slice is [owner ordering of captured group approvals](work/active/overnight-continuation/captured-approval-order.md), reusing existing Source-first workflow and exact request/record pairs. Focused
 AI153/1existingignore,Workflow7,CLI3+3citation,Desktop1 and strictaffectedClippy
 passed. [PR103](https://github.com/ewq100/brn-rust/pull/103) complete independent review
 found a valid missing delegation in the actual application tool wrapper; a real
-Ask admission regression reproduced it and the delegation is corrected. Correction
-qualification/review, final gates and requiredCI remain pending; not merged. A separate read-call correction is
+Ask admission regression reproduced it and the delegation is corrected. Independent correction review is clean; final affected1287default/18,455native/16,601combined plusClippy/shipping/52fixtures passed. Final paired raw long-evidence calls retained all material facts and unclassified authority; exact replay passed. PR103 allrequiredcandidateCI/docs passed and normalmerge d5f324e completed with identical qualifiedtree; resulting-main37867421354 active. A separate read-call correction is
 parked unqualified on pushed8f8fc2e: pinned Responses drops malformed args before
 its recovery hook. No retry or admitted-request policy from that branch ships. No semantic Findings or authoritative edits occur automatically.
 
 The [overnight checkpoint](work/active/overnight-continuation/plan.md) owns exact
-branches, builds, verification and continuation. Fourteen of sixteen authorized live investigations are used, seven Luna/seven Sol,
+branches, builds, verification and continuation. All sixteen authorized live investigations are used, eight Luna/eight Sol,
 including one failed attempt and its separately counted manual retry. Results include
 improved retention of original budget/review date, North Quay conflict uncertainty
 Cedar near-limit ranged evidence and useful Linden Applied-private-intake Findings; usefulness limitations and unknown telemetry

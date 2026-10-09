@@ -23,7 +23,7 @@ pub struct ApprovalCapture {
 }
 
 impl ApprovalCapture {
-    pub fn new(records: Vec<ProposalRecord>, group_id: Option<Uuid>) -> Option<Self> {
+    pub fn new(mut records: Vec<ProposalRecord>, group_id: Option<Uuid>) -> Option<Self> {
         if records.is_empty()
             || records.len() > MAX_PROPOSAL_CHANGES
             || group_id.is_none() && records.len() != 1
@@ -71,6 +71,8 @@ impl ApprovalCapture {
             };
             validate_review_edit(record, &edit).ok()?;
         }
+        // Match workflow's stable Source-first execution before binding operations.
+        records.sort_by_key(|record| record.draft.inbox_source.is_none());
         let mut operations = HashSet::new();
         let mut requests = Vec::with_capacity(records.len());
         for record in &records {
@@ -92,6 +94,35 @@ impl ApprovalCapture {
             requests,
             group_id,
         })
+    }
+
+    pub fn move_earlier(&self, id: Uuid) -> Option<Self> {
+        let index = self
+            .records
+            .iter()
+            .position(|record| record.draft.id == id)?;
+        self.swap_non_sources(index, index.checked_sub(1)?)
+    }
+
+    pub fn move_later(&self, id: Uuid) -> Option<Self> {
+        let index = self
+            .records
+            .iter()
+            .position(|record| record.draft.id == id)?;
+        self.swap_non_sources(index, index.checked_add(1)?)
+    }
+
+    fn swap_non_sources(&self, index: usize, adjacent: usize) -> Option<Self> {
+        if self.group_id.is_none()
+            || self.records.get(index)?.draft.inbox_source.is_some()
+            || self.records.get(adjacent)?.draft.inbox_source.is_some()
+        {
+            return None;
+        }
+        let mut ordered = self.clone();
+        ordered.records.swap(index, adjacent);
+        ordered.requests.swap(index, adjacent);
+        Some(ordered)
     }
 
     pub fn select(&self, selected: &HashSet<Uuid>) -> Option<Self> {
@@ -338,6 +369,10 @@ pub fn receipt_matches(request: &ApprovalRequest, receipt: &ApplyReceipt) -> boo
 #[cfg(test)]
 #[path = "approval_tests.rs"]
 mod tests;
+
+#[cfg(test)]
+#[path = "approval_order_tests.rs"]
+pub(crate) mod ordering_tests;
 
 #[cfg(test)]
 #[path = "approval_operation_tests.rs"]

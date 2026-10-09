@@ -303,3 +303,36 @@ All Source/Original/assets and approved Quay files retained identical physical
 proofs. Receipts:
 `/private/tmp/brn-overnight-20261008/pptx-retained-case/receipts/paired-private-investigation`.
 Fourteen of sixteen used, Luna7/Sol7; two remain, at most one per condition.
+
+
+## Raw unclassified long-evidence usefulness — 9 October00:53UTC
+
+Final counted calls15/16 used exact Medium conditions on identical949,968-byte
+saved malformed-metadata Markdown, same qualifiedruntimec086849/CLI73288a1d,
+question and evidence; each starts a fresh session, no approval or effects between.
+Luna31b8c1d5-dbe8-4f96-9d4f-284fa32c7bf2 completed6.628seconds; Sol
+1c31b2c1-2c92-4556-9629-06eab6137d9d completed16.524seconds. Both3completed
+model responses/2admittedtoolrounds, exactly two read_raw_evidence calls, under
+180seconds/8rounds/9responses; no cancellation/retry/substitution/login/reset.
+Provider HTTPrequests/tokens/internalreasoning/spend unknown. Pre-pair accountwide
+weekly66%used/34%remaining, not per-run attribution; short window unknown.
+
+Both used prefix section index and completefileSHA to reach949000..949968,
+disclosed facts=None/invalidmanagedUUID/unclassified rather than Current authority,
+retained €8,200 net panels-only/excludedVAT/delivery/installation/unknowninstalledtotal,
+47vs50dB/noncompliance,10November16:00 reply vs14November10:00 ownerreview2026,
+Mara-only spending authority/JensCCnotauthorization and unapprovedorder/access/date.
+Both recommended clarification/fullquotation beforecommitment. Sol explicitly
+noted earlierreply vsreview and3dB gap; Luna was more concise and omitted literal
+UTC+02:00 offsets while retaining Europe/Tallinn, dates/year/times. No material
+fixture fact omission or invented commitment observed. One explicit-path/indexed
+syntheticcase does not establish general discovery, routing quality, model ranking,
+promptcausality or personal acceptance; Sol's answer remainsverbose.
+
+Originalfilephysicalproofs/bytes unchanged; zero proposals/Actions/Findings before/
+after. Fresh saved-session reads and exact completed Ask replays matched recorded
+answers/budgets/times with no new tool/inference work. Sessions are retained for
+morning GUI inspection, no repeat inference required. Receipts/requests/outputs:
+`/private/tmp/brn-overnight-20261008/raw-evidence-case/receipts/paired-raw-investigation`;
+ready.json/buildmanifest and canonical campaignledger contain exactinput/runtime/
+IDs/latency/progress. Campaign now16/16 used, Luna8/Sol8; NO live allowance remains.
