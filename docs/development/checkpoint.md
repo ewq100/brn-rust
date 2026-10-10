@@ -1,5 +1,7 @@
 # Resumable V1 checkpoint
 
+> **Baseline reference for the Threads rebuild.** This document describes the pre-Threads implementation or historical evidence. The [canonical Threads target](../architecture/threads-target.md) owns the replacement contract. Inspect this material for component reuse; do not resume its old tasks or infer current authorization from it. Update this local contract when its implementation is replaced.
+
 Full frozen V1 goal confirmed **paused** by the goal tool on2026-10-06 at the
 owner's controlled-stop request; objective preserved, no token budget. Resume only
 an explicitly selected [handoff task](../work/active/v1-handoff.md#ordered-task-queue).
@@ -611,7 +613,7 @@ Lead-confirmed 2026-10-05, full V1 goal **active**, without a token budget.
 ## Earlier product checkpoint
 
 Lead-confirmed 2026-10-05 checkpoint; update this short record at integration.
-Historical observations remain in the linked plans and [status](../status.md).
+Historical observations remain in the linked plans and [status](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/status.md).
 
 - **Mission:** complete the frozen V1 through trusted-user packaging. The lead
   confirmed the full goal active without a token budget at 15:44 UTC. This helper
@@ -652,5 +654,5 @@ Historical observations remain in the linked plans and [status](../status.md).
   model downloads or private/original-data operations are authorized here.
 
 Run the [preflight](../../scripts/development-preflight.py) on another checkout;
-use the [verification guide](verification.md) and [workflow](workflow.md).
+use the [verification guide](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/development/verification.md) and [workflow](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/development/workflow.md).
 Recheck the commit, working-tree identity and current goal before continuing.

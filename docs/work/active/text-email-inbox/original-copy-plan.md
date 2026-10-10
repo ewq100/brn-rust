@@ -16,7 +16,7 @@ PR68 and native controls in PR69; owner acceptance and remaining
 Additive WorkStore tables are local implementation details within the frozen
 architecture; retaining V14/no new table is not a requirement. Preserve existing
 recovery proofs while correcting the cost/record shape. New semantic behavior
-follows the [typed authority boundary](../../../architecture/overview.md#semantic-intelligence-and-deterministic-authority).
+follows the [typed authority boundary](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/architecture/overview.md#semantic-intelligence-and-deterministic-authority).
 
 ## Current lifecycle adaptation
 
@@ -76,7 +76,7 @@ retain previous qualification and pending native/live/owner acceptance.
 
 ## AI authority constraint
 
-Follow the owner's [semantic intelligence and deterministic authority](../../../architecture/overview.md#semantic-intelligence-and-deterministic-authority)
+Follow the owner's [semantic intelligence and deterministic authority](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/architecture/overview.md#semantic-intelligence-and-deterministic-authority)
 clarification. The LLM supplies semantic interpretation, bounded evidence/tool
 choices and candidates; Rust/workflow verifies exact evidence and owns approval,
 effects and recovery. New task-specific AI behavior uses a small centralized

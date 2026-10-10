@@ -1,6 +1,8 @@
 # brn-desktop
 
-> Requirements/qualification context (2026-10-07): this README describes implemented behavior, not mandatory limits or acceptance of the proposed replacement. The [owner amendment](../../docs/product/BRN_PRODUCT_VISION.md#owner-amendment--2026-10-07), [reassessment](../../docs/audits/BRN_ARCHITECTURE_REASSESSMENT_2026-10-07.md) and [proposed plan](../../docs/work/active/architecture-reassessment/plan.md) reopen mechanisms. Email enum/literal text is not real EML ingestion; broader conversion, AI draft freedom and practical reviewability remain gaps. No production behavior changed in this documentation task.
+> **Baseline reference for the Threads rebuild.** This document describes the pre-Threads implementation or historical evidence. The [canonical Threads target](../../docs/architecture/threads-target.md) owns the replacement contract. Inspect this material for component reuse; do not resume its old tasks or infer current authorization from it. Update this local contract when its implementation is replaced.
+
+> Requirements/qualification context (2026-10-07): this README describes implemented behavior, not mandatory limits or acceptance of the proposed replacement. The [owner amendment](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/product/BRN_PRODUCT_VISION.md#owner-amendment--2026-10-07), [reassessment](../../docs/audits/BRN_ARCHITECTURE_REASSESSMENT_2026-10-07.md) and [proposed plan](../../docs/work/active/architecture-reassessment/plan.md) reopen mechanisms. Email enum/literal text is not real EML ingestion; broader conversion, AI draft freedom and practical reviewability remain gaps. No production behavior changed in this documentation task.
 
 Desktop entry point, GPUI views and transient interaction state. All operations go through AppWorker. The headless startup check opens and joins the same current workflow without GPUI.
 
@@ -51,7 +53,7 @@ admitted mutations. Recovery failure retains text and offers explicit retry;
 pending navigation can be cancelled. These routes do not save Markdown.
 Dock/system termination cannot veto exit and can lose unacknowledged typing.
 The editor is implemented and automated verified; native/IME/accessibility
-acceptance remains pending in [status](../../docs/status.md).
+acceptance remains pending in [status](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/status.md).
 
 The Vault rail offers Current, Source, History and All browsing/search scopes.
 Current is the default and opens the existing guarded note editor. Other scopes
@@ -650,7 +652,7 @@ admitted Save drains before the defensive timed quit future.
 They do not establish widget rendering, IME/accessibility behavior, OS chooser
 usability or human acceptance. Those still require native observation.
 
-Read the [architecture overview](../../docs/architecture/overview.md), [invariants](../../docs/architecture/invariants.md) and [verification guide](../../docs/development/verification.md) before changing contracts.
+Read the [architecture overview](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/architecture/overview.md), [invariants](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/architecture/invariants.md) and [verification guide](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/development/verification.md) before changing contracts.
 
 ### Explicit saved person/project context
 

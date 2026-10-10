@@ -1,13 +1,15 @@
 # brn-workflow
 
-> Requirements/qualification context (2026-10-07): this README describes implemented behavior, not mandatory limits or acceptance of the proposed replacement. The [owner amendment](../../docs/product/BRN_PRODUCT_VISION.md#owner-amendment--2026-10-07), [reassessment](../../docs/audits/BRN_ARCHITECTURE_REASSESSMENT_2026-10-07.md) and [proposed plan](../../docs/work/active/architecture-reassessment/plan.md) reopen mechanisms. Email enum/literal text is not real EML ingestion; broader conversion, AI draft freedom/budgets and practical reviewability remain gaps. No production behavior changed in this documentation task.
+> **Baseline reference for the Threads rebuild.** This document describes the pre-Threads implementation or historical evidence. The [canonical Threads target](../../docs/architecture/threads-target.md) owns the replacement contract. Inspect this material for component reuse; do not resume its old tasks or infer current authorization from it. Update this local contract when its implementation is replaced.
+
+> Requirements/qualification context (2026-10-07): this README describes implemented behavior, not mandatory limits or acceptance of the proposed replacement. The [owner amendment](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/product/BRN_PRODUCT_VISION.md#owner-amendment--2026-10-07), [reassessment](../../docs/audits/BRN_ARCHITECTURE_REASSESSMENT_2026-10-07.md) and [proposed plan](../../docs/work/active/architecture-reassessment/plan.md) reopen mechanisms. Email enum/literal text is not real EML ingestion; broader conversion, AI draft freedom/budgets and practical reviewability remain gaps. No production behavior changed in this documentation task.
 
 Shared client-facing application boundary for desktop, CLI and future protocol
 adapters: manual Markdown Save/recovery, knowledge operations and Rig chat/read/
 search through AppWorker. Legacy production Store/Workspace/worker and brn-flow
 paths are removed.
 
-The [architecture client boundary](../../docs/architecture/overview.md#client-and-protocol-boundary)
+The [architecture client boundary](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/architecture/overview.md#client-and-protocol-boundary)
 permits a future thin read-only stdio MCP adapter. It maps capabilities to this
 crate's commands/events; it does not open vault/SQLite files or implement ranking,
 knowledge scopes, parsing, relationships, provider or proposal rules. External
@@ -857,7 +859,7 @@ unexpected artifacts and unresolved payloads stay protected. Reload binds the
 exact reviewed disk observation and requires confirmed discard of dirty text.
 Already-admitted recovery/save/reload/reconcile commands drain on shutdown.
 Stage 1 automated checks passed; native usability remains pending in
-[status](../../docs/status.md).
+[status](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/status.md).
 
 ## Reversible session organization
 
@@ -966,7 +968,7 @@ Only store, retrieval and AI are workspace dependencies. Default builds are
 keyword-only; `native-retrieval` enables the explicit local embedding/installer
 path. Private macOS files/coordinator types enforce manual Save without a generic
 repository or workflow framework. Default and optional native checks remain
-separate; see [verification](../../docs/development/verification.md).
+separate; see [verification](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/development/verification.md).
 
 ## Inbox source review preparation
 

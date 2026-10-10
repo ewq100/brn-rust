@@ -1,5 +1,7 @@
 # brn
 
+> **Baseline reference for the Threads rebuild.** This document describes the pre-Threads implementation or historical evidence. The [canonical Threads target](../../docs/architecture/threads-target.md) owns the replacement contract. Inspect this material for component reuse; do not resume its old tasks or infer current authorization from it. Update this local contract when its implementation is replaced.
+
 Session history supports `conversations list --state active|archived|all` (default
 Active) and `conversations show UUID`, with lifecycle metadata alongside unchanged
 conversation/turn fields. `conversations archive --file REQUEST.json` and
@@ -15,14 +17,14 @@ Archive preserves all history/outcomes and requires explicit Restore for new AI
 work. Exact replay returns the recorded transition and current state, so replaying
 an older Archive cannot override a later Restore. No inference is needed.
 
-> Requirements/qualification context (2026-10-07): this README describes implemented behavior, not mandatory limits or acceptance of the proposed replacement. The [owner amendment](../../docs/product/BRN_PRODUCT_VISION.md#owner-amendment--2026-10-07), [reassessment](../../docs/audits/BRN_ARCHITECTURE_REASSESSMENT_2026-10-07.md) and [proposed plan](../../docs/work/active/architecture-reassessment/plan.md) reopen mechanisms. Email enum/literal text is not real EML ingestion; broader conversion, AI draft freedom/budgets and practical reviewability remain gaps. No production behavior changed in this documentation task.
+> Requirements/qualification context (2026-10-07): this README describes implemented behavior, not mandatory limits or acceptance of the proposed replacement. The [owner amendment](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/product/BRN_PRODUCT_VISION.md#owner-amendment--2026-10-07), [reassessment](../../docs/audits/BRN_ARCHITECTURE_REASSESSMENT_2026-10-07.md) and [proposed plan](../../docs/work/active/architecture-reassessment/plan.md) reopen mechanisms. Email enum/literal text is not real EML ingestion; broader conversion, AI draft freedom/budgets and practical reviewability remain gaps. No production behavior changed in this documentation task.
 
 Owner-operated CLI over [brn-workflow](../brn-workflow/README.md). Every command
 uses AppWorker, sharing the desktop's application owner and durable behavior.
 A data directory has one owner at a time. The CLI exposes owner effects, including
 Save, approval and completion; it does not authenticate a separate agent role.
 External agents read/propose unless the owner explicitly delegates the relevant
-authority. See the [client boundary](../../docs/architecture/overview.md#client-and-protocol-boundary).
+authority. See the [client boundary](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/architecture/overview.md#client-and-protocol-boundary).
 
 [Entry point](src/main.rs), [parsing/output](src/cli/mod.rs),
 [application dispatch](src/cli/library.rs), [editor adapter](src/cli/editor.rs)
@@ -1093,9 +1095,9 @@ The default build is keyword-only; native-retrieval enables existing local
 embedding/model-install support. Tests use synthetic disposable directories
 outside Git and never make live account or model calls. macOS editor tests
 exercise the shared coordinator; native acceptance remains a separate check.
-See [verification](../../docs/development/verification.md),
-[architecture](../../docs/architecture/overview.md) and
-[invariants](../../docs/architecture/invariants.md).
+See [verification](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/development/verification.md),
+[architecture](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/architecture/overview.md) and
+[invariants](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/architecture/invariants.md).
 
 `brn inbox review UUID` inspects complete retained review evidence for one original:
 processing attempts, analyses/turns, Source and linked consequence proposals,

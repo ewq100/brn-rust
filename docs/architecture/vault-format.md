@@ -1,11 +1,13 @@
 # Vault Markdown format
 
+> **Baseline reference for the Threads rebuild.** This document describes the pre-Threads implementation or historical evidence. The [canonical Threads target](threads-target.md) owns the replacement contract. Inspect this material for component reuse; do not resume its old tasks or infer current authorization from it. Update this local contract when its implementation is replaced.
+
 This is the current V1 file contract, consolidated from the implementation and
 [workflow contract](../../crates/brn-workflow/README.md#typed-proposal-review-foundation).
 It documents existing bytes and authority; it introduces no format migration.
-The [ownership model](overview.md#frozen-target),
-[invariants](invariants.md#frozen-target-guarantees) and
-[semantic intelligence and deterministic authority](overview.md#semantic-intelligence-and-deterministic-authority)
+The [ownership model](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/architecture/overview.md#frozen-target),
+[invariants](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/architecture/invariants.md#frozen-target-guarantees) and
+[semantic intelligence and deterministic authority](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/architecture/overview.md#semantic-intelligence-and-deterministic-authority)
 govern interpretation and changes. Operational proposals, review comments,
 sessions and recovery records belong to [WorkStore](../../crates/brn-store/README.md),
 not additional note fields.
@@ -20,7 +22,7 @@ line endings and unrelated frontmatter/body bytes remain exact. A note needs no
 managed metadata merely to be readable as ordinary current knowledge.
 
 Images and other meaningful assets belong in ordinary files alongside Markdown,
-as required by the [product vision](../product/BRN_PRODUCT_VISION.md).
+as required by the [product vision](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/product/BRN_PRODUCT_VISION.md).
 Ordinary Markdown links/images may refer to them. The integrated bounded DOCX profile preserves one ordinary inline PNG through
 paired exact Source/asset approval and supports a separately approved provisional
 annotation. Broader visuals/formats and binary cleanup remain unfinished; see the

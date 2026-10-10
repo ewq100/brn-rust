@@ -1,6 +1,6 @@
 # V1 controlled handoff — 2026-10-06
 
-> Current planning context, 2026-10-07: the [proposed whole-system plan](architecture-reassessment/plan.md) supersedes the old next-task order, custom-converter expansion and mandatory incidental-compatibility rules for reassessment. Existing observations/tests remain evidence; implementation is paused. Actual EML is required V1 and is not implemented by pasted Email text. Partial conversion may enter qualified draft review; original cleanup remains a separate protected operation. AI may recommend resolutions and revise unapproved work. No new design is accepted solely by this notice. Current [status](../../status.md#pr85-finalization-and-fresh-agent-handoff--2026-10-07) and the existing proposed plan own PR85 finalization, settled XLSX/standalone-image exclusions and the later bounded Sol/Luna runtime authorization; historical no-live/next-task statements below do not supersede them.
+> Current planning context, 2026-10-07: the [proposed whole-system plan](architecture-reassessment/plan.md) supersedes the old next-task order, custom-converter expansion and mandatory incidental-compatibility rules for reassessment. Existing observations/tests remain evidence; implementation is paused. Actual EML is required V1 and is not implemented by pasted Email text. Partial conversion may enter qualified draft review; original cleanup remains a separate protected operation. AI may recommend resolutions and revise unapproved work. No new design is accepted solely by this notice. Current [status](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/status.md#pr85-finalization-and-fresh-agent-handoff--2026-10-07) and the existing proposed plan own PR85 finalization, settled XLSX/standalone-image exclusions and the later bounded Sol/Luna runtime authorization; historical no-live/next-task statements below do not supersede them.
 
 The full frozen V1 goal was confirmed **paused** through the goal tool on
 2026-10-06 at the owner's controlled-stop request. Its complete objective is
@@ -71,7 +71,7 @@ GUI qualification is explicitly deferred by the owner, not a failed automated
 gate. On a later unlocked Mac and explicit selection, recreate a synthetic genuine
 DOCX→Source/PNG exact approval through the documented CLI or UI, inspect the saved
 image/proofs and controls, restart, and retain safe observations using the
-[verification guide](../../development/verification.md#optional-native-offline-qualification).
+[verification guide](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/development/verification.md#optional-native-offline-qualification).
 The local fixture/wrapper is supplementary and not required. No screenshot/body
 rendering was obtained here. Live provider/real-model qualification separately
 requires fresh owner authorization; prior live usage is exhausted. Do not bundle
@@ -99,11 +99,11 @@ Lead owns shared documentation and integration. Each implementer/evaluator recor
 **Ready** means technically ready for explicit task selection; it is not permission
 to resume the paused roadmap automatically. Each task uses a separate `codex/`
 branch/worktree, reads current Git status/HEAD and fetches origin without resetting
-unrelated work. Common minimum: [AGENTS](../../../AGENTS.md),
-[workflow](../../development/workflow.md), [verification](../../development/verification.md),
+unrelated work. Common minimum: [AGENTS](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/AGENTS.md),
+[workflow](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/development/workflow.md), [verification](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/development/verification.md),
 this handoff and its relevant section of the [reuse decision](../../architecture/decisions/2026-10-06-compatible-reuse.md).
-Read [overview](../../architecture/overview.md) and
-[invariants](../../architecture/invariants.md) for any boundary touched. No special
+Read [overview](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/architecture/overview.md) and
+[invariants](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/architecture/invariants.md) for any boundary touched. No special
 model, proprietary session state or local evidence cache is required.
 
 For every task: record actual baseline, acceptance and command/result identity;
