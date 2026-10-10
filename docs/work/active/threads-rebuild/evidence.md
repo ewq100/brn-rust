@@ -57,3 +57,14 @@ The plan now selects Rust 1.99.0 for compiler-only qualification before the sepa
 This is a documentation handoff update. Rust 1.98.1, Rig 0.43.0, Kit 0.6.6, the lockfile, scripts and CI remain unchanged. No compiler/native/provider qualification or complete advisory audit was run; the earlier machine limitations still apply. Source findings support the chosen next checks, not a claim that the upgrades pass.
 
 Documentation validation: `git diff --check` passed; `python3 scripts/check-markdown-links.py` passed with **85 files, 437 local links, 0 failures**. Only six current Markdown handoff files changed in this follow-up; historical review and implementation evidence were preserved.
+
+
+## Build started on the target Mac, 10 October 2026
+
+Baseline: `a1c61e245ec90a0eed98ffc5bbfcab57ddeb1926`; isolated checkout `/Users/evokessler/repos/brn-threads`, tracking the fetched remote branch. Other worktrees/dirty files are preserved. Preflight found Rustup1.98.1, protoc and Apple clang. Cargo proxies are available under `/opt/homebrew/opt/rustup/bin`; initial PATH omission was corrected. Rust1.99.0 installed with rustfmt/Clippy; formatter check passed against the unchanged dependency lock SHA-256 `16fe749fc0e4592f2bf2065c660203ded43e5c1c7b03c803d52abceaa9a8ffb7`. Full compiler qualification remains in progress, separate from library upgrades.
+
+The first workspace test attempt failed four CLI intake cases because the existing helper binary had not been built. The documented helper build then passed and the affected workspace qualification was restarted. This is a baseline prerequisite correction, not a Threads behavior result. Task-owned targets/evidence are outside Git under `/Users/evokessler/repos/BRN-local-builds/threads-20261010`. No old BRN data was opened.
+
+Native inventory reports the Mac locked. No unlock attempted. One native interaction qualification task is retained in the [implementation record](implementation.md); compilation is not native usability. Selected provider/model settings reside in old app data; the exact route and credentials-directory path were requested from the owner without inspecting it. Offline work continues. Official Homebrew Poppler26.10.0 installed for the bounded PDF qualification path. No provider call, external message, merge or release occurred.
+
+Retained verification scripts now invoke Cargo from the repository root to respect its pin. Experiment binaries also respect the task-owned target directory. Script syntax and whitespace checks passed; the compiler pin remains1.98.1 until qualification justifies adoption.

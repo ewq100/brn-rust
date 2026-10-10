@@ -26,10 +26,10 @@ if [[ "$CARGO_TARGET_DIR" != /* ]]; then
   exit 2
 fi
 if [[ "${1:-}" != "--fixtures-only" ]]; then
-  cargo +1.98.1 fmt --all -- --check
-  cargo +1.98.1 build -p brn-intake --features helper --bin brn-intake-helper --locked --offline
-  cargo +1.98.1 build --workspace --locked --offline
-  cargo +1.98.1 clippy --workspace --all-targets --locked --offline -- -D warnings
-  cargo +1.98.1 test --workspace --locked --offline
+  cargo fmt --all -- --check
+  cargo build -p brn-intake --features helper --bin brn-intake-helper --locked --offline
+  cargo build --workspace --locked --offline
+  cargo clippy --workspace --all-targets --locked --offline -- -D warnings
+  cargo test --workspace --locked --offline
 fi
 python3 scripts/verify-end-to-end-fixtures.py "$CARGO_TARGET_DIR/debug"

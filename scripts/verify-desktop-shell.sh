@@ -30,18 +30,18 @@ fi
 cd "$repo_root"
 
 # Check formatting and the complete locked workspace in its lightweight mode.
-cargo +1.98.1 fmt --all --check
-cargo +1.98.1 build -p brn-intake --features helper --bin brn-intake-helper --locked --offline
-cargo +1.98.1 build --workspace --locked --offline
-cargo +1.98.1 clippy --workspace --all-targets --locked --offline -- -D warnings
-cargo +1.98.1 test --workspace --locked --offline
+cargo fmt --all --check
+cargo build -p brn-intake --features helper --bin brn-intake-helper --locked --offline
+cargo build --workspace --locked --offline
+cargo clippy --workspace --all-targets --locked --offline -- -D warnings
+cargo test --workspace --locked --offline
 
 if [[ "$native" -eq 1 ]]; then
-  cargo +1.98.1 build -p brn-desktop --features native-ui,native-retrieval --locked --offline
-  cargo +1.98.1 clippy -p brn-desktop --features native-ui --all-targets --locked --offline -- -D warnings
-  cargo +1.98.1 clippy -p brn-desktop --features native-ui,native-retrieval --all-targets --locked --offline -- -D warnings
-  cargo +1.98.1 clippy -p brn-desktop --features native-ui,native-retrieval,native-test-support --all-targets --locked --offline -- -D warnings
-  cargo +1.98.1 test -p brn-desktop --features native-ui,native-retrieval,native-test-support --locked --offline
+  cargo build -p brn-desktop --features native-ui,native-retrieval --locked --offline
+  cargo clippy -p brn-desktop --features native-ui --all-targets --locked --offline -- -D warnings
+  cargo clippy -p brn-desktop --features native-ui,native-retrieval --all-targets --locked --offline -- -D warnings
+  cargo clippy -p brn-desktop --features native-ui,native-retrieval,native-test-support --all-targets --locked --offline -- -D warnings
+  cargo test -p brn-desktop --features native-ui,native-retrieval,native-test-support --locked --offline
 fi
 
 binary="$CARGO_TARGET_DIR/debug/brn-desktop"
