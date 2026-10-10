@@ -135,3 +135,10 @@ Final retained-lock `cargo-audit0.22.2`:0 vulnerabilities,6 informational unmain
 Unsigned `BRN Threads Candidate.app` assembled from the final combined native binary plus maintained helper, using only fresh `data/native-candidate-schema3`. It includes a36,852-byte synthetic protected long-note/managed-figure fixture. Actual final native binary headless startup passed (`threads-candidate-packaged-startup.log`, `threads-candidate-seed.json`). No UI launch/unlock was attempted.
 
 The single pending [native acceptance task](acceptance.md) covers long-note rendering/IME/selection/table/figure/focus, comments before/inside/deletion plus reopen, protected review, Save/recovery/Undo, search/Actions, cancellation/Continue and export/backup. Native interaction and owner acceptance remain unverified because the Mac reported locked. Immediate Quit only requests token cancellation; abrupt process exit cannot guarantee a terminal Interrupted receipt, so saved Working state is shown honestly and can Continue. General complex PDF hierarchy/vector composition/scans/math fidelity, external sending, Office/HTML generation and semantic model installation are not claimed. Required hosted results and exact candidate source commit are recorded below; no main merge or release.
+
+
+### Published candidate source identity
+
+Candidate implementation commit: `1f7e7fd80111cb29d2fb562fb2c548b685721093`. All210 retained source/guide/gate files were matched byte-for-byte to the tested candidate manifest after commit; digest `6222fead400e7af0f86dbcad655ee62bb96b8568f937641a5a901d4555cd2b69` (`threads-candidate-source.json`). The following handoff documentation commit does not alter product source. The packaged native binary/helper and bundle hashes are retained in `threads-candidate-bundle.json`. Final Markdown result:93 files,344 local links,0 failures; formatter and whitespace passed.
+
+The isolated branch was reconciled with remote before publication (no divergence, no force push). PR #114 stays draft. Hosted checks start on the published handoff head and remain separately pending until observed; local checks above do not stand in for them.

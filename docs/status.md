@@ -4,7 +4,7 @@
 
 | Area | Actual state |
 |---|---|
-| Candidate | Final-use SQLite core, shared application service, fixed agent guides/runtime, thin CLI and native Threads views implemented. Superseded store/workflow/desktop/CLI routes removed. |
+| Candidate | Candidate source `1f7e7fd`: final-use SQLite core, shared application service, fixed agent guides/runtime, thin CLI and native Threads views implemented. Superseded store/workflow/desktop/CLI routes removed. |
 | Core | 38 locked integrity tests; immutable host identity/requests, atomic commits/receipts, exact grants, persistent Save guards/generations, protected changes, actual-write Undo, backup/restore and foreign-data refusal. |
 | Runtime and intake | Owner-selected Codex / gpt-6.1-sol / medium passed live smoke, useful email → note/Action, fresh continuation → internal reply draft, and protected conflict. Ordinary PDF/DOCX inventories and retained figures pass; raw originals remain external. |
 | Local qualification | 301 workspace tests passed, 3 intentional child/provider ignores; 168 provider capability tests passed, 1 intentional process child ignore; 14 native state tests; 15 native retrieval tests; 13 app tests with native retrieval. Locked builds/Clippy, offline entry-point journey, 18 tooling tests and launcher checks passed. |
