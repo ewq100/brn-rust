@@ -4,15 +4,24 @@ use std::{path::PathBuf, sync::atomic::AtomicBool};
 
 fn converter(temp_root: PathBuf) -> Converter {
     Converter {
-        helper_path: PathBuf::from(
-            std::env::var_os("BRN_INTAKE_HELPER").unwrap_or_else(||std::env::current_exe().unwrap().parent().unwrap().parent().unwrap().join("brn-intake-helper").into_os_string()),
-        ),
+        helper_path: PathBuf::from(std::env::var_os("BRN_INTAKE_HELPER").unwrap_or_else(|| {
+            std::env::current_exe()
+                .unwrap()
+                .parent()
+                .unwrap()
+                .parent()
+                .unwrap()
+                .join("brn-intake-helper")
+                .into_os_string()
+        })),
         pdf_tools: Some(PdfTools {
             pdftotext: PathBuf::from(
-                std::env::var_os("BRN_PDFTOTEXT").unwrap_or_else(||"/opt/homebrew/bin/pdftotext".into()),
+                std::env::var_os("BRN_PDFTOTEXT")
+                    .unwrap_or_else(|| "/opt/homebrew/bin/pdftotext".into()),
             ),
             pdfimages: PathBuf::from(
-                std::env::var_os("BRN_PDFIMAGES").unwrap_or_else(||"/opt/homebrew/bin/pdfimages".into()),
+                std::env::var_os("BRN_PDFIMAGES")
+                    .unwrap_or_else(|| "/opt/homebrew/bin/pdfimages".into()),
             ),
         }),
         temp_root,
@@ -316,13 +325,53 @@ fn maintained_docx_reader_rejects_malformed_and_tight_package_budget() {
 
 #[test]
 fn markdown_text_and_email_preserve_meaning_without_source_payloads() {
-    let root=tempfile::tempdir().unwrap(); let converter=converter(root.path().join("scratch"));
-    for kind in [DocumentKind::Text,DocumentKind::Markdown] {
-        let bytes="日本語\r\n# Process\n\n| Step | Owner |\n|---|---|\n| Check | Ana |\n".as_bytes();
-        let result=converter.convert(ConversionRequest{kind,intent:ImportIntent::FullNote,bytes,source_reference:"synthetic://plain",inventory:None},&AtomicBool::new(false)).unwrap();
-        assert_eq!(result.markdown.as_bytes(),bytes);assert_eq!(result.coverage.status,CoverageStatus::Partial);assert!(result.assets.is_empty());
+    let root = tempfile::tempdir().unwrap();
+    let converter = converter(root.path().join("scratch"));
+    for kind in [DocumentKind::Text, DocumentKind::Markdown] {
+        let bytes =
+            "日本語\r\n# Process\n\n| Step | Owner |\n|---|---|\n| Check | Ana |\n".as_bytes();
+        let result = converter
+            .convert(
+                ConversionRequest {
+                    kind,
+                    intent: ImportIntent::FullNote,
+                    bytes,
+                    source_reference: "synthetic://plain",
+                    inventory: None,
+                },
+                &AtomicBool::new(false),
+            )
+            .unwrap();
+        assert_eq!(result.markdown.as_bytes(), bytes);
+        assert_eq!(result.coverage.status, CoverageStatus::Partial);
+        assert!(result.assets.is_empty());
     }
     let raw=b"From: Ana <ana@example.invalid>\r\nTo: BRN <brn@example.invalid>\r\nSubject: Harbor schedule\r\nMessage-ID: <harbor-1@example.invalid>\r\nContent-Type: text/plain; charset=utf-8\r\n\r\nThe check moves to Tuesday. Please retain the source reference.\r\n";
-    let result=converter.convert(ConversionRequest{kind:DocumentKind::Eml,intent:ImportIntent::UsefulInformation,bytes:raw,source_reference:"synthetic://mail-1",inventory:None},&AtomicBool::new(false)).unwrap();
-    assert!(result.markdown.contains("Tuesday"));assert!(result.markdown.contains("Harbor schedule"));assert!(result.sources.iter().all(|source|!source.locator.is_empty()));assert!(serde_json::to_value(result).unwrap().get("original").is_none());assert_eq!(std::fs::read_dir(&converter.temp_root).unwrap().count(),0);
+    let result = converter
+        .convert(
+            ConversionRequest {
+                kind: DocumentKind::Eml,
+                intent: ImportIntent::UsefulInformation,
+                bytes: raw,
+                source_reference: "synthetic://mail-1",
+                inventory: None,
+            },
+            &AtomicBool::new(false),
+        )
+        .unwrap();
+    assert!(result.markdown.contains("Tuesday"));
+    assert!(result.markdown.contains("Harbor schedule"));
+    assert!(
+        result
+            .sources
+            .iter()
+            .all(|source| !source.locator.is_empty())
+    );
+    assert!(
+        serde_json::to_value(result)
+            .unwrap()
+            .get("original")
+            .is_none()
+    );
+    assert_eq!(std::fs::read_dir(&converter.temp_root).unwrap().count(), 0);
 }

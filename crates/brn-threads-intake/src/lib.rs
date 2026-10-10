@@ -152,7 +152,9 @@ impl Converter {
         let temp = transient::TransientDir::create(&self.temp_root)?;
         let converted = (|| {
             let mut result = match request.kind {
-                DocumentKind::Docx | DocumentKind::Eml => self.document(&request, cancel, deadline, &temp)?,
+                DocumentKind::Docx | DocumentKind::Eml => {
+                    self.document(&request, cancel, deadline, &temp)?
+                }
                 DocumentKind::Markdown | DocumentKind::Text => self.plain(&request)?,
                 DocumentKind::Pdf => self.pdf(&request, cancel, deadline, &temp)?,
             };
@@ -189,7 +191,12 @@ impl Converter {
         temp: &transient::TransientDir,
     ) -> Result<ConversionResult, ConversionError> {
         let input = serde_json::to_vec(&HelperRequest {
-            kind: if request.kind == DocumentKind::Eml { "eml" } else { "docx" }.into(),
+            kind: if request.kind == DocumentKind::Eml {
+                "eml"
+            } else {
+                "docx"
+            }
+            .into(),
             bytes: request.bytes.to_vec(),
             limits: Some(self.limits.clone()),
         })
@@ -274,14 +281,32 @@ impl Converter {
             },
         })
     }
-    fn plain(&self,request:&ConversionRequest<'_>)->Result<ConversionResult,ConversionError> {
-        let text=std::str::from_utf8(request.bytes).map_err(|_|ConversionError::Invalid)?;
-        if text.contains('\0') || text.len()>brn_intake::MAX_TEXT_BYTES {return Err(ConversionError::Budget);}
-        let mut gaps=Vec::new();
-        if request.kind==DocumentKind::Markdown && text.contains("![") {
+    fn plain(&self, request: &ConversionRequest<'_>) -> Result<ConversionResult, ConversionError> {
+        let text = std::str::from_utf8(request.bytes).map_err(|_| ConversionError::Invalid)?;
+        if text.contains('\0') || text.len() > brn_intake::MAX_TEXT_BYTES {
+            return Err(ConversionError::Budget);
+        }
+        let mut gaps = Vec::new();
+        if request.kind == DocumentKind::Markdown && text.contains("![") {
             gaps.push(CoverageGap{kind:GapKind::Omission,locator:"figures".into(),detail:"Referenced Markdown images remain external; provide a document with embedded figures for a self-contained full note.".into()});
         }
-        Ok(ConversionResult{intent:request.intent,markdown:text.into(),assets:vec![],source_sha256:brn_intake::digest(request.bytes),source_reference:request.source_reference.into(),converter:"UTF-8 verbatim".into(),sources:vec![SourceCoverage{locator:request.source_reference.into(),text:text.into()}],coverage:Coverage{status:CoverageStatus::Unchecked,checked_items:vec![],gaps}})
+        Ok(ConversionResult {
+            intent: request.intent,
+            markdown: text.into(),
+            assets: vec![],
+            source_sha256: brn_intake::digest(request.bytes),
+            source_reference: request.source_reference.into(),
+            converter: "UTF-8 verbatim".into(),
+            sources: vec![SourceCoverage {
+                locator: request.source_reference.into(),
+                text: text.into(),
+            }],
+            coverage: Coverage {
+                status: CoverageStatus::Unchecked,
+                checked_items: vec![],
+                gaps,
+            },
+        })
     }
     fn pdf(
         &self,
