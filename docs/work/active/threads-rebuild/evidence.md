@@ -27,10 +27,10 @@ The setup adds the build plan, review brief, pending review record, and exact bu
 | Development preflight with native flag | Exited 1: Git, Bash, and Python available; Cargo, Rustup, pinned Rust, and protoc absent. This is an environment prerequisite gap, not a product test failure. No Mac native session is available here. |
 | Git whitespace check | Passed: git diff --check returned 0. |
 | Current Markdown file/fragment links | Passed: 84 files, 408 local links, 0 failures. |
-| Setup scope and consistency review | Completed in a separate read-only agent context. One fetch-ref correction was accepted: the worktree setup now fetches explicitly into origin/rebuild/threads, including for a single-branch clone. No other concrete setup blockers were found. This was not the external Opus/Astra architecture review. |
+| Setup scope and consistency review | Completed in a separate read-only agent context. A fetch-ref correction was accepted. The actual single-branch checkout additionally exposed a missing tracking mapping; the setup now registers the branch and fetches into its explicit tracking ref. Both fetch and upstream setup succeeded after correction. No other concrete setup blockers were found. This was not the external Opus/Astra architecture review. |
 | Rust compilation, model tests, native interaction | Not run: no product code changed, and this environment lacks required tooling/native resources. |
 | Independent external Opus/Astra review | Not performed. The supplied brief enables the owner's next review assignment. |
-| Remote publication | To be verified against the published branch and commit before handoff. |
+| Remote publication | Setup commit c7e3eda380c1fc069ff4bafbb162c4e56557a95d was published on rebuild/threads. Its complete tree matched the local staged files exactly. This evidence update and the tracking correction are a follow-up documentation commit; use the branch head for the latest handoff. No main merge or release is implied. |
 
 ## Build machine handoff
 

@@ -9,11 +9,12 @@ For an existing BRN clone, inspect its current work before fetching. Use a new s
 ```sh
 git status --short --branch
 git worktree list
+git remote set-branches --add origin rebuild/threads
 git fetch origin refs/heads/rebuild/threads:refs/remotes/origin/rebuild/threads
 git worktree add ../brn-threads-rebuild --track -b rebuild/threads origin/rebuild/threads
 ```
 
-That final command is for a clone without a local `rebuild/threads` branch and an unused destination. If it already exists, use the appropriate existing worktree or add a worktree for that branch. Never reset, clean, or overwrite another task to make the example work.
+Registering the branch adds its fetch/tracking mapping without removing existing mappings; this also supports clones originally limited to main. The final command is for a clone without a local `rebuild/threads` branch and an unused destination. If it already exists, use the appropriate existing worktree or add a worktree for that branch. Never reset, clean, or overwrite another task to make the example work.
 
 Alternatively, use a fresh clone:
 
