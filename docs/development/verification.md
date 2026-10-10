@@ -7,14 +7,15 @@ The [canonical acceptance journeys](../architecture/threads-target.md#acceptance
 | Change | Evidence |
 |---|---|
 | Setup and documentation | `git diff --check`; `python3 scripts/check-markdown-links.py`; current path/command consistency and explicit environment inventory. |
-| Core persistence and authorization | Atomic grouped commit, operation replay after lost response, stale record/protection changes, protected writes, active editing buffers, crash/restart, immediate compensation, and restore. |
+| Core persistence and authorization | Atomic grouped commit, prepare and apply replay after lost responses, stale record/protection changes, protected writes, versioned Save, cross-process dirty guards, stale human buffers and delayed recovery writes, crash/restart, immediate compensation, and restore. |
 | Agent journey | Real selected provider/tool path against synthetic/public scenarios, checked committed result, relevant source references, Action outcome, and run interruption/budget behavior. |
-| Full-note import | Representative paper and process fixtures with substantive prose, steps, tables, equations, figures, and references; compare source coverage; verify partial outcomes and offline retained content. |
+| Full-note import | Representative paper and process fixtures with substantive prose, steps, tables, figures, and references; no mathematical equation fidelity gate; compare a hand-checked PDF/DOCX fixture inventory and source coverage; verify partial outcomes and offline retained content. |
 | Native interaction | Actual queue/thread/editor/review/comment/search/Action/history/export journeys on the target Mac, with restart checks and understandable conflicts. |
 | Exports and backup | Fresh complete snapshot publication; failed exports stay visibly failed; restored BRN records/assets/history in a clean directory. |
+| Runtime guides and thread behavior | Representative success/boundary scenarios, actual skill loading and bundle identity, quiet routine outcomes, exact attention reasons, separate Action completion and fresh-invocation continuation. |
 | Component reuse or removal | Relevant component tests plus coherent removal of obsolete routes, commands, helpers, and tests; retained dependency fixes remain verified. |
 
-Use the pinned toolchain and lockfiles. Default workspace checks do not cover optional native features. Run focused checks as needed; repeat broad checks only for relevant changes or a concrete unresolved risk. No zero-test or self-skipped run counts as proof.
+Use the pinned toolchain and lockfiles. The [dependency qualification plan](../work/active/threads-rebuild/plan.md#dependency-qualification) defines the selected Rig and GPUI upgrade proofs; source inspection is not a passing build or native result. Default workspace checks do not cover optional native features. Run focused checks as needed; repeat broad checks only for relevant changes or a concrete unresolved risk. No zero-test or self-skipped run counts as proof.
 
 ## CI and integration
 

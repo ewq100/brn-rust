@@ -7,6 +7,8 @@
 **Build plan:** `docs/work/active/threads-rebuild/plan.md`  
 **Only review report:** `docs/work/active/threads-rebuild/review.md`
 
+**Completed brief:** The report and [lead dispositions](review.md#build-lead-dispositions) are now available. This original review assignment is retained as context, not another gate. The current target excludes mathematical equation support and uses the bounded design/proofs in the updated [plan](plan.md).
+
 ## Recommendation and purpose
 
 Use one independent Opus review before substantial core implementation. Its purpose is to find concrete implementation blockers and remove unnecessary mechanisms from the selected target. This is a bounded second opinion, not a request for another architecture proposal. Use Astra afterward only if a specific material issue remains disputed or unresolved; give it that issue, the evidence, and the competing minimal fixes. No second general review is required.

@@ -5,11 +5,12 @@ The [Threads target](architecture/threads-target.md) is the canonical rebuild co
 | Need | Read |
 |---|---|
 | Understand the complete selected target | [Threads target](architecture/threads-target.md) |
+| Understand exact thread behavior and runtime guides | [Behavior design](architecture/threads-behavior.md) |
 | Understand the product quickly | [Product overview](product/BRN_PRODUCT_VISION.md) |
 | Understand the new ownership model | [Architecture overview](architecture/overview.md), [invariant summary](architecture/invariants.md) |
 | See actual progress | [Status](status.md) |
 | Start implementation | [Build plan](work/active/threads-rebuild/plan.md), [build prompt](work/active/threads-rebuild/build-prompt.md) |
-| Review before building | [Review brief](work/active/threads-rebuild/review-brief.md), [review record](work/active/threads-rebuild/review.md) |
+| Read the completed review and dispositions | [Review brief](work/active/threads-rebuild/review-brief.md), [review record](work/active/threads-rebuild/review.md) |
 | Prepare a machine or choose checks | [Setup](development/setup.md), [verification](development/verification.md) |
 | Understand the working method | [Workflow](development/workflow.md) |
 | Find milestone order | [Roadmap](roadmap.md) |

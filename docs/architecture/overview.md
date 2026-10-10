@@ -1,6 +1,6 @@
 # BRN Threads architecture overview
 
-The [canonical Threads target](threads-target.md) owns the detailed architecture. This page is a navigation summary. The setup commit changes the target and routing; the code still implements the baseline until replaced.
+The [canonical Threads target](threads-target.md) owns the detailed architecture. This page is a navigation summary. The [behavior design](threads-behavior.md) supplies concrete thread and packaged runtime-guide defaults. The setup commit changes the target and routing; the code still implements the baseline until replaced.
 
 ## One state owner
 

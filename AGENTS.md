@@ -5,9 +5,9 @@ This branch prepares the BRN Threads rebuild. Follow the user's current task. Se
 ## Start here
 
 1. Inspect branch, HEAD, remote head, and working-tree changes. The shared rebuild branch is `rebuild/threads`; preserve unrelated work and use an isolated checkout/worktree.
-2. Read [status](docs/status.md) and the [rebuild plan](docs/work/active/threads-rebuild/plan.md). For implementation or architecture review, read the [canonical Threads target](docs/architecture/threads-target.md), then task-relevant code.
+2. Read [status](docs/status.md) and the [rebuild plan](docs/work/active/threads-rebuild/plan.md). For implementation or architecture review, read the [canonical Threads target](docs/architecture/threads-target.md), then the [thread and runtime-guidance design](docs/architecture/threads-behavior.md) and task-relevant code.
 3. Read [workflow](docs/development/workflow.md), [setup](docs/development/setup.md), and [verification](docs/development/verification.md) as needed.
-4. Check [review status](docs/work/active/threads-rebuild/review.md) before committing to the core interfaces.
+4. Follow the completed [review dispositions](docs/work/active/threads-rebuild/review.md#build-lead-dispositions) and prove them during implementation; do not repeat the whole-plan review.
 
 ## Current authority
 
@@ -24,7 +24,8 @@ Only `docs/work/active/threads-rebuild/` is active for this rebuild. Other old a
 - A fresh SQLite core/schema owns notes, revisions, threads, Actions, source references, changes, and authorization. Search indexes are rebuildable.
 - One shared checked commit/Undo service serves desktop, built-in agent, CLI, and eventual external agents.
 - Ordinary working notes support delegated AI maintenance. Whole-note protection and owner confirmation are separate; applicable direct owner instructions can authorize protected changes.
-- Originals remain external. Routine intake uses useful information; explicitly requested full-note import preserves complete substantive content and necessary assets. Full imports start protected without another creation approval.
+- Runtime semantic guidance uses the planned packaged base guide and four SKILL.md playbooks; the application explicitly loads them, and they cannot grant permissions. Root AGENTS.md is development guidance, not the shipped runtime prompt.
+- Originals remain external. Routine intake uses useful information; explicitly requested full-note import preserves complete substantive content and necessary assets. Full imports start protected without another creation approval. Mathematical equation fidelity is outside the first-release requirements.
 - Markdown export is on demand; full backup covers BRN state. DOCX/PPTX/HTML generation is later scope.
 - No gradual old-data migration, dual writes, permanent legacy runtime, mandatory Jujutsu/CRDT, or universal converter. Reuse useful GPUI, providers, converters, and retrieval deliberately.
 
@@ -32,7 +33,7 @@ Only `docs/work/active/threads-rebuild/` is active for this rebuild. Other old a
 
 Use maintained components when they reduce total complexity. Keep semantic work in agent instructions/tools and integrity in deterministic code. Preserve useful dependency patches. Crate count and old command names are not requirements.
 
-One lead owns shared interfaces and integration. Delegate bounded independent work when useful; separate writers by files/worktrees. Use the owner's selected model. Sol is the normal build choice; an Opus review is recommended where available, and Astra is for a named unresolved question. Model availability is not an extra gate.
+One lead owns shared interfaces and integration. Delegate bounded independent work when useful; separate writers by files/worktrees. Use the owner's selected model. Sol is the normal build choice; the Opus plan review is complete, and Astra is reserved for a named unresolved question. Model availability is not an extra gate.
 
 Use synthetic/public fixtures and fresh explicit data directories. Do not open or migrate old BRN data. Follow the current assignment for live provider testing; do not inspect or print raw credentials, silently change provider/account, send external messages, release the app, or weaken protection.
 

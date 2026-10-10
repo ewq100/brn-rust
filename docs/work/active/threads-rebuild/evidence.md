@@ -36,3 +36,14 @@ The setup adds the build plan, review brief, pending review record, and exact bu
 
 The build agent must fetch `rebuild/threads`, inspect current HEAD and [review status](review.md), and run the [setup preflight](../../../development/setup.md) on its own machine. Use a fresh data directory and separate Cargo target. This evidence does not claim that the owner's Mac, credentials, model access, or new core are configured or verified.
 
+## Review reconciliation and behavior design, 10 October 2026
+
+This later update starts from review commit `a2af886e5442af0cfa4b8884181446c7d98d1eea`, which changed only the independent report after setup. The original setup evidence above describes that earlier assignment. The report names Claude Opus 5.5 as reviewer and assesses setup commit `3519bfb85e3c68cb17dd6df31061e9f5dc155e73`; its original findings are preserved, with lead dispositions appended separately.
+
+The owner clarified that mathematical equation imports are not important, asked for concrete thread and agent-guide behavior, and pointed to new Rig and GPUI Kit releases. The target, plan, current summaries and build prompt now incorporate those decisions. The new behavior design specifies thread/attention/run/Action distinctions, a small packaged guide catalog and four planned SKILL.md playbooks. This task created design documentation, not the runtime guide files or their loader.
+
+Three bounded assessments examined core-review corrections, Rig reuse and GPUI/import reuse. Root reconciled their findings and inspected official release/source evidence. Current pins remain Rig 0.43.0 and Kit 0.6.6. Rig 0.44.0 and Kit 0.7.1 are qualification targets, not completed upgrades. The direct shared ChatGPT page could not be fetched; prior-context retrieval recovered the earlier Rig recommendation and its important retry/logging claims were checked against release source.
+
+Documentation checks were run after the changes; see the final recorded result below. All changed paths in this update are Markdown. No product source, dependency pin/lockfile, runtime behavior, native environment or provider qualification changed. The build environment limitations from setup still apply.
+
+Final documentation result for this reconciliation: `git diff --check` passed; `python3 scripts/check-markdown-links.py` passed with **85 files, 434 local links, 0 failures**. The original independent-report body was checked unchanged before the lead-disposition section. The published commit/branch head is the handoff identity; no runtime test result is implied.
