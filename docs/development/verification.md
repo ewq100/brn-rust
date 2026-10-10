@@ -15,7 +15,7 @@ The [canonical acceptance journeys](../architecture/threads-target.md#acceptance
 | Runtime guides and thread behavior | Representative success/boundary scenarios, actual skill loading and bundle identity, quiet routine outcomes, exact attention reasons, separate Action completion and fresh-invocation continuation. |
 | Component reuse or removal | Relevant component tests plus coherent removal of obsolete routes, commands, helpers, and tests; retained dependency fixes remain verified. |
 
-Use the pinned toolchain and lockfiles. The [dependency qualification plan](../work/active/threads-rebuild/plan.md#dependency-qualification) defines the selected Rig and GPUI upgrade proofs; source inspection is not a passing build or native result. Default workspace checks do not cover optional native features. Run focused checks as needed; repeat broad checks only for relevant changes or a concrete unresolved risk. No zero-test or self-skipped run counts as proof.
+Use the pinned toolchain and lockfiles. The [dependency qualification plan](../work/active/threads-rebuild/plan.md#dependency-qualification) defines Rust 1.99.0 qualification against unchanged dependencies, consistent compiler selection in retained scripts, and the separate Rig and GPUI upgrade proofs. Source inspection is not a passing build or native result. Default workspace checks do not cover optional native features. Run focused checks as needed; repeat broad checks only for relevant changes or a concrete unresolved risk. No zero-test or self-skipped run counts as proof.
 
 ## CI and integration
 

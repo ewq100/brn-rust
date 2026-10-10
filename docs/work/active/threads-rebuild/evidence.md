@@ -47,3 +47,13 @@ Three bounded assessments examined core-review corrections, Rig reuse and GPUI/i
 Documentation checks were run after the changes; see the final recorded result below. All changed paths in this update are Markdown. No product source, dependency pin/lockfile, runtime behavior, native environment or provider qualification changed. The build environment limitations from setup still apply.
 
 Final documentation result for this reconciliation: `git diff --check` passed; `python3 scripts/check-markdown-links.py` passed with **85 files, 434 local links, 0 failures**. The original independent-report body was checked unchanged before the lead-disposition section. The published commit/branch head is the handoff identity; no runtime test result is implied.
+
+## Toolchain and remaining dependencies, 10 October 2026
+
+This follow-up assessed the clean branch at `c2881e84958fde525fa03b361973baa30801007e` after the owner asked about Rust 1.99.0 and other updates. Three bounded read-only assessments covered the compiler, remaining direct dependencies and CI/dependency hygiene; root checked official releases, registry entries and the actual repository pins.
+
+The plan now selects Rust 1.99.0 for compiler-only qualification before the separate Rig/GPUI changes. It identifies six verification scripts forcing Rust 1.98.1 and requires one consistent repository-selected compiler. CI setup and preflight already read the root pin. The remaining shortlist keeps current SQLite/BetterOffice/image versions, defers ZIP/HTML decisions to import qualification, avoids low-value patch churn and records a separate checkout-action maintenance candidate.
+
+This is a documentation handoff update. Rust 1.98.1, Rig 0.43.0, Kit 0.6.6, the lockfile, scripts and CI remain unchanged. No compiler/native/provider qualification or complete advisory audit was run; the earlier machine limitations still apply. Source findings support the chosen next checks, not a claim that the upgrades pass.
+
+Documentation validation: `git diff --check` passed; `python3 scripts/check-markdown-links.py` passed with **85 files, 437 local links, 0 failures**. Only six current Markdown handoff files changed in this follow-up; historical review and implementation evidence were preserved.

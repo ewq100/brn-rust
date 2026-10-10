@@ -29,7 +29,21 @@ The lead owns concrete type/table names, dependency choices within this design, 
 
 ## Dependency qualification
 
-Source inspection on 10 October 2026 supports qualifying Rig 0.44.0 before the new agent integration and GPUI Kit 0.7.1 before the new native UI. Neither upgrade has been compiled or exercised in this preparation environment. Use separate owned changes so failures remain attributable. The small core can proceed independently; coordinate shared Cargo manifests/lockfiles through the lead.
+Source inspection on 10 October 2026 supports qualifying Rust 1.99.0 as the build baseline, Rig 0.44.0 before the new agent integration and GPUI Kit 0.7.1 before the new native UI. These upgrades have not been compiled or exercised in this preparation environment. Qualify the compiler with unchanged dependencies first, then use separate owned dependency changes so failures remain attributable. The small core can proceed independently; coordinate shared Cargo manifests/lockfiles through the lead.
+
+### Rust 1.99.0 as the build baseline
+
+The repository currently pins Rust 1.98.1. Version 1.99.0 is a reasonable maintenance update during the rebuild, not a Threads feature requirement or a demonstrated BRN performance improvement. Its relevant qualification surface is the compiler/LLVM update, warnings and bundled formatting/lint tools. Rig 0.44.0 declares a lower minimum of Rust 1.95.0; the inspected GPUI Kit manifests do not declare a 1.99 requirement. Actual native compatibility still needs a build.
+
+1. Install the exact 1.99.0 toolchain with rustfmt and Clippy in the build environment. Keep 1.98.1 available as the existing fallback. Test the compiler-only change against the current lockfile before changing Rig or GPUI.
+2. In that change, update `rust-toolchain.toml` and make actively retained verification scripts respect the root pin. Six scripts currently override it with `cargo +1.98.1`: `verify-storage.sh`, `verify-end-to-end.sh`, `verify-desktop-shell.sh`, `verify-retrieval-trial.sh`, `verify-trial.sh` and `verify-editor-trial.sh` under `scripts/`. Check their working-directory assumptions rather than replacing every historical version string. CI setup and development preflight already read the root pin.
+3. Update current setup instructions and decide the supported minimum in retained first-party `rust-version` metadata explicitly. The compiler pin and a minimum-version claim are different promises; this application does not need a second compiler-support matrix. Preserve historical experiment/evidence versions. Do not add an edition migration or broad dependency refresh to this change.
+4. Run the existing formatter check, relevant workspace build/tests and Clippy with the existing warning policy, then the required Mac native UI/retrieval/combined lanes and bounded native interaction check. Record exact compiler, features and results. Review any formatter or new-warning fixes; do not suppress the existing gates. Native compilation alone does not prove input/rendering behavior.
+5. Adopt the new pin after these checks pass. If it exposes a substantial problem in a path about to be removed, record the concrete blocker and continue independent core work on 1.98.1 instead of turning the optional update into a prerequisite project.
+
+CI already sets `CARGO_INCREMENTAL=0`, so Cargo's new CI default does not improve that configuration. The new built-in `debug` profile currently behaves like `dev`; no profile rewrite or faster-build claim follows from its existence.
+
+Sources: [current toolchain](../../../../rust-toolchain.toml), [CI setup](../../../../.github/actions/setup-rust/action.yml), [Rust announcement](https://blog.rust-lang.org/2026/10/01/Rust-1.99.0/), [versioned release notes](https://github.com/rust-lang/rust/blob/1.99.0/RELEASES.md), [Rig minimum](https://github.com/0xPlaygrounds/rig/blob/v0.44.0/Cargo.toml).
 
 ### Rig 0.44.0 before the new agent runtime
 
@@ -56,7 +70,25 @@ The current desktop pins Kit 0.6.6 and the lockfile uses GPUI snapshot 0.3.6. Mo
 
 Sources: [desktop manifest](../../../../crates/brn-desktop/Cargo.toml), [Kit 0.7.0 migration](https://github.com/longbridge/gpui-kit/releases/tag/v0.7.0), [Kit 0.7.1 release](https://github.com/longbridge/gpui-kit/releases/tag/v0.7.1), [TextView](https://github.com/longbridge/gpui-kit/blob/v0.7.1/crates/base/src/text/state.rs), [source mapping](https://github.com/longbridge/gpui-kit/blob/v0.7.1/crates/base/src/text/range_highlight.rs), [editor decorations](https://github.com/longbridge/gpui-kit/blob/v0.7.1/crates/base/src/input/editor/decorations.rs).
 
-If either target version has a concrete blocker, record the affected behavior and smallest workaround or temporary retained version. Continue independent core work. A newer library is a reuse opportunity, not permission to expand the product or reopen the entire architecture.
+If a target version has a concrete blocker, record the affected behavior and smallest workaround or temporary retained version. Continue independent core work. A newer library is a reuse opportunity, not permission to expand the product or reopen the entire architecture.
+
+### Other updates follow the retained component
+
+The focused release/registry check found this scope. Recheck relevant releases when implementing the slice; these are observations on 10 October 2026, not floating dependency constraints.
+
+| Component | Observed version and decision |
+|---|---|
+| SQLite/rusqlite | Keep pinned rusqlite 0.40.2, already the latest verified release, and its bundled SQLite. Prove transactions, restart and backup; updating system SQLite does not update this bundled dependency. |
+| BetterOffice and image | Keep the four BetterOffice Rust crates at 0.3.0 and image at 0.25.10, already the latest verified registry versions. BetterOffice's newer npm/React release number is not a Rust crate upgrade. |
+| ZIP | Assess 8.6.0 to 9.0.1 during import qualification. The new major includes malformed-archive robustness fixes, but BetterOffice 0.3.0 requires ZIP 8. A direct pin bump alone can leave both readers in the graph. Identify actual executing readers and prove bounded malformed/oversized input handling before choosing the smallest supported change. |
+| HTML tokenizer | The existing html5ever 0.27.0 can move to 0.40.1 when email/HTML intake is rebuilt, if its direct tokenizer is still useful. Adapt the changed sink API or remove the dependency if the selected converter replaces its job. |
+| Email parser | mail-parser 0.11.9 is an optional patch from 0.11.8 during intake work. Its published addition is an optional decoding feature BRN does not currently enable; no urgent benefit is established. |
+| Native retrieval | FastEmbed 7.1.1 lists spelling fixes only; keep 7.1.0 for now. Its ONNX binding remains ort/ort-sys 2.0.0-rc.13, already locked by BRN. |
+| GitHub checkout action | Qualify v7.0.1 from the current v6 references as a separate small CI maintenance change. Resolve and pin the verified full commit, preserving permissions, credential handling, event triggers and required check names. This does not block the core. |
+
+Run a bounded advisory check on the retained lockfile around the selected dependency changes, using maintained `cargo-audit` tooling and recording its advisory database date/result. Trace relevant findings through the actual target/features before choosing an update. The lockfile contains optional and cross-platform packages; duplicate versions or informational maintenance notices alone do not justify a rendering fork or dependency-unification project. This preparation performed focused source checks, not a complete audit. Do not run a blanket `cargo update` or upgrade system/native tooling without a relevant requirement or failure.
+
+Sources: [rusqlite release](https://github.com/rusqlite/rusqlite/releases/tag/v0.40.2), [BetterOffice OPC registry and ZIP constraint](https://github.com/rust-lang/crates.io-index/blob/master/be/tt/betteroffice-opc), [image registry](https://github.com/rust-lang/crates.io-index/blob/master/im/ag/image), [ZIP 9.0.1](https://github.com/zip-rs/zip2/releases/tag/v9.0.1), [HTML tokenizer API](https://github.com/servo/html5ever/blob/html5ever-v0.40.1/html5ever/src/tokenizer/interface.rs), [mail-parser changelog](https://github.com/stalwartlabs/mail-parser/blob/main/CHANGELOG.md), [FastEmbed 7.1.1](https://github.com/anush008/fastembed-rs/releases/tag/v7.1.1), [checkout 7.0.1](https://github.com/actions/checkout/releases/tag/v7.0.1), [cargo-audit](https://github.com/rustsec/rustsec/blob/main/cargo-audit/README.md).
 
 ## Reuse and replacement map
 

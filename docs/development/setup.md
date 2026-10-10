@@ -40,7 +40,9 @@ rustup toolchain install 1.98.1 --profile minimal --component rustfmt --componen
 cargo fetch --locked
 ```
 
-Do not silently upgrade the pin or remove dependency patches. Resolve system prerequisites through the available machine/package setup; report privilege or account requirements specifically. Native GPUI verification targets macOS Apple Silicon first and requires an unlocked graphical session for interaction checks. A Linux checkout can perform supported headless work without establishing native readiness.
+Rust 1.99.0 is the selected qualification target in the [dependency plan](../work/active/threads-rebuild/plan.md#rust-1990-as-the-build-baseline). During the assigned build, install that exact toolchain with the same components and qualify it against the unchanged lockfile before adopting its pin. Update actively retained scripts that currently force `cargo +1.98.1` so local checks and CI use the same repository-selected compiler. The pin and installation command above still describe the actual baseline; this handoff has not performed the upgrade.
+
+Follow the planned qualification before changing the pin or removing dependency patches. Resolve system prerequisites through the available machine/package setup; report privilege or account requirements specifically. Native GPUI verification targets macOS Apple Silicon first and requires an unlocked graphical session for interaction checks. A Linux checkout can perform supported headless work without establishing native readiness.
 
 ## Keep build and app data isolated
 
