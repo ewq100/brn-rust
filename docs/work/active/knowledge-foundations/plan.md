@@ -104,7 +104,7 @@ vault inspection, GUI interaction or actual native inference were performed.
 The first identity slice is implemented, automated verified, independently
 reviewed and locally integrated with this change; Stage 5 as a whole remains
 active. Owner acceptance is pending and not a later safe implementation
-dependency. [CLI identity scenario](../../../../crates/brn/README.md#managed-note-identity)
+dependency. [CLI identity scenario](https://github.com/ewq100/brn-rust/blob/a1c61e245ec90a0eed98ffc5bbfcab57ddeb1926/crates/brn/README.md#managed-note-identity)
 covers preparation, exact review/approval, restart and Undo. Native convenience,
 whole-stage metadata/provenance/search qualification and actual English/Estonian
 inference remain future slices. No published CI run exists for the local baseline;
@@ -166,7 +166,7 @@ vault/private data, live provider calls, downloads or actual GUI/native inferenc
 were inspected/exercised. Local Markdown links and diff checks are validated
 before integration. Only own synthetic fixture entries are cleaned; outside-Git
 logs remain. This slice is implemented, automated verified, independently reviewed
-and locally integrated with this change. [CLI manual lookup/evidence scenario](../../../../crates/brn/README.md#managed-note-identity)
+and locally integrated with this change. [CLI manual lookup/evidence scenario](https://github.com/ewq100/brn-rust/blob/a1c61e245ec90a0eed98ffc5bbfcab57ddeb1926/crates/brn/README.md#managed-note-identity)
 is reproducible; owner/native acceptance remains pending. Stage 5 is still active.
 
 ## Third slice: metadata classification and scoped retrieval
@@ -257,7 +257,7 @@ Only the two exclusively owned gate parents' 20 layout fixture directories and
 16 regular files were cleaned; outside-Git logs/ownership metadata remain.
 
 The third slice is implemented, automated verified, independently reviewed and
-locally integrated with this change. [Scoped CLI manual scenario](../../../../crates/brn/README.md#commands)
+locally integrated with this change. [Scoped CLI manual scenario](https://github.com/ewq100/brn-rust/blob/a1c61e245ec90a0eed98ffc5bbfcab57ddeb1926/crates/brn/README.md#commands)
 is reproducible with synthetic data; owner/native acceptance remains pending.
 AI tool scope arguments/native controls follow next, then durable provenance,
 relationships, findings/timestamps and bilingual qualification. Stage 5 remains
@@ -352,7 +352,7 @@ passed. Root's final gate cleaned five owned layout directories/four regular
 JSON files and its empty parent; logs and ownership metadata remain outside Git.
 
 This slice is implemented, independently reviewed, automated verified and locally
-integrated with this change. [Native manual scenario](../../../../crates/brn-desktop/README.md#current-workspace-native-default)
+integrated with this change. [Native manual scenario](https://github.com/ewq100/brn-rust/blob/a1c61e245ec90a0eed98ffc5bbfcab57ddeb1926/crates/brn-desktop/README.md#current-workspace-native-default)
 is reproducible; partial native observation is distinct from owner acceptance.
 Stage 5 remains active for durable provenance, relationships, findings/timestamps
 and actual English/Estonian retrieval qualification.
@@ -424,7 +424,7 @@ commands. Only the known upstream `block v0.1.6` future-compiler warning remains
 Native controls did not change; this does not establish GUI provenance usability,
 IME/accessibility, real English/Estonian inference or physical power-loss behavior.
 No live provider call, download or original/private data access occurred.
-[CLI provenance scenario](../../../../crates/brn/README.md#durable-source-provenance)
+[CLI provenance scenario](https://github.com/ewq100/brn-rust/blob/a1c61e245ec90a0eed98ffc5bbfcab57ddeb1926/crates/brn/README.md#durable-source-provenance)
 is reproducible; owner acceptance and native provenance convenience remain pending.
 After native builds finished, a serialized default workspace build, **119 CLI
 tests** and fixture-only gate (**52 assertions**) also passed, so executable
@@ -629,7 +629,7 @@ passed. Shipping headless AppWorker startup/restart passed in a new owned link
 fixture. Actual ONNX/model inference was not exercised. The known upstream
 `block v0.1.6` future-compiler warning remains.
 
-[CLI manual acceptance](../../../../crates/brn/README.md#saved-note-links) covers
+[CLI manual acceptance](https://github.com/ewq100/brn-rust/blob/a1c61e245ec90a0eed98ffc5bbfcab57ddeb1926/crates/brn/README.md#saved-note-links) covers
 exact proof inspection, a renamed source, duplicates and index deletion. The
 reproducible fixture at `/private/tmp/brn-links-root-ufgzz6bk/manual` retains
 `data`, `vault/current.md` (BOM/CRLF), an unmanaged thematic-break note and an
@@ -713,7 +713,7 @@ configurations and shipping desktop build without test support passed. The two
 private ignored crash entry points remain exercised by subprocess matrices.
 Actual ONNX inference was not run; the known upstream block 0.1.6 warning remains.
 
-[CLI manual acceptance](../../../../crates/brn/README.md#derived-relationship-pages)
+[CLI manual acceptance](https://github.com/ewq100/brn-rust/blob/a1c61e245ec90a0eed98ffc5bbfcab57ddeb1926/crates/brn/README.md#derived-relationship-pages)
 covers scope, exact origins/proofs, restart/index loss, UUID moves and duplicates.
 The retained owned fixture at `/private/tmp/brn-relationships-root-q6u4n8p2/manual`
 has data, current/related Markdown and an archived source: Current returns one
@@ -809,7 +809,7 @@ above. Actual model assets/inference were not exercised and no live provider cal
 or downloads occurred. The first broader workflow attempt failed on the legacy
 regression; the final corrected whole gate is the current passing evidence.
 
-[Reproducible CLI acceptance](../../../../crates/brn/README.md#saved-note-links)
+[Reproducible CLI acceptance](https://github.com/ewq100/brn-rust/blob/a1c61e245ec90a0eed98ffc5bbfcab57ddeb1926/crates/brn/README.md#saved-note-links)
 uses a fresh synthetic managed current note and archived source. The retained
 `/private/tmp/brn-links-root-sn2zitcv/manual` scenario passed prepare without
 proposal admission or byte changes, explicit Create and exact review-version

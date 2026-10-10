@@ -5,7 +5,7 @@ import re
 import sys
 
 root = Path(__file__).resolve().parent.parent
-pattern = re.compile(r"brn[-_]provider|codex_home|--codex")
+pattern = re.compile(r"brn[-_]provider|--codex-server")
 paths = [root / "Cargo.toml"]
 paths += list((root / "crates").rglob("*.toml"))
 paths += [p for p in (root / "crates").rglob("*.rs") if "tests" not in p.parts]

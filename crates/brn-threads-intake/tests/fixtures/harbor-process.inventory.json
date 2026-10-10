@@ -1,0 +1,27 @@
+{
+  "expected_assets": 1,
+  "items": [
+    {"label":"title","locator":"body","needle":"Harbor release process"},
+    {"label":"roles heading","locator":"body/roles","needle":"Purpose and roles"},
+    {"label":"roles","locator":"body/roles","needle":"The coordinator prepares the release; the inspector verifies it; the duty lead approves exceptions."},
+    {"label":"prerequisites heading","locator":"body/prerequisites","needle":"Prerequisites"},
+    {"label":"prerequisites","locator":"body/prerequisites","needle":"Use the current manifest and verify that the check gate is staffed before starting."},
+    {"label":"procedure heading","locator":"body/procedure","needle":"Procedure"},
+    {"label":"step 1","locator":"body/procedure/step:1","needle":"1. Check the manifest against the parcel count and record any mismatch."},
+    {"label":"step 2","locator":"body/procedure/step:2","needle":"2. Test the release signal with the inspector present; retain the timestamp."},
+    {"label":"step 3","locator":"body/procedure/step:3","needle":"3. Release only after both checks pass and tell the coordinator the batch number."},
+    {"label":"warning","locator":"body/procedure/warning","needle":"Warning: stop immediately if the signal lamp is red. Never bypass the test gate."},
+    {"label":"table heading","locator":"body/table:1","needle":"Gate responsibilities"},
+    {"label":"table header","locator":"body/table:1","needle":"Gate Owner Time limit"},
+    {"label":"check row","locator":"body/table:1/row:1","needle":"Check Coordinator 5 min"},
+    {"label":"test row","locator":"body/table:1/row:2","needle":"Test Inspector 3 min"},
+    {"label":"release row","locator":"body/table:1/row:3","needle":"Release Duty lead 2 min"},
+    {"label":"figure caption","locator":"body/figure:1","needle":"Figure 1. Gate order: check, test, then release; each gate must pass before the next."},
+    {"label":"exceptions heading","locator":"body/exceptions","needle":"Exceptions"},
+    {"label":"exception","locator":"body/exceptions","needle":"If the inspector is unavailable, keep the batch waiting and ask the duty lead for a replacement."},
+    {"label":"references heading","locator":"body/references","needle":"References"},
+    {"label":"protocol reference","locator":"body/reference:1","needle":"[1] Harbor Lab. Handoff protocol, synthetic edition, 2026, sections 2-3."},
+    {"label":"appendix heading","locator":"body/appendix:A","needle":"Appendix A. Record"},
+    {"label":"record requirement","locator":"body/appendix:A","needle":"Record the batch number, all three gate timestamps, and the name of the approving lead."}
+  ]
+}

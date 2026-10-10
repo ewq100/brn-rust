@@ -1,0 +1,24 @@
+{
+  "expected_assets": 1,
+  "items": [
+    {"label":"title","locator":"page:1","needle":"Harbor handoff study"},
+    {"label":"purpose heading","locator":"page:1/section:1","needle":"1. Purpose"},
+    {"label":"sample","locator":"page:1/section:1","needle":"This synthetic study compares two inspection routes over six weekday trials."},
+    {"label":"qualification","locator":"page:1/section:1","needle":"The observations describe this sample only; weather and staffing were held constant."},
+    {"label":"findings heading","locator":"page:1/section:2","needle":"2. Findings"},
+    {"label":"table caption","locator":"page:1/table:1","needle":"Table 1 records median elapsed time and the number of missed handoffs."},
+    {"label":"table header","locator":"page:1/table:1","needle":"Route Median (min) Missed handoffs"},
+    {"label":"check-first row","locator":"page:1/table:1/row:1","needle":"Check first 12 1"},
+    {"label":"test-first row","locator":"page:1/table:1/row:2","needle":"Test first 19 3"},
+    {"label":"interpretation","locator":"page:1/section:2","needle":"The check-first route was faster by 7 minutes, but this is not a causal estimate."},
+    {"label":"figure caption","locator":"page:1/figure:1","needle":"Figure 1. Gate order: check, test, then release; each gate must pass before the next."},
+    {"label":"limits heading","locator":"page:1/section:3","needle":"3. Limits"},
+    {"label":"scope limitation","locator":"page:1/section:3","needle":"The trial excluded overnight operations and must not be generalized to storms."},
+    {"label":"references heading","locator":"page:2/section:4","needle":"4. References"},
+    {"label":"protocol reference","locator":"page:2/reference:1","needle":"[1] Harbor Lab. Handoff protocol, synthetic edition, 2026, sections 2-3."},
+    {"label":"trial reference","locator":"page:2/reference:2","needle":"[2] Harbor Lab. Trial log, synthetic edition, 2026, entries 1-6."},
+    {"label":"appendix heading","locator":"page:2/appendix:A","needle":"Appendix A. Observation rule"},
+    {"label":"definition","locator":"page:2/appendix:A","needle":"A missed handoff means a parcel waited more than 5 minutes after its release signal."},
+    {"label":"observation method","locator":"page:2/appendix:A","needle":"Observers recorded one timestamp per gate and did not change the route mid-trial."}
+  ]
+}

@@ -175,7 +175,7 @@ artifacts after a baseline probe reused a target: it passed old filtered binarie
 before a production build failed against the old AI library (exit101). Clearing
 only that target's BRN package artifacts and rebuilding reproduced the correct
 merged tests and passed. The failed/zero-test attempt is not qualification;
-the [verification guide](../../../development/verification.md) now records this
+the [verification guide](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/development/verification.md) now records this
 specific target-isolation constraint. Main37375126865 remains in progress.
 
 ## Rewrite correction evidence

@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - name: Check current Markdown file and fragment links
@@ -53,7 +53,7 @@ jobs:
       matrix:
         runner: [ubuntu-24.04, windows-2025, macos-15]
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - uses: ./.github/actions/setup-rust
@@ -65,12 +65,18 @@ jobs:
       - name: Check production provider retirement
         if: runner.os != 'Windows'
         run: python3 scripts/check-provider-retirement.py
+      - name: Install bounded PDF converter tools on macOS
+        if: runner.os == 'macOS'
+        run: brew install poppler
       - name: Qualify maintained intake helper on macOS
         if: runner.os == 'macOS'
         run: |
           cargo build -p brn-intake --features helper --bin brn-intake-helper --locked --offline
           cargo clippy -p brn-intake --features helper --all-targets --locked --offline -- -D warnings
           cargo test -p brn-intake --features helper --all-targets --locked --offline
+          echo "BRN_INTAKE_HELPER=$GITHUB_WORKSPACE/target/debug/brn-intake-helper" >> "$GITHUB_ENV"
+          echo "BRN_PDFTOTEXT=$(command -v pdftotext)" >> "$GITHUB_ENV"
+          echo "BRN_PDFIMAGES=$(command -v pdfimages)" >> "$GITHUB_ENV"
       - name: Check production intake retirement
         if: runner.os != 'Windows'
         run: python3 scripts/check-intake-retirement.py
@@ -119,7 +125,7 @@ jobs:
         # Qualify Mac native features on PRs; probe all targets on main/manual runs.
         runner: ${{ fromJSON(github.event_name == 'pull_request' && '["macos-15"]' || '["ubuntu-24.04","windows-2025","macos-15"]') }}
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - uses: ./.github/actions/setup-rust
@@ -141,7 +147,7 @@ jobs:
       - name: Test native macOS widgets
         if: runner.os == 'macOS'
         run: |
-          cargo test -p brn-desktop --features native-ui,native-test-support --bin brn-desktop native:: --locked --offline
+          cargo test -p brn-desktop --features native-ui,native-test-support --bin brn-desktop threads_ui:: --locked --offline
       - name: Exercise the desktop headless driver on Unix
         if: runner.os != 'Windows'
         run: |
@@ -153,8 +159,8 @@ jobs:
           for attempt in 1 2; do
             target/debug/brn-desktop --data-dir "$data" --headless-check startup
           done
-          test -f "$data/brn.sqlite"
-          test ! -e "$data/brn.sqlite3"
+          test -f "$data/threads.sqlite3"
+          test ! -e "$data/brn.sqlite"
       - name: Exercise the desktop headless driver on Windows
         if: runner.os == 'Windows'
         shell: pwsh
@@ -168,10 +174,10 @@ jobs:
               & ./target/debug/brn-desktop.exe --data-dir $data --headless-check startup
               if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
             }
-            if (-not (Test-Path -LiteralPath (Join-Path $data 'brn.sqlite') -PathType Leaf)) {
+            if (-not (Test-Path -LiteralPath (Join-Path $data 'threads.sqlite3') -PathType Leaf)) {
               throw 'Current operational database was not created'
             }
-            if (Test-Path -LiteralPath (Join-Path $data 'brn.sqlite3')) {
+            if (Test-Path -LiteralPath (Join-Path $data 'brn.sqlite')) {
               throw 'Retired operational database was created'
             }
           } finally {
@@ -187,7 +193,7 @@ jobs:
       matrix:
         runner: ${{ fromJSON(github.event_name == 'pull_request' && '["macos-15"]' || '["ubuntu-24.04","windows-2025","macos-15"]') }}
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - uses: ./.github/actions/setup-rust
@@ -199,8 +205,8 @@ jobs:
         run: cargo build -p brn-intake --features helper --bin brn-intake-helper --locked --offline
       - name: Test native retrieval without model assets
         run: cargo test -p brn-retrieval --features native --lib --test model_download --locked --offline
-      - name: Test the native retrieval workflow
-        run: cargo test -p brn-workflow --features native-retrieval --lib --test models --locked --offline
+      - name: Test current canonical search with the native retrieval feature
+        run: cargo test -p brn-threads-app --features native-retrieval --locked --offline
       - name: Build the native retrieval CLI
         run: cargo build -p brn --features native-retrieval --locked --offline
       - name: Build the combined native desktop

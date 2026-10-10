@@ -5,16 +5,19 @@ edition = "2021"
 publish = false
 
 [features]
-native-retrieval = ["brn-workflow/native-retrieval"]
+native-retrieval = ["brn-threads-app/native-retrieval"]
 
 [dependencies]
-brn-workflow = { path = "../brn-workflow" }
+brn-threads-app = { path = "../brn-threads-app" }
+brn-threads-intake = { path = "../brn-threads-intake" }
+brn-intake = { path = "../brn-intake" }
+brn-ai = { path = "../brn-ai" }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "time"] }
+tokio-util = { version = "0.7", features = ["rt"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 uuid = { version = "1", features = ["v4", "serde"] }
 libc = "0.2"
 
 [dev-dependencies]
-brn-intake = { path = "../brn-intake", default-features = false }
-brn-store = { path = "../brn-store" }
 tempfile = "3"

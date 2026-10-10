@@ -2,15 +2,17 @@
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# Resolve Cargo through the repository toolchain pin even when called elsewhere.
+cd "$repo_root"
 manifest="$repo_root/experiments/editor-trial/Cargo.toml"
 export PATH="/opt/homebrew/opt/rustup/bin:$PATH"
 
-cargo +1.98.1 test --manifest-path "$manifest" --locked --offline
-cargo +1.98.1 build --manifest-path "$manifest" --features native-ui --locked --offline
-cargo +1.98.1 fmt --manifest-path "$manifest" --check
-cargo +1.98.1 clippy --manifest-path "$manifest" --features native-ui --all-targets --locked --offline -- -D warnings
+cargo test --manifest-path "$manifest" --locked --offline
+cargo build --manifest-path "$manifest" --features native-ui --locked --offline
+cargo fmt --manifest-path "$manifest" --check
+cargo clippy --manifest-path "$manifest" --features native-ui --all-targets --locked --offline -- -D warnings
 
-binary="$repo_root/experiments/editor-trial/target/debug/brn-editor-trial"
+binary="${CARGO_TARGET_DIR:-$repo_root/experiments/editor-trial/target}/debug/brn-editor-trial"
 if [[ ! -x "$binary" ]]; then
   printf 'Expected executable not found: %s\n' "$binary" >&2
   exit 1
