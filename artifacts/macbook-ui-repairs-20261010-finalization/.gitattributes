@@ -1,0 +1,2 @@
+# Preserve exact hosted CI output bytes.
+*.log binary

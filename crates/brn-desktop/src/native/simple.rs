@@ -21,6 +21,7 @@ pub(super) struct Closed {
 pub(super) enum EditorTransition {
     Note(String),
     Evidence { path: String, scope: KnowledgeScope },
+    RawEvidence(String),
     Review(Uuid),
     Activity,
     Dashboard,
@@ -208,6 +209,7 @@ impl Desktop {
         self.sync_citation_review_widgets(window, cx);
         self.sync_inbox_widgets(window, cx);
         self.sync_dashboard_widgets(window, cx);
+        self.sync_raw_evidence_widgets(window, cx);
         if self
             .ai
             .as_ref()
@@ -471,6 +473,18 @@ impl Desktop {
         };
         match transition {
             EditorTransition::Note(path) => self.simple_open_note(path, cx),
+            EditorTransition::RawEvidence(path) => {
+                self.clear_saved_link_panel();
+                self.reset_provenance_panel();
+                let ai = self.ai.as_mut().unwrap();
+                ai.review = None;
+                ai.review_generation = ai.review_generation.wrapping_add(1);
+                let command = ai.open_raw_evidence(path.clone());
+                self.simple_note_path = Some(path);
+                self.open_doc = Some(DocRef::Evidence);
+                self.centre_tab = CentreTab::Document;
+                self.simple_send(command, cx);
+            }
             EditorTransition::Evidence { path, scope } => {
                 self.clear_saved_link_panel();
                 self.reset_provenance_panel();
@@ -1488,10 +1502,29 @@ impl Desktop {
                 report.added, report.updated, report.removed, report.unchanged
             ));
             for unreadable in &report.unreadable {
-                list = list.child(format!(
-                    "Unreadable: {} · {}",
-                    unreadable.path, unreadable.reason
-                ));
+                let path = unreadable.path.clone();
+                list = list.child(
+                    div()
+                        .flex()
+                        .flex_col()
+                        .gap_1()
+                        .flex_shrink_0()
+                        .child(format!(
+                            "Unreadable: {} · {}",
+                            unreadable.path, unreadable.reason
+                        ))
+                        .child(
+                            Button::new(format!("open-raw-evidence-{}", unreadable.path))
+                                .label("Inspect raw saved bytes")
+                                .disabled(!ai.ready || !ai.vault_bound || ai.application_busy())
+                                .on_click(cx.listener(move |this, _, _, cx| {
+                                    this.simple_leave(
+                                        EditorTransition::RawEvidence(path.clone()),
+                                        cx,
+                                    )
+                                })),
+                        ),
+                );
             }
         }
         for note in &ai.notes {
@@ -1717,6 +1750,9 @@ impl Desktop {
             .into_any_element()
     }
     pub(super) fn render_evidence_document(&mut self, cx: &mut Context<Self>) -> AnyElement {
+        if self.ai.as_ref().unwrap().raw_evidence.is_some() {
+            return self.render_raw_evidence(cx);
+        }
         let p = self.palette();
         let ai = self.ai.as_ref().unwrap();
         let inspection_open = self.provenance_open || self.saved_links.open;

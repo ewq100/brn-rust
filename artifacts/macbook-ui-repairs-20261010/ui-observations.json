@@ -1,0 +1,745 @@
+[
+  {
+    "at": "2026-10-10T06:02:57.928556+00:00",
+    "case": "M",
+    "checks": "23",
+    "status": "baseline",
+    "source_case_path": "/private/tmp/brn-full-macbook-20261009/cases/M",
+    "fresh_candidate_fixture": false,
+    "native_observation": "Pre-launch consistent snapshot; prior native failures retained separately.",
+    "runtime_manifest": "/private/tmp/brn-ui-repairs-macbook-20261010/runtime-manifest.json",
+    "snapshot": "/private/tmp/brn-ui-repairs-macbook-20261010/receipts/M/native-1.sqlite",
+    "integrity": [
+      [
+        "ok"
+      ]
+    ],
+    "foreign_keys": [],
+    "counts": {
+      "actions": 30,
+      "proposals": 4,
+      "proposal_applies": 4,
+      "findings": 0,
+      "conversations": 0,
+      "inbox_items": 2
+    },
+    "vault_sha256": {
+      "z-project.md": "31ebf393939e265568bb6288463977f66f8bfde6fa30cc896d42b94f9ce7ad48",
+      "c-thread.md": "af91ad79226610916a0b3e5c8b087df788860b0b1b920fad161b8ea1722a25e0",
+      "00-incoming.md": "285523a5afb7dd5f97cd73decf1d6b9cd8089613d66e7d1a8427fd16631eee2f",
+      "b-person.md": "dee26d20be065674288539a80dd7584bb198858c341d1aefc3c3d80f21bca2af",
+      "a-source.md": "fe007ad73de1f11d7176d241d9cb2df1da6694a5e57e633c2872d0cdf612e258",
+      "isolated.md": "9dce066ff7a33ae73f00c2a50dffc75f1a8dd2f10c16c17652bef4d8cbb6f911",
+      "archive/prior-project.md": "04879909c61f17735765c08d7c14de80b172bc8852171edbfa1cc931338f2649",
+      "neighbors/18.md": "dcc2b754fc648f3771779dc7f1c55daec9ec7c935271aa1df655a2d35d2ddc1f",
+      "neighbors/08.md": "835140ebb3da3f1995da2496354658874862b30e0ace305e2e4b80c940cd201b",
+      "neighbors/19.md": "c8941ee2e54b9128329fb2dc29040e71197bfe86b811afc222c89c22f44ce1bb",
+      "neighbors/09.md": "1edd9f1f962f01dbdf2adff8515441a095c6020f1e24541dd6e1726e2af43b98",
+      "neighbors/16.md": "a8b831a893c62b84e900354c149918b1839fc1335cc88366777d09191c09defd",
+      "neighbors/22.md": "7c7f75ef92df73638208645f972acaa841f34660e01dba1b9971245098cf1c5b",
+      "neighbors/06.md": "58f2356d7911fda793561bf4a9e5c9773e3036b8f5228cdddfe3c6fa3e3f0f08",
+      "neighbors/26.md": "5c1e224ad14a89f8946b5526058fc22826be38fde20596fdc6b524bde291e3bb",
+      "neighbors/12.md": "9b608745e480ff7c49e74184e8f227cbb8ad58ca2436ee2c37c302aaa4a2857c",
+      "neighbors/02.md": "291fa4af782310aca307a19d580f36205caf65b53aa7ac7821d574fa6117bfac",
+      "neighbors/13.md": "2a8b4bddf8a2370b543334087a5ae1a78bfe10c947542d528d47d3417e6fd315",
+      "neighbors/03.md": "b0306c12fd18c0d5f8ce8bfe1c18a3f363078399a568fe26451ff77d1ff4b65a",
+      "neighbors/17.md": "e49ab4b3c519ab14f48bce37763449cc7b87e7b18ab5f84fc7bc3d5131096bbb",
+      "neighbors/23.md": "d4748b1a03c838fc85f5a5a7cc94c6c06c039e5ac97458dc0663b495de06ab70",
+      "neighbors/07.md": "b8e613b489e05bf655669eaea27713f7818380f6526cda117c2de0498264402f",
+      "neighbors/24.md": "c0c196d0f352c6fa1e392619eb268ff157740bb9fc9a880eac3384a23da1b579",
+      "neighbors/10.md": "bd779294ef713ae77ff06a087a4f5fea0432fed0ec460f4d463dfe0c4289e5dc",
+      "neighbors/00.md": "11948780639b1b41b1521a7b1aba18747c8a1e36190b4fc78beb70099995c35e",
+      "neighbors/14.md": "02520e14eeb1b5865875bfa4010cef8fa4454e88b1397ff9b1ba952b3112cb8c",
+      "neighbors/20.md": "14c1ecc28f53f59cb5262c4e4a34fb81f0836db0be71563434c7ea563d7c482b",
+      "neighbors/04.md": "2f2915198d0df3b2a588317ab47490826f60bf659a9c73fe1627aa03873d9062",
+      "neighbors/15.md": "7569159d964ca9c915ad29679b5a2742d37d82c7c62dfdd68add15c88945ab79",
+      "neighbors/21.md": "a8ccbec22d87b47ad450000e5b54a0576eea679ecb1d0eab2fd967341a31a975",
+      "neighbors/05.md": "70d332ef4a9aa57303e2fcdece8566f1e219f673be5d93f4fd39e0a0e931238e",
+      "neighbors/25.md": "844a8f58eb5c42c35ab71f9f5491ec6988d772257ac41ddebe11169345f98288",
+      "neighbors/11.md": "9cd8e28e3161c5fce89918b434f3a7f1bec632cae5033cf657b6e3702d4cce1a",
+      "neighbors/01.md": "b90d74613b4bf8ecb2b8689557b1875ef534a78cbcb6a025ce1b328ec41e5b17"
+    }
+  },
+  {
+    "at": "2026-10-10T06:02:57.989088+00:00",
+    "case": "J",
+    "checks": "19",
+    "status": "baseline",
+    "source_case_path": "/private/tmp/brn-full-macbook-20261009/cases/J",
+    "fresh_candidate_fixture": false,
+    "native_observation": "Pre-launch consistent snapshot; malformed saved bytes must remain exact.",
+    "runtime_manifest": "/private/tmp/brn-ui-repairs-macbook-20261010/runtime-manifest.json",
+    "snapshot": "/private/tmp/brn-ui-repairs-macbook-20261010/receipts/J/native-2.sqlite",
+    "integrity": [
+      [
+        "ok"
+      ]
+    ],
+    "foreign_keys": [],
+    "counts": {
+      "actions": 0,
+      "proposals": 0,
+      "proposal_applies": 0,
+      "findings": 0,
+      "conversations": 2,
+      "inbox_items": 0
+    },
+    "vault_sha256": {
+      "raw-meadow-hall.md": "8b135e40c8337c67b7d7f852255b115cac33e0206f979ffb68e27498f8ad21ac"
+    }
+  },
+  {
+    "at": "2026-10-10T06:02:58.030278+00:00",
+    "case": "G",
+    "checks": "16",
+    "status": "baseline",
+    "source_case_path": "/private/tmp/brn-full-macbook-20261009/cases/G",
+    "fresh_candidate_fixture": false,
+    "native_observation": "Pre-launch snapshot before native ready Undo; no effects yet.",
+    "runtime_manifest": "/private/tmp/brn-ui-repairs-macbook-20261010/runtime-manifest.json",
+    "snapshot": "/private/tmp/brn-ui-repairs-macbook-20261010/receipts/G/native-3.sqlite",
+    "integrity": [
+      [
+        "ok"
+      ]
+    ],
+    "foreign_keys": [],
+    "counts": {
+      "actions": 3,
+      "proposals": 7,
+      "proposal_applies": 7,
+      "findings": 0,
+      "conversations": 0,
+      "inbox_items": 0
+    },
+    "vault_sha256": {}
+  },
+  {
+    "at": "2026-10-10T06:02:58.073848+00:00",
+    "case": "N",
+    "checks": "24,26",
+    "status": "baseline",
+    "source_case_path": "/private/tmp/brn-ui-repairs-macbook-20261010/cases/N",
+    "fresh_candidate_fixture": true,
+    "native_observation": "Fresh synthetic candidate N physical identities recorded in case-map.json; original live N form remains preserved.",
+    "runtime_manifest": "/private/tmp/brn-ui-repairs-macbook-20261010/runtime-manifest.json",
+    "snapshot": "/private/tmp/brn-ui-repairs-macbook-20261010/receipts/N/native-4.sqlite",
+    "integrity": [
+      [
+        "ok"
+      ]
+    ],
+    "foreign_keys": [],
+    "counts": {
+      "actions": 3,
+      "proposals": 5,
+      "proposal_applies": 4,
+      "findings": 0,
+      "conversations": 0,
+      "inbox_items": 1
+    },
+    "vault_sha256": {
+      "evidence.md": "ab9d81c24abda9bd0fc21fe1f51b56f6a55874c5d9eb0e9ce51124b86ee17fa1",
+      "project.md": "aa77d46c4e977a7b78cfb6946dacc60397704d62c554a1997666fe7c33a7a342",
+      "thread.md": "8add0988cd956f6e47a5c85760edfa0e1cafa3cadab316eb94126e82c7c262fe",
+      "person.md": "a2fb5134df985266caded462b8cea1a2d7684b5863914a3bf1773a159f2fc4f2"
+    }
+  },
+  {
+    "at": "2026-10-10T06:18:41.802113+00:00",
+    "case": "M",
+    "checks": "23",
+    "status": "partial",
+    "source_case_path": "/private/tmp/brn-full-macbook-20261009/cases/M",
+    "fresh_candidate_fixture": false,
+    "native_observation": "Qualified runtime: graph25edges/24nodes, exact Current/Source/History and explicit/inferred/opposite edge identities available. Vertical scroll observed. Diagnostic native horizontal request delivered Pixels(x0,y0), while vertical delivered y-2400; native horizontal gesture remains unavailable through tool and needs human witness. Temporary relative anchoring experiment gave no improvement and was reverted. No original records or Markdown changed.",
+    "runtime_manifest": "/private/tmp/brn-ui-repairs-macbook-20261010/runtime-manifest.json",
+    "snapshot": "/private/tmp/brn-ui-repairs-macbook-20261010/receipts/M/native-5.sqlite",
+    "integrity": [
+      [
+        "ok"
+      ]
+    ],
+    "foreign_keys": [],
+    "counts": {
+      "actions": 30,
+      "proposals": 4,
+      "proposal_applies": 4,
+      "findings": 0,
+      "conversations": 0,
+      "inbox_items": 2
+    },
+    "vault_sha256": {
+      "z-project.md": "31ebf393939e265568bb6288463977f66f8bfde6fa30cc896d42b94f9ce7ad48",
+      "c-thread.md": "af91ad79226610916a0b3e5c8b087df788860b0b1b920fad161b8ea1722a25e0",
+      "00-incoming.md": "285523a5afb7dd5f97cd73decf1d6b9cd8089613d66e7d1a8427fd16631eee2f",
+      "b-person.md": "dee26d20be065674288539a80dd7584bb198858c341d1aefc3c3d80f21bca2af",
+      "a-source.md": "fe007ad73de1f11d7176d241d9cb2df1da6694a5e57e633c2872d0cdf612e258",
+      "isolated.md": "9dce066ff7a33ae73f00c2a50dffc75f1a8dd2f10c16c17652bef4d8cbb6f911",
+      "archive/prior-project.md": "04879909c61f17735765c08d7c14de80b172bc8852171edbfa1cc931338f2649",
+      "neighbors/18.md": "dcc2b754fc648f3771779dc7f1c55daec9ec7c935271aa1df655a2d35d2ddc1f",
+      "neighbors/08.md": "835140ebb3da3f1995da2496354658874862b30e0ace305e2e4b80c940cd201b",
+      "neighbors/19.md": "c8941ee2e54b9128329fb2dc29040e71197bfe86b811afc222c89c22f44ce1bb",
+      "neighbors/09.md": "1edd9f1f962f01dbdf2adff8515441a095c6020f1e24541dd6e1726e2af43b98",
+      "neighbors/16.md": "a8b831a893c62b84e900354c149918b1839fc1335cc88366777d09191c09defd",
+      "neighbors/22.md": "7c7f75ef92df73638208645f972acaa841f34660e01dba1b9971245098cf1c5b",
+      "neighbors/06.md": "58f2356d7911fda793561bf4a9e5c9773e3036b8f5228cdddfe3c6fa3e3f0f08",
+      "neighbors/26.md": "5c1e224ad14a89f8946b5526058fc22826be38fde20596fdc6b524bde291e3bb",
+      "neighbors/12.md": "9b608745e480ff7c49e74184e8f227cbb8ad58ca2436ee2c37c302aaa4a2857c",
+      "neighbors/02.md": "291fa4af782310aca307a19d580f36205caf65b53aa7ac7821d574fa6117bfac",
+      "neighbors/13.md": "2a8b4bddf8a2370b543334087a5ae1a78bfe10c947542d528d47d3417e6fd315",
+      "neighbors/03.md": "b0306c12fd18c0d5f8ce8bfe1c18a3f363078399a568fe26451ff77d1ff4b65a",
+      "neighbors/17.md": "e49ab4b3c519ab14f48bce37763449cc7b87e7b18ab5f84fc7bc3d5131096bbb",
+      "neighbors/23.md": "d4748b1a03c838fc85f5a5a7cc94c6c06c039e5ac97458dc0663b495de06ab70",
+      "neighbors/07.md": "b8e613b489e05bf655669eaea27713f7818380f6526cda117c2de0498264402f",
+      "neighbors/24.md": "c0c196d0f352c6fa1e392619eb268ff157740bb9fc9a880eac3384a23da1b579",
+      "neighbors/10.md": "bd779294ef713ae77ff06a087a4f5fea0432fed0ec460f4d463dfe0c4289e5dc",
+      "neighbors/00.md": "11948780639b1b41b1521a7b1aba18747c8a1e36190b4fc78beb70099995c35e",
+      "neighbors/14.md": "02520e14eeb1b5865875bfa4010cef8fa4454e88b1397ff9b1ba952b3112cb8c",
+      "neighbors/20.md": "14c1ecc28f53f59cb5262c4e4a34fb81f0836db0be71563434c7ea563d7c482b",
+      "neighbors/04.md": "2f2915198d0df3b2a588317ab47490826f60bf659a9c73fe1627aa03873d9062",
+      "neighbors/15.md": "7569159d964ca9c915ad29679b5a2742d37d82c7c62dfdd68add15c88945ab79",
+      "neighbors/21.md": "a8ccbec22d87b47ad450000e5b54a0576eea679ecb1d0eab2fd967341a31a975",
+      "neighbors/05.md": "70d332ef4a9aa57303e2fcdece8566f1e219f673be5d93f4fd39e0a0e931238e",
+      "neighbors/25.md": "844a8f58eb5c42c35ab71f9f5491ec6988d772257ac41ddebe11169345f98288",
+      "neighbors/11.md": "9cd8e28e3161c5fce89918b434f3a7f1bec632cae5033cf657b6e3702d4cce1a",
+      "neighbors/01.md": "b90d74613b4bf8ecb2b8689557b1875ef534a78cbcb6a025ce1b328ec41e5b17"
+    }
+  },
+  {
+    "at": "2026-10-10T06:28:34.321113+00:00",
+    "case": "J",
+    "checks": "19",
+    "status": "partial",
+    "source_case_path": "/private/tmp/brn-full-macbook-20261009/cases/J",
+    "fresh_candidate_fixture": false,
+    "native_observation": "Qualified native runtime: malformed 949968-byte note opened explicitly read-only; full hash 8b135e40c8337c67b7d7f852255b115cac33e0206f979ffb68e27498f8ad21ac and canonical UUID metadata issue visible. Exact appendix 949000..949968 read; visible 47 vs 50 dB, EUR8200 panels-only exclusions, distinct 10/14 November dates, Mara authority/no order. Native Copy pasted exact prefix plus observed final line and trailing blank line; hash-bearing JSON copy showed range/full hash. Both saved Luna/Sol synthetic answers reopened without AI; restart raw prefix/hash verified. Narrow layout and second post-restart appendix read pending; no full check pass yet.",
+    "runtime_manifest": "/private/tmp/brn-ui-repairs-macbook-20261010/runtime-manifest.json",
+    "snapshot": "/private/tmp/brn-ui-repairs-macbook-20261010/receipts/J/native-6.sqlite",
+    "integrity": [
+      [
+        "ok"
+      ]
+    ],
+    "foreign_keys": [],
+    "counts": {
+      "actions": 0,
+      "proposals": 0,
+      "proposal_applies": 0,
+      "findings": 0,
+      "conversations": 2,
+      "inbox_items": 0
+    },
+    "vault_sha256": {
+      "raw-meadow-hall.md": "8b135e40c8337c67b7d7f852255b115cac33e0206f979ffb68e27498f8ad21ac"
+    }
+  },
+  {
+    "at": "2026-10-10T06:28:59.810254+00:00",
+    "case": "J",
+    "checks": "19",
+    "status": "partial",
+    "source_case_path": "/private/tmp/brn-full-macbook-20261009/cases/J",
+    "fresh_candidate_fixture": false,
+    "native_observation": "Post-restart appendix 949000..949968 re-read successfully in native UI. Raw-view blocker resolved; retained synthetic answers unchanged. Exact full native answer-copy witness remains unexercised (read-only saved text and SQLite retention are not a native copy receipt). No overall acceptance claim.",
+    "runtime_manifest": "/private/tmp/brn-ui-repairs-macbook-20261010/runtime-manifest.json",
+    "snapshot": "/private/tmp/brn-ui-repairs-macbook-20261010/receipts/J/native-7.sqlite",
+    "integrity": [
+      [
+        "ok"
+      ]
+    ],
+    "foreign_keys": [],
+    "counts": {
+      "actions": 0,
+      "proposals": 0,
+      "proposal_applies": 0,
+      "findings": 0,
+      "conversations": 2,
+      "inbox_items": 0
+    },
+    "vault_sha256": {
+      "raw-meadow-hall.md": "8b135e40c8337c67b7d7f852255b115cac33e0206f979ffb68e27498f8ad21ac"
+    }
+  },
+  {
+    "at": "2026-10-10T06:31:56.718999+00:00",
+    "case": "N",
+    "checks": "24",
+    "status": "partial",
+    "source_case_path": "/private/tmp/brn-ui-repairs-macbook-20261010/cases/N",
+    "fresh_candidate_fixture": true,
+    "native_observation": "Qualified native runtime foreground activation binds exact Waiting Action 9a5bdb5f-9587-42b0-9064-0954aae4e819. Full prefilled owner/person/project/Source/thread/date fields observed; copy raw baseline native paste prefix matched proposal29321d27-a818-4552-9c09-35a7b3c5fd6c. Entered retained Unicode/CRLF description, spaced owner, dates15/16October, Blocked/High; unchanged references. At480 logical pixels last fields/source capture/baseline and Create/Copy/Discard footer visibly reachable. No Draft or approval yet; apparent loading settled only after foreground Raise/click, not a proven defect.",
+    "runtime_manifest": "/private/tmp/brn-ui-repairs-macbook-20261010/runtime-manifest.json",
+    "snapshot": "/private/tmp/brn-ui-repairs-macbook-20261010/receipts/N/native-8.sqlite",
+    "integrity": [
+      [
+        "ok"
+      ]
+    ],
+    "foreign_keys": [],
+    "counts": {
+      "actions": 3,
+      "proposals": 5,
+      "proposal_applies": 4,
+      "findings": 0,
+      "conversations": 0,
+      "inbox_items": 1
+    },
+    "vault_sha256": {
+      "evidence.md": "ab9d81c24abda9bd0fc21fe1f51b56f6a55874c5d9eb0e9ce51124b86ee17fa1",
+      "project.md": "aa77d46c4e977a7b78cfb6946dacc60397704d62c554a1997666fe7c33a7a342",
+      "thread.md": "8add0988cd956f6e47a5c85760edfa0e1cafa3cadab316eb94126e82c7c262fe",
+      "person.md": "a2fb5134df985266caded462b8cea1a2d7684b5863914a3bf1773a159f2fc4f2"
+    }
+  },
+  {
+    "at": "2026-10-10T06:32:18.846006+00:00",
+    "case": "N",
+    "checks": "24",
+    "status": "partial",
+    "source_case_path": "/private/tmp/brn-ui-repairs-macbook-20261010/cases/N",
+    "fresh_candidate_fixture": true,
+    "native_observation": "Native480 Create review draft returned29321d27-a818-4552-9c09-35a7b3c5fd6c review1 Draft, explicitly no application requested. RealAction unchanged before approval; native raw values/Blocked/High/dates retained.",
+    "runtime_manifest": "/private/tmp/brn-ui-repairs-macbook-20261010/runtime-manifest.json",
+    "snapshot": "/private/tmp/brn-ui-repairs-macbook-20261010/receipts/N/native-9.sqlite",
+    "integrity": [
+      [
+        "ok"
+      ]
+    ],
+    "foreign_keys": [],
+    "counts": {
+      "actions": 3,
+      "proposals": 6,
+      "proposal_applies": 4,
+      "findings": 0,
+      "conversations": 0,
+      "inbox_items": 1
+    },
+    "vault_sha256": {
+      "evidence.md": "ab9d81c24abda9bd0fc21fe1f51b56f6a55874c5d9eb0e9ce51124b86ee17fa1",
+      "project.md": "aa77d46c4e977a7b78cfb6946dacc60397704d62c554a1997666fe7c33a7a342",
+      "thread.md": "8add0988cd956f6e47a5c85760edfa0e1cafa3cadab316eb94126e82c7c262fe",
+      "person.md": "a2fb5134df985266caded462b8cea1a2d7684b5863914a3bf1773a159f2fc4f2"
+    }
+  },
+  {
+    "at": "2026-10-10T06:34:27.052123+00:00",
+    "case": "N",
+    "checks": "24",
+    "status": "partial",
+    "source_case_path": "/private/tmp/brn-ui-repairs-macbook-20261010/cases/N",
+    "fresh_candidate_fixture": true,
+    "native_observation": "Native exact approval preview identified op5a05b3f7-0280-487d-876b-2ae1a4bcc6c0 proposal29321d27-a818-4552-9c09-35a7b3c5fd6c v1, same WaitingAction capturedbefore v1/origin, proposed description/owner/dates/Blocked/High/reference IDs. Confirmed only that captured synthetic replacement; UI reported1Applied; read-only full records retained. Restart and Undo pending.",
+    "runtime_manifest": "/private/tmp/brn-ui-repairs-macbook-20261010/runtime-manifest.json",
+    "snapshot": "/private/tmp/brn-ui-repairs-macbook-20261010/receipts/N/native-10.sqlite",
+    "integrity": [
+      [
+        "ok"
+      ]
+    ],
+    "foreign_keys": [],
+    "counts": {
+      "actions": 3,
+      "proposals": 6,
+      "proposal_applies": 5,
+      "findings": 0,
+      "conversations": 0,
+      "inbox_items": 1
+    },
+    "vault_sha256": {
+      "evidence.md": "ab9d81c24abda9bd0fc21fe1f51b56f6a55874c5d9eb0e9ce51124b86ee17fa1",
+      "project.md": "aa77d46c4e977a7b78cfb6946dacc60397704d62c554a1997666fe7c33a7a342",
+      "thread.md": "8add0988cd956f6e47a5c85760edfa0e1cafa3cadab316eb94126e82c7c262fe",
+      "person.md": "a2fb5134df985266caded462b8cea1a2d7684b5863914a3bf1773a159f2fc4f2"
+    }
+  },
+  {
+    "at": "2026-10-10T06:36:08.875656+00:00",
+    "case": "N",
+    "checks": "24",
+    "status": "partial",
+    "source_case_path": "/private/tmp/brn-ui-repairs-macbook-20261010/cases/N",
+    "fresh_candidate_fixture": true,
+    "native_observation": "Native restart Dashboard retained BlockedAction. Activity Undo preview source5a05b3f7-0280-487d-876b-2ae1a4bcc6c0 capturedUndoefc0c8ea-e247-478e-9592-359133615eac currentv2/Blocked/High/dates15,16 and proposedpriorWaiting/Normal/dates12,13 with same Source/thread/origin. Preview alone no effects; snapshots counts unchanged. Confirmation next.",
+    "runtime_manifest": "/private/tmp/brn-ui-repairs-macbook-20261010/runtime-manifest.json",
+    "snapshot": "/private/tmp/brn-ui-repairs-macbook-20261010/receipts/N/native-11.sqlite",
+    "integrity": [
+      [
+        "ok"
+      ]
+    ],
+    "foreign_keys": [],
+    "counts": {
+      "actions": 3,
+      "proposals": 6,
+      "proposal_applies": 5,
+      "findings": 0,
+      "conversations": 0,
+      "inbox_items": 1
+    },
+    "vault_sha256": {
+      "evidence.md": "ab9d81c24abda9bd0fc21fe1f51b56f6a55874c5d9eb0e9ce51124b86ee17fa1",
+      "project.md": "aa77d46c4e977a7b78cfb6946dacc60397704d62c554a1997666fe7c33a7a342",
+      "thread.md": "8add0988cd956f6e47a5c85760edfa0e1cafa3cadab316eb94126e82c7c262fe",
+      "person.md": "a2fb5134df985266caded462b8cea1a2d7684b5863914a3bf1773a159f2fc4f2"
+    }
+  },
+  {
+    "at": "2026-10-10T06:36:41.419867+00:00",
+    "case": "N",
+    "checks": "24",
+    "status": "partial",
+    "source_case_path": "/private/tmp/brn-ui-repairs-macbook-20261010/cases/N",
+    "fresh_candidate_fixture": true,
+    "native_observation": "Confirmed native Undoefc0c8ea-e247-478e-9592-359133615eac of5a05b3f7-0280-487d-876b-2ae1a4bcc6c0; UI Applied and immutableActivitylink retained. Readonly record proves v3 exact prior data/origin with freshWaiting timestamp. Next restart/Completed/guards/history.",
+    "runtime_manifest": "/private/tmp/brn-ui-repairs-macbook-20261010/runtime-manifest.json",
+    "snapshot": "/private/tmp/brn-ui-repairs-macbook-20261010/receipts/N/native-12.sqlite",
+    "integrity": [
+      [
+        "ok"
+      ]
+    ],
+    "foreign_keys": [],
+    "counts": {
+      "actions": 3,
+      "proposals": 7,
+      "proposal_applies": 6,
+      "findings": 0,
+      "conversations": 0,
+      "inbox_items": 1
+    },
+    "vault_sha256": {
+      "evidence.md": "ab9d81c24abda9bd0fc21fe1f51b56f6a55874c5d9eb0e9ce51124b86ee17fa1",
+      "project.md": "aa77d46c4e977a7b78cfb6946dacc60397704d62c554a1997666fe7c33a7a342",
+      "thread.md": "8add0988cd956f6e47a5c85760edfa0e1cafa3cadab316eb94126e82c7c262fe",
+      "person.md": "a2fb5134df985266caded462b8cea1a2d7684b5863914a3bf1773a159f2fc4f2"
+    }
+  },
+  {
+    "at": "2026-10-10T06:43:38.419937+00:00",
+    "case": "N",
+    "checks": "24,26",
+    "status": "partial",
+    "source_case_path": "/private/tmp/brn-ui-repairs-macbook-20261010/cases/N",
+    "fresh_candidate_fixture": true,
+    "native_observation": "Qualified runtime: edit approved as v2 with exact CRLF/Unicode fields and unchanged references/origin; native Undo preview caused no effects, confirmation restored exact origin details as v3 with fresh Waiting timestamp, both survive restart. Completed comparison exposes no Edit Action. Activity at 480px reaches oldest Source entry and disabled Load earlier; inspected mixed/create, retained Replace and retained Undo full recorded approval dialogs to bottom. Historical values/order/IDs visibly retained. Full clipboard-byte verification and adversarial stale/error branches remain unexercised; no personal acceptance.",
+    "runtime_manifest": "/private/tmp/brn-ui-repairs-macbook-20261010/runtime-manifest.json",
+    "snapshot": "/private/tmp/brn-ui-repairs-macbook-20261010/receipts/N/native-13.sqlite",
+    "integrity": [
+      [
+        "ok"
+      ]
+    ],
+    "foreign_keys": [],
+    "counts": {
+      "actions": 3,
+      "proposals": 7,
+      "proposal_applies": 6,
+      "findings": 0,
+      "conversations": 0,
+      "inbox_items": 1
+    },
+    "vault_sha256": {
+      "evidence.md": "ab9d81c24abda9bd0fc21fe1f51b56f6a55874c5d9eb0e9ce51124b86ee17fa1",
+      "project.md": "aa77d46c4e977a7b78cfb6946dacc60397704d62c554a1997666fe7c33a7a342",
+      "thread.md": "8add0988cd956f6e47a5c85760edfa0e1cafa3cadab316eb94126e82c7c262fe",
+      "person.md": "a2fb5134df985266caded462b8cea1a2d7684b5863914a3bf1773a159f2fc4f2"
+    }
+  },
+  {
+    "at": "2026-10-10T06:45:32.211402+00:00",
+    "case": "G",
+    "checks": "16",
+    "status": "partial",
+    "source_case_path": "/private/tmp/brn-full-macbook-20261009/cases/G",
+    "fresh_candidate_fixture": false,
+    "native_observation": "Repaired shipping runtime reaches oldest G Activity and ready replacement operation342e7595-f650-4044-9bb6-2cd4d3d46f54. Native exact Undo preview40b4af47-9919-4f8f-be83-dba0ea443806 inspected full origin/currentv2/proposed Waiting prior details, owner Leena, dates12/13 vs15 and refs empty; bottom confirmation reachable. Preview no effects.",
+    "runtime_manifest": "/private/tmp/brn-ui-repairs-macbook-20261010/runtime-manifest.json",
+    "snapshot": "/private/tmp/brn-ui-repairs-macbook-20261010/receipts/G/native-14.sqlite",
+    "integrity": [
+      [
+        "ok"
+      ]
+    ],
+    "foreign_keys": [],
+    "counts": {
+      "actions": 3,
+      "proposals": 7,
+      "proposal_applies": 7,
+      "findings": 0,
+      "conversations": 0,
+      "inbox_items": 0
+    },
+    "vault_sha256": {}
+  },
+  {
+    "at": "2026-10-10T06:47:18.316673+00:00",
+    "case": "G",
+    "checks": "16",
+    "status": "partial",
+    "source_case_path": "/private/tmp/brn-full-macbook-20261009/cases/G",
+    "fresh_candidate_fixture": false,
+    "native_observation": "Native ready Undo40b4af47-9919-4f8f-be83-dba0ea443806 Applied. Exact changed-operation0491bf8f-9f4d-44d9-b557-548bc4aef795 Undo014380de-3cbd-4305-b9e9-164da8628e5f and Completed-operationcdcf1e59-43d7-46e5-aeca-9ff3e0af1ca0 Undo7ddaf950-66ab-435c-af15-98a7496484d6 both refused with Action differs from exact approval baseline. No successful applies added by refusals. Restart pending; native replay control absent.",
+    "runtime_manifest": "/private/tmp/brn-ui-repairs-macbook-20261010/runtime-manifest.json",
+    "snapshot": "/private/tmp/brn-ui-repairs-macbook-20261010/receipts/G/native-15.sqlite",
+    "integrity": [
+      [
+        "ok"
+      ]
+    ],
+    "foreign_keys": [],
+    "counts": {
+      "actions": 3,
+      "proposals": 8,
+      "proposal_applies": 8,
+      "findings": 0,
+      "conversations": 0,
+      "inbox_items": 0
+    },
+    "vault_sha256": {}
+  },
+  {
+    "at": "2026-10-10T06:48:20.274069+00:00",
+    "case": "G",
+    "checks": "16",
+    "status": "observed",
+    "source_case_path": "/private/tmp/brn-full-macbook-20261009/cases/G",
+    "fresh_candidate_fixture": false,
+    "native_observation": "Native restart Ready: Dashboard shows ready Action prior collection review Waiting, changed comparison Open and Completed count1; origincd11b37b displayed unchanged. Ready Undo applied, changed/Completed confirmations refused, 3Actions8proposals8applies. No native Replay control exposed; do not substitute new Undo as replay. Exact stored revision/refusal audit to follow. Scroll blocker resolved.",
+    "runtime_manifest": "/private/tmp/brn-ui-repairs-macbook-20261010/runtime-manifest.json",
+    "snapshot": "/private/tmp/brn-ui-repairs-macbook-20261010/receipts/G/native-16.sqlite",
+    "integrity": [
+      [
+        "ok"
+      ]
+    ],
+    "foreign_keys": [],
+    "counts": {
+      "actions": 3,
+      "proposals": 8,
+      "proposal_applies": 8,
+      "findings": 0,
+      "conversations": 0,
+      "inbox_items": 0
+    },
+    "vault_sha256": {}
+  },
+  {
+    "at": "2026-10-10T07:03:14.348128+00:00",
+    "case": "M",
+    "checks": "23",
+    "status": "partial",
+    "source_case_path": "/private/tmp/brn-full-macbook-20261009/cases/M",
+    "fresh_candidate_fixture": false,
+    "native_observation": "Final shipping runtime: first page25 edges24 distinct nodes including Current center, second page9edges10nodes; Previous restores first and Refresh preserves page. Native distinct exact quotes copied to composer and fully observed for explicit Source edge3 bytes424..481, inferred Source edge4 bytes507..547, opposite neighbor00 edge2 bytes67..125 andedge8 bytes657..719, firstpage lastedge25 neighbor17 bytes1728..1790, secondpage lastedge9 neighbor26 bytes2295..2357. Short clipboard text witnessed through paste; no full-profile or JSON clipboard hash claimed. Adding an unsaved synthetic editor witness cleared saved context and disabled paging; CmdZ removed witness without Save. Person lens on z-project showed0matching Actions vs Project30. At480 controls wrap and relationship choices remain reachable. Canvas nodes lie to right; automation horizontal gesture produced no motion; manual trackpad gesture requested. No native canvas last-node pass or personal acceptance claimed.",
+    "runtime_manifest": "/private/tmp/brn-ui-repairs-macbook-20261010/runtime-manifest.json",
+    "snapshot": "/private/tmp/brn-ui-repairs-macbook-20261010/receipts/M/native-17.sqlite",
+    "integrity": [
+      [
+        "ok"
+      ]
+    ],
+    "foreign_keys": [],
+    "counts": {
+      "actions": 30,
+      "proposals": 4,
+      "proposal_applies": 4,
+      "findings": 0,
+      "conversations": 0,
+      "inbox_items": 2
+    },
+    "vault_sha256": {
+      "z-project.md": "31ebf393939e265568bb6288463977f66f8bfde6fa30cc896d42b94f9ce7ad48",
+      "c-thread.md": "af91ad79226610916a0b3e5c8b087df788860b0b1b920fad161b8ea1722a25e0",
+      "00-incoming.md": "285523a5afb7dd5f97cd73decf1d6b9cd8089613d66e7d1a8427fd16631eee2f",
+      "b-person.md": "dee26d20be065674288539a80dd7584bb198858c341d1aefc3c3d80f21bca2af",
+      "a-source.md": "fe007ad73de1f11d7176d241d9cb2df1da6694a5e57e633c2872d0cdf612e258",
+      "isolated.md": "9dce066ff7a33ae73f00c2a50dffc75f1a8dd2f10c16c17652bef4d8cbb6f911",
+      "archive/prior-project.md": "04879909c61f17735765c08d7c14de80b172bc8852171edbfa1cc931338f2649",
+      "neighbors/18.md": "dcc2b754fc648f3771779dc7f1c55daec9ec7c935271aa1df655a2d35d2ddc1f",
+      "neighbors/08.md": "835140ebb3da3f1995da2496354658874862b30e0ace305e2e4b80c940cd201b",
+      "neighbors/19.md": "c8941ee2e54b9128329fb2dc29040e71197bfe86b811afc222c89c22f44ce1bb",
+      "neighbors/09.md": "1edd9f1f962f01dbdf2adff8515441a095c6020f1e24541dd6e1726e2af43b98",
+      "neighbors/16.md": "a8b831a893c62b84e900354c149918b1839fc1335cc88366777d09191c09defd",
+      "neighbors/22.md": "7c7f75ef92df73638208645f972acaa841f34660e01dba1b9971245098cf1c5b",
+      "neighbors/06.md": "58f2356d7911fda793561bf4a9e5c9773e3036b8f5228cdddfe3c6fa3e3f0f08",
+      "neighbors/26.md": "5c1e224ad14a89f8946b5526058fc22826be38fde20596fdc6b524bde291e3bb",
+      "neighbors/12.md": "9b608745e480ff7c49e74184e8f227cbb8ad58ca2436ee2c37c302aaa4a2857c",
+      "neighbors/02.md": "291fa4af782310aca307a19d580f36205caf65b53aa7ac7821d574fa6117bfac",
+      "neighbors/13.md": "2a8b4bddf8a2370b543334087a5ae1a78bfe10c947542d528d47d3417e6fd315",
+      "neighbors/03.md": "b0306c12fd18c0d5f8ce8bfe1c18a3f363078399a568fe26451ff77d1ff4b65a",
+      "neighbors/17.md": "e49ab4b3c519ab14f48bce37763449cc7b87e7b18ab5f84fc7bc3d5131096bbb",
+      "neighbors/23.md": "d4748b1a03c838fc85f5a5a7cc94c6c06c039e5ac97458dc0663b495de06ab70",
+      "neighbors/07.md": "b8e613b489e05bf655669eaea27713f7818380f6526cda117c2de0498264402f",
+      "neighbors/24.md": "c0c196d0f352c6fa1e392619eb268ff157740bb9fc9a880eac3384a23da1b579",
+      "neighbors/10.md": "bd779294ef713ae77ff06a087a4f5fea0432fed0ec460f4d463dfe0c4289e5dc",
+      "neighbors/00.md": "11948780639b1b41b1521a7b1aba18747c8a1e36190b4fc78beb70099995c35e",
+      "neighbors/14.md": "02520e14eeb1b5865875bfa4010cef8fa4454e88b1397ff9b1ba952b3112cb8c",
+      "neighbors/20.md": "14c1ecc28f53f59cb5262c4e4a34fb81f0836db0be71563434c7ea563d7c482b",
+      "neighbors/04.md": "2f2915198d0df3b2a588317ab47490826f60bf659a9c73fe1627aa03873d9062",
+      "neighbors/15.md": "7569159d964ca9c915ad29679b5a2742d37d82c7c62dfdd68add15c88945ab79",
+      "neighbors/21.md": "a8ccbec22d87b47ad450000e5b54a0576eea679ecb1d0eab2fd967341a31a975",
+      "neighbors/05.md": "70d332ef4a9aa57303e2fcdece8566f1e219f673be5d93f4fd39e0a0e931238e",
+      "neighbors/25.md": "844a8f58eb5c42c35ab71f9f5491ec6988d772257ac41ddebe11169345f98288",
+      "neighbors/11.md": "9cd8e28e3161c5fce89918b434f3a7f1bec632cae5033cf657b6e3702d4cce1a",
+      "neighbors/01.md": "b90d74613b4bf8ecb2b8689557b1875ef534a78cbcb6a025ce1b328ec41e5b17"
+    }
+  },
+  {
+    "at": "2026-10-10T07:16:25.560480+00:00",
+    "case": "M",
+    "checks": "23",
+    "status": "partial",
+    "source_case_path": "/private/tmp/brn-full-macbook-20261009/cases/M",
+    "fresh_candidate_fixture": false,
+    "native_observation": "Owner answered all works to precise requested480px horizontal then vertical last-node gesture. Native screenshot now showed last three neighbor nodes after actual horizontal displacement; actual bottom-node click opened neighbors/17.md UUIDa42be68f-1b4c-431d-90c5-55dfa4f941a3 exact saved text. Manual canvas reach blocker resolved, with owner gesture attribution. Isolated note Project Graph showed0edges1Currentcenter and disabled paging. Full quit/relaunch then reopened z-project exact same saved hash and restored Project Graph25edges24distinctnodes/34total. No inference or Save. Remaining comment/review owner-work variants and controllable late/error races not observed; no blanket personal acceptance of27checks.",
+    "runtime_manifest": "/private/tmp/brn-ui-repairs-macbook-20261010/runtime-manifest.json",
+    "snapshot": "/private/tmp/brn-ui-repairs-macbook-20261010/receipts/M/native-18.sqlite",
+    "integrity": [
+      [
+        "ok"
+      ]
+    ],
+    "foreign_keys": [],
+    "counts": {
+      "actions": 30,
+      "proposals": 4,
+      "proposal_applies": 4,
+      "findings": 0,
+      "conversations": 0,
+      "inbox_items": 2
+    },
+    "vault_sha256": {
+      "z-project.md": "31ebf393939e265568bb6288463977f66f8bfde6fa30cc896d42b94f9ce7ad48",
+      "c-thread.md": "af91ad79226610916a0b3e5c8b087df788860b0b1b920fad161b8ea1722a25e0",
+      "00-incoming.md": "285523a5afb7dd5f97cd73decf1d6b9cd8089613d66e7d1a8427fd16631eee2f",
+      "b-person.md": "dee26d20be065674288539a80dd7584bb198858c341d1aefc3c3d80f21bca2af",
+      "a-source.md": "fe007ad73de1f11d7176d241d9cb2df1da6694a5e57e633c2872d0cdf612e258",
+      "isolated.md": "9dce066ff7a33ae73f00c2a50dffc75f1a8dd2f10c16c17652bef4d8cbb6f911",
+      "archive/prior-project.md": "04879909c61f17735765c08d7c14de80b172bc8852171edbfa1cc931338f2649",
+      "neighbors/18.md": "dcc2b754fc648f3771779dc7f1c55daec9ec7c935271aa1df655a2d35d2ddc1f",
+      "neighbors/08.md": "835140ebb3da3f1995da2496354658874862b30e0ace305e2e4b80c940cd201b",
+      "neighbors/19.md": "c8941ee2e54b9128329fb2dc29040e71197bfe86b811afc222c89c22f44ce1bb",
+      "neighbors/09.md": "1edd9f1f962f01dbdf2adff8515441a095c6020f1e24541dd6e1726e2af43b98",
+      "neighbors/16.md": "a8b831a893c62b84e900354c149918b1839fc1335cc88366777d09191c09defd",
+      "neighbors/22.md": "7c7f75ef92df73638208645f972acaa841f34660e01dba1b9971245098cf1c5b",
+      "neighbors/06.md": "58f2356d7911fda793561bf4a9e5c9773e3036b8f5228cdddfe3c6fa3e3f0f08",
+      "neighbors/26.md": "5c1e224ad14a89f8946b5526058fc22826be38fde20596fdc6b524bde291e3bb",
+      "neighbors/12.md": "9b608745e480ff7c49e74184e8f227cbb8ad58ca2436ee2c37c302aaa4a2857c",
+      "neighbors/02.md": "291fa4af782310aca307a19d580f36205caf65b53aa7ac7821d574fa6117bfac",
+      "neighbors/13.md": "2a8b4bddf8a2370b543334087a5ae1a78bfe10c947542d528d47d3417e6fd315",
+      "neighbors/03.md": "b0306c12fd18c0d5f8ce8bfe1c18a3f363078399a568fe26451ff77d1ff4b65a",
+      "neighbors/17.md": "e49ab4b3c519ab14f48bce37763449cc7b87e7b18ab5f84fc7bc3d5131096bbb",
+      "neighbors/23.md": "d4748b1a03c838fc85f5a5a7cc94c6c06c039e5ac97458dc0663b495de06ab70",
+      "neighbors/07.md": "b8e613b489e05bf655669eaea27713f7818380f6526cda117c2de0498264402f",
+      "neighbors/24.md": "c0c196d0f352c6fa1e392619eb268ff157740bb9fc9a880eac3384a23da1b579",
+      "neighbors/10.md": "bd779294ef713ae77ff06a087a4f5fea0432fed0ec460f4d463dfe0c4289e5dc",
+      "neighbors/00.md": "11948780639b1b41b1521a7b1aba18747c8a1e36190b4fc78beb70099995c35e",
+      "neighbors/14.md": "02520e14eeb1b5865875bfa4010cef8fa4454e88b1397ff9b1ba952b3112cb8c",
+      "neighbors/20.md": "14c1ecc28f53f59cb5262c4e4a34fb81f0836db0be71563434c7ea563d7c482b",
+      "neighbors/04.md": "2f2915198d0df3b2a588317ab47490826f60bf659a9c73fe1627aa03873d9062",
+      "neighbors/15.md": "7569159d964ca9c915ad29679b5a2742d37d82c7c62dfdd68add15c88945ab79",
+      "neighbors/21.md": "a8ccbec22d87b47ad450000e5b54a0576eea679ecb1d0eab2fd967341a31a975",
+      "neighbors/05.md": "70d332ef4a9aa57303e2fcdece8566f1e219f673be5d93f4fd39e0a0e931238e",
+      "neighbors/25.md": "844a8f58eb5c42c35ab71f9f5491ec6988d772257ac41ddebe11169345f98288",
+      "neighbors/11.md": "9cd8e28e3161c5fce89918b434f3a7f1bec632cae5033cf657b6e3702d4cce1a",
+      "neighbors/01.md": "b90d74613b4bf8ecb2b8689557b1875ef534a78cbcb6a025ce1b328ec41e5b17"
+    }
+  },
+  {
+    "at": "2026-10-10T07:18:34.641282+00:00",
+    "case": "N",
+    "checks": "26",
+    "status": "observed",
+    "source_case_path": "/private/tmp/brn-ui-repairs-macbook-20261010/cases/N",
+    "fresh_candidate_fixture": true,
+    "native_observation": "Dedicated native full restart then Activity Refresh completed. At480px oldest Source aebf0ae6/e518558a remains reachable, mixed/create historical Completed/retained comparison affected identities visible, Load earlier disabled at oldest, no pending or uncertain recovery. Existing full historical recorded approvals inspected earlier. Scroll/startup blocker resolved using fresh synthetic N; original unsaved N untouched. No full modal clipboard hash or personal acceptance claimed.",
+    "runtime_manifest": "/private/tmp/brn-ui-repairs-macbook-20261010/runtime-manifest.json",
+    "snapshot": "/private/tmp/brn-ui-repairs-macbook-20261010/receipts/N/native-19.sqlite",
+    "integrity": [
+      [
+        "ok"
+      ]
+    ],
+    "foreign_keys": [],
+    "counts": {
+      "actions": 3,
+      "proposals": 7,
+      "proposal_applies": 6,
+      "findings": 0,
+      "conversations": 0,
+      "inbox_items": 1
+    },
+    "vault_sha256": {
+      "evidence.md": "ab9d81c24abda9bd0fc21fe1f51b56f6a55874c5d9eb0e9ce51124b86ee17fa1",
+      "project.md": "aa77d46c4e977a7b78cfb6946dacc60397704d62c554a1997666fe7c33a7a342",
+      "thread.md": "8add0988cd956f6e47a5c85760edfa0e1cafa3cadab316eb94126e82c7c262fe",
+      "person.md": "a2fb5134df985266caded462b8cea1a2d7684b5863914a3bf1773a159f2fc4f2"
+    }
+  },
+  {
+    "at": "2026-10-10T07:22:00.093806+00:00",
+    "case": "N",
+    "checks": "24",
+    "status": "partial",
+    "source_case_path": "/private/tmp/brn-ui-repairs-macbook-20261010/cases/N",
+    "fresh_candidate_fixture": true,
+    "native_observation": "Native freshN extra local form1dbdf543-3802-4a76-9791-282eb6f53b95 title Unsaved synthetic guard witness preserved when Activity navigation attempted; explicit retained-input banner shown. Invalid due2026-13-99 Create refused Action date is not a valid civil date, all input retained. Discard modal cancelled with input preserved; raw form copied via native paste (prefix only observed), composer cleared. Explicit Confirm discard removed only synthetic local input; Dashboard prior Waiting Action remained. No proposal or apply created. Existing approvals/Undo not repeated. Remaining exact full clipboard hash/IME and stale asynchronous race variants unexercised.",
+    "runtime_manifest": "/private/tmp/brn-ui-repairs-macbook-20261010/runtime-manifest.json",
+    "snapshot": "/private/tmp/brn-ui-repairs-macbook-20261010/receipts/N/native-20.sqlite",
+    "integrity": [
+      [
+        "ok"
+      ]
+    ],
+    "foreign_keys": [],
+    "counts": {
+      "actions": 3,
+      "proposals": 7,
+      "proposal_applies": 6,
+      "findings": 0,
+      "conversations": 0,
+      "inbox_items": 1
+    },
+    "vault_sha256": {
+      "evidence.md": "ab9d81c24abda9bd0fc21fe1f51b56f6a55874c5d9eb0e9ce51124b86ee17fa1",
+      "project.md": "aa77d46c4e977a7b78cfb6946dacc60397704d62c554a1997666fe7c33a7a342",
+      "thread.md": "8add0988cd956f6e47a5c85760edfa0e1cafa3cadab316eb94126e82c7c262fe",
+      "person.md": "a2fb5134df985266caded462b8cea1a2d7684b5863914a3bf1773a159f2fc4f2"
+    }
+  },
+  {
+    "at": "2026-10-10T07:29:14.710766+00:00",
+    "case": "A-legacy-budget",
+    "checks": "1",
+    "status": "partial",
+    "source_case_path": "/private/tmp/brn-full-macbook-20261009/cases/A-legacy-budget",
+    "fresh_candidate_fixture": false,
+    "native_observation": "Final repaired shipping runtime native Inbox read reached the retained water chart120before72after40percent reduction and unsupportedforecast.xlsx notice. Exact original.eml andharbor.docx QuickLook buttons each launched a runningqlmanage and exposed Close original preview. Bindingqlmanage timed out both times; no original preview pixels or layout acceptance claimed. Owner manual visual help requested for the openDOCX and email.",
+    "runtime_manifest": "/private/tmp/brn-ui-repairs-macbook-20261010/runtime-manifest.json",
+    "snapshot": "/private/tmp/brn-ui-repairs-macbook-20261010/receipts/A-legacy-budget/native-21.sqlite",
+    "integrity": [
+      [
+        "ok"
+      ]
+    ],
+    "foreign_keys": [],
+    "counts": {
+      "actions": 4,
+      "proposals": 12,
+      "proposal_applies": 8,
+      "findings": 0,
+      "conversations": 4,
+      "inbox_items": 1
+    },
+    "vault_sha256": {
+      "harbor-pilot-water-evidence.md": "65c819b395b91737f58c679bf3687acfbada5a34f7297d61b324bd024e3f9340",
+      "harbor-source.md": "6d042d0bcef411f44cec8936af2309c345979104cbdbe8fa48634769ee373f9a",
+      "harbor-pilot.md": "477e7813aab4a2090a12370ae2a57fcf5790530473c8c0815a917b9baa1868a3",
+      "harbor-pilot-extension.md": "da07731f6ac68dcd82745fcce7ea0cafca67121dd796e15c3b13c90e2b2eab29",
+      "9dc7b7ad506147d280e9fcceb666561c-f76dd37920a0fc5889b1d53a0c448f7ec6c619ed8200eef5d31621e36ca4d61d.png": "f76dd37920a0fc5889b1d53a0c448f7ec6c619ed8200eef5d31621e36ca4d61d"
+    }
+  }
+]

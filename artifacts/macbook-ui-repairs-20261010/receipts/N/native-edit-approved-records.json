@@ -1,0 +1,177 @@
+{
+  "action": {
+    "origin": {
+      "id": "9a5bdb5f-9587-42b0-9064-0954aae4e819",
+      "proposal": {
+        "id": "78e5cbc5-409a-484d-bc28-dd282bfb6ec0",
+        "version": 1
+      },
+      "data": {
+        "title": "Morning: edit this Waiting Action",
+        "description": "Original exact owner description õ 日本語 🦀.\r\nPlanned reply only; no sending or order.\r\n",
+        "state": "waiting",
+        "owner": " Synthetic owner ",
+        "related_person": "868b7944-79c8-4d61-9b61-03cdfe41c6ff",
+        "related_project": "bd7207ad-e661-403c-b393-773658dbc39d",
+        "sources": [
+          "6572a9d7-34f9-4dc2-84a6-421c41bd30ac"
+        ],
+        "thread": "98149ef5-0695-4c10-8c60-50403f72c124",
+        "due_on": "2026-10-12",
+        "follow_up_on": "2026-10-13",
+        "dependencies": [],
+        "parent": null,
+        "follows_up": null,
+        "priority": "normal"
+      },
+      "created_at_ms": 1791611747927
+    },
+    "version": 2,
+    "data": {
+      "title": "Morning: edit this Waiting Action",
+      "description": "Owner revised exact description λ õ 日本語 🦀.\r\nBlocked pending explicit authority; no order is authorized.\r\n",
+      "state": "blocked",
+      "owner": " Revised synthetic owner ",
+      "related_person": "868b7944-79c8-4d61-9b61-03cdfe41c6ff",
+      "related_project": "bd7207ad-e661-403c-b393-773658dbc39d",
+      "sources": [
+        "6572a9d7-34f9-4dc2-84a6-421c41bd30ac"
+      ],
+      "thread": "98149ef5-0695-4c10-8c60-50403f72c124",
+      "due_on": "2026-10-15",
+      "follow_up_on": "2026-10-16",
+      "dependencies": [],
+      "parent": null,
+      "follows_up": null,
+      "priority": "high"
+    },
+    "updated_at_ms": 1791614048659,
+    "waiting_since_ms": null,
+    "completed_at_ms": null
+  },
+  "proposal": {
+    "creation_sha256": [
+      85,
+      246,
+      238,
+      122,
+      239,
+      78,
+      117,
+      200,
+      90,
+      99,
+      5,
+      47,
+      245,
+      187,
+      50,
+      135,
+      23,
+      34,
+      129,
+      64,
+      221,
+      45,
+      187,
+      176,
+      249,
+      123,
+      243,
+      222,
+      181,
+      153,
+      119,
+      229
+    ],
+    "record": {
+      "draft": {
+        "id": "29321d27-a818-4552-9c09-35a7b3c5fd6c",
+        "group_id": null,
+        "session_id": null,
+        "vault": null,
+        "title": "Morning: edit this Waiting Action",
+        "changes": [],
+        "sources": [],
+        "action_changes": [
+          {
+            "kind": "replace",
+            "before": {
+              "origin": {
+                "id": "9a5bdb5f-9587-42b0-9064-0954aae4e819",
+                "proposal": {
+                  "id": "78e5cbc5-409a-484d-bc28-dd282bfb6ec0",
+                  "version": 1
+                },
+                "data": {
+                  "title": "Morning: edit this Waiting Action",
+                  "description": "Original exact owner description õ 日本語 🦀.\r\nPlanned reply only; no sending or order.\r\n",
+                  "state": "waiting",
+                  "owner": " Synthetic owner ",
+                  "related_person": "868b7944-79c8-4d61-9b61-03cdfe41c6ff",
+                  "related_project": "bd7207ad-e661-403c-b393-773658dbc39d",
+                  "sources": [
+                    "6572a9d7-34f9-4dc2-84a6-421c41bd30ac"
+                  ],
+                  "thread": "98149ef5-0695-4c10-8c60-50403f72c124",
+                  "due_on": "2026-10-12",
+                  "follow_up_on": "2026-10-13",
+                  "dependencies": [],
+                  "parent": null,
+                  "follows_up": null,
+                  "priority": "normal"
+                },
+                "created_at_ms": 1791611747927
+              },
+              "version": 1,
+              "data": {
+                "title": "Morning: edit this Waiting Action",
+                "description": "Original exact owner description õ 日本語 🦀.\r\nPlanned reply only; no sending or order.\r\n",
+                "state": "waiting",
+                "owner": " Synthetic owner ",
+                "related_person": "868b7944-79c8-4d61-9b61-03cdfe41c6ff",
+                "related_project": "bd7207ad-e661-403c-b393-773658dbc39d",
+                "sources": [
+                  "6572a9d7-34f9-4dc2-84a6-421c41bd30ac"
+                ],
+                "thread": "98149ef5-0695-4c10-8c60-50403f72c124",
+                "due_on": "2026-10-12",
+                "follow_up_on": "2026-10-13",
+                "dependencies": [],
+                "parent": null,
+                "follows_up": null,
+                "priority": "normal"
+              },
+              "updated_at_ms": 1791611747927,
+              "waiting_since_ms": 1791611747927,
+              "completed_at_ms": null
+            },
+            "data": {
+              "title": "Morning: edit this Waiting Action",
+              "description": "Owner revised exact description λ õ 日本語 🦀.\r\nBlocked pending explicit authority; no order is authorized.\r\n",
+              "state": "blocked",
+              "owner": " Revised synthetic owner ",
+              "related_person": "868b7944-79c8-4d61-9b61-03cdfe41c6ff",
+              "related_project": "bd7207ad-e661-403c-b393-773658dbc39d",
+              "sources": [
+                "6572a9d7-34f9-4dc2-84a6-421c41bd30ac"
+              ],
+              "thread": "98149ef5-0695-4c10-8c60-50403f72c124",
+              "due_on": "2026-10-15",
+              "follow_up_on": "2026-10-16",
+              "dependencies": [],
+              "parent": null,
+              "follows_up": null,
+              "priority": "high"
+            }
+          }
+        ]
+      },
+      "version": 3,
+      "state": "applied",
+      "comments": [],
+      "created_at_ms": 1791613926892,
+      "updated_at_ms": 1791614048711
+    }
+  }
+}

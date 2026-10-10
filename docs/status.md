@@ -1,8 +1,30 @@
 # Current development status
 
+## Bounded MacBook UI repair milestone — 2026-10-10
+
+[PR113](https://github.com/ewq100/brn-rust/pull/113) repairs full-shell Action and
+Activity reach, pinned Action footer/keyboard focus, graph wheel reach and explicit
+read-only metadata-invalid Markdown inspection. The committed product source is
+reconciled with the tested shipping runtime. Local1,894default/18existing skips,
+438nativeDesktop/sevenCLI, strict lint/build/52fixtures and independent review
+passed; synthetic native G16/J19/M23/N24/N26 reruns are recorded separately.
+The owner confirmed the requested narrow graph gesture and explicitly deferred
+broader27-journey preview/clipboard/IME/accessibility/native-variant gaps for this
+bounded merge; those are not claimed passed or personally accepted.
+
+The owner authorizes task-owned final corrections and normal protected PR113
+integration only. Initial required candidate checks passed; final candidate and
+resulting-main/merge verification remain pending at this pre-merge checkpoint.
+Their completion receipt will be recorded on PR113, linked from the [repair handoff](work/active/macbook-ui-repairs/integration.md).
+Preserve the original verification workspace, retained unsaved Action form and
+exact approval/origin/guard behavior. No live inference, optional download,
+release, original-data migration or unrelated merge. Existing non-required
+Windows/Linux failures remain visible; [PR112](https://github.com/ewq100/brn-rust/pull/112)
+remains an archived design reference.
+
 ## Overnight implementation and model qualification — 2026-10-08
 
-Current main is `c2dbf5e42a42cbad11657d19f6c60a5d87cf01e2` (Activity PR110).
+At this historical checkpoint, main was `c2dbf5e42a42cbad11657d19f6c60a5d87cf01e2` (Activity PR110).
 PR90–108 required candidate and post-main checks/docs passed. Linked109 required
 candidate checks/docs passed and merged normally with exact qualified tree;
 allrequiredpost-main/docsPASS37880350055. The selected

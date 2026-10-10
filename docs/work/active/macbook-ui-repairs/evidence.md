@@ -1,0 +1,62 @@
+# MacBook UI repair evidence — bounded milestone; broader acceptance deferred
+
+The isolated candidate fixes the full-shell Action/Activity reach failures and adds explicit read-only inspection of metadata-invalid Markdown. Native G16, J19, M23, N24 and N26 were rerun against synthetic MacBook fixtures. G16's ordinary journey is observed; the other checks have the specific remaining limits below. This is not complete personal acceptance of all27 checks. The owner explicitly defers broader acceptance for the bounded PR113 repair merge. The original native observation campaign made no merge, release or live inference; later protected integration is governed by the scoped authorization and [integration handoff](integration.md).
+
+## Candidate and preserved state
+
+Branch `codex/macbook-ui-repairs`, base `33edae13f74584d7062483447e00ceb334d58a7f`, base tree `9d31083b092f234bb0c918130cf7d676b49194ed`. The modified candidate is identified by the per-file hashes in the [runtime manifest](../../../../artifacts/macbook-ui-repairs-20261010/runtime-manifest.json); the final manifest hashes were verified against the checkout and binaries. Shipping Desktop uses `native-ui`, with no native-test-support. Desktop SHA-256: `f4abb65ff382c4c94040c2eab7bc5e27d49575c153eed64acba6c67393fc4d2b`. The separate qualified native-retrieval binary cannot launch these empty-model fixtures without missing assets, so offline native-ui is the acceptance runtime.
+
+Original Mac mini locations were not accessed. Original MacBook N and its unsaved form remain open in BRN Full MacBook; do not close it. A separately prepared synthetic N uses supported approvals and original explicit note/Action identities; its operation/proposal portability map is retained in [case-map.json](../../../../artifacts/macbook-ui-repairs-20261010/receipts/N/case-map.json). No SQL binding replacement or original-N reset occurred. G/J/M use the existing synthetic MacBook cases, with only G's selected native Undo applied. Intermediate diagnostic build observations and failed regression logs remain historical evidence; the launcher uses the final shipping binary.
+
+## Qualification
+
+- Default workspace: 1,894 passed, 18 existing skips, zero failures.
+- Final native Desktop: 438 passed; native CLI: seven passed; zero failures.
+- Three strict native Clippy lanes, default Clippy/build, offline native-ui and native-retrieval shipping builds, formatting and 52 fixture assertions passed.
+- Current documentation links passed before the evidence update: 74 files, 624 links, zero failures. Final validation after adding this report: 75 files, 629 local links, zero failures; `git diff --check` passed. All46 evidence hashes and21 SQLite integrity/foreign-key checks passed; the journal retains21 observations.
+- Independent complete-diff review found one P2 optional Source-path keyboard focus gap. The fix and regression were reviewed again with no remaining findings.
+
+Full-shell regression tests use real layout and wheel dispatch at 1100/480 widths. Raw evidence regression uses a real AppWorker and approximately1MiB damaged synthetic Markdown. Intermediate layout failures and the focused red tests are retained alongside the final green suite. Headless results establish only their tested behavior.
+
+## Native reruns
+
+| Check | Observed result | Remaining limit |
+| --- | --- | --- |
+| G16 | Oldest Activity reached; ready Undo preview had no effects, exact confirm restored prior details as revision3 and survived restart. Changed and Completed comparisons both refused; records unchanged. | No native Replay control exposed; replay click inapplicable. |
+| J19 | Damaged949,968-byte Markdown opens raw, exposes invalid-ID issue/full SHA-256, reads949000..949968 exactly, shows all eight appendix lines and survives restart. Range/hash JSON copy and retained Sol/Luna answer inspection observed. No Current authority granted. | Full saved-answer clipboard bytes/hash not captured through native UI. |
+| M23 | First page25edges/24distinct nodes; second9edges/10nodes. Explicit versus inferred Source and opposite edges have separate exact proof controls. Short exact quotes copied through native paste; both pages' last edges reached. Paging/Refresh and Person versus Project lens observed. Unsaved editor clears saved context. | Owner confirmed the manual480px horizontal/vertical gesture; native last-node click opened exact neighbors/17.md. Isolated center and full restart observed. Comment/review guard, exhaustive34-edge clipboard identity and late/error variants unexercised. |
+| N24 | All form controls reachable at480px. Native replacement Draft→exact approval→restart→Undo preview/confirm→restart completed in fresh N. Stored Unicode/CRLF, spaced owner, dates, unchanged refs and origin verified. Undo creates fresh Waiting clock. Completed comparison offers no Edit. | Navigation retained unsaved form; invalid date refused without proposal; cancelling discard retained input. Exact six authority tables/vault hashes unchanged. Full captured-before clipboard bytes, stale races and personal IME acceptance remain pending. |
+| N26 |480px Activity reaches oldest entry; mixed create, retained replacement and Undo expose historical affected UUIDs/titles/kinds and full recorded approval snapshots, including Completed comparison. | Dedicated full restart and Activity Refresh preserve historical inventory; earlier paging disabled at oldest entry. Full approval clipboard unavailable. |
+
+Exact native replacement proposal `29321d27-a818-4552-9c09-35a7b3c5fd6c`, approval operation `5a05b3f7-0280-487d-876b-2ae1a4bcc6c0`, Undo `efc0c8ea-e247-478e-9592-359133615eac`. G native ready Undo `40b4af47-9919-4f8f-be83-dba0ea443806`. Read-only audits accompany the consistent SQLite snapshots. The [journal](../../../../artifacts/macbook-ui-repairs-20261010/ui-observations.json) records timing, exact fixture path, runtime reference, counts, integrity/foreign-key results and vault hashes for each observation. Inline UI screenshots were observed in this chat; no saved screenshot files are claimed.
+
+## All-check reconciliation and next action
+
+The [27-check reconciliation](../../../../artifacts/macbook-ui-repairs-20261010/check-reconciliation.json) preserves earlier statuses and limits, and records the current repair campaign separately. Prior observed rows were not silently promoted to passes for this new candidate. Original preview pixels, race/error variants, full clipboard/BOM identity, personal IME/accessibility and active cancellation remain pending where listed. Active cancellation/progress/timeout needs a separately authorized new live allowance; this task supplies none.
+
+Deferred broader acceptance: original-document preview pixels. Final repaired native email and DOCX Quick Look controls each launched qlmanage and exposed Close original preview; the UI tool timed out binding both preview windows. Owner visual inspection of the open harbor.docx and original.eml was requested. Extracted120→72/40% chart and unsupported spreadsheet notice were observed; extraction pixels do not establish original layout. The owner's “all works” answer applied only to the requested narrow graph gesture, which is now resolved. N native navigation/invalid-date/cancel guards and dedicated Activity Refresh/restart are completed. Remaining controllable stale/error variants, full clipboard identity and personal IME are still explicitly pending. The product source remains independently reviewed and qualified. The owner now authorizes normal protected integration of PR113; the gaps above remain explicitly deferred, not passed. Do not reset preparers, delete startup locks, close BRN Full MacBook's unsaved N, or launch historical binaries against newer state.
+
+Launch at `/private/tmp/brn-ui-repairs-macbook-20261010/BRN Repaired MacBook.app`. Its `active-case.txt` selects explicit A–P synthetic fixtures, with N redirected to the fresh case. Change that file only after quitting the repaired app. Credentials and model folders remain empty; launcher uses the final offline binary and retained helper. Evidence is copied into this checkout under `artifacts/macbook-ui-repairs-20261010`, with a [SHA-256 manifest](../../../../artifacts/macbook-ui-repairs-20261010/evidence-manifest.json). No credentials or executables are included in that copy.
+
+## Committed-source reconciliation and integration
+
+The initial PR head `f9f3f2761914087fcab6ee78b81c80866fb6df80` matches all16
+source hashes in the immutable runtime manifest. Shipping and separately qualified
+binary hashes match the retained executables; Cargo manifests/lockfile, toolchain
+and vendor tree are unchanged from baseline. All46 original evidence hashes remain
+verified. The [reconciliation receipt](../../../../artifacts/macbook-ui-repairs-20261010-finalization/source-runtime-reconciliation.json)
+records exact hashes. Later finalization edits change records only, so the existing
+1,894default/18skips,438nativeDesktop/sevenCLI, full-shell/raw regressions and
+shipping qualification remain applicable to product source.
+
+Initial PR run [38034881094](https://github.com/ewq100/brn-rust/actions/runs/38034881094)
+passed all four actually protected contexts and Documentation and tooling.
+Windows Core/CLI failed on existing `std::os::unix`/`mode`/`nlink` portability,
+not a changed repair path; its [exact failed-job log](../../../../artifacts/macbook-ui-repairs-20261010-finalization/initial-windows-informational-failure.log)
+is retained. Protection requires up-to-date main, enforces administrators, and
+requires Ubuntu Core/CLI, macOS Core/CLI, macOS Native UI, and macOS combined native
+retrieval. No protection or workflow was weakened. Final candidate and resulting
+main checks, merge commit/tree and final scoped handoff remain pending at this
+pre-merge checkpoint and will be recorded on
+[PR113](https://github.com/ewq100/brn-rust/pull/113); that integration receipt is
+separate from native observations and owner acceptance.

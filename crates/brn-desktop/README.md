@@ -707,10 +707,24 @@ State and headless widget checks cover correlation, full text, separate
 confirmation, ordinary isolation and retry; GUI/IME/accessibility and owner
 acceptance remain pending in the morning task.
 
+### Raw saved Markdown inspection
+
+Unreadable saved Markdown entries in the vault inventory offer **Inspect raw saved
+bytes**. The read-only view uses the existing guarded `RawEvidence` application
+query, displays the full-file SHA-256, total byte count, exact end-exclusive range
+and saved metadata issue, and never opens an editor or assigns knowledge authority.
+The first read is a UTF-8-safe prefix of at most 50,000 bytes. **Read exact range**
+and **Next range** bind later reads to that full-file hash; changed bytes, invalid
+boundaries and invalid ranges refuse rather than clip. Copy controls preserve the
+exact displayed text or complete range observations. Existing unsaved editor,
+Action-form and review-comment navigation guards still apply.
+
 ### Owner editing of an existing Action
 
 Select an unfinished Dashboard Action and choose **Edit Action…**. The retained
 form begins with every displayed field and the complete exact Action baseline.
+The centre pane constrains its scroll area in split and tab layouts; keyboard
+focus reveals each field. Create, Copy and Discard stay visible below that area.
 **Create review draft** prepares an ordinary replacement proposal; the Action
 changes only after its exact before/after review is approved. Completed Actions
 keep their separate **New related follow-up…** path and cannot be reopened here.

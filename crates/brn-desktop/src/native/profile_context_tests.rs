@@ -38,6 +38,26 @@ pub(super) fn window(
     gpui_kit::WindowHandle<Root>,
     Entity<Desktop>,
 ) {
+    window_mode(cx, full, false)
+}
+pub(super) fn shipping_window(
+    cx: &mut gpui_kit::TestAppContext,
+) -> (
+    tempfile::TempDir,
+    gpui_kit::WindowHandle<Root>,
+    Entity<Desktop>,
+) {
+    window_mode(cx, true, true)
+}
+fn window_mode(
+    cx: &mut gpui_kit::TestAppContext,
+    full: bool,
+    shipping: bool,
+) -> (
+    tempfile::TempDir,
+    gpui_kit::WindowHandle<Root>,
+    Entity<Desktop>,
+) {
     cx.update(gpui_kit::component::init);
     let fixture = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
     let data = fixture.path().join("data");
@@ -80,8 +100,12 @@ pub(super) fn window(
             desktop
         });
         *saved.borrow_mut() = Some(desktop.clone());
-        let probe = cx.new(|_| ContextProbe(desktop, full));
-        Root::new(probe, window, cx)
+        if shipping {
+            desktop_root(desktop, window, cx)
+        } else {
+            let probe = cx.new(|_| ContextProbe(desktop, full));
+            Root::new(probe, window, cx)
+        }
     });
     let desktop = capture.borrow().clone().unwrap();
     (fixture, handle, desktop)

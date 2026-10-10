@@ -1,0 +1,29 @@
+   Compiling brn-desktop v0.1.0 (/Users/evokessler/.codex/worktrees/macbook-ui-repairs/brn-rust/crates/brn-desktop)
+warning: output of `xcrun` while finding MacOSX.sdk
+  |
+  = note: 2026-10-10 08:31:35.877 xcodebuild[30039:3382009]  DVTFilePathFSEvents: Failed to start fs event stream.
+          2026-10-10 08:31:36.153 xcodebuild[30039:3382008] [MT] DVTDeveloperPaths: Failed to get length of DARWIN_USER_CACHE_DIR from confstr(3), error = Error Domain=NSPOSIXErrorDomain Code=5 "Input/output error". Using NSCachesDirectory instead.
+          2026-10-10 08:31:36.645 xcodebuild[30041:3382051]  DVTFilePathFSEvents: Failed to start fs event stream.
+          2026-10-10 08:31:36.783 xcodebuild[30041:3382050] [MT] DVTDeveloperPaths: Failed to get length of DARWIN_USER_CACHE_DIR from confstr(3), error = Error Domain=NSPOSIXErrorDomain Code=5 "Input/output error". Using NSCachesDirectory instead.
+
+warning: `brn-desktop` (test "cli") generated 1 warning
+    Finished `test` profile [optimized] target(s) in 14.00s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/main.rs (/private/tmp/brn-ui-repairs-target-20261010/debug/deps/brn_desktop-ea3db52567923381)
+
+running 1 test
+
+thread 'native::action_draft_tests::shipping_shell_action_form_bottom_controls_scroll_into_view' (3454889) panicked at crates/brn-desktop/src/native/action_draft_tests.rs:576:13:
+focused source path must scroll the full form
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test native::action_draft_tests::shipping_shell_action_form_bottom_controls_scroll_into_view ... FAILED
+
+failures:
+
+failures:
+    native::action_draft_tests::shipping_shell_action_form_bottom_controls_scroll_into_view
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 437 filtered out; finished in 0.16s
+
+error: test failed, to rerun pass `-p brn-desktop --bin brn-desktop`

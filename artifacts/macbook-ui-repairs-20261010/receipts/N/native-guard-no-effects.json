@@ -1,0 +1,14 @@
+{
+  "before_event": 19,
+  "after_event": 20,
+  "exact_all_rows_unchanged": {
+    "actions": true,
+    "proposals": true,
+    "proposal_applies": true,
+    "findings": true,
+    "conversations": true,
+    "inbox_items": true
+  },
+  "exact_vault_sha256_unchanged": true,
+  "clipboard_full_hash_verified": false
+}

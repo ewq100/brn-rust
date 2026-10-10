@@ -1,0 +1,52 @@
+{
+  "at": "2026-10-10T06:03:44.024115+00:00",
+  "branch": "codex/macbook-ui-repairs",
+  "base": "33edae13f74584d7062483447e00ceb334d58a7f",
+  "candidate_file_sha256": {
+    "crates/brn-desktop/README.md": "038b1e8c8931be46d4850280814abf171e42079ea938795b39dd32a453a75ad0",
+    "crates/brn-desktop/src/ai.rs": "21d32fa27482c34f6b07df246d346d82cbc4623f78cdc20666ad8a01670467e4",
+    "crates/brn-desktop/src/native/action_draft.rs": "d369b347d23c206253ba7059c43f5aff7f7dfc3b6bcd403660569d58196172d1",
+    "crates/brn-desktop/src/native/action_draft_tests.rs": "7f8685851909ff8761c14c500ce9d24e4531cc1e9f2dfd412546b5ffb11055a7",
+    "crates/brn-desktop/src/native/activity_tests.rs": "dc70d0c4d1132a01e6e0db8e8661ebc34136c9b492222922b92f66ab6895c8cd",
+    "crates/brn-desktop/src/native/mod.rs": "4d461e58dbadf3a71dff712a88a753433e7e9821ff7118d676915e4cb1770329",
+    "crates/brn-desktop/src/native/profile_context_tests.rs": "68db1fbbb37c98ed0a71b82bfe479184721749c264189b310ffdf83ce05bc1c8",
+    "crates/brn-desktop/src/native/profile_graph.rs": "ebeb932ee7d3cb730d52e6366b8252dcced0521c34077d545575d0c876e7260d",
+    "crates/brn-desktop/src/native/profile_graph_tests.rs": "a5becb05de0ac6b7057ddb50789f9d5daad1a6599834e153d0d8d247c768147e",
+    "crates/brn-desktop/src/native/shell/centre.rs": "2c7c69e9ec4959fa680246a7103e8e8137238ea9c57871e26503910a5f9f5368",
+    "crates/brn-desktop/src/native/simple.rs": "3b18b500841f124b7d3ef4d4b736271792abf711d6fe3b3ea2797bb8edcebc64",
+    "docs/work/active/README.md": "518036e3fc6f2e6693e2e6d984a288322bdda18d3886c152ae563387c3f5e931",
+    "crates/brn-desktop/src/native/raw_evidence.rs": "4e69186dda0174d278a8e1dbdc5e49527f3fd934d462390603ba44f60b02e910",
+    "crates/brn-desktop/src/native/raw_evidence_tests.rs": "3c90ca3af74e976d8ffb52f825fb4ed00279525b9ba7eb8e0cd5954240e76020",
+    "crates/brn-desktop/src/raw_evidence_state.rs": "2f5c11539f005818dd711deaa1169c63e0daf86920aa9f001faaa9d19bbd0e5f",
+    "docs/work/active/macbook-ui-repairs/plan.md": "68a840b4a88b4c91835bb03e26ee0c2677b5cdb174fc68c5a3e75b4bea2a4919"
+  },
+  "runtime_sha256": {
+    "brn": "6dda453675a383746afed935d9090f6d4955f543c6688e5c34a02ea7f932e8ce",
+    "brn-desktop": "f4abb65ff382c4c94040c2eab7bc5e27d49575c153eed64acba6c67393fc4d2b",
+    "brn-desktop-native-retrieval-qualified": "1d81d531394d6f009d597b1c321d85ab4f6ff5b40b1bdab6e2e012ad809bd33f",
+    "brn-intake-helper": "3ff91273cecf74bebaf534e1e73f5b68e2e5fc36f50ee78ca32c6ac081f4771c"
+  },
+  "native_test_support_in_shipping_binary": false,
+  "review": "Independent complete-diff review: one source-path keyboard P2 corrected and re-reviewed; no remaining findings.",
+  "default_tests": {
+    "passed": 1894,
+    "ignored": 18
+  },
+  "native_desktop_tests": 438,
+  "native_cli_tests": 7,
+  "native_clippy_lanes": [
+    "native-ui",
+    "native-ui,native-retrieval",
+    "native-ui,native-retrieval,native-test-support"
+  ],
+  "personal_acceptance": false,
+  "merged": false,
+  "fixtures_assertions": 52,
+  "documentation_links": {
+    "files": 74,
+    "links": 624,
+    "failures": 0
+  },
+  "initial_native_launch": "Native-retrieval build refused unavailable embedding assets; preserved observation, no effects. Offline native-ui shipping configuration selected for empty-model synthetic fixtures.",
+  "native_features": "native-ui"
+}

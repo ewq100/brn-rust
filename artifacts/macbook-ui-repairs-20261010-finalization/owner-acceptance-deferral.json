@@ -1,0 +1,33 @@
+{
+  "date": "2026-10-10",
+  "scope": "PR113 bounded MacBook repair only",
+  "owner_authorized": [
+    "task-owned corrections",
+    "commits and pushes",
+    "mark ready",
+    "normal protected merge after required checks and review",
+    "resulting-main verification and scoped handoff"
+  ],
+  "owner_explicitly_deferred": [
+    "remaining broader27journey acceptance",
+    "original preview pixels",
+    "full clipboard observations",
+    "personal IME and accessibility",
+    "unexercised native variants"
+  ],
+  "deferral_is_not_pass_or_full_personal_acceptance": true,
+  "identified_defects_and_necessary_repair_verification_not_deferred": true,
+  "excluded": [
+    "fresh live-model calls",
+    "optional downloads",
+    "release",
+    "original-data migration",
+    "unrelated PR merge"
+  ],
+  "preserve": [
+    "original verification workspace",
+    "original unsaved Action form",
+    "retained evidence"
+  ],
+  "PR112": "archived design reference; do not merge"
+}

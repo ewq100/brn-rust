@@ -49,6 +49,7 @@ fn begin(desktop: &Entity<Desktop>, window: &mut Window, cx: &mut App) {
     desktop.update(cx, |this, cx| {
         assert!(this.ai.as_mut().unwrap().begin_action_draft(None));
         this.open_doc = Some(DocRef::Draft);
+        this.centre_tab = CentreTab::Document;
         this.sync_draft_widgets(window, cx);
         cx.notify();
     });
@@ -549,4 +550,70 @@ fn captured_discard_refuses_later_action_input_then_explicit_current_discard_wor
         );
         assert!(!window.has_active_dialog(cx));
     });
+}
+
+#[gpui_kit::test]
+fn shipping_shell_action_form_bottom_controls_scroll_into_view(cx: &mut gpui_kit::TestAppContext) {
+    for width in [1100., 480.] {
+        let (_fixture, handle, desktop) = dashboard_tests::action_window(cx, true);
+        let mut visual = VisualTestContext::from_window(handle.into(), cx);
+        visual.simulate_resize(size(px(width), px(800.)));
+        visual.update(|window, cx| {
+            window.activate_window();
+            begin(&desktop, window, cx);
+        });
+        visual.run_until_parked();
+        visual.update(|window, cx| {
+            window.render_frame(cx);
+            let source = desktop.read(cx).draft_path.clone();
+            source.update(cx, |input, cx| input.focus(window, cx));
+            window.render_frame(cx);
+        });
+        visual.run_until_parked();
+        visual.update(|window, cx| {
+            window.render_frame(cx);
+            let source = window.find("initial-action-source-path").bounds();
+            let pane = window.find("initial-action-form").bounds();
+            assert!(
+                source.origin.y >= pane.origin.y && source.bottom() <= pane.bottom(),
+                "focused saved-source field outside form: {source:?} / {pane:?}"
+            );
+        });
+        visual.update(|window, cx| {
+            window.render_frame(cx);
+            let field = desktop.read(cx).initial_action.fields[11].clone();
+            field.update(cx, |field, cx| field.focus(window, cx));
+            window.render_frame(cx);
+        });
+        visual.run_until_parked();
+        visual.update(|window, cx| {
+            window.render_frame(cx);
+            let field = window.find("initial-action-field-11").bounds();
+            let pane = window.find("initial-action-form").bounds();
+            assert!(
+                field.origin.y >= pane.origin.y && field.bottom() <= pane.bottom(),
+                "focused field outside form: {field:?} / {pane:?}"
+            );
+        });
+        for id in [
+            "initial-action-field-11",
+            "copy-initial-action-input",
+            "create-initial-review-draft",
+            "discard-initial-full-form",
+        ] {
+            scroll(&mut visual, "initial-action-form", id);
+            visual.update(|window, _| {
+                let pane = if id == "initial-action-field-11" {
+                    window.find("initial-action-form").bounds()
+                } else {
+                    window.find("initial-action-controls").bounds()
+                };
+                let control = window.find(id).bounds();
+                assert!(
+                    control.origin.y >= pane.origin.y && control.bottom() <= pane.bottom(),
+                    "{id} outside pane: {control:?} / {pane:?}"
+                );
+            });
+        }
+    }
 }

@@ -1,0 +1,14 @@
+{
+  "at": "2026-10-10T08:04:03.943541+00:00",
+  "sha256": {
+    ".gitattributes": "694229951fb6c88514aa7991dfaf1e56323a925eb998e7b524b890576357ce9f",
+    "independent-review.json": "09e8767b868aed27a45409d37fe9015c5c83b4f26ce1df61342d8078ffa8b817",
+    "initial-hosted-checks.json": "3b088030c4d8cb7711092508ea0e9ac55902b87605070b76eaf24a46c68926dd",
+    "initial-windows-informational-failure.log": "d061fd8dae0fb773c932302eed0526731f125742c59524aa0e7d1460b942dd15",
+    "main-protection.json": "53123763d5c41a199fe2e457e5fe0a2636bd94c436e07a332bfeb79fbf6e86d3",
+    "owner-acceptance-deferral.json": "bf286305e841f4dba46bbec0c31c75b104fa5818e80f944006628707176000be",
+    "source-runtime-reconciliation.json": "02ecfd2c3288d0d391f4d846c53c5bcc4b4cecd4a8c8a3f39e38a1ad9b079d7b"
+  },
+  "scope": "Pre-merge finalization evidence; exact current/final/main receipts are separately published onPR113.",
+  "original_evidence_manifest_unchanged": true
+}

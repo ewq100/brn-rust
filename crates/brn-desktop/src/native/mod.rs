@@ -76,6 +76,9 @@ mod profile_graph;
 mod profile_graph_tests;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
 mod provenance_tests;
+mod raw_evidence;
+#[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
+mod raw_evidence_tests;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
 mod relationship_tests;
 mod relationships;
@@ -159,6 +162,7 @@ struct Desktop {
     query: Entity<EditorState>,
     note_editor: Entity<EditorState>,
     evidence_editor: Entity<EditorState>,
+    raw_evidence: raw_evidence::RawEvidencePane,
     provenance_open: bool,
     provenance_snapshot: Option<brn_workflow::knowledge::NoteProvenance>,
     provenance_quotes: Vec<Entity<EditorState>>,
@@ -230,6 +234,7 @@ impl Desktop {
         });
         let note_path =
             cx.new(|cx| InputState::new(window, cx).placeholder("Vault-relative .md destination"));
+        let raw_evidence = raw_evidence::RawEvidencePane::new(window, cx);
         let evidence_editor = cx.new(|cx| EditorState::new(window, cx).default_value(""));
         let review_editor = cx.new(|cx| {
             EditorState::new(window, cx)
@@ -512,6 +517,7 @@ impl Desktop {
             query,
             note_editor,
             evidence_editor,
+            raw_evidence,
             provenance_open: false,
             provenance_snapshot: None,
             provenance_quotes: Vec::new(),

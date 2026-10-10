@@ -1,0 +1,52 @@
+Core and CLI (windows-2025)	Build the default workspace	﻿2026-10-10T07:36:00.4005491Z ##[group]Run cargo build --workspace --locked --offline
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:00.4005909Z ^[[36;1mcargo build --workspace --locked --offline^[[0m
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:00.4016271Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:00.4016765Z env:
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:00.4016931Z   CARGO_TERM_COLOR: always
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:00.4017119Z   CARGO_INCREMENTAL: 0
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:00.4017307Z   RUST_BACKTRACE: 1
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:00.4017473Z   BRN_NATIVE_MODEL_DIR: 
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:00.4017648Z   CACHE_ON_FAILURE: true
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:00.4017816Z ##[endgroup]
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:00.9838806Z ^[[1m^[[92m   Compiling^[[0m reqwest v0.13.5
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:00.9862129Z ^[[1m^[[92m   Compiling^[[0m brn-intake v0.1.0 (D:\a\brn-rust\brn-rust\crates\brn-intake)
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:00.9864408Z ^[[1m^[[92m   Compiling^[[0m brn-retrieval v0.1.0 (D:\a\brn-rust\brn-rust\crates\brn-retrieval)
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:01.5108149Z ^[[1m^[[92m   Compiling^[[0m brn-store v0.1.0 (D:\a\brn-rust\brn-rust\crates\brn-store)
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:02.1751309Z ^[[1m^[[91merror[E0433]^[[0m^[[1m^[[97m: cannot find `unix` in `os`^[[0m
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:02.1768586Z  ^[[1m^[[96m--> ^[[0mcrates\brn-store\src\lib.rs:4:15
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:02.1796415Z   ^[[1m^[[96m|^[[0m
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:02.1872864Z ^[[1m^[[96m4^[[0m ^[[1m^[[96m|^[[0m use std::{os::unix::fs::MetadataExt, path::Path};
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:02.1888436Z   ^[[1m^[[96m|^[[0m               ^[[1m^[[91m^^^^^[[0m ^[[1m^[[91mcould not find `unix` in `os`^[[0m
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:02.1889112Z 
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:02.1889626Z ^[[1m^[[91merror[E0433]^[[0m^[[1m^[[97m: cannot find `unix` in `os`^[[0m
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:02.1890271Z   ^[[1m^[[96m--> ^[[0mcrates\brn-store\src\work\backup.rs:11:9
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:02.1890810Z    ^[[1m^[[96m|^[[0m
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:02.1891461Z ^[[1m^[[96m11^[[0m ^[[1m^[[96m|^[[0m     os::unix::fs::OpenOptionsExt,
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:02.1892135Z    ^[[1m^[[96m|^[[0m         ^[[1m^[[91m^^^^^[[0m ^[[1m^[[91mcould not find `unix` in `os`^[[0m
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:02.1892578Z 
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:02.7000876Z ^[[1m^[[92m   Compiling^[[0m rig-reqwest v0.43.0
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:03.3738651Z ^[[1m^[[92m   Compiling^[[0m rig-core v0.43.0
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:03.4307389Z ^[[1m^[[91merror[E0599]^[[0m^[[1m^[[97m: no method named `mode` found for mutable reference `&mut OpenOptions` in the current scope^[[0m
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:03.4308750Z    ^[[1m^[[96m--> ^[[0mcrates\brn-store\src\work\backup.rs:201:10
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:03.4449227Z     ^[[1m^[[96m|^[[0m
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:03.4769771Z ^[[1m^[[96m197^[[0m ^[[1m^[[96m|^[[0m       let file = OpenOptions::new()
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:03.4834317Z     ^[[1m^[[96m|^[[0m ^[[1m^[[96m ________________-^[[0m
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:03.4942632Z ^[[1m^[[96m198^[[0m ^[[1m^[[96m|^[[0m ^[[1m^[[96m|^[[0m         .read(true)
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:03.4964547Z ^[[1m^[[96m199^[[0m ^[[1m^[[96m|^[[0m ^[[1m^[[96m|^[[0m         .write(true)
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:03.5103785Z ^[[1m^[[96m200^[[0m ^[[1m^[[96m|^[[0m ^[[1m^[[96m|^[[0m         .create_new(true)
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:03.5266622Z ^[[1m^[[96m201^[[0m ^[[1m^[[96m|^[[0m ^[[1m^[[96m|^[[0m         .mode(0o600)
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:03.5320042Z     ^[[1m^[[96m|^[[0m ^[[1m^[[96m|^[[0m         ^[[1m^[[96m-^[[0m^[[1m^[[91m^^^^^[[0m ^[[1m^[[91mmethod not found in `&mut OpenOptions`^[[0m
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:03.5322058Z     ^[[1m^[[96m|^[[0m ^[[1m^[[96m|_________|^[[0m
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:03.5323002Z     ^[[1m^[[96m|^[[0m
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:03.5340426Z 
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:04.7739967Z ^[[1m^[[91merror[E0599]^[[0m^[[1m^[[97m: no method named `nlink` found for struct `Metadata` in the current scope^[[0m
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:04.7740818Z   ^[[1m^[[96m--> ^[[0mcrates\brn-store\src\lib.rs:96:44
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:04.7741226Z    ^[[1m^[[96m|^[[0m
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:04.7741717Z ^[[1m^[[96m96^[[0m ^[[1m^[[96m|^[[0m     if !meta.file_type().is_file() || meta.nlink() != 1 {
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:04.7742478Z    ^[[1m^[[96m|^[[0m                                            ^[[1m^[[91m^^^^^^[[0m ^[[1m^[[91mmethod not found in `Metadata`^[[0m
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:04.7742864Z 
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:06.9204979Z ^[[1m^[[97mSome errors have detailed explanations: E0433, E0599.^[[0m
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:06.9205901Z ^[[1m^[[97mFor more information about an error, try `rustc --explain E0433`.^[[0m
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:06.9367423Z ^[[1m^[[91merror^[[0m: could not compile `brn-store` (lib) due to 4 previous errors
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:06.9368033Z ^[[1m^[[93mwarning^[[0m: build failed, waiting for other jobs to finish...
+Core and CLI (windows-2025)	Build the default workspace	2026-10-10T07:36:25.5551510Z ##[error]Process completed with exit code 101.

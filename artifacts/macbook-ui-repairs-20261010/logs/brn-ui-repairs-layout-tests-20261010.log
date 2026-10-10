@@ -1,0 +1,35 @@
+   Compiling brn-desktop v0.1.0 (/Users/evokessler/.codex/worktrees/macbook-ui-repairs/brn-rust/crates/brn-desktop)
+warning: output of `xcrun` while finding MacOSX.sdk
+  |
+  = note: 2026-10-10 08:31:35.877 xcodebuild[30039:3382009]  DVTFilePathFSEvents: Failed to start fs event stream.
+          2026-10-10 08:31:36.153 xcodebuild[30039:3382008] [MT] DVTDeveloperPaths: Failed to get length of DARWIN_USER_CACHE_DIR from confstr(3), error = Error Domain=NSPOSIXErrorDomain Code=5 "Input/output error". Using NSCachesDirectory instead.
+          2026-10-10 08:31:36.645 xcodebuild[30041:3382051]  DVTFilePathFSEvents: Failed to start fs event stream.
+          2026-10-10 08:31:36.783 xcodebuild[30041:3382050] [MT] DVTDeveloperPaths: Failed to get length of DARWIN_USER_CACHE_DIR from confstr(3), error = Error Domain=NSPOSIXErrorDomain Code=5 "Input/output error". Using NSCachesDirectory instead.
+
+warning: `brn-desktop` (test "cli") generated 1 warning
+    Finished `test` profile [optimized] target(s) in 12.63s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/main.rs (/private/tmp/brn-ui-repairs-target-20261010/debug/deps/brn_desktop-ea3db52567923381)
+
+running 3 tests
+
+thread 'native::profile_graph_tests::shipping_shell_graph_wheel_reaches_last_node_inside_canvas' (3385277) panicked at crates/brn-desktop/src/native/profile_graph_tests.rs:694:13:
+graph must scroll both axes: Point { x: 0px, y: 0px }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test native::profile_graph_tests::shipping_shell_graph_wheel_reaches_last_node_inside_canvas ... FAILED
+
+thread 'native::action_draft_tests::shipping_shell_action_form_bottom_controls_scroll_into_view' (3385275) panicked at /Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/gpui-kit-0.6.6/src/test.rs:54:9:
+missing ElementId Name("initial-action-form") in scope []. Registered paths: [View(EntityId(113v3)), Name("gpui_component::window_border::WindowBorder"), Name("window-backdrop"), Name("root"), View(EntityId(257v1)), View(EntityId(108v3)), Name("brn-desktop"), Name("gpui_component::button::button::Button"), Name("gpui_base::button::Button"), Name("ask")], [View(EntityId(113v3)), Name("gpui_component::window_border::WindowBorder"), Name("window-backdrop"), Name("root"), View(EntityId(257v1)), View(EntityId(108v3)), Name("brn-desktop"), Name("gpui_component::button::button::Button"), Name("gpui_base::button::Button"), Name("expand-history")], [View(EntityId(113v3)), Name("gpui_component::window_border::WindowBorder"), Name("window-backdrop"), Name("root"), View(EntityId(257v1)), View(EntityId(108v3)), Name("brn-desktop"), Name("gpui_component::button::button::Button"), Name("gpui_base::button::Button"), Name("expand-vault")], [View(EntityId(113v3)), Name("gpui_component::window_border::WindowBorder"), Name("window-backdrop"), Name("root"), View(EntityId(257v1)), View(EntityId(108v3)), Name("brn-desktop"), Name("gpui_component::button::button::Button"), Name("gpui_base::button::Button"), Name("search")], [View(EntityId(113v3)), Name("gpui_component::window_border::WindowBorder"), Name("window-backdrop"), Name("root"), View(EntityId(257v1)), View(EntityId(108v3)), Name("brn-desktop"), Name("gpui_component::button::button::Button"), Name("gpui_base::button::Button"), Name("stop")], [View(EntityId(113v3)), Name("gpui_component::window_border::WindowBorder"), Name("window-backdrop"), Name("root"), View(EntityId(257v1)), View(EntityId(108v3)), Name("brn-desktop"), Name("gpui_component::button::button::Button"), Name("gpui_base::button::Button"), Name("tab-chat")], [View(EntityId(113v3)), Name("gpui_component::window_border::WindowBorder"), Name("window-backdrop"), Name("root"), View(EntityId(257v1)), View(EntityId(108v3)), Name("brn-desktop"), Name("gpui_component::button::button::Button"), Name("gpui_base::button::Button"), Name("tab-document")], [View(EntityId(113v3)), Name("gpui_component::window_border::WindowBorder"), Name("window-backdrop"), Name("root"), View(EntityId(257v1)), View(EntityId(108v3)), Name("brn-desktop"), Name("gpui_component::input::editor::Editor"), Name("gpui_component::input::input::Input"), NamedInteger("input", 12884902002)], [View(EntityId(113v3)), Name("gpui_component::window_border::WindowBorder"), Name("window-backdrop"), Name("root"), View(EntityId(257v1)), View(EntityId(108v3)), Name("brn-desktop"), Name("gpui_component::title_bar::TitleBar"), Name("title-bar"), Name("bar"), Name("gpui_component::button::button::Button"), Name("gpui_base::button::Button"), Name("header-settings")], [View(EntityId(113v3)), Name("gpui_component::window_border::WindowBorder"), Name("window-backdrop"), Name("root"), View(EntityId(257v1)), View(EntityId(108v3)), Name("brn-desktop"), Name("gpui_component::title_bar::TitleBar"), Name("title-bar"), Name("bar"), Name("gpui_component::button::button::Button"), Name("gpui_base::button::Button"), Name("toggle-focus")], [View(EntityId(113v3)), Name("gpui_component::window_border::WindowBorder"), Name("window-backdrop"), Name("root"), View(EntityId(257v1)), View(EntityId(108v3)), Name("brn-desktop"), Name("gpui_component::title_bar::TitleBar"), Name("title-bar"), Name("bar"), Name("gpui_component::button::button::Button"), Name("gpui_base::button::Button"), Name("toggle-vault")]. Check the ID, observation, and completed frame.
+test native::action_draft_tests::shipping_shell_action_form_bottom_controls_scroll_into_view ... FAILED
+test native::approval::activity_tests::shipping_shell_activity_oldest_approval_scrolls_into_view ... ok
+
+failures:
+
+failures:
+    native::action_draft_tests::shipping_shell_action_form_bottom_controls_scroll_into_view
+    native::profile_graph_tests::shipping_shell_graph_wheel_reaches_last_node_inside_canvas
+
+test result: FAILED. 1 passed; 2 failed; 0 ignored; 0 measured; 431 filtered out; finished in 0.29s
+
+error: test failed, to rerun pass `-p brn-desktop --bin brn-desktop`
