@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/brn", "crates/brn-store", "crates/brn-retrieval", "crates/brn-workflow", "crates/brn-desktop", "crates/brn-ai", "crates/brn-intake"]
+members = ["crates/brn", "crates/brn-store", "crates/brn-retrieval", "crates/brn-workflow", "crates/brn-desktop", "crates/brn-ai", "crates/brn-intake", "crates/brn-threads-core", "crates/brn-threads-intake"]
 default-members = ["crates/brn"]
 exclude = ["vendor/rig-agent"]
 resolver = "2"
