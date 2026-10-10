@@ -199,3 +199,32 @@ fn activity_action_inventory_all_members_full_titles_and_recorded_approval_contr
         visual.run_until_parked();
     }
 }
+
+#[gpui_kit::test]
+fn shipping_shell_activity_oldest_approval_scrolls_into_view(cx: &mut gpui_kit::TestAppContext) {
+    for width in [1100., 480.] {
+        let (_fixture, handle, desktop) = dashboard_tests::window(cx, true);
+        let mut visual = VisualTestContext::from_window(handle.into(), cx);
+        visual.simulate_resize(size(px(width), px(800.)));
+        let expected = page();
+        let control = format!("inspect-approved-{}", expected.entries[1].operation_id);
+        visual.update(|_, cx| {
+            desktop.update(cx, |this, cx| {
+                this.ai.as_mut().unwrap().activity = Some(expected.clone());
+                this.open_doc = Some(DocRef::Activity);
+                this.centre_tab = CentreTab::Document;
+                cx.notify();
+            })
+        });
+        visual.run_until_parked();
+        visual.update(|window, cx| scroll_to(window, control.clone(), cx));
+        visual.update(|window, _| {
+            let pane = window.find("approved-activity-and-recovery").bounds();
+            let button = window.find(control.clone()).bounds();
+            assert!(
+                button.origin.y >= pane.origin.y && button.bottom() <= pane.bottom(),
+                "approval outside pane: {button:?} / {pane:?}"
+            );
+        });
+    }
+}

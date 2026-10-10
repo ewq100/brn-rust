@@ -669,3 +669,117 @@ fn graph_captured_callbacks_reject_reused_indexes_refresh_close_scope_and_profil
         });
     });
 }
+
+#[gpui_kit::test]
+fn shipping_shell_graph_wheel_reaches_last_node_inside_canvas(cx: &mut gpui_kit::TestAppContext) {
+    use gpui_kit::{InputEvent as _, MouseMoveEvent, ScrollDelta, ScrollWheelEvent};
+    for width in [1100., 480.] {
+        let (_fixture, handle, desktop) = profile_context_tests::shipping_window(cx);
+        let mut visual = VisualTestContext::from_window(handle.into(), cx);
+        visual.simulate_resize(size(px(width), px(800.)));
+        visual.run_until_parked();
+        visual.update(|window, cx| window.click("profile-view-graph", cx));
+        visual.update(|window, cx| {
+            window.render_frame(cx);
+            let pane = desktop.read(cx).document_scroll.bounds();
+            let context = window.find("profile-context-scroll").bounds();
+            let position = pane.origin + point(px(3.), px(3.));
+            window.dispatch_event(
+                MouseMoveEvent {
+                    position,
+                    ..Default::default()
+                }
+                .to_platform_input(),
+                cx,
+            );
+            window.render_frame(cx);
+            window.dispatch_event(
+                ScrollWheelEvent {
+                    position,
+                    delta: ScrollDelta::Pixels(point(px(0.), pane.origin.y - context.origin.y)),
+                    ..Default::default()
+                }
+                .to_platform_input(),
+                cx,
+            );
+        });
+        visual.run_until_parked();
+        scroll_to(&mut visual, "profile-graph-scroll");
+        visual.update(|window, cx| {
+            window.render_frame(cx);
+            let pane = desktop.read(cx).document_scroll.bounds();
+            let canvas = window.find("profile-graph-scroll").bounds();
+            let position = pane.origin + point(px(3.), px(3.));
+            window.dispatch_event(
+                MouseMoveEvent {
+                    position,
+                    ..Default::default()
+                }
+                .to_platform_input(),
+                cx,
+            );
+            window.render_frame(cx);
+            window.dispatch_event(
+                ScrollWheelEvent {
+                    position,
+                    delta: ScrollDelta::Pixels(point(
+                        px(0.),
+                        (pane.bottom() - canvas.bottom()).min(px(0.)),
+                    )),
+                    ..Default::default()
+                }
+                .to_platform_input(),
+                cx,
+            );
+        });
+        visual.run_until_parked();
+        visual.update(|window, _| {
+            let canvas = window.find("profile-graph-scroll").bounds();
+            assert!(
+                canvas.origin.y >= px(0.) && canvas.bottom() <= window.viewport_size().height,
+                "graph canvas must be visible before wheel input: {canvas:?}"
+            );
+        });
+        for delta in [point(px(-10000.), px(0.)), point(px(0.), px(-10000.))] {
+            visual.update(|window, cx| {
+                let position = window.find("profile-graph-scroll").bounds().center();
+                window.dispatch_event(
+                    MouseMoveEvent {
+                        position,
+                        ..Default::default()
+                    }
+                    .to_platform_input(),
+                    cx,
+                );
+                window.render_frame(cx);
+                window.dispatch_event(
+                    ScrollWheelEvent {
+                        position,
+                        delta: ScrollDelta::Pixels(delta),
+                        ..Default::default()
+                    }
+                    .to_platform_input(),
+                    cx,
+                );
+            });
+            visual.run_until_parked();
+            visual.update(|window, cx| window.render_frame(cx));
+        }
+        visual.update(|window, cx| {
+            let offset = desktop.read(cx).profile_context.graph_scroll.offset();
+            assert!(
+                offset.x < px(0.) && offset.y < px(0.),
+                "graph must scroll both axes: {offset:?}"
+            );
+            let canvas = window.find("profile-graph-scroll").bounds();
+            let node = window.find("profile-graph-node-25").bounds();
+            assert!(
+                node.origin.x >= canvas.origin.x
+                    && node.right() <= canvas.right()
+                    && node.origin.y >= canvas.origin.y
+                    && node.bottom() <= canvas.bottom(),
+                "last node outside canvas: {node:?} / {canvas:?}"
+            );
+        });
+    }
+}

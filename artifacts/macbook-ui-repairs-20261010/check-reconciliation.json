@@ -1,0 +1,301 @@
+[
+  {
+    "check": 1,
+    "journey": "In A, reopen retained email and DOCX; inspect originals, inline/shared chart placements and unsupported spreadsheet notice",
+    "prior_native_status": "partial",
+    "candidate_native_status": "partial",
+    "prior_remaining_limits": "Original email/DOCX preview pixels and original layout unavailable through system QuickLook binding; extraction and shared-occurrence reading observed.",
+    "current_remaining_limits": "Final repaired native original.eml and harbor.docx Quick Look controls launch preview; qlmanage binding times out. Extracted chart and unsupported spreadsheet notice observed. Original preview pixels/layout need owner visual help; request pending.",
+    "candidate_event_times": [
+      "2026-10-10T07:29:14.710766+00:00"
+    ],
+    "accepted": false
+  },
+  {
+    "check": 2,
+    "journey": "Fully quit/reopen; inspect Applied Source and retained proposals",
+    "prior_native_status": "observed",
+    "candidate_native_status": "not_rerun_in_repair_campaign",
+    "prior_remaining_limits": "No remaining essential ordinary-path subcheck identified; native observations do not constitute personal acceptance.",
+    "current_remaining_limits": "No remaining essential ordinary-path subcheck identified; native observations do not constitute personal acceptance.",
+    "candidate_event_times": [],
+    "accepted": false
+  },
+  {
+    "check": 3,
+    "journey": "Review retained Sol group, exact before/after and citations; submit native approval for selected displayed versions",
+    "prior_native_status": "observed",
+    "candidate_native_status": "not_rerun_in_repair_campaign",
+    "prior_remaining_limits": "No remaining essential ordinary-path subcheck identified; only selected synthetic Sol consequences approved.",
+    "current_remaining_limits": "No remaining essential ordinary-path subcheck identified; only selected synthetic Sol consequences approved.",
+    "candidate_event_times": [],
+    "accepted": false
+  },
+  {
+    "check": 4,
+    "journey": "Fully quit/reopen; inspect saved notes, Actions and dashboard",
+    "prior_native_status": "observed",
+    "candidate_native_status": "not_rerun_in_repair_campaign",
+    "prior_remaining_limits": "No remaining essential ordinary-path subcheck identified.",
+    "current_remaining_limits": "No remaining essential ordinary-path subcheck identified.",
+    "candidate_event_times": [],
+    "accepted": false
+  },
+  {
+    "check": 5,
+    "journey": "Reopen completed group and replay where exposed",
+    "prior_native_status": "observed",
+    "candidate_native_status": "not_rerun_in_repair_campaign",
+    "prior_remaining_limits": "No native replay control exposed; readonly completed review and unchanged effects observed. Replay click is inapplicable where not exposed.",
+    "current_remaining_limits": "No native replay control exposed; readonly completed review and unchanged effects observed. Replay click is inapplicable where not exposed.",
+    "candidate_event_times": [],
+    "accepted": false
+  },
+  {
+    "check": 6,
+    "journey": "In C, open long Current, inspect its final appendix, saved Sol answer and exact Finding evidence",
+    "prior_native_status": "partial",
+    "candidate_native_status": "not_rerun_in_repair_campaign",
+    "prior_remaining_limits": "Native stale-proof refusal and direct interactive agent-tool/range replies unexercised; separately selected fresh live trial required for interactive agent exercise.",
+    "current_remaining_limits": "Native stale-proof refusal and direct interactive agent-tool/range replies unexercised; separately selected fresh live trial required for interactive agent exercise.",
+    "candidate_event_times": [],
+    "accepted": false
+  },
+  {
+    "check": 7,
+    "journey": "Inspect Settings, saved budgets/history and error states; leave active cancellation pending unless the owner separately authorizes a new disposable synthetic live allowance",
+    "prior_native_status": "partial",
+    "candidate_native_status": "not_rerun_in_repair_campaign",
+    "prior_remaining_limits": "Active choice freeze, progress, Stop/timeout/tool-limit/strict visual partials unexercised; task explicitly requires separate fresh live allowance.",
+    "current_remaining_limits": "Active choice freeze, progress, Stop/timeout/tool-limit/strict visual partials unexercised; task explicitly requires separate fresh live allowance.",
+    "candidate_event_times": [],
+    "accepted": false
+  },
+  {
+    "check": 8,
+    "journey": "Quit A, launch B; read both Sources and approved Current, then saved Sol answer/Finding/proposals",
+    "prior_native_status": "observed",
+    "candidate_native_status": "not_rerun_in_repair_campaign",
+    "prior_remaining_limits": "No remaining essential ordinary-path subcheck identified.",
+    "current_remaining_limits": "No remaining essential ordinary-path subcheck identified.",
+    "candidate_event_times": [],
+    "accepted": false
+  },
+  {
+    "check": 9,
+    "journey": "Review selected B proposals and their exact versions; approve only the intended consequences, restart and inspect",
+    "prior_native_status": "observed",
+    "candidate_native_status": "not_rerun_in_repair_campaign",
+    "prior_remaining_limits": "No native replay exposed; ordinary selected approvals/restart observed; unused comparison and Open Finding retained.",
+    "current_remaining_limits": "No native replay exposed; ordinary selected approvals/restart observed; unused comparison and Open Finding retained.",
+    "candidate_event_times": [],
+    "accepted": false
+  },
+  {
+    "check": 10,
+    "journey": "Explicitly select the Current predecessor on a suitable Draft, review generated protected History and successor, then approve the revised version",
+    "prior_native_status": "partial",
+    "candidate_native_status": "not_rerun_in_repair_campaign",
+    "prior_remaining_limits": "Native stale approval/error/late-reply races unexercised. CLI stale rejection is separate evidence.",
+    "current_remaining_limits": "Native stale approval/error/late-reply races unexercised. CLI stale rejection is separate evidence.",
+    "candidate_event_times": [],
+    "accepted": false
+  },
+  {
+    "check": 11,
+    "journey": "Quit B/C and open D; inspect saved private-intake analysis, both Sources, approved Current, Open Finding, two saved Knowledge notes and two Actions",
+    "prior_native_status": "observed",
+    "candidate_native_status": "not_rerun_in_repair_campaign",
+    "prior_remaining_limits": "No remaining essential ordinary-path subcheck identified; older extraction remains read-only historical evidence.",
+    "current_remaining_limits": "No remaining essential ordinary-path subcheck identified; older extraction remains read-only historical evidence.",
+    "candidate_event_times": [],
+    "accepted": false
+  },
+  {
+    "check": 12,
+    "journey": "Select a completed synthetic session, Archive, inspect Archived history, quit/reopen and Restore; inspect old operation replay if exposed",
+    "prior_native_status": "partial",
+    "candidate_native_status": "not_rerun_in_repair_campaign",
+    "prior_remaining_limits": "Busy/draining and stale/late lifecycle replies unexercised; no native replay exposed.",
+    "current_remaining_limits": "Busy/draining and stale/late lifecycle replies unexercised; no native replay exposed.",
+    "candidate_event_times": [],
+    "accepted": false
+  },
+  {
+    "check": 13,
+    "journey": "In E, inspect both retained plain-text EML variants and compare the older extraction in D",
+    "prior_native_status": "observed",
+    "candidate_native_status": "not_rerun_in_repair_campaign",
+    "prior_remaining_limits": "No remaining essential ordinary-path subcheck identified; fresh corrected helper versus immutable older extraction adaptation disclosed.",
+    "current_remaining_limits": "No remaining essential ordinary-path subcheck identified; fresh corrected helper versus immutable older extraction adaptation disclosed.",
+    "candidate_event_times": [],
+    "accepted": false
+  },
+  {
+    "check": 14,
+    "journey": "Once final PPTX qualification/build is recorded, open the retained Harbor and unrelated Quay presentations and repeated email attachments, inspect slide/notes/table/image evidence, exact Source/assets approval and restart",
+    "prior_native_status": "partial",
+    "candidate_native_status": "not_rerun_in_repair_campaign",
+    "prior_remaining_limits": "Separate original PPTX layout pixels unavailable; retained slide/notes/table/shared/repeated image evidence and selected approval/restart observed.",
+    "current_remaining_limits": "Separate original PPTX layout pixels unavailable; retained slide/notes/table/shared/repeated image evidence and selected approval/restart observed.",
+    "candidate_event_times": [],
+    "accepted": false
+  },
+  {
+    "check": 15,
+    "journey": "Once final backup build is recorded, inspect Settings backup status, change a disposable draft/comment, checkpoint, refresh and restart; inspect warning fixture only if recorded",
+    "prior_native_status": "observed",
+    "candidate_native_status": "not_rerun_in_repair_campaign",
+    "prior_remaining_limits": "No recorded applicable warning fixture; warning subcheck conditional and unavailable. Checkpoint/change/restart observed.",
+    "current_remaining_limits": "No recorded applicable warning fixture; warning subcheck conditional and unavailable. Checkpoint/change/restart observed.",
+    "candidate_event_times": [],
+    "accepted": false
+  },
+  {
+    "check": 16,
+    "journey": "Quit the prior workspace, open G, preview Undo on the recorded ready Action-only replacement; inspect complete prior/current details, confirm, restart/replay, then inspect a changed/completed refusal",
+    "prior_native_status": "failed",
+    "candidate_native_status": "observed",
+    "prior_remaining_limits": "FAILED: lower Activity entries cannot be reached at ordinary/fullscreen sizes. Ready Undo confirm/restart/replay and changed/Completed refusal blocked.",
+    "current_remaining_limits": "Ready native Undo Applied and survived restart; changed and Completed confirmations refused without Action changes. Old Activity reach failure resolved. Replay control absent and inapplicable.",
+    "candidate_event_times": [
+      "2026-10-10T06:02:58.030278+00:00",
+      "2026-10-10T06:45:32.211402+00:00",
+      "2026-10-10T06:47:18.316673+00:00",
+      "2026-10-10T06:48:20.274069+00:00"
+    ],
+    "accepted": false
+  },
+  {
+    "check": 17,
+    "journey": "Once rename is qualified and included in the final build, select a retained new-note Draft, save owner text/comments, change its filename within the same folder, inspect the complete revised review, approve the revised version and restart",
+    "prior_native_status": "partial",
+    "candidate_native_status": "not_rerun_in_repair_campaign",
+    "prior_remaining_limits": "Native stale request unexercised. Occupied/unsafe/cross-folder refusal, owner comment/rename, explicit recovery and restart observed.",
+    "current_remaining_limits": "Native stale request unexercised. Occupied/unsafe/cross-folder refusal, owner comment/rename, explicit recovery and restart observed.",
+    "candidate_event_times": [],
+    "accepted": false
+  },
+  {
+    "check": 18,
+    "journey": "Once citation review is qualified and in the final build, quit H and open I, choose Needs Review → Citation evidence, inspect rows and complete saved consumer/source details, Load more, Refresh, switch to Findings and restart",
+    "prior_native_status": "partial",
+    "candidate_native_status": "not_rerun_in_repair_campaign",
+    "prior_remaining_limits": "Native late/error/stale reply races unexercised. Narrow controls and actual Unicode quote copy now observed.",
+    "current_remaining_limits": "Native late/error/stale reply races unexercised. Narrow controls and actual Unicode quote copy now observed.",
+    "candidate_event_times": [],
+    "accepted": false
+  },
+  {
+    "check": 19,
+    "journey": "Quit I, open J and reopen the retained Luna and Sol sessions; inspect their saved raw-evidence answers, metadata diagnostic and final-appendix range proof, open the malformed saved Markdown for inspection, then restart",
+    "prior_native_status": "partial",
+    "candidate_native_status": "partial",
+    "prior_remaining_limits": "Native raw damaged Markdown cannot be opened through observed inventory/navigation; full saved-answer copy and raw range/proof UI remain unexercised. Saved answer/restart and offline exact bytes verified separately.",
+    "current_remaining_limits": "Malformed saved Markdown now opens read-only with full hash, metadata diagnostic, bounded range and exact tail appendix. Copy range and hash JSON inspected through native paste; retained answers and restart inspected. Entire answer clipboard bytes/hash not verified.",
+    "candidate_event_times": [
+      "2026-10-10T06:02:57.989088+00:00",
+      "2026-10-10T06:28:34.321113+00:00",
+      "2026-10-10T06:28:59.810254+00:00"
+    ],
+    "accepted": false
+  },
+  {
+    "check": 20,
+    "journey": "Quit J, open K, review the exact group, move Gamma earlier twice; deselect/reselect Beta without moving to observe immediate selection, then deselect Beta again. Inspect exact Gamma/Alpha numbered snapshots and operation IDs, confirm only those two and restart. In F before its pending group approval, inspect pinned Source-first controls",
+    "prior_native_status": "partial",
+    "candidate_native_status": "not_rerun_in_repair_campaign",
+    "prior_remaining_limits": "Busy/stale group races unexercised; selected Gamma/Alpha approval order and retained Beta/comment observed.",
+    "current_remaining_limits": "Busy/stale group races unexercised; selected Gamma/Alpha approval order and retained Beta/comment observed.",
+    "candidate_event_times": [],
+    "accepted": false
+  },
+  {
+    "check": 21,
+    "journey": "Quit K, open L, compare planned Monday reply with retained actual Tuesday Text original. Approve only the retained Source Draft/version2, verify native Action remains Waiting, then select it in Dashboard, enter actual-sent-native.md and Read saved sent Source. Inspect complete Source/proof; open and cancel ordinary Complete to verify isolation. Re-read saved Source if needed, open Confirm actual sent Source and complete Action, inspect exact complete Source and Action before final confirmation, then restart",
+    "prior_native_status": "partial",
+    "candidate_native_status": "not_rerun_in_repair_campaign",
+    "prior_remaining_limits": "Native stale/changed/missing/ambiguous sent-Source errors unexercised; separate actual-sent completion and restart observed.",
+    "current_remaining_limits": "Native stale/changed/missing/ambiguous sent-Source errors unexercised; separate actual-sent completion and restart observed.",
+    "candidate_event_times": [],
+    "accepted": false
+  },
+  {
+    "check": 22,
+    "journey": "Quit L, open M, select saved z-project.md and scroll to Project context. Inspect full profile and exact Action details, Completed/Blocked, then independently page Actions and relationships. Select Source/History/incoming/opposite-direction edges and each origin/proof; copy full quote/details. Inspect missing Source reference. Select Person context on the same project, then on b-person.md; inspect isolated.md. Attempt supporting navigation with unsaved editor/comment/review work, cancel/resolve through the existing guard, Refresh and fully restart",
+    "prior_native_status": "partial",
+    "candidate_native_status": "not_rerun_in_repair_campaign",
+    "prior_remaining_limits": "Late/malformed replies and comment/review guard variants unexercised; saved-editor guard, paging/lenses, Blocked/Completed, missing Source, exact Source copy and restart observed.",
+    "current_remaining_limits": "Late/malformed replies and comment/review guard variants unexercised; saved-editor guard, paging/lenses, Blocked/Completed, missing Source, exact Source copy and restart observed.",
+    "candidate_event_times": [],
+    "accepted": false
+  },
+  {
+    "check": 23,
+    "journey": "In M, reopen z-project.md → Project context → Graph. Inspect Current center and mixed Current/Source/History neighbors, direction arrows, explicit versus inferred origins and page summary. Select each overlapping/opposite edge using separate edge controls and copy its complete quote/proof; select supporting node through the existing owner-work guard. Scroll both axes at480px to reach the last displayed node and last edge. Change relationship page, Refresh, switch lens/note, inspect isolated center and restart",
+    "prior_native_status": "failed",
+    "candidate_native_status": "partial",
+    "prior_remaining_limits": "FAILED: graph canvas nodes not reachable through tested horizontal/vertical scrolling at480/1100logical widths; edge controls/proofs/page summaries observed. Each displayed node/edge proof not exhaustively copied; late/error/loading replacement races unexercised.",
+    "current_remaining_limits": "Manual480px horizontal/vertical gesture confirmed by owner; native last node opened exact neighbors/17.md. Isolated Current center and full restart observed. Comment/review navigation guards, exhaustive34-edge clipboard identity and controllable late/error races remain unexercised.",
+    "candidate_event_times": [
+      "2026-10-10T06:02:57.928556+00:00",
+      "2026-10-10T06:18:41.802113+00:00",
+      "2026-10-10T07:03:14.348128+00:00",
+      "2026-10-10T07:16:25.560480+00:00"
+    ],
+    "accepted": false
+  },
+  {
+    "check": 24,
+    "journey": "Quit M, open N → Dashboard, select the exact native Waiting Action → Edit Action…. Inspect/copy full captured before and all prefilled fields. Change Waiting→Blocked, owner, dates, priority and exact Unicode/CRLF description using the retained suggestion; leave unchanged references as captured. Create ordinary replacement Draft; inspect exact before/after, approve only the intended version and restart. Activity preview Undo, inspect complete prior/current details, confirm and restart. Also inspect the Completed comparison and owner-work/error guards",
+    "prior_native_status": "failed",
+    "candidate_native_status": "partial",
+    "prior_remaining_limits": "FAILED: Action form Create/Copy/Discard below viewport unreachable at ordinary/narrow/enlarged widths. Existing Waitingv1 unchanged and local input retained. Draft/approval/restart/Undo chain blocked; some requested hidden fields not changed.",
+    "current_remaining_limits": "Native edit/approval/restart/Undo/restart chain observed. Navigation retained unsaved form; invalid date refused without proposal; cancelled discard retained input. Exact six authority tables and vault hashes unchanged by guards. Full before clipboard hash, personal IME and stale asynchronous race variants remain pending.",
+    "candidate_event_times": [
+      "2026-10-10T06:02:58.073848+00:00",
+      "2026-10-10T06:31:56.718999+00:00",
+      "2026-10-10T06:32:18.846006+00:00",
+      "2026-10-10T06:34:27.052123+00:00",
+      "2026-10-10T06:36:08.875656+00:00",
+      "2026-10-10T06:36:41.419867+00:00",
+      "2026-10-10T06:43:38.419937+00:00",
+      "2026-10-10T07:22:00.093806+00:00"
+    ],
+    "accepted": false
+  },
+  {
+    "check": 25,
+    "journey": "Quit N, open O → Dashboard Blocked, select exact retained source Action and use Inspect for each explicit Dependency/Parent/FollowsUp. Inspect/copy full current linked record and close details. Verify original selection/filter/owner buffers and manually Blocked state remain. Switch Completed filter, select exact completed source Action and inspect its links. Refresh/change selection/page/close/restart; inspect error/retry only when controllably available",
+    "prior_native_status": "partial",
+    "candidate_native_status": "not_rerun_in_repair_campaign",
+    "prior_remaining_limits": "Error/Retry/stale/late races unexercised; task says leave unavailable errors pending. All three explicit roles, Completed/outside-filter targets, narrow copy and restart preservation observed.",
+    "current_remaining_limits": "Error/Retry/stale/late races unexercised; task says leave unavailable errors pending. All three explicit roles, Completed/outside-filter targets, narrow copy and restart preservation observed.",
+    "candidate_event_times": [],
+    "accepted": false
+  },
+  {
+    "check": 26,
+    "journey": "Quit O, reopen N → Activity. Identify retained mixed-create operation35e61989-c147-47f1-96b4-b6e16e20184f, edit674c8788-b1d6-4ce0-85ba-f2971570fc49 and Undo4248a8e3-6bb6-4804-b138-8311a6ebe8a4 using ready.json. Inspect every historical affected Action UUID/title/kind, including Completed comparison; open full recorded approvals and compare exact before/after. Refresh, page earlier, scroll at480px and restart",
+    "prior_native_status": "blocked",
+    "candidate_native_status": "partial",
+    "prior_remaining_limits": "BLOCKED: primary N unsubmitted form retained; secondary N correctly refuses same-store startup lock. Historical Activity native inventory/copy/paging/restart not exercised; offline mappings are not native evidence.",
+    "current_remaining_limits": "Fresh N historical Source/create/edit/Undo inventory and full snapshots observed at480px, then dedicated full restart and Activity Refresh. Earlier paging disabled at oldest entry. Full recorded-approval clipboard capture unavailable; ordinary reach/startup blocker resolved.",
+    "candidate_event_times": [
+      "2026-10-10T06:02:58.073848+00:00",
+      "2026-10-10T06:43:38.419937+00:00",
+      "2026-10-10T07:18:34.641282+00:00"
+    ],
+    "accepted": false
+  },
+  {
+    "check": 27,
+    "journey": "Optional extended check: quit N and open P with its empty synthetic credentials/model folders. Browse Current notes/folders, search each of the three anchor tokens using keyword search, open/copy the exact note, then fully restart and repeat one search/read. Keep the retained Draft unapproved and Inbox original retained",
+    "prior_native_status": "partial",
+    "candidate_native_status": "not_rerun_in_repair_campaign",
+    "prior_remaining_limits": "Optional: native browse5000, three keyword searches/full note reads and restart observed. Accessibility disappears after second page; actual clipboard byte hash/BOM not verified. Timings are observation/tool timings, no invented paint latency or threshold.",
+    "current_remaining_limits": "Optional: native browse5000, three keyword searches/full note reads and restart observed. Accessibility disappears after second page; actual clipboard byte hash/BOM not verified. Timings are observation/tool timings, no invented paint latency or threshold.",
+    "candidate_event_times": [],
+    "accepted": false
+  }
+]

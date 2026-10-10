@@ -1,0 +1,46 @@
+{
+  "case": "N",
+  "fresh_macbook_fixture": true,
+  "no_inference": true,
+  "historical_answers_exact": true,
+  "map": {
+    "proposals": {
+      "6f1d3bb4-7d12-436c-9d39-da83f6a2036a": "e518558a-788c-4d21-ba42-685060ad2233",
+      "1091ed39-14a3-4006-807a-50dd8fbe9e4a": "78e5cbc5-409a-484d-bc28-dd282bfb6ec0",
+      "07d0c03d-0e0c-4cba-b9a3-1c2435b82b7f": "3f899c65-0dfb-4aca-b0e5-6c32c02ce4d9",
+      "38e287e5-4815-4037-ba74-e640bd367626": "20502999-bbcc-4257-b487-9e9bf36b7dea",
+      "4248a8e3-6bb6-4804-b138-8311a6ebe8a4": "d2969958-5099-48b6-9102-d68261fb5334"
+    },
+    "groups": {},
+    "turns": {},
+    "conversations": {},
+    "items": {
+      "d1bf6bde-d786-4bca-a3b1-fb15aebdace3": {
+        "id": "5953b9c2-1232-4850-9f27-ef26daeba03e",
+        "batch": "294c8ae3-9948-4e25-bdef-e59f746758ce"
+      }
+    },
+    "sources": {
+      "6f1d3bb4-7d12-436c-9d39-da83f6a2036a": {
+        "id": "e518558a-788c-4d21-ba42-685060ad2233",
+        "path": "evidence.md",
+        "note_id": "6572a9d7-34f9-4dc2-84a6-421c41bd30ac",
+        "old_state": "applied"
+      }
+    },
+    "operations": {
+      "3e671ccc-1c6d-4fa7-a4af-4cc17a2159eb": "aebf0ae6-9e0c-48b0-a63a-08814f2d459e",
+      "35e61989-c147-47f1-96b4-b6e16e20184f": "e63ee982-a67d-489a-8059-c6b55123792a",
+      "674c8788-b1d6-4ce0-85ba-f2971570fc49": "2ee62c57-53a6-4bcf-a689-bab2e3871301",
+      "4248a8e3-6bb6-4804-b138-8311a6ebe8a4": "d2969958-5099-48b6-9102-d68261fb5334"
+    },
+    "findings": {}
+  },
+  "adaptations": [
+    "Fresh physical Source/proposal/operation/session identities and timestamps",
+    "Retained original answer strings replayed explicitly, no model execution",
+    "Recaptured current local quotes and provenance",
+    "Fresh version numbers follow supported operations; historical versions are reference evidence",
+    "I is a deliberately copied synthetic saved-byte citation scenario; its manual Source classification does not claim Inbox approval"
+  ]
+}

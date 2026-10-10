@@ -328,10 +328,12 @@ impl Desktop {
         let mut content = div().w_full().min_w_0().flex().flex_col().gap_2().flex_shrink_0()
             .child(div().id("profile-graph-summary").aria_label(summary.clone()).child(summary).test_support())
             .child("One displayed page only. Arrows point Source → Target. Solid: Explicit Markdown link. Dashed: Inferred provenance candidate. Scope labels describe saved Markdown, not profile membership.")
-            .child(div().id("profile-graph-scroll").w_full().min_w_0().h(px(320.)).flex_shrink_0()
+            .child(div().id("profile-graph-scroll").w_full().min_w_0().h(px(280.)).flex_shrink_0()
                 .track_scroll(&self.profile_context.graph_scroll).overflow_scroll()
                 .vertical_scrollbar(&self.profile_context.graph_scroll)
                 .horizontal_scrollbar(&self.profile_context.graph_scroll)
+                // GPUI registers its native scroll listener after this listener;
+                // bubbling runs it first, then stops the surrounding document.
                 .on_scroll_wheel(|_, _, cx| cx.stop_propagation()).child(extent).test_support());
         if let Some(selection) = &self.profile_context.graph_selection {
             content = content.child(selection.clone());

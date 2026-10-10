@@ -79,6 +79,16 @@ impl Desktop {
                     .auto_grow(1, 8)
                     .default_value(value)
             });
+            pane.subscriptions.push(cx.on_focus(
+                &input.read(cx).focus_handle(cx),
+                window,
+                move |this, _, cx| {
+                    if this.initial_action.form == Some(id) {
+                        this.draft_scroll.scroll_to_top_of_item(index + 3);
+                        cx.notify();
+                    }
+                },
+            ));
             pane.subscriptions.push(cx.subscribe_in(
                 &input,
                 window,
@@ -108,6 +118,18 @@ impl Desktop {
             ));
             pane.fields.push(input);
         }
+        pane.subscriptions.push(cx.on_focus(
+            &self.draft_path.read(cx).focus_handle(cx),
+            window,
+            move |this, _, cx| {
+                if this.initial_action.form == Some(id) {
+                    // Three headings, twelve fields, state/priority and two
+                    // source explanations precede this separate textarea.
+                    this.draft_scroll.scroll_to_top_of_item(19);
+                    cx.notify();
+                }
+            },
+        ));
         self.initial_action = pane;
         self.draft_path
             .update(cx, |input, cx| input.set_value(path, window, cx));
@@ -208,7 +230,8 @@ impl Desktop {
         body = body.child(states).child(priorities)
             .child("Optional saved source proofs")
             .child("Enter a saved Markdown path and capture it explicitly. Recapturing the same path replaces only that proof; other captures remain bound. Identity and current-source checks run in the shared application.")
-            .child(Textarea::new(&self.draft_path).disabled(!editable).aria_label("Saved source path for Action proposal"))
+            .child(div().id("initial-action-source-path").test_support()
+                .child(Textarea::new(&self.draft_path).disabled(!editable).aria_label("Saved source path for Action proposal")))
             .child(Button::new("capture-initial-action-source").label("Capture full saved source")
                 .disabled(blocked || !ai.vault_bound)
                 .on_click(cx.listener(|this, _, window, cx| {
@@ -256,46 +279,47 @@ impl Desktop {
                         })),
                 );
         }
-        body = body.child(
-            div()
-                .flex()
-                .flex_wrap()
-                .gap_2()
-                .child(
-                    Button::new("create-initial-review-draft")
-                        .label("Create review draft")
-                        .disabled(
-                            blocked || form.result.is_some() || form.source_operation.is_some(),
-                        )
-                        .on_click(cx.listener(|this, _, window, cx| {
-                            if this.draft_command_blocked() || window.has_active_dialog(cx) {
-                                return;
-                            }
-                            this.capture_initial_action_widgets(cx);
-                            if let Some(command) = this.ai.as_mut().unwrap().create_draft() {
-                                this.simple_send(command, cx);
-                            }
-                            cx.notify();
-                        })),
-                )
-                .child(
-                    Button::new("copy-initial-action-input")
-                        .label("Copy all raw Action input / proofs")
-                        .on_click(cx.listener(|this, _, _, cx| {
-                            this.capture_initial_action_widgets(cx);
-                            let text = raw_input(this.ai.as_ref().unwrap().draft.as_ref().unwrap());
-                            cx.write_to_clipboard(gpui_kit::ClipboardItem::new_string(text));
-                        })),
-                )
-                .child(
-                    Button::new("discard-initial-full-form")
-                        .label("Discard local form…")
-                        .disabled(!editable || form.pending)
-                        .on_click(cx.listener(|this, _, window, cx| {
-                            this.discard_draft_dialog(false, window, cx)
-                        })),
-                ),
-        );
+        let controls = div()
+            .id("initial-action-controls")
+            .test_support()
+            .flex()
+            .flex_wrap()
+            .flex_shrink_0()
+            .gap_2()
+            .p_3()
+            .border_t_1()
+            .child(
+                Button::new("create-initial-review-draft")
+                    .label("Create review draft")
+                    .disabled(blocked || form.result.is_some() || form.source_operation.is_some())
+                    .on_click(cx.listener(|this, _, window, cx| {
+                        if this.draft_command_blocked() || window.has_active_dialog(cx) {
+                            return;
+                        }
+                        this.capture_initial_action_widgets(cx);
+                        if let Some(command) = this.ai.as_mut().unwrap().create_draft() {
+                            this.simple_send(command, cx);
+                        }
+                        cx.notify();
+                    })),
+            )
+            .child(
+                Button::new("copy-initial-action-input")
+                    .label("Copy all raw Action input / proofs")
+                    .on_click(cx.listener(|this, _, _, cx| {
+                        this.capture_initial_action_widgets(cx);
+                        let text = raw_input(this.ai.as_ref().unwrap().draft.as_ref().unwrap());
+                        cx.write_to_clipboard(gpui_kit::ClipboardItem::new_string(text));
+                    })),
+            )
+            .child(
+                Button::new("discard-initial-full-form")
+                    .label("Discard local form…")
+                    .disabled(!editable || form.pending)
+                    .on_click(cx.listener(|this, _, window, cx| {
+                        this.discard_draft_dialog(false, window, cx)
+                    })),
+            );
         if form.submitted.is_some() {
             body = body.child(
                 Button::new("separate-initial-proposal")
@@ -314,6 +338,13 @@ impl Desktop {
                     })),
             );
         }
-        body.into_any_element()
+        div()
+            .size_full()
+            .flex()
+            .flex_col()
+            .min_h(px(0.))
+            .child(body)
+            .child(controls)
+            .into_any_element()
     }
 }

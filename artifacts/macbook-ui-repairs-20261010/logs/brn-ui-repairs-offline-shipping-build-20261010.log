@@ -1,0 +1,12 @@
+   Compiling rig-agent v0.43.0 (/Users/evokessler/.codex/worktrees/macbook-ui-repairs/brn-rust/vendor/rig-agent)
+   Compiling gpui-base v0.6.6
+   Compiling brn-retrieval v0.1.0 (/Users/evokessler/.codex/worktrees/macbook-ui-repairs/brn-rust/crates/brn-retrieval)
+   Compiling rig v0.43.0
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.codex/worktrees/macbook-ui-repairs/brn-rust/crates/brn-ai)
+   Compiling brn-workflow v0.1.0 (/Users/evokessler/.codex/worktrees/macbook-ui-repairs/brn-rust/crates/brn-workflow)
+   Compiling gpui-component v0.6.6
+   Compiling gpui-kit v0.6.6
+   Compiling brn-desktop v0.1.0 (/Users/evokessler/.codex/worktrees/macbook-ui-repairs/brn-rust/crates/brn-desktop)
+    Finished `dev` profile [unoptimized] target(s) in 14.85s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`

@@ -4,6 +4,7 @@ New selected slices follow owner requirements and the current [target](../../arc
 
 | Task | State | Records |
 | --- | --- | --- |
+| MacBook native UI repairs | Owner authorized on 10 October: isolated Action/Activity/graph reach repairs and raw malformed Markdown inspection, followed by blocked native journeys. No merge, release or live provider use. | [Plan and evidence](macbook-ui-repairs/plan.md) |
 | Retained evidence investigation | Owner-selected first P3 slice: investigate exact retained text/images from Draft or approved Sources; independent exact consequence review, UX tuning deferred. Based on checked unmerged PR87; no merge/live-provider/Windows-port selection. | [Plan and evidence](retained-evidence-investigation/plan.md) |
 | Architecture reassessment | PR85 integrated. Revised P2 specification/maintained-adapter direction and converter retirement accepted; PR86 alone authorized for merge after final-head checks/policy. Production implementation remains unselected. | [Canonical handoff](architecture-reassessment/plan.md#pr86-finalization-and-canonical-fresh-agent-handoff), [report](../../audits/BRN_ARCHITECTURE_REASSESSMENT_2026-10-07.md), [P1 evidence](architecture-reassessment/p1-evidence.md), [accepted conditional P2](architecture-reassessment/p2-conditional-spec.md) |
 | V1 controlled handoff | Full V1 goal paused at owner request; PR77 product checkpoint integrated. Closeout records and explicitly selected follow-up tasks only. | [Handoff](v1-handoff.md) |

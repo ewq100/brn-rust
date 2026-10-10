@@ -1,0 +1,33 @@
+{
+  "default_workspace": {
+    "tests_passed": 1894,
+    "existing_skips": 18,
+    "build": "passed",
+    "clippy": "passed"
+  },
+  "native_desktop": {
+    "tests_passed": 438,
+    "cli_tests_passed": 7,
+    "clippy_three_lanes": "passed",
+    "native_retrieval_shipping": "passed",
+    "offline_native_shipping": "passed"
+  },
+  "end_to_end_fixtures": 52,
+  "current_doc_links": 624,
+  "review": "Complete diff independently reviewed; one Source keyboard-focus P2 corrected and re-reviewed clean. Temporary graph diagnostic and experiment reverted; exact source hashes reverified.",
+  "native": "G16 ordinary chain observed; J19/M23/N24/N26 repair reruns and guard/restart receipts retained. Manual480px graph gesture resolved by owner; original preview visual help pending. All27 personal acceptance remains false.",
+  "personal_acceptance": false,
+  "merged": false,
+  "final_documentation": {
+    "files": 75,
+    "links": 629,
+    "failures": 0,
+    "diff_check": "passed"
+  },
+  "evidence_audit": {
+    "consistent_sqlite_snapshots": 21,
+    "integrity_and_foreign_keys": "passed",
+    "candidate_source_and_runtime_hashes": "passed",
+    "journal_events": 21
+  }
+}

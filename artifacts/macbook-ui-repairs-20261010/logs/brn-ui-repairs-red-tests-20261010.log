@@ -1,0 +1,46 @@
+   Compiling rig-agent v0.43.0 (/Users/evokessler/.codex/worktrees/macbook-ui-repairs/brn-rust/vendor/rig-agent)
+   Compiling brn-intake v0.1.0 (/Users/evokessler/.codex/worktrees/macbook-ui-repairs/brn-rust/crates/brn-intake)
+   Compiling brn-retrieval v0.1.0 (/Users/evokessler/.codex/worktrees/macbook-ui-repairs/brn-rust/crates/brn-retrieval)
+   Compiling brn-store v0.1.0 (/Users/evokessler/.codex/worktrees/macbook-ui-repairs/brn-rust/crates/brn-store)
+   Compiling rig v0.43.0
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.codex/worktrees/macbook-ui-repairs/brn-rust/crates/brn-ai)
+   Compiling brn-workflow v0.1.0 (/Users/evokessler/.codex/worktrees/macbook-ui-repairs/brn-rust/crates/brn-workflow)
+   Compiling brn-desktop v0.1.0 (/Users/evokessler/.codex/worktrees/macbook-ui-repairs/brn-rust/crates/brn-desktop)
+warning: output of `xcrun` while finding MacOSX.sdk
+  |
+  = note: 2026-10-10 08:31:35.877 xcodebuild[30039:3382009]  DVTFilePathFSEvents: Failed to start fs event stream.
+          2026-10-10 08:31:36.153 xcodebuild[30039:3382008] [MT] DVTDeveloperPaths: Failed to get length of DARWIN_USER_CACHE_DIR from confstr(3), error = Error Domain=NSPOSIXErrorDomain Code=5 "Input/output error". Using NSCachesDirectory instead.
+          2026-10-10 08:31:36.645 xcodebuild[30041:3382051]  DVTFilePathFSEvents: Failed to start fs event stream.
+          2026-10-10 08:31:36.783 xcodebuild[30041:3382050] [MT] DVTDeveloperPaths: Failed to get length of DARWIN_USER_CACHE_DIR from confstr(3), error = Error Domain=NSPOSIXErrorDomain Code=5 "Input/output error". Using NSCachesDirectory instead.
+
+warning: `brn-desktop` (test "cli") generated 1 warning
+    Finished `test` profile [optimized] target(s) in 37.36s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/main.rs (/private/tmp/brn-ui-repairs-target-20261010/debug/deps/brn_desktop-ea3db52567923381)
+
+running 3 tests
+
+thread 'native::profile_graph_tests::shipping_shell_graph_wheel_reaches_last_node_inside_canvas' (3383611) panicked at crates/brn-desktop/src/native/profile_graph_tests.rs:694:13:
+graph must scroll both axes: Point { x: 0px, y: 0px }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test native::profile_graph_tests::shipping_shell_graph_wheel_reaches_last_node_inside_canvas ... FAILED
+
+thread 'native::action_draft_tests::shipping_shell_action_form_bottom_controls_scroll_into_view' (3383609) panicked at crates/brn-desktop/src/native/action_draft_tests.rs:39:9:
+initial-action-field-11: Bounds { origin: Point { x: 237px, y: 912px }, size: Size { 464.5px × 57.5px } }
+test native::action_draft_tests::shipping_shell_action_form_bottom_controls_scroll_into_view ... FAILED
+
+thread 'native::approval::activity_tests::shipping_shell_activity_oldest_approval_scrolls_into_view' (3383610) panicked at crates/brn-desktop/src/native/activity_tests.rs:84:5:
+inspect-approved-00000000-0000-0000-0000-0000000003e9 must be reachable at 480px: Bounds { origin: Point { x: 250px, y: 32335.5px }, size: Size { 438.5px × 32px } }
+test native::approval::activity_tests::shipping_shell_activity_oldest_approval_scrolls_into_view ... FAILED
+
+failures:
+
+failures:
+    native::action_draft_tests::shipping_shell_action_form_bottom_controls_scroll_into_view
+    native::approval::activity_tests::shipping_shell_activity_oldest_approval_scrolls_into_view
+    native::profile_graph_tests::shipping_shell_graph_wheel_reaches_last_node_inside_canvas
+
+test result: FAILED. 0 passed; 3 failed; 0 ignored; 0 measured; 431 filtered out; finished in 0.13s
+
+error: test failed, to rerun pass `-p brn-desktop --bin brn-desktop`

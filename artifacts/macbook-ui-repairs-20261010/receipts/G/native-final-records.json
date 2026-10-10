@@ -1,0 +1,144 @@
+{
+  "actions": {
+    "cd11b37b-ae7b-4491-bec5-88abed5111d4": {
+      "origin": {
+        "id": "cd11b37b-ae7b-4491-bec5-88abed5111d4",
+        "proposal": {
+          "id": "a5c7f8ac-c79d-4a6f-90dd-269550347f2e",
+          "version": 1
+        },
+        "data": {
+          "title": "Synthetic ready: prior collection review",
+          "description": "Prior owner details õ 日本語\r\nReview the offered date before asking for authority.\r\n",
+          "state": "waiting",
+          "owner": "Leena (synthetic)",
+          "related_person": null,
+          "related_project": null,
+          "sources": [],
+          "thread": null,
+          "due_on": "2026-10-12",
+          "follow_up_on": "2026-10-13",
+          "dependencies": [],
+          "parent": null,
+          "follows_up": null,
+          "priority": "normal"
+        },
+        "created_at_ms": 1791534163818
+      },
+      "version": 3,
+      "data": {
+        "title": "Synthetic ready: prior collection review",
+        "description": "Prior owner details õ 日本語\r\nReview the offered date before asking for authority.\r\n",
+        "state": "waiting",
+        "owner": "Leena (synthetic)",
+        "related_person": null,
+        "related_project": null,
+        "sources": [],
+        "thread": null,
+        "due_on": "2026-10-12",
+        "follow_up_on": "2026-10-13",
+        "dependencies": [],
+        "parent": null,
+        "follows_up": null,
+        "priority": "normal"
+      },
+      "updated_at_ms": 1791614739075,
+      "waiting_since_ms": 1791614739075,
+      "completed_at_ms": null
+    },
+    "d0bf57a5-8bd2-4d88-8a2e-d56e47f08afc": {
+      "origin": {
+        "id": "d0bf57a5-8bd2-4d88-8a2e-d56e47f08afc",
+        "proposal": {
+          "id": "168acf2e-467f-47eb-83de-1a9d01139bda",
+          "version": 1
+        },
+        "data": {
+          "title": "Synthetic changed-refusal: prior collection review",
+          "description": "Prior owner details õ 日本語\r\nReview the offered date before asking for authority.\r\n",
+          "state": "waiting",
+          "owner": "Leena (synthetic)",
+          "related_person": null,
+          "related_project": null,
+          "sources": [],
+          "thread": null,
+          "due_on": "2026-10-12",
+          "follow_up_on": "2026-10-13",
+          "dependencies": [],
+          "parent": null,
+          "follows_up": null,
+          "priority": "normal"
+        },
+        "created_at_ms": 1791534164980
+      },
+      "version": 3,
+      "data": {
+        "title": "Synthetic changed-refusal: revised collection review",
+        "description": "Later approved details λ\r\nThis fixture is prepared for native exact Undo review.\r\nFurther owner-approved change; old compensation must refuse.\r\n",
+        "state": "open",
+        "owner": "Leena (synthetic)",
+        "related_person": null,
+        "related_project": null,
+        "sources": [],
+        "thread": null,
+        "due_on": "2026-10-15",
+        "follow_up_on": null,
+        "dependencies": [],
+        "parent": null,
+        "follows_up": null,
+        "priority": "normal"
+      },
+      "updated_at_ms": 1791534165903,
+      "waiting_since_ms": null,
+      "completed_at_ms": null
+    },
+    "6870b530-956d-416f-b34b-ad1107a0f747": {
+      "origin": {
+        "id": "6870b530-956d-416f-b34b-ad1107a0f747",
+        "proposal": {
+          "id": "c62baf09-9c07-4cc8-b068-827bd760fa6b",
+          "version": 1
+        },
+        "data": {
+          "title": "Synthetic completed-refusal: prior collection review",
+          "description": "Prior owner details õ 日本語\r\nReview the offered date before asking for authority.\r\n",
+          "state": "waiting",
+          "owner": "Leena (synthetic)",
+          "related_person": null,
+          "related_project": null,
+          "sources": [],
+          "thread": null,
+          "due_on": "2026-10-12",
+          "follow_up_on": "2026-10-13",
+          "dependencies": [],
+          "parent": null,
+          "follows_up": null,
+          "priority": "normal"
+        },
+        "created_at_ms": 1791534164322
+      },
+      "version": 3,
+      "data": {
+        "title": "Synthetic completed-refusal: revised collection review",
+        "description": "Later approved details λ\r\nThis fixture is prepared for native exact Undo review.\r\n",
+        "state": "completed",
+        "owner": "Leena (synthetic)",
+        "related_person": null,
+        "related_project": null,
+        "sources": [],
+        "thread": null,
+        "due_on": "2026-10-15",
+        "follow_up_on": null,
+        "dependencies": [],
+        "parent": null,
+        "follows_up": null,
+        "priority": "normal"
+      },
+      "updated_at_ms": 1791534166276,
+      "waiting_since_ms": null,
+      "completed_at_ms": 1791534166276
+    }
+  },
+  "refusals_unchanged": true,
+  "ready_origin_unchanged": true
+}

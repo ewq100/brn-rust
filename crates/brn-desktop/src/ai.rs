@@ -69,6 +69,8 @@ mod profile_context_state;
 #[cfg(test)]
 #[path = "profile_context_state_tests.rs"]
 pub(crate) mod profile_context_state_tests;
+#[path = "raw_evidence_state.rs"]
+mod raw_evidence_state;
 #[path = "relationship_state.rs"]
 mod relationship_state;
 
@@ -314,6 +316,10 @@ pub enum Pending {
         generation: u64,
         cursor: Option<String>,
     },
+    RawEvidence {
+        request: brn_workflow::knowledge::RawEvidenceRequest,
+        generation: u64,
+    },
     Evidence {
         path: String,
         scope: KnowledgeScope,
@@ -431,6 +437,7 @@ pub struct AiState {
     pub note_error: Option<String>,
     pub note_generation: u64,
     pub evidence: Option<EvidenceDocument>,
+    pub raw_evidence: Option<raw_evidence_state::RawEvidenceState>,
     pub provenance: Option<NoteProvenance>,
     pub provenance_error: Option<String>,
     provenance_generation: u64,
@@ -1606,6 +1613,7 @@ impl AiState {
         self.note_generation = self.note_generation.wrapping_add(1);
         self.editor = None;
         self.note_error = None;
+        self.raw_evidence = None;
         self.evidence = Some(EvidenceDocument {
             path: path.clone(),
             scope,
@@ -1713,6 +1721,7 @@ impl AiState {
         self.note_generation = self.note_generation.wrapping_add(1);
         self.editor = None;
         self.evidence = None;
+        self.raw_evidence = None;
         self.note_error = None;
         self.command(
             Pending::Editor {
@@ -1904,9 +1913,10 @@ impl AiState {
     }
     pub fn apply(&mut self, id: Uuid, event: AppEvent) -> Vec<(Uuid, AppCommand)> {
         let mut commands = Vec::new();
-        // Native views issue no standalone raw query; an unrelated headless
-        // response must not settle an owner operation or replace its buffers.
-        if matches!(&event, AppEvent::RawEvidence(_)) {
+        // Only an exact, validated reply to this read-only request can replace
+        // its range. Unsolicited raw replies cannot settle owner operations.
+        if let AppEvent::RawEvidence(reply) = &event {
+            self.apply_raw_evidence(id, reply);
             return commands;
         }
         // Backup notifications are independent of the operation whose commit made
@@ -2987,7 +2997,9 @@ impl AiState {
                         *scope != self.knowledge_scope || *generation != self.search_generation
                     }
                     Some(
-                        Pending::Evidence { generation, .. } | Pending::Editor { generation, .. },
+                        Pending::Evidence { generation, .. }
+                        | Pending::RawEvidence { generation, .. }
+                        | Pending::Editor { generation, .. },
                     ) => *generation != self.note_generation,
                     Some(Pending::Provenance {
                         path,
@@ -3041,7 +3053,7 @@ impl AiState {
                     self.snapshot_error = Some(error.message.clone());
                 }
                 let mut retained_partial = false;
-                if matches!(pending, Some(Pending::Editor { generation, .. } | Pending::Evidence { generation, .. }) if generation == self.note_generation)
+                if matches!(pending, Some(Pending::Editor { generation, .. } | Pending::Evidence { generation, .. } | Pending::RawEvidence { generation, .. }) if generation == self.note_generation)
                 {
                     self.note_error = Some(error.message.clone());
                 }

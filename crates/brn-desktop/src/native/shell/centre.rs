@@ -28,6 +28,9 @@ impl Desktop {
                     .min_h(px(0.))
                     .child(
                         div()
+                            .flex()
+                            .flex_col()
+                            .min_h(px(0.))
                             .w(px(resolved.doc_w))
                             .flex_shrink_0()
                             .h_full()
@@ -36,6 +39,9 @@ impl Desktop {
                     .child(self.render_divider(crate::layout::Divider::Document, window, cx))
                     .child(
                         div()
+                            .flex()
+                            .flex_col()
+                            .min_h(px(0.))
                             .flex_1()
                             .min_w(px(0.))
                             .h_full()
@@ -76,9 +82,15 @@ impl Desktop {
                     CentreTab::Document => self.render_document(cx).into_any_element(),
                     CentreTab::Chat => self.render_chat(cx).into_any_element(),
                 };
-                centre
-                    .child(bar)
-                    .child(div().flex_1().min_h(px(0.)).child(pane))
+                centre.child(bar).child(
+                    div()
+                        .flex()
+                        .flex_col()
+                        .flex_1()
+                        .min_w(px(0.))
+                        .min_h(px(0.))
+                        .child(pane),
+                )
             }
         }
     }
