@@ -19,7 +19,7 @@ Use the pinned toolchain and lockfiles. The [dependency qualification plan](../w
 
 ## CI and integration
 
-The baseline [CI workflow](../../.github/workflows/ci.yml) remains in place during setup. It has a documentation/tooling job and core/native lanes. Main currently requires these contexts:
+The [CI workflow](../../.github/workflows/ci.yml) now covers the Threads core/app/runtime/CLI and new native state. It has a documentation/tooling job and core/native lanes. Main currently requires these contexts:
 
 - `Core and CLI (ubuntu-24.04)`
 - `Core and CLI (macos-15)`
@@ -33,3 +33,10 @@ Adapt meaningful jobs with the replacement code. Do not add no-op passing jobs, 
 Record tested commit/tree, environment, features, exact command, result, and limitation. Use fresh explicit synthetic data and preserve task evidence. Existing [tooling](tooling.md) can record gate output; read commands before use.
 
 Distinguish implemented, verified, native-observed, owner-accepted, and merged. Provider calls and downloads follow current task authority. CI does not receive account credentials. If the Mac is locked or inaccessible, gather one explicit UI qualification task and continue useful headless work without claiming UI success.
+
+
+## Current local gates
+
+Build the maintained `brn-intake-helper` before the Mac workspace tests. PDF fixture qualification needs Poppler `pdftotext`/`pdfimages`; CI supplies their explicit paths, and local tests accept `BRN_INTAKE_HELPER`, `BRN_PDFTOTEXT`, `BRN_PDFIMAGES`. The default Mac test suite includes the source inventories and transient-cleanup witnesses.
+
+`verify-storage.sh` covers default formatting/build/lint/tests. `verify-end-to-end.sh` adds fresh CLI/desktop Save, recovery, search, export/backup, startup and foreign-data refusal. `verify-desktop-shell.sh` compiles/lints/tests native state. The 5,000-note witness in `brn-threads-app/tests/user_scale.rs` proves current-revision search refresh and archive exclusion. Older standalone experiments remain historical evidence, with no production engine dependency.

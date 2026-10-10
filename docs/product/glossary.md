@@ -26,7 +26,7 @@ Compact definitions of settled product concepts. [Product Vision](https://github
 
 **Recovery:** reconciling an interrupted or uncertain operation from its retained evidence. **Undo:** an explicit recent inverse of an applied operation where supported, preserving later work and refusing conflicts. Recovery is not another approval and Undo is not a guessed rollback. [Authority](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/product/BRN_PRODUCT_VISION.md#33-version-history-and-recovery).
 
-**Action:** retained operational work with lifecycle, responsibility and relationships; new related follow-up work is a new Action. **Finding:** a tentative review issue with evidence; closing it changes review state, not knowledge or Action completion. [Action authority](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/product/BRN_PRODUCT_VISION.md#12-actions), [Finding contract](../../crates/brn-workflow/README.md#tentative-review-findings).
+**Action:** retained operational work with lifecycle, responsibility and relationships; new related follow-up work is a new Action. **Finding:** a tentative review issue with evidence; closing it changes review state, not knowledge or Action completion. [Action authority](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/product/BRN_PRODUCT_VISION.md#12-actions), [Finding contract](https://github.com/ewq100/brn-rust/blob/a1c61e245ec90a0eed98ffc5bbfcab57ddeb1926/crates/brn-workflow/README.md#tentative-review-findings).
 
 ## Removal and lifecycle
 
@@ -34,4 +34,4 @@ Compact definitions of settled product concepts. [Product Vision](https://github
 
 **Delete:** the explicit removal operation for the named object; permanent deletion is a separate explicit action for important knowledge. Session Delete must warn about likely uncaptured outcomes and preserve captured durable knowledge. [Authority](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/product/BRN_PRODUCT_VISION.md#193-session-lifecycle).
 
-**Restore:** return retained material or state in a named context: session restoration, Trash restoration, original-copy restoration or interrupted-operation repair. Always name that context; do not infer one from another. [Recovery contract](../../crates/brn-workflow/README.md#explicit-interrupted-operation-repair).
+**Restore:** return retained material or state in a named context: session restoration, Trash restoration, original-copy restoration or interrupted-operation repair. Always name that context; do not infer one from another. [Recovery contract](https://github.com/ewq100/brn-rust/blob/a1c61e245ec90a0eed98ffc5bbfcab57ddeb1926/crates/brn-workflow/README.md#explicit-interrupted-operation-repair).

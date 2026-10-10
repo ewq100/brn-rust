@@ -1,0 +1,18 @@
+# Native candidate acceptance task
+
+This is the single pending Mac interaction task. The target Mac reported locked; no unlock was attempted. Native compilation and state tests passed, but these interactions and owner acceptance have not occurred.
+
+The unsigned local candidate is `BRN Threads Candidate.app` under `/Users/evokessler/repos/BRN-local-builds/threads-20261010`. Its launcher selects only fresh `data/native-candidate-schema3`. The helper is bundled; Poppler is installed on this Mac. It uses the owner-selected Codex / gpt-6.1-sol / medium route and normal Codex subscription credentials in memory. No release or external sending is enabled.
+
+When the Mac becomes available, run this task without opening old BRN data:
+
+1. Open the candidate. Inspect Home, Needs you, Notes, Actions, History and Settings. Open the synthetic long note: headings, repeated phrases, Estonian characters, wide table and a managed figure. Scroll, select/copy, type with IME, use editor Undo, navigate sections and current search, and exercise dialogs/keyboard focus. Verify figures display from stored bytes.
+2. Read a note without creating a dirty guard. Type, then verify a proposed grouped change is deferred. Save and reopen; confirm the exact text persists. Simulate an abrupt close with unsaved text; reopen and recover it. A stale Save must retain the typed buffer and explain the conflict.
+3. Select the second repeated occurrence and attach a comment. Edit before it and Save/reopen: verify the known mapping still identifies that occurrence. Edit inside/delete the quoted passage: verify unresolved status without guessing another occurrence. Check comment context and linked thread.
+4. Compare current/proposed protected-note text. Edit the proposed text, prepare its new immutable version, then apply. Change the current note first and verify stale refusal. Dismiss the stale proposal, preserve current text and unrelated questions, then prepare a fresh proposal. Check history and Undo: immediate Undo succeeds; later edits remain preserved on conflict.
+5. Use both intake choices with the ordinary [PDF](../../../../crates/brn-threads-intake/tests/fixtures/harbor-study.pdf) and [DOCX](../../../../crates/brn-threads-intake/tests/fixtures/harbor-process.docx). Compare prose, tables, figures and references with their inventory files. Full notes start protected. A user import without an independent checked inventory shows Partial; never infer universal completeness. Originals remain external.
+6. Ask on synthetic Harbor work, stop it, then Continue. Verify fresh work uses the same thread, saved progress/current notes and actual receipts; no duplicate effect. Reopen a saved Working run without a local worker and verify Continue is available with honest unconfirmed status. Pause/change settings while work is running and verify old results cannot apply.
+7. Keep a waiting human Action linked to a discussion; resolve the discussion and verify the Action remains. Confirm human completion only through an explicit owner action. A reply draft stays internal and unsent.
+8. Export to a fresh directory and inspect Markdown/figures. Back up and restore through the explicit fresh-data CLI path; verify notes, Actions, threads, assets and history. Occupied destinations must refuse without partial publication.
+
+Record candidate source commit, macOS/architecture, observations, failures and the owner's acceptance separately in [evidence](evidence.md). Fix concrete defects with bounded checks. Compiler 1.99 adoption still needs the interaction gate; the candidate deliberately remains on the qualified 1.98.1 pin. Do not merge or release without the applicable owner instruction.

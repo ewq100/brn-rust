@@ -3,13 +3,13 @@
 > **Baseline reference for the Threads rebuild.** This document describes the pre-Threads implementation or historical evidence. The [canonical Threads target](threads-target.md) owns the replacement contract. Inspect this material for component reuse; do not resume its old tasks or infer current authorization from it. Update this local contract when its implementation is replaced.
 
 This is the current V1 file contract, consolidated from the implementation and
-[workflow contract](../../crates/brn-workflow/README.md#typed-proposal-review-foundation).
+[workflow contract](https://github.com/ewq100/brn-rust/blob/a1c61e245ec90a0eed98ffc5bbfcab57ddeb1926/crates/brn-workflow/README.md#typed-proposal-review-foundation).
 It documents existing bytes and authority; it introduces no format migration.
 The [ownership model](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/architecture/overview.md#frozen-target),
 [invariants](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/architecture/invariants.md#frozen-target-guarantees) and
 [semantic intelligence and deterministic authority](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/architecture/overview.md#semantic-intelligence-and-deterministic-authority)
 govern interpretation and changes. Operational proposals, review comments,
-sessions and recovery records belong to [WorkStore](../../crates/brn-store/README.md),
+sessions and recovery records belong to [WorkStore](https://github.com/ewq100/brn-rust/blob/a1c61e245ec90a0eed98ffc5bbfcab57ddeb1926/crates/brn-store/README.md),
 not additional note fields.
 
 ## Files and byte preservation
@@ -43,7 +43,7 @@ Duplicate managed keys, recognizable unsupported key layouts, malformed managed
 values and incomplete managed headers are refused rather than interpreted as
 absent. Unrelated fields remain opaque; unmanaged Markdown thematic breaks are
 not automatically frontmatter. See the shared
-[field reader](../../crates/brn-store/src/note_identity.rs).
+[field reader](https://github.com/ewq100/brn-rust/blob/a1c61e245ec90a0eed98ffc5bbfcab57ddeb1926/crates/brn-store/src/note_identity.rs).
 
 | Field | Current value and meaning |
 | --- | --- |
@@ -87,8 +87,8 @@ including archives, subject to the same size, UTF-8, file/path and unresolved
 Save/application fences. Identity inventory separately reports duplicates and
 incomplete inspection; unreadable or oversized evidence cannot certify UUID
 uniqueness/absence. The
-[classification reader](../../crates/brn-store/src/note_metadata.rs) and
-[saved metadata derivation](../../crates/brn-workflow/src/library.rs) implement
+[classification reader](https://github.com/ewq100/brn-rust/blob/a1c61e245ec90a0eed98ffc5bbfcab57ddeb1926/crates/brn-store/src/note_metadata.rs) and
+[saved metadata derivation](https://github.com/ewq100/brn-rust/blob/a1c61e245ec90a0eed98ffc5bbfcab57ddeb1926/crates/brn-workflow/src/library.rs) implement
 these rules. `brn_inbox_source` additionally has its own strict provenance reader
 and bound Source validation; do not infer that successful indexing validates an
 original-copy conversion proof.
@@ -103,7 +103,7 @@ fields in generated order; the optional visual profile precedes the common field
 
 | JSON field | Current encoding |
 | --- | --- |
-| `visual` | Omitted for text-only profiles; required object for `docx_inline_png_v1`, retaining exact original asset/occurrence proof; separately approved interpretation lives in the Source body. Nested shape is owned by [InboxSourceVisual](../../crates/brn-store/src/work/inbox_visual.rs). |
+| `visual` | Omitted for text-only profiles; required object for `docx_inline_png_v1`, retaining exact original asset/occurrence proof; separately approved interpretation lives in the Source body. Nested shape is owned by [InboxSourceVisual](https://github.com/ewq100/brn-rust/blob/a1c61e245ec90a0eed98ffc5bbfcab57ddeb1926/crates/brn-store/src/work/inbox_visual.rs). |
 | `item_id` | Nonnil original Inbox item UUID. |
 | `kind` | `text`, `markdown`, `email`, `teams` or `binary`; all are deliberate retained copies. |
 | `title` | Nonempty title, at most 512 UTF-8 bytes, without control characters. |
@@ -123,8 +123,8 @@ bytes. Conversion and complete Source-wrapper size checks refuse overflow withou
 truncation. Bound Source proposals protect exact generated header/body proof
 through review and application. Conversion alone does not establish semantic
 completeness, approved knowledge or original-removal authority. See
-[Source binding](../../crates/brn-store/src/work/inbox_source.rs) and
-[conversion](../../crates/brn-workflow/src/inbox_processing.rs).
+[Source binding](https://github.com/ewq100/brn-rust/blob/a1c61e245ec90a0eed98ffc5bbfcab57ddeb1926/crates/brn-store/src/work/inbox_source.rs) and
+[conversion](https://github.com/ewq100/brn-rust/blob/a1c61e245ec90a0eed98ffc5bbfcab57ddeb1926/crates/brn-workflow/src/inbox_processing.rs).
 
 `docx_text_v1` is deterministic Markdown for the
 [bounded DOCX text/structure profile](../work/active/office-inbox/plan.md#next-slice-bounded-docx-text-source):
@@ -138,8 +138,8 @@ container, with no generic archive intake or extraction.
 
 The additional `docx_inline_png_v1` profile retains exact PNG asset bytes and
 occurrence proof with the Source. The text-only JSON example below omits `visual`. The
-[typed Source binding](../../crates/brn-store/src/work/inbox_source.rs)
-owns that shape, and [visual workflow](../../crates/brn-workflow/src/inbox_actions/visual.rs)
+[typed Source binding](https://github.com/ewq100/brn-rust/blob/a1c61e245ec90a0eed98ffc5bbfcab57ddeb1926/crates/brn-store/src/work/inbox_source.rs)
+owns that shape, and [visual workflow](https://github.com/ewq100/brn-rust/blob/a1c61e245ec90a0eed98ffc5bbfcab57ddeb1926/crates/brn-workflow/src/inbox_actions/visual.rs)
 owns separately approved annotation. Annotation adds interpretation while preserving
 the original Source/image proof; it never establishes complete Office preservation.
 
@@ -160,8 +160,8 @@ New/changed references require exact saved evidence validation through proposal
 approval. Unchanged historical references may remain readable when their source
 has changed. Citations prove retained wording/version relationships, not that a
 source claim is true. See
-[citation representation](../../crates/brn-store/src/note_provenance.rs) and
-[workflow inspection](../../crates/brn-workflow/src/knowledge/provenance.rs).
+[citation representation](https://github.com/ewq100/brn-rust/blob/a1c61e245ec90a0eed98ffc5bbfcab57ddeb1926/crates/brn-store/src/note_provenance.rs) and
+[workflow inspection](https://github.com/ewq100/brn-rust/blob/a1c61e245ec90a0eed98ffc5bbfcab57ddeb1926/crates/brn-workflow/src/knowledge/provenance.rs).
 
 ## Links and supersession
 
@@ -186,7 +186,7 @@ trailing LF):
 The escapes above denote bytes; `PREDECESSOR_UUID` is replaced by the predecessor's
 canonical UUID. The footer must parse as an actual Markdown link outside code/HTML;
 it is not a separate managed field or an automatic archive-directory move. See
-[supersession preparation](../../crates/brn-workflow/src/inbox_actions/knowledge.rs).
+[supersession preparation](https://github.com/ewq100/brn-rust/blob/a1c61e245ec90a0eed98ffc5bbfcab57ddeb1926/crates/brn-workflow/src/inbox_actions/knowledge.rs).
 
 ## Synthetic byte examples
 

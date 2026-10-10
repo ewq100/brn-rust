@@ -1,22 +1,17 @@
 # BRN Threads status
 
-**Updated:** 11 October 2026. **Branch:** `rebuild/threads`. **Working draft:** [PR #114](https://github.com/ewq100/brn-rust/pull/114).
+**Updated:** 11 October 2026. **Branch:** `rebuild/threads`. **Draft:** [PR #114](https://github.com/ewq100/brn-rust/pull/114).
 
 | Area | Actual state |
 |---|---|
-| Fixed reference baseline | `af9239c741c7ab0983e62f0253e607b9607727e6`, including PR #113. |
-| Rebuild setup | Build assigned on the owner’s Mac; isolated checkout at `/Users/evokessler/repos/brn-threads`. [Implementation record](work/active/threads-rebuild/implementation.md) tracks current slices and reuse/deletion boundaries. |
-| Independent review | Opus report received at `a2af886e5442af0cfa4b8884181446c7d98d1eea`; verdict ready with specified corrections. [Lead dispositions](work/active/threads-rebuild/review.md#build-lead-dispositions) resolve the findings into the target and plan. |
-| Thread and agent design | [Concrete behavior](architecture/threads-behavior.md) defines thread/attention/run/Action boundaries and packaged runtime guidance. Packaged runtime guide/skill text is written; loader/runtime qualification is in progress. |
-| Import clarification | Full readable prose/structure, tables and meaningful figures remain required. Mathematical equation conversion/typesetting is outside the first release. |
-| Dependencies | Rust1.99 unchanged-lock builds/lints/state tests passed; pin stays1.98.1 pending interaction. Rig0.44 has a reproduced malformed-stream blocker;0.43 patch remains. Kit0.7.1 source/build trial passed; consumer upgrade is in progress. |
-| New core and runtime | M1 final-use core has38 passing locked tests and scoped review fixes. Transient PDF/DOCX/EML/Markdown intake has10 passing acceptance tests. Runtime/app consumer switch is in progress. |
-| Checks and machine | See [evidence](work/active/threads-rebuild/evidence.md). Actual Mac preflight found Rustup, protoc and Apple tools. Compiler/library trials are recorded in evidence. Mac is locked; native interaction pending. |
-| Product verification and owner acceptance | Offline core/import evidence exists. New runtime live smoke passed through Codex/gpt-6.1-sol. Native interaction and owner acceptance are pending. |
-| Integration | PR #114 remains a draft. No rebuild merge or release is implied. |
+| Candidate | Final-use SQLite core, shared application service, fixed agent guides/runtime, thin CLI and native Threads views implemented. Superseded store/workflow/desktop/CLI routes removed. |
+| Core | 38 locked integrity tests; immutable host identity/requests, atomic commits/receipts, exact grants, persistent Save guards/generations, protected changes, actual-write Undo, backup/restore and foreign-data refusal. |
+| Runtime and intake | Owner-selected Codex / gpt-6.1-sol / medium passed live smoke, useful email → note/Action, fresh continuation → internal reply draft, and protected conflict. Ordinary PDF/DOCX inventories and retained figures pass; raw originals remain external. |
+| Local qualification | 301 workspace tests passed, 3 intentional child/provider ignores; 168 provider capability tests passed, 1 intentional process child ignore; 14 native state tests; 15 native retrieval tests; 13 app tests with native retrieval. Locked builds/Clippy, offline entry-point journey, 18 tooling tests and launcher checks passed. |
+| Dependencies | Rust1.99 unchanged-lock qualification recorded; pin stays1.98.1 pending interaction. Rig0.44 malformed-stream blocker keeps0.43 patch. Kit0.7.1 / GPUI0.3.8 adopted and combined native build passed. Advisory audit: zero vulnerabilities; informational maintenance findings traced in evidence. |
+| Native acceptance | Unsigned local candidate assembled with fresh synthetic data. Mac reported locked; no unlock attempted. [One interaction task](work/active/threads-rebuild/acceptance.md) remains pending. Compilation/state tests are not observed native usability or owner acceptance. |
+| Evidence and integration | [Evidence](work/active/threads-rebuild/evidence.md) records source identity, scoped review fixes, checks and limits. PR remains draft; hosted result and tested source commit recorded at handoff. No main merge or release. |
 
 ## Next action
 
-Continue the assigned [plan](work/active/threads-rebuild/plan.md): finish runtime/app/native consumer qualification and coherent retirement, run remaining headless/live journeys, and record the tested source commit. One hands-on Mac interaction task remains pending; no unlock attempted.
-
-Only the Threads rebuild is current. Older plans and unrelated PRs are historical or separate work.
+Complete the single Mac interaction task when the session is available; record observed behavior and owner acceptance, fix concrete failures, and finish required hosted checks. Do not open old user data or merge/release without the applicable instruction. Only this Threads rebuild is current; other plans/worktrees remain separate.

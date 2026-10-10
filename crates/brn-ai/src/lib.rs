@@ -1,32 +1,47 @@
+#[cfg(any(test, feature = "capability-spike"))]
 mod action_candidates;
 mod auth;
+#[cfg(any(test, feature = "capability-spike"))]
 mod behavior;
 #[cfg(any(test, feature = "capability-spike"))]
 pub mod capability_probe;
 mod chat;
+pub mod codex_auth;
 mod error;
+#[cfg(any(test, feature = "capability-spike"))]
 mod proposal_tools;
+#[cfg(any(test, feature = "capability-spike"))]
+mod provider_fixture_runtime;
 #[cfg(test)]
 mod provider_formats_tests;
+pub mod threads;
+pub mod threads_guides;
+#[cfg(any(test, feature = "capability-spike"))]
 mod tools;
+#[cfg(any(test, feature = "capability-spike"))]
 mod visual;
 
+#[cfg(any(test, feature = "capability-spike"))]
 pub use visual::{VisualImage, interpret_visual};
 
+#[cfg(any(test, feature = "capability-spike"))]
 pub use action_candidates::{
     ActionCandidate, ActionCandidateData, ActionCandidatePriority, ActionCandidateState, ActionRef,
     CheckedActionRef,
 };
 pub use auth::{Auth, ProviderClient};
-pub use chat::{
-    AiAnswer, AiEvent, AiTerminal, HistoryPair, MAX_REWRITE_BYTES, ReasoningEffort, answer,
-    answer_with_effort, answer_with_proposals, answer_with_proposals_and_images,
-    answer_with_proposals_and_images_with_limit, rewrite,
-};
+pub use chat::{AiAnswer, AiEvent, AiTerminal, HistoryPair, MAX_REWRITE_BYTES, ReasoningEffort};
+#[cfg(any(test, feature = "capability-spike"))]
 pub use proposal_tools::{
     ACTION_PROPOSAL_BYTES, ActionProposalArgs, CONFLICT_REPORT_BYTES, ConflictArgs, ConflictQuote,
     KNOWLEDGE_PROPOSAL_BYTES, KnowledgeProposalArgs, KnowledgeQuoteArgs, ProposalTools,
 };
+#[cfg(any(test, feature = "capability-spike"))]
+pub use provider_fixture_runtime::{
+    answer, answer_with_effort, answer_with_proposals, answer_with_proposals_and_images,
+    answer_with_proposals_and_images_with_limit, rewrite,
+};
+#[cfg(any(test, feature = "capability-spike"))]
 pub use tools::{
     ConflictKnowledge, NoteEntry, NoteFacts, NotePage, NoteRangeRequest, Passage,
     READ_ACTION_BYTES, READ_NOTE_BYTES, RawEvidence, RawEvidenceRequest, ReadScope, ReadTools,

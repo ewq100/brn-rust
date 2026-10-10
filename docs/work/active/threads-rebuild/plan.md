@@ -157,3 +157,10 @@ DOCX/PPTX/HTML generation is required later. Direct external sending, broad conn
 Use this plan and [status](../../../status.md) across sessions. Record exact current HEAD, completed proofs, relevant environment, unresolved findings, and next action. Commit/push task-owned milestones without waiting for ceremonial approval. Fetch and reconcile concurrent remote changes without force-pushing.
 
 [Setup evidence](evidence.md) records what this preparation actually checked. The [review record](review.md) preserves the independent report and completed lead dispositions; implementation proofs remain to be run.
+
+
+## Candidate execution update, 11 October 2026
+
+M1 is committed at `ca0342bc0437af293b26cf0b891bc14c85227875`; its archived committed core passed38 tests. M2 and M3 implementation now use the new shared service/runtime and native views; the old store/workflow and coupled entry points are removed. Local M4 headless/provider/import/native-build qualification passed; see [evidence](evidence.md) for exact source commit and results. The UI uses Kit0.7.1/GPUI0.3.8. Rig0.44 is blocked by demonstrated malformed-stream continuation, so0.43 plus its existing logging patch stays. Rust1.99 qualification against the original lock is recorded, but the pin remains1.98.1 until the planned interaction gate. No broad dependency update or new engine was added.
+
+The unsigned candidate and one pending [native acceptance task](acceptance.md) are ready. The Mac reported locked, so native interaction and owner acceptance are pending; no unlock attempted. Hosted checks, source publication and remaining limitations are recorded independently. PR #114 remains draft; no main merge or release.

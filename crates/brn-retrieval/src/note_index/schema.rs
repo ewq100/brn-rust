@@ -105,6 +105,19 @@ pub(super) fn open(path: &Path) -> Result<(Connection, bool)> {
     Ok((conn, true))
 }
 
+/// Disposable process-local index over current database revisions.
+pub(super) fn memory() -> Result<Connection> {
+    let mut conn = Connection::open_in_memory()?;
+    configure(&conn)?;
+    let tx = conn.transaction()?;
+    tx.execute_batch(SCHEMA)?;
+    tx.execute_batch(super::edges::SCHEMA)?;
+    tx.pragma_update(None, "application_id", APPLICATION_ID)?;
+    tx.pragma_update(None, "user_version", VERSION)?;
+    tx.commit()?;
+    Ok(conn)
+}
+
 enum Found {
     Usable(Connection),
     Rebuild,

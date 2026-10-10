@@ -216,6 +216,6 @@ Technical grounding:
 
 - [Apple: ensuring safe read/write operations with file coordinators](https://developer.apple.com/library/archive/documentation/FileManagement/Conceptual/FileSystemProgrammingGuide/FileCoordinators/FileCoordinators.html): coordinator/presenter participation and lifecycle.
 - Local macOS `man 2 rename`, inspected 1 October 2026: `RENAME_SWAP`, `RENAME_EXCL`, no-follow/containment flags, filesystem capability checks and missing-destination behavior. Atomic exchange is not content-hash compare-and-replace.
-- [Workflow implementation](../../../crates/brn-workflow/src/lib.rs): current import, snapshot eligibility/evidence validation and provider-thread resume.
-- [Store implementation](../../../crates/brn-store/src/lib.rs): exclusive workspace ownership, durability and interrupted-operation marking.
+- [Workflow implementation](https://github.com/ewq100/brn-rust/blob/a1c61e245ec90a0eed98ffc5bbfcab57ddeb1926/crates/brn-workflow/src/lib.rs): current import, snapshot eligibility/evidence validation and provider-thread resume.
+- [Store implementation](https://github.com/ewq100/brn-rust/blob/a1c61e245ec90a0eed98ffc5bbfcab57ddeb1926/crates/brn-store/src/lib.rs): exclusive workspace ownership, durability and interrupted-operation marking.
 - [Desktop draft state](../../../crates/brn-desktop/src/drafts.rs): generation-aware submission and acknowledgements that preserve later edits.

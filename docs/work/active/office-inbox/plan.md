@@ -247,7 +247,7 @@ Clippy passed at837c7f6; remaining native commands are still running. No failed
 attempt is rewritten as successful. Known block0.1.6 future-compiler warning stays
 separate. Exact-head CI/normal integration and fresh merged verification follow.
 
-The [CLI contract](../../../../crates/brn/README.md#typed-review-foundation) contains
+The [CLI contract](https://github.com/ewq100/brn-rust/blob/a1c61e245ec90a0eed98ffc5bbfcab57ddeb1926/crates/brn/README.md#typed-review-foundation) contains
 a disposable-data owner scenario. Native GUI/live/real-model/owner acceptance,
 Office conversion and binary cleanup remain pending; no original is removed.
 

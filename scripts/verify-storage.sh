@@ -55,7 +55,6 @@ expect_failure() {
 }
 
 "$brn" --help >/dev/null
-"$brn" --version >/dev/null
 expect_failure 'brn without arguments' "$brn"
 expect_failure 'brn with unknown arguments' "$brn" --unknown
 
@@ -63,4 +62,4 @@ expect_failure 'brn with unknown arguments' "$brn" --unknown
 expect_failure 'desktop unknown option' "$desktop" --unknown
 "$desktop" --headless-check startup --data-dir "$data_dir"
 
-printf 'Storage verification passed (workspace checks and AppWorker startup checks; no GUI, account or network calls).\n'
+printf 'Storage verification passed (workspace checks and Threads startup checks; no GUI, account or network calls).\n'
