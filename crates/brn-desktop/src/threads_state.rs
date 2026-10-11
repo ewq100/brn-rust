@@ -2,7 +2,60 @@
 use brn_threads_app::{
     ApplyOutcome, Comment, Receipt, Record, RecordData, RunState, SaveOutcome, ThreadState,
 };
-use std::ops::Range;
+use std::{collections::BTreeMap, ops::Range};
+
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub(super) enum ComposerDestination {
+    Home,
+    Thread(String),
+}
+
+/// Session drafts are keyed by the same destination used when posting.
+#[derive(Default)]
+pub(super) struct ComposerDrafts(BTreeMap<ComposerDestination, String>);
+impl ComposerDrafts {
+    pub(super) fn preserve(&mut self, destination: ComposerDestination, text: String) {
+        if text.is_empty() {
+            self.0.remove(&destination);
+        } else {
+            self.0.insert(destination, text);
+        }
+    }
+    pub(super) fn text(&self, destination: &ComposerDestination) -> &str {
+        self.0.get(destination).map(String::as_str).unwrap_or("")
+    }
+    pub(super) fn posted(&mut self, destination: &ComposerDestination) {
+        self.0.remove(destination);
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) enum WorkerKind {
+    Run,
+    Import,
+    Export,
+    Backup,
+}
+impl WorkerKind {
+    pub(super) fn can_cancel(self) -> bool {
+        matches!(self, Self::Run | Self::Import)
+    }
+    pub(super) fn status(self, progress: &str) -> String {
+        match self {
+            Self::Run | Self::Import => progress.into(),
+            Self::Export => "Finishing Markdown export… Please wait for completion.".into(),
+            Self::Backup => "Finishing full backup… Please wait for completion.".into(),
+        }
+    }
+    pub(super) fn busy_notice(self) -> &'static str {
+        match self {
+            Self::Run => "Finish or stop the current run before starting other work.",
+            Self::Import => "Finish or stop the current import before starting other work.",
+            Self::Export => "Wait for the Markdown export to finish before starting other work.",
+            Self::Backup => "Wait for the full backup to finish before starting other work.",
+        }
+    }
+}
 
 /// Creation receipts, rather than IDs or a late progress write, identify the
 /// latest invocation. Opening the UI never changes its persisted status.
@@ -115,6 +168,7 @@ pub(super) fn passage_request(
         inputs: vec![RevisionInput {
             record: note.into(),
             version,
+            expectation: brn_threads_app::InputExpectation::Current,
         }],
     };
     (thread, request)
@@ -218,6 +272,35 @@ pub(super) fn sections(text: &str) -> Vec<(String, Range<usize>)> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn posting_clears_only_the_submitted_destination_draft() {
+        let mut drafts = ComposerDrafts::default();
+        let a = ComposerDestination::Thread("A".into());
+        let b = ComposerDestination::Thread("B".into());
+        drafts.preserve(ComposerDestination::Home, "Home õun".into());
+        drafts.preserve(a.clone(), "A draft".into());
+        drafts.preserve(b.clone(), "B draft".into());
+        drafts.posted(&a);
+        assert_eq!(drafts.text(&a), "");
+        assert_eq!(drafts.text(&b), "B draft");
+        assert_eq!(drafts.text(&ComposerDestination::Home), "Home õun");
+        drafts.preserve(b.clone(), "".into());
+        assert_eq!(drafts.text(&b), "");
+    }
+    #[test]
+    fn only_cancellable_workers_offer_stop_and_portable_outputs_explain_finishing() {
+        for kind in [WorkerKind::Run, WorkerKind::Import] {
+            assert!(kind.can_cancel());
+            assert_eq!(kind.status("Actual progress"), "Actual progress");
+            assert!(kind.busy_notice().contains("stop"));
+        }
+        for kind in [WorkerKind::Export, WorkerKind::Backup] {
+            assert!(!kind.can_cancel());
+            assert!(kind.status("Actual progress").starts_with("Finishing"));
+            assert!(kind.busy_notice().starts_with("Wait for"));
+            assert!(!kind.busy_notice().contains("stop"));
+        }
+    }
     #[test]
     fn saved_working_run_can_continue_only_without_a_local_worker_and_in_an_open_thread() {
         assert!(can_continue(&RunState::Working, &ThreadState::Open, false));

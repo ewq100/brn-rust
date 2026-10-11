@@ -55,8 +55,18 @@ response, while preserving unrelated questions/reviews. Explicit owner dismissal
 
 Export stages and verifies current Markdown and retained assets, then publishes
 with an exclusive directory rename. Occupied paths and missing managed figures
-leave no partial published snapshot. SQLite backup restores the complete state
-into an explicit fresh directory; search is rebuilt after opening restored state.
+leave no partial published snapshot. Each note starts with a YAML front matter
+wrapper containing its title and `sources` (an empty list for plain notes). Import
+provenance and active note-to-source links supply deduplicated source record IDs,
+external locators, and descriptive labels. Strings use JSON double-quoted scalar
+escaping, preserving quotes, newlines, Unicode, and YAML delimiters. Source
+observation/version fields are omitted because a later observation can advance
+the Source while an imported note retains earlier content. The original Markdown
+body follows the wrapper unchanged except for portable managed-asset links;
+existing body front matter is preserved without parsing. Manifest hashes cover
+the complete exported bytes, including the wrapper. SQLite backup restores the
+complete state into an explicit fresh directory; search is rebuilt after opening
+restored state.
 
 The core now uses schema version 3 for durable host-input and candidate-replacement binding; earlier
 synthetic Threads databases are refused safely, without migration. Save maps

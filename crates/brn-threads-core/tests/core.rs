@@ -355,6 +355,7 @@ fn undo_checks_actual_write_set_preserves_link_later_edits_and_lists_direct_depe
         RecordData::Note(Note::working("summary", "based on AI A")),
     )]);
     req.inputs.push(RevisionInput {
+        expectation: InputExpectation::Current,
         record: a.id.clone(),
         version: 2,
     });
@@ -422,6 +423,7 @@ fn meaningful_newer_inputs_flag_current_direct_note_and_action_dependents_only()
         ),
     ]);
     req.inputs.push(RevisionInput {
+        expectation: InputExpectation::Current,
         record: input.id.clone(),
         version: 1,
     });
@@ -465,6 +467,7 @@ fn meaningful_newer_inputs_flag_current_direct_note_and_action_dependents_only()
         RecordData::Note(Note::working("indirect", "derived from direct summary")),
     )]);
     req.inputs.push(RevisionInput {
+        expectation: InputExpectation::Current,
         record: derived.creation_id(0),
         version: 2,
     });
@@ -518,6 +521,7 @@ fn meaningful_newer_inputs_flag_current_direct_note_and_action_dependents_only()
         edited(&summary, change_text(&summary, "Refreshed atomically")),
     ]);
     req.inputs.push(RevisionInput {
+        expectation: InputExpectation::Current,
         record: input.id.clone(),
         version: input.version,
     });
@@ -559,6 +563,7 @@ fn source_observation_metadata_does_not_refresh_but_new_external_version_does() 
         RecordData::Note(Note::working("summary", "v1 study evidence")),
     )]);
     req.inputs.push(RevisionInput {
+        expectation: InputExpectation::Current,
         record: source.id.clone(),
         version: 1,
     });
@@ -604,6 +609,7 @@ fn undo_restores_exact_direct_input_footing_even_when_derived_text_was_identical
             RecordData::Note(Note::working("summary", "Original derived writing")),
         )]);
         req.inputs.push(RevisionInput {
+            expectation: InputExpectation::Current,
             record: input_a.id.clone(),
             version: input_a.version,
         });
@@ -612,6 +618,7 @@ fn undo_restores_exact_direct_input_footing_even_when_derived_text_was_identical
         let second = store.allocate_operation("summary now from B").unwrap();
         let mut req = request(vec![edited(&current, change_text(&current, second_text))]);
         req.inputs.push(RevisionInput {
+            expectation: InputExpectation::Current,
             record: input_b.id.clone(),
             version: input_b.version,
         });

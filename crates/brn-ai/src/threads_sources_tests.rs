@@ -697,6 +697,7 @@ fn action_source_input_guard_checks_used_source_without_blocking_unused_source()
                             }),
                         }],
                         inputs: vec![RevisionInput {
+                            expectation: InputExpectation::Current,
                             record: used.id.clone(),
                             version: used.version,
                         }],

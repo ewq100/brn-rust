@@ -79,6 +79,7 @@ fn runtime_refresh_checks_family_fence_all_versions_and_preserves_apply_authorit
             data: RecordData::Note(proposed.clone()),
         }],
         inputs: vec![RevisionInput {
+            expectation: InputExpectation::Current,
             record: note.clone(),
             version: 1,
         }],

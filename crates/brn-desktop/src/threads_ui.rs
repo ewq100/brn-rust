@@ -36,8 +36,9 @@ use tokio_util::sync::CancellationToken;
 #[path = "threads_state.rs"]
 mod state;
 use state::{
-    can_continue, comment_location, continuation_notice, latest_run, linked, outcome_message,
-    passage_request, save_message, sections,
+    ComposerDestination, ComposerDrafts, WorkerKind, can_continue, comment_location,
+    continuation_notice, latest_run, linked, outcome_message, passage_request, save_message,
+    sections,
 };
 
 #[cfg(all(test, feature = "native-test-support"))]
@@ -128,7 +129,7 @@ gpui_kit::actions!(
     [Save, Ask, Home, NewNote, FocusAsk, Cancel, Quit]
 );
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 enum Page {
     Home,
     Thread(String),
@@ -136,6 +137,14 @@ enum Page {
     History,
     Settings,
     Actions,
+}
+impl Page {
+    fn composer_destination(&self) -> ComposerDestination {
+        match self {
+            Self::Thread(id) => ComposerDestination::Thread(id.clone()),
+            _ => ComposerDestination::Home,
+        }
+    }
 }
 struct OpenNote {
     record: Record,
@@ -159,13 +168,6 @@ enum WorkerEvent {
         result: Box<Result<ConversionResult, String>>,
         title: String,
     },
-}
-#[derive(Clone, Copy)]
-enum WorkerKind {
-    Run,
-    Import,
-    Export,
-    Backup,
 }
 struct Worker {
     receiver: Receiver<WorkerEvent>,
@@ -274,6 +276,7 @@ struct ThreadsUi {
     candidates: Vec<Prepared>,
     buffers: Vec<EditSession>,
     composer: Entity<EditorState>,
+    composer_drafts: ComposerDrafts,
     note_editor: Entity<EditorState>,
     note_view: Entity<TextViewState>,
     current_view: Entity<TextViewState>,
@@ -401,6 +404,7 @@ impl ThreadsUi {
             candidates: vec![],
             buffers: vec![],
             composer,
+            composer_drafts: ComposerDrafts::default(),
             note_editor,
             note_view,
             current_view,
@@ -501,10 +505,45 @@ impl ThreadsUi {
     fn navigate(&mut self, page: Page, window: &mut Window, cx: &mut Context<Self>) {
         self.preserve_visible_note_input(cx);
         window.blur(cx);
-        self.page = page;
+        self.change_page(page, window, cx);
         self.comment_anchor = None;
         self.refresh();
         cx.notify();
+    }
+    fn change_page(&mut self, page: Page, window: &mut Window, cx: &mut Context<Self>) {
+        let old = self.page.composer_destination();
+        let next = page.composer_destination();
+        self.composer_drafts
+            .preserve(old.clone(), self.composer.read(cx).value().to_string());
+        if old != next {
+            let text = self.composer_drafts.text(&next).to_owned();
+            self.composer
+                .update(cx, |editor, cx| editor.set_value(text, window, cx));
+        }
+        self.page = page;
+    }
+    fn composer_destination_label(&self) -> String {
+        match &self.page {
+            Page::Thread(id) => {
+                let name = self
+                    .records
+                    .iter()
+                    .find(|record| record.id == *id)
+                    .map(title)
+                    .unwrap_or_else(|| id.clone());
+                format!("Send to thread: {}", name)
+            }
+            Page::Note(id) => {
+                let name = self
+                    .records
+                    .iter()
+                    .find(|record| record.id == *id)
+                    .map(title)
+                    .unwrap_or_else(|| id.clone());
+                format!("Start a new thread about: {}", name)
+            }
+            _ => "Start a new thread · Home draft".into(),
+        }
     }
     fn open_note(
         &mut self,
@@ -535,7 +574,7 @@ impl ThreadsUi {
                     .update(cx, |view, cx| view.set_text(&text, cx));
                 self.current_view
                     .update(cx, |view, cx| view.set_text(&note.markdown, cx));
-                self.page = Page::Note(id.into());
+                self.change_page(Page::Note(id.into()), window, cx);
                 self.comment_anchor = None;
                 self.focus_visible_editor(window, cx);
                 self.refresh();
@@ -908,8 +947,8 @@ impl ThreadsUi {
         owner_request: Option<brn_ai::threads::OwnerRequest>,
         cx: &mut Context<Self>,
     ) {
-        if self.worker.is_some() {
-            self.notice = "Stop the current run before starting another.".into();
+        if let Some(worker) = &self.worker {
+            self.notice = worker.kind.busy_notice().into();
             cx.notify();
             return;
         }
@@ -978,12 +1017,13 @@ impl ThreadsUi {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        if self.worker.is_some() {
-            self.notice = "Stop the current run before sending another instruction.".into();
+        if let Some(worker) = &self.worker {
+            self.notice = worker.kind.busy_notice().into();
             cx.notify();
             return;
         }
         let prompt = self.composer.read(cx).value().to_string();
+        let destination = self.page.composer_destination();
         if prompt.trim().is_empty() {
             return;
         }
@@ -1019,9 +1059,10 @@ impl ThreadsUi {
                 .map(|_| thread)
         }) {
             Ok(thread) => {
-                self.navigate(Page::Thread(thread.clone()), window, cx);
+                self.composer_drafts.posted(&destination);
                 self.composer
                     .update(cx, |e, cx| e.set_value("", window, cx));
+                self.navigate(Page::Thread(thread.clone()), window, cx);
                 self.start_run(prompt, thread, vec![], owner_request, cx);
             }
             Err(e) => self.notice = e.to_string(),
@@ -1033,7 +1074,9 @@ impl ThreadsUi {
         self.start_run("Continue the work from the saved conversation, current linked notes and recorded outcomes. Recheck current versions and authority.".into(),thread,vec![],None,cx);
     }
     fn cancel(&mut self, cx: &mut Context<Self>) {
-        if let Some(worker) = &self.worker {
+        if let Some(worker) = &self.worker
+            && worker.kind.can_cancel()
+        {
             worker.cancel.cancel();
             worker
                 .conversion_cancel
@@ -1219,8 +1262,8 @@ impl ThreadsUi {
         }
     }
     fn choose_import(&mut self, intent: ImportIntent, window: &mut Window, cx: &mut Context<Self>) {
-        if self.worker.is_some() {
-            self.notice = "Finish or stop the current work before importing.".into();
+        if let Some(worker) = &self.worker {
+            self.notice = worker.kind.busy_notice().into();
             cx.notify();
             return;
         }
@@ -1255,10 +1298,8 @@ impl ThreadsUi {
         intent: ImportIntent,
         cx: &mut Context<Self>,
     ) {
-        if self.worker.is_some() {
-            self.notice =
-                "Another piece of work started. Finish or stop it, then choose this file again."
-                    .into();
+        if let Some(worker) = &self.worker {
+            self.notice = format!("{} Then choose this file again.", worker.kind.busy_notice());
             cx.notify();
             return;
         }
@@ -1339,8 +1380,8 @@ impl ThreadsUi {
         cx.notify();
     }
     fn choose_output(&mut self, backup: bool, window: &mut Window, cx: &mut Context<Self>) {
-        if self.worker.is_some() {
-            self.notice = "Finish or stop the current work first.".into();
+        if let Some(worker) = &self.worker {
+            self.notice = worker.kind.busy_notice().into();
             cx.notify();
             return;
         }
@@ -1370,8 +1411,8 @@ impl ThreadsUi {
         .detach();
     }
     fn output(&mut self, parent: PathBuf, backup: bool, cx: &mut Context<Self>) {
-        if self.worker.is_some() {
-            self.notice = "Another piece of work started. Finish or stop it first.".into();
+        if let Some(worker) = &self.worker {
+            self.notice = worker.kind.busy_notice().into();
             cx.notify();
             return;
         }
@@ -2771,8 +2812,9 @@ impl Render for ThreadsUi {
             footer = footer.child(div().text_sm().child(self.notice.clone()));
         }
         if let Some(worker) = &self.worker {
+            let status = worker.kind.status(&self.progress);
             let progress = worker.thread.as_ref().map_or_else(
-                || self.progress.clone(),
+                || status.clone(),
                 |thread| {
                     let name = self
                         .records
@@ -2780,17 +2822,34 @@ impl Render for ThreadsUi {
                         .find(|record| &record.id == thread)
                         .map(title)
                         .unwrap_or_else(|| thread.clone());
-                    format!("Work in {} · {}", short(&name), self.progress)
+                    format!("Work in {} · {}", short(&name), status)
                 },
             );
-            footer = footer.child(
-                div().flex().gap_3().items_center().child(progress).child(
+            let mut controls = div().flex().gap_3().items_center().child(
+                div()
+                    .id("worker-status")
+                    .aria_label(progress.clone())
+                    .child(progress)
+                    .test_support(),
+            );
+            if worker.kind.can_cancel() {
+                controls = controls.child(
                     Button::new("stop-work")
                         .label("Stop")
                         .on_click(cx.listener(|this, _, _, cx| this.cancel(cx))),
-                ),
-            );
+                );
+            }
+            footer = footer.child(controls);
         }
+        let destination = self.composer_destination_label();
+        footer = footer.child(
+            div()
+                .id("composer-destination")
+                .text_sm()
+                .aria_label(destination.clone())
+                .child(destination)
+                .test_support(),
+        );
         footer = footer.child(
             div()
                 .flex()

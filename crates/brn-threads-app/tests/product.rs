@@ -89,6 +89,7 @@ fn selecting_action_group_keeps_shared_source_guard_and_refuses_newer_evidence()
         put(&source, source.data.clone()),
     ]);
     req.inputs.push(RevisionInput {
+        expectation: InputExpectation::Current,
         record: source.id.clone(),
         version: source.version,
     });
@@ -428,6 +429,7 @@ fn update_and_undo_expose_direct_work_and_one_recoverable_refresh_followup() {
         },
     ]);
     req.inputs.push(RevisionInput {
+        expectation: InputExpectation::Current,
         record: input.id.clone(),
         version: input.version,
     });
@@ -1278,4 +1280,87 @@ fn review_remap_requires_exact_known_asset_token_and_keeps_failed_original_activ
     );
     assert!(!note.markdown.contains(&original.creation_id(2)));
     outcome(app.review_apply(replacement.operation.as_str()).unwrap());
+}
+
+#[test]
+fn selected_review_groups_and_replacement_preserve_current_or_historical_note_inputs() {
+    for expectation in [InputExpectation::Current, InputExpectation::Historical] {
+        let (_dir, mut app) = workspace();
+        let input = app.new_note("Evidence", "Monday").unwrap();
+        let operation = app
+            .store
+            .allocate_operation("derived review groups")
+            .unwrap();
+        let note_id = operation.creation_id(0);
+        let action_id = operation.creation_id(1);
+        let mut proposed = request(vec![
+            Put {
+                id: note_id.clone(),
+                expected_version: None,
+                archived: false,
+                data: RecordData::Note(Note::working("Summary", "Delivery Monday")),
+            },
+            Put {
+                id: action_id.clone(),
+                expected_version: None,
+                archived: false,
+                data: RecordData::Action(Action {
+                    description: "Prepare delivery Monday".into(),
+                    state: ActionState::Suggested,
+                    internal: true,
+                    evidence: None,
+                    due: None,
+                }),
+            },
+        ]);
+        proposed.inputs.push(RevisionInput {
+            record: input.id.clone(),
+            version: input.version,
+            expectation,
+        });
+        app.store.prepare(&operation, &proposed).unwrap();
+        let selected = app.review_select(operation.as_str(), &[action_id]).unwrap();
+        assert_eq!(selected.request.inputs, proposed.inputs);
+        assert_eq!(selected.request.writes.len(), 1);
+        assert_eq!(
+            selected.request.writes[0].id,
+            selected.operation.creation_id(0)
+        );
+        outcome(
+            app.owner_change(
+                "Friday input",
+                &request(vec![put(
+                    &input,
+                    RecordData::Note(Note::working("Evidence", "Friday")),
+                )]),
+            )
+            .unwrap(),
+        );
+        let applied = app.review_apply(selected.operation.as_str()).unwrap();
+        match expectation {
+            InputExpectation::Current => {
+                assert_eq!(
+                    applied,
+                    ApplyOutcome::Stale {
+                        records: vec![input.id]
+                    }
+                );
+                assert!(app.store.receipt(&selected.operation).unwrap().is_none());
+                assert!(
+                    app.store
+                        .record(&selected.operation.creation_id(0))
+                        .unwrap()
+                        .is_none()
+                );
+            }
+            InputExpectation::Historical => {
+                let receipt = outcome(applied);
+                assert_eq!(receipt.writes.len(), 1);
+                assert!(
+                    matches!(&receipt.writes[0].after.data, RecordData::Action(action) if action.description == "Prepare delivery Monday")
+                );
+            }
+        }
+        assert!(app.store.record(&note_id).unwrap().is_none());
+    }
 }

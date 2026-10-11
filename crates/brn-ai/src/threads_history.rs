@@ -39,7 +39,9 @@ pub(super) fn read_history(scope: &Scope, args: HistoryArgs) -> AiResult<Value> 
             let note = store
                 .read_note_revision(&args.id, version, args.start, args.max_bytes)
                 .map_err(storage)?;
-            Ok(json!({"outcome":"HistoricalRevision","note":note}))
+            Ok(
+                json!({"outcome":"HistoricalRevision","note":note,"revision_input":RevisionInput { record: args.id, version, expectation: InputExpectation::Historical }}),
+            )
         }
         None => serde_json::to_value(
             store
@@ -65,8 +67,7 @@ pub(super) fn validate_refresh(args: &Value) -> bool {
                 "prepare_changes",
                 &json!({"request_key":parsed.request_key,"request":parsed.request}),
             )
-            && serde_json::to_value(&parsed.request)
-                .is_ok_and(|request| args.get("request") == Some(&request))
+            && request_matches_args(&parsed.request, &args["request"])
     })
 }
 pub(super) fn refresh_schema() -> Value {

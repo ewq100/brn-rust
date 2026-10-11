@@ -1,20 +1,29 @@
 # BRN Threads status
 
-**Updated:** 11 October 2026. **Branch:** `rebuild/threads`. **Draft:** [PR #114](https://github.com/ewq100/brn-rust/pull/114).
+**Updated:** 11 October 2026. **Merged baseline:** PR #114 at `d768db7a221ad1245241fa5fdca4461bc3cc2409`, confirmed against remote main. **Current work:** isolated branch `work/phase0-stale-input`.
 
-| Area | Actual state |
+## Current assignment
+
+The owner authorized [Phase 0 and F1 stale-input hardening](work/active/threads-rebuild/phase0-plan.md), with GPT-6.1 Sol implementation subagents, focused tests and the existing checked-write architecture. The owner accepted the [adoption priorities](architecture/threads-target.md#accepted-adoption-priorities-11-october-2026); this is not acceptance of unseen UI or authority to implement all later phases.
+
+| Gate | State |
 |---|---|
-| Runtime source | Published product `81a1131d1fe7e093e7b4743e1cf1e1f31688d942` has the exact tree of tested local `ed02bc927c1b0c687c482735fdda12c4b5a3fee8`. Started at published Mac checkpoint `0fcb8f737952189724a7156dde2c483719e9a6bf`; prior repairs were retained. |
-| Rig | Published 0.44.0 across production Rig packages. Old vendor patch removed; no local patch remains. Final successful structured content replaces provisional stream text and supplies the single saved answer. Invalid tools/arguments have explicit zero-retry fail-closed policies; unknown/incomplete termination is rejected. |
-| Authority | Trusted selected-note/version action or new-decision action binds the actual owner message, target/class and current invocation. Ordinary enabled maintenance needs no protected-edit grant. English prefixes, quoted/source instructions and old Continue grants confer no authority. |
-| Runtime tools | Nine production registrations provide current records, version-bound long-note passages, supplied source, skills, prepare/apply, progress, bounded accepted history and checked immutable candidate refresh. Activity derives from the same catalog; duplicated skill implementation and obsolete mappings removed. |
-| Automated | Final retained workspace gate: 352 passed, 3 intentional ignores. AI/capability: 194 passed, 1 intentional ignore; focused Threads: 34 passed. Core 45/app 18 are included in the workspace total. Combined native component gate: 21 passed. Format, strict workspace/affected/capability Clippy, offline journeys, decoder comparison and dependency hygiene passed. Counts overlap. |
-| Live | Fresh synthetic Codex / gpt-6.1-sol / medium journeys passed: normal final, maintenance/tool final once, imported long-note tail after reopening, explicit decision/protected Estonian edit, no-authority review, malformed request refusal, cancellation/Continue. Actual malformed-call dispatch refusal is separately proved by injected production tests. |
-| Mac candidate | Locally rebuilt `BRN Threads Rig 044 Final.app` with bundled helper and fresh data; source/hash/path in [evidence](work/active/threads-rebuild/evidence.md#rig-044-runtime-integration). Native authority and review controls applied/refused correctly; Stop persisted Interrupted. Screen captures froze, then the service explicitly reported a locked Mac. Visual streaming/activity reconciliation and native Continue remain blocked pending manual unlock. |
-| Prior evidence | Existing long-note reader, intake/assets/coverage, worker ownership, editor/recovery/comments/review/export/backup fixes are retained. Unaffected Mac observations remain applicable; prior runtime presentation/provider observations do not qualify this changed binary. |
-| Remaining | Unlock Mac and rerun affected visual streaming/activity/Stop-Continue steps. Owner acceptance remains pending. Other IMEs, general complex/scanned/math PDF fidelity, and the recorded Windows credential issue remain outside this pass. |
-| Integration | PR #114 remains draft. Checked fast-forward publication, no force push, main merge or release. New hosted CI is pending until observed. |
+| Plan | Independently reviewed and approved. |
+| Implementation | Complete: truthful Stop, per-context drafts, portable export metadata, explicit current-read validation, representative headless baseline, current docs. |
+| Focused verification | Passed core/app/runtime/desktop tests, affected strict Clippy, formatting and docs/tooling checks; see [Phase 0 evidence](work/active/threads-rebuild/phase0-evidence.md). |
+| Independent code review | Approved; no actionable implementation defects found. |
+| Native observation | Candidate built with fresh synthetic workspace; Computer Use permission denied. Startup, typing and rendered UI remain unobserved. |
+| Owner acceptance | Owner explicitly deferred native observation and authorized PR plus merge after CI passes on 11 October 2026. |
+| Integration/release | PR publication and CI-gated merge authorized; not yet merged or released. |
+
+## Implemented baseline and retained evidence
+
+The merged product has one SQLite core, shared checked changes and Undo, native notes/threads/Actions/review/recovery, bounded source conversion, keyword search, export and complete backup/restore. Production uses Rig 0.44.0, host-scoped authority, nine registered tools and packaged runtime guides. See [architecture](architecture/overview.md) and [runtime contract](architecture/threads-behavior.md#implemented-response-and-authority-contract).
+
+The prior [rebuild evidence](work/active/threads-rebuild/evidence.md#rig-044-runtime-integration) records its exact source, automated checks and synthetic live provider journeys. Its 352-workspace/194-AI counts overlap; they are historical qualification of that candidate, not fresh results for this branch. Latest prior streaming/activity/Stop-Continue visual observations were blocked by a locked Mac and owner acceptance remained pending. Those limitations are retained until new evidence supersedes them.
+
+Current scope is personal macOS use. Complex/scanned/math PDF fidelity, other IMEs, external distribution and the recorded Windows credential issue were not qualified by the prior pass.
 
 ## Next action
 
-Unlock the Mac for the remaining agent native observations, then follow the small [runtime owner walkthrough](work/active/threads-rebuild/acceptance.md#runtime-owner-walkthrough). Record owner acceptance separately. Generated bundles, databases and synthetic raw logs remain outside Git.
+Publish Phase 0, satisfy required hosted checks, merge, and verify main CI. Then continue the accepted Phase 1 foundation fixes. Native observation is explicitly deferred by the owner and remains a documented limitation.

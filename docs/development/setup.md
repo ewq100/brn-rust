@@ -1,29 +1,10 @@
 # BRN Threads development setup
 
-The durable handoff is repository `ewq100/brn-rust`, branch `rebuild/threads`. A local checkout created elsewhere is not evidence that this machine has its toolchain, account, or native session ready.
+The implemented Threads baseline merged in PR #114 at `d768db7`. Read [AGENTS.md](../../AGENTS.md), [status](../status.md), and the [current plan](../work/active/threads-rebuild/phase0-plan.md) before running product commands.
 
-## Open the prepared branch
+## Isolate the current assignment
 
-For an existing BRN clone, inspect its current work before fetching. Use a new sibling worktree if this branch is not already checked out:
-
-```sh
-git status --short --branch
-git worktree list
-git remote set-branches --add origin rebuild/threads
-git fetch origin refs/heads/rebuild/threads:refs/remotes/origin/rebuild/threads
-git worktree add ../brn-threads-rebuild --track -b rebuild/threads origin/rebuild/threads
-```
-
-Registering the branch adds its fetch/tracking mapping without removing existing mappings; this also supports clones originally limited to main. The final command is for a clone without a local `rebuild/threads` branch and an unused destination. If it already exists, use the appropriate existing worktree or add a worktree for that branch. Never reset, clean, or overwrite another task to make the example work.
-
-Alternatively, use a fresh clone:
-
-```sh
-git clone --branch rebuild/threads --single-branch https://github.com/ewq100/brn-rust.git brn-threads-rebuild
-cd brn-threads-rebuild
-```
-
-Read [AGENTS.md](../../AGENTS.md), [status](../status.md), and [the plan](../work/active/threads-rebuild/plan.md) before running product commands.
+Inspect the existing checkout and remote main before choosing the task baseline. Create a new sibling worktree on a task-specific branch; preserve existing worktrees and unrelated edits. The current assignment uses `work/phase0-stale-input` from verified main `d768db7`. The old `rebuild/threads` branch is historical, not a required destination for new changes.
 
 ## Check this machine
 
@@ -48,10 +29,10 @@ Follow the planned qualification before changing the pin or removing dependency 
 
 Choose a task-owned Cargo target directory and a fresh explicit BRN data directory outside Git. Never point rebuild binaries at existing BRN data or use the old app's default directory.
 
-The first core implementation must give the new schema an unmistakable identity and explicit safe startup behavior. Old-format data is not imported or migrated. When running existing verification scripts, read their fixture-parent requirements and use synthetic material.
+The core checks a distinct marker, application ID and supported schema before opening data. Old-format data is not imported or migrated. When running existing verification scripts, read their fixture-parent requirements and use synthetic material.
 
 Run provider authentication/model availability checks early in the build assignment when bounded live tests are authorized. Use the selected provider's normal authentication flow, never credential dumps. If sign-in needs the owner, report it and continue independent offline work.
 
-## Existing commands are baseline commands
+## Current commands
 
-Before the workspace is replaced, the existing Cargo manifests and scripts still build/test baseline BRN. Baseline conversion checks require building the current brn-intake-helper as documented in its crate; its installation requirement remains until that conversion path is replaced. Their success is not proof of the new target. Update commands and CI as part of the relevant implementation change. [Verification](verification.md) and [the build plan](../work/active/threads-rebuild/plan.md) identify the new proofs.
+The retained manifests and verification scripts build the implemented Threads workspace. Intake fixture qualification requires the maintained helper and explicit Poppler paths as described in [verification](verification.md). A successful build is not proof of native usability or owner acceptance. Historical standalone experiments are not production engines.

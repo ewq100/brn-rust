@@ -29,9 +29,9 @@ Working, Interrupted, Failed, and provider-unavailable indicators come from the 
 
 ## Work within and across threads
 
-Allow one active agent run per thread initially. A new owner message is recorded immediately and considered at the next safe run boundary; an incompatible new instruction cancels or interrupts the older intent before another mutation. It must not silently grant the older run broader authority. Record steering/cancellation in host-owned run state; a pending commit whose authority has been superseded must be rejected at the shared boundary. Keep cancellation and Continue visible without creating a workflow language.
+**Implemented desktop behavior:** One worker runs at a time across provider calls, intake and output publication. Sending another message is disabled while it runs. Core run fences and version checks still coordinate separate desktop/CLI processes; opening the workspace does not cancel another live invocation.
 
-Different threads may investigate and read in parallel. All mutations use the shared checked service and its serialized SQLite commit boundary. Run serialization within a thread does not remove version checks across threads, desktop Save, or the CLI. The agent can continue unaffected investigation when another note is being edited.
+**Selected next interaction:** Keep one provider run initially and add an explicit Stop-and-send action in Phase 1. It records the new owner instruction and fences the superseded invocation before that old work can commit again. It does not inherit the old invocation's protected-edit grant. Parallel thread investigation is deferred until daily use demonstrates a need. Phase 0 only fixes draft destinations and cancellation presentation, not steering or scheduling.
 
 Source references use stable source identity where available: a provider identifier, known location, or observed fingerprint. An exact known source or existing Action link can lead directly to the related thread. The agent uses search and current context to judge whether new information belongs in another existing thread. When the relationship is uncertain, preserve that uncertainty rather than forcing a merge. Do not build a semantic deduplication engine or treat similar wording as proof that two sources or goals are identical.
 
@@ -51,9 +51,9 @@ Unsaved human writing defers a grouped autonomous change in its entirety when an
 
 ## Runtime guidance is deliberately small
 
-The development agent follows the repository's [AGENTS.md](../../AGENTS.md). The shipped BRN agent needs separate product guidance. Plan these bundled paths:
+The development agent follows the repository's [AGENTS.md](../../AGENTS.md). The shipped BRN agent needs separate product guidance. The production bundle contains these paths:
 
-| Planned file | Responsibility |
+| Packaged file | Responsibility |
 |---|---|
 | `agent/BRN.md` | Short base behavior shared by every run |
 | `agent/skills/intake/SKILL.md` | Interpret supplied sources and honor the chosen import intent |
@@ -63,7 +63,7 @@ The development agent follows the repository's [AGENTS.md](../../AGENTS.md). The
 
 Use YAML `name` and `description` followed by Markdown instructions. The description states what the skill does and when it is useful. This follows the [Agent Skills format specification](https://agentskills.io/specification). A compact catalog supplies the metadata; the relevant full instructions are loaded when needed. The format does not itself execute anything or make a model obey it.
 
-BRN must actually load these instructions. Implement the four-entry catalog as a fixed packaged table using `include_str!` or an equivalent packaging mechanism. Put the base guide and skill descriptions in the run's preamble, reusing Rig's agent builder and tool registration. Register `read_skill(id)` to return the packaged text for an allowlisted skill ID; it accepts no filesystem path. Validate the small frontmatter contract during build or tests. No runtime filesystem discovery, frontmatter framework, remote marketplace, or self-modifying prompt system is needed. A generic document loader or model-information catalog is not automatically a skill loader. This small adapter is the intended initial integration, subject to the bounded provider proof.
+BRN loads the four-entry catalog from a fixed packaged table using `include_str!`. Put the base guide and skill descriptions in the run's preamble, reusing Rig's agent builder and tool registration. Register `read_skill(id)` to return the packaged text for an allowlisted skill ID; it accepts no filesystem path. Validate the small frontmatter contract during build or tests. No runtime filesystem discovery, frontmatter framework, remote marketplace, or self-modifying prompt system is needed. A generic document loader or model-information catalog is not automatically a skill loader. This small adapter is the intended initial integration, subject to the bounded provider proof.
 
 Record the instruction bundle version or content hash and loaded skill identities in Run. This supports diagnosis when guidance changes without storing every raw tool transcript. Keep the actual bundled versions available through the application build/repository. Loading a skill gives instructions; it cannot expand tools, data access, provider choice, or mutation authority.
 
@@ -91,7 +91,7 @@ Each skill should include one ordinary success example and a few relevant bounda
 
 Expose a small capability vocabulary: search/read current records; inspect an available source; prepare/apply a grouped change; add thread context or attention; inspect history; and request compensation. Mutating thread and Action operations use the same service as note writes. Exact Rust signatures belong in the core implementation, rather than another duplicated schema here.
 
-Tool outcomes are structured: Applied with receipt, Needs review with candidate, Deferred with guarded members, Stale with changed versions, Rejected with reason, Interrupted, or Failed. Preparation returns a durable candidate identity. The host records request identity before dispatch, preparation itself is replayable, and apply retries return the existing receipt. The agent responds to these outcomes rather than guessing from prose or regenerating IDs after a timeout.
+Tool outcomes are structured: Applied with receipt, Needs review with candidate, Deferred with guarded members, Stale with changed versions, Rejected with reason, Interrupted, or Failed. Preparation returns a durable candidate identity. The host records request identity before dispatch, preparation itself is replayable, and apply retries return the existing receipt. The agent responds to these outcomes rather than guessing from prose or regenerating IDs after a timeout. Change inputs default to Current and must still match their active version when Apply commits. Use Historical only for an intentional accepted-revision citation; it does not assert current truth. A stale input needs a refreshed candidate, not broader authority.
 
 Host-only `ToolContext` carries the applicable grant. A grant binds a trusted instruction or review to target IDs and the allowed operation: changing A's deadline does not authorize archiving A or changing protected B. A record's presence in thread context or its mention inside an imported source confers no permission. The model can propose targets; the host enforces the actual bound scope. A clear owner instruction can authorize the concrete change without another click.
 
@@ -116,7 +116,7 @@ The owner can read the whole process offline with section navigation and ask que
 
 ## Enough design to build
 
-This design fixes the thread states, attention behavior, initial guidance organization, mutation boundary, and concrete examples. The next step is the bounded core and provider proofs in the [rebuild plan](../work/active/threads-rebuild/plan.md), followed by native interaction. Implement the guide and four skills alongside those journeys and adjust them using observed results. Do not pause for an exhaustive prompt framework, complete screen specification, or another unrestricted architecture review.
+This design fixes the thread states, attention behavior, initial guidance organization, mutation boundary, and concrete examples. The core, provider runtime and packaged guides are implemented. The next work is [Phase 0 and F1 hardening](../work/active/threads-rebuild/phase0-plan.md), followed by the remaining native and owner acceptance checks. Adjust guidance using observed outcomes. Do not pause for an exhaustive prompt framework, complete screen specification, or another unrestricted architecture review.
 
 
 ## Implemented response and authority contract

@@ -1,8 +1,8 @@
 # BRN Threads canonical target
 
-**Status:** Selected target for the prepared rebuild branch, 10 October 2026. Product implementation starts when a build agent is assigned. This document does not claim that the redesign, autonomy policy, or recovery guarantees are implemented or enabled.
+**Status:** Canonical product contract for the implemented Threads architecture. The rebuild merged in PR #114 at `d768db7` on 11 October 2026. Implementation does not establish native or owner acceptance; [status](../status.md) records those gates.
 
-**Authority in this branch:** This is the canonical target. The owner requested a prepared build environment after refining the proposal. [The rebuild plan](../work/active/threads-rebuild/plan.md) owns execution; [AGENTS.md](../../AGENTS.md) owns assignment routing. Older baseline contracts are historical evidence. The published discussion proposal was the source of this target; ongoing implementation decisions belong here.
+**Current assignment:** [Phase 0 and F1 hardening](../work/active/threads-rebuild/phase0-plan.md), authorized 11 October 2026. This target distinguishes selected requirements from verified behavior; the [rebuild plan](../work/active/threads-rebuild/plan.md) and its evidence preserve earlier execution history.
 
 **Date:** 10 October 2026. **Owner:** Evo.
 
@@ -40,6 +40,12 @@ Retain the useful existing owner outcomes: English and Estonian notes/conversati
 A current explicit instruction takes precedence over a saved owner preference and a product default. An inferred preference or a one-off instruction must not silently become a standing owner policy. Credentials stay outside knowledge, exports, and logs. Headless capabilities use the same service and scoped authorization; possession of a CLI or connection does not itself grant owner authority. [Baseline vision][vision]
 
 Those statements authorize this target’s scope. They do not establish that today’s rollback already supports the new operations, or that any proposed default has been enabled. Recovery must be demonstrated early in implementation.
+
+## Accepted adoption priorities, 11 October 2026
+
+The owner accepted the product review's recommendations: qualify source/email → reliable working note → supported next action or reply first, for personal macOS use. Ordinary-note maintenance follows one explicit delegation choice; a first-use choice is a Phase 1 requirement, not a claim about today's bootstrap defaults. Keep one provider run initially and add Stop-and-send steering before considering parallel investigation. The current desktop serializes all workers and does not yet support that steering action.
+
+Non-disposable data adoption follows Phase 1 acceptance. Before changing an adopted Threads schema, provide transactional upgrades and pre-upgrade backups; this does not introduce migration from old BRN. Backups use a user-selected destination covered by a separate backup system. DOCX is the first later output format. External distribution and additional platforms remain later scope. These decisions do not authorize implementation beyond the current assignment.
 
 ## The product model
 
@@ -219,6 +225,8 @@ Persist BRN-owned run status, budget, instruction-bundle identity, intentional t
 
 The first release offers **Export now** for a fresh snapshot containing ordinary Markdown and selected retained note assets. Generate from a consistent committed view and identify which revision or workspace snapshot produced it. Publish the completed export only after its output verifies; retry failed work and show the last successful result. Automatic exports at checkpoints can be added when useful, but are not a first-release gate.
 
+Each exported note carries YAML front matter with its title and source-reference record IDs, locators, and descriptive labels. Quote scalars safely and preserve the original Markdown body after that wrapper, except managed asset URL rewriting. Source references identify external origins; they do not assert that the source's latest revision produced an older note. The snapshot manifest retains note revision and content hashes. Existing body front matter is retained as body content rather than merged or reformatted.
+
 Never update a previously delivered snapshot in place. The owner can copy, edit, or move it; a later export receives a new destination. Outside changes enter through explicit import. This removes file watching, outside-edit detection, and bidirectional merge from the first release. Exports may lag current BRN state; automatic export retention or purging is deferred.
 
 Offer a complete backup of BRN’s own database, selected retained assets, and necessary application state for restoring notes, threads, history, Actions, and settings. With selected assets stored in SQLite, one consistent database backup covers them; any later external asset storage must be included explicitly. Markdown export alone is not a complete backup. Use SQLite’s supported backup facilities rather than an arbitrary copy of an active database. Outlook and other external original files are outside the BRN backup and restore promise. [SQLite backup API][sqlite-backup]
@@ -262,8 +270,10 @@ The flow is:
 2. `prepare(operation_id, request)` stores an immutable candidate with a canonical request hash and preassigned IDs for created records. Repeating preparation with that identity and identical request returns the same candidate; changed content with the same identity is an error. A lost preparation response therefore cannot create another logical request.
 3. Validate references, allowed operations, host-bound scope, protected records and expected bases. Apply under standing delegation or a sufficiently specific current instruction; otherwise attach the candidate to its thread for review.
 4. `apply(operation_id)` returns an existing receipt to an authorized caller before checking mutable bases. This replay must work even though the operation's own successful write advanced those versions. For a new application, acquire the SQLite writer transaction and recheck versions, authorization and editing guards.
-5. Commit related revisions, Action changes, source references/assets, and one unique receipt atomically. No model call, source fetch, or long investigation runs inside the write transaction. A guarded or stale member cannot cause an unexplained partial group application.
+5. Recheck declared current-read inputs against the transaction prestate: exact version, active record, and an unsuperseded note. `RevisionInput.expectation` defaults to `Current`; explicit `Historical` retains an accepted-revision citation without asserting current truth. A stale current input rejects the whole group, including owner-reviewed application. Successful receipt replay precedes these mutable checks. Then commit related revisions, Action changes, source references/assets, and one unique receipt atomically. No model call, source fetch, or long investigation runs inside the write transaction. A guarded or stale member cannot cause an unexplained partial group application.
 6. Return a typed outcome and show a concise summary backed by the actual receipt. Export reads a committed snapshot separately.
+
+Current input expectations omit the default field in serialized requests, preserving prior request bytes/hashes. Old unapplied candidates gain current-read validation; an intentionally historical old candidate needs an explicit refreshed proposal. Historical citations remain separate from current-read preconditions, and Undo preserves recorded derivation footing rather than treating restored evidence as a fresh current read.
 
 Persist the host's pending request identity in its BRN-owned run/editor/command state before a retry can be necessary. The ID is not minted or remembered solely by the model. Qualification covers loss of the response after preparation and loss after application commit, including creation as well as updates. Do not reintroduce a filesystem apply journal or an uncertain half-applied state for an entirely SQLite transaction.
 
