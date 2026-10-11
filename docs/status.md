@@ -1,18 +1,19 @@
 # BRN Threads status
 
-**Updated:** 11 October 2026. **Merged baseline:** [PR #117](https://github.com/ewq100/brn-rust/pull/117) at `ed9a1af3ed54f6f59a980ceab3d7f2fd4976be76`. **Current work:** isolated branch `work/phase1-backup`.
+**Updated:** 11 October 2026. **Merged baseline:** [PR #118](https://github.com/ewq100/brn-rust/pull/118) at `087471fd760c7c32e0f7e3f919ca0eb98ca1e65e`. **Current work:** isolated branch `work/phase1-restore`.
 
 ## Current assignment
 
-The owner explicitly authorized publishing and merging delegation after required CI, then continuing Phase 1 without routine reauthorization. Delegation is integrated. The current increment is [atomic backup publication](work/active/threads-rebuild/phase1-backup-plan.md), implemented by GPT-6.1 Sol helpers in an isolated worktree.
+The owner explicitly authorized publishing and merging delegation after required CI, then continuing Phase 1 without routine reauthorization. Delegation is integrated. The current increment is [restore and missing-storage safety](work/active/threads-rebuild/phase1-restore-plan.md), implemented by GPT-6.1 Sol helpers in an isolated worktree.
 
 | Gate | State |
 |---|---|
 | Delegation integration | PR #116 merged after all four required checks and documentation/tooling passed. All four required checks passed again on main. |
 | Platform limits | Non-required Windows credential build and Linux model-install failures remain visible; no all-platform green claim. |
 | Steering plan | Independently reviewed and approved. |
-| Steering implementation/checks | PR #117 merged after all required CI passed; post-merge checks pending. |
-| Backup plan/implementation | Implemented; core/app/CLI checks and independent final review passed. Publication/CI next. |
+| Steering implementation/checks | PR #117 merged; all four required checks passed before merge and again on main. |
+| Backup plan/implementation | PR #118 merged; all four required checks passed before merge and again on main. |
+| Restore candidate | Implemented; 90 core + 32 app tests and two focused CLI checks passed. Strict Clippy/format/docs passed. Independent review approved; CI-gated integration pending. |
 | Native observation | Explicitly deferred; native component tests are separate evidence. |
 | Release | Not authorized or performed. |
 
@@ -24,4 +25,4 @@ The prior [rebuild evidence](work/active/threads-rebuild/evidence.md#rig-044-run
 
 ## Next action
 
-Verify Stop-and-send on main and finish atomic backup publication with focused tests and independent review. Delegation and steering alone do not qualify non-disposable data adoption. [Backup evidence](work/active/threads-rebuild/phase1-backup-evidence.md) records the current gate results.
+Publish the independently reviewed restore candidate, merge after required CI, then verify main. Delegation and steering alone do not qualify non-disposable data adoption. [Restore evidence](work/active/threads-rebuild/phase1-restore-evidence.md) records the current gate results.

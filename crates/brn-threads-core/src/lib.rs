@@ -3,6 +3,7 @@
 mod backup;
 mod edit;
 mod read;
+mod restore;
 mod revision_read;
 mod steering;
 mod store;

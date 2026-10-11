@@ -1,6 +1,6 @@
 # Active work
 
-The current assignment is [Phase 1 atomic backup publication](threads-rebuild/phase1-backup-plan.md), following [Phase 0 and F1 hardening](threads-rebuild/phase0-plan.md). The [rebuild plan](threads-rebuild/plan.md) preserves prior implementation history.
+The current assignment is [Phase 1 restore safety](threads-rebuild/phase1-restore-plan.md), following [Phase 0 and F1 hardening](threads-rebuild/phase0-plan.md). The [rebuild plan](threads-rebuild/plan.md) preserves prior implementation history.
 
 - [Canonical target](../../architecture/threads-target.md)
 - [Review brief](threads-rebuild/review-brief.md) and [review record](threads-rebuild/review.md)

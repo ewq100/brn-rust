@@ -795,7 +795,11 @@ fn complete_backup_restores_assets_sources_pending_candidates_history_and_buffer
     store.update_buffer(&session.id, 1, "recovery").unwrap();
     let backup = dir.path().join("backup.sqlite3");
     store.backup(&backup).unwrap();
-    let restored = Store::restore(&backup, dir.path().join("restored")).unwrap();
+    let backup_bytes = std::fs::read(&backup).unwrap();
+    let restored_directory = dir.path().join("nested/missing/restored");
+    drop(Store::restore(&backup, &restored_directory).unwrap());
+    let restored = Store::open(&restored_directory).unwrap();
+    assert_eq!(std::fs::read(&backup).unwrap(), backup_bytes);
     assert_eq!(restored.records().unwrap(), store.records().unwrap());
     assert_eq!(restored.prepared(&pending).unwrap(), prepared);
     assert_eq!(restored.receipt(&op).unwrap(), store.receipt(&op).unwrap());
@@ -2610,4 +2614,87 @@ fn runtime_settings_snapshot_covers_account_changes_and_provider_aliases() {
             .is_err()
     );
     assert_eq!(store.record(&target.id).unwrap().unwrap(), target);
+}
+
+#[test]
+fn missing_storage_refuses_recreation_and_preserves_recovery_evidence() {
+    let (root, store) = store();
+    let directory = store.directory().to_owned();
+    drop(store);
+    let marker = std::fs::read(directory.join(DATA_MARKER)).unwrap();
+    std::fs::remove_file(directory.join(DATABASE_FILENAME)).unwrap();
+    std::fs::write(
+        directory.join("threads.sqlite3-wal"),
+        b"synthetic WAL evidence",
+    )
+    .unwrap();
+    std::fs::write(
+        directory.join("threads.sqlite3-shm"),
+        b"synthetic SHM evidence",
+    )
+    .unwrap();
+    let result = Store::open(&directory);
+    assert!(
+        result.is_err(),
+        "existing workspace must never initialize missing storage"
+    );
+    let error = result.err().unwrap().to_string();
+    assert!(
+        error.contains("missing") && error.contains("backup") && error.contains("fresh"),
+        "{error}"
+    );
+    assert!(!directory.join(DATABASE_FILENAME).exists());
+    assert_eq!(std::fs::read(directory.join(DATA_MARKER)).unwrap(), marker);
+    assert_eq!(
+        std::fs::read(directory.join("threads.sqlite3-wal")).unwrap(),
+        b"synthetic WAL evidence"
+    );
+    assert_eq!(
+        std::fs::read(directory.join("threads.sqlite3-shm")).unwrap(),
+        b"synthetic SHM evidence"
+    );
+    drop(root);
+}
+
+#[test]
+fn existing_zero_byte_foreign_and_incompatible_databases_are_refused_without_mutation() {
+    for kind in ["zero", "foreign", "incompatible"] {
+        let (_root, store) = store();
+        let directory = store.directory().to_owned();
+        drop(store);
+        let database = directory.join(DATABASE_FILENAME);
+        if kind == "zero" {
+            std::fs::write(&database, []).unwrap();
+        } else {
+            let conn = rusqlite::Connection::open(&database).unwrap();
+            // A standalone invalid database must not be switched to WAL by
+            // Store::open before its identity has been checked.
+            conn.pragma_update(None, "journal_mode", "DELETE").unwrap();
+            let pragma = if kind == "foreign" {
+                "application_id"
+            } else {
+                "user_version"
+            };
+            conn.pragma_update(None, pragma, 9000).unwrap();
+            conn.close().unwrap();
+        }
+        let bytes = std::fs::read(&database).unwrap();
+        let marker = std::fs::read(directory.join(DATA_MARKER)).unwrap();
+        assert!(
+            matches!(Store::open(&directory), Err(Error::UnsafeDirectory(message)) if message.contains("identity mismatch"))
+        );
+        assert_eq!(std::fs::read(&database).unwrap(), bytes);
+        assert_eq!(std::fs::read(directory.join(DATA_MARKER)).unwrap(), marker);
+        assert_eq!(std::fs::read_dir(&directory).unwrap().count(), 2);
+        let conn = rusqlite::Connection::open_with_flags(
+            &database,
+            rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY,
+        )
+        .unwrap();
+        assert_eq!(
+            conn.pragma_query_value(None, "journal_mode", |row| row.get::<_, String>(0))
+                .unwrap(),
+            "delete"
+        );
+    }
 }

@@ -1380,3 +1380,31 @@ fn selected_review_groups_and_replacement_preserve_current_or_historical_note_in
         assert!(app.store.record(&note_id).unwrap().is_none());
     }
 }
+
+#[test]
+fn missing_storage_never_opens_an_empty_workspace_or_rewrites_evidence() {
+    let (_root, app) = workspace();
+    let directory = app.store.directory().to_owned();
+    drop(app);
+    let marker = std::fs::read(directory.join(DATA_MARKER)).unwrap();
+    std::fs::remove_file(directory.join(DATABASE_FILENAME)).unwrap();
+    std::fs::write(
+        directory.join("threads.sqlite3-wal"),
+        b"app recovery evidence",
+    )
+    .unwrap();
+    let error = Workspace::open(&directory)
+        .err()
+        .expect("missing database must fail")
+        .to_string();
+    assert!(
+        error.contains("missing") && error.contains("backup") && error.contains("fresh"),
+        "{error}"
+    );
+    assert!(!directory.join(DATABASE_FILENAME).exists());
+    assert_eq!(std::fs::read(directory.join(DATA_MARKER)).unwrap(), marker);
+    assert_eq!(
+        std::fs::read(directory.join("threads.sqlite3-wal")).unwrap(),
+        b"app recovery evidence"
+    );
+}

@@ -279,12 +279,20 @@ fn full_markdown_import_export_and_backup_are_fresh_and_readable() {
             "Later source write",
         ],
     );
-    let restored = root.path().join("restored");
+    let restored = root.path().join("nested/missing/restored");
     json_command(
         &restored,
         &["restore", "--source", backup.to_str().unwrap()],
     );
     assert_eq!(json_command(&restored, &["notes"]), notes);
+    assert_eq!(std::fs::read(&backup).unwrap(), bytes);
+    assert!(!std::fs::read_dir(restored.parent().unwrap())
+        .unwrap()
+        .any(|entry| entry
+            .unwrap()
+            .file_name()
+            .to_string_lossy()
+            .starts_with(".brn-restore-stage-")));
     assert!(!command(
         &restored,
         &["restore", "--source", backup.to_str().unwrap()]
@@ -320,4 +328,37 @@ fn explicit_directory_old_format_and_invalid_commands_refuse_without_touching_da
         json_command(&data, &["settings"])["maintenance"],
         json!(false)
     );
+}
+
+#[test]
+fn missing_storage_refuses_init_and_reads_preserving_marker_and_recovery_evidence() {
+    let root = root();
+    let data = root.path().join("data");
+    json_command(&data, &["init"]);
+    let marker = std::fs::read(data.join(brn_threads_app::DATA_MARKER)).unwrap();
+    std::fs::remove_file(data.join(brn_threads_app::DATABASE_FILENAME)).unwrap();
+    std::fs::write(data.join("threads.sqlite3-wal"), b"cli WAL evidence").unwrap();
+    std::fs::write(data.join("threads.sqlite3-shm"), b"cli SHM evidence").unwrap();
+    for args in [["init"], ["notes"], ["recovery"]] {
+        let output = command(&data, &args);
+        assert!(!output.status.success());
+        let error = String::from_utf8_lossy(&output.stderr);
+        assert!(
+            error.contains("missing") && error.contains("backup") && error.contains("fresh"),
+            "{error}"
+        );
+        assert!(!data.join(brn_threads_app::DATABASE_FILENAME).exists());
+        assert_eq!(
+            std::fs::read(data.join(brn_threads_app::DATA_MARKER)).unwrap(),
+            marker
+        );
+        assert_eq!(
+            std::fs::read(data.join("threads.sqlite3-wal")).unwrap(),
+            b"cli WAL evidence"
+        );
+        assert_eq!(
+            std::fs::read(data.join("threads.sqlite3-shm")).unwrap(),
+            b"cli SHM evidence"
+        );
+    }
 }
