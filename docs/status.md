@@ -1,18 +1,18 @@
 # BRN Threads status
 
-**Updated:** 11 October 2026. **Merged baseline:** [PR #116](https://github.com/ewq100/brn-rust/pull/116) at `36ad2d61e5895c9a564dcff8f6eec1053376245b`. **Current work:** isolated branch `work/phase1-steering`.
+**Updated:** 11 October 2026. **Merged baseline:** [PR #117](https://github.com/ewq100/brn-rust/pull/117) at `ed9a1af3ed54f6f59a980ceab3d7f2fd4976be76`. **Current work:** isolated branch `work/phase1-backup`.
 
 ## Current assignment
 
-The owner explicitly authorized publishing and merging delegation after required CI, then continuing Phase 1 without routine reauthorization. Delegation is integrated. The current increment is [Stop-and-send steering](work/active/threads-rebuild/phase1-steering-plan.md), implemented by GPT-6.1 Sol helpers in an isolated worktree.
+The owner explicitly authorized publishing and merging delegation after required CI, then continuing Phase 1 without routine reauthorization. Delegation is integrated. The current increment is [atomic backup publication](work/active/threads-rebuild/phase1-backup-plan.md), implemented by GPT-6.1 Sol helpers in an isolated worktree.
 
 | Gate | State |
 |---|---|
 | Delegation integration | PR #116 merged after all four required checks and documentation/tooling passed. All four required checks passed again on main. |
 | Platform limits | Non-required Windows credential build and Linux model-install failures remain visible; no all-platform green claim. |
 | Steering plan | Independently reviewed and approved. |
-| Steering implementation/checks | Implemented and tests/lint/native build passed; checked writer retained, no schema/dependency upgrade. |
-| Independent steering review | APPROVED; no actionable findings. |
+| Steering implementation/checks | PR #117 merged after all required CI passed; post-merge checks pending. |
+| Backup plan/implementation | Implemented; core/app/CLI checks and independent final review passed. Publication/CI next. |
 | Native observation | Explicitly deferred; native component tests are separate evidence. |
 | Release | Not authorized or performed. |
 
@@ -24,4 +24,4 @@ The prior [rebuild evidence](work/active/threads-rebuild/evidence.md#rig-044-run
 
 ## Next action
 
-Finish and independently review Stop-and-send, integrate after required CI, and continue the Phase 1 storage/backup/recovery foundations. Delegation and steering alone do not qualify non-disposable data adoption. [Steering evidence](work/active/threads-rebuild/phase1-steering-evidence.md) records the current gate results.
+Verify Stop-and-send on main and finish atomic backup publication with focused tests and independent review. Delegation and steering alone do not qualify non-disposable data adoption. [Backup evidence](work/active/threads-rebuild/phase1-backup-evidence.md) records the current gate results.

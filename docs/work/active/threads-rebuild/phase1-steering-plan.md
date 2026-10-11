@@ -46,7 +46,7 @@ Owner: desktop Sol helper. Files: `threads_ui.rs`, `threads_state.rs` and focuse
 
 - [x] Update canonical behavior/target, active routing/status and evidence; do not describe backups/upgrades as complete.
 - [x] Independent plan review before implementation and full candidate review after tests. Fix supported findings and rerun affected checks.
-- [ ] Commit the isolated candidate, publish and integrate only after applicable checks under the owner's continued-build/merge instruction; record exact CI and post-merge status. No release.
+- [x] Commit the isolated candidate, publish and integrate only after applicable checks under the owner's continued-build/merge instruction; record exact CI and post-merge status. No release.
 
 ## Gates
 
@@ -56,3 +56,5 @@ Owner: desktop Sol helper. Files: `threads_ui.rs`, `threads_state.rs` and focuse
 - Native observation: deferred, not inferred from component tests.
 - Delegation PR #116: merged at `36ad2d6` after all four required CI checks passed; all four required checks passed again on main.
 - Remaining Phase 1: transactional Threads upgrades/pre-upgrade backups, external backup destination and recovery qualification remain outstanding.
+
+Steering integration: PR #117 merged at `ed9a1af` after all four required CI contexts passed; post-merge status is tracked in [backup evidence](phase1-backup-evidence.md).

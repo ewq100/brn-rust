@@ -759,44 +759,6 @@ impl Store {
         tx.commit()?;
         Ok(outcome)
     }
-    pub fn backup(&self, destination: impl AsRef<Path>) -> Result<()> {
-        let destination = destination.as_ref();
-        if has_symlink_ancestor(
-            destination
-                .parent()
-                .ok_or_else(|| Error::Invalid("backup parent required".into()))?,
-        )? {
-            return Err(Error::UnsafeDirectory("symlink backup ancestor".into()));
-        }
-        let reservation = fs::OpenOptions::new()
-            .write(true)
-            .create_new(true)
-            .open(destination)?;
-        let result = (|| {
-            let mut target = Connection::open(destination)?;
-            rusqlite::backup::Backup::new(&self.conn, &mut target)?.run_to_completion(
-                64,
-                Duration::from_millis(1),
-                None,
-            )?;
-            validate_database(destination)
-        })();
-        if result.is_err() {
-            // Only clean the reserved inode; never remove a concurrently replaced file.
-            #[cfg(unix)]
-            {
-                use std::os::unix::fs::MetadataExt;
-                if let (Ok(ours), Ok(current)) =
-                    (reservation.metadata(), fs::symlink_metadata(destination))
-                    && ours.dev() == current.dev()
-                    && ours.ino() == current.ino()
-                {
-                    let _ = fs::remove_file(destination);
-                }
-            }
-        }
-        result
-    }
     pub fn restore(backup: impl AsRef<Path>, fresh_directory: impl AsRef<Path>) -> Result<Self> {
         validate_database(backup.as_ref())?;
         let directory = fresh_directory.as_ref();
@@ -819,7 +781,7 @@ impl Store {
 fn database_has_schema(conn: &Connection) -> Result<bool> {
     Ok(conn.pragma_query_value(None, "application_id", |r| r.get::<_, i64>(0))? == APPLICATION_ID)
 }
-fn validate_database(path: &Path) -> Result<()> {
+pub(crate) fn validate_database(path: &Path) -> Result<()> {
     let conn = Connection::open_with_flags(path, rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY)?;
     let app: i64 = conn.pragma_query_value(None, "application_id", |r| r.get(0))?;
     let schema: i64 = conn.pragma_query_value(None, "user_version", |r| r.get(0))?;
@@ -1633,7 +1595,7 @@ fn derivation_operation_on(conn: &Connection, current: &Record) -> Result<Option
     }
 }
 
-fn has_symlink_ancestor(path: &Path) -> Result<bool> {
+pub(crate) fn has_symlink_ancestor(path: &Path) -> Result<bool> {
     for ancestor in path.ancestors() {
         match fs::symlink_metadata(ancestor) {
             Ok(metadata) if metadata.file_type().is_symlink() => return Ok(true),

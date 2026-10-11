@@ -93,8 +93,16 @@ confirmation true still requires owner authority. Confirmation needs host author
 and is cleared on a later autonomous content revision. Human Actions require
 instruction scope and evidence for Done; resolving a thread does not finish them.
 
-`backup(new_file)` uses the SQLite backup API and exclusively reserves its output.
-It refuses occupied paths. `restore(backup, fresh_absolute_directory)` validates
+`backup(new_file)` uses the SQLite backup API in a unique private directory under
+the destination parent. It converts the snapshot to standalone DELETE journal
+mode, closes and validates it, and flushes before exclusive hard-link publication.
+Occupied paths are refused before copying and rechecked by exclusive publication.
+Relative paths are resolved internally without changing process cwd. The final
+filename never names the in-progress copy. Ordinary failures clean only the owned
+stage; process termination can leave a recognizable `.brn-backup-stage-*` directory.
+A post-publication parent-flush failure leaves the complete final file intact.
+Filesystems without hard-link publication fail explicitly; no overwrite/copy fallback.
+ `restore(backup, fresh_absolute_directory)` validates
 identity/integrity and restores into an empty isolated directory. Backup includes
 notes, sources, asset bytes, Actions, threads, pending candidates, edit guards,
 revisions, receipts, and BRN-owned run progress. Run records contain no opaque
