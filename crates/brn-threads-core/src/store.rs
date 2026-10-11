@@ -37,12 +37,13 @@ impl Store {
         fs::create_dir_all(directory)?;
         let marker = directory.join(DATA_MARKER);
         let entries: Vec<_> = fs::read_dir(directory)?.collect::<std::result::Result<_, _>>()?;
-        if !marker.exists() && !entries.is_empty() {
+        let existing = marker.exists();
+        if !existing && !entries.is_empty() {
             return Err(Error::UnsafeDirectory(
                 "nonempty directory without Threads marker".into(),
             ));
         }
-        if marker.exists() {
+        if existing {
             if fs::symlink_metadata(&marker)?.file_type().is_symlink()
                 || fs::read_to_string(&marker)? != IDENTITY
             {
@@ -73,15 +74,21 @@ impl Store {
                 .write_all(IDENTITY.as_bytes())?;
         }
         let database = directory.join(DATABASE_FILENAME);
-        if database.exists() {
-            validate_database(&database)?;
-        }
-        let mut conn = Connection::open(&database)?;
+        let mut conn = if existing {
+            if !database.exists() {
+                return Err(missing_storage());
+            }
+            // Do not allow a disappearing database to become a fresh one. The
+            // same connection is validated before any mutating SQLite pragma.
+            open_existing_database(&database)?
+        } else {
+            Connection::open(&database)?
+        };
         conn.busy_timeout(Duration::from_secs(5))?;
         conn.pragma_update(None, "journal_mode", "WAL")?;
         conn.pragma_update(None, "synchronous", "FULL")?;
         conn.pragma_update(None, "foreign_keys", true)?;
-        if !database_has_schema(&conn)? {
+        if !existing {
             let tx = conn.transaction_with_behavior(TransactionBehavior::Immediate)?;
             tx.execute_batch("CREATE TABLE operations(id TEXT PRIMARY KEY, host_key TEXT UNIQUE NOT NULL, input_hash TEXT, hash TEXT, request TEXT, undo_of TEXT, replacement_of TEXT, retired INTEGER NOT NULL DEFAULT 0); CREATE TABLE candidate_targets(note TEXT PRIMARY KEY, operation TEXT NOT NULL REFERENCES operations(id)); CREATE TABLE records(id TEXT PRIMARY KEY, version INTEGER NOT NULL, body TEXT NOT NULL); CREATE UNIQUE INDEX one_workspace_settings ON records((1)) WHERE json_type(body,'$.data.Settings') IS NOT NULL; CREATE UNIQUE INDEX source_locator ON records(json_extract(body,'$.data.Source.locator')) WHERE json_type(body,'$.data.Source') IS NOT NULL; CREATE TABLE revisions(id TEXT NOT NULL, version INTEGER NOT NULL, operation TEXT NOT NULL REFERENCES operations(id), body TEXT NOT NULL, PRIMARY KEY(id,version)); CREATE TABLE receipts(operation TEXT PRIMARY KEY REFERENCES operations(id), body TEXT NOT NULL); CREATE TABLE edit_sessions(id TEXT PRIMARY KEY, note TEXT NOT NULL, base INTEGER NOT NULL, generation INTEGER NOT NULL, markdown TEXT NOT NULL, closed INTEGER NOT NULL DEFAULT 0); CREATE UNIQUE INDEX one_dirty_session ON edit_sessions(note) WHERE closed=0; CREATE TABLE derivation_inputs(operation TEXT NOT NULL, record TEXT NOT NULL, version INTEGER NOT NULL);")?;
             tx.pragma_update(None, "application_id", APPLICATION_ID)?;
@@ -759,30 +766,29 @@ impl Store {
         tx.commit()?;
         Ok(outcome)
     }
-    pub fn restore(backup: impl AsRef<Path>, fresh_directory: impl AsRef<Path>) -> Result<Self> {
-        validate_database(backup.as_ref())?;
-        let directory = fresh_directory.as_ref();
-        if directory.exists() && fs::read_dir(directory)?.next().is_some() {
-            return Err(Error::UnsafeDirectory(
-                "restore requires empty directory".into(),
-            ));
-        }
-        let mut store = Self::open(directory)?;
-        let source =
-            Connection::open_with_flags(backup, rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY)?;
-        rusqlite::backup::Backup::new(&source, &mut store.conn)?.run_to_completion(
-            64,
-            Duration::from_millis(1),
-            None,
-        )?;
-        Ok(store)
-    }
 }
-fn database_has_schema(conn: &Connection) -> Result<bool> {
-    Ok(conn.pragma_query_value(None, "application_id", |r| r.get::<_, i64>(0))? == APPLICATION_ID)
+fn open_existing_database(database: &Path) -> Result<Connection> {
+    let conn = Connection::open_with_flags(database, rusqlite::OpenFlags::SQLITE_OPEN_READ_WRITE)
+        .map_err(|error| {
+        if !database.exists() {
+            missing_storage()
+        } else {
+            error.into()
+        }
+    })?;
+    validate_connection(&conn)?;
+    Ok(conn)
+}
+fn missing_storage() -> Error {
+    Error::UnsafeDirectory(
+        "workspace database threads.sqlite3 is missing; preserve this directory and recover from a backup into a fresh directory".into(),
+    )
 }
 pub(crate) fn validate_database(path: &Path) -> Result<()> {
     let conn = Connection::open_with_flags(path, rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY)?;
+    validate_connection(&conn)
+}
+pub(crate) fn validate_connection(conn: &Connection) -> Result<()> {
     let app: i64 = conn.pragma_query_value(None, "application_id", |r| r.get(0))?;
     let schema: i64 = conn.pragma_query_value(None, "user_version", |r| r.get(0))?;
     if app != APPLICATION_ID || schema != SCHEMA_VERSION {
@@ -1786,4 +1792,25 @@ fn run_matches_settings(run: &Run, settings: &WorkspaceSettings) -> bool {
 
 fn subscription_provider(provider: &str) -> bool {
     provider.eq_ignore_ascii_case("codex") || provider.eq_ignore_ascii_case("chatgpt")
+}
+
+#[cfg(test)]
+mod storage_open_tests {
+    use super::*;
+    #[test]
+    fn existing_connection_path_never_creates_a_database_after_path_check() {
+        let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+        let directory = root.path().join("data");
+        drop(Store::open(&directory).unwrap());
+        let database = directory.join(DATABASE_FILENAME);
+        assert!(database.exists());
+        // Exercise the production connection seam after deletion, bypassing the
+        // friendly path precheck that cannot close a race on its own.
+        fs::remove_file(&database).unwrap();
+        assert!(
+            matches!(open_existing_database(&database), Err(Error::UnsafeDirectory(message)) if message.contains("missing"))
+        );
+        assert!(!database.exists());
+        assert_eq!(fs::read_dir(&directory).unwrap().count(), 1);
+    }
 }

@@ -1,6 +1,6 @@
 # BRN Threads architecture overview
 
-The [canonical Threads target](threads-target.md) owns the detailed architecture. This page is a navigation summary. The [behavior design](threads-behavior.md) supplies concrete thread and packaged runtime-guide defaults. The SQLite Threads core, runtime and native workspace are implemented. Stop-and-send merged at `ed9a1af`; the [current hardening plan](../work/active/threads-rebuild/phase1-backup-plan.md) adds atomic backup publication. See [status](../status.md) for verification and acceptance limits.
+The [canonical Threads target](threads-target.md) owns the detailed architecture. This page is a navigation summary. The [behavior design](threads-behavior.md) supplies concrete thread and packaged runtime-guide defaults. The SQLite Threads core, runtime and native workspace are implemented. Atomic backup publication merged at `087471f`; the [current hardening plan](../work/active/threads-rebuild/phase1-restore-plan.md) adds restore and missing-storage safety. See [status](../status.md) for verification and acceptance limits.
 
 ## One state owner
 

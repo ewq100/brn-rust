@@ -6,7 +6,7 @@ The owner authorized continued Phase 1 implementation and CI-gated integration w
 
 ## Steering publication
 
-[PR #117](https://github.com/ewq100/brn-rust/pull/117) publishes exact Git tree `93faa8e4db427d7008e0280bf05bbee1d5093cd2`, identical to reviewed local `5b03107`. All local tests and independent review passed as recorded in [steering evidence](phase1-steering-evidence.md). [PR run 38137281250](https://github.com/ewq100/brn-rust/actions/runs/38137281250) passed all four required contexts and documentation/tooling. PR #117 merged at `ed9a1af3ed54f6f59a980ceab3d7f2fd4976be76`, with the same tested Git tree. Required contexts and exact PR head were checked immediately before merge; none were bypassed. Non-required Windows Core/CLI failed. Post-merge checks are pending.
+[PR #117](https://github.com/ewq100/brn-rust/pull/117) publishes exact Git tree `93faa8e4db427d7008e0280bf05bbee1d5093cd2`, identical to reviewed local `5b03107`. All local tests and independent review passed as recorded in [steering evidence](phase1-steering-evidence.md). [PR run 38137281250](https://github.com/ewq100/brn-rust/actions/runs/38137281250) passed all four required contexts and documentation/tooling. PR #117 merged at `ed9a1af3ed54f6f59a980ceab3d7f2fd4976be76`, with the same tested Git tree. Required contexts and exact PR head were checked immediately before merge; none were bypassed. Non-required Windows Core/CLI failed. [Steering main run 38137552989](https://github.com/ewq100/brn-rust/actions/runs/38137552989) passed all four required contexts again; documentation/tooling and Linux native UI passed, while non-required Windows lanes and Linux native retrieval failed.
 
 ## Backup plan review
 
@@ -44,3 +44,7 @@ Independent GPT-6.1 Sol final review: APPROVED against `ed9a1af`, no remaining a
 ## Limits
 
 This establishes complete backup publication. Saved destination UX, transactional Threads upgrades/pre-upgrade orchestration, and broader crash/recovery qualification remain outstanding. No native UI behavior changes or release are included.
+
+## Integration
+
+PR [#118](https://github.com/ewq100/brn-rust/pull/118) merged at `087471fd760c7c32e0f7e3f919ca0eb98ca1e65e` after all four required contexts and documentation/tooling passed in [PR run 38137889304](https://github.com/ewq100/brn-rust/actions/runs/38137889304). Published head `731fcc368af8467340940d407d0f033f8e93f41e` and local `8b8f8bb` have identical tree `ef73b9ba974803496ddf54c8ac2abd695c94c769`; the merge preserves it. Required checks were reread and no protection was bypassed. Main verification is recorded in [restore evidence](phase1-restore-evidence.md).
