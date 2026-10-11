@@ -238,11 +238,7 @@ mod visual_tests {
     #[tokio::test]
     async fn visual_provider_errors_malformed_stream_and_tool_attempt_fail_without_retry() {
         for (provider, model, responses) in ROUTES {
-            let malformed = if responses {
-                "data: {\"type\":\"response.output_text.delta\",\"delta\":42}\n\n"
-            } else {
-                "data: {\"choices\":42}\n\n"
-            };
+            let malformed = "data: {invalid-json}\n\n";
             for (reply, expected) in [
                 (
                     success(
@@ -699,8 +695,8 @@ mod ask_effort_tests {
                 assert_eq!(answer.text, output);
                 assert_eq!(notes.calls.load(Ordering::SeqCst), 1);
                 assert!(matches!(events.lock().unwrap().as_slice(),
-                    [AiEvent::ToolStarted { name }, AiEvent::Text(text)]
-                    if name == "read_note" && text == output));
+                    [AiEvent::ToolStarted { name }, AiEvent::Text(text), AiEvent::AnswerFinalized(finalized)]
+                    if name == "read_note" && text == output && finalized == output));
                 let bodies = http.bodies();
                 assert_eq!(bodies.len(), 2);
                 for body in &bodies {
@@ -755,11 +751,7 @@ mod ask_effort_tests {
     async fn explicit_ask_parser_failure_retains_exact_provisional_text_without_retry() {
         let partial = "\u{feff}Partial 日本語\r\nλ";
         for (provider, model, responses) in ROUTES {
-            let malformed = if responses {
-                "data: {\"type\":\"response.output_text.delta\",\"delta\":42}\n\n"
-            } else {
-                "data: {\"choices\":42}\n\n"
-            };
+            let malformed = "data: {invalid-json}\n\n";
             let sse = partial_sse(responses, partial)
                 + malformed
                 + &text_sse(responses, "must not appear");
@@ -1096,11 +1088,7 @@ mod rewrite_tests {
     #[tokio::test]
     async fn rewrite_failure_refusal_and_malformed_streams_discard_raw_partials_without_retry() {
         for (provider, model, responses) in ROUTES {
-            let malformed = if responses {
-                "data: {\"type\":\"response.output_text.delta\",\"delta\":42}\n\n"
-            } else {
-                "data: {\"choices\":42}\n\n"
-            };
+            let malformed = "data: {invalid-json}\n\n";
             for (reply, kind) in [
                 (
                     success(
@@ -2954,6 +2942,70 @@ async fn http_and_malformed_sse_errors_have_no_retry_or_raw_retention() {
     }
 }
 
+// Recognized preview frames can be omitted or corrected by Rig's final fold.
+// A valid successful finalized response remains the authoritative answer.
+#[tokio::test]
+async fn responses_final_snapshot_reconciles_preview_and_tool_loop_once() {
+    for (provider, model) in [
+        (Provider::Chatgpt, "gpt-6.1-sol"),
+        (Provider::Copilot, "gpt-5.3-codex"),
+    ] {
+        for (numeric_preview, tool_loop) in [(false, false), (true, false), (false, true)] {
+            let final_sse = text_sse(true, "final B");
+            let sse = if numeric_preview {
+                event(json!({"type":"response.output_text.delta","delta":42,
+                    "item_id":"msg_synthetic","output_index":0,"content_index":0,"sequence_number":0}))
+                    + &final_sse
+            } else {
+                // Change only the provisional delta; the completed snapshot remains B.
+                final_sse.replacen("\"delta\":\"final B\"", "\"delta\":\"preview A\"", 1)
+            };
+            let mut replies = vec![];
+            if tool_loop {
+                replies.push(success(tool_sse(
+                    true,
+                    &[("read_note", json!({"path":"a.md"}))],
+                )));
+            }
+            replies.push(success(sse));
+            let (_root, client, http) = client(provider, model, replies).await;
+            let notes = Arc::new(Notes::default());
+            let (answer, events) = run(client, notes.clone(), CancellationToken::new()).await;
+            assert!(
+                matches!(answer.terminal, AiTerminal::Completed),
+                "{answer:?}"
+            );
+            assert_eq!(answer.text, "final B");
+            let finalized = events
+                .iter()
+                .filter_map(|event| match event {
+                    AiEvent::AnswerFinalized(text) => Some(text.as_str()),
+                    _ => None,
+                })
+                .collect::<Vec<_>>();
+            assert_eq!(finalized, ["final B"]);
+            let preview = events
+                .iter()
+                .filter_map(|event| match event {
+                    AiEvent::Text(text) => Some(text.as_str()),
+                    _ => None,
+                })
+                .collect::<String>();
+            assert_eq!(
+                preview,
+                if numeric_preview {
+                    "final B"
+                } else {
+                    "preview A"
+                }
+            );
+            assert_eq!(notes.calls.load(Ordering::SeqCst), usize::from(tool_loop));
+            assert_eq!(http.bodies().len(), 1 + usize::from(tool_loop));
+            http.assert_consumed();
+        }
+    }
+}
+
 #[tokio::test]
 async fn stop_after_partial_does_not_consume_final_or_duplicate_text() {
     let (_root, client, http) = client(
@@ -3015,6 +3067,33 @@ async fn unknown_tool_fails_without_dispatch_retry_or_name_leak() {
 }
 
 #[tokio::test]
+async fn malformed_nonobject_tool_arguments_fail_before_dispatch_with_zero_retry_budget() {
+    for (provider, model, responses) in [
+        (Provider::Chatgpt, "gpt-6.1-sol", true),
+        (Provider::Copilot, "gpt-5.5", false),
+        (Provider::Copilot, "gpt-5.3-codex", true),
+    ] {
+        for args in [json!([{"path":"a.md"}]), json!("{\"path\":\"a.md\"")] {
+            let (_root, client, http) = client(
+                provider,
+                model,
+                vec![success(tool_sse(responses, &[("read_note", args)]))],
+            )
+            .await;
+            let notes = Arc::new(Notes::default());
+            let (answer, _) = run(client, notes.clone(), CancellationToken::new()).await;
+            assert!(
+                matches!(answer.terminal, AiTerminal::Failed(_)),
+                "{answer:?}"
+            );
+            assert_eq!(notes.calls.load(Ordering::SeqCst), 0);
+            assert_eq!(http.bodies().len(), 1);
+            http.assert_consumed();
+        }
+    }
+}
+
+#[tokio::test]
 async fn rust_argument_validation_and_safe_failed_results_continue_without_retry() {
     for (name, args) in [
         ("search_notes", json!({"query":"","limit":1})),
@@ -3059,7 +3138,7 @@ async fn actual_sse_first_error_preserves_partial_and_discards_later_text() {
         .next()
         .unwrap()
         .to_owned();
-    let sse = prefix + "\n\n" + "data: {\"choices\":42}\n\n" + &text_sse(false, "must not appear");
+    let sse = prefix + "\n\n" + "data: {invalid-json}\n\n" + &text_sse(false, "must not appear");
     let (_root, client, http) = client(Provider::Copilot, "gpt-4o", vec![success(sse)]).await;
     let (a, events) = run(client, Arc::new(Notes::default()), CancellationToken::new()).await;
     assert!(matches!(a.terminal, AiTerminal::Failed(_)), "{a:?}");
@@ -3105,7 +3184,7 @@ async fn history_is_limited_to_last_twenty_text_pairs() {
     let messages = bodies[0]["messages"].as_array().unwrap();
     assert_eq!(messages.len(), 42); // preamble, twenty pairs, current question
     assert_eq!(messages[1]["content"], "question-5");
-    assert_eq!(messages[40]["content"][0]["text"], "answer-24");
+    assert_eq!(messages[40]["content"], "answer-24");
     assert_eq!(messages[41]["content"], "new");
     assert!(
         messages[1..41]
@@ -3139,12 +3218,10 @@ async fn empty_partial_history_keeps_question_but_omits_empty_assistant_on_wire(
     assert!(matches!(result.terminal, AiTerminal::Completed));
     let bodies = http.bodies();
     let messages = bodies[0]["messages"].as_array().unwrap();
-    assert_eq!(
-        messages.len(),
-        3,
-        "preamble, retained question, new question only"
-    );
-    assert_eq!(messages[1]["content"], "stopped-before-text");
+    // Rig 0.44 coalesces consecutive user turns on the Chat wire. Both retained
+    // question and current prompt must remain, without an empty assistant turn.
+    let serialized = serde_json::to_string(messages).unwrap();
+    assert!(serialized.contains("stopped-before-text") && serialized.contains("new"));
     assert!(messages.iter().all(|m| m["role"] != "assistant"));
     http.assert_consumed();
 }
@@ -3674,11 +3751,7 @@ mod capability_probe_formats {
     #[tokio::test]
     async fn probe_first_parser_error_keeps_exact_partial_and_discards_later_text() {
         for (provider, model, responses) in ROUTES {
-            let malformed = if responses {
-                "data: {\"type\":\"response.output_text.delta\",\"delta\":42}\n\n"
-            } else {
-                "data: {\"choices\":42}\n\n"
-            };
+            let malformed = "data: {invalid-json}\n\n";
             let sse = partial_sse(responses, "\u{feff}partial\r\nλ")
                 + malformed
                 + &text_sse(responses, "must not appear");
@@ -3847,7 +3920,7 @@ mod subscription_catalog_tests {
             requests[0].headers["user-agent"]
                 .to_str()
                 .unwrap()
-                .starts_with("rig/0.43.0 ")
+                .starts_with("rig/0.44.0 ")
         );
         http.assert_consumed();
     }
@@ -3888,7 +3961,7 @@ mod subscription_catalog_tests {
             assert_eq!(
                 request.headers["user-agent"],
                 format!(
-                    "rig/0.43.0 ({} {}; rig)",
+                    "rig/0.44.0 ({} {}; rig)",
                     std::env::consts::OS,
                     std::env::consts::ARCH
                 )
@@ -4564,7 +4637,7 @@ mod action_proposal_tool_tests {
             assert_eq!(answer.text, "Review ready");
             assert_eq!(tools.0.load(Ordering::SeqCst), 1);
             assert!(
-                matches!(events.lock().unwrap().as_slice(),[AiEvent::ToolStarted{name},AiEvent::Text(text)] if name=="propose_actions" && text=="Review ready")
+                matches!(events.lock().unwrap().as_slice(),[AiEvent::ToolStarted{name},AiEvent::Text(text), AiEvent::AnswerFinalized(finalized)] if name=="propose_actions" && text=="Review ready" && finalized=="Review ready")
             );
             http.assert_consumed();
             let bodies = http.bodies();
@@ -4617,7 +4690,12 @@ mod action_proposal_tool_tests {
                 required.sort_unstable();
                 assert_eq!(
                     required,
-                    fields.keys().map(String::as_str).collect::<Vec<_>>()
+                    fields
+                        .keys()
+                        .map(String::as_str)
+                        .collect::<std::collections::BTreeSet<_>>()
+                        .into_iter()
+                        .collect::<Vec<_>>()
                 );
             }
             for (index, variant) in variants.iter().enumerate() {
@@ -4934,7 +5012,12 @@ mod knowledge_proposal_tool_tests {
         assert_eq!(required, expected);
         assert_eq!(
             required,
-            properties.keys().map(String::as_str).collect::<Vec<_>>()
+            properties
+                .keys()
+                .map(String::as_str)
+                .collect::<std::collections::BTreeSet<_>>()
+                .into_iter()
+                .collect::<Vec<_>>()
         );
     }
     fn replies(body: &Value, responses: bool) -> Vec<String> {
@@ -5028,8 +5111,8 @@ mod knowledge_proposal_tool_tests {
             assert_eq!(result.text, "Knowledge review ready");
             assert_eq!(tools.calls.load(Ordering::SeqCst), 1);
             assert!(matches!(events.lock().unwrap().as_slice(),
-                [AiEvent::ToolStarted { name }, AiEvent::Text(text)]
-                if name == "propose_knowledge" && text == "Knowledge review ready"));
+                [AiEvent::ToolStarted { name }, AiEvent::Text(text), AiEvent::AnswerFinalized(finalized)]
+                if name == "propose_knowledge" && text == "Knowledge review ready" && finalized == "Knowledge review ready"));
             http.assert_consumed();
             let bodies = http.bodies();
             exact_behavior_tools(&bodies[0], responses, true, true);
@@ -5065,7 +5148,7 @@ mod knowledge_proposal_tool_tests {
                         "quote":{"type":"string","minLength":1,"maxLength":16384},
                         "source_id":{"type":["string","null"],"minLength":1,"maxLength":256},
                         "occurrence":{"type":["integer","null"],"minimum":1,"maximum":1048576}
-                },"required":if provider == Provider::Copilot && responses { json!(["occurrence","quote","source_id"]) } else { json!(["quote"]) }
+                },"required":if provider == Provider::Copilot && responses { json!(["quote","source_id","occurrence"]) } else { json!(["quote"]) }
                 })
             );
             assert_eq!(
@@ -5641,6 +5724,8 @@ mod conflict_tool_tests {
                 .unwrap()
                 .keys()
                 .map(String::as_str)
+                .collect::<std::collections::BTreeSet<_>>()
+                .into_iter()
                 .collect::<Vec<_>>(),
             expected
         );
@@ -5742,7 +5827,7 @@ mod conflict_tool_tests {
             assert_eq!(result.text, "Unresolved finding retained");
             assert_eq!(tools.conflict_calls.load(Ordering::SeqCst), 1);
             assert!(
-                matches!(events.as_slice(), [AiEvent::ToolStarted { name }, AiEvent::Text(_)] if name == "report_conflict")
+                matches!(events.as_slice(), [AiEvent::ToolStarted { name }, AiEvent::Text(_), AiEvent::AnswerFinalized(finalized)] if name == "report_conflict" && finalized == &result.text)
             );
             http.assert_consumed();
             let bodies = http.bodies();
@@ -5769,7 +5854,7 @@ mod conflict_tool_tests {
                 assert_eq!(
                     quote["required"],
                     if provider == Provider::Copilot && responses {
-                        json!(["occurrence", "quote"])
+                        json!(["quote", "occurrence"])
                     } else {
                         json!(["quote"])
                     },

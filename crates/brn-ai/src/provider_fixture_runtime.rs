@@ -21,13 +21,13 @@ use crate::chat::{
 enum RunMode {
     Answer,
     AnswerWithEffort {
-        responses: bool,
+        copilot_chat_effort: bool,
         effort: ReasoningEffort,
         max_tool_rounds: u16,
         progress: bool,
     },
     Rewrite {
-        responses: bool,
+        copilot_chat_effort: bool,
         effort: ReasoningEffort,
     },
 }
@@ -156,8 +156,8 @@ async fn answer_with_tools(
     let selection = client.selection();
     let model = selection.model.clone();
     let mode = RunMode::AnswerWithEffort {
-        responses: selection.provider == Provider::Chatgpt
-            || rig::providers::copilot::wire::routes_through_responses(&model),
+        copilot_chat_effort: selection.provider == Provider::Copilot
+            && !rig::providers::copilot::wire::routes_through_responses(&model),
         effort,
         max_tool_rounds,
         progress,
@@ -302,8 +302,8 @@ pub async fn rewrite(
     let selection = client.selection();
     let model = selection.model.clone();
     let mode = RunMode::Rewrite {
-        responses: selection.provider == Provider::Chatgpt
-            || rig::providers::copilot::wire::routes_through_responses(&model),
+        copilot_chat_effort: selection.provider == Provider::Copilot
+            && !rig::providers::copilot::wire::routes_through_responses(&model),
         effort,
     };
     match client.inner {
@@ -467,15 +467,22 @@ async fn run_model_images(
         builder = builder.tool(crate::proposal_tools::ProposeActions(proposals));
     }
     if let RunMode::AnswerWithEffort {
-        responses, effort, ..
+        copilot_chat_effort,
+        effort,
+        ..
     }
-    | RunMode::Rewrite { responses, effort } = mode
+    | RunMode::Rewrite {
+        copilot_chat_effort,
+        effort,
+    } = mode
     {
-        builder = builder.additional_params(if responses {
-            serde_json::json!({"reasoning":{"effort":effort.as_str()}})
+        // Rig 0.44 refuses portable options on Copilot Chat as unverified. Keep
+        // the qualified wire field only there; Rig owns Responses mapping.
+        builder = if copilot_chat_effort {
+            builder.additional_params(serde_json::json!({"reasoning_effort": effort.as_str()}))
         } else {
-            serde_json::json!({"reasoning_effort":effort.as_str()})
-        });
+            builder.reasoning(effort.typed())
+        };
     }
     let agent = builder.build();
     let history = history[history.len().saturating_sub(20)..]
@@ -494,6 +501,9 @@ async fn run_model_images(
         .history(history)
         .max_turns(usize::from(max_tool_rounds) + 1)
         .max_invalid_tool_call_retries(0)
+        .max_consecutive_malformed_tool_calls(0)
+        .unhandled_invalid_tool_call(rig::run::UnhandledInvalidToolCall::Fail)
+        .accept_unknown_finish_reasons(false)
         .tool_concurrency(2)
         .stream();
     collect_stream(

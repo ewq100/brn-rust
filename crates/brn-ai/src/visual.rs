@@ -9,9 +9,10 @@ use crate::{
 };
 use base64::Engine as _;
 use futures::StreamExt;
-use rig::agent::{MultiTurnStreamItem, StreamingError};
-use rig::completion::{FinishReason, Message};
+use rig::agent::MultiTurnStreamItem;
+use rig::completion::{FinishReason, Message, PromptError};
 use rig::message::{ImageDetail, ImageMediaType, UserContent};
+use serde_json::Value;
 use std::sync::{Arc, atomic::AtomicBool};
 use tokio_util::sync::CancellationToken;
 
@@ -97,11 +98,20 @@ pub async fn interpret_visual(
     };
     let agent = rig::AgentBuilder::new(model)
         .preamble(AgentBehavior::VisualInterpretation.preamble())
+        // Rig 0.44 maps portable reasoning on Responses. Its Copilot Chat
+        // mapping explicitly refuses options as unverified, so retain the
+        // already qualified Chat reasoning key until upstream supports it.
+        .options(if responses {
+            rig::completion::GenerationOptions::new().reasoning(effort.typed())
+        } else {
+            Default::default()
+        })
         .additional_params(if responses {
-            serde_json::json!({"reasoning":{"effort":effort.as_str()}})
+            Value::Null
         } else {
             serde_json::json!({"reasoning_effort":effort.as_str()})
         })
+        .accept_unknown_finish_reasons(false)
         .build();
     let input = Message::User {
         content: vec![
@@ -117,6 +127,8 @@ pub async fn interpret_visual(
         .prompt(input)
         .max_turns(1)
         .max_invalid_tool_call_retries(0)
+        .max_consecutive_malformed_tool_calls(0)
+        .unhandled_invalid_tool_call(rig::run::UnhandledInvalidToolCall::Fail)
         .stream();
     // Rig accepts some truncated textual turns for ordinary chat. A strict
     // visual response must finish naturally even if its partial JSON parses.
@@ -135,8 +147,8 @@ pub async fn interpret_visual(
 // return that same contract rather than replace or box its upstream error.
 #[allow(clippy::result_large_err)]
 fn require_natural_finish(
-    item: Result<MultiTurnStreamItem, StreamingError>,
-) -> Result<MultiTurnStreamItem, StreamingError> {
+    item: Result<MultiTurnStreamItem, PromptError>,
+) -> Result<MultiTurnStreamItem, PromptError> {
     match item {
         Ok(MultiTurnStreamItem::FinalResponse(ref response))
             if !response
@@ -144,11 +156,9 @@ fn require_natural_finish(
                 .last()
                 .is_some_and(|call| call.finish_reason.as_ref() == Some(&FinishReason::Stop)) =>
         {
-            Err(StreamingError::Completion(
-                rig::error::ProviderError::Response(
-                    "visual response did not finish naturally".into(),
-                ),
-            ))
+            Err(PromptError::Provider(rig::error::ProviderError::Response(
+                "visual response did not finish naturally".into(),
+            )))
         }
         item => item,
     }

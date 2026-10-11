@@ -617,6 +617,12 @@ fn native_stream_and_resolution_keep_the_worker_thread_owner(cx: &mut TestAppCon
             view.poll_worker(window, cx);
             assert_eq!(view.stream_for(&a.id), Some("Only A's synthetic answer"));
             assert_eq!(view.stream_for(&b.id), None);
+            sender
+                .send(WorkerEvent::AnswerFinalized("Authoritative A".into()))
+                .unwrap();
+            view.poll_worker(window, cx);
+            assert_eq!(view.stream_for(&a.id), Some("Authoritative A"));
+            assert_eq!(view.stream_for(&b.id), None);
             view.resolve_discussion(&b.id, cx);
             assert!(!cancel.is_cancelled(), "resolving B must not cancel A");
             assert_eq!(
@@ -636,7 +642,7 @@ fn native_stream_and_resolution_keep_the_worker_thread_owner(cx: &mut TestAppCon
             assert_eq!(a_state.state, ThreadState::Open);
             assert_eq!(b_state.state, ThreadState::Resolved);
             view.navigate(Page::Thread(a.id.clone()), window, cx);
-            assert_eq!(view.stream_for(&a.id), Some("Only A's synthetic answer"));
+            assert_eq!(view.stream_for(&a.id), Some("Authoritative A"));
             view.resolve_discussion(&a.id, cx);
             assert!(
                 cancel.is_cancelled(),

@@ -66,7 +66,7 @@ pub(super) fn source_metadata(
         })
         .map(|record| json!({"id":record.id,"version":record.version}));
     Ok(
-        json!({"reference":reference,"source_record":source_record,"text":text,"fingerprint":source.fingerprint,"coverage":source.report,"figures":assets,"figure_instruction":"Retain a meaningful selected figure by copying its exact brn-transient-asset link into Note Markdown. The host verifies and stores only selected figure bytes. Use the shown source record for source links and checked revision inputs. Preserve detected omissions; unchecked coverage does not prove missing content."}),
+        json!({"reference":reference,"source_record":source_record,"text":text,"fingerprint":source.fingerprint,"coverage":source.report,"figures":assets}),
     )
 }
 pub(super) fn validate_sources(sources: &BTreeMap<String, TransientSource>) -> AiResult<()> {

@@ -1,21 +1,22 @@
 ---
 name: prepare-reply
-description: Draft a source-supported reply using current BRN context, while leaving sending and human obligations with the owner.
+description: Draft and save a source-supported reply from current context while preserving the owner's external delivery obligation.
 ---
 
 # Prepare a reply
 
-Read the relevant source, current notes, protected decisions, thread, and linked Action. Draft only claims supported by those records. Preserve uncertainty and qualifications. If a consequential detail is missing or evidence conflicts, ask the focused question or present a clearly bounded draft rather than inventing facts or commitments. Link the draft to its supporting sources and work context.
+1. Use `read_records` for the current notes, protected decisions, relevant thread, source references and linked Action. Read required full passages with versioned `read_note`, and supplied source text with `read_source`. Draft only supported claims, retaining uncertainty and qualifications. If a consequential detail is missing or conflicts, ask the focused question or present a bounded draft instead of inventing commitments.
+2. Save the draft as a typed Comment on the relevant note or a linked Note using `prepare_changes`, with its supporting source links and observed input versions. Keep the draft identifiable and reuse existing work context. These are ordinary checked record writes, not a special draft or send tool. Use `apply_changes` and report its actual outcome and receipt; refresh a stale candidate only after rereading.
+3. Mark an internal drafting Action Done only when the requested drafting result actually exists and applicable host authority permits that state change. Keep a human delivery Action Open or Waiting until the owner's confirmation or execution evidence records its real outcome. Thread discussion, a saved draft and a completed internal drafting task do not establish external delivery or recipient agreement.
 
-Save the draft through the shared checked service and report its actual outcome and receipt. The owner can copy it to the external system. The first release does not send it. A saved draft may complete an internal drafting task when that was the requested result, but does not complete a human delivery obligation or imply the recipient agreed. Keep any related Action Open or Waiting until the applicable owner confirmation or execution evidence records its real outcome. A resolved discussion does not complete that Action.
+The owner can copy the saved draft to the external system. The first release does not send it. Any new commitment or changed scope/deadline needs the applicable owner choice and host authority from the base guide.
 
 ## Example
 
-The owner says, “Keep 22 November and draft a reply explaining it.” Use the protected decision and linked email to draft a concise explanation, save it in the existing thread with source links, and mark only the internal drafting result complete if supported by the requested work. Leave the delivery Action open for the owner's actual send and outcome.
+The owner says, “Keep 22 November and draft a reply explaining it.” Use the protected decision and linked email, save a concise draft as a Comment or linked Note in the existing work context, and record its applied receipt. Mark only the internal drafting task complete when supported. Leave the delivery Action open for the owner's actual send and outcome.
 
 ## Boundaries
 
-- Do not state that a message was sent, delivered, or accepted because a draft was saved.
-- Do not claim a human obligation is complete because the thread was resolved or a draft exists.
-- Do not make a new commitment or accept a changed scope/deadline without applicable owner instruction.
-- If the source does not support a material statement, omit it or identify the missing information.
+- A saved draft is not a sent, delivered or accepted message.
+- A resolved discussion does not complete a human obligation.
+- Omit unsupported material claims or identify the missing evidence.

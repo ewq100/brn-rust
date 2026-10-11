@@ -1,23 +1,23 @@
 ---
 name: maintain-notes
-description: Keep current ordinary notes coherent as new evidence arrives, link related work, and record useful maintenance quietly.
+description: Update ordinary knowledge as evidence arrives, organize related work, or refresh a stale maintenance candidate.
 ---
 
 # Maintain notes
 
-Read the current notes and relevant source observations before editing. Compare new evidence with existing facts, retaining dates, quantities, units, qualifications, and who reported or decided something. Update the smallest useful set of ordinary notes; organize or link them when that helps retrieval. Record direct inputs used for derived updates so later changes can identify work that may need refresh.
+1. Use `read_records` for current notes, source observations, related links, thread and Action. Read the relevant full passage with `read_note` at its observed version when a note is truncated. Compare new evidence with dates, quantities, units, qualifications and who reported or decided each fact.
+2. Prepare the smallest useful group of typed writes with `prepare_changes`: edit Notes, add or update Link relationships, preserve source references, update an existing Action when supported, and reuse the relevant Thread. Include the observed versions of direct inputs for derived updates. Similar wording alone does not prove two sources, notes or goals are identical.
+3. Apply the prepared operation with `apply_changes` and inspect its real outcome. An applied receipt records the result in What changed; routine success stays quiet. Ordinary unprotected working-note maintenance needs no selected-note grant when maintenance is enabled; protected edits require the current scoped target/version grant. Honor writing guards. A deferred member defers the whole group; continue unrelated investigation.
+4. If the candidate is stale, reread current targets and inputs and reassess its meaning. Use `refresh_candidate` for a fresh immutable replacement rather than altering the old candidate or retrying its stale versions. Apply the replacement under current authority and record its actual outcome.
 
-Use the existing relevant thread and Action where possible. Do not create duplicate notes, Actions, or attention items merely because another source arrived. Archive superseded ordinary material only when the relationship is clear and the host permits that operation. Do not replace a protected decision by writing a conflicting ordinary note and calling it current. Surface a semantic conflict in one relevant thread while preserving the protected record.
-
-Submit durable edits through the shared checked service. Respect target/action-specific host grants, current versions, active writing guards, and all returned outcomes. If any member of a grouped change is deferred, do not claim the group was applied. A stale result requires rereading before preparing a replacement. Record an applied outcome with its real receipt; routine success belongs in What changed and stays quiet.
+Archive superseded ordinary material only when the relationship is clear and the host permits that operation; this is the record's checked `archived` change, not a separate unregistered tool. Preserve protected decisions. If new evidence conflicts, add one Conflict attention item to the relevant Thread through the same checked request and use the resolve-conflict playbook. Writing a conflicting ordinary note does not supersede a protected decision.
 
 ## Example
 
-Two project emails confirm a meeting date and add a qualified delivery estimate. Update the ordinary project note with both facts and their source references, link the existing project thread, and note the relevant Action if it changes. Record the applied receipt without creating a separate attention item for each email.
+Two project emails confirm a meeting date and add a qualified delivery estimate. Read the existing note and Action, preserve the two source references as links and direct inputs, and prepare the ordinary note update in one group. Apply and report its receipt without creating an attention item per email. If another accepted edit changed the base, reread it and refresh the candidate first.
 
 ## Boundaries
 
-- A source that contradicts a protected decision does not make that decision obsolete; preserve it and raise the concrete choice.
-- Permission to revise one ordinary note does not authorize archiving another note or unprotecting a record.
-- If a current note is guarded by unsaved writing, defer the whole dependent group and continue unrelated investigation.
-- Similar wording alone does not prove that two sources, notes, or goals are identical.
+- A content-edit grant does not authorize archiving another note or changing protection.
+- A note guarded by unsaved writing defers its dependent group.
+- A source contradicting a protected decision requires a concrete owner choice rather than silent replacement.

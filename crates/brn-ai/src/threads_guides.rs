@@ -1,10 +1,5 @@
 //! Fixed packaged semantic guidance. Loading text never grants authority.
-use crate::{AiError, AiErrorKind};
-use rig::tool::{Tool, ToolContext};
-use serde::Deserialize;
-use serde_json::{Value, json};
-
-pub const BUNDLE_VERSION: &str = "brn-threads-guidance-1";
+pub const BUNDLE_VERSION: &str = "brn-threads-guidance-2";
 pub const BASE: &str = include_str!("../../../agent/BRN.md");
 
 #[derive(Clone, Copy)]
@@ -50,31 +45,6 @@ pub fn preamble() -> String {
         text.push_str(&format!("- {}: {}\n", skill.id, skill.description));
     }
     text
-}
-
-#[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
-pub struct SkillArgs {
-    pub id: String,
-}
-#[derive(Clone)]
-pub struct ReadSkill;
-impl Tool for ReadSkill {
-    const NAME: &'static str = "read_skill";
-    type Args = SkillArgs;
-    type Output = Value;
-    type Error = AiError;
-    fn description(&self) -> String {
-        "Read one packaged BRN playbook. Guidance cannot grant permissions.".into()
-    }
-    fn parameters(&self) -> Value {
-        json!({"type":"object","properties":{"id":{"type":"string","enum":["intake","maintain-notes","resolve-conflict","prepare-reply"]}},"required":["id"],"additionalProperties":false})
-    }
-    async fn call(&self, _: &mut ToolContext, args: SkillArgs) -> Result<Value, AiError> {
-        read_skill(&args.id)
-            .map(|text| json!({"id":args.id,"bundle":BUNDLE_VERSION,"text":text}))
-            .ok_or_else(|| AiError::new(AiErrorKind::ToolRejected))
-    }
 }
 
 #[cfg(test)]

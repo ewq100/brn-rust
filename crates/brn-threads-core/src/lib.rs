@@ -2,9 +2,11 @@
 //! never decoded from a model request. All writers use SQLite IMMEDIATE transactions.
 mod edit;
 mod read;
+mod revision_read;
 mod store;
 mod types;
 pub use read::{MAX_NOTE_READ_BYTES, NoteHeading, NoteReadOutcome, NoteSlice, note_headings};
+pub use revision_read::{RevisionPage, RevisionSummary};
 pub use store::{DATA_MARKER, DATABASE_FILENAME, Store};
 pub use types::*;
 

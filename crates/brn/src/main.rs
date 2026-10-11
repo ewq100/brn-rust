@@ -17,7 +17,7 @@ static CANCEL: AtomicBool = AtomicBool::new(false);
 extern "C" fn on_sigint(_: libc::c_int) {
     CANCEL.store(true, Ordering::SeqCst);
 }
-const HELP:&str="BRN Threads\n\nUsage: brn --data-dir ABSOLUTE_DIRECTORY COMMAND [--option VALUE]\n\nCommands: init, records, notes, threads, needs-you, history, candidates, settings,\n  note-create --title TITLE --text MARKDOWN\n  thread-start --title TITLE\n  read --id RECORD; search --query TEXT\n  begin-edit --note ID --base VERSION\n  update-buffer --session ID --generation N --text MARKDOWN\n  save|discard --session ID --generation N; recovery\n  apply|dismiss --operation ID; undo --operation ID; resolve --thread ID\n  ask --thread ID --prompt TEXT [--budget 1..32]\n  intake --source ABSOLUTE_FILE --intent useful|full [--title TITLE] [--thread ID]\n  configure --provider Codex|Copilot --model ID --effort low|medium|high\n  pause; resume; export|backup --destination ABSOLUTE_FRESH_PATH\n  restore --source ABSOLUTE_BACKUP\n\nFresh explicit data only. Originals remain external; no external messages are sent.\nReview apply and Undo are concrete owner actions. Continue uses ask on the same Thread.";
+const HELP:&str="BRN Threads\n\nUsage: brn --data-dir ABSOLUTE_DIRECTORY COMMAND [--option VALUE]\n\nCommands: init, records, notes, threads, needs-you, history, candidates, settings,\n  note-create --title TITLE --text MARKDOWN\n  thread-start --title TITLE\n  read --id RECORD; search --query TEXT\n  begin-edit --note ID --base VERSION\n  update-buffer --session ID --generation N --text MARKDOWN\n  save|discard --session ID --generation N; recovery\n  apply|dismiss --operation ID; undo --operation ID; resolve --thread ID\n  ask --thread ID --prompt TEXT [--budget 1..32] [--edit-note ID --base VERSION | --record-decision yes]\n  intake --source ABSOLUTE_FILE --intent useful|full [--title TITLE] [--thread ID]\n  configure --provider Codex|Copilot --model ID --effort low|medium|high\n  pause; resume; export|backup --destination ABSOLUTE_FRESH_PATH\n  restore --source ABSOLUTE_BACKUP\n\nFresh explicit data only. Originals remain external; no external messages are sent.\nReview apply and Undo are concrete owner actions. Continue uses ask on the same Thread.";
 type Result<T> = std::result::Result<T, String>;
 struct Invocation {
     data: PathBuf,
@@ -61,7 +61,14 @@ fn parse(args: impl IntoIterator<Item = String>) -> Result<Option<Invocation>> {
         "save" | "discard" => &["session", "generation"],
         "apply" | "undo" | "dismiss" => &["operation"],
         "resolve" => &["thread"],
-        "ask" => &["thread", "prompt", "budget"],
+        "ask" => &[
+            "thread",
+            "prompt",
+            "budget",
+            "edit-note",
+            "base",
+            "record-decision",
+        ],
         "intake" => &["source", "intent", "title", "thread"],
         "configure" => &[
             "provider",
@@ -149,25 +156,44 @@ async fn ask(
             tokio::time::sleep(std::time::Duration::from_millis(50)).await;
         }
     });
-    let result = brn_ai::threads::run(
-        brn_ai::threads::ThreadRunRequest {
-            data_dir: inv.data.clone(),
-            thread,
-            prompt,
-            selection: Selection {
-                provider: provider(&settings.provider)?,
-                model: settings.model,
+    let result =
+        brn_ai::threads::run(
+            brn_ai::threads::ThreadRunRequest {
+                owner_request: if inv.command == "ask" {
+                    match (inv.args.get("edit-note"), inv.args.get("record-decision")) {
+                        (Some(id), None) => Some(brn_ai::threads::OwnerRequest::EditNote {
+                            id: id.clone(),
+                            version: inv.number("base")?,
+                        }),
+                        (None, Some(value)) if value == "yes" && !inv.args.contains_key("base") => {
+                            Some(brn_ai::threads::OwnerRequest::RecordDecision)
+                        }
+                        (None, None) if !inv.args.contains_key("base") => None,
+                        _ => return Err(
+                            "Choose either --edit-note ID --base VERSION or --record-decision yes"
+                                .into(),
+                        ),
+                    }
+                } else {
+                    None
+                },
+                data_dir: inv.data.clone(),
+                thread,
+                prompt,
+                selection: Selection {
+                    provider: provider(&settings.provider)?,
+                    model: settings.model,
+                },
+                effort: effort(&settings.effort)?,
+                max_tool_rounds: budget,
+                auth_file: settings.auth_file.map(PathBuf::from),
+                credentials_dir: settings.credentials_dir.map(PathBuf::from),
+                sources,
             },
-            effort: effort(&settings.effort)?,
-            max_tool_rounds: budget,
-            auth_file: settings.auth_file.map(PathBuf::from),
-            credentials_dir: settings.credentials_dir.map(PathBuf::from),
-            sources,
-        },
-        cancel,
-        Arc::new(|_| {}),
-    )
-    .await;
+            cancel,
+            Arc::new(|_| {}),
+        )
+        .await;
     watcher.abort();
     let result = result.map_err(|e| format!("Provider run failed: {:?}", e.kind))?;
     let terminal = match result.answer.terminal {

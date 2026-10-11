@@ -49,6 +49,7 @@ dependencies = [
 name = "brn-rig-decoder-comparison"
 version = "0.0.0"
 dependencies = [
+ "futures",
  "rig-core 0.43.0",
  "rig-core 0.44.0",
  "serde_json",

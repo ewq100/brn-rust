@@ -224,9 +224,40 @@ impl Store {
                 "candidate replacement requires owner authority".into(),
             ));
         }
+        self.replace_candidate_inner(original, replacement, request, authority, false)
+    }
+    /// Prepare a fresh candidate in this runtime's Thread family. This grants
+    /// no permission to apply its content; the normal checked boundary remains.
+    pub fn refresh_candidate(
+        &mut self,
+        original: &OperationId,
+        replacement: &OperationId,
+        request: &ChangeRequest,
+        authority: &HostAuthority,
+    ) -> Result<Prepared> {
+        if !matches!(authority.scope, crate::types::Scope::Runtime { .. }) {
+            return Err(Error::Invalid(
+                "candidate refresh requires fenced runtime authority".into(),
+            ));
+        }
+        self.replace_candidate_inner(original, replacement, request, authority, true)
+    }
+    fn replace_candidate_inner(
+        &mut self,
+        original: &OperationId,
+        replacement: &OperationId,
+        request: &ChangeRequest,
+        authority: &HostAuthority,
+        runtime_refresh: bool,
+    ) -> Result<Prepared> {
         let tx = self
             .conn
             .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        let refresh_thread = if runtime_refresh {
+            Some(refresh_scope_on(&tx, original, replacement, authority)?)
+        } else {
+            None
+        };
         // Replacement identity binds both the original and the complete immutable
         // request. Replay precedes retirement, applied receipts, and current bases.
         let (existing_hash, replacement_of): (Option<String>, Option<String>) = tx.query_row(
@@ -262,6 +293,33 @@ impl Store {
             ));
         }
         prepared_on(&tx, original)?;
+        if runtime_refresh {
+            for write in &request.writes {
+                if matches!(write.data, RecordData::Run(_) | RecordData::Settings(_)) {
+                    return Err(Error::Invalid(
+                        "candidate refresh cannot alter host records".into(),
+                    ));
+                }
+                if record_on(&tx, &write.id)?
+                    .as_ref()
+                    .map(|record| record.version)
+                    != write.expected_version
+                {
+                    return Err(Error::Invalid(
+                        "candidate refresh requires current target versions".into(),
+                    ));
+                }
+            }
+            for input in &request.inputs {
+                if record_on(&tx, &input.record)?
+                    .is_none_or(|record| record.version != input.version)
+                {
+                    return Err(Error::Invalid(
+                        "candidate refresh requires current input versions".into(),
+                    ));
+                }
+            }
+        }
         tx.execute(
             "UPDATE operations SET retired=1 WHERE id=?1",
             [original.as_str()],
@@ -282,7 +340,11 @@ impl Store {
             )?;
             for body in stmt.query_map([], |row| row.get::<_, String>(0))? {
                 let record: Record = serde_json::from_str(&body?)?;
-                if request.writes.iter().any(|write| write.id == record.id) {
+                if refresh_thread
+                    .as_ref()
+                    .is_some_and(|thread| record.id != *thread)
+                    || request.writes.iter().any(|write| write.id == record.id)
+                {
                     continue;
                 }
                 let RecordData::Thread(mut thread) = record.data else {
@@ -290,7 +352,8 @@ impl Store {
                 };
                 let mut changed = false;
                 for attention in &mut thread.attention {
-                    if attention.kind == AttentionKind::Review
+                    if (attention.kind == AttentionKind::Review
+                        || runtime_refresh && attention.kind == AttentionKind::Conflict)
                         && attention.record.as_deref() == Some(original.as_str())
                     {
                         attention.record = Some(replacement.as_str().into());
@@ -315,13 +378,20 @@ impl Store {
                 params![metadata.0, key],
             )?;
             let request = ChangeRequest {
-                reason: "Owner edited review; attention follows replacement candidate".into(),
+                reason: "Attention follows immutable replacement candidate".into(),
                 writes: attention_writes,
                 inputs: vec![],
             };
             prepare_on(&tx, &metadata, &request, true)?;
+            // This host-selected metadata request never includes model content.
+            let metadata_authority = HostAuthority::owner("candidate attention bookkeeping");
+            let metadata_authority = if let Some((run, fence)) = &authority.run_binding {
+                metadata_authority.for_run(run, *fence)
+            } else {
+                metadata_authority
+            };
             if !matches!(
-                apply_on(&tx, &metadata, authority, None)?,
+                apply_on(&tx, &metadata, &metadata_authority, None)?,
                 ApplyOutcome::Applied(_)
             ) {
                 return Err(Error::Invalid(
@@ -1489,6 +1559,73 @@ fn run_control_written(written: &Written) -> bool {
     } else {
         false
     }
+}
+
+fn refresh_scope_on(
+    tx: &Transaction<'_>,
+    original: &OperationId,
+    replacement: &OperationId,
+    authority: &HostAuthority,
+) -> Result<String> {
+    let crate::types::Scope::Runtime { run: scoped } = &authority.scope else {
+        return Err(Error::Invalid("runtime refresh scope required".into()));
+    };
+    let Some((run_id, fence)) = &authority.run_binding else {
+        return Err(Error::Invalid(
+            "runtime refresh requires a run fence".into(),
+        ));
+    };
+    if scoped != run_id {
+        return Err(Error::Invalid("runtime refresh scope mismatch".into()));
+    }
+    let record = record_on(tx, run_id)?.ok_or_else(|| Error::Missing(run_id.clone()))?;
+    let RecordData::Run(run) = record.data else {
+        return Err(Error::Invalid("not a run".into()));
+    };
+    if record.archived
+        || run.state != RunState::Working
+        || run.fence != *fence
+        || !run.operations.contains(replacement)
+        || !matches!(
+            record_on(tx, &run.thread)?,
+            Some(Record {
+                archived: false,
+                data: RecordData::Thread(Thread {
+                    state: ThreadState::Open,
+                    ..
+                }),
+                ..
+            })
+        )
+        || workspace_settings_on(tx)?
+            .as_ref()
+            .is_some_and(|settings| !run_matches_settings(&run, settings))
+    {
+        return Err(Error::Invalid("runtime refresh is superseded".into()));
+    }
+    if let Some((id, version)) = &authority.settings_binding
+        && !matches!(record_on(tx, id)?, Some(Record { version: current, archived: false, data: RecordData::Settings(_), .. }) if current == *version)
+    {
+        return Err(Error::Invalid(
+            "runtime refresh configuration changed".into(),
+        ));
+    }
+    let mut statement =
+        tx.prepare("SELECT body FROM records WHERE json_type(body,'$.data.Run') IS NOT NULL")?;
+    let mut belongs = false;
+    for body in statement.query_map([], |row| row.get::<_, String>(0))? {
+        let record: Record = serde_json::from_str(&body?)?;
+        if !record.archived
+            && matches!(record.data, RecordData::Run(previous) if previous.thread == run.thread && previous.operations.contains(original))
+        {
+            belongs = true;
+            break;
+        }
+    }
+    if !belongs {
+        return Err(Error::Invalid("candidate belongs to another Thread".into()));
+    }
+    Ok(run.thread)
 }
 
 fn prepare_on(

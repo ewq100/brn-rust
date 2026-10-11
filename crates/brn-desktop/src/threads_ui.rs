@@ -151,6 +151,7 @@ struct Review {
     selected: BTreeSet<String>,
 }
 enum WorkerEvent {
+    AnswerFinalized(String),
     Progress(String),
     Text(String),
     Finished(Result<String, String>),
@@ -904,6 +905,7 @@ impl ThreadsUi {
         prompt: String,
         thread: String,
         sources: Vec<brn_ai::threads::TransientSource>,
+        owner_request: Option<brn_ai::threads::OwnerRequest>,
         cx: &mut Context<Self>,
     ) {
         if self.worker.is_some() {
@@ -937,6 +939,7 @@ impl ThreadsUi {
             }
         };
         let request = brn_ai::threads::ThreadRunRequest {
+            owner_request,
             data_dir: self.data_dir.clone(),
             thread: thread.clone(),
             prompt,
@@ -952,7 +955,7 @@ impl ThreadsUi {
         let worker_cancel = cancel.clone();
         let progress_sender = sender.clone();
         std::thread::spawn(move || {
-            let result=tokio::runtime::Builder::new_current_thread().enable_all().build().map_err(|e|e.to_string()).and_then(|runtime|runtime.block_on(brn_ai::threads::run(request,worker_cancel,Arc::new(move |event| {let item=match event{brn_ai::AiEvent::Text(text)=>WorkerEvent::Text(text),brn_ai::AiEvent::ToolStarted{..}=>WorkerEvent::Progress("Working with the relevant notes…".into()),brn_ai::AiEvent::BudgetProgress{model_turns:_,tool_rounds,max_tool_rounds}=>WorkerEvent::Progress(format!("Working · {tool_rounds} of {max_tool_rounds} steps used"))};let _=progress_sender.try_send(item);}))).map(|result|match result.answer.terminal{brn_ai::AiTerminal::Completed=>"Finished. The result and any saved changes are in this thread.".into(),brn_ai::AiTerminal::Interrupted=>"Interrupted. Continue starts again with this thread and current notes.".into(),brn_ai::AiTerminal::Failed(e)=>e.to_string()}).map_err(|e|e.to_string()));
+            let result=tokio::runtime::Builder::new_current_thread().enable_all().build().map_err(|e|e.to_string()).and_then(|runtime|runtime.block_on(brn_ai::threads::run(request,worker_cancel,Arc::new(move |event| {let item=match event{brn_ai::AiEvent::Text(text)=>WorkerEvent::Text(text),brn_ai::AiEvent::AnswerFinalized(text)=>WorkerEvent::AnswerFinalized(text),brn_ai::AiEvent::ToolStarted{name}=>WorkerEvent::Progress(brn_ai::threads::tool_activity(&name).unwrap_or("Working…").into()),brn_ai::AiEvent::BudgetProgress{model_turns:_,tool_rounds,max_tool_rounds}=>WorkerEvent::Progress(format!("Working · {tool_rounds} of {max_tool_rounds} steps used"))};let _=progress_sender.try_send(item);}))).map(|result|match result.answer.terminal{brn_ai::AiTerminal::Completed=>"Finished. The result and any saved changes are in this thread.".into(),brn_ai::AiTerminal::Interrupted=>"Interrupted. Continue starts again with this thread and current notes.".into(),brn_ai::AiTerminal::Failed(e)=>e.to_string()}).map_err(|e|e.to_string()));
             let _ = sender.send(WorkerEvent::Finished(result));
         });
         self.worker = Some(Worker {
@@ -967,6 +970,14 @@ impl ThreadsUi {
         cx.notify();
     }
     fn ask(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        self.ask_with_authority(None, window, cx);
+    }
+    fn ask_with_authority(
+        &mut self,
+        owner_request: Option<brn_ai::threads::OwnerRequest>,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
         if self.worker.is_some() {
             self.notice = "Stop the current run before sending another instruction.".into();
             cx.notify();
@@ -1011,7 +1022,7 @@ impl ThreadsUi {
                 self.navigate(Page::Thread(thread.clone()), window, cx);
                 self.composer
                     .update(cx, |e, cx| e.set_value("", window, cx));
-                self.start_run(prompt, thread, vec![], cx);
+                self.start_run(prompt, thread, vec![], owner_request, cx);
             }
             Err(e) => self.notice = e.to_string(),
         }
@@ -1019,7 +1030,7 @@ impl ThreadsUi {
         cx.notify();
     }
     fn continue_run(&mut self, thread: String, cx: &mut Context<Self>) {
-        self.start_run("Continue the work from the saved conversation, current linked notes and recorded outcomes. Recheck current versions and authority.".into(),thread,vec![],cx);
+        self.start_run("Continue the work from the saved conversation, current linked notes and recorded outcomes. Recheck current versions and authority.".into(),thread,vec![],None,cx);
     }
     fn cancel(&mut self, cx: &mut Context<Self>) {
         if let Some(worker) = &self.worker {
@@ -1083,6 +1094,9 @@ impl ThreadsUi {
         }
         for event in events {
             match event {
+                WorkerEvent::AnswerFinalized(text) => {
+                    self.stream = text;
+                }
                 WorkerEvent::Text(text) => {
                     self.stream.push_str(&text);
                 }
@@ -1194,6 +1208,7 @@ impl ThreadsUi {
                                     })
                                     .collect(),
                             }],
+                            None,
                             cx,
                         );
                     }
@@ -1957,7 +1972,7 @@ impl ThreadsUi {
         if let Some(stream) = self.stream_for(id) {
             conversation = conversation.child(
                 panel()
-                    .child("BRN · working")
+                    .child("BRN · provisional answer")
                     .child(self.safe_message("stream-answer".into(), stream.into())),
             );
         }
@@ -2794,6 +2809,37 @@ impl Render for ThreadsUi {
                         .disabled(self.worker.is_some())
                         .on_click(cx.listener(|this, _, window, cx| this.ask(window, cx))),
                 ),
+        );
+        if let Page::Note(id) = &self.page
+            && let Some(record) = self
+                .records
+                .iter()
+                .find(|r| r.id == *id && matches!(r.data, RecordData::Note(_)))
+        {
+            let authority = brn_ai::threads::OwnerRequest::EditNote {
+                id: record.id.clone(),
+                version: record.version,
+            };
+            footer = footer.child(
+                Button::new("ask-edit-selected-note")
+                    .label("Edit selected note · this request")
+                    .disabled(self.worker.is_some())
+                    .on_click(cx.listener(move |this, _, window, cx| {
+                        this.ask_with_authority(Some(authority.clone()), window, cx)
+                    })),
+            );
+        }
+        footer = footer.child(
+            Button::new("ask-record-decision")
+                .label("Record decision · this request")
+                .disabled(self.worker.is_some())
+                .on_click(cx.listener(|this, _, window, cx| {
+                    this.ask_with_authority(
+                        Some(brn_ai::threads::OwnerRequest::RecordDecision),
+                        window,
+                        cx,
+                    )
+                })),
         );
         let _ = window;
         div()

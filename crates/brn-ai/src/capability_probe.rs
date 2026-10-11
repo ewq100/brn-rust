@@ -129,17 +129,17 @@ pub async fn run_probe(
         OwnedClient::Chatgpt(client) => client.completion(report.selection.model.clone()).into(),
         OwnedClient::Copilot(client) => client.completion(report.selection.model.clone()).into(),
     };
-    run_model(model, responses, cancel, &mut report).await;
+    run_model(model, !responses, cancel, &mut report).await;
     report
 }
 
 async fn run_model(
     model: DynModel<Completion>,
-    responses: bool,
+    copilot_chat_effort: bool,
     cancel: CancellationToken,
     report: &mut ProbeReport,
 ) {
-    let mut request = probe_request(report.kind, responses);
+    let mut request = probe_request(report.kind, copilot_chat_effort);
     for _ in 0..2 {
         let response = match collect(&model, request.clone(), &cancel, report).await {
             Ok(response) => response,
@@ -195,7 +195,7 @@ async fn run_model(
     report.terminal = failed(AiErrorKind::ToolLimitReached);
 }
 
-fn probe_request(kind: ProbeKind, responses: bool) -> CompletionRequest {
+fn probe_request(kind: ProbeKind, copilot_chat_effort: bool) -> CompletionRequest {
     let mut request = match kind {
         ProbeKind::Low | ProbeKind::High => CompletionRequest::new(
             "Read probe.md exactly once with read_note, then return only the code in that note. \
@@ -222,37 +222,42 @@ fn probe_request(kind: ProbeKind, responses: bool) -> CompletionRequest {
     };
     if kind.reads_note() {
         let effort = if kind == ProbeKind::Low {
-            "low"
+            rig::completion::Effort::Low
         } else {
-            "high"
+            rig::completion::Effort::High
         };
-        request = request
-            .additional_params(if responses {
-                json!({"reasoning": {"effort": effort}})
-            } else {
-                json!({"reasoning_effort": effort})
-            })
-            .tool(ToolDefinition {
-                name: "read_note".into(),
-                description: "Read the synthetic note probe.md.".into(),
-                parameters: json!({
-                    "type": "object", "additionalProperties": false,
-                    "properties": {"path": {"type": "string", "enum": [NOTE_PATH]}},
-                    "required": ["path"]
-                }),
-            });
+        // Portable effort is supported on both Responses subscription routes.
+        // Rig 0.44 marks all Copilot Chat options unverified, so retain this
+        // already-qualified wire field for that route rather than dropping effort.
+        request = if copilot_chat_effort {
+            request.additional_params(json!({"reasoning_effort": effort.as_str()}))
+        } else {
+            request.reasoning(effort)
+        };
+        request = request.tool(ToolDefinition {
+            name: rig::message::ToolName::new("read_note").expect("static tool name"),
+            description: "Read the synthetic note probe.md.".into(),
+            parameters: json!({
+                "type": "object", "additionalProperties": false,
+                "properties": {"path": {"type": "string", "enum": [NOTE_PATH]}},
+                "required": ["path"]
+            }),
+        });
     }
     if kind == ProbeKind::Web {
         request = request.provider_tool(ProviderToolDefinition::new("web_search"));
     }
-    request
+    request.accept_unknown_finish_reasons(false)
 }
 
 fn valid_read(call: &ToolCall) -> Result<(), ()> {
     if call.function.name.as_str() != "read_note" {
         return Err(());
     }
-    let args = call.function.arguments.as_object().ok_or(())?;
+    if call.function.invalid_arguments.is_some() {
+        return Err(());
+    }
+    let args = &call.function.arguments;
     if args.len() != 1 || args.get("path").and_then(Value::as_str) != Some(NOTE_PATH) {
         return Err(());
     }
@@ -298,11 +303,15 @@ async fn collect(
         result = stream.finish() => result.map_err(|error| provider_failure(error, report))?,
         _ = cancel.cancelled() => return Err(ProbeTerminal::Interrupted),
     };
+    let mut finalized_text = String::new();
     for content in &response.choice {
         if let rig::message::AssistantContent::Text(text) = content {
+            append_text(&mut finalized_text, &text.text)
+                .map_err(|()| failed(AiErrorKind::Other))?;
             record_citations(report, text);
         }
     }
+    report.text = finalized_text;
     // Some gateways send hosted items only in the final response snapshot.
     // Project the completed-call fact and discard the raw document with the
     // response; do not retain provider metadata in the report.
@@ -394,29 +403,21 @@ fn completed_web_search(value: &Value) -> bool {
 }
 
 fn record_citations(report: &mut ProbeReport, text: &Text) {
-    let Some(annotations) = text
-        .additional_params
-        .as_ref()
-        .and_then(|params| params.wire_extras("openai_responses"))
-        .and_then(|extras| extras.get("annotations"))
-        .and_then(Value::as_array)
-    else {
-        return;
-    };
-    for annotation in annotations.iter().take(256) {
-        if annotation.get("type").and_then(Value::as_str) != Some("url_citation") {
-            continue;
-        }
-        let Some(url) = annotation
-            .get("url")
-            .and_then(Value::as_str)
-            .and_then(citation_url)
-        else {
+    for source in text
+        .citations()
+        .iter()
+        .flat_map(|citation| &citation.sources)
+        .take(256)
+    {
+        let rig::message::SourceLocation::Url { url } = &source.location else {
             continue;
         };
-        let title = annotation
-            .get("title")
-            .and_then(Value::as_str)
+        let Some(url) = citation_url(url) else {
+            continue;
+        };
+        let title = source
+            .title
+            .as_deref()
             .filter(|title| {
                 !title.is_empty()
                     && title.len() <= TITLE_BYTES
@@ -476,7 +477,7 @@ fn hex(byte: u8) -> Option<u8> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use rig::message::{AdditionalParams, ToolFunction, ToolName};
+    use rig::message::{Citation, Source, SourceLocation, ToolFunction, ToolName};
 
     fn report() -> ProbeReport {
         ProbeReport {
@@ -495,13 +496,18 @@ mod tests {
     }
 
     fn annotated(values: Vec<Value>) -> Text {
-        Text {
-            text: "not a second output fragment".into(),
-            additional_params: AdditionalParams::from_entries([(
-                "openai_responses",
-                json!({"annotations": values, "secret": "SYNTHETIC_SECRET"}),
-            )]),
-        }
+        Text::new("not a second output fragment").with_citations(values.into_iter().filter_map(
+            |value| {
+                if value["type"] != "url_citation" {
+                    return None;
+                }
+                let mut source = Source::new(SourceLocation::Url {
+                    url: value["url"].as_str()?.to_owned(),
+                });
+                source.title = value["title"].as_str().map(str::to_owned);
+                Some(Citation::new([source]))
+            },
+        ))
     }
 
     #[test]
@@ -573,13 +579,12 @@ mod tests {
             ("read_note", json!({}), false),
             ("read_note", json!({"path": 1}), false),
             ("write_note", json!({"path": "probe.md"}), false),
+            ("read_note", json!([{"path": "probe.md"}]), false),
+            ("read_note", json!("{\"path\":\"probe.md\""), false),
         ] {
             let call = ToolCall::from_wire(
                 "call",
-                ToolFunction {
-                    name: ToolName::new(name).unwrap(),
-                    arguments: args,
-                },
+                ToolFunction::new(ToolName::new(name).unwrap(), args),
             );
             assert_eq!(valid_read(&call).is_ok(), accepted);
         }
