@@ -28,7 +28,11 @@ Initial full tooling attempts failed with SIGKILL while directly executing the l
 
 Independent full-diff review approved the UI, authority/Undo preservation, release workflow and packaging. Its first-use provider instructions finding was corrected and rechecked. Lead review also corrected post-sign binary hashes, extracted-archive signature verification, exclusive output publication and explicit final link target to prevent cached binaries retaining an older minimum macOS.
 
-At source freeze, the actual optimized distribution still awaits an exact candidate commit stamp and headless package qualification; the PR will record that result before integration. The exact merged source commit is stamped into each published distribution manifest by the release workflow. Actual main CI and published asset receipts are available on GitHub.
+Actual optimized packaging was subsequently qualified at published PR head `e334fed84cfe24eb4308c20a8438f9e6670e41c5` (source tree `37b80d9a2881acf4a000e6f47861a1b5321c36a1`). The 17,970,102-byte ZIP has SHA-256 `7ae23ba6db376c71757a8fcbe38b57abda65f75f932a23d04471ebcc073b90ab`. Checksums, embedded/standalone manifests, post-sign executable hashes, arm64/minimum macOS 15, system-only linked libraries and original/extracted bundle signatures passed. The bundled desktop passed fresh headless startup, reopen and foreign-data preservation; its bundled helper converted a synthetic email with an empty environment. This is package qualification, not native interaction.
+
+The first PR CI attempt found an existing launcher assertion depended on `rg`, absent from the Ubuntu tooling runner. The assertion now uses standard `grep -Fq` with the identical expected text, retaining coverage without installing another dependency. No application source changed in this CI correction. The follow-up is checked with a system-only tool path as well as the full local tooling suite.
+
+[PR #123](https://github.com/ewq100/brn-rust/pull/123) records exact head/main integration receipts. The release workflow rebuilds and stamps the actual merged source commit into each published distribution manifest; GitHub hosts final main CI and asset receipts.
 
 ## Release boundary
 
