@@ -1,4 +1,0 @@
-fixtures/*.eml -text -diff
-*.original -text -diff
-**/*.wire.json -text -diff
-*.pdf -text -diff

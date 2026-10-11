@@ -7,13 +7,7 @@ use std::{
 #[test]
 fn constrained_process_parses_public_payload_after_native_activation() {
     for (kind, bytes) in [
-        (
-            "eml",
-            include_bytes!(
-                "../../../experiments/architecture-reassessment/p1-office-mime/fixtures/plural.eml"
-            )
-            .as_slice(),
-        ),
+        ("eml", include_bytes!("fixtures/plural.eml").as_slice()),
         ("pptx", include_bytes!("fixtures/quay.pptx").as_slice()),
     ] {
         let mut process = Command::new(env!("CARGO_BIN_EXE_brn-intake-helper"))

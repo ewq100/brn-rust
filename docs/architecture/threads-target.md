@@ -1,33 +1,33 @@
 # BRN Threads canonical target
 
-**Status:** Canonical product contract for the implemented Threads architecture. The rebuild merged in PR #114; Phase 0/F1 merged in PR #115 at `53e5289`; first-use delegation merged in PR #116 at `36ad2d6`; Stop-and-send merged in PR #117 at `ed9a1af`; atomic backup publication merged in PR #118 at `087471f`; restore safety merged in PR #119 at `aca1c28` on 11 October 2026. Implementation does not establish native or owner acceptance; [status](../status.md) records those gates.
+**Status:** Canonical product contract for the implemented Threads architecture. The rebuild merged in PR #114; Phase 0/F1 merged in PR #115 at `53e5289`; first-use delegation merged in PR #116 at `36ad2d6`; Stop-and-send merged in PR #117 at `ed9a1af`; atomic backup publication merged in PR #118 at `087471f`; restore safety merged in PR #119 at `aca1c28`; remembered backup folder merged in PR #120 at `3a3aa7a` on 11 October 2026. Implementation does not establish native or owner acceptance; [status](../status.md) records those gates.
 
-**Current assignment:** [Phase 1 remembered backup folder](../work/active/threads-rebuild/phase1-backup-folder-plan.md), authorized by the owner’s continued-build instruction on 11 October 2026. This target distinguishes selected requirements from verified behavior; the [rebuild plan](../work/active/threads-rebuild/plan.md) and its evidence preserve earlier execution history.
+**Current assignment:** [Pre-release cleanup](../work/active/pre-release-cleanup/plan.md), explicitly authorized on 11 October 2026. This target distinguishes selected requirements from verified behavior; [archived evidence](../archive/README.md) preserves earlier execution history.
 
 **Date:** 10 October 2026. **Owner:** Evo.
 
-**Review reconciliation:** The independent review is resolved into this target and the [build plan](../work/active/threads-rebuild/plan.md); see [lead dispositions](../work/active/threads-rebuild/review.md#build-lead-dispositions). The [thread and agent behavior design](threads-behavior.md) makes the selected interaction and instruction defaults concrete without becoming a second product specification.
+**Review reconciliation:** The independent review is resolved into this target; see [historical lead dispositions](../archive/threads-rebuild/review.md#build-lead-dispositions). The [thread and agent behavior design](threads-behavior.md) makes the selected interaction and instruction defaults concrete without becoming a second product specification.
 
 **Owner scope:** Original emails and files stay in Outlook or their existing locations. BRN maintains useful extracted knowledge and source references. Selected key documents can also be imported as complete, readable notes, preserving substantive content without reproducing page layout or retaining the original binary. DOCX, PPTX, and HTML output are required later capabilities, outside the first usable release. No gradual data migration is required. Mathematical equation conversion and typesetting are outside the first release; Evo does not plan to import mathematical material. Full prose, tables, process steps, and meaningful figures remain in scope.
 
 **Baseline examined:** `ewq100/brn-rust` at commit `af9239c741c7ab0983e62f0253e607b9607727e6`. Repository findings below describe that snapshot. Recommendations are design judgments, not measured development-time or code-size savings.
 
-## Recommended decision
+## Selected direction
 
-Build BRN as a local workspace in which an AI agent maintains useful knowledge, carries work forward, and opens a thread when the owner needs to decide something. Give the owner a good editor, understandable changes, protected decisions, and dependable undo.
+BRN is a local workspace in which an AI agent maintains useful knowledge, carries work forward, and opens a thread when the owner needs to decide something. Give the owner a good editor, understandable changes, protected decisions, and dependable undo.
 
 The central product promise is:
 
 > Give BRN information and a goal. It keeps the relevant working knowledge useful, tracks the work, and brings you the decisions that require your attention. You can inspect what changed and recover your local work.
 
-Adopt six architectural decisions together:
+The selected architecture has six connected decisions:
 
 1. **One authoritative SQLite store** for notes, revisions, threads, Actions, changes, and authorization records. Keep useful extracted information, explicitly requested full notes, and source references, without an original-file archive. Produce fresh portable Markdown snapshots on demand; add DOCX, PPTX, and HTML generation after the first usable release.
 2. **One thread workspace** for asking, investigating, discussing, editing, reviewing, and following up. The attention queue shows decisions and work requiring attention; routine maintenance stays quiet.
 3. **One application service and change mechanism** shared by the desktop, built-in agent, CLI, and eventual external agents. Human review and delegated autonomous work use the same commit path.
 4. **Broad autonomy over ordinary local working knowledge.** The normal maintenance delegation excludes protected notes. A specific applicable owner instruction or review can authorize changes to protected decisions and writing without redundant confirmation.
 5. **AI performs semantic work** through shared tools: interpretation, organization, summarization, conflict investigation, and planning. Deterministic code handles persistence, identity, authorization, concurrency, recovery, and execution limits.
-6. **A fresh implementation in the existing repository.** Use one rebuild branch and worktree, a fresh final-use core crate and schema, and updated active instructions. Borrow useful GPUI, provider, retrieval, and import capabilities from a fixed reference commit. No gradual user-data migration, dual-writing transition, or permanent compatibility layer is required.
+6. **A fresh implementation in the existing repository.** The fresh final-use core/schema is implemented, with deliberate reuse of GPUI, providers, retrieval and intake components. Use isolated task branches/worktrees for subsequent work. No gradual user-data migration, dual-writing transition, or permanent compatibility layer is required.
 
 This deliberately changes the original “Git for your knowledge” framing. Keep understandable revisions and recovery. Branch trees, rebases, permanent keystroke histories, and multiple independently writable stores are unnecessary prerequisites for the product described here.
 
@@ -39,7 +39,7 @@ Retain the useful existing owner outcomes: English and Estonian notes/conversati
 
 A current explicit instruction takes precedence over a saved owner preference and a product default. An inferred preference or a one-off instruction must not silently become a standing owner policy. Credentials stay outside knowledge, exports, and logs. Headless capabilities use the same service and scoped authorization; possession of a CLI or connection does not itself grant owner authority. [Baseline vision][vision]
 
-Those statements authorize this target’s scope. They do not establish that today’s rollback already supports the new operations, or that any proposed default has been enabled. Recovery must be demonstrated early in implementation.
+Those statements define the selected product scope. Implementation and automated evidence do not establish native acceptance or non-disposable data readiness; remaining recovery qualification is recorded in [status](../status.md).
 
 ## Accepted adoption priorities, 11 October 2026
 
@@ -133,11 +133,11 @@ Later external delegation can be narrow and useful, such as a particular recurri
 
 Local storage also does not imply local inference. Workspace data passed to the selected model follows that provider path. Allow the agent to retrieve broadly inside the scope the owner has delegated, while keeping provider selection and access expansion under owner control. Imported source text is evidence, never authority to grant tools or transmit additional data.
 
-## Requirements to change or remove
+## Selected amendments to the historical model
 
-These are deliberate product amendments, not hidden implementation substitutions. The baseline vision currently couples authoritative knowledge to Markdown, durable AI changes to human approval, and V1 acceptance to a broad feature set. Its architecture also specifies cross-store recovery mechanisms. [Baseline vision][vision] [Baseline invariants][invariants]
+These are deliberate product amendments, not hidden implementation substitutions. The examined pre-rebuild vision coupled authoritative knowledge to Markdown, durable AI changes to human approval, and V1 acceptance to a broad feature set. Its architecture also specifies cross-store recovery mechanisms. [Baseline vision][vision] [Baseline invariants][invariants]
 
-| Existing requirement or proposed mechanism | Recommended replacement | Benefit and real tradeoff |
+| Historical requirement or proposed mechanism | Selected replacement | Benefit and real tradeoff |
 |---|---|---|
 | AI changes become current only after exact owner approval; human Save already supplies direct authority | Delegated AI maintenance is current; explicit decisions are protected | Removes routine AI approval workload; current notes may contain unreviewed AI errors. |
 | Markdown vault is the live authority | SQLite owns live state; Markdown/assets are exported as fresh snapshots | Simplifies coherent updates; external editing becomes explicit import. |
@@ -343,7 +343,7 @@ Use a short packaged runtime base guide at `agent/BRN.md` plus four packaged `ag
 
 ### Existing agent libraries and external agents
 
-Retain BRN’s current provider integrations where they work. The 11 October runtime pass qualifies published Rig 0.44.0 for production and removes the former vendored logging patch. Successful structured finalized content is authoritative; streaming is provisional. Invalid tools/arguments and unknown/incomplete termination fail closed under explicit budgets. Responses routes use typed reasoning options; the supported Copilot Chat dialect retains its raw effort field where typed options are unavailable. The bounded comparison, production tests, live route and outstanding native presentation gate are in [runtime evidence](../work/active/threads-rebuild/evidence.md#rig-044-runtime-integration). Keep compatible transport and subscription behavior, explicit retry policy, and BRN receipt authority; do not adopt ECS or opaque run persistence merely because upstream offers it. [BRN workspace dependencies][cargo] [Rig AgentRunner][rig]
+Retain BRN’s current provider integrations where they work. The 11 October runtime pass qualifies published Rig 0.44.0 for production and removes the former vendored logging patch. Successful structured finalized content is authoritative; streaming is provisional. Invalid tools/arguments and unknown/incomplete termination fail closed under explicit budgets. Responses routes use typed reasoning options; the supported Copilot Chat dialect retains its raw effort field where typed options are unavailable. The bounded comparison, production tests, live route and outstanding native presentation gate are in [runtime evidence](../archive/threads-rebuild/evidence.md#rig-044-runtime-integration). Keep compatible transport and subscription behavior, explicit retry policy, and BRN receipt authority; do not adopt ECS or opaque run persistence merely because upstream offers it. [BRN workspace dependencies][cargo] [Rig AgentRunner][rig]
 
 Expose the same headless service to development tools and eventual external coding/assistant agents. That can allow useful automation without writing bespoke BRN workflows. Do not require both an embedded runtime and a separate external-agent process for the first release. The current embedded integration is the default reuse candidate; an external runtime can replace it if a short integration trial demonstrates less glue and equivalent provider, interruption, and result behavior.
 
@@ -357,7 +357,7 @@ Development agents are different: they may substantially refactor the repository
 
 ## Editor, comments, and history without an editor research project
 
-Keep GPUI as the default desktop surface because BRN already has a native implementation. Reuse its maintained toolkit and working controls. Qualify GPUI Kit 0.7.1 before building the new native interaction, using the [plan](../work/active/threads-rebuild/plan.md#dependency-qualification). Its source-range mapping and editor decorations can reduce glue, but are snapshot/display primitives rather than durable comment identities. Adopt keyboard navigation, a launcher, workspaces, and a small coherent theme system where they aid daily use; defer a plugin or theme marketplace.
+Keep GPUI as the default desktop surface because BRN already has a native implementation. Reuse its maintained toolkit and working controls. The native implementation uses GPUI Kit 0.7.1; [historical evidence](../archive/threads-rebuild/evidence.md) separates successful builds/state checks from remaining interaction acceptance. Its source-range mapping and editor decorations can reduce glue, but are snapshot/display primitives rather than durable comment identities. Adopt keyboard navigation, a launcher, workspaces, and a small coherent theme system where they aid daily use; defer a plugin or theme marketplace.
 
 The initial editor supports reliable Markdown writing, ordinary undo, source navigation, comments, and understandable comparison of current and proposed text. Human Save applies under owner authority with the base-version and recovery-generation checks above. Crash recovery autosave is separate from meaningful committed history, and pending AI content is excluded from ordinary current retrieval.
 
@@ -373,95 +373,13 @@ Do not add Jujutsu merely to get stable IDs and history. Its operation log descr
 
 If satisfactory rich tracked changes or margin layout would require a large GPUI editor fork, simplify the first review surface to current/proposed comparison with editable final text. Evaluate an existing embeddable editor only against a concrete missing capability. Avoid simultaneously rewriting storage, orchestration, desktop framework, editor engine, and provider transport.
 
-## What to retain and what to replace
+## Implemented structure and remaining qualification
 
-The present BRN already has a shared proposal/application path. Threads should consolidate interaction and orchestration around a new authority model; this proposal does not assume that every existing screen has its own independent approval engine. [Architecture overview][overview]
+The Threads core/app/runtime/CLI and native surface replaced the old mutable-vault WorkStore and route-specific proposal orchestration. The eight workspace crates and their current ownership are described in [architecture](overview.md) and [dependency boundaries](dependencies.md). Earlier deletion maps, branch choices and milestone/build instructions remain available in the [fixed baseline archive](../archive/README.md), rather than directing current work.
 
-There are real route restrictions to remove. Normal Ask cannot directly apply note or Action changes, although it can prepare Action proposals. Rewrite has a fixed member contract, and knowledge proposal tools are gated by Inbox-specific jobs. These are BRN policies, not an inevitable consequence of using an agent library. [Agent behavior][behavior] [Chat behavior selection][chat] [Proposal tool gating][tool-gating] [Knowledge proposal route][knowledge-route]
+Use fresh explicit data directories. Preserve normal transactional schema versioning and pre-upgrade backups once real Threads data is adopted; absence of old-BRN migration does not waive future upgrades. Preserve meaningful business/security tests and relevant dependency fixes when components change.
 
-### Reuse or adapt
-
-- GPUI application foundations, useful toolkit widgets, keyboard handling, and functioning native controls.
-- Provider authentication and transport, selected-model behavior, cancellation, and relevant provider qualification.
-- Maintained source decoders and extraction helpers, adapted to transient input processing, useful knowledge or full-note conversion, source references, and honest coverage.
-- Useful retrieval components, rebuilding their indexes from the new current records.
-- Business-level adversarial cases and acceptance scenarios, adapted to the new contract.
-
-Reusing a capability does not require retaining its current crate boundary, old DTOs, or every helper function.
-
-### Production replacement map
-
-Paths below identify the implementation areas to reassess at the examined commit. They are not instructions to delete unrelated files or evidence. Several mechanisms span multiple files; the build agent should make the final dependency-based deletion list in the checkout.
-
-| Existing area | Representative baseline paths | Target |
-|---|---|---|
-| Mutable authoritative Markdown Save | `crates/brn-workflow/src/editor.rs`; `crates/brn-workflow/src/files/`; `crates/brn-store/src/work/editor.rs` | Database revision commit plus retryable portable export. |
-| Cross-file/database proposal application, repair, and recovery | `crates/brn-workflow/src/proposal_apply.rs`; `crates/brn-workflow/src/proposal_apply/repair.rs`; `crates/brn-store/src/work/proposal_apply.rs` | One internal changeset transaction and checked compensating operations. |
-| Historical WorkStore migrations and legacy readers | `crates/brn-store/src/work/mod.rs`; `crates/brn-store/src/work/inbox_original_legacy.rs`; `crates/brn-store/src/work/inbox_source/legacy_markup.rs` | Fresh schema in a new data directory. No old-state migration obligation. |
-| Original-copy capture, cleanup, and recovery family | `crates/brn-workflow/src/inbox_removal.rs`; `crates/brn-workflow/src/inbox_original_operations.rs`; `crates/brn-store/src/work/inbox_original_operations.rs` | Transient intake, useful knowledge or requested full notes, and external references. No mandatory original archive, original backup, or external-source deletion. |
-| Temporary proposal-only comments and fixed Rewrite | `crates/brn-store/src/work/proposals.rs`; `crates/brn-store/src/work/proposal_rewrite.rs`; `crates/brn-workflow/src/proposal_rewrite.rs` | Persistent thread comments and replaceable candidate revisions. |
-| Route-specific AI modes and callbacks | `crates/brn-ai/src/behavior.rs`; `crates/brn-workflow/src/app_worker/action_proposals.rs`; `crates/brn-workflow/src/app_worker/knowledge_proposals.rs` | General thread runs, shared tools, and one authorization policy. |
-| Separate Inbox/review/approval presentation and orchestration | `crates/brn-desktop/src/inbox_state.rs`; `crates/brn-desktop/src/review.rs`; `crates/brn-desktop/src/native/inbox.rs`; `crates/brn-desktop/src/native/approval.rs` | Reusable thread detail, source, Action, and change components. |
-| CLI surface tied to old mechanism steps | `crates/brn/src/cli/editor.rs`; `crates/brn/src/cli/proposals.rs`; `crates/brn/src/cli/inbox.rs` | Thin commands over the new shared business capabilities. |
-
-The current WorkStore explicitly contains migrations V1–V18 and stores work separately from vault notes. Starting a fresh model avoids bringing those old readers into the replacement runtime. Preserve normal schema versioning for the new app once it acquires real user data; “no migration now” is not a promise that future releases never need one. [WorkStore baseline][workstore]
-
-### Vision and architecture documents to amend
-
-The setup branch rewrites the active canonical entry points together; implementation must keep them aligned as the new code replaces the baseline. The principal changes concern the product vision’s blanket approval/current-knowledge rules, whole-proposal review, editor role, Markdown authority and outside edits, original retention and cleanup, broad V1 gate, and no-autonomous-writes exclusion. Record both useful-information intake and full-note import as core choices, and DOCX, PPTX, and HTML generation in the later scope. Update the architecture invariants and overview to match the new transaction, extraction, export, and authorization model. Retaining conflicting old prose would cause later AI agents to rebuild the machinery being removed. [Baseline vision][vision] [Baseline invariants][invariants]
-
-This target is the current contract on the rebuild branch. Historical decisions remain evidence. Setup does not itself implement the contract or authorize a merge to main.
-
-## Repository strategy
-
-**Build a fresh core in the existing `ewq100/brn-rust` repository, on one dedicated rebuild branch and worktree.** The implementation begins from the new model; the existing code is a reference and a source of useful components. A new GitHub repository is not necessary to obtain a clean implementation.
-
-| Approach | Assessment for this rebuild |
-|---|---|
-| Continue modifying the existing runtime around all its old contracts | Carries obsolete storage, source-retention, and approval assumptions into the new design. |
-| GitHub fork | Copies the old code and instructions and adds another repository to coordinate; useful for a separately maintained product, but offers little for replacing the same BRN app. |
-| New repository with selected code copied in | Technically valid; useful for a separately named project or different ownership. It requires reestablishing project setup and tracking another development location. |
-| Fresh core on a rebuild branch in the existing repository | Recommended: clean active implementation, retained Git history, existing project identity, and deliberate component reuse. |
-
-A Git worktree provides a separate working directory for a branch while sharing repository history. A fork is a separate repository related to an upstream repository. Neither choice determines whether the new application must retain the old runtime. [Git worktrees][git-worktrees] [GitHub forks][github-forks]
-
-Before implementation, identify a fixed baseline commit and preserve the old code through Git history or a separate reference checkout. The rebuild’s active tree should contain the new workspace, useful retained components, and current documentation. Do not keep a complete old runtime in an active `legacy/` folder merely so every agent keeps discovering it. Remove superseded tracked code through reviewable commits; preserve unrelated uncommitted work and owner files.
-
-Replace the active `AGENTS.md`, README, product vision, architecture, and build plan first. At the examined commit, `AGENTS.md` still states exact-byte Markdown authority, exact approval before AI writes, temporary-comment deletion, and original-copy recovery requirements. The development workflow also points to older plans. Update those instructions coherently for the rebuild; an added proposal must not compete with contradictory active rules. Historical material can remain accessible through Git without being mandatory startup reading. [Current agent instructions][agents] [Current development workflow][development-workflow]
-
-Borrow code when it implements a capability needed by the new core with limited adaptation. Provider authentication/transport, native controls, extraction libraries, and retrieval are strong candidates. Avoid copying the old WorkStore, desktop orchestration, or proposal callbacks wholesale and then building bridges around them. Preserve relevant dependency fixes and tests when a component is reused; rewrite checks that enforce retired formats or workflows.
-
-Keep one active product direction and adapt its CI to the new implementation. Existing repository rules and required checks remain in force; any changes to integration policy are a separate intentional step. There is no need to implement schema migration, dual writes, or a compatibility runtime. Once the new journeys are verified and accepted, merge through the normal repository process and keep the new engine as the production path. The setup uses branch `rebuild/threads`; each build machine uses its own isolated checkout/worktree. Runtime replacement remains ahead.
-
-## Clean replacement sequence
-
-These are implementation milestones, not a gradual migration. Build on the dedicated rebuild branch/worktree in the existing repository and use a fresh app data directory. Preserve Git history, useful development evidence, and unrelated files. At cutover, use the new engine as the production path and remove superseded paths; do not keep both as permanent runtime options.
-
-### Milestone 1 Prove the smaller core
-
-Implement notes and meaningful revisions, source references, grouped changes, authorization, expected-version checks, and immediate Undo through a headless service. Demonstrate crash/retry behavior and complete backup/restore of BRN’s state using synthetic material. Keep this implementation suitable for the final app rather than creating a disposable second engine.
-
-In parallel, make the Threads interaction concrete: queue, thread, source reference, ordinary note, protected decision, applied change, review, and Undo conflict. A clickable prototype is useful for layout; it is not proof of transaction or recovery behavior.
-
-### Milestone 2 Make one complete agent journey work
-
-Reuse a working provider and expose the general capabilities. Process an imported email or text document into useful project knowledge, a suggested Action, and a reply draft. Keep its external reference and material extraction gaps, and remove temporary input copies. Apply authorized maintenance automatically, bring a conflicting protected decision to the owner, then demonstrate Undo of BRN’s local changes.
-
-Also prove full-note import with a representative research paper and process description: complete readable content, necessary assets, recorded coverage, protected reference behavior, and local access after the temporary original is removed. Reuse conversion tools where they satisfy this contract; report unsupported content instead of silently simplifying it.
-
-Validate the agent’s substantive result with a small fixed scenario set. Keep semantic instructions editable. Do not create specialized Rust routes merely to make one canned demonstration pass.
-
-### Milestone 3 Make daily interaction usable
-
-Implement native Home, thread detail, current/proposed review, ordinary editor Save, simple comments, search, Action progress, history, and visible export status. Establish the editor contract before adopting CRDT or a rich editor fork.
-
-Local reading, writing, search, Actions, review of existing candidates, and recovery work without a model connection. Inference-dependent tasks pause visibly when the selected provider is unavailable.
-
-### Milestone 4 Replace and qualify
-
-Adapt the useful import and retrieval components, run the acceptance journeys below, and remove old production orchestration and storage paths. Refresh product and architecture documentation. Report each journey as implemented, verified, or still incomplete, and provide the owner a usable build for acceptance.
-
-Do not claim completion because the code compiles or because the agent produced a positive narrative. Show the saved result, its source reference and relevant support, the history, and the observed behavior.
+The core, provider/tool journey, full-note fixtures, native components and backup/restore have automated and synthetic evidence. Current status does not claim completion of target-Mac interaction, cold interruption/restart or owner acceptance. Show saved results, sources, history and observed behavior when qualifying a journey. Local reading, writing, search, Actions, review and recovery work offline; inference-dependent work pauses visibly when the selected provider is unavailable.
 
 ### First usable scope
 
@@ -505,29 +423,7 @@ Measure whether a routine scenario finishes without interruption, how many meani
 
 When later output capabilities are built, verify that DOCX, PPTX, and HTML preserve the selected knowledge’s meaning, numerical detail, and relevant assets; record the input revision and inspect the rendered result. Reproducing an imported source’s original layout is outside that acceptance contract.
 
-## Direction for the implementation agent
-
-The following is the implementation brief for an agent assigned to build this target. The environment setup installs this contract; runtime implementation and its verification are separate work.
-
-> Build a fresh final-use BRN core crate in the existing `ewq100/brn-rust` repository on one dedicated rebuild branch/worktree. Use a fixed old commit as the reference and borrow useful components deliberately. Replace active agent instructions and product/architecture contracts before building. No gradual migration, dual writes, or legacy-reader compatibility is required. Preserve repository history and unrelated owner files.
->
-> Build a local thread workspace with one authoritative SQLite store for documents, revisions, threads, Actions, changes, source references, run state, and authorization. Original emails/files stay in Outlook or their existing locations. Default intake uses relevant information to maintain useful notes and Actions; it does not create a full copy of every input. Also support Import full note for selected key documents, including papers and process descriptions: retain complete substantive wording and structure, tables, necessary figures, and meaningful references, without requiring original pagination or binaries. Never substitute a summary for full import; record unresolved omissions as partial. Use the same notes/revisions, protect full imports from routine rewriting, and allow linked summaries. Clean temporary inputs and raw logs without removing intentionally retained full-note content or assets.
->
-> Provide Markdown export on demand and complete backup/restore of BRN’s own state. Record DOCX, PPTX, and HTML generation as required later capabilities, not first-release blockers. They generate new deliverables from selected knowledge; they do not require reconstructing original input layouts.
->
-> Use one shared application service and one checked changeset/commit/undo path for the UI, built-in agent, CLI, and eventual external agents. Give the agent broad delegated authority over ordinary working notes. Protect explicit owner decisions and other protected notes. Record whether authority came from standing delegation, a specific user instruction, or review of an exact candidate.
->
-> Put semantic behavior in agent instructions and shared tools. Keep persistence, identity, current-version checks, structural permissions, source references and processing status, idempotency, budgets, and recovery in deterministic code. Never rely on the model to create a truthful authorization receipt or to write canonical storage correctly by raw SQL.
->
-> Reuse useful GPUI, provider, import, and retrieval capabilities. Replace mode-specific approval routes, mutable-vault coordination, temporary-only comments, and obsolete compatibility machinery. Do not preserve existing crate boundaries or command names for their own sake.
->
-> Do not require Jujutsu, a CRDT, a rich editor fork, an external-agent runtime, or a new execution sandbox before demonstrating a concrete need. Start with meaningful revisions, current/proposed review, ordinary editor range tracking, and honest unresolved comments. No permanent keystroke-replay promise.
->
-> Prove a grouped change, retry, protected-write refusal, useful extraction without retaining original files, faithful full-note import with honest coverage, complete backup/restore of BRN state, and Undo that preserves later human edits. Prove the email-to-knowledge-to-Action-to-draft journey and full reading of a paper/process note with real provider behavior. Keep direct external sending and DOCX/PPTX/HTML generation outside the first release.
->
-> Begin implementation with a concise dependency and deletion map against the actual checkout, resolve routine implementation choices autonomously, and update the canonical product/architecture documents to this selected contract. Report implemented, verified, and accepted separately. Do not rebuild retired requirements merely because old tests or historical documents describe them.
-
-## What this proposal still asks the owner to trade
+## Selected tradeoffs
 
 The recommendation has real tradeoffs. Outside edits enter through explicit import instead of directly changing authoritative Markdown. Full VCS semantics, perfect semantic comment survival, and manual review of every AI-maintained sentence are outside the target. These choices allow one coherent state model and an agent that finishes routine work with fewer interruptions.
 
@@ -539,16 +435,16 @@ The recommended acceptance question is: **Does BRN complete ordinary knowledge m
 
 ## Evidence and references
 
-The repository links are pinned to the examined commit. Library documentation was checked on 10 October 2026. The external sources support the stated library capabilities and boundaries; they do not establish the performance, correctness, or development cost of an unbuilt BRN redesign.
+The repository links are pinned to the examined commit. Library documentation was checked on 10 October 2026. The external sources support the stated library capabilities and boundaries; they do not establish performance, correctness or development cost beyond the recorded BRN evidence.
 
 - [BRN product vision][vision] — baseline approval, current-knowledge, file authority, scope, and owner-amendment contracts.
 - [BRN architecture invariants][invariants] and [overview][overview] — existing authority, shared application boundary, and cross-store recovery.
-- [Agent behavior][behavior], [proposal tool gating][tool-gating], and [knowledge proposal route][knowledge-route] — present route-specific agent constraints.
-- [WorkStore baseline][workstore] and [workspace dependencies][cargo] — current storage family and pinned provider runtime.
-- [Current agent instructions][agents] and [development workflow][development-workflow] — active old contracts that the rebuild must replace coherently.
+- [Agent behavior][behavior], [proposal tool gating][tool-gating], and [knowledge proposal route][knowledge-route] — historical route-specific agent constraints.
+- [WorkStore baseline][workstore] and [workspace dependencies][cargo] — historical storage family and provider runtime.
+- [Current agent instructions][agents] and [development workflow][development-workflow] — historical contracts replaced by the rebuild.
 - [Git worktrees][git-worktrees] and [GitHub forks][github-forks] — separate branch checkouts versus separate repositories.
 - [SQLite transaction guarantees][sqlite-transactions] and [backup API][sqlite-backup] — transaction and consistent database backup facilities.
-- [Rig AgentRunner][rig] — currently documented runtime facilities; actual BRN integration and version fit still need qualification.
+- [Rig AgentRunner][rig] — upstream runtime facilities; BRN integration evidence is recorded separately.
 - [Loro guidance on when CRDTs are unsuitable][loro] — convergence is not a substitute for transaction and authorization requirements.
 - [Jujutsu operation log][jj] — repository operation history, distinct from BRN’s application records.
 

@@ -1,14 +1,12 @@
 # brn-retrieval
 
-> **Baseline reference for the Threads rebuild.** This document describes the pre-Threads implementation or historical evidence. The [canonical Threads target](../../docs/architecture/threads-target.md) owns the replacement contract. Inspect this material for component reuse; do not resume its old tasks or infer current authorization from it. Update this local contract when its implementation is replaced.
+Derived search components for the Threads application. The [shared app](../brn-threads-app/src/lib.rs) opens an in-memory `NoteIndex`, refreshes it from current non-archived/non-superseded notes and performs FTS5 keyword queries. SQLite in `brn-threads-core` remains authoritative; opening a workspace can rebuild retrieval.
 
-> Requirements/qualification context (2026-10-07): this README describes implemented behavior, not mandatory limits or acceptance of the proposed replacement. The [owner amendment](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/product/BRN_PRODUCT_VISION.md#owner-amendment--2026-10-07), [reassessment](../../docs/audits/BRN_ARCHITECTURE_REASSESSMENT_2026-10-07.md) and [proposed plan](../../docs/work/active/architecture-reassessment/plan.md) reopen mechanisms. Email enum/literal text is not real EML ingestion; broader conversion, AI draft freedom/budgets and practical reviewability remain gaps. No production behavior changed in this documentation task.
-
-Search over the vault's notes: a disposable `index.sqlite` with FTS5 keyword search, local embeddings and reciprocal-rank fusion ([`note_index`](src/note_index/mod.rs)), plus the local embedding model ([`native`](src/native.rs), feature `native`).
+The crate also retains a reusable persistent index reader/writer, metadata/edge cache and optional local embeddings. Their richer scope/model contracts below describe component behavior, not a claim that current Threads search uses semantic ranking or the former Markdown-vault orchestration.
 
 ## Dependencies and features
 
-No workspace dependencies. Default features are empty. `native` enables FastEmbed/ONNX for the local embedding model and an explicit blocking installer using pinned reqwest 0.12.28, sha1 0.10.6 and macOS libc 0.2.189. Consumed by `brn-workflow`.
+No workspace dependencies; defaults are empty. `native` enables FastEmbed/ONNX and the explicit bounded model installer with pinned reqwest, sha1 and macOS libc. `brn-threads-app/native-retrieval` exposes that optional graph; desktop combines it with `native-ui`. Builds alone do not establish model or corpus quality.
 
 ## Reader and model snapshot contract
 
@@ -19,9 +17,9 @@ foreign or damaged file. `NoteSearch` keyword/vector queries and note listing
 share connection helpers between reader and writer.
 
 BRNI schema V3 caches optional Markdown UUIDs, source/history flags and metadata
-issues supplied by workflow. The branded writer rebuilds old/damaged derived
+issues supplied by the caller. The branded writer rebuilds old/damaged derived
 schemas; the reader refuses them without repair. UUID duplication is allowed
-here and resolved by fresh workflow evidence inspection. `KnowledgeScope`
+here and resolved by fresh caller evidence inspection. `KnowledgeScope`
 defaults to Current: eligible current knowledge only. Source includes original
 sources in any state; History includes historical knowledge and sources; All
 includes every eligible classified note. Rows with metadata issues are excluded
@@ -44,7 +42,7 @@ origin ordering, both-endpoint scope filtering before pagination, matching total
 and limits of 1–200. Malformed stored schemas, endpoints or proofs make readers
 refuse and branded writers rebuild. Note changes remove touching edges; cached
 UUID alias admission also invalidates affected endpoints. Identical metadata and
-mtime-only touches retain proofs. Workflow supplies fresh whole-vault observations;
+mtime-only touches retain proofs. Callers supply fresh source observations;
 these index records confer no durable knowledge or identity authority.
 
 The writer checkpoints its newly created BRNI header before readers attach,
@@ -76,7 +74,7 @@ unavailability. Verified pinned directories can be reused without fetching;
 other occupied targets are unchanged. Failure/cancellation cleans only
 identity-checked files in the install's own stage. No implicit retry.
 
-Workflow supplies fresh consent and owns the blocking job. `LocalEmbedder::open`
+The host supplies fresh consent and owns the blocking job. `LocalEmbedder::open`
 remains **load-only**. Recognized pinned multilingual ONNX requires all five exact
 assets before initialization, uses mean pooling/384 dimensions/max128 tokens and
 Static quantization, and hashes the entire bundle into a distinct profile identity.
@@ -98,4 +96,4 @@ cargo test -p brn-retrieval --features native --lib --test model_download --lock
 
 The local model test runs only when `BRN_NATIVE_MODEL_DIR` points at the model files; a skip is not model verification. Never treat an index as authoritative storage.
 
-Read the [architecture overview](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/architecture/overview.md), [invariants](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/architecture/invariants.md) and [verification guide](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/development/verification.md) before changing contracts.
+Read the [architecture overview](../../docs/architecture/overview.md), [invariants](../../docs/architecture/invariants.md) and [verification guide](../../docs/development/verification.md) before changing contracts.

@@ -18,6 +18,3 @@ uuid = { version = "=1.26.1", features = ["v4"] }
 thiserror = "2"
 tempfile = "3"
 libc = "0.2"
-
-[dev-dependencies]
-tokio = { version = "1", features = ["rt-multi-thread", "macros"] }

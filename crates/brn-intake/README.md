@@ -1,7 +1,5 @@
 # Maintained intake boundary
 
-> **Baseline reference for the Threads rebuild.** This document describes the pre-Threads implementation or historical evidence. The [canonical Threads target](../../docs/architecture/threads-target.md) owns the replacement contract. Inspect this material for component reuse; do not resume its old tasks or infer current authorization from it. Update this local contract when its implementation is replaced.
-
 The default library contains the schema-1 extraction protocol, per-intake quotas, consumed-scope evidence, bounded validation,
 exact byte hashing, content-addressed asset filenames and retained-record PNG
 validation. It does not link BetterOffice, MIME, HTML or JPEG parsers. Source and
@@ -10,15 +8,10 @@ Optional request limits tighten the qualified hard profile. Every real helper
 extraction retains the exact selected limits and measured input/expanded/decoded
 bytes, package/MIME counts and depth, unique image pixels and canonical output
 bytes. Unknown synthetic/historical usage is explicitly absent, never guessed.
-When preserving a new Source, derive its Markdown with
-`Extraction::materialize_for_source(note_id)` and create files using
-`asset_file_name_for_source(asset, note_id)`. Nonnil UUID namespaces give each
-Source distinct destinations while retaining image content identity and repeated
-occurrences. Only qualified image destinations change; source text and occurrence
-offsets follow those exact edits. The measured snapshot stays immutable and the
-derived clone clears consumed usage. Citations use `original_source_range` to map
-unchanged quotes back to snapshot offsets; ambiguous correspondences or quotes
-crossing changed destinations fail closed. Always derive from the original snapshot.
+The [Threads intake adapter](../brn-threads-intake/README.md) selects derived knowledge,
+content-addressed assets and source locators from validated extraction. The shared
+service owns note creation, protected full-import intent and durable assets; this
+protocol does not materialize a separate source-note filesystem namespace.
 The host enforces selected wall time (default 5 seconds, hard maximum 30 seconds).
 MIME library decoding occurs under the hard input/process profile before its
 returned tree can be checked against lower part/depth/decoded quotas; there is no
@@ -73,8 +66,8 @@ supported. Titles/descriptions come from the matching maintained source inventor
 free title scan. Repeated pictures remain distinct occurrences of deduplicated
 asset bytes. Native charts/SmartArt, inherited master/layout content, unsupported
 media/drawings/inlines and missing/external images retain located gaps. No chart
-facts or visual/layout/crop/rotation equivalence are claimed, and originals remain
-retained. The PPTX parser receives explicit aggregate XML/text/event/depth,
+facts or visual/layout/crop/rotation equivalence are claimed, and original files remain
+external. The PPTX parser receives explicit aggregate XML/text/event/depth,
 attribute/relationship/shape/paragraph/run/comment bounds in addition to shared
 OPC admission and the process deadline; no large upstream defaults are used. Native retained inspection supports both qualified PNG/JPEG
 assets. Existing model transport remains PNG-only: only explicitly selected PNG
@@ -114,18 +107,10 @@ public P1 single/plural mail, repeated exact images, unsupported XLSX, scope and
 ambiguity, malformed attachments, four hostile packages, prefix/visual omissions,
 aggregate member budgets, Harbor and unrelated producer PPTX (order, groups,
 soft breaks/field display, cells, notes, hidden content, exact PNG/JPEG and located
-gaps), identical attachment attribution/materialized quotations, atomic quota
+gaps), identical attachment attribution/raw source quotations, atomic quota
 refusal, duplicate shape/relationship identity, damaged/truncated/trailing PNG,
 real native restricted
 parsing, existing synthetic forbidden-file/live-loopback denial and cancellation
 of a real helper/child/grandchild group. `cargo clippy --locked -p brn-intake
 --all-targets --features helper -- -D warnings` checks the optional parser graph.
 These checks establish neither native review usability nor Office corpus fidelity.
-
-Source materialization gives each Source note UUID an independent asset filename
-namespace, so shared images and repeated preservation of one snapshot do not
-collide. It edits only qualified image destinations, preserves asset/original
-bytes and occurrence identity, and maps quotations back to immutable node ranges.
-Measured helper usage stays on the original snapshot; the derived representation
-has no new measured usage. Ambiguous duplicate full-node text remains visible but
-cannot be cited with guessed attachment ownership.

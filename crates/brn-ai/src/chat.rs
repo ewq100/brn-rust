@@ -11,6 +11,7 @@ use std::sync::{
 };
 use tokio_util::sync::CancellationToken;
 pub const MAX_ANSWER_BYTES: usize = 128 * 1024;
+#[cfg(any(test, feature = "capability-spike"))]
 pub const MAX_REWRITE_BYTES: usize = 50 * 1024 * 1024;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
@@ -39,6 +40,7 @@ impl ReasoningEffort {
     }
 }
 
+#[cfg(any(test, feature = "capability-spike"))]
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct HistoryPair {
     pub question: String,

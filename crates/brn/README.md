@@ -15,4 +15,4 @@ New workspaces wait for an explicit delegation choice. `delegation --choice main
 
 The selected provider, model, reasoning effort and credential location are explicit Settings. Codex uses the normal selected subscription account in memory. There is no paid fallback or external message delivery.
 
-Implementation: [entry point](src/main.rs), [shared app](../brn-threads-app/src/lib.rs), [checked core](../brn-threads-core/README.md). [Threads acceptance evidence](../../docs/work/active/threads-rebuild/evidence.md) distinguishes code, offline/live checks, native interaction and owner acceptance.
+Implementation: [entry point](src/main.rs), [shared app](../brn-threads-app/src/lib.rs), [checked core](../brn-threads-core/README.md). [Threads acceptance evidence](../../docs/archive/threads-rebuild/evidence.md) distinguishes code, offline/live checks, native interaction and owner acceptance.

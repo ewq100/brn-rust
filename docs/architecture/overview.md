@@ -1,6 +1,6 @@
 # BRN Threads architecture overview
 
-The [canonical Threads target](threads-target.md) owns the detailed architecture. This page is a navigation summary. The [behavior design](threads-behavior.md) supplies concrete thread and packaged runtime-guide defaults. The SQLite Threads core, runtime and native workspace are implemented. Restore safety merged at `aca1c28`; the [current hardening plan](../work/active/threads-rebuild/phase1-backup-folder-plan.md) adds remembered backup folder. See [status](../status.md) for verification and acceptance limits.
+The [canonical Threads target](threads-target.md) owns the detailed architecture. This page is a navigation summary. The [behavior design](threads-behavior.md) supplies concrete thread and packaged runtime-guide defaults. The SQLite Threads core, runtime and native workspace are implemented. Phase 1 hardening, including remembered backup folder, merged through PR #120 at `3a3aa7a`; the current assignment is [pre-release cleanup](../work/active/pre-release-cleanup/plan.md). See [status](../status.md) for verification and acceptance limits.
 
 ## One state owner
 
@@ -31,6 +31,17 @@ Reuse useful GPUI controls, provider integrations, maintained decoders, and retr
 
 Full-note import shares the same notes, assets, source references, and protection model as other work. Qualify converter and reader coverage without building a universal source renderer.
 
-## Contracts and next action
+## Workspace ownership
 
-Read the [invariant summary](invariants.md), [build plan](../work/active/threads-rebuild/plan.md), and [review brief](../work/active/threads-rebuild/review-brief.md). The [fixed baseline](https://github.com/ewq100/brn-rust/tree/af9239c741c7ab0983e62f0253e607b9607727e6) preserves prior implementation and evidence.
+| Crate | Responsibility |
+|---|---|
+| `brn-threads-core` | Authoritative SQLite state, checked changes, authorization, replay, history, Undo and backup/restore |
+| `brn-threads-app` | Shared application operations, run coordination, fresh current-note search and publication |
+| `brn-threads-intake` | Transient DOCX/PDF conversion, import intent, source coverage and necessary assets |
+| `brn-intake` | Bounded extraction protocol and maintained restricted converter helper |
+| `brn-ai` | Provider/auth transport, bounded Threads runtime/tools and packaged guidance |
+| `brn-retrieval` | Derived keyword/vector indexes and optional explicit local embedding support |
+| `brn-desktop` | Headless desktop entry and optional GPUI workspace/state |
+| `brn` | Thin CLI over the shared service |
+
+Read the [invariants](invariants.md), [dependency boundaries](dependencies.md) and [verification guide](../development/verification.md) before changing these seams. [Archived reports](../archive/README.md) retain implementation history without assigning old work.

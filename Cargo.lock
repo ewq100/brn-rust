@@ -883,7 +883,6 @@ dependencies = [
  "tempfile",
  "tokio",
  "tokio-util",
- "uuid",
 ]
 
 [[package]]
@@ -902,7 +901,6 @@ dependencies = [
  "serde",
  "serde_json",
  "tempfile",
- "thiserror 2.0.21",
  "tokio",
  "tokio-util",
 ]
@@ -916,10 +914,6 @@ dependencies = [
  "brn-threads-app",
  "brn-threads-intake",
  "gpui-kit",
- "libc",
- "serde",
- "serde_json",
- "sha2 0.10.9",
  "tempfile",
  "tokio",
  "tokio-util",
@@ -977,7 +971,6 @@ dependencies = [
  "sha2 0.10.9",
  "tempfile",
  "thiserror 2.0.21",
- "tokio",
  "uuid",
 ]
 

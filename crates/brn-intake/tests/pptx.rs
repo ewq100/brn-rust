@@ -1,9 +1,7 @@
 #![cfg(feature = "helper")]
 use brn_intake::*;
 use std::collections::BTreeMap;
-const HARBOR: &[u8] = include_bytes!(
-    "../../../experiments/architecture-reassessment/p1-office-mime/fixtures/harbor.pptx"
-);
+const HARBOR: &[u8] = include_bytes!("fixtures/harbor.pptx");
 const QUAY: &[u8] = include_bytes!("fixtures/quay.pptx");
 fn extract(bytes: &[u8], limits: Option<IntakeLimits>) -> Result<Extraction, String> {
     helper::extract(HelperRequest {
@@ -62,9 +60,7 @@ fn harbor_preserves_prerequisite_notes_titles_and_repeated_picture_without_chart
     assert_eq!(result.assets.len(), 1);
     assert_eq!(
         result.assets[0].bytes,
-        include_bytes!(
-            "../../../experiments/architecture-reassessment/p1-office-mime/fixtures/water-use.png"
-        )
+        include_bytes!("fixtures/water-use.png")
     );
     assert_eq!(result.occurrences.len(), 2);
     assert_ne!(
@@ -229,18 +225,11 @@ fn identical_email_attachments_retain_distinct_descendants_occurrences_and_quote
     }
     assert!(!groups[0].0.iter().any(|id| groups[1].0.contains(id)));
     assert_ne!(groups[0].1.text, groups[1].1.text);
-    let namespace = "00112233-4455-6677-8899-aabbccddeeff";
-    let derived = result.materialize_for_source(namespace).unwrap();
-    derived.validate().unwrap();
     for (_, note) in groups {
-        let transformed = derived.sources.iter().find(|s| s.id == note.id).unwrap();
         let quote = "Notes only: Leena must confirm the crane by 14 October.";
-        let start = transformed.text.find(quote).unwrap();
-        let range = result
-            .original_source_range(namespace, &note.id, start, start + quote.len())
-            .unwrap();
-        assert_eq!(&note.text[range.0..range.1], quote);
-        assert_eq!(derived.markdown.matches(&transformed.text).count(), 1);
+        let start = note.text.find(quote).unwrap();
+        assert_eq!(&note.text[start..start + quote.len()], quote);
+        assert_eq!(result.markdown.matches(&note.text).count(), 1);
     }
 }
 #[test]
@@ -313,7 +302,12 @@ fn duplicate_shape_and_relationship_identity_refuse_instead_of_guessing() {
 }
 #[test]
 fn hostile_packages_and_tight_quotas_refuse_without_partial_output() {
-    for bytes in [include_bytes!("../../../experiments/architecture-reassessment/p1-office-mime/fixtures/hostile-path.docx").as_slice(), include_bytes!("../../../experiments/architecture-reassessment/p1-office-mime/fixtures/hostile-inflate.docx").as_slice(), include_bytes!("../../../experiments/architecture-reassessment/p1-office-mime/fixtures/hostile-members.docx").as_slice(), include_bytes!("../../../experiments/architecture-reassessment/p1-office-mime/fixtures/hostile-dtd.docx").as_slice()] {
+    for bytes in [
+        include_bytes!("fixtures/hostile-path.docx").as_slice(),
+        include_bytes!("fixtures/hostile-inflate.docx").as_slice(),
+        include_bytes!("fixtures/hostile-members.docx").as_slice(),
+        include_bytes!("fixtures/hostile-dtd.docx").as_slice(),
+    ] {
         assert!(extract(bytes, None).is_err());
     }
     for limits in [
@@ -432,10 +426,7 @@ fn single_part_email_attachment_keeps_email_headers_separate_from_document_sourc
         (
             "docx",
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            include_bytes!(
-                "../../../experiments/architecture-reassessment/p1-office-mime/fixtures/harbor.docx"
-            )
-            .as_slice(),
+            include_bytes!("fixtures/harbor.docx").as_slice(),
         ),
     ] {
         let message = format!(
@@ -535,10 +526,7 @@ fn review_generic_mime_office_attachments_keep_validated_package_type_and_raw_em
         (
             "docx",
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            include_bytes!(
-                "../../../experiments/architecture-reassessment/p1-office-mime/fixtures/harbor.docx"
-            )
-            .as_slice(),
+            include_bytes!("fixtures/harbor.docx").as_slice(),
         ),
     ] {
         for multipart in [false, true] {

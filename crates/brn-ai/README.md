@@ -18,4 +18,4 @@ cargo test --locked -p brn-ai --features capability-spike
 cargo clippy --locked -p brn-ai --all-targets --features capability-spike -- -D warnings
 ```
 
-The optional `capability-spike` feature retains bounded qualification fixtures/probes; it is not the production tool runtime. Reproduce the public 0.43/0.44 decoder comparison using [the exact offline commands and sanitized results](../../docs/work/active/threads-rebuild/rig-decoder-comparison.md). Current integration evidence is in [the rebuild evidence](../../docs/work/active/threads-rebuild/evidence.md).
+The optional `capability-spike` feature retains bounded qualification fixtures/probes; it is not the production tool runtime. The retired standalone public 0.43/0.44 decoder comparison is preserved with [its historical commands and sanitized results](../../docs/archive/threads-rebuild/rig-decoder-comparison.md). Current integration evidence is in [the rebuild evidence](../../docs/archive/threads-rebuild/evidence.md).
