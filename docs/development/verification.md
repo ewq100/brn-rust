@@ -1,142 +1,42 @@
-# Verification guide
+# BRN Threads verification
 
-Run from the repository root. Use the pinned toolchain, lockfiles, disposable explicit data directories and synthetic fixtures. Read scripts before running them. Record actual environment and results; do not copy historical pass counts as new evidence.
-[Development tooling](tooling.md) provides read-only preflight, opt-in gate evidence,
-exact-attempt CI summaries and the current Markdown link gate.
+The [canonical acceptance journeys](../architecture/threads-target.md#acceptance-journeys) define what the rebuild must demonstrate. Existing scripts and tests are reusable evidence; tests that enforce retired mechanisms must be replaced coherently with their production paths.
 
-## Select checks by change
+## Select checks for the change
 
-| Changed area | Relevant checks |
-| --- | --- |
-| Documentation only | `git diff --check`; `python3 scripts/check-markdown-links.py` for local Markdown file/fragment links and moved-path references; compare documented commands and features with manifests/scripts |
-| Integrated workflow or cross-crate behavior | `bash scripts/verify-end-to-end.sh` (retirement check, workspace format/build/Clippy/tests, current-vault Save/recovery/read/search fixtures); `--fixtures-only` after a completed shared gate |
-| Storage, migrations or recovery | `bash scripts/verify-storage.sh`; inspect relevant process-crash tests in `crates/brn-store/tests` |
-| Drafts or comments | `cargo test -p brn-store -p brn-workflow --locked`; then integrated checks; add native checks if interaction changes |
-| Native UI | `bash scripts/verify-desktop-shell.sh --native`; manually exercise changed flows on the unlocked target Mac with fresh disposable data; retain safe captures in the [UI screenshot index](../ui/screenshots/README.md) |
-| Rig AI/auth adapter | `cargo test -p brn-ai --lib --locked --offline` (real Rig routes with synthetic transports); standalone `verify-trial.sh` is historical, never a product gate |
-| Search index or keyword retrieval | `cargo test -p brn-retrieval --locked`; integrated workflow checks |
-| Native retrieval | `cargo test -p brn-retrieval --features native --locked` (set `BRN_NATIVE_MODEL_DIR` to run the local model test; otherwise it is skipped); `cargo check -p brn-desktop --features native-ui,native-retrieval --locked` |
-| Editor experiment | `bash scripts/verify-editor-trial.sh` (includes native build) |
-| Retrieval experiment | `bash scripts/verify-retrieval-trial.sh`; add `--native` for native checks; `scripts/verify-retrieval-state.sh` requires a completed synthetic state directory |
-| Local macOS launcher | `bash scripts/test-make-macos-app.sh`; observe launch/relaunch if behavior changed |
-| Shell scripts | `for script in scripts/*.sh; do bash -n "$script"; done` plus the affected behavioral script |
+| Change | Evidence |
+|---|---|
+| Setup and documentation | `git diff --check`; `python3 scripts/check-markdown-links.py`; current path/command consistency and explicit environment inventory. |
+| Core persistence and authorization | Atomic grouped commit, prepare and apply replay after lost responses, stale record/protection changes, protected writes, versioned Save, cross-process dirty guards, stale human buffers and delayed recovery writes, crash/restart, immediate compensation, and restore. |
+| Agent journey | Real selected provider/tool path against synthetic/public scenarios, checked committed result, relevant source references, Action outcome, and run interruption/budget behavior. |
+| Full-note import | Representative paper and process fixtures with substantive prose, steps, tables, figures, and references; no mathematical equation fidelity gate; compare a hand-checked PDF/DOCX fixture inventory and source coverage; verify partial outcomes and offline retained content. |
+| Native interaction | Actual queue/thread/editor/review/comment/search/Action/history/export journeys on the target Mac, with restart checks and understandable conflicts. |
+| Exports and backup | Fresh complete snapshot publication; failed exports stay visibly failed; restored BRN records/assets/history in a clean directory. |
+| Runtime guides and thread behavior | Representative success/boundary scenarios, actual skill loading and bundle identity, quiet routine outcomes, exact attention reasons, separate Action completion and fresh-invocation continuation. |
+| Component reuse or removal | Relevant component tests plus coherent removal of obsolete routes, commands, helpers, and tests; retained dependency fixes remain verified. |
 
-Do not repeat entire workspace suites through several scripts when their shared checks already passed, unless a new change or unresolved failure warrants it. Standalone experiment tests are not included by `cargo test --workspace`.
+Use the pinned toolchain and lockfiles. The [dependency qualification plan](../work/active/threads-rebuild/plan.md#dependency-qualification) defines Rust 1.99.0 qualification against unchanged dependencies, consistent compiler selection in retained scripts, and the separate Rig and GPUI upgrade proofs. Source inspection is not a passing build or native result. Default workspace checks do not cover optional native features. Run focused checks as needed; repeat broad checks only for relevant changes or a concrete unresolved risk. No zero-test or self-skipped run counts as proof.
 
-Give each checkout its own Cargo target and keep Cargo calls sequential within
-that target. A baseline probe must not reuse another checkout's package artifacts:
-Cargo's relative dependency paths and timestamps can retain stale local crates
-across different trees. If a task-owned cache was transferred, clean its BRN
-packages before verifying another tree; preserve dependency caches and record the
-failed attempt separately. A zero-test filtered run is not behavioral evidence.
+## CI and integration
 
-Inbox Action worker-test waits use one absolute ten-second allowance per ordinary
-operation. A validated captured approval group executes members sequentially and
-receives that allowance per member (three members: thirty seconds); unrelated
-events never restart its deadline. Invalid groups keep ten seconds. This is a
-test-harness budget, not a product approval deadline or permission to skip slow
-tests. Test-only group timings report UUIDs/counts/durations without evidence
-payloads, distinguishing a slow completed group from a stuck or failed approval.
+The [CI workflow](../../.github/workflows/ci.yml) now covers the Threads core/app/runtime/CLI and new native state. It has a documentation/tooling job and core/native lanes. Main currently requires these contexts:
 
-Credential fixtures require an explicit current-user-owned parent outside Git;
-create a private synthetic parent such as `/private/tmp/brn-fixtures`, then set
-`TMPDIR` to that existing canonical directory. Do not use original data or
-credentials. `verify-end-to-end.sh` requires that existing absolute parent,
-creates one exclusive UUID-owned fixture and removes only its own entries.
-No account, model asset, inference or graphical interaction is performed.
+- `Core and CLI (ubuntu-24.04)`
+- `Core and CLI (macos-15)`
+- `Native UI build and state (macos-15)`
+- `Native retrieval and combined build (macos-15)`
 
-The retirement check (`--retirement-only`) scans root/crate manifests,
-production Rust and product scripts. Integration tests and trailing private
-test modules may explicitly reject old flags; historical docs and standalone
-trials are not shipped production configuration. Tokens are not disguised.
+Adapt meaningful jobs with the replacement code. Do not add no-op passing jobs, suppress failures, or weaken repository protection to make a rebuild green. Product scope is Mac first; an unrelated platform issue should be reported without silently becoming another development program.
 
-## Optional native offline qualification
+## Evidence and limits
 
-After targeted fixes, run the four baseline commands below **once**, using
-`--locked --offline`, followed by:
+Record tested commit/tree, environment, features, exact command, result, and limitation. Use fresh explicit synthetic data and preserve task evidence. Existing [tooling](tooling.md) can record gate output; read commands before use.
 
-```sh
-cargo test -p brn-retrieval --features native --lib --test model_download --locked --offline
-cargo test -p brn-workflow --features native-retrieval --lib --test models --locked --offline
-cargo test -p brn-desktop --features native-ui,native-retrieval,native-test-support --locked --offline
-cargo build -p brn-desktop --features native-ui,native-retrieval --locked --offline
-cargo build -p brn --features native-retrieval --locked --offline
-bash scripts/verify-end-to-end.sh --fixtures-only
-bash scripts/test-make-macos-app.sh
-git diff --check
-```
+Distinguish implemented, verified, native-observed, owner-accepted, and merged. Provider calls and downloads follow current task authority. CI does not receive account credentials. If the Mac is locked or inaccessible, gather one explicit UI qualification task and continue useful headless work without claiming UI success.
 
-Native workflow library tests include the private worker/loader seams as well
-as model contracts; integration `models` runs unfiltered. Synthetic downloads
-and vectors are not real ONNX or asset qualification. An unset local-model
-environment can self-skip tests reported as passed; record those limitations.
-Native builds/state tests do not establish GUI usability; upstream
-`block v0.1.6`'s future-compiler warning is a known separate limitation.
-`native-test-support` enables the pinned toolkit's headless widget context for
-exact title/body checks. Normal native application builds omit this test feature.
 
-## Baseline Rust checks
+## Current local gates
 
-The test profile uses optimization level 1 for repeated complete-record JSON and
-base64 processing while explicitly retaining debug assertions and overflow checks.
-The default/shipping development profile is unchanged. Full-size asset, crash,
-recovery and feature-lane assertions still run; this is not a reduced CI suite.
-The CI cache key includes the root Cargo manifest so profile changes cannot
-restore an old full-match key and prevent saving rebuilt dependency artifacts.
-The first new-key build is cold; workspace test executables still rebuild under
-the existing cache policy.
+Build the maintained `brn-intake-helper` before the Mac workspace tests. PDF fixture qualification needs Poppler `pdftotext`/`pdfimages`; CI supplies their explicit paths, and local tests accept `BRN_INTAKE_HELPER`, `BRN_PDFTOTEXT`, `BRN_PDFIMAGES`. The default Mac test suite includes the source inventories and transient-cleanup witnesses.
 
-```sh
-cargo fmt --all -- --check
-cargo build -p brn-intake --features helper --bin brn-intake-helper --locked
-cargo build --workspace --locked
-cargo clippy --workspace --all-targets --locked -- -D warnings
-cargo test --workspace --locked
-```
-
-The intake helper must be built beside the CLI/desktop/test binaries before workflow
-conversion tests. It activates native restrictions before reading copied input;
-missing helper installation is a failed gate, never a skipped conversion check.
-
-Default workspace checks exclude optional native feature paths. Native builds and interactions require separate evidence. The scripts generally use offline Cargo; see [setup](setup.md).
-
-## GitHub-hosted CI
-
-[BRN CI](../../.github/workflows/ci.yml) runs default workspace builds/tests and
-CLI help checks on Ubuntu 24.04 (x64), Windows Server 2025 (x64), and macOS 15
-(Apple Silicon). Linux also checks formatting and Clippy on every PR; main and
-manual runs check Clippy on all three systems. The macOS job runs the current
-synthetic read/search, Save/recovery/Copy and marker-refusal end-to-end fixtures
-with an exclusive physical parent under `RUNNER_TEMP`. Save requires macOS
-filesystem coordination; Ubuntu retains the shared workspace checks and CLI help.
-All Unix test jobs use an explicit physical `TMPDIR` under `RUNNER_TEMP`, so
-credential-safety checks do not encounter symlinked macOS system temp paths.
-After a successful default build, tests, CLI help and fixtures can still run if
-an earlier independent check fails; the failed check keeps the job red.
-
-Native UI and native retrieval have separate jobs. PRs run both on macOS;
-main and manual runs probe both on all three systems. The native UI job also
-lints and tests actual macOS widgets with `native-test-support`; shipping builds
-remain separately qualified without that feature. The same job starts
-and shuts down the real AppWorker twice against one fresh data directory, checking
-that `brn.sqlite` exists and the retired `brn.sqlite3` does not. Each lane installs the
-pinned toolchain, fetches locked dependencies before offline Cargo checks, and
-uses a cache separated by OS, architecture, compiler, lockfiles and features.
-Outdated runs are cancelled. Jobs use read-only repository permissions, do not
-receive provider credentials, and never request model assets or a live login.
-Native retrieval may download its build-time ONNX Runtime dependency; model
-tests use synthetic fixtures, and the real-model test is excluded.
-
-These are platform qualification checks, not a claim that BRN is already
-portable. Windows currently has unconditional Unix filesystem/credential APIs;
-managed-note coordination still requires macOS. A failing platform remains
-visible: jobs do not use `continue-on-error`. Fixing those product boundaries
-needs a separate authorized portability slice. Native build/state checks do
-not open the GUI or establish usability, packaging or Windows 11 qualification.
-Standalone experiments remain outside this workflow.
-
-## Evidence standards
-
-Record date, commit (and dirty changes), platform/toolchain, feature flags, exact commands, result and limitations. Distinguish passed, failed, skipped and blocked checks; fixture-gated tests that did not exercise native resources are not live resource verification. Identify fresh verification separately from previous evidence.
-
-Live provider checks or model downloads require task authorization. Manual native evidence should name the observed scenario, disposable data, restart behavior and unresolved user/IME/accessibility qualification. A build or headless test does not establish those results.
+`verify-storage.sh` covers default formatting/build/lint/tests. `verify-end-to-end.sh` adds fresh CLI/desktop Save, recovery, search, export/backup, startup and foreign-data refusal. `verify-desktop-shell.sh` compiles/lints/tests native state. The 5,000-note witness in `brn-threads-app/tests/user_scale.rs` proves current-revision search refresh and archive exclusion. Older standalone experiments remain historical evidence, with no production engine dependency.

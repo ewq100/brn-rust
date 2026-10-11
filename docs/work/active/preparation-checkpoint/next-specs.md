@@ -4,7 +4,7 @@
 
 Written 2026-10-06; **Build-ready for explicit selection only**. Baseline is integrated main `a8deb9d8e94665b1731034675b490fb134aae091`, with unchanged product at PR77 `c75803832f3140347192bb08f2fdf13bb5fba1d4`. Recheck remote and candidate before work. No implementation was performed here.
 
-Parent outcome: reduce duplicated general mechanisms while preserving observable BRN behavior. These are independent maintenance slices, not a prerequisite chain for V1. [H1–H5](../v1-handoff.md#ordered-task-queue) remain the tracker; this parent supplies detailed H1/H2 contracts rather than new duplicate tickets. [Reuse rule](../../../development/workflow.md#compatible-reuse), [reuse decision](../../../architecture/decisions/2026-10-06-compatible-reuse.md), [invariants](../../../architecture/invariants.md) apply.
+Parent outcome: reduce duplicated general mechanisms while preserving observable BRN behavior. These are independent maintenance slices, not a prerequisite chain for V1. [H1–H5](../v1-handoff.md#ordered-task-queue) remain the tracker; this parent supplies detailed H1/H2 contracts rather than new duplicate tickets. [Reuse rule](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/development/workflow.md#compatible-reuse), [reuse decision](../../../architecture/decisions/2026-10-06-compatible-reuse.md), [invariants](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/architecture/invariants.md) apply.
 
 ## H1 — titles from saved Markdown
 

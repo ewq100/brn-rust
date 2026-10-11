@@ -175,7 +175,7 @@ artifacts after a baseline probe reused a target: it passed old filtered binarie
 before a production build failed against the old AI library (exit101). Clearing
 only that target's BRN package artifacts and rebuilding reproduced the correct
 merged tests and passed. The failed/zero-test attempt is not qualification;
-the [verification guide](../../../development/verification.md) now records this
+the [verification guide](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/development/verification.md) now records this
 specific target-isolation constraint. Main37375126865 remains in progress.
 
 ## Rewrite correction evidence
@@ -1071,7 +1071,7 @@ The new parent/child regression genuinely failed against the unpatched package
 (exit101,03:14:45–03:14:49UTC), after the child positively validated three real
 synthetic provider routes, InvalidToolUse, zero backend reads and no retry.
 
-The [exact repository dependency patch](../../../../vendor/README.md) removes only
+The [exact repository dependency patch](https://github.com/ewq100/brn-rust/blob/0fcb8f737952189724a7156dde2c483719e9a6bf/vendor/README.md) removes only
 that print. All88 released package files and modes are retained and compared;
 only the documented engine line differs. The archive checksum matches the
 original lock entry. A separately identified same-release MIT license supplements

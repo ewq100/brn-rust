@@ -315,6 +315,13 @@ impl NoteIndex {
         Ok((Self { conn }, created))
     }
 
+    /// An entirely rebuildable process-local index; no vault or user data discovery.
+    pub fn in_memory() -> Result<Self> {
+        Ok(Self {
+            conn: schema::memory()?,
+        })
+    }
+
     /// Eligible current knowledge, ordered by path.
     pub fn notes(&self) -> Result<Vec<IndexedNote>> {
         self.notes_scoped(KnowledgeScope::Current)

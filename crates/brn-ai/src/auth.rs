@@ -30,7 +30,7 @@ pub struct Auth {
 
 pub struct ProviderClient {
     pub(crate) inner: OwnedClient,
-    selection: Selection,
+    pub(crate) selection: Selection,
 }
 
 pub(crate) enum OwnedClient {
@@ -659,7 +659,7 @@ fn validate_metadata(
     }
 }
 
-fn validate_file(meta: &Metadata, tighten: bool) -> AiResult<()> {
+pub(crate) fn validate_file(meta: &Metadata, tighten: bool) -> AiResult<()> {
     if tighten {
         if !meta.is_file() || meta.nlink() != 1 || meta.uid() != current_uid() {
             return Err(unsafe_credentials());
@@ -685,7 +685,7 @@ fn validate_removal(file: bool, symlink: bool, uid: u32) -> AiResult<()> {
     Ok(())
 }
 
-fn validate_ancestors(path: &Path) -> AiResult<()> {
+pub(crate) fn validate_ancestors(path: &Path) -> AiResult<()> {
     let mut current = PathBuf::new();
     for component in path.components() {
         if matches!(component, Component::ParentDir | Component::CurDir) {

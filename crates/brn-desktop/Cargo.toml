@@ -7,12 +7,16 @@ publish = false
 [features]
 default = []
 native-ui = ["dep:gpui-kit", "dep:sha2", "dep:tempfile", "dep:libc"]
-native-retrieval = ["native-ui", "brn-workflow/native-retrieval"]
+native-retrieval = ["native-ui", "brn-threads-app/native-retrieval"]
 native-test-support = ["native-ui", "gpui-kit/test-support"]
 
 [dependencies]
-gpui-kit = { version = "=0.6.6", optional = true }
-brn-workflow = { path = "../brn-workflow" }
+brn-threads-app = { path = "../brn-threads-app" }
+brn-threads-intake = { path = "../brn-threads-intake" }
+brn-ai = { path = "../brn-ai" }
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
+tokio-util = { version = "0.7", features = ["rt"] }
+gpui-kit = { version = "=0.7.1", optional = true }
 brn-intake = { path = "../brn-intake" }
 tempfile = { version = "3", optional = true }
 libc = { version = "0.2", optional = true }
@@ -22,5 +26,4 @@ serde_json = "1"
 sha2 = { version = "0.10", optional = true }
 
 [dev-dependencies]
-brn-store = { path = "../brn-store" }
 tempfile = "3"

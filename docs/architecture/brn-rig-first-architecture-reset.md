@@ -1,12 +1,14 @@
 # BRN Rust --- Rig-First Architecture Reset
 
+> **Baseline reference for the Threads rebuild.** This document describes the pre-Threads implementation or historical evidence. The [canonical Threads target](threads-target.md) owns the replacement contract. Inspect this material for component reuse; do not resume its old tasks or infer current authorization from it. Update this local contract when its implementation is replaced.
+
 **Date:** 2026-10-01\
 **Status:** Historical design handoff, superseded by the simple Rig-based notes design
 
 > Preserved during the 2026-10-03 local-document synchronization. This is the
 > original 2026-10-01 planning input, not current execution instructions.
 > Use the [simple notes roadmap](../work/active/simple-rig-notes/plan.md) and
-> [current status](../status.md) for implemented contracts and remaining work.
+> [current status](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/status.md) for implemented contracts and remaining work.
 > Step 4 Rig chat is merged through PR #14; this handoff does not authorize
 > another reset, data migration or live/provider checks.
 

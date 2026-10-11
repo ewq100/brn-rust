@@ -24,11 +24,11 @@ if [[ $# -ne 0 ]]; then
 fi
 
 cd "$repo_root"
-cargo +1.98.1 fmt --all --check
-cargo +1.98.1 build -p brn-intake --features helper --bin brn-intake-helper --locked --offline
-cargo +1.98.1 build --workspace --locked --offline
-cargo +1.98.1 clippy --workspace --all-targets --locked --offline -- -D warnings
-cargo +1.98.1 test --workspace --locked --offline
+cargo fmt --all --check
+cargo build -p brn-intake --features helper --bin brn-intake-helper --locked --offline
+cargo build --workspace --locked --offline
+cargo clippy --workspace --all-targets --locked --offline -- -D warnings
+cargo test --workspace --locked --offline
 
 brn="$CARGO_TARGET_DIR/debug/brn"
 desktop="$CARGO_TARGET_DIR/debug/brn-desktop"
@@ -55,7 +55,6 @@ expect_failure() {
 }
 
 "$brn" --help >/dev/null
-"$brn" --version >/dev/null
 expect_failure 'brn without arguments' "$brn"
 expect_failure 'brn with unknown arguments' "$brn" --unknown
 
@@ -63,4 +62,4 @@ expect_failure 'brn with unknown arguments' "$brn" --unknown
 expect_failure 'desktop unknown option' "$desktop" --unknown
 "$desktop" --headless-check startup --data-dir "$data_dir"
 
-printf 'Storage verification passed (workspace checks and AppWorker startup checks; no GUI, account or network calls).\n'
+printf 'Storage verification passed (workspace checks and Threads startup checks; no GUI, account or network calls).\n'

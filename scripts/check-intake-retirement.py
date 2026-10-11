@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check P2 ships maintained adapters and historical record readers, not Word interpreters."""
+"""Check Threads ships maintained converters and no old persistence engine."""
 from pathlib import Path
 import re
 import sys
@@ -19,11 +19,14 @@ for path in (root / "crates").rglob("*.rs"):
     for token in ("convert_docx_source", "convert_docx_original", "roxmltree::", "schemas.openxmlformats.org/wordprocessingml", "schemas.openxmlformats.org/drawingml"):
         if token in text:
             failures.append(f"{path.relative_to(root)}: retired format mechanics {token}")
-manifest = tomllib.loads((root / "crates/brn-store/Cargo.toml").read_text())
+manifest = tomllib.loads((root / "crates/brn-threads-core/Cargo.toml").read_text())
 for dependency in ("zip", "flate2", "quick-xml", "roxmltree", "png", "crc32fast"):
     if dependency in manifest.get("dependencies", {}):
-        failures.append(f"Store still directly owns format dependency {dependency}")
+        failures.append(f"Core still directly owns format dependency {dependency}")
+for path in (root / "crates/brn-store", root / "crates/brn-workflow", root / "crates/brn/src/cli"):
+    if path.exists():
+        failures.append(f"Retired engine path remains: {path.relative_to(root)}")
 if failures:
     print("\n".join(failures), file=sys.stderr)
     sys.exit(1)
-print("Maintained intake / historical-reader retirement check passed")
+print("Maintained intake / Threads engine retirement check passed")

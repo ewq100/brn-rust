@@ -20,7 +20,7 @@ invariants and the development workflow govern this work.
 
 ## AI authority constraint
 
-Follow the owner's [semantic intelligence and deterministic authority](../../../architecture/overview.md#semantic-intelligence-and-deterministic-authority)
+Follow the owner's [semantic intelligence and deterministic authority](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/architecture/overview.md#semantic-intelligence-and-deterministic-authority)
 clarification. The LLM supplies semantic interpretation, bounded evidence/tool
 choices and candidates; Rust/workflow verifies exact evidence and owns approval,
 effects and recovery. New task-specific AI behavior uses a small centralized

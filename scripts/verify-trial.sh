@@ -2,9 +2,11 @@
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# Resolve Cargo through the repository toolchain pin even when called elsewhere.
+cd "$repo_root"
 starter_manifest="$repo_root/Cargo.toml"
 trial_manifest="$repo_root/experiments/codex-app-server/Cargo.toml"
-cargo=(cargo +1.98.1)
+cargo=(cargo)
 
 expect_status() {
     local expected="$1"

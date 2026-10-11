@@ -69,8 +69,9 @@ async fn provider_stderr_child() {
                 "created":1,"model":"synthetic","choices":[{"index":0,
                 "delta":{"role":"assistant","content":prior},"finish_reason":null}]}))
         };
-        let sse = partial + &tool_sse(responses, &[(name.as_str(), json!({"private":argument}))]);
-        let (_root, client, http) = client(provider, model, vec![success(sse)]).await;
+        let sse =
+            partial.clone() + &tool_sse(responses, &[(name.as_str(), json!({"private":argument}))]);
+        let (_root, client, http) = super::client(provider, model, vec![success(sse)]).await;
         let notes = Arc::new(Notes::default());
         let (answer, events) = run(client, notes.clone(), CancellationToken::new()).await;
         assert!(
@@ -91,6 +92,17 @@ async fn provider_stderr_child() {
                 .all(|event| matches!(event, AiEvent::Text(text) if text == &prior))
         );
         assert_eq!(events.len(), 1);
+        http.assert_consumed();
+
+        // Also qualify Rig 0.44's malformed-argument policy on a known tool,
+        // whose raw rejected payload must never be printed by the runtime.
+        let sse = partial + &tool_sse(responses, &[("read_note", json!([argument]))]);
+        let (_root, client, http) = super::client(provider, model, vec![success(sse)]).await;
+        let notes = Arc::new(Notes::default());
+        let (answer, _) = run(client, notes.clone(), CancellationToken::new()).await;
+        assert!(matches!(answer.terminal, AiTerminal::Failed(_)));
+        assert_eq!(notes.calls.load(Ordering::SeqCst), 0);
+        assert_eq!(answer.text, prior);
         http.assert_consumed();
     }
     println!("R4_ROUTES_VALIDATED:3");

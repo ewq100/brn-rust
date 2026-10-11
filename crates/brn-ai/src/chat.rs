@@ -1,24 +1,16 @@
-use crate::auth::OwnedClient;
+//! Common transport stream contract, shared by the final-use runtime and fixtures.
 use crate::error::map_provider;
-use crate::tools::{
-    ListActions, ListNotes, ReadAction, ReadConflicts, ReadNote, ReadNoteRange, ReadRawEvidence,
-    SearchNotes, ToolRounds,
-};
-use crate::{AiError, AiErrorKind, Provider, ProviderClient, ReadTools};
+use crate::{AiError, AiErrorKind};
 use futures::StreamExt;
-use rig::agent::{
-    AgentHook, HookContext, ModelTurnAction, ModelTurnFinished, MultiTurnStreamItem,
-    StreamingError, StreamingResult,
-};
-use rig::completion::{Message, PromptError};
-use rig::message::AssistantContent;
+use rig::agent::{MultiTurnStreamItem, StreamingResult};
+use rig::completion::{FinishReason, PromptError};
 use rig::streaming::{Item, StreamEvent};
 use std::sync::{
-    Arc, Mutex,
-    atomic::{AtomicBool, AtomicU16, Ordering},
+    Arc,
+    atomic::{AtomicBool, Ordering},
 };
 use tokio_util::sync::CancellationToken;
-
+pub const MAX_ANSWER_BYTES: usize = 128 * 1024;
 pub const MAX_REWRITE_BYTES: usize = 50 * 1024 * 1024;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
@@ -30,6 +22,14 @@ pub enum ReasoningEffort {
 }
 
 impl ReasoningEffort {
+    pub const fn typed(self) -> rig::completion::Effort {
+        match self {
+            Self::Low => rig::completion::Effort::Low,
+            Self::Medium => rig::completion::Effort::Medium,
+            Self::High => rig::completion::Effort::High,
+        }
+    }
+
     pub const fn as_str(self) -> &'static str {
         match self {
             Self::Low => "low",
@@ -37,21 +37,6 @@ impl ReasoningEffort {
             Self::High => "high",
         }
     }
-}
-
-#[derive(Clone, Copy)]
-enum RunMode {
-    Answer,
-    AnswerWithEffort {
-        responses: bool,
-        effort: ReasoningEffort,
-        max_tool_rounds: u16,
-        progress: bool,
-    },
-    Rewrite {
-        responses: bool,
-        effort: ReasoningEffort,
-    },
 }
 
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
@@ -63,6 +48,8 @@ pub struct HistoryPair {
 #[derive(Clone, Debug)]
 pub enum AiEvent {
     Text(String),
+    /// Successful final content replaces any provisional stream preview.
+    AnswerFinalized(String),
     ToolStarted {
         name: String,
     },
@@ -87,491 +74,14 @@ pub struct AiAnswer {
     pub terminal: AiTerminal,
 }
 
-struct RoundHook {
-    rounds: Mutex<ToolRounds>,
-    limited: Arc<AtomicBool>,
-    model_turns: AtomicU16,
-    limit: u16,
-    progress: Option<Arc<dyn Fn(AiEvent) + Send + Sync>>,
-}
-
-impl AgentHook for RoundHook {
-    async fn on_model_turn_finished(
-        &self,
-        _: &HookContext,
-        event: ModelTurnFinished<'_>,
-    ) -> ModelTurnAction {
-        let contains_tools = event
-            .content
-            .iter()
-            .any(|c| matches!(c, AssistantContent::ToolCall(_)));
-        let (refused, used) = {
-            let mut rounds = self.rounds.lock().expect("run-owned budget");
-            (rounds.admit(contains_tools).is_err(), rounds.used())
-        };
-        // Rig bounds this hook to at most 33 completed responses per run.
-        let completed = self.model_turns.fetch_add(1, Ordering::SeqCst) + 1;
-        if let Some(emit) = &self.progress {
-            emit(AiEvent::BudgetProgress {
-                model_turns: completed,
-                tool_rounds: used,
-                max_tool_rounds: self.limit,
-            });
-        }
-        if refused {
-            self.limited.store(true, Ordering::SeqCst);
-            return ModelTurnAction::Stop("tool-round budget exhausted".into());
-        }
-        ModelTurnAction::Continue
-    }
-}
-
-pub async fn answer(
-    client: ProviderClient,
-    question: &str,
-    history: &[HistoryPair],
-    tools: Arc<dyn ReadTools>,
-    cancel: CancellationToken,
-    emit: Arc<dyn Fn(AiEvent) + Send + Sync>,
-) -> AiAnswer {
-    let model = client.selection().model.clone();
-    match client.inner {
-        OwnedClient::Chatgpt(client) => {
-            answer_model(
-                client.completion(model),
-                question,
-                history,
-                tools,
-                cancel,
-                emit,
-            )
-            .await
-        }
-        OwnedClient::Copilot(client) => {
-            answer_model(
-                client.completion(model),
-                question,
-                history,
-                tools,
-                cancel,
-                emit,
-            )
-            .await
-        }
-    }
-}
-
-/// Answers with the captured provider, model and explicit reasoning effort.
-/// History, read tools and provisional text use the ordinary Ask stream policy.
-pub async fn answer_with_effort(
-    client: ProviderClient,
-    question: &str,
-    history: &[HistoryPair],
-    effort: ReasoningEffort,
-    tools: Arc<dyn ReadTools>,
-    cancel: CancellationToken,
-    emit: Arc<dyn Fn(AiEvent) + Send + Sync>,
-) -> AiAnswer {
-    answer_with_tools(
-        client,
-        question,
-        history,
-        effort,
-        tools,
-        None,
-        cancel,
-        emit,
-        &[],
-        8,
-        false,
-    )
-    .await
-}
-
-#[allow(clippy::too_many_arguments)]
-async fn answer_with_tools(
-    client: ProviderClient,
-    question: &str,
-    history: &[HistoryPair],
-    effort: ReasoningEffort,
-    tools: Arc<dyn ReadTools>,
-    proposals: Option<Arc<dyn crate::ProposalTools>>,
-    cancel: CancellationToken,
-    emit: Arc<dyn Fn(AiEvent) + Send + Sync>,
-    images: &[crate::VisualImage],
-    max_tool_rounds: u16,
-    progress: bool,
-) -> AiAnswer {
-    if !(1..=32).contains(&max_tool_rounds) {
-        return AiAnswer {
-            text: String::new(),
-            terminal: AiTerminal::Failed(AiError::new(AiErrorKind::ToolRejected)),
-        };
-    }
-    let selection = client.selection();
-    let model = selection.model.clone();
-    let mode = RunMode::AnswerWithEffort {
-        responses: selection.provider == Provider::Chatgpt
-            || rig::providers::copilot::wire::routes_through_responses(&model),
-        effort,
-        max_tool_rounds,
-        progress,
-    };
-    match client.inner {
-        OwnedClient::Chatgpt(client) => {
-            run_model_images(
-                client.completion(model),
-                question,
-                history,
-                tools,
-                proposals,
-                cancel,
-                emit,
-                mode,
-                images,
-            )
-            .await
-        }
-        OwnedClient::Copilot(client) => {
-            run_model_images(
-                client.completion(model),
-                question,
-                history,
-                tools,
-                proposals,
-                cancel,
-                emit,
-                mode,
-                images,
-            )
-            .await
-        }
-    }
-}
-
-/// Ask with one captured application proposal capability; real changes still need approval.
-#[allow(clippy::too_many_arguments)]
-pub async fn answer_with_proposals(
-    client: ProviderClient,
-    question: &str,
-    history: &[HistoryPair],
-    effort: ReasoningEffort,
-    tools: Arc<dyn ReadTools>,
-    proposals: Arc<dyn crate::ProposalTools>,
-    cancel: CancellationToken,
-    emit: Arc<dyn Fn(AiEvent) + Send + Sync>,
-) -> AiAnswer {
-    answer_with_tools(
-        client,
-        question,
-        history,
-        effort,
-        tools,
-        Some(proposals),
-        cancel,
-        emit,
-        &[],
-        8,
-        false,
-    )
-    .await
-}
-
-/// Private image collections use the same selected model, tools and proposal
-/// lane as text evidence; image interpretation does not create another runtime.
-#[allow(clippy::too_many_arguments)]
-pub async fn answer_with_proposals_and_images(
-    client: ProviderClient,
-    question: &str,
-    history: &[HistoryPair],
-    effort: ReasoningEffort,
-    tools: Arc<dyn ReadTools>,
-    proposals: Arc<dyn crate::ProposalTools>,
-    images: &[crate::VisualImage],
-    cancel: CancellationToken,
-    emit: Arc<dyn Fn(AiEvent) + Send + Sync>,
-) -> AiAnswer {
-    answer_with_tools(
-        client,
-        question,
-        history,
-        effort,
-        tools,
-        Some(proposals),
-        cancel,
-        emit,
-        images,
-        8,
-        false,
-    )
-    .await
-}
-
-/// Investigation through the same Rig lane with a captured tool-round ceiling.
-/// Workflow owns time limits, durable metadata and the shared cancellation token.
-#[allow(clippy::too_many_arguments)]
-pub async fn answer_with_proposals_and_images_with_limit(
-    client: ProviderClient,
-    question: &str,
-    history: &[HistoryPair],
-    effort: ReasoningEffort,
-    tools: Arc<dyn ReadTools>,
-    proposals: Arc<dyn crate::ProposalTools>,
-    images: &[crate::VisualImage],
-    max_tool_rounds: u16,
-    cancel: CancellationToken,
-    emit: Arc<dyn Fn(AiEvent) + Send + Sync>,
-) -> AiAnswer {
-    answer_with_tools(
-        client,
-        question,
-        history,
-        effort,
-        tools,
-        Some(proposals),
-        cancel,
-        emit,
-        images,
-        max_tool_rounds,
-        true,
-    )
-    .await
-}
-
-/// Generates a bounded suggestion for one captured review. Only a successful
-/// final response returns raw JSON; workflow validates and version-guards it.
-pub async fn rewrite(
-    client: ProviderClient,
-    prompt: &str,
-    effort: ReasoningEffort,
-    tools: Arc<dyn ReadTools>,
-    cancel: CancellationToken,
-    emit: Arc<dyn Fn(AiEvent) + Send + Sync>,
-) -> AiAnswer {
-    if prompt.len() > MAX_REWRITE_BYTES {
-        return AiAnswer {
-            text: String::new(),
-            terminal: AiTerminal::Failed(AiError::new(AiErrorKind::ToolRejected)),
-        };
-    }
-    let selection = client.selection();
-    let model = selection.model.clone();
-    let mode = RunMode::Rewrite {
-        responses: selection.provider == Provider::Chatgpt
-            || rig::providers::copilot::wire::routes_through_responses(&model),
-        effort,
-    };
-    match client.inner {
-        OwnedClient::Chatgpt(client) => {
-            run_model(
-                client.completion(model),
-                prompt,
-                &[],
-                tools,
-                None,
-                cancel,
-                emit,
-                mode,
-            )
-            .await
-        }
-        OwnedClient::Copilot(client) => {
-            run_model(
-                client.completion(model),
-                prompt,
-                &[],
-                tools,
-                None,
-                cancel,
-                emit,
-                mode,
-            )
-            .await
-        }
-    }
-}
-
-pub(crate) async fn answer_model(
-    model: impl Into<rig_core::DynModel<rig_core::operation::Completion>>,
-    question: &str,
-    history: &[HistoryPair],
-    tools: Arc<dyn ReadTools>,
-    cancel: CancellationToken,
-    emit: Arc<dyn Fn(AiEvent) + Send + Sync>,
-) -> AiAnswer {
-    run_model(
-        model,
-        question,
-        history,
-        tools,
-        None,
-        cancel,
-        emit,
-        RunMode::Answer,
-    )
-    .await
-}
-
-#[allow(clippy::too_many_arguments)]
-async fn run_model(
-    model: impl Into<rig_core::DynModel<rig_core::operation::Completion>>,
-    question: &str,
-    history: &[HistoryPair],
-    tools: Arc<dyn ReadTools>,
-    proposals: Option<Arc<dyn crate::ProposalTools>>,
-    cancel: CancellationToken,
-    emit: Arc<dyn Fn(AiEvent) + Send + Sync>,
-    mode: RunMode,
-) -> AiAnswer {
-    run_model_images(
-        model,
-        question,
-        history,
-        tools,
-        proposals,
-        cancel,
-        emit,
-        mode,
-        &[],
-    )
-    .await
-}
-
-#[allow(clippy::too_many_arguments)]
-async fn run_model_images(
-    model: impl Into<rig_core::DynModel<rig_core::operation::Completion>>,
-    question: &str,
-    history: &[HistoryPair],
-    tools: Arc<dyn ReadTools>,
-    proposals: Option<Arc<dyn crate::ProposalTools>>,
-    cancel: CancellationToken,
-    emit: Arc<dyn Fn(AiEvent) + Send + Sync>,
-    mode: RunMode,
-    images: &[crate::VisualImage],
-) -> AiAnswer {
-    let input = match crate::visual::evidence_message(question, images) {
-        Ok(input) => input,
-        Err(error) => {
-            return AiAnswer {
-                text: String::new(),
-                terminal: AiTerminal::Failed(error),
-            };
-        }
-    };
-    let limited = Arc::new(AtomicBool::new(false));
-    let behavior = if matches!(mode, RunMode::Rewrite { .. }) {
-        crate::behavior::AgentBehavior::Rewrite
-    } else if let Some(backend) = &proposals {
-        if backend.private_intake() {
-            if backend.knowledge_enabled() {
-                crate::behavior::AgentBehavior::PrivateIntakeKnowledge
-            } else {
-                crate::behavior::AgentBehavior::PrivateIntakeActions
-            }
-        } else if backend.knowledge_enabled() {
-            crate::behavior::AgentBehavior::InboxKnowledgeReview
-        } else {
-            crate::behavior::AgentBehavior::ActionReview
-        }
-    } else {
-        crate::behavior::AgentBehavior::Ask
-    };
-    let preamble = behavior.preamble();
-    let (max_tool_rounds, progress) = match mode {
-        RunMode::AnswerWithEffort {
-            max_tool_rounds,
-            progress,
-            ..
-        } => (max_tool_rounds, progress),
-        _ => (8, false),
-    };
-    let rounds = match ToolRounds::new(max_tool_rounds) {
-        Ok(rounds) => rounds,
-        Err(error) => {
-            return AiAnswer {
-                text: String::new(),
-                terminal: AiTerminal::Failed(error),
-            };
-        }
-    };
-    let mut builder = rig::AgentBuilder::new(model)
-        .preamble(&preamble)
-        .tool(SearchNotes(tools.clone()))
-        .tool(ReadNote(tools.clone()))
-        .tool(ReadNoteRange(tools.clone()))
-        .tool(ReadRawEvidence(tools.clone()))
-        .tool(ListNotes(tools.clone()))
-        .tool(ReadAction(tools.clone()))
-        .tool(ListActions(tools.clone()))
-        .tool(ReadConflicts(tools))
-        .add_hook(RoundHook {
-            rounds: Mutex::new(rounds),
-            limited: limited.clone(),
-            model_turns: AtomicU16::new(0),
-            limit: max_tool_rounds,
-            progress: progress.then(|| emit.clone()),
-        });
-    if behavior.actions()
-        && let Some(proposals) = proposals
-    {
-        if behavior.knowledge() {
-            builder = builder
-                .tool(crate::proposal_tools::ProposeKnowledge(proposals.clone()))
-                .tool(crate::proposal_tools::ReportConflict(proposals.clone()));
-        }
-        builder = builder.tool(crate::proposal_tools::ProposeActions(proposals));
-    }
-    if let RunMode::AnswerWithEffort {
-        responses, effort, ..
-    }
-    | RunMode::Rewrite { responses, effort } = mode
-    {
-        builder = builder.additional_params(if responses {
-            serde_json::json!({"reasoning":{"effort":effort.as_str()}})
-        } else {
-            serde_json::json!({"reasoning_effort":effort.as_str()})
-        });
-    }
-    let agent = builder.build();
-    let history = history[history.len().saturating_sub(20)..]
-        .iter()
-        .flat_map(|pair| {
-            [
-                Message::user(pair.question.clone()),
-                Message::assistant(pair.answer.clone()),
-            ]
-            .into_iter()
-            .take(if pair.answer.is_empty() { 1 } else { 2 })
-        })
-        .collect::<Vec<_>>();
-    let stream = agent
-        .prompt(input)
-        .history(history)
-        .max_turns(usize::from(max_tool_rounds) + 1)
-        .max_invalid_tool_call_retries(0)
-        .tool_concurrency(2)
-        .stream();
-    collect_stream(
-        stream,
-        cancel,
-        emit,
-        limited,
-        matches!(mode, RunMode::Rewrite { .. }).then_some(MAX_REWRITE_BYTES),
-    )
-    .await
-}
-
-fn map_stream_error(error: StreamingError) -> AiError {
+fn map_stream_error(error: PromptError) -> AiError {
     match error {
-        StreamingError::Completion(e) | StreamingError::Prompt(PromptError::CompletionError(e)) => {
-            map_provider(e)
-        }
-        StreamingError::Report(report) | StreamingError::Prompt(PromptError::Report(report)) => {
+        PromptError::Provider(e) => map_provider(e),
+        PromptError::Report(report) => {
             map_provider(rig::error::ProviderError::Relayed(Box::new(report)))
         }
-        StreamingError::Prompt(PromptError::UnknownToolCall { .. }) => {
-            AiError::new(AiErrorKind::InvalidToolUse)
-        }
+        PromptError::UnknownToolCall { .. } => AiError::new(AiErrorKind::InvalidToolUse),
+        PromptError::MaxTurns { .. } => AiError::new(AiErrorKind::ToolLimitReached),
         _ => AiError::new(AiErrorKind::Other),
     }
 }
@@ -584,6 +94,7 @@ pub(crate) async fn collect_stream(
     strict_output_limit: Option<usize>,
 ) -> AiAnswer {
     let mut text = String::new();
+    let output_limit = strict_output_limit.unwrap_or(MAX_ANSWER_BYTES);
     let terminal = loop {
         let item = tokio::select! {
             biased;
@@ -594,9 +105,7 @@ pub(crate) async fn collect_stream(
             Some(Ok(MultiTurnStreamItem::StreamAssistantItem(Item::Event(
                 StreamEvent::Text { text: delta, .. },
             )))) => {
-                if strict_output_limit
-                    .is_some_and(|limit| delta.len() > limit.saturating_sub(text.len()))
-                {
+                if delta.len() > output_limit.saturating_sub(text.len()) {
                     break AiTerminal::Failed(AiError::new(AiErrorKind::ToolRejected));
                 }
                 text.push_str(&delta);
@@ -606,26 +115,31 @@ pub(crate) async fn collect_stream(
             }
             Some(Ok(MultiTurnStreamItem::ToolCall { tool_call })) => {
                 let name = tool_call.function.name;
-                if matches!(
-                    name.as_str(),
-                    "search_notes"
-                        | "read_note"
-                        | "read_note_range"
-                        | "read_raw_evidence"
-                        | "list_notes"
-                        | "read_action"
-                        | "list_actions"
-                        | "read_conflicts"
-                        | "propose_actions"
-                        | "propose_knowledge"
-                        | "report_conflict"
-                ) {
-                    emit(AiEvent::ToolStarted {
-                        name: name.to_string(),
-                    });
-                }
+                emit(AiEvent::ToolStarted {
+                    name: name.to_string(),
+                });
             }
-            Some(Ok(MultiTurnStreamItem::FinalResponse(_))) => break AiTerminal::Completed,
+            Some(Ok(MultiTurnStreamItem::FinalResponse(response))) => {
+                // Rig may accept useful text from a Length turn. BRN stores only
+                // successful natural completion; retained preview remains partial.
+                if response
+                    .completion_calls
+                    .last()
+                    .and_then(|call| call.finish_reason.as_ref())
+                    .is_some_and(|reason| reason != &FinishReason::Stop)
+                {
+                    break AiTerminal::Failed(AiError::new(AiErrorKind::Other));
+                }
+                let final_text = response.output();
+                if final_text.len() > output_limit {
+                    break AiTerminal::Failed(AiError::new(AiErrorKind::ToolRejected));
+                }
+                text = final_text;
+                if strict_output_limit.is_none() {
+                    emit(AiEvent::AnswerFinalized(text.clone()));
+                }
+                break AiTerminal::Completed;
+            }
             Some(Err(error)) => break AiTerminal::Failed(map_stream_error(error)),
             None => break AiTerminal::Failed(AiError::new(AiErrorKind::Other)),
             Some(Ok(_)) => {}
@@ -665,14 +179,11 @@ mod tests {
         MultiTurnStreamItem::StreamAssistantItem(Item::Event(event))
     }
 
-    fn final_item() -> MultiTurnStreamItem {
-        MultiTurnStreamItem::FinalResponse(PromptResponse::new(
-            "must not append this output",
-            Default::default(),
-        ))
+    fn final_item(text: &str) -> MultiTurnStreamItem {
+        MultiTurnStreamItem::FinalResponse(PromptResponse::new(text, Default::default()))
     }
 
-    async fn collect(items: Vec<Result<MultiTurnStreamItem, StreamingError>>) -> AiAnswer {
+    async fn collect(items: Vec<Result<MultiTurnStreamItem, PromptError>>) -> AiAnswer {
         collect_stream(
             Box::pin(futures::stream::iter(items)),
             CancellationToken::new(),
@@ -687,12 +198,12 @@ mod tests {
     async fn first_error_stops_and_preserves_exact_partial_once() {
         let a = collect(vec![
             Ok(text_item("\u{feff} partial\r\n")),
-            Err(StreamingError::Report(rig::error::ErrorReport::new(
+            Err(PromptError::Report(rig::error::ErrorReport::new(
                 rig::error::ErrorKind::Http,
                 "synthetic network error",
             ))),
             Ok(text_item("ignored")),
-            Ok(final_item()),
+            Ok(final_item("authoritative")),
         ])
         .await;
         assert_eq!(a.text, "\u{feff} partial\r\n");
@@ -709,18 +220,81 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn eof_without_final_is_failure_and_final_text_is_not_appended() {
+    async fn eof_fails_and_final_text_replaces_preview() {
         let missing = collect(vec![Ok(text_item("partial"))]).await;
         assert_eq!(missing.text, "partial");
         assert!(matches!(missing.terminal, AiTerminal::Failed(_)));
         let completed = collect(vec![
             Ok(text_item("exact")),
-            Ok(final_item()),
+            Ok(final_item("authoritative")),
             Ok(text_item("ignored")),
         ])
         .await;
-        assert_eq!(completed.text, "exact");
+        assert_eq!(completed.text, "authoritative");
         assert!(matches!(completed.terminal, AiTerminal::Completed));
+    }
+
+    #[tokio::test]
+    async fn final_answer_reconciles_preview_and_ordinary_stream_agrees() {
+        for (preview, finalized) in [("A", "B"), ("ordinary", "ordinary")] {
+            let events = Arc::new(std::sync::Mutex::new(Vec::new()));
+            let captured = events.clone();
+            let answer = collect_stream(
+                Box::pin(futures::stream::iter([
+                    Ok(text_item(preview)),
+                    Ok(final_item(finalized)),
+                ])),
+                CancellationToken::new(),
+                Arc::new(move |e| captured.lock().unwrap().push(e)),
+                Arc::new(AtomicBool::new(false)),
+                None,
+            )
+            .await;
+            assert!(matches!(answer.terminal, AiTerminal::Completed));
+            assert_eq!(answer.text, finalized);
+            assert!(
+                matches!(events.lock().unwrap().as_slice(), [AiEvent::Text(a), AiEvent::AnswerFinalized(b)] if a == preview && b == finalized)
+            );
+        }
+    }
+
+    #[tokio::test]
+    async fn both_provisional_and_authoritative_answers_are_bounded() {
+        for items in [
+            vec![Ok(text_item(&"x".repeat(MAX_ANSWER_BYTES + 1)))],
+            vec![
+                Ok(text_item("small preview")),
+                Ok(final_item(&"x".repeat(MAX_ANSWER_BYTES + 1))),
+            ],
+        ] {
+            let answer = collect(items).await;
+            assert!(matches!(answer.terminal, AiTerminal::Failed(_)));
+        }
+        let answer = collect(vec![Ok(final_item(&"x".repeat(MAX_ANSWER_BYTES)))]).await;
+        assert!(matches!(answer.terminal, AiTerminal::Completed));
+        assert_eq!(answer.text.len(), MAX_ANSWER_BYTES);
+    }
+
+    #[tokio::test]
+    async fn cancellation_keeps_preview_partial_without_final_event() {
+        let cancel = CancellationToken::new();
+        let stop = cancel.clone();
+        let stream = futures::stream::iter([Ok(text_item("partial"))]).chain(
+            futures::stream::once(async move {
+                stop.cancel();
+                std::future::pending::<Result<MultiTurnStreamItem, PromptError>>().await
+            }),
+        );
+        let answer = collect_stream(
+            Box::pin(stream),
+            cancel,
+            Arc::new(|e| assert!(!matches!(e, AiEvent::AnswerFinalized(_)))),
+            Arc::new(AtomicBool::new(false)),
+            None,
+        )
+        .await;
+        assert!(matches!(answer.terminal, AiTerminal::Interrupted));
+        assert_eq!(answer.text, "partial");
     }
 
     #[tokio::test]
@@ -729,7 +303,7 @@ mod tests {
         let stop = cancel.clone();
         let stream = futures::stream::once(async move {
             stop.cancel();
-            Ok(final_item())
+            Ok(final_item("authoritative"))
         });
         let a = collect_stream(
             Box::pin(stream),
@@ -765,11 +339,13 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn rewrite_exact_output_limit_is_complete_without_emitting_or_appending_final_text() {
+    async fn rewrite_exact_final_output_limit_is_complete_without_emitting() {
         let chunk = "x".repeat(1024 * 1024);
         let stream = futures::stream::iter(0..50)
             .flat_map(move |_| futures::stream::iter([Ok(text_item(&chunk))]))
-            .chain(futures::stream::once(async { Ok(final_item()) }));
+            .chain(futures::stream::once(async {
+                Ok(final_item(&"x".repeat(MAX_REWRITE_BYTES)))
+            }));
         let answer = collect_stream(
             Box::pin(stream),
             CancellationToken::new(),
@@ -790,7 +366,7 @@ mod tests {
         let stream = futures::stream::iter([Ok(text_item("\u{feff}exact 日本語\r\n"))]).chain(
             futures::stream::once(async move {
                 stop.cancel();
-                Ok(final_item())
+                Ok(final_item("\u{feff}exact 日本語\r\n"))
             }),
         );
         let answer = collect_stream(

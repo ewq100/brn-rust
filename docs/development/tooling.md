@@ -1,6 +1,8 @@
 # Development tooling
 
-The [BRN workflow](workflow.md) remains authority. These small helpers inspect
+> **Baseline reference for the Threads rebuild.** This document describes the pre-Threads implementation or historical evidence. The [canonical Threads target](../architecture/threads-target.md) owns the replacement contract. Inspect this material for component reuse; do not resume its old tasks or infer current authorization from it. Update this local contract when its implementation is replaced.
+
+The [BRN workflow](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/development/workflow.md) remains authority. These small helpers inspect
 and record existing gates; they do not configure global skills or authorize
 accounts, downloads, private data, settings changes or product changes.
 

@@ -1,6 +1,8 @@
 # Architecture checkpoint dependency record
 
-> Historical record: branch names, commands, approvals and results below describe the recorded task, not new instructions or current authorization. See [current status](../status.md) for the present checkout and remaining gaps.
+> **Baseline reference for the Threads rebuild.** This document describes the pre-Threads implementation or historical evidence. The [canonical Threads target](threads-target.md) owns the replacement contract. Inspect this material for component reuse; do not resume its old tasks or infer current authorization from it. Update this local contract when its implementation is replaced.
+
+> Historical record: branch names, commands, approvals and results below describe the recorded task, not new instructions or current authorization. See [current status](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/status.md) for the present checkout and remaining gaps.
 
 Inspected 2026-09-27 from the three committed trial Cargo.lock files and matching downloaded Cargo manifests. These are **observed trial versions**, not a complete distribution audit or approval of a production dependency graph. Lockfiles remain the exact transitive record. No library was added to the production workspace for this checkpoint.
 

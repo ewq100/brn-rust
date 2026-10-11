@@ -1,5 +1,7 @@
 # Maintained intake boundary
 
+> **Baseline reference for the Threads rebuild.** This document describes the pre-Threads implementation or historical evidence. The [canonical Threads target](../../docs/architecture/threads-target.md) owns the replacement contract. Inspect this material for component reuse; do not resume its old tasks or infer current authorization from it. Update this local contract when its implementation is replaced.
+
 The default library contains the schema-1 extraction protocol, per-intake quotas, consumed-scope evidence, bounded validation,
 exact byte hashing, content-addressed asset filenames and retained-record PNG
 validation. It does not link BetterOffice, MIME, HTML or JPEG parsers. Source and

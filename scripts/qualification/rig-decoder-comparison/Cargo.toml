@@ -1,0 +1,13 @@
+[package]
+name = "brn-rig-decoder-comparison"
+version = "0.0.0"
+edition = "2024"
+[dependencies]
+rig43 = { package = "rig-core", version = "=0.43.0", default-features = false, features = ["test-utils"] }
+rig44 = { package = "rig-core", version = "=0.44.0", default-features = false, features = ["test-utils"] }
+futures = "0.3"
+serde_json = "1"
+tokio = {version="1", features=["macros", "rt"]}
+
+# Qualification is independent of BRN's production workspace and lockfile.
+[workspace]

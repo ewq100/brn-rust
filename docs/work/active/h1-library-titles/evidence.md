@@ -55,7 +55,7 @@ until each note's bytes changed. The upsert drops that note's cached passage
 vectors and derived edges one time, and the next refresh after that reports it as
 unchanged.
 
-The [brn-workflow contract](../../../../crates/brn-workflow/README.md#simple-app-owner-and-read-tools)
+The [brn-workflow contract](https://github.com/ewq100/brn-rust/blob/a1c61e245ec90a0eed98ffc5bbfcab57ddeb1926/crates/brn-workflow/README.md#simple-app-owner-and-read-tools)
 documents this policy. UI, CLI, retrieval ranking, metadata classification and
 scope admission are unchanged. Notes with invalid managed metadata are still indexed
 and reported as before, and stay out of every scope.
