@@ -2,13 +2,13 @@
 
 BRN is a local workspace where an AI agent maintains useful knowledge, carries work forward, and opens a thread when the owner needs to decide something.
 
-**Baseline:** First-use delegation merged in PR #116 at `36ad2d6`, following Phase 0/F1 and the Threads rebuild. The SQLite core, runtime and native views are implemented. [Phase 1 Stop-and-send](docs/work/active/threads-rebuild/phase1-steering-plan.md) is the current assignment; verification and remaining native limits are tracked in [status](docs/status.md).
+**Baseline:** Stop-and-send merged in PR #117 at `ed9a1af`, following first-use delegation, Phase 0/F1 and the Threads rebuild. The SQLite core, runtime and native views are implemented. [Phase 1 atomic backup publication](docs/work/active/threads-rebuild/phase1-backup-plan.md) is the current assignment; verification and remaining native limits are tracked in [status](docs/status.md).
 
 ## Start
 
 - [Agent instructions](AGENTS.md)
 - [Canonical Threads target](docs/architecture/threads-target.md)
-- [Current hardening plan](docs/work/active/threads-rebuild/phase1-steering-plan.md) and [rebuild history](docs/work/active/threads-rebuild/plan.md)
+- [Current hardening plan](docs/work/active/threads-rebuild/phase1-backup-plan.md) and [rebuild history](docs/work/active/threads-rebuild/plan.md)
 - [Independent review brief](docs/work/active/threads-rebuild/review-brief.md) and [review status](docs/work/active/threads-rebuild/review.md)
 - [Build agent prompt](docs/work/active/threads-rebuild/build-prompt.md)
 - [Development setup](docs/development/setup.md) and [current progress](docs/status.md)

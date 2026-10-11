@@ -1,5 +1,6 @@
 //! Final-use Threads persistence. Authority is supplied by the trusted host,
 //! never decoded from a model request. All writers use SQLite IMMEDIATE transactions.
+mod backup;
 mod edit;
 mod read;
 mod revision_read;

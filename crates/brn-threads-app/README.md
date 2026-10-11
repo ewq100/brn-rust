@@ -76,7 +76,9 @@ body follows the wrapper unchanged except for portable managed-asset links;
 existing body front matter is preserved without parsing. Manifest hashes cover
 the complete exported bytes, including the wrapper. SQLite backup restores the
 complete state into an explicit fresh directory; search is rebuilt after opening
-restored state.
+restored state. Backup publication stages a standalone validated database and
+exclusively publishes the complete file, so a failed or interrupted copy cannot
+appear at the requested final filename. Existing destinations remain untouched.
 
 The core now uses schema version 3 for durable host-input and candidate-replacement binding; earlier
 synthetic Threads databases are refused safely, without migration. Save maps

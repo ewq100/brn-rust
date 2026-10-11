@@ -254,12 +254,31 @@ fn full_markdown_import_export_and_backup_are_fresh_and_readable() {
         &data,
         &["backup", "--destination", backup.to_str().unwrap()],
     );
+    let bytes = std::fs::read(&backup).unwrap();
     assert!(!command(
         &data,
         &["backup", "--destination", backup.to_str().unwrap()]
     )
     .status
     .success());
+    assert_eq!(std::fs::read(&backup).unwrap(), bytes);
+    assert!(!std::fs::read_dir(root.path()).unwrap().any(|entry| {
+        entry
+            .unwrap()
+            .file_name()
+            .to_string_lossy()
+            .starts_with(".brn-backup-stage-")
+    }));
+    json_command(
+        &data,
+        &[
+            "note-create",
+            "--title",
+            "After backup",
+            "--text",
+            "Later source write",
+        ],
+    );
     let restored = root.path().join("restored");
     json_command(
         &restored,

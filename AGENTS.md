@@ -5,19 +5,19 @@ The Threads rebuild is implemented and merged at `d768db7`. Phase 0 merged in PR
 ## Start here
 
 1. Inspect branch, HEAD, remote head, and working-tree changes. Preserve unrelated work and use an isolated task branch/worktree from the confirmed baseline.
-2. Read [status](docs/status.md) and the current [Phase 1 steering plan](docs/work/active/threads-rebuild/phase1-steering-plan.md). The [rebuild plan](docs/work/active/threads-rebuild/plan.md) preserves implementation history. For implementation or architecture review, read the [canonical Threads target](docs/architecture/threads-target.md), then the [thread and runtime-guidance design](docs/architecture/threads-behavior.md) and task-relevant code.
+2. Read [status](docs/status.md) and the current [Phase 1 backup plan](docs/work/active/threads-rebuild/phase1-backup-plan.md). The [rebuild plan](docs/work/active/threads-rebuild/plan.md) preserves implementation history. For implementation or architecture review, read the [canonical Threads target](docs/architecture/threads-target.md), then the [thread and runtime-guidance design](docs/architecture/threads-behavior.md) and task-relevant code.
 3. Read [workflow](docs/development/workflow.md), [setup](docs/development/setup.md), and [verification](docs/development/verification.md) as needed.
 4. Follow the completed [review dispositions](docs/work/active/threads-rebuild/review.md#build-lead-dispositions) and prove them during implementation; do not repeat the whole-plan review.
 
 ## Current authority
 
-On 11 October 2026 the owner authorized Phase 0/F1, then explicitly deferred blocked native observation, requested PR publication and merge after CI, and asked to continue building. The [current plan](docs/work/active/threads-rebuild/phase1-steering-plan.md) scopes the next Phase 1 increment: Stop-and-send steering. Keep isolated worktrees, GPT-6.1 Sol implementation subagents and focused checks. Continue authorized work without routine reauthorization; broader later phases are not automatically assigned.
+On 11 October 2026 the owner authorized Phase 0/F1, then explicitly deferred blocked native observation, requested PR publication and merge after CI, and asked to continue building. The [current plan](docs/work/active/threads-rebuild/phase1-backup-plan.md) scopes the next Phase 1 increment: atomic backup publication. Stop-and-send merged in PR #117 at `ed9a1af` after required CI passed. Keep isolated worktrees, GPT-6.1 Sol implementation subagents and focused checks. Continue authorized work without routine reauthorization; broader later phases are not automatically assigned.
 
 The canonical Threads target owns the selected product and architecture contract. The other current overview files are navigation and implementation summaries. Update the target and affected summaries together when a justified correction is made; record substantive dispositions in the rebuild plan. Routine implementation choices are delegated. Ask the owner only when a real product choice or permission outside the assignment cannot be resolved from current instructions.
 
 This branch supersedes the old architecture freeze, expired overnight permissions, V1 stage ordering, exact-byte live Markdown authority, blanket review-before-AI-write rule, mandatory original retention, and temporary-comment deletion. These changes implement the owner's current direction; they do not weaken repository protection or external access controls.
 
-The active task is `docs/work/active/threads-rebuild/phase1-steering-plan.md`; the other rebuild files retain the selected contracts and prior evidence. Other old active folders, audits, prior architecture decisions, crate contracts, and baseline tests are evidence about the old implementation. Their historical authorization is not a new task. Inspect them only when useful for reuse or a specific behavior.
+The active task is `docs/work/active/threads-rebuild/phase1-backup-plan.md`; the other rebuild files retain the selected contracts and prior evidence. Other old active folders, audits, prior architecture decisions, crate contracts, and baseline tests are evidence about the old implementation. Their historical authorization is not a new task. Inspect them only when useful for reuse or a specific behavior.
 
 ## Essential target boundaries
 

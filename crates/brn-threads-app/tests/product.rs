@@ -734,6 +734,18 @@ fn full_import_retains_assets_source_identity_and_rejects_changed_retry_input() 
     );
     let backup = dir.path().join("full-backup.sqlite3");
     app.backup(&backup).unwrap();
+    let bytes = std::fs::read(&backup).unwrap();
+    assert!(app.backup(&backup).is_err());
+    assert_eq!(std::fs::read(&backup).unwrap(), bytes);
+    assert!(!std::fs::read_dir(dir.path()).unwrap().any(|entry| {
+        entry
+            .unwrap()
+            .file_name()
+            .to_string_lossy()
+            .starts_with(".brn-backup-stage-")
+    }));
+    app.new_note("Later source note", "Must not enter the earlier snapshot")
+        .unwrap();
     let restored = dir.path().join("restored-full");
     drop(Store::restore(&backup, &restored).unwrap());
     let restored = Workspace::open(&restored).unwrap();

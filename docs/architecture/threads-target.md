@@ -1,8 +1,8 @@
 # BRN Threads canonical target
 
-**Status:** Canonical product contract for the implemented Threads architecture. The rebuild merged in PR #114; Phase 0/F1 merged in PR #115 at `53e5289`; first-use delegation merged in PR #116 at `36ad2d6` on 11 October 2026. Implementation does not establish native or owner acceptance; [status](../status.md) records those gates.
+**Status:** Canonical product contract for the implemented Threads architecture. The rebuild merged in PR #114; Phase 0/F1 merged in PR #115 at `53e5289`; first-use delegation merged in PR #116 at `36ad2d6`; Stop-and-send merged in PR #117 at `ed9a1af` on 11 October 2026. Implementation does not establish native or owner acceptance; [status](../status.md) records those gates.
 
-**Current assignment:** [Phase 1 Stop-and-send steering](../work/active/threads-rebuild/phase1-steering-plan.md), authorized by the owner’s continued-build instruction on 11 October 2026. This target distinguishes selected requirements from verified behavior; the [rebuild plan](../work/active/threads-rebuild/plan.md) and its evidence preserve earlier execution history.
+**Current assignment:** [Phase 1 atomic backup publication](../work/active/threads-rebuild/phase1-backup-plan.md), authorized by the owner’s continued-build instruction on 11 October 2026. This target distinguishes selected requirements from verified behavior; the [rebuild plan](../work/active/threads-rebuild/plan.md) and its evidence preserve earlier execution history.
 
 **Date:** 10 October 2026. **Owner:** Evo.
 
@@ -229,7 +229,7 @@ Each exported note carries YAML front matter with its title and source-reference
 
 Never update a previously delivered snapshot in place. The owner can copy, edit, or move it; a later export receives a new destination. Outside changes enter through explicit import. This removes file watching, outside-edit detection, and bidirectional merge from the first release. Exports may lag current BRN state; automatic export retention or purging is deferred.
 
-Offer a complete backup of BRN’s own database, selected retained assets, and necessary application state for restoring notes, threads, history, Actions, and settings. With selected assets stored in SQLite, one consistent database backup covers them; any later external asset storage must be included explicitly. Markdown export alone is not a complete backup. Use SQLite’s supported backup facilities rather than an arbitrary copy of an active database. Outlook and other external original files are outside the BRN backup and restore promise. [SQLite backup API][sqlite-backup]
+Offer a complete backup of BRN’s own database, selected retained assets, and necessary application state for restoring notes, threads, history, Actions, and settings. With selected assets stored in SQLite, one consistent database backup covers them; any later external asset storage must be included explicitly. Markdown export alone is not a complete backup. Use SQLite’s supported backup facilities rather than an arbitrary copy of an active database. Stage a standalone snapshot privately under the destination parent, close/validate/flush it, then publish exclusively; the requested final filename must never expose an in-progress copy. Refuse occupied destinations and preserve a complete published file even if the later directory flush fails. Outlook and other external original files are outside the BRN backup and restore promise. [SQLite backup API][sqlite-backup]
 
 ### Later document presentation and HTML output
 
