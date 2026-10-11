@@ -305,7 +305,14 @@ impl Store {
                 "only active unapplied candidates can be replaced".into(),
             ));
         }
-        prepared_on(&tx, original)?;
+        let original_prepared = prepared_on(&tx, original)?;
+        for marker in writing_markers_on(&tx, &original_prepared.request)? {
+            if !request.inputs.contains(&marker) {
+                return Err(Error::Invalid(
+                    "writing review context cannot be removed from a replacement".into(),
+                ));
+            }
+        }
         if runtime_refresh {
             for write in &request.writes {
                 if matches!(write.data, RecordData::Run(_) | RecordData::Settings(_)) {
@@ -994,6 +1001,18 @@ pub(crate) fn apply_on(
         return Err(Error::Invalid("candidate retired".into()));
     }
     let prepared = prepared_on(tx, operation)?;
+    if !matches!(authority.scope, crate::types::Scope::Owner)
+        && !writing_markers_on(tx, &prepared.request)?.is_empty()
+    {
+        return Ok(ApplyOutcome::NeedsReview {
+            denied: prepared
+                .request
+                .writes
+                .iter()
+                .map(|write| write.id.clone())
+                .collect(),
+        });
+    }
     let undo_of: Option<String> = tx.query_row(
         "SELECT undo_of FROM operations WHERE id=?1",
         [&operation.0],
@@ -1853,6 +1872,31 @@ fn validate_backup_directory(workspace: &Path, directory: &Path) -> Result<PathB
         ));
     }
     Ok(directory)
+}
+
+// Historical evidence keeps the review gate even if the current Message changes.
+fn writing_markers_on(conn: &Connection, request: &ChangeRequest) -> Result<Vec<RevisionInput>> {
+    let mut markers = Vec::new();
+    for input in &request.inputs {
+        if input.expectation != InputExpectation::Current {
+            continue;
+        }
+        let body: Option<String> = conn
+            .query_row(
+                "SELECT body FROM revisions WHERE id=?1 AND version=?2",
+                params![input.record, crate::integer(input.version)?],
+                |row| row.get(0),
+            )
+            .optional()?;
+        if let Some(body) = body {
+            let record: Record = serde_json::from_str(&body)?;
+            if matches!(record.data, RecordData::Message(message) if message.role == crate::WRITING_REQUEST_ROLE)
+            {
+                markers.push(input.clone());
+            }
+        }
+    }
+    Ok(markers)
 }
 
 #[cfg(test)]

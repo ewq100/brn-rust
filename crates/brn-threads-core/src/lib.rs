@@ -8,10 +8,14 @@ mod revision_read;
 mod steering;
 mod store;
 mod types;
+mod writing;
 pub use read::{MAX_NOTE_READ_BYTES, NoteHeading, NoteReadOutcome, NoteSlice, note_headings};
 pub use revision_read::{RevisionPage, RevisionSummary};
 pub use store::{DATA_MARKER, DATABASE_FILENAME, Store};
 pub use types::*;
+pub use writing::{
+    MAX_WRITING_REQUEST_BYTES, WRITING_REQUEST_ROLE, WritingSnapshot, exact_writing_range,
+};
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {

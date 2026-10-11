@@ -21,6 +21,7 @@ pub(super) fn delegation_status(settings: &WorkspaceSettings) -> &'static str {
 pub(super) enum ComposerDestination {
     Home,
     Thread(String),
+    Note(String, Option<String>),
 }
 
 /// Session drafts are keyed by the same destination used when posting.
@@ -142,86 +143,6 @@ pub(super) fn continuation_notice(state: &RunState) -> &'static str {
         "Continue starts fresh with the saved conversation and current notes."
     }
 }
-pub(super) fn passage_request(
-    operation: &brn_threads_app::OperationId,
-    note: &str,
-    version: u64,
-    range: Range<usize>,
-    quote: &str,
-    body: &str,
-) -> (String, brn_threads_app::ChangeRequest) {
-    use brn_threads_app::{ChangeRequest, Link, Message, Put, RevisionInput, Thread, ThreadState};
-    let thread = operation.creation_id(0);
-    let comment = operation.creation_id(1);
-    let request = ChangeRequest {
-        reason: "Owner commented on a passage".into(),
-        writes: vec![
-            Put {
-                id: thread.clone(),
-                expected_version: None,
-                archived: false,
-                data: RecordData::Thread(Thread {
-                    title: body.chars().take(70).collect(),
-                    state: ThreadState::Open,
-                    attention: vec![],
-                }),
-            },
-            Put {
-                id: comment.clone(),
-                expected_version: None,
-                archived: false,
-                data: RecordData::Comment(Comment {
-                    note: note.into(),
-                    base_version: version,
-                    quote: quote.into(),
-                    range: Some((range.start, range.end)),
-                    mapped_version: None,
-                    mapped_range: None,
-                    body: body.into(),
-                    // The selected saved range is known. Discussion lifecycle
-                    // belongs to its Thread; this flag marks an unknown location.
-                    unresolved: false,
-                }),
-            },
-            Put {
-                id: operation.creation_id(2),
-                expected_version: None,
-                archived: false,
-                data: RecordData::Link(Link {
-                    from: thread.clone(),
-                    to: comment,
-                    relation: "passage comment".into(),
-                }),
-            },
-            Put {
-                id: operation.creation_id(3),
-                expected_version: None,
-                archived: false,
-                data: RecordData::Link(Link {
-                    from: thread.clone(),
-                    to: note.into(),
-                    relation: "discusses".into(),
-                }),
-            },
-            Put {
-                id: operation.creation_id(4),
-                expected_version: None,
-                archived: false,
-                data: RecordData::Message(Message {
-                    thread: thread.clone(),
-                    role: "owner".into(),
-                    text: body.into(),
-                }),
-            },
-        ],
-        inputs: vec![RevisionInput {
-            record: note.into(),
-            version,
-            expectation: brn_threads_app::InputExpectation::Current,
-        }],
-    };
-    (thread, request)
-}
 pub(super) fn outcome_message(outcome: &ApplyOutcome) -> String {
     match outcome {
         ApplyOutcome::Applied(receipt) => format!("Saved. {}{}", receipt.reason, if receipt.needs_refresh.is_empty() { String::new() } else { format!(" {} directly derived records may need refresh. Open What changed for the affected records and a follow-up.", receipt.needs_refresh.len()) }),
@@ -255,16 +176,7 @@ pub(super) fn comment_location(
     version: u64,
     text: &str,
 ) -> Option<Range<usize>> {
-    let (mapped_version, range) = match (comment.mapped_version, comment.mapped_range) {
-        (Some(version), Some(range)) => (version, range),
-        _ => (comment.base_version, comment.range?),
-    };
-    if mapped_version != version {
-        return None;
-    }
-    let range = range.0..range.1;
-    (range.start < range.end && text.get(range.clone()) == Some(comment.quote.as_str()))
-        .then_some(range)
+    brn_threads_app::exact_writing_range(comment, version, text).map(|(start, end)| start..end)
 }
 pub(super) fn linked(records: &[Record], id: &str) -> Vec<String> {
     let mut found = Vec::new();
@@ -354,6 +266,41 @@ mod tests {
         assert_eq!(drafts.text(&b), "");
     }
     #[test]
+    fn document_drafts_are_isolated_from_home_and_other_documents() {
+        let mut drafts = ComposerDrafts::default();
+        let a = ComposerDestination::Note("A".into(), None);
+        let b = ComposerDestination::Note("B".into(), None);
+        drafts.preserve(ComposerDestination::Home, "Home".into());
+        drafts.preserve(a.clone(), "Document A õun".into());
+        drafts.preserve(b.clone(), "Document B".into());
+        drafts.posted(&a);
+        assert_eq!(drafts.text(&a), "");
+        assert_eq!(drafts.text(&b), "Document B");
+        assert_eq!(drafts.text(&ComposerDestination::Home), "Home");
+    }
+    #[test]
+    fn unresolved_or_partial_mapping_never_enables_current_passage() {
+        let mut comment = Comment {
+            note: "n".into(),
+            base_version: 1,
+            quote: "õun".into(),
+            range: Some((0, 4)),
+            mapped_version: None,
+            mapped_range: None,
+            body: "Feedback".into(),
+            unresolved: false,
+        };
+        assert_eq!(comment_location(&comment, 1, "õun"), Some(0..4));
+        comment.unresolved = true;
+        assert_eq!(comment_location(&comment, 1, "õun"), None);
+        comment.unresolved = false;
+        comment.mapped_version = Some(1);
+        assert_eq!(comment_location(&comment, 1, "õun"), None);
+        comment.mapped_version = None;
+        comment.mapped_range = Some((0, 4));
+        assert_eq!(comment_location(&comment, 1, "õun"), None);
+    }
+    #[test]
     fn only_cancellable_workers_offer_stop_and_portable_outputs_explain_finishing() {
         for kind in [WorkerKind::Run, WorkerKind::Import] {
             assert!(kind.can_cancel());
@@ -420,7 +367,7 @@ mod tests {
             mapped_version: None,
             mapped_range: None,
             body: "second".into(),
-            unresolved: true,
+            unresolved: false,
         };
         assert_eq!(comment_location(&comment, 1, "tere tere"), Some(5..9));
         assert_eq!(comment_location(&comment, 2, "tere tere"), None);
@@ -436,7 +383,7 @@ mod tests {
             mapped_version: Some(2),
             mapped_range: Some((2, 6)),
             body: "fruit".into(),
-            unresolved: true,
+            unresolved: false,
         };
         assert_eq!(comment_location(&comment, 2, "x õun"), Some(2..6));
         assert_eq!(comment_location(&comment, 3, "x õun"), None);
@@ -794,38 +741,29 @@ mod integrity_tests {
         ));
     }
     #[test]
-    fn passage_comment_creates_one_thread_and_context_without_revising_the_note() {
+    fn saved_feedback_mapping_survives_restart_and_retains_removed_passage() {
         let directory = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
         let mut workspace = Workspace::open(directory.path()).unwrap();
         let record = workspace.new_note("Repeated", "tere tere").unwrap();
-        let op = workspace
-            .store
-            .allocate_operation("passage-fixture")
+        let thread = workspace.new_thread("Writing").unwrap().id;
+        workspace
+            .link_writing_thread("passage-link", &record.id, record.version, &thread)
             .unwrap();
-        let (thread, request) = super::passage_request(
-            &op,
-            &record.id,
-            record.version,
-            5..9,
-            "tere",
-            "Second occurrence",
-        );
-        assert!(matches!(
-            workspace.owner_change("passage-fixture", &request).unwrap(),
-            ApplyOutcome::Applied(_)
-        ));
-        assert_eq!(
-            workspace.store.note(&record.id).unwrap().unwrap().version,
-            record.version
-        );
-        assert_eq!(workspace.messages(&thread).unwrap().len(), 1);
-        let RecordData::Comment(comment) = workspace
-            .store
-            .record(&op.creation_id(1))
-            .unwrap()
-            .unwrap()
-            .data
-        else {
+        let saved = workspace
+            .add_writing_comment(
+                "passage-fixture",
+                &brn_threads_app::WritingCommentInput {
+                    note: record.id.clone(),
+                    version: record.version,
+                    thread: thread.clone(),
+                    range: (5, 9),
+                    quote: "tere".into(),
+                    body: "Second occurrence".into(),
+                },
+            )
+            .unwrap();
+        let comment_id = saved.id.clone();
+        let RecordData::Comment(comment) = saved.data else {
             unreachable!()
         };
         assert_eq!(
@@ -847,12 +785,8 @@ mod integrity_tests {
         drop(workspace);
         let mut workspace = Workspace::open(directory.path()).unwrap();
         let current = workspace.store.note(&record.id).unwrap().unwrap();
-        let RecordData::Comment(mapped) = workspace
-            .store
-            .record(&op.creation_id(1))
-            .unwrap()
-            .unwrap()
-            .data
+        let RecordData::Comment(mapped) =
+            workspace.store.record(&comment_id).unwrap().unwrap().data
         else {
             unreachable!()
         };
@@ -873,12 +807,8 @@ mod integrity_tests {
             SaveOutcome::Saved(_)
         ));
         let current = workspace.store.note(&record.id).unwrap().unwrap();
-        let RecordData::Comment(mapped) = workspace
-            .store
-            .record(&op.creation_id(1))
-            .unwrap()
-            .unwrap()
-            .data
+        let RecordData::Comment(mapped) =
+            workspace.store.record(&comment_id).unwrap().unwrap().data
         else {
             unreachable!()
         };
@@ -888,7 +818,7 @@ mod integrity_tests {
             super::comment_location(&mapped, current.version, "Õun: tere kadunud"),
             None
         );
-        assert_eq!(workspace.messages(&thread).unwrap().len(), 1);
+        assert!(workspace.messages(&thread).unwrap().is_empty());
     }
     #[test]
     fn resolving_a_discussion_keeps_the_linked_waiting_obligation() {

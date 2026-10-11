@@ -223,8 +223,8 @@ fn composer_drafts_follow_home_and_each_thread(cx: &mut TestAppContext) {
             view.navigate(Page::Thread(a.id.clone()), window, cx);
             assert_eq!(view.composer.read(cx).value().as_ref(), "A draft õun");
             view.open_note(&note.id, None, window, cx);
-            assert_eq!(view.composer.read(cx).value().as_ref(), "Home draft");
-            assert_eq!(view.composer_destination_label(), "Start a new thread about: Draft note context");
+            assert_eq!(view.composer.read(cx).value().as_ref(), "");
+            assert_eq!(view.composer_destination_label(), "Start a conversation about: Draft note context");
             view.navigate(Page::Thread(a.id.clone()), window, cx);
             assert_eq!(view.composer.read(cx).value().as_ref(), "A draft õun");
             view.navigate(Page::Home, window, cx);
