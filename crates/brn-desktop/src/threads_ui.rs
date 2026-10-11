@@ -36,7 +36,7 @@ use tokio_util::sync::CancellationToken;
 #[path = "threads_state.rs"]
 mod state;
 use state::{
-    ComposerDestination, ComposerDrafts, WorkerKind, can_continue, comment_location,
+    ComposerDestination, ComposerDrafts, WorkerKind, can_continue_thread, comment_location,
     continuation_notice, delegation_status, latest_run, linked, outcome_message, passage_request,
     save_message, sections,
 };
@@ -44,6 +44,10 @@ use state::{
 #[cfg(all(test, feature = "native-test-support"))]
 #[path = "threads_focus_tests.rs"]
 mod focus_tests;
+
+#[cfg(all(test, feature = "native-test-support"))]
+#[path = "threads_steering_tests.rs"]
+mod steering_tests;
 
 #[cfg(all(test, feature = "native-test-support"))]
 mod search_tests {
@@ -178,6 +182,13 @@ struct Worker {
     /// The native stream and cancellation belong to this invocation's thread,
     /// independently of whichever page the owner is currently viewing.
     thread: Option<String>,
+    /// Created synchronously before the provider worker can start.
+    run_id: Option<String>,
+}
+
+struct PendingSend {
+    thread: String,
+    prompt: String,
 }
 
 // Inline HTML is shown literally. Managed figures use only stored image bytes;
@@ -294,6 +305,7 @@ struct ThreadsUi {
     comment_anchor: Option<(String, u64, std::ops::Range<usize>, String)>,
     assets: Arc<BTreeMap<String, Arc<Image>>>,
     worker: Option<Worker>,
+    pending_send: Option<PendingSend>,
     stream: String,
     progress: String,
     notice: String,
@@ -422,6 +434,7 @@ impl ThreadsUi {
             comment_anchor: None,
             assets: Arc::new(BTreeMap::new()),
             worker: None,
+            pending_send: None,
             stream: String::new(),
             progress: String::new(),
             notice: String::new(),
@@ -953,6 +966,7 @@ impl ThreadsUi {
             cx.notify();
             return;
         }
+        self.refresh();
         let selection = match self.settings.provider.to_ascii_lowercase().as_str() {
             "codex" | "chatgpt" => brn_ai::Selection {
                 provider: brn_ai::Provider::Chatgpt,
@@ -990,27 +1004,97 @@ impl ThreadsUi {
             credentials_dir: self.settings.credentials_dir.as_ref().map(PathBuf::from),
             sources,
         };
+        let prepared = match brn_ai::threads::prepare_run(request) {
+            Ok(prepared) => prepared,
+            Err(error) => {
+                self.notice = format!(
+                    "Could not start. Your saved message remains available; Continue from the thread. {error}"
+                );
+                self.refresh();
+                cx.notify();
+                return;
+            }
+        };
+        let run_id = prepared.run_id().to_owned();
         let (sender, receiver) = mpsc::sync_channel(128);
         let cancel = CancellationToken::new();
         let worker_cancel = cancel.clone();
         let progress_sender = sender.clone();
-        std::thread::spawn(move || {
-            let result=tokio::runtime::Builder::new_current_thread().enable_all().build().map_err(|e|e.to_string()).and_then(|runtime|runtime.block_on(brn_ai::threads::run(request,worker_cancel,Arc::new(move |event| {let item=match event{brn_ai::AiEvent::Text(text)=>WorkerEvent::Text(text),brn_ai::AiEvent::AnswerFinalized(text)=>WorkerEvent::AnswerFinalized(text),brn_ai::AiEvent::ToolStarted{name}=>WorkerEvent::Progress(brn_ai::threads::tool_activity(&name).unwrap_or("Working…").into()),brn_ai::AiEvent::BudgetProgress{model_turns:_,tool_rounds,max_tool_rounds}=>WorkerEvent::Progress(format!("Working · {tool_rounds} of {max_tool_rounds} steps used"))};let _=progress_sender.try_send(item);}))).map(|result|match result.answer.terminal{brn_ai::AiTerminal::Completed=>"Finished. The result and any saved changes are in this thread.".into(),brn_ai::AiTerminal::Interrupted=>"Interrupted. Continue starts again with this thread and current notes.".into(),brn_ai::AiTerminal::Failed(e)=>e.to_string()}).map_err(|e|e.to_string()));
+        let spawned = std::thread::Builder::new().name("brn-thread-run".into()).spawn(move || {
+            let result=tokio::runtime::Builder::new_current_thread().enable_all().build().map_err(|e|e.to_string()).and_then(|runtime|runtime.block_on(brn_ai::threads::run_prepared(prepared,worker_cancel,Arc::new(move |event| {let item=match event{brn_ai::AiEvent::Text(text)=>WorkerEvent::Text(text),brn_ai::AiEvent::AnswerFinalized(text)=>WorkerEvent::AnswerFinalized(text),brn_ai::AiEvent::ToolStarted{name}=>WorkerEvent::Progress(brn_ai::threads::tool_activity(&name).unwrap_or("Working…").into()),brn_ai::AiEvent::BudgetProgress{model_turns:_,tool_rounds,max_tool_rounds}=>WorkerEvent::Progress(format!("Working · {tool_rounds} of {max_tool_rounds} steps used"))};let _=progress_sender.try_send(item);}))).map(|result|match result.answer.terminal{brn_ai::AiTerminal::Completed=>"Finished. The result and any saved changes are in this thread.".into(),brn_ai::AiTerminal::Interrupted=>"Interrupted. Continue starts again with this thread and current notes.".into(),brn_ai::AiTerminal::Failed(e)=>e.to_string()}).map_err(|e|e.to_string()));
             let _ = sender.send(WorkerEvent::Finished(result));
         });
+        if let Err(error) = spawned {
+            self.notice = format!(
+                "Could not start. Your saved instruction remains available; Continue from the thread. {error}"
+            );
+            self.refresh();
+            cx.notify();
+            return;
+        }
         self.worker = Some(Worker {
             receiver,
             cancel,
             conversion_cancel: Arc::new(AtomicBool::new(false)),
             kind: WorkerKind::Run,
             thread: Some(thread),
+            run_id: Some(run_id),
         });
         self.stream.clear();
         self.progress = "Starting…".into();
         cx.notify();
     }
+    fn can_stop_and_send(&self) -> bool {
+        self.pending_send.is_none()
+            && self.worker.as_ref().is_some_and(|worker| {
+                worker.kind == WorkerKind::Run
+                    && worker.run_id.is_some()
+                    && matches!(&self.page, Page::Thread(thread) if worker.thread.as_ref() == Some(thread))
+            })
+    }
+    fn stop_and_send(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        if !self.can_stop_and_send() {
+            return;
+        }
+        let prompt = self.composer.read(cx).value().to_string();
+        if prompt.trim().is_empty() {
+            return;
+        }
+        let worker = self.worker.as_ref().expect("available worker");
+        let thread = worker.thread.clone().expect("run thread");
+        let run_id = worker.run_id.as_ref().expect("prepared run");
+        match self.workspace.stop_and_post(
+            &format!("stop-and-send:{}", uuid::Uuid::new_v4()),
+            run_id,
+            &thread,
+            &prompt,
+        ) {
+            Ok(_) => {
+                // The durable commit and run fence precede input clearing and cancellation.
+                self.pending_send = Some(PendingSend {
+                    thread: thread.clone(),
+                    prompt,
+                });
+                self.composer_drafts
+                    .posted(&ComposerDestination::Thread(thread));
+                self.composer
+                    .update(cx, |editor, cx| editor.set_value("", window, cx));
+                worker.cancel.cancel();
+                self.progress =
+                    "Stopping… New instruction saved; waiting for this run to finish.".into();
+                self.notice = "Instruction saved. Waiting for the current run to stop.".into();
+                self.refresh();
+            }
+            Err(error) => self.notice = format!("Could not send: {error}. Your text is preserved."),
+        }
+        cx.notify();
+    }
     fn ask(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        self.ask_with_authority(None, window, cx);
+        if self.can_stop_and_send() {
+            self.stop_and_send(window, cx);
+        } else {
+            self.ask_with_authority(None, window, cx);
+        }
     }
     fn ask_with_authority(
         &mut self,
@@ -1075,6 +1159,9 @@ impl ThreadsUi {
         self.start_run("Continue the work from the saved conversation, current linked notes and recorded outcomes. Recheck current versions and authority.".into(),thread,vec![],None,cx);
     }
     fn cancel(&mut self, cx: &mut Context<Self>) {
+        if self.pending_send.take().is_some() {
+            self.notice = "Automatic continuation stopped. Your saved instruction remains in the thread; Continue when ready.".into();
+        }
         if let Some(worker) = &self.worker
             && worker.kind.can_cancel()
         {
@@ -1129,6 +1216,8 @@ impl ThreadsUi {
         if events.is_empty() {
             if disconnected {
                 self.worker = None;
+                self.pending_send = None;
+                self.stream.clear();
                 self.progress.clear();
                 self.notice="Work stopped unexpectedly. Saved progress remains available; continue from the thread.".into();
                 self.refresh();
@@ -1136,7 +1225,12 @@ impl ThreadsUi {
             }
             return;
         }
+        let mut finished = false;
         for event in events {
+            // Events belong to the old worker, even when a producer queues after Finished.
+            if finished {
+                continue;
+            }
             match event {
                 WorkerEvent::AnswerFinalized(text) => {
                     self.stream = text;
@@ -1146,6 +1240,7 @@ impl ThreadsUi {
                 }
                 WorkerEvent::Progress(text) => self.progress = text,
                 WorkerEvent::Finished(result) => {
+                    finished = true;
                     let kind = self.worker.as_ref().map(|w| w.kind);
                     let thread = self
                         .worker
@@ -1172,6 +1267,7 @@ impl ThreadsUi {
                     self.refresh();
                 }
                 WorkerEvent::Converted { result, title } => {
+                    finished = true;
                     self.worker = None;
                     self.progress.clear();
                     match *result {
@@ -1210,6 +1306,19 @@ impl ThreadsUi {
                     self.refresh();
                 }
             }
+        }
+        if finished {
+            if let Some(pending) = self.pending_send.take() {
+                // Launch only after draining the complete old batch, without navigation or grants.
+                self.start_run(pending.prompt, pending.thread, vec![], None, cx);
+            }
+        } else if disconnected && self.worker.is_some() {
+            self.worker = None;
+            self.pending_send = None;
+            self.stream.clear();
+            self.progress.clear();
+            self.notice = "Work stopped unexpectedly. Your saved instruction remains available; Continue from the thread.".into();
+            self.refresh();
         }
         cx.notify();
     }
@@ -1371,6 +1480,7 @@ impl ThreadsUi {
             conversion_cancel: cancel_flag,
             kind: WorkerKind::Import,
             thread: None,
+            run_id: None,
         });
         self.progress = if intent == ImportIntent::FullNote {
             "Reading the full document…"
@@ -1465,6 +1575,7 @@ impl ThreadsUi {
                 WorkerKind::Export
             },
             thread: None,
+            run_id: None,
         });
         self.progress = "Saving portable workspace data…".into();
         cx.notify();
@@ -2064,26 +2175,46 @@ impl ThreadsUi {
                     .child(self.safe_message("stream-answer".into(), stream.into())),
             );
         }
-        if let Some(record) = latest_run(&self.records, &self.history, id)
-            && let RecordData::Run(run) = &record.data
-            && can_continue(&run.state, &thread.state, self.worker.is_some())
-        {
+        if can_continue_thread(
+            &self.records,
+            &self.history,
+            id,
+            &thread.state,
+            self.worker.is_some(),
+        ) {
+            let latest = latest_run(&self.records, &self.history, id);
+            let run = latest.and_then(|record| match &record.data {
+                RecordData::Run(run) => Some(run),
+                _ => None,
+            });
             let thread_id = id.to_owned();
-            conversation = conversation.child(
-                panel()
-                    .child(if run.state == RunState::Working {
+            let status = run.map_or_else(
+                || "Saved instruction is ready to continue".into(),
+                |run| {
+                    if run.state == RunState::Working {
                         "Saved run status: Working · current activity is unconfirmed".into()
                     } else {
                         format!("{:?}", run.state)
-                    })
-                    .child(run.progress.clone())
-                    .child(continuation_notice(&run.state))
+                    }
+                },
+            );
+            conversation = conversation.child(
+                panel()
+                    .child(status)
+                    .child(run.map_or_else(String::new, |run| run.progress.clone()))
+                    .child(run.map_or(
+                        "Continue starts fresh with the saved conversation and current notes.",
+                        |run| continuation_notice(&run.state),
+                    ))
                     .child(
-                        Button::new(format!("continue-{}", record.id))
-                            .label("Continue with current context")
-                            .on_click(cx.listener(move |this, _, _, cx| {
-                                this.continue_run(thread_id.clone(), cx)
-                            })),
+                        Button::new(format!(
+                            "continue-{}",
+                            latest.map_or(id, |record| record.id.as_str())
+                        ))
+                        .label("Continue with current context")
+                        .on_click(cx.listener(move |this, _, _, cx| {
+                            this.continue_run(thread_id.clone(), cx)
+                        })),
                     ),
             );
         }
@@ -2872,6 +3003,8 @@ impl Render for ThreadsUi {
             );
             let mut controls = div().flex().gap_3().items_center().child(
                 div()
+                    .flex_1()
+                    .min_w_0()
                     .id("worker-status")
                     .aria_label(progress.clone())
                     .child(progress)
@@ -2909,8 +3042,12 @@ impl Render for ThreadsUi {
                 )
                 .child(
                     Button::new("ask-delegate")
-                        .label("Ask or delegate")
-                        .disabled(self.worker.is_some())
+                        .label(if self.can_stop_and_send() {
+                            "Stop and send"
+                        } else {
+                            "Ask or delegate"
+                        })
+                        .disabled(self.worker.is_some() && !self.can_stop_and_send())
                         .on_click(cx.listener(|this, _, window, cx| this.ask(window, cx))),
                 ),
         );
@@ -3018,6 +3155,7 @@ pub fn launch(data_dir: PathBuf) -> Result<(), String> {
                     let weak = view.downgrade();
                     window.on_window_should_close(cx, move |_, cx| {
                         let _ = weak.update(cx, |this, _| {
+                            this.pending_send = None;
                             if let Some(worker) = &this.worker {
                                 worker.cancel.cancel();
                                 worker
@@ -3030,6 +3168,7 @@ pub fn launch(data_dir: PathBuf) -> Result<(), String> {
                     let quit_view = view.downgrade();
                     cx.on_action::<Quit>(move |_, cx| {
                         let _ = quit_view.update(cx, |this, _| {
+                            this.pending_send = None;
                             if let Some(worker) = &this.worker {
                                 worker.cancel.cancel();
                                 worker

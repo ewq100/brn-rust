@@ -12,6 +12,7 @@ mod refresh;
 mod review;
 mod review_groups;
 mod settings;
+mod steering;
 pub use export::ExportManifest;
 pub use intake::import_report;
 pub use review_groups::{ReviewGroup, ReviewGroups};

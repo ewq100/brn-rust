@@ -320,6 +320,7 @@ fn worker_controls_match_real_cancellation_capabilities(cx: &mut TestAppContext)
                     conversion_cancel: conversion_cancel.clone(),
                     kind,
                     thread: (kind == WorkerKind::Run).then(|| thread.id.clone()),
+                    run_id: None,
                 });
                 view.progress = "Synthetic progress".into();
                 view.composer.update(cx, |editor, cx| {
@@ -994,6 +995,7 @@ fn native_stream_and_resolution_keep_the_worker_thread_owner(cx: &mut TestAppCon
                 conversion_cancel: Arc::new(AtomicBool::new(false)),
                 kind: WorkerKind::Run,
                 thread: Some(a.id.clone()),
+                run_id: None,
             });
             view.navigate(Page::Thread(b.id.clone()), window, cx);
             sender

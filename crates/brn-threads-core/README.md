@@ -52,6 +52,12 @@ and Open thread. The host increments the fence for steering/cancellation; stale
 invocations cannot commit. Completed-operation replay still works after a fence
 changes. The host must not expose authority constructors to inference inputs.
 
+`stop_and_post` atomically appends an owner message and interrupts the exact Run
+with a higher fence. It validates the active open thread and rejects a different
+Working invocation in that thread. Terminal runs retain their terminal outcome.
+The operation binds exact run/thread/text intent; unchanged receipt replay works
+after later changes. It uses the existing checked prepare/apply writer.
+
 ## Editor, history, and recovery
 
 Call `begin_edit(note, base_version)` at the first dirty transition, then

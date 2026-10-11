@@ -3,6 +3,7 @@
 mod edit;
 mod read;
 mod revision_read;
+mod steering;
 mod store;
 mod types;
 pub use read::{MAX_NOTE_READ_BYTES, NoteHeading, NoteReadOutcome, NoteSlice, note_headings};

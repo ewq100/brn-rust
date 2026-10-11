@@ -99,6 +99,42 @@ pub(super) fn can_continue(state: &RunState, thread: &ThreadState, has_worker: b
             RunState::Working | RunState::Interrupted | RunState::Failed | RunState::Cancelled
         )
 }
+/// A saved owner message newer than the latest invocation is durable work even
+/// if the previous run completed, or a replacement never reached preparation.
+pub(super) fn can_continue_thread(
+    records: &[Record],
+    history: &[Receipt],
+    thread: &str,
+    state: &ThreadState,
+    has_worker: bool,
+) -> bool {
+    if has_worker || *state != ThreadState::Open {
+        return false;
+    }
+    let latest = latest_run(records, history, thread);
+    if latest.is_some_and(|record| matches!(&record.data, RecordData::Run(run) if can_continue(&run.state, state, false))) {
+        return true;
+    }
+    // Compare receipt order, never timestamps or later Run updates.
+    for receipt in history.iter().rev() {
+        if latest.is_some_and(|run| {
+            receipt
+                .writes
+                .iter()
+                .any(|write| write.before.is_none() && write.after.id == run.id)
+        }) {
+            return false;
+        }
+        if receipt.writes.iter().any(|write| {
+            write.before.is_none()
+                && matches!(&write.after.data, RecordData::Message(message) if message.thread == thread && message.role == "owner")
+                && records.iter().any(|record| record.id == write.after.id && !record.archived)
+        }) {
+            return true;
+        }
+    }
+    false
+}
 pub(super) fn continuation_notice(state: &RunState) -> &'static str {
     if *state == RunState::Working {
         "This run may have been interrupted or may still be running elsewhere. Continue starts fresh with the saved conversation and current notes, and supersedes the previous run."
@@ -616,6 +652,146 @@ mod integrity_tests {
         };
         assert_eq!(run.state, RunState::Working);
         assert!(super::can_continue(&run.state, &ThreadState::Open, false));
+        let mut completed = run.clone();
+        completed.state = RunState::Completed;
+        completed.fence += 1;
+        workspace
+            .owner_change(
+                "complete-newest",
+                &ChangeRequest {
+                    reason: "Synthetic terminal status".into(),
+                    writes: vec![Put {
+                        id: latest.id.clone(),
+                        expected_version: Some(latest.version),
+                        archived: false,
+                        data: RecordData::Run(completed.clone()),
+                    }],
+                    inputs: vec![],
+                },
+            )
+            .unwrap();
+        assert!(!super::can_continue_thread(
+            &workspace.records().unwrap(),
+            &workspace.history().unwrap(),
+            &thread.id,
+            &ThreadState::Open,
+            false
+        ));
+        let instruction = workspace
+            .post_message(&thread.id, "Unprocessed new instruction")
+            .unwrap();
+        let current_run = workspace.store.record(&latest.id).unwrap().unwrap();
+        completed.progress = "Late update of an older invocation".into();
+        workspace
+            .owner_change(
+                "late-old-run",
+                &ChangeRequest {
+                    reason: "Late old progress".into(),
+                    writes: vec![Put {
+                        id: latest.id.clone(),
+                        expected_version: Some(current_run.version),
+                        archived: false,
+                        data: RecordData::Run(completed.clone()),
+                    }],
+                    inputs: vec![],
+                },
+            )
+            .unwrap();
+        assert!(super::can_continue_thread(
+            &workspace.records().unwrap(),
+            &workspace.history().unwrap(),
+            &thread.id,
+            &ThreadState::Open,
+            false
+        ));
+        let next = workspace
+            .store
+            .allocate_operation("later-completed-run")
+            .unwrap();
+        workspace
+            .owner_change(
+                "later-completed-run",
+                &ChangeRequest {
+                    reason: "Later invocation consumed saved instruction".into(),
+                    writes: vec![Put {
+                        id: next.creation_id(0),
+                        expected_version: None,
+                        archived: false,
+                        data: RecordData::Run(completed),
+                    }],
+                    inputs: vec![],
+                },
+            )
+            .unwrap();
+        let instruction = instruction.writes.into_iter().next().unwrap().after;
+        let mut edited = match instruction.data {
+            RecordData::Message(message) => message,
+            _ => panic!("owner message"),
+        };
+        edited.text = "Later edit is not another instruction creation".into();
+        workspace
+            .owner_change(
+                "late-message-edit",
+                &ChangeRequest {
+                    reason: "Edit existing message".into(),
+                    writes: vec![Put {
+                        id: instruction.id,
+                        expected_version: Some(instruction.version),
+                        archived: false,
+                        data: RecordData::Message(edited),
+                    }],
+                    inputs: vec![],
+                },
+            )
+            .unwrap();
+        assert!(!super::can_continue_thread(
+            &workspace.records().unwrap(),
+            &workspace.history().unwrap(),
+            &thread.id,
+            &ThreadState::Open,
+            false
+        ));
+    }
+    #[test]
+    fn unsent_owner_message_remains_continuable_without_a_run_after_reopen() {
+        let directory = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+        let mut workspace = Workspace::open(directory.path()).unwrap();
+        let thread = workspace.new_thread("Saved instruction").unwrap();
+        assert!(!super::can_continue_thread(
+            &workspace.records().unwrap(),
+            &workspace.history().unwrap(),
+            &thread.id,
+            &ThreadState::Open,
+            false
+        ));
+        workspace
+            .post_message(&thread.id, "Continue this exact instruction")
+            .unwrap();
+        drop(workspace);
+        let workspace = Workspace::open(directory.path()).unwrap();
+        let records = workspace.records().unwrap();
+        let history = workspace.history().unwrap();
+        assert!(super::can_continue_thread(
+            &records,
+            &history,
+            &thread.id,
+            &ThreadState::Open,
+            false
+        ));
+        assert!(!super::can_continue_thread(
+            &records,
+            &history,
+            &thread.id,
+            &ThreadState::Resolved,
+            false
+        ));
+        assert!(!super::can_continue_thread(
+            &records,
+            &history,
+            &thread.id,
+            &ThreadState::Open,
+            true
+        ));
     }
     #[test]
     fn passage_comment_creates_one_thread_and_context_without_revising_the_note() {

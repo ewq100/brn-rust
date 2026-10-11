@@ -1,21 +1,20 @@
 # BRN Threads status
 
-**Updated:** 11 October 2026. **Merged baseline:** [PR #115](https://github.com/ewq100/brn-rust/pull/115) at `53e5289e7221a4c3b66c6c454550311e46617a78`. **Current work:** isolated branch `work/phase1-delegation`.
+**Updated:** 11 October 2026. **Merged baseline:** [PR #116](https://github.com/ewq100/brn-rust/pull/116) at `36ad2d61e5895c9a564dcff8f6eec1053376245b`. **Current work:** isolated branch `work/phase1-steering`.
 
 ## Current assignment
 
-The owner requested Phase 0 PR publication and CI-gated merge, explicitly deferred blocked native observation, and authorized continued building with GPT-6.1 Sol helpers. The next bounded increment is [Phase 1 explicit delegation](work/active/threads-rebuild/phase1-delegation-plan.md): first-use maintenance/review-first choice, fail-closed standing authority and matching native/CLI controls.
+The owner explicitly authorized publishing and merging delegation after required CI, then continuing Phase 1 without routine reauthorization. Delegation is integrated. The current increment is [Stop-and-send steering](work/active/threads-rebuild/phase1-steering-plan.md), implemented by GPT-6.1 Sol helpers in an isolated worktree.
 
 | Gate | State |
 |---|---|
-| Phase 0 integration | Merged; all four required checks passed before merge and again on main. Documentation/tooling also passed. |
-| Phase 0 limitations | Native observation explicitly deferred by owner. Non-required Windows and Linux model-install failures remain visible; no all-platform green claim. |
-| Phase 1 plan | Independently reviewed and approved. |
-| Phase 1 implementation | Implemented in isolated worktree; existing checked writer, no schema/dependency upgrade. |
-| Focused verification | Passed; [evidence](work/active/threads-rebuild/phase1-delegation-evidence.md) records commands, counts and limitations. |
-| Independent candidate review | APPROVED; no actionable code defects. |
-| Native observation | Computer Use access remains unavailable; native component tests are separate evidence. |
-| Phase 1 integration/release | PR publication and CI-gated merge explicitly authorized; not yet merged or released. |
+| Delegation integration | PR #116 merged after all four required checks and documentation/tooling passed. All four required checks passed again on main. |
+| Platform limits | Non-required Windows credential build and Linux model-install failures remain visible; no all-platform green claim. |
+| Steering plan | Independently reviewed and approved. |
+| Steering implementation/checks | Implemented and tests/lint/native build passed; checked writer retained, no schema/dependency upgrade. |
+| Independent steering review | APPROVED; no actionable findings. |
+| Native observation | Explicitly deferred; native component tests are separate evidence. |
+| Release | Not authorized or performed. |
 
 ## Implemented baseline and retained evidence
 
@@ -25,4 +24,4 @@ The prior [rebuild evidence](work/active/threads-rebuild/evidence.md#rig-044-run
 
 ## Next action
 
-The delegation candidate is implemented, tested and independently approved; native observation remains deferred; publish and merge after required CI, then continue Phase 1 under the owner’s explicit instruction. Remaining Phase 1 work includes Stop-and-send steering and storage/backup/recovery foundations before non-disposable adoption; these are not claimed complete by the first-use change.
+Finish and independently review Stop-and-send, integrate after required CI, and continue the Phase 1 storage/backup/recovery foundations. Delegation and steering alone do not qualify non-disposable data adoption. [Steering evidence](work/active/threads-rebuild/phase1-steering-evidence.md) records the current gate results.

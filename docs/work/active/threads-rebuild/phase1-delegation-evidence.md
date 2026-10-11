@@ -62,3 +62,9 @@ GPT-6.1 Sol returned APPROVED against merged baseline `53e5289`, reviewing the c
 ## Native and integration status
 
 Native interaction remains unobserved because Computer Use access is unavailable. Automated native component tests do not substitute for native observation. This reviewed and tested increment is authorized for PR publication and CI-gated merge; broader Phase 1 storage/recovery and Stop-and-send work remain outstanding.
+
+## Publication and integration
+
+The owner explicitly requested publication, required-CI-gated merge and continued Phase 1 work. PR [#116](https://github.com/ewq100/brn-rust/pull/116) merged at `36ad2d61e5895c9a564dcff8f6eec1053376245b`. Published head `e6a26aaa2ebeded9a0508f89ce7750fb1ae18d34` has exact Git tree `09e7c1a7f08239847bd1663847824f16d1d5ae5c`, identical to local `e2f2e12` (implementation `7651303` plus authority documentation). Merge preserves the same tree.
+
+[PR run 38136175465](https://github.com/ewq100/brn-rust/actions/runs/38136175465) passed all four required checks and documentation/tooling. Main branch required contexts were reread immediately before merge; none were waived or modified. Non-required Windows Core/CLI failed; the run is not represented as all-platform green. Post-merge verification is tracked in the next steering evidence.

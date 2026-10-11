@@ -1741,7 +1741,7 @@ fn refresh_scope_on(
     Ok(run.thread)
 }
 
-fn prepare_on(
+pub(crate) fn prepare_on(
     tx: &Transaction<'_>,
     operation: &OperationId,
     request: &ChangeRequest,
