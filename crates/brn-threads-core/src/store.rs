@@ -22,6 +22,7 @@ enum SettingsUpdate<'a> {
     Configure(&'a WorkspaceSettings),
     Choose(DelegationChoice),
     Pause(bool),
+    BackupDirectory(&'a str),
 }
 impl Store {
     pub fn open(directory: impl AsRef<Path>) -> Result<Self> {
@@ -610,6 +611,29 @@ impl Store {
         self.update_workspace_settings(operation, SettingsUpdate::Pause(paused), authority)
     }
 
+    /// Save only the owner's backup destination. Bind the original UTF-8 path
+    /// before normalization so committed retries survive an unavailable drive.
+    pub fn choose_backup_directory(
+        &mut self,
+        operation: &OperationId,
+        directory: &Path,
+        authority: &HostAuthority,
+    ) -> Result<ApplyOutcome> {
+        let directory = directory
+            .to_str()
+            .ok_or_else(|| Error::UnsafeDirectory("backup folder must be a UTF-8 path".into()))?;
+        self.update_workspace_settings(
+            operation,
+            SettingsUpdate::BackupDirectory(directory),
+            authority,
+        )
+    }
+
+    /// Recheck the saved destination against this actual workspace at dispatch.
+    pub fn validate_backup_directory(&self, directory: &Path) -> Result<PathBuf> {
+        validate_backup_directory(&self.directory, directory)
+    }
+
     fn update_workspace_settings(
         &mut self,
         operation: &OperationId,
@@ -632,6 +656,9 @@ impl Store {
         let intent = match update {
             SettingsUpdate::Choose(choice) => Some(serde_json::to_vec(&choice)?),
             SettingsUpdate::Pause(paused) => Some(serde_json::to_vec(&paused)?),
+            SettingsUpdate::BackupDirectory(directory) => {
+                Some(serde_json::to_vec(&("backup-directory", directory))?)
+            }
             SettingsUpdate::Configure(_) => None,
         };
         if let Some(intent) = intent {
@@ -671,6 +698,7 @@ impl Store {
                     requested.delegation_chosen = prior.delegation_chosen;
                     requested.maintenance = prior.maintenance;
                     requested.review_first = prior.review_first;
+                    requested.backup_directory = prior.backup_directory.clone();
                     if &requested != *prior {
                         return Err(Error::ImmutableRequest);
                     }
@@ -688,6 +716,7 @@ impl Store {
                         return Err(Error::ImmutableRequest);
                     }
                 }
+                SettingsUpdate::BackupDirectory(_) => {}
             }
             let outcome = apply_on(&tx, operation, authority, None)?;
             tx.commit()?;
@@ -707,6 +736,7 @@ impl Store {
                 next.delegation_chosen = current_settings.delegation_chosen;
                 next.maintenance = current_settings.maintenance;
                 next.review_first = current_settings.review_first;
+                next.backup_directory = current_settings.backup_directory.clone();
                 next
             }
             _ => current_settings.clone(),
@@ -724,6 +754,17 @@ impl Store {
                     ));
                 }
                 next.maintenance = !paused;
+            }
+            SettingsUpdate::BackupDirectory(directory) => {
+                let normalized = validate_backup_directory(&self.directory, Path::new(directory))?;
+                next.backup_directory = Some(
+                    normalized
+                        .to_str()
+                        .ok_or_else(|| {
+                            Error::UnsafeDirectory("backup folder must be a UTF-8 path".into())
+                        })?
+                        .to_owned(),
+                );
             }
             SettingsUpdate::Configure(_) => {}
         }
@@ -1792,6 +1833,26 @@ fn run_matches_settings(run: &Run, settings: &WorkspaceSettings) -> bool {
 
 fn subscription_provider(provider: &str) -> bool {
     provider.eq_ignore_ascii_case("codex") || provider.eq_ignore_ascii_case("chatgpt")
+}
+
+fn validate_backup_directory(workspace: &Path, directory: &Path) -> Result<PathBuf> {
+    if !directory.is_absolute() || directory.to_str().is_none() {
+        return Err(Error::UnsafeDirectory(
+            "backup folder must be an absolute UTF-8 path".into(),
+        ));
+    }
+    let directory = fs::canonicalize(directory)?;
+    if directory.to_str().is_none() || !directory.is_dir() {
+        return Err(Error::UnsafeDirectory(
+            "backup folder must be an existing UTF-8 directory".into(),
+        ));
+    }
+    if directory.starts_with(fs::canonicalize(workspace)?) {
+        return Err(Error::UnsafeDirectory(
+            "backup folder must be outside the workspace storage directory".into(),
+        ));
+    }
+    Ok(directory)
 }
 
 #[cfg(test)]

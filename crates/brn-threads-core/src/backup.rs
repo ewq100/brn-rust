@@ -12,7 +12,17 @@ use std::{
 impl Store {
     /// Publish a complete standalone snapshot at a fresh destination.
     pub fn backup(&self, destination: impl AsRef<Path>) -> Result<()> {
-        StagedBackup::create(&self.conn, destination.as_ref())?.publish()
+        let destination = destination.as_ref();
+        let absolute = if destination.is_absolute() {
+            destination.to_owned()
+        } else {
+            std::env::current_dir()?.join(destination)
+        };
+        let parent = absolute
+            .parent()
+            .ok_or_else(|| Error::Invalid("backup parent required".into()))?;
+        self.validate_backup_directory(parent)?;
+        StagedBackup::create(&self.conn, &absolute)?.publish()
     }
 }
 

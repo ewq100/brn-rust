@@ -46,6 +46,10 @@ use state::{
 mod focus_tests;
 
 #[cfg(all(test, feature = "native-test-support"))]
+#[path = "threads_backup_tests.rs"]
+mod backup_tests;
+
+#[cfg(all(test, feature = "native-test-support"))]
 #[path = "threads_steering_tests.rs"]
 mod steering_tests;
 
@@ -1496,18 +1500,29 @@ impl ThreadsUi {
             cx.notify();
             return;
         }
+        if backup {
+            match self.workspace.settings() {
+                Ok(settings) => {
+                    let chosen = settings.backup_directory.is_some();
+                    self.settings = settings;
+                    if chosen {
+                        self.output(None, cx);
+                    } else {
+                        self.choose_backup_folder(true, window, cx);
+                    }
+                }
+                Err(error) => {
+                    self.backup_status = error.to_string();
+                    cx.notify();
+                }
+            }
+            return;
+        }
         let receiver = cx.prompt_for_paths(PathPromptOptions {
             files: false,
             directories: true,
             multiple: false,
-            prompt: Some(
-                if backup {
-                    "Choose a folder for a new full backup"
-                } else {
-                    "Choose a folder for a new Markdown export"
-                }
-                .into(),
-            ),
+            prompt: Some("Choose a folder for a new Markdown export".into()),
         });
         cx.spawn_in(window, async move |this, cx| {
             let result = receiver.await;
@@ -1515,36 +1530,103 @@ impl ThreadsUi {
                 if let Ok(Ok(Some(paths))) = result
                     && let Some(parent) = paths.first()
                 {
-                    this.output(parent.clone(), backup, cx);
+                    this.output(Some(parent.clone()), cx);
                 }
             });
         })
         .detach();
     }
-    fn output(&mut self, parent: PathBuf, backup: bool, cx: &mut Context<Self>) {
+    fn choose_backup_folder(
+        &mut self,
+        create_backup: bool,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
         if let Some(worker) = &self.worker {
             self.notice = worker.kind.busy_notice().into();
             cx.notify();
             return;
         }
-        let destination = parent.join(format!(
-            "BRN-{}-{}",
-            if backup { "backup" } else { "export" },
-            uuid::Uuid::new_v4()
-        ));
+        let receiver = cx.prompt_for_paths(PathPromptOptions {
+            files: false,
+            directories: true,
+            multiple: false,
+            prompt: Some("Choose a folder for full backups".into()),
+        });
+        cx.spawn_in(window, async move |this, cx| {
+            let result = receiver
+                .await
+                .map_err(|error| error.to_string())
+                .and_then(|result| result.map_err(|error| error.to_string()));
+            let _ = this.update_in(cx, |this, _, cx| {
+                this.backup_folder_chosen(result, create_backup, cx);
+            });
+        })
+        .detach();
+    }
+    fn backup_folder_chosen(
+        &mut self,
+        result: Result<Option<Vec<PathBuf>>, String>,
+        create_backup: bool,
+        cx: &mut Context<Self>,
+    ) {
+        // A different operation may have started while the system picker was open.
+        if let Some(worker) = &self.worker {
+            self.notice = worker.kind.busy_notice().into();
+            cx.notify();
+            return;
+        }
+        let directory = match result {
+            Ok(Some(paths)) => match paths.into_iter().next() {
+                Some(directory) => directory,
+                None => return,
+            },
+            Ok(None) => return,
+            Err(error) => {
+                self.backup_status = format!("Could not choose a backup folder: {error}");
+                cx.notify();
+                return;
+            }
+        };
+        match self.workspace.choose_backup_directory(&directory) {
+            Ok(ApplyOutcome::Applied(_)) => {
+                self.refresh();
+                self.backup_status = "Backup folder saved.".into();
+                if create_backup {
+                    self.output(None, cx);
+                }
+            }
+            Ok(outcome) => self.backup_status = outcome_message(&outcome),
+            Err(error) => self.backup_status = error.to_string(),
+        }
+        cx.notify();
+    }
+    // None dispatches a backup using the current persisted preference on the worker.
+    fn output(&mut self, export_parent: Option<PathBuf>, cx: &mut Context<Self>) {
+        if let Some(worker) = &self.worker {
+            self.notice = worker.kind.busy_notice().into();
+            cx.notify();
+            return;
+        }
+        let backup = export_parent.is_none();
+        let destination =
+            export_parent.map(|parent| parent.join(format!("BRN-export-{}", uuid::Uuid::new_v4())));
+        let destination_label = destination.as_ref().map(|path| path.display().to_string());
         let data = self.data_dir.clone();
-        let destination_label = destination.display().to_string();
         let (sender, receiver) = mpsc::sync_channel(4);
         std::thread::spawn(move || {
             let result = (|| -> Result<String, String> {
                 let workspace = Workspace::open(data).map_err(|e| e.to_string())?;
-                if backup {
-                    workspace.backup(&destination).map_err(|e| e.to_string())?;
-                } else {
+                let destination = if let Some(destination) = destination {
                     workspace
                         .export_now(&destination)
                         .map_err(|e| e.to_string())?;
-                }
+                    destination
+                } else {
+                    workspace
+                        .backup_to_saved_directory()
+                        .map_err(|e| e.to_string())?
+                };
                 Ok(format!(
                     "{} created at {}",
                     if backup {
@@ -1558,11 +1640,11 @@ impl ThreadsUi {
             let _ = sender.send(WorkerEvent::Finished(result));
         });
         if backup {
-            self.backup_status = format!("Creating a full backup at {}…", destination_label);
+            self.backup_status = "Creating a full backup in the saved folder…".into();
         } else {
             self.export_status = format!(
                 "Creating a current Markdown snapshot at {}…",
-                destination_label
+                destination_label.expect("export has a destination")
             );
         }
         self.worker = Some(Worker {
@@ -2939,7 +3021,11 @@ impl ThreadsUi {
         view = view.child(self.working_knowledge(cx));
         view.child(panel().child(heading("Portable copies")).child("Markdown export is a current snapshot. A full backup includes notes, discussions, history, figures and recovery state.")
             .child(Button::new("export-now").label("Export Markdown now…").on_click(cx.listener(|this,_,window,cx|this.choose_output(false,window,cx))))
-            .child(self.export_status.clone()).child(Button::new("backup-now").label("Create full backup…").on_click(cx.listener(|this,_,window,cx|this.choose_output(true,window,cx))))
+            .child(self.export_status.clone())
+            .child(div().id("backup-directory").aria_label(self.settings.backup_directory.clone().unwrap_or_else(|| "Backup folder not chosen".into())).child(self.settings.backup_directory.clone().unwrap_or_else(|| "Backup folder not chosen".into())).test_support())
+            .child("Choose a folder covered by your separate backup system.")
+            .child(Button::new("backup-change-folder").label("Change folder…").on_click(cx.listener(|this,_,window,cx|this.choose_backup_folder(false,window,cx))))
+            .child(Button::new("backup-now").label("Create full backup").on_click(cx.listener(|this,_,window,cx|this.choose_output(true,window,cx))))
             .child(self.backup_status.clone())).into_any_element()
     }
 }

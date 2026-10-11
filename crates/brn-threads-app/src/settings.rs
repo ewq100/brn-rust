@@ -46,6 +46,7 @@ impl Workspace {
             maintenance: false,
             review_first: false,
             delegation_chosen: false,
+            backup_directory: None,
         };
         let request = ChangeRequest {
             reason: "Initial workspace configuration".into(),
@@ -106,6 +107,31 @@ impl Workspace {
             &HostAuthority::owner("owner delegation choice"),
         )?)
     }
+    pub fn choose_backup_directory(&mut self, directory: &Path) -> AppResult<ApplyOutcome> {
+        let op = self
+            .store
+            .allocate_operation(&format!("backup-directory:{}", uuid::Uuid::new_v4()))?;
+        Ok(self.store.choose_backup_directory(
+            &op,
+            directory,
+            &HostAuthority::owner("owner backup folder selection"),
+        )?)
+    }
+
+    /// Reload and validate the preference for this workspace, then publish a fresh backup.
+    pub fn backup_to_saved_directory(&self) -> AppResult<PathBuf> {
+        let settings = self.settings()?;
+        let directory = settings
+            .backup_directory
+            .ok_or_else(|| AppError::Invalid("Choose a backup folder first".into()))?;
+        let directory = self
+            .store
+            .validate_backup_directory(Path::new(&directory))?;
+        let destination = directory.join(format!("BRN-backup-{}", uuid::Uuid::new_v4()));
+        self.backup(&destination)?;
+        Ok(destination)
+    }
+
     pub fn pause(&mut self, paused: bool) -> AppResult<ApplyOutcome> {
         let binding = format!("{:x}", Sha256::digest(serde_json::to_vec(&paused)?));
         let op = self
