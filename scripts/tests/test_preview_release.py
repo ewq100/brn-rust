@@ -100,7 +100,7 @@ class FakeGithub:
     def request(self, method, path, payload=None, binary=False, **kwargs):
         if method == "POST" and path == "/releases":
             self.events.append("draft")
-            self.release = dict(id=1, draft=True, upload_url="https://uploads.github.com/repos/example/brn/releases/1/assets{?name}")
+            self.release = dict(payload, id=1, upload_url="https://uploads.github.com/repos/example/brn/releases/1/assets{?name}")
             return self.release
         if method == "GET":
             return self.uploaded
@@ -173,10 +173,66 @@ class PublicationTests(unittest.TestCase):
     def test_tag_or_release_identity_is_never_retargeted(self):
         api = object.__new__(release.Github)
         for responses in ([{"object": {"type": "commit", "sha": "b" * 40}}],
-                          [None, {"target_commitish": "b" * 40, "prerelease": True}],
-                          [{"object": {"type": "commit", "sha": SHA}}, None]):
+                          [None, [{"tag_name": self.approved["version"], "target_commitish": "b" * 40, "prerelease": True}]],
+                          [{"object": {"type": "commit", "sha": SHA}}, []]):
             with patch.object(api, "request", side_effect=responses), self.assertRaises(ValueError):
                 api.existing("v0.1.0-preview.1", SHA)
+
+    def test_exact_existing_draft_resumes_without_replacing_assets(self):
+        draft = dict(id=7, draft=True, prerelease=True, target_commitish=SHA,
+                     tag_name=self.approved["version"],
+                     upload_url="https://uploads.github.com/repos/example/brn/releases/7/assets{?name}")
+        api = FakeGithub(existing=draft)
+        api.uploaded = [dict(name=path.name, size=path.stat().st_size,
+                             digest="sha256:" + release.packaging.digest(path))
+                        for path in release.validate_delivery(self.root, self.approved, SHA)]
+        release.publish(api, {}, self.approved, SHA, self.root)
+        self.assertNotIn("draft", api.events)
+        self.assertNotIn("upload", api.events)
+        self.assertEqual(api.events[-1], "publish")
+
+    def test_deleted_replaced_published_or_retargeted_draft_blocks_final_patch(self):
+        draft = dict(id=7, draft=True, prerelease=True, target_commitish=SHA,
+                     tag_name=self.approved["version"],
+                     upload_url="https://uploads.github.com/repos/example/brn/releases/7/assets{?name}")
+        for refreshed in (None, dict(draft, id=8), dict(draft, draft=False),
+                          dict(draft, target_commitish="b" * 40), dict(draft, prerelease=False),
+                          dict(draft, tag_name="v0.1.0-preview.2")):
+            api = FakeGithub(existing=draft)
+            with self.subTest(refreshed=refreshed), patch.object(api, "existing", side_effect=[draft, refreshed]):
+                with self.assertRaises(ValueError):
+                    release.publish(api, {}, self.approved, SHA, self.root)
+                self.assertNotIn("publish", api.events)
+
+
+class ReleaseLookupTests(unittest.TestCase):
+    def setUp(self):
+        self.api = object.__new__(release.Github)
+        self.version = "v0.1.0-preview.1"
+        self.draft = dict(id=7, tag_name=self.version, target_commitish=SHA,
+                          prerelease=True, draft=True)
+
+    def test_untagged_draft_on_later_page_is_found(self):
+        unrelated = [dict(tag_name=f"unrelated-{i}") for i in range(100)]
+        with patch.object(self.api, "request", side_effect=[None, unrelated, [self.draft]]) as request:
+            self.assertEqual(self.api.existing(self.version, SHA), self.draft)
+        self.assertEqual([call.args[1] for call in request.call_args_list],
+                         [f"/git/ref/tags/{self.version}", "/releases?per_page=100&page=1",
+                          "/releases?per_page=100&page=2"])
+
+    def test_duplicate_version_across_pages_refuses(self):
+        first = [self.draft] + [dict(tag_name=f"unrelated-{i}") for i in range(99)]
+        with patch.object(self.api, "request", side_effect=[None, first, [dict(self.draft, id=8)]]):
+            with self.assertRaises(ValueError):
+                self.api.existing(self.version, SHA)
+
+    def test_published_state_preserved_and_nonpreview_identity_refuses(self):
+        published = dict(self.draft, draft=False)
+        with patch.object(self.api, "request", side_effect=[None, [published]]):
+            self.assertEqual(self.api.existing(self.version, SHA), published)
+        with patch.object(self.api, "request", side_effect=[None, [dict(self.draft, prerelease=False)]]):
+            with self.assertRaises(ValueError):
+                self.api.existing(self.version, SHA)
 
 
 if __name__ == "__main__":

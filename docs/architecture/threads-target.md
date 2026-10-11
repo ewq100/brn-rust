@@ -2,7 +2,7 @@
 
 **Status:** Canonical product contract for the implemented Threads architecture. The rebuild merged in PR #114; Phase 0/F1 merged in PR #115 at `53e5289`; first-use delegation merged in PR #116 at `36ad2d6`; Stop-and-send merged in PR #117 at `ed9a1af`; atomic backup publication merged in PR #118 at `087471f`; restore safety merged in PR #119 at `aca1c28`; remembered backup folder merged in PR #120 at `3a3aa7a` on 11 October 2026. Implementation does not establish native or owner acceptance; [status](../status.md) records those gates.
 
-**Current assignment:** [App-wide tiled UX and first preview](../work/active/tiled-app-preview/plan.md), explicitly authorized on 11 October 2026. Cleanup and the writing workbench merged in PRs #121–122. This target distinguishes selected requirements from verified behavior; [archived evidence](../archive/README.md) preserves earlier execution history.
+**Delivered scope:** [App-wide tiled UX and first preview](../work/active/tiled-app-preview/plan.md), explicitly authorized on 11 October 2026. Cleanup and writing workbench merged in #121–122, the app-wide tiled presentation in #123, and v0.1.0-preview.1 is published. The release-tool follow-up is recorded in PR #124. This target distinguishes selected requirements from verified behavior; [archived evidence](../archive/README.md) preserves earlier execution history.
 
 **Date:** 10 October 2026. **Owner:** Evo.
 

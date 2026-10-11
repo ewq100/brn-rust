@@ -140,7 +140,19 @@ class Github:
         tag = self.request("GET", f"/git/ref/tags/{quote(version, safe='')}", missing_ok=True)
         if tag and (tag["object"].get("type") != "commit" or tag["object"].get("sha") != sha):
             raise ValueError("Version tag already identifies a different source; never retarget")
-        release = self.request("GET", f"/releases/tags/{quote(version, safe='')}", missing_ok=True)
+        # The by-tag endpoint exposes published releases. Authenticated listings
+        # also expose drafts, including drafts that have not created a Git tag.
+        matches = []
+        page = 1
+        while True:
+            releases = self.request("GET", f"/releases?per_page=100&page={page}")
+            matches.extend(item for item in releases if item.get("tag_name") == version)
+            if len(releases) < 100:
+                break
+            page += 1
+        if len(matches) > 1:
+            raise ValueError("Multiple releases identify this version; refusing ambiguous ownership")
+        release = matches[0] if matches else None
         if release and (release.get("target_commitish") != sha or not release.get("prerelease")):
             raise ValueError("Version release already identifies a different preview")
         if tag and not release:
@@ -177,7 +189,13 @@ def publish(api, event, approved, sha, directory):
     if api.ci(event) != sha:
         raise ValueError("CI source changed after upload; draft remains unpublished")
     api.approved_at(sha, approved)
-    api.existing(approved["version"], sha)
+    refreshed = api.existing(approved["version"], sha)
+    if (refreshed is None or refreshed.get("id") != release["id"]
+            or refreshed.get("draft") is not True
+            or refreshed.get("tag_name") != approved["version"]
+            or refreshed.get("target_commitish") != sha
+            or refreshed.get("prerelease") is not True):
+        raise ValueError("Owned preview draft changed after upload; refusing publication")
     result = api.request("PATCH", f"/releases/{release['id']}", {"draft": False, "prerelease": True, "make_latest": "false"})
     if result.get("draft") or not result.get("prerelease"):
         raise ValueError("GitHub did not confirm prerelease publication")

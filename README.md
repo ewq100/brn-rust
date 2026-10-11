@@ -2,7 +2,7 @@
 
 BRN is a local workspace where an AI agent maintains useful knowledge, carries work forward, and opens a thread when the owner needs to decide something.
 
-The SQLite core, shared checked writer, provider runtime and native workspace are implemented. Phase 0/F1, Phase 1, cleanup and the tiled writing workbench are merged through [PR #122](https://github.com/ewq100/brn-rust/pull/122). [Status](docs/status.md) records verification and remaining recovery/native acceptance. The current assignment is [app-wide tiled UX and the first preview](docs/work/active/tiled-app-preview/plan.md).
+The SQLite core, shared checked writer, provider runtime and native workspace are implemented. Phase 0/F1, Phase 1, cleanup and the tiled writing workbench are merged through [PR #123](https://github.com/ewq100/brn-rust/pull/123), including the app-wide tiled UI. [Status](docs/status.md) records verification and remaining recovery/native acceptance. The [first macOS preview](https://github.com/ewq100/brn-rust/releases/tag/v0.1.0-preview.1) is published; [its evidence](docs/work/active/tiled-app-preview/evidence.md) separates package verification from pending native acceptance.
 
 - [Documentation index](docs/README.md) and [agent guide](AGENTS.md)
 - [Canonical Threads target](docs/architecture/threads-target.md) and [behavior](docs/architecture/threads-behavior.md)
@@ -12,4 +12,4 @@ The SQLite core, shared checked writer, provider runtime and native workspace ar
 
 One authoritative SQLite store supports Notes, Threads, Actions and History. AI maintains ordinary working notes under explicit delegation; protected notes preserve decisions, writing and imported references. Routine intake extracts useful information. Selected documents can become full readable notes with meaningful tables and figures; mathematical equation fidelity is outside the first release. Original emails/files stay external.
 
-Markdown export is on demand; backup/restore covers complete BRN state. DOCX/PPTX/HTML generation follows later. Use a fresh explicit absolute `--data-dir` with either binary. Other BRN formats refuse; old data is not opened or migrated.
+Markdown export is on demand; backup/restore covers complete BRN state. DOCX/PPTX/HTML generation follows later. Command-line launches require a fresh explicit absolute `--data-dir`; the preview app launcher supplies its stable per-user directory. Other BRN formats refuse; old data is not opened or migrated.
