@@ -2,13 +2,13 @@
 
 BRN is a local workspace where an AI agent maintains useful knowledge, carries work forward, and opens a thread when the owner needs to decide something.
 
-**Baseline:** Threads rebuild merged in PR #114 at `d768db7`. The SQLite core, runtime and native views are implemented. [Phase 0 and F1 hardening](docs/work/active/threads-rebuild/phase0-plan.md) is the current assignment; current candidate checks and remaining native/owner acceptance are tracked in [status](docs/status.md).
+**Baseline:** Phase 0/F1 merged in PR #115 at `53e5289`, following the Threads rebuild. The SQLite core, runtime and native views are implemented. [Phase 1 explicit delegation](docs/work/active/threads-rebuild/phase1-delegation-plan.md) is the current assignment; verification and remaining native limits are tracked in [status](docs/status.md).
 
 ## Start
 
 - [Agent instructions](AGENTS.md)
 - [Canonical Threads target](docs/architecture/threads-target.md)
-- [Current hardening plan](docs/work/active/threads-rebuild/phase0-plan.md) and [rebuild history](docs/work/active/threads-rebuild/plan.md)
+- [Current hardening plan](docs/work/active/threads-rebuild/phase1-delegation-plan.md) and [rebuild history](docs/work/active/threads-rebuild/plan.md)
 - [Independent review brief](docs/work/active/threads-rebuild/review-brief.md) and [review status](docs/work/active/threads-rebuild/review.md)
 - [Build agent prompt](docs/work/active/threads-rebuild/build-prompt.md)
 - [Development setup](docs/development/setup.md) and [current progress](docs/status.md)

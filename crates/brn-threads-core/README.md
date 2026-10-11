@@ -113,18 +113,22 @@ host instruction interpretation.
 
 A singleton `WorkspaceSettings` record persists the selected provider, model,
 effort, credential-location references, maintenance delegation, and review-first
-choice. Only direct Owner authority can Configure it. Standing Maintenance writes
-return NeedsReview when maintenance is paused or review-first is enabled. Explicit
+choice. A defaulted, omitted-when-false `delegation_chosen` marker preserves old
+serialized Settings and immutable request hashes. Only direct Owner authority can
+Configure it. Provider Configure preserves current policy, and cannot manufacture the explicit choice; trusted owner groups retain their existing bootstrap/host capability. Standing
+Maintenance writes return NeedsReview when Settings are missing, archived, unchosen,
+paused or review-first. Explicit
 host instruction grants remain eligible subject to their scope and run fences.
-When standing maintenance is paused or review-first is enabled, every instruction
+When standing maintenance is unavailable, every instruction
 write must name its exact target and carry the applicable action capability: an
 ordinary note content/title edit needs EditContent, archive needs Archive, and
 supersession needs Supersede. An instruction for A cannot supply fallback writes
 to ordinary B. Enabled standing maintenance retains ordinary delegated fallback.
-Before bootstrap creates Settings, synthetic core tests retain the default
-maintenance policy. Hosts should cancel active runs and advance their fences in
-the same owner transaction when pausing active work. No credential contents are
-stored in Settings.
+The dedicated host choice patches current Settings and cancels active runs while
+advancing their fences inside the same writer transaction. It preserves unrelated
+provider configuration, binds immutable retry intent, and replays existing receipts.
+Tests requiring standing authority install explicitly chosen Settings. No credential
+contents are stored in Settings.
 
 ## Product service additions
 

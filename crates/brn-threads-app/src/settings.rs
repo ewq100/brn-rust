@@ -5,7 +5,9 @@ impl Workspace {
         self.records()?
             .into_iter()
             .find_map(|record| {
-                if let RecordData::Settings(settings) = record.data {
+                if !record.archived
+                    && let RecordData::Settings(settings) = record.data
+                {
                     Some(settings)
                 } else {
                     None
@@ -41,8 +43,9 @@ impl Workspace {
             effort: "medium".into(),
             auth_file: auth.map(|path| path.to_string_lossy().into_owned()),
             credentials_dir: None,
-            maintenance: true,
+            maintenance: false,
             review_first: false,
+            delegation_chosen: false,
         };
         let request = ChangeRequest {
             reason: "Initial workspace configuration".into(),
@@ -91,9 +94,27 @@ impl Workspace {
             &HostAuthority::owner("owner configuration"),
         )?)
     }
+    pub fn choose_delegation(&mut self, choice: DelegationChoice) -> AppResult<ApplyOutcome> {
+        let binding = format!("{:x}", Sha256::digest(serde_json::to_vec(&choice)?));
+        let op = self.store.allocate_bound_operation(
+            &format!("delegation-choice:{}", uuid::Uuid::new_v4()),
+            &binding,
+        )?;
+        Ok(self.store.choose_delegation(
+            &op,
+            choice,
+            &HostAuthority::owner("owner delegation choice"),
+        )?)
+    }
     pub fn pause(&mut self, paused: bool) -> AppResult<ApplyOutcome> {
-        let mut settings = self.settings()?;
-        settings.maintenance = !paused;
-        self.configure(settings)
+        let binding = format!("{:x}", Sha256::digest(serde_json::to_vec(&paused)?));
+        let op = self
+            .store
+            .allocate_bound_operation(&format!("pause:{}", uuid::Uuid::new_v4()), &binding)?;
+        Ok(self.store.pause_workspace(
+            &op,
+            paused,
+            &HostAuthority::owner("owner maintenance pause"),
+        )?)
     }
 }

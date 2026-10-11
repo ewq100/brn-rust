@@ -1,8 +1,21 @@
 //! Small presentation rules; canonical state and authority remain in the shared core.
 use brn_threads_app::{
     ApplyOutcome, Comment, Receipt, Record, RecordData, RunState, SaveOutcome, ThreadState,
+    WorkspaceSettings,
 };
 use std::{collections::BTreeMap, ops::Range};
+
+pub(super) fn delegation_status(settings: &WorkspaceSettings) -> &'static str {
+    if !settings.delegation_chosen {
+        "Choose how BRN maintains your working knowledge. Reading and editing remain available."
+    } else if !settings.maintenance {
+        "Maintenance is paused. Your saved choice will apply when you resume."
+    } else if settings.review_first {
+        "Review changes first is selected. Proposed changes wait for your approval."
+    } else {
+        "BRN may maintain ordinary notes within your delegated scope."
+    }
+}
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub(super) enum ComposerDestination {
@@ -272,6 +285,23 @@ pub(super) fn sections(text: &str) -> Vec<(String, Range<usize>)> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn pending_display_does_not_infer_consent_from_legacy_maintenance_flags() {
+        let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+        let workspace = brn_threads_app::Workspace::open(root.path()).unwrap();
+        let mut settings = workspace.settings().unwrap();
+        settings.maintenance = true;
+        settings.review_first = false;
+        assert!(delegation_status(&settings).starts_with("Choose how"));
+        settings.review_first = true;
+        assert!(delegation_status(&settings).starts_with("Choose how"));
+        settings.delegation_chosen = true;
+        assert!(delegation_status(&settings).starts_with("Review changes first"));
+        settings.review_first = false;
+        assert!(delegation_status(&settings).contains("delegated scope"));
+        settings.maintenance = false;
+        assert!(delegation_status(&settings).contains("paused"));
+    }
     #[test]
     fn posting_clears_only_the_submitted_destination_draft() {
         let mut drafts = ComposerDrafts::default();

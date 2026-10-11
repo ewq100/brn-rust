@@ -30,6 +30,9 @@ pub use sources::{TransientAsset, TransientSource};
 #[path = "threads_current_inputs_tests.rs"]
 mod current_inputs_tests;
 #[cfg(test)]
+#[path = "threads_delegation_tests.rs"]
+mod delegation_tests;
+#[cfg(test)]
 #[path = "threads_sources_tests.rs"]
 mod source_tests;
 /// Constructed by the trusted request UI/CLI, never accepted from model tools
@@ -922,7 +925,9 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
         return Err(rejected());
     }
     let settings = records.iter().find_map(|r| {
-        if let RecordData::Settings(s) = &r.data {
+        if !r.archived
+            && let RecordData::Settings(s) = &r.data
+        {
             Some((r, s))
         } else {
             None
@@ -946,6 +951,13 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
             return Err(rejected());
         }
     }
+    let maintenance_policy = match settings.map(|(_, settings)| settings) {
+        None => "Pending",
+        Some(settings) if !settings.delegation_chosen => "Pending",
+        Some(settings) if !settings.maintenance => "Paused",
+        Some(settings) if settings.review_first => "ReviewFirst",
+        Some(_) => "MaintainOrdinaryNotes",
+    };
     let settings_binding = settings.map(|(r, _)| (r.id.clone(), r.version));
     let op = store
         .allocate_operation(&format!(
@@ -1156,7 +1168,7 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
             decision_target: Mutex::new(None),
         }),
         format!(
-            "{input}\nHost authority for this invocation only: {}",
+            "{input}\nHost maintenance policy: {maintenance_policy}\nHost authority for this invocation only: {}",
             serde_json::to_string(&request.owner_request).map_err(storage)?
         ),
     ))
@@ -1383,6 +1395,21 @@ mod tests {
         let request = ChangeRequest {
             reason: "Synthetic owner setup".into(),
             writes: vec![
+                Put {
+                    id: op.creation_id(2),
+                    expected_version: None,
+                    archived: false,
+                    data: RecordData::Settings(WorkspaceSettings {
+                        provider: "Chatgpt".into(),
+                        model: "gpt-6.1-sol".into(),
+                        effort: "medium".into(),
+                        auth_file: None,
+                        credentials_dir: None,
+                        maintenance: true,
+                        review_first: false,
+                        delegation_chosen: true,
+                    }),
+                },
                 Put {
                     id: thread.clone(),
                     expected_version: None,
@@ -2288,6 +2315,27 @@ mod tests {
     async fn credential_open_failure_finalizes_run_and_precancel_is_interrupted() {
         let (_root, mut request, _) = fixture();
         request.credentials_dir = Some(PathBuf::from("relative-refused"));
+        let mut store = Store::open(&request.data_dir).unwrap();
+        let mut settings = store
+            .records()
+            .unwrap()
+            .into_iter()
+            .find_map(|record| {
+                if let RecordData::Settings(settings) = record.data {
+                    Some(settings)
+                } else {
+                    None
+                }
+            })
+            .unwrap();
+        settings.credentials_dir = Some("relative-refused".into());
+        let configure = store
+            .allocate_operation("synthetic unsafe credential selection")
+            .unwrap();
+        store
+            .configure_workspace(&configure, &settings, &HostAuthority::owner("fixture"))
+            .unwrap();
+
         let result = run(request, CancellationToken::new(), Arc::new(|_| {}))
             .await
             .unwrap();
@@ -2300,6 +2348,27 @@ mod tests {
         ));
         let (_root, mut request, _) = fixture();
         request.credentials_dir = Some(PathBuf::from("relative-refused"));
+        let mut store = Store::open(&request.data_dir).unwrap();
+        let mut settings = store
+            .records()
+            .unwrap()
+            .into_iter()
+            .find_map(|record| {
+                if let RecordData::Settings(settings) = record.data {
+                    Some(settings)
+                } else {
+                    None
+                }
+            })
+            .unwrap();
+        settings.credentials_dir = Some("relative-refused".into());
+        let configure = store
+            .allocate_operation("synthetic unsafe credential selection")
+            .unwrap();
+        store
+            .configure_workspace(&configure, &settings, &HostAuthority::owner("fixture"))
+            .unwrap();
+
         let cancel = CancellationToken::new();
         cancel.cancel();
         let data = request.data_dir.clone();

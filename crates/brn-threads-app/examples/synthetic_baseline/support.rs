@@ -126,6 +126,7 @@ pub fn create(root: &Path, notes: usize, source: &str) -> Result<Corpus> {
     fs::create_dir(root)?;
     let started = Instant::now();
     let mut app = Workspace::open(root.join("data"))?;
+    app.choose_delegation(DelegationChoice::MaintainOrdinaryNotes)?;
     let mut semantic_hash = Sha256::new();
     let mut ids = vec![];
     let mut current_bytes = 0;

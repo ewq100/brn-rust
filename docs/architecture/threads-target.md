@@ -1,8 +1,8 @@
 # BRN Threads canonical target
 
-**Status:** Canonical product contract for the implemented Threads architecture. The rebuild merged in PR #114 at `d768db7` on 11 October 2026. Implementation does not establish native or owner acceptance; [status](../status.md) records those gates.
+**Status:** Canonical product contract for the implemented Threads architecture. The rebuild merged in PR #114; Phase 0/F1 merged in PR #115 at `53e5289` on 11 October 2026. Implementation does not establish native or owner acceptance; [status](../status.md) records those gates.
 
-**Current assignment:** [Phase 0 and F1 hardening](../work/active/threads-rebuild/phase0-plan.md), authorized 11 October 2026. This target distinguishes selected requirements from verified behavior; the [rebuild plan](../work/active/threads-rebuild/plan.md) and its evidence preserve earlier execution history.
+**Current assignment:** [Phase 1 explicit delegation](../work/active/threads-rebuild/phase1-delegation-plan.md), authorized by the owner’s continued-build instruction on 11 October 2026. This target distinguishes selected requirements from verified behavior; the [rebuild plan](../work/active/threads-rebuild/plan.md) and its evidence preserve earlier execution history.
 
 **Date:** 10 October 2026. **Owner:** Evo.
 
@@ -43,7 +43,7 @@ Those statements authorize this target’s scope. They do not establish that tod
 
 ## Accepted adoption priorities, 11 October 2026
 
-The owner accepted the product review's recommendations: qualify source/email → reliable working note → supported next action or reply first, for personal macOS use. Ordinary-note maintenance follows one explicit delegation choice; a first-use choice is a Phase 1 requirement, not a claim about today's bootstrap defaults. Keep one provider run initially and add Stop-and-send steering before considering parallel investigation. The current desktop serializes all workers and does not yet support that steering action.
+The owner accepted the product review's recommendations: qualify source/email → reliable working note → supported next action or reply first, for personal macOS use. Ordinary-note maintenance follows one explicit delegation choice, implemented by the current Phase 1 increment. Fresh and previously unchosen workspaces allow manual work and applicable direct instructions, but do not grant standing maintenance. Home and Settings offer “Maintain ordinary notes” or “Review changes first”; the CLI exposes the same host-owned choice. The owner can later change the choice or pause work. Choosing a policy preserves provider/account/model selections and fences existing invocations atomically. Generic provider configuration and Resume cannot silently choose delegation. Keep one provider run initially and add Stop-and-send steering before considering parallel investigation. The current desktop serializes all workers and does not yet support that steering action.
 
 Non-disposable data adoption follows Phase 1 acceptance. Before changing an adopted Threads schema, provide transactional upgrades and pre-upgrade backups; this does not introduce migration from old BRN. Backups use a user-selected destination covered by a separate backup system. DOCX is the first later output format. External distribution and additional platforms remain later scope. These decisions do not authorize implementation beyond the current assignment.
 

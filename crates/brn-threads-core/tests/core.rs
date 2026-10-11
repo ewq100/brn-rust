@@ -8,6 +8,26 @@ fn store() -> (TempDir, Store) {
     let store = Store::open(dir.path().join("data")).unwrap();
     (dir, store)
 }
+fn delegated_store() -> (TempDir, Store) {
+    let (dir, mut store) = store();
+    let op = store
+        .allocate_operation("explicitly chosen synthetic settings")
+        .unwrap();
+    let settings = WorkspaceSettings {
+        provider: "synthetic".into(),
+        model: "synthetic".into(),
+        effort: "medium".into(),
+        auth_file: None,
+        credentials_dir: None,
+        maintenance: true,
+        review_first: false,
+        delegation_chosen: true,
+    };
+    let req = request(vec![created(&op, 0, RecordData::Settings(settings))]);
+    store.prepare_owner(&op, &req, &owner()).unwrap();
+    store.apply(&op, &owner()).unwrap();
+    (dir, store)
+}
 fn owner() -> HostAuthority {
     HostAuthority::owner("synthetic owner")
 }
@@ -101,7 +121,7 @@ fn explicit_selection_refuses_old_and_foreign_identity() {
 }
 #[test]
 fn lost_prepare_and_apply_responses_replay_across_connections_and_restart() {
-    let (dir, mut store) = store();
+    let (dir, mut store) = delegated_store();
     let existing = note(&mut store, "existing", true);
     let data = store.directory().to_owned();
     let op = store.allocate_operation("host durable request 42").unwrap();
@@ -149,7 +169,7 @@ fn lost_prepare_and_apply_responses_replay_across_connections_and_restart() {
     drop(restart); // commit response lost
     let mut other = Store::open(&data).unwrap();
     assert_eq!(other.apply(&op, &grant).unwrap(), receipt);
-    assert_eq!(other.records().unwrap().len(), 3);
+    assert_eq!(other.records().unwrap().len(), 4);
     assert_eq!(other.note(&existing.id).unwrap().unwrap().version, 2);
     assert_eq!(other.revision(&existing.id, 1).unwrap().unwrap(), existing);
     let mut changed = req.clone();
@@ -224,7 +244,7 @@ fn exact_protected_target_and_capability_scope() {
 }
 #[test]
 fn persisted_guards_defer_whole_group_and_generation_cannot_resurrect() {
-    let (_dir, mut desktop) = store();
+    let (_dir, mut desktop) = delegated_store();
     let a = note(&mut desktop, "A", false);
     let b = note(&mut desktop, "B", false);
     let data = desktop.directory().to_owned();
@@ -302,7 +322,7 @@ fn persisted_guards_defer_whole_group_and_generation_cannot_resurrect() {
 }
 #[test]
 fn stale_open_type_save_preserves_buffer() {
-    let (_dir, mut store) = store();
+    let (_dir, mut store) = delegated_store();
     let a = note(&mut store, "A", false); // clean editor remembers v1, no guard
     let op = store.allocate_operation("AI wins race").unwrap();
     apply(
@@ -324,7 +344,7 @@ fn stale_open_type_save_preserves_buffer() {
 }
 #[test]
 fn undo_checks_actual_write_set_preserves_link_later_edits_and_lists_direct_dependents() {
-    let (_dir, mut store) = store();
+    let (_dir, mut store) = delegated_store();
     let a = note(&mut store, "A", false);
     let b = note(&mut store, "B", false);
     let op = store.allocate_operation("AI group").unwrap();
@@ -401,7 +421,7 @@ fn undo_checks_actual_write_set_preserves_link_later_edits_and_lists_direct_depe
 }
 #[test]
 fn meaningful_newer_inputs_flag_current_direct_note_and_action_dependents_only() {
-    let (_dir, mut store) = store();
+    let (_dir, mut store) = delegated_store();
     let input = note(&mut store, "input", false);
     let derived = store.allocate_operation("derived note and Action").unwrap();
     let mut req = request(vec![
@@ -533,7 +553,7 @@ fn meaningful_newer_inputs_flag_current_direct_note_and_action_dependents_only()
 
 #[test]
 fn source_observation_metadata_does_not_refresh_but_new_external_version_does() {
-    let (_dir, mut store) = store();
+    let (_dir, mut store) = delegated_store();
     let source_op = store.allocate_operation("source fixture").unwrap();
     let source = apply(
         &mut store,
@@ -598,7 +618,7 @@ fn source_observation_metadata_does_not_refresh_but_new_external_version_does() 
 #[test]
 fn undo_restores_exact_direct_input_footing_even_when_derived_text_was_identical() {
     for second_text in ["Based on source B", "Original derived writing"] {
-        let (_dir, mut store) = store();
+        let (_dir, mut store) = delegated_store();
         let input_a = note(&mut store, "source A", false);
         let input_b = note(&mut store, "source B", false);
         let first = store.allocate_operation("summary from A").unwrap();
@@ -719,7 +739,7 @@ fn undo_restores_exact_direct_input_footing_even_when_derived_text_was_identical
 }
 #[test]
 fn complete_backup_restores_assets_sources_pending_candidates_history_and_buffers() {
-    let (dir, mut store) = store();
+    let (dir, mut store) = delegated_store();
     let a = note(&mut store, "A", false);
     let op = store.allocate_operation("complete state").unwrap();
     let source = created(
@@ -788,7 +808,7 @@ fn complete_backup_restores_assets_sources_pending_candidates_history_and_buffer
 }
 #[test]
 fn pending_candidate_requires_retirement_and_confirmation_is_revision_bound() {
-    let (_dir, mut store) = store();
+    let (_dir, mut store) = delegated_store();
     let op = store.allocate_operation("confirmed note").unwrap();
     let mut n = Note::working("confirmed", "one");
     n.confirmed = true;
@@ -816,7 +836,7 @@ fn pending_candidate_requires_retirement_and_confirmation_is_revision_bound() {
 }
 #[test]
 fn wrong_reference_rolls_back_group_and_occupied_backup_remains_intact() {
-    let (dir, mut store) = store();
+    let (dir, mut store) = delegated_store();
     let a = note(&mut store, "A", false);
     let op = store.allocate_operation("invalid second member").unwrap();
     let req = request(vec![
@@ -843,7 +863,7 @@ fn wrong_reference_rolls_back_group_and_occupied_backup_remains_intact() {
 }
 #[test]
 fn two_live_connections_order_dirty_guard_before_grouped_apply() {
-    let (_dir, mut desktop) = store();
+    let (_dir, mut desktop) = delegated_store();
     let a = note(&mut desktop, "A", false);
     let mut cli = Store::open(desktop.directory()).unwrap();
     let op = cli.allocate_operation("concurrent group").unwrap();
@@ -863,7 +883,7 @@ fn two_live_connections_order_dirty_guard_before_grouped_apply() {
 }
 #[test]
 fn host_run_fence_blocks_superseded_commit_but_receipt_replay_survives_cancellation() {
-    let (_dir, mut store) = store();
+    let (_dir, mut store) = delegated_store();
     let a = note(&mut store, "A", false);
     let setup = store.allocate_operation("run setup").unwrap();
     let thread = created(
@@ -994,7 +1014,7 @@ fn data_selection_refuses_symlink_ancestor_without_creating_database() {
 }
 #[test]
 fn full_import_is_protected_and_confirmation_requires_explicit_authority() {
-    let (_dir, mut store) = store();
+    let (_dir, mut store) = delegated_store();
     let op = store.allocate_operation("full import").unwrap();
     let source = created(
         &op,
@@ -1065,7 +1085,7 @@ fn full_import_is_protected_and_confirmation_requires_explicit_authority() {
 }
 #[test]
 fn human_action_completion_requires_evidence_and_scope_and_thread_resolve_cannot_complete_action() {
-    let (_dir, mut store) = store();
+    let (_dir, mut store) = delegated_store();
     let op = store.allocate_operation("human obligation").unwrap();
     let action = Action {
         description: "human sends report".into(),
@@ -1159,7 +1179,7 @@ fn protected_supersede_requires_distinct_capability() {
 }
 #[test]
 fn comment_utf8_anchors_and_separate_record_versions_are_checked() {
-    let (_dir, mut store) = store();
+    let (_dir, mut store) = delegated_store();
     let a = note(&mut store, "A", false);
     let update = store.allocate_operation("Estonian text").unwrap();
     apply(
@@ -1201,7 +1221,7 @@ fn comment_utf8_anchors_and_separate_record_versions_are_checked() {
 }
 #[test]
 fn exact_source_identity_is_unique_and_failed_duplicate_has_no_partial_effect() {
-    let (_dir, mut store) = store();
+    let (_dir, mut store) = delegated_store();
     let source = Source {
         locator: "external://stable-id".into(),
         label: "source".into(),
@@ -1238,7 +1258,7 @@ fn exact_source_identity_is_unique_and_failed_duplicate_has_no_partial_effect() 
 }
 #[test]
 fn assets_require_owner_group_and_inherit_protection_and_dirty_guard() {
-    let (_dir, mut store) = store();
+    let (_dir, mut store) = delegated_store();
     let seed = store.allocate_operation("protected asset seed").unwrap();
     let mut n = Note::working("protected imported figure", "figure");
     n.protected = true;
@@ -1467,7 +1487,7 @@ fn run_management_is_host_only_monotonic_and_cancellation_cannot_be_undone() {
 }
 #[test]
 fn undo_identity_is_bound_before_receipt_replay() {
-    let (_dir, mut store) = store();
+    let (_dir, mut store) = delegated_store();
     let first = store.allocate_operation("first original").unwrap();
     apply(
         &mut store,
@@ -1518,7 +1538,7 @@ fn undo_identity_is_bound_before_receipt_replay() {
 }
 #[test]
 fn ordinary_content_revision_can_explicitly_clear_confirmation_without_confirmation_grant() {
-    let (_dir, mut store) = store();
+    let (_dir, mut store) = delegated_store();
     let op = store.allocate_operation("confirmed ordinary").unwrap();
     let mut n = Note::working("confirmed", "old");
     n.confirmed = true;
@@ -1599,6 +1619,7 @@ fn workspace_settings_are_owner_only_and_persist_maintenance_review_policy() {
         credentials_dir: None,
         maintenance: false,
         review_first: false,
+        delegation_chosen: true,
     };
     let setup = store.allocate_operation("workspace configuration").unwrap();
     let req = request(vec![created(
@@ -1725,6 +1746,7 @@ fn paused_and_review_first_grants_require_exact_target_and_action() {
             credentials_dir: None,
             maintenance: review_first,
             review_first,
+            delegation_chosen: true,
         };
         apply(
             &mut store,
@@ -1856,6 +1878,7 @@ fn enabled_maintenance_keeps_standing_ordinary_fallback_for_instruction_runs() {
                 credentials_dir: None,
                 maintenance: true,
                 review_first: false,
+                delegation_chosen: true,
             }),
         )]),
         &owner(),
@@ -1909,7 +1932,7 @@ fn host_input_binding_is_durable_before_preparation_and_changed_retry_is_rejecte
 }
 #[test]
 fn failed_candidate_replacement_keeps_original_active_and_guarded() {
-    let (_dir, mut store) = store();
+    let (_dir, mut store) = delegated_store();
     let a = note(&mut store, "A", false);
     let original = store.allocate_operation("original candidate").unwrap();
     let req = request(vec![edited(&a, change_text(&a, "draft"))]);
@@ -2019,6 +2042,7 @@ fn configuration_reads_and_fences_runs_at_the_actual_writer_boundary() {
         credentials_dir: None,
         maintenance: true,
         review_first: false,
+        delegation_chosen: true,
     };
     let setup = store
         .allocate_operation("settings for shared configuration")
@@ -2038,9 +2062,7 @@ fn configuration_reads_and_fences_runs_at_the_actual_writer_boundary() {
         .unwrap();
     let mut other = Store::open(store.directory()).unwrap();
     let run = seed_run(&mut other, "peer starts invocation after allocation");
-    let mut paused = settings;
-    paused.maintenance = false;
-    let result = store.configure_workspace(&op, &paused, &owner()).unwrap();
+    let result = store.pause_workspace(&op, true, &owner()).unwrap();
     let ApplyOutcome::Applied(receipt) = &result else {
         panic!()
     };
@@ -2050,14 +2072,11 @@ fn configuration_reads_and_fences_runs_at_the_actual_writer_boundary() {
     };
     assert_eq!(cancelled.state, RunState::Cancelled);
     assert_eq!(cancelled.fence, 2);
-    assert_eq!(
-        store.configure_workspace(&op, &paused, &owner()).unwrap(),
-        result
-    );
+    assert_eq!(store.pause_workspace(&op, true, &owner()).unwrap(), result);
 }
 #[test]
 fn thread_review_attention_can_reference_known_operations_but_links_remain_records_only() {
-    let (_dir, mut store) = store();
+    let (_dir, mut store) = delegated_store();
     let candidate = store.allocate_operation("known review candidate").unwrap();
     store
         .prepare(
@@ -2131,7 +2150,7 @@ fn thread_review_attention_can_reference_known_operations_but_links_remain_recor
 }
 #[test]
 fn save_maps_utf8_comments_and_marks_intersection_unresolved_in_actual_write_set() {
-    let (_dir, mut store) = store();
+    let (_dir, mut store) = delegated_store();
     let a = note(&mut store, "commented", false);
     let textop = store.allocate_operation("initial UTF-8 text").unwrap();
     apply(
@@ -2218,7 +2237,7 @@ fn save_maps_utf8_comments_and_marks_intersection_unresolved_in_actual_write_set
 }
 #[test]
 fn undo_save_restores_supported_anchor_at_new_compensating_revision() {
-    let (_dir, mut store) = store();
+    let (_dir, mut store) = delegated_store();
     let a = note(&mut store, "anchor Undo", false);
     let op = store.allocate_operation("anchor text").unwrap();
     apply(
@@ -2284,6 +2303,7 @@ fn working_run_start_rechecks_current_selection_and_accepts_planned_settings_ove
         credentials_dir: None,
         maintenance: true,
         review_first: false,
+        delegation_chosen: true,
     };
     let setup = store
         .allocate_operation("initial selection and thread")
@@ -2370,6 +2390,7 @@ fn configuration_replay_checks_immutable_payload_before_receipt() {
         credentials_dir: None,
         maintenance: true,
         review_first: false,
+        delegation_chosen: true,
     };
     let seed = store.allocate_operation("settings replay seed").unwrap();
     apply(
@@ -2386,7 +2407,7 @@ fn configuration_replay_checks_immutable_payload_before_receipt() {
         .allocate_operation("configuration immutable retry")
         .unwrap();
     let mut configured = settings;
-    configured.maintenance = false;
+    configured.auth_file = Some("/synthetic/account-a".into());
     let first = store
         .configure_workspace(&op, &configured, &owner())
         .unwrap();
@@ -2406,11 +2427,11 @@ fn configuration_replay_checks_immutable_payload_before_receipt() {
         Err(Error::ImmutableRequest)
     ));
     changed = configured.clone();
-    changed.maintenance = true;
-    assert!(matches!(
-        store.configure_workspace(&op, &changed, &owner()),
-        Err(Error::ImmutableRequest)
-    ));
+    changed.maintenance = false;
+    assert_eq!(
+        store.configure_workspace(&op, &changed, &owner()).unwrap(),
+        first
+    );
     assert_eq!(
         store.record(&seed.creation_id(0)).unwrap().unwrap().data,
         RecordData::Settings(configured)
@@ -2485,6 +2506,7 @@ fn runtime_settings_snapshot_covers_account_changes_and_provider_aliases() {
         credentials_dir: None,
         maintenance: true,
         review_first: false,
+        delegation_chosen: true,
     };
     let setup = store
         .allocate_operation("runtime snapshot settings thread")

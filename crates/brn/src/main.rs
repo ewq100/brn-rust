@@ -17,7 +17,7 @@ static CANCEL: AtomicBool = AtomicBool::new(false);
 extern "C" fn on_sigint(_: libc::c_int) {
     CANCEL.store(true, Ordering::SeqCst);
 }
-const HELP:&str="BRN Threads\n\nUsage: brn --data-dir ABSOLUTE_DIRECTORY COMMAND [--option VALUE]\n\nCommands: init, records, notes, threads, needs-you, history, candidates, settings,\n  note-create --title TITLE --text MARKDOWN\n  thread-start --title TITLE\n  read --id RECORD; search --query TEXT\n  begin-edit --note ID --base VERSION\n  update-buffer --session ID --generation N --text MARKDOWN\n  save|discard --session ID --generation N; recovery\n  apply|dismiss --operation ID; undo --operation ID; resolve --thread ID\n  ask --thread ID --prompt TEXT [--budget 1..32] [--edit-note ID --base VERSION | --record-decision yes]\n  intake --source ABSOLUTE_FILE --intent useful|full [--title TITLE] [--thread ID]\n  configure --provider Codex|Copilot --model ID --effort low|medium|high\n  pause; resume; export|backup --destination ABSOLUTE_FRESH_PATH\n  restore --source ABSOLUTE_BACKUP\n\nFresh explicit data only. Originals remain external; no external messages are sent.\nReview apply and Undo are concrete owner actions. Continue uses ask on the same Thread.";
+const HELP: &str = "BRN Threads\n\nUsage: brn --data-dir ABSOLUTE_DIRECTORY COMMAND [--option VALUE]\n\nCommands: init, records, notes, threads, needs-you, history, candidates, settings,\n  note-create --title TITLE --text MARKDOWN\n  thread-start --title TITLE\n  read --id RECORD; search --query TEXT\n  begin-edit --note ID --base VERSION\n  update-buffer --session ID --generation N --text MARKDOWN\n  save|discard --session ID --generation N; recovery\n  apply|dismiss --operation ID; undo --operation ID; resolve --thread ID\n  ask --thread ID --prompt TEXT [--budget 1..32] [--edit-note ID --base VERSION | --record-decision yes]\n  intake --source ABSOLUTE_FILE --intent useful|full [--title TITLE] [--thread ID]\n  configure --provider Codex|Copilot --model ID --effort low|medium|high\n  delegation --choice maintain|review-first\n  pause; resume; export|backup --destination ABSOLUTE_FRESH_PATH\n  restore --source ABSOLUTE_BACKUP\n\nChoose delegation before resuming maintenance. Manual work remains available while pending.\nFresh explicit data only. Originals remain external; no external messages are sent.\nReview apply and Undo are concrete owner actions. Continue uses ask on the same Thread.";
 type Result<T> = std::result::Result<T, String>;
 struct Invocation {
     data: PathBuf,
@@ -54,6 +54,7 @@ fn parse(args: impl IntoIterator<Item = String>) -> Result<Option<Invocation>> {
         | "settings" | "pause" | "resume" | "recovery" => &[],
         "note-create" => &["title", "text"],
         "thread-start" => &["title"],
+        "delegation" => &["choice"],
         "read" => &["id"],
         "search" => &["query"],
         "begin-edit" => &["note", "base"],
@@ -84,6 +85,9 @@ fn parse(args: impl IntoIterator<Item = String>) -> Result<Option<Invocation>> {
     if options.keys().any(|key| !allowed.contains(&key.as_str())) {
         return Err("Unknown option for command".into());
     }
+    if command == "delegation" {
+        delegation_choice(options.get("choice").ok_or("Missing --choice")?)?;
+    }
     Ok(Some(Invocation {
         data,
         command,
@@ -105,6 +109,20 @@ impl Invocation {
 }
 fn encode(value: impl serde::Serialize) -> Result<Value> {
     serde_json::to_value(value).map_err(|e| e.to_string())
+}
+fn settings_output(settings: WorkspaceSettings) -> Result<Value> {
+    let chosen = settings.delegation_chosen;
+    let mut output = encode(settings)?;
+    // Storage omits false for old request identity; CLI status is explicit.
+    output["delegation_chosen"] = json!(chosen);
+    Ok(output)
+}
+fn delegation_choice(value: &str) -> Result<DelegationChoice> {
+    match value {
+        "maintain" => Ok(DelegationChoice::MaintainOrdinaryNotes),
+        "review-first" => Ok(DelegationChoice::ReviewFirst),
+        _ => Err("Delegation choice must be maintain or review-first".into()),
+    }
 }
 fn applied(outcome: ApplyOutcome) -> Value {
     match outcome {
@@ -230,7 +248,7 @@ async fn execute(inv: &Invocation) -> Result<Value> {
     let mut workspace = Workspace::open(&inv.data).map_err(|e| e.to_string())?;
     let result = match inv.command.as_str() {
         "init" => {
-            json!({"ready":true,"data":inv.data,"settings":workspace.settings().map_err(|e|e.to_string())?})
+            json!({"ready":true,"data":inv.data,"settings":settings_output(workspace.settings().map_err(|e|e.to_string())?)?})
         }
         "records" => encode(workspace.records().map_err(|e| e.to_string())?)?,
         "notes" => encode(workspace.notes().map_err(|e| e.to_string())?)?,
@@ -238,7 +256,12 @@ async fn execute(inv: &Invocation) -> Result<Value> {
         "needs-you" => encode(workspace.needs_you().map_err(|e| e.to_string())?)?,
         "history" => encode(workspace.history().map_err(|e| e.to_string())?)?,
         "candidates" => encode(workspace.candidates().map_err(|e| e.to_string())?)?,
-        "settings" => encode(workspace.settings().map_err(|e| e.to_string())?)?,
+        "settings" => settings_output(workspace.settings().map_err(|e| e.to_string())?)?,
+        "delegation" => applied(
+            workspace
+                .choose_delegation(delegation_choice(inv.arg("choice")?)?)
+                .map_err(|e| e.to_string())?,
+        ),
         "read" => encode(
             workspace
                 .store
@@ -356,7 +379,7 @@ async fn execute(inv: &Invocation) -> Result<Value> {
                 inv.arg("prompt")?.into(),
                 vec![],
             )
-            .await
+            .await;
         }
         "intake" => {
             let source = Path::new(inv.arg("source")?);

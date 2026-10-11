@@ -6,8 +6,13 @@ import, candidate review, history/Undo, Markdown snapshot export, and backup.
 Desktop, headless commands, and the built-in runtime use these same operations.
 
 A fresh workspace persists Codex / gpt-6.1-sol / medium and the normal Codex auth
-file location. It does not read or copy credentials during bootstrap. `settings`,
-`configure`, and `pause(true)` support explicit selection/delegation. Configuration
+file location. It does not read or copy credentials during bootstrap. Fresh Settings
+start with no chosen delegation and maintenance disabled. Existing unrecorded choices
+remain readable but do not grant standing maintenance. `choose_delegation` records the
+owner’s maintenance or review-first choice against current Settings; provider Configure
+and Resume cannot manufacture a choice. Provider Configure preserves all current policy
+fields, including a choice or pause made after the provider form was opened. Manual
+work and scoped direct instructions remain available while pending. Configuration
 reads canonical Settings and all Working runs at the SQLite writer boundary;
 changes and cancellation/fence advancement commit together. Opening a workspace
 does not cancel another process's live invocation.

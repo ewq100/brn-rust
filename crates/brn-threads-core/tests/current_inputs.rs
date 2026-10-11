@@ -83,6 +83,28 @@ fn changed_current_input_on_another_connection_stales_the_whole_group() {
 fn fixture() -> (tempfile::TempDir, Store, String) {
     let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
     let mut store = Store::open(root.path().join("fresh")).unwrap();
+    let settings = store
+        .allocate_operation("explicit maintenance fixture")
+        .unwrap();
+    apply(
+        &mut store,
+        &settings,
+        &request(vec![Put {
+            id: settings.creation_id(0),
+            expected_version: None,
+            archived: false,
+            data: RecordData::Settings(WorkspaceSettings {
+                provider: "Offline".into(),
+                model: "synthetic".into(),
+                effort: "medium".into(),
+                auth_file: None,
+                credentials_dir: None,
+                maintenance: true,
+                review_first: false,
+                delegation_chosen: true,
+            }),
+        }]),
+    );
     let op = store.allocate_operation("Monday input").unwrap();
     let input = op.creation_id(0);
     apply(

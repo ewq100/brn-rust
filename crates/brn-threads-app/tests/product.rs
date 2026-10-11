@@ -403,6 +403,10 @@ fn request(writes: Vec<Put>) -> ChangeRequest {
 #[test]
 fn update_and_undo_expose_direct_work_and_one_recoverable_refresh_followup() {
     let (dir, mut app) = workspace();
+    outcome(
+        app.choose_delegation(DelegationChoice::MaintainOrdinaryNotes)
+            .unwrap(),
+    );
     let input = app.new_note("Input evidence", "Original fact").unwrap();
     let derived = app
         .store

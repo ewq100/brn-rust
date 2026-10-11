@@ -37,8 +37,8 @@ use tokio_util::sync::CancellationToken;
 mod state;
 use state::{
     ComposerDestination, ComposerDrafts, WorkerKind, can_continue, comment_location,
-    continuation_notice, latest_run, linked, outcome_message, passage_request, save_message,
-    sections,
+    continuation_notice, delegation_status, latest_run, linked, outcome_message, passage_request,
+    save_message, sections,
 };
 
 #[cfg(all(test, feature = "native-test-support"))]
@@ -55,6 +55,7 @@ mod search_tests {
         let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
         let data = root.path().join("search-clear-regression");
         let mut workspace = Workspace::open(&data).unwrap();
+        focus_tests::configure_offline_fixture(&mut workspace);
         let note = workspace
             .new_note("Search witness", "harborneedle õun and saved text")
             .unwrap();
@@ -1481,6 +1482,49 @@ impl ThreadsUi {
         self.refresh();
         cx.notify();
     }
+    fn choose_delegation(&mut self, choice: DelegationChoice, cx: &mut Context<Self>) {
+        match self.workspace.choose_delegation(choice) {
+            Ok(outcome) => self.notice = outcome_message(&outcome),
+            Err(error) => self.notice = error.to_string(),
+        }
+        self.refresh();
+        cx.notify();
+    }
+    fn working_knowledge(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
+        let status = delegation_status(&self.settings);
+        let mut knowledge = panel()
+            .id(if self.settings.delegation_chosen { "delegation-settings" } else { "delegation-pending" })
+            .child(heading("Working knowledge"))
+            .child(div().id("delegation-status").aria_label(status).child(status).test_support())
+            .child("Maintain ordinary notes lets BRN update ordinary notes and useful source references. Review changes first keeps proposed changes for your approval. Protected notes still need an applicable instruction or your review.")
+            .child(Button::new("delegation-maintain")
+                .label("Maintain ordinary notes")
+                .selected(self.settings.delegation_chosen && !self.settings.review_first)
+                .on_click(cx.listener(|this, _, _, cx| this.choose_delegation(DelegationChoice::MaintainOrdinaryNotes, cx))))
+            .child(Button::new("delegation-review-first")
+                .label("Review changes first")
+                .selected(self.settings.delegation_chosen && self.settings.review_first)
+                .on_click(cx.listener(|this, _, _, cx| this.choose_delegation(DelegationChoice::ReviewFirst, cx))));
+        if self.settings.delegation_chosen {
+            knowledge = knowledge.child(
+                Button::new("maintenance-setting")
+                    .label(if self.settings.maintenance {
+                        "Pause maintenance"
+                    } else {
+                        "Resume maintenance"
+                    })
+                    .on_click(cx.listener(|this, _, _, cx| {
+                        match this.workspace.pause(this.settings.maintenance) {
+                            Ok(outcome) => this.notice = outcome_message(&outcome),
+                            Err(error) => this.notice = error.to_string(),
+                        }
+                        this.refresh();
+                        cx.notify();
+                    })),
+            );
+        }
+        knowledge.test_support().into_any_element()
+    }
     fn keep_review(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         if self.review.as_ref().is_some_and(|r| r.edited) {
             self.prepare_review_edit(window, cx);
@@ -1725,6 +1769,9 @@ impl ThreadsUi {
             .child(
                 "Give BRN information and a goal. Your notes, work and decisions stay connected.",
             );
+        if !self.settings.delegation_chosen {
+            home = home.child(self.working_knowledge(cx));
+        }
         let mut queue = panel().child(heading("Needs you"));
         let needs:Vec<_>=self.records.iter().filter(|r|!r.archived&&matches!(&r.data,RecordData::Thread(t) if t.state==ThreadState::Open&&!t.attention.is_empty())).collect();
         if needs.is_empty() {
@@ -2758,9 +2805,7 @@ impl ThreadsUi {
                             .on_click(cx.listener(|this, _, _, cx| this.configure(cx))),
                     ),
             );
-        view=view.child(panel().child(heading("Working knowledge")).child("Maintain ordinary notes and useful source references. Bring protected decisions, conflicts and new commitments to you.")
-            .child(Button::new("maintenance-setting").label(if self.settings.maintenance{"Pause maintenance"}else{"Enable maintenance"}).on_click(cx.listener(|this,_,_,cx|{match this.workspace.pause(this.settings.maintenance){Ok(outcome)=>this.notice=outcome_message(&outcome),Err(e)=>this.notice=e.to_string()};this.refresh();cx.notify();})))
-            .child(Button::new("review-first-setting").label(if self.settings.review_first{"Review changes first: on"}else{"Review changes first: off"}).on_click(cx.listener(|this,_,_,cx|{let mut settings=this.settings.clone();settings.review_first = !settings.review_first;match this.workspace.configure(settings){Ok(outcome)=>this.notice=outcome_message(&outcome),Err(e)=>this.notice=e.to_string()};this.refresh();cx.notify();}))));
+        view = view.child(self.working_knowledge(cx));
         view.child(panel().child(heading("Portable copies")).child("Markdown export is a current snapshot. A full backup includes notes, discussions, history, figures and recovery state.")
             .child(Button::new("export-now").label("Export Markdown now…").on_click(cx.listener(|this,_,window,cx|this.choose_output(false,window,cx))))
             .child(self.export_status.clone()).child(Button::new("backup-now").label("Create full backup…").on_click(cx.listener(|this,_,window,cx|this.choose_output(true,window,cx))))

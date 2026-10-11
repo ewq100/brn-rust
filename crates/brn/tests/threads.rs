@@ -24,6 +24,117 @@ fn root() -> tempfile::TempDir {
     tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap()
 }
 #[test]
+fn explicit_delegation_choices_survive_reopen_and_pause_without_implicit_consent() {
+    let root = root();
+    let data = root.path().join("delegation");
+    let initial = json_command(&data, &["init"]);
+    assert_eq!(initial["settings"]["delegation_chosen"], false);
+    assert_eq!(initial["settings"]["maintenance"], false);
+    assert_eq!(
+        json_command(&data, &["settings"])["delegation_chosen"],
+        false
+    );
+    let resume = command(&data, &["resume"]);
+    assert!(!resume.status.success());
+    assert!(String::from_utf8_lossy(&resume.stderr)
+        .to_lowercase()
+        .contains("choose"));
+    // Manual owner work and provider configuration do not choose delegation.
+    json_command(
+        &data,
+        &["note-create", "--title", "Manual", "--text", "Owner text"],
+    );
+    json_command(
+        &data,
+        &[
+            "configure",
+            "--provider",
+            "Copilot",
+            "--model",
+            "synthetic-model",
+            "--effort",
+            "low",
+        ],
+    );
+    assert_eq!(
+        json_command(&data, &["settings"])["delegation_chosen"],
+        false
+    );
+    assert_eq!(
+        json_command(&data, &["delegation", "--choice", "maintain"])["outcome"],
+        "Applied"
+    );
+    let selected = json_command(&data, &["settings"]);
+    assert_eq!(selected["delegation_chosen"], true);
+    assert_eq!(selected["maintenance"], true);
+    assert_eq!(selected["review_first"], false);
+    assert_eq!(selected["provider"], "Copilot");
+    assert_eq!(selected["model"], "synthetic-model");
+    assert_eq!(json_command(&data, &["pause"])["outcome"], "Applied");
+    let paused = json_command(&data, &["settings"]);
+    assert_eq!(paused["delegation_chosen"], true);
+    assert_eq!(paused["maintenance"], false);
+    assert_eq!(json_command(&data, &["resume"])["outcome"], "Applied");
+    assert_eq!(
+        json_command(&data, &["delegation", "--choice", "review-first"])["outcome"],
+        "Applied"
+    );
+    let reviewed = json_command(&data, &["settings"]);
+    assert_eq!(reviewed["delegation_chosen"], true);
+    assert_eq!(reviewed["maintenance"], true);
+    assert_eq!(reviewed["review_first"], true);
+    assert_eq!(reviewed["provider"], "Copilot");
+    assert_eq!(
+        json_command(&data, &["notes"])[0]["data"]["Note"]["markdown"],
+        "Owner text"
+    );
+    let other = root.path().join("review-first");
+    assert_eq!(
+        json_command(&other, &["delegation", "--choice", "review-first"])["outcome"],
+        "Applied"
+    );
+    assert_eq!(json_command(&other, &["settings"])["review_first"], true);
+}
+
+#[test]
+fn delegation_help_and_invalid_values_are_explicit_and_leave_data_unopened() {
+    let help = Command::new(env!("CARGO_BIN_EXE_brn"))
+        .arg("--help")
+        .output()
+        .unwrap();
+    assert!(help.status.success());
+    assert!(
+        String::from_utf8_lossy(&help.stdout).contains("delegation --choice maintain|review-first")
+    );
+    let root = root();
+    for (index, args) in [
+        vec!["delegation"],
+        vec!["delegation", "--choice", "automatic"],
+        vec!["delegation", "--choice", "Maintain"],
+        vec!["delegation", "--choice", "maintain", "--unexpected", "yes"],
+        vec![
+            "delegation",
+            "--choice",
+            "maintain",
+            "--choice",
+            "review-first",
+        ],
+    ]
+    .iter()
+    .enumerate()
+    {
+        let data = root.path().join(format!("invalid-{index}"));
+        let output = command(&data, args);
+        assert!(!output.status.success());
+        if index == 0 {
+            assert!(String::from_utf8_lossy(&output.stderr).contains("Missing --choice"));
+        } else if index < 3 {
+            assert!(String::from_utf8_lossy(&output.stderr).contains("maintain or review-first"));
+        }
+        assert!(!data.exists());
+    }
+}
+#[test]
 fn save_recovers_across_processes_replays_and_undo_keeps_later_edit() {
     let root = root();
     let data = root.path().join("data");
