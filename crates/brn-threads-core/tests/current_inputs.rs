@@ -102,6 +102,7 @@ fn fixture() -> (tempfile::TempDir, Store, String) {
                 maintenance: true,
                 review_first: false,
                 delegation_chosen: true,
+                backup_directory: None,
             }),
         }]),
     );

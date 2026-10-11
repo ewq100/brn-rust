@@ -212,6 +212,8 @@ pub struct WorkspaceSettings {
     pub review_first: bool,
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub delegation_chosen: bool,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub backup_directory: Option<String>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

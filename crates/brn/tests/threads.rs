@@ -362,3 +362,30 @@ fn missing_storage_refuses_init_and_reads_preserving_marker_and_recovery_evidenc
         );
     }
 }
+
+#[test]
+fn explicit_backup_inside_workspace_is_refused_and_next_open_preserves_records() {
+    let root = root();
+    let data = root.path().join("workspace");
+    json_command(&data, &["init"]);
+    json_command(
+        &data,
+        &[
+            "note-create",
+            "--title",
+            "Synthetic",
+            "--text",
+            "Preserved content",
+        ],
+    );
+    let notes = json_command(&data, &["notes"]);
+    let inside = data.join("backup.sqlite3");
+    let output = command(
+        &data,
+        &["backup", "--destination", inside.to_str().unwrap()],
+    );
+    assert!(!output.status.success());
+    assert!(String::from_utf8_lossy(&output.stderr).contains("outside the workspace"));
+    assert!(!inside.exists());
+    assert_eq!(json_command(&data, &["notes"]), notes);
+}

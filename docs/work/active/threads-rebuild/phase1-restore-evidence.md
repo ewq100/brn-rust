@@ -40,7 +40,7 @@ Independent reviewer reran core filters `restore` (14 tests), `existing` (4 test
 
 ## Integration gate
 
-Local candidate verified; required PR/main CI and merge pending. Owner authorization is already explicit. Native observation remains deferred. No release.
+PR [#119](https://github.com/ewq100/brn-rust/pull/119) merged at `aca1c28c8fe79030a7fce5360143a4beeb1d0cb1` after all four required checks passed in [PR run 38139154414](https://github.com/ewq100/brn-rust/actions/runs/38139154414). Local `bd48e20` and published head `2062f9d7fc197732d679149d500d9875fd86bb67` share tree `b76cb6fab167022835a74de8075b3d5906d1b494`. Main verification is recorded in [backup-folder evidence](phase1-backup-folder-evidence.md). Native observation remains deferred. No release.
 
 ## Limits
 

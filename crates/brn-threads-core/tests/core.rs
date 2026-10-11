@@ -22,6 +22,7 @@ fn delegated_store() -> (TempDir, Store) {
         maintenance: true,
         review_first: false,
         delegation_chosen: true,
+        backup_directory: None,
     };
     let req = request(vec![created(&op, 0, RecordData::Settings(settings))]);
     store.prepare_owner(&op, &req, &owner()).unwrap();
@@ -1624,6 +1625,7 @@ fn workspace_settings_are_owner_only_and_persist_maintenance_review_policy() {
         maintenance: false,
         review_first: false,
         delegation_chosen: true,
+        backup_directory: None,
     };
     let setup = store.allocate_operation("workspace configuration").unwrap();
     let req = request(vec![created(
@@ -1751,6 +1753,7 @@ fn paused_and_review_first_grants_require_exact_target_and_action() {
             maintenance: review_first,
             review_first,
             delegation_chosen: true,
+            backup_directory: None,
         };
         apply(
             &mut store,
@@ -1883,6 +1886,7 @@ fn enabled_maintenance_keeps_standing_ordinary_fallback_for_instruction_runs() {
                 maintenance: true,
                 review_first: false,
                 delegation_chosen: true,
+                backup_directory: None,
             }),
         )]),
         &owner(),
@@ -2047,6 +2051,7 @@ fn configuration_reads_and_fences_runs_at_the_actual_writer_boundary() {
         maintenance: true,
         review_first: false,
         delegation_chosen: true,
+        backup_directory: None,
     };
     let setup = store
         .allocate_operation("settings for shared configuration")
@@ -2308,6 +2313,7 @@ fn working_run_start_rechecks_current_selection_and_accepts_planned_settings_ove
         maintenance: true,
         review_first: false,
         delegation_chosen: true,
+        backup_directory: None,
     };
     let setup = store
         .allocate_operation("initial selection and thread")
@@ -2395,6 +2401,7 @@ fn configuration_replay_checks_immutable_payload_before_receipt() {
         maintenance: true,
         review_first: false,
         delegation_chosen: true,
+        backup_directory: None,
     };
     let seed = store.allocate_operation("settings replay seed").unwrap();
     apply(
@@ -2511,6 +2518,7 @@ fn runtime_settings_snapshot_covers_account_changes_and_provider_aliases() {
         maintenance: true,
         review_first: false,
         delegation_chosen: true,
+        backup_directory: None,
     };
     let setup = store
         .allocate_operation("runtime snapshot settings thread")
