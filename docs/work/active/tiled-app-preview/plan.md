@@ -41,12 +41,12 @@
 - [x] Independent read-only plan review before implementation.
 - [x] Independent full-diff code/packaging/security review after helpers finish. Fix supported findings and repeat affected checks.
 - [x] Run formatting/docs/tooling tests, default workspace checks as affected, native UI/widget and combined optional-feature checks. Build the actual optimized preview and validate package contents/startup against synthetic directories. Record exact commands/results and limits.
-- [ ] Publish PR and attach it. Wait for required CI on exact head, merge without bypass, confirm actual main tree and required main CI. Preserve visibility of unrelated platform failures.
-- [ ] Allow the approved release lane to publish only the intended preview; inspect release/assets/checksums and give the owner the download and PR links. If publication is blocked, preserve the verified local installable artifact and report the specific unmet gate rather than claiming release.
+- [x] Publish PR and attach it. Wait for required CI on exact head, merge without bypass, confirm actual main tree and required main CI. Preserve visibility of unrelated platform failures.
+- [x] Allow the approved release lane to publish only the intended preview; inspect release/assets/checksums and give the owner the download and PR links. If publication is blocked, preserve the verified local installable artifact and report the specific unmet gate rather than claiming release.
 
 ## Gate record
 
 - Defined: owner requested app-wide tiled presentation, PR and release with Sol 6.1 helpers. First preview scope stated while work continues; native observation remains deferred.
 - Plan review: approved by independent read-only GPT-6.1 Sol after adding a final exact-main/manifest check immediately before release publication.
-- Implementation and independent code review: complete. Local workspace/native/combined/tooling checks pass; [evidence](evidence.md) records commands and limits. Exact stamped package qualification passed; PR #123 is published. CI integration and publication receipts follow on the PR/release.
+- Implementation and independent code review: complete. Local workspace/native/combined/tooling checks pass; [evidence](evidence.md) records commands and limits. Exact stamped package qualification passed; PR #123 merged after required PR/main checks and `v0.1.0-preview.1` published. Public-download receipts are recorded in [evidence](evidence.md). A reviewed release-tool-only draft retry correction follows in PR #124; its CI/integration receipts remain on that PR.
 - Native and live-provider acceptance: not newly performed; preview limitations must remain explicit.
