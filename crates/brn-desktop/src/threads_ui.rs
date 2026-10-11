@@ -13,8 +13,8 @@ use gpui_kit::{
         TextViewState, markdown_ast::Node,
     },
     component::{
-        Root, TitleBar,
-        button::Button,
+        Root, Theme, TitleBar,
+        button::{Button, ButtonRounded},
         input::{Editor, EditorState, Input, InputEvent, InputState},
     },
     div, point,
@@ -56,6 +56,10 @@ mod steering_tests;
 #[cfg(all(test, feature = "native-test-support"))]
 #[path = "threads_writing_tests.rs"]
 mod writing_tests;
+
+#[cfg(all(test, feature = "native-test-support"))]
+#[path = "threads_tiled_tests.rs"]
+mod tiled_tests;
 
 #[cfg(all(test, feature = "native-test-support"))]
 mod search_tests {
@@ -256,20 +260,117 @@ fn markdown(view: &Entity<TextViewState>, assets: Arc<BTreeMap<String, Arc<Image
             cx.stop_propagation();
         })
 }
+// Presentation is shared by every page. Toolkit controls keep their focus,
+// selected and disabled behavior; prose retains the normal system font.
+const PAPER: u32 = 0xf7f5ee;
+const TILE: u32 = 0xfffdf7;
+const GREEN: u32 = 0xf1f5ed;
+const BORDER: u32 = 0x9cad91;
+const INK: u32 = 0x283526;
+const MUTED: u32 = 0x56634f;
+const ACCENT: u32 = 0x416438;
+
+fn tiled_theme(cx: &mut App) {
+    Theme::update(cx, |theme| {
+        theme.radius = px(0.);
+        theme.radius_lg = px(0.);
+        theme.shadow = false;
+        let colors = &mut theme.colors;
+        colors.background = rgb(TILE).into();
+        colors.foreground = rgb(INK).into();
+        colors.border = rgb(BORDER).into();
+        colors.input = rgb(BORDER).into();
+        colors.button = rgb(TILE).into();
+        colors.button_foreground = rgb(INK).into();
+        colors.button_hover = rgb(0xe6eddc).into();
+        colors.button_active = rgb(0xd8e3cc).into();
+        colors.primary = rgb(ACCENT).into();
+        colors.primary_foreground = rgb(TILE).into();
+        colors.primary_hover = rgb(0x36572f).into();
+        colors.primary_active = rgb(0x2d4b27).into();
+        colors.button_primary = colors.primary;
+        colors.button_primary_foreground = colors.primary_foreground;
+        colors.button_primary_hover = colors.primary_hover;
+        colors.button_primary_active = colors.primary_active;
+        colors.accent = rgb(0xe0e9d5).into();
+        colors.accent_foreground = rgb(INK).into();
+        colors.muted = rgb(GREEN).into();
+        colors.muted_foreground = rgb(MUTED).into();
+        colors.ring = rgb(ACCENT).into();
+        colors.caret = rgb(ACCENT).into();
+        colors.selection = rgb(0xdce8cd).into();
+        colors.link = rgb(ACCENT).into();
+        colors.link_hover = rgb(0x36572f).into();
+        colors.link_active = rgb(0x2d4b27).into();
+        colors.popover = rgb(TILE).into();
+        colors.popover_foreground = rgb(INK).into();
+        colors.title_bar = rgb(GREEN).into();
+        colors.title_bar_border = rgb(BORDER).into();
+        colors.window_border = rgb(BORDER).into();
+        colors.scrollbar = rgb(PAPER).into();
+        colors.sidebar = rgb(GREEN).into();
+        colors.sidebar_foreground = rgb(INK).into();
+        colors.sidebar_border = rgb(BORDER).into();
+        colors.scrollbar_thumb = rgb(BORDER).into();
+        colors.scrollbar_thumb_hover = rgb(MUTED).into();
+    });
+}
+fn button(id: impl Into<gpui_kit::ElementId>) -> Button {
+    Button::new(id)
+        .rounded(ButtonRounded::None)
+        .font_family("Menlo")
+        .text_sm()
+}
+fn prose_editor(state: &Entity<EditorState>) -> Editor {
+    Editor::new(state).font_family(".SystemUIFont").text_base()
+}
 fn panel() -> gpui_kit::Div {
     div()
         .flex()
         .flex_col()
+        .gap_2()
+        .p_3()
+        .min_w_0()
+        .border_1()
+        .border_color(rgb(BORDER))
+        .bg(rgb(TILE))
+}
+fn pane() -> gpui_kit::Div {
+    div().flex().flex_col().min_w_0().min_h_0().bg(rgb(PAPER))
+}
+fn screen(
+    id: &'static str,
+    label: &'static str,
+) -> gpui_kit::base::ObservedElement<gpui_kit::Stateful<gpui_kit::Div>> {
+    pane()
+        .id(id)
+        .test_support()
+        .h_full()
+        .w_full()
+        .overflow_y_scroll()
         .gap_3()
         .p_4()
-        .rounded_md()
-        .bg(rgb(0xf3f5f7))
+        .child(heading(label))
 }
 fn heading(text: impl Into<gpui_kit::SharedString>) -> gpui_kit::Div {
     div()
-        .text_lg()
+        .font_family("Menlo")
+        .text_sm()
+        .text_color(rgb(ACCENT))
         .font_weight(gpui_kit::FontWeight::SEMIBOLD)
         .child(text.into())
+}
+fn metadata(text: impl Into<gpui_kit::SharedString>) -> gpui_kit::Div {
+    div().text_sm().text_color(rgb(MUTED)).child(text.into())
+}
+fn empty(
+    id: &'static str,
+    text: &'static str,
+) -> gpui_kit::base::ObservedElement<gpui_kit::Stateful<gpui_kit::Div>> {
+    metadata(text).id(id).aria_label(text).test_support()
+}
+fn tile_slot(tile: impl IntoElement) -> gpui_kit::Div {
+    div().flex_1().min_w(px(280.)).child(tile)
 }
 fn title(record: &Record) -> String {
     match &record.data {
@@ -344,6 +445,7 @@ impl ThreadsUi {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) -> Self {
+        tiled_theme(cx);
         let settings = workspace
             .settings()
             .expect("workspace settings were checked before opening the window");
@@ -861,36 +963,34 @@ impl ThreadsUi {
                     .flex_col()
                     .gap_3()
                     .child(Input::new(&input))
-                    .child(
-                        Button::new("create-named-note")
-                            .label("Create note")
-                            .on_click(move |_, window, cx| {
-                                let name = input.read(cx).value().to_string();
-                                if name.trim().is_empty() {
-                                    return;
-                                }
-                                let mut created = false;
-                                let _ = target.update(cx, |this, cx| {
-                                    match this.workspace.new_note(name.trim(), "") {
-                                        Ok(record) => {
-                                            this.open_note(&record.id, None, window, cx);
-                                            if let Some(note) = &mut this.note {
-                                                note.editing = true;
-                                            }
-                                            created = true;
+                    .child(button("create-named-note").label("Create note").on_click(
+                        move |_, window, cx| {
+                            let name = input.read(cx).value().to_string();
+                            if name.trim().is_empty() {
+                                return;
+                            }
+                            let mut created = false;
+                            let _ = target.update(cx, |this, cx| {
+                                match this.workspace.new_note(name.trim(), "") {
+                                    Ok(record) => {
+                                        this.open_note(&record.id, None, window, cx);
+                                        if let Some(note) = &mut this.note {
+                                            note.editing = true;
                                         }
-                                        Err(e) => this.notice = e.to_string(),
+                                        created = true;
                                     }
-                                    cx.notify();
-                                });
-                                if created {
-                                    window.close_dialog(cx);
-                                    let _ = target.update(cx, |this, cx| {
-                                        this.focus_visible_editor(window, cx);
-                                    });
+                                    Err(e) => this.notice = e.to_string(),
                                 }
-                            }),
-                    ),
+                                cx.notify();
+                            });
+                            if created {
+                                window.close_dialog(cx);
+                                let _ = target.update(cx, |this, cx| {
+                                    this.focus_visible_editor(window, cx);
+                                });
+                            }
+                        },
+                    )),
             )
         });
     }
@@ -2118,17 +2218,17 @@ impl ThreadsUi {
             .child(heading("Working knowledge"))
             .child(div().id("delegation-status").aria_label(status).child(status).test_support())
             .child("Maintain ordinary notes lets BRN update ordinary notes and useful source references. Review changes first keeps proposed changes for your approval. Protected notes still need an applicable instruction or your review.")
-            .child(Button::new("delegation-maintain")
+            .child(button("delegation-maintain")
                 .label("Maintain ordinary notes")
                 .selected(self.settings.delegation_chosen && !self.settings.review_first)
                 .on_click(cx.listener(|this, _, _, cx| this.choose_delegation(DelegationChoice::MaintainOrdinaryNotes, cx))))
-            .child(Button::new("delegation-review-first")
+            .child(button("delegation-review-first")
                 .label("Review changes first")
                 .selected(self.settings.delegation_chosen && self.settings.review_first)
                 .on_click(cx.listener(|this, _, _, cx| this.choose_delegation(DelegationChoice::ReviewFirst, cx))));
         if self.settings.delegation_chosen {
             knowledge = knowledge.child(
-                Button::new("maintenance-setting")
+                button("maintenance-setting")
                     .label(if self.settings.maintenance {
                         "Pause maintenance"
                     } else {
@@ -2211,18 +2311,12 @@ impl ThreadsUi {
         cx.notify();
     }
     fn sidebar(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
-        let mut rail = div()
-            .w(px(245.))
-            .flex_shrink_0()
-            .h_full()
-            .flex()
-            .flex_col()
-            .gap_2()
-            .p_3()
-            .bg(rgb(0xe8edf1))
+        let navigation = panel()
+            .id("workspace-nav")
+            .test_support()
             .child(heading("BRN Threads"))
             .child(
-                Button::new("home")
+                button("home")
                     .label("Home")
                     .selected(self.page == Page::Home)
                     .on_click(
@@ -2230,7 +2324,7 @@ impl ThreadsUi {
                     ),
             )
             .child(
-                Button::new("actions")
+                button("actions")
                     .label("Actions")
                     .selected(self.page == Page::Actions)
                     .on_click(
@@ -2238,7 +2332,7 @@ impl ThreadsUi {
                     ),
             )
             .child(
-                Button::new("history")
+                button("history")
                     .label("What changed")
                     .selected(self.page == Page::History)
                     .on_click(
@@ -2246,7 +2340,7 @@ impl ThreadsUi {
                     ),
             )
             .child(
-                Button::new("settings")
+                button("settings")
                     .label("Settings")
                     .selected(self.page == Page::Settings)
                     .on_click(
@@ -2254,8 +2348,24 @@ impl ThreadsUi {
                             this.navigate(Page::Settings, window, cx)
                         }),
                     ),
-            )
-            .child(Input::new(&self.search).w_full());
+            );
+
+        let mut rail = pane()
+            .id("workspace-rail")
+            .w(px(245.))
+            .flex_shrink_0()
+            .h_full()
+            .gap_2()
+            .p_2()
+            .bg(rgb(GREEN))
+            .border_r_1()
+            .border_color(rgb(BORDER))
+            .child(navigation)
+            .child(
+                panel()
+                    .child(heading("Search notes"))
+                    .child(Input::new(&self.search).w_full()),
+            );
         let mut list = div()
             .id("workspace-list")
             .flex_1()
@@ -2265,27 +2375,45 @@ impl ThreadsUi {
             .flex_col()
             .gap_2();
         if !self.search.read(cx).value().trim().is_empty() {
-            list = list.child(heading("Current results"));
+            list = list.child(
+                panel()
+                    .id("search-results")
+                    .test_support()
+                    .child(heading("Current results"))
+                    .child(metadata(format!(
+                        "{} matches in current notes",
+                        self.hits.len()
+                    ))),
+            );
             for (i, hit) in self.hits.iter().enumerate() {
                 let id = hit.note.clone();
                 let start = hit.start;
                 let end = hit.end;
-                list = list
-                    .child(
-                        Button::new(format!("hit-{i}"))
-                            .label(short(&hit.title))
-                            .on_click(cx.listener(move |this, _, window, cx| {
-                                this.open_note(&id, None, window, cx);
-                                this.reveal(start..end, window, cx);
-                            })),
-                    )
-                    .child(div().text_sm().child(short(&hit.quote)));
+                list = list.child(
+                    panel()
+                        .child(
+                            button(format!("hit-{i}"))
+                                .label(short(&hit.title))
+                                .on_click(cx.listener(move |this, _, window, cx| {
+                                    this.open_note(&id, None, window, cx);
+                                    this.reveal(start..end, window, cx);
+                                })),
+                        )
+                        .child(metadata(hit.quote.clone())),
+                );
             }
             if self.hits.is_empty() {
-                list = list.child("No current notes match.");
+                list = list.child(panel().child(empty("search-empty", "No current notes match. Try another word or clear search to browse your workspace.")));
             }
         } else {
             list = list.child(heading("Threads"));
+            if !self
+                .records
+                .iter()
+                .any(|r| !r.archived && matches!(r.data, RecordData::Thread(_)))
+            {
+                list = list.child(empty("threads-empty", "Your discussions will appear here."));
+            }
             for record in self
                 .records
                 .iter()
@@ -2306,7 +2434,7 @@ impl ThreadsUi {
                     short(&thread.title)
                 );
                 list = list.child(
-                    Button::new(format!("thread-{id}"))
+                    button(format!("thread-{id}"))
                         .label(label)
                         .selected(self.page == Page::Thread(id.clone()))
                         .on_click(cx.listener(move |this, _, window, cx| {
@@ -2315,7 +2443,7 @@ impl ThreadsUi {
                 );
             }
             list = list.child(heading("Notes")).child(
-                Button::new("new-note")
+                button("new-note")
                     .label("New note")
                     .on_click(cx.listener(|this, _, window, cx| this.new_note(window, cx))),
             );
@@ -2324,7 +2452,7 @@ impl ThreadsUi {
             }) {
                 let id = record.id.clone();
                 list = list.child(
-                    Button::new(format!("note-{id}"))
+                    button(format!("note-{id}"))
                         .label(short(&title(record)))
                         .selected(self.page == Page::Note(id.clone()))
                         .on_click(cx.listener(move |this, _, window, cx| {
@@ -2333,22 +2461,26 @@ impl ThreadsUi {
                 );
             }
         }
-        rail = rail
-            .child(list)
-            .child(
-                Button::new("useful-import")
-                    .label("Add useful information…")
-                    .on_click(cx.listener(|this, _, window, cx| {
-                        this.choose_import(ImportIntent::UsefulInformation, window, cx)
-                    })),
-            )
-            .child(
-                Button::new("full-import")
-                    .label("Import full note…")
-                    .on_click(cx.listener(|this, _, window, cx| {
-                        this.choose_import(ImportIntent::FullNote, window, cx)
-                    })),
-            );
+        rail = rail.child(list).child(
+            panel()
+                .id("workspace-import")
+                .test_support()
+                .child(heading("Add information"))
+                .child(
+                    button("useful-import")
+                        .label("Add useful information…")
+                        .on_click(cx.listener(|this, _, window, cx| {
+                            this.choose_import(ImportIntent::UsefulInformation, window, cx)
+                        })),
+                )
+                .child(
+                    button("full-import")
+                        .label("Import full note…")
+                        .on_click(cx.listener(|this, _, window, cx| {
+                            this.choose_import(ImportIntent::FullNote, window, cx)
+                        })),
+                ),
+        );
         rail.into_any_element()
     }
     fn reveal(
@@ -2377,34 +2509,32 @@ impl ThreadsUi {
         cx.notify();
     }
     fn home_view(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
-        let mut home = div()
-            .id("home-content")
-            .h_full()
-            .w_full()
-            .overflow_y_scroll()
-            .flex()
-            .flex_col()
-            .gap_4()
-            .p_5()
-            .child(heading("Home"))
-            .child(
-                "Give BRN information and a goal. Your notes, work and decisions stay connected.",
-            );
+        let mut home = screen("home-content", "Home")
+            .child(panel().child(heading("Your working knowledge"))
+                .child("Give BRN information and a goal. Your notes, work and decisions stay connected.")
+                .child(metadata("Ask or delegate below, open a note, or add information from the navigation rail.")));
         if !self.settings.delegation_chosen {
             home = home.child(self.working_knowledge(cx));
         }
-        let mut queue = panel().child(heading("Needs you"));
+        let mut tiles = div().flex().flex_wrap().gap_3().items_start();
+        let mut queue = panel()
+            .id("home-needs-you")
+            .test_support()
+            .child(heading("Needs you"));
         let needs:Vec<_>=self.records.iter().filter(|r|!r.archived&&matches!(&r.data,RecordData::Thread(t) if t.state==ThreadState::Open&&!t.attention.is_empty())).collect();
         if needs.is_empty() {
-            queue = queue.child("Nothing needs your decision right now.");
+            queue = queue.child(empty(
+                "home-attention-empty",
+                "Nothing needs your decision right now.",
+            ));
         }
         for record in needs {
             let id = record.id.clone();
             let RecordData::Thread(thread) = &record.data else {
                 continue;
             };
-            let mut item = div().flex().flex_col().gap_1().child(
-                Button::new(format!("attention-{id}"))
+            let mut item = panel().bg(rgb(GREEN)).child(
+                button(format!("attention-{id}"))
                     .label(short(&thread.title))
                     .on_click(cx.listener(move |this, _, window, cx| {
                         this.navigate(Page::Thread(id.clone()), window, cx)
@@ -2415,7 +2545,7 @@ impl ThreadsUi {
             }
             queue = queue.child(item);
         }
-        home = home.child(queue);
+        tiles = tiles.child(tile_slot(queue));
         if !self.buffers.is_empty() {
             let mut recovery = panel().child(heading("Recover your edits")).child(
                 "These edits remain separate from current notes until you Save or discard them.",
@@ -2430,37 +2560,87 @@ impl ThreadsUi {
                     .map(title)
                     .unwrap_or_else(|| "Unavailable note".into());
                 recovery = recovery.child(
-                    Button::new(format!("recover-{i}"))
+                    button(format!("recover-{i}"))
                         .label(format!("Recover {}", short(&label)))
                         .on_click(cx.listener(move |this, _, window, cx| {
                             this.open_note(&id, Some(buffer.clone()), window, cx)
                         })),
                 );
             }
-            home = home.child(recovery);
+            tiles = tiles.child(tile_slot(recovery));
         }
         if !self.candidates.is_empty() {
             let mut review = panel().child(heading("Review changes"));
             for candidate in &self.candidates {
                 let candidate = candidate.clone();
                 review = review.child(
-                    Button::new(format!("candidate-{}", candidate.operation.as_str()))
+                    button(format!("candidate-{}", candidate.operation.as_str()))
                         .label(short(&candidate.request.reason))
                         .on_click(cx.listener(move |this, _, window, cx| {
                             this.open_review(candidate.clone(), window, cx)
                         })),
                 );
             }
-            home = home.child(review);
+            tiles = tiles.child(tile_slot(review));
         }
-        let mut recent = panel().child(heading("What changed"));
+        let notes: Vec<_> = self
+            .records
+            .iter()
+            .filter(|r| {
+                !r.archived && matches!(&r.data, RecordData::Note(n) if n.superseded_by.is_none())
+            })
+            .collect();
+        let mut note_tile = panel()
+            .id("home-notes")
+            .test_support()
+            .child(heading("Notes"))
+            .child(metadata(format!("{} current notes", notes.len())));
+        if notes.is_empty() {
+            note_tile = note_tile.child(empty(
+                "home-notes-empty",
+                "Create a note or import information to begin.",
+            ));
+        }
+        for record in notes.into_iter().take(6) {
+            let id = record.id.clone();
+            note_tile = note_tile.child(
+                button(format!("home-note-{id}"))
+                    .label(short(&title(record)))
+                    .on_click(cx.listener(move |this, _, window, cx| {
+                        this.open_note(&id, None, window, cx)
+                    })),
+            );
+        }
+        tiles = tiles.child(tile_slot(note_tile));
+        let mut recent = panel()
+            .id("home-recent-changes")
+            .test_support()
+            .child(heading("What changed"));
         for receipt in self.history.iter().rev().take(6) {
-            recent = recent.child(format!("{} · {}", receipt.committed_at, receipt.reason));
+            recent = recent.child(
+                div()
+                    .flex()
+                    .flex_col()
+                    .gap_1()
+                    .child(receipt.reason.clone())
+                    .child(metadata(receipt.committed_at.clone())),
+            );
         }
         if self.history.is_empty() {
-            recent = recent.child("Your meaningful changes will appear here.");
+            recent = recent.child(empty(
+                "home-changes-empty",
+                "Your meaningful changes will appear here.",
+            ));
         }
-        home.child(recent).into_any_element()
+        recent = recent.child(
+            button("home-open-history")
+                .label("Open history and Undo")
+                .on_click(
+                    cx.listener(|this, _, window, cx| this.navigate(Page::History, window, cx)),
+                ),
+        );
+        home.child(tiles.child(tile_slot(recent)))
+            .into_any_element()
     }
     fn safe_message(&self, id: String, text: String) -> TextView {
         let assets = self.assets.clone();
@@ -2491,7 +2671,16 @@ impl ThreadsUi {
             return div().into_any_element();
         };
         let mut row = panel()
-            .child(heading(short(&action.description)))
+            .id(format!("action-tile-{}", record.id))
+            .test_support()
+            .child(
+                div()
+                    .id(format!("action-description-{}", record.id))
+                    .aria_label(action.description.clone())
+                    .font_weight(gpui_kit::FontWeight::SEMIBOLD)
+                    .child(action.description.clone())
+                    .test_support(),
+            )
             .child(format!(
                 "{:?}{}",
                 action.state,
@@ -2524,7 +2713,7 @@ impl ThreadsUi {
                     .flex_wrap()
                     .gap_2()
                     .child(
-                        Button::new(format!("open-action-{}", record.id))
+                        button(format!("open-action-{}", record.id))
                             .label(if action.state == ActionState::Suggested {
                                 "Accept action"
                             } else {
@@ -2540,7 +2729,7 @@ impl ThreadsUi {
                             })),
                     )
                     .child(
-                        Button::new(format!("wait-action-{}", record.id))
+                        button(format!("wait-action-{}", record.id))
                             .label("Waiting")
                             .on_click(cx.listener(move |this, _, _, cx| {
                                 this.change(
@@ -2552,7 +2741,7 @@ impl ThreadsUi {
                             })),
                     )
                     .child(
-                        Button::new(format!("done-action-{}", record.id))
+                        button(format!("done-action-{}", record.id))
                             .label("Confirm done")
                             .on_click(cx.listener(move |this, _, _, cx| {
                                 this.change(
@@ -2564,7 +2753,7 @@ impl ThreadsUi {
                             })),
                     )
                     .child(
-                        Button::new(format!("cancel-action-{}", record.id))
+                        button(format!("cancel-action-{}", record.id))
                             .label("Cancel action")
                             .on_click(cx.listener(move |this, _, _, cx| {
                                 this.change(
@@ -2579,22 +2768,71 @@ impl ThreadsUi {
         }
         row.into_any_element()
     }
-    fn thread_view(&self, id: &str, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
-        self.thread_surface(id, false, cx)
+    fn actions_view(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
+        let mut view = screen("actions-content", "Actions").child(metadata(
+            "Actions keep their own progress, including after a discussion is resolved.",
+        ));
+        if !self
+            .records
+            .iter()
+            .any(|r| !r.archived && matches!(r.data, RecordData::Action(_)))
+        {
+            view = view.child(panel().child(empty(
+                "actions-empty",
+                "No actions yet. Suggested work and tasks you assign will appear here.",
+            )));
+        }
+        for (status, key, label) in [
+            (ActionState::Suggested, "suggested", "Suggested"),
+            (ActionState::Open, "open", "Open"),
+            (ActionState::Waiting, "waiting", "Waiting"),
+            (ActionState::Done, "done", "Done"),
+            (ActionState::Cancelled, "cancelled", "Cancelled"),
+        ] {
+            let records: Vec<_> = self
+                .records
+                .iter()
+                .filter(|r| {
+                    !r.archived && matches!(&r.data, RecordData::Action(a) if a.state == status)
+                })
+                .collect();
+            let mut group = panel()
+                .id(format!("actions-group-{key}"))
+                .test_support()
+                .bg(rgb(GREEN))
+                .child(heading(format!("{label} · {}", records.len())));
+            if records.is_empty() {
+                group = group.child(metadata(format!("No {} actions.", label.to_lowercase())));
+            }
+            for record in records {
+                group = group.child(self.action_row(record, cx));
+            }
+            view = view.child(group);
+        }
+        view.into_any_element()
+    }
+    fn thread_view(&self, id: &str, narrow: bool, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
+        self.thread_surface(id, false, narrow, cx)
     }
     fn thread_surface(
         &self,
         id: &str,
         embedded: bool,
+        narrow: bool,
         cx: &mut Context<Self>,
     ) -> gpui_kit::AnyElement {
         let Some(record) = self.records.iter().find(|r| r.id == id) else {
-            return div().child("Thread unavailable.").into_any_element();
+            return panel()
+                .child(empty(
+                    "thread-unavailable",
+                    "This discussion is unavailable. Open another discussion from your workspace.",
+                ))
+                .into_any_element();
         };
         let RecordData::Thread(thread) = &record.data else {
             return div().into_any_element();
         };
-        let mut conversation = div()
+        let mut conversation = pane()
             .id("thread-conversation")
             .test_support()
             .flex_1()
@@ -2605,11 +2843,11 @@ impl ThreadsUi {
             .flex_col()
             .gap_4()
             .p_5()
-            .child(heading(thread.title.clone()));
+            .child(panel().child(heading(thread.title.clone())));
         let thread_id = id.to_owned();
         if thread.state == ThreadState::Open {
             conversation = conversation.child(
-                Button::new("resolve-discussion")
+                button("resolve-discussion")
                     .label("Resolve discussion")
                     .on_click(cx.listener(move |this, _, _, cx| {
                         this.resolve_discussion(&thread_id, cx);
@@ -2628,7 +2866,7 @@ impl ThreadsUi {
             {
                 let candidate = candidate.clone();
                 item = item.child(
-                    Button::new(format!("thread-review-{}", candidate.operation.as_str()))
+                    button(format!("thread-review-{}", candidate.operation.as_str()))
                         .label("Review this change")
                         .on_click(cx.listener(move |this, _, window, cx| {
                             this.open_review(candidate.clone(), window, cx)
@@ -2663,7 +2901,7 @@ impl ThreadsUi {
                 if let Some(note) = note {
                     let id = note.id.clone();
                     context = context.child(
-                        Button::new(format!("comment-note-{}", record.id))
+                        button(format!("comment-note-{}", record.id))
                             .label(format!("Open {}", short(&title(note))))
                             .on_click(cx.listener(move |this, _, window, cx| {
                                 this.open_note(&id, None, window, cx)
@@ -2733,7 +2971,7 @@ impl ThreadsUi {
                         |run| continuation_notice(&run.state),
                     ))
                     .child(
-                        Button::new(format!(
+                        button(format!(
                             "continue-{}",
                             latest.map_or(id, |record| record.id.as_str())
                         ))
@@ -2747,9 +2985,11 @@ impl ThreadsUi {
         if embedded {
             return conversation.into_any_element();
         }
-        let mut context = div()
+        let mut context = pane()
             .id("thread-linked-work")
+            .test_support()
             .w(px(320.))
+            .when(narrow, |view| view.w_full())
             .flex_shrink_0()
             .h_full()
             .overflow_y_scroll()
@@ -2757,7 +2997,9 @@ impl ThreadsUi {
             .flex_col()
             .gap_3()
             .p_4()
-            .bg(rgb(0xf3f5f7))
+            .bg(rgb(GREEN))
+            .border_1()
+            .border_color(rgb(BORDER))
             .child(heading("Linked work"));
         for record in self
             .records
@@ -2782,7 +3024,7 @@ impl ThreadsUi {
                             ),
                     );
                     context = context.child(
-                        Button::new(format!("linked-note-{id}"))
+                        button(format!("linked-note-{id}"))
                             .label(short(&note.title))
                             .on_click(cx.listener(move |this, _, window, cx| {
                                 this.open_note(&id, None, window, cx)
@@ -2812,7 +3054,7 @@ impl ThreadsUi {
                                     .unwrap_or_else(|| source.gaps.clone()),
                             )
                             .child(
-                                Button::new(format!("open-source-{}", record.id))
+                                button(format!("open-source-{}", record.id))
                                     .label("Open source")
                                     .on_click(move |_, _, cx| {
                                         if std::path::Path::new(&open_locator).is_absolute() {
@@ -2828,7 +3070,7 @@ impl ThreadsUi {
                                     }),
                             )
                             .child(
-                                Button::new(format!("copy-source-{}", record.id))
+                                button(format!("copy-source-{}", record.id))
                                     .label("Copy source reference")
                                     .on_click(move |_, _, cx| {
                                         cx.write_to_clipboard(gpui_kit::ClipboardItem::new_string(
@@ -2845,25 +3087,36 @@ impl ThreadsUi {
             context =
                 context.child("Notes, sources and Actions used in this discussion appear here.");
         }
-        div()
+        let mut workspace = div()
+            .id("thread-workspace")
+            .test_support()
             .flex()
             .h_full()
             .w_full()
+            .min_w_0();
+        if narrow {
+            workspace = workspace.flex_col().overflow_y_scroll();
+            conversation = conversation.flex_none().h(px(480.)).flex_shrink_0();
+            context = context.h_auto().flex_shrink_0();
+        }
+        workspace
             .child(conversation)
             .child(context)
             .into_any_element()
     }
     fn note_view(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         let Some(open) = &self.note else {
-            return div().child("Choose a note.").into_any_element();
+            return panel()
+                .child(empty("note-empty", "Choose a note from your workspace."))
+                .into_any_element();
         };
         let RecordData::Note(note) = &open.record.data else {
             return div().into_any_element();
         };
-        let mut controls = div()
-            .flex()
+        let mut controls = panel()
+            .flex_row()
             .flex_wrap()
-            .gap_2()
+            .bg(rgb(GREEN))
             .items_center()
             .child(heading(note.title.clone()))
             .child(if note.protected {
@@ -2873,7 +3126,7 @@ impl ThreadsUi {
             })
             .child(if note.confirmed { "Confirmed" } else { "" })
             .child(
-                Button::new("toggle-edit")
+                button("toggle-edit")
                     .label(if open.editing { "Read" } else { "Edit" })
                     .disabled(
                         open.session.is_none()
@@ -2882,13 +3135,13 @@ impl ThreadsUi {
                     .on_click(cx.listener(|this, _, window, cx| this.toggle_note_edit(window, cx))),
             )
             .child(
-                Button::new("save-note")
+                button("save-note")
                     .label("Save")
                     .disabled(open.session.is_none())
                     .on_click(cx.listener(|this, _, window, cx| this.save(window, cx))),
             )
             .child(
-                Button::new("reload-note")
+                button("reload-note")
                     .label("Reload saved note")
                     .disabled(open.session.is_some())
                     .on_click(cx.listener(|this, _, window, cx| {
@@ -2899,13 +3152,13 @@ impl ThreadsUi {
                     })),
             )
             .child(
-                Button::new("discard-note")
+                button("discard-note")
                     .label("Discard edit")
                     .disabled(open.session.is_none())
                     .on_click(cx.listener(|this, _, window, cx| this.discard(window, cx))),
             )
             .child(
-                Button::new("comment-passage")
+                button("comment-passage")
                     .label("Comment on selection")
                     .disabled(open.session.is_some())
                     .on_click(cx.listener(|this, _, window, cx| this.capture_comment(window, cx))),
@@ -2915,7 +3168,7 @@ impl ThreadsUi {
             let mut protected = note.clone();
             protected.protected = !protected.protected;
             controls = controls.child(
-                Button::new("protect-note")
+                button("protect-note")
                     .label(if note.protected {
                         "Make working note"
                     } else {
@@ -2932,7 +3185,9 @@ impl ThreadsUi {
                     })),
             );
         }
-        let mut content = div()
+        let mut content = pane()
+            .border_1()
+            .border_color(rgb(BORDER))
             .h_full()
             .w_full()
             .flex()
@@ -2950,7 +3205,7 @@ impl ThreadsUi {
                         "This note has a newer saved version. Your visible text remains preserved.",
                     )
                     .child(
-                        Button::new("show-current-note")
+                        button("show-current-note")
                             .label("Open current saved note")
                             .on_click(cx.listener(move |this, _, window, cx| {
                                 this.open_note(&id, None, window, cx)
@@ -2967,7 +3222,7 @@ impl ThreadsUi {
                 panel()
                     .child("A recoverable edit exists for this note.")
                     .child(
-                        Button::new("recover-note-edit")
+                        button("recover-note-edit")
                             .label("Recover saved edit")
                             .on_click(cx.listener(move |this, _, window, cx| {
                                 this.open_note(&id, Some(buffer.clone()), window, cx)
@@ -2981,7 +3236,7 @@ impl ThreadsUi {
             {
                 let locator = source.locator.clone();
                 content = content.child(
-                    Button::new("open-import-original")
+                    button("open-import-original")
                         .label("Open external source")
                         .on_click(move |_, _, cx| {
                             if std::path::Path::new(&locator).is_absolute() {
@@ -3040,8 +3295,8 @@ impl ThreadsUi {
                         .flex_col()
                         .gap_1()
                         .border_1()
-                        .border_color(rgb(0xdce2e8))
-                        .rounded_md()
+                        .border_color(rgb(BORDER))
+                        .bg(rgb(GREEN))
                         .p_2()
                         .child(
                             div()
@@ -3063,7 +3318,7 @@ impl ThreadsUi {
         if let Some(session) = &open.session {
             content=content.child("Unsaved edit · recoverable from Home. Changes to this note wait until this edit is finished.");
             content = content.child(
-                Button::new("save-buffer-copy")
+                button("save-buffer-copy")
                     .label("Save text as a new note")
                     .on_click(cx.listener(|this, _, window, cx| this.save_copy(window, cx))),
             );
@@ -3079,7 +3334,7 @@ impl ThreadsUi {
         let mut nav = div().flex().flex_wrap().gap_2();
         for (i, (title, range)) in sections(&text).into_iter().enumerate() {
             nav = nav.child(
-                Button::new(format!("section-{i}"))
+                button(format!("section-{i}"))
                     .label(short(
                         title
                             .strip_prefix("**")
@@ -3094,7 +3349,7 @@ impl ThreadsUi {
         }
         content = content.child(nav);
         let editor = if open.editing {
-            Editor::new(&self.note_editor)
+            prose_editor(&self.note_editor)
                 .h_full()
                 .aria_label("Note Markdown editor")
                 .into_any_element()
@@ -3132,13 +3387,13 @@ impl ThreadsUi {
             .flex()
             .flex_wrap()
             .gap_1()
-            .child(div().font_family("Menlo").text_sm().child("DOCUMENT CHAT"));
+            .child(heading("DOCUMENT CHAT"));
         if let Ok(linked) = self.workspace.writing_threads(&note_id) {
             for record in linked {
                 let thread = record.id.clone();
                 let note = note_id.clone();
                 threads = threads.child(
-                    Button::new(format!("writing-thread-{thread}"))
+                    button(format!("writing-thread-{thread}"))
                         .label(short(&title(&record)))
                         .selected(selected == Some(&thread))
                         .on_click(cx.listener(move |this, _, window, cx| {
@@ -3148,7 +3403,7 @@ impl ThreadsUi {
             }
         }
         threads = threads.child(
-            Button::new("new-writing-chat")
+            button("new-writing-chat")
                 .label("New chat")
                 .on_click(cx.listener(|this, _, window, cx| this.new_writing_thread(window, cx))),
         );
@@ -3168,13 +3423,13 @@ impl ThreadsUi {
                     .child(format!("Saved version {version} · {quote}"))
                     .child(
                         div().h(px(76.)).child(
-                            Editor::new(&self.comment_input)
+                            prose_editor(&self.comment_input)
                                 .h_full()
                                 .aria_label("Passage feedback"),
                         ),
                     )
                     .child(
-                        Button::new("post-comment")
+                        button("post-comment")
                             .label("Add comment")
                             .disabled(open.session.is_some())
                             .on_click(
@@ -3222,7 +3477,7 @@ impl ThreadsUi {
             if !entry.addressed {
                 let id = entry.record.id.clone();
                 row = row.child(
-                    Button::new(format!("include-comment-{id}"))
+                    button(format!("include-comment-{id}"))
                         .label(if checked {
                             "Exclude from rewrite"
                         } else {
@@ -3239,7 +3494,7 @@ impl ThreadsUi {
             }
             if let Some(range) = location {
                 row = row.child(
-                    Button::new(format!("reveal-comment-{}", entry.record.id))
+                    button(format!("reveal-comment-{}", entry.record.id))
                         .label("Show passage")
                         .disabled(open.session.is_some())
                         .on_click(cx.listener(move |this, _, window, cx| {
@@ -3282,7 +3537,7 @@ impl ThreadsUi {
                 .collect::<Vec<_>>();
             let toggle = record.id.clone();
             let mut disclosure = panel().child(heading("Saved rewrite inputs")).child(
-                Button::new("inspect-rewrite-inputs")
+                button("inspect-rewrite-inputs")
                     .label(if self.expanded_requests.contains(&record.id) {
                         "Hide captured note and chat"
                     } else {
@@ -3320,7 +3575,7 @@ impl ThreadsUi {
             }
             requests = requests.child(
                 disclosure.child(
-                    Button::new("retry-rewrite")
+                    button("retry-rewrite")
                         .label("Retry rewrite with these inputs")
                         .disabled(self.worker.is_some())
                         .on_click(cx.listener(move |this, _, _, cx| {
@@ -3358,7 +3613,7 @@ impl ThreadsUi {
                     _ => continue,
                 };
                 requests = requests.child(
-                    Button::new(format!("address-comment-{record_id}"))
+                    button(format!("address-comment-{record_id}"))
                         .label(label)
                         .on_click(cx.listener(move |this, _, _, cx| {
                             this.confirm_addressed(
@@ -3381,7 +3636,7 @@ impl ThreadsUi {
                 .map(|record| record.id.clone())
                 .collect::<Vec<_>>();
             requests = requests.child(
-                Button::new("confirm-addressed")
+                button("confirm-addressed")
                     .label("Mark all captured comments addressed")
                     .disabled(already_addressed || snapshot.comments.is_empty())
                     .on_click(cx.listener(move |this, _, _, cx| {
@@ -3389,7 +3644,7 @@ impl ThreadsUi {
                     })),
             );
             requests = requests.child(
-                Button::new("undo-writing-apply")
+                button("undo-writing-apply")
                     .label("Undo applied rewrite")
                     .on_click(cx.listener(move |this, _, window, cx| {
                         match this.workspace.undo(&undo) {
@@ -3414,25 +3669,23 @@ impl ThreadsUi {
                     .child("Post in chat or add feedback to start this document's conversation.")
                     .into_any_element()
             },
-            |thread| self.thread_surface(thread, true, cx),
+            |thread| self.thread_surface(thread, true, false, cx),
         );
         div().id("writing-chat-pane").h_full().w_full().flex().flex_col().min_w_0().min_h_0().test_support()
-            .bg(rgb(0xf1f5ed)).border_l_1().border_color(rgb(0x9cad91))
+            .bg(rgb(GREEN)).border_1().border_color(rgb(BORDER))
             .child(div().id("writing-feedback-controls").p_3().flex().flex_col().gap_2().min_h_0().max_h(gpui_kit::relative(0.5)).overflow_y_scroll().child(threads)
                 .child(div().id("rewrite-scope").text_sm().child(format!("Rewrite includes saved note, {included} pending comments and all posted messages in the selected chat. Unsent drafts stay here.")))
-                .child(Button::new("rewrite-note").label(format!("Rewrite with AI · {included} comments"))
+                .child(button("rewrite-note").label(format!("Rewrite with AI · {included} comments"))
                     .disabled(self.worker.is_some() || open.session.is_some() || feedback_error.is_some() || unresolved_included)
                     .on_click(cx.listener(|this, _, _, cx| this.rewrite_note(cx))))
                 .child(if unresolved_included { "Exclude unresolved feedback or recapture its passage before rewriting." } else { "" }).child(requests).child(feedback))
             .child(div().flex_1().min_h(px(140.)).child(chat)).into_any_element()
     }
-    fn review_view(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
+    fn review_view(&self, narrow: bool, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         let Some(review) = &self.review else {
             return div().into_any_element();
         };
-        let mut summary = div()
-            .flex()
-            .flex_col()
+        let mut summary = panel()
             .gap_1()
             .child(heading("Review change"))
             .child(review.candidate.request.reason.clone());
@@ -3442,7 +3695,7 @@ impl ThreadsUi {
                 let id = group.id.clone();
                 let included = review.selected.contains(&id);
                 summary = summary.child(
-                    Button::new(format!("review-group-{id}"))
+                    button(format!("review-group-{id}"))
                         .label(format!(
                             "{} {}: {}",
                             if included { "Include" } else { "Omit" },
@@ -3479,7 +3732,7 @@ impl ThreadsUi {
             if let RecordData::Note(note) = &write.data {
                 let id = write.id.clone();
                 summary = summary.child(
-                    Button::new(format!("review-member-{id}"))
+                    button(format!("review-member-{id}"))
                         .label(format!("Compare {}", short(&note.title)))
                         .selected(review.note.as_ref() == Some(&id))
                         .on_click(cx.listener(move |this, _, window, cx| {
@@ -3505,7 +3758,9 @@ impl ThreadsUi {
             };
             summary = summary.child(label);
         }
-        let mut view = div()
+        let mut view = pane()
+            .border_1()
+            .border_color(rgb(BORDER))
             .id("review-panel")
             .test_support()
             .w_full()
@@ -3514,22 +3769,21 @@ impl ThreadsUi {
             .flex_col()
             .gap_3()
             .p_5()
-            .bg(rgb(0xf7f5ee))
+            .bg(rgb(PAPER))
+            .overflow_y_scroll()
             .child(summary);
         if review.note.is_some() {
             view = view.child(
                 div()
                     .flex()
-                    .gap_4()
+                    .when(narrow, |view| view.flex_col().flex_shrink_0().h(px(640.)))
+                    .gap_3()
                     .flex_1()
                     .min_h_0()
                     .child(
-                        div()
+                        panel()
                             .flex_1()
                             .min_w_0()
-                            .flex()
-                            .flex_col()
-                            .gap_2()
                             .child(heading("Current note"))
                             .child(
                                 div()
@@ -3539,16 +3793,13 @@ impl ThreadsUi {
                             ),
                     )
                     .child(
-                        div()
+                        panel()
                             .flex_1()
                             .min_w_0()
-                            .flex()
-                            .flex_col()
-                            .gap_2()
                             .child(heading("Your final proposed text"))
                             .child(
                                 div().flex_1().min_h_0().child(
-                                    Editor::new(&self.review_editor)
+                                    prose_editor(&self.review_editor)
                                         .h_full()
                                         .aria_label("Final proposed note text"),
                                 ),
@@ -3557,29 +3808,30 @@ impl ThreadsUi {
             );
         }
         view.child(div().flex().flex_wrap().gap_2()
-            .child(Button::new("prepare-final").label("Prepare edited proposal").disabled(!review.edited).on_click(cx.listener(|this,_,window,cx|this.prepare_review_edit(window,cx))))
-            .child(Button::new("prepare-selected").label("Prepare selected groups").disabled(review.edited || review.selected.is_empty() || review.selected.len() == review.groups.groups.len()).on_click(cx.listener(|this,_,window,cx|this.prepare_review_selection(window,cx))))
-            .child(Button::new("apply-final").label("Apply this proposal").disabled(review.edited || review.selected.len() != review.groups.groups.len()).on_click(cx.listener(|this,_,window,cx|this.apply_review(window,cx))))
-            .child(Button::new("dismiss-proposal").label("Dismiss proposal").on_click(cx.listener(|this,_,window,cx|this.dismiss_review(window,cx))))
-            .child(Button::new("close-review").label("Keep for later").on_click(cx.listener(|this,_,window,cx|this.keep_review(window,cx)))))
+            .child(button("prepare-final").label("Prepare edited proposal").disabled(!review.edited).on_click(cx.listener(|this,_,window,cx|this.prepare_review_edit(window,cx))))
+            .child(button("prepare-selected").label("Prepare selected groups").disabled(review.edited || review.selected.is_empty() || review.selected.len() == review.groups.groups.len()).on_click(cx.listener(|this,_,window,cx|this.prepare_review_selection(window,cx))))
+            .child(button("apply-final").label("Apply this proposal").disabled(review.edited || review.selected.len() != review.groups.groups.len()).on_click(cx.listener(|this,_,window,cx|this.apply_review(window,cx))))
+            .child(button("dismiss-proposal").label("Dismiss proposal").on_click(cx.listener(|this,_,window,cx|this.dismiss_review(window,cx))))
+            .child(button("close-review").label("Keep for later").on_click(cx.listener(|this,_,window,cx|this.keep_review(window,cx)))))
             .child("Applying saves this exact proposal. Changed or actively edited notes remain unchanged until the issue is resolved.").into_any_element()
     }
     fn history_view(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
-        let mut view = div()
-            .id("history-content")
-            .h_full()
-            .w_full()
-            .overflow_y_scroll()
-            .flex()
-            .flex_col()
-            .gap_3()
-            .p_5()
-            .child(heading("What changed"));
+        let mut view = screen("history-content", "What changed").child(metadata(
+            "Recorded changes and the same checked Undo used throughout your workspace.",
+        ));
+        if self.history.is_empty() {
+            view = view.child(panel().child(empty(
+                "history-empty",
+                "No recorded changes yet. Saved changes and their Undo controls will appear here.",
+            )));
+        }
         for receipt in self.history.iter().rev() {
             let id = receipt.operation.as_str().to_owned();
             let mut entry = panel()
+                .id(format!("receipt-{id}"))
+                .test_support()
                 .child(heading(receipt.reason.clone()))
-                .child(receipt.committed_at.clone());
+                .child(metadata(receipt.committed_at.clone()));
             for write in &receipt.writes {
                 entry = entry.child(format!(
                     "{} · version {}",
@@ -3597,7 +3849,7 @@ impl ThreadsUi {
                             Page::Actions
                         };
                         entry = entry.child(
-                            Button::new(format!("refresh-record-{id}-{}", record.id))
+                            button(format!("refresh-record-{id}-{}", record.id))
                                 .label(format!("May need refresh: {}", short(&title(&record))))
                                 .on_click(cx.listener(move |this, _, window, cx| match &page {
                                     Page::Note(id) => this.open_note(id, None, window, cx),
@@ -3608,7 +3860,7 @@ impl ThreadsUi {
                 }
                 let receipt_id = id.clone();
                 entry = entry.child(
-                    Button::new(format!("refresh-followup-{id}"))
+                    button(format!("refresh-followup-{id}"))
                         .label("Open refresh follow-up")
                         .on_click(cx.listener(move |this, _, window, cx| {
                             match this.workspace.refresh_followup(&receipt_id) {
@@ -3625,7 +3877,7 @@ impl ThreadsUi {
                 );
             }
             entry = entry.child(
-                Button::new(format!("undo-{id}"))
+                button(format!("undo-{id}"))
                     .label("Undo this change")
                     .on_click(cx.listener(move |this, _, _, cx| {
                         match this.workspace.undo(&id) {
@@ -3641,13 +3893,13 @@ impl ThreadsUi {
         view.into_any_element()
     }
     fn settings_view(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
-        let mut provider = div().flex().gap_2();
+        let mut provider = div().flex().flex_wrap().gap_2();
         for (value, label) in [
             ("chatgpt", "Codex / ChatGPT"),
             ("copilot", "GitHub Copilot"),
         ] {
             provider = provider.child(
-                Button::new(format!("provider-{value}"))
+                button(format!("provider-{value}"))
                     .label(label)
                     .selected(
                         self.settings.provider.eq_ignore_ascii_case(value)
@@ -3660,10 +3912,10 @@ impl ThreadsUi {
                     })),
             );
         }
-        let mut efforts = div().flex().gap_2();
+        let mut efforts = div().flex().flex_wrap().gap_2();
         for effort in ["low", "medium", "high"] {
             efforts = efforts.child(
-                Button::new(format!("effort-{effort}"))
+                button(format!("effort-{effort}"))
                     .label(effort)
                     .selected(self.settings.effort == effort)
                     .on_click(cx.listener(move |this, _, _, cx| {
@@ -3672,88 +3924,143 @@ impl ThreadsUi {
                     })),
             );
         }
-        let mut view = div()
-            .id("settings-content")
-            .h_full()
-            .w_full()
-            .overflow_y_scroll()
-            .flex()
-            .flex_col()
-            .gap_4()
-            .p_5()
-            .child(heading("Workspace settings"))
+        let provider_tile = panel()
+            .id("settings-provider")
+            .test_support()
+            .child(heading("Provider and model"))
+            .child(metadata("Provider"))
+            .child(provider)
+            .child(metadata("Model"))
+            .child(Input::new(&self.model).w_full().aria_label("Model"))
+            .child(metadata("Reasoning effort"))
+            .child(efforts)
+            .child(metadata("Codex auth file"))
+            .child(
+                Input::new(&self.auth_path)
+                    .w_full()
+                    .aria_label("Codex auth file"),
+            )
+            .child(metadata("Copilot credentials folder"))
+            .child(
+                Input::new(&self.credentials_path)
+                    .w_full()
+                    .aria_label("Copilot credentials folder"),
+            )
+            .child(metadata(
+                "Credentials stay outside notes, exports and History.",
+            ))
+            .child(
+                button("save-settings")
+                    .label("Save settings")
+                    .disabled(self.worker.is_some())
+                    .on_click(cx.listener(|this, _, _, cx| this.configure(cx))),
+            );
+        let copies = panel()
+            .id("settings-copies")
+            .test_support()
+            .child(heading("Portable copies"))
             .child(
                 panel()
-                    .child(heading("Provider and model"))
-                    .child(provider)
-                    .child(Input::new(&self.model))
-                    .child("Reasoning effort")
-                    .child(efforts)
-                    .child(Input::new(&self.auth_path))
-                    .child(Input::new(&self.credentials_path))
-                    .child("Credentials stay outside notes, exports and History.")
+                    .bg(rgb(GREEN))
+                    .child(heading("Markdown export"))
+                    .child("Export a current snapshot of your notes and retained figures.")
+                    .child(button("export-now").label("Export Markdown now…").on_click(
+                        cx.listener(|this, _, window, cx| this.choose_output(false, window, cx)),
+                    ))
+                    .child(metadata(self.export_status.clone())),
+            )
+            .child(
+                panel()
+                    .bg(rgb(GREEN))
+                    .child(heading("Full backup"))
+                    .child("Includes notes, discussions, history, figures and recovery state.")
                     .child(
-                        Button::new("save-settings")
-                            .label("Save settings")
-                            .disabled(self.worker.is_some())
-                            .on_click(cx.listener(|this, _, _, cx| this.configure(cx))),
-                    ),
+                        div()
+                            .id("backup-directory")
+                            .aria_label(
+                                self.settings
+                                    .backup_directory
+                                    .clone()
+                                    .unwrap_or_else(|| "Backup folder not chosen".into()),
+                            )
+                            .child(
+                                self.settings
+                                    .backup_directory
+                                    .clone()
+                                    .unwrap_or_else(|| "Backup folder not chosen".into()),
+                            )
+                            .test_support(),
+                    )
+                    .child(metadata(
+                        "Choose a folder covered by your separate backup system.",
+                    ))
+                    .child(
+                        div()
+                            .flex()
+                            .flex_wrap()
+                            .gap_2()
+                            .child(
+                                button("backup-change-folder")
+                                    .label("Change folder…")
+                                    .on_click(cx.listener(|this, _, window, cx| {
+                                        this.choose_backup_folder(false, window, cx)
+                                    })),
+                            )
+                            .child(button("backup-now").label("Create full backup").on_click(
+                                cx.listener(|this, _, window, cx| {
+                                    this.choose_output(true, window, cx)
+                                }),
+                            )),
+                    )
+                    .child(metadata(self.backup_status.clone())),
             );
-        view = view.child(self.working_knowledge(cx));
-        view.child(panel().child(heading("Portable copies")).child("Markdown export is a current snapshot. A full backup includes notes, discussions, history, figures and recovery state.")
-            .child(Button::new("export-now").label("Export Markdown now…").on_click(cx.listener(|this,_,window,cx|this.choose_output(false,window,cx))))
-            .child(self.export_status.clone())
-            .child(div().id("backup-directory").aria_label(self.settings.backup_directory.clone().unwrap_or_else(|| "Backup folder not chosen".into())).child(self.settings.backup_directory.clone().unwrap_or_else(|| "Backup folder not chosen".into())).test_support())
-            .child("Choose a folder covered by your separate backup system.")
-            .child(Button::new("backup-change-folder").label("Change folder…").on_click(cx.listener(|this,_,window,cx|this.choose_backup_folder(false,window,cx))))
-            .child(Button::new("backup-now").label("Create full backup").on_click(cx.listener(|this,_,window,cx|this.choose_output(true,window,cx))))
-            .child(self.backup_status.clone())).into_any_element()
+        screen("settings-content", "Workspace settings")
+            .child(
+                div()
+                    .flex()
+                    .flex_wrap()
+                    .gap_3()
+                    .items_start()
+                    .child(tile_slot(provider_tile))
+                    .child(tile_slot(self.working_knowledge(cx)))
+                    .child(tile_slot(copies)),
+            )
+            .into_any_element()
     }
 }
 impl Render for ThreadsUi {
     fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         let _retained = (&self.subscriptions, &self.poll, &self.importing);
         let writing = matches!(self.page, Page::Note(_));
+        let narrow = window.viewport_size().width < px(980.);
         let view = if self.review.is_some() {
-            self.review_view(cx)
+            self.review_view(narrow, cx)
         } else {
             match self.page.clone() {
                 Page::Home => self.home_view(cx),
-                Page::Thread(id) => self.thread_view(&id, cx),
+                Page::Thread(id) => self.thread_view(&id, narrow, cx),
                 Page::Note(_) => self.note_view(cx),
                 Page::History => self.history_view(cx),
                 Page::Settings => self.settings_view(cx),
-                Page::Actions => {
-                    let mut view = div()
-                        .id("actions-content")
-                        .h_full()
-                        .w_full()
-                        .overflow_y_scroll()
-                        .flex()
-                        .flex_col()
-                        .gap_3()
-                        .p_5()
-                        .child(heading("Actions"));
-                    for record in self
-                        .records
-                        .iter()
-                        .filter(|r| !r.archived && matches!(r.data, RecordData::Action(_)))
-                    {
-                        view = view.child(self.action_row(record, cx));
-                    }
-                    view.into_any_element()
-                }
+                Page::Actions => self.actions_view(cx),
             }
         };
-        let mut footer = div()
-            .flex()
-            .flex_col()
-            .gap_2()
-            .p_3()
-            .border_t_1()
-            .border_color(rgb(0xd5dce1));
+        let mut footer = panel()
+            .id("composer-tile")
+            .test_support()
+            .flex_shrink_0()
+            .max_h(px(300.))
+            .overflow_y_scroll()
+            .bg(rgb(GREEN));
         if !self.notice.is_empty() {
-            footer = footer.child(div().text_sm().child(self.notice.clone()));
+            footer = footer.child(
+                panel()
+                    .id("workspace-notice")
+                    .aria_label(self.notice.clone())
+                    .test_support()
+                    .child(heading("Workspace update"))
+                    .child(self.notice.clone()),
+            );
         }
         if let Some(worker) = &self.worker {
             let status = worker.kind.status(&self.progress);
@@ -3780,7 +4087,7 @@ impl Render for ThreadsUi {
             );
             if worker.kind.can_cancel() {
                 controls = controls.child(
-                    Button::new("stop-work")
+                    button("stop-work")
                         .label("Stop")
                         .on_click(cx.listener(|this, _, _, cx| this.cancel(cx))),
                 );
@@ -3803,13 +4110,13 @@ impl Render for ThreadsUi {
                 .items_center()
                 .child(
                     div().h(px(90.)).flex_1().min_w_0().child(
-                        Editor::new(&self.composer)
+                        prose_editor(&self.composer)
                             .h_full()
                             .aria_label("Ask or delegate"),
                     ),
                 )
                 .child(
-                    Button::new("ask-delegate")
+                    button("ask-delegate")
                         .label(if self.can_stop_and_send() {
                             "Stop and send"
                         } else {
@@ -3830,7 +4137,7 @@ impl Render for ThreadsUi {
                 version: record.version,
             };
             footer = footer.child(
-                Button::new("ask-edit-selected-note")
+                button("ask-edit-selected-note")
                     .label("Edit selected note · this request")
                     .disabled(self.worker.is_some())
                     .on_click(cx.listener(move |this, _, window, cx| {
@@ -3839,7 +4146,7 @@ impl Render for ThreadsUi {
             );
         }
         footer = footer.child(
-            Button::new("ask-record-decision")
+            button("ask-record-decision")
                 .label("Record decision · this request")
                 .disabled(self.worker.is_some())
                 .on_click(cx.listener(|this, _, window, cx| {
@@ -3851,7 +4158,6 @@ impl Render for ThreadsUi {
                 })),
         );
         let content = if writing {
-            let narrow = window.viewport_size().width < px(980.);
             let mut tiles = div().id("writing-workbench").test_support().flex();
             if narrow {
                 tiles = tiles.flex_col().overflow_y_scroll();
@@ -3901,8 +4207,8 @@ impl Render for ThreadsUi {
             .h_full()
             .w_full()
             .flex()
-            .bg(rgb(0xffffff))
-            .text_color(rgb(0x25313b))
+            .bg(rgb(PAPER))
+            .text_color(rgb(INK))
             .on_action(cx.listener(|this, _: &Save, window, cx| {
                 if this.review.is_some() {
                     this.prepare_review_edit(window, cx);
