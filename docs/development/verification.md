@@ -15,7 +15,7 @@ The [canonical acceptance journeys](../architecture/threads-target.md#acceptance
 | Runtime guides and thread behavior | Representative success/boundary scenarios, actual skill loading and bundle identity, quiet routine outcomes, exact attention reasons, separate Action completion and fresh-invocation continuation. |
 | Component reuse or removal | Relevant component tests plus coherent removal of obsolete routes, commands, helpers, and tests; retained dependency fixes remain verified. |
 
-Use the pinned toolchain and lockfiles. The [dependency qualification plan](../work/active/threads-rebuild/plan.md#dependency-qualification) defines Rust 1.99.0 qualification against unchanged dependencies, consistent compiler selection in retained scripts, and the separate Rig and GPUI upgrade proofs. Source inspection is not a passing build or native result. Default workspace checks do not cover optional native features. Run focused checks as needed; repeat broad checks only for relevant changes or a concrete unresolved risk. No zero-test or self-skipped run counts as proof.
+Use the repository pin (currently Rust 1.98.1) and lockfile. Compiler/dependency changes require separate qualification; this cleanup assigns no upgrade. Source inspection is not a passing build or native result. Default workspace checks do not cover optional native features. Run focused checks as needed; repeat broad checks only for relevant changes or a concrete unresolved risk. No zero-test or self-skipped run counts as proof.
 
 ## CI and integration
 
@@ -26,7 +26,7 @@ The [CI workflow](../../.github/workflows/ci.yml) now covers the Threads core/ap
 - `Native UI build and state (macos-15)`
 - `Native retrieval and combined build (macos-15)`
 
-Adapt meaningful jobs with the replacement code. Do not add no-op passing jobs, suppress failures, or weaken repository protection to make a rebuild green. Product scope is Mac first; an unrelated platform issue should be reported without silently becoming another development program.
+Keep meaningful jobs with the maintained code. Do not add no-op passing jobs, suppress failures, or weaken repository protection to make a rebuild green. Product scope is Mac first; an unrelated platform issue should be reported without silently becoming another development program.
 
 ## Evidence and limits
 
@@ -39,4 +39,4 @@ Distinguish implemented, verified, native-observed, owner-accepted, and merged. 
 
 Build the maintained `brn-intake-helper` before the Mac workspace tests. PDF fixture qualification needs Poppler `pdftotext`/`pdfimages`; CI supplies their explicit paths, and local tests accept `BRN_INTAKE_HELPER`, `BRN_PDFTOTEXT`, `BRN_PDFIMAGES`. The default Mac test suite includes the source inventories and transient-cleanup witnesses.
 
-`verify-storage.sh` covers default formatting/build/lint/tests. `verify-end-to-end.sh` adds fresh CLI/desktop Save, recovery, search, export/backup, startup and foreign-data refusal. `verify-desktop-shell.sh` compiles/lints/tests native state. The 5,000-note witness in `brn-threads-app/tests/user_scale.rs` proves current-revision search refresh and archive exclusion. Older standalone experiments remain historical evidence, with no production engine dependency.
+`verify-storage.sh` covers default formatting/build/lint/tests. `verify-end-to-end.sh` adds fresh CLI/desktop Save, recovery, search, export/backup, startup and foreign-data refusal. `verify-desktop-shell.sh` compiles/lints/tests native state. The 5,000-note witness in `brn-threads-app/tests/user_scale.rs` proves current-revision search refresh and archive exclusion. Removed standalone experiments remain accessible through the [fixed baseline archive](../archive/README.md); maintained production/test fixtures remain in the crates.

@@ -1,2 +1,0 @@
-# Preserve exact captured log bytes, including test-runner whitespace.
-*.log binary

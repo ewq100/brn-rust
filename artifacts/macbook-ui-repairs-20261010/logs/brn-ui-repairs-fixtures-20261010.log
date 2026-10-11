@@ -1,3 +1,0 @@
-Production provider retirement check passed
-Maintained intake / historical-reader retirement check passed
-End-to-end fixtures passed: 52 assertions (current vault, Save/recovery and marker refusal; no account/model/network).

@@ -1,16 +1,15 @@
 # BRN Threads roadmap
 
-Follow the [rebuild plan](work/active/threads-rebuild/plan.md). This replaces the old V1 stage sequence for this branch.
+The core, provider runtime and native workspace are implemented. Phase 0/F1 and the Phase 1 delegation, steering and backup/restore increments are merged through PR #120. The [canonical target](architecture/threads-target.md) owns the selected scope; [status](status.md) owns actual evidence.
 
-| Milestone | Owner-visible outcome | Engineering proof |
+| Work | Owner-visible result | Remaining proof |
 |---|---|---|
-| 1 Smaller core | Notes and grouped local changes have understandable history and dependable immediate Undo. | Atomic persistence, retry, protection, versions, active-writing coordination, backup/restore. |
-| 2 Complete agent journey | An email updates project knowledge, suggests work, and produces a reply draft; selected papers/processes remain fully readable. | Real provider/tool path, shared commits, source references, faithful qualified full imports, honest gaps. |
-| 3 Daily interaction | Native Home, threads, editor, review, search, Actions, history, comments, and export work together. | Native interaction on the target Mac, restart behavior, understandable conflicts and offline use. |
-| 4 Qualification and replacement | A usable candidate implements the agreed daily journeys. | Relevant acceptance evidence; superseded runtime paths removed; integration ready for owner direction. |
+| Chat and AI writing UX research | Evidence-led improvement proposal before first release | Upcoming research; no accepted design or implementation yet |
+| Pre-release cleanup | Clear current instructions and a smaller maintained checkout | Reviewed deletion justification, unchanged behavior, relevant checks and required-CI-gated integration |
+| Recovery qualification | Understandable interruption/restart, backup and restoration before daily data adoption | Cold interruption/restart and broader recovery acceptance; fault/reopen tests are partial evidence |
+| Native acceptance | Dependable Home, thread, editor, review, comments, search, Actions, history and export | Actual target-Mac interaction and restart journeys; observation is currently deferred |
+| Daily-use acceptance | Source/email → reliable working note → supported Action or reply | Representative accepted results, clear partial coverage and recoverable local changes |
 
-The independent plan review is complete and its [lead dispositions](work/active/threads-rebuild/review.md#build-lead-dispositions) are incorporated. The [behavior design](architecture/threads-behavior.md) is ready to implement. Qualify Rig 0.44.0 before the new runtime and GPUI Kit 0.7.1 before the new UI; the small core can progress independently.
+Local reading, writing, search, Actions, review and recovery work offline; inference pauses visibly when the selected provider is unavailable. The first-release scope includes both useful-information intake and full-note import for qualified formats, Markdown snapshots and complete BRN backup/restore. Universal conversion and mathematical equation fidelity are outside it.
 
-After the first usable release: DOCX/PPTX/HTML generation, then other capabilities justified by actual use. External sending, broad connectors, sync/multiplayer, a background daemon, rich branch management, and plugin/theme marketplaces are outside the first-release gate.
-
-Status and acceptance live in [current status](status.md), not in historical milestone pass counts.
+DOCX is the first later output format, followed by PPTX/HTML. External sending, broad connectors, sync/multiplayer, a background daemon, arbitrary branch merging and plugin/theme marketplaces remain later scope. New adopted-schema changes require transactional upgrades and pre-upgrade backups; migration from old BRN is outside the target.

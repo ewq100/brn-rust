@@ -1,38 +1,34 @@
-# BRN Threads development setup
+# Development setup
 
-The implemented Threads baseline merged in PR #114 at `d768db7`. Read [AGENTS.md](../../AGENTS.md), [status](../status.md), and the [current plan](../work/active/threads-rebuild/phase0-plan.md) before running product commands.
+Read [AGENTS.md](../../AGENTS.md), [status](../status.md) and the [active plan](../work/active/pre-release-cleanup/plan.md). Inspect local/remote state and preserve unrelated work before choosing an isolated task branch/worktree.
 
-## Isolate the current assignment
-
-Inspect the existing checkout and remote main before choosing the task baseline. Create a new sibling worktree on a task-specific branch; preserve existing worktrees and unrelated edits. The current assignment uses `work/phase0-stale-input` from verified main `d768db7`. The old `rebuild/threads` branch is historical, not a required destination for new changes.
-
-## Check this machine
+## Check the machine
 
 ```sh
 python3 scripts/development-preflight.py --native
 ```
 
-This existing read-only preflight reports Git, Bash, Python, Cargo/Rustup, the pinned toolchain, protoc, and Mac compiler tools when relevant. Missing optional workflow skills are informational.
+The read-only preflight reports checkout identity, Git/Bash/Python/Cargo/Rustup, the pinned compiler, protoc and relevant Mac compiler tools. Missing optional workflow skills are informational.
 
-Use [rust-toolchain.toml](../../rust-toolchain.toml), which currently pins Rust 1.98.1 with rustfmt and Clippy. If Rustup is already installed and installing the pinned compiler is within the machine setup assignment:
+[rust-toolchain.toml](../../rust-toolchain.toml) is compiler authority; it pins Rust **1.98.1** with rustfmt and Clippy. [Cargo.lock](../../Cargo.lock) records dependencies. When compiler installation belongs to the machine setup assignment:
 
 ```sh
 rustup toolchain install 1.98.1 --profile minimal --component rustfmt --component clippy
 cargo fetch --locked
 ```
 
-Rust 1.99.0 is the selected qualification target in the [dependency plan](../work/active/threads-rebuild/plan.md#rust-1990-as-the-build-baseline). During the assigned build, install that exact toolchain with the same components and qualify it against the unchanged lockfile before adopting its pin. Update actively retained scripts that currently force `cargo +1.98.1` so local checks and CI use the same repository-selected compiler. The pin and installation command above still describe the actual baseline; this handoff has not performed the upgrade.
+Keep compiler/dependency changes separately scoped and qualified. Native GPUI targets macOS Apple Silicon first and requires an unlocked graphical session for interaction checks. Linux headless checks do not establish native readiness.
 
-Follow the planned qualification before changing the pin or removing dependency patches. Resolve system prerequisites through the available machine/package setup; report privilege or account requirements specifically. Native GPUI verification targets macOS Apple Silicon first and requires an unlocked graphical session for interaction checks. A Linux checkout can perform supported headless work without establishing native readiness.
+## Isolate build and application data
 
-## Keep build and app data isolated
+Use a task-owned Cargo target directory or a known compatible shared cache, plus a fresh explicit absolute BRN `--data-dir` outside Git. Use synthetic material. The core checks directory marker, application ID and supported schema before opening; incompatible old BRN data refuses without migration.
 
-Choose a task-owned Cargo target directory and a fresh explicit BRN data directory outside Git. Never point rebuild binaries at existing BRN data or use the old app's default directory.
+Build the maintained intake helper before Mac workspace tests:
 
-The core checks a distinct marker, application ID and supported schema before opening data. Old-format data is not imported or migrated. When running existing verification scripts, read their fixture-parent requirements and use synthetic material.
+```sh
+cargo build --locked -p brn-intake --features helper --bin brn-intake-helper
+```
 
-Run provider authentication/model availability checks early in the build assignment when bounded live tests are authorized. Use the selected provider's normal authentication flow, never credential dumps. If sign-in needs the owner, report it and continue independent offline work.
+PDF qualification needs Poppler `pdftotext` and `pdfimages`. Select explicit `BRN_INTAKE_HELPER`, `BRN_PDFTOTEXT` and `BRN_PDFIMAGES` executable paths for reproducible checks; [verification](verification.md) describes gates. Default checks do not include every optional native feature.
 
-## Current commands
-
-The retained manifests and verification scripts build the implemented Threads workspace. Intake fixture qualification requires the maintained helper and explicit Poppler paths as described in [verification](verification.md). A successful build is not proof of native usability or owner acceptance. Historical standalone experiments are not production engines.
+Provider/account checks follow the current assignment and normal authentication flow; keep credentials out of outputs. Successful builds and component tests are separate from native usability and owner acceptance.

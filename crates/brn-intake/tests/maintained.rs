@@ -1,11 +1,7 @@
 #![cfg(feature = "helper")]
 use brn_intake::*;
-const DOCX: &[u8] = include_bytes!(
-    "../../../experiments/architecture-reassessment/p1-office-mime/fixtures/harbor.docx"
-);
-const PNG: &[u8] = include_bytes!(
-    "../../../experiments/architecture-reassessment/p1-office-mime/fixtures/water-use.png"
-);
+const DOCX: &[u8] = include_bytes!("fixtures/harbor.docx");
+const PNG: &[u8] = include_bytes!("fixtures/water-use.png");
 fn convert(kind: &str, bytes: &[u8]) -> Extraction {
     let result = helper::extract(HelperRequest {
         limits: None,
@@ -36,20 +32,8 @@ fn useful_docx_maintains_exact_assets_and_repeated_occurrence_identity() {
 #[test]
 fn actual_single_and_plural_eml_preserve_bodies_ids_parents_and_unsupported_bytes() {
     for (bytes, plural) in [
-        (
-            include_bytes!(
-                "../../../experiments/architecture-reassessment/p1-office-mime/fixtures/single.eml"
-            )
-            .as_slice(),
-            false,
-        ),
-        (
-            include_bytes!(
-                "../../../experiments/architecture-reassessment/p1-office-mime/fixtures/plural.eml"
-            )
-            .as_slice(),
-            true,
-        ),
+        (include_bytes!("fixtures/single.eml").as_slice(), false),
+        (include_bytes!("fixtures/plural.eml").as_slice(), true),
     ] {
         let result = convert("eml", bytes);
         assert_eq!(result.sources[0].bytes, bytes);
@@ -99,12 +83,7 @@ fn actual_single_and_plural_eml_preserve_bodies_ids_parents_and_unsupported_byte
                 .iter()
                 .find(|s| s.name == "forecast.xlsx")
                 .unwrap();
-            assert_eq!(
-                xlsx.bytes,
-                include_bytes!(
-                    "../../../experiments/architecture-reassessment/p1-office-mime/fixtures/forecast.xlsx"
-                )
-            );
+            assert_eq!(xlsx.bytes, include_bytes!("fixtures/forecast.xlsx"));
             assert_eq!(xlsx.status, "unprocessed");
             assert!(xlsx.text.is_empty());
         }
@@ -112,18 +91,25 @@ fn actual_single_and_plural_eml_preserve_bodies_ids_parents_and_unsupported_byte
 }
 #[test]
 fn hostile_packages_refuse_without_bespoke_package_or_xml_interpreter() {
-    for bytes in [include_bytes!("../../../experiments/architecture-reassessment/p1-office-mime/fixtures/hostile-path.docx").as_slice(), include_bytes!("../../../experiments/architecture-reassessment/p1-office-mime/fixtures/hostile-inflate.docx").as_slice(), include_bytes!("../../../experiments/architecture-reassessment/p1-office-mime/fixtures/hostile-members.docx").as_slice(), include_bytes!("../../../experiments/architecture-reassessment/p1-office-mime/fixtures/hostile-dtd.docx").as_slice()] {
-        assert!(helper::extract(HelperRequest { limits: None, kind: "docx".into(), bytes: bytes.to_vec() }).is_err());
+    for bytes in [
+        include_bytes!("fixtures/hostile-path.docx").as_slice(),
+        include_bytes!("fixtures/hostile-inflate.docx").as_slice(),
+        include_bytes!("fixtures/hostile-members.docx").as_slice(),
+        include_bytes!("fixtures/hostile-dtd.docx").as_slice(),
+    ] {
+        assert!(
+            helper::extract(HelperRequest {
+                limits: None,
+                kind: "docx".into(),
+                bytes: bytes.to_vec()
+            })
+            .is_err()
+        );
     }
 }
 #[test]
 fn namespace_prefix_gap_is_honest_and_never_guesses_asset_joins() {
-    let result = convert(
-        "docx",
-        include_bytes!(
-            "../../../experiments/architecture-reassessment/p2-api-check/prefix-variation.docx"
-        ),
-    );
+    let result = convert("docx", include_bytes!("fixtures/prefix-variation.docx"));
     assert!(result.occurrences.is_empty());
     assert!(result.assets.is_empty());
     assert!(
@@ -136,10 +122,7 @@ fn namespace_prefix_gap_is_honest_and_never_guesses_asset_joins() {
 }
 #[test]
 fn chart_omission_is_visible_and_has_no_invented_chart_facts() {
-    let result = convert(
-        "docx",
-        include_bytes!("../../../experiments/architecture-reassessment/p2-api-check/features.docx"),
-    );
+    let result = convert("docx", include_bytes!("fixtures/features.docx"));
     assert!(result.gaps.iter().any(|g| g.contains("c:chart")));
     assert!(result.gaps.iter().any(|g| g.contains("charts/chart")));
 }
@@ -248,12 +231,7 @@ fn package_members_and_mime_parts_have_aggregate_job_budgets() {
 
 #[test]
 fn configured_quotas_and_actual_consumption_survive_protocol_round_trip() {
-    let output = convert(
-        "eml",
-        include_bytes!(
-            "../../../experiments/architecture-reassessment/p1-office-mime/fixtures/plural.eml"
-        ),
-    );
+    let output = convert("eml", include_bytes!("fixtures/plural.eml"));
     let usage = output.consumed.as_ref().unwrap();
     assert_eq!(usage.input_bytes, output.sources[0].bytes.len());
     assert_eq!(
@@ -335,7 +313,14 @@ fn configured_quotas_and_actual_consumption_survive_protocol_round_trip() {
             ..Default::default()
         },
     ] {
-        assert!(helper::extract(HelperRequest { limits: Some(limits), kind: "eml".into(), bytes: include_bytes!("../../../experiments/architecture-reassessment/p1-office-mime/fixtures/plural.eml").to_vec() }).is_err());
+        assert!(
+            helper::extract(HelperRequest {
+                limits: Some(limits),
+                kind: "eml".into(),
+                bytes: include_bytes!("fixtures/plural.eml").to_vec()
+            })
+            .is_err()
+        );
     }
     let mut forged = output;
     forged.consumed.as_mut().unwrap().decoded_bytes += 1;
@@ -352,12 +337,7 @@ fn resolved_exact_images_do_not_retain_upstream_byte_omission_diagnostics() {
             .any(|g| g.contains("image-data-omitted"))
     );
     assert!(!resolved.gaps.iter().any(|g| g.starts_with('{')));
-    let unresolved = convert(
-        "docx",
-        include_bytes!(
-            "../../../experiments/architecture-reassessment/p2-api-check/prefix-variation.docx"
-        ),
-    );
+    let unresolved = convert("docx", include_bytes!("fixtures/prefix-variation.docx"));
     assert!(
         unresolved
             .gaps

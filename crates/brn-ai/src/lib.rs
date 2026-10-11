@@ -30,7 +30,9 @@ pub use action_candidates::{
     CheckedActionRef,
 };
 pub use auth::{Auth, ProviderClient};
-pub use chat::{AiAnswer, AiEvent, AiTerminal, HistoryPair, MAX_REWRITE_BYTES, ReasoningEffort};
+pub use chat::{AiAnswer, AiEvent, AiTerminal, ReasoningEffort};
+#[cfg(any(test, feature = "capability-spike"))]
+pub use chat::{HistoryPair, MAX_REWRITE_BYTES};
 #[cfg(any(test, feature = "capability-spike"))]
 pub use proposal_tools::{
     ACTION_PROPOSAL_BYTES, ActionProposalArgs, CONFLICT_REPORT_BYTES, ConflictArgs, ConflictQuote,

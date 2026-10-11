@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parent.parent
 GATES = {
     'verify-end-to-end.sh': {'': 'default', '--fixtures-only': 'default (fixtures only)', '--retirement-only': 'production retirement only'},
     'verify-storage.sh': {'': 'default'},
-    'verify-desktop-shell.sh': {'': 'default', '--native': 'native-ui,native-retrieval,native-test-support'},
+    'verify-desktop-shell.sh': {'': 'native-ui'},
 }
 
 

@@ -9,9 +9,7 @@ pattern = re.compile(r"brn[-_]provider|--codex-server")
 paths = [root / "Cargo.toml"]
 paths += list((root / "crates").rglob("*.toml"))
 paths += [p for p in (root / "crates").rglob("*.rs") if "tests" not in p.parts]
-# Trial verification is standalone historical evidence, not a product launcher.
-paths += [p for p in (root / "scripts").glob("*.sh")
-          if p.name != "verify-trial.sh"]
+paths += list((root / "scripts").glob("*.sh"))
 paths += [p for p in (root / "scripts").glob("*.py")
           if p.name != Path(__file__).name]
 failures = []

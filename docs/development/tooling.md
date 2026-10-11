@@ -1,87 +1,46 @@
 # Development tooling
 
-> **Baseline reference for the Threads rebuild.** This document describes the pre-Threads implementation or historical evidence. The [canonical Threads target](../architecture/threads-target.md) owns the replacement contract. Inspect this material for component reuse; do not resume its old tasks or infer current authorization from it. Update this local contract when its implementation is replaced.
+Use [workflow](workflow.md) and [verification](verification.md) for task scope and gates. Helpers report evidence; they do not supply provider access, settings authority or release permission.
 
-The [BRN workflow](https://github.com/ewq100/brn-rust/blob/af9239c741c7ab0983e62f0253e607b9607727e6/docs/development/workflow.md) remains authority. These small helpers inspect
-and record existing gates; they do not configure global skills or authorize
-accounts, downloads, private data, settings changes or product changes.
-
-## Checkout preflight
+## Checkout and gate records
 
 ```sh
 python3 scripts/development-preflight.py --native
 ```
 
-Reports checkout/branch/commit/tree, dirty snapshot, executable paths, installed
-pinned toolchain, native compiler availability and optional local router/PR
-skills. Missing required tools or the pinned toolchain exit nonzero. A missing
-skill is informational: the repository workflow is portable without it.
-`--router-skill /absolute/path/SKILL.md` selects another existing router path.
-The default uses `CODEX_HOME` when set, then the user's `.codex` directory.
-No installation or global configuration is performed. Preserve useful local
-rules and explicitly supplied overrides; do not infer another Mac's setup.
-On the qualified Mac mini, add `/opt/homebrew/opt/rustup/bin` to the command's
-PATH if Cargo is not already visible.
-
-## Existing gate evidence
+Read-only preflight reports checkout identity, required tools, pinned compiler and Mac prerequisites. Optional local skills are informational. It changes no global configuration.
 
 ```sh
 mkdir -m 700 /private/tmp/brn-disposable-evidence-example
 export BRN_VERIFY_OUTPUT_DIR=/private/tmp/brn-disposable-evidence-example
 bash scripts/verify-end-to-end.sh --retirement-only
-# Also supported: the existing storage and desktop-shell gates, including --native.
 ```
 
-Choose a fresh explicit disposable output parent outside the checkout. It must
-already exist, be absolute and have no symlink components. The gate creates
-one exclusive child; it never deletes retained evidence. `record.json` is
-atomically published with commit/tree or dirty-content snapshot, exact gate
-argv/features, start/end UTC, terminal and exit code; `output.log` preserves
-combined output. The same script executes its normal commands. Record paths
-and synthetic fixture/build paths are explicit environment fields.
+Choose a fresh absolute disposable output parent outside Git, already present and without symlink components. Supported storage, end-to-end and desktop-shell gates create one exclusive child containing an atomic `record.json` and combined `output.log`. Identity includes commit/tree or dirty-content snapshot, exact gate/features, start/end UTC, terminal state and exit code. Preserve retained evidence and avoid editing relevant paths during a gate.
 
-`passed`, `failed`, `interrupted` and `running` are distinct. SIGINT/SIGTERM are
-forwarded to the gate's process group and terminal evidence is retained.
-An uncatchable kill can leave `running`, which is incomplete evidence and must
-never be reused as success. `checkout_changed=true` invalidates the initial
-identity as evidence for the final tree. Do not run a gate while editing its
-relevant code. Logs are for synthetic local checks, never private/live payloads.
+Passed, failed, interrupted and running are distinct. SIGINT/SIGTERM are forwarded to the gate group. An uncatchable kill can leave running, which is incomplete. `checkout_changed=true` invalidates the initial identity as proof for the final tree. Use synthetic inputs; keep private/provider payloads out of these logs.
 
-Reuse a completed result only when its relevant code, manifests, lockfiles,
-features, scripts and environment are unchanged. Pin the old identity and
-compare named relevant paths against the candidate; state that the result is
-reused. Documentation-only changes need documentation checks rather than another
-Rust rebuild. A changed relevant path or unresolved failure needs fresh checks.
-The snapshot records a state; it does not decide relevance for the lead.
+Reuse a result only with an explicit unchanged relevant-path/environment comparison and label it reused. Documentation-only changes need documentation checks; relevant code/manifests/features or unresolved failures require fresh checks. Evidence records do not decide relevance themselves.
 
-## Exact CI summary
+## Exact CI summary and protection
 
 ```sh
-python3 scripts/ci-summary.py run --run 37325847448 --attempt 1 \
-  --commit 966ad90e453f18413edb2bf2f9b95813f4ecc9a0
+python3 scripts/ci-summary.py run --run RUN_ID --attempt ATTEMPT --commit FULL_COMMIT
 python3 scripts/ci-summary.py compare-logs /absolute/old.log /absolute/new.log
 ```
 
-The read-only summary pins the requested full commit, run and attempt, validates
-that identity, paginates all jobs and distinguishes the four applicable Mac/shared
-PR jobs from informational Windows and non-Mac native probes. Missing, cancelled,
-pending or failed applicable jobs cannot establish a pass. Unknown jobs require
-review. The overall red result and failed job conclusions remain visible; a failed
-or unfinished overall run exits nonzero. Terminal success also requires every
-applicable observed job to be ready; an overall-success run with skipped, missing
-or pending applicable jobs exits nonzero. The documentation/tooling job is checked
-when present; older runs identify it as absent rather than retroactively passing it.
+The read-only summary validates the exact requested run/attempt/commit, paginates jobs and distinguishes required Mac/shared jobs from informational Windows/non-Mac probes. Missing, pending, cancelled, skipped or failed applicable jobs cannot prove success. Unknown jobs require inspection. Overall failures remain visible even when required contexts pass. Documentation/tooling is checked when present; old absence is not retroactive success.
 
-GitHub can queue an automatic PR run for several minutes. No matching exact-head
-run is pending evidence, never success or a reason to immediately create duplicate
-manual runs. This helper never dispatches runs.
+An exact-head PR run can take time to queue; absence is pending evidence, not a pass or reason to dispatch duplicate runs. Log comparison preserves ordering, compiler/assertion errors and symbols, normalizing only presentation timestamps/ANSI, explicit process IDs and numbered backtrace addresses. Equivalent failures remain failures.
 
-Log comparison retains line order, compiler errors, assertions and backtrace
-symbols. It normalizes only ANSI presentation, GitHub ISO timestamp prefixes,
-explicit `pid=` values and numbered Rust backtrace-frame addresses.
-Hexadecimal assertion values remain unchanged. Differences remain a
-unified diff and exit nonzero. Equivalent failures are still failures; inspect
-source/features and full logs before concluding an old platform defect is unchanged.
+Main protection requires these unchanged contexts:
+
+- `Core and CLI (ubuntu-24.04)`
+- `Core and CLI (macos-15)`
+- `Native UI build and state (macos-15)`
+- `Native retrieval and combined build (macos-15)`
+
+Read actual protection and exact candidate checks before integration; preserve strict/current protection and visible platform failures. Historical unprotected-main configuration proposals are archived, not setup instructions.
 
 ## Documentation gate
 
@@ -91,70 +50,21 @@ python3 scripts/check-markdown-links.py --all
 python3 -m unittest discover -s scripts/tests -v
 ```
 
-The default checks Git-tracked and non-ignored new current Markdown. It checks
-local files and Markdown fragments, reference links, encoded paths, duplicate
-GitHub heading anchors, Unicode headings and explicit HTML anchors. Code fences and
-inline-code link samples are excluded; external URLs are not
-fetched. Every missing file/fragment is reported before the nonzero exit.
+The default checks tracked and non-ignored new current Markdown files, local targets/fragments, reference links, encoded paths, duplicate/Unicode heading anchors and explicit HTML anchors. Code fences and inline-code samples are excluded; external URLs are not fetched. Missing files/fragments produce a nonzero result.
 
-Outgoing links in these explicitly historical areas are retained without making
-them current CI requirements: `docs/superpowers/`, `docs/audits/`,
-`docs/architecture/decisions/`, `docs/work/completed/`, `experiments/`, and the
-active historical folders `rig-first-reset`, `simple-rig-notes`,
-`markdown-note-editing`, `ui-slice-2-chat-polish`. **Incoming links from current
-Markdown to those historical files/fragments are always checked.** The `--all`
-audit reports historical failures openly. New current work, including Inbox and
-knowledge foundations, remains in the default gate. CI runs this gate and the
-synthetic tooling tests on every PR/main/manual event.
+Only outgoing links under `docs/archive/` are historical exemptions. Incoming current links to archive files/fragments always validate. `--all` audits outgoing archive links too. CI checks Markdown, synthetic tooling tests and shell syntax on PR/main/manual events. See the [archive index](../archive/README.md) for exact deleted-history provenance.
 
-## Offline catalog observation
+## Retained qualification and packaging helpers
+
+`brn-ai`'s optional `capability-spike` examples retain bounded provider fixtures. The synthetic catalog path reads no credentials/files and makes no calls:
 
 ```sh
 cargo run -p brn-ai --features capability-spike --example provider-capabilities \
   --locked --offline -- --synthetic-catalog
 ```
 
-The existing qualification example emits built-in synthetic envelope/container
-shape, raw count and exact wire-order IDs. Missing/malformed containers differ
-from an actual empty catalog; invalid/duplicate IDs yield no partial ID list.
-Only fixed diagnostic fields are retained. This route reads no files, credentials
-or account state and makes no calls. It does not qualify Luna availability or
-change the product discovery parser. **This is synthetic observation coverage,
-not integration with actual live model discovery.** The example's existing live
-path calls `Auth::client` and runs completion probes; it does not call
-`Auth::models`.
+Synthetic envelope/count/wire-order observations do not qualify live discovery or model availability. Real discovery returns processed model options; raw provider transport observation requires a separately scoped interface. Live examples follow the current assignment's provider authority.
 
-The existing discovery API returns only `Vec<ModelOption>` (`id` and
-`live_qualified`). A future authorized harness caller could retain that processed
-list's count and IDs. It cannot reconstruct raw envelope shape/count: ChatGPT's
-private `subscription_models` consumes the body, validates it, then filters and
-sorts entries; Copilot's `list_models` exposes only decoded typed data. Transport
-injection is currently private and test-only. Retaining safe raw observations
-requires a separately scoped Auth/transport observation interface; this concrete
-finding was returned to the lead and that part stopped without changing product
-interfaces or duplicating authentication/network routes. Past failed extraction
-remains historical evidence; no actual catalog or Luna availability is newly
-qualified.
+`scripts/qualification/threads-runtime/live-journeys.py` remains the current bounded runtime journey harness. The retired standalone Rig comparison remains at its fixed baseline and in [historical results](../archive/threads-rebuild/rig-decoder-comparison.md).
 
-## Main protection proposal
-
-Read-only inspection on 2026-10-05 found account `admin=true`, main protection
-HTTP404 and no rulesets. Actual PR54 run `37325847448` attempt1 and commit check
-runs confirmed these four PR contexts from GitHub Actions app15368:
-
-- `Core and CLI (ubuntu-24.04)`
-- `Core and CLI (macos-15)`
-- `Native UI build and state (macos-15)`
-- `Native retrieval and combined build (macos-15)`
-
-The [exact proposed configuration](main-protection-proposal.json) requires
-those checks, strict update-to-date evaluation and enforcement for administrators.
-It includes no main-only or failing informational platform job. Existing workflow
-jobs stay red on failure; no `continue-on-error` is added.
-
-**The lead alone may apply settings after independent review.** This payload is
-for the observed unprotected branch only. Re-read protection/rulesets immediately
-before application; if protections now exist, preserve them and update only the
-required-check configuration rather than sending this creation payload. No
-repository setting was applied by this helper. Consider adding the new PR
-Documentation/tooling check separately after its real context is verified.
+Local app packaging/launcher helpers remain maintained; packaging is separate from signing/release. [Size reporting](size-report.md) measures explicitly supplied paths, not installed-size savings from source cleanup.

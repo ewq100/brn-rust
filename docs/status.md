@@ -1,29 +1,17 @@
 # BRN Threads status
 
-**Updated:** 11 October 2026. **Merged baseline:** [PR #119](https://github.com/ewq100/brn-rust/pull/119) at `aca1c28c8fe79030a7fce5360143a4beeb1d0cb1`. **Current work:** isolated branch `work/phase1-backup-folder`.
+**Updated:** 11 October 2026. **Merged baseline:** [PR #120](https://github.com/ewq100/brn-rust/pull/120), `3a3aa7ac6f2a70815ffc778a694663f729203a79`. **Current assignment:** [pre-release cleanup](work/active/pre-release-cleanup/plan.md).
 
-## Current assignment
-
-The owner explicitly authorized publishing and merging delegation after required CI, then continuing Phase 1 without routine reauthorization. Delegation is integrated. The current increment is [remembered backup folder](work/active/threads-rebuild/phase1-backup-folder-plan.md), implemented by GPT-6.1 Sol helpers in an isolated worktree.
+The implemented product has one SQLite core, shared checked changes/Undo, current-input validation, native notes/threads/Actions/review/recovery, per-context drafts, bounded source conversion, keyword search, portable Markdown export and complete backup/restore. Production uses Rig 0.44.0, host-scoped authority, nine registered tools and packaged runtime guides. See [architecture](architecture/overview.md) and [runtime behavior](architecture/threads-behavior.md#implemented-response-and-authority-contract).
 
 | Gate | State |
 |---|---|
-| Delegation integration | PR #116 merged after all four required checks and documentation/tooling passed. All four required checks passed again on main. |
-| Platform limits | Non-required Windows credential build and Linux model-install failures remain visible; no all-platform green claim. |
-| Steering plan | Independently reviewed and approved. |
-| Steering implementation/checks | PR #117 merged; all four required checks passed before merge and again on main. |
-| Backup plan/implementation | PR #118 merged; all four required checks passed before merge and again on main. |
-| Restore integration | PR #119 merged; all four required checks passed before merge and again on main. |
-| Backup folder | Implemented and independently approved; 95 core, 36 app, 45 agent, 7 CLI, 18 desktop and 39 native state tests passed. Strict Clippy and native build passed. Integration tracked on the candidate PR. |
-| Native observation | Explicitly deferred; native component tests are separate evidence. |
+| Rebuild and Phase 0/F1 | Merged in PRs #114–115; detailed proof is [archived](archive/threads-rebuild/evidence.md). |
+| Phase 1 | Delegation #116, Stop-and-send #117, atomic backup #118, restore safety #119 and remembered backup folder #120 merged after required CI. All required main checks for #116–120 were recovered and confirmed green. |
+| Platform scope | Personal macOS first. Non-required Windows credential and Linux native-retrieval/model-install failures remain visible; no all-platform green claim. |
+| Cleanup | Implemented with local checks and independent candidate review passed. Hosted PR/main integration receipts are recorded on the cleanup PR; the active plan records the frozen candidate. |
+| Native observation | Explicitly deferred. Compilation/native state tests do not establish typing, focus, dialogs, IME, selection or responsiveness. |
+| Recovery acceptance | Cold interruption/restart and broader native recovery acceptance remain outstanding before non-disposable data adoption. |
 | Release | Not authorized or performed. |
 
-## Implemented baseline and retained evidence
-
-The product has one SQLite core, shared checked changes/Undo, atomic current-input validation, native notes/threads/Actions/review/recovery, per-context session drafts, bounded source conversion, keyword search, portable Markdown metadata and complete backup/restore. Production uses Rig 0.44.0, host-scoped authority, nine registered tools and packaged runtime guides. See [architecture](architecture/overview.md), [runtime contract](architecture/threads-behavior.md#implemented-response-and-authority-contract) and [Phase 0 evidence](work/active/threads-rebuild/phase0-evidence.md).
-
-The prior [rebuild evidence](work/active/threads-rebuild/evidence.md#rig-044-runtime-integration) records its exact source, automated checks and synthetic live provider journeys; those counts are historical and overlapping. They are not fresh qualification of this increment. Personal macOS is the adopted scope. Native responsiveness, general IMEs, complex/scanned/math PDF fidelity and external distribution remain unqualified.
-
-## Next action
-
-Publish and merge the verified backup-folder candidate after required CI, then verify main. After integration, cold interruption/restart and native recovery acceptance remain the next qualification work; no further product feature or schema change is required by this increment. Delegation and steering alone do not qualify non-disposable data adoption. [Backup-folder evidence](work/active/threads-rebuild/phase1-backup-folder-evidence.md) records the current gate results.
+[Selected historical reports](archive/README.md) preserve exact tested sources, local checks, synthetic provider journeys and prior integration evidence. Their overlapping pass counts are dated proof, not fresh qualification of the cleanup candidate. Complex/scanned/math PDF fidelity, general IMEs and external distribution remain unqualified. The [roadmap](roadmap.md) separates remaining first-release gates from later capabilities.

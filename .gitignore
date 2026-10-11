@@ -1,12 +1,4 @@
 /target/
-/experiments/codex-app-server/target/
-
-/experiments/editor-trial/target/
-
-/experiments/retrieval-trial/target/
-/experiments/retrieval-trial/.cache/
-
-/experiments/rig-spike/target/
 
 .DS_Store
 

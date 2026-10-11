@@ -27,7 +27,7 @@ Protection is different from factual endorsement. Owner confirmation belongs to 
 
 **Use information** incorporates relevant information into existing or useful new notes, threads, and Actions. A routine email need not become a permanent note.
 
-**Import full note** keeps a selected paper, process description, or other key document as one complete readable note. Preserve substantive wording, sections, steps, exceptions, tables, equations, meaningful figures, and supplied references/appendices. Repeated page furniture may disappear. Full notes start protected; AI may create linked summaries and comments. Uncaptured substantive content produces a visible partial outcome.
+**Import full note** keeps a selected paper, process description, or other key document as one complete readable note. Preserve substantive wording, sections, steps, exceptions, tables, meaningful figures, and supplied references/appendices. Repeated page furniture may disappear. Full notes start protected; AI may create linked summaries and comments. Uncaptured substantive content produces a visible partial outcome. Mathematical equation conversion/typesetting is outside the first release.
 
 Original emails and files stay external. Intentionally retained full-note content and required assets belong to BRN and survive temporary-input cleanup, offline use, and backup.
 
@@ -43,4 +43,4 @@ The first release includes one native GPUI workspace, direct writing, threads/co
 
 DOCX/PPTX/HTML generation is required later. Direct external sending, broad connector automation, multiplayer/sync, live outside editing, arbitrary branch merging, and a plugin marketplace are deferred.
 
-The owner is not using the old application. Build a fresh core/schema without gradual migration or a permanent legacy runtime. See the [build plan](../work/active/threads-rebuild/plan.md).
+The owner is not using the old application. Build a fresh core/schema without gradual migration or a permanent legacy runtime. The fresh core is implemented; see [status](../status.md) for qualification and [the active plan](../work/active/pre-release-cleanup/plan.md) for current work.
