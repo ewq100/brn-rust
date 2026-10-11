@@ -1,6 +1,6 @@
 # Development workflow
 
-[AGENTS.md](../../AGENTS.md) routes assignments. The [Threads target](../architecture/threads-target.md) owns requirements; the [active plan](../work/active/pre-release-cleanup/plan.md) owns task scope.
+[AGENTS.md](../../AGENTS.md) routes assignments. The [Threads target](../architecture/threads-target.md) owns requirements; [status](../status.md) identifies the active plan that owns task scope.
 
 ## Work and review
 

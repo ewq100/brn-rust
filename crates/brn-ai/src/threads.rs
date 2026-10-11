@@ -38,6 +38,9 @@ mod source_tests;
 #[cfg(test)]
 #[path = "threads_steering_tests.rs"]
 mod steering_tests;
+#[cfg(test)]
+#[path = "threads_writing_tests.rs"]
+mod writing_tests;
 /// Constructed by the trusted request UI/CLI, never accepted from model tools
 /// or imported content. This authority ends with the fresh invocation.
 #[derive(Clone, Debug, serde::Serialize)]
@@ -45,6 +48,7 @@ mod steering_tests;
 pub enum OwnerRequest {
     EditNote { id: String, version: u64 },
     RecordDecision,
+    RewriteNote { request_message: String },
 }
 pub struct ThreadRunRequest {
     pub owner_request: Option<OwnerRequest>,
@@ -82,6 +86,7 @@ struct Scope {
     settings: Option<(String, u64)>,
     sources: BTreeMap<String, TransientSource>,
     owner_request: Option<OwnerRequest>,
+    writing_snapshot: Option<WritingSnapshot>,
     decision_target: Mutex<Option<String>>,
 }
 fn storage(_: impl std::fmt::Display) -> AiError {
@@ -390,6 +395,9 @@ tool!(
     refresh_candidate
 );
 fn read_history(scope: &Scope, args: HistoryArgs) -> AiResult<Value> {
+    if scope.writing_snapshot.is_some() {
+        return Err(rejected());
+    }
     history::read_history(scope, args)
 }
 fn refresh_candidate(scope: &Scope, args: RefreshArgs) -> AiResult<Value> {
@@ -421,6 +429,9 @@ runtime_catalog!(
 );
 
 fn read_records(scope: &Scope, args: ReadArgs) -> AiResult<Value> {
+    if scope.writing_snapshot.is_some() {
+        return Err(rejected());
+    }
     let store = scope.store.lock().map_err(storage)?;
     live(scope, &store)?;
     let mut rows = Vec::new();
@@ -476,6 +487,9 @@ fn read_records(scope: &Scope, args: ReadArgs) -> AiResult<Value> {
     Ok(json!({"records":rows,"limit":100}))
 }
 fn read_note(scope: &Scope, args: ReadNoteArgs) -> AiResult<Value> {
+    if scope.writing_snapshot.is_some() {
+        return Err(rejected());
+    }
     let store = scope.store.lock().map_err(storage)?;
     live(scope, &store)?;
     let outcome = store
@@ -490,6 +504,9 @@ fn read_note(scope: &Scope, args: ReadNoteArgs) -> AiResult<Value> {
     serde_json::to_value(outcome).map_err(storage)
 }
 fn read_source(scope: &Scope, args: SourceArgs) -> AiResult<Value> {
+    if scope.writing_snapshot.is_some() {
+        return Err(rejected());
+    }
     let store = scope.store.lock().map_err(storage)?;
     live(scope, &store)?;
     sources::source_metadata(&scope.sources, &store, &args.reference)
@@ -560,12 +577,31 @@ fn remap(request: &mut ChangeRequest, op: &OperationId) -> AiResult<()> {
     }
     Ok(())
 }
+// The host fixes the complete target, metadata and inputs. The model supplies
+// only the replacement Markdown and its explanation, never a broader scope.
+fn writing_request(snapshot: &WritingSnapshot, request: &ChangeRequest) -> AiResult<ChangeRequest> {
+    let [write] = request.writes.as_slice() else {
+        return Err(rejected());
+    };
+    let RecordData::Note(note) = &write.data else {
+        return Err(rejected());
+    };
+    let mut safe = snapshot.change_request(&note.markdown).map_err(storage)?;
+    if request.writes != safe.writes {
+        return Err(rejected());
+    }
+    safe.reason = request.reason.clone();
+    Ok(safe)
+}
 fn prepare(scope: &Scope, mut args: PrepareArgs) -> AiResult<Value> {
     if !parse_valid(
         "prepare_changes",
         &json!({"request_key":args.request_key,"request":args.request}),
     ) {
         return Err(rejected());
+    }
+    if let Some(snapshot) = &scope.writing_snapshot {
+        args.request = writing_request(snapshot, &args.request)?;
     }
     let mut store = scope.store.lock().map_err(storage)?;
     live(scope, &store)?;
@@ -581,6 +617,16 @@ fn prepare(scope: &Scope, mut args: PrepareArgs) -> AiResult<Value> {
     remap(&mut args.request, &op)?;
     sources::materialize_selected_sources(&scope.sources, &store, &op, &mut args.request)?;
     let prepared = store.prepare(&op, &args.request).map_err(storage)?;
+    if let Some(snapshot) = &scope.writing_snapshot {
+        attention(
+            scope,
+            &mut store,
+            op.as_str(),
+            &ApplyOutcome::NeedsReview {
+                denied: vec![snapshot.note.id.clone()],
+            },
+        )?;
+    }
     serde_json::to_value(prepared).map_err(storage)
 }
 fn apply(scope: &Scope, args: ApplyArgs) -> AiResult<Value> {
@@ -593,6 +639,12 @@ fn apply(scope: &Scope, args: ApplyArgs) -> AiResult<Value> {
     }
     let prepared = store.prepared(&op).map_err(storage)?;
     let replay = store.receipt(&op).map_err(storage)?.is_some();
+    if let Some(snapshot) = &scope.writing_snapshot {
+        let safe = writing_request(snapshot, &prepared.request)?;
+        if prepared.request.inputs != safe.inputs {
+            return Err(rejected());
+        }
+    }
     let authority = match &scope.owner_request {
         Some(OwnerRequest::EditNote { id, version }) => {
             if !replay
@@ -649,6 +701,12 @@ fn apply(scope: &Scope, args: ApplyArgs) -> AiResult<Value> {
                 bind(scope, HostAuthority::maintenance("Threads maintenance"))
             }
         }
+        // The durable writing-request input enforces owner review in core,
+        // including later invocations without this host mode. It is no grant.
+        Some(OwnerRequest::RewriteNote { .. }) => bind(
+            scope,
+            HostAuthority::maintenance("Writing proposal for owner review"),
+        ),
         None => bind(scope, HostAuthority::maintenance("Threads maintenance")),
     };
     let changed_sources = if store.receipt(&op).map_err(storage)?.is_some() {
@@ -974,6 +1032,39 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
         return Err(rejected());
     }
     let records = store.records().map_err(storage)?;
+    let writing_snapshot = match &request.owner_request {
+        Some(OwnerRequest::RewriteNote { request_message }) => {
+            if !request.sources.is_empty() {
+                return Err(rejected());
+            }
+            let saved = store
+                .record(request_message)
+                .map_err(storage)?
+                .ok_or_else(rejected)?;
+            let snapshot = WritingSnapshot::from_message(&saved).map_err(|_| rejected())?;
+            if snapshot.thread != request.thread {
+                return Err(rejected());
+            }
+            // Serialized record-shaped payloads are evidence only after matching
+            // exact canonical revisions and the active captured versions.
+            for captured in std::iter::once(&snapshot.note)
+                .chain(snapshot.comments.iter())
+                .chain(snapshot.messages.iter())
+            {
+                if store
+                    .revision(&captured.id, captured.version)
+                    .map_err(storage)?
+                    .as_ref()
+                    != Some(captured)
+                    || store.record(&captured.id).map_err(storage)?.as_ref() != Some(captured)
+                {
+                    return Err(rejected());
+                }
+            }
+            Some(snapshot)
+        }
+        _ => None,
+    };
     if let Some(OwnerRequest::EditNote { id, version }) = &request.owner_request
         && !records.iter().any(|record| {
             record.id == *id
@@ -1049,10 +1140,12 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
         })
         .collect::<Vec<_>>();
     messages.sort_by_key(|r| message_positions.get(&r.id).copied().unwrap_or_default());
-    let already_posted = messages.last().is_some_and(
+    let already_posted = writing_snapshot.is_some() || messages.last().is_some_and(
         |r| matches!(&r.data,RecordData::Message(m) if m.role=="owner" && m.text==request.prompt),
     );
-    let instruction = if already_posted {
+    let instruction = if let Some(snapshot) = &writing_snapshot {
+        snapshot.request_message.clone()
+    } else if already_posted {
         messages.last().unwrap().id.clone()
     } else {
         op.creation_id(1)
@@ -1189,7 +1282,9 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
             &ChangeRequest {
                 reason: "Start a fresh invocation".into(),
                 writes,
-                inputs: vec![],
+                inputs: writing_snapshot
+                    .as_ref()
+                    .map_or_else(Vec::new, WritingSnapshot::current_inputs),
             },
             &owner,
         )
@@ -1208,14 +1303,23 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
             operations.push(json!({"operation":operation,"candidate":{"request_hash":prepared.request_hash,"reason":prepared.request.reason,"targets":prepared.request.writes.iter().map(|w|json!({"id":w.id,"expected_version":w.expected_version})).collect::<Vec<_>>()}}));
         }
     }
-    let input = format!(
-        "Current Thread: {}\nRetained intentional conversation and progress: {}\nPrior operation results (recheck current versions before new writes): {}\nTransient source references available now: {}\nOwner request: {}",
-        request.thread,
-        serde_json::to_string(&retained).map_err(storage)?,
-        serde_json::to_string(&operations).map_err(storage)?,
-        serde_json::to_string(&sources.keys().collect::<Vec<_>>()).map_err(storage)?,
-        request.prompt
-    );
+    let input = if let Some(snapshot) = &writing_snapshot {
+        format!(
+            "Current Thread: {}\nSaved writing request: {}\nExact saved note, included passage comments and complete selected posted conversation: {}\nRewrite the entire selected note Markdown using only this saved context. Preserve every non-Markdown field and the captured note version. Prepare one complete note proposal with prepare_changes. This invocation grants no direct application authority; the owner reviews and applies the exact proposal. Mutable record/source/history reads and candidate refresh are unavailable. Do not resolve comments or submit conversation drafts.",
+            request.thread,
+            snapshot.request_message,
+            serde_json::to_string(snapshot).map_err(storage)?,
+        )
+    } else {
+        format!(
+            "Current Thread: {}\nRetained intentional conversation and progress: {}\nPrior operation results (recheck current versions before new writes): {}\nTransient source references available now: {}\nOwner request: {}",
+            request.thread,
+            serde_json::to_string(&retained).map_err(storage)?,
+            serde_json::to_string(&operations).map_err(storage)?,
+            serde_json::to_string(&sources.keys().collect::<Vec<_>>()).map_err(storage)?,
+            request.prompt
+        )
+    };
     Ok((
         Arc::new(Scope {
             store: Mutex::new(store),
@@ -1225,6 +1329,7 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
             settings: settings_binding,
             sources,
             owner_request: request.owner_request.clone(),
+            writing_snapshot,
             decision_target: Mutex::new(None),
         }),
         format!(
@@ -1426,7 +1531,7 @@ async fn run_model(
         .build();
     let stream = agent
         .prompt(input)
-        .tool_context(ToolContext::new().with_scope(scope))
+        .tool_context(ToolContext::new().with_scope(scope.clone()))
         .max_turns(usize::from(limit) + 1)
         .max_invalid_tool_call_retries(0)
         .max_consecutive_malformed_tool_calls(0)
@@ -1438,7 +1543,42 @@ async fn run_model(
     if invalid.load(Ordering::SeqCst) {
         answer.terminal = AiTerminal::Failed(AiError::new(AiErrorKind::InvalidToolUse));
     }
+    if matches!(answer.terminal, AiTerminal::Completed) && scope.writing_snapshot.is_some() {
+        match has_writing_proposal(&scope) {
+            Ok(true) => {}
+            Ok(false) => {
+                answer.terminal = AiTerminal::Failed(AiError::new(AiErrorKind::InvalidToolUse));
+            }
+            Err(error) => answer.terminal = AiTerminal::Failed(error),
+        }
+    }
     answer
+}
+
+fn has_writing_proposal(scope: &Scope) -> AiResult<bool> {
+    let Some(snapshot) = &scope.writing_snapshot else {
+        return Ok(true);
+    };
+    let store = scope.store.lock().map_err(storage)?;
+    let operations = store
+        .records()
+        .map_err(storage)?
+        .into_iter()
+        .filter_map(|record| match record.data {
+            RecordData::Run(run) if run.thread == snapshot.thread => Some(run.operations),
+            _ => None,
+        })
+        .flatten()
+        .collect::<Vec<_>>();
+    for candidate in store.candidates().map_err(storage)? {
+        if operations.contains(&candidate.operation)
+            && writing_request(snapshot, &candidate.request)
+                .is_ok_and(|safe| candidate.request.inputs == safe.inputs)
+        {
+            return Ok(true);
+        }
+    }
+    Ok(false)
 }
 
 #[cfg(test)]

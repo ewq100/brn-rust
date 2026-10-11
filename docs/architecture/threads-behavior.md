@@ -8,6 +8,8 @@ A thread is the continuing context for a question, decision, or piece of work. I
 
 Notes remain independently readable knowledge. Actions retain their own progress and completion evidence. A thread does not have to contain every fact about its subject, and the conversation is not the authoritative representation of an Action's due date or a note's current text. Opening a thread loads current linked records and identifies historical revisions when discussing earlier work.
 
+The accepted writing workbench presents the full selected linked thread beside the current note. Passage comments accumulate independently of AI dispatch. **Rewrite with AI** freezes the current saved note, selected pending comments and posted chat as an inspectable request, then proposes a complete note revision for exact review. Chat additions during the run belong to the next request. No text-selection gesture grants write authority, and this command cannot become an automatic maintenance write on Continue. Explicit addressed confirmation follows a successful Apply receipt; generation and dismissal retain pending feedback. [Implementation scope and qualification](../work/active/tiled-writing-workbench/spec.md).
+
 The owner can start a thread from Ask or delegate, a selected note passage, a source import, or an existing Action. The agent can open one when useful work requires an owner decision. Routine processing can attach its outcome to an existing work context and remain quiet.
 
 ## State and attention

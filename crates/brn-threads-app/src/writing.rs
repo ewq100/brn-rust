@@ -1,0 +1,527 @@
+use crate::*;
+use std::collections::BTreeSet;
+
+const ADDRESSED_ROLE: &str = "writing-addressed";
+/// Saved feedback and derived explicit-owner addressed state.
+#[derive(Debug, Clone)]
+pub struct WritingComment {
+    pub record: Record,
+    pub addressed: bool,
+}
+/// An exact passage from the saved note and its selected conversation.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct WritingCommentInput {
+    pub note: String,
+    pub version: u64,
+    pub thread: String,
+    pub range: (usize, usize),
+    pub quote: String,
+    pub body: String,
+}
+#[derive(Debug, Serialize, Deserialize)]
+struct Addressed {
+    version: u8,
+    request_message: String,
+    applied_operation: String,
+    comments: Vec<Record>,
+}
+impl Workspace {
+    fn writing_operation(
+        &mut self,
+        kind: &str,
+        key: &str,
+        input: impl Serialize,
+    ) -> AppResult<OperationId> {
+        let binding = format!("{:x}", Sha256::digest(serde_json::to_vec(&(kind, input))?));
+        Ok(self
+            .store
+            .allocate_bound_operation(&format!("writing-{kind}:{key}"), &binding)?)
+    }
+    fn writing_replay(&mut self, operation: &OperationId) -> AppResult<Option<Receipt>> {
+        if let Some(receipt) = self.store.receipt(operation)? {
+            return Ok(Some(receipt));
+        }
+        match self.store.prepared(operation) {
+            Ok(_) => Ok(Some(applied_receipt(self.store.apply(
+                operation,
+                &HostAuthority::owner("owner writing interaction"),
+            )?)?)),
+            Err(brn_threads_core::Error::Missing(_)) => Ok(None),
+            Err(brn_threads_core::Error::Invalid(reason)) if reason == "operation not prepared" => {
+                Ok(None)
+            }
+            Err(error) => Err(error.into()),
+        }
+    }
+    fn writing_commit(
+        &mut self,
+        operation: &OperationId,
+        request: ChangeRequest,
+    ) -> AppResult<Receipt> {
+        let owner = HostAuthority::owner("owner writing interaction");
+        self.store.prepare_owner(operation, &request, &owner)?;
+        applied_receipt(self.store.apply(operation, &owner)?)
+    }
+    fn writing_note(&self, id: &str, version: Option<u64>) -> AppResult<Record> {
+        let record = self
+            .store
+            .record(id)?
+            .ok_or_else(|| AppError::Invalid("Writing note is missing".into()))?;
+        if record.archived
+            || version.is_some_and(|version| version != record.version)
+            || !matches!(&record.data, RecordData::Note(note) if note.superseded_by.is_none())
+        {
+            return Err(AppError::Invalid(
+                "The saved note changed. Refresh the saved passage before continuing".into(),
+            ));
+        }
+        Ok(record)
+    }
+    fn writing_thread(&self, id: &str) -> AppResult<Record> {
+        let record = self
+            .store
+            .record(id)?
+            .ok_or_else(|| AppError::Invalid("Writing conversation is missing".into()))?;
+        if record.archived
+            || !matches!(&record.data, RecordData::Thread(thread) if thread.state == ThreadState::Open)
+        {
+            return Err(AppError::Invalid(
+                "Select an open linked conversation".into(),
+            ));
+        }
+        Ok(record)
+    }
+    fn writing_link(&self, note: &str, thread: &str) -> AppResult<Record> {
+        self.records()?.into_iter().find(|record| !record.archived && matches!(&record.data, RecordData::Link(link) if link.from == thread && link.to == note || link.from == note && link.to == thread)).ok_or_else(|| AppError::Invalid("Select a conversation linked to this note".into()))
+    }
+    /// List note-linked conversations without copying note or chat content.
+    pub fn writing_threads(&self, note: &str) -> AppResult<Vec<Record>> {
+        self.writing_note(note, None)?;
+        let records = self.records()?;
+        let mut linked = BTreeSet::new();
+        for record in &records {
+            if !record.archived
+                && let RecordData::Link(link) = &record.data
+            {
+                if link.from == note {
+                    linked.insert(link.to.as_str());
+                }
+                if link.to == note {
+                    linked.insert(link.from.as_str());
+                }
+            }
+        }
+        Ok(records
+            .iter()
+            .filter(|record| {
+                !record.archived
+                    && linked.contains(record.id.as_str())
+                    && matches!(record.data, RecordData::Thread(_))
+            })
+            .cloned()
+            .collect())
+    }
+    /// Durably link an open conversation to this exact saved note version.
+    pub fn link_writing_thread(
+        &mut self,
+        key: &str,
+        note: &str,
+        version: u64,
+        thread: &str,
+    ) -> AppResult<Receipt> {
+        let operation = self.writing_operation("link", key, (note, version, thread))?;
+        if let Some(receipt) = self.writing_replay(&operation)? {
+            return Ok(receipt);
+        }
+        let note_record = self.writing_note(note, Some(version))?;
+        let thread_record = self.writing_thread(thread)?;
+        self.writing_commit(
+            &operation,
+            ChangeRequest {
+                reason: "Owner linked a writing conversation".into(),
+                writes: vec![Put {
+                    id: operation.creation_id(0),
+                    expected_version: None,
+                    archived: false,
+                    data: RecordData::Link(Link {
+                        from: thread.into(),
+                        to: note.into(),
+                        relation: "discusses".into(),
+                    }),
+                }],
+                inputs: current_records([&note_record, &thread_record]),
+            },
+        )
+    }
+    /// Save pending feedback at an exact UTF-8 saved passage; never start a run.
+    pub fn add_writing_comment(
+        &mut self,
+        key: &str,
+        input: &WritingCommentInput,
+    ) -> AppResult<Record> {
+        let operation = self.writing_operation("comment", key, input)?;
+        if let Some(receipt) = self.writing_replay(&operation)? {
+            return receipt_record(&receipt, &operation.creation_id(0));
+        }
+        let note = self.writing_note(&input.note, Some(input.version))?;
+        let thread = self.writing_thread(&input.thread)?;
+        let link = self.writing_link(&input.note, &input.thread)?;
+        let comment = Comment {
+            note: input.note.clone(),
+            base_version: input.version,
+            quote: input.quote.clone(),
+            range: Some(input.range),
+            mapped_version: None,
+            mapped_range: None,
+            body: input.body.clone(),
+            unresolved: false,
+        };
+        let RecordData::Note(note_data) = &note.data else {
+            unreachable!()
+        };
+        if input.body.trim().is_empty()
+            || exact_writing_range(&comment, note.version, &note_data.markdown).is_none()
+        {
+            return Err(AppError::Invalid(
+                "Select an exact nonempty saved passage and enter a comment".into(),
+            ));
+        }
+        let receipt = self.writing_commit(
+            &operation,
+            ChangeRequest {
+                reason: "Owner added pending passage feedback".into(),
+                writes: vec![
+                    Put {
+                        id: operation.creation_id(0),
+                        expected_version: None,
+                        archived: false,
+                        data: RecordData::Comment(comment),
+                    },
+                    Put {
+                        id: operation.creation_id(1),
+                        expected_version: None,
+                        archived: false,
+                        data: RecordData::Link(Link {
+                            from: input.thread.clone(),
+                            to: operation.creation_id(0),
+                            relation: "passage comment".into(),
+                        }),
+                    },
+                ],
+                inputs: current_records([&note, &thread, &link]),
+            },
+        )?;
+        receipt_record(&receipt, &operation.creation_id(0))
+    }
+    /// Load an immutable request and verify every captured record against canonical revisions.
+    pub fn writing_request(&self, message: &str) -> AppResult<WritingSnapshot> {
+        let record = self
+            .store
+            .record(message)?
+            .ok_or_else(|| AppError::Invalid("Saved writing request is missing".into()))?;
+        let snapshot = WritingSnapshot::from_message(&record)?;
+        for captured in std::iter::once(&snapshot.note)
+            .chain(snapshot.comments.iter())
+            .chain(snapshot.messages.iter())
+        {
+            if self
+                .store
+                .revision(&captured.id, captured.version)?
+                .as_ref()
+                != Some(captured)
+            {
+                return Err(AppError::Invalid(
+                    "Writing request does not match canonical saved evidence".into(),
+                ));
+            }
+        }
+        Ok(snapshot)
+    }
+    /// Persist exact saved note, selected pending feedback and all posted chat before generation.
+    /// The complete JSON is bounded to 128 KiB; overflow fails without truncation.
+    /// Reusing the same key and arguments returns the original context after later chat.
+    pub fn snapshot_writing_request(
+        &mut self,
+        key: &str,
+        note: &str,
+        version: u64,
+        thread: &str,
+        comment_ids: &[String],
+    ) -> AppResult<WritingSnapshot> {
+        let operation =
+            self.writing_operation("request", key, (note, version, thread, comment_ids))?;
+        if let Some(receipt) = self.writing_replay(&operation)? {
+            return Ok(WritingSnapshot::from_message(&receipt_record(
+                &receipt,
+                &operation.creation_id(0),
+            )?)?);
+        }
+        let note_record = self.writing_note(note, Some(version))?;
+        let thread_record = self.writing_thread(thread)?;
+        let link = self.writing_link(note, thread)?;
+        let available = self.writing_comments(note)?;
+        let mut chosen = BTreeSet::new();
+        let comments = comment_ids
+            .iter()
+            .map(|id| {
+                if !chosen.insert(id) {
+                    return Err(AppError::Invalid(
+                        "A comment was selected more than once".into(),
+                    ));
+                }
+                available
+                    .iter()
+                    .find(|comment| comment.record.id == *id && !comment.addressed)
+                    .map(|comment| comment.record.clone())
+                    .ok_or_else(|| {
+                        AppError::Invalid(
+                            "Selected feedback is missing or already addressed".into(),
+                        )
+                    })
+            })
+            .collect::<AppResult<Vec<_>>>()?;
+        let messages = self.messages(thread)?.into_iter().filter(|record| matches!(&record.data,RecordData::Message(message) if matches!(message.role.as_str(),"owner" | "assistant"))).collect();
+        let snapshot = WritingSnapshot {
+            request_message: operation.creation_id(0),
+            thread: thread.into(),
+            note: note_record,
+            comments,
+            messages,
+        };
+        let text = snapshot.message_text()?;
+        let mut inputs = snapshot.current_inputs();
+        inputs.retain(|input| input.record != snapshot.request_message);
+        inputs.extend(current_records([&thread_record, &link]));
+        self.writing_commit(
+            &operation,
+            ChangeRequest {
+                reason: "Owner saved exact writing rewrite context before generation".into(),
+                writes: vec![Put {
+                    id: snapshot.request_message.clone(),
+                    expected_version: None,
+                    archived: false,
+                    data: RecordData::Message(Message {
+                        thread: thread.into(),
+                        role: WRITING_REQUEST_ROLE.into(),
+                        text,
+                    }),
+                }],
+                inputs,
+            },
+        )?;
+        Ok(snapshot)
+    }
+    fn addressed_proof(&self, proof: &Addressed) -> AppResult<WritingSnapshot> {
+        if proof.version != 1 || proof.comments.is_empty() {
+            return Err(AppError::Invalid(
+                "Addressed feedback proof is invalid".into(),
+            ));
+        }
+        let snapshot = self.writing_request(&proof.request_message)?;
+        let operation = self.store.operation(&proof.applied_operation)?;
+        let receipt = self.store.receipt(&operation)?.ok_or_else(|| {
+            AppError::Invalid("Apply the writing proposal before marking feedback addressed".into())
+        })?;
+        let prepared = self.store.prepared(&operation)?;
+        if !prepared.request.inputs.contains(&RevisionInput {
+            record: proof.request_message.clone(),
+            version: 1,
+            expectation: InputExpectation::Current,
+        }) || !receipt.writes.iter().any(|write| {
+            write.before.as_ref() == Some(&snapshot.note)
+                && write.after.id == snapshot.note.id
+                && matches!(write.after.data, RecordData::Note(_))
+        }) {
+            return Err(AppError::Invalid(
+                "This receipt does not apply the captured writing proposal".into(),
+            ));
+        }
+        let mut seen = BTreeSet::new();
+        if proof
+            .comments
+            .iter()
+            .any(|comment| !seen.insert(&comment.id) || !snapshot.comments.contains(comment))
+        {
+            return Err(AppError::Invalid(
+                "Only feedback captured in this writing request can be addressed".into(),
+            ));
+        }
+        if self
+            .history()?
+            .iter()
+            .any(|receipt| receipt.undo_of.as_ref() == Some(&operation))
+        {
+            return Err(AppError::Invalid(
+                "This writing change was undone; its feedback remains pending".into(),
+            ));
+        }
+        Ok(snapshot)
+    }
+    /// List feedback; addressed state requires explicit confirmation of a matching, un-undone Apply.
+    /// Mapping metadata changes preserve confirmation; changed feedback content remains pending.
+    pub fn writing_comments(&self, note: &str) -> AppResult<Vec<WritingComment>> {
+        self.writing_note(note, None)?;
+        let records = self.records()?;
+        let mut addressed = BTreeMap::<String, Vec<Record>>::new();
+        for record in &records {
+            if record.archived || record.version != 1 {
+                continue;
+            }
+            if let RecordData::Message(message) = &record.data
+                && message.role == ADDRESSED_ROLE
+                && let Ok(proof) = serde_json::from_str::<Addressed>(&message.text)
+                && let Ok(snapshot) = self.addressed_proof(&proof)
+                && snapshot.note.id == note
+                && message.thread == snapshot.thread
+            {
+                for comment in proof.comments {
+                    addressed
+                        .entry(comment.id.clone())
+                        .or_default()
+                        .push(comment);
+                }
+            }
+        }
+        Ok(records
+            .into_iter()
+            .filter(|record| {
+                !record.archived
+                    && matches!(&record.data,RecordData::Comment(comment) if comment.note == note)
+            })
+            .map(|record| WritingComment {
+                addressed: addressed.get(&record.id).is_some_and(|captured| {
+                    captured
+                        .iter()
+                        .any(|captured| same_feedback(captured, &record))
+                }),
+                record,
+            })
+            .collect())
+    }
+    /// Record explicit owner confirmation only for captured feedback after its actual Apply.
+    /// Generation, Apply and dismissal themselves leave feedback pending.
+    /// Mapping-only revisions are accepted, while feedback fields must still match the captured request.
+    pub fn mark_writing_comments_addressed(
+        &mut self,
+        key: &str,
+        request_message: &str,
+        applied_operation: &str,
+        comment_ids: &[String],
+    ) -> AppResult<Receipt> {
+        let operation = self.writing_operation(
+            "addressed",
+            key,
+            (request_message, applied_operation, comment_ids),
+        )?;
+        if let Some(receipt) = self.writing_replay(&operation)? {
+            return Ok(receipt);
+        }
+        let snapshot = self.writing_request(request_message)?;
+        let mut seen = BTreeSet::new();
+        let comments = comment_ids
+            .iter()
+            .map(|id| {
+                if !seen.insert(id) {
+                    return Err(AppError::Invalid("Feedback selected twice".into()));
+                }
+                snapshot
+                    .comments
+                    .iter()
+                    .find(|comment| comment.id == *id)
+                    .cloned()
+                    .ok_or_else(|| {
+                        AppError::Invalid("Only captured feedback can be addressed".into())
+                    })
+            })
+            .collect::<AppResult<Vec<_>>>()?;
+        let proof = Addressed {
+            version: 1,
+            request_message: request_message.into(),
+            applied_operation: applied_operation.into(),
+            comments,
+        };
+        // Capture before the no-Undo proof so a concurrent Undo makes this input stale.
+        let note = self.writing_note(&snapshot.note.id, None)?;
+        self.addressed_proof(&proof)?;
+        // Fence the current versions while preserving the original captured feedback proof.
+        // Location mapping may advance a Comment without changing the owner's feedback.
+        let current_comments = proof
+            .comments
+            .iter()
+            .map(|captured| {
+                let current = self
+                    .store
+                    .record(&captured.id)?
+                    .ok_or_else(|| AppError::Invalid("Captured feedback is missing".into()))?;
+                if !same_feedback(captured, &current) {
+                    return Err(AppError::Invalid(
+                        "Captured feedback changed after this writing request; it remains pending"
+                            .into(),
+                    ));
+                }
+                Ok(current)
+            })
+            .collect::<AppResult<Vec<_>>>()?;
+        let mut inputs = current_records(current_comments.iter());
+        inputs.extend(current_records([&note]));
+        inputs.push(RevisionInput {
+            record: request_message.into(),
+            version: 1,
+            expectation: InputExpectation::Current,
+        });
+        self.writing_commit(
+            &operation,
+            ChangeRequest {
+                reason: "Owner explicitly marked captured writing feedback addressed after Apply"
+                    .into(),
+                writes: vec![Put {
+                    id: operation.creation_id(0),
+                    expected_version: None,
+                    archived: false,
+                    data: RecordData::Message(Message {
+                        thread: snapshot.thread,
+                        role: ADDRESSED_ROLE.into(),
+                        text: serde_json::to_string(&proof)?,
+                    }),
+                }],
+                inputs,
+            },
+        )
+    }
+}
+fn current_records<'a>(records: impl IntoIterator<Item = &'a Record>) -> Vec<RevisionInput> {
+    records
+        .into_iter()
+        .map(|record| RevisionInput {
+            record: record.id.clone(),
+            version: record.version,
+            expectation: InputExpectation::Current,
+        })
+        .collect()
+}
+fn receipt_record(receipt: &Receipt, id: &str) -> AppResult<Record> {
+    receipt
+        .writes
+        .iter()
+        .find(|write| write.after.id == id)
+        .map(|write| write.after.clone())
+        .ok_or_else(|| AppError::Invalid("Writing operation has no matching saved record".into()))
+}
+
+// Feedback identity is its saved original anchor and instruction. Current location
+// mapping and uncertainty are presentation metadata, independent of addressed state.
+fn same_feedback(captured: &Record, current: &Record) -> bool {
+    if captured.id != current.id || current.archived {
+        return false;
+    }
+    match (&captured.data, &current.data) {
+        (RecordData::Comment(captured), RecordData::Comment(current)) => {
+            captured.note == current.note
+                && captured.base_version == current.base_version
+                && captured.range == current.range
+                && captured.quote == current.quote
+                && captured.body == current.body
+        }
+        _ => false,
+    }
+}

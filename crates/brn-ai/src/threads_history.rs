@@ -77,6 +77,9 @@ pub(super) fn refresh_schema() -> Value {
     definition
 }
 pub(super) fn refresh(scope: &Scope, mut args: RefreshArgs) -> AiResult<Value> {
+    if scope.writing_snapshot.is_some() {
+        return Err(rejected());
+    }
     if !validate_refresh(
         &json!({"operation":args.operation,"request_key":args.request_key,"request":args.request}),
     ) {
@@ -85,6 +88,14 @@ pub(super) fn refresh(scope: &Scope, mut args: RefreshArgs) -> AiResult<Value> {
     let mut store = scope.store.lock().map_err(storage)?;
     live(scope, &store)?;
     let original = store.operation(&args.operation).map_err(storage)?;
+    let prepared = store.prepared(&original).map_err(storage)?;
+    for input in &prepared.request.inputs {
+        if matches!(store.revision(&input.record, input.version).map_err(storage)?,
+            Some(Record { data: RecordData::Message(message), .. }) if message.role == WRITING_REQUEST_ROLE)
+        {
+            return Err(rejected());
+        }
+    }
     let thread = thread_for(scope, &store)?;
     if !store.records().map_err(storage)?.iter().any(|record| !record.archived && matches!(&record.data, RecordData::Run(run) if run.thread == thread && run.operations.contains(&original))) {
         return Err(rejected());

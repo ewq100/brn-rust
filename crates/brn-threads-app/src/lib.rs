@@ -13,9 +13,11 @@ mod review;
 mod review_groups;
 mod settings;
 mod steering;
+mod writing;
 pub use export::ExportManifest;
 pub use intake::import_report;
 pub use review_groups::{ReviewGroup, ReviewGroups};
+pub use writing::{WritingComment, WritingCommentInput};
 #[derive(Debug, thiserror::Error)]
 pub enum AppError {
     #[error(transparent)]

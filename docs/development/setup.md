@@ -1,6 +1,6 @@
 # Development setup
 
-Read [AGENTS.md](../../AGENTS.md), [status](../status.md) and the [active plan](../work/active/pre-release-cleanup/plan.md). Inspect local/remote state and preserve unrelated work before choosing an isolated task branch/worktree.
+Read [AGENTS.md](../../AGENTS.md), [status](../status.md) and the active plan linked there. Inspect local/remote state and preserve unrelated work before choosing an isolated task branch/worktree.
 
 ## Check the machine
 

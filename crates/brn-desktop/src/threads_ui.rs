@@ -37,8 +37,8 @@ use tokio_util::sync::CancellationToken;
 mod state;
 use state::{
     ComposerDestination, ComposerDrafts, WorkerKind, can_continue_thread, comment_location,
-    continuation_notice, delegation_status, latest_run, linked, outcome_message, passage_request,
-    save_message, sections,
+    continuation_notice, delegation_status, latest_run, linked, outcome_message, save_message,
+    sections,
 };
 
 #[cfg(all(test, feature = "native-test-support"))]
@@ -52,6 +52,10 @@ mod backup_tests;
 #[cfg(all(test, feature = "native-test-support"))]
 #[path = "threads_steering_tests.rs"]
 mod steering_tests;
+
+#[cfg(all(test, feature = "native-test-support"))]
+#[path = "threads_writing_tests.rs"]
+mod writing_tests;
 
 #[cfg(all(test, feature = "native-test-support"))]
 mod search_tests {
@@ -151,10 +155,18 @@ impl Page {
     fn composer_destination(&self) -> ComposerDestination {
         match self {
             Self::Thread(id) => ComposerDestination::Thread(id.clone()),
+            Self::Note(id) => ComposerDestination::Note(id.clone(), None),
             _ => ComposerDestination::Home,
         }
     }
 }
+#[derive(Clone)]
+struct CommentDraft {
+    anchor: Option<(String, u64, std::ops::Range<usize>, String)>,
+    body: String,
+    operation: Option<String>,
+}
+
 struct OpenNote {
     record: Record,
     session: Option<EditSession>,
@@ -307,6 +319,12 @@ struct ThreadsUi {
     review: Option<Review>,
     comment_input: Entity<EditorState>,
     comment_anchor: Option<(String, u64, std::ops::Range<usize>, String)>,
+    comment_operation: Option<String>,
+    comment_drafts: BTreeMap<String, CommentDraft>,
+    writing_threads: BTreeMap<String, String>,
+    excluded_comments: BTreeSet<String>,
+    expanded_requests: BTreeSet<String>,
+    applied_rewrite: BTreeMap<String, (String, String)>,
     assets: Arc<BTreeMap<String, Arc<Image>>>,
     worker: Option<Worker>,
     pending_send: Option<PendingSend>,
@@ -369,6 +387,15 @@ impl ThreadsUi {
                     if matches!(event, InputEvent::Change) && this.note_editor_visible() {
                         this.note_changed(editor.read(cx).value().to_string());
                         cx.notify();
+                    }
+                },
+            ),
+            cx.subscribe_in(
+                &comment_input,
+                window,
+                |this, _, event: &InputEvent, _, _| {
+                    if matches!(event, InputEvent::Change) {
+                        this.comment_operation = None;
                     }
                 },
             ),
@@ -436,6 +463,12 @@ impl ThreadsUi {
             review: None,
             comment_input,
             comment_anchor: None,
+            comment_operation: None,
+            comment_drafts: BTreeMap::new(),
+            writing_threads: BTreeMap::new(),
+            excluded_comments: BTreeSet::new(),
+            expanded_requests: BTreeSet::new(),
+            applied_rewrite: BTreeMap::new(),
             assets: Arc::new(BTreeMap::new()),
             worker: None,
             pending_send: None,
@@ -458,6 +491,44 @@ impl ThreadsUi {
             self.candidates = self.workspace.candidates()?;
             self.buffers = self.workspace.store.recovery_buffers()?;
             self.settings = self.workspace.settings()?;
+            // Only an actual target-note Apply receipt proves addressed feedback or Undo.
+            self.applied_rewrite.clear();
+            let requests=self.records.iter().filter(|record| !record.archived && matches!(&record.data,RecordData::Message(message) if message.role=="writing-request")).map(|record|record.id.as_str()).collect::<BTreeSet<_>>();
+            let undone = self
+                .history
+                .iter()
+                .filter_map(|receipt| receipt.undo_of.as_ref().map(OperationId::as_str))
+                .collect::<BTreeSet<_>>();
+            for receipt in self.history.iter().rev().filter(|receipt| {
+                !requests.is_empty()
+                    && receipt.undo_of.is_none()
+                    && !undone.contains(receipt.operation.as_str())
+                    && receipt.writes.iter().any(|write| {
+                        write.before.is_some() && matches!(write.after.data, RecordData::Note(_))
+                    })
+            }) {
+                let Ok(candidate) = self.workspace.store.prepared(&receipt.operation) else {
+                    continue;
+                };
+                let Some(snapshot) = candidate
+                    .request
+                    .inputs
+                    .iter()
+                    .filter(|input| requests.contains(input.record.as_str()))
+                    .find_map(|input| self.workspace.writing_request(&input.record).ok())
+                else {
+                    continue;
+                };
+                if receipt.writes.iter().any(|write| {
+                    write.before.as_ref() == Some(&snapshot.note)
+                        && write.after.id == snapshot.note.id
+                        && matches!(write.after.data, RecordData::Note(_))
+                }) {
+                    self.applied_rewrite
+                        .entry(snapshot.note.id)
+                        .or_insert((snapshot.request_message, receipt.operation.as_str().into()));
+                }
+            }
             Ok(())
         })();
         if let Err(error) = result {
@@ -521,16 +592,44 @@ impl ThreadsUi {
         cx.notify();
     }
     fn navigate(&mut self, page: Page, window: &mut Window, cx: &mut Context<Self>) {
+        if self.review.is_some() {
+            self.keep_review(window, cx);
+            if self.review.is_some() {
+                return;
+            }
+        }
         self.preserve_visible_note_input(cx);
         window.blur(cx);
         self.change_page(page, window, cx);
-        self.comment_anchor = None;
         self.refresh();
         cx.notify();
     }
+    fn composer_destination(&self, page: &Page) -> ComposerDestination {
+        if let Page::Note(note) = page {
+            self.writing_threads.get(note).map_or_else(
+                || ComposerDestination::Note(note.clone(), None),
+                |thread| ComposerDestination::Thread(thread.clone()),
+            )
+        } else {
+            page.composer_destination()
+        }
+    }
+    fn preserve_comment_draft(&mut self, cx: &Context<Self>) {
+        if let Page::Note(note) = &self.page {
+            self.comment_drafts.insert(
+                note.clone(),
+                CommentDraft {
+                    anchor: self.comment_anchor.clone(),
+                    body: self.comment_input.read(cx).value().to_string(),
+                    operation: self.comment_operation.clone(),
+                },
+            );
+        }
+    }
     fn change_page(&mut self, page: Page, window: &mut Window, cx: &mut Context<Self>) {
-        let old = self.page.composer_destination();
-        let next = page.composer_destination();
+        self.preserve_comment_draft(cx);
+        let old = self.composer_destination(&self.page);
+        let next = self.composer_destination(&page);
         self.composer_drafts
             .preserve(old.clone(), self.composer.read(cx).value().to_string());
         if old != next {
@@ -539,6 +638,19 @@ impl ThreadsUi {
                 .update(cx, |editor, cx| editor.set_value(text, window, cx));
         }
         self.page = page;
+        let draft = match &self.page {
+            Page::Note(note) => self.comment_drafts.get(note).cloned(),
+            _ => None,
+        };
+        self.comment_anchor = draft.as_ref().and_then(|draft| draft.anchor.clone());
+        self.comment_operation = draft.as_ref().and_then(|draft| draft.operation.clone());
+        self.comment_input.update(cx, |editor, cx| {
+            editor.set_value(
+                draft.map(|draft| draft.body).unwrap_or_default(),
+                window,
+                cx,
+            )
+        });
     }
     fn composer_destination_label(&self) -> String {
         match &self.page {
@@ -558,7 +670,19 @@ impl ThreadsUi {
                     .find(|record| record.id == *id)
                     .map(title)
                     .unwrap_or_else(|| id.clone());
-                format!("Start a new thread about: {}", name)
+                self.writing_threads.get(id).map_or_else(
+                    || format!("Start a conversation about: {name}"),
+                    |thread| {
+                        format!(
+                            "Document chat: {}",
+                            self.records
+                                .iter()
+                                .find(|record| &record.id == thread)
+                                .map(title)
+                                .unwrap_or_else(|| thread.clone())
+                        )
+                    },
+                )
             }
             _ => "Start a new thread · Home draft".into(),
         }
@@ -570,8 +694,46 @@ impl ThreadsUi {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
+        if self
+            .review
+            .as_ref()
+            .is_some_and(|review| review.note.as_deref() != Some(id))
+        {
+            self.keep_review(window, cx);
+            if self.review.is_some() {
+                return;
+            }
+        }
         self.preserve_visible_note_input(cx);
+        self.preserve_comment_draft(cx);
         window.blur(cx);
+        let recovery = recovery.or_else(|| {
+            self.workspace
+                .store
+                .recovery_buffers()
+                .ok()?
+                .into_iter()
+                .find(|session| session.note == id)
+        });
+        if !self.writing_threads.contains_key(id)
+            && let Ok(threads) = self.workspace.writing_threads(id)
+            && let Some(thread) = self
+                .history
+                .iter()
+                .rev()
+                .flat_map(|receipt| receipt.writes.iter().rev())
+                .filter(|write| write.before.is_none())
+                .find_map(|write| {
+                    self.workspace
+                        .writing_request(&write.after.id)
+                        .ok()
+                        .filter(|snapshot| snapshot.note.id == id)
+                        .map(|snapshot| snapshot.thread)
+                })
+                .or_else(|| threads.first().map(|record| record.id.clone()))
+        {
+            self.writing_threads.insert(id.into(), thread);
+        }
         match self.workspace.store.note(id) {
             Ok(Some(record)) => {
                 let RecordData::Note(note) = &record.data else {
@@ -593,7 +755,6 @@ impl ThreadsUi {
                 self.current_view
                     .update(cx, |view, cx| view.set_text(&note.markdown, cx));
                 self.change_page(Page::Note(id.into()), window, cx);
-                self.comment_anchor = None;
                 self.focus_visible_editor(window, cx);
                 self.refresh();
                 cx.notify();
@@ -756,6 +917,22 @@ impl ThreadsUi {
     }
     fn open_review(&mut self, candidate: Prepared, window: &mut Window, cx: &mut Context<Self>) {
         self.preserve_visible_note_input(cx);
+        if let Some(snapshot) = candidate
+            .request
+            .inputs
+            .iter()
+            .find_map(|input| self.workspace.writing_request(&input.record).ok())
+        {
+            if self.page == Page::Note(snapshot.note.id.clone()) {
+                self.select_writing_thread(snapshot.note.id.clone(), snapshot.thread, window, cx);
+            } else {
+                self.writing_threads
+                    .insert(snapshot.note.id.clone(), snapshot.thread);
+            }
+            if self.page != Page::Note(snapshot.note.id.clone()) {
+                self.open_note(&snapshot.note.id, None, window, cx);
+            }
+        }
         window.blur(cx);
         let write = candidate
             .request
@@ -859,8 +1036,33 @@ impl ThreadsUi {
         {
             Ok(outcome) => {
                 self.notice = outcome_message(&outcome);
-                if matches!(outcome, ApplyOutcome::Applied(_)) {
+                if let ApplyOutcome::Applied(receipt) = &outcome {
+                    if let Some(input) = review
+                        .candidate
+                        .request
+                        .inputs
+                        .iter()
+                        .find(|input| self.workspace.writing_request(&input.record).is_ok())
+                        && let Ok(snapshot) = self.workspace.writing_request(&input.record)
+                    {
+                        self.applied_rewrite.insert(
+                            snapshot.note.id,
+                            (input.record.clone(), receipt.operation.as_str().into()),
+                        );
+                    }
                     self.review = None;
+                    if let Some(open) = &mut self.note
+                        && open.session.is_none()
+                        && let Ok(Some(record)) = self.workspace.store.note(&open.record.id)
+                        && let RecordData::Note(note) = &record.data
+                    {
+                        self.note_editor.update(cx, |editor, cx| {
+                            editor.set_value(note.markdown.clone(), window, cx)
+                        });
+                        self.note_view
+                            .update(cx, |view, cx| view.set_text(&note.markdown, cx));
+                        open.record = record;
+                    }
                     self.focus_visible_editor(window, cx);
                 }
             }
@@ -886,7 +1088,16 @@ impl ThreadsUi {
         cx.notify();
     }
     fn capture_comment(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        self.capture_selection(true, window, cx);
+    }
+    fn capture_selection(&mut self, focus: bool, window: &mut Window, cx: &mut Context<Self>) {
         let Some(open) = &self.note else { return };
+        if !focus
+            && ((open.editing && self.note_editor.read(cx).selected_range().is_empty())
+                || (!open.editing && self.note_view.read(cx).selected_source_range().is_none()))
+        {
+            return;
+        }
         if open.session.is_some() {
             self.notice = "Save your note before attaching a passage comment.".into();
             cx.notify();
@@ -911,49 +1122,258 @@ impl ThreadsUi {
             && range.start < range.end
             && let Some(quote) = note.markdown.get(range.clone())
         {
-            self.comment_anchor = Some((
+            let anchor = (
                 open.record.id.clone(),
                 open.record.version,
                 range,
                 quote.into(),
-            ));
-            self.comment_input.update(cx, |e, cx| e.focus(window, cx));
-        } else {
+            );
+            if self.comment_anchor.as_ref() != Some(&anchor) {
+                self.comment_operation = None;
+                self.comment_anchor = Some(anchor);
+            }
+            if focus {
+                self.comment_input.update(cx, |e, cx| e.focus(window, cx));
+            }
+        } else if focus {
             self.notice =
                 "Select a passage to discuss. The selection must map to the saved note.".into();
         }
         cx.notify();
     }
+    fn select_writing_thread(
+        &mut self,
+        note: String,
+        thread: String,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        let old = self.composer_destination(&self.page);
+        self.composer_drafts
+            .preserve(old, self.composer.read(cx).value().to_string());
+        self.writing_threads.insert(note, thread);
+        let destination = self.composer_destination(&self.page);
+        let text = self.composer_drafts.text(&destination).to_owned();
+        self.composer
+            .update(cx, |editor, cx| editor.set_value(text, window, cx));
+        cx.notify();
+    }
+    fn new_writing_thread(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        let Some(open) = &self.note else {
+            return;
+        };
+        let note = open.record.id.clone();
+        let version = open.record.version;
+        let result = self
+            .workspace
+            .new_thread(&format!("Writing: {}", title(&open.record)))
+            .and_then(|thread| {
+                self.workspace
+                    .link_writing_thread(
+                        &format!("writing-link:{}", uuid::Uuid::new_v4()),
+                        &note,
+                        version,
+                        &thread.id,
+                    )
+                    .map(|_| thread.id)
+            });
+        match result {
+            Ok(thread) => self.select_writing_thread(note, thread, window, cx),
+            Err(error) => {
+                self.notice =
+                    format!("Could not link a new chat: {error}. Your drafts are preserved.")
+            }
+        };
+        self.refresh();
+        cx.notify();
+    }
+    fn ensure_writing_thread(&mut self, note: &str, version: u64) -> AppResult<String> {
+        if let Some(thread) = self.writing_threads.get(note) {
+            if !self.workspace.store.record(thread)?.is_some_and(|record| !record.archived && matches!(record.data,RecordData::Thread(thread) if thread.state==ThreadState::Open)) {
+                return Err(AppError::Invalid("Selected chat is resolved or unavailable. Choose New chat for more feedback or instructions; your drafts are preserved.".into()));
+            }
+            return Ok(thread.clone());
+        }
+        let thread = self.workspace.new_thread(&format!(
+            "Writing: {}",
+            self.note
+                .as_ref()
+                .map(|open| title(&open.record))
+                .unwrap_or_else(|| note.into())
+        ))?;
+        self.workspace.link_writing_thread(
+            &format!("writing-link:{}", uuid::Uuid::new_v4()),
+            note,
+            version,
+            &thread.id,
+        )?;
+        self.writing_threads.insert(note.into(), thread.id.clone());
+        Ok(thread.id)
+    }
     fn post_comment(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         let Some((note, version, range, quote)) = self.comment_anchor.clone() else {
             return;
         };
+        if self
+            .note
+            .as_ref()
+            .is_none_or(|open| open.record.id != note || open.session.is_some())
+        {
+            self.notice = "Save your edit, then select the saved passage again. Your comment draft is preserved.".into();
+            cx.notify();
+            return;
+        }
         let body = self.comment_input.read(cx).value().to_string();
         if body.trim().is_empty() {
             return;
         }
-        let key = format!("comment:{}", uuid::Uuid::new_v4());
-        let operation = match self.workspace.store.allocate_operation(&key) {
-            Ok(op) => op,
-            Err(e) => {
-                self.notice = e.to_string();
+        let old = self.composer_destination(&self.page);
+        let result = self
+            .ensure_writing_thread(&note, version)
+            .and_then(|thread| {
+                let key = self
+                    .comment_operation
+                    .get_or_insert_with(|| format!("writing-comment:{}", uuid::Uuid::new_v4()))
+                    .clone();
+                self.workspace.add_writing_comment(
+                    &key,
+                    &WritingCommentInput {
+                        note: note.clone(),
+                        version,
+                        thread,
+                        range: (range.start, range.end),
+                        quote,
+                        body,
+                    },
+                )
+            });
+        match result {
+            Ok(_) => {
+                self.comment_anchor = None;
+                self.comment_operation = None;
+                self.comment_input
+                    .update(cx, |e, cx| e.set_value("", window, cx));
+                self.composer
+                    .update(cx, |editor, cx| editor.focus(window, cx));
+                self.notice =
+                    "Comment added to pending feedback. Rewrite with AI when ready.".into();
+            }
+            Err(error) => {
+                self.notice =
+                    format!("{error}. Your comment draft and saved passage are preserved.")
+            }
+        }
+        // The first linked thread inherits this note's unsent chat draft, never Home's.
+        let next = self.composer_destination(&self.page);
+        if old != next {
+            self.composer_drafts.posted(&old);
+        }
+        self.preserve_comment_draft(cx);
+        self.refresh();
+        cx.notify();
+    }
+    fn rewrite_note(&mut self, cx: &mut Context<Self>) {
+        if let Some(worker) = &self.worker {
+            self.notice = worker.kind.busy_notice().into();
+            cx.notify();
+            return;
+        }
+        let Some(open) = &self.note else {
+            return;
+        };
+        if open.session.is_some() {
+            self.notice = "Save your edit before requesting a rewrite of the saved note.".into();
+            cx.notify();
+            return;
+        }
+        let note = open.record.id.clone();
+        let version = open.record.version;
+        let comments = match self.workspace.writing_comments(&note) {
+            Ok(comments) => comments,
+            Err(error) => {
+                self.notice = error.to_string();
                 cx.notify();
                 return;
             }
         };
-        let (thread, request) = passage_request(&operation, &note, version, range, &quote, &body);
-        match self.workspace.owner_change(&key, &request) {
-            Ok(outcome) => {
-                self.notice = outcome_message(&outcome);
-                if matches!(outcome, ApplyOutcome::Applied(_)) {
-                    self.comment_anchor = None;
-                    self.comment_input
-                        .update(cx, |e, cx| e.set_value("", window, cx));
-                    self.navigate(Page::Thread(thread), window, cx);
+        let ids = comments
+            .into_iter()
+            .filter(|comment| {
+                !comment.addressed && !self.excluded_comments.contains(&comment.record.id)
+            })
+            .map(|comment| comment.record.id)
+            .collect::<Vec<_>>();
+        let result = self
+            .ensure_writing_thread(&note, version)
+            .and_then(|thread| {
+                self.workspace.snapshot_writing_request(
+                    &format!("writing-request:{}", uuid::Uuid::new_v4()),
+                    &note,
+                    version,
+                    &thread,
+                    &ids,
+                )
+            });
+        match result {
+            Ok(snapshot) => self.retry_rewrite(snapshot.request_message, cx),
+            Err(error) => {
+                self.notice =
+                    format!("Rewrite could not be saved: {error}. Your feedback remains pending.");
+                cx.notify();
+            }
+        }
+        self.refresh();
+        cx.notify();
+    }
+    fn confirm_addressed(
+        &mut self,
+        request: &str,
+        operation: &str,
+        ids: &[String],
+        cx: &mut Context<Self>,
+    ) {
+        match self.workspace.mark_writing_comments_addressed(
+            &format!("writing-addressed:{}", uuid::Uuid::new_v4()),
+            request,
+            operation,
+            ids,
+        ) {
+            Ok(_) => {
+                self.notice =
+                    "Selected captured comments marked addressed. Other feedback remains pending."
+                        .into()
+            }
+            Err(error) => self.notice = error.to_string(),
+        }
+        self.refresh();
+        cx.notify();
+    }
+    fn retry_rewrite(&mut self, message: String, cx: &mut Context<Self>) {
+        match self.workspace.writing_request(&message) {
+            Ok(snapshot) => {
+                let changed = snapshot.current_inputs().iter().any(|input| {
+                    self.workspace
+                        .store
+                        .record(&input.record)
+                        .ok()
+                        .flatten()
+                        .is_none_or(|record| record.archived || record.version != input.version)
+                });
+                if changed {
+                    self.notice = "Saved rewrite context changed. Feedback is preserved; Reload saved note, then request a new Rewrite with AI.".into();
+                    cx.notify();
+                    return;
+                }
+                self.start_run("Rewrite the saved document using the captured feedback and selected chat; prepare a whole-note proposal for review.".into(), snapshot.thread, vec![], Some(brn_ai::threads::OwnerRequest::RewriteNote { request_message: message }), cx);
+                if self.worker.is_none() {
+                    self.notice = format!(
+                        "Rewrite request saved; AI has not started. {} Retry rewrite uses these same saved inputs.",
+                        self.notice
+                    );
                 }
             }
-            Err(e) => self.notice = e.to_string(),
-        };
+            Err(error) => self.notice = error.to_string(),
+        }
         self.refresh();
         cx.notify();
     }
@@ -1053,7 +1473,13 @@ impl ThreadsUi {
             && self.worker.as_ref().is_some_and(|worker| {
                 worker.kind == WorkerKind::Run
                     && worker.run_id.is_some()
-                    && matches!(&self.page, Page::Thread(thread) if worker.thread.as_ref() == Some(thread))
+                    && match &self.page {
+                        Page::Thread(thread) => worker.thread.as_ref() == Some(thread),
+                        Page::Note(note) => {
+                            self.writing_threads.get(note) == worker.thread.as_ref()
+                        }
+                        _ => false,
+                    }
             })
     }
     fn stop_and_send(&mut self, window: &mut Window, cx: &mut Context<Self>) {
@@ -1080,7 +1506,7 @@ impl ThreadsUi {
                     prompt,
                 });
                 self.composer_drafts
-                    .posted(&ComposerDestination::Thread(thread));
+                    .posted(&self.composer_destination(&self.page));
                 self.composer
                     .update(cx, |editor, cx| editor.set_value("", window, cx));
                 worker.cancel.cancel();
@@ -1112,37 +1538,24 @@ impl ThreadsUi {
             return;
         }
         let prompt = self.composer.read(cx).value().to_string();
-        let destination = self.page.composer_destination();
+        let destination = self.composer_destination(&self.page);
         if prompt.trim().is_empty() {
             return;
         }
         let thread = match &self.page {
             Page::Thread(id) => Ok(id.clone()),
+            Page::Note(note) => {
+                let note = note.clone();
+                let version = self
+                    .note
+                    .as_ref()
+                    .map(|open| open.record.version)
+                    .unwrap_or(0);
+                self.ensure_writing_thread(&note, version)
+            }
             _ => self.workspace.new_thread(&short(&prompt)).map(|r| r.id),
         };
         match thread.and_then(|thread| {
-            if let Page::Note(note) = &self.page {
-                let key = format!("ask-link:{}", uuid::Uuid::new_v4());
-                let operation = self.workspace.store.allocate_operation(&key)?;
-                let request = ChangeRequest {
-                    reason: "Owner asked about a note".into(),
-                    writes: vec![Put {
-                        id: operation.creation_id(0),
-                        expected_version: None,
-                        archived: false,
-                        data: RecordData::Link(Link {
-                            from: thread.clone(),
-                            to: note.clone(),
-                            relation: "discusses".into(),
-                        }),
-                    }],
-                    inputs: vec![],
-                };
-                let outcome = self.workspace.owner_change(&key, &request)?;
-                if !matches!(outcome, ApplyOutcome::Applied(_)) {
-                    return Err(AppError::Invalid(outcome_message(&outcome)));
-                }
-            }
             self.workspace
                 .post_message(&thread, &prompt)
                 .map(|_| thread)
@@ -1151,7 +1564,9 @@ impl ThreadsUi {
                 self.composer_drafts.posted(&destination);
                 self.composer
                     .update(cx, |e, cx| e.set_value("", window, cx));
-                self.navigate(Page::Thread(thread.clone()), window, cx);
+                if !matches!(self.page, Page::Note(_)) {
+                    self.navigate(Page::Thread(thread.clone()), window, cx);
+                }
                 self.start_run(prompt, thread, vec![], owner_request, cx);
             }
             Err(e) => self.notice = e.to_string(),
@@ -1160,6 +1575,19 @@ impl ThreadsUi {
         cx.notify();
     }
     fn continue_run(&mut self, thread: String, cx: &mut Context<Self>) {
+        if let Ok(messages) = self.workspace.messages(&thread) {
+            for record in messages.iter().rev() {
+                if let RecordData::Message(message) = &record.data {
+                    if message.role == "owner" {
+                        break;
+                    }
+                    if message.role == "writing-request" {
+                        self.retry_rewrite(record.id.clone(), cx);
+                        return;
+                    }
+                }
+            }
+        }
         self.start_run("Continue the work from the saved conversation, current linked notes and recorded outcomes. Recheck current versions and authority.".into(),thread,vec![],None,cx);
     }
     fn cancel(&mut self, cx: &mut Context<Self>) {
@@ -2152,6 +2580,14 @@ impl ThreadsUi {
         row.into_any_element()
     }
     fn thread_view(&self, id: &str, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
+        self.thread_surface(id, false, cx)
+    }
+    fn thread_surface(
+        &self,
+        id: &str,
+        embedded: bool,
+        cx: &mut Context<Self>,
+    ) -> gpui_kit::AnyElement {
         let Some(record) = self.records.iter().find(|r| r.id == id) else {
             return div().child("Thread unavailable.").into_any_element();
         };
@@ -2160,6 +2596,7 @@ impl ThreadsUi {
         };
         let mut conversation = div()
             .id("thread-conversation")
+            .test_support()
             .flex_1()
             .min_w_0()
             .h_full()
@@ -2201,7 +2638,11 @@ impl ThreadsUi {
             conversation = conversation.child(item);
         }
         let linked_ids = linked(&self.records, id);
-        for record in self.records.iter().filter(|r| linked_ids.contains(&r.id)) {
+        for record in self
+            .records
+            .iter()
+            .filter(|r| !embedded && linked_ids.contains(&r.id))
+        {
             if let RecordData::Comment(comment) = &record.data {
                 let note = self.records.iter().find(|r| r.id == comment.note);
                 let location = note.and_then(|r| {
@@ -2237,6 +2678,9 @@ impl ThreadsUi {
                 let RecordData::Message(body) = &message.data else {
                     continue;
                 };
+                if !matches!(body.role.as_str(), "owner" | "assistant") {
+                    continue;
+                }
                 conversation = conversation.child(
                     panel()
                         .child(
@@ -2299,6 +2743,9 @@ impl ThreadsUi {
                         })),
                     ),
             );
+        }
+        if embedded {
+            return conversation.into_any_element();
         }
         let mut context = div()
             .id("thread-linked-work")
@@ -2439,6 +2886,17 @@ impl ThreadsUi {
                     .label("Save")
                     .disabled(open.session.is_none())
                     .on_click(cx.listener(|this, _, window, cx| this.save(window, cx))),
+            )
+            .child(
+                Button::new("reload-note")
+                    .label("Reload saved note")
+                    .disabled(open.session.is_some())
+                    .on_click(cx.listener(|this, _, window, cx| {
+                        if let Some(open) = &this.note {
+                            let id = open.record.id.clone();
+                            this.open_note(&id, None, window, cx);
+                        }
+                    })),
             )
             .child(
                 Button::new("discard-note")
@@ -2650,59 +3108,138 @@ impl ThreadsUi {
                 .min_h_0()
                 .w_full()
                 .child(editor)
+                .on_mouse_up(
+                    gpui_kit::MouseButton::Left,
+                    cx.listener(|this, _, window, cx| this.capture_selection(false, window, cx)),
+                )
+                .on_key_up(
+                    cx.listener(|this, _, window, cx| this.capture_selection(false, window, cx)),
+                )
                 .test_support(),
         );
-        if let Some((_, _, _, quote)) = &self.comment_anchor {
-            content = content.child(
+        content.into_any_element()
+    }
+    fn writing_panel(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
+        let Some(open) = &self.note else {
+            return div().into_any_element();
+        };
+        let note_id = open.record.id.clone();
+        let RecordData::Note(note) = &open.record.data else {
+            return div().into_any_element();
+        };
+        let selected = self.writing_threads.get(&note_id);
+        let mut threads = div()
+            .flex()
+            .flex_wrap()
+            .gap_1()
+            .child(div().font_family("Menlo").text_sm().child("DOCUMENT CHAT"));
+        if let Ok(linked) = self.workspace.writing_threads(&note_id) {
+            for record in linked {
+                let thread = record.id.clone();
+                let note = note_id.clone();
+                threads = threads.child(
+                    Button::new(format!("writing-thread-{thread}"))
+                        .label(short(&title(&record)))
+                        .selected(selected == Some(&thread))
+                        .on_click(cx.listener(move |this, _, window, cx| {
+                            this.select_writing_thread(note.clone(), thread.clone(), window, cx)
+                        })),
+                );
+            }
+        }
+        threads = threads.child(
+            Button::new("new-writing-chat")
+                .label("New chat")
+                .on_click(cx.listener(|this, _, window, cx| this.new_writing_thread(window, cx))),
+        );
+        let mut feedback = div()
+            .id("writing-feedback")
+            .max_h(px(220.))
+            .overflow_y_scroll()
+            .flex()
+            .flex_col()
+            .gap_2();
+        if let Some((anchor_note, version, _, quote)) = &self.comment_anchor
+            && anchor_note == &note_id
+        {
+            feedback = feedback.child(
                 panel()
-                    .child("Comment on this passage")
-                    .child(short(quote))
+                    .child(heading("Comment on selection"))
+                    .child(format!("Saved version {version} · {quote}"))
                     .child(
-                        div()
-                            .h(px(90.))
-                            .child(Editor::new(&self.comment_input).h_full()),
+                        div().h(px(76.)).child(
+                            Editor::new(&self.comment_input)
+                                .h_full()
+                                .aria_label("Passage feedback"),
+                        ),
                     )
                     .child(
                         Button::new("post-comment")
-                            .label("Start discussion")
+                            .label("Add comment")
+                            .disabled(open.session.is_some())
                             .on_click(
                                 cx.listener(|this, _, window, cx| this.post_comment(window, cx)),
                             ),
                     ),
             );
         }
-        let mut comments = div()
-            .id("note-comments")
-            .max_h(px(170.))
-            .overflow_y_scroll()
-            .flex()
-            .flex_col()
-            .gap_2();
-        for record in self.records.iter().filter(|r| !r.archived) {
-            let RecordData::Comment(comment) = &record.data else {
+        let (comments, feedback_error) = match self.workspace.writing_comments(&note_id) {
+            Ok(comments) => (comments, None),
+            Err(error) => (
+                vec![],
+                Some(format!(
+                    "Could not load pending feedback: {error}. Reload saved note to retry."
+                )),
+            ),
+        };
+        if let Some(error) = &feedback_error {
+            feedback = feedback.child(error.clone());
+        }
+        let mut included = 0;
+        let mut unresolved_included = false;
+        for entry in &comments {
+            let RecordData::Comment(comment) = &entry.record.data else {
                 continue;
             };
-            if comment.note != open.record.id {
-                continue;
-            }
             let location = comment_location(comment, open.record.version, &note.markdown);
-            let mut row = div()
-                .flex()
-                .flex_col()
-                .gap_1()
-                .child(short(&comment.body))
-                .child(format!(
-                    "Passage comment · {}",
-                    if location.is_some() {
-                        "Current passage"
-                    } else {
-                        "Location unresolved; original quote preserved"
-                    }
-                ))
-                .child(short(&comment.quote));
+            let checked = !entry.addressed && !self.excluded_comments.contains(&entry.record.id);
+            if checked {
+                unresolved_included |= location.is_none();
+                included += 1;
+            }
+            let mut row = panel()
+                .child(comment.body.clone())
+                .child(comment.quote.clone())
+                .child(if entry.addressed {
+                    "Addressed · history retained"
+                } else if location.is_none() {
+                    "Pending · passage unresolved. Exclude or select the saved passage again."
+                } else if checked {
+                    "Pending · included in next rewrite"
+                } else {
+                    "Pending · excluded from next rewrite"
+                });
+            if !entry.addressed {
+                let id = entry.record.id.clone();
+                row = row.child(
+                    Button::new(format!("include-comment-{id}"))
+                        .label(if checked {
+                            "Exclude from rewrite"
+                        } else {
+                            "Include in rewrite"
+                        })
+                        .disabled(!checked && location.is_none())
+                        .on_click(cx.listener(move |this, _, _, cx| {
+                            if !this.excluded_comments.remove(&id) {
+                                this.excluded_comments.insert(id.clone());
+                            }
+                            cx.notify();
+                        })),
+                );
+            }
             if let Some(range) = location {
                 row = row.child(
-                    Button::new(format!("reveal-comment-{}", record.id))
+                    Button::new(format!("reveal-comment-{}", entry.record.id))
                         .label("Show passage")
                         .disabled(open.session.is_some())
                         .on_click(cx.listener(move |this, _, window, cx| {
@@ -2710,41 +3247,184 @@ impl ThreadsUi {
                         })),
                 );
             }
-            for thread_id in linked(&self.records, &record.id) {
-                if self
-                    .records
-                    .iter()
-                    .any(|r| r.id == thread_id && matches!(r.data, RecordData::Thread(_)))
-                {
-                    row = row.child(
-                        Button::new(format!("open-comment-thread-{thread_id}"))
-                            .label("Open discussion")
-                            .on_click(cx.listener(move |this, _, window, cx| {
-                                this.navigate(Page::Thread(thread_id.clone()), window, cx)
-                            })),
-                    );
+            feedback = feedback.child(row);
+        }
+        let mut requests = div()
+            .id("writing-requests")
+            .max_h(px(120.))
+            .overflow_y_scroll()
+            .flex()
+            .flex_col()
+            .gap_2();
+        // Host request Messages are durable; the most recent is discoverable after restart.
+        if let Some(record) = selected
+            .and_then(|thread| self.workspace.messages(thread).ok())
+            .and_then(|messages| {
+                messages.into_iter().rev().find(|record| {
+                    matches!(&record.data,RecordData::Message(message) if message.role=="writing-request") && self.workspace
+                        .writing_request(&record.id)
+                        .is_ok_and(|snapshot| snapshot.note.id == note_id)
+                })
+            })
+            && let Ok(snapshot) = self.workspace.writing_request(&record.id)
+            && snapshot.note.id == note_id
+        {
+            let request = record.id.clone();
+            let quotes = snapshot
+                .comments
+                .iter()
+                .filter_map(|record| match &record.data {
+                    RecordData::Comment(comment) => {
+                        Some(format!("{}: {}", comment.quote, comment.body))
+                    }
+                    _ => None,
+                })
+                .collect::<Vec<_>>();
+            let toggle = record.id.clone();
+            let mut disclosure = panel().child(heading("Saved rewrite inputs")).child(
+                Button::new("inspect-rewrite-inputs")
+                    .label(if self.expanded_requests.contains(&record.id) {
+                        "Hide captured note and chat"
+                    } else {
+                        "View captured note and chat"
+                    })
+                    .on_click(cx.listener(move |this, _, _, cx| {
+                        if !this.expanded_requests.remove(&toggle) {
+                            this.expanded_requests.insert(toggle.clone());
+                        }
+                        cx.notify();
+                    })),
+            );
+            disclosure = disclosure.child(format!("Saved note v{} · {} comments · {} posted chat messages. Later additions stay pending.",snapshot.note.version,snapshot.comments.len(),snapshot.messages.len())).children(quotes);
+            if self.expanded_requests.contains(&record.id) {
+                if let RecordData::Note(note) = &snapshot.note.data {
+                    disclosure =
+                        disclosure
+                            .child(heading("Captured saved note"))
+                            .child(self.safe_message(
+                                format!("captured-note-{}", record.id),
+                                note.markdown.clone(),
+                            ));
+                }
+                disclosure = disclosure.child(heading("Captured posted chat"));
+                for message in &snapshot.messages {
+                    if let RecordData::Message(body) = &message.data {
+                        disclosure = disclosure
+                            .child(if body.role == "owner" { "You" } else { "BRN" })
+                            .child(self.safe_message(
+                                format!("captured-chat-{}", message.id),
+                                body.text.clone(),
+                            ));
+                    }
                 }
             }
-            comments = comments.child(row);
+            requests = requests.child(
+                disclosure.child(
+                    Button::new("retry-rewrite")
+                        .label("Retry rewrite with these inputs")
+                        .disabled(self.worker.is_some())
+                        .on_click(cx.listener(move |this, _, _, cx| {
+                            this.retry_rewrite(request.clone(), cx)
+                        })),
+                ),
+            );
         }
-        content = content.child(comments);
-        let linked_ids = linked(&self.records, &open.record.id);
-        let mut discussion = div().flex().flex_wrap().gap_2();
-        for record in self
-            .records
-            .iter()
-            .filter(|r| linked_ids.contains(&r.id) && matches!(r.data, RecordData::Thread(_)))
+        if let Some((request, operation)) = self.applied_rewrite.get(&note_id)
+            && let Ok(snapshot) = self.workspace.writing_request(request)
+            && snapshot.note.id == note_id
         {
-            let id = record.id.clone();
-            discussion = discussion.child(
-                Button::new(format!("note-thread-{id}"))
-                    .label(format!("Discuss: {}", short(&title(record))))
+            let request = request.clone();
+            let operation = operation.clone();
+            let undo = operation.clone();
+            let already_addressed = snapshot.comments.iter().all(|captured| {
+                comments
+                    .iter()
+                    .any(|entry| entry.record.id == captured.id && entry.addressed)
+            });
+            for captured in &snapshot.comments {
+                if comments
+                    .iter()
+                    .any(|entry| entry.record.id == captured.id && entry.addressed)
+                {
+                    continue;
+                }
+                let record_id = captured.id.clone();
+                let request = request.clone();
+                let operation = operation.clone();
+                let label = match &captured.data {
+                    RecordData::Comment(comment) => {
+                        format!("Mark addressed: {}", short(&comment.body))
+                    }
+                    _ => continue,
+                };
+                requests = requests.child(
+                    Button::new(format!("address-comment-{record_id}"))
+                        .label(label)
+                        .on_click(cx.listener(move |this, _, _, cx| {
+                            this.confirm_addressed(
+                                &request,
+                                &operation,
+                                std::slice::from_ref(&record_id),
+                                cx,
+                            )
+                        })),
+                );
+            }
+            let all_ids = snapshot
+                .comments
+                .iter()
+                .filter(|captured| {
+                    !comments
+                        .iter()
+                        .any(|entry| entry.record.id == captured.id && entry.addressed)
+                })
+                .map(|record| record.id.clone())
+                .collect::<Vec<_>>();
+            requests = requests.child(
+                Button::new("confirm-addressed")
+                    .label("Mark all captured comments addressed")
+                    .disabled(already_addressed || snapshot.comments.is_empty())
+                    .on_click(cx.listener(move |this, _, _, cx| {
+                        this.confirm_addressed(&request, &operation, &all_ids, cx)
+                    })),
+            );
+            requests = requests.child(
+                Button::new("undo-writing-apply")
+                    .label("Undo applied rewrite")
                     .on_click(cx.listener(move |this, _, window, cx| {
-                        this.navigate(Page::Thread(id.clone()), window, cx)
+                        match this.workspace.undo(&undo) {
+                            Ok(outcome) => this.notice = outcome_message(&outcome),
+                            Err(error) => this.notice = error.to_string(),
+                        };
+                        this.refresh();
+                        if let Some(open) = &this.note
+                            && open.session.is_none()
+                        {
+                            let id = open.record.id.clone();
+                            this.open_note(&id, None, window, cx);
+                        }
+                        cx.notify();
                     })),
             );
         }
-        content.child(discussion).into_any_element()
+        let chat = selected.map_or_else(
+            || {
+                div()
+                    .p_4()
+                    .child("Post in chat or add feedback to start this document's conversation.")
+                    .into_any_element()
+            },
+            |thread| self.thread_surface(thread, true, cx),
+        );
+        div().id("writing-chat-pane").h_full().w_full().flex().flex_col().min_w_0().min_h_0().test_support()
+            .bg(rgb(0xf1f5ed)).border_l_1().border_color(rgb(0x9cad91))
+            .child(div().id("writing-feedback-controls").p_3().flex().flex_col().gap_2().min_h_0().max_h(gpui_kit::relative(0.5)).overflow_y_scroll().child(threads)
+                .child(div().id("rewrite-scope").text_sm().child(format!("Rewrite includes saved note, {included} pending comments and all posted messages in the selected chat. Unsent drafts stay here.")))
+                .child(Button::new("rewrite-note").label(format!("Rewrite with AI · {included} comments"))
+                    .disabled(self.worker.is_some() || open.session.is_some() || feedback_error.is_some() || unresolved_included)
+                    .on_click(cx.listener(|this, _, _, cx| this.rewrite_note(cx))))
+                .child(if unresolved_included { "Exclude unresolved feedback or recapture its passage before rewriting." } else { "" }).child(requests).child(feedback))
+            .child(div().flex_1().min_h(px(140.)).child(chat)).into_any_element()
     }
     fn review_view(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         let Some(review) = &self.review else {
@@ -2827,6 +3507,7 @@ impl ThreadsUi {
         }
         let mut view = div()
             .id("review-panel")
+            .test_support()
             .w_full()
             .h_full()
             .flex()
@@ -3032,6 +3713,7 @@ impl ThreadsUi {
 impl Render for ThreadsUi {
     fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         let _retained = (&self.subscriptions, &self.poll, &self.importing);
+        let writing = matches!(self.page, Page::Note(_));
         let view = if self.review.is_some() {
             self.review_view(cx)
         } else {
@@ -3168,6 +3850,52 @@ impl Render for ThreadsUi {
                     )
                 })),
         );
+        let content = if writing {
+            let narrow = window.viewport_size().width < px(980.);
+            let mut tiles = div().id("writing-workbench").test_support().flex();
+            if narrow {
+                tiles = tiles.flex_col().overflow_y_scroll();
+            }
+            let chat_size = if narrow {
+                div().h(px(640.)).w_full().flex_shrink_0()
+            } else {
+                div().w(gpui_kit::relative(0.42)).h_full()
+            };
+            let document_size = if narrow {
+                div().h(px(480.)).flex_shrink_0()
+            } else {
+                div().flex_1().h_full()
+            };
+            tiles
+                .h_full()
+                .w_full()
+                .min_w_0()
+                .child(
+                    document_size
+                        .id("writing-document-pane")
+                        .min_w_0()
+                        .min_h_0()
+                        .child(view),
+                )
+                .child(
+                    chat_size
+                        .min_w_0()
+                        .min_h_0()
+                        .flex()
+                        .flex_col()
+                        .child(div().flex_1().min_h_0().child(self.writing_panel(cx)))
+                        .child(footer),
+                )
+                .into_any_element()
+        } else {
+            div()
+                .h_full()
+                .flex()
+                .flex_col()
+                .child(div().flex_1().min_h_0().child(view))
+                .child(footer)
+                .into_any_element()
+        };
         let _ = window;
         div()
             .h_full()
@@ -3192,16 +3920,7 @@ impl Render for ThreadsUi {
             }))
             .on_action(cx.listener(|this, _: &Cancel, _, cx| this.cancel(cx)))
             .child(self.sidebar(cx))
-            .child(
-                div()
-                    .flex_1()
-                    .min_w_0()
-                    .h_full()
-                    .flex()
-                    .flex_col()
-                    .child(div().flex_1().min_h_0().child(view))
-                    .child(footer),
-            )
+            .child(div().flex_1().min_w_0().h_full().child(content))
     }
 }
 
