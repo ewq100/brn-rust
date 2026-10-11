@@ -24,5 +24,5 @@ export BRN_TEST_ARGS="$scratch/args" BRN_LAUNCH_LOG_DIR="$scratch/logs" BRN_LAUN
 test ! -e "$scratch/injected"
 export BRN_TEST_EXIT=7
 expect_failure "$scratch/Threads.app/Contents/MacOS/BRN-Threads"
-rg -q 'status 7' "$scratch/logs/startup.log"
+grep -Fq 'status 7' "$scratch/logs/startup.log"
 printf 'Threads explicit launcher and failure reporting passed\n'
