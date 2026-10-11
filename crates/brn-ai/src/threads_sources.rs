@@ -447,6 +447,7 @@ pub(super) fn materialize_selected_sources(
             }
             if selected && !request.inputs.iter().any(|input| input.record == record.id) {
                 request.inputs.push(RevisionInput {
+                    expectation: InputExpectation::Current,
                     record: record.id.clone(),
                     version: record.version,
                 });

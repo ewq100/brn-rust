@@ -1,14 +1,14 @@
-# BRN Threads rebuild
+# BRN Threads
 
-BRN is being redesigned as a local workspace where an AI agent maintains useful knowledge, carries work forward, and opens a thread when the owner needs to decide something.
+BRN is a local workspace where an AI agent maintains useful knowledge, carries work forward, and opens a thread when the owner needs to decide something.
 
-**Branch:** `rebuild/threads`. **Status:** the new SQLite core, Threads runtime and native views are implemented. Offline/live qualification is underway; native interaction and owner acceptance remain pending.
+**Baseline:** Threads rebuild merged in PR #114 at `d768db7`. The SQLite core, runtime and native views are implemented. [Phase 0 and F1 hardening](docs/work/active/threads-rebuild/phase0-plan.md) is the current assignment; current candidate checks and remaining native/owner acceptance are tracked in [status](docs/status.md).
 
 ## Start
 
 - [Agent instructions](AGENTS.md)
 - [Canonical Threads target](docs/architecture/threads-target.md)
-- [Build plan](docs/work/active/threads-rebuild/plan.md)
+- [Current hardening plan](docs/work/active/threads-rebuild/phase0-plan.md) and [rebuild history](docs/work/active/threads-rebuild/plan.md)
 - [Independent review brief](docs/work/active/threads-rebuild/review-brief.md) and [review status](docs/work/active/threads-rebuild/review.md)
 - [Build agent prompt](docs/work/active/threads-rebuild/build-prompt.md)
 - [Development setup](docs/development/setup.md) and [current progress](docs/status.md)
@@ -23,6 +23,6 @@ The first usable release includes a native GPUI workspace, direct writing, revie
 
 ## Development baseline
 
-The reference is [main at af9239c](https://github.com/ewq100/brn-rust/commit/af9239c741c7ab0983e62f0253e607b9607727e6), including PR #113. The rebuild uses a fresh core and schema in this repository. No user-data migration or permanent compatibility engine is required.
+The historical pre-rebuild reference is [main at af9239c](https://github.com/ewq100/brn-rust/commit/af9239c741c7ab0983e62f0253e607b9607727e6), including PR #113. The implemented Threads core uses its own schema in this repository. No user-data migration or permanent compatibility engine is required.
 
 Use a fresh explicit absolute `--data-dir` with either binary. Other BRN formats refuse; no old data is opened or migrated. The [CLI](crates/brn/README.md) and [desktop](crates/brn-desktop/README.md) share the checked application service.

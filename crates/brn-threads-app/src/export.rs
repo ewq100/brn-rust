@@ -71,7 +71,8 @@ pub fn publish(store: &Store, destination: &Path) -> AppResult<ExportManifest> {
         let RecordData::Note(note) = &record.data else {
             continue;
         };
-        let markdown = crate::assets::rewrite(&note.markdown, |id| assets.get(id).cloned())?;
+        let body = crate::assets::rewrite(&note.markdown, |id| assets.get(id).cloned())?;
+        let markdown = portable_markdown(record, note, &records, &body)?;
         let name = format!("{}.md", safe_name(&record.id));
         fs::write(stage.path().join(&name), markdown.as_bytes())?;
         manifest.files.push(ExportFile {
@@ -98,6 +99,56 @@ pub fn publish(store: &Store, destination: &Path) -> AppResult<ExportManifest> {
     fs::File::open(stage.path().join("manifest.json"))?.sync_all()?;
     rename_exclusive(stage.path(), destination)?;
     Ok(manifest)
+}
+fn portable_markdown(
+    record: &Record,
+    note: &Note,
+    records: &[Record],
+    body: &str,
+) -> AppResult<String> {
+    let mut source_ids = std::collections::BTreeSet::new();
+    if let Some(import) = &note.import {
+        source_ids.insert(import.source.as_str());
+    }
+    for row in records {
+        if !row.archived
+            && let RecordData::Link(link) = &row.data
+            && link.from == record.id
+        {
+            source_ids.insert(link.to.as_str());
+        }
+    }
+    let sources: Vec<_> = records
+        .iter()
+        .filter_map(|row| {
+            if source_ids.contains(row.id.as_str())
+                && let RecordData::Source(source) = &row.data
+            {
+                Some((row, source))
+            } else {
+                None
+            }
+        })
+        .collect();
+    // JSON double-quoted scalars are YAML-compatible. Newlines/delimiters remain
+    // escaped data, and an existing front matter block stays untouched in body.
+    let mut markdown = format!("---\ntitle: {}\n", serde_json::to_string(&note.title)?);
+    if sources.is_empty() {
+        markdown.push_str("sources: []\n");
+    } else {
+        markdown.push_str("sources:\n");
+        for (row, source) in sources {
+            markdown.push_str(&format!(
+                "  - record: {}\n    locator: {}\n    label: {}\n",
+                serde_json::to_string(&row.id)?,
+                serde_json::to_string(&source.locator)?,
+                serde_json::to_string(&source.label)?,
+            ));
+        }
+    }
+    markdown.push_str("---\n");
+    markdown.push_str(body);
+    Ok(markdown)
 }
 fn safe_name(id: &str) -> String {
     id.chars()

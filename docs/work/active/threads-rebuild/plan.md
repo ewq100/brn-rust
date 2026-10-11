@@ -1,5 +1,8 @@
 # BRN Threads rebuild plan
 
+> Historical rebuild execution plan. PR #114 merged at `d768db7`; the current assignment is [Phase 0 and F1 hardening](phase0-plan.md). Earlier setup/implementation permissions and progress below describe their recorded checkpoints.
+
+
 **Branch:** `rebuild/threads`. **Reference baseline:** `af9239c741c7ab0983e62f0253e607b9607727e6`. **Date:** 10 October 2026.
 
 ## Assignment and target

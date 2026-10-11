@@ -27,6 +27,9 @@ mod sources;
 use history::{HistoryArgs, RefreshArgs};
 pub use sources::{TransientAsset, TransientSource};
 #[cfg(test)]
+#[path = "threads_current_inputs_tests.rs"]
+mod current_inputs_tests;
+#[cfg(test)]
 #[path = "threads_sources_tests.rs"]
 mod source_tests;
 /// Constructed by the trusted request UI/CLI, never accepted from model tools
@@ -214,8 +217,7 @@ fn parse_valid(name: &str, args: &Value) -> bool {
                 && a.request_key.len() <= 128
                 && a.request.writes.len() <= 64
                 && !a.request.writes.is_empty()
-                && serde_json::to_value(&a.request)
-                    .is_ok_and(|request| args.get("request") == Some(&request))
+                && request_matches_args(&a.request, &args["request"])
                 && a.request.writes.iter().all(|w| {
                     !matches!(
                         w.data,
@@ -228,6 +230,22 @@ fn parse_valid(name: &str, args: &Value) -> bool {
         }),
         _ => false,
     }
+}
+// Default Current is omitted from immutable request serialization, but both
+// omitted and explicit Current are valid model arguments. Preserve strict
+// round-trip validation of every other field, including unknown fields.
+fn request_matches_args(request: &ChangeRequest, args: &Value) -> bool {
+    let mut canonical = args.clone();
+    if let Some(inputs) = canonical.get_mut("inputs").and_then(Value::as_array_mut) {
+        for input in inputs {
+            if input.get("expectation").and_then(Value::as_str) == Some("Current")
+                && let Some(input) = input.as_object_mut()
+            {
+                input.remove("expectation");
+            }
+        }
+    }
+    serde_json::to_value(request).is_ok_and(|request| request == canonical)
 }
 fn object(properties: Value, required: Value) -> Value {
     json!({"type":"object","properties":properties,"required":required,"additionalProperties":false})
@@ -255,7 +273,7 @@ fn schema(name: &str) -> Value {
             json!(["summary"]),
         ),
         "prepare_changes" => object(
-            json!({"request_key":{"type":"string"},"request":object(json!({"reason":{"type":"string"},"writes":{"type":"array","items":object(json!({"id":{"type":"string"},"expected_version":{"type":["integer","null"]},"archived":{"type":"boolean"},"data":{"type":"object","description":"Exactly one typed variant: Note, Thread, Action, Source, Link, or Comment. Read current records for complete field shape. Note: title,markdown,protected,confirmed,superseded_by,import. Action: description,state (Suggested/Open/Waiting/Done/Cancelled),internal,evidence,due. New IDs use new:0, new:1 etc; references may use those same placeholders."}}),json!(["id","expected_version","archived","data"]))},"inputs":{"type":"array","items":object(json!({"record":{"type":"string"},"version":{"type":"integer"}}),json!(["record","version"]))}}),json!(["reason","writes","inputs"]))}),
+            json!({"request_key":{"type":"string"},"request":object(json!({"reason":{"type":"string"},"writes":{"type":"array","items":object(json!({"id":{"type":"string"},"expected_version":{"type":["integer","null"]},"archived":{"type":"boolean"},"data":{"type":"object","description":"Exactly one typed variant: Note, Thread, Action, Source, Link, or Comment. Read current records for complete field shape. Note: title,markdown,protected,confirmed,superseded_by,import. Action: description,state (Suggested/Open/Waiting/Done/Cancelled),internal,evidence,due. New IDs use new:0, new:1 etc; references may use those same placeholders."}}),json!(["id","expected_version","archived","data"]))},"inputs":{"type":"array","items":object(json!({"record":{"type":"string"},"version":{"type":"integer"},"expectation":{"type":"string","enum":["Current","Historical"],"description":"Default Current checks this exact active version atomically at Apply. Use Historical only for an intentional citation of an accepted older revision, not current facts."}}),json!(["record","version"]))}}),json!(["reason","writes","inputs"]))}),
             json!(["request_key", "request"]),
         ),
         _ => unreachable!(),

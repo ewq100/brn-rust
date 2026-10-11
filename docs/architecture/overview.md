@@ -1,6 +1,6 @@
 # BRN Threads architecture overview
 
-The [canonical Threads target](threads-target.md) owns the detailed architecture. This page is a navigation summary. The [behavior design](threads-behavior.md) supplies concrete thread and packaged runtime-guide defaults. The setup commit changes the target and routing; the code still implements the baseline until replaced.
+The [canonical Threads target](threads-target.md) owns the detailed architecture. This page is a navigation summary. The [behavior design](threads-behavior.md) supplies concrete thread and packaged runtime-guide defaults. The SQLite Threads core, runtime and native workspace are implemented. The rebuild merged at `d768db7`; the [current hardening plan](../work/active/threads-rebuild/phase0-plan.md) addresses review findings. See [status](../status.md) for verification and acceptance limits.
 
 ## One state owner
 
@@ -27,7 +27,7 @@ Defer autonomous writes to a note with unsaved owner writing. Retain meaningful 
 
 ## Reuse boundary
 
-Reuse useful GPUI controls, provider integrations, maintained decoders, and retrieval capabilities. The existing crate map is a source of components, not a frozen architecture. Replace mutable-vault coordination, blanket proposal gating, original-copy recovery, temporary comments, and old-state readers when implementing the new core.
+Reuse useful GPUI controls, provider integrations, maintained decoders, and retrieval capabilities. The existing crate map is a source of components, not a frozen architecture. The new core replaced mutable-vault coordination, blanket proposal gating, original-copy recovery, temporary comments, and old-state readers.
 
 Full-note import shares the same notes, assets, source references, and protection model as other work. Qualify converter and reader coverage without building a universal source renderer.
 

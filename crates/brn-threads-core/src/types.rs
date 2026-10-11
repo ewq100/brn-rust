@@ -242,6 +242,23 @@ pub struct Put {
 pub struct RevisionInput {
     pub record: String,
     pub version: u64,
+    /// Current reads must still be active at this version when the group commits.
+    /// Historical citations retain provenance without asserting current truth.
+    #[serde(default, skip_serializing_if = "InputExpectation::is_current")]
+    pub expectation: InputExpectation,
+}
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub enum InputExpectation {
+    /// Omission is safe for runtime tools and preserves old request bytes/hashes.
+    /// Unapplied old candidates therefore gain current-read validation.
+    #[default]
+    Current,
+    Historical,
+}
+impl InputExpectation {
+    fn is_current(&self) -> bool {
+        *self == Self::Current
+    }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ChangeRequest {

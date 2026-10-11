@@ -1,30 +1,30 @@
 # BRN Threads agent guide
 
-This branch prepares the BRN Threads rebuild. Follow the user's current task. Setup, review, implementation, verification, acceptance, and integration are distinct activities.
+The Threads rebuild is implemented and merged at `d768db7`. The current assignment hardens that baseline. Follow the user's current task. Setup, review, implementation, verification, acceptance, and integration are distinct activities.
 
 ## Start here
 
-1. Inspect branch, HEAD, remote head, and working-tree changes. The shared rebuild branch is `rebuild/threads`; preserve unrelated work and use an isolated checkout/worktree.
-2. Read [status](docs/status.md) and the [rebuild plan](docs/work/active/threads-rebuild/plan.md). For implementation or architecture review, read the [canonical Threads target](docs/architecture/threads-target.md), then the [thread and runtime-guidance design](docs/architecture/threads-behavior.md) and task-relevant code.
+1. Inspect branch, HEAD, remote head, and working-tree changes. Preserve unrelated work and use an isolated task branch/worktree from the confirmed baseline.
+2. Read [status](docs/status.md) and the current [Phase 0 plan](docs/work/active/threads-rebuild/phase0-plan.md). The [rebuild plan](docs/work/active/threads-rebuild/plan.md) preserves implementation history. For implementation or architecture review, read the [canonical Threads target](docs/architecture/threads-target.md), then the [thread and runtime-guidance design](docs/architecture/threads-behavior.md) and task-relevant code.
 3. Read [workflow](docs/development/workflow.md), [setup](docs/development/setup.md), and [verification](docs/development/verification.md) as needed.
 4. Follow the completed [review dispositions](docs/work/active/threads-rebuild/review.md#build-lead-dispositions) and prove them during implementation; do not repeat the whole-plan review.
 
 ## Current authority
 
-The owner authorized preparing this rebuild environment on 10 October 2026. This setup does not start product implementation. An explicit build assignment, including the supplied [build prompt](docs/work/active/threads-rebuild/build-prompt.md), authorizes implementation of its scope. Once assigned, continue through the agreed milestones without routine reauthorization.
+The owner authorized Phase 0 and the F1 stale-input correction on 11 October 2026, using an isolated worktree and GPT-6.1 Sol implementation subagents. The [current plan](docs/work/active/threads-rebuild/phase0-plan.md) records scope, accepted product decisions, file ownership, and checks. Continue this assigned work without routine reauthorization. Later review recommendations are not implementation assignments.
 
 The canonical Threads target owns the selected product and architecture contract. The other current overview files are navigation and implementation summaries. Update the target and affected summaries together when a justified correction is made; record substantive dispositions in the rebuild plan. Routine implementation choices are delegated. Ask the owner only when a real product choice or permission outside the assignment cannot be resolved from current instructions.
 
 This branch supersedes the old architecture freeze, expired overnight permissions, V1 stage ordering, exact-byte live Markdown authority, blanket review-before-AI-write rule, mandatory original retention, and temporary-comment deletion. These changes implement the owner's current direction; they do not weaken repository protection or external access controls.
 
-Only `docs/work/active/threads-rebuild/` is active for this rebuild. Other old active folders, audits, prior architecture decisions, crate contracts, and baseline tests are evidence about the old implementation. Their historical authorization is not a new task. Inspect them only when useful for reuse or a specific behavior.
+The active task is `docs/work/active/threads-rebuild/phase0-plan.md`; the other rebuild files retain the selected contracts and prior evidence. Other old active folders, audits, prior architecture decisions, crate contracts, and baseline tests are evidence about the old implementation. Their historical authorization is not a new task. Inspect them only when useful for reuse or a specific behavior.
 
 ## Essential target boundaries
 
 - A fresh SQLite core/schema owns notes, revisions, threads, Actions, source references, changes, and authorization. Search indexes are rebuildable.
 - One shared checked commit/Undo service serves desktop, built-in agent, CLI, and eventual external agents.
 - Ordinary working notes support delegated AI maintenance. Whole-note protection and owner confirmation are separate; applicable direct owner instructions can authorize protected changes.
-- Runtime semantic guidance uses the planned packaged base guide and four SKILL.md playbooks; the application explicitly loads them, and they cannot grant permissions. Root AGENTS.md is development guidance, not the shipped runtime prompt.
+- Runtime semantic guidance uses the packaged base guide and four SKILL.md playbooks; the application explicitly loads them, and they cannot grant permissions. Root AGENTS.md is development guidance, not the shipped runtime prompt.
 - Originals remain external. Routine intake uses useful information; explicitly requested full-note import preserves complete substantive content and necessary assets. Full imports start protected without another creation approval. Mathematical equation fidelity is outside the first-release requirements.
 - Markdown export is on demand; full backup covers BRN state. DOCX/PPTX/HTML generation is later scope.
 - No gradual old-data migration, dual writes, permanent legacy runtime, mandatory Jujutsu/CRDT, or universal converter. Reuse useful GPUI, providers, converters, and retrieval deliberately.
@@ -37,6 +37,6 @@ One lead owns shared interfaces and integration. Delegate bounded independent wo
 
 Use synthetic/public fixtures and fresh explicit data directories. Do not open or migrate old BRN data. Follow the current assignment for live provider testing; do not inspect or print raw credentials, silently change provider/account, send external messages, release the app, or weaken protection.
 
-Commit/push task-owned changes to the rebuild branch when assigned. Never force-push shared history. Merging the rebuild into `main` requires the applicable owner instruction and repository checks; this setup does not grant that merge.
+Commit task-owned changes on the isolated task branch; publish only within the current assignment. Never force-push shared history. Merging a new candidate into `main` requires the applicable owner instruction and repository checks; this hardening assignment does not grant a merge or release.
 
 Report implemented, verified, owner-accepted, and merged separately. Keep [status](docs/status.md) concise and record durable evidence in the rebuild plan or evidence file. Do not claim native usability from compilation.

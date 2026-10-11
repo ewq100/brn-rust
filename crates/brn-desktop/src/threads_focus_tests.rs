@@ -3,6 +3,204 @@ use super::*;
 use gpui_kit::{Focusable, TestAppContext, test::TestWindowExt};
 
 #[gpui_kit::test]
+fn composer_drafts_follow_home_and_each_thread(cx: &mut TestAppContext) {
+    let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let data = root.path().join("composer-drafts-regression");
+    let mut workspace = Workspace::open(&data).unwrap();
+    // Persist the fixture selection: navigation refreshes saved settings.
+    // No provider worker or credentials are needed to test message posting.
+    let mut settings = workspace.settings().unwrap();
+    settings.provider = "offline-fixture".into();
+    settings.auth_file = None;
+    settings.credentials_dir = None;
+    workspace.configure(settings).unwrap();
+    let a = workspace.new_thread("Draft thread A").unwrap();
+    let b = workspace.new_thread("Draft thread B").unwrap();
+    let note = workspace
+        .new_note("Draft note context", "Synthetic note")
+        .unwrap();
+    cx.update(gpui_kit::init);
+    let (window, view) = cx.update(|cx| {
+        gpui_kit::open_window(WindowOptions::default(), cx, |window, cx| {
+            cx.new(|cx| {
+                let mut view = ThreadsUi::new(workspace, data, window, cx);
+                view.poll = None;
+                view
+            })
+        })
+        .unwrap()
+    });
+    cx.update_window(window, |_, window, cx| {
+        view.update(cx, |view, cx| {
+            view.composer.update(cx, |editor, cx| editor.set_value("Home draft", window, cx));
+            view.navigate(Page::Thread(a.id.clone()), window, cx);
+            assert_eq!(view.composer.read(cx).value().as_ref(), "");
+            view.composer.update(cx, |editor, cx| editor.set_value("A draft õun", window, cx));
+            view.navigate(Page::Thread(b.id.clone()), window, cx);
+            assert_eq!(view.composer.read(cx).value().as_ref(), "");
+            view.composer.update(cx, |editor, cx| editor.set_value("B draft", window, cx));
+            view.navigate(Page::Thread(a.id.clone()), window, cx);
+            assert_eq!(view.composer.read(cx).value().as_ref(), "A draft õun");
+            view.open_note(&note.id, None, window, cx);
+            assert_eq!(view.composer.read(cx).value().as_ref(), "Home draft");
+            assert_eq!(view.composer_destination_label(), "Start a new thread about: Draft note context");
+            view.navigate(Page::Thread(a.id.clone()), window, cx);
+            assert_eq!(view.composer.read(cx).value().as_ref(), "A draft õun");
+            view.navigate(Page::Home, window, cx);
+            assert_eq!(view.composer.read(cx).value().as_ref(), "Home draft");
+            view.navigate(Page::Thread(b.id.clone()), window, cx);
+            assert_eq!(view.composer.read(cx).value().as_ref(), "B draft");
+            view.navigate(Page::Thread(a.id.clone()), window, cx);
+            view.ask(window, cx);
+            assert_eq!(view.page, Page::Thread(a.id.clone()));
+            assert_eq!(view.composer.read(cx).value().as_ref(), "");
+            assert!(view.worker.is_none());
+            let messages = view.workspace.messages(&a.id).unwrap();
+            assert_eq!(messages.len(), 1);
+            assert!(matches!(&messages[0].data, RecordData::Message(message) if message.text == "A draft õun" && message.thread == a.id));
+            assert!(view.workspace.messages(&b.id).unwrap().is_empty());
+            view.navigate(Page::Home, window, cx);
+            assert_eq!(view.composer.read(cx).value().as_ref(), "Home draft");
+            view.ask(window, cx);
+            let Page::Thread(home_thread) = &view.page else { panic!("Home sends to a new thread") };
+            assert_ne!(home_thread, &a.id);
+            assert_ne!(home_thread, &b.id);
+            let messages = view.workspace.messages(home_thread).unwrap();
+            assert!(matches!(&messages[0].data, RecordData::Message(message) if message.text == "Home draft"));
+            view.navigate(Page::Home, window, cx);
+            assert_eq!(view.composer.read(cx).value().as_ref(), "");
+            view.navigate(Page::Thread(b.id.clone()), window, cx);
+            assert_eq!(view.composer.read(cx).value().as_ref(), "B draft");
+            // Missing target causes the real checked posting service to fail.
+            view.navigate(Page::Thread("missing-thread".into()), window, cx);
+            view.composer.update(cx, |editor, cx| editor.set_value("Preserve failed send", window, cx));
+            view.ask(window, cx);
+            assert_eq!(view.composer.read(cx).value().as_ref(), "Preserve failed send");
+            assert!(view.notice.contains("missing reference"), "{}", view.notice);
+            view.navigate(Page::Home, window, cx);
+            view.navigate(Page::Thread("missing-thread".into()), window, cx);
+            assert_eq!(view.composer.read(cx).value().as_ref(), "Preserve failed send");
+        });
+    }).unwrap();
+    cx.run_until_parked();
+    cx.update_window(window, |_, window, _| {
+        assert_eq!(
+            window.find("composer-destination").label(),
+            Some("Send to thread: missing-thread")
+        );
+    })
+    .unwrap();
+}
+
+#[gpui_kit::test]
+fn worker_controls_match_real_cancellation_capabilities(cx: &mut TestAppContext) {
+    let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let data = root.path().join("worker-controls-regression");
+    let mut workspace = Workspace::open(&data).unwrap();
+    let mut settings = workspace.settings().unwrap();
+    settings.provider = "offline-fixture".into();
+    settings.auth_file = None;
+    settings.credentials_dir = None;
+    workspace.configure(settings).unwrap();
+    let thread = workspace.new_thread("Worker destination").unwrap();
+    cx.update(gpui_kit::init);
+    let (window, view) = cx.update(|cx| {
+        gpui_kit::open_window(WindowOptions::default(), cx, |window, cx| {
+            cx.new(|cx| {
+                let mut view = ThreadsUi::new(workspace, data, window, cx);
+                view.poll = None;
+                view
+            })
+        })
+        .unwrap()
+    });
+    for (kind, cancellable, expected_status) in [
+        (
+            WorkerKind::Run,
+            true,
+            "Work in Worker destination · Synthetic progress",
+        ),
+        (WorkerKind::Import, true, "Synthetic progress"),
+        (
+            WorkerKind::Export,
+            false,
+            "Finishing Markdown export… Please wait for completion.",
+        ),
+        (
+            WorkerKind::Backup,
+            false,
+            "Finishing full backup… Please wait for completion.",
+        ),
+    ] {
+        let (_sender, receiver) = mpsc::sync_channel(4);
+        let cancel = CancellationToken::new();
+        let conversion_cancel = Arc::new(AtomicBool::new(false));
+        cx.update_window(window, |_, window, cx| {
+            view.update(cx, |view, cx| {
+                view.worker = Some(Worker {
+                    receiver,
+                    cancel: cancel.clone(),
+                    conversion_cancel: conversion_cancel.clone(),
+                    kind,
+                    thread: (kind == WorkerKind::Run).then(|| thread.id.clone()),
+                });
+                view.progress = "Synthetic progress".into();
+                view.composer.update(cx, |editor, cx| {
+                    editor.set_value("Home waiting draft", window, cx)
+                });
+                view.navigate(Page::Thread(thread.id.clone()), window, cx);
+                assert_eq!(view.composer.read(cx).value().as_ref(), "");
+                view.composer.update(cx, |editor, cx| {
+                    editor.set_value("Thread waiting draft", window, cx)
+                });
+                view.ask(window, cx);
+                assert!(
+                    view.notice
+                        .contains(if cancellable { "stop" } else { "Wait for" })
+                );
+                assert_eq!(
+                    view.composer.read(cx).value().as_ref(),
+                    "Thread waiting draft"
+                );
+                view.navigate(Page::Home, window, cx);
+                assert_eq!(
+                    view.composer.read(cx).value().as_ref(),
+                    "Home waiting draft"
+                );
+            });
+        })
+        .unwrap();
+        cx.run_until_parked();
+        cx.update_window(window, |_, window, cx| {
+            assert_eq!(window.try_find("stop-work").is_some(), cancellable);
+            assert_eq!(window.find("worker-status").label(), Some(expected_status));
+            assert_eq!(
+                window.find("composer-destination").label(),
+                Some("Start a new thread · Home draft")
+            );
+            if cancellable {
+                window.click("stop-work", cx);
+            } else {
+                // The keyboard action uses the same capability guard.
+                view.update(cx, |view, cx| view.cancel(cx));
+            }
+            assert_eq!(cancel.is_cancelled(), cancellable);
+            assert_eq!(
+                conversion_cancel.load(std::sync::atomic::Ordering::SeqCst),
+                cancellable
+            );
+            view.update(cx, |view, _| {
+                view.worker = None;
+                // Each next worker begins with an untouched thread draft.
+                view.composer_drafts
+                    .posted(&ComposerDestination::Thread(thread.id.clone()));
+            });
+        })
+        .unwrap();
+    }
+}
+
+#[gpui_kit::test]
 fn long_coverage_details_scroll_without_hiding_note_body_or_losing_issues(cx: &mut TestAppContext) {
     cx.update(gpui_kit::init);
     for legacy in [false, true] {
@@ -374,6 +572,7 @@ fn native_refresh_controls_open_named_note_and_one_followup_without_changing_der
                 inputs: vec![RevisionInput {
                     record: input.id.clone(),
                     version: input.version,
+                    expectation: InputExpectation::Current,
                 }],
             },
         )

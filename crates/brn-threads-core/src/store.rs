@@ -311,8 +311,8 @@ impl Store {
                 }
             }
             for input in &request.inputs {
-                if record_on(&tx, &input.record)?
-                    .is_none_or(|record| record.version != input.version)
+                if input.expectation == InputExpectation::Current
+                    && !current_input_matches(&tx, input)?
                 {
                     return Err(Error::Invalid(
                         "candidate refresh requires current input versions".into(),
@@ -1137,6 +1137,17 @@ pub(crate) fn apply_on(
     if !guarded.is_empty() {
         return Ok(ApplyOutcome::Deferred { guarded });
     }
+    // Check all reads against the transaction's prestate, including self-inputs.
+    // Receipt replay above precedes these mutable checks; no grouped write has
+    // happened yet. Historical provenance is validated separately below.
+    for input in &prepared.request.inputs {
+        if input.expectation == InputExpectation::Current
+            && !current_input_matches(tx, input)?
+            && !stale.contains(&input.record)
+        {
+            stale.push(input.record.clone());
+        }
+    }
     if !stale.is_empty() {
         return Ok(ApplyOutcome::Stale { records: stale });
     }
@@ -1426,6 +1437,14 @@ pub(crate) fn apply_on(
         params![operation.0, serde_json::to_string(&receipt)?],
     )?;
     Ok(ApplyOutcome::Applied(receipt))
+}
+
+fn current_input_matches(conn: &Connection, input: &RevisionInput) -> Result<bool> {
+    Ok(record_on(conn, &input.record)?.is_some_and(|record| {
+        record.version == input.version
+            && !record.archived
+            && !matches!(record.data, RecordData::Note(note) if note.superseded_by.is_some())
+    }))
 }
 
 /// Version changes for editor guards, comment mapping and observation timestamps
