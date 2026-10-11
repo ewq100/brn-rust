@@ -210,6 +210,14 @@ pub struct WorkspaceSettings {
     pub credentials_dir: Option<String>,
     pub maintenance: bool,
     pub review_first: bool,
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub delegation_chosen: bool,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum DelegationChoice {
+    MaintainOrdinaryNotes,
+    ReviewFirst,
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum RecordData {

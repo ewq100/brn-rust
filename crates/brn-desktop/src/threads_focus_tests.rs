@@ -2,18 +2,199 @@
 use super::*;
 use gpui_kit::{Focusable, TestAppContext, test::TestWindowExt};
 
-#[gpui_kit::test]
-fn composer_drafts_follow_home_and_each_thread(cx: &mut TestAppContext) {
-    let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
-    let data = root.path().join("composer-drafts-regression");
-    let mut workspace = Workspace::open(&data).unwrap();
-    // Persist the fixture selection: navigation refreshes saved settings.
-    // No provider worker or credentials are needed to test message posting.
+pub(super) fn configure_offline_fixture(workspace: &mut Workspace) {
+    // Persist this before UI creation: navigation reloads the saved settings.
+    // Every component fixture refuses provider startup without credential access.
     let mut settings = workspace.settings().unwrap();
     settings.provider = "offline-fixture".into();
     settings.auth_file = None;
     settings.credentials_dir = None;
     workspace.configure(settings).unwrap();
+}
+
+#[gpui_kit::test]
+fn first_use_choices_preserve_manual_work_and_persist_explicit_policy(cx: &mut TestAppContext) {
+    cx.update(gpui_kit::init);
+    for (first_page, first_button, review_first, later_button) in [
+        (
+            Page::Home,
+            "delegation-maintain",
+            false,
+            "delegation-review-first",
+        ),
+        (
+            Page::Settings,
+            "delegation-review-first",
+            true,
+            "delegation-maintain",
+        ),
+    ] {
+        let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+        let data = root.path().join("first-use-delegation");
+        let mut workspace = Workspace::open(&data).unwrap();
+        configure_offline_fixture(&mut workspace);
+        let note = workspace
+            .new_note("Manual pending note", "Owner baseline")
+            .unwrap();
+        let reopened_data = data.clone();
+        let (window, view) = cx.update(|cx| {
+            gpui_kit::open_window(
+                WindowOptions {
+                    window_bounds: Some(WindowBounds::Windowed(Bounds::new(
+                        point(px(0.), px(0.)),
+                        size(px(1260.), px(1100.)),
+                    ))),
+                    ..Default::default()
+                },
+                cx,
+                |window, cx| {
+                    cx.new(|cx| {
+                        let mut view = ThreadsUi::new(workspace, data, window, cx);
+                        view.poll = None;
+                        view
+                    })
+                },
+            )
+            .unwrap()
+        });
+        cx.run_until_parked();
+        cx.update_window(window, |_, window, cx| {
+            assert!(window.find("delegation-pending").visible());
+            assert!(
+                window
+                    .find("delegation-status")
+                    .label()
+                    .unwrap()
+                    .contains("Reading and editing remain available")
+            );
+            assert!(window.try_find("maintenance-setting").is_none());
+            view.update(cx, |view, cx| view.open_note(&note.id, None, window, cx));
+        })
+        .unwrap();
+        cx.run_until_parked();
+        cx.update_window(window, |_, window, cx| window.click("toggle-edit", cx))
+            .unwrap();
+        cx.run_until_parked();
+        cx.update_window(window, |_, window, cx| window.input("Manual change. ", cx))
+            .unwrap();
+        cx.run_until_parked();
+        cx.update_window(window, |_, window, cx| window.click("save-note", cx))
+            .unwrap();
+        cx.run_until_parked();
+        cx.update_window(window, |_, window, cx| {
+            view.update(cx, |view, cx| {
+                assert!(!view.workspace.settings().unwrap().delegation_chosen);
+                let RecordData::Note(saved) =
+                    view.workspace.store.note(&note.id).unwrap().unwrap().data
+                else {
+                    panic!("note")
+                };
+                assert!(saved.markdown.contains("Manual change."));
+                view.navigate(Page::Settings, window, cx);
+            });
+        })
+        .unwrap();
+        cx.run_until_parked();
+        cx.update_window(window, |_, window, cx| window.click("save-settings", cx))
+            .unwrap();
+        cx.run_until_parked();
+        cx.update_window(window, |_, window, cx| {
+            view.update(cx, |view, cx| {
+                assert!(!view.workspace.settings().unwrap().delegation_chosen);
+                assert!(!view.workspace.settings().unwrap().maintenance);
+                view.navigate(first_page.clone(), window, cx);
+            });
+        })
+        .unwrap();
+        cx.run_until_parked();
+        cx.update_window(window, |_, window, cx| window.click(first_button, cx))
+            .unwrap();
+        cx.run_until_parked();
+        let selected = Workspace::open(&reopened_data).unwrap().settings().unwrap();
+        assert!(selected.delegation_chosen);
+        assert!(selected.maintenance);
+        assert_eq!(selected.review_first, review_first);
+        assert_eq!(selected.provider, "offline-fixture");
+        assert!(selected.auth_file.is_none() && selected.credentials_dir.is_none());
+        cx.update_window(window, |_, window, cx| {
+            assert!(window.try_find("delegation-pending").is_none());
+            view.update(cx, |view, cx| {
+                assert!(view.worker.is_none());
+                assert!(view.notice.starts_with("Saved."));
+                view.navigate(Page::Home, window, cx);
+            });
+        })
+        .unwrap();
+        cx.run_until_parked();
+        cx.update_window(window, |_, window, cx| {
+            assert!(window.try_find("delegation-maintain").is_none());
+            view.update(cx, |view, cx| view.navigate(Page::Settings, window, cx));
+        })
+        .unwrap();
+        cx.run_until_parked();
+        cx.update_window(window, |_, window, cx| {
+            assert_eq!(
+                window.find("delegation-status").label(),
+                Some(if review_first {
+                    "Review changes first is selected. Proposed changes wait for your approval."
+                } else {
+                    "BRN may maintain ordinary notes within your delegated scope."
+                })
+            );
+            assert_eq!(
+                window.find("maintenance-setting").label(),
+                Some("Pause maintenance")
+            );
+            window.click("maintenance-setting", cx);
+        })
+        .unwrap();
+        cx.run_until_parked();
+        cx.update_window(window, |_, window, cx| {
+            assert_eq!(
+                window.find("maintenance-setting").label(),
+                Some("Resume maintenance")
+            );
+            assert!(
+                window
+                    .find("delegation-status")
+                    .label()
+                    .unwrap()
+                    .contains("paused")
+            );
+            let paused = Workspace::open(&reopened_data).unwrap().settings().unwrap();
+            assert!(paused.delegation_chosen);
+            assert!(!paused.maintenance);
+            window.click("maintenance-setting", cx);
+        })
+        .unwrap();
+        cx.run_until_parked();
+        cx.update_window(window, |_, window, cx| window.click(later_button, cx))
+            .unwrap();
+        cx.run_until_parked();
+        let changed = Workspace::open(&reopened_data).unwrap().settings().unwrap();
+        assert!(changed.delegation_chosen && changed.maintenance);
+        assert_eq!(changed.review_first, !review_first);
+        cx.update_window(window, |_, window, cx| {
+            assert_eq!(
+                window.find("delegation-status").label(),
+                Some(if !review_first {
+                    "Review changes first is selected. Proposed changes wait for your approval."
+                } else {
+                    "BRN may maintain ordinary notes within your delegated scope."
+                })
+            );
+            assert!(view.read(cx).worker.is_none());
+        })
+        .unwrap();
+    }
+}
+
+#[gpui_kit::test]
+fn composer_drafts_follow_home_and_each_thread(cx: &mut TestAppContext) {
+    let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let data = root.path().join("composer-drafts-regression");
+    let mut workspace = Workspace::open(&data).unwrap();
+    configure_offline_fixture(&mut workspace);
     let a = workspace.new_thread("Draft thread A").unwrap();
     let b = workspace.new_thread("Draft thread B").unwrap();
     let note = workspace
@@ -97,11 +278,7 @@ fn worker_controls_match_real_cancellation_capabilities(cx: &mut TestAppContext)
     let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
     let data = root.path().join("worker-controls-regression");
     let mut workspace = Workspace::open(&data).unwrap();
-    let mut settings = workspace.settings().unwrap();
-    settings.provider = "offline-fixture".into();
-    settings.auth_file = None;
-    settings.credentials_dir = None;
-    workspace.configure(settings).unwrap();
+    configure_offline_fixture(&mut workspace);
     let thread = workspace.new_thread("Worker destination").unwrap();
     cx.update(gpui_kit::init);
     let (window, view) = cx.update(|cx| {
@@ -207,6 +384,7 @@ fn long_coverage_details_scroll_without_hiding_note_body_or_losing_issues(cx: &m
         let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
         let data = root.path().join("coverage-layout-regression");
         let mut workspace = Workspace::open(&data).unwrap();
+        configure_offline_fixture(&mut workspace);
         let note = workspace
             .new_note(
                 "Coverage layout witness",
@@ -353,6 +531,7 @@ fn native_whole_group_selection_prepares_new_comparison_before_exact_apply(
         let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
         let data = root.path().join("group-selection-regression");
         let mut workspace = Workspace::open(&data).unwrap();
+        configure_offline_fixture(&mut workspace);
         let note = workspace
             .new_note("Protected group", "Original complete wording")
             .unwrap();
@@ -546,6 +725,10 @@ fn native_refresh_controls_open_named_note_and_one_followup_without_changing_der
     let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
     let data = root.path().join("refresh-controls-regression");
     let mut workspace = Workspace::open(&data).unwrap();
+    configure_offline_fixture(&mut workspace);
+    workspace
+        .choose_delegation(DelegationChoice::MaintainOrdinaryNotes)
+        .unwrap();
     let input = workspace
         .new_note("Changed input", "Original input")
         .unwrap();
@@ -577,13 +760,14 @@ fn native_refresh_controls_open_named_note_and_one_followup_without_changing_der
             },
         )
         .unwrap();
-    workspace
+    let outcome = workspace
         .store
         .apply(
             &operation,
             &HostAuthority::maintenance("synthetic derivation"),
         )
         .unwrap();
+    assert!(matches!(outcome, ApplyOutcome::Applied(_)));
     let session = workspace
         .store
         .begin_edit(&input.id, input.version)
@@ -716,6 +900,7 @@ fn stale_save_compares_latest_saved_text_and_preserves_owner_buffer(cx: &mut Tes
     let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
     let data = root.path().join("stale-comparison-regression");
     let mut workspace = Workspace::open(&data).unwrap();
+    configure_offline_fixture(&mut workspace);
     let note = workspace
         .new_note("Stale witness", "Original saved base")
         .unwrap();
@@ -785,6 +970,7 @@ fn native_stream_and_resolution_keep_the_worker_thread_owner(cx: &mut TestAppCon
     let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
     let data = root.path().join("worker-owner-regression");
     let mut workspace = Workspace::open(&data).unwrap();
+    configure_offline_fixture(&mut workspace);
     let a = workspace.new_thread("Working thread A").unwrap();
     let b = workspace.new_thread("Unrelated thread B").unwrap();
     cx.update(gpui_kit::init);
@@ -859,6 +1045,7 @@ fn hidden_note_editor_cannot_gain_edits_from_tab_after_save_read_or_navigation(
     let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
     let data = root.path().join("focus-regression");
     let mut workspace = Workspace::open(&data).unwrap();
+    configure_offline_fixture(&mut workspace);
     let note = workspace
         .new_note("Focus witness", "Harbor baseline. Õun ja öö.")
         .unwrap();

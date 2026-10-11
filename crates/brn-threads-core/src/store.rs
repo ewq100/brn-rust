@@ -18,6 +18,11 @@ pub struct Store {
     pub(crate) conn: Connection,
     directory: PathBuf,
 }
+enum SettingsUpdate<'a> {
+    Configure(&'a WorkspaceSettings),
+    Choose(DelegationChoice),
+    Pause(bool),
+}
 impl Store {
     pub fn open(directory: impl AsRef<Path>) -> Result<Self> {
         let directory = directory.as_ref();
@@ -575,6 +580,35 @@ impl Store {
         settings: &WorkspaceSettings,
         authority: &HostAuthority,
     ) -> Result<ApplyOutcome> {
+        self.update_workspace_settings(operation, SettingsUpdate::Configure(settings), authority)
+    }
+
+    /// Apply only the owner's choice against current Settings, with immutable
+    /// intent and run fencing in the same checked writer transaction.
+    pub fn choose_delegation(
+        &mut self,
+        operation: &OperationId,
+        choice: DelegationChoice,
+        authority: &HostAuthority,
+    ) -> Result<ApplyOutcome> {
+        self.update_workspace_settings(operation, SettingsUpdate::Choose(choice), authority)
+    }
+
+    pub fn pause_workspace(
+        &mut self,
+        operation: &OperationId,
+        paused: bool,
+        authority: &HostAuthority,
+    ) -> Result<ApplyOutcome> {
+        self.update_workspace_settings(operation, SettingsUpdate::Pause(paused), authority)
+    }
+
+    fn update_workspace_settings(
+        &mut self,
+        operation: &OperationId,
+        update: SettingsUpdate<'_>,
+        authority: &HostAuthority,
+    ) -> Result<ApplyOutcome> {
         if !matches!(authority.scope, crate::types::Scope::Owner) {
             return Err(Error::Invalid(
                 "workspace configuration requires owner authority".into(),
@@ -583,11 +617,30 @@ impl Store {
         let tx = self
             .conn
             .transaction_with_behavior(TransactionBehavior::Immediate)?;
-        let hash: Option<String> = tx.query_row(
-            "SELECT hash FROM operations WHERE id=?1",
+        let (hash, prior_binding): (Option<String>, Option<String>) = tx.query_row(
+            "SELECT hash,input_hash FROM operations WHERE id=?1",
             [operation.as_str()],
-            |row| row.get(0),
+            |row| Ok((row.get(0)?, row.get(1)?)),
         )?;
+        let intent = match update {
+            SettingsUpdate::Choose(choice) => Some(serde_json::to_vec(&choice)?),
+            SettingsUpdate::Pause(paused) => Some(serde_json::to_vec(&paused)?),
+            SettingsUpdate::Configure(_) => None,
+        };
+        if let Some(intent) = intent {
+            let binding = format!("{:x}", Sha256::digest(intent));
+            if prior_binding
+                .as_ref()
+                .is_some_and(|prior| prior != &binding)
+                || (hash.is_some() && prior_binding.is_none())
+            {
+                return Err(Error::ImmutableRequest);
+            }
+            tx.execute(
+                "UPDATE operations SET input_hash=?2 WHERE id=?1 AND input_hash IS NULL",
+                params![operation.as_str(), binding],
+            )?;
+        }
         if hash.is_some() {
             let prepared = prepared_on(&tx, operation)?;
             let configured = prepared
@@ -602,24 +655,76 @@ impl Store {
                     }
                 })
                 .collect::<Vec<_>>();
-            if configured.as_slice() != [settings] {
+            let [prior] = configured.as_slice() else {
                 return Err(Error::ImmutableRequest);
+            };
+            match update {
+                SettingsUpdate::Configure(settings) => {
+                    let mut requested = settings.clone();
+                    requested.delegation_chosen = prior.delegation_chosen;
+                    requested.maintenance = prior.maintenance;
+                    requested.review_first = prior.review_first;
+                    if &requested != *prior {
+                        return Err(Error::ImmutableRequest);
+                    }
+                }
+                SettingsUpdate::Choose(choice) => {
+                    if !prior.delegation_chosen
+                        || !prior.maintenance
+                        || prior.review_first != (choice == DelegationChoice::ReviewFirst)
+                    {
+                        return Err(Error::ImmutableRequest);
+                    }
+                }
+                SettingsUpdate::Pause(paused) => {
+                    if prior.maintenance == paused {
+                        return Err(Error::ImmutableRequest);
+                    }
+                }
             }
             let outcome = apply_on(&tx, operation, authority, None)?;
             tx.commit()?;
             return Ok(outcome);
         }
         let body: String = tx.query_row(
-            "SELECT body FROM records WHERE json_type(body,'$.data.Settings') IS NOT NULL",
-            [],
-            |row| row.get(0),
+            "SELECT body FROM records WHERE json_type(body,'$.data.Settings') IS NOT NULL AND json_extract(body,'$.archived')=0",
+            [], |row| row.get(0),
         )?;
         let current: Record = serde_json::from_str(&body)?;
+        let RecordData::Settings(current_settings) = &current.data else {
+            return Err(Error::Invalid("workspace settings kind mismatch".into()));
+        };
+        let mut next = match update {
+            SettingsUpdate::Configure(settings) => {
+                let mut next = settings.clone();
+                next.delegation_chosen = current_settings.delegation_chosen;
+                next.maintenance = current_settings.maintenance;
+                next.review_first = current_settings.review_first;
+                next
+            }
+            _ => current_settings.clone(),
+        };
+        match update {
+            SettingsUpdate::Choose(choice) => {
+                next.delegation_chosen = true;
+                next.maintenance = true;
+                next.review_first = choice == DelegationChoice::ReviewFirst;
+            }
+            SettingsUpdate::Pause(paused) => {
+                if !paused && !current_settings.delegation_chosen {
+                    return Err(Error::Invalid(
+                        "Choose how BRN should maintain notes before resuming".into(),
+                    ));
+                }
+                next.maintenance = !paused;
+            }
+            SettingsUpdate::Configure(_) => {}
+        }
         let mut writes = vec![Put {
             id: current.id,
             expected_version: Some(current.version),
             archived: false,
-            data: RecordData::Settings(settings.clone()),
+            data: RecordData::Settings(next),
         }];
         {
             let mut stmt = tx.prepare(
@@ -885,20 +990,9 @@ pub(crate) fn apply_on(
         [&operation.0],
         |r| r.get(0),
     )?;
-    let settings: Option<String> = tx
-        .query_row(
-            "SELECT body FROM records WHERE json_type(body,'$.data.Settings') IS NOT NULL",
-            [],
-            |r| r.get(0),
-        )
-        .optional()?;
-    let standing_enabled = match settings {
-        Some(body) => match serde_json::from_str::<Record>(&body)?.data {
-            RecordData::Settings(settings) => settings.maintenance && !settings.review_first,
-            _ => false,
-        },
-        None => true,
-    };
+    let standing_enabled = workspace_settings_on(tx)?.is_some_and(|settings| {
+        settings.delegation_chosen && settings.maintenance && !settings.review_first
+    });
     if !standing_enabled && matches!(authority.scope, crate::types::Scope::Maintenance) {
         let denied = prepared
             .request

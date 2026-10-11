@@ -4,11 +4,14 @@ The CLI uses the same checked SQLite service as the desktop. Supply a fresh abso
 
 ```sh
 brn --data-dir /absolute/fresh/threads init
+brn --data-dir /absolute/fresh/threads delegation --choice review-first
 brn --data-dir /absolute/fresh/threads note-create --title Harbor --text 'Working context'
 brn --data-dir /absolute/fresh/threads thread-start --title 'Harbor handoff'
 ```
 
 Save uses persistent session/base/generation checks. Review apply and Undo are concrete owner actions; neither bypasses expected versions or open edit guards. Intake offers useful information or a protected full readable note. Raw originals remain external. Export and backup require fresh absolute destinations.
+
+New workspaces wait for an explicit delegation choice. `delegation --choice maintain` enables ordinary-note maintenance; `delegation --choice review-first` requires review for standing changes. Both preserve provider settings and fence active runs. Manual work remains available before choosing. Pause/Resume temporarily suspends the selected mode; Resume cannot choose for you. Settings output includes `delegation_chosen`.
 
 The selected provider, model, reasoning effort and credential location are explicit Settings. Codex uses the normal selected subscription account in memory. There is no paid fallback or external message delivery.
 
