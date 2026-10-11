@@ -35,6 +35,9 @@ mod delegation_tests;
 #[cfg(test)]
 #[path = "threads_sources_tests.rs"]
 mod source_tests;
+#[cfg(test)]
+#[path = "threads_steering_tests.rs"]
+mod steering_tests;
 /// Constructed by the trusted request UI/CLI, never accepted from model tools
 /// or imported content. This authority ends with the fresh invocation.
 #[derive(Clone, Debug, serde::Serialize)]
@@ -58,6 +61,18 @@ pub struct ThreadRunRequest {
 pub struct ThreadResult {
     pub run_id: String,
     pub answer: AiAnswer,
+}
+/// One prepared invocation. It owns its request and authority; consuming it
+/// starts at most one worker. Only the durable exact Run ID is exposed.
+pub struct PreparedThreadRun {
+    request: ThreadRunRequest,
+    scope: Arc<Scope>,
+    input: String,
+}
+impl PreparedThreadRun {
+    pub fn run_id(&self) -> &str {
+        &self.scope.run
+    }
 }
 struct Scope {
     store: Mutex<Store>,
@@ -96,13 +111,18 @@ fn live(scope: &Scope, store: &Store) -> AiResult<()> {
         .record(&scope.run)
         .map_err(storage)?
         .ok_or_else(rejected)?;
-    match record.data {
-        RecordData::Run(run)
-            if run.state == RunState::Working
-                && run.fence == scope.fence.load(Ordering::SeqCst) =>
-        {
-            match store.record(&run.thread).map_err(storage)?.map(|r| r.data) {
-                Some(RecordData::Thread(t)) if t.state == ThreadState::Open => Ok(()),
+    match record {
+        Record {
+            archived: false,
+            data: RecordData::Run(run),
+            ..
+        } if run.state == RunState::Working && run.fence == scope.fence.load(Ordering::SeqCst) => {
+            match store.record(&run.thread).map_err(storage)? {
+                Some(Record {
+                    archived: false,
+                    data: RecordData::Thread(t),
+                    ..
+                }) if t.state == ThreadState::Open => Ok(()),
                 _ => Err(rejected()),
             }
         }
@@ -816,7 +836,46 @@ pub async fn run(
     cancel: CancellationToken,
     emit: Arc<dyn Fn(AiEvent) + Send + Sync>,
 ) -> AiResult<ThreadResult> {
+    run_prepared(prepare_run(request)?, cancel, emit).await
+}
+
+/// Persist the invocation using the same startup checks as `run`, before the
+/// host spawns its worker and needs to steer this exact Run.
+pub fn prepare_run(request: ThreadRunRequest) -> AiResult<PreparedThreadRun> {
     let (scope, input) = begin(&request)?;
+    Ok(PreparedThreadRun {
+        request,
+        scope,
+        input,
+    })
+}
+
+pub async fn run_prepared(
+    prepared: PreparedThreadRun,
+    cancel: CancellationToken,
+    emit: Arc<dyn Fn(AiEvent) + Send + Sync>,
+) -> AiResult<ThreadResult> {
+    let PreparedThreadRun {
+        request,
+        scope,
+        input,
+    } = prepared;
+    let current = {
+        let store = scope.store.lock().map_err(storage)?;
+        live(&scope, &store).is_ok()
+    };
+    // A startup stop must not open a credential store or contact a provider.
+    if cancel.is_cancelled() || !current {
+        let answer = AiAnswer {
+            text: String::new(),
+            terminal: AiTerminal::Interrupted,
+        };
+        finish(&scope, &answer)?;
+        return Ok(ThreadResult {
+            run_id: scope.run.clone(),
+            answer,
+        });
+    }
     let watched = scope.clone();
     let observed = cancel.clone();
     let watcher = tokio::spawn(async move {
@@ -910,7 +969,8 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
         .record(&request.thread)
         .map_err(storage)?
         .ok_or_else(rejected)?;
-    if !matches!(record.data,RecordData::Thread(t) if t.state==ThreadState::Open) {
+    if record.archived || !matches!(record.data,RecordData::Thread(t) if t.state==ThreadState::Open)
+    {
         return Err(rejected());
     }
     let records = store.records().map_err(storage)?;
@@ -1020,7 +1080,7 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
                 if run.state == RunState::Working {
                     let mut old = run.clone();
                     old.state = RunState::Interrupted;
-                    old.fence += 1;
+                    old.fence = old.fence.checked_add(1).ok_or_else(rejected)?;
                     writes.push(Put {
                         id: record.id.clone(),
                         expected_version: Some(record.version),

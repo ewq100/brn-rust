@@ -1,6 +1,6 @@
 # Active work
 
-The current assignment is [Phase 1 explicit delegation](threads-rebuild/phase1-delegation-plan.md), following [Phase 0 and F1 hardening](threads-rebuild/phase0-plan.md). The [rebuild plan](threads-rebuild/plan.md) preserves prior implementation history.
+The current assignment is [Phase 1 Stop-and-send](threads-rebuild/phase1-steering-plan.md), following [Phase 0 and F1 hardening](threads-rebuild/phase0-plan.md). The [rebuild plan](threads-rebuild/plan.md) preserves prior implementation history.
 
 - [Canonical target](../../architecture/threads-target.md)
 - [Review brief](threads-rebuild/review-brief.md) and [review record](threads-rebuild/review.md)

@@ -1,6 +1,6 @@
 # BRN Threads architecture overview
 
-The [canonical Threads target](threads-target.md) owns the detailed architecture. This page is a navigation summary. The [behavior design](threads-behavior.md) supplies concrete thread and packaged runtime-guide defaults. The SQLite Threads core, runtime and native workspace are implemented. Phase 0/F1 merged at `53e5289`; the [current hardening plan](../work/active/threads-rebuild/phase1-delegation-plan.md) adds explicit first-use delegation. See [status](../status.md) for verification and acceptance limits.
+The [canonical Threads target](threads-target.md) owns the detailed architecture. This page is a navigation summary. The [behavior design](threads-behavior.md) supplies concrete thread and packaged runtime-guide defaults. The SQLite Threads core, runtime and native workspace are implemented. First-use delegation merged at `36ad2d6`; the [current hardening plan](../work/active/threads-rebuild/phase1-steering-plan.md) adds Stop-and-send steering. See [status](../status.md) for verification and acceptance limits.
 
 ## One state owner
 

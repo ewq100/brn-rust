@@ -17,6 +17,11 @@ reads canonical Settings and all Working runs at the SQLite writer boundary;
 changes and cancellation/fence advancement commit together. Opening a workspace
 does not cancel another process's live invocation.
 
+`stop_and_post` saves an exact owner instruction and fences the identified run in
+one checked transaction, with a stable host key for retry. The desktop waits for
+the old worker to finish before starting a fresh invocation; saved messages remain
+available for Continue if that handoff cannot start.
+
 Message chronology follows receipt insertion order and preserves original
 creation order when a message is edited; clock precision and UUID order cannot
 reorder a conversation. Current search rebuilds from committed, active notes;
