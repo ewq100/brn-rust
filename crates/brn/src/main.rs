@@ -182,27 +182,7 @@ fn converter() -> Result<Converter> {
     let helper = std::env::var_os("BRN_INTAKE_HELPER")
         .map(PathBuf::from)
         .unwrap_or_else(|| executable.with_file_name("brn-intake-helper"));
-    let tools = match (
-        std::env::var_os("BRN_PDFTOTEXT"),
-        std::env::var_os("BRN_PDFIMAGES"),
-    ) {
-        (Some(text), Some(images)) => Some(PdfTools {
-            pdftotext: text.into(),
-            pdfimages: images.into(),
-        }),
-        _ => {
-            let text = PathBuf::from("/opt/homebrew/bin/pdftotext");
-            let images = PathBuf::from("/opt/homebrew/bin/pdfimages");
-            if text.is_file() && images.is_file() {
-                Some(PdfTools {
-                    pdftotext: text,
-                    pdfimages: images,
-                })
-            } else {
-                None
-            }
-        }
-    };
+    let tools = PdfTools::discover();
     Ok(Converter {
         helper_path: helper,
         pdf_tools: tools,
@@ -421,7 +401,26 @@ async fn execute(inv: &Invocation) -> Result<Value> {
                         .map_err(|e| e.to_string())?
                         .id
                 };
-                return ask(&mut workspace,inv,thread,"Retain useful information from the supplied source. Reconcile current notes and suggested Actions, preserve source references, leave raw text external, and ask for review of protected decisions.".into(),vec![brn_ai::threads::TransientSource{reference:converted.source_reference,text:converted.markdown}]).await;
+                let report = brn_threads_app::import_report(&converted);
+                let source = brn_ai::threads::TransientSource {
+                    fingerprint: Some(brn_intake::hex(&converted.source_sha256)),
+                    report: Some(report),
+                    reference: converted.source_reference,
+                    text: converted.markdown,
+                    assets: converted
+                        .assets
+                        .into_iter()
+                        .map(|asset| brn_ai::threads::TransientAsset {
+                            name: asset.name,
+                            media_type: asset.media_type,
+                            sha256: asset.sha256,
+                            width: asset.width,
+                            height: asset.height,
+                            bytes: asset.bytes,
+                        })
+                        .collect(),
+                };
+                return ask(&mut workspace,inv,thread,"Retain useful information from the supplied source. Reconcile current notes and suggested Actions, preserve source references and meaningful selected figures using read_source's host asset links, retain detected omissions, leave raw text external, and ask for review of protected decisions.".into(),vec![source]).await;
             }
         }
         "export" => encode(

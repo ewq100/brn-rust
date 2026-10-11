@@ -38,6 +38,64 @@ pub struct ImportCoverage {
     pub source: String,
     pub full_note: bool,
     pub gaps: Vec<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub report: Option<ImportReport>,
+}
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ImportStatus {
+    Complete,
+    Partial,
+    Unchecked,
+}
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ImportIssueKind {
+    Limitation,
+    Omission,
+    Unverified,
+}
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ImportIssue {
+    pub kind: ImportIssueKind,
+    pub locator: String,
+    pub detail: String,
+}
+impl ImportIssue {
+    pub fn display(&self) -> String {
+        let category = match self.kind {
+            ImportIssueKind::Limitation => "Converter limitation",
+            ImportIssueKind::Omission => "Detected omission",
+            ImportIssueKind::Unverified => "Unverified coverage",
+        };
+        format!("{category} · {}: {}", self.locator, self.detail)
+    }
+}
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ImportReport {
+    pub status: ImportStatus,
+    pub issues: Vec<ImportIssue>,
+}
+impl ImportReport {
+    pub fn summary(&self) -> &'static str {
+        if self
+            .issues
+            .iter()
+            .any(|issue| issue.kind == ImportIssueKind::Omission)
+        {
+            "Detected omissions · Partial"
+        } else if self
+            .issues
+            .iter()
+            .any(|issue| issue.kind == ImportIssueKind::Unverified)
+        {
+            "Coverage unverified"
+        } else {
+            match self.status {
+                ImportStatus::Complete => "Source coverage checked",
+                ImportStatus::Partial => "Partial · inspection required",
+                ImportStatus::Unchecked => "Coverage not independently checked",
+            }
+        }
+    }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ThreadState {
@@ -87,6 +145,8 @@ pub struct Source {
     pub external_version: Option<String>,
     pub outcome: String,
     pub gaps: Vec<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub report: Option<ImportReport>,
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Asset {

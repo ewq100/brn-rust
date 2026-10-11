@@ -1305,19 +1305,32 @@ pub(crate) fn apply_on(
         )?;
     }
     let mut refresh = BTreeSet::new();
-    if let Some(original) = &undo_of
-        && let Some(receipt) = receipt_on(tx, &OperationId(original.clone()))?
-    {
-        for original_write in receipt.writes {
-            let mut stmt = tx.prepare("SELECT DISTINCT r.id FROM derivation_inputs d JOIN revisions r ON r.operation=d.operation JOIN records c ON c.id=r.id AND c.version=r.version WHERE d.record=?1 AND d.version=?2")?;
-            for id in stmt.query_map(
-                params![
-                    original_write.after.id,
-                    crate::integer(original_write.after.version)?
-                ],
-                |r| r.get::<_, String>(0),
-            )? {
-                refresh.insert(id?);
+    for input_change in &written {
+        let Some(prior) = &input_change.before else {
+            continue;
+        };
+        if !meaningful_input_change(prior, &input_change.after) {
+            continue;
+        }
+        // Only current directly derived revisions are affected. An observation-only
+        // version may intervene, so compare every recorded older input version.
+        // Targets recomputed in this same atomic group are already refreshed; a
+        // target's edit base is not a dependency on itself.
+        let mut stmt = tx.prepare("SELECT DISTINCT c.body FROM derivation_inputs d JOIN revisions r ON r.operation=d.operation JOIN records c ON c.id=r.id WHERE d.record=?1 AND d.version<?2 AND json_extract(c.body,'$.archived')=0 AND json_extract(c.body,'$.data.Note.superseded_by') IS NULL")?;
+        for id in stmt.query_map(
+            params![prior.id, crate::integer(input_change.after.version)?],
+            |r| r.get::<_, String>(0),
+        )? {
+            let current: Record = serde_json::from_str(&id?)?;
+            if written.iter().any(|write| write.after.id == current.id) {
+                continue;
+            }
+            let Some(derived_operation) = derivation_operation_on(tx, &current)? else {
+                continue;
+            };
+            let uses_older_input = tx.query_row("SELECT EXISTS(SELECT 1 FROM derivation_inputs WHERE operation=?1 AND record=?2 AND version<?3)", params![derived_operation.as_str(), prior.id, crate::integer(input_change.after.version)?], |row| row.get::<_, bool>(0))?;
+            if uses_older_input {
+                refresh.insert(current.id);
             }
         }
     }
@@ -1343,6 +1356,98 @@ pub(crate) fn apply_on(
         params![operation.0, serde_json::to_string(&receipt)?],
     )?;
     Ok(ApplyOutcome::Applied(receipt))
+}
+
+/// Version changes for editor guards, comment mapping and observation timestamps
+/// alone do not imply new substantive evidence. No semantic dependency inference.
+fn meaningful_input_change(before: &Record, after: &Record) -> bool {
+    if before.archived != after.archived {
+        return true;
+    }
+    match (&before.data, &after.data) {
+        (RecordData::Note(old), RecordData::Note(new)) => {
+            let mut old = old.clone();
+            old.protected = new.protected;
+            old.confirmed = new.confirmed;
+            old != *new
+        }
+        (RecordData::Source(old), RecordData::Source(new)) => {
+            let mut old = old.clone();
+            old.observed_at = new.observed_at.clone();
+            old.label = new.label.clone();
+            old != *new
+        }
+        (RecordData::Action(old), RecordData::Action(new)) => old != new,
+        (RecordData::Asset(old), RecordData::Asset(new)) => old != new,
+        _ => false,
+    }
+}
+
+fn derivation_is_current(derived: &Record, current: &Record) -> bool {
+    match (&derived.data, &current.data) {
+        // Progress/completion changes do not erase where the task itself came
+        // from. A later input may warrant a follow-up even for completed work.
+        (RecordData::Action(old), RecordData::Action(new)) => {
+            old.description == new.description && old.due == new.due && old.internal == new.internal
+        }
+        (RecordData::Note(_), RecordData::Note(_))
+        | (RecordData::Source(_), RecordData::Source(_))
+        | (RecordData::Asset(_), RecordData::Asset(_)) => {
+            !meaningful_input_change(derived, current)
+        }
+        _ => derived.version == current.version,
+    }
+}
+
+/// Recover the exact direct-input footing through existing durable receipts.
+/// Metadata/progress inherits its prior footing; Undo restores the original
+/// write's before revision, including when two derived revisions had identical
+/// text but different sources. No new dependency graph or schema is needed.
+fn derivation_operation_on(conn: &Connection, current: &Record) -> Result<Option<OperationId>> {
+    let mut revision = current.clone();
+    loop {
+        let operation: String = conn.query_row(
+            "SELECT operation FROM revisions WHERE id=?1 AND version=?2",
+            params![revision.id, crate::integer(revision.version)?],
+            |row| row.get(0),
+        )?;
+        let operation = OperationId(operation);
+        let receipt = receipt_on(conn, &operation)?
+            .ok_or_else(|| Error::Missing(operation.as_str().into()))?;
+        if let Some(original) = receipt.undo_of {
+            let original = receipt_on(conn, &original)?
+                .ok_or_else(|| Error::Missing(original.as_str().into()))?;
+            let Some(prior) = original
+                .writes
+                .iter()
+                .find(|write| write.after.id == revision.id)
+                .and_then(|write| write.before.as_ref())
+            else {
+                return Ok(None);
+            };
+            revision = prior.clone();
+            continue;
+        }
+        if conn.query_row(
+            "SELECT EXISTS(SELECT 1 FROM derivation_inputs WHERE operation=?1)",
+            [operation.as_str()],
+            |row| row.get::<_, bool>(0),
+        )? {
+            return Ok(Some(operation));
+        }
+        let Some(prior) = receipt
+            .writes
+            .iter()
+            .find(|write| write.after.id == revision.id)
+            .and_then(|write| write.before.as_ref())
+        else {
+            return Ok(None);
+        };
+        if !derivation_is_current(prior, &revision) {
+            return Ok(None);
+        }
+        revision = prior.clone();
+    }
 }
 
 fn has_symlink_ancestor(path: &Path) -> Result<bool> {

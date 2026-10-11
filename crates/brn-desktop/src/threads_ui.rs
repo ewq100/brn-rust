@@ -7,7 +7,7 @@ use gpui_kit::base::{Disableable, RangeHighlight, Selectable};
 use gpui_kit::component::WindowExt;
 use gpui_kit::{
     App, AppContext, Bounds, Context, Entity, Image, ImageFormat, KeyBinding, PathPromptOptions,
-    Subscription, Task, Window, WindowBounds, WindowOptions,
+    Subscription, Task, TestSupportExt, Window, WindowBounds, WindowOptions,
     base::{
         MarkdownExtensions, MarkdownNode, MarkdownParseContext, MarkdownPlugin, TextView,
         TextViewState, markdown_ast::Node,
@@ -23,7 +23,7 @@ use gpui_kit::{
 };
 use std::result::Result;
 use std::{
-    collections::BTreeMap,
+    collections::{BTreeMap, BTreeSet},
     path::PathBuf,
     sync::{
         Arc,
@@ -39,6 +39,89 @@ use state::{
     can_continue, comment_location, continuation_notice, latest_run, linked, outcome_message,
     passage_request, save_message, sections,
 };
+
+#[cfg(all(test, feature = "native-test-support"))]
+#[path = "threads_focus_tests.rs"]
+mod focus_tests;
+
+#[cfg(all(test, feature = "native-test-support"))]
+mod search_tests {
+    use super::*;
+    use gpui_kit::{TestAppContext, test::TestWindowExt};
+
+    #[gpui_kit::test]
+    fn clearing_native_search_restores_workspace_without_retrieval_error(cx: &mut TestAppContext) {
+        let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+        let data = root.path().join("search-clear-regression");
+        let mut workspace = Workspace::open(&data).unwrap();
+        let note = workspace
+            .new_note("Search witness", "harborneedle õun and saved text")
+            .unwrap();
+        cx.update(gpui_kit::init);
+        let (window, view) = cx.update(|cx| {
+            gpui_kit::open_window(WindowOptions::default(), cx, |window, cx| {
+                cx.new(|cx| {
+                    let mut view = ThreadsUi::new(workspace, data, window, cx);
+                    view.poll = None;
+                    view
+                })
+            })
+            .unwrap()
+        });
+        cx.run_until_parked();
+        cx.update_window(window, |_, window, cx| {
+            view.read(cx)
+                .search
+                .clone()
+                .update(cx, |input, cx| input.focus(window, cx));
+            window.input("harborneedle", cx);
+        })
+        .unwrap();
+        cx.run_until_parked();
+        cx.read(|cx| {
+            assert!(view.read(cx).hits.iter().any(|hit| hit.note == note.id));
+            assert!(view.read(cx).notice.is_empty());
+        });
+        cx.update_window(window, |_, window, cx| {
+            window.press("cmd-a", cx);
+            window.press("backspace", cx);
+        })
+        .unwrap();
+        cx.run_until_parked();
+        cx.update_window(window, |_, window, cx| {
+            let current = view.read(cx);
+            assert!(current.search.read(cx).value().is_empty());
+            assert!(current.hits.is_empty());
+            assert!(
+                current.notice.is_empty(),
+                "clearing a valid search is normal navigation"
+            );
+            assert!(window.try_find(format!("note-{}", note.id)).is_some());
+            window.click(format!("note-{}", note.id), cx);
+        })
+        .unwrap();
+        cx.run_until_parked();
+        cx.update_window(window, |_, window, cx| {
+            assert!(view.read(cx).page == Page::Note(note.id.clone()));
+            view.read(cx)
+                .search
+                .clone()
+                .update(cx, |input, cx| input.focus(window, cx));
+            window.input("   ", cx);
+        })
+        .unwrap();
+        cx.run_until_parked();
+        cx.update_window(window, |_, window, cx| {
+            assert!(view.read(cx).hits.is_empty());
+            assert!(view.read(cx).notice.is_empty());
+            assert!(
+                window.try_find(format!("note-{}", note.id)).is_some(),
+                "whitespace-only search also shows normal workspace"
+            );
+        })
+        .unwrap();
+    }
+}
 
 gpui_kit::actions!(
     brn_threads,
@@ -64,6 +147,8 @@ struct Review {
     note: Option<String>,
     original: String,
     edited: bool,
+    groups: ReviewGroups,
+    selected: BTreeSet<String>,
 }
 enum WorkerEvent {
     Progress(String),
@@ -86,6 +171,9 @@ struct Worker {
     cancel: CancellationToken,
     conversion_cancel: Arc<AtomicBool>,
     kind: WorkerKind,
+    /// The native stream and cancellation belong to this invocation's thread,
+    /// independently of whichever page the owner is currently viewing.
+    thread: Option<String>,
 }
 
 // Inline HTML is shown literally. Managed figures use only stored image bytes;
@@ -257,7 +345,7 @@ impl ThreadsUi {
                 &note_editor,
                 window,
                 |this, editor, event: &InputEvent, _, cx| {
-                    if matches!(event, InputEvent::Change) {
+                    if matches!(event, InputEvent::Change) && this.note_editor_visible() {
                         this.note_changed(editor.read(cx).value().to_string());
                         cx.notify();
                     }
@@ -278,10 +366,14 @@ impl ThreadsUi {
             cx.subscribe_in(&search, window, |this, input, event: &InputEvent, _, cx| {
                 if matches!(event, InputEvent::Change) {
                     let query = input.read(cx).value().to_string();
-                    match this.workspace.search(&query) {
-                        Ok(hits) => this.hits = hits,
-                        Err(e) => this.notice = e.to_string(),
-                    };
+                    this.hits.clear();
+                    this.notice.clear();
+                    if !query.trim().is_empty() {
+                        match this.workspace.search(&query) {
+                            Ok(hits) => this.hits = hits,
+                            Err(e) => this.notice = e.to_string(),
+                        };
+                    }
                     cx.notify();
                 }
             }),
@@ -368,7 +460,46 @@ impl ThreadsUi {
                 .collect(),
         );
     }
-    fn navigate(&mut self, page: Page, cx: &mut Context<Self>) {
+    fn note_editor_visible(&self) -> bool {
+        self.review.is_none()
+            && self
+                .note
+                .as_ref()
+                .is_some_and(|open| open.editing && self.page == Page::Note(open.record.id.clone()))
+    }
+    fn preserve_visible_note_input(&mut self, cx: &Context<Self>) {
+        if self.note_editor_visible() {
+            self.note_changed(self.note_editor.read(cx).value().to_string());
+        }
+    }
+    fn focus_visible_editor(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        window.blur(cx);
+        if self
+            .review
+            .as_ref()
+            .is_some_and(|review| review.note.is_some())
+        {
+            self.review_editor
+                .update(cx, |editor, cx| editor.focus(window, cx));
+        } else if self.note_editor_visible() {
+            self.note_editor
+                .update(cx, |editor, cx| editor.focus(window, cx));
+        }
+    }
+    fn toggle_note_edit(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        self.preserve_visible_note_input(cx);
+        if let Some(open) = &mut self.note {
+            open.editing = !open.editing;
+        }
+        let text = self.note_editor.read(cx).value().to_string();
+        self.note_view
+            .update(cx, |view, cx| view.set_text(&text, cx));
+        self.focus_visible_editor(window, cx);
+        cx.notify();
+    }
+    fn navigate(&mut self, page: Page, window: &mut Window, cx: &mut Context<Self>) {
+        self.preserve_visible_note_input(cx);
+        window.blur(cx);
         self.page = page;
         self.comment_anchor = None;
         self.refresh();
@@ -381,6 +512,8 @@ impl ThreadsUi {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
+        self.preserve_visible_note_input(cx);
+        window.blur(cx);
         match self.workspace.store.note(id) {
             Ok(Some(record)) => {
                 let RecordData::Note(note) = &record.data else {
@@ -403,6 +536,7 @@ impl ThreadsUi {
                     .update(cx, |view, cx| view.set_text(&note.markdown, cx));
                 self.page = Page::Note(id.into());
                 self.comment_anchor = None;
+                self.focus_visible_editor(window, cx);
                 self.refresh();
                 cx.notify();
             }
@@ -453,8 +587,20 @@ impl ThreadsUi {
         match self.workspace.store.save(&session.id, session.generation) {
             Ok(outcome) => {
                 self.notice = save_message(&outcome).into();
+                if let SaveOutcome::Saved(receipt) = &outcome
+                    && !receipt.needs_refresh.is_empty()
+                {
+                    self.notice.push_str(&format!(" {} directly derived records may need refresh. Open What changed for the affected records and a follow-up.", receipt.needs_refresh.len()));
+                }
                 if matches!(outcome, SaveOutcome::Saved(_)) {
                     self.open_note(&session.note, None, window, cx);
+                } else if let Ok(Some(record)) = self.workspace.store.note(&session.note)
+                    && let RecordData::Note(current) = record.data
+                {
+                    // A refused Save compares against the current saved record,
+                    // while the editor and recovery buffer retain the owner's text.
+                    self.current_view
+                        .update(cx, |view, cx| view.set_text(&current.markdown, cx));
                 }
             }
             Err(e) => self.notice = e.to_string(),
@@ -512,8 +658,6 @@ impl ThreadsUi {
                                             if let Some(note) = &mut this.note {
                                                 note.editing = true;
                                             }
-                                            this.note_editor
-                                                .update(cx, |e, cx| e.focus(window, cx));
                                             created = true;
                                         }
                                         Err(e) => this.notice = e.to_string(),
@@ -522,6 +666,9 @@ impl ThreadsUi {
                                 });
                                 if created {
                                     window.close_dialog(cx);
+                                    let _ = target.update(cx, |this, cx| {
+                                        this.focus_visible_editor(window, cx);
+                                    });
                                 }
                             }),
                     ),
@@ -550,6 +697,8 @@ impl ThreadsUi {
         cx.notify();
     }
     fn open_review(&mut self, candidate: Prepared, window: &mut Window, cx: &mut Context<Self>) {
+        self.preserve_visible_note_input(cx);
+        window.blur(cx);
         let write = candidate
             .request
             .writes
@@ -577,16 +726,48 @@ impl ThreadsUi {
                 (Some(write.id.clone()), note.markdown.clone(), current)
             })
             .unwrap_or_default();
+        let groups = self
+            .workspace
+            .review_groups(candidate.operation.as_str())
+            .unwrap_or(ReviewGroups {
+                groups: vec![],
+                ungrouped_writes: vec![],
+            });
+        let selected = groups.groups.iter().map(|group| group.id.clone()).collect();
         self.review = Some(Review {
             candidate,
             note: id,
             original: text.clone(),
             edited: false,
+            groups,
+            selected,
         });
         self.review_editor
             .update(cx, |e, cx| e.set_value(text, window, cx));
         self.current_view
             .update(cx, |v, cx| v.set_text(&current, cx));
+        self.focus_visible_editor(window, cx);
+        cx.notify();
+    }
+    fn prepare_review_selection(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        let Some(review) = &self.review else { return };
+        if review.edited {
+            self.notice = "Prepare your edited text before choosing proposal groups.".into();
+            cx.notify();
+            return;
+        }
+        let selected = review.selected.iter().cloned().collect::<Vec<_>>();
+        match self
+            .workspace
+            .review_select(review.candidate.operation.as_str(), &selected)
+        {
+            Ok(candidate) => {
+                self.open_review(candidate, window, cx);
+                self.notice = "The selected whole records are prepared. Review this new proposal, then apply it.".into();
+            }
+            Err(error) => self.notice = error.to_string(),
+        }
+        self.refresh();
         cx.notify();
     }
     fn prepare_review_edit(&mut self, window: &mut Window, cx: &mut Context<Self>) {
@@ -607,10 +788,10 @@ impl ThreadsUi {
         self.refresh();
         cx.notify();
     }
-    fn apply_review(&mut self, cx: &mut Context<Self>) {
+    fn apply_review(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         let Some(review) = &self.review else { return };
-        if review.edited {
-            self.notice = "Prepare your edited text before applying it.".into();
+        if review.edited || review.selected.len() != review.groups.groups.len() {
+            self.notice = "Prepare your edited text or selected groups before applying it.".into();
             cx.notify();
             return;
         }
@@ -622,6 +803,7 @@ impl ThreadsUi {
                 self.notice = outcome_message(&outcome);
                 if matches!(outcome, ApplyOutcome::Applied(_)) {
                     self.review = None;
+                    self.focus_visible_editor(window, cx);
                 }
             }
             Err(e) => self.notice = e.to_string(),
@@ -629,7 +811,7 @@ impl ThreadsUi {
         self.refresh();
         cx.notify();
     }
-    fn dismiss_review(&mut self, cx: &mut Context<Self>) {
+    fn dismiss_review(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         let Some(review) = &self.review else { return };
         match self
             .workspace
@@ -637,6 +819,7 @@ impl ThreadsUi {
         {
             Ok(()) => {
                 self.review = None;
+                self.focus_visible_editor(window, cx);
                 self.notice = "Dismissed the proposal.".into();
             }
             Err(error) => self.notice = error.to_string(),
@@ -708,7 +891,7 @@ impl ThreadsUi {
                     self.comment_anchor = None;
                     self.comment_input
                         .update(cx, |e, cx| e.set_value("", window, cx));
-                    self.page = Page::Thread(thread);
+                    self.navigate(Page::Thread(thread), window, cx);
                 }
             }
             Err(e) => self.notice = e.to_string(),
@@ -755,7 +938,7 @@ impl ThreadsUi {
         };
         let request = brn_ai::threads::ThreadRunRequest {
             data_dir: self.data_dir.clone(),
-            thread,
+            thread: thread.clone(),
             prompt,
             selection,
             effort,
@@ -777,6 +960,7 @@ impl ThreadsUi {
             cancel,
             conversion_cancel: Arc::new(AtomicBool::new(false)),
             kind: WorkerKind::Run,
+            thread: Some(thread),
         });
         self.stream.clear();
         self.progress = "Starting…".into();
@@ -824,7 +1008,7 @@ impl ThreadsUi {
                 .map(|_| thread)
         }) {
             Ok(thread) => {
-                self.page = Page::Thread(thread.clone());
+                self.navigate(Page::Thread(thread.clone()), window, cx);
                 self.composer
                     .update(cx, |e, cx| e.set_value("", window, cx));
                 self.start_run(prompt, thread, vec![], cx);
@@ -845,6 +1029,31 @@ impl ThreadsUi {
                 .store(true, std::sync::atomic::Ordering::SeqCst);
             self.progress = "Stopping… Your saved progress will remain available.".into();
         }
+        cx.notify();
+    }
+    fn stream_for(&self, thread: &str) -> Option<&str> {
+        self.worker
+            .as_ref()
+            .filter(|worker| worker.thread.as_deref() == Some(thread))
+            .filter(|_| !self.stream.is_empty())
+            .map(|_| self.stream.as_str())
+    }
+    fn resolve_discussion(&mut self, thread: &str, cx: &mut Context<Self>) {
+        match self.workspace.resolve_thread(thread) {
+            Ok(outcome) => {
+                self.notice = outcome_message(&outcome);
+                if matches!(outcome, ApplyOutcome::Applied(_))
+                    && self
+                        .worker
+                        .as_ref()
+                        .is_some_and(|worker| worker.thread.as_deref() == Some(thread))
+                {
+                    self.cancel(cx);
+                }
+            }
+            Err(e) => self.notice = e.to_string(),
+        };
+        self.refresh();
         cx.notify();
     }
     fn poll_worker(&mut self, window: &mut Window, cx: &mut Context<Self>) {
@@ -880,10 +1089,23 @@ impl ThreadsUi {
                 WorkerEvent::Progress(text) => self.progress = text,
                 WorkerEvent::Finished(result) => {
                     let kind = self.worker.as_ref().map(|w| w.kind);
+                    let thread = self
+                        .worker
+                        .as_ref()
+                        .and_then(|worker| worker.thread.clone());
                     self.worker = None;
                     self.stream.clear();
                     self.progress.clear();
                     self.notice = result.unwrap_or_else(|e| format!("Work stopped: {e}"));
+                    if let Some(thread) = thread {
+                        let name = self
+                            .records
+                            .iter()
+                            .find(|record| record.id == thread)
+                            .map(title)
+                            .unwrap_or(thread);
+                        self.notice = format!("Work in {} · {}", short(&name), self.notice);
+                    }
                     match kind {
                         Some(WorkerKind::Export) => self.export_status = self.notice.clone(),
                         Some(WorkerKind::Backup) => self.backup_status = self.notice.clone(),
@@ -922,7 +1144,7 @@ impl ThreadsUi {
                                     Err(e) => self.notice = e.to_string(),
                                 }
                             } else {
-                                self.useful_intake(converted, title, cx);
+                                self.useful_intake(converted, title, window, cx);
                             }
                         }
                         Err(e) => self.notice = format!("Import stopped: {e}"),
@@ -937,23 +1159,40 @@ impl ThreadsUi {
         &mut self,
         converted: ConversionResult,
         title: String,
+        window: &mut Window,
         cx: &mut Context<Self>,
     ) {
+        let report = brn_threads_app::import_report(&converted);
+        let fingerprint = brn_intake::hex(&converted.source_sha256);
         match self
             .workspace
             .new_thread(&format!("Information from {title}"))
         {
             Ok(thread) => {
-                let instruction = "Capture useful supported information from this source, maintaining relevant ordinary notes and source references. Preserve qualifications; do not copy the whole source as a note.";
+                let instruction = "Capture useful supported information from this source, maintaining relevant ordinary notes and source references. Preserve qualifications; do not copy the whole source as a note. Retain meaningful selected figures using the read_source host links and preserve detected omissions; unchecked coverage does not mean proven loss.";
                 match self.workspace.post_message(&thread.id, instruction) {
                     Ok(_) => {
-                        self.page = Page::Thread(thread.id.clone());
+                        self.navigate(Page::Thread(thread.id.clone()), window, cx);
                         self.start_run(
                             instruction.into(),
                             thread.id,
                             vec![brn_ai::threads::TransientSource {
                                 reference: converted.source_reference,
                                 text: converted.markdown,
+                                fingerprint: Some(fingerprint),
+                                report: Some(report),
+                                assets: converted
+                                    .assets
+                                    .into_iter()
+                                    .map(|asset| brn_ai::threads::TransientAsset {
+                                        name: asset.name,
+                                        media_type: asset.media_type,
+                                        sha256: asset.sha256,
+                                        width: asset.width,
+                                        height: asset.height,
+                                        bytes: asset.bytes,
+                                    })
+                                    .collect(),
                             }],
                             cx,
                         );
@@ -1047,10 +1286,7 @@ impl ThreadsUi {
                     .with_file_name("brn-intake-helper");
                 let converter = Converter {
                     helper_path: helper,
-                    pdf_tools: Some(PdfTools {
-                        pdftotext: PathBuf::from("/opt/homebrew/bin/pdftotext"),
-                        pdfimages: PathBuf::from("/opt/homebrew/bin/pdfimages"),
-                    }),
+                    pdf_tools: PdfTools::discover(),
                     temp_root: std::env::temp_dir().join("brn-threads-intake"),
                     limits,
                 };
@@ -1077,6 +1313,7 @@ impl ThreadsUi {
             cancel: CancellationToken::new(),
             conversion_cancel: cancel_flag,
             kind: WorkerKind::Import,
+            thread: None,
         });
         self.progress = if intent == ImportIntent::FullNote {
             "Reading the full document…"
@@ -1170,6 +1407,7 @@ impl ThreadsUi {
             } else {
                 WorkerKind::Export
             },
+            thread: None,
         });
         self.progress = "Saving portable workspace data…".into();
         cx.notify();
@@ -1193,6 +1431,7 @@ impl ThreadsUi {
         }
         if self.review.as_ref().is_some_and(|r| !r.edited) {
             self.review = None;
+            self.focus_visible_editor(window, cx);
         }
         cx.notify();
     }
@@ -1265,25 +1504,35 @@ impl ThreadsUi {
                 Button::new("home")
                     .label("Home")
                     .selected(self.page == Page::Home)
-                    .on_click(cx.listener(|this, _, _, cx| this.navigate(Page::Home, cx))),
+                    .on_click(
+                        cx.listener(|this, _, window, cx| this.navigate(Page::Home, window, cx)),
+                    ),
             )
             .child(
                 Button::new("actions")
                     .label("Actions")
                     .selected(self.page == Page::Actions)
-                    .on_click(cx.listener(|this, _, _, cx| this.navigate(Page::Actions, cx))),
+                    .on_click(
+                        cx.listener(|this, _, window, cx| this.navigate(Page::Actions, window, cx)),
+                    ),
             )
             .child(
                 Button::new("history")
                     .label("What changed")
                     .selected(self.page == Page::History)
-                    .on_click(cx.listener(|this, _, _, cx| this.navigate(Page::History, cx))),
+                    .on_click(
+                        cx.listener(|this, _, window, cx| this.navigate(Page::History, window, cx)),
+                    ),
             )
             .child(
                 Button::new("settings")
                     .label("Settings")
                     .selected(self.page == Page::Settings)
-                    .on_click(cx.listener(|this, _, _, cx| this.navigate(Page::Settings, cx))),
+                    .on_click(
+                        cx.listener(|this, _, window, cx| {
+                            this.navigate(Page::Settings, window, cx)
+                        }),
+                    ),
             )
             .child(Input::new(&self.search).w_full());
         let mut list = div()
@@ -1294,7 +1543,7 @@ impl ThreadsUi {
             .flex()
             .flex_col()
             .gap_2();
-        if !self.search.read(cx).value().is_empty() {
+        if !self.search.read(cx).value().trim().is_empty() {
             list = list.child(heading("Current results"));
             for (i, hit) in self.hits.iter().enumerate() {
                 let id = hit.note.clone();
@@ -1339,8 +1588,8 @@ impl ThreadsUi {
                     Button::new(format!("thread-{id}"))
                         .label(label)
                         .selected(self.page == Page::Thread(id.clone()))
-                        .on_click(cx.listener(move |this, _, _, cx| {
-                            this.navigate(Page::Thread(id.clone()), cx)
+                        .on_click(cx.listener(move |this, _, window, cx| {
+                            this.navigate(Page::Thread(id.clone()), window, cx)
                         })),
                 );
             }
@@ -1433,8 +1682,8 @@ impl ThreadsUi {
             let mut item = div().flex().flex_col().gap_1().child(
                 Button::new(format!("attention-{id}"))
                     .label(short(&thread.title))
-                    .on_click(cx.listener(move |this, _, _, cx| {
-                        this.navigate(Page::Thread(id.clone()), cx)
+                    .on_click(cx.listener(move |this, _, window, cx| {
+                        this.navigate(Page::Thread(id.clone()), window, cx)
                     })),
             );
             for attention in &thread.attention {
@@ -1630,17 +1879,7 @@ impl ThreadsUi {
                 Button::new("resolve-discussion")
                     .label("Resolve discussion")
                     .on_click(cx.listener(move |this, _, _, cx| {
-                        match this.workspace.resolve_thread(&thread_id) {
-                            Ok(outcome) => {
-                                this.notice = outcome_message(&outcome);
-                                if matches!(outcome, ApplyOutcome::Applied(_)) {
-                                    this.cancel(cx);
-                                }
-                            }
-                            Err(e) => this.notice = e.to_string(),
-                        };
-                        this.refresh();
-                        cx.notify();
+                        this.resolve_discussion(&thread_id, cx);
                     })),
             );
         } else {
@@ -1694,25 +1933,6 @@ impl ThreadsUi {
                             })),
                     );
                 }
-                if comment.unresolved {
-                    let record = record.clone();
-                    let mut resolved = comment.clone();
-                    resolved.unresolved = false;
-                    context = context.child(
-                        Button::new(format!("resolve-comment-{}", record.id))
-                            .label("Resolve comment")
-                            .on_click(cx.listener(move |this, _, _, cx| {
-                                this.change(
-                                    "Owner resolved a note comment",
-                                    record.clone(),
-                                    RecordData::Comment(resolved.clone()),
-                                    cx,
-                                )
-                            })),
-                    );
-                } else {
-                    context = context.child("Comment resolved");
-                }
                 conversation = conversation.child(context);
             }
         }
@@ -1734,11 +1954,11 @@ impl ThreadsUi {
                 );
             }
         }
-        if !self.stream.is_empty() {
+        if let Some(stream) = self.stream_for(id) {
             conversation = conversation.child(
                 panel()
                     .child("BRN · working")
-                    .child(self.safe_message("stream-answer".into(), self.stream.clone())),
+                    .child(self.safe_message("stream-answer".into(), stream.into())),
             );
         }
         if let Some(record) = latest_run(&self.records, &self.history, id)
@@ -1814,6 +2034,20 @@ impl ThreadsUi {
                         panel()
                             .child(source.label.clone())
                             .child(short(&source.locator))
+                            .child(source.outcome.clone())
+                            .children(
+                                source
+                                    .report
+                                    .as_ref()
+                                    .map(|report| {
+                                        report
+                                            .issues
+                                            .iter()
+                                            .map(ImportIssue::display)
+                                            .collect::<Vec<_>>()
+                                    })
+                                    .unwrap_or_else(|| source.gaps.clone()),
+                            )
                             .child(
                                 Button::new(format!("open-source-{}", record.id))
                                     .label("Open source")
@@ -1882,14 +2116,7 @@ impl ThreadsUi {
                         open.session.is_none()
                             && self.buffers.iter().any(|s| s.note == open.record.id),
                     )
-                    .on_click(cx.listener(|this, _, _, cx| {
-                        if let Some(open) = &mut this.note {
-                            open.editing = !open.editing;
-                        }
-                        let text = this.note_editor.read(cx).value().to_string();
-                        this.note_view.update(cx, |v, cx| v.set_text(&text, cx));
-                        cx.notify();
-                    })),
+                    .on_click(cx.listener(|this, _, window, cx| this.toggle_note_edit(window, cx))),
             )
             .child(
                 Button::new("save-note")
@@ -1993,13 +2220,70 @@ impl ThreadsUi {
                         }),
                 );
             }
-            content = content.child(div().text_sm().child(if coverage.gaps.is_empty() {
-                "Full imported reference · source coverage checked"
+            let intent = if coverage.full_note {
+                "Full imported reference"
             } else {
-                "Full imported reference · Partial / coverage requires inspection"
-            }));
-            for gap in &coverage.gaps {
-                content = content.child(div().text_sm().child(gap.clone()));
+                "Useful information"
+            };
+            let (summary, details) = if let Some(report) = &coverage.report {
+                (
+                    report.summary(),
+                    report
+                        .issues
+                        .iter()
+                        .map(ImportIssue::display)
+                        .collect::<Vec<_>>(),
+                )
+            } else {
+                (
+                    if coverage.gaps.is_empty() {
+                        "Coverage not recorded"
+                    } else {
+                        "Partial / coverage requires inspection"
+                    },
+                    coverage.gaps.clone(),
+                )
+            };
+            content = content.child(
+                div()
+                    .id("note-import-summary")
+                    .flex_shrink_0()
+                    .text_sm()
+                    .child(format!("{intent} · {summary}"))
+                    .test_support(),
+            );
+            if !details.is_empty() {
+                // Provenance may contain long paths and many qualifications.
+                // Keep every issue scrollable without consuming the note body.
+                content = content.child(
+                    div()
+                        .id("note-coverage-details")
+                        .w_full()
+                        .max_h(px(120.))
+                        .flex_shrink_0()
+                        .overflow_y_scroll()
+                        .flex()
+                        .flex_col()
+                        .gap_1()
+                        .border_1()
+                        .border_color(rgb(0xdce2e8))
+                        .rounded_md()
+                        .p_2()
+                        .child(
+                            div()
+                                .text_sm()
+                                .child(format!("Coverage details ({})", details.len())),
+                        )
+                        .children(details.into_iter().enumerate().map(|(index, detail)| {
+                            div()
+                                .id(format!("note-coverage-detail-{index}"))
+                                .flex_shrink_0()
+                                .text_sm()
+                                .child(detail)
+                                .test_support()
+                        }))
+                        .test_support(),
+                );
             }
         }
         if let Some(session) = &open.session {
@@ -2022,7 +2306,12 @@ impl ThreadsUi {
         for (i, (title, range)) in sections(&text).into_iter().enumerate() {
             nav = nav.child(
                 Button::new(format!("section-{i}"))
-                    .label(short(&title))
+                    .label(short(
+                        title
+                            .strip_prefix("**")
+                            .and_then(|value| value.strip_suffix("**"))
+                            .unwrap_or(&title),
+                    ))
                     .compact()
                     .on_click(cx.listener(move |this, _, window, cx| {
                         this.reveal(range.clone(), window, cx)
@@ -2038,7 +2327,15 @@ impl ThreadsUi {
         } else {
             markdown(&self.note_view, self.assets.clone()).into_any_element()
         };
-        content = content.child(div().flex_1().min_h_0().w_full().child(editor));
+        content = content.child(
+            div()
+                .id("note-body")
+                .flex_1()
+                .min_h_0()
+                .w_full()
+                .child(editor)
+                .test_support(),
+        );
         if let Some((_, _, _, quote)) = &self.comment_anchor {
             content = content.child(
                 panel()
@@ -2079,12 +2376,7 @@ impl ThreadsUi {
                 .gap_1()
                 .child(short(&comment.body))
                 .child(format!(
-                    "{} · {}",
-                    if comment.unresolved {
-                        "Open comment"
-                    } else {
-                        "Resolved comment"
-                    },
+                    "Passage comment · {}",
                     if location.is_some() {
                         "Current passage"
                     } else {
@@ -2111,8 +2403,8 @@ impl ThreadsUi {
                     row = row.child(
                         Button::new(format!("open-comment-thread-{thread_id}"))
                             .label("Open discussion")
-                            .on_click(cx.listener(move |this, _, _, cx| {
-                                this.navigate(Page::Thread(thread_id.clone()), cx)
+                            .on_click(cx.listener(move |this, _, window, cx| {
+                                this.navigate(Page::Thread(thread_id.clone()), window, cx)
                             })),
                     );
                 }
@@ -2131,8 +2423,8 @@ impl ThreadsUi {
             discussion = discussion.child(
                 Button::new(format!("note-thread-{id}"))
                     .label(format!("Discuss: {}", short(&title(record))))
-                    .on_click(cx.listener(move |this, _, _, cx| {
-                        this.navigate(Page::Thread(id.clone()), cx)
+                    .on_click(cx.listener(move |this, _, window, cx| {
+                        this.navigate(Page::Thread(id.clone()), window, cx)
                     })),
             );
         }
@@ -2148,6 +2440,45 @@ impl ThreadsUi {
             .gap_1()
             .child(heading("Review change"))
             .child(review.candidate.request.reason.clone());
+        if review.groups.groups.len() > 1 {
+            summary = summary.child("Choose complete notes and Actions. Prepare your selection to review a new immutable proposal.");
+            for group in &review.groups.groups {
+                let id = group.id.clone();
+                let included = review.selected.contains(&id);
+                summary = summary.child(
+                    Button::new(format!("review-group-{id}"))
+                        .label(format!(
+                            "{} {}: {}",
+                            if included { "Include" } else { "Omit" },
+                            group.kind,
+                            short(&group.title)
+                        ))
+                        .selected(included)
+                        .disabled(review.edited || !review.groups.ungrouped_writes.is_empty())
+                        .on_click(cx.listener(move |this, _, _, cx| {
+                            if let Some(review) = &mut this.review
+                                && !review.selected.remove(&id)
+                            {
+                                review.selected.insert(id.clone());
+                            }
+                            cx.notify();
+                        })),
+                );
+                if !group.required_groups.is_empty() {
+                    let required = group
+                        .required_groups
+                        .iter()
+                        .filter_map(|id| review.groups.groups.iter().find(|g| &g.id == id))
+                        .map(|g| g.title.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", ");
+                    summary = summary.child(format!("Requires: {required}"));
+                }
+            }
+            if !review.groups.ungrouped_writes.is_empty() {
+                summary = summary.child("This proposal has shared changes that cannot be separated safely. Keep the complete proposal or request a rewrite.");
+            }
+        }
         for write in &review.candidate.request.writes {
             if let RecordData::Note(note) = &write.data {
                 let id = write.id.clone();
@@ -2230,8 +2561,9 @@ impl ThreadsUi {
         }
         view.child(div().flex().flex_wrap().gap_2()
             .child(Button::new("prepare-final").label("Prepare edited proposal").disabled(!review.edited).on_click(cx.listener(|this,_,window,cx|this.prepare_review_edit(window,cx))))
-            .child(Button::new("apply-final").label("Apply this proposal").disabled(review.edited).on_click(cx.listener(|this,_,_,cx|this.apply_review(cx))))
-            .child(Button::new("dismiss-proposal").label("Dismiss proposal").on_click(cx.listener(|this,_,_,cx|this.dismiss_review(cx))))
+            .child(Button::new("prepare-selected").label("Prepare selected groups").disabled(review.edited || review.selected.is_empty() || review.selected.len() == review.groups.groups.len()).on_click(cx.listener(|this,_,window,cx|this.prepare_review_selection(window,cx))))
+            .child(Button::new("apply-final").label("Apply this proposal").disabled(review.edited || review.selected.len() != review.groups.groups.len()).on_click(cx.listener(|this,_,window,cx|this.apply_review(window,cx))))
+            .child(Button::new("dismiss-proposal").label("Dismiss proposal").on_click(cx.listener(|this,_,window,cx|this.dismiss_review(window,cx))))
             .child(Button::new("close-review").label("Keep for later").on_click(cx.listener(|this,_,window,cx|this.keep_review(window,cx)))))
             .child("Applying saves this exact proposal. Changed or actively edited notes remain unchanged until the issue is resolved.").into_any_element()
     }
@@ -2259,7 +2591,41 @@ impl ThreadsUi {
                 ));
             }
             if !receipt.needs_refresh.is_empty() {
-                entry = entry.child("Related work may need refreshing after this change.");
+                entry = entry.child("Directly derived work may need refreshing after this change. Review its current inputs before updating it.");
+                if let Ok(records) = self.workspace.refresh_records(&id) {
+                    for record in records {
+                        let page = if matches!(record.data, RecordData::Note(_)) {
+                            Page::Note(record.id.clone())
+                        } else {
+                            Page::Actions
+                        };
+                        entry = entry.child(
+                            Button::new(format!("refresh-record-{id}-{}", record.id))
+                                .label(format!("May need refresh: {}", short(&title(&record))))
+                                .on_click(cx.listener(move |this, _, window, cx| match &page {
+                                    Page::Note(id) => this.open_note(id, None, window, cx),
+                                    _ => this.navigate(page.clone(), window, cx),
+                                })),
+                        );
+                    }
+                }
+                let receipt_id = id.clone();
+                entry = entry.child(
+                    Button::new(format!("refresh-followup-{id}"))
+                        .label("Open refresh follow-up")
+                        .on_click(cx.listener(move |this, _, window, cx| {
+                            match this.workspace.refresh_followup(&receipt_id) {
+                                Ok(thread) => {
+                                    this.refresh();
+                                    this.navigate(Page::Thread(thread.id), window, cx);
+                                }
+                                Err(error) => {
+                                    this.notice = error.to_string();
+                                    cx.notify();
+                                }
+                            }
+                        })),
+                );
             }
             entry = entry.child(
                 Button::new(format!("undo-{id}"))
@@ -2389,18 +2755,25 @@ impl Render for ThreadsUi {
         if !self.notice.is_empty() {
             footer = footer.child(div().text_sm().child(self.notice.clone()));
         }
-        if self.worker.is_some() {
+        if let Some(worker) = &self.worker {
+            let progress = worker.thread.as_ref().map_or_else(
+                || self.progress.clone(),
+                |thread| {
+                    let name = self
+                        .records
+                        .iter()
+                        .find(|record| &record.id == thread)
+                        .map(title)
+                        .unwrap_or_else(|| thread.clone());
+                    format!("Work in {} · {}", short(&name), self.progress)
+                },
+            );
             footer = footer.child(
-                div()
-                    .flex()
-                    .gap_3()
-                    .items_center()
-                    .child(self.progress.clone())
-                    .child(
-                        Button::new("stop-work")
-                            .label("Stop")
-                            .on_click(cx.listener(|this, _, _, cx| this.cancel(cx))),
-                    ),
+                div().flex().gap_3().items_center().child(progress).child(
+                    Button::new("stop-work")
+                        .label("Stop")
+                        .on_click(cx.listener(|this, _, _, cx| this.cancel(cx))),
+                ),
             );
         }
         footer = footer.child(
@@ -2437,7 +2810,9 @@ impl Render for ThreadsUi {
                 }
             }))
             .on_action(cx.listener(|this, _: &Ask, window, cx| this.ask(window, cx)))
-            .on_action(cx.listener(|this, _: &Home, _, cx| this.navigate(Page::Home, cx)))
+            .on_action(
+                cx.listener(|this, _: &Home, window, cx| this.navigate(Page::Home, window, cx)),
+            )
             .on_action(cx.listener(|this, _: &NewNote, window, cx| this.new_note(window, cx)))
             .on_action(cx.listener(|this, _: &FocusAsk, window, cx| {
                 this.composer.update(cx, |e, cx| e.focus(window, cx))

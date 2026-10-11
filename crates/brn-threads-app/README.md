@@ -27,6 +27,24 @@ Source receipt without incrementing the unchanged note version. A genuinely new
 source version can create another protected full note under explicit import.
 Conversion completeness remains the converter/inventory's responsibility.
 
+Full and useful-information intake retain a typed coverage report on Source and
+Note provenance. Detected omissions, converter limitations, and coverage not
+independently verified remain distinct through backup and restore; an unchecked
+conversion is not evidence of missing content. Old records without a report
+retain their existing gap text without implying independent coverage checks.
+Useful-information intake supplies converted figures to the runtime as transient
+host-held assets. `read_source` returns opaque figure links rather than image
+bytes; selected links in checked Note writes materialize only those figures as
+managed SQLite assets with source provenance. Unselected figures and raw source
+bodies are not archived. Selected asset digests and current source identity are
+checked before immutable preparation, and the resulting writes use the usual
+atomic apply, replay, review, and stale-input checks.
+Used transient sources carry unchanged expected-version observations in the
+prepared group. The SQLite writer therefore rejects a source changed between
+Prepare and Apply, including during later owner review; an already committed
+receipt remains replayable. A model can improve a source label but cannot replace
+host-recorded coverage, omissions, or the observed source fingerprint.
+
 Owner editing of a candidate assigns fresh creation IDs and rewrites structural
 references and managed figure URLs by complete, exact asset identity. Unknown
 asset URL suffixes, paths, or queries cannot match a shorter known ID. Core replacement preparation, retirement,

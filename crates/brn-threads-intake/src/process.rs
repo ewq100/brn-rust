@@ -163,6 +163,14 @@ fn kill_group(child: &mut std::process::Child) {
 }
 
 #[cfg(target_os = "macos")]
+fn homebrew_prefix(executable: &Path) -> Option<&Path> {
+    executable
+        .ancestors()
+        .find(|path| path.file_name().is_some_and(|name| name == "Cellar"))
+        .and_then(Path::parent)
+}
+
+#[cfg(target_os = "macos")]
 fn restrict_command(
     command: &mut Command,
     executable: &Path,
@@ -177,15 +185,29 @@ fn restrict_command(
         }
         Ok(path.replace('\\', "\\\\").replace('"', "\\\""))
     }
+    // Canonical Homebrew executables live at PREFIX/Cellar/FORMULA/VERSION/bin.
+    // Permit only their installation runtime, even when PREFIX is beneath HOME;
+    // never grant content reads to the surrounding home directory or BRN data.
+    let homebrew = if let Some(prefix) = homebrew_prefix(executable) {
+        format!(
+            "(allow file-read-metadata (subpath \"{}\"))\n(allow file-read* file-map-executable (subpath \"{}\") (subpath \"{}\") (subpath \"{}\"))",
+            escaped(prefix)?,
+            escaped(&prefix.join("Cellar"))?,
+            escaped(&prefix.join("lib"))?,
+            escaped(&prefix.join("share"))?,
+        )
+    } else {
+        String::new()
+    };
     let profile = std::ffi::CString::new(format!(r#"(version 1)
 (deny default)
 (allow process-exec (literal "{}"))
 (allow sysctl-read)
 (allow file-read* (literal "/"))
-(allow file-read-metadata (subpath "/opt/homebrew"))
-(allow file-read* file-map-executable (subpath "/System/Library") (subpath "/System/Volumes/Preboot") (subpath "/private/preboot") (subpath "/usr/lib") (subpath "/private/var/db/dyld") (subpath "/usr/share") (subpath "/Library/Fonts") (subpath "/opt/homebrew/Cellar") (subpath "/opt/homebrew/lib") (subpath "/opt/homebrew/share") (literal "{}"))
+{}
+(allow file-read* file-map-executable (subpath "/System/Library") (subpath "/System/Volumes/Preboot") (subpath "/private/preboot") (subpath "/usr/lib") (subpath "/private/var/db/dyld") (subpath "/usr/share") (subpath "/Library/Fonts") (literal "{}"))
 (allow file-read* file-write* (subpath "{}") (literal "/dev/null"))
-"#, escaped(executable)?, escaped(executable)?, escaped(temp)?)).map_err(|_| ConversionError::Invalid)?;
+"#, escaped(executable)?, homebrew, escaped(executable)?, escaped(temp)?)).map_err(|_| ConversionError::Invalid)?;
     #[link(name = "sandbox")]
     unsafe extern "C" {
         fn sandbox_init(
@@ -232,16 +254,52 @@ mod tests {
     use std::sync::Arc;
 
     #[test]
+    fn homebrew_runtime_prefix_follows_canonical_installation_only() {
+        for prefix in ["/opt/homebrew", "/usr/local", "/Users/synthetic/.local"] {
+            let executable = Path::new(prefix).join("Cellar/poppler/26.10.0/bin/pdftotext");
+            assert_eq!(homebrew_prefix(&executable), Some(Path::new(prefix)));
+        }
+        assert_eq!(
+            homebrew_prefix(Path::new("/Users/synthetic/private/tool")),
+            None
+        );
+    }
+
+    #[test]
     fn sandbox_denies_external_source_and_network_before_parsing() {
+        sandbox_witness(false);
+    }
+
+    #[test]
+    fn custom_homebrew_runtime_keeps_external_source_and_network_denied() {
+        sandbox_witness(true);
+    }
+
+    fn sandbox_witness(custom_homebrew: bool) {
         let root = tempfile::tempdir().unwrap();
         let temp = TransientDir::create(root.path()).unwrap();
         let forbidden = root.path().join("external-source");
         std::fs::write(&forbidden, b"synthetic-excluded-canary").unwrap();
         let listener = std::net::TcpListener::bind((std::net::Ipv4Addr::LOCALHOST, 0)).unwrap();
         let port = listener.local_addr().unwrap().port();
+        let (executable, runtime) = if custom_homebrew {
+            let prefix = root.path().join("home/.local");
+            let executable = prefix.join("Cellar/synthetic/1/bin/witness");
+            std::fs::create_dir_all(executable.parent().unwrap()).unwrap();
+            std::fs::copy(std::env::current_exe().unwrap(), &executable).unwrap();
+            let runtime = prefix.join("lib/runtime-canary");
+            std::fs::create_dir_all(runtime.parent().unwrap()).unwrap();
+            std::fs::write(&runtime, b"synthetic runtime").unwrap();
+            (
+                executable,
+                runtime.canonicalize().unwrap().display().to_string(),
+            )
+        } else {
+            (std::env::current_exe().unwrap(), String::new())
+        };
         std::fs::write(
             temp.path.join("probe"),
-            format!("{}\n{port}", forbidden.display()),
+            format!("{}\n{port}\n{runtime}", forbidden.display()),
         )
         .unwrap();
         let args = [
@@ -252,7 +310,7 @@ mod tests {
         ]
         .map(OsString::from);
         run(
-            &std::env::current_exe().unwrap(),
+            &executable,
             &args,
             None,
             &temp,
@@ -274,6 +332,9 @@ mod tests {
         assert!(std::fs::read(lines.next().unwrap()).is_err());
         let port: u16 = lines.next().unwrap().parse().unwrap();
         assert!(std::net::TcpStream::connect((std::net::Ipv4Addr::LOCALHOST, port)).is_err());
+        if let Some(runtime) = lines.next().filter(|line| !line.is_empty()) {
+            assert_eq!(std::fs::read(runtime).unwrap(), b"synthetic runtime");
+        }
         assert_eq!(std::env::vars_os().count(), 0);
     }
     #[test]

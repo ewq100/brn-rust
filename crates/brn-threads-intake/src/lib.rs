@@ -1,5 +1,7 @@
 //! Bounded transient conversion. Returned knowledge has no original-file payload.
 //! Semantic selection for useful intake and protected-note creation belong to the host.
+mod docx_markdown;
+mod pdf_tools;
 mod process;
 mod transient;
 
@@ -247,7 +249,11 @@ impl Converter {
             .collect();
         Ok(ConversionResult {
             intent: request.intent,
-            markdown: extraction.markdown,
+            markdown: if request.kind == DocumentKind::Docx {
+                docx_markdown::readable(&extraction.markdown)
+            } else {
+                extraction.markdown
+            },
             assets: extraction
                 .assets
                 .into_iter()
@@ -271,7 +277,11 @@ impl Converter {
                 .into_iter()
                 .map(|source| SourceCoverage {
                     locator: source.locator,
-                    text: source.text,
+                    text: if request.kind == DocumentKind::Docx {
+                        docx_markdown::readable(&source.text)
+                    } else {
+                        source.text
+                    },
                 })
                 .collect(),
             coverage: Coverage {

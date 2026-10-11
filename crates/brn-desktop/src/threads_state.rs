@@ -76,7 +76,9 @@ pub(super) fn passage_request(
                     mapped_version: None,
                     mapped_range: None,
                     body: body.into(),
-                    unresolved: true,
+                    // The selected saved range is known. Discussion lifecycle
+                    // belongs to its Thread; this flag marks an unknown location.
+                    unresolved: false,
                 }),
             },
             Put {
@@ -119,7 +121,7 @@ pub(super) fn passage_request(
 }
 pub(super) fn outcome_message(outcome: &ApplyOutcome) -> String {
     match outcome {
-        ApplyOutcome::Applied(receipt) => format!("Saved. {}", receipt.reason),
+        ApplyOutcome::Applied(receipt) => format!("Saved. {}{}", receipt.reason, if receipt.needs_refresh.is_empty() { String::new() } else { format!(" {} directly derived records may need refresh. Open What changed for the affected records and a follow-up.", receipt.needs_refresh.len()) }),
         ApplyOutcome::Deferred { .. } => "Waiting for an open edit. Save or discard that edit, then retry this change.".into(),
         ApplyOutcome::Stale { .. } => "The current content changed. This proposal was preserved; compare it with the latest content before preparing a new change.".into(),
         ApplyOutcome::NeedsReview { .. } => "This change needs your review. The current notes are unchanged.".into(),
@@ -541,6 +543,63 @@ mod integrity_tests {
             super::comment_location(&comment, record.version, "tere tere"),
             Some(5..9)
         );
+        let session = workspace
+            .store
+            .begin_edit(&record.id, record.version)
+            .unwrap();
+        workspace
+            .store
+            .update_buffer(&session.id, 1, "Õun: tere tere")
+            .unwrap();
+        assert!(matches!(
+            workspace.store.save(&session.id, 1).unwrap(),
+            SaveOutcome::Saved(_)
+        ));
+        drop(workspace);
+        let mut workspace = Workspace::open(directory.path()).unwrap();
+        let current = workspace.store.note(&record.id).unwrap().unwrap();
+        let RecordData::Comment(mapped) = workspace
+            .store
+            .record(&op.creation_id(1))
+            .unwrap()
+            .unwrap()
+            .data
+        else {
+            unreachable!()
+        };
+        assert_eq!(
+            super::comment_location(&mapped, current.version, "Õun: tere tere"),
+            Some(11..15)
+        );
+        let session = workspace
+            .store
+            .begin_edit(&record.id, current.version)
+            .unwrap();
+        workspace
+            .store
+            .update_buffer(&session.id, 1, "Õun: tere kadunud")
+            .unwrap();
+        assert!(matches!(
+            workspace.store.save(&session.id, 1).unwrap(),
+            SaveOutcome::Saved(_)
+        ));
+        let current = workspace.store.note(&record.id).unwrap().unwrap();
+        let RecordData::Comment(mapped) = workspace
+            .store
+            .record(&op.creation_id(1))
+            .unwrap()
+            .unwrap()
+            .data
+        else {
+            unreachable!()
+        };
+        assert!(mapped.unresolved);
+        assert_eq!(mapped.quote, "tere");
+        assert_eq!(
+            super::comment_location(&mapped, current.version, "Õun: tere kadunud"),
+            None
+        );
+        assert_eq!(workspace.messages(&thread).unwrap().len(), 1);
     }
     #[test]
     fn resolving_a_discussion_keeps_the_linked_waiting_obligation() {

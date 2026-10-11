@@ -24,12 +24,460 @@ fn put(record: &Record, data: RecordData) -> Put {
         data,
     }
 }
+#[test]
+fn selecting_action_group_keeps_shared_source_guard_and_refuses_newer_evidence() {
+    let (_dir, mut app) = workspace();
+    let note = app
+        .new_note("Independent summary", "Original summary")
+        .unwrap();
+    let source_op = app
+        .store
+        .allocate_operation("group source evidence")
+        .unwrap();
+    let source = outcome(
+        app.owner_change(
+            "group source evidence",
+            &request(vec![Put {
+                id: source_op.creation_id(0),
+                expected_version: None,
+                archived: false,
+                data: RecordData::Source(Source {
+                    locator: "synthetic://group-source".into(),
+                    label: "Study".into(),
+                    observed_at: "first".into(),
+                    external_version: Some("v1".into()),
+                    outcome: "Partial".into(),
+                    gaps: vec![],
+                    report: Some(ImportReport {
+                        status: ImportStatus::Partial,
+                        issues: vec![],
+                    }),
+                }),
+            }]),
+        )
+        .unwrap(),
+    )
+    .writes[0]
+        .after
+        .clone();
+    let operation = app
+        .store
+        .allocate_operation("shared source candidate")
+        .unwrap();
+    let action = operation.creation_id(0);
+    let mut proposed_note = Note::working("Independent summary", "Updated summary");
+    proposed_note.import = Some(ImportCoverage {
+        source: source.id.clone(),
+        full_note: false,
+        gaps: vec![],
+        report: None,
+    });
+    let mut req = request(vec![
+        put(&note, RecordData::Note(proposed_note)),
+        Put {
+            id: action.clone(),
+            expected_version: None,
+            archived: false,
+            data: RecordData::Action(Action {
+                description: "Check supported evidence".into(),
+                state: ActionState::Suggested,
+                internal: true,
+                evidence: None,
+                due: None,
+            }),
+        },
+        put(&source, source.data.clone()),
+    ]);
+    req.inputs.push(RevisionInput {
+        record: source.id.clone(),
+        version: source.version,
+    });
+    app.store.prepare(&operation, &req).unwrap();
+    let groups = app.review_groups(operation.as_str()).unwrap();
+    assert!(groups.ungrouped_writes.is_empty());
+    assert!(
+        groups
+            .groups
+            .iter()
+            .all(|group| group.writes.contains(&source.id))
+    );
+    let selected = app.review_select(operation.as_str(), &[action]).unwrap();
+    assert!(
+        selected
+            .request
+            .writes
+            .iter()
+            .any(|write| write.id == source.id && write.expected_version == Some(source.version))
+    );
+    assert!(
+        !selected
+            .request
+            .writes
+            .iter()
+            .any(|write| write.id == note.id)
+    );
+    let RecordData::Source(mut newer) = source.data.clone() else {
+        panic!()
+    };
+    newer.external_version = Some("v2".into());
+    outcome(
+        app.owner_change(
+            "source changed after group selection",
+            &request(vec![put(&source, RecordData::Source(newer))]),
+        )
+        .unwrap(),
+    );
+    assert!(
+        matches!(app.review_apply(selected.operation.as_str()).unwrap(), ApplyOutcome::Stale { records } if records.contains(&source.id))
+    );
+    assert!(
+        app.records()
+            .unwrap()
+            .iter()
+            .all(|record| !matches!(record.data, RecordData::Action(_)))
+    );
+    assert_eq!(app.store.record(&note.id).unwrap().unwrap(), note);
+}
+#[test]
+fn independent_whole_note_and_action_selection_requires_new_displayed_candidate() {
+    let (_dir, mut app) = workspace();
+    let note = app
+        .new_note("Protected wording", "Preserve original wording")
+        .unwrap();
+    let RecordData::Note(mut protected) = note.data.clone() else {
+        panic!()
+    };
+    protected.protected = true;
+    outcome(
+        app.owner_change(
+            "protect selection fixture",
+            &request(vec![put(&note, RecordData::Note(protected))]),
+        )
+        .unwrap(),
+    );
+    let note = app.store.record(&note.id).unwrap().unwrap();
+    let action_op = app
+        .store
+        .allocate_operation("human Action fixture")
+        .unwrap();
+    let action = action_op.creation_id(0);
+    outcome(
+        app.owner_change(
+            "human Action fixture",
+            &request(vec![Put {
+                id: action.clone(),
+                expected_version: None,
+                archived: false,
+                data: RecordData::Action(Action {
+                    description: "Human checks wording".into(),
+                    state: ActionState::Waiting,
+                    internal: false,
+                    evidence: None,
+                    due: None,
+                }),
+            }]),
+        )
+        .unwrap(),
+    );
+    let action = app.store.record(&action).unwrap().unwrap();
+    let original = app
+        .store
+        .allocate_operation("independent note Action proposal")
+        .unwrap();
+    let RecordData::Note(mut proposed) = note.data.clone() else {
+        panic!()
+    };
+    proposed.markdown = format!(
+        "Complete selected wording. ![Managed](brn-asset://{})",
+        original.creation_id(0)
+    );
+    let RecordData::Action(mut done) = action.data.clone() else {
+        panic!()
+    };
+    done.state = ActionState::Done;
+    done.evidence = Some("Owner review confirms the human result".into());
+    let original_request = request(vec![
+        put(&note, RecordData::Note(proposed)),
+        put(&action, RecordData::Action(done)),
+        Put {
+            id: original.creation_id(0),
+            expected_version: None,
+            archived: false,
+            data: RecordData::Asset(Asset {
+                note: note.id.clone(),
+                source: None,
+                media_type: "image/png".into(),
+                bytes: vec![1, 2, 3],
+            }),
+        },
+    ]);
+    app.store.prepare(&original, &original_request).unwrap();
+    let groups = app.review_groups(original.as_str()).unwrap();
+    assert_eq!(groups.groups.len(), 2);
+    assert!(groups.ungrouped_writes.is_empty());
+    assert!(
+        groups
+            .groups
+            .iter()
+            .all(|group| group.required_groups.is_empty())
+    );
+    let selected = app
+        .review_select(original.as_str(), std::slice::from_ref(&note.id))
+        .unwrap();
+    assert_ne!(selected.operation, original);
+    assert_ne!(
+        selected.request_hash,
+        app.store.prepared(&original).unwrap().request_hash
+    );
+    assert_eq!(
+        app.store.prepared(&original).unwrap().request,
+        original_request
+    );
+    assert_eq!(app.store.record(&note.id).unwrap().unwrap(), note);
+    assert_eq!(app.store.record(&action.id).unwrap().unwrap(), action);
+    assert!(app.review_apply(original.as_str()).is_err());
+    assert!(
+        selected
+            .request
+            .writes
+            .iter()
+            .any(|write| matches!(write.data, RecordData::Asset(_)))
+    );
+    assert!(
+        !selected
+            .request
+            .writes
+            .iter()
+            .any(|write| write.id == action.id)
+    );
+    let applied = outcome(app.review_apply(selected.operation.as_str()).unwrap());
+    assert_eq!(app.store.record(&action.id).unwrap().unwrap(), action);
+    assert!(
+        matches!(&app.store.record(&note.id).unwrap().unwrap().data, RecordData::Note(note) if note.markdown.contains("Complete selected wording"))
+    );
+    outcome(app.undo(applied.operation.as_str()).unwrap());
+    assert_eq!(app.store.record(&action.id).unwrap().unwrap(), action);
+    let current = app.store.record(&note.id).unwrap().unwrap();
+    let next = app
+        .store
+        .allocate_operation("select only Action independently")
+        .unwrap();
+    let RecordData::Note(mut excluded) = current.data.clone() else {
+        panic!()
+    };
+    excluded.markdown = "Must remain excluded".into();
+    let RecordData::Action(mut done) = action.data.clone() else {
+        panic!()
+    };
+    done.state = ActionState::Done;
+    done.evidence = Some("Explicit owner completion review".into());
+    app.store
+        .prepare(
+            &next,
+            &request(vec![
+                put(&current, RecordData::Note(excluded)),
+                put(&action, RecordData::Action(done)),
+            ]),
+        )
+        .unwrap();
+    let selected = app
+        .review_select(next.as_str(), std::slice::from_ref(&action.id))
+        .unwrap();
+    outcome(app.review_apply(selected.operation.as_str()).unwrap());
+    assert_eq!(app.store.record(&note.id).unwrap().unwrap(), current);
+    assert!(
+        matches!(app.store.record(&action.id).unwrap().unwrap().data, RecordData::Action(action) if action.state == ActionState::Done)
+    );
+}
+
+#[test]
+fn review_selection_preserves_structural_new_record_dependencies_and_exact_bases() {
+    let (_dir, mut app) = workspace();
+    let original = app.store.allocate_operation("coupled new groups").unwrap();
+    let first = original.creation_id(0);
+    let second = original.creation_id(1);
+    app.store
+        .prepare(
+            &original,
+            &request(vec![
+                Put {
+                    id: first.clone(),
+                    expected_version: None,
+                    archived: false,
+                    data: RecordData::Note(Note::working("New note", "Whole content")),
+                },
+                Put {
+                    id: second.clone(),
+                    expected_version: None,
+                    archived: false,
+                    data: RecordData::Action(Action {
+                        description: "New suggested work".into(),
+                        state: ActionState::Suggested,
+                        internal: false,
+                        evidence: None,
+                        due: None,
+                    }),
+                },
+                Put {
+                    id: original.creation_id(2),
+                    expected_version: None,
+                    archived: false,
+                    data: RecordData::Link(Link {
+                        from: first.clone(),
+                        to: second.clone(),
+                        relation: "related".into(),
+                    }),
+                },
+            ]),
+        )
+        .unwrap();
+    let groups = app.review_groups(original.as_str()).unwrap();
+    assert!(
+        groups
+            .groups
+            .iter()
+            .find(|group| group.id == first)
+            .unwrap()
+            .required_groups
+            .contains(&second)
+    );
+    assert!(
+        app.review_select(original.as_str(), std::slice::from_ref(&first))
+            .is_err()
+    );
+    assert_eq!(app.candidates().unwrap()[0].operation, original);
+    let selected = app
+        .review_select(original.as_str(), &[first, second])
+        .unwrap();
+    assert!(
+        selected
+            .request
+            .writes
+            .iter()
+            .all(|write| write.id.starts_with(selected.operation.as_str()))
+    );
+    outcome(app.review_apply(selected.operation.as_str()).unwrap());
+    let existing = app.new_note("Exact base", "Initial").unwrap();
+    let independent = app.new_note("Independent", "Other").unwrap();
+    let original = app.store.allocate_operation("stale subset").unwrap();
+    let RecordData::Note(mut proposed) = existing.data.clone() else {
+        panic!()
+    };
+    proposed.markdown = "Candidate from old base".into();
+    app.store
+        .prepare(
+            &original,
+            &request(vec![
+                put(&existing, RecordData::Note(proposed)),
+                put(&independent, independent.data.clone()),
+            ]),
+        )
+        .unwrap();
+    let session = app
+        .store
+        .begin_edit(&existing.id, existing.version)
+        .unwrap();
+    app.store
+        .update_buffer(&session.id, 1, "Later owner text")
+        .unwrap();
+    app.store.save(&session.id, 1).unwrap();
+    let selected = app
+        .review_select(original.as_str(), std::slice::from_ref(&existing.id))
+        .unwrap();
+    assert!(matches!(
+        app.review_apply(selected.operation.as_str()).unwrap(),
+        ApplyOutcome::Stale { .. }
+    ));
+    assert!(
+        matches!(app.store.record(&existing.id).unwrap().unwrap().data, RecordData::Note(note) if note.markdown == "Later owner text")
+    );
+}
 fn request(writes: Vec<Put>) -> ChangeRequest {
     ChangeRequest {
         reason: "synthetic product witness".into(),
         writes,
         inputs: vec![],
     }
+}
+#[test]
+fn update_and_undo_expose_direct_work_and_one_recoverable_refresh_followup() {
+    let (dir, mut app) = workspace();
+    let input = app.new_note("Input evidence", "Original fact").unwrap();
+    let derived = app
+        .store
+        .allocate_operation("derive summary and suggested Action")
+        .unwrap();
+    let mut req = request(vec![
+        Put {
+            id: derived.creation_id(0),
+            expected_version: None,
+            archived: false,
+            data: RecordData::Note(Note::working("Derived summary", "Based on original fact")),
+        },
+        Put {
+            id: derived.creation_id(1),
+            expected_version: None,
+            archived: false,
+            data: RecordData::Action(Action {
+                description: "Consider original fact".into(),
+                state: ActionState::Suggested,
+                internal: false,
+                evidence: None,
+                due: None,
+            }),
+        },
+    ]);
+    req.inputs.push(RevisionInput {
+        record: input.id.clone(),
+        version: input.version,
+    });
+    app.store.prepare(&derived, &req).unwrap();
+    outcome(
+        app.store
+            .apply(&derived, &HostAuthority::maintenance("fixture"))
+            .unwrap(),
+    );
+    let session = app.store.begin_edit(&input.id, input.version).unwrap();
+    app.store
+        .update_buffer(&session.id, 1, "Meaningful newer fact")
+        .unwrap();
+    let SaveOutcome::Saved(receipt) = app.store.save(&session.id, 1).unwrap() else {
+        panic!()
+    };
+    let expected = vec![derived.creation_id(0), derived.creation_id(1)];
+    assert_eq!(receipt.needs_refresh, expected);
+    assert_eq!(
+        app.refresh_records(receipt.operation.as_str())
+            .unwrap()
+            .iter()
+            .map(|record| record.id.clone())
+            .collect::<Vec<_>>(),
+        expected
+    );
+    let followup = app.refresh_followup(receipt.operation.as_str()).unwrap();
+    assert!(
+        matches!(&followup.data, RecordData::Thread(thread) if thread.state == ThreadState::Open && thread.attention.is_empty())
+    );
+    assert_eq!(
+        app.refresh_followup(receipt.operation.as_str()).unwrap(),
+        followup
+    );
+    let texts = app.messages(&followup.id).unwrap();
+    assert!(
+        matches!(&texts[0].data, RecordData::Message(message) if message.text.contains("does not itself change"))
+    );
+    assert!(app.records().unwrap().iter().any(|record| matches!(&record.data, RecordData::Link(link) if link.from == followup.id && link.to == input.id && link.relation == "changed-input")));
+    drop(app);
+    let mut app = Workspace::open(dir.path().join("data")).unwrap();
+    assert_eq!(
+        app.refresh_followup(receipt.operation.as_str()).unwrap(),
+        followup
+    );
+    let reversal = outcome(app.undo(receipt.operation.as_str()).unwrap());
+    assert_eq!(reversal.needs_refresh, expected);
+    assert!(
+        matches!(app.store.record(&derived.creation_id(0)).unwrap().unwrap().data, RecordData::Note(note) if note.markdown == "Based on original fact")
+    );
 }
 #[test]
 fn dismiss_stale_proposal_releases_slot_preserves_current_and_other_attention_on_retry() {
@@ -82,6 +530,14 @@ fn dismiss_stale_proposal_releases_slot_preserves_current_and_other_attention_on
         ApplyOutcome::Stale { .. }
     ));
     app.review_dismiss(proposal.as_str()).unwrap();
+    assert!(
+        app.history()
+            .unwrap()
+            .last()
+            .unwrap()
+            .reason
+            .starts_with("Dismissed proposal")
+    );
     drop(app);
     let mut app = Workspace::open(directory.path().join("data")).unwrap();
     app.review_dismiss(proposal.as_str()).unwrap();
@@ -428,6 +884,7 @@ fn review_replacement_remaps_created_records_refs_and_applies_exact_final_text()
         external_version: None,
         outcome: "full".into(),
         gaps: vec![],
+        report: None,
     };
     let mut note = Note::working(
         "Candidate",
@@ -438,6 +895,7 @@ fn review_replacement_remaps_created_records_refs_and_applies_exact_final_text()
         source: original.creation_id(1),
         full_note: true,
         gaps: vec![],
+        report: None,
     });
     let req = request(vec![
         Put {

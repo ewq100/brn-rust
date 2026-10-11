@@ -1,5 +1,30 @@
 use crate::*;
-use brn_threads_intake::{ConversionResult, ImportIntent};
+use brn_threads_intake::{ConversionResult, CoverageStatus, GapKind, ImportIntent};
+
+/// Preserve the converter's distinction between a detected loss and unchecked coverage.
+pub fn import_report(converted: &ConversionResult) -> ImportReport {
+    ImportReport {
+        status: match converted.coverage.status {
+            CoverageStatus::Complete => ImportStatus::Complete,
+            CoverageStatus::Partial => ImportStatus::Partial,
+            CoverageStatus::Unchecked => ImportStatus::Unchecked,
+        },
+        issues: converted
+            .coverage
+            .gaps
+            .iter()
+            .map(|gap| ImportIssue {
+                kind: match gap.kind {
+                    GapKind::Limitation => ImportIssueKind::Limitation,
+                    GapKind::Omission => ImportIssueKind::Omission,
+                    GapKind::Unverified => ImportIssueKind::Unverified,
+                },
+                locator: gap.locator.clone(),
+                detail: gap.detail.clone(),
+            })
+            .collect(),
+    }
+}
 impl Workspace {
     pub fn import_full(
         &mut self,
@@ -54,6 +79,7 @@ impl Workspace {
             .iter()
             .map(|gap| format!("{}: {}", gap.locator, gap.detail))
             .collect::<Vec<_>>();
+        let report = import_report(converted);
         let observed_at = format!(
             "Unix seconds {}",
             std::time::SystemTime::now()
@@ -75,6 +101,7 @@ impl Workspace {
                 external_version: None,
                 outcome: String::new(),
                 gaps: vec![],
+                report: None,
             }
         };
         source.observed_at = observed_at;
@@ -82,6 +109,7 @@ impl Workspace {
             source.external_version = Some(source_version);
             source.outcome = format!("{:?}", converted.coverage.status);
             source.gaps = gaps.clone();
+            source.report = Some(report.clone());
         }
         let mut writes = vec![Put {
             id: source_id.clone(),
@@ -116,6 +144,7 @@ impl Workspace {
                 source: source_id.clone(),
                 full_note: true,
                 gaps,
+                report: Some(report),
             });
             writes.push(Put {
                 id: note_id.clone(),

@@ -1,8 +1,10 @@
 //! Final-use Threads persistence. Authority is supplied by the trusted host,
 //! never decoded from a model request. All writers use SQLite IMMEDIATE transactions.
 mod edit;
+mod read;
 mod store;
 mod types;
+pub use read::{MAX_NOTE_READ_BYTES, NoteHeading, NoteReadOutcome, NoteSlice, note_headings};
 pub use store::{DATA_MARKER, DATABASE_FILENAME, Store};
 pub use types::*;
 

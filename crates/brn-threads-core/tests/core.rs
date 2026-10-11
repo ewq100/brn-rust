@@ -399,6 +399,318 @@ fn undo_checks_actual_write_set_preserves_link_later_edits_and_lists_direct_depe
     assert!(store.receipt(&undo).unwrap().is_none());
 }
 #[test]
+fn meaningful_newer_inputs_flag_current_direct_note_and_action_dependents_only() {
+    let (_dir, mut store) = store();
+    let input = note(&mut store, "input", false);
+    let derived = store.allocate_operation("derived note and Action").unwrap();
+    let mut req = request(vec![
+        created(
+            &derived,
+            0,
+            RecordData::Note(Note::working("direct summary", "based on input v1")),
+        ),
+        created(
+            &derived,
+            1,
+            RecordData::Action(Action {
+                description: "Read derived summary".into(),
+                state: ActionState::Suggested,
+                internal: false,
+                evidence: None,
+                due: None,
+            }),
+        ),
+    ]);
+    req.inputs.push(RevisionInput {
+        record: input.id.clone(),
+        version: 1,
+    });
+    apply(&mut store, &derived, &req, &ai());
+    let summary = store.record(&derived.creation_id(0)).unwrap().unwrap();
+    let RecordData::Note(mut protected_summary) = summary.data.clone() else {
+        panic!()
+    };
+    protected_summary.protected = true;
+    let protect_summary = store
+        .allocate_operation("dependent metadata protection keeps recorded input")
+        .unwrap();
+    assert!(
+        apply(
+            &mut store,
+            &protect_summary,
+            &request(vec![edited(&summary, RecordData::Note(protected_summary))]),
+            &owner()
+        )
+        .needs_refresh
+        .is_empty()
+    );
+    let action = store.record(&derived.creation_id(1)).unwrap().unwrap();
+    let RecordData::Action(mut progressed) = action.data.clone() else {
+        panic!()
+    };
+    progressed.state = ActionState::Waiting;
+    let progress = store
+        .allocate_operation("dependent Action progress retains recorded input")
+        .unwrap();
+    apply(
+        &mut store,
+        &progress,
+        &request(vec![edited(&action, RecordData::Action(progressed))]),
+        &owner(),
+    );
+    let indirect = store.allocate_operation("indirect summary").unwrap();
+    let mut req = request(vec![created(
+        &indirect,
+        0,
+        RecordData::Note(Note::working("indirect", "derived from direct summary")),
+    )]);
+    req.inputs.push(RevisionInput {
+        record: derived.creation_id(0),
+        version: 2,
+    });
+    apply(&mut store, &indirect, &req, &ai());
+    let RecordData::Note(mut metadata) = input.data.clone() else {
+        panic!()
+    };
+    metadata.protected = true;
+    let protect = store
+        .allocate_operation("metadata protection only")
+        .unwrap();
+    let metadata_receipt = apply(
+        &mut store,
+        &protect,
+        &request(vec![edited(&input, RecordData::Note(metadata))]),
+        &owner(),
+    );
+    assert!(metadata_receipt.needs_refresh.is_empty());
+    let current = store.record(&input.id).unwrap().unwrap();
+    let newer = store
+        .allocate_operation("meaningful current evidence")
+        .unwrap();
+    let receipt = apply(
+        &mut store,
+        &newer,
+        &request(vec![edited(
+            &current,
+            change_text(&current, "Meaningful newer input"),
+        )]),
+        &owner(),
+    );
+    let expected = vec![derived.creation_id(0), derived.creation_id(1)];
+    assert_eq!(receipt.needs_refresh, expected);
+    assert!(!receipt.needs_refresh.contains(&indirect.creation_id(0)));
+    let undo = store.allocate_operation("undo newer evidence").unwrap();
+    let ApplyOutcome::Applied(reversal) = store.undo(&undo, &newer, &owner()).unwrap() else {
+        panic!()
+    };
+    assert_eq!(reversal.needs_refresh, expected);
+    assert_eq!(
+        text(&store.record(&derived.creation_id(0)).unwrap().unwrap()),
+        "based on input v1"
+    );
+    let input = store.record(&input.id).unwrap().unwrap();
+    let summary = store.record(&derived.creation_id(0)).unwrap().unwrap();
+    let group = store
+        .allocate_operation("update input and refresh direct summary together")
+        .unwrap();
+    let mut req = request(vec![
+        edited(&input, change_text(&input, "New atomic evidence")),
+        edited(&summary, change_text(&summary, "Refreshed atomically")),
+    ]);
+    req.inputs.push(RevisionInput {
+        record: input.id.clone(),
+        version: input.version,
+    });
+    let grouped = apply(&mut store, &group, &req, &owner());
+    assert!(!grouped.needs_refresh.contains(&input.id));
+    assert!(!grouped.needs_refresh.contains(&summary.id));
+    assert!(grouped.needs_refresh.contains(&derived.creation_id(1)));
+}
+
+#[test]
+fn source_observation_metadata_does_not_refresh_but_new_external_version_does() {
+    let (_dir, mut store) = store();
+    let source_op = store.allocate_operation("source fixture").unwrap();
+    let source = apply(
+        &mut store,
+        &source_op,
+        &request(vec![created(
+            &source_op,
+            0,
+            RecordData::Source(Source {
+                locator: "external://public-study".into(),
+                label: "study".into(),
+                observed_at: "first".into(),
+                external_version: Some("v1".into()),
+                outcome: "read".into(),
+                gaps: vec![],
+                report: None,
+            }),
+        )]),
+        &owner(),
+    )
+    .writes[0]
+        .after
+        .clone();
+    let dependent = store.allocate_operation("derived study summary").unwrap();
+    let mut req = request(vec![created(
+        &dependent,
+        0,
+        RecordData::Note(Note::working("summary", "v1 study evidence")),
+    )]);
+    req.inputs.push(RevisionInput {
+        record: source.id.clone(),
+        version: 1,
+    });
+    apply(&mut store, &dependent, &req, &ai());
+    let RecordData::Source(mut observation) = source.data.clone() else {
+        panic!()
+    };
+    observation.observed_at = "second".into();
+    observation.label = "More useful source label".into();
+    let timestamp = store.allocate_operation("reread identical source").unwrap();
+    let receipt = apply(
+        &mut store,
+        &timestamp,
+        &request(vec![edited(&source, RecordData::Source(observation))]),
+        &owner(),
+    );
+    assert!(receipt.needs_refresh.is_empty());
+    let current = store.record(&source.id).unwrap().unwrap();
+    let RecordData::Source(mut observation) = current.data.clone() else {
+        panic!()
+    };
+    observation.external_version = Some("v2".into());
+    let newer = store.allocate_operation("source version changes").unwrap();
+    let receipt = apply(
+        &mut store,
+        &newer,
+        &request(vec![edited(&current, RecordData::Source(observation))]),
+        &owner(),
+    );
+    assert_eq!(receipt.needs_refresh, vec![dependent.creation_id(0)]);
+}
+#[test]
+fn undo_restores_exact_direct_input_footing_even_when_derived_text_was_identical() {
+    for second_text in ["Based on source B", "Original derived writing"] {
+        let (_dir, mut store) = store();
+        let input_a = note(&mut store, "source A", false);
+        let input_b = note(&mut store, "source B", false);
+        let first = store.allocate_operation("summary from A").unwrap();
+        let summary = first.creation_id(0);
+        let mut req = request(vec![created(
+            &first,
+            0,
+            RecordData::Note(Note::working("summary", "Original derived writing")),
+        )]);
+        req.inputs.push(RevisionInput {
+            record: input_a.id.clone(),
+            version: input_a.version,
+        });
+        apply(&mut store, &first, &req, &ai());
+        let current = store.record(&summary).unwrap().unwrap();
+        let second = store.allocate_operation("summary now from B").unwrap();
+        let mut req = request(vec![edited(&current, change_text(&current, second_text))]);
+        req.inputs.push(RevisionInput {
+            record: input_b.id.clone(),
+            version: input_b.version,
+        });
+        apply(&mut store, &second, &req, &ai());
+        let update_b = store.allocate_operation("newer B before Undo").unwrap();
+        assert_eq!(
+            apply(
+                &mut store,
+                &update_b,
+                &request(vec![edited(&input_b, change_text(&input_b, "Newer B"))]),
+                &owner()
+            )
+            .needs_refresh,
+            vec![summary.clone()]
+        );
+        let reversal = store
+            .allocate_operation("restore exact A revision")
+            .unwrap();
+        assert!(matches!(
+            store.undo(&reversal, &second, &owner()).unwrap(),
+            ApplyOutcome::Applied(_)
+        ));
+        let restored = store.record(&summary).unwrap().unwrap();
+        assert_eq!(restored.version, 3);
+        assert_eq!(text(&restored), "Original derived writing");
+        let RecordData::Note(mut protected) = restored.data.clone() else {
+            panic!()
+        };
+        protected.protected = true;
+        let metadata = store
+            .allocate_operation("metadata after restored provenance")
+            .unwrap();
+        apply(
+            &mut store,
+            &metadata,
+            &request(vec![edited(&restored, RecordData::Note(protected))]),
+            &owner(),
+        );
+        let update_a = store.allocate_operation("newer A after Undo").unwrap();
+        assert_eq!(
+            apply(
+                &mut store,
+                &update_a,
+                &request(vec![edited(&input_a, change_text(&input_a, "Newer A"))]),
+                &owner()
+            )
+            .needs_refresh,
+            vec![summary.clone()]
+        );
+        let current_b = store.record(&input_b.id).unwrap().unwrap();
+        let update_b = store
+            .allocate_operation("newer B no longer current footing")
+            .unwrap();
+        assert!(
+            apply(
+                &mut store,
+                &update_b,
+                &request(vec![edited(
+                    &current_b,
+                    change_text(&current_b, "Even newer B")
+                )]),
+                &owner()
+            )
+            .needs_refresh
+            .is_empty()
+        );
+        let current_summary = store.record(&summary).unwrap().unwrap();
+        let independent = store
+            .allocate_operation("owner independent substantive rewrite")
+            .unwrap();
+        apply(
+            &mut store,
+            &independent,
+            &request(vec![edited(
+                &current_summary,
+                change_text(&current_summary, "Owner independent writing"),
+            )]),
+            &owner(),
+        );
+        let current_a = store.record(&input_a.id).unwrap().unwrap();
+        let update_a = store
+            .allocate_operation("newer A after independent rewrite")
+            .unwrap();
+        assert!(
+            apply(
+                &mut store,
+                &update_a,
+                &request(vec![edited(
+                    &current_a,
+                    change_text(&current_a, "Even newer A")
+                )]),
+                &owner()
+            )
+            .needs_refresh
+            .is_empty()
+        );
+    }
+}
+#[test]
 fn complete_backup_restores_assets_sources_pending_candidates_history_and_buffers() {
     let (dir, mut store) = store();
     let a = note(&mut store, "A", false);
@@ -413,6 +725,7 @@ fn complete_backup_restores_assets_sources_pending_candidates_history_and_buffer
             external_version: None,
             outcome: "full".into(),
             gaps: vec![],
+            report: None,
         }),
     );
     let asset = created(
@@ -686,6 +999,7 @@ fn full_import_is_protected_and_confirmation_requires_explicit_authority() {
             external_version: None,
             outcome: "Partial".into(),
             gaps: vec!["unsupported figure".into()],
+            report: None,
         }),
     );
     let mut full = Note::working("full imported process", "Complete substantive process text");
@@ -693,6 +1007,7 @@ fn full_import_is_protected_and_confirmation_requires_explicit_authority() {
         source: source.id.clone(),
         full_note: true,
         gaps: vec!["unsupported figure".into()],
+        report: None,
     });
     assert!(
         store
@@ -887,6 +1202,7 @@ fn exact_source_identity_is_unique_and_failed_duplicate_has_no_partial_effect() 
         external_version: None,
         outcome: "observed".into(),
         gaps: vec![],
+        report: None,
     };
     let first = store.allocate_operation("source first").unwrap();
     apply(

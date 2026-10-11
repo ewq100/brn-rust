@@ -14,16 +14,7 @@ fn converter(temp_root: PathBuf) -> Converter {
                 .join("brn-intake-helper")
                 .into_os_string()
         })),
-        pdf_tools: Some(PdfTools {
-            pdftotext: PathBuf::from(
-                std::env::var_os("BRN_PDFTOTEXT")
-                    .unwrap_or_else(|| "/opt/homebrew/bin/pdftotext".into()),
-            ),
-            pdfimages: PathBuf::from(
-                std::env::var_os("BRN_PDFIMAGES")
-                    .unwrap_or_else(|| "/opt/homebrew/bin/pdfimages".into()),
-            ),
-        }),
+        pdf_tools: PdfTools::discover(),
         temp_root,
         limits: brn_intake::IntakeLimits {
             wall_time_ms: 10_000,
@@ -115,6 +106,67 @@ fn ordinary_pdf_and_docx_preserve_checked_content_and_assets_without_original_pa
         assert!(positions.windows(2).all(|pair| pair[0] < pair[1]));
     }
 }
+#[test]
+fn docx_retains_inventory_and_figures_without_internal_converter_comments() {
+    let root = tempfile::tempdir().unwrap();
+    let converter = converter(root.path().join("transient"));
+    let (bytes, inventory) = fixture(DocumentKind::Docx);
+    let result = converter
+        .convert(
+            ConversionRequest {
+                kind: DocumentKind::Docx,
+                intent: ImportIntent::FullNote,
+                bytes,
+                source_reference: "synthetic://harbor/docx-markers",
+                inventory: Some(&inventory),
+            },
+            &AtomicBool::new(false),
+        )
+        .unwrap();
+    assert_eq!(result.coverage.status, CoverageStatus::Complete);
+    assert_eq!(result.coverage.checked_items.len(), 22);
+    assert_eq!(result.assets.len(), 1);
+    assert!(result.markdown.contains("| Gate | Owner | Time limit |"));
+    assert!(!result.markdown.contains("<!-- docx-export:"));
+    assert!(!result.markdown.contains("<!-- docx-story:"));
+    assert!(
+        result
+            .sources
+            .iter()
+            .all(|source| !source.text.contains("<!-- docx-"))
+    );
+    assert_eq!(result.source_sha256, brn_intake::digest(bytes));
+    assert!(
+        result
+            .sources
+            .iter()
+            .all(|source| !source.locator.is_empty())
+    );
+    assert!(
+        result
+            .markdown
+            .contains(&format!("]({})", result.assets[0].name))
+    );
+    assert_eq!(std::fs::read_dir(&converter.temp_root).unwrap().count(), 0);
+
+    // The same syntax is user-owned content in Markdown imports, which stay verbatim.
+    let markdown = b"<!-- docx-export:0 -->\n<!-- docx-story: body body -->\n<!-- owner comment -->\n<script>literal</script>";
+    let result = converter
+        .convert(
+            ConversionRequest {
+                kind: DocumentKind::Markdown,
+                intent: ImportIntent::FullNote,
+                bytes: markdown,
+                source_reference: "synthetic://authored/markdown",
+                inventory: None,
+            },
+            &AtomicBool::new(false),
+        )
+        .unwrap();
+    assert_eq!(result.markdown.as_bytes(), markdown);
+    assert_eq!(result.sources[0].text.as_bytes(), markdown);
+}
+
 #[test]
 fn deliberately_omitted_figure_and_unchecked_full_note_are_partial() {
     for kind in [DocumentKind::Pdf, DocumentKind::Docx] {

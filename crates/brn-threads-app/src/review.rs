@@ -6,7 +6,10 @@ impl Workspace {
         let operation = self.store.operation(id)?;
         self.store.prepared(&operation)?;
         self.store.retire(&operation)?;
-        self.finish_review_attention(&operation)
+        self.finish_review_attention(
+            &operation,
+            "Dismissed proposal; preserve other attention requests",
+        )
     }
 
     pub fn review_apply(&mut self, id: &str) -> AppResult<ApplyOutcome> {
@@ -15,11 +18,14 @@ impl Workspace {
             .store
             .apply(&op, &HostAuthority::owner("reviewed immutable candidate"))?;
         if matches!(outcome, ApplyOutcome::Applied(_)) {
-            self.finish_review_attention(&op)?;
+            self.finish_review_attention(
+                &op,
+                "Accepted exact review; preserve other attention requests",
+            )?;
         }
         Ok(outcome)
     }
-    fn finish_review_attention(&mut self, review: &OperationId) -> AppResult<()> {
+    fn finish_review_attention(&mut self, review: &OperationId, reason: &str) -> AppResult<()> {
         for _ in 0..3 {
             let writes = self
                 .records()?
@@ -47,7 +53,7 @@ impl Workspace {
                 return Ok(());
             }
             let request = ChangeRequest {
-                reason: "Accepted exact review; preserve other attention requests".into(),
+                reason: reason.into(),
                 writes,
                 inputs: vec![],
             };
@@ -80,6 +86,14 @@ impl Workspace {
             return Err(AppError::Invalid("Not a note candidate".into()));
         };
         data.markdown = markdown.into();
+        self.replace_review_request(original, request)
+    }
+
+    pub(crate) fn replace_review_request(
+        &mut self,
+        original: OperationId,
+        mut request: ChangeRequest,
+    ) -> AppResult<Prepared> {
         let replacement = self
             .store
             .allocate_operation(&format!("review-replacement:{}", uuid::Uuid::new_v4()))?;

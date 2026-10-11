@@ -28,6 +28,10 @@ qualify semantic Markdown tables, complex reading order, vector artwork, scans/O
 or original typography. Image masks are refused because composition is not
 qualified. DOCX inherits the helper's accepted-revision structural conversion and
 its explicit limitations for charts, SmartArt, shapes and unrepresented containers.
+The Threads adapter removes BetterOffice's exact generated DOCX anchor/story
+comments from retained Markdown and source text so they do not appear in prose or
+table cells. Source locators, fingerprint, coverage and asset links remain intact.
+Authored escaped text, other HTML/comments and verbatim Markdown imports are kept.
 Mathematics-heavy conversion and a universal completeness detector are out of scope.
 
 `Complete` means all objects in the caller's independently supplied inventory
@@ -56,8 +60,17 @@ ordinary run directories at least 24 hours old, without following symlinks; call
 it at host startup. It also runs before conversion. The original external source
 is read-only and remains the owner's responsibility to resupply for retries.
 
-Qualification tests require explicit executable paths, to avoid silently selecting
-another converter. Example, once this crate is in the root workspace:
+Desktop, CLI and qualification tests share Poppler discovery. Each explicit
+`BRN_PDFTOTEXT` / `BRN_PDFIMAGES` absolute executable path takes precedence;
+an invalid override is unavailable rather than silently replaced. Otherwise,
+the host resolves executable files on absolute PATH entries, then checks
+`/opt/homebrew/bin`, `/usr/local/bin` and `$HOME/.local/bin`. These fallbacks also
+work under Finder's limited PATH. The converter still executes resolved absolute
+paths with an empty child environment. Its sandbox follows a canonical Homebrew
+Cellar executable's installation prefix for runtime libraries/share, without
+granting content reads to the surrounding home directory.
+
+For reproducible qualification, select explicit executable paths. Example:
 
 ```sh
 BRN_INTAKE_HELPER=/absolute/path/brn-intake-helper \
