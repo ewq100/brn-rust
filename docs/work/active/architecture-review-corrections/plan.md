@@ -1071,7 +1071,7 @@ The new parent/child regression genuinely failed against the unpatched package
 (exit101,03:14:45–03:14:49UTC), after the child positively validated three real
 synthetic provider routes, InvalidToolUse, zero backend reads and no retry.
 
-The [exact repository dependency patch](../../../../vendor/README.md) removes only
+The [exact repository dependency patch](https://github.com/ewq100/brn-rust/blob/0fcb8f737952189724a7156dde2c483719e9a6bf/vendor/README.md) removes only
 that print. All88 released package files and modes are retained and compared;
 only the documented engine line differs. The archive checksum matches the
 original lock entry. A separately identified same-release MIT license supplements

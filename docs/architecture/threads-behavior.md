@@ -1,6 +1,6 @@
 # BRN Threads behavior and runtime guidance
 
-**Status:** Selected implementation design, 10 October 2026. This describes the behavior to build; it does not claim that the runtime, tools, or guidance files exist. The [canonical target](threads-target.md) owns product requirements and integrity guarantees. The [rebuild plan](../work/active/threads-rebuild/plan.md) owns implementation order. This document makes the thread interaction and runtime instructions concrete without creating another product specification.
+**Status:** Accepted behavior design with production runtime integration, 11 October 2026. Current implementation/evidence qualifications are recorded below; unverified native or later-scope behavior is not implicitly accepted. The [canonical target](threads-target.md) owns product requirements and integrity guarantees. The [rebuild plan](../work/active/threads-rebuild/plan.md) owns implementation order. This document makes the thread interaction and runtime instructions concrete without creating another product specification.
 
 ## One thread follows one goal
 
@@ -117,3 +117,14 @@ The owner can read the whole process offline with section navigation and ask que
 ## Enough design to build
 
 This design fixes the thread states, attention behavior, initial guidance organization, mutation boundary, and concrete examples. The next step is the bounded core and provider proofs in the [rebuild plan](../work/active/threads-rebuild/plan.md), followed by native interaction. Implement the guide and four skills alongside those journeys and adjust them using observed results. Do not pause for an exhaustive prompt framework, complete screen specification, or another unrestricted architecture review.
+
+
+## Implemented response and authority contract
+
+Production uses published Rig 0.44.0. Streamed text/events update provisional UI. The successful structured final response replaces that preview and supplies the one host-owned assistant Message. Intermediate tool-loop text is not a second saved answer. Failed, interrupted, token-truncated or unknown termination remains partial progress; EOF cannot create completion. Preview and final answer both have a 128 KiB bound. Invalid/unknown calls and malformed arguments never dispatch, including other otherwise valid calls in the same proposed batch. Retry budgets are explicitly zero, tool rounds default to eight with a bounded final turn, and unknown finish reasons are rejected.
+
+Ordinary working-note maintenance remains permitted when enabled. A protected content edit uses the host's `Edit selected note · this request` action: target ID, displayed version, content-edit class, actual owner Message identity and current run/settings fence. `Record decision · this request` permits one new confirmed protected decision and binds its concrete target once prepared. CLI equivalents are `ask --edit-note ID --base VERSION` and `ask --record-decision yes`. The text may be normal English or Estonian; there is no magic phrase. Sources, quotations and historical messages cannot create these host modes. The grant expires with that invocation; Continue carries no old grant. Existing deterministic policy still invalidates prior confirmation when accepted content changes; a content grant is not a new confirmation or permission to unprotect/archive.
+
+The registered catalog has nine tools: `read_records`, `read_note`, `read_source`, `read_skill`, `prepare_changes`, `apply_changes`, `retain_progress`, `read_history`, `refresh_candidate`. It also owns payload-free activity labels. Long notes use exact-version UTF-8 byte ranges, bounded sections or continuations. History lists at most 32 accepted revisions per page and reads exact historical passages up to 128 KiB; it is not current truth. Refresh atomically prepares a fresh immutable candidate through checked service authority, retires the stale candidate, checks current bases/inputs and grants no extra apply permission. Conversation Messages, settings, runs and receipt authority are host-owned.
+
+[Runtime evidence](../work/active/threads-rebuild/evidence.md#rig-044-runtime-integration) distinguishes automated/live success from the remaining locked-Mac visual gate and separately pending owner acceptance.

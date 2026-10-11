@@ -315,3 +315,103 @@ This MacBook's ordinary Git HTTPS push failed before changing the remote (`could
 Published product commit **`3eea93d3876e1b28bf8e01c8d554635126845d1d`** has the exact same Git tree **`b2dd33e813e20fc29eeb090b7146bdb3ce09c2b2`** as locally built/tested source **`c3a79cd859c222c3da7997697629c7fd6f1c2141`**. Every one of the 31 changed file blobs was SHA-verified; tree equality includes untouched files, file modes and the separate decoder harness. The local focused commit history is preserved in the isolated checkout. Published history uses one product snapshot commit with baseline `36dfef5` as parent and a subsequent evidence-only commit. The shared branch update is a checked fast-forward with expected old head, never a force push. The manifest records both tested local and published equivalent source identities.
 
 Final desktop command: `cargo test --locked -p brn-desktop --features native-ui,native-retrieval,native-test-support --bin brn-desktop` with the same task-owned CARGO_TARGET_DIR: **21 passed, 0 failed**, including real GPUI regressions. Corresponding strict all-target Clippy with the same features passed; formatter, whitespace and current Markdown check passed (**94 files, 356 local links, 0 failures**). A preliminary command omitted native-test-support and ran only the 14 state tests; it was replaced by the full component command, not counted as the interaction witnesses.
+
+## Rig 0.44 runtime integration
+
+### Identity and publication
+
+Started from fetched **`0fcb8f737952189724a7156dde2c483719e9a6bf`**, the previous MacBook session's published final checkpoint. That checkpoint was confirmed before any modification; product `3eea93d` and its Mac repairs were reviewed. Work used the isolated `threads-runtime-checkout` / `runtime/threads-rig044`; no synced project source or unrelated checkout was changed. Ending tested local product source is **`ed02bc927c1b0c687c482735fdda12c4b5a3fee8`**. Published product **`81a1131d1fe7e093e7b4743e1cf1e1f31688d942`** has its exact Git tree **`5c5a446e9e5c26c8b23bacc8848f37a954ee2c6e`**. Subsequent commits reconcile that identical publication and record evidence only.
+
+Shell `git push` failed without changing the remote because HTTPS authentication was unavailable. The connected GitHub account published the exact product tree after SHA-verifying all 34 changed non-vendor file blobs and removing the obsolete vendor tree. Fetch independently confirmed tree equality and the remote commit. Branch advancement used `expected_sha=0fcb8f7…`, `force=false`; no force push. Local focused checkpoints remain preserved: `552f2fd` decoder qualification, `fc5afd0` provider fixtures, `f3cf82c` guides/loader, `17fc314` accepted history/candidate refresh, `d908998` runtime integration, `ed02bc9` live qualification and guide clarification. PR #114 remains draft; no main merge or release.
+
+### Dependency and contract disposition
+
+Production uses **published Rig 0.44.0** (`rig`, `rig-core`, `rig-agent`, `rig-reqwest` and related resolved packages), under unchanged Rust 1.98.1. The old vendored Rig 0.43 stderr patch, provenance and root `[patch.crates-io]` entry were removed. **No local Rig patch remains.** The standalone comparison intentionally retains both registry versions and its separate lock; it is not a production fallback.
+
+The unchanged baseline comparison was rerun before changing expectations, then expanded to 12 fixtures × 2 versions. [Exact commands, sanitized results and classifications](rig-decoder-comparison.md) are preserved with the reproducer in `scripts/qualification/rig-decoder-comparison`. Harmless metadata is accepted. A malformed provisional numeric text delta followed by a valid finalized response is accepted under 0.44; literal corrupt JSON remains failure, and absent completion remains truncated. A streamed A followed by completed B yields authoritative B under 0.44. Incomplete `Length` termination is rejected by BRN, and malformed arguments remain invalid/non-executable. The earlier aggregate 15 upgrade failures included fixture/API adaptation and is not reported as 15 library regressions. Retained fixtures were migrated to the new public API and all qualified routes passed.
+
+Old behavior accumulated preview text and ignored Rig's final content. New behavior uses successful `PromptResponse.output()` from Rig's structured final response, replaces the provisional preview and persists that answer once. This corrects provider restatements without duplicating A/B or saving stale fragments. Tool-loop provisional text does not become another saved Message. Both preview and authoritative ordinary final answer have a **128 KiB** limit. Strict full-document extraction retains its distinct 50 MiB bound. Missing/corrupt/incomplete termination and transport/user interruption do not invent successful completion; ordinary partial output is progress, strict extraction failure discards incomplete output.
+
+Explicit policies are unknown/invalid tool handling `Fail`, invalid-call retry budget **0**, consecutive malformed-call budget **0**, unknown finish acceptance **false**, tool concurrency **1**, and Rig max turns `max_tool_rounds + 1` with an independent whole-batch hook stopping before an excess tool round dispatches. The host accepts 1–32 requested tool rounds (default 8). Application checks all proposed writes, current versions, protected scope, writing guards, run/settings fences and receipts. Retries cannot bypass those checks. Rig's marked `invalid_arguments` and typed object arguments are checked before dispatch of any batch member. Existing stderr regressions pass for unknown calls and malformed known calls on all three retained provider fixtures, so the old logging patch has no remaining demonstrated purpose.
+
+Responses subscription/OpenAI routes use typed `GenerationOptions` / `Effort`, replacing BRN's raw reasoning JSON. Copilot Chat retains its small supported `reasoning_effort` field because 0.44 does not expose verified typed generation options for that dialect; silently dropping effort would be incorrect. No unrelated provider/authentication rewrite was made.
+
+### Focused runtime corrections
+
+- Protected content authority now comes from a trusted host `EditNote { id, version }` action, with the actual persisted owner Message identity, exact content-edit class and current invocation/settings fence. `RecordDecision` binds one new protected confirmed target. Native controls and explicit CLI flags produce these modes; they cannot be decoded from source or model text. Normal wording and Estonian content work. Grants do not survive Continue, authorize another protected note, bypass stale versions, or permit unprotect/archive. Ordinary enabled working-note maintenance remains permitted without a protected grant. A live ambiguity in the initial guide was corrected explicitly after the model unnecessarily requested permission for ordinary maintenance.
+- Existing current-version long-note range/section/continuation reading from the Mac session was retained. New `read_history` provides bounded accepted-revision pages and exact historical passages; history is not loaded automatically. `refresh_candidate` uses the checked service to validate current bases/inputs, prepare an immutable replacement and retire the stale operation atomically, without granting apply permission or editing proposal rows directly.
+- The real registered tool catalog also generates safe activity labels. Starting seven tools (the original six plus the Mac session's `read_note`) now total nine with history/refresh. Production tests traverse the original catalog and new history/refresh loops. No legacy tool-name filter remains. Duplicate unused skill tool/loading implementation and source-result semantic prose were removed; operating guidance is in packaged Markdown.
+- Independent source review found and closed one additional defect: model tools could write assistant Messages before final storage. All model Message creation, editing and archiving, including refreshed requests, now fail whole-batch admission. Conversation persistence is host-only. Independent focused regression passed after closure; no additional concrete blocking source defect was found.
+
+### Automated verification
+
+All outputs below are local synthetic logs under `../threads-runtime-local/evidence`, outside Git. Commands were run from the isolated checkout with absolute `CARGO_TARGET_DIR="$PWD/../threads-runtime-local/target"` and existing local PDF utilities, without credentials in output.
+
+| Gate | Exact command / result |
+|---|---|
+| Final workspace | `scripts/verify-storage.sh` with the absolute target, `BRN_PDFTOTEXT="$HOME/.local/bin/pdftotext"`, `BRN_PDFIMAGES="$HOME/.local/bin/pdfimages"`: fmt, locked offline helper/workspace build, workspace all-target strict Clippy, all workspace tests, startup/refusal checks passed. **352 passed, 3 intentional ignores**, log `verify-storage-final.log`. |
+| Production Threads | `cargo test --locked -p brn-ai threads -- --nocapture`: **34 passed** (includes history module), log `runtime-regressions.log`. Tests cover final B vs preview A, ordinary agreement, malformed/unknown calls and batch dispatch zero/no retry, incomplete/unknown finish, protected target/version/source/stale/wording, catalog/tool-loop single final, reopened long-note tail and service refresh/history. |
+| AI/provider capability | `cargo test --locked --offline -p brn-ai --features capability-spike`: **194 passed, 1 intentional stderr-child ignore**, log `capability-tests.log`. The child is executed by its parent. Strict all-target Clippy with the same feature passed (`capability-clippy.log`). Provider format subset separately **82 passed, 1 child ignore**. |
+| Shared core/app | **45 core tests** and **18 app tests**, included in final workspace counts. Revision reads, continuation, refresh atomicity/ownership/fences/replay/current inputs and guarded/protected behavior passed. |
+| Native components | `cargo test --locked --offline -p brn-desktop --features native-ui,native-retrieval,native-test-support --bin brn-desktop`: **21 passed**; matching all-target strict Clippy passed (`native-tests.log`, `native-clippy.log`). The Thread-owner component regression now checks authoritative replacement of provisional A while another Thread is visible. |
+| Product fixtures | `TMPDIR="$PWD/../threads-runtime-local" scripts/verify-end-to-end.sh --fixtures-only` with the same absolute target passed provider/intake retirement and Save/recovery/search/export/backup/startup/refusal journeys (`end-to-end.log`). |
+| Decoder/dependencies | Locked offline dual-version harness run/fmt/Clippy passed as recorded in its comparison. Production lock resolves registry 0.44.0, no root patch/vendor dependency. Formatter, `git diff --check`, and current local Markdown links passed. |
+
+Counts overlap; they are not added together. Final guide clarification changed packaged model instructions, then the workspace gate and guide tests were rerun and both shipping binaries rebuilt. The retained `block 0.1.6` future-incompatibility notice is upstream baseline, not a Clippy failure.
+
+### Synthetic live provider qualification
+
+Exact repeatable command (fresh directory required):
+
+```sh
+python3 scripts/qualification/threads-runtime/live-journeys.py \
+  --binary "$PWD/../threads-runtime-local/target/debug/brn" \
+  --data "$PWD/../threads-runtime-local/live-final-data" \
+  --auth-file /Users/evokessler/.codex/auth.json \
+  --evidence "$PWD/../threads-runtime-local/evidence"
+```
+
+The configured route was **Codex / ChatGPT subscription, `gpt-6.1-sol`, medium**, on fresh synthetic storage. Authentication was used by the supported adapter; credential contents/private mailbox were not inspected. No external messages were sent. Each successful journey verifies exactly one new host assistant Message equals the returned authoritative final answer. Logs/records are `live-final.log`, `live-journeys.json`, `live-records.json`, `live-state.json`.
+
+| Journey | Observed disposition |
+|---|---|
+| Normal question | Completed `SYNTHETIC_READY_044`, one saved answer. |
+| Tool-assisted maintenance | Working note updated Friday→Tuesday through read/prepare/apply; actual current text and single saved final verified. |
+| Long full note after reopening | Imported a synthetic text full note of **171118 bytes** (over the 128 KiB first-chunk limit), then a fresh CLI process/runtime read the actual passage beyond byte **171021**. Returned **AMBER_OTTER_044** and count **29** with passage evidence. |
+| Explicit owner decision | New confirmed protected synthetic route note created/applied under the host decision mode. |
+| Protected edit with scoped authority | Estonian request changed blue→green at the exact selected version and kept protection. Existing core behavior invalidated prior confirmation on content change; the model reported this honestly rather than claiming confirmation persisted. |
+| Same class without grant | Prepare/apply returned NeedsReview; exact current version/data remained unchanged. |
+| Malformed arguments | Live model declined the requested invalid `ids:7` call and issued neither mutation. This is a live refusal witness, **not** a claim that the provider emitted malformed arguments. Actual malformed calls are injected through the production runtime tests, proving no batch member dispatches and no retry executes. |
+| Cancel and Continue | SIGINT persisted Interrupted and saved no assistant completion (this early interruption had zero preview characters). Fresh same-Thread Continue completed `SYNTHETIC_CONTINUED_044` once. Partial-stream retention is covered by collector and production interruption fixtures. |
+| Tool-loop final persistence | All successful tool journeys saved one answer matching final runtime output, without intermediate fragments. |
+
+A preliminary qualification-script check incorrectly assumed records were chronologically ordered; the store orders by ID. That fixture assertion was corrected to identify new Message IDs. It is not a runtime or Rig regression. The first live ordinary-maintenance refusal led to the useful guide clarification described above; the final fresh suite passed.
+
+### Rebuilt Mac candidate and remaining physical blocker
+
+Local final candidate:
+
+`/Users/evokessler/.codex/.chatgpt-projects/g-p-6ab8ee911378819187a66bf0ee50da76/threads-runtime-local/BRN Threads Rig 044 Final.app`
+
+Built on this Mac from tested `ed02bc927c1b0c687c482735fdda12c4b5a3fee8` using:
+
+```sh
+cargo build --locked --offline -p brn -p brn-desktop -p brn-intake \
+  --features brn-desktop/native-ui,brn-desktop/native-retrieval,brn-intake/helper \
+  --bin brn --bin brn-desktop --bin brn-intake-helper
+scripts/make-macos-app.sh \
+  --output "$PWD/../threads-runtime-local/BRN Threads Rig 044 Final.app" \
+  --binary "$PWD/../threads-runtime-local/target/debug/brn-desktop" \
+  --intake-helper "$PWD/../threads-runtime-local/target/debug/brn-intake-helper" \
+  --data-dir "$PWD/../threads-runtime-local/native-data"
+```
+
+The local bundle has a distinct test display name/identifier to disambiguate prior candidates, with no source/runtime change. `mac-candidate.json` records identity, fresh data and hashes. Desktop SHA-256 **`631bbe140640a0503f40a88387ad466375277a7d88d065b37f29a69ded3131a5`**, helper **`75d31964c6057a70c5291363478492e0e8541476ffb2d53e7a3bbe3975d6cd89`**, launcher **`81f2ff9b53efcd33959910f0ae014d78ead4c18e26649094ba74e531f3297ab3`**. Copied binary headless startup passed. Generated bundles/data stay outside Git.
+
+Actual native controls on fresh data were exercised through computer use: normal question completed; selected protected note exposed **Edit selected note · this request**; Estonian request applied blue→green once; an ordinary same-note request produced **Review this change** and preserved the current note; a long native run's Stop persisted **Interrupted** and a run-linked Continue blocker. `native-records-checkpoint.json` / `native-records-final.json` corroborate the current protected v2 text, three successful Runs/Messages and the interrupted run with no assistant completion. The normal question was on the preliminary `d908998` binary; authority/review/Stop used the final guide build.
+
+Screen captures remained frozen on the launch screen even while control accessibility/state and persisted results changed. The computer-use service subsequently explicitly returned: **“The Mac is locked and automatic unlock could not unlock it.”** Manual wake/unlock was requested while independent work continued. There is no claimed visual pass for final stream reconciliation/activity or native Continue. Those affected native observations remain **blocked pending manual unlock**; this pass is not declared fully accepted. No renderer workaround or unrelated system setting change was made.
+
+Prior Mac evidence remains applicable to unchanged editor/focus/IME/Save/recovery/comment/source conversion/assets/coverage/search/current long-note storage/Undo/export/backup behavior. Existing production long-note capability was retained, not reimplemented. Runtime answer/progress and authority presentation changed, so old provider/worker presentation observations do not substitute for the affected visual retest of this binary. Prior automated integrity checks were rerun as above.
+
+Remaining limitations are the physical native gate, independently pending owner acceptance, untested general IMEs/complex-scanned-math PDF fidelity and the previously recorded Windows credential issue. New hosted CI is pending until observed. [The small runtime owner walkthrough](acceptance.md#runtime-owner-walkthrough) follows the separate native retest; owner acceptance has **not** been marked complete.

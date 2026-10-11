@@ -2,7 +2,9 @@
 
 This is the single Mac interaction task. The original candidate Mac was locked. Actual MacBook interaction and focused repairs began on 11 October 2026; observations below supersede the original all-pending interaction status. Agent verification and owner acceptance are separate.
 
-The tested shipping MacBook source is `c3a79cd859c222c3da7997697629c7fd6f1c2141`, after focused repairs starting at `36dfef5edd317f560cbf26ad7f84c1f5464f31c0`. Published equivalent source `3eea93d3876e1b28bf8e01c8d554635126845d1d` has the identical Git tree. The unsigned local `BRN Threads MacBook Acceptance.app` and exact hashes are recorded in [evidence](evidence.md#completed-macbook-verification-and-owner-handoff). Its launcher selects only fresh task-owned `threads-macbook-local/data/native-acceptance`; the locally built helper is bundled. PDF tooling is discovered under `$HOME/.local/bin` in a Finder-like environment. The normal account route remains Codex / gpt-6.1-sol / medium.
+**Runtime pass update:** The current local candidate is `BRN Threads Rig 044 Final.app`, built from `ed02bc927c1b0c687c482735fdda12c4b5a3fee8` (published exact-tree product `81a1131d1fe7e093e7b4743e1cf1e1f31688d942`). New runtime automated/live checks passed; native selected-note/review/Stop controls were exercised, but screen captures froze and the Mac subsequently reported locked. Visual stream/final reconciliation, activity and native Continue remain pending manual unlock. See [current evidence](evidence.md#rig-044-runtime-integration). Prior unchanged editor/import/export observations below remain historical applicable evidence, not sign-off for the changed runtime presentation.
+
+The previously tested shipping MacBook source is `c3a79cd859c222c3da7997697629c7fd6f1c2141`, after focused repairs starting at `36dfef5edd317f560cbf26ad7f84c1f5464f31c0`. Published equivalent source `3eea93d3876e1b28bf8e01c8d554635126845d1d` has the identical Git tree. The unsigned local `BRN Threads MacBook Acceptance.app` and exact hashes are recorded in [evidence](evidence.md#completed-macbook-verification-and-owner-handoff). Its launcher selects only fresh task-owned `threads-macbook-local/data/native-acceptance`; the locally built helper is bundled. PDF tooling is discovered under `$HOME/.local/bin` in a Finder-like environment. The normal account route remains Codex / gpt-6.1-sol / medium.
 
 Run the following checks without opening old BRN data:
 
@@ -37,3 +39,13 @@ Machine: macOS 26.5 (25F71), arm64. All eight items were exercised through actua
 ## Owner walkthrough
 
 Open the local candidate recorded in evidence. Open **Harbor — current context and handoff study**, scroll the coverage details separately, then use **Selected meaningful figure** and **Release process** to inspect both figures and the process table. Open **Harbor process — native long note** to try selection, Estonian typing, Save, reopen and search. Inspect **Home**, **Actions** and **What changed** for review/recovery fixtures and named follow-ups. Record your own acceptance or concrete observations separately from the agent results above.
+
+
+## Runtime owner walkthrough
+
+Owner acceptance remains pending; the agent cannot accept the product for you. After the separate locked-Mac agent presentation retest:
+
+1. Open `BRN Threads Rig 044 Final.app` on its fresh synthetic workspace. Ask an ordinary question, then a tool-assisted question. Watch provisional text/activity become one saved final answer; reopen the thread and confirm there are no duplicate fragments.
+2. Select the synthetic protected note. Describe a content edit naturally (Estonian works) and use **Edit selected note · this request**. Check the actual applied result. Send another protected-edit request with the ordinary **Ask or delegate** action; check it stays reviewable and does not silently apply. A content change may invalidate prior confirmation.
+3. Ask about a saved long-note tail, then stop a longer answer and use Continue. Check the tail evidence, honest Interrupted status, fresh continuation and one final saved answer.
+4. Review the resulting note and What changed, and state whether you accept this candidate. Do not infer acceptance from these synthetic checks or an agent report.
