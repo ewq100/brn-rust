@@ -1,10 +1,10 @@
 # Native candidate acceptance task
 
-This is the single pending Mac interaction task. The target Mac reported locked; no unlock was attempted. Native compilation and state tests passed, but these interactions and owner acceptance have not occurred.
+This is the single Mac interaction task. The original candidate Mac was locked. Actual MacBook interaction and focused repairs began on 11 October 2026; observations below supersede the original all-pending interaction status. Agent verification and owner acceptance are separate.
 
-The unsigned local candidate is `BRN Threads Candidate.app` under `/Users/evokessler/repos/BRN-local-builds/threads-20261010`. Its launcher selects only fresh `data/native-candidate-schema3`. The helper is bundled; Poppler is installed on this Mac. It uses the owner-selected Codex / gpt-6.1-sol / medium route and normal Codex subscription credentials in memory. No release or external sending is enabled.
+The tested shipping MacBook source is `c3a79cd859c222c3da7997697629c7fd6f1c2141`, after focused repairs starting at `36dfef5edd317f560cbf26ad7f84c1f5464f31c0`. Published equivalent source `3eea93d3876e1b28bf8e01c8d554635126845d1d` has the identical Git tree. The unsigned local `BRN Threads MacBook Acceptance.app` and exact hashes are recorded in [evidence](evidence.md#completed-macbook-verification-and-owner-handoff). Its launcher selects only fresh task-owned `threads-macbook-local/data/native-acceptance`; the locally built helper is bundled. PDF tooling is discovered under `$HOME/.local/bin` in a Finder-like environment. The normal account route remains Codex / gpt-6.1-sol / medium.
 
-When the Mac becomes available, run this task without opening old BRN data:
+Run the following checks without opening old BRN data:
 
 1. Open the candidate. Inspect Home, Needs you, Notes, Actions, History and Settings. Open the synthetic long note: headings, repeated phrases, Estonian characters, wide table and a managed figure. Scroll, select/copy, type with IME, use editor Undo, navigate sections and current search, and exercise dialogs/keyboard focus. Verify figures display from stored bytes.
 2. Read a note without creating a dirty guard. Type, then verify a proposed grouped change is deferred. Save and reopen; confirm the exact text persists. Simulate an abrupt close with unsaved text; reopen and recover it. A stale Save must retain the typed buffer and explain the conflict.
@@ -16,3 +16,24 @@ When the Mac becomes available, run this task without opening old BRN data:
 8. Export to a fresh directory and inspect Markdown/figures. Back up and restore through the explicit fresh-data CLI path; verify notes, Actions, threads, assets and history. Occupied destinations must refuse without partial publication.
 
 Record candidate source commit, macOS/architecture, observations, failures and the owner's acceptance separately in [evidence](evidence.md). Fix concrete defects with bounded checks. Compiler 1.99 adoption still needs the interaction gate; the candidate deliberately remains on the qualified 1.98.1 pin. Do not merge or release without the applicable owner instruction.
+
+## Actual MacBook observations
+
+Machine: macOS 26.5 (25F71), arm64. All eight items were exercised through actual screen, keyboard and mouse interaction using fresh synthetic data, with affected behavior repeated after repair. Component/service checks corroborate integrity; they do not replace native observations. Progressive source identities and scope limits are in [evidence](evidence.md#completed-macbook-verification-and-owner-handoff).
+
+| Item | Agent interaction observed | Outcome / remaining scope |
+|---|---|---|
+| 1 | Home, Notes, Actions, History and Settings; long note, wrapped wide table and stored PNG; repeated selection/copy, Estonian text, scroll/section navigation, typing and editor Undo. Native marked dead-key composition committed `à` and Save persisted it. Search clear and hidden-focus repairs passed. Final app coverage details scroll independently; section labels are readable. | Passed observed synthetic cases. Other composition input methods were not tested. |
+| 2 | Read stays clean; a dirty grouped change deferred atomically. Save/reopen, abrupt-close recovery and Save as new note preserved text. Corrected stale Save displayed the latest concurrent v4 text and kept the typed buffer. | Passed, including native affected retest. |
+| 3 | Comment on second repeated occurrence remained mapped after prefix edit/Save; intersecting edit became unresolved without guessing. Linked discussion resolution remained separate from passage certainty. | Passed observed mapping and unresolved cases. |
+| 4 | Edited protected proposal required a new immutable Prepare before Apply. Immediate Undo succeeded. Stale proposal refused; Dismiss preserved current text/unrelated Question. Fresh Apply v6 followed by owner Save v7 made Undo refuse while preserving the later edit. Independent Note-only group selection prepared/applied exact subset. Named refresh/follow-up appeared after meaningful update and Undo. | Passed. Both group selections and stale source integrity additionally have component/service witnesses. |
+| 5 | Actual native useful/full PDF and DOCX buttons and file choosers completed. Full imports were protected; prose, tables, figures and references rendered and matched 19 PDF / 22 DOCX inventory objects. Two bounded live useful imports updated the same working note, retained both selected figures and earlier typed qualifications; seven protected notes stayed unchanged. Final app reopened imports and displayed stored figures. | Passed these Harbor fixtures. Stored coverage stays unverified without an inventory supplied to the import; general layout/OCR/math fidelity is unqualified. |
+| 6 | Selected live route completed. Saved Working/no-worker state honestly offered fresh Continue. A ran while B was viewed/resolved: B contained no A stream and A completed. Stop/Continue completed in the same Thread and returned `47` from the saved long-note tail after restart. Successful Continue cleared the obsolete interruption notice, preserving unrelated attention. Pause during active work persisted Cancelled with no operations. | Passed, including native cleanup and pause retests. |
+| 7 | Resolving discussion preserved Waiting Action. Explicit synthetic Confirm done completed it; reply draft stayed internal and unsent. | Passed. This confirmation does not accept BRN on the owner's behalf. |
+| 8 | Native Settings export published 16 Markdown notes / 9 figures; all 25 manifest hashes matched. Native backup restored 112 records, 116 history receipts, one review candidate, two recovery buffers and settings exactly through fresh CLI restore. Occupied backup/restore refused without changes. | Passed. Generated artifacts remain outside Git. |
+
+**Owner acceptance: pending.** No observed agent-verification item remains blocked. Temporary locked/asleep/minimized capture interruptions were resolved by the owner; normal native updates resumed. The owner has not accepted this candidate. PR #114 stays draft; main integration and release remain separate.
+
+## Owner walkthrough
+
+Open the local candidate recorded in evidence. Open **Harbor — current context and handoff study**, scroll the coverage details separately, then use **Selected meaningful figure** and **Release process** to inspect both figures and the process table. Open **Harbor process — native long note** to try selection, Estonian typing, Save, reopen and search. Inspect **Home**, **Actions** and **What changed** for review/recovery fixtures and named follow-ups. Record your own acceptance or concrete observations separately from the agent results above.
