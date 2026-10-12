@@ -468,6 +468,7 @@ fn quick_questions_auto_resolve_only_when_nothing_else_is_involved(cx: &mut Test
     let mut linked_thread = String::new();
     let mut twice = String::new();
     let mut failed = String::new();
+    let mut attention = String::new();
     let f = fixture(cx, |workspace| {
         let note = workspace.new_note("Linked plan", "Plan text").unwrap();
         for (name, slot) in [
@@ -484,12 +485,39 @@ fn quick_questions_auto_resolve_only_when_nothing_else_is_involved(cx: &mut Test
             .link_writing_thread("plan-link", &note.id, note.version, &linked_thread)
             .unwrap();
         workspace.post_message(&twice, "And another?").unwrap();
+        let asked = workspace.new_thread("Needs a decision").unwrap();
+        workspace.post_message(&asked.id, "Which date?").unwrap();
+        workspace
+            .owner_change(
+                "attention-fixture",
+                &ChangeRequest {
+                    reason: "Synthetic attention".into(),
+                    inputs: vec![],
+                    writes: vec![Put {
+                        id: asked.id.clone(),
+                        expected_version: Some(asked.version),
+                        archived: false,
+                        data: RecordData::Thread(Thread {
+                            title: "Needs a decision".into(),
+                            state: ThreadState::Open,
+                            attention: vec![Attention {
+                                kind: AttentionKind::Question,
+                                reason: "Choose the renewal date".into(),
+                                record: None,
+                            }],
+                        }),
+                    }],
+                },
+            )
+            .unwrap();
+        record_run(workspace, &asked.id, RunState::Completed);
+        attention = asked.id;
         for thread in [&quick, &linked_thread, &twice] {
             record_run(workspace, thread, RunState::Completed);
         }
         record_run(workspace, &failed, RunState::Failed);
     });
-    for thread in [&quick, &linked_thread, &twice, &failed] {
+    for thread in [&quick, &linked_thread, &twice, &failed, &attention] {
         finish_run(cx, &f, thread);
     }
     cx.read(|cx| {
@@ -506,7 +534,7 @@ fn quick_questions_auto_resolve_only_when_nothing_else_is_involved(cx: &mut Test
             receipt.authority.starts_with("owner:"),
             "checked owner resolve path"
         );
-        for thread in [&linked_thread, &twice, &failed] {
+        for thread in [&linked_thread, &twice, &failed, &attention] {
             assert_eq!(thread_state(view, thread), ThreadState::Open, "{thread}");
         }
     });
@@ -829,6 +857,54 @@ fn review_in_place_applies_exact_candidate_then_marks_addressed_and_undoes(
     on_window(cx, &f, |window, _| {
         assert!(window.find("compare-content").visible())
     });
+    // Edit final text creates a new exact candidate; the old one is not applied.
+    click(cx, &f, "review-edit");
+    update(cx, &f, |view, window, cx| {
+        assert!(view.review_editor.focus_handle(cx).is_focused(window));
+        view.review_editor.update(cx, |editor, cx| {
+            editor.set_value(
+                "# Essay\n\nThe swift brown fox runs.\n\nKeep this.",
+                window,
+                cx,
+            )
+        });
+        if let Some(review) = &mut view.review {
+            review.edited = true;
+        }
+    });
+    click(cx, &f, "apply-final");
+    click(cx, &f, format!("card-apply-{op}"));
+    click(cx, &f, format!("card-dismiss-{op}"));
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert!(
+            view.review.is_some(),
+            "edited text must be prepared before Apply"
+        );
+        assert!(
+            view.review.as_ref().unwrap().edited,
+            "card actions keep edited text"
+        );
+        assert!(view.notice.contains("editing this proposal"));
+        assert!(view.candidates.iter().any(|c| c.operation.as_str() == op));
+        let RecordData::Note(saved) = view.workspace.store.note(&note.id).unwrap().unwrap().data
+        else {
+            panic!("note")
+        };
+        assert!(saved.markdown.contains("quick"));
+    });
+    click(cx, &f, "prepare-final");
+    let replaced = cx.read(|cx| {
+        let view = f.view.read(cx);
+        let review = view.review.as_ref().unwrap();
+        assert_ne!(review.candidate.operation.as_str(), op);
+        assert!(!view.review_editing && !review.edited);
+        assert!(view.diff_editor.read(cx).value().contains("runs."));
+        review.candidate.operation.as_str().to_owned()
+    });
+    on_window(cx, &f, |window, _| {
+        assert!(window.try_find(format!("card-apply-{replaced}")).is_some())
+    });
     click(cx, &f, "apply-final");
     cx.read(|cx| {
         let view = f.view.read(cx);
@@ -839,7 +915,7 @@ fn review_in_place_applies_exact_candidate_then_marks_addressed_and_undoes(
         };
         assert_eq!(
             saved.markdown,
-            "# Essay\n\nThe swift brown fox.\n\nKeep this."
+            "# Essay\n\nThe swift brown fox runs.\n\nKeep this."
         );
         assert_eq!(view.note_editor.read(cx).value().as_ref(), saved.markdown);
         assert!(
@@ -948,4 +1024,41 @@ fn proposal_card_dismiss_keeps_the_note_and_launcher_runs_commands(cx: &mut Test
     press(cx, &f, "cmd-t");
     cx.read(|cx| assert_eq!(f.view.read(cx).chat, ChatTarget::New));
     assert!(kinds(cx, &f).contains(&TileKind::Chat));
+}
+
+#[gpui_kit::test]
+fn a_note_draft_follows_the_first_thread_created_for_that_note(cx: &mut TestAppContext) {
+    let mut ids = None;
+    let f = fixture(cx, |workspace| {
+        let note = workspace.new_note("Unthreaded", "tere tere").unwrap();
+        let other = workspace.new_thread("Standalone").unwrap().id;
+        ids = Some((note, other));
+    });
+    let (note, other) = ids.unwrap();
+    update(cx, &f, |view, window, cx| {
+        view.open_note(&note.id, None, window, cx);
+        assert_eq!(view.chat, ChatTarget::NewForNote(note.id.clone()));
+        view.composer.update(cx, |editor, cx| {
+            editor.set_value("Draft for the note", window, cx)
+        });
+        view.open_thread(&other, window, cx);
+        assert_eq!(view.composer.read(cx).value().as_ref(), "");
+        view.comment_anchor = Some((note.id.clone(), note.version, 0..4, "tere".into()));
+        view.comment_input.update(cx, |editor, cx| {
+            editor.set_value("First feedback", window, cx)
+        });
+        view.post_comment(window, cx);
+        let created = view.writing_threads.get(&note.id).unwrap().clone();
+        assert_eq!(
+            view.chat,
+            ChatTarget::Thread(other.clone()),
+            "chat stays put"
+        );
+        view.open_note(&note.id, None, window, cx);
+        assert_eq!(view.chat, ChatTarget::Thread(created));
+        assert_eq!(
+            view.composer.read(cx).value().as_ref(),
+            "Draft for the note"
+        );
+    });
 }

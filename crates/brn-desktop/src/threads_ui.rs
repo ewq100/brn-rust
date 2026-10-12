@@ -810,14 +810,22 @@ impl ThreadsUi {
     }
     /// The first linked thread inherits this note's unsent draft, never another's.
     fn adopt_writing_thread(&mut self, note: &str) {
-        let old = self.destination();
-        if matches!(&self.chat, ChatTarget::NewForNote(open) if open == note)
-            && let Some(thread) = self.writing_threads.get(note)
-        {
-            self.chat = ChatTarget::Thread(thread.clone());
+        let Some(thread) = self.writing_threads.get(note).cloned() else {
+            return;
+        };
+        let pending = ComposerDestination::Note(note.into(), None);
+        if matches!(&self.chat, ChatTarget::NewForNote(open) if open == note) {
+            // The visible composer text now belongs to the created thread.
+            self.chat = ChatTarget::Thread(thread);
+            self.composer_drafts.posted(&pending);
+            return;
         }
-        if old != self.destination() {
-            self.composer_drafts.posted(&old);
+        // A draft saved while another thread was shown moves with it.
+        let text = self.composer_drafts.text(&pending).to_owned();
+        let target = ComposerDestination::Thread(thread);
+        if !text.is_empty() && self.composer_drafts.text(&target).is_empty() {
+            self.composer_drafts.posted(&pending);
+            self.composer_drafts.preserve(target, text);
         }
     }
     fn preserve_comment_draft(&mut self, cx: &Context<Self>) {
@@ -1292,6 +1300,8 @@ impl ThreadsUi {
             .review_select(review.candidate.operation.as_str(), &selected)
         {
             Ok(candidate) => {
+                // The prepared selection replaces the reviewed candidate.
+                self.review = None;
                 self.open_review(candidate, window, cx);
                 self.notice = "The selected whole records are prepared. Review this new proposal, then apply it.".into();
             }
@@ -1309,6 +1319,8 @@ impl ThreadsUi {
             .review_replace(review.candidate.operation.as_str(), note, &text)
         {
             Ok(candidate) => {
+                // The prepared final text replaces the reviewed candidate.
+                self.review = None;
                 self.open_review(candidate, window, cx);
                 self.notice =
                     "Your final text is prepared. Review this version, then apply it.".into();
@@ -1894,6 +1906,14 @@ impl ThreadsUi {
         cx.notify();
     }
     fn open_review(&mut self, candidate: Prepared, window: &mut Window, cx: &mut Context<Self>) {
+        // Showing the candidate already under review keeps any edited final text.
+        if self.review.as_ref().is_some_and(|review| {
+            review.candidate.operation.as_str() == candidate.operation.as_str()
+        }) {
+            self.layout.open(TileKind::Note);
+            cx.notify();
+            return;
+        }
         if self.review.as_ref().is_some_and(|review| {
             review.candidate.operation.as_str() != candidate.operation.as_str()
         }) {
@@ -2017,6 +2037,27 @@ impl ThreadsUi {
         }
         let candidate = review.candidate.clone();
         self.apply_candidate(candidate, window, cx);
+    }
+    /// Card actions must not silently discard final text being edited in review.
+    fn refuse_if_editing(&mut self, candidate: &Prepared, cx: &mut Context<Self>) -> bool {
+        let editing = self.review.as_ref().is_some_and(|review| {
+            review.edited && review.candidate.operation.as_str() == candidate.operation.as_str()
+        });
+        if editing {
+            self.notice = "You are editing this proposal's final text. Use this text or cancel the edit in the note tile first.".into();
+            cx.notify();
+        }
+        editing
+    }
+    fn card_apply(&mut self, candidate: Prepared, window: &mut Window, cx: &mut Context<Self>) {
+        if !self.refuse_if_editing(&candidate, cx) {
+            self.apply_candidate(candidate, window, cx);
+        }
+    }
+    fn card_dismiss(&mut self, candidate: Prepared, window: &mut Window, cx: &mut Context<Self>) {
+        if !self.refuse_if_editing(&candidate, cx) {
+            self.dismiss_candidate(candidate, window, cx);
+        }
     }
     /// Apply exactly this prepared candidate; nothing is re-derived.
     fn apply_candidate(

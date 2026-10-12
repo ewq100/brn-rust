@@ -489,9 +489,7 @@ impl ThreadsUi {
                 .child(div().flex_1())
                 .child(
                     pill(format!("card-dismiss-{op}"), "Dismiss").on_click(cx.listener(
-                        move |this, _, window, cx| {
-                            this.dismiss_candidate(dismiss.clone(), window, cx)
-                        },
+                        move |this, _, window, cx| this.card_dismiss(dismiss.clone(), window, cx),
                     )),
                 )
                 .child(
@@ -502,7 +500,7 @@ impl ThreadsUi {
                     .primary()
                     .tooltip("Applies this exact proposal")
                     .on_click(cx.listener(move |this, _, window, cx| {
-                        this.apply_candidate(apply.clone(), window, cx)
+                        this.card_apply(apply.clone(), window, cx)
                     })),
                 ),
         )
