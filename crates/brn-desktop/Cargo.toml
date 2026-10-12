@@ -16,7 +16,7 @@ brn-threads-intake = { path = "../brn-threads-intake" }
 brn-ai = { path = "../brn-ai" }
 tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
 tokio-util = { version = "0.7", features = ["rt"] }
-gpui-kit = { version = "=0.7.1", optional = true }
+gpui-kit = { version = "=0.7.3", optional = true }
 brn-intake = { path = "../brn-intake" }
 tempfile = { version = "3", optional = true }
 uuid = { version = "1", features = ["v4"] }
