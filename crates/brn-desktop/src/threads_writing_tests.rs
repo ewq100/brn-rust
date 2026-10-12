@@ -28,7 +28,7 @@ fn adding_passage_feedback_keeps_the_document_and_does_not_start_ai(cx: &mut Tes
                 editor.set_value("Clarify second greeting", window, cx)
             });
             view.post_comment(window, cx);
-            assert_eq!(view.page, Page::Note(note.id.clone()));
+            assert_eq!(view.open_note_id(), Some(note.id.as_str()));
             assert!(view.worker.is_none());
             let current = view.workspace.store.note(&note.id).unwrap().unwrap();
             assert_eq!(current, note);
@@ -118,12 +118,12 @@ fn feedback(
     view.post_comment(window, cx);
 }
 #[gpui_kit::test]
-fn keyboard_selection_opens_feedback_without_interrupting_selection(cx: &mut TestAppContext) {
+fn keyboard_selection_shows_strip_and_comment_key_anchors_saved_passage(cx: &mut TestAppContext) {
     let f = fixture(cx);
+    cx.update(|cx| cx.bind_keys(bindings()));
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |view, cx| {
             view.open_note(&f.a.id, None, window, cx);
-            view.toggle_note_edit(window, cx);
         });
     })
     .unwrap();
@@ -136,9 +136,10 @@ fn keyboard_selection_opens_feedback_without_interrupting_selection(cx: &mut Tes
     cx.run_until_parked();
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |view, cx| {
-            assert_eq!(
-                view.comment_anchor.as_ref().map(|anchor| anchor.3.as_str()),
-                Some("t")
+            assert_eq!(view.selection.as_ref().map(|s| s.1.as_str()), Some("t"));
+            assert!(
+                view.comment_anchor.is_none(),
+                "selecting never starts a comment"
             );
             assert!(
                 view.note_editor
@@ -146,11 +147,15 @@ fn keyboard_selection_opens_feedback_without_interrupting_selection(cx: &mut Tes
                     .focus_handle(cx)
                     .is_focused(window)
             );
-            assert!(view.comment_input.read(cx).value().is_empty());
         });
+        assert!(window.find("selection-toolbar").visible());
+        assert_eq!(window.find("selection-comment").disabled(), None);
         window.press("shift-right", cx);
     })
     .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| window.press("cmd-/", cx))
+        .unwrap();
     cx.run_until_parked();
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |view, cx| {
@@ -158,16 +163,19 @@ fn keyboard_selection_opens_feedback_without_interrupting_selection(cx: &mut Tes
                 view.comment_anchor.as_ref().map(|anchor| anchor.3.as_str()),
                 Some("te")
             );
+            assert_eq!(view.comment_anchor.as_ref().unwrap().2, 0..2);
             assert!(
-                view.note_editor
+                view.comment_input
                     .read(cx)
                     .focus_handle(cx)
-                    .is_focused(window)
+                    .is_focused(window),
+                "the comment composer opens at the margin"
             );
             assert!(view.worker.is_none());
         });
+        assert!(window.find("comment-composer").visible());
         assert!(window.try_find("post-comment").is_some());
-        assert!(window.try_find("writing-chat-pane").is_some());
+        assert!(window.try_find("thread-conversation").is_some());
     })
     .unwrap();
 }
@@ -192,7 +200,6 @@ fn note_and_selected_chat_drafts_and_dirty_buffers_survive_navigation(cx: &mut T
             });
             view.select_writing_thread(f.a.id.clone(), f.chat_a.clone(), window, cx);
             assert_eq!(view.composer.read(cx).value().as_ref(), "Chat A draft");
-            view.toggle_note_edit(window, cx);
             view.note_editor.update(cx, |editor, cx| {
                 editor.set_value("Human unsaved õun", window, cx)
             });
@@ -245,7 +252,7 @@ fn batch_rewrite_captures_selected_chat_and_retry_keeps_saved_inputs(cx: &mut Te
         view.rewrite_note(cx);
         assert!(view.worker.is_none());
         assert!(view.notice.contains("AI has not started"));
-        assert_eq!(view.page,Page::Note(f.a.id.clone()));
+        assert_eq!(view.open_note_id(),Some(f.a.id.as_str()));
         assert_eq!(view.composer.read(cx).value().as_ref(),"Unsent must stay unsent");
         request=view.workspace.messages(&f.chat_a).unwrap().into_iter().find(|record|matches!(&record.data,RecordData::Message(body) if body.role=="writing-request")).unwrap().id;
         let snapshot=view.workspace.writing_request(&request).unwrap();
@@ -354,13 +361,12 @@ fn review_thread_switch_preserves_both_chat_drafts_and_the_human_buffer(cx: &mut
             view.composer.update(cx, |editor, cx| {
                 editor.set_value("B must never go to A", window, cx)
             });
-            view.toggle_note_edit(window, cx);
             view.note_editor.update(cx, |editor, cx| {
                 editor.set_value("Preserved human buffer", window, cx)
             });
             view.preserve_visible_note_input(cx);
             view.open_review(candidate, window, cx);
-            assert_eq!(view.page, Page::Note(f.a.id.clone()));
+            assert_eq!(view.open_note_id(), Some(f.a.id.as_str()));
             assert_eq!(view.writing_threads.get(&f.a.id), Some(&f.chat_a));
             assert_eq!(view.composer.read(cx).value().as_ref(), "A request draft");
             assert_eq!(
@@ -385,8 +391,12 @@ fn review_thread_switch_preserves_both_chat_drafts_and_the_human_buffer(cx: &mut
     cx.run_until_parked();
     cx.update_window(f.window, |_, window, _| {
         assert!(window.try_find("review-panel").is_some());
-        assert!(window.try_find("writing-chat-pane").is_some());
+        assert!(window.try_find("thread-conversation").is_some());
         assert!(window.try_find("ask-delegate").is_some());
+        assert!(
+            window.try_find("note-body").is_none(),
+            "review replaces editing in place"
+        );
     })
     .unwrap();
 }
@@ -480,63 +490,55 @@ fn addressed_subset_and_restart_keep_actual_apply_undo_for_each_note(cx: &mut Te
     cx.read(|cx| assert!(fresh.read(cx).worker.is_none()));
 }
 #[gpui_kit::test]
-fn resolved_chat_preserves_feedback_and_prompt_until_explicit_new_chat(cx: &mut TestAppContext) {
+fn resolved_thread_reopens_with_recorded_reason_when_owner_continues(cx: &mut TestAppContext) {
     let f = fixture(cx);
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |view, cx| {
+            let state = |view: &ThreadsUi, id: &str| match view.workspace.store.record(id).unwrap().unwrap().data {
+                RecordData::Thread(thread) => thread.state,
+                _ => unreachable!(),
+            };
             view.open_note(&f.a.id, None, window, cx);
             view.select_writing_thread(f.a.id.clone(), f.chat_a.clone(), window, cx);
-            view.resolve_discussion(&f.chat_a, cx);
-            feedback(
-                view,
-                &f.a,
-                "tere",
-                5..9,
-                "Feedback after resolution",
-                window,
-                cx,
-            );
-            assert!(view.notice.contains("New chat"));
-            assert_eq!(
-                view.comment_input.read(cx).value().as_ref(),
-                "Feedback after resolution"
-            );
-            view.rewrite_note(cx);
-            assert!(view.notice.contains("New chat"));
+            view.resolve_thread(&f.chat_a, cx);
+            assert_eq!(state(view, &f.chat_a), ThreadState::Resolved);
+            feedback(view, &f.a, "tere", 5..9, "Feedback after resolution", window, cx);
+            assert_eq!(view.workspace.writing_comments(&f.a.id).unwrap().len(), 1);
+            assert_eq!(state(view, &f.chat_a), ThreadState::Open);
+            assert!(view.history.iter().any(|receipt| receipt.reason
+                == "Owner continued a resolved thread with new feedback"));
+            view.resolve_thread(&f.chat_a, cx);
             view.composer.update(cx, |editor, cx| {
-                editor.set_value("New instruction remains here", window, cx)
+                editor.set_value("Replying reopens", window, cx)
             });
             view.ask(window, cx);
-            assert!(view.notice.contains("New chat"));
-            assert!(view.workspace.messages(&f.chat_a).unwrap().is_empty());
-            assert_eq!(
-                view.composer.read(cx).value().as_ref(),
-                "New instruction remains here"
-            );
+            assert_eq!(state(view, &f.chat_a), ThreadState::Open);
+            assert!(view.history.iter().any(|receipt| receipt.reason == "Owner replied to a resolved thread"));
+            assert!(view.workspace.messages(&f.chat_a).unwrap().iter().any(
+                |record| matches!(&record.data, RecordData::Message(m) if m.text == "Replying reopens")
+            ));
+            assert!(view.worker.is_none(), "offline fixture starts no provider");
+            assert_eq!(view.chat, ChatTarget::Thread(f.chat_a.clone()));
+            view.composer.update(cx, |editor, cx| {
+                editor.set_value("Draft stays with A", window, cx)
+            });
             view.new_writing_thread(window, cx);
             let new = view.writing_threads.get(&f.a.id).unwrap().clone();
             assert_ne!(new, f.chat_a);
+            assert_eq!(view.chat, ChatTarget::Thread(new.clone()));
             assert_eq!(
                 view.composer_drafts
                     .text(&ComposerDestination::Thread(f.chat_a.clone())),
-                "New instruction remains here"
+                "Draft stays with A"
             );
-            view.post_comment(window, cx);
-            assert_eq!(view.workspace.writing_comments(&f.a.id).unwrap().len(), 1);
-            view.composer.update(cx, |editor, cx| {
-                editor.set_value("Explicit new chat instruction", window, cx)
-            });
-            view.ask(window, cx);
-            assert!(view.worker.is_none());
-            assert_eq!(view.workspace.messages(&new).unwrap().len(), 1);
-            assert_eq!(view.page, Page::Note(f.a.id.clone()));
+            assert_eq!(view.open_note_id(), Some(f.a.id.as_str()));
         })
     })
     .unwrap();
 }
 
 #[gpui_kit::test]
-fn narrow_workbench_scrolls_to_usable_chat_and_keeps_one_editor(cx: &mut TestAppContext) {
+fn narrow_workbench_scrolls_tiles_to_usable_chat_and_keeps_one_editor(cx: &mut TestAppContext) {
     let f = fixture_size(cx, 760., 820.);
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |view, cx| {
@@ -556,8 +558,8 @@ fn narrow_workbench_scrolls_to_usable_chat_and_keeps_one_editor(cx: &mut TestApp
     cx.update_window(f.window, |_, window, cx| {
         assert!(window.find("note-body").bounds().size.width > px(200.));
         window.scroll(
-            "writing-workbench",
-            gpui_kit::ScrollDelta::Pixels(point(px(0.), px(-1000.))),
+            "tile-row",
+            gpui_kit::ScrollDelta::Pixels(point(px(-2000.), px(0.))),
             cx,
         );
     })

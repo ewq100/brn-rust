@@ -47,6 +47,7 @@ impl Workspace {
             review_first: false,
             delegation_chosen: false,
             backup_directory: None,
+            theme: None,
         };
         let request = ChangeRequest {
             reason: "Initial workspace configuration".into(),
@@ -130,6 +131,16 @@ impl Workspace {
         let destination = directory.join(format!("BRN-backup-{}", uuid::Uuid::new_v4()));
         self.backup(&destination)?;
         Ok(destination)
+    }
+
+    /// Save the appearance preference; deferred while any run is working.
+    pub fn choose_theme(&mut self, theme: &str) -> AppResult<ApplyOutcome> {
+        let op = self
+            .store
+            .allocate_operation(&format!("theme:{}", uuid::Uuid::new_v4()))?;
+        Ok(self
+            .store
+            .choose_theme(&op, theme, &HostAuthority::owner("owner theme choice"))?)
     }
 
     pub fn pause(&mut self, paused: bool) -> AppResult<ApplyOutcome> {

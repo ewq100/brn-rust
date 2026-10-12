@@ -14,7 +14,7 @@ The owner can start a thread from Ask or delegate, a selected note passage, a so
 
 ## State and attention
 
-Use two durable thread states: **Open** and **Resolved**. Open means its goal remains active. Resolved means the question or immediate goal has been settled. Resolution retains the conversation, links, and history. New relevant work can reopen the thread with a recorded reason. When the owner resolves a running thread, the host fences further local commits and requests cancellation; already committed results remain in history, and the UI does not claim that upstream processing was necessarily stopped.
+Use two durable thread states: **Open** and **Resolved**. Open means its goal remains active. Resolved means the question or immediate goal has been settled. Resolution retains the conversation, links, and history. New relevant work can reopen the thread with a recorded reason; replying to a resolved thread, or adding feedback through it, reopens it that way. A standalone question (no links, one owner message, no attention, no pending proposal and nothing committed by its runs beyond its own conversation) resolves itself when its run completes, through the same checked owner path with a distinct recorded reason. The interface shows resolved threads as a count and keeps them findable rather than listing them. When the owner resolves a running thread, the host fences further local commits and requests cancellation; already committed results remain in history, and the UI does not claim that upstream processing was necessarily stopped.
 
 Attention is separate from that lifecycle:
 

@@ -214,6 +214,9 @@ pub struct WorkspaceSettings {
     pub delegation_chosen: bool,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub backup_directory: Option<String>,
+    /// Appearance preference only; it never affects authority or invocations.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub theme: Option<String>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

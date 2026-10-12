@@ -131,59 +131,76 @@ fn reveal(cx: &mut TestAppContext, f: &Fixture, container: &str, target: &str) {
     panic!("{target} could not be reached by scrolling {container}");
 }
 
+fn update(
+    cx: &mut TestAppContext,
+    f: &Fixture,
+    run: impl FnOnce(&mut ThreadsUi, &mut Window, &mut Context<ThreadsUi>),
+) {
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| run(view, window, cx))
+    })
+    .unwrap();
+    cx.run_until_parked();
+}
+
 #[gpui_kit::test]
 fn global_tiles_navigation_preserves_human_buffer_and_each_chat_draft(cx: &mut TestAppContext) {
     let f = fixture(cx, true, 1260., 1100.);
     let note = f.note.as_ref().unwrap();
     let thread = f.thread.as_ref().unwrap();
-    cx.update_window(f.window, |_, window, cx| {
-        f.view.update(cx, |view, cx| {
-            view.composer.update(cx, |editor, cx| {
-                editor.set_value("Home unsent draft", window, cx)
-            });
-            view.open_note(&note.id, None, window, cx);
-            view.select_writing_thread(note.id.clone(), thread.clone(), window, cx);
-            view.composer.update(cx, |editor, cx| {
-                editor.set_value("Selected chat unsent draft", window, cx)
-            });
+    update(cx, &f, |view, window, cx| {
+        view.composer.update(cx, |editor, cx| {
+            editor.set_value("Standalone unsent draft", window, cx)
         });
-    })
-    .unwrap();
-    cx.run_until_parked();
-    click(cx, &f, "toggle-edit");
-    cx.update_window(f.window, |_, window, cx| {
-        f.view
-            .read(cx)
-            .note_editor
-            .clone()
-            .update(cx, |editor, cx| {
-                editor.set_value("Human unsaved draft õun", window, cx)
-            });
-    })
-    .unwrap();
-    cx.run_until_parked();
+        view.open_note(&note.id, None, window, cx);
+        view.select_writing_thread(note.id.clone(), thread.clone(), window, cx);
+        view.composer.update(cx, |editor, cx| {
+            editor.set_value("Selected thread unsent draft", window, cx)
+        });
+        view.note_editor.update(cx, |editor, cx| {
+            editor.set_value("Human unsaved draft õun", window, cx)
+        });
+    });
     let editor = cx.read(|cx| f.view.read(cx).note_editor.clone());
-    for (button, page, tile) in [
-        ("home", Page::Home, "home-needs-you"),
-        ("actions", Page::Actions, "actions-content"),
-        ("history", Page::History, "history-content"),
-        ("settings", Page::Settings, "settings-provider"),
+    for (button, kind, tile) in [
+        ("home", TileKind::Overview, "home-needs-you"),
+        ("actions", TileKind::Actions, "actions-content"),
+        ("history", TileKind::History, "history-content"),
+        ("settings", TileKind::Settings, "settings-general"),
+        ("open-notes", TileKind::Notes, "notes-list"),
     ] {
         click(cx, &f, button);
         cx.update_window(f.window, |_, window, cx| {
-            assert!(window.find(tile).visible());
+            assert!(window.try_find(tile).is_some(), "{tile}");
             let view = f.view.read(cx);
-            assert_eq!(view.page, page);
+            assert_eq!(view.layout.focus(), Some(kind));
             assert_eq!(view.note_editor, editor);
+            assert_eq!(
+                view.note_editor.read(cx).value().as_ref(),
+                "Human unsaved draft õun"
+            );
+            assert_eq!(
+                view.composer.read(cx).value().as_ref(),
+                "Selected thread unsent draft"
+            );
             assert!(view.worker.is_none());
             assert_eq!(view.workspace.store.note(&note.id).unwrap().unwrap(), *note);
             assert!(view.workspace.messages(thread).unwrap().is_empty());
-            if page == Page::Home {
-                assert_eq!(view.composer.read(cx).value().as_ref(), "Home unsent draft");
-            }
         })
         .unwrap();
+        update(cx, &f, |view, _, cx| {
+            view.layout.close(kind);
+            cx.notify();
+        });
     }
+    update(cx, &f, |view, window, cx| view.new_thread(window, cx));
+    cx.read(|cx| {
+        assert_eq!(
+            f.view.read(cx).composer.read(cx).value().as_ref(),
+            "Standalone unsent draft"
+        )
+    });
+    click(cx, &f, "open-notes");
     click(cx, &f, format!("note-{}", note.id));
     cx.read(|cx| {
         let view = f.view.read(cx);
@@ -193,7 +210,7 @@ fn global_tiles_navigation_preserves_human_buffer_and_each_chat_draft(cx: &mut T
         );
         assert_eq!(
             view.composer.read(cx).value().as_ref(),
-            "Selected chat unsent draft"
+            "Selected thread unsent draft"
         );
         assert!(view.note.as_ref().unwrap().session.is_some());
         assert_eq!(view.workspace.store.note(&note.id).unwrap().unwrap(), *note);
@@ -207,21 +224,15 @@ fn global_tiles_navigation_preserves_human_buffer_and_each_chat_draft(cx: &mut T
 fn search_tiles_open_saved_hits_exclude_dirty_text_and_clear_to_navigation(
     cx: &mut TestAppContext,
 ) {
-    let f = fixture(cx, true, 1260., 1100.);
+    let f = fixture(cx, true, 1400., 1100.);
     let note = f.note.as_ref().unwrap();
+    click(cx, &f, "open-notes");
     click(cx, &f, format!("note-{}", note.id));
-    click(cx, &f, "toggle-edit");
-    cx.update_window(f.window, |_, window, cx| {
-        f.view
-            .read(cx)
-            .note_editor
-            .clone()
-            .update(cx, |editor, cx| {
-                editor.set_value("Unsaved scratchneedle", window, cx)
-            });
-    })
-    .unwrap();
-    cx.run_until_parked();
+    update(cx, &f, |view, window, cx| {
+        view.note_editor.update(cx, |editor, cx| {
+            editor.set_value("Unsaved scratchneedle", window, cx)
+        });
+    });
     query(cx, &f, "scratchneedle");
     cx.update_window(f.window, |_, window, cx| {
         assert!(window.find("search-empty").visible());
@@ -244,7 +255,7 @@ fn search_tiles_open_saved_hits_exclude_dirty_text_and_clear_to_navigation(
         assert!(window.find(format!("note-{}", note.id)).visible());
         assert!(window.find("workspace-nav").visible());
         let view = f.view.read(cx);
-        assert_eq!(view.page, Page::Note(note.id.clone()));
+        assert_eq!(view.open_note_id(), Some(note.id.as_str()));
         assert!(view.hits.is_empty() && view.notice.is_empty());
         assert_eq!(
             view.note_editor.read(cx).value().as_ref(),
@@ -254,7 +265,7 @@ fn search_tiles_open_saved_hits_exclude_dirty_text_and_clear_to_navigation(
     })
     .unwrap();
     click(cx, &f, "home");
-    cx.read(|cx| assert_eq!(f.view.read(cx).page, Page::Home));
+    cx.read(|cx| assert_eq!(f.view.read(cx).layout.focus(), Some(TileKind::Overview)));
 }
 
 #[gpui_kit::test]
@@ -264,7 +275,7 @@ fn action_status_tile_writes_one_checked_receipt_and_history_undo_compensates(
     let f = fixture(cx, false, 1260., 1100.);
     let description = "Review every retained result and record the decision. ".repeat(8);
     let mut action = None;
-    cx.update_window(f.window, |_, window, cx| {
+    cx.update_window(f.window, |_, _, cx| {
         f.view.update(cx, |view, cx| {
             let op = view
                 .workspace
@@ -294,7 +305,7 @@ fn action_status_tile_writes_one_checked_receipt_and_history_undo_compensates(
                 )
                 .unwrap();
             action = view.workspace.store.record(&id).unwrap();
-            view.navigate(Page::Actions, window, cx);
+            focus_tests::solo(view, TileKind::Actions, cx);
         });
     })
     .unwrap();
@@ -335,7 +346,9 @@ fn action_status_tile_writes_one_checked_receipt_and_history_undo_compensates(
         assert!(window.find("actions-group-waiting").visible())
     })
     .unwrap();
-    click(cx, &f, "history");
+    update(cx, &f, |view, _, cx| {
+        focus_tests::solo(view, TileKind::History, cx)
+    });
     cx.update_window(f.window, |_, window, _| {
         assert!(
             window
@@ -366,17 +379,13 @@ fn settings_save_preserves_backup_and_requires_explicit_delegation_choice(cx: &m
     let f = fixture(cx, false, 1260., 1100.);
     let backup = f._root.path().join("separate backups");
     std::fs::create_dir(&backup).unwrap();
-    cx.update_window(f.window, |_, window, cx| {
-        f.view.update(cx, |view, cx| {
-            view.workspace.choose_backup_directory(&backup).unwrap();
-            view.navigate(Page::Settings, window, cx);
-            view.model.update(cx, |input, cx| {
-                input.set_value("offline-model-choice", window, cx)
-            });
+    update(cx, &f, |view, window, cx| {
+        view.workspace.choose_backup_directory(&backup).unwrap();
+        focus_tests::settings(view, SettingsSection::Models, cx);
+        view.model.update(cx, |input, cx| {
+            input.set_value("offline-model-choice", window, cx)
         });
-    })
-    .unwrap();
-    cx.run_until_parked();
+    });
     click(cx, &f, "effort-high");
     click(cx, &f, "save-settings");
     let saved = Workspace::open(&f.data).unwrap().settings().unwrap();
@@ -386,7 +395,9 @@ fn settings_save_preserves_backup_and_requires_explicit_delegation_choice(cx: &m
     assert_eq!(saved.backup_directory.as_deref(), backup.to_str());
     assert!(!saved.delegation_chosen && !saved.maintenance);
     assert!(saved.auth_file.is_none() && saved.credentials_dir.is_none());
+    click(cx, &f, "settings-section-delegation");
     click(cx, &f, "delegation-review-first");
+    click(cx, &f, "settings-section-models");
     click(cx, &f, "save-settings");
     let chosen = Workspace::open(&f.data).unwrap().settings().unwrap();
     assert!(chosen.delegation_chosen && chosen.maintenance && chosen.review_first);
@@ -402,9 +413,30 @@ fn empty_tiles_explain_home_search_actions_and_history_without_starting_work(
 ) {
     let f = fixture(cx, false, 1260., 1100.);
     cx.update_window(f.window, |_, window, _| {
+        assert!(window.find("note-empty").visible());
+        assert!(window.find("threads-empty").visible());
+        assert!(
+            window.find("delegation-pending").visible(),
+            "first use offers the choice"
+        );
+    })
+    .unwrap();
+    click(cx, &f, "home");
+    cx.update_window(f.window, |_, window, _| {
         assert!(window.find("home-needs-you").visible());
-        assert!(window.find("home-notes").visible());
-        assert!(window.find("home-recent-changes").visible());
+        assert!(window.try_find("home-notes").is_some());
+        assert!(window.try_find("home-recent-changes").is_some());
+        assert!(
+            window.find("delegation-pending").visible(),
+            "rendered once, in the overview"
+        );
+    })
+    .unwrap();
+    update(cx, &f, |view, _, cx| {
+        focus_tests::solo(view, TileKind::Notes, cx)
+    });
+    cx.update_window(f.window, |_, window, _| {
+        assert!(window.find("notes-empty").visible())
     })
     .unwrap();
     query(cx, &f, "NoSavedMatch");
@@ -413,21 +445,18 @@ fn empty_tiles_explain_home_search_actions_and_history_without_starting_work(
     })
     .unwrap();
     query(cx, &f, "");
-    click(cx, &f, "actions");
+    update(cx, &f, |view, _, cx| {
+        focus_tests::solo(view, TileKind::Actions, cx)
+    });
     cx.update_window(f.window, |_, window, _| {
         assert!(window.find("actions-empty").visible())
     })
     .unwrap();
-    click(cx, &f, "history");
-    // Bootstrap itself records settings receipts; exercise an empty displayed receipt list.
-    cx.update_window(f.window, |_, _, cx| {
-        f.view.update(cx, |view, cx| {
-            view.history.clear();
-            cx.notify();
-        });
-    })
-    .unwrap();
-    cx.run_until_parked();
+    update(cx, &f, |view, _, cx| {
+        focus_tests::solo(view, TileKind::History, cx);
+        // Bootstrap itself records settings receipts; exercise an empty displayed receipt list.
+        view.history.clear();
+    });
     cx.update_window(f.window, |_, window, cx| {
         assert!(window.find("history-empty").visible());
         assert!(f.view.read(cx).worker.is_none());
@@ -447,19 +476,27 @@ fn narrow_settings_and_global_controls_remain_reachable_by_scrolling(cx: &mut Te
     let f = fixture(cx, false, 850., 600.);
     cx.update_window(f.window, |_, window, _| {
         for id in [
+            "launcher",
+            "layout-write",
+            "layout-chat",
+            "layout-solo",
+            "threads-new",
             "home",
             "actions",
             "history",
             "settings",
-            "useful-import",
-            "full-import",
+            "status-layout",
+            "status-theme",
+            "status-keys",
         ] {
             assert_in_window(window, &f, id);
         }
-        assert!(window.find("home-needs-you").bounds().size.width > px(250.));
     })
     .unwrap();
+    reveal(cx, &f, "tile-row", "composer-add");
     click(cx, &f, "settings");
+    click(cx, &f, "layout-solo");
+    click(cx, &f, "settings-section-models");
     reveal(cx, &f, "settings-content", "save-settings");
     click(cx, &f, "save-settings");
     cx.read(|cx| {
@@ -473,8 +510,10 @@ fn narrow_settings_and_global_controls_remain_reachable_by_scrolling(cx: &mut Te
         );
         assert!(f.view.read(cx).worker.is_none());
     });
+    click(cx, &f, "settings-section-delegation");
     reveal(cx, &f, "settings-content", "delegation-review-first");
     click(cx, &f, "delegation-review-first");
+    click(cx, &f, "settings-section-data");
     reveal(cx, &f, "settings-content", "export-now");
     reveal(cx, &f, "settings-content", "backup-change-folder");
     reveal(cx, &f, "settings-content", "backup-now");

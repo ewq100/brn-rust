@@ -178,6 +178,14 @@ impl Workspace {
         applied_receipt(self.store.apply(&op, &HostAuthority::owner("owner"))?)
     }
     pub fn resolve_thread(&mut self, id: &str) -> AppResult<ApplyOutcome> {
+        self.resolve_thread_because(
+            id,
+            "Owner resolved the discussion; remaining Actions keep their lifecycle",
+        )
+    }
+    /// Same checked resolution with a specific recorded reason, such as an
+    /// answered quick question. Linked Actions keep their own lifecycle.
+    pub fn resolve_thread_because(&mut self, id: &str, reason: &str) -> AppResult<ApplyOutcome> {
         let record = self
             .store
             .record(id)?
@@ -211,9 +219,37 @@ impl Workspace {
         self.owner_change(
             &format!("resolve:{}", uuid::Uuid::new_v4()),
             &ChangeRequest {
-                reason: "Owner resolved the discussion; remaining Actions keep their lifecycle"
-                    .into(),
+                reason: reason.into(),
                 writes,
+                inputs: vec![],
+            },
+        )
+    }
+    /// Reopen a resolved thread with the owner's recorded reason. Messages,
+    /// links and history are unchanged; no attention is invented.
+    pub fn reopen_thread(&mut self, id: &str, reason: &str) -> AppResult<ApplyOutcome> {
+        let record = self
+            .store
+            .record(id)?
+            .filter(|record| !record.archived)
+            .ok_or_else(|| AppError::Invalid("Thread not found".into()))?;
+        let RecordData::Thread(mut thread) = record.data else {
+            return Err(AppError::Invalid("Not a thread".into()));
+        };
+        if thread.state == ThreadState::Open {
+            return Err(AppError::Invalid("This thread is already open".into()));
+        }
+        thread.state = ThreadState::Open;
+        self.owner_change(
+            &format!("reopen:{}", uuid::Uuid::new_v4()),
+            &ChangeRequest {
+                reason: reason.into(),
+                writes: vec![Put {
+                    id: id.into(),
+                    expected_version: Some(record.version),
+                    archived: false,
+                    data: RecordData::Thread(thread),
+                }],
                 inputs: vec![],
             },
         )

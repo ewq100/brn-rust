@@ -31,7 +31,9 @@ fn fixture(cx: &mut TestAppContext) -> Fixture {
                 cx.new(|cx| {
                     let mut ui = ThreadsUi::new(workspace, data.clone(), window, cx);
                     ui.poll = None;
-                    ui.navigate(Page::Settings, window, cx);
+                    ui.settings_section = SettingsSection::Data;
+                    ui.layout.open(TileKind::Settings);
+                    ui.layout.apply(Preset::Solo);
                     ui
                 })
             },
