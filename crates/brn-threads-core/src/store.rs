@@ -23,6 +23,7 @@ enum SettingsUpdate<'a> {
     Choose(DelegationChoice),
     Pause(bool),
     BackupDirectory(&'a str),
+    Theme(&'a str),
 }
 impl Store {
     pub fn open(directory: impl AsRef<Path>) -> Result<Self> {
@@ -636,6 +637,26 @@ impl Store {
         )
     }
 
+    /// Save the owner's appearance preference. Settings writes change the version
+    /// that running invocations are bound to, so this is deferred, inside the
+    /// writer transaction, while any run is Working instead of stopping it.
+    pub fn choose_theme(
+        &mut self,
+        operation: &OperationId,
+        theme: &str,
+        authority: &HostAuthority,
+    ) -> Result<ApplyOutcome> {
+        if theme.is_empty()
+            || theme.len() > 40
+            || !theme
+                .bytes()
+                .all(|byte| byte.is_ascii_lowercase() || byte == b'-')
+        {
+            return Err(Error::Invalid("unsupported theme name".into()));
+        }
+        self.update_workspace_settings(operation, SettingsUpdate::Theme(theme), authority)
+    }
+
     /// Recheck the saved destination against this actual workspace at dispatch.
     pub fn validate_backup_directory(&self, directory: &Path) -> Result<PathBuf> {
         validate_backup_directory(&self.directory, directory)
@@ -666,6 +687,7 @@ impl Store {
             SettingsUpdate::BackupDirectory(directory) => {
                 Some(serde_json::to_vec(&("backup-directory", directory))?)
             }
+            SettingsUpdate::Theme(theme) => Some(serde_json::to_vec(&("theme", theme))?),
             SettingsUpdate::Configure(_) => None,
         };
         if let Some(intent) = intent {
@@ -706,6 +728,7 @@ impl Store {
                     requested.maintenance = prior.maintenance;
                     requested.review_first = prior.review_first;
                     requested.backup_directory = prior.backup_directory.clone();
+                    requested.theme = prior.theme.clone();
                     if &requested != *prior {
                         return Err(Error::ImmutableRequest);
                     }
@@ -724,6 +747,11 @@ impl Store {
                     }
                 }
                 SettingsUpdate::BackupDirectory(_) => {}
+                SettingsUpdate::Theme(theme) => {
+                    if prior.theme.as_deref() != Some(theme) {
+                        return Err(Error::ImmutableRequest);
+                    }
+                }
             }
             let outcome = apply_on(&tx, operation, authority, None)?;
             tx.commit()?;
@@ -737,6 +765,22 @@ impl Store {
         let RecordData::Settings(current_settings) = &current.data else {
             return Err(Error::Invalid("workspace settings kind mismatch".into()));
         };
+        let theme_only = matches!(update, SettingsUpdate::Theme(_));
+        if theme_only {
+            let mut guarded = Vec::new();
+            let mut stmt = tx.prepare(
+                "SELECT body FROM records WHERE json_type(body,'$.data.Run') IS NOT NULL",
+            )?;
+            for body in stmt.query_map([], |row| row.get::<_, String>(0))? {
+                let record: Record = serde_json::from_str(&body?)?;
+                if matches!(&record.data, RecordData::Run(run) if run.state == RunState::Working) {
+                    guarded.push(record.id);
+                }
+            }
+            if !guarded.is_empty() {
+                return Ok(ApplyOutcome::Deferred { guarded });
+            }
+        }
         let mut next = match update {
             SettingsUpdate::Configure(settings) => {
                 let mut next = settings.clone();
@@ -744,6 +788,7 @@ impl Store {
                 next.maintenance = current_settings.maintenance;
                 next.review_first = current_settings.review_first;
                 next.backup_directory = current_settings.backup_directory.clone();
+                next.theme = current_settings.theme.clone();
                 next
             }
             _ => current_settings.clone(),
@@ -773,6 +818,7 @@ impl Store {
                         .to_owned(),
                 );
             }
+            SettingsUpdate::Theme(theme) => next.theme = Some(theme.to_owned()),
             SettingsUpdate::Configure(_) => {}
         }
         let mut writes = vec![Put {
@@ -805,7 +851,11 @@ impl Store {
             }
         }
         let request = ChangeRequest {
-            reason: "Owner configured workspace and stopped prior invocations".into(),
+            reason: if theme_only {
+                "Owner chose the workspace theme".into()
+            } else {
+                "Owner configured workspace and stopped prior invocations".into()
+            },
             writes,
             inputs: vec![],
         };
