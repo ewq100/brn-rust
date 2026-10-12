@@ -33,8 +33,16 @@ use std::{
     time::Duration,
 };
 use tokio_util::sync::CancellationToken;
+#[path = "threads_diff.rs"]
+mod diff;
+#[path = "threads_layout.rs"]
+mod layout;
+#[path = "threads_lists.rs"]
+mod lists;
 #[path = "threads_state.rs"]
 mod state;
+#[path = "threads_theme.rs"]
+mod theme;
 use state::{
     ComposerDestination, ComposerDrafts, WorkerKind, can_continue_thread, comment_location,
     continuation_notice, delegation_status, latest_run, linked, outcome_message, save_message,

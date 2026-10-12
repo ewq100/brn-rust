@@ -1,0 +1,1053 @@
+//! Navigation lists and small lifecycle rules derived from current records.
+//! Canonical state and every write remain in the shared service.
+use super::layout::{Preset, TileKind};
+use super::state::{latest_run, linked};
+use super::theme::ThemeId;
+use brn_threads_app::{Prepared, Receipt, Record, RecordData, RunState, ThreadState};
+use std::collections::{BTreeMap, BTreeSet};
+
+/// Latest receipt position and commit time for records and the threads their
+/// messages and runs belong to.
+#[derive(Default)]
+pub(super) struct Activity(BTreeMap<String, (usize, String)>);
+impl Activity {
+    pub(super) fn new(history: &[Receipt]) -> Self {
+        let mut out = BTreeMap::new();
+        for (index, receipt) in history.iter().enumerate() {
+            for write in &receipt.writes {
+                let entry = (index, receipt.committed_at.clone());
+                match &write.after.data {
+                    RecordData::Message(message) => {
+                        out.insert(message.thread.clone(), entry.clone());
+                    }
+                    RecordData::Run(run) => {
+                        out.insert(run.thread.clone(), entry.clone());
+                    }
+                    _ => {}
+                }
+                out.insert(write.after.id.clone(), entry);
+            }
+        }
+        Self(out)
+    }
+    pub(super) fn order(&self, id: &str) -> usize {
+        self.0.get(id).map_or(0, |(order, _)| *order)
+    }
+    pub(super) fn stamp(&self, id: &str) -> &str {
+        self.0.get(id).map_or("", |(_, stamp)| stamp.as_str())
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub(super) struct ThreadRow {
+    pub(super) id: String,
+    pub(super) title: String,
+    pub(super) resolved: bool,
+    pub(super) reasons: Vec<String>,
+    pub(super) note: Option<String>,
+    pub(super) has_action: bool,
+    pub(super) order: usize,
+    pub(super) day: Option<i64>,
+}
+impl ThreadRow {
+    pub(super) fn needs_you(&self) -> bool {
+        !self.resolved && !self.reasons.is_empty()
+    }
+}
+
+/// Days since 1970-01-01 for an ISO date prefix (`YYYY-MM-DD…`).
+pub(super) fn day_number(stamp: &str) -> Option<i64> {
+    let year: i64 = stamp.get(0..4)?.parse().ok()?;
+    let month: i64 = stamp.get(5..7)?.parse().ok()?;
+    let day: i64 = stamp.get(8..10)?.parse().ok()?;
+    if !(1..=12).contains(&month) || !(1..=31).contains(&day) {
+        return None;
+    }
+    let y = if month <= 2 { year - 1 } else { year };
+    let era = y.div_euclid(400);
+    let yoe = y - era * 400;
+    let mp = (month + 9) % 12;
+    let doy = (153 * mp + 2) / 5 + day - 1;
+    let doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;
+    Some(era * 146_097 + doe - 719_468)
+}
+
+pub(super) fn today() -> i64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map_or(0, |elapsed| (elapsed.as_secs() / 86_400) as i64)
+}
+
+pub(super) fn thread_rows(records: &[Record], activity: &Activity) -> Vec<ThreadRow> {
+    let kinds: BTreeMap<&str, &RecordData> = records
+        .iter()
+        .filter(|record| !record.archived)
+        .map(|record| (record.id.as_str(), &record.data))
+        .collect();
+    let mut rows: Vec<_> = records
+        .iter()
+        .filter(|record| !record.archived)
+        .filter_map(|record| {
+            let RecordData::Thread(thread) = &record.data else {
+                return None;
+            };
+            let links = linked(records, &record.id);
+            Some(ThreadRow {
+                id: record.id.clone(),
+                title: thread.title.clone(),
+                resolved: thread.state == ThreadState::Resolved,
+                reasons: thread
+                    .attention
+                    .iter()
+                    .map(|attention| attention.reason.clone())
+                    .collect(),
+                note: links
+                    .iter()
+                    .find(|id| matches!(kinds.get(id.as_str()), Some(RecordData::Note(_))))
+                    .cloned(),
+                has_action: links
+                    .iter()
+                    .any(|id| matches!(kinds.get(id.as_str()), Some(RecordData::Action(_)))),
+                order: activity.order(&record.id),
+                day: day_number(activity.stamp(&record.id)),
+            })
+        })
+        .collect();
+    rows.sort_by(|a, b| b.order.cmp(&a.order).then_with(|| a.title.cmp(&b.title)));
+    rows
+}
+
+pub(super) struct Sidebar<'a> {
+    pub(super) needs: Vec<&'a ThreadRow>,
+    pub(super) open: Vec<&'a ThreadRow>,
+    pub(super) total: usize,
+    pub(super) resolved: usize,
+}
+pub(super) const SIDEBAR_OPEN: usize = 10;
+
+/// Needs you shows every attention thread; Open shows the most recent; resolved
+/// threads are only counted. The current open thread stays visible.
+pub(super) fn sidebar<'a>(rows: &'a [ThreadRow], current: Option<&str>) -> Sidebar<'a> {
+    let needs = rows.iter().filter(|row| row.needs_you()).collect();
+    let mut open: Vec<_> = rows
+        .iter()
+        .filter(|row| !row.resolved && !row.needs_you())
+        .take(SIDEBAR_OPEN)
+        .collect();
+    if let Some(row) = rows.iter().find(|row| {
+        Some(row.id.as_str()) == current
+            && !row.resolved
+            && !row.needs_you()
+            && !open.iter().any(|shown| shown.id == row.id)
+    }) {
+        open.push(row);
+    }
+    Sidebar {
+        needs,
+        open,
+        total: rows.len(),
+        resolved: rows.iter().filter(|row| row.resolved).count(),
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) enum ThreadFilter {
+    All,
+    Open,
+    Resolved,
+    NeedsYou,
+    LinkedNote,
+    HasAction,
+}
+impl ThreadFilter {
+    pub(super) const ALL: [Self; 6] = [
+        Self::All,
+        Self::Open,
+        Self::Resolved,
+        Self::NeedsYou,
+        Self::LinkedNote,
+        Self::HasAction,
+    ];
+    pub(super) fn key(self) -> &'static str {
+        match self {
+            Self::All => "all",
+            Self::Open => "open",
+            Self::Resolved => "resolved",
+            Self::NeedsYou => "needs-you",
+            Self::LinkedNote => "linked-note",
+            Self::HasAction => "has-action",
+        }
+    }
+    pub(super) fn label(self) -> &'static str {
+        match self {
+            Self::All => "all",
+            Self::Open => "open",
+            Self::Resolved => "resolved",
+            Self::NeedsYou => "needs you",
+            Self::LinkedNote => "linked note",
+            Self::HasAction => "has Action",
+        }
+    }
+    fn accepts(self, row: &ThreadRow) -> bool {
+        match self {
+            Self::All => true,
+            Self::Open => !row.resolved,
+            Self::Resolved => row.resolved,
+            Self::NeedsYou => row.needs_you(),
+            Self::LinkedNote => row.note.is_some(),
+            Self::HasAction => row.has_action,
+        }
+    }
+}
+
+pub(super) const LIST_LIMIT: usize = 200;
+
+pub(super) struct Grouped<'a> {
+    pub(super) groups: Vec<(&'static str, Vec<&'a ThreadRow>)>,
+    pub(super) matched: usize,
+}
+
+/// Filter-as-you-type over titles and attention reasons, grouped by UTC day.
+pub(super) fn all_threads<'a>(
+    rows: &'a [ThreadRow],
+    filter: ThreadFilter,
+    query: &str,
+    today: i64,
+) -> Grouped<'a> {
+    let query = query.trim().to_lowercase();
+    let matched: Vec<_> = rows
+        .iter()
+        .filter(|row| filter.accepts(row))
+        .filter(|row| {
+            query.is_empty()
+                || row.title.to_lowercase().contains(&query)
+                || row
+                    .reasons
+                    .iter()
+                    .any(|reason| reason.to_lowercase().contains(&query))
+        })
+        .collect();
+    let mut groups: Vec<(&'static str, Vec<&ThreadRow>)> =
+        vec![("Today", vec![]), ("This week", vec![]), ("Older", vec![])];
+    for row in matched.iter().take(LIST_LIMIT) {
+        let age = row.day.map_or(i64::MAX, |day| today - day);
+        let slot = if age <= 0 {
+            0
+        } else if age < 7 {
+            1
+        } else {
+            2
+        };
+        groups[slot].1.push(row);
+    }
+    groups.retain(|(_, rows)| !rows.is_empty());
+    Grouped {
+        groups,
+        matched: matched.len(),
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub(super) struct NoteRow {
+    pub(super) id: String,
+    pub(super) title: String,
+    pub(super) protected: bool,
+    pub(super) imported: bool,
+    pub(super) order: usize,
+}
+pub(super) fn letter(title: &str) -> char {
+    title
+        .chars()
+        .find(|ch| ch.is_alphanumeric())
+        .and_then(|ch| ch.to_uppercase().next())
+        .filter(|ch| ch.is_alphabetic())
+        .unwrap_or('#')
+}
+
+pub(super) fn note_rows(records: &[Record], activity: &Activity) -> Vec<NoteRow> {
+    let mut rows: Vec<_> = records
+        .iter()
+        .filter(|record| !record.archived)
+        .filter_map(|record| match &record.data {
+            RecordData::Note(note) if note.superseded_by.is_none() => Some(NoteRow {
+                id: record.id.clone(),
+                title: note.title.clone(),
+                protected: note.protected,
+                imported: note.import.is_some(),
+                order: activity.order(&record.id),
+            }),
+            _ => None,
+        })
+        .collect();
+    rows.sort_by(|a, b| {
+        a.title
+            .to_lowercase()
+            .cmp(&b.title.to_lowercase())
+            .then_with(|| a.id.cmp(&b.id))
+    });
+    rows
+}
+
+pub(super) const SECTION_LIMIT: usize = 12;
+pub(super) const LETTER_LIMIT: usize = 150;
+
+pub(super) struct NotesView<'a> {
+    pub(super) recent: Vec<&'a NoteRow>,
+    pub(super) linked: (Vec<&'a NoteRow>, usize),
+    pub(super) kept: (Vec<&'a NoteRow>, usize),
+    pub(super) letters: Vec<(char, usize)>,
+    pub(super) letter: (Vec<&'a NoteRow>, usize),
+    pub(super) total: usize,
+}
+
+/// Notes tile sections: every list is bounded and reports how many it hides.
+pub(super) fn notes_view<'a>(
+    rows: &'a [NoteRow],
+    linked_to_open: &BTreeSet<String>,
+    selected: char,
+) -> NotesView<'a> {
+    let mut recent: Vec<_> = rows.iter().collect();
+    recent.sort_by(|a, b| b.order.cmp(&a.order));
+    recent.truncate(SECTION_LIMIT);
+    let bounded = |items: Vec<&'a NoteRow>, limit: usize| {
+        let total = items.len();
+        (items.into_iter().take(limit).collect::<Vec<_>>(), total)
+    };
+    let mut letters: BTreeMap<char, usize> = BTreeMap::new();
+    for row in rows {
+        *letters.entry(letter(&row.title)).or_default() += 1;
+    }
+    NotesView {
+        recent,
+        linked: bounded(
+            rows.iter()
+                .filter(|row| linked_to_open.contains(&row.id))
+                .collect(),
+            SECTION_LIMIT,
+        ),
+        kept: bounded(
+            rows.iter()
+                .filter(|row| row.protected || row.imported)
+                .collect(),
+            SECTION_LIMIT,
+        ),
+        letters: letters.into_iter().collect(),
+        letter: bounded(
+            rows.iter()
+                .filter(|row| letter(&row.title) == selected)
+                .collect(),
+            LETTER_LIMIT,
+        ),
+        total: rows.len(),
+    }
+}
+
+pub(super) fn filter_notes<'a>(
+    rows: &'a [NoteRow],
+    query: &str,
+    limit: usize,
+) -> (Vec<&'a NoteRow>, usize) {
+    let query = query.trim().to_lowercase();
+    let matched: Vec<_> = rows
+        .iter()
+        .filter(|row| row.title.to_lowercase().contains(&query))
+        .collect();
+    let total = matched.len();
+    (matched.into_iter().take(limit).collect(), total)
+}
+
+/// Notes linked to any open thread.
+pub(super) fn notes_linked_to_open(records: &[Record], rows: &[ThreadRow]) -> BTreeSet<String> {
+    let notes: BTreeSet<&str> = records
+        .iter()
+        .filter(|record| !record.archived && matches!(record.data, RecordData::Note(_)))
+        .map(|record| record.id.as_str())
+        .collect();
+    rows.iter()
+        .filter(|row| !row.resolved)
+        .flat_map(|row| linked(records, &row.id))
+        .filter(|id| notes.contains(id.as_str()))
+        .collect()
+}
+
+pub(super) const AUTO_RESOLVE_REASON: &str =
+    "Quick question answered with nothing changed; resolved automatically. Reply to reopen.";
+
+/// A completed, standalone, single-question thread whose runs committed nothing
+/// beyond their own conversation, with no attention or pending candidate.
+pub(super) fn is_quick_question(
+    records: &[Record],
+    history: &[Receipt],
+    candidates: &[Prepared],
+    thread: &str,
+) -> bool {
+    let Some(RecordData::Thread(state)) = records
+        .iter()
+        .find(|record| record.id == thread && !record.archived)
+        .map(|record| &record.data)
+    else {
+        return false;
+    };
+    if state.state != ThreadState::Open || !state.attention.is_empty() {
+        return false;
+    }
+    if !linked(records, thread).is_empty() {
+        return false;
+    }
+    let owner_messages = records
+        .iter()
+        .filter(|record| !record.archived)
+        .filter(|record| {
+            matches!(&record.data, RecordData::Message(message) if message.thread == thread && message.role == "owner")
+        })
+        .count();
+    if owner_messages != 1 {
+        return false;
+    }
+    if !latest_run(records, history, thread).is_some_and(
+        |run| matches!(&run.data, RecordData::Run(run) if run.state == RunState::Completed),
+    ) {
+        return false;
+    }
+    let runs: Vec<&str> = records
+        .iter()
+        .filter(|record| matches!(&record.data, RecordData::Run(run) if run.thread == thread))
+        .map(|record| record.id.as_str())
+        .collect();
+    let own = |record: &Record| match &record.data {
+        RecordData::Message(message) => message.thread == thread,
+        RecordData::Run(run) => run.thread == thread,
+        RecordData::Thread(_) => record.id == thread,
+        _ => false,
+    };
+    let bound = history.iter().filter(|receipt| {
+        runs.iter()
+            .any(|run| receipt.authority.contains(&format!(";run:{run};")))
+    });
+    if bound
+        .flat_map(|receipt| receipt.writes.iter())
+        .any(|write| !own(&write.after))
+    {
+        return false;
+    }
+    !candidates.iter().any(|candidate| {
+        candidate
+            .request
+            .inputs
+            .iter()
+            .any(|input| input.record == thread || runs.contains(&input.record.as_str()))
+            || candidate.request.writes.iter().any(|write| {
+                write.id == thread
+                    || match &write.data {
+                        RecordData::Message(message) => message.thread == thread,
+                        RecordData::Run(run) => run.thread == thread,
+                        RecordData::Link(link) => link.from == thread || link.to == thread,
+                        _ => false,
+                    }
+            })
+    })
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub(super) enum ComposeMode {
+    #[default]
+    Ask,
+    EditNote,
+    RecordDecision,
+}
+impl ComposeMode {
+    pub(super) fn key(self) -> &'static str {
+        match self {
+            Self::Ask => "ask",
+            Self::EditNote => "edit",
+            Self::RecordDecision => "decide",
+        }
+    }
+    pub(super) fn label(self, note: Option<&str>) -> String {
+        match self {
+            Self::Ask => "Ask · read only".into(),
+            Self::EditNote => format!("Edit {} · this request", note.unwrap_or("note")),
+            Self::RecordDecision => "Record decision · this request".into(),
+        }
+    }
+}
+
+/// The exact per-request grant for a mode; Edit requires the open note's
+/// current saved version and otherwise grants nothing.
+pub(super) fn grant(
+    mode: ComposeMode,
+    note: Option<(&str, u64)>,
+) -> Result<Option<brn_ai::threads::OwnerRequest>, &'static str> {
+    match mode {
+        ComposeMode::Ask => Ok(None),
+        ComposeMode::EditNote => note
+            .map(|(id, version)| {
+                Some(brn_ai::threads::OwnerRequest::EditNote {
+                    id: id.into(),
+                    version,
+                })
+            })
+            .ok_or("Open the note you want BRN to edit, then choose Edit again."),
+        ComposeMode::RecordDecision => Ok(Some(brn_ai::threads::OwnerRequest::RecordDecision)),
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) enum Command {
+    NewThread,
+    NewNote,
+    Rewrite,
+    Save,
+    Layout(Preset),
+    Theme(ThemeId),
+    OpenTile(TileKind),
+    Keys,
+}
+impl Command {
+    pub(super) fn label(self) -> String {
+        match self {
+            Self::NewThread => "New thread".into(),
+            Self::NewNote => "New note".into(),
+            Self::Rewrite => "Rewrite with AI".into(),
+            Self::Save => "Save note".into(),
+            Self::Layout(preset) => format!("Layout: {}", preset.label()),
+            Self::Theme(theme) => format!("Theme: {} · {}", theme.label(), theme.description()),
+            Self::OpenTile(TileKind::History) => "What changed".into(),
+            Self::OpenTile(TileKind::Actions) => "Actions".into(),
+            Self::OpenTile(TileKind::Settings) => "Settings".into(),
+            Self::OpenTile(TileKind::Overview) => "Overview".into(),
+            Self::OpenTile(kind) => format!("Open tile: {}", kind.label()),
+            Self::Keys => "Keys and mouse".into(),
+        }
+    }
+    pub(super) fn shortcut(self) -> &'static str {
+        match self {
+            Self::NewThread => "⌘T",
+            Self::NewNote => "⌘N",
+            Self::Rewrite => "⌘⇧R",
+            Self::Save => "⌘S",
+            Self::Layout(Preset::Write) => "⌥1",
+            Self::Layout(Preset::Chat) => "⌥2",
+            Self::Layout(Preset::Solo) => "⌥3",
+            Self::OpenTile(TileKind::Threads) => "⌘\\",
+            Self::OpenTile(TileKind::Settings) => "⌘,",
+            Self::OpenTile(TileKind::Overview) => "⌘0",
+            _ => "",
+        }
+    }
+    pub(super) fn all() -> Vec<Self> {
+        let mut out = vec![Self::NewThread, Self::NewNote, Self::Rewrite, Self::Save];
+        out.extend(Preset::ALL.map(Self::Layout));
+        out.extend(ThemeId::ALL.map(Self::Theme));
+        out.extend(
+            [
+                TileKind::Notes,
+                TileKind::AllThreads,
+                TileKind::Threads,
+                TileKind::Note,
+                TileKind::Chat,
+                TileKind::Linked,
+                TileKind::History,
+                TileKind::Actions,
+                TileKind::Settings,
+                TileKind::Overview,
+            ]
+            .map(Self::OpenTile),
+        );
+        out.push(Self::Keys);
+        out
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub(super) enum LaunchItem {
+    Thread {
+        id: String,
+        title: String,
+        resolved: bool,
+    },
+    Note {
+        id: String,
+        title: String,
+    },
+    Command(Command),
+}
+impl LaunchItem {
+    pub(super) fn label(&self) -> String {
+        match self {
+            Self::Thread {
+                title, resolved, ..
+            } => format!(
+                "thread · {title}{}",
+                if *resolved { " · ✓ resolved" } else { "" }
+            ),
+            Self::Note { title, .. } => format!("note · {title}"),
+            Self::Command(command) => command.label(),
+        }
+    }
+}
+pub(super) const LAUNCH_LIMIT: usize = 20;
+
+/// Empty queries show recent work then commands; otherwise every thread
+/// (including resolved), note and command whose label matches.
+pub(super) fn launcher(query: &str, threads: &[ThreadRow], notes: &[NoteRow]) -> Vec<LaunchItem> {
+    let query = query.trim().to_lowercase();
+    let thread = |row: &ThreadRow| LaunchItem::Thread {
+        id: row.id.clone(),
+        title: row.title.clone(),
+        resolved: row.resolved,
+    };
+    let note = |row: &NoteRow| LaunchItem::Note {
+        id: row.id.clone(),
+        title: row.title.clone(),
+    };
+    if query.is_empty() {
+        let mut recent: Vec<&NoteRow> = notes.iter().collect();
+        recent.sort_by(|a, b| b.order.cmp(&a.order));
+        return threads
+            .iter()
+            .filter(|row| !row.resolved)
+            .take(4)
+            .map(thread)
+            .chain(recent.into_iter().take(4).map(note))
+            .chain(Command::all().into_iter().map(LaunchItem::Command))
+            .take(LAUNCH_LIMIT)
+            .collect();
+    }
+    threads
+        .iter()
+        .map(thread)
+        .chain(notes.iter().map(note))
+        .chain(Command::all().into_iter().map(LaunchItem::Command))
+        .filter(|item| item.label().to_lowercase().contains(&query))
+        .take(LAUNCH_LIMIT)
+        .collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use brn_threads_app::*;
+
+    fn record(id: &str, data: RecordData) -> Record {
+        Record {
+            id: id.into(),
+            version: 1,
+            archived: false,
+            data,
+        }
+    }
+    fn thread(id: &str, title: &str, state: ThreadState, reason: Option<&str>) -> Record {
+        record(
+            id,
+            RecordData::Thread(Thread {
+                title: title.into(),
+                state,
+                attention: reason
+                    .map(|reason| Attention {
+                        kind: AttentionKind::Question,
+                        reason: reason.into(),
+                        record: None,
+                    })
+                    .into_iter()
+                    .collect(),
+            }),
+        )
+    }
+    fn message(id: &str, thread: &str, role: &str) -> Record {
+        record(
+            id,
+            RecordData::Message(Message {
+                thread: thread.into(),
+                role: role.into(),
+                text: "text".into(),
+            }),
+        )
+    }
+    fn run(id: &str, thread: &str, state: RunState) -> Record {
+        record(
+            id,
+            RecordData::Run(Run {
+                thread: thread.into(),
+                provider: "Offline".into(),
+                model: "synthetic".into(),
+                guide_identity: "fixture".into(),
+                budget: 4,
+                effort: "medium".into(),
+                loaded_skills: vec![],
+                fence: 1,
+                state,
+                progress: String::new(),
+                operations: vec![],
+                sources: vec![],
+            }),
+        )
+    }
+    thread_local! {
+        static OPS: std::cell::RefCell<(tempfile::TempDir, Workspace)> = {
+            let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+            let workspace = Workspace::open(root.path().join("ops")).unwrap();
+            std::cell::RefCell::new((root, workspace))
+        };
+    }
+    fn op(name: &str) -> OperationId {
+        OPS.with(|ops| ops.borrow_mut().1.store.allocate_operation(name).unwrap())
+    }
+    fn receipt(
+        op_name: &str,
+        authority: &str,
+        at: &str,
+        writes: Vec<(Option<Record>, Record)>,
+    ) -> Receipt {
+        Receipt {
+            operation: op(op_name),
+            request_hash: String::new(),
+            reason: "fixture".into(),
+            writes: writes
+                .into_iter()
+                .map(|(before, after)| Written { before, after })
+                .collect(),
+            authority: authority.into(),
+            committed_at: at.into(),
+            undo_of: None,
+            needs_refresh: vec![],
+        }
+    }
+    fn note(id: &str, title: &str, protected: bool) -> Record {
+        let mut note = Note::working(title, "text");
+        note.protected = protected;
+        record(id, RecordData::Note(note))
+    }
+
+    #[test]
+    fn day_numbers_match_the_civil_calendar() {
+        assert_eq!(day_number("1970-01-01T00:00:00Z"), Some(0));
+        assert_eq!(day_number("2026-10-12T19:40:31.118Z"), Some(20_738));
+        assert_eq!(day_number("2024-03-01"), Some(19_783));
+        assert_eq!(day_number("garbage"), None);
+    }
+
+    #[test]
+    fn sidebar_hides_resolved_and_bounds_open_threads() {
+        let mut records = vec![
+            thread(
+                "needs",
+                "Delivery date",
+                ThreadState::Open,
+                Some("Which date?"),
+            ),
+            thread("done", "Old question", ThreadState::Resolved, None),
+        ];
+        for i in 0..14 {
+            records.push(thread(
+                &format!("t{i:02}"),
+                &format!("Thread {i}"),
+                ThreadState::Open,
+                None,
+            ));
+        }
+        let history: Vec<_> = records
+            .iter()
+            .enumerate()
+            .map(|(i, r)| {
+                receipt(
+                    &format!("op{i}"),
+                    "owner:x",
+                    "2026-10-12T10:00:00Z",
+                    vec![(None, r.clone())],
+                )
+            })
+            .collect();
+        let rows = thread_rows(&records, &Activity::new(&history));
+        let bar = sidebar(&rows, Some("t00"));
+        assert_eq!(
+            bar.needs.iter().map(|r| r.id.as_str()).collect::<Vec<_>>(),
+            ["needs"]
+        );
+        assert_eq!(
+            bar.open.len(),
+            SIDEBAR_OPEN + 1,
+            "current thread stays visible"
+        );
+        assert_eq!(bar.open[0].id, "t13", "most recent first");
+        assert_eq!(bar.open.last().unwrap().id, "t00");
+        assert!(bar.open.iter().all(|row| !row.resolved));
+        assert_eq!((bar.total, bar.resolved), (16, 1));
+        assert!(
+            sidebar(&rows, Some("done"))
+                .open
+                .iter()
+                .all(|row| row.id != "done")
+        );
+    }
+
+    #[test]
+    fn all_threads_filters_and_groups_by_day() {
+        let records = vec![
+            thread("a", "Today open", ThreadState::Open, None),
+            thread("b", "Week resolved", ThreadState::Resolved, None),
+            thread(
+                "c",
+                "Old open",
+                ThreadState::Open,
+                Some("Review the proposal"),
+            ),
+            note("n", "Plan", false),
+            record(
+                "l",
+                RecordData::Link(Link {
+                    from: "n".into(),
+                    to: "a".into(),
+                    relation: "writing".into(),
+                }),
+            ),
+        ];
+        let history = vec![
+            receipt(
+                "1",
+                "owner:x",
+                "2026-09-01T10:00:00Z",
+                vec![(None, records[2].clone())],
+            ),
+            receipt(
+                "2",
+                "owner:x",
+                "2026-10-09T10:00:00Z",
+                vec![(None, records[1].clone())],
+            ),
+            receipt(
+                "3",
+                "owner:x",
+                "2026-10-12T10:00:00Z",
+                vec![(None, records[0].clone())],
+            ),
+        ];
+        let rows = thread_rows(&records, &Activity::new(&history));
+        let today = day_number("2026-10-12").unwrap();
+        let all = all_threads(&rows, ThreadFilter::All, "", today);
+        assert_eq!(
+            all.groups
+                .iter()
+                .map(|(name, rows)| (*name, rows.len()))
+                .collect::<Vec<_>>(),
+            [("Today", 1), ("This week", 1), ("Older", 1)]
+        );
+        let ids = |filter, query: &str| {
+            all_threads(&rows, filter, query, today)
+                .groups
+                .into_iter()
+                .flat_map(|(_, rows)| rows.into_iter().map(|row| row.id.clone()))
+                .collect::<Vec<_>>()
+        };
+        assert_eq!(ids(ThreadFilter::Resolved, ""), ["b"]);
+        assert_eq!(ids(ThreadFilter::NeedsYou, ""), ["c"]);
+        assert_eq!(ids(ThreadFilter::LinkedNote, ""), ["a"]);
+        assert_eq!(
+            ids(ThreadFilter::Open, "proposal"),
+            ["c"],
+            "reasons are searchable"
+        );
+        assert!(ids(ThreadFilter::HasAction, "").is_empty());
+    }
+
+    #[test]
+    fn notes_view_stays_bounded_at_five_thousand_notes() {
+        let records: Vec<_> = (0..5_000)
+            .map(|i| {
+                note(
+                    &format!("n{i:04}"),
+                    &format!("{} note {i}", ["Alpha", "Beta", "Õun", "1st"][i % 4]),
+                    i % 50 == 0,
+                )
+            })
+            .collect();
+        let history: Vec<_> = records
+            .iter()
+            .enumerate()
+            .map(|(i, r)| {
+                receipt(
+                    &format!("{i}"),
+                    "owner:x",
+                    "2026-10-12T10:00:00Z",
+                    vec![(None, r.clone())],
+                )
+            })
+            .collect();
+        let rows = note_rows(&records, &Activity::new(&history));
+        let linked: BTreeSet<String> = (0..30).map(|i| format!("n{i:04}")).collect();
+        let view = notes_view(&rows, &linked, 'Õ');
+        assert_eq!(view.total, 5_000);
+        assert_eq!(view.recent.len(), SECTION_LIMIT);
+        assert_eq!(view.recent[0].id, "n4999");
+        assert_eq!((view.linked.0.len(), view.linked.1), (SECTION_LIMIT, 30));
+        assert_eq!((view.kept.0.len(), view.kept.1), (SECTION_LIMIT, 100));
+        assert_eq!(
+            view.letters,
+            [('#', 1_250), ('A', 1_250), ('B', 1_250), ('Õ', 1_250)]
+        );
+        assert_eq!((view.letter.0.len(), view.letter.1), (LETTER_LIMIT, 1_250));
+        let (shown, total) = filter_notes(&rows, "NOTE 499", 100);
+        assert_eq!(total, 11);
+        assert_eq!(shown.len(), 11);
+        let (shown, total) = filter_notes(&rows, "beta", 100);
+        assert_eq!((shown.len(), total), (100, 1_250));
+    }
+
+    #[test]
+    fn quick_question_requires_a_completed_unlinked_single_question_without_changes() {
+        let t = thread("t", "What is BRN?", ThreadState::Open, None);
+        let m = message("m", "t", "owner");
+        let a = message("a", "t", "assistant");
+        let r = run("r", "t", RunState::Completed);
+        let base = vec![t.clone(), m.clone(), a.clone(), r.clone()];
+        let history = vec![
+            receipt(
+                "1",
+                "owner:x",
+                "2026-10-12T10:00:00Z",
+                vec![(None, t.clone()), (None, m.clone())],
+            ),
+            receipt(
+                "2",
+                "owner:x",
+                "2026-10-12T10:00:01Z",
+                vec![(None, r.clone())],
+            ),
+            receipt(
+                "3",
+                "runtime:x:r;run:r;fence:1",
+                "2026-10-12T10:00:02Z",
+                vec![(None, a.clone())],
+            ),
+        ];
+        assert!(is_quick_question(&base, &history, &[], "t"));
+
+        let mut second = base.clone();
+        second.push(message("m2", "t", "owner"));
+        assert!(
+            !is_quick_question(&second, &history, &[], "t"),
+            "two owner messages"
+        );
+
+        let mut linked = base.clone();
+        linked.push(note("n", "Plan", false));
+        linked.push(record(
+            "l",
+            RecordData::Link(Link {
+                from: "t".into(),
+                to: "n".into(),
+                relation: "uses".into(),
+            }),
+        ));
+        assert!(
+            !is_quick_question(&linked, &history, &[], "t"),
+            "linked note"
+        );
+
+        let attention = vec![
+            thread("t", "What is BRN?", ThreadState::Open, Some("Pick one")),
+            m.clone(),
+            a.clone(),
+            r.clone(),
+        ];
+        assert!(
+            !is_quick_question(&attention, &history, &[], "t"),
+            "attention"
+        );
+
+        let failed = vec![t.clone(), m.clone(), run("r", "t", RunState::Failed)];
+        assert!(
+            !is_quick_question(&failed, &history, &[], "t"),
+            "run not completed"
+        );
+
+        let mut changed = history.clone();
+        changed.push(receipt(
+            "4",
+            "maintenance:x;run:r;fence:1",
+            "2026-10-12T10:00:03Z",
+            vec![(None, note("n2", "Updated", false))],
+        ));
+        assert!(
+            !is_quick_question(&base, &changed, &[], "t"),
+            "committed a note change"
+        );
+
+        let candidate = Prepared {
+            operation: op("cand"),
+            request_hash: String::new(),
+            request: ChangeRequest {
+                reason: "proposal".into(),
+                writes: vec![Put {
+                    id: "x".into(),
+                    expected_version: None,
+                    archived: false,
+                    data: RecordData::Message(Message {
+                        thread: "t".into(),
+                        role: "assistant".into(),
+                        text: "p".into(),
+                    }),
+                }],
+                inputs: vec![],
+            },
+        };
+        assert!(
+            !is_quick_question(&base, &history, &[candidate], "t"),
+            "pending candidate"
+        );
+
+        let resolved = vec![
+            thread("t", "What is BRN?", ThreadState::Resolved, None),
+            m,
+            a,
+            r,
+        ];
+        assert!(!is_quick_question(&resolved, &history, &[], "t"));
+    }
+
+    #[test]
+    fn modes_map_exactly_to_existing_grants() {
+        use brn_ai::threads::OwnerRequest;
+        assert!(grant(ComposeMode::Ask, Some(("n", 3))).unwrap().is_none());
+        assert!(matches!(
+            grant(ComposeMode::EditNote, Some(("n", 3))).unwrap(),
+            Some(OwnerRequest::EditNote { id, version: 3 }) if id == "n"
+        ));
+        assert!(grant(ComposeMode::EditNote, None).is_err());
+        assert!(matches!(
+            grant(ComposeMode::RecordDecision, None).unwrap(),
+            Some(OwnerRequest::RecordDecision)
+        ));
+        assert_eq!(
+            ComposeMode::EditNote.label(Some("Plan")),
+            "Edit Plan · this request"
+        );
+    }
+
+    #[test]
+    fn launcher_finds_resolved_threads_notes_and_commands() {
+        let records = vec![
+            thread("t", "Renewal date", ThreadState::Resolved, None),
+            note("n", "Renewal contract", false),
+        ];
+        let activity = Activity::default();
+        let threads = thread_rows(&records, &activity);
+        let notes = note_rows(&records, &activity);
+        let items = launcher("renewal", &threads, &notes);
+        assert_eq!(items.len(), 2);
+        assert_eq!(items[0].label(), "thread · Renewal date · ✓ resolved");
+        assert!(
+            launcher("raba", &threads, &notes)
+                .contains(&LaunchItem::Command(Command::Theme(ThemeId::Raba)))
+        );
+        let empty = launcher("", &threads, &notes);
+        assert!(
+            !empty
+                .iter()
+                .any(|item| matches!(item, LaunchItem::Thread { .. })),
+            "resolved stay out of recent"
+        );
+        assert!(empty.contains(&LaunchItem::Command(Command::NewThread)));
+        assert_eq!(Command::Layout(Preset::Chat).shortcut(), "⌥2");
+    }
+}
