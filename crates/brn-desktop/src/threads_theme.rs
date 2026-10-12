@@ -185,6 +185,7 @@ pub(super) fn mix(from: u32, to: u32, amount: f32) -> u32 {
 }
 
 /// WCAG 2 contrast ratio.
+#[cfg(test)]
 pub(super) fn contrast(a: u32, b: u32) -> f32 {
     fn luminance(color: u32) -> f32 {
         let linear = |shift: u32| {
@@ -209,9 +210,6 @@ thread_local! {
 /// Colors of the theme applied in this UI thread.
 pub(super) fn pal() -> Palette {
     CURRENT.with(Cell::get).palette()
-}
-pub(super) fn current() -> ThemeId {
-    CURRENT.with(Cell::get)
 }
 
 /// Apply one palette to toolkit controls; they keep their own focus, selected

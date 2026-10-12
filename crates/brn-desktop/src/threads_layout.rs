@@ -152,6 +152,7 @@ impl Layout {
     pub(super) fn maximized(&self) -> Option<TileKind> {
         self.maximized
     }
+    #[cfg(test)]
     pub(super) fn tiles(&self) -> &[Tile] {
         &self.tiles
     }

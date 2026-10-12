@@ -12,18 +12,34 @@ pub(super) fn configure_offline_fixture(workspace: &mut Workspace) {
     workspace.configure(settings).unwrap();
 }
 
+/// Show one tile alone, as the Solo layout does.
+pub(super) fn solo(view: &mut ThreadsUi, kind: TileKind, cx: &mut Context<ThreadsUi>) {
+    view.layout.open(kind);
+    view.layout.apply(Preset::Solo);
+    view.refresh();
+    cx.notify();
+}
+pub(super) fn settings(
+    view: &mut ThreadsUi,
+    section: SettingsSection,
+    cx: &mut Context<ThreadsUi>,
+) {
+    view.settings_section = section;
+    solo(view, TileKind::Settings, cx);
+}
+
 #[gpui_kit::test]
 fn first_use_choices_preserve_manual_work_and_persist_explicit_policy(cx: &mut TestAppContext) {
     cx.update(gpui_kit::init);
     for (first_page, first_button, review_first, later_button) in [
         (
-            Page::Home,
+            None,
             "delegation-maintain",
             false,
             "delegation-review-first",
         ),
         (
-            Page::Settings,
+            Some(SettingsSection::Delegation),
             "delegation-review-first",
             true,
             "delegation-maintain",
@@ -72,16 +88,13 @@ fn first_use_choices_preserve_manual_work_and_persist_explicit_policy(cx: &mut T
         })
         .unwrap();
         cx.run_until_parked();
-        cx.update_window(window, |_, window, cx| window.click("toggle-edit", cx))
-            .unwrap();
-        cx.run_until_parked();
         cx.update_window(window, |_, window, cx| window.input("Manual change. ", cx))
             .unwrap();
         cx.run_until_parked();
         cx.update_window(window, |_, window, cx| window.click("save-note", cx))
             .unwrap();
         cx.run_until_parked();
-        cx.update_window(window, |_, window, cx| {
+        cx.update_window(window, |_, _, cx| {
             view.update(cx, |view, cx| {
                 assert!(!view.workspace.settings().unwrap().delegation_chosen);
                 let RecordData::Note(saved) =
@@ -90,7 +103,7 @@ fn first_use_choices_preserve_manual_work_and_persist_explicit_policy(cx: &mut T
                     panic!("note")
                 };
                 assert!(saved.markdown.contains("Manual change."));
-                view.navigate(Page::Settings, window, cx);
+                settings(view, SettingsSection::Models, cx);
             });
         })
         .unwrap();
@@ -98,11 +111,14 @@ fn first_use_choices_preserve_manual_work_and_persist_explicit_policy(cx: &mut T
         cx.update_window(window, |_, window, cx| window.click("save-settings", cx))
             .unwrap();
         cx.run_until_parked();
-        cx.update_window(window, |_, window, cx| {
+        cx.update_window(window, |_, _, cx| {
             view.update(cx, |view, cx| {
                 assert!(!view.workspace.settings().unwrap().delegation_chosen);
                 assert!(!view.workspace.settings().unwrap().maintenance);
-                view.navigate(first_page.clone(), window, cx);
+                match first_page {
+                    Some(section) => settings(view, section, cx),
+                    None => solo(view, TileKind::Overview, cx),
+                }
             });
         })
         .unwrap();
@@ -121,14 +137,16 @@ fn first_use_choices_preserve_manual_work_and_persist_explicit_policy(cx: &mut T
             view.update(cx, |view, cx| {
                 assert!(view.worker.is_none());
                 assert!(view.notice.starts_with("Saved."));
-                view.navigate(Page::Home, window, cx);
+                solo(view, TileKind::Overview, cx);
             });
         })
         .unwrap();
         cx.run_until_parked();
         cx.update_window(window, |_, window, cx| {
             assert!(window.try_find("delegation-maintain").is_none());
-            view.update(cx, |view, cx| view.navigate(Page::Settings, window, cx));
+            view.update(cx, |view, cx| {
+                settings(view, SettingsSection::Delegation, cx)
+            });
         })
         .unwrap();
         cx.run_until_parked();
@@ -214,52 +232,53 @@ fn composer_drafts_follow_home_and_each_thread(cx: &mut TestAppContext) {
     cx.update_window(window, |_, window, cx| {
         view.update(cx, |view, cx| {
             view.composer.update(cx, |editor, cx| editor.set_value("Home draft", window, cx));
-            view.navigate(Page::Thread(a.id.clone()), window, cx);
+            view.open_thread(&a.id, window, cx);
             assert_eq!(view.composer.read(cx).value().as_ref(), "");
             view.composer.update(cx, |editor, cx| editor.set_value("A draft õun", window, cx));
-            view.navigate(Page::Thread(b.id.clone()), window, cx);
+            view.open_thread(&b.id, window, cx);
             assert_eq!(view.composer.read(cx).value().as_ref(), "");
             view.composer.update(cx, |editor, cx| editor.set_value("B draft", window, cx));
-            view.navigate(Page::Thread(a.id.clone()), window, cx);
+            view.open_thread(&a.id, window, cx);
             assert_eq!(view.composer.read(cx).value().as_ref(), "A draft õun");
             view.open_note(&note.id, None, window, cx);
             assert_eq!(view.composer.read(cx).value().as_ref(), "");
-            assert_eq!(view.composer_destination_label(), "Start a conversation about: Draft note context");
-            view.navigate(Page::Thread(a.id.clone()), window, cx);
+            assert_eq!(view.chat, ChatTarget::NewForNote(note.id.clone()));
+            view.open_thread(&a.id, window, cx);
             assert_eq!(view.composer.read(cx).value().as_ref(), "A draft õun");
-            view.navigate(Page::Home, window, cx);
+            view.new_thread(window, cx);
             assert_eq!(view.composer.read(cx).value().as_ref(), "Home draft");
-            view.navigate(Page::Thread(b.id.clone()), window, cx);
+            view.open_thread(&b.id, window, cx);
             assert_eq!(view.composer.read(cx).value().as_ref(), "B draft");
-            view.navigate(Page::Thread(a.id.clone()), window, cx);
+            view.open_thread(&a.id, window, cx);
             view.ask(window, cx);
-            assert_eq!(view.page, Page::Thread(a.id.clone()));
+            assert_eq!(view.chat, ChatTarget::Thread(a.id.clone()));
             assert_eq!(view.composer.read(cx).value().as_ref(), "");
             assert!(view.worker.is_none());
             let messages = view.workspace.messages(&a.id).unwrap();
             assert_eq!(messages.len(), 1);
             assert!(matches!(&messages[0].data, RecordData::Message(message) if message.text == "A draft õun" && message.thread == a.id));
             assert!(view.workspace.messages(&b.id).unwrap().is_empty());
-            view.navigate(Page::Home, window, cx);
+            view.new_thread(window, cx);
             assert_eq!(view.composer.read(cx).value().as_ref(), "Home draft");
             view.ask(window, cx);
-            let Page::Thread(home_thread) = &view.page else { panic!("Home sends to a new thread") };
+            let ChatTarget::Thread(home_thread) = view.chat.clone() else { panic!("a new thread is created") };
+            let home_thread = &home_thread;
             assert_ne!(home_thread, &a.id);
             assert_ne!(home_thread, &b.id);
             let messages = view.workspace.messages(home_thread).unwrap();
             assert!(matches!(&messages[0].data, RecordData::Message(message) if message.text == "Home draft"));
-            view.navigate(Page::Home, window, cx);
+            view.new_thread(window, cx);
             assert_eq!(view.composer.read(cx).value().as_ref(), "");
-            view.navigate(Page::Thread(b.id.clone()), window, cx);
+            view.open_thread(&b.id, window, cx);
             assert_eq!(view.composer.read(cx).value().as_ref(), "B draft");
             // Missing target causes the real checked posting service to fail.
-            view.navigate(Page::Thread("missing-thread".into()), window, cx);
+            view.open_thread("missing-thread", window, cx);
             view.composer.update(cx, |editor, cx| editor.set_value("Preserve failed send", window, cx));
             view.ask(window, cx);
             assert_eq!(view.composer.read(cx).value().as_ref(), "Preserve failed send");
             assert!(view.notice.contains("missing reference"), "{}", view.notice);
-            view.navigate(Page::Home, window, cx);
-            view.navigate(Page::Thread("missing-thread".into()), window, cx);
+            view.new_thread(window, cx);
+            view.open_thread("missing-thread", window, cx);
             assert_eq!(view.composer.read(cx).value().as_ref(), "Preserve failed send");
         });
     }).unwrap();
@@ -267,7 +286,7 @@ fn composer_drafts_follow_home_and_each_thread(cx: &mut TestAppContext) {
     cx.update_window(window, |_, window, _| {
         assert_eq!(
             window.find("composer-destination").label(),
-            Some("Send to thread: missing-thread")
+            Some("Reply to missing-thread")
         );
     })
     .unwrap();
@@ -326,7 +345,7 @@ fn worker_controls_match_real_cancellation_capabilities(cx: &mut TestAppContext)
                 view.composer.update(cx, |editor, cx| {
                     editor.set_value("Home waiting draft", window, cx)
                 });
-                view.navigate(Page::Thread(thread.id.clone()), window, cx);
+                view.open_thread(&thread.id, window, cx);
                 assert_eq!(view.composer.read(cx).value().as_ref(), "");
                 view.composer.update(cx, |editor, cx| {
                     editor.set_value("Thread waiting draft", window, cx)
@@ -340,7 +359,7 @@ fn worker_controls_match_real_cancellation_capabilities(cx: &mut TestAppContext)
                     view.composer.read(cx).value().as_ref(),
                     "Thread waiting draft"
                 );
-                view.navigate(Page::Home, window, cx);
+                view.new_thread(window, cx);
                 assert_eq!(
                     view.composer.read(cx).value().as_ref(),
                     "Home waiting draft"
@@ -354,7 +373,7 @@ fn worker_controls_match_real_cancellation_capabilities(cx: &mut TestAppContext)
             assert_eq!(window.find("worker-status").label(), Some(expected_status));
             assert_eq!(
                 window.find("composer-destination").label(),
-                Some("Start a new thread · Home draft")
+                Some("New standalone thread")
             );
             if cancellable {
                 window.click("stop-work", cx);
@@ -474,6 +493,15 @@ fn long_coverage_details_scroll_without_hiding_note_body_or_losing_issues(cx: &m
             )
             .unwrap()
         });
+        cx.run_until_parked();
+        cx.update_window(window, |_, window, cx| {
+            assert!(
+                window.try_find("note-coverage-details").is_none(),
+                "details are on demand"
+            );
+            window.click("toggle-coverage", cx);
+        })
+        .unwrap();
         cx.run_until_parked();
         let mut last_origin = None;
         cx.update_window(window, |_, window, cx| {
@@ -798,7 +826,7 @@ fn native_refresh_controls_open_named_note_and_one_followup_without_changing_der
                     let mut view = ThreadsUi::new(workspace, data, window, cx);
                     view.poll = None;
                     view.open_note(&input.id, None, window, cx);
-                    view.navigate(Page::History, window, cx);
+                    view.show_tile(TileKind::History, cx);
                     view
                 })
             },
@@ -816,17 +844,17 @@ fn native_refresh_controls_open_named_note_and_one_followup_without_changing_der
     cx.run_until_parked();
     cx.read(|cx| {
         let view = view.read(cx);
-        assert!(view.page == Page::Note(derived_id.clone()));
+        assert_eq!(view.open_note_id(), Some(derived_id.as_str()));
         assert_eq!(view.note.as_ref().unwrap().record.id, derived_id);
         assert_eq!(
-            view.note_view.read(cx).rendered_text().source(),
+            view.note_editor.read(cx).value().as_ref(),
             "Derived wording stays preserved"
         );
     });
     let mut followup = None;
     for _ in 0..2 {
-        cx.update_window(window, |_, window, cx| {
-            view.update(cx, |view, cx| view.navigate(Page::History, window, cx))
+        cx.update_window(window, |_, _, cx| {
+            view.update(cx, |view, cx| view.show_tile(TileKind::History, cx))
         })
         .unwrap();
         cx.run_until_parked();
@@ -840,8 +868,8 @@ fn native_refresh_controls_open_named_note_and_one_followup_without_changing_der
         cx.run_until_parked();
         cx.read(|cx| {
             let view = view.read(cx);
-            let Page::Thread(id) = &view.page else {
-                panic!("follow-up must open its discussion")
+            let ChatTarget::Thread(id) = &view.chat else {
+                panic!("follow-up must open its thread")
             };
             if let Some(original) = &followup {
                 assert_eq!(id, original);
@@ -859,8 +887,8 @@ fn native_refresh_controls_open_named_note_and_one_followup_without_changing_der
             assert_eq!(view.workspace.messages(id).unwrap().len(), 1);
         });
     }
-    cx.update_window(window, |_, window, cx| {
-        view.update(cx, |view, cx| view.navigate(Page::History, window, cx))
+    cx.update_window(window, |_, _, cx| {
+        view.update(cx, |view, cx| view.show_tile(TileKind::History, cx))
     })
     .unwrap();
     cx.run_until_parked();
@@ -885,8 +913,8 @@ fn native_refresh_controls_open_named_note_and_one_followup_without_changing_der
     cx.run_until_parked();
     cx.read(|cx| {
         let view = view.read(cx);
-        let Page::Thread(id) = &view.page else {
-            panic!("Undo refresh callback opens a discussion")
+        let ChatTarget::Thread(id) = &view.chat else {
+            panic!("Undo refresh callback opens a thread")
         };
         assert_ne!(Some(id), followup.as_ref());
         assert_eq!(
@@ -941,7 +969,6 @@ fn stale_save_compares_latest_saved_text_and_preserves_owner_buffer(cx: &mut Tes
                 )
                 .unwrap();
             assert!(matches!(outcome, ApplyOutcome::Applied(_)));
-            view.toggle_note_edit(window, cx);
             view.note_editor.update(cx, |editor, cx| {
                 editor.set_value("Owner typed from old base", window, cx)
             });
@@ -997,7 +1024,7 @@ fn native_stream_and_resolution_keep_the_worker_thread_owner(cx: &mut TestAppCon
                 thread: Some(a.id.clone()),
                 run_id: None,
             });
-            view.navigate(Page::Thread(b.id.clone()), window, cx);
+            view.open_thread(&b.id, window, cx);
             sender
                 .send(WorkerEvent::Text("Only A's synthetic answer".into()))
                 .unwrap();
@@ -1010,7 +1037,7 @@ fn native_stream_and_resolution_keep_the_worker_thread_owner(cx: &mut TestAppCon
             view.poll_worker(window, cx);
             assert_eq!(view.stream_for(&a.id), Some("Authoritative A"));
             assert_eq!(view.stream_for(&b.id), None);
-            view.resolve_discussion(&b.id, cx);
+            view.resolve_thread(&b.id, cx);
             assert!(!cancel.is_cancelled(), "resolving B must not cancel A");
             assert_eq!(
                 view.worker.as_ref().unwrap().thread.as_deref(),
@@ -1028,9 +1055,9 @@ fn native_stream_and_resolution_keep_the_worker_thread_owner(cx: &mut TestAppCon
             };
             assert_eq!(a_state.state, ThreadState::Open);
             assert_eq!(b_state.state, ThreadState::Resolved);
-            view.navigate(Page::Thread(a.id.clone()), window, cx);
+            view.open_thread(&a.id, window, cx);
             assert_eq!(view.stream_for(&a.id), Some("Authoritative A"));
-            view.resolve_discussion(&a.id, cx);
+            view.resolve_thread(&a.id, cx);
             assert!(
                 cancel.is_cancelled(),
                 "resolving the worker's A must cancel A"
@@ -1041,7 +1068,7 @@ fn native_stream_and_resolution_keep_the_worker_thread_owner(cx: &mut TestAppCon
 }
 
 #[gpui_kit::test]
-fn hidden_note_editor_cannot_gain_edits_from_tab_after_save_read_or_navigation(
+fn hidden_note_editor_cannot_gain_edits_from_tab_after_save_or_layout_change(
     cx: &mut TestAppContext,
 ) {
     let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
@@ -1075,90 +1102,56 @@ fn hidden_note_editor_cannot_gain_edits_from_tab_after_save_read_or_navigation(
         .unwrap()
     });
     cx.run_until_parked();
+    // The note is typed in place: opening it focuses the visible editor.
     cx.update_window(window, |_, window, cx| {
-        window.click("toggle-edit", cx);
-    })
-    .unwrap();
-    cx.run_until_parked();
-    cx.update_window(window, |_, window, cx| {
+        assert!(
+            view.read(cx)
+                .note_editor
+                .read(cx)
+                .focus_handle(cx)
+                .is_focused(window)
+        );
         window.input("Typed. ", cx);
     })
     .unwrap();
     cx.run_until_parked();
     let typed = cx.read(|cx| view.read(cx).note_editor.read(cx).value().to_string());
     assert!(typed.contains("Typed. "));
-    cx.update_window(window, |_, window, cx| {
-        window.click("save-note", cx);
-    })
-    .unwrap();
-    cx.run_until_parked();
-    cx.update_window(window, |_, window, cx| {
-        assert!(
-            !view
-                .read(cx)
-                .note_editor
-                .read(cx)
-                .focus_handle(cx)
-                .is_focused(window)
-        );
-        window.press("tab", cx);
-    })
-    .unwrap();
+    cx.update_window(window, |_, window, cx| window.click("save-note", cx))
+        .unwrap();
     cx.run_until_parked();
     cx.read(|cx| {
         let view = view.read(cx);
         assert_eq!(view.note_editor.read(cx).value().as_ref(), typed);
         assert!(view.workspace.store.recovery_buffers().unwrap().is_empty());
-        let saved = view.workspace.store.note(&note.id).unwrap().unwrap();
-        let RecordData::Note(saved) = saved.data else {
+        let RecordData::Note(saved) = view.workspace.store.note(&note.id).unwrap().unwrap().data
+        else {
             panic!("expected note")
         };
         assert_eq!(saved.markdown, typed);
     });
 
-    // Reading an unsaved buffer must retain it, while Tab cannot extend that buffer.
-    cx.update_window(window, |_, window, cx| window.click("toggle-edit", cx))
-        .unwrap();
-    cx.run_until_parked();
+    // An unsaved edit survives hiding the note tile; Tab elsewhere cannot extend it.
     cx.update_window(window, |_, window, cx| window.input("Recoverable. ", cx))
-        .unwrap();
-    cx.run_until_parked();
-    cx.update_window(window, |_, window, cx| window.click("toggle-edit", cx))
         .unwrap();
     cx.run_until_parked();
     let recovery =
         cx.read(|cx| view.read(cx).workspace.store.recovery_buffers().unwrap()[0].clone());
-    cx.update_window(window, |_, window, cx| window.press("tab", cx))
-        .unwrap();
-    cx.run_until_parked();
-    cx.read(|cx| {
-        let buffer = &view.read(cx).workspace.store.recovery_buffers().unwrap()[0];
-        assert_eq!(buffer.markdown, recovery.markdown);
-        assert_eq!(buffer.generation, recovery.generation);
-    });
-
-    // Navigate while the editor is focused, then press Tab in the other page.
-    cx.update_window(window, |_, window, cx| window.click("toggle-edit", cx))
-        .unwrap();
-    cx.run_until_parked();
     cx.update_window(window, |_, window, cx| window.click("home", cx))
         .unwrap();
     cx.run_until_parked();
+    cx.update_window(window, |_, window, cx| window.click("layout-solo", cx))
+        .unwrap();
+    cx.run_until_parked();
     cx.update_window(window, |_, window, cx| {
-        assert!(
-            !view
-                .read(cx)
-                .note_editor
-                .read(cx)
-                .focus_handle(cx)
-                .is_focused(window)
-        );
+        assert!(window.try_find("note-body").is_none(), "note tile hidden");
         window.press("tab", cx);
     })
     .unwrap();
     cx.run_until_parked();
     cx.read(|cx| {
         let view = view.read(cx);
+        assert_eq!(view.layout.visible().len(), 1);
         assert_eq!(
             view.note_editor.read(cx).value().as_ref(),
             recovery.markdown

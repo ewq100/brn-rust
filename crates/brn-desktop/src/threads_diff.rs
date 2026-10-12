@@ -33,6 +33,7 @@ impl Tracked {
         }
     }
     /// The candidate text with deleted segments removed.
+    #[cfg(test)]
     pub(super) fn candidate(&self) -> String {
         let mut out = String::new();
         let mut at = 0;

@@ -79,7 +79,7 @@ fn fixture(cx: &mut TestAppContext, state: RunState) -> Fixture {
                         thread: Some(thread.clone()),
                         run_id: Some(run.clone()),
                     });
-                    ui.navigate(Page::Thread(thread.clone()), window, cx);
+                    ui.open_thread(&thread, window, cx);
                     ui.composer.update(cx, |editor, cx| {
                         editor.set_value("New exact instruction · õun", window, cx)
                     });
@@ -125,7 +125,7 @@ fn stop_and_send_click_is_durable_and_waits_then_drains_without_retargeting(
 ) {
     let f = fixture(cx, RunState::Working);
     cx.update_window(f.window, |_, window, cx| {
-        assert_eq!(window.find("ask-delegate").label(), Some("Stop and send"));
+        assert_eq!(window.find("ask-delegate").label(), Some("Stop & send ↵"));
         window.click("ask-delegate", cx);
     })
     .unwrap();
@@ -153,7 +153,7 @@ fn stop_and_send_click_is_durable_and_waits_then_drains_without_retargeting(
             ui.poll_worker(window, cx);
             assert!(ui.pending_send.is_some());
             assert!(ui.worker.is_some(), "no second invocation before Finished");
-            ui.navigate(Page::Thread(f.other.clone()), window, cx);
+            ui.open_thread(&f.other, window, cx);
             assert!(!ui.can_stop_and_send());
             ui.composer
                 .update(cx, |editor, cx| editor.set_value("New B draft", window, cx));
@@ -175,10 +175,10 @@ fn stop_and_send_click_is_durable_and_waits_then_drains_without_retargeting(
                 ui.stream.is_empty(),
                 "old batch cannot contaminate replacement preview"
             );
-            assert_eq!(ui.page, Page::Thread(f.other.clone()));
+            assert_eq!(ui.chat, ChatTarget::Thread(f.other.clone()));
             assert_eq!(ui.composer.read(cx).value().as_ref(), "New B draft");
             assert!(ui.notice.contains("Choose a provider"));
-            ui.navigate(Page::Thread(f.thread.clone()), window, cx);
+            ui.open_thread(&f.thread, window, cx);
             assert_eq!(ui.composer.read(cx).value().as_ref(), "Later A draft");
             assert!(can_continue_thread(
                 &ui.records,
@@ -323,7 +323,7 @@ fn no_run_continue_requires_saved_owner_message_and_dispatches_offline(cx: &mut 
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |ui, cx| {
             ui.worker = None;
-            ui.navigate(Page::Thread(f.other.clone()), window, cx);
+            ui.open_thread(&f.other, window, cx);
         })
     })
     .unwrap();

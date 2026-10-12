@@ -297,7 +297,6 @@ pub(super) struct NotesView<'a> {
     pub(super) kept: (Vec<&'a NoteRow>, usize),
     pub(super) letters: Vec<(char, usize)>,
     pub(super) letter: (Vec<&'a NoteRow>, usize),
-    pub(super) total: usize,
 }
 
 /// Notes tile sections: every list is bounded and reports how many it hides.
@@ -307,7 +306,7 @@ pub(super) fn notes_view<'a>(
     selected: char,
 ) -> NotesView<'a> {
     let mut recent: Vec<_> = rows.iter().collect();
-    recent.sort_by(|a, b| b.order.cmp(&a.order));
+    recent.sort_by_key(|row| std::cmp::Reverse(row.order));
     recent.truncate(SECTION_LIMIT);
     let bounded = |items: Vec<&'a NoteRow>, limit: usize| {
         let total = items.len();
@@ -338,7 +337,6 @@ pub(super) fn notes_view<'a>(
                 .collect(),
             LETTER_LIMIT,
         ),
-        total: rows.len(),
     }
 }
 
@@ -456,13 +454,6 @@ pub(super) enum ComposeMode {
     RecordDecision,
 }
 impl ComposeMode {
-    pub(super) fn key(self) -> &'static str {
-        match self {
-            Self::Ask => "ask",
-            Self::EditNote => "edit",
-            Self::RecordDecision => "decide",
-        }
-    }
     pub(super) fn label(self, note: Option<&str>) -> String {
         match self {
             Self::Ask => "Ask · read only".into(),
@@ -603,7 +594,7 @@ pub(super) fn launcher(query: &str, threads: &[ThreadRow], notes: &[NoteRow]) ->
     };
     if query.is_empty() {
         let mut recent: Vec<&NoteRow> = notes.iter().collect();
-        recent.sort_by(|a, b| b.order.cmp(&a.order));
+        recent.sort_by_key(|row| std::cmp::Reverse(row.order));
         return threads
             .iter()
             .filter(|row| !row.resolved)
@@ -876,7 +867,6 @@ mod tests {
         let rows = note_rows(&records, &Activity::new(&history));
         let linked: BTreeSet<String> = (0..30).map(|i| format!("n{i:04}")).collect();
         let view = notes_view(&rows, &linked, 'Õ');
-        assert_eq!(view.total, 5_000);
         assert_eq!(view.recent.len(), SECTION_LIMIT);
         assert_eq!(view.recent[0].id, "n4999");
         assert_eq!((view.linked.0.len(), view.linked.1), (SECTION_LIMIT, 30));

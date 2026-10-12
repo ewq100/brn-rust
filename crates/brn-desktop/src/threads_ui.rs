@@ -3,17 +3,22 @@ use brn_threads_app::*;
 use brn_threads_intake::{
     ConversionRequest, ConversionResult, Converter, DocumentKind, ImportIntent, PdfTools,
 };
-use gpui_kit::base::{Disableable, RangeHighlight, Selectable};
+use gpui_kit::base::input::{
+    RangeDecoration, RangeDecorationCollection, RangeDecorationStyle, TextDecoration,
+    TextDecorationCollection,
+};
+use gpui_kit::base::{Disableable, Selectable};
 use gpui_kit::component::WindowExt;
 use gpui_kit::{
-    App, AppContext, Bounds, Context, Entity, Image, ImageFormat, KeyBinding, PathPromptOptions,
-    Subscription, Task, TestSupportExt, Window, WindowBounds, WindowOptions,
+    App, AppContext, Bounds, Context, Entity, FocusHandle, HighlightStyle, Image, ImageFormat,
+    KeyBinding, PathPromptOptions, Subscription, Task, TestSupportExt, Window, WindowBounds,
+    WindowOptions,
     base::{
         MarkdownExtensions, MarkdownNode, MarkdownParseContext, MarkdownPlugin, TextView,
         TextViewState, markdown_ast::Node,
     },
     component::{
-        Root, Theme, TitleBar,
+        Root, TitleBar,
         button::{Button, ButtonRounded},
         input::{Editor, EditorState, Input, InputEvent, InputState},
     },
@@ -24,6 +29,7 @@ use gpui_kit::{
 use std::result::Result;
 use std::{
     collections::{BTreeMap, BTreeSet},
+    ops::Range,
     path::PathBuf,
     sync::{
         Arc,
@@ -39,15 +45,24 @@ mod diff;
 mod layout;
 #[path = "threads_lists.rs"]
 mod lists;
+#[path = "threads_shell.rs"]
+mod shell;
 #[path = "threads_state.rs"]
 mod state;
 #[path = "threads_theme.rs"]
 mod theme;
+#[path = "threads_tiles.rs"]
+mod tiles;
+#[path = "threads_writing.rs"]
+mod writing;
+use layout::{Layout, Preset, TileKind};
+use lists::{Activity, ComposeMode, NoteRow, ThreadFilter, ThreadRow};
 use state::{
     ComposerDestination, ComposerDrafts, WorkerKind, can_continue_thread, comment_location,
     continuation_notice, delegation_status, latest_run, linked, outcome_message, save_message,
     sections,
 };
+use theme::{ThemeId, pal};
 
 #[cfg(all(test, feature = "native-test-support"))]
 #[path = "threads_focus_tests.rs"]
@@ -70,111 +85,79 @@ mod writing_tests;
 mod tiled_tests;
 
 #[cfg(all(test, feature = "native-test-support"))]
-mod search_tests {
-    use super::*;
-    use gpui_kit::{TestAppContext, test::TestWindowExt};
-
-    #[gpui_kit::test]
-    fn clearing_native_search_restores_workspace_without_retrieval_error(cx: &mut TestAppContext) {
-        let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
-        let data = root.path().join("search-clear-regression");
-        let mut workspace = Workspace::open(&data).unwrap();
-        focus_tests::configure_offline_fixture(&mut workspace);
-        let note = workspace
-            .new_note("Search witness", "harborneedle õun and saved text")
-            .unwrap();
-        cx.update(gpui_kit::init);
-        let (window, view) = cx.update(|cx| {
-            gpui_kit::open_window(WindowOptions::default(), cx, |window, cx| {
-                cx.new(|cx| {
-                    let mut view = ThreadsUi::new(workspace, data, window, cx);
-                    view.poll = None;
-                    view
-                })
-            })
-            .unwrap()
-        });
-        cx.run_until_parked();
-        cx.update_window(window, |_, window, cx| {
-            view.read(cx)
-                .search
-                .clone()
-                .update(cx, |input, cx| input.focus(window, cx));
-            window.input("harborneedle", cx);
-        })
-        .unwrap();
-        cx.run_until_parked();
-        cx.read(|cx| {
-            assert!(view.read(cx).hits.iter().any(|hit| hit.note == note.id));
-            assert!(view.read(cx).notice.is_empty());
-        });
-        cx.update_window(window, |_, window, cx| {
-            window.press("cmd-a", cx);
-            window.press("backspace", cx);
-        })
-        .unwrap();
-        cx.run_until_parked();
-        cx.update_window(window, |_, window, cx| {
-            let current = view.read(cx);
-            assert!(current.search.read(cx).value().is_empty());
-            assert!(current.hits.is_empty());
-            assert!(
-                current.notice.is_empty(),
-                "clearing a valid search is normal navigation"
-            );
-            assert!(window.try_find(format!("note-{}", note.id)).is_some());
-            window.click(format!("note-{}", note.id), cx);
-        })
-        .unwrap();
-        cx.run_until_parked();
-        cx.update_window(window, |_, window, cx| {
-            assert!(view.read(cx).page == Page::Note(note.id.clone()));
-            view.read(cx)
-                .search
-                .clone()
-                .update(cx, |input, cx| input.focus(window, cx));
-            window.input("   ", cx);
-        })
-        .unwrap();
-        cx.run_until_parked();
-        cx.update_window(window, |_, window, cx| {
-            assert!(view.read(cx).hits.is_empty());
-            assert!(view.read(cx).notice.is_empty());
-            assert!(
-                window.try_find(format!("note-{}", note.id)).is_some(),
-                "whitespace-only search also shows normal workspace"
-            );
-        })
-        .unwrap();
-    }
-}
+#[path = "threads_omakase_tests.rs"]
+mod omakase_tests;
 
 gpui_kit::actions!(
     brn_threads,
-    [Save, Ask, Home, NewNote, FocusAsk, Cancel, Quit]
+    [
+        Save,
+        Ask,
+        Home,
+        NewNote,
+        NewThread,
+        FocusAsk,
+        Cancel,
+        Quit,
+        OpenLauncher,
+        CloseLauncher,
+        LauncherNext,
+        LauncherPrevious,
+        CommentSelection,
+        AskAboutSelection,
+        Rewrite,
+        ToggleThreads,
+        FocusPreviousTile,
+        FocusNextTile,
+        MaximizeTile,
+        OpenSettings,
+        LayoutWrite,
+        LayoutChat,
+        LayoutSolo,
+        ShowKeys
+    ]
 );
 
-#[derive(Clone, Debug, PartialEq)]
-enum Page {
-    Home,
+/// What the chat tile's composer sends to.
+#[derive(Clone, Debug, PartialEq, Eq)]
+enum ChatTarget {
+    /// A standalone new thread, created on send.
+    New,
+    /// A new thread linked to this note, created on send.
+    NewForNote(String),
     Thread(String),
-    Note(String),
-    History,
-    Settings,
-    Actions,
 }
-impl Page {
-    fn composer_destination(&self) -> ComposerDestination {
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum SettingsSection {
+    General,
+    Models,
+    Delegation,
+    Data,
+}
+impl SettingsSection {
+    const ALL: [Self; 4] = [Self::General, Self::Models, Self::Delegation, Self::Data];
+    fn key(self) -> &'static str {
         match self {
-            Self::Thread(id) => ComposerDestination::Thread(id.clone()),
-            Self::Note(id) => ComposerDestination::Note(id.clone(), None),
-            _ => ComposerDestination::Home,
+            Self::General => "general",
+            Self::Models => "models",
+            Self::Delegation => "delegation",
+            Self::Data => "data",
+        }
+    }
+    fn label(self) -> &'static str {
+        match self {
+            Self::General => "General",
+            Self::Models => "Models",
+            Self::Delegation => "Delegation",
+            Self::Data => "Data",
         }
     }
 }
+
 #[derive(Clone)]
 struct CommentDraft {
-    anchor: Option<(String, u64, std::ops::Range<usize>, String)>,
+    anchor: Option<(String, u64, Range<usize>, String)>,
     body: String,
     operation: Option<String>,
 }
@@ -182,7 +165,6 @@ struct CommentDraft {
 struct OpenNote {
     record: Record,
     session: Option<EditSession>,
-    editing: bool,
 }
 struct Review {
     candidate: Prepared,
@@ -208,7 +190,7 @@ struct Worker {
     conversion_cancel: Arc<AtomicBool>,
     kind: WorkerKind,
     /// The native stream and cancellation belong to this invocation's thread,
-    /// independently of whichever page the owner is currently viewing.
+    /// independently of whichever thread the owner is currently viewing.
     thread: Option<String>,
     /// Created synchronously before the provider worker can start.
     run_id: Option<String>,
@@ -268,71 +250,21 @@ fn markdown(view: &Entity<TextViewState>, assets: Arc<BTreeMap<String, Arc<Image
             cx.stop_propagation();
         })
 }
-// Presentation is shared by every page. Toolkit controls keep their focus,
-// selected and disabled behavior; prose retains the normal system font.
-const PAPER: u32 = 0xf7f5ee;
-const TILE: u32 = 0xfffdf7;
-const GREEN: u32 = 0xf1f5ed;
-const BORDER: u32 = 0x9cad91;
-const INK: u32 = 0x283526;
-const MUTED: u32 = 0x56634f;
-const ACCENT: u32 = 0x416438;
 
-fn tiled_theme(cx: &mut App) {
-    Theme::update(cx, |theme| {
-        theme.radius = px(0.);
-        theme.radius_lg = px(0.);
-        theme.shadow = false;
-        let colors = &mut theme.colors;
-        colors.background = rgb(TILE).into();
-        colors.foreground = rgb(INK).into();
-        colors.border = rgb(BORDER).into();
-        colors.input = rgb(BORDER).into();
-        colors.button = rgb(TILE).into();
-        colors.button_foreground = rgb(INK).into();
-        colors.button_hover = rgb(0xe6eddc).into();
-        colors.button_active = rgb(0xd8e3cc).into();
-        colors.primary = rgb(ACCENT).into();
-        colors.primary_foreground = rgb(TILE).into();
-        colors.primary_hover = rgb(0x36572f).into();
-        colors.primary_active = rgb(0x2d4b27).into();
-        colors.button_primary = colors.primary;
-        colors.button_primary_foreground = colors.primary_foreground;
-        colors.button_primary_hover = colors.primary_hover;
-        colors.button_primary_active = colors.primary_active;
-        colors.accent = rgb(0xe0e9d5).into();
-        colors.accent_foreground = rgb(INK).into();
-        colors.muted = rgb(GREEN).into();
-        colors.muted_foreground = rgb(MUTED).into();
-        colors.ring = rgb(ACCENT).into();
-        colors.caret = rgb(ACCENT).into();
-        colors.selection = rgb(0xdce8cd).into();
-        colors.link = rgb(ACCENT).into();
-        colors.link_hover = rgb(0x36572f).into();
-        colors.link_active = rgb(0x2d4b27).into();
-        colors.popover = rgb(TILE).into();
-        colors.popover_foreground = rgb(INK).into();
-        colors.title_bar = rgb(GREEN).into();
-        colors.title_bar_border = rgb(BORDER).into();
-        colors.window_border = rgb(BORDER).into();
-        colors.scrollbar = rgb(PAPER).into();
-        colors.sidebar = rgb(GREEN).into();
-        colors.sidebar_foreground = rgb(INK).into();
-        colors.sidebar_border = rgb(BORDER).into();
-        colors.scrollbar_thumb = rgb(BORDER).into();
-        colors.scrollbar_thumb_hover = rgb(MUTED).into();
-    });
-}
+// Presentation is shared by every tile. Toolkit controls keep their focus,
+// selected and disabled behavior; prose retains the normal system font.
+const MONO: &str = "Menlo";
 fn button(id: impl Into<gpui_kit::ElementId>) -> Button {
     Button::new(id)
         .rounded(ButtonRounded::None)
-        .font_family("Menlo")
+        .font_family(MONO)
         .text_sm()
 }
 fn prose_editor(state: &Entity<EditorState>) -> Editor {
     Editor::new(state).font_family(".SystemUIFont").text_base()
 }
 fn panel() -> gpui_kit::Div {
+    let p = pal();
     div()
         .flex()
         .flex_col()
@@ -340,45 +272,40 @@ fn panel() -> gpui_kit::Div {
         .p_3()
         .min_w_0()
         .border_1()
-        .border_color(rgb(BORDER))
-        .bg(rgb(TILE))
-}
-fn pane() -> gpui_kit::Div {
-    div().flex().flex_col().min_w_0().min_h_0().bg(rgb(PAPER))
-}
-fn screen(
-    id: &'static str,
-    label: &'static str,
-) -> gpui_kit::base::ObservedElement<gpui_kit::Stateful<gpui_kit::Div>> {
-    pane()
-        .id(id)
-        .test_support()
-        .h_full()
-        .w_full()
-        .overflow_y_scroll()
-        .gap_3()
-        .p_4()
-        .child(heading(label))
+        .border_color(rgb(p.border))
+        .bg(rgb(p.tile))
 }
 fn heading(text: impl Into<gpui_kit::SharedString>) -> gpui_kit::Div {
     div()
-        .font_family("Menlo")
+        .font_family(MONO)
         .text_sm()
-        .text_color(rgb(ACCENT))
+        .text_color(rgb(pal().accent))
         .font_weight(gpui_kit::FontWeight::SEMIBOLD)
         .child(text.into())
 }
+fn section(text: impl Into<gpui_kit::SharedString>) -> gpui_kit::Div {
+    div()
+        .font_family(MONO)
+        .text_xs()
+        .text_color(rgb(pal().muted))
+        .pt_2()
+        .child(text.into())
+}
 fn metadata(text: impl Into<gpui_kit::SharedString>) -> gpui_kit::Div {
-    div().text_sm().text_color(rgb(MUTED)).child(text.into())
+    div()
+        .text_sm()
+        .text_color(rgb(pal().muted))
+        .child(text.into())
 }
 fn empty(
-    id: &'static str,
-    text: &'static str,
+    id: impl Into<gpui_kit::ElementId>,
+    text: impl Into<gpui_kit::SharedString>,
 ) -> gpui_kit::base::ObservedElement<gpui_kit::Stateful<gpui_kit::Div>> {
-    metadata(text).id(id).aria_label(text).test_support()
-}
-fn tile_slot(tile: impl IntoElement) -> gpui_kit::Div {
-    div().flex_1().min_w(px(280.)).child(tile)
+    let text = text.into();
+    metadata(text.clone())
+        .id(id)
+        .aria_label(text)
+        .test_support()
 }
 fn title(record: &Record) -> String {
     match &record.data {
@@ -407,27 +334,50 @@ fn short(text: &str) -> String {
 struct ThreadsUi {
     workspace: Workspace,
     data_dir: PathBuf,
-    page: Page,
+    root_focus: FocusHandle,
+    layout: Layout,
+    chat: ChatTarget,
+    mode: ComposeMode,
+    theme: ThemeId,
+    theme_pending: bool,
+    settings_section: SettingsSection,
     records: Vec<Record>,
     history: Vec<Receipt>,
     candidates: Vec<Prepared>,
     buffers: Vec<EditSession>,
+    activity: Activity,
+    thread_rows: Vec<ThreadRow>,
+    note_rows: Vec<NoteRow>,
     composer: Entity<EditorState>,
     composer_drafts: ComposerDrafts,
     note_editor: Entity<EditorState>,
-    note_view: Entity<TextViewState>,
+    comment_marks: Option<RangeDecorationCollection>,
+    diff_editor: Entity<EditorState>,
+    diff_marks: Option<TextDecorationCollection>,
     current_view: Entity<TextViewState>,
+    candidate_view: Entity<TextViewState>,
     review_editor: Entity<EditorState>,
+    review_editing: bool,
+    review_inputs: bool,
     search: Entity<InputState>,
     hits: Vec<brn_threads_app::SearchHit>,
+    notes_letter: char,
+    threads_query: Entity<InputState>,
+    thread_filter: ThreadFilter,
+    launcher_query: Entity<InputState>,
+    launcher_open: bool,
+    launcher_index: usize,
     model: Entity<InputState>,
     auth_path: Entity<InputState>,
     credentials_path: Entity<InputState>,
     settings: WorkspaceSettings,
     note: Option<OpenNote>,
     review: Option<Review>,
+    margin: bool,
+    show_coverage: bool,
+    selection: Option<(Range<usize>, String)>,
     comment_input: Entity<EditorState>,
-    comment_anchor: Option<(String, u64, std::ops::Range<usize>, String)>,
+    comment_anchor: Option<(String, u64, Range<usize>, String)>,
     comment_operation: Option<String>,
     comment_drafts: BTreeMap<String, CommentDraft>,
     writing_threads: BTreeMap<String, String>,
@@ -442,7 +392,6 @@ struct ThreadsUi {
     notice: String,
     export_status: String,
     backup_status: String,
-    importing: Option<ImportIntent>,
     subscriptions: Vec<Subscription>,
     poll: Option<Task<()>>,
 }
@@ -453,27 +402,39 @@ impl ThreadsUi {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) -> Self {
-        tiled_theme(cx);
         let settings = workspace
             .settings()
             .expect("workspace settings were checked before opening the window");
-        let composer = cx
-            .new(|cx| EditorState::new(window, cx).placeholder("Ask a question or delegate work…"));
+        let theme = ThemeId::from_key(settings.theme.as_deref());
+        theme::apply(theme, cx);
+        let composer = cx.new(|cx| {
+            EditorState::new(window, cx)
+                .submit_on_enter(true)
+                .placeholder("Ask or delegate…  ↵ send · ⇧↵ new line")
+        });
         let note_editor = cx.new(|cx| EditorState::new(window, cx).default_value(""));
+        let diff_editor = cx.new(|cx| EditorState::new(window, cx).default_value(""));
+        diff_editor.update(cx, |editor, cx| editor.set_readonly(true, cx));
         let review_editor = cx.new(|cx| EditorState::new(window, cx).default_value(""));
         let comment_input =
-            cx.new(|cx| EditorState::new(window, cx).placeholder("Discuss this passage…"));
-        let note_view = cx.new(|cx| {
-            TextViewState::markdown("", cx)
-                .selectable(true)
-                .scrollable(true)
-        });
+            cx.new(|cx| EditorState::new(window, cx).placeholder("What should change here?"));
         let current_view = cx.new(|cx| {
             TextViewState::markdown("", cx)
                 .selectable(true)
                 .scrollable(true)
         });
-        let search = cx.new(|cx| InputState::new(window, cx).placeholder("Search current notes"));
+        let candidate_view = cx.new(|cx| {
+            TextViewState::markdown("", cx)
+                .selectable(true)
+                .scrollable(true)
+        });
+        let search = cx.new(|cx| {
+            InputState::new(window, cx).placeholder("Filter titles and search note text")
+        });
+        let threads_query =
+            cx.new(|cx| InputState::new(window, cx).placeholder("Filter threads as you type"));
+        let launcher_query = cx
+            .new(|cx| InputState::new(window, cx).placeholder("Search notes, threads, commands…"));
         let model = cx.new(|cx| {
             InputState::new(window, cx)
                 .default_value(settings.model.clone())
@@ -496,6 +457,7 @@ impl ThreadsUi {
                 |this, editor, event: &InputEvent, _, cx| {
                     if matches!(event, InputEvent::Change) && this.note_editor_visible() {
                         this.note_changed(editor.read(cx).value().to_string());
+                        this.selection = None;
                         cx.notify();
                     }
                 },
@@ -521,6 +483,15 @@ impl ThreadsUi {
                     }
                 },
             ),
+            cx.subscribe_in(
+                &composer,
+                window,
+                |this, _, event: &InputEvent, window, cx| {
+                    if matches!(event, InputEvent::PressEnter { shift: false, .. }) {
+                        this.ask(window, cx);
+                    }
+                },
+            ),
             cx.subscribe_in(&search, window, |this, input, event: &InputEvent, _, cx| {
                 if matches!(event, InputEvent::Change) {
                     let query = input.read(cx).value().to_string();
@@ -535,6 +506,23 @@ impl ThreadsUi {
                     cx.notify();
                 }
             }),
+            cx.subscribe_in(&threads_query, window, |_, _, event: &InputEvent, _, cx| {
+                if matches!(event, InputEvent::Change) {
+                    cx.notify();
+                }
+            }),
+            cx.subscribe_in(
+                &launcher_query,
+                window,
+                |this, _, event: &InputEvent, window, cx| match event {
+                    InputEvent::Change => {
+                        this.launcher_index = 0;
+                        cx.notify();
+                    }
+                    InputEvent::PressEnter { .. } => this.run_launcher(None, window, cx),
+                    _ => {}
+                },
+            ),
         ];
         let poll = cx.spawn_in(window, async move |this, cx| {
             loop {
@@ -552,25 +540,48 @@ impl ThreadsUi {
         let mut this = Self {
             workspace,
             data_dir,
-            page: Page::Home,
+            root_focus: cx.focus_handle(),
+            layout: Layout::default(),
+            chat: ChatTarget::New,
+            mode: ComposeMode::Ask,
+            theme,
+            theme_pending: false,
+            settings_section: SettingsSection::General,
             records: vec![],
             history: vec![],
             candidates: vec![],
             buffers: vec![],
+            activity: Activity::default(),
+            thread_rows: vec![],
+            note_rows: vec![],
             composer,
             composer_drafts: ComposerDrafts::default(),
             note_editor,
-            note_view,
+            comment_marks: None,
+            diff_editor,
+            diff_marks: None,
             current_view,
+            candidate_view,
             review_editor,
+            review_editing: false,
+            review_inputs: false,
             search,
             hits: vec![],
+            notes_letter: 'A',
+            threads_query,
+            thread_filter: ThreadFilter::All,
+            launcher_query,
+            launcher_open: false,
+            launcher_index: 0,
             model,
             auth_path,
             credentials_path,
             settings,
             note: None,
             review: None,
+            margin: true,
+            show_coverage: false,
+            selection: None,
             comment_input,
             comment_anchor: None,
             comment_operation: None,
@@ -587,11 +598,14 @@ impl ThreadsUi {
             notice: String::new(),
             export_status: "No export created in this session.".into(),
             backup_status: "No backup created in this session.".into(),
-            importing: None,
             subscriptions,
             poll: Some(poll),
         };
         this.refresh();
+        if let Some(row) = this.note_rows.first() {
+            this.notes_letter = lists::letter(&row.title);
+        }
+        this.root_focus.focus(window, cx);
         this
     }
     fn refresh(&mut self) {
@@ -663,25 +677,44 @@ impl ThreadsUi {
                 })
                 .collect(),
         );
+        self.activity = Activity::new(&self.history);
+        self.thread_rows = lists::thread_rows(&self.records, &self.activity);
+        self.note_rows = lists::note_rows(&self.records, &self.activity);
+    }
+    /// A recoverable edit exists that this view has not opened; typing would
+    /// start a competing edit, so the text stays read-only until recovered.
+    fn recovery_blocked(&self) -> bool {
+        self.note.as_ref().is_some_and(|open| {
+            open.session.is_none() && self.buffers.iter().any(|s| s.note == open.record.id)
+        })
+    }
+    fn note_tile_visible(&self) -> bool {
+        self.layout
+            .visible()
+            .iter()
+            .any(|tile| tile.kind == TileKind::Note)
     }
     fn note_editor_visible(&self) -> bool {
         self.review.is_none()
-            && self
-                .note
-                .as_ref()
-                .is_some_and(|open| open.editing && self.page == Page::Note(open.record.id.clone()))
+            && self.note.is_some()
+            && self.note_tile_visible()
+            && !self.recovery_blocked()
     }
     fn preserve_visible_note_input(&mut self, cx: &Context<Self>) {
         if self.note_editor_visible() {
             self.note_changed(self.note_editor.read(cx).value().to_string());
         }
     }
+    fn focus_root(&self, window: &mut Window, cx: &mut Context<Self>) {
+        self.root_focus.focus(window, cx);
+    }
     fn focus_visible_editor(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        window.blur(cx);
-        if self
-            .review
-            .as_ref()
-            .is_some_and(|review| review.note.is_some())
+        self.focus_root(window, cx);
+        if self.review_editing
+            && self
+                .review
+                .as_ref()
+                .is_some_and(|review| review.note.is_some())
         {
             self.review_editor
                 .update(cx, |editor, cx| editor.focus(window, cx));
@@ -690,44 +723,107 @@ impl ThreadsUi {
                 .update(cx, |editor, cx| editor.focus(window, cx));
         }
     }
-    fn toggle_note_edit(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        self.preserve_visible_note_input(cx);
-        if let Some(open) = &mut self.note {
-            open.editing = !open.editing;
-        }
-        let text = self.note_editor.read(cx).value().to_string();
-        self.note_view
-            .update(cx, |view, cx| view.set_text(&text, cx));
-        self.focus_visible_editor(window, cx);
+    fn focus_composer(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        self.layout.open(TileKind::Chat);
+        self.composer
+            .update(cx, |editor, cx| editor.focus(window, cx));
         cx.notify();
     }
-    fn navigate(&mut self, page: Page, window: &mut Window, cx: &mut Context<Self>) {
-        if self.review.is_some() {
-            self.keep_review(window, cx);
-            if self.review.is_some() {
-                return;
-            }
-        }
-        self.preserve_visible_note_input(cx);
-        window.blur(cx);
-        self.change_page(page, window, cx);
+    fn show_tile(&mut self, kind: TileKind, cx: &mut Context<Self>) {
+        self.layout.open(kind);
         self.refresh();
         cx.notify();
     }
-    fn composer_destination(&self, page: &Page) -> ComposerDestination {
-        if let Page::Note(note) = page {
-            self.writing_threads.get(note).map_or_else(
-                || ComposerDestination::Note(note.clone(), None),
-                |thread| ComposerDestination::Thread(thread.clone()),
-            )
+    fn apply_layout(&mut self, preset: Preset, window: &mut Window, cx: &mut Context<Self>) {
+        self.relayout(window, cx, |layout| layout.apply(preset));
+    }
+    /// Change the arrangement, then keep keyboard focus in a visible tile.
+    fn relayout(
+        &mut self,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+        change: impl FnOnce(&mut Layout),
+    ) {
+        change(&mut self.layout);
+        self.focus_tile_contents(window, cx);
+    }
+    /// The first-use delegation choice renders in exactly one visible tile.
+    fn delegation_host(&self) -> Option<TileKind> {
+        let visible: Vec<TileKind> = self.layout.visible().iter().map(|tile| tile.kind).collect();
+        if visible.contains(&TileKind::Settings)
+            && self.settings_section == SettingsSection::Delegation
+        {
+            Some(TileKind::Settings)
+        } else if self.settings.delegation_chosen {
+            None
+        } else if visible.contains(&TileKind::Overview) {
+            Some(TileKind::Overview)
+        } else if visible.contains(&TileKind::Chat) && !matches!(self.chat, ChatTarget::Thread(_)) {
+            Some(TileKind::Chat)
         } else {
-            page.composer_destination()
+            None
+        }
+    }
+    fn open_note_id(&self) -> Option<&str> {
+        self.note.as_ref().map(|open| open.record.id.as_str())
+    }
+    fn thread_note(&self, thread: &str) -> Option<String> {
+        self.thread_rows
+            .iter()
+            .find(|row| row.id == thread)
+            .and_then(|row| row.note.clone())
+    }
+    fn chat_thread(&self) -> Option<&str> {
+        match &self.chat {
+            ChatTarget::Thread(thread) => Some(thread),
+            _ => None,
+        }
+    }
+    fn destination(&self) -> ComposerDestination {
+        match &self.chat {
+            ChatTarget::New => ComposerDestination::Home,
+            ChatTarget::NewForNote(note) => ComposerDestination::Note(note.clone(), None),
+            ChatTarget::Thread(thread) => ComposerDestination::Thread(thread.clone()),
+        }
+    }
+    /// Each destination keeps its own unsent draft; the mode is per request.
+    fn set_chat(&mut self, target: ChatTarget, window: &mut Window, cx: &mut Context<Self>) {
+        if self.chat == target {
+            return;
+        }
+        let old = self.destination();
+        self.composer_drafts
+            .preserve(old, self.composer.read(cx).value().to_string());
+        self.chat = target;
+        self.mode = ComposeMode::Ask;
+        // Choosing a thread linked to the open note makes it that note's thread.
+        if let ChatTarget::Thread(thread) = &self.chat
+            && let Some(note) = self.open_note_id().map(str::to_owned)
+            && linked(&self.records, thread).contains(&note)
+        {
+            self.writing_threads.insert(note, thread.clone());
+        }
+        let text = self.composer_drafts.text(&self.destination()).to_owned();
+        self.composer
+            .update(cx, |editor, cx| editor.set_value(text, window, cx));
+        cx.notify();
+    }
+    /// The first linked thread inherits this note's unsent draft, never another's.
+    fn adopt_writing_thread(&mut self, note: &str) {
+        let old = self.destination();
+        if matches!(&self.chat, ChatTarget::NewForNote(open) if open == note)
+            && let Some(thread) = self.writing_threads.get(note)
+        {
+            self.chat = ChatTarget::Thread(thread.clone());
+        }
+        if old != self.destination() {
+            self.composer_drafts.posted(&old);
         }
     }
     fn preserve_comment_draft(&mut self, cx: &Context<Self>) {
-        if let Page::Note(note) = &self.page {
+        if let Some(open) = &self.note {
             self.comment_drafts.insert(
-                note.clone(),
+                open.record.id.clone(),
                 CommentDraft {
                     anchor: self.comment_anchor.clone(),
                     body: self.comment_input.read(cx).value().to_string(),
@@ -736,22 +832,8 @@ impl ThreadsUi {
             );
         }
     }
-    fn change_page(&mut self, page: Page, window: &mut Window, cx: &mut Context<Self>) {
-        self.preserve_comment_draft(cx);
-        let old = self.composer_destination(&self.page);
-        let next = self.composer_destination(&page);
-        self.composer_drafts
-            .preserve(old.clone(), self.composer.read(cx).value().to_string());
-        if old != next {
-            let text = self.composer_drafts.text(&next).to_owned();
-            self.composer
-                .update(cx, |editor, cx| editor.set_value(text, window, cx));
-        }
-        self.page = page;
-        let draft = match &self.page {
-            Page::Note(note) => self.comment_drafts.get(note).cloned(),
-            _ => None,
-        };
+    fn restore_comment_draft(&mut self, note: &str, window: &mut Window, cx: &mut Context<Self>) {
+        let draft = self.comment_drafts.get(note).cloned();
         self.comment_anchor = draft.as_ref().and_then(|draft| draft.anchor.clone());
         self.comment_operation = draft.as_ref().and_then(|draft| draft.operation.clone());
         self.comment_input.update(cx, |editor, cx| {
@@ -761,41 +843,6 @@ impl ThreadsUi {
                 cx,
             )
         });
-    }
-    fn composer_destination_label(&self) -> String {
-        match &self.page {
-            Page::Thread(id) => {
-                let name = self
-                    .records
-                    .iter()
-                    .find(|record| record.id == *id)
-                    .map(title)
-                    .unwrap_or_else(|| id.clone());
-                format!("Send to thread: {}", name)
-            }
-            Page::Note(id) => {
-                let name = self
-                    .records
-                    .iter()
-                    .find(|record| record.id == *id)
-                    .map(title)
-                    .unwrap_or_else(|| id.clone());
-                self.writing_threads.get(id).map_or_else(
-                    || format!("Start a conversation about: {name}"),
-                    |thread| {
-                        format!(
-                            "Document chat: {}",
-                            self.records
-                                .iter()
-                                .find(|record| &record.id == thread)
-                                .map(title)
-                                .unwrap_or_else(|| thread.clone())
-                        )
-                    },
-                )
-            }
-            _ => "Start a new thread · Home draft".into(),
-        }
     }
     fn open_note(
         &mut self,
@@ -816,7 +863,7 @@ impl ThreadsUi {
         }
         self.preserve_visible_note_input(cx);
         self.preserve_comment_draft(cx);
-        window.blur(cx);
+        self.focus_root(window, cx);
         let recovery = recovery.or_else(|| {
             self.workspace
                 .store
@@ -855,23 +902,235 @@ impl ThreadsUi {
                     .unwrap_or_else(|| note.markdown.clone());
                 self.note = Some(OpenNote {
                     record: record.clone(),
-                    editing: recovery.is_some(),
                     session: recovery,
                 });
+                self.selection = None;
                 self.note_editor
                     .update(cx, |editor, cx| editor.set_value(text.clone(), window, cx));
-                self.note_view
-                    .update(cx, |view, cx| view.set_text(&text, cx));
                 self.current_view
                     .update(cx, |view, cx| view.set_text(&note.markdown, cx));
-                self.change_page(Page::Note(id.into()), window, cx);
-                self.focus_visible_editor(window, cx);
+                self.restore_comment_draft(id, window, cx);
+                self.layout.open(TileKind::Note);
                 self.refresh();
+                // The chat follows the note's selected thread, or a new one for it.
+                let target = self
+                    .writing_threads
+                    .get(id)
+                    .cloned()
+                    .map_or_else(|| ChatTarget::NewForNote(id.into()), ChatTarget::Thread);
+                self.set_chat(target, window, cx);
+                self.sync_note_marks(cx);
+                self.focus_visible_editor(window, cx);
                 cx.notify();
             }
             Ok(None) => self.notice = "That note is no longer current.".into(),
             Err(e) => self.notice = e.to_string(),
         }
+    }
+    /// Show a thread in the chat tile; a thread linked to a note also brings
+    /// that note into the note tile when one is open.
+    fn open_thread(&mut self, id: &str, window: &mut Window, cx: &mut Context<Self>) {
+        if let Some(note) = self.thread_note(id)
+            && self.layout.contains(TileKind::Note)
+            && self.open_note_id() != Some(note.as_str())
+        {
+            self.writing_threads.insert(note.clone(), id.into());
+            self.open_note(&note, None, window, cx);
+        }
+        self.set_chat(ChatTarget::Thread(id.into()), window, cx);
+        self.layout.open(TileKind::Chat);
+        self.refresh();
+        cx.notify();
+    }
+    fn new_thread(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        self.set_chat(ChatTarget::New, window, cx);
+        self.focus_composer(window, cx);
+    }
+    /// Persistent comment highlights on the exact saved text. With a recovered
+    /// edit the text differs, so nothing is guessed.
+    fn sync_note_marks(&mut self, cx: &mut Context<Self>) {
+        let p = pal();
+        let mut ranges = Vec::new();
+        if let Some(open) = &self.note
+            && open.session.is_none()
+            && let RecordData::Note(note) = &open.record.data
+        {
+            for entry in self
+                .workspace
+                .writing_comments(&open.record.id)
+                .unwrap_or_default()
+                .into_iter()
+                .filter(|entry| !entry.addressed)
+            {
+                if let RecordData::Comment(comment) = &entry.record.data
+                    && let Some(range) =
+                        comment_location(comment, open.record.version, &note.markdown)
+                {
+                    ranges.push(
+                        RangeDecoration::new(range)
+                            .with_style(RangeDecorationStyle::Fill)
+                            .with_color(rgb(p.comment).into()),
+                    );
+                }
+            }
+            if let Some((anchor, version, range, _)) = &self.comment_anchor
+                && anchor == &open.record.id
+                && *version == open.record.version
+            {
+                ranges.push(
+                    RangeDecoration::new(range.clone())
+                        .with_style(RangeDecorationStyle::Fill)
+                        .with_color(rgb(p.comment_strong).into()),
+                );
+            }
+        }
+        match &self.comment_marks {
+            Some(marks) => marks.set(ranges, cx),
+            None => {
+                self.comment_marks = Some(self.note_editor.update(cx, |editor, cx| {
+                    editor.create_range_decorations_collection(ranges, cx)
+                }))
+            }
+        }
+    }
+    /// The read-only tracked-change view of the exact candidate under review.
+    fn sync_diff(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        let p = pal();
+        let (text, decorations) = match &self.review {
+            Some(review) if review.note.is_some() => {
+                let current = review
+                    .note
+                    .as_ref()
+                    .and_then(|id| self.workspace.store.note(id).ok().flatten())
+                    .and_then(|record| match record.data {
+                        RecordData::Note(note) => Some(note.markdown),
+                        _ => None,
+                    })
+                    .unwrap_or_default();
+                let tracked = diff::tracked(&current, &review.original);
+                let decorations = tracked
+                    .marks
+                    .iter()
+                    .map(|(range, mark)| {
+                        let style = match mark {
+                            diff::Mark::Deleted => HighlightStyle {
+                                background_color: Some(rgb(p.delete).into()),
+                                strikethrough: Some(gpui_kit::StrikethroughStyle {
+                                    thickness: px(1.),
+                                    color: Some(rgb(p.ink).into()),
+                                }),
+                                ..Default::default()
+                            },
+                            diff::Mark::Inserted => HighlightStyle {
+                                background_color: Some(rgb(p.add).into()),
+                                underline: Some(gpui_kit::UnderlineStyle {
+                                    thickness: px(1.),
+                                    color: Some(rgb(p.ink).into()),
+                                    wavy: false,
+                                }),
+                                ..Default::default()
+                            },
+                        };
+                        TextDecoration::new(range.clone(), style)
+                    })
+                    .collect::<Vec<_>>();
+                (tracked.text, decorations)
+            }
+            _ => (String::new(), vec![]),
+        };
+        self.diff_editor
+            .update(cx, |editor, cx| editor.set_value(text, window, cx));
+        match &self.diff_marks {
+            Some(marks) => marks.set(decorations, cx),
+            None => {
+                self.diff_marks = Some(self.diff_editor.update(cx, |editor, cx| {
+                    editor.create_decorations_collection(decorations, cx)
+                }))
+            }
+        }
+    }
+    /// Track the current text selection for the selection strip.
+    fn track_selection(&mut self, cx: &mut Context<Self>) {
+        let editor = self.note_editor.read(cx);
+        let range = editor.selected_range();
+        let selection = (range.start < range.end)
+            .then(|| {
+                editor
+                    .value()
+                    .get(range.clone())
+                    .map(|quote| (range.clone(), quote.to_owned()))
+            })
+            .flatten();
+        if selection != self.selection {
+            self.selection = selection;
+            cx.notify();
+        }
+    }
+    /// Comments anchor to the saved version, so an unsaved edit disables them.
+    fn comment_on_selection(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        let Some(open) = &self.note else { return };
+        if open.session.is_some() {
+            self.notice =
+                "Save your edit first: comments anchor to the saved version of the note.".into();
+            cx.notify();
+            return;
+        }
+        let RecordData::Note(note) = &open.record.data else {
+            return;
+        };
+        let range = self.note_editor.read(cx).selected_range();
+        if self.note_editor.read(cx).value().as_ref() == note.markdown
+            && range.start < range.end
+            && let Some(quote) = note.markdown.get(range.clone())
+        {
+            let anchor = (
+                open.record.id.clone(),
+                open.record.version,
+                range,
+                quote.into(),
+            );
+            if self.comment_anchor.as_ref() != Some(&anchor) {
+                self.comment_operation = None;
+                self.comment_anchor = Some(anchor);
+            }
+            self.margin = true;
+            self.sync_note_marks(cx);
+            self.comment_input.update(cx, |e, cx| e.focus(window, cx));
+        } else {
+            self.notice =
+                "Select a passage to comment on. The selection must map to the saved note.".into();
+        }
+        cx.notify();
+    }
+    /// Quote the selection into the thread composer without sending anything.
+    fn ask_about_selection(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        let Some((_, quote)) = self.selection.clone() else {
+            return;
+        };
+        let quoted = quote
+            .lines()
+            .map(|line| format!("> {line}"))
+            .collect::<Vec<_>>()
+            .join("\n");
+        let existing = self.composer.read(cx).value().to_string();
+        let text = if existing.trim().is_empty() {
+            format!("{quoted}\n\n")
+        } else {
+            format!("{existing}\n\n{quoted}\n\n")
+        };
+        self.composer
+            .update(cx, |editor, cx| editor.set_value(text, window, cx));
+        self.focus_composer(window, cx);
+    }
+    fn reveal(&mut self, range: Range<usize>, window: &mut Window, cx: &mut Context<Self>) {
+        if self.note.is_some() {
+            self.layout.open(TileKind::Note);
+            self.note_editor.update(cx, |editor, cx| {
+                editor.set_selected_range(range, cx);
+                editor.focus(window, cx);
+            });
+        }
+        cx.notify();
     }
     fn note_changed(&mut self, text: String) {
         let Some(open) = &mut self.note else { return };
@@ -951,7 +1210,7 @@ impl ThreadsUi {
                 self.notice = "Discarded the unsaved edit.".into();
             }
             Ok(_) => {
-                self.notice = "A newer edit exists. It was preserved; open it from Home.".into()
+                self.notice = "A newer edit exists. It was preserved; recover it from the notes tile or overview.".into()
             }
             Err(e) => self.notice = e.to_string(),
         }
@@ -982,9 +1241,6 @@ impl ThreadsUi {
                                 match this.workspace.new_note(name.trim(), "") {
                                     Ok(record) => {
                                         this.open_note(&record.id, None, window, cx);
-                                        if let Some(note) = &mut this.note {
-                                            note.editing = true;
-                                        }
                                         created = true;
                                     }
                                     Err(e) => this.notice = e.to_string(),
@@ -1021,75 +1277,6 @@ impl ThreadsUi {
             Err(e) => self.notice = e.to_string(),
         };
         self.refresh();
-        cx.notify();
-    }
-    fn open_review(&mut self, candidate: Prepared, window: &mut Window, cx: &mut Context<Self>) {
-        self.preserve_visible_note_input(cx);
-        if let Some(snapshot) = candidate
-            .request
-            .inputs
-            .iter()
-            .find_map(|input| self.workspace.writing_request(&input.record).ok())
-        {
-            if self.page == Page::Note(snapshot.note.id.clone()) {
-                self.select_writing_thread(snapshot.note.id.clone(), snapshot.thread, window, cx);
-            } else {
-                self.writing_threads
-                    .insert(snapshot.note.id.clone(), snapshot.thread);
-            }
-            if self.page != Page::Note(snapshot.note.id.clone()) {
-                self.open_note(&snapshot.note.id, None, window, cx);
-            }
-        }
-        window.blur(cx);
-        let write = candidate
-            .request
-            .writes
-            .iter()
-            .find(|w| matches!(w.data, RecordData::Note(_)));
-        let (id, text, current) = write
-            .map(|write| {
-                let RecordData::Note(note) = &write.data else {
-                    unreachable!()
-                };
-                let current = self
-                    .workspace
-                    .store
-                    .note(&write.id)
-                    .ok()
-                    .flatten()
-                    .and_then(|r| {
-                        if let RecordData::Note(n) = r.data {
-                            Some(n.markdown)
-                        } else {
-                            None
-                        }
-                    })
-                    .unwrap_or_default();
-                (Some(write.id.clone()), note.markdown.clone(), current)
-            })
-            .unwrap_or_default();
-        let groups = self
-            .workspace
-            .review_groups(candidate.operation.as_str())
-            .unwrap_or(ReviewGroups {
-                groups: vec![],
-                ungrouped_writes: vec![],
-            });
-        let selected = groups.groups.iter().map(|group| group.id.clone()).collect();
-        self.review = Some(Review {
-            candidate,
-            note: id,
-            original: text.clone(),
-            edited: false,
-            groups,
-            selected,
-        });
-        self.review_editor
-            .update(cx, |e, cx| e.set_value(text, window, cx));
-        self.current_view
-            .update(cx, |v, cx| v.set_text(&current, cx));
-        self.focus_visible_editor(window, cx);
         cx.notify();
     }
     fn prepare_review_selection(&mut self, window: &mut Window, cx: &mut Context<Self>) {
@@ -1131,124 +1318,6 @@ impl ThreadsUi {
         self.refresh();
         cx.notify();
     }
-    fn apply_review(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        let Some(review) = &self.review else { return };
-        if review.edited || review.selected.len() != review.groups.groups.len() {
-            self.notice = "Prepare your edited text or selected groups before applying it.".into();
-            cx.notify();
-            return;
-        }
-        match self
-            .workspace
-            .review_apply(review.candidate.operation.as_str())
-        {
-            Ok(outcome) => {
-                self.notice = outcome_message(&outcome);
-                if let ApplyOutcome::Applied(receipt) = &outcome {
-                    if let Some(input) = review
-                        .candidate
-                        .request
-                        .inputs
-                        .iter()
-                        .find(|input| self.workspace.writing_request(&input.record).is_ok())
-                        && let Ok(snapshot) = self.workspace.writing_request(&input.record)
-                    {
-                        self.applied_rewrite.insert(
-                            snapshot.note.id,
-                            (input.record.clone(), receipt.operation.as_str().into()),
-                        );
-                    }
-                    self.review = None;
-                    if let Some(open) = &mut self.note
-                        && open.session.is_none()
-                        && let Ok(Some(record)) = self.workspace.store.note(&open.record.id)
-                        && let RecordData::Note(note) = &record.data
-                    {
-                        self.note_editor.update(cx, |editor, cx| {
-                            editor.set_value(note.markdown.clone(), window, cx)
-                        });
-                        self.note_view
-                            .update(cx, |view, cx| view.set_text(&note.markdown, cx));
-                        open.record = record;
-                    }
-                    self.focus_visible_editor(window, cx);
-                }
-            }
-            Err(e) => self.notice = e.to_string(),
-        };
-        self.refresh();
-        cx.notify();
-    }
-    fn dismiss_review(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        let Some(review) = &self.review else { return };
-        match self
-            .workspace
-            .review_dismiss(review.candidate.operation.as_str())
-        {
-            Ok(()) => {
-                self.review = None;
-                self.focus_visible_editor(window, cx);
-                self.notice = "Dismissed the proposal.".into();
-            }
-            Err(error) => self.notice = error.to_string(),
-        }
-        self.refresh();
-        cx.notify();
-    }
-    fn capture_comment(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        self.capture_selection(true, window, cx);
-    }
-    fn capture_selection(&mut self, focus: bool, window: &mut Window, cx: &mut Context<Self>) {
-        let Some(open) = &self.note else { return };
-        if !focus
-            && ((open.editing && self.note_editor.read(cx).selected_range().is_empty())
-                || (!open.editing && self.note_view.read(cx).selected_source_range().is_none()))
-        {
-            return;
-        }
-        if open.session.is_some() {
-            self.notice = "Save your note before attaching a passage comment.".into();
-            cx.notify();
-            return;
-        }
-        let RecordData::Note(note) = &open.record.data else {
-            return;
-        };
-        let range = if open.editing {
-            Some(self.note_editor.read(cx).selected_range())
-        } else {
-            let view = self.note_view.read(cx);
-            if view.rendered_text().source() != note.markdown {
-                self.notice =
-                    "The note is still loading. Select the passage again when it is ready.".into();
-                cx.notify();
-                return;
-            }
-            view.selected_source_range()
-        };
-        if let Some(range) = range
-            && range.start < range.end
-            && let Some(quote) = note.markdown.get(range.clone())
-        {
-            let anchor = (
-                open.record.id.clone(),
-                open.record.version,
-                range,
-                quote.into(),
-            );
-            if self.comment_anchor.as_ref() != Some(&anchor) {
-                self.comment_operation = None;
-                self.comment_anchor = Some(anchor);
-            }
-            if focus {
-                self.comment_input.update(cx, |e, cx| e.focus(window, cx));
-            }
-        } else if focus {
-            self.notice =
-                "Select a passage to discuss. The selection must map to the saved note.".into();
-        }
-        cx.notify();
-    }
     fn select_writing_thread(
         &mut self,
         note: String,
@@ -1256,14 +1325,8 @@ impl ThreadsUi {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        let old = self.composer_destination(&self.page);
-        self.composer_drafts
-            .preserve(old, self.composer.read(cx).value().to_string());
-        self.writing_threads.insert(note, thread);
-        let destination = self.composer_destination(&self.page);
-        let text = self.composer_drafts.text(&destination).to_owned();
-        self.composer
-            .update(cx, |editor, cx| editor.set_value(text, window, cx));
+        self.writing_threads.insert(note, thread.clone());
+        self.set_chat(ChatTarget::Thread(thread), window, cx);
         cx.notify();
     }
     fn new_writing_thread(&mut self, window: &mut Window, cx: &mut Context<Self>) {
@@ -1289,18 +1352,25 @@ impl ThreadsUi {
             Ok(thread) => self.select_writing_thread(note, thread, window, cx),
             Err(error) => {
                 self.notice =
-                    format!("Could not link a new chat: {error}. Your drafts are preserved.")
+                    format!("Could not link a new thread: {error}. Your drafts are preserved.")
             }
         };
         self.refresh();
         cx.notify();
     }
     fn ensure_writing_thread(&mut self, note: &str, version: u64) -> AppResult<String> {
-        if let Some(thread) = self.writing_threads.get(note) {
-            if !self.workspace.store.record(thread)?.is_some_and(|record| !record.archived && matches!(record.data,RecordData::Thread(thread) if thread.state==ThreadState::Open)) {
-                return Err(AppError::Invalid("Selected chat is resolved or unavailable. Choose New chat for more feedback or instructions; your drafts are preserved.".into()));
+        if let Some(thread) = self.writing_threads.get(note).cloned() {
+            if !self.workspace.store.record(&thread)?.is_some_and(|record| {
+                !record.archived && matches!(record.data, RecordData::Thread(_))
+            }) {
+                return Err(AppError::Invalid("The selected thread is unavailable. Choose New thread for this note; your drafts are preserved.".into()));
             }
-            return Ok(thread.clone());
+            // Continuing a resolved thread reopens it with a recorded reason.
+            self.reopen_if_resolved(
+                &thread,
+                "Owner continued a resolved thread with new feedback",
+            )?;
+            return Ok(thread);
         }
         let thread = self.workspace.new_thread(&format!(
             "Writing: {}",
@@ -1335,7 +1405,6 @@ impl ThreadsUi {
         if body.trim().is_empty() {
             return;
         }
-        let old = self.composer_destination(&self.page);
         let result = self
             .ensure_writing_thread(&note, version)
             .and_then(|thread| {
@@ -1361,8 +1430,7 @@ impl ThreadsUi {
                 self.comment_operation = None;
                 self.comment_input
                     .update(cx, |e, cx| e.set_value("", window, cx));
-                self.composer
-                    .update(cx, |editor, cx| editor.focus(window, cx));
+                self.focus_visible_editor(window, cx);
                 self.notice =
                     "Comment added to pending feedback. Rewrite with AI when ready.".into();
             }
@@ -1371,13 +1439,10 @@ impl ThreadsUi {
                     format!("{error}. Your comment draft and saved passage are preserved.")
             }
         }
-        // The first linked thread inherits this note's unsent chat draft, never Home's.
-        let next = self.composer_destination(&self.page);
-        if old != next {
-            self.composer_drafts.posted(&old);
-        }
+        self.adopt_writing_thread(&note);
         self.preserve_comment_draft(cx);
         self.refresh();
+        self.sync_note_marks(cx);
         cx.notify();
     }
     fn rewrite_note(&mut self, cx: &mut Context<Self>) {
@@ -1422,6 +1487,7 @@ impl ThreadsUi {
                     &ids,
                 )
             });
+        self.adopt_writing_thread(&note);
         match result {
             Ok(snapshot) => self.retry_rewrite(snapshot.request_message, cx),
             Err(error) => {
@@ -1581,13 +1647,7 @@ impl ThreadsUi {
             && self.worker.as_ref().is_some_and(|worker| {
                 worker.kind == WorkerKind::Run
                     && worker.run_id.is_some()
-                    && match &self.page {
-                        Page::Thread(thread) => worker.thread.as_ref() == Some(thread),
-                        Page::Note(note) => {
-                            self.writing_threads.get(note) == worker.thread.as_ref()
-                        }
-                        _ => false,
-                    }
+                    && matches!(&self.chat, ChatTarget::Thread(thread) if worker.thread.as_ref() == Some(thread))
             })
     }
     fn stop_and_send(&mut self, window: &mut Window, cx: &mut Context<Self>) {
@@ -1613,8 +1673,7 @@ impl ThreadsUi {
                     thread: thread.clone(),
                     prompt,
                 });
-                self.composer_drafts
-                    .posted(&self.composer_destination(&self.page));
+                self.composer_drafts.posted(&self.destination());
                 self.composer
                     .update(cx, |editor, cx| editor.set_value("", window, cx));
                 worker.cancel.cancel();
@@ -1630,8 +1689,20 @@ impl ThreadsUi {
     fn ask(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         if self.can_stop_and_send() {
             self.stop_and_send(window, cx);
-        } else {
-            self.ask_with_authority(None, window, cx);
+            return;
+        }
+        let note = self.open_note_id().and_then(|id| {
+            self.records
+                .iter()
+                .find(|record| record.id == id && matches!(record.data, RecordData::Note(_)))
+                .map(|record| (record.id.as_str(), record.version))
+        });
+        match lists::grant(self.mode, note) {
+            Ok(grant) => self.ask_with_authority(grant, window, cx),
+            Err(message) => {
+                self.notice = message.into();
+                cx.notify();
+            }
         }
     }
     fn ask_with_authority(
@@ -1646,22 +1717,23 @@ impl ThreadsUi {
             return;
         }
         let prompt = self.composer.read(cx).value().to_string();
-        let destination = self.composer_destination(&self.page);
+        let destination = self.destination();
         if prompt.trim().is_empty() {
             return;
         }
-        let thread = match &self.page {
-            Page::Thread(id) => Ok(id.clone()),
-            Page::Note(note) => {
-                let note = note.clone();
+        let thread = match self.chat.clone() {
+            ChatTarget::Thread(id) => self
+                .reopen_if_resolved(&id, "Owner replied to a resolved thread")
+                .map(|_| id),
+            ChatTarget::NewForNote(note) => {
                 let version = self
-                    .note
-                    .as_ref()
-                    .map(|open| open.record.version)
-                    .unwrap_or(0);
+                    .records
+                    .iter()
+                    .find(|record| record.id == note)
+                    .map_or(0, |record| record.version);
                 self.ensure_writing_thread(&note, version)
             }
-            _ => self.workspace.new_thread(&short(&prompt)).map(|r| r.id),
+            ChatTarget::New => self.workspace.new_thread(&short(&prompt)).map(|r| r.id),
         };
         match thread.and_then(|thread| {
             self.workspace
@@ -1672,15 +1744,454 @@ impl ThreadsUi {
                 self.composer_drafts.posted(&destination);
                 self.composer
                     .update(cx, |e, cx| e.set_value("", window, cx));
-                if !matches!(self.page, Page::Note(_)) {
-                    self.navigate(Page::Thread(thread.clone()), window, cx);
-                }
+                self.chat = ChatTarget::Thread(thread.clone());
+                self.mode = ComposeMode::Ask;
                 self.start_run(prompt, thread, vec![], owner_request, cx);
             }
+            Err(e) => self.notice = format!("{e}. Your text is preserved."),
+        }
+        self.refresh();
+        cx.notify();
+    }
+    fn reopen_if_resolved(&mut self, thread: &str, reason: &str) -> AppResult<()> {
+        let resolved = self.workspace.store.record(thread)?.is_some_and(|record| {
+            !record.archived
+                && matches!(&record.data, RecordData::Thread(t) if t.state == ThreadState::Resolved)
+        });
+        if !resolved {
+            return Ok(());
+        }
+        match self.workspace.reopen_thread(thread, reason)? {
+            ApplyOutcome::Applied(_) => Ok(()),
+            outcome => Err(AppError::Invalid(outcome_message(&outcome))),
+        }
+    }
+    fn resolve_thread(&mut self, thread: &str, cx: &mut Context<Self>) {
+        match self.workspace.resolve_thread(thread) {
+            Ok(outcome) => {
+                self.notice = outcome_message(&outcome);
+                if matches!(outcome, ApplyOutcome::Applied(_))
+                    && self
+                        .worker
+                        .as_ref()
+                        .is_some_and(|worker| worker.thread.as_deref() == Some(thread))
+                {
+                    self.cancel(cx);
+                }
+            }
+            Err(e) => self.notice = e.to_string(),
+        };
+        self.refresh();
+        cx.notify();
+    }
+    fn reopen_thread(&mut self, thread: &str, cx: &mut Context<Self>) {
+        match self
+            .workspace
+            .reopen_thread(thread, "Owner reopened the thread")
+        {
+            Ok(outcome) => self.notice = outcome_message(&outcome),
             Err(e) => self.notice = e.to_string(),
         }
         self.refresh();
         cx.notify();
+    }
+    /// Quick questions step out of the way through the same checked resolve.
+    fn auto_resolve(&mut self, thread: &str) {
+        if !lists::is_quick_question(&self.records, &self.history, &self.candidates, thread) {
+            return;
+        }
+        if let Ok(ApplyOutcome::Applied(_)) = self
+            .workspace
+            .resolve_thread_because(thread, lists::AUTO_RESOLVE_REASON)
+        {
+            self.notice =
+                "Answered. This quick question resolved itself and left the sidebar; reply to reopen it."
+                    .into();
+            self.refresh();
+        }
+    }
+    fn choose_theme(&mut self, theme: ThemeId, window: &mut Window, cx: &mut Context<Self>) {
+        self.theme = theme;
+        theme::apply(theme, cx);
+        self.theme_pending = self.settings.theme.as_deref() != Some(theme.key());
+        self.persist_theme();
+        self.sync_note_marks(cx);
+        if self.review.is_some() {
+            self.sync_diff(window, cx);
+        }
+        window.refresh();
+        cx.notify();
+    }
+    /// Settings writes would stop running invocations, so the core defers this
+    /// while any run is working; it is retried when local work finishes.
+    fn persist_theme(&mut self) {
+        if !self.theme_pending {
+            return;
+        }
+        if self
+            .worker
+            .as_ref()
+            .is_some_and(|worker| worker.kind == WorkerKind::Run)
+        {
+            self.notice = format!(
+                "{} applied. It is saved for next time when the current work finishes.",
+                self.theme.label()
+            );
+            return;
+        }
+        match self.workspace.choose_theme(self.theme.key()) {
+            Ok(ApplyOutcome::Applied(_)) => {
+                self.theme_pending = false;
+                self.refresh();
+            }
+            Ok(ApplyOutcome::Deferred { .. }) => {
+                self.notice = format!(
+                    "{} applied. It is saved for next time once no work is running.",
+                    self.theme.label()
+                )
+            }
+            Ok(outcome) => self.notice = outcome_message(&outcome),
+            Err(error) => self.notice = error.to_string(),
+        }
+    }
+    /// Pills change the explicit Settings through the existing configure path.
+    fn set_model(
+        &mut self,
+        provider: &str,
+        model: &str,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        let mut settings = self.settings.clone();
+        settings.provider = provider.into();
+        settings.model = model.into();
+        self.configure_explicit(settings, window, cx);
+    }
+    fn set_effort(&mut self, effort: &str, window: &mut Window, cx: &mut Context<Self>) {
+        let mut settings = self.settings.clone();
+        settings.effort = effort.into();
+        self.configure_explicit(settings, window, cx);
+    }
+    fn configure_explicit(
+        &mut self,
+        settings: WorkspaceSettings,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        if let Some(worker) = &self.worker {
+            self.notice = worker.kind.busy_notice().into();
+            cx.notify();
+            return;
+        }
+        match self.workspace.configure(settings) {
+            Ok(outcome) => self.notice = outcome_message(&outcome),
+            Err(e) => self.notice = e.to_string(),
+        }
+        self.refresh();
+        let model = self.settings.model.clone();
+        self.model
+            .update(cx, |input, cx| input.set_value(model, window, cx));
+        cx.notify();
+    }
+    fn open_review(&mut self, candidate: Prepared, window: &mut Window, cx: &mut Context<Self>) {
+        if self.review.as_ref().is_some_and(|review| {
+            review.candidate.operation.as_str() != candidate.operation.as_str()
+        }) {
+            self.keep_review(window, cx);
+            if self.review.is_some() {
+                return;
+            }
+        }
+        self.preserve_visible_note_input(cx);
+        let snapshot = candidate
+            .request
+            .inputs
+            .iter()
+            .find_map(|input| self.workspace.writing_request(&input.record).ok());
+        let write = candidate
+            .request
+            .writes
+            .iter()
+            .find(|w| matches!(w.data, RecordData::Note(_)));
+        if let Some(snapshot) = &snapshot {
+            self.writing_threads
+                .insert(snapshot.note.id.clone(), snapshot.thread.clone());
+        }
+        let target = snapshot
+            .as_ref()
+            .map(|snapshot| snapshot.note.id.clone())
+            .or_else(|| write.map(|write| write.id.clone()));
+        if let Some(note) = &target
+            && self.open_note_id() != Some(note.as_str())
+        {
+            self.review = None;
+            self.open_note(note, None, window, cx);
+        }
+        if let Some(snapshot) = snapshot
+            && self.open_note_id() == Some(snapshot.note.id.as_str())
+        {
+            self.set_chat(ChatTarget::Thread(snapshot.thread), window, cx);
+        }
+        let (id, text, current) = write
+            .map(|write| {
+                let RecordData::Note(note) = &write.data else {
+                    unreachable!()
+                };
+                let current = self
+                    .workspace
+                    .store
+                    .note(&write.id)
+                    .ok()
+                    .flatten()
+                    .and_then(|r| {
+                        if let RecordData::Note(n) = r.data {
+                            Some(n.markdown)
+                        } else {
+                            None
+                        }
+                    })
+                    .unwrap_or_default();
+                (Some(write.id.clone()), note.markdown.clone(), current)
+            })
+            .unwrap_or_default();
+        let groups = self
+            .workspace
+            .review_groups(candidate.operation.as_str())
+            .unwrap_or(ReviewGroups {
+                groups: vec![],
+                ungrouped_writes: vec![],
+            });
+        let selected = groups.groups.iter().map(|group| group.id.clone()).collect();
+        self.review = Some(Review {
+            candidate,
+            note: id,
+            original: text.clone(),
+            edited: false,
+            groups,
+            selected,
+        });
+        self.review_editing = false;
+        self.review_inputs = false;
+        self.review_editor
+            .update(cx, |e, cx| e.set_value(text.clone(), window, cx));
+        self.current_view
+            .update(cx, |v, cx| v.set_text(&current, cx));
+        self.candidate_view
+            .update(cx, |v, cx| v.set_text(&text, cx));
+        self.layout.open(TileKind::Note);
+        self.sync_diff(window, cx);
+        self.focus_root(window, cx);
+        cx.notify();
+    }
+    fn start_review_edit(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        if self
+            .review
+            .as_ref()
+            .is_some_and(|review| review.note.is_some())
+        {
+            self.review_editing = true;
+            self.focus_visible_editor(window, cx);
+            cx.notify();
+        }
+    }
+    fn cancel_review_edit(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        if let Some(review) = &mut self.review {
+            let original = review.original.clone();
+            review.edited = false;
+            self.review_editor
+                .update(cx, |e, cx| e.set_value(original, window, cx));
+            if let Some(review) = &mut self.review {
+                review.edited = false;
+            }
+        }
+        self.review_editing = false;
+        self.focus_root(window, cx);
+        cx.notify();
+    }
+    fn apply_review(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        let Some(review) = &self.review else { return };
+        if review.edited || review.selected.len() != review.groups.groups.len() {
+            self.notice = "Prepare your edited text or selected groups before applying it.".into();
+            cx.notify();
+            return;
+        }
+        let candidate = review.candidate.clone();
+        self.apply_candidate(candidate, window, cx);
+    }
+    /// Apply exactly this prepared candidate; nothing is re-derived.
+    fn apply_candidate(
+        &mut self,
+        candidate: Prepared,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        match self.workspace.review_apply(candidate.operation.as_str()) {
+            Ok(outcome) => {
+                self.notice = outcome_message(&outcome);
+                if let ApplyOutcome::Applied(receipt) = &outcome {
+                    if let Some(input) = candidate
+                        .request
+                        .inputs
+                        .iter()
+                        .find(|input| self.workspace.writing_request(&input.record).is_ok())
+                        && let Ok(snapshot) = self.workspace.writing_request(&input.record)
+                    {
+                        self.applied_rewrite.insert(
+                            snapshot.note.id,
+                            (input.record.clone(), receipt.operation.as_str().into()),
+                        );
+                    }
+                    if self.review.as_ref().is_some_and(|review| {
+                        review.candidate.operation.as_str() == candidate.operation.as_str()
+                    }) {
+                        self.review = None;
+                        self.review_editing = false;
+                    }
+                    self.reload_open_note(window, cx);
+                }
+            }
+            Err(e) => self.notice = e.to_string(),
+        };
+        self.refresh();
+        cx.notify();
+    }
+    /// After a checked change, show the newly saved note unless the owner has
+    /// an unsaved edit, which stays untouched.
+    fn reload_open_note(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        if let Some(open) = &mut self.note
+            && open.session.is_none()
+            && let Ok(Some(record)) = self.workspace.store.note(&open.record.id)
+            && let RecordData::Note(note) = &record.data
+        {
+            self.note_editor.update(cx, |editor, cx| {
+                editor.set_value(note.markdown.clone(), window, cx)
+            });
+            self.current_view
+                .update(cx, |view, cx| view.set_text(&note.markdown, cx));
+            open.record = record;
+            self.selection = None;
+        }
+        self.refresh();
+        self.sync_note_marks(cx);
+        self.focus_visible_editor(window, cx);
+    }
+    fn dismiss_review(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        let Some(review) = &self.review else { return };
+        let candidate = review.candidate.clone();
+        self.dismiss_candidate(candidate, window, cx);
+    }
+    fn dismiss_candidate(
+        &mut self,
+        candidate: Prepared,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        match self.workspace.review_dismiss(candidate.operation.as_str()) {
+            Ok(()) => {
+                if self.review.as_ref().is_some_and(|review| {
+                    review.candidate.operation.as_str() == candidate.operation.as_str()
+                }) {
+                    self.review = None;
+                    self.review_editing = false;
+                }
+                self.focus_visible_editor(window, cx);
+                self.notice = "Dismissed the proposal. The note is unchanged.".into();
+            }
+            Err(error) => self.notice = error.to_string(),
+        }
+        self.refresh();
+        cx.notify();
+    }
+    fn undo_receipt(&mut self, operation: &str, window: &mut Window, cx: &mut Context<Self>) {
+        match self.workspace.undo(operation) {
+            Ok(outcome) => self.notice = outcome_message(&outcome),
+            Err(error) => self.notice = error.to_string(),
+        };
+        self.refresh();
+        self.reload_open_note(window, cx);
+        cx.notify();
+    }
+    fn toggle_protection(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        let Some(open) = &self.note else { return };
+        if open.session.is_some() {
+            return;
+        }
+        let record = open.record.clone();
+        let RecordData::Note(note) = &record.data else {
+            return;
+        };
+        let mut changed = note.clone();
+        changed.protected = !changed.protected;
+        self.change(
+            "Owner changed note protection",
+            record.clone(),
+            RecordData::Note(changed),
+            cx,
+        );
+        self.open_note(&record.id, None, window, cx);
+    }
+    fn open_launcher(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        self.launcher_open = true;
+        self.launcher_index = 0;
+        self.launcher_query
+            .update(cx, |input, cx| input.set_value("", window, cx));
+        self.launcher_query
+            .update(cx, |input, cx| input.focus(window, cx));
+        cx.notify();
+    }
+    fn close_launcher(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        if self.launcher_open {
+            self.launcher_open = false;
+            self.focus_visible_editor(window, cx);
+            cx.notify();
+        }
+    }
+    fn launcher_items(&self, cx: &App) -> Vec<lists::LaunchItem> {
+        lists::launcher(
+            self.launcher_query.read(cx).value().as_ref(),
+            &self.thread_rows,
+            &self.note_rows,
+        )
+    }
+    fn move_launcher(&mut self, delta: isize, cx: &mut Context<Self>) {
+        let count = self.launcher_items(cx).len();
+        if count > 0 {
+            self.launcher_index =
+                (self.launcher_index as isize + delta).rem_euclid(count as isize) as usize;
+            cx.notify();
+        }
+    }
+    fn run_launcher(&mut self, index: Option<usize>, window: &mut Window, cx: &mut Context<Self>) {
+        let items = self.launcher_items(cx);
+        let Some(item) = items.get(index.unwrap_or(self.launcher_index)).cloned() else {
+            return;
+        };
+        self.close_launcher(window, cx);
+        match item {
+            lists::LaunchItem::Thread { id, .. } => self.open_thread(&id, window, cx),
+            lists::LaunchItem::Note { id, .. } => self.open_note(&id, None, window, cx),
+            lists::LaunchItem::Command(command) => self.run_command(command, window, cx),
+        }
+    }
+    fn run_command(
+        &mut self,
+        command: lists::Command,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        match command {
+            lists::Command::NewThread => self.new_thread(window, cx),
+            lists::Command::NewNote => self.new_note(window, cx),
+            lists::Command::Rewrite => self.rewrite_note(cx),
+            lists::Command::Save => self.save(window, cx),
+            lists::Command::Layout(preset) => self.apply_layout(preset, window, cx),
+            lists::Command::Theme(theme) => self.choose_theme(theme, window, cx),
+            lists::Command::OpenTile(kind) => {
+                self.show_tile(kind, cx);
+                self.focus_tile_contents(window, cx);
+            }
+            lists::Command::Keys => self.show_keys(window, cx),
+        }
     }
     fn continue_run(&mut self, thread: String, cx: &mut Context<Self>) {
         if let Ok(messages) = self.workspace.messages(&thread) {
@@ -1719,24 +2230,6 @@ impl ThreadsUi {
             .filter(|worker| worker.thread.as_deref() == Some(thread))
             .filter(|_| !self.stream.is_empty())
             .map(|_| self.stream.as_str())
-    }
-    fn resolve_discussion(&mut self, thread: &str, cx: &mut Context<Self>) {
-        match self.workspace.resolve_thread(thread) {
-            Ok(outcome) => {
-                self.notice = outcome_message(&outcome);
-                if matches!(outcome, ApplyOutcome::Applied(_))
-                    && self
-                        .worker
-                        .as_ref()
-                        .is_some_and(|worker| worker.thread.as_deref() == Some(thread))
-                {
-                    self.cancel(cx);
-                }
-            }
-            Err(e) => self.notice = e.to_string(),
-        };
-        self.refresh();
-        cx.notify();
     }
     fn poll_worker(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         let mut events = Vec::new();
@@ -1786,6 +2279,7 @@ impl ThreadsUi {
                         .worker
                         .as_ref()
                         .and_then(|worker| worker.thread.clone());
+                    let run_thread = thread.clone();
                     self.worker = None;
                     self.stream.clear();
                     self.progress.clear();
@@ -1805,6 +2299,12 @@ impl ThreadsUi {
                         _ => {}
                     }
                     self.refresh();
+                    if kind == Some(WorkerKind::Run)
+                        && self.pending_send.is_none()
+                        && let Some(thread) = run_thread
+                    {
+                        self.auto_resolve(&thread);
+                    }
                 }
                 WorkerEvent::Converted { result, title } => {
                     finished = true;
@@ -1848,6 +2348,7 @@ impl ThreadsUi {
             }
         }
         if finished {
+            self.persist_theme();
             if let Some(pending) = self.pending_send.take() {
                 // Launch only after draining the complete old batch, without navigation or grants.
                 self.start_run(pending.prompt, pending.thread, vec![], None, cx);
@@ -1879,7 +2380,8 @@ impl ThreadsUi {
                 let instruction = "Capture useful supported information from this source, maintaining relevant ordinary notes and source references. Preserve qualifications; do not copy the whole source as a note. Retain meaningful selected figures using the read_source host links and preserve detected omissions; unchecked coverage does not mean proven loss.";
                 match self.workspace.post_message(&thread.id, instruction) {
                     Ok(_) => {
-                        self.navigate(Page::Thread(thread.id.clone()), window, cx);
+                        self.refresh();
+                        self.open_thread(&thread.id, window, cx);
                         self.start_run(
                             instruction.into(),
                             thread.id,
@@ -2219,47 +2721,13 @@ impl ThreadsUi {
         self.refresh();
         cx.notify();
     }
-    fn working_knowledge(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
-        let status = delegation_status(&self.settings);
-        let mut knowledge = panel()
-            .id(if self.settings.delegation_chosen { "delegation-settings" } else { "delegation-pending" })
-            .child(heading("Working knowledge"))
-            .child(div().id("delegation-status").aria_label(status).child(status).test_support())
-            .child("Maintain ordinary notes lets BRN update ordinary notes and useful source references. Review changes first keeps proposed changes for your approval. Protected notes still need an applicable instruction or your review.")
-            .child(button("delegation-maintain")
-                .label("Maintain ordinary notes")
-                .selected(self.settings.delegation_chosen && !self.settings.review_first)
-                .on_click(cx.listener(|this, _, _, cx| this.choose_delegation(DelegationChoice::MaintainOrdinaryNotes, cx))))
-            .child(button("delegation-review-first")
-                .label("Review changes first")
-                .selected(self.settings.delegation_chosen && self.settings.review_first)
-                .on_click(cx.listener(|this, _, _, cx| this.choose_delegation(DelegationChoice::ReviewFirst, cx))));
-        if self.settings.delegation_chosen {
-            knowledge = knowledge.child(
-                button("maintenance-setting")
-                    .label(if self.settings.maintenance {
-                        "Pause maintenance"
-                    } else {
-                        "Resume maintenance"
-                    })
-                    .on_click(cx.listener(|this, _, _, cx| {
-                        match this.workspace.pause(this.settings.maintenance) {
-                            Ok(outcome) => this.notice = outcome_message(&outcome),
-                            Err(error) => this.notice = error.to_string(),
-                        }
-                        this.refresh();
-                        cx.notify();
-                    })),
-            );
-        }
-        knowledge.test_support().into_any_element()
-    }
     fn keep_review(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         if self.review.as_ref().is_some_and(|r| r.edited) {
             self.prepare_review_edit(window, cx);
         }
         if self.review.as_ref().is_some_and(|r| !r.edited) {
             self.review = None;
+            self.review_editing = false;
             self.focus_visible_editor(window, cx);
         }
         cx.notify();
@@ -2299,9 +2767,13 @@ impl ThreadsUi {
             })
             .unwrap_or_default();
         self.review_editor
-            .update(cx, |e, cx| e.set_value(text, window, cx));
+            .update(cx, |e, cx| e.set_value(text.clone(), window, cx));
+        self.candidate_view
+            .update(cx, |v, cx| v.set_text(&text, cx));
         self.current_view
             .update(cx, |v, cx| v.set_text(&current, cx));
+        self.review_editing = false;
+        self.sync_diff(window, cx);
         cx.notify();
     }
     fn save_copy(&mut self, window: &mut Window, cx: &mut Context<Self>) {
@@ -2311,1931 +2783,42 @@ impl ThreadsUi {
         match self.workspace.new_note(&name, &text) {
             Ok(record) => {
                 self.open_note(&record.id, None, window, cx);
-                self.notice="Saved your text as a separate working note. The original edit remains recoverable from Home.".into();
+                self.notice="Saved your text as a separate working note. The original edit remains recoverable from the overview.".into();
             }
             Err(e) => self.notice = e.to_string(),
         };
         self.refresh();
         cx.notify();
     }
-    fn sidebar(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
-        let navigation = panel()
-            .id("workspace-nav")
-            .test_support()
-            .child(heading("BRN Threads"))
-            .child(
-                button("home")
-                    .label("Home")
-                    .selected(self.page == Page::Home)
-                    .on_click(
-                        cx.listener(|this, _, window, cx| this.navigate(Page::Home, window, cx)),
-                    ),
-            )
-            .child(
-                button("actions")
-                    .label("Actions")
-                    .selected(self.page == Page::Actions)
-                    .on_click(
-                        cx.listener(|this, _, window, cx| this.navigate(Page::Actions, window, cx)),
-                    ),
-            )
-            .child(
-                button("history")
-                    .label("What changed")
-                    .selected(self.page == Page::History)
-                    .on_click(
-                        cx.listener(|this, _, window, cx| this.navigate(Page::History, window, cx)),
-                    ),
-            )
-            .child(
-                button("settings")
-                    .label("Settings")
-                    .selected(self.page == Page::Settings)
-                    .on_click(
-                        cx.listener(|this, _, window, cx| {
-                            this.navigate(Page::Settings, window, cx)
-                        }),
-                    ),
-            );
-
-        let mut rail = pane()
-            .id("workspace-rail")
-            .w(px(245.))
-            .flex_shrink_0()
-            .h_full()
-            .gap_2()
-            .p_2()
-            .bg(rgb(GREEN))
-            .border_r_1()
-            .border_color(rgb(BORDER))
-            .child(navigation)
-            .child(
-                panel()
-                    .child(heading("Search notes"))
-                    .child(Input::new(&self.search).w_full()),
-            );
-        let mut list = div()
-            .id("workspace-list")
-            .flex_1()
-            .min_h_0()
-            .overflow_y_scroll()
-            .flex()
-            .flex_col()
-            .gap_2();
-        if !self.search.read(cx).value().trim().is_empty() {
-            list = list.child(
-                panel()
-                    .id("search-results")
-                    .test_support()
-                    .child(heading("Current results"))
-                    .child(metadata(format!(
-                        "{} matches in current notes",
-                        self.hits.len()
-                    ))),
-            );
-            for (i, hit) in self.hits.iter().enumerate() {
-                let id = hit.note.clone();
-                let start = hit.start;
-                let end = hit.end;
-                list = list.child(
-                    panel()
-                        .child(
-                            button(format!("hit-{i}"))
-                                .label(short(&hit.title))
-                                .on_click(cx.listener(move |this, _, window, cx| {
-                                    this.open_note(&id, None, window, cx);
-                                    this.reveal(start..end, window, cx);
-                                })),
-                        )
-                        .child(metadata(hit.quote.clone())),
-                );
-            }
-            if self.hits.is_empty() {
-                list = list.child(panel().child(empty("search-empty", "No current notes match. Try another word or clear search to browse your workspace.")));
-            }
-        } else {
-            list = list.child(heading("Threads"));
-            if !self
-                .records
-                .iter()
-                .any(|r| !r.archived && matches!(r.data, RecordData::Thread(_)))
-            {
-                list = list.child(empty("threads-empty", "Your discussions will appear here."));
-            }
-            for record in self
-                .records
-                .iter()
-                .filter(|r| !r.archived && matches!(r.data, RecordData::Thread(_)))
-                .rev()
-            {
-                let id = record.id.clone();
-                let RecordData::Thread(thread) = &record.data else {
-                    continue;
-                };
-                let label = format!(
-                    "{}{}",
-                    if thread.state == ThreadState::Resolved {
-                        "✓ "
-                    } else {
-                        ""
-                    },
-                    short(&thread.title)
-                );
-                list = list.child(
-                    button(format!("thread-{id}"))
-                        .label(label)
-                        .selected(self.page == Page::Thread(id.clone()))
-                        .on_click(cx.listener(move |this, _, window, cx| {
-                            this.navigate(Page::Thread(id.clone()), window, cx)
-                        })),
-                );
-            }
-            list = list.child(heading("Notes")).child(
-                button("new-note")
-                    .label("New note")
-                    .on_click(cx.listener(|this, _, window, cx| this.new_note(window, cx))),
-            );
-            for record in self.records.iter().filter(|r| {
-                !r.archived && matches!(&r.data,RecordData::Note(n) if n.superseded_by.is_none())
-            }) {
-                let id = record.id.clone();
-                list = list.child(
-                    button(format!("note-{id}"))
-                        .label(short(&title(record)))
-                        .selected(self.page == Page::Note(id.clone()))
-                        .on_click(cx.listener(move |this, _, window, cx| {
-                            this.open_note(&id, None, window, cx)
-                        })),
-                );
-            }
-        }
-        rail = rail.child(list).child(
-            panel()
-                .id("workspace-import")
-                .test_support()
-                .child(heading("Add information"))
-                .child(
-                    button("useful-import")
-                        .label("Add useful information…")
-                        .on_click(cx.listener(|this, _, window, cx| {
-                            this.choose_import(ImportIntent::UsefulInformation, window, cx)
-                        })),
-                )
-                .child(
-                    button("full-import")
-                        .label("Import full note…")
-                        .on_click(cx.listener(|this, _, window, cx| {
-                            this.choose_import(ImportIntent::FullNote, window, cx)
-                        })),
-                ),
-        );
-        rail.into_any_element()
-    }
-    fn reveal(
-        &mut self,
-        range: std::ops::Range<usize>,
-        window: &mut Window,
-        cx: &mut Context<Self>,
-    ) {
-        if self.note.as_ref().is_some_and(|n| n.editing) {
-            self.note_editor.update(cx, |editor, cx| {
-                editor.set_selected_range(range, cx);
-                editor.focus(window, cx);
-            });
-        } else {
-            self.note_view.update(cx, |view, cx| {
-                let snapshot = view.rendered_text();
-                if let Some(rendered) = snapshot.range_for_source(range) {
-                    let _ = view.set_range_highlights(
-                        [RangeHighlight::new(rendered.clone(), rgb(0xffe8a1))],
-                        cx,
-                    );
-                    let _ = view.reveal_range(rendered, cx);
-                }
-            });
-        }
-        cx.notify();
-    }
-    fn home_view(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
-        let mut home = screen("home-content", "Home")
-            .child(panel().child(heading("Your working knowledge"))
-                .child("Give BRN information and a goal. Your notes, work and decisions stay connected.")
-                .child(metadata("Ask or delegate below, open a note, or add information from the navigation rail.")));
-        if !self.settings.delegation_chosen {
-            home = home.child(self.working_knowledge(cx));
-        }
-        let mut tiles = div().flex().flex_wrap().gap_3().items_start();
-        let mut queue = panel()
-            .id("home-needs-you")
-            .test_support()
-            .child(heading("Needs you"));
-        let needs:Vec<_>=self.records.iter().filter(|r|!r.archived&&matches!(&r.data,RecordData::Thread(t) if t.state==ThreadState::Open&&!t.attention.is_empty())).collect();
-        if needs.is_empty() {
-            queue = queue.child(empty(
-                "home-attention-empty",
-                "Nothing needs your decision right now.",
-            ));
-        }
-        for record in needs {
-            let id = record.id.clone();
-            let RecordData::Thread(thread) = &record.data else {
-                continue;
-            };
-            let mut item = panel().bg(rgb(GREEN)).child(
-                button(format!("attention-{id}"))
-                    .label(short(&thread.title))
-                    .on_click(cx.listener(move |this, _, window, cx| {
-                        this.navigate(Page::Thread(id.clone()), window, cx)
-                    })),
-            );
-            for attention in &thread.attention {
-                item = item.child(attention.reason.clone());
-            }
-            queue = queue.child(item);
-        }
-        tiles = tiles.child(tile_slot(queue));
-        if !self.buffers.is_empty() {
-            let mut recovery = panel().child(heading("Recover your edits")).child(
-                "These edits remain separate from current notes until you Save or discard them.",
-            );
-            for (i, buffer) in self.buffers.iter().enumerate() {
-                let buffer = buffer.clone();
-                let id = buffer.note.clone();
-                let label = self
-                    .records
-                    .iter()
-                    .find(|r| r.id == id)
-                    .map(title)
-                    .unwrap_or_else(|| "Unavailable note".into());
-                recovery = recovery.child(
-                    button(format!("recover-{i}"))
-                        .label(format!("Recover {}", short(&label)))
-                        .on_click(cx.listener(move |this, _, window, cx| {
-                            this.open_note(&id, Some(buffer.clone()), window, cx)
-                        })),
-                );
-            }
-            tiles = tiles.child(tile_slot(recovery));
-        }
-        if !self.candidates.is_empty() {
-            let mut review = panel().child(heading("Review changes"));
-            for candidate in &self.candidates {
-                let candidate = candidate.clone();
-                review = review.child(
-                    button(format!("candidate-{}", candidate.operation.as_str()))
-                        .label(short(&candidate.request.reason))
-                        .on_click(cx.listener(move |this, _, window, cx| {
-                            this.open_review(candidate.clone(), window, cx)
-                        })),
-                );
-            }
-            tiles = tiles.child(tile_slot(review));
-        }
-        let notes: Vec<_> = self
-            .records
-            .iter()
-            .filter(|r| {
-                !r.archived && matches!(&r.data, RecordData::Note(n) if n.superseded_by.is_none())
-            })
-            .collect();
-        let mut note_tile = panel()
-            .id("home-notes")
-            .test_support()
-            .child(heading("Notes"))
-            .child(metadata(format!("{} current notes", notes.len())));
-        if notes.is_empty() {
-            note_tile = note_tile.child(empty(
-                "home-notes-empty",
-                "Create a note or import information to begin.",
-            ));
-        }
-        for record in notes.into_iter().take(6) {
-            let id = record.id.clone();
-            note_tile = note_tile.child(
-                button(format!("home-note-{id}"))
-                    .label(short(&title(record)))
-                    .on_click(cx.listener(move |this, _, window, cx| {
-                        this.open_note(&id, None, window, cx)
-                    })),
-            );
-        }
-        tiles = tiles.child(tile_slot(note_tile));
-        let mut recent = panel()
-            .id("home-recent-changes")
-            .test_support()
-            .child(heading("What changed"));
-        for receipt in self.history.iter().rev().take(6) {
-            recent = recent.child(
-                div()
-                    .flex()
-                    .flex_col()
-                    .gap_1()
-                    .child(receipt.reason.clone())
-                    .child(metadata(receipt.committed_at.clone())),
-            );
-        }
-        if self.history.is_empty() {
-            recent = recent.child(empty(
-                "home-changes-empty",
-                "Your meaningful changes will appear here.",
-            ));
-        }
-        recent = recent.child(
-            button("home-open-history")
-                .label("Open history and Undo")
-                .on_click(
-                    cx.listener(|this, _, window, cx| this.navigate(Page::History, window, cx)),
-                ),
-        );
-        home.child(tiles.child(tile_slot(recent)))
-            .into_any_element()
-    }
-    fn safe_message(&self, id: String, text: String) -> TextView {
-        let assets = self.assets.clone();
-        TextView::markdown(id, text)
-            .w_full()
-            .markdown_extensions(
-                MarkdownExtensions::default()
-                    .plugin(LiteralHtml { block: true })
-                    .plugin(LiteralHtml { block: false })
-                    .parser_revision(1),
-            )
-            .image_source(move |uri| {
-                assets
-                    .get(uri.as_ref())
-                    .cloned()
-                    .unwrap_or_else(|| Arc::new(Image::from_bytes(ImageFormat::Png, Vec::new())))
-                    .into()
-            })
-            .on_link_click(|url, _, _, cx| {
-                if url.starts_with("https://") || url.starts_with("http://") {
-                    cx.open_url(url);
-                }
-                cx.stop_propagation();
-            })
-    }
-    fn action_row(&self, record: &Record, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
-        let RecordData::Action(action) = &record.data else {
-            return div().into_any_element();
-        };
-        let mut row = panel()
-            .id(format!("action-tile-{}", record.id))
-            .test_support()
-            .child(
-                div()
-                    .id(format!("action-description-{}", record.id))
-                    .aria_label(action.description.clone())
-                    .font_weight(gpui_kit::FontWeight::SEMIBOLD)
-                    .child(action.description.clone())
-                    .test_support(),
-            )
-            .child(format!(
-                "{:?}{}",
-                action.state,
-                action
-                    .due
-                    .as_ref()
-                    .map(|due| format!(" · due {due}"))
-                    .unwrap_or_default()
-            ));
-        if let Some(evidence) = &action.evidence {
-            row = row.child(evidence.clone());
-        }
-        if action.state != ActionState::Done && action.state != ActionState::Cancelled {
-            let record_open = record.clone();
-            let mut opened = action.clone();
-            opened.state = ActionState::Open;
-            let record_wait = record.clone();
-            let mut waiting = action.clone();
-            waiting.state = ActionState::Waiting;
-            let record_done = record.clone();
-            let mut done = action.clone();
-            done.state = ActionState::Done;
-            done.evidence = Some("Owner confirmed completion in BRN.".into());
-            let record_cancel = record.clone();
-            let mut cancelled = action.clone();
-            cancelled.state = ActionState::Cancelled;
-            row = row.child(
-                div()
-                    .flex()
-                    .flex_wrap()
-                    .gap_2()
-                    .child(
-                        button(format!("open-action-{}", record.id))
-                            .label(if action.state == ActionState::Suggested {
-                                "Accept action"
-                            } else {
-                                "Open"
-                            })
-                            .on_click(cx.listener(move |this, _, _, cx| {
-                                this.change(
-                                    "Owner opened an Action",
-                                    record_open.clone(),
-                                    RecordData::Action(opened.clone()),
-                                    cx,
-                                )
-                            })),
-                    )
-                    .child(
-                        button(format!("wait-action-{}", record.id))
-                            .label("Waiting")
-                            .on_click(cx.listener(move |this, _, _, cx| {
-                                this.change(
-                                    "Owner marked an Action Waiting",
-                                    record_wait.clone(),
-                                    RecordData::Action(waiting.clone()),
-                                    cx,
-                                )
-                            })),
-                    )
-                    .child(
-                        button(format!("done-action-{}", record.id))
-                            .label("Confirm done")
-                            .on_click(cx.listener(move |this, _, _, cx| {
-                                this.change(
-                                    "Owner confirmed an Action is complete",
-                                    record_done.clone(),
-                                    RecordData::Action(done.clone()),
-                                    cx,
-                                )
-                            })),
-                    )
-                    .child(
-                        button(format!("cancel-action-{}", record.id))
-                            .label("Cancel action")
-                            .on_click(cx.listener(move |this, _, _, cx| {
-                                this.change(
-                                    "Owner cancelled an Action",
-                                    record_cancel.clone(),
-                                    RecordData::Action(cancelled.clone()),
-                                    cx,
-                                )
-                            })),
-                    ),
-            );
-        }
-        row.into_any_element()
-    }
-    fn actions_view(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
-        let mut view = screen("actions-content", "Actions").child(metadata(
-            "Actions keep their own progress, including after a discussion is resolved.",
-        ));
-        if !self
-            .records
-            .iter()
-            .any(|r| !r.archived && matches!(r.data, RecordData::Action(_)))
-        {
-            view = view.child(panel().child(empty(
-                "actions-empty",
-                "No actions yet. Suggested work and tasks you assign will appear here.",
-            )));
-        }
-        for (status, key, label) in [
-            (ActionState::Suggested, "suggested", "Suggested"),
-            (ActionState::Open, "open", "Open"),
-            (ActionState::Waiting, "waiting", "Waiting"),
-            (ActionState::Done, "done", "Done"),
-            (ActionState::Cancelled, "cancelled", "Cancelled"),
-        ] {
-            let records: Vec<_> = self
-                .records
-                .iter()
-                .filter(|r| {
-                    !r.archived && matches!(&r.data, RecordData::Action(a) if a.state == status)
-                })
-                .collect();
-            let mut group = panel()
-                .id(format!("actions-group-{key}"))
-                .test_support()
-                .bg(rgb(GREEN))
-                .child(heading(format!("{label} · {}", records.len())));
-            if records.is_empty() {
-                group = group.child(metadata(format!("No {} actions.", label.to_lowercase())));
-            }
-            for record in records {
-                group = group.child(self.action_row(record, cx));
-            }
-            view = view.child(group);
-        }
-        view.into_any_element()
-    }
-    fn thread_view(&self, id: &str, narrow: bool, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
-        self.thread_surface(id, false, narrow, cx)
-    }
-    fn thread_surface(
-        &self,
-        id: &str,
-        embedded: bool,
-        narrow: bool,
-        cx: &mut Context<Self>,
-    ) -> gpui_kit::AnyElement {
-        let Some(record) = self.records.iter().find(|r| r.id == id) else {
-            return panel()
-                .child(empty(
-                    "thread-unavailable",
-                    "This discussion is unavailable. Open another discussion from your workspace.",
-                ))
-                .into_any_element();
-        };
-        let RecordData::Thread(thread) = &record.data else {
-            return div().into_any_element();
-        };
-        let mut conversation = pane()
-            .id("thread-conversation")
-            .test_support()
-            .flex_1()
-            .min_w_0()
-            .h_full()
-            .overflow_y_scroll()
-            .flex()
-            .flex_col()
-            .gap_4()
-            .p_5()
-            .child(panel().child(heading(thread.title.clone())));
-        let thread_id = id.to_owned();
-        if thread.state == ThreadState::Open {
-            conversation = conversation.child(
-                button("resolve-discussion")
-                    .label("Resolve discussion")
-                    .on_click(cx.listener(move |this, _, _, cx| {
-                        this.resolve_discussion(&thread_id, cx);
-                    })),
-            );
-        } else {
-            conversation =
-                conversation.child("Discussion resolved. Linked Actions keep their own progress.");
-        }
-        for attention in &thread.attention {
-            let mut item = panel().child(attention.reason.clone());
-            if let Some(candidate) = self
-                .candidates
-                .iter()
-                .find(|c| attention.record.as_deref() == Some(c.operation.as_str()))
-            {
-                let candidate = candidate.clone();
-                item = item.child(
-                    button(format!("thread-review-{}", candidate.operation.as_str()))
-                        .label("Review this change")
-                        .on_click(cx.listener(move |this, _, window, cx| {
-                            this.open_review(candidate.clone(), window, cx)
-                        })),
-                );
-            }
-            conversation = conversation.child(item);
-        }
-        let linked_ids = linked(&self.records, id);
-        for record in self
-            .records
-            .iter()
-            .filter(|r| !embedded && linked_ids.contains(&r.id))
-        {
-            if let RecordData::Comment(comment) = &record.data {
-                let note = self.records.iter().find(|r| r.id == comment.note);
-                let location = note.and_then(|r| {
-                    if let RecordData::Note(n) = &r.data {
-                        comment_location(comment, r.version, &n.markdown)
-                    } else {
-                        None
-                    }
-                });
-                let mut context = panel()
-                    .child(heading("Passage context"))
-                    .child(comment.quote.clone())
-                    .child(if location.is_some() {
-                        "Located in the current note"
-                    } else {
-                        "Location unresolved · preserved from an earlier note version"
-                    });
-                if let Some(note) = note {
-                    let id = note.id.clone();
-                    context = context.child(
-                        button(format!("comment-note-{}", record.id))
-                            .label(format!("Open {}", short(&title(note))))
-                            .on_click(cx.listener(move |this, _, window, cx| {
-                                this.open_note(&id, None, window, cx)
-                            })),
-                    );
-                }
-                conversation = conversation.child(context);
-            }
-        }
-        if let Ok(messages) = self.workspace.messages(id) {
-            for message in messages {
-                let RecordData::Message(body) = &message.data else {
-                    continue;
-                };
-                if !matches!(body.role.as_str(), "owner" | "assistant") {
-                    continue;
-                }
-                conversation = conversation.child(
-                    panel()
-                        .child(
-                            div()
-                                .font_weight(gpui_kit::FontWeight::SEMIBOLD)
-                                .child(if body.role == "owner" { "You" } else { "BRN" }),
-                        )
-                        .child(
-                            self.safe_message(format!("message-{}", message.id), body.text.clone()),
-                        ),
-                );
-            }
-        }
-        if let Some(stream) = self.stream_for(id) {
-            conversation = conversation.child(
-                panel()
-                    .child("BRN · provisional answer")
-                    .child(self.safe_message("stream-answer".into(), stream.into())),
-            );
-        }
-        if can_continue_thread(
-            &self.records,
-            &self.history,
-            id,
-            &thread.state,
-            self.worker.is_some(),
-        ) {
-            let latest = latest_run(&self.records, &self.history, id);
-            let run = latest.and_then(|record| match &record.data {
-                RecordData::Run(run) => Some(run),
-                _ => None,
-            });
-            let thread_id = id.to_owned();
-            let status = run.map_or_else(
-                || "Saved instruction is ready to continue".into(),
-                |run| {
-                    if run.state == RunState::Working {
-                        "Saved run status: Working · current activity is unconfirmed".into()
-                    } else {
-                        format!("{:?}", run.state)
-                    }
-                },
-            );
-            conversation = conversation.child(
-                panel()
-                    .child(status)
-                    .child(run.map_or_else(String::new, |run| run.progress.clone()))
-                    .child(run.map_or(
-                        "Continue starts fresh with the saved conversation and current notes.",
-                        |run| continuation_notice(&run.state),
-                    ))
-                    .child(
-                        button(format!(
-                            "continue-{}",
-                            latest.map_or(id, |record| record.id.as_str())
-                        ))
-                        .label("Continue with current context")
-                        .on_click(cx.listener(move |this, _, _, cx| {
-                            this.continue_run(thread_id.clone(), cx)
-                        })),
-                    ),
-            );
-        }
-        if embedded {
-            return conversation.into_any_element();
-        }
-        let mut context = pane()
-            .id("thread-linked-work")
-            .test_support()
-            .w(px(320.))
-            .when(narrow, |view| view.w_full())
-            .flex_shrink_0()
-            .h_full()
-            .overflow_y_scroll()
-            .flex()
-            .flex_col()
-            .gap_3()
-            .p_4()
-            .bg(rgb(GREEN))
-            .border_1()
-            .border_color(rgb(BORDER))
-            .child(heading("Linked work"));
-        for record in self
-            .records
-            .iter()
-            .filter(|r| !r.archived && linked_ids.contains(&r.id))
-        {
-            match &record.data {
-                RecordData::Note(note) => {
-                    let id = record.id.clone();
-                    context = context.child(
-                        div()
-                            .flex()
-                            .flex_col()
-                            .gap_2()
-                            .child("Current note excerpt")
-                            .child(
-                                self.safe_message(
-                                    format!("linked-note-preview-{id}"),
-                                    note.markdown.clone(),
-                                )
-                                .max_lines(12),
-                            ),
-                    );
-                    context = context.child(
-                        button(format!("linked-note-{id}"))
-                            .label(short(&note.title))
-                            .on_click(cx.listener(move |this, _, window, cx| {
-                                this.open_note(&id, None, window, cx)
-                            })),
-                    );
-                }
-                RecordData::Action(_) => context = context.child(self.action_row(record, cx)),
-                RecordData::Source(source) => {
-                    let locator = source.locator.clone();
-                    let open_locator = locator.clone();
-                    context = context.child(
-                        panel()
-                            .child(source.label.clone())
-                            .child(short(&source.locator))
-                            .child(source.outcome.clone())
-                            .children(
-                                source
-                                    .report
-                                    .as_ref()
-                                    .map(|report| {
-                                        report
-                                            .issues
-                                            .iter()
-                                            .map(ImportIssue::display)
-                                            .collect::<Vec<_>>()
-                                    })
-                                    .unwrap_or_else(|| source.gaps.clone()),
-                            )
-                            .child(
-                                button(format!("open-source-{}", record.id))
-                                    .label("Open source")
-                                    .on_click(move |_, _, cx| {
-                                        if std::path::Path::new(&open_locator).is_absolute() {
-                                            cx.open_with_system(std::path::Path::new(
-                                                &open_locator,
-                                            ));
-                                        } else if open_locator.starts_with("https://")
-                                            || open_locator.starts_with("http://")
-                                            || open_locator.starts_with("outlook:")
-                                        {
-                                            cx.open_url(&open_locator);
-                                        }
-                                    }),
-                            )
-                            .child(
-                                button(format!("copy-source-{}", record.id))
-                                    .label("Copy source reference")
-                                    .on_click(move |_, _, cx| {
-                                        cx.write_to_clipboard(gpui_kit::ClipboardItem::new_string(
-                                            locator.clone(),
-                                        ))
-                                    }),
-                            ),
-                    );
-                }
-                _ => {}
-            }
-        }
-        if linked_ids.is_empty() {
-            context =
-                context.child("Notes, sources and Actions used in this discussion appear here.");
-        }
-        let mut workspace = div()
-            .id("thread-workspace")
-            .test_support()
-            .flex()
-            .h_full()
-            .w_full()
-            .min_w_0();
-        if narrow {
-            workspace = workspace.flex_col().overflow_y_scroll();
-            conversation = conversation.flex_none().h(px(480.)).flex_shrink_0();
-            context = context.h_auto().flex_shrink_0();
-        }
-        workspace
-            .child(conversation)
-            .child(context)
-            .into_any_element()
-    }
-    fn note_view(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
-        let Some(open) = &self.note else {
-            return panel()
-                .child(empty("note-empty", "Choose a note from your workspace."))
-                .into_any_element();
-        };
-        let RecordData::Note(note) = &open.record.data else {
-            return div().into_any_element();
-        };
-        let mut controls = panel()
-            .flex_row()
-            .flex_wrap()
-            .bg(rgb(GREEN))
-            .items_center()
-            .child(heading(note.title.clone()))
-            .child(if note.protected {
-                "Protected"
-            } else {
-                "Working note"
-            })
-            .child(if note.confirmed { "Confirmed" } else { "" })
-            .child(
-                button("toggle-edit")
-                    .label(if open.editing { "Read" } else { "Edit" })
-                    .disabled(
-                        open.session.is_none()
-                            && self.buffers.iter().any(|s| s.note == open.record.id),
-                    )
-                    .on_click(cx.listener(|this, _, window, cx| this.toggle_note_edit(window, cx))),
-            )
-            .child(
-                button("save-note")
-                    .label("Save")
-                    .disabled(open.session.is_none())
-                    .on_click(cx.listener(|this, _, window, cx| this.save(window, cx))),
-            )
-            .child(
-                button("reload-note")
-                    .label("Reload saved note")
-                    .disabled(open.session.is_some())
-                    .on_click(cx.listener(|this, _, window, cx| {
-                        if let Some(open) = &this.note {
-                            let id = open.record.id.clone();
-                            this.open_note(&id, None, window, cx);
-                        }
-                    })),
-            )
-            .child(
-                button("discard-note")
-                    .label("Discard edit")
-                    .disabled(open.session.is_none())
-                    .on_click(cx.listener(|this, _, window, cx| this.discard(window, cx))),
-            )
-            .child(
-                button("comment-passage")
-                    .label("Comment on selection")
-                    .disabled(open.session.is_some())
-                    .on_click(cx.listener(|this, _, window, cx| this.capture_comment(window, cx))),
-            );
-        if open.session.is_none() {
-            let record = open.record.clone();
-            let mut protected = note.clone();
-            protected.protected = !protected.protected;
-            controls = controls.child(
-                button("protect-note")
-                    .label(if note.protected {
-                        "Make working note"
-                    } else {
-                        "Protect note"
-                    })
-                    .on_click(cx.listener(move |this, _, window, cx| {
-                        this.change(
-                            "Owner changed note protection",
-                            record.clone(),
-                            RecordData::Note(protected.clone()),
-                            cx,
-                        );
-                        this.open_note(&record.id, None, window, cx);
-                    })),
-            );
-        }
-        let mut content = pane()
-            .border_1()
-            .border_color(rgb(BORDER))
-            .h_full()
-            .w_full()
-            .flex()
-            .flex_col()
-            .gap_3()
-            .p_4()
-            .child(controls);
-        if let Some(current) = self.records.iter().find(|r| r.id == open.record.id)
-            && current.version != open.record.version
-        {
-            let id = open.record.id.clone();
-            content = content.child(
-                panel()
-                    .child(
-                        "This note has a newer saved version. Your visible text remains preserved.",
-                    )
-                    .child(
-                        button("show-current-note")
-                            .label("Open current saved note")
-                            .on_click(cx.listener(move |this, _, window, cx| {
-                                this.open_note(&id, None, window, cx)
-                            })),
-                    ),
-            );
-        }
-        if open.session.is_none()
-            && let Some(buffer) = self.buffers.iter().find(|s| s.note == open.record.id)
-        {
-            let buffer = buffer.clone();
-            let id = buffer.note.clone();
-            content = content.child(
-                panel()
-                    .child("A recoverable edit exists for this note.")
-                    .child(
-                        button("recover-note-edit")
-                            .label("Recover saved edit")
-                            .on_click(cx.listener(move |this, _, window, cx| {
-                                this.open_note(&id, Some(buffer.clone()), window, cx)
-                            })),
-                    ),
-            );
-        }
-        if let Some(coverage) = &note.import {
-            if let Some(record) = self.records.iter().find(|r| r.id == coverage.source)
-                && let RecordData::Source(source) = &record.data
-            {
-                let locator = source.locator.clone();
-                content = content.child(
-                    button("open-import-original")
-                        .label("Open external source")
-                        .on_click(move |_, _, cx| {
-                            if std::path::Path::new(&locator).is_absolute() {
-                                cx.open_with_system(std::path::Path::new(&locator));
-                            } else if locator.starts_with("https://")
-                                || locator.starts_with("http://")
-                            {
-                                cx.open_url(&locator);
-                            }
-                        }),
-                );
-            }
-            let intent = if coverage.full_note {
-                "Full imported reference"
-            } else {
-                "Useful information"
-            };
-            let (summary, details) = if let Some(report) = &coverage.report {
-                (
-                    report.summary(),
-                    report
-                        .issues
-                        .iter()
-                        .map(ImportIssue::display)
-                        .collect::<Vec<_>>(),
-                )
-            } else {
-                (
-                    if coverage.gaps.is_empty() {
-                        "Coverage not recorded"
-                    } else {
-                        "Partial / coverage requires inspection"
-                    },
-                    coverage.gaps.clone(),
-                )
-            };
-            content = content.child(
-                div()
-                    .id("note-import-summary")
-                    .flex_shrink_0()
-                    .text_sm()
-                    .child(format!("{intent} · {summary}"))
-                    .test_support(),
-            );
-            if !details.is_empty() {
-                // Provenance may contain long paths and many qualifications.
-                // Keep every issue scrollable without consuming the note body.
-                content = content.child(
-                    div()
-                        .id("note-coverage-details")
-                        .w_full()
-                        .max_h(px(120.))
-                        .flex_shrink_0()
-                        .overflow_y_scroll()
-                        .flex()
-                        .flex_col()
-                        .gap_1()
-                        .border_1()
-                        .border_color(rgb(BORDER))
-                        .bg(rgb(GREEN))
-                        .p_2()
-                        .child(
-                            div()
-                                .text_sm()
-                                .child(format!("Coverage details ({})", details.len())),
-                        )
-                        .children(details.into_iter().enumerate().map(|(index, detail)| {
-                            div()
-                                .id(format!("note-coverage-detail-{index}"))
-                                .flex_shrink_0()
-                                .text_sm()
-                                .child(detail)
-                                .test_support()
-                        }))
-                        .test_support(),
-                );
-            }
-        }
-        if let Some(session) = &open.session {
-            content=content.child("Unsaved edit · recoverable from Home. Changes to this note wait until this edit is finished.");
-            content = content.child(
-                button("save-buffer-copy")
-                    .label("Save text as a new note")
-                    .on_click(cx.listener(|this, _, window, cx| this.save_copy(window, cx))),
-            );
-            if self
-                .records
-                .iter()
-                .any(|r| r.id == session.note && r.version != session.base_version)
-            {
-                content=content.child(panel().child("The current note changed since this edit began. Your text is preserved.").child(div().h(px(180.)).child(markdown(&self.current_view,self.assets.clone()))));
-            }
-        }
-        let text = self.note_editor.read(cx).value().to_string();
-        let mut nav = div().flex().flex_wrap().gap_2();
-        for (i, (title, range)) in sections(&text).into_iter().enumerate() {
-            nav = nav.child(
-                button(format!("section-{i}"))
-                    .label(short(
-                        title
-                            .strip_prefix("**")
-                            .and_then(|value| value.strip_suffix("**"))
-                            .unwrap_or(&title),
-                    ))
-                    .compact()
-                    .on_click(cx.listener(move |this, _, window, cx| {
-                        this.reveal(range.clone(), window, cx)
-                    })),
-            );
-        }
-        content = content.child(nav);
-        let editor = if open.editing {
-            prose_editor(&self.note_editor)
-                .h_full()
-                .aria_label("Note Markdown editor")
-                .into_any_element()
-        } else {
-            markdown(&self.note_view, self.assets.clone()).into_any_element()
-        };
-        content = content.child(
-            div()
-                .id("note-body")
-                .flex_1()
-                .min_h_0()
-                .w_full()
-                .child(editor)
-                .on_mouse_up(
-                    gpui_kit::MouseButton::Left,
-                    cx.listener(|this, _, window, cx| this.capture_selection(false, window, cx)),
-                )
-                .on_key_up(
-                    cx.listener(|this, _, window, cx| this.capture_selection(false, window, cx)),
-                )
-                .test_support(),
-        );
-        content.into_any_element()
-    }
-    fn writing_panel(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
-        let Some(open) = &self.note else {
-            return div().into_any_element();
-        };
-        let note_id = open.record.id.clone();
-        let RecordData::Note(note) = &open.record.data else {
-            return div().into_any_element();
-        };
-        let selected = self.writing_threads.get(&note_id);
-        let mut threads = div()
-            .flex()
-            .flex_wrap()
-            .gap_1()
-            .child(heading("DOCUMENT CHAT"));
-        if let Ok(linked) = self.workspace.writing_threads(&note_id) {
-            for record in linked {
-                let thread = record.id.clone();
-                let note = note_id.clone();
-                threads = threads.child(
-                    button(format!("writing-thread-{thread}"))
-                        .label(short(&title(&record)))
-                        .selected(selected == Some(&thread))
-                        .on_click(cx.listener(move |this, _, window, cx| {
-                            this.select_writing_thread(note.clone(), thread.clone(), window, cx)
-                        })),
-                );
-            }
-        }
-        threads = threads.child(
-            button("new-writing-chat")
-                .label("New chat")
-                .on_click(cx.listener(|this, _, window, cx| this.new_writing_thread(window, cx))),
-        );
-        let mut feedback = div()
-            .id("writing-feedback")
-            .max_h(px(220.))
-            .overflow_y_scroll()
-            .flex()
-            .flex_col()
-            .gap_2();
-        if let Some((anchor_note, version, _, quote)) = &self.comment_anchor
-            && anchor_note == &note_id
-        {
-            feedback = feedback.child(
-                panel()
-                    .child(heading("Comment on selection"))
-                    .child(format!("Saved version {version} · {quote}"))
-                    .child(
-                        div().h(px(76.)).child(
-                            prose_editor(&self.comment_input)
-                                .h_full()
-                                .aria_label("Passage feedback"),
-                        ),
-                    )
-                    .child(
-                        button("post-comment")
-                            .label("Add comment")
-                            .disabled(open.session.is_some())
-                            .on_click(
-                                cx.listener(|this, _, window, cx| this.post_comment(window, cx)),
-                            ),
-                    ),
-            );
-        }
-        let (comments, feedback_error) = match self.workspace.writing_comments(&note_id) {
-            Ok(comments) => (comments, None),
-            Err(error) => (
-                vec![],
-                Some(format!(
-                    "Could not load pending feedback: {error}. Reload saved note to retry."
-                )),
-            ),
-        };
-        if let Some(error) = &feedback_error {
-            feedback = feedback.child(error.clone());
-        }
-        let mut included = 0;
-        let mut unresolved_included = false;
-        for entry in &comments {
-            let RecordData::Comment(comment) = &entry.record.data else {
-                continue;
-            };
-            let location = comment_location(comment, open.record.version, &note.markdown);
-            let checked = !entry.addressed && !self.excluded_comments.contains(&entry.record.id);
-            if checked {
-                unresolved_included |= location.is_none();
-                included += 1;
-            }
-            let mut row = panel()
-                .child(comment.body.clone())
-                .child(comment.quote.clone())
-                .child(if entry.addressed {
-                    "Addressed · history retained"
-                } else if location.is_none() {
-                    "Pending · passage unresolved. Exclude or select the saved passage again."
-                } else if checked {
-                    "Pending · included in next rewrite"
-                } else {
-                    "Pending · excluded from next rewrite"
-                });
-            if !entry.addressed {
-                let id = entry.record.id.clone();
-                row = row.child(
-                    button(format!("include-comment-{id}"))
-                        .label(if checked {
-                            "Exclude from rewrite"
-                        } else {
-                            "Include in rewrite"
-                        })
-                        .disabled(!checked && location.is_none())
-                        .on_click(cx.listener(move |this, _, _, cx| {
-                            if !this.excluded_comments.remove(&id) {
-                                this.excluded_comments.insert(id.clone());
-                            }
-                            cx.notify();
-                        })),
-                );
-            }
-            if let Some(range) = location {
-                row = row.child(
-                    button(format!("reveal-comment-{}", entry.record.id))
-                        .label("Show passage")
-                        .disabled(open.session.is_some())
-                        .on_click(cx.listener(move |this, _, window, cx| {
-                            this.reveal(range.clone(), window, cx)
-                        })),
-                );
-            }
-            feedback = feedback.child(row);
-        }
-        let mut requests = div()
-            .id("writing-requests")
-            .max_h(px(120.))
-            .overflow_y_scroll()
-            .flex()
-            .flex_col()
-            .gap_2();
-        // Host request Messages are durable; the most recent is discoverable after restart.
-        if let Some(record) = selected
-            .and_then(|thread| self.workspace.messages(thread).ok())
-            .and_then(|messages| {
-                messages.into_iter().rev().find(|record| {
-                    matches!(&record.data,RecordData::Message(message) if message.role=="writing-request") && self.workspace
-                        .writing_request(&record.id)
-                        .is_ok_and(|snapshot| snapshot.note.id == note_id)
-                })
-            })
-            && let Ok(snapshot) = self.workspace.writing_request(&record.id)
-            && snapshot.note.id == note_id
-        {
-            let request = record.id.clone();
-            let quotes = snapshot
-                .comments
-                .iter()
-                .filter_map(|record| match &record.data {
-                    RecordData::Comment(comment) => {
-                        Some(format!("{}: {}", comment.quote, comment.body))
-                    }
-                    _ => None,
-                })
-                .collect::<Vec<_>>();
-            let toggle = record.id.clone();
-            let mut disclosure = panel().child(heading("Saved rewrite inputs")).child(
-                button("inspect-rewrite-inputs")
-                    .label(if self.expanded_requests.contains(&record.id) {
-                        "Hide captured note and chat"
-                    } else {
-                        "View captured note and chat"
-                    })
-                    .on_click(cx.listener(move |this, _, _, cx| {
-                        if !this.expanded_requests.remove(&toggle) {
-                            this.expanded_requests.insert(toggle.clone());
-                        }
-                        cx.notify();
-                    })),
-            );
-            disclosure = disclosure.child(format!("Saved note v{} · {} comments · {} posted chat messages. Later additions stay pending.",snapshot.note.version,snapshot.comments.len(),snapshot.messages.len())).children(quotes);
-            if self.expanded_requests.contains(&record.id) {
-                if let RecordData::Note(note) = &snapshot.note.data {
-                    disclosure =
-                        disclosure
-                            .child(heading("Captured saved note"))
-                            .child(self.safe_message(
-                                format!("captured-note-{}", record.id),
-                                note.markdown.clone(),
-                            ));
-                }
-                disclosure = disclosure.child(heading("Captured posted chat"));
-                for message in &snapshot.messages {
-                    if let RecordData::Message(body) = &message.data {
-                        disclosure = disclosure
-                            .child(if body.role == "owner" { "You" } else { "BRN" })
-                            .child(self.safe_message(
-                                format!("captured-chat-{}", message.id),
-                                body.text.clone(),
-                            ));
-                    }
-                }
-            }
-            requests = requests.child(
-                disclosure.child(
-                    button("retry-rewrite")
-                        .label("Retry rewrite with these inputs")
-                        .disabled(self.worker.is_some())
-                        .on_click(cx.listener(move |this, _, _, cx| {
-                            this.retry_rewrite(request.clone(), cx)
-                        })),
-                ),
-            );
-        }
-        if let Some((request, operation)) = self.applied_rewrite.get(&note_id)
-            && let Ok(snapshot) = self.workspace.writing_request(request)
-            && snapshot.note.id == note_id
-        {
-            let request = request.clone();
-            let operation = operation.clone();
-            let undo = operation.clone();
-            let already_addressed = snapshot.comments.iter().all(|captured| {
-                comments
-                    .iter()
-                    .any(|entry| entry.record.id == captured.id && entry.addressed)
-            });
-            for captured in &snapshot.comments {
-                if comments
-                    .iter()
-                    .any(|entry| entry.record.id == captured.id && entry.addressed)
-                {
-                    continue;
-                }
-                let record_id = captured.id.clone();
-                let request = request.clone();
-                let operation = operation.clone();
-                let label = match &captured.data {
-                    RecordData::Comment(comment) => {
-                        format!("Mark addressed: {}", short(&comment.body))
-                    }
-                    _ => continue,
-                };
-                requests = requests.child(
-                    button(format!("address-comment-{record_id}"))
-                        .label(label)
-                        .on_click(cx.listener(move |this, _, _, cx| {
-                            this.confirm_addressed(
-                                &request,
-                                &operation,
-                                std::slice::from_ref(&record_id),
-                                cx,
-                            )
-                        })),
-                );
-            }
-            let all_ids = snapshot
-                .comments
-                .iter()
-                .filter(|captured| {
-                    !comments
-                        .iter()
-                        .any(|entry| entry.record.id == captured.id && entry.addressed)
-                })
-                .map(|record| record.id.clone())
-                .collect::<Vec<_>>();
-            requests = requests.child(
-                button("confirm-addressed")
-                    .label("Mark all captured comments addressed")
-                    .disabled(already_addressed || snapshot.comments.is_empty())
-                    .on_click(cx.listener(move |this, _, _, cx| {
-                        this.confirm_addressed(&request, &operation, &all_ids, cx)
-                    })),
-            );
-            requests = requests.child(
-                button("undo-writing-apply")
-                    .label("Undo applied rewrite")
-                    .on_click(cx.listener(move |this, _, window, cx| {
-                        match this.workspace.undo(&undo) {
-                            Ok(outcome) => this.notice = outcome_message(&outcome),
-                            Err(error) => this.notice = error.to_string(),
-                        };
-                        this.refresh();
-                        if let Some(open) = &this.note
-                            && open.session.is_none()
-                        {
-                            let id = open.record.id.clone();
-                            this.open_note(&id, None, window, cx);
-                        }
-                        cx.notify();
-                    })),
-            );
-        }
-        let chat = selected.map_or_else(
-            || {
-                div()
-                    .p_4()
-                    .child("Post in chat or add feedback to start this document's conversation.")
-                    .into_any_element()
-            },
-            |thread| self.thread_surface(thread, true, false, cx),
-        );
-        div().id("writing-chat-pane").h_full().w_full().flex().flex_col().min_w_0().min_h_0().test_support()
-            .bg(rgb(GREEN)).border_1().border_color(rgb(BORDER))
-            .child(div().id("writing-feedback-controls").p_3().flex().flex_col().gap_2().min_h_0().max_h(gpui_kit::relative(0.5)).overflow_y_scroll().child(threads)
-                .child(div().id("rewrite-scope").text_sm().child(format!("Rewrite includes saved note, {included} pending comments and all posted messages in the selected chat. Unsent drafts stay here.")))
-                .child(button("rewrite-note").label(format!("Rewrite with AI · {included} comments"))
-                    .disabled(self.worker.is_some() || open.session.is_some() || feedback_error.is_some() || unresolved_included)
-                    .on_click(cx.listener(|this, _, _, cx| this.rewrite_note(cx))))
-                .child(if unresolved_included { "Exclude unresolved feedback or recapture its passage before rewriting." } else { "" }).child(requests).child(feedback))
-            .child(div().flex_1().min_h(px(140.)).child(chat)).into_any_element()
-    }
-    fn review_view(&self, narrow: bool, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
-        let Some(review) = &self.review else {
-            return div().into_any_element();
-        };
-        let mut summary = panel()
-            .gap_1()
-            .child(heading("Review change"))
-            .child(review.candidate.request.reason.clone());
-        if review.groups.groups.len() > 1 {
-            summary = summary.child("Choose complete notes and Actions. Prepare your selection to review a new immutable proposal.");
-            for group in &review.groups.groups {
-                let id = group.id.clone();
-                let included = review.selected.contains(&id);
-                summary = summary.child(
-                    button(format!("review-group-{id}"))
-                        .label(format!(
-                            "{} {}: {}",
-                            if included { "Include" } else { "Omit" },
-                            group.kind,
-                            short(&group.title)
-                        ))
-                        .selected(included)
-                        .disabled(review.edited || !review.groups.ungrouped_writes.is_empty())
-                        .on_click(cx.listener(move |this, _, _, cx| {
-                            if let Some(review) = &mut this.review
-                                && !review.selected.remove(&id)
-                            {
-                                review.selected.insert(id.clone());
-                            }
-                            cx.notify();
-                        })),
-                );
-                if !group.required_groups.is_empty() {
-                    let required = group
-                        .required_groups
-                        .iter()
-                        .filter_map(|id| review.groups.groups.iter().find(|g| &g.id == id))
-                        .map(|g| g.title.as_str())
-                        .collect::<Vec<_>>()
-                        .join(", ");
-                    summary = summary.child(format!("Requires: {required}"));
-                }
-            }
-            if !review.groups.ungrouped_writes.is_empty() {
-                summary = summary.child("This proposal has shared changes that cannot be separated safely. Keep the complete proposal or request a rewrite.");
-            }
-        }
-        for write in &review.candidate.request.writes {
-            if let RecordData::Note(note) = &write.data {
-                let id = write.id.clone();
-                summary = summary.child(
-                    button(format!("review-member-{id}"))
-                        .label(format!("Compare {}", short(&note.title)))
-                        .selected(review.note.as_ref() == Some(&id))
-                        .on_click(cx.listener(move |this, _, window, cx| {
-                            this.select_review_note(id.clone(), window, cx)
-                        })),
-                );
-            }
-            let label = match &write.data {
-                RecordData::Note(n) => format!(
-                    "Note: {}{}",
-                    n.title,
-                    if n.protected { " · protected" } else { "" }
-                ),
-                RecordData::Action(a) => format!("Action: {} · {:?}", a.description, a.state),
-                RecordData::Thread(t) => format!("Discussion: {}", t.title),
-                RecordData::Message(m) => format!("Message: {}", short(&m.text)),
-                RecordData::Link(_) => "Connect related work".into(),
-                RecordData::Comment(c) => format!("Comment: {}", short(&c.body)),
-                RecordData::Source(s) => format!("Source: {}", s.label),
-                RecordData::Asset(_) => "Retain a meaningful figure".into(),
-                RecordData::Run(_) => "Record work progress".into(),
-                RecordData::Settings(_) => "Change workspace settings".into(),
-            };
-            summary = summary.child(label);
-        }
-        let mut view = pane()
-            .border_1()
-            .border_color(rgb(BORDER))
-            .id("review-panel")
-            .test_support()
-            .w_full()
-            .h_full()
-            .flex()
-            .flex_col()
-            .gap_3()
-            .p_5()
-            .bg(rgb(PAPER))
-            .overflow_y_scroll()
-            .child(summary);
-        if review.note.is_some() {
-            view = view.child(
-                div()
-                    .flex()
-                    .when(narrow, |view| view.flex_col().flex_shrink_0().h(px(640.)))
-                    .gap_3()
-                    .flex_1()
-                    .min_h_0()
-                    .child(
-                        panel()
-                            .flex_1()
-                            .min_w_0()
-                            .child(heading("Current note"))
-                            .child(
-                                div()
-                                    .flex_1()
-                                    .min_h_0()
-                                    .child(markdown(&self.current_view, self.assets.clone())),
-                            ),
-                    )
-                    .child(
-                        panel()
-                            .flex_1()
-                            .min_w_0()
-                            .child(heading("Your final proposed text"))
-                            .child(
-                                div().flex_1().min_h_0().child(
-                                    prose_editor(&self.review_editor)
-                                        .h_full()
-                                        .aria_label("Final proposed note text"),
-                                ),
-                            ),
-                    ),
-            );
-        }
-        view.child(div().flex().flex_wrap().gap_2()
-            .child(button("prepare-final").label("Prepare edited proposal").disabled(!review.edited).on_click(cx.listener(|this,_,window,cx|this.prepare_review_edit(window,cx))))
-            .child(button("prepare-selected").label("Prepare selected groups").disabled(review.edited || review.selected.is_empty() || review.selected.len() == review.groups.groups.len()).on_click(cx.listener(|this,_,window,cx|this.prepare_review_selection(window,cx))))
-            .child(button("apply-final").label("Apply this proposal").disabled(review.edited || review.selected.len() != review.groups.groups.len()).on_click(cx.listener(|this,_,window,cx|this.apply_review(window,cx))))
-            .child(button("dismiss-proposal").label("Dismiss proposal").on_click(cx.listener(|this,_,window,cx|this.dismiss_review(window,cx))))
-            .child(button("close-review").label("Keep for later").on_click(cx.listener(|this,_,window,cx|this.keep_review(window,cx)))))
-            .child("Applying saves this exact proposal. Changed or actively edited notes remain unchanged until the issue is resolved.").into_any_element()
-    }
-    fn history_view(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
-        let mut view = screen("history-content", "What changed").child(metadata(
-            "Recorded changes and the same checked Undo used throughout your workspace.",
-        ));
-        if self.history.is_empty() {
-            view = view.child(panel().child(empty(
-                "history-empty",
-                "No recorded changes yet. Saved changes and their Undo controls will appear here.",
-            )));
-        }
-        for receipt in self.history.iter().rev() {
-            let id = receipt.operation.as_str().to_owned();
-            let mut entry = panel()
-                .id(format!("receipt-{id}"))
-                .test_support()
-                .child(heading(receipt.reason.clone()))
-                .child(metadata(receipt.committed_at.clone()));
-            for write in &receipt.writes {
-                entry = entry.child(format!(
-                    "{} · version {}",
-                    title(&write.after),
-                    write.after.version
-                ));
-            }
-            if !receipt.needs_refresh.is_empty() {
-                entry = entry.child("Directly derived work may need refreshing after this change. Review its current inputs before updating it.");
-                if let Ok(records) = self.workspace.refresh_records(&id) {
-                    for record in records {
-                        let page = if matches!(record.data, RecordData::Note(_)) {
-                            Page::Note(record.id.clone())
-                        } else {
-                            Page::Actions
-                        };
-                        entry = entry.child(
-                            button(format!("refresh-record-{id}-{}", record.id))
-                                .label(format!("May need refresh: {}", short(&title(&record))))
-                                .on_click(cx.listener(move |this, _, window, cx| match &page {
-                                    Page::Note(id) => this.open_note(id, None, window, cx),
-                                    _ => this.navigate(page.clone(), window, cx),
-                                })),
-                        );
-                    }
-                }
-                let receipt_id = id.clone();
-                entry = entry.child(
-                    button(format!("refresh-followup-{id}"))
-                        .label("Open refresh follow-up")
-                        .on_click(cx.listener(move |this, _, window, cx| {
-                            match this.workspace.refresh_followup(&receipt_id) {
-                                Ok(thread) => {
-                                    this.refresh();
-                                    this.navigate(Page::Thread(thread.id), window, cx);
-                                }
-                                Err(error) => {
-                                    this.notice = error.to_string();
-                                    cx.notify();
-                                }
-                            }
-                        })),
-                );
-            }
-            entry = entry.child(
-                button(format!("undo-{id}"))
-                    .label("Undo this change")
-                    .on_click(cx.listener(move |this, _, _, cx| {
-                        match this.workspace.undo(&id) {
-                            Ok(outcome) => this.notice = outcome_message(&outcome),
-                            Err(e) => this.notice = e.to_string(),
-                        };
-                        this.refresh();
-                        cx.notify();
-                    })),
-            );
-            view = view.child(entry);
-        }
-        view.into_any_element()
-    }
-    fn settings_view(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
-        let mut provider = div().flex().flex_wrap().gap_2();
-        for (value, label) in [
-            ("chatgpt", "Codex / ChatGPT"),
-            ("copilot", "GitHub Copilot"),
-        ] {
-            provider = provider.child(
-                button(format!("provider-{value}"))
-                    .label(label)
-                    .selected(
-                        self.settings.provider.eq_ignore_ascii_case(value)
-                            || value == "Codex"
-                                && self.settings.provider.eq_ignore_ascii_case("chatgpt"),
-                    )
-                    .on_click(cx.listener(move |this, _, _, cx| {
-                        this.settings.provider = value.into();
-                        cx.notify();
-                    })),
-            );
-        }
-        let mut efforts = div().flex().flex_wrap().gap_2();
-        for effort in ["low", "medium", "high"] {
-            efforts = efforts.child(
-                button(format!("effort-{effort}"))
-                    .label(effort)
-                    .selected(self.settings.effort == effort)
-                    .on_click(cx.listener(move |this, _, _, cx| {
-                        this.settings.effort = effort.into();
-                        cx.notify();
-                    })),
-            );
-        }
-        let provider_tile = panel()
-            .id("settings-provider")
-            .test_support()
-            .child(heading("Provider and model"))
-            .child(metadata("Provider"))
-            .child(provider)
-            .child(metadata("Model"))
-            .child(Input::new(&self.model).w_full().aria_label("Model"))
-            .child(metadata("Reasoning effort"))
-            .child(efforts)
-            .child(metadata("Codex auth file"))
-            .child(
-                Input::new(&self.auth_path)
-                    .w_full()
-                    .aria_label("Codex auth file"),
-            )
-            .child(metadata("Copilot credentials folder"))
-            .child(
-                Input::new(&self.credentials_path)
-                    .w_full()
-                    .aria_label("Copilot credentials folder"),
-            )
-            .child(metadata(
-                "Credentials stay outside notes, exports and History.",
-            ))
-            .child(
-                button("save-settings")
-                    .label("Save settings")
-                    .disabled(self.worker.is_some())
-                    .on_click(cx.listener(|this, _, _, cx| this.configure(cx))),
-            );
-        let copies = panel()
-            .id("settings-copies")
-            .test_support()
-            .child(heading("Portable copies"))
-            .child(
-                panel()
-                    .bg(rgb(GREEN))
-                    .child(heading("Markdown export"))
-                    .child("Export a current snapshot of your notes and retained figures.")
-                    .child(button("export-now").label("Export Markdown now…").on_click(
-                        cx.listener(|this, _, window, cx| this.choose_output(false, window, cx)),
-                    ))
-                    .child(metadata(self.export_status.clone())),
-            )
-            .child(
-                panel()
-                    .bg(rgb(GREEN))
-                    .child(heading("Full backup"))
-                    .child("Includes notes, discussions, history, figures and recovery state.")
-                    .child(
-                        div()
-                            .id("backup-directory")
-                            .aria_label(
-                                self.settings
-                                    .backup_directory
-                                    .clone()
-                                    .unwrap_or_else(|| "Backup folder not chosen".into()),
-                            )
-                            .child(
-                                self.settings
-                                    .backup_directory
-                                    .clone()
-                                    .unwrap_or_else(|| "Backup folder not chosen".into()),
-                            )
-                            .test_support(),
-                    )
-                    .child(metadata(
-                        "Choose a folder covered by your separate backup system.",
-                    ))
-                    .child(
-                        div()
-                            .flex()
-                            .flex_wrap()
-                            .gap_2()
-                            .child(
-                                button("backup-change-folder")
-                                    .label("Change folder…")
-                                    .on_click(cx.listener(|this, _, window, cx| {
-                                        this.choose_backup_folder(false, window, cx)
-                                    })),
-                            )
-                            .child(button("backup-now").label("Create full backup").on_click(
-                                cx.listener(|this, _, window, cx| {
-                                    this.choose_output(true, window, cx)
-                                }),
-                            )),
-                    )
-                    .child(metadata(self.backup_status.clone())),
-            );
-        screen("settings-content", "Workspace settings")
-            .child(
-                div()
-                    .flex()
-                    .flex_wrap()
-                    .gap_3()
-                    .items_start()
-                    .child(tile_slot(provider_tile))
-                    .child(tile_slot(self.working_knowledge(cx)))
-                    .child(tile_slot(copies)),
-            )
-            .into_any_element()
-    }
 }
-impl Render for ThreadsUi {
-    fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        let _retained = (&self.subscriptions, &self.poll, &self.importing);
-        let writing = matches!(self.page, Page::Note(_));
-        let narrow = window.viewport_size().width < px(980.);
-        let view = if self.review.is_some() {
-            self.review_view(narrow, cx)
-        } else {
-            match self.page.clone() {
-                Page::Home => self.home_view(cx),
-                Page::Thread(id) => self.thread_view(&id, narrow, cx),
-                Page::Note(_) => self.note_view(cx),
-                Page::History => self.history_view(cx),
-                Page::Settings => self.settings_view(cx),
-                Page::Actions => self.actions_view(cx),
-            }
-        };
-        let mut footer = panel()
-            .id("composer-tile")
-            .test_support()
-            .flex_shrink_0()
-            .max_h(px(300.))
-            .overflow_y_scroll()
-            .bg(rgb(GREEN));
-        if !self.notice.is_empty() {
-            footer = footer.child(
-                panel()
-                    .id("workspace-notice")
-                    .aria_label(self.notice.clone())
-                    .test_support()
-                    .child(heading("Workspace update"))
-                    .child(self.notice.clone()),
-            );
-        }
-        if let Some(worker) = &self.worker {
-            let status = worker.kind.status(&self.progress);
-            let progress = worker.thread.as_ref().map_or_else(
-                || status.clone(),
-                |thread| {
-                    let name = self
-                        .records
-                        .iter()
-                        .find(|record| &record.id == thread)
-                        .map(title)
-                        .unwrap_or_else(|| thread.clone());
-                    format!("Work in {} · {}", short(&name), status)
-                },
-            );
-            let mut controls = div().flex().gap_3().items_center().child(
-                div()
-                    .flex_1()
-                    .min_w_0()
-                    .id("worker-status")
-                    .aria_label(progress.clone())
-                    .child(progress)
-                    .test_support(),
-            );
-            if worker.kind.can_cancel() {
-                controls = controls.child(
-                    button("stop-work")
-                        .label("Stop")
-                        .on_click(cx.listener(|this, _, _, cx| this.cancel(cx))),
-                );
-            }
-            footer = footer.child(controls);
-        }
-        let destination = self.composer_destination_label();
-        footer = footer.child(
-            div()
-                .id("composer-destination")
-                .text_sm()
-                .aria_label(destination.clone())
-                .child(destination)
-                .test_support(),
-        );
-        footer = footer.child(
-            div()
-                .flex()
-                .gap_3()
-                .items_center()
-                .child(
-                    div().h(px(90.)).flex_1().min_w_0().child(
-                        prose_editor(&self.composer)
-                            .h_full()
-                            .aria_label("Ask or delegate"),
-                    ),
-                )
-                .child(
-                    button("ask-delegate")
-                        .label(if self.can_stop_and_send() {
-                            "Stop and send"
-                        } else {
-                            "Ask or delegate"
-                        })
-                        .disabled(self.worker.is_some() && !self.can_stop_and_send())
-                        .on_click(cx.listener(|this, _, window, cx| this.ask(window, cx))),
-                ),
-        );
-        if let Page::Note(id) = &self.page
-            && let Some(record) = self
-                .records
-                .iter()
-                .find(|r| r.id == *id && matches!(r.data, RecordData::Note(_)))
-        {
-            let authority = brn_ai::threads::OwnerRequest::EditNote {
-                id: record.id.clone(),
-                version: record.version,
-            };
-            footer = footer.child(
-                button("ask-edit-selected-note")
-                    .label("Edit selected note · this request")
-                    .disabled(self.worker.is_some())
-                    .on_click(cx.listener(move |this, _, window, cx| {
-                        this.ask_with_authority(Some(authority.clone()), window, cx)
-                    })),
-            );
-        }
-        footer = footer.child(
-            button("ask-record-decision")
-                .label("Record decision · this request")
-                .disabled(self.worker.is_some())
-                .on_click(cx.listener(|this, _, window, cx| {
-                    this.ask_with_authority(
-                        Some(brn_ai::threads::OwnerRequest::RecordDecision),
-                        window,
-                        cx,
-                    )
-                })),
-        );
-        let content = if writing {
-            let mut tiles = div().id("writing-workbench").test_support().flex();
-            if narrow {
-                tiles = tiles.flex_col().overflow_y_scroll();
-            }
-            let chat_size = if narrow {
-                div().h(px(640.)).w_full().flex_shrink_0()
-            } else {
-                div().w(gpui_kit::relative(0.42)).h_full()
-            };
-            let document_size = if narrow {
-                div().h(px(480.)).flex_shrink_0()
-            } else {
-                div().flex_1().h_full()
-            };
-            tiles
-                .h_full()
-                .w_full()
-                .min_w_0()
-                .child(
-                    document_size
-                        .id("writing-document-pane")
-                        .min_w_0()
-                        .min_h_0()
-                        .child(view),
-                )
-                .child(
-                    chat_size
-                        .min_w_0()
-                        .min_h_0()
-                        .flex()
-                        .flex_col()
-                        .child(div().flex_1().min_h_0().child(self.writing_panel(cx)))
-                        .child(footer),
-                )
-                .into_any_element()
-        } else {
-            div()
-                .h_full()
-                .flex()
-                .flex_col()
-                .child(div().flex_1().min_h_0().child(view))
-                .child(footer)
-                .into_any_element()
-        };
-        let _ = window;
-        div()
-            .h_full()
-            .w_full()
-            .flex()
-            .bg(rgb(PAPER))
-            .text_color(rgb(INK))
-            .on_action(cx.listener(|this, _: &Save, window, cx| {
-                if this.review.is_some() {
-                    this.prepare_review_edit(window, cx);
-                } else if matches!(this.page, Page::Note(_)) {
-                    this.save(window, cx);
-                }
-            }))
-            .on_action(cx.listener(|this, _: &Ask, window, cx| this.ask(window, cx)))
-            .on_action(
-                cx.listener(|this, _: &Home, window, cx| this.navigate(Page::Home, window, cx)),
-            )
-            .on_action(cx.listener(|this, _: &NewNote, window, cx| this.new_note(window, cx)))
-            .on_action(cx.listener(|this, _: &FocusAsk, window, cx| {
-                this.composer.update(cx, |e, cx| e.focus(window, cx))
-            }))
-            .on_action(cx.listener(|this, _: &Cancel, _, cx| this.cancel(cx)))
-            .child(self.sidebar(cx))
-            .child(div().flex_1().min_w_0().h_full().child(content))
+
+fn bindings() -> Vec<KeyBinding> {
+    let mut bindings = vec![
+        KeyBinding::new("cmd-k", OpenLauncher, None),
+        KeyBinding::new("cmd-s", Save, None),
+        KeyBinding::new("cmd-enter", Ask, None),
+        KeyBinding::new("cmd-l", FocusAsk, None),
+        KeyBinding::new("cmd-n", NewNote, None),
+        KeyBinding::new("cmd-t", NewThread, None),
+        KeyBinding::new("cmd-0", Home, None),
+        KeyBinding::new("cmd-/", CommentSelection, None),
+        KeyBinding::new("cmd-shift-r", Rewrite, None),
+        KeyBinding::new("cmd-\\", ToggleThreads, None),
+        KeyBinding::new("cmd-shift-enter", MaximizeTile, None),
+        KeyBinding::new("cmd-,", OpenSettings, None),
+        KeyBinding::new("alt-1", LayoutWrite, None),
+        KeyBinding::new("alt-2", LayoutChat, None),
+        KeyBinding::new("alt-3", LayoutSolo, None),
+        KeyBinding::new("cmd-q", Quit, None),
+    ];
+    // Text inputs bind these keys to indent/outdent and code actions. Binding
+    // the same keys in the input context later gives BRN's meaning precedence.
+    for context in [None, Some("Input")] {
+        bindings.push(KeyBinding::new("cmd-[", FocusPreviousTile, context));
+        bindings.push(KeyBinding::new("cmd-]", FocusNextTile, context));
+        bindings.push(KeyBinding::new("cmd-.", Cancel, context));
     }
+    bindings
 }
 
 pub fn launch(data_dir: PathBuf) -> Result<(), String> {
@@ -4245,15 +2828,7 @@ pub fn launch(data_dir: PathBuf) -> Result<(), String> {
         .with_assets(gpui_kit::assets::Assets)
         .run(move |cx| {
             gpui_kit::init(cx);
-            cx.bind_keys([
-                KeyBinding::new("cmd-s", Save, None),
-                KeyBinding::new("cmd-enter", Ask, None),
-                KeyBinding::new("cmd-l", FocusAsk, None),
-                KeyBinding::new("cmd-n", NewNote, None),
-                KeyBinding::new("cmd-0", Home, None),
-                KeyBinding::new("cmd-.", Cancel, None),
-                KeyBinding::new("cmd-q", Quit, None),
-            ]);
+            cx.bind_keys(bindings());
             cx.on_window_closed(|cx, _| {
                 if cx.windows().is_empty() {
                     cx.quit();
