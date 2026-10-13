@@ -59,6 +59,26 @@ impl Provider {
     }
 }
 
+/// The Copilot completion model, forced onto the Responses route when asked.
+/// Rig 0.44 selects that route only for Codex IDs, yet Copilot serves some
+/// other models there exclusively.
+pub(crate) fn copilot_completion(
+    client: &copilot::Copilot,
+    model: String,
+    responses: bool,
+) -> rig_core::driver::Model<copilot::wire::CopilotWire> {
+    let mut completion = client.completion(model.clone());
+    if responses {
+        let config = client.config();
+        let provider =
+            openai::OpenAIConfig::with_key(&copilot::wire::DIALECT, config.api_key.clone())
+                .with_base_url(config.base_url.clone())
+                .with_route(openai::wire::Route::Responses);
+        completion.wire.wire = openai::wire::OpenAiWire::new(provider, model);
+    }
+    completion
+}
+
 impl Auth {
     /// Checked folder location only; does not inspect credential caches.
     pub fn credentials_dir(&self) -> &Path {
@@ -773,6 +793,22 @@ mod tests {
 
     fn test_root() -> tempfile::TempDir {
         tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap()
+    }
+
+    #[test]
+    fn copilot_completion_uses_rig_route_unless_responses_is_forced() {
+        let client = copilot::Copilot::new("synthetic-session-token");
+        let route = |model: &str, responses| {
+            matches!(
+                copilot_completion(&client, model.into(), responses)
+                    .wire
+                    .wire,
+                openai::wire::OpenAiWire::Responses(_)
+            )
+        };
+        assert!(!route("gpt-5.6-terra", false));
+        assert!(route("gpt-5.6-terra", true));
+        assert!(route("gpt-5.3-codex", false));
     }
 
     fn fixture() -> (tempfile::TempDir, Auth) {

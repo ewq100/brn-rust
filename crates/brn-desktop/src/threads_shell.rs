@@ -425,7 +425,12 @@ impl ThreadsUi {
         let mut menu = menu;
         for (provider, label) in PROVIDERS {
             menu = menu.label(label);
-            for model in self.model_choices() {
+            let models = if provider == "copilot" && !self.copilot_models.is_empty() {
+                self.copilot_models.clone()
+            } else {
+                self.model_choices()
+            };
+            for model in models {
                 let selected = provider == current && model == self.settings.model;
                 let chosen = model.clone();
                 menu = menu.item(item(
@@ -438,17 +443,26 @@ impl ThreadsUi {
                 ));
             }
         }
-        menu.separator().item(item(
-            this,
-            "Provider and model settings…",
-            None,
-            false,
-            false,
-            |view, _, cx| {
-                view.settings_section = SettingsSection::Models;
-                view.show_tile(TileKind::Settings, cx);
-            },
-        ))
+        menu.separator()
+            .item(item(
+                this,
+                "Load GitHub Copilot models",
+                None,
+                busy,
+                false,
+                |view, _, cx| view.load_copilot_models(cx),
+            ))
+            .item(item(
+                this,
+                "Provider and model settings…",
+                None,
+                false,
+                false,
+                |view, _, cx| {
+                    view.settings_section = SettingsSection::Models;
+                    view.show_tile(TileKind::Settings, cx);
+                },
+            ))
     }
     pub(super) fn effort_menu(&self, menu: PopupMenu, this: &WeakEntity<Self>) -> PopupMenu {
         let busy = self.worker.is_some();
@@ -475,11 +489,9 @@ impl ThreadsUi {
             .flex_shrink_0()
             .items_center()
             .gap_2()
-            .h(px(38.))
-            .px_3()
-            .bg(rgb(p.alt))
-            .border_b_1()
-            .border_color(rgb(p.border))
+            .flex_1()
+            .h_full()
+            .pr_3()
             .child(
                 div()
                     .font_family(MONO)
@@ -542,7 +554,12 @@ impl ThreadsUi {
                     }),
             );
         }
-        bar.into_any_element()
+        gpui_kit::component::TitleBar::new()
+            .h(TOP_BAR_HEIGHT)
+            .bg(rgb(p.alt))
+            .border_color(rgb(p.border))
+            .child(bar)
+            .into_any_element()
     }
     fn status_bar(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         let p = pal();

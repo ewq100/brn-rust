@@ -235,3 +235,48 @@ async fn archived_destination_after_preparation_skips_credentials() {
     assert!(matches!(result.answer.terminal, AiTerminal::Interrupted));
     assert!(!dir.exists());
 }
+
+#[tokio::test]
+async fn copilot_run_uses_credentials_folder_even_when_codex_file_is_configured() {
+    let (root, mut request, _) = tests::fixture();
+    let codex = root.path().join("absent-codex-auth.json");
+    let dir = root.path().join("copilot-credentials");
+    request.selection = Selection {
+        provider: Provider::Copilot,
+        model: "synthetic-model".into(),
+    };
+    request.auth_file = Some(codex.clone());
+    request.credentials_dir = Some(dir.clone());
+    let mut store = Store::open(&request.data_dir).unwrap();
+    let RecordData::Settings(mut settings) = store
+        .records()
+        .unwrap()
+        .into_iter()
+        .find_map(|r| matches!(r.data, RecordData::Settings(_)).then_some(r.data))
+        .unwrap()
+    else {
+        panic!()
+    };
+    settings.provider = "Copilot".into();
+    settings.model = "synthetic-model".into();
+    settings.auth_file = Some(codex.to_str().unwrap().into());
+    settings.credentials_dir = Some(dir.to_str().unwrap().into());
+    let op = store
+        .allocate_operation("synthetic copilot settings")
+        .unwrap();
+    store
+        .configure_workspace(&op, &settings, &HostAuthority::owner("fixture"))
+        .unwrap();
+    drop(store);
+    let prepared = prepare_run(request).unwrap();
+    let result = run_prepared(prepared, CancellationToken::new(), Arc::new(|_| {}))
+        .await
+        .unwrap();
+    // An empty folder means no Copilot account yet, not a rejected Codex route.
+    assert!(
+        matches!(&result.answer.terminal, AiTerminal::Failed(e) if e.kind == AiErrorKind::ReconnectNeeded),
+        "{:?}",
+        result.answer.terminal
+    );
+    assert!(dir.is_dir());
+}

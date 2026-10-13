@@ -497,6 +497,7 @@ fn narrow_settings_and_global_controls_remain_reachable_by_scrolling(cx: &mut Te
     click(cx, &f, "settings");
     click(cx, &f, "layout-solo");
     click(cx, &f, "settings-section-models");
+    reveal(cx, &f, "settings-content", "connect-copilot");
     reveal(cx, &f, "settings-content", "save-settings");
     click(cx, &f, "save-settings");
     cx.read(|cx| {
@@ -522,5 +523,21 @@ fn narrow_settings_and_global_controls_remain_reachable_by_scrolling(cx: &mut Te
         assert!(settings.delegation_chosen && settings.review_first);
         assert!(settings.backup_directory.is_none());
         assert!(f.view.read(cx).worker.is_none());
+    });
+}
+
+#[gpui_kit::test]
+fn copilot_run_with_unoffered_model_does_not_start(cx: &mut TestAppContext) {
+    let f = fixture(cx, false, 1260., 860.);
+    update(cx, &f, |view, _, cx| {
+        let mut settings = view.settings.clone();
+        settings.provider = "copilot".into();
+        settings.model = "gpt-6.1-sol".into();
+        view.workspace.configure(settings).unwrap();
+        view.copilot_models = vec!["synthetic-copilot-model".into()];
+        view.start_run("hello".into(), "synthetic-thread".into(), vec![], None, cx);
+        assert!(view.worker.is_none());
+        assert!(view.notice.contains("not offered by GitHub Copilot"));
+        assert!(view.notice.contains("synthetic-copilot-model"));
     });
 }

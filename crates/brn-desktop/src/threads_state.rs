@@ -49,14 +49,17 @@ pub(super) enum WorkerKind {
     Import,
     Export,
     Backup,
+    // Only the native UI starts GitHub Copilot sign-in.
+    #[cfg_attr(not(feature = "native-ui"), allow(dead_code))]
+    Connect,
 }
 impl WorkerKind {
     pub(super) fn can_cancel(self) -> bool {
-        matches!(self, Self::Run | Self::Import)
+        matches!(self, Self::Run | Self::Import | Self::Connect)
     }
     pub(super) fn status(self, progress: &str) -> String {
         match self {
-            Self::Run | Self::Import => progress.into(),
+            Self::Run | Self::Import | Self::Connect => progress.into(),
             Self::Export => "Finishing Markdown export… Please wait for completion.".into(),
             Self::Backup => "Finishing full backup… Please wait for completion.".into(),
         }
@@ -67,6 +70,7 @@ impl WorkerKind {
             Self::Import => "Finish or stop the current import before starting other work.",
             Self::Export => "Wait for the Markdown export to finish before starting other work.",
             Self::Backup => "Wait for the full backup to finish before starting other work.",
+            Self::Connect => "Finish or stop GitHub Copilot sign-in before starting other work.",
         }
     }
 }
