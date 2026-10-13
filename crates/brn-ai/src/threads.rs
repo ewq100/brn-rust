@@ -25,9 +25,15 @@ use tokio_util::sync::CancellationToken;
 
 #[path = "threads_history.rs"]
 mod history;
+#[path = "threads_search.rs"]
+mod note_search;
 #[path = "threads_sources.rs"]
 mod sources;
 use history::{HistoryArgs, RefreshArgs};
+pub use note_search::{
+    ConnectionHop, ConnectionNode, MAX_SEARCH_LIMIT, NoteNeighbourhood, NoteSearchError,
+    NoteSearchPage, NoteSearchResult, RunNoteSearch,
+};
 pub use sources::{TransientAsset, TransientSource};
 #[cfg(test)]
 #[path = "threads_chat_tests.rs"]
@@ -38,6 +44,9 @@ mod current_inputs_tests;
 #[cfg(test)]
 #[path = "threads_delegation_tests.rs"]
 mod delegation_tests;
+#[cfg(test)]
+#[path = "threads_search_tests.rs"]
+mod search_tests;
 #[cfg(test)]
 #[path = "threads_sources_tests.rs"]
 mod source_tests;
@@ -69,6 +78,9 @@ pub struct ThreadRunRequest {
     pub auth_file: Option<PathBuf>,
     pub credentials_dir: Option<PathBuf>,
     pub sources: Vec<TransientSource>,
+    /// Host search for this workspace. `None` leaves `search_notes` and
+    /// `note_connections` unregistered.
+    pub search: Option<Arc<dyn RunNoteSearch>>,
 }
 pub struct ThreadResult {
     pub terminal_run: Option<(String, u64)>,
@@ -100,6 +112,7 @@ struct Scope {
     owner_request: Option<OwnerRequest>,
     writing_snapshot: Option<WritingSnapshot>,
     decision_target: Mutex<Option<String>>,
+    search: Option<Arc<dyn RunNoteSearch>>,
 }
 fn storage(_: impl std::fmt::Display) -> AiError {
     AiError::new(AiErrorKind::Storage)
@@ -246,6 +259,8 @@ fn parse_valid(name: &str, args: &Value) -> bool {
                     a.ids.len() <= 100 && a.query.as_ref().is_none_or(|q| q.len() <= 1024)
                 })
         }
+        "search_notes" => note_search::validate_search(args),
+        "note_connections" => note_search::validate_connections(args),
         "read_note" => serde_json::from_value::<ReadNoteArgs>(args.clone())
             .is_ok_and(|a| a.version > 0 && (1..=MAX_NOTE_READ_BYTES).contains(&a.max_bytes)),
         "read_source" => serde_json::from_value::<SourceArgs>(args.clone()).is_ok(),
@@ -305,6 +320,8 @@ fn schema(name: &str) -> Value {
             json!({"id":{"type":"string"},"version":{"type":"integer","minimum":1},"start":{"type":"integer","minimum":0},"max_bytes":{"type":"integer","minimum":1,"maximum":131072},"section":{"type":"boolean"}}),
             json!(["id", "version", "start", "max_bytes", "section"]),
         ),
+        "search_notes" => note_search::search_schema(),
+        "note_connections" => note_search::connections_schema(),
         "read_source" => object(json!({"reference":{"type":"string"}}), json!(["reference"])),
         "read_skill" => object(
             json!({"id":{"type":"string","enum":["intake","maintain-notes","resolve-conflict","prepare-reply"]}}),
@@ -353,6 +370,42 @@ tool!(
     "Read current canonical records. Empty IDs lists current Note/Thread/Action/Source/Comment/Link records; optional literal query filters complete saved notes. Notes longer than 128 KiB include continuation and heading offsets for read_note; never treat a truncated prefix as the whole note. Assets are metadata only.",
     read_records
 );
+// The search tools wait for the host's search worker off the async runtime,
+// so cancellation and other futures keep running meanwhile.
+#[derive(Clone)]
+struct SearchNotes;
+impl Tool for SearchNotes {
+    const NAME: &'static str = "search_notes";
+    type Args = note_search::SearchNotesArgs;
+    type Output = Value;
+    type Error = AiError;
+    fn description(&self) -> String {
+        "Rank current notes visible in this chat by a query (exact and inflected words; semantic when available). Returns compact results with exact total, heading path, a matching snippet and the passage start; continue with read_note at that version and start. Use the cursor for more.".into()
+    }
+    fn parameters(&self) -> Value {
+        schema(Self::NAME)
+    }
+    async fn call(&self, cx: &mut ToolContext, args: Self::Args) -> AiResult<Value> {
+        note_search::search_notes(scope(cx)?, args).await
+    }
+}
+#[derive(Clone)]
+struct NoteConnections;
+impl Tool for NoteConnections {
+    const NAME: &'static str = "note_connections";
+    type Args = note_search::ConnectionsArgs;
+    type Output = Value;
+    type Error = AiError;
+    fn description(&self) -> String {
+        "List a visible note's recorded neighbourhood: linked notes (and optionally sources) with relation names and directions, at most 8 per hop with exact available counts. hops=2 adds neighbours of the listed neighbours.".into()
+    }
+    fn parameters(&self) -> Value {
+        schema(Self::NAME)
+    }
+    async fn call(&self, cx: &mut ToolContext, args: Self::Args) -> AiResult<Value> {
+        note_search::note_connections(scope(cx)?, args).await
+    }
+}
 tool!(
     ReadNote,
     "read_note",
@@ -425,9 +478,10 @@ macro_rules! runtime_catalog {
         fn register_tools(builder: rig::AgentBuilder<rig::agent::NoToolConfig>) -> rig::AgentBuilder<rig::agent::WithBuilderTools> {
             builder$(.tool($tool))+
         }
-        pub fn tool_activity(name: &str) -> Option<&'static str> {
+        fn core_tool_activity(name: &str) -> Option<&'static str> {
             match name { $(<$tool as Tool>::NAME => Some($activity),)+ _ => None }
         }
+        /// Tools every run has; search tools are added when the host has search.
         pub fn tool_names() -> Vec<&'static str> { vec![$(<$tool as Tool>::NAME),+] }
     };
 }
@@ -443,6 +497,25 @@ runtime_catalog!(
     (RefreshCandidate, "Preparing a fresh proposal…"),
 );
 
+const SEARCH_TOOLS: [(&str, &str); 2] = [
+    (<SearchNotes as Tool>::NAME, "Searching notes…"),
+    (
+        <NoteConnections as Tool>::NAME,
+        "Following note connections…",
+    ),
+];
+pub fn tool_activity(name: &str) -> Option<&'static str> {
+    core_tool_activity(name).or_else(|| {
+        SEARCH_TOOLS
+            .iter()
+            .find(|(tool, _)| *tool == name)
+            .map(|(_, activity)| *activity)
+    })
+}
+/// Tools registered only when the run has host search.
+pub fn search_tool_names() -> Vec<&'static str> {
+    SEARCH_TOOLS.iter().map(|(name, _)| *name).collect()
+}
 fn read_records(scope: &Scope, args: ReadArgs) -> AiResult<Value> {
     if scope.writing_snapshot.is_some() {
         return Err(rejected());
@@ -1191,6 +1264,40 @@ pub async fn run_prepared(
         answer,
     })
 }
+/// Runs a prepared invocation against a scripted model, for offline host
+/// journey tests. Shipped hosts never enable `scripted-runs`.
+#[cfg(feature = "scripted-runs")]
+pub async fn run_prepared_scripted(
+    prepared: PreparedThreadRun,
+    model: rig::test_utils::MockCompletionModel,
+) -> AiResult<ThreadResult> {
+    let PreparedThreadRun {
+        request,
+        scope,
+        input,
+    } = prepared;
+    let mut answer = run_model(
+        model,
+        scope.clone(),
+        &input,
+        request.effort,
+        request.max_tool_rounds,
+        true,
+        CancellationToken::new(),
+        Arc::new(|_| {}),
+    )
+    .await;
+    let committed = finish(&scope, &answer)?;
+    if !committed {
+        answer.terminal = AiTerminal::Interrupted;
+    }
+    Ok(ThreadResult {
+        terminal_run: committed
+            .then(|| (scope.run.clone(), scope.fence.load(Ordering::SeqCst) + 1)),
+        run_id: scope.run.clone(),
+        answer,
+    })
+}
 fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
     request.selection.validate()?;
     if !(1..=32).contains(&request.max_tool_rounds)
@@ -1552,6 +1659,22 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
             request.prompt
         )
     };
+    // The owner-chosen root Topics note (D6), when it is a current note this
+    // chat can see; the agent never guesses it.
+    let topics_note = settings
+        .and_then(|(_, s)| s.topics_note.clone())
+        .and_then(|id| {
+            let record = store.record(&id).ok()??;
+            let visible = store
+                .record_visible_in_chat(&id, Some(&request.thread))
+                .ok()?;
+            match &record.data {
+                RecordData::Note(n) if visible && !record.archived && n.superseded_by.is_none() => {
+                    Some(json!({"id":record.id,"version":record.version,"title":n.title}))
+                }
+                _ => None,
+            }
+        });
     let attachments = store.records_for_chat(Some(&request.thread)).map_err(storage)?.into_iter().filter_map(|r| match r.data {
         RecordData::Note(n) if n.chat.as_ref() == Some(&request.thread) => Some(json!({"id":r.id,"version":r.version,"title":n.title,"bytes":n.markdown.len(),"coverage":n.import.and_then(|i|i.report)})), _=>None,
     }).take(128).collect::<Vec<_>>();
@@ -1569,10 +1692,12 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
             owner_request: request.owner_request.clone(),
             writing_snapshot,
             decision_target: Mutex::new(None),
+            search: request.search.clone(),
         }),
         format!(
-            "{input}\nSaved chat documents (read with exact-version note tools): {}\nHost maintenance policy: {maintenance_policy}\nHost authority for this invocation only: {}",
+            "{input}\nSaved chat documents (read with exact-version note tools): {}\nTopics note (root index of topic pages): {}\nHost maintenance policy: {maintenance_policy}\nHost authority for this invocation only: {}",
             serde_json::to_string(&attachments).map_err(storage)?,
+            serde_json::to_string(&topics_note).map_err(storage)?,
             serde_json::to_string(&request.owner_request).map_err(storage)?
         ),
     ))
@@ -1787,7 +1912,11 @@ async fn run_model(
         "{}\n\nCanonical records use externally tagged data objects. Note fields: title, markdown, protected, confirmed, superseded_by (null), import (null). Thread: title, state (Open/Resolved), attention [{{kind:Question/Review/Conflict/Blocker,reason,record:null}}]. Action: description,state,internal,evidence:null,due:null. Source: locator,label,observed_at,external_version:null,outcome,gaps:[]; Link: from,to,relation. Message: thread,role,text. Comment: note,base_version,quote,range,mapped_version,mapped_range,body,unresolved. New IDs use new:0 etc. Message/Run/Settings and receipt authority are host-only.",
         crate::threads_guides::preamble()
     );
-    let agent = register_tools(rig::AgentBuilder::new(model).preamble(&preamble))
+    let mut builder = register_tools(rig::AgentBuilder::new(model).preamble(&preamble));
+    if scope.search.is_some() {
+        builder = builder.tool(SearchNotes).tool(NoteConnections);
+    }
+    let agent = builder
         // Rig 0.44 maps portable reasoning on Responses. Its Copilot Chat
         // mapping explicitly refuses options as unverified, so retain the
         // already qualified Chat reasoning key until upstream supports it.
@@ -1915,6 +2044,7 @@ mod tests {
                         delegation_chosen: true,
                         backup_directory: None,
                         theme: None,
+                        topics_note: None,
                     }),
                 },
                 Put {
@@ -1958,6 +2088,7 @@ mod tests {
                 auth_file: None,
                 credentials_dir: None,
                 sources: vec![],
+                search: None,
             },
             note,
         )
