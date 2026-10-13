@@ -283,3 +283,4 @@ These check the plumbing and budgets with a scripted model. They are not evidenc
 - Native rendering of the Topics section, Connections list and Knowledge check panel is verified only by headless widget tests. Native look and feel is part of owner acceptance.
 - The Connections graph drawing is a separate UI task. The list is the accessible equivalent the ordinary-wiki flow asked for.
 - The live guidance comparison (bundle 3 against bundle 4) has not been run.
+- `context_actions_tests::save_decision_…` and `note_edit_is_contextual_…` occasionally fail when the whole desktop suite runs in parallel: a dialog has not reopened when the test looks for it. The same flake occurs on `main` `56c28879` (4 of 16 full-suite runs), so it is pre-existing and not changed here. Both pass alone and in their module (12 of 12).
