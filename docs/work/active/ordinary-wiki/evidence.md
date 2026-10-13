@@ -16,7 +16,7 @@
 | Independent candidate review | No remaining actionable runtime/harness defects after three P2 harness corrections. Original live snapshots pass the final validator; no extra provider calls were needed. |
 | UI prototype preview | Three separate throwaway variants browser-previewed at desktop/narrow sizes; [UI mapping and recommendation](ui-design.md). Independent mapping/prototype review found no material defects. This is not native qualification. |
 | Owner acceptance | Wiki policy, exact model and prototype-only scope selected. Live results and UI variant not owner-accepted; native interaction unobserved. |
-| Publication / merge | Reviewable draft publication pending. Not merged or released; current assignment supplies no merge/release authority. |
+| Publication / merge | Reviewable draft candidate published on `codex/ordinary-wiki-guidance`; hosted PR/CI state is tracked on GitHub. Not merged or released; current assignment supplies no merge/release authority. |
 
 ## Controlled pilot
 
@@ -59,7 +59,8 @@ Independent candidate review found three P2 harness issues: late verification ex
 Build target: `/private/tmp/brn-wiki-evaluation/build`. Logs: `/private/tmp/brn-wiki-evaluation/logs/`. Use Rust 1.98.1 and the unchanged lockfile. Equivalent build/check commands:
 
 ```sh
-CARGO_TARGET_DIR=/private/tmp/brn-wiki-evaluation/build cargo build --locked --offline -p brn -p brn-intake --bin brn --bin brn-intake-helper
+CARGO_TARGET_DIR=/private/tmp/brn-wiki-evaluation/build cargo build --locked --offline -p brn --bin brn
+CARGO_TARGET_DIR=/private/tmp/brn-wiki-evaluation/build cargo build --locked --offline -p brn-intake --features helper --bin brn-intake-helper
 BRN_INTAKE_HELPER=/private/tmp/brn-wiki-evaluation/build/debug/brn-intake-helper CARGO_TARGET_DIR=/private/tmp/brn-wiki-evaluation/build cargo test --locked --offline -p brn-ai -p brn-threads-core -p brn-threads-app
 CARGO_TARGET_DIR=/private/tmp/brn-wiki-evaluation/build cargo clippy --locked --offline -p brn-ai -p brn-threads-core -p brn-threads-app --all-targets -- -D warnings
 cargo fmt --all --check
