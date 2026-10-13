@@ -59,8 +59,17 @@
 
 ## Gate record
 
-Defined: owner requested implementation/evaluation and selected UI prototype plus live model. Build ready: plan approved in independent round 2; local runtime and final harness checks pass. Controlled pilot and browser prototype are complete; draft publication supplies the reviewable candidate; hosted CI is tracked on the PR, with owner UI selection and integration separate. Candidate/integration evidence is recorded in [evidence](evidence.md). Native observation and UI variant acceptance are outside the automated gate.
+Defined: owner requested implementation/evaluation and selected UI prototype plus live model. Build ready: plan approved in independent round 2; local runtime and final harness checks pass. Controlled pilot and browser prototype are complete; draft publication supplies the reviewable candidate; hosted CI is tracked on the PR, with owner-selected B/navigation direction and future native implementation/integration separate. Candidate/integration evidence is recorded in [evidence](evidence.md). Native observation and interaction acceptance are outside the automated gate.
 
 ## 13 October navigation follow-up
 
 Owner selected B, asked how hundreds of notes should be navigated, then requested 2–3 researched approaches involving node graphs or Obsidian-style categories. Primary-source [navigation research](../../../research/notes-navigation-at-scale.md) compares subject indexes/search, shallow collections/tags and local connections. The separate B prototype demonstrates a bounded 500-entry library; current native search/list facilities, proposed additions and organization costs remain explicit. Browser preview and scoped independent correction review pass. No native implementation, new metadata or changed runtime guide is included.
+
+## Accepted tiled B navigation flow
+
+The owner chose topic pages and search as primary navigation, a local graph under Connections, and Omarchy-style tiles. Implemented on the separate prototype branch: three adjacent navigation/subject/context tiles, linked index Notes, full-text literal search with bounded results, evidence chronology and a local graph with disclosed counts, a maximum of eight neighbors, optional sources and deliberate second-hop expansion. The reading path, previous note, focus, resize/swap, maximize and close/reopen controls keep context reachable.
+
+- [x] Apply the accepted direction to B with synthetic fixtures; retain A/C as alternatives and existing draft/protection/Undo boundaries.
+- [x] Browser-inspect desktop, narrow and default viewport paths, source/link navigation, draft coordination and tile controls; reset temporary sizing.
+- [x] Independently review meaningful B behavior; correct per-destination thread draft retention and maximized visible-tile focus.
+- [x] Record prototype primary source, selected requirements and browser evidence. Publish task-owned branch updates without native implementation, runtime/provider reruns, merge or release.

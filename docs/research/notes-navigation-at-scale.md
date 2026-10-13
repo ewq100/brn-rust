@@ -57,3 +57,7 @@ AI can propose index updates, memberships, and links with explanations. Its taxo
 SQLite remains authoritative. Organization changes must use the shared checked service, applicable protection/authority, exact candidates, version checks, receipts, and Undo. Navigation must preserve per-note drafts. Guidance roles remain writing conventions. [Invariants](../architecture/invariants.md), [Assignment boundaries](../work/active/ordinary-wiki/spec.md).
 
 Compare synthetic 100-, 500-, and 1,000-note sets using concrete tasks: reopen a remembered note, find a multi-topic note, trace a disputed statement to evidence, and locate an unclassified note. Record completion, wrong turns, discovery failures, and organization upkeep. Browser prototype observations establish design behavior only; native usability and owner acceptance remain separate.
+
+## Owner selection and prototype follow-up
+
+After this research, the owner selected topic pages/search as primary navigation and a local graph under Connections, asking for Omarchy-style tiles in B. The [UI design](../work/active/ordinary-wiki/ui-design.md) records the three-tile flow and browser checks. This accepts the navigation direction while leaving native implementation, usability measurement and any folder/tag contract separate.
