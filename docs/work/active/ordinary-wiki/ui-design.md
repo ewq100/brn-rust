@@ -2,13 +2,13 @@
 
 **Scope:** design and prototype first, as selected by the owner. No native UI changed. The question is how maintained ordinary knowledge should expose its evidence, connections and changes while keeping the note readable and editable.
 
-## Recommendation
+## Selected direction
 
-Use **A — Read with context** as the default: the existing note/editor stays central, with a contextual rail containing evidence, related notes and recent accepted changes. Keep protection/version/unsaved status beside the title. Show an unresolved discrepancy with its linked decision thread when supported by recorded context. A source report and a protected reference can disagree without either silently replacing the other.
+**Owner selected B — Subject overview with evidence chronology on 13 October 2026** for the later native UI pass. Keep the subject account beside dated evidence and expose related work and exact accepted changes. Keep protection/version/unsaved status beside the title. Source reports and protected references can disagree without either silently replacing the other.
 
-Borrow **B — Subject overview**'s chronology for evidence details. Original/effective evidence dates and ingestion time must remain distinguishable; an older document ingested later is still older evidence. Offer **C — Connected reading** as an optional local connections view, rather than making every reading task start with a graph. Its arrows describe recorded relationships, not proof of truth.
+The horizontal note strip in the first B sketch does not scale to hundreds of notes. Replace it with search and bounded browsing: global title/text search with result context, Recent, recorded relationships, protected/imported references and All A–Z. Keep the current subject open behind navigation. Optional local connections and chronology details can complement this structure. The [navigation research](../../../research/notes-navigation-at-scale.md) compares subject index Notes, shallow collections/tags and bounded local connections; none is an accepted metadata or native implementation change yet.
 
-This is a recommendation awaiting owner selection. Purpose chips in the demo are illustrative writing conventions; the current Note schema has no role field. A native pass should omit automatic chips unless a separate product decision justifies them.
+Purpose chips in the demo are illustrative writing conventions; the current Note schema has no role field. A native pass should omit automatic chips unless a separate product decision justifies them.
 
 | Variant | Information hierarchy | Practical tradeoff |
 |---|---|---|
@@ -37,7 +37,7 @@ The native note remains **always editable**, as required by the accepted Omakase
 
 ## Prototype and observations
 
-Primary source: separate branch [`codex/ordinary-wiki-ui-prototype`](https://github.com/ewq100/brn-rust/tree/codex/ordinary-wiki-ui-prototype), commit `63ac218c05bde67e00c45e53f32b6ed3be06b9ce`, based on `65119a73`. [Prototype and run instructions](https://github.com/ewq100/brn-rust/blob/63ac218c05bde67e00c45e53f32b6ed3be06b9ce/crates/brn-desktop/prototypes/README.md). Assets remain outside the implementation branch.
+Primary source: separate branch [`codex/ordinary-wiki-ui-prototype`](https://github.com/ewq100/brn-rust/tree/codex/ordinary-wiki-ui-prototype), commit `43d7c3bcd11c9f29a9851af9dcb58a2da9320226`, based on `65119a73`. [Prototype and run instructions](https://github.com/ewq100/brn-rust/blob/43d7c3bcd11c9f29a9851af9dcb58a2da9320226/crates/brn-desktop/prototypes/README.md). Assets remain outside the implementation branch.
 
 On this machine the preview is [A](http://127.0.0.1:8768/ordinary-wiki-notes.prototype.html?variant=A), [B](http://127.0.0.1:8768/ordinary-wiki-notes.prototype.html?variant=B) and [C](http://127.0.0.1:8768/ordinary-wiki-notes.prototype.html?variant=C). The single-file demo uses synthetic content and memory-only state; it never reads/writes BRN, calls a model or sends a message.
 
@@ -45,4 +45,10 @@ Browser preview on 13 October 2026 inspected all three structures at 1440×1000 
 
 The controlled runtime pilot also found one wiki sample that names source dates/paths without visible inline source-record links. Its typed relationships and exact inputs passed the host checks. This supports making recorded evidence reachable in context; it does not establish that this specific UI has superior usability.
 
-Owner variant selection, native implementation, keyboard/focus/IME behavior and real usability remain unobserved. Rewrite a selected design using native components and existing checked paths; do not promote throwaway HTML to production.
+B is owner-selected. Native implementation, keyboard/focus/IME behavior and real usability remain unobserved. Rewrite a selected design using native components and existing checked paths; do not promote throwaway HTML to production.
+
+The 500-note follow-up prototype uses four worked examples and 496 clearly marked navigation placeholders. It demonstrates bounded paging, literal title/text search with snippets, Enter to open, ⌘K, Recent, linked/protected views and starting-letter browsing. This is navigation design evidence, not proof of native search relevance or performance. The current Notes tile already has title filtering, corpus keyword text search and bounded Recent/Linked to open threads/Protected & imported/A–Z lists. Note-centered links, a consolidated library overlay and any folders/tags remain proposed UI work.
+
+The researched recommendation is search plus a few useful subject index Notes, with optional bounded local connections. Index Notes can link a subject from several entry points using existing Note/Link records. New folder/tag metadata and owner taxonomy are separate product choices; a whole-corpus graph is optional. The research identifies these as design hypotheses, not measured usability wins.
+
+Independent follow-up review caught an abbreviated demo index that missed visible body text. Full worked-note bodies are now indexed separately from matching-context snippets; Tuesday and Medical emergencies both find and open the comparison. The scoped correction has no remaining material review findings.

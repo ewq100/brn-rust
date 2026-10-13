@@ -10,12 +10,12 @@
 | Environment | Read-only preflight passed: repository Rust 1.98.1, Cargo, Python and Git available. Dependencies/lockfile unchanged. |
 | Plan review | Independent review approved round 2. Added applied input-lineage inspection and distinguished protected imported evidence from confirmed owner authority. |
 | Implementation | Bundle 3 and controlled CLI harness implemented; same four guides, nine tools, schema, checked service, protection and Undo. No native UI change. |
-| Automated verification | Baseline and candidate each passed 363 runtime/core/app tests, one pre-existing ignored. Relevant strict Clippy and formatting passed. Final Python suite: 50 passed, including 14 harness integrity tests. Markdown gate: 52 files, 214 local links, zero failures. |
+| Automated verification | Baseline and candidate each passed 363 runtime/core/app tests, one pre-existing ignored. Relevant strict Clippy and formatting passed. Final Python suite: 50 passed, including 14 harness integrity tests. Initial Markdown gate: 52 files, 214 local links, zero failures; navigation follow-up: 53 files, 222 local links, zero failures. |
 | Live comparison | 10/12 scenario arms completed; 14/16 provider invocations completed. Wiki: 6/6 arms; baseline: 4/6, with two Network failures retained. All 10 completed arms pass final structural checks; six eligible actual Undo groups restored affected data and preserved unrelated records. |
 | Semantic assessment | Blinded independent review of frozen inputs, saved notes and answers: all six complete substantive samples preserve tested facts/qualifications/chronology; four arithmetic controls stay brief. No semantic superiority established. |
 | Independent candidate review | No remaining actionable runtime/harness defects after three P2 harness corrections. Original live snapshots pass the final validator; no extra provider calls were needed. |
-| UI prototype preview | Three separate throwaway variants browser-previewed at desktop/narrow sizes; [UI mapping and recommendation](ui-design.md). Independent mapping/prototype review found no material defects. This is not native qualification. |
-| Owner acceptance | Wiki policy, exact model and prototype-only scope selected. Live results and UI variant not owner-accepted; native interaction unobserved. |
+| UI prototype preview | Three separate throwaway variants browser-previewed at desktop/narrow sizes; B selected and extended with a 500-note navigation demo; [UI mapping and recommendation](ui-design.md). Independent mapping/prototype review found no material defects. This is not native qualification. |
+| Owner acceptance | Wiki policy, exact model and prototype-only scope selected. B — subject overview with evidence chronology owner-selected on 13 October 2026; live results not owner-accepted and native interaction unobserved. |
 | Publication / merge | Reviewable draft candidate published on `codex/ordinary-wiki-guidance`; hosted PR/CI state is tracked on GitHub. Not merged or released; current assignment supplies no merge/release authority. |
 
 ## Controlled pilot
@@ -75,3 +75,9 @@ The final offline harness passed at `/private/tmp/brn-wiki-evaluation/offline-fi
 Applied input lineage is read only from the exclusively owned synthetic `threads.sqlite3`, limited to Run.operations matched with recorded applied receipts and whitelisted input/version/expectation fields. Pending candidate/history CLI output alone does not expose applied inputs. No full operation request or owner database is emitted.
 
 Raw artifacts remain under `/private/tmp/brn-wiki-evaluation/`; they can expire with local temporary storage. The frozen harness, hashes, semantic assessment and this bounded result record are committed. Hosted CI, native observation, owner UI selection and any integration are separately recorded gates.
+
+## Navigation follow-up
+
+On 13 October 2026 the owner selected B, then requested navigation research for hundreds of notes. [Primary-source research](../../../research/notes-navigation-at-scale.md) compares searchable subject indexes, shallow collections/tags and bounded local connections. It recommends indexes plus local connections as a design hypothesis. The B prototype replaces its note strip with a 500-entry synthetic library; 12 visible results per page, result counts/snippets, search by remembered detail, Enter opening, ⌘K, Recent, linked/protected browsing, letter filters and no-results state were browser-inspected, including a 720×1000 view. No native search relevance/performance or all-graph scalability is claimed.
+
+The navigation follow-up changed only research/design records and the separate HTML prototype. Independent review found one incomplete demo text index; full worked-note bodies plus matching snippets corrected it, with Tuesday/Medical emergencies and correct-note opening verified. No remaining material findings. The evaluated bundle-3 runtime and provider pilot are unchanged.

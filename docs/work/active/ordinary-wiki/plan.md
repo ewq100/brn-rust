@@ -60,3 +60,7 @@
 ## Gate record
 
 Defined: owner requested implementation/evaluation and selected UI prototype plus live model. Build ready: plan approved in independent round 2; local runtime and final harness checks pass. Controlled pilot and browser prototype are complete; draft publication supplies the reviewable candidate; hosted CI is tracked on the PR, with owner UI selection and integration separate. Candidate/integration evidence is recorded in [evidence](evidence.md). Native observation and UI variant acceptance are outside the automated gate.
+
+## 13 October navigation follow-up
+
+Owner selected B, asked how hundreds of notes should be navigated, then requested 2–3 researched approaches involving node graphs or Obsidian-style categories. Primary-source [navigation research](../../../research/notes-navigation-at-scale.md) compares subject indexes/search, shallow collections/tags and local connections. The separate B prototype demonstrates a bounded 500-entry library; current native search/list facilities, proposed additions and organization costs remain explicit. Browser preview and scoped independent correction review pass. No native implementation, new metadata or changed runtime guide is included.

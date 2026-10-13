@@ -22,6 +22,8 @@ Retain existing runtime/core tests for stale current inputs, guarded groups, pro
 
 ## UI exploration
 
+**Follow-up owner choice, 13 October 2026:** B — subject overview with evidence chronology guides a later native UI pass. The owner then asked how hundreds of notes should be navigated and requested 2–3 researched approaches involving node graphs or Obsidian-style categories. The current pass records that selection, demonstrates bounded synthetic navigation and compares approaches; it does not authorize native implementation or a category schema.
+
 Produce three structurally different, interactive, synthetic-data note layouts inside a recognizable Omakase tiled shell. Compare **reading with a contextual rail**, **subject overview with evidence**, and **connected-notes navigation**. Show note purpose independently from protection; sources, related notes, unresolved conflicts, last changes and Undo are reachable while text remains readable. Include working/protected notes and a source whose original is unavailable. Variant switching uses `?variant=` and a floating switcher; prototype controls are clearly synthetic and never mutate BRN.
 
 The artifact is a throwaway standalone HTML preview beside the native presentation module on a separate prototype branch, because this native Rust app has no web route. Document how each proposed control maps to existing checked APIs, which visible information is present today, and which would require later implementation. Native UI implementation and owner acceptance of a variant are separate future gates. Preserve current editor/dirty/review semantics in the design.
