@@ -179,6 +179,12 @@ enum WorkerEvent {
     Progress(String),
     Text(String),
     Finished(Result<String, String>),
+    CopilotLogin {
+        verification_uri: String,
+        user_code: String,
+    },
+    CopilotConnected(String),
+    CopilotModels(Vec<String>),
     Converted {
         result: Box<Result<ConversionResult, String>>,
         title: String,
@@ -254,6 +260,28 @@ fn markdown(view: &Entity<TextViewState>, assets: Arc<BTreeMap<String, Arc<Image
 // Presentation is shared by every tile. Toolkit controls keep their focus,
 // selected and disabled behavior; prose retains the normal system font.
 const MONO: &str = "Menlo";
+fn default_copilot_credentials_dir() -> std::io::Result<PathBuf> {
+    use std::os::unix::fs::DirBuilderExt as _;
+    let home = std::env::var_os("HOME")
+        .map(PathBuf::from)
+        .filter(|home| home.is_absolute())
+        .ok_or_else(|| std::io::Error::other("HOME is not set"))?;
+    let parent = home.join(".config").join("brn");
+    std::fs::DirBuilder::new()
+        .recursive(true)
+        .mode(0o700)
+        .create(&parent)?;
+    Ok(parent.join("copilot"))
+}
+const TOP_BAR_HEIGHT: gpui_kit::Pixels = px(38.);
+fn top_bar_window_options() -> WindowOptions {
+    let mut options = TitleBar::window_options();
+    if let Some(titlebar) = options.titlebar.as_mut() {
+        // Centre the 16px macOS traffic lights inside the 38px top bar.
+        titlebar.traffic_light_position = Some(point(px(12.), (TOP_BAR_HEIGHT - px(16.)) / 2.));
+    }
+    options
+}
 fn button(id: impl Into<gpui_kit::ElementId>) -> Button {
     Button::new(id)
         .rounded(ButtonRounded::None)
@@ -391,6 +419,7 @@ struct ThreadsUi {
     progress: String,
     notice: String,
     export_status: String,
+    copilot_models: Vec<String>,
     backup_status: String,
     subscriptions: Vec<Subscription>,
     poll: Option<Task<()>>,
@@ -597,6 +626,7 @@ impl ThreadsUi {
             progress: String::new(),
             notice: String::new(),
             export_status: "No export created in this session.".into(),
+            copilot_models: Vec::new(),
             backup_status: "No backup created in this session.".into(),
             subscriptions,
             poll: Some(poll),
@@ -1582,10 +1612,23 @@ impl ThreadsUi {
                 provider: brn_ai::Provider::Chatgpt,
                 model: self.settings.model.clone(),
             },
-            "copilot" => brn_ai::Selection {
-                provider: brn_ai::Provider::Copilot,
-                model: self.settings.model.clone(),
-            },
+            "copilot" => {
+                if !self.copilot_models.is_empty()
+                    && !self.copilot_models.contains(&self.settings.model)
+                {
+                    self.notice = format!(
+                        "{} is not offered by GitHub Copilot, so BRN has not started. Choose a model from the model menu: {}.",
+                        self.settings.model,
+                        self.copilot_models.join(", ")
+                    );
+                    cx.notify();
+                    return;
+                }
+                brn_ai::Selection {
+                    provider: brn_ai::Provider::Copilot,
+                    model: self.settings.model.clone(),
+                }
+            }
             _ => {
                 self.notice = "Choose a provider and model in Settings before asking BRN.".into();
                 cx.notify();
@@ -2313,6 +2356,27 @@ impl ThreadsUi {
                     self.stream.push_str(&text);
                 }
                 WorkerEvent::Progress(text) => self.progress = text,
+                WorkerEvent::CopilotLogin {
+                    verification_uri,
+                    user_code,
+                } => {
+                    cx.write_to_clipboard(gpui_kit::ClipboardItem::new_string(user_code.clone()));
+                    cx.open_url(&verification_uri);
+                    self.progress = format!(
+                        "GitHub sign-in: enter code {user_code} at {verification_uri} (code copied)"
+                    );
+                }
+                WorkerEvent::CopilotModels(models) => self.copilot_models = models,
+                WorkerEvent::CopilotConnected(dir) => {
+                    let mut settings = self.settings.clone();
+                    settings.provider = "copilot".into();
+                    settings.credentials_dir = Some(dir);
+                    if let Err(error) = self.workspace.configure(settings.clone()) {
+                        self.notice = error.to_string();
+                    } else {
+                        self.settings = settings;
+                    }
+                }
                 WorkerEvent::Finished(result) => {
                     finished = true;
                     let kind = self.worker.as_ref().map(|w| w.kind);
@@ -2741,6 +2805,140 @@ impl ThreadsUi {
         self.progress = "Saving portable workspace data…".into();
         cx.notify();
     }
+    fn connect_copilot(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        self.copilot_worker(true, Some(window), cx);
+    }
+    pub(super) fn load_copilot_models(&mut self, cx: &mut Context<Self>) {
+        self.copilot_worker(false, None, cx);
+    }
+    /// Copilot model IDs differ from Codex IDs, so learn them before the owner sends.
+    fn auto_load_copilot_models(&mut self, cx: &mut Context<Self>) {
+        if shell::provider_key(&self.settings.provider) == "copilot"
+            && self.settings.credentials_dir.is_some()
+            && self.worker.is_none()
+        {
+            self.load_copilot_models(cx);
+        }
+    }
+    fn copilot_worker(
+        &mut self,
+        connect: bool,
+        window: Option<&mut Window>,
+        cx: &mut Context<Self>,
+    ) {
+        if let Some(worker) = &self.worker {
+            self.notice = worker.kind.busy_notice().into();
+            cx.notify();
+            return;
+        }
+        let mut dir = self.credentials_path.read(cx).value().trim().to_string();
+        if dir.is_empty() {
+            dir = self.settings.credentials_dir.clone().unwrap_or_default();
+        }
+        if dir.is_empty() {
+            if !connect {
+                self.notice = "Connect GitHub Copilot in Settings first.".into();
+                cx.notify();
+                return;
+            }
+            match default_copilot_credentials_dir() {
+                Ok(default) => dir = default.to_string_lossy().into_owned(),
+                Err(error) => {
+                    self.notice =
+                        format!("Could not prepare the Copilot credentials folder: {error}");
+                    cx.notify();
+                    return;
+                }
+            }
+            if let Some(window) = window {
+                self.credentials_path
+                    .update(cx, |input, cx| input.set_value(dir.clone(), window, cx));
+            }
+        }
+        let current_model = self.settings.model.clone();
+        let (sender, receiver) = mpsc::sync_channel(16);
+        let cancel = CancellationToken::new();
+        let worker_cancel = cancel.clone();
+        let login_sender = sender.clone();
+        let connected_sender = sender.clone();
+        let path = PathBuf::from(&dir);
+        let spawned = std::thread::Builder::new()
+            .name("brn-copilot-connect".into())
+            .spawn(move || {
+                let result = tokio::runtime::Builder::new_current_thread()
+                    .enable_all()
+                    .build()
+                    .map_err(|e| e.to_string())
+                    .and_then(|runtime| {
+                        runtime.block_on(async {
+                            let auth = brn_ai::Auth::open(&path).map_err(|e| e.to_string())?;
+                            let mut message = String::new();
+                            if connect {
+                                let login = Arc::new(move |prompt: brn_ai::LoginPrompt| {
+                                    let _ = login_sender.try_send(WorkerEvent::CopilotLogin {
+                                        verification_uri: prompt.verification_uri,
+                                        user_code: prompt.user_code,
+                                    });
+                                });
+                                let status = auth
+                                    .connect(brn_ai::Provider::Copilot, login, worker_cancel.clone())
+                                    .await
+                                    .map_err(|e| e.to_string())?;
+                                let _ = connected_sender
+                                    .send(WorkerEvent::CopilotConnected(path.to_string_lossy().into()));
+                                message = match status.name {
+                                    Some(name) => format!("Connected to GitHub Copilot as {name}. "),
+                                    None => "Connected to GitHub Copilot. ".into(),
+                                };
+                            }
+                            match auth.models(brn_ai::Provider::Copilot, worker_cancel).await {
+                                Ok(models) => {
+                                    let ids: Vec<String> =
+                                        models.into_iter().map(|m| m.id).collect();
+                                    if ids.contains(&current_model) {
+                                        message.push_str(&format!(
+                                            "{} Copilot models available.",
+                                            ids.len()
+                                        ));
+                                    } else {
+                                        message.push_str(&format!(
+                                            "{current_model} is not offered by GitHub Copilot. Choose a model from the model menu: {}.",
+                                            ids.join(", ")
+                                        ));
+                                    }
+                                    let _ = connected_sender.send(WorkerEvent::CopilotModels(ids));
+                                }
+                                Err(error) if connect => message.push_str(&format!(
+                                    "Could not list Copilot models: {error}"
+                                )),
+                                Err(error) => return Err(error.to_string()),
+                            }
+                            Ok(message)
+                        })
+                    });
+                let _ = sender.send(WorkerEvent::Finished(result));
+            });
+        if let Err(error) = spawned {
+            self.notice = format!("Could not start GitHub Copilot sign-in. {error}");
+            cx.notify();
+            return;
+        }
+        self.worker = Some(Worker {
+            receiver,
+            cancel,
+            conversion_cancel: Arc::new(AtomicBool::new(false)),
+            kind: WorkerKind::Connect,
+            thread: None,
+            run_id: None,
+        });
+        self.progress = if connect {
+            "Starting GitHub sign-in…"
+        } else {
+            "Loading GitHub Copilot models…"
+        }
+        .into();
+        cx.notify();
+    }
     fn configure(&mut self, cx: &mut Context<Self>) {
         self.settings.model = self.model.read(cx).value().to_string();
         let auth = self.auth_path.read(cx).value().to_string();
@@ -2883,10 +3081,11 @@ pub fn launch(data_dir: PathBuf) -> Result<(), String> {
                         size(px(1260.), px(860.)),
                     ))),
                     window_min_size: Some(size(px(850.), px(600.))),
-                    ..TitleBar::window_options()
+                    ..top_bar_window_options()
                 },
                 move |window, cx| {
                     let view = cx.new(|cx| ThreadsUi::new(workspace, data_dir, window, cx));
+                    view.update(cx, |view, cx| view.auto_load_copilot_models(cx));
                     let weak = view.downgrade();
                     window.on_window_should_close(cx, move |_, cx| {
                         let _ = weak.update(cx, |this, _| {

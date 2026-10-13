@@ -1026,13 +1026,20 @@ impl ThreadsUi {
                     .aria_label("Copilot credentials folder"),
             )
             .child(metadata(
-                "Credentials stay outside notes, exports and History.",
+                "Credentials stay outside notes, exports and History. The Codex auth file is used only with Codex / ChatGPT.",
             ))
             .child(
                 button("save-settings")
                     .label("Save settings")
                     .disabled(self.worker.is_some())
                     .on_click(cx.listener(|this, _, _, cx| this.configure(cx))),
+            )
+            .child(
+                button("connect-copilot")
+                    .label("Connect GitHub Copilot…")
+                    .disabled(self.worker.is_some())
+                    .tooltip("Sign in with GitHub in your browser; uses the folder above or ~/.config/brn/copilot")
+                    .on_click(cx.listener(|this, _, window, cx| this.connect_copilot(window, cx))),
             );
         let copies = panel()
             .id("settings-copies")
@@ -1163,6 +1170,7 @@ impl ThreadsUi {
             .id("settings-content")
             .size_full()
             .flex()
+            .items_start()
             .gap_3()
             .p_3()
             .overflow_y_scroll()

@@ -950,7 +950,12 @@ pub async fn run_prepared(
             }
         }
     });
-    let client = if let Some(file) = &request.auth_file {
+    // A Codex auth file only serves ChatGPT; Copilot always uses its credentials folder.
+    let codex_file = request
+        .auth_file
+        .as_ref()
+        .filter(|_| request.selection.provider == Provider::Chatgpt);
+    let client = if let Some(file) = codex_file {
         crate::codex_auth::codex_client(file, &request.selection, cancel.clone()).await
     } else if let Some(dir) = &request.credentials_dir {
         match Auth::open(dir) {
@@ -978,14 +983,13 @@ pub async fn run_prepared(
                     .await
                 }
                 OwnedClient::Copilot(client) => {
-                    let responses = rig::providers::copilot::wire::routes_through_responses(&model);
-                    run_model(
-                        client.completion(model),
+                    run_copilot(
+                        &client,
+                        model,
                         scope.clone(),
                         &input,
                         request.effort,
                         request.max_tool_rounds,
-                        responses,
                         cancel.clone(),
                         emit,
                     )
@@ -1488,6 +1492,43 @@ fn finish(scope: &Scope, answer: &AiAnswer) -> AiResult<bool> {
         store.apply(&op, &owner).map_err(storage)?,
         ApplyOutcome::Applied(_)
     ))
+}
+#[allow(clippy::too_many_arguments)]
+async fn run_copilot(
+    client: &rig::providers::copilot::Copilot,
+    model: String,
+    scope: Arc<Scope>,
+    input: &str,
+    effort: ReasoningEffort,
+    limit: u16,
+    cancel: CancellationToken,
+    emit: Arc<dyn Fn(AiEvent) + Send + Sync>,
+) -> AiAnswer {
+    let mut responses = rig::providers::copilot::wire::routes_through_responses(&model);
+    loop {
+        let answer = run_model(
+            crate::auth::copilot_completion(client, model.clone(), responses),
+            scope.clone(),
+            input,
+            effort,
+            limit,
+            responses,
+            cancel.clone(),
+            emit.clone(),
+        )
+        .await;
+        // Copilot serves some non-Codex models only on Responses and refuses the
+        // chat route before any output; retry the same model there once.
+        if !responses
+            && answer.text.is_empty()
+            && matches!(&answer.terminal, AiTerminal::Failed(e) if e.kind == AiErrorKind::ModelRefused)
+            && !cancel.is_cancelled()
+        {
+            responses = true;
+            continue;
+        }
+        return answer;
+    }
 }
 #[allow(clippy::too_many_arguments)]
 async fn run_model(
@@ -2691,6 +2732,50 @@ mod tests {
                     .any(|r| matches!(&r.data,RecordData::Message(m) if m.role=="assistant"))
             );
         }
+    }
+
+    #[tokio::test]
+    async fn copilot_chat_route_refusal_retries_same_model_on_responses_once() {
+        let (_root, request, _) = fixture();
+        let (scope, input) = begin(&request).unwrap();
+        let completed = json!({"type":"response.completed","sequence_number":1,"response":{
+            "id":"resp_copilot","object":"response","created_at":1,"status":"completed","model":"synthetic-model",
+            "output":[{"type":"message","id":"msg_copilot","status":"completed","role":"assistant","content":[{"type":"output_text","annotations":[],"text":"Routed"}]}],
+            "tools":[],"usage":{"input_tokens":1,"output_tokens":1,"total_tokens":2}}});
+        let http = rig::test_utils::SequencedHttpClient::new([
+            rig::test_utils::MockHttpResponse::error(
+                rig::http_client::StatusCode::BAD_REQUEST,
+                json!({"error":{"code":"unsupported_api_for_model","message":"synthetic"}})
+                    .to_string(),
+            ),
+            rig::test_utils::MockHttpResponse::success_typed(
+                format!("data: {completed}\n\ndata: [DONE]\n\n"),
+                "text/event-stream",
+            ),
+        ]);
+        let client = rig::providers::copilot::CopilotConfig::new("synthetic-not-a-credential")
+            .connect(http.clone());
+        let answer = run_copilot(
+            &client,
+            "synthetic-model".into(),
+            scope,
+            &input,
+            ReasoningEffort::Medium,
+            4,
+            CancellationToken::new(),
+            Arc::new(|_| {}),
+        )
+        .await;
+        assert!(
+            matches!(answer.terminal, AiTerminal::Completed),
+            "{:?}",
+            answer.terminal
+        );
+        assert_eq!(answer.text, "Routed");
+        let uris: Vec<String> = http.requests().into_iter().map(|r| r.uri).collect();
+        assert_eq!(uris.len(), 2, "{uris:?}");
+        assert!(uris[0].ends_with("/chat/completions"), "{uris:?}");
+        assert!(uris[1].ends_with("/responses"), "{uris:?}");
     }
 
     #[tokio::test]
