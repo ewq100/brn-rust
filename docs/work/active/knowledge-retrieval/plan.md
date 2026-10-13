@@ -103,10 +103,10 @@
   - Tests use deterministic fake models: paraphrase found only by the dense lane, prefixes, coverage, visibility, re-embedding after an edit, the floor keeping abstention, a failing model, and keyword mode.
 - [ ] Owner-run qualification (requested separately): `brn model-install`, then `retrieval_eval --retriever hybrid` with `BRN_EMBEDDING_MODEL_DIR` at 1k/5k/10k notes. Record embedding time, memory, paraphrase recall and abstention, and tune the e5 floor.
 
-## Task 6 — cleanup (PR 6)
+## Task 6 — cleanup (PR 6, shipped with Task 5)
 
-- [ ] Retire the vault-era `NoteIndex` metadata, UUID, edge-proof and reader code once it has no callers.
-- [ ] Separately assess the legacy `ReadTools::search_notes` path in `brn-ai/src/tools.rs`, which only provider-format tests use.
+- [x] Retired the vault-era `NoteIndex` (metadata, UUID, edge-proof, reader and embedding caches, about 1,700 lines plus six test files) and the old fixed-size chunker, once nothing outside `brn-retrieval` used them. The query helpers moved into `search_index`, the `Embedder` trait into `embedding`. Error variants and `serde`/`serde_json` dependencies used only by that code were removed; the lockfile only loses those edges.
+- [x] Assessed the legacy `ReadTools::search_notes` path in `brn-ai/src/tools.rs`. It belongs to the offline provider-format qualification runtime (`provider_fixture_runtime`, test- or `capability-spike`-only exports, about 6,700 lines of format tests) and does not touch any index. Shipped hosts never reach it; agent runs use `search_notes` through `RunNoteSearch`. Removing it means retiring or porting those provider-format tests, which is a separate owner decision rather than retrieval cleanup, so it is kept unchanged.
 
 ## Projects stage hooks (not built here)
 

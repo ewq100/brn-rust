@@ -75,7 +75,7 @@ flowchart LR
 
 ### 2. Derived index (`brn-retrieval::search_index`)
 
-- **Identity and rebuild.** A lean schema with identity `BRNS` v1, independent of the vault-era `NoteIndex`. It reuses the chunk, query-escaping, RRF and embedding code. An outdated or settings-mismatched index is rebuilt in place in one transaction, and a damaged one is replaced; neither is ever repaired. Both happen under an advisory `derived/search.lock` shared by every BRN process. This replaced the planned sibling swap, which could strand WAL files and race across processes. A foreign file is refused unchanged.
+- **Identity and rebuild.** A lean schema with identity `BRNS` (v2 since Task 5: passage IDs are never reused), independent of the vault-era `NoteIndex`, which Task 6 retired. An outdated or settings-mismatched index is rebuilt in place in one transaction, and a damaged one is replaced; neither is ever repaired. Both happen under an advisory `derived/search.lock` shared by every BRN process. This replaced the planned sibling swap, which could strand WAL files and race across processes. A foreign file is refused unchanged.
 - **Tables:**
   - `docs(id, kind, version, sha256, title, visibility, protected, imported, language)`. `kind` is `note` now; `message` is reserved for project chat search. `visibility` is `general`, `chat:<id>` or, later, `project:<id>`.
   - `passages(id, doc, start_byte, end_byte, heading_path, text, indexed_text)`. `indexed_text` is `title › heading path` followed by the passage text. Byte ranges point into the saved Markdown, so quotes and anchors stay exact.

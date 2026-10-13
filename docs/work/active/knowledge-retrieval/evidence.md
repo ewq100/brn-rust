@@ -323,3 +323,11 @@ target/release/brn --data-dir <any> model-install --destination <fresh absolute 
 BRN_EMBEDDING_MODEL_DIR=<folder> cargo run --release -p brn-threads-app --features native-retrieval \
   --example retrieval_eval -- --root <new root> --notes 10000 --retriever hybrid --out <report>.json
 ```
+
+## Task 6 — cleanup
+
+- **Removed:** `brn-retrieval/src/note_index/` (mod, schema, search, embeddings, edges), `chunk.rs`, and the tests `note_index`, `note_search`, `note_reader`, `note_edges`, `note_scopes` and `note_embeddings`.
+- **Kept:** the query helpers, now in `search_index`; the `Embedder` trait, now in `embedding`; and the installer and `LocalEmbedder`.
+- **Dependencies:** `serde` and `serde_json` were dropped from `brn-retrieval`. `Cargo.lock` loses two dependency edges and adds no packages.
+- **Checks:** workspace build, clippy and tests, the `native` and `native-retrieval` lanes, and the Markdown link check all pass.
+- **The legacy `ReadTools` path was assessed and kept;** the reason is in the [plan](plan.md#task-6--cleanup-pr-6-shipped-with-task-5).
