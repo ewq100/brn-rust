@@ -2,7 +2,7 @@
 
 **Date:** 13 October 2026. **Scope:** stage one of the [accepted brief](spec.md); [plan](plan.md), [research](research.md). Projects, publication, merge, release, live providers and real owner-data access are unassigned. Native observation remains explicitly deferred by repository authority.
 
-**Baseline:** `65119a73a6aaea13764b8bc6290f7bb6dc79ff2d` (PR #128), isolated branch `codex/thread-product-discovery`, checkout `/Users/evokessler/.codex/worktrees/thread-product-discovery/brn-rust`. Original checkout `work/copilot-provider-fixes` and its unrelated `experiments/` remain unchanged. **Implementation commit:** `73211572e74ab658e748aa28950365ac2d40776e`. Subsequent qualification-record commits change only task documentation/witness artifacts; implementation remains this pinned source.
+**Baseline:** `65119a73a6aaea13764b8bc6290f7bb6dc79ff2d` (PR #128), isolated branch `codex/thread-product-discovery`, checkout `/Users/evokessler/.codex/worktrees/thread-product-discovery/brn-rust`. This task made no edits in the original checkout; its unrelated `experiments/` are preserved. The original checkout was on `work/copilot-provider-fixes` at start and is now externally advanced to `main` at the same `65119a7` baseline; task implementation remains isolated. **Implementation commit:** `73211572e74ab658e748aa28950365ac2d40776e`. Subsequent qualification-record commits change only task documentation/witness artifacts; implementation remains this pinned source.
 
 ## Delivered behavior
 
