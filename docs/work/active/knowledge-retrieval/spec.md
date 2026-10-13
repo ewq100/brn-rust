@@ -97,7 +97,7 @@ flowchart LR
 
 - **Pipeline:**
   1. Filter eligibility first, using the caller's context: `general` plus `chat:<current>`; later, project rules.
-  2. Run `fts_exact` and `fts_stem`, each limited to 50.
+  2. Run `fts_exact` and `fts_stem`, each limited to 50, plus an all-words `fts_stem` lane when the query has more than one word.
   3. Run dense search, limited to 50, when vectors exist for the configured model.
   4. Fuse with RRF, k=60.
   5. Collapse to one result per document: best passage, number of matching passages, heading path.

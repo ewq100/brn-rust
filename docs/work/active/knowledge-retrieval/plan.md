@@ -51,12 +51,19 @@
 
 ## Task 2 — hybrid query and app/UI/CLI switch (PR 2)
 
-- [ ] Query pipeline: eligibility filter, exact and stemmed FTS (plus dense when present), RRF, collapse per document, core visibility re-check, and overfetch.
-- [ ] Evidence quota: when a page has more than 3 results, at least 30% of slots go to matched imported references and source-linked notes. Paging returns `total`, `shown` and a `cursor`, with exact counts.
-- [ ] `Workspace::search` uses the handle with the owner's context. `SearchHit` gains `heading_path`, `matches` and `inbound_links` as additive fields. Update the desktop notes filter and CLI `search` output.
-- [ ] Extend `user_scale` to 10,000 notes. Check reopen without rebuild, one-note sync < 50 ms and query p95 < 150 ms; record on the target Mac and use lenient bounds in CI.
-- [ ] Visibility tests: chat-only notes stay out of general and other-chat results, including snippets, counts and Keep-in-BRN eligibility after a version-checked Keep.
-- [ ] Rerun Task 0 and record the deltas.
+- [x] Query pipeline: eligibility filter, exact and stemmed FTS (plus dense when present, Task 5), RRF, collapse per document, core visibility re-check, and overfetch.
+  - Added from the Task 1 finding: a third lane requires every query word (stemmed) in one passage. It is a subset of the stem lane and supplies a note's passage when it matches. Inflection recall@10 went from 0.30 to 0.75.
+  - Lanes skip passage text; text is fetched once for the fused notes.
+- [x] Evidence quota (`search::arrange`): when a page has more than 3 results, at least 30% of its slots go to matched evidence (imported notes, and targets of visible `source` links) while unplaced evidence remains. Pages keep rank order, and every result appears once.
+- [x] Paging returns an exact `total` (SQL union of both lanes over eligible documents), `offset`, `reachable` (the fused list of at most 100 notes) and an opaque `cursor`. A cursor for another page size is refused.
+- [x] `Workspace::search_handle` starts the worker lazily; `Workspace::search_page` takes the context, limit and cursor. `Workspace::search` returns the first 30 general results. The in-memory `NoteIndex` is gone from `Workspace`. `SearchHit` gained `heading_path`, `snippet`, `highlights`, `matches`, `inbound_links`, `protected`, `imported` and `evidence` as additive serde-default fields.
+  - Inbound-link counts include only links from documents visible in the same context.
+  - CLI: `search --query TEXT [--limit 1..50] [--cursor NEXT] [--thread CHAT]` prints the page with `total`, `shown`, `offset`, `reachable` and `cursor`.
+  - Desktop (S3): requests are awaited on the background executor and never block typing. A newer query cancels the older one, and stale answers are ignored by generation. The index is prepared at startup ("preparing search…"). Results show exact counts (`N matches · 1–12`), 12 per page with Previous/Next, heading path, passage count, imported/protected labels, inbound links and highlighted matching context.
+  - A `derived/` directory or index removed while running is re-created on the next request (`StoreReader::derived_directory`).
+- [x] `user_scale` now covers 10,000 notes: reopen without rebuild, one-note sync < 50 ms and query p95 < 150 ms. Strict bounds apply with `BRN_SCALE_STRICT=1` on a release build; CI uses 40× bounds.
+- [x] Visibility tests: chat-only notes stay out of general and other-chat results, snippets, counts and inbound-link counts. Keep-in-BRN eligibility after a version-checked Keep (and after its Undo) is covered through `Workspace::search` in `tests/chat.rs`.
+- [x] Rerun Task 0 and record the deltas in [evidence](evidence.md#task-2--query-paging-and-app-switch).
 
 ## Task 3 — agent tools (PR 3)
 

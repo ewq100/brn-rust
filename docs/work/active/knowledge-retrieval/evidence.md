@@ -166,3 +166,77 @@ The first post-review attempt collapsed per note with an SQL window over every m
 4. **The cold build is slower than the old in-memory one** (about 2 s at 10k), but it now happens once per workspace rather than every launch. Query p95 at 10k (55 ms) is within the 150 ms budget. Task 2 should measure reopen without rebuild and show indexing progress, since the UI must not block (S3).
 5. **Section MRR fell slightly** (0.956 to 0.911), because the title and heading path now prefix every passage. Task 2 should watch this.
 6. **The worker does not recreate a deleted `derived/` directory while running.** It reports errors until it is restarted. This is noted for the Task 2 UI wiring.
+
+## Task 2 — query, paging and app switch
+
+**Tree:** `work/knowledge-retrieval` after Task 1, plus the Task 2 changes. macOS arm64 owner Mac.
+
+**Built:** see the [plan](plan.md#task-2--hybrid-query-and-appuicli-switch-pr-2). In short:
+- The all-words stemmed lane.
+- `SearchIndex::count` and `facts`, and `snippet`.
+- Worker paging, the evidence quota, `prepare()` and `CancelOnDrop`.
+- `Workspace::search_page`, the CLI page output and the non-blocking, paged desktop search.
+
+### Commands and results
+
+```sh
+cargo test  --locked --offline -p brn-retrieval --test search_index --lib snippet          # 11 + 3 passed
+cargo test  --locked --offline -p brn-threads-app --test search_worker --test retrieval_eval  # 9 + 9 passed
+BRN_SCALE_STRICT=1 cargo test --release -p brn-threads-app --test user_scale -- --nocapture  # passed
+cargo test  --locked --offline -p brn --test threads                                        # passed
+cargo test  -p brn-desktop --features native-ui,native-test-support --bin brn-desktop threads_ui::  # all passed
+cargo test  --locked --offline --workspace; cargo clippy --workspace --all-targets -- -D warnings  # ok
+target/release/examples/retrieval_eval --root <new root> --notes {1000,5000,10000} --retriever {worker,current} --out <report>.json
+```
+
+### Scale (10,000 synthetic notes, `user_scale`, release, strict bounds)
+
+| Measure | Result | Target |
+|---|---|---|
+| Cold build (first `prepare`) | 696 ms | recorded |
+| Reopen (no rebuild) | 29 ms | < 50 ms, and < ¼ of cold build |
+| One-note sync after Save | 0.6 ms | < 50 ms |
+| Query p95 (120 queries, 12 per page, exact counts) | 27 ms | < 150 ms |
+
+The unoptimized test build gave 582 ms, 35 ms, 1.2 ms and 33 ms, because dependencies are optimized in the dev profile.
+
+### Evaluation deltas (same corpus, seed and golden set)
+
+| 10,000 notes | Task 0 `current-app-keyword` | Task 1 `worker-keyword` | Task 2 `worker-keyword` | Task 2 `app-search` |
+|---|---|---|---|---|
+| exact recall@10 | 1.000 | 1.000 | 1.000 | 1.000 |
+| inflection recall@10 / @50 (MRR) | 0 / 0 (0) | 0.30 / 0.75 (0.156) | **0.75 / 0.75 (0.750)** | 0.75 / 0.75 (0.750) |
+| paraphrase recall@50 | 0 | 0 | 0 | 0 |
+| section recall@10 (MRR) | 1.000 (0.956) | 1.000 (0.911) | 1.000 (0.922) | 1.000 (0.922) |
+| topic recall@10 | 1.000 | 1.000 | 1.000 | 1.000 |
+| abstention any-hit | 0 | 0 | 0 | 0 |
+| overall recall@10 (MRR) | 0.529 | 0.600 (0.550) | **0.706 (0.692)** | 0.706 (0.692) |
+| visibility violations | 0 | 0 | 0 | 0 |
+| in-chat recall@10 | 0 | 1.000 | 1.000 | 0 (general only, by design) |
+| query p50 / p95 | 28.6 / 43.6 ms | 18.6 / 55.3 ms | 24.3 / 58.7 ms | 22.0 / 63.0 ms |
+| post-save query | 24.1 ms | 0.8 ms | 0.7 ms | 0.8 ms |
+
+`app-search` is `Workspace::search`, which now uses the worker, so its retrieval figures equal the worker's.
+
+At 1,000 and 5,000 notes the worker gave:
+- overall recall@10 of 0.706 at both sizes;
+- inflection recall@10 of 0.75 at both sizes;
+- p95 of 6.5 ms at 1k and 50.8 ms at 5k;
+- 0 violations.
+
+Inflection recall@50 stayed at 0.75 at 10k. The five remaining misses are words the Porter stemmer maps differently (for example "ventilated" and "ventilation"); semantic matching is Task 5's dense lane.
+
+### Independent review
+
+**Code review of Task 2 (Sonnet 5.5).** It checked chat and hidden-note leakage through counts, facts, inbound links and snippets; `arrange`; snippet byte boundaries; worker reopen and symlink handling; and desktop stale answers and cancellation. It found one medium issue, now fixed:
+- **The third lane could fuse up to 150 notes while cursors stopped at 100**, so an offered "Next" could fail. The re-checked list is now truncated to `search::REACHABLE` (100), which also bounds cursors and `reachable`. A test walks every page of a 130-match query.
+
+The gate run also caught two issues, both fixed:
+- **Tied scores were ordered by random record and passage IDs.** Ties are now broken by title, then passage offset, in lanes and in fusion. The determinism test passed 20 of 20 repeats.
+- **A clippy item-order lint** on the new core helper.
+
+### Findings
+
+- The Task 1 inflection finding is resolved by the all-words lane, which also raised section MRR from 0.911 to 0.922.
+- The Task 1 `derived/` deletion finding is resolved: the worker re-creates the folder and index.
+- Desktop search is now non-blocking, but this is verified only by headless widget tests. Native typing feel at 10k notes is part of the owner's interactive acceptance.
