@@ -69,6 +69,7 @@ fn fixture() -> (
                     delegation_chosen: true,
                     backup_directory: None,
                     theme: None,
+                    topics_note: None,
                 }),
             },
         ],

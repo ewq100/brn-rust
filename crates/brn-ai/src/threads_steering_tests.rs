@@ -184,6 +184,7 @@ fn fresh_queued_preparation_has_no_previous_owner_scope_and_uses_current_input()
         auth_file: None,
         credentials_dir: None,
         sources: vec![],
+        search: None,
     })
     .unwrap();
     assert_ne!(fresh.run_id(), prepared.run_id());

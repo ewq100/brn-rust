@@ -293,6 +293,7 @@ impl ThreadsUi {
             TileKind::Note => self.note_tile(window, cx),
             TileKind::Linked => self.linked_tile(cx),
             TileKind::Compare => self.compare_tile(cx),
+            TileKind::Connections => self.connections_tile(cx),
         }
     }
     fn tile_row(&mut self, window: &mut Window, cx: &mut Context<Self>) -> gpui_kit::AnyElement {

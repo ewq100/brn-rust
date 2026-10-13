@@ -17,7 +17,7 @@ static CANCEL: AtomicBool = AtomicBool::new(false);
 extern "C" fn on_sigint(_: libc::c_int) {
     CANCEL.store(true, Ordering::SeqCst);
 }
-const HELP: &str = "BRN Threads\n\nUsage: brn --data-dir ABSOLUTE_DIRECTORY COMMAND [--option VALUE]\n\nCommands: init, records, notes, threads, needs-you, history, candidates, settings,\n  note-create --title TITLE --text MARKDOWN\n  thread-start --title TITLE\n  read --id RECORD\n  search --query TEXT [--limit 1..50] [--cursor NEXT] [--thread CHAT]\n  begin-edit --note ID --base VERSION\n  update-buffer --session ID --generation N --text MARKDOWN\n  save|discard --session ID --generation N; recovery\n  apply|dismiss --operation ID; undo --operation ID; archive|unarchive --thread ID\n  queue --thread ID --text TEXT; keep-in-brn --note ID --base VERSION\n  ask --thread ID --prompt TEXT [--budget 1..32] [--edit-note ID --base VERSION | --record-decision yes]\n  intake --source ABSOLUTE_FILE --intent useful|full|chat [--title TITLE] [--thread ID]\n  configure --provider Codex|Copilot --model ID --effort low|medium|high\n  delegation --choice maintain|review-first\n  pause; resume; export|backup --destination ABSOLUTE_FRESH_PATH\n  restore --source ABSOLUTE_BACKUP\n  upgrade --backup-directory ABSOLUTE_EXTERNAL_FOLDER\n\nChoose delegation before resuming maintenance. Manual work remains available while pending.\nFresh explicit data only. Originals remain external; no external messages are sent.\nReview apply and Undo are concrete owner actions. Continue uses ask on the same Thread.";
+const HELP: &str = "BRN Threads\n\nUsage: brn --data-dir ABSOLUTE_DIRECTORY COMMAND [--option VALUE]\n\nCommands: init, records, notes, threads, needs-you, history, candidates, settings,\n  note-create --title TITLE --text MARKDOWN\n  thread-start --title TITLE\n  read --id RECORD\n  search --query TEXT [--limit 1..50] [--cursor NEXT] [--thread CHAT]\n  connections --note ID [--hops 1|2] [--sources yes] [--thread CHAT]\n  topics; topics-create; topics-choose --note ID\n  knowledge-check [--seed-chat yes]\n  begin-edit --note ID --base VERSION\n  update-buffer --session ID --generation N --text MARKDOWN\n  save|discard --session ID --generation N; recovery\n  apply|dismiss --operation ID; undo --operation ID; archive|unarchive --thread ID\n  queue --thread ID --text TEXT; keep-in-brn --note ID --base VERSION\n  ask --thread ID --prompt TEXT [--budget 1..32] [--edit-note ID --base VERSION | --record-decision yes]\n  intake --source ABSOLUTE_FILE --intent useful|full|chat [--title TITLE] [--thread ID]\n  configure --provider Codex|Copilot --model ID --effort low|medium|high\n  delegation --choice maintain|review-first\n  pause; resume; export|backup --destination ABSOLUTE_FRESH_PATH\n  restore --source ABSOLUTE_BACKUP\n  upgrade --backup-directory ABSOLUTE_EXTERNAL_FOLDER\n\nChoose delegation before resuming maintenance. Manual work remains available while pending.\nFresh explicit data only. Originals remain external; no external messages are sent.\nReview apply and Undo are concrete owner actions. Continue uses ask on the same Thread.";
 type Result<T> = std::result::Result<T, String>;
 struct Invocation {
     data: PathBuf,
@@ -51,7 +51,10 @@ fn parse(args: impl IntoIterator<Item = String>) -> Result<Option<Invocation>> {
     }
     let allowed: &[&str] = match command.as_str() {
         "init" | "records" | "notes" | "threads" | "needs-you" | "history" | "candidates"
-        | "settings" | "pause" | "resume" | "recovery" => &[],
+        | "settings" | "pause" | "resume" | "recovery" | "topics" | "topics-create" => &[],
+        "topics-choose" => &["note"],
+        "connections" => &["note", "hops", "sources", "thread"],
+        "knowledge-check" => &["seed-chat"],
         "note-create" => &["title", "text"],
         "thread-start" => &["title"],
         "delegation" => &["choice"],
@@ -110,6 +113,21 @@ impl Invocation {
             .map_err(|_| format!("--{key} must be an integer"))
     }
 }
+/// The owner's chosen chat context (`--thread`), which must name a chat.
+fn chat_option(workspace: &Workspace, inv: &Invocation) -> Result<Option<String>> {
+    let Some(chat) = inv.args.get("thread") else {
+        return Ok(None);
+    };
+    let is_chat = workspace
+        .store
+        .record(chat)
+        .map_err(|e| e.to_string())?
+        .is_some_and(|r| matches!(r.data, RecordData::Thread(_)));
+    if !is_chat {
+        return Err("--thread must name a chat".into());
+    }
+    Ok(Some(chat.clone()))
+}
 fn encode(value: impl serde::Serialize) -> Result<Value> {
     serde_json::to_value(value).map_err(|e| e.to_string())
 }
@@ -166,6 +184,14 @@ async fn ask(
         .transpose()
         .map_err(|_| "Invalid budget")?
         .unwrap_or(8);
+    // Without a handle the search tools are not offered; the reason is reported.
+    let (search, search_status) = match workspace.search_handle() {
+        Ok(handle) => (
+            Some(Arc::new(handle) as Arc<dyn brn_ai::threads::RunNoteSearch>),
+            "available".to_owned(),
+        ),
+        Err(error) => (None, format!("unavailable: {error}")),
+    };
     let cancel = CancellationToken::new();
     let observed = cancel.clone();
     let watcher = tokio::spawn(async move {
@@ -212,6 +238,7 @@ async fn ask(
                 auth_file: settings.auth_file.map(PathBuf::from),
                 credentials_dir: settings.credentials_dir.map(PathBuf::from),
                 sources,
+                search,
             },
             cancel,
             Arc::new(|_| {}),
@@ -224,7 +251,9 @@ async fn ask(
         AiTerminal::Interrupted => "Interrupted".into(),
         AiTerminal::Failed(error) => format!("Failed:{:?}", error.kind),
     };
-    Ok(json!({"run":result.run_id,"terminal":terminal,"answer":result.answer.text}))
+    Ok(
+        json!({"run":result.run_id,"terminal":terminal,"answer":result.answer.text,"search":search_status}),
+    )
 }
 fn converter() -> Result<Converter> {
     let executable = std::env::current_exe().map_err(|e| e.to_string())?;
@@ -288,26 +317,66 @@ async fn execute(inv: &Invocation) -> Result<Value> {
                 .new_thread(inv.arg("title")?)
                 .map_err(|e| e.to_string())?,
         )?,
+        "topics" => encode(workspace.topics().map_err(|e| e.to_string())?)?,
+        "topics-create" => {
+            let (note, outcome) = workspace.create_topics_note().map_err(|e| e.to_string())?;
+            json!({"note":note,"pointer":applied(outcome)})
+        }
+        "topics-choose" => applied(
+            workspace
+                .choose_topics_note(inv.arg("note")?)
+                .map_err(|e| e.to_string())?,
+        ),
+        "knowledge-check" => {
+            let check = workspace.knowledge_check().map_err(|e| e.to_string())?;
+            let chat = match inv.args.get("seed-chat").map(String::as_str) {
+                Some("yes") => Some(
+                    workspace
+                        .seed_knowledge_review(&check)
+                        .map_err(|e| e.to_string())?,
+                ),
+                None => None,
+                Some(_) => return Err("--seed-chat takes yes".into()),
+            };
+            let mut output = encode(check)?;
+            output["review_chat"] = json!(chat);
+            output
+        }
+        "connections" => {
+            let hops = match inv.args.get("hops") {
+                Some(_) => u8::try_from(inv.number("hops")?).map_err(|e| e.to_string())?,
+                None => 1,
+            };
+            let sources = match inv.args.get("sources").map(String::as_str) {
+                Some("yes") => true,
+                None => false,
+                Some(_) => return Err("--sources takes yes".into()),
+            };
+            let chat = chat_option(&workspace, inv)?;
+            let handle = workspace.search_handle().map_err(|e| e.to_string())?;
+            let found = handle
+                .connections(inv.arg("note")?, chat.as_deref(), hops, sources)
+                .map_err(|e| e.to_string())?;
+            let node = |n: &brn_threads_app::search::Neighbour| {
+                json!({"id":n.id,"version":n.version,"title":n.title,
+                    "kind":format!("{:?}", n.kind).to_lowercase(),
+                    "relations":n.relations.iter().map(|r| format!("{}:{}", if r.outgoing {"out"} else {"in"}, r.relation)).collect::<Vec<_>>(),
+                    "via":n.via,"inbound_links":n.inbound_links})
+            };
+            json!({"centre":node(&found.centre),"hops":found.hops.iter().enumerate().map(|(i, h)| json!({
+                "hop":i + 1,"available":h.available,"shown":h.shown.len(),
+                "neighbours":h.shown.iter().map(node).collect::<Vec<_>>()})).collect::<Vec<_>>()})
+        }
         "search" => {
             let limit = match inv.args.get("limit") {
                 Some(_) => usize::try_from(inv.number("limit")?).map_err(|e| e.to_string())?,
                 None => 12,
             };
-            let chat = inv.args.get("thread").map(String::as_str);
-            if let Some(chat) = chat {
-                let is_chat = workspace
-                    .store
-                    .record(chat)
-                    .map_err(|e| e.to_string())?
-                    .is_some_and(|r| matches!(r.data, RecordData::Thread(_)));
-                if !is_chat {
-                    return Err("--thread must name a chat".into());
-                }
-            }
+            let chat = chat_option(&workspace, inv)?;
             let page = workspace
                 .search_page(
                     inv.arg("query")?,
-                    chat,
+                    chat.as_deref(),
                     limit,
                     inv.args.get("cursor").map(String::as_str),
                 )

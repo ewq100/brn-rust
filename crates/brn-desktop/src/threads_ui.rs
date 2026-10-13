@@ -41,6 +41,8 @@ use std::{
 use tokio_util::sync::CancellationToken;
 #[path = "threads_chat.rs"]
 mod chat;
+#[path = "threads_connections.rs"]
+mod connections_view;
 #[path = "threads_context_actions.rs"]
 mod context_actions;
 #[path = "threads_diff.rs"]
@@ -410,6 +412,9 @@ struct ThreadsUi {
     search: Entity<InputState>,
     hits: Vec<brn_threads_app::SearchHit>,
     results: search_view::SearchView,
+    topics: Option<Topics>,
+    graph: connections_view::ConnectionsView,
+    knowledge: connections_view::KnowledgeView,
     notes_letter: char,
     threads_query: Entity<InputState>,
     thread_filter: ThreadFilter,
@@ -644,6 +649,9 @@ impl ThreadsUi {
             search,
             hits: vec![],
             results: search_view::SearchView::default(),
+            topics: None,
+            graph: connections_view::ConnectionsView::default(),
+            knowledge: connections_view::KnowledgeView::default(),
             notes_letter: 'A',
             threads_query,
             thread_filter: ThreadFilter::All,
@@ -706,6 +714,7 @@ impl ThreadsUi {
             self.candidates = self.workspace.candidates()?;
             self.buffers = self.workspace.store.recovery_buffers()?;
             self.settings = self.workspace.settings()?;
+            self.topics = self.workspace.topics()?;
             // Only an actual target-note Apply receipt proves addressed feedback or Undo.
             self.applied_rewrite.clear();
             let requests=self.records.iter().filter(|record| !record.archived && matches!(&record.data,RecordData::Message(message) if message.role=="writing-request")).map(|record|record.id.as_str()).collect::<BTreeSet<_>>();
@@ -833,6 +842,9 @@ impl ThreadsUi {
     fn show_tile(&mut self, kind: TileKind, cx: &mut Context<Self>) {
         self.layout.open(kind);
         self.refresh();
+        if kind == TileKind::Connections {
+            self.refresh_connections(cx);
+        }
         cx.notify();
     }
     fn apply_layout(&mut self, preset: Preset, window: &mut Window, cx: &mut Context<Self>) {
@@ -1031,6 +1043,7 @@ impl ThreadsUi {
                 self.set_chat(target, window, cx);
                 self.sync_note_marks(cx);
                 self.focus_visible_editor(window, cx);
+                self.refresh_connections(cx);
                 cx.notify();
             }
             Ok(None) => self.notice = "That note is no longer current.".into(),
@@ -1727,6 +1740,14 @@ impl ThreadsUi {
             }
             _ => None,
         };
+        // Without a handle the search tools are not offered; say why.
+        let search = match self.workspace.search_handle() {
+            Ok(handle) => Some(Arc::new(handle) as Arc<dyn brn_ai::threads::RunNoteSearch>),
+            Err(error) => {
+                self.notice = format!("Note search is unavailable for this run: {error}");
+                None
+            }
+        };
         let request = brn_ai::threads::ThreadRunRequest {
             request_message: queued.as_ref().and_then(|q| q.message.clone()),
             queue_claim: queued.and_then(|q| q.dispatch),
@@ -1740,6 +1761,7 @@ impl ThreadsUi {
             auth_file: self.settings.auth_file.as_ref().map(PathBuf::from),
             credentials_dir: self.settings.credentials_dir.as_ref().map(PathBuf::from),
             sources,
+            search,
         };
         let prepared = match brn_ai::threads::prepare_run(request) {
             Ok(prepared) => prepared,

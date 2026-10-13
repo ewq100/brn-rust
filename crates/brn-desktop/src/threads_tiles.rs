@@ -438,11 +438,16 @@ impl ThreadsUi {
             let id = data.id.clone();
             let menu_id = id.clone();
             let this = this.clone();
-            let meta = match (data.protected, data.imported) {
+            let kind = match (data.protected, data.imported) {
                 (true, true) => "protected · imported",
                 (true, false) => "protected",
                 (false, true) => "imported",
                 _ => "",
+            };
+            let meta = match (data.inbound, kind.is_empty()) {
+                (0, _) => kind.to_owned(),
+                (n, true) => format!("← {n}"),
+                (n, false) => format!("{kind} · ← {n}"),
             };
             row(
                 format!("{id_prefix}{id}"),
@@ -500,7 +505,7 @@ impl ThreadsUi {
             lists::letter(&self.note_rows[0].title)
         };
         let view = lists::notes_view(&self.note_rows, &linked, letter);
-        list = list.child(section("RECENT"));
+        list = list.child(self.topics_section(cx)).child(section("RECENT"));
         for data in view.recent {
             list = list.child(note_row("notes-recent-", data, cx));
         }
@@ -523,6 +528,12 @@ impl ThreadsUi {
                     "{} more · filter above or browse A–Z",
                     view.kept.1 - lists::SECTION_LIMIT
                 )));
+            }
+        }
+        if view.most_linked.1 > 0 {
+            list = list.child(section(format!("MOST LINKED · {}", view.most_linked.1)));
+            for data in view.most_linked.0 {
+                list = list.child(note_row("notes-most-linked-", data, cx));
             }
         }
         list = list.child(section("ALL A–Z"));
@@ -683,6 +694,7 @@ impl ThreadsUi {
         );
         view.child(note_tile)
             .child(recent)
+            .child(self.knowledge_panel(cx))
             .test_support()
             .into_any_element()
     }

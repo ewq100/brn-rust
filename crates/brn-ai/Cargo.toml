@@ -7,6 +7,8 @@ publish = false
 
 [features]
 capability-spike = []
+# Offline scripted-model runs for host journey tests; never enabled by hosts.
+scripted-runs = ["rig/test-utils"]
 
 [[example]]
 name = "provider-capabilities"

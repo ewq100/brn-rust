@@ -65,43 +65,33 @@
 - [x] Visibility tests: chat-only notes stay out of general and other-chat results, snippets, counts and inbound-link counts. Keep-in-BRN eligibility after a version-checked Keep (and after its Undo) is covered through `Workspace::search` in `tests/chat.rs`.
 - [x] Rerun Task 0 and record the deltas in [evidence](evidence.md#task-2--query-paging-and-app-switch).
 
-## Task 3 — agent tools (PR 3)
+## Task 3 — agent tools (PR 3, shipped with Task 4)
 
-- [ ] **D4:** `NoteSearch` trait and `ThreadRunRequest.search`. The desktop and CLI bind a handle to the run's chat. When the handle is absent, the tools are not registered; there is no silent substitute.
-- [ ] Add `search_notes` and `note_connections` to the runtime catalog, with strict schemas, byte and limit validation, compact output and activity strings. Add tests for scope binding: a model argument cannot widen the context.
-- [ ] Guide updates on top of PR #129's bundle:
-  - Rewrite `maintain-notes` step 1 and the `BRN.md` discovery paragraph so they say: search with `search_notes` using 2–3 reformulations, use `note_connections` for neighbourhoods, then read sections.
-  - Keep #129's provenance model (input versions, prose attribution). Add no citation syntax.
-  - Recommend relations `source`, `supersedes`, `contradicts` and `related`, and keep other concise names allowed (D7).
-  - Explain the root Topics note: link every topic page from it, keep it current, and leave notes that are not topic pages out (D6).
-  - Bump the guide identity once.
-- [ ] Live before/after comparison by **reusing #129's `scripts/evaluate-wiki-guidance.py` harness**. The arms are the current tools and the tools plus search, with an identical selected model, effort, 8 rounds and repetitions. Add 1k- and 5k-note seeded scenarios so retrieval actually matters. Running it is an owner-requested provider run; the offline seed and structural checks are part of CI.
-- [ ] Scripted fixture journeys at 10,000 notes:
-  - Retrieval within 3 rounds.
-  - Maintenance (search, read, prepare, apply) within 8 rounds.
-  - A stale-candidate refresh.
-  - The agent's own applied note is searchable in the same run.
-  - A private attachment is invisible from another chat.
+- [x] **D4:** `brn-ai` defines `RunNoteSearch` (named so it does not clash with the vault-era `NoteSearch`), and `ThreadRunRequest.search` carries it. `brn-threads-app` implements it for `SearchHandle` (a new `brn-threads-app` → `brn-ai` edge; `brn-ai` still does not depend on retrieval). The tools always pass the run's host-validated chat, never a model argument. When the handle is absent, the tools are not registered; the desktop shows a notice and the CLI reports `search: unavailable` with the reason.
+- [x] `search_notes` `{query, limit 1–20, mode hybrid|keyword, cursor}` and `note_connections` `{id, hops 1|2, sources}` with strict schemas (`deny_unknown_fields`, nullable cursor required), byte and limit validation, compact output (`semantic: none` until Task 5) and activity strings. Tests cover registration only with a handle, binding to the run chat (an extra `chat` argument rejects the batch), validation and hidden notes refused like missing ones.
+- [x] Guide updates on top of PR #129's bundle (bundle `brn-threads-guidance-4`):
+  - `BRN.md` discovery and `maintain-notes` step 1 now search with `search_notes` (2–3 reformulations, cursor), use `note_connections`, then read sections; `read_records` stays for exact IDs and is the fallback when search is not offered.
+  - #129's provenance model is unchanged; no citation syntax.
+  - D7 relation names are recommended, other concise names allowed.
+  - The root Topics note is explained (D6); the host names it in run context.
+- [ ] Live before/after comparison with #129's `scripts/evaluate-wiki-guidance.py` (bundle 3 against bundle 4 with search, identical model and settings, at 1k/5k seeded notes). This is an owner-requested provider run and is not part of this build.
+- [x] Scripted fixture journeys at 10,000 notes (`tests/agent_journeys.rs`, a scripted model through the real runtime tools and the real worker, behind the test-only `scripted-runs` feature):
+  - Retrieval: search, then read the target section, within 3 rounds.
+  - Maintenance: search, read, prepare and apply within 8 rounds; the applied change is found by search in the same run.
+  - A stale candidate is reported Stale, refreshed from current search results and applied.
+  - Another chat's private note is invisible to search and Connections.
 
-## Task 4 — topic navigation support (PR 4)
+## Task 4 — topic navigation support (PR 4, shipped with Task 3)
 
-- [ ] Native Connections: bounded neighbourhood (8 per hop, deliberate second hop) through the handle, with a readable list beside the graph, following the ordinary-wiki B flow. The Connections graph also gets a separate UI task on the native shell. Known relations get labels and filters; unknown names are shown as written.
-- [ ] **D6, root Topics note:**
-  - Add an optional serde-default `WorkspaceSettings.topics_note`, with no SQL change. Setting it uses owner-only configuration.
-  - The app creates the note on first use as an owner action. The Topics tile lists its links in order.
-  - The host passes the note's ID in run context.
-  - Tests: old settings serialize unchanged; missing, archived or invisible pointer targets produce an honest empty state; replay; Undo of note content.
-- [ ] **D7, recommended relations:** shared constants in the app (`source`, `supersedes`, `contradicts`, `related`) used by Connections, the evidence quota and the knowledge check. Core does not validate relation names.
-- [ ] Search results and the notes list show inbound-link counts, and subjects can be sorted by them.
-- [ ] Optional **Knowledge check** (owner-triggered from the desktop and CLI). Its deterministic findings follow #129's list:
-  - valid references and links to missing or archived notes;
-  - recorded input versions that are no longer current;
-  - version conflicts;
-  - source coverage gaps;
-  - orphans;
-  - duplicate or near-duplicate titles and content.
-
-  The findings seed one chat for `maintain-notes`'s bounded review. Test the findings and the visibility of the seeded chat.
+- [x] Native Connections tile: the open note's bounded neighbourhood (8 per hop, deliberate second hop, optional sources) through the worker, as a readable list with exact shown/available counts. Known relations get labels and filters ("other" groups the rest); unknown names are shown as written. Clicking a note opens it and recenters. Every node is visibility-checked (`Snapshot::visible_records`, `searchable_notes`). A drawn graph remains a separate native-shell UI task.
+- [x] **D6, root Topics note:**
+  - `WorkspaceSettings.topics_note` (serde default, omitted when unset; no SQL change), set only through owner configuration (`Store::choose_topics_note`): it must name a current general note, is replay-checked, preserved by `configure`, and deferred while a run works.
+  - "Create Topics note" in the notes tile (and CLI `topics-create`) creates the note as an owner action. The Topics section lists the topic pages the note links to, in the order the note mentions them, with link counts and descriptions.
+  - The host passes the note's ID, version and title in run context when the run's chat can see it.
+  - Tests: old settings serialize unchanged; missing, archived and chat-only targets give an honest empty state or are refused; replay; Undo of the note's content keeps the pointer.
+- [x] **D7:** `brn_threads_app::relations` constants used by Connections, the evidence quota and the knowledge check. Core does not validate relation names.
+- [x] Search results and the notes list show inbound-link counts (`← N`), and a "Most linked" section sorts subjects by them.
+- [x] Owner-triggered **Knowledge check** (desktop overview and CLI `knowledge-check [--seed-chat yes]`) over general knowledge only: broken links, stale recorded inputs, stale candidates, coverage gaps, orphans, duplicate titles and content, contradictions, unapplied supersession, relation-name variants and pages that look like unlisted topic pages. Counts are exact; 25 findings are kept per kind. The findings seed one chat for `maintain-notes`'s bounded review. Tests cover each finding, that no chat-only material appears, and the seeded chat.
 
 ## Task 5 — dense upgrade (PR 5)
 

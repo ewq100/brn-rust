@@ -179,6 +179,22 @@ impl Snapshot<'_> {
         }
         Ok(found.into_values().collect())
     }
+    /// Of `ids`, the non-archived records core visibility admits in `chat`
+    /// (`None` = general). Superseded notes are excluded, as in
+    /// `records_for_chat`.
+    pub fn visible_records(&self, ids: &[String], chat: Option<&str>) -> Result<BTreeSet<String>> {
+        let rows = self.with_references(ids)?;
+        Ok(ids
+            .iter()
+            .filter_map(|id| rows.iter().find(|r| &r.id == id))
+            .filter(|r| {
+                !r.archived
+                    && !matches!(&r.data, RecordData::Note(n) if n.superseded_by.is_some())
+                    && crate::context::visible(r, &rows, chat)
+            })
+            .map(|r| r.id.clone())
+            .collect())
+    }
     /// Of `ids`, the current, non-archived, non-superseded notes visible in
     /// `chat` (`None` = general), matching `records_for_chat` for notes.
     pub fn searchable_notes(&self, ids: &[String], chat: Option<&str>) -> Result<BTreeSet<String>> {

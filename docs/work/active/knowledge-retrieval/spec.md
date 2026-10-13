@@ -113,12 +113,12 @@ flowchart LR
 
 ### 4. Agent tools (`brn-ai`)
 
-- `brn-ai` defines `NoteSearch: Send + Sync` with `search(query, limit, mode)` and `connections(id, hops)`.
+- `brn-ai` defines `RunNoteSearch: Send + Sync` (built as `search(chat, query, limit, cursor)` and `connections(chat, id, hops, sources)`, where `chat` is always the run's host-validated chat).
 - `ThreadRunRequest.search: Option<Arc<dyn NoteSearch>>` carries the host's handle, already bound to the run's chat context.
 - `brn-ai` does not depend on `brn-retrieval`.
 - **`search_notes`** `{query, limit ≤ 20, mode: hybrid|keyword}` returns compact results only: `id`, `version`, `title`, `heading_path`, a snippet of at most 300 bytes, `start`, `matches`, `protected`, `imported`, and `semantic`. The agent continues with `read_note` at that version and offset.
 - **`note_connections`** `{id, hops: 1|2}` returns the bounded recorded neighborhood: at most 8 neighbours per hop, typed relations, titles and counts. It matches the owner-selected **Connections** view and is visibility-checked.
-- The tool catalog grows from 9 to 11. Guides keep `read_records` for exact IDs and point discovery at `search_notes`.
+- The tool catalog grows from 9 to 11 when the host supplies search. Guides keep `read_records` for exact IDs and point discovery at `search_notes`.
 - **Guide edits build on PR #129's text.** In particular, `maintain-notes` step 1 currently says to search with `read_records` and that "the bounded result is not a complete workspace catalog". It becomes: search with `search_notes` using the subject's names and terms (2–3 reformulations when important), use `note_connections` for the subject's neighbourhood, then read sections with `read_note`. Keep PR #129's provenance model (input versions, prose attribution) and add no citation syntax. Recommend the D7 relation names while allowing others, and describe the root Topics note (D6). Make one guide-identity bump after `brn-threads-guidance-3`.
 
 ### 5. Topic navigation support (ordinary wiki direction)
