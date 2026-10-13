@@ -2,7 +2,7 @@
 #[allow(dead_code)]
 mod support;
 
-use brn_threads_app::{RecordData, Workspace};
+use brn_threads_app::{RecordData, Workspace, record_in_chat};
 use std::collections::BTreeMap;
 use support::*;
 
@@ -106,7 +106,16 @@ fn small_evaluation_runs_end_to_end_with_sane_baseline() {
     assert_eq!(report.notes, 400);
     assert_eq!(report.cases.len(), 100);
     assert!(report.links > 0);
-    assert!(!report.visibility_checked);
+    // Chat-only notes never leak, and today's search cannot find them in their own chat.
+    assert_eq!(
+        report.visibility,
+        Visibility {
+            chat_notes: 12,
+            queries: 100 + 12 * 3,
+            violations: 0,
+            in_chat_recall_at_10: 0.0,
+        }
+    );
     // Strata today's keyword search already solves must not regress.
     assert_eq!(report.strata["exact"].recall_at_10, 1.0);
     assert_eq!(report.strata["topic"].recall_at_10, 1.0);
@@ -142,9 +151,14 @@ impl Retriever for Oracle {
     fn name(&self) -> String {
         "oracle".into()
     }
-    fn search(&mut self, workspace: &mut Workspace, query: &str) -> support::Result<Vec<String>> {
+    fn search(
+        &mut self,
+        workspace: &mut Workspace,
+        query: &str,
+        chat: Option<&str>,
+    ) -> support::Result<Vec<String>> {
         let Some(titles) = self.0.get(query) else {
-            return CurrentAppSearch.search(workspace, query);
+            return CurrentAppSearch.search(workspace, query, chat);
         };
         if titles.is_empty() {
             return Ok(vec![]);
@@ -199,4 +213,63 @@ fn metrics_reflect_a_known_ranking_through_the_retriever_seam() {
             .filter(|c| !c.ranks.is_empty())
             .all(|c| c.ranks == vec![Some(3)])
     );
+}
+
+/// Literal scan over every current note; optionally ignores chat context so
+/// the visibility check is shown to catch leaks.
+struct Scan {
+    respect_context: bool,
+}
+
+impl Retriever for Scan {
+    fn name(&self) -> String {
+        format!("scan-respect-context-{}", self.respect_context)
+    }
+    fn search(
+        &mut self,
+        workspace: &mut Workspace,
+        query: &str,
+        chat: Option<&str>,
+    ) -> support::Result<Vec<String>> {
+        let rows = workspace.records()?;
+        Ok(rows
+            .iter()
+            .filter(|r| {
+                !r.archived
+                    && matches!(&r.data, RecordData::Note(n)
+                        if n.superseded_by.is_none() && n.markdown.contains(query))
+                    && (!self.respect_context || record_in_chat(r, &rows, chat))
+            })
+            .map(|r| r.id.clone())
+            .collect())
+    }
+}
+
+#[test]
+fn visibility_check_counts_leaks_and_credits_in_chat_finds() {
+    let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let scoped = run_with(
+        &root.path().join("scoped"),
+        300,
+        DEFAULT_SEED,
+        &mut Scan {
+            respect_context: true,
+        },
+    )
+    .unwrap();
+    assert_eq!(scoped.visibility.violations, 0);
+    assert_eq!(scoped.visibility.in_chat_recall_at_10, 1.0);
+    let leaky = run_with(
+        &root.path().join("leaky"),
+        300,
+        DEFAULT_SEED,
+        &mut Scan {
+            respect_context: false,
+        },
+    )
+    .unwrap();
+    assert_eq!(leaky.visibility.in_chat_recall_at_10, 1.0);
+    // Each marker leaks into general and the other chat, and the bait text
+    // leaks chat-only notes into golden exact queries.
+    assert!(leaky.visibility.violations >= 12 * 2 + 12);
 }

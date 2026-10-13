@@ -29,13 +29,13 @@
 - `recall@10`, `recall@50` and MRR use the best relevant rank.
 - `any_result_rate` applies to abstention only.
 - Timings: corpus creation, first query (which includes the lazy index build), per-query p50/p95/max, and the first query after saving one note. Every measurement goes through the same `Retriever`, which receives the workspace.
-- `visibility_checked` is reported as `false`: the chat-only visibility cases need chat stage 1 and are added after the D5 rebase.
+- Visibility (added after the D5 rebase onto `56c28879`, report format 2). Two synthetic chats each own six chat-only notes. Each note carries a unique marker and repeats an exact-case query as bait. Each marker is queried in general search, its own chat and the other chat. Every returned ID, for golden cases too, must be a current, non-archived note visible in the query's context under core `record_in_chat`; anything else is a violation. `in_chat_recall_at_10` is the share of chat-only notes found by their marker in their own chat.
 
 ### Commands and results
 
 ```sh
 cargo build --locked --offline -p brn-threads-app --example retrieval_eval --tests   # ok
-cargo test  --locked --offline -p brn-threads-app --test retrieval_eval              # 7 passed; determinism test repeated 10/10
+cargo test  --locked --offline -p brn-threads-app --test retrieval_eval              # 8 passed (7 before visibility); determinism test repeated 10/10
 cargo clippy --locked --offline -p brn-threads-app --all-targets -- -D warnings      # ok
 cargo fmt --all -- --check                                                           # ok
 cargo build --release --locked --offline -p brn-threads-app --example retrieval_eval
@@ -66,6 +66,8 @@ Relevance was identical at 5,000 and 10,000 notes. At 1,000 notes, paraphrase re
 | abstention | — | — | — | 0.000 |
 | overall | 0.529 | 0.529 | 0.522 | — |
 
+Visibility, at every size (format 2 rerun on `56c28879`; ranks and relevance metrics unchanged from format 1): 12 chat-only notes, 136 queries, **0 violations**, **in-chat recall@10 0.000**. A context-ignoring literal scan in the tests is caught leaking, and a context-respecting one reaches in-chat recall 1.0, so the check discriminates.
+
 ### Independent review
 
 A read-only Claude Sonnet 5.5 code review found five medium issues, all fixed:
@@ -81,10 +83,10 @@ A read-only Claude Sonnet 5.5 code review found five medium issues, all fixed:
 2. **Launch cost grows linearly.** Every app open rebuilds the in-memory index on the first search, taking about 1 s at 10k notes, before the first result. Task 1's persisted index removes this.
 3. **Query latency grows linearly with corpus size**, from about 2–4 ms at 1k to about 26–40 ms at 10k notes. `Workspace::search` calls `notes()`, which reads and deserializes every record on every query to detect changes. Task 1's worker sync must use a cheap change watermark, not a full record scan per request.
 4. **Exact identifiers, section facts and titled topics already work** and must not regress.
+5. **Chat-only notes are safe but unfindable.** `Workspace::search` indexes general notes only and has no context, so it never leaks but never finds a chat's own notes in that chat. Task 2's context-aware query must raise in-chat recall while keeping violations at 0.
 
 ### Limits
 
 - The corpus is synthetic and its text is not natural prose. Numbers compare retrievers on this corpus; they do not predict owner-data quality.
 - Timings come from one owner-Mac run without repetition.
-- Visibility is not yet measured.
 - No native interaction, provider call or real data was used.

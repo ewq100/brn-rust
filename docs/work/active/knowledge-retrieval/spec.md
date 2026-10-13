@@ -1,6 +1,6 @@
 # Knowledge and retrieval architecture
 
-**Date:** 13 October 2026. **State:** PROPOSED. D6 and D7 are owner-accepted; D1–D5 await acceptance.
+**Date:** 13 October 2026. **State:** ACCEPTED. The owner accepted D6 and D7, then D1–D5, on 13 October 2026.
 
 **Owner request:** "Make a new plan and architecture so we can start building it." The request follows the knowledge-system research, the English-first decision, and the owner's move from Threads to **Chats and Projects**.
 
@@ -16,9 +16,9 @@ These are separate branches; none is merged to `main` at `65119a7`.
 
 | Work | Branch | What it fixes for retrieval |
 |---|---|---|
-| Standalone chats, stage 1 (implemented, unmerged) | `codex/thread-product-discovery`, spec and plan in `docs/work/active/chats-and-projects/` | `Note.chat: Option<String>` visibility. Core `context::visible`, `Store::records_for_chat` and `record_visible_in_chat` as **the** visibility predicate. Schema v4 with a backed-up upgrade. Scoped runtime reads; the nine tools are preserved. UI says Chat; internal Thread IDs stay. |
+| Standalone chats, stage 1 (merged in [PR #130](https://github.com/ewq100/brn-rust/pull/130)) | `codex/thread-product-discovery`, spec and plan in `docs/work/active/chats-and-projects/` | `Note.chat: Option<String>` visibility. Core `context::visible`, `Store::records_for_chat` and `record_visible_in_chat` as **the** visibility predicate. Schema v4 with a backed-up upgrade. Scoped runtime reads; the nine tools are preserved. UI says Chat; internal Thread IDs stay. |
 | Projects, stage 2 (deferred) | Same brief | Project-only notes and chats. A project-wide "Use BRN knowledge" setting. Automatic search of relevant earlier chats **in the same project**. Visibility must cover agent reads, relevant-chat search and current-input validation. |
-| Ordinary wiki guidance (owner-selected direction) | [PR #129](https://github.com/ewq100/brn-rust/pull/129) (draft, `codex/ordinary-wiki-guidance`); UI prototype `codex/ordinary-wiki-ui-prototype` | Ordinary notes are source-grounded subject pages. **Roles are writing conventions, not record kinds.** Topic pages are ordinary index notes with links; relation strings are free (`source`, `related`, `explains`, `compares`, reusing an existing equivalent). Provenance lives in change-request input versions, links and prose. **Topic pages and search are the primary navigation, with a local graph under Connections** (8 neighbours, a deliberate second hop, optional sources, shown/available counts and a readable list). The selected search UI pages results at 12 per page, with exact counts and matching context. Guide bundle `brn-threads-guidance-3`. A Python live before/after harness (`scripts/evaluate-wiki-guidance.py`). No schema, retrieval engine, metadata or taxonomy changes. |
+| Ordinary wiki guidance (owner-selected direction) | [PR #129](https://github.com/ewq100/brn-rust/pull/129) (merged, `codex/ordinary-wiki-guidance`); UI prototype `codex/ordinary-wiki-ui-prototype` | Ordinary notes are source-grounded subject pages. **Roles are writing conventions, not record kinds.** Topic pages are ordinary index notes with links; relation strings are free (`source`, `related`, `explains`, `compares`, reusing an existing equivalent). Provenance lives in change-request input versions, links and prose. **Topic pages and search are the primary navigation, with a local graph under Connections** (8 neighbours, a deliberate second hop, optional sources, shown/available counts and a readable list). The selected search UI pages results at 12 per page, with exact counts and matching context. Guide bundle `brn-threads-guidance-3`. A Python live before/after harness (`scripts/evaluate-wiki-guidance.py`). No schema, retrieval engine, metadata or taxonomy changes. |
 
 This architecture owns the **retrieval engine** that those branches deliberately left unchanged. It does not redefine chat, project or wiki behavior. PR #129's research states the dependency directly: "If relevant knowledge cannot be retrieved reliably, fixing retrieval has priority over forcing a taxonomy."
 
@@ -172,7 +172,7 @@ flowchart LR
   - The project's "Use BRN knowledge" setting decides whether `general` is eligible for its chats.
 - Eligibility and the core re-check enforce this for UI, CLI and agent alike. Nothing in stages 1–6 needs to change shape for it.
 
-## Decisions to accept
+## Decisions (accepted 13 October 2026)
 
 | ID | Decision | Recommended | Alternative |
 |---|---|---|---|

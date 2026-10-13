@@ -12,10 +12,13 @@ use std::{
 };
 
 pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
-pub const FORMAT: &str = "BRN retrieval evaluation 1";
+pub const FORMAT: &str = "BRN retrieval evaluation 2";
 pub const GOLDEN: &str = include_str!("../../tests/fixtures/retrieval_golden.json");
 pub const DEFAULT_SEED: u64 = 0x4252_4e45; // "BRNE"
 const BATCH: usize = 100;
+/// Chat-only notes per synthetic chat; each is probed from every context.
+pub const CHAT_NOTES_PER_CHAT: usize = 6;
+const CHAT_LABELS: [&str; 2] = ["a", "b"];
 const FUNCTION_WORDS: &[&str] = &[
     "the", "and", "to", "of", "for", "with", "on", "in", "we", "our", "is", "are", "was", "will",
     "this", "that", "next", "after", "before", "by", "from", "at", "as", "a", "it", "their",
@@ -514,6 +517,19 @@ pub struct Built {
     pub links: usize,
     pub markdown_bytes: usize,
     pub create_ms: f64,
+    /// Chat conversation IDs that own the chat-only notes.
+    pub chats: Vec<String>,
+    pub chat_notes: Vec<ChatNote>,
+}
+
+/// A note visible only inside `chat`, findable by its unique `marker`. Its
+/// text also repeats an exact-case query so a leaking retriever would surface
+/// it for ordinary golden queries too.
+#[derive(Debug, Clone)]
+pub struct ChatNote {
+    pub chat: String,
+    pub id: String,
+    pub marker: String,
 }
 
 /// Creates the corpus in a new explicit workspace through checked owner writes.
@@ -596,6 +612,53 @@ pub fn build(data: &Path, golden: &Golden, specs: &[NoteSpec]) -> Result<Built> 
             },
         )?)?;
     }
+    let bait: Vec<&str> = golden
+        .cases
+        .iter()
+        .filter(|c| c.stratum == Stratum::Exact)
+        .map(|c| c.query.as_str())
+        .collect();
+    let mut chats = Vec::new();
+    let mut chat_notes = Vec::new();
+    for label in CHAT_LABELS {
+        let chat = workspace
+            .new_thread(&format!("Retrieval evaluation chat {label}"))?
+            .id;
+        let key = format!("retrieval-eval-chat-{label}");
+        let op = workspace.store.allocate_operation(&key)?;
+        let mut writes = Vec::new();
+        for index in 0..CHAT_NOTES_PER_CHAT {
+            let id = op.creation_id(index);
+            let marker = format!("zzvis{label}{index}");
+            let query = bait[(chat_notes.len()) % bait.len()];
+            writes.push(Put {
+                id: id.clone(),
+                expected_version: None,
+                archived: false,
+                data: RecordData::Note(Note {
+                    chat: Some(chat.clone()),
+                    ..Note::working(
+                        format!("Chat {label} working note {index}"),
+                        format!("# Chat {label} working note {index}\n\n{query}\n\n{marker}\n"),
+                    )
+                }),
+            });
+            chat_notes.push(ChatNote {
+                chat: chat.clone(),
+                id,
+                marker,
+            });
+        }
+        applied(workspace.owner_change(
+            &key,
+            &ChangeRequest {
+                reason: "Synthetic chat-only notes".into(),
+                writes,
+                inputs: vec![],
+            },
+        )?)?;
+        chats.push(chat);
+    }
     Ok(Built {
         workspace,
         ids_by_title,
@@ -603,6 +666,8 @@ pub fn build(data: &Path, golden: &Golden, specs: &[NoteSpec]) -> Result<Built> 
         links: links.len(),
         markdown_bytes,
         create_ms: ms(started),
+        chats,
+        chat_notes,
     })
 }
 
@@ -619,21 +684,33 @@ fn ms(started: Instant) -> f64 {
 
 /// A ranked note retriever under evaluation: note IDs, best first, no
 /// duplicates. It receives the workspace so the same retriever serves every
-/// measurement, including the post-save probe.
+/// measurement, including the post-save probe. `chat` is the conversation the
+/// query runs in (`None` for general search); results must be visible there.
 pub trait Retriever {
     fn name(&self) -> String;
-    fn search(&mut self, workspace: &mut Workspace, query: &str) -> Result<Vec<String>>;
+    fn search(
+        &mut self,
+        workspace: &mut Workspace,
+        query: &str,
+        chat: Option<&str>,
+    ) -> Result<Vec<String>>;
 }
 
 /// Today's application search: in-memory FTS5 keyword passages (top 30),
-/// collapsed to each note's first occurrence.
+/// collapsed to each note's first occurrence. It indexes general notes only
+/// and has no chat context, so chat-only notes are never found.
 pub struct CurrentAppSearch;
 
 impl Retriever for CurrentAppSearch {
     fn name(&self) -> String {
         "current-app-keyword".into()
     }
-    fn search(&mut self, workspace: &mut Workspace, query: &str) -> Result<Vec<String>> {
+    fn search(
+        &mut self,
+        workspace: &mut Workspace,
+        query: &str,
+        _chat: Option<&str>,
+    ) -> Result<Vec<String>> {
         let mut seen = BTreeSet::new();
         Ok(workspace
             .search(query)?
@@ -724,6 +801,19 @@ pub struct Timings {
     pub post_save_query_ms: f64,
 }
 
+/// Context checks over every evaluated query: golden cases run in general
+/// search; each chat-only marker runs in general, its own chat and the other
+/// chat. A violation is any returned ID that is not a current, non-archived
+/// note visible in the query's context under core rules.
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+pub struct Visibility {
+    pub chat_notes: usize,
+    pub queries: usize,
+    pub violations: usize,
+    /// Share of chat-only notes ranked within 10 by their marker in their own chat.
+    pub in_chat_recall_at_10: f64,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Report {
     pub format: String,
@@ -735,8 +825,7 @@ pub struct Report {
     pub corpus_sha256: String,
     pub golden_sha256: String,
     pub max_returned: usize,
-    /// Chat-only visibility cases need chat stage 1; reported, never assumed.
-    pub visibility_checked: bool,
+    pub visibility: Visibility,
     pub timings: Timings,
     pub overall: Metrics,
     pub strata: BTreeMap<String, Metrics>,
@@ -774,13 +863,16 @@ pub fn run_with(
     let workspace = &mut built.workspace;
     let name = retriever.name();
     let started = Instant::now();
-    retriever.search(workspace, &golden.cases[0].query)?;
+    retriever.search(workspace, &golden.cases[0].query, None)?;
     let first_query_ms = ms(started);
+    let rows = workspace.store.records()?;
+    let mut violations = 0;
     let mut results = Vec::with_capacity(golden.cases.len());
     for case in &golden.cases {
         let started = Instant::now();
-        let ranked = retriever.search(workspace, &case.query)?;
+        let ranked = retriever.search(workspace, &case.query, None)?;
         let elapsed = ms(started);
+        violations += invisible(&rows, &ranked, None);
         let ranks = case
             .relevant
             .iter()
@@ -796,6 +888,27 @@ pub fn run_with(
             returned: ranked.len(),
             ms: elapsed,
         });
+    }
+    let mut visibility = Visibility {
+        chat_notes: built.chat_notes.len(),
+        queries: results.len(),
+        ..Visibility::default()
+    };
+    let mut found_in_chat = 0;
+    for note in &built.chat_notes {
+        let contexts = std::iter::once(None).chain(built.chats.iter().map(|c| Some(c.as_str())));
+        for chat in contexts {
+            let ranked = retriever.search(workspace, &note.marker, chat)?;
+            visibility.queries += 1;
+            violations += invisible(&rows, &ranked, chat);
+            if chat == Some(note.chat.as_str()) && ranked.iter().take(10).any(|id| id == &note.id) {
+                found_in_chat += 1;
+            }
+        }
+    }
+    visibility.violations = violations;
+    if !built.chat_notes.is_empty() {
+        visibility.in_chat_recall_at_10 = found_in_chat as f64 / built.chat_notes.len() as f64;
     }
     let post_save_query_ms = post_save_probe(workspace, retriever, &golden, &ids_by_title)?;
     let mut latencies: Vec<f64> = results.iter().map(|r| r.ms).collect();
@@ -817,7 +930,7 @@ pub fn run_with(
         corpus_sha256,
         golden_sha256: format!("{:x}", Sha256::digest(GOLDEN.as_bytes())),
         max_returned: results.iter().map(|r| r.returned).max().unwrap_or(0),
-        visibility_checked: false,
+        visibility,
         timings: Timings {
             create_ms: built.create_ms,
             first_query_ms,
@@ -860,12 +973,26 @@ fn post_save_probe(
         .update_buffer(&session.id, 1, &format!("{}\n\n{marker}\n", note.markdown))?;
     workspace.store.save(&session.id, 1)?;
     let started = Instant::now();
-    let hits = retriever.search(workspace, marker)?;
+    let hits = retriever.search(workspace, marker, None)?;
     let elapsed = ms(started);
     if !hits.contains(id) {
         return Err("post-save probe did not find the saved change".into());
     }
     Ok(elapsed)
+}
+
+/// Counts returned IDs that are not current, non-archived notes visible in `chat`.
+fn invisible(rows: &[Record], ranked: &[String], chat: Option<&str>) -> usize {
+    ranked
+        .iter()
+        .filter(|id| {
+            !rows.iter().find(|r| &r.id == *id).is_some_and(|r| {
+                !r.archived
+                    && matches!(&r.data, RecordData::Note(n) if n.superseded_by.is_none())
+                    && record_in_chat(r, rows, chat)
+            })
+        })
+        .count()
 }
 
 /// Creates `root` atomically (refusing existing paths) and returns its data path.
@@ -906,5 +1033,10 @@ pub fn summary(report: &Report) -> String {
             name, m.cases, m.recall_at_10, m.recall_at_50, m.mrr, m.any_result_rate
         ));
     }
+    let v = &report.visibility;
+    lines.push(format!(
+        "visibility: {} chat-only notes · {} queries · {} violations · in-chat recall@10 {:.3}",
+        v.chat_notes, v.queries, v.violations, v.in_chat_recall_at_10
+    ));
     lines.join("\n")
 }

@@ -2,7 +2,7 @@
 
 **Goal:** Build the [knowledge and retrieval architecture](spec.md): a persisted, visibility-safe, English-first hybrid search; ranked search and Connections tools for the agent; topic-navigation support; and a better pinned embedding model.
 
-**Baseline:** `main` at `65119a7`. Tasks 1+ start after **chat stage 1** (`codex/thread-product-discovery`) and **[PR #129](https://github.com/ewq100/brn-rust/pull/129)** (ordinary wiki guidance) merge, or are stacked on them if the owner prefers (D5). **State:** PROPOSED. D6 and D7 were accepted by the owner on 13 October 2026; D1–D5 await acceptance.
+**Baseline:** `main` at `56c28879`, which includes [PR #129](https://github.com/ewq100/brn-rust/pull/129) (ordinary wiki guidance) and [PR #130](https://github.com/ewq100/brn-rust/pull/130) (standalone chat stage 1), satisfying D5. **State:** ACCEPTED. The owner accepted D6 and D7, then D1–D5, on 13 October 2026, and directed the build.
 
 **Stack:** Rust 1.98.1, rusqlite 0.40.2 (bundled; FTS5 `porter` built in), fastembed 7.1.0 behind `native`, Rig 0.44.0.
 
@@ -20,9 +20,9 @@
 ## Task 0 — evaluation harness and baseline (PR 1; can start now)
 
 - [x] Deterministic synthetic English corpus at 1k, 5k and 10k notes. Notes include headings, lists, tables, long imported notes, topic pages with links, inflected forms and paraphrase pairs.
-- [ ] Chat-only notes and visibility cases, added after the D5 rebase onto chat stage 1. The report states `visibility_checked: false` until then.
+- [x] Chat-only notes and visibility cases: two synthetic chats with six chat-only notes each, probed from general, own-chat and other-chat contexts. Every returned ID is checked with core `record_in_chat`.
 - [x] Golden queries (JSON, about 100) in these strata: exact name/ID, inflection, paraphrase, section-in-long-note, topic page, and abstention. Each query lists its relevant IDs.
-- [x] An evaluation runner in `brn-threads-app` (the example `retrieval_eval` plus the integrity test `tests/retrieval_eval.rs`). It reports recall@10, recall@50 and MRR per stratum; query p50/p95; and build and sync timings. Output is JSON. Visibility violations are added with the item above.
+- [x] An evaluation runner in `brn-threads-app` (the example `retrieval_eval` plus the integrity test `tests/retrieval_eval.rs`). It reports recall@10, recall@50 and MRR per stratum; query p50/p95; and build and sync timings. Output is JSON (format 2), including visibility violations and in-chat recall.
 - [x] Record the current keyword baseline in [evidence](evidence.md).
 
 ## Task 1 — derived index and worker (PR 2)
@@ -128,9 +128,10 @@ The PR #129 comparison led to these alignments:
 - Knowledge-check findings match #129's deterministic list.
 - Guide edits target #129's text.
 
-A re-review is due after owner acceptance and the merges named in D5.
+A re-review is due before Task 1 implementation, now that D1–D5 are accepted and #129 and #130 are merged.
 
 ## Gate record
 
 - Defined: the owner requested this plan after the research, the English-first decision, and the move to Chats and Projects.
-- Not yet accepted. The next action is owner review of D1–D5. Task 0 can begin on an isolated branch now; Tasks 1+ follow the chat stage-1 and PR #129 merges (D5).
+- Accepted: D6 and D7, then D1–D5, by the owner on 13 October 2026, with direction to build. #129 and #130 merged the same day (D5); the branch was rebased onto `56c28879`.
+- Merging any slice still needs separate owner authority.
