@@ -4,7 +4,7 @@
 mod edges;
 mod embeddings;
 mod schema;
-mod search;
+pub(crate) mod search;
 
 use crate::{Error, Result, chunk};
 use rusqlite::{Connection, OpenFlags, OptionalExtension, Row, TransactionBehavior, params};
