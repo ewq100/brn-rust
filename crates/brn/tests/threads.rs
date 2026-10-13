@@ -449,3 +449,51 @@ fn search_pages_report_exact_counts_and_reject_bad_cursors() {
     );
     assert_eq!(scoped["shown"], 14);
 }
+#[test]
+fn topics_connections_and_knowledge_check_commands() {
+    let root = root();
+    let data = root.path().join("topics");
+    json_command(&data, &["init"]);
+    assert_eq!(json_command(&data, &["topics"]), Value::Null);
+    let created = json_command(&data, &["topics-create"]);
+    assert_eq!(created["pointer"]["outcome"], "Applied");
+    let id = created["note"]["id"].as_str().unwrap().to_owned();
+    let topics = json_command(&data, &["topics"]);
+    assert_eq!(
+        (
+            topics["note"].as_str(),
+            topics["entries"].as_array().map(Vec::len)
+        ),
+        (Some(id.as_str()), Some(0))
+    );
+    assert_eq!(
+        json_command(&data, &["settings"])["topics_note"],
+        id.as_str()
+    );
+    let other = json_command(&data, &["note-create", "--title", "Twin", "--text", "Same"]);
+    json_command(
+        &data,
+        &["note-create", "--title", "Twins", "--text", "Same"],
+    );
+    assert_eq!(
+        json_command(
+            &data,
+            &["topics-choose", "--note", other["id"].as_str().unwrap()]
+        )["outcome"],
+        "Applied"
+    );
+    let around = json_command(&data, &["connections", "--note", &id, "--hops", "2"]);
+    assert_eq!(around["centre"]["title"], "Topics");
+    assert_eq!(around["hops"].as_array().unwrap().len(), 2);
+    assert!(
+        !command(&data, &["connections", "--note", &id, "--hops", "3"])
+            .status
+            .success()
+    );
+    let check = json_command(&data, &["knowledge-check", "--seed-chat", "yes"]);
+    assert_eq!(check["counts"]["DuplicateTitle"], 1);
+    assert_eq!(check["counts"]["DuplicateContent"], 1);
+    let chat = check["review_chat"].as_str().unwrap();
+    let threads = json_command(&data, &["threads"]);
+    assert!(threads.as_array().unwrap().iter().any(|t| t["id"] == chat));
+}

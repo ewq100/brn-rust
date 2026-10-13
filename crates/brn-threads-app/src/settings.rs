@@ -48,6 +48,7 @@ impl Workspace {
             delegation_chosen: false,
             backup_directory: None,
             theme: None,
+            topics_note: None,
         };
         let request = ChangeRequest {
             reason: "Initial workspace configuration".into(),

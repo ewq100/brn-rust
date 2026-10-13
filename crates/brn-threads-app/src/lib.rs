@@ -2,13 +2,17 @@
 pub use brn_threads_core::*;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-use std::{collections::BTreeMap, path::Path};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    path::Path,
+};
 
 mod assets;
 mod chat;
 mod decisions;
 mod export;
 mod intake;
+mod knowledge;
 mod refresh;
 pub mod relations;
 mod review;
@@ -16,10 +20,13 @@ mod review_groups;
 pub mod search;
 mod settings;
 mod steering;
+mod topics;
 mod writing;
 pub use export::ExportManifest;
 pub use intake::import_report;
+pub use knowledge::{FINDINGS_PER_KIND, Finding, FindingKind, KnowledgeCheck};
 pub use review_groups::{ReviewGroup, ReviewGroups};
+pub use topics::{TopicEntry, Topics};
 pub use writing::{WritingComment, WritingCommentInput};
 #[derive(Debug, thiserror::Error)]
 pub enum AppError {
@@ -33,6 +40,9 @@ pub enum AppError {
     Json(#[from] serde_json::Error),
     #[error("{0}")]
     Invalid(String),
+    /// A service is not running or could not finish; not the caller's fault.
+    #[error("{0}")]
+    Unavailable(String),
 }
 pub type AppResult<T> = std::result::Result<T, AppError>;
 /// One matching note with its best passage. `start..end` is a byte range in

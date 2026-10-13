@@ -470,3 +470,89 @@ fn every_offered_cursor_is_accepted_up_to_the_reachable_cap() {
         }
     }
 }
+
+#[test]
+fn connections_are_bounded_ordered_and_visibility_checked() {
+    use brn_threads_app::search::{NEIGHBOURS, NodeKind};
+    let (_root, _data, mut ws) = workspace();
+    let chat_a = ws.new_thread("A").unwrap().id;
+    let src = write(&mut ws, "source", vec![(None, source(None), false)]).remove(0);
+    let mut puts: Vec<(Option<&Record>, RecordData, bool)> = vec![
+        (None, note("Hub", "Hub page.\n", None), false),
+        (None, note("Report", "Evidence.\n", None), false),
+        (None, note("Old claim", "Claim.\n", None), false),
+        (None, note("Far", "Two hops away.\n", None), false),
+        (None, note("Secret", "Chat only.\n", Some(&chat_a)), false),
+    ];
+    for i in 0..10 {
+        puts.push((
+            None,
+            note(&format!("Related {i}"), "Related.\n", None),
+            false,
+        ));
+    }
+    let notes = write(&mut ws, "notes", puts);
+    let id = |title: &str| {
+        notes
+            .iter()
+            .find(|r| matches!(&r.data, RecordData::Note(n) if n.title == title))
+            .unwrap()
+            .id
+            .clone()
+    };
+    let hub = id("Hub");
+    let mut links = vec![
+        (None, link(&hub, &id("Report"), relations::SOURCE), false),
+        (
+            None,
+            link(&id("Old claim"), &hub, relations::CONTRADICTS),
+            false,
+        ),
+        (None, link(&id("Secret"), &hub, relations::RELATED), false),
+        (None, link(&hub, &src.id, relations::SOURCE), false),
+        (None, link(&id("Report"), &id("Far"), "explains"), false),
+        (None, link(&hub, &chat_a, "discussed-in"), false),
+    ];
+    for i in 0..10 {
+        links.push((
+            None,
+            link(&hub, &id(&format!("Related {i}")), relations::RELATED),
+            false,
+        ));
+    }
+    write(&mut ws, "links", links);
+    let (handle, _worker) = start(&ws);
+
+    let general = handle.connections(&hub, None, 1, false).unwrap();
+    assert_eq!(general.centre.title, "Hub");
+    let hop = &general.hops[0];
+    assert_eq!((hop.available, hop.shown.len()), (12, NEIGHBOURS));
+    let titles: Vec<&str> = hop.shown.iter().map(|n| n.title.as_str()).collect();
+    assert_eq!(&titles[..3], ["Report", "Old claim", "Related 0"]);
+    assert!(hop.shown[0].relations[0].outgoing);
+    assert!(!hop.shown[1].relations[0].outgoing);
+    assert!(titles.iter().all(|t| *t != "Secret" && *t != "A"));
+
+    let with_sources = handle.connections(&hub, None, 1, true).unwrap();
+    assert_eq!(with_sources.hops[0].available, 13);
+    assert_eq!(with_sources.hops[0].shown[1].kind, NodeKind::Source);
+    let in_chat = handle.connections(&hub, Some(&chat_a), 1, false).unwrap();
+    assert_eq!(in_chat.hops[0].available, 13);
+
+    let two = handle.connections(&hub, None, 2, false).unwrap();
+    let far = &two.hops[1].shown[0];
+    assert_eq!(
+        (far.title.as_str(), far.via.as_deref()),
+        ("Far", Some(id("Report").as_str()))
+    );
+    assert_eq!(far.relations[0].relation, "explains");
+    assert_eq!(two.hops[1].available, 1);
+
+    assert!(handle.connections(&id("Secret"), None, 1, false).is_err());
+    assert!(
+        handle
+            .connections(&id("Secret"), Some(&chat_a), 1, false)
+            .is_ok()
+    );
+    assert!(handle.connections(&hub, None, 3, false).is_err());
+}
