@@ -229,6 +229,10 @@ pub struct WorkspaceSettings {
     /// Appearance preference only; it never affects authority or invocations.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub theme: Option<String>,
+    /// The root Topics note (D6): an ordinary note linking every topic page.
+    /// Owner configuration only; titles can change, so the ID is kept.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub topics_note: Option<String>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

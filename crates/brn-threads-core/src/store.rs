@@ -27,6 +27,7 @@ enum SettingsUpdate<'a> {
     Pause(bool),
     BackupDirectory(&'a str),
     Theme(&'a str),
+    TopicsNote(&'a str),
 }
 impl Store {
     pub fn open(directory: impl AsRef<Path>) -> Result<Self> {
@@ -669,6 +670,21 @@ impl Store {
         self.update_workspace_settings(operation, SettingsUpdate::Theme(theme), authority)
     }
 
+    /// Points the workspace at its root Topics note (D6). The target must be a
+    /// current, non-archived note outside any chat. Owner configuration only;
+    /// deferred while a run is working, like the theme.
+    pub fn choose_topics_note(
+        &mut self,
+        operation: &OperationId,
+        note: &str,
+        authority: &HostAuthority,
+    ) -> Result<ApplyOutcome> {
+        if note.is_empty() || note.len() > 256 {
+            return Err(Error::Invalid("unsupported Topics note ID".into()));
+        }
+        self.update_workspace_settings(operation, SettingsUpdate::TopicsNote(note), authority)
+    }
+
     /// Recheck the saved destination against this actual workspace at dispatch.
     pub fn validate_backup_directory(&self, directory: &Path) -> Result<PathBuf> {
         validate_backup_directory(&self.directory, directory)
@@ -700,6 +716,7 @@ impl Store {
                 Some(serde_json::to_vec(&("backup-directory", directory))?)
             }
             SettingsUpdate::Theme(theme) => Some(serde_json::to_vec(&("theme", theme))?),
+            SettingsUpdate::TopicsNote(note) => Some(serde_json::to_vec(&("topics-note", note))?),
             SettingsUpdate::Configure(_) => None,
         };
         if let Some(intent) = intent {
@@ -741,6 +758,7 @@ impl Store {
                     requested.review_first = prior.review_first;
                     requested.backup_directory = prior.backup_directory.clone();
                     requested.theme = prior.theme.clone();
+                    requested.topics_note = prior.topics_note.clone();
                     if &requested != *prior {
                         return Err(Error::ImmutableRequest);
                     }
@@ -764,6 +782,11 @@ impl Store {
                         return Err(Error::ImmutableRequest);
                     }
                 }
+                SettingsUpdate::TopicsNote(note) => {
+                    if prior.topics_note.as_deref() != Some(note) {
+                        return Err(Error::ImmutableRequest);
+                    }
+                }
             }
             let outcome = apply_on(&tx, operation, authority, None)?;
             tx.commit()?;
@@ -778,7 +801,12 @@ impl Store {
             return Err(Error::Invalid("workspace settings kind mismatch".into()));
         };
         let theme_only = matches!(update, SettingsUpdate::Theme(_));
-        if theme_only {
+        // Preferences never change authority, so they wait for working runs
+        // instead of stopping them.
+        if matches!(
+            update,
+            SettingsUpdate::Theme(_) | SettingsUpdate::TopicsNote(_)
+        ) {
             let mut guarded = Vec::new();
             let mut stmt = tx.prepare(
                 "SELECT body FROM records WHERE json_type(body,'$.data.Run') IS NOT NULL",
@@ -801,6 +829,7 @@ impl Store {
                 next.review_first = current_settings.review_first;
                 next.backup_directory = current_settings.backup_directory.clone();
                 next.theme = current_settings.theme.clone();
+                next.topics_note = current_settings.topics_note.clone();
                 next
             }
             _ => current_settings.clone(),
@@ -831,6 +860,24 @@ impl Store {
                 );
             }
             SettingsUpdate::Theme(theme) => next.theme = Some(theme.to_owned()),
+            SettingsUpdate::TopicsNote(note) => {
+                let body: Option<String> = tx
+                    .query_row("SELECT body FROM records WHERE id=?1", [note], |row| {
+                        row.get(0)
+                    })
+                    .optional()?;
+                let target = body
+                    .map(|b| serde_json::from_str::<Record>(&b))
+                    .transpose()?;
+                if !matches!(&target, Some(Record { archived: false, data: RecordData::Note(n), .. })
+                    if n.chat.is_none() && n.superseded_by.is_none())
+                {
+                    return Err(Error::Invalid(
+                        "the Topics note must be a current note outside any chat".into(),
+                    ));
+                }
+                next.topics_note = Some(note.to_owned());
+            }
             SettingsUpdate::Configure(_) => {}
         }
         let mut writes = vec![Put {
@@ -865,6 +912,8 @@ impl Store {
         let request = ChangeRequest {
             reason: if theme_only {
                 "Owner chose the workspace theme".into()
+            } else if matches!(update, SettingsUpdate::TopicsNote(_)) {
+                "Owner chose the root Topics note".into()
             } else {
                 "Owner configured workspace and stopped prior invocations".into()
             },
