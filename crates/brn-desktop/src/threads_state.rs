@@ -49,6 +49,8 @@ pub(super) enum WorkerKind {
     Import,
     Export,
     Backup,
+    // Only the native UI starts GitHub Copilot sign-in.
+    #[cfg_attr(not(feature = "native-ui"), allow(dead_code))]
     Connect,
 }
 impl WorkerKind {
