@@ -27,16 +27,27 @@
 
 ## Task 1 — derived index and worker (PR 2)
 
-- [ ] **D1:** allowlist a real `derived/` directory in `Store::open`, rejecting symlinks in it and in its ancestors. Add core tests for open, backup, restore and upgrade with and without `derived/`.
-- [ ] `brn-retrieval::search_index`: schema `BRNS` v1, open-or-rebuild, atomic sibling swap, meta keys. Include `indexed_text` with insert and delete triggers for **both** FTS tables.
-- [ ] Markdown chunker v1 with property tests: UTF-8 boundaries, complete coverage, stable output, and code and table integrity.
-- [ ] Analyzer registry (`en` only) and a language column.
-- [ ] **D2:** a search worker thread in `brn-threads-app` owning a read-only canonical connection and the index writer, plus a cloneable `SearchHandle` (request/reply). Handle shutdown, cancellation and worker failure; a failure is reported, never answered with empty results.
-- [ ] Tests:
-  - Upsert, remove, title-change re-chunk with no stale FTS terms, and links mirror.
-  - Meta-mismatch rebuild, and refusal of foreign files.
-  - Concurrent UI and agent requests.
-  - CLI cross-process reader.
+- [x] **D1:** allowlist a real `derived/` directory in `Store::open`, rejecting a symlink or non-directory there and symlinks in its ancestors. `Store::derived_directory()` creates it lazily, on first search. Core tests cover open, backup, restore and upgrade with and without `derived/`. Rollback caveat: a build older than this one refuses a workspace that has `derived/`; delete the folder to go back.
+- [x] **Core reader (re-review B1–B3):** `Store::open_reader` gives a validated read-only `Snapshot`. It refuses schema 3 instead of upgrading it.
+  - `watermark()` is `max(rowid)` of `revisions`. Every record write adds a revision in the same transaction, and nothing deletes or vacuums them.
+  - `changed_since`, `workspace_identity` and `with_references` (the by-ID closure that `visible` follows).
+  - `search_eligibility`, derived from `visible` itself. A property test proves it equals `records_for_chat` for random mixes of chat notes, chat Sources, imports, archived and superseded notes.
+- [x] `brn-retrieval::search_index`: schema `BRNS` v1 with meta keys. `indexed_text` carries insert and delete triggers for **both** FTS tables, and passages are replace-only.
+  - Adopted from S2 instead of the planned sibling swap: an advisory `search.lock` serializes opens across processes. An outdated index is rebuilt **in place** in one transaction, a damaged one is replaced, and a foreign file is refused unchanged.
+  - The sync watermark and workspace identity live in `meta`.
+- [x] Markdown chunker v1 (`markdown_chunk`, written by a helper and reviewed by the lead). A 2,500-document randomized property test covers coverage, UTF-8 and CRLF boundaries, the cap, determinism, heading starts and paths, and fence and table integrity.
+- [x] Analyzer registry (`en` only) and a language column. An unregistered language is refused.
+- [x] **D2:** a `brn-search` worker thread in `brn-threads-app::search`, owning the snapshot reader and the index writer.
+  - Callers use a cloneable `SearchHandle`: `request` returns a non-blocking `SearchTicket` (dropping it cancels, per S3) and `search` blocks.
+  - Each request syncs by watermark. A Source change re-derives the notes that import it.
+  - Results are collapsed per note and re-checked with core `searchable_notes`. Snapshots are retried when another process moved the index.
+  - Failures are errors, never empty results.
+- [x] Tests:
+  - Upsert, remove, title and content changes with no stale FTS terms (FTS5 `integrity-check`), and the links mirror.
+  - Meta and version mismatch rebuild, corruption replacement, and refusal of foreign files and symlinks.
+  - Concurrent handles, four concurrent index writers, and a second workspace view sharing the index.
+  - Restart, deletion and re-creation of the index.
+- [x] Harness retriever `worker-keyword` recorded in [evidence](evidence.md).
 
 ## Task 2 — hybrid query and app/UI/CLI switch (PR 2)
 
@@ -128,7 +139,16 @@ The PR #129 comparison led to these alignments:
 - Knowledge-check findings match #129's deterministic list.
 - Guide edits target #129's text.
 
-A re-review is due before Task 1 implementation, now that D1–D5 are accepted and #129 and #130 are merged.
+Round two (independent, after the #129 and #130 merges) found no broken decision. Three blocking findings were adopted in Task 1:
+- B1: re-check visibility over a by-ID closure, not a full scan.
+- B2: eligibility must include the import Source's chat, and archived and superseded notes are excluded.
+- B3: a core-owned read-only reader.
+
+Significant findings:
+- S1 and S2 (cheap watermark, cross-process writers) were adopted in Task 1.
+- S3 (the UI must not block) is split: the non-blocking ticket exists, and the UI switch is Task 2.
+- S4 (D1 caveats) was adopted.
+- Task 3 notes: name the brn-ai trait distinctly (for example `RunNoteSearch`), make tool registration conditional, and update the nine-tool assertions.
 
 ## Gate record
 

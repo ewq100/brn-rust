@@ -13,6 +13,7 @@ mod intake;
 mod refresh;
 mod review;
 mod review_groups;
+pub mod search;
 mod settings;
 mod steering;
 mod writing;

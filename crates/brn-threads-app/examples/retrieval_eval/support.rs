@@ -721,6 +721,37 @@ impl Retriever for CurrentAppSearch {
     }
 }
 
+/// The derived-index search worker (Task 1): exact and English-stemmed FTS5
+/// lanes fused by RRF, collapsed per note and re-checked with core
+/// visibility. The first query builds the persisted index.
+#[derive(Default)]
+pub struct WorkerSearch {
+    handle: Option<brn_threads_app::search::SearchHandle>,
+}
+
+impl Retriever for WorkerSearch {
+    fn name(&self) -> String {
+        "worker-keyword".into()
+    }
+    fn search(
+        &mut self,
+        workspace: &mut Workspace,
+        query: &str,
+        chat: Option<&str>,
+    ) -> Result<Vec<String>> {
+        if self.handle.is_none() {
+            self.handle = Some(brn_threads_app::search::SearchHandle::spawn(&workspace.store)?.0);
+        }
+        let handle = self.handle.as_ref().expect("spawned above");
+        Ok(handle
+            .search(query, chat, 50)?
+            .matches
+            .into_iter()
+            .map(|m| m.note)
+            .collect())
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CaseResult {
     pub id: String,

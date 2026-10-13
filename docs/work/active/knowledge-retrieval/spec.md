@@ -71,11 +71,11 @@ flowchart LR
   5. Replies.
 
   The agent's own applied changes are therefore searchable within the same run.
-- The worker is the single serializer of derived writes. SQLite WAL and busy timeouts only cover cross-process readers, such as a CLI process opening the same workspace.
+- Within a process the worker is the single serializer of derived writes. Separate processes (the desktop and a CLI) each run a worker against the same file. Their writes serialize through `BEGIN IMMEDIATE` and busy timeouts, opens and rebuilds go through the advisory lock, and a worker whose snapshot is behind the shared index retries on a fresh snapshot.
 
 ### 2. Derived index (`brn-retrieval::search_index`)
 
-- **Identity and rebuild.** A lean schema with identity `BRNS` v1, independent of the vault-era `NoteIndex`. It reuses the chunk, query-escaping, RRF and embedding code. An unknown, damaged or version-mismatched index is replaced by an atomic sibling rebuild and swap, never repaired.
+- **Identity and rebuild.** A lean schema with identity `BRNS` v1, independent of the vault-era `NoteIndex`. It reuses the chunk, query-escaping, RRF and embedding code. An outdated or settings-mismatched index is rebuilt in place in one transaction, and a damaged one is replaced; neither is ever repaired. Both happen under an advisory `derived/search.lock` shared by every BRN process. This replaced the planned sibling swap, which could strand WAL files and race across processes. A foreign file is refused unchanged.
 - **Tables:**
   - `docs(id, kind, version, sha256, title, visibility, protected, imported, language)`. `kind` is `note` now; `message` is reserved for project chat search. `visibility` is `general`, `chat:<id>` or, later, `project:<id>`.
   - `passages(id, doc, start_byte, end_byte, heading_path, text, indexed_text)`. `indexed_text` is `title › heading path` followed by the passage text. Byte ranges point into the saved Markdown, so quotes and anchors stay exact.
@@ -89,6 +89,8 @@ flowchart LR
   - Keeps fenced code and tables whole up to a 4,000-byte hard cap, targeting about 1,200–2,000 bytes.
   - Records the heading path for each chunk.
   - Is deterministic.
+- **Sync position.** `meta` stores the canonical watermark (`max(rowid)` of `revisions`, which rises with every record write) and the workspace identity (its first operation). A watermark that moves backwards, or a different identity, causes a full resync.
+- **Eligibility.** `docs.visibility` is core's `search_eligibility`, derived from `visible`: `general`, `chat:<id>` (the note's own chat or its import Source's chat) or `hidden`. Hidden notes stay indexed so a Source change can re-derive them. Archived and superseded notes are removed.
 - **Location (D1).** `derived/search.sqlite` sits inside the workspace. Core allowlists one real `derived/` directory and rejects symlinks there and in its ancestors. Backup already snapshots only SQLite, and restore creates a fresh directory, so the derived index is naturally excluded and rebuilt.
 
 ### 3. Query and visibility

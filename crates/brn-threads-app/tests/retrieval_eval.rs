@@ -273,3 +273,23 @@ fn visibility_check_counts_leaks_and_credits_in_chat_finds() {
     // leaks chat-only notes into golden exact queries.
     assert!(leaky.visibility.violations >= 12 * 2 + 12);
 }
+
+#[test]
+fn worker_index_keeps_solved_strata_finds_inflections_and_respects_chats() {
+    let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let report = run_with(
+        &root.path().join("data"),
+        400,
+        DEFAULT_SEED,
+        &mut WorkerSearch::default(),
+    )
+    .unwrap();
+    assert_eq!(report.retriever, "worker-keyword");
+    assert_eq!(report.visibility.violations, 0);
+    assert_eq!(report.visibility.in_chat_recall_at_10, 1.0);
+    assert_eq!(report.strata["exact"].recall_at_10, 1.0);
+    assert_eq!(report.strata["topic"].recall_at_10, 1.0);
+    assert!(report.strata["section"].recall_at_10 >= 0.9);
+    assert!(report.strata["inflection"].recall_at_50 >= 0.5);
+    assert_eq!(report.strata["abstention"].any_result_rate, 0.0);
+}
