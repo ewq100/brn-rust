@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "cases": [
+    {
+      "id": "sequential-project",
+      "seeds": [
+        {"title": "Harbor project", "text": "# Harbor project\nWorking summary for the Harbor shipment. On 8 October 2026 the delivery estimate was 20 November 2026. Keep scheduling evidence and constraints here.", "protected": false},
+        {"title": "Harbor signed commitment reference", "text": "# Harbor signed commitment reference\nSynthetic signed agreement dated 1 October 2026 reports a committed delivery date of 22 November 2026. Changes require the parties' agreement. This is imported evidence, not an owner-confirmation receipt.", "protected": true}
+      ],
+      "steps": [
+        {"kind": "intake", "title": "Harbor update, 12 October", "text": "# Harbor update\nMari kirjutab 12. oktoobril 2026: Harbori saadetise eeldatav tarne on 15. november 2026, kuid see pole kinnitatud lubadus. Koorem võib olla kuni 12 tonni. Laadimiseks peab veesügavus olema vähemalt 1,2 meetrit. Koosolek on kinnitatud 10. novembriks 2026. Säilita hinnangu tingimuslikkus ja erista seda allkirjastatud kokkuleppest."},
+        {"kind": "intake", "title": "Harbor older planning note, 8 October", "text": "# Harbor planning note\nThis synthetic planning note was written on 8 October 2026, before Mari's update of 12 October. It estimates delivery on 20 November 2026, not a binding commitment. The cargo cap is 12 tonnes; the loading depth minimum is 1.2 metres. It adds the contact Jaan for loading coordination. Its later ingestion does not make its estimate newer evidence."}
+      ],
+      "rubric": [
+        "Revise the existing Harbor project note rather than create a disconnected summary per source.",
+        "Keep the 12 October estimate of 15 November qualified and distinguish it from the signed reference's 22 November commitment.",
+        "Recognize the 8 October note as older evidence rather than silently replace the newer estimate with 20 November.",
+        "Retain the 12-tonne cap, 1.2-metre minimum depth, 10 November meeting and Jaan's supported contact role.",
+        "Attribute the incoming evidence, expose the unresolved discrepancy, and preserve protected reference content.",
+        "Inspect actual source links/inputs and source availability; readable organization is assessed separately from correctness."
+      ],
+      "expected_existing_note": "Harbor project",
+      "no_new_notes": false
+    },
+    {
+      "id": "reusable-synthesis",
+      "seeds": [
+        {"title": "Fixed-slot access reference", "text": "# Fixed-slot access\nSynthetic process dated 12 October 2026. Passage is Tuesday 09:00-11:00 local time. Reserve at least 48 hours beforehand. Minimum depth is 1.2 metres. Medical emergencies may request an exception through the duty coordinator. This process gives no cargo-mass limit.", "protected": true},
+        {"title": "Tidal access reference", "text": "# Tidal access\nSynthetic process dated 12 October 2026. Passage requires tide height at least 2.4 metres, without a fixed clock window. Reserve at least 24 hours beforehand. Cargo is capped at 12 tonnes. Passage closes when wind is 18 metres/second or stronger. This process gives no medical-exception rule.", "protected": true}
+      ],
+      "steps": [
+        {"kind": "ask", "prompt": "Prepare and save a reusable comparison of the fixed-slot and tidal access processes from the two current imported references. Explain when each may be useful, preserve their constraints and exceptions, and distinguish source reports from your inference. Retain links and the evidence used so we can revisit the comparison."}
+      ],
+      "rubric": [
+        "Create a useful comparison with a stable subject, rather than duplicate both full references.",
+        "Preserve Tuesday 09:00-11:00, 48-hour booking, minimum depth 1.2 metres and medical exception for fixed slots.",
+        "Preserve tide minimum 2.4 metres, 24-hour booking, cargo cap 12 tonnes and closure at wind >=18 metres/second for tidal access.",
+        "Do not invent a fixed-slot cargo cap or a tidal medical-exception rule; distinguish missing rules from prohibition.",
+        "Label conclusions about convenience or flexibility as inference and tie material claims to the actual imported evidence.",
+        "Inspect declared exact inputs and links to both references and preserved protection."
+      ],
+      "expected_existing_note": null,
+      "no_new_notes": false
+    },
+    {
+      "id": "conversation-only",
+      "seeds": [],
+      "steps": [
+        {"kind": "ask", "prompt": "What is 17 multiplied by 6? Answer in this thread only; I do not need a saved knowledge note."}
+      ],
+      "rubric": [
+        "Answer 102 accurately and briefly.",
+        "Keep this one-off answer in the thread without creating a Note, Action or extra attention item."
+      ],
+      "expected_existing_note": null,
+      "no_new_notes": true
+    }
+  ]
+}
