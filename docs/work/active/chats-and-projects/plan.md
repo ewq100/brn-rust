@@ -199,3 +199,14 @@ The owner also reported duplicate model controls in the composer and status bar.
 
 
 Status follow-up `4b235b97`: implemented and independently approved, 94 native tests/strict lint/build pass, and actual same-banner dismiss/restore plus nonduplicated model controls were observed. Fresh **BRN Status Test** is open; [evidence](evidence.md#reopen-work-status-and-remove-duplicate-model-controls--13-october-2026) pins the build and one Completed run. Owner acceptance remains pending; integration/release unassigned.
+
+
+## Contextual note and decision actions
+
+Owner authorized removing Ask/Edit note/Record decision from the composer. Continue using this existing plan (writing-plans workflow) rather than creating a parallel plan. Plain chat/Enter/queue/Steer carry no extra note or decision grant. Remove ComposeMode and its obsolete menu tests.
+
+- Put **Edit note** in the open note's actions. Open a separate instruction dialog bound to its exact saved ID/version, then post an owner instruction in its writing chat and use the existing one-invocation EditNote grant. Preserve the ordinary composer draft. Disable during work, pending paused queue, dirty/recoverable/stale note or review; recheck before dispatch.
+- Put **Save as decision** on completed saved assistant replies. Review/edit title and text in a separate dialog, clearly naming BRN retention and protection/confirmation. Save the owner's exact reviewed text through one replayable checked owner group (protected/confirmed Note and link to the originating chat); keep source Message/version provenance. Cancel does nothing; partial/streaming replies do not expose this action. Do not start another model call to save text.
+- Implement the decision save in a small shared app module with bound operation identity, source-message/current-input checks, asset visibility checks, replay and Undo. Chat/attachments stay unchanged; saving a decision explicitly retains only the reviewed content in general BRN.
+- Use a focused contextual native module for dialog/dispatch behavior; native tests cover removal, exact EditNote target, no incidental grants, preserved drafts, review/cancel/save and failures. Shared app tests cover replay, stale/foreign/partial sources, protection/provenance, visibility, assets and Undo. Reuse current note/review/provider paths.
+- Run relevant app/native checks, strict lint/build, independent read-only review and actual synthetic native journeys; rebuild/open the latest app. Publication/merge/release remain unassigned.

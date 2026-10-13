@@ -7,6 +7,7 @@ use std::{collections::BTreeMap, path::Path};
 
 mod assets;
 mod chat;
+mod decisions;
 mod export;
 mod intake;
 mod refresh;

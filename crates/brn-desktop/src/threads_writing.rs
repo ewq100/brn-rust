@@ -472,14 +472,9 @@ impl ThreadsUi {
             ),
             ChatTarget::New => "New standalone chat".into(),
         };
-        let note_title = self.note.as_ref().map(|open| short(&title(&open.record)));
-        let has_note = note_title.is_some();
-        let mode = self.mode;
-        let mode_this = this.clone();
         let model_this = this.clone();
         let effort_this = this.clone();
         let add_this = this.clone();
-        let mode_note = note_title.clone();
         let can_steer = self.can_stop_and_send();
         div()
             .id("composer-tile")
@@ -609,35 +604,6 @@ impl ThreadsUi {
                                 ))
                             }),
                     )
-                    .child(
-                        pill(
-                            "mode-pill",
-                            format!("{} ▾", mode.label(note_title.as_deref())),
-                        )
-                        .selected(mode != ComposeMode::Ask)
-                        .tooltip("What BRN may do for this request")
-                        .dropdown_menu(move |mut menu, _, _| {
-                            menu = menu.label("What BRN may do · this request");
-                            for (choice, disabled) in [
-                                (ComposeMode::Ask, false),
-                                (ComposeMode::EditNote, !has_note),
-                                (ComposeMode::RecordDecision, false),
-                            ] {
-                                menu = menu.item(item(
-                                    &mode_this,
-                                    choice.label(mode_note.as_deref()),
-                                    None,
-                                    disabled,
-                                    mode == choice,
-                                    move |view, _, cx| {
-                                        view.mode = choice;
-                                        cx.notify();
-                                    },
-                                ));
-                            }
-                            menu
-                        }),
-                    )
                     .child(div().flex_1())
                     .child(
                         pill(
@@ -763,6 +729,13 @@ impl ThreadsUi {
                 cx.notify();
             }))
             .into_any_element(),
+        );
+        controls.push(
+            pill("edit-note-context", "Edit note")
+                .disabled(!self.can_edit_note_context())
+                .tooltip("Give BRN an instruction for this saved note")
+                .on_click(cx.listener(|this, _, window, cx| this.edit_note_dialog(window, cx)))
+                .into_any_element(),
         );
         controls.push(
             pill("note-menu", "⋯")

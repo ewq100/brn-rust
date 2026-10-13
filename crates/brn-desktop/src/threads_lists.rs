@@ -369,43 +369,6 @@ pub(super) fn notes_linked_to_open(records: &[Record], rows: &[ThreadRow]) -> BT
         .collect()
 }
 
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
-pub(super) enum ComposeMode {
-    #[default]
-    Ask,
-    EditNote,
-    RecordDecision,
-}
-impl ComposeMode {
-    pub(super) fn label(self, note: Option<&str>) -> String {
-        match self {
-            Self::Ask => "Ask · read only".into(),
-            Self::EditNote => format!("Edit {} · this request", note.unwrap_or("note")),
-            Self::RecordDecision => "Record decision · this request".into(),
-        }
-    }
-}
-
-/// The exact per-request grant for a mode; Edit requires the open note's
-/// current saved version and otherwise grants nothing.
-pub(super) fn grant(
-    mode: ComposeMode,
-    note: Option<(&str, u64)>,
-) -> Result<Option<brn_ai::threads::OwnerRequest>, &'static str> {
-    match mode {
-        ComposeMode::Ask => Ok(None),
-        ComposeMode::EditNote => note
-            .map(|(id, version)| {
-                Some(brn_ai::threads::OwnerRequest::EditNote {
-                    id: id.into(),
-                    version,
-                })
-            })
-            .ok_or("Open the note you want BRN to edit, then choose Edit again."),
-        ComposeMode::RecordDecision => Ok(Some(brn_ai::threads::OwnerRequest::RecordDecision)),
-    }
-}
-
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(super) enum Command {
     NewThread,
@@ -775,25 +738,6 @@ mod tests {
         assert_eq!(shown.len(), 11);
         let (shown, total) = filter_notes(&rows, "beta", 100);
         assert_eq!((shown.len(), total), (100, 1_250));
-    }
-
-    #[test]
-    fn modes_map_exactly_to_existing_grants() {
-        use brn_ai::threads::OwnerRequest;
-        assert!(grant(ComposeMode::Ask, Some(("n", 3))).unwrap().is_none());
-        assert!(matches!(
-            grant(ComposeMode::EditNote, Some(("n", 3))).unwrap(),
-            Some(OwnerRequest::EditNote { id, version: 3 }) if id == "n"
-        ));
-        assert!(grant(ComposeMode::EditNote, None).is_err());
-        assert!(matches!(
-            grant(ComposeMode::RecordDecision, None).unwrap(),
-            Some(OwnerRequest::RecordDecision)
-        ));
-        assert_eq!(
-            ComposeMode::EditNote.label(Some("Plan")),
-            "Edit Plan · this request"
-        );
     }
 
     #[test]

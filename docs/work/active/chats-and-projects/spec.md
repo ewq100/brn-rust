@@ -179,3 +179,6 @@ Carry the requested chat-first work through normal technical planning, implement
 ## Owner clarification: detailed display, 13 October 2026
 
 Quiet off shows a terminal-style activity stream with tool calls, bounded argument previews, outcomes and the provider's explicitly public reasoning summaries when supplied. Quiet on hides this activity across the window while retaining streamed answers, compact truthful work/Stop status, errors, proposals and attention. Raw private reasoning and encrypted provider content are not display material. The latest run's bounded in-memory activity remains available in its own chat after completion, until another run or app restart; canonical answers/receipts remain durable.
+
+
+Owner clarification (13 October): remove the Ask/Edit note/Record decision menu from the composer. Keep plain Enter/queue/Steer free of extra note/decision grants. Put Edit note with the exact open saved note and use a separate instruction dialog; put Save as decision on completed saved replies, with editable title/text review and explicit protected/confirmed BRN retention. Preserve unsent chat drafts, checked replay/Undo and private attachments. Saving reviewed decision text must not require another model call.

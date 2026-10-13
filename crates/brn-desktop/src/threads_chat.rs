@@ -227,7 +227,6 @@ impl ThreadsUi {
                 if let Some(thread) = thread {
                     self.chat = ChatTarget::Thread(thread);
                 }
-                self.mode = ComposeMode::Ask;
                 self.notice = "Message saved in the queue. Each item runs as a separate turn with current context.".into();
                 self.refresh();
                 if self.worker.is_none() && !self.queue_state().paused {
@@ -669,10 +668,16 @@ impl ThreadsUi {
             }
             "assistant" | "assistant-partial" => {
                 let copy = m.text.clone();
+                let decision = record.clone();
+                let save_decision = m.role == "assistant"
+                    && !m.text.trim().is_empty()
+                    && !self.thread_resolved(&m.thread);
                 row = row
                     .child(
                         div()
                             .flex()
+                            .flex_wrap()
+                            .items_center()
                             .gap_2()
                             .child(metadata(if m.role == "assistant" {
                                 "BRN"
@@ -685,7 +690,23 @@ impl ThreadsUi {
                                         copy.clone(),
                                     ))
                                 }),
-                            )),
+                            ))
+                            .when(save_decision, |controls| {
+                                controls.child(
+                                    pill(
+                                        format!("answer-decision-{}", record.id),
+                                        "Save as decision",
+                                    )
+                                    .tooltip(
+                                        "Review and save this reply as a protected decision in BRN",
+                                    )
+                                    .on_click(cx.listener(
+                                        move |this, _, window, cx| {
+                                            this.decision_dialog(decision.clone(), window, cx)
+                                        },
+                                    )),
+                                )
+                            }),
                     )
                     .child(self.safe_message(key, m.text.clone()));
             }

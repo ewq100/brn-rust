@@ -41,6 +41,8 @@ use std::{
 use tokio_util::sync::CancellationToken;
 #[path = "threads_chat.rs"]
 mod chat;
+#[path = "threads_context_actions.rs"]
+mod context_actions;
 #[path = "threads_diff.rs"]
 mod diff;
 #[path = "threads_layout.rs"]
@@ -58,13 +60,17 @@ mod tiles;
 #[path = "threads_writing.rs"]
 mod writing;
 use layout::{Layout, Preset, TileKind};
-use lists::{Activity, ComposeMode, NoteRow, ThreadFilter, ThreadRow};
+use lists::{Activity, NoteRow, ThreadFilter, ThreadRow};
 use state::{
     ComposerDestination, ComposerDrafts, WorkerKind, can_continue_thread, comment_location,
     continuation_notice, delegation_status, latest_run, linked, outcome_message, save_message,
     sections,
 };
 use theme::{ThemeId, pal};
+
+#[cfg(all(test, feature = "native-test-support"))]
+#[path = "threads_context_actions_tests.rs"]
+mod context_actions_tests;
 
 #[cfg(all(test, feature = "native-test-support"))]
 #[path = "threads_focus_tests.rs"]
@@ -374,7 +380,6 @@ struct ThreadsUi {
     root_focus: FocusHandle,
     layout: Layout,
     chat: ChatTarget,
-    mode: ComposeMode,
     theme: ThemeId,
     theme_pending: bool,
     settings_section: SettingsSection,
@@ -609,7 +614,6 @@ impl ThreadsUi {
             root_focus: cx.focus_handle(),
             layout: Layout::default(),
             chat: ChatTarget::New,
-            mode: ComposeMode::Ask,
             theme,
             theme_pending: false,
             settings_section: SettingsSection::General,
@@ -878,7 +882,7 @@ impl ThreadsUi {
             ChatTarget::Thread(thread) => ComposerDestination::Thread(thread.clone()),
         }
     }
-    /// Each destination keeps its own unsent draft; the mode is per request.
+    /// Each destination keeps its own unsent draft; contextual actions have separate inputs.
     fn set_chat(&mut self, target: ChatTarget, window: &mut Window, cx: &mut Context<Self>) {
         if self.chat == target {
             return;
@@ -886,7 +890,6 @@ impl ThreadsUi {
         let old = self.destination();
         self.save_composer(old, self.composer.read(cx).value().to_string());
         self.chat = target;
-        self.mode = ComposeMode::Ask;
         // Choosing a thread linked to the open note makes it that note's thread.
         if let ChatTarget::Thread(thread) = &self.chat
             && let Some(note) = self.open_note_id().map(str::to_owned)
@@ -1847,19 +1850,7 @@ impl ThreadsUi {
             self.enqueue_composer(window, cx);
             return;
         }
-        let note = self.open_note_id().and_then(|id| {
-            self.records
-                .iter()
-                .find(|record| record.id == id && matches!(record.data, RecordData::Note(_)))
-                .map(|record| (record.id.as_str(), record.version))
-        });
-        match lists::grant(self.mode, note) {
-            Ok(grant) => self.ask_with_authority(grant, window, cx),
-            Err(message) => {
-                self.notice = message.into();
-                cx.notify();
-            }
-        }
+        self.ask_with_authority(None, window, cx);
     }
     fn ask_with_authority(
         &mut self,
@@ -1901,7 +1892,6 @@ impl ThreadsUi {
                 self.composer
                     .update(cx, |e, cx| e.set_value("", window, cx));
                 self.chat = ChatTarget::Thread(thread.clone());
-                self.mode = ComposeMode::Ask;
                 self.start_run(prompt, thread, vec![], owner_request, cx);
             }
             Err(e) => self.notice = format!("{e}. Your text is preserved."),
