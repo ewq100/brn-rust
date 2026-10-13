@@ -63,11 +63,16 @@ rebuilding/replacing the index file or switching a tool/model snapshot.
 
 ## Pinned, explicit native installer
 
-[`download_model`](src/native/download.rs) installs only the five MiniLM
-assets at revision `2c4055b12046f11709e9df2c122e59ffbdc2f900` of
-`Xenova/paraphrase-multilingual-MiniLM-L12-v2`: `onnx/model_quantized.onnx` (installed as `model.onnx`),
-`tokenizer.json`, `config.json`, `special_tokens_map.json` and
-`tokenizer_config.json`. Exact per-file sizes total **135,392,488 bytes**.
+[`download_model`](src/native/download.rs) installs only the five
+`multilingual-e5-small` assets (decision D3) at revision
+`761b726dd34fb83930e26aab4e9ac3899aa1fa78` of `Xenova/multilingual-e5-small`,
+the ONNX conversion of the MIT-licensed `intfloat/multilingual-e5-small`:
+`onnx/model_quantized.onnx` (installed as `model.onnx`), `tokenizer.json`,
+`config.json`, `special_tokens_map.json` and `tokenizer_config.json`. Exact
+per-file sizes total **135,392,183 bytes**. The previously pinned MiniLM bundle
+(revision `2c4055b1…` of `Xenova/paraphrase-multilingual-MiniLM-L12-v2`,
+135,392,488 bytes) is no longer installed, but an existing install is still
+recognised and verified.
 ONNX and tokenizer use pinned LFS-content SHA-256; the other files use Git blob SHA-1,
 including the `blob <length>\0` prefix. No response-provided digest or floating
 revision is trusted.
@@ -80,10 +85,13 @@ unavailability. Verified pinned directories can be reused without fetching;
 other occupied targets are unchanged. Failure/cancellation cleans only
 identity-checked files in the install's own stage. No implicit retry.
 
-The host supplies fresh consent and owns the blocking job. `LocalEmbedder::open`
-remains **load-only**. Recognized pinned multilingual ONNX requires all five exact
-assets before initialization, uses mean pooling/384 dimensions/max128 tokens and
-Static quantization, and hashes the entire bundle into a distinct profile identity.
+The host supplies fresh consent and owns the blocking job (`brn model-install
+--destination …` in native builds). `LocalEmbedder::open` remains **load-only**.
+A recognised pinned bundle requires all five exact assets before initialization
+and hashes the entire bundle into a distinct profile identity. e5-small uses mean
+pooling, 384 dimensions, 512 tokens, Static quantization, `query: ` and
+`passage: ` prefixes and a provisional 0.80 similarity floor; MiniLM keeps 128
+tokens, no prefixes and its identity.
 Other explicit or saved directories retain their exact legacy behavior and identity.
 The 128-token limit needs real bilingual/long-passage quality qualification;
 synthetic profile checks do not establish ONNX compatibility. Native tests use

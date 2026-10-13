@@ -3,13 +3,7 @@ use super::{KnowledgeScope, NoteHit, NoteIndex};
 use crate::{Error, Result};
 use rusqlite::{Connection, OptionalExtension, params};
 
-/// Turns text into vectors. Implemented by the local model and by test fakes.
-pub trait Embedder {
-    /// Stable identity of the model and its settings; a change rebuilds all embeddings.
-    fn identity(&self) -> &str;
-    fn dimension(&self) -> usize;
-    fn embed(&mut self, texts: &[&str]) -> Result<Vec<Vec<f32>>>;
-}
+pub use crate::embedding::Embedder;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct EmbeddingProgress {

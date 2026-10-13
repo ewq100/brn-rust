@@ -10,8 +10,10 @@ use std::{
     time::Duration,
 };
 
-pub const REVISION: &str = "2c4055b12046f11709e9df2c122e59ffbdc2f900";
-const BASE_URL: &str = "https://huggingface.co/Xenova/paraphrase-multilingual-MiniLM-L12-v2/resolve/2c4055b12046f11709e9df2c122e59ffbdc2f900/";
+/// `Xenova/multilingual-e5-small` (ONNX of MIT-licensed
+/// `intfloat/multilingual-e5-small`), pinned by revision, sizes and digests.
+pub const REVISION: &str = "761b726dd34fb83930e26aab4e9ac3899aa1fa78";
+const BASE_URL: &str = "https://huggingface.co/Xenova/multilingual-e5-small/resolve/761b726dd34fb83930e26aab4e9ac3899aa1fa78/";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, thiserror::Error)]
 pub enum ModelInstallError {
@@ -68,7 +70,49 @@ const fn hex<const N: usize>(value: &str) -> [u8; N] {
     bytes
 }
 
+/// The installed profile (D3): multilingual-e5-small, 384 dimensions, 512
+/// tokens, `query: ` and `passage: ` prefixes.
 pub(super) const ASSETS: [Asset; 5] = [
+    Asset {
+        source: "onnx/model_quantized.onnx",
+        name: "model.onnx",
+        bytes: 118_308_185,
+        digest: DigestPin::Sha256(hex(
+            "f80102d3f2a1229f387d3c81909990d8945513e347b0eab049f7de3c6f98c193",
+        )),
+    },
+    Asset {
+        source: "tokenizer.json",
+        name: "tokenizer.json",
+        bytes: 17_082_730,
+        digest: DigestPin::Sha256(hex(
+            "0b44a9d7b51c3c62626640cda0e2c2f70fdacdc25bbbd68038369d14ebdf4c39",
+        )),
+    },
+    Asset {
+        source: "config.json",
+        name: "config.json",
+        bytes: 658,
+        digest: DigestPin::GitBlobSha1(hex("4104f38273cc595fd9500fd243124e9f6cf383dc")),
+    },
+    Asset {
+        source: "special_tokens_map.json",
+        name: "special_tokens_map.json",
+        bytes: 167,
+        digest: DigestPin::GitBlobSha1(hex("e0b1d18ecd0ae4ff1d47bd297d910c0cf83e504b")),
+    },
+    Asset {
+        source: "tokenizer_config.json",
+        name: "tokenizer_config.json",
+        bytes: 443,
+        digest: DigestPin::GitBlobSha1(hex("059214673d9d6d2ee319411e2ffec8c024b816d5")),
+    },
+];
+
+/// The previously pinned `Xenova/paraphrase-multilingual-MiniLM-L12-v2` at
+/// revision `2c4055b1…`. No longer installed, but an existing install is
+/// still recognised and verified.
+pub(super) const MINILM_ASSETS: [Asset; 5] = [
     Asset {
         source: "onnx/model_quantized.onnx",
         name: "model.onnx",

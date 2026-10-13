@@ -26,6 +26,9 @@ fn local_model_embeds_by_meaning() {
             || embedder.identity().starts_with(
                 "fastembed-7.1.0/paraphrase-multilingual-MiniLM-L12-v2/mean/384/max128/static/"
             )
+            || embedder
+                .identity()
+                .starts_with("fastembed-7.1.0/multilingual-e5-small/mean/384/max512/static/")
     );
     let v = embedder
         .embed(&[

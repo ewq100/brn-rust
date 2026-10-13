@@ -41,6 +41,7 @@ fn check_cancel(cancel: &std::sync::atomic::AtomicBool) -> Result<()> {
 }
 
 mod chunk;
+pub mod embedding;
 pub mod markdown_chunk;
 #[cfg(feature = "native")]
 pub mod native;

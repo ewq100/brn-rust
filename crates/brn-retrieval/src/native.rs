@@ -1,4 +1,5 @@
-//! Pinned multilingual mean/384 retrieval, retaining explicit legacy profiles.
+//! Pinned multilingual-e5-small retrieval (D3), still recognising the
+//! previously pinned MiniLM model and explicit legacy files.
 use crate::{Error, Result, note_index::Embedder};
 use fastembed::{
     InitOptionsUserDefined, Pooling, QuantizationMode, TextEmbedding, TokenizerFiles,
@@ -13,12 +14,17 @@ const DIMENSION: usize = 384;
 enum Profile {
     Legacy,
     Multilingual,
+    E5Small,
 }
 
 fn profile_for_digest(digest: &[u8; 32]) -> Profile {
-    match download::ASSETS[0].digest {
-        download::DigestPin::Sha256(expected) if *digest == expected => Profile::Multilingual,
-        _ => Profile::Legacy,
+    let pinned = |assets: &[download::Asset]| matches!(assets[0].digest, download::DigestPin::Sha256(expected) if *digest == expected);
+    if pinned(&download::ASSETS) {
+        Profile::E5Small
+    } else if pinned(&download::MINILM_ASSETS) {
+        Profile::Multilingual
+    } else {
+        Profile::Legacy
     }
 }
 impl Profile {
@@ -27,12 +33,34 @@ impl Profile {
         match self {
             Self::Legacy => options,
             Self::Multilingual => options.with_max_length(128),
+            Self::E5Small => options.with_max_length(512),
         }
     }
     fn quantization(self) -> QuantizationMode {
         match self {
             Self::Legacy => QuantizationMode::None,
-            Self::Multilingual => QuantizationMode::Static,
+            Self::Multilingual | Self::E5Small => QuantizationMode::Static,
+        }
+    }
+    fn assets(self) -> Option<&'static [download::Asset]> {
+        match self {
+            Self::Legacy => None,
+            Self::Multilingual => Some(&download::MINILM_ASSETS),
+            Self::E5Small => Some(&download::ASSETS),
+        }
+    }
+    fn prefixes(self) -> (&'static str, &'static str) {
+        match self {
+            Self::E5Small => ("query: ", "passage: "),
+            Self::Legacy | Self::Multilingual => ("", ""),
+        }
+    }
+    /// e5 places unrelated text near 0.7 cosine; provisional until the
+    /// owner-run qualification measures it on the golden set.
+    fn similarity_floor(self) -> f32 {
+        match self {
+            Self::E5Small => 0.80,
+            Self::Legacy | Self::Multilingual => 0.5,
         }
     }
 }
@@ -53,6 +81,9 @@ fn model_identity(profile: Profile, files: &[(&str, &[u8])]) -> String {
         Profile::Multilingual => format!(
             "fastembed-7.1.0/paraphrase-multilingual-MiniLM-L12-v2/mean/{DIMENSION}/max128/static/{digest}"
         ),
+        Profile::E5Small => {
+            format!("fastembed-7.1.0/multilingual-e5-small/mean/{DIMENSION}/max512/static/{digest}")
+        }
     }
 }
 
@@ -66,6 +97,7 @@ mod download_tests;
 pub struct LocalEmbedder {
     model: TextEmbedding,
     identity: String,
+    profile: Profile,
 }
 
 impl LocalEmbedder {
@@ -97,8 +129,8 @@ impl LocalEmbedder {
             ("special_tokens_map.json", &files.special_tokens_map_file),
             ("tokenizer_config.json", &files.tokenizer_config_file),
         ];
-        if profile == Profile::Multilingual {
-            for (asset, (name, bytes)) in download::ASSETS.iter().zip(buffers) {
+        if let Some(assets) = profile.assets() {
+            for (asset, (name, bytes)) in assets.iter().zip(buffers) {
                 if asset.name != name {
                     return Err(Error::Unavailable(
                         "embedding model companion order differs",
@@ -113,7 +145,11 @@ impl LocalEmbedder {
             .with_quantization(profile.quantization());
         let model = TextEmbedding::try_new_from_user_defined(user, profile.options())
             .map_err(|e| Error::Native(e.to_string()))?;
-        Ok(Self { model, identity })
+        Ok(Self {
+            model,
+            identity,
+            profile,
+        })
     }
 }
 
@@ -129,11 +165,37 @@ impl Embedder for LocalEmbedder {
             .embed(texts, None)
             .map_err(|e| Error::Native(e.to_string()))
     }
+    fn prefixes(&self) -> (&'static str, &'static str) {
+        self.profile.prefixes()
+    }
+    fn similarity_floor(&self) -> f32 {
+        self.profile.similarity_floor()
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn pinned_e5_onnx_selects_its_profile_prefixes_and_identity() {
+        let digest: [u8; 32] =
+            hex::decode("f80102d3f2a1229f387d3c81909990d8945513e347b0eab049f7de3c6f98c193")
+                .unwrap()
+                .try_into()
+                .unwrap();
+        let profile = profile_for_digest(&digest);
+        assert_eq!(profile, Profile::E5Small);
+        assert_eq!(profile.options().max_length, 512);
+        assert!(matches!(profile.quantization(), QuantizationMode::Static));
+        assert_eq!(profile.prefixes(), ("query: ", "passage: "));
+        assert_eq!(profile.assets().unwrap()[0].bytes, 118_308_185);
+        let identity = model_identity(profile, &[("model.onnx", b"synthetic model")]);
+        assert!(
+            identity.starts_with("fastembed-7.1.0/multilingual-e5-small/mean/384/max512/static/")
+        );
+        assert_eq!(Profile::Multilingual.prefixes(), ("", ""));
+    }
 
     #[test]
     fn pinned_multilingual_onnx_selects_its_own_profile() {

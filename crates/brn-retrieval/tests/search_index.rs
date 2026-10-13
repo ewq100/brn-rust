@@ -542,3 +542,91 @@ fn counts_link_facts_and_all_word_matches_respect_visibility() {
         (3, 2)
     );
 }
+
+#[test]
+fn passage_ids_are_never_reused_and_vectors_follow_their_passage() {
+    let (_root, dir) = derived();
+    let (mut index, _) = SearchIndex::open(&dir).unwrap();
+    upsert(
+        &mut index,
+        vec![doc(
+            "n1",
+            1,
+            "Cars",
+            "Automobile text.\n",
+            Visibility::General,
+        )],
+        1,
+    );
+    let first = index.keyword("automobile", None, 5).unwrap()[0].passage;
+    assert_eq!(index.pending_passages("m", 10).unwrap().len(), 1);
+    assert_eq!(
+        index
+            .store_vectors("m", &[(first, vec![3.0, 4.0])])
+            .unwrap(),
+        1
+    );
+    assert_eq!(index.vector_counts("m").unwrap(), (1, 1));
+    assert_eq!(
+        index.load_vectors("m").unwrap(),
+        vec![(first, vec![0.6, 0.8])]
+    );
+    assert!(
+        index
+            .store_vectors("m", &[(first, vec![0.0, 0.0])])
+            .is_err()
+    );
+    upsert(
+        &mut index,
+        vec![doc("n1", 2, "Cars", "Budget text.\n", Visibility::General)],
+        2,
+    );
+    let second = index.keyword("budget", None, 5).unwrap()[0].passage;
+    assert!(second > first, "{second} reused {first}");
+    assert_eq!(index.vector_counts("m").unwrap(), (0, 1));
+    assert!(index.load_vectors("m").unwrap().is_empty());
+    // A vector for a removed passage is skipped, not stored.
+    assert_eq!(
+        index
+            .store_vectors("m", &[(first, vec![1.0, 0.0])])
+            .unwrap(),
+        0
+    );
+    let hits = index.hybrid("budget", None, 5, &[second]).unwrap();
+    assert!(hits[0].keyword);
+    let dense_only = index.hybrid("zzznothing", None, 5, &[second]).unwrap();
+    assert_eq!((dense_only.len(), dense_only[0].keyword), (1, false));
+}
+
+#[test]
+fn vectors_of_other_models_are_purged_and_keyword_matching_is_exact() {
+    let (_root, dir) = derived();
+    let (mut index, _) = SearchIndex::open(&dir).unwrap();
+    upsert(
+        &mut index,
+        vec![doc(
+            "n1",
+            1,
+            "Cars",
+            "Automobile text.\n",
+            Visibility::General,
+        )],
+        1,
+    );
+    let passage = index.pending_passages("old", 1).unwrap()[0].0;
+    index
+        .store_vectors("old", &[(passage, vec![1.0, 0.0])])
+        .unwrap();
+    index
+        .store_vectors("new", &[(passage, vec![0.0, 1.0])])
+        .unwrap();
+    assert_eq!(index.retain_vectors("new").unwrap(), 1);
+    assert_eq!(index.vector_counts("old").unwrap(), (0, 1));
+    assert_eq!(index.vector_counts("new").unwrap(), (1, 1));
+    let docs = vec!["n1".to_string(), "missing".to_string()];
+    assert_eq!(
+        index.matching_keywords("automobiles", &docs).unwrap().len(),
+        1
+    );
+    assert!(index.matching_keywords("budget", &docs).unwrap().is_empty());
+}
