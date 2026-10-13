@@ -45,12 +45,12 @@ impl TileKind {
     }
     pub(super) fn label(self) -> &'static str {
         match self {
-            Self::Threads => "threads",
+            Self::Threads => "chats",
             Self::Note => "note",
             Self::Chat => "chat",
             Self::Linked => "linked work",
             Self::Notes => "notes",
-            Self::AllThreads => "all threads",
+            Self::AllThreads => "all chats",
             Self::Overview => "overview",
             Self::Actions => "actions",
             Self::History => "what changed",

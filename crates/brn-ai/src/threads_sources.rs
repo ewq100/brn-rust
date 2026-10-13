@@ -44,6 +44,8 @@ pub(super) fn source_metadata(
     sources: &BTreeMap<String, TransientSource>,
     store: &Store,
     reference: &str,
+    chat: Option<&str>,
+    source_ids: &[String],
 ) -> AiResult<Value> {
     let (source_index, (_, source)) = sources
         .iter()
@@ -57,12 +59,12 @@ pub(super) fn source_metadata(
         json!({"link":link,"name":asset.name,"media_type":asset.media_type,"width":asset.width,"height":asset.height})
     }).collect();
     let source_record = store
-        .records()
+        .records_for_chat(chat)
         .map_err(storage)?
         .into_iter()
         .find(|record| {
             !record.archived
-                && matches!(&record.data, RecordData::Source(source) if source.locator == reference)
+                && matches!(&record.data, RecordData::Source(source) if source.locator == reference && source_ids.contains(&record.id))
         })
         .map(|record| json!({"id":record.id,"version":record.version}));
     Ok(
@@ -277,8 +279,10 @@ pub(super) fn materialize_selected_sources(
     store: &Store,
     operation: &OperationId,
     request: &mut ChangeRequest,
+    chat: Option<&str>,
+    source_ids: &[String],
 ) -> AiResult<()> {
-    let mut records = store.records().map_err(storage)?;
+    let mut records = store.records_for_chat(chat).map_err(storage)?;
     // Re-preparation must use the original evidence snapshot, including after
     // a committed host source observation advanced its version. Changed model
     // requests still fail the core's immutable request comparison.
@@ -329,7 +333,7 @@ pub(super) fn materialize_selected_sources(
                 .iter()
                 .find(|record| {
                     !record.archived
-                        && matches!(&record.data, RecordData::Source(s) if s.locator == *reference)
+                        && matches!(&record.data, RecordData::Source(s) if s.locator == *reference && source_ids.contains(&record.id))
                 })
                 .ok_or_else(rejected)?;
                 let RecordData::Source(current) = &record.data else {

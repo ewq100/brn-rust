@@ -32,11 +32,15 @@ pub fn publish(store: &Store, destination: &Path) -> AppResult<ExportManifest> {
         .prefix(".brn-export-")
         .tempdir_in(parent)?;
     // A single SELECT holds a consistent committed view across all canonical rows.
-    let records = store.records()?;
+    let records = store
+        .records()?
+        .into_iter()
+        .filter(|r| !matches!(&r.data,RecordData::Source(s) if s.chat.is_some()))
+        .collect::<Vec<_>>();
     let notes: Vec<_> = records
         .iter()
         .filter(|r| {
-            !r.archived && matches!(&r.data,RecordData::Note(n) if n.superseded_by.is_none())
+            !r.archived && matches!(&r.data,RecordData::Note(n) if n.superseded_by.is_none() && n.chat.is_none())
         })
         .collect();
     let mut manifest = ExportManifest {

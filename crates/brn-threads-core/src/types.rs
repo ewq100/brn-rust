@@ -14,6 +14,9 @@ impl OperationId {
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Note {
+    /// Host-owned visibility; absent means independently retained BRN knowledge.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub chat: Option<String>,
     pub title: String,
     pub markdown: String,
     pub protected: bool,
@@ -24,6 +27,7 @@ pub struct Note {
 impl Note {
     pub fn working(title: impl Into<String>, markdown: impl Into<String>) -> Self {
         Self {
+            chat: None,
             title: title.into(),
             markdown: markdown.into(),
             protected: false,
@@ -139,6 +143,9 @@ pub struct Action {
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Source {
+    /// Observations from one chat must not overwrite another context's evidence.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub chat: Option<String>,
     pub locator: String,
     pub label: String,
     pub observed_at: String,
@@ -188,6 +195,11 @@ pub enum RunState {
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Run {
+    /// Exact trusted posted instruction, never inferred from matching prose.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub instruction: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub queue_claim: Option<String>,
     pub thread: String,
     pub provider: String,
     pub model: String,
@@ -236,6 +248,31 @@ pub enum RecordData {
     Message(Message),
     Run(Run),
     Settings(WorkspaceSettings),
+    ChatControl(ChatControl),
+}
+
+/// Host recovery/control state; model tools cannot edit or read this record.
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ChatControl {
+    pub queue: Vec<QueuedMessage>,
+    pub pending: Option<QueuedMessage>,
+    pub paused: bool,
+    pub quiet: bool,
+}
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct QueuedMessage {
+    pub id: String,
+    pub thread: String,
+    pub text: String,
+    pub message: Option<String>,
+    pub run: Option<String>,
+    pub dispatch: Option<String>,
+}
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ChatDraft {
+    pub destination: String,
+    pub generation: u64,
+    pub text: String,
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Record {
@@ -331,6 +368,7 @@ pub struct HostAuthority {
     pub(crate) scope: Scope,
     pub(crate) run_binding: Option<(String, u64)>,
     pub(crate) settings_binding: Option<(String, u64)>,
+    pub(crate) chat_binding: Option<(String, bool)>,
 }
 #[derive(Debug, Clone)]
 pub(crate) enum Scope {
@@ -353,6 +391,7 @@ impl HostAuthority {
             scope: Scope::Owner,
             run_binding: None,
             settings_binding: None,
+            chat_binding: None,
         }
     }
     pub fn maintenance(actor: impl Into<String>) -> Self {
@@ -361,6 +400,7 @@ impl HostAuthority {
             scope: Scope::Maintenance,
             run_binding: None,
             settings_binding: None,
+            chat_binding: None,
         }
     }
     /// Host coordinator authority to manage one concrete Run record only.
@@ -370,6 +410,7 @@ impl HostAuthority {
             scope: Scope::Runtime { run: run_id.into() },
             run_binding: None,
             settings_binding: None,
+            chat_binding: None,
         }
     }
     pub fn instruction(
@@ -389,6 +430,7 @@ impl HostAuthority {
             },
             run_binding: None,
             settings_binding: None,
+            chat_binding: None,
         }
     }
     /// Host-coordinated steering/cancellation fence, excluded from model arguments.
@@ -400,6 +442,11 @@ impl HostAuthority {
     /// Receipt replay remains valid after later configuration changes.
     pub fn for_settings(mut self, id: impl Into<String>, version: u64) -> Self {
         self.settings_binding = Some((id.into(), version));
+        self
+    }
+    /// Trusted context boundary, independent of model arguments and delegation.
+    pub fn for_chat(mut self, chat: &str, private_context: bool) -> Self {
+        self.chat_binding = Some((chat.into(), private_context));
         self
     }
     pub(crate) fn allows(&self, operation: &OperationId, id: &str, capability: Capability) -> bool {

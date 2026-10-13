@@ -155,6 +155,7 @@ pub fn create(root: &Path, notes: usize, source: &str) -> Result<Corpus> {
             writes.push(new_put(
                 source_id.clone(),
                 RecordData::Source(Source {
+                    chat: None,
                     locator: format!("synthetic://qualification/email/{index}"),
                     label: format!("Synthetic coordinator email {index}"),
                     observed_at: "2026-10-11T09:00:00Z".into(),

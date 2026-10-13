@@ -9,7 +9,7 @@ use gpui_kit::component::menu::DropdownMenu;
 
 impl ThreadsUi {
     pub(super) fn safe_message(&self, id: String, text: String) -> TextView {
-        let assets = self.assets.clone();
+        let assets = self.assets_in_chat(self.chat_thread());
         TextView::markdown(id, text)
             .w_full()
             .markdown_extensions(
@@ -32,13 +32,13 @@ impl ThreadsUi {
                 cx.stop_propagation();
             })
     }
-    fn thread_title(&self, id: &str) -> String {
+    pub(super) fn thread_title(&self, id: &str) -> String {
         self.thread_rows
             .iter()
             .find(|row| row.id == id)
             .map_or_else(|| id.to_owned(), |row| row.title.clone())
     }
-    fn thread_resolved(&self, id: &str) -> bool {
+    pub(super) fn thread_resolved(&self, id: &str) -> bool {
         self.thread_rows
             .iter()
             .any(|row| row.id == id && row.resolved)
@@ -49,13 +49,13 @@ impl ThreadsUi {
         if let ChatTarget::Thread(id) = &self.chat {
             let id = id.clone();
             controls.push(if self.thread_resolved(&id) {
-                pill("reopen-thread", "reopen")
-                    .tooltip("Reopen this thread")
+                pill("reopen-thread", "Unarchive")
+                    .tooltip("Unarchive this chat")
                     .on_click(cx.listener(move |this, _, _, cx| this.reopen_thread(&id, cx)))
                     .into_any_element()
             } else {
-                pill("resolve-thread", "✓ resolve")
-                    .tooltip("Settled: leaves the sidebar, history kept, linked Actions stay")
+                pill("resolve-thread", "Archive")
+                    .tooltip("Archive this chat; stop work and pause the saved queue")
                     .on_click(cx.listener(move |this, _, _, cx| this.resolve_thread(&id, cx)))
                     .into_any_element()
             });
@@ -74,10 +74,10 @@ impl ThreadsUi {
         let selected = self.chat_thread().map(str::to_owned);
         controls.push(
             pill("thread-menu", "▾")
-                .tooltip("Threads for this note")
+                .tooltip("Chats for this note")
                 .dropdown_menu(move |mut menu, _, _| {
                     if let Some((note_id, note_title)) = &note {
-                        menu = menu.label(format!("Threads for {}", short(note_title)));
+                        menu = menu.label(format!("Chats for {}", short(note_title)));
                         for (thread, label) in &threads {
                             let (thread, note_id) = (thread.clone(), note_id.clone());
                             menu = menu.item(item(
@@ -99,7 +99,7 @@ impl ThreadsUi {
                     }
                     menu.item(item(
                         &this,
-                        "＋ New thread for this note",
+                        "＋ New chat for this note",
                         None,
                         note.is_none(),
                         false,
@@ -108,7 +108,7 @@ impl ThreadsUi {
                     .separator()
                     .item(item(
                         &this,
-                        "New thread",
+                        "New chat",
                         Some(Box::new(NewThread)),
                         false,
                         false,
@@ -116,7 +116,7 @@ impl ThreadsUi {
                     ))
                     .item(item(
                         &this,
-                        "All threads…",
+                        "All chats…",
                         None,
                         false,
                         false,
@@ -136,13 +136,13 @@ impl ThreadsUi {
                     .p_4()
                     .child(metadata(match target {
                         ChatTarget::NewForNote(note) => format!(
-                            "New thread about {}. It stays linked to the note.",
+                            "New chat about {}. It stays linked to the note.",
                             self.note_rows
                                 .iter()
                                 .find(|row| &row.id == note)
                                 .map_or_else(|| note.clone(), |row| row.title.clone())
                         ),
-                        _ => "Ask anything. BRN uses your notes first. Quick answers resolve themselves and step out of the way.".into(),
+                        _ => "Start a chat with BRN. Attach files for this conversation, or use your saved knowledge.".into(),
                     }));
                 if self.delegation_host() == Some(TileKind::Chat) {
                     start = start.child(self.working_knowledge(cx));
@@ -150,22 +150,46 @@ impl ThreadsUi {
                 start.test_support().into_any_element()
             }
         };
+        let activity = self.chat_thread().and_then(|id| {
+            if self
+                .worker
+                .as_ref()
+                .is_some_and(|w| w.thread.as_deref() == Some(id))
+            {
+                Some(self.live_activity(true, cx))
+            } else if !self.queue_state().quiet
+                && self.run_activity_chat.as_deref() == Some(id)
+                && !self.run_activity_labels.is_empty()
+            {
+                Some(self.live_activity(false, cx))
+            } else {
+                None
+            }
+        });
         div()
             .id("chat-tile")
             .size_full()
             .flex()
             .flex_col()
             .child(div().flex_1().min_h_0().child(body))
+            // Keep the activity scroller outside MessageScroller's wheel mask.
+            .when_some(activity, |tile, activity| {
+                tile.child(div().flex_shrink_0().p_2().child(activity))
+            })
             .child(self.composer_tile(cx))
             .into_any_element()
     }
-    fn conversation(&self, id: &str, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
+    pub(super) fn conversation_detail(
+        &self,
+        id: &str,
+        cx: &mut Context<Self>,
+    ) -> gpui_kit::AnyElement {
         let p = pal();
         let Some(record) = self.records.iter().find(|r| r.id == id) else {
             return scroll("thread-conversation")
                 .child(empty(
                     "thread-unavailable",
-                    "This thread is unavailable. Open another thread from the sidebar.",
+                    "This chat is unavailable. Open another chat from the sidebar.",
                 ))
                 .into_any_element();
         };
@@ -213,64 +237,6 @@ impl ThreadsUi {
         }) {
             conversation = conversation.child(self.proposal_card(candidate, cx));
         }
-        if let Ok(messages) = self.workspace.messages(id) {
-            for message in messages {
-                let RecordData::Message(body) = &message.data else {
-                    continue;
-                };
-                match body.role.as_str() {
-                    "owner" => {
-                        conversation = conversation.child(
-                            div()
-                                .flex()
-                                .flex_col()
-                                .gap_1()
-                                .pl_3()
-                                .border_l_2()
-                                .border_color(rgb(p.accent))
-                                .child(
-                                    div()
-                                        .font_family(MONO)
-                                        .text_xs()
-                                        .text_color(rgb(p.accent))
-                                        .child("you"),
-                                )
-                                .child(self.safe_message(
-                                    format!("message-{}", message.id),
-                                    body.text.clone(),
-                                )),
-                        )
-                    }
-                    "assistant" => {
-                        conversation = conversation.child(
-                            self.safe_message(format!("message-{}", message.id), body.text.clone()),
-                        )
-                    }
-                    "writing-request" => {
-                        let detail = self
-                            .workspace
-                            .writing_request(&message.id)
-                            .map(|snapshot| {
-                                format!(
-                                    "saved v{} · {} comments · {} thread messages",
-                                    snapshot.note.version,
-                                    snapshot.comments.len(),
-                                    snapshot.messages.len()
-                                )
-                            })
-                            .unwrap_or_default();
-                        conversation = conversation.child(
-                            div()
-                                .font_family(MONO)
-                                .text_xs()
-                                .text_color(rgb(p.muted))
-                                .child(format!("you · Rewrite with AI · {detail}")),
-                        )
-                    }
-                    _ => {}
-                }
-            }
-        }
         if let Some(stream) = self.stream_for(id) {
             conversation = conversation.child(
                 div()
@@ -278,27 +244,16 @@ impl ThreadsUi {
                     .flex_col()
                     .gap_1()
                     .child(metadata("BRN · writing…"))
-                    .child(self.safe_message("stream-answer".into(), stream.into())),
-            );
-        }
-        if let Some(worker) = &self.worker
-            && worker.thread.as_deref() == Some(id)
-        {
-            conversation = conversation.child(
-                div()
-                    .id("run-line")
-                    .flex()
-                    .items_center()
-                    .gap_2()
-                    .font_family(MONO)
-                    .text_xs()
-                    .text_color(rgb(p.muted))
-                    .child(format!("◌ {}", worker.kind.status(&self.progress)))
-                    .child(
-                        pill("run-stop", "stop ⌘.")
-                            .on_click(cx.listener(|this, _, _, cx| this.cancel(cx))),
-                    )
-                    .test_support(),
+                    .child(self.safe_message(
+                        format!(
+                                "response-{}",
+                                self.worker
+                                    .as_ref()
+                                    .and_then(|w| w.run_id.as_deref())
+                                    .unwrap_or(id)
+                            ),
+                        stream.into(),
+                    )),
             );
         }
         if can_continue_thread(
@@ -343,35 +298,26 @@ impl ThreadsUi {
                             "continue-{}",
                             latest.map_or(id, |record| record.id.as_str())
                         ))
-                        .label("Continue with current context")
+                        .label(
+                            if self.queue_state().pending.is_some_and(|q| q.thread == id) {
+                                "Resume queue with current context"
+                            } else {
+                                "Continue with current context"
+                            },
+                        )
                         .on_click(cx.listener(move |this, _, _, cx| {
                             this.continue_run(thread_id.clone(), cx)
                         })),
                     ),
             );
         }
-        if thread.state == ThreadState::Resolved {
-            let automatic = self
-                .history
-                .iter()
-                .rev()
-                .find(|receipt| receipt.writes.iter().any(|write| write.after.id == id))
-                .is_some_and(|receipt| receipt.reason == lists::AUTO_RESOLVE_REASON);
-            let text = if automatic {
-                "✓ resolved automatically — answered, nothing changed · reply to reopen"
-            } else {
-                "✓ resolved · linked Actions keep their own progress · reply to reopen"
-            };
-            conversation = conversation.child(
-                div()
-                    .id("thread-resolved")
-                    .font_family(MONO)
-                    .text_xs()
-                    .text_color(rgb(p.muted))
-                    .aria_label(text)
-                    .child(text)
-                    .test_support(),
-            );
+        if record.archived || thread.state == ThreadState::Resolved {
+            let thread_id = id.to_owned();
+            conversation = conversation
+                .child(metadata("Archived chat · saved history remains available"))
+                .child(button("chat-unarchive").label("Unarchive").on_click(
+                    cx.listener(move |this, _, _, cx| this.reopen_thread(&thread_id, cx)),
+                ));
         }
         conversation.test_support().into_any_element()
     }
@@ -513,30 +459,55 @@ impl ThreadsUi {
         let busy = self.worker.is_some();
         let destination = match &self.chat {
             ChatTarget::Thread(id) if self.thread_resolved(id) => format!(
-                "Reply to {} · resolved; sending reopens it",
+                "Archived · {} · Unarchive to reply",
                 short(&self.thread_title(id))
             ),
             ChatTarget::Thread(id) => format!("Reply to {}", short(&self.thread_title(id))),
             ChatTarget::NewForNote(note) => format!(
-                "New thread about {}",
+                "New chat about {}",
                 self.note_rows
                     .iter()
                     .find(|row| &row.id == note)
                     .map_or_else(|| note.clone(), |row| short(&row.title))
             ),
-            ChatTarget::New => "New standalone thread".into(),
+            ChatTarget::New => "New standalone chat".into(),
         };
-        let note_title = self.note.as_ref().map(|open| short(&title(&open.record)));
-        let has_note = note_title.is_some();
-        let mode = self.mode;
-        let mode_this = this.clone();
         let model_this = this.clone();
         let effort_this = this.clone();
         let add_this = this.clone();
-        let mode_note = note_title.clone();
         let can_steer = self.can_stop_and_send();
         div()
             .id("composer-tile")
+            .on_drop(
+                cx.listener(|this, paths: &gpui_kit::ExternalPaths, window, cx| {
+                    this.attach_chat_path(paths.paths(), window, cx)
+                }),
+            )
+            .capture_key_down(
+                cx.listener(|this, event: &gpui_kit::KeyDownEvent, window, cx| {
+                    if event.keystroke.key == "v"
+                        && event.keystroke.modifiers.platform
+                        && let Some(item) = cx.read_from_clipboard()
+                    {
+                        let paths = item
+                            .entries()
+                            .iter()
+                            .filter_map(|entry| match entry {
+                                gpui_kit::ClipboardEntry::ExternalPaths(paths) => {
+                                    Some(paths.paths())
+                                }
+                                _ => None,
+                            })
+                            .flatten()
+                            .cloned()
+                            .collect::<Vec<_>>();
+                        if !paths.is_empty() {
+                            cx.stop_propagation();
+                            this.attach_chat_path(&paths, window, cx);
+                        }
+                    }
+                }),
+            )
             .flex()
             .flex_col()
             .flex_shrink_0()
@@ -554,6 +525,33 @@ impl ThreadsUi {
                     .aria_label(destination.clone())
                     .child(destination)
                     .test_support(),
+            )
+            .child(self.composer_controls(cx))
+            .child(
+                pill(
+                    "chat-quiet",
+                    if self.queue_state().quiet {
+                        "Quiet · on · answers only"
+                    } else {
+                        "Quiet · off · show activity"
+                    },
+                )
+                .selected(self.queue_state().quiet)
+                .tooltip(if self.queue_state().quiet {
+                    "Hide routine activity throughout the window. Answers, Stop, errors and decisions stay visible."
+                } else {
+                    "Show recent activity while BRN works."
+                })
+                .on_click(cx.listener(|this, _, _, cx| {
+                    let quiet = !this.queue_state().quiet;
+                    if let Err(e) = this
+                        .workspace
+                        .choose_quiet(&format!("quiet:{}", uuid::Uuid::new_v4()), quiet)
+                    {
+                        this.notice = e.to_string();
+                    }
+                    cx.notify();
+                })),
             )
             .child(
                 div().h(px(84.)).child(
@@ -573,6 +571,14 @@ impl ThreadsUi {
                             .tooltip("Add information")
                             .dropdown_menu(move |menu, _, _| {
                                 menu.item(item(
+                                    &add_this,
+                                    "Attach file to chat…",
+                                    None,
+                                    busy,
+                                    false,
+                                    |view, window, cx| view.choose_chat_attachment(window, cx),
+                                ))
+                                .item(item(
                                     &add_this,
                                     "Add useful information…",
                                     None,
@@ -598,35 +604,6 @@ impl ThreadsUi {
                                 ))
                             }),
                     )
-                    .child(
-                        pill(
-                            "mode-pill",
-                            format!("{} ▾", mode.label(note_title.as_deref())),
-                        )
-                        .selected(mode != ComposeMode::Ask)
-                        .tooltip("What BRN may do for this request")
-                        .dropdown_menu(move |mut menu, _, _| {
-                            menu = menu.label("What BRN may do · this request");
-                            for (choice, disabled) in [
-                                (ComposeMode::Ask, false),
-                                (ComposeMode::EditNote, !has_note),
-                                (ComposeMode::RecordDecision, false),
-                            ] {
-                                menu = menu.item(item(
-                                    &mode_this,
-                                    choice.label(mode_note.as_deref()),
-                                    None,
-                                    disabled,
-                                    mode == choice,
-                                    move |view, _, cx| {
-                                        view.mode = choice;
-                                        cx.notify();
-                                    },
-                                ));
-                            }
-                            menu
-                        }),
-                    )
                     .child(div().flex_1())
                     .child(
                         pill(
@@ -651,21 +628,30 @@ impl ThreadsUi {
                                 None => menu,
                             }),
                     )
+                    .when(can_steer, |row| {
+                        row.child(
+                            pill("chat-steer", "Steer")
+                                .tooltip(
+                                    "Stop this invocation and start fresh with this instruction",
+                                )
+                                .on_click(cx.listener(|this, _, window, cx| {
+                                    this.stop_and_send(window, cx)
+                                })),
+                        )
+                    })
                     .child(
                         button("ask-delegate")
-                            .label(if can_steer {
-                                "Stop & send ↵"
+                            .label(if self.editing_queue.is_some() {
+                                "Save queued"
+                            } else if busy {
+                                "Queue ↵"
                             } else {
                                 "Send ↵"
                             })
                             .primary()
                             .compact()
-                            .tooltip(if can_steer {
-                                "Stop the current run and send this instruction"
-                            } else {
-                                "Send (↵ or ⌘↵) · ⇧↵ new line"
-                            })
-                            .disabled(busy && !can_steer)
+                            .tooltip("Enter sends or queues · Shift-Enter adds a line")
+                            .disabled(false)
                             .on_click(cx.listener(|this, _, window, cx| this.ask(window, cx))),
                     ),
             )
@@ -743,6 +729,13 @@ impl ThreadsUi {
                 cx.notify();
             }))
             .into_any_element(),
+        );
+        controls.push(
+            pill("edit-note-context", "Edit note")
+                .disabled(!self.can_edit_note_context())
+                .tooltip("Give BRN an instruction for this saved note")
+                .on_click(cx.listener(|this, _, window, cx| this.edit_note_dialog(window, cx)))
+                .into_any_element(),
         );
         controls.push(
             pill("note-menu", "⋯")
@@ -842,7 +835,7 @@ impl ThreadsUi {
                     }
                     menu.separator().item(item(
                         &this,
-                        "New thread for this note",
+                        "New chat for this note",
                         None,
                         false,
                         false,
@@ -1048,7 +1041,7 @@ impl ThreadsUi {
             banners = banners.child(
                 panel()
                     .child("The current note changed since this edit began. Your text is preserved; compare, then save your text as a new note if needed.")
-                    .child(div().h(px(180.)).child(markdown(&self.current_view, self.assets.clone()))),
+                    .child(div().h(px(180.)).child(markdown(&self.current_view, self.note_assets()))),
             );
         }
         content = content.child(banners);
@@ -1090,7 +1083,7 @@ impl ThreadsUi {
                                 this.comment_on_selection(window, cx)
                             })),
                     )
-                    .child(pill("selection-ask", "Ask in thread").on_click(
+                    .child(pill("selection-ask", "Ask in chat").on_click(
                         cx.listener(|this, _, window, cx| this.ask_about_selection(window, cx)),
                     ));
             if dirty {
@@ -1144,7 +1137,7 @@ impl ThreadsUi {
                     dirty,
                     Box::new(CommentSelection),
                 )
-                .menu("Ask in thread", Box::new(AskAboutSelection))
+                .menu("Ask in chat", Box::new(AskAboutSelection))
                 .separator()
                 .menu_with_disabled("Cut", blocked, Box::new(gpui_kit::base::input::Cut))
                 .menu("Copy", Box::new(gpui_kit::base::input::Copy))
@@ -1451,7 +1444,7 @@ impl ThreadsUi {
                 .text_sm()
                 .child(heading("Saved rewrite inputs"))
                 .child(format!(
-                    "Saved note v{} · {} comments · {} posted thread messages. Later additions stay pending.",
+                    "Saved note v{} · {} comments · {} posted chat messages. Later additions stay pending.",
                     snapshot.note.version,
                     snapshot.comments.len(),
                     snapshot.messages.len()
@@ -1465,7 +1458,7 @@ impl ThreadsUi {
                             captured.markdown.clone(),
                         ));
             }
-            disclosure = disclosure.child(heading("Captured thread"));
+            disclosure = disclosure.child(heading("Captured chat"));
             for message in &snapshot.messages {
                 if let RecordData::Message(body) = &message.data {
                     disclosure = disclosure
@@ -1595,7 +1588,7 @@ impl ThreadsUi {
                 div()
                     .id("rewrite-scope")
                     .child(format!(
-                        "{included} comment{} · {messages} thread message{}",
+                        "{included} comment{} · {messages} chat message{}",
                         if included == 1 { "" } else { "s" },
                         if messages == 1 { "" } else { "s" }
                     ))
@@ -1638,7 +1631,7 @@ impl ThreadsUi {
                     .label("Rewrite with AI ⌘⇧R")
                     .compact()
                     .primary()
-                    .tooltip("Captures the saved note, included comments and this note's thread")
+                    .tooltip("Captures the saved note, included comments and this note's chat")
                     .disabled(!why.is_empty())
                     .on_click(cx.listener(|this, _, _, cx| this.rewrite_note(cx))),
             );
@@ -1768,7 +1761,7 @@ impl ThreadsUi {
                         if n.protected { " · protected" } else { "" }
                     ),
                     RecordData::Action(a) => format!("Action: {} · {:?}", a.description, a.state),
-                    RecordData::Thread(t) => format!("Thread: {}", t.title),
+                    RecordData::Thread(t) => format!("Chat: {}", t.title),
                     RecordData::Message(m) => format!("Message: {}", short(&m.text)),
                     RecordData::Link(_) => "Connect related work".into(),
                     RecordData::Comment(c) => format!("Comment: {}", short(&c.body)),
@@ -1776,6 +1769,7 @@ impl ThreadsUi {
                     RecordData::Asset(_) => "Retain a meaningful figure".into(),
                     RecordData::Run(_) => "Record work progress".into(),
                     RecordData::Settings(_) => "Change workspace settings".into(),
+                    RecordData::ChatControl(_) => "Change chat controls".into(),
                 }));
             }
             if let Some(snapshot) = review
@@ -1786,7 +1780,7 @@ impl ThreadsUi {
                 .find_map(|input| self.workspace.writing_request(&input.record).ok())
             {
                 details = details.child(metadata(format!(
-                    "Inputs: saved v{} · {} comments · {} thread messages",
+                    "Inputs: saved v{} · {} comments · {} chat messages",
                     snapshot.note.version,
                     snapshot.comments.len(),
                     snapshot.messages.len()
@@ -1971,7 +1965,7 @@ impl ThreadsUi {
                         div()
                             .flex_1()
                             .min_h_0()
-                            .child(markdown(&self.current_view, self.assets.clone())),
+                            .child(markdown(&self.current_view, self.note_assets())),
                     ),
             )
             .child(
@@ -1985,7 +1979,7 @@ impl ThreadsUi {
                         div()
                             .flex_1()
                             .min_h_0()
-                            .child(markdown(&self.candidate_view, self.assets.clone())),
+                            .child(markdown(&self.candidate_view, self.note_assets())),
                     ),
             )
             .test_support()
@@ -1998,7 +1992,7 @@ impl ThreadsUi {
             return context
                 .child(empty(
                     "linked-empty",
-                    "Notes, sources and Actions used in a thread appear here.",
+                    "Notes, sources and Actions used in a chat appear here.",
                 ))
                 .test_support()
                 .into_any_element();
@@ -2007,7 +2001,7 @@ impl ThreadsUi {
         if linked_ids.is_empty() {
             context = context.child(empty(
                 "linked-empty",
-                "Notes, sources and Actions used in this thread appear here.",
+                "Notes, sources and Actions used in this chat appear here.",
             ));
         }
         for record in self

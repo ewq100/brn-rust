@@ -5,7 +5,10 @@ use crate::{
     Selection,
 };
 use brn_threads_core::*;
-use rig::agent::{AgentHook, HookContext, ModelTurnAction, ModelTurnFinished};
+use rig::agent::{
+    AgentHook, DispatchAction, DispatchEvent, HookContext, ModelTurnAction, ModelTurnFinished,
+    OutcomeAction, OutcomeEvent,
+};
 use rig::message::AssistantContent;
 use rig::tool::{Tool, ToolContext};
 use serde::Deserialize;
@@ -26,6 +29,9 @@ mod history;
 mod sources;
 use history::{HistoryArgs, RefreshArgs};
 pub use sources::{TransientAsset, TransientSource};
+#[cfg(test)]
+#[path = "threads_chat_tests.rs"]
+mod chat_tests;
 #[cfg(test)]
 #[path = "threads_current_inputs_tests.rs"]
 mod current_inputs_tests;
@@ -51,6 +57,8 @@ pub enum OwnerRequest {
     RewriteNote { request_message: String },
 }
 pub struct ThreadRunRequest {
+    pub request_message: Option<String>,
+    pub queue_claim: Option<String>,
     pub owner_request: Option<OwnerRequest>,
     pub data_dir: PathBuf,
     pub thread: String,
@@ -63,6 +71,7 @@ pub struct ThreadRunRequest {
     pub sources: Vec<TransientSource>,
 }
 pub struct ThreadResult {
+    pub terminal_run: Option<(String, u64)>,
     pub run_id: String,
     pub answer: AiAnswer,
 }
@@ -79,12 +88,15 @@ impl PreparedThreadRun {
     }
 }
 struct Scope {
+    chat: String,
+    private_context: bool,
     store: Mutex<Store>,
     run: String,
     fence: AtomicU64,
     instruction: String,
     settings: Option<(String, u64)>,
     sources: BTreeMap<String, TransientSource>,
+    source_ids: Vec<String>,
     owner_request: Option<OwnerRequest>,
     writing_snapshot: Option<WritingSnapshot>,
     decision_target: Mutex<Option<String>>,
@@ -99,7 +111,9 @@ fn scope(cx: &ToolContext) -> AiResult<Arc<Scope>> {
     cx.scope::<Scope>().ok_or_else(rejected)
 }
 fn bind(scope: &Scope, authority: HostAuthority) -> HostAuthority {
-    let authority = authority.for_run(&scope.run, scope.fence.load(Ordering::SeqCst));
+    let authority = authority
+        .for_chat(&scope.chat, scope.private_context)
+        .for_run(&scope.run, scope.fence.load(Ordering::SeqCst));
     if let Some((id, version)) = &scope.settings {
         authority.for_settings(id, *version)
     } else {
@@ -253,6 +267,7 @@ fn parse_valid(name: &str, args: &Value) -> bool {
                             | RecordData::Settings(_)
                             | RecordData::Asset(_)
                             | RecordData::Message(_)
+                            | RecordData::ChatControl(_)
                     ) && !matches!(&w.data,RecordData::Thread(t) if t.state==ThreadState::Resolved)
                 })
         }),
@@ -435,7 +450,7 @@ fn read_records(scope: &Scope, args: ReadArgs) -> AiResult<Value> {
     let store = scope.store.lock().map_err(storage)?;
     live(scope, &store)?;
     let mut rows = Vec::new();
-    for record in store.records().map_err(storage)? {
+    for record in store.records_for_chat(Some(&scope.chat)).map_err(storage)? {
         if record.archived
             || matches!(&record.data,RecordData::Note(n) if n.superseded_by.is_some())
         {
@@ -451,6 +466,7 @@ fn read_records(scope: &Scope, args: ReadArgs) -> AiResult<Value> {
                     | RecordData::Settings(_)
                     | RecordData::Message(_)
                     | RecordData::Asset(_)
+                    | RecordData::ChatControl(_)
             )
         {
             continue;
@@ -492,6 +508,12 @@ fn read_note(scope: &Scope, args: ReadNoteArgs) -> AiResult<Value> {
     }
     let store = scope.store.lock().map_err(storage)?;
     live(scope, &store)?;
+    if !store
+        .record_visible_in_chat(&args.id, Some(&scope.chat))
+        .map_err(storage)?
+    {
+        return Err(rejected());
+    }
     let outcome = store
         .read_note_range(
             &args.id,
@@ -509,7 +531,13 @@ fn read_source(scope: &Scope, args: SourceArgs) -> AiResult<Value> {
     }
     let store = scope.store.lock().map_err(storage)?;
     live(scope, &store)?;
-    sources::source_metadata(&scope.sources, &store, &args.reference)
+    sources::source_metadata(
+        &scope.sources,
+        &store,
+        &args.reference,
+        Some(&scope.chat),
+        &scope.source_ids,
+    )
 }
 fn read_skill(scope: &Scope, args: SkillArgs) -> AiResult<Value> {
     let text = crate::threads_guides::read_skill(&args.id).ok_or_else(rejected)?;
@@ -593,6 +621,78 @@ fn writing_request(snapshot: &WritingSnapshot, request: &ChangeRequest) -> AiRes
     safe.reason = request.reason.clone();
     Ok(safe)
 }
+// Model proposals cannot set visibility. The host preserves existing scopes and
+// gives new records the private chat scope when private material was available.
+fn check_scope(scope: &Scope, store: &Store, request: &ChangeRequest) -> AiResult<()> {
+    for input in &request.inputs {
+        if !store
+            .record_visible_in_chat(&input.record, Some(&scope.chat))
+            .map_err(storage)?
+        {
+            return Err(rejected());
+        }
+        if !store
+            .revision_visible_in_chat(&input.record, input.version, Some(&scope.chat))
+            .map_err(storage)?
+        {
+            return Err(rejected());
+        }
+    }
+    for write in &request.writes {
+        if write.expected_version.is_some()
+            && !store
+                .record_visible_in_chat(&write.id, Some(&scope.chat))
+                .map_err(storage)?
+        {
+            return Err(rejected());
+        }
+        if matches!(
+            write.data,
+            RecordData::ChatControl(_) | RecordData::Settings(_)
+        ) {
+            return Err(rejected());
+        }
+    }
+    Ok(())
+}
+fn scope_request(scope: &Scope, store: &Store, request: &mut ChangeRequest) -> AiResult<()> {
+    check_scope(scope, store, request)?;
+    for write in &mut request.writes {
+        let current = store.record(&write.id).map_err(storage)?;
+        match &mut write.data {
+            RecordData::Note(n) => {
+                let allowed = current.as_ref().and_then(|r| match &r.data {
+                    RecordData::Note(n) => n.chat.clone(),
+                    _ => None,
+                });
+                if n.chat.is_some() && n.chat != allowed {
+                    return Err(rejected());
+                }
+                n.chat = if current.is_some() {
+                    allowed
+                } else {
+                    scope.private_context.then_some(scope.chat.clone())
+                };
+            }
+            RecordData::Source(s) => {
+                let allowed = current.as_ref().and_then(|r| match &r.data {
+                    RecordData::Source(s) => s.chat.clone(),
+                    _ => None,
+                });
+                if s.chat.is_some() && s.chat != allowed {
+                    return Err(rejected());
+                }
+                s.chat = if current.is_some() {
+                    allowed
+                } else {
+                    scope.private_context.then_some(scope.chat.clone())
+                };
+            }
+            _ => {}
+        }
+    }
+    Ok(())
+}
 fn prepare(scope: &Scope, mut args: PrepareArgs) -> AiResult<Value> {
     if !parse_valid(
         "prepare_changes",
@@ -615,7 +715,15 @@ fn prepare(scope: &Scope, mut args: PrepareArgs) -> AiResult<Value> {
         }
     })?;
     remap(&mut args.request, &op)?;
-    sources::materialize_selected_sources(&scope.sources, &store, &op, &mut args.request)?;
+    scope_request(scope, &store, &mut args.request)?;
+    sources::materialize_selected_sources(
+        &scope.sources,
+        &store,
+        &op,
+        &mut args.request,
+        Some(&scope.chat),
+        &scope.source_ids,
+    )?;
     let prepared = store.prepare(&op, &args.request).map_err(storage)?;
     if let Some(snapshot) = &scope.writing_snapshot {
         attention(
@@ -639,6 +747,7 @@ fn apply(scope: &Scope, args: ApplyArgs) -> AiResult<Value> {
     }
     let prepared = store.prepared(&op).map_err(storage)?;
     let replay = store.receipt(&op).map_err(storage)?.is_some();
+    check_scope(scope, &store, &prepared.request)?;
     if let Some(snapshot) = &scope.writing_snapshot {
         let safe = writing_request(snapshot, &prepared.request)?;
         if prepared.request.inputs != safe.inputs {
@@ -837,6 +946,27 @@ fn progress(scope: &Scope, args: ProgressArgs) -> AiResult<Value> {
     update_run(scope, &mut store, |run| run.progress = args.summary)?;
     Ok(json!({"retained":true}))
 }
+// A successful dispatch can still require owner review or leave a write unapplied.
+fn tool_outcome_label<'a>(name: &str, result: Option<&'a rig::tool::ToolResult>) -> &'a str {
+    let Some(result) = result else {
+        return "error";
+    };
+    if name == "apply_changes" && result.status_name() == "success" {
+        return result
+            .output()
+            .as_json()
+            .and_then(|v| v.get("outcome"))
+            .and_then(Value::as_str)
+            .filter(|outcome| {
+                matches!(
+                    *outcome,
+                    "Applied" | "NeedsReview" | "Deferred" | "Stale" | "Superseded"
+                )
+            })
+            .unwrap_or("outcome unconfirmed");
+    }
+    result.status_name()
+}
 struct BatchHook {
     invalid: Arc<AtomicBool>,
     limited: Arc<AtomicBool>,
@@ -845,6 +975,47 @@ struct BatchHook {
     emit: Arc<dyn Fn(AiEvent) + Send + Sync>,
 }
 impl AgentHook for BatchHook {
+    async fn on_dispatch(&self, _: &HookContext, event: DispatchEvent<'_>) -> DispatchAction {
+        if let Some(name) = event
+            .tool_name()
+            .filter(|name| tool_activity(name).is_some())
+        {
+            let mut args = serde_json::from_str::<Value>(event.tool_args().unwrap_or("{}"))
+                .unwrap_or(Value::Null);
+            if name == "prepare_changes"
+                && let Some(request) = args.get_mut("request")
+                && let Some(writes) = request.get_mut("writes").and_then(Value::as_array_mut)
+            {
+                for write in writes {
+                    if let Some(data) = write.get_mut("data") {
+                        *data = json!("[record content omitted]");
+                    }
+                }
+            }
+            let serialized = args.to_string();
+            let text = format!(
+                "> {name} {}{}",
+                truncate(&serialized, 2048),
+                if serialized.len() > 2048 {
+                    " … [arguments truncated]"
+                } else {
+                    ""
+                }
+            );
+            (self.emit)(AiEvent::Activity(text));
+        }
+        DispatchAction::Proceed
+    }
+    async fn on_outcome(&self, _: &HookContext, event: OutcomeEvent<'_>) -> OutcomeAction {
+        if let Some(name) = event
+            .tool_name()
+            .filter(|name| tool_activity(name).is_some())
+        {
+            let status = tool_outcome_label(name, event.tool_result());
+            (self.emit)(AiEvent::Activity(format!("< {name} · {status}")));
+        }
+        OutcomeAction::Proceed
+    }
     async fn on_model_turn_finished(
         &self,
         _: &HookContext,
@@ -928,8 +1099,10 @@ pub async fn run_prepared(
             text: String::new(),
             terminal: AiTerminal::Interrupted,
         };
-        finish(&scope, &answer)?;
+        let committed = finish(&scope, &answer)?;
         return Ok(ThreadResult {
+            terminal_run: committed
+                .then(|| (scope.run.clone(), scope.fence.load(Ordering::SeqCst) + 1)),
             run_id: scope.run.clone(),
             answer,
         });
@@ -1007,10 +1180,13 @@ pub async fn run_prepared(
         },
     };
     watcher.abort();
-    if !finish(&scope, &answer)? {
+    let committed = finish(&scope, &answer)?;
+    if !committed {
         answer.terminal = AiTerminal::Interrupted;
     }
     Ok(ThreadResult {
+        terminal_run: committed
+            .then(|| (scope.run.clone(), scope.fence.load(Ordering::SeqCst) + 1)),
         run_id: scope.run.clone(),
         answer,
     })
@@ -1046,7 +1222,11 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
                 .map_err(storage)?
                 .ok_or_else(rejected)?;
             let snapshot = WritingSnapshot::from_message(&saved).map_err(|_| rejected())?;
-            if snapshot.thread != request.thread {
+            if snapshot.thread != request.thread
+                || !store
+                    .record_visible_in_chat(&snapshot.note.id, Some(&request.thread))
+                    .map_err(storage)?
+            {
                 return Err(rejected());
             }
             // Serialized record-shaped payloads are evidence only after matching
@@ -1074,6 +1254,9 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
             record.id == *id
                 && record.version == *version
                 && !record.archived
+                && store
+                    .record_visible_in_chat(id, Some(&request.thread))
+                    .unwrap_or(false)
                 && matches!(record.data, RecordData::Note(_))
         })
     {
@@ -1144,10 +1327,15 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
         })
         .collect::<Vec<_>>();
     messages.sort_by_key(|r| message_positions.get(&r.id).copied().unwrap_or_default());
-    let already_posted = writing_snapshot.is_some() || messages.last().is_some_and(
+    if let Some(message) = &request.request_message
+        && !messages.iter().rev().find(|r|matches!(&r.data,RecordData::Message(m) if m.role=="owner")).is_some_and(|r| r.id == *message && matches!(&r.data,RecordData::Message(m) if m.role=="owner" && m.text==request.prompt)) { return Err(rejected()); }
+
+    let already_posted = request.request_message.is_some() || writing_snapshot.is_some() || messages.last().is_some_and(
         |r| matches!(&r.data,RecordData::Message(m) if m.role=="owner" && m.text==request.prompt),
     );
-    let instruction = if let Some(snapshot) = &writing_snapshot {
+    let instruction = if let Some(message) = &request.request_message {
+        message.clone()
+    } else if let Some(snapshot) = &writing_snapshot {
         snapshot.request_message.clone()
     } else if already_posted {
         messages.last().unwrap().id.clone()
@@ -1189,6 +1377,10 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
             _ => {}
         }
     }
+    let private_context = store
+        .chat_has_private_context(&request.thread)
+        .map_err(storage)?;
+    let source_chat = private_context.then_some(request.thread.clone());
     let sources: BTreeMap<_, _> = request
         .sources
         .iter()
@@ -1202,7 +1394,7 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
     for (i, (reference, supplied)) in sources.iter().enumerate() {
         let existing = records
             .iter()
-            .find(|r| matches!(&r.data,RecordData::Source(s) if s.locator==*reference));
+            .find(|r| matches!(&r.data,RecordData::Source(s) if s.locator==*reference && s.chat==source_chat));
         let id = existing
             .map(|r| r.id.clone())
             .unwrap_or_else(|| op.creation_id(i + 2));
@@ -1212,6 +1404,7 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
                 expected_version: existing.map(|record| record.version),
                 archived: false,
                 data: RecordData::Source(Source {
+                    chat: source_chat.clone(),
                     locator: reference.clone(),
                     label: reference.clone(),
                     observed_at: format!(
@@ -1244,6 +1437,8 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
         expected_version: None,
         archived: false,
         data: RecordData::Run(Run {
+            instruction: Some(instruction.clone()),
+            queue_claim: request.queue_claim.clone(),
             thread: request.thread.clone(),
             provider: match request.selection.provider {
                 Provider::Chatgpt => "Codex",
@@ -1259,7 +1454,7 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
             state: RunState::Working,
             progress: String::new(),
             operations: vec![],
-            sources: source_ids,
+            sources: source_ids.clone(),
         }),
     });
     if !already_posted {
@@ -1272,6 +1467,39 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
                 role: "owner".into(),
                 text: request.prompt.clone(),
             }),
+        });
+    }
+    if let Some(claim) = &request.queue_claim {
+        let control = store
+            .chat_control()
+            .map_err(storage)?
+            .ok_or_else(rejected)?;
+        let RecordData::ChatControl(mut c) = control.data else {
+            return Err(rejected());
+        };
+        let q = c
+            .pending
+            .as_mut()
+            .filter(|q| {
+                q.thread == request.thread
+                    && q.message.as_ref() == Some(&instruction)
+                    && q.dispatch.as_ref() == Some(claim)
+            })
+            .ok_or_else(rejected)?;
+        if c.paused
+            || q.run.is_some()
+            || records.iter().any(|r| {
+                !r.archived && matches!(&r.data,RecordData::Run(r) if r.state == RunState::Working)
+            })
+        {
+            return Err(rejected());
+        }
+        q.run = Some(run_id.clone());
+        writes.push(Put {
+            id: control.id,
+            expected_version: Some(control.version),
+            archived: false,
+            data: RecordData::ChatControl(c),
         });
     }
     let owner = HostAuthority::owner("owner started or continued a Thread");
@@ -1316,7 +1544,7 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
         )
     } else {
         format!(
-            "Current Thread: {}\nRetained intentional conversation and progress: {}\nPrior operation results (recheck current versions before new writes): {}\nTransient source references available now: {}\nOwner request: {}",
+            "Current Chat: {}\nRetained intentional conversation and progress: {}\nPrior operation results (recheck current versions before new writes): {}\nTransient source references available now: {}\nOwner request: {}",
             request.thread,
             serde_json::to_string(&retained).map_err(storage)?,
             serde_json::to_string(&operations).map_err(storage)?,
@@ -1324,20 +1552,27 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
             request.prompt
         )
     };
+    let attachments = store.records_for_chat(Some(&request.thread)).map_err(storage)?.into_iter().filter_map(|r| match r.data {
+        RecordData::Note(n) if n.chat.as_ref() == Some(&request.thread) => Some(json!({"id":r.id,"version":r.version,"title":n.title,"bytes":n.markdown.len(),"coverage":n.import.and_then(|i|i.report)})), _=>None,
+    }).take(128).collect::<Vec<_>>();
     Ok((
         Arc::new(Scope {
+            chat: request.thread.clone(),
+            private_context,
             store: Mutex::new(store),
             run: run_id,
             fence: AtomicU64::new(1),
             instruction,
             settings: settings_binding,
             sources,
+            source_ids,
             owner_request: request.owner_request.clone(),
             writing_snapshot,
             decision_target: Mutex::new(None),
         }),
         format!(
-            "{input}\nHost maintenance policy: {maintenance_policy}\nHost authority for this invocation only: {}",
+            "{input}\nSaved chat documents (read with exact-version note tools): {}\nHost maintenance policy: {maintenance_policy}\nHost authority for this invocation only: {}",
+            serde_json::to_string(&attachments).map_err(storage)?,
             serde_json::to_string(&request.owner_request).map_err(storage)?
         ),
     ))
@@ -1394,14 +1629,19 @@ fn finish(scope: &Scope, answer: &AiAnswer) -> AiResult<bool> {
         archived: false,
         data: RecordData::Run(run),
     }];
-    if matches!(answer.terminal, AiTerminal::Completed) && !answer.text.is_empty() {
+    if !answer.text.is_empty() {
         writes.push(Put {
             id: op.creation_id(0),
             expected_version: None,
             archived: false,
             data: RecordData::Message(Message {
                 thread: thread.clone(),
-                role: "assistant".into(),
+                role: if matches!(answer.terminal, AiTerminal::Completed) {
+                    "assistant"
+                } else {
+                    "assistant-partial"
+                }
+                .into(),
                 text: answer.text.clone(),
             }),
         });
@@ -1557,7 +1797,7 @@ async fn run_model(
             Default::default()
         })
         .additional_params(if responses {
-            Value::Null
+            serde_json::json!({"reasoning":{"effort":effort.as_str(),"summary":"auto"}})
         } else {
             serde_json::json!({"reasoning_effort":effort.as_str()})
         })
@@ -1626,6 +1866,30 @@ fn has_writing_proposal(scope: &Scope) -> AiResult<bool> {
 mod tests {
     use super::*;
     use rig::test_utils::{MockCompletionModel, MockStreamEvent};
+    #[test]
+    fn activity_reports_apply_domain_outcomes_without_exposing_results() {
+        use rig::tool::{ToolOutput, ToolResult};
+        for outcome in ["Applied", "NeedsReview", "Deferred", "Stale", "Superseded"] {
+            let result = ToolResult::success(ToolOutput::json(
+                json!({"outcome":outcome,"receipt":"PRIVATE RESULT BODY"}),
+            ));
+            assert_eq!(tool_outcome_label("apply_changes", Some(&result)), outcome);
+            assert_eq!(tool_outcome_label("read_note", Some(&result)), "success");
+        }
+        let result = ToolResult::success(ToolOutput::json(
+            json!({"outcome":"PRIVATE UNKNOWN OUTCOME"}),
+        ));
+        assert_eq!(
+            tool_outcome_label("apply_changes", Some(&result)),
+            "outcome unconfirmed"
+        );
+        assert_eq!(tool_outcome_label("apply_changes", None), "error");
+        let skipped = ToolResult::skipped("PRIVATE REASON");
+        assert_eq!(
+            tool_outcome_label("apply_changes", Some(&skipped)),
+            "skipped"
+        );
+    }
     pub(super) fn fixture() -> (tempfile::TempDir, ThreadRunRequest, String) {
         let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
         let data = root.path().join("workspace");
@@ -1679,6 +1943,8 @@ mod tests {
         (
             root,
             ThreadRunRequest {
+                request_message: None,
+                queue_claim: None,
                 owner_request: None,
                 data_dir: data,
                 thread,
@@ -2498,6 +2764,17 @@ mod tests {
                     .iter()
                     .any(|e| matches!(e,AiEvent::ToolStarted{name:actual} if actual==name))
             );
+            assert!(events.lock().unwrap().iter().any(
+                |e| matches!(e, AiEvent::Activity(text) if text.starts_with(&format!("> {name} ")))
+            ));
+            let outcome = if name == "apply_changes" {
+                "Applied"
+            } else {
+                "success"
+            };
+            assert!(events.lock().unwrap().iter().any(
+                |e| matches!(e, AiEvent::Activity(text) if text == &format!("< {name} · {outcome}"))
+            ));
         }
         assert_eq!(tool_names().len(), 9);
         for name in tool_names() {

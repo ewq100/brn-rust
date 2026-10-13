@@ -29,6 +29,7 @@ libc = "=0.2.189"
 base64 = "0.22"
 
 [dev-dependencies]
+sha2 = "0.10"
 bytes = "1"
 tempfile = "3"
 rig = { version = "=0.44.0", default-features = false, features = ["test-utils"] }

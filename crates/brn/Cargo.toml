@@ -8,6 +8,7 @@ publish = false
 native-retrieval = ["brn-threads-app/native-retrieval"]
 
 [dependencies]
+uuid = { version = "=1.26.1", features = ["v4"] }
 brn-threads-app = { path = "../brn-threads-app" }
 brn-threads-intake = { path = "../brn-threads-intake" }
 brn-intake = { path = "../brn-intake" }

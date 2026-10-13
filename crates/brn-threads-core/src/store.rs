@@ -12,8 +12,8 @@ use std::{
 pub const DATABASE_FILENAME: &str = "threads.sqlite3";
 pub const DATA_MARKER: &str = ".brn-threads-data";
 const IDENTITY: &str = "BRN Threads SQLite v1\n";
-const APPLICATION_ID: i64 = 0x42525448;
-const SCHEMA_VERSION: i64 = 3;
+pub(crate) const APPLICATION_ID: i64 = 0x42525448;
+pub(crate) const SCHEMA_VERSION: i64 = 4;
 pub struct Store {
     pub(crate) conn: Connection,
     directory: PathBuf,
@@ -93,6 +93,7 @@ impl Store {
         if !existing {
             let tx = conn.transaction_with_behavior(TransactionBehavior::Immediate)?;
             tx.execute_batch("CREATE TABLE operations(id TEXT PRIMARY KEY, host_key TEXT UNIQUE NOT NULL, input_hash TEXT, hash TEXT, request TEXT, undo_of TEXT, replacement_of TEXT, retired INTEGER NOT NULL DEFAULT 0); CREATE TABLE candidate_targets(note TEXT PRIMARY KEY, operation TEXT NOT NULL REFERENCES operations(id)); CREATE TABLE records(id TEXT PRIMARY KEY, version INTEGER NOT NULL, body TEXT NOT NULL); CREATE UNIQUE INDEX one_workspace_settings ON records((1)) WHERE json_type(body,'$.data.Settings') IS NOT NULL; CREATE UNIQUE INDEX source_locator ON records(json_extract(body,'$.data.Source.locator')) WHERE json_type(body,'$.data.Source') IS NOT NULL; CREATE TABLE revisions(id TEXT NOT NULL, version INTEGER NOT NULL, operation TEXT NOT NULL REFERENCES operations(id), body TEXT NOT NULL, PRIMARY KEY(id,version)); CREATE TABLE receipts(operation TEXT PRIMARY KEY REFERENCES operations(id), body TEXT NOT NULL); CREATE TABLE edit_sessions(id TEXT PRIMARY KEY, note TEXT NOT NULL, base INTEGER NOT NULL, generation INTEGER NOT NULL, markdown TEXT NOT NULL, closed INTEGER NOT NULL DEFAULT 0); CREATE UNIQUE INDEX one_dirty_session ON edit_sessions(note) WHERE closed=0; CREATE TABLE derivation_inputs(operation TEXT NOT NULL, record TEXT NOT NULL, version INTEGER NOT NULL);")?;
+            tx.execute_batch(crate::upgrade::CHAT_SCHEMA)?;
             tx.pragma_update(None, "application_id", APPLICATION_ID)?;
             tx.pragma_update(None, "user_version", SCHEMA_VERSION)?;
             tx.commit()?;
@@ -874,6 +875,10 @@ fn open_existing_database(database: &Path) -> Result<Connection> {
             error.into()
         }
     })?;
+    let schema: i64 = conn.pragma_query_value(None, "user_version", |r| r.get(0))?;
+    if schema == 3 {
+        crate::upgrade::upgrade_connection(&conn, database, None)?;
+    }
     validate_connection(&conn)?;
     Ok(conn)
 }
@@ -887,9 +892,12 @@ pub(crate) fn validate_database(path: &Path) -> Result<()> {
     validate_connection(&conn)
 }
 pub(crate) fn validate_connection(conn: &Connection) -> Result<()> {
+    validate_schema(conn, &[SCHEMA_VERSION])
+}
+pub(crate) fn validate_schema(conn: &Connection, versions: &[i64]) -> Result<()> {
     let app: i64 = conn.pragma_query_value(None, "application_id", |r| r.get(0))?;
     let schema: i64 = conn.pragma_query_value(None, "user_version", |r| r.get(0))?;
-    if app != APPLICATION_ID || schema != SCHEMA_VERSION {
+    if app != APPLICATION_ID || !versions.contains(&schema) {
         return Err(Error::UnsafeDirectory(
             "database application/schema identity mismatch".into(),
         ));
@@ -1051,6 +1059,60 @@ pub(crate) fn apply_on(
         return Err(Error::Invalid("candidate retired".into()));
     }
     let prepared = prepared_on(tx, operation)?;
+    let context_rows = if authority.chat_binding.is_some() {
+        let mut query = tx.prepare("SELECT body FROM records ORDER BY rowid")?;
+        query
+            .query_map([], |r| r.get::<_, String>(0))?
+            .map(|r| Ok(serde_json::from_str::<Record>(&r?)?))
+            .collect::<Result<Vec<_>>>()?
+    } else {
+        vec![]
+    };
+    let mut projected_scope = context_rows.clone();
+    if authority.chat_binding.is_some() {
+        for w in &prepared.request.writes {
+            projected_scope.retain(|r| r.id != w.id);
+            projected_scope.push(Record {
+                id: w.id.clone(),
+                version: w.expected_version.unwrap_or(0),
+                archived: w.archived,
+                data: w.data.clone(),
+            });
+        }
+    }
+    if let Some((chat, _)) = &authority.chat_binding {
+        if let Some((run, _)) = &authority.run_binding
+            && !matches!(record_on(tx, run)?, Some(Record { data: RecordData::Run(r), .. }) if r.thread == *chat)
+        {
+            return Err(Error::Invalid("run and chat context disagree".into()));
+        }
+        let mut denied_inputs = vec![];
+        for input in &prepared.request.inputs {
+            let current = context_rows.iter().find(|r| r.id == input.record);
+            let body: Option<String> = tx
+                .query_row(
+                    "SELECT body FROM revisions WHERE id=?1 AND version=?2",
+                    params![input.record, crate::integer(input.version)?],
+                    |r| r.get(0),
+                )
+                .optional()?;
+            let historical = body
+                .map(|body| serde_json::from_str::<Record>(&body))
+                .transpose()?;
+            if current.is_some_and(|r| !crate::context::visible(r, &context_rows, Some(chat)))
+                || historical
+                    .as_ref()
+                    .is_some_and(|r| !crate::context::visible(r, &context_rows, Some(chat)))
+            {
+                denied_inputs.push(input.record.clone());
+            }
+        }
+        if !denied_inputs.is_empty() {
+            return Ok(ApplyOutcome::NeedsReview {
+                denied: denied_inputs,
+            });
+        }
+    }
     if !matches!(authority.scope, crate::types::Scope::Owner)
         && !writing_markers_on(tx, &prepared.request)?.is_empty()
     {
@@ -1137,6 +1199,104 @@ pub(crate) fn apply_on(
             return Err(Error::Invalid("record kind is immutable".into()));
         }
         let mut required = BTreeSet::new();
+        if matches!(write.data, RecordData::ChatControl(_)) {
+            required.insert(Capability::Configure);
+        }
+        let before_context = current.as_ref().and_then(|r| match &r.data {
+            RecordData::Note(n) => n.chat.as_deref(),
+            RecordData::Source(s) => s.chat.as_deref(),
+            _ => None,
+        });
+        let after_context = match &write.data {
+            RecordData::Note(n) => n.chat.as_deref(),
+            RecordData::Source(s) => s.chat.as_deref(),
+            _ => None,
+        };
+        if before_context != after_context
+            && (current.is_some()
+                || after_context.is_some_and(|chat| {
+                    authority
+                        .chat_binding
+                        .as_ref()
+                        .is_none_or(|(bound, _)| bound != chat)
+                }))
+        {
+            required.insert(Capability::Configure);
+        }
+        if let Some(chat) = after_context
+            && !matches!(
+                record_on(tx, chat)?,
+                Some(Record {
+                    data: RecordData::Thread(_),
+                    ..
+                })
+            )
+        {
+            return Err(Error::Invalid(
+                "chat context must name an existing conversation".into(),
+            ));
+        }
+        if let Some((chat, private)) = &authority.chat_binding {
+            if current
+                .as_ref()
+                .is_some_and(|r| !crate::context::visible(r, &context_rows, Some(chat)))
+            {
+                denied.push(write.id.clone());
+            }
+            if !crate::context::visible(
+                &Record {
+                    id: write.id.clone(),
+                    version: write.expected_version.unwrap_or(0),
+                    archived: write.archived,
+                    data: write.data.clone(),
+                },
+                &projected_scope,
+                Some(chat),
+            ) {
+                denied.push(write.id.clone());
+            }
+            let text = match &write.data {
+                RecordData::Note(n) => Some(n.markdown.as_str()),
+                RecordData::Message(m) => Some(m.text.as_str()),
+                RecordData::Comment(c) => Some(c.body.as_str()),
+                _ => None,
+            };
+            if text.is_some_and(|text| {
+                crate::managed_asset_ids(text).any(|id| {
+                    !projected_scope
+                        .iter()
+                        .find(|r| r.id == id)
+                        .is_some_and(|r| {
+                            matches!(r.data, RecordData::Asset(_))
+                                && crate::context::visible(r, &projected_scope, Some(chat))
+                        })
+                })
+            }) {
+                denied.push(write.id.clone());
+            }
+            let private = *private
+                || context_rows.iter().any(
+                    |r| matches!(&r.data, RecordData::Note(n) if n.chat.as_deref() == Some(chat)),
+                );
+            if private && matches!(authority.scope, crate::types::Scope::Maintenance) {
+                let local = match &write.data {
+                    RecordData::Note(n) => n.chat.as_deref() == Some(chat),
+                    RecordData::Source(s) => s.chat.as_deref() == Some(chat),
+                    RecordData::Thread(_) => write.id == *chat,
+                    RecordData::Run(r) => r.thread == *chat,
+                    RecordData::Asset(a) => projected_scope.iter().any(|r| r.id == a.note && matches!(&r.data, RecordData::Note(n) if n.chat.as_deref() == Some(chat))),
+                    RecordData::Comment(c) => projected_scope.iter().any(|r| r.id == c.note && matches!(&r.data, RecordData::Note(n) if n.chat.as_deref() == Some(chat))),
+                    RecordData::Link(l) => {
+                        let local_end = |id: &str| id == chat || projected_scope.iter().any(|r| r.id == id && matches!(&r.data, RecordData::Note(n) if n.chat.as_deref() == Some(chat)));
+                        (local_end(&l.from) || local_end(&l.to)) && projected_scope.iter().find(|r| r.id == l.from).is_some_and(|r| crate::context::visible(r, &projected_scope, Some(chat))) && projected_scope.iter().find(|r| r.id == l.to).is_some_and(|r| crate::context::visible(r, &projected_scope, Some(chat)))
+                    },
+                    _ => false,
+                };
+                if !local {
+                    denied.push(write.id.clone());
+                }
+            }
+        }
         if let crate::types::Scope::Runtime { run } = &authority.scope
             && (run != &write.id || !matches!(write.data, RecordData::Run(_)))
         {
@@ -1330,6 +1490,11 @@ pub(crate) fn apply_on(
             let RecordData::Run(old) = &prior.data else {
                 return Err(Error::Invalid("record kind is immutable".into()));
             };
+            if old.instruction != next.instruction || old.queue_claim != next.queue_claim {
+                return Err(Error::Invalid(
+                    "Run instruction identity is immutable; start fresh".into(),
+                ));
+            }
             if next.fence < old.fence {
                 return Err(Error::Invalid("run fence cannot decrease".into()));
             }
@@ -1437,6 +1602,57 @@ pub(crate) fn apply_on(
                     data: write.data.clone(),
                 },
             );
+        }
+    }
+    let control = prepared
+        .request
+        .writes
+        .iter()
+        .find_map(|w| match &w.data {
+            RecordData::ChatControl(c) => Some(c.clone()),
+            _ => None,
+        })
+        .or(crate::chat::control_on(tx)?.and_then(|r| match r.data {
+            RecordData::ChatControl(c) => Some(c),
+            _ => None,
+        }));
+    for w in &prepared.request.writes {
+        if w.expected_version.is_none()
+            && !w.archived
+            && let RecordData::Run(run) = &w.data
+            && run.state == RunState::Working
+        {
+            if let Some(claim) = &run.queue_claim {
+                if !control.as_ref().is_some_and(|c| {
+                    !c.paused
+                        && c.pending.as_ref().is_some_and(|q| {
+                            q.run.as_ref() == Some(&w.id)
+                                && q.dispatch.as_ref() == Some(claim)
+                                && q.message == run.instruction
+                                && q.thread == run.thread
+                        })
+                }) {
+                    return Err(Error::Invalid(
+                        "queued start requires its current checked instruction claim".into(),
+                    ));
+                }
+                if run_rows.values().any(|r| {
+                    r.id != w.id
+                        && !r.archived
+                        && matches!(&r.data,RecordData::Run(r) if r.state==RunState::Working)
+                }) {
+                    return Err(Error::Invalid(
+                        "queued work waits for all current runs".into(),
+                    ));
+                }
+            } else if control
+                .as_ref()
+                .is_some_and(|c| c.pending.as_ref().is_some_and(|q| q.dispatch.is_some()))
+            {
+                return Err(Error::Invalid(
+                    "queued instruction is claimed; use the saved queue controls".into(),
+                ));
+            }
         }
     }
     let mut working_threads = BTreeSet::new();
@@ -1735,6 +1951,17 @@ fn run_control_changed(old: &Run, next: &Run, old_archived: bool, next_archived:
         || old_archived != next_archived
 }
 fn run_control_written(written: &Written) -> bool {
+    if let RecordData::ChatControl(after) = &written.after.data {
+        return match written.before.as_ref().map(|r| &r.data) {
+            Some(RecordData::ChatControl(before)) => {
+                before.queue != after.queue
+                    || before.pending != after.pending
+                    || before.paused != after.paused
+            }
+            _ => true,
+        };
+    }
+
     if let RecordData::Run(after) = &written.after.data {
         match written.before.as_ref() {
             Some(Record {
@@ -1904,7 +2131,7 @@ fn subscription_provider(provider: &str) -> bool {
     provider.eq_ignore_ascii_case("codex") || provider.eq_ignore_ascii_case("chatgpt")
 }
 
-fn validate_backup_directory(workspace: &Path, directory: &Path) -> Result<PathBuf> {
+pub(crate) fn validate_backup_directory(workspace: &Path, directory: &Path) -> Result<PathBuf> {
     if !directory.is_absolute() || directory.to_str().is_none() {
         return Err(Error::UnsafeDirectory(
             "backup folder must be an absolute UTF-8 path".into(),

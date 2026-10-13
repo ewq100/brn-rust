@@ -62,7 +62,7 @@ pub(super) fn pill(id: impl Into<gpui_kit::ElementId>, label: impl Into<SharedSt
 
 const KEYS: [(&str, &str); 17] = [
     ("Launcher", "⌘K · click the search field"),
-    ("New thread / note", "⌘T / ⌘N · ＋ in threads and notes"),
+    ("New chat / note", "⌘T / ⌘N · ＋ in chats and notes"),
     ("Send / new line", "↵ or ⌘↵ / ⇧↵ · send button"),
     ("Stop", "⌘. · status bar or run line"),
     ("Comment on selection", "⌘/ · selection strip · right-click"),
@@ -74,9 +74,9 @@ const KEYS: [(&str, &str); 17] = [
     ("Resize tiles", "drag the gap between tiles"),
     ("Swap tiles", "drag a tile header onto another tile"),
     ("Tile menu", "right-click a tile header"),
-    ("Toggle threads", "⌘\\ · layout menu"),
+    ("Toggle chats", "⌘\\ · layout menu"),
     ("Theme", "status bar · launcher · Settings"),
-    ("Settings", "⌘, · threads tile"),
+    ("Settings", "⌘, · chats tile"),
     ("Overview", "⌘0 · launcher"),
 ];
 
@@ -125,13 +125,13 @@ impl ThreadsUi {
                         .map_or_else(|| id.clone(), |row| short(&row.title))
                 ),
                 ChatTarget::NewForNote(note) => format!(
-                    "chat · new thread about {}",
+                    "chat · new chat about {}",
                     self.note_rows
                         .iter()
                         .find(|row| &row.id == note)
                         .map_or_else(|| note.clone(), |row| short(&row.title))
                 ),
-                ChatTarget::New => "chat · new thread".into(),
+                ChatTarget::New => "chat · new chat".into(),
             },
             kind => kind.label().into(),
         }
@@ -501,7 +501,7 @@ impl ThreadsUi {
             )
             .child(
                 button("launcher")
-                    .label("⌕ Search notes, threads, commands…  ⌘K")
+                    .label("⌕ Search notes, chats, commands…  ⌘K")
                     .w(px(420.))
                     .tooltip("Launcher (⌘K)")
                     .on_click(cx.listener(|this, _, window, cx| this.open_launcher(window, cx))),
@@ -579,7 +579,7 @@ impl ThreadsUi {
             .border_t_1()
             .border_color(rgb(p.border));
         if let Some(worker) = &self.worker {
-            let status = worker.kind.status(&self.progress);
+            let status = self.worker_status(worker);
             let thread = worker.thread.clone();
             let progress = thread.as_ref().map_or_else(
                 || status.clone(),
@@ -619,18 +619,14 @@ impl ThreadsUi {
                 );
             }
         } else {
-            let model = format!(
-                "○ idle · {} · {} · {}",
-                self.settings.provider, self.settings.model, self.settings.effort
-            );
-            let menu_this = this.clone();
             bar = bar.child(
-                pill("status-model", model).dropdown_menu(move |menu, _, cx| {
-                    match menu_this.upgrade() {
-                        Some(view) => view.read(cx).model_menu(menu, &menu_this),
-                        None => menu,
-                    }
-                }),
+                div()
+                    .id("idle-status")
+                    .px_2()
+                    .text_color(rgb(p.muted))
+                    .aria_label("○ Idle")
+                    .child("○ Idle")
+                    .test_support(),
             );
         }
         if let Some(open) = &self.note {
@@ -657,6 +653,12 @@ impl ThreadsUi {
         let theme_this = this.clone();
         let current_theme = self.theme;
         let layout = self.layout.clone();
+        let work_status_visible = self
+            .last_work_notice
+            .as_ref()
+            .is_some_and(|last| last == &self.notice);
+        let can_show_work_status =
+            self.last_work_notice.is_some() && self.notice.is_empty() && self.worker.is_none();
         bar.child(div().flex_1())
             .child(
                 pill("status-layout", layout_label).dropdown_menu(move |mut menu, _, _| {
@@ -674,6 +676,14 @@ impl ThreadsUi {
                             move |view, window, cx| view.apply_layout(preset, window, cx),
                         ));
                     }
+                    menu = menu.separator().item(item(
+                        &layout_this,
+                        "Last work status",
+                        None,
+                        !can_show_work_status,
+                        work_status_visible,
+                        |view, _, cx| view.show_last_work_notice(cx),
+                    ));
                     menu = menu.separator().label("Tiles");
                     for kind in TileKind::ALL {
                         menu = menu.item(item(
@@ -738,7 +748,11 @@ impl ThreadsUi {
                 .child(div().flex_1().min_w_0().child(self.notice.clone()))
                 .child(
                     pill("dismiss-notice", "✕")
-                        .tooltip("Dismiss")
+                        .tooltip(if self.last_work_notice.as_ref() == Some(&self.notice) {
+                            "Hide status · restore from Layout → Last work status"
+                        } else {
+                            "Dismiss"
+                        })
                         .on_click(cx.listener(|this, _, _, cx| {
                             this.notice.clear();
                             cx.notify();
@@ -760,7 +774,7 @@ impl ThreadsUi {
         if items.is_empty() {
             list = list.child(empty(
                 "launcher-empty",
-                "No matching notes, threads or commands.",
+                "No matching notes, chats or commands.",
             ));
         }
         for (index, entry) in items.iter().enumerate() {

@@ -851,6 +851,7 @@ dependencies = [
  "tempfile",
  "tokio",
  "tokio-util",
+ "uuid",
 ]
 
 [[package]]
@@ -868,6 +869,7 @@ dependencies = [
  "schemars",
  "serde",
  "serde_json",
+ "sha2 0.10.9",
  "tempfile",
  "tokio",
  "tokio-util",
@@ -882,6 +884,8 @@ dependencies = [
  "brn-threads-app",
  "brn-threads-intake",
  "gpui-kit",
+ "serde",
+ "serde_json",
  "tempfile",
  "tokio",
  "tokio-util",

@@ -69,6 +69,7 @@ fn metadata_quotes_arbitrary_titles_sources_and_preserves_existing_frontmatter_b
                 expected_version: None,
                 archived: false,
                 data: RecordData::Source(Source {
+                    chat: None,
                     locator: locator.into(),
                     label: label.into(),
                     observed_at: observed.into(),
@@ -218,6 +219,7 @@ fn source_links_without_import_coverage_are_exported() {
                 expected_version: None,
                 archived: false,
                 data: RecordData::Source(Source {
+                    chat: None,
                     locator: "synthetic://linked-only".into(),
                     label: "Reference".into(),
                     observed_at: "today".into(),
@@ -285,6 +287,7 @@ fn later_source_observation_does_not_attribute_its_version_to_preserved_note() {
                 expected_version: None,
                 archived: false,
                 data: RecordData::Source(Source {
+                    chat: None,
                     locator: "synthetic://document".into(),
                     label: "Original reference".into(),
                     observed_at: "Monday".into(),

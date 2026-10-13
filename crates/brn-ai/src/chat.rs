@@ -55,6 +55,10 @@ pub enum AiEvent {
     ToolStarted {
         name: String,
     },
+    /// Bounded owner-visible execution metadata, separate from the answer.
+    Activity(String),
+    /// A provider's explicitly public summary, never raw reasoning deltas.
+    ReasoningSummary(String),
     /// Completed model responses and admitted tool rounds, never individual tools.
     BudgetProgress {
         model_turns: u16,
@@ -121,6 +125,14 @@ pub(crate) async fn collect_stream(
                     name: name.to_string(),
                 });
             }
+            Some(Ok(MultiTurnStreamItem::StreamAssistantItem(Item::Event(StreamEvent::End {
+                content: rig::message::AssistantContent::Reasoning(reasoning),
+                ..
+            })))) => {
+                if let Some(summary) = public_reasoning_summary(&reasoning) {
+                    emit(AiEvent::ReasoningSummary(summary));
+                }
+            }
             Some(Ok(MultiTurnStreamItem::FinalResponse(response))) => {
                 // Rig may accept useful text from a Length turn. BRN stores only
                 // successful natural completion; retained preview remains partial.
@@ -159,11 +171,68 @@ pub(crate) async fn collect_stream(
     AiAnswer { text, terminal }
 }
 
+fn public_reasoning_summary(reasoning: &rig::message::Reasoning) -> Option<String> {
+    if reasoning.redacted {
+        return None;
+    }
+    let native = reasoning.native.as_ref()?;
+    if native.item.get("type")?.as_str()? != "reasoning" {
+        return None;
+    }
+    let mut text = String::new();
+    for part in native.item.get("summary")?.as_array()?.iter().take(8) {
+        if part.get("type").and_then(serde_json::Value::as_str) != Some("summary_text") {
+            continue;
+        }
+        if let Some(summary) = part.get("text").and_then(serde_json::Value::as_str) {
+            if !text.is_empty() {
+                text.push('\n');
+            }
+            for ch in summary.chars() {
+                if text.len() + ch.len_utf8() > 8192 {
+                    break;
+                }
+                text.push(ch);
+            }
+            if text.len() >= 8192 {
+                break;
+            }
+        }
+    }
+    (!text.trim().is_empty()).then_some(text)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use rig::agent::PromptResponse;
     use rig::streaming::Transcript;
+
+    #[test]
+    fn activity_uses_only_explicit_public_summaries_and_keeps_raw_reasoning_private() {
+        use rig::message::{Fingerprint, Native, Reasoning};
+        let mut reasoning = Reasoning::new("PRIVATE RAW REASONING");
+        assert!(public_reasoning_summary(&reasoning).is_none());
+        reasoning.native = Some(Native {
+            item: serde_json::json!({"type":"reasoning","summary":[],"content":[{"type":"reasoning_text","text":"PRIVATE RAW REASONING"}],"encrypted_content":"PRIVATE CIPHERTEXT"}),
+            fingerprint: Fingerprint::of(&reasoning),
+        });
+        assert!(public_reasoning_summary(&reasoning).is_none());
+        reasoning.native.as_mut().unwrap().item["summary"] =
+            serde_json::json!([{"type":"summary_text","text":"Compare the saved route times."}]);
+        assert_eq!(
+            public_reasoning_summary(&reasoning).as_deref(),
+            Some("Compare the saved route times.")
+        );
+        reasoning.redacted = true;
+        assert!(public_reasoning_summary(&reasoning).is_none());
+        reasoning.redacted = false;
+        reasoning.native.as_mut().unwrap().item["summary"] =
+            serde_json::json!([{"type":"summary_text","text":"õ".repeat(10000)}]);
+        let bounded = public_reasoning_summary(&reasoning).unwrap();
+        assert!(bounded.len() <= 8192);
+        assert!(bounded.chars().all(|ch| ch == 'õ'));
+    }
 
     fn text_item(text: &str) -> MultiTurnStreamItem {
         let transcript = Transcript::parse(serde_json::json!([

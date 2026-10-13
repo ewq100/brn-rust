@@ -38,6 +38,8 @@ fn fixture() -> (
                 expected_version: None,
                 archived: false,
                 data: RecordData::Run(Run {
+                    instruction: None,
+                    queue_claim: None,
                     thread: thread.clone(),
                     provider: "Codex".into(),
                     model: "fixture".into(),

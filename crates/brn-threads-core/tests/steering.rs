@@ -45,6 +45,8 @@ fn fixture(state: RunState, fence: u64) -> (tempfile::TempDir, Store, String, St
                 expected_version: None,
                 archived: false,
                 data: RecordData::Run(Run {
+                    instruction: None,
+                    queue_claim: None,
                     thread: thread.clone(),
                     provider: "Offline".into(),
                     model: "synthetic".into(),

@@ -1,7 +1,4 @@
-use crate::{
-    Error, Result, Store,
-    store::{has_symlink_ancestor, validate_database},
-};
+use crate::{Error, Result, Store, store::has_symlink_ancestor};
 use rusqlite::Connection;
 use std::{
     fs,
@@ -29,14 +26,14 @@ impl Store {
 /// Own only the unique private directory, never the final destination. An
 /// interrupted process may leave this recognizable stage, but not a partial
 /// file under the requested backup name.
-struct StagedBackup {
+pub(crate) struct StagedBackup {
     directory: PathBuf,
     snapshot: PathBuf,
     destination: PathBuf,
 }
 
 impl StagedBackup {
-    fn create(source: &Connection, destination: &Path) -> Result<Self> {
+    pub(crate) fn create(source: &Connection, destination: &Path) -> Result<Self> {
         // Resolve relative core paths without changing the process-wide cwd.
         let destination = if destination.is_absolute() {
             destination.to_owned()
@@ -94,7 +91,12 @@ impl StagedBackup {
         // back to a standalone database before closing all SQLite handles.
         target.pragma_update(None, "journal_mode", "DELETE")?;
         target.close().map_err(|(_, error)| error)?;
-        validate_database(&stage.snapshot)?;
+        let check = Connection::open_with_flags(
+            &stage.snapshot,
+            rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY,
+        )?;
+        crate::store::validate_schema(&check, &[3, crate::store::SCHEMA_VERSION])?;
+        drop(check);
         fs::OpenOptions::new()
             .read(true)
             .write(true)
@@ -103,7 +105,7 @@ impl StagedBackup {
         Ok(stage)
     }
 
-    fn publish(self) -> Result<()> {
+    pub(crate) fn publish(self) -> Result<()> {
         // hard_link creates the final directory entry exclusively, including
         // when another writer claims the name after staging has completed.
         fs::hard_link(&self.snapshot, &self.destination).map_err(|error| {
@@ -131,6 +133,7 @@ impl Drop for StagedBackup {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::store::validate_database;
     use crate::{ApplyOutcome, ChangeRequest, HostAuthority, Note, Put, Record, RecordData};
 
     fn root() -> tempfile::TempDir {

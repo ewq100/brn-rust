@@ -169,6 +169,8 @@ fn fresh_queued_preparation_has_no_previous_owner_scope_and_uses_current_input()
         )
         .unwrap();
     let fresh = prepare_run(ThreadRunRequest {
+        request_message: None,
+        queue_claim: None,
         owner_request: None,
         data_dir: data,
         thread,

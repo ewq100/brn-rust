@@ -213,8 +213,8 @@ fn composer_drafts_follow_home_and_each_thread(cx: &mut TestAppContext) {
     let data = root.path().join("composer-drafts-regression");
     let mut workspace = Workspace::open(&data).unwrap();
     configure_offline_fixture(&mut workspace);
-    let a = workspace.new_thread("Draft thread A").unwrap();
-    let b = workspace.new_thread("Draft thread B").unwrap();
+    let a = workspace.new_thread("Draft chat A").unwrap();
+    let b = workspace.new_thread("Draft chat B").unwrap();
     let note = workspace
         .new_note("Draft note context", "Synthetic note")
         .unwrap();
@@ -261,7 +261,7 @@ fn composer_drafts_follow_home_and_each_thread(cx: &mut TestAppContext) {
             view.new_thread(window, cx);
             assert_eq!(view.composer.read(cx).value().as_ref(), "Home draft");
             view.ask(window, cx);
-            let ChatTarget::Thread(home_thread) = view.chat.clone() else { panic!("a new thread is created") };
+            let ChatTarget::Thread(home_thread) = view.chat.clone() else { panic!("a new chat is created") };
             let home_thread = &home_thread;
             assert_ne!(home_thread, &a.id);
             assert_ne!(home_thread, &b.id);
@@ -348,16 +348,16 @@ fn worker_controls_match_real_cancellation_capabilities(cx: &mut TestAppContext)
                 view.open_thread(&thread.id, window, cx);
                 assert_eq!(view.composer.read(cx).value().as_ref(), "");
                 view.composer.update(cx, |editor, cx| {
-                    editor.set_value("Thread waiting draft", window, cx)
+                    editor.set_value("Chat waiting draft", window, cx)
                 });
                 view.ask(window, cx);
+                assert!(view.notice.contains("queue"));
+                assert_eq!(view.composer.read(cx).value().as_ref(), "");
                 assert!(
-                    view.notice
-                        .contains(if cancellable { "stop" } else { "Wait for" })
-                );
-                assert_eq!(
-                    view.composer.read(cx).value().as_ref(),
-                    "Thread waiting draft"
+                    view.queue_state()
+                        .queue
+                        .iter()
+                        .any(|q| q.text == "Chat waiting draft")
                 );
                 view.new_thread(window, cx);
                 assert_eq!(
@@ -373,7 +373,7 @@ fn worker_controls_match_real_cancellation_capabilities(cx: &mut TestAppContext)
             assert_eq!(window.find("worker-status").label(), Some(expected_status));
             assert_eq!(
                 window.find("composer-destination").label(),
-                Some("New standalone thread")
+                Some("New standalone chat")
             );
             if cancellable {
                 window.click("stop-work", cx);
@@ -451,6 +451,7 @@ fn long_coverage_details_scroll_without_hiding_note_body_or_losing_issues(cx: &m
                             expected_version: None,
                             archived: false,
                             data: RecordData::Source(Source {
+                                chat: None,
                                 locator: "synthetic://coverage-layout".into(),
                                 label: "Coverage source".into(),
                                 observed_at: "synthetic".into(),
@@ -869,7 +870,7 @@ fn native_refresh_controls_open_named_note_and_one_followup_without_changing_der
         cx.read(|cx| {
             let view = view.read(cx);
             let ChatTarget::Thread(id) = &view.chat else {
-                panic!("follow-up must open its thread")
+                panic!("follow-up must open its chat")
             };
             if let Some(original) = &followup {
                 assert_eq!(id, original);
@@ -914,7 +915,7 @@ fn native_refresh_controls_open_named_note_and_one_followup_without_changing_der
     cx.read(|cx| {
         let view = view.read(cx);
         let ChatTarget::Thread(id) = &view.chat else {
-            panic!("Undo refresh callback opens a thread")
+            panic!("Undo refresh callback opens a chat")
         };
         assert_ne!(Some(id), followup.as_ref());
         assert_eq!(
@@ -999,8 +1000,8 @@ fn native_stream_and_resolution_keep_the_worker_thread_owner(cx: &mut TestAppCon
     let data = root.path().join("worker-owner-regression");
     let mut workspace = Workspace::open(&data).unwrap();
     configure_offline_fixture(&mut workspace);
-    let a = workspace.new_thread("Working thread A").unwrap();
-    let b = workspace.new_thread("Unrelated thread B").unwrap();
+    let a = workspace.new_thread("Working chat A").unwrap();
+    let b = workspace.new_thread("Unrelated chat B").unwrap();
     cx.update(gpui_kit::init);
     let (window, view) = cx.update(|cx| {
         gpui_kit::open_window(WindowOptions::default(), cx, |window, cx| {
@@ -1046,15 +1047,23 @@ fn native_stream_and_resolution_keep_the_worker_thread_owner(cx: &mut TestAppCon
             let RecordData::Thread(a_state) =
                 view.workspace.store.record(&a.id).unwrap().unwrap().data
             else {
-                panic!("expected thread")
+                panic!("expected chat")
             };
             let RecordData::Thread(b_state) =
                 view.workspace.store.record(&b.id).unwrap().unwrap().data
             else {
-                panic!("expected thread")
+                panic!("expected chat")
             };
             assert_eq!(a_state.state, ThreadState::Open);
-            assert_eq!(b_state.state, ThreadState::Resolved);
+            assert_eq!(b_state.state, ThreadState::Open);
+            assert!(
+                view.workspace
+                    .store
+                    .record(&b.id)
+                    .unwrap()
+                    .unwrap()
+                    .archived
+            );
             view.open_thread(&a.id, window, cx);
             assert_eq!(view.stream_for(&a.id), Some("Authoritative A"));
             view.resolve_thread(&a.id, cx);

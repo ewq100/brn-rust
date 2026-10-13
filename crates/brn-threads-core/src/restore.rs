@@ -1,6 +1,6 @@
 use crate::{
     DATA_MARKER, DATABASE_FILENAME, Error, Result, Store,
-    store::{has_symlink_ancestor, validate_connection, validate_database},
+    store::{has_symlink_ancestor, validate_database, validate_schema},
 };
 use rusqlite::Connection;
 use std::{
@@ -27,7 +27,7 @@ impl StagedRestore {
     fn create(backup: &Path, destination: &Path) -> Result<Self> {
         let source =
             Connection::open_with_flags(backup, rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY)?;
-        validate_connection(&source)?;
+        validate_schema(&source, &[3, 4])?;
         Self::prepare(destination)?.copy_from(&source)
     }
 
@@ -72,6 +72,16 @@ impl StagedRestore {
             Duration::from_millis(1),
             None,
         )?;
+        if source.pragma_query_value::<i64, _>(None, "user_version", |r| r.get(0))? == 3 {
+            // The read-only, validated original backup is the pre-upgrade snapshot.
+            // Only this unpublished copy changes; the source remains untouched.
+            let tx = store
+                .conn
+                .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)?;
+            tx.execute_batch(crate::upgrade::CHAT_SCHEMA)?;
+            tx.pragma_update(None, "user_version", crate::store::SCHEMA_VERSION)?;
+            tx.commit()?;
+        }
         // Online Backup inherits WAL mode. Close a standalone DELETE database
         // before validation/flush and before moving the entire directory.
         store.conn.pragma_update(None, "journal_mode", "DELETE")?;
