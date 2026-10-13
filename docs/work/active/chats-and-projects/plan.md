@@ -13,9 +13,9 @@
 ## Authority and gates
 
 - Owner requested chat-first implementation and selected the consequential behavior in the spec. Lead implements in this session; independent reviewers are read-only.
-- Projects, release, real-data access, live providers, publication and merge are outside this build. Native observation remains deferred; automated native state checks and an owner interaction checklist are separate evidence.
+- Projects, release, real-data access, publication and merge are outside this build. The 13 October follow-up authorizes native queue/steering/attachment observation and synthetic selected-provider runs; automated tests, native observation and owner acceptance remain separate evidence.
 - Use task-owned synthetic data and the existing compatible build cache only. Preserve provider selection, host grants, exact review, versioned Save, dirty guards, receipts/Undo, source coverage and full backup/restore.
-- Defined: satisfied. Plan review: satisfied (two rounds). Implementation, automated verification and independent code review: satisfied. Native observation: explicitly deferred by repository authority. Owner acceptance: pending. Merge/release: unassigned.
+- Defined: satisfied. Plan review: satisfied (two rounds). Implementation, automated verification and independent code review: satisfied. Native observation: satisfied for the scoped synthetic follow-up below; broader qualification remains pending. Owner acceptance: pending. Merge/release: unassigned.
 
 ## Shared interfaces and ownership
 
@@ -167,4 +167,12 @@ Standalone chat code is complete and independently approved. The final automated
 
 Plan adjustments within the approved behavior: dispatch claims bind atomically at Run start; managed figure URLs receive the same scope guard as typed references and native image maps; Archive/Steer retain displayed partial text in the interruption transaction; queue execution controls cannot be undone into earlier claims; successful non-provider work can dispatch waiting questions. Keep preserves owned figure IDs across multiple source observations and copies borrowed same-chat private figures without promoting the source document. Direct serde/JSON/SHA/UUID dependencies reuse locked libraries.
 
-The task remains isolated and unmerged. Projects, live providers, real owner data, native observation, publication and release remain outside this build. The [evidence and owner checklist](evidence.md) record qualification separately.
+The task remains isolated and unmerged. Projects, real owner data, publication and release remain outside this build. Native observation and synthetic selected-provider calls are now authorized by the follow-up assignment below. The [evidence and owner checklist](evidence.md) record qualification separately.
+
+## Native end-to-end follow-up, 13 October 2026
+
+Owner now authorizes native app testing and fixes for queue, steering and attachments, including selected-provider runs against fresh synthetic data. This supersedes the earlier deferral for these journeys only. Preserve the owner's original trial workspace. Use a separate explicit native test workspace; no private source files, credentials in evidence, publication, merge or release.
+
+- [x] Observe native attachment import/read/inspection, queue edit/remove/reorder and sequential execution, Steer, Stop/Resume, failure and restart recovery.
+- [x] Fix demonstrated defects with focused regression checks and rebuild the production native candidate.
+- [x] Retest corrected behavior in the actual app; record exact candidate/data/evidence and independent review for meaningful changes. Owner acceptance remains distinct.
