@@ -33,7 +33,7 @@ Original emails and files stay external. Intentionally retained full-note conten
 
 ## Existing outcomes to preserve
 
-Support English and Estonian, answer in the owner's language, and retain rebuildable retrieval suitable for a personal workspace around 5,000 active notes. Preserve explicit provider/account/model and supported reasoning-effort choices without silent fallback. Current instructions outrank saved preferences; inferred or one-off preferences do not become standing policy automatically.
+Build, tune and qualify retrieval for English first. Estonian support is on hold (owner decision, 13 October 2026). It must remain addable as a derived-index analyzer, model or evaluation addition, with no authoritative-data migration. Answer in the owner's language, and retain rebuildable retrieval suitable for a personal workspace of 5,000–10,000 active notes. Preserve explicit provider/account/model and supported reasoning-effort choices without silent fallback. Current instructions outrank saved preferences; inferred or one-off preferences do not become standing policy automatically.
 
 Headless capabilities use the same scoped service. A connected external agent or possession of the owner CLI is not an authorization grant. Credentials are not knowledge or history.
 

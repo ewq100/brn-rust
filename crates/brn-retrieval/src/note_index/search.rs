@@ -61,7 +61,7 @@ pub fn check_query(query: &str, limit: usize) -> Result<()> {
 
 /// An FTS5 query matching any of the query's words. Each word is quoted, so
 /// user text never becomes FTS5 syntax.
-fn fts_query(query: &str) -> Option<String> {
+pub(crate) fn fts_query(query: &str) -> Option<String> {
     let terms: Vec<String> = query
         .split(|c: char| !c.is_alphanumeric())
         .filter(|term| !term.is_empty())

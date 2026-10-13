@@ -455,7 +455,11 @@ impl ThreadsUi {
         };
         let mut list = scroll("notes-list")
             .child(Input::new(&self.search).w_full())
-            .child(metadata(format!("{} current notes", self.note_rows.len())));
+            .child(metadata(if self.results.preparing {
+                format!("{} current notes · preparing search…", self.note_rows.len())
+            } else {
+                format!("{} current notes", self.note_rows.len())
+            }));
         if !query.trim().is_empty() {
             let (titles, total) = lists::filter_notes(&self.note_rows, &query, 100);
             list = list.child(section(format!("TITLES · {total}")));
@@ -468,44 +472,8 @@ impl ThreadsUi {
                     total - 100
                 )));
             }
-            let mut results = div()
-                .id("search-results")
-                .flex()
-                .flex_col()
-                .gap_1()
-                .child(section("IN NOTE TEXT"))
-                .child(metadata(format!(
-                    "{} matches in current notes",
-                    self.hits.len()
-                )));
-            for (index, hit) in self.hits.iter().enumerate() {
-                let id = hit.note.clone();
-                let range = hit.start..hit.end;
-                results = results.child(
-                    div()
-                        .flex()
-                        .flex_col()
-                        .child(
-                            row(format!("hit-{index}"), short(&hit.title), "", false).on_click(
-                                cx.listener(move |this, _, window, cx| {
-                                    this.open_note(&id, None, window, cx);
-                                    this.reveal(range.clone(), window, cx);
-                                }),
-                            ),
-                        )
-                        .child(div().px_2().child(metadata(hit.quote.clone()))),
-                );
-            }
-            if self.hits.is_empty() {
-                results = results.child(empty(
-                    "search-empty",
-                    "No current note text matches. Try another word or clear the filter to browse.",
-                ));
-            }
-            return list
-                .child(results.test_support())
-                .test_support()
-                .into_any_element();
+            let results = self.search_results(cx);
+            return list.child(results).test_support().into_any_element();
         }
         if self.note_rows.is_empty() {
             return list

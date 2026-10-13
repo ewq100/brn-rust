@@ -49,6 +49,8 @@ mod diff;
 mod layout;
 #[path = "threads_lists.rs"]
 mod lists;
+#[path = "threads_search.rs"]
+mod search_view;
 #[path = "threads_shell.rs"]
 mod shell;
 #[path = "threads_state.rs"]
@@ -407,6 +409,7 @@ struct ThreadsUi {
     review_inputs: bool,
     search: Entity<InputState>,
     hits: Vec<brn_threads_app::SearchHit>,
+    results: search_view::SearchView,
     notes_letter: char,
     threads_query: Entity<InputState>,
     thread_filter: ThreadFilter,
@@ -564,20 +567,18 @@ impl ThreadsUi {
                     }
                 },
             ),
-            cx.subscribe_in(&search, window, |this, input, event: &InputEvent, _, cx| {
-                if matches!(event, InputEvent::Change) {
-                    let query = input.read(cx).value().to_string();
-                    this.hits.clear();
-                    this.notice.clear();
-                    if !query.trim().is_empty() {
-                        match this.workspace.search(&query) {
-                            Ok(hits) => this.hits = hits,
-                            Err(e) => this.notice = e.to_string(),
-                        };
+            cx.subscribe_in(
+                &search,
+                window,
+                |this, input, event: &InputEvent, window, cx| {
+                    if matches!(event, InputEvent::Change) {
+                        let query = input.read(cx).value().to_string();
+                        this.notice.clear();
+                        this.search_changed(query, window, cx);
+                        cx.notify();
                     }
-                    cx.notify();
-                }
-            }),
+                },
+            ),
             cx.subscribe_in(&threads_query, window, |_, _, event: &InputEvent, _, cx| {
                 if matches!(event, InputEvent::Change) {
                     cx.notify();
@@ -642,6 +643,7 @@ impl ThreadsUi {
             review_inputs: false,
             search,
             hits: vec![],
+            results: search_view::SearchView::default(),
             notes_letter: 'A',
             threads_query,
             thread_filter: ThreadFilter::All,
@@ -684,6 +686,7 @@ impl ThreadsUi {
             poll: Some(poll),
         };
         this.refresh();
+        this.prepare_search(window, cx);
         if let Some(row) = this.note_rows.first() {
             this.notes_letter = lists::letter(&row.title);
         }

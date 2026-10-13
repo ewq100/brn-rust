@@ -389,3 +389,63 @@ fn explicit_backup_inside_workspace_is_refused_and_next_open_preserves_records()
     assert!(!inside.exists());
     assert_eq!(json_command(&data, &["notes"]), notes);
 }
+#[test]
+fn search_pages_report_exact_counts_and_reject_bad_cursors() {
+    let root = root();
+    let data = root.path().join("search");
+    json_command(&data, &["init"]);
+    for i in 0..14 {
+        json_command(
+            &data,
+            &[
+                "note-create",
+                "--title",
+                &format!("Entry {i}"),
+                "--text",
+                &format!("# Log\n\nA curlew sighting number {i}."),
+            ],
+        );
+    }
+    let first = json_command(&data, &["search", "--query", "curlews"]);
+    assert_eq!(
+        (first["total"].as_u64(), first["shown"].as_u64()),
+        (Some(14), Some(12))
+    );
+    assert_eq!(first["cursor"], "12");
+    assert_eq!(first["hits"][0]["heading_path"], "Log");
+    assert!(first["hits"][0]["snippet"]
+        .as_str()
+        .unwrap()
+        .contains("curlew"));
+    let second = json_command(&data, &["search", "--query", "curlews", "--cursor", "12"]);
+    assert_eq!(
+        (second["shown"].as_u64(), second["offset"].as_u64()),
+        (Some(2), Some(12))
+    );
+    assert_eq!(second["cursor"], Value::Null);
+    assert!(
+        !command(&data, &["search", "--query", "curlew", "--cursor", "7"])
+            .status
+            .success()
+    );
+    assert!(!command(
+        &data,
+        &["search", "--query", "curlew", "--thread", "missing"]
+    )
+    .status
+    .success());
+    let chat = json_command(&data, &["thread-start", "--title", "Birds"]);
+    let scoped = json_command(
+        &data,
+        &[
+            "search",
+            "--query",
+            "curlew",
+            "--limit",
+            "50",
+            "--thread",
+            chat["id"].as_str().unwrap(),
+        ],
+    );
+    assert_eq!(scoped["shown"], 14);
+}

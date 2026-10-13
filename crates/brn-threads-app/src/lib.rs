@@ -1,5 +1,4 @@
 //! Shared product use cases. Every canonical write delegates to the checked core.
-use brn_retrieval::note_index::{IndexedNote, NoteIndex};
 pub use brn_threads_core::*;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
@@ -11,8 +10,10 @@ mod decisions;
 mod export;
 mod intake;
 mod refresh;
+pub mod relations;
 mod review;
 mod review_groups;
+pub mod search;
 mod settings;
 mod steering;
 mod writing;
@@ -34,6 +35,8 @@ pub enum AppError {
     Invalid(String),
 }
 pub type AppResult<T> = std::result::Result<T, AppError>;
+/// One matching note with its best passage. `start..end` is a byte range in
+/// the saved Markdown at `version`; `quote` is that passage.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct SearchHit {
     pub note: String,
@@ -42,19 +45,87 @@ pub struct SearchHit {
     pub start: usize,
     pub end: usize,
     pub quote: String,
+    /// Headings above the passage, joined with ` › `.
+    #[serde(default)]
+    pub heading_path: String,
+    /// Bounded matching context from `quote`.
+    #[serde(default)]
+    pub snippet: String,
+    /// Byte ranges in `snippet` to highlight.
+    #[serde(default)]
+    pub highlights: Vec<std::ops::Range<usize>>,
+    /// Matching passages in the note.
+    #[serde(default)]
+    pub matches: usize,
+    /// Links into the note from notes visible in the same context.
+    #[serde(default)]
+    pub inbound_links: usize,
+    #[serde(default)]
+    pub protected: bool,
+    #[serde(default)]
+    pub imported: bool,
+    /// Imported, or cited by a visible `source` link.
+    #[serde(default)]
+    pub evidence: bool,
 }
+
+/// One page of search results with exact counts.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct SearchPage {
+    pub hits: Vec<SearchHit>,
+    /// Every visible matching note.
+    pub total: usize,
+    /// Position of the first hit among the ranked matches.
+    pub offset: usize,
+    /// Matches pages can reach; refine the query to reach the rest.
+    pub reachable: usize,
+    /// Pass back with the same limit for the next page.
+    pub cursor: Option<String>,
+}
+
+impl From<search::SearchResults> for SearchPage {
+    fn from(results: search::SearchResults) -> Self {
+        Self {
+            total: results.total,
+            offset: results.offset,
+            reachable: results.reachable,
+            cursor: results.next,
+            hits: results
+                .matches
+                .into_iter()
+                .map(|m| SearchHit {
+                    note: m.note,
+                    version: m.version,
+                    title: m.title,
+                    start: m.start,
+                    end: m.end,
+                    quote: m.quote,
+                    heading_path: m.heading_path,
+                    snippet: m.snippet.text,
+                    highlights: m.snippet.highlights,
+                    matches: m.passages,
+                    inbound_links: m.inbound_links,
+                    protected: m.protected,
+                    imported: m.imported,
+                    evidence: m.evidence,
+                })
+                .collect(),
+        }
+    }
+}
+
+/// Results [`Workspace::search`] returns.
+pub const SEARCH_LIMIT: usize = 30;
 
 pub struct Workspace {
     pub store: Store,
-    index: NoteIndex,
-    indexed: BTreeMap<String, u64>,
+    search: Option<search::SearchHandle>,
 }
 impl Workspace {
     pub fn open(data: impl AsRef<Path>) -> AppResult<Self> {
         let mut workspace = Self {
             store: Store::open(data)?,
-            index: NoteIndex::in_memory()?,
-            indexed: BTreeMap::new(),
+            search: None,
         };
         workspace.bootstrap_settings()?;
         workspace.bootstrap_chat_control()?;
@@ -261,57 +332,34 @@ impl Workspace {
             },
         )
     }
+    /// The workspace's search worker, started on first use. Clones share it.
+    pub fn search_handle(&mut self) -> AppResult<search::SearchHandle> {
+        if let Some(handle) = &self.search {
+            return Ok(handle.clone());
+        }
+        // The worker stops once the last handle is dropped.
+        let (handle, _worker) = search::SearchHandle::spawn(&self.store)?;
+        self.search = Some(handle.clone());
+        Ok(handle)
+    }
+    /// The owner's general search: saved text of current notes outside
+    /// chats, best first.
     pub fn search(&mut self, query: &str) -> AppResult<Vec<SearchHit>> {
-        let notes = self.notes()?;
-        let current: BTreeMap<_, _> = notes.iter().map(|r| (r.id.clone(), r.version)).collect();
-        for id in self
-            .indexed
-            .keys()
-            .filter(|id| !current.contains_key(*id))
-            .cloned()
-            .collect::<Vec<_>>()
-        {
-            self.index.remove_note(&id)?;
-        }
-        for record in &notes {
-            if self.indexed.get(&record.id) == Some(&record.version) {
-                continue;
-            }
-            let RecordData::Note(note) = &record.data else {
-                continue;
-            };
-            self.index.upsert_note(
-                &IndexedNote {
-                    path: record.id.clone(),
-                    title: note.title.clone(),
-                    size: note.markdown.len() as u64,
-                    modified_ns: record.version as i64,
-                    sha256: Sha256::digest(note.markdown.as_bytes()).into(),
-                },
-                &note.markdown,
-            )?;
-        }
-        self.indexed = current;
-        let by_id: BTreeMap<_, _> = notes.iter().map(|r| (r.id.as_str(), r)).collect();
+        Ok(self.search_page(query, None, SEARCH_LIMIT, None)?.hits)
+    }
+    /// One page of results visible in `chat` (`None` = general).
+    pub fn search_page(
+        &mut self,
+        query: &str,
+        chat: Option<&str>,
+        limit: usize,
+        cursor: Option<&str>,
+    ) -> AppResult<SearchPage> {
         Ok(self
-            .index
-            .keyword(query, 30)?
-            .into_iter()
-            .filter_map(|hit| {
-                let record = by_id.get(hit.path.as_str())?;
-                let RecordData::Note(note) = &record.data else {
-                    return None;
-                };
-                Some(SearchHit {
-                    note: record.id.clone(),
-                    version: record.version,
-                    title: note.title.clone(),
-                    start: hit.start_byte,
-                    end: hit.end_byte,
-                    quote: hit.quote,
-                })
-            })
-            .collect())
+            .search_handle()?
+            .request_page(query, chat, limit, cursor)
+            .wait()?
+            .into())
     }
     pub fn undo(&mut self, id: &str) -> AppResult<ApplyOutcome> {
         let original = self.store.operation(id)?;

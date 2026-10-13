@@ -18,6 +18,8 @@ pub enum Error {
     ModelInstall(#[from] native::download::ModelInstallError),
     #[error("retrieval build cancelled")]
     Cancelled,
+    #[error("search index moved since this change was computed")]
+    Stale,
     #[error("retrieval I/O: {0}")]
     Io(#[from] std::io::Error),
     #[error("retrieval format: {0}")]
@@ -39,6 +41,9 @@ fn check_cancel(cancel: &std::sync::atomic::AtomicBool) -> Result<()> {
 }
 
 mod chunk;
+pub mod markdown_chunk;
 #[cfg(feature = "native")]
 pub mod native;
 pub mod note_index;
+pub mod search_index;
+pub mod snippet;

@@ -1,0 +1,230 @@
+{
+  "version": 1,
+  "description": "Synthetic English golden set separating exact-token, stemming, semantic, section, topic-page and abstention abilities of note search.",
+  "vocabulary": [
+    "project", "deadline", "milestone", "budget", "invoice", "supplier", "vendor", "contract", "quote", "order",
+    "delivery", "shipment", "container", "pallet", "warehouse", "harbor", "berth", "crane", "vessel", "cargo",
+    "customs", "freight", "truck", "gate", "schedule", "meeting", "agenda", "minutes", "action", "review",
+    "approval", "report", "summary", "forecast", "estimate", "cost", "payment", "discount", "tender", "audit",
+    "compliance", "policy", "risk", "issue", "ticket", "release", "version", "deploy", "feature", "bug",
+    "test", "branch", "merge", "sprint", "backlog", "roadmap", "owner", "team", "manager", "analyst",
+    "engineer", "candidate", "interview", "offer", "salary", "hiring", "onboarding", "training", "panel", "feedback",
+    "travel", "flight", "hotel", "ferry", "booking", "luggage", "passport", "visa", "itinerary", "conference",
+    "renovation", "kitchen", "bathroom", "roof", "wall", "floor", "paint", "tile", "plumber", "electrician",
+    "permit", "scaffolding", "window", "garden", "insulation", "heating", "contractor", "measurement", "sample", "drawing",
+    "doctor", "clinic", "appointment", "referral", "prescription", "therapy", "checkup", "blood", "sleep", "exercise",
+    "paper", "study", "trial", "journal", "citation", "method", "result", "dataset", "reading", "notes",
+    "tuesday", "morning", "friday", "week", "month", "quarter", "january", "november", "yesterday", "tomorrow",
+    "stock", "inventory", "spare", "equipment", "maintenance", "inspection", "safety", "helmet", "quay", "dock",
+    "pilot", "tug", "mooring", "anchorage", "channel", "dredging", "weather", "tide", "storm", "fuel"
+  ],
+  "long_notes": [
+    {
+      "title": "Port operations handbook",
+      "sections": [
+        "Purpose and scope", "Roles and responsibilities", "Berth allocation", "Pilotage requests", "Tug assistance",
+        "Mooring and unmooring", "Vessel arrival notice", "Customs clearance", "Quay crane operation", "Container yard layout",
+        "Reefer plug monitoring", "Dangerous goods handling", "Gate appointment system", "Truck queue management", "Rail loading",
+        "Bunkering rules", "Waste reception", "Shore power connection", "Security and access control", "Night shift handover",
+        "Weather limits", "Fog procedure", "Ice conditions", "Dredging schedule", "Equipment maintenance",
+        "Fuel storage", "Fire response", "Spill response", "Incident reporting", "Berth fees",
+        "Performance indicators", "Training requirements", "Contractor induction", "Audit and inspection", "Document control"
+      ]
+    },
+    {
+      "title": "Vendor onboarding procedure",
+      "sections": [
+        "Purpose", "Eligibility criteria", "Initial questionnaire", "Legal entity verification", "Tax documentation",
+        "Bank account validation", "Sanctions screening", "Insurance certificates", "Code of conduct acknowledgement", "Data protection assessment",
+        "Security review", "Quality certifications", "Sustainability declaration", "Reference checks", "Risk scoring",
+        "Approval thresholds", "Contract templates", "Payment terms", "Purchase order setup", "Catalogue upload",
+        "Invoice submission rules", "Dispute handling", "Performance scorecards", "Quarterly review", "Escalation path",
+        "Conflict of interest", "Gift policy", "Offboarding", "Annual revalidation", "Record retention",
+        "Emergency suppliers", "Subcontractor approval", "Portal access", "Training for vendors"
+      ]
+    },
+    {
+      "title": "Clinical trial reading notes",
+      "sections": [
+        "Background", "Research question", "Study design", "Randomisation method", "Blinding",
+        "Eligibility criteria", "Recruitment sites", "Baseline characteristics", "Intervention protocol", "Control group",
+        "Dosage schedule", "Primary outcome", "Secondary outcomes", "Sample size calculation", "Interim analysis",
+        "Statistical methods", "Missing data handling", "Adverse events", "Dropout rates", "Adherence measures",
+        "Subgroup findings", "Effect size", "Confidence intervals", "Limitations", "Funding sources",
+        "Conflicts of interest", "Ethics approval", "Comparison with earlier trials", "Meta-analysis context", "Clinical relevance",
+        "Follow-up duration", "Open questions", "Reproducibility", "Personal takeaways"
+      ]
+    },
+    {
+      "title": "Home renovation master plan",
+      "sections": [
+        "Goals and priorities", "Total budget", "Contingency reserve", "Timeline overview", "Permits and approvals",
+        "Architect brief", "Structural survey", "Demolition", "Electrical rewiring", "Plumbing replacement",
+        "Heating system", "Insulation upgrade", "Window replacement", "Roof repair", "Plastering",
+        "Flooring choices", "Kitchen layout", "Bathroom design", "Tiling", "Painting schedule",
+        "Carpentry", "Built-in storage", "Lighting plan", "Ventilation", "Garden and drainage",
+        "Furniture", "Appliances", "Contractor shortlist", "Payment milestones", "Waste disposal",
+        "Neighbour communication", "Temporary housing", "Snagging list", "Warranty records"
+      ]
+    }
+  ],
+  "topics": [
+    {
+      "title": "Harbor expansion work",
+      "summary": "Equipment, scheduling and traffic notes for the new quay and berth extension.",
+      "subjects": ["Crane spare parts order", "Berth schedule ticket", "Gate congestion notes", "Feeder vessel arrival", "Late docking", "Channel works hazards"]
+    },
+    {
+      "title": "Supplier contract negotiations",
+      "summary": "Terms, prices and open payments with our main suppliers.",
+      "subjects": ["Post-audit follow-ups", "Pallet wrap invoice", "Rate savings summary", "Cheapest bid decision", "Outstanding dues", "Supplier audit lead"]
+    },
+    {
+      "title": "House repairs and fit-out",
+      "summary": "Materials, timing and spending for the repair and fit-out jobs around the house.",
+      "subjects": ["Paint supply order", "Tile adhesive stock", "Bathroom airflow work", "Hallway refresh timing", "Home improvement cap", "Attic water damage"]
+    },
+    {
+      "title": "Hiring pipeline",
+      "summary": "Candidates, interview logistics and start dates for open positions.",
+      "subjects": ["Backend candidate feedback", "Procurement analyst onboarding", "Headcount freeze", "Panel timing", "Onboarding day", "Candidate decision"]
+    },
+    {
+      "title": "Software release readiness",
+      "summary": "Blocking tickets, risks and fallback plans before the next product launch.",
+      "subjects": ["Release blocker ticket", "Dependency advisory ticket", "Version 4.2 timeline", "Sprint nine retrospective", "Go-live safety net", "Auth failure report"]
+    },
+    {
+      "title": "Business travel arrangements",
+      "summary": "Bookings, fares, claims and event logistics for upcoming trips.",
+      "subjects": ["Ferry booking to Helsinki", "Fare find", "Baggage mishap", "Event seat limits", "Receipt rules for claims", "Conference registration order"]
+    },
+    {
+      "title": "Health appointments",
+      "summary": "Visits, referrals and preparation instructions for medical care.",
+      "subjects": ["Clinic referral letter", "Physician slot", "Lab visit prep"]
+    },
+    {
+      "title": "Research reading list",
+      "summary": "Papers and books I am working through for the sleep research project.",
+      "subjects": ["Statistics textbook", "Sleep study reading", "Insomnia paper takeaways"]
+    },
+    {
+      "title": "Warehouse and logistics capacity",
+      "summary": "Storage limits, stock levels and equipment status across the depot.",
+      "subjects": ["Depot space estimate", "Safety helmet stock", "Courier service review", "Reefer outage ticket", "Customs broker contact", "Thursday restock run"]
+    },
+    {
+      "title": "Project budget oversight",
+      "summary": "Variances, approvals and tax deadlines affecting the project finances.",
+      "subjects": ["Budget variance ticket", "Monday finance sign-off", "Compensation review", "Revenue office reminder", "Scaffolding rental invoice"]
+    }
+  ],
+  "cases": [
+    { "id": "exact-01", "stratum": "exact", "query": "PO-48213", "plant": { "note": "Crane spare parts order", "section": null, "text": "Purchase order PO-48213 covers the hydraulic spare parts for the quay crane." }, "relevant": ["Crane spare parts order"] },
+    { "id": "exact-02", "stratum": "exact", "query": "INV-2026-0457", "plant": { "note": "Pallet wrap invoice", "section": null, "text": "Invoice INV-2026-0457 from Baltic Packaging is still waiting for approval." }, "relevant": ["Pallet wrap invoice"] },
+    { "id": "exact-03", "stratum": "exact", "query": "OPS-1172", "plant": { "note": "Berth schedule ticket", "section": null, "text": "Ticket OPS-1172 tracks the berth schedule conflict on Tuesday." }, "relevant": ["Berth schedule ticket"] },
+    { "id": "exact-04", "stratum": "exact", "query": "Ingrid Valtonen", "plant": { "note": "Customs broker contact", "section": null, "text": "Ingrid Valtonen is our customs broker and handles the clearance paperwork." }, "relevant": ["Customs broker contact"] },
+    { "id": "exact-05", "stratum": "exact", "query": "MV Nordlys Aurora", "plant": { "note": "Feeder vessel arrival", "section": null, "text": "The feeder vessel MV Nordlys Aurora is due at the outer anchorage on Friday morning." }, "relevant": ["Feeder vessel arrival"] },
+    { "id": "exact-06", "stratum": "exact", "query": "KX-7741-B", "plant": { "note": "Safety helmet stock", "section": null, "text": "Reorder safety helmets under SKU KX-7741-B before the stock runs out." }, "relevant": ["Safety helmet stock"] },
+    { "id": "exact-07", "stratum": "exact", "query": "REL-3390", "plant": { "note": "Release blocker ticket", "section": null, "text": "REL-3390 is the blocker that stops the mobile release candidate." }, "relevant": ["Release blocker ticket"] },
+    { "id": "exact-08", "stratum": "exact", "query": "Tobias Reinholt", "plant": { "note": "Backend candidate feedback", "section": null, "text": "Tobias Reinholt impressed the panel during the systems design interview." }, "relevant": ["Backend candidate feedback"] },
+    { "id": "exact-09", "stratum": "exact", "query": "PO-90517", "plant": { "note": "Paint supply order", "section": null, "text": "PO-90517 was raised for twenty buckets of exterior paint." }, "relevant": ["Paint supply order"] },
+    { "id": "exact-10", "stratum": "exact", "query": "Marguerite Okonkwo-Lindqvist", "plant": { "note": "Clinic referral letter", "section": null, "text": "Dr Marguerite Okonkwo-Lindqvist wrote the referral for the physiotherapy block." }, "relevant": ["Clinic referral letter"] },
+    { "id": "exact-11", "stratum": "exact", "query": "MS Hallavuori", "plant": { "note": "Ferry booking to Helsinki", "section": null, "text": "We booked a cabin on MS Hallavuori for the crossing to Helsinki." }, "relevant": ["Ferry booking to Helsinki"] },
+    { "id": "exact-12", "stratum": "exact", "query": "INV-77-3021", "plant": { "note": "Scaffolding rental invoice", "section": null, "text": "INV-77-3021 is the rental invoice for the scaffolding outside the north wall." }, "relevant": ["Scaffolding rental invoice"] },
+    { "id": "exact-13", "stratum": "exact", "query": "FIN-2218", "plant": { "note": "Budget variance ticket", "section": null, "text": "FIN-2218 asks finance to explain the variance in the second quarter travel budget." }, "relevant": ["Budget variance ticket"] },
+    { "id": "exact-14", "stratum": "exact", "query": "Anselm Draugelis", "plant": { "note": "Supplier audit lead", "section": null, "text": "Anselm Draugelis will lead the supplier audit in November." }, "relevant": ["Supplier audit lead"] },
+    { "id": "exact-15", "stratum": "exact", "query": "TR-5502-M", "plant": { "note": "Tile adhesive stock", "section": null, "text": "Tile adhesive is stocked as TR-5502-M at the builders merchant." }, "relevant": ["Tile adhesive stock"] },
+    { "id": "exact-16", "stratum": "exact", "query": "OPS-2045", "plant": { "note": "Reefer outage ticket", "section": null, "text": "OPS-2045 records the reefer plug outage on berth three." }, "relevant": ["Reefer outage ticket"] },
+    { "id": "exact-17", "stratum": "exact", "query": "PO-31984", "plant": { "note": "Conference registration order", "section": null, "text": "PO-31984 pays for four conference registrations in Rotterdam." }, "relevant": ["Conference registration order"] },
+    { "id": "exact-18", "stratum": "exact", "query": "Yusuf Haldorsen", "plant": { "note": "Procurement analyst onboarding", "section": null, "text": "Yusuf Haldorsen starts as procurement analyst and needs system access." }, "relevant": ["Procurement analyst onboarding"] },
+    { "id": "exact-19", "stratum": "exact", "query": "978-3-16-148410-0", "plant": { "note": "Statistics textbook", "section": null, "text": "Our reading group ordered the statistics textbook with ISBN 978-3-16-148410-0." }, "relevant": ["Statistics textbook"] },
+    { "id": "exact-20", "stratum": "exact", "query": "SEC-8816", "plant": { "note": "Dependency advisory ticket", "section": null, "text": "SEC-8816 covers the vulnerable dependency flagged in the nightly scan." }, "relevant": ["Dependency advisory ticket"] },
+
+    { "id": "inflection-01", "stratum": "inflection", "query": "renegotiate supplier contracts", "plant": { "note": "Post-audit follow-ups", "section": null, "text": "We are renegotiating the contract with our suppliers after the audit." }, "relevant": ["Post-audit follow-ups"] },
+    { "id": "inflection-02", "stratum": "inflection", "query": "delay shipment container", "plant": { "note": "Gate congestion notes", "section": null, "text": "The delayed shipments left two containers waiting at the gate." }, "relevant": ["Gate congestion notes"] },
+    { "id": "inflection-03", "stratum": "inflection", "query": "approve budget revision", "plant": { "note": "Monday finance sign-off", "section": null, "text": "Finance approved the revised budgets on Monday." }, "relevant": ["Monday finance sign-off"] },
+    { "id": "inflection-04", "stratum": "inflection", "query": "schedule inspection appointment", "plant": { "note": "Site visit lead time", "section": null, "text": "The scheduling of inspections and appointments takes about a week." }, "relevant": ["Site visit lead time"] },
+    { "id": "inflection-05", "stratum": "inflection", "query": "hire engineer", "plant": { "note": "Headcount freeze", "section": null, "text": "Hiring engineers is paused until the budget is confirmed." }, "relevant": ["Headcount freeze"] },
+    { "id": "inflection-06", "stratum": "inflection", "query": "installed ventilated fans", "plant": { "note": "Bathroom airflow work", "section": null, "text": "Installation of the ventilation fan in the bathroom waits for the plastering." }, "relevant": ["Bathroom airflow work"] },
+    { "id": "inflection-07", "stratum": "inflection", "query": "database migration", "plant": { "note": "Weekend cluster move", "section": null, "text": "Last weekend we migrated both databases to the new cluster." }, "relevant": ["Weekend cluster move"] },
+    { "id": "inflection-08", "stratum": "inflection", "query": "compare vendor quotes", "plant": { "note": "Cheapest bid decision", "section": null, "text": "We compared the quoted prices from three vendors and picked the cheapest." }, "relevant": ["Cheapest bid decision"] },
+    { "id": "inflection-09", "stratum": "inflection", "query": "attend conference", "plant": { "note": "Event seat limits", "section": null, "text": "Attendance at the conferences is limited to two people per team." }, "relevant": ["Event seat limits"] },
+    { "id": "inflection-10", "stratum": "inflection", "query": "reviewing recruiting trial participant", "plant": { "note": "Sleep study reading", "section": null, "text": "She reviewed trials that recruited thousands of participants." }, "relevant": ["Sleep study reading"] },
+    { "id": "inflection-11", "stratum": "inflection", "query": "painted wall", "plant": { "note": "Hallway refresh timing", "section": null, "text": "Painting the walls in the hallway starts next Tuesday." }, "relevant": ["Hallway refresh timing"] },
+    { "id": "inflection-12", "stratum": "inflection", "query": "planned releases", "plant": { "note": "Version 4.2 timeline", "section": null, "text": "We plan the release of version 4.2 for next month." }, "relevant": ["Version 4.2 timeline"] },
+    { "id": "inflection-13", "stratum": "inflection", "query": "ordered replaced fitting", "plant": { "note": "Thursday restock run", "section": null, "text": "Orders for replacements of the fittings go out on Thursday." }, "relevant": ["Thursday restock run"] },
+    { "id": "inflection-14", "stratum": "inflection", "query": "reimburse travel expense", "plant": { "note": "Receipt rules for claims", "section": null, "text": "Reimbursement of travelling expenses requires receipts." }, "relevant": ["Receipt rules for claims"] },
+    { "id": "inflection-15", "stratum": "inflection", "query": "negotiate discount", "plant": { "note": "Rate savings summary", "section": null, "text": "Negotiating a discounted rate saved nine percent." }, "relevant": ["Rate savings summary"] },
+    { "id": "inflection-16", "stratum": "inflection", "query": "assess dredge risk", "plant": { "note": "Channel works hazards", "section": null, "text": "The assessment lists four risks for the dredging." }, "relevant": ["Channel works hazards"] },
+    { "id": "inflection-17", "stratum": "inflection", "query": "delivery tracking", "plant": { "note": "Courier service review", "section": null, "text": "Tracked deliveries now arrive within two days." }, "relevant": ["Courier service review"] },
+    { "id": "inflection-18", "stratum": "inflection", "query": "interviewing candidate", "plant": { "note": "Panel timing", "section": null, "text": "Interviews of candidates run for forty minutes each." }, "relevant": ["Panel timing"] },
+    { "id": "inflection-19", "stratum": "inflection", "query": "resolve dependency conflict", "plant": { "note": "Sprint nine retrospective", "section": null, "text": "Resolving conflicting dependencies took most of the sprint." }, "relevant": ["Sprint nine retrospective"] },
+    { "id": "inflection-20", "stratum": "inflection", "query": "monitor crane vibration", "plant": { "note": "Condition sensors", "section": null, "text": "Monitoring of vibrations on the cranes is automated." }, "relevant": ["Condition sensors"] },
+
+    { "id": "paraphrase-01", "stratum": "paraphrase", "query": "car repair bill", "plant": { "note": "Garage cost", "section": null, "text": "The invoice for fixing the vehicle came to 840 euros." }, "relevant": ["Garage cost"] },
+    { "id": "paraphrase-02", "stratum": "paraphrase", "query": "doctor visit next week", "plant": { "note": "Physician slot", "section": null, "text": "The physician expects me on Thursday morning." }, "relevant": ["Physician slot"] },
+    { "id": "paraphrase-03", "stratum": "paraphrase", "query": "staff pay rise", "plant": { "note": "Compensation review", "section": null, "text": "Salaries for the whole team will increase by three percent in January." }, "relevant": ["Compensation review"] },
+    { "id": "paraphrase-04", "stratum": "paraphrase", "query": "boat arrival delay", "plant": { "note": "Late docking", "section": null, "text": "The ship will reach the quay six hours later than planned." }, "relevant": ["Late docking"] },
+    { "id": "paraphrase-05", "stratum": "paraphrase", "query": "leaky roof fix", "plant": { "note": "Attic water damage", "section": null, "text": "A contractor will patch the dripping ceiling above the attic stairs." }, "relevant": ["Attic water damage"] },
+    { "id": "paraphrase-06", "stratum": "paraphrase", "query": "meeting moved earlier", "plant": { "note": "Architect sync change", "section": null, "text": "The sync with the architects now starts at nine instead of ten." }, "relevant": ["Architect sync change"] },
+    { "id": "paraphrase-07", "stratum": "paraphrase", "query": "software bug in login", "plant": { "note": "Auth failure report", "section": null, "text": "Users cannot sign in on the app because of a defect in the authentication code." }, "relevant": ["Auth failure report"] },
+    { "id": "paraphrase-08", "stratum": "paraphrase", "query": "cheap flights to Berlin", "plant": { "note": "Fare find", "section": null, "text": "Return tickets to the German capital cost only ninety euros in March." }, "relevant": ["Fare find"] },
+    { "id": "paraphrase-09", "stratum": "paraphrase", "query": "unpaid supplier invoices", "plant": { "note": "Outstanding dues", "section": null, "text": "We still owe the wholesaler for last quarter's deliveries." }, "relevant": ["Outstanding dues"] },
+    { "id": "paraphrase-10", "stratum": "paraphrase", "query": "kitchen renovation budget", "plant": { "note": "Home improvement cap", "section": null, "text": "Remodeling the cooking area must not exceed twenty thousand euros." }, "relevant": ["Home improvement cap"] },
+    { "id": "paraphrase-11", "stratum": "paraphrase", "query": "new employee start date", "plant": { "note": "Onboarding day", "section": null, "text": "The recruit joins our department on the first of April." }, "relevant": ["Onboarding day"] },
+    { "id": "paraphrase-12", "stratum": "paraphrase", "query": "lost luggage claim", "plant": { "note": "Baggage mishap", "section": null, "text": "The airline located our missing suitcase and will deliver it tomorrow." }, "relevant": ["Baggage mishap"] },
+    { "id": "paraphrase-13", "stratum": "paraphrase", "query": "heavy rain forecast", "plant": { "note": "Weather warning", "section": null, "text": "Meteorologists expect a storm with strong downpours over the harbour on Wednesday." }, "relevant": ["Weather warning"] },
+    { "id": "paraphrase-14", "stratum": "paraphrase", "query": "password reset email", "plant": { "note": "Account recovery flow", "section": null, "text": "Credentials can be recovered by a message sent to the registered address." }, "relevant": ["Account recovery flow"] },
+    { "id": "paraphrase-15", "stratum": "paraphrase", "query": "trial results sample size", "plant": { "note": "Insomnia paper takeaways", "section": null, "text": "The study enrolled 412 volunteers and found a modest improvement." }, "relevant": ["Insomnia paper takeaways"] },
+    { "id": "paraphrase-16", "stratum": "paraphrase", "query": "warehouse rack capacity", "plant": { "note": "Depot space estimate", "section": null, "text": "The depot can hold roughly 3,000 pallets on its shelving." }, "relevant": ["Depot space estimate"] },
+    { "id": "paraphrase-17", "stratum": "paraphrase", "query": "job offer accepted", "plant": { "note": "Candidate decision", "section": null, "text": "She said yes to the position and signs the contract next week." }, "relevant": ["Candidate decision"] },
+    { "id": "paraphrase-18", "stratum": "paraphrase", "query": "tax filing due date", "plant": { "note": "Revenue office reminder", "section": null, "text": "Our VAT return must reach the authorities before the 20th." }, "relevant": ["Revenue office reminder"] },
+    { "id": "paraphrase-19", "stratum": "paraphrase", "query": "blood test fasting instructions", "plant": { "note": "Lab visit prep", "section": null, "text": "Do not eat or drink anything except water for twelve hours before the sample is taken." }, "relevant": ["Lab visit prep"] },
+    { "id": "paraphrase-20", "stratum": "paraphrase", "query": "deployment rollback plan", "plant": { "note": "Go-live safety net", "section": null, "text": "If the launch goes badly we revert to the previous version within ten minutes." }, "relevant": ["Go-live safety net"] },
+
+    { "id": "section-01", "stratum": "section", "query": "at what visibility does pilot boarding stop", "plant": { "note": "Port operations handbook", "section": "Fog procedure", "text": "When visibility drops below 400 metres, pilot boarding stops and the harbour master reopens the channel only after visibility holds above 600 metres for thirty minutes." }, "relevant": ["Port operations handbook"] },
+    { "id": "section-02", "stratum": "section", "query": "how often are reefer plugs checked", "plant": { "note": "Port operations handbook", "section": "Reefer plug monitoring", "text": "Reefer plugs are checked every four hours and any unit warmer than minus eighteen degrees triggers an alarm in the control room." }, "relevant": ["Port operations handbook"] },
+    { "id": "section-03", "stratum": "section", "query": "late truck appointment window overflow lot", "plant": { "note": "Port operations handbook", "section": "Gate appointment system", "text": "Trucks arriving more than fifteen minutes outside their appointment window are sent to the overflow lot." }, "relevant": ["Port operations handbook"] },
+    { "id": "section-04", "stratum": "section", "query": "who may connect shore power cables", "plant": { "note": "Port operations handbook", "section": "Shore power connection", "text": "Shore power cables must be connected by two certified electricians and tested before the vessel shuts down its generators." }, "relevant": ["Port operations handbook"] },
+    { "id": "section-05", "stratum": "section", "query": "how are new supplier bank details confirmed", "plant": { "note": "Vendor onboarding procedure", "section": "Bank account validation", "text": "New bank details are confirmed by a call-back to a known contact before the first payment is released." }, "relevant": ["Vendor onboarding procedure"] },
+    { "id": "section-06", "stratum": "section", "query": "which orders need finance director sign-off", "plant": { "note": "Vendor onboarding procedure", "section": "Approval thresholds", "text": "Orders above fifty thousand euros need sign-off from the finance director." }, "relevant": ["Vendor onboarding procedure"] },
+    { "id": "section-07", "stratum": "section", "query": "minimum liability cover required before vendor activation", "plant": { "note": "Vendor onboarding procedure", "section": "Insurance certificates", "text": "Liability cover of at least two million euros must be evidenced before a vendor is activated." }, "relevant": ["Vendor onboarding procedure"] },
+    { "id": "section-08", "stratum": "section", "query": "when do active vendors resubmit their documents", "plant": { "note": "Vendor onboarding procedure", "section": "Annual revalidation", "text": "Active vendors resubmit their tax and insurance documents each January." }, "relevant": ["Vendor onboarding procedure"] },
+    { "id": "section-09", "stratum": "section", "query": "participants needed per arm for ninety percent power", "plant": { "note": "Clinical trial reading notes", "section": "Sample size calculation", "text": "The authors needed 380 participants per arm to detect a four-point difference with ninety percent power." }, "relevant": ["Clinical trial reading notes"] },
+    { "id": "section-10", "stratum": "section", "query": "why did participants withdraw before week twelve", "plant": { "note": "Clinical trial reading notes", "section": "Dropout rates", "text": "Eighteen percent of the intervention group withdrew before week twelve, mostly because of nausea." }, "relevant": ["Clinical trial reading notes"] },
+    { "id": "section-11", "stratum": "section", "query": "who funded the trial", "plant": { "note": "Clinical trial reading notes", "section": "Funding sources", "text": "The trial was funded by a national health foundation and not by the drug manufacturer." }, "relevant": ["Clinical trial reading notes"] },
+    { "id": "section-12", "stratum": "section", "query": "were outcome assessors blinded", "plant": { "note": "Clinical trial reading notes", "section": "Blinding", "text": "Both patients and outcome assessors were blinded, and the pharmacy prepared identical capsules." }, "relevant": ["Clinical trial reading notes"] },
+    { "id": "section-13", "stratum": "section", "query": "building permit for the load-bearing wall decision time", "plant": { "note": "Home renovation master plan", "section": "Permits and approvals", "text": "The municipality requires a building permit for moving the load-bearing wall, with a decision expected within eight weeks." }, "relevant": ["Home renovation master plan"] },
+    { "id": "section-14", "stratum": "section", "query": "how large is the contingency reserve", "plant": { "note": "Home renovation master plan", "section": "Contingency reserve", "text": "A fifteen percent contingency reserve is held back and only released with written agreement from both of us." }, "relevant": ["Home renovation master plan"] },
+    { "id": "section-15", "stratum": "section", "query": "window lead time in weeks", "plant": { "note": "Home renovation master plan", "section": "Window replacement", "text": "The triple-glazed windows have a lead time of eleven weeks, so they must be ordered before the demolition starts." }, "relevant": ["Home renovation master plan"] },
+
+    { "id": "topic-01", "stratum": "topic", "query": "overview of the harbor expansion work", "plant": null, "relevant": ["Harbor expansion work"] },
+    { "id": "topic-02", "stratum": "topic", "query": "where do we stand on contracts with our suppliers", "plant": null, "relevant": ["Supplier contract negotiations"] },
+    { "id": "topic-03", "stratum": "topic", "query": "summary of the repair and fit-out jobs around the house", "plant": null, "relevant": ["House repairs and fit-out"] },
+    { "id": "topic-04", "stratum": "topic", "query": "overview of our hiring pipeline", "plant": null, "relevant": ["Hiring pipeline"] },
+    { "id": "topic-05", "stratum": "topic", "query": "are we ready to ship the next software release", "plant": null, "relevant": ["Software release readiness"] },
+    { "id": "topic-06", "stratum": "topic", "query": "overview of business trips and travel arrangements", "plant": null, "relevant": ["Business travel arrangements"] },
+    { "id": "topic-07", "stratum": "topic", "query": "everything about my health appointments", "plant": null, "relevant": ["Health appointments"] },
+    { "id": "topic-08", "stratum": "topic", "query": "what have I been reading for the sleep research", "plant": null, "relevant": ["Research reading list"] },
+    { "id": "topic-09", "stratum": "topic", "query": "overview of warehouse and logistics capacity", "plant": null, "relevant": ["Warehouse and logistics capacity"] },
+    { "id": "topic-10", "stratum": "topic", "query": "how are the project finances being overseen", "plant": null, "relevant": ["Project budget oversight"] },
+
+    { "id": "abstention-01", "stratum": "abstention", "query": "volcano seismograph calibration", "plant": null, "relevant": [] },
+    { "id": "abstention-02", "stratum": "abstention", "query": "medieval falconry manuals", "plant": null, "relevant": [] },
+    { "id": "abstention-03", "stratum": "abstention", "query": "quantum entanglement photonics", "plant": null, "relevant": [] },
+    { "id": "abstention-04", "stratum": "abstention", "query": "sourdough hydration percentage", "plant": null, "relevant": [] },
+    { "id": "abstention-05", "stratum": "abstention", "query": "glacier crevasse rescue", "plant": null, "relevant": [] },
+    { "id": "abstention-06", "stratum": "abstention", "query": "astrology horoscope compatibility", "plant": null, "relevant": [] },
+    { "id": "abstention-07", "stratum": "abstention", "query": "bagpipe chanter reeds", "plant": null, "relevant": [] },
+    { "id": "abstention-08", "stratum": "abstention", "query": "origami tessellation folding", "plant": null, "relevant": [] },
+    { "id": "abstention-09", "stratum": "abstention", "query": "dinosaur fossil excavation", "plant": null, "relevant": [] },
+    { "id": "abstention-10", "stratum": "abstention", "query": "chess endgame tablebase", "plant": null, "relevant": [] },
+    { "id": "abstention-11", "stratum": "abstention", "query": "beekeeping propolis harvest", "plant": null, "relevant": [] },
+    { "id": "abstention-12", "stratum": "abstention", "query": "submarine sonar hydrophone", "plant": null, "relevant": [] },
+    { "id": "abstention-13", "stratum": "abstention", "query": "cryptocurrency staking rewards", "plant": null, "relevant": [] },
+    { "id": "abstention-14", "stratum": "abstention", "query": "orchid pollination greenhouse", "plant": null, "relevant": [] },
+    { "id": "abstention-15", "stratum": "abstention", "query": "saxophone embouchure lessons", "plant": null, "relevant": [] }
+  ]
+}

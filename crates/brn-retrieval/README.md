@@ -2,7 +2,13 @@
 
 Derived search components for the Threads application. The [shared app](../brn-threads-app/src/lib.rs) opens an in-memory `NoteIndex`, refreshes it from current non-archived/non-superseded notes and performs FTS5 keyword queries. SQLite in `brn-threads-core` remains authoritative; opening a workspace can rebuild retrieval.
 
+`search_index` is the persisted workspace index (`derived/search.sqlite`, schema `BRNS` v1) from the [knowledge and retrieval plan](../../docs/work/active/knowledge-retrieval/spec.md). It has exact and English-stemmed FTS5 lanes over `markdown_chunk` v1 passages, a links mirror, and a sync watermark. Opens and rebuilds go through an advisory lock, and writes are guarded against concurrent writers with `Changes.base`. The app's search worker (`brn-threads-app::search`) keeps it current and re-checks results with core visibility. The app's `Workspace::search` still uses the in-memory `NoteIndex` until Task 2 switches it.
+
 The crate also retains a reusable persistent index reader/writer, metadata/edge cache and optional local embeddings. Their richer scope/model contracts below describe component behavior, not a claim that current Threads search uses semantic ranking or the former Markdown-vault orchestration.
+
+## Language scope
+
+Retrieval is tuned and qualified for English only. Estonian is on hold by owner decision (13 October 2026). Keep tokenizer and diacritic policy, stemming, the embedding model and evaluation sets as derived-index configuration. Adding a language should then mean adding an analyzer or model and rebuilding the index, never migrating authoritative data. Today's tokenizer is `unicode61 remove_diacritics 2`. That fits English but folds distinct Estonian letters (õ/ä/ö/ü), so revisit it before qualifying Estonian.
 
 ## Dependencies and features
 

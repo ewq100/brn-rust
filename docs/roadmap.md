@@ -9,6 +9,7 @@ The core, provider runtime and native workspace are implemented. Phase 0/F1 and 
 | Recovery qualification | Understandable interruption/restart, backup and restoration before daily data adoption | Cold interruption/restart and broader recovery acceptance; fault/reopen tests are partial evidence |
 | Native acceptance | Dependable Home, thread, editor, review, comments, search, Actions, history and export | Actual target-Mac interaction and restart journeys; observation is currently deferred |
 | Daily-use acceptance | Source/email → reliable working note → supported Action or reply | Representative accepted results, clear partial coverage and recoverable local changes |
+| Knowledge and retrieval | English-first hybrid search, agent search tools and an agent-maintained knowledge layer for 5,000–10,000 notes | Proposed [architecture and plan](work/active/knowledge-retrieval/spec.md), building on chat stage 1 and the ordinary-wiki direction; not yet accepted or started |
 
 Local reading, writing, search, Actions, review and recovery work offline; inference pauses visibly when the selected provider is unavailable. The first-release scope includes both useful-information intake and full-note import for qualified formats, Markdown snapshots and complete BRN backup/restore. Universal conversion and mathematical equation fidelity are outside it.
 

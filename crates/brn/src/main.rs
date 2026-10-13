@@ -17,7 +17,7 @@ static CANCEL: AtomicBool = AtomicBool::new(false);
 extern "C" fn on_sigint(_: libc::c_int) {
     CANCEL.store(true, Ordering::SeqCst);
 }
-const HELP: &str = "BRN Threads\n\nUsage: brn --data-dir ABSOLUTE_DIRECTORY COMMAND [--option VALUE]\n\nCommands: init, records, notes, threads, needs-you, history, candidates, settings,\n  note-create --title TITLE --text MARKDOWN\n  thread-start --title TITLE\n  read --id RECORD; search --query TEXT\n  begin-edit --note ID --base VERSION\n  update-buffer --session ID --generation N --text MARKDOWN\n  save|discard --session ID --generation N; recovery\n  apply|dismiss --operation ID; undo --operation ID; archive|unarchive --thread ID\n  queue --thread ID --text TEXT; keep-in-brn --note ID --base VERSION\n  ask --thread ID --prompt TEXT [--budget 1..32] [--edit-note ID --base VERSION | --record-decision yes]\n  intake --source ABSOLUTE_FILE --intent useful|full|chat [--title TITLE] [--thread ID]\n  configure --provider Codex|Copilot --model ID --effort low|medium|high\n  delegation --choice maintain|review-first\n  pause; resume; export|backup --destination ABSOLUTE_FRESH_PATH\n  restore --source ABSOLUTE_BACKUP\n  upgrade --backup-directory ABSOLUTE_EXTERNAL_FOLDER\n\nChoose delegation before resuming maintenance. Manual work remains available while pending.\nFresh explicit data only. Originals remain external; no external messages are sent.\nReview apply and Undo are concrete owner actions. Continue uses ask on the same Thread.";
+const HELP: &str = "BRN Threads\n\nUsage: brn --data-dir ABSOLUTE_DIRECTORY COMMAND [--option VALUE]\n\nCommands: init, records, notes, threads, needs-you, history, candidates, settings,\n  note-create --title TITLE --text MARKDOWN\n  thread-start --title TITLE\n  read --id RECORD\n  search --query TEXT [--limit 1..50] [--cursor NEXT] [--thread CHAT]\n  begin-edit --note ID --base VERSION\n  update-buffer --session ID --generation N --text MARKDOWN\n  save|discard --session ID --generation N; recovery\n  apply|dismiss --operation ID; undo --operation ID; archive|unarchive --thread ID\n  queue --thread ID --text TEXT; keep-in-brn --note ID --base VERSION\n  ask --thread ID --prompt TEXT [--budget 1..32] [--edit-note ID --base VERSION | --record-decision yes]\n  intake --source ABSOLUTE_FILE --intent useful|full|chat [--title TITLE] [--thread ID]\n  configure --provider Codex|Copilot --model ID --effort low|medium|high\n  delegation --choice maintain|review-first\n  pause; resume; export|backup --destination ABSOLUTE_FRESH_PATH\n  restore --source ABSOLUTE_BACKUP\n  upgrade --backup-directory ABSOLUTE_EXTERNAL_FOLDER\n\nChoose delegation before resuming maintenance. Manual work remains available while pending.\nFresh explicit data only. Originals remain external; no external messages are sent.\nReview apply and Undo are concrete owner actions. Continue uses ask on the same Thread.";
 type Result<T> = std::result::Result<T, String>;
 struct Invocation {
     data: PathBuf,
@@ -56,7 +56,7 @@ fn parse(args: impl IntoIterator<Item = String>) -> Result<Option<Invocation>> {
         "thread-start" => &["title"],
         "delegation" => &["choice"],
         "read" => &["id"],
-        "search" => &["query"],
+        "search" => &["query", "limit", "cursor", "thread"],
         "begin-edit" => &["note", "base"],
         "update-buffer" => &["session", "generation", "text"],
         "save" | "discard" => &["session", "generation"],
@@ -288,11 +288,35 @@ async fn execute(inv: &Invocation) -> Result<Value> {
                 .new_thread(inv.arg("title")?)
                 .map_err(|e| e.to_string())?,
         )?,
-        "search" => encode(
-            workspace
-                .search(inv.arg("query")?)
-                .map_err(|e| e.to_string())?,
-        )?,
+        "search" => {
+            let limit = match inv.args.get("limit") {
+                Some(_) => usize::try_from(inv.number("limit")?).map_err(|e| e.to_string())?,
+                None => 12,
+            };
+            let chat = inv.args.get("thread").map(String::as_str);
+            if let Some(chat) = chat {
+                let is_chat = workspace
+                    .store
+                    .record(chat)
+                    .map_err(|e| e.to_string())?
+                    .is_some_and(|r| matches!(r.data, RecordData::Thread(_)));
+                if !is_chat {
+                    return Err("--thread must name a chat".into());
+                }
+            }
+            let page = workspace
+                .search_page(
+                    inv.arg("query")?,
+                    chat,
+                    limit,
+                    inv.args.get("cursor").map(String::as_str),
+                )
+                .map_err(|e| e.to_string())?;
+            let shown = page.hits.len();
+            let mut output = encode(page)?;
+            output["shown"] = json!(shown);
+            output
+        }
         "begin-edit" => encode(
             workspace
                 .store
