@@ -619,18 +619,14 @@ impl ThreadsUi {
                 );
             }
         } else {
-            let model = format!(
-                "○ idle · {} · {} · {}",
-                self.settings.provider, self.settings.model, self.settings.effort
-            );
-            let menu_this = this.clone();
             bar = bar.child(
-                pill("status-model", model).dropdown_menu(move |menu, _, cx| {
-                    match menu_this.upgrade() {
-                        Some(view) => view.read(cx).model_menu(menu, &menu_this),
-                        None => menu,
-                    }
-                }),
+                div()
+                    .id("idle-status")
+                    .px_2()
+                    .text_color(rgb(p.muted))
+                    .aria_label("○ Idle")
+                    .child("○ Idle")
+                    .test_support(),
             );
         }
         if let Some(open) = &self.note {
@@ -657,6 +653,12 @@ impl ThreadsUi {
         let theme_this = this.clone();
         let current_theme = self.theme;
         let layout = self.layout.clone();
+        let work_status_visible = self
+            .last_work_notice
+            .as_ref()
+            .is_some_and(|last| last == &self.notice);
+        let can_show_work_status =
+            self.last_work_notice.is_some() && self.notice.is_empty() && self.worker.is_none();
         bar.child(div().flex_1())
             .child(
                 pill("status-layout", layout_label).dropdown_menu(move |mut menu, _, _| {
@@ -674,6 +676,14 @@ impl ThreadsUi {
                             move |view, window, cx| view.apply_layout(preset, window, cx),
                         ));
                     }
+                    menu = menu.separator().item(item(
+                        &layout_this,
+                        "Last work status",
+                        None,
+                        !can_show_work_status,
+                        work_status_visible,
+                        |view, _, cx| view.show_last_work_notice(cx),
+                    ));
                     menu = menu.separator().label("Tiles");
                     for kind in TileKind::ALL {
                         menu = menu.item(item(
@@ -738,7 +748,11 @@ impl ThreadsUi {
                 .child(div().flex_1().min_w_0().child(self.notice.clone()))
                 .child(
                     pill("dismiss-notice", "✕")
-                        .tooltip("Dismiss")
+                        .tooltip(if self.last_work_notice.as_ref() == Some(&self.notice) {
+                            "Hide status · restore from Layout → Last work status"
+                        } else {
+                            "Dismiss"
+                        })
                         .on_click(cx.listener(|this, _, _, cx| {
                             this.notice.clear();
                             cx.notify();

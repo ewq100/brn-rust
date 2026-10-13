@@ -188,3 +188,11 @@ Owner rejected the subtle Quiet on/off difference, then specified that Quiet off
 
 
 Quiet follow-up candidate `14ec5c38`: implemented and independently approved; 226 AI tests and 92 native tests pass, strict native lint and production build pass, and actual native selected-provider/toggle/independent-scroll checks pass. [Evidence](evidence.md#quiet-off-terminal-activity--13-october-2026) records the bounded public-summary boundary, findings and exact binary. Updated synthetic app is open with Quiet off. Owner acceptance remains pending; hosted CI/integration/release are unassigned.
+
+
+## Restore dismissed work status
+
+Owner clarified that the “Work … Finished” banner should remain optional but reopenable after ×. Keep the latest completed worker status in memory and expose **Last work status** in the layout menu; × hides it. Restoring must not restart a run or replace a newer error/status. While work runs, do not restore an old completion as current status. No persisted notification history or tile behavior changes are assigned. Verify the real dismiss/menu/restore path, independent review, native build and actual app with synthetic data.
+
+
+The owner also reported duplicate model controls in the composer and status bar. Keep provider/model/effort controls in the composer; replace the idle status-bar model menu with a plain Idle indicator. Preserve active progress and Stop, existing Settings access and current model/effort configuration.

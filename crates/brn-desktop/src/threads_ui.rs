@@ -435,6 +435,7 @@ struct ThreadsUi {
     run_activity_status: String,
     run_activity_scroll: gpui_kit::ScrollHandle,
     notice: String,
+    last_work_notice: Option<String>,
     export_status: String,
     copilot_models: Vec<String>,
     backup_status: String,
@@ -669,6 +670,7 @@ impl ThreadsUi {
             run_activity_status: String::new(),
             run_activity_scroll: gpui_kit::ScrollHandle::new(),
             notice: String::new(),
+            last_work_notice: None,
             export_status: "No export created in this session.".into(),
             copilot_models: Vec::new(),
             backup_status: "No backup created in this session.".into(),
@@ -808,6 +810,16 @@ impl ThreadsUi {
         self.composer
             .update(cx, |editor, cx| editor.focus(window, cx));
         cx.notify();
+    }
+    fn show_last_work_notice(&mut self, cx: &mut Context<Self>) {
+        // Never replace a newer error/status or show a past completion as live work.
+        if self.worker.is_none()
+            && self.notice.is_empty()
+            && let Some(notice) = &self.last_work_notice
+        {
+            self.notice = notice.clone();
+            cx.notify();
+        }
     }
     fn show_tile(&mut self, kind: TileKind, cx: &mut Context<Self>) {
         self.layout.open(kind);
@@ -2572,6 +2584,7 @@ impl ThreadsUi {
                             .unwrap_or(thread);
                         self.notice = format!("Work in {} · {}", short(&name), self.notice);
                     }
+                    self.last_work_notice = Some(self.notice.clone());
                     match kind {
                         Some(WorkerKind::Export) => self.export_status = self.notice.clone(),
                         Some(WorkerKind::Backup) => self.backup_status = self.notice.clone(),

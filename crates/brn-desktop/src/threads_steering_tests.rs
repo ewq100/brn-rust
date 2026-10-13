@@ -729,3 +729,87 @@ fn starting_a_replacement_run_clears_the_old_paused_notice(cx: &mut TestAppConte
     })
     .unwrap();
 }
+
+#[gpui_kit::test]
+fn dismissed_completion_banner_can_be_restored_from_layout_menu(cx: &mut TestAppContext) {
+    let f = fixture(cx, RunState::Completed);
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |ui, cx| {
+            f.sender
+                .send(WorkerEvent::Finished(Ok(
+                    "Finished. The answer and saved changes are in this chat.".into(),
+                )))
+                .unwrap();
+            ui.poll_worker(window, cx);
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, _| {
+        assert_eq!(window.find("idle-status").label(), Some("○ Idle"));
+        assert!(
+            window.try_find("status-model").is_none(),
+            "model selection belongs in the composer"
+        );
+        assert!(window.find("model-pill").visible());
+        assert!(window.find("effort-pill").visible());
+    })
+    .unwrap();
+    let original = cx.read(|cx| f.view.read(cx).notice.clone());
+    assert!(original.contains("Work in Active destination · Finished"));
+    for _ in 0..2 {
+        cx.update_window(f.window, |_, window, cx| window.click("dismiss-notice", cx))
+            .unwrap();
+        cx.run_until_parked();
+        cx.update_window(f.window, |_, window, cx| {
+            assert!(window.try_find("workspace-notice").is_none());
+            window.click("status-layout", cx);
+        })
+        .unwrap();
+        cx.run_until_parked();
+        cx.update_window(f.window, |_, window, cx| {
+            let mut menu = window.within("popup-menu");
+            let index = (0..60usize)
+                .find(|i| {
+                    menu.try_find(*i)
+                        .is_some_and(|row| row.label() == Some("Last work status"))
+                })
+                .expect("dismissed work must have a restore option");
+            menu.click(index, cx);
+        })
+        .unwrap();
+        cx.run_until_parked();
+        cx.update_window(f.window, |_, window, cx| {
+            assert_eq!(
+                window.find("workspace-notice").label(),
+                Some(original.as_str())
+            );
+            assert!(
+                f.view.read(cx).worker.is_none(),
+                "restoring a banner must not restart work"
+            );
+        })
+        .unwrap();
+    }
+}
+
+#[gpui_kit::test]
+fn restoring_old_work_status_preserves_newer_errors_and_active_work(cx: &mut TestAppContext) {
+    let f = fixture(cx, RunState::Working);
+    cx.update_window(f.window, |_, _, cx| {
+        f.view.update(cx, |ui, cx| {
+            ui.last_work_notice = Some("Previous work finished".into());
+            ui.notice.clear();
+            ui.show_last_work_notice(cx);
+            assert!(
+                ui.notice.is_empty(),
+                "active work cannot display an old completion"
+            );
+            ui.worker = None;
+            ui.notice = "New error needs attention".into();
+            ui.show_last_work_notice(cx);
+            assert_eq!(ui.notice, "New error needs attention");
+        });
+    })
+    .unwrap();
+}
