@@ -233,11 +233,24 @@ pub struct DocHit {
     pub start_byte: usize,
     pub end_byte: usize,
     pub heading_path: String,
+    pub title: String,
     pub text: String,
     /// Matching passages of this document (the larger lane count).
     pub passages: usize,
     /// Fused reciprocal-rank score; comparable only within one result list.
     pub score: f64,
+}
+
+/// Facts used to label and balance results; see [`SearchIndex::facts`].
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub struct DocFacts {
+    pub protected: bool,
+    /// Imported from a source record (original evidence).
+    pub imported: bool,
+    /// Links into this document from visible documents.
+    pub inbound_links: usize,
+    /// Of those, links using the evidence relation (for example `source`).
+    pub evidence_links: usize,
 }
 
 pub struct SearchIndex {
@@ -387,30 +400,115 @@ impl SearchIndex {
         Ok(())
     }
 
-    /// Exact and stemmed keyword lanes over documents visible in `chat`
-    /// (`None` = general only). Each lane ranks documents by their best
-    /// passage and keeps the top `per_lane`; the lanes are fused by RRF.
+    /// Exact, stemmed and all-words-stemmed keyword lanes over documents
+    /// visible in `chat` (`None` = general only). Each lane ranks documents
+    /// by their best passage and keeps the top `per_lane`; the lanes are
+    /// fused by RRF.
     pub fn keyword(&self, query: &str, chat: Option<&str>, per_lane: usize) -> Result<Vec<DocHit>> {
         check_query(query, per_lane)?;
         let fts = fts_query(query).ok_or(Error::Invalid("query has no search terms"))?;
-        let scope = chat.map_or_else(|| "general".to_string(), |id| format!("chat:{id}"));
+        let scope = scope(chat);
+        // Passages holding every query word (stemmed) form an extra lane, so a
+        // note matching the whole query through inflections is not outranked
+        // by notes repeating one exact word. It is a subset of the stem lane.
+        // The first lane matching a note supplies its passage.
+        let mut lanes = Vec::new();
+        if fts.contains(" OR ") {
+            lanes.push(("fts_stem", fts.replace(" OR ", " AND ")));
+        }
+        lanes.extend([("fts_exact", fts.clone()), ("fts_stem", fts.clone())]);
         let mut fused: BTreeMap<String, DocHit> = BTreeMap::new();
-        for table in ["fts_exact", "fts_stem"] {
+        for (table, fts) in &lanes {
             for (rank, hit) in self
-                .lane(table, &fts, &scope, per_lane)?
+                .lane(table, fts, &scope, per_lane)?
                 .into_iter()
                 .enumerate()
             {
                 let contribution = 1.0 / (RRF_K + rank as f64 + 1.0);
                 let entry = fused.entry(hit.doc.clone()).or_insert_with(|| hit.clone());
-                // The exact lane's passage is kept when both lanes match.
                 entry.passages = entry.passages.max(hit.passages);
                 entry.score += contribution;
             }
         }
         let mut hits: Vec<DocHit> = fused.into_values().collect();
-        hits.sort_by(|a, b| b.score.total_cmp(&a.score).then(a.doc.cmp(&b.doc)));
+        // Ties are broken by content, not by record or passage IDs, so equal
+        // workspaces rank equally.
+        hits.sort_by(|a, b| {
+            b.score
+                .total_cmp(&a.score)
+                .then_with(|| a.title.cmp(&b.title))
+                .then_with(|| a.start_byte.cmp(&b.start_byte))
+                .then_with(|| a.doc.cmp(&b.doc))
+        });
+        // Lanes skip passage text so wide windows stay cheap; fetch it once here.
+        let mut text = self
+            .conn
+            .prepare("SELECT text FROM passages WHERE id = ?1")?;
+        for hit in &mut hits {
+            hit.text = text.query_row([hit.passage], |r| r.get(0))?;
+        }
         Ok(hits)
+    }
+
+    /// The exact number of documents visible in `chat` (`None` = general)
+    /// that match `query` in either lane.
+    pub fn count(&self, query: &str, chat: Option<&str>) -> Result<usize> {
+        check_query(query, 1)?;
+        let fts = fts_query(query).ok_or(Error::Invalid("query has no search terms"))?;
+        let lane = |table: &str| {
+            format!(
+                "SELECT p.doc FROM {table} JOIN passages p ON p.id = {table}.rowid
+                 JOIN docs d ON d.id = p.doc
+                 WHERE {table} MATCH ?1 AND d.visibility IN ('general', ?2)"
+            )
+        };
+        let n: i64 = self.conn.query_row(
+            &format!(
+                "SELECT count(*) FROM ({} UNION {})",
+                lane("fts_exact"),
+                lane("fts_stem")
+            ),
+            params![fts, scope(chat)],
+            |r| r.get(0),
+        )?;
+        Ok(n as usize)
+    }
+
+    /// Ranking-independent facts about indexed documents, as seen from
+    /// `chat`. Link counts include only links from documents visible there,
+    /// so they reveal nothing about notes the context cannot see.
+    pub fn facts(
+        &self,
+        ids: &[String],
+        chat: Option<&str>,
+        evidence_relation: &str,
+    ) -> Result<BTreeMap<String, DocFacts>> {
+        let mut stmt = self.conn.prepare(
+            "SELECT d.protected, d.imported_from IS NOT NULL,
+                (SELECT count(*) FROM links l JOIN docs s ON s.id = l.src
+                 WHERE l.dst = d.id AND s.visibility IN ('general', ?2)),
+                (SELECT count(*) FROM links l JOIN docs s ON s.id = l.src
+                 WHERE l.dst = d.id AND l.relation = ?3 AND s.visibility IN ('general', ?2))
+             FROM docs d WHERE d.id = ?1",
+        )?;
+        let scope = scope(chat);
+        let mut out = BTreeMap::new();
+        for id in ids {
+            if let Some(facts) = stmt
+                .query_row(params![id, scope, evidence_relation], |r| {
+                    Ok(DocFacts {
+                        protected: r.get(0)?,
+                        imported: r.get(1)?,
+                        inbound_links: r.get::<_, i64>(2)? as usize,
+                        evidence_links: r.get::<_, i64>(3)? as usize,
+                    })
+                })
+                .optional()?
+            {
+                out.insert(id.clone(), facts);
+            }
+        }
+        Ok(out)
     }
 
     /// The best-ranked passages, collapsed to each document's best one.
@@ -420,10 +518,10 @@ impl SearchIndex {
     /// counts a document's matches within the fetched window.
     fn lane(&self, table: &str, fts: &str, scope: &str, per_lane: usize) -> Result<Vec<DocHit>> {
         let mut stmt = self.conn.prepare(&format!(
-            "SELECT p.id, p.doc, d.version, p.start_byte, p.end_byte, p.heading_path, p.text
+            "SELECT p.id, p.doc, d.version, p.start_byte, p.end_byte, p.heading_path, d.title
              FROM {table} JOIN passages p ON p.id = {table}.rowid JOIN docs d ON d.id = p.doc
              WHERE {table} MATCH ?1 AND d.visibility IN ('general', ?2)
-             ORDER BY bm25({table}), p.id LIMIT ?3"
+             ORDER BY bm25({table}), d.title, p.start_byte, p.id LIMIT ?3"
         ))?;
         let mut window = per_lane * 8;
         loop {
@@ -438,7 +536,8 @@ impl SearchIndex {
                     start_byte: r.get::<_, i64>(3)? as usize,
                     end_byte: r.get::<_, i64>(4)? as usize,
                     heading_path: r.get(5)?,
-                    text: r.get(6)?,
+                    title: r.get(6)?,
+                    text: String::new(),
                     passages: 1,
                     score: 0.0,
                 })
@@ -477,6 +576,10 @@ impl SearchIndex {
         })?;
         Ok(rows.collect::<rusqlite::Result<_>>()?)
     }
+}
+
+fn scope(chat: Option<&str>) -> String {
+    chat.map_or_else(|| "general".to_string(), |id| format!("chat:{id}"))
 }
 
 fn sync_state(conn: &Connection) -> Result<Option<SyncState>> {

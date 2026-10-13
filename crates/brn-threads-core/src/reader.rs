@@ -6,7 +6,7 @@ use crate::*;
 use rusqlite::{Connection, OpenFlags, OptionalExtension, Transaction, params};
 use std::{
     collections::{BTreeMap, BTreeSet},
-    path::Path,
+    path::{Path, PathBuf},
     time::Duration,
 };
 
@@ -50,6 +50,7 @@ pub fn search_eligibility(record: &Record, rows: &[Record]) -> SearchEligibility
 
 pub struct StoreReader {
     conn: Connection,
+    directory: PathBuf,
 }
 
 impl Store {
@@ -71,11 +72,19 @@ impl Store {
         )?;
         conn.busy_timeout(Duration::from_secs(5))?;
         validate_connection(&conn)?;
-        Ok(StoreReader { conn })
+        Ok(StoreReader {
+            conn,
+            directory: directory.to_owned(),
+        })
     }
 }
 
 impl StoreReader {
+    /// The workspace's `derived/` directory, re-created with the same checks
+    /// as [`Store::derived_directory`] if it was removed.
+    pub fn derived_directory(&self) -> Result<PathBuf> {
+        crate::store::ensure_derived(&self.directory)
+    }
     /// One consistent read snapshot; it ends when dropped.
     pub fn snapshot(&mut self) -> Result<Snapshot<'_>> {
         Ok(Snapshot {

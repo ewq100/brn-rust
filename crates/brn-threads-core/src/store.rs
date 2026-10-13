@@ -115,19 +115,7 @@ impl Store {
     /// Creates (if needed) and returns the real `derived/` directory. Refuses a
     /// symlink or non-directory there, or a symlink among its ancestors.
     pub fn derived_directory(&self) -> Result<PathBuf> {
-        let path = self.directory.join(DERIVED_DIRECTORY);
-        match fs::create_dir(&path) {
-            Ok(()) => {}
-            Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => {}
-            Err(error) => return Err(error.into()),
-        }
-        let kind = fs::symlink_metadata(&path)?.file_type();
-        if kind.is_symlink() || !kind.is_dir() || has_symlink_ancestor(&path)? {
-            return Err(Error::UnsafeDirectory(
-                "derived data must be a real directory inside the workspace".into(),
-            ));
-        }
-        Ok(path)
+        ensure_derived(&self.directory)
     }
     /// Host key is a stable command/run request identity, saved before prepare.
     pub fn allocate_operation(&mut self, host_request_key: &str) -> Result<OperationId> {
@@ -1948,6 +1936,23 @@ fn derivation_operation_on(conn: &Connection, current: &Record) -> Result<Option
         }
         revision = prior.clone();
     }
+}
+
+/// Creates (if needed) and returns `directory`'s real `derived/` directory.
+pub(crate) fn ensure_derived(directory: &Path) -> Result<PathBuf> {
+    let path = directory.join(DERIVED_DIRECTORY);
+    match fs::create_dir(&path) {
+        Ok(()) => {}
+        Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => {}
+        Err(error) => return Err(error.into()),
+    }
+    let kind = fs::symlink_metadata(&path)?.file_type();
+    if kind.is_symlink() || !kind.is_dir() || has_symlink_ancestor(&path)? {
+        return Err(Error::UnsafeDirectory(
+            "derived data must be a real directory inside the workspace".into(),
+        ));
+    }
+    Ok(path)
 }
 
 pub(crate) fn has_symlink_ancestor(path: &Path) -> Result<bool> {

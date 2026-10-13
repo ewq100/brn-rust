@@ -445,3 +445,100 @@ fn concurrent_writers_serialize_without_errors() {
     assert_eq!(index.doc_count().unwrap(), 100);
     fts_consistent(&dir);
 }
+
+#[test]
+fn counts_link_facts_and_all_word_matches_respect_visibility() {
+    let (_root, dir) = derived();
+    let (mut index, _) = SearchIndex::open(&dir).unwrap();
+    let mut imported = doc(
+        "ev",
+        1,
+        "Report",
+        "Delayed shipments of containers.\n",
+        Visibility::General,
+    );
+    imported.imported_from = Some("src".into());
+    let mut decoys: Vec<DocInput> = (0..30)
+        .map(|i| {
+            doc(
+                &format!("d{i:02}"),
+                1,
+                &format!("Decoy {i}"),
+                "Shipment shipment shipment delay delay.\n",
+                Visibility::General,
+            )
+        })
+        .collect();
+    decoys.push(imported);
+    decoys.push(doc(
+        "private",
+        1,
+        "Private",
+        "Container delay.\n",
+        Visibility::Chat("A".into()),
+    ));
+    decoys.push(doc(
+        "gone",
+        1,
+        "Hidden",
+        "Container delay.\n",
+        Visibility::Hidden,
+    ));
+    step(
+        &mut index,
+        Changes {
+            upsert_docs: decoys,
+            upsert_links: vec![
+                LinkInput {
+                    id: "l1".into(),
+                    from: "d00".into(),
+                    to: "ev".into(),
+                    relation: "source".into(),
+                },
+                LinkInput {
+                    id: "l2".into(),
+                    from: "private".into(),
+                    to: "ev".into(),
+                    relation: "source".into(),
+                },
+                LinkInput {
+                    id: "l3".into(),
+                    from: "d01".into(),
+                    to: "ev".into(),
+                    relation: "related".into(),
+                },
+            ],
+            watermark: 1,
+            ..Changes::default()
+        },
+    );
+    // The all-words lane ranks the only note matching every word first.
+    assert_eq!(docs_for(&index, "delay shipment container", None)[0], "ev");
+    assert_eq!(index.count("delay shipment container", None).unwrap(), 31);
+    assert_eq!(
+        index.count("delay shipment container", Some("A")).unwrap(),
+        32
+    );
+    assert_eq!(index.count("container", Some("B")).unwrap(), 1);
+    let ids = vec![
+        "ev".to_string(),
+        "private".to_string(),
+        "missing".to_string(),
+    ];
+    let general = index.facts(&ids, None, "source").unwrap();
+    assert_eq!(
+        general["ev"],
+        DocFacts {
+            protected: false,
+            imported: true,
+            inbound_links: 2,
+            evidence_links: 1
+        }
+    );
+    assert!(!general.contains_key("missing"));
+    let in_chat = index.facts(&ids, Some("A"), "source").unwrap();
+    assert_eq!(
+        (in_chat["ev"].inbound_links, in_chat["ev"].evidence_links),
+        (3, 2)
+    );
+}

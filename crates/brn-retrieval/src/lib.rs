@@ -46,3 +46,4 @@ pub mod markdown_chunk;
 pub mod native;
 pub mod note_index;
 pub mod search_index;
+pub mod snippet;
