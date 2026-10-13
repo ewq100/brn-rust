@@ -1,23 +1,40 @@
 ---
 name: maintain-notes
-description: Update ordinary knowledge as evidence arrives, organize related work, or refresh a stale maintenance candidate.
+description: Compile source-grounded ordinary knowledge, save a reusable synthesis, or review affected pages and stale candidates.
 ---
 
-# Maintain notes
+# Maintain the working wiki
 
-1. Use `read_records` for current notes, source observations, related links, thread and Action. Read the relevant full passage with `read_note` at its observed version when a note is truncated. Compare new evidence with dates, quantities, units, qualifications and who reported or decided each fact.
-2. Prepare the smallest useful group of typed writes with `prepare_changes`: edit Notes, add or update Link relationships, preserve source references, update an existing Action when supported, and reuse the relevant Thread. Include the observed versions of direct inputs for derived updates. Similar wording alone does not prove two sources, notes or goals are identical.
-3. Apply the prepared operation with `apply_changes` and inspect its real outcome. An applied receipt records the result in What changed; routine success stays quiet. Ordinary unprotected working-note maintenance needs no selected-note grant when maintenance is enabled; protected edits require the current scoped target/version grant. Honor writing guards. A deferred member defers the whole group; continue unrelated investigation.
-4. If the candidate is stale, reread current targets and inputs and reassess its meaning. Use `refresh_candidate` for a fresh immutable replacement rather than altering the old candidate or retrying its stale versions. Apply the replacement under current authority and record its actual outcome.
+Ordinary knowledge is a maintained account of useful subjects, connected to evidence and related work. Page purpose and protection are independent: a project, concept or comparison can be ordinary or protected; a protected reference reports claims without certifying them. Roles below are writing conventions within the existing Note model. Preserve the owner's personal writing and drafts according to the actual request.
 
-Archive superseded ordinary material only when the relationship is clear and the host permits that operation; this is the record's checked `archived` change, not a separate unregistered tool. Preserve protected decisions. If new evidence conflicts, add one Conflict attention item to the relevant Thread through the same checked request and use the resolve-conflict playbook. Writing a conflicting ordinary note does not supersede a protected decision.
+## Read and choose the result
 
-## Example
+1. Read current related Notes, Sources, Links, Thread and Actions with `read_records`. Search the subject's explicit names and relevant terms; the bounded result is not a complete workspace catalog. Read relevant full passages with `read_note` at their observed versions and `read_source` for available supplied evidence. Finish with enough evidence to identify the subject, its scope, existing account, material qualifications and unresolved disagreements. Missing or partial evidence stays visible.
+2. Choose **update**, **create**, or **keep in thread** before writing. Update the existing page when evidence changes or extends the same subject and scope. Create a separate page when it has a stable distinct subject, likely future use and enough support to be useful independently. A passing name, repeated source or polished one-off answer does not by itself earn a page. Similar wording is not proof of identical subjects. Keep transient analysis in its thread; honor an explicit request for a saved note or deliverable.
+3. Write a coherent current account rather than append unrelated source summaries. Use only the structure that helps this subject:
+   - **Project/entity:** identity and scope, supported current facts and dates, related work, open questions and evidence.
+   - **Concept/process:** explanation or steps, distinctions, conditions and exceptions, useful examples and evidence.
+   - **Synthesis/comparison:** the question, supported agreements and differences, explicitly labeled inference, uncertainty and evidence.
+   Preserve useful existing detail and owner wording. Split a page only when its subjects are independently useful and the current request permits it. A source-focused summary is useful when that source's argument or identity deserves separate treatment; source intake has no page quota.
 
-Two project emails confirm a meeting date and add a qualified delivery estimate. Read the existing note and Action, preserve the two source references as links and direct inputs, and prepare the ordinary note update in one group. Apply and report its receipt without creating an attention item per email. If another accepted edit changed the base, reread it and refresh the candidate first.
+## Ground and connect the account
 
-## Boundaries
+4. Keep material claims attributable to the actual source or accepted note revision, with a passage/section and relevant dates where available. Preserve names, quantities, units, ranges, conditions, negative facts and minority evidence. Distinguish **source reports**, **owner decisions**, and **AI inference** in prose. Later ingestion is not later evidence or higher authority. Explain incompatible dates, scopes or claims instead of silently choosing the latest-looking statement. Read through generated synthesis to underlying evidence when validating important claims; repeated AI restatement adds no independent corroboration.
+5. Use typed Link records for supported note-to-note and note-to-source relationships and link the result to relevant work. Use concise relation names describing the supported connection, such as `source`, `related`, `explains` or `compares`; reuse an existing equivalent link. Name readable sources and locations in the note where they support the explanation. Record the observed exact versions of direct inputs in the change request, using the base guide's Current/Historical contract. A link and an input version establish provenance and concurrency footing, not that a claim is true. If a needed original is unavailable, state that limit; retain a necessary supplied excerpt or use the host's full-import workflow when that intent is requested.
 
-- A content-edit grant does not authorize archiving another note or changing protection.
-- A note guarded by unsaved writing defers its dependent group.
-- A source contradicting a protected decision requires a concrete owner choice rather than silent replacement.
+## Commit and reassess
+
+6. Prepare the smallest coherent typed write group with `prepare_changes`: Notes, Links, source references, related Thread and supported Action context. Apply using `apply_changes` and inspect the actual outcome. Follow the base guide for authority, exact review, dirty guards, stale inputs and receipt replay. Report a meaningful result with its receipt; routine success stays in What changed. With missing consequential authority or a protected conflict, preserve the protected record and use the conflict playbook for one concrete owner choice. A conflicting ordinary page cannot displace a protected decision.
+7. For a stale candidate, reread current targets and relevant evidence; reassess what belongs in the account. Use `refresh_candidate` for a new immutable replacement, then inspect its application under current authority. Archive superseded ordinary material only when the relationship is clear and the host permits the checked `archived` operation. Preserve source history and explicitly qualify a replacement; refresh grants no broader authority.
+
+## Queries and bounded maintenance
+
+When a question produces a useful new comparison or explanation, save it only if it meets the page admission rule and current authority allows it. Link the inputs actually used. A requested draft has its own audience and purpose; it need not become a concept page.
+
+When asked to review knowledge, or given affected records after an input change, inspect those subjects and their directly linked context within the run budget. Look for duplicate subjects, unsupported claims, lost qualifications, contradictory evidence, missing useful links and recorded dependencies needing refresh. Report what was inspected, corrected and left uncertain. Hashes and versions show observed input changes; they do not establish world freshness. A bounded review does not certify the whole wiki or create an external-source monitor or recurring schedule.
+
+## Examples
+
+Two project emails confirm a meeting and add a qualified delivery estimate. Update the existing project account, preserving both evidence references, dates and direct inputs. A subsequently ingested older planning note adds a contact but does not silently replace the newer estimate. Preserve a conflicting protected commitment and add one focused Conflict reason. Apply the supported ordinary update and report its actual receipt.
+
+The owner asks for a saved comparison of two procedures. Read both references and retain each procedure's thresholds and exceptions. Save one reusable comparison with links and exact inputs to both. Label a recommendation about convenience as inference; a rule absent from one source remains unspecified. An unrelated arithmetic question stays in conversation.

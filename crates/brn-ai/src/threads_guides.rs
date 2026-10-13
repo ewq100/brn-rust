@@ -1,5 +1,5 @@
 //! Fixed packaged semantic guidance. Loading text never grants authority.
-pub const BUNDLE_VERSION: &str = "brn-threads-guidance-2";
+pub const BUNDLE_VERSION: &str = "brn-threads-guidance-3";
 pub const BASE: &str = include_str!("../../../agent/BRN.md");
 
 #[derive(Clone, Copy)]
@@ -16,7 +16,7 @@ pub const CATALOG: [Skill; 4] = [
     },
     Skill {
         id: "maintain-notes",
-        description: "Maintain ordinary current knowledge and related Actions within host scope.",
+        description: "Compile source-grounded ordinary knowledge, save reusable synthesis, or review affected pages.",
         text: include_str!("../../../agent/skills/maintain-notes/SKILL.md"),
     },
     Skill {
