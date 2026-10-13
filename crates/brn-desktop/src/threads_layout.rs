@@ -13,9 +13,10 @@ pub(super) enum TileKind {
     History,
     Settings,
     Compare,
+    Connections,
 }
 impl TileKind {
-    pub(super) const ALL: [Self; 11] = [
+    pub(super) const ALL: [Self; 12] = [
         Self::Threads,
         Self::Note,
         Self::Chat,
@@ -27,6 +28,7 @@ impl TileKind {
         Self::History,
         Self::Settings,
         Self::Compare,
+        Self::Connections,
     ];
     pub(super) fn key(self) -> &'static str {
         match self {
@@ -41,6 +43,7 @@ impl TileKind {
             Self::History => "history",
             Self::Settings => "settings",
             Self::Compare => "compare",
+            Self::Connections => "connections",
         }
     }
     pub(super) fn label(self) -> &'static str {
@@ -56,6 +59,7 @@ impl TileKind {
             Self::History => "what changed",
             Self::Settings => "settings",
             Self::Compare => "compare",
+            Self::Connections => "connections",
         }
     }
     pub(super) fn default_weight(self) -> f32 {

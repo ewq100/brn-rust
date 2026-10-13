@@ -597,3 +597,179 @@ fn search_pages_show_exact_counts_context_and_ignore_superseded_queries(cx: &mut
     })
     .unwrap();
 }
+
+fn owner_write(view: &mut ThreadsUi, key: &str, data: Vec<RecordData>) -> Vec<Record> {
+    let op = view.workspace.store.allocate_operation(key).unwrap();
+    let writes = data
+        .into_iter()
+        .enumerate()
+        .map(|(i, data)| Put {
+            id: op.creation_id(i),
+            expected_version: None,
+            archived: false,
+            data,
+        })
+        .collect();
+    let owner = HostAuthority::owner("fixture");
+    view.workspace
+        .store
+        .prepare_owner(
+            &op,
+            &ChangeRequest {
+                reason: key.into(),
+                writes,
+                inputs: vec![],
+            },
+            &owner,
+        )
+        .unwrap();
+    let ApplyOutcome::Applied(receipt) = view.workspace.store.apply(&op, &owner).unwrap() else {
+        panic!("fixture write did not apply")
+    };
+    receipt.writes.into_iter().map(|w| w.after).collect()
+}
+
+fn link_data(from: &str, to: &str, relation: &str) -> RecordData {
+    RecordData::Link(Link {
+        from: from.into(),
+        to: to.into(),
+        relation: relation.into(),
+    })
+}
+
+#[gpui_kit::test]
+fn topics_section_creates_the_topics_note_and_lists_linked_topic_pages(cx: &mut TestAppContext) {
+    let f = fixture(cx, true, 1400., 1100.);
+    click(cx, &f, "open-notes");
+    reveal(cx, &f, "notes-list", "create-topics");
+    click(cx, &f, "create-topics");
+    let topics = cx.read(|cx| f.view.read(cx).topics.clone().unwrap());
+    cx.read(|cx| assert_eq!(f.view.read(cx).open_note_id(), Some(topics.note.as_str())));
+    let page = update_returning(cx, &f, |view| {
+        let page = owner_write(
+            view,
+            "page",
+            vec![RecordData::Note(Note::working(
+                "Harbor area",
+                "Delivery planning.\n",
+            ))],
+        )
+        .remove(0);
+        owner_write(
+            view,
+            "link",
+            vec![link_data(&topics.note, &page.id, relations::RELATED)],
+        );
+        view.refresh();
+        page
+    });
+    click(cx, &f, "open-notes");
+    reveal(cx, &f, "notes-list", &format!("topic-{}", page.id));
+    click(cx, &f, format!("topic-{}", page.id));
+    cx.read(|cx| assert_eq!(f.view.read(cx).open_note_id(), Some(page.id.as_str())));
+}
+
+fn update_returning<T>(
+    cx: &mut TestAppContext,
+    f: &Fixture,
+    run: impl FnOnce(&mut ThreadsUi) -> T,
+) -> T {
+    let out = cx.update(|cx| f.view.update(cx, |view, _| run(view)));
+    cx.run_until_parked();
+    out
+}
+
+#[gpui_kit::test]
+fn connections_tile_lists_visible_links_filters_relations_and_recenters(cx: &mut TestAppContext) {
+    let f = fixture(cx, true, 1600., 1100.);
+    let centre = f.note.as_ref().unwrap().id.clone();
+    let thread = f.thread.as_ref().unwrap().clone();
+    let (evidence, related) = update_returning(cx, &f, |view| {
+        let notes = owner_write(
+            view,
+            "notes",
+            vec![
+                RecordData::Note(Note::working("Signed reference", "Evidence.\n")),
+                RecordData::Note(Note::working("Operations", "Related.\n")),
+                RecordData::Note(Note {
+                    chat: Some(thread.clone()),
+                    ..Note::working("Private draft", "Chat only.\n")
+                }),
+            ],
+        );
+        owner_write(
+            view,
+            "links",
+            vec![
+                link_data(&centre, &notes[0].id, relations::SOURCE),
+                link_data(&notes[1].id, &centre, relations::RELATED),
+                link_data(&notes[2].id, &centre, relations::RELATED),
+            ],
+        );
+        view.refresh();
+        (notes[0].id.clone(), notes[1].id.clone())
+    });
+    update(cx, &f, |view, window, cx| {
+        view.open_note(&centre, None, window, cx)
+    });
+    click(cx, &f, "note-connections");
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(window.find("connections-status").visible());
+        assert!(window.find(format!("connection-{evidence}")).visible());
+        assert!(window.find(format!("connection-{related}")).visible());
+        let view = f.view.read(cx);
+        let found = view.graph.result.as_ref().unwrap();
+        assert_eq!(
+            found.hops[0].available, 2,
+            "the chat-only link is not counted"
+        );
+    })
+    .unwrap();
+    click(cx, &f, "connections-filter-source");
+    cx.update_window(f.window, |_, window, _| {
+        assert!(window.find(format!("connection-{evidence}")).visible());
+        assert!(window.try_find(format!("connection-{related}")).is_none());
+    })
+    .unwrap();
+    click(cx, &f, "connections-filter-all");
+    click(cx, &f, "connections-depth-2");
+    click(cx, &f, format!("connection-{related}"));
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert_eq!(view.open_note_id(), Some(related.as_str()));
+        assert_eq!(view.graph.result.as_ref().unwrap().centre.id, related);
+        assert_eq!(view.graph.result.as_ref().unwrap().hops.len(), 2);
+    });
+}
+
+#[gpui_kit::test]
+fn knowledge_check_runs_off_the_ui_thread_and_seeds_a_review_chat(cx: &mut TestAppContext) {
+    let f = fixture(cx, true, 1400., 1100.);
+    update_returning(cx, &f, |view| {
+        owner_write(
+            view,
+            "dupes",
+            vec![
+                RecordData::Note(Note::working("Twin page", "Same text.\n")),
+                RecordData::Note(Note::working("Twin pages", "Same text.\n")),
+            ],
+        );
+        view.refresh();
+    });
+    click(cx, &f, "home");
+    reveal(cx, &f, "home-content", "knowledge-run");
+    click(cx, &f, "knowledge-run");
+    let check = cx.read(|cx| f.view.read(cx).knowledge.result.clone().unwrap());
+    assert_eq!(check.counts.get(&FindingKind::DuplicateTitle), Some(&1));
+    reveal(cx, &f, "home-content", "knowledge-review");
+    click(cx, &f, "knowledge-review");
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        let chat = view.chat_thread().unwrap().to_owned();
+        let messages = view.workspace.messages(&chat).unwrap();
+        assert!(
+            matches!(&messages[0].data, RecordData::Message(m) if m.text.contains("DuplicateTitle"))
+        );
+        assert!(view.worker.is_none(), "seeding a review starts no run");
+    });
+}

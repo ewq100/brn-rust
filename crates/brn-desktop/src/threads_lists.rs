@@ -253,6 +253,8 @@ pub(super) struct NoteRow {
     pub(super) protected: bool,
     pub(super) imported: bool,
     pub(super) order: usize,
+    /// Links into this note from other general notes.
+    pub(super) inbound: usize,
 }
 pub(super) fn letter(title: &str) -> char {
     title
@@ -264,6 +266,22 @@ pub(super) fn letter(title: &str) -> char {
 }
 
 pub(super) fn note_rows(records: &[Record], activity: &Activity) -> Vec<NoteRow> {
+    let general: BTreeSet<&str> = records
+        .iter()
+        .filter(|r| !r.archived)
+        .filter(|r| matches!(&r.data, RecordData::Note(n) if n.superseded_by.is_none() && n.chat.is_none()))
+        .map(|r| r.id.as_str())
+        .collect();
+    let mut inbound: BTreeMap<&str, usize> = BTreeMap::new();
+    for record in records.iter().filter(|r| !r.archived) {
+        if let RecordData::Link(link) = &record.data
+            && link.from != link.to
+            && general.contains(link.from.as_str())
+            && general.contains(link.to.as_str())
+        {
+            *inbound.entry(link.to.as_str()).or_default() += 1;
+        }
+    }
     let mut rows: Vec<_> = records
         .iter()
         .filter(|record| !record.archived)
@@ -275,6 +293,7 @@ pub(super) fn note_rows(records: &[Record], activity: &Activity) -> Vec<NoteRow>
                     protected: note.protected,
                     imported: note.import.is_some(),
                     order: activity.order(&record.id),
+                    inbound: inbound.get(record.id.as_str()).copied().unwrap_or(0),
                 })
             }
             _ => None,
@@ -296,6 +315,8 @@ pub(super) struct NotesView<'a> {
     pub(super) recent: Vec<&'a NoteRow>,
     pub(super) linked: (Vec<&'a NoteRow>, usize),
     pub(super) kept: (Vec<&'a NoteRow>, usize),
+    /// Notes with inbound links, most linked first.
+    pub(super) most_linked: (Vec<&'a NoteRow>, usize),
     pub(super) letters: Vec<(char, usize)>,
     pub(super) letter: (Vec<&'a NoteRow>, usize),
 }
@@ -329,6 +350,18 @@ pub(super) fn notes_view<'a>(
             rows.iter()
                 .filter(|row| row.protected || row.imported)
                 .collect(),
+            SECTION_LIMIT,
+        ),
+        most_linked: bounded(
+            {
+                let mut linked: Vec<_> = rows.iter().filter(|row| row.inbound > 0).collect();
+                linked.sort_by(|a, b| {
+                    b.inbound
+                        .cmp(&a.inbound)
+                        .then_with(|| a.title.cmp(&b.title))
+                });
+                linked
+            },
             SECTION_LIMIT,
         ),
         letters: letters.into_iter().collect(),
@@ -419,6 +452,7 @@ impl Command {
         out.extend(
             [
                 TileKind::Notes,
+                TileKind::Connections,
                 TileKind::AllThreads,
                 TileKind::Threads,
                 TileKind::Note,

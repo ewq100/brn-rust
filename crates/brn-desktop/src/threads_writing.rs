@@ -738,6 +738,12 @@ impl ThreadsUi {
                 .into_any_element(),
         );
         controls.push(
+            pill("note-connections", "Connections")
+                .tooltip("Linked notes and sources of this note")
+                .on_click(cx.listener(|this, _, _, cx| this.show_tile(TileKind::Connections, cx)))
+                .into_any_element(),
+        );
+        controls.push(
             pill("note-menu", "⋯")
                 .tooltip("Note actions")
                 .dropdown_menu(move |menu, _, _| {
