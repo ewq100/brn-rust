@@ -95,9 +95,13 @@
 
 ## Task 5 — dense upgrade (PR 5)
 
-- [ ] **D3:** a pinned `multilingual-e5-small` profile (revision, sizes, digests, prefixes, 512 tokens), keeping the exclusive installer and its consent rules. Update the installer tests with fixture bytes.
-- [ ] Embedding queue inside the worker: bounded, cancellable, progress reported, vectors keyed by model, in-memory brute-force matrix.
-- [ ] Owner-run qualification (requested separately): install the model, embed the 10k corpus, and run the dense and hybrid lanes. Record timings and memory.
+- [x] **D3:** a pinned `multilingual-e5-small` profile: `Xenova/multilingual-e5-small` at revision `761b726d…` (ONNX of MIT-licensed `intfloat/multilingual-e5-small`), exact sizes and digests, `query: `/`passage: ` prefixes, 512 tokens. The exclusive installer and its consent rules are unchanged; the owner runs `brn model-install --destination …` in a native build. The previous MiniLM pin stays recognised and verified. The installer tests check the new manifest and keep the MiniLM one. The Xenova card declares no licence of its own (as for the MiniLM pin); the base model is MIT.
+- [x] Embedding queue inside the worker: idle-time batches of 16 passages, each followed by a check for queued requests (so one waits at most one batch). Progress is reported (`SearchHandle::embedding_progress`), vectors are stored per model as unit-length little-endian `f32`, and an in-memory contiguous matrix is scanned by brute force. The index schema is now v2: passage IDs are `AUTOINCREMENT`, so a cached vector can never be attributed to a later passage (a test caught this).
+  - The dense lane is fused by RRF with the keyword lanes. Dense-only notes need cosine ≥ the model's floor and count towards `total`.
+  - `semantic` is `none`, `partial(n/m)`, `complete`, `off (…)` in keyword mode, or `failed: …`. It reaches the agent tool, the CLI page and the desktop status line. A failing model is reported while keyword lanes still answer; there is no fallback between models.
+  - Hosts use the folder named by `BRN_EMBEDDING_MODEL_DIR`. An unusable folder is an error in the CLI and a notice on the desktop.
+  - Tests use deterministic fake models: paraphrase found only by the dense lane, prefixes, coverage, visibility, re-embedding after an edit, the floor keeping abstention, a failing model, and keyword mode.
+- [ ] Owner-run qualification (requested separately): `brn model-install`, then `retrieval_eval --retriever hybrid` with `BRN_EMBEDDING_MODEL_DIR` at 1k/5k/10k notes. Record embedding time, memory, paraphrase recall and abstention, and tune the e5 floor.
 
 ## Task 6 — cleanup (PR 6)
 

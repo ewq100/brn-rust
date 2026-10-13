@@ -284,3 +284,42 @@ These check the plumbing and budgets with a scripted model. They are not evidenc
 - The Connections graph drawing is a separate UI task. The list is the accessible equivalent the ordinary-wiki flow asked for.
 - The live guidance comparison (bundle 3 against bundle 4) has not been run.
 - `context_actions_tests::save_decision_…` and `note_edit_is_contextual_…` occasionally fail when the whole desktop suite runs in parallel: a dialog has not reopened when the test looks for it. The same flake occurs on `main` `56c28879` (4 of 16 full-suite runs), so it is pre-existing and not changed here. Both pass alone and in their module (12 of 12).
+
+## Task 5 — dense lane
+
+**Tree:** `work/knowledge-dense`, stacked on Tasks 3–4. No model was downloaded; only public Hugging Face API metadata (revision, sizes and digests) was read to pin the assets.
+
+**Built:** see the [plan](plan.md#task-5--dense-upgrade-pr-5).
+
+### Commands and results
+
+```sh
+cargo test -p brn-retrieval --features native --lib                 # 35 passed (e5 profile, both manifests)
+cargo test -p brn-retrieval --test search_index                      # 12 passed (vectors, no ID reuse, hybrid)
+cargo test -p brn-threads-app --test search_dense                    # 4 passed, 10 of 10 repeats
+cargo test --workspace; clippy (default, native-retrieval, desktop lanes)  # ok
+```
+
+### Findings
+- **SQLite reused a deleted passage's rowid** for the re-chunked passage. A cached vector was then attributed to new text (seen as 2 of 5 flaky runs). Passages now use `AUTOINCREMENT` (index schema v2; older indexes rebuild in place).
+- **Without a similarity floor**, the dense lane "matches" every note, which would break abstention and inflate `total`. A per-model floor applies; the e5 value is provisional.
+- **Coverage could lag an answered sync.** Counts are now refreshed before the reply.
+
+### Independent review
+
+**Code review of Task 5 (Sonnet 5.5).** It found no visibility leaks. It checked the dense lane's eligibility filter, the core re-check before dense-only notes are counted, and the profile selection, and it confirmed the e5 pins against the Hugging Face revision metadata. Six findings, all fixed:
+1. **A transient failure disabled embedding for the whole process.** The failure is still reported, but a batch is retried after each new request (never in a busy loop), and a success clears it.
+2. **The matrix ignored vectors stored by another process and survived index rebuilds.** It now also reloads when rows are missing, and resets whenever the index is created or rebuilt.
+3. **`semantic` could say "complete" while that request's own sync had added unembedded passages.** Counts are now refreshed right after each sync. A test covers it.
+4. **Other chats' near passages could crowd out visible ones before the visibility filter.** The dense lane now walks up to 2,000 above-floor passages until it has enough visible notes. A test with 300 private near-duplicates covers it.
+5. **`total` could double count dense hits that also match the keywords.** It now adds only true non-matches, checked against the stem lane, and subtracts rejections only from keyword matches. Cursors are documented as unstable while coverage is partial.
+6. **Vectors of replaced models were never purged.** Opening the index with a model configured now deletes other models' vectors.
+
+### Not done here
+The semantic qualification needs the model download (135,392,183 bytes) and is an owner-requested run:
+```sh
+cargo build --release -p brn --features native-retrieval
+target/release/brn --data-dir <any> model-install --destination <fresh absolute folder>
+BRN_EMBEDDING_MODEL_DIR=<folder> cargo run --release -p brn-threads-app --features native-retrieval \
+  --example retrieval_eval -- --root <new root> --notes 10000 --retriever hybrid --out <report>.json
+```
