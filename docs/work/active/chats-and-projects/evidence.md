@@ -2,7 +2,7 @@
 
 **Date:** 13 October 2026. **Scope:** stage one of the [accepted brief](spec.md); [plan](plan.md), [research](research.md). Projects, publication, merge, release, live providers and real owner-data access are unassigned. Native observation remains explicitly deferred by repository authority.
 
-**Baseline:** `65119a73a6aaea13764b8bc6290f7bb6dc79ff2d` (PR #128), isolated branch `codex/thread-product-discovery`, checkout `/Users/evokessler/.codex/worktrees/thread-product-discovery/brn-rust`. Original checkout `work/copilot-provider-fixes` and its unrelated `experiments/` remain unchanged. Candidate identity will be pinned after saving the verified source.
+**Baseline:** `65119a73a6aaea13764b8bc6290f7bb6dc79ff2d` (PR #128), isolated branch `codex/thread-product-discovery`, checkout `/Users/evokessler/.codex/worktrees/thread-product-discovery/brn-rust`. Original checkout `work/copilot-provider-fixes` and its unrelated `experiments/` remain unchanged. **Implementation commit:** `73211572e74ab658e748aa28950365ac2d40776e`. Subsequent qualification-record commits change only task documentation/witness artifacts; implementation remains this pinned source.
 
 ## Delivered behavior
 
@@ -21,7 +21,7 @@ Environment: macOS arm64, repository Rust 1.98.1/lockfile, GPUI Kit 0.7.3, Rig 0
 |---|---|
 | `scripts/verify-storage.sh` | Pass: formatting, helper/workspace build, strict default workspace Clippy, **484 passing tests**, headless shipping-entry startup/refusal. `/tmp/brn-chat-first-logs/storage-gate.log`. |
 | `scripts/verify-end-to-end.sh --fixtures-only` | Pass: offline Save/recovery/search/export/backup/startup/foreign-data refusal and provider/intake retirement checks. `e2e-gate.log`. |
-| Dedicated CLI chat witness | Pass: synthetic v3 adoption refuses without backup; exact old v3 snapshot; chat attachment survives original unlink; private search exclusion; queue/archive pause; Keep and full backup. `/tmp/brn-chat-e2e.py`, `chat-cli-e2e.log`. |
+| Dedicated CLI chat witness | Pass: synthetic v3 adoption refuses without backup; exact old v3 snapshot; chat attachment survives original unlink; private search exclusion; queue/archive pause; Keep and full backup. [`cli-witness.py`](cli-witness.py), `chat-cli-e2e.log`. |
 | `cargo build --locked --offline -p brn-desktop --features native-ui` | Pass, production native source. `native-build.log`. |
 | `cargo test --locked --offline -p brn-desktop --features native-ui,native-test-support --bin brn-desktop threads_ui::` | **87 passed**, zero failures; nonzero widget/state suite. `native-tests.log`. |
 | `cargo clippy --locked --offline -p brn-desktop --features native-ui,native-test-support --all-targets -- -D warnings` | Pass. `native-clippy.log`. |
