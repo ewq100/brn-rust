@@ -1763,6 +1763,7 @@ impl ThreadsUi {
         });
         self.stream.clear();
         self.progress = "Starting…".into();
+        self.notice.clear();
         cx.notify();
     }
     fn can_stop_and_send(&self) -> bool {

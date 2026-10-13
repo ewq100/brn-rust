@@ -282,20 +282,26 @@ impl ThreadsUi {
                         .gap_2()
                         .px_2()
                         .py_1()
-                        .child(metadata(format!(
-                            "{} · {} · {}",
-                            if active {
-                                "running"
-                            } else if c.pending.as_ref().is_some_and(|p| p.id == q.id) {
-                                "saved turn"
-                            } else {
-                                "waiting"
-                            },
-                            short(&self.thread_title(&q.thread)),
-                            short(&q.text)
-                        )))
+                        .child(
+                            metadata(format!(
+                                "{} · {} · {}",
+                                if active {
+                                    "running"
+                                } else if c.pending.as_ref().is_some_and(|p| p.id == q.id) {
+                                    "saved turn"
+                                } else {
+                                    "waiting"
+                                },
+                                short(&self.thread_title(&q.thread)),
+                                short(&q.text)
+                            ))
+                            .flex_1()
+                            .min_w_0()
+                            .truncate(),
+                        )
                         .child(
                             pill(format!("queue-edit-{index}"), "Edit")
+                                .flex_shrink_0()
                                 .disabled(active)
                                 .on_click(cx.listener(move |this, _, window, cx| {
                                     this.set_chat(
@@ -313,6 +319,7 @@ impl ThreadsUi {
                         )
                         .child(
                             pill(format!("queue-remove-{index}"), "Remove")
+                                .flex_shrink_0()
                                 .disabled(active)
                                 .on_click(cx.listener(move |this, _, _, cx| {
                                     if let Err(e) = this.workspace.remove_queued(
@@ -326,20 +333,23 @@ impl ThreadsUi {
                                 })),
                         )
                         .when(before.is_some(), |row| {
-                            row.child(pill(format!("queue-up-{index}"), "↑").on_click(cx.listener(
-                                move |this, _, _, cx| {
-                                    if let Err(e) = this.workspace.move_queued(
-                                        &format!("move:{}", uuid::Uuid::new_v4()),
-                                        &move_id,
-                                        before.as_deref(),
-                                    ) {
-                                        this.notice = e.to_string();
-                                    }
-                                    this.refresh();
-                                    cx.notify();
-                                },
-                            )))
-                        }),
+                            row.child(
+                                pill(format!("queue-up-{index}"), "↑")
+                                    .flex_shrink_0()
+                                    .on_click(cx.listener(move |this, _, _, cx| {
+                                        if let Err(e) = this.workspace.move_queued(
+                                            &format!("move:{}", uuid::Uuid::new_v4()),
+                                            &move_id,
+                                            before.as_deref(),
+                                        ) {
+                                            this.notice = e.to_string();
+                                        }
+                                        this.refresh();
+                                        cx.notify();
+                                    })),
+                            )
+                        })
+                        .test_support(),
                 );
             }
         }
@@ -363,34 +373,49 @@ impl ThreadsUi {
                 panel = panel.child(
                     div()
                         .flex()
-                        .items_center()
-                        .gap_2()
-                        .child(metadata(format!(
-                            "Attachment · {} · {coverage}",
-                            short(&title(r))
-                        )))
+                        .flex_col()
+                        .gap_1()
                         .child(
-                            pill(format!("attachment-open-{}", r.id), "Inspect").on_click(
-                                cx.listener(move |this, _, window, cx| {
-                                    this.open_note(&open, None, window, cx)
-                                }),
-                            ),
+                            metadata(format!("Attachment · {}", short(&title(r))))
+                                .min_w_0()
+                                .truncate(),
                         )
                         .child(
-                            pill(format!("attachment-keep-{}", r.id), "Keep in BRN").on_click(
-                                cx.listener(move |this, _, _, cx| {
-                                    match this.workspace.keep_in_brn(
-                                        &format!("keep:{}", uuid::Uuid::new_v4()),
-                                        &keep,
-                                        version,
-                                    ) {
-                                        Ok(o) => this.notice = outcome_message(&o),
-                                        Err(e) => this.notice = e.to_string(),
-                                    }
-                                    this.refresh();
-                                    cx.notify();
-                                }),
-                            ),
+                            div()
+                                .flex()
+                                .flex_wrap()
+                                .items_center()
+                                .gap_2()
+                                .child(
+                                    metadata(coverage)
+                                        .flex_shrink_0()
+                                        .id(format!("attachment-coverage-{}", r.id))
+                                        .aria_label(coverage)
+                                        .test_support(),
+                                )
+                                .child(
+                                    pill(format!("attachment-open-{}", r.id), "Inspect")
+                                        .flex_shrink_0()
+                                        .on_click(cx.listener(move |this, _, window, cx| {
+                                            this.open_note(&open, None, window, cx)
+                                        })),
+                                )
+                                .child(
+                                    pill(format!("attachment-keep-{}", r.id), "Keep in BRN")
+                                        .flex_shrink_0()
+                                        .on_click(cx.listener(move |this, _, _, cx| {
+                                            match this.workspace.keep_in_brn(
+                                                &format!("keep:{}", uuid::Uuid::new_v4()),
+                                                &keep,
+                                                version,
+                                            ) {
+                                                Ok(o) => this.notice = outcome_message(&o),
+                                                Err(e) => this.notice = e.to_string(),
+                                            }
+                                            this.refresh();
+                                            cx.notify();
+                                        })),
+                                ),
                         ),
                 );
             }

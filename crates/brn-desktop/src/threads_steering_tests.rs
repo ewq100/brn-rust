@@ -478,3 +478,94 @@ fn queued_question_dispatches_after_successful_attachment_preparation(cx: &mut T
     })
     .unwrap();
 }
+
+#[gpui_kit::test]
+fn long_queue_and_attachment_labels_keep_controls_inside_the_chat_tile(cx: &mut TestAppContext) {
+    let f = fixture(cx, RunState::Working);
+    let mut attachment = String::new();
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |ui, cx| {
+            ui.workspace
+                .queue_message("long-queue-card", &f.thread, &"A long waiting message ".repeat(15))
+                .unwrap();
+            ui.workspace
+                .queue_message("second-queue-card", &f.thread, &"Another long message ".repeat(15))
+                .unwrap();
+            let converted = ConversionResult {
+                intent: ImportIntent::FullNote,
+                markdown: "Synthetic saved document".into(),
+                assets: vec![],
+                source_sha256: [0; 32],
+                source_reference: "/missing/long-name.md".into(),
+                converter: "synthetic".into(),
+                sources: vec![],
+                coverage: brn_threads_intake::Coverage {
+                    status: brn_threads_intake::CoverageStatus::Unchecked,
+                    checked_items: vec![],
+                    gaps: vec![],
+                },
+            };
+            ui.workspace
+                .attach_full("long-attachment-card", &f.thread, &"Long document title ".repeat(10), &converted)
+                .unwrap();
+            ui.refresh();
+            attachment = ui.records.iter().find(|r| matches!(&r.data, RecordData::Note(n) if n.chat.as_ref() == Some(&f.thread))).unwrap().id.clone();
+            ui.open_thread(&f.thread, window, cx);
+        });
+    }).unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, _| {
+        let tile = window.find("tile-chat").bounds();
+        for id in [
+            "queue-edit-0".to_owned(),
+            "queue-remove-0".to_owned(),
+            "queue-up-1".to_owned(),
+            format!("attachment-open-{attachment}"),
+            format!("attachment-keep-{attachment}"),
+            format!("attachment-coverage-{attachment}"),
+        ] {
+            let control = window.find(id.clone());
+            let bounds = control.bounds();
+            assert!(control.visible(), "{id} must remain reachable");
+            assert!(
+                bounds.origin.x >= tile.origin.x,
+                "{id} starts outside the tile"
+            );
+            assert!(
+                bounds.origin.x + bounds.size.width <= tile.origin.x + tile.size.width,
+                "{id} overflows the chat tile"
+            );
+        }
+    })
+    .unwrap();
+}
+
+#[gpui_kit::test]
+fn starting_a_replacement_run_clears_the_old_paused_notice(cx: &mut TestAppContext) {
+    let f = fixture(cx, RunState::Interrupted);
+    cx.update_window(f.window, |_, _, cx| {
+        f.view.update(cx, |ui, cx| {
+            ui.worker = None;
+            let mut settings = ui.workspace.settings().unwrap();
+            settings.provider = "Codex".into();
+            // An explicit nonexistent fixture path prevents any real credential access.
+            settings.auth_file = Some(f.data.join("no-credentials.json").display().to_string());
+            ui.workspace.configure(settings).unwrap();
+            ui.notice = "Work stopped: Interrupted. The queue is paused; Resume when ready.".into();
+            ui.start_run(
+                "Replacement instruction".into(),
+                f.thread.clone(),
+                vec![],
+                None,
+                cx,
+            );
+            assert!(ui.worker.is_some());
+            assert_eq!(ui.progress, "Starting…");
+            assert!(
+                ui.notice.is_empty(),
+                "old interruption must not describe new work"
+            );
+        });
+    })
+    .unwrap();
+}
