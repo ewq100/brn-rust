@@ -13,9 +13,9 @@
 ## Authority and gates
 
 - Owner requested chat-first implementation and selected the consequential behavior in the spec. Lead implements in this session; independent reviewers are read-only.
-- Projects, release, real-data access, publication and merge are outside this build. The 13 October follow-up authorizes native queue/steering/attachment observation and synthetic selected-provider runs; automated tests, native observation and owner acceptance remain separate evidence.
+- Projects, release and real-data access are outside this build. On 13 October, the owner accepted the completed chat changes and authorized publication and merge into main once required checks pass. The 13 October follow-up authorizes native queue/steering/attachment observation and synthetic selected-provider runs; automated tests, native observation and owner acceptance remain separate evidence.
 - Use task-owned synthetic data and the existing compatible build cache only. Preserve provider selection, host grants, exact review, versioned Save, dirty guards, receipts/Undo, source coverage and full backup/restore.
-- Defined: satisfied. Plan review: satisfied (two rounds). Implementation, automated verification and independent code review: satisfied. Native observation: satisfied for the scoped synthetic follow-up below; broader qualification remains pending. Owner acceptance: pending. Merge/release: unassigned.
+- Defined: satisfied. Plan review: satisfied (two rounds). Implementation, automated verification and independent code review: satisfied. Native observation: satisfied for the scoped synthetic follow-up below; broader qualification remains pending. Owner acceptance: satisfied by “Looks good. Let’s merge the chat changes into main once the required checks pass.” Publication/merge: authorized; hosted CI and post-merge verification pending. Release: unassigned.
 
 ## Shared interfaces and ownership
 
@@ -213,3 +213,10 @@ Owner authorized removing Ask/Edit note/Record decision from the composer. Conti
 
 
 Contextual actions implemented in `7f2b4fc7`, with native-discovered unchanged-editor refresh fixed in `6610a0e4`. 58 shared-app and 98 native tests, strict lint/build and actual selected-provider synthetic journeys pass. Decision review/cancel/save exact text and scoped protected-note edits were native-observed; normal draft/queue behavior remains preserved. [Evidence](evidence.md#contextual-edit-note-and-save-as-decision--13-october-2026) records the retry finding, refresh guards and final binary. Updated test app is open; owner acceptance pending, publication/integration/release unassigned.
+
+## Integration — 13 October 2026
+
+- Reconcile `origin/main` at `f6babfbf` (#129), preserving ordinary wiki guidance and its separate prototype records. The only merge conflict is the status summary; both assignments are retained.
+- Recheck the complete candidate with the pinned storage gate, tooling/links and affected native/combined features. Existing native synthetic journey evidence and independent reviews remain applicable; upstream runtime guidance receives a final integration review.
+- Publish a PR and attach it to this chat. Branch protection requires the four contexts listed in [verification](../../../development/verification.md), strictly up to date with main; no bypass or force push.
+- Merge the exact passing candidate, then verify its actual merged tree and main CI. Record hosted receipts on the PR and report implemented, verified, native-observed, owner-accepted and merged separately.

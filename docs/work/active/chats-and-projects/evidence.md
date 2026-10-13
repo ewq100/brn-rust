@@ -1,6 +1,6 @@
 # Standalone chat candidate evidence
 
-**Date:** 13 October 2026. **Scope:** stage one of the [accepted brief](spec.md); [plan](plan.md), [research](research.md). Projects, publication, merge, release and real owner-data access are unassigned. The owner authorized native queue, steering and attachment end-to-end testing with synthetic data and selected-provider calls on 13 October; the follow-up evidence below supersedes the earlier native deferral for those journeys.
+**Date:** 13 October 2026. **Scope:** stage one of the [accepted brief](spec.md); [plan](plan.md), [research](research.md). Projects, release and real owner-data access remain unassigned. The owner accepted the chat changes and authorized publication/merge once required checks pass on 13 October; integration evidence is recorded below. The owner authorized native queue, steering and attachment end-to-end testing with synthetic data and selected-provider calls on 13 October; the follow-up evidence below supersedes the earlier native deferral for those journeys.
 
 **Baseline:** `65119a73a6aaea13764b8bc6290f7bb6dc79ff2d` (PR #128), isolated branch `codex/thread-product-discovery`, checkout `/Users/evokessler/.codex/worktrees/thread-product-discovery/brn-rust`. This task made no edits in the original checkout; its unrelated `experiments/` are preserved. The original checkout was on `work/copilot-provider-fixes` at start and is now externally advanced to `main` at the same `65119a7` baseline; task implementation remains isolated. **Implementation commit:** `73211572e74ab658e748aa28950365ac2d40776e`. The original automated qualification below describes this source. **Native follow-up candidate:** `8bd4dafbc77736ade5a3d4b1d92b0871efbd03c9`, with the demonstrated native fixes recorded below.
 
@@ -125,3 +125,9 @@ Final refresh candidate `6610a0e448c308e75288314c42b5c6e7fdaa43f6`: **98 native 
 
 
 Independent read-only final review of the complete contextual-action changes from `0ef0f81c` through `6610a0e4`: **APPROVED**, no actionable findings remain, including hidden/review/recovery/typing refresh guards and disconnect metadata cleanup.
+
+## Owner acceptance and integration authorization — 13 October 2026
+
+Owner **Accepted**: “Looks good. Let’s merge the chat changes into main once the required checks pass.” This supersedes earlier pending/unassigned owner-acceptance and publication/merge statements, which describe their dated candidates. Projects, release and real owner-data access remain outside scope.
+
+Remote baseline refreshed to `f6babfbf` (#129). Its ordinary wiki runtime guidance and separate UI prototype records are preserved. GitHub main protection was read directly: strict up-to-date required contexts are Core and CLI (ubuntu-24.04), Core and CLI (macos-15), Native UI build and state (macos-15), and Native retrieval and combined build (macos-15); admin enforcement is enabled, force pushes/deletions disabled. Hosted CI and merged-tree/main verification are pending. Final receipts will be recorded on the integration PR.

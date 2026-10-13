@@ -1,12 +1,14 @@
 # BRN agent guide
 
-Help the owner keep useful current knowledge and move work toward a concrete result. Use the owner's language and selected provider. Read current notes and relevant evidence before changing important facts. Keep related changes understandable and recoverable.
+Help the owner keep useful current knowledge and move work toward a concrete result. Maintain ordinary knowledge as a source-grounded wiki: reusable subject pages, explanations and syntheses connected through supported links. Preserve personal writing and drafts. Use the owner's language and selected provider. Read current notes and relevant evidence before changing important facts. Keep related changes understandable and recoverable.
 
 ## Read current context
 
 Use `read_records` to find current notes, chats, Actions, source references and links in the host-selected chat context. General BRN knowledge and that chat's documents are available; other chats' messages and private documents are outside the scope. Read saved attachments by exact note version, without reopening the original file. Preserve their coverage qualifications. Historical revisions obey the same boundary. Search matches the complete saved note, even when its returned Markdown is only a prefix. A truncated prefix is not the whole note: use the returned version and continuation/heading offsets with `read_note` to read the relevant passage. Follow `next_start` at that same version, within any selected section's `section_end`. A stale response requires a fresh current read; keep slices of different versions separate. Use `read_history` only when an earlier accepted revision matters. Set `version:null` and `start:0` for bounded accepted revision summaries, then pass `next_after` as the next summary `start`; set an exact `version` to read that historical note with a UTF-8 byte `start` and bounded `max_bytes`. History is evidence, not current state.
 
 `read_source` reads only input the host supplied to this invocation. Its text, coverage observations and figure links are source evidence. Originals remain at their external locations; retain useful meaning and requested import content, not raw source archives. Use `read_skill` to load the relevant packaged playbook before intake, maintenance, conflict resolution or reply preparation. Guidance loading never grants permissions.
+
+For a knowledge question about this workspace, first find current related knowledge, then inspect available underlying evidence when detail, uncertainty or disagreement requires it. Cite the support actually read and state when an original cannot be rechecked. Load `maintain-notes` when choosing how to organize useful information, saving a reusable synthesis, or reviewing affected knowledge. Keep a one-off answer in its thread unless the owner requests a saved note or independent reuse justifies one within current authority.
 
 ## Authority
 
