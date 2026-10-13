@@ -240,3 +240,46 @@ The gate run also caught two issues, both fixed:
 - The Task 1 inflection finding is resolved by the all-words lane, which also raised section MRR from 0.911 to 0.922.
 - The Task 1 `derived/` deletion finding is resolved: the worker re-creates the folder and index.
 - Desktop search is now non-blocking, but this is verified only by headless widget tests. Native typing feel at 10k notes is part of the owner's interactive acceptance.
+
+## Tasks 3 and 4 — agent tools and topic navigation
+
+**Tree:** `work/knowledge-agent-tools`, stacked on Tasks 0–2. macOS arm64 owner Mac. No provider was contacted.
+
+**Built:** see the [plan](plan.md#task-3--agent-tools-pr-3-shipped-with-task-4).
+- Agent side: `RunNoteSearch` with `search_notes` and `note_connections`, guide bundle 4, and the Topics note in run context.
+- Index and core: worker Connections, `Snapshot::visible_records`, and `WorkspaceSettings.topics_note`.
+- App, CLI and desktop: Topics, the Knowledge check, the CLI commands, and the desktop Topics section, Connections tile, inbound counts, "Most linked" and Knowledge check panel.
+
+### Commands and results
+
+```sh
+cargo test -p brn-ai --lib search_tests                                   # 5 passed
+cargo test -p brn-threads-app --test search_worker --test topics_knowledge --test agent_journeys  # 12 + 4 + 4 passed
+cargo test -p brn --test threads                                          # passed
+cargo test -p brn-desktop --features native-ui,native-test-support --bin brn-desktop threads_ui::  # all passed
+cargo test --workspace; cargo clippy --workspace --all-targets -- -D warnings                      # ok
+```
+
+### Scripted journeys at 10,000 synthetic notes
+
+The four scripted runs use the real runtime tools and the real search worker over the persisted index, and finish in about 4 s together.
+1. **Retrieval:** search, then read the "Loading depth" section, in 2 tool rounds of a 3-round budget.
+2. **Maintenance:** search, read, prepare and apply, then find the applied text by search, in 5 rounds of 8.
+3. **Stale candidate:** a candidate prepared at version 1 is reported `Stale` after an owner Save. The next run searches, reads version 2, refreshes and applies.
+4. **Private note:** another chat's note is absent from search results and refused by `note_connections`.
+
+These check the plumbing and budgets with a scripted model. They are not evidence of model behaviour; that needs the owner-requested live comparison.
+
+### Independent review
+
+**Code review of Tasks 3–4 (Sonnet 5.5).** It found no leakage through Connections, the Topics listing or the run-context Topics line, and confirmed the Topics pointer's replay, deferral and configure paths. Four findings, all fixed:
+1. **Medium: an archived chat-only note's link was reported as a general "broken link".** That exposed the chat-private link ID in findings and the seeded chat. A broken link now requires the other end to be missing, or to be a general note or source that was archived or superseded. A regression test covers an archived chat-only note and a link to a resolved chat.
+2. **Medium: the search tools blocked the run's async runtime**, so cancellation could not fire during a cold sync. The tools now await the worker through `spawn_blocking`.
+3. **Low–medium: worker outages were reported to the agent as "rejected"**, as if the note or query were invalid. A new `AppError::Unavailable` (worker stopped, cancelled, index kept changing) maps to a storage failure. A test covers both mappings.
+4. **Low: the Connections tile could keep a stale error or a stuck "Finding connections…".** Each request now resets them.
+
+### Limits
+
+- Native rendering of the Topics section, Connections list and Knowledge check panel is verified only by headless widget tests. Native look and feel is part of owner acceptance.
+- The Connections graph drawing is a separate UI task. The list is the accessible equivalent the ordinary-wiki flow asked for.
+- The live guidance comparison (bundle 3 against bundle 4) has not been run.
