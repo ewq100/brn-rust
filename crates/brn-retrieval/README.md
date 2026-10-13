@@ -4,6 +4,10 @@ Derived search components for the Threads application. The [shared app](../brn-t
 
 The crate also retains a reusable persistent index reader/writer, metadata/edge cache and optional local embeddings. Their richer scope/model contracts below describe component behavior, not a claim that current Threads search uses semantic ranking or the former Markdown-vault orchestration.
 
+## Language scope
+
+Retrieval is tuned and qualified for English only. Estonian is on hold by owner decision (13 October 2026). Keep tokenizer and diacritic policy, stemming, the embedding model and evaluation sets as derived-index configuration. Adding a language should then mean adding an analyzer or model and rebuilding the index, never migrating authoritative data. Today's tokenizer is `unicode61 remove_diacritics 2`. That fits English but folds distinct Estonian letters (õ/ä/ö/ü), so revisit it before qualifying Estonian.
+
 ## Dependencies and features
 
 No workspace dependencies; defaults are empty. `native` enables FastEmbed/ONNX and the explicit bounded model installer with pinned reqwest, sha1 and macOS libc. `brn-threads-app/native-retrieval` exposes that optional graph; desktop combines it with `native-ui`. Builds alone do not establish model or corpus quality.
