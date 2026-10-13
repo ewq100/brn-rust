@@ -11,6 +11,9 @@ use std::{
 
 pub const DATABASE_FILENAME: &str = "threads.sqlite3";
 pub const DATA_MARKER: &str = ".brn-threads-data";
+/// The workspace's only directory for rebuildable derived data, such as the
+/// search index. It is never backed up or restored, and may be deleted.
+pub const DERIVED_DIRECTORY: &str = "derived";
 const IDENTITY: &str = "BRN Threads SQLite v1\n";
 pub(crate) const APPLICATION_ID: i64 = 0x42525448;
 pub(crate) const SCHEMA_VERSION: i64 = 4;
@@ -54,14 +57,17 @@ impl Store {
             for entry in entries {
                 let name = entry.file_name();
                 let name = name.to_string_lossy();
+                let kind = entry.file_type()?;
                 if ![
                     DATA_MARKER,
                     DATABASE_FILENAME,
                     "threads.sqlite3-wal",
                     "threads.sqlite3-shm",
+                    DERIVED_DIRECTORY,
                 ]
                 .contains(&name.as_ref())
-                    || entry.file_type()?.is_symlink()
+                    || kind.is_symlink()
+                    || (name == DERIVED_DIRECTORY) != kind.is_dir()
                 {
                     return Err(Error::UnsafeDirectory(format!(
                         "unexpected directory entry: {name}"
@@ -105,6 +111,23 @@ impl Store {
     }
     pub fn directory(&self) -> &Path {
         &self.directory
+    }
+    /// Creates (if needed) and returns the real `derived/` directory. Refuses a
+    /// symlink or non-directory there, or a symlink among its ancestors.
+    pub fn derived_directory(&self) -> Result<PathBuf> {
+        let path = self.directory.join(DERIVED_DIRECTORY);
+        match fs::create_dir(&path) {
+            Ok(()) => {}
+            Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => {}
+            Err(error) => return Err(error.into()),
+        }
+        let kind = fs::symlink_metadata(&path)?.file_type();
+        if kind.is_symlink() || !kind.is_dir() || has_symlink_ancestor(&path)? {
+            return Err(Error::UnsafeDirectory(
+                "derived data must be a real directory inside the workspace".into(),
+            ));
+        }
+        Ok(path)
     }
     /// Host key is a stable command/run request identity, saved before prepare.
     pub fn allocate_operation(&mut self, host_request_key: &str) -> Result<OperationId> {

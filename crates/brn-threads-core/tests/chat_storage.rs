@@ -200,3 +200,77 @@ fn a_known_v3_backup_restores_as_v4_without_changing_source_snapshot() {
     assert_eq!(std::fs::read(&source).unwrap(), before);
     restored.chat_drafts().unwrap();
 }
+
+fn with_derived_file(data: &std::path::Path) {
+    let derived = data.join(DERIVED_DIRECTORY);
+    std::fs::create_dir_all(&derived).unwrap();
+    std::fs::write(derived.join("search.sqlite"), b"rebuildable").unwrap();
+}
+
+#[test]
+fn derived_directory_is_allowed_only_as_a_real_directory() {
+    let root = tempfile::tempdir().unwrap();
+    let base = root.path().canonicalize().unwrap();
+    let data = base.join("data");
+    let store = Store::open(&data).unwrap();
+    let derived = store.derived_directory().unwrap();
+    assert_eq!(derived, data.join(DERIVED_DIRECTORY));
+    assert_eq!(store.derived_directory().unwrap(), derived);
+    drop(store);
+    with_derived_file(&data);
+    Store::open(&data).unwrap();
+
+    std::fs::remove_dir_all(&derived).unwrap();
+    std::fs::write(&derived, b"not a directory").unwrap();
+    assert!(matches!(Store::open(&data), Err(Error::UnsafeDirectory(_))));
+
+    std::fs::remove_file(&derived).unwrap();
+    let elsewhere = base.join("elsewhere");
+    std::fs::create_dir(&elsewhere).unwrap();
+    std::os::unix::fs::symlink(&elsewhere, &derived).unwrap();
+    assert!(matches!(Store::open(&data), Err(Error::UnsafeDirectory(_))));
+
+    std::fs::remove_file(&derived).unwrap();
+    let store = Store::open(&data).unwrap();
+    std::os::unix::fs::symlink(&elsewhere, &derived).unwrap();
+    assert!(matches!(
+        store.derived_directory(),
+        Err(Error::UnsafeDirectory(_))
+    ));
+    assert_eq!(std::fs::read_dir(&elsewhere).unwrap().count(), 0);
+}
+
+#[test]
+fn backup_restore_and_upgrade_ignore_derived_data() {
+    let root = tempfile::tempdir().unwrap();
+    let base = root.path().canonicalize().unwrap();
+    let data = base.join("data");
+    let mut store = Store::open(&data).unwrap();
+    owner_record(
+        &mut store,
+        "knowledge",
+        RecordData::Note(Note::working("Kept", "Kept bytes")),
+    );
+    with_derived_file(&data);
+    let backups = base.join("backups");
+    std::fs::create_dir(&backups).unwrap();
+    let snapshot = backups.join("snapshot.sqlite3");
+    store.backup(&snapshot).unwrap();
+    drop(store);
+    let restored = Store::restore(&snapshot, base.join("restored")).unwrap();
+    assert_eq!(restored.records().unwrap().len(), 1);
+    assert!(!base.join("restored").join(DERIVED_DIRECTORY).exists());
+    drop(restored);
+
+    let legacy = legacy_fixture(&base);
+    with_derived_file(&legacy);
+    let upgrade_backups = base.join("upgrade-backups");
+    std::fs::create_dir(&upgrade_backups).unwrap();
+    Store::upgrade(&legacy, &upgrade_backups).unwrap();
+    let store = Store::open(&legacy).unwrap();
+    assert_eq!(
+        std::fs::read(legacy.join(DERIVED_DIRECTORY).join("search.sqlite")).unwrap(),
+        b"rebuildable"
+    );
+    assert_eq!(store.records().unwrap().len(), 1);
+}
