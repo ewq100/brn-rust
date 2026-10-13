@@ -437,6 +437,7 @@ struct ThreadsUi {
     progress: String,
     run_activity_labels: Vec<String>,
     run_activity_chat: Option<String>,
+    context_edit_note: Option<(String, String, u64)>,
     run_activity_status: String,
     run_activity_scroll: gpui_kit::ScrollHandle,
     notice: String,
@@ -671,6 +672,7 @@ impl ThreadsUi {
             progress: String::new(),
             run_activity_labels: vec![],
             run_activity_chat: None,
+            context_edit_note: None,
             run_activity_status: String::new(),
             run_activity_scroll: gpui_kit::ScrollHandle::new(),
             notice: String::new(),
@@ -1716,6 +1718,12 @@ impl ThreadsUi {
             .queue_state()
             .pending
             .filter(|q| q.thread == thread && q.text == prompt && q.run.is_none());
+        let context_edit_note = match &owner_request {
+            Some(brn_ai::threads::OwnerRequest::EditNote { id, version }) => {
+                Some((id.clone(), *version))
+            }
+            _ => None,
+        };
         let request = brn_ai::threads::ThreadRunRequest {
             request_message: queued.as_ref().and_then(|q| q.message.clone()),
             queue_claim: queued.and_then(|q| q.dispatch),
@@ -1779,6 +1787,8 @@ impl ThreadsUi {
             cx.notify();
             return;
         }
+        self.context_edit_note =
+            context_edit_note.map(|(note, version)| (run_id.clone(), note, version));
         self.run_activity_chat = Some(thread.clone());
         self.run_activity_status.clear();
         self.worker = Some(Worker {
@@ -2445,6 +2455,7 @@ impl ThreadsUi {
                     .is_some_and(|w| w.kind == WorkerKind::Run)
                 {
                     self.run_activity_status = "Disconnected".into();
+                    self.context_edit_note = None;
                 }
                 self.worker = None;
                 self.pending_send = None;
@@ -2534,6 +2545,9 @@ impl ThreadsUi {
                 WorkerEvent::Finished(result) => {
                     finished = true;
                     let kind = self.worker.as_ref().map(|w| w.kind);
+                    let context_edit = self.context_edit_note.take().filter(|(run, _, _)| {
+                        self.worker.as_ref().and_then(|w| w.run_id.as_deref()) == Some(run.as_str())
+                    });
                     if kind == Some(WorkerKind::Run) {
                         self.run_activity_status = self
                             .worker
@@ -2581,6 +2595,9 @@ impl ThreadsUi {
                         _ => {}
                     }
                     self.refresh();
+                    if let Some((_, note, version)) = context_edit {
+                        self.refresh_context_edit(&note, version, window, cx);
+                    }
                 }
                 WorkerEvent::Converted {
                     result,
@@ -2661,6 +2678,7 @@ impl ThreadsUi {
                 .is_some_and(|w| w.kind == WorkerKind::Run)
             {
                 self.run_activity_status = "Disconnected".into();
+                self.context_edit_note = None;
             }
             self.worker = None;
             self.pending_send = None;

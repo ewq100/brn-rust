@@ -813,3 +813,69 @@ fn restoring_old_work_status_preserves_newer_errors_and_active_work(cx: &mut Tes
     })
     .unwrap();
 }
+
+#[gpui_kit::test]
+fn completed_context_edit_refreshes_saved_text_and_preserves_human_changes(
+    cx: &mut TestAppContext,
+) {
+    for (human_typing, hide_note) in [(false, false), (true, false), (false, true)] {
+        let f = fixture(cx, RunState::Completed);
+        cx.update_window(f.window, |_, window, cx| {
+            f.view.update(cx, |ui, cx| {
+                let note = ui
+                    .workspace
+                    .new_note("Context edit target", "Before edit")
+                    .unwrap();
+                ui.workspace
+                    .link_writing_thread("context-link", &note.id, note.version, &f.thread)
+                    .unwrap();
+                ui.refresh();
+                ui.open_note(&note.id, None, window, cx);
+                ui.context_edit_note = Some((f.run.clone(), note.id.clone(), note.version));
+                ui.workspace
+                    .owner_change(
+                        "saved-context-edit",
+                        &ChangeRequest {
+                            reason: "Synthetic committed contextual edit".into(),
+                            inputs: vec![],
+                            writes: vec![Put {
+                                id: note.id.clone(),
+                                expected_version: Some(note.version),
+                                archived: false,
+                                data: RecordData::Note(Note::working(
+                                    "Context edit target",
+                                    "After edit",
+                                )),
+                            }],
+                        },
+                    )
+                    .unwrap();
+                if human_typing {
+                    ui.note_editor.update(cx, |editor, cx| {
+                        editor.set_value("Human draft stays visible", window, cx)
+                    });
+                }
+                if hide_note {
+                    ui.layout.close(TileKind::Note);
+                }
+                f.sender
+                    .send(WorkerEvent::Finished(Ok("Finished".into())))
+                    .unwrap();
+                ui.poll_worker(window, cx);
+                assert!(ui.context_edit_note.is_none());
+                if hide_note {
+                    assert!(
+                        !ui.note_tile_visible(),
+                        "completion must not reopen a hidden note tile"
+                    );
+                } else if human_typing {
+                    assert_eq!(ui.note_editor.read(cx).value(), "Human draft stays visible");
+                } else {
+                    assert_eq!(ui.note.as_ref().unwrap().record.version, 2);
+                    assert_eq!(ui.note_editor.read(cx).value(), "After edit");
+                }
+            })
+        })
+        .unwrap();
+    }
+}

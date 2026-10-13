@@ -120,6 +120,31 @@ impl ThreadsUi {
         self.start_run(prompt.into(), thread, vec![], Some(authority), cx);
         Ok(())
     }
+    pub(super) fn refresh_context_edit(
+        &mut self,
+        note: &str,
+        version: u64,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        let unchanged_editor = self.note_editor_visible() && self.note.as_ref().is_some_and(|open| {
+            open.record.id == note && open.record.version == version && open.session.is_none()
+                && matches!(&open.record.data, RecordData::Note(n) if self.note_editor.read(cx).value().as_ref() == n.markdown)
+        });
+        if unchanged_editor
+            && self
+                .workspace
+                .store
+                .record(note)
+                .ok()
+                .flatten()
+                .is_some_and(|r| {
+                    !r.archived && r.version > version && matches!(r.data, RecordData::Note(_))
+                })
+        {
+            self.open_note(note, None, window, cx);
+        }
+    }
     pub(super) fn decision_dialog(
         &mut self,
         message: Record,
