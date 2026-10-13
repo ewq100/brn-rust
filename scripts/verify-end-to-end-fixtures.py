@@ -24,7 +24,7 @@ with tempfile.TemporaryDirectory(prefix='brn-threads-fixture-',dir=parent) as ro
     saved=call('save','--session',session,'--generation','1')
     assert saved==call('save','--session',session,'--generation','1')
     assert call('read','--id',note)['data']['Note']['markdown']=='Tuesday delivery'
-    assert call('search','--query','Tuesday')[0]['note']==note
+    assert call('search','--query','Tuesday')['hits'][0]['note']==note
     call('export','--destination',str(root/'export'))
     call('export','--destination',str(root/'export'),ok=False)
     call('backup','--destination',str(root/'backup.sqlite'))
