@@ -4,6 +4,8 @@ from pathlib import Path
 import sqlite3
 import tempfile
 import unittest
+from types import SimpleNamespace
+from unittest.mock import patch
 
 SCRIPT = Path(__file__).resolve().parents[1] / 'evaluate-wiki-guidance.py'
 spec = importlib.util.spec_from_file_location('wiki_eval', SCRIPT)
@@ -40,10 +42,29 @@ class WikiGuidanceEvaluationTests(unittest.TestCase):
         self.assertNotIn('SECRET', json.dumps(clean))
         self.assertEqual(clean['records'][0]['id'], 'safe')
 
+    def test_redaction_preserves_schema_nulls_for_failed_run_inspection(self):
+        original = note('working', 'before')
+        clean = wiki_eval.public_snapshot(original)
+        self.assertIsNone(clean['data']['Note']['superseded_by'])
+        self.assertEqual(wiki_eval.saved_notes([clean]), [clean])
+        before = {'records': [clean]}
+        after = {'records': [clean], 'receipts': []}
+        case = {'id': 'sequential-project', 'no_new_notes': False, 'expected_existing_note': 'working'}
+        checks = wiki_eval.structural_checks(case, before, after)
+        self.assertFalse(checks['knowledge_change_applied'])
+        self.assertTrue(checks['protected_references_preserved'])
+
     def test_provider_failure_is_not_completed(self):
         for terminal in ['Failed:ReconnectNeeded', 'Interrupted', 'Failed:ToolLimitReached']:
             self.assertFalse(wiki_eval.completed({'terminal': terminal, 'answer': 'plausible'}))
         self.assertTrue(wiki_eval.completed({'terminal': 'Completed', 'answer': 'saved'}))
+
+    def test_codex_auth_file_is_not_cleared_by_cache_selection(self):
+        options = wiki_eval.credential_options('Codex', Path('/selected/auth.json'), Path('/unused/cache'))
+        self.assertEqual(set(options), {'auth_file'})
+        self.assertEqual(wiki_eval.credential_options('Codex', None, None), {})
+        self.assertEqual(wiki_eval.credential_options('Copilot', None, Path('/selected/cache')),
+                         {'credentials_dir': Path('/selected/cache')})
 
     def test_protected_change_is_detected(self):
         before = [note('reference', '22 November', True)]
@@ -85,12 +106,61 @@ class WikiGuidanceEvaluationTests(unittest.TestCase):
         self.assertFalse(wiki_eval.verify_undo(receipt, [created]))
         self.assertTrue(wiki_eval.verify_undo(receipt, [note('created', 'new', version=2, archived=True)]))
 
+    def test_failed_assertions_or_undo_cannot_count_as_verified(self):
+        applied = {'status': 'Applied', 'affected_restored': True, 'unrelated_preserved': True}
+        self.assertIsNone(wiki_eval.verification_problem({'protected': True}, applied))
+        self.assertIsNone(wiki_eval.verification_problem({}, {'status': 'not_run'}))
+        self.assertIsNotNone(wiki_eval.verification_problem({'protected': False}, applied))
+        self.assertIsNotNone(wiki_eval.verification_problem({}, dict(applied, affected_restored=False)))
+        self.assertIsNotNone(wiki_eval.verification_problem({}, dict(applied, unrelated_preserved=False)))
+        self.assertIsNotNone(wiki_eval.verification_problem({}, {'status': 'NeedsReview'}))
+
     def test_unrelated_records_must_survive_undo(self):
         before = [note('changed', 'after', version=2), note('unrelated', 'later human work', version=8)]
         restored = [note('changed', 'before', version=3), note('unrelated', 'lost', version=9)]
         self.assertFalse(wiki_eval.unrelated_preserved(before, restored, {'changed'}))
         restored[1] = before[1]
         self.assertTrue(wiki_eval.unrelated_preserved(before, restored, {'changed'}))
+
+    def test_disconnected_summaries_do_not_pass_synthesis_lineage(self):
+        first, second = note('first', 'process A', True), note('second', 'process B', True)
+        notes = [first, second, note('summary-a', 'A only'), note('summary-b', 'B only')]
+        links = [{'id': 'link-a', 'archived': False, 'data': {'Link': {'from': 'summary-a', 'to': 'first'}}},
+                 {'id': 'link-b', 'archived': False, 'data': {'Link': {'from': 'summary-b', 'to': 'second'}}}]
+        after = {'records': notes + links,
+                 'receipts': [{'operation': 'a', 'writes': [{'after': notes[2]}]},
+                              {'operation': 'b', 'writes': [{'after': notes[3]}]}],
+                 'lineage': [{'operation': 'a', 'applied': True, 'inputs': [{'record': 'first', 'version': 1}]},
+                             {'operation': 'b', 'applied': True, 'inputs': [{'record': 'second', 'version': 1}]},
+                             {'operation': 'unrelated-link-only', 'applied': True,
+                              'inputs': [{'record': 'first', 'version': 1}, {'record': 'second', 'version': 1}]}]}
+        case = {'id': 'reusable-synthesis', 'no_new_notes': False, 'expected_existing_note': None}
+        checks = wiki_eval.structural_checks(case, {'records': [first, second]}, after)
+        self.assertFalse(checks['both_reference_notes_declared_as_inputs'])
+        self.assertFalse(checks['both_reference_notes_linked_to_synthesis'])
+
+    def test_late_undo_failure_retains_the_completed_provider_and_snapshot(self):
+        class FakeCli:
+            def __init__(self, *args):
+                self.commands = []
+            def call(self, command, **options):
+                self.commands.append({'command': command, 'seconds': 0})
+                return {'id': 'thread', 'terminal': 'Completed', 'answer': '102'}
+        case = {'id': 'conversation-only', 'seeds': [], 'steps': [{'kind': 'ask', 'prompt': '17 * 6'}],
+                'rubric': ['102'], 'no_new_notes': True, 'expected_existing_note': None}
+        saved = {'records': [], 'receipts': [], 'candidates': [], 'lineage': []}
+        args = SimpleNamespace(live=True, helper=Path('/helper'), timeout=1, provider='Codex',
+                               auth_file=None, credentials_dir=None)
+        with tempfile.TemporaryDirectory() as directory, patch.object(wiki_eval, 'Cli', FakeCli), \
+                patch.object(wiki_eval, 'snapshot', return_value=saved), \
+                patch.object(wiki_eval, 'undo_latest_note_change', side_effect=wiki_eval.CallFailed('undo failed')):
+            result = wiki_eval.run_arm(Path('/binary'), Path(directory), Path(directory)/'arm', case,
+                                      {'provider': 'Codex'}, args)
+        self.assertEqual(result['outcomes'][0]['answer'], '102')
+        self.assertEqual(result['after'], saved)
+        self.assertTrue(result['provider_completed'])
+        self.assertFalse(result['completed'])
+        self.assertEqual(result['verification_failure'], 'undo failed')
 
 
 if __name__ == '__main__':

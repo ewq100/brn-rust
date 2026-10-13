@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Compare two compiled BRN guidance bundles in exclusively owned synthetic state."""
 import argparse
+from contextlib import closing
 import hashlib
 import json
 import os
@@ -12,6 +13,7 @@ import time
 
 CASES = Path(__file__).resolve().parent / 'fixtures/wiki-guidance-cases.json'
 PRIVATE_KEYS = {'auth_file', 'credentials_dir', 'access_token', 'refresh_token'}
+OMIT = object()
 
 
 def create_root(root):
@@ -24,17 +26,24 @@ def create_root(root):
 def public_snapshot(value):
     if isinstance(value, dict):
         if 'Settings' in value.get('data', {}):
-            return None
+            return OMIT
         return {key: clean for key, item in value.items()
                 if key not in PRIVATE_KEYS and key != 'Settings'
-                and (clean := public_snapshot(item)) is not None}
+                and (clean := public_snapshot(item)) is not OMIT}
     if isinstance(value, list):
-        return [clean for item in value if (clean := public_snapshot(item)) is not None]
+        return [clean for item in value if (clean := public_snapshot(item)) is not OMIT]
     return value
 
 
 def completed(outcome):
     return outcome.get('terminal') == 'Completed'
+
+
+def credential_options(provider, auth_file, credentials_dir):
+    # CLI configure chooses exactly one route; a credentials-dir clears auth-file.
+    if provider == 'Codex':
+        return {'auth_file': auth_file} if auth_file else {}
+    return {'credentials_dir': credentials_dir}
 
 
 def by_id(records):
@@ -77,7 +86,7 @@ def read_operation_inputs(data_dir, operation_ids):
     # Inspect accepted/pending request lineage; never emit complete request bodies.
     path = (data_dir / 'threads.sqlite3').resolve()
     output = []
-    with sqlite3.connect(path.as_uri() + '?mode=ro', uri=True) as database:
+    with closing(sqlite3.connect(path.as_uri() + '?mode=ro', uri=True)) as database:
         for identity in sorted(set(operation_ids)):
             row = database.execute('SELECT request FROM operations WHERE id=?', (identity,)).fetchone()
             if not row or not row[0]:
@@ -168,12 +177,27 @@ def structural_checks(case, before, after):
         checks['existing_subject_updated'] = bool(updated and updated['data'] != subject['data'])
     if case['id'] == 'reusable-synthesis':
         required = {note['id'] for note in previous}
-        inputs = {item['record'] for operation in after['lineage'] if operation['applied'] for item in operation['inputs']}
-        checks['both_reference_notes_declared_as_inputs'] = required <= inputs
+        required_versions = {(note['id'], note['version']) for note in previous}
         created = current_ids - {note['id'] for note in previous}
         links = [record['data']['Link'] for record in after['records'] if not record['archived'] and 'Link' in record['data']]
-        connected = {link['to'] for link in links if link['from'] in created} | {link['from'] for link in links if link['to'] in created}
-        checks['both_reference_notes_linked_to_synthesis'] = required <= connected
+        lineage = {operation['operation']: operation for operation in after['lineage'] if operation['applied']}
+        candidates = []
+        for identity in sorted(created):
+            target = by_id(current)[identity]
+            writers = [receipt for receipt in after['receipts']
+                       if any(write['after']['id'] == identity and write['after']['version'] == target['version']
+                              and 'Note' in write['after']['data'] for write in receipt['writes'])]
+            inputs_ok = any(required_versions <= {(item['record'], item['version'])
+                           for item in lineage.get(receipt['operation'], {}).get('inputs', [])
+                           if item.get('expectation', 'Current') == 'Current'} for receipt in writers)
+            connected = {link['to'] for link in links if link['from'] == identity} | {link['from'] for link in links if link['to'] == identity}
+            candidates.append({'note': identity, 'inputs': inputs_ok, 'links': required <= connected})
+        # Both assertions refer to the same actual saved Note and its writing operation.
+        selected = next((candidate for candidate in candidates if candidate['inputs'] and candidate['links']), None)
+        if selected is None:
+            selected = candidates[0] if candidates else {'inputs': False, 'links': False}
+        checks['both_reference_notes_declared_as_inputs'] = selected['inputs']
+        checks['both_reference_notes_linked_to_synthesis'] = selected['links']
     return checks
 
 
@@ -194,31 +218,55 @@ def undo_latest_note_change(cli, after):
             'unrelated_preserved': unrelated_preserved(after['records'], records, affected)}
 
 
+def verification_problem(checks, undo):
+    failed = [name for name, passed in checks.items() if passed is not True]
+    if failed:
+        return 'Deterministic checks failed: ' + ', '.join(failed)
+    if undo['status'] == 'not_run':
+        return None
+    if undo['status'] != 'Applied' or not undo.get('affected_restored') or not undo.get('unrelated_preserved'):
+        return 'Undo application/restoration/preservation failed'
+    return None
+
+
 def run_arm(binary, root, folder, case, selection, args):
     folder.mkdir(parents=True)
     data = folder / 'data'
     cli = Cli(binary, data, root, args.helper, args.timeout)
-    cli.call('init')
-    if args.live:
-        configuration = dict(selection)
-        # Use a task-owned cache, importing only the selected existing Codex auth profile.
-        configuration['credentials_dir'] = folder / 'credentials'
-        if args.auth_file:
-            configuration['auth_file'] = args.auth_file
-        cli.call('configure', **configuration)
-    cli.call('delegation', choice='maintain')
-    for index, seed in enumerate(case['seeds']):
-        if seed['protected']:
-            source = folder / f'reference-{index}.md'
-            source.write_text(seed['text'])
-            result = cli.call('intake', source=source, intent='full', title=seed['title'])
-            if result['outcome'] != 'Applied':
-                raise CallFailed('Protected fixture import was not applied')
-        else:
-            cli.call('note-create', title=seed['title'], text=seed['text'])
-    thread = cli.call('thread-start', title=case['id'])['id']
-    before = snapshot(cli)
-    outcomes, failure = [], None
+    result = {'case': case['id'], 'rubric': case['rubric'], 'before': None, 'after': None,
+              'outcomes': [], 'commands': cli.commands, 'failure': None, 'verification_failure': None,
+              'semantic_status': 'not_run', 'provider_completed': False, 'completed': False, 'structural_checks': {},
+              'undo': {'status': 'not_run'}, 'stage': 'setup'}
+
+    def persist():
+        (folder / 'result.json').write_text(json.dumps(public_snapshot(result), ensure_ascii=False, indent=2) + '\n')
+
+    try:
+        cli.call('init')
+        if args.live:
+            configuration = dict(selection)
+            configuration.update(credential_options(args.provider, args.auth_file, args.credentials_dir))
+            cli.call('configure', **configuration)
+        cli.call('delegation', choice='maintain')
+        for index, seed in enumerate(case['seeds']):
+            if seed['protected']:
+                source = folder / f'reference-{index}.md'
+                source.write_text(seed['text'])
+                imported = cli.call('intake', source=source, intent='full', title=seed['title'])
+                if imported['outcome'] != 'Applied':
+                    raise CallFailed('Protected fixture import was not applied')
+            else:
+                cli.call('note-create', title=seed['title'], text=seed['text'])
+        thread = cli.call('thread-start', title=case['id'])['id']
+        result['stage'] = 'snapshot_before'
+        result['before'] = snapshot(cli)
+        persist()
+    except CallFailed as error:
+        result.update(failure=str(error), semantic_status='failed')
+        persist()
+        return result
+
+    result['stage'] = 'provider'
     for index, step in enumerate(case['steps']):
         if not args.live:
             break
@@ -226,26 +274,43 @@ def run_arm(binary, root, folder, case, selection, args):
             if step['kind'] == 'intake':
                 source = folder / f'update-{index}.md'
                 source.write_text(step['text'])
-                result = cli.call('intake', source=source, intent='useful', title=step['title'], thread=thread)
+                outcome = cli.call('intake', source=source, intent='useful', title=step['title'], thread=thread)
             else:
-                result = cli.call('ask', thread=thread, prompt=step['prompt'], budget=8)
-            outcomes.append(result)
+                outcome = cli.call('ask', thread=thread, prompt=step['prompt'], budget=8)
+            result['outcomes'].append(outcome)
             print(json.dumps({'case': case['id'], 'arm': folder.parent.name, 'step': index,
-                              'terminal': result['terminal'], 'seconds': cli.commands[-1]['seconds']}), flush=True)
-            if not completed(result):
-                failure = result['terminal']
+                              'terminal': outcome['terminal'], 'seconds': cli.commands[-1]['seconds']}), flush=True)
+            if not completed(outcome):
+                result['failure'] = outcome['terminal']
+                persist()
                 break
         except CallFailed as error:
-            failure = str(error)
+            result['failure'] = str(error)
+            persist()
             break
-    after = snapshot(cli)
-    result = {'case': case['id'], 'rubric': case['rubric'], 'before': before, 'after': after,
-              'outcomes': outcomes, 'commands': cli.commands, 'failure': failure,
-              'semantic_status': 'requires_review' if args.live and not failure else ('failed' if failure else 'not_run'),
-              'completed': args.live and not failure and len(outcomes) == len(case['steps']) and all(map(completed, outcomes)),
-              'structural_checks': structural_checks(case, before, after) if args.live else {},
-              'undo': undo_latest_note_change(cli, after) if args.live and not failure else {'status': 'not_run'}}
-    (folder / 'result.json').write_text(json.dumps(public_snapshot(result), ensure_ascii=False, indent=2) + '\n')
+        persist()
+    result['provider_completed'] = (args.live and not result['failure']
+                           and len(result['outcomes']) == len(case['steps'])
+                           and all(map(completed, result['outcomes'])))
+    result['semantic_status'] = 'requires_review' if result['provider_completed'] else ('failed' if result['failure'] else 'not_run')
+    result['stage'] = 'snapshot_after'
+    try:
+        result['after'] = snapshot(cli)
+        if args.live:
+            result['structural_checks'] = structural_checks(case, result['before'], result['after'])
+        persist()
+        result['stage'] = 'undo'
+        if result['provider_completed']:
+            result['undo'] = undo_latest_note_change(cli, result['after'])
+            result['verification_failure'] = verification_problem(result['structural_checks'], result['undo'])
+            if result['verification_failure']:
+                result['semantic_status'] = 'verification_failed'
+        result['stage'] = 'complete'
+    except CallFailed as error:
+        result['verification_failure'] = str(error)
+        result['semantic_status'] = 'verification_failed'
+    result['completed'] = result['provider_completed'] and not result['verification_failure']
+    persist()
     return result
 
 
@@ -266,6 +331,7 @@ def main():
     parser.add_argument('--model')
     parser.add_argument('--effort', choices=['low', 'medium', 'high'])
     parser.add_argument('--auth-file', type=Path)
+    parser.add_argument('--credentials-dir', type=Path)
     parser.add_argument('--repetitions', type=int, choices=[1, 2], default=2)
     parser.add_argument('--timeout', type=int, default=180)
     args = parser.parse_args()
@@ -276,6 +342,10 @@ def main():
         parser.error('Live mode requires the explicitly selected provider, exact model and effort')
     if args.auth_file and not args.auth_file.is_absolute():
         parser.error('Auth profile path must be absolute')
+    if args.live and args.provider == 'Copilot' and (not args.credentials_dir or not args.credentials_dir.is_absolute() or args.auth_file):
+        parser.error('Copilot requires one existing absolute credentials-dir and no auth-file')
+    if args.live and args.provider == 'Codex' and args.credentials_dir:
+        parser.error('Codex uses auth-file; select only one credential route')
     if args.timeout < 1 or args.timeout > 600:
         parser.error('Timeout must be 1..600 seconds')
     create_root(args.root)
@@ -303,7 +373,7 @@ def main():
                 report_path.write_text(json.dumps(public_snapshot(report), ensure_ascii=False, indent=2) + '\n')
     print(json.dumps({'report': str(report_path), 'completed': sum(item['completed'] for item in report['arms']),
                       'arms': len(report['arms']), 'mode': report['mode']}), flush=True)
-    return int(any(item.get('failure') for item in report['arms']))
+    return int(any(item.get('failure') or item.get('verification_failure') for item in report['arms']))
 
 
 if __name__ == '__main__':

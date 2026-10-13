@@ -6,7 +6,7 @@ The implemented product has one SQLite core, shared checked changes/Undo, curren
 
 | Gate | State |
 |---|---|
-| Ordinary wiki | Runtime-guidance candidate in progress; preserves Note/schema, protection, checked writes and Undo. Baseline binary/tests captured; controlled provider comparison and separate UI alternatives are being prepared. [Current evidence](work/active/ordinary-wiki/evidence.md) separates implementation, automated/live checks, prototype preview and owner acceptance. |
+| Ordinary wiki | Bundle-3 runtime guidance implemented; preserves Note/schema, protection, checked writes and Undo. Controlled pilot: 10/12 arms completed (two baseline Network failures), all completed structural checks and six eligible Undo groups passed; no semantic superiority established. Three separate UI variants browser-previewed; native UI unchanged. Draft publication pending. [Current evidence](work/active/ordinary-wiki/evidence.md) separates implementation, automated/live checks, prototype preview and owner acceptance. |
 | Rebuild and Phase 0/F1 | Merged in PRs #114–115; detailed proof is [archived](archive/threads-rebuild/evidence.md). |
 | Phase 1 | Delegation #116, Stop-and-send #117, atomic backup #118, restore safety #119 and remembered backup folder #120 merged after required CI. All required main checks for #116–120 were recovered and confirmed green. |
 | Platform scope | Personal macOS first. Non-required Windows credential and Linux native-retrieval/model-install failures remain visible; no all-platform green claim. |
