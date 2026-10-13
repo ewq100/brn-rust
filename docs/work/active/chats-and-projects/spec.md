@@ -175,3 +175,7 @@ Do not let context/index updates, shared-document references, retained candidate
 ## Handoff
 
 Carry the requested chat-first work through normal technical planning, implementation, independent review and verification. Reconcile the canonical target and affected summaries for chat behavior first, preserving project requirements as deferred scope. Give the owner a concrete standalone chat candidate to assess before introducing projects. Report implementation, verification, native observation, acceptance and merge separately. Publication, merge, release and real-data access require their applicable authority; writing this brief supplies none by itself.
+
+## Owner clarification: detailed display, 13 October 2026
+
+Quiet off shows a terminal-style activity stream with tool calls, bounded argument previews, outcomes and the provider's explicitly public reasoning summaries when supplied. Quiet on hides this activity across the window while retaining streamed answers, compact truthful work/Stop status, errors, proposals and attention. Raw private reasoning and encrypted provider content are not display material. The latest run's bounded in-memory activity remains available in its own chat after completion, until another run or app restart; canonical answers/receipts remain durable.

@@ -10,6 +10,103 @@ pub(super) struct ChatScroller {
     pub signature: String,
 }
 impl ThreadsUi {
+    pub(super) fn record_activity(&mut self, text: &str) {
+        if text.trim().is_empty()
+            || self
+                .run_activity_labels
+                .last()
+                .is_some_and(|last| last == text)
+        {
+            return;
+        }
+        if self.run_activity_chat.is_none() {
+            self.run_activity_chat = self.worker.as_ref().and_then(|w| w.thread.clone());
+        }
+        self.run_activity_labels
+            .push(text.chars().take(8192).collect());
+        if self.run_activity_labels.len() > 32 {
+            self.run_activity_labels.remove(0);
+        }
+        self.run_activity_scroll.scroll_to_bottom();
+    }
+    pub(super) fn worker_status(&self, worker: &Worker) -> String {
+        if worker.kind == WorkerKind::Run && self.queue_state().quiet {
+            if worker.cancel.is_cancelled() {
+                "Stopping…".into()
+            } else {
+                "Working quietly…".into()
+            }
+        } else {
+            worker.kind.status(&self.progress)
+        }
+    }
+    pub(super) fn live_activity(
+        &self,
+        active: bool,
+        cx: &mut Context<Self>,
+    ) -> gpui_kit::AnyElement {
+        let worker = self.worker.as_ref().filter(|_| active);
+        let status = worker.map_or_else(
+            || format!("Activity · {}", self.run_activity_status),
+            |worker| format!("◌ {}", self.worker_status(worker)),
+        );
+        let line = div()
+            .id("run-line")
+            .flex()
+            .flex_wrap()
+            .items_center()
+            .gap_2()
+            .font_family(MONO)
+            .text_xs()
+            .text_color(rgb(pal().muted))
+            .aria_label(status.clone())
+            .child(status)
+            .when(worker.is_some(), |line| {
+                line.child(
+                    pill("run-stop", "stop ⌘.")
+                        .on_click(cx.listener(|this, _, _, cx| this.cancel(cx))),
+                )
+            })
+            .test_support();
+        if self.queue_state().quiet || worker.is_some_and(|w| w.kind != WorkerKind::Run) {
+            return line.into_any_element();
+        }
+        let mut steps = div()
+            .id("run-activity-steps")
+            .flex()
+            .flex_col()
+            .gap_1()
+            .max_h(px(140.))
+            .flex_shrink_0()
+            .track_scroll(&self.run_activity_scroll)
+            .overflow_x_scroll()
+            .overflow_y_scroll()
+            .test_support();
+        for (index, text) in self.run_activity_labels.iter().enumerate() {
+            steps = steps.child(
+                metadata(text.clone())
+                    .font_family(MONO)
+                    .text_xs()
+                    .id(format!("run-activity-step-{index}"))
+                    .aria_label(text.clone())
+                    .test_support(),
+            );
+        }
+        div()
+            .id("run-activity")
+            .flex()
+            .flex_col()
+            .gap_2()
+            .p_2()
+            .border_1()
+            .border_color(rgb(pal().border))
+            .bg(rgb(pal().alt))
+            .child(heading("Activity"))
+            .child(steps)
+            .child(line)
+            .test_support()
+            .into_any_element()
+    }
     pub(super) fn assets_in_chat(&self, chat: Option<&str>) -> Arc<BTreeMap<String, Arc<Image>>> {
         Arc::new(
             self.records
@@ -514,11 +611,9 @@ impl ThreadsUi {
             }
             // Streaming changes the last row's height, preserving a scrolled-up anchor.
             let signature = format!(
-                "{}:{}:{:?}:{}",
+                "{}:{:?}",
                 self.stream,
-                self.progress,
                 self.records.iter().find(|r| r.id == id).map(|r| r.version),
-                self.queue_state().quiet
             );
             if signature != slot.signature {
                 slot.state.update(cx, |s, cx| {

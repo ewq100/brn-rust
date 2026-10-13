@@ -176,3 +176,12 @@ Owner now authorizes native app testing and fixes for queue, steering and attach
 - [x] Observe native attachment import/read/inspection, queue edit/remove/reorder and sequential execution, Steer, Stop/Resume, failure and restart recovery.
 - [x] Fix demonstrated defects with focused regression checks and rebuild the production native candidate.
 - [x] Retest corrected behavior in the actual app; record exact candidate/data/evidence and independent review for meaningful changes. Owner acceptance remains distinct.
+
+## Quiet display follow-up
+
+Owner rejected the subtle Quiet on/off difference, then specified that Quiet off should show tool calls and agent reasoning with a terminal/CLI experience. Keep streamed answers, Stop, errors, queue and owner decisions available in either mode.
+
+- Reproduce the global status-bar bypass in a native widget test and the actual app.
+- Share the Quiet policy across live status displays; give the toggle a selected state and clear labels.
+- Add a bounded monospace activity stream with admitted tool calls, argument previews, truthful results and explicit public provider reasoning summaries. Do not expose raw reasoning, encrypted payloads, credentials or full source documents as telemetry. Keep activity separate from saved assistant answers; retain the latest run in its own chat while the app remains open, hiding it in Quiet mode.
+- Request public summaries on Responses while preserving selected provider/model/effort. Verify runtime/mock and provider boundary, native rendering/toggle/Stop and scope, lint/build and independent review. Update the test app after native retest; publication, merge and release remain unassigned.

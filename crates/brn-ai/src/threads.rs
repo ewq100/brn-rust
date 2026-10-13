@@ -5,7 +5,10 @@ use crate::{
     Selection,
 };
 use brn_threads_core::*;
-use rig::agent::{AgentHook, HookContext, ModelTurnAction, ModelTurnFinished};
+use rig::agent::{
+    AgentHook, DispatchAction, DispatchEvent, HookContext, ModelTurnAction, ModelTurnFinished,
+    OutcomeAction, OutcomeEvent,
+};
 use rig::message::AssistantContent;
 use rig::tool::{Tool, ToolContext};
 use serde::Deserialize;
@@ -943,6 +946,27 @@ fn progress(scope: &Scope, args: ProgressArgs) -> AiResult<Value> {
     update_run(scope, &mut store, |run| run.progress = args.summary)?;
     Ok(json!({"retained":true}))
 }
+// A successful dispatch can still require owner review or leave a write unapplied.
+fn tool_outcome_label<'a>(name: &str, result: Option<&'a rig::tool::ToolResult>) -> &'a str {
+    let Some(result) = result else {
+        return "error";
+    };
+    if name == "apply_changes" && result.status_name() == "success" {
+        return result
+            .output()
+            .as_json()
+            .and_then(|v| v.get("outcome"))
+            .and_then(Value::as_str)
+            .filter(|outcome| {
+                matches!(
+                    *outcome,
+                    "Applied" | "NeedsReview" | "Deferred" | "Stale" | "Superseded"
+                )
+            })
+            .unwrap_or("outcome unconfirmed");
+    }
+    result.status_name()
+}
 struct BatchHook {
     invalid: Arc<AtomicBool>,
     limited: Arc<AtomicBool>,
@@ -951,6 +975,47 @@ struct BatchHook {
     emit: Arc<dyn Fn(AiEvent) + Send + Sync>,
 }
 impl AgentHook for BatchHook {
+    async fn on_dispatch(&self, _: &HookContext, event: DispatchEvent<'_>) -> DispatchAction {
+        if let Some(name) = event
+            .tool_name()
+            .filter(|name| tool_activity(name).is_some())
+        {
+            let mut args = serde_json::from_str::<Value>(event.tool_args().unwrap_or("{}"))
+                .unwrap_or(Value::Null);
+            if name == "prepare_changes"
+                && let Some(request) = args.get_mut("request")
+                && let Some(writes) = request.get_mut("writes").and_then(Value::as_array_mut)
+            {
+                for write in writes {
+                    if let Some(data) = write.get_mut("data") {
+                        *data = json!("[record content omitted]");
+                    }
+                }
+            }
+            let serialized = args.to_string();
+            let text = format!(
+                "> {name} {}{}",
+                truncate(&serialized, 2048),
+                if serialized.len() > 2048 {
+                    " … [arguments truncated]"
+                } else {
+                    ""
+                }
+            );
+            (self.emit)(AiEvent::Activity(text));
+        }
+        DispatchAction::Proceed
+    }
+    async fn on_outcome(&self, _: &HookContext, event: OutcomeEvent<'_>) -> OutcomeAction {
+        if let Some(name) = event
+            .tool_name()
+            .filter(|name| tool_activity(name).is_some())
+        {
+            let status = tool_outcome_label(name, event.tool_result());
+            (self.emit)(AiEvent::Activity(format!("< {name} · {status}")));
+        }
+        OutcomeAction::Proceed
+    }
     async fn on_model_turn_finished(
         &self,
         _: &HookContext,
@@ -1732,7 +1797,7 @@ async fn run_model(
             Default::default()
         })
         .additional_params(if responses {
-            Value::Null
+            serde_json::json!({"reasoning":{"effort":effort.as_str(),"summary":"auto"}})
         } else {
             serde_json::json!({"reasoning_effort":effort.as_str()})
         })
@@ -1801,6 +1866,30 @@ fn has_writing_proposal(scope: &Scope) -> AiResult<bool> {
 mod tests {
     use super::*;
     use rig::test_utils::{MockCompletionModel, MockStreamEvent};
+    #[test]
+    fn activity_reports_apply_domain_outcomes_without_exposing_results() {
+        use rig::tool::{ToolOutput, ToolResult};
+        for outcome in ["Applied", "NeedsReview", "Deferred", "Stale", "Superseded"] {
+            let result = ToolResult::success(ToolOutput::json(
+                json!({"outcome":outcome,"receipt":"PRIVATE RESULT BODY"}),
+            ));
+            assert_eq!(tool_outcome_label("apply_changes", Some(&result)), outcome);
+            assert_eq!(tool_outcome_label("read_note", Some(&result)), "success");
+        }
+        let result = ToolResult::success(ToolOutput::json(
+            json!({"outcome":"PRIVATE UNKNOWN OUTCOME"}),
+        ));
+        assert_eq!(
+            tool_outcome_label("apply_changes", Some(&result)),
+            "outcome unconfirmed"
+        );
+        assert_eq!(tool_outcome_label("apply_changes", None), "error");
+        let skipped = ToolResult::skipped("PRIVATE REASON");
+        assert_eq!(
+            tool_outcome_label("apply_changes", Some(&skipped)),
+            "skipped"
+        );
+    }
     pub(super) fn fixture() -> (tempfile::TempDir, ThreadRunRequest, String) {
         let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
         let data = root.path().join("workspace");
@@ -2675,6 +2764,17 @@ mod tests {
                     .iter()
                     .any(|e| matches!(e,AiEvent::ToolStarted{name:actual} if actual==name))
             );
+            assert!(events.lock().unwrap().iter().any(
+                |e| matches!(e, AiEvent::Activity(text) if text.starts_with(&format!("> {name} ")))
+            ));
+            let outcome = if name == "apply_changes" {
+                "Applied"
+            } else {
+                "success"
+            };
+            assert!(events.lock().unwrap().iter().any(
+                |e| matches!(e, AiEvent::Activity(text) if text == &format!("< {name} · {outcome}"))
+            ));
         }
         assert_eq!(tool_names().len(), 9);
         for name in tool_names() {

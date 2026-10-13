@@ -436,6 +436,166 @@ fn archive_and_steer_preserve_partial_answers_and_repeated_stop_does_not_duplica
         assert!(w.messages(&f.thread).unwrap().iter().any(|r|matches!(&r.data,RecordData::Message(m) if m.role=="assistant-partial" && m.text=="Useful displayed partial answer")));
     }
 }
+
+#[gpui_kit::test]
+fn quiet_toggle_removes_activity_from_every_live_status_without_changing_work(
+    cx: &mut TestAppContext,
+) {
+    let f = fixture(cx, RunState::Working);
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |ui, cx| {
+            ui.workspace.choose_quiet("start-detailed", false).unwrap();
+            f.sender
+                .send(WorkerEvent::Progress("Finding current notes…".into()))
+                .unwrap();
+            f.sender
+                .send(WorkerEvent::Progress("Reading a note passage…".into()))
+                .unwrap();
+            ui.poll_worker(window, cx);
+            ui.stream = "The answer keeps streaming".into();
+            cx.notify();
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(
+            window
+                .find("worker-status")
+                .label()
+                .unwrap()
+                .contains("Reading a note passage")
+        );
+        assert!(window.find("run-activity").visible());
+        assert_eq!(
+            window.find("run-activity-step-0").label(),
+            Some("Finding current notes…")
+        );
+        window.click("chat-quiet", cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(
+            !window
+                .find("worker-status")
+                .label()
+                .unwrap()
+                .contains("Reading a note passage"),
+            "Quiet must suppress activity in the workspace status bar too"
+        );
+        assert!(
+            window
+                .find("worker-status")
+                .label()
+                .unwrap()
+                .contains("Working quietly")
+        );
+        assert!(window.find("run-stop").visible());
+        assert!(window.find("stop-work").visible());
+        assert!(window.try_find("run-activity").is_none());
+        f.view.update(cx, |ui, _| {
+            assert_eq!(ui.stream_for(&f.thread), Some("The answer keeps streaming"));
+            assert_eq!(
+                ui.worker.as_ref().unwrap().run_id.as_deref(),
+                Some(f.run.as_str())
+            );
+            assert!(!ui.worker.as_ref().unwrap().cancel.is_cancelled());
+            assert_eq!(ui.workspace.settings().unwrap().provider, "offline-fixture");
+        });
+        window.click("chat-quiet", cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(window.find("run-activity").visible());
+        assert_eq!(
+            window.find("run-activity-step-1").label(),
+            Some("Reading a note passage…")
+        );
+        f.view.update(cx, |ui, cx| {
+            for i in 0..40 {
+                f.sender
+                    .send(WorkerEvent::Progress(format!("Working step {i}")))
+                    .unwrap();
+                ui.poll_worker(window, cx);
+            }
+            assert_eq!(ui.run_activity_labels.len(), 32);
+            f.sender
+                .send(WorkerEvent::Finished(Err(
+                    "Synthetic failure remains visible".into(),
+                )))
+                .unwrap();
+            ui.poll_worker(window, cx);
+            assert!(
+                !ui.run_activity_labels.is_empty(),
+                "latest activity remains inspectable after the answer ends"
+            );
+            assert!(ui.notice.contains("Synthetic failure remains visible"));
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(window.find("run-activity").visible());
+        let before = f.view.read(cx).run_activity_scroll.offset();
+        window.scroll(
+            "run-activity-steps",
+            gpui_kit::ScrollDelta::Pixels(point(px(0.), px(120.))),
+            cx,
+        );
+        let after = f.view.read(cx).run_activity_scroll.offset();
+        assert!(
+            after.y > before.y,
+            "the activity pane must scroll independently of the conversation"
+        );
+        f.view.update(cx, |ui, cx| {
+            let (_, receiver) = mpsc::sync_channel(16);
+            ui.worker = Some(Worker {
+                receiver,
+                cancel: CancellationToken::new(),
+                conversion_cancel: Arc::new(AtomicBool::new(false)),
+                kind: WorkerKind::Import,
+                thread: Some(f.other.clone()),
+                run_id: None,
+            });
+            ui.progress = "Unrelated conversion".into();
+            cx.notify();
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(window.find("run-activity").visible());
+        assert!(
+            !window
+                .find("run-line")
+                .label()
+                .unwrap()
+                .contains("Unrelated conversion")
+        );
+        assert!(
+            window.try_find("run-stop").is_none(),
+            "a completed chat must not offer Stop for another worker"
+        );
+        f.view.update(cx, |ui, cx| {
+            let retained_status = ui.run_activity_status.clone();
+            ui.poll_worker(window, cx);
+            assert!(ui.worker.is_none());
+            assert_eq!(
+                ui.run_activity_status, retained_status,
+                "unrelated disconnect must not rewrite the retained run outcome"
+            );
+            ui.open_thread(&f.other, window, cx);
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, _| {
+        assert!(window.try_find("run-activity").is_none())
+    })
+    .unwrap();
+}
 #[gpui_kit::test]
 fn queued_question_dispatches_after_successful_attachment_preparation(cx: &mut TestAppContext) {
     let f = fixture(cx, RunState::Completed);

@@ -579,7 +579,7 @@ impl ThreadsUi {
             .border_t_1()
             .border_color(rgb(p.border));
         if let Some(worker) = &self.worker {
-            let status = worker.kind.status(&self.progress);
+            let status = self.worker_status(worker);
             let thread = worker.thread.clone();
             let progress = thread.as_ref().map_or_else(
                 || status.clone(),

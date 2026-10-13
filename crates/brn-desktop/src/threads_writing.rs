@@ -150,12 +150,32 @@ impl ThreadsUi {
                 start.test_support().into_any_element()
             }
         };
+        let activity = self.chat_thread().and_then(|id| {
+            if self
+                .worker
+                .as_ref()
+                .is_some_and(|w| w.thread.as_deref() == Some(id))
+            {
+                Some(self.live_activity(true, cx))
+            } else if !self.queue_state().quiet
+                && self.run_activity_chat.as_deref() == Some(id)
+                && !self.run_activity_labels.is_empty()
+            {
+                Some(self.live_activity(false, cx))
+            } else {
+                None
+            }
+        });
         div()
             .id("chat-tile")
             .size_full()
             .flex()
             .flex_col()
             .child(div().flex_1().min_h_0().child(body))
+            // Keep the activity scroller outside MessageScroller's wheel mask.
+            .when_some(activity, |tile, activity| {
+                tile.child(div().flex_shrink_0().p_2().child(activity))
+            })
             .child(self.composer_tile(cx))
             .into_any_element()
     }
@@ -234,33 +254,6 @@ impl ThreadsUi {
                             ),
                         stream.into(),
                     )),
-            );
-        }
-        if let Some(worker) = &self.worker
-            && worker.thread.as_deref() == Some(id)
-        {
-            conversation = conversation.child(
-                div()
-                    .id("run-line")
-                    .flex()
-                    .items_center()
-                    .gap_2()
-                    .font_family(MONO)
-                    .text_xs()
-                    .text_color(rgb(p.muted))
-                    .child(format!(
-                        "◌ {}",
-                        if self.queue_state().quiet {
-                            "Working…".into()
-                        } else {
-                            worker.kind.status(&self.progress)
-                        }
-                    ))
-                    .child(
-                        pill("run-stop", "stop ⌘.")
-                            .on_click(cx.listener(|this, _, _, cx| this.cancel(cx))),
-                    )
-                    .test_support(),
             );
         }
         if can_continue_thread(
@@ -543,11 +536,17 @@ impl ThreadsUi {
                 pill(
                     "chat-quiet",
                     if self.queue_state().quiet {
-                        "Quiet · on"
+                        "Quiet · on · answers only"
                     } else {
-                        "Quiet · off"
+                        "Quiet · off · show activity"
                     },
                 )
+                .selected(self.queue_state().quiet)
+                .tooltip(if self.queue_state().quiet {
+                    "Hide routine activity throughout the window. Answers, Stop, errors and decisions stay visible."
+                } else {
+                    "Show recent activity while BRN works."
+                })
                 .on_click(cx.listener(|this, _, _, cx| {
                     let quiet = !this.queue_state().quiet;
                     if let Err(e) = this

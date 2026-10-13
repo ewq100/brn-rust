@@ -179,6 +179,7 @@ struct Review {
 enum WorkerEvent {
     AnswerFinalized(String),
     Progress(String),
+    Activity(String),
     Text(String),
     Finished(Result<String, String>),
     RunFinished {
@@ -429,6 +430,10 @@ struct ThreadsUi {
     pending_send: Option<PendingSend>,
     stream: String,
     progress: String,
+    run_activity_labels: Vec<String>,
+    run_activity_chat: Option<String>,
+    run_activity_status: String,
+    run_activity_scroll: gpui_kit::ScrollHandle,
     notice: String,
     export_status: String,
     copilot_models: Vec<String>,
@@ -659,6 +664,10 @@ impl ThreadsUi {
             pending_send: None,
             stream: String::new(),
             progress: String::new(),
+            run_activity_labels: vec![],
+            run_activity_chat: None,
+            run_activity_status: String::new(),
+            run_activity_scroll: gpui_kit::ScrollHandle::new(),
             notice: String::new(),
             export_status: "No export created in this session.".into(),
             copilot_models: Vec::new(),
@@ -1729,9 +1738,11 @@ impl ThreadsUi {
                         brn_ai::AiEvent::Text(text) => WorkerEvent::Text(text),
                         brn_ai::AiEvent::AnswerFinalized(text) => WorkerEvent::AnswerFinalized(text),
                         brn_ai::AiEvent::ToolStarted { name } => WorkerEvent::Progress(brn_ai::threads::tool_activity(&name).unwrap_or("Working…").into()),
+                        brn_ai::AiEvent::Activity(text) => WorkerEvent::Activity(text),
+                        brn_ai::AiEvent::ReasoningSummary(text) => WorkerEvent::Activity(format!("reasoning summary> {text}")),
                         brn_ai::AiEvent::BudgetProgress { model_turns: _, tool_rounds, max_tool_rounds } => WorkerEvent::Progress(format!("Working · {tool_rounds} of {max_tool_rounds} steps used")),
                     };
-                    if matches!(item, WorkerEvent::Text(_) | WorkerEvent::AnswerFinalized(_)) { let _ = progress_sender.send(item); }
+                    if matches!(item, WorkerEvent::Text(_) | WorkerEvent::AnswerFinalized(_) | WorkerEvent::Activity(_)) { let _ = progress_sender.send(item); }
                     else { let _ = progress_sender.try_send(item); }
                 }))).map_err(|e| e.to_string())
             });
@@ -1753,6 +1764,8 @@ impl ThreadsUi {
             cx.notify();
             return;
         }
+        self.run_activity_chat = Some(thread.clone());
+        self.run_activity_status.clear();
         self.worker = Some(Worker {
             receiver,
             cancel,
@@ -1762,6 +1775,7 @@ impl ThreadsUi {
             run_id: Some(run_id),
         });
         self.stream.clear();
+        self.run_activity_labels.clear();
         self.progress = "Starting…".into();
         self.notice.clear();
         cx.notify();
@@ -2423,6 +2437,13 @@ impl ThreadsUi {
         if events.is_empty() {
             if disconnected {
                 self.pause_failed_worker();
+                if self
+                    .worker
+                    .as_ref()
+                    .is_some_and(|w| w.kind == WorkerKind::Run)
+                {
+                    self.run_activity_status = "Disconnected".into();
+                }
                 self.worker = None;
                 self.pending_send = None;
                 self.stream.clear();
@@ -2468,7 +2489,25 @@ impl ThreadsUi {
                         self.stream.push_str(&text);
                     }
                 }
-                WorkerEvent::Progress(text) => self.progress = text,
+                WorkerEvent::Progress(text) => {
+                    if self
+                        .worker
+                        .as_ref()
+                        .is_some_and(|w| w.kind == WorkerKind::Run && !w.cancel.is_cancelled())
+                    {
+                        self.record_activity(&text);
+                    }
+                    self.progress = text;
+                }
+                WorkerEvent::Activity(text) => {
+                    if self
+                        .worker
+                        .as_ref()
+                        .is_some_and(|w| w.kind == WorkerKind::Run && !w.cancel.is_cancelled())
+                    {
+                        self.record_activity(&text);
+                    }
+                }
                 WorkerEvent::CopilotLogin {
                     verification_uri,
                     user_code,
@@ -2493,6 +2532,22 @@ impl ThreadsUi {
                 WorkerEvent::Finished(result) => {
                     finished = true;
                     let kind = self.worker.as_ref().map(|w| w.kind);
+                    if kind == Some(WorkerKind::Run) {
+                        self.run_activity_status = self
+                            .worker
+                            .as_ref()
+                            .and_then(|w| w.run_id.as_deref())
+                            .and_then(|id| self.workspace.store.record(id).ok().flatten())
+                            .and_then(|r| match r.data {
+                                RecordData::Run(run) => Some(if run.state == RunState::Working {
+                                    "Work ended · status unconfirmed".into()
+                                } else {
+                                    format!("{:?}", run.state)
+                                }),
+                                _ => None,
+                            })
+                            .unwrap_or_else(|| "Work ended".into());
+                    }
                     if kind != Some(WorkerKind::Run) {
                         allow_dispatch = result.is_ok();
                         if result.is_err() {
@@ -2597,6 +2652,13 @@ impl ThreadsUi {
             }
         } else if disconnected && self.worker.is_some() {
             self.pause_failed_worker();
+            if self
+                .worker
+                .as_ref()
+                .is_some_and(|w| w.kind == WorkerKind::Run)
+            {
+                self.run_activity_status = "Disconnected".into();
+            }
             self.worker = None;
             self.pending_send = None;
             self.stream.clear();
