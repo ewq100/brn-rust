@@ -176,7 +176,7 @@ class PublicationTests(unittest.TestCase):
                           [None, [{"tag_name": self.approved["version"], "target_commitish": "b" * 40, "prerelease": True}]],
                           [{"object": {"type": "commit", "sha": SHA}}, []]):
             with patch.object(api, "request", side_effect=responses), self.assertRaises(ValueError):
-                api.existing("v0.1.0-preview.1", SHA)
+                api.existing(self.approved["version"], SHA)
 
     def test_exact_existing_draft_resumes_without_replacing_assets(self):
         draft = dict(id=7, draft=True, prerelease=True, target_commitish=SHA,
@@ -197,7 +197,7 @@ class PublicationTests(unittest.TestCase):
                      upload_url="https://uploads.github.com/repos/example/brn/releases/7/assets{?name}")
         for refreshed in (None, dict(draft, id=8), dict(draft, draft=False),
                           dict(draft, target_commitish="b" * 40), dict(draft, prerelease=False),
-                          dict(draft, tag_name="v0.1.0-preview.2")):
+                          dict(draft, tag_name=self.approved["version"] + "-other")):
             api = FakeGithub(existing=draft)
             with self.subTest(refreshed=refreshed), patch.object(api, "existing", side_effect=[draft, refreshed]):
                 with self.assertRaises(ValueError):
