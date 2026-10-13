@@ -1,6 +1,6 @@
 //! Pinned multilingual-e5-small retrieval (D3), still recognising the
 //! previously pinned MiniLM model and explicit legacy files.
-use crate::{Error, Result, note_index::Embedder};
+use crate::{Error, Result, embedding::Embedder};
 use fastembed::{
     InitOptionsUserDefined, Pooling, QuantizationMode, TextEmbedding, TokenizerFiles,
     UserDefinedEmbeddingModel,

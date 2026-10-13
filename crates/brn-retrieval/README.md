@@ -1,10 +1,19 @@
 # brn-retrieval
 
-Derived search components for the Threads application. The [shared app](../brn-threads-app/src/lib.rs) opens an in-memory `NoteIndex`, refreshes it from current non-archived/non-superseded notes and performs FTS5 keyword queries. SQLite in `brn-threads-core` remains authoritative; opening a workspace can rebuild retrieval.
+Derived search components for the BRN application, built for the [knowledge and retrieval architecture](../../docs/work/active/knowledge-retrieval/spec.md). SQLite in `brn-threads-core` stays authoritative: everything here can be deleted and rebuilt.
 
-`search_index` is the persisted workspace index (`derived/search.sqlite`, schema `BRNS` v1) from the [knowledge and retrieval plan](../../docs/work/active/knowledge-retrieval/spec.md). It has exact and English-stemmed FTS5 lanes over `markdown_chunk` v1 passages, a links mirror, and a sync watermark. Opens and rebuilds go through an advisory lock, and writes are guarded against concurrent writers with `Changes.base`. The app's search worker (`brn-threads-app::search`) keeps it current and re-checks results with core visibility. The app's `Workspace::search` still uses the in-memory `NoteIndex` until Task 2 switches it.
+- **`search_index`**: the persisted workspace index `derived/search.sqlite` (brand `BRNS`, schema v2).
+  - Exact, English-stemmed and all-words keyword lanes over `markdown_chunk` v1 passages, fused by RRF and collapsed per document.
+  - A dense lane over per-model vectors, a links mirror, exact counts, and link facts scoped to the caller's context.
+  - Opens and rebuilds go through an advisory lock shared by every BRN process. Writes are guarded against concurrent writers with `Changes.base`.
+  - Passage IDs are never reused. A foreign file is refused unchanged.
+  - The app's search worker (`brn-threads-app::search`) keeps it current and re-checks every result with core visibility.
+- **`markdown_chunk`**: heading- and paragraph-aware chunks with heading paths and exact byte ranges.
+- **`snippet`**: bounded matching context with highlight ranges.
+- **`embedding::Embedder`**: the model interface, with prefixes and a per-model similarity floor.
+- **`native`** (feature): the load-only `LocalEmbedder` and the pinned, explicit installer described below.
 
-The crate also retains a reusable persistent index reader/writer, metadata/edge cache and optional local embeddings. Their richer scope/model contracts below describe component behavior, not a claim that current Threads search uses semantic ranking or the former Markdown-vault orchestration.
+The vault-era `NoteIndex` (metadata, UUID and edge-proof caches, and its reader) was retired in Task 6 of the plan once nothing used it.
 
 ## Language scope
 
@@ -13,53 +22,6 @@ Retrieval is tuned and qualified for English only. Estonian is on hold by owner 
 ## Dependencies and features
 
 No workspace dependencies; defaults are empty. `native` enables FastEmbed/ONNX and the explicit bounded model installer with pinned reqwest, sha1 and macOS libc. `brn-threads-app/native-retrieval` exposes that optional graph; desktop combines it with `native-ui`. Builds alone do not establish model or corpus quality.
-
-## Reader and model snapshot contract
-
-`NoteIndexReader::open` uses read-only SQLite flags, query-only mode and a
-busy timeout, validating BRNI application ID, schema version/objects and
-integrity. It never calls the writer's create/rebuild path and never repairs a
-foreign or damaged file. `NoteSearch` keyword/vector queries and note listing
-share connection helpers between reader and writer.
-
-BRNI schema V3 caches optional Markdown UUIDs, source/history flags and metadata
-issues supplied by the caller. The branded writer rebuilds old/damaged derived
-schemas; the reader refuses them without repair. UUID duplication is allowed
-here and resolved by fresh caller evidence inspection. `KnowledgeScope`
-defaults to Current: eligible current knowledge only. Source includes original
-sources in any state; History includes historical knowledge and sources; All
-includes every eligible classified note. Rows with metadata issues are excluded
-from every scope. Scope filtering precedes keyword/vector ranking and limits.
-Metadata updates preserve unchanged passages and embeddings; no index row is
-authoritative knowledge or proof of UUID uniqueness.
-
-V3 adds disposable typed note edges for explicit Markdown links and separately
-labelled provenance inferences. Healthy V2 upgrades additively without replacing
-passages or vectors; V2 readers refuse until the writer upgrades. Edge replacement
-is atomic and requires distinct unique cached UUIDs, eligible endpoint metadata,
-full saved hashes and exact nonempty Unicode byte/quote proofs reconstructed from
-contiguous passages. Each coalesced edge admits at most 8192 proofs and 4 MiB of
-quotes; proof ranges end within 1 MiB. Explicit-link proofs belong to the source,
-provenance-inference proofs to the target. Duplicate pairs/origins or proofs are
-refused without clearing the prior cache.
-
-Writer/reader edge queries share one SQLite snapshot, deterministic source/target/
-origin ordering, both-endpoint scope filtering before pagination, matching totals,
-and limits of 1–200. Malformed stored schemas, endpoints or proofs make readers
-refuse and branded writers rebuild. Note changes remove touching edges; cached
-UUID alias admission also invalidates affected endpoints. Identical metadata and
-mtime-only touches retain proofs. Callers supply fresh source observations;
-these index records confer no durable knowledge or identity authority.
-
-The writer checkpoints its newly created BRNI header before readers attach,
-so a live/new index cannot look like a foreign unbranded file on a subsequent
-open. Existing foreign-file refusal rules are unchanged.
-
-`semantic_for_model` checks identity **and** dimension in the same short read
-transaction as vector/hit lookup; `ModelMismatch` never becomes keyword
-fallback. Writer stale-passage/model insertion checks remain intact. Close
-readers before the writer checkpoints at shutdown; drain/detach readers before
-rebuilding/replacing the index file or switching a tool/model snapshot.
 
 ## Pinned, explicit native installer
 
@@ -92,9 +54,9 @@ and hashes the entire bundle into a distinct profile identity. e5-small uses mea
 pooling, 384 dimensions, 512 tokens, Static quantization, `query: ` and
 `passage: ` prefixes and a provisional 0.80 similarity floor; MiniLM keeps 128
 tokens, no prefixes and its identity.
-Other explicit or saved directories retain their exact legacy behavior and identity.
-The 128-token limit needs real bilingual/long-passage quality qualification;
-synthetic profile checks do not establish ONNX compatibility. Native tests use
+Other explicit directories retain their exact legacy behavior and identity.
+Synthetic profile checks do not establish ONNX compatibility or quality; that
+is the owner-run qualification in the plan. Native tests use
 private synthetic manifests/HTTP sources; no public alternate manifest or
 production asset download is used in verification.
 

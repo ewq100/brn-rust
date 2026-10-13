@@ -1,5 +1,5 @@
 #![cfg(feature = "native")]
-use brn_retrieval::{native::LocalEmbedder, note_index::Embedder};
+use brn_retrieval::{embedding::Embedder, native::LocalEmbedder};
 
 #[test]
 fn missing_model_folder_is_unavailable() {

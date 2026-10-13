@@ -2,7 +2,6 @@
 //! of current notes and links with exact and English-stemmed FTS5 lanes.
 //! It is never authoritative; callers re-check core visibility on results.
 use crate::markdown_chunk::{CHUNKER_VERSION, chunks};
-use crate::note_index::search::{check_query, fts_query};
 use crate::{Error, Result};
 use rusqlite::{Connection, OptionalExtension, TransactionBehavior, params};
 use sha2::{Digest, Sha256};
@@ -762,6 +761,25 @@ pub fn unit(vector: &[f32]) -> Result<Vec<f32>> {
         .iter()
         .map(|x| (f64::from(*x) / norm) as f32)
         .collect())
+}
+
+/// Rejects empty or over-long (> 512 bytes) queries and limits outside 1..=50.
+fn check_query(query: &str, limit: usize) -> Result<()> {
+    if query.trim().is_empty() || query.len() > 512 || !(1..=50).contains(&limit) {
+        return Err(Error::Invalid("query length or limit"));
+    }
+    Ok(())
+}
+
+/// An FTS5 query matching any of the query's words. Each word is quoted, so
+/// user text never becomes FTS5 syntax.
+fn fts_query(query: &str) -> Option<String> {
+    let terms: Vec<String> = query
+        .split(|c: char| !c.is_alphanumeric())
+        .filter(|term| !term.is_empty())
+        .map(|term| format!("\"{}\"", term.to_lowercase()))
+        .collect();
+    (!terms.is_empty()).then(|| terms.join(" OR "))
 }
 
 fn scope(chat: Option<&str>) -> String {

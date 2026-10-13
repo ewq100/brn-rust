@@ -1,4 +1,5 @@
-//! Rebuildable current-note keyword and native retrieval indexes.
+//! The rebuildable workspace search index (`search_index`), its Markdown
+//! chunker, snippets, and optional native embeddings with a pinned installer.
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -9,10 +10,6 @@ pub enum Error {
     Corrupt(&'static str),
     #[error("retrieval profile unavailable: {0}")]
     Unavailable(&'static str),
-    #[error("embedding model identity or dimension does not match the index")]
-    ModelMismatch,
-    #[error("shared embedding model lock is poisoned")]
-    EmbedderPoisoned,
     #[cfg(feature = "native")]
     #[error("{0}")]
     ModelInstall(#[from] native::download::ModelInstallError),
@@ -22,8 +19,6 @@ pub enum Error {
     Stale,
     #[error("retrieval I/O: {0}")]
     Io(#[from] std::io::Error),
-    #[error("retrieval format: {0}")]
-    Format(#[from] serde_json::Error),
     #[error("native retrieval: {0}")]
     Native(String),
     #[error("index database: {0}")]
@@ -40,11 +35,9 @@ fn check_cancel(cancel: &std::sync::atomic::AtomicBool) -> Result<()> {
     }
 }
 
-mod chunk;
 pub mod embedding;
 pub mod markdown_chunk;
 #[cfg(feature = "native")]
 pub mod native;
-pub mod note_index;
 pub mod search_index;
 pub mod snippet;
