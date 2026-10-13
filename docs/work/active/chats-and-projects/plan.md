@@ -196,3 +196,6 @@ Owner clarified that the “Work … Finished” banner should remain optional b
 
 
 The owner also reported duplicate model controls in the composer and status bar. Keep provider/model/effort controls in the composer; replace the idle status-bar model menu with a plain Idle indicator. Preserve active progress and Stop, existing Settings access and current model/effort configuration.
+
+
+Status follow-up `4b235b97`: implemented and independently approved, 94 native tests/strict lint/build pass, and actual same-banner dismiss/restore plus nonduplicated model controls were observed. Fresh **BRN Status Test** is open; [evidence](evidence.md#reopen-work-status-and-remove-duplicate-model-controls--13-october-2026) pins the build and one Completed run. Owner acceptance remains pending; integration/release unassigned.
