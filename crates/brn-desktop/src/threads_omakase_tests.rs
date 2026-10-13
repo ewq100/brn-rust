@@ -125,6 +125,8 @@ fn record_run(workspace: &mut Workspace, thread: &str, state: RunState) -> Strin
                     expected_version: None,
                     archived: false,
                     data: RecordData::Run(Run {
+                        instruction: None,
+                        queue_claim: None,
                         thread: thread.into(),
                         provider: settings.provider.clone(),
                         model: settings.model.clone(),
@@ -234,7 +236,7 @@ fn layouts_resize_swap_maximize_and_tile_menu_work_by_mouse_and_keys(cx: &mut Te
     assert!(kinds(cx, &f).contains(&TileKind::Threads));
     click(cx, &f, "tile-close-threads");
     click(cx, &f, "status-layout");
-    choose(cx, &f, "threads");
+    choose(cx, &f, "chats");
     assert!(kinds(cx, &f).contains(&TileKind::Threads));
     on_window(cx, &f, |window, cx| {
         window.right_click("tile-header-note", cx)
@@ -345,7 +347,7 @@ fn themes_switch_from_status_bar_launcher_and_settings_and_wait_for_running_work
 }
 
 #[gpui_kit::test]
-fn resolved_threads_leave_the_sidebar_stay_findable_and_reply_reopens(cx: &mut TestAppContext) {
+fn archived_chats_leave_the_sidebar_stay_findable_and_require_unarchive(cx: &mut TestAppContext) {
     let mut ids = vec![];
     let f = fixture(cx, |workspace| {
         for i in 0..13 {
@@ -368,14 +370,8 @@ fn resolved_threads_leave_the_sidebar_stay_findable_and_reply_reopens(cx: &mut T
             window.try_find(format!("thread-{done}")).is_none(),
             "resolved never listed inline"
         );
-        assert_eq!(
-            window.find("resolved-count").label(),
-            Some("✓ resolved · 1")
-        );
-        assert_eq!(
-            window.find("all-threads").label(),
-            Some("all threads · 13 →")
-        );
+        assert_eq!(window.find("resolved-count").label(), Some("archived · 1"));
+        assert_eq!(window.find("all-threads").label(), Some("all chats · 13 →"));
         let shown = ids
             .iter()
             .filter(|id| window.try_find(format!("thread-{id}")).is_some())
@@ -406,19 +402,18 @@ fn resolved_threads_leave_the_sidebar_stay_findable_and_reply_reopens(cx: &mut T
     on_window(cx, &f, |window, _| {
         assert_eq!(
             window.find("launcher-item-0").label(),
-            Some("thread · Open question 00 · ✓ resolved")
+            Some("chat · Open question 00 · archived")
         );
     });
     click(cx, &f, "launcher-item-0");
     on_window(cx, &f, |window, _| {
-        assert!(window.find("thread-resolved").visible());
         assert!(window.find("reopen-thread").visible());
         assert!(
             window
                 .find("composer-destination")
                 .label()
                 .unwrap()
-                .contains("sending reopens it")
+                .contains("Unarchive to reply")
         );
     });
     update(cx, &f, |view, window, cx| {
@@ -426,22 +421,56 @@ fn resolved_threads_leave_the_sidebar_stay_findable_and_reply_reopens(cx: &mut T
             editor.set_value("One more thing", window, cx)
         });
         view.ask(window, cx);
-        assert_eq!(thread_state(view, &done), ThreadState::Open);
         assert!(
-            view.history
-                .iter()
-                .any(|receipt| receipt.reason == "Owner replied to a resolved thread")
+            view.workspace
+                .store
+                .record(&done)
+                .unwrap()
+                .unwrap()
+                .archived
         );
+        assert!(view.notice.contains("Unarchive"));
     });
-    on_window(cx, &f, |window, _| {
-        assert!(window.try_find("resolved-count").is_none());
-        assert!(window.find(format!("thread-{done}")).visible());
-    });
-    // Explicit resolve and reopen from the header.
-    click(cx, &f, "resolve-thread");
-    cx.read(|cx| assert_eq!(thread_state(f.view.read(cx), &done), ThreadState::Resolved));
     click(cx, &f, "reopen-thread");
-    cx.read(|cx| assert_eq!(thread_state(f.view.read(cx), &done), ThreadState::Open));
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert!(
+            !view
+                .workspace
+                .store
+                .record(&done)
+                .unwrap()
+                .unwrap()
+                .archived
+        );
+        assert!(view.queue_state().paused);
+    });
+    click(cx, &f, "resolve-thread");
+    cx.read(|cx| {
+        assert!(
+            f.view
+                .read(cx)
+                .workspace
+                .store
+                .record(&done)
+                .unwrap()
+                .unwrap()
+                .archived
+        )
+    });
+    click(cx, &f, "reopen-thread");
+    cx.read(|cx| {
+        assert!(
+            !f.view
+                .read(cx)
+                .workspace
+                .store
+                .record(&done)
+                .unwrap()
+                .unwrap()
+                .archived
+        )
+    });
 }
 
 fn finish_run(cx: &mut TestAppContext, f: &Fixture, thread: &str) {
@@ -463,7 +492,7 @@ fn finish_run(cx: &mut TestAppContext, f: &Fixture, thread: &str) {
 }
 
 #[gpui_kit::test]
-fn quick_questions_auto_resolve_only_when_nothing_else_is_involved(cx: &mut TestAppContext) {
+fn completed_chats_remain_in_history_without_auto_resolving(cx: &mut TestAppContext) {
     let mut quick = String::new();
     let mut linked_thread = String::new();
     let mut twice = String::new();
@@ -522,17 +551,15 @@ fn quick_questions_auto_resolve_only_when_nothing_else_is_involved(cx: &mut Test
     }
     cx.read(|cx| {
         let view = f.view.read(cx);
-        assert_eq!(thread_state(view, &quick), ThreadState::Resolved);
-        let receipt = view
-            .history
-            .iter()
-            .rev()
-            .find(|receipt| receipt.writes.iter().any(|write| write.after.id == quick))
-            .unwrap();
-        assert_eq!(receipt.reason, lists::AUTO_RESOLVE_REASON);
+        assert_eq!(thread_state(view, &quick), ThreadState::Open);
         assert!(
-            receipt.authority.starts_with("owner:"),
-            "checked owner resolve path"
+            !view
+                .workspace
+                .store
+                .record(&quick)
+                .unwrap()
+                .unwrap()
+                .archived
         );
         for thread in [&linked_thread, &twice, &failed, &attention] {
             assert_eq!(thread_state(view, thread), ThreadState::Open, "{thread}");
@@ -542,13 +569,7 @@ fn quick_questions_auto_resolve_only_when_nothing_else_is_involved(cx: &mut Test
         view.open_thread(&quick, window, cx)
     });
     on_window(cx, &f, |window, _| {
-        assert!(
-            window
-                .find("thread-resolved")
-                .label()
-                .unwrap()
-                .contains("resolved automatically")
-        );
+        assert!(window.find(format!("thread-{quick}")).visible());
     });
 }
 
@@ -561,7 +582,7 @@ fn notes_tile_sections_letters_and_filter_stay_bounded_with_many_notes(cx: &mut 
                 .new_note(&format!("{prefix} note {i:03}"), "Synthetic text")
                 .unwrap();
             if i % 40 == 0 {
-                let thread = workspace.new_thread(&format!("Thread {i}")).unwrap();
+                let thread = workspace.new_thread(&format!("Chat {i}")).unwrap();
                 workspace
                     .link_writing_thread(&format!("link-{i}"), &note.id, note.version, &thread.id)
                     .unwrap();
@@ -618,12 +639,12 @@ fn notes_tile_sections_letters_and_filter_stay_bounded_with_many_notes(cx: &mut 
     on_window(cx, &f, |window, cx| {
         window.right_click(format!("note-{target}"), cx)
     });
-    choose(cx, &f, "New thread about this note");
+    choose(cx, &f, "New chat about this note");
     cx.read(|cx| {
         let view = f.view.read(cx);
         assert_eq!(view.open_note_id(), Some(target.as_str()));
         let ChatTarget::Thread(thread) = &view.chat else {
-            panic!("a linked thread is created")
+            panic!("a linked chat is created")
         };
         assert_eq!(view.writing_threads.get(&target), Some(thread));
         assert_eq!(view.workspace.writing_threads(&target).unwrap().len(), 1);
@@ -689,7 +710,7 @@ fn mode_pill_maps_to_exact_grants_and_resets_after_each_request(cx: &mut TestApp
         assert_eq!(
             f.view.read(cx).mode,
             ComposeMode::Ask,
-            "switching threads resets"
+            "switching chats resets"
         )
     });
 }
@@ -831,7 +852,7 @@ fn review_in_place_applies_exact_candidate_then_marks_addressed_and_undoes(
     on_window(cx, &f, |window, _| {
         assert!(
             window.find(format!("proposal-{op}")).visible(),
-            "card in the thread"
+            "card in the chat"
         );
         assert!(window.find(format!("card-apply-{op}")).visible());
     });
@@ -1060,5 +1081,128 @@ fn a_note_draft_follows_the_first_thread_created_for_that_note(cx: &mut TestAppC
             view.composer.read(cx).value().as_ref(),
             "Draft for the note"
         );
+    });
+}
+
+#[gpui_kit::test]
+fn chat_scroller_keeps_reading_position_across_updates_and_per_chat_navigation(
+    cx: &mut TestAppContext,
+) {
+    let mut a = String::new();
+    let mut b = String::new();
+    let f = fixture(cx, |w| {
+        a = w.new_thread("Long chat").unwrap().id;
+        b = w.new_thread("Other chat").unwrap().id;
+        for i in 0..60 {
+            w.post_message(
+                &a,
+                &format!("Message {i}\n{}", "Long readable text. ".repeat(80)),
+            )
+            .unwrap();
+        }
+    });
+    update(cx, &f, |ui, window, cx| ui.open_thread(&a, window, cx));
+    let state = cx.read(|cx| {
+        f.view
+            .read(cx)
+            .scrollers
+            .borrow()
+            .get(&a)
+            .unwrap()
+            .state
+            .clone()
+    });
+    update(cx, &f, |_, _, cx| {
+        state.update(cx, |s, cx| assert!(s.scroll_to_item(0, cx)));
+    });
+    cx.read(|cx| assert!(!state.read(cx).is_following_tail()));
+    update(cx, &f, |ui, window, cx| {
+        ui.workspace.post_message(&a, "New latest message").unwrap();
+        ui.refresh();
+        ui.open_thread(&b, window, cx);
+        ui.open_thread(&a, window, cx);
+    });
+    cx.read(|cx| {
+        assert_eq!(state.read(cx).item_count(), 62);
+        assert!(!state.read(cx).is_following_tail());
+        assert_eq!(
+            f.view
+                .read(cx)
+                .scrollers
+                .borrow()
+                .get(&a)
+                .unwrap()
+                .state
+                .entity_id(),
+            state.entity_id()
+        );
+    });
+    update(cx, &f, |_, _, cx| {
+        state.update(cx, |s, cx| s.scroll_to_end(cx))
+    });
+    cx.read(|cx| assert!(state.read(cx).is_following_tail()));
+}
+
+#[gpui_kit::test]
+fn chat_and_note_figure_resolvers_exclude_foreign_private_assets(cx: &mut TestAppContext) {
+    let mut owner_chat = String::new();
+    let mut other_chat = String::new();
+    let mut note_id = String::new();
+    let mut asset_id = String::new();
+    let f = fixture(cx, |w| {
+        owner_chat = w.new_thread("Private figures").unwrap().id;
+        other_chat = w.new_thread("Other conversation").unwrap().id;
+        let op = w.store.allocate_operation("private-asset-fixture").unwrap();
+        note_id = op.creation_id(0);
+        asset_id = op.creation_id(1);
+        let mut n = Note::working("Private", "Figure");
+        n.chat = Some(owner_chat.clone());
+        w.owner_change(
+            "private-asset-fixture",
+            &ChangeRequest {
+                reason: "Private figure".into(),
+                inputs: vec![],
+                writes: vec![
+                    Put {
+                        id: note_id.clone(),
+                        expected_version: None,
+                        archived: false,
+                        data: RecordData::Note(n),
+                    },
+                    Put {
+                        id: asset_id.clone(),
+                        expected_version: None,
+                        archived: false,
+                        data: RecordData::Asset(Asset {
+                            note: note_id.clone(),
+                            source: None,
+                            media_type: "image/png".into(),
+                            bytes: vec![1, 2, 3],
+                        }),
+                    },
+                    Put {
+                        id: op.creation_id(2),
+                        expected_version: None,
+                        archived: false,
+                        data: RecordData::Link(Link {
+                            from: owner_chat.clone(),
+                            to: note_id.clone(),
+                            relation: "attachment".into(),
+                        }),
+                    },
+                ],
+            },
+        )
+        .unwrap();
+    });
+    update(cx, &f, |ui, window, cx| {
+        let key = format!("brn-asset://{asset_id}");
+        ui.open_thread(&other_chat, window, cx);
+        assert!(!ui.assets_in_chat(Some(&other_chat)).contains_key(&key));
+        assert!(!ui.assets_in_chat(None).contains_key(&key));
+        assert!(ui.assets_in_chat(Some(&owner_chat)).contains_key(&key));
+        ui.open_note(&note_id, None, window, cx);
+        assert_eq!(ui.chat, ChatTarget::Thread(owner_chat.clone()));
+        assert!(ui.note_assets().contains_key(&key));
     });
 }

@@ -22,3 +22,11 @@ These summarize the [canonical Threads target](threads-target.md). They are obli
 18. **Evidence names what was tested.** Code, successful checks, native usability, owner acceptance, and merge status are separate. Preserve repository protection and truthful failed/blocked results.
 
 The [acceptance journeys](threads-target.md#acceptance-journeys) and [verification guide](../development/verification.md) turn these into concrete checks.
+
+## Chat context and saved queue
+
+Chat-only Note/Source scope is host-controlled configuration. Exact IDs, ranges, historical evidence, assets, comments, source observations and relationship endpoints obey the same chat visibility boundary. Autonomous maintenance exposed to unpromoted private documents cannot write general BRN context. Keep in BRN is a version-bound owner operation; it preserves the same note, protection, converted content, assets and Undo. Original binaries stay external.
+
+Queue dispatch claims, posted owner Message identity and Run instruction association are durable checked state. Competing dispatchers cannot start the same claim twice. Run start binds the current claim atomically. Queue completion checks exact pending item/Message/Run and its checked persisted terminal fence/outcome; caller success alone cannot acknowledge it. Stop, Archive, failure and recovery pause without losing waiting messages. Resume invalidates old completion associations. Successful completion does not override pause. Composer recovery rejects stale generations and does not retain keystroke history.
+
+Schema 3 adoption requires an external, verified pre-upgrade snapshot before schema 4 mutation, with competing writes excluded across snapshot and upgrade. Missing backup authority/path, active runs or dirty edit sessions leave the old format unchanged. Known older backups upgrade only their unpublished restore copy; the source snapshot remains unchanged.

@@ -17,7 +17,7 @@ static CANCEL: AtomicBool = AtomicBool::new(false);
 extern "C" fn on_sigint(_: libc::c_int) {
     CANCEL.store(true, Ordering::SeqCst);
 }
-const HELP: &str = "BRN Threads\n\nUsage: brn --data-dir ABSOLUTE_DIRECTORY COMMAND [--option VALUE]\n\nCommands: init, records, notes, threads, needs-you, history, candidates, settings,\n  note-create --title TITLE --text MARKDOWN\n  thread-start --title TITLE\n  read --id RECORD; search --query TEXT\n  begin-edit --note ID --base VERSION\n  update-buffer --session ID --generation N --text MARKDOWN\n  save|discard --session ID --generation N; recovery\n  apply|dismiss --operation ID; undo --operation ID; resolve --thread ID\n  ask --thread ID --prompt TEXT [--budget 1..32] [--edit-note ID --base VERSION | --record-decision yes]\n  intake --source ABSOLUTE_FILE --intent useful|full [--title TITLE] [--thread ID]\n  configure --provider Codex|Copilot --model ID --effort low|medium|high\n  delegation --choice maintain|review-first\n  pause; resume; export|backup --destination ABSOLUTE_FRESH_PATH\n  restore --source ABSOLUTE_BACKUP\n\nChoose delegation before resuming maintenance. Manual work remains available while pending.\nFresh explicit data only. Originals remain external; no external messages are sent.\nReview apply and Undo are concrete owner actions. Continue uses ask on the same Thread.";
+const HELP: &str = "BRN Threads\n\nUsage: brn --data-dir ABSOLUTE_DIRECTORY COMMAND [--option VALUE]\n\nCommands: init, records, notes, threads, needs-you, history, candidates, settings,\n  note-create --title TITLE --text MARKDOWN\n  thread-start --title TITLE\n  read --id RECORD; search --query TEXT\n  begin-edit --note ID --base VERSION\n  update-buffer --session ID --generation N --text MARKDOWN\n  save|discard --session ID --generation N; recovery\n  apply|dismiss --operation ID; undo --operation ID; archive|unarchive --thread ID\n  queue --thread ID --text TEXT; keep-in-brn --note ID --base VERSION\n  ask --thread ID --prompt TEXT [--budget 1..32] [--edit-note ID --base VERSION | --record-decision yes]\n  intake --source ABSOLUTE_FILE --intent useful|full|chat [--title TITLE] [--thread ID]\n  configure --provider Codex|Copilot --model ID --effort low|medium|high\n  delegation --choice maintain|review-first\n  pause; resume; export|backup --destination ABSOLUTE_FRESH_PATH\n  restore --source ABSOLUTE_BACKUP\n  upgrade --backup-directory ABSOLUTE_EXTERNAL_FOLDER\n\nChoose delegation before resuming maintenance. Manual work remains available while pending.\nFresh explicit data only. Originals remain external; no external messages are sent.\nReview apply and Undo are concrete owner actions. Continue uses ask on the same Thread.";
 type Result<T> = std::result::Result<T, String>;
 struct Invocation {
     data: PathBuf,
@@ -61,7 +61,9 @@ fn parse(args: impl IntoIterator<Item = String>) -> Result<Option<Invocation>> {
         "update-buffer" => &["session", "generation", "text"],
         "save" | "discard" => &["session", "generation"],
         "apply" | "undo" | "dismiss" => &["operation"],
-        "resolve" => &["thread"],
+        "resolve" | "archive" | "unarchive" => &["thread"],
+        "keep-in-brn" => &["note", "base"],
+        "queue" => &["thread", "text"],
         "ask" => &[
             "thread",
             "prompt",
@@ -80,6 +82,7 @@ fn parse(args: impl IntoIterator<Item = String>) -> Result<Option<Invocation>> {
         ],
         "export" | "backup" => &["destination"],
         "restore" => &["source"],
+        "upgrade" => &["backup-directory"],
         _ => return Err("Unknown command; run --help".into()),
     };
     if options.keys().any(|key| !allowed.contains(&key.as_str())) {
@@ -177,6 +180,8 @@ async fn ask(
     let result =
         brn_ai::threads::run(
             brn_ai::threads::ThreadRunRequest {
+                request_message: None,
+                queue_claim: None,
                 owner_request: if inv.command == "ask" {
                     match (inv.args.get("edit-note"), inv.args.get("record-decision")) {
                         (Some(id), None) => Some(brn_ai::threads::OwnerRequest::EditNote {
@@ -244,6 +249,11 @@ async fn execute(inv: &Invocation) -> Result<Value> {
     if inv.command == "restore" {
         let store = Store::restore(inv.arg("source")?, &inv.data).map_err(|e| e.to_string())?;
         return Ok(json!({"restored":store.directory()}));
+    }
+    if inv.command == "upgrade" {
+        Store::upgrade(&inv.data, Path::new(inv.arg("backup-directory")?))
+            .map_err(|e| e.to_string())?;
+        return Ok(json!({"upgraded":true,"data":inv.data}));
     }
     let mut workspace = Workspace::open(&inv.data).map_err(|e| e.to_string())?;
     let result = match inv.command.as_str() {
@@ -344,11 +354,40 @@ async fn execute(inv: &Invocation) -> Result<Value> {
                 .undo(inv.arg("operation")?)
                 .map_err(|e| e.to_string())?,
         ),
-        "resolve" => applied(
+        "resolve" | "archive" => encode(
             workspace
-                .resolve_thread(inv.arg("thread")?)
+                .archive_chat(
+                    &format!("cli-archive:{}", uuid::Uuid::new_v4()),
+                    inv.arg("thread")?,
+                )
+                .map_err(|e| e.to_string())?,
+        )?,
+        "unarchive" => encode(
+            workspace
+                .unarchive_chat(
+                    &format!("cli-unarchive:{}", uuid::Uuid::new_v4()),
+                    inv.arg("thread")?,
+                )
+                .map_err(|e| e.to_string())?,
+        )?,
+        "keep-in-brn" => applied(
+            workspace
+                .keep_in_brn(
+                    &format!("cli-keep:{}", uuid::Uuid::new_v4()),
+                    inv.arg("note")?,
+                    inv.number("base")?,
+                )
                 .map_err(|e| e.to_string())?,
         ),
+        "queue" => encode(
+            workspace
+                .queue_message(
+                    &format!("cli-queue:{}", uuid::Uuid::new_v4()),
+                    inv.arg("thread")?,
+                    inv.arg("text")?,
+                )
+                .map_err(|e| e.to_string())?,
+        )?,
         "pause" => applied(workspace.pause(true).map_err(|e| e.to_string())?),
         "resume" => applied(workspace.pause(false).map_err(|e| e.to_string())?),
         "configure" => {
@@ -407,8 +446,8 @@ async fn execute(inv: &Invocation) -> Result<Value> {
             };
             let intent = match inv.arg("intent")? {
                 "useful" => ImportIntent::UsefulInformation,
-                "full" => ImportIntent::FullNote,
-                _ => return Err("Choose useful or full".into()),
+                "full" | "chat" => ImportIntent::FullNote,
+                _ => return Err("Choose useful, full, or chat with --thread".into()),
             };
             let converted = converter()?
                 .convert(
@@ -427,6 +466,23 @@ async fn execute(inv: &Invocation) -> Result<Value> {
                 .get("title")
                 .map(String::as_str)
                 .unwrap_or("Imported note");
+            if inv.arg("intent")? == "chat" {
+                return Ok(applied(
+                    workspace
+                        .attach_full(
+                            &format!(
+                                "cli-attach:{}:{}:{}",
+                                inv.arg("thread")?,
+                                inv.arg("source")?,
+                                brn_intake::hex(&converted.source_sha256)
+                            ),
+                            inv.arg("thread")?,
+                            title,
+                            &converted,
+                        )
+                        .map_err(|e| e.to_string())?,
+                ));
+            }
             if intent == ImportIntent::FullNote {
                 applied(
                     workspace

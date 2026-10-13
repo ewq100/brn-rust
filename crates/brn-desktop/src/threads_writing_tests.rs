@@ -490,7 +490,9 @@ fn addressed_subset_and_restart_keep_actual_apply_undo_for_each_note(cx: &mut Te
     cx.read(|cx| assert!(fresh.read(cx).worker.is_none()));
 }
 #[gpui_kit::test]
-fn resolved_thread_reopens_with_recorded_reason_when_owner_continues(cx: &mut TestAppContext) {
+fn archived_writing_chat_preserves_feedback_and_requires_explicit_unarchive(
+    cx: &mut TestAppContext,
+) {
     let f = fixture(cx);
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |view, cx| {
@@ -501,19 +503,21 @@ fn resolved_thread_reopens_with_recorded_reason_when_owner_continues(cx: &mut Te
             view.open_note(&f.a.id, None, window, cx);
             view.select_writing_thread(f.a.id.clone(), f.chat_a.clone(), window, cx);
             view.resolve_thread(&f.chat_a, cx);
-            assert_eq!(state(view, &f.chat_a), ThreadState::Resolved);
-            feedback(view, &f.a, "tere", 5..9, "Feedback after resolution", window, cx);
-            assert_eq!(view.workspace.writing_comments(&f.a.id).unwrap().len(), 1);
             assert_eq!(state(view, &f.chat_a), ThreadState::Open);
-            assert!(view.history.iter().any(|receipt| receipt.reason
-                == "Owner continued a resolved thread with new feedback"));
-            view.resolve_thread(&f.chat_a, cx);
+            assert!(view.workspace.store.record(&f.chat_a).unwrap().unwrap().archived);
+            feedback(view, &f.a, "tere", 5..9, "Feedback after resolution", window, cx);
+            assert_eq!(view.workspace.writing_comments(&f.a.id).unwrap().len(), 0);
+            assert!(view.notice.contains("Unarchive"));
+            assert!(view.comment_input.read(cx).value().contains("Feedback after resolution"));
+            assert!(view.workspace.store.record(&f.chat_a).unwrap().unwrap().archived);
+            view.reopen_thread(&f.chat_a,cx);
+            assert!(!view.workspace.store.record(&f.chat_a).unwrap().unwrap().archived);
             view.composer.update(cx, |editor, cx| {
                 editor.set_value("Replying reopens", window, cx)
             });
             view.ask(window, cx);
             assert_eq!(state(view, &f.chat_a), ThreadState::Open);
-            assert!(view.history.iter().any(|receipt| receipt.reason == "Owner replied to a resolved thread"));
+            assert!(view.queue_state().paused);
             assert!(view.workspace.messages(&f.chat_a).unwrap().iter().any(
                 |record| matches!(&record.data, RecordData::Message(m) if m.text == "Replying reopens")
             ));

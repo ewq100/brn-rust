@@ -1,9 +1,9 @@
 //! Navigation lists and small lifecycle rules derived from current records.
 //! Canonical state and every write remain in the shared service.
 use super::layout::{Preset, TileKind};
-use super::state::{latest_run, linked};
+use super::state::linked;
 use super::theme::ThemeId;
-use brn_threads_app::{Prepared, Receipt, Record, RecordData, RunState, ThreadState};
+use brn_threads_app::{Receipt, Record, RecordData, ThreadState};
 use std::collections::{BTreeMap, BTreeSet};
 
 /// Latest receipt position and commit time for records and the threads their
@@ -51,7 +51,7 @@ pub(super) struct ThreadRow {
 }
 impl ThreadRow {
     pub(super) fn needs_you(&self) -> bool {
-        !self.resolved && !self.reasons.is_empty()
+        !self.reasons.is_empty()
     }
 }
 
@@ -86,7 +86,6 @@ pub(super) fn thread_rows(records: &[Record], activity: &Activity) -> Vec<Thread
         .collect();
     let mut rows: Vec<_> = records
         .iter()
-        .filter(|record| !record.archived)
         .filter_map(|record| {
             let RecordData::Thread(thread) = &record.data else {
                 return None;
@@ -95,7 +94,7 @@ pub(super) fn thread_rows(records: &[Record], activity: &Activity) -> Vec<Thread
             Some(ThreadRow {
                 id: record.id.clone(),
                 title: thread.title.clone(),
-                resolved: thread.state == ThreadState::Resolved,
+                resolved: record.archived || thread.state == ThreadState::Resolved,
                 reasons: thread
                     .attention
                     .iter()
@@ -172,7 +171,7 @@ impl ThreadFilter {
         match self {
             Self::All => "all",
             Self::Open => "open",
-            Self::Resolved => "resolved",
+            Self::Resolved => "archived",
             Self::NeedsYou => "needs-you",
             Self::LinkedNote => "linked-note",
             Self::HasAction => "has-action",
@@ -182,7 +181,7 @@ impl ThreadFilter {
         match self {
             Self::All => "all",
             Self::Open => "open",
-            Self::Resolved => "resolved",
+            Self::Resolved => "archived",
             Self::NeedsYou => "needs you",
             Self::LinkedNote => "linked note",
             Self::HasAction => "has Action",
@@ -269,13 +268,15 @@ pub(super) fn note_rows(records: &[Record], activity: &Activity) -> Vec<NoteRow>
         .iter()
         .filter(|record| !record.archived)
         .filter_map(|record| match &record.data {
-            RecordData::Note(note) if note.superseded_by.is_none() => Some(NoteRow {
-                id: record.id.clone(),
-                title: note.title.clone(),
-                protected: note.protected,
-                imported: note.import.is_some(),
-                order: activity.order(&record.id),
-            }),
+            RecordData::Note(note) if note.superseded_by.is_none() && note.chat.is_none() => {
+                Some(NoteRow {
+                    id: record.id.clone(),
+                    title: note.title.clone(),
+                    protected: note.protected,
+                    imported: note.import.is_some(),
+                    order: activity.order(&record.id),
+                })
+            }
             _ => None,
         })
         .collect();
@@ -368,84 +369,6 @@ pub(super) fn notes_linked_to_open(records: &[Record], rows: &[ThreadRow]) -> BT
         .collect()
 }
 
-pub(super) const AUTO_RESOLVE_REASON: &str =
-    "Quick question answered with nothing changed; resolved automatically. Reply to reopen.";
-
-/// A completed, standalone, single-question thread whose runs committed nothing
-/// beyond their own conversation, with no attention or pending candidate.
-pub(super) fn is_quick_question(
-    records: &[Record],
-    history: &[Receipt],
-    candidates: &[Prepared],
-    thread: &str,
-) -> bool {
-    let Some(RecordData::Thread(state)) = records
-        .iter()
-        .find(|record| record.id == thread && !record.archived)
-        .map(|record| &record.data)
-    else {
-        return false;
-    };
-    if state.state != ThreadState::Open || !state.attention.is_empty() {
-        return false;
-    }
-    if !linked(records, thread).is_empty() {
-        return false;
-    }
-    let owner_messages = records
-        .iter()
-        .filter(|record| !record.archived)
-        .filter(|record| {
-            matches!(&record.data, RecordData::Message(message) if message.thread == thread && message.role == "owner")
-        })
-        .count();
-    if owner_messages != 1 {
-        return false;
-    }
-    if !latest_run(records, history, thread).is_some_and(
-        |run| matches!(&run.data, RecordData::Run(run) if run.state == RunState::Completed),
-    ) {
-        return false;
-    }
-    let runs: Vec<&str> = records
-        .iter()
-        .filter(|record| matches!(&record.data, RecordData::Run(run) if run.thread == thread))
-        .map(|record| record.id.as_str())
-        .collect();
-    let own = |record: &Record| match &record.data {
-        RecordData::Message(message) => message.thread == thread,
-        RecordData::Run(run) => run.thread == thread,
-        RecordData::Thread(_) => record.id == thread,
-        _ => false,
-    };
-    let bound = history.iter().filter(|receipt| {
-        runs.iter()
-            .any(|run| receipt.authority.contains(&format!(";run:{run};")))
-    });
-    if bound
-        .flat_map(|receipt| receipt.writes.iter())
-        .any(|write| !own(&write.after))
-    {
-        return false;
-    }
-    !candidates.iter().any(|candidate| {
-        candidate
-            .request
-            .inputs
-            .iter()
-            .any(|input| input.record == thread || runs.contains(&input.record.as_str()))
-            || candidate.request.writes.iter().any(|write| {
-                write.id == thread
-                    || match &write.data {
-                        RecordData::Message(message) => message.thread == thread,
-                        RecordData::Run(run) => run.thread == thread,
-                        RecordData::Link(link) => link.from == thread || link.to == thread,
-                        _ => false,
-                    }
-            })
-    })
-}
-
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub(super) enum ComposeMode {
     #[default]
@@ -497,7 +420,7 @@ pub(super) enum Command {
 impl Command {
     pub(super) fn label(self) -> String {
         match self {
-            Self::NewThread => "New thread".into(),
+            Self::NewThread => "New chat".into(),
             Self::NewNote => "New note".into(),
             Self::Rewrite => "Rewrite with AI".into(),
             Self::Save => "Save note".into(),
@@ -569,8 +492,8 @@ impl LaunchItem {
             Self::Thread {
                 title, resolved, ..
             } => format!(
-                "thread · {title}{}",
-                if *resolved { " · ✓ resolved" } else { "" }
+                "chat · {title}{}",
+                if *resolved { " · archived" } else { "" }
             ),
             Self::Note { title, .. } => format!("note · {title}"),
             Self::Command(command) => command.label(),
@@ -645,35 +568,6 @@ mod tests {
             }),
         )
     }
-    fn message(id: &str, thread: &str, role: &str) -> Record {
-        record(
-            id,
-            RecordData::Message(Message {
-                thread: thread.into(),
-                role: role.into(),
-                text: "text".into(),
-            }),
-        )
-    }
-    fn run(id: &str, thread: &str, state: RunState) -> Record {
-        record(
-            id,
-            RecordData::Run(Run {
-                thread: thread.into(),
-                provider: "Offline".into(),
-                model: "synthetic".into(),
-                guide_identity: "fixture".into(),
-                budget: 4,
-                effort: "medium".into(),
-                loaded_skills: vec![],
-                fence: 1,
-                state,
-                progress: String::new(),
-                operations: vec![],
-                sources: vec![],
-            }),
-        )
-    }
     thread_local! {
         static OPS: std::cell::RefCell<(tempfile::TempDir, Workspace)> = {
             let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
@@ -732,7 +626,7 @@ mod tests {
         for i in 0..14 {
             records.push(thread(
                 &format!("t{i:02}"),
-                &format!("Thread {i}"),
+                &format!("Chat {i}"),
                 ThreadState::Open,
                 None,
             ));
@@ -758,7 +652,7 @@ mod tests {
         assert_eq!(
             bar.open.len(),
             SIDEBAR_OPEN + 1,
-            "current thread stays visible"
+            "current chat stays visible"
         );
         assert_eq!(bar.open[0].id, "t13", "most recent first");
         assert_eq!(bar.open.last().unwrap().id, "t00");
@@ -884,118 +778,6 @@ mod tests {
     }
 
     #[test]
-    fn quick_question_requires_a_completed_unlinked_single_question_without_changes() {
-        let t = thread("t", "What is BRN?", ThreadState::Open, None);
-        let m = message("m", "t", "owner");
-        let a = message("a", "t", "assistant");
-        let r = run("r", "t", RunState::Completed);
-        let base = vec![t.clone(), m.clone(), a.clone(), r.clone()];
-        let history = vec![
-            receipt(
-                "1",
-                "owner:x",
-                "2026-10-12T10:00:00Z",
-                vec![(None, t.clone()), (None, m.clone())],
-            ),
-            receipt(
-                "2",
-                "owner:x",
-                "2026-10-12T10:00:01Z",
-                vec![(None, r.clone())],
-            ),
-            receipt(
-                "3",
-                "runtime:x:r;run:r;fence:1",
-                "2026-10-12T10:00:02Z",
-                vec![(None, a.clone())],
-            ),
-        ];
-        assert!(is_quick_question(&base, &history, &[], "t"));
-
-        let mut second = base.clone();
-        second.push(message("m2", "t", "owner"));
-        assert!(
-            !is_quick_question(&second, &history, &[], "t"),
-            "two owner messages"
-        );
-
-        let mut linked = base.clone();
-        linked.push(note("n", "Plan", false));
-        linked.push(record(
-            "l",
-            RecordData::Link(Link {
-                from: "t".into(),
-                to: "n".into(),
-                relation: "uses".into(),
-            }),
-        ));
-        assert!(
-            !is_quick_question(&linked, &history, &[], "t"),
-            "linked note"
-        );
-
-        let attention = vec![
-            thread("t", "What is BRN?", ThreadState::Open, Some("Pick one")),
-            m.clone(),
-            a.clone(),
-            r.clone(),
-        ];
-        assert!(
-            !is_quick_question(&attention, &history, &[], "t"),
-            "attention"
-        );
-
-        let failed = vec![t.clone(), m.clone(), run("r", "t", RunState::Failed)];
-        assert!(
-            !is_quick_question(&failed, &history, &[], "t"),
-            "run not completed"
-        );
-
-        let mut changed = history.clone();
-        changed.push(receipt(
-            "4",
-            "maintenance:x;run:r;fence:1",
-            "2026-10-12T10:00:03Z",
-            vec![(None, note("n2", "Updated", false))],
-        ));
-        assert!(
-            !is_quick_question(&base, &changed, &[], "t"),
-            "committed a note change"
-        );
-
-        let candidate = Prepared {
-            operation: op("cand"),
-            request_hash: String::new(),
-            request: ChangeRequest {
-                reason: "proposal".into(),
-                writes: vec![Put {
-                    id: "x".into(),
-                    expected_version: None,
-                    archived: false,
-                    data: RecordData::Message(Message {
-                        thread: "t".into(),
-                        role: "assistant".into(),
-                        text: "p".into(),
-                    }),
-                }],
-                inputs: vec![],
-            },
-        };
-        assert!(
-            !is_quick_question(&base, &history, &[candidate], "t"),
-            "pending candidate"
-        );
-
-        let resolved = vec![
-            thread("t", "What is BRN?", ThreadState::Resolved, None),
-            m,
-            a,
-            r,
-        ];
-        assert!(!is_quick_question(&resolved, &history, &[], "t"));
-    }
-
-    #[test]
     fn modes_map_exactly_to_existing_grants() {
         use brn_ai::threads::OwnerRequest;
         assert!(grant(ComposeMode::Ask, Some(("n", 3))).unwrap().is_none());
@@ -1025,7 +807,7 @@ mod tests {
         let notes = note_rows(&records, &activity);
         let items = launcher("renewal", &threads, &notes);
         assert_eq!(items.len(), 2);
-        assert_eq!(items[0].label(), "thread · Renewal date · ✓ resolved");
+        assert_eq!(items[0].label(), "chat · Renewal date · archived");
         assert!(
             launcher("raba", &threads, &notes)
                 .contains(&LaunchItem::Command(Command::Theme(ThemeId::Raba)))

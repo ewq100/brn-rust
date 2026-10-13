@@ -1,6 +1,9 @@
 //! Final-use Threads persistence. Authority is supplied by the trusted host,
 //! never decoded from a model request. All writers use SQLite IMMEDIATE transactions.
 mod backup;
+mod chat;
+pub use chat::{ChatCommand, ChatCommandOutcome};
+mod context;
 mod edit;
 mod read;
 mod restore;
@@ -8,6 +11,7 @@ mod revision_read;
 mod steering;
 mod store;
 mod types;
+mod upgrade;
 mod writing;
 pub use read::{MAX_NOTE_READ_BYTES, NoteHeading, NoteReadOutcome, NoteSlice, note_headings};
 pub use revision_read::{RevisionPage, RevisionSummary};
@@ -44,3 +48,5 @@ pub(crate) fn read_u64(row: &rusqlite::Row<'_>, index: usize) -> rusqlite::Resul
     let value: i64 = row.get(index)?;
     u64::try_from(value).map_err(|_| rusqlite::Error::IntegralValueOutOfRange(index, value))
 }
+
+pub use context::{managed_asset_ids, visible as record_in_chat};

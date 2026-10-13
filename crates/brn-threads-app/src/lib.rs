@@ -6,6 +6,7 @@ use sha2::{Digest, Sha256};
 use std::{collections::BTreeMap, path::Path};
 
 mod assets;
+mod chat;
 mod export;
 mod intake;
 mod refresh;
@@ -55,6 +56,7 @@ impl Workspace {
             indexed: BTreeMap::new(),
         };
         workspace.bootstrap_settings()?;
+        workspace.bootstrap_chat_control()?;
         Ok(workspace)
     }
     pub fn records(&self) -> AppResult<Vec<Record>> {
@@ -65,7 +67,7 @@ impl Workspace {
             .records()?
             .into_iter()
             .filter(|r| {
-                !r.archived && matches!(&r.data, RecordData::Note(n) if n.superseded_by.is_none())
+                !r.archived && matches!(&r.data, RecordData::Note(n) if n.superseded_by.is_none() && n.chat.is_none())
             })
             .collect())
     }
@@ -77,7 +79,11 @@ impl Workspace {
             .collect())
     }
     pub fn needs_you(&self) -> AppResult<Vec<Record>> {
-        Ok(self.threads()?.into_iter().filter(|r|matches!(&r.data,RecordData::Thread(t) if t.state==ThreadState::Open && !t.attention.is_empty())).collect())
+        Ok(self
+            .records()?
+            .into_iter()
+            .filter(|r| matches!(&r.data,RecordData::Thread(t) if !t.attention.is_empty()))
+            .collect())
     }
     pub fn messages(&self, thread: &str) -> AppResult<Vec<Record>> {
         let mut rows: Vec<_> = self

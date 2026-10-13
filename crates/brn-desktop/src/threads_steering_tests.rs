@@ -37,6 +37,8 @@ fn fixture(cx: &mut TestAppContext, state: RunState) -> Fixture {
                     expected_version: None,
                     archived: false,
                     data: RecordData::Run(Run {
+                        instruction: None,
+                        queue_claim: None,
                         thread: thread.clone(),
                         provider: "offline-fixture".into(),
                         model: settings.model.clone(),
@@ -125,8 +127,8 @@ fn stop_and_send_click_is_durable_and_waits_then_drains_without_retargeting(
 ) {
     let f = fixture(cx, RunState::Working);
     cx.update_window(f.window, |_, window, cx| {
-        assert_eq!(window.find("ask-delegate").label(), Some("Stop & send ↵"));
-        window.click("ask-delegate", cx);
+        assert_eq!(window.find("chat-steer").label(), Some("Steer"));
+        window.click("chat-steer", cx);
     })
     .unwrap();
     cx.run_until_parked();
@@ -179,7 +181,8 @@ fn stop_and_send_click_is_durable_and_waits_then_drains_without_retargeting(
             assert_eq!(ui.composer.read(cx).value().as_ref(), "New B draft");
             assert!(ui.notice.contains("Choose a provider"));
             ui.open_thread(&f.thread, window, cx);
-            assert_eq!(ui.composer.read(cx).value().as_ref(), "Later A draft");
+            assert_eq!(ui.composer.read(cx).value().as_ref(), "");
+            assert_eq!(ui.queue_state().queue[0].text, "Later A draft");
             assert!(can_continue_thread(
                 &ui.records,
                 &ui.history,
@@ -198,7 +201,7 @@ fn pending_disconnect_retains_instruction_and_offers_continue_after_reopen(
     cx: &mut TestAppContext,
 ) {
     let f = fixture(cx, RunState::Working);
-    cx.update_window(f.window, |_, window, cx| window.click("ask-delegate", cx))
+    cx.update_window(f.window, |_, window, cx| window.click("chat-steer", cx))
         .unwrap();
     cx.run_until_parked();
     f.sender
@@ -237,7 +240,7 @@ fn stop_during_pending_send_preserves_message_and_cancels_automatic_launch(
     cx: &mut TestAppContext,
 ) {
     let f = fixture(cx, RunState::Working);
-    cx.update_window(f.window, |_, window, cx| window.click("ask-delegate", cx))
+    cx.update_window(f.window, |_, window, cx| window.click("chat-steer", cx))
         .unwrap();
     cx.run_until_parked();
     cx.update_window(f.window, |_, window, cx| window.click("stop-work", cx))
@@ -286,7 +289,7 @@ fn failed_steering_persistence_retains_text_worker_and_controls(cx: &mut TestApp
 #[gpui_kit::test]
 fn terminal_race_accepts_exact_message_and_completed_run_can_continue(cx: &mut TestAppContext) {
     let f = fixture(cx, RunState::Completed);
-    cx.update_window(f.window, |_, window, cx| window.click("ask-delegate", cx))
+    cx.update_window(f.window, |_, window, cx| window.click("chat-steer", cx))
         .unwrap();
     cx.run_until_parked();
     assert_saved(&f, RunState::Completed, 0);
@@ -352,4 +355,126 @@ fn no_run_continue_requires_saved_owner_message_and_dispatches_offline(cx: &mut 
         assert!(ui.notice.contains("Choose a provider"));
         assert_eq!(ui.workspace.messages(&f.other).unwrap().len(), 1);
     });
+}
+
+#[gpui_kit::test]
+fn enter_queues_while_working_and_stop_pauses_saved_queue_across_late_finish(
+    cx: &mut TestAppContext,
+) {
+    let f = fixture(cx, RunState::Working);
+    cx.update_window(f.window,|_,window,cx|{
+        f.view.update(cx,|ui,cx|{
+            ui.ask(window,cx);
+            assert!(!f.cancel.is_cancelled());assert!(ui.pending_send.is_none());
+            assert_eq!(ui.queue_state().queue[0].text,"New exact instruction · õun");assert_eq!(ui.composer.read(cx).value().as_ref(),"");
+            ui.stream="Displayed partial answer".into();ui.cancel(cx);assert!(ui.queue_state().paused);
+            f.sender.send(WorkerEvent::Finished(Ok("Late finished event".into()))).unwrap();ui.poll_worker(window,cx);
+            assert!(ui.worker.is_none());assert!(ui.queue_state().paused);assert_eq!(ui.queue_state().queue.len(),1);
+            assert!(ui.workspace.messages(&f.thread).unwrap().iter().any(|r|matches!(&r.data,RecordData::Message(m) if m.role=="assistant-partial" && m.text=="Displayed partial answer")));
+        });
+    }).unwrap();
+    let mut reopened = Workspace::open(&f.data).unwrap();
+    assert!(
+        matches!(reopened.chat_control().unwrap().data,RecordData::ChatControl(c) if c.paused && c.queue.len()==1)
+    );
+    assert!(reopened.dispatch_queued("still-paused").unwrap().is_none());
+}
+
+#[gpui_kit::test]
+fn quiet_display_keeps_stream_and_stop_and_saved_drafts_survive_reopening(cx: &mut TestAppContext) {
+    let f = fixture(cx, RunState::Working);
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |ui, cx| {
+            ui.workspace.choose_quiet("quiet-fixture", true).unwrap();
+            ui.stream = "Readable streaming answer".into();
+            ui.progress = "Detailed tool activity".into();
+            let before = ui.worker.as_ref().unwrap().run_id.clone();
+            ui.open_thread(&f.other, window, cx);
+            ui.composer
+                .update(cx, |e, cx| e.set_value("Other unsent õun", window, cx));
+            ui.open_thread(&f.thread, window, cx);
+            assert_eq!(
+                ui.composer.read(cx).value().as_ref(),
+                "New exact instruction · õun"
+            );
+            assert_eq!(ui.worker.as_ref().unwrap().run_id, before);
+            assert_eq!(ui.stream_for(&f.thread), Some("Readable streaming answer"));
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, _| {
+        assert!(window.find("run-stop").visible());
+        assert!(window.find("chat-quiet").visible());
+    })
+    .unwrap();
+    let w = Workspace::open(&f.data).unwrap();
+    let drafts = w.store.chat_drafts().unwrap();
+    assert!(drafts.iter().any(|d| d.text == "Other unsent õun"));
+    assert!(
+        drafts
+            .iter()
+            .any(|d| d.text == "New exact instruction · õun")
+    );
+    assert!(matches!(w.chat_control().unwrap().data,RecordData::ChatControl(c) if c.quiet));
+}
+
+#[gpui_kit::test]
+fn archive_and_steer_preserve_partial_answers_and_repeated_stop_does_not_duplicate(
+    cx: &mut TestAppContext,
+) {
+    for archive in [true, false] {
+        let f = fixture(cx, RunState::Working);
+        cx.update_window(f.window,|_,window,cx|{f.view.update(cx,|ui,cx|{
+            ui.stream="Useful displayed partial answer".into();
+            if archive {ui.resolve_thread(&f.thread,cx);}else{ui.stop_and_send(window,cx);}
+            ui.cancel(cx);
+            f.sender.send(WorkerEvent::Finished(Ok("Late terminal".into()))).unwrap();ui.poll_worker(window,cx);
+            let messages=ui.workspace.messages(&f.thread).unwrap();assert_eq!(messages.iter().filter(|r|matches!(&r.data,RecordData::Message(m) if m.role=="assistant-partial" && m.text=="Useful displayed partial answer")).count(),1);
+        });}).unwrap();
+        let w = Workspace::open(&f.data).unwrap();
+        assert!(w.messages(&f.thread).unwrap().iter().any(|r|matches!(&r.data,RecordData::Message(m) if m.role=="assistant-partial" && m.text=="Useful displayed partial answer")));
+    }
+}
+#[gpui_kit::test]
+fn queued_question_dispatches_after_successful_attachment_preparation(cx: &mut TestAppContext) {
+    let f = fixture(cx, RunState::Completed);
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |ui, cx| {
+            ui.worker.as_mut().unwrap().kind = WorkerKind::Import;
+            ui.ask(window, cx);
+            assert_eq!(ui.queue_state().queue.len(), 1);
+            let converted = ConversionResult {
+                intent: ImportIntent::FullNote,
+                markdown: "# Saved attachment\nContent".into(),
+                assets: vec![],
+                source_sha256: [0; 32],
+                source_reference: "/missing/file.md".into(),
+                converter: "synthetic".into(),
+                sources: vec![],
+                coverage: brn_threads_intake::Coverage {
+                    status: brn_threads_intake::CoverageStatus::Unchecked,
+                    checked_items: vec![],
+                    gaps: vec![],
+                },
+            };
+            f.sender
+                .send(WorkerEvent::Converted {
+                    result: Box::new(Ok(converted)),
+                    title: "Attachment".into(),
+                    chat: Some(f.thread.clone()),
+                })
+                .unwrap();
+            ui.poll_worker(window, cx);
+            // Offline provider refuses startup, proving dispatch reached current settings;
+            // the claimed message remains saved and explicitly paused for retry.
+            assert!(ui.queue_state().pending.is_some());
+            assert!(ui.queue_state().paused);
+            assert!(ui.notice.contains("Choose a provider"));
+            assert!(ui.records.iter().any(
+                |r| matches!(&r.data,RecordData::Note(n) if n.chat.as_ref()==Some(&f.thread))
+            ));
+        });
+    })
+    .unwrap();
 }

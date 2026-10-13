@@ -68,9 +68,11 @@ People, projects, meetings, and policies can initially be ordinary notes with us
 
 The working surface keeps **Needs you** (with each reason) and an **Ask or delegate** composer always reachable; an overview tile (⌘0) also shows recent work, recoverable edits, pending reviews and a quiet **What changed** view. Ordinary notes remain directly browsable and editable.
 
-Opening a thread presents its conversation, pending proposals and run state beside the linked note when one exists; sources, linked note excerpts and Actions sit in a linked-work tile. A simple question should not force the owner into an editor: a standalone question that is answered with nothing changed resolves itself and steps out of the way, and replying reopens it.
+Opening a chat presents its saved conversation, streamed answer, pending proposals and run state beside the linked note when one exists. Answers remain in history until the owner archives the chat. Archive fences work and pauses the saved queue, preserving attention and independent Actions; Unarchive leaves work paused. Legacy Resolved chats use this archived presentation.
 
-Note comments and task conversations share the same thread machinery. A note comment adds a document location; a task thread can link several notes. A thread may be resolved while an associated Action remains Waiting. The interface must show that remaining obligation rather than silently closing it.
+Enter queues a new message while work runs; Steer separately redirects the current work through a fenced fresh invocation. Stop, failure and restart preserve pending/waiting messages and pause until Resume. Each item runs separately with current context and no inherited protected-edit authority. Quiet reduces intermediate activity detail without hiding answers, errors, Stop or owner decisions. [The behavior contract](threads-behavior.md#work-within-and-across-threads) defines the queue, reading and recovery rules.
+
+Files attached to a chat preserve readable supported content, meaningful figures and coverage qualifications in SQLite while originals remain external. They remain chat-only until the owner explicitly chooses Keep in BRN, a checked change to the same protected note. General knowledge/search/export exclude unpromoted attachments; full backups preserve all chat state. Model context and typed references respect current and historical attachment scope. Projects follow the standalone-chat phase; the [accepted brief](../work/active/chats-and-projects/spec.md) records their deferred behavior.
 
 Do not generate a new attention item for every imported source or automatic update. The agent groups related work and adds to an existing relevant thread where appropriate. A completed maintenance run may simply record “Updated the project summary from three new sources.”
 
@@ -251,7 +253,7 @@ The following are responsibilities, not a mandated table-per-row schema or froze
 | Revision | Stable ID, document, parent/base, supported Markdown content, actor, time, operation; for an import, its intent, source observation, and coverage. |
 | Source reference | Internal ID, best available external locator/identifier, recognizable label, observation time, optional external revision, processing outcome and relevant gaps. |
 | Selected note asset | Useful retained diagram/image or structured data, its note/source relationship, and content identity; small assets may live in SQLite. |
-| Thread | Stable ID, goal/context, Open or Resolved state, links to relevant objects, explicit attention reasons, run references; messages and independently changing links/comments have their own identities. |
+| Thread | Stable ID, conversation context, owner-controlled archive state (legacy Open/Resolved retained internally), links to relevant objects, explicit attention reasons, run references; messages and independently changing links/comments have their own identities. |
 | Action | Stable ID, description, lifecycle, relevant owner/source authority, due or waiting context, completion evidence. |
 | Change set and operation | Host-owned durable request/operation identity, canonical request hash, targets and expected versions, immutable candidate results and creation IDs, before/after records, reason, evidence, authority, apply receipt. |
 | Editing recovery | Note and base version, edit-session identity, increasing buffer generation, retained unsaved content, and persisted dirty guard. |
@@ -421,7 +423,7 @@ Each journey needs observable evidence from the real implementation. Persistence
 | No hidden source archive | Tool logs, run checkpoints, caches, and automatic conversation memory do not indefinitely retain complete raw import payloads after processing. Intentionally committed full-note content and required assets remain in canonical notes and their history. |
 | Action completion | Drafting does not imply sending or fulfilling a human commitment; internal completion has its recorded result; remaining work stays visible. |
 | Misleading instructions inside a source | Source text cannot grant tools, alter protection, change provider, or authorize an external send. The test also checks that it cannot persuade the normal write path to bypass structural policy. |
-| Runtime guidance and quiet attention | The packaged base/skill guidance is actually loaded; routine success stays in What changed; specific unresolved questions/reviews/conflicts appear once per thread; thread resolution does not finish a linked human Action. |
+| Runtime guidance and quiet attention | The packaged base/skill guidance is actually loaded; routine success stays in What changed; specific unresolved questions/reviews/conflicts appear once per thread; chat archival does not finish a linked human Action. |
 | Budget, cancellation, and interruption | A run stops within its configured control behavior, committed work stays identifiable, and resume does not repeat an applied change. Pending work remains understandable. |
 | Offline use and anchor limits | Existing local work remains usable; comments survive supported edits, and removed or unresolved targets retain their original context. |
 

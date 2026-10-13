@@ -11,6 +11,8 @@ native-retrieval = ["native-ui", "brn-threads-app/native-retrieval"]
 native-test-support = ["native-ui", "gpui-kit/test-support"]
 
 [dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
 brn-threads-app = { path = "../brn-threads-app" }
 brn-threads-intake = { path = "../brn-threads-intake" }
 brn-ai = { path = "../brn-ai" }

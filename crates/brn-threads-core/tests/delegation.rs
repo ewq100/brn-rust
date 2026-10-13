@@ -289,6 +289,8 @@ fn working_run(store: &mut Store, key: &str) -> Record {
                         expected_version: None,
                         archived: false,
                         data: RecordData::Run(Run {
+                            instruction: None,
+                            queue_claim: None,
                             thread,
                             provider: "Codex".into(),
                             model: "gpt-6.1-sol".into(),

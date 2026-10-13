@@ -62,7 +62,7 @@ pub(super) fn pill(id: impl Into<gpui_kit::ElementId>, label: impl Into<SharedSt
 
 const KEYS: [(&str, &str); 17] = [
     ("Launcher", "⌘K · click the search field"),
-    ("New thread / note", "⌘T / ⌘N · ＋ in threads and notes"),
+    ("New chat / note", "⌘T / ⌘N · ＋ in chats and notes"),
     ("Send / new line", "↵ or ⌘↵ / ⇧↵ · send button"),
     ("Stop", "⌘. · status bar or run line"),
     ("Comment on selection", "⌘/ · selection strip · right-click"),
@@ -74,9 +74,9 @@ const KEYS: [(&str, &str); 17] = [
     ("Resize tiles", "drag the gap between tiles"),
     ("Swap tiles", "drag a tile header onto another tile"),
     ("Tile menu", "right-click a tile header"),
-    ("Toggle threads", "⌘\\ · layout menu"),
+    ("Toggle chats", "⌘\\ · layout menu"),
     ("Theme", "status bar · launcher · Settings"),
-    ("Settings", "⌘, · threads tile"),
+    ("Settings", "⌘, · chats tile"),
     ("Overview", "⌘0 · launcher"),
 ];
 
@@ -125,13 +125,13 @@ impl ThreadsUi {
                         .map_or_else(|| id.clone(), |row| short(&row.title))
                 ),
                 ChatTarget::NewForNote(note) => format!(
-                    "chat · new thread about {}",
+                    "chat · new chat about {}",
                     self.note_rows
                         .iter()
                         .find(|row| &row.id == note)
                         .map_or_else(|| note.clone(), |row| short(&row.title))
                 ),
-                ChatTarget::New => "chat · new thread".into(),
+                ChatTarget::New => "chat · new chat".into(),
             },
             kind => kind.label().into(),
         }
@@ -501,7 +501,7 @@ impl ThreadsUi {
             )
             .child(
                 button("launcher")
-                    .label("⌕ Search notes, threads, commands…  ⌘K")
+                    .label("⌕ Search notes, chats, commands…  ⌘K")
                     .w(px(420.))
                     .tooltip("Launcher (⌘K)")
                     .on_click(cx.listener(|this, _, window, cx| this.open_launcher(window, cx))),
@@ -760,7 +760,7 @@ impl ThreadsUi {
         if items.is_empty() {
             list = list.child(empty(
                 "launcher-empty",
-                "No matching notes, threads or commands.",
+                "No matching notes, chats or commands.",
             ));
         }
         for (index, entry) in items.iter().enumerate() {

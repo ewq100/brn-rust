@@ -14,6 +14,18 @@ impl Store {
         text: &str,
         authority: &HostAuthority,
     ) -> Result<ApplyOutcome> {
+        self.stop_and_post_with_partial(operation, run_id, thread, text, None, authority)
+    }
+    #[allow(clippy::too_many_arguments)]
+    pub fn stop_and_post_with_partial(
+        &mut self,
+        operation: &OperationId,
+        run_id: &str,
+        thread: &str,
+        text: &str,
+        partial: Option<&str>,
+        authority: &HostAuthority,
+    ) -> Result<ApplyOutcome> {
         if !matches!(authority.scope, crate::types::Scope::Owner) {
             return Err(Error::Invalid(
                 "stop and send requires owner authority".into(),
@@ -26,12 +38,11 @@ impl Store {
         // and all exact input bytes, independent of current record versions.
         let binding = format!(
             "{:x}",
-            Sha256::digest(serde_json::to_vec(&(
-                "stop-and-post",
-                run_id,
-                thread,
-                text
-            ))?)
+            Sha256::digest(if let Some(partial) = partial {
+                serde_json::to_vec(&("stop-and-post-partial", run_id, thread, text, partial))?
+            } else {
+                serde_json::to_vec(&("stop-and-post", run_id, thread, text))?
+            })
         );
         let (hash, prior): (Option<String>, Option<String>) = tx
             .query_row(
@@ -105,6 +116,20 @@ impl Store {
             }),
         }];
         if run.state == RunState::Working {
+            if let Some(partial) = partial.filter(|p| !p.trim().is_empty()) {
+                crate::chat::partial_text(partial)?;
+                writes.push(Put {
+                    id: operation.creation_id(1),
+                    expected_version: None,
+                    archived: false,
+                    data: RecordData::Message(Message {
+                        thread: thread.into(),
+                        role: "assistant-partial".into(),
+                        text: partial.into(),
+                    }),
+                });
+            }
+
             run.state = RunState::Interrupted;
             run.fence = run
                 .fence
@@ -115,6 +140,24 @@ impl Store {
                 expected_version: Some(record.version),
                 archived: false,
                 data: RecordData::Run(run),
+            });
+        }
+        if let Some(record) = crate::chat::control_on(&tx)?
+            && let RecordData::ChatControl(mut c) = record.data
+            && let Some(q) = c
+                .pending
+                .as_mut()
+                .filter(|q| q.thread == thread && q.run.as_deref() == Some(run_id))
+        {
+            q.text = text.into();
+            q.message = Some(operation.creation_id(0));
+            q.run = None;
+            q.dispatch = Some(operation.as_str().into());
+            writes.push(Put {
+                id: record.id,
+                expected_version: Some(record.version),
+                archived: false,
+                data: RecordData::ChatControl(c),
             });
         }
         prepare_on(

@@ -34,8 +34,20 @@ pub(super) fn read_history(scope: &Scope, args: HistoryArgs) -> AiResult<Value> 
     {
         return Err(rejected());
     }
+    if !store
+        .record_visible_in_chat(&args.id, Some(&scope.chat))
+        .map_err(storage)?
+    {
+        return Err(rejected());
+    }
     match args.version {
         Some(version) => {
+            if !store
+                .revision_visible_in_chat(&args.id, version, Some(&scope.chat))
+                .map_err(storage)?
+            {
+                return Err(rejected());
+            }
             let note = store
                 .read_note_revision(&args.id, version, args.start, args.max_bytes)
                 .map_err(storage)?;
@@ -43,12 +55,22 @@ pub(super) fn read_history(scope: &Scope, args: HistoryArgs) -> AiResult<Value> 
                 json!({"outcome":"HistoricalRevision","note":note,"revision_input":RevisionInput { record: args.id, version, expectation: InputExpectation::Historical }}),
             )
         }
-        None => serde_json::to_value(
-            store
+        None => {
+            let mut page = store
                 .note_revisions(&args.id, u64::try_from(args.start).map_err(storage)?)
-                .map_err(storage)?,
-        )
-        .map_err(storage),
+                .map_err(storage)?;
+            let mut allowed = Vec::new();
+            for summary in page.revisions {
+                if store
+                    .revision_visible_in_chat(&args.id, summary.version, Some(&scope.chat))
+                    .map_err(storage)?
+                {
+                    allowed.push(summary);
+                }
+            }
+            page.revisions = allowed;
+            serde_json::to_value(page).map_err(storage)
+        }
     }
 }
 
@@ -109,7 +131,16 @@ pub(super) fn refresh(scope: &Scope, mut args: RefreshArgs) -> AiResult<Value> {
         }
     })?;
     remap(&mut args.request, &replacement)?;
-    sources::materialize_selected_sources(&scope.sources, &store, &replacement, &mut args.request)?;
+    check_scope(scope, &store, &prepared.request)?;
+    scope_request(scope, &store, &mut args.request)?;
+    sources::materialize_selected_sources(
+        &scope.sources,
+        &store,
+        &replacement,
+        &mut args.request,
+        Some(&scope.chat),
+        &scope.source_ids,
+    )?;
     let authority = bind(
         scope,
         HostAuthority::runtime("Threads candidate refresh", &scope.run),

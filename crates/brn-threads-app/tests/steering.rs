@@ -22,6 +22,8 @@ fn fixture() -> (tempfile::TempDir, Workspace, String, String) {
                 expected_version: None,
                 archived: false,
                 data: RecordData::Run(Run {
+                    instruction: None,
+                    queue_claim: None,
                     thread: thread.clone(),
                     provider: "Offline".into(),
                     model: "synthetic".into(),

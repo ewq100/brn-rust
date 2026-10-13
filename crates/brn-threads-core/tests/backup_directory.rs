@@ -85,6 +85,8 @@ fn folder_patch_preserves_current_settings_fences_runs_and_replays_raw_intent_wi
             expected_version: None,
             archived: false,
             data: RecordData::Run(Run {
+                instruction: None,
+                queue_claim: None,
                 thread: "synthetic-thread".into(),
                 provider: selected.provider.clone(),
                 model: selected.model.clone(),

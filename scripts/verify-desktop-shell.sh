@@ -9,7 +9,7 @@ fi
 if [[ $# -ne 0 ]]; then printf 'Usage: verify-desktop-shell.sh\n' >&2; exit 2; fi
 cd "$repo_root"
 cargo build -p brn-intake --features helper --bin brn-intake-helper --locked --offline
-cargo build -p brn-desktop --features native-ui --locked --offline
-cargo clippy -p brn-desktop --features native-ui --all-targets --locked --offline -- -D warnings
-cargo test -p brn-desktop --features native-ui --locked --offline
+cargo build -p brn-desktop --features native-ui,native-test-support --locked --offline
+cargo clippy -p brn-desktop --features native-ui,native-test-support --all-targets --locked --offline -- -D warnings
+cargo test -p brn-desktop --features native-ui,native-test-support --locked --offline
 printf 'Native compilation and state checks passed; hands-on interaction is a separate gate.\n'

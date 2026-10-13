@@ -1,0 +1,579 @@
+//! Native chat presentation delegates durable control to the shared checked service.
+use super::shell::pill;
+use super::*;
+use gpui_kit::Focusable;
+use gpui_kit::component::message_scroller::{MessageScroller, MessageScrollerState};
+
+pub(super) struct ChatScroller {
+    pub state: Entity<MessageScrollerState>,
+    pub keys: Vec<String>,
+    pub signature: String,
+}
+impl ThreadsUi {
+    pub(super) fn assets_in_chat(&self, chat: Option<&str>) -> Arc<BTreeMap<String, Arc<Image>>> {
+        Arc::new(
+            self.records
+                .iter()
+                .filter(|r| {
+                    matches!(r.data, RecordData::Asset(_)) && record_in_chat(r, &self.records, chat)
+                })
+                .filter_map(|r| {
+                    let key = format!("brn-asset://{}", r.id);
+                    self.assets.get(&key).cloned().map(|image| (key, image))
+                })
+                .collect(),
+        )
+    }
+    pub(super) fn note_assets(&self) -> Arc<BTreeMap<String, Arc<Image>>> {
+        let chat = self.note.as_ref().and_then(|n| match &n.record.data {
+            RecordData::Note(n) => n.chat.as_deref(),
+            _ => None,
+        });
+        self.assets_in_chat(chat)
+    }
+    pub(super) fn pause_failed_worker(&mut self) {
+        let key = format!("worker-failure:{}", uuid::Uuid::new_v4());
+        let result = if let Some(run) = self.worker.as_ref().and_then(|w| w.run_id.as_deref()) {
+            self.workspace.stop_chat_run(
+                &key,
+                run,
+                (!self.stream.is_empty()).then_some(self.stream.as_str()),
+            )
+        } else {
+            self.workspace.recover_queue(&key)
+        };
+        if let Err(e) = result {
+            self.notice = format!(
+                "Could not preserve interruption state: {e}. Copy visible progress before closing."
+            );
+        }
+    }
+    pub(super) fn queue_state(&self) -> ChatControl {
+        self.workspace
+            .chat_control()
+            .ok()
+            .and_then(|r| match r.data {
+                RecordData::ChatControl(c) => Some(c),
+                _ => None,
+            })
+            .unwrap_or_default()
+    }
+    pub(super) fn save_composer(&mut self, destination: ComposerDestination, text: String) {
+        self.composer_drafts
+            .preserve(destination.clone(), text.clone());
+        let Ok(key) = serde_json::to_string(&destination) else {
+            return;
+        };
+        let generation = self.draft_generations.entry(key.clone()).or_default();
+        let Some(next) = generation.checked_add(1) else {
+            self.notice =
+                "Composer recovery counter exhausted. Copy your text before closing.".into();
+            return;
+        };
+        match self.workspace.store.save_chat_draft(&key, next, &text) {
+            Ok(_) => *generation = next,
+            Err(e) => {
+                self.notice = format!(
+                    "Composer recovery could not be saved: {e}. Keep this window open or copy your text."
+                )
+            }
+        }
+    }
+    fn composer_chat(&mut self, prompt: &str) -> AppResult<String> {
+        match self.chat.clone() {
+            ChatTarget::Thread(id) => {
+                if self.thread_resolved(&id) {
+                    return Err(AppError::Invalid(
+                        "Unarchive this chat before sending".into(),
+                    ));
+                }
+                Ok(id)
+            }
+            ChatTarget::NewForNote(note) => {
+                let version = self
+                    .records
+                    .iter()
+                    .find(|r| r.id == note)
+                    .map_or(0, |r| r.version);
+                self.ensure_writing_thread(&note, version)
+            }
+            ChatTarget::New => self.workspace.new_thread(&short(prompt)).map(|r| r.id),
+        }
+    }
+    pub(super) fn enqueue_composer(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        let prompt = self.composer.read(cx).value().to_string();
+        if prompt.trim().is_empty() {
+            return;
+        }
+        let destination = self.destination();
+        let result = if let Some(item) = &self.editing_queue {
+            self.workspace
+                .edit_queued(
+                    &format!("edit-queue:{}", uuid::Uuid::new_v4()),
+                    item,
+                    &prompt,
+                )
+                .map(|_| None)
+        } else {
+            self.composer_chat(&prompt).and_then(|thread| {
+                self.workspace
+                    .queue_message(&format!("queue:{}", uuid::Uuid::new_v4()), &thread, &prompt)
+                    .map(|_| Some(thread))
+            })
+        };
+        match result {
+            Ok(thread) => {
+                self.editing_queue = None;
+                self.save_composer(destination, String::new());
+                self.composer
+                    .update(cx, |e, cx| e.set_value("", window, cx));
+                if let Some(thread) = thread {
+                    self.chat = ChatTarget::Thread(thread);
+                }
+                self.mode = ComposeMode::Ask;
+                self.notice = "Message saved in the queue. Each item runs as a separate turn with current context.".into();
+                self.refresh();
+                if self.worker.is_none() && !self.queue_state().paused {
+                    self.dispatch_next(cx);
+                }
+            }
+            Err(e) => self.notice = format!("{e}. Your composer text is preserved."),
+        }
+        cx.notify();
+    }
+    pub(super) fn dispatch_next(&mut self, cx: &mut Context<Self>) {
+        if self.worker.is_some() {
+            return;
+        }
+        match self
+            .workspace
+            .dispatch_queued(&format!("dispatch:{}", uuid::Uuid::new_v4()))
+        {
+            Ok(Some(q)) => {
+                self.start_run(q.text, q.thread, vec![], None, cx);
+                if self.worker.is_none() {
+                    let _ = self
+                        .workspace
+                        .pause_queue(&format!("start-failed:{}", uuid::Uuid::new_v4()));
+                }
+            }
+            Ok(None) => {}
+            Err(e) => {
+                self.notice = e.to_string();
+                let _ = self
+                    .workspace
+                    .pause_queue(&format!("dispatch-failed:{}", uuid::Uuid::new_v4()));
+            }
+        }
+        self.refresh();
+        cx.notify();
+    }
+    pub(super) fn resume_chat_queue(&mut self, cx: &mut Context<Self>) {
+        if self.worker.is_some() {
+            self.notice = "Wait for current work to stop before Resume.".into();
+            cx.notify();
+            return;
+        }
+        if let Some(run) = self.queue_state().pending.and_then(|q| q.run)
+            && matches!(self.workspace.store.record(&run), Ok(Some(Record { data: RecordData::Run(r), .. })) if r.state == RunState::Working)
+            && let Err(e) = self.workspace.stop_chat_run(
+                &format!("resume-stale:{}", uuid::Uuid::new_v4()),
+                &run,
+                None,
+            )
+        {
+            self.notice = e.to_string();
+            cx.notify();
+            return;
+        }
+        match self
+            .workspace
+            .resume_queue(&format!("resume:{}", uuid::Uuid::new_v4()))
+        {
+            Ok(_) => self.dispatch_next(cx),
+            Err(e) => self.notice = e.to_string(),
+        }
+        cx.notify();
+    }
+    pub(super) fn acknowledge_run(
+        &mut self,
+        terminal: Option<(String, u64)>,
+        success: bool,
+    ) -> bool {
+        let pending = self.queue_state().pending;
+        let local_run = self.worker.as_ref().and_then(|w| w.run_id.as_ref());
+        if let Some(q) = &pending
+            && q.run.as_ref() != local_run
+        {
+            return false;
+        }
+        let Some((run, fence)) = terminal else {
+            if self.pending_send.is_none() {
+                self.pause_failed_worker();
+            }
+            return false;
+        };
+        if local_run != Some(&run) {
+            return false;
+        }
+        if let Some(q) = pending {
+            let Some(message) = q.message else {
+                return false;
+            };
+            return self
+                .workspace
+                .finish_queued(
+                    &format!("finish-queue:{run}:{fence}"),
+                    &q.id,
+                    &message,
+                    &run,
+                    fence,
+                    success,
+                )
+                .is_ok()
+                && success;
+        }
+        let valid = matches!(self.workspace.store.record(&run), Ok(Some(Record { data: RecordData::Run(r), .. })) if r.fence == fence && if success { r.state == RunState::Completed } else { r.state != RunState::Working });
+        if valid && !success {
+            let _ = self
+                .workspace
+                .pause_queue(&format!("failed-queue:{run}:{fence}"));
+        }
+        valid && success
+    }
+    pub(super) fn composer_controls(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
+        let c = self.queue_state();
+        let mut panel = div().flex().flex_col().gap_1();
+        if c.pending.is_some() || !c.queue.is_empty() {
+            panel = panel.child(
+                div()
+                    .flex()
+                    .items_center()
+                    .gap_2()
+                    .child(metadata(format!(
+                        "Queue · {} waiting{}",
+                        c.queue.len(),
+                        if c.paused { " · paused" } else { "" }
+                    )))
+                    .child(
+                        pill("queue-resume", "Resume")
+                            .disabled(self.worker.is_some() || !c.paused)
+                            .on_click(cx.listener(|this, _, _, cx| this.resume_chat_queue(cx))),
+                    ),
+            );
+            for (index, q) in c.pending.iter().chain(c.queue.iter()).enumerate() {
+                let edit = q.clone();
+                let remove = q.id.clone();
+                let move_id = q.id.clone();
+                let active = q.run.as_ref().is_some_and(|id| {
+                    self.worker.as_ref().and_then(|w| w.run_id.as_ref()) == Some(id)
+                });
+                let before = c
+                    .queue
+                    .iter()
+                    .position(|i| i.id == q.id)
+                    .and_then(|i| i.checked_sub(1))
+                    .map(|i| c.queue[i].id.clone());
+                panel = panel.child(
+                    div()
+                        .id(format!("queue-card-{}", q.id))
+                        .flex()
+                        .items_center()
+                        .gap_2()
+                        .px_2()
+                        .py_1()
+                        .child(metadata(format!(
+                            "{} · {} · {}",
+                            if active {
+                                "running"
+                            } else if c.pending.as_ref().is_some_and(|p| p.id == q.id) {
+                                "saved turn"
+                            } else {
+                                "waiting"
+                            },
+                            short(&self.thread_title(&q.thread)),
+                            short(&q.text)
+                        )))
+                        .child(
+                            pill(format!("queue-edit-{index}"), "Edit")
+                                .disabled(active)
+                                .on_click(cx.listener(move |this, _, window, cx| {
+                                    this.set_chat(
+                                        ChatTarget::Thread(edit.thread.clone()),
+                                        window,
+                                        cx,
+                                    );
+                                    this.editing_queue = Some(edit.id.clone());
+                                    this.composer.update(cx, |e, cx| {
+                                        e.set_value(edit.text.clone(), window, cx)
+                                    });
+                                    this.composer.focus_handle(cx).focus(window, cx);
+                                    cx.notify();
+                                })),
+                        )
+                        .child(
+                            pill(format!("queue-remove-{index}"), "Remove")
+                                .disabled(active)
+                                .on_click(cx.listener(move |this, _, _, cx| {
+                                    if let Err(e) = this.workspace.remove_queued(
+                                        &format!("remove:{}", uuid::Uuid::new_v4()),
+                                        &remove,
+                                    ) {
+                                        this.notice = e.to_string();
+                                    }
+                                    this.refresh();
+                                    cx.notify();
+                                })),
+                        )
+                        .when(before.is_some(), |row| {
+                            row.child(pill(format!("queue-up-{index}"), "↑").on_click(cx.listener(
+                                move |this, _, _, cx| {
+                                    if let Err(e) = this.workspace.move_queued(
+                                        &format!("move:{}", uuid::Uuid::new_v4()),
+                                        &move_id,
+                                        before.as_deref(),
+                                    ) {
+                                        this.notice = e.to_string();
+                                    }
+                                    this.refresh();
+                                    cx.notify();
+                                },
+                            )))
+                        }),
+                );
+            }
+        }
+        if let ChatTarget::Thread(chat) = &self.chat {
+            for r in self.records.iter().filter(|r| {
+                !r.archived
+                    && matches!(&r.data,RecordData::Note(n) if n.chat.as_ref() == Some(chat))
+            }) {
+                let open = r.id.clone();
+                let keep = r.id.clone();
+                let version = r.version;
+                let coverage = match &r.data {
+                    RecordData::Note(n) => n
+                        .import
+                        .as_ref()
+                        .and_then(|i| i.report.as_ref())
+                        .map(ImportReport::summary)
+                        .unwrap_or("Coverage unchecked"),
+                    _ => "",
+                };
+                panel = panel.child(
+                    div()
+                        .flex()
+                        .items_center()
+                        .gap_2()
+                        .child(metadata(format!(
+                            "Attachment · {} · {coverage}",
+                            short(&title(r))
+                        )))
+                        .child(
+                            pill(format!("attachment-open-{}", r.id), "Inspect").on_click(
+                                cx.listener(move |this, _, window, cx| {
+                                    this.open_note(&open, None, window, cx)
+                                }),
+                            ),
+                        )
+                        .child(
+                            pill(format!("attachment-keep-{}", r.id), "Keep in BRN").on_click(
+                                cx.listener(move |this, _, _, cx| {
+                                    match this.workspace.keep_in_brn(
+                                        &format!("keep:{}", uuid::Uuid::new_v4()),
+                                        &keep,
+                                        version,
+                                    ) {
+                                        Ok(o) => this.notice = outcome_message(&o),
+                                        Err(e) => this.notice = e.to_string(),
+                                    }
+                                    this.refresh();
+                                    cx.notify();
+                                }),
+                            ),
+                        ),
+                );
+            }
+        }
+        panel.into_any_element()
+    }
+    pub(super) fn attach_chat_path(
+        &mut self,
+        paths: &[PathBuf],
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        if paths.len() != 1 {
+            self.notice = "Attach one supported document at a time.".into();
+            cx.notify();
+            return;
+        }
+        if self.worker.is_some() {
+            self.notice = "Finish or stop work before attaching a file.".into();
+            cx.notify();
+            return;
+        }
+        let text = self.composer.read(cx).value().to_string();
+        match self.composer_chat(if text.trim().is_empty() {
+            "New chat"
+        } else {
+            &text
+        }) {
+            Ok(chat) => {
+                self.set_chat(ChatTarget::Thread(chat.clone()), window, cx);
+                self.composer
+                    .update(cx, |e, cx| e.set_value(text, window, cx));
+                self.convert_file(
+                    self.data_dir.clone(),
+                    paths[0].clone(),
+                    ImportIntent::FullNote,
+                    Some(chat),
+                    cx,
+                );
+            }
+            Err(e) => {
+                self.notice = e.to_string();
+                cx.notify();
+            }
+        }
+    }
+    pub(super) fn choose_chat_attachment(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        if self.worker.is_some() {
+            self.notice = "Finish or stop work before attaching a file.".into();
+            cx.notify();
+            return;
+        }
+        let text = self.composer.read(cx).value().to_string();
+        match self.composer_chat(if text.trim().is_empty() {
+            "New chat"
+        } else {
+            &text
+        }) {
+            Ok(id) => {
+                self.set_chat(ChatTarget::Thread(id.clone()), window, cx);
+                self.composer
+                    .update(cx, |e, cx| e.set_value(text, window, cx));
+                self.attaching_chat = Some(id);
+                self.choose_import(ImportIntent::FullNote, window, cx);
+            }
+            Err(e) => {
+                self.notice = e.to_string();
+                cx.notify();
+            }
+        }
+    }
+    pub(super) fn conversation(&self, id: &str, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
+        let messages = self.workspace.messages(id).unwrap_or_default();
+        let mut keys = messages.iter().map(|r| r.id.clone()).collect::<Vec<_>>();
+        keys.push(format!("details-{id}"));
+        let state = {
+            let mut states = self.scrollers.borrow_mut();
+            let slot = states.entry(id.into()).or_insert_with(|| ChatScroller {
+                state: cx.new(|cx| MessageScrollerState::new(0, cx)),
+                keys: vec![],
+                signature: String::new(),
+            });
+            if slot.keys != keys {
+                let same = slot
+                    .keys
+                    .iter()
+                    .zip(&keys)
+                    .take_while(|(a, b)| a == b)
+                    .count();
+                let old_len = slot.keys.len();
+                let new_len = keys.len();
+                slot.state.update(cx, |s, cx| {
+                    s.splice(same..old_len, new_len - same, cx);
+                });
+                slot.keys = keys;
+            }
+            // Streaming changes the last row's height, preserving a scrolled-up anchor.
+            let signature = format!(
+                "{}:{}:{:?}:{}",
+                self.stream,
+                self.progress,
+                self.records.iter().find(|r| r.id == id).map(|r| r.version),
+                self.queue_state().quiet
+            );
+            if signature != slot.signature {
+                slot.state.update(cx, |s, cx| {
+                    let count = s.item_count();
+                    if count > 0 {
+                        s.remeasure_items(count - 1..count, cx);
+                    }
+                });
+                slot.signature = signature;
+            }
+            slot.state.clone()
+        };
+        let weak = cx.entity().downgrade();
+        let chat = id.to_owned();
+        MessageScroller::new(format!("conversation-{id}"), state, move |index, _, cx| {
+            weak.update(cx, |this, cx| {
+                if let Some(message) = messages.get(index) {
+                    this.message_row(message, cx)
+                } else {
+                    this.conversation_detail(&chat, cx)
+                }
+            })
+            .unwrap_or_else(|_| div().into_any_element())
+        })
+        .into_any_element()
+    }
+    fn message_row(&self, record: &Record, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
+        let RecordData::Message(m) = &record.data else {
+            return div().into_any_element();
+        };
+        let key = self
+            .history
+            .iter()
+            .find(|r| r.writes.iter().any(|w| w.after.id == record.id))
+            .and_then(|r| {
+                r.writes.iter().find_map(|w| match w.after.data {
+                    RecordData::Run(_) => Some(format!("response-{}", w.after.id)),
+                    _ => None,
+                })
+            })
+            .unwrap_or_else(|| format!("message-{}", record.id));
+        let mut row = div()
+            .id(format!("chat-message-{}", record.id))
+            .flex()
+            .flex_col()
+            .gap_1()
+            .p_3();
+        match m.role.as_str() {
+            "owner" => {
+                row = row
+                    .child(metadata("you"))
+                    .child(self.safe_message(key, m.text.clone()));
+            }
+            "assistant" | "assistant-partial" => {
+                let copy = m.text.clone();
+                row = row
+                    .child(
+                        div()
+                            .flex()
+                            .gap_2()
+                            .child(metadata(if m.role == "assistant" {
+                                "BRN"
+                            } else {
+                                "BRN · partial, interrupted"
+                            }))
+                            .child(pill(format!("answer-copy-{}", record.id), "Copy").on_click(
+                                cx.listener(move |_, _, _, cx| {
+                                    cx.write_to_clipboard(gpui_kit::ClipboardItem::new_string(
+                                        copy.clone(),
+                                    ))
+                                }),
+                            )),
+                    )
+                    .child(self.safe_message(key, m.text.clone()));
+            }
+            "writing-request" => {
+                row = row.child(metadata("you · Rewrite with AI · saved context"));
+            }
+            _ => {}
+        }
+        row.into_any_element()
+    }
+}

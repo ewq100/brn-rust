@@ -80,7 +80,7 @@ pub(super) fn thread_menu(
         ))
         .item(item(
             this,
-            if resolved { "Reopen" } else { "Resolve" },
+            if resolved { "Unarchive" } else { "Archive" },
             None,
             false,
             false,
@@ -117,7 +117,7 @@ fn note_menu(menu: PopupMenu, this: &WeakEntity<ThreadsUi>, id: String) -> Popup
     ))
     .item(item(
         this,
-        "New thread about this note",
+        "New chat about this note",
         None,
         false,
         false,
@@ -134,7 +134,7 @@ fn note_menu(menu: PopupMenu, this: &WeakEntity<ThreadsUi>, id: String) -> Popup
 pub(super) fn new_menu(menu: PopupMenu, this: &WeakEntity<ThreadsUi>, busy: bool) -> PopupMenu {
     menu.item(item(
         this,
-        "New thread",
+        "New chat",
         Some(Box::new(NewThread)),
         false,
         false,
@@ -178,7 +178,7 @@ impl ThreadsUi {
         match kind {
             TileKind::Threads | TileKind::Notes => vec![
                 pill(format!("{}-new", kind.key()), "＋")
-                    .tooltip("New thread, note or information")
+                    .tooltip("New chat, note or information")
                     .dropdown_menu(move |menu, _, _| new_menu(menu, &this, busy))
                     .into_any_element(),
             ],
@@ -256,7 +256,7 @@ impl ThreadsUi {
         if bar.open.is_empty() {
             list = list.child(empty(
                 "threads-empty",
-                "Your threads appear here. ⌘T starts one; quick answers resolve themselves.",
+                "Your chats appear here. ⌘T starts one; chats stay in history until you archive them.",
             ));
         }
         for row_data in &bar.open {
@@ -287,7 +287,7 @@ impl ThreadsUi {
         list = list.child(
             row(
                 "all-threads",
-                format!("all threads · {} →", bar.total),
+                format!("all chats · {} →", bar.total),
                 "",
                 false,
             )
@@ -300,7 +300,7 @@ impl ThreadsUi {
             list = list.child(
                 row(
                     "resolved-count",
-                    format!("✓ resolved · {}", bar.resolved),
+                    format!("archived · {}", bar.resolved),
                     "",
                     false,
                 )
@@ -384,15 +384,15 @@ impl ThreadsUi {
             .child(filters)
             .child(metadata(if grouped.matched > lists::LIST_LIMIT {
                 format!(
-                    "{} threads · showing the {} most recent; keep typing to narrow",
+                    "{} chats · showing the {} most recent; keep typing to narrow",
                     grouped.matched,
                     lists::LIST_LIMIT
                 )
             } else {
-                format!("{} threads", grouped.matched)
+                format!("{} chats", grouped.matched)
             }));
         if grouped.groups.is_empty() {
-            list = list.child(empty("all-threads-empty", "No threads match this filter."));
+            list = list.child(empty("all-threads-empty", "No chats match this filter."));
         }
         for (name, rows) in grouped.groups {
             list = list.child(section(name.to_uppercase()));
@@ -404,7 +404,7 @@ impl ThreadsUi {
                 let meta = if row_data.needs_you() {
                     "needs you".to_owned()
                 } else if resolved {
-                    "✓ resolved".to_owned()
+                    "archived".to_owned()
                 } else if row_data.has_action {
                     "action".to_owned()
                 } else if row_data.note.is_some() {
@@ -826,7 +826,7 @@ impl ThreadsUi {
     }
     pub(super) fn actions_tile(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         let mut view = scroll("actions-content").gap_2().child(metadata(
-            "Actions keep their own progress, including after a thread is resolved.",
+            "Actions keep their own progress, including after a chat is archived.",
         ));
         if !self
             .records

@@ -42,6 +42,7 @@ fn selecting_action_group_keeps_shared_source_guard_and_refuses_newer_evidence()
                 expected_version: None,
                 archived: false,
                 data: RecordData::Source(Source {
+                    chat: None,
                     locator: "synthetic://group-source".into(),
                     label: "Study".into(),
                     observed_at: "first".into(),
@@ -792,6 +793,8 @@ fn configuration_and_pause_fence_runs_while_thread_resolution_preserves_actions(
         .allocate_operation("host run and human Action")
         .unwrap();
     let run = Run {
+        instruction: None,
+        queue_claim: None,
         thread: thread.id.clone(),
         provider: "Codex".into(),
         model: "gpt-6.1-sol".into(),
@@ -896,6 +899,7 @@ fn review_replacement_remaps_created_records_refs_and_applies_exact_final_text()
         .allocate_operation("review creation group")
         .unwrap();
     let source = Source {
+        chat: None,
         locator: "external://review".into(),
         label: "review".into(),
         observed_at: "today".into(),

@@ -1,5 +1,6 @@
 use crate::*;
 use brn_threads_intake::{ConversionResult, CoverageStatus, GapKind, ImportIntent};
+use std::collections::BTreeSet;
 
 /// Preserve the converter's distinction between a detected loss and unchecked coverage.
 pub fn import_report(converted: &ConversionResult) -> ImportReport {
@@ -32,6 +33,24 @@ impl Workspace {
         title: &str,
         converted: &ConversionResult,
     ) -> AppResult<ApplyOutcome> {
+        self.import_full_scoped(key, title, converted, None)
+    }
+    pub fn attach_full(
+        &mut self,
+        key: &str,
+        thread: &str,
+        title: &str,
+        converted: &ConversionResult,
+    ) -> AppResult<ApplyOutcome> {
+        self.import_full_scoped(key, title, converted, Some(thread))
+    }
+    fn import_full_scoped(
+        &mut self,
+        key: &str,
+        title: &str,
+        converted: &ConversionResult,
+        chat: Option<&str>,
+    ) -> AppResult<ApplyOutcome> {
         if converted.intent != ImportIntent::FullNote {
             return Err(AppError::Invalid(
                 "Useful-information intake needs semantic selection, not a full-copy note".into(),
@@ -52,17 +71,31 @@ impl Workspace {
         }
         let binding = format!(
             "{:x}",
-            Sha256::digest(serde_json::to_vec(&(title, converted))?)
+            Sha256::digest(if let Some(chat) = chat {
+                serde_json::to_vec(&("chat-attachment", title, converted, chat))?
+            } else {
+                serde_json::to_vec(&(title, converted))?
+            })
         );
         let op = self
             .store
             .allocate_bound_operation(&format!("full-import:{key}"), &binding)?;
         let authority = HostAuthority::owner("full-note import request");
+        if self.store.receipt(&op)?.is_some() {
+            return Ok(self.store.apply(&op, &authority)?);
+        }
+        if let Some(thread) = chat
+            && !matches!(self.store.record(thread)?,Some(Record{archived:false,data:RecordData::Thread(t),..}) if t.state==ThreadState::Open)
+        {
+            return Err(AppError::Invalid(
+                "Choose an active chat for this attachment".into(),
+            ));
+        }
         if self.store.prepared(&op).is_ok() {
             return Ok(self.store.apply(&op, &authority)?);
         }
         let records = self.records()?;
-        let existing=records.iter().find(|record|matches!(&record.data,RecordData::Source(source) if source.locator==converted.source_reference));
+        let existing=records.iter().find(|record|matches!(&record.data,RecordData::Source(source) if source.locator==converted.source_reference && source.chat.as_deref()==chat));
         let source_id = existing
             .map(|record| record.id.clone())
             .unwrap_or_else(|| op.creation_id(0));
@@ -95,6 +128,7 @@ impl Workspace {
             source.clone()
         } else {
             Source {
+                chat: chat.map(str::to_owned),
                 locator: converted.source_reference.clone(),
                 label: title.into(),
                 observed_at: observed_at.clone(),
@@ -140,6 +174,7 @@ impl Workspace {
             }
             let mut note = Note::working(title, markdown);
             note.protected = true;
+            note.chat = chat.map(str::to_owned);
             note.import = Some(ImportCoverage {
                 source: source_id.clone(),
                 full_note: true,
@@ -157,11 +192,23 @@ impl Workspace {
                 expected_version: None,
                 archived: false,
                 data: RecordData::Link(Link {
-                    from: note_id,
+                    from: note_id.clone(),
                     to: source_id,
                     relation,
                 }),
             });
+            if let Some(chat) = chat {
+                writes.push(Put {
+                    id: op.creation_id(converted.assets.len() + 3),
+                    expected_version: None,
+                    archived: false,
+                    data: RecordData::Link(Link {
+                        from: chat.into(),
+                        to: note_id,
+                        relation: "attachment".into(),
+                    }),
+                });
+            }
         }
         let request = ChangeRequest {
             reason: if previously_imported {
@@ -177,5 +224,209 @@ impl Workspace {
         };
         self.store.prepare_owner(&op, &request, &authority)?;
         Ok(self.store.apply(&op, &authority)?)
+    }
+    pub fn keep_in_brn(
+        &mut self,
+        key: &str,
+        note_id: &str,
+        version: u64,
+    ) -> AppResult<ApplyOutcome> {
+        let binding = format!(
+            "{:x}",
+            Sha256::digest(serde_json::to_vec(&("keep-in-brn", note_id, version))?)
+        );
+        let op = self
+            .store
+            .allocate_bound_operation(&format!("keep-in-brn:{key}"), &binding)?;
+        let owner = HostAuthority::owner("owner retained a chat attachment in BRN");
+        if self.store.prepared(&op).is_ok() {
+            return Ok(self.store.apply(&op, &owner)?);
+        }
+        let record = self
+            .store
+            .note(note_id)?
+            .ok_or_else(|| AppError::Invalid("Attachment missing".into()))?;
+        if record.version != version {
+            return Ok(ApplyOutcome::Stale {
+                records: vec![note_id.into()],
+            });
+        }
+        let RecordData::Note(mut note) = record.data else {
+            unreachable!()
+        };
+        if note.chat.is_none() {
+            return Err(AppError::Invalid("This note is already in BRN".into()));
+        }
+        let original_chat = note.chat.clone();
+        note.chat = None;
+        let records = self.records()?;
+        let mut writes = Vec::new();
+        let mut inputs = Vec::new();
+        if let Some(import) = &mut note.import {
+            let source = self
+                .store
+                .record(&import.source)?
+                .ok_or_else(|| AppError::Invalid("Attachment source missing".into()))?;
+            inputs.push(RevisionInput {
+                record: source.id.clone(),
+                version: source.version,
+                expectation: InputExpectation::Current,
+            });
+            if let RecordData::Source(mut observation) = source.data {
+                let old_source = source.id;
+                let global = records.iter().find(|r| matches!(&r.data, RecordData::Source(s) if s.chat.is_none() && s.locator == observation.locator));
+                let source_id = global
+                    .map(|r| r.id.clone())
+                    .unwrap_or_else(|| op.creation_id(0));
+                if global.is_none() {
+                    observation.chat = None;
+                    writes.push(Put {
+                        id: source_id.clone(),
+                        expected_version: None,
+                        archived: false,
+                        data: RecordData::Source(observation),
+                    });
+                }
+                import.source = source_id.clone();
+                for r in &records {
+                    let mut data = r.data.clone();
+                    match &mut data {
+                        RecordData::Asset(a)
+                            if a.note == note_id && a.source.as_ref() == Some(&old_source) =>
+                        {
+                            a.source = Some(source_id.clone())
+                        }
+                        RecordData::Link(l) if l.from == note_id && l.to == old_source => {
+                            l.to = source_id.clone()
+                        }
+                        _ => continue,
+                    }
+                    writes.push(Put {
+                        id: r.id.clone(),
+                        expected_version: Some(r.version),
+                        archived: r.archived,
+                        data,
+                    });
+                }
+            }
+        }
+        let mut retained = BTreeMap::new();
+        for id in managed_asset_ids(&note.markdown)
+            .map(str::to_owned)
+            .collect::<BTreeSet<_>>()
+        {
+            let record = records
+                .iter()
+                .find(|r| r.id == id && !r.archived && matches!(r.data, RecordData::Asset(_)))
+                .ok_or_else(|| {
+                    AppError::Invalid(
+                        "A referenced figure is missing; inspect this attachment before keeping it"
+                            .into(),
+                    )
+                })?;
+            if !record_in_chat(record, &records, original_chat.as_deref()) {
+                return Err(AppError::Invalid(
+                    "A referenced figure belongs to another chat".into(),
+                ));
+            }
+            let RecordData::Asset(asset) = &record.data else {
+                unreachable!()
+            };
+            let owned = asset.note == note_id;
+            if record_in_chat(record, &records, None)
+                || owned
+                    && writes
+                        .iter()
+                        .any(|w| w.id == record.id && matches!(w.data, RecordData::Asset(_)))
+            {
+                continue;
+            }
+            let mut copy = asset.clone();
+            copy.note = note_id.into();
+            if let Some(source) = &asset.source {
+                let source_record = records
+                    .iter()
+                    .find(|r| r.id == *source)
+                    .ok_or_else(|| AppError::Invalid("Figure source missing".into()))?;
+                if let RecordData::Source(observation) = &source_record.data
+                    && observation.chat.is_some()
+                {
+                    let global=records.iter().find(|r|matches!(&r.data,RecordData::Source(s) if s.chat.is_none() && s.locator==observation.locator));
+                    let staged=writes.iter().find(|w|matches!(&w.data,RecordData::Source(s) if s.chat.is_none() && s.locator==observation.locator));
+                    let source_id = global
+                        .map(|r| r.id.clone())
+                        .or_else(|| staged.map(|w| w.id.clone()))
+                        .unwrap_or_else(|| op.creation_id(writes.len() + 1));
+                    if global.is_none() && staged.is_none() {
+                        let mut observation = observation.clone();
+                        observation.chat = None;
+                        writes.push(Put {
+                            id: source_id.clone(),
+                            expected_version: None,
+                            archived: false,
+                            data: RecordData::Source(observation),
+                        });
+                    }
+                    copy.source = Some(source_id);
+                    inputs.push(RevisionInput {
+                        record: source.clone(),
+                        version: source_record.version,
+                        expectation: InputExpectation::Current,
+                    });
+                }
+            }
+            if owned {
+                if copy.source != asset.source {
+                    writes.push(Put {
+                        id: record.id.clone(),
+                        expected_version: Some(record.version),
+                        archived: false,
+                        data: RecordData::Asset(copy),
+                    });
+                }
+                continue;
+            }
+            let new_id = op.creation_id(writes.len() + 1);
+            writes.push(Put {
+                id: new_id.clone(),
+                expected_version: None,
+                archived: false,
+                data: RecordData::Asset(copy),
+            });
+            retained.insert(id.clone(), format!("brn-asset://{new_id}"));
+            inputs.push(RevisionInput {
+                record: id,
+                version: record.version,
+                expectation: InputExpectation::Current,
+            });
+        }
+        inputs.sort_by(|a, b| a.record.cmp(&b.record).then(a.version.cmp(&b.version)));
+        inputs.dedup_by(|a, b| {
+            a.record == b.record && a.version == b.version && a.expectation == b.expectation
+        });
+        note.markdown = crate::assets::rewrite(&note.markdown, |id| {
+            Some(
+                retained
+                    .get(id)
+                    .cloned()
+                    .unwrap_or_else(|| format!("brn-asset://{id}")),
+            )
+        })?;
+        writes.push(Put {
+            id: note_id.into(),
+            expected_version: Some(version),
+            archived: false,
+            data: RecordData::Note(note),
+        });
+        self.store.prepare_owner(
+            &op,
+            &ChangeRequest {
+                reason: "Keep this attachment in BRN".into(),
+                writes,
+                inputs,
+            },
+            &owner,
+        )?;
+        Ok(self.store.apply(&op, &owner)?)
     }
 }

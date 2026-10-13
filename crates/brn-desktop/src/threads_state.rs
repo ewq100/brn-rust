@@ -17,7 +17,7 @@ pub(super) fn delegation_status(settings: &WorkspaceSettings) -> &'static str {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, serde::Serialize, serde::Deserialize)]
 pub(super) enum ComposerDestination {
     Home,
     Thread(String),
@@ -575,6 +575,8 @@ mod integrity_tests {
                             expected_version: None,
                             archived: false,
                             data: RecordData::Run(Run {
+                                instruction: None,
+                                queue_claim: None,
                                 thread: thread.id.clone(),
                                 provider: settings.provider.clone(),
                                 model: settings.model.clone(),

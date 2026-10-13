@@ -25,6 +25,8 @@ fn working_run(app: &mut Workspace, thread: &str) -> String {
                 expected_version: None,
                 archived: false,
                 data: RecordData::Run(Run {
+                    instruction: None,
+                    queue_claim: None,
                     thread: thread.into(),
                     provider: "Offline".into(),
                     model: "synthetic".into(),

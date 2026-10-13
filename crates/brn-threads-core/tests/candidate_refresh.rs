@@ -49,6 +49,8 @@ fn runtime_refresh_checks_family_fence_all_versions_and_preserves_apply_authorit
                 expected_version: None,
                 archived: false,
                 data: RecordData::Run(Run {
+                    instruction: None,
+                    queue_claim: None,
                     thread: thread.clone(),
                     provider: "Codex".into(),
                     model: "gpt-6.1-sol".into(),

@@ -564,6 +564,7 @@ fn source_observation_metadata_does_not_refresh_but_new_external_version_does() 
             &source_op,
             0,
             RecordData::Source(Source {
+                chat: None,
                 locator: "external://public-study".into(),
                 label: "study".into(),
                 observed_at: "first".into(),
@@ -748,6 +749,7 @@ fn complete_backup_restores_assets_sources_pending_candidates_history_and_buffer
         &op,
         0,
         RecordData::Source(Source {
+            chat: None,
             locator: "external://synthetic".into(),
             label: "reference".into(),
             observed_at: "2026-10-10".into(),
@@ -905,6 +907,8 @@ fn host_run_fence_blocks_superseded_commit_but_receipt_replay_survives_cancellat
         &setup,
         1,
         RecordData::Run(Run {
+            instruction: None,
+            queue_claim: None,
             thread: thread.id.clone(),
             provider: "synthetic".into(),
             model: "synthetic".into(),
@@ -1026,6 +1030,7 @@ fn full_import_is_protected_and_confirmation_requires_explicit_authority() {
         &op,
         0,
         RecordData::Source(Source {
+            chat: None,
             locator: "external://full".into(),
             label: "full".into(),
             observed_at: "today".into(),
@@ -1229,6 +1234,7 @@ fn comment_utf8_anchors_and_separate_record_versions_are_checked() {
 fn exact_source_identity_is_unique_and_failed_duplicate_has_no_partial_effect() {
     let (_dir, mut store) = delegated_store();
     let source = Source {
+        chat: None,
         locator: "external://stable-id".into(),
         label: "source".into(),
         observed_at: "today".into(),
@@ -1376,6 +1382,8 @@ fn seed_run(store: &mut Store, key: &str) -> Record {
         &op,
         1,
         RecordData::Run(Run {
+            instruction: None,
+            queue_claim: None,
             thread: thread.id.clone(),
             provider: "provider".into(),
             model: "model".into(),
@@ -2342,6 +2350,8 @@ fn working_run_start_rechecks_current_selection_and_accepts_planned_settings_ove
         &owner(),
     );
     let captured = Run {
+        instruction: None,
+        queue_claim: None,
         thread: setup.creation_id(1),
         provider: "codex".into(),
         model: "selected-old".into(),
@@ -2550,6 +2560,8 @@ fn runtime_settings_snapshot_covers_account_changes_and_provider_aliases() {
     );
     let captured = store.record(&setup.creation_id(0)).unwrap().unwrap();
     let run = Run {
+        instruction: None,
+        queue_claim: None,
         thread: setup.creation_id(1),
         provider: "Codex".into(),
         model: "model".into(),

@@ -155,7 +155,7 @@ fn global_tiles_navigation_preserves_human_buffer_and_each_chat_draft(cx: &mut T
         view.open_note(&note.id, None, window, cx);
         view.select_writing_thread(note.id.clone(), thread.clone(), window, cx);
         view.composer.update(cx, |editor, cx| {
-            editor.set_value("Selected thread unsent draft", window, cx)
+            editor.set_value("Selected chat unsent draft", window, cx)
         });
         view.note_editor.update(cx, |editor, cx| {
             editor.set_value("Human unsaved draft õun", window, cx)
@@ -181,7 +181,7 @@ fn global_tiles_navigation_preserves_human_buffer_and_each_chat_draft(cx: &mut T
             );
             assert_eq!(
                 view.composer.read(cx).value().as_ref(),
-                "Selected thread unsent draft"
+                "Selected chat unsent draft"
             );
             assert!(view.worker.is_none());
             assert_eq!(view.workspace.store.note(&note.id).unwrap().unwrap(), *note);
@@ -210,7 +210,7 @@ fn global_tiles_navigation_preserves_human_buffer_and_each_chat_draft(cx: &mut T
         );
         assert_eq!(
             view.composer.read(cx).value().as_ref(),
-            "Selected thread unsent draft"
+            "Selected chat unsent draft"
         );
         assert!(view.note.as_ref().unwrap().session.is_some());
         assert_eq!(view.workspace.store.note(&note.id).unwrap().unwrap(), *note);
