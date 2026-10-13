@@ -541,3 +541,59 @@ fn copilot_run_with_unoffered_model_does_not_start(cx: &mut TestAppContext) {
         assert!(view.notice.contains("synthetic-copilot-model"));
     });
 }
+
+#[gpui_kit::test]
+fn search_pages_show_exact_counts_context_and_ignore_superseded_queries(cx: &mut TestAppContext) {
+    let f = fixture(cx, false, 1400., 1100.);
+    update(cx, &f, |view, _, _| {
+        for i in 0..14 {
+            view.workspace
+                .new_note(
+                    &format!("Curlew {i:02}"),
+                    &format!("# Field log\n\nA curlew sighting number {i}."),
+                )
+                .unwrap();
+        }
+        view.workspace.new_note("Kestrel", "Kestrel only.").unwrap();
+        view.refresh();
+    });
+    click(cx, &f, "open-notes");
+    // Two queries before any answer: only the newer one may be shown.
+    update(cx, &f, |view, window, cx| {
+        view.search
+            .clone()
+            .update(cx, |input, cx| input.set_value("curlews", window, cx));
+        view.search_changed("kestrel".into(), window, cx);
+        view.search_changed("curlews".into(), window, cx);
+    });
+    cx.update_window(f.window, |_, window, cx| {
+        let view = f.view.read(cx);
+        assert_eq!(view.hits.len(), search_view::PAGE);
+        assert!(view.hits.iter().all(|hit| hit.title.starts_with("Curlew")));
+        let first = &view.hits[0];
+        assert_eq!(first.heading_path, "Field log");
+        assert!(first.snippet.contains("curlew"));
+        assert_eq!(&first.snippet[first.highlights[0].clone()], "curlew");
+        assert!(window.find("search-status").visible());
+    })
+    .unwrap();
+    let page = |cx: &mut TestAppContext| {
+        cx.read(|cx| {
+            let page = f.view.read(cx).results.page.clone().unwrap();
+            (page.total, page.offset, page.hits.len())
+        })
+    };
+    assert_eq!(page(cx), (14, 0, 12));
+    reveal(cx, &f, "notes-list", "search-next");
+    click(cx, &f, "search-next");
+    assert_eq!(page(cx), (14, 12, 2));
+    reveal(cx, &f, "notes-list", "search-previous");
+    click(cx, &f, "search-previous");
+    assert_eq!(page(cx), (14, 0, 12));
+    query(cx, &f, "zzznothing");
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(window.find("search-empty").visible());
+        assert!(f.view.read(cx).results.error.is_none());
+    })
+    .unwrap();
+}

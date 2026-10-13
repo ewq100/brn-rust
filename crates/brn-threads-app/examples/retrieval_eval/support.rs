@@ -696,14 +696,15 @@ pub trait Retriever {
     ) -> Result<Vec<String>>;
 }
 
-/// Today's application search: in-memory FTS5 keyword passages (top 30),
-/// collapsed to each note's first occurrence. It indexes general notes only
-/// and has no chat context, so chat-only notes are never found.
+/// The owner's application search, `Workspace::search`: the first 30
+/// results of the worker's general search. It has no chat context, so
+/// chat-only notes are never found. (Before Task 2 this was an in-memory
+/// index rebuilt on every launch, recorded as `current-app-keyword`.)
 pub struct CurrentAppSearch;
 
 impl Retriever for CurrentAppSearch {
     fn name(&self) -> String {
-        "current-app-keyword".into()
+        "app-search".into()
     }
     fn search(
         &mut self,
