@@ -5,7 +5,7 @@ The core, provider runtime and native workspace are implemented. Phase 0/F1 and 
 | Work | Owner-visible result | Remaining proof |
 |---|---|---|
 | Tiled UX | Consistent Home, search, Actions, history, settings and document/chat workspace | Merged in #123; observed native interaction remains deferred |
-| First preview | Relocatable macOS arm64 app with explicit limits | v0.1.0-preview.1 published; package/startup/public-download integrity verified, broader acceptance below |
+| First preview | Relocatable macOS arm64 app with explicit limits | v0.1.0-preview.1 published, v0.1.0-preview.2 adds the Omakase shell; package/startup/public-download integrity verified, broader acceptance below |
 | Recovery qualification | Understandable interruption/restart, backup and restoration before daily data adoption | Cold interruption/restart and broader recovery acceptance; fault/reopen tests are partial evidence |
 | Native acceptance | Dependable Home, thread, editor, review, comments, search, Actions, history and export | Actual target-Mac interaction and restart journeys; observation is currently deferred |
 | Daily-use acceptance | Source/email → reliable working note → supported Action or reply | Representative accepted results, clear partial coverage and recoverable local changes |

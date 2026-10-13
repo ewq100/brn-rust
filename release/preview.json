@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "enabled": true,
-  "version": "v0.1.0-preview.1",
-  "build_number": 1,
+  "version": "v0.1.0-preview.2",
+  "build_number": 2,
   "platform": "macos-arm64",
   "minimum_macos": "15.0",
   "features": ["native-ui"],
