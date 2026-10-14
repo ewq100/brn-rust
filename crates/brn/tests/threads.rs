@@ -497,3 +497,24 @@ fn topics_connections_and_knowledge_check_commands() {
     let threads = json_command(&data, &["threads"]);
     assert!(threads.as_array().unwrap().iter().any(|t| t["id"] == chat));
 }
+#[test]
+fn ask_refuses_an_unknown_trace_level_before_any_provider_call() {
+    let root = root();
+    let data = root.path().join("trace");
+    json_command(&data, &["init"]);
+    let chat = json_command(&data, &["thread-start", "--title", "Trace"]);
+    let output = command(
+        &data,
+        &[
+            "ask",
+            "--thread",
+            chat["id"].as_str().unwrap(),
+            "--prompt",
+            "Hi",
+            "--trace",
+            "verbose",
+        ],
+    );
+    assert!(!output.status.success());
+    assert!(String::from_utf8_lossy(&output.stderr).contains("--trace"));
+}
