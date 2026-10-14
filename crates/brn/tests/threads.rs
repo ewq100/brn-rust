@@ -501,6 +501,135 @@ fn topics_connections_and_knowledge_check_commands() {
     assert!(threads.as_array().unwrap().iter().any(|t| t["id"] == chat));
 }
 #[test]
+fn useful_intake_for_a_project_stays_in_one_project_chat_across_retries() {
+    let root = root();
+    let data = root.path().join("useful");
+    json_command(&data, &["init"]);
+    // A missing auth file makes every provider step fail before any network.
+    let missing = root.path().join("missing-auth.json");
+    json_command(
+        &data,
+        &[
+            "configure",
+            "--provider",
+            "Codex",
+            "--model",
+            "gpt-6.1-sol",
+            "--effort",
+            "medium",
+            "--auth-file",
+            missing.to_str().unwrap(),
+        ],
+    );
+    let created = json_command(&data, &["project-create", "--title", "Harbor crane"]);
+    let project = created["writes"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|w| w["after"]["data"].get("Project").is_some())
+        .unwrap()["after"]["id"]
+        .as_str()
+        .unwrap()
+        .to_owned();
+    let email = root.path().join("mari-email.txt");
+    std::fs::write(
+        &email,
+        "From: Mari Example <mari@example.invalid>\nSubject: Crane delivery\n\nThe berth survey measured 1.4 m.\n",
+    )
+    .unwrap();
+    let source = email.to_str().unwrap();
+    let threads_before = json_command(&data, &["threads"]).as_array().unwrap().len();
+    let search_before =
+        json_command(&data, &["search", "--query", "berth survey"])["total"].clone();
+    let supply = || {
+        json_command(
+            &data,
+            &[
+                "intake",
+                "--source",
+                source,
+                "--intent",
+                "useful",
+                "--project",
+                &project,
+            ],
+        )
+    };
+    let first = supply();
+    let second = supply();
+    assert!(first["terminal"]
+        .as_str()
+        .unwrap()
+        .starts_with("Failed:ReconnectNeeded"));
+    let chat = first["thread"].as_str().unwrap().to_owned();
+    assert_eq!(
+        (first["reused_chat"].clone(), second["reused_chat"].clone()),
+        (json!(false), json!(true))
+    );
+    assert_eq!(second["thread"], chat.as_str());
+
+    // Before: two general "Useful information intake" threads.
+    let threads = json_command(&data, &["threads"]);
+    assert_eq!(threads.as_array().unwrap().len(), threads_before + 1);
+    let projects = json_command(&data, &["projects"]);
+    assert!(projects[0]["data"]["Project"]["chats"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|c| c == chat.as_str()));
+    let records = json_command(&data, &["records"]);
+    let records = records.as_array().unwrap();
+    // Before: the Source was general (`chat: null`).
+    let sources: Vec<_> = records
+        .iter()
+        .filter_map(|r| r["data"].get("Source"))
+        .filter(|s| s["locator"] == source)
+        .collect();
+    assert_eq!(sources.len(), 1);
+    assert_eq!(sources[0]["chat"], chat.as_str());
+    let owner_messages = records
+        .iter()
+        .filter_map(|r| r["data"].get("Message"))
+        .filter(|m| m["thread"] == chat.as_str() && m["role"] == "owner")
+        .count();
+    assert_eq!(owner_messages, 1, "a retry does not repost the instruction");
+    // One failure notice naming its cause, not one per attempt.
+    let attention =
+        json_command(&data, &["read", "--id", &chat])["data"]["Thread"]["attention"].clone();
+    let blockers: Vec<_> = attention
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|a| a["kind"] == "Blocker")
+        .collect();
+    assert_eq!(blockers.len(), 1, "{attention}");
+    assert!(blockers[0]["reason"]
+        .as_str()
+        .unwrap()
+        .contains("Reconnect this account"));
+    assert_eq!(
+        json_command(&data, &["search", "--query", "berth survey"])["total"],
+        search_before
+    );
+
+    let both = command(
+        &data,
+        &[
+            "intake",
+            "--source",
+            source,
+            "--intent",
+            "useful",
+            "--project",
+            &project,
+            "--thread",
+            &chat,
+        ],
+    );
+    assert!(!both.status.success());
+    assert!(String::from_utf8_lossy(&both.stderr).contains("either --project or --thread"));
+}
+#[test]
 fn ask_refuses_an_unknown_trace_level_before_any_provider_call() {
     let root = root();
     let data = root.path().join("trace");

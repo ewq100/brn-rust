@@ -159,6 +159,9 @@ struct Scope {
     helper: Option<Arc<research::HelperRuntime>>,
     /// Set only in a helper sub-run's scope.
     scout: Option<Arc<research::ScoutSlot>>,
+    /// Tells other processes this Working Run is still live. A helper
+    /// sub-run shares its parent's Run, so its scope shares this lease.
+    lease: Arc<crate::run_lease::RunLease>,
 }
 /// Stable for a chat, so the turns of every run in it share a cache, and
 /// carries no content beyond the chat id the prompt already names.
@@ -1686,6 +1689,8 @@ async fn run_prepared_over(
         },
     };
     watcher.abort();
+    // The watcher shares the Scope; waiting for it lets the lease end with the run.
+    let _ = watcher.await;
     let committed = finish(&scope, &answer)?;
     if !committed {
         answer.terminal = AiTerminal::Interrupted;
@@ -1887,6 +1892,10 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
         ))
         .map_err(storage)?;
     let run_id = op.creation_id(0);
+    // Taken before the Run is saved as Working and held until it ends.
+    let lease =
+        crate::run_lease::RunLease::acquire(&store.derived_directory().map_err(storage)?, &run_id)
+            .map_err(storage)?;
     let mut writes = Vec::new();
     let mut retained = Vec::new();
     let mut prior_operations = Vec::new();
@@ -2233,6 +2242,7 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
             cache_key: cache_key(request.selection.provider, &request.thread),
             helper: helper.map(|helper| Arc::new(research::HelperRuntime::new(&helper))),
             scout: None,
+            lease: Arc::new(lease),
         }),
         format!(
             "{input}\nCurrent project context (owner-set instructions, within existing authority): {project_context}\nSaved chat documents (read with exact-version note tools): {}\nTopics note (root index of topic pages): {}\nHost maintenance policy: {maintenance_policy}\nHost authority for this invocation only: {}",
@@ -2262,8 +2272,50 @@ fn unique_host_key() -> String {
         SEQ.fetch_add(1, Ordering::SeqCst)
     )
 }
-const INTERRUPTED_ATTENTION: &str = "Run interrupted; Continue starts fresh";
+/// The host's Blocker reason for a Run that stopped before finishing.
+pub const INTERRUPTED_ATTENTION: &str = "Run interrupted; Continue starts fresh";
+/// The earlier fixed failure reason, still recognised in saved chats.
 const FAILED_ATTENTION: &str = "Run failed; check provider or continue from retained progress";
+const FAILED_PREFIX: &str = "Run failed: ";
+const MAX_NOTICE_BYTES: usize = 512;
+
+/// Whether `reason` is a host terminal notice for an interrupted or failed Run.
+pub fn is_terminal_notice(reason: &str) -> bool {
+    reason == INTERRUPTED_ATTENTION
+        || reason == FAILED_ATTENTION
+        || reason.starts_with(FAILED_PREFIX)
+}
+
+/// Names the failure's owner-facing cause. `AiError`'s Display is fixed
+/// text and never includes provider detail.
+fn failed_attention(error: &AiError) -> String {
+    let reason = format!("{FAILED_PREFIX}{error} Continue when the provider is ready.");
+    truncate(&reason, MAX_NOTICE_BYTES).to_owned()
+}
+
+/// Keeps one terminal notice per chat. Drops host terminal Blockers for `run`
+/// and for earlier Runs that `superseded` names, then adds `reason` for
+/// `run`. Questions, reviews, conflicts and other Blockers stay.
+pub fn replace_terminal_notice(
+    attention: &mut Vec<Attention>,
+    run: &str,
+    reason: String,
+    superseded: impl Fn(&str) -> bool,
+) {
+    attention.retain(|item| {
+        item.kind != AttentionKind::Blocker
+            || !is_terminal_notice(&item.reason)
+            || !item
+                .record
+                .as_deref()
+                .is_some_and(|id| id == run || superseded(id))
+    });
+    attention.push(Attention {
+        kind: AttentionKind::Blocker,
+        reason,
+        record: Some(run.to_owned()),
+    });
+}
 
 fn finish(scope: &Scope, answer: &AiAnswer) -> AiResult<bool> {
     let mut store = scope.store.lock().map_err(storage)?;
@@ -2319,59 +2371,43 @@ fn finish(scope: &Scope, answer: &AiAnswer) -> AiResult<bool> {
         return Err(rejected());
     };
     let before = data.attention.clone();
-    if matches!(answer.terminal, AiTerminal::Completed) {
-        // Successful fresh work retires only the host's obsolete terminal notice.
-        // Questions/reviews and independent blockers remain, even for the same Run.
-        let mut superseded = BTreeMap::new();
-        for item in &data.attention {
-            if item.kind != AttentionKind::Blocker
-                || !matches!(
-                    item.reason.as_str(),
-                    INTERRUPTED_ATTENTION | FAILED_ATTENTION
-                )
-            {
-                continue;
-            }
-            let Some(id) = &item.record else { continue };
-            if let Some(record) = store.record(id).map_err(storage)?
-                && let RecordData::Run(run) = record.data
-                && run.thread == thread
-                && id != &scope.run
-            {
-                let reason = match run.state {
-                    RunState::Interrupted => INTERRUPTED_ATTENTION,
-                    RunState::Failed => FAILED_ATTENTION,
-                    _ => continue,
-                };
-                superseded.insert(id.clone(), reason);
-            }
+    // The host's notices for earlier interrupted or failed Runs of this chat.
+    // Questions/reviews and independent blockers remain, even for the same Run.
+    let mut superseded = std::collections::BTreeSet::new();
+    for item in &data.attention {
+        if item.kind != AttentionKind::Blocker || !is_terminal_notice(&item.reason) {
+            continue;
         }
-        data.attention.retain(|item| {
+        let Some(id) = &item.record else { continue };
+        if let Some(record) = store.record(id).map_err(storage)?
+            && let RecordData::Run(run) = record.data
+            && run.thread == thread
+            && id != &scope.run
+            && matches!(run.state, RunState::Interrupted | RunState::Failed)
+        {
+            superseded.insert(id.clone());
+        }
+    }
+    match &answer.terminal {
+        // Successful fresh work retires only the host's obsolete terminal notices.
+        AiTerminal::Completed => data.attention.retain(|item| {
             item.kind != AttentionKind::Blocker
+                || !is_terminal_notice(&item.reason)
                 || !item
                     .record
                     .as_ref()
-                    .and_then(|id| superseded.get(id))
-                    .is_some_and(|reason| item.reason == *reason)
-        });
-    } else {
-        data.attention.retain(|item| {
-            item.kind != AttentionKind::Blocker
-                || item.record.as_deref() != Some(scope.run.as_str())
-                || !matches!(
-                    item.reason.as_str(),
-                    INTERRUPTED_ATTENTION | FAILED_ATTENTION
-                )
-        });
-        data.attention.push(Attention {
-            kind: AttentionKind::Blocker,
-            reason: match answer.terminal {
-                AiTerminal::Interrupted => INTERRUPTED_ATTENTION,
-                _ => FAILED_ATTENTION,
-            }
-            .into(),
-            record: Some(scope.run.clone()),
-        });
+                    .is_some_and(|id| superseded.contains(id))
+        }),
+        // A newer terminal result replaces older ones, so the chat names one cause.
+        terminal => replace_terminal_notice(
+            &mut data.attention,
+            &scope.run,
+            match terminal {
+                AiTerminal::Failed(error) => failed_attention(error),
+                _ => INTERRUPTED_ATTENTION.into(),
+            },
+            |id| superseded.contains(id),
+        ),
     }
     if data.attention != before {
         writes.push(Put {
@@ -4109,6 +4145,161 @@ mod tests {
                 matches!(store.record(&old_run).unwrap().unwrap().data, RecordData::Run(run) if matches!(run.state, RunState::Interrupted | RunState::Failed))
             );
         }
+    }
+    /// The same owner request again, with no provider credentials configured.
+    fn again(request: &ThreadRunRequest) -> ThreadRunRequest {
+        ThreadRunRequest {
+            request_message: None,
+            queue_claim: None,
+            owner_request: None,
+            data_dir: request.data_dir.clone(),
+            thread: request.thread.clone(),
+            prompt: request.prompt.clone(),
+            selection: request.selection.clone(),
+            effort: request.effort,
+            max_tool_rounds: request.max_tool_rounds,
+            auth_file: None,
+            credentials_dir: None,
+            sources: vec![],
+            search: None,
+            trace: TraceLevel::Off,
+        }
+    }
+    fn chat_attention(request: &ThreadRunRequest) -> Vec<Attention> {
+        match Store::open(&request.data_dir)
+            .unwrap()
+            .record(&request.thread)
+            .unwrap()
+            .unwrap()
+            .data
+        {
+            RecordData::Thread(thread) => thread.attention,
+            _ => panic!("Thread"),
+        }
+    }
+    #[tokio::test]
+    async fn repeated_failures_keep_one_notice_naming_the_cause_until_an_interrupt_replaces_it() {
+        let (_root, request, _) = fixture();
+        let mut store = Store::open(&request.data_dir).unwrap();
+        let record = store.record(&request.thread).unwrap().unwrap();
+        let RecordData::Thread(mut thread) = record.data else {
+            panic!("Thread")
+        };
+        let question = Attention {
+            kind: AttentionKind::Question,
+            reason: "Which berth should the crane use?".into(),
+            record: None,
+        };
+        thread.attention.push(question.clone());
+        let op = store.allocate_operation("owner question").unwrap();
+        let owner = HostAuthority::owner("synthetic question");
+        store
+            .prepare_owner(
+                &op,
+                &ChangeRequest {
+                    reason: "Owner question".into(),
+                    writes: vec![Put {
+                        id: record.id,
+                        expected_version: Some(record.version),
+                        archived: false,
+                        data: RecordData::Thread(thread),
+                    }],
+                    inputs: vec![],
+                },
+                &owner,
+            )
+            .unwrap();
+        store.apply(&op, &owner).unwrap();
+        drop(store);
+        // No credentials: each run fails as ReconnectNeeded before any network.
+        let mut runs = Vec::new();
+        for _ in 0..3 {
+            let result = run(again(&request), CancellationToken::new(), Arc::new(|_| {}))
+                .await
+                .unwrap();
+            assert!(matches!(
+                &result.answer.terminal,
+                AiTerminal::Failed(e) if e.kind == AiErrorKind::ReconnectNeeded
+            ));
+            runs.push(result.run_id);
+        }
+        let attention = chat_attention(&request);
+        assert_eq!(
+            attention,
+            vec![
+                question.clone(),
+                Attention {
+                    kind: AttentionKind::Blocker,
+                    reason: "Run failed: Reconnect this account before continuing. Continue when the provider is ready.".into(),
+                    record: Some(runs[2].clone()),
+                },
+            ]
+        );
+        // A later run stopped at startup leaves one Interrupted notice instead.
+        let cancel = CancellationToken::new();
+        cancel.cancel();
+        let stopped = run(again(&request), cancel, Arc::new(|_| {}))
+            .await
+            .unwrap();
+        assert!(matches!(stopped.answer.terminal, AiTerminal::Interrupted));
+        assert_eq!(
+            chat_attention(&request),
+            vec![
+                question,
+                Attention {
+                    kind: AttentionKind::Blocker,
+                    reason: INTERRUPTED_ATTENTION.into(),
+                    record: Some(stopped.run_id),
+                },
+            ]
+        );
+        // Every retry reused the one owner Message.
+        let owner_messages = Store::open(&request.data_dir)
+            .unwrap()
+            .records()
+            .unwrap()
+            .into_iter()
+            .filter(|r| matches!(&r.data, RecordData::Message(m) if m.role == "owner"))
+            .count();
+        assert_eq!(owner_messages, 1);
+    }
+    #[test]
+    fn terminal_notices_are_recognised_including_the_earlier_fixed_text() {
+        assert!(is_terminal_notice(INTERRUPTED_ATTENTION));
+        assert!(is_terminal_notice(FAILED_ATTENTION));
+        let named = failed_attention(&AiError::new(AiErrorKind::RateLimited));
+        assert_eq!(
+            named,
+            "Run failed: Account usage limit reached. Continue when the provider is ready."
+        );
+        assert!(is_terminal_notice(&named));
+        assert!(!is_terminal_notice("External dependency is still blocked"));
+    }
+    #[tokio::test]
+    async fn the_run_lease_lasts_from_preparation_until_the_run_returns() {
+        let (_root, request, _) = fixture();
+        let derived = Store::open(&request.data_dir)
+            .unwrap()
+            .derived_directory()
+            .unwrap();
+        let prepared = prepare_run(again(&request)).unwrap();
+        let run_id = prepared.run_id().to_owned();
+        assert!(crate::run_lease::run_is_live(&derived, &run_id));
+        let result = run_prepared(prepared, CancellationToken::new(), Arc::new(|_| {}))
+            .await
+            .unwrap();
+        assert_eq!(result.run_id, run_id);
+        assert!(!crate::run_lease::run_is_live(&derived, &run_id));
+        // Dropping prepared work without running it is a crash: the Run stays
+        // Working and nothing holds its lease.
+        let abandoned = prepare_run(again(&request)).unwrap();
+        let abandoned_id = abandoned.run_id().to_owned();
+        drop(abandoned);
+        assert!(!crate::run_lease::run_is_live(&derived, &abandoned_id));
+        assert!(matches!(
+            Store::open(&request.data_dir).unwrap().record(&abandoned_id).unwrap().unwrap().data,
+            RecordData::Run(run) if run.state == RunState::Working
+        ));
     }
     #[test]
     fn durable_candidate_retry_receipt_and_fresh_continue_have_no_source_archive() {

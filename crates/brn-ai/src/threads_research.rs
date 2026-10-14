@@ -578,6 +578,8 @@ fn child_scope(parent: &Scope, slot: Arc<ScoutSlot>, provider: Provider) -> Arc<
         cache_key: scout_cache_key(provider, &parent.chat),
         helper: None,
         scout: Some(slot),
+        // The parent's Run, so the parent's lease.
+        lease: parent.lease.clone(),
     })
 }
 

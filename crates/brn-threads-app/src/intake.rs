@@ -27,6 +27,80 @@ pub fn import_report(converted: &ConversionResult) -> ImportReport {
     }
 }
 impl Workspace {
+    /// The chat for useful intake of `locator`: the most recent open chat in
+    /// the same scope (`project`, or general when `None`) whose Run already
+    /// received this source, so a retry or re-supply lands beside the earlier
+    /// outcome. Otherwise a new chat titled `title`. `true` means reused.
+    pub fn source_intake_chat(
+        &mut self,
+        project: Option<&str>,
+        locator: &str,
+        title: &str,
+    ) -> AppResult<(Record, bool)> {
+        let records = self.records()?;
+        if let Some(project) = project
+            && !records
+                .iter()
+                .any(|r| r.id == project && !r.archived && matches!(r.data, RecordData::Project(_)))
+        {
+            return Err(AppError::Invalid(
+                "Choose an active project for this source".into(),
+            ));
+        }
+        let sources: BTreeSet<&str> = records
+            .iter()
+            .filter(|r| matches!(&r.data, RecordData::Source(s) if s.locator == locator))
+            .map(|r| r.id.as_str())
+            .collect();
+        if !sources.is_empty() {
+            // Receipt order is durable; a Run's first write is its creation.
+            let mut created = BTreeMap::new();
+            for (position, receipt) in self.history()?.into_iter().enumerate() {
+                for write in receipt.writes {
+                    if matches!(write.after.data, RecordData::Run(_)) {
+                        created.entry(write.after.id).or_insert(position);
+                    }
+                }
+            }
+            let reused = records
+                .iter()
+                .filter_map(|r| match &r.data {
+                    RecordData::Run(run) if run.sources.iter().any(|s| sources.contains(s.as_str())) => {
+                        Some((created.get(&r.id).copied().unwrap_or_default(), &run.thread))
+                    }
+                    _ => None,
+                })
+                .filter(|(_, chat)| {
+                    records.iter().any(|r| {
+                        r.id == **chat
+                            && !r.archived
+                            && matches!(&r.data, RecordData::Thread(t) if t.state == ThreadState::Open)
+                    }) && project_for_chat(&records, chat).map(|p| p.id.as_str()) == project
+                })
+                .max_by_key(|(position, _)| *position)
+                .and_then(|(_, chat)| records.iter().find(|r| r.id == *chat));
+            if let Some(chat) = reused {
+                return Ok((chat.clone(), true));
+            }
+        }
+        let chat = if let Some(project) = project {
+            self.project_command(
+                &format!("source-chat:{}", uuid::Uuid::new_v4()),
+                ProjectCommand::CreateChat {
+                    project: project.into(),
+                    title: title.into(),
+                },
+            )?
+            .writes
+            .into_iter()
+            .find(|w| w.before.is_none() && matches!(w.after.data, RecordData::Thread(_)))
+            .map(|w| w.after)
+            .ok_or_else(|| AppError::Invalid("Project chat was not created".into()))?
+        } else {
+            self.new_thread(title)?
+        };
+        Ok((chat, false))
+    }
     pub fn import_full(
         &mut self,
         key: &str,

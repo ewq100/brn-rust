@@ -93,7 +93,100 @@ impl Workspace {
             .receipt)
     }
     pub fn resume_queue(&mut self, key: &str) -> AppResult<Receipt> {
+        self.recover_orphaned_runs()?;
         Ok(self.chat_command(key, ChatCommand::Resume)?.receipt)
+    }
+    /// Interrupts Working Runs that no process holds a lease for, such as work
+    /// left by a crash, kill or quit. Each gets the standard Interrupted notice
+    /// so its chat offers Continue. Live Runs and Runs that finished meanwhile
+    /// are left alone. Returns the interrupted Run IDs.
+    pub fn recover_orphaned_runs(&mut self) -> AppResult<Vec<String>> {
+        let records = self.records()?;
+        let working: Vec<_> = records
+            .iter()
+            .filter(|r| {
+                !r.archived
+                    && matches!(&r.data, RecordData::Run(run) if run.state == RunState::Working)
+            })
+            .collect();
+        if working.is_empty() {
+            return Ok(vec![]);
+        }
+        // Without a usable lease folder liveness is unknown, so nothing is interrupted.
+        let Ok(derived) = self.store.derived_directory() else {
+            return Ok(vec![]);
+        };
+        let mut recovered = Vec::new();
+        for record in working {
+            if brn_ai::run_lease::run_is_live(&derived, &record.id) {
+                continue;
+            }
+            let RecordData::Run(mut run) = record.data.clone() else {
+                unreachable!()
+            };
+            run.state = RunState::Interrupted;
+            run.fence = run
+                .fence
+                .checked_add(1)
+                .ok_or_else(|| AppError::Invalid("run fence exhausted".into()))?;
+            let chat = run.thread.clone();
+            let mut writes = vec![Put {
+                id: record.id.clone(),
+                expected_version: Some(record.version),
+                archived: false,
+                data: RecordData::Run(run),
+            }];
+            let thread = records.iter().find(|r| r.id == chat && !r.archived);
+            if let Some(thread) = thread
+                && let RecordData::Thread(mut data) = thread.data.clone()
+            {
+                let superseded = |id: &str| {
+                    id != record.id
+                        && records.iter().any(|r| {
+                            r.id == id
+                                && matches!(&r.data, RecordData::Run(run) if run.thread == chat
+                                    && matches!(run.state, RunState::Interrupted | RunState::Failed))
+                        })
+                };
+                brn_ai::threads::replace_terminal_notice(
+                    &mut data.attention,
+                    &record.id,
+                    brn_ai::threads::INTERRUPTED_ATTENTION.into(),
+                    superseded,
+                );
+                writes.push(Put {
+                    id: thread.id.clone(),
+                    expected_version: Some(thread.version),
+                    archived: false,
+                    data: RecordData::Thread(data),
+                });
+            }
+            // Same saved state, same key: a retry replays instead of repeating.
+            let key = format!(
+                "orphan-recovery:{}:{}:{}",
+                record.id,
+                record.version,
+                thread.map_or(0, |t| t.version)
+            );
+            match self.owner_change(
+                &key,
+                &ChangeRequest {
+                    reason: "Interrupt work whose process ended".into(),
+                    writes,
+                    inputs: vec![],
+                },
+            )? {
+                ApplyOutcome::Applied(_) => recovered.push(record.id.clone()),
+                // The Run finished or the chat changed meanwhile; the next check reads again.
+                ApplyOutcome::Stale { .. } => {}
+                other => {
+                    return Err(AppError::Invalid(format!(
+                        "Interrupted work could not be recovered: {other:?}"
+                    )));
+                }
+            }
+        }
+        Ok(recovered)
     }
     pub fn recover_queue(&mut self, key: &str) -> AppResult<Receipt> {
         Ok(self.chat_command(key, ChatCommand::Recover)?.receipt)
@@ -113,6 +206,7 @@ impl Workspace {
                 _ => None,
             }));
         }
+        self.recover_orphaned_runs()?;
         let record = self.chat_control()?;
         let RecordData::ChatControl(c) = record.data else {
             unreachable!()
