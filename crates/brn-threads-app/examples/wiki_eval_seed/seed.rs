@@ -684,6 +684,8 @@ pub fn seed_fixture(
             .iter()
             .map(|(_, title)| {
                 RecordData::Thread(Thread {
+                    private_context: false,
+                    context_epoch: 0,
                     title: title.clone(),
                     state: ThreadState::Open,
                     attention: vec![],

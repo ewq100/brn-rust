@@ -44,7 +44,7 @@ impl Workspace {
     ) -> AppResult<ApplyOutcome> {
         self.import_full_scoped(key, title, converted, Some(thread))
     }
-    fn import_full_scoped(
+    pub fn import_full_scoped(
         &mut self,
         key: &str,
         title: &str,
@@ -85,7 +85,17 @@ impl Workspace {
             return Ok(self.store.apply(&op, &authority)?);
         }
         if let Some(thread) = chat
-            && !matches!(self.store.record(thread)?,Some(Record{archived:false,data:RecordData::Thread(t),..}) if t.state==ThreadState::Open)
+            && !matches!(
+                self.store.record(thread)?,
+                Some(Record {
+                    archived: false,
+                    data: RecordData::Thread(Thread {
+                        state: ThreadState::Open,
+                        ..
+                    }) | RecordData::Project(_),
+                    ..
+                })
+            )
         {
             return Err(AppError::Invalid(
                 "Choose an active chat for this attachment".into(),
@@ -198,6 +208,23 @@ impl Workspace {
                 }),
             });
             if let Some(chat) = chat {
+                if let Some(mut project) = records
+                    .iter()
+                    .find(|r| r.id == chat && matches!(r.data, RecordData::Project(_)))
+                    .cloned()
+                {
+                    let RecordData::Project(p) = &mut project.data else {
+                        unreachable!()
+                    };
+                    writes.extend(project_context_fences(&records, &p.chats)?);
+                    p.documents.push(note_id.clone());
+                    writes.push(Put {
+                        id: project.id,
+                        expected_version: Some(project.version),
+                        archived: false,
+                        data: project.data,
+                    });
+                }
                 writes.push(Put {
                     id: op.creation_id(converted.assets.len() + 3),
                     expected_version: None,
@@ -246,6 +273,11 @@ impl Workspace {
             .store
             .note(note_id)?
             .ok_or_else(|| AppError::Invalid("Attachment missing".into()))?;
+        if record.archived {
+            return Err(AppError::Invalid(
+                "Restore this private document before keeping it in BRN".into(),
+            ));
+        }
         if record.version != version {
             return Ok(ApplyOutcome::Stale {
                 records: vec![note_id.into()],
@@ -260,6 +292,21 @@ impl Workspace {
         let original_chat = note.chat.clone();
         note.chat = None;
         let records = self.records()?;
+        let retention_context = records
+            .iter()
+            .find(|r| r.id == note_id)
+            .filter(|r| record_in_chat(r, &records, original_chat.as_deref()))
+            .map(|_| original_chat.clone())
+            .unwrap_or_else(|| {
+                records
+                    .iter()
+                    .find(|r| {
+                        !r.archived
+                            && matches!(r.data, RecordData::Project(_))
+                            && project_document_ids(&records, r).contains(note_id)
+                    })
+                    .map(|r| r.id.clone())
+            });
         let mut writes = Vec::new();
         let mut inputs = Vec::new();
         if let Some(import) = &mut note.import {
@@ -324,7 +371,7 @@ impl Workspace {
                             .into(),
                     )
                 })?;
-            if !record_in_chat(record, &records, original_chat.as_deref()) {
+            if !record_in_chat(record, &records, retention_context.as_deref()) {
                 return Err(AppError::Invalid(
                     "A referenced figure belongs to another chat".into(),
                 ));

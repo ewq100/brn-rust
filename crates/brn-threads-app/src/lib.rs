@@ -13,6 +13,7 @@ mod decisions;
 mod export;
 mod intake;
 mod knowledge;
+mod projects;
 mod refresh;
 pub mod relations;
 mod review;
@@ -253,6 +254,8 @@ impl Workspace {
                 expected_version: None,
                 archived: false,
                 data: RecordData::Thread(Thread {
+                    private_context: false,
+                    context_epoch: 0,
                     title: title.into(),
                     state: ThreadState::Open,
                     attention: vec![],

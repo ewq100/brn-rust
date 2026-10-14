@@ -1896,6 +1896,7 @@ impl ThreadsUi {
                     RecordData::Run(_) => "Record work progress".into(),
                     RecordData::Settings(_) => "Change workspace settings".into(),
                     RecordData::ChatControl(_) => "Change chat controls".into(),
+                    RecordData::Project(_) => "Change project configuration".into(),
                 }));
             }
             if let Some(snapshot) = review

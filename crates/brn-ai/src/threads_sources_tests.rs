@@ -689,6 +689,8 @@ fn action_source_input_guard_checks_used_source_without_blocking_unused_source()
                             expected_version: None,
                             archived: false,
                             data: RecordData::Action(Action {
+                                kept_outside_project: false,
+                                chat: None,
                                 description: "Inspect the qualified map".into(),
                                 state: ActionState::Suggested,
                                 internal: false,

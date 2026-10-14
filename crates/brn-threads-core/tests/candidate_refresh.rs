@@ -22,6 +22,8 @@ fn runtime_refresh_checks_family_fence_all_versions_and_preserves_apply_authorit
                 expected_version: None,
                 archived: false,
                 data: RecordData::Thread(Thread {
+                    private_context: false,
+                    context_epoch: 0,
                     title: "Work".into(),
                     state: ThreadState::Open,
                     attention: vec![

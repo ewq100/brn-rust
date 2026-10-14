@@ -113,6 +113,8 @@ fn folder_patch_preserves_current_settings_fences_runs_and_replays_raw_intent_wi
             expected_version: None,
             archived: false,
             data: RecordData::Thread(Thread {
+                private_context: false,
+                context_epoch: 0,
                 title: "fixture".into(),
                 state: ThreadState::Open,
                 attention: vec![],

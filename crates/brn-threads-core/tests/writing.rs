@@ -28,6 +28,8 @@ fn fixture() -> (
                 expected_version: None,
                 archived: false,
                 data: RecordData::Thread(Thread {
+                    private_context: false,
+                    context_epoch: 0,
                     title: "Write".into(),
                     state: ThreadState::Open,
                     attention: vec![],

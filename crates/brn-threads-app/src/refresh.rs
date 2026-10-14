@@ -39,6 +39,8 @@ impl Workspace {
                 expected_version: None,
                 archived: false,
                 data: RecordData::Thread(Thread {
+                    private_context: false,
+                    context_epoch: 0,
                     title: "Refresh related work".into(),
                     state: ThreadState::Open,
                     attention: vec![],

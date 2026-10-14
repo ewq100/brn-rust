@@ -108,6 +108,12 @@ pub enum ThreadState {
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Thread {
+    /// Sticky host-owned provenance: saved discussion may contain private project context.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub private_context: bool,
+    /// Changes only with host context membership, never ordinary attention.
+    #[serde(default, skip_serializing_if = "is_zero")]
+    pub context_epoch: u64,
     pub title: String,
     pub state: ThreadState,
     pub attention: Vec<Attention>,
@@ -135,6 +141,12 @@ pub enum ActionState {
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Action {
+    /// Explicit owner decision to continue an obligation independently.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub kept_outside_project: bool,
+    /// Host-owned private retention; absent preserves existing general Actions.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub chat: Option<String>,
     pub description: String,
     pub state: ActionState,
     pub internal: bool,
@@ -253,6 +265,7 @@ pub enum RecordData {
     Run(Run),
     Settings(WorkspaceSettings),
     ChatControl(ChatControl),
+    Project(crate::Project),
 }
 
 /// Host recovery/control state; model tools cannot edit or read this record.
@@ -303,11 +316,16 @@ pub struct RevisionInput {
 }
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub enum InputExpectation {
+    /// Host precondition: current Thread epoch equals this revision's epoch.
+    ChatContext,
     /// Omission is safe for runtime tools and preserves old request bytes/hashes.
     /// Unapplied old candidates therefore gain current-read validation.
     #[default]
     Current,
     Historical,
+}
+fn is_zero(value: &u64) -> bool {
+    *value == 0
 }
 impl InputExpectation {
     fn is_current(&self) -> bool {
@@ -373,6 +391,7 @@ pub struct HostAuthority {
     pub(crate) run_binding: Option<(String, u64)>,
     pub(crate) settings_binding: Option<(String, u64)>,
     pub(crate) chat_binding: Option<(String, bool)>,
+    pub(crate) project_binding: Option<(String, Option<(String, u64)>)>,
 }
 #[derive(Debug, Clone)]
 pub(crate) enum Scope {
@@ -396,6 +415,7 @@ impl HostAuthority {
             run_binding: None,
             settings_binding: None,
             chat_binding: None,
+            project_binding: None,
         }
     }
     pub fn maintenance(actor: impl Into<String>) -> Self {
@@ -405,6 +425,7 @@ impl HostAuthority {
             run_binding: None,
             settings_binding: None,
             chat_binding: None,
+            project_binding: None,
         }
     }
     /// Host coordinator authority to manage one concrete Run record only.
@@ -415,6 +436,7 @@ impl HostAuthority {
             run_binding: None,
             settings_binding: None,
             chat_binding: None,
+            project_binding: None,
         }
     }
     pub fn instruction(
@@ -435,6 +457,7 @@ impl HostAuthority {
             run_binding: None,
             settings_binding: None,
             chat_binding: None,
+            project_binding: None,
         }
     }
     /// Host-coordinated steering/cancellation fence, excluded from model arguments.
@@ -451,6 +474,11 @@ impl HostAuthority {
     /// Trusted context boundary, independent of model arguments and delegation.
     pub fn for_chat(mut self, chat: &str, private_context: bool) -> Self {
         self.chat_binding = Some((chat.into(), private_context));
+        self
+    }
+    /// Exact host project context; None binds a standalone conversation.
+    pub fn for_project_context(mut self, chat: &str, project: Option<(String, u64)>) -> Self {
+        self.project_binding = Some((chat.into(), project));
         self
     }
     pub(crate) fn allows(&self, operation: &OperationId, id: &str, capability: Capability) -> bool {

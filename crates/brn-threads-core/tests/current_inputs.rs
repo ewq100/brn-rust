@@ -230,6 +230,7 @@ fn missing_current_input_is_stale_and_missing_historical_revision_is_invalid() {
         );
         store.prepare(&op, &req).unwrap();
         match expectation {
+            InputExpectation::ChatContext => unreachable!("These table cases exercise note inputs"),
             InputExpectation::Current => assert_eq!(
                 store.apply(&op, &owner()).unwrap(),
                 ApplyOutcome::Stale {

@@ -1,0 +1,874 @@
+   Compiling brn-threads-intake v0.1.0 (/Users/evokessler/.codex/worktrees/projects-feature/brn-rust/crates/brn-threads-intake)
+   Compiling brn-intake v0.1.0 (/Users/evokessler/.codex/worktrees/projects-feature/brn-rust/crates/brn-intake)
+   Compiling brn-retrieval v0.1.0 (/Users/evokessler/.codex/worktrees/projects-feature/brn-rust/crates/brn-retrieval)
+   Compiling brn-threads-core v0.1.0 (/Users/evokessler/.codex/worktrees/projects-feature/brn-rust/crates/brn-threads-core)
+   Compiling brn v0.0.0 (/Users/evokessler/.codex/worktrees/projects-feature/brn-rust/crates/brn)
+   Compiling brn-threads-app v0.1.0 (/Users/evokessler/.codex/worktrees/projects-feature/brn-rust/crates/brn-threads-app)
+   Compiling brn-desktop v0.1.0 (/Users/evokessler/.codex/worktrees/projects-feature/brn-rust/crates/brn-desktop)
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.codex/worktrees/projects-feature/brn-rust/crates/brn-ai)
+    Finished `test` profile [optimized] target(s) in 8.13s
+     Running unittests src/main.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/brn-305115117387900b)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/threads.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/threads-1151077b700049f8)
+
+running 9 tests
+test missing_storage_refuses_init_and_reads_preserving_marker_and_recovery_evidence ... ok
+test explicit_backup_inside_workspace_is_refused_and_next_open_preserves_records ... ok
+test explicit_directory_old_format_and_invalid_commands_refuse_without_touching_data ... ok
+test delegation_help_and_invalid_values_are_explicit_and_leave_data_unopened ... ok
+test save_recovers_across_processes_replays_and_undo_keeps_later_edit ... ok
+test topics_connections_and_knowledge_check_commands ... ok
+test full_markdown_import_export_and_backup_are_fresh_and_readable ... ok
+test explicit_delegation_choices_survive_reopen_and_pause_without_implicit_consent ... ok
+test search_pages_report_exact_counts_and_reject_bad_cursors ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.27s
+
+     Running unittests src/lib.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/brn_ai-ea62c04f30c0bf4d)
+
+running 237 tests
+test auth::tests::disconnect_metadata_policy_refuses_foreign_entries_and_non_files ... ok
+test action_candidates::tests::checked_reference_requires_signed_revision_and_exact_lowercase_hash ... ok
+test action_candidates::tests::all_fourteen_fields_are_required_nulls_round_trip_and_shapes_are_closed ... ok
+test action_candidates::tests::candidate_bounds_cover_nested_references_and_leave_domain_semantics_to_workflow ... ok
+test auth::tests::in_repository_and_symlinked_ancestor_paths_are_rejected ... ok
+test auth::tests::copilot_completion_uses_rig_route_unless_responses_is_forced ... ok
+test auth::tests::cancelled_lock_waiter_never_touches_cache_or_transport ... ok
+test auth::tests::code_expiry_has_retry_copy_without_automatic_retry ... ok
+test auth::tests::login_error_tightens_partial_cache_and_does_not_retain_http_body ... ok
+test auth::tests::empty_oauth_reply_does_not_create_a_success_shaped_client ... ok
+test auth::tests::copilot_discovery_failure_is_not_fallback ... ok
+test auth::tests::dropping_login_future_also_tightens_partial_cache ... ok
+test auth::tests::cancellation_tightens_partial_login_and_disconnect_cannot_recreate_it ... ok
+test auth::tests::copilot_discovery_returns_only_the_actual_authenticated_list ... ok
+test auth::tests::cache_symlinks_hardlinks_owner_and_modes_are_rejected ... ok
+test auth::tests::malformed_display_metadata_is_storage_not_expired_login ... ok
+test auth::tests::selection_and_provider_wire_values_are_explicit_and_validated ... ok
+test auth::tests::disconnect_refuses_directories_and_unsafe_folders_before_deleting ... ok
+test auth::tests::malformed_github_token_is_reconnect_not_connected ... ok
+test auth::tests::missing_identity_is_explicit_and_permission_drift_is_refused ... ok
+test auth::tests::disconnect_deletes_only_target_provider_and_owned_client_releases_lock ... ok
+test auth::tests::refresh_is_serialized_and_disconnect_waits_for_its_finalization ... ok
+test auth::tests::disconnect_unlinks_owned_symlinks_and_hardlinks_without_touching_targets ... ok
+test behavior::tests::qualified_instructions_and_proposal_capabilities_remain_exact ... ok
+test auth::tests::subscription_models_require_auth_and_handle_network_and_precancellation_safely ... ok
+test auth::tests::status_is_offline_and_identity_is_display_only ... ok
+test auth::tests::real_chatgpt_connect_and_refresh_tighten_caches_without_default_printing ... ok
+test capability_probe::tests::citations_are_deduplicated_and_capped_across_repeated_snapshots ... ok
+test capability_probe::tests::citations_reject_unsafe_urls_and_bound_titles ... ok
+test capability_probe::tests::failure_projection_keeps_only_status_class_and_allowlisted_rejection ... ok
+test capability_probe::tests::only_completed_hosted_search_items_establish_web_evidence ... ok
+test capability_probe::tests::read_arguments_require_the_exact_fixture_and_schema ... ok
+test chat::tests::activity_uses_only_explicit_public_summaries_and_keeps_raw_reasoning_private ... ok
+test capability_probe::tests::text_cap_preserves_exact_utf8_prefix_without_normalization ... ok
+test auth::tests::empty_token_and_invalid_expiry_are_reconnect_not_success_or_panic ... ok
+test chat::tests::completed_response_wins_over_later_stop ... ok
+test chat::tests::cancellation_keeps_preview_partial_without_final_event ... ok
+test chat::tests::eof_fails_and_final_text_replaces_preview ... ok
+test auth::tests::unsafe_folder_modes_and_symlinks_are_rejected ... ok
+test chat::tests::both_provisional_and_authoritative_answers_are_bounded ... ok
+test chat::tests::final_answer_reconciles_preview_and_ordinary_stream_agrees ... ok
+test auth::tests::copilot_catalog_ids_and_duplicates_are_validated_atomically ... ok
+test chat::tests::first_error_stops_and_preserves_exact_partial_once ... ok
+test chat::tests::limit_flag_wins_over_simultaneous_stop_without_reason_matching ... ok
+test chat::tests::rewrite_consumed_completion_wins_later_stop_and_failure_discards_partial ... ok
+test error::tests::pinned_chatgpt_string_wrappers_are_mapped_without_retaining_diagnostics ... ok
+test error::tests::quotation_failures_have_distinct_fixed_safe_messages ... ok
+test error::tests::safe_errors_never_retain_raw_payloads ... ok
+test error::tests::statuses_codes_and_bounded_delays_are_allowlisted ... ok
+test error::tests::typed_transport_auth_storage_and_provider_errors_are_safe_and_distinct ... ok
+test proposal_tools::tests::knowledge_protocol_is_closed_and_requires_every_candidate_and_quote_field ... ok
+test proposal_tools::tests::outer_protocol_is_closed_and_requires_all_three_explicit_fields ... ok
+test auth::tests::real_copilot_connect_caches_name_and_tightens_all_files ... ok
+test auth::tests::unsafe_replacement_during_login_never_reports_success ... ok
+test proposal_tools::tests::action_tool_schema_is_equivalent_to_the_frozen_manual_contract ... ok
+test auth::tests::models_network_wait_does_not_hold_auth_lock_and_cancels ... ok
+test proposal_tools::tests::quote_feedback_is_allowlisted_and_never_serializes_error_metadata ... ok
+test auth::tests::other_provider_login_and_status_progress_while_chatgpt_login_waits ... ok
+test proposal_tools::tests::quote_errors_on_action_tools_keep_the_existing_error_boundary ... ok
+test proposal_tools::tests::quote_tool_schemas_leave_nullable_occurrence_optional_and_conflict_ids_owned ... ok
+test codex_auth::tests::unsafe_path_or_provider_is_refused_before_authentication ... ok
+test proposal_tools::tests::knowledge_defaults_refuse_and_whole_receipts_are_bounded_without_truncation ... ok
+test proposal_tools::tests::complete_receipt_limit_refuses_oversize_without_truncation ... ok
+test codex_auth::tests::malformed_and_api_key_files_refuse_without_fallback_or_secret_errors ... ok
+test auth::tests::stale_copilot_cache_does_not_block_chatgpt_or_explicit_disconnect ... ok
+test auth::tests::missing_expired_and_malformed_caches_never_start_device_login ... ok
+test provider_formats_tests::actual_sse_first_error_preserves_partial_and_discards_later_text ... ok
+test provider_formats_tests::actual_tools_enforce_utf8_note_cap_and_adapter_result_caps ... ok
+test provider_formats_tests::actual_subscription_formats_continue_tools_and_text_only_history ... ok
+test provider_formats_tests::action_proposal_tool_tests::private_image_collections_share_proposal_runtime_and_preserve_all_rig_routes ... ok
+test provider_formats_tests::ask_effort_tests::explicit_ask_parser_failure_retains_exact_provisional_text_without_retry ... ok
+test provider_formats_tests::ask_effort_tests::explicit_ask_stop_retains_provisional_text_and_skips_final_completion ... ok
+test proposal_tools::tests::knowledge_bounds_refuse_before_dispatch_and_leave_domain_rules_to_workflow ... ok
+test chat::tests::rewrite_exact_final_output_limit_is_complete_without_emitting ... ok
+test provider_formats_tests::action_proposal_tool_tests::registered_action_proposal_tool_is_ask_only_and_continues_exactly_on_all_rig_routes ... ok
+test provider_formats_tests::action_read_tool_tests::registered_action_read_tools_continue_exactly_on_both_rig_routes_and_rewrite ... ok
+test provider_formats_tests::capability_probe_formats::probe_first_parser_error_keeps_exact_partial_and_discards_later_text ... ok
+test provider_formats_tests::capability_probe_formats::probe_image_serializes_exact_fixture_png_and_copilot_vision_header ... ok
+test proposal_tools::tests::bounded_input_refuses_before_dispatch_using_utf8_and_whole_json_bytes ... ok
+test provider_formats_tests::capability_probe_formats::probe_cancellation_retains_parsed_partial_and_precancelled_sends_no_request ... ok
+test provider_formats_tests::conflict_tool_tests::applied_intake_conflict_guidance_and_dispatch_use_the_existing_rig_routes ... ok
+test provider_formats_tests::action_proposal_tool_tests::clarification_followup_and_abstention_preserve_optional_owner_on_all_rig_routes ... ok
+test provider_formats_tests::capability_probe_formats::probe_low_high_freeze_route_effort_model_and_single_synthetic_read ... ok
+test provider_formats_tests::conflict_tool_tests::enabled_report_dispatches_exact_closed_protocol_and_tentative_instructions_on_all_routes ... ok
+test provider_formats_tests::ask_effort_tests::explicit_ask_effort_preserves_model_last_twenty_pairs_and_tool_continuation ... ok
+test provider_formats_tests::conflict_tool_tests::maximum_escaped_report_and_occurrence_domain_rules_remain_within_the_defensive_input_cap ... ok
+test provider_formats_tests::capability_probe_formats::probe_responses_web_parses_hosted_search_and_native_text_citations_once ... ok
+test provider_formats_tests::conflict_tool_tests::lookup_accepts_maximum_utf8_protocol_bytes_without_clipping_arguments ... ok
+test provider_formats_tests::conflict_tool_tests::legacy_backends_safely_refuse_both_conflict_callbacks_in_real_routes ... ok
+test provider_formats_tests::empty_partial_history_keeps_question_but_omits_empty_assistant_on_wire ... ok
+test provider_formats_tests::ask_effort_tests::ask_language_contract_preserves_current_question_and_mixed_source_quotes ... ok
+test provider_formats_tests::ask_effort_tests::ask_language_contract_with_effort_preserves_current_question_and_mixed_source_quotes ... ok
+test provider_formats_tests::history_is_limited_to_last_twenty_text_pairs ... ok
+test provider_formats_tests::eight_rounds_allow_final_ninth_call_parallel_tools_count_once ... ok
+test provider_formats_tests::investigation_budget_tests::final_answer_at_budget_and_invalid_limits_do_not_add_calls ... ok
+test provider_formats_tests::capability_probe_formats::probe_provider_failures_are_safe_and_never_retry_or_fallback ... ok
+test provider_formats_tests::capability_probe_formats::probe_read_rejects_invalid_parallel_repeated_or_missing_tools_without_retry ... ok
+test provider_formats_tests::knowledge_proposal_tool_tests::enabled_knowledge_tool_registers_closed_schema_and_continues_on_all_rig_routes ... ok
+test provider_formats_tests::conflict_tool_tests::report_is_absent_without_inbox_opt_in_even_when_backend_supports_callback ... ok
+test provider_formats_tests::conflict_tool_tests::both_conflict_tools_share_eight_round_budget_and_refuse_ninth_before_dispatch ... ok
+test provider_formats_tests::conflict_tool_tests::conflict_lookup_preserves_default_explicit_scopes_opaque_cursor_and_incomplete_page ... ok
+test provider_formats_tests::http_and_malformed_sse_errors_have_no_retry_or_raw_retention ... ok
+test provider_formats_tests::knowledge_proposal_tool_tests::legacy_knowledge_input_omitting_additional_paths_dispatches_empty_on_all_rig_routes ... ok
+test provider_formats_tests::pre_cancelled_turn_sends_no_completion ... ok
+test provider_formats_tests::provider_stderr_tests::provider_stderr_child ... ignored, only the parent test launches this isolated synthetic stderr fixture
+test provider_formats_tests::investigation_budget_tests::configured_rounds_refuse_before_dispatch_and_parallel_tools_count_once ... ok
+test provider_formats_tests::conflict_tool_tests::conflict_occurrence_defaults_and_domain_values_reach_workflow_on_all_rig_routes ... ok
+test provider_formats_tests::malformed_nonobject_tool_arguments_fail_before_dispatch_with_zero_retry_budget ... ok
+test provider_formats_tests::ninth_tool_round_dispatches_zero_tools ... ok
+test provider_formats_tests::knowledge_proposal_tool_tests::knowledge_tool_is_absent_and_cannot_dispatch_for_ordinary_ask_read_only_and_rewrite ... ok
+test provider_formats_tests::knowledge_proposal_tool_tests::typed_quote_refusals_continue_without_exposing_diagnostics_on_all_rig_routes ... ok
+test provider_formats_tests::response_less_transport_failure_is_safe_network_without_retry ... ok
+test provider_formats_tests::knowledge_proposal_tool_tests::knowledge_tool_shares_the_eight_round_budget_and_never_dispatches_the_ninth ... ok
+test provider_formats_tests::rewrite_tests::explicit_effort_has_only_the_three_supported_serialized_values ... ok
+test provider_formats_tests::raw_evidence_tools_tests::raw_prefix_and_copied_fullhash_ranges_use_all_real_rig_routes ... ok
+test provider_formats_tests::ranged_read_tools_tests::range_tool_advertisement_dispatch_and_exact_output_use_all_real_rig_routes ... ok
+test provider_formats_tests::provider_stderr_tests::rejected_tool_arguments_and_partial_text_never_reach_process_stderr ... ok
+test provider_formats_tests::responses_final_snapshot_reconciles_preview_and_tool_loop_once ... ok
+test provider_formats_tests::knowledge_proposal_tool_tests::quote_occurrence_defaults_and_domain_values_reach_workflow_on_all_rig_routes ... ok
+test provider_formats_tests::rewrite_tests::rewrite_effort_model_and_read_only_continuation_use_exact_wire_routes ... ok
+test provider_formats_tests::rewrite_tests::rewrite_stop_discards_partial_and_precancelled_sends_no_completion ... ok
+test provider_formats_tests::ranged_read_tools_tests::range_tool_rejects_inconsistent_backend_output_in_all_real_rig_routes ... ok
+test provider_formats_tests::scoped_read_tools_tests::explicit_scope_keeps_query_byte_limit_hit_limit_and_empty_path_validation_on_each_route ... ok
+test provider_formats_tests::scoped_read_tools_tests::explicit_scope_keeps_utf8_truncation_and_search_page_result_caps_on_each_route ... ok
+test provider_formats_tests::conflict_tool_tests::malformed_lookup_is_refused_before_underlying_read_on_all_routes ... ok
+test provider_formats_tests::rewrite_tests::rewrite_failure_refusal_and_malformed_streams_discard_raw_partials_without_retry ... ok
+test provider_formats_tests::stop_after_partial_does_not_consume_final_or_duplicate_text ... ok
+test provider_formats_tests::subscription_catalog_tests::authenticated_subscription_catalog_preserves_wire_identity_and_server_order ... ok
+test provider_formats_tests::action_read_tool_tests::action_read_tool_argument_and_output_bounds_refuse_whole_results_without_retry ... ok
+test provider_formats_tests::subscription_catalog_tests::subscription_catalog_uses_protocol_compatibility_instead_of_brn_package_version ... ok
+test provider_formats_tests::unexpected_absolute_urls_fail_closed_in_private_transport ... ok
+test provider_formats_tests::rewrite_tests::rewrite_keeps_eight_read_rounds_and_refuses_the_ninth_without_retry ... ok
+test provider_formats_tests::unknown_tool_fails_without_dispatch_retry_or_name_leak ... ok
+test provider_formats_tests::subscription_catalog_tests::subscription_catalog_statuses_are_safe_without_fallback_or_retry ... ok
+test provider_formats_tests::visual_tests::visual_missing_known_finish_rejects_complete_json_and_done_without_retry ... ok
+test provider_formats_tests::subscription_catalog_tests::malformed_subscription_catalog_is_an_atomic_safe_failure ... ok
+test provider_formats_tests::rust_argument_validation_and_safe_failed_results_continue_without_retry ... ok
+test provider_formats_tests::visual_tests::visual_cancel_discards_partials_and_precancelled_sends_no_completion ... ok
+test provider_formats_tests::scoped_read_tools_tests::explicit_scopes_reach_all_three_tools_and_keep_flattened_exact_outputs_on_each_route ... ok
+test provider_formats_tests::scoped_read_tools_tests::legacy_implementers_keep_omitted_current_and_refuse_explicit_other_scopes_on_each_route ... ok
+test provider_formats_tests::rewrite_tests::rewrite_input_and_actual_streamed_output_have_hard_byte_bounds ... ok
+test threads::chat_tests::foreign_inline_asset_urls_cannot_be_written_or_finalized_in_an_unrelated_chat ... ok
+test provider_formats_tests::raw_evidence_tools_tests::raw_tool_refuses_bad_arguments_backend_authority_and_legacy_without_partial_data ... ok
+test threads::chat_tests::a_queue_claim_excludes_nonqueued_start_in_another_chat_until_acknowledgement ... ok
+test provider_formats_tests::ranged_read_tools_tests::range_tool_refuses_invalid_arguments_without_backend_dispatch ... ok
+test threads::current_inputs_tests::runtime_input_schema_accepts_omitted_explicit_current_and_historical_only ... ok
+test provider_formats_tests::visual_tests::visual_nonstop_provider_finish_rejects_even_complete_json_without_retry ... ok
+test provider_formats_tests::visual_tests::visual_prompt_and_actual_output_limits_refuse_without_clipping_or_fallback ... ok
+test threads::chat_tests::private_context_scopes_generated_notes_and_binds_exact_local_source_observation ... ok
+test threads::chat_tests::unrelated_chat_cannot_read_private_ids_history_or_apply_new_foreign_refs ... ok
+test threads::history::tests::historical_read_is_explicit_bounded_and_distinct_from_current ... ok
+test threads::current_inputs_tests::runtime_refresh_can_explicitly_replace_an_old_current_candidate_with_historical_citation ... ok
+test provider_formats_tests::visual_tests::visual_typed_image_and_task_text_preserve_routes_effort_guard_and_no_tools ... ok
+test provider_formats_tests::scoped_read_tools_tests::invalid_scope_and_unknown_properties_refuse_before_any_underlying_read_on_each_route ... ok
+test threads::current_inputs_tests::runtime_fresh_replacement_replays_after_input_changes_and_explicit_history_remains_valid ... ok
+test threads::current_inputs_tests::runtime_current_reads_stale_before_or_after_prepare_with_no_saved_summary ... ok
+test provider_formats_tests::conflict_tool_tests::report_and_lookup_whole_output_caps_and_callback_failures_never_fabricate_empty_records ... ok
+test threads::delegation_tests::pending_runtime_requires_review_but_scoped_owner_instruction_still_applies ... ok
+test threads::project_tests::model_authority_cannot_change_the_host_context_epoch ... ok
+test threads::history::tests::registered_runtime_history_and_refresh_tools_apply_fresh_candidate_and_store_one_answer ... ok
+test threads::search_tests::search_arguments_are_strict_and_bounded ... ok
+test threads::history::tests::refresh_is_atomic_version_checked_idempotent_and_does_not_grant_protected_apply ... ok
+test threads::project_tests::moving_a_live_chat_fences_runtime_and_preserves_its_history_and_paused_queue ... ok
+test threads::chat_tests::queued_partial_failure_and_stop_resume_reuse_exact_instruction_and_reject_old_claim ... ok
+test threads::history::tests::refresh_supports_previous_run_family_but_refuses_other_threads_and_superseded_scope ... ok
+test threads::project_tests::deleting_working_project_retains_checked_progress_and_displayed_partial_answer_through_trash ... ok
+test provider_formats_tests::visual_tests::visual_provider_errors_malformed_stream_and_tool_attempt_fail_without_retry ... ok
+test threads::search_tests::a_model_argument_cannot_choose_the_search_context ... ok
+test threads::search_tests::hidden_notes_are_refused_like_missing_ones_and_outages_are_not ... ok
+test threads::search_tests::without_host_search_the_tools_are_not_offered ... ok
+test threads::project_tests::project_instructions_discussion_and_current_document_context_use_real_handlers ... ok
+test threads::search_tests::search_tools_use_the_run_chat_and_report_activity ... ok
+test threads::source_tests::changed_source_identity_refuses_old_transient_figure_before_publication ... ok
+test threads::source_tests::damaged_figure_identity_and_unknown_transient_link_refuse_without_publication ... ok
+test threads::source_tests::fingerprint_only_host_source_cannot_be_rewritten_by_model_without_report ... ok
+test threads::source_tests::committed_figure_receipt_replays_after_later_source_change ... ok
+test threads::source_tests::selected_complete_second_source_cannot_hide_first_source_detected_omission ... ok
+test threads::steering_tests::archived_destination_after_preparation_skips_credentials ... ok
+test threads::tests::activity_reports_apply_domain_outcomes_without_exposing_results ... ok
+test threads::source_tests::source_changed_after_prepare_refuses_runtime_and_core_owner_apply_atomically ... ok
+test threads::steering_tests::configuration_change_after_preparation_skips_credentials ... ok
+test threads::steering_tests::copilot_run_uses_credentials_folder_even_when_codex_file_is_configured ... ok
+test threads::source_tests::useful_intake_model_tools_retain_selected_figure_omissions_and_replay_without_raw_archive ... ok
+test threads::delegation_tests::invocation_input_reports_only_current_host_policy_and_keeps_settings_binding ... ok
+test threads::source_tests::model_cannot_forge_host_source_report_or_fingerprint_in_same_change_group ... ok
+test threads::source_tests::action_source_input_guard_checks_used_source_without_blocking_unused_source ... ok
+test threads::steering_tests::fresh_queued_preparation_has_no_previous_owner_scope_and_uses_current_input ... ok
+test threads::steering_tests::prepared_run_id_exists_before_worker_and_precancel_skips_credentials ... ok
+test threads::steering_tests::stop_before_worker_skips_credentials_stale_tools_and_completion ... ok
+test threads::tests::bounded_tool_rounds_and_cancel_keep_distinct_terminal_states ... ok
+test threads::project_tests::reviewed_project_rewrite_applies_after_attention_but_context_movement_invalidates_it ... ok
+test threads::tests::copilot_chat_route_refusal_retries_same_model_on_responses_once ... ok
+test threads::tests::creation_remap_preserves_prose_and_only_changes_identity_fields ... ok
+test threads::tests::malformed_read_plus_valid_mutation_dispatches_nothing_and_makes_no_retry ... ok
+test threads::tests::explicit_decision_creation_is_authorized_without_expanding_to_another_note ... ok
+test threads::tests::missing_required_nullable_argument_rejects_whole_batch ... ok
+test threads::tests::real_responses_final_replaces_preview_and_is_saved_once ... ok
+test threads::tests::durable_candidate_retry_receipt_and_fresh_continue_have_no_source_archive ... ok
+test threads::tests::production_catalog_tools_report_activity_and_tool_loop_saves_only_final_once ... ok
+test threads::tests::protected_changes_require_review_and_new_continue_fences_old_tools ... ok
+test threads::tests::credential_open_failure_finalizes_run_and_precancel_is_interrupted ... ok
+test threads::tests::completed_fresh_run_clears_only_superseded_host_terminal_blockers_after_reopen ... ok
+test threads::tests::model_message_mutations_and_refresh_are_rejected_before_dispatch ... ok
+test threads::tests::malformed_json_arguments_unknown_tools_and_unknown_finish_fail_closed ... ok
+test threads::tests::restarted_run_reads_saved_note_tail_through_version_bound_range_tool ... ok
+test threads::tests::sequential_useful_intake_preserves_short_fact_qualifications_without_figure_or_link ... ok
+test threads::writing_tests::mock_rewrite_prepares_review_without_apply_and_finishes_without_changing_the_note ... ok
+test threads::writing_tests::owner_reviewed_rewrite_receipt_replays_without_reapplying_content ... ok
+test threads::writing_tests::prose_only_rewrite_fails_and_saved_request_remains_available_for_retry ... ok
+test threads::tests::selected_owner_scope_is_language_independent_and_bound_to_message_target_version ... ok
+test threads::writing_tests::rewrite_cannot_apply_an_older_ordinary_candidate ... ok
+test threads_guides::tests::fixed_catalog_has_valid_frontmatter_and_rejects_paths ... ok
+test tools::tests::eighth_tool_round_is_allowed_and_ninth_is_refused ... ok
+test tools::tests::note_cap_preserves_utf8_and_exact_prefix ... ok
+test tools::tests::note_results_require_explicit_conflict_knowledge_without_unknown_to_zero ... ok
+test tools::tests::oversized_page_is_rejected_not_silently_changed ... ok
+test tools::tests::query_and_limit_validation_uses_bytes ... ok
+test tools::tests::raw_reply_preserves_exact_bytes_empty_ranges_and_prefix_rounding ... ok
+test tools::tests::raw_reply_refuses_malformed_bounds_hash_and_classification ... ok
+test tools::tests::raw_reply_string_bounds_refuse_whole_without_truncating_utf8 ... ok
+test tools::tests::raw_request_defaults_strict_fields_and_exact_bounds ... ok
+test visual::tests::png_transport_checks_only_exact_signature_and_encoded_byte_bound ... ok
+test threads::tests::quotations_sources_and_old_request_do_not_grant_protected_authority ... ok
+test visual::tests::private_transport_refuses_oversized_collection_before_model_admission ... ok
+test threads::writing_tests::rewrite_closes_mutable_reads_old_apply_refresh_and_progress_cannot_expand_scope ... ok
+test provider_formats_tests::conflict_tool_tests::malformed_report_fields_and_byte_bounds_never_invoke_underlying_callback ... ok
+test threads::tests::wrong_protected_target_stale_version_and_structural_change_are_denied ... ok
+test threads::writing_tests::rewrite_rejects_oversized_saved_context_and_preserves_request_after_failed_startup ... ok
+test threads::writing_tests::captured_note_comment_or_chat_changes_stale_owner_reviewed_apply ... ok
+test threads::writing_tests::rewrite_forces_all_current_inputs_and_review_for_ordinary_and_protected_notes ... ok
+test threads::tests::sequential_complete_requalification_reduces_prior_aggregate_status ... ok
+test threads::writing_tests::rewrite_uses_full_saved_chat_and_never_posts_synthetic_owner_messages_on_retry ... ok
+test threads::tests::sequential_useful_intake_keeps_retained_prior_omissions_but_allows_requalification ... ok
+test provider_formats_tests::action_proposal_tool_tests::strict_action_candidates_refuse_legacy_missing_unknown_and_unbounded_input_on_all_rig_routes ... ok
+test threads::writing_tests::rewrite_rejects_forged_snapshot_foreign_thread_and_transient_sources ... ok
+test threads::writing_tests::rewrite_rejects_target_metadata_and_extra_writes ... ok
+test provider_formats_tests::knowledge_proposal_tool_tests::knowledge_protocol_and_owner_refusals_continue_safely_on_all_rig_routes ... ok
+
+test result: ok. 236 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 2.10s
+
+     Running unittests src/main.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/brn_desktop-100fca82b3b1656f)
+
+running 20 tests
+test tests::data_is_explicit_and_absolute ... ok
+test threads_state::tests::document_drafts_are_isolated_from_home_and_other_documents ... ok
+test threads_state::tests::mapped_comment_requires_exact_revision_and_utf8_quote ... ok
+test threads_state::tests::headings_in_fences_do_not_become_sections ... ok
+test threads_state::tests::posting_clears_only_the_submitted_destination_draft ... ok
+test threads_state::tests::repeated_quote_anchors_only_the_selected_occurrence_and_never_relocates ... ok
+test threads_state::tests::only_cancellable_workers_offer_stop_and_portable_outputs_explain_finishing ... ok
+test threads_state::tests::linked_work_is_bidirectional_unique_and_excludes_archived_connections ... ok
+test threads_state::tests::saved_working_run_can_continue_only_without_a_local_worker_and_in_an_open_thread ... ok
+test threads_state::tests::stale_and_deferred_changes_have_distinct_non_success_copy ... ok
+test threads_state::tests::unresolved_or_partial_mapping_never_enables_current_passage ... ok
+test threads_state::tests::pending_display_does_not_infer_consent_from_legacy_maintenance_flags ... ok
+test tests::fresh_startup_reopens_and_refuses_other_data ... ok
+test threads_state::integrity_tests::unsent_owner_message_remains_continuable_without_a_run_after_reopen ... ok
+test threads_state::integrity_tests::delayed_generation_cannot_discard_or_replace_a_newer_edit ... ok
+test threads_state::integrity_tests::reading_stays_clean_first_edit_defers_changes_and_save_closes_guard ... ok
+test threads_state::integrity_tests::stale_save_preserves_full_typed_buffer_across_restart ... ok
+test threads_state::integrity_tests::resolving_a_discussion_keeps_the_linked_waiting_obligation ... ok
+test threads_state::integrity_tests::saved_feedback_mapping_survives_restart_and_retains_removed_passage ... ok
+test threads_state::integrity_tests::newest_run_uses_creation_order_without_cancelling_saved_working_state ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running unittests src/lib.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/brn_intake-832cada8dc9d1039)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/maintained.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/maintained-6c854d41af3bc5a9)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/pptx.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/pptx-f9535d25b7541bbe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/protocol.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/protocol-7cd6deb183d49643)
+
+running 5 tests
+test refuses_cyclic_sources_and_factual_unsupported_content ... ok
+test rejects_hash_aliases_utf8_splits_and_duplicate_occurrence_locators ... ok
+test exact_retained_bytes_round_trip_and_root_integrity ... ok
+test retained_old_email_caveat_and_partial_snapshot_remain_exact_and_readable ... ok
+test maintained_png_decoder_requires_complete_terminal_chunks_and_checksums ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/restricted_helper.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/restricted_helper-15f43a66dbbd95d7)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/brn_retrieval-93410e7d6d798c08)
+
+running 20 tests
+test markdown_chunk::tests::empty_input ... ok
+test markdown_chunk::tests::closing_hashes_are_stripped ... ok
+test markdown_chunk::tests::crlf_pair_is_not_split ... ok
+test markdown_chunk::tests::hash_tag_is_not_a_heading ... ok
+test markdown_chunk::tests::fence_closing_rules ... ok
+test markdown_chunk::tests::heading_inside_fence_is_ignored ... ok
+test markdown_chunk::tests::heading_path_stack ... ok
+test markdown_chunk::tests::oversize_paragraph_without_whitespace_is_split ... ok
+test markdown_chunk::tests::oversize_fence_is_split_within_cap ... ok
+test markdown_chunk::tests::oversize_prefers_lines_then_whitespace ... ok
+test markdown_chunk::tests::small_chunk_absorbs_next_paragraph_up_to_hard_cap ... ok
+test markdown_chunk::tests::splits_at_paragraph_boundaries_above_target ... ok
+test markdown_chunk::tests::small_paragraphs_pack_together ... ok
+test markdown_chunk::tests::version_is_stable ... ok
+test markdown_chunk::tests::preamble_has_empty_path ... ok
+test markdown_chunk::tests::whole_fence_and_table_kept_together ... ok
+test snippet::tests::bounded_for_any_input ... ok
+test snippet::tests::centres_on_the_first_match_and_highlights_stems ... ok
+test snippet::tests::title_only_matches_show_the_beginning_and_never_split_characters ... ok
+test markdown_chunk::tests::randomized_properties ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.27s
+
+     Running tests/local_embedder.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/local_embedder-691d327cf60a944a)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/model_download.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/model_download-1aade9c13d3923b4)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/search_index.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/search_index-d36341f8dfc7989c)
+
+running 13 tests
+test foreign_files_and_symlinks_are_refused_without_change ... ok
+test unknown_languages_are_refused ... ok
+test links_mirror_and_full_resync_replaces_everything ... ok
+test vectors_of_other_models_are_purged_and_keyword_matching_is_exact ... ok
+test changes_computed_from_an_older_state_are_refused_as_stale ... ok
+test visibility_filters_contexts_and_metadata_updates_do_not_rechunk ... ok
+test passage_ids_are_never_reused_and_vectors_follow_their_passage ... ok
+test counts_link_facts_and_all_word_matches_respect_visibility ... ok
+test creates_reopens_and_finds_exact_and_inflected_terms ... ok
+test title_and_content_changes_leave_no_stale_terms_in_either_lane ... ok
+test many_matching_passages_in_one_note_do_not_crowd_out_others ... ok
+test outdated_damaged_or_interrupted_indexes_are_rebuilt_in_place ... ok
+test concurrent_writers_serialize_without_errors ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
+     Running unittests src/lib.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/brn_threads_app-d42afef2199cf805)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/agent_journeys.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/agent_journeys-ea2470ebd50758a1)
+
+running 4 tests
+test retrieval_finds_and_reads_the_target_section_within_three_rounds ... ok
+test another_chats_private_note_stays_invisible_to_search_and_connections ... ok
+test maintenance_applies_within_eight_rounds_and_finds_its_own_change ... ok
+test a_stale_candidate_is_refreshed_from_current_search_results ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.69s
+
+     Running tests/backup_directory.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/backup_directory-9bcaf7fabeb91e55)
+
+running 4 tests
+test explicit_app_backup_refuses_storage_and_saved_parent_folder_remains_supported ... ok
+test restored_saved_descendant_is_refused_at_dispatch ... ok
+test saved_destination_revalidated_against_restored_workspace_and_alias ... ok
+test saved_folder_persists_across_reopen_and_backup_restore_and_each_backup_is_fresh ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+
+     Running tests/chat.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/chat-a35a06f24e82a8fb)
+
+running 9 tests
+test old_global_import_binding_replays_identical_receipt ... ok
+test archived_attachment_replays_before_mutable_destination_checks ... ok
+test competing_dispatchers_claim_exactly_one_instruction ... ok
+test queue_edit_reorder_and_archive_preserve_attention ... ok
+test keeping_a_chat_note_copies_its_referenced_private_figure_without_promoting_the_source_document ... ok
+test dispatch_claim_replay_restart_and_competing_process_cannot_repost_instruction ... ok
+test keep_globalizes_each_owned_figure_source_without_promoting_other_private_documents ... ok
+test late_or_forged_completion_does_not_advance_and_stop_preserves_saved_partial ... ok
+test retained_attachment_is_private_after_restart_then_keep_and_undo_change_same_note ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s
+
+     Running tests/chat_decisions.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/chat_decisions-31ccf530fa8b743d)
+
+running 4 tests
+test reviewed_decision_keeps_general_figure_references_and_their_versions ... ok
+test decision_capture_does_not_promote_private_documents_or_figures ... ok
+test reviewed_decision_is_exact_protected_linked_replayable_and_undoable ... ok
+test changed_partial_owner_or_fabricated_replies_cannot_be_captured ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/delegation.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/delegation-951e80f61dd1687a)
+
+running 3 tests
+test fresh_workspace_starts_pending_and_resume_requires_a_choice ... ok
+test configure_cannot_choose_and_manual_work_remains_available_while_pending ... ok
+test both_choices_persist_and_pause_resume_preserve_selected_mode ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/export_metadata.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/export_metadata-9b2fddafb2e8a656)
+
+running 4 tests
+test source_links_without_import_coverage_are_exported ... ok
+test later_source_observation_does_not_attribute_its_version_to_preserved_note ... ok
+test plain_note_empty_body_and_asset_body_have_valid_metadata_and_snapshot_hashes ... ok
+test metadata_quotes_arbitrary_titles_sources_and_preserves_existing_frontmatter_body ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running tests/import_coverage.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/import_coverage-0603e740a6245049)
+
+running 1 test
+test full_import_persists_detected_loss_separately_from_unverified_coverage ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/product.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/product-d5e1500e5b0b688d)
+
+running 18 tests
+test missing_storage_never_opens_an_empty_workspace_or_rewrites_evidence ... ok
+test export_refuses_occupied_or_incomplete_outputs_without_partial_publication ... ok
+test review_remap_requires_exact_known_asset_token_and_keeps_failed_original_active ... ok
+test review_replacement_remaps_created_records_refs_and_applies_exact_final_text ... ok
+test message_history_uses_durable_receipt_order_and_preserves_creation_order_after_edit ... ok
+test export_keeps_asset_id_prefixes_distinct ... ok
+test configuration_and_pause_fence_runs_while_thread_resolution_preserves_actions ... ok
+test accepted_review_clears_only_matching_attention_and_replay_finishes_cleanup_once ... ok
+test review_selection_preserves_structural_new_record_dependencies_and_exact_bases ... ok
+test replacement_attention_follows_new_candidate_and_acceptance_preserves_other_questions ... ok
+test export_rejects_complete_unknown_asset_url_even_when_known_identity_is_its_prefix ... ok
+test independent_whole_note_and_action_selection_requires_new_displayed_candidate ... ok
+test dismiss_stale_proposal_releases_slot_preserves_current_and_other_attention_on_retry ... ok
+test selecting_action_group_keeps_shared_source_guard_and_refuses_newer_evidence ... ok
+test update_and_undo_expose_direct_work_and_one_recoverable_refresh_followup ... ok
+test selected_review_groups_and_replacement_preserve_current_or_historical_note_inputs ... ok
+test full_import_retains_assets_source_identity_and_rejects_changed_retry_input ... ok
+test current_search_excludes_pending_revisions_and_rebuilds_after_save_archive_restore ... ok
+
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s
+
+     Running tests/projects.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/projects-7d11ef22b99e52c0)
+
+running 8 tests
+test stale_preview_and_changed_trash_fail_atomically_without_losing_records ... ok
+test existing_terminal_private_actions_go_to_trash_without_becoming_general_and_restore_terminal ... ok
+test unlink_preserves_private_retention_elsewhere_and_last_link_requires_explicit_keep ... ok
+test private_actions_on_shared_documents_need_explicit_choices_and_never_leak ... ok
+test moved_chat_keeps_private_provenance_and_undo_does_not_erase_it ... ok
+test project_context_shared_identity_knowledge_setting_movement_and_replay ... ok
+test project_import_retains_source_figures_and_private_history_after_shared_origin_deletion ... ok
+test delete_preview_guards_choices_and_restore_preserve_later_shared_work ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s
+
+     Running tests/retrieval_eval.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/retrieval_eval-ff3811cf976bf316)
+
+running 9 tests
+test metrics_follow_their_definitions ... ok
+test golden_fixture_satisfies_structural_and_lexical_rules ... ok
+test validation_refuses_literal_matches_and_dangling_relevance ... ok
+test corpus_is_deterministic_and_seed_sensitive ... ok
+test visibility_check_counts_leaks_and_credits_in_chat_finds ... ok
+test metrics_reflect_a_known_ranking_through_the_retriever_seam ... ok
+test small_evaluation_runs_end_to_end_with_sane_baseline ... ok
+test worker_index_keeps_solved_strata_finds_inflections_and_respects_chats ... ok
+test identical_seeds_give_identical_ranks_despite_random_record_ids ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.31s
+
+     Running tests/search_dense.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/search_dense-235259d5b8884d8b)
+
+running 6 tests
+test the_embedding_model_must_be_chosen_before_search_starts ... ok
+test without_a_model_semantic_coverage_is_none ... ok
+test a_failing_model_is_reported_and_keyword_search_still_answers ... ok
+test dense_lane_finds_paraphrases_with_prefixes_and_reports_coverage ... ok
+test semantic_matches_must_stand_out_and_never_reorder_keyword_matches ... ok
+test coverage_is_partial_right_after_a_sync_and_private_passages_cannot_crowd_out ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests/search_worker.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/search_worker-69b4ce4576e7eb66)
+
+running 11 tests
+test evidence_quota_keeps_rank_order_and_every_result_once ... ok
+test failures_are_reported_not_answered_as_empty ... ok
+test dropped_tickets_do_not_block_later_requests ... ok
+test follows_canonical_writes_incrementally_with_exact_quotes ... ok
+test chat_only_notes_and_chat_sources_stay_in_their_chat ... ok
+test a_removed_derived_directory_is_recreated_while_running ... ok
+test connections_are_bounded_ordered_and_visibility_checked ... ok
+test pages_have_exact_counts_evidence_quota_and_context_scoped_link_counts ... ok
+test restarts_reuse_or_recreate_the_derived_index ... ok
+test concurrent_handles_and_a_second_process_view_agree ... ok
+test every_offered_cursor_is_accepted_up_to_the_reachable_cap ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+
+     Running tests/steering.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/steering-b154f1733ec58e4c)
+
+running 2 tests
+test failed_save_keeps_exact_key_intent_bound_and_has_no_message_or_fence ... ok
+test stable_key_replays_one_durable_message_after_resolution_and_reopen ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/synthetic_baseline.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/synthetic_baseline-9e571cadbc645223)
+
+running 3 tests
+test fixture_refuses_symlink_parent_before_creating_a_destination ... ok
+test fixture_refuses_existing_relative_and_invalid_size_destinations_before_writes ... ok
+test bounded_corpus_exercises_images_revisions_threads_receipts_and_reopened_search ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.50s
+
+     Running tests/thread_lifecycle.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/thread_lifecycle-a343787fe1afb798)
+
+running 3 tests
+test legacy_settings_without_theme_keep_their_serialized_form ... ok
+test reopen_records_reason_and_resolution_reason_is_kept ... ok
+test theme_waits_for_working_runs_and_never_stops_them ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/topics_knowledge.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/topics_knowledge-2872fbcd8b244419)
+
+running 5 tests
+test topics_note_must_be_a_current_general_note ... ok
+test archived_chat_material_and_chat_links_are_not_reported_as_broken ... ok
+test unlisted_topic_pages_are_reported_only_with_a_topics_note ... ok
+test topics_note_lists_linked_topic_pages_in_mention_order ... ok
+test knowledge_check_reports_deterministic_findings_without_chat_material ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/user_scale.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/user_scale-7d3d4235c9a260d2)
+
+running 1 test
+test ten_thousand_notes_reopen_without_rebuild_sync_one_note_and_query_quickly ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.69s
+
+     Running tests/writing.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/writing-ec959fde5efe9d88)
+
+running 9 tests
+test empty_general_feedback_preserves_existing_replay_binding ... ok
+test oversized_general_feedback_refuses_without_partial_request_or_note_write ... ok
+test exact_anchor_stale_note_bad_selection_and_bound_key_refused ... ok
+test utf8_cross_paragraph_exact_selection_and_restart_keep_feedback ... ok
+test general_feedback_is_immutable_replay_bound_and_never_posted_as_chat ... ok
+test feedback_edit_stales_generated_candidate_and_only_matching_apply_can_address ... ok
+test multiple_comments_snapshot_replay_and_explicit_addressed_undo ... ok
+test oversize_context_fails_without_truncation_and_fake_snapshot_refused ... ok
+test manual_save_mapping_preserves_addressed_feedback_and_allows_later_confirmation ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running unittests src/lib.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/brn_threads_core-61e3e10857e347f3)
+
+running 19 tests
+test backup::tests::occupied_destination_is_rejected_before_sqlite_copy ... ok
+test backup::tests::missing_parent_and_directory_destination_preserve_source ... ok
+test backup::tests::symlink_ancestors_and_final_symlinks_are_refused_without_changes ... ok
+test backup::tests::relative_core_destination_preserves_process_directory ... ok
+test backup::tests::invalid_snapshot_and_abandoned_stage_clean_up_without_final_file ... ok
+test backup::tests::publication_collision_preserves_new_destination_and_cleans_only_owned_stage ... ok
+test backup::tests::stage_keeps_final_absent_until_complete_snapshot_is_published ... ok
+test backup::tests::parent_flush_failure_keeps_complete_published_snapshot_and_cleans_stage ... ok
+test store::storage_open_tests::existing_connection_path_never_creates_a_database_after_path_check ... ok
+test restore::tests::invalid_corrupt_incompatible_sources_leave_destination_and_source_unchanged ... ok
+test restore::tests::publication_failure_cleans_owned_stage_and_preserves_empty_destination ... ok
+test restore::tests::relative_source_works_absolute_destination_is_required_without_cwd_change ... ok
+test restore::tests::staging_never_exposes_ready_destination ... ok
+test restore::tests::abandoned_stage_and_sqlite_copy_failure_clean_up_without_publication ... ok
+test backup::tests::wal_snapshot_remains_standalone_and_restores_original_recovery_after_later_writes ... ok
+test restore::tests::symlink_destinations_and_ancestors_are_refused_before_and_after_staging ... ok
+test restore::tests::collision_and_rename_refuse_occupied_destination_and_clean_only_owned_stage ... ok
+test restore::tests::post_publication_flush_or_reopen_failure_preserves_complete_destination ... ok
+test restore::tests::empty_destination_and_nested_missing_parents_restore_and_preserve_source_bytes ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.32s
+
+     Running tests/backup_directory.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/backup_directory-d6f989e849b1fe2e)
+
+running 5 tests
+test backup_selection_cannot_replay_a_delegation_receipt_with_matching_raw_string ... ok
+test stale_configure_and_its_replay_preserve_saved_folder ... ok
+test selection_requires_owner_and_existing_absolute_external_directory_including_aliases ... ok
+test explicit_backup_refuses_workspace_and_alias_and_preserves_reopen_while_parent_is_allowed ... ok
+test folder_patch_preserves_current_settings_fences_runs_and_replays_raw_intent_without_filesystem ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/candidate_refresh.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/candidate_refresh-edbdc8b23c6d6b60)
+
+running 1 test
+test runtime_refresh_checks_family_fence_all_versions_and_preserves_apply_authority ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/chat_format.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/chat_format-4379d1c13fc125aa)
+
+running 1 test
+test private_note_scope_survives_serialization_without_changing_legacy_bytes ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/chat_storage.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/chat_storage-6d796a0d7587852a)
+
+running 7 tests
+test latest_composer_draft_survives_restart_and_delayed_clear_is_rejected ... ok
+test scoped_ids_assets_and_sources_do_not_enter_unrelated_context ... ok
+test derived_directory_is_allowed_only_as_a_real_directory ... ok
+test unavailable_backup_folder_leaves_old_format_and_records_unchanged ... ok
+test a_known_v3_backup_restores_as_v4_without_changing_source_snapshot ... ok
+test adopted_upgrade_requires_external_backup_and_preserves_the_v3_snapshot ... ok
+test backup_restore_and_upgrade_ignore_derived_data ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+
+     Running tests/core.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/core-d0d55bf6db1d1ed4)
+
+running 43 tests
+test data_selection_refuses_symlink_ancestor_without_creating_database ... ok
+test exact_source_identity_is_unique_and_failed_duplicate_has_no_partial_effect ... ok
+test current_candidate_and_receipt_readers_exclude_retired_and_applied_requests ... ok
+test discarded_and_saved_sessions_clear_buffer_text_but_keep_late_write_tombstones ... ok
+test full_import_is_protected_and_confirmation_requires_explicit_authority ... ok
+test explicit_selection_refuses_old_and_foreign_identity ... ok
+test configuration_replay_checks_immutable_payload_before_receipt ... ok
+test configuration_reads_and_fences_runs_at_the_actual_writer_boundary ... ok
+test enabled_maintenance_keeps_standing_ordinary_fallback_for_instruction_runs ... ok
+test failed_candidate_replacement_keeps_original_active_and_guarded ... ok
+test exact_protected_target_and_capability_scope ... ok
+test comment_utf8_anchors_and_separate_record_versions_are_checked ... ok
+test host_input_binding_is_durable_before_preparation_and_changed_retry_is_rejected ... ok
+test assets_require_owner_group_and_inherit_protection_and_dirty_guard ... ok
+test missing_storage_refuses_recreation_and_preserves_recovery_evidence ... ok
+test human_action_completion_requires_evidence_and_scope_and_thread_resolve_cannot_complete_action ... ok
+test host_run_fence_blocks_superseded_commit_but_receipt_replay_survives_cancellation ... ok
+test ordinary_content_revision_can_explicitly_clear_confirmation_without_confirmation_grant ... ok
+test existing_zero_byte_foreign_and_incompatible_databases_are_refused_without_mutation ... ok
+test lost_prepare_and_apply_responses_replay_across_connections_and_restart ... ok
+test only_one_working_run_per_thread_and_new_invocation_can_interrupt_prior_atomically ... ok
+test pending_candidate_requires_retirement_and_confirmation_is_revision_bound ... ok
+test protected_supersede_requires_distinct_capability ... ok
+test direct_owner_metadata_protection_and_lifecycle_changes_make_candidates_stale ... ok
+test replacement_replay_binds_original_and_request_across_restart_and_application ... ok
+test persisted_guards_defer_whole_group_and_generation_cannot_resurrect ... ok
+test run_management_is_host_only_monotonic_and_cancellation_cannot_be_undone ... ok
+test complete_backup_restores_assets_sources_pending_candidates_history_and_buffers ... ok
+test meaningful_newer_inputs_flag_current_direct_note_and_action_dependents_only ... ok
+test runtime_settings_snapshot_covers_account_changes_and_provider_aliases ... ok
+test stale_open_type_save_preserves_buffer ... ok
+test thread_review_attention_can_reference_known_operations_but_links_remain_records_only ... ok
+test source_observation_metadata_does_not_refresh_but_new_external_version_does ... ok
+test two_live_connections_order_dirty_guard_before_grouped_apply ... ok
+test save_maps_utf8_comments_and_marks_intersection_unresolved_in_actual_write_set ... ok
+test undo_identity_is_bound_before_receipt_replay ... ok
+test working_run_start_rechecks_current_selection_and_accepts_planned_settings_overlay ... ok
+test wrong_reference_rolls_back_group_and_occupied_backup_remains_intact ... ok
+test undo_save_restores_supported_anchor_at_new_compensating_revision ... ok
+test workspace_settings_are_owner_only_and_persist_maintenance_review_policy ... ok
+test undo_checks_actual_write_set_preserves_link_later_edits_and_lists_direct_dependents ... ok
+test paused_and_review_first_grants_require_exact_target_and_action ... ok
+test undo_restores_exact_direct_input_footing_even_when_derived_text_was_identical ... ok
+
+test result: ok. 43 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.26s
+
+     Running tests/current_inputs.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/current_inputs-dd4e967725c9b7cc)
+
+running 9 tests
+test changed_current_input_on_another_connection_stales_the_whole_group ... ok
+test input_changed_before_prepare_remains_stale_and_cannot_be_owner_approved_away ... ok
+test owner_replacement_preserves_current_inputs_and_explicit_historical_replacement_is_reviewable ... ok
+test missing_current_input_is_stale_and_missing_historical_revision_is_invalid ... ok
+test self_input_checks_prestate_and_undo_does_not_reapply_current_read_requirement ... ok
+test mixed_inputs_preserve_history_and_require_every_current_read_without_duplicate_stale_ids ... ok
+test old_request_bytes_hash_and_applied_replay_survive_reopen_and_input_changes ... ok
+test undo_restores_older_provenance_without_turning_it_into_a_new_current_read ... ok
+test inactive_current_inputs_stale_even_at_exact_version_but_historical_citations_apply ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/delegation.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/delegation-5bab557416f05b45)
+
+running 7 tests
+test missing_settings_deny_standing_writes_but_allow_scoped_and_owner_writes ... ok
+test legacy_request_bytes_hash_and_receipt_replay_after_choice_and_reopen ... ok
+test stale_provider_form_preserves_new_review_choice_and_pause ... ok
+test choices_bind_intent_preserve_concurrent_provider_and_replay_without_reapplying ... ok
+test generic_configuration_cannot_forge_or_clear_choice ... ok
+test legacy_and_archived_settings_deny_standing_authority ... ok
+test both_choices_and_pause_fence_every_working_run_and_block_stale_connection ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/note_read.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/note_read-c6fbeec1dc9f506d)
+
+running 2 tests
+test headings_ignore_fenced_code_and_range_cursors_preserve_utf8 ... ok
+test saved_tail_fact_is_readable_after_restart_without_mixing_versions ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/project_format.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/project_format-fee4a6cec50baec2)
+
+running 1 test
+test schema_four_requires_a_verified_external_snapshot_before_project_adoption ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests/revision_read.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/revision_read-81d932ff4f1dc0b8)
+
+running 1 test
+test bounded_accepted_revision_pages_and_slices_survive_restart_and_archive ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/search_reader.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/search_reader-7b2dbed0035fd58e)
+
+running 3 tests
+test snapshots_report_a_rising_watermark_and_only_changed_records ... ok
+test readers_refuse_unvalidated_or_old_workspaces_without_changing_them ... ok
+test search_eligibility_matches_core_context_for_random_graphs ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
+     Running tests/steering.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/steering-509f20db7cb31db9)
+
+running 8 tests
+test cannot_rebind_an_existing_unrelated_committed_receipt ... ok
+test checked_apply_failure_rolls_back_preparation_message_and_fence ... ok
+test saves_exact_message_and_fences_stale_writes_and_completion_atomically ... ok
+test existing_wrong_thread_membership_is_rejected_without_partial_effects ... ok
+test lost_response_replays_after_later_run_resolution_archive_and_reopen ... ok
+test rejects_any_other_working_invocation_in_the_same_thread ... ok
+test terminal_race_keeps_terminal_state_and_accepts_only_one_message ... ok
+test invalid_destinations_text_authority_and_fence_overflow_do_not_partially_write ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests/writing.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/writing-2b4d8bcbc67b3651)
+
+running 5 tests
+test legacy_snapshot_defaults_general_feedback_and_empty_output_keeps_legacy_shape ... ok
+test maintenance_and_content_instruction_cannot_bypass_durable_review_and_replay ... ok
+test runtime_and_owner_replacement_cannot_remove_or_downgrade_writing_marker ... ok
+test historical_request_role_keeps_gate_when_current_message_is_modified ... ok
+test owner_review_preserves_dirty_guards_and_exact_versions ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running unittests src/lib.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/brn_threads_intake-fc53e0cf95b607ea)
+
+running 13 tests
+test docx_markdown::tests::removes_only_generated_markers_inside_prose_and_table_cells ... ok
+test docx_markdown::tests::preserves_authored_and_malicious_html_comments_and_escaped_marker_text ... ok
+test process::tests::homebrew_runtime_prefix_follows_canonical_installation_only ... ok
+test process::tests::process_tree_child ... ignored, subprocess witness only
+test process::tests::sandbox_probe_child ... ignored, subprocess witness only
+test pdf_tools::tests::invalid_explicit_tool_never_silently_falls_back ... ok
+test pdf_tools::tests::incomplete_pair_is_unavailable_and_relative_path_entries_are_ignored ... ok
+test pdf_tools::tests::individual_override_wins_and_other_tool_uses_path ... ok
+test pdf_tools::tests::non_executable_files_are_ignored ... ok
+test pdf_tools::tests::limited_finder_path_uses_homebrew_fallback_in_order ... ok
+test process::tests::cancellation_kills_owned_descendant_and_joins_pipes ... ok
+test process::tests::sandbox_denies_external_source_and_network_before_parsing ... ok
+test process::tests::custom_homebrew_runtime_keeps_external_source_and_network_denied ... ok
+
+test result: ok. 11 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+     Running tests/qualification.rs (/tmp/brn-ui-repairs-target-20261010/debug/deps/qualification-01513553f847ef2a)
+
+running 9 tests
+test restart_expiry_removes_only_owned_old_runs_and_does_not_follow_links ... ok
+test cancellation_after_pdf_copy_removes_raw_input_before_return ... ok
+test malformed_budget_cancel_and_timeout_leave_no_transient_copy ... ok
+test markdown_text_and_email_preserve_meaning_without_source_payloads ... ok
+test maintained_docx_reader_rejects_malformed_and_tight_package_budget ... ok
+test useful_intent_is_unchecked_conversion_for_host_selection ... ok
+test docx_retains_inventory_and_figures_without_internal_converter_comments ... ok
+test ordinary_pdf_and_docx_preserve_checked_content_and_assets_without_original_payload ... ok
+test deliberately_omitted_figure_and_unchecked_full_note_are_partial ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.86s
+
+   Doc-tests brn_ai
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests brn_intake
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests brn_retrieval
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests brn_threads_app
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests brn_threads_core
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests brn_threads_intake
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

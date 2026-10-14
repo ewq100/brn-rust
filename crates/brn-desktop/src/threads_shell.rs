@@ -310,6 +310,7 @@ impl ThreadsUi {
             TileKind::Linked => self.linked_tile(cx),
             TileKind::Compare => self.compare_tile(cx),
             TileKind::Connections => self.connections_tile(cx),
+            TileKind::Projects => self.projects_tile(cx),
         }
     }
     fn tile_row(&mut self, window: &mut Window, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
@@ -568,6 +569,7 @@ impl ThreadsUi {
         for (id, label, kind) in [
             ("browse-chats", "Chats", TileKind::Threads),
             ("open-notes", "Notes", TileKind::Notes),
+            ("open-projects", "Projects", TileKind::Projects),
             ("actions", "Tasks", TileKind::Actions),
         ] {
             bar = bar.child(

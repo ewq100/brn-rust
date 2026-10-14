@@ -844,6 +844,8 @@ mod integrity_tests {
                     expected_version: None,
                     archived: false,
                     data: RecordData::Action(Action {
+                        kept_outside_project: false,
+                        chat: None,
                         description: "Deliver the update".into(),
                         state: ActionState::Waiting,
                         internal: false,

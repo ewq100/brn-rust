@@ -48,6 +48,9 @@ mod current_inputs_tests;
 #[path = "threads_delegation_tests.rs"]
 mod delegation_tests;
 #[cfg(test)]
+#[path = "threads_project_tests.rs"]
+mod project_tests;
+#[cfg(test)]
 #[path = "threads_search_tests.rs"]
 mod search_tests;
 #[cfg(test)]
@@ -109,6 +112,8 @@ impl PreparedThreadRun {
 struct Scope {
     chat: String,
     private_context: bool,
+    project_context: Option<(String, u64)>,
+    chat_context_revision: u64,
     store: Mutex<Store>,
     run: String,
     fence: AtomicU64,
@@ -135,6 +140,7 @@ fn scope(cx: &ToolContext) -> AiResult<Arc<Scope>> {
 fn bind(scope: &Scope, authority: HostAuthority) -> HostAuthority {
     let authority = authority
         .for_chat(&scope.chat, scope.private_context)
+        .for_project_context(&scope.chat, scope.project_context.clone())
         .for_run(&scope.run, scope.fence.load(Ordering::SeqCst));
     if let Some((id, version)) = &scope.settings {
         authority.for_settings(id, *version)
@@ -143,6 +149,13 @@ fn bind(scope: &Scope, authority: HostAuthority) -> HostAuthority {
     }
 }
 fn live(scope: &Scope, store: &Store) -> AiResult<()> {
+    let current = store.project_context_record(&scope.chat).map_err(storage)?;
+    if current.as_ref().map(|p| (p.id.clone(), p.version)) != scope.project_context
+        || current.is_some_and(|p| p.archived)
+    {
+        return Err(rejected());
+    }
+
     if let Some((id, version)) = &scope.settings
         && !matches!(store.record(id).map_err(storage)?,Some(Record{version:current,archived:false,data:RecordData::Settings(_),..}) if current==*version)
     {
@@ -376,7 +389,7 @@ tool!(
     ReadRecords,
     "read_records",
     ReadArgs,
-    "Read current canonical records. Empty IDs lists current Note/Thread/Action/Source/Comment/Link records; optional literal query filters complete saved notes. Notes longer than 128 KiB include continuation and heading offsets for read_note; never treat a truncated prefix as the whole note. Assets are metadata only.",
+    "Read current canonical records. Empty IDs lists current Note/Thread/Action/Source/Comment/Link records; optional literal query searches saved notes and relevant discussion in the current project; earlier messages are discussion evidence, not adopted decisions. Notes longer than 128 KiB include continuation and heading offsets for read_note; never treat a truncated prefix as the whole note. Assets are metadata only.",
     read_records
 );
 // The search tools wait for the host's search worker off the async runtime,
@@ -546,7 +559,6 @@ fn read_records(scope: &Scope, args: ReadArgs) -> AiResult<Value> {
                 record.data,
                 RecordData::Run(_)
                     | RecordData::Settings(_)
-                    | RecordData::Message(_)
                     | RecordData::Asset(_)
                     | RecordData::ChatControl(_)
             )
@@ -554,17 +566,29 @@ fn read_records(scope: &Scope, args: ReadArgs) -> AiResult<Value> {
             continue;
         }
         if let Some(query) = &args.query {
-            let RecordData::Note(n) = &record.data else {
-                continue;
+            let text = match &record.data {
+                RecordData::Note(n) => format!("{}\n{}", n.title, n.markdown),
+                RecordData::Message(m) => m.text.clone(),
+                RecordData::Thread(t) => t.title.clone(),
+                _ => continue,
             };
-            if !format!("{}\n{}", n.title, n.markdown)
-                .to_lowercase()
-                .contains(&query.to_lowercase())
-            {
+            if !text.to_lowercase().contains(&query.to_lowercase()) {
                 continue;
             }
         }
+        if args.ids.is_empty()
+            && args.query.is_none()
+            && matches!(record.data, RecordData::Message(_))
+        {
+            continue;
+        }
         let mut value = serde_json::to_value(&record).map_err(storage)?;
+        if let RecordData::Message(m) = &record.data {
+            value["data"]["Message"]["text"] =
+                Value::String(truncate(&m.text, MAX_NOTE_READ_BYTES).to_owned());
+            value["context_kind"] =
+                json!("Earlier discussion, not an adopted decision or accepted edit");
+        }
         if let RecordData::Asset(asset) = &record.data {
             value = json!({"id":record.id,"version":record.version,"asset":{"note":asset.note,"source":asset.source,"media_type":asset.media_type,"sha256":asset.content_hash(),"bytes":asset.bytes.len()}});
         }
@@ -730,7 +754,7 @@ fn check_scope(scope: &Scope, store: &Store, request: &ChangeRequest) -> AiResul
         }
         if matches!(
             write.data,
-            RecordData::ChatControl(_) | RecordData::Settings(_)
+            RecordData::ChatControl(_) | RecordData::Settings(_) | RecordData::Project(_)
         ) {
             return Err(rejected());
         }
@@ -770,7 +794,50 @@ fn scope_request(scope: &Scope, store: &Store, request: &mut ChangeRequest) -> A
                     scope.private_context.then_some(scope.chat.clone())
                 };
             }
+            RecordData::Action(a) => {
+                let independent = current.as_ref().is_some_and(
+                    |r| matches!(&r.data, RecordData::Action(a) if a.kept_outside_project),
+                );
+                if a.kept_outside_project && !independent {
+                    return Err(rejected());
+                }
+                a.kept_outside_project = independent;
+                let allowed = current.as_ref().and_then(|r| match &r.data {
+                    RecordData::Action(a) => a.chat.clone(),
+                    _ => None,
+                });
+                if a.chat.is_some() && a.chat != allowed {
+                    return Err(rejected());
+                }
+                a.chat = if current.is_some() {
+                    allowed
+                } else {
+                    scope.private_context.then_some(scope.chat.clone())
+                };
+            }
             _ => {}
+        }
+    }
+    Ok(())
+}
+fn bind_project_inputs(scope: &Scope, store: &Store, request: &mut ChangeRequest) -> AiResult<()> {
+    live(scope, store)?;
+    let input = RevisionInput {
+        record: scope.chat.clone(),
+        version: scope.chat_context_revision,
+        expectation: InputExpectation::ChatContext,
+    };
+    if !request.inputs.contains(&input) {
+        request.inputs.push(input);
+    }
+    if let Some((id, version)) = &scope.project_context {
+        let input = RevisionInput {
+            record: id.clone(),
+            version: *version,
+            expectation: InputExpectation::Current,
+        };
+        if !request.inputs.contains(&input) {
+            request.inputs.push(input);
         }
     }
     Ok(())
@@ -806,6 +873,7 @@ fn prepare(scope: &Scope, mut args: PrepareArgs) -> AiResult<Value> {
         Some(&scope.chat),
         &scope.source_ids,
     )?;
+    bind_project_inputs(scope, &store, &mut args.request)?;
     let prepared = store.prepare(&op, &args.request).map_err(storage)?;
     if let Some(snapshot) = &scope.writing_snapshot {
         attention(
@@ -832,7 +900,11 @@ fn apply(scope: &Scope, args: ApplyArgs) -> AiResult<Value> {
     check_scope(scope, &store, &prepared.request)?;
     if let Some(snapshot) = &scope.writing_snapshot {
         let safe = writing_request(snapshot, &prepared.request)?;
-        if prepared.request.inputs != safe.inputs {
+        if !safe
+            .inputs
+            .iter()
+            .all(|input| prepared.request.inputs.contains(input))
+        {
             return Err(rejected());
         }
     }
@@ -1659,7 +1731,31 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
             data: RecordData::ChatControl(c),
         });
     }
-    let owner = HostAuthority::owner("owner started or continued a Thread");
+    let mut start_inputs = writing_snapshot
+        .as_ref()
+        .map_or_else(Vec::new, WritingSnapshot::current_inputs);
+    if let Some(p) = brn_threads_core::project_for_chat(&records, &request.thread) {
+        if p.archived {
+            return Err(rejected());
+        }
+        start_inputs.push(RevisionInput {
+            record: p.id.clone(),
+            version: p.version,
+            expectation: InputExpectation::Current,
+        });
+        if let Some(chat) = records.iter().find(|r| r.id == request.thread) {
+            start_inputs.push(RevisionInput {
+                record: chat.id.clone(),
+                version: chat.version,
+                expectation: InputExpectation::Current,
+            });
+        }
+    }
+    let owner = HostAuthority::owner("owner started or continued a Thread").for_project_context(
+        &request.thread,
+        brn_threads_core::project_for_chat(&records, &request.thread)
+            .map(|p| (p.id.clone(), p.version)),
+    );
     let owner = if let Some((id, version)) = &settings_binding {
         owner.for_settings(id, *version)
     } else {
@@ -1671,9 +1767,7 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
             &ChangeRequest {
                 reason: "Start a fresh invocation".into(),
                 writes,
-                inputs: writing_snapshot
-                    .as_ref()
-                    .map_or_else(Vec::new, WritingSnapshot::current_inputs),
+                inputs: start_inputs,
             },
             &owner,
         )
@@ -1725,6 +1819,29 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
                 _ => None,
             }
         });
+    let project_context = if let Some(p) =
+        brn_threads_core::project_for_chat(&store.records().map_err(storage)?, &request.thread)
+    {
+        let RecordData::Project(project) = &p.data else {
+            unreachable!()
+        };
+        let docs = brn_threads_core::project_document_ids(&store.records().map_err(storage)?, p);
+        let documents: Vec<_> = store
+            .records_for_chat(Some(&request.thread))
+            .map_err(storage)?
+            .into_iter()
+            .filter_map(|r| match &r.data {
+                RecordData::Note(n) if docs.contains(&r.id) => {
+                    Some(json!({"id":r.id,"version":r.version,"title":n.title}))
+                }
+                _ => None,
+            })
+            .take(128)
+            .collect();
+        json!({"id":p.id,"title":project.title,"owner_instructions":project.instructions,"use_brn_knowledge":project.use_brn_knowledge,"priority_documents":documents,"earlier_discussion":"Use read_records with a query to find relevant messages in this project. Discussion is evidence, not accepted decisions or edits. Prioritize current documents and confirmed decisions. These instructions do not expand host authority."})
+    } else {
+        Value::Null
+    };
     let attachments = store.records_for_chat(Some(&request.thread)).map_err(storage)?.into_iter().filter_map(|r| match r.data {
         RecordData::Note(n) if n.chat.as_ref() == Some(&request.thread) => Some(json!({"id":r.id,"version":r.version,"title":n.title,"bytes":n.markdown.len(),"coverage":n.import.and_then(|i|i.report)})), _=>None,
     }).take(128).collect::<Vec<_>>();
@@ -1732,6 +1849,13 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
         Arc::new(Scope {
             chat: request.thread.clone(),
             private_context,
+            project_context: brn_threads_core::project_for_chat(&records, &request.thread)
+                .map(|p| (p.id.clone(), p.version)),
+            chat_context_revision: records
+                .iter()
+                .find(|r| r.id == request.thread)
+                .map(|r| r.version)
+                .ok_or_else(rejected)?,
             store: Mutex::new(store),
             run: run_id,
             fence: AtomicU64::new(1),
@@ -1747,7 +1871,7 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
             max_rounds: request.max_tool_rounds,
         }),
         format!(
-            "{input}\nSaved chat documents (read with exact-version note tools): {}\nTopics note (root index of topic pages): {}\nHost maintenance policy: {maintenance_policy}\nHost authority for this invocation only: {}",
+            "{input}\nCurrent project context (owner-set instructions, within existing authority): {project_context}\nSaved chat documents (read with exact-version note tools): {}\nTopics note (root index of topic pages): {}\nHost maintenance policy: {maintenance_policy}\nHost authority for this invocation only: {}",
             serde_json::to_string(&attachments).map_err(storage)?,
             serde_json::to_string(&topics_note).map_err(storage)?,
             serde_json::to_string(&request.owner_request).map_err(storage)?
@@ -2035,8 +2159,11 @@ fn has_writing_proposal(scope: &Scope) -> AiResult<bool> {
         .collect::<Vec<_>>();
     for candidate in store.candidates().map_err(storage)? {
         if operations.contains(&candidate.operation)
-            && writing_request(snapshot, &candidate.request)
-                .is_ok_and(|safe| candidate.request.inputs == safe.inputs)
+            && writing_request(snapshot, &candidate.request).is_ok_and(|safe| {
+                safe.inputs
+                    .iter()
+                    .all(|input| candidate.request.inputs.contains(input))
+            })
         {
             return Ok(true);
         }
@@ -2105,6 +2232,8 @@ mod tests {
                     expected_version: None,
                     archived: false,
                     data: RecordData::Thread(Thread {
+                        private_context: false,
+                        context_epoch: 0,
                         title: "Journey".into(),
                         state: ThreadState::Open,
                         attention: vec![],

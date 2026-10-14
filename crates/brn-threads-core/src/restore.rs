@@ -27,7 +27,7 @@ impl StagedRestore {
     fn create(backup: &Path, destination: &Path) -> Result<Self> {
         let source =
             Connection::open_with_flags(backup, rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY)?;
-        validate_schema(&source, &[3, 4])?;
+        validate_schema(&source, &[3, 4, 5])?;
         Self::prepare(destination)?.copy_from(&source)
     }
 
@@ -72,13 +72,16 @@ impl StagedRestore {
             Duration::from_millis(1),
             None,
         )?;
-        if source.pragma_query_value::<i64, _>(None, "user_version", |r| r.get(0))? == 3 {
+        if source.pragma_query_value::<i64, _>(None, "user_version", |r| r.get(0))?
+            < crate::store::SCHEMA_VERSION
+        {
             // The read-only, validated original backup is the pre-upgrade snapshot.
             // Only this unpublished copy changes; the source remains untouched.
             let tx = store
                 .conn
                 .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)?;
             tx.execute_batch(crate::upgrade::CHAT_SCHEMA)?;
+            tx.execute_batch(crate::upgrade::PROJECT_SCHEMA)?;
             tx.pragma_update(None, "user_version", crate::store::SCHEMA_VERSION)?;
             tx.commit()?;
         }

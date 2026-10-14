@@ -1,5 +1,5 @@
 //! Fixed packaged semantic guidance. Loading text never grants authority.
-pub const BUNDLE_VERSION: &str = "brn-threads-guidance-5";
+pub const BUNDLE_VERSION: &str = "brn-threads-guidance-6";
 pub const BASE: &str = include_str!("../../../agent/BRN.md");
 
 #[derive(Clone, Copy)]

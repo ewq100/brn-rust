@@ -86,7 +86,17 @@ impl ThreadsUi {
             }
         };
         let graph = &mut self.graph;
-        let ticket = handle.request_connections(&note, None, graph.depth, graph.sources);
+        let scope = self.note_project.clone().or_else(|| {
+            self.records
+                .iter()
+                .find(|r| r.id == note)
+                .and_then(|r| match &r.data {
+                    RecordData::Note(n) => n.chat.clone(),
+                    _ => None,
+                })
+        });
+        let ticket =
+            handle.request_connections(&note, scope.as_deref(), graph.depth, graph.sources);
         graph.cancel = Some(ticket.cancel_on_drop());
         graph.pending = true;
         let generation = graph.generation;
