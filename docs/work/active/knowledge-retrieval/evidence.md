@@ -627,3 +627,16 @@ Baseline turns are the two compact runs' `model_turns`. `prepare_changes` came i
 **Limits:** N is 1; no embedding model; the baseline predates the Projects merge; the guide wording was not iterated (one live repetition was authorised); no desktop interaction. Total live use was about 0.57M tokens.
 
 **Next:** try guide wording or tool shaping that stops catalog and title-query `read_records` calls when context is present, then re-measure with more repetitions.
+
+### Review fixes (offline)
+
+An independent review of the prototype found six Medium issues; they were fixed offline (no provider calls, synthetic data) on `work/host-intake`, guide bundle now `brn-threads-guidance-9`. The live S1 numbers above come from the first build and the `-8` guide and are **not** re-measured.
+
+- **Truncated pages:** pages are shown whole (16 KB each, 24 KB total) or listed as `also_found` rows with their size; `prepare_changes` returns `Invalid` for a replacement of a note whose whole Markdown was not read in this run at that version (host-context pages, whole `read_records` reads, `read_note` read through to the end and applied writes count as read).
+- **Injection:** untrusted-data framing and a delimiter before the JSON payload; authority still comes only from `bind()`, tested with a forged host-authority line in a source.
+- **Context build:** raced against cancellation and a 15 s timeout, started after the liveness watcher; reads use a read-only snapshot and batched visibility checks instead of per-candidate record scans under the store lock.
+- **Multiple sources:** the query budget is split across sources, `uncovered_sources` is reported, status is `none`, `failed`, `partial` or `ok`, text, metadata and the whole payload are bounded (60 KB shedding order).
+- **Guide:** step 0 applies only when retrieval is `ok` or `partial`; otherwise steps 1–2 discovery runs. Wording also forbids catalog listings and a second prepare when context is present.
+- **Tests:** 40+ new unit and integration tests, listed in [host-intake.md](host-intake.md#tests).
+
+**Not done:** no live re-measure of tokens or turns after the changes (full pages instead of 8 KB prefixes cost more input on large pages, and the wording change is unmeasured); the desktop was not exercised; the six `brn-threads-intake` qualification tests behave as before.
