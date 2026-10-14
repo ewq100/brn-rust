@@ -39,6 +39,9 @@ pub use note_search::{
 };
 pub use sources::{TransientAsset, TransientSource};
 #[cfg(test)]
+#[path = "threads_cache_tests.rs"]
+mod cache_tests;
+#[cfg(test)]
 #[path = "threads_chat_tests.rs"]
 mod chat_tests;
 #[cfg(test)]
@@ -127,6 +130,21 @@ struct Scope {
     search: Option<Arc<dyn RunNoteSearch>>,
     trace: Option<Arc<trace::TraceCollector>>,
     max_rounds: u16,
+    /// Routes a Codex conversation's model turns to one prompt cache.
+    cache_key: Option<String>,
+}
+/// Stable for a chat, so the turns of every run in it share a cache, and
+/// carries no content beyond the chat id the prompt already names.
+fn cache_key(provider: Provider, chat: &str) -> Option<String> {
+    if provider != Provider::Chatgpt {
+        return None;
+    }
+    let id: String = chat
+        .chars()
+        .filter(|c| c.is_ascii_alphanumeric() || matches!(c, '-' | ':' | '_' | '.'))
+        .take(56)
+        .collect();
+    Some(format!("brn-{id}"))
 }
 fn storage(_: impl std::fmt::Display) -> AiError {
     AiError::new(AiErrorKind::Storage)
@@ -1361,17 +1379,29 @@ pub async fn run_prepared(
             let model = request.selection.model.clone();
             match client.inner {
                 OwnedClient::Chatgpt(client) => {
-                    run_model(
-                        client.completion(model),
-                        scope.clone(),
-                        &input,
-                        request.effort,
-                        request.max_tool_rounds,
-                        true,
-                        cancel.clone(),
-                        emit,
-                    )
-                    .await
+                    let client = match &scope.cache_key {
+                        Some(key) => crate::auth::pin_chatgpt_session(*client, key),
+                        None => Ok(*client),
+                    };
+                    match client {
+                        Ok(client) => {
+                            run_model(
+                                client.completion(model),
+                                scope.clone(),
+                                &input,
+                                request.effort,
+                                request.max_tool_rounds,
+                                true,
+                                cancel.clone(),
+                                emit,
+                            )
+                            .await
+                        }
+                        Err(error) => AiAnswer {
+                            text: String::new(),
+                            terminal: AiTerminal::Failed(error),
+                        },
+                    }
                 }
                 OwnedClient::Copilot(client) => {
                     run_copilot(
@@ -1908,6 +1938,7 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
             search: request.search.clone(),
             trace: trace::TraceCollector::new(request.trace).map(Arc::new),
             max_rounds: request.max_tool_rounds,
+            cache_key: cache_key(request.selection.provider, &request.thread),
         }),
         format!(
             "{input}\nCurrent project context (owner-set instructions, within existing authority): {project_context}\nSaved chat documents (read with exact-version note tools): {}\nTopics note (root index of topic pages): {}\nHost maintenance policy: {maintenance_policy}\nHost authority for this invocation only: {}",
@@ -2143,7 +2174,12 @@ async fn run_model(
             Default::default()
         })
         .additional_params(if responses {
-            serde_json::json!({"reasoning":{"effort":effort.as_str(),"summary":"auto"}})
+            let mut params =
+                serde_json::json!({"reasoning":{"effort":effort.as_str(),"summary":"auto"}});
+            if let Some(key) = &scope.cache_key {
+                params["prompt_cache_key"] = key.as_str().into();
+            }
+            params
         } else {
             serde_json::json!({"reasoning_effort":effort.as_str()})
         })

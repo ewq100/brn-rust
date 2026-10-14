@@ -2,7 +2,7 @@ use crate::error::{map_auth, map_provider, map_transport};
 use crate::{
     AccountStatus, AiError, AiErrorKind, AiResult, LoginPrompt, ModelOption, Provider, Selection,
 };
-use rig::http_client::{DynHttpClient, HttpClientExt, NoBody, Request};
+use rig::http_client::{DynHttpClient, HttpClientExt, HttpMiddleware, NoBody, Request};
 use rig::providers::{chatgpt, copilot, openai};
 use rig::wire::{Mode, Wire};
 use std::collections::HashSet;
@@ -57,6 +57,45 @@ impl Provider {
             Self::Copilot => "copilot-name.json",
         }
     }
+}
+
+/// Rig draws a fresh `session_id` header for every Codex request, so the
+/// subscription backend sees each model turn of a run as a new conversation and
+/// routes it away from the cache that holds the previous turn. Codex itself
+/// keeps one id per conversation.
+struct PinnedSession(rig::http_client::HeaderValue);
+
+impl HttpMiddleware for PinnedSession {
+    fn before_request_headers<'a>(
+        &'a self,
+        _method: &'a rig::http_client::Method,
+        _uri: &'a rig::http_client::Uri,
+        headers: &'a mut rig::http_client::HeaderMap,
+    ) -> rig_core::wasm_compat::WasmBoxedFuture<'a, rig::http_client::Result<()>> {
+        if headers.contains_key("session_id") {
+            headers.insert("session_id", self.0.clone());
+        }
+        Box::pin(async { Ok(()) })
+    }
+}
+
+/// `http` with every request's `session_id` header fixed to `session`.
+pub(crate) fn pinned_session_http(http: DynHttpClient, session: &str) -> AiResult<DynHttpClient> {
+    let value = session
+        .parse()
+        .map_err(|_| AiError::new(AiErrorKind::Other))?;
+    Ok(http.with_middleware(PinnedSession(value)))
+}
+
+/// The ChatGPT client sending one stable session id for a conversation's cache.
+pub(crate) fn pin_chatgpt_session(
+    client: openai::OpenAI,
+    session: &str,
+) -> AiResult<openai::OpenAI> {
+    Ok(client.with_http(pinned_session_http(
+        DynHttpClient::new(rig::rig_reqwest::shared()),
+        session,
+    )?))
 }
 
 /// The Copilot completion model, forced onto the Responses route when asked.
