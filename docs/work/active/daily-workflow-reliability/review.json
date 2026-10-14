@@ -1,0 +1,62 @@
+{
+  "verdict": "APPROVED",
+  "findings": [
+    {
+      "severity": "non-blocking",
+      "confidence": "confirmed",
+      "label": "Reuse can fence a live run",
+      "location": "crates/brn-threads-app/src/intake.rs:64-80; crates/brn-ai/src/threads.rs:1795; crates/brn/src/main.rs:788-797",
+      "issue": "source_intake_chat may pick a chat whose Working Run is live in another process; the CLI's begin() then interrupts it.",
+      "action": "Skip reuse candidates whose chat has a Working Run with a live lease (run_lease::run_is_live) and fall back to a new chat."
+    },
+    {
+      "severity": "non-blocking",
+      "confidence": "confirmed",
+      "label": "Provider-centric failure suffix",
+      "location": "crates/brn-ai/src/threads.rs:2124-2127",
+      "issue": "\"Continue when the provider is ready.\" is appended for every AiErrorKind, including tool-limit, time-limit, storage, index and unsafe-credential failures, and it persists after restart.",
+      "action": "Choose the suffix by error kind or use neutral wording; coordinate the final text with the UI agent."
+    },
+    {
+      "severity": "non-blocking",
+      "confidence": "likely",
+      "label": "Single-snapshot recovery",
+      "location": "crates/brn-threads-app/src/chat.rs:104,181; crates/brn-threads-core/src/store.rs:484",
+      "issue": "Two simultaneous orphans in one chat make the second recovery Stale: Resume stays refused until pressed again, and the unretired owner-direct preparation is listed by candidates().",
+      "action": "Re-read records after each applied recovery, or retire the stale operation."
+    },
+    {
+      "severity": "non-blocking",
+      "confidence": "confirmed",
+      "label": "Destructive journey script",
+      "location": "docs/work/active/daily-workflow-reliability/cli-journey.py:22-23",
+      "issue": "The script runs shutil.rmtree(ROOT) on whatever path it is given.",
+      "action": "Refuse an existing path, or require a fresh directory under the synthetic data root."
+    },
+    {
+      "severity": "integration-follow-up",
+      "confidence": "confirmed",
+      "label": "Contract docs not yet updated",
+      "location": "docs/work/active/daily-workflow-reliability/plan.md item 4; evidence.md:3",
+      "issue": "The proposed threads-behavior.md, invariants.md and status.md text exists only in the evidence, and the evidence header still says no product code changed.",
+      "action": "Apply the contract text at integration and refresh the stale evidence header."
+    },
+    {
+      "severity": "integration-follow-up",
+      "confidence": "confirmed",
+      "label": "Full check not green here",
+      "location": "evidence.md Verification",
+      "issue": "verify-storage.sh stopped at 12 brn-threads-intake sandbox failures in a sandboxed shell; the crate is unchanged.",
+      "action": "Rerun verify-storage.sh unsandboxed on the combined branch."
+    },
+    {
+      "severity": "integration-follow-up",
+      "confidence": "likely",
+      "label": "Mixed builds and cross-process lease",
+      "location": "crates/brn-ai/src/run_lease.rs; crates/brn-threads-app/src/chat.rs",
+      "issue": "Live Runs from a lease-less build look orphaned, and no two-process lease check was run.",
+      "action": "Run the combined desktop state suite and a desktop-plus-CLI check from one build, then do the pending native quit observation (not alongside the UI agent)."
+    }
+  ],
+  "reviewDoc": "/Users/evokessler/repos/brn-rust/.worktrees/daily-workflow-reliability/docs/work/active/daily-workflow-reliability/review.md"
+}
