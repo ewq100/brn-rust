@@ -139,7 +139,8 @@ For each citation, the host reads the cited range with the run's chat visibility
 | The record is not visible in this chat, is not a note or is archived | Dropped silently and counted as `rejected` in usage. |
 | The version is current and `quote` occurs exactly inside `[start, end)` (range ≤ 2 KB, on UTF-8 boundaries) | `verified: exact`. |
 | The version is no longer current | `verified: stale`, with the current version given. The parent must reread. |
-| The quote is not found in the range | The quote is removed and marked `verified: mismatch`. Findings that cite only mismatches are marked unsupported. |
+| The quote is outside the range but occurs exactly once in the cited, visible version (iteration 2, owner decision of 14 October 2026) | Re-anchored to where it occurs: `verified: relocated` at a current version, or `stale` with `relocated: true` at an older one. |
+| The quote is not found in the range and is absent or ambiguous in that version, or the version is hidden from this chat | The quote is removed and marked `verified: mismatch`. Findings that cite only mismatches are marked unsupported. |
 
 A verified quote is exact stored text at an exact version, so the parent may answer from it and cite it in its answer. It is not a full read: any write still needs the parent's own complete read, and `prepare_changes` inputs are rechecked at commit as today. The summary and findings remain the helper's unverified interpretation.
 
@@ -238,7 +239,7 @@ Then one live campaign runs on synthetic data with 1,000 filler notes over Codex
 **Metrics:**
 
 - case checks and safety blockers;
-- citation integrity (exact, stale, mismatch, rejected);
+- citation integrity (exact, relocated, stale, mismatch, rejected);
 - abstention and false-absence rates;
 - API-equivalent cost at published per-token prices, with cached input priced separately (the [model screen][cheaper] method);
 - the parent's peak input per turn and total tokens per model;
@@ -251,7 +252,9 @@ Then one live campaign runs on synthetic data with 1,000 filler notes over Codex
 2. Quality: B passes every case A passes, in both repetitions, and is no worse than A on R9 and R10.
 3. Citation integrity: at least 95% `exact`, and zero citations rejected for visibility reaching the parent's results.
 4. Value: on R4, M1, M2 and D1, either B's median API-equivalent cost is at most 0.7 × A's with equal quality, or B gains quality at no more than A's cost.
-5. Latency: B's p50 is at most 1.2 × A's.
+5. Latency: B's p50 is at most 1.2 × A's. **Owner decision (14 October 2026):** for long-document digest cases (D1, D2), slower latency is accepted when B's median cost is at most 0.7 × A's and quality is equal.
+
+Criterion 4 is judged on cost in Codex credits, not raw tokens. The harness prices each run's parent usage at the parent model and each helper's usage at the helper model, with cached input at its own price (`scripts/evaluate_wiki_v2.py`, `PRICES`).
 
 With N = 2 per case, differences under about 20% are noise. If the criteria fail, record the result and do not ship. An honest prior: prompt caching (−57%) and host intake (−28%), both merged, already took most of the cost saving the [earlier simulation][cheaper] gave to a scout (−58%). The case for the scout now rests on research-heavy asks and long documents, not on intake.
 

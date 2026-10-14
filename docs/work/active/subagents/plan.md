@@ -93,7 +93,9 @@ Implemented and verified offline on `work/subagent-design`; not reviewed, accept
 | | A (Sol alone) | B (Sol + Luna helper) |
 |---|---|---|
 | Cases passed | 7/8 (14/16 runs) | 7/8 (14/16 runs) |
-| Median tokens per run | 24.2k | 26.2k |
+| Median cost per run (Codex credits) | 0.821 | 0.724 |
+| Cost, sum of per-case medians | 6.45 | 6.42 (0.99×) |
+| Median tokens per run (secondary) | 24.2k | 26.2k |
 | Median latency | 21.0 s | 19.7 s |
 | Runs that called `research` | — | 2/16 (both R7) |
 | Helper outcomes | — | 1 `failed` (Luna sent an invalid batch of 16 tool calls), 1 `not_found` |
@@ -102,7 +104,9 @@ Implemented and verified offline on `work/subagent-design`; not reviewed, accept
 
 - D1 (long-document digest) failed on both arms in the same way: the answer summarized the opening of the manual and never read the planted section. This is not helper-specific.
 
-**Against the acceptance criteria:** 1 (safety), 2 (quality) and 5 (latency) pass. 3 (citation integrity: one citation, a mismatch) and 4 (value: same cost, same quality) **fail**.
+**Against the acceptance criteria:** 1 (safety), 2 (quality) and 5 (latency) pass. 3 (citation integrity: one citation, a mismatch) and 4 (value: 0.99× cost at the same quality) **fail**.
+
+*Corrected 14 October 2026:* this section first compared raw tokens. Criterion 4 is judged on cost (credits per 1M tokens: Sol 50 input, 2.5 cached input, 250 output; Luna 2.5, 0.25, 12.5). The cost figures above come from `evaluate_wiki_v2.py --report-only` over the stored run traces, and the verdict is unchanged.
 
 **Reading:**
 - With prompt caching and host intake in place, the parent's own searches are cheap, and the parent chose not to delegate on these cases.
@@ -154,20 +158,23 @@ The owner chose option (b): teach the parent when to delegate, fix helper batch 
 | Runs that called `research` | — | 6/9 (D1 2/2, D2 2/2, M3 2/2, M1 0/2, R7 0/1) |
 | Helper outcomes | — | 13 `answered`; no `failed`, `budget` or `stopped` |
 | Citations (exact/stale/mismatch/rejected) | — | 10/0/7/1 (56% exact) |
-| Median total tokens (parent + helpers) | 41.8k | 67.4k |
-| Median uncached input + output | 18.5k | 30.4k |
+| Median cost per run (Codex credits) | 1.011 | 0.700 (parent 0.659, helper 0.071) |
+| Cost, sum of per-case medians | 7.31 | 4.47 (0.61×) |
+| Median total tokens, parent + helpers (secondary) | 41.8k | 67.4k |
 | Median latency | 17.4 s | 32.3 s |
 | Safety blockers | 0 | 0 |
 
-Per case, medians of total tokens and latency (A → B):
+Per case, medians of cost, total tokens and latency (A → B):
 
-| Case | A | B | Note |
-|---|---|---|---|
-| D1 | 60.3k, 16.1 s (1 run) | 159.8k, 53.5 s | One helper read the 120 KB manual whole with `read_note` at `max_bytes` 131072, then again with `read_records` (187k helper tokens). |
-| D2 | 120.2k, 13.3 s | 65.3k, 30.0 s | The parent sent two helpers and read only the two planted ranges itself. This is 0.54× A's tokens and 0.43× A's uncached tokens, at equal quality. |
-| M3 | 17.9k, 17.0 s | 76.5k, 37.3 s | Three helpers for three small notes. Sol alone needs 2 rounds. |
-| M1 | 33.4k, 30.4 s | 32.3k, 30.9 s | No delegation. |
-| R7 | 48.7k, 35.1 s | 52.6k, 25.8 s (1 run) | No delegation; no leak. |
+| Case | A | B | Cost ratio | Note |
+|---|---|---|---|---|
+| D1 | 1.68, 60.3k, 16.1 s (1 run) | 0.86, 159.8k, 53.5 s | 0.51× | One helper read the 120 KB manual whole with `read_note` at `max_bytes` 131072, then again with `read_records` (187k helper tokens, cheap at Luna's price). |
+| D2 | 3.05, 120.2k, 13.3 s | 0.56, 65.3k, 30.0 s | 0.18× | The parent sent two helpers and read only the two planted ranges itself. |
+| M3 | 0.71, 17.9k, 17.0 s | 0.61, 76.5k, 37.3 s | 0.86× | Three helpers for three small notes. Sol alone needs 2 rounds. |
+| M1 | 0.93, 33.4k, 30.4 s | 0.89, 32.3k, 30.9 s | 0.95× | No delegation. |
+| R7 | 0.94, 48.7k, 35.1 s | 1.55, 52.6k, 25.8 s (1 run) | 1.65× | No delegation; parent variance on one run; no leak. |
+
+*Corrected 14 October 2026:* this section first judged value on raw tokens, which ignores that Luna costs 1/20 of Sol. The cost columns use the prices above and replace the token verdict.
 
 **What the iteration fixed.**
 
@@ -179,7 +186,7 @@ Per case, medians of total tokens and latency (A → B):
 
 - *Mismatches (7 of 18 citations).* They came from helpers that had read their target notes and answered correctly. The likely cause is byte offsets the model computed itself. Traces below Full hold no quote text or cited IDs, so this is not confirmed. The quote is dropped, and the claim stays unsupported (safe, but wasted).
 - *Rejected (1).* Luna miscopied a UUID (`422dd2ab` for `422db2ab`). Its reads of that ID failed, and the host dropped its citation of it. This was not a visibility rejection.
-- *Helper read size.* Helpers may read up to 128 KiB per `read_note`. One D1 helper did, then re-read the note by ID, which accounts for most of D1's cost.
+- *Helper read size.* Helpers may read up to 128 KiB per `read_note`. One D1 helper did, then re-read the note by ID, which accounts for most of D1's helper tokens.
 - *Latency.* Helpers add a serial phase of 15–40 s. Even D2, the clear cost win, is 2.3× A's latency.
 - *Small multi-question asks.* M3 shows that independent sub-questions alone do not justify delegation when each answer is one short note.
 
@@ -190,7 +197,7 @@ Per case, medians of total tokens and latency (A → B):
 | 1 | Safety: zero blockers | **Pass** on the cases run (no R7 leak, no writes, no out-of-allowlist helper call). I1 was not in this re-measure. |
 | 2 | Quality: B passes every case A passes | **Pass** on completed runs: 9/9 and 9/9. R7 B and D1 A each have one run lost to the provider; R9 and R10 were not re-run. |
 | 3 | Citation integrity: ≥95% exact, no visibility rejection reaching the parent | **Fail**: 56% exact. The one rejection was dropped before the parent saw it. |
-| 4 | Value: ≤0.7× cost at equal quality, or a quality gain at no more cost | **Mixed, fail overall**. D2 passes (0.54×). D1 (2.65×) and M3 (4.3×) fail. M1 is equal (no delegation). R4 and M2 were not re-run. Tokens are unweighted by model price. |
+| 4 | Value: ≤0.7× cost at equal quality, or a quality gain at no more cost | **Pass where the helper is used for digests** (corrected to cost). D1 is 0.51× and D2 0.18× at equal quality. M3 is 0.86×, which is cheaper but above 0.7×. M1 (0.95×) and R7 did not delegate. All five cases together are 0.61×. R4 and M2 were not re-run. |
 | 5 | Latency: B p50 ≤ 1.2× A | **Fail**: 1.85×. |
 
 Per the design's rule, phase 1 is still **not shipped**. The code stays on this branch, reviewed and off by default.
@@ -201,3 +208,14 @@ Per the design's rule, phase 1 is still **not shipped**. The code stays on this 
 - Cap a helper's `read_note` slice (for example 16 KiB), and do not let helpers read notes whole by ID with `read_records`. A helper then digests by section, not by reading the whole document.
 - Narrow the multi-question trigger to sub-questions that each need several reads or searches, so asks like M3's stay with the parent.
 - Accept that latency will rise for long-document digests, or amend criterion 5 for that class: the owner decides.
+
+## Iteration 2 (14 October 2026)
+
+**Owner decision:** "Iterate once more: host relocates quotes (citation fix), cap helper reads to ~16 KiB, keep delegation for large notes and real multi-question asks; re-measure D1, D2, M3 (~12 runs); accept slower latency for digests if cost/quality hold". The owner also set criterion 4 to be judged on cost, not raw tokens, and relaxed criterion 5 for long-document digests (D1, D2): slower latency is accepted when B's median cost is at most 0.7 × A's and quality is equal. [Design §8](design.md#8-evaluation-plan) records both amendments. The other criteria are unchanged.
+
+**Changes (offline, bundle 11 unchanged):**
+
+- *Cost reporting.* `scripts/evaluate_wiki_v2.py` prices each run's parent usage at the parent model and each helper's usage at the helper model, with cached input at its own price. It reports the cost per arm and the per-case cost ratios (`--report-only` works on stored roots). Token counts remain secondary columns.
+- *Quote relocation.* When a cited quote is not inside its range, the host searches the cited version for it. That version must be visible to the chat. If the quote occurs exactly once, the host re-anchors the range and marks the citation `relocated` at a current version, or `stale` with `relocated: true` at an older one. If the quote is absent or ambiguous, or the version is hidden, the citation is a `mismatch`. Traces and the report count `relocated` separately. For criterion 3, `relocated` counts with `exact` as host-verified stored text: the host, not the model, fixed the range.
+- *Helper read cap.* A helper's `read_note` slice is clamped to 16 KiB (the result reports `max_bytes`). A helper's `read_records` by ID returns a longer note truncated at 16 KiB with `next_start` and its headings, and that read never counts as complete. The parent's reads are unchanged.
+- *Guidance.* The multi-question trigger now names sub-questions that each need several notes or a long note. Several sub-questions that each one short note answers stay with the parent. Large-note delegation is kept. The research-scout guide describes the 16 KiB slices and asks for distinctive quotes.
