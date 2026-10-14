@@ -5,7 +5,7 @@
 mod support;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let usage = "Usage: retrieval_eval --root /absolute/NEW-root [--notes 1000] [--seed N] [--retriever current|worker] [--out /absolute/report.json]";
+    let usage = "Usage: retrieval_eval --root /absolute/NEW-root [--notes 1000] [--seed N] [--retriever current|worker|hybrid] [--out /absolute/report.json]";
     let args: Vec<_> = std::env::args().skip(1).collect();
     let (options, remainder) = args.as_chunks::<2>();
     if !remainder.is_empty() {
@@ -30,6 +30,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let report = match retriever.as_str() {
         "current" => support::run(&data, notes, seed)?,
         "worker" => support::run_with(&data, notes, seed, &mut support::WorkerSearch::default())?,
+        "hybrid" => support::run_with(&data, notes, seed, &mut support::HybridSearch::default())?,
         _ => return Err(usage.into()),
     };
     let json = serde_json::to_string_pretty(&report)?;

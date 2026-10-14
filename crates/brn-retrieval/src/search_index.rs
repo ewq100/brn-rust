@@ -2,12 +2,11 @@
 //! of current notes and links with exact and English-stemmed FTS5 lanes.
 //! It is never authoritative; callers re-check core visibility on results.
 use crate::markdown_chunk::{CHUNKER_VERSION, chunks};
-use crate::note_index::search::{check_query, fts_query};
 use crate::{Error, Result};
 use rusqlite::{Connection, OptionalExtension, TransactionBehavior, params};
 use sha2::{Digest, Sha256};
 use std::{
-    collections::BTreeMap,
+    collections::{BTreeMap, BTreeSet},
     ffi::OsString,
     fs,
     io::{ErrorKind, Read},
@@ -18,7 +17,9 @@ use std::{
 pub const FILE_NAME: &str = "search.sqlite";
 const LOCK_NAME: &str = "search.lock";
 const APPLICATION_ID: i64 = 0x4252_4e53; // BRNS
-const SCHEMA_VERSION: i64 = 1;
+/// 2: passage IDs are never reused, so a cached vector cannot be attributed
+/// to a later passage.
+const SCHEMA_VERSION: i64 = 2;
 const DEFAULT_LANGUAGE: &str = "en";
 const NOT_OURS: &str = "derived search path holds a file that is not a BRN search index";
 /// Reciprocal-rank fusion constant.
@@ -71,7 +72,7 @@ CREATE TABLE docs (
 CREATE INDEX docs_visibility ON docs(visibility);
 CREATE INDEX docs_imported_from ON docs(imported_from) WHERE imported_from IS NOT NULL;
 CREATE TABLE passages (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     doc TEXT NOT NULL REFERENCES docs(id),
     start_byte INTEGER NOT NULL,
     end_byte INTEGER NOT NULL,
@@ -239,6 +240,8 @@ pub struct DocHit {
     pub passages: usize,
     /// Fused reciprocal-rank score; comparable only within one result list.
     pub score: f64,
+    /// Matched by a keyword lane (not only by the dense lane).
+    pub keyword: bool,
 }
 
 /// Facts used to label and balance results; see [`SearchIndex::facts`].
@@ -405,6 +408,20 @@ impl SearchIndex {
     /// by their best passage and keeps the top `per_lane`; the lanes are
     /// fused by RRF.
     pub fn keyword(&self, query: &str, chat: Option<&str>, per_lane: usize) -> Result<Vec<DocHit>> {
+        self.hybrid(query, chat, per_lane, &[])
+    }
+
+    /// [`Self::keyword`] plus a dense lane: `dense` lists passage IDs by
+    /// descending similarity to the query. It is collapsed to documents
+    /// visible in `chat` and adds, by RRF, only documents the keyword lanes
+    /// did not find.
+    pub fn hybrid(
+        &self,
+        query: &str,
+        chat: Option<&str>,
+        per_lane: usize,
+        dense: &[i64],
+    ) -> Result<Vec<DocHit>> {
         check_query(query, per_lane)?;
         let fts = fts_query(query).ok_or(Error::Invalid("query has no search terms"))?;
         let scope = scope(chat);
@@ -417,16 +434,28 @@ impl SearchIndex {
             lanes.push(("fts_stem", fts.replace(" OR ", " AND ")));
         }
         lanes.extend([("fts_exact", fts.clone()), ("fts_stem", fts.clone())]);
-        let mut fused: BTreeMap<String, DocHit> = BTreeMap::new();
+        let mut ranked: Vec<Vec<DocHit>> = Vec::new();
         for (table, fts) in &lanes {
-            for (rank, hit) in self
-                .lane(table, fts, &scope, per_lane)?
-                .into_iter()
-                .enumerate()
-            {
+            ranked.push(self.lane(table, fts, &scope, per_lane)?);
+        }
+        let keyword_lanes = ranked.len();
+        if !dense.is_empty() {
+            ranked.push(self.dense_lane(dense, &scope, per_lane)?);
+        }
+        let mut fused: BTreeMap<String, DocHit> = BTreeMap::new();
+        for (lane, hits) in ranked.into_iter().enumerate() {
+            for (rank, mut hit) in hits.into_iter().enumerate() {
+                hit.keyword = lane < keyword_lanes;
+                // The dense lane only adds notes no keyword lane matched; it
+                // never reorders keyword matches (measured: boosting them
+                // with near neighbours cost inflection and section ranking).
+                if !hit.keyword && fused.contains_key(&hit.doc) {
+                    continue;
+                }
                 let contribution = 1.0 / (RRF_K + rank as f64 + 1.0);
                 let entry = fused.entry(hit.doc.clone()).or_insert_with(|| hit.clone());
                 entry.passages = entry.passages.max(hit.passages);
+                entry.keyword |= hit.keyword;
                 entry.score += contribution;
             }
         }
@@ -540,6 +569,7 @@ impl SearchIndex {
                     text: String::new(),
                     passages: 1,
                     score: 0.0,
+                    keyword: true,
                 })
             })?;
             for row in rows {
@@ -561,6 +591,152 @@ impl SearchIndex {
         }
     }
 
+    /// The dense lane: the given passages in order, kept when their document
+    /// is visible in `scope`, collapsed to each document's best passage.
+    fn dense_lane(&self, passages: &[i64], scope: &str, per_lane: usize) -> Result<Vec<DocHit>> {
+        let mut stmt = self.conn.prepare(
+            "SELECT p.id, p.doc, d.version, p.start_byte, p.end_byte, p.heading_path, d.title
+             FROM passages p JOIN docs d ON d.id = p.doc
+             WHERE p.id = ?1 AND d.visibility IN ('general', ?2)",
+        )?;
+        let mut docs: Vec<DocHit> = Vec::new();
+        let mut seen = BTreeMap::new();
+        for passage in passages {
+            if docs.len() == per_lane {
+                break;
+            }
+            let Some(hit) = stmt
+                .query_row(params![passage, scope], |r| {
+                    Ok(DocHit {
+                        passage: r.get(0)?,
+                        doc: r.get(1)?,
+                        version: r.get::<_, i64>(2)? as u64,
+                        start_byte: r.get::<_, i64>(3)? as usize,
+                        end_byte: r.get::<_, i64>(4)? as usize,
+                        heading_path: r.get(5)?,
+                        title: r.get(6)?,
+                        text: String::new(),
+                        passages: 1,
+                        score: 0.0,
+                        keyword: false,
+                    })
+                })
+                .optional()?
+            else {
+                continue;
+            };
+            match seen.get(&hit.doc) {
+                Some(&i) => {
+                    let first: &mut DocHit = &mut docs[i];
+                    first.passages += 1;
+                }
+                None => {
+                    seen.insert(hit.doc.clone(), docs.len());
+                    docs.push(hit);
+                }
+            }
+        }
+        Ok(docs)
+    }
+
+    /// Of `docs`, those whose text matches `query` in the stemmed lane (a
+    /// superset of the exact lane), regardless of rank.
+    pub fn matching_keywords(&self, query: &str, docs: &[String]) -> Result<BTreeSet<String>> {
+        let Some(fts) = fts_query(query) else {
+            return Ok(BTreeSet::new());
+        };
+        if docs.is_empty() {
+            return Ok(BTreeSet::new());
+        }
+        // One full-text evaluation for all candidates, not one per document.
+        let wanted = json_array(docs);
+        let mut stmt = self.conn.prepare(
+            "SELECT DISTINCT p.doc FROM fts_stem JOIN passages p ON p.id = fts_stem.rowid
+             WHERE fts_stem MATCH ?1 AND p.doc IN (SELECT value FROM json_each(?2))",
+        )?;
+        let rows = stmt.query_map(params![fts, wanted], |r| r.get::<_, String>(0))?;
+        Ok(rows.collect::<rusqlite::Result<_>>()?)
+    }
+
+    /// Deletes vectors of every model except `model`; returns how many.
+    pub fn retain_vectors(&mut self, model: &str) -> Result<usize> {
+        Ok(self
+            .conn
+            .execute("DELETE FROM vectors WHERE model <> ?1", [model])?)
+    }
+
+    /// Up to `limit` passages without a vector for `model`, with the text to
+    /// embed (title, heading path and passage).
+    pub fn pending_passages(&self, model: &str, limit: usize) -> Result<Vec<(i64, String)>> {
+        let mut stmt = self.conn.prepare(
+            "SELECT p.id, p.indexed_text FROM passages p
+             WHERE NOT EXISTS (SELECT 1 FROM vectors v WHERE v.passage = p.id AND v.model = ?1)
+             ORDER BY p.id LIMIT ?2",
+        )?;
+        let rows = stmt.query_map(params![model, limit as i64], |r| Ok((r.get(0)?, r.get(1)?)))?;
+        Ok(rows.collect::<rusqlite::Result<_>>()?)
+    }
+
+    /// `(passages with a vector for model, all passages)`.
+    pub fn vector_counts(&self, model: &str) -> Result<(usize, usize)> {
+        let (with, total): (i64, i64) = self.conn.query_row(
+            "SELECT (SELECT count(*) FROM vectors v JOIN passages p ON p.id = v.passage
+                     WHERE v.model = ?1),
+                    (SELECT count(*) FROM passages)",
+            [model],
+            |r| Ok((r.get(0)?, r.get(1)?)),
+        )?;
+        Ok((with as usize, total as usize))
+    }
+
+    /// Stores unit-length vectors for `model`. Passages removed meanwhile are
+    /// skipped. Returns how many were stored.
+    pub fn store_vectors(&mut self, model: &str, vectors: &[(i64, Vec<f32>)]) -> Result<usize> {
+        let tx = self
+            .conn
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        let mut stored = 0;
+        {
+            let mut stmt = tx.prepare(
+                "INSERT OR REPLACE INTO vectors(passage, model, blob)
+                 SELECT ?1, ?2, ?3 WHERE EXISTS (SELECT 1 FROM passages WHERE id = ?1)",
+            )?;
+            for (passage, vector) in vectors {
+                let unit = unit(vector)?;
+                let blob: Vec<u8> = unit.iter().flat_map(|x| x.to_le_bytes()).collect();
+                stored += stmt.execute(params![passage, model, blob])?;
+            }
+        }
+        tx.commit()?;
+        Ok(stored)
+    }
+
+    /// Every stored vector for `model` whose passage still exists.
+    pub fn load_vectors(&self, model: &str) -> Result<Vec<(i64, Vec<f32>)>> {
+        let mut stmt = self.conn.prepare(
+            "SELECT v.passage, v.blob FROM vectors v JOIN passages p ON p.id = v.passage
+             WHERE v.model = ?1 ORDER BY v.passage",
+        )?;
+        let rows = stmt.query_map([model], |r| {
+            Ok((r.get::<_, i64>(0)?, r.get::<_, Vec<u8>>(1)?))
+        })?;
+        let mut out = Vec::new();
+        for row in rows {
+            let (passage, blob) = row?;
+            if blob.len() % 4 != 0 {
+                return Err(Error::Corrupt("search index vector"));
+            }
+            let vector = blob
+                .as_chunks::<4>()
+                .0
+                .iter()
+                .map(|b| f32::from_le_bytes(*b))
+                .collect();
+            out.push((passage, vector));
+        }
+        Ok(out)
+    }
+
     /// Recorded links touching `id`, as `(link id, from, to, relation)`.
     pub fn links_of(&self, id: &str) -> Result<Vec<LinkInput>> {
         let mut stmt = self.conn.prepare(
@@ -576,6 +752,63 @@ impl SearchIndex {
         })?;
         Ok(rows.collect::<rusqlite::Result<_>>()?)
     }
+}
+
+/// Unit length, refusing non-finite and all-zero vectors.
+pub fn unit(vector: &[f32]) -> Result<Vec<f32>> {
+    let norm = vector
+        .iter()
+        .map(|x| f64::from(*x).powi(2))
+        .sum::<f64>()
+        .sqrt();
+    if !norm.is_finite() || norm == 0.0 || vector.iter().any(|x| !x.is_finite()) {
+        return Err(Error::Invalid("embedding must be finite and non-zero"));
+    }
+    Ok(vector
+        .iter()
+        .map(|x| (f64::from(*x) / norm) as f32)
+        .collect())
+}
+
+/// Rejects empty or over-long (> 512 bytes) queries and limits outside 1..=50.
+fn check_query(query: &str, limit: usize) -> Result<()> {
+    if query.trim().is_empty() || query.len() > 512 || !(1..=50).contains(&limit) {
+        return Err(Error::Invalid("query length or limit"));
+    }
+    Ok(())
+}
+
+/// An FTS5 query matching any of the query's words. Each word is quoted, so
+/// user text never becomes FTS5 syntax.
+fn fts_query(query: &str) -> Option<String> {
+    let terms: Vec<String> = query
+        .split(|c: char| !c.is_alphanumeric())
+        .filter(|term| !term.is_empty())
+        .map(|term| format!("\"{}\"", term.to_lowercase()))
+        .collect();
+    (!terms.is_empty()).then(|| terms.join(" OR "))
+}
+
+/// A JSON array of strings for `json_each`, without a JSON dependency.
+fn json_array(items: &[String]) -> String {
+    let mut out = String::from("[");
+    for (i, item) in items.iter().enumerate() {
+        if i > 0 {
+            out.push(',');
+        }
+        out.push('"');
+        for c in item.chars() {
+            match c {
+                '"' => out.push_str("\\\""),
+                '\\' => out.push_str("\\\\"),
+                c if (c as u32) < 0x20 => out.push_str(&format!("\\u{:04x}", c as u32)),
+                c => out.push(c),
+            }
+        }
+        out.push('"');
+    }
+    out.push(']');
+    out
 }
 
 fn scope(chat: Option<&str>) -> String {

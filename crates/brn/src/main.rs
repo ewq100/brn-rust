@@ -17,7 +17,7 @@ static CANCEL: AtomicBool = AtomicBool::new(false);
 extern "C" fn on_sigint(_: libc::c_int) {
     CANCEL.store(true, Ordering::SeqCst);
 }
-const HELP: &str = "BRN Threads\n\nUsage: brn --data-dir ABSOLUTE_DIRECTORY COMMAND [--option VALUE]\n\nCommands: init, records, notes, threads, needs-you, history, candidates, settings,\n  note-create --title TITLE --text MARKDOWN\n  thread-start --title TITLE\n  read --id RECORD\n  search --query TEXT [--limit 1..50] [--cursor NEXT] [--thread CHAT]\n  connections --note ID [--hops 1|2] [--sources yes] [--thread CHAT]\n  topics; topics-create; topics-choose --note ID\n  knowledge-check [--seed-chat yes]\n  begin-edit --note ID --base VERSION\n  update-buffer --session ID --generation N --text MARKDOWN\n  save|discard --session ID --generation N; recovery\n  apply|dismiss --operation ID; undo --operation ID; archive|unarchive --thread ID\n  queue --thread ID --text TEXT; keep-in-brn --note ID --base VERSION\n  ask --thread ID --prompt TEXT [--budget 1..32] [--edit-note ID --base VERSION | --record-decision yes]\n  intake --source ABSOLUTE_FILE --intent useful|full|chat [--title TITLE] [--thread ID]\n  configure --provider Codex|Copilot --model ID --effort low|medium|high\n  delegation --choice maintain|review-first\n  pause; resume; export|backup --destination ABSOLUTE_FRESH_PATH\n  restore --source ABSOLUTE_BACKUP\n  upgrade --backup-directory ABSOLUTE_EXTERNAL_FOLDER\n\nChoose delegation before resuming maintenance. Manual work remains available while pending.\nFresh explicit data only. Originals remain external; no external messages are sent.\nReview apply and Undo are concrete owner actions. Continue uses ask on the same Thread.";
+const HELP: &str = "BRN Threads\n\nUsage: brn --data-dir ABSOLUTE_DIRECTORY COMMAND [--option VALUE]\n\nCommands: init, records, notes, threads, needs-you, history, candidates, settings,\n  note-create --title TITLE --text MARKDOWN\n  thread-start --title TITLE\n  read --id RECORD\n  search --query TEXT [--limit 1..50] [--cursor NEXT] [--thread CHAT]\n  connections --note ID [--hops 1|2] [--sources yes] [--thread CHAT]\n  topics; topics-create; topics-choose --note ID\n  knowledge-check [--seed-chat yes]\n  model-install --destination ABSOLUTE_FRESH_FOLDER (native builds; downloads the pinned model)\n  Semantic search uses the model folder named by BRN_EMBEDDING_MODEL_DIR.\n  begin-edit --note ID --base VERSION\n  update-buffer --session ID --generation N --text MARKDOWN\n  save|discard --session ID --generation N; recovery\n  apply|dismiss --operation ID; undo --operation ID; archive|unarchive --thread ID\n  queue --thread ID --text TEXT; keep-in-brn --note ID --base VERSION\n  ask --thread ID --prompt TEXT [--budget 1..32] [--edit-note ID --base VERSION | --record-decision yes]\n  intake --source ABSOLUTE_FILE --intent useful|full|chat [--title TITLE] [--thread ID]\n  configure --provider Codex|Copilot --model ID --effort low|medium|high\n  delegation --choice maintain|review-first\n  pause; resume; export|backup --destination ABSOLUTE_FRESH_PATH\n  restore --source ABSOLUTE_BACKUP\n  upgrade --backup-directory ABSOLUTE_EXTERNAL_FOLDER\n\nChoose delegation before resuming maintenance. Manual work remains available while pending.\nFresh explicit data only. Originals remain external; no external messages are sent.\nReview apply and Undo are concrete owner actions. Continue uses ask on the same Thread.";
 type Result<T> = std::result::Result<T, String>;
 struct Invocation {
     data: PathBuf,
@@ -55,6 +55,7 @@ fn parse(args: impl IntoIterator<Item = String>) -> Result<Option<Invocation>> {
         "topics-choose" => &["note"],
         "connections" => &["note", "hops", "sources", "thread"],
         "knowledge-check" => &["seed-chat"],
+        "model-install" => &["destination"],
         "note-create" => &["title", "text"],
         "thread-start" => &["title"],
         "delegation" => &["choice"],
@@ -112,6 +113,21 @@ impl Invocation {
             .parse()
             .map_err(|_| format!("--{key} must be an integer"))
     }
+}
+/// The explicit owner command that downloads the pinned embedding model.
+#[cfg(feature = "native-retrieval")]
+fn install_model(inv: &Invocation) -> Result<Value> {
+    let target = PathBuf::from(inv.arg("destination")?);
+    let bytes = install_embedding_model(&target, &CANCEL, |done, total| {
+        eprint!("\rmodel {done}/{total} bytes");
+    })
+    .map_err(|e| e.to_string())?;
+    eprintln!();
+    Ok(json!({"installed":target,"downloaded_bytes":bytes,"use_with":EMBEDDING_MODEL_ENV}))
+}
+#[cfg(not(feature = "native-retrieval"))]
+fn install_model(_: &Invocation) -> Result<Value> {
+    Err("This build has no native retrieval; build with --features native-retrieval".into())
 }
 /// The owner's chosen chat context (`--thread`), which must name a chat.
 fn chat_option(workspace: &Workspace, inv: &Invocation) -> Result<Option<String>> {
@@ -279,12 +295,21 @@ async fn execute(inv: &Invocation) -> Result<Value> {
         let store = Store::restore(inv.arg("source")?, &inv.data).map_err(|e| e.to_string())?;
         return Ok(json!({"restored":store.directory()}));
     }
+    if inv.command == "model-install" {
+        return install_model(inv);
+    }
     if inv.command == "upgrade" {
         Store::upgrade(&inv.data, Path::new(inv.arg("backup-directory")?))
             .map_err(|e| e.to_string())?;
         return Ok(json!({"upgraded":true,"data":inv.data}));
     }
     let mut workspace = Workspace::open(&inv.data).map_err(|e| e.to_string())?;
+    // A named but unusable model folder is an error, never a silent fallback.
+    if matches!(inv.command.as_str(), "search" | "ask" | "intake") {
+        if let Some(Err(error)) = workspace.embedding_model_from_env() {
+            return Err(format!("Semantic search is unavailable: {error}"));
+        }
+    }
     let result = match inv.command.as_str() {
         "init" => {
             json!({"ready":true,"data":inv.data,"settings":settings_output(workspace.settings().map_err(|e|e.to_string())?)?})

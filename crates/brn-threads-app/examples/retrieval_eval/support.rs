@@ -753,6 +753,54 @@ impl Retriever for WorkerSearch {
     }
 }
 
+/// The hybrid lanes (Task 5) with the model folder named by
+/// `BRN_EMBEDDING_MODEL_DIR` (a native-retrieval build). The first query
+/// waits until every passage is embedded and reports how long that took.
+#[derive(Default)]
+pub struct HybridSearch {
+    handle: Option<brn_threads_app::search::SearchHandle>,
+    identity: String,
+}
+
+impl Retriever for HybridSearch {
+    fn name(&self) -> String {
+        format!("worker-hybrid:{}", self.identity)
+    }
+    fn search(
+        &mut self,
+        workspace: &mut Workspace,
+        query: &str,
+        chat: Option<&str>,
+    ) -> Result<Vec<String>> {
+        if self.handle.is_none() {
+            self.identity = workspace
+                .embedding_model_from_env()
+                .ok_or("set BRN_EMBEDDING_MODEL_DIR to an installed model folder")??;
+            let handle = workspace.search_handle()?;
+            let started = std::time::Instant::now();
+            loop {
+                handle.prepare().wait()?;
+                if let Some((with, all)) = handle.embedding_progress()
+                    && with >= all
+                {
+                    eprintln!("embedded {all} passages in {:?}", started.elapsed());
+                    break;
+                }
+                std::thread::sleep(std::time::Duration::from_millis(200));
+            }
+            self.handle = Some(handle);
+        }
+        let handle = self.handle.as_ref().expect("spawned above");
+        let page = handle.request_page(query, chat, 50, None).wait()?;
+        // Notes written during the run (the post-save probe) are embedded
+        // in idle time; their first answer is honestly partial.
+        if page.semantic != "complete" {
+            eprintln!("semantic coverage {} for {query:?}", page.semantic);
+        }
+        Ok(page.matches.into_iter().map(|m| m.note).collect())
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CaseResult {
     pub id: String,

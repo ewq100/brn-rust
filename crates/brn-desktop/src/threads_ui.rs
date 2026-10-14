@@ -3313,8 +3313,13 @@ fn bindings() -> Vec<KeyBinding> {
 }
 
 pub fn launch(data_dir: PathBuf) -> Result<(), String> {
-    let workspace = Workspace::open(&data_dir).map_err(|e| e.to_string())?;
+    let mut workspace = Workspace::open(&data_dir).map_err(|e| e.to_string())?;
     workspace.settings().map_err(|e| e.to_string())?;
+    // An unusable model folder is reported; keyword search still works.
+    let model_notice = match workspace.embedding_model_from_env() {
+        Some(Err(error)) => Some(format!("Semantic search is off: {error}")),
+        _ => None,
+    };
     gpui_kit::application()
         .with_assets(gpui_kit::assets::Assets)
         .run(move |cx| {
@@ -3336,7 +3341,13 @@ pub fn launch(data_dir: PathBuf) -> Result<(), String> {
                     ..top_bar_window_options()
                 },
                 move |window, cx| {
-                    let view = cx.new(|cx| ThreadsUi::new(workspace, data_dir, window, cx));
+                    let view = cx.new(|cx| {
+                        let mut view = ThreadsUi::new(workspace, data_dir, window, cx);
+                        if let Some(notice) = model_notice {
+                            view.notice = notice;
+                        }
+                        view
+                    });
                     view.update(cx, |view, cx| view.auto_load_copilot_models(cx));
                     let weak = view.downgrade();
                     window.on_window_should_close(cx, move |_, cx| {

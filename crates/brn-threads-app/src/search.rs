@@ -4,6 +4,7 @@
 //! Each request syncs the index to the current canonical watermark, queries
 //! it, and re-checks every candidate with core visibility.
 use crate::{AppError, AppResult};
+use brn_retrieval::embedding::Embedder;
 use brn_retrieval::search_index::{
     Changes, DocInput, LinkInput, SearchIndex, SyncState, Visibility,
 };
@@ -33,6 +34,12 @@ pub const SNIPPET_BYTES: usize = 300;
 const QUOTA_ABOVE: usize = 3;
 /// Neighbours shown per hop in Connections.
 pub const NEIGHBOURS: usize = 8;
+/// Passages embedded per idle-time batch; a queued request waits at most one batch.
+const EMBED_BATCH: usize = 16;
+/// Nearest passages (above the floor) the dense lane may walk, in order,
+/// until it has enough visible notes; other chats' passages cannot crowd
+/// out visible ones before this bound.
+const DENSE_PASSAGES: usize = 40 * PER_LANE;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct NoteMatch {
@@ -66,10 +73,13 @@ pub struct SearchResults {
     pub offset: usize,
     /// Matches pages can reach (at most `total`).
     pub reachable: usize,
-    /// Opaque cursor for the next page, if one exists.
+    /// Opaque cursor for the next page, if one exists. Ranking can shift
+    /// between pages while notes change or `semantic` is `partial`.
     pub next: Option<String>,
     /// Canonical watermark the index reflected for this answer.
     pub watermark: i64,
+    /// Dense coverage: `none`, `partial(n/m)`, `complete` or `failed: …`.
+    pub semantic: String,
 }
 
 /// What a neighbour is.
@@ -122,6 +132,8 @@ enum Work {
         chat: Option<String>,
         limit: usize,
         cursor: Option<String>,
+        /// Add the dense lane when an embedding model is configured.
+        hybrid: bool,
     },
     /// Only bring the index up to date (warm-up and measurement).
     Sync,
@@ -167,6 +179,7 @@ struct Job {
 #[derive(Clone)]
 pub struct SearchHandle {
     jobs: mpsc::Sender<Job>,
+    progress: Arc<std::sync::Mutex<Option<(usize, usize)>>>,
 }
 
 /// Owns the worker thread; it stops once every handle is dropped.
@@ -233,13 +246,39 @@ impl SearchHandle {
     /// Starts the worker for the workspace at `data`. Storage is opened
     /// lazily by the worker, so open failures are reported per request.
     pub fn spawn(store: &Store) -> AppResult<(Self, SearchWorker)> {
+        Self::spawn_with(store, None)
+    }
+
+    /// Like [`Self::spawn`], with an embedding model for the dense lane. The
+    /// worker embeds passages in bounded batches while no request waits.
+    pub fn spawn_with(
+        store: &Store,
+        embedder: Option<Box<dyn Embedder + Send>>,
+    ) -> AppResult<(Self, SearchWorker)> {
         let data = store.directory().to_owned();
         let derived = store.derived_directory()?;
         let (jobs, receiver) = mpsc::channel();
+        let progress = Arc::new(std::sync::Mutex::new(None));
+        let dense = embedder.map(|embedder| Dense {
+            model: embedder.identity().to_owned(),
+            embedder,
+            matrix: None,
+            counts: None,
+            idle: false,
+            failed: None,
+            retry: true,
+            progress: progress.clone(),
+        });
         let thread = std::thread::Builder::new()
             .name("brn-search".into())
-            .spawn(move || run(&data, &derived, receiver))?;
-        Ok((Self { jobs }, SearchWorker { thread }))
+            .spawn(move || run(&data, &derived, receiver, dense))?;
+        Ok((Self { jobs, progress }, SearchWorker { thread }))
+    }
+
+    /// `(embedded passages, all passages)` once known, when an embedding
+    /// model is configured.
+    pub fn embedding_progress(&self) -> Option<(usize, usize)> {
+        *self.progress.lock().ok()?
     }
 
     /// Queues a first-page search in `chat` (`None` = general) and returns at once.
@@ -261,6 +300,24 @@ impl SearchHandle {
             chat: chat.map(Into::into),
             limit,
             cursor: cursor.map(Into::into),
+            hybrid: true,
+        })
+    }
+
+    /// [`Self::request_page`] with only the keyword lanes.
+    pub fn request_keyword_page(
+        &self,
+        query: &str,
+        chat: Option<&str>,
+        limit: usize,
+        cursor: Option<&str>,
+    ) -> SearchTicket {
+        self.results(Work::Search {
+            query: query.into(),
+            chat: chat.map(Into::into),
+            limit,
+            cursor: cursor.map(Into::into),
+            hybrid: false,
         })
     }
 
@@ -340,15 +397,212 @@ struct Open {
     index: SearchIndex,
 }
 
-fn run(data: &Path, derived: &Path, jobs: mpsc::Receiver<Job>) {
+/// The dense lane's model state, kept across index reopens.
+struct Dense {
+    embedder: Box<dyn Embedder + Send>,
+    model: String,
+    /// Stored vectors in one contiguous matrix, loaded on first use.
+    matrix: Option<Matrix>,
+    /// `(embedded, all)` passages, refreshed after each request.
+    counts: Option<(usize, usize)>,
+    /// Nothing left to embed until the next request.
+    idle: bool,
+    /// The last embedding failure, reported until a batch succeeds.
+    failed: Option<String>,
+    /// A failed batch is retried once per request, never in a busy loop.
+    retry: bool,
+    progress: Arc<std::sync::Mutex<Option<(usize, usize)>>>,
+}
+
+struct Matrix {
+    passages: Vec<i64>,
+    data: Vec<f32>,
+    dimension: usize,
+}
+
+impl Matrix {
+    fn push(&mut self, passage: i64, vector: &[f32]) {
+        if vector.len() == self.dimension {
+            self.passages.push(passage);
+            self.data.extend_from_slice(vector);
+        }
+    }
+    /// Passage IDs at or above `floor` by descending cosine similarity
+    /// (vectors are unit length). Empty unless the best passage stands at
+    /// least `margin` above the background (median of ranks 10–50), so a
+    /// query nothing really matches finds nothing.
+    fn nearest(&self, query: &[f32], k: usize, floor: f32, margin: f32) -> Vec<i64> {
+        let mut scored: Vec<(f32, i64)> = self
+            .data
+            .chunks_exact(self.dimension)
+            .zip(&self.passages)
+            .map(|(row, id)| (row.iter().zip(query).map(|(a, b)| a * b).sum::<f32>(), *id))
+            .collect();
+        if margin > 0.0 && scored.len() >= 50 {
+            let mut top: Vec<f32> = scored.iter().map(|(s, _)| *s).collect();
+            top.select_nth_unstable_by(49, |a, b| b.total_cmp(a));
+            top.truncate(50);
+            top.sort_by(|a, b| b.total_cmp(a));
+            if top[0] - top[30] < margin {
+                return vec![];
+            }
+        }
+        scored.retain(|(score, _)| *score >= floor);
+        let k = k.min(scored.len());
+        if k == 0 {
+            return vec![];
+        }
+        scored.select_nth_unstable_by(k - 1, |a, b| b.0.total_cmp(&a.0).then(a.1.cmp(&b.1)));
+        scored.truncate(k);
+        scored.sort_by(|a, b| b.0.total_cmp(&a.0).then(a.1.cmp(&b.1)));
+        scored.into_iter().map(|(_, id)| id).collect()
+    }
+}
+
+impl Dense {
+    fn semantic(&self) -> String {
+        if let Some(error) = &self.failed {
+            return format!("failed: {error}");
+        }
+        match self.counts {
+            Some((with, all)) if with >= all && all > 0 => "complete".into(),
+            Some((0, _)) | None => "none".into(),
+            Some((with, all)) => format!("partial({with}/{all})"),
+        }
+    }
+
+    fn refresh_counts(&mut self, index: &SearchIndex) -> AppResult<()> {
+        let counts = index.vector_counts(&self.model)?;
+        self.counts = Some(counts);
+        self.idle = counts.0 >= counts.1;
+        if let Ok(mut progress) = self.progress.lock() {
+            *progress = Some(counts);
+        }
+        Ok(())
+    }
+
+    /// Embeds one bounded batch of passages that have no vector yet.
+    /// Forgets cached rows and counts after the index was created or rebuilt.
+    fn reset(&mut self) {
+        self.matrix = None;
+        self.counts = None;
+        self.idle = false;
+    }
+
+    /// One idle-time batch; a failure is kept for reporting and retried only
+    /// after the next request.
+    fn embed_idle(&mut self, index: &mut SearchIndex) {
+        match self.embed_batch(index) {
+            Ok(()) => self.failed = None,
+            Err(error) => {
+                self.failed = Some(error.to_string());
+                self.retry = false;
+            }
+        }
+    }
+
+    fn embed_batch(&mut self, index: &mut SearchIndex) -> AppResult<()> {
+        let pending = index.pending_passages(&self.model, EMBED_BATCH)?;
+        if pending.is_empty() {
+            return self.refresh_counts(index);
+        }
+        let prefix = self.embedder.prefixes().1;
+        let texts: Vec<String> = pending
+            .iter()
+            .map(|(_, t)| format!("{prefix}{t}"))
+            .collect();
+        let refs: Vec<&str> = texts.iter().map(String::as_str).collect();
+        let vectors = self.embedder.embed(&refs)?;
+        if vectors.len() != pending.len() {
+            return Err(AppError::Unavailable(
+                "embedding model returned a wrong count".into(),
+            ));
+        }
+        let rows: Vec<(i64, Vec<f32>)> = pending
+            .iter()
+            .map(|(id, _)| *id)
+            .zip(vectors)
+            .map(|(id, v)| Ok((id, brn_retrieval::search_index::unit(&v)?)))
+            .collect::<AppResult<_>>()?;
+        index.store_vectors(&self.model, &rows)?;
+        if let Some(matrix) = &mut self.matrix {
+            for (id, vector) in &rows {
+                matrix.push(*id, vector);
+            }
+        }
+        self.refresh_counts(index)
+    }
+
+    /// Passage IDs nearest to `query`, or `None` without stored vectors.
+    fn nearest(&mut self, index: &SearchIndex, query: &str) -> AppResult<Option<Vec<i64>>> {
+        let with = self.counts.map_or(0, |c| c.0);
+        if with == 0 {
+            return Ok(None);
+        }
+        // Removed passages leave surplus rows; another process may have
+        // stored vectors this one lacks. Either way, reload.
+        let stale = self.matrix.as_ref().is_none_or(|m| {
+            m.passages.len() < with || m.passages.len() > with + with / 2 + EMBED_BATCH
+        });
+        if stale {
+            let rows = index.load_vectors(&self.model)?;
+            let dimension = self.embedder.dimension();
+            let mut matrix = Matrix {
+                passages: Vec::with_capacity(rows.len()),
+                data: Vec::with_capacity(rows.len() * dimension),
+                dimension,
+            };
+            for (id, vector) in &rows {
+                matrix.push(*id, vector);
+            }
+            self.matrix = Some(matrix);
+        }
+        let prefix = self.embedder.prefixes().0;
+        let vector = self
+            .embedder
+            .embed(&[&format!("{prefix}{query}")])?
+            .pop()
+            .ok_or_else(|| AppError::Unavailable("embedding model returned nothing".into()))?;
+        let vector = brn_retrieval::search_index::unit(&vector)?;
+        Ok(Some(self.matrix.as_ref().expect("loaded above").nearest(
+            &vector,
+            DENSE_PASSAGES,
+            self.embedder.similarity_floor(),
+            self.embedder.min_margin(),
+        )))
+    }
+}
+
+fn run(data: &Path, derived: &Path, jobs: mpsc::Receiver<Job>, mut dense: Option<Dense>) {
     let mut open: Option<Open> = None;
-    for job in jobs {
+    loop {
+        let job = match jobs.try_recv() {
+            Ok(job) => job,
+            Err(mpsc::TryRecvError::Disconnected) => break,
+            Err(mpsc::TryRecvError::Empty) => {
+                // Idle: embed one batch, then look for requests again.
+                if let (Some(d), Some(state)) = (dense.as_mut(), open.as_mut())
+                    && !d.idle
+                    && d.retry
+                {
+                    d.embed_idle(&mut state.index);
+                    continue;
+                }
+                match jobs.recv() {
+                    Ok(job) => job,
+                    Err(_) => break,
+                }
+            }
+        };
         if job.cancel.load(Ordering::Relaxed) {
             continue;
         }
         if let Err(error) = validate(&job.work) {
             job.reply.send(Err(error));
             continue;
+        }
+        if let Some(d) = dense.as_mut() {
+            d.retry = true;
         }
         // A removed index (or `derived/`) is re-created rather than kept
         // alive as an unlinked file that the next launch could not see.
@@ -358,18 +612,26 @@ fn run(data: &Path, derived: &Path, jobs: mpsc::Receiver<Job>) {
                 .exists()
         {
             open = None;
+            if let Some(d) = dense.as_mut() {
+                d.reset();
+            }
         }
         let answer = (|| {
             if open.is_none() {
                 let reader = Store::open_reader(data)?;
                 let derived = reader.derived_directory()?;
-                open = Some(Open {
-                    index: SearchIndex::open(&derived)?.0,
-                    reader,
-                });
+                let (mut index, opened) = SearchIndex::open(&derived)?;
+                if let Some(d) = dense.as_mut() {
+                    // A created or rebuilt index starts passage IDs afresh.
+                    if opened != brn_retrieval::search_index::Opened::Existing {
+                        d.reset();
+                    }
+                    index.retain_vectors(&d.model)?;
+                }
+                open = Some(Open { index, reader });
             }
             let state = open.as_mut().expect("opened above");
-            answer(state, &job)
+            answer(state, dense.as_mut(), &job)
         })();
         // A failure is reported, never answered as empty. Storage failures
         // reopen next time; caller and concurrency errors keep the connections.
@@ -474,22 +736,34 @@ fn storage_failure(error: &AppError) -> bool {
     )
 }
 
-fn answer(open: &mut Open, job: &Job) -> AppResult<Answer> {
+fn answer(open: &mut Open, mut dense: Option<&mut Dense>, job: &Job) -> AppResult<Answer> {
     for attempt in 1..=ATTEMPTS {
-        if let Some(answer) = attempt_answer(open, job, attempt == ATTEMPTS)? {
+        if let Some(answer) = attempt_answer(open, dense.as_deref_mut(), job, attempt == ATTEMPTS)?
+        {
             return Ok(answer);
         }
     }
     unreachable!("the final attempt never yields")
 }
 
-fn attempt_answer(open: &mut Open, job: &Job, last: bool) -> AppResult<Option<Answer>> {
+fn attempt_answer(
+    open: &mut Open,
+    dense: Option<&mut Dense>,
+    job: &Job,
+    last: bool,
+) -> AppResult<Option<Answer>> {
     let snapshot = open.reader.snapshot()?;
     let Some(watermark) = sync(&snapshot, &mut open.index, last)? else {
         return Ok(None);
     };
     if job.cancel.load(Ordering::Relaxed) {
         return Err(AppError::Unavailable("search cancelled".into()));
+    }
+    // This sync may have added passages without vectors: count before
+    // reporting coverage, so progress never lags behind an answer.
+    let mut dense = dense;
+    if let Some(d) = dense.as_deref_mut() {
+        d.refresh_counts(&open.index)?;
     }
     match &job.work {
         Work::Sync => Ok(Some(Answer::Results(SearchResults {
@@ -499,23 +773,42 @@ fn attempt_answer(open: &mut Open, job: &Job, last: bool) -> AppResult<Option<An
             reachable: 0,
             next: None,
             watermark,
+            semantic: dense.map_or_else(|| "none".into(), |d| d.semantic()),
         }))),
         Work::Search {
             query,
             chat,
             limit,
             cursor,
-        } => Ok(search(
-            &snapshot,
-            &open.index,
-            query,
-            chat.as_deref(),
-            *limit,
-            cursor.as_deref(),
-            watermark,
-            last,
-        )?
-        .map(Answer::Results)),
+            hybrid,
+        } => {
+            let (nearest, semantic) = match dense {
+                Some(d) if *hybrid => {
+                    match d.nearest(&open.index, query) {
+                        Ok(nearest) => (nearest, d.semantic()),
+                        // Reported, never hidden: keyword lanes still answer.
+                        Err(error) => (None, format!("failed: {error}")),
+                    }
+                }
+                Some(d) => (None, format!("off ({})", d.semantic())),
+                None => (None, "none".into()),
+            };
+            Ok(search(
+                &snapshot,
+                &open.index,
+                query,
+                chat.as_deref(),
+                *limit,
+                cursor.as_deref(),
+                watermark,
+                last,
+                nearest.as_deref().unwrap_or_default(),
+            )?
+            .map(|mut results| {
+                results.semantic = semantic;
+                Answer::Results(results)
+            }))
+        }
         Work::Connections {
             chat,
             note,
@@ -542,13 +835,31 @@ fn search(
     cursor: Option<&str>,
     watermark: i64,
     last: bool,
+    dense: &[i64],
 ) -> AppResult<Option<SearchResults>> {
-    let ranked = index.keyword(query, chat, PER_LANE)?;
+    let ranked = index.hybrid(query, chat, PER_LANE, dense)?;
     let ids: Vec<String> = ranked.iter().map(|hit| hit.doc.clone()).collect();
     let allowed = snapshot.searchable_notes(&ids, chat)?;
+    // Notes only the dense lane ranked may still match the keywords further
+    // down; only true non-matches add to the exact keyword count.
+    let unranked: Vec<String> = ranked
+        .iter()
+        .filter(|hit| !hit.keyword)
+        .map(|hit| hit.doc.clone())
+        .collect();
+    let lexical = index.matching_keywords(query, &unranked)?;
+    let matches_keywords =
+        |hit: &brn_retrieval::search_index::DocHit| hit.keyword || lexical.contains(&hit.doc);
     // The index applies core eligibility, so a rejection means another
     // writer moved on; it is excluded from the list and the count.
-    let rejected = ids.iter().filter(|id| !allowed.contains(*id)).count();
+    let rejected = ranked
+        .iter()
+        .filter(|hit| !allowed.contains(&hit.doc) && matches_keywords(hit))
+        .count();
+    let semantic_only = ranked
+        .iter()
+        .filter(|hit| allowed.contains(&hit.doc) && !matches_keywords(hit))
+        .count();
     let ranked: Vec<_> = ranked
         .into_iter()
         .filter(|hit| allowed.contains(&hit.doc))
@@ -564,10 +875,9 @@ fn search(
                 .is_some_and(|f| f.imported || f.evidence_links > 0)
         })
         .collect();
-    let total = index
-        .count(query, chat)?
-        .saturating_sub(rejected)
-        .max(ranked.len());
+    // Exact keyword matches plus the notes only the dense lane found.
+    let total =
+        (index.count(query, chat)?.saturating_sub(rejected) + semantic_only).max(ranked.len());
     let start = offset(cursor, limit)?;
     let order = arrange(&evidence, limit);
     let mut matches = Vec::new();
@@ -615,6 +925,7 @@ fn search(
         reachable: ranked.len(),
         next,
         watermark,
+        semantic: String::new(),
     }))
 }
 
@@ -886,16 +1197,19 @@ impl brn_ai::threads::RunNoteSearch for SearchHandle {
         query: &str,
         limit: usize,
         cursor: Option<&str>,
+        hybrid: bool,
     ) -> Result<brn_ai::threads::NoteSearchPage, brn_ai::threads::NoteSearchError> {
-        let results = self
-            .request_page(query, Some(chat), limit, cursor)
-            .wait()
-            .map_err(agent_error)?;
+        let ticket = if hybrid {
+            self.request_page(query, Some(chat), limit, cursor)
+        } else {
+            self.request_keyword_page(query, Some(chat), limit, cursor)
+        };
+        let results = ticket.wait().map_err(agent_error)?;
         Ok(brn_ai::threads::NoteSearchPage {
             total: results.total,
             shown: results.matches.len(),
             cursor: results.next,
-            semantic: "none".into(),
+            semantic: results.semantic,
             results: results
                 .matches
                 .into_iter()
