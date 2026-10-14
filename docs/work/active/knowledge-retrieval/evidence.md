@@ -774,3 +774,8 @@ An independent review of the prototype found six Medium issues; they were fixed 
 - **Connections:** `note_connections` and CLI `connections` list every Link behind a relation, including duplicates, as `{id, version, relation}`.
 - **Tests:** `supersession_keeps_recorded_conflicts_and_matches_relations`, `broken_links_name_only_current_general_replacements`, `hub_findings_and_the_review_message_stay_bounded` and the extended `connections_are_bounded_ordered_and_visibility_checked`.
 - **Gates:** fmt, clippy `-D warnings`, the workspace tests and 131 Python tests pass.
+
+**Live recheck after the review fixes** (build `2c823281`, guide bundle 10, Codex `gpt-6.1-sol` at medium effort, two repetitions):
+- S2 passed **2/2** and S3 passed **2/2**, with no safety blockers.
+- Median bytes read: 22 KB (S2) and 13 KB (S3).
+- Median tokens: 73k per run.
