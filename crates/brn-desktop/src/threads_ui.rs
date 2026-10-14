@@ -1904,7 +1904,7 @@ impl ThreadsUi {
             prompt,
             selection,
             effort,
-            max_tool_rounds: 8,
+            max_tool_rounds: brn_ai::threads::default_tool_rounds(!sources.is_empty()),
             auth_file: self.settings.auth_file.as_ref().map(PathBuf::from),
             credentials_dir: self.settings.credentials_dir.as_ref().map(PathBuf::from),
             sources,

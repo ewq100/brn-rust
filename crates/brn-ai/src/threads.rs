@@ -376,7 +376,7 @@ tool!(
     ReadRecords,
     "read_records",
     ReadArgs,
-    "Read current canonical records. Empty IDs lists current Note/Thread/Action/Source/Comment/Link records; optional literal query filters complete saved notes. Notes longer than 128 KiB include continuation and heading offsets for read_note; never treat a truncated prefix as the whole note. Assets are metadata only.",
+    "Read current canonical records. Exact IDs return complete records. Empty IDs lists up to 100 current Note/Thread/Action/Source/Comment/Link records; when search_notes is offered, listed notes are compact rows (id, version, title, bytes, protected, imported) without Markdown, so read a note by exact ID or read_note. Optional literal query filters complete saved notes. Notes longer than 128 KiB include continuation and heading offsets for read_note; never treat a truncated prefix as the whole note. Assets are metadata only.",
     read_records
 );
 // The search tools wait for the host's search worker off the async runtime,
@@ -563,6 +563,18 @@ fn read_records(scope: &Scope, args: ReadArgs) -> AiResult<Value> {
             {
                 continue;
             }
+        }
+        // With ranked search available, a listing names notes compactly;
+        // their content is read by exact ID or read_note.
+        if args.ids.is_empty()
+            && scope.search.is_some()
+            && let RecordData::Note(n) = &record.data
+        {
+            rows.push(json!({"id":record.id,"version":record.version,"kind":"Note","title":n.title,"bytes":n.markdown.len(),"protected":n.protected,"imported":n.import.is_some()}));
+            if rows.len() == 100 {
+                break;
+            }
+            continue;
         }
         let mut value = serde_json::to_value(&record).map_err(storage)?;
         if let RecordData::Asset(asset) = &record.data {
@@ -806,7 +818,15 @@ fn prepare(scope: &Scope, mut args: PrepareArgs) -> AiResult<Value> {
         Some(&scope.chat),
         &scope.source_ids,
     )?;
-    let prepared = store.prepare(&op, &args.request).map_err(storage)?;
+    // A rule the request broke is reported so the model can correct it;
+    // scope rejections above stay generic.
+    let prepared = match store.prepare(&op, &args.request) {
+        Ok(prepared) => prepared,
+        Err(Error::Invalid(reason) | Error::Missing(reason)) => {
+            return Ok(json!({"outcome":"Invalid","reason":reason}));
+        }
+        Err(error) => return Err(storage(error)),
+    };
     if let Some(snapshot) = &scope.writing_snapshot {
         attention(
             scope,
@@ -1033,6 +1053,17 @@ fn tool_outcome_label<'a>(name: &str, result: Option<&'a rig::tool::ToolResult>)
     let Some(result) = result else {
         return "error";
     };
+    if name == "prepare_changes"
+        && result.status_name() == "success"
+        && result
+            .output()
+            .as_json()
+            .and_then(|v| v.get("outcome"))
+            .and_then(Value::as_str)
+            == Some("Invalid")
+    {
+        return "Invalid";
+    }
     if name == "apply_changes" && result.status_name() == "success" {
         return result
             .output()
@@ -1179,6 +1210,11 @@ pub async fn run(
 
 /// Persist the invocation using the same startup checks as `run`, before the
 /// host spawns its worker and needs to steer this exact Run.
+/// Default tool rounds for a run. Source intake reads the source, finds and
+/// reads related pages, then prepares and applies a change, so it gets more.
+pub fn default_tool_rounds(sources: bool) -> u16 {
+    if sources { 12 } else { 8 }
+}
 pub fn prepare_run(request: ThreadRunRequest) -> AiResult<PreparedThreadRun> {
     let (scope, input) = begin(&request)?;
     Ok(PreparedThreadRun {
@@ -1606,7 +1642,10 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
             guide_identity: crate::threads_guides::BUNDLE_VERSION.into(),
             budget: request.max_tool_rounds as u64,
             effort: request.effort.as_str().into(),
-            loaded_skills: vec![],
+            loaded_skills: crate::threads_guides::preloaded(!source_ids.is_empty())
+                .iter()
+                .map(|id| (*id).to_owned())
+                .collect(),
             fence: 1,
             state: RunState::Working,
             progress: String::new(),
@@ -1962,7 +2001,9 @@ async fn run_model(
     let invalid = Arc::new(AtomicBool::new(false));
     let preamble = format!(
         "{}\n\nCanonical records use externally tagged data objects. Note fields: title, markdown, protected, confirmed, superseded_by (null), import (null). Thread: title, state (Open/Resolved), attention [{{kind:Question/Review/Conflict/Blocker,reason,record:null}}]. Action: description,state,internal,evidence:null,due:null. Source: locator,label,observed_at,external_version:null,outcome,gaps:[]; Link: from,to,relation. Message: thread,role,text. Comment: note,base_version,quote,range,mapped_version,mapped_range,body,unresolved. New IDs use new:0 etc. Message/Run/Settings and receipt authority are host-only.",
-        crate::threads_guides::preamble()
+        crate::threads_guides::preamble(crate::threads_guides::preloaded(
+            !scope.source_ids.is_empty()
+        ))
     );
     let mut builder = register_tools(rig::AgentBuilder::new(model).preamble(&preamble));
     if scope.search.is_some() {
