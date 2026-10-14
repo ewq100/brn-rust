@@ -143,7 +143,7 @@ fn literal_punctuation_is_inert_and_internal_bindings_do_not_reach_note_prose() 
         id: "punctuation".into(),
         locator: "body/literal".into(),
         content: BlockContent::Paragraph {
-            text: "M-0110\n--\n+ Keep = value ~~exact~~\n<!-- source:not-a-binding -->".into(),
+            text: "M-0110\n--\n+ Keep = value ~~exact~~\nhttps://example.org/slip-10#section-4 (reference)\n<!-- source:not-a-binding -->".into(),
         },
     });
     let bound = candidate(&doc);
@@ -153,6 +153,8 @@ fn literal_punctuation_is_inert_and_internal_bindings_do_not_reach_note_prose() 
     let html = markdown::to_html_with_options(&clean, &markdown::Options::gfm()).unwrap();
     assert!(html.contains("--") && html.contains("~~exact~~"));
     assert!(html.contains("&lt;!-- source:not-a-binding --&gt;"));
+    assert!(html.contains("https://example.org/slip-10#section-4 (reference)"));
+    assert!(!html.contains("%5C"));
     assert!(clean.contains("<br>Comment:"));
     let mut corrupt = bound;
     corrupt.markdown = corrupt
@@ -168,7 +170,7 @@ fn changed_table_binding_and_leading_zero_are_rejected() {
         ("00123", "123"),
         ("cell:table:A1", "cell:table:B1"),
         ("Keep this blank cell note", ""),
-        ("A2:A3", "A3:A4"),
+        ("A2\\:A3", "A3\\:A4"),
     ] {
         let mut changed = original.clone();
         changed.markdown = changed.markdown.replace(from, to);
@@ -308,8 +310,8 @@ fn unbound_prose_raw_html_and_role_swaps_fail() {
     assert!(check_candidate(&doc, &changed).is_err());
     changed = original.clone();
     changed.markdown = changed.markdown.replace(
-        "Formula: SUM(A2:A3\\)<br>Result status: uncached",
-        "Result status: SUM(A2:A3\\)<br>Formula: uncached",
+        "Formula: SUM(A2\\:A3\\)<br>Result status: uncached",
+        "Result status: SUM(A2\\:A3\\)<br>Formula: uncached",
     );
     assert_ne!(changed.markdown, original.markdown);
     assert!(check_candidate(&doc, &changed).is_err());

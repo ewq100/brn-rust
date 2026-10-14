@@ -38,7 +38,7 @@ pub enum DocumentKind {
 pub fn import_limits(kind: DocumentKind) -> IntakeLimits {
     IntakeLimits {
         wall_time_ms: if kind == DocumentKind::Pdf {
-            10_000
+            20_000
         } else {
             5_000
         },

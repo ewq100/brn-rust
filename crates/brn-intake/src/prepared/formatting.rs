@@ -11,7 +11,7 @@ fn escape(text: &str) -> String {
             '<' => out.push_str("&lt;"),
             '>' => out.push_str("&gt;"),
             '\\' | '`' | '*' | '_' | '[' | ']' | '#' | '|' | '.' | ')' | '!' | '-' | '+' | '='
-            | '~' => {
+            | ':' | '~' => {
                 out.push('\\');
                 out.push(ch);
             }
