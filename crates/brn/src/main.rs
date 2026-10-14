@@ -305,12 +305,22 @@ async fn ask(
         .await;
     watcher.abort();
     let result = result.map_err(|e| format!("Provider run failed: {:?}", e.kind))?;
+    let failure = match &result.answer.terminal {
+        AiTerminal::Failed(error) => Some(encode(error)?),
+        _ => None,
+    };
     let terminal = match result.answer.terminal {
         AiTerminal::Completed => "Completed".into(),
         AiTerminal::Interrupted => "Interrupted".into(),
         AiTerminal::Failed(error) => format!("Failed:{:?}", error.kind),
     };
     let mut output = json!({"run":result.run_id,"terminal":terminal,"answer":result.answer.text,"search":search_status});
+    if let Some(failure) = failure {
+        output["failure"] = failure;
+    }
+    if !result.provider_resends.is_empty() {
+        output["provider_resends"] = encode(&result.provider_resends)?;
+    }
     if let Some(trace) = result.trace {
         output["trace"] = encode(trace)?;
     }
