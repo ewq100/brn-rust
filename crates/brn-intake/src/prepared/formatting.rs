@@ -263,6 +263,34 @@ fn exact_range(
     }
     Ok(())
 }
+
+fn ordered_page_text(text: &str, order: Option<&[u32]>) -> Result<String, String> {
+    let Some(order) = order else {
+        return Ok(normalized(text));
+    };
+    let lines: Vec<_> = text
+        .lines()
+        .filter(|line| !line.trim().is_empty())
+        .collect();
+    if lines.is_empty() || lines.len() > crate::MAX_OCCURRENCES || order.len() != lines.len() {
+        return Err("page source-line order count/budget".into());
+    }
+    let mut seen = BTreeSet::new();
+    let mut expected = String::new();
+    for index in order {
+        let index = *index as usize;
+        if !seen.insert(index) {
+            return Err("duplicate page source-line index".into());
+        }
+        expected.push_str(
+            lines
+                .get(index)
+                .ok_or("page source-line index out of range")?,
+        );
+        expected.push(' ');
+    }
+    Ok(normalized(&expected))
+}
 fn enclosing<'a>(node: &'a Node, offset: usize, path: &mut Vec<&'a Node>) {
     if let Some(p) = node.position()
         && (p.start.offset > offset || p.end.offset <= offset)
@@ -395,16 +423,32 @@ pub fn check_candidate(
             BlockContent::Paragraph { text } => {
                 exact_range(&ast, previous, position, &escape(text))?
             }
-            BlockContent::PageText { text, .. } if !text.trim().is_empty() => {
+            BlockContent::PageText { text, page } if !text.trim().is_empty() => {
                 let mut actual = String::new();
                 visible_range(&ast, previous, position, &mut actual)?;
                 // Extracted PDF text is plain source data. Parsing it as Markdown can
                 // consume literal punctuation (for example a table value `--`).
-                if normalized(&actual) != normalized(text) {
+                let review = candidate
+                    .page_reviews
+                    .iter()
+                    .find(|r| r.page == *page)
+                    .ok_or("page inspection receipt missing")?;
+                if normalized(&actual)
+                    != ordered_page_text(text, review.source_line_order.as_deref())?
+                {
                     return Err("altered source-bound content".into());
                 }
             }
-            BlockContent::PageText { .. } => {}
+            BlockContent::PageText { page, .. } => {
+                if candidate
+                    .page_reviews
+                    .iter()
+                    .find(|r| r.page == *page)
+                    .is_some_and(|r| r.source_line_order.is_some())
+                {
+                    return Err("scan page cannot claim a source-line order".into());
+                }
+            }
             BlockContent::Heading { text, level } => {
                 exact_range(&ast, previous, position, &escape(text))?;
                 if !path
@@ -781,6 +825,7 @@ pub fn apply_plan(
                 page: p.page,
                 preview_sha256: p.preview_sha256,
                 uncertainty: p.uncertainty.clone(),
+                source_line_order: p.source_line_order.clone(),
             })
             .collect(),
         crops: plan.crops.clone(),

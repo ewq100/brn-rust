@@ -124,6 +124,10 @@ pub struct PageConversion {
     pub markdown: String,
     pub preview_sha256: [u8; 32],
     pub uncertainty: String,
+    /// Optional complete permutation of zero-based nonempty source lines for visual reflow.
+    /// Empty scan pages cannot supply an ordering; source contents remain immutable.
+    #[serde(default)]
+    pub source_line_order: Option<Vec<u32>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, schemars::JsonSchema)]
@@ -141,6 +145,8 @@ pub struct PageReview {
     pub preview_sha256: [u8; 32],
     /// Human-readable uncertainty retained in coverage, never a completeness claim.
     pub uncertainty: String,
+    #[serde(default)]
+    pub source_line_order: Option<Vec<u32>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, schemars::JsonSchema)]

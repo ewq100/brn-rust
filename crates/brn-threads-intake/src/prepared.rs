@@ -453,7 +453,9 @@ fn parse_pages(xml: &[u8]) -> Result<Vec<(f64, f64, String)>, ConversionError> {
         return Err(ConversionError::Budget);
     }
     struct Line {
-        position: Option<(f64, f64)>,
+        rectangle: Option<[f64; 4]>,
+        flow: Option<usize>,
+        block: Option<usize>,
         text: String,
     }
     struct Page {
@@ -461,7 +463,75 @@ fn parse_pages(xml: &[u8]) -> Result<Vec<(f64, f64, String)>, ConversionError> {
         height: f64,
         text: String,
         lines: Vec<Line>,
+        flow_lines: Vec<usize>,
+        block_lines: Vec<usize>,
         unbound_words: bool,
+    }
+    fn join_isolated_rows(page: &mut Page) {
+        // Poppler's flow/block order is the prose reading-order authority. Only
+        // isolated fragments sharing an exact visual row may move together;
+        // geometry never globally sorts prose or guesses column structure.
+        if page.unbound_words || page.lines.iter().any(|line| line.rectangle.is_none()) {
+            return;
+        }
+        let mut rows = std::collections::BTreeMap::<(u64, u64), Vec<usize>>::new();
+        for (index, line) in page.lines.iter().enumerate() {
+            let rectangle = line.rectangle.expect("checked line geometry");
+            let bits = |value: f64| if value == 0. { 0 } else { value.to_bits() };
+            rows.entry((bits(rectangle[1]), bits(rectangle[3])))
+                .or_default()
+                .push(index);
+        }
+        let mut anchors = std::collections::BTreeMap::new();
+        let mut joined = vec![false; page.lines.len()];
+        for mut indices in rows.into_values() {
+            if indices.len() < 2
+                || indices.iter().any(|&index| {
+                    let line = &page.lines[index];
+                    let rectangle = line.rectangle.expect("checked line geometry");
+                    rectangle[0] >= rectangle[2]
+                        || rectangle[1] >= rectangle[3]
+                        || line.flow.is_none_or(|flow| page.flow_lines[flow] != 1)
+                        || line.block.is_none_or(|block| page.block_lines[block] != 1)
+                })
+            {
+                continue;
+            }
+            let anchor = indices[0];
+            indices.sort_by(|&left, &right| {
+                page.lines[left].rectangle.expect("checked line geometry")[0]
+                    .total_cmp(&page.lines[right].rectangle.expect("checked line geometry")[0])
+            });
+            if indices.windows(2).any(|pair| {
+                page.lines[pair[0]]
+                    .rectangle
+                    .expect("checked line geometry")[2]
+                    > page.lines[pair[1]]
+                        .rectangle
+                        .expect("checked line geometry")[0]
+            }) {
+                continue;
+            }
+            for &index in &indices {
+                joined[index] = true;
+            }
+            anchors.insert(anchor, indices);
+        }
+        if anchors.is_empty() {
+            return;
+        }
+        page.text.clear();
+        for (index, line) in page.lines.iter().enumerate() {
+            if let Some(indices) = anchors.get(&index) {
+                for &member in indices {
+                    page.text.push_str(&page.lines[member].text);
+                    page.text.push('\n');
+                }
+            } else if !joined[index] {
+                page.text.push_str(&line.text);
+                page.text.push('\n');
+            }
+        }
     }
     fn page_size(e: &quick_xml::events::BytesStart<'_>) -> Result<(f64, f64), ConversionError> {
         let (mut width, mut height) = (None, None);
@@ -488,7 +558,7 @@ fn parse_pages(xml: &[u8]) -> Result<Vec<(f64, f64, String)>, ConversionError> {
     fn position(
         e: &quick_xml::events::BytesStart<'_>,
         page: &Page,
-    ) -> Result<Option<(f64, f64)>, ConversionError> {
+    ) -> Result<Option<[f64; 4]>, ConversionError> {
         let mut coordinates = [None; 4];
         for attribute in e.attributes() {
             let attribute = attribute.map_err(|_| ConversionError::Protocol)?;
@@ -521,10 +591,10 @@ fn parse_pages(xml: &[u8]) -> Result<Vec<(f64, f64, String)>, ConversionError> {
         {
             return Err(ConversionError::Protocol);
         }
-        // Partial geometry is insufficient to reorder a line. Preserve the original
-        // page order whenever any line lacks a complete source rectangle.
+        // Partial geometry is insufficient to join a visual row. Preserve the
+        // original page order whenever any line lacks a complete rectangle.
         Ok(match coordinates {
-            [Some(left), Some(top), Some(_), Some(_)] => Some((left, top)),
+            [Some(left), Some(top), Some(right), Some(bottom)] => Some([left, top, right, bottom]),
             _ => None,
         })
     }
@@ -532,6 +602,8 @@ fn parse_pages(xml: &[u8]) -> Result<Vec<(f64, f64, String)>, ConversionError> {
     let mut pages = Vec::new();
     let mut current: Option<Page> = None;
     let mut line: Option<Line> = None;
+    let mut flow: Option<usize> = None;
+    let mut block: Option<usize> = None;
     let mut in_word = false;
     let mut events = 0;
     let mut depth = 0usize;
@@ -554,8 +626,26 @@ fn parse_pages(xml: &[u8]) -> Result<Vec<(f64, f64, String)>, ConversionError> {
                             height,
                             text: String::new(),
                             lines: Vec::new(),
+                            flow_lines: Vec::new(),
+                            block_lines: Vec::new(),
                             unbound_words: false,
                         });
+                    }
+                    b"flow" => {
+                        if flow.is_some() || block.is_some() || line.is_some() || in_word {
+                            return Err(ConversionError::Protocol);
+                        }
+                        let page = current.as_mut().ok_or(ConversionError::Protocol)?;
+                        flow = Some(page.flow_lines.len());
+                        page.flow_lines.push(0);
+                    }
+                    b"block" => {
+                        if block.is_some() || line.is_some() || in_word {
+                            return Err(ConversionError::Protocol);
+                        }
+                        let page = current.as_mut().ok_or(ConversionError::Protocol)?;
+                        block = Some(page.block_lines.len());
+                        page.block_lines.push(0);
                     }
                     b"line" => {
                         if line.is_some() || in_word {
@@ -563,7 +653,9 @@ fn parse_pages(xml: &[u8]) -> Result<Vec<(f64, f64, String)>, ConversionError> {
                         }
                         let page = current.as_ref().ok_or(ConversionError::Protocol)?;
                         line = Some(Line {
-                            position: position(&e, page)?,
+                            rectangle: position(&e, page)?,
+                            flow,
+                            block,
                             text: String::new(),
                         });
                     }
@@ -637,28 +729,30 @@ fn parse_pages(xml: &[u8]) -> Result<Vec<(f64, f64, String)>, ConversionError> {
                         let completed = line.take().ok_or(ConversionError::Protocol)?;
                         let page = current.as_mut().ok_or(ConversionError::Protocol)?;
                         page.text.push('\n');
+                        if let Some(flow) = completed.flow {
+                            page.flow_lines[flow] += 1;
+                        }
+                        if let Some(block) = completed.block {
+                            page.block_lines[block] += 1;
+                        }
                         page.lines.push(completed);
                     }
+                    b"block" => {
+                        if in_word || line.is_some() || block.take().is_none() {
+                            return Err(ConversionError::Protocol);
+                        }
+                    }
+                    b"flow" => {
+                        if in_word || line.is_some() || block.is_some() || flow.take().is_none() {
+                            return Err(ConversionError::Protocol);
+                        }
+                    }
                     b"page" => {
-                        if in_word || line.is_some() {
+                        if in_word || line.is_some() || flow.is_some() || block.is_some() {
                             return Err(ConversionError::Protocol);
                         }
                         let mut page = current.take().ok_or(ConversionError::Protocol)?;
-                        if !page.unbound_words
-                            && !page.lines.is_empty()
-                            && page.lines.iter().all(|line| line.position.is_some())
-                        {
-                            page.lines.sort_by(|a, b| {
-                                let (ax, ay) = a.position.expect("checked line geometry");
-                                let (bx, by) = b.position.expect("checked line geometry");
-                                ay.total_cmp(&by).then(ax.total_cmp(&bx))
-                            });
-                            page.text = page
-                                .lines
-                                .into_iter()
-                                .map(|line| line.text + "\n")
-                                .collect();
-                        }
+                        join_isolated_rows(&mut page);
                         pages.push((page.width, page.height, page.text));
                     }
                     _ => {}
@@ -681,7 +775,13 @@ fn parse_pages(xml: &[u8]) -> Result<Vec<(f64, f64, String)>, ConversionError> {
             _ => {}
         }
     }
-    if current.is_some() || line.is_some() || in_word || depth != 0 {
+    if current.is_some()
+        || line.is_some()
+        || flow.is_some()
+        || block.is_some()
+        || in_word
+        || depth != 0
+    {
         return Err(ConversionError::Protocol);
     }
     Ok(pages)
@@ -805,12 +905,48 @@ fn crop_png(
 mod tests {
     use super::*;
     #[test]
-    fn bbox_lines_use_source_top_to_bottom_then_left_to_right_order() {
-        let pages=parse_pages(br#"<doc><page width="600" height="800"><flow><block><line xMin="10" yMin="700" xMax="200" yMax="715"><word>Footer</word></line><line xMin="250" yMin="100" xMax="300" yMax="120"><word>Gate</word><word>M-0042</word></line></block></flow><flow><block><line xMin="450" yMin="100" xMax="510" yMax="120"><word>Outlet</word></line><line xMin="50" yMin="100" xMax="100" yMax="120"><word>Inlet</word></line><line xMin="20" yMin="150" xMax="200" yMax="170"><word>Caption</word></line></block></flow></page></doc>"#).unwrap();
+    fn bbox_multiline_column_flows_preserve_prose_order() {
+        for boundary in ["", "</block><block>"] {
+            let source = format!(
+                r#"<page width="600" height="800"><flow><block><line xMin="10" yMin="100" xMax="200" yMax="110"><word>Left first sentence.</word></line>{boundary}<line xMin="10" yMin="120" xMax="200" yMax="130"><word>Left second sentence.</word></line></block></flow><flow><block><line xMin="300" yMin="100" xMax="500" yMax="110"><word>Right first sentence.</word></line>{boundary}<line xMin="300" yMin="120" xMax="500" yMax="130"><word>Right second sentence.</word></line></block></flow></page>"#
+            );
+            assert_eq!(
+                parse_pages(source.as_bytes()).unwrap()[0].2,
+                "Left first sentence. \nLeft second sentence. \nRight first sentence. \nRight second sentence. \n"
+            );
+        }
+    }
+    #[test]
+    fn bbox_isolated_diagram_row_joins_delayed_label_without_sorting_page() {
+        let pages=parse_pages(br#"<page width="600" height="800"><flow><block><line xMin="10" yMin="20" xMax="200" yMax="30"><word>Title</word></line></block></flow><flow><block><line xMin="50" yMin="100" xMax="100" yMax="120"><word>Inlet</word></line></block></flow><flow><block><line xMin="250" yMin="100" xMax="300" yMax="120"><word>Gate</word><word>M-0042</word></line></block></flow><flow><block><line xMin="20" yMin="150" xMax="200" yMax="170"><word>Caption</word></line><line xMin="20" yMin="180" xMax="200" yMax="200"><word>Note</word></line></block></flow><flow><block><line xMin="10" yMin="700" xMax="200" yMax="715"><word>Footer</word></line></block></flow><flow><block><line xMin="450" yMin="100" xMax="510" yMax="120"><word>Outlet</word></line></block></flow></page>"#).unwrap();
         assert_eq!(
             pages[0].2,
-            "Inlet \nGate M-0042 \nOutlet \nCaption \nFooter \n"
+            "Title \nInlet \nGate M-0042 \nOutlet \nCaption \nNote \nFooter \n"
         );
+    }
+    #[test]
+    fn bbox_isolated_table_rows_join_cells_without_changing_values() {
+        let pages=parse_pages(br#"<page width="600" height="800"><flow><block><line xMin="10" yMin="100" xMax="100" yMax="110"><word>Marker</word></line></block></flow><flow><block><line xMin="10" yMin="120" xMax="100" yMax="130"><word>M-0042</word></line></block></flow><flow><block><line xMin="200" yMin="100" xMax="300" yMax="110"><word>Depth</word></line></block></flow><flow><block><line xMin="200" yMin="120" xMax="300" yMax="130"><word>0</word></line></block></flow><flow><block><line xMin="400" yMin="100" xMax="500" yMax="110"><word>Status</word></line></block></flow><flow><block><line xMin="400" yMin="120" xMax="500" yMax="130"><word>Dry</word></line></block></flow></page>"#).unwrap();
+        assert_eq!(pages[0].2, "Marker \nDepth \nStatus \nM-0042 \n0 \nDry \n");
+    }
+    #[test]
+    fn bbox_ambiguous_and_unmatched_fragments_keep_extraction_order() {
+        // Overlap, different vertical intervals, and absent explicit groups
+        // provide no evidence that separate text fragments form a row.
+        for second in [
+            r#"xMin="90" yMin="100" xMax="200" yMax="110""#,
+            r#"xMin="10" yMin="101" xMax="80" yMax="111""#,
+        ] {
+            let source = format!(
+                r#"<page width="600" height="800"><flow><block><line xMin="100" yMin="100" xMax="200" yMax="110"><word>First</word></line></block></flow><flow><block><line {second}><word>Second</word></line></block></flow></page>"#
+            );
+            assert_eq!(
+                parse_pages(source.as_bytes()).unwrap()[0].2,
+                "First \nSecond \n"
+            );
+        }
+        let ungrouped=br#"<page width="600" height="800"><line xMin="100" yMin="100" xMax="200" yMax="110"><word>First</word></line><line xMin="10" yMin="100" xMax="80" yMax="110"><word>Second</word></line></page>"#;
+        assert_eq!(parse_pages(ungrouped).unwrap()[0].2, "First \nSecond \n");
     }
     #[test]
     fn bbox_missing_or_partial_line_geometry_preserves_extraction_order() {
@@ -949,6 +1085,7 @@ mod tests {
                 page: 1,
                 preview_sha256: asset.sha256,
                 uncertainty: String::new(),
+                source_line_order: None,
             }],
             table_reviews: vec![],
             crops: vec![brn_intake::prepared::FigureCrop {
@@ -981,6 +1118,35 @@ mod tests {
                 .contains("<!--")
         );
         candidate.markdown = candidate.markdown.replace("M-0110 | --", "M-0110 | 0");
+        assert!(brn_intake::prepared::check_candidate(&doc, &candidate).is_err());
+
+        // Visual columns can differ from extraction order. Every source line remains
+        // unchanged and appears once; the explicit receipt survives every recheck.
+        doc.blocks[0].content = BlockContent::PageText {
+            page: 1,
+            text: "Preconditions\nInspection\nUse P-0007.\nRetain depth 0.\nKeep the gate closed.\nRevisit after the tide.".into(),
+        };
+        candidate.markdown = "## Preconditions\n\nUse P-0007. Keep the gate closed.\n\n## Inspection\n\nRetain depth 0. Revisit after the tide.\n\n<!-- source:page1 -->".into();
+        assert!(brn_intake::prepared::check_candidate(&doc, &candidate).is_err());
+        candidate.page_reviews[0].source_line_order = Some(vec![0, 2, 4, 1, 3, 5]);
+        brn_intake::prepared::check_candidate(&doc, &candidate).unwrap();
+        for invalid in [
+            vec![0, 2, 4, 1, 3],
+            vec![0, 2, 4, 1, 3, 3],
+            vec![0, 2, 4, 1, 3, 6],
+        ] {
+            candidate.page_reviews[0].source_line_order = Some(invalid);
+            assert!(brn_intake::prepared::check_candidate(&doc, &candidate).is_err());
+        }
+        candidate.page_reviews[0].source_line_order = Some(vec![0, 2, 4, 1, 3, 5]);
+        candidate.markdown = candidate.markdown.replace("P-0007", "P-7");
+        assert!(brn_intake::prepared::check_candidate(&doc, &candidate).is_err());
+        doc.blocks[0].content = BlockContent::PageText {
+            page: 1,
+            text: String::new(),
+        };
+        doc.pages[0].needs_transcription = true;
+        candidate.page_reviews[0].source_line_order = Some(vec![]);
         assert!(brn_intake::prepared::check_candidate(&doc, &candidate).is_err());
     }
 }
