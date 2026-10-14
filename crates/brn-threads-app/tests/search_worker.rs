@@ -503,6 +503,7 @@ fn connections_are_bounded_ordered_and_visibility_checked() {
     let hub = id("Hub");
     let mut links = vec![
         (None, link(&hub, &id("Report"), relations::SOURCE), false),
+        (None, link(&hub, &id("Report"), relations::SOURCE), false),
         (
             None,
             link(&id("Old claim"), &hub, relations::CONTRADICTS),
@@ -520,7 +521,17 @@ fn connections_are_bounded_ordered_and_visibility_checked() {
             false,
         ));
     }
-    write(&mut ws, "links", links);
+    let written = write(&mut ws, "links", links);
+    // A changed duplicate reports its current version.
+    write(
+        &mut ws,
+        "touch",
+        vec![(
+            Some(&written[1]),
+            link(&hub, &id("Report"), relations::SOURCE),
+            false,
+        )],
+    );
     let (handle, _worker) = start(&ws);
 
     let general = handle.connections(&hub, None, 1, false).unwrap();
@@ -530,6 +541,17 @@ fn connections_are_bounded_ordered_and_visibility_checked() {
     let titles: Vec<&str> = hop.shown.iter().map(|n| n.title.as_str()).collect();
     assert_eq!(&titles[..3], ["Report", "Old claim", "Related 0"]);
     assert!(hop.shown[0].relations[0].outgoing);
+    // Duplicate Links with one relation stay one relation listing both.
+    assert_eq!(hop.shown[0].relations.len(), 1);
+    let refs: Vec<(String, u64)> = hop.shown[0].relations[0]
+        .links
+        .iter()
+        .map(|l| (l.id.clone(), l.version))
+        .collect();
+    assert_eq!(
+        refs,
+        vec![(written[0].id.clone(), 1), (written[1].id.clone(), 2)]
+    );
     assert!(!hop.shown[1].relations[0].outgoing);
     assert!(titles.iter().all(|t| *t != "Secret" && *t != "A"));
 
