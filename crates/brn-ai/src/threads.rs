@@ -1,14 +1,15 @@
 //! One fresh Rig invocation over BRN-owned state. Tool scope is in-process only.
 use crate::auth::OwnedClient;
 use crate::{
-    AiAnswer, AiError, AiErrorKind, AiEvent, AiResult, AiTerminal, Auth, Provider, ReasoningEffort,
-    Selection,
+    AiAnswer, AiError, AiErrorKind, AiEvent, AiResult, AiTerminal, Auth, Provider, ProviderClient,
+    ReasoningEffort, Selection,
 };
 use brn_threads_core::*;
 use rig::agent::{
     AgentHook, DispatchAction, DispatchEvent, HookContext, ModelTurnAction, ModelTurnFinished,
     OutcomeAction, OutcomeEvent,
 };
+use rig::http_client::DynHttpClient;
 use rig::message::AssistantContent;
 use rig::tool::{Tool, ToolContext};
 use serde::Deserialize;
@@ -38,6 +39,9 @@ pub use note_search::{
     NoteSearchPage, NoteSearchResult, RunNoteSearch,
 };
 pub use sources::{TransientAsset, TransientSource};
+#[cfg(test)]
+#[path = "threads_cache_tests.rs"]
+mod cache_tests;
 #[cfg(test)]
 #[path = "threads_chat_tests.rs"]
 mod chat_tests;
@@ -127,6 +131,21 @@ struct Scope {
     search: Option<Arc<dyn RunNoteSearch>>,
     trace: Option<Arc<trace::TraceCollector>>,
     max_rounds: u16,
+    /// Routes a Codex conversation's model turns to one prompt cache.
+    cache_key: Option<String>,
+}
+/// Stable for a chat, so the turns of every run in it share a cache, and
+/// carries no content beyond the chat id the prompt already names.
+fn cache_key(provider: Provider, chat: &str) -> Option<String> {
+    if provider != Provider::Chatgpt {
+        return None;
+    }
+    let id: String = chat
+        .chars()
+        .filter(|c| c.is_ascii_alphanumeric() || matches!(c, '-' | ':' | '_' | '.'))
+        .take(56)
+        .collect();
+    Some(format!("brn-{id}"))
 }
 fn storage(_: impl std::fmt::Display) -> AiError {
     AiError::new(AiErrorKind::Storage)
@@ -1301,6 +1320,51 @@ pub async fn run_prepared(
     cancel: CancellationToken,
     emit: Arc<dyn Fn(AiEvent) + Send + Sync>,
 ) -> AiResult<ThreadResult> {
+    run_prepared_over(prepared, cancel, emit, None).await
+}
+
+/// The provider client for a run. A Codex run's cache key pins its
+/// `session_id` on top of `transport` (the shared HTTP client when `None`).
+async fn provider_client(
+    request: &ThreadRunRequest,
+    cache_key: Option<&str>,
+    transport: Option<DynHttpClient>,
+    cancel: &CancellationToken,
+) -> AiResult<ProviderClient> {
+    // A Codex auth file only serves ChatGPT; Copilot always uses its credentials folder.
+    let codex_file = request
+        .auth_file
+        .as_ref()
+        .filter(|_| request.selection.provider == Provider::Chatgpt);
+    if let Some(file) = codex_file {
+        let http = transport.unwrap_or_else(|| DynHttpClient::new(rig::rig_reqwest::shared()));
+        crate::codex_auth::codex_client_pinned(
+            file,
+            &request.selection,
+            cache_key,
+            http,
+            cancel.clone(),
+        )
+        .await
+    } else if let Some(dir) = &request.credentials_dir {
+        let auth = Auth::open(dir)?;
+        let auth = match transport {
+            Some(http) => auth.with_http(http),
+            None => auth,
+        };
+        auth.client_pinned(&request.selection, cache_key, cancel.clone())
+            .await
+    } else {
+        Err(AiError::new(AiErrorKind::ReconnectNeeded))
+    }
+}
+
+async fn run_prepared_over(
+    prepared: PreparedThreadRun,
+    cancel: CancellationToken,
+    emit: Arc<dyn Fn(AiEvent) + Send + Sync>,
+    transport: Option<DynHttpClient>,
+) -> AiResult<ThreadResult> {
     let PreparedThreadRun {
         request,
         scope,
@@ -1341,21 +1405,7 @@ pub async fn run_prepared(
             }
         }
     });
-    // A Codex auth file only serves ChatGPT; Copilot always uses its credentials folder.
-    let codex_file = request
-        .auth_file
-        .as_ref()
-        .filter(|_| request.selection.provider == Provider::Chatgpt);
-    let client = if let Some(file) = codex_file {
-        crate::codex_auth::codex_client(file, &request.selection, cancel.clone()).await
-    } else if let Some(dir) = &request.credentials_dir {
-        match Auth::open(dir) {
-            Ok(auth) => auth.client(&request.selection, cancel.clone()).await,
-            Err(error) => Err(error),
-        }
-    } else {
-        Err(AiError::new(AiErrorKind::ReconnectNeeded))
-    };
+    let client = provider_client(&request, scope.cache_key.as_deref(), transport, &cancel).await;
     let mut answer = match client {
         Ok(client) => {
             let model = request.selection.model.clone();
@@ -1908,6 +1958,7 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
             search: request.search.clone(),
             trace: trace::TraceCollector::new(request.trace).map(Arc::new),
             max_rounds: request.max_tool_rounds,
+            cache_key: cache_key(request.selection.provider, &request.thread),
         }),
         format!(
             "{input}\nCurrent project context (owner-set instructions, within existing authority): {project_context}\nSaved chat documents (read with exact-version note tools): {}\nTopics note (root index of topic pages): {}\nHost maintenance policy: {maintenance_policy}\nHost authority for this invocation only: {}",
@@ -2143,7 +2194,12 @@ async fn run_model(
             Default::default()
         })
         .additional_params(if responses {
-            serde_json::json!({"reasoning":{"effort":effort.as_str(),"summary":"auto"}})
+            let mut params =
+                serde_json::json!({"reasoning":{"effort":effort.as_str(),"summary":"auto"}});
+            if let Some(key) = &scope.cache_key {
+                params["prompt_cache_key"] = key.as_str().into();
+            }
+            params
         } else {
             serde_json::json!({"reasoning_effort":effort.as_str()})
         })

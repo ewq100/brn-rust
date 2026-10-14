@@ -1,6 +1,6 @@
 //! Read the explicitly selected normal Codex subscription account in memory.
 //! No credential copy, account discovery, API-key fallback, or persistence.
-use crate::auth::{OwnedClient, validate_ancestors, validate_file};
+use crate::auth::{OwnedClient, pinned_session_http, validate_ancestors, validate_file};
 use crate::error::map_auth;
 use crate::{AiError, AiErrorKind, AiResult, Provider, ProviderClient, Selection};
 use rig::http_client::DynHttpClient;
@@ -16,6 +16,25 @@ use tokio_util::sync::CancellationToken;
 pub async fn codex_client(
     auth_file: &Path,
     selection: &Selection,
+    cancel: CancellationToken,
+) -> AiResult<ProviderClient> {
+    codex_client_pinned(
+        auth_file,
+        selection,
+        None,
+        DynHttpClient::new(rig::rig_reqwest::shared()),
+        cancel,
+    )
+    .await
+}
+
+/// `codex_client` over `http`, with every request's `session_id` fixed to
+/// `session` when given.
+pub(crate) async fn codex_client_pinned(
+    auth_file: &Path,
+    selection: &Selection,
+    session: Option<&str>,
+    http: DynHttpClient,
     cancel: CancellationToken,
 ) -> AiResult<ProviderClient> {
     selection.validate()?;
@@ -80,8 +99,12 @@ pub async fn codex_client(
         chatgpt::auth::DeviceCodeHandler::new(|_| {}),
         false,
     );
+    let http = match session {
+        Some(session) => pinned_session_http(http, session)?,
+        None => http,
+    };
     let operation = openai::OpenAIConfig::with_key(&chatgpt::DIALECT, "")
-        .connect(DynHttpClient::new(rig::rig_reqwest::shared()))
+        .connect(http)
         .authenticate(&auth);
     let inner = tokio::select! {
         biased;

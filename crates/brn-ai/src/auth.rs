@@ -2,7 +2,7 @@ use crate::error::{map_auth, map_provider, map_transport};
 use crate::{
     AccountStatus, AiError, AiErrorKind, AiResult, LoginPrompt, ModelOption, Provider, Selection,
 };
-use rig::http_client::{DynHttpClient, HttpClientExt, NoBody, Request};
+use rig::http_client::{DynHttpClient, HttpClientExt, HttpMiddleware, NoBody, Request};
 use rig::providers::{chatgpt, copilot, openai};
 use rig::wire::{Mode, Wire};
 use std::collections::HashSet;
@@ -59,6 +59,34 @@ impl Provider {
     }
 }
 
+/// Rig draws a fresh `session_id` header for every Codex request, so the
+/// subscription backend sees each model turn of a run as a new conversation and
+/// routes it away from the cache that holds the previous turn. Codex itself
+/// keeps one id per conversation.
+struct PinnedSession(rig::http_client::HeaderValue);
+
+impl HttpMiddleware for PinnedSession {
+    fn before_request_headers<'a>(
+        &'a self,
+        _method: &'a rig::http_client::Method,
+        _uri: &'a rig::http_client::Uri,
+        headers: &'a mut rig::http_client::HeaderMap,
+    ) -> rig_core::wasm_compat::WasmBoxedFuture<'a, rig::http_client::Result<()>> {
+        if headers.contains_key("session_id") {
+            headers.insert("session_id", self.0.clone());
+        }
+        Box::pin(async { Ok(()) })
+    }
+}
+
+/// `http` with every request's `session_id` header fixed to `session`.
+pub(crate) fn pinned_session_http(http: DynHttpClient, session: &str) -> AiResult<DynHttpClient> {
+    let value = session
+        .parse()
+        .map_err(|_| AiError::new(AiErrorKind::Other))?;
+    Ok(http.with_middleware(PinnedSession(value)))
+}
+
 /// The Copilot completion model, forced onto the Responses route when asked.
 /// Rig 0.44 selects that route only for Codex IDs, yet Copilot serves some
 /// other models there exclusively.
@@ -84,7 +112,6 @@ impl Auth {
     pub fn credentials_dir(&self) -> &Path {
         &self.dir
     }
-    #[cfg(test)]
     pub(crate) fn with_http(mut self, http: impl HttpClientExt + 'static) -> Self {
         self.http = DynHttpClient::new(http);
         self
@@ -254,6 +281,7 @@ impl Auth {
         &self,
         provider: Provider,
         login: Option<Arc<dyn Fn(LoginPrompt) + Send + Sync>>,
+        session: Option<&str>,
         cancel: &CancellationToken,
     ) -> AiResult<OwnedClient> {
         let allow_device_flow = login.is_some();
@@ -283,8 +311,12 @@ impl Auth {
                         handler,
                         allow_device_flow,
                     );
+                    let http = match session {
+                        Some(session) => pinned_session_http(self.http.clone(), session)?,
+                        None => self.http.clone(),
+                    };
                     openai::OpenAIConfig::with_key(&chatgpt::DIALECT, "")
-                        .connect(self.http.clone())
+                        .connect(http)
                         .authenticate(&authenticator)
                         .await
                         .map(|client| OwnedClient::Chatgpt(Box::new(client)))
@@ -330,7 +362,9 @@ impl Auth {
         let result = async {
             // Clear stale display metadata before a new account is resolved.
             self.delete_name(provider)?;
-            let _client = self.authenticate(provider, Some(login), &cancel).await?;
+            let _client = self
+                .authenticate(provider, Some(login), None, &cancel)
+                .await?;
             self.tighten(provider)?;
             let name = match provider {
                 Provider::Chatgpt => self.local_status(provider)?.name,
@@ -353,8 +387,21 @@ impl Auth {
         selection: &Selection,
         cancel: CancellationToken,
     ) -> AiResult<ProviderClient> {
+        self.client_pinned(selection, None, cancel).await
+    }
+
+    /// A client whose ChatGPT requests all carry `session` as their
+    /// `session_id`, built on this `Auth`'s own transport. Copilot ignores it.
+    pub(crate) async fn client_pinned(
+        &self,
+        selection: &Selection,
+        session: Option<&str>,
+        cancel: CancellationToken,
+    ) -> AiResult<ProviderClient> {
         selection.validate()?;
-        let inner = self.resolve_client(selection.provider, &cancel).await?;
+        let inner = self
+            .resolve_client(selection.provider, session, &cancel)
+            .await?;
         Ok(ProviderClient {
             inner,
             selection: selection.clone(),
@@ -364,12 +411,13 @@ impl Auth {
     async fn resolve_client(
         &self,
         provider: Provider,
+        session: Option<&str>,
         cancel: &CancellationToken,
     ) -> AiResult<OwnedClient> {
         let _guard = cancellable(cancel, async { Ok(self.slot(provider).lock().await) }).await?;
         self.validate(provider)?;
         let finalizer = Finalizer::new(self, provider);
-        let result = self.authenticate(provider, None, cancel).await;
+        let result = self.authenticate(provider, None, session, cancel).await;
         finalizer.finish(result)
     }
 
@@ -405,7 +453,7 @@ impl Auth {
         provider: Provider,
         cancel: CancellationToken,
     ) -> AiResult<Vec<ModelOption>> {
-        let client = self.resolve_client(provider, &cancel).await?;
+        let client = self.resolve_client(provider, None, &cancel).await?;
         match client {
             OwnedClient::Chatgpt(client) => {
                 cancellable(&cancel, self.subscription_models(&client)).await
