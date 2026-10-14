@@ -56,8 +56,8 @@ impl ThreadsUi {
             .flex_wrap()
             .items_center()
             .gap_2()
-            .font_family(MONO)
-            .text_xs()
+            .font_family(UI_FONT)
+            .text_size(SMALL_TEXT)
             .text_color(rgb(pal().muted))
             .aria_label(status.clone())
             .child(status)
@@ -85,8 +85,8 @@ impl ThreadsUi {
         for (index, text) in self.run_activity_labels.iter().enumerate() {
             steps = steps.child(
                 metadata(text.clone())
-                    .font_family(MONO)
-                    .text_xs()
+                    .font_family(UI_FONT)
+                    .text_size(SMALL_TEXT)
                     .id(format!("run-activity-step-{index}"))
                     .aria_label(text.clone())
                     .test_support(),
@@ -584,7 +584,9 @@ impl ThreadsUi {
         }
     }
     pub(super) fn conversation(&self, id: &str, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
-        let messages = self.workspace.messages(id).unwrap_or_default();
+        let messages = self.workspace.messages(id).unwrap_or_default().into_iter().filter(|record| {
+            !matches!(&record.data, RecordData::Message(message) if matches!(message.role.as_str(), "writing-request" | "writing-addressed"))
+        }).collect::<Vec<_>>();
         let mut keys = messages.iter().map(|r| r.id.clone()).collect::<Vec<_>>();
         keys.push(format!("details-{id}"));
         let state = {
@@ -715,6 +717,6 @@ impl ThreadsUi {
             }
             _ => {}
         }
-        row.into_any_element()
+        row.test_support().into_any_element()
     }
 }

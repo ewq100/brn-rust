@@ -248,8 +248,29 @@ impl Workspace {
         thread: &str,
         comment_ids: &[String],
     ) -> AppResult<WritingSnapshot> {
-        let operation =
-            self.writing_operation("request", key, (note, version, thread, comment_ids))?;
+        self.snapshot_writing_request_with_feedback(key, note, version, thread, comment_ids, "")
+    }
+    /// Persist whole-note owner feedback atomically with the exact rewrite inputs.
+    /// Feedback is part of the bounded immutable request, never a posted chat message.
+    pub fn snapshot_writing_request_with_feedback(
+        &mut self,
+        key: &str,
+        note: &str,
+        version: u64,
+        thread: &str,
+        comment_ids: &[String],
+        feedback: &str,
+    ) -> AppResult<WritingSnapshot> {
+        let operation = if feedback.is_empty() {
+            // Preserve intent bindings for existing empty-feedback callers and retries.
+            self.writing_operation("request", key, (note, version, thread, comment_ids))?
+        } else {
+            self.writing_operation(
+                "request",
+                key,
+                (note, version, thread, comment_ids, feedback),
+            )?
+        };
         if let Some(receipt) = self.writing_replay(&operation)? {
             return Ok(WritingSnapshot::from_message(&receipt_record(
                 &receipt,
@@ -287,6 +308,7 @@ impl Workspace {
             note: note_record,
             comments,
             messages,
+            general_feedback: feedback.into(),
         };
         let text = snapshot.message_text()?;
         let mut inputs = snapshot.current_inputs();

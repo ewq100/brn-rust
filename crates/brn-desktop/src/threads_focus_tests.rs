@@ -15,7 +15,9 @@ pub(super) fn configure_offline_fixture(workspace: &mut Workspace) {
 /// Show one tile alone, as the Solo layout does.
 pub(super) fn solo(view: &mut ThreadsUi, kind: TileKind, cx: &mut Context<ThreadsUi>) {
     view.layout.open(kind);
-    view.layout.apply(Preset::Solo);
+    if kind != TileKind::Settings && view.layout.maximized() != Some(kind) {
+        view.layout.toggle_maximize(kind);
+    }
     view.refresh();
     cx.notify();
 }
@@ -241,8 +243,8 @@ fn composer_drafts_follow_home_and_each_thread(cx: &mut TestAppContext) {
             view.open_thread(&a.id, window, cx);
             assert_eq!(view.composer.read(cx).value().as_ref(), "A draft õun");
             view.open_note(&note.id, None, window, cx);
-            assert_eq!(view.composer.read(cx).value().as_ref(), "");
-            assert_eq!(view.chat, ChatTarget::NewForNote(note.id.clone()));
+            assert_eq!(view.composer.read(cx).value().as_ref(), "A draft õun");
+            assert_eq!(view.chat, ChatTarget::Thread(a.id.clone()));
             view.open_thread(&a.id, window, cx);
             assert_eq!(view.composer.read(cx).value().as_ref(), "A draft õun");
             view.new_thread(window, cx);
@@ -285,8 +287,8 @@ fn composer_drafts_follow_home_and_each_thread(cx: &mut TestAppContext) {
     cx.run_until_parked();
     cx.update_window(window, |_, window, _| {
         assert_eq!(
-            window.find("composer-destination").label(),
-            Some("Reply to missing-thread")
+            window.find("tile-title-chat").label(),
+            Some("chat · missing-thread")
         );
     })
     .unwrap();
@@ -372,8 +374,8 @@ fn worker_controls_match_real_cancellation_capabilities(cx: &mut TestAppContext)
             assert_eq!(window.try_find("stop-work").is_some(), cancellable);
             assert_eq!(window.find("worker-status").label(), Some(expected_status));
             assert_eq!(
-                window.find("composer-destination").label(),
-                Some("New standalone chat")
+                window.find("tile-title-chat").label(),
+                Some("chat · new chat")
             );
             if cancellable {
                 window.click("stop-work", cx);
@@ -827,7 +829,7 @@ fn native_refresh_controls_open_named_note_and_one_followup_without_changing_der
                     let mut view = ThreadsUi::new(workspace, data, window, cx);
                     view.poll = None;
                     view.open_note(&input.id, None, window, cx);
-                    view.show_tile(TileKind::History, cx);
+                    view.show_tile(TileKind::History, window, cx);
                     view
                 })
             },
@@ -854,8 +856,8 @@ fn native_refresh_controls_open_named_note_and_one_followup_without_changing_der
     });
     let mut followup = None;
     for _ in 0..2 {
-        cx.update_window(window, |_, _, cx| {
-            view.update(cx, |view, cx| view.show_tile(TileKind::History, cx))
+        cx.update_window(window, |_, window, cx| {
+            view.update(cx, |view, cx| view.show_tile(TileKind::History, window, cx))
         })
         .unwrap();
         cx.run_until_parked();
@@ -888,8 +890,8 @@ fn native_refresh_controls_open_named_note_and_one_followup_without_changing_der
             assert_eq!(view.workspace.messages(id).unwrap().len(), 1);
         });
     }
-    cx.update_window(window, |_, _, cx| {
-        view.update(cx, |view, cx| view.show_tile(TileKind::History, cx))
+    cx.update_window(window, |_, window, cx| {
+        view.update(cx, |view, cx| view.show_tile(TileKind::History, window, cx))
     })
     .unwrap();
     cx.run_until_parked();

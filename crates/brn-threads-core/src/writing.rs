@@ -15,6 +15,9 @@ pub struct WritingSnapshot {
     pub note: Record,
     pub comments: Vec<Record>,
     pub messages: Vec<Record>,
+    /// Owner feedback about the whole note, bound by the immutable request.
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub general_feedback: String,
 }
 #[derive(Serialize, Deserialize)]
 struct Envelope {

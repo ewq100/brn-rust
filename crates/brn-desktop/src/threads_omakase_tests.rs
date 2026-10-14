@@ -238,16 +238,17 @@ fn layouts_resize_swap_maximize_and_tile_menu_work_by_mouse_and_keys(cx: &mut Te
     click(cx, &f, "status-layout");
     choose(cx, &f, "chats");
     assert!(kinds(cx, &f).contains(&TileKind::Threads));
-    on_window(cx, &f, |window, cx| {
-        window.right_click("tile-header-note", cx)
-    });
-    choose(cx, &f, "settings");
+    click(cx, &f, "settings");
     assert_eq!(
         cx.read(|cx| f.view.read(cx).layout.focus()),
         Some(TileKind::Settings)
     );
+    press(cx, &f, "escape");
+    let arrangement = kinds(cx, &f);
     press(cx, &f, "alt-3");
-    assert_eq!(kinds(cx, &f), [TileKind::Settings]);
+    assert_eq!(kinds(cx, &f).len(), 1);
+    press(cx, &f, "alt-3");
+    assert_eq!(kinds(cx, &f), arrangement);
     press(cx, &f, "alt-2");
     assert_eq!(
         kinds(cx, &f),
@@ -370,8 +371,8 @@ fn archived_chats_leave_the_sidebar_stay_findable_and_require_unarchive(cx: &mut
             window.try_find(format!("thread-{done}")).is_none(),
             "resolved never listed inline"
         );
-        assert_eq!(window.find("resolved-count").label(), Some("archived · 1"));
-        assert_eq!(window.find("all-threads").label(), Some("all chats · 13 →"));
+        assert_eq!(window.find("resolved-count").label(), Some("Archived · 1"));
+        assert_eq!(window.find("all-threads").label(), Some("All · 13"));
         let shown = ids
             .iter()
             .filter(|id| window.try_find(format!("thread-{id}")).is_some())
@@ -383,7 +384,7 @@ fn archived_chats_leave_the_sidebar_stay_findable_and_require_unarchive(cx: &mut
         assert!(window.find(format!("all-thread-{done}")).visible());
         assert!(window.try_find(format!("all-thread-{}", ids[1])).is_none());
     });
-    click(cx, &f, "threads-filter-all");
+    click(cx, &f, "all-threads");
     on_window(cx, &f, |window, cx| {
         f.view
             .read(cx)
@@ -652,7 +653,7 @@ fn notes_tile_sections_letters_and_filter_stay_bounded_with_many_notes(cx: &mut 
 }
 
 #[gpui_kit::test]
-fn comment_is_disabled_with_reason_while_the_note_has_an_unsaved_edit(cx: &mut TestAppContext) {
+fn dirty_note_requires_an_explicit_save_before_commenting(cx: &mut TestAppContext) {
     let mut note = None;
     let f = fixture(cx, |workspace| {
         note = Some(workspace.new_note("Anchored", "tere tere õun").unwrap());
@@ -699,8 +700,6 @@ fn comment_is_disabled_with_reason_while_the_note_has_an_unsaved_edit(cx: &mut T
                 .contains("unsaved")
         );
     });
-    click(cx, &f, "selection-comment");
-    cx.read(|cx| assert!(f.view.read(cx).comment_anchor.is_none(), "disabled control"));
     press(cx, &f, "cmd-/");
     cx.read(|cx| {
         let view = f.view.read(cx);
@@ -722,13 +721,27 @@ fn comment_is_disabled_with_reason_while_the_note_has_an_unsaved_edit(cx: &mut T
         )
     });
     press(cx, &f, "escape");
-    click(cx, &f, "status-save");
+    click(cx, &f, "selection-comment");
     cx.read(|cx| {
         let view = f.view.read(cx);
         assert!(
             view.note.as_ref().unwrap().session.is_none(),
-            "status bar saves"
+            "Save and comment saves before opening the composer"
         );
+        let anchor = view
+            .comment_anchor
+            .as_ref()
+            .expect("saved passage composer");
+        assert_eq!(anchor.1, note.version + 1);
+        assert_eq!(anchor.2, 0..4);
+        assert_eq!(anchor.3, "tere");
+        assert!(
+            view.workspace
+                .writing_comments(&note.id)
+                .unwrap()
+                .is_empty()
+        );
+        assert!(view.worker.is_none());
     });
 }
 
@@ -787,12 +800,12 @@ fn review_in_place_applies_exact_candidate_then_marks_addressed_and_undoes(
     let op = candidate.operation.as_str().to_owned();
     on_window(cx, &f, |window, _| {
         assert!(
-            window.find(format!("proposal-{op}")).visible(),
-            "card in the chat"
+            window.find(format!("writing-proposal-{op}")).visible(),
+            "proposal ready in the writing tile"
         );
-        assert!(window.find(format!("card-apply-{op}")).visible());
+        assert!(window.try_find(format!("card-apply-{op}")).is_none());
     });
-    click(cx, &f, format!("thread-review-{op}"));
+    click(cx, &f, format!("writing-review-{op}"));
     cx.read(|cx| {
         let view = f.view.read(cx);
         let shown = view.diff_editor.read(cx).value().to_string();
@@ -809,6 +822,31 @@ fn review_in_place_applies_exact_candidate_then_marks_addressed_and_undoes(
         assert!(window.find("review-bar").visible());
         assert!(window.try_find("note-body").is_none());
         assert_eq!(window.find("apply-final").label(), Some("Apply whole note"));
+        assert!(window.find("writing-feedback").visible());
+    });
+    click(cx, &f, "review-read-result");
+    update(cx, &f, |view, window, cx| {
+        assert!(view.review_reading);
+        assert!(
+            view.candidate_view
+                .read(cx)
+                .focus_handle()
+                .is_focused(window)
+        );
+        assert!(!view.diff_editor.focus_handle(cx).is_focused(window));
+        assert_eq!(
+            view.review.as_ref().unwrap().candidate.operation.as_str(),
+            op
+        );
+    });
+    click(cx, &f, "review-read-result");
+    update(cx, &f, |view, window, cx| {
+        assert!(!view.review_reading);
+        assert!(view.diff_editor.focus_handle(cx).is_focused(window));
+        assert_eq!(
+            view.review.as_ref().unwrap().candidate.operation.as_str(),
+            op
+        );
     });
     click(cx, &f, "review-compare");
     on_window(cx, &f, |window, _| {
@@ -830,8 +868,10 @@ fn review_in_place_applies_exact_candidate_then_marks_addressed_and_undoes(
         }
     });
     click(cx, &f, "apply-final");
-    click(cx, &f, format!("card-apply-{op}"));
-    click(cx, &f, format!("card-dismiss-{op}"));
+    update(cx, &f, |view, window, cx| {
+        view.card_apply(candidate.clone(), window, cx);
+        view.card_dismiss(candidate.clone(), window, cx);
+    });
     cx.read(|cx| {
         let view = f.view.read(cx);
         assert!(
@@ -860,7 +900,8 @@ fn review_in_place_applies_exact_candidate_then_marks_addressed_and_undoes(
         review.candidate.operation.as_str().to_owned()
     });
     on_window(cx, &f, |window, _| {
-        assert!(window.try_find(format!("card-apply-{replaced}")).is_some())
+        assert!(window.try_find(format!("card-apply-{replaced}")).is_none());
+        assert!(window.find("apply-final").visible())
     });
     click(cx, &f, "apply-final");
     cx.read(|cx| {
@@ -957,14 +998,14 @@ fn proposal_card_dismiss_keeps_the_note_and_launcher_runs_commands(cx: &mut Test
         cx.notify();
         candidate.operation.as_str().to_owned()
     });
-    click(cx, &f, format!("card-dismiss-{op}"));
+    click(cx, &f, format!("writing-dismiss-{op}"));
     cx.read(|cx| {
         let view = f.view.read(cx);
         assert!(view.candidates.is_empty());
         assert_eq!(view.workspace.store.note(&note.id).unwrap().unwrap(), note);
     });
     press(cx, &f, "cmd-k");
-    on_window(cx, &f, |window, cx| window.input("what changed", cx));
+    on_window(cx, &f, |window, cx| window.input("changes", cx));
     press(cx, &f, "enter");
     assert_eq!(
         cx.read(|cx| f.view.read(cx).layout.focus()),
@@ -1012,6 +1053,8 @@ fn a_note_draft_follows_the_first_thread_created_for_that_note(cx: &mut TestAppC
             "chat stays put"
         );
         view.open_note(&note.id, None, window, cx);
+        assert_eq!(view.chat, ChatTarget::Thread(other.clone()));
+        view.open_thread(&created, window, cx);
         assert_eq!(view.chat, ChatTarget::Thread(created));
         assert_eq!(
             view.composer.read(cx).value().as_ref(),
@@ -1138,7 +1181,246 @@ fn chat_and_note_figure_resolvers_exclude_foreign_private_assets(cx: &mut TestAp
         assert!(!ui.assets_in_chat(None).contains_key(&key));
         assert!(ui.assets_in_chat(Some(&owner_chat)).contains_key(&key));
         ui.open_note(&note_id, None, window, cx);
-        assert_eq!(ui.chat, ChatTarget::Thread(owner_chat.clone()));
+        assert_eq!(ui.chat, ChatTarget::Thread(other_chat.clone()));
         assert!(ui.note_assets().contains_key(&key));
     });
+}
+
+#[gpui_kit::test]
+fn normal_navigation_stays_bounded_and_explicit_splits_are_reused(cx: &mut TestAppContext) {
+    let f = fixture(cx, |_| {});
+    for _ in 0..5 {
+        for id in [
+            "open-notes",
+            "browse-chats",
+            "all-threads",
+            "home",
+            "actions",
+            "history",
+            "browse-chats",
+        ] {
+            click(cx, &f, id);
+            assert!(kinds(cx, &f).len() <= 3);
+        }
+    }
+    click(cx, &f, "layout-write");
+    click(cx, &f, "open-beside");
+    choose(cx, &f, "connections");
+    assert_eq!(kinds(cx, &f).len(), 4);
+    click(cx, &f, "open-beside");
+    choose(cx, &f, "connections");
+    assert_eq!(kinds(cx, &f).len(), 4, "an existing panel is reused");
+    click(cx, &f, "actions");
+    assert_eq!(kinds(cx, &f).len(), 4);
+    assert!(kinds(cx, &f).contains(&TileKind::Connections));
+    assert!(!kinds(cx, &f).contains(&TileKind::Note));
+    click(cx, &f, "open-beside");
+    choose(cx, &f, "Close extra splits");
+    assert_eq!(kinds(cx, &f).len(), 3);
+    assert!(!kinds(cx, &f).contains(&TileKind::Connections));
+    cx.read(|cx| assert!(f.view.read(cx).worker.is_none()));
+}
+
+#[gpui_kit::test]
+fn settings_and_solo_restore_arrangement_and_preserve_dirty_input(cx: &mut TestAppContext) {
+    let mut note = String::new();
+    let f = fixture(cx, |workspace| {
+        note = workspace
+            .new_note("Layout witness", "Saved text")
+            .unwrap()
+            .id;
+    });
+    update(cx, &f, |view, window, cx| {
+        view.open_note(&note, None, window, cx);
+        view.note_editor.update(cx, |editor, cx| {
+            editor.set_value("Unsaved work", window, cx)
+        });
+    });
+    let before = kinds(cx, &f);
+    click(cx, &f, "settings");
+    on_window(cx, &f, |window, cx| {
+        assert!(window.find("settings-surface").visible());
+        assert!(window.try_find("note-body").is_none());
+        assert!(
+            !f.view
+                .read(cx)
+                .note_editor
+                .focus_handle(cx)
+                .is_focused(window)
+        );
+        window.press("tab", cx);
+        window.input("Should not reach the note", cx);
+    });
+    press(cx, &f, "cmd-shift-enter");
+    press(cx, &f, "escape");
+    assert_eq!(kinds(cx, &f), before);
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert!(!view.layout.settings_open());
+        assert_eq!(view.note_editor.read(cx).value().as_ref(), "Unsaved work");
+        assert_eq!(
+            view.workspace.store.recovery_buffers().unwrap()[0].markdown,
+            "Unsaved work"
+        );
+    });
+    click(cx, &f, "layout-solo");
+    assert_eq!(kinds(cx, &f), [TileKind::Note]);
+    click(cx, &f, "layout-solo");
+    assert_eq!(kinds(cx, &f), before);
+    click(cx, &f, "settings");
+    click(cx, &f, "close-settings");
+    assert_eq!(kinds(cx, &f), before);
+}
+
+#[gpui_kit::test]
+fn explicit_offscreen_split_and_keyboard_focus_are_revealed(cx: &mut TestAppContext) {
+    let f = fixture(cx, |_| {});
+    for kind in [
+        TileKind::Overview,
+        TileKind::Actions,
+        TileKind::History,
+        TileKind::Connections,
+    ] {
+        update(cx, &f, |view, window, cx| {
+            view.show_beside(kind, window, cx)
+        });
+    }
+    on_window(cx, &f, |window, _| {
+        let target = window.find("tile-connections").bounds();
+        assert!(target.left() >= px(0.) && target.right() <= px(1400.));
+    });
+    // Manually scroll the already-focused target away; reopening must still reveal it.
+    update(cx, &f, |view, _, cx| {
+        view.tile_scroll.set_offset(point(px(0.), px(0.)));
+        cx.notify();
+    });
+    on_window(cx, &f, |window, _| {
+        assert!(window.find("tile-connections").bounds().right() > px(1400.))
+    });
+    update(cx, &f, |view, window, cx| {
+        view.show_tile(TileKind::Connections, window, cx)
+    });
+    on_window(cx, &f, |window, _| {
+        assert!(window.find("tile-connections").bounds().right() <= px(1400.))
+    });
+    update(cx, &f, |view, window, cx| {
+        view.show_tile(TileKind::Threads, window, cx)
+    });
+    on_window(cx, &f, |window, _| {
+        let target = window.find("tile-threads").bounds();
+        assert!(target.left() >= px(0.) && target.right() <= px(1400.));
+    });
+    press(cx, &f, "cmd-[");
+    on_window(cx, &f, |window, _| {
+        let target = window.find("tile-connections").bounds();
+        assert!(target.left() >= px(0.) && target.right() <= px(1400.));
+    });
+}
+
+#[gpui_kit::test]
+fn new_chat_from_solo_note_menu_focuses_the_visible_composer(cx: &mut TestAppContext) {
+    let mut note = String::new();
+    let f = fixture(cx, |workspace| {
+        note = workspace.new_note("Solo note", "Saved wording").unwrap().id;
+    });
+    update(cx, &f, |view, window, cx| {
+        view.open_note(&note, None, window, cx);
+        view.apply_layout(Preset::Solo, window, cx);
+    });
+    click(cx, &f, "note-menu");
+    choose(cx, &f, "New chat for this note");
+    on_window(cx, &f, |window, cx| {
+        let view = f.view.read(cx);
+        assert_eq!(view.layout.maximized(), Some(TileKind::Chat));
+        assert!(view.composer.focus_handle(cx).is_focused(window));
+        assert!(!view.note_editor.focus_handle(cx).is_focused(window));
+        assert!(view.chat_thread().is_some());
+        assert!(view.worker.is_none());
+    });
+}
+
+#[gpui_kit::test]
+fn simplified_navigation_tracks_focus_and_keeps_chat_filters_and_draft(cx: &mut TestAppContext) {
+    let mut chat = String::new();
+    let f = fixture(cx, |workspace| {
+        chat = workspace.new_thread("Draft witness").unwrap().id;
+    });
+    update(cx, &f, |view, window, cx| {
+        view.open_thread(&chat, window, cx);
+        view.composer.update(cx, |editor, cx| {
+            editor.set_value("Keep my unsent draft", window, cx)
+        });
+    });
+    for id in [
+        "browse-chats",
+        "all-threads",
+        "resolved-count",
+        "chats-recent",
+    ] {
+        click(cx, &f, id);
+        on_window(cx, &f, |window, cx| {
+            assert!(window.find("browse-chats").visible());
+            let view = f.view.read(cx);
+            assert_eq!(view.navigation_focus(), Some(TileKind::Threads));
+            assert_eq!(view.chat, ChatTarget::Thread(chat.clone()));
+            assert_eq!(
+                view.composer.read(cx).value().as_str(),
+                "Keep my unsent draft"
+            );
+            assert!(view.layout.visible().len() <= 3);
+        });
+    }
+    for (id, kind, label) in [
+        ("home", TileKind::Overview, "Home"),
+        ("open-notes", TileKind::Notes, "Notes"),
+        ("actions", TileKind::Actions, "Tasks"),
+        ("history", TileKind::History, "Changes"),
+        ("settings", TileKind::Settings, "Settings"),
+    ] {
+        click(cx, &f, id);
+        on_window(cx, &f, |window, cx| {
+            assert_eq!(f.view.read(cx).layout.focus(), Some(kind));
+            assert_eq!(window.find(id).label(), Some(label));
+            assert_eq!(f.view.read(cx).navigation_focus(), Some(kind));
+        });
+    }
+    press(cx, &f, "escape");
+    assert_eq!(
+        cx.read(|cx| f.view.read(cx).layout.focus()),
+        Some(TileKind::History)
+    );
+}
+
+#[gpui_kit::test]
+fn companion_focus_and_theme_changes_keep_navigation_readable(cx: &mut TestAppContext) {
+    use gpui_kit::component::ActiveTheme;
+    let f = fixture(cx, |_| {});
+    for (kind, destination) in [
+        (TileKind::Chat, TileKind::Threads),
+        (TileKind::Linked, TileKind::Threads),
+        (TileKind::Note, TileKind::Notes),
+        (TileKind::Connections, TileKind::Notes),
+        (TileKind::Compare, TileKind::Notes),
+    ] {
+        update(cx, &f, |view, window, cx| view.show_tile(kind, window, cx));
+        assert_eq!(
+            cx.read(|cx| f.view.read(cx).navigation_focus()),
+            Some(destination)
+        );
+    }
+    for theme in ThemeId::ALL {
+        update(cx, &f, |view, window, cx| {
+            view.choose_theme(theme, window, cx);
+            let palette = theme.palette();
+            // Ghost controls read these toolkit channels rather than button_foreground.
+            assert_eq!(
+                cx.theme().secondary_foreground,
+                gpui_kit::Hsla::from(rgb(palette.ink))
+            );
+            assert_eq!(
+                cx.theme().secondary_active,
+                gpui_kit::Hsla::from(rgb(palette.active))
+            );
+        });
+    }
 }

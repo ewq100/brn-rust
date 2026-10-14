@@ -91,6 +91,7 @@ fn fixture() -> (
         note: store.record(&note).unwrap().unwrap(),
         comments: vec![],
         messages: vec![],
+        general_feedback: "Keep the note concise and preserve its meaning".into(),
     };
     let request = ChangeRequest {
         reason: "Snapshot".into(),
@@ -269,4 +270,34 @@ fn historical_request_role_keeps_gate_when_current_message_is_modified() {
             .unwrap(),
         ApplyOutcome::Stale { .. }
     ));
+}
+
+#[test]
+fn legacy_snapshot_defaults_general_feedback_and_empty_output_keeps_legacy_shape() {
+    let (_dir, store, snapshot, _proposal, _run) = fixture();
+    let mut record = store.record(&snapshot.request_message).unwrap().unwrap();
+    let RecordData::Message(message) = &mut record.data else {
+        unreachable!()
+    };
+    let mut envelope: serde_json::Value = serde_json::from_str(&message.text).unwrap();
+    assert!(envelope["snapshot"]["general_feedback"].is_string());
+    envelope["snapshot"]
+        .as_object_mut()
+        .unwrap()
+        .remove("general_feedback");
+    message.text = serde_json::to_string(&envelope).unwrap();
+    let mut expected = snapshot;
+    expected.general_feedback.clear();
+    let decoded = WritingSnapshot::from_message(&record).unwrap();
+    assert_eq!(decoded, expected);
+    assert!(!decoded.message_text().unwrap().contains("general_feedback"));
+    assert!(
+        decoded
+            .change_request("Reviewed replacement")
+            .unwrap()
+            .inputs
+            .iter()
+            .any(|input| input.record == decoded.request_message
+                && input.expectation == InputExpectation::Current)
+    );
 }

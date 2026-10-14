@@ -182,7 +182,7 @@ impl ThreadsUi {
             block = block.child(
                 metadata(status)
                     .id("search-status")
-                    .font_family(MONO)
+                    .font_family(UI_FONT)
                     .test_support(),
             );
         }
@@ -232,8 +232,8 @@ impl ThreadsUi {
                 entry = entry.child(
                     div()
                         .px_2()
-                        .font_family(MONO)
-                        .text_xs()
+                        .font_family(UI_FONT)
+                        .text_size(SMALL_TEXT)
                         .text_color(rgb(p.muted))
                         .child(facts.join(" · ")),
                 );
@@ -241,7 +241,7 @@ impl ThreadsUi {
             entry = entry.child(
                 div()
                     .px_2()
-                    .text_sm()
+                    .text_size(UI_TEXT)
                     .text_color(rgb(p.muted))
                     .child(StyledText::new(hit.snippet.clone()).with_highlights(marks)),
             );

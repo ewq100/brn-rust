@@ -184,7 +184,7 @@ impl ThreadFilter {
             Self::Resolved => "archived",
             Self::NeedsYou => "needs you",
             Self::LinkedNote => "linked note",
-            Self::HasAction => "has Action",
+            Self::HasAction => "has task",
         }
     }
     fn accepts(self, row: &ThreadRow) -> bool {
@@ -422,10 +422,10 @@ impl Command {
             Self::Save => "Save note".into(),
             Self::Layout(preset) => format!("Layout: {}", preset.label()),
             Self::Theme(theme) => format!("Theme: {} · {}", theme.label(), theme.description()),
-            Self::OpenTile(TileKind::History) => "What changed".into(),
-            Self::OpenTile(TileKind::Actions) => "Actions".into(),
+            Self::OpenTile(TileKind::History) => "Changes".into(),
+            Self::OpenTile(TileKind::Actions) => "Tasks".into(),
             Self::OpenTile(TileKind::Settings) => "Settings".into(),
-            Self::OpenTile(TileKind::Overview) => "Overview".into(),
+            Self::OpenTile(TileKind::Overview) => "Home".into(),
             Self::OpenTile(kind) => format!("Open tile: {}", kind.label()),
             Self::Keys => "Keys and mouse".into(),
         }

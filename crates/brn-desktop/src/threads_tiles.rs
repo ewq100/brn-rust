@@ -34,7 +34,7 @@ pub(super) fn row(
         .gap_2()
         .px_2()
         .py_1()
-        .text_sm()
+        .text_size(UI_TEXT)
         .cursor_pointer()
         .bg(rgb(if selected { p.selection } else { p.tile }))
         .hover(|style| style.bg(rgb(pal().hover)))
@@ -51,8 +51,8 @@ pub(super) fn row(
             row.child(
                 div()
                     .flex_shrink_0()
-                    .font_family(MONO)
-                    .text_xs()
+                    .font_family(UI_FONT)
+                    .text_size(SMALL_TEXT)
                     .text_color(rgb(p.muted))
                     .child(meta),
             )
@@ -125,7 +125,6 @@ fn note_menu(menu: PopupMenu, this: &WeakEntity<ThreadsUi>, id: String) -> Popup
             view.open_note(&id, None, window, cx);
             if view.open_note_id() == Some(id.as_str()) {
                 view.new_writing_thread(window, cx);
-                view.layout.open(TileKind::Chat);
             }
         },
     ))
@@ -188,7 +187,6 @@ impl ThreadsUi {
         }
     }
     pub(super) fn threads_tile(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
-        let p = pal();
         let this = cx.entity().downgrade();
         let bar = lists::sidebar(&self.thread_rows, self.chat_thread());
         let mut list = scroll("workspace-nav");
@@ -252,7 +250,7 @@ impl ThreadsUi {
                 })),
             );
         }
-        list = list.child(section("THREADS"));
+        list = list.child(section("RECENT CHATS"));
         if bar.open.is_empty() {
             list = list.child(empty(
                 "threads-empty",
@@ -284,80 +282,48 @@ impl ThreadsUi {
                 }),
             );
         }
-        list = list.child(
-            row(
-                "all-threads",
-                format!("all chats · {} →", bar.total),
-                "",
-                false,
-            )
-            .on_click(cx.listener(|this, _, _, cx| {
-                this.thread_filter = ThreadFilter::All;
-                this.show_tile(TileKind::AllThreads, cx)
-            })),
-        );
-        if bar.resolved > 0 {
-            list = list.child(
-                row(
-                    "resolved-count",
-                    format!("archived · {}", bar.resolved),
-                    "",
-                    false,
-                )
-                .on_click(cx.listener(|this, _, _, cx| {
-                    this.thread_filter = ThreadFilter::Resolved;
-                    this.show_tile(TileKind::AllThreads, cx)
-                })),
-            );
-        }
-        let open_actions = self
-            .records
-            .iter()
-            .filter(|record| {
-                !record.archived
-                    && matches!(&record.data, RecordData::Action(action) if !matches!(action.state, ActionState::Done | ActionState::Cancelled))
-            })
-            .count();
-        let footer = div()
-            .flex()
-            .flex_col()
-            .flex_shrink_0()
-            .p_2()
-            .gap_1()
-            .border_t_1()
-            .border_color(rgb(p.border))
-            .child(
-                row(
-                    "open-notes",
-                    "notes",
-                    format!("{}", self.note_rows.len()),
-                    false,
-                )
-                .on_click(cx.listener(|this, _, _, cx| this.show_tile(TileKind::Notes, cx))),
-            )
-            .child(
-                row("actions", "actions", format!("{open_actions}"), false)
-                    .on_click(cx.listener(|this, _, _, cx| this.show_tile(TileKind::Actions, cx))),
-            )
-            .child(
-                row("history", "what changed", "", false)
-                    .on_click(cx.listener(|this, _, _, cx| this.show_tile(TileKind::History, cx))),
-            )
-            .child(
-                row("home", "overview", "⌘0", false)
-                    .on_click(cx.listener(|this, _, _, cx| this.show_tile(TileKind::Overview, cx))),
-            )
-            .child(
-                row("settings", "settings", "⌘,", false)
-                    .on_click(cx.listener(|this, _, _, cx| this.show_tile(TileKind::Settings, cx))),
-            );
         div()
             .size_full()
             .flex()
             .flex_col()
+            .child(self.chat_navigation(true, cx))
             .child(div().flex_1().min_h_0().child(list.test_support()))
-            .child(footer)
             .into_any_element()
+    }
+    fn chat_navigation(&self, recent: bool, cx: &mut Context<Self>) -> gpui_kit::Div {
+        let counts = lists::sidebar(&self.thread_rows, self.chat_thread());
+        let mut tabs = div().flex().flex_wrap().flex_shrink_0().gap_1().p_2();
+        for (id, label, filter) in [
+            ("chats-recent", "Recent".to_owned(), None),
+            (
+                "all-threads",
+                format!("All · {}", counts.total),
+                Some(ThreadFilter::All),
+            ),
+            (
+                "resolved-count",
+                format!("Archived · {}", counts.resolved),
+                Some(ThreadFilter::Resolved),
+            ),
+        ] {
+            tabs = tabs.child(
+                pill(id, label)
+                    .selected(if let Some(filter) = filter {
+                        !recent && self.thread_filter == filter
+                    } else {
+                        recent
+                    })
+                    .on_click(cx.listener(move |view, _, window, cx| {
+                        if let Some(filter) = filter {
+                            view.thread_filter = filter;
+                            view.show_tile(TileKind::AllThreads, window, cx);
+                        } else {
+                            view.show_tile(TileKind::Threads, window, cx);
+                        }
+                    })),
+            );
+        }
+        tabs
     }
     pub(super) fn all_threads_tile(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         let this = cx.entity().downgrade();
@@ -369,7 +335,10 @@ impl ThreadsUi {
             lists::today(),
         );
         let mut filters = div().flex().flex_wrap().gap_1();
-        for filter in ThreadFilter::ALL {
+        for filter in ThreadFilter::ALL
+            .into_iter()
+            .filter(|filter| !matches!(filter, ThreadFilter::All | ThreadFilter::Resolved))
+        {
             filters = filters.child(
                 pill(format!("threads-filter-{}", filter.key()), filter.label())
                     .selected(self.thread_filter == filter)
@@ -379,7 +348,13 @@ impl ThreadsUi {
                     })),
             );
         }
-        let mut list = scroll("all-threads-list")
+        let controls = div()
+            .flex()
+            .flex_col()
+            .flex_shrink_0()
+            .gap_2()
+            .px_3()
+            .pb_2()
             .child(Input::new(&self.threads_query).w_full())
             .child(filters)
             .child(metadata(if grouped.matched > lists::LIST_LIMIT {
@@ -391,6 +366,7 @@ impl ThreadsUi {
             } else {
                 format!("{} chats", grouped.matched)
             }));
+        let mut list = scroll("all-threads-list");
         if grouped.groups.is_empty() {
             list = list.child(empty("all-threads-empty", "No chats match this filter."));
         }
@@ -428,7 +404,14 @@ impl ThreadsUi {
                 );
             }
         }
-        list.test_support().into_any_element()
+        div()
+            .size_full()
+            .flex()
+            .flex_col()
+            .child(self.chat_navigation(false, cx))
+            .child(controls)
+            .child(div().flex_1().min_h_0().child(list.test_support()))
+            .into_any_element()
     }
     pub(super) fn notes_tile(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         let this = cx.entity().downgrade();
@@ -458,13 +441,33 @@ impl ThreadsUi {
             .on_click(cx.listener(move |this, _, window, cx| this.open_note(&id, None, window, cx)))
             .context_menu(move |menu, _, _| note_menu(menu, &this, menu_id.clone()))
         };
-        let mut list = scroll("notes-list")
+        let frame = |header: gpui_kit::Div, body: gpui_kit::AnyElement| {
+            div()
+                .size_full()
+                .flex()
+                .flex_col()
+                .min_h_0()
+                .child(
+                    header
+                        .flex_shrink_0()
+                        .p_2()
+                        .border_b_1()
+                        .border_color(rgb(pal().border)),
+                )
+                .child(div().flex_1().min_h_0().child(body))
+                .into_any_element()
+        };
+        let mut header = div()
+            .flex()
+            .flex_col()
+            .gap_1()
             .child(Input::new(&self.search).w_full())
             .child(metadata(if self.results.preparing {
                 format!("{} current notes · preparing search…", self.note_rows.len())
             } else {
                 format!("{} current notes", self.note_rows.len())
             }));
+        let mut list = scroll("notes-list");
         if !query.trim().is_empty() {
             let (titles, total) = lists::filter_notes(&self.note_rows, &query, 100);
             list = list.child(section(format!("TITLES · {total}")));
@@ -478,16 +481,21 @@ impl ThreadsUi {
                 )));
             }
             let results = self.search_results(cx);
-            return list.child(results).test_support().into_any_element();
+            return frame(
+                header,
+                list.child(results).test_support().into_any_element(),
+            );
         }
         if self.note_rows.is_empty() {
-            return list
-                .child(empty(
+            return frame(
+                header,
+                list.child(empty(
                     "notes-empty",
                     "Create a note (⌘N) or add information with ＋ to begin.",
                 ))
                 .test_support()
-                .into_any_element();
+                .into_any_element(),
+            );
         }
         let linked = lists::notes_linked_to_open(&self.records, &self.thread_rows);
         let letters_present: Vec<char> = {
@@ -505,6 +513,19 @@ impl ThreadsUi {
             lists::letter(&self.note_rows[0].title)
         };
         let view = lists::notes_view(&self.note_rows, &linked, letter);
+        let mut letters = div().flex().flex_wrap().gap_1();
+        for &(ch, count) in &view.letters {
+            letters = letters.child(
+                pill(format!("notes-letter-{}", ch as u32), ch.to_string())
+                    .selected(ch == letter)
+                    .tooltip(format!("{count} notes"))
+                    .on_click(cx.listener(move |this, _, _, cx| {
+                        this.notes_letter = ch;
+                        cx.notify();
+                    })),
+            );
+        }
+        header = header.child(letters);
         list = list.child(self.topics_section(cx)).child(section("RECENT"));
         for data in view.recent {
             list = list.child(note_row("notes-recent-", data, cx));
@@ -537,19 +558,6 @@ impl ThreadsUi {
             }
         }
         list = list.child(section("ALL A–Z"));
-        let mut letters = div().flex().flex_wrap().gap_1();
-        for (ch, count) in view.letters {
-            letters = letters.child(
-                pill(format!("notes-letter-{}", ch as u32), ch.to_string())
-                    .selected(ch == letter)
-                    .tooltip(format!("{count} notes"))
-                    .on_click(cx.listener(move |this, _, _, cx| {
-                        this.notes_letter = ch;
-                        cx.notify();
-                    })),
-            );
-        }
-        list = list.child(letters);
         for data in view.letter.0 {
             list = list.child(note_row("note-", data, cx));
         }
@@ -559,7 +567,7 @@ impl ThreadsUi {
                 view.letter.1 - lists::LETTER_LIMIT
             )));
         }
-        list.test_support().into_any_element()
+        frame(header, list.test_support().into_any_element())
     }
     pub(super) fn overview_tile(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         let mut view = scroll("home-content").gap_3().p_3().child(
@@ -687,11 +695,14 @@ impl ThreadsUi {
                 "Your meaningful changes will appear here.",
             ));
         }
-        recent = recent.child(
-            button("home-open-history")
-                .label("Open What changed and Undo")
-                .on_click(cx.listener(|this, _, _, cx| this.show_tile(TileKind::History, cx))),
-        );
+        recent =
+            recent.child(
+                button("home-open-history")
+                    .label("Open What changed and Undo")
+                    .on_click(cx.listener(|this, _, window, cx| {
+                        this.show_tile(TileKind::History, window, cx)
+                    })),
+            );
         view.child(note_tile)
             .child(recent)
             .child(self.knowledge_panel(cx))
@@ -751,7 +762,7 @@ impl ThreadsUi {
                     .child(
                         button(format!("open-action-{}", record.id))
                             .label(if action.state == ActionState::Suggested {
-                                "Accept action"
+                                "Accept task"
                             } else {
                                 "Open"
                             })
@@ -790,7 +801,7 @@ impl ThreadsUi {
                     )
                     .child(
                         button(format!("cancel-action-{}", record.id))
-                            .label("Cancel action")
+                            .label("Cancel task")
                             .on_click(cx.listener(move |this, _, _, cx| {
                                 this.change(
                                     "Owner cancelled an Action",
@@ -806,7 +817,7 @@ impl ThreadsUi {
     }
     pub(super) fn actions_tile(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         let mut view = scroll("actions-content").gap_2().child(metadata(
-            "Actions keep their own progress, including after a chat is archived.",
+            "Tasks keep their own progress, including after a chat is archived.",
         ));
         if !self
             .records
@@ -815,7 +826,7 @@ impl ThreadsUi {
         {
             view = view.child(panel().child(empty(
                 "actions-empty",
-                "No actions yet. Suggested work and tasks you assign will appear here.",
+                "No tasks yet. Suggested work and tasks you assign will appear here.",
             )));
         }
         for (status, key, label) in [
@@ -882,7 +893,7 @@ impl ThreadsUi {
                                 .label(format!("May need refresh: {}", short(&title(&record))))
                                 .on_click(cx.listener(move |this, _, window, cx| match &note {
                                     Some(id) => this.open_note(id, None, window, cx),
-                                    None => this.show_tile(TileKind::Actions, cx),
+                                    None => this.show_tile(TileKind::Actions, window, cx),
                                 })),
                         );
                     }
@@ -1006,7 +1017,7 @@ impl ThreadsUi {
                     .aria_label("Copilot credentials folder"),
             )
             .child(metadata(
-                "Credentials stay outside notes, exports and History. The Codex auth file is used only with Codex / ChatGPT.",
+                "Credentials stay outside notes, exports and Changes. The Codex auth file is used only with Codex / ChatGPT.",
             ))
             .child(
                 button("save-settings")
@@ -1128,7 +1139,7 @@ impl ThreadsUi {
                 .label("Show keys and mouse help")
                 .on_click(cx.listener(|this, _, window, cx| this.show_keys(window, cx))),
         );
-        let mut nav = div().flex().flex_col().gap_1().w(px(130.)).flex_shrink_0();
+        let mut nav = div().flex().flex_wrap().gap_1().p_2().flex_shrink_0();
         for item in SettingsSection::ALL {
             nav = nav.child(
                 button(format!("settings-section-{}", item.key()))
@@ -1147,16 +1158,21 @@ impl ThreadsUi {
             SettingsSection::Data => copies.into_any_element(),
         };
         div()
-            .id("settings-content")
             .size_full()
             .flex()
-            .items_start()
-            .gap_3()
-            .p_3()
-            .overflow_y_scroll()
-            .child(nav)
-            .child(div().flex_1().min_w_0().child(content))
-            .test_support()
+            .flex_col()
+            .min_h_0()
+            .child(nav.border_b_1().border_color(rgb(p.border)))
+            .child(
+                div()
+                    .id("settings-content")
+                    .flex_1()
+                    .min_h_0()
+                    .p_3()
+                    .overflow_y_scroll()
+                    .child(content)
+                    .test_support(),
+            )
             .into_any_element()
     }
 }

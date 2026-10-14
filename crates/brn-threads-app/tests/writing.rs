@@ -178,6 +178,7 @@ fn oversize_context_fails_without_truncation_and_fake_snapshot_refused() {
         note: fake_note,
         comments: vec![],
         messages: vec![],
+        general_feedback: String::new(),
     };
     app.owner_change(
         "fake",
@@ -401,4 +402,125 @@ fn manual_save_mapping_preserves_addressed_feedback_and_allows_later_confirmatio
             .is_err()
         );
     }
+}
+
+#[test]
+fn general_feedback_is_immutable_replay_bound_and_never_posted_as_chat() {
+    let (dir, mut app, note, thread) = setup();
+    let first = comment(&mut app, &note, &thread, "passage", (0, 12));
+    app.post_message(&thread.id, "Earlier context").unwrap();
+    let feedback = "Use my voice. Keep Õun and the factual qualifications.\nDo not add new claims.";
+    let snapshot = app
+        .snapshot_writing_request_with_feedback(
+            "general-rewrite",
+            &note.id,
+            note.version,
+            &thread.id,
+            std::slice::from_ref(&first.id),
+            feedback,
+        )
+        .unwrap();
+    assert_eq!(snapshot.general_feedback, feedback);
+    assert_eq!(snapshot.comments, vec![first.clone()]);
+    assert_eq!(snapshot.messages.len(), 1);
+    assert_eq!(app.store.record(&note.id).unwrap().unwrap(), note);
+    assert_eq!(
+        app.writing_request(&snapshot.request_message).unwrap(),
+        snapshot
+    );
+    let messages = app.messages(&thread.id).unwrap();
+    assert_eq!(
+        messages.len(),
+        2,
+        "one prior chat message and one request only"
+    );
+    assert!(messages.iter().all(|record| !matches!(&record.data, RecordData::Message(message) if message.role == "owner" && message.text == feedback)));
+    for different in ["Different instruction", ""] {
+        assert!(
+            app.snapshot_writing_request_with_feedback(
+                "general-rewrite",
+                &note.id,
+                note.version,
+                &thread.id,
+                std::slice::from_ref(&first.id),
+                different,
+            )
+            .is_err()
+        );
+    }
+    app.post_message(&thread.id, "Later context outside this request")
+        .unwrap();
+    drop(app);
+    let mut reopened = Workspace::open(dir.path().join("data")).unwrap();
+    assert_eq!(
+        reopened
+            .snapshot_writing_request_with_feedback(
+                "general-rewrite",
+                &note.id,
+                note.version,
+                &thread.id,
+                std::slice::from_ref(&first.id),
+                feedback,
+            )
+            .unwrap(),
+        snapshot
+    );
+}
+
+#[test]
+fn empty_general_feedback_preserves_existing_replay_binding() {
+    let (_dir, mut app, note, thread) = setup();
+    let snapshot = app
+        .snapshot_writing_request("existing-request", &note.id, note.version, &thread.id, &[])
+        .unwrap();
+    assert!(snapshot.general_feedback.is_empty());
+    assert!(
+        !snapshot
+            .message_text()
+            .unwrap()
+            .contains("general_feedback")
+    );
+    assert_eq!(
+        app.snapshot_writing_request_with_feedback(
+            "existing-request",
+            &note.id,
+            note.version,
+            &thread.id,
+            &[],
+            "",
+        )
+        .unwrap(),
+        snapshot
+    );
+    assert!(
+        app.snapshot_writing_request_with_feedback(
+            "existing-request",
+            &note.id,
+            note.version,
+            &thread.id,
+            &[],
+            "New feedback needs a new operation identity",
+        )
+        .is_err()
+    );
+}
+
+#[test]
+fn oversized_general_feedback_refuses_without_partial_request_or_note_write() {
+    let (_dir, mut app, note, thread) = setup();
+    let before = app.records().unwrap();
+    assert!(
+        app.snapshot_writing_request_with_feedback(
+            "too-large",
+            &note.id,
+            note.version,
+            &thread.id,
+            &[],
+            &"é".repeat(MAX_WRITING_REQUEST_BYTES),
+        )
+        .is_err()
+    );
+    assert_eq!(app.records().unwrap(), before);
+    assert!(app.messages(&thread.id).unwrap().is_empty());
+    assert_eq!(app.store.record(&note.id).unwrap().unwrap(), note);
 }
