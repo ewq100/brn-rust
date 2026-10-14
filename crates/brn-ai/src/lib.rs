@@ -14,6 +14,7 @@ mod proposal_tools;
 mod provider_fixture_runtime;
 #[cfg(test)]
 mod provider_formats_tests;
+mod resend;
 pub mod threads;
 pub mod threads_guides;
 #[cfg(any(test, feature = "capability-spike"))]
@@ -128,5 +129,34 @@ pub enum AiErrorKind {
 pub struct AiError {
     pub kind: AiErrorKind,
     pub retry_after_seconds: Option<u64>,
+    /// Bounded diagnostic for evaluators; never part of `Display`.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub detail: Option<Box<AiFailureDetail>>,
+}
+
+/// What is safe to keep about a provider failure: a fixed origin label, the
+/// HTTP status, allow-listed identifier codes and the stream phase. Never
+/// bodies, messages, headers, tokens, account IDs or prompt content.
+#[derive(Clone, Debug, Default, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub struct AiFailureDetail {
+    /// Where the failure came from, e.g. `http_status`, `stream_error`,
+    /// `response_failed`, `turn_failed`, `transport`, `truncated`, `decode`.
+    pub origin: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub status: Option<u16>,
+    /// The provider's error `code` through the allow-list, or `unrecognized`.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub code: Option<String>,
+    /// The provider's error `type` through the allow-list, or `unrecognized`.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub error_type: Option<String>,
+    /// Whether the failure is transient in kind. BRN itself re-sends only a
+    /// request that provably was not processed (a connect failure or 503).
+    #[serde(default)]
+    pub retryable: bool,
+    /// The last stream item seen before the failure: `none`, `text`,
+    /// `reasoning`, `tool_call`, `turn_end`, `tool_result` or `other`.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub phase: Option<String>,
 }
 pub type AiResult<T> = std::result::Result<T, AiError>;

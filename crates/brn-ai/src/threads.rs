@@ -111,6 +111,9 @@ pub struct ThreadResult {
     pub answer: AiAnswer,
     /// Present when the request asked for a trace.
     pub trace: Option<RunTrace>,
+    /// Identical re-sends of a model request that was not processed, at
+    /// most `RUN_RESENDS`, recorded whatever the trace level.
+    pub provider_resends: Vec<crate::AiFailureDetail>,
 }
 /// One prepared invocation. It owns its request and authority; consuming it
 /// starts at most one worker. Only the durable exact Run ID is exposed.
@@ -1404,15 +1407,20 @@ async fn provider_client(
     request: &ThreadRunRequest,
     cache_key: Option<&str>,
     transport: Option<DynHttpClient>,
+    on_resend: crate::resend::OnResend,
     cancel: &CancellationToken,
 ) -> AiResult<ProviderClient> {
+    let http = crate::resend::ResendOnce::wrap(
+        transport.unwrap_or_else(|| DynHttpClient::new(rig::rig_reqwest::shared())),
+        crate::resend::RESEND_DELAY,
+        on_resend,
+    );
     // A Codex auth file only serves ChatGPT; Copilot always uses its credentials folder.
     let codex_file = request
         .auth_file
         .as_ref()
         .filter(|_| request.selection.provider == Provider::Chatgpt);
     if let Some(file) = codex_file {
-        let http = transport.unwrap_or_else(|| DynHttpClient::new(rig::rig_reqwest::shared()));
         crate::codex_auth::codex_client_pinned(
             file,
             &request.selection,
@@ -1422,11 +1430,7 @@ async fn provider_client(
         )
         .await
     } else if let Some(dir) = &request.credentials_dir {
-        let auth = Auth::open(dir)?;
-        let auth = match transport {
-            Some(http) => auth.with_http(http),
-            None => auth,
-        };
+        let auth = Auth::open(dir)?.with_http(http);
         auth.client_pinned(&request.selection, cache_key, cancel.clone())
             .await
     } else {
@@ -1462,6 +1466,7 @@ async fn run_prepared_over(
             run_id: scope.run.clone(),
             trace: finish_trace(&scope, &answer),
             answer,
+            provider_resends: Vec::new(),
         });
     }
     let watched = scope.clone();
@@ -1482,7 +1487,25 @@ async fn run_prepared_over(
     });
     // The watcher is already running, so a stop during the context build is seen.
     let input = host_intake::with_context(&scope, input, &cancel).await;
-    let client = provider_client(&request, scope.cache_key.as_deref(), transport, &cancel).await;
+    let trace = scope.trace.clone();
+    let resends = Arc::new(std::sync::Mutex::new(Vec::new()));
+    let resent = resends.clone();
+    let on_resend: crate::resend::OnResend = Arc::new(move |detail| {
+        if let Ok(mut resent) = resent.lock() {
+            resent.push(detail.clone());
+        }
+        if let Some(trace) = &trace {
+            trace.retry(detail);
+        }
+    });
+    let client = provider_client(
+        &request,
+        scope.cache_key.as_deref(),
+        transport,
+        on_resend,
+        &cancel,
+    )
+    .await;
     let mut answer = match client {
         Ok(client) => {
             let model = request.selection.model.clone();
@@ -1535,6 +1558,7 @@ async fn run_prepared_over(
         run_id: scope.run.clone(),
         trace: finish_trace(&scope, &answer),
         answer,
+        provider_resends: resends.lock().map(|r| r.clone()).unwrap_or_default(),
     })
 }
 /// Runs a prepared invocation against a scripted model, for offline host
@@ -1571,6 +1595,7 @@ pub async fn run_prepared_scripted(
         run_id: scope.run.clone(),
         trace: finish_trace(&scope, &answer),
         answer,
+        provider_resends: Vec::new(),
     })
 }
 fn finish_trace(scope: &Scope, answer: &AiAnswer) -> Option<RunTrace> {
@@ -1578,11 +1603,15 @@ fn finish_trace(scope: &Scope, answer: &AiAnswer) -> Option<RunTrace> {
     if matches!(answer.terminal, AiTerminal::Interrupted) {
         trace.stop("cancelled");
     }
-    Some(trace.finish(
+    let mut finished = trace.finish(
         crate::threads_guides::BUNDLE_VERSION,
         scope.search.is_some(),
         scope.max_rounds,
-    ))
+    );
+    if let AiTerminal::Failed(error) = &answer.terminal {
+        finished.failure = Some(error.clone());
+    }
+    Some(finished)
 }
 fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
     request.selection.validate()?;
