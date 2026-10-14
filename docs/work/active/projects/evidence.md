@@ -14,7 +14,7 @@
 | Independent code review | APPROVED for candidate tree above against baseline; supported findings resolved. |
 | Native observation | Representative synthetic create/settings/document Save/chat/delete/Trash Restore/restart observed; limits below. |
 | Owner acceptance | Accepted for integration on 14 October: owner requested merge after required checks. Daily-use qualification limits remain. |
-| Hosted CI / merge | Authorized; reconciling main and preparing the PR. Required checks and actual merge pending. |
+| Hosted CI / merge | Authorized; [PR #138](https://github.com/ewq100/brn-rust/pull/138) records exact-head required checks, merge and merged-main verification. Pending at this pre-merge record. |
 | Release / real-data access | Unassigned. |
 
 ## Verification receipts
@@ -61,4 +61,8 @@ Current gate: reconcile current main, publish the PR, require successful protect
 
 ## Integration preparation — 14 October
 
-Fetched main `e6216058` (retrieval/guidance #134/#137). The merge preserves opt-in runtime traces, canonical retained-source lineage and bundle 5 discovery/rewording guidance alongside Projects context. The combined guidance is labelled bundle 6 to distinguish the two formerly concurrent bundle 5 candidates. CLI retains both project options and summary/full trace options. The new synthetic seed initializes the backward-compatible standalone Thread defaults. Current branch protection requires the four core/native Linux/Mac contexts with strict up-to-date status; no bypass is authorized. Integration checks and independent merge review are pending.
+Fetched main `e6216058` (retrieval/guidance #134/#137). The merge preserves opt-in runtime traces, canonical retained-source lineage and bundle 5 discovery/rewording guidance alongside Projects context. The combined guidance is labelled bundle 6 to distinguish the two formerly concurrent bundle 5 candidates. CLI retains both project options and summary/full trace options. The new synthetic seed initializes the backward-compatible standalone Thread defaults. Current branch protection requires the four core/native Linux/Mac contexts with strict up-to-date status; no bypass is authorized. Integration checks and independent merge review passed for `bd687335` / tree `8a5e30d69e0a42363364a9fb8305bb033f6bc08b`: 558 workspace tests, 144 native widgets, strict build/lint, 129 tooling tests and the 41-call/19-assertion CLI witness. [PR #138](https://github.com/ewq100/brn-rust/pull/138) owns the exact-head hosted CI and eventual integration receipt. Final documentation updates preserve the reviewed production code. The live PR records whether required checks and merge have completed.
+
+### Reconciled candidate checks
+
+[Integration receipt](checks/integration.json) binds the refreshed review/results to `bd687335` and current-main `e6216058`. Commands repeat the original workspace/native gates above, rebuild the intake helper, and add `python3 -m unittest discover -s scripts/tests -v` (129 passed). Strict Clippy and builds passed. New main fixtures account for the default suite increasing to 558 passing tests, with the same three subprocess entrypoints ignored. Native widgets remain 144 passing tests. Required hosted contexts are checked at the final PR head before merge; the final integration receipt is maintained on the PR so no documentation-only commit can be mistaken for a tested production-code change.
