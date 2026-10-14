@@ -71,6 +71,17 @@ BUDGET_TERMINALS = frozenset({'Failed:ToolLimitReached', 'Failed:InvalidToolUse'
 def evaluated(terminal):
     """Completed, a model-behaviour failure, or a non-Applied intake outcome ('Outcome:Deferred', ...)."""
     return terminal in EVALUATED_TERMINALS or str(terminal).startswith('Outcome:')
+
+
+FAILURE_DETAIL_FIELDS = ('origin', 'status', 'code', 'error_type', 'phase', 'retryable')
+
+
+def failure_summary(failure):
+    """The CLI's redacted provider-failure detail as one short line, e.g. 'origin=http_status status=503'."""
+    detail = (failure or {}).get('detail') or {}
+    parts = [f'{name}={detail[name]}' for name in FAILURE_DETAIL_FIELDS
+             if detail.get(name) not in (None, False, '')]
+    return ' '.join(parts)
 SEARCH_TOOLS = ('search_notes',)
 READ_TOOLS = ('search_notes', 'read_records', 'read_note', 'read_history', 'note_connections', 'read_source')
 ID_READ_TOOLS = ('read_note', 'read_history', 'read_records')
@@ -1347,7 +1358,8 @@ class Sample:
             outcome = self.run_step(number, step, threads, record)
             self.persist()
             if not evaluated(record['terminal']):
-                raise CallFailed(f'step {number} ended {record["terminal"]}')
+                detail = failure_summary(record.get('failure'))
+                raise CallFailed(f'step {number} ended {record["terminal"]}' + (f' ({detail})' if detail else ''))
             if number in needed:
                 raw = self.cli.call('records')
                 states[number] = {'records': condense_records(raw, baseline), 'kc': self.capture_kc()}
@@ -1393,6 +1405,8 @@ class Sample:
                 record['terminal'] = 'Completed' if out['outcome'] == 'Applied' else f"Outcome:{out['outcome']}"
                 return out
         record['terminal'] = out.get('terminal')
+        if out.get('failure'):
+            record['failure'] = out['failure']
         record['answer'] = out.get('answer')
         record['trace'] = out.get('trace')
         record['run'] = out.get('run')

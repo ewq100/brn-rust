@@ -523,8 +523,11 @@ mod tests {
                 ),
                 &mut report,
             );
+            let ProbeTerminal::Failed(error) = terminal else {
+                panic!("{terminal:?}")
+            };
             assert_eq!(
-                terminal,
+                failed(error.kind),
                 failed(if code == "unsupported_api_for_model" {
                     AiErrorKind::ModelRefused
                 } else {

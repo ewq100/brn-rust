@@ -712,3 +712,51 @@ An independent review of the prototype found six Medium issues; they were fixed 
 - Quality is the same as `main` on these cases. The host context cuts searching by about 3.5× and effective S1 cost by about 28%.
 - S2's remaining misses are shared, so they are agent behaviour rather than a regression.
 - `Failed:Other` occurred at the same step in both arms. It is unrelated to this change. It is an unclassified provider error whose detail BRN does not keep; that is a follow-up.
+
+## Provider failure diagnostics and one re-send (15 October 2026)
+
+**Request:** the owner asked for the recurring `Failed:Other` to be diagnosed and made visible.
+
+**Recorded failures (before this change):**
+
+| Run | Failed at | Turns done | Elapsed |
+|---|---|---|---|
+| ab-host `D-host-r1` | step 2, first request | 0 | 1.1 s |
+| ab-host `B-main-r1` | step 2, fourth request after tool round 3 | 3 | 18.6 s |
+| host9 `D-host9-r1` | step 5, fourth request after a 15.7 KB `read_records` | 3 | 11.5 s |
+
+- None carried any detail: `stopped` was null and the CLI printed only the fixed message.
+
+**Root cause:** BRN discarded the information that would have identified the failure. In Rig 0.44's Responses stream, a stream `error` event or a `response.failed` event arrives without an HTTP status. Its code sits at top-level `/code` or `/response/error/code`, where BRN did not look. Several other cases also all became `Other` with nothing kept:
+- a failed `response.completed` (Rig's "the provider failed the turn…" wording),
+- a stream that ended early (`Truncated`),
+- transport errors,
+- 5xx statuses.
+
+The provider's own error class could not be captured, because the failure did not reproduce live (below).
+
+**Changes:**
+- `AiError` gains an optional, boxed `detail` that is never part of `Display`. It holds:
+  - a fixed `origin` label: `http_status`, `stream_error`, `response_failed`, `turn_failed`, `truncated`, `transport`, `finish`, `stream_end`, `decode` and others;
+  - the HTTP status;
+  - the provider `code` and `type`, kept only when lowercase snake-case, at most 48 bytes and at most 3 digits;
+  - `retryable`;
+  - the last stream `phase`.
+- Messages, bodies, headers, tokens and account IDs are never kept.
+- The CLI adds a `failure` field. The trace adds `failure` and `provider_retries`. The `terminal` string is unchanged.
+- `usage_limit_reached`, `rate_limit_exceeded` and `insufficient_quota` now map to `RateLimited`. `Truncated` stays `Other`, because Rig also truncates on replies it could not decode.
+- `ResendOnce` (`crates/brn-ai/src/resend.rs`) re-sends the byte-identical streamed request once, after 1.5 s, at most twice per run.
+  - It applies only to 408, 500, 502, 503 or 504 before any reply, or to a connection failure.
+  - It uses the same transport, the same pinned `session_id` and the same account; there is no fallback.
+  - No tool of that turn can have run, because the model replied with nothing.
+  - 429 and other 4xx are never re-sent. Failures after the stream started (`response.failed`, a stream `error`, truncation) are not re-sent either: a turn-level retry would need a separate idempotence argument.
+  - Every re-send is recorded in `provider_retries`.
+- `scripts/evaluate_wiki_v2.py` appends the detail to a run's failure line, for example `step 2 ended Failed:Other (origin=response_failed code=server_error phase=tool_result retryable=True)`.
+
+**Live diagnosis:**
+- Codex `gpt-6.1-sol` at medium effort, S1 at scale 1000, two repetitions, run from this worktree's release build.
+- Result: 2/2 passed, all 14 steps `Completed`, no re-sends.
+- Tokens: 1.21 M raw (586 k input + 9 k output for r1, 609 k + 9 k for r2), 72–81% cached.
+- The failure did not reproduce, so the provider's error class is still unknown. The diagnostics stay in place and the next occurrence will name its origin and code.
+
+**Gates:** all pass: `cargo fmt --all --check`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo test --workspace` (with the helper built) and `python3 -m unittest discover -s scripts/tests`.

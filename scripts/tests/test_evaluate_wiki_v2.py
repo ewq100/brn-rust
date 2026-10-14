@@ -761,6 +761,15 @@ class TerminalTests(unittest.TestCase):
                          'Interrupted', None):
             self.assertFalse(v2.evaluated(terminal), terminal)
 
+    def test_failure_summary_keeps_only_the_redacted_detail_fields(self):
+        failure = {'kind': 'other', 'retry_after_seconds': None,
+                   'detail': {'origin': 'response_failed', 'status': None, 'code': 'server_error',
+                              'error_type': None, 'retryable': True, 'phase': 'tool_result', 'extra': 'ignored'}}
+        self.assertEqual(v2.failure_summary(failure),
+                         'origin=response_failed code=server_error phase=tool_result retryable=True')
+        self.assertEqual(v2.failure_summary({'kind': 'other'}), '')
+        self.assertEqual(v2.failure_summary(None), '')
+
     def test_tool_limit_step_is_checked_and_marks_budget(self):
         ctx = ctx_for(CASE, BASE, BASE, [step('partial answer', terminal='Failed:ToolLimitReached')])
         self.assertFalse(run({'type': 'answer_contains_any', 'step': 1, 'values': ['12 mm']}, ctx)['passed'])

@@ -71,7 +71,17 @@ pub struct RunTrace {
     /// counts, IDs, versions, sizes and timing, with query text at `Full`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub host_context: Option<Value>,
+    /// Identical re-sends of a model request after a transient provider
+    /// failure, in order (same provider, model and account).
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub provider_retries: Vec<crate::AiFailureDetail>,
+    /// The failed terminal's kind and bounded diagnostic.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub failure: Option<crate::AiError>,
 }
+
+/// Re-sends kept per trace.
+const MAX_RETRIES_KEPT: usize = 8;
 
 struct Pending {
     seq: usize,
@@ -99,6 +109,7 @@ struct State {
     rounds: u16,
     stopped: Option<String>,
     host_context: Option<Value>,
+    retries: Vec<crate::AiFailureDetail>,
 }
 
 fn ids(value: Option<&Value>) -> Vec<String> {
@@ -354,6 +365,15 @@ impl TraceCollector {
         }
     }
 
+    /// Records an identical re-send of a model request.
+    pub(crate) fn retry(&self, detail: crate::AiFailureDetail) {
+        if let Ok(mut state) = self.state.lock()
+            && state.retries.len() < MAX_RETRIES_KEPT
+        {
+            state.retries.push(detail);
+        }
+    }
+
     /// Records why the run stopped early (first reason wins).
     pub(crate) fn stop(&self, reason: &str) {
         if let Ok(mut state) = self.state.lock() {
@@ -372,10 +392,20 @@ impl TraceCollector {
                 s.rounds,
                 s.stopped.clone(),
                 s.host_context.clone(),
+                s.retries.clone(),
             )
         });
-        let (calls, dropped, model_turns, usage, turn_usage, rounds, stopped, host_context) =
-            state.unwrap_or_default();
+        let (
+            calls,
+            dropped,
+            model_turns,
+            usage,
+            turn_usage,
+            rounds,
+            stopped,
+            host_context,
+            provider_retries,
+        ) = state.unwrap_or_default();
         RunTrace {
             format: 1,
             level: self.level,
@@ -391,6 +421,8 @@ impl TraceCollector {
             calls,
             dropped_calls: dropped,
             host_context,
+            provider_retries,
+            failure: None,
         }
     }
 }
