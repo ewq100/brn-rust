@@ -37,6 +37,29 @@ impl ReadLedger {
     pub(super) fn knows(&self, id: &str, version: u64) -> bool {
         self.complete.contains(&(id.to_owned(), version))
     }
+
+    /// Each version shown, with the bytes covered by slices (`None` when only
+    /// whole reads were seen) and whether it was shown completely.
+    pub(super) fn shown(&self, limit: usize) -> Vec<(String, u64, Option<usize>, bool)> {
+        let keys: BTreeSet<_> = self.complete.iter().chain(self.ranges.keys()).collect();
+        keys.into_iter()
+            .take(limit)
+            .map(|key| {
+                let bytes = self.ranges.get(key).map(|spans| {
+                    let (mut covered, mut end) = (0, 0);
+                    for (from, to) in spans {
+                        let from = (*from).max(end);
+                        if *to > from {
+                            covered += to - from;
+                            end = *to;
+                        }
+                    }
+                    covered
+                });
+                (key.0.clone(), key.1, bytes, self.complete.contains(key))
+            })
+            .collect()
+    }
 }
 
 #[cfg(test)]

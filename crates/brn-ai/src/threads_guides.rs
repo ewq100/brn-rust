@@ -1,6 +1,8 @@
 //! Fixed packaged semantic guidance. Loading text never grants authority.
-pub const BUNDLE_VERSION: &str = "brn-threads-guidance-9";
+pub const BUNDLE_VERSION: &str = "brn-threads-guidance-11";
 pub const BASE: &str = include_str!("../../../agent/BRN.md");
+/// The research helper's packaged role guide (subagents phase 1).
+pub const RESEARCH_SCOUT: &str = include_str!("../../../agent/roles/research-scout.md");
 
 #[derive(Clone, Copy)]
 pub struct Skill {
@@ -60,6 +62,12 @@ pub fn preamble(preloaded: &[&str]) -> String {
         ));
     }
     text
+}
+
+/// A helper sub-run's complete instructions: its role guide only, so the
+/// parent's write and authority guidance never reaches it.
+pub fn scout_preamble() -> String {
+    format!("{RESEARCH_SCOUT}\n\nInstruction bundle: {BUNDLE_VERSION}\n")
 }
 
 #[cfg(test)]

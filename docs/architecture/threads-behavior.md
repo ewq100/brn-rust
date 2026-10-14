@@ -76,6 +76,7 @@ The development agent follows the repository's [AGENTS.md](../../AGENTS.md). The
 | `agent/skills/maintain-notes/SKILL.md` | Maintain current ordinary knowledge and related work |
 | `agent/skills/resolve-conflict/SKILL.md` | Investigate disagreement and prepare the owner's decision |
 | `agent/skills/prepare-reply/SKILL.md` | Produce a supported reply draft without claiming delivery |
+| `agent/roles/research-scout.md` | The read-only research helper's complete instructions; never loaded by `read_skill` |
 
 Use YAML `name` and `description` followed by Markdown instructions. The description states what the skill does and when it is useful. This follows the [Agent Skills format specification](https://agentskills.io/specification). A compact catalog supplies the metadata; the relevant full instructions are loaded when needed. The format does not itself execute anything or make a model obey it.
 

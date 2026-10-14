@@ -71,6 +71,31 @@ pub struct RunTrace {
     /// counts, IDs, versions, sizes and timing, with query text at `Full`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub host_context: Option<Value>,
+    /// Helper sub-runs started by `research` calls, in start order.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub helpers: Vec<HelperTrace>,
+}
+
+/// One helper sub-run under the same structure-only rules as its parent.
+/// Token usage appears only here, never in the Run record or the UI.
+#[derive(Clone, Debug, PartialEq, Serialize)]
+pub struct HelperTrace {
+    /// The parent `research` call's `seq`, when it was recorded.
+    pub call_seq: Option<usize>,
+    /// Start order among this run's sub-runs (1-based).
+    pub index: usize,
+    /// Position of the question within its `research` call (0-based).
+    pub question: usize,
+    pub role: String,
+    pub model: String,
+    pub effort: String,
+    /// `answered`, `partial`, `not_found`, `stopped`, `failed`,
+    /// `unavailable`, `cancelled` or `budget`.
+    pub outcome: String,
+    /// Counts of `exact`, `stale`, `mismatch` and `rejected` citations.
+    pub citations: Value,
+    /// `None` for a sub-run that never started a model turn.
+    pub trace: Option<RunTrace>,
 }
 
 struct Pending {
@@ -99,7 +124,11 @@ struct State {
     rounds: u16,
     stopped: Option<String>,
     host_context: Option<Value>,
+    helpers: Vec<HelperTrace>,
 }
+
+/// Sub-runs kept per trace; a run starts at most 8.
+const MAX_HELPERS: usize = 16;
 
 fn ids(value: Option<&Value>) -> Vec<String> {
     value
@@ -132,6 +161,34 @@ fn field_ids(rows: Option<&Value>, path: &[&str]) -> Vec<String> {
 }
 
 impl TraceCollector {
+    pub(crate) fn level(&self) -> TraceLevel {
+        self.level
+    }
+
+    /// The `seq` of the latest unfinished call of `tool`.
+    pub(crate) fn pending_seq(&self, tool: &str) -> Option<usize> {
+        let state = self.state.lock().ok()?;
+        state
+            .pending
+            .values()
+            .map(|pending| pending.seq)
+            .filter(|seq| {
+                state
+                    .calls
+                    .iter()
+                    .any(|call| call.seq == *seq && call.tool == tool)
+            })
+            .max()
+    }
+
+    pub(crate) fn helper(&self, helper: HelperTrace) {
+        if let Ok(mut state) = self.state.lock()
+            && state.helpers.len() < MAX_HELPERS
+        {
+            state.helpers.push(helper);
+        }
+    }
+
     pub(crate) fn new(level: TraceLevel) -> Option<Self> {
         (level != TraceLevel::Off).then(|| Self {
             level,
@@ -210,6 +267,32 @@ impl TraceCollector {
                 json!({"writes": kinds, "inputs": inputs})
             }
             "apply_changes" => json!({"operation": n("operation")}),
+            "research" => {
+                let questions = args.get("questions").and_then(Value::as_array);
+                json!({
+                    "questions": questions
+                        .into_iter()
+                        .flatten()
+                        .map(|q| {
+                            let mut out =
+                                self.query(q.get("question").and_then(Value::as_str).unwrap_or(""));
+                            out["focus"] = json!(q.get("focus").is_some_and(|f| !f.is_null()));
+                            out["known"] =
+                                json!(q.get("known").and_then(Value::as_array).map_or(0, Vec::len));
+                            out
+                        })
+                        .collect::<Vec<_>>(),
+                })
+            }
+            "submit_findings" => {
+                let count = |key: &str| args.get(key).and_then(Value::as_array).map_or(0, Vec::len);
+                json!({
+                    "status": n("status"), "confidence": n("confidence"),
+                    "findings": count("findings"), "citations": count("citations"),
+                    "conflicts": count("conflicts"), "searched": count("searched"),
+                    "gaps": count("gaps"),
+                })
+            }
             _ => json!({}),
         }
     }
@@ -254,6 +337,15 @@ impl TraceCollector {
                 json!({"neighbours": neighbours.len(), "ids": neighbours})
             }
             "prepare_changes" | "refresh_candidate" => json!({"operation": value.get("operation")}),
+            "research" => json!({
+                "outcomes": value
+                    .get("reports")
+                    .and_then(Value::as_array)
+                    .into_iter()
+                    .flatten()
+                    .map(|report| report.get("outcome").cloned().unwrap_or(Value::Null))
+                    .collect::<Vec<_>>(),
+            }),
             _ => Value::Null,
         }
     }
@@ -372,10 +464,20 @@ impl TraceCollector {
                 s.rounds,
                 s.stopped.clone(),
                 s.host_context.clone(),
+                s.helpers.clone(),
             )
         });
-        let (calls, dropped, model_turns, usage, turn_usage, rounds, stopped, host_context) =
-            state.unwrap_or_default();
+        let (
+            calls,
+            dropped,
+            model_turns,
+            usage,
+            turn_usage,
+            rounds,
+            stopped,
+            host_context,
+            helpers,
+        ) = state.unwrap_or_default();
         RunTrace {
             format: 1,
             level: self.level,
@@ -391,6 +493,7 @@ impl TraceCollector {
             calls,
             dropped_calls: dropped,
             host_context,
+            helpers,
         }
     }
 }

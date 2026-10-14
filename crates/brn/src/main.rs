@@ -359,7 +359,7 @@ async fn ask(
         AiTerminal::Interrupted => "Interrupted".into(),
         AiTerminal::Failed(error) => format!("Failed:{:?}", error.kind),
     };
-    let mut output = json!({"run":result.run_id,"terminal":terminal,"answer":result.answer.text,"search":search_status});
+    let mut output = json!({"run":result.run_id,"terminal":terminal,"answer":result.answer.text,"search":search_status,"notices":result.notices});
     if let Some(trace) = result.trace {
         output["trace"] = encode(trace)?;
     }

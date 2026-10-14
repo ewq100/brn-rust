@@ -2001,11 +2001,15 @@ impl ThreadsUi {
                 }))).map_err(|e| e.to_string())
             });
             let (result, terminal) = match outcome {
-                Ok(r) => (match r.answer.terminal {
-                    brn_ai::AiTerminal::Completed => Ok(if writing { "Finished. Check the writing tile for the result." } else { "Finished. The answer and saved changes are in this chat." }.into()),
-                    brn_ai::AiTerminal::Interrupted => Err("Interrupted. The queue is paused; Resume when ready.".into()),
-                    brn_ai::AiTerminal::Failed(e) => Err(e.to_string()),
-                }, r.terminal_run),
+                Ok(r) => {
+                    // Host notices (such as an unavailable helper) follow the outcome.
+                    let notices = r.notices.iter().map(|n| format!(" {n}")).collect::<String>();
+                    (match r.answer.terminal {
+                        brn_ai::AiTerminal::Completed => Ok(format!("{}{notices}", if writing { "Finished. Check the writing tile for the result." } else { "Finished. The answer and saved changes are in this chat." })),
+                        brn_ai::AiTerminal::Interrupted => Err(format!("Interrupted. The queue is paused; Resume when ready.{notices}")),
+                        brn_ai::AiTerminal::Failed(e) => Err(format!("{e}{notices}")),
+                    }, r.terminal_run)
+                }
                 Err(e) => (Err(e), None),
             };
             let _ = sender.send(WorkerEvent::RunFinished { result, terminal });
