@@ -219,3 +219,51 @@ Per the design's rule, phase 1 is still **not shipped**. The code stays on this 
 - *Quote relocation.* When a cited quote is not inside its range, the host searches the cited version for it. That version must be visible to the chat. If the quote occurs exactly once, the host re-anchors the range and marks the citation `relocated` at a current version, or `stale` with `relocated: true` at an older one. If the quote is absent or ambiguous, or the version is hidden, the citation is a `mismatch`. Traces and the report count `relocated` separately. For criterion 3, `relocated` counts with `exact` as host-verified stored text: the host, not the model, fixed the range.
 - *Helper read cap.* A helper's `read_note` slice is clamped to 16 KiB (the result reports `max_bytes`). A helper's `read_records` by ID returns a longer note truncated at 16 KiB with `next_start` and its headings, and that read never counts as complete. The parent's reads are unchanged.
 - *Guidance.* The multi-question trigger now names sub-questions that each need several notes or a long note. Several sub-questions that each one short note answers stay with the parent. Large-note delegation is kept. The research-scout guide describes the 16 KiB slices and asks for distinctive quotes.
+
+## Iteration 2 live re-measure (14 October 2026)
+
+**Setup:** branch `work/subagent-design` at `2d7687c8` (bundle 11), Codex `gpt-6.1-sol` at medium effort, authenticated by `--auth-file`. Arm A was the parent alone; arm B added helper `gpt-6-luna` at high effort. Cases D1, D2 and M3 at scale 1000, two repetitions each: 12 runs, the full authorized budget. No transport failures. Costs use the prices in [iteration 1's correction](#iteration-1-live-re-measure-15-october-2026).
+
+| | A (Sol alone) | B (Sol + Luna helper) |
+|---|---|---|
+| Runs passed | 6/6 | 6/6 |
+| Runs that called `research` | — | 4/6 (D1 2/2, D2 2/2, M3 0/2) |
+| Helper outcomes | — | 5 `answered`, 1 `partial` (the helper's own status); no `failed`, `budget` or `stopped` |
+| Citations (exact/relocated/stale/mismatch/rejected) | — | 5/6/0/0/0: 11 of 11 host-verified, none dropped |
+| Median cost per run (credits) | 0.769 | 0.599 (parent 0.530, helper 0.069) |
+| Cost, sum of per-case medians | 3.50 | 2.26 (0.65×) |
+| Median latency | 19.4 s | 41.5 s |
+| Safety blockers | 0 | 0 |
+
+Per case, medians (A → B):
+
+| Case | Cost A → B (ratio) | Latency A → B | Note |
+|---|---|---|---|
+| D1 | 1.011 → 1.330 (**1.32×**) | 19.4 s → 54.0 s | The question asks for an overall summary, so both helpers paged the whole 120 KB manual in 16 KiB slices (helper cost 0.144). In B-r1 the parent then read the whole note itself as well (121 KB, parent 1.19 credits). Arm A's prompt cache hit 56% and 92% of input, against 47% in iteration 1, so A cost 1.01 here against 1.68 then. |
+| D2 | 1.903 → 0.599 (**0.31×**) | 25.8 s → 45.6 s (1.77×) | Two helpers each digested one long note; the parent read only the cited ranges. |
+| M3 | 0.584 → 0.334 (0.57×) | 14.8 s → 14.6 s | No delegation in B, as the narrowed trigger intends. Both arms took the same path, so the cost difference is cache variance, not helper value. |
+
+**Against the acceptance criteria** (with the owner's 14 October amendments):
+
+| # | Criterion | Result |
+|---|---|---|
+| 1 | Safety: zero blockers | **Pass** on the cases run (no writes, no out-of-allowlist helper call). The privacy and injection cases (R7, I1) were not in this re-measure. |
+| 2 | Quality: B passes every case A passes | **Pass**: 6/6 and 6/6. |
+| 3 | Citation integrity: ≥95% verified, no visibility rejection reaching the parent | **Pass** if `relocated` counts as verified: 11 of 11 host-verified (45% exact as cited, 55% re-anchored by the host), no mismatch, no rejection. The relocation fix removed every mismatch (7 of 18 in iteration 1). |
+| 4 | Value on cost: ≤0.7× at equal quality | **Mixed**. D2 passes (0.31×). D1 fails (1.32×). M3 did not delegate. All three together are 0.65×. Across iterations, D1 was 0.51× and then 1.32×: with N = 2, the parent's cache hits and whether the parent re-reads after a report decide the D1 result. |
+| 5 | Latency: B p50 ≤ 1.2× A, relaxed for digests at ≤0.7× cost and equal quality | D2 is **accepted** under the relaxation (1.77×, 0.31× cost). D1 **fails** (2.8×, and its cost is above 0.7×). M3 is equal. |
+
+Per the design's rule, phase 1 is still **not shipped** while D1 fails criteria 4 and 5. The code stays on this branch, reviewed and off by default.
+
+**Reading.** The changes worked as intended:
+- relocation turned every misplaced quote into a verified citation;
+- the read cap held every helper slice to 16 KiB;
+- the narrowed trigger kept M3 with the parent;
+- D2-type digests (find specific rules in long notes) are a clear and repeatable cost win: 0.18× and 0.31×.
+
+D1 is different: an overall summary needs the whole document. The helper reads all of it anyway (cheaply), and the parent sometimes reads it again.
+
+**Options for the owner** (no change made):
+- (a) Accept phase 1 for targeted long-note digests on the D2 evidence, recording D1 as a known non-win.
+- (b) Add parent guidance not to reread a note in full after a report unless it will change it, and re-measure D1 with more repetitions (cache variance dominates at N = 2).
+- (c) Keep the branch unmerged.
