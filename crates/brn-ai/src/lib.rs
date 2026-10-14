@@ -144,13 +144,14 @@ pub struct AiFailureDetail {
     pub origin: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub status: Option<u16>,
-    /// The provider's error `code`, when it is a short identifier.
+    /// The provider's error `code` through the allow-list, or `unrecognized`.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub code: Option<String>,
-    /// The provider's error `type`, when it is a short identifier.
+    /// The provider's error `type` through the allow-list, or `unrecognized`.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub error_type: Option<String>,
-    /// Whether the same request may reasonably be re-sent.
+    /// Whether the failure is transient in kind. BRN itself re-sends only a
+    /// request that provably was not processed (a connect failure or 503).
     #[serde(default)]
     pub retryable: bool,
     /// The last stream item seen before the failure: `none`, `text`,

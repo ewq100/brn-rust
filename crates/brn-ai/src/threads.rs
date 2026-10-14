@@ -111,6 +111,9 @@ pub struct ThreadResult {
     pub answer: AiAnswer,
     /// Present when the request asked for a trace.
     pub trace: Option<RunTrace>,
+    /// Identical re-sends of a model request that was not processed, at
+    /// most `RUN_RESENDS`, recorded whatever the trace level.
+    pub provider_resends: Vec<crate::AiFailureDetail>,
 }
 /// One prepared invocation. It owns its request and authority; consuming it
 /// starts at most one worker. Only the durable exact Run ID is exposed.
@@ -1463,6 +1466,7 @@ async fn run_prepared_over(
             run_id: scope.run.clone(),
             trace: finish_trace(&scope, &answer),
             answer,
+            provider_resends: Vec::new(),
         });
     }
     let watched = scope.clone();
@@ -1484,7 +1488,12 @@ async fn run_prepared_over(
     // The watcher is already running, so a stop during the context build is seen.
     let input = host_intake::with_context(&scope, input, &cancel).await;
     let trace = scope.trace.clone();
+    let resends = Arc::new(std::sync::Mutex::new(Vec::new()));
+    let resent = resends.clone();
     let on_resend: crate::resend::OnResend = Arc::new(move |detail| {
+        if let Ok(mut resent) = resent.lock() {
+            resent.push(detail.clone());
+        }
         if let Some(trace) = &trace {
             trace.retry(detail);
         }
@@ -1549,6 +1558,7 @@ async fn run_prepared_over(
         run_id: scope.run.clone(),
         trace: finish_trace(&scope, &answer),
         answer,
+        provider_resends: resends.lock().map(|r| r.clone()).unwrap_or_default(),
     })
 }
 /// Runs a prepared invocation against a scripted model, for offline host
@@ -1585,6 +1595,7 @@ pub async fn run_prepared_scripted(
         run_id: scope.run.clone(),
         trace: finish_trace(&scope, &answer),
         answer,
+        provider_resends: Vec::new(),
     })
 }
 fn finish_trace(scope: &Scope, answer: &AiAnswer) -> Option<RunTrace> {

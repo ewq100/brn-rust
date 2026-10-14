@@ -404,7 +404,7 @@ The S cases run arms A and B. C adds little to write behaviour.
 - The 10k variants and the S2 diagnostic use 2 repetitions.
 - The order rotates (ABC, BCA, CAB). Cases are interleaved, so drift in provider latency does not track one arm.
 
-**Fixed settings:** the same provider, model and effort as the last comparison (proposed: Codex `gpt-6.1-sol`, medium). Budget 8, a 180-second timeout and no automatic retry or fallback.
+**Fixed settings:** the same provider, model and effort as the last comparison (proposed: Codex `gpt-6.1-sol`, medium). Budget 8, a 180-second timeout and no fallback. The harness does not retry steps. BRN itself may re-send a model request identically, at most twice per run, to the same provider, model, account and session, and only when the first send provably was not processed: a connect failure or a 503. Each re-send is recorded in the step's `provider_resends` and in the run's `provider_resends` count, whatever the trace level.
 
 **Cost and time** (from about 59–75 s per completed step in the [live comparison](evidence.md#live-comparison-bundle-3-against-bundle-4-with-search); assume 65 s):
 

@@ -1,5 +1,5 @@
 //! Common transport stream contract, shared by the final-use runtime and fixtures.
-use crate::error::{map_provider, safe_token};
+use crate::error::{map_provider, provider_code};
 use crate::{AiError, AiErrorKind, AiFailureDetail};
 use futures::StreamExt;
 use rig::agent::{MultiTurnStreamItem, StreamingResult};
@@ -113,7 +113,7 @@ fn finish_failure(reason: &FinishReason) -> AiError {
         FinishReason::Length => Some("length".to_owned()),
         FinishReason::ContentFilter => Some("content_filter".to_owned()),
         FinishReason::ToolCalls => Some("tool_calls".to_owned()),
-        FinishReason::Other(reason) => safe_token(&reason.replace(": ", ":")),
+        FinishReason::Other(reason) => Some(provider_code(&reason.replace(": ", ":"))),
         _ => None,
     };
     AiError::new(AiErrorKind::Other).with_detail(AiFailureDetail {
@@ -372,7 +372,7 @@ mod tests {
             ),
             (
                 FinishReason::Other("SYNTHETIC_SECRET free text".into()),
-                None,
+                Some("unrecognized"),
             ),
         ] {
             let detail = finish_failure(&reason).detail.unwrap();

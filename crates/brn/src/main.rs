@@ -318,6 +318,9 @@ async fn ask(
     if let Some(failure) = failure {
         output["failure"] = failure;
     }
+    if !result.provider_resends.is_empty() {
+        output["provider_resends"] = encode(&result.provider_resends)?;
+    }
     if let Some(trace) = result.trace {
         output["trace"] = encode(trace)?;
     }

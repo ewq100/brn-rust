@@ -739,18 +739,19 @@ The provider's own error class could not be captured, because the failure did no
 - `AiError` gains an optional, boxed `detail` that is never part of `Display`. It holds:
   - a fixed `origin` label: `http_status`, `stream_error`, `response_failed`, `turn_failed`, `truncated`, `transport`, `finish`, `stream_end`, `decode` and others;
   - the HTTP status;
-  - the provider `code` and `type`, kept only when lowercase snake-case, at most 48 bytes and at most 3 digits;
+  - the provider `code` and `type` through an allow-list: known codes, `incomplete:<known reason>`, or `[a-z_]` names ending in `_error`/`_exceeded` or starting with `server_`/`rate_limit`/`usage_limit`; anything else becomes `unrecognized`;
   - `retryable`;
   - the last stream `phase`.
 - Messages, bodies, headers, tokens and account IDs are never kept.
 - The CLI adds a `failure` field. The trace adds `failure` and `provider_retries`. The `terminal` string is unchanged.
 - `usage_limit_reached`, `rate_limit_exceeded` and `insufficient_quota` now map to `RateLimited`. `Truncated` stays `Other`, because Rig also truncates on replies it could not decode.
 - `ResendOnce` (`crates/brn-ai/src/resend.rs`) re-sends the byte-identical streamed request once, after 1.5 s, at most twice per run.
-  - It applies only to 408, 500, 502, 503 or 504 before any reply, or to a connection failure.
+  - It applies only where the request provably was not processed: a 503, or a transport error whose reqwest source `is_connect()` (DNS, TCP or TLS setup).
+  - Read timeouts, resets after the request was written, 408, 500, 502 and 504 are not re-sent: "no response headers seen" does not prove the provider did not start generating or billing.
   - It uses the same transport, the same pinned `session_id` and the same account; there is no fallback.
   - No tool of that turn can have run, because the model replied with nothing.
   - 429 and other 4xx are never re-sent. Failures after the stream started (`response.failed`, a stream `error`, truncation) are not re-sent either: a turn-level retry would need a separate idempotence argument.
-  - Every re-send is recorded in `provider_retries`.
+  - Every re-send is recorded on `ThreadResult.provider_resends`, and so in the CLI's `provider_resends`, whatever the trace level. It also appears in the trace's `provider_retries` and the harness's per-step and per-run `provider_resends`.
 - `scripts/evaluate_wiki_v2.py` appends the detail to a run's failure line, for example `step 2 ended Failed:Other (origin=response_failed code=server_error phase=tool_result retryable=True)`.
 
 **Live diagnosis:**

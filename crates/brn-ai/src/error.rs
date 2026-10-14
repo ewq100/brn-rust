@@ -26,19 +26,55 @@ fn detail(origin: &str) -> AiFailureDetail {
     }
 }
 
-/// A provider code or type kept only when it has the shape of a published
-/// snake_case identifier: lowercase, starting with a letter, at most 48 bytes
-/// and three digits. Free text, mixed-case or hex tokens, identifiers with
-/// hyphens and long values never survive.
-pub(crate) fn safe_token(value: &str) -> Option<String> {
+/// Provider codes and types published by the supported providers, kept as is.
+const KNOWN_CODES: &[&str] = &[
+    "model_not_supported",
+    "unsupported_model",
+    "model_not_found",
+    "model_refused",
+    "unsupported_api_for_model",
+    "expired_token",
+    "expired_device_code",
+    "invalid_grant",
+    "insufficient_quota",
+    "overloaded",
+    "content_filter",
+    "max_output_tokens",
+];
+/// Reasons a Responses reply gives for an `incomplete` status.
+const INCOMPLETE_REASONS: &[&str] = &["max_output_tokens", "content_filter"];
+/// Stands for a provider code or type that is present but not allow-listed.
+pub(crate) const UNRECOGNIZED: &str = "unrecognized";
+
+/// A provider code or type reduced to an allow-list: a known code, an
+/// `incomplete:<reason>` with a known reason, or a lowercase `[a-z_]` name of
+/// at most 48 bytes that ends in `_error` or `_exceeded` or starts with
+/// `server_`, `rate_limit` or `usage_limit`. Anything else, including slugs,
+/// hostnames, `host:port`, one-word refusals and free text, becomes
+/// [`UNRECOGNIZED`]; nothing but these shapes ever leaves a provider reply.
+pub(crate) fn provider_code(value: &str) -> String {
     let value = value.trim();
-    (value.len() <= 48
-        && value.bytes().next().is_some_and(|b| b.is_ascii_lowercase())
-        && value.bytes().filter(u8::is_ascii_digit).count() <= 3
-        && value.bytes().all(|b| {
-            b.is_ascii_lowercase() || b.is_ascii_digit() || matches!(b, b'_' | b'.' | b':')
-        }))
-    .then(|| value.to_owned())
+    if let Some(reason) = value.strip_prefix("incomplete:") {
+        let reason = reason.trim();
+        if INCOMPLETE_REASONS.contains(&reason) {
+            return format!("incomplete:{reason}");
+        }
+        return UNRECOGNIZED.to_owned();
+    }
+    let shaped = !value.is_empty()
+        && value.len() <= 48
+        && value.bytes().all(|b| b.is_ascii_lowercase() || b == b'_')
+        && !value.starts_with('_');
+    let patterned = value.ends_with("_error")
+        || value.ends_with("_exceeded")
+        || value.starts_with("server_")
+        || value.starts_with("rate_limit")
+        || value.starts_with("usage_limit");
+    if shaped && (KNOWN_CODES.contains(&value) || patterned) {
+        value.to_owned()
+    } else {
+        UNRECOGNIZED.to_owned()
+    }
 }
 
 impl std::fmt::Display for AiError {
@@ -83,12 +119,9 @@ impl std::error::Error for AiError {}
 
 fn pointer_token(value: Option<&serde_json::Value>, pointers: &[&str]) -> Option<String> {
     let value = value?;
-    pointers.iter().find_map(|p| {
-        value
-            .pointer(p)
-            .and_then(|v| v.as_str())
-            .and_then(safe_token)
-    })
+    pointers
+        .iter()
+        .find_map(|p| value.pointer(p).and_then(|v| v.as_str()).map(provider_code))
 }
 
 /// Maps a provider reply (`status` 0 when it had none, as a stream event
@@ -223,7 +256,7 @@ pub(crate) fn map_auth(error: AuthError) -> AiError {
 }
 
 /// Rig's fixed turn-failure wording, reduced to a label and the provider's
-/// leading code when that is a bare identifier.
+/// leading code through the allow-list.
 fn turn_failure(message: &str) -> AiError {
     let rest = [
         "the turn failed, so none of its tool calls ran: ",
@@ -238,11 +271,13 @@ fn turn_failure(message: &str) -> AiError {
     let rest = rest
         .strip_prefix("Provider finish_reason: ")
         .unwrap_or(rest);
-    let code = rest
-        .split(": ")
-        .next()
-        .and_then(safe_token)
-        .or_else(|| rest.strip_prefix("incomplete: ").and_then(safe_token));
+    let code = Some(match rest.strip_prefix("incomplete: ") {
+        Some(reason) => provider_code(&format!(
+            "incomplete:{}",
+            reason.split(": ").next().unwrap_or_default()
+        )),
+        None => provider_code(rest.split(": ").next().unwrap_or_default()),
+    });
     let retryable = matches!(
         code.as_deref(),
         Some("server_error" | "internal_error" | "server_is_overloaded" | "overloaded")
@@ -272,7 +307,7 @@ pub(crate) fn map_provider(error: rig::error::ProviderError) -> AiError {
             };
             let info = AiFailureDetail {
                 status: report.http_status,
-                code: report.code.as_deref().and_then(safe_token),
+                code: report.code.as_deref().map(provider_code),
                 ..detail("relayed")
             };
             (kind, info)
@@ -570,13 +605,25 @@ mod tests {
                 400,
                 r#"{"error":{"code":"sk-synthetic-ABCDEF0123456789","type":"acct_1234567890abcdef"}}"#,
                 AiErrorKind::Other,
-                ("http_status", Some(400), None, None, false),
+                (
+                    "http_status",
+                    Some(400),
+                    Some("unrecognized"),
+                    Some("unrecognized"),
+                    false,
+                ),
             ),
             (
                 400,
                 r#"{"error":{"code":"Bearer SYNTHETIC_SECRET","type":"9f8e7d6c5b4a39281706"}}"#,
                 AiErrorKind::Other,
-                ("http_status", Some(400), None, None, false),
+                (
+                    "http_status",
+                    Some(400),
+                    Some("unrecognized"),
+                    Some("unrecognized"),
+                    false,
+                ),
             ),
             (
                 408,
@@ -602,27 +649,41 @@ mod tests {
     }
 
     #[test]
-    fn identifiers_must_look_like_published_codes() {
+    fn provider_codes_pass_only_the_allow_list() {
         for kept in [
             "server_error",
-            "response.failed",
+            "server_is_overloaded",
+            "invalid_request_error",
+            "context_length_exceeded",
+            "rate_limit_exceeded",
+            "usage_limit_reached",
+            "insufficient_quota",
+            "unsupported_api_for_model",
             "incomplete:max_output_tokens",
-            "http_502",
         ] {
-            assert_eq!(safe_token(kept).as_deref(), Some(kept));
+            assert_eq!(provider_code(kept), kept);
         }
         for dropped in [
             "",
             "SYNTHETIC_SECRET",
             "Server_error",
-            "_leading",
+            "_server_error",
+            "refused",
+            "denied",
+            "evokessler",
+            "my-project-slug",
+            "api.openai.com",
+            "chatgpt.com:443",
+            "localhost:8080",
+            "server_error2",
+            "acct_1234567890abcdef",
             "550e8400-e29b-41d4-a716-446655440000",
-            "a1b2c3d4e5",
-            "two words",
-            "quote\"",
-            &"a".repeat(49),
+            "two words_error",
+            "incomplete:SYNTHETIC_SECRET",
+            "incomplete:refused",
+            &format!("{}_error", "a".repeat(48)),
         ] {
-            assert_eq!(safe_token(dropped), None, "{dropped}");
+            assert_eq!(provider_code(dropped), UNRECOGNIZED, "{dropped}");
         }
     }
 
@@ -645,7 +706,7 @@ mod tests {
                 map_provider(E::Response(
                     "the provider failed the turn: incomplete: max_output_tokens".into(),
                 )),
-                ("turn_failed", None, Some("incomplete"), None, false),
+                ("turn_failed", None, Some("incomplete:max_output_tokens"), None, false),
             ),
             (
                 map_provider(E::Response("SYNTHETIC_SECRET".into())),

@@ -76,6 +76,12 @@ def evaluated(terminal):
 FAILURE_DETAIL_FIELDS = ('origin', 'status', 'code', 'error_type', 'phase', 'retryable')
 
 
+def provider_resends(steps):
+    """BRN's same-request re-sends across a run's steps (never a fallback): count and each redacted detail."""
+    details = [d for step in steps for d in (step.get('provider_resends') or [])]
+    return {'count': len(details), 'details': details}
+
+
 def failure_summary(failure):
     """The CLI's redacted provider-failure detail as one short line, e.g. 'origin=http_status status=503'."""
     detail = (failure or {}).get('detail') or {}
@@ -1356,6 +1362,7 @@ class Sample:
             steps.append(record)
             result['steps'] = steps
             outcome = self.run_step(number, step, threads, record)
+            result['provider_resends'] = provider_resends(steps)
             self.persist()
             if not evaluated(record['terminal']):
                 detail = failure_summary(record.get('failure'))
@@ -1407,6 +1414,8 @@ class Sample:
         record['terminal'] = out.get('terminal')
         if out.get('failure'):
             record['failure'] = out['failure']
+        if out.get('provider_resends'):
+            record['provider_resends'] = out['provider_resends']
         record['answer'] = out.get('answer')
         record['trace'] = out.get('trace')
         record['run'] = out.get('run')

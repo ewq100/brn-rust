@@ -291,10 +291,17 @@ async fn trace_records_each_turns_cached_input() {
 async fn scripted_run(
     replies: Vec<rig::test_utils::MockHttpResponse>,
 ) -> (Vec<rig::test_utils::CapturedHttpRequest>, ThreadResult) {
+    scripted_run_at(replies, TraceLevel::Summary).await
+}
+
+async fn scripted_run_at(
+    replies: Vec<rig::test_utils::MockHttpResponse>,
+    trace: TraceLevel,
+) -> (Vec<rig::test_utils::CapturedHttpRequest>, ThreadResult) {
     let (root, mut request, _) = tests::fixture();
     request.auth_file = Some(codex_file(&root));
     configure(&request, "Chatgpt");
-    request.trace = TraceLevel::Summary;
+    request.trace = trace;
     request.max_tool_rounds = 4;
     let http = rig::test_utils::SequencedHttpClient::new(replies);
     let result = run_prepared_over(
@@ -339,8 +346,9 @@ async fn a_transient_status_mid_run_is_resent_identically_once_and_traced() {
         session_ids(&requests[1..3])[0],
         session_ids(&requests[1..3])[1]
     );
+    assert_eq!(result.provider_resends.len(), 1);
     let trace = result.trace.unwrap();
-    assert_eq!(trace.provider_retries.len(), 1);
+    assert_eq!(trace.provider_retries, result.provider_resends);
     assert_eq!(trace.provider_retries[0].status, Some(503));
     assert!(trace.failure.is_none());
     assert!(
@@ -401,4 +409,23 @@ async fn a_failed_turn_after_the_reply_started_is_not_resent() {
         ("response_failed", Some("server_error"))
     );
     assert!(result.trace.unwrap().provider_retries.is_empty());
+}
+
+#[tokio::test]
+async fn re_sends_are_reported_without_a_trace() {
+    let (requests, result) = scripted_run_at(
+        vec![
+            streamed(tool_turn(1, "r1")),
+            unavailable(),
+            streamed(tool_turn(2, "r2")),
+            streamed(final_turn()),
+        ],
+        TraceLevel::Off,
+    )
+    .await;
+    assert!(matches!(result.answer.terminal, AiTerminal::Completed));
+    assert_eq!(requests.len(), 4);
+    assert!(result.trace.is_none());
+    assert_eq!(result.provider_resends.len(), 1);
+    assert_eq!(result.provider_resends[0].status, Some(503));
 }
