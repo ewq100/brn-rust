@@ -1,6 +1,6 @@
 # Host-driven intake
 
-**State:** PROPOSED prototype, measured once (see [evidence](evidence.md#host-driven-intake-prototype-14-october-2026)). Not accepted, not merged. Branch `work/host-intake`; guide bundle `brn-threads-guidance-9` (the live measurement used `-8` and the first build; [review fixes](#review-fixes) were made offline afterwards and are not re-measured).
+**State:** ACCEPTED (14 October 2026). The owner chose a fair A/B against `main` before merging, with merge if clean. The A/B showed equal quality on S1–S3, no safety blockers, and 28% lower effective S1 cost ([A/B evidence](evidence.md#ab-against-main-after-the-review-fixes-14-october-2026)). Guide bundle `brn-threads-guidance-9`.
 
 ## Problem
 
