@@ -43,7 +43,7 @@ pub(crate) fn run(
 }
 
 /// Rendering needs a reproducible font configuration. Never inherit HOME/font paths:
-/// enumerate installed system fonts and write its cache only inside the owned scratch run.
+/// enumerate installed system fonts without writing disposable disk font caches.
 pub(crate) fn run_renderer(
     executable: &Path,
     args: &[OsString],
@@ -109,10 +109,12 @@ fn run_inner(
         .stdout(Stdio::piped())
         .stderr(Stdio::null());
     if profile == RuntimeProfile::Renderer {
-        // The constant configuration has no includes, external paths or source-controlled XML.
-        // Relative cache paths resolve inside current_dir, which the sandbox already owns.
+        // No includes, user font paths or ambient cache-directory fallback. /dev/null
+        // cannot hold cache children; Fontconfig still builds its in-memory font set.
+        // Fresh conversion scratch never reuses disk caches, whose atomic lock entries
+        // conflict with the file-only scratch monitor on some Fontconfig builds.
         let fonts = temp.path.join("fonts.conf");
-        std::fs::write(&fonts, b"<?xml version=\"1.0\"?><fontconfig><dir>/System/Library/Fonts</dir><dir>/Library/Fonts</dir><cachedir>.</cachedir></fontconfig>")
+        std::fs::write(&fonts, b"<?xml version=\"1.0\"?><fontconfig><dir>/System/Library/Fonts</dir><dir>/Library/Fonts</dir><cachedir>/dev/null</cachedir></fontconfig>")
             .map_err(|_| ConversionError::Io)?;
         command
             .env("FONTCONFIG_FILE", fonts)
@@ -391,9 +393,9 @@ mod tests {
             scratch.join("fonts.conf").as_os_str()
         );
         let config = std::fs::read_to_string("fonts.conf").unwrap();
-        assert!(config.contains("<cachedir>.</cachedir>"));
+        assert!(config.contains("<cachedir>/dev/null</cachedir>"));
         assert!(!config.contains("<include") && !config.contains("HOME"));
-        std::fs::write("synthetic-font-cache", b"owned scratch cache").unwrap();
+        std::fs::write("synthetic-renderer-output", b"owned scratch output").unwrap();
     }
 
     fn sandbox_witness(custom_homebrew: bool) {
