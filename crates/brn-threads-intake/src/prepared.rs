@@ -908,11 +908,12 @@ mod tests {
         let mut pixels = vec![0; reader.output_buffer_size().unwrap()];
         reader.next_frame(&mut pixels).unwrap();
         assert_eq!(pixels, vec![15, 16, 17, 18, 19, 20, 27, 28, 29, 30, 31, 32]);
+        assert!(crop_png(&preview, &page, [100., 100., 300., 300.], 8).is_err());
     }
     #[test]
     fn scan_preview_receipts_and_crop_binding_are_checked() {
         let asset = preview();
-        let doc = PreparedDocument {
+        let mut doc = PreparedDocument {
             schema: 2,
             profile: PROFILE.into(),
             source_sha256: brn_intake::digest(b"scan"),
@@ -964,6 +965,22 @@ mod tests {
         candidate.crops[0].bounds[2] = 401.;
         assert!(brn_intake::prepared::check_candidate(&doc, &candidate).is_err());
         candidate.crops.clear();
+        assert!(brn_intake::prepared::check_candidate(&doc, &candidate).is_err());
+        // A literal no-observation value must not become a Setext underline while
+        // deriving expected text. Zero and changed marker/value associations fail.
+        doc.blocks[0].content = BlockContent::PageText {
+            page: 1,
+            text: "Marker Depth\nM-0042 0\nM-0110\n--".into(),
+        };
+        doc.pages[0].needs_transcription = false;
+        candidate.markdown = "| Marker | Depth |\n| --- | --- |\n| M-0042 | 0 |\n| M-0110 | -- |\n\n<!-- source:page1 -->".into();
+        brn_intake::prepared::check_candidate(&doc, &candidate).unwrap();
+        assert!(
+            !brn_intake::prepared::readable_markdown(&doc, &candidate)
+                .unwrap()
+                .contains("<!--")
+        );
+        candidate.markdown = candidate.markdown.replace("M-0110 | --", "M-0110 | 0");
         assert!(brn_intake::prepared::check_candidate(&doc, &candidate).is_err());
     }
 }
