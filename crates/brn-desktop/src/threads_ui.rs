@@ -251,6 +251,8 @@ impl MarkdownPlugin for LiteralHtml {
 }
 fn markdown(view: &Entity<TextViewState>, assets: Arc<BTreeMap<String, Arc<Image>>>) -> TextView {
     TextView::new(view)
+        .font_family(UI_FONT)
+        .text_size(PROSE_TEXT)
         .w_full()
         .h_full()
         .scrollable(true)
@@ -278,6 +280,11 @@ fn markdown(view: &Entity<TextViewState>, assets: Arc<BTreeMap<String, Arc<Image
 // Presentation is shared by every tile. Toolkit controls keep their focus,
 // selected and disabled behavior; prose retains the normal system font.
 const MONO: &str = "Menlo";
+const UI_FONT: &str = ".SystemUIFont";
+const SMALL_TEXT: gpui_kit::Pixels = px(12.);
+const UI_TEXT: gpui_kit::Pixels = px(14.);
+const PROSE_TEXT: gpui_kit::Pixels = px(16.);
+const TITLE_TEXT: gpui_kit::Pixels = px(18.);
 fn default_copilot_credentials_dir() -> std::io::Result<PathBuf> {
     use std::os::unix::fs::DirBuilderExt as _;
     let home = std::env::var_os("HOME")
@@ -302,12 +309,14 @@ fn top_bar_window_options() -> WindowOptions {
 }
 fn button(id: impl Into<gpui_kit::ElementId>) -> Button {
     Button::new(id)
-        .rounded(ButtonRounded::None)
-        .font_family(MONO)
-        .text_sm()
+        .rounded(ButtonRounded::Small)
+        .font_family(UI_FONT)
+        .text_size(UI_TEXT)
 }
 fn prose_editor(state: &Entity<EditorState>) -> Editor {
-    Editor::new(state).font_family(".SystemUIFont").text_base()
+    Editor::new(state)
+        .font_family(UI_FONT)
+        .text_size(PROSE_TEXT)
 }
 fn panel() -> gpui_kit::Div {
     let p = pal();
@@ -323,23 +332,23 @@ fn panel() -> gpui_kit::Div {
 }
 fn heading(text: impl Into<gpui_kit::SharedString>) -> gpui_kit::Div {
     div()
-        .font_family(MONO)
-        .text_sm()
-        .text_color(rgb(pal().accent))
+        .font_family(UI_FONT)
+        .text_size(TITLE_TEXT)
+        .text_color(rgb(pal().ink))
         .font_weight(gpui_kit::FontWeight::SEMIBOLD)
         .child(text.into())
 }
 fn section(text: impl Into<gpui_kit::SharedString>) -> gpui_kit::Div {
     div()
-        .font_family(MONO)
-        .text_xs()
+        .font_family(UI_FONT)
+        .text_size(SMALL_TEXT)
         .text_color(rgb(pal().muted))
         .pt_2()
         .child(text.into())
 }
 fn metadata(text: impl Into<gpui_kit::SharedString>) -> gpui_kit::Div {
     div()
-        .text_sm()
+        .text_size(SMALL_TEXT)
         .text_color(rgb(pal().muted))
         .child(text.into())
 }
@@ -383,6 +392,8 @@ struct ThreadsUi {
     data_dir: PathBuf,
     root_focus: FocusHandle,
     layout: Layout,
+    tile_scroll: gpui_kit::ScrollHandle,
+    tile_reveal: Option<(Vec<TileKind>, Option<TileKind>)>,
     chat: ChatTarget,
     theme: ThemeId,
     theme_pending: bool,
@@ -481,7 +492,8 @@ impl ThreadsUi {
         let composer = cx.new(|cx| {
             EditorState::new(window, cx)
                 .submit_on_enter(true)
-                .placeholder("Ask or delegate…  ↵ send / queue · ⇧↵ new line")
+                .line_number(false)
+                .placeholder("Ask or delegate…")
         });
         let note_editor = cx.new(|cx| EditorState::new(window, cx).default_value(""));
         let diff_editor = cx.new(|cx| EditorState::new(window, cx).default_value(""));
@@ -620,6 +632,8 @@ impl ThreadsUi {
             data_dir,
             root_focus: cx.focus_handle(),
             layout: Layout::default(),
+            tile_scroll: gpui_kit::ScrollHandle::new(),
+            tile_reveal: None,
             chat: ChatTarget::New,
             theme,
             theme_pending: false,
@@ -789,10 +803,12 @@ impl ThreadsUi {
         })
     }
     fn note_tile_visible(&self) -> bool {
-        self.layout
-            .visible()
-            .iter()
-            .any(|tile| tile.kind == TileKind::Note)
+        !self.layout.settings_open()
+            && self
+                .layout
+                .visible()
+                .iter()
+                .any(|tile| tile.kind == TileKind::Note)
     }
     fn note_editor_visible(&self) -> bool {
         self.review.is_none()
@@ -809,8 +825,10 @@ impl ThreadsUi {
         self.root_focus.focus(window, cx);
     }
     fn focus_visible_editor(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        self.tile_reveal = None;
         self.focus_root(window, cx);
         if self.review_editing
+            && self.note_tile_visible()
             && self
                 .review
                 .as_ref()
@@ -824,6 +842,7 @@ impl ThreadsUi {
         }
     }
     fn focus_composer(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        self.tile_reveal = None;
         self.layout.open(TileKind::Chat);
         self.composer
             .update(cx, |editor, cx| editor.focus(window, cx));
@@ -839,8 +858,10 @@ impl ThreadsUi {
             cx.notify();
         }
     }
-    fn show_tile(&mut self, kind: TileKind, cx: &mut Context<Self>) {
+    fn show_tile(&mut self, kind: TileKind, window: &mut Window, cx: &mut Context<Self>) {
+        self.preserve_visible_note_input(cx);
         self.layout.open(kind);
+        self.focus_tile_contents(window, cx);
         self.refresh();
         if kind == TileKind::Connections {
             self.refresh_connections(cx);
@@ -857,15 +878,14 @@ impl ThreadsUi {
         cx: &mut Context<Self>,
         change: impl FnOnce(&mut Layout),
     ) {
+        self.preserve_visible_note_input(cx);
         change(&mut self.layout);
         self.focus_tile_contents(window, cx);
     }
     /// The first-use delegation choice renders in exactly one visible tile.
     fn delegation_host(&self) -> Option<TileKind> {
         let visible: Vec<TileKind> = self.layout.visible().iter().map(|tile| tile.kind).collect();
-        if visible.contains(&TileKind::Settings)
-            && self.settings_section == SettingsSection::Delegation
-        {
+        if self.layout.settings_open() && self.settings_section == SettingsSection::Delegation {
             Some(TileKind::Settings)
         } else if self.settings.delegation_chosen {
             None
@@ -1031,7 +1051,7 @@ impl ThreadsUi {
                 self.restore_comment_draft(id, window, cx);
                 self.layout.open(TileKind::Note);
                 self.refresh();
-                // The chat follows the note's selected thread, or a new one for it.
+                // Remember this note's chat without replacing the owner's selected conversation.
                 if let Some(chat) = &note.chat {
                     self.writing_threads.insert(id.into(), chat.clone());
                 }
@@ -1040,7 +1060,11 @@ impl ThreadsUi {
                     .get(id)
                     .cloned()
                     .map_or_else(|| ChatTarget::NewForNote(id.into()), ChatTarget::Thread);
-                self.set_chat(target, window, cx);
+                if matches!(self.chat, ChatTarget::New)
+                    && self.composer.read(cx).value().trim().is_empty()
+                {
+                    self.set_chat(target, window, cx);
+                }
                 self.sync_note_marks(cx);
                 self.focus_visible_editor(window, cx);
                 self.refresh_connections(cx);
@@ -1063,6 +1087,7 @@ impl ThreadsUi {
         self.set_chat(ChatTarget::Thread(id.into()), window, cx);
         self.layout.open(TileKind::Chat);
         self.refresh();
+        self.focus_tile_contents(window, cx);
         cx.notify();
     }
     fn new_thread(&mut self, window: &mut Window, cx: &mut Context<Self>) {
@@ -1454,7 +1479,7 @@ impl ThreadsUi {
     ) {
         self.writing_threads.insert(note, thread.clone());
         self.set_chat(ChatTarget::Thread(thread), window, cx);
-        cx.notify();
+        self.show_tile(TileKind::Chat, window, cx);
     }
     fn new_writing_thread(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         let Some(open) = &self.note else {
@@ -2071,8 +2096,7 @@ impl ThreadsUi {
         if self.review.as_ref().is_some_and(|review| {
             review.candidate.operation.as_str() == candidate.operation.as_str()
         }) {
-            self.layout.open(TileKind::Note);
-            cx.notify();
+            self.show_tile(TileKind::Note, window, cx);
             return;
         }
         if self.review.as_ref().is_some_and(|review| {
@@ -2161,7 +2185,7 @@ impl ThreadsUi {
             .update(cx, |v, cx| v.set_text(&text, cx));
         self.layout.open(TileKind::Note);
         self.sync_diff(window, cx);
-        self.focus_root(window, cx);
+        self.focus_tile_contents(window, cx);
         cx.notify();
     }
     fn start_review_edit(&mut self, window: &mut Window, cx: &mut Context<Self>) {
@@ -2344,7 +2368,7 @@ impl ThreadsUi {
     fn close_launcher(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         if self.launcher_open {
             self.launcher_open = false;
-            self.focus_visible_editor(window, cx);
+            self.focus_tile_contents(window, cx);
             cx.notify();
         }
     }
@@ -2389,8 +2413,7 @@ impl ThreadsUi {
             lists::Command::Layout(preset) => self.apply_layout(preset, window, cx),
             lists::Command::Theme(theme) => self.choose_theme(theme, window, cx),
             lists::Command::OpenTile(kind) => {
-                self.show_tile(kind, cx);
-                self.focus_tile_contents(window, cx);
+                self.show_tile(kind, window, cx);
             }
             lists::Command::Keys => self.show_keys(window, cx),
         }

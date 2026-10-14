@@ -54,9 +54,9 @@ impl TileKind {
             Self::Linked => "linked work",
             Self::Notes => "notes",
             Self::AllThreads => "all chats",
-            Self::Overview => "overview",
-            Self::Actions => "actions",
-            Self::History => "what changed",
+            Self::Overview => "home",
+            Self::Actions => "tasks",
+            Self::History => "changes",
             Self::Settings => "settings",
             Self::Compare => "compare",
             Self::Connections => "connections",
@@ -120,10 +120,20 @@ impl Preset {
     }
 }
 
+/// A reusable area or a deliberately added split. Roles travel with tiles when reordered.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub(super) enum Area {
+    Navigation,
+    Main,
+    Companion,
+    Beside,
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub(super) struct Tile {
     pub(super) kind: TileKind,
     pub(super) weight: f32,
+    pub(super) area: Area,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -133,6 +143,7 @@ pub(super) struct Layout {
     tiles: Vec<Tile>,
     focus: Option<TileKind>,
     maximized: Option<TileKind>,
+    settings_open: bool,
 }
 impl Default for Layout {
     fn default() -> Self {
@@ -141,6 +152,7 @@ impl Default for Layout {
             tiles: vec![],
             focus: Some(TileKind::Chat),
             maximized: None,
+            settings_open: false,
         };
         layout.apply(Preset::Write);
         layout
@@ -148,10 +160,18 @@ impl Default for Layout {
 }
 impl Layout {
     pub(super) fn preset(&self) -> Option<Preset> {
-        self.preset
+        if self.maximized.is_some() {
+            Some(Preset::Solo)
+        } else {
+            self.preset
+        }
     }
     pub(super) fn focus(&self) -> Option<TileKind> {
-        self.focus
+        if self.settings_open {
+            Some(TileKind::Settings)
+        } else {
+            self.focus
+        }
     }
     pub(super) fn maximized(&self) -> Option<TileKind> {
         self.maximized
@@ -161,7 +181,11 @@ impl Layout {
         &self.tiles
     }
     pub(super) fn contains(&self, kind: TileKind) -> bool {
-        self.tiles.iter().any(|tile| tile.kind == kind)
+        if kind == TileKind::Settings {
+            self.settings_open
+        } else {
+            self.tiles.iter().any(|tile| tile.kind == kind)
+        }
     }
     /// Tiles drawn now: only the maximized tile while one is maximized.
     pub(super) fn visible(&self) -> Vec<Tile> {
@@ -178,36 +202,99 @@ impl Layout {
             None => self.tiles.clone(),
         }
     }
+    pub(super) fn settings_open(&self) -> bool {
+        self.settings_open
+    }
+    pub(super) fn area(&self, kind: TileKind) -> Option<Area> {
+        self.tiles
+            .iter()
+            .find(|tile| tile.kind == kind)
+            .map(|tile| tile.area)
+    }
+    fn destination(&self, kind: TileKind) -> Area {
+        match kind {
+            TileKind::Threads | TileKind::Notes | TileKind::AllThreads => Area::Navigation,
+            TileKind::Linked | TileKind::Compare | TileKind::Connections => Area::Companion,
+            TileKind::Chat
+                if self
+                    .tiles
+                    .iter()
+                    .any(|t| t.area == Area::Main && t.kind == TileKind::Note) =>
+            {
+                Area::Companion
+            }
+            _ => Area::Main,
+        }
+    }
     pub(super) fn apply(&mut self, preset: Preset) {
-        self.maximized = None;
-        self.preset = Some(preset);
+        self.settings_open = false;
         if preset == Preset::Solo {
-            let kind = self
+            if let Some(kind) = self
                 .focus
-                .filter(|kind| self.contains(*kind))
                 .or_else(|| self.tiles.first().map(|tile| tile.kind))
-                .unwrap_or(TileKind::Chat);
-            self.tiles = vec![Tile { kind, weight: 1. }];
-            self.focus = Some(kind);
+            {
+                self.toggle_maximize(kind);
+            }
             return;
         }
+        self.maximized = None;
+        self.preset = Some(preset);
         self.tiles = preset
             .tiles()
             .iter()
-            .map(|(kind, weight)| Tile {
+            .enumerate()
+            .map(|(index, (kind, weight))| Tile {
                 kind: *kind,
                 weight: *weight,
+                area: [Area::Navigation, Area::Main, Area::Companion][index],
             })
             .collect();
         if !self.focus.is_some_and(|kind| self.contains(kind)) {
             self.focus = Some(self.tiles[1].kind);
         }
     }
-    /// Focus an open tile, or insert it after the focused tile.
+    /// Ordinary navigation replaces the content of a reusable area.
     pub(super) fn open(&mut self, kind: TileKind) {
-        if self.maximized.is_some_and(|max| max != kind) {
-            self.maximized = None;
+        if kind == TileKind::Settings {
+            self.settings_open = true;
+            return;
         }
+        self.settings_open = false;
+        if !self.contains(kind) {
+            let area = self.destination(kind);
+            if let Some(tile) = self.tiles.iter_mut().find(|tile| tile.area == area) {
+                tile.kind = kind;
+            } else {
+                let at = self
+                    .tiles
+                    .iter()
+                    .position(|tile| tile.area > area)
+                    .unwrap_or(self.tiles.len());
+                self.tiles.insert(
+                    at,
+                    Tile {
+                        kind,
+                        weight: kind.default_weight(),
+                        area,
+                    },
+                );
+            }
+            self.preset = None;
+        }
+        // Solo stays focused on the newly selected content until explicitly restored.
+        if self.maximized.is_some() {
+            self.maximized = Some(kind);
+        }
+        self.focus = Some(kind);
+    }
+    /// The only navigation operation that may add an extra split. Content remains singleton.
+    pub(super) fn open_beside(&mut self, kind: TileKind) {
+        if kind == TileKind::Settings {
+            self.open(kind);
+            return;
+        }
+        self.settings_open = false;
+        self.maximized = None;
         if !self.contains(kind) {
             let at = self
                 .focus
@@ -218,13 +305,32 @@ impl Layout {
                 Tile {
                     kind,
                     weight: kind.default_weight(),
+                    area: Area::Beside,
                 },
             );
             self.preset = None;
         }
         self.focus = Some(kind);
     }
+    pub(super) fn has_splits(&self) -> bool {
+        self.tiles.iter().any(|tile| tile.area == Area::Beside)
+    }
+    pub(super) fn close_other_splits(&mut self, keep: TileKind) {
+        let remove: Vec<_> = self
+            .tiles
+            .iter()
+            .filter(|tile| tile.area == Area::Beside && tile.kind != keep)
+            .map(|tile| tile.kind)
+            .collect();
+        for kind in remove {
+            self.close(kind);
+        }
+    }
     pub(super) fn close(&mut self, kind: TileKind) {
+        if kind == TileKind::Settings {
+            self.settings_open = false;
+            return;
+        }
         let Some(index) = self.tiles.iter().position(|tile| tile.kind == kind) else {
             return;
         };
@@ -249,7 +355,7 @@ impl Layout {
         }
     }
     pub(super) fn set_focus(&mut self, kind: TileKind) {
-        if self.contains(kind) {
+        if kind != TileKind::Settings && self.contains(kind) {
             self.focus = Some(kind);
         }
     }
@@ -306,7 +412,7 @@ impl Layout {
         self.tiles[boundary + 1].weight = pair - left;
     }
     pub(super) fn toggle_maximize(&mut self, kind: TileKind) {
-        if !self.contains(kind) {
+        if kind == TileKind::Settings || !self.contains(kind) {
             return;
         }
         self.maximized = if self.maximized == Some(kind) {
@@ -317,6 +423,9 @@ impl Layout {
         self.focus = Some(kind);
     }
     pub(super) fn cycle_focus(&mut self, delta: isize) {
+        if self.settings_open {
+            return;
+        }
         let tiles = self.visible();
         if tiles.is_empty() {
             return;
@@ -339,6 +448,20 @@ mod tests {
     }
 
     #[test]
+    fn ordinary_navigation_reuses_three_areas() {
+        let mut layout = Layout::default();
+        for _ in 0..3 {
+            for kind in TileKind::ALL {
+                layout.open(kind);
+                assert!(
+                    layout.tiles().len() <= 3,
+                    "ordinary open accumulated {kind:?}"
+                );
+            }
+        }
+    }
+
+    #[test]
     fn presets_and_solo_follow_the_focused_tile() {
         let mut layout = Layout::default();
         assert_eq!(layout.preset(), Some(Preset::Write));
@@ -354,7 +477,10 @@ mod tests {
         assert_eq!(layout.focus(), Some(TileKind::Chat));
         layout.set_focus(TileKind::Linked);
         layout.apply(Preset::Solo);
-        assert_eq!(kinds(&layout), [TileKind::Linked]);
+        assert_eq!(layout.visible()[0].kind, TileKind::Linked);
+        assert_eq!(kinds(&layout).len(), 3);
+        layout.apply(Preset::Solo);
+        assert_eq!(layout.visible().len(), 3);
         layout.apply(Preset::Write);
         assert_eq!(
             layout.focus(),
@@ -364,34 +490,30 @@ mod tests {
     }
 
     #[test]
-    fn open_close_toggle_insert_after_focus_and_mark_custom() {
+    fn open_close_toggle_replace_areas_and_mark_custom() {
         let mut layout = Layout::default();
         layout.set_focus(TileKind::Note);
         layout.open(TileKind::Notes);
         assert_eq!(
             kinds(&layout),
-            [
-                TileKind::Threads,
-                TileKind::Note,
-                TileKind::Notes,
-                TileKind::Chat
-            ]
+            [TileKind::Notes, TileKind::Note, TileKind::Chat]
         );
         assert_eq!(layout.focus(), Some(TileKind::Notes));
         assert_eq!(layout.preset(), None);
         layout.close(TileKind::Notes);
         assert_eq!(layout.focus(), Some(TileKind::Note));
         layout.toggle(TileKind::Threads);
-        assert!(!layout.contains(TileKind::Threads));
-        layout.toggle(TileKind::Threads);
         assert!(layout.contains(TileKind::Threads));
+        layout.toggle(TileKind::Threads);
+        assert!(!layout.contains(TileKind::Threads));
         for kind in kinds(&layout) {
             layout.close(kind);
         }
         assert!(layout.tiles().is_empty());
         assert_eq!(layout.focus(), None);
         layout.open(TileKind::Settings);
-        assert_eq!(kinds(&layout), [TileKind::Settings]);
+        assert!(kinds(&layout).is_empty());
+        assert!(layout.settings_open());
     }
 
     #[test]
@@ -452,6 +574,61 @@ mod tests {
         assert_eq!(layout.focus(), Some(TileKind::Chat));
         layout.toggle_maximize(TileKind::Chat);
         layout.open(TileKind::Settings);
-        assert_eq!(layout.maximized(), None, "opening another tile restores");
+        assert_eq!(
+            layout.maximized(),
+            Some(TileKind::Chat),
+            "settings preserves focus mode"
+        );
+    }
+}
+
+#[cfg(test)]
+mod area_tests {
+    use super::*;
+
+    #[test]
+    fn replacing_companions_and_reordered_navigation_keeps_deliberate_splits() {
+        let mut layout = Layout::default();
+        layout.open_beside(TileKind::History);
+        layout.swap(TileKind::Note, TileKind::Threads);
+        layout.open(TileKind::Notes);
+        assert_eq!(layout.area(TileKind::Notes), Some(Area::Navigation));
+        assert!(!layout.contains(TileKind::Threads));
+        layout.open(TileKind::Connections);
+        assert_eq!(layout.area(TileKind::Connections), Some(Area::Companion));
+        assert!(!layout.contains(TileKind::Chat));
+        layout.open(TileKind::Linked);
+        assert!(!layout.contains(TileKind::Connections));
+        layout.open(TileKind::Actions);
+        assert_eq!(layout.area(TileKind::Actions), Some(Area::Main));
+        assert!(!layout.contains(TileKind::Note));
+        assert_eq!(layout.area(TileKind::History), Some(Area::Beside));
+        assert_eq!(layout.tiles().len(), 4);
+        layout.open(TileKind::History);
+        assert_eq!(layout.tiles().len(), 4);
+        layout.close_other_splits(TileKind::Actions);
+        assert!(!layout.contains(TileKind::History));
+    }
+
+    #[test]
+    fn settings_and_solo_do_not_destroy_the_working_arrangement() {
+        let mut layout = Layout::default();
+        layout.open_beside(TileKind::Connections);
+        let before = layout.tiles().to_vec();
+        layout.apply(Preset::Solo);
+        assert_eq!(layout.visible().len(), 1);
+        layout.open(TileKind::Settings);
+        assert_eq!(layout.focus(), Some(TileKind::Settings));
+        layout.toggle_maximize(TileKind::Settings);
+        assert_eq!(layout.maximized(), Some(TileKind::Connections));
+        layout.close(TileKind::Settings);
+        assert_eq!(layout.focus(), Some(TileKind::Connections));
+        layout.apply(Preset::Solo);
+        assert_eq!(layout.visible(), before);
+        layout.apply(Preset::Solo);
+        layout.open(TileKind::History);
+        assert_eq!(layout.visible()[0].kind, TileKind::History);
+        layout.apply(Preset::Solo);
+        assert_eq!(layout.visible().len(), 4);
     }
 }

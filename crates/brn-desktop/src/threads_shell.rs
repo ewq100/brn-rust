@@ -23,8 +23,8 @@ impl Render for DragGhost {
         div()
             .px_2()
             .py_1()
-            .font_family(MONO)
-            .text_xs()
+            .font_family(UI_FONT)
+            .text_size(SMALL_TEXT)
             .bg(rgb(p.alt))
             .border_1()
             .border_color(rgb(p.accent))
@@ -57,10 +57,10 @@ pub(super) fn item(
 }
 
 pub(super) fn pill(id: impl Into<gpui_kit::ElementId>, label: impl Into<SharedString>) -> Button {
-    button(id).label(label).compact().text_xs().h(px(24.))
+    button(id).label(label).compact().ghost().h(px(28.))
 }
 
-const KEYS: [(&str, &str); 17] = [
+const KEYS: [(&str, &str); 18] = [
     ("Launcher", "⌘K · click the search field"),
     ("New chat / note", "⌘T / ⌘N · ＋ in chats and notes"),
     ("Send / new line", "↵ or ⌘↵ / ⇧↵ · send button"),
@@ -68,16 +68,17 @@ const KEYS: [(&str, &str); 17] = [
     ("Comment on selection", "⌘/ · selection strip · right-click"),
     ("Rewrite with AI", "⌘⇧R · note foot bar · ⋯ menu"),
     ("Save note", "⌘S · status bar · ⋯ menu"),
-    ("Layouts", "⌥1 ⌥2 ⌥3 · top bar · status bar"),
+    ("Layouts", "⌥1 Write · ⌥2 Chat · ⌥3 Solo / restore"),
     ("Focus tile", "⌘[ ⌘] · click a tile"),
     ("Maximize tile", "⌘⇧↵ · double-click its header · ⤢"),
+    ("Extra split", "Open beside · navigation bar or tile menu"),
     ("Resize tiles", "drag the gap between tiles"),
     ("Swap tiles", "drag a tile header onto another tile"),
     ("Tile menu", "right-click a tile header"),
     ("Toggle chats", "⌘\\ · layout menu"),
     ("Theme", "status bar · launcher · Settings"),
-    ("Settings", "⌘, · chats tile"),
-    ("Overview", "⌘0 · launcher"),
+    ("Settings", "⌘, · navigation gear"),
+    ("Home", "⌘0 · brn logo · launcher"),
 ];
 
 impl ThreadsUi {
@@ -97,8 +98,8 @@ impl ThreadsUi {
                             .child(div().w(px(170.)).child(*what))
                             .child(
                                 div()
-                                    .font_family(MONO)
-                                    .text_xs()
+                                    .font_family(UI_FONT)
+                                    .text_size(SMALL_TEXT)
                                     .text_color(rgb(p.muted))
                                     .child(*how),
                             )
@@ -109,6 +110,7 @@ impl ThreadsUi {
     }
     fn tile_title(&self, kind: TileKind) -> String {
         match kind {
+            TileKind::AllThreads => "chats".into(),
             TileKind::Note => match (&self.review, &self.note) {
                 (Some(review), None) => {
                     format!("review · {}", short(&review.candidate.request.reason))
@@ -151,28 +153,32 @@ impl ThreadsUi {
             .flex_shrink_0()
             .items_center()
             .gap_1()
-            .h(px(30.))
+            .h(px(36.))
             .px_2()
-            .font_family(MONO)
-            .text_xs()
-            .bg(rgb(if focused { p.active } else { p.alt }))
+            .font_family(UI_FONT)
+            .text_size(UI_TEXT)
+            .bg(rgb(p.tile))
             .border_b_1()
-            .border_color(rgb(p.border))
+            .border_color(rgb(if focused { p.accent } else { p.border }))
             .cursor_grab()
             .child(
                 div()
                     .id(format!("tile-title-{key}"))
                     .flex_1()
                     .min_w_0()
-                    .overflow_hidden()
-                    .whitespace_nowrap()
+                    .truncate()
                     .text_color(rgb(if focused { p.accent } else { p.ink }))
                     .font_weight(gpui_kit::FontWeight::SEMIBOLD)
                     .aria_label(label.clone())
                     .child(label)
                     .test_support(),
             );
-        header = header.children(self.tile_controls(kind, cx));
+        if self.layout.area(kind) == Some(layout::Area::Beside) {
+            header = header.child(div().text_color(rgb(p.muted)).child("split"));
+        }
+        if kind != TileKind::Note {
+            header = header.children(self.tile_controls(kind, cx));
+        }
         header
             .child(
                 pill(format!("tile-max-{key}"), if maximized { "⤡" } else { "⤢" })
@@ -187,7 +193,7 @@ impl ThreadsUi {
             )
             .child(
                 pill(format!("tile-close-{key}"), "✕")
-                    .tooltip("Close tile")
+                    .tooltip("Close panel · your work stays saved or recoverable")
                     .on_click(cx.listener(move |this, _, window, cx| {
                         this.relayout(window, cx, |layout| layout.close(kind))
                     })),
@@ -253,21 +259,31 @@ impl ThreadsUi {
                             view.relayout(window, cx, |layout| layout.close(kind))
                         },
                     ))
+                    .item(item(
+                        &this,
+                        "Close other splits",
+                        None,
+                        !layout.has_splits(),
+                        false,
+                        move |view, window, cx| {
+                            view.relayout(window, cx, |layout| layout.close_other_splits(kind))
+                        },
+                    ))
                     .separator()
-                    .label("Open tile");
+                    .label("Open beside");
                 for other in TileKind::ALL
                     .into_iter()
-                    .filter(|other| !layout.contains(*other))
+                    .filter(|other| *other != TileKind::Settings)
                 {
                     menu = menu.item(item(
                         &this,
                         other.label(),
                         None,
                         false,
-                        false,
-                        move |view, _, cx| {
+                        layout.contains(other),
+                        move |view, window, cx| {
                             view.layout.set_focus(kind);
-                            view.show_tile(other, cx);
+                            view.show_beside(other, window, cx);
                         },
                     ));
                 }
@@ -299,6 +315,20 @@ impl ThreadsUi {
     fn tile_row(&mut self, window: &mut Window, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         let p = pal();
         let visible = self.layout.visible();
+        let reveal = (
+            visible.iter().map(|tile| tile.kind).collect::<Vec<_>>(),
+            self.layout.focus(),
+        );
+        if self.tile_reveal.as_ref() != Some(&reveal) {
+            if let Some(index) = visible
+                .iter()
+                .position(|tile| Some(tile.kind) == self.layout.focus())
+            {
+                // The row alternates panels and split handles.
+                self.tile_scroll.scroll_to_item(index * 2);
+            }
+            self.tile_reveal = Some(reveal);
+        }
         let mut row = div()
             .id("tile-row")
             .test_support()
@@ -308,6 +338,7 @@ impl ThreadsUi {
             .w_full()
             .p(px(6.))
             .overflow_x_scroll()
+            .track_scroll(&self.tile_scroll)
             .bg(rgb(p.paper))
             .on_drag_move(
                 cx.listener(|this, event: &DragMoveEvent<SplitDrag>, _, cx| {
@@ -345,7 +376,6 @@ impl ThreadsUi {
                 );
             }
             let kind = tile.kind;
-            let focused = self.layout.focus() == Some(kind);
             let mut frame = div()
                 .id(format!("tile-{}", kind.key()))
                 .test_support()
@@ -365,7 +395,9 @@ impl ThreadsUi {
                     }))
                 .flex_basis(px(0.))
                 .border_1()
-                .border_color(rgb(if focused { p.accent } else { p.border }))
+                .border_color(rgb(p.border))
+                .rounded(px(6.))
+                .overflow_hidden()
                 .bg(rgb(p.tile))
                 .on_mouse_down(
                     MouseButton::Left,
@@ -384,10 +416,26 @@ impl ThreadsUi {
             frame.style().flex_grow = Some(tile.weight);
             frame.style().flex_shrink = Some(1.);
             let header = self.tile_header(kind, cx);
+            let controls = (kind == TileKind::Note).then(|| {
+                div()
+                    .id("note-toolbar")
+                    .flex()
+                    .flex_wrap()
+                    .flex_shrink_0()
+                    .items_center()
+                    .gap_1()
+                    .px_2()
+                    .py_1()
+                    .border_b_1()
+                    .border_color(rgb(p.border))
+                    .children(self.tile_controls(kind, cx))
+                    .test_support()
+            });
             let body = self.tile_body(kind, window, cx);
             row = row.child(
                 frame
                     .child(header)
+                    .children(controls)
                     .child(div().flex_1().min_h_0().w_full().child(body)),
             );
         }
@@ -459,9 +507,9 @@ impl ThreadsUi {
                 None,
                 false,
                 false,
-                |view, _, cx| {
+                |view, window, cx| {
                     view.settings_section = SettingsSection::Models;
-                    view.show_tile(TileKind::Settings, cx);
+                    view.show_tile(TileKind::Settings, window, cx);
                 },
             ))
     }
@@ -480,6 +528,157 @@ impl ThreadsUi {
         }
         menu
     }
+    pub(super) fn show_beside(
+        &mut self,
+        kind: TileKind,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        self.relayout(window, cx, |layout| layout.open_beside(kind));
+        self.refresh();
+        if kind == TileKind::Connections {
+            self.refresh_connections(cx);
+        }
+        cx.notify();
+    }
+    /// Navigation reflects the focused destination, not all panels left open.
+    pub(super) fn navigation_focus(&self) -> Option<TileKind> {
+        match self.layout.focus()? {
+            TileKind::Threads | TileKind::AllThreads | TileKind::Chat | TileKind::Linked => {
+                Some(TileKind::Threads)
+            }
+            TileKind::Notes | TileKind::Note | TileKind::Connections | TileKind::Compare => {
+                Some(TileKind::Notes)
+            }
+            kind => Some(kind),
+        }
+    }
+    fn navigation_bar(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
+        let p = pal();
+        let this = cx.entity().downgrade();
+        let layout = self.layout.clone();
+        let mut bar = div()
+            .id("workspace-navigation")
+            .flex()
+            .flex_shrink_0()
+            .items_center()
+            .gap_1()
+            .px_2()
+            .py_1()
+            .overflow_x_scroll()
+            .bg(rgb(p.alt))
+            .border_b_1()
+            .border_color(rgb(p.border));
+        for (id, label, kind) in [
+            ("browse-chats", "Chats", TileKind::Threads),
+            ("open-notes", "Notes", TileKind::Notes),
+            ("actions", "Tasks", TileKind::Actions),
+        ] {
+            bar = bar.child(
+                pill(id, label)
+                    .selected(self.navigation_focus() == Some(kind))
+                    .on_click(
+                        cx.listener(move |view, _, window, cx| view.show_tile(kind, window, cx)),
+                    ),
+            );
+        }
+        bar.child(div().flex_1())
+            .child(
+                pill("history", "Changes")
+                    .selected(self.navigation_focus() == Some(TileKind::History))
+                    .tooltip("Workspace changes and Undo")
+                    .on_click(cx.listener(|view, _, window, cx| {
+                        view.show_tile(TileKind::History, window, cx)
+                    })),
+            )
+            .child(
+                pill("settings", "⚙")
+                    .accessibility_label("Settings")
+                    .tooltip("Settings (⌘,)")
+                    .selected(self.layout.settings_open())
+                    .on_click(cx.listener(|view, _, window, cx| {
+                        view.show_tile(TileKind::Settings, window, cx)
+                    })),
+            )
+            .child(
+                pill("open-beside", "Open beside ＋")
+                    .tooltip("Add an extra split · normal navigation reuses your working areas")
+                    .dropdown_menu(move |mut menu, _, _| {
+                        menu = menu.label("Open beside · existing panels are focused");
+                        for kind in TileKind::ALL
+                            .into_iter()
+                            .filter(|kind| *kind != TileKind::Settings)
+                        {
+                            menu = menu.item(item(
+                                &this,
+                                kind.label(),
+                                None,
+                                false,
+                                layout.contains(kind),
+                                move |view, window, cx| view.show_beside(kind, window, cx),
+                            ));
+                        }
+                        menu.separator().item(item(
+                            &this,
+                            "Close extra splits",
+                            None,
+                            !layout.has_splits(),
+                            false,
+                            |view, window, cx| {
+                                view.relayout(window, cx, |layout| {
+                                    layout.close_other_splits(TileKind::Settings)
+                                })
+                            },
+                        ))
+                    }),
+            )
+            .test_support()
+            .into_any_element()
+    }
+    fn settings_surface(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
+        let p = pal();
+        div()
+            .id("settings-surface")
+            .flex()
+            .flex_1()
+            .min_h_0()
+            .justify_center()
+            .p_2()
+            .bg(rgb(p.paper))
+            .child(
+                div()
+                    .flex()
+                    .flex_col()
+                    .w_full()
+                    .max_w(px(920.))
+                    .h_full()
+                    .min_h_0()
+                    .bg(rgb(p.tile))
+                    .border_1()
+                    .border_color(rgb(p.border))
+                    .child(
+                        div()
+                            .flex()
+                            .items_center()
+                            .gap_2()
+                            .px_3()
+                            .py_2()
+                            .border_b_1()
+                            .border_color(rgb(p.border))
+                            .child(div().flex_1().child("Settings"))
+                            .child(pill("close-settings", "Done · Esc").on_click(cx.listener(
+                                |view, _, window, cx| {
+                                    view.relayout(window, cx, |layout| {
+                                        layout.close(TileKind::Settings)
+                                    });
+                                },
+                            ))),
+                    )
+                    .child(div().flex_1().min_h_0().child(self.settings_tile(cx))),
+            )
+            .test_support()
+            .into_any_element()
+    }
     fn top_bar(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         let p = pal();
         let this = cx.entity().downgrade();
@@ -494,17 +693,25 @@ impl ThreadsUi {
             .h_full()
             .pr_3()
             .child(
-                div()
+                pill("home", "brn")
                     .font_family(MONO)
                     .font_weight(gpui_kit::FontWeight::BOLD)
                     .text_color(rgb(p.accent))
-                    .child("brn"),
+                    .accessibility_label("Home")
+                    .tooltip("Home (⌘0)")
+                    .selected(self.navigation_focus() == Some(TileKind::Overview))
+                    .on_click(cx.listener(|view, _, window, cx| {
+                        view.show_tile(TileKind::Overview, window, cx)
+                    })),
             )
             .child(
                 button("launcher")
-                    .label("⌕ Search notes, chats, commands…  ⌘K")
-                    .w(px(420.))
-                    .tooltip("Launcher (⌘K)")
+                    .label("Search…   ⌘K")
+                    .accessibility_label("Search notes, chats and commands")
+                    .w(px(220.))
+                    .min_w(px(150.))
+                    .flex_shrink(1.)
+                    .tooltip("Search notes, chats and commands (⌘K)")
                     .on_click(cx.listener(|this, _, window, cx| this.open_launcher(window, cx))),
             )
             .child(div().flex_1());
@@ -512,11 +719,14 @@ impl ThreadsUi {
             bar = bar.child(
                 button(format!("layout-{}", preset.key()))
                     .label(preset.label())
+                    .ghost()
                     .compact()
-                    .selected(
-                        self.layout.preset() == Some(preset) && self.layout.maximized().is_none(),
-                    )
-                    .tooltip(format!("{} layout ({shortcut})", preset.label()))
+                    .selected(self.layout.preset() == Some(preset))
+                    .tooltip(if preset == Preset::Solo {
+                        "Focus current panel / restore arrangement (⌥3)".into()
+                    } else {
+                        format!("Reset to {} layout ({shortcut})", preset.label())
+                    })
                     .on_click(cx.listener(move |this, _, window, cx| {
                         this.apply_layout(preset, window, cx)
                     })),
@@ -574,8 +784,8 @@ impl ThreadsUi {
             .gap_1()
             .h(px(32.))
             .px_2()
-            .font_family(MONO)
-            .text_xs()
+            .font_family(UI_FONT)
+            .text_size(SMALL_TEXT)
             .bg(rgb(p.alt))
             .border_t_1()
             .border_color(rgb(p.border));
@@ -632,18 +842,21 @@ impl ThreadsUi {
         }
         if let Some(open) = &self.note {
             let name = short(&title(&open.record));
-            bar = bar.child(if open.session.is_some() {
-                pill("status-save", format!("● {name} unsaved · ⌘S"))
-                    .tooltip("Save (⌘S)")
-                    .on_click(cx.listener(|this, _, window, cx| this.save(window, cx)))
-            } else {
-                pill(
-                    "status-save",
-                    format!("{name} v{} saved", open.record.version),
-                )
-                .tooltip("Saved · open What changed")
-                .on_click(cx.listener(|this, _, _, cx| this.show_tile(TileKind::History, cx)))
-            });
+            bar =
+                bar.child(if open.session.is_some() {
+                    pill("status-save", format!("● {name} unsaved · ⌘S"))
+                        .tooltip("Save (⌘S)")
+                        .on_click(cx.listener(|this, _, window, cx| this.save(window, cx)))
+                } else {
+                    pill(
+                        "status-save",
+                        format!("{name} v{} saved", open.record.version),
+                    )
+                    .tooltip("Saved · open What changed")
+                    .on_click(cx.listener(|this, _, window, cx| {
+                        this.show_tile(TileKind::History, window, cx)
+                    }))
+                });
         }
         let layout_label = match (self.layout.maximized(), self.layout.preset()) {
             (Some(kind), _) => format!("⊞ max · {}", kind.label()),
@@ -742,7 +955,7 @@ impl ThreadsUi {
                 .gap_2()
                 .px_3()
                 .py_1()
-                .text_sm()
+                .text_size(UI_TEXT)
                 .bg(rgb(p.tile))
                 .border_t_1()
                 .border_color(rgb(p.border))
@@ -799,8 +1012,8 @@ impl ThreadsUi {
                     .child(div().flex_1().min_w_0().child(label))
                     .child(
                         div()
-                            .font_family(MONO)
-                            .text_xs()
+                            .font_family(UI_FONT)
+                            .text_size(SMALL_TEXT)
                             .text_color(rgb(p.muted))
                             .child(shortcut),
                     )
@@ -857,6 +1070,8 @@ impl ThreadsUi {
             .into_any_element()
     }
     pub(super) fn focus_tile_contents(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        // Explicit navigation also reveals a panel manually scrolled away since last focus.
+        self.tile_reveal = None;
         match self.layout.focus() {
             Some(TileKind::Note) => self.focus_visible_editor(window, cx),
             Some(TileKind::Chat) => self
@@ -872,11 +1087,28 @@ impl Render for ThreadsUi {
     fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         let _retained = (&self.subscriptions, &self.poll);
         let p = pal();
-        let tiles = self.tile_row(window, cx);
+        let tiles = if self.layout.settings_open() {
+            self.settings_surface(cx)
+        } else {
+            self.tile_row(window, cx)
+        };
         let mut root = div()
             .id("workspace-root")
+            .font_family(UI_FONT)
+            .text_size(UI_TEXT)
             .track_focus(&self.root_focus)
             .key_context("BrnWorkspace")
+            .capture_key_down(
+                cx.listener(|view, event: &gpui_kit::KeyDownEvent, window, cx| {
+                    if event.keystroke.key == "escape"
+                        && view.layout.settings_open()
+                        && !view.launcher_open
+                    {
+                        view.relayout(window, cx, |layout| layout.close(TileKind::Settings));
+                        cx.stop_propagation();
+                    }
+                }),
+            )
             .relative()
             .size_full()
             .flex()
@@ -897,7 +1129,9 @@ impl Render for ThreadsUi {
                     this.ask(window, cx);
                 }
             }))
-            .on_action(cx.listener(|this, _: &Home, _, cx| this.show_tile(TileKind::Overview, cx)))
+            .on_action(cx.listener(|this, _: &Home, window, cx| {
+                this.show_tile(TileKind::Overview, window, cx)
+            }))
             .on_action(cx.listener(|this, _: &NewNote, window, cx| this.new_note(window, cx)))
             .on_action(cx.listener(|this, _: &NewThread, window, cx| this.new_thread(window, cx)))
             .on_action(
@@ -906,6 +1140,8 @@ impl Render for ThreadsUi {
             .on_action(cx.listener(|this, _: &Cancel, window, cx| {
                 if this.launcher_open {
                     this.close_launcher(window, cx);
+                } else if this.layout.settings_open() {
+                    this.relayout(window, cx, |layout| layout.close(TileKind::Settings));
                 } else {
                     this.cancel(cx);
                 }
@@ -943,9 +1179,9 @@ impl Render for ThreadsUi {
                     this.relayout(window, cx, |layout| layout.toggle_maximize(kind));
                 }
             }))
-            .on_action(
-                cx.listener(|this, _: &OpenSettings, _, cx| this.show_tile(TileKind::Settings, cx)),
-            )
+            .on_action(cx.listener(|this, _: &OpenSettings, window, cx| {
+                this.show_tile(TileKind::Settings, window, cx)
+            }))
             .on_action(cx.listener(|this, _: &LayoutWrite, window, cx| {
                 this.apply_layout(Preset::Write, window, cx)
             }))
@@ -957,6 +1193,7 @@ impl Render for ThreadsUi {
             }))
             .on_action(cx.listener(|this, _: &ShowKeys, window, cx| this.show_keys(window, cx)))
             .child(self.top_bar(cx))
+            .child(self.navigation_bar(cx))
             .child(tiles)
             .children(self.notice_line(cx))
             .child(self.status_bar(cx));
