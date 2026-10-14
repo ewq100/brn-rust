@@ -549,3 +549,42 @@ python3 scripts/evaluate_wiki_v2.py --root ABS_FRESH --seeder target/release/exa
 - Bundle 5 helps reworded questions (R9 here, and in the effort screen) without hurting abstention. It changes nothing measurable in S2 or S3.
 - **The 8-round budget is the binding limit for intake at this wiki size.** It affects both bundles. S1 cannot judge bundle 5 until that changes.
 - Candidate fixes are a larger default intake budget, or compact tool output (design §7 item 5). Either needs a measured S1 rerun of about 2 million tokens.
+
+## Compact intake: bundle 6 S1 rerun (14 October 2026)
+
+**Request:** the owner asked to compact intake and raise its limit, then rerun S1.
+
+**Trace diagnosis** (the bundle 4 and 5 S1 runs above):
+- Every intake spent round 1 loading playbooks.
+- Every intake listed records with `read_records` and no IDs: 100 full records, about 51 KB. Literal queries such as "Kitchen" returned another 100 full records (about 53 KB).
+- Empty searches were correct: "Tõnis", "Puidukoda" and "Liis choir" were new information.
+- In one run, `prepare_changes` failed twice per step with identical arguments, because the model saw only "Local storage operation failed."
+
+**Changes** (`brn-threads-guidance-6`):
+- Runs with supplied sources start with the intake and maintain-notes playbooks loaded and get 12 tool rounds (`threads::default_tool_rounds`). Other runs keep 8.
+- With search offered, a `read_records` listing returns compact note rows (id, version, title, bytes, protected, imported) without Markdown. Exact IDs still return complete records.
+- `prepare_changes` returns outcome `Invalid` with the store's rule when the request breaks one. Scope rejections stay generic, so chat privacy is unchanged.
+- Harness: `no_writes` counts a Link only when one of its ends is a note. A chat-to-Source link keeps the source in its chat.
+
+**Live S1:** one arm, bundle 6, Codex `gpt-6.1-sol` at medium effort, two repetitions, 14 runs.
+
+| | Bundle 4 (B-r1) | Bundle 5 (D-r2) | Bundle 6 r1 | Bundle 6 r2 |
+|---|---|---|---|---|
+| Intake steps completed | 2/5 | 4/5 | 5/5 | 5/5 |
+| Intake rounds (max) | 8 (limit) | 8 (limit) | 11 | 11 |
+| Intake tokens, median per step | 212k | 145k | 128k | 128k |
+| Tokens for the case | 1.07M | 0.96M | 0.89M | 0.80M |
+| Bytes read for the case | about 0.47M | about 0.50M | 0.21M (median of the two bundle 6 runs) | |
+| Facts kept, Topics, links, search ranks | all | lost 9 Nov and 7,600 EUR | all | all |
+| S1 checks | lineage only (harness error) | 5 failed | `no_writes` on step 3 | **all pass** |
+
+- Run 1's `no_writes` failure was a Link from the step's chat Thread to its Source (`source` relation), checked in the run's data. No note was written. That is the expected "keep in the chat" decision, and the check is corrected with a test. With the correction, both runs pass S1.
+- Two intakes used 9 and 11 rounds. The limit of 12 is what let them finish.
+- Run 1's step 6 (the organizing request, still at budget 8) hit its limit, but the end state passed.
+- **Token savings are smaller than byte savings**, because preloaded playbooks are resent with every model turn. Bytes read fell 57%; tokens fell 15–25%.
+- Total live use for this rerun was about 1.7 million tokens.
+
+**Remaining:**
+- Listings still happen once per intake, now compact.
+- Organizing requests use 8 rounds.
+- N is 2.
