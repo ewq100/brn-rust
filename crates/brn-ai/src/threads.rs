@@ -708,7 +708,21 @@ fn read_records(scope: &Scope, args: ReadArgs) -> AiResult<Value> {
             break;
         }
     }
-    Ok(json!({"records":rows,"limit":100}))
+    let mut out = json!({"records":rows,"limit":100});
+    // Only listings: a note read by ID is already in context.
+    if args.ids.is_empty() {
+        let ids = out["records"]
+            .as_array()
+            .into_iter()
+            .flatten()
+            .filter(|row| row["kind"] == "Note")
+            .filter_map(|row| row["id"].as_str().map(str::to_owned))
+            .collect::<Vec<_>>();
+        if let Some(hint) = research::large_notes_hint(scope, &store, ids)? {
+            out["large_notes"] = hint;
+        }
+    }
+    Ok(out)
 }
 fn read_note(scope: &Scope, args: ReadNoteArgs) -> AiResult<Value> {
     if scope.writing_snapshot.is_some() {
@@ -1307,6 +1321,35 @@ struct BatchHook {
     allowed: Option<&'static [&'static str]>,
     /// Shared helper input-token budget: (spent, cap).
     tokens: Option<(Arc<AtomicU64>, u64)>,
+    /// Tool calls dispatched in the current model turn.
+    turn_calls: AtomicU16,
+}
+impl BatchHook {
+    /// A helper call the host skips with an instructive result, so one bad
+    /// call or oversized batch never fails the whole sub-run.
+    fn helper_denial(&self, name: &str, args: &Value) -> Option<String> {
+        self.allowed?;
+        let index = self.turn_calls.fetch_add(1, Ordering::SeqCst) + 1;
+        if usize::from(index) > research::HELPER_BATCH {
+            return Some(format!(
+                "Skipped: at most {} tool calls per turn. Repeat this call in a later turn only if you still need it.",
+                research::HELPER_BATCH
+            ));
+        }
+        if name != "submit_findings" && self.rounds.load(Ordering::SeqCst) > self.limit {
+            return Some("Skipped: your research budget is spent. Call submit_findings now with what you found and list unread leads as gaps.".into());
+        }
+        if !parse_valid(name, args) {
+            return Some(if name == "submit_findings" {
+                research::FINDINGS_LIMITS.into()
+            } else {
+                format!(
+                    "Skipped: invalid arguments for {name}. Check its schema and limits and call it again."
+                )
+            });
+        }
+        None
+    }
 }
 impl AgentHook for BatchHook {
     async fn on_dispatch(&self, _: &HookContext, event: DispatchEvent<'_>) -> DispatchAction {
@@ -1345,6 +1388,15 @@ impl AgentHook for BatchHook {
                 }
             );
             (self.emit)(AiEvent::Activity(text));
+            if let Some(message) = self.helper_denial(
+                name,
+                &serde_json::from_str(event.tool_args().unwrap_or("{}")).unwrap_or(Value::Null),
+            ) {
+                return DispatchAction::Deny(rig::error::ErrorReport::new(
+                    rig::error::ErrorKind::Denied,
+                    message,
+                ));
+            }
         }
         DispatchAction::Proceed
     }
@@ -1382,15 +1434,20 @@ impl AgentHook for BatchHook {
                 }
             })
             .collect();
+        // A helper's schema-invalid call is skipped at dispatch with an
+        // instructive result; unparseable or foreign calls still end its run.
+        let helper = self.allowed.is_some();
+        self.turn_calls.store(0, Ordering::SeqCst);
         if calls.iter().any(|call| {
             call.function.invalid_arguments.is_some()
                 || self
                     .allowed
                     .is_some_and(|allowed| !allowed.contains(&call.function.name.as_str()))
-                || !parse_valid(
-                    &call.function.name,
-                    &Value::Object(call.function.arguments.clone()),
-                )
+                || (!helper
+                    && !parse_valid(
+                        &call.function.name,
+                        &Value::Object(call.function.arguments.clone()),
+                    ))
         }) {
             self.invalid.store(true, Ordering::SeqCst);
             if let Some(trace) = &self.trace {
@@ -1399,7 +1456,13 @@ impl AgentHook for BatchHook {
             }
             return ModelTurnAction::Stop("invalid tool batch".into());
         }
-        let rounds = if calls.is_empty() {
+        // A helper's report-only turn never spends a research round.
+        let report_only = helper
+            && !calls.is_empty()
+            && calls
+                .iter()
+                .all(|call| call.function.name == "submit_findings");
+        let rounds = if calls.is_empty() || report_only {
             self.rounds.load(Ordering::SeqCst)
         } else {
             self.rounds.fetch_add(1, Ordering::SeqCst) + 1
@@ -1417,7 +1480,14 @@ impl AgentHook for BatchHook {
                 + event.usage.input_tokens.unwrap_or(0)
                 >= *cap
         });
-        if rounds > self.limit || (over_tokens && !calls.is_empty()) {
+        // A helper gets one grace turn past its budget, in which only
+        // submit_findings runs; anything later stops it.
+        let over_rounds = if helper {
+            rounds > self.limit + 1
+        } else {
+            rounds > self.limit
+        };
+        if over_rounds || (over_tokens && !calls.is_empty() && !report_only) {
             self.limited.store(true, Ordering::SeqCst);
             if let Some(trace) = &self.trace {
                 trace.stop("budget");
@@ -2427,6 +2497,7 @@ async fn run_model(
             trace: scope.trace.clone(),
             allowed: None,
             tokens: None,
+            turn_calls: AtomicU16::new(0),
         })
         .build();
     let stream = agent

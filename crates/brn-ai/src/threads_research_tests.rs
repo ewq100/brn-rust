@@ -654,9 +654,10 @@ async fn a_helper_has_five_tool_rounds() {
     scripted(&scope, vec![Ok(looping.clone())]);
     let out = ask(&scope, vec![question("a")]).await;
     assert_eq!(out["reports"][0]["outcome"], "stopped", "{out}");
+    // Five research rounds and one report-only grace turn.
     assert_eq!(
         looping.request_count(),
-        usize::from(research::HELPER_ROUNDS) + 1
+        usize::from(research::HELPER_ROUNDS) + 2
     );
 }
 
@@ -1347,4 +1348,216 @@ async fn hidden_history_and_superseded_notes_are_never_verified() {
     assert!(hidden.get("quote_in_current").is_none(), "{hidden}");
     assert!(hidden.get("current_version").is_none(), "{hidden}");
     assert_eq!(by_ref("current")["verified"], "exact");
+}
+
+fn read_call(id: &str, note: &Record) -> MockStreamEvent {
+    MockStreamEvent::tool_call(
+        id,
+        "read_note",
+        json!({"id":note.id,"version":note.version,"start":0,"max_bytes":4096,"section":false}),
+    )
+}
+
+#[tokio::test]
+async fn oversized_helper_batches_and_bad_reports_are_recoverable() {
+    let (_root, mut request, plan) = setup();
+    request.trace = TraceLevel::Summary;
+    let (scope, _) = begin(&request).unwrap();
+    let quote = "The ferry leaves at 07:40 from pier 3.";
+    let mut bad = findings(vec![citation("c1", &plan.id, plan.version, PLAN, quote)]);
+    bad["citations"][0]["end"] = json!(bad["citations"][0]["start"].as_u64().unwrap() + 4096);
+    let mut good = findings(vec![citation("c1", &plan.id, plan.version, PLAN, quote)]);
+    // Coverage past its cap is trimmed, not rejected.
+    good["searched"] = json!(
+        (0..16)
+            .map(|i| json!({"query":format!("q{i}"),"mode":"keyword","total":0,"shown":0}))
+            .collect::<Vec<_>>()
+    );
+    let mut batch: Vec<_> = (0..8).map(|i| read_call(&format!("r{i}"), &plan)).collect();
+    batch.push(tokens(100));
+    let helper = MockCompletionModel::from_stream_turns(vec![
+        batch,
+        vec![
+            MockStreamEvent::tool_call("s1", "submit_findings", bad),
+            tokens(100),
+        ],
+        vec![
+            MockStreamEvent::tool_call("s2", "submit_findings", good),
+            tokens(100),
+        ],
+        vec![MockStreamEvent::text("unused"), tokens(1)],
+    ]);
+    scripted(&scope, vec![Ok(helper.clone())]);
+    let out = ask(&scope, vec![question("When does the ferry leave?")]).await;
+    let report = &out["reports"][0];
+    assert_eq!(report["outcome"], "answered", "{out}");
+    assert_eq!(report["citations"][0]["verified"], "exact");
+    assert_eq!(report["searched"].as_array().unwrap().len(), 12);
+    let traces = helper_traces(&scope);
+    let nested = traces[0].trace.as_ref().unwrap();
+    assert_eq!(nested.stopped, None);
+    let reads: Vec<_> = nested
+        .calls
+        .iter()
+        .filter(|c| c.tool == "read_note")
+        .map(|c| c.outcome.as_str())
+        .collect();
+    assert_eq!(reads.len(), 8);
+    assert!(reads[..6].iter().all(|o| *o == "success"), "{reads:?}");
+    assert!(reads[6..].iter().all(|o| *o != "success"), "{reads:?}");
+    // The skipped calls and the rejected report told the helper why.
+    let requests = format!("{:?}", helper.requests());
+    assert!(requests.contains("at most 6 tool calls per turn"));
+    assert!(requests.contains("submit_findings was rejected"));
+}
+
+#[tokio::test]
+async fn a_helper_past_its_rounds_gets_one_report_turn() {
+    let (_root, mut request, plan) = setup();
+    request.trace = TraceLevel::Summary;
+    let (scope, _) = begin(&request).unwrap();
+    let quote = "The ferry leaves at 07:40 from pier 3.";
+    let report = findings(vec![citation("c1", &plan.id, plan.version, PLAN, quote)]);
+    let mut turns: Vec<_> = (0..research::HELPER_ROUNDS + 1)
+        .map(|i| vec![read_call(&format!("r{i}"), &plan), tokens(100)])
+        .collect();
+    turns.push(vec![
+        MockStreamEvent::tool_call("s1", "submit_findings", report),
+        tokens(100),
+    ]);
+    turns.push(vec![MockStreamEvent::text("unused"), tokens(1)]);
+    let helper = MockCompletionModel::from_stream_turns(turns);
+    scripted(&scope, vec![Ok(helper.clone())]);
+    let out = ask(&scope, vec![question("When does the ferry leave?")]).await;
+    assert_eq!(out["reports"][0]["outcome"], "answered", "{out}");
+    let traces = helper_traces(&scope);
+    let nested = traces[0].trace.as_ref().unwrap();
+    let reads: Vec<_> = nested
+        .calls
+        .iter()
+        .filter(|c| c.tool == "read_note")
+        .map(|c| c.outcome.as_str())
+        .collect();
+    assert_eq!(reads.len(), usize::from(research::HELPER_ROUNDS) + 1);
+    assert_eq!(*reads.last().unwrap(), "skipped", "{reads:?}");
+    assert!(format!("{:?}", helper.requests()).contains("research budget is spent"));
+
+    // Ignoring the grace turn stops the run at its round budget.
+    let (_root, mut request, plan) = setup();
+    request.trace = TraceLevel::Summary;
+    let (scope, _) = begin(&request).unwrap();
+    let mut turns: Vec<_> = (0..research::HELPER_ROUNDS + 3)
+        .map(|i| vec![read_call(&format!("r{i}"), &plan), tokens(100)])
+        .collect();
+    turns.push(vec![MockStreamEvent::text("unused"), tokens(1)]);
+    scripted(
+        &scope,
+        vec![Ok(MockCompletionModel::from_stream_turns(turns))],
+    );
+    let out = ask(&scope, vec![question("When does the ferry leave?")]).await;
+    assert_eq!(out["reports"][0]["outcome"], "stopped", "{out}");
+    let traces = helper_traces(&scope);
+    assert_eq!(
+        traces[0].trace.as_ref().unwrap().stopped.as_deref(),
+        Some("budget")
+    );
+}
+
+/// Search that returns every listed note as a hit.
+struct ListSearch(Vec<(String, u64)>);
+impl RunNoteSearch for ListSearch {
+    fn search(
+        &self,
+        _: &str,
+        _: &str,
+        _: usize,
+        _: Option<&str>,
+        _: bool,
+    ) -> std::result::Result<NoteSearchPage, NoteSearchError> {
+        Ok(NoteSearchPage {
+            total: self.0.len(),
+            shown: self.0.len(),
+            cursor: None,
+            semantic: "none".into(),
+            results: self
+                .0
+                .iter()
+                .map(|(id, version)| NoteSearchResult {
+                    id: id.clone(),
+                    version: *version,
+                    title: "t".into(),
+                    heading_path: String::new(),
+                    snippet: String::new(),
+                    start: 0,
+                    matches: 1,
+                    protected: false,
+                    imported: false,
+                    evidence: false,
+                    inbound_links: 0,
+                })
+                .collect(),
+        })
+    }
+    fn connections(
+        &self,
+        _: &str,
+        _: &str,
+        _: u8,
+        _: bool,
+    ) -> std::result::Result<NoteNeighbourhood, NoteSearchError> {
+        Err(NoteSearchError::Rejected)
+    }
+}
+
+#[tokio::test]
+async fn long_notes_carry_a_research_hint_only_when_research_is_offered() {
+    for helper in [true, false] {
+        let (_root, mut request, plan) = setup();
+        if !helper {
+            set_helper(&request, None);
+        }
+        let manual = {
+            let mut store = Store::open(&request.data_dir).unwrap();
+            let body = format!("# Manual\n\n{}", "Routine step.\n".repeat(3000));
+            saved(&mut store, RecordData::Note(Note::working("Manual", &body)))
+        };
+        request.search = Some(Arc::new(ListSearch(vec![
+            (plan.id.clone(), plan.version),
+            (manual.id.clone(), manual.version),
+        ])));
+        let (scope, _) = begin(&request).unwrap();
+        let args = serde_json::from_value(
+            json!({"query":"manual","limit":10,"mode":"keyword","cursor":null}),
+        )
+        .unwrap();
+        let page = note_search::search_notes(scope.clone(), args)
+            .await
+            .unwrap();
+        let listing = read_records(
+            &scope,
+            serde_json::from_value(json!({"ids":[],"query":null})).unwrap(),
+        )
+        .unwrap();
+        let by_id = read_records(
+            &scope,
+            serde_json::from_value(json!({"ids":[manual.id],"query":null})).unwrap(),
+        )
+        .unwrap();
+        assert!(by_id.get("large_notes").is_none());
+        for out in [&page, &listing] {
+            if helper {
+                let notes = out["large_notes"]["notes"].as_array().unwrap();
+                assert_eq!(notes.len(), 1, "{out}");
+                assert_eq!(notes[0]["id"], manual.id.as_str());
+                assert!(
+                    out["large_notes"]["hint"]
+                        .as_str()
+                        .unwrap()
+                        .contains("research")
+                );
+            } else {
+                assert!(out.get("large_notes").is_none(), "{out}");
+            }
+        }
+    }
 }
