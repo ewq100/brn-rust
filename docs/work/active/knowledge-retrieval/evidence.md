@@ -762,3 +762,15 @@ An independent review of the prototype found six Medium issues; they were fixed 
 - **Small sample:** N is 2 per arm, and no significance is claimed.
 - **DuplicateTitle:** the opening-hours conflict (13:00 versus 14:00) still needs the owner. Agents merge or ask inconsistently. Both behaviours pass the preservation check.
 - **Rounds:** D-review used 7–8 of its 8 rounds, so larger reviews may still need more budget.
+
+**Review follow-up (offline only).** An independent review led to these hardening changes after the A/B above. The live runs measured the earlier build (`be577ebf`), so S2 should be re-measured before acceptance.
+
+- **Conflicts:** Supersession findings list inbound `contradicts` links separately, to keep or ask about, and never offer them for re-pointing. "Already linking the replacement" now requires the same relation. A broken `contradicts` link is marked as a recorded conflict. The remedies and maintain-notes step 7 forbid archiving or re-pointing a `contradicts` link without an owner decision.
+- **Privacy:** a broken link names its replacement only when it is a current general note. The check follows a supersession chain to that note, and never names chat-owned or project material.
+- **Bounds:**
+  - Record lists, already-linking titles and duplicate names stop at 10 per finding, followed by "and N more".
+  - The seeded review stops at 16 KiB (`REVIEW_MESSAGE_BYTES`) and counts the findings it does not list.
+- **Remedy wording:** remedies are scoped to ordinary unprotected notes, with protected or owner-written material going through the conflict playbook. When no relation name is recommended, the agent picks the most used one and says so.
+- **Connections:** `note_connections` and CLI `connections` list every Link behind a relation, including duplicates, as `{id, version, relation}`.
+- **Tests:** `supersession_keeps_recorded_conflicts_and_matches_relations`, `broken_links_name_only_current_general_replacements`, `hub_findings_and_the_review_message_stay_bounded` and the extended `connections_are_bounded_ordered_and_visibility_checked`.
+- **Gates:** fmt, clippy `-D warnings`, the workspace tests and 131 Python tests pass.

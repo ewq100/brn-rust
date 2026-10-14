@@ -406,11 +406,9 @@ async fn s2_review_names_the_links_one_change_group_resolves() {
         (old.as_str(), new.as_str()),
         (case.id("fees-2025"), case.id("fees-2026"))
     );
-    assert!(
-        supersession
-            .detail
-            .contains("Already linking the replacement: “Bicycle coop”")
-    );
+    assert!(supersession.detail.contains(
+        "Already linking the replacement with the same relation: “Bicycle coop” (`related`)"
+    ));
     let inbound = link(inbound);
     for text in [
         rename.id.as_str(),

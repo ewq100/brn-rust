@@ -95,8 +95,16 @@ pub enum NodeKind {
 pub struct Relation {
     pub relation: String,
     pub outgoing: bool,
-    /// The Link record, for renaming, re-pointing or archiving it.
-    pub link: String,
+    /// Every Link record with this relation and direction, for renaming,
+    /// re-pointing or archiving it.
+    pub links: Vec<LinkRef>,
+}
+
+/// A Link record and its current version (`expected_version` for an update).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LinkRef {
+    pub id: String,
+    pub version: u64,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -1059,17 +1067,24 @@ fn neighbours(
                 order.push(other.clone());
                 (node.clone(), Vec::new())
             });
-            if entry.0 == *node
-                && !entry
-                    .1
-                    .iter()
-                    .any(|r| r.relation == link.relation && r.outgoing == outgoing)
+            if entry.0 != *node {
+                continue;
+            }
+            let link_ref = LinkRef {
+                version: snapshot.record(&link.id)?.map_or(0, |r| r.version),
+                id: link.id,
+            };
+            match entry
+                .1
+                .iter_mut()
+                .find(|r| r.relation == link.relation && r.outgoing == outgoing)
             {
-                entry.1.push(Relation {
+                Some(existing) => existing.links.push(link_ref),
+                None => entry.1.push(Relation {
                     relation: link.relation,
                     outgoing,
-                    link: link.id,
-                });
+                    links: vec![link_ref],
+                }),
             }
         }
     }
@@ -1364,7 +1379,20 @@ fn agent_node(node: Neighbour) -> brn_ai::threads::ConnectionNode {
             NodeKind::Source => "source",
         }
         .into(),
-        links: node.relations.iter().map(|r| r.link.clone()).collect(),
+        links: node
+            .relations
+            .iter()
+            .flat_map(|r| {
+                let relation = format!("{}:{}", if r.outgoing { "out" } else { "in" }, r.relation);
+                r.links
+                    .iter()
+                    .map(move |l| brn_ai::threads::ConnectionLink {
+                        id: l.id.clone(),
+                        version: l.version,
+                        relation: relation.clone(),
+                    })
+            })
+            .collect(),
         relations: node
             .relations
             .into_iter()

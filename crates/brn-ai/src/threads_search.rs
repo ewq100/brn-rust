@@ -90,12 +90,21 @@ pub struct ConnectionNode {
     /// Recorded links, as `out:relation` when the centre (or `via`) links to
     /// this node and `in:relation` when this node links to it.
     pub relations: Vec<String>,
-    /// The Link record ID behind each entry of `relations`, in order.
+    /// Every Link record behind `relations`, with its current version for
+    /// `expected_version` when renaming, re-pointing or archiving it.
     #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub links: Vec<String>,
+    pub links: Vec<ConnectionLink>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub via: Option<String>,
     pub inbound_links: usize,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct ConnectionLink {
+    pub id: String,
+    pub version: u64,
+    /// The `relations` entry it records, such as `out:related`.
+    pub relation: String,
 }
 
 pub const MAX_SEARCH_LIMIT: usize = 20;
