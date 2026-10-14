@@ -33,22 +33,55 @@ pub enum Stratum {
     Section,
     Topic,
     Abstention,
+    Described,
+    #[serde(rename = "near-duplicate")]
+    NearDuplicate,
+    Scattered,
+    #[serde(rename = "sentence-paraphrase")]
+    SentenceParaphrase,
+    #[serde(rename = "deep-section")]
+    DeepSection,
+    Supersession,
 }
 
 impl Stratum {
-    pub const ALL: [Stratum; 6] = [
+    pub const ALL: [Stratum; 12] = [
         Stratum::Exact,
         Stratum::Inflection,
         Stratum::Paraphrase,
         Stratum::Section,
         Stratum::Topic,
         Stratum::Abstention,
+        Stratum::Described,
+        Stratum::NearDuplicate,
+        Stratum::Scattered,
+        Stratum::SentenceParaphrase,
+        Stratum::DeepSection,
+        Stratum::Supersession,
     ];
+    /// The six strata of the first golden set. `Report::overall` still covers
+    /// only these, so it stays comparable with earlier recorded figures.
+    pub fn is_original(self) -> bool {
+        matches!(
+            self,
+            Stratum::Exact
+                | Stratum::Inflection
+                | Stratum::Paraphrase
+                | Stratum::Section
+                | Stratum::Topic
+                | Stratum::Abstention
+        )
+    }
     pub fn expected_cases(self) -> usize {
         match self {
-            Stratum::Exact | Stratum::Inflection | Stratum::Paraphrase => 20,
-            Stratum::Section | Stratum::Abstention => 15,
-            Stratum::Topic => 10,
+            Stratum::Exact
+            | Stratum::Inflection
+            | Stratum::Paraphrase
+            | Stratum::SentenceParaphrase => 20,
+            Stratum::Section | Stratum::Abstention | Stratum::Described => 15,
+            Stratum::Topic | Stratum::NearDuplicate => 10,
+            Stratum::Scattered => 8,
+            Stratum::DeepSection | Stratum::Supersession => 5,
         }
     }
     pub fn name(self) -> &'static str {
@@ -59,6 +92,12 @@ impl Stratum {
             Stratum::Section => "section",
             Stratum::Topic => "topic",
             Stratum::Abstention => "abstention",
+            Stratum::Described => "described",
+            Stratum::NearDuplicate => "near-duplicate",
+            Stratum::Scattered => "scattered",
+            Stratum::SentenceParaphrase => "sentence-paraphrase",
+            Stratum::DeepSection => "deep-section",
+            Stratum::Supersession => "supersession",
         }
     }
 }
@@ -70,6 +109,9 @@ pub struct Golden {
     pub description: String,
     pub vocabulary: Vec<String>,
     pub long_notes: Vec<LongNote>,
+    /// Enlarged long notes whose planted sections lie beyond 128 KiB; generated
+    /// separately so the original long notes keep their exact text.
+    pub deep_notes: Vec<LongNote>,
     pub topics: Vec<Topic>,
     pub cases: Vec<Case>,
 }
@@ -96,7 +138,76 @@ pub struct Case {
     pub stratum: Stratum,
     pub query: String,
     pub plant: Option<Plant>,
+    /// Further relevant notes: the other evidence notes of a scattered case,
+    /// or the superseded note of a supersession case.
+    #[serde(default)]
+    pub more: Vec<Plant>,
+    /// Near-duplicate cases: the generator for the target's sibling notes.
+    #[serde(default)]
+    pub family: Option<Family>,
+    /// Links created between the case's notes.
+    #[serde(default)]
+    pub links: Vec<CaseLink>,
     pub relevant: Vec<String>,
+}
+
+/// Titles and texts of one near-duplicate family: the cartesian product of
+/// `axes` fills the `{0}`, `{1}`… placeholders; `target` selects the planted note.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Family {
+    pub title: String,
+    pub text: String,
+    pub axes: Vec<Vec<String>>,
+    pub target: Vec<usize>,
+}
+
+impl Family {
+    fn combos(&self) -> Vec<Vec<usize>> {
+        let mut combos = vec![vec![]];
+        for axis in &self.axes {
+            combos = combos
+                .into_iter()
+                .flat_map(|c| {
+                    (0..axis.len()).map(move |i| {
+                        let mut next = c.clone();
+                        next.push(i);
+                        next
+                    })
+                })
+                .collect();
+        }
+        combos
+    }
+    fn render(&self, template: &str, combo: &[usize]) -> String {
+        let mut out = template.to_string();
+        for (axis, &value) in combo.iter().enumerate() {
+            out = out.replace(&format!("{{{axis}}}"), &self.axes[axis][value]);
+        }
+        out
+    }
+    /// (title, text) of every note of the family except the target.
+    fn siblings(&self) -> Vec<(String, String)> {
+        self.combos()
+            .iter()
+            .filter(|c| **c != self.target)
+            .map(|c| (self.render(&self.title, c), self.render(&self.text, c)))
+            .collect()
+    }
+    fn target_note(&self) -> (String, String) {
+        (
+            self.render(&self.title, &self.target),
+            self.render(&self.text, &self.target),
+        )
+    }
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct CaseLink {
+    pub from: String,
+    pub to: String,
+    pub relation: String,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -147,8 +258,19 @@ pub fn validate(golden: &Golden) -> Result<()> {
         .iter()
         .map(|n| (n.title.as_str(), n))
         .collect();
+    let deep: BTreeMap<_, _> = golden
+        .deep_notes
+        .iter()
+        .map(|n| (n.title.as_str(), n))
+        .collect();
     let topics: BTreeSet<_> = golden.topics.iter().map(|t| t.title.as_str()).collect();
-    if long.len() != golden.long_notes.len() || topics.len() != golden.topics.len() {
+    if long.len() != golden.long_notes.len()
+        || deep.len() != golden.deep_notes.len()
+        || topics.len() != golden.topics.len()
+        || deep
+            .keys()
+            .any(|t| long.contains_key(t) || topics.contains(t))
+    {
         return Err("duplicate long note or topic title".into());
     }
     for stratum in Stratum::ALL {
@@ -157,8 +279,11 @@ pub fn validate(golden: &Golden) -> Result<()> {
             return Err(format!("{} has {count} cases", stratum.name()).into());
         }
     }
+    let reserved = |title: &str| {
+        long.contains_key(title) || deep.contains_key(title) || topics.contains(title)
+    };
     let mut ids = BTreeSet::new();
-    let mut subjects = BTreeSet::new();
+    let mut subjects: BTreeSet<String> = BTreeSet::new();
     for case in &golden.cases {
         if !ids.insert(case.id.as_str()) {
             return Err(format!("duplicate case id {}", case.id).into());
@@ -166,7 +291,20 @@ pub fn validate(golden: &Golden) -> Result<()> {
         if case.query.trim().is_empty() || case.query.len() > 512 {
             return Err(format!("{}: query length", case.id).into());
         }
-        let expected: Vec<&str> = match (case.stratum, &case.plant) {
+        let shape = match case.stratum {
+            Stratum::Scattered => (1..=2).contains(&case.more.len()) && case.family.is_none(),
+            Stratum::Supersession => {
+                case.more.len() == 1 && case.family.is_none() && case.links.len() == 1
+            }
+            Stratum::NearDuplicate => {
+                case.more.is_empty() && case.family.is_some() && case.links.is_empty()
+            }
+            _ => case.more.is_empty() && case.family.is_none() && case.links.is_empty(),
+        };
+        if !shape {
+            return Err(format!("{}: unexpected or missing case fields", case.id).into());
+        }
+        let expected: Vec<String> = match (case.stratum, &case.plant) {
             (Stratum::Topic | Stratum::Abstention, Some(_)) => {
                 return Err(format!("{}: unexpected plant", case.id).into());
             }
@@ -178,8 +316,13 @@ pub fn validate(golden: &Golden) -> Result<()> {
                 continue;
             }
             (_, None) => return Err(format!("{}: missing plant", case.id).into()),
-            (Stratum::Section, Some(plant)) => {
-                let note = long
+            (Stratum::Section | Stratum::DeepSection, Some(plant)) => {
+                let notes = if case.stratum == Stratum::Section {
+                    &long
+                } else {
+                    &deep
+                };
+                let note = notes
                     .get(plant.note.as_str())
                     .ok_or(format!("{}: unknown long note", case.id))?;
                 let section = plant
@@ -189,21 +332,42 @@ pub fn validate(golden: &Golden) -> Result<()> {
                 if !note.sections.iter().any(|s| s == section) {
                     return Err(format!("{}: unknown section", case.id).into());
                 }
-                vec![plant.note.as_str()]
+                vec![plant.note.clone()]
             }
             (_, Some(plant)) => {
-                if plant.section.is_some()
-                    || long.contains_key(plant.note.as_str())
-                    || topics.contains(plant.note.as_str())
-                    || !subjects.insert(plant.note.as_str())
-                {
-                    return Err(format!("{}: subject note must be distinct", case.id).into());
+                let mut names = Vec::new();
+                for p in std::iter::once(plant).chain(&case.more) {
+                    if p.section.is_some() || reserved(&p.note) || !subjects.insert(p.note.clone())
+                    {
+                        return Err(format!("{}: subject note must be distinct", case.id).into());
+                    }
+                    names.push(p.note.clone());
                 }
-                vec![plant.note.as_str()]
+                if let Some(family) = &case.family {
+                    family_rules(case, plant, family, &reserved, &mut subjects)?;
+                }
+                for link in &case.links {
+                    let relation = if case.stratum == Stratum::Supersession {
+                        relations::SUPERSEDES
+                    } else {
+                        relations::RELATED
+                    };
+                    let supersession_order = link.from == names[0]
+                        && link.to == names.get(1).cloned().unwrap_or_default();
+                    if link.from == link.to
+                        || link.relation != relation
+                        || !names.contains(&link.from)
+                        || !names.contains(&link.to)
+                        || (case.stratum == Stratum::Supersession && !supersession_order)
+                    {
+                        return Err(format!("{}: invalid case link", case.id).into());
+                    }
+                }
+                names
             }
         };
-        if case.relevant.iter().map(String::as_str).collect::<Vec<_>>() != expected {
-            return Err(format!("{}: relevance must name the planted note", case.id).into());
+        if case.relevant != expected {
+            return Err(format!("{}: relevance must name the planted notes", case.id).into());
         }
     }
     for topic in &golden.topics {
@@ -219,16 +383,55 @@ pub fn validate(golden: &Golden) -> Result<()> {
     lexical_rules(golden)
 }
 
+/// Near-duplicate families: the planted note is the generator's target, and at
+/// least ten sibling notes with distinct titles surround it.
+fn family_rules(
+    case: &Case,
+    plant: &Plant,
+    family: &Family,
+    reserved: &dyn Fn(&str) -> bool,
+    subjects: &mut BTreeSet<String>,
+) -> Result<()> {
+    let combos: usize = family.axes.iter().map(Vec::len).product();
+    let in_range = family.target.len() == family.axes.len()
+        && family
+            .target
+            .iter()
+            .zip(&family.axes)
+            .all(|(&value, axis)| value < axis.len());
+    if family.axes.len() < 2 || family.axes.iter().any(Vec::is_empty) || !in_range {
+        return Err(format!("{}: invalid family axes or target", case.id).into());
+    }
+    if combos < 11 {
+        return Err(format!("{}: family needs at least 10 siblings", case.id).into());
+    }
+    if family.target_note() != (plant.note.clone(), plant.text.clone()) {
+        return Err(format!("{}: plant must be the family target", case.id).into());
+    }
+    for (title, _) in family.siblings() {
+        if reserved(&title) || !subjects.insert(title) {
+            return Err(format!("{}: sibling titles must be distinct", case.id).into());
+        }
+    }
+    Ok(())
+}
+
 fn lexical_rules(golden: &Golden) -> Result<()> {
     let mut corpus_words: BTreeSet<String> =
         golden.vocabulary.iter().map(|w| w.to_lowercase()).collect();
     for case in &golden.cases {
-        if let Some(plant) = &case.plant {
+        for plant in case.plant.iter().chain(&case.more) {
             corpus_words.extend(tokens(&plant.text));
             corpus_words.extend(tokens(&plant.note));
         }
+        if let Some(family) = &case.family {
+            for (title, text) in family.siblings() {
+                corpus_words.extend(tokens(&title));
+                corpus_words.extend(tokens(&text));
+            }
+        }
     }
-    for note in &golden.long_notes {
+    for note in golden.long_notes.iter().chain(&golden.deep_notes) {
         corpus_words.extend(tokens(&note.title));
         for section in &note.sections {
             corpus_words.extend(tokens(section));
@@ -244,7 +447,23 @@ fn lexical_rules(golden: &Golden) -> Result<()> {
     }
     for case in &golden.cases {
         match (case.stratum, &case.plant) {
-            (Stratum::Inflection | Stratum::Paraphrase, Some(plant)) => {
+            (
+                Stratum::Inflection | Stratum::Paraphrase | Stratum::SentenceParaphrase,
+                Some(plant),
+            ) => {
+                if case.stratum == Stratum::SentenceParaphrase
+                    && !golden.cases.iter().any(|c| {
+                        c.stratum == Stratum::Paraphrase
+                            && c.query == case.query
+                            && c.plant.as_ref().map(|p| &p.text) == Some(&plant.text)
+                    })
+                {
+                    return Err(format!(
+                        "{}: must repeat a paraphrase query and plant text",
+                        case.id
+                    )
+                    .into());
+                }
                 // The note's title is indexed as its heading, so it must not match literally either.
                 let planted: BTreeSet<_> = tokens(&plant.text).chain(tokens(&plant.note)).collect();
                 if let Some(word) = content_tokens(&case.query)
@@ -267,6 +486,19 @@ fn lexical_rules(golden: &Golden) -> Result<()> {
                     return Err(
                         format!("{}: identifier must be planted exactly once", case.id).into(),
                     );
+                }
+            }
+            (Stratum::Described, Some(plant)) => {
+                // A description of the note's attributes, not of its name.
+                let query = content_tokens(&case.query);
+                let shared_with_title = query.intersection(&content_tokens(&plant.note)).count();
+                let shared_with_text = query.intersection(&content_tokens(&plant.text)).count();
+                if shared_with_title > 1 || shared_with_text < 2 {
+                    return Err(format!(
+                        "{}: description shares {shared_with_title} words with the title and {shared_with_text} with the text",
+                        case.id
+                    )
+                    .into());
                 }
             }
             (Stratum::Abstention, None) => {
@@ -335,8 +567,10 @@ fn capitalized(text: &str) -> String {
 pub struct NoteSpec {
     pub title: String,
     pub markdown: String,
-    /// Titles of notes this note links to (topic pages only).
+    /// Titles of notes this note links to as `related` (topic pages and scattered evidence).
     pub links: Vec<String>,
+    /// Titles of notes this note links to as `supersedes`.
+    pub supersedes: Vec<String>,
 }
 
 /// Fixed words the generator writes besides vocabulary and golden text.
@@ -360,7 +594,7 @@ pub fn corpus(golden: &Golden, total: usize, seed: u64) -> Result<Vec<NoteSpec>>
     let vocabulary = &golden.vocabulary;
     let mut subjects: BTreeMap<&str, Vec<&str>> = BTreeMap::new();
     let mut sections: BTreeMap<(&str, &str), Vec<&str>> = BTreeMap::new();
-    for case in &golden.cases {
+    for case in golden.cases.iter().filter(|c| c.stratum.is_original()) {
         if let Some(plant) = &case.plant {
             match &plant.section {
                 Some(section) => sections
@@ -388,6 +622,7 @@ pub fn corpus(golden: &Golden, total: usize, seed: u64) -> Result<Vec<NoteSpec>>
             title: (*title).to_string(),
             markdown: format!("# {title}\n\n{}\n", paragraphs.join("\n\n")),
             links: vec![],
+            supersedes: vec![],
         });
     }
     for long in &golden.long_notes {
@@ -416,6 +651,7 @@ pub fn corpus(golden: &Golden, total: usize, seed: u64) -> Result<Vec<NoteSpec>>
             title: long.title.clone(),
             markdown,
             links: vec![],
+            supersedes: vec![],
         });
     }
     for topic in &golden.topics {
@@ -429,8 +665,10 @@ pub fn corpus(golden: &Golden, total: usize, seed: u64) -> Result<Vec<NoteSpec>>
                 list.join("\n")
             ),
             links: topic.subjects.clone(),
+            supersedes: vec![],
         });
     }
+    notes.extend(new_strata_notes(golden, seed)?);
     let specials = notes.len();
     if total <= specials {
         return Err(format!("use more than {specials} notes").into());
@@ -486,11 +724,120 @@ pub fn corpus(golden: &Golden, total: usize, seed: u64) -> Result<Vec<NoteSpec>>
             markdown: format!("# {title}\n\n{}\n", body.join("\n\n")),
             title,
             links: vec![],
+            supersedes: vec![],
         });
     }
     for index in (1..notes.len()).rev() {
         let other = rng.below(index + 1);
         notes.swap(index, other);
+    }
+    Ok(notes)
+}
+
+/// Bytes before which a deep-section plant must not start.
+const DEEP_OFFSET: usize = 128 * 1024;
+
+fn standalone(title: &str, text: &str) -> NoteSpec {
+    NoteSpec {
+        title: title.to_string(),
+        markdown: format!("# {title}\n\n{text}\n"),
+        links: vec![],
+        supersedes: vec![],
+    }
+}
+
+/// Notes of the strata added in golden set v2. They use their own random
+/// stream so the notes of the original strata keep their exact text.
+fn new_strata_notes(golden: &Golden, seed: u64) -> Result<Vec<NoteSpec>> {
+    let mut rng = Rng(seed ^ 0x6465_6570_7632);
+    let vocabulary = &golden.vocabulary;
+    let mut notes: Vec<NoteSpec> = Vec::new();
+    for case in &golden.cases {
+        match case.stratum {
+            Stratum::Described | Stratum::SentenceParaphrase => {
+                for plant in case.plant.iter() {
+                    notes.push(standalone(&plant.note, &plant.text));
+                }
+            }
+            Stratum::NearDuplicate => {
+                if let Some(family) = &case.family {
+                    let (title, text) = family.target_note();
+                    notes.push(standalone(&title, &text));
+                    for (title, text) in family.siblings() {
+                        notes.push(standalone(&title, &text));
+                    }
+                }
+            }
+            Stratum::Scattered | Stratum::Supersession => {
+                let first = notes.len();
+                for plant in case.plant.iter().chain(&case.more) {
+                    notes.push(standalone(&plant.note, &plant.text));
+                }
+                for link in &case.links {
+                    let from = notes[first..]
+                        .iter_mut()
+                        .find(|n| n.title == link.from)
+                        .ok_or_else(|| format!("{}: unknown link source", case.id))?;
+                    if link.relation == relations::SUPERSEDES {
+                        from.supersedes.push(link.to.clone());
+                    } else {
+                        from.links.push(link.to.clone());
+                    }
+                }
+            }
+            _ => {}
+        }
+    }
+    let mut deep_plants: BTreeMap<(&str, &str), Vec<&str>> = BTreeMap::new();
+    for case in golden
+        .cases
+        .iter()
+        .filter(|c| c.stratum == Stratum::DeepSection)
+    {
+        if let Some(plant) = &case.plant
+            && let Some(section) = &plant.section
+        {
+            deep_plants
+                .entry((plant.note.as_str(), section.as_str()))
+                .or_default()
+                .push(&plant.text);
+        }
+    }
+    for deep in &golden.deep_notes {
+        let mut markdown = format!("# {}\n\nImported reference document.\n", deep.title);
+        for section in &deep.sections {
+            markdown.push_str(&format!("\n## {section}\n\n"));
+            let count = 14 + rng.below(8);
+            let mut paragraphs: Vec<String> = (0..count)
+                .map(|_| {
+                    let sentences = 3 + rng.below(4);
+                    paragraph(&mut rng, vocabulary, sentences)
+                })
+                .collect();
+            for plant in deep_plants
+                .get(&(deep.title.as_str(), section.as_str()))
+                .into_iter()
+                .flatten()
+            {
+                if markdown.len() < DEEP_OFFSET {
+                    return Err(format!(
+                        "deep section {section:?} starts at byte {}, before 128 KiB",
+                        markdown.len()
+                    )
+                    .into());
+                }
+                let at = rng.below(paragraphs.len() + 1);
+                paragraphs.insert(at, (*plant).to_string());
+            }
+            markdown.push_str(&paragraphs.join("\n\n"));
+            markdown.push('\n');
+        }
+        notes.push(NoteSpec {
+            title: deep.title.clone(),
+            markdown,
+            links: vec![],
+            supersedes: vec![],
+        });
     }
     Ok(notes)
 }
@@ -501,6 +848,7 @@ pub fn corpus_sha256(notes: &[NoteSpec]) -> String {
         for part in std::iter::once(&note.title)
             .chain(std::iter::once(&note.markdown))
             .chain(&note.links)
+            .chain(&note.supersedes)
         {
             hash.update((part.len() as u64).to_le_bytes());
             hash.update(part.as_bytes());
@@ -556,7 +904,9 @@ pub fn build(data: &Path, golden: &Golden, specs: &[NoteSpec]) -> Result<Built> 
         for (index, spec) in chunk.iter().enumerate() {
             let id = op.creation_id(index);
             markdown_bytes += spec.markdown.len();
-            if (named.contains(spec.title.as_str()) || !spec.links.is_empty())
+            if (named.contains(spec.title.as_str())
+                || !spec.links.is_empty()
+                || !spec.supersedes.is_empty())
                 && ids_by_title
                     .insert(spec.title.clone(), id.clone())
                     .is_some()
@@ -579,11 +929,25 @@ pub fn build(data: &Path, golden: &Golden, specs: &[NoteSpec]) -> Result<Built> 
             },
         )?)?;
     }
-    let mut links = Vec::new();
-    for spec in specs.iter().filter(|s| !s.links.is_empty()) {
+    let mut links: Vec<(String, String, &str)> = Vec::new();
+    for spec in specs {
+        if spec.links.is_empty() && spec.supersedes.is_empty() {
+            continue;
+        }
         let from = &ids_by_title[&spec.title];
         for target in &spec.links {
-            links.push((from.clone(), ids_by_title[target].clone()));
+            links.push((
+                from.clone(),
+                ids_by_title[target].clone(),
+                relations::RELATED,
+            ));
+        }
+        for target in &spec.supersedes {
+            links.push((
+                from.clone(),
+                ids_by_title[target].clone(),
+                relations::SUPERSEDES,
+            ));
         }
     }
     for (batch, chunk) in links.chunks(BATCH).enumerate() {
@@ -592,14 +956,14 @@ pub fn build(data: &Path, golden: &Golden, specs: &[NoteSpec]) -> Result<Built> 
         let writes = chunk
             .iter()
             .enumerate()
-            .map(|(index, (from, to))| Put {
+            .map(|(index, (from, to, relation))| Put {
                 id: op.creation_id(index),
                 expected_version: None,
                 archived: false,
                 data: RecordData::Link(Link {
                     from: from.clone(),
                     to: to.clone(),
-                    relation: "related".into(),
+                    relation: (*relation).into(),
                 }),
             })
             .collect();
@@ -809,6 +1173,9 @@ pub struct CaseResult {
     pub ranks: Vec<Option<usize>>,
     pub returned: usize,
     pub ms: f64,
+    /// Scattered cases only: the top hit is, or is linked to, every relevant note.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub connected: Option<bool>,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
@@ -819,16 +1186,49 @@ pub struct Metrics {
     pub mrr: f64,
     /// Abstention only: share of queries that returned any result (lower is better).
     pub any_result_rate: f64,
+    /// Scattered only: share of cases with every relevant note ranked within 10.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub complete_at_10: Option<f64>,
+    /// Scattered only: share of cases whose top hit is within one link of every relevant note.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub connected_at_1: Option<f64>,
+    /// Supersession only (informational): share of cases ranking the new note above the old one.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub new_above_old: Option<f64>,
 }
 
 /// Recall@k averages, per judged case, the share of relevant notes ranked
 /// within k; MRR averages 1/rank of the best relevant note. Cases without
-/// relevant notes (abstention) only contribute to `any_result_rate`.
+/// relevant notes (abstention) only contribute to `any_result_rate`. The
+/// stratum-specific rates cover only the cases of their own stratum.
 pub fn metrics(results: &[&CaseResult]) -> Metrics {
     let mut out = Metrics {
         cases: results.len(),
         ..Metrics::default()
     };
+    let rate = |matching: Vec<bool>| {
+        (!matching.is_empty())
+            .then(|| matching.iter().filter(|&&m| m).count() as f64 / matching.len() as f64)
+    };
+    out.complete_at_10 = rate(
+        results
+            .iter()
+            .filter(|r| r.stratum == Stratum::Scattered)
+            .map(|r| r.ranks.iter().all(|rank| rank.is_some_and(|x| x <= 10)))
+            .collect(),
+    );
+    out.connected_at_1 = rate(results.iter().filter_map(|r| r.connected).collect());
+    out.new_above_old = rate(
+        results
+            .iter()
+            .filter(|r| r.stratum == Stratum::Supersession)
+            .map(|r| match r.ranks.as_slice() {
+                [Some(new), Some(old)] => new < old,
+                [Some(_), None] => true,
+                _ => false,
+            })
+            .collect(),
+    );
     let judged: Vec<_> = results.iter().filter(|r| !r.ranks.is_empty()).collect();
     if !judged.is_empty() {
         let n = judged.len() as f64;
@@ -908,6 +1308,10 @@ pub struct Report {
     pub visibility: Visibility,
     pub timings: Timings,
     pub overall: Metrics,
+    /// Every case, including the strata added in golden set v2; `overall`
+    /// stays over the six original strata so earlier runs remain comparable.
+    #[serde(default)]
+    pub overall_all: Metrics,
     pub strata: BTreeMap<String, Metrics>,
     pub cases: Vec<CaseResult>,
 }
@@ -946,6 +1350,16 @@ pub fn run_with(
     retriever.search(workspace, &golden.cases[0].query, None)?;
     let first_query_ms = ms(started);
     let rows = workspace.store.records()?;
+    let linked: BTreeSet<(String, String)> = specs
+        .iter()
+        .flat_map(|spec| {
+            spec.links
+                .iter()
+                .chain(&spec.supersedes)
+                .map(|to| (spec.title.clone(), to.clone()))
+        })
+        .map(|(from, to)| (ids_by_title[&from].clone(), ids_by_title[&to].clone()))
+        .collect();
     let mut violations = 0;
     let mut results = Vec::with_capacity(golden.cases.len());
     for case in &golden.cases {
@@ -953,7 +1367,7 @@ pub fn run_with(
         let ranked = retriever.search(workspace, &case.query, None)?;
         let elapsed = ms(started);
         violations += invisible(&rows, &ranked, None);
-        let ranks = case
+        let ranks: Vec<Option<usize>> = case
             .relevant
             .iter()
             .map(|title| {
@@ -961,12 +1375,23 @@ pub fn run_with(
                 ranked.iter().position(|hit| hit == id).map(|p| p + 1)
             })
             .collect();
+        let connected = (case.stratum == Stratum::Scattered).then(|| {
+            ranked.first().is_some_and(|top| {
+                case.relevant.iter().all(|title| {
+                    let id = &ids_by_title[title];
+                    top == id
+                        || linked.contains(&(top.clone(), id.clone()))
+                        || linked.contains(&(id.clone(), top.clone()))
+                })
+            })
+        });
         results.push(CaseResult {
             id: case.id.clone(),
             stratum: case.stratum,
             ranks,
             returned: ranked.len(),
             ms: elapsed,
+            connected,
         });
     }
     let mut visibility = Visibility {
@@ -1019,10 +1444,23 @@ pub fn run_with(
             query_max_ms: latencies.last().copied().unwrap_or(0.0),
             post_save_query_ms,
         },
-        overall: metrics(&results.iter().collect::<Vec<_>>()),
+        overall: overall(results.iter().filter(|r| r.stratum.is_original())),
+        overall_all: overall(results.iter()),
         strata,
         cases: results,
     })
+}
+
+/// Metrics over a mixed set of strata; the stratum-specific rates only mean
+/// something per stratum, so they are left out here.
+fn overall<'a>(results: impl Iterator<Item = &'a CaseResult>) -> Metrics {
+    let results: Vec<_> = results.collect();
+    Metrics {
+        complete_at_10: None,
+        connected_at_1: None,
+        new_above_old: None,
+        ..metrics(&results)
+    }
 }
 
 /// Saves one changed golden subject note through the editor path, then
@@ -1102,15 +1540,36 @@ pub fn summary(report: &Report) -> String {
             t.post_save_query_ms
         ),
         format!(
-            "{:<11} {:>5} {:>9} {:>9} {:>6} {:>8}",
-            "stratum", "cases", "recall@10", "recall@50", "MRR", "any-hit"
+            "{:<19} {:>5} {:>9} {:>9} {:>6} {:>8} {:>11} {:>7} {:>8}",
+            "stratum",
+            "cases",
+            "recall@10",
+            "recall@50",
+            "MRR",
+            "any-hit",
+            "complete@10",
+            "conn@1",
+            "new>old"
         ),
     ];
-    let overall = "overall".to_string();
-    for (name, m) in report.strata.iter().chain([(&overall, &report.overall)]) {
+    let overall = "overall (orig 6)".to_string();
+    let overall_all = "overall (all)".to_string();
+    let optional = |value: Option<f64>| value.map_or("-".to_string(), |v| format!("{v:.3}"));
+    for (name, m) in report.strata.iter().chain([
+        (&overall, &report.overall),
+        (&overall_all, &report.overall_all),
+    ]) {
         lines.push(format!(
-            "{:<11} {:>5} {:>9.3} {:>9.3} {:>6.3} {:>8.3}",
-            name, m.cases, m.recall_at_10, m.recall_at_50, m.mrr, m.any_result_rate
+            "{:<19} {:>5} {:>9.3} {:>9.3} {:>6.3} {:>8.3} {:>11} {:>7} {:>8}",
+            name,
+            m.cases,
+            m.recall_at_10,
+            m.recall_at_50,
+            m.mrr,
+            m.any_result_rate,
+            optional(m.complete_at_10),
+            optional(m.connected_at_1),
+            optional(m.new_above_old)
         ));
     }
     let v = &report.visibility;

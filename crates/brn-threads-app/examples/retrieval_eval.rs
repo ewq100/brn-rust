@@ -23,8 +23,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             _ => return Err(usage.into()),
         }
     }
-    if !(200..=20_000).contains(&notes) {
-        return Err("Use 200..=20000 notes".into());
+    if !(300..=20_000).contains(&notes) {
+        return Err("Use 300..=20000 notes".into());
     }
     let data = support::reserve(&root.ok_or(usage)?)?;
     let report = match retriever.as_str() {
