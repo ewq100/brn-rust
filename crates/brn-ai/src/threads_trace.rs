@@ -99,7 +99,7 @@ pub struct HelperTrace {
     /// `answered`, `partial`, `not_found`, `stopped`, `failed`,
     /// `unavailable`, `cancelled` or `budget`.
     pub outcome: String,
-    /// Counts of `exact`, `stale`, `mismatch` and `rejected` citations.
+    /// Counts of `exact`, `relocated`, `stale`, `mismatch` and `rejected` citations.
     pub citations: Value,
     /// `None` for a sub-run that never started a model turn.
     pub trace: Option<RunTrace>,

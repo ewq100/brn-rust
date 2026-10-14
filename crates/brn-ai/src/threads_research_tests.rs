@@ -1273,6 +1273,72 @@ async fn helper_read_records_never_returns_conversation_or_run_progress() {
 }
 
 #[tokio::test]
+async fn helpers_read_long_notes_in_capped_slices() {
+    let (_root, request, _) = setup();
+    let mut store = Store::open(&request.data_dir).unwrap();
+    // Lines of 20 bytes; the marker sits near byte 30000, past one helper slice.
+    let mut body: String = (0..1500).map(|i| format!("filler line {i:07}\n")).collect();
+    body.push_str("DEEP-MARKER 6612 ok\n");
+    body.extend((0..500).map(|i| format!("filler tail {i:07}\n")));
+    let long = saved(&mut store, RecordData::Note(Note::working("Manual", &body)));
+    drop(store);
+    let (scope, _) = begin(&request).unwrap();
+    let read = |id: &str, start: usize| {
+        MockStreamEvent::tool_call(
+            id,
+            "read_note",
+            json!({"id":long.id,"version":long.version,"start":start,"max_bytes":131072,"section":false}),
+        )
+    };
+    let helper = MockCompletionModel::from_stream_turns(vec![
+        vec![read("whole", 0), tokens(10)],
+        vec![
+            MockStreamEvent::tool_call(
+                "ids",
+                "read_records",
+                json!({"ids":[long.id],"query":null}),
+            ),
+            tokens(10),
+        ],
+        vec![read("next", 24_000), tokens(10)],
+        vec![
+            MockStreamEvent::tool_call("s", "submit_findings", findings(vec![])),
+            tokens(10),
+        ],
+    ]);
+    scripted(&scope, vec![Ok(helper.clone())]);
+    let out = ask(
+        &scope,
+        vec![question("What does the manual say deep down?")],
+    )
+    .await;
+    assert_ne!(out["reports"][0]["outcome"], "failed", "{out}");
+    let requests = helper.requests();
+    assert_eq!(requests.len(), 4);
+    // Neither the oversized read_note nor the read by ID reached the marker.
+    let first_two = format!("{:?}", requests[2].chat_history);
+    assert!(!first_two.contains("DEEP-MARKER"), "{first_two}");
+    assert!(first_two.contains("16384"), "{first_two}");
+    assert!(first_two.contains("truncated"), "{first_two}");
+    assert!(first_two.len() < 3 * research::HELPER_READ_BYTES + 8192);
+    // A continuation slice reaches it.
+    let all = format!("{:?}", requests[3].chat_history);
+    assert!(all.contains("DEEP-MARKER"), "helper continuation");
+    // The helper read only slices, never the whole note.
+    assert_eq!(out["reports"][0]["read"][0]["complete"], false, "{out}");
+    // The parent still reads the note whole by ID.
+    let parent = read_records(
+        &scope,
+        ReadArgs {
+            ids: vec![long.id.clone()],
+            query: None,
+        },
+    )
+    .unwrap();
+    assert!(parent.to_string().contains("DEEP-MARKER"));
+}
+
+#[tokio::test]
 async fn hidden_history_and_superseded_notes_are_never_verified() {
     let (_root, request, plan) = setup();
     let mut store = Store::open(&request.data_dir).unwrap();
@@ -1348,6 +1414,125 @@ async fn hidden_history_and_superseded_notes_are_never_verified() {
     assert!(hidden.get("quote_in_current").is_none(), "{hidden}");
     assert!(hidden.get("current_version").is_none(), "{hidden}");
     assert_eq!(by_ref("current")["verified"], "exact");
+}
+
+#[tokio::test]
+async fn misplaced_quotes_are_relocated_only_when_unique_and_visible() {
+    let (_root, mut request, plan) = setup();
+    request.trace = TraceLevel::Summary;
+    let mut store = Store::open(&request.data_dir).unwrap();
+    let other = other_chat(&mut store);
+    // Version 1 was private to another chat; its quote must not be searched.
+    let private = "# Gate\n\nOTHER-CHAT gate code 5150.\n";
+    let mut gate = Note::working("Gate", private);
+    gate.chat = Some(other.id.clone());
+    let gate = saved(&mut store, RecordData::Note(gate));
+    update_with(&mut store, &gate, |note| {
+        note.chat = None;
+        note.markdown = "# Gate\n\nThe gate code changes monthly.\n".into();
+    });
+    // The harbor plan moves on; its first version stays visible here.
+    let moved = "# Harbor plan\n\nPier 3 opens at 07:00. Pier 3 opens at 07:00.\nThe ferry leaves at 07:40 from pier 3.\n";
+    let current = update_note(&mut store, &plan, moved);
+    drop(store);
+    let (scope, _) = begin(&request).unwrap();
+    let wrong = |reference: &str, id: &str, version: u64, quote: &str| json!({"ref":reference,"id":id,"version":version,"start":0,"end":8,"quote":quote});
+    let report = findings(vec![
+        wrong(
+            "unique",
+            &current.id,
+            current.version,
+            "The ferry leaves at 07:40 from pier 3.",
+        ),
+        wrong(
+            "ambiguous",
+            &current.id,
+            current.version,
+            "Pier 3 opens at 07:00.",
+        ),
+        wrong("old", &plan.id, plan.version, "Tickets cost 18 EUR."),
+        wrong(
+            "hidden",
+            &gate.id,
+            gate.version,
+            "OTHER-CHAT gate code 5150.",
+        ),
+    ]);
+    scripted(&scope, vec![Ok(scout(&current, report))]);
+    let (answer, _, _) = parent(
+        scope.clone(),
+        "Ferry?",
+        vec![research_turn(vec![question("Ferry?")]), answer_turn()],
+        CancellationToken::new(),
+    )
+    .await;
+    let trace = finish_trace(&scope, &answer).unwrap();
+    let counts = &trace.helpers[0].citations;
+    assert_eq!(counts["relocated"], 1, "{counts}");
+    assert_eq!(counts["stale"], 1, "{counts}");
+    assert_eq!(counts["mismatch"], 2, "{counts}");
+    assert_eq!(counts["exact"], 0, "{counts}");
+
+    // The same report, verified directly, shows the re-anchored ranges.
+    scripted(
+        &scope,
+        vec![Ok(scout(
+            &current,
+            findings(vec![
+                wrong(
+                    "unique",
+                    &current.id,
+                    current.version,
+                    "The ferry leaves at 07:40 from pier 3.",
+                ),
+                wrong(
+                    "ambiguous",
+                    &current.id,
+                    current.version,
+                    "Pier 3 opens at 07:00.",
+                ),
+                wrong("old", &plan.id, plan.version, "Tickets cost 18 EUR."),
+                wrong(
+                    "hidden",
+                    &gate.id,
+                    gate.version,
+                    "OTHER-CHAT gate code 5150.",
+                ),
+            ]),
+        ))],
+    );
+    let out = ask(&scope, vec![question("Ferry?")]).await;
+    let encoded = out.to_string();
+    assert!(!encoded.contains("OTHER-CHAT"), "{encoded}");
+    let report = &out["reports"][0];
+    let by_ref = |r: &str| {
+        report["citations"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|c| c["ref"] == r)
+            .cloned()
+            .unwrap()
+    };
+    let unique = by_ref("unique");
+    assert_eq!(unique["verified"], "relocated", "{unique}");
+    let (start, end) = range(moved, "The ferry leaves at 07:40 from pier 3.");
+    assert_eq!(
+        (unique["start"].clone(), unique["end"].clone()),
+        (json!(start), json!(end))
+    );
+    assert_eq!(report["findings"][0]["supported"], true);
+    let ambiguous = by_ref("ambiguous");
+    assert_eq!(ambiguous["verified"], "mismatch", "{ambiguous}");
+    assert!(ambiguous["quote"].is_null());
+    let old = by_ref("old");
+    assert_eq!(old["verified"], "stale", "{old}");
+    assert_eq!(old["relocated"], true);
+    let (start, _) = range(PLAN, "Tickets cost 18 EUR.");
+    assert_eq!(old["start"], start);
+    let hidden = by_ref("hidden");
+    assert_eq!(hidden["verified"], "mismatch", "{hidden}");
+    assert!(hidden.get("relocated").is_none() && hidden.get("current_version").is_none());
 }
 
 fn read_call(id: &str, note: &Record) -> MockStreamEvent {

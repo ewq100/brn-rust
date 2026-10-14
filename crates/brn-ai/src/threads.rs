@@ -685,8 +685,14 @@ fn read_records(scope: &Scope, args: ReadArgs) -> AiResult<Value> {
         if let RecordData::Asset(asset) = &record.data {
             value = json!({"id":record.id,"version":record.version,"asset":{"note":asset.note,"source":asset.source,"media_type":asset.media_type,"sha256":asset.content_hash(),"bytes":asset.bytes.len()}});
         }
+        // A helper digests long notes by slices, never whole.
+        let cap = if scope.scout.is_some() {
+            research::HELPER_READ_BYTES
+        } else {
+            MAX_NOTE_READ_BYTES
+        };
         if let RecordData::Note(note) = &record.data
-            && note.markdown.len() <= MAX_NOTE_READ_BYTES
+            && note.markdown.len() <= cap
         {
             scope
                 .reads
@@ -695,13 +701,13 @@ fn read_records(scope: &Scope, args: ReadArgs) -> AiResult<Value> {
                 .complete(&record.id, record.version);
         }
         if let RecordData::Note(note) = &record.data
-            && note.markdown.len() > MAX_NOTE_READ_BYTES
+            && note.markdown.len() > cap
         {
-            let prefix = truncate(&note.markdown, MAX_NOTE_READ_BYTES);
+            let prefix = truncate(&note.markdown, cap);
             value["data"]["Note"]["markdown"] = Value::String(prefix.to_owned());
             value["truncated"] = Value::Bool(true);
             let headings = note_headings(&note.markdown);
-            value["note_read"] = json!({"total_bytes":note.markdown.len(),"next_start":prefix.len(),"max_bytes":MAX_NOTE_READ_BYTES,"headings":headings.iter().take(256).collect::<Vec<_>>(),"headings_truncated":headings.len()>256});
+            value["note_read"] = json!({"total_bytes":note.markdown.len(),"next_start":prefix.len(),"max_bytes":cap,"headings":headings.iter().take(256).collect::<Vec<_>>(),"headings_truncated":headings.len()>256});
         }
         rows.push(value);
         if rows.len() == 100 {
@@ -736,14 +742,14 @@ fn read_note(scope: &Scope, args: ReadNoteArgs) -> AiResult<Value> {
     {
         return Err(rejected());
     }
+    let capped = scope.scout.is_some() && args.max_bytes > research::HELPER_READ_BYTES;
+    let max_bytes = if capped {
+        research::HELPER_READ_BYTES
+    } else {
+        args.max_bytes
+    };
     let outcome = store
-        .read_note_range(
-            &args.id,
-            args.version,
-            args.start,
-            args.max_bytes,
-            args.section,
-        )
+        .read_note_range(&args.id, args.version, args.start, max_bytes, args.section)
         .map_err(storage)?;
     if let NoteReadOutcome::Read { note } = &outcome {
         scope.reads.lock().map_err(storage)?.slice(
@@ -754,7 +760,11 @@ fn read_note(scope: &Scope, args: ReadNoteArgs) -> AiResult<Value> {
             note.total_bytes,
         );
     }
-    serde_json::to_value(outcome).map_err(storage)
+    let mut value = serde_json::to_value(outcome).map_err(storage)?;
+    if capped {
+        value["max_bytes"] = json!(research::HELPER_READ_BYTES);
+    }
+    Ok(value)
 }
 fn read_source(scope: &Scope, args: SourceArgs) -> AiResult<Value> {
     if scope.writing_snapshot.is_some() {
