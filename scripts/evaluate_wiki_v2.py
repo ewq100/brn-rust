@@ -757,6 +757,9 @@ def check_read(c, ctx):
     return not missing, f'not read: {missing}' if missing else f'read {c["keys"]}'
 
 
+MAX_NOTE_READ_BYTES = 128 * 1024
+
+
 def check_read_range(c, ctx):
     calls = traced_calls(ctx['steps'][c['step'] - 1])
     if calls is None:
@@ -767,6 +770,12 @@ def check_read_range(c, ctx):
         return False, f'seeder reported no range {c["range"]!r}'
     for call in calls:
         args = call.get('args') or {}
+        result = call.get('result') or {}
+        # read_records by ID returns a note whole, or its first MAX_NOTE_READ_BYTES when truncated.
+        if call['tool'] == 'read_records' and identity in (args.get('ids') or []):
+            if not result.get('truncated') or span['end'] <= MAX_NOTE_READ_BYTES:
+                return True, 'read the note by ID'
+            continue
         if call['tool'] != 'read_note' or args.get('id') != identity:
             continue
         start = args.get('start') or 0
@@ -775,7 +784,7 @@ def check_read_range(c, ctx):
             return True, f'read bytes {start}..{start + returned}'
         if c.get('section') and norm(args.get('section') or '') == norm(c['section']):
             return True, 'read the section by heading'
-    return False, 'no read_note range overlaps the planted section'
+    return False, 'no read covers the planted section'
 
 
 def check_private_exposures(c, ctx):

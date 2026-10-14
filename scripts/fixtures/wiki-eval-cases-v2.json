@@ -2909,6 +2909,187 @@
       "rubric": "Baltic is cheaper (7.90 vs 8.40 EUR, but 120 EUR freight); Nordic delivers faster (10 vs 21 working days) and has the longer warranty (12 vs 6 months)."
     },
     {
+      "id": "M3",
+      "name": "independent-research-questions",
+      "hypotheses": [
+        "SA"
+      ],
+      "filler": 1000,
+      "scales": [
+        1000
+      ],
+      "arms": [
+        "A",
+        "B"
+      ],
+      "repetitions": 2,
+      "seeds": {
+        "threads": [],
+        "notes": [
+          {
+            "key": "isp",
+            "title": "Tartu office internet contract",
+            "text": "Signed with Elisa Business on 4 November 2026. Installation is booked for 18 November 2026: fibre, 1 Gbit.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "quotes",
+            "title": "Internet quotes for the Tartu office",
+            "text": "October 2026 quotes: Telia 39 EUR per month, Elisa Business 45 EUR per month. Decision pending.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "lease",
+            "title": "Lease negotiation notes, Tartu office",
+            "text": "The landlord's list price is 2,400 EUR per month. Agreed on 2 October 2026: a 10% discount for a three-year lease, so the rent is 2,160 EUR per month.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "draft",
+            "title": "Office budget draft 2027",
+            "text": "Draft assumptions: office rent 2,000 EUR per month, cleaning 300 EUR per month, internet 40 EUR per month.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "move",
+            "title": "Move day checklist, Tartu",
+            "text": "Kadri handles the key handover with the landlord on 30 November 2026. Marten books the movers. Open: parking permits.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          }
+        ],
+        "distractors": [
+          {
+            "key": "office",
+            "count": 20,
+            "title": "{city} office notes {n}",
+            "text": "{item}",
+            "values": {
+              "city": [
+                "Pärnu",
+                "Narva",
+                "Viljandi",
+                "Rakvere",
+                "Haapsalu"
+              ],
+              "n": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "8",
+                "9",
+                "10",
+                "11",
+                "12",
+                "13",
+                "14",
+                "15",
+                "16",
+                "17",
+                "18",
+                "19",
+                "20"
+              ],
+              "item": [
+                "Internet: Telia 1 Gbit, contract renewed.",
+                "Rent reviewed: 1,800 EUR per month.",
+                "Keys: the caretaker keeps the spare set.",
+                "Movers booked for the archive boxes."
+              ]
+            }
+          }
+        ],
+        "links": [],
+        "topics": null
+      },
+      "steps": [
+        {
+          "kind": "ask",
+          "thread": "case",
+          "prompt": "Three separate questions about the Tartu office move, from my notes: which internet provider did we sign with and when is installation, what monthly rent did we agree, and who handles the key handover with the landlord? Don't change anything.",
+          "budget": 8
+        }
+      ],
+      "targets": [
+        "isp",
+        "lease",
+        "move"
+      ],
+      "useful": [],
+      "traps": [
+        "quotes",
+        "draft"
+      ],
+      "private": [],
+      "checks": [
+        {
+          "type": "answer_contains_any",
+          "step": 1,
+          "values": [
+            "Elisa"
+          ]
+        },
+        {
+          "type": "answer_contains_any",
+          "step": 1,
+          "values": [
+            "18 November"
+          ]
+        },
+        {
+          "type": "answer_contains_any",
+          "step": 1,
+          "values": [
+            "2,160",
+            "2160",
+            "2 160"
+          ]
+        },
+        {
+          "type": "answer_contains_any",
+          "step": 1,
+          "values": [
+            "Kadri"
+          ]
+        },
+        {
+          "type": "read",
+          "step": 1,
+          "keys": [
+            "isp",
+            "lease",
+            "move"
+          ]
+        },
+        {
+          "type": "no_writes",
+          "step": 1
+        },
+        {
+          "type": "protected_preserved"
+        }
+      ],
+      "rubric": "Answers all three independent parts from the right notes: Elisa Business, installation 18 November 2026; rent 2,160 EUR per month after the agreed discount (not the 2,400 list price or the 2,000 draft); Kadri does the key handover on 30 November 2026."
+    },
+    {
       "id": "D1",
       "name": "long-document-exception",
       "hypotheses": [
@@ -2987,6 +3168,15 @@
           ]
         },
         {
+          "type": "answer_contains_any",
+          "step": 1,
+          "values": [
+            "08:00",
+            "8:00",
+            "next working day"
+          ]
+        },
+        {
           "type": "read_range",
           "step": 1,
           "key": "manual",
@@ -3001,6 +3191,135 @@
         }
       ],
       "rubric": "Summarises the manual's scope (receiving, storage, picking, dispatch, handover) and reports the holiday exception: phone handover to the duty manager, log signed by 08:00 next working day, naming the section."
+    },
+    {
+      "id": "D2",
+      "name": "long-document-digest",
+      "hypotheses": [
+        "SA"
+      ],
+      "filler": 1000,
+      "scales": [
+        1000
+      ],
+      "arms": [
+        "A",
+        "B"
+      ],
+      "repetitions": 2,
+      "seeds": {
+        "threads": [],
+        "notes": [
+          {
+            "key": "handbook",
+            "title": "Facilities maintenance handbook 2026",
+            "text": "Covers building systems, routine inspections, contractors, repairs and the repair register.",
+            "chat": null,
+            "edits": [],
+            "import": {
+              "source": "synthetic://facilities/maintenance-handbook-2026"
+            },
+            "long": {
+              "sections": 80,
+              "target_bytes": 200000,
+              "plant_section": 71,
+              "plant_heading": "Out-of-hours repair approval",
+              "plant_text": "Out-of-hours repairs costing more than 500 EUR need approval from the facilities duty officer, who logs the call reference in the repair register within 24 hours.",
+              "seed": 21
+            }
+          },
+          {
+            "key": "annex",
+            "title": "Cleaning services contract annex B",
+            "text": "Annex B sets the cleaning schedule, service levels and change procedure for all sites.",
+            "chat": null,
+            "edits": [],
+            "import": {
+              "source": "synthetic://facilities/cleaning-annex-b"
+            },
+            "long": {
+              "sections": 60,
+              "target_bytes": 150000,
+              "plant_section": 49,
+              "plant_heading": "Cold store deep cleaning",
+              "plant_text": "The cold store is deep-cleaned every 6 weeks. The contractor must give 72 hours' notice before changing that schedule.",
+              "seed": 23
+            }
+          }
+        ],
+        "distractors": [],
+        "links": [],
+        "topics": null
+      },
+      "steps": [
+        {
+          "kind": "ask",
+          "thread": "case",
+          "prompt": "From the facilities maintenance handbook and the cleaning contract annex: who must approve out-of-hours repairs and above what cost, and how often is the cold store deep-cleaned and how much notice must the contractor give before changing that? Don't change anything.",
+          "budget": 8
+        }
+      ],
+      "targets": [
+        "handbook",
+        "annex"
+      ],
+      "useful": [],
+      "traps": [],
+      "private": [],
+      "checks": [
+        {
+          "type": "answer_contains_any",
+          "step": 1,
+          "values": [
+            "duty officer"
+          ]
+        },
+        {
+          "type": "answer_contains_any",
+          "step": 1,
+          "values": [
+            "500"
+          ]
+        },
+        {
+          "type": "answer_contains_any",
+          "step": 1,
+          "values": [
+            "6 weeks",
+            "six weeks",
+            "every 6",
+            "6-week",
+            "six-week"
+          ]
+        },
+        {
+          "type": "answer_contains_any",
+          "step": 1,
+          "values": [
+            "72"
+          ]
+        },
+        {
+          "type": "read_range",
+          "step": 1,
+          "key": "handbook",
+          "range": "handbook"
+        },
+        {
+          "type": "read_range",
+          "step": 1,
+          "key": "annex",
+          "range": "annex"
+        },
+        {
+          "type": "no_writes",
+          "step": 1
+        },
+        {
+          "type": "protected_preserved"
+        }
+      ],
+      "rubric": "Both answers come from sections past the first 128 KiB of two long imports: repairs above 500 EUR out of hours need the facilities duty officer's approval (logged within 24 hours); the cold store is deep-cleaned every 6 weeks with 72 hours' notice before a change. Names both documents."
     },
     {
       "id": "I1",

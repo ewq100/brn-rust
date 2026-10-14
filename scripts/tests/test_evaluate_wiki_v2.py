@@ -343,6 +343,14 @@ class TraceChecks(unittest.TestCase):
         self.assertFalse(run(check, at(0, 500, error=True))['passed'])
         self.assertFalse(run(dict(check, range='missing'), at(0, 500))['passed'])
 
+    def test_read_range_accepts_whole_note_reads(self):
+        check = {'type': 'read_range', 'step': 1, 'key': 'long', 'range': 'planted'}
+        def by_id(result, tool='read_records', ids=('n-l',)):
+            return self.ctx([call(1, 1, tool, {'ids': list(ids)}, result)])
+        self.assertTrue(run(check, by_id({'truncated': False}))['passed'])
+        self.assertTrue(run(check, by_id({'truncated': True}))['passed'])
+        self.assertFalse(run(check, by_id({'truncated': False}, ids=('n-k',)))['passed'])
+
     def test_missing_trace_gives_unknown(self):
         ctx = ctx_for(CASE, BASE, BASE, [step('a')])
         self.assertIsNone(run({'type': 'read', 'step': 1, 'keys': ['kitchen']}, ctx)['passed'])

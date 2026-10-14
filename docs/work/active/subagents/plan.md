@@ -114,3 +114,32 @@ Per the design's rule, phase 1 is **not shipped** on this evidence. The code sta
 - (a) Keep the branch unmerged and record the result.
 - (b) Iterate on what could create value: parent guidance that delegates long-document digests and multi-question research, D1-type cases, and helper batch limits. Then re-measure.
 - (c) Merge, off by default, as an experimental setting.
+
+## Iteration 1 (15 October 2026)
+
+The owner chose option (b): teach the parent when to delegate, fix helper batch limits, add D1-type cases, then re-measure with at most 20 runs.
+
+**Diagnosis from the run traces.**
+
+- *Why Sol did not delegate.* On M1, M2, R4, R9, R10 and I1, Sol answered in 2–5 rounds from compact search rows and small notes; nothing in its context suggested a read-heavy task. On D1, `search_notes` gave no size signal, so Sol read the 120 KB manual whole with `read_records` (121 KB result, 34k input tokens): exactly the digest a helper should do. The guidance named "a long document" but the host never said which notes were long.
+- *Helper failure.* Luna's 16 calls were spread over 5 rounds (at most 4 per turn), not one batch. Its sixth turn, past the round budget, was a `submit_findings` that listed all 16 searches against a cap of 12, so `BatchHook` stopped the sub-run as `invalid_batch`. The role guide asked for "every query you ran". Even a valid report in that turn would have been refused, because a report-only turn counted as a sixth round.
+- *D1.* All four D1 answers did report the exception (phone, duty manager, holiday). The check failed only because `read_range` counted `read_note` ranges, while Sol read the whole note by ID with `read_records`. The question needs the planted section and the answer checks were fair; the read check was not.
+
+**Changes.**
+
+- Host signal: when `research` is offered, `search_notes` results and `read_records` listings add `large_notes` (notes of 32 KiB or more, with sizes) and a one-line hint that `research` can digest them. Notes read by ID get no hint, and runs without a helper see unchanged output.
+- Parent guidance (`agent/BRN.md`, bundle 11) and the tool description name three triggers: a `large_notes` note that must be digested for a specific detail, two or more independent sub-questions, and evidence spread over many notes. Delegation stays optional.
+- Helper batch discipline (`BatchHook` for helpers only):
+  - The host runs at most 6 calls per turn and skips the rest with an instructive result.
+  - A turn of only `submit_findings` never spends a round. After the 5 rounds, one grace turn runs only `submit_findings` and skips other calls with "budget spent, submit now"; a later turn stops the sub-run (`budget`).
+  - Schema-invalid helper calls, including an over-limit report, are skipped with the limits spelled out, so the helper can resubmit. Unparseable or non-helper tool calls still end the sub-run.
+  - `searched` and `gaps` past their caps (up to 4× the cap) are trimmed rather than rejected.
+  - The role guide states the per-turn limit and asks for at most 12 searches, most informative first.
+- Harness and cases:
+  - `read_range` accepts a `read_records` read by ID that covers the range: a whole note, or a truncated prefix ending past the range.
+  - D1 adds an answer check for the sign-off deadline ("08:00" or "next working day").
+  - New case D2, a long-document digest: two protected imports of 200 KB and 150 KB, with planted sections past 128 KiB. The two-part question needs both sections.
+  - New case M3, independent research questions: three separate sub-questions about an office move (provider and install date, agreed rent, key handover), with a stale quote, a draft budget and 20 similar office notes as traps.
+  - All cases were validated and seeded offline.
+
+**Deviation.** The design's "5 steps per helper run" now means 5 tool rounds plus one report-only grace turn (at most 9 model turns with retries). This keeps a late report from being lost.
