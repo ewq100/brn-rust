@@ -450,7 +450,7 @@ impl Tool for NoteConnections {
     type Output = Value;
     type Error = AiError;
     fn description(&self) -> String {
-        "List a visible note's recorded neighbourhood: linked notes (and optionally sources) with relation names and directions, at most 8 per hop with exact available counts. hops=2 adds neighbours of the listed neighbours.".into()
+        "List a visible note's recorded neighbourhood: linked notes (and optionally sources) with relation names and directions and the Link record IDs behind them (`links`, in the same order), at most 8 per hop with exact available counts. hops=2 adds neighbours of the listed neighbours.".into()
     }
     fn parameters(&self) -> Value {
         schema(Self::NAME)

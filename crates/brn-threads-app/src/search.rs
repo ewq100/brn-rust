@@ -95,6 +95,8 @@ pub enum NodeKind {
 pub struct Relation {
     pub relation: String,
     pub outgoing: bool,
+    /// The Link record, for renaming, re-pointing or archiving it.
+    pub link: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -1058,12 +1060,16 @@ fn neighbours(
                 (node.clone(), Vec::new())
             });
             if entry.0 == *node {
-                let relation = Relation {
-                    relation: link.relation,
-                    outgoing,
-                };
-                if !entry.1.contains(&relation) {
-                    entry.1.push(relation);
+                if !entry
+                    .1
+                    .iter()
+                    .any(|r| r.relation == link.relation && r.outgoing == outgoing)
+                {
+                    entry.1.push(Relation {
+                        relation: link.relation,
+                        outgoing,
+                        link: link.id,
+                    });
                 }
             }
         }
@@ -1359,6 +1365,7 @@ fn agent_node(node: Neighbour) -> brn_ai::threads::ConnectionNode {
             NodeKind::Source => "source",
         }
         .into(),
+        links: node.relations.iter().map(|r| r.link.clone()).collect(),
         relations: node
             .relations
             .into_iter()

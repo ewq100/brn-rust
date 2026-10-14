@@ -90,6 +90,9 @@ pub struct ConnectionNode {
     /// Recorded links, as `out:relation` when the centre (or `via`) links to
     /// this node and `in:relation` when this node links to it.
     pub relations: Vec<String>,
+    /// The Link record ID behind each entry of `relations`, in order.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub links: Vec<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub via: Option<String>,
     pub inbound_links: usize,

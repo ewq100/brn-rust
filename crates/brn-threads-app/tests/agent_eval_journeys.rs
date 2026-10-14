@@ -366,3 +366,163 @@ async fn r8_deep_section_is_read_at_its_offset() {
         range.end
     );
 }
+
+/// S2: the seeded knowledge-check review names the Link records to rename
+/// and re-point, and `note_connections` exposes Link IDs, so one checked
+/// change group built only from that output resolves the mechanical
+/// findings without a BrokenLink.
+#[tokio::test(flavor = "multi_thread")]
+async fn s2_review_names_the_links_one_change_group_resolves() {
+    let case = seeded("S2");
+    let mut workspace = Workspace::open(&case.data).unwrap();
+    let before = workspace.knowledge_check().unwrap();
+    let chat = workspace.seed_knowledge_review(&before).unwrap();
+    let RecordData::Message(message) = &workspace.messages(&chat).unwrap()[0].data else {
+        panic!("review message")
+    };
+    let finding = |kind| {
+        before
+            .findings
+            .iter()
+            .find(|f| f.kind == kind)
+            .unwrap_or_else(|| panic!("{kind:?} missing"))
+            .clone()
+    };
+    let link = |id: &str| workspace.store.record(id).unwrap().unwrap();
+    let variant = finding(FindingKind::RelationVariant);
+    let [rename] = variant.records.as_slice() else {
+        panic!("{variant:?}")
+    };
+    let rename = link(rename);
+    let RecordData::Link(renamed) = &rename.data else {
+        panic!()
+    };
+    assert_eq!(renamed.relation, "relates-to");
+    let supersession = finding(FindingKind::Supersession);
+    let [old, new, inbound] = supersession.records.as_slice() else {
+        panic!("{supersession:?}")
+    };
+    assert_eq!(
+        (old.as_str(), new.as_str()),
+        (case.id("fees-2025"), case.id("fees-2026"))
+    );
+    assert!(
+        supersession
+            .detail
+            .contains("Already linking the replacement: “Bicycle coop”")
+    );
+    let inbound = link(inbound);
+    for text in [
+        rename.id.as_str(),
+        inbound.id.as_str(),
+        "RelationVariant: update each listed Link in place",
+        "re-point or archive the listed links",
+    ] {
+        assert!(
+            message.text.contains(text),
+            "{text:?} not in {}",
+            message.text
+        );
+    }
+
+    let bicycle = case.id("bicycle").to_owned();
+    let topics = workspace.settings().unwrap().topics_note.unwrap();
+    let fees = link(old);
+    let RecordData::Note(mut retired) = fees.data.clone() else {
+        panic!()
+    };
+    retired.superseded_by = Some(new.clone());
+    let link_data = |from: &str, to: &str, relation: &str| json!({"Link":{"from":from,"to":to,"relation":relation}});
+    let RecordData::Link(pointed) = &inbound.data else {
+        panic!()
+    };
+    let request = json!({
+        "reason":"Resolve the mechanical knowledge-check findings",
+        "writes":[
+            {"id":rename.id,"expected_version":rename.version,"archived":false,
+                "data":link_data(&renamed.from, &renamed.to, "related")},
+            {"id":fees.id,"expected_version":fees.version,"archived":false,
+                "data":{"Note":retired}},
+            {"id":inbound.id,"expected_version":inbound.version,"archived":true,
+                "data":link_data(&pointed.from, &pointed.to, &pointed.relation)},
+            {"id":"new:0","expected_version":null,"archived":false,
+                "data":link_data(&topics, &bicycle, "related")},
+            {"id":"new:1","expected_version":null,"archived":false,
+                "data":link_data(&bicycle, case.id("rota"), "related")}
+        ],
+        "inputs":[{"record":fees.id,"version":fees.version}]
+    });
+    let prepared = prepare_run(ThreadRunRequest {
+        request_message: None,
+        queue_claim: None,
+        owner_request: None,
+        data_dir: case.data.clone(),
+        thread: chat.clone(),
+        prompt: "Please work through these knowledge-check findings within your budget.".into(),
+        selection: Selection {
+            provider: Provider::Chatgpt,
+            model: "gpt-6.1-sol".into(),
+        },
+        effort: ReasoningEffort::Medium,
+        max_tool_rounds: 8,
+        auth_file: None,
+        credentials_dir: None,
+        sources: vec![],
+        search: Some(Arc::new(case.handle.clone())),
+        trace: TraceLevel::Full,
+    })
+    .unwrap();
+    let op = Store::open(&case.data)
+        .unwrap()
+        .allocate_operation(&format!("{}:proposal:review", prepared.run_id()))
+        .unwrap()
+        .as_str()
+        .to_owned();
+    let model = MockCompletionModel::from_stream_turns([
+        call(
+            "c",
+            "note_connections",
+            json!({"id":bicycle,"hops":1,"sources":false}),
+        ),
+        call("r", "read_records", json!({"ids":[fees.id],"query":null})),
+        call(
+            "p",
+            "prepare_changes",
+            json!({"request_key":"review","request":request}),
+        ),
+        call("a", "apply_changes", json!({"operation":op})),
+        finish(),
+    ]);
+    let result = run_prepared_scripted(prepared, model.clone())
+        .await
+        .unwrap();
+    assert!(
+        matches!(result.answer.terminal, AiTerminal::Completed),
+        "{:?}",
+        result.answer
+    );
+    let seen: Vec<String> = model
+        .requests()
+        .iter()
+        .map(|r| format!("{:?}", r.chat_history.last()))
+        .collect();
+    assert!(
+        seen[1].contains(&inbound.id),
+        "connections lack Link IDs: {}",
+        seen[1]
+    );
+    assert!(seen[4].contains("Applied"), "{}", seen[4]);
+
+    let after = workspace.knowledge_check().unwrap();
+    let count = |kind| after.counts.get(&kind).copied().unwrap_or(0);
+    for kind in [
+        FindingKind::RelationVariant,
+        FindingKind::Supersession,
+        FindingKind::UnlistedTopic,
+        FindingKind::Orphan,
+        FindingKind::BrokenLink,
+    ] {
+        assert_eq!(count(kind), 0, "{kind:?}: {:?}", after.findings);
+    }
+    assert_eq!(count(FindingKind::DuplicateTitle), 1);
+}

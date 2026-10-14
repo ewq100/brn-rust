@@ -356,6 +356,21 @@ fn knowledge_check_reports_deterministic_findings_without_chat_material() {
         .find(|f| f.kind == FindingKind::DuplicateTitle)
         .unwrap();
     assert_eq!(duplicates.records.len(), 2);
+    // The variant link to rename is named with its version.
+    let variant = check
+        .findings
+        .iter()
+        .find(|f| f.kind == FindingKind::RelationVariant)
+        .unwrap();
+    assert_eq!(variant.records.len(), 1);
+    assert!(
+        variant
+            .detail
+            .contains(&format!("Link `{}` v1", variant.records[0]))
+            && variant.detail.contains("(`relates-to`)"),
+        "{}",
+        variant.detail
+    );
 
     let review = ws.seed_knowledge_review(&check).unwrap();
     let messages = ws.messages(&review).unwrap();
@@ -555,4 +570,68 @@ fn archived_chat_material_and_chat_links_are_not_reported_as_broken() {
     );
     let text = serde_json::to_string(&check).unwrap();
     assert!(!text.contains(&notes[1].id) && !text.contains(&chat));
+}
+
+#[test]
+fn a_link_to_a_superseded_note_names_the_replacement() {
+    let (_root, _data, mut ws) = workspace();
+    let n = write(
+        &mut ws,
+        "notes",
+        vec![
+            (None, note("Fees 2025", "Old fees.\n"), false),
+            (None, note("Fees 2026", "New fees.\n"), false),
+            (None, note("Coop", "Hub.\n"), false),
+        ],
+    );
+    let (old, new, hub) = (&n[0], &n[1], &n[2]);
+    let links = write(
+        &mut ws,
+        "links",
+        vec![
+            (None, link(&new.id, &old.id, relations::SUPERSEDES), false),
+            (None, link(&hub.id, &old.id, relations::RELATED), false),
+        ],
+    );
+    let check = ws.knowledge_check().unwrap();
+    let supersession = &check.findings[0];
+    assert_eq!(supersession.kind, FindingKind::Supersession);
+    assert_eq!(
+        supersession.records,
+        vec![old.id.clone(), new.id.clone(), links[1].id.clone()]
+    );
+    assert!(!supersession.detail.contains("Already linking"));
+
+    let RecordData::Note(mut retired) = old.data.clone() else {
+        panic!()
+    };
+    retired.superseded_by = Some(new.id.clone());
+    write(
+        &mut ws,
+        "supersede",
+        vec![(Some(old), RecordData::Note(retired), false)],
+    );
+    let check = ws.knowledge_check().unwrap();
+    assert_eq!(check.counts.get(&FindingKind::BrokenLink), Some(&1));
+    let broken = &check.findings[0];
+    assert_eq!(broken.records[0], links[1].id);
+    assert!(
+        broken
+            .detail
+            .contains(&format!("superseded by “Fees 2026” `{}`", new.id)),
+        "{}",
+        broken.detail
+    );
+
+    // Re-pointing the same Link in place clears it.
+    write(
+        &mut ws,
+        "repoint",
+        vec![(
+            Some(&links[1]),
+            link(&hub.id, &new.id, relations::RELATED),
+            false,
+        )],
+    );
+    assert!(ws.knowledge_check().unwrap().findings.is_empty());
 }

@@ -39,6 +39,7 @@ fn node(id: &str) -> ConnectionNode {
         title: format!("Neighbour {id}"),
         kind: "note".into(),
         relations: vec!["out:relates".into()],
+        links: vec!["l1".into()],
         via: None,
         inbound_links: 0,
     }
