@@ -1,14 +1,15 @@
 //! One fresh Rig invocation over BRN-owned state. Tool scope is in-process only.
 use crate::auth::OwnedClient;
 use crate::{
-    AiAnswer, AiError, AiErrorKind, AiEvent, AiResult, AiTerminal, Auth, Provider, ReasoningEffort,
-    Selection,
+    AiAnswer, AiError, AiErrorKind, AiEvent, AiResult, AiTerminal, Auth, Provider, ProviderClient,
+    ReasoningEffort, Selection,
 };
 use brn_threads_core::*;
 use rig::agent::{
     AgentHook, DispatchAction, DispatchEvent, HookContext, ModelTurnAction, ModelTurnFinished,
     OutcomeAction, OutcomeEvent,
 };
+use rig::http_client::DynHttpClient;
 use rig::message::AssistantContent;
 use rig::tool::{Tool, ToolContext};
 use serde::Deserialize;
@@ -1319,6 +1320,51 @@ pub async fn run_prepared(
     cancel: CancellationToken,
     emit: Arc<dyn Fn(AiEvent) + Send + Sync>,
 ) -> AiResult<ThreadResult> {
+    run_prepared_over(prepared, cancel, emit, None).await
+}
+
+/// The provider client for a run. A Codex run's cache key pins its
+/// `session_id` on top of `transport` (the shared HTTP client when `None`).
+async fn provider_client(
+    request: &ThreadRunRequest,
+    cache_key: Option<&str>,
+    transport: Option<DynHttpClient>,
+    cancel: &CancellationToken,
+) -> AiResult<ProviderClient> {
+    // A Codex auth file only serves ChatGPT; Copilot always uses its credentials folder.
+    let codex_file = request
+        .auth_file
+        .as_ref()
+        .filter(|_| request.selection.provider == Provider::Chatgpt);
+    if let Some(file) = codex_file {
+        let http = transport.unwrap_or_else(|| DynHttpClient::new(rig::rig_reqwest::shared()));
+        crate::codex_auth::codex_client_pinned(
+            file,
+            &request.selection,
+            cache_key,
+            http,
+            cancel.clone(),
+        )
+        .await
+    } else if let Some(dir) = &request.credentials_dir {
+        let auth = Auth::open(dir)?;
+        let auth = match transport {
+            Some(http) => auth.with_http(http),
+            None => auth,
+        };
+        auth.client_pinned(&request.selection, cache_key, cancel.clone())
+            .await
+    } else {
+        Err(AiError::new(AiErrorKind::ReconnectNeeded))
+    }
+}
+
+async fn run_prepared_over(
+    prepared: PreparedThreadRun,
+    cancel: CancellationToken,
+    emit: Arc<dyn Fn(AiEvent) + Send + Sync>,
+    transport: Option<DynHttpClient>,
+) -> AiResult<ThreadResult> {
     let PreparedThreadRun {
         request,
         scope,
@@ -1359,49 +1405,23 @@ pub async fn run_prepared(
             }
         }
     });
-    // A Codex auth file only serves ChatGPT; Copilot always uses its credentials folder.
-    let codex_file = request
-        .auth_file
-        .as_ref()
-        .filter(|_| request.selection.provider == Provider::Chatgpt);
-    let client = if let Some(file) = codex_file {
-        crate::codex_auth::codex_client(file, &request.selection, cancel.clone()).await
-    } else if let Some(dir) = &request.credentials_dir {
-        match Auth::open(dir) {
-            Ok(auth) => auth.client(&request.selection, cancel.clone()).await,
-            Err(error) => Err(error),
-        }
-    } else {
-        Err(AiError::new(AiErrorKind::ReconnectNeeded))
-    };
+    let client = provider_client(&request, scope.cache_key.as_deref(), transport, &cancel).await;
     let mut answer = match client {
         Ok(client) => {
             let model = request.selection.model.clone();
             match client.inner {
                 OwnedClient::Chatgpt(client) => {
-                    let client = match &scope.cache_key {
-                        Some(key) => crate::auth::pin_chatgpt_session(*client, key),
-                        None => Ok(*client),
-                    };
-                    match client {
-                        Ok(client) => {
-                            run_model(
-                                client.completion(model),
-                                scope.clone(),
-                                &input,
-                                request.effort,
-                                request.max_tool_rounds,
-                                true,
-                                cancel.clone(),
-                                emit,
-                            )
-                            .await
-                        }
-                        Err(error) => AiAnswer {
-                            text: String::new(),
-                            terminal: AiTerminal::Failed(error),
-                        },
-                    }
+                    run_model(
+                        client.completion(model),
+                        scope.clone(),
+                        &input,
+                        request.effort,
+                        request.max_tool_rounds,
+                        true,
+                        cancel.clone(),
+                        emit,
+                    )
+                    .await
                 }
                 OwnedClient::Copilot(client) => {
                     run_copilot(

@@ -31,43 +31,132 @@ fn final_turn() -> String {
     ])
 }
 
-async fn three_turn_run(
-    scope: &Arc<Scope>,
-    input: &str,
-    pin: bool,
-) -> Vec<rig::test_utils::CapturedHttpRequest> {
-    let http = rig::test_utils::SequencedHttpClient::new([
+fn script() -> rig::test_utils::SequencedHttpClient {
+    rig::test_utils::SequencedHttpClient::new([
         rig::test_utils::MockHttpResponse::success_typed(tool_turn(1, "r1"), "text/event-stream"),
         rig::test_utils::MockHttpResponse::success_typed(tool_turn(2, "r2"), "text/event-stream"),
         rig::test_utils::MockHttpResponse::success_typed(final_turn(), "text/event-stream"),
-    ]);
-    let transport = rig::http_client::DynHttpClient::new(http.clone());
-    let transport = match (&scope.cache_key, pin) {
-        (Some(key), true) => crate::auth::pinned_session_http(transport, key).unwrap(),
-        _ => transport,
-    };
-    let client = rig::providers::openai::OpenAIConfig::with_key(
-        &rig::providers::chatgpt::DIALECT,
-        "synthetic-not-a-credential",
+    ])
+}
+
+/// A synthetic Codex auth file, as `codex_client` accepts it.
+fn codex_file(root: &tempfile::TempDir) -> PathBuf {
+    use std::os::unix::fs::PermissionsExt;
+    let file = root.path().join("auth.json");
+    std::fs::write(
+        &file,
+        r#"{"auth_mode":"chatgpt","tokens":{"access_token":"synthetic-not-a-credential","account_id":"synthetic"}}"#,
     )
-    .connect(transport);
-    let answer = run_model(
-        client.responses("gpt-6.1-sol"),
-        scope.clone(),
-        input,
-        ReasoningEffort::Medium,
-        4,
-        true,
+    .unwrap();
+    std::fs::set_permissions(&file, std::fs::Permissions::from_mode(0o600)).unwrap();
+    file
+}
+
+/// A synthetic OAuth cache in a fresh credentials folder.
+fn credentials_dir(root: &tempfile::TempDir) -> PathBuf {
+    use base64::Engine;
+    use std::os::unix::fs::{DirBuilderExt, PermissionsExt};
+    let dir = root.path().join("credentials");
+    std::fs::DirBuilder::new().mode(0o700).create(&dir).unwrap();
+    let claims = base64::engine::general_purpose::URL_SAFE_NO_PAD
+        .encode(serde_json::to_vec(&json!({"email":"synthetic@example.invalid"})).unwrap());
+    let file = dir.join("chatgpt.json");
+    std::fs::write(
+        &file,
+        serde_json::to_vec(&json!({
+            "access_token":"synthetic-not-a-credential","expires_at":4102444800_i64,
+            "account_id":"synthetic","id_token":format!("e30.{claims}.synthetic")}))
+        .unwrap(),
+    )
+    .unwrap();
+    std::fs::set_permissions(&file, std::fs::Permissions::from_mode(0o600)).unwrap();
+    dir
+}
+
+/// Stores the credential route in the workspace Settings, which `prepare_run`
+/// requires the request to match.
+fn configure(request: &ThreadRunRequest, provider: &str) {
+    let mut store = Store::open(&request.data_dir).unwrap();
+    let RecordData::Settings(mut settings) = store
+        .records()
+        .unwrap()
+        .into_iter()
+        .find_map(|r| matches!(r.data, RecordData::Settings(_)).then_some(r.data))
+        .unwrap()
+    else {
+        panic!()
+    };
+    settings.provider = provider.into();
+    settings.auth_file = request
+        .auth_file
+        .as_ref()
+        .map(|p| p.to_str().unwrap().into());
+    settings.credentials_dir = request
+        .credentials_dir
+        .as_ref()
+        .map(|p| p.to_str().unwrap().into());
+    let op = store
+        .allocate_operation("synthetic credential route")
+        .unwrap();
+    store
+        .configure_workspace(&op, &settings, &HostAuthority::owner("fixture"))
+        .unwrap();
+}
+
+enum Route {
+    CodexFile,
+    Credentials,
+}
+
+/// A three-turn run through the production path: `prepare_run` chooses the
+/// key, `provider_client` builds the client over the mock transport, and
+/// `run_model` sends the requests.
+async fn production_run(
+    route: Route,
+    trace: TraceLevel,
+) -> (
+    String,
+    Vec<rig::test_utils::CapturedHttpRequest>,
+    ThreadResult,
+) {
+    let (root, mut request, _) = tests::fixture();
+    match route {
+        Route::CodexFile => request.auth_file = Some(codex_file(&root)),
+        Route::Credentials => request.credentials_dir = Some(credentials_dir(&root)),
+    }
+    configure(&request, "Chatgpt");
+    request.trace = trace;
+    request.max_tool_rounds = 4;
+    let thread = request.thread.clone();
+    let http = script();
+    let result = run_prepared_over(
+        prepare_run(request).unwrap(),
         CancellationToken::new(),
         Arc::new(|_| {}),
+        Some(DynHttpClient::new(http.clone())),
     )
-    .await;
+    .await
+    .unwrap();
     assert!(
-        matches!(answer.terminal, AiTerminal::Completed),
+        matches!(result.answer.terminal, AiTerminal::Completed),
         "{:?}",
-        answer.terminal
+        result.answer.terminal
     );
-    http.requests()
+    (thread, http.requests(), result)
+}
+
+fn session_ids(requests: &[rig::test_utils::CapturedHttpRequest]) -> Vec<String> {
+    requests
+        .iter()
+        .map(|r| {
+            r.headers
+                .get("session_id")
+                .unwrap()
+                .to_str()
+                .unwrap()
+                .to_owned()
+        })
+        .collect()
 }
 
 fn body(request: &rig::test_utils::CapturedHttpRequest) -> Value {
@@ -75,61 +164,66 @@ fn body(request: &rig::test_utils::CapturedHttpRequest) -> Value {
 }
 
 #[tokio::test]
-async fn codex_turns_share_one_cache_key_and_an_append_only_prefix() {
-    let (_root, request, _) = tests::fixture();
-    let (scope, input) = begin(&request).unwrap();
-    let requests = three_turn_run(&scope, &input, true).await;
-    assert_eq!(requests.len(), 3);
-    let key = scope.cache_key.clone().unwrap();
-    let bodies: Vec<Value> = requests.iter().map(body).collect();
-    for b in &bodies {
-        assert_eq!(b["prompt_cache_key"], key.as_str());
-        assert_eq!(b["store"], false);
-        assert_eq!(b["instructions"], bodies[0]["instructions"]);
-        assert_eq!(b["tools"], bodies[0]["tools"]);
-        assert_eq!(b["reasoning"], bodies[0]["reasoning"]);
+async fn codex_runs_pin_one_session_and_an_append_only_prefix_on_either_credential_route() {
+    for route in [Route::CodexFile, Route::Credentials] {
+        let (thread, requests, _) = production_run(route, TraceLevel::Off).await;
+        assert_eq!(requests.len(), 3, "the injected transport must be kept");
+        let key = cache_key(Provider::Chatgpt, &thread).unwrap();
+        let bodies: Vec<Value> = requests.iter().map(body).collect();
+        for b in &bodies {
+            assert_eq!(b["prompt_cache_key"], key.as_str());
+            assert_eq!(b["store"], false);
+            assert_eq!(b["instructions"], bodies[0]["instructions"]);
+            assert_eq!(b["tools"], bodies[0]["tools"]);
+            assert_eq!(b["reasoning"], bodies[0]["reasoning"]);
+        }
+        // Each turn resends the earlier input byte for byte, then appends.
+        for pair in bodies.windows(2) {
+            let (before, after) = (
+                pair[0]["input"].as_array().unwrap(),
+                pair[1]["input"].as_array().unwrap(),
+            );
+            assert!(after.len() > before.len());
+            assert_eq!(&after[..before.len()], &before[..]);
+        }
+        let sessions = session_ids(&requests);
+        assert!(sessions.iter().all(|s| *s == key), "{sessions:?}");
     }
-    // Each turn resends the earlier input byte for byte, then appends.
-    for pair in bodies.windows(2) {
-        let (before, after) = (
-            pair[0]["input"].as_array().unwrap(),
-            pair[1]["input"].as_array().unwrap(),
-        );
-        assert!(after.len() > before.len());
-        assert_eq!(&after[..before.len()], &before[..]);
-    }
-    let sessions: Vec<_> = requests
-        .iter()
-        .map(|r| {
-            r.headers
-                .get("session_id")
-                .unwrap()
-                .to_str()
-                .unwrap()
-                .to_owned()
-        })
-        .collect();
-    assert!(sessions.iter().all(|s| *s == key), "{sessions:?}");
+}
+
+#[tokio::test]
+async fn different_chats_get_different_session_ids() {
+    let (a, first, _) = production_run(Route::CodexFile, TraceLevel::Off).await;
+    let (b, second, _) = production_run(Route::CodexFile, TraceLevel::Off).await;
+    assert_ne!(a, b, "each fixture is its own chat");
+    assert_ne!(session_ids(&first)[0], session_ids(&second)[0]);
 }
 
 #[tokio::test]
 async fn without_the_pin_rig_draws_a_new_session_per_request() {
     let (_root, request, _) = tests::fixture();
     let (scope, input) = begin(&request).unwrap();
-    let requests = three_turn_run(&scope, &input, false).await;
-    let sessions: std::collections::BTreeSet<_> = requests
-        .iter()
-        .map(|r| {
-            r.headers
-                .get("session_id")
-                .unwrap()
-                .to_str()
-                .unwrap()
-                .to_owned()
-        })
-        .collect();
+    let http = script();
+    let client = rig::providers::openai::OpenAIConfig::with_key(
+        &rig::providers::chatgpt::DIALECT,
+        "synthetic-not-a-credential",
+    )
+    .connect(DynHttpClient::new(http.clone()));
+    run_model(
+        client.responses("gpt-6.1-sol"),
+        scope,
+        &input,
+        ReasoningEffort::Medium,
+        4,
+        true,
+        CancellationToken::new(),
+        Arc::new(|_| {}),
+    )
+    .await;
+    let distinct: std::collections::BTreeSet<_> =
+        session_ids(&http.requests()).into_iter().collect();
     assert_eq!(
-        sessions.len(),
+        distinct.len(),
         3,
         "this documents the Rig behaviour the pin replaces"
     );
@@ -147,19 +241,42 @@ fn cache_keys_are_per_chat_bounded_header_safe_and_codex_only() {
 }
 
 #[tokio::test]
-async fn trace_records_each_turns_cached_input() {
+async fn copilot_runs_carry_no_cache_key_in_scope_or_body() {
     let (_root, mut request, _) = tests::fixture();
-    request.trace = TraceLevel::Summary;
+    request.selection.provider = Provider::Copilot;
+    configure(&request, "Copilot");
     let (scope, input) = begin(&request).unwrap();
-    three_turn_run(&scope, &input, true).await;
-    let trace = finish_trace(
-        &scope,
-        &AiAnswer {
-            text: String::new(),
-            terminal: AiTerminal::Completed,
-        },
+    assert_eq!(scope.cache_key, None);
+    let http = script();
+    let client = rig::providers::openai::OpenAIConfig::with_key(
+        &rig::providers::chatgpt::DIALECT,
+        "synthetic-not-a-credential",
     )
-    .unwrap();
+    .connect(DynHttpClient::new(http.clone()));
+    run_model(
+        client.responses("gpt-6.1-sol"),
+        scope,
+        &input,
+        ReasoningEffort::Medium,
+        4,
+        true,
+        CancellationToken::new(),
+        Arc::new(|_| {}),
+    )
+    .await;
+    let requests = http.requests();
+    assert_eq!(requests.len(), 3);
+    assert!(
+        requests
+            .iter()
+            .all(|r| body(r).get("prompt_cache_key").is_none())
+    );
+}
+
+#[tokio::test]
+async fn trace_records_each_turns_cached_input() {
+    let (_thread, _requests, result) = production_run(Route::CodexFile, TraceLevel::Summary).await;
+    let trace = result.trace.unwrap();
     let turns: Vec<_> = trace
         .turn_usage
         .iter()
