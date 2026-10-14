@@ -1004,6 +1004,77 @@ impl ThreadsUi {
                     })),
             );
         }
+        let mut helper_choice = div().flex().flex_wrap().gap_2();
+        for (value, label) in [
+            ("off", "Off"),
+            ("Codex", "Codex / ChatGPT"),
+            ("Copilot", "GitHub Copilot"),
+        ] {
+            let selected = match &self.settings.helper {
+                None => value == "off",
+                Some(helper) => helper.provider.eq_ignore_ascii_case(value),
+            };
+            helper_choice = helper_choice.child(
+                button(format!("helper-provider-{value}"))
+                    .label(label)
+                    .selected(selected)
+                    .on_click(cx.listener(move |this, _, _, cx| {
+                        this.settings.helper = (value != "off").then(|| {
+                            let mut helper = this.settings.helper.clone().unwrap_or(
+                                brn_threads_app::HelperSettings {
+                                    provider: String::new(),
+                                    model: String::new(),
+                                    effort: "high".into(),
+                                    auth_file: None,
+                                    credentials_dir: None,
+                                },
+                            );
+                            helper.provider = value.into();
+                            helper
+                        });
+                        cx.notify();
+                    })),
+            );
+        }
+        let mut helper_tile = panel()
+            .id("settings-helper")
+            .test_support()
+            .child(heading("Helper sub-agents"))
+            .child(
+                "When on, the chat model can ask read-only helpers to research your notes. \
+                 Helpers cannot change notes and never replace an unavailable model.",
+            )
+            .child(metadata(brn_threads_app::HELPER_TESTED_NOTE))
+            .child(metadata("Helper provider"))
+            .child(helper_choice);
+        if let Some(helper) = &self.settings.helper {
+            let mut helper_efforts = div().flex().flex_wrap().gap_2();
+            for effort in ["low", "medium", "high"] {
+                helper_efforts = helper_efforts.child(
+                    button(format!("helper-effort-{effort}"))
+                        .label(effort)
+                        .selected(helper.effort == effort)
+                        .on_click(cx.listener(move |this, _, _, cx| {
+                            if let Some(helper) = &mut this.settings.helper {
+                                helper.effort = effort.into();
+                            }
+                            cx.notify();
+                        })),
+                );
+            }
+            helper_tile = helper_tile
+                .child(metadata("Helper model"))
+                .child(
+                    Input::new(&self.helper_model)
+                        .w_full()
+                        .aria_label("Helper model"),
+                )
+                .child(metadata("Helper reasoning effort"))
+                .child(helper_efforts)
+                .child(metadata(
+                    "The helper uses the credential location above for its provider. Save settings to apply.",
+                ));
+        }
         let provider_tile = panel()
             .id("settings-provider")
             .test_support()
@@ -1163,7 +1234,13 @@ impl ThreadsUi {
         }
         let content = match self.settings_section {
             SettingsSection::General => general.into_any_element(),
-            SettingsSection::Models => provider_tile.into_any_element(),
+            SettingsSection::Models => div()
+                .flex()
+                .flex_col()
+                .gap_3()
+                .child(provider_tile)
+                .child(helper_tile)
+                .into_any_element(),
             SettingsSection::Delegation => self.working_knowledge(cx),
             SettingsSection::Data => copies.into_any_element(),
         };

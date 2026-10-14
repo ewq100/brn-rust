@@ -20,6 +20,7 @@ mod review;
 mod review_groups;
 pub mod search;
 mod settings;
+pub use settings::HELPER_TESTED_NOTE;
 mod steering;
 mod topics;
 mod writing;

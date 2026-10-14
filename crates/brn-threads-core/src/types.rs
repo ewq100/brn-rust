@@ -245,6 +245,21 @@ pub struct WorkspaceSettings {
     /// Owner configuration only; titles can change, so the ID is kept.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub topics_note: Option<String>,
+    /// The owner-chosen read-only helper model; `None` (the default) offers no
+    /// `research` tool. The parent model never chooses or changes it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub helper: Option<HelperSettings>,
+}
+
+/// An explicit helper selection with its own explicit credential route. An
+/// unavailable helper is never replaced by another model or account.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct HelperSettings {
+    pub provider: String,
+    pub model: String,
+    pub effort: String,
+    pub auth_file: Option<String>,
+    pub credentials_dir: Option<String>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

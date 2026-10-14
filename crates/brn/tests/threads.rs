@@ -518,3 +518,87 @@ fn ask_refuses_an_unknown_trace_level_before_any_provider_call() {
     assert!(!output.status.success());
     assert!(String::from_utf8_lossy(&output.stderr).contains("--trace"));
 }
+
+#[test]
+fn helper_setting_is_off_by_default_explicit_and_kept_until_turned_off() {
+    let root = root();
+    let data = root.path().join("helper");
+    let credentials = root.path().join("copilot-credentials");
+    let credentials = credentials.to_str().unwrap();
+    assert!(json_command(&data, &["init"])["settings"]
+        .get("helper")
+        .is_none());
+    let help = Command::new(env!("CARGO_BIN_EXE_brn"))
+        .arg("--help")
+        .output()
+        .unwrap();
+    assert!(String::from_utf8_lossy(&help.stdout).contains(
+        "Helper sub-agents are tested only with gpt-6-luna at high effort; other models may give unreliable results"
+    ));
+    let main = [
+        "configure",
+        "--provider",
+        "Copilot",
+        "--model",
+        "synthetic-main",
+        "--effort",
+        "medium",
+        "--credentials-dir",
+        credentials,
+    ];
+    json_command(&data, &main);
+    assert!(json_command(&data, &["settings"]).get("helper").is_none());
+    let mut with_helper = main.to_vec();
+    with_helper.extend([
+        "--helper-provider",
+        "Copilot",
+        "--helper-model",
+        "synthetic-helper",
+        "--helper-effort",
+        "high",
+    ]);
+    json_command(&data, &with_helper);
+    let helper = json_command(&data, &["settings"])["helper"].clone();
+    assert_eq!(
+        helper,
+        json!({"provider":"Copilot","model":"synthetic-helper","effort":"high",
+            "auth_file":null,"credentials_dir":credentials})
+    );
+    // Reconfiguring the main model keeps the explicit helper selection.
+    json_command(&data, &main);
+    assert_eq!(json_command(&data, &["settings"])["helper"], helper);
+    // A Copilot helper never takes a Codex auth file, and partial or relative
+    // selections are refused rather than completed.
+    let mut wrong = main.to_vec();
+    wrong.extend([
+        "--helper-provider",
+        "Copilot",
+        "--helper-model",
+        "synthetic-helper",
+        "--helper-effort",
+        "high",
+        "--helper-auth-file",
+        "/synthetic/auth.json",
+    ]);
+    assert!(!command(&data, &wrong).status.success());
+    let mut partial = main.to_vec();
+    partial.extend(["--helper-model", "synthetic-helper"]);
+    assert!(!command(&data, &partial).status.success());
+    let mut relative = main.to_vec();
+    relative.extend([
+        "--helper-provider",
+        "Codex",
+        "--helper-model",
+        "synthetic-helper",
+        "--helper-effort",
+        "high",
+        "--helper-auth-file",
+        "auth.json",
+    ]);
+    assert!(!command(&data, &relative).status.success());
+    assert_eq!(json_command(&data, &["settings"])["helper"], helper);
+    let mut off = main.to_vec();
+    off.extend(["--helper", "off"]);
+    json_command(&data, &off);
+    assert!(json_command(&data, &["settings"]).get("helper").is_none());
+}

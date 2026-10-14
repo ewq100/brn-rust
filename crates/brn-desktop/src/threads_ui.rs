@@ -463,6 +463,7 @@ struct ThreadsUi {
     model: Entity<InputState>,
     auth_path: Entity<InputState>,
     credentials_path: Entity<InputState>,
+    helper_model: Entity<InputState>,
     settings: WorkspaceSettings,
     note: Option<OpenNote>,
     review: Option<Review>,
@@ -577,6 +578,16 @@ impl ThreadsUi {
             InputState::new(window, cx)
                 .default_value(settings.credentials_dir.clone().unwrap_or_default())
                 .placeholder("Credentials folder (optional)")
+        });
+        let helper_model = cx.new(|cx| {
+            InputState::new(window, cx)
+                .default_value(
+                    settings
+                        .helper
+                        .as_ref()
+                        .map_or("gpt-6-luna".into(), |helper| helper.model.clone()),
+                )
+                .placeholder("Explicit helper model")
         });
         let subscriptions = vec![
             cx.subscribe_in(
@@ -748,6 +759,7 @@ impl ThreadsUi {
             model,
             auth_path,
             credentials_path,
+            helper_model,
             settings,
             note: None,
             review: None,
@@ -3390,7 +3402,17 @@ impl ThreadsUi {
         let auth = self.auth_path.read(cx).value().to_string();
         let credentials = self.credentials_path.read(cx).value().to_string();
         self.settings.auth_file = (!auth.trim().is_empty()).then_some(auth);
-        self.settings.credentials_dir = (!credentials.trim().is_empty()).then_some(credentials);
+        self.settings.credentials_dir =
+            (!credentials.trim().is_empty()).then_some(credentials.clone());
+        if let Some(helper) = &mut self.settings.helper {
+            helper.model = self.helper_model.read(cx).value().trim().to_string();
+            // The helper uses the credential location shown for its provider.
+            let codex = !helper.provider.eq_ignore_ascii_case("copilot");
+            helper.auth_file = self.settings.auth_file.clone().filter(|_| codex);
+            helper.credentials_dir = (!credentials.trim().is_empty()
+                && (!codex || helper.auth_file.is_none()))
+            .then_some(credentials);
+        }
         match self.workspace.configure(self.settings.clone()) {
             Ok(outcome) => self.notice = outcome_message(&outcome),
             Err(e) => self.notice = e.to_string(),

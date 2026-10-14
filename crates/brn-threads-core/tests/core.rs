@@ -25,6 +25,7 @@ fn delegated_store() -> (TempDir, Store) {
         backup_directory: None,
         theme: None,
         topics_note: None,
+        helper: None,
     };
     let req = request(vec![created(&op, 0, RecordData::Settings(settings))]);
     store.prepare_owner(&op, &req, &owner()).unwrap();
@@ -1652,6 +1653,7 @@ fn workspace_settings_are_owner_only_and_persist_maintenance_review_policy() {
         backup_directory: None,
         theme: None,
         topics_note: None,
+        helper: None,
     };
     let setup = store.allocate_operation("workspace configuration").unwrap();
     let req = request(vec![created(
@@ -1782,6 +1784,7 @@ fn paused_and_review_first_grants_require_exact_target_and_action() {
             backup_directory: None,
             theme: None,
             topics_note: None,
+            helper: None,
         };
         apply(
             &mut store,
@@ -1917,6 +1920,7 @@ fn enabled_maintenance_keeps_standing_ordinary_fallback_for_instruction_runs() {
                 backup_directory: None,
                 theme: None,
                 topics_note: None,
+                helper: None,
             }),
         )]),
         &owner(),
@@ -2084,6 +2088,7 @@ fn configuration_reads_and_fences_runs_at_the_actual_writer_boundary() {
         backup_directory: None,
         theme: None,
         topics_note: None,
+        helper: None,
     };
     let setup = store
         .allocate_operation("settings for shared configuration")
@@ -2352,6 +2357,7 @@ fn working_run_start_rechecks_current_selection_and_accepts_planned_settings_ove
         backup_directory: None,
         theme: None,
         topics_note: None,
+        helper: None,
     };
     let setup = store
         .allocate_operation("initial selection and thread")
@@ -2446,6 +2452,7 @@ fn configuration_replay_checks_immutable_payload_before_receipt() {
         backup_directory: None,
         theme: None,
         topics_note: None,
+        helper: None,
     };
     let seed = store.allocate_operation("settings replay seed").unwrap();
     apply(
@@ -2565,6 +2572,7 @@ fn runtime_settings_snapshot_covers_account_changes_and_provider_aliases() {
         backup_directory: None,
         theme: None,
         topics_note: None,
+        helper: None,
     };
     let setup = store
         .allocate_operation("runtime snapshot settings thread")

@@ -72,6 +72,7 @@ fn fixture() -> (
                     backup_directory: None,
                     theme: None,
                     topics_note: None,
+                    helper: None,
                 }),
             },
         ],
