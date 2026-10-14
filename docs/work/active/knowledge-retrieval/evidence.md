@@ -636,3 +636,146 @@ python3 scripts/evaluate_wiki_v2.py --root ABS_FRESH --seeder target/release/exa
 - A workspace-wide key would let the first turn of each run reuse the roughly 6k-token static prefix (about 40k tokens per case) but risks overflowing a key's per-minute routing with concurrent runs. Not chosen.
 - `cargo test --workspace` has 6 failures in `brn-threads-intake --test qualification` (`Unavailable`: the document converter helper is absent here). That crate is untouched by this change.
 - N is 1; no statistical claim.
+
+## Host-driven intake prototype (14 October 2026)
+
+**Request:** the owner asked to prototype making intake a host-driven workflow, to cut turns and tokens. Design: [host-intake.md](host-intake.md) (PROPOSED).
+
+**Build:** branch `work/host-intake` on `316edb2d`, guide bundle `brn-threads-guidance-8`. Before each source run's first turn the host searches the run's chat from the source and appends the source, up to three related pages at exact versions with their link neighbours, and the queries run. Tools stay available.
+
+**Offline gates:** `cargo fmt --all --check` and `cargo clippy --workspace --all-targets -- -D warnings` pass; `python3 -m unittest discover -s scripts/tests` passes (130 tests). `cargo test --workspace --no-fail-fast` passes everything except six `brn-threads-intake` `qualification` tests that return `Unavailable`; they fail identically on the unmodified base in this environment. New tests: 3 unit and 6 integration (`host_intake.rs`).
+
+**Live S1:** one repetition, one arm (`D-host`), Codex `gpt-6.1-sol` at medium effort, 7 provider runs, scale 1000, no embedding model (semantic lane `none`, so the lead query ran as keyword). The seeder was rebuilt from this branch because the earlier one writes the pre-Projects schema. Baseline: the compact arm above (two repetitions, **built before the Projects merge #138**). N is 1, so differences in the tens of percent are suggestive only.
+
+| Intake step | Source | Baseline turns r1 / r2 | Host turns | Baseline r2 input | Host input | Host cached | Host output | Host tool calls |
+|---|---|---|---|---|---|---|---|---|
+| 1 | Electrician email | 7 / 6 | 5 | 77.9k | 43.4k | 0 | 1.0k | 2 reads, prepare, apply |
+| 2 | City office note | 9 / 9 | 8 | 126.2k | 118.4k | 19.3k | 1.3k | 4 reads, prepare, apply, read |
+| 3 | Choir message (keep in chat) | 6 / 5 | **1** | 58.6k | **8.1k** | 0 | 0.1k | none |
+| 4 | Same electrician, Estonian | 10 / 12 | 9 | 227.2k | 146.8k | 5.6k | 2.0k | 3 reads, prepare, apply, read, prepare, apply |
+| 5 | Puidukoda quote | 12 / 9 | 9 | 183.0k | 173.4k | 26.6k | 2.7k | 3 reads, prepare, apply, read, prepare, apply |
+| Intakes total | | | | 673k | **490k (−27%)** | | | |
+| Case total input | | | | 784k (r1 870k) | **566k (−28%, −35% vs r1)** | 51.6k | 9.8k | |
+
+Baseline turns are the two compact runs' `model_turns`. `prepare_changes` came in round 4–6 in the baseline and in round 3–5 here. Median per intake: 128k baseline, 118k host.
+
+**Context cost:** the host context was 3.8–7.7 KB and took 50–75 ms. Each turn still resends the preamble, so one turn costs about 8k input and the turn count dominates.
+
+**Checks:** all S1 checks pass, as in both baseline repetitions: lineage inputs on all five intakes, step 3 wrote only a chat-to-Source link, facts present (3,800 EUR, 9 November, 7,600 EUR, 31 October), every page linked, a topic page covers the scope, 4 of 4 Sources linked or recorded, search ranks correct, protected notes unchanged, undo restores. The two report-only checks are unchanged.
+
+**What changed in behaviour:**
+- Every intake found the Kitchen note first (rank 1, the right page, at its current version 1, 2, 3, 4). The related page was in the first prompt, but the model made no `read_source`, `search_notes` or `note_connections` calls in any intake.
+- Step 3 decided to keep the message in the chat with no tool call at all (8.1k tokens instead of 58.6k).
+- The model still called `read_records` with a title query or a catalog listing in steps 1, 2, 4 and 5 (a 15.7 KB catalog twice), re-reading the Kitchen note and looking for Actions, Sources and earlier operations. Steps 4 and 5 still made a second prepare and apply, as in the baseline. So only step 1 and the keep-in-chat step approached the 2–3 turn target (5 and 1 turns).
+- No intake prepared in round 1; the earliest was round 3 (step 1).
+
+**Reading:** pre-loaded retrieval removes the discovery searches and `read_source`, and makes keep-in-chat nearly free. The remaining turns come from record lookups the model still chooses to make and from second change groups. The target of about 20–40k tokens per intake was met only for steps 1 and 3. Cached input was low in both arms; prompt caching is separate work.
+
+**Limits:** N is 1; no embedding model; the baseline predates the Projects merge; the guide wording was not iterated (one live repetition was authorised); no desktop interaction. Total live use was about 0.57M tokens.
+
+**Next:** try guide wording or tool shaping that stops catalog and title-query `read_records` calls when context is present, then re-measure with more repetitions.
+
+### Review fixes (offline)
+
+An independent review of the prototype found six Medium issues; they were fixed offline (no provider calls, synthetic data) on `work/host-intake`, guide bundle now `brn-threads-guidance-9`. The live S1 numbers above come from the first build and the `-8` guide and are **not** re-measured.
+
+- **Truncated pages:** pages are shown whole (16 KB each, 24 KB total) or listed as `also_found` rows with their size; `prepare_changes` returns `Invalid` for a replacement of a note whose whole Markdown was not read in this run at that version (host-context pages, whole `read_records` reads, `read_note` read through to the end and applied writes count as read).
+- **Injection:** untrusted-data framing and a delimiter before the JSON payload; authority still comes only from `bind()`, tested with a forged host-authority line in a source.
+- **Context build:** raced against cancellation and a 15 s timeout, started after the liveness watcher; reads use a read-only snapshot and batched visibility checks instead of per-candidate record scans under the store lock.
+- **Multiple sources:** the query budget is split across sources, `uncovered_sources` is reported, status is `none`, `failed`, `partial` or `ok`, text, metadata and the whole payload are bounded (60 KB shedding order).
+- **Guide:** step 0 applies only when retrieval is `ok` or `partial`; otherwise steps 1–2 discovery runs. Wording also forbids catalog listings and a second prepare when context is present.
+- **Tests:** 40+ new unit and integration tests, listed in [host-intake.md](host-intake.md#tests).
+
+**Not done:** no live re-measure of tokens or turns after the changes (full pages instead of 8 KB prefixes cost more input on large pages, and the wording change is unmeasured); the desktop was not exercised; the six `brn-threads-intake` qualification tests behave as before.
+
+### A/B against main after the review fixes (14 October 2026)
+
+**Request:** the owner chose a fair A/B before merging.
+
+**Setup:**
+- Arm `B-main` is `main` at `1d1555a3`: bundle 7 with prompt caching.
+- Arm `D-host` is this branch: bundle 9, host context, full-read guard, merged with `main`.
+- Both arms use the same seeder and the same knowledge-check binary.
+- Codex `gpt-6.1-sol` at medium effort, S1–S3, two repetitions each, plus S2's budget-16 diagnostic on B.
+- The earlier one-repetition check (S1 step 5 `Failed:Other`; S2 and S3 failing) showed an Undo false positive: Undo deliberately advances the chat's `context_epoch` (Projects). The harness now ignores that host-managed field and has a test for it.
+
+| | B-main | D-host |
+|---|---|---|
+| S1 complete runs | 1 passed (1 `Failed:Other` at step 2) | 1 passed (1 `Failed:Other` at step 2) |
+| S1 searches / bytes read (complete run) | 21 / 217 KB | 6 / 72 KB |
+| S1 input / cached / effective (cached at 0.1×) | 627k / 70% / 232k | 541k / 76% / **168k (−28%)** |
+| S2 | 0/2: same misses (RelationVariant or a dangling topic link) | 0/2: same |
+| S3 | 2/2 | 2/2 |
+| Safety blockers | 0 | 0 |
+
+**Reading:**
+- Quality is the same as `main` on these cases. The host context cuts searching by about 3.5× and effective S1 cost by about 28%.
+- S2's remaining misses are shared, so they are agent behaviour rather than a regression.
+- `Failed:Other` occurred at the same step in both arms. It is unrelated to this change. It is an unclassified provider error whose detail BRN does not keep; that is a follow-up.
+
+## Knowledge review Link IDs (14 October 2026)
+
+**Diagnosis.** Recorded S2 runs (bundle 9) failed for two reasons. Both were information gaps in host output.
+
+- The RelationVariant finding carried no records, and `note_connections` returned relation names without Link IDs. Agents said they could not find the `relates-to` Link ID. They spent rounds hunting for it, and some runs hit the 8-round limit before applying anything.
+- Marking "Coop membership fees 2025" as superseded left "Bicycle coop"'s `related` link to it, which the check counts as a BrokenLink. The finding never said which notes link the older note, or that the linking note already links the replacement.
+
+**Changes (bundle `brn-threads-guidance-10`):**
+
+- **Knowledge-check findings** (`crates/brn-threads-app/src/knowledge.rs`) now carry Link IDs and versions:
+  - RelationVariant lists the "Links to rename".
+  - Supersession records the inbound Link IDs, with "Other notes link the older note" and "Already linking the replacement".
+  - BrokenLink names the replacement of a superseded target.
+- **Seeded review message**: adds a deterministic "Usual remedies" line per finding kind present. Contradiction, stale-input and coverage-gap findings get no remedy line.
+- **`note_connections`** neighbours now carry `links`, parallel to `relations`. This is also in CLI `connections` output.
+- **`maintain-notes` guide** adds two sentences:
+  - Rename a relation by updating the Link in place.
+  - When archiving or superseding, re-point or archive inbound links in the same change group.
+- **Host behaviour**: the host still performs no semantic fixes. Every change remains an agent proposal under the owner's checked change flow.
+
+**Offline checks.**
+- New tests:
+  - `a_link_to_a_superseded_note_names_the_replacement`, plus extended RelationVariant assertions.
+  - Scripted journey `s2_review_names_the_links_one_change_group_resolves`. One change group clears RelationVariant, Supersession, UnlistedTopic, Orphan and BrokenLink, and keeps the duplicate for the owner.
+- Gates:
+  - `cargo fmt --check` and `cargo clippy --workspace --all-targets -D warnings` pass.
+  - `cargo test --workspace` passes, with the debug intake helper built first.
+  - Python unittest passes: 131 tests.
+
+**Live A/B.** Codex gpt-6.1-sol medium, scale 1000, synthetic fixtures. B-main is the bundle-9 `main` build; D-review is this branch. Deltas are knowledge-check counts after minus before.
+
+| Run | Pass | Deltas | Input / cached / output tokens |
+| --- | --- | --- | --- |
+| B-main-r1 | no | Supersession −1, UnlistedTopic −1, Orphan −1, BrokenLink +1, RelationVariant 0 | 140,625 / 99,200 / 2,634 |
+| B-main-r2 | no | Duplicate −1, Supersession −1, UnlistedTopic −1, Orphan −1, BrokenLink +1, RelationVariant 0 | 153,061 / 112,000 / 2,841 |
+| B-main-d1 (budget 16) | no | as r2 | 145,310 / 102,272 / 2,874 |
+| B-main-d2 (budget 16) | no | as r2 | 166,011 / 129,664 / 2,831 |
+| D-review-r1 | **yes** | Supersession −1, UnlistedTopic −1, Orphan −1, RelationVariant −1 | 106,861 / 72,832 / 2,856 |
+| D-review-r2 | **yes** | Duplicate −1, Supersession −1, UnlistedTopic −1, Orphan −1, RelationVariant −1 | 91,881 / 64,128 / 3,181 |
+
+- **Summary:** S2 passes 0/2 on B-main and 2/2 on D-review.
+- **Medians:** model-visible bytes fall from 41.4 KB to 19.1 KB; tokens fall from 150k to 102k. Rounds are 8 and 7.5.
+- **S3 regression check**, one run per arm: B-main fails (BrokenLink +1 after an archive), D-review passes. Model-visible bytes are 15.4 KB versus 23.9 KB.
+- **Records:** `files/ab-review/{s2,s3}` in the session state.
+
+**Residual issues.**
+- **Small sample:** N is 2 per arm, and no significance is claimed.
+- **DuplicateTitle:** the opening-hours conflict (13:00 versus 14:00) still needs the owner. Agents merge or ask inconsistently. Both behaviours pass the preservation check.
+- **Rounds:** D-review used 7–8 of its 8 rounds, so larger reviews may still need more budget.
+
+**Review follow-up (offline only).** An independent review led to these hardening changes after the A/B above. The live runs measured the earlier build (`be577ebf`), so S2 should be re-measured before acceptance.
+
+- **Conflicts:** Supersession findings list inbound `contradicts` links separately, to keep or ask about, and never offer them for re-pointing. "Already linking the replacement" now requires the same relation. A broken `contradicts` link is marked as a recorded conflict. The remedies and maintain-notes step 7 forbid archiving or re-pointing a `contradicts` link without an owner decision.
+- **Privacy:** a broken link names its replacement only when it is a current general note. The check follows a supersession chain to that note, and never names chat-owned or project material.
+- **Bounds:**
+  - Record lists, already-linking titles and duplicate names stop at 10 per finding, followed by "and N more".
+  - The seeded review stops at 16 KiB (`REVIEW_MESSAGE_BYTES`) and counts the findings it does not list.
+- **Remedy wording:** remedies are scoped to ordinary unprotected notes, with protected or owner-written material going through the conflict playbook. When no relation name is recommended, the agent picks the most used one and says so.
+- **Connections:** `note_connections` and CLI `connections` list every Link behind a relation, including duplicates, as `{id, version, relation}`.
+- **Tests:** `supersession_keeps_recorded_conflicts_and_matches_relations`, `broken_links_name_only_current_general_replacements`, `hub_findings_and_the_review_message_stay_bounded` and the extended `connections_are_bounded_ordered_and_visibility_checked`.
+- **Gates:** fmt, clippy `-D warnings`, the workspace tests and 131 Python tests pass.
+
+**Live recheck after the review fixes** (build `2c823281`, guide bundle 10, Codex `gpt-6.1-sol` at medium effort, two repetitions):
+- S2 passed **2/2** and S3 passed **2/2**, with no safety blockers.
+- Median bytes read: 22 KB (S2) and 13 KB (S3).
+- Median tokens: 73k per run.

@@ -94,6 +94,7 @@ fn pending_runtime_requires_review_but_scoped_owner_instruction_still_applies() 
             });
         }
         let (scope, _) = begin(&request).unwrap();
+        tests::read_all(&scope);
         let prepared = prepare(
             &scope,
             PrepareArgs {

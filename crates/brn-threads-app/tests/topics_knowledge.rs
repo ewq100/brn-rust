@@ -356,6 +356,21 @@ fn knowledge_check_reports_deterministic_findings_without_chat_material() {
         .find(|f| f.kind == FindingKind::DuplicateTitle)
         .unwrap();
     assert_eq!(duplicates.records.len(), 2);
+    // The variant link to rename is named with its version.
+    let variant = check
+        .findings
+        .iter()
+        .find(|f| f.kind == FindingKind::RelationVariant)
+        .unwrap();
+    assert_eq!(variant.records.len(), 1);
+    assert!(
+        variant
+            .detail
+            .contains(&format!("Link `{}` v1", variant.records[0]))
+            && variant.detail.contains("(`relates-to`)"),
+        "{}",
+        variant.detail
+    );
 
     let review = ws.seed_knowledge_review(&check).unwrap();
     let messages = ws.messages(&review).unwrap();
@@ -555,4 +570,337 @@ fn archived_chat_material_and_chat_links_are_not_reported_as_broken() {
     );
     let text = serde_json::to_string(&check).unwrap();
     assert!(!text.contains(&notes[1].id) && !text.contains(&chat));
+}
+
+#[test]
+fn a_link_to_a_superseded_note_names_the_replacement() {
+    let (_root, _data, mut ws) = workspace();
+    let n = write(
+        &mut ws,
+        "notes",
+        vec![
+            (None, note("Fees 2025", "Old fees.\n"), false),
+            (None, note("Fees 2026", "New fees.\n"), false),
+            (None, note("Coop", "Hub.\n"), false),
+        ],
+    );
+    let (old, new, hub) = (&n[0], &n[1], &n[2]);
+    let links = write(
+        &mut ws,
+        "links",
+        vec![
+            (None, link(&new.id, &old.id, relations::SUPERSEDES), false),
+            (None, link(&hub.id, &old.id, relations::RELATED), false),
+        ],
+    );
+    let check = ws.knowledge_check().unwrap();
+    let supersession = &check.findings[0];
+    assert_eq!(supersession.kind, FindingKind::Supersession);
+    assert_eq!(
+        supersession.records,
+        vec![old.id.clone(), new.id.clone(), links[1].id.clone()]
+    );
+    assert!(!supersession.detail.contains("Already linking"));
+
+    let RecordData::Note(mut retired) = old.data.clone() else {
+        panic!()
+    };
+    retired.superseded_by = Some(new.id.clone());
+    write(
+        &mut ws,
+        "supersede",
+        vec![(Some(old), RecordData::Note(retired), false)],
+    );
+    let check = ws.knowledge_check().unwrap();
+    assert_eq!(check.counts.get(&FindingKind::BrokenLink), Some(&1));
+    let broken = &check.findings[0];
+    assert_eq!(broken.records[0], links[1].id);
+    assert!(
+        broken
+            .detail
+            .contains(&format!("superseded by “Fees 2026” `{}`", new.id)),
+        "{}",
+        broken.detail
+    );
+
+    // Re-pointing the same Link in place clears it.
+    write(
+        &mut ws,
+        "repoint",
+        vec![(
+            Some(&links[1]),
+            link(&hub.id, &new.id, relations::RELATED),
+            false,
+        )],
+    );
+    assert!(ws.knowledge_check().unwrap().findings.is_empty());
+}
+
+fn supersede(ws: &mut Workspace, key: &str, old: &Record, next: &str) -> Record {
+    let RecordData::Note(mut retired) = old.data.clone() else {
+        panic!()
+    };
+    retired.superseded_by = Some(next.to_owned());
+    write(ws, key, vec![(Some(old), RecordData::Note(retired), false)]).remove(0)
+}
+
+fn review_text(ws: &mut Workspace, check: &KnowledgeCheck) -> String {
+    let review = ws.seed_knowledge_review(check).unwrap();
+    let RecordData::Message(message) = &ws.messages(&review).unwrap()[0].data else {
+        panic!()
+    };
+    message.text.clone()
+}
+
+#[test]
+fn supersession_keeps_recorded_conflicts_and_matches_relations() {
+    let (_root, _data, mut ws) = workspace();
+    let n = write(
+        &mut ws,
+        "notes",
+        vec![
+            (None, note("Fees 2025", "Old fees.\n"), false),
+            (None, note("Fees 2026", "New fees.\n"), false),
+            (None, note("Coop", "Hub.\n"), false),
+            (None, note("Fee dispute", "Members disagree.\n"), false),
+        ],
+    );
+    let (old, new, hub, dispute) = (&n[0], &n[1], &n[2], &n[3]);
+    let links = write(
+        &mut ws,
+        "links",
+        vec![
+            (None, link(&new.id, &old.id, relations::SUPERSEDES), false),
+            (None, link(&hub.id, &old.id, relations::RELATED), false),
+            (None, link(&hub.id, &new.id, relations::SOURCE), false),
+            (
+                None,
+                link(&dispute.id, &old.id, relations::CONTRADICTS),
+                false,
+            ),
+        ],
+    );
+    let check = ws.knowledge_check().unwrap();
+    let supersession = check
+        .findings
+        .iter()
+        .find(|f| f.kind == FindingKind::Supersession)
+        .unwrap();
+    // The conflict is not offered for re-pointing or archiving.
+    assert_eq!(
+        supersession.records,
+        vec![old.id.clone(), new.id.clone(), links[1].id.clone()]
+    );
+    let (repoint, conflicts) = supersession
+        .detail
+        .split_once("Recorded conflicts")
+        .unwrap();
+    assert!(!repoint.contains(&links[3].id), "{}", supersession.detail);
+    assert!(conflicts.contains(&links[3].id) && conflicts.contains("ask the owner"));
+    // A `source` link to the replacement does not make `related` redundant.
+    assert!(!supersession.detail.contains("Already linking"));
+    let text = review_text(&mut ws, &check);
+    assert!(text.contains("for ordinary unprotected notes"), "{text}");
+    assert!(
+        text.contains("never archive or re-point a `contradicts` link without an owner decision")
+    );
+
+    write(
+        &mut ws,
+        "same relation",
+        vec![(None, link(&hub.id, &new.id, relations::RELATED), false)],
+    );
+    let check = ws.knowledge_check().unwrap();
+    let supersession = check
+        .findings
+        .iter()
+        .find(|f| f.kind == FindingKind::Supersession)
+        .unwrap();
+    assert!(
+        supersession
+            .detail
+            .contains("Already linking the replacement with the same relation: “Coop” (`related`)"),
+        "{}",
+        supersession.detail
+    );
+
+    supersede(&mut ws, "supersede", old, &new.id);
+    let check = ws.knowledge_check().unwrap();
+    let conflict = check
+        .findings
+        .iter()
+        .find(|f| f.kind == FindingKind::BrokenLink && f.records[0] == links[3].id)
+        .unwrap();
+    assert!(
+        conflict.detail.contains("records a conflict"),
+        "{}",
+        conflict.detail
+    );
+}
+
+#[test]
+fn broken_links_name_only_current_general_replacements() {
+    let (_root, _data, mut ws) = workspace();
+    let chat = ws.new_thread("Private").unwrap().id;
+    let project = ws
+        .project_command(
+            "project",
+            ProjectCommand::Create {
+                title: "Harbor".into(),
+            },
+        )
+        .unwrap()
+        .writes[0]
+        .after
+        .id
+        .clone();
+    let document = ws
+        .project_command(
+            "document",
+            ProjectCommand::CreateDocument {
+                project: project.clone(),
+                title: "Zzproject draft".into(),
+                markdown: "Private plan.\n".into(),
+            },
+        )
+        .unwrap()
+        .writes
+        .into_iter()
+        .find(|w| matches!(w.after.data, RecordData::Note(_)))
+        .unwrap()
+        .after
+        .id;
+    let n = write(
+        &mut ws,
+        "notes",
+        vec![
+            (None, note("Old A", "A.\n"), false),
+            (None, note("Old B", "B.\n"), false),
+            (None, note("Old C", "C.\n"), false),
+            (None, note("Middle C", "Retired too.\n"), false),
+            (None, note("Current C", "Now.\n"), false),
+            (None, note("Hub", "Links.\n"), false),
+            (
+                None,
+                RecordData::Note(Note {
+                    chat: Some(chat.clone()),
+                    ..Note::working("Zzchat draft", "Private.\n")
+                }),
+                false,
+            ),
+        ],
+    );
+    let hub = &n[5];
+    let chat_note = n[6].id.clone();
+    write(
+        &mut ws,
+        "links",
+        (0..3)
+            .map(|i| (None, link(&hub.id, &n[i].id, relations::RELATED), false))
+            .collect(),
+    );
+    supersede(&mut ws, "a", &n[0], &chat_note);
+    supersede(&mut ws, "b", &n[1], &document);
+    supersede(&mut ws, "middle", &n[3], &n[4].id);
+    supersede(&mut ws, "c", &n[2], &n[3].id);
+
+    let check = ws.knowledge_check().unwrap();
+    assert_eq!(
+        check.counts.get(&FindingKind::BrokenLink),
+        Some(&3),
+        "{check:?}"
+    );
+    let named: Vec<&str> = check
+        .findings
+        .iter()
+        .filter(|f| f.detail.contains("superseded by"))
+        .map(|f| f.detail.as_str())
+        .collect();
+    // The chain skips the retired middle note to the current one.
+    assert_eq!(named.len(), 1, "{named:?}");
+    assert!(named[0].contains(&format!("“Current C” `{}`", n[4].id)));
+    assert!(!named[0].contains(&n[3].id));
+    let json = serde_json::to_string(&check).unwrap();
+    let text = review_text(&mut ws, &check);
+    for private in [&chat_note, &document, "Zzchat", "Zzproject"] {
+        assert!(!json.contains(private), "{private} in {json}");
+        assert!(!text.contains(private), "{private} in {text}");
+    }
+}
+
+#[test]
+fn hub_findings_and_the_review_message_stay_bounded() {
+    let (_root, _data, mut ws) = workspace();
+    let olds = write(
+        &mut ws,
+        "olds",
+        (0..30)
+            .map(|i| {
+                (
+                    None,
+                    note(&format!("Old page {i}"), &format!("Old {i}.\n")),
+                    false,
+                )
+            })
+            .chain((0..30).map(|i| {
+                (
+                    None,
+                    note(&format!("New page {i}"), &format!("New {i}.\n")),
+                    false,
+                )
+            }))
+            .collect(),
+    );
+    let linkers = write(
+        &mut ws,
+        "linkers",
+        (0..40)
+            .map(|i| {
+                (
+                    None,
+                    note(&format!("Linker {i}"), &format!("Points {i}.\n")),
+                    false,
+                )
+            })
+            .collect(),
+    );
+    let mut links = Vec::new();
+    for i in 0..30 {
+        links.push((
+            None,
+            link(&olds[30 + i].id, &olds[i].id, relations::SUPERSEDES),
+            false,
+        ));
+        let count = if i == 0 { 40 } else { 12 };
+        for linker in &linkers[..count] {
+            links.push((
+                None,
+                link(&linker.id, &olds[i].id, relations::RELATED),
+                false,
+            ));
+            links.push((
+                None,
+                link(&linker.id, &olds[30 + i].id, relations::RELATED),
+                false,
+            ));
+        }
+    }
+    write(&mut ws, "links", links);
+
+    let check = ws.knowledge_check().unwrap();
+    assert_eq!(check.counts.get(&FindingKind::Supersession), Some(&30));
+    let hub = check
+        .findings
+        .iter()
+        .find(|f| f.kind == FindingKind::Supersession && f.records[0] == olds[0].id)
+        .unwrap();
+    assert_eq!(hub.records.len(), 2 + 10);
+    assert!(hub.detail.contains("; and 30 more"), "{}", hub.detail);
+    assert!(hub.detail.contains("same relation: ") && hub.detail.contains(", and 30 more"));
+    assert!(hub.detail.len() < 4096, "{}", hub.detail.len());
+
+    let text = review_text(&mut ws, &check);
+    assert!(text.len() <= REVIEW_MESSAGE_BYTES, "{}", text.len());
+    assert!(text.contains("more findings are not listed here"));
+    assert!(text.contains("Usual remedies") && text.contains("A clean check is not proof"));
 }

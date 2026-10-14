@@ -64,6 +64,7 @@ impl RunNoteSearch for FakeSearch {
                 title: "Harbor".into(),
                 kind: "note".into(),
                 relations: vec![],
+                links: vec![],
                 via: None,
                 inbound_links: 0,
             },
@@ -338,6 +339,7 @@ fn with_search_a_listing_names_notes_compactly_and_ids_read_them_whole() {
 fn a_broken_store_rule_is_reported_as_invalid_with_its_reason() {
     let (_root, request, note) = tests::fixture();
     let (scope, _) = begin(&request).unwrap();
+    tests::read_all(&scope);
     let write = json!({"id":note,"expected_version":1,"archived":false,
         "data":{"Note":{"title":"Harbor","markdown":"x","protected":false,"confirmed":false,
             "superseded_by":null,"import":null}}});

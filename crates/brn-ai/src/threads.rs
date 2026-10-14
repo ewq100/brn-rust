@@ -26,8 +26,12 @@ use tokio_util::sync::CancellationToken;
 
 #[path = "threads_history.rs"]
 mod history;
+#[path = "threads_intake.rs"]
+mod host_intake;
 #[path = "threads_search.rs"]
 mod note_search;
+#[path = "threads_reads.rs"]
+mod reads;
 #[path = "threads_trace.rs"]
 mod trace;
 pub use trace::{RunTrace, TraceCall, TraceLevel, TraceUsage};
@@ -35,8 +39,8 @@ pub use trace::{RunTrace, TraceCall, TraceLevel, TraceUsage};
 mod sources;
 use history::{HistoryArgs, RefreshArgs};
 pub use note_search::{
-    ConnectionHop, ConnectionNode, MAX_SEARCH_LIMIT, NoteNeighbourhood, NoteSearchError,
-    NoteSearchPage, NoteSearchResult, RunNoteSearch,
+    ConnectionHop, ConnectionLink, ConnectionNode, MAX_SEARCH_LIMIT, NoteNeighbourhood,
+    NoteSearchError, NoteSearchPage, NoteSearchResult, RunNoteSearch,
 };
 pub use sources::{TransientAsset, TransientSource};
 #[cfg(test)]
@@ -52,8 +56,15 @@ mod current_inputs_tests;
 #[path = "threads_delegation_tests.rs"]
 mod delegation_tests;
 #[cfg(test)]
+#[path = "threads_intake_tests.rs"]
+mod intake_tests;
+#[cfg(test)]
 #[path = "threads_project_tests.rs"]
 mod project_tests;
+#[cfg(test)]
+#[path = "threads_reads_tests.rs"]
+mod reads_tests;
+
 #[cfg(test)]
 #[path = "threads_search_tests.rs"]
 mod search_tests;
@@ -128,6 +139,7 @@ struct Scope {
     owner_request: Option<OwnerRequest>,
     writing_snapshot: Option<WritingSnapshot>,
     decision_target: Mutex<Option<String>>,
+    reads: Mutex<reads::ReadLedger>,
     search: Option<Arc<dyn RunNoteSearch>>,
     trace: Option<Arc<trace::TraceCollector>>,
     max_rounds: u16,
@@ -438,7 +450,7 @@ impl Tool for NoteConnections {
     type Output = Value;
     type Error = AiError;
     fn description(&self) -> String {
-        "List a visible note's recorded neighbourhood: linked notes (and optionally sources) with relation names and directions, at most 8 per hop with exact available counts. hops=2 adds neighbours of the listed neighbours.".into()
+        "List a visible note's recorded neighbourhood: linked notes (and optionally sources) with relation names and directions and every Link record behind them (`links`: id, current version for `expected_version`, relation), at most 8 per hop with exact available counts. hops=2 adds neighbours of the listed neighbours.".into()
     }
     fn parameters(&self) -> Value {
         schema(Self::NAME)
@@ -624,6 +636,15 @@ fn read_records(scope: &Scope, args: ReadArgs) -> AiResult<Value> {
             value = json!({"id":record.id,"version":record.version,"asset":{"note":asset.note,"source":asset.source,"media_type":asset.media_type,"sha256":asset.content_hash(),"bytes":asset.bytes.len()}});
         }
         if let RecordData::Note(note) = &record.data
+            && note.markdown.len() <= MAX_NOTE_READ_BYTES
+        {
+            scope
+                .reads
+                .lock()
+                .map_err(storage)?
+                .complete(&record.id, record.version);
+        }
+        if let RecordData::Note(note) = &record.data
             && note.markdown.len() > MAX_NOTE_READ_BYTES
         {
             let prefix = truncate(&note.markdown, MAX_NOTE_READ_BYTES);
@@ -660,6 +681,15 @@ fn read_note(scope: &Scope, args: ReadNoteArgs) -> AiResult<Value> {
             args.section,
         )
         .map_err(storage)?;
+    if let NoteReadOutcome::Read { note } = &outcome {
+        scope.reads.lock().map_err(storage)?.slice(
+            &note.id,
+            note.version,
+            note.start,
+            note.end,
+            note.total_bytes,
+        );
+    }
     serde_json::to_value(outcome).map_err(storage)
 }
 fn read_source(scope: &Scope, args: SourceArgs) -> AiResult<Value> {
@@ -873,6 +903,38 @@ fn bind_project_inputs(scope: &Scope, store: &Store, request: &mut ChangeRequest
     }
     Ok(())
 }
+/// A write that replaces a note's Markdown must be built from the whole note
+/// at the version it names. Markdown shown only in part (a prefix, a search
+/// snippet, a truncated host page) is not a read of the note.
+fn unread_replacement(
+    scope: &Scope,
+    store: &Store,
+    request: &ChangeRequest,
+) -> AiResult<Option<String>> {
+    let reads = scope.reads.lock().map_err(storage)?;
+    for write in &request.writes {
+        let (Some(version), RecordData::Note(note)) = (write.expected_version, &write.data) else {
+            continue;
+        };
+        if reads.knows(&write.id, version) {
+            continue;
+        }
+        let unchanged = store
+            .record(&write.id)
+            .map_err(storage)?
+            .is_some_and(|current| {
+                current.version == version
+                    && matches!(&current.data, RecordData::Note(n) if n.markdown == note.markdown)
+            });
+        if !unchanged {
+            return Ok(Some(format!(
+                "note {} version {version}: its whole Markdown was not read in this run, so a replacement could drop unread text. Read it completely at that version (read_records with its id, or read_note until next_start is null), then prepare the full replacement",
+                write.id
+            )));
+        }
+    }
+    Ok(None)
+}
 fn prepare(scope: &Scope, mut args: PrepareArgs) -> AiResult<Value> {
     if !parse_valid(
         "prepare_changes",
@@ -905,6 +967,11 @@ fn prepare(scope: &Scope, mut args: PrepareArgs) -> AiResult<Value> {
         &scope.source_ids,
     )?;
     bind_project_inputs(scope, &store, &mut args.request)?;
+    if scope.writing_snapshot.is_none()
+        && let Some(reason) = unread_replacement(scope, &store, &args.request)?
+    {
+        return Ok(json!({"outcome":"Invalid","reason":reason}));
+    }
     // A rule the request broke is reported so the model can correct it;
     // scope rejections above stay generic.
     let prepared = match store.prepare(&op, &args.request) {
@@ -1025,6 +1092,14 @@ fn apply(scope: &Scope, args: ApplyArgs) -> AiResult<Value> {
     };
     let result = match &outcome {
         ApplyOutcome::Applied(receipt) => {
+            // The run wrote these versions, so it knows their whole text.
+            let mut reads = scope.reads.lock().map_err(storage)?;
+            for write in &receipt.writes {
+                if matches!(write.after.data, RecordData::Note(_)) {
+                    reads.complete(&write.after.id, write.after.version);
+                }
+            }
+            drop(reads);
             let affected = receipt
                 .needs_refresh
                 .iter()
@@ -1405,6 +1480,8 @@ async fn run_prepared_over(
             }
         }
     });
+    // The watcher is already running, so a stop during the context build is seen.
+    let input = host_intake::with_context(&scope, input, &cancel).await;
     let client = provider_client(&request, scope.cache_key.as_deref(), transport, &cancel).await;
     let mut answer = match client {
         Ok(client) => {
@@ -1472,6 +1549,7 @@ pub async fn run_prepared_scripted(
         scope,
         input,
     } = prepared;
+    let input = host_intake::with_context(&scope, input, &CancellationToken::new()).await;
     let mut answer = run_model(
         model,
         scope.clone(),
@@ -1955,6 +2033,7 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
             owner_request: request.owner_request.clone(),
             writing_snapshot,
             decision_target: Mutex::new(None),
+            reads: Mutex::default(),
             search: request.search.clone(),
             trace: trace::TraceCollector::new(request.trace).map(Arc::new),
             max_rounds: request.max_tool_rounds,
@@ -2296,6 +2375,17 @@ mod tests {
             "skipped"
         );
     }
+    /// Reads every current note in full, as a model that read before writing.
+    pub(super) fn read_all(scope: &Scope) {
+        read_records(
+            scope,
+            ReadArgs {
+                ids: vec![],
+                query: None,
+            },
+        )
+        .unwrap();
+    }
     pub(super) fn fixture() -> (tempfile::TempDir, ThreadRunRequest, String) {
         let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
         let data = root.path().join("workspace");
@@ -2395,6 +2485,7 @@ mod tests {
         markdown: &str,
     ) -> Record {
         let (scope, input) = begin(request).unwrap();
+        read_all(&scope);
         let mut args = prepared_note(note, version, markdown);
         // Retagging the proposed note as complete must not replace host evidence.
         let RecordData::Note(proposed) = &mut args.request.writes[0].data else {
@@ -2940,6 +3031,7 @@ mod tests {
                 version,
             });
             let (scope, input) = begin(&request).unwrap();
+            read_all(&scope);
             assert!(input.contains(&note));
             let proposed = prepare(&scope, protected_proposal(&note, version, "Tuesday")).unwrap();
             let result = apply(
@@ -2980,6 +3072,7 @@ mod tests {
                 assets: vec![],
             });
             let (scope, _) = begin(&request).unwrap();
+            read_all(&scope);
             let proposed = prepare(&scope, protected_proposal(&note, version, "Tuesday")).unwrap();
             let result = apply(
                 &scope,
@@ -3022,6 +3115,7 @@ mod tests {
                 version,
             });
             let (scope, _) = begin(&request).unwrap();
+            read_all(&scope);
             let mut proposal = protected_proposal(&note, version, "Tuesday");
             if mode == "wrong" {
                 let mut store = scope.store.lock().unwrap();
@@ -3047,6 +3141,7 @@ mod tests {
                     )
                     .unwrap();
                 store.apply(&op, &owner).unwrap();
+                scope.reads.lock().unwrap().complete(&id, 1);
                 proposal = protected_proposal(&id, 1, "Tuesday");
             } else if mode == "stale" {
                 let mut store = scope.store.lock().unwrap();
@@ -3056,10 +3151,13 @@ mod tests {
                 store.prepare_owner(&op, &newer, &owner).unwrap();
                 store.apply(&op, &owner).unwrap();
                 proposal = protected_proposal(&note, version + 1, "Tuesday");
+                drop(store);
+                scope.reads.lock().unwrap().complete(&note, version + 1);
             } else if let RecordData::Note(data) = &mut proposal.request.writes[0].data {
                 data.protected = false;
             }
             let prepared = prepare(&scope, proposal).unwrap();
+            assert!(prepared.get("operation").is_some(), "{mode}: {prepared}");
             let result = apply(
                 &scope,
                 ApplyArgs {
@@ -3802,6 +3900,7 @@ mod tests {
             format!("Delivery moved to Tuesday. {canary}"),
         ));
         let (scope, _) = begin(&request).unwrap();
+        read_all(&scope);
         read_skill(
             &scope,
             SkillArgs {
@@ -3892,6 +3991,7 @@ mod tests {
             .unwrap();
         store.apply(&op, &HostAuthority::owner("fixture")).unwrap();
         let (old, _) = begin(&request).unwrap();
+        read_all(&old);
         let mut args = prepared_note(&note, 2, "Tuesday");
         let RecordData::Note(next) = &mut args.request.writes[0].data else {
             panic!()

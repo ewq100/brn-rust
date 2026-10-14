@@ -308,6 +308,11 @@ async fn a_stale_candidate_is_refreshed_from_current_search_results() {
     let model = MockCompletionModel::from_stream_turns([
         call("s", "search_notes", search("quay loading depth")),
         call(
+            "r",
+            "read_note",
+            json!({"id":w.target,"version":1,"start":0,"max_bytes":4096,"section":false}),
+        ),
+        call(
             "p",
             "prepare_changes",
             json!({"request_key":"depth","request":change(&w.target, 1, &format!("{TARGET}\nDraft.\n"))}),
