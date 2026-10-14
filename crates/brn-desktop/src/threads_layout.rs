@@ -107,7 +107,7 @@ impl Preset {
         match self {
             Self::Write => &[
                 (TileKind::Threads, 0.62),
-                (TileKind::Note, 2.1),
+                (TileKind::Note, 2.7),
                 (TileKind::Chat, 1.45),
             ],
             Self::Chat => &[

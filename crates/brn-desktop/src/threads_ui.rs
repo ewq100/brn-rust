@@ -47,6 +47,10 @@ mod connections_view;
 mod context_actions;
 #[path = "threads_diff.rs"]
 mod diff;
+#[path = "threads_document.rs"]
+mod document;
+#[path = "threads_format.rs"]
+mod formatting;
 #[path = "threads_layout.rs"]
 mod layout;
 #[path = "threads_lists.rs"]
@@ -61,6 +65,8 @@ mod state;
 mod theme;
 #[path = "threads_tiles.rs"]
 mod tiles;
+#[path = "threads_workbench.rs"]
+mod workbench;
 #[path = "threads_writing.rs"]
 mod writing;
 use layout::{Layout, Preset, TileKind};
@@ -91,6 +97,14 @@ mod steering_tests;
 #[cfg(all(test, feature = "native-test-support"))]
 #[path = "threads_writing_tests.rs"]
 mod writing_tests;
+
+#[cfg(all(test, feature = "native-test-support"))]
+#[path = "threads_workbench_tests.rs"]
+mod workbench_tests;
+
+#[cfg(all(test, feature = "native-test-support"))]
+#[path = "threads_document_tests.rs"]
+mod document_tests;
 
 #[cfg(all(test, feature = "native-test-support"))]
 #[path = "threads_tiled_tests.rs"]
@@ -412,6 +426,11 @@ struct ThreadsUi {
     attaching_chat: Option<String>,
     editing_queue: Option<String>,
     note_editor: Entity<EditorState>,
+    note_read_view: Entity<TextViewState>,
+    note_reading: bool,
+    read_marks_key: String,
+    read_source: String,
+    review_reading: bool,
     comment_marks: Option<RangeDecorationCollection>,
     diff_editor: Entity<EditorState>,
     diff_marks: Option<TextDecorationCollection>,
@@ -441,6 +460,8 @@ struct ThreadsUi {
     margin: bool,
     show_coverage: bool,
     selection: Option<(Range<usize>, String)>,
+    general_feedback: Entity<EditorState>,
+    general_drafts: BTreeMap<String, String>,
     comment_input: Entity<EditorState>,
     comment_anchor: Option<(String, u64, Range<usize>, String)>,
     comment_operation: Option<String>,
@@ -496,11 +517,26 @@ impl ThreadsUi {
                 .placeholder("Ask or delegate…")
         });
         let note_editor = cx.new(|cx| EditorState::new(window, cx).default_value(""));
+        let note_read_view = cx.new(|cx| {
+            TextViewState::markdown("", cx)
+                .selectable(true)
+                .scrollable(true)
+        });
         let diff_editor = cx.new(|cx| EditorState::new(window, cx).default_value(""));
         diff_editor.update(cx, |editor, cx| editor.set_readonly(true, cx));
         let review_editor = cx.new(|cx| EditorState::new(window, cx).default_value(""));
-        let comment_input =
-            cx.new(|cx| EditorState::new(window, cx).placeholder("What should change here?"));
+        let comment_input = cx.new(|cx| {
+            EditorState::new(window, cx)
+                .line_number(false)
+                .auto_close(false)
+                .placeholder("What should change here?")
+        });
+        let general_feedback = cx.new(|cx| {
+            EditorState::new(window, cx)
+                .line_number(false)
+                .auto_close(false)
+                .placeholder("Tone, structure, or anything for the whole note…")
+        });
         let current_view = cx.new(|cx| {
             TextViewState::markdown("", cx)
                 .selectable(true)
@@ -535,6 +571,25 @@ impl ThreadsUi {
         });
         let subscriptions = vec![
             cx.subscribe_in(
+                &general_feedback,
+                window,
+                |this, editor, event: &InputEvent, _, cx| {
+                    if matches!(event, InputEvent::Change) {
+                        if let Some(note) = this.open_note_id().map(str::to_owned) {
+                            this.general_drafts
+                                .insert(note, editor.read(cx).value().to_string());
+                        }
+                        cx.notify();
+                    }
+                },
+            ),
+            cx.observe_in(&note_read_view, window, |this, _, _, cx| {
+                if this.note_reading && this.review.is_none() {
+                    this.track_selection(cx);
+                    cx.notify();
+                }
+            }),
+            cx.subscribe_in(
                 &composer,
                 window,
                 |this, editor, event: &InputEvent, _, cx| {
@@ -549,7 +604,8 @@ impl ThreadsUi {
                 |this, editor, event: &InputEvent, _, cx| {
                     if matches!(event, InputEvent::Change) && this.note_editor_visible() {
                         this.note_changed(editor.read(cx).value().to_string());
-                        this.selection = None;
+                        this.sync_read_text(cx);
+                        this.track_selection(cx);
                         cx.notify();
                     }
                 },
@@ -652,6 +708,11 @@ impl ThreadsUi {
             attaching_chat: None,
             editing_queue: None,
             note_editor,
+            note_read_view,
+            note_reading: false,
+            read_marks_key: String::new(),
+            read_source: String::new(),
+            review_reading: false,
             comment_marks: None,
             diff_editor,
             diff_marks: None,
@@ -681,6 +742,8 @@ impl ThreadsUi {
             margin: true,
             show_coverage: false,
             selection: None,
+            general_feedback,
+            general_drafts: BTreeMap::new(),
             comment_input,
             comment_anchor: None,
             comment_operation: None,
@@ -812,6 +875,7 @@ impl ThreadsUi {
     }
     fn note_editor_visible(&self) -> bool {
         self.review.is_none()
+            && !self.note_reading
             && self.note.is_some()
             && self.note_tile_visible()
             && !self.recovery_blocked()
@@ -836,6 +900,12 @@ impl ThreadsUi {
         {
             self.review_editor
                 .update(cx, |editor, cx| editor.focus(window, cx));
+        } else if self.note_reading && self.review.is_none() && self.note_tile_visible() {
+            self.note_read_view
+                .read(cx)
+                .focus_handle()
+                .clone()
+                .focus(window, cx);
         } else if self.note_editor_visible() {
             self.note_editor
                 .update(cx, |editor, cx| editor.focus(window, cx));
@@ -961,6 +1031,10 @@ impl ThreadsUi {
     }
     fn preserve_comment_draft(&mut self, cx: &Context<Self>) {
         if let Some(open) = &self.note {
+            self.general_drafts.insert(
+                open.record.id.clone(),
+                self.general_feedback.read(cx).value().to_string(),
+            );
             self.comment_drafts.insert(
                 open.record.id.clone(),
                 CommentDraft {
@@ -1046,9 +1120,13 @@ impl ThreadsUi {
                 self.selection = None;
                 self.note_editor
                     .update(cx, |editor, cx| editor.set_value(text.clone(), window, cx));
+                self.sync_read_text(cx);
                 self.current_view
                     .update(cx, |view, cx| view.set_text(&note.markdown, cx));
                 self.restore_comment_draft(id, window, cx);
+                let feedback = self.general_drafts.get(id).cloned().unwrap_or_default();
+                self.general_feedback
+                    .update(cx, |editor, cx| editor.set_value(feedback, window, cx));
                 self.layout.open(TileKind::Note);
                 self.refresh();
                 // Remember this note's chat without replacing the owner's selected conversation.
@@ -1200,15 +1278,24 @@ impl ThreadsUi {
     /// Track the current text selection for the selection strip.
     fn track_selection(&mut self, cx: &mut Context<Self>) {
         let editor = self.note_editor.read(cx);
-        let range = editor.selected_range();
-        let selection = (range.start < range.end)
-            .then(|| {
+        let range = if self.note_reading {
+            let view = self.note_read_view.read(cx);
+            if view.rendered_text().source() != editor.value().as_ref() {
+                None
+            } else {
+                view.selected_source_range()
+            }
+        } else {
+            Some(editor.selected_range())
+        };
+        let selection = range
+            .filter(|range| range.start < range.end)
+            .and_then(|range| {
                 editor
                     .value()
                     .get(range.clone())
-                    .map(|quote| (range.clone(), quote.to_owned()))
-            })
-            .flatten();
+                    .map(|quote| (range, quote.to_owned()))
+            });
         if selection != self.selection {
             self.selection = selection;
             cx.notify();
@@ -1226,7 +1313,14 @@ impl ThreadsUi {
         let RecordData::Note(note) = &open.record.data else {
             return;
         };
-        let range = self.note_editor.read(cx).selected_range();
+        let range = if self.note_reading {
+            self.selection
+                .as_ref()
+                .map(|(range, _)| range.clone())
+                .unwrap_or(0..0)
+        } else {
+            self.note_editor.read(cx).selected_range()
+        };
         if self.note_editor.read(cx).value().as_ref() == note.markdown
             && range.start < range.end
             && let Some(quote) = note.markdown.get(range.clone())
@@ -1273,6 +1367,22 @@ impl ThreadsUi {
     fn reveal(&mut self, range: Range<usize>, window: &mut Window, cx: &mut Context<Self>) {
         if self.note.is_some() {
             self.layout.open(TileKind::Note);
+            if self.note_reading {
+                let rendered = self.note_read_view.read(cx).rendered_text();
+                if let Some(target) = rendered.range_for_source(range.clone()) {
+                    self.note_read_view.update(cx, |view, cx| {
+                        let _ = view.reveal_range(target, cx);
+                    });
+                    self.note_read_view
+                        .read(cx)
+                        .focus_handle()
+                        .clone()
+                        .focus(window, cx);
+                    cx.notify();
+                    return;
+                }
+                self.set_note_reading(false, window, cx);
+            }
             self.note_editor.update(cx, |editor, cx| {
                 editor.set_selected_range(range, cx);
                 editor.focus(window, cx);
@@ -1628,15 +1738,18 @@ impl ThreadsUi {
             })
             .map(|comment| comment.record.id)
             .collect::<Vec<_>>();
+        let feedback = self.general_feedback.read(cx).value().to_string();
+        self.general_drafts.insert(note.clone(), feedback.clone());
         let result = self
             .ensure_writing_thread(&note, version)
             .and_then(|thread| {
-                self.workspace.snapshot_writing_request(
+                self.workspace.snapshot_writing_request_with_feedback(
                     &format!("writing-request:{}", uuid::Uuid::new_v4()),
                     &note,
                     version,
                     &thread,
                     &ids,
+                    &feedback,
                 )
             });
         self.adopt_writing_thread(&note);
@@ -1717,6 +1830,15 @@ impl ThreadsUi {
             return;
         }
         self.refresh();
+        let writing = matches!(
+            &owner_request,
+            Some(brn_ai::threads::OwnerRequest::RewriteNote { .. })
+        );
+        let continuation = if writing {
+            "Retry from the writing tile"
+        } else {
+            "Continue from the chat"
+        };
         let selection = match self.settings.provider.to_ascii_lowercase().as_str() {
             "codex" | "chatgpt" => brn_ai::Selection {
                 provider: brn_ai::Provider::Chatgpt,
@@ -1792,7 +1914,7 @@ impl ThreadsUi {
             Ok(prepared) => prepared,
             Err(error) => {
                 self.notice = format!(
-                    "Could not start. Your saved message remains available; Continue from the chat. {error}"
+                    "Could not start. Your saved message remains available; {continuation}. {error}"
                 );
                 self.refresh();
                 cx.notify();
@@ -1821,7 +1943,7 @@ impl ThreadsUi {
             });
             let (result, terminal) = match outcome {
                 Ok(r) => (match r.answer.terminal {
-                    brn_ai::AiTerminal::Completed => Ok("Finished. The answer and saved changes are in this chat.".into()),
+                    brn_ai::AiTerminal::Completed => Ok(if writing { "Finished. Check the writing tile for the result." } else { "Finished. The answer and saved changes are in this chat." }.into()),
                     brn_ai::AiTerminal::Interrupted => Err("Interrupted. The queue is paused; Resume when ready.".into()),
                     brn_ai::AiTerminal::Failed(e) => Err(e.to_string()),
                 }, r.terminal_run),
@@ -1831,7 +1953,7 @@ impl ThreadsUi {
         });
         if let Err(error) = spawned {
             self.notice = format!(
-                "Could not start. Your saved instruction remains available; Continue from the chat. {error}"
+                "Could not start. Your saved instruction remains available; {continuation}. {error}"
             );
             self.refresh();
             cx.notify();
@@ -2177,6 +2299,7 @@ impl ThreadsUi {
         });
         self.review_editing = false;
         self.review_inputs = false;
+        self.review_reading = false;
         self.review_editor
             .update(cx, |e, cx| e.set_value(text.clone(), window, cx));
         self.current_view
@@ -2297,6 +2420,7 @@ impl ThreadsUi {
             open.record = record;
             self.selection = None;
         }
+        self.sync_read_text(cx);
         self.refresh();
         self.sync_note_marks(cx);
         self.focus_visible_editor(window, cx);
@@ -2509,7 +2633,7 @@ impl ThreadsUi {
                 self.pending_send = None;
                 self.stream.clear();
                 self.progress.clear();
-                self.notice="Work stopped unexpectedly. Saved progress remains available; continue from the chat.".into();
+                self.notice="Work stopped unexpectedly. Saved progress remains available; retry from the writing tile or continue from the chat.".into();
                 self.refresh();
                 cx.notify();
             }

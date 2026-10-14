@@ -9,7 +9,15 @@ use gpui_kit::component::menu::DropdownMenu;
 
 impl ThreadsUi {
     pub(super) fn safe_message(&self, id: String, text: String) -> TextView {
-        let assets = self.assets_in_chat(self.chat_thread());
+        self.safe_message_for_thread(id, text, self.chat_thread())
+    }
+    pub(super) fn safe_message_for_thread(
+        &self,
+        id: String,
+        text: String,
+        thread: Option<&str>,
+    ) -> TextView {
+        let assets = self.assets_in_chat(thread);
         TextView::markdown(id, text)
             .w_full()
             .markdown_extensions(
@@ -156,7 +164,21 @@ impl ThreadsUi {
                 .as_ref()
                 .is_some_and(|w| w.thread.as_deref() == Some(id))
             {
-                Some(self.live_activity(true, cx))
+                if self
+                    .worker
+                    .as_ref()
+                    .and_then(|w| w.run_id.as_ref())
+                    .and_then(|id| self.workspace.store.record(id).ok().flatten())
+                    .and_then(|r| match r.data {
+                        RecordData::Run(run) => run.instruction,
+                        _ => None,
+                    })
+                    .is_some_and(|id| self.workspace.writing_request(&id).is_ok())
+                {
+                    None
+                } else {
+                    Some(self.live_activity(true, cx))
+                }
             } else if !self.queue_state().quiet
                 && self.run_activity_chat.as_deref() == Some(id)
                 && !self.run_activity_labels.is_empty()
@@ -177,6 +199,7 @@ impl ThreadsUi {
                 tile.child(div().flex_shrink_0().p_2().child(activity))
             })
             .child(self.composer_tile(cx))
+            .test_support()
             .into_any_element()
     }
     pub(super) fn conversation_detail(
@@ -220,24 +243,18 @@ impl ThreadsUi {
                         .child(format!("brn needs you · {:?}", attention.kind).to_lowercase()),
                 )
                 .child(attention.reason.clone());
+            if candidate.is_some_and(|candidate| self.writing_candidate_note(candidate).is_some()) {
+                continue;
+            }
             if let Some(candidate) = candidate {
                 cards.insert(candidate.operation.as_str().to_owned());
                 card = card.child(self.proposal_card(candidate, cx));
             }
             conversation = conversation.child(card.test_support());
         }
-        // Rewrite proposals for this thread appear even without an attention reason.
-        for candidate in self.candidates.iter().filter(|candidate| {
-            !cards.contains(candidate.operation.as_str())
-                && candidate.request.inputs.iter().any(|input| {
-                    self.workspace
-                        .writing_request(&input.record)
-                        .is_ok_and(|snapshot| snapshot.thread == id)
-                })
-        }) {
-            conversation = conversation.child(self.proposal_card(candidate, cx));
-        }
-        if let Some(stream) = self.stream_for(id) {
+        if self.latest_writing_instruction(id).is_none()
+            && let Some(stream) = self.stream_for(id)
+        {
             conversation = conversation.child(
                 div()
                     .flex()
@@ -256,13 +273,19 @@ impl ThreadsUi {
                     )),
             );
         }
-        if can_continue_thread(
-            &self.records,
-            &self.history,
-            id,
-            &thread.state,
-            self.worker.is_some(),
-        ) {
+        if (self.latest_writing_instruction(id).is_none()
+            || self
+                .queue_state()
+                .pending
+                .is_some_and(|pending| pending.thread == id))
+            && can_continue_thread(
+                &self.records,
+                &self.history,
+                id,
+                &thread.state,
+                self.worker.is_some(),
+            )
+        {
             let latest = latest_run(&self.records, &self.history, id);
             let run = latest.and_then(|record| match &record.data {
                 RecordData::Run(run) => Some(run),
@@ -847,6 +870,8 @@ impl ThreadsUi {
         if self.review.is_some() {
             return self.review_body(cx);
         }
+        self.sync_read_text(cx);
+        self.sync_read_marks(cx);
         let p = pal();
         let Some(open) = &self.note else {
             return scroll("note-empty-state")
@@ -884,7 +909,8 @@ impl ThreadsUi {
             .size_full()
             .flex()
             .flex_col()
-            .min_h_0();
+            .min_h_0()
+            .child(self.document_toolbar(cx));
         let mut banners = div()
             .flex()
             .flex_col()
@@ -1042,51 +1068,64 @@ impl ThreadsUi {
         if let Some((_, quote)) = &self.selection
             && !blocked
         {
-            let mut strip =
-                div()
-                    .id("selection-toolbar")
-                    .flex()
-                    .flex_wrap()
-                    .items_center()
-                    .gap_1()
-                    .mx_3()
-                    .mt_1()
-                    .px_2()
-                    .py_1()
-                    .bg(rgb(p.alt))
-                    .border_1()
-                    .border_color(rgb(p.border))
-                    .text_size(SMALL_TEXT)
-                    .child(
-                        div()
-                            .flex_1()
-                            .min_w_0()
-                            .overflow_hidden()
-                            .whitespace_nowrap()
-                            .child(format!("❝ {}", short(quote))),
+            let mut strip = div()
+                .id("selection-toolbar")
+                .flex()
+                .flex_wrap()
+                .items_center()
+                .gap_1()
+                .mx_3()
+                .mt_1()
+                .px_2()
+                .py_1()
+                .bg(rgb(p.alt))
+                .border_1()
+                .border_color(rgb(p.border))
+                .text_size(SMALL_TEXT)
+                .child(
+                    div()
+                        .flex_1()
+                        .min_w_0()
+                        .overflow_hidden()
+                        .whitespace_nowrap()
+                        .child(format!("❝ {}", short(quote))),
+                )
+                .child(
+                    pill(
+                        "selection-comment",
+                        if dirty {
+                            "Save and comment"
+                        } else {
+                            "Comment ⌘/"
+                        },
                     )
-                    .child(
-                        pill("selection-comment", "Comment ⌘/")
-                            .disabled(dirty)
-                            .tooltip(if dirty {
-                                "Save first: comments anchor to the saved version"
-                            } else {
-                                "Comment on this passage"
-                            })
-                            .on_click(cx.listener(|this, _, window, cx| {
-                                this.comment_on_selection(window, cx)
-                            })),
-                    )
-                    .child(pill("selection-ask", "Ask in chat").on_click(
-                        cx.listener(|this, _, window, cx| this.ask_about_selection(window, cx)),
-                    ));
+                    .tooltip(if dirty {
+                        "Save this edit, then comment on the same passage"
+                    } else {
+                        "Comment on this passage"
+                    })
+                    .on_click(cx.listener(|this, _, window, cx| {
+                        if this
+                            .note
+                            .as_ref()
+                            .is_some_and(|note| note.session.is_some())
+                        {
+                            this.save_and_comment(window, cx)
+                        } else {
+                            this.comment_on_selection(window, cx)
+                        }
+                    })),
+                )
+                .child(pill("selection-ask", "Ask in chat").on_click(
+                    cx.listener(|this, _, window, cx| this.ask_about_selection(window, cx)),
+                ));
             if dirty {
                 strip = strip.child(
                     div()
                         .id("selection-comment-reason")
                         .w_full()
                         .text_color(rgb(p.muted))
-                        .child("Comment is unavailable with an unsaved edit: comments anchor to the saved version. Save (⌘S) first.")
+                        .child("Your edit is recoverable. Save and comment commits it before anchoring feedback to this passage.")
                         .test_support(),
                 );
             }
@@ -1116,7 +1155,9 @@ impl ThreadsUi {
                 ),
             );
         }
-        content = content.child(nav);
+        if !self.note_reading {
+            content = content.child(nav);
+        }
         let editor = prose_editor(&self.note_editor)
             .h_full()
             .readonly(blocked)
@@ -1138,13 +1179,22 @@ impl ThreadsUi {
                 .menu_with_disabled("Paste", blocked, Box::new(gpui_kit::base::input::Paste))
                 .separator()
                 .menu("Select All", Box::new(gpui_kit::base::input::SelectAll))
-            });
+            })
+            .into_any_element();
+        let editor = if self.note_reading {
+            super::document::readable_document(&self.note_read_view, self.note_assets())
+                .into_any_element()
+        } else {
+            editor
+        };
         let mut body = div().flex().flex_1().min_h_0().gap_2().p_2().child(
             div()
                 .id("note-body")
                 .flex_1()
                 .min_w_0()
                 .min_h_0()
+                .px_3()
+                .py_2()
                 .child(editor)
                 .on_mouse_up(
                     gpui_kit::MouseButton::Left,
@@ -1158,6 +1208,10 @@ impl ThreadsUi {
         }
         content
             .child(body)
+            .child(self.writing_activity(cx))
+            .child(self.writing_proposals(cx))
+            .child(self.writing_result())
+            .child(self.overall_feedback())
             .child(self.note_bar(cx))
             .test_support()
             .into_any_element()
@@ -1180,8 +1234,17 @@ impl ThreadsUi {
             .overflow_y_scroll()
             .flex()
             .flex_col()
-            .gap_2();
-        if let Some((anchor_note, version, _, quote)) = &self.comment_anchor
+            .gap_2()
+            .pl_2()
+            .border_l_1()
+            .border_color(rgb(p.border))
+            .child(
+                div()
+                    .text_size(UI_TEXT)
+                    .font_weight(gpui_kit::FontWeight::MEDIUM)
+                    .child("Comments"),
+            );
+        if let Some((anchor_note, _, _, quote)) = &self.comment_anchor
             && anchor_note == &note_id
         {
             margin = margin.child(
@@ -1196,29 +1259,23 @@ impl ThreadsUi {
                     .bg(rgb(p.tile))
                     .child(
                         div()
-                            .font_family(UI_FONT)
                             .text_size(SMALL_TEXT)
                             .text_color(rgb(p.muted))
-                            .child(format!("anchors to saved v{version}")),
-                    )
-                    .child(
-                        div()
-                            .text_size(SMALL_TEXT)
                             .italic()
-                            .child(format!("❝ {}", short(quote))),
+                            .child(format!("“{}”", short(quote))),
                     )
                     .child(
-                        div().h(px(76.)).child(
+                        div().h(px(90.)).child(
                             prose_editor(&self.comment_input)
                                 .h_full()
-                                .aria_label("Passage feedback"),
+                                .aria_label("Comment"),
                         ),
                     )
                     .child(
                         div()
                             .flex()
                             .gap_1()
-                            .child(pill("cancel-comment", "cancel").on_click(cx.listener(
+                            .child(pill("cancel-comment", "Cancel").on_click(cx.listener(
                                 |this, _, window, cx| {
                                     this.comment_anchor = None;
                                     this.comment_operation = None;
@@ -1244,7 +1301,7 @@ impl ThreadsUi {
                     .test_support(),
             );
         }
-        let (comments, feedback_error) = match self.workspace.writing_comments(&note_id) {
+        let (mut comments, feedback_error) = match self.workspace.writing_comments(&note_id) {
             Ok(comments) => (comments, None),
             Err(error) => (
                 vec![],
@@ -1256,6 +1313,16 @@ impl ThreadsUi {
         if let Some(error) = feedback_error {
             margin = margin.child(error);
         }
+        comments.sort_by_key(|entry| {
+            let start = match &entry.record.data {
+                RecordData::Comment(comment) => {
+                    comment_location(comment, open.record.version, &note.markdown)
+                        .map_or(usize::MAX, |range| range.start)
+                }
+                _ => usize::MAX,
+            };
+            (entry.addressed, start, entry.record.id.clone())
+        });
         let applied = self
             .applied_rewrite
             .get(&note_id)
@@ -1267,10 +1334,7 @@ impl ThreadsUi {
                     .map(|snapshot| (request.clone(), operation.clone(), snapshot))
             });
         if comments.is_empty() && self.comment_anchor.is_none() {
-            margin = margin.child(empty(
-                "margin-empty",
-                "Select text and press ⌘/ to comment. Comments stay pending until a rewrite is applied and you mark them addressed.",
-            ));
+            margin = margin.child(empty("margin-empty", "Select a passage to comment."));
         }
         for entry in &comments {
             let RecordData::Comment(comment) = &entry.record.data else {
@@ -1286,10 +1350,10 @@ impl ThreadsUi {
                     "not located in v{} · kept, not re-anchored",
                     open.record.version
                 )
-            } else if checked {
-                format!("v{} · in next rewrite", comment.base_version)
+            } else if !checked {
+                "Excluded from rewrite".into()
             } else {
-                format!("v{} · excluded from rewrite", comment.base_version)
+                String::new()
             };
             let card = div()
                 .id(format!("comment-card-{id}"))
@@ -1297,41 +1361,73 @@ impl ThreadsUi {
                 .flex_col()
                 .gap_1()
                 .p_2()
-                .border_1()
-                .border_color(rgb(if location.is_some() && !entry.addressed {
-                    p.border
-                } else {
-                    p.alt
-                }))
+                .rounded_md()
+                .border_l_2()
+                .border_color(rgb(p.border))
                 .bg(rgb(if entry.addressed { p.alt } else { p.tile }))
-                .child(
-                    div()
-                        .font_family(UI_FONT)
-                        .text_size(SMALL_TEXT)
-                        .text_color(rgb(p.muted))
-                        .child(status),
-                )
                 .child(div().text_size(UI_TEXT).child(comment.body.clone()))
-                .child(
-                    div()
+                .child(if let Some(range) = location.clone() {
+                    button(format!("reveal-comment-{id}"))
+                        .label(format!(
+                            "“{}{}”",
+                            comment.quote.chars().take(28).collect::<String>(),
+                            if comment.quote.chars().count() > 28 {
+                                "…"
+                            } else {
+                                ""
+                            }
+                        ))
+                        .ghost()
+                        .compact()
                         .text_size(SMALL_TEXT)
-                        .italic()
                         .text_color(rgb(p.muted))
-                        .child(format!("❝ {}", short(&comment.quote))),
-                );
+                        .tooltip(if dirty || self.review.is_some() {
+                            "Save the note or finish review to show passage"
+                        } else {
+                            "Show passage in note"
+                        })
+                        .disabled(dirty || self.review.is_some())
+                        .on_click(cx.listener(move |this, _, window, cx| {
+                            this.reveal(range.clone(), window, cx)
+                        }))
+                } else {
+                    button(format!("comment-quote-{id}"))
+                        .label(format!(
+                            "“{}{}”",
+                            comment.quote.chars().take(28).collect::<String>(),
+                            if comment.quote.chars().count() > 28 {
+                                "…"
+                            } else {
+                                ""
+                            }
+                        ))
+                        .ghost()
+                        .compact()
+                        .text_size(SMALL_TEXT)
+                        .text_color(rgb(p.muted))
+                        .disabled(true)
+                        .tooltip("This passage is not located in the current note version")
+                })
+                .when(!status.is_empty(), |card| {
+                    card.child(
+                        div()
+                            .text_size(SMALL_TEXT)
+                            .text_color(rgb(p.muted))
+                            .child(status),
+                    )
+                });
             let mut actions = div().flex().flex_wrap().gap_1();
             if !entry.addressed {
                 let toggle = id.clone();
                 actions = actions.child(
                     pill(
                         format!("include-comment-{id}"),
-                        if checked {
-                            "☑ rewrite"
-                        } else {
-                            "☐ rewrite"
-                        },
+                        if checked { "✓ Included" } else { "Include" },
                     )
-                    .tooltip(if checked {
+                    .selected(checked)
+                    .tooltip(if location.is_none() {
+                        "This passage is not located in the current note version"
+                    } else if checked {
                         "Exclude from the next rewrite"
                     } else {
                         "Include in the next rewrite"
@@ -1343,15 +1439,6 @@ impl ThreadsUi {
                         }
                         cx.notify();
                     })),
-                );
-            }
-            if let Some(range) = location {
-                actions = actions.child(
-                    pill(format!("reveal-comment-{id}"), "show passage")
-                        .disabled(dirty)
-                        .on_click(cx.listener(move |this, _, window, cx| {
-                            this.reveal(range.clone(), window, cx)
-                        })),
                 );
             }
             if let Some((request, operation, snapshot)) = &applied
@@ -1392,7 +1479,7 @@ impl ThreadsUi {
             .px_3()
             .py_1()
             .font_family(UI_FONT)
-            .text_size(SMALL_TEXT)
+            .text_size(UI_TEXT)
             .bg(rgb(p.alt))
             .border_t_1()
             .border_color(rgb(p.border));
@@ -1406,23 +1493,13 @@ impl ThreadsUi {
                 self.workspace
                     .writing_request(request)
                     .ok()
-                    .filter(|snapshot| snapshot.note.id == note_id)
+                    .filter(|snapshot| {
+                        snapshot.note.id == note_id && self.latest_rewrite_applied(&note_id)
+                    })
                     .map(|snapshot| (request.clone(), operation.clone(), snapshot))
             });
         let selected = self.writing_threads.get(&note_id).cloned();
-        // Host request Messages are durable; the most recent is discoverable after restart.
-        let latest_request = selected
-            .as_ref()
-            .and_then(|thread| self.workspace.messages(thread).ok())
-            .and_then(|messages| {
-                messages.into_iter().rev().find(|record| {
-                    matches!(&record.data, RecordData::Message(message) if message.role == "writing-request")
-                        && self
-                            .workspace
-                            .writing_request(&record.id)
-                            .is_ok_and(|snapshot| snapshot.note.id == note_id)
-                })
-            });
+        let latest_request = self.latest_note_writing_request(&note_id);
         if let Some(record) = &latest_request
             && self.expanded_requests.contains(&record.id)
             && let Ok(snapshot) = self.workspace.writing_request(&record.id)
@@ -1444,26 +1521,32 @@ impl ThreadsUi {
                     snapshot.messages.len()
                 ));
             if let RecordData::Note(captured) = &snapshot.note.data {
-                disclosure =
-                    disclosure
-                        .child(heading("Captured saved note"))
-                        .child(self.safe_message(
-                            format!("captured-note-{}", record.id),
-                            captured.markdown.clone(),
-                        ));
+                disclosure = disclosure.child(heading("Captured saved note")).child(
+                    self.safe_message_for_thread(
+                        format!("captured-note-{}", record.id),
+                        captured.markdown.clone(),
+                        Some(&snapshot.thread),
+                    ),
+                );
+            }
+            if !snapshot.general_feedback.is_empty() {
+                disclosure = disclosure
+                    .child(heading("Overall feedback"))
+                    .child(snapshot.general_feedback.clone());
             }
             disclosure = disclosure.child(heading("Captured chat"));
             for message in &snapshot.messages {
                 if let RecordData::Message(body) = &message.data {
                     disclosure = disclosure
                         .child(if body.role == "owner" { "You" } else { "BRN" })
-                        .child(self.safe_message(
+                        .child(self.safe_message_for_thread(
                             format!("captured-chat-{}", message.id),
                             body.text.clone(),
+                            Some(&snapshot.thread),
                         ));
                 }
             }
-            bar = bar.child(disclosure);
+            bar = bar.child(disclosure.test_support());
         }
         let mut line = div().flex().flex_wrap().items_center().gap_1();
         if dirty {
@@ -1534,6 +1617,14 @@ impl ThreadsUi {
                         })),
                 )
                 .child(
+                    button("rewrite-again")
+                        .label("Rewrite again")
+                        .compact()
+                        .primary()
+                        .disabled(self.worker.is_some())
+                        .on_click(cx.listener(|this, _, _, cx| this.rewrite_note(cx))),
+                )
+                .child(
                     pill("clear-applied", "✕")
                         .tooltip("Hide; What changed keeps the receipt and its Undo")
                         .on_click(cx.listener(move |this, _, _, cx| {
@@ -1582,7 +1673,7 @@ impl ThreadsUi {
                 div()
                     .id("rewrite-scope")
                     .child(format!(
-                        "{included} comment{} · {messages} chat message{}",
+                        "Whole note · {included} comment{} · {messages} saved context message{}",
                         if included == 1 { "" } else { "s" },
                         if messages == 1 { "" } else { "s" }
                     ))
@@ -1609,11 +1700,26 @@ impl ThreadsUi {
                         })),
                     )
                     .child(
-                        pill("retry-rewrite", "retry with these inputs")
-                            .disabled(self.worker.is_some())
+                        pill("retry-rewrite", "Retry saved rewrite")
+                            .disabled(
+                                self.worker.is_some()
+                                    || self.candidates.iter().any(|candidate| {
+                                        self.writing_candidate_note(candidate).as_deref()
+                                            == Some(note_id.as_str())
+                                    }),
+                            )
                             .on_click(cx.listener(move |this, _, _, cx| {
                                 this.retry_rewrite(retry.clone(), cx)
                             })),
+                    );
+            }
+            if let Some((_, operation)) = self.applied_rewrite.get(&note_id) {
+                let undo = operation.clone();
+                line =
+                    line.child(
+                        pill("undo-writing-apply", "Undo previous rewrite").on_click(cx.listener(
+                            move |this, _, window, cx| this.undo_receipt(&undo, window, cx),
+                        )),
                     );
             }
             line = line.child(div().flex_1());
@@ -1625,12 +1731,19 @@ impl ThreadsUi {
                     .label("Rewrite with AI ⌘⇧R")
                     .compact()
                     .primary()
-                    .tooltip("Captures the saved note, included comments and this note's chat")
+                    .tooltip(
+                        "Captures this note, included comments, overall feedback and saved context",
+                    )
                     .disabled(!why.is_empty())
                     .on_click(cx.listener(|this, _, _, cx| this.rewrite_note(cx))),
             );
         }
-        bar.child(line).test_support().into_any_element()
+        bar.when_some(self.writing_saved_status(), |bar, status| {
+            bar.child(metadata(status))
+        })
+        .child(line)
+        .test_support()
+        .into_any_element()
     }
     fn review_body(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         let p = pal();
@@ -1694,6 +1807,20 @@ impl ThreadsUi {
                     })),
             );
         if review.note.is_some() {
+            bar = bar.child(
+                pill(
+                    "review-read-result",
+                    if self.review_reading {
+                        "Show changes"
+                    } else {
+                        "Read result"
+                    },
+                )
+                .disabled(self.review_editing)
+                .on_click(cx.listener(|this, _, window, cx| {
+                    this.set_review_reading(!this.review_reading, window, cx)
+                })),
+            );
             bar = if self.review_editing {
                 bar.child(
                     pill("prepare-final", "use this text")
@@ -1740,13 +1867,16 @@ impl ThreadsUi {
                     .on_click(cx.listener(|this, _, window, cx| this.apply_review(window, cx))),
             );
         let mut details = div()
+            .id("review-details")
             .flex()
             .flex_col()
             .gap_1()
             .px_3()
             .py_1()
             .flex_shrink_0()
-            .text_size(UI_TEXT);
+            .text_size(UI_TEXT)
+            .max_h(px(220.))
+            .overflow_y_scroll();
         if self.review_inputs || review.note.is_none() {
             details = details.child(review.candidate.request.reason.clone());
             for write in &review.candidate.request.writes {
@@ -1781,6 +1911,11 @@ impl ThreadsUi {
                     snapshot.comments.len(),
                     snapshot.messages.len()
                 )));
+                if !snapshot.general_feedback.is_empty() {
+                    details = details
+                        .child(heading("Overall feedback"))
+                        .child(snapshot.general_feedback);
+                }
             }
             details = details.child(metadata("Applying saves this exact proposal. Changed or actively edited notes remain unchanged until the issue is resolved. No per-change acceptance."));
         }
@@ -1868,6 +2003,9 @@ impl ThreadsUi {
                 .h_full()
                 .aria_label("Final proposed note text")
                 .into_any_element()
+        } else if self.review_reading {
+            super::document::readable_document(&self.candidate_view, self.note_assets())
+                .into_any_element()
         } else {
             prose_editor(&self.diff_editor)
                 .h_full()
@@ -1894,6 +2032,20 @@ impl ThreadsUi {
                 ))
                 .unwrap_or_default()
         );
+        let mut document = div()
+            .flex()
+            .size_full()
+            .min_h_0()
+            .min_w_0()
+            .child(div().flex_1().min_w_0().h_full().child(body));
+        if self.margin
+            && self
+                .note
+                .as_ref()
+                .is_some_and(|open| review.note.as_deref() == Some(open.record.id.as_str()))
+        {
+            document = document.child(self.margin_column(cx));
+        }
         div()
             .id("review-panel")
             .size_full()
@@ -1908,9 +2060,10 @@ impl ThreadsUi {
                     .flex_1()
                     .min_h_0()
                     .p_2()
-                    .child(body)
+                    .child(document)
                     .test_support(),
             )
+            .child(self.writing_activity(cx))
             .child(
                 div()
                     .id("note-bar")

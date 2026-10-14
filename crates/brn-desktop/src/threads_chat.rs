@@ -584,7 +584,9 @@ impl ThreadsUi {
         }
     }
     pub(super) fn conversation(&self, id: &str, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
-        let messages = self.workspace.messages(id).unwrap_or_default();
+        let messages = self.workspace.messages(id).unwrap_or_default().into_iter().filter(|record| {
+            !matches!(&record.data, RecordData::Message(message) if matches!(message.role.as_str(), "writing-request" | "writing-addressed"))
+        }).collect::<Vec<_>>();
         let mut keys = messages.iter().map(|r| r.id.clone()).collect::<Vec<_>>();
         keys.push(format!("details-{id}"));
         let state = {
@@ -715,6 +717,6 @@ impl ThreadsUi {
             }
             _ => {}
         }
-        row.into_any_element()
+        row.test_support().into_any_element()
     }
 }

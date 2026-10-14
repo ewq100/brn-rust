@@ -570,8 +570,9 @@ fn narrow_workbench_scrolls_tiles_to_usable_chat_and_keeps_one_editor(cx: &mut T
     .unwrap();
     cx.run_until_parked();
     cx.update_window(f.window, |_, window, cx| {
-        assert!(window.find("thread-conversation").bounds().size.height >= px(120.));
-        assert!(window.find("thread-conversation").visible());
+        assert!(window.find("chat-tile").bounds().size.height >= px(120.));
+        let posted = f.view.read(cx).workspace.messages(&f.chat_a).unwrap().into_iter().find(|record| matches!(&record.data, RecordData::Message(message) if message.role == "owner")).unwrap();
+        assert!(window.find(format!("chat-message-{}", posted.id)).visible());
         assert!(window.find("ask-delegate").visible());
         assert_eq!(f.view.read(cx).note_editor, editor);
     })
@@ -661,7 +662,15 @@ fn reopening_current_review_from_solo_chat_removes_hidden_composer_focus(cx: &mu
     .unwrap();
     cx.run_until_parked();
     cx.update_window(f.window, |_, window, cx| {
-        window.click(format!("thread-review-{operation}"), cx)
+        f.view.update(cx, |view, cx| {
+            let candidate = view
+                .candidates
+                .iter()
+                .find(|candidate| candidate.operation.as_str() == operation)
+                .unwrap()
+                .clone();
+            view.open_review(candidate, window, cx);
+        })
     })
     .unwrap();
     cx.run_until_parked();
