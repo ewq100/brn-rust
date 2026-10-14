@@ -374,3 +374,33 @@ BRN_EMBEDDING_MODEL_DIR=<folder> cargo run --release -p brn-threads-app --featur
 - **Dependencies:** `serde` and `serde_json` were dropped from `brn-retrieval`. `Cargo.lock` loses two dependency edges and adds no packages.
 - **Checks:** workspace build, clippy and tests, the `native` and `native-retrieval` lanes, and the Markdown link check all pass.
 - **The legacy `ReadTools` path was assessed and kept;** the reason is in the [plan](plan.md#task-6--cleanup-pr-6-shipped-with-task-5).
+
+## Live comparison: bundle 3 against bundle 4 with search
+
+**Request:** the owner asked for the live model test on 14 October 2026.
+
+**Setup:**
+- #129's harness with its three frozen cases, plus a new `--filler 1000` option. It creates 1,000 synthetic distractor notes per case through the CLI before the seeds. They share the cases' vocabulary (harbor, delivery, depth, tide, booking, cargo) and are excluded from the structural checks.
+- Baseline CLI at `b021b303`: guide bundle 3, no agent search tools. Candidate CLI at `2213eb4f`: bundle 4 with `search_notes` and `note_connections`, keyword lanes only, no model.
+- Codex `gpt-6.1-sol`, medium effort, budget 8, two repetitions with alternating arm order.
+- One connected auth profile, passed by path only; the profile path is not recorded here. Fresh synthetic roots only.
+
+| | baseline (bundle 3) | candidate (bundle 4 + search) |
+|---|---|---|
+| runs completed / deterministic checks / Undo verified | 6/6 / all pass / 4/4 | 6/6 / all pass / 4/4 |
+| sequential-project, seconds per step (mean) | 59.3 | 66.9 |
+| reusable-synthesis, seconds (mean) | 74.2 | 72.5 |
+| conversation-only answer, no note | 102, no note (2/2) | 102, no note (2/2) |
+| rubric facts kept (dates, 12 t, 1.2 m, Jaan, older 8 Oct estimate; synthesis constraints and exceptions) | all, 4/4 | all, 4/4 |
+| relation names written | `source`, `reference`, `compares`, `related` | `source` (one `related`) |
+
+**Review:** I read the Harbor notes from both arms in full.
+- Both keep the 15 November estimate separate from the 22 November signed commitment, treat the 8 October note as older evidence, and preserve the protected reference.
+- Bundle 4 adds an explicit "Review needed" section.
+
+**Findings:**
+- **No measurable difference in outcome on these cases, even with 1,000 distractors.** Each request names its subject ("Harbor", the two access references), so the baseline's literal `read_records` query finds it. Search is not the bottleneck for tasks like these.
+- **Bundle 4 adopted the recommended relation names** (D7); the baseline mixed four names.
+- **Bundle 4 was about 13% slower** on the two-step intake case and about 2% faster on the synthesis. With two repetitions this is within noise.
+- **Limit: the CLI does not report which tools a run called,** so this run cannot show how often `search_notes` was used. Token usage is not exposed either.
+- **Limit: the cases are retrieval-easy.** A case whose request does not name the subject, a larger workspace or real notes would test where search should matter.
