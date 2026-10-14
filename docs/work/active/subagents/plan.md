@@ -1,6 +1,21 @@
 # Helper sub-agents: plan
 
-**State:** PROPOSED design, awaiting owner decisions (14 October 2026). No implementation, schema change, guide change or live provider call is authorized. The [design](design.md) holds the details.
+**State:** ACCEPTED (14 October 2026). The owner decided items 1–9 as recorded under [Owner decisions — as decided](#owner-decisions--as-decided). Phase 1 implementation and up to 40 live Codex runs on synthetic data are authorized once the offline tests pass. The [design](design.md) holds the details.
+
+## Owner decisions — as decided
+
+| # | Decision |
+|---|---|
+| 1 | **Accepted** the direction and the architecture amendments: read-only helpers, an owner-chosen helper model, and the main agent as the only writer. The "one provider run first" rule is amended. |
+| 2 | **Owner-only setting, off by default, any configured provider allowed** (not limited to the parent's provider). Settings shows a visible note: "Helper sub-agents are tested only with gpt-6-luna at high effort; other models may give unreliable results." Choosing a helper on another provider is the owner's consent to send helper context there. Its credentials come from the existing configured routes, so the auth file or credentials folder is explicit. |
+| 3 | **Unavailable helper:** the main run continues, with a visible "helper unavailable" notice. No other model is substituted. |
+| 4 | **Read-only helpers:** they search and read, then report. They cannot draft changes or spawn helpers. |
+| 5 | **Helper context:** the main agent's research question, the owner's current instruction and the Project instructions only. |
+| 6 | **Usage is hidden in the UI and kept in traces only.** There is no usage line on finished runs and no cost display. The "helper unavailable" notice from decision 3 still shows. The Run record gains no usage fields. |
+| 7 | **Budgets:** 5 steps per helper run. Per main run, at most 4 research calls, 8 helper runs, 3 concurrent and 800k helper input tokens. |
+| 8 | **Phase 1 surface:** all chat runs except writing Rewrite: Ask, intake and knowledge review. |
+| 9 | **Evaluation:** implement phase 1, then run up to 40 live Codex runs on synthetic data after the offline tests pass. |
+| 10 | Unchanged: later roles (digest, triage, verification) each need their own decision. |
 
 ## Outcome
 

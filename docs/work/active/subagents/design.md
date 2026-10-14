@@ -1,6 +1,6 @@
 # Helper sub-agents
 
-**State:** PROPOSED (14 October 2026). This is a design only: it contains no product code and makes no live provider calls. Nothing here is accepted, and no current contract changes until the owner makes the [decisions](plan.md#owner-decisions). The [plan](plan.md) tracks the state.
+**State:** ACCEPTED (14 October 2026), with the owner's [decisions](plan.md#owner-decisions--as-decided). Where a decision differs from the proposal below, the decision wins: **any configured provider** may serve the helper (decision 2, with a visible "tested only with gpt-6-luna high" note), and **usage is shown in traces only, not in the UI** (decision 6). The [plan](plan.md) tracks the state.
 
 **Owner request:** "Imagine a scenario where Sol could spawn built-in Luna sub-agents for thorough searches. Why could the Luna agent not give Sol a summary and links to the notes?" Then: make the research-scout idea a PROPOSED design, widened to full sub-agent capability for the app.
 
