@@ -427,3 +427,118 @@ fn markdown_text_and_email_preserve_meaning_without_source_payloads() {
     );
     assert_eq!(std::fs::read_dir(&converter.temp_root).unwrap().count(), 0);
 }
+
+#[test]
+fn prepared_rust_fixtures_keep_source_and_preview_bindings_in_owned_scratch() {
+    let fixtures = [
+        (
+            DocumentKind::Html,
+            include_bytes!("fixtures/luna/nested.html").as_slice(),
+        ),
+        (
+            DocumentKind::Docx,
+            include_bytes!("fixtures/luna/footnotes.docx").as_slice(),
+        ),
+        (
+            DocumentKind::Eml,
+            include_bytes!("fixtures/luna/metadata.eml").as_slice(),
+        ),
+        (
+            DocumentKind::Xlsx,
+            include_bytes!("fixtures/luna/blank-comments.xlsx").as_slice(),
+        ),
+        (
+            DocumentKind::Pdf,
+            include_bytes!("fixtures/luna/process-scan.pdf").as_slice(),
+        ),
+    ];
+    for (kind, bytes) in fixtures {
+        let root = tempfile::tempdir().unwrap();
+        let mut converter = converter(root.path().join("scratch"));
+        converter.limits = import_limits(kind);
+        let prepared = converter
+            .prepare(
+                ConversionRequest {
+                    kind,
+                    intent: ImportIntent::FullNote,
+                    bytes,
+                    source_reference: "synthetic://luna/regression",
+                    inventory: None,
+                },
+                &AtomicBool::new(false),
+            )
+            .unwrap();
+        prepared.validate().unwrap();
+        assert_eq!(prepared.source_sha256, brn_intake::digest(bytes));
+        assert_eq!(prepared.consumed.input_bytes, bytes.len());
+        assert_eq!(std::fs::read_dir(&converter.temp_root).unwrap().count(), 0);
+        if kind == DocumentKind::Pdf {
+            assert_eq!(prepared.pages.len(), 3);
+            assert!(prepared.pages[2].needs_transcription);
+            assert_eq!(prepared.assets.len(), 3);
+            assert_eq!(prepared.blocks.len(), 3);
+        } else {
+            let plan = brn_intake::prepared::ConversionPlan {
+                schema: 2,
+                source_sha256: prepared.source_sha256,
+                pages: vec![],
+                crops: vec![],
+                tables: prepared
+                    .blocks
+                    .iter()
+                    .filter_map(|b| {
+                        if let brn_intake::prepared::BlockContent::Table { rows } = &b.content {
+                            Some(brn_intake::prepared::TableReview {
+                                block_id: b.id.clone(),
+                                source_sha256: brn_intake::prepared::table_hash(rows).unwrap(),
+                                uncertainty: String::new(),
+                            })
+                        } else {
+                            None
+                        }
+                    })
+                    .collect(),
+            };
+            let candidate = brn_intake::prepared::apply_plan(&prepared, &plan).unwrap();
+            let result = converter
+                .finish_candidate(
+                    ConversionRequest {
+                        kind,
+                        intent: ImportIntent::FullNote,
+                        bytes,
+                        source_reference: "synthetic://luna/regression",
+                        inventory: None,
+                    },
+                    prepared,
+                    candidate,
+                    &AtomicBool::new(false),
+                )
+                .unwrap();
+            assert_eq!(result.coverage.status, CoverageStatus::Partial);
+            assert!(!result.markdown.is_empty());
+        }
+    }
+}
+#[test]
+fn source_file_read_is_bounded_and_cancelled_before_conversion() {
+    let root = tempfile::tempdir().unwrap();
+    let path = root.path().join("input.txt");
+    std::fs::write(&path, b"00123\n").unwrap();
+    let running = std::sync::atomic::AtomicBool::new(false);
+    assert_eq!(
+        brn_threads_intake::read_input_file(&path, 6, &running).unwrap(),
+        b"00123\n"
+    );
+    assert_eq!(
+        brn_threads_intake::read_input_file(&path, 5, &running),
+        Err(brn_threads_intake::ConversionError::Budget)
+    );
+    assert_eq!(
+        brn_threads_intake::read_input_file(&path, 6, &std::sync::atomic::AtomicBool::new(true)),
+        Err(brn_threads_intake::ConversionError::Cancelled)
+    );
+    assert_eq!(
+        brn_threads_intake::read_input_file(root.path(), 6, &running),
+        Err(brn_threads_intake::ConversionError::Budget)
+    );
+}

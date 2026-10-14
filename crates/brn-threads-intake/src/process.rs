@@ -27,6 +27,56 @@ pub(crate) fn run(
     cancel: &AtomicBool,
     restrict: bool,
 ) -> Result<Vec<u8>, ConversionError> {
+    run_inner(
+        executable,
+        args,
+        input,
+        temp,
+        budget,
+        cancel,
+        if restrict {
+            RuntimeProfile::Restricted
+        } else {
+            RuntimeProfile::Helper
+        },
+    )
+}
+
+/// Rendering needs a reproducible font configuration. Never inherit HOME/font paths:
+/// enumerate installed system fonts and write its cache only inside the owned scratch run.
+pub(crate) fn run_renderer(
+    executable: &Path,
+    args: &[OsString],
+    temp: &TransientDir,
+    budget: ProcessBudget,
+    cancel: &AtomicBool,
+) -> Result<Vec<u8>, ConversionError> {
+    run_inner(
+        executable,
+        args,
+        None,
+        temp,
+        budget,
+        cancel,
+        RuntimeProfile::Renderer,
+    )
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum RuntimeProfile {
+    Helper,
+    Restricted,
+    Renderer,
+}
+fn run_inner(
+    executable: &Path,
+    args: &[OsString],
+    input: Option<Vec<u8>>,
+    temp: &TransientDir,
+    budget: ProcessBudget,
+    cancel: &AtomicBool,
+    profile: RuntimeProfile,
+) -> Result<Vec<u8>, ConversionError> {
     let ProcessBudget {
         output_bytes: output_limit,
         storage_bytes: storage_limit,
@@ -58,12 +108,22 @@ pub(crate) fn run(
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::null());
+    if profile == RuntimeProfile::Renderer {
+        // The constant configuration has no includes, external paths or source-controlled XML.
+        // Relative cache paths resolve inside current_dir, which the sandbox already owns.
+        let fonts = temp.path.join("fonts.conf");
+        std::fs::write(&fonts, b"<?xml version=\"1.0\"?><fontconfig><dir>/System/Library/Fonts</dir><dir>/Library/Fonts</dir><cachedir>.</cachedir></fontconfig>")
+            .map_err(|_| ConversionError::Io)?;
+        command
+            .env("FONTCONFIG_FILE", fonts)
+            .env("FONTCONFIG_PATH", &temp.path);
+    }
     #[cfg(unix)]
     {
         use std::os::unix::process::CommandExt;
         command.process_group(0);
     }
-    if restrict {
+    if profile != RuntimeProfile::Helper {
         restrict_command(&mut command, &executable, &temp.path, storage_limit)?;
     }
     let mut child = command.spawn().map_err(|_| ConversionError::Unavailable)?;
@@ -273,6 +333,67 @@ mod tests {
     #[test]
     fn custom_homebrew_runtime_keeps_external_source_and_network_denied() {
         sandbox_witness(true);
+    }
+
+    #[test]
+    fn renderer_uses_only_owned_font_config_and_keeps_source_and_network_denied() {
+        let root = tempfile::tempdir().unwrap();
+        let forbidden = root.path().join("excluded");
+        std::fs::write(&forbidden, b"synthetic-excluded-canary").unwrap();
+        let listener = std::net::TcpListener::bind((std::net::Ipv4Addr::LOCALHOST, 0)).unwrap();
+        let temp = TransientDir::create(root.path()).unwrap();
+        std::fs::write(
+            temp.path.join("probe"),
+            format!(
+                "{}\n{}",
+                forbidden.display(),
+                listener.local_addr().unwrap().port()
+            ),
+        )
+        .unwrap();
+        let args = [
+            "--ignored",
+            "--exact",
+            "process::tests::renderer_probe_child",
+            "--nocapture",
+        ]
+        .map(OsString::from);
+        run_renderer(
+            &std::env::current_exe().unwrap(),
+            &args,
+            &temp,
+            ProcessBudget {
+                output_bytes: 4096,
+                storage_bytes: 8192,
+                deadline: Instant::now() + Duration::from_secs(5),
+            },
+            &AtomicBool::new(false),
+        )
+        .unwrap();
+    }
+
+    #[test]
+    #[ignore = "subprocess witness only"]
+    fn renderer_probe_child() {
+        let probe = std::fs::read_to_string("probe").unwrap();
+        let mut lines = probe.lines();
+        assert!(std::fs::read(lines.next().unwrap()).is_err());
+        let port: u16 = lines.next().unwrap().parse().unwrap();
+        assert!(std::net::TcpStream::connect((std::net::Ipv4Addr::LOCALHOST, port)).is_err());
+        assert_eq!(std::env::vars_os().count(), 2);
+        let scratch = std::env::current_dir().unwrap();
+        assert_eq!(
+            std::env::var_os("FONTCONFIG_PATH").unwrap(),
+            scratch.as_os_str()
+        );
+        assert_eq!(
+            std::env::var_os("FONTCONFIG_FILE").unwrap(),
+            scratch.join("fonts.conf").as_os_str()
+        );
+        let config = std::fs::read_to_string("fonts.conf").unwrap();
+        assert!(config.contains("<cachedir>.</cachedir>"));
+        assert!(!config.contains("<include") && !config.contains("HOME"));
+        std::fs::write("synthetic-font-cache", b"owned scratch cache").unwrap();
     }
 
     fn sandbox_witness(custom_homebrew: bool) {
