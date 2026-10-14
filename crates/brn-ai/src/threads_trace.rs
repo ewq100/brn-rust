@@ -67,6 +67,10 @@ pub struct RunTrace {
     pub elapsed_ms: u64,
     pub calls: Vec<TraceCall>,
     pub dropped_calls: usize,
+    /// What the host retrieved for a source run before the first turn:
+    /// counts, IDs, versions, sizes and timing, with query text at `Full`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub host_context: Option<Value>,
 }
 
 struct Pending {
@@ -94,6 +98,7 @@ struct State {
     model_turns: usize,
     rounds: u16,
     stopped: Option<String>,
+    host_context: Option<Value>,
 }
 
 fn ids(value: Option<&Value>) -> Vec<String> {
@@ -337,6 +342,18 @@ impl TraceCollector {
         }
     }
 
+    pub(crate) fn host_context(&self, mut summary: Value) {
+        if self.level != TraceLevel::Full
+            && let Some(object) = summary.as_object_mut()
+        {
+            object.remove("query_text");
+            object.remove("uncovered_detail");
+        }
+        if let Ok(mut state) = self.state.lock() {
+            state.host_context = Some(summary);
+        }
+    }
+
     /// Records why the run stopped early (first reason wins).
     pub(crate) fn stop(&self, reason: &str) {
         if let Ok(mut state) = self.state.lock() {
@@ -354,9 +371,10 @@ impl TraceCollector {
                 s.turn_usage.clone(),
                 s.rounds,
                 s.stopped.clone(),
+                s.host_context.clone(),
             )
         });
-        let (calls, dropped, model_turns, usage, turn_usage, rounds, stopped) =
+        let (calls, dropped, model_turns, usage, turn_usage, rounds, stopped, host_context) =
             state.unwrap_or_default();
         RunTrace {
             format: 1,
@@ -372,6 +390,7 @@ impl TraceCollector {
             elapsed_ms: duration_ms(self.started.elapsed()),
             calls,
             dropped_calls: dropped,
+            host_context,
         }
     }
 }

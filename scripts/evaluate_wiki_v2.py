@@ -787,6 +787,24 @@ def check_protected_preserved(c, ctx):
     return ok, 'protected notes unchanged' if ok else 'a protected note changed'
 
 
+# Host-managed Thread fields that Undo legitimately advances: a restored chat
+# gets a new context epoch, and private context can only be added.
+HOST_THREAD_FIELDS = ('context_epoch', 'private_context')
+
+
+def without_host_fields(record):
+    if not record or 'Thread' not in record.get('data', {}):
+        return record
+    thread = {k: v for k, v in record['data']['Thread'].items() if k not in HOST_THREAD_FIELDS}
+    return dict(record, data={'Thread': thread})
+
+
+def verify_undo(receipt, records):
+    writes = [dict(write, before=without_host_fields(write.get('before')), after=without_host_fields(write['after']))
+              for write in receipt['writes']]
+    return V1.verify_undo(dict(receipt, writes=writes), [without_host_fields(r) for r in records])
+
+
 def check_undo(c, ctx):
     result = ctx.get('undo', {}).get(c.get('step'))
     if result is None or result['status'] == 'not_run':
@@ -1407,7 +1425,7 @@ class Sample:
             after = self.cli.call('records')
             affected = {w['after']['id'] for w in receipt['writes']}
             results[number] = {'status': outcome['outcome'], 'operation': receipt['operation'],
-                               'affected_restored': outcome['outcome'] == 'Applied' and V1.verify_undo(receipt, after),
+                               'affected_restored': outcome['outcome'] == 'Applied' and verify_undo(receipt, after),
                                'unrelated_preserved': V1.unrelated_preserved(before, after, affected)}
         return results
 

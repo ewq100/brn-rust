@@ -47,6 +47,23 @@ pub(super) fn source_metadata(
     chat: Option<&str>,
     source_ids: &[String],
 ) -> AiResult<Value> {
+    let source_record = store
+        .records_for_chat(chat)
+        .map_err(storage)?
+        .into_iter()
+        .find(|record| {
+            !record.archived
+                && matches!(&record.data, RecordData::Source(source) if source.locator == reference && source_ids.contains(&record.id))
+        })
+        .map(|record| json!({"id":record.id,"version":record.version}));
+    source_value(sources, reference, source_record)
+}
+/// The `read_source` value for a reference, given its already-found Source record.
+pub(super) fn source_value(
+    sources: &BTreeMap<String, TransientSource>,
+    reference: &str,
+    source_record: Option<Value>,
+) -> AiResult<Value> {
     let (source_index, (_, source)) = sources
         .iter()
         .enumerate()
@@ -58,15 +75,6 @@ pub(super) fn source_metadata(
         text = text.replace(&format!("]({})", asset.name), &format!("]({link})"));
         json!({"link":link,"name":asset.name,"media_type":asset.media_type,"width":asset.width,"height":asset.height})
     }).collect();
-    let source_record = store
-        .records_for_chat(chat)
-        .map_err(storage)?
-        .into_iter()
-        .find(|record| {
-            !record.archived
-                && matches!(&record.data, RecordData::Source(source) if source.locator == reference && source_ids.contains(&record.id))
-        })
-        .map(|record| json!({"id":record.id,"version":record.version}));
     Ok(
         json!({"reference":reference,"source_record":source_record,"text":text,"fingerprint":source.fingerprint,"coverage":source.report,"figures":assets}),
     )

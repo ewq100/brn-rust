@@ -636,3 +636,79 @@ python3 scripts/evaluate_wiki_v2.py --root ABS_FRESH --seeder target/release/exa
 - A workspace-wide key would let the first turn of each run reuse the roughly 6k-token static prefix (about 40k tokens per case) but risks overflowing a key's per-minute routing with concurrent runs. Not chosen.
 - `cargo test --workspace` has 6 failures in `brn-threads-intake --test qualification` (`Unavailable`: the document converter helper is absent here). That crate is untouched by this change.
 - N is 1; no statistical claim.
+
+## Host-driven intake prototype (14 October 2026)
+
+**Request:** the owner asked to prototype making intake a host-driven workflow, to cut turns and tokens. Design: [host-intake.md](host-intake.md) (PROPOSED).
+
+**Build:** branch `work/host-intake` on `316edb2d`, guide bundle `brn-threads-guidance-8`. Before each source run's first turn the host searches the run's chat from the source and appends the source, up to three related pages at exact versions with their link neighbours, and the queries run. Tools stay available.
+
+**Offline gates:** `cargo fmt --all --check` and `cargo clippy --workspace --all-targets -- -D warnings` pass; `python3 -m unittest discover -s scripts/tests` passes (130 tests). `cargo test --workspace --no-fail-fast` passes everything except six `brn-threads-intake` `qualification` tests that return `Unavailable`; they fail identically on the unmodified base in this environment. New tests: 3 unit and 6 integration (`host_intake.rs`).
+
+**Live S1:** one repetition, one arm (`D-host`), Codex `gpt-6.1-sol` at medium effort, 7 provider runs, scale 1000, no embedding model (semantic lane `none`, so the lead query ran as keyword). The seeder was rebuilt from this branch because the earlier one writes the pre-Projects schema. Baseline: the compact arm above (two repetitions, **built before the Projects merge #138**). N is 1, so differences in the tens of percent are suggestive only.
+
+| Intake step | Source | Baseline turns r1 / r2 | Host turns | Baseline r2 input | Host input | Host cached | Host output | Host tool calls |
+|---|---|---|---|---|---|---|---|---|
+| 1 | Electrician email | 7 / 6 | 5 | 77.9k | 43.4k | 0 | 1.0k | 2 reads, prepare, apply |
+| 2 | City office note | 9 / 9 | 8 | 126.2k | 118.4k | 19.3k | 1.3k | 4 reads, prepare, apply, read |
+| 3 | Choir message (keep in chat) | 6 / 5 | **1** | 58.6k | **8.1k** | 0 | 0.1k | none |
+| 4 | Same electrician, Estonian | 10 / 12 | 9 | 227.2k | 146.8k | 5.6k | 2.0k | 3 reads, prepare, apply, read, prepare, apply |
+| 5 | Puidukoda quote | 12 / 9 | 9 | 183.0k | 173.4k | 26.6k | 2.7k | 3 reads, prepare, apply, read, prepare, apply |
+| Intakes total | | | | 673k | **490k (−27%)** | | | |
+| Case total input | | | | 784k (r1 870k) | **566k (−28%, −35% vs r1)** | 51.6k | 9.8k | |
+
+Baseline turns are the two compact runs' `model_turns`. `prepare_changes` came in round 4–6 in the baseline and in round 3–5 here. Median per intake: 128k baseline, 118k host.
+
+**Context cost:** the host context was 3.8–7.7 KB and took 50–75 ms. Each turn still resends the preamble, so one turn costs about 8k input and the turn count dominates.
+
+**Checks:** all S1 checks pass, as in both baseline repetitions: lineage inputs on all five intakes, step 3 wrote only a chat-to-Source link, facts present (3,800 EUR, 9 November, 7,600 EUR, 31 October), every page linked, a topic page covers the scope, 4 of 4 Sources linked or recorded, search ranks correct, protected notes unchanged, undo restores. The two report-only checks are unchanged.
+
+**What changed in behaviour:**
+- Every intake found the Kitchen note first (rank 1, the right page, at its current version 1, 2, 3, 4). The related page was in the first prompt, but the model made no `read_source`, `search_notes` or `note_connections` calls in any intake.
+- Step 3 decided to keep the message in the chat with no tool call at all (8.1k tokens instead of 58.6k).
+- The model still called `read_records` with a title query or a catalog listing in steps 1, 2, 4 and 5 (a 15.7 KB catalog twice), re-reading the Kitchen note and looking for Actions, Sources and earlier operations. Steps 4 and 5 still made a second prepare and apply, as in the baseline. So only step 1 and the keep-in-chat step approached the 2–3 turn target (5 and 1 turns).
+- No intake prepared in round 1; the earliest was round 3 (step 1).
+
+**Reading:** pre-loaded retrieval removes the discovery searches and `read_source`, and makes keep-in-chat nearly free. The remaining turns come from record lookups the model still chooses to make and from second change groups. The target of about 20–40k tokens per intake was met only for steps 1 and 3. Cached input was low in both arms; prompt caching is separate work.
+
+**Limits:** N is 1; no embedding model; the baseline predates the Projects merge; the guide wording was not iterated (one live repetition was authorised); no desktop interaction. Total live use was about 0.57M tokens.
+
+**Next:** try guide wording or tool shaping that stops catalog and title-query `read_records` calls when context is present, then re-measure with more repetitions.
+
+### Review fixes (offline)
+
+An independent review of the prototype found six Medium issues; they were fixed offline (no provider calls, synthetic data) on `work/host-intake`, guide bundle now `brn-threads-guidance-9`. The live S1 numbers above come from the first build and the `-8` guide and are **not** re-measured.
+
+- **Truncated pages:** pages are shown whole (16 KB each, 24 KB total) or listed as `also_found` rows with their size; `prepare_changes` returns `Invalid` for a replacement of a note whose whole Markdown was not read in this run at that version (host-context pages, whole `read_records` reads, `read_note` read through to the end and applied writes count as read).
+- **Injection:** untrusted-data framing and a delimiter before the JSON payload; authority still comes only from `bind()`, tested with a forged host-authority line in a source.
+- **Context build:** raced against cancellation and a 15 s timeout, started after the liveness watcher; reads use a read-only snapshot and batched visibility checks instead of per-candidate record scans under the store lock.
+- **Multiple sources:** the query budget is split across sources, `uncovered_sources` is reported, status is `none`, `failed`, `partial` or `ok`, text, metadata and the whole payload are bounded (60 KB shedding order).
+- **Guide:** step 0 applies only when retrieval is `ok` or `partial`; otherwise steps 1–2 discovery runs. Wording also forbids catalog listings and a second prepare when context is present.
+- **Tests:** 40+ new unit and integration tests, listed in [host-intake.md](host-intake.md#tests).
+
+**Not done:** no live re-measure of tokens or turns after the changes (full pages instead of 8 KB prefixes cost more input on large pages, and the wording change is unmeasured); the desktop was not exercised; the six `brn-threads-intake` qualification tests behave as before.
+
+### A/B against main after the review fixes (14 October 2026)
+
+**Request:** the owner chose a fair A/B before merging.
+
+**Setup:**
+- Arm `B-main` is `main` at `1d1555a3`: bundle 7 with prompt caching.
+- Arm `D-host` is this branch: bundle 9, host context, full-read guard, merged with `main`.
+- Both arms use the same seeder and the same knowledge-check binary.
+- Codex `gpt-6.1-sol` at medium effort, S1–S3, two repetitions each, plus S2's budget-16 diagnostic on B.
+- The earlier one-repetition check (S1 step 5 `Failed:Other`; S2 and S3 failing) showed an Undo false positive: Undo deliberately advances the chat's `context_epoch` (Projects). The harness now ignores that host-managed field and has a test for it.
+
+| | B-main | D-host |
+|---|---|---|
+| S1 complete runs | 1 passed (1 `Failed:Other` at step 2) | 1 passed (1 `Failed:Other` at step 2) |
+| S1 searches / bytes read (complete run) | 21 / 217 KB | 6 / 72 KB |
+| S1 input / cached / effective (cached at 0.1×) | 627k / 70% / 232k | 541k / 76% / **168k (−28%)** |
+| S2 | 0/2: same misses (RelationVariant or a dangling topic link) | 0/2: same |
+| S3 | 2/2 | 2/2 |
+| Safety blockers | 0 | 0 |
+
+**Reading:**
+- Quality is the same as `main` on these cases. The host context cuts searching by about 3.5× and effective S1 cost by about 28%.
+- S2's remaining misses are shared, so they are agent behaviour rather than a regression.
+- `Failed:Other` occurred at the same step in both arms. It is unrelated to this change. It is an unclassified provider error whose detail BRN does not keep; that is a follow-up.

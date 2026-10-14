@@ -419,6 +419,7 @@ fn rewrite_cannot_apply_an_older_ordinary_candidate() {
     let (_root, mut request, snapshot) = rewrite_fixture(false, 1);
     let explicit = request.owner_request.take();
     let (ordinary, _) = begin(&request).unwrap();
+    super::tests::read_all(&ordinary);
     let mut args = proposal(&snapshot);
     args.request.inputs.clear();
     let old: Prepared = serde_json::from_value(prepare(&ordinary, args).unwrap()).unwrap();

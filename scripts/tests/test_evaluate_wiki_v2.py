@@ -994,3 +994,16 @@ class PipelineWithStubBinary(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class UndoVerification(unittest.TestCase):
+    def test_undo_ignores_the_thread_context_epoch_but_not_content(self):
+        before = {'id': 't1', 'version': 1, 'archived': False,
+                  'data': {'Thread': {'title': 'Review', 'state': 'Open', 'attention': []}}}
+        after = dict(before, version=2, data={'Thread': {'title': 'Review', 'state': 'Open',
+                                                         'attention': [{'kind': 'Question'}]}})
+        receipt = {'writes': [{'before': before, 'after': after}]}
+        restored = dict(before, version=3, data={'Thread': dict(before['data']['Thread'], context_epoch=1)})
+        self.assertTrue(v2.verify_undo(receipt, [restored]))
+        self.assertFalse(v2.verify_undo(receipt, [dict(after, version=3)]))
+

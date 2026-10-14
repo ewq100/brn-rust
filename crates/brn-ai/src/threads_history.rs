@@ -196,6 +196,7 @@ mod tests {
         owner_edit(&mut store, &note, 1, "Protected original", true);
         drop(store);
         let (scope, _) = begin(&run_request).unwrap();
+        super::super::tests::read_all(&scope);
         let original = prepare(
             &scope,
             PrepareArgs {
@@ -291,6 +292,7 @@ mod tests {
     fn refresh_supports_previous_run_family_but_refuses_other_threads_and_superseded_scope() {
         let (_root, run_request, note) = super::super::tests::fixture();
         let (old_scope, _) = begin(&run_request).unwrap();
+        super::super::tests::read_all(&old_scope);
         let original = prepare(
             &old_scope,
             PrepareArgs {
@@ -437,6 +439,7 @@ mod tests {
      {
         let (_root, run_request, note) = super::super::tests::fixture();
         let (scope, input) = begin(&run_request).unwrap();
+        super::super::tests::read_all(&scope);
         let original = prepare(
             &scope,
             PrepareArgs {
