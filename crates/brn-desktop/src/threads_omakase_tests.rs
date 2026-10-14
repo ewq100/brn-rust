@@ -371,8 +371,8 @@ fn archived_chats_leave_the_sidebar_stay_findable_and_require_unarchive(cx: &mut
             window.try_find(format!("thread-{done}")).is_none(),
             "resolved never listed inline"
         );
-        assert_eq!(window.find("resolved-count").label(), Some("archived · 1"));
-        assert_eq!(window.find("all-threads").label(), Some("all chats · 13 →"));
+        assert_eq!(window.find("resolved-count").label(), Some("Archived · 1"));
+        assert_eq!(window.find("all-threads").label(), Some("All · 13"));
         let shown = ids
             .iter()
             .filter(|id| window.try_find(format!("thread-{id}")).is_some())
@@ -384,7 +384,7 @@ fn archived_chats_leave_the_sidebar_stay_findable_and_require_unarchive(cx: &mut
         assert!(window.find(format!("all-thread-{done}")).visible());
         assert!(window.try_find(format!("all-thread-{}", ids[1])).is_none());
     });
-    click(cx, &f, "threads-filter-all");
+    click(cx, &f, "all-threads");
     on_window(cx, &f, |window, cx| {
         f.view
             .read(cx)
@@ -969,7 +969,7 @@ fn proposal_card_dismiss_keeps_the_note_and_launcher_runs_commands(cx: &mut Test
         assert_eq!(view.workspace.store.note(&note.id).unwrap().unwrap(), note);
     });
     press(cx, &f, "cmd-k");
-    on_window(cx, &f, |window, cx| window.input("what changed", cx));
+    on_window(cx, &f, |window, cx| window.input("changes", cx));
     press(cx, &f, "enter");
     assert_eq!(
         cx.read(|cx| f.view.read(cx).layout.focus()),
@@ -1156,7 +1156,8 @@ fn normal_navigation_stays_bounded_and_explicit_splits_are_reused(cx: &mut TestA
     for _ in 0..5 {
         for id in [
             "open-notes",
-            "browse-all-chats",
+            "browse-chats",
+            "all-threads",
             "home",
             "actions",
             "history",
@@ -1300,4 +1301,90 @@ fn new_chat_from_solo_note_menu_focuses_the_visible_composer(cx: &mut TestAppCon
         assert!(view.chat_thread().is_some());
         assert!(view.worker.is_none());
     });
+}
+
+#[gpui_kit::test]
+fn simplified_navigation_tracks_focus_and_keeps_chat_filters_and_draft(cx: &mut TestAppContext) {
+    let mut chat = String::new();
+    let f = fixture(cx, |workspace| {
+        chat = workspace.new_thread("Draft witness").unwrap().id;
+    });
+    update(cx, &f, |view, window, cx| {
+        view.open_thread(&chat, window, cx);
+        view.composer.update(cx, |editor, cx| {
+            editor.set_value("Keep my unsent draft", window, cx)
+        });
+    });
+    for id in [
+        "browse-chats",
+        "all-threads",
+        "resolved-count",
+        "chats-recent",
+    ] {
+        click(cx, &f, id);
+        on_window(cx, &f, |window, cx| {
+            assert!(window.find("browse-chats").visible());
+            let view = f.view.read(cx);
+            assert_eq!(view.navigation_focus(), Some(TileKind::Threads));
+            assert_eq!(view.chat, ChatTarget::Thread(chat.clone()));
+            assert_eq!(
+                view.composer.read(cx).value().as_str(),
+                "Keep my unsent draft"
+            );
+            assert!(view.layout.visible().len() <= 3);
+        });
+    }
+    for (id, kind, label) in [
+        ("home", TileKind::Overview, "Home"),
+        ("open-notes", TileKind::Notes, "Notes"),
+        ("actions", TileKind::Actions, "Tasks"),
+        ("history", TileKind::History, "Changes"),
+        ("settings", TileKind::Settings, "Settings"),
+    ] {
+        click(cx, &f, id);
+        on_window(cx, &f, |window, cx| {
+            assert_eq!(f.view.read(cx).layout.focus(), Some(kind));
+            assert_eq!(window.find(id).label(), Some(label));
+            assert_eq!(f.view.read(cx).navigation_focus(), Some(kind));
+        });
+    }
+    press(cx, &f, "escape");
+    assert_eq!(
+        cx.read(|cx| f.view.read(cx).layout.focus()),
+        Some(TileKind::History)
+    );
+}
+
+#[gpui_kit::test]
+fn companion_focus_and_theme_changes_keep_navigation_readable(cx: &mut TestAppContext) {
+    use gpui_kit::component::ActiveTheme;
+    let f = fixture(cx, |_| {});
+    for (kind, destination) in [
+        (TileKind::Chat, TileKind::Threads),
+        (TileKind::Linked, TileKind::Threads),
+        (TileKind::Note, TileKind::Notes),
+        (TileKind::Connections, TileKind::Notes),
+        (TileKind::Compare, TileKind::Notes),
+    ] {
+        update(cx, &f, |view, window, cx| view.show_tile(kind, window, cx));
+        assert_eq!(
+            cx.read(|cx| f.view.read(cx).navigation_focus()),
+            Some(destination)
+        );
+    }
+    for theme in ThemeId::ALL {
+        update(cx, &f, |view, window, cx| {
+            view.choose_theme(theme, window, cx);
+            let palette = theme.palette();
+            // Ghost controls read these toolkit channels rather than button_foreground.
+            assert_eq!(
+                cx.theme().secondary_foreground,
+                gpui_kit::Hsla::from(rgb(palette.ink))
+            );
+            assert_eq!(
+                cx.theme().secondary_active,
+                gpui_kit::Hsla::from(rgb(palette.active))
+            );
+        });
+    }
 }

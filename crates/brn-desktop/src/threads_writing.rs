@@ -214,8 +214,8 @@ impl ThreadsUi {
                 .bg(rgb(p.alt))
                 .child(
                     div()
-                        .font_family(MONO)
-                        .text_xs()
+                        .font_family(UI_FONT)
+                        .text_size(SMALL_TEXT)
                         .text_color(rgb(p.accent))
                         .child(format!("brn needs you · {:?}", attention.kind).to_lowercase()),
                 )
@@ -284,8 +284,8 @@ impl ThreadsUi {
                     .flex()
                     .flex_col()
                     .gap_1()
-                    .font_family(MONO)
-                    .text_xs()
+                    .font_family(UI_FONT)
+                    .text_size(SMALL_TEXT)
                     .text_color(rgb(p.muted))
                     .child(format!("■ {status}"))
                     .child(run.map_or_else(String::new, |run| run.progress.clone()))
@@ -386,8 +386,8 @@ impl ThreadsUi {
             .bg(rgb(p.tile))
             .child(
                 div()
-                    .font_family(MONO)
-                    .text_xs()
+                    .font_family(UI_FONT)
+                    .text_size(SMALL_TEXT)
                     .font_weight(gpui_kit::FontWeight::SEMIBOLD)
                     .child(heading_text),
             );
@@ -413,7 +413,7 @@ impl ThreadsUi {
             });
             card = card.child(
                 div()
-                    .text_sm()
+                    .text_size(UI_TEXT)
                     .max_h(px(140.))
                     .overflow_hidden()
                     .child(StyledText::new(preview.text.clone()).with_highlights(highlights)),
@@ -519,8 +519,8 @@ impl ThreadsUi {
             .child(
                 div()
                     .id("composer-destination")
-                    .font_family(MONO)
-                    .text_xs()
+                    .font_family(UI_FONT)
+                    .text_size(SMALL_TEXT)
                     .text_color(rgb(p.muted))
                     .aria_label(destination.clone())
                     .child(destination)
@@ -918,7 +918,7 @@ impl ThreadsUi {
                     .flex()
                     .items_center()
                     .gap_2()
-                    .text_sm()
+                    .text_size(UI_TEXT)
                     .child(
                         "This note has a newer saved version. Your visible text remains preserved.",
                     )
@@ -937,7 +937,7 @@ impl ThreadsUi {
                     .flex()
                     .items_center()
                     .gap_2()
-                    .text_sm()
+                    .text_size(UI_TEXT)
                     .child("A recoverable edit exists for this note. The text is read-only until you recover it.")
                     .child(
                         pill("recover-note-edit", "Recover saved edit").on_click(cx.listener(
@@ -974,8 +974,8 @@ impl ThreadsUi {
             let mut line = div().flex().flex_wrap().items_center().gap_2().child(
                 div()
                     .id("note-import-summary")
-                    .text_xs()
-                    .font_family(MONO)
+                    .text_size(SMALL_TEXT)
+                    .font_family(UI_FONT)
                     .text_color(rgb(p.muted))
                     .child(format!("{intent} · {summary}"))
                     .test_support(),
@@ -1028,14 +1028,14 @@ impl ThreadsUi {
                         .p_2()
                         .child(
                             div()
-                                .text_sm()
+                                .text_size(UI_TEXT)
                                 .child(format!("Coverage details ({})", details.len())),
                         )
                         .children(details.into_iter().enumerate().map(|(index, detail)| {
                             div()
                                 .id(format!("note-coverage-detail-{index}"))
                                 .flex_shrink_0()
-                                .text_sm()
+                                .text_size(UI_TEXT)
                                 .child(detail)
                                 .test_support()
                         }))
@@ -1073,7 +1073,7 @@ impl ThreadsUi {
                     .bg(rgb(p.alt))
                     .border_1()
                     .border_color(rgb(p.border))
-                    .text_xs()
+                    .text_size(SMALL_TEXT)
                     .child(
                         div()
                             .flex_1()
@@ -1213,14 +1213,14 @@ impl ThreadsUi {
                     .bg(rgb(p.tile))
                     .child(
                         div()
-                            .font_family(MONO)
-                            .text_xs()
+                            .font_family(UI_FONT)
+                            .text_size(SMALL_TEXT)
                             .text_color(rgb(p.muted))
                             .child(format!("anchors to saved v{version}")),
                     )
                     .child(
                         div()
-                            .text_xs()
+                            .text_size(SMALL_TEXT)
                             .italic()
                             .child(format!("❝ {}", short(quote))),
                     )
@@ -1323,15 +1323,15 @@ impl ThreadsUi {
                 .bg(rgb(if entry.addressed { p.alt } else { p.tile }))
                 .child(
                     div()
-                        .font_family(MONO)
-                        .text_xs()
+                        .font_family(UI_FONT)
+                        .text_size(SMALL_TEXT)
                         .text_color(rgb(p.muted))
                         .child(status),
                 )
-                .child(div().text_sm().child(comment.body.clone()))
+                .child(div().text_size(UI_TEXT).child(comment.body.clone()))
                 .child(
                     div()
-                        .text_xs()
+                        .text_size(SMALL_TEXT)
                         .italic()
                         .text_color(rgb(p.muted))
                         .child(format!("❝ {}", short(&comment.quote))),
@@ -1408,8 +1408,8 @@ impl ThreadsUi {
             .gap_1()
             .px_3()
             .py_1()
-            .font_family(MONO)
-            .text_xs()
+            .font_family(UI_FONT)
+            .text_size(SMALL_TEXT)
             .bg(rgb(p.alt))
             .border_t_1()
             .border_color(rgb(p.border));
@@ -1451,8 +1451,8 @@ impl ThreadsUi {
                 .flex()
                 .flex_col()
                 .gap_1()
-                .font_family(".SystemUIFont")
-                .text_sm()
+                .font_family(UI_FONT)
+                .text_size(PROSE_TEXT)
                 .child(heading("Saved rewrite inputs"))
                 .child(format!(
                     "Saved note v{} · {} comments · {} posted chat messages. Later additions stay pending.",
@@ -1684,8 +1684,8 @@ impl ThreadsUi {
             .px_3()
             .py_1()
             .flex_shrink_0()
-            .font_family(MONO)
-            .text_xs()
+            .font_family(UI_FONT)
+            .text_size(SMALL_TEXT)
             .bg(rgb(p.alt))
             .border_b_1()
             .border_color(rgb(p.border))
@@ -1763,7 +1763,7 @@ impl ThreadsUi {
             .px_3()
             .py_1()
             .flex_shrink_0()
-            .text_sm();
+            .text_size(UI_TEXT);
         if self.review_inputs || review.note.is_none() {
             details = details.child(review.candidate.request.reason.clone());
             for write in &review.candidate.request.writes {
@@ -1802,7 +1802,7 @@ impl ThreadsUi {
             details = details.child(metadata("Applying saves this exact proposal. Changed or actively edited notes remain unchanged until the issue is resolved. No per-change acceptance."));
         }
         if review.groups.groups.len() > 1 {
-            details = details.child("Choose complete notes and Actions. Prepare your selection to review a new immutable proposal.");
+            details = details.child("Choose complete notes and tasks. Prepare your selection to review a new immutable proposal.");
             let mut groups = div().flex().flex_wrap().gap_1();
             for group in &review.groups.groups {
                 let id = group.id.clone();
@@ -1934,8 +1934,8 @@ impl ThreadsUi {
                     .px_3()
                     .py_1()
                     .flex_shrink_0()
-                    .font_family(MONO)
-                    .text_xs()
+                    .font_family(UI_FONT)
+                    .text_size(SMALL_TEXT)
                     .bg(rgb(p.alt))
                     .border_t_1()
                     .border_color(rgb(p.border))
@@ -2005,7 +2005,7 @@ impl ThreadsUi {
             return context
                 .child(empty(
                     "linked-empty",
-                    "Notes, sources and Actions used in a chat appear here.",
+                    "Notes, sources and tasks used in a chat appear here.",
                 ))
                 .test_support()
                 .into_any_element();
@@ -2014,7 +2014,7 @@ impl ThreadsUi {
         if linked_ids.is_empty() {
             context = context.child(empty(
                 "linked-empty",
-                "Notes, sources and Actions used in this chat appear here.",
+                "Notes, sources and tasks used in this chat appear here.",
             ));
         }
         for record in self

@@ -40,3 +40,19 @@ Representative native behavior is observed; broad IME, other platforms, real-dat
 - Native-observed: representative synthetic navigation, draft recovery and Solo checks.
 - Owner-accepted implementation: pending the owner's use of the preview.
 - Published / merged / released: not performed; current work is isolated from the owner's retrieval changes.
+
+## Navigation and typography polish, 14 October
+
+Owner approved the review recommendations and requested implementation plus reopening the native preview. Follow-up baseline `08136a61`; same isolated branch. Primary navigation is Chats/Notes/Tasks, Home is on the logo, Changes/Settings are secondary, and chat browsing owns Recent/All/Archived. Focus drives the selected navigation group, including linked work. System-font UI uses shared 12/14/16/18px roles; code/wordmark retain monospace. Toolbar buttons have quiet fills and rounded corners, with the accent concentrated on the focused header.
+
+Read-only plan and code review approved. The reviewer caught missing Chats highlighting for linked work, now fixed and covered. Native inspection caught dark ghost controls inheriting the toolkit's secondary light-theme colors; all secondary color channels now follow the chosen palette, with five-theme regression coverage.
+
+Verification uses Rust 1.98.1 and the existing lockfile. The initial suite exposed two retired label/control expectations, updated for Changes and the in-panel All tab. A new test initially assumed Button visual selection exposed native selected metadata; it now checks the actual navigation destination and accessible label. The final shared-cache run hit a foreign `RunNoteSearch` signature from concurrent retrieval builds. The task now uses `/private/tmp/brn-tile-ui-polish/target`, cloned from cached dependencies with all BRN package artifacts removed before rebuilding. No source changes were made for that cache collision.
+
+- `CARGO_TARGET_DIR=/private/tmp/brn-tile-ui-polish/target cargo test -p brn-desktop --features native-ui,native-test-support --locked --offline`: **113 passed**, including real mouse navigation/filter/draft journeys, companion focus and five-theme ghost-color checks. Log: `/private/tmp/brn-tile-ui-polish/polish-isolated-tests.log`.
+- Independent review: **approved**, including the supported fixes.
+- Strict lint: `CARGO_TARGET_DIR=/private/tmp/brn-tile-ui-polish/target cargo clippy -p brn-desktop --all-targets --features native-ui,native-test-support --locked --offline -- -D warnings` passed (`polish-isolated-clippy.log`).
+- Native build: same target directory, `cargo build -p brn-desktop --features native-ui,native-test-support --locked --offline` passed (`polish-isolated-build.log`). The pre-existing `block 0.1.6` future-incompatibility warning remains.
+- Formatting, diff whitespace and Markdown links pass (62 files, 272 links).
+- Native-observed: rebuilt the uniquely identified preview bundle and verified readable ghost controls in Virmalised and Sammal. Mouse navigation opened Home via the logo, Tasks, Changes with Undo buttons, Settings via the gear, and All/Archived within Chats without accumulating panels. Escape returned from Settings. Returned to Virmalised and recovered the unchanged synthetic unsaved note, then left Notes and the note/chat view open. The synthetic data directory remains `/private/tmp/brn-tile-ui-polish/native-preview-workspace`; no provider request or real workspace access.
+- Owner acceptance of the implemented result remains pending; no publication, merge or release performed.

@@ -40,3 +40,15 @@
 - Implementation and independent code review: complete; 111 tests, strict lint and native build pass, with checks recorded in [evidence](evidence.md).
 - Native observation: representative synthetic navigation/draft recovery/Solo observed. Owner acceptance of the implemented UI remains pending.
 - Publication / merge / release: outside this implementation request.
+
+## Navigation and typography follow-up (14 October)
+
+Owner approved the proposed polish pass and requested a rebuilt native preview. Baseline `08136a61`; reuse this clean isolated checkout. Current remote main is `2213eb4f`; integration with unrelated ongoing work is outside this preview pass.
+
+- [x] Shell: primary Chats / Notes / Tasks; logo opens Home, secondary Changes and accessible Settings gear. Keep explicit Open beside. Highlight only the focused destination (group chat/note content with their navigation), not every open panel.
+- [x] Chats: persistent Recent / All / Archived switching inside chat browsing; retain other existing filters, search, recovery and attention. Remove redundant bottom links and keep filters above scrolling results.
+- [x] Typography: shared system UI family, explicit 14px controls/list text, 12px metadata, 16px prose and 18px headings. Retain Menlo for code and wordmark. Apply toolkit theme defaults for menus/inputs/Markdown; preserve semantic Markdown heading sizes. No new reading-size preference or persistence in this pass.
+- [x] Styling: small rounded controls and ghost toolbar buttons, quiet separators, one focused pane accent. Short Search label with shortcut hint. Rename visible Actions/History/Overview navigation to Tasks/Changes/Home without changing core domain records or checked mutations.
+- [x] Verification: native mouse journey through logo, primary and secondary destinations, chat filters, Settings dismissal and explicit splits; existing draft/review/layout regressions; strict lint, native build, formatting, links. Independent read-only review and synthetic preview observation. Update canonical presentation contract and evidence.
+
+Review focus: destinations remain reachable by keyboard and mouse; Recent/All/Archived switches reuse navigation and preserve selected chat/draft; active styling follows focus; titles and controls fit at narrow sizes; code remains monospace and prose remains readable. No provider calls, owner data, publication or merge.

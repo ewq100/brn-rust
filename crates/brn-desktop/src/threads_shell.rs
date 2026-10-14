@@ -23,8 +23,8 @@ impl Render for DragGhost {
         div()
             .px_2()
             .py_1()
-            .font_family(MONO)
-            .text_xs()
+            .font_family(UI_FONT)
+            .text_size(SMALL_TEXT)
             .bg(rgb(p.alt))
             .border_1()
             .border_color(rgb(p.accent))
@@ -57,7 +57,7 @@ pub(super) fn item(
 }
 
 pub(super) fn pill(id: impl Into<gpui_kit::ElementId>, label: impl Into<SharedString>) -> Button {
-    button(id).label(label).compact().text_xs().h(px(24.))
+    button(id).label(label).compact().ghost().h(px(28.))
 }
 
 const KEYS: [(&str, &str); 18] = [
@@ -77,8 +77,8 @@ const KEYS: [(&str, &str); 18] = [
     ("Tile menu", "right-click a tile header"),
     ("Toggle chats", "⌘\\ · layout menu"),
     ("Theme", "status bar · launcher · Settings"),
-    ("Settings", "⌘, · chats tile"),
-    ("Overview", "⌘0 · launcher"),
+    ("Settings", "⌘, · navigation gear"),
+    ("Home", "⌘0 · brn logo · launcher"),
 ];
 
 impl ThreadsUi {
@@ -98,8 +98,8 @@ impl ThreadsUi {
                             .child(div().w(px(170.)).child(*what))
                             .child(
                                 div()
-                                    .font_family(MONO)
-                                    .text_xs()
+                                    .font_family(UI_FONT)
+                                    .text_size(SMALL_TEXT)
                                     .text_color(rgb(p.muted))
                                     .child(*how),
                             )
@@ -110,6 +110,7 @@ impl ThreadsUi {
     }
     fn tile_title(&self, kind: TileKind) -> String {
         match kind {
+            TileKind::AllThreads => "chats".into(),
             TileKind::Note => match (&self.review, &self.note) {
                 (Some(review), None) => {
                     format!("review · {}", short(&review.candidate.request.reason))
@@ -152,13 +153,13 @@ impl ThreadsUi {
             .flex_shrink_0()
             .items_center()
             .gap_1()
-            .h(px(30.))
+            .h(px(36.))
             .px_2()
-            .font_family(MONO)
-            .text_xs()
-            .bg(rgb(if focused { p.active } else { p.alt }))
+            .font_family(UI_FONT)
+            .text_size(UI_TEXT)
+            .bg(rgb(p.tile))
             .border_b_1()
-            .border_color(rgb(p.border))
+            .border_color(rgb(if focused { p.accent } else { p.border }))
             .cursor_grab()
             .child(
                 div()
@@ -375,7 +376,6 @@ impl ThreadsUi {
                 );
             }
             let kind = tile.kind;
-            let focused = self.layout.focus() == Some(kind);
             let mut frame = div()
                 .id(format!("tile-{}", kind.key()))
                 .test_support()
@@ -395,7 +395,9 @@ impl ThreadsUi {
                     }))
                 .flex_basis(px(0.))
                 .border_1()
-                .border_color(rgb(if focused { p.accent } else { p.border }))
+                .border_color(rgb(p.border))
+                .rounded(px(6.))
+                .overflow_hidden()
                 .bg(rgb(p.tile))
                 .on_mouse_down(
                     MouseButton::Left,
@@ -539,6 +541,18 @@ impl ThreadsUi {
         }
         cx.notify();
     }
+    /// Navigation reflects the focused destination, not all panels left open.
+    pub(super) fn navigation_focus(&self) -> Option<TileKind> {
+        match self.layout.focus()? {
+            TileKind::Threads | TileKind::AllThreads | TileKind::Chat | TileKind::Linked => {
+                Some(TileKind::Threads)
+            }
+            TileKind::Notes | TileKind::Note | TileKind::Connections | TileKind::Compare => {
+                Some(TileKind::Notes)
+            }
+            kind => Some(kind),
+        }
+    }
     fn navigation_bar(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         let p = pal();
         let this = cx.entity().downgrade();
@@ -558,21 +572,34 @@ impl ThreadsUi {
         for (id, label, kind) in [
             ("browse-chats", "Chats", TileKind::Threads),
             ("open-notes", "Notes", TileKind::Notes),
-            ("browse-all-chats", "All chats", TileKind::AllThreads),
-            ("home", "Overview", TileKind::Overview),
-            ("actions", "Actions", TileKind::Actions),
-            ("history", "History", TileKind::History),
-            ("settings", "Settings", TileKind::Settings),
+            ("actions", "Tasks", TileKind::Actions),
         ] {
             bar = bar.child(
                 pill(id, label)
-                    .selected(self.layout.contains(kind))
+                    .selected(self.navigation_focus() == Some(kind))
                     .on_click(
                         cx.listener(move |view, _, window, cx| view.show_tile(kind, window, cx)),
                     ),
             );
         }
         bar.child(div().flex_1())
+            .child(
+                pill("history", "Changes")
+                    .selected(self.navigation_focus() == Some(TileKind::History))
+                    .tooltip("Workspace changes and Undo")
+                    .on_click(cx.listener(|view, _, window, cx| {
+                        view.show_tile(TileKind::History, window, cx)
+                    })),
+            )
+            .child(
+                pill("settings", "⚙")
+                    .accessibility_label("Settings")
+                    .tooltip("Settings (⌘,)")
+                    .selected(self.layout.settings_open())
+                    .on_click(cx.listener(|view, _, window, cx| {
+                        view.show_tile(TileKind::Settings, window, cx)
+                    })),
+            )
             .child(
                 pill("open-beside", "Open beside ＋")
                     .tooltip("Add an extra split · normal navigation reuses your working areas")
@@ -666,19 +693,25 @@ impl ThreadsUi {
             .h_full()
             .pr_3()
             .child(
-                div()
+                pill("home", "brn")
                     .font_family(MONO)
                     .font_weight(gpui_kit::FontWeight::BOLD)
                     .text_color(rgb(p.accent))
-                    .child("brn"),
+                    .accessibility_label("Home")
+                    .tooltip("Home (⌘0)")
+                    .selected(self.navigation_focus() == Some(TileKind::Overview))
+                    .on_click(cx.listener(|view, _, window, cx| {
+                        view.show_tile(TileKind::Overview, window, cx)
+                    })),
             )
             .child(
                 button("launcher")
-                    .label("⌕ Search notes, chats, commands…  ⌘K")
-                    .w(px(330.))
+                    .label("Search…   ⌘K")
+                    .accessibility_label("Search notes, chats and commands")
+                    .w(px(220.))
                     .min_w(px(150.))
                     .flex_shrink(1.)
-                    .tooltip("Launcher (⌘K)")
+                    .tooltip("Search notes, chats and commands (⌘K)")
                     .on_click(cx.listener(|this, _, window, cx| this.open_launcher(window, cx))),
             )
             .child(div().flex_1());
@@ -686,6 +719,7 @@ impl ThreadsUi {
             bar = bar.child(
                 button(format!("layout-{}", preset.key()))
                     .label(preset.label())
+                    .ghost()
                     .compact()
                     .selected(self.layout.preset() == Some(preset))
                     .tooltip(if preset == Preset::Solo {
@@ -750,8 +784,8 @@ impl ThreadsUi {
             .gap_1()
             .h(px(32.))
             .px_2()
-            .font_family(MONO)
-            .text_xs()
+            .font_family(UI_FONT)
+            .text_size(SMALL_TEXT)
             .bg(rgb(p.alt))
             .border_t_1()
             .border_color(rgb(p.border));
@@ -921,7 +955,7 @@ impl ThreadsUi {
                 .gap_2()
                 .px_3()
                 .py_1()
-                .text_sm()
+                .text_size(UI_TEXT)
                 .bg(rgb(p.tile))
                 .border_t_1()
                 .border_color(rgb(p.border))
@@ -978,8 +1012,8 @@ impl ThreadsUi {
                     .child(div().flex_1().min_w_0().child(label))
                     .child(
                         div()
-                            .font_family(MONO)
-                            .text_xs()
+                            .font_family(UI_FONT)
+                            .text_size(SMALL_TEXT)
                             .text_color(rgb(p.muted))
                             .child(shortcut),
                     )
@@ -1060,6 +1094,8 @@ impl Render for ThreadsUi {
         };
         let mut root = div()
             .id("workspace-root")
+            .font_family(UI_FONT)
+            .text_size(UI_TEXT)
             .track_focus(&self.root_focus)
             .key_context("BrnWorkspace")
             .capture_key_down(

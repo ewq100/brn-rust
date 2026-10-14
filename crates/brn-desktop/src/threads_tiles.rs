@@ -34,7 +34,7 @@ pub(super) fn row(
         .gap_2()
         .px_2()
         .py_1()
-        .text_sm()
+        .text_size(UI_TEXT)
         .cursor_pointer()
         .bg(rgb(if selected { p.selection } else { p.tile }))
         .hover(|style| style.bg(rgb(pal().hover)))
@@ -51,8 +51,8 @@ pub(super) fn row(
             row.child(
                 div()
                     .flex_shrink_0()
-                    .font_family(MONO)
-                    .text_xs()
+                    .font_family(UI_FONT)
+                    .text_size(SMALL_TEXT)
                     .text_color(rgb(p.muted))
                     .child(meta),
             )
@@ -250,7 +250,7 @@ impl ThreadsUi {
                 })),
             );
         }
-        list = list.child(section("THREADS"));
+        list = list.child(section("RECENT CHATS"));
         if bar.open.is_empty() {
             list = list.child(empty(
                 "threads-empty",
@@ -282,38 +282,48 @@ impl ThreadsUi {
                 }),
             );
         }
-        list = list.child(
-            row(
-                "all-threads",
-                format!("all chats · {} →", bar.total),
-                "",
-                false,
-            )
-            .on_click(cx.listener(|this, _, window, cx| {
-                this.thread_filter = ThreadFilter::All;
-                this.show_tile(TileKind::AllThreads, window, cx)
-            })),
-        );
-        if bar.resolved > 0 {
-            list = list.child(
-                row(
-                    "resolved-count",
-                    format!("archived · {}", bar.resolved),
-                    "",
-                    false,
-                )
-                .on_click(cx.listener(|this, _, window, cx| {
-                    this.thread_filter = ThreadFilter::Resolved;
-                    this.show_tile(TileKind::AllThreads, window, cx)
-                })),
-            );
-        }
         div()
             .size_full()
             .flex()
             .flex_col()
+            .child(self.chat_navigation(true, cx))
             .child(div().flex_1().min_h_0().child(list.test_support()))
             .into_any_element()
+    }
+    fn chat_navigation(&self, recent: bool, cx: &mut Context<Self>) -> gpui_kit::Div {
+        let counts = lists::sidebar(&self.thread_rows, self.chat_thread());
+        let mut tabs = div().flex().flex_wrap().flex_shrink_0().gap_1().p_2();
+        for (id, label, filter) in [
+            ("chats-recent", "Recent".to_owned(), None),
+            (
+                "all-threads",
+                format!("All · {}", counts.total),
+                Some(ThreadFilter::All),
+            ),
+            (
+                "resolved-count",
+                format!("Archived · {}", counts.resolved),
+                Some(ThreadFilter::Resolved),
+            ),
+        ] {
+            tabs = tabs.child(
+                pill(id, label)
+                    .selected(if let Some(filter) = filter {
+                        !recent && self.thread_filter == filter
+                    } else {
+                        recent
+                    })
+                    .on_click(cx.listener(move |view, _, window, cx| {
+                        if let Some(filter) = filter {
+                            view.thread_filter = filter;
+                            view.show_tile(TileKind::AllThreads, window, cx);
+                        } else {
+                            view.show_tile(TileKind::Threads, window, cx);
+                        }
+                    })),
+            );
+        }
+        tabs
     }
     pub(super) fn all_threads_tile(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         let this = cx.entity().downgrade();
@@ -325,7 +335,10 @@ impl ThreadsUi {
             lists::today(),
         );
         let mut filters = div().flex().flex_wrap().gap_1();
-        for filter in ThreadFilter::ALL {
+        for filter in ThreadFilter::ALL
+            .into_iter()
+            .filter(|filter| !matches!(filter, ThreadFilter::All | ThreadFilter::Resolved))
+        {
             filters = filters.child(
                 pill(format!("threads-filter-{}", filter.key()), filter.label())
                     .selected(self.thread_filter == filter)
@@ -335,7 +348,13 @@ impl ThreadsUi {
                     })),
             );
         }
-        let mut list = scroll("all-threads-list")
+        let controls = div()
+            .flex()
+            .flex_col()
+            .flex_shrink_0()
+            .gap_2()
+            .px_3()
+            .pb_2()
             .child(Input::new(&self.threads_query).w_full())
             .child(filters)
             .child(metadata(if grouped.matched > lists::LIST_LIMIT {
@@ -347,6 +366,7 @@ impl ThreadsUi {
             } else {
                 format!("{} chats", grouped.matched)
             }));
+        let mut list = scroll("all-threads-list");
         if grouped.groups.is_empty() {
             list = list.child(empty("all-threads-empty", "No chats match this filter."));
         }
@@ -384,7 +404,14 @@ impl ThreadsUi {
                 );
             }
         }
-        list.test_support().into_any_element()
+        div()
+            .size_full()
+            .flex()
+            .flex_col()
+            .child(self.chat_navigation(false, cx))
+            .child(controls)
+            .child(div().flex_1().min_h_0().child(list.test_support()))
+            .into_any_element()
     }
     pub(super) fn notes_tile(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         let this = cx.entity().downgrade();
@@ -735,7 +762,7 @@ impl ThreadsUi {
                     .child(
                         button(format!("open-action-{}", record.id))
                             .label(if action.state == ActionState::Suggested {
-                                "Accept action"
+                                "Accept task"
                             } else {
                                 "Open"
                             })
@@ -774,7 +801,7 @@ impl ThreadsUi {
                     )
                     .child(
                         button(format!("cancel-action-{}", record.id))
-                            .label("Cancel action")
+                            .label("Cancel task")
                             .on_click(cx.listener(move |this, _, _, cx| {
                                 this.change(
                                     "Owner cancelled an Action",
@@ -790,7 +817,7 @@ impl ThreadsUi {
     }
     pub(super) fn actions_tile(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         let mut view = scroll("actions-content").gap_2().child(metadata(
-            "Actions keep their own progress, including after a chat is archived.",
+            "Tasks keep their own progress, including after a chat is archived.",
         ));
         if !self
             .records
@@ -799,7 +826,7 @@ impl ThreadsUi {
         {
             view = view.child(panel().child(empty(
                 "actions-empty",
-                "No actions yet. Suggested work and tasks you assign will appear here.",
+                "No tasks yet. Suggested work and tasks you assign will appear here.",
             )));
         }
         for (status, key, label) in [
@@ -990,7 +1017,7 @@ impl ThreadsUi {
                     .aria_label("Copilot credentials folder"),
             )
             .child(metadata(
-                "Credentials stay outside notes, exports and History. The Codex auth file is used only with Codex / ChatGPT.",
+                "Credentials stay outside notes, exports and Changes. The Codex auth file is used only with Codex / ChatGPT.",
             ))
             .child(
                 button("save-settings")

@@ -251,6 +251,8 @@ impl MarkdownPlugin for LiteralHtml {
 }
 fn markdown(view: &Entity<TextViewState>, assets: Arc<BTreeMap<String, Arc<Image>>>) -> TextView {
     TextView::new(view)
+        .font_family(UI_FONT)
+        .text_size(PROSE_TEXT)
         .w_full()
         .h_full()
         .scrollable(true)
@@ -278,6 +280,11 @@ fn markdown(view: &Entity<TextViewState>, assets: Arc<BTreeMap<String, Arc<Image
 // Presentation is shared by every tile. Toolkit controls keep their focus,
 // selected and disabled behavior; prose retains the normal system font.
 const MONO: &str = "Menlo";
+const UI_FONT: &str = ".SystemUIFont";
+const SMALL_TEXT: gpui_kit::Pixels = px(12.);
+const UI_TEXT: gpui_kit::Pixels = px(14.);
+const PROSE_TEXT: gpui_kit::Pixels = px(16.);
+const TITLE_TEXT: gpui_kit::Pixels = px(18.);
 fn default_copilot_credentials_dir() -> std::io::Result<PathBuf> {
     use std::os::unix::fs::DirBuilderExt as _;
     let home = std::env::var_os("HOME")
@@ -302,12 +309,14 @@ fn top_bar_window_options() -> WindowOptions {
 }
 fn button(id: impl Into<gpui_kit::ElementId>) -> Button {
     Button::new(id)
-        .rounded(ButtonRounded::None)
-        .font_family(MONO)
-        .text_sm()
+        .rounded(ButtonRounded::Small)
+        .font_family(UI_FONT)
+        .text_size(UI_TEXT)
 }
 fn prose_editor(state: &Entity<EditorState>) -> Editor {
-    Editor::new(state).font_family(".SystemUIFont").text_base()
+    Editor::new(state)
+        .font_family(UI_FONT)
+        .text_size(PROSE_TEXT)
 }
 fn panel() -> gpui_kit::Div {
     let p = pal();
@@ -323,23 +332,23 @@ fn panel() -> gpui_kit::Div {
 }
 fn heading(text: impl Into<gpui_kit::SharedString>) -> gpui_kit::Div {
     div()
-        .font_family(MONO)
-        .text_sm()
-        .text_color(rgb(pal().accent))
+        .font_family(UI_FONT)
+        .text_size(TITLE_TEXT)
+        .text_color(rgb(pal().ink))
         .font_weight(gpui_kit::FontWeight::SEMIBOLD)
         .child(text.into())
 }
 fn section(text: impl Into<gpui_kit::SharedString>) -> gpui_kit::Div {
     div()
-        .font_family(MONO)
-        .text_xs()
+        .font_family(UI_FONT)
+        .text_size(SMALL_TEXT)
         .text_color(rgb(pal().muted))
         .pt_2()
         .child(text.into())
 }
 fn metadata(text: impl Into<gpui_kit::SharedString>) -> gpui_kit::Div {
     div()
-        .text_sm()
+        .text_size(SMALL_TEXT)
         .text_color(rgb(pal().muted))
         .child(text.into())
 }
