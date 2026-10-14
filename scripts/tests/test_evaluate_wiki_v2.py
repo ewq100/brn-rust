@@ -96,6 +96,18 @@ class ArmTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             v2.parse_arms(['A=/b', 'A=/c'])
 
+    def test_helper_option(self):
+        arm = v2.parse_arm('B=/bin/brn,provider=Codex,model=gpt-6.1-sol,effort=medium,helper=gpt-6-luna:high')
+        self.assertEqual(arm['helper'], {'model': 'gpt-6-luna', 'effort': 'high'})
+        self.assertEqual(v2.helper_configuration(v2.resolve_arm(arm)),
+                         {'helper_provider': 'Codex', 'helper_model': 'gpt-6-luna', 'helper_effort': 'high'})
+        self.assertEqual(v2.helper_configuration(v2.resolve_arm(v2.parse_arm('A=/bin/brn'), 'Codex')),
+                         {'helper': 'off'})
+        self.assertEqual(v2.helper_label(arm['helper']), 'gpt-6-luna:high')
+        for text in ('A=/b,helper=luna', 'A=/b,helper=:high', 'A=/b,helper=luna:max', 'A=/b,helper='):
+            with self.assertRaises(ValueError, msg=text):
+                v2.parse_arm(text)
+
     def test_base_name_and_case_filter(self):
         self.assertEqual(v2.arm_base('B-sol'), 'B')
         self.assertEqual(v2.case_arm_names({'arms': ['A', 'B']}, ['A', 'B-sol', 'C']), ['A', 'B-sol'])
@@ -210,6 +222,45 @@ class MetricTests(unittest.TestCase):
                    call(3, 2, 'read_note', {'id': 'n-s'}, None, outcome='error')])
         self.assertEqual(v2.private_exposure_count(t, {'n-s'}), 2)
         self.assertEqual(v2.step_metrics(t, set(), private={'n-s'})['private_exposures'], 2)
+
+    def helper_trace(self):
+        nested = trace([call(1, 1, 'read_note', {'id': 'n-s'}, {}),
+                        call(2, 1, 'search_notes', {}, {'ids': ['n-k']})], usage={'input': 300, 'output': 20,
+                                                                                  'cached_input': 100})
+        parent = trace([call(1, 1, 'research', {'questions': 1}, {'outcomes': ['answered']})],
+                       usage={'input': 50, 'output': 5, 'cached_input': 0})
+        parent['turn_usage'] = [{'input': 20, 'output': 2, 'cached_input': 0},
+                                {'input': 30, 'output': 3, 'cached_input': 0}]
+        parent['helpers'] = [
+            {'call_seq': 1, 'index': 1, 'question': 0, 'role': 'research-scout', 'model': 'gpt-6-luna',
+             'effort': 'high', 'outcome': 'answered', 'citations': {'exact': 2, 'stale': 1, 'mismatch': 0,
+                                                                     'rejected': 1}, 'trace': nested},
+            {'call_seq': 1, 'index': 2, 'question': 1, 'role': 'research-scout', 'model': 'gpt-6-luna',
+             'effort': 'high', 'outcome': 'unavailable', 'citations': {}, 'trace': None}]
+        return parent
+
+    def test_helper_metrics_and_nested_evidence(self):
+        tr = self.helper_trace()
+        m = v2.step_metrics(tr, {'n-k'}, private={'n-s'})
+        self.assertEqual(m['helper_runs'], 2)
+        self.assertEqual(m['helper_outcomes'], {'answered': 1, 'unavailable': 1})
+        self.assertEqual(m['citations'], {'exact': 2, 'stale': 1, 'mismatch': 0, 'rejected': 1})
+        self.assertEqual(m['helper_tokens'], 320)
+        self.assertEqual(m['peak_turn_input'], 30)
+        # The parent's own metrics stay its own; a helper's leak still counts.
+        self.assertEqual((m['tokens'], m['searches'], m['calls']), (55, 0, 1))
+        self.assertEqual(m['private_exposures'], 1)
+        total = v2.run_metrics([m, v2.step_metrics(trace([]), set())])
+        self.assertEqual((total['helper_runs'], total['helper_tokens'], total['peak_turn_input']), (2, 320, 30))
+        self.assertEqual(total['citations']['exact'], 2)
+        self.assertEqual(total['helper_outcomes'], {'answered': 1, 'unavailable': 1})
+        plain = v2.step_metrics(trace([]), set())
+        self.assertEqual((plain['helper_runs'], plain['helper_tokens'], plain['peak_turn_input']), (0, 0, None))
+
+    def test_helper_reads_satisfy_read_checks(self):
+        ctx = ctx_for(CASE, BASE, BASE, [step('a', tr=self.helper_trace())])
+        self.assertTrue(run({'type': 'read', 'step': 1, 'keys': ['secret']}, ctx)['passed'])
+        self.assertFalse(run({'type': 'read', 'step': 1, 'keys': ['bath']}, ctx)['passed'])
 
     def test_untraced_arm(self):
         self.assertEqual(v2.step_metrics(None), {'trace': False})
@@ -886,6 +937,9 @@ a = sys.argv[1:]
 command = a[2]
 opts = dict(zip(a[3::2], a[4::2]))
 if command in ('configure', 'delegation'):
+    if command == 'configure':
+        with open(sys.argv[0] + '.configure', 'a') as log:
+            log.write(json.dumps(opts) + '\\n')
     print(json.dumps({}))
 elif command == 'settings':
     print(json.dumps({'delegation_chosen': True}))
@@ -946,6 +1000,24 @@ class PipelineWithStubBinary(unittest.TestCase):
             self.assertEqual([c['passed'] for c in result['checks']], [False, True])
             self.assertEqual(result['planned'], 3)
             self.assertTrue((root / 'tmp').is_dir())
+
+    def test_helper_arm_configures_the_helper_and_others_turn_it_off(self):
+        with scratch() as directory:
+            base = Path(directory).resolve()
+            sample, _ = self.setup_sample(base, 'OK')
+            sample.arm = dict(sample.arm, helper={'model': 'gpt-6-luna', 'effort': 'high'})
+            sample.result['helper'] = sample.arm['helper']
+            self.assertEqual(sample.go()['status'], 'complete')
+            (base / 'plain').mkdir()
+            plain, _ = self.setup_sample(base / 'plain', 'OK')
+            self.assertEqual(plain.go()['status'], 'complete')
+            first = json.loads((base / 'brn.configure').read_text())
+            self.assertEqual((first['--helper-provider'], first['--helper-model'], first['--helper-effort']),
+                             ('Codex', 'gpt-6-luna', 'high'))
+            self.assertNotIn('--helper', first)
+            second = json.loads((base / 'plain' / 'brn.configure').read_text())
+            self.assertEqual(second['--helper'], 'off')
+            self.assertNotIn('--helper-model', second)
 
     def test_nonzero_exit_is_a_transport_failure(self):
         with scratch() as directory:

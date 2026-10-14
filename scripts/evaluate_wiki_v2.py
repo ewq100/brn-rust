@@ -10,8 +10,11 @@ Everything lives under one exclusively created --root; nothing outside it is wri
 passed to `brn configure` and never read here.
 
 Arms: --arm NAME=BINARY[,model-dir=PATH][,provider=Codex|Copilot][,model=ID][,effort=low|medium|high]
+            [,helper=MODEL:EFFORT]
 A case runs the arms whose base name (text before the first '-') is listed in its `arms`, so a model
-matrix may use B-sol, B-luna. Arm options override the global --provider/--model/--effort.
+matrix may use B-sol, B-luna. Arm options override the global --provider/--model/--effort. `helper`
+turns on the owner's read-only research helper on the arm's provider and credentials (live only);
+helper sub-runs are traced under `helpers` and their reads count for read checks and privacy.
 
 Check types (a check may carry `after_step` N, `arms` [base names], `report_only`):
   answer_contains_any{step,values}  answer_excludes{step|steps,values}  no_writes{step}
@@ -57,7 +60,9 @@ create_root = V1.create_root
 
 PROVIDERS = ('Codex', 'Copilot')
 EFFORTS = ('low', 'medium', 'high')
-ARM_OPTIONS = {'model-dir': 'model_dir', 'provider': 'provider', 'model': 'model', 'effort': 'effort'}
+ARM_OPTIONS = {'model-dir': 'model_dir', 'provider': 'provider', 'model': 'model', 'effort': 'effort',
+               'helper': 'helper'}
+ARM_FIELDS = ('name', 'binary_sha256', 'provider', 'model', 'effort', 'helper', 'model_dir')
 RECOMMENDED_RELATIONS = frozenset({'source', 'supersedes', 'contradicts', 'related'})
 WRITE_KINDS = ('Note', 'Link', 'Action')
 KEPT_KINDS = ('Note', 'Link', 'Thread', 'Source', 'Action')
@@ -91,7 +96,8 @@ def parse_arm(text):
     parts = rest.split(',')
     if not parts[0]:
         raise ValueError(f'Arm {name} needs a binary')
-    arm = {'name': name, 'binary': parts[0], 'model_dir': None, 'provider': None, 'model': None, 'effort': None}
+    arm = {'name': name, 'binary': parts[0], 'model_dir': None, 'provider': None, 'model': None, 'effort': None,
+           'helper': None}
     for item in parts[1:]:
         key, sep, value = item.partition('=')
         if not sep or key not in ARM_OPTIONS or not value:
@@ -101,7 +107,20 @@ def parse_arm(text):
         raise ValueError('Arm provider must be Codex or Copilot')
     if arm['effort'] and arm['effort'] not in EFFORTS:
         raise ValueError('Arm effort must be low, medium or high')
+    if arm['helper']:
+        model, sep, effort = arm['helper'].rpartition(':')
+        if not sep or not model or effort not in EFFORTS:
+            raise ValueError('Arm helper must look like MODEL:low|medium|high')
+        arm['helper'] = {'model': model, 'effort': effort}
     return arm
+
+
+def helper_configuration(arm):
+    """`brn configure` options for an arm's helper: on the arm's provider, reusing its credentials."""
+    helper = arm.get('helper')
+    if not helper:
+        return {'helper': 'off'}
+    return {'helper_provider': arm['provider'], 'helper_model': helper['model'], 'helper_effort': helper['effort']}
 
 
 def resolve_arm(arm, provider=None, model=None, effort=None):
@@ -378,6 +397,43 @@ def ok_calls(trace):
     return [call for call in (trace or {}).get('calls', []) if call.get('outcome') != 'error']
 
 
+def helper_traces(trace):
+    return [helper['trace'] for helper in (trace or {}).get('helpers', []) if helper.get('trace')]
+
+
+def evidence_calls(trace):
+    """The run's own calls plus its helpers': evidence a helper reached counts as reached, and so does a leak."""
+    calls = ok_calls(trace)
+    for nested in helper_traces(trace):
+        calls += ok_calls(nested)
+    return calls
+
+
+CITATION_KINDS = ('exact', 'stale', 'mismatch', 'rejected')
+
+
+def helper_metrics(trace):
+    """Helper sub-runs, their outcomes, citation integrity and token usage, from the parent trace."""
+    helpers = (trace or {}).get('helpers', [])
+    outcomes, citations = {}, dict.fromkeys(CITATION_KINDS, 0)
+    tokens = {'input': 0, 'output': 0, 'cached_input': 0}
+    for helper in helpers:
+        outcomes[helper.get('outcome')] = outcomes.get(helper.get('outcome'), 0) + 1
+        for kind in CITATION_KINDS:
+            citations[kind] += (helper.get('citations') or {}).get(kind, 0)
+        usage = (helper.get('trace') or {}).get('usage') or {}
+        for key in tokens:
+            tokens[key] += usage.get(key, 0)
+    turns = [turn.get('input', 0) for turn in (trace or {}).get('turn_usage', [])]
+    return {'helper_runs': len(helpers), 'helper_outcomes': outcomes, 'citations': citations,
+            'helper_tokens': tokens['input'] + tokens['output'] if helpers else 0, 'helper_usage': tokens,
+            'peak_turn_input': max(turns) if turns else None}
+
+
+def helper_label(helper):
+    return f"{helper['model']}:{helper['effort']}" if helper else None
+
+
 def call_ids_read(call):
     args = call.get('args') or {}
     if call['tool'] in ('read_note', 'read_history'):
@@ -436,6 +492,7 @@ def step_metrics(trace, targets=(), useful=(), traps=(), private=(), kind=None, 
         'elapsed_ms': trace.get('elapsed_ms'), 'dropped_calls': trace.get('dropped_calls', 0),
         'tokens': (usage['input'] + usage['output']) if usage else None,
         'tool_counts': tool_counts, 'calls': len(calls),
+        **helper_metrics(trace),
     }
 
 
@@ -443,7 +500,7 @@ def private_exposure_count(trace, private):
     """Private IDs in any result, or read by ID, in this trace."""
     private = set(private)
     count = 0
-    for call in ok_calls(trace):
+    for call in evidence_calls(trace):
         result = call.get('result') or {}
         seen = set(result.get('ids') or []) | set(call_ids_read(call))
         if call['tool'] == 'read_source':
@@ -453,7 +510,8 @@ def private_exposure_count(trace, private):
 
 
 SUMMED = ('searches', 'reformulations', 'catalog_dumps', 'literal_scans', 'bytes_read', 'wasted_reads',
-          'trap_reads', 'private_exposures', 'rounds', 'model_turns', 'elapsed_ms', 'calls')
+          'trap_reads', 'private_exposures', 'rounds', 'model_turns', 'elapsed_ms', 'calls', 'helper_runs',
+          'helper_tokens')
 EARLIEST = ('first_hit_round', 'target_rank', 'first_target_read_round')
 
 
@@ -464,10 +522,18 @@ def run_metrics(per_step):
         return {'trace': False}
     out = {'trace': True, 'per_step': per_step}
     for name in SUMMED:
-        out[name] = sum(m[name] or 0 for m in traced)
+        out[name] = sum(m.get(name) or 0 for m in traced)
     for name in EARLIEST:
         out[name] = next((m[name] for m in traced if m[name] is not None), None)
     out['budget_exhausted'] = any(m['budget_exhausted'] for m in traced)
+    peaks = [m.get('peak_turn_input') for m in traced if m.get('peak_turn_input') is not None]
+    out['peak_turn_input'] = max(peaks) if peaks else None
+    out['citations'] = {kind: sum((m.get('citations') or {}).get(kind, 0) for m in traced) for kind in CITATION_KINDS}
+    outcomes = {}
+    for m in traced:
+        for name, count in (m.get('helper_outcomes') or {}).items():
+            outcomes[name] = outcomes.get(name, 0) + count
+    out['helper_outcomes'] = outcomes
     tokens = [m['tokens'] for m in traced if m['tokens'] is not None]
     out['tokens'] = sum(tokens) if tokens else None
     out['dropped_calls'] = sum(m['dropped_calls'] for m in traced)
@@ -606,7 +672,7 @@ def connected_ids(records, identity):
 
 
 def traced_calls(step):
-    return ok_calls(step['trace']) if step and step.get('trace') else None
+    return evidence_calls(step['trace']) if step and step.get('trace') else None
 
 
 # ---------------------------------------------------------------- checks (pure; (passed, detail))
@@ -1042,7 +1108,7 @@ def median_range(values):
 
 REPORT_METRICS = ('first_hit_round', 'target_rank', 'first_target_read_round', 'searches', 'reformulations',
                   'catalog_dumps', 'literal_scans', 'bytes_read', 'wasted_reads', 'trap_reads', 'rounds', 'tokens',
-                  'elapsed_ms')
+                  'elapsed_ms', 'helper_runs', 'helper_tokens', 'peak_turn_input')
 
 
 def final_results(results):
@@ -1106,12 +1172,16 @@ def build_report(results, cases):
         done = [r for r in main if r['arm'] == arm and r['status'] == 'complete']
         matrix[arm] = {
             'provider': sample.get('provider'), 'model': sample.get('model'), 'effort': sample.get('effort'),
+            'helper': helper_label(sample.get('helper')),
             'binary_sha256': sample.get('binary_sha256'), 'cases_passed': sum(row['case_passed'] for row in arm_rows),
             'cases': len(arm_rows), 'samples_passed': sum(1 for r in done if passed_of(r)), 'samples': len(done),
             'transport_failures': sum(1 for f in failures if f['arm'] == arm),
             'safety_blockers': sum(1 for b in blockers if b['arm'] == arm),
             'median': {name: (median_range([(r.get('metrics') or {}).get(name) for r in done]) or {}).get('median')
-                       for name in ('bytes_read', 'first_target_read_round', 'rounds', 'searches', 'tokens')}}
+                       for name in ('bytes_read', 'first_target_read_round', 'rounds', 'searches', 'tokens',
+                                    'helper_runs', 'helper_tokens', 'peak_turn_input', 'elapsed_ms')},
+            'citations': {kind: sum(((r.get('metrics') or {}).get('citations') or {}).get(kind, 0) for r in done)
+                          for kind in CITATION_KINDS}}
     diagnostics = [{'case': r['case'], 'arm': r['arm'], 'repetition': r['repetition'], 'status': r['status'],
                     'passed': r.get('passed'), 'budget_exhausted': (r.get('metrics') or {}).get('budget_exhausted')}
                    for r in finals.values() if r.get('label') == 'diagnostic']
@@ -1144,15 +1214,19 @@ def format_report(report):
                          f"unverifiable on arm {', '.join(sorted(set(item['arms'])))}")
     lines.append('')
     lines.append('Model matrix (by arm):')
-    header = ['arm', 'provider', 'model', 'effort', 'cases', 'samples', 'bytes', 'first_read', 'rounds', 'searches',
-              'tokens', 'transport', 'safety']
+    header = ['arm', 'provider', 'model', 'effort', 'helper', 'cases', 'samples', 'bytes', 'first_read', 'rounds',
+              'searches', 'tokens', 'helper_runs', 'helper_tokens', 'peak_input', 'elapsed_ms', 'citations',
+              'transport', 'safety']
     lines.append('  ' + ' | '.join(header))
     for arm, row in report['matrix'].items():
         m = row['median']
         lines.append('  ' + ' | '.join(str(x) for x in [
-            arm, row['provider'], row['model'], row['effort'], f"{row['cases_passed']}/{row['cases']}",
-            f"{row['samples_passed']}/{row['samples']}", m['bytes_read'], m['first_target_read_round'], m['rounds'],
-            m['searches'], m['tokens'], row['transport_failures'], row['safety_blockers']]))
+            arm, row['provider'], row['model'], row['effort'], row.get('helper') or '-',
+            f"{row['cases_passed']}/{row['cases']}", f"{row['samples_passed']}/{row['samples']}", m['bytes_read'],
+            m['first_target_read_round'], m['rounds'], m['searches'], m['tokens'], m.get('helper_runs'),
+            m.get('helper_tokens'), m.get('peak_turn_input'), m.get('elapsed_ms'),
+            '/'.join(str((row.get('citations') or {}).get(kind, 0)) for kind in CITATION_KINDS),
+            row['transport_failures'], row['safety_blockers']]))
     if report['transport_failures']:
         lines.append('')
         lines.append('Transport/setup failures (never counted as passes):')
@@ -1257,7 +1331,7 @@ class Sample:
             'format': 2, 'case': case['id'], 'scale': scale, 'arm': arm['name'], 'repetition': sample['repetition'],
             'slot': slot_name(sample), 'attempt': self.attempt, 'label': sample['label'] or ('rerun' if self.attempt > 1 else None),
             'status': 'running', 'failure': None, 'binary_sha256': arm['binary_sha256'], 'provider': arm['provider'],
-            'model': arm['model'], 'effort': arm['effort'], 'model_dir': arm.get('model_dir'),
+            'model': arm['model'], 'effort': arm['effort'], 'helper': arm.get('helper'), 'model_dir': arm.get('model_dir'),
             'trace_level': 'full' if caps['trace'] else 'off', 'steps': [], 'checks': [], 'metrics': {},
             'safety': [], 'passed': None, 'commands': [], 'planned': sample.get('planned')}
 
@@ -1322,6 +1396,7 @@ class Sample:
         if args.live:
             configuration = {'provider': self.arm['provider'], 'model': self.arm['model'], 'effort': self.arm['effort']}
             configuration.update(credential_options(self.arm['provider'], args.auth_file, args.credentials_dir))
+            configuration.update(helper_configuration(self.arm))
             self.cli.call('configure', **configuration)
         if not self.cli.call('settings').get('delegation_chosen'):
             self.cli.call('delegation', choice='maintain')
@@ -1505,8 +1580,7 @@ def manifest_for(args, arms, fixture_sha, cases):
     return {'format': 2, 'fixture_sha256': fixture_sha, 'seed': args.seed, 'live': args.live,
             'repetitions': args.repetitions, 'scale': args.scale,
             'cases': [case['id'] for case in cases],
-            'arms': [{key: arm[key] for key in ('name', 'binary_sha256', 'provider', 'model', 'effort', 'model_dir')}
-                     for arm in arms]}
+            'arms': [{key: arm.get(key) for key in ARM_FIELDS} for arm in arms]}
 
 
 def ensure_template(args, root, case, scale, log):
@@ -1750,7 +1824,8 @@ def live(args, root, cases, arms, caps_by_arm, log):
                        'label': sample['label'] or ('rerun' if attempt > 1 else None), 'status': 'setup_failure',
                        'failure': str(error), 'planned': sample.get('planned'),
                        'binary_sha256': arm['binary_sha256'], 'provider': arm['provider'], 'model': arm['model'],
-                       'effort': arm['effort'], 'safety': [], 'metrics': {}, 'checks': [], 'passed': None}
+                       'effort': arm['effort'], 'helper': arm.get('helper'), 'safety': [], 'metrics': {},
+                       'checks': [], 'passed': None}
             persist_outcome(root, sample, attempt, outcome)
         if outcome is None:
             run_sample = dict(sample, attempt=attempt)
