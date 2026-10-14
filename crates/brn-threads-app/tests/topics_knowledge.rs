@@ -443,6 +443,75 @@ fn host_owned_import_relations_are_not_relation_variants() {
 }
 
 #[test]
+fn retired_notes_links_and_same_group_inputs_are_not_reported() {
+    let (_root, _data, mut ws) = workspace();
+    let n = write(
+        &mut ws,
+        "notes",
+        vec![
+            (None, note("Old list", "Old.\n"), false),
+            (None, note("Page", "Page.\n"), false),
+            (None, note("Fees 2026", "New fees.\n"), false),
+            (None, note("Hub", "Hub.\n"), false),
+        ],
+    );
+    let (old, page, fees, hub) = (&n[0], &n[1], &n[2], &n[3]);
+    write(
+        &mut ws,
+        "links",
+        vec![
+            (None, link(&old.id, &page.id, relations::RELATED), false),
+            (None, link(&fees.id, &old.id, relations::SUPERSEDES), false),
+            (None, link(&hub.id, &old.id, relations::RELATED), false),
+        ],
+    );
+    write(
+        &mut ws,
+        "retire",
+        vec![(Some(old), note("Old list", "Old.\n"), true)],
+    );
+    // Only the hub's link still points at the retired note.
+    let check = ws.knowledge_check().unwrap();
+    assert_eq!(check.counts.get(&FindingKind::BrokenLink), Some(&1));
+    let broken: Vec<_> = check
+        .findings
+        .iter()
+        .filter(|f| f.kind == FindingKind::BrokenLink)
+        .collect();
+    assert!(broken[0].detail.contains("“Hub”"), "{}", broken[0].detail);
+
+    // One group rewrites the page and derives the hub from it.
+    write_with(
+        &mut ws,
+        "together",
+        vec![
+            (Some(page), note("Page", "Page v2.\n"), false),
+            (Some(hub), note("Hub", "Hub from page.\n"), false),
+        ],
+        vec![input(page)],
+    );
+    assert!(
+        !ws.knowledge_check()
+            .unwrap()
+            .counts
+            .contains_key(&FindingKind::StaleInput)
+    );
+    let page = ws.store.record(&page.id).unwrap().unwrap();
+    write(
+        &mut ws,
+        "later",
+        vec![(Some(&page), note("Page", "Page v3.\n"), false)],
+    );
+    assert_eq!(
+        ws.knowledge_check()
+            .unwrap()
+            .counts
+            .get(&FindingKind::StaleInput),
+        Some(&1)
+    );
+}
+
+#[test]
 fn archived_chat_material_and_chat_links_are_not_reported_as_broken() {
     let (_root, _data, mut ws) = workspace();
     let chat = ws.new_thread("Private").unwrap().id;
