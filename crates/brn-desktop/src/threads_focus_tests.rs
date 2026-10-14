@@ -287,8 +287,8 @@ fn composer_drafts_follow_home_and_each_thread(cx: &mut TestAppContext) {
     cx.run_until_parked();
     cx.update_window(window, |_, window, _| {
         assert_eq!(
-            window.find("composer-destination").label(),
-            Some("Reply to missing-thread")
+            window.find("tile-title-chat").label(),
+            Some("chat · missing-thread")
         );
     })
     .unwrap();
@@ -374,8 +374,8 @@ fn worker_controls_match_real_cancellation_capabilities(cx: &mut TestAppContext)
             assert_eq!(window.try_find("stop-work").is_some(), cancellable);
             assert_eq!(window.find("worker-status").label(), Some(expected_status));
             assert_eq!(
-                window.find("composer-destination").label(),
-                Some("New standalone chat")
+                window.find("tile-title-chat").label(),
+                Some("chat · new chat")
             );
             if cancellable {
                 window.click("stop-work", cx);

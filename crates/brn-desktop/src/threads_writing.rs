@@ -457,24 +457,33 @@ impl ThreadsUi {
         let p = pal();
         let this = cx.entity().downgrade();
         let busy = self.worker.is_some();
-        let destination = match &self.chat {
-            ChatTarget::Thread(id) if self.thread_resolved(id) => format!(
-                "Archived · {} · Unarchive to reply",
-                short(&self.thread_title(id))
-            ),
-            ChatTarget::Thread(id) => format!("Reply to {}", short(&self.thread_title(id))),
-            ChatTarget::NewForNote(note) => format!(
-                "New chat about {}",
-                self.note_rows
-                    .iter()
-                    .find(|row| &row.id == note)
-                    .map_or_else(|| note.clone(), |row| short(&row.title))
-            ),
-            ChatTarget::New => "New standalone chat".into(),
-        };
+        let archived = self.chat_thread().filter(|id| self.thread_resolved(id));
+        let quiet = self.queue_state().quiet;
         let model_this = this.clone();
         let effort_this = this.clone();
         let add_this = this.clone();
+        let quiet_control = button("chat-quiet")
+                .ghost()
+                .icon(if quiet { gpui_kit::component::IconName::EyeOff } else { gpui_kit::component::IconName::Eye })
+                .w(px(28.)).h(px(28.))
+                .accessibility_label(if quiet { "Quiet on · show activity" } else { "Quiet off · hide activity" })
+                .toggled(quiet)
+                .selected(quiet)
+                .tooltip(if quiet {
+                    "Quiet is on · click to show activity. Answers, Stop, errors and decisions stay visible."
+                } else {
+                    "Quiet is off · click to hide routine activity. Answers, Stop, errors and decisions stay visible."
+                })
+                .on_click(cx.listener(|this, _, _, cx| {
+                    let quiet = !this.queue_state().quiet;
+                    if let Err(e) = this
+                        .workspace
+                        .choose_quiet(&format!("quiet:{}", uuid::Uuid::new_v4()), quiet)
+                    {
+                        this.notice = e.to_string();
+                    }
+                    cx.notify();
+                }));
         let can_steer = self.can_stop_and_send();
         div()
             .id("composer-tile")
@@ -512,49 +521,22 @@ impl ThreadsUi {
             .flex_col()
             .flex_shrink_0()
             .gap_1()
-            .p_2()
+            .px_2()
+            .py_1()
             .bg(rgb(p.alt))
             .border_t_1()
             .border_color(rgb(p.border))
-            .child(
-                div()
-                    .id("composer-destination")
-                    .font_family(UI_FONT)
-                    .text_size(SMALL_TEXT)
-                    .text_color(rgb(p.muted))
-                    .aria_label(destination.clone())
-                    .child(destination)
-                    .test_support(),
-            )
+            .when_some(archived, |composer, _| {
+                composer.child(
+                    metadata("Archived · Unarchive to reply")
+                        .id("composer-destination")
+                        .aria_label("Archived · Unarchive to reply")
+                        .test_support(),
+                )
+            })
             .child(self.composer_controls(cx))
             .child(
-                pill(
-                    "chat-quiet",
-                    if self.queue_state().quiet {
-                        "Quiet · on · answers only"
-                    } else {
-                        "Quiet · off · show activity"
-                    },
-                )
-                .selected(self.queue_state().quiet)
-                .tooltip(if self.queue_state().quiet {
-                    "Hide routine activity throughout the window. Answers, Stop, errors and decisions stay visible."
-                } else {
-                    "Show recent activity while BRN works."
-                })
-                .on_click(cx.listener(|this, _, _, cx| {
-                    let quiet = !this.queue_state().quiet;
-                    if let Err(e) = this
-                        .workspace
-                        .choose_quiet(&format!("quiet:{}", uuid::Uuid::new_v4()), quiet)
-                    {
-                        this.notice = e.to_string();
-                    }
-                    cx.notify();
-                })),
-            )
-            .child(
-                div().h(px(84.)).child(
+                div().h(px(64.)).child(
                     prose_editor(&self.composer)
                         .h_full()
                         .aria_label("Ask or delegate"),
@@ -628,6 +610,7 @@ impl ThreadsUi {
                                 None => menu,
                             }),
                     )
+                    .child(quiet_control)
                     .when(can_steer, |row| {
                         row.child(
                             pill("chat-steer", "Steer")

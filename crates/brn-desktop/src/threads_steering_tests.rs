@@ -471,6 +471,11 @@ fn quiet_toggle_removes_activity_from_every_live_status_without_changing_work(
             window.find("run-activity-step-0").label(),
             Some("Finding current notes…")
         );
+        assert_eq!(
+            window.find("chat-quiet").label(),
+            Some("Quiet off · hide activity")
+        );
+        assert!(window.try_find("composer-destination").is_none());
         window.click("chat-quiet", cx);
     })
     .unwrap();
@@ -490,6 +495,10 @@ fn quiet_toggle_removes_activity_from_every_live_status_without_changing_work(
                 .label()
                 .unwrap()
                 .contains("Working quietly")
+        );
+        assert_eq!(
+            window.find("chat-quiet").label(),
+            Some("Quiet on · show activity")
         );
         assert!(window.find("run-stop").visible());
         assert!(window.find("stop-work").visible());

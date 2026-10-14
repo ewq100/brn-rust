@@ -492,7 +492,8 @@ impl ThreadsUi {
         let composer = cx.new(|cx| {
             EditorState::new(window, cx)
                 .submit_on_enter(true)
-                .placeholder("Ask or delegate…  ↵ send / queue · ⇧↵ new line")
+                .line_number(false)
+                .placeholder("Ask or delegate…")
         });
         let note_editor = cx.new(|cx| EditorState::new(window, cx).default_value(""));
         let diff_editor = cx.new(|cx| EditorState::new(window, cx).default_value(""));

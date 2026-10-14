@@ -52,3 +52,9 @@ Owner approved the proposed polish pass and requested a rebuilt native preview. 
 - [x] Verification: native mouse journey through logo, primary and secondary destinations, chat filters, Settings dismissal and explicit splits; existing draft/review/layout regressions; strict lint, native build, formatting, links. Independent read-only review and synthetic preview observation. Update canonical presentation contract and evidence.
 
 Review focus: destinations remain reachable by keyboard and mouse; Recent/All/Archived switches reuse navigation and preserve selected chat/draft; active styling follows focus; titles and controls fit at narrow sizes; code remains monospace and prose remains readable. No provider calls, owner data, publication or merge.
+
+## Compact chat composer follow-up
+
+Owner accepted the overall layout and requested only composer compaction; the suggested navigation toggle/double-click behavior was explicitly withdrawn. Baseline `0755ddbc`. Remove ordinary repeated Reply/New-chat destination text (retain actionable archived warning), move Quiet to an accessible eye/hidden-eye icon beside model controls with state-specific tooltips, reduce padding/input height and remove the prompt's line-number gutter. Keep queue/attachments, send/steer, draft and keyboard behavior. Verify existing native composer/quiet/queue journeys, strict lint/build and synthetic native preview; obtain independent read-only review. No navigation or service changes.
+
+Compact composer implementation, automated checks, independent review and representative native observation are complete; see [evidence](evidence.md).
