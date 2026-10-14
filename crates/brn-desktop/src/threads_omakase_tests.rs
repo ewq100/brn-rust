@@ -652,7 +652,7 @@ fn notes_tile_sections_letters_and_filter_stay_bounded_with_many_notes(cx: &mut 
 }
 
 #[gpui_kit::test]
-fn comment_is_disabled_with_reason_while_the_note_has_an_unsaved_edit(cx: &mut TestAppContext) {
+fn dirty_note_requires_an_explicit_save_before_commenting(cx: &mut TestAppContext) {
     let mut note = None;
     let f = fixture(cx, |workspace| {
         note = Some(workspace.new_note("Anchored", "tere tere õun").unwrap());
@@ -699,8 +699,6 @@ fn comment_is_disabled_with_reason_while_the_note_has_an_unsaved_edit(cx: &mut T
                 .contains("unsaved")
         );
     });
-    click(cx, &f, "selection-comment");
-    cx.read(|cx| assert!(f.view.read(cx).comment_anchor.is_none(), "disabled control"));
     press(cx, &f, "cmd-/");
     cx.read(|cx| {
         let view = f.view.read(cx);
@@ -722,13 +720,27 @@ fn comment_is_disabled_with_reason_while_the_note_has_an_unsaved_edit(cx: &mut T
         )
     });
     press(cx, &f, "escape");
-    click(cx, &f, "status-save");
+    click(cx, &f, "selection-comment");
     cx.read(|cx| {
         let view = f.view.read(cx);
         assert!(
             view.note.as_ref().unwrap().session.is_none(),
-            "status bar saves"
+            "Save and comment saves before opening the composer"
         );
+        let anchor = view
+            .comment_anchor
+            .as_ref()
+            .expect("saved passage composer");
+        assert_eq!(anchor.1, note.version + 1);
+        assert_eq!(anchor.2, 0..4);
+        assert_eq!(anchor.3, "tere");
+        assert!(
+            view.workspace
+                .writing_comments(&note.id)
+                .unwrap()
+                .is_empty()
+        );
+        assert!(view.worker.is_none());
     });
 }
 
@@ -809,6 +821,31 @@ fn review_in_place_applies_exact_candidate_then_marks_addressed_and_undoes(
         assert!(window.find("review-bar").visible());
         assert!(window.try_find("note-body").is_none());
         assert_eq!(window.find("apply-final").label(), Some("Apply whole note"));
+        assert!(window.find("writing-feedback").visible());
+    });
+    click(cx, &f, "review-read-result");
+    update(cx, &f, |view, window, cx| {
+        assert!(view.review_reading);
+        assert!(
+            view.candidate_view
+                .read(cx)
+                .focus_handle()
+                .is_focused(window)
+        );
+        assert!(!view.diff_editor.focus_handle(cx).is_focused(window));
+        assert_eq!(
+            view.review.as_ref().unwrap().candidate.operation.as_str(),
+            op
+        );
+    });
+    click(cx, &f, "review-read-result");
+    update(cx, &f, |view, window, cx| {
+        assert!(!view.review_reading);
+        assert!(view.diff_editor.focus_handle(cx).is_focused(window));
+        assert_eq!(
+            view.review.as_ref().unwrap().candidate.operation.as_str(),
+            op
+        );
     });
     click(cx, &f, "review-compare");
     on_window(cx, &f, |window, _| {

@@ -47,6 +47,10 @@ mod connections_view;
 mod context_actions;
 #[path = "threads_diff.rs"]
 mod diff;
+#[path = "threads_document.rs"]
+mod document;
+#[path = "threads_format.rs"]
+mod formatting;
 #[path = "threads_layout.rs"]
 mod layout;
 #[path = "threads_lists.rs"]
@@ -91,6 +95,10 @@ mod steering_tests;
 #[cfg(all(test, feature = "native-test-support"))]
 #[path = "threads_writing_tests.rs"]
 mod writing_tests;
+
+#[cfg(all(test, feature = "native-test-support"))]
+#[path = "threads_document_tests.rs"]
+mod document_tests;
 
 #[cfg(all(test, feature = "native-test-support"))]
 #[path = "threads_tiled_tests.rs"]
@@ -401,6 +409,11 @@ struct ThreadsUi {
     attaching_chat: Option<String>,
     editing_queue: Option<String>,
     note_editor: Entity<EditorState>,
+    note_read_view: Entity<TextViewState>,
+    note_reading: bool,
+    read_marks_key: String,
+    read_source: String,
+    review_reading: bool,
     comment_marks: Option<RangeDecorationCollection>,
     diff_editor: Entity<EditorState>,
     diff_marks: Option<TextDecorationCollection>,
@@ -484,6 +497,11 @@ impl ThreadsUi {
                 .placeholder("Ask or delegate…  ↵ send / queue · ⇧↵ new line")
         });
         let note_editor = cx.new(|cx| EditorState::new(window, cx).default_value(""));
+        let note_read_view = cx.new(|cx| {
+            TextViewState::markdown("", cx)
+                .selectable(true)
+                .scrollable(true)
+        });
         let diff_editor = cx.new(|cx| EditorState::new(window, cx).default_value(""));
         diff_editor.update(cx, |editor, cx| editor.set_readonly(true, cx));
         let review_editor = cx.new(|cx| EditorState::new(window, cx).default_value(""));
@@ -522,6 +540,12 @@ impl ThreadsUi {
                 .placeholder("Credentials folder (optional)")
         });
         let subscriptions = vec![
+            cx.observe_in(&note_read_view, window, |this, _, _, cx| {
+                if this.note_reading && this.review.is_none() {
+                    this.track_selection(cx);
+                    cx.notify();
+                }
+            }),
             cx.subscribe_in(
                 &composer,
                 window,
@@ -537,7 +561,8 @@ impl ThreadsUi {
                 |this, editor, event: &InputEvent, _, cx| {
                     if matches!(event, InputEvent::Change) && this.note_editor_visible() {
                         this.note_changed(editor.read(cx).value().to_string());
-                        this.selection = None;
+                        this.sync_read_text(cx);
+                        this.track_selection(cx);
                         cx.notify();
                     }
                 },
@@ -638,6 +663,11 @@ impl ThreadsUi {
             attaching_chat: None,
             editing_queue: None,
             note_editor,
+            note_read_view,
+            note_reading: false,
+            read_marks_key: String::new(),
+            read_source: String::new(),
+            review_reading: false,
             comment_marks: None,
             diff_editor,
             diff_marks: None,
@@ -796,6 +826,7 @@ impl ThreadsUi {
     }
     fn note_editor_visible(&self) -> bool {
         self.review.is_none()
+            && !self.note_reading
             && self.note.is_some()
             && self.note_tile_visible()
             && !self.recovery_blocked()
@@ -818,6 +849,12 @@ impl ThreadsUi {
         {
             self.review_editor
                 .update(cx, |editor, cx| editor.focus(window, cx));
+        } else if self.note_reading && self.review.is_none() && self.note_tile_visible() {
+            self.note_read_view
+                .read(cx)
+                .focus_handle()
+                .clone()
+                .focus(window, cx);
         } else if self.note_editor_visible() {
             self.note_editor
                 .update(cx, |editor, cx| editor.focus(window, cx));
@@ -1026,6 +1063,7 @@ impl ThreadsUi {
                 self.selection = None;
                 self.note_editor
                     .update(cx, |editor, cx| editor.set_value(text.clone(), window, cx));
+                self.sync_read_text(cx);
                 self.current_view
                     .update(cx, |view, cx| view.set_text(&note.markdown, cx));
                 self.restore_comment_draft(id, window, cx);
@@ -1175,15 +1213,24 @@ impl ThreadsUi {
     /// Track the current text selection for the selection strip.
     fn track_selection(&mut self, cx: &mut Context<Self>) {
         let editor = self.note_editor.read(cx);
-        let range = editor.selected_range();
-        let selection = (range.start < range.end)
-            .then(|| {
+        let range = if self.note_reading {
+            let view = self.note_read_view.read(cx);
+            if view.rendered_text().source() != editor.value().as_ref() {
+                None
+            } else {
+                view.selected_source_range()
+            }
+        } else {
+            Some(editor.selected_range())
+        };
+        let selection = range
+            .filter(|range| range.start < range.end)
+            .and_then(|range| {
                 editor
                     .value()
                     .get(range.clone())
-                    .map(|quote| (range.clone(), quote.to_owned()))
-            })
-            .flatten();
+                    .map(|quote| (range, quote.to_owned()))
+            });
         if selection != self.selection {
             self.selection = selection;
             cx.notify();
@@ -1201,7 +1248,14 @@ impl ThreadsUi {
         let RecordData::Note(note) = &open.record.data else {
             return;
         };
-        let range = self.note_editor.read(cx).selected_range();
+        let range = if self.note_reading {
+            self.selection
+                .as_ref()
+                .map(|(range, _)| range.clone())
+                .unwrap_or(0..0)
+        } else {
+            self.note_editor.read(cx).selected_range()
+        };
         if self.note_editor.read(cx).value().as_ref() == note.markdown
             && range.start < range.end
             && let Some(quote) = note.markdown.get(range.clone())
@@ -1248,6 +1302,22 @@ impl ThreadsUi {
     fn reveal(&mut self, range: Range<usize>, window: &mut Window, cx: &mut Context<Self>) {
         if self.note.is_some() {
             self.layout.open(TileKind::Note);
+            if self.note_reading {
+                let rendered = self.note_read_view.read(cx).rendered_text();
+                if let Some(target) = rendered.range_for_source(range.clone()) {
+                    self.note_read_view.update(cx, |view, cx| {
+                        let _ = view.reveal_range(target, cx);
+                    });
+                    self.note_read_view
+                        .read(cx)
+                        .focus_handle()
+                        .clone()
+                        .focus(window, cx);
+                    cx.notify();
+                    return;
+                }
+                self.set_note_reading(false, window, cx);
+            }
             self.note_editor.update(cx, |editor, cx| {
                 editor.set_selected_range(range, cx);
                 editor.focus(window, cx);
@@ -2153,6 +2223,7 @@ impl ThreadsUi {
         });
         self.review_editing = false;
         self.review_inputs = false;
+        self.review_reading = false;
         self.review_editor
             .update(cx, |e, cx| e.set_value(text.clone(), window, cx));
         self.current_view
@@ -2273,6 +2344,7 @@ impl ThreadsUi {
             open.record = record;
             self.selection = None;
         }
+        self.sync_read_text(cx);
         self.refresh();
         self.sync_note_marks(cx);
         self.focus_visible_editor(window, cx);

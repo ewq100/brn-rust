@@ -354,11 +354,7 @@ impl ThreadsUi {
                 .h_full()
                 .min_h_0()
                 .min_w(px(kind.min_width()
-                    + if kind == TileKind::Note
-                        && self.margin
-                        && self.review.is_none()
-                        && self.note.is_some()
-                    {
+                    + if kind == TileKind::Note && self.margin && self.note.is_some() {
                         250.
                     } else {
                         0.

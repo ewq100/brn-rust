@@ -863,6 +863,8 @@ impl ThreadsUi {
         if self.review.is_some() {
             return self.review_body(cx);
         }
+        self.sync_read_text(cx);
+        self.sync_read_marks(cx);
         let p = pal();
         let Some(open) = &self.note else {
             return scroll("note-empty-state")
@@ -896,7 +898,8 @@ impl ThreadsUi {
             .size_full()
             .flex()
             .flex_col()
-            .min_h_0();
+            .min_h_0()
+            .child(self.document_toolbar(cx));
         let mut banners = div()
             .flex()
             .flex_col()
@@ -1054,51 +1057,64 @@ impl ThreadsUi {
         if let Some((_, quote)) = &self.selection
             && !blocked
         {
-            let mut strip =
-                div()
-                    .id("selection-toolbar")
-                    .flex()
-                    .flex_wrap()
-                    .items_center()
-                    .gap_1()
-                    .mx_3()
-                    .mt_1()
-                    .px_2()
-                    .py_1()
-                    .bg(rgb(p.alt))
-                    .border_1()
-                    .border_color(rgb(p.border))
-                    .text_xs()
-                    .child(
-                        div()
-                            .flex_1()
-                            .min_w_0()
-                            .overflow_hidden()
-                            .whitespace_nowrap()
-                            .child(format!("❝ {}", short(quote))),
+            let mut strip = div()
+                .id("selection-toolbar")
+                .flex()
+                .flex_wrap()
+                .items_center()
+                .gap_1()
+                .mx_3()
+                .mt_1()
+                .px_2()
+                .py_1()
+                .bg(rgb(p.alt))
+                .border_1()
+                .border_color(rgb(p.border))
+                .text_xs()
+                .child(
+                    div()
+                        .flex_1()
+                        .min_w_0()
+                        .overflow_hidden()
+                        .whitespace_nowrap()
+                        .child(format!("❝ {}", short(quote))),
+                )
+                .child(
+                    pill(
+                        "selection-comment",
+                        if dirty {
+                            "Save and comment"
+                        } else {
+                            "Comment ⌘/"
+                        },
                     )
-                    .child(
-                        pill("selection-comment", "Comment ⌘/")
-                            .disabled(dirty)
-                            .tooltip(if dirty {
-                                "Save first: comments anchor to the saved version"
-                            } else {
-                                "Comment on this passage"
-                            })
-                            .on_click(cx.listener(|this, _, window, cx| {
-                                this.comment_on_selection(window, cx)
-                            })),
-                    )
-                    .child(pill("selection-ask", "Ask in chat").on_click(
-                        cx.listener(|this, _, window, cx| this.ask_about_selection(window, cx)),
-                    ));
+                    .tooltip(if dirty {
+                        "Save this edit, then comment on the same passage"
+                    } else {
+                        "Comment on this passage"
+                    })
+                    .on_click(cx.listener(|this, _, window, cx| {
+                        if this
+                            .note
+                            .as_ref()
+                            .is_some_and(|note| note.session.is_some())
+                        {
+                            this.save_and_comment(window, cx)
+                        } else {
+                            this.comment_on_selection(window, cx)
+                        }
+                    })),
+                )
+                .child(pill("selection-ask", "Ask in chat").on_click(
+                    cx.listener(|this, _, window, cx| this.ask_about_selection(window, cx)),
+                ));
             if dirty {
                 strip = strip.child(
                     div()
                         .id("selection-comment-reason")
                         .w_full()
                         .text_color(rgb(p.muted))
-                        .child("Comment is unavailable with an unsaved edit: comments anchor to the saved version. Save (⌘S) first.")
+                        .child("Your edit is recoverable. Save and comment commits it before anchoring feedback to this passage.")
                         .test_support(),
                 );
             }
@@ -1128,7 +1144,9 @@ impl ThreadsUi {
                 ),
             );
         }
-        content = content.child(nav);
+        if !self.note_reading {
+            content = content.child(nav);
+        }
         let editor = prose_editor(&self.note_editor)
             .h_full()
             .readonly(blocked)
@@ -1150,13 +1168,22 @@ impl ThreadsUi {
                 .menu_with_disabled("Paste", blocked, Box::new(gpui_kit::base::input::Paste))
                 .separator()
                 .menu("Select All", Box::new(gpui_kit::base::input::SelectAll))
-            });
+            })
+            .into_any_element();
+        let editor = if self.note_reading {
+            super::document::readable_document(&self.note_read_view, self.note_assets())
+                .into_any_element()
+        } else {
+            editor
+        };
         let mut body = div().flex().flex_1().min_h_0().gap_2().p_2().child(
             div()
                 .id("note-body")
                 .flex_1()
                 .min_w_0()
                 .min_h_0()
+                .px_3()
+                .py_2()
                 .child(editor)
                 .on_mouse_up(
                     gpui_kit::MouseButton::Left,
@@ -1192,7 +1219,24 @@ impl ThreadsUi {
             .overflow_y_scroll()
             .flex()
             .flex_col()
-            .gap_2();
+            .gap_3()
+            .pl_2()
+            .border_l_1()
+            .border_color(rgb(p.border))
+            .child(
+                div()
+                    .flex()
+                    .items_center()
+                    .justify_between()
+                    .gap_2()
+                    .child(
+                        div()
+                            .text_sm()
+                            .font_weight(gpui_kit::FontWeight::MEDIUM)
+                            .child("Passage comments"),
+                    )
+                    .child(metadata("Feedback")),
+            );
         if let Some((anchor_note, version, _, quote)) = &self.comment_anchor
             && anchor_note == &note_id
         {
@@ -1202,13 +1246,12 @@ impl ThreadsUi {
                     .flex()
                     .flex_col()
                     .gap_1()
-                    .p_2()
+                    .p_3()
                     .border_1()
                     .border_color(rgb(p.accent))
                     .bg(rgb(p.tile))
                     .child(
                         div()
-                            .font_family(MONO)
                             .text_xs()
                             .text_color(rgb(p.muted))
                             .child(format!("anchors to saved v{version}")),
@@ -1256,7 +1299,7 @@ impl ThreadsUi {
                     .test_support(),
             );
         }
-        let (comments, feedback_error) = match self.workspace.writing_comments(&note_id) {
+        let (mut comments, feedback_error) = match self.workspace.writing_comments(&note_id) {
             Ok(comments) => (comments, None),
             Err(error) => (
                 vec![],
@@ -1268,6 +1311,16 @@ impl ThreadsUi {
         if let Some(error) = feedback_error {
             margin = margin.child(error);
         }
+        comments.sort_by_key(|entry| {
+            let start = match &entry.record.data {
+                RecordData::Comment(comment) => {
+                    comment_location(comment, open.record.version, &note.markdown)
+                        .map_or(usize::MAX, |range| range.start)
+                }
+                _ => usize::MAX,
+            };
+            (entry.addressed, start, entry.record.id.clone())
+        });
         let applied = self
             .applied_rewrite
             .get(&note_id)
@@ -1299,16 +1352,17 @@ impl ThreadsUi {
                     open.record.version
                 )
             } else if checked {
-                format!("v{} · in next rewrite", comment.base_version)
+                "Included in next rewrite".into()
             } else {
-                format!("v{} · excluded from rewrite", comment.base_version)
+                "Excluded from next rewrite".into()
             };
             let card = div()
                 .id(format!("comment-card-{id}"))
                 .flex()
                 .flex_col()
-                .gap_1()
-                .p_2()
+                .gap_2()
+                .p_3()
+                .rounded_md()
                 .border_1()
                 .border_color(rgb(if location.is_some() && !entry.addressed {
                     p.border
@@ -1316,13 +1370,7 @@ impl ThreadsUi {
                     p.alt
                 }))
                 .bg(rgb(if entry.addressed { p.alt } else { p.tile }))
-                .child(
-                    div()
-                        .font_family(MONO)
-                        .text_xs()
-                        .text_color(rgb(p.muted))
-                        .child(status),
-                )
+                .child(div().text_xs().text_color(rgb(p.muted)).child(status))
                 .child(div().text_sm().child(comment.body.clone()))
                 .child(
                     div()
@@ -1337,11 +1385,7 @@ impl ThreadsUi {
                 actions = actions.child(
                     pill(
                         format!("include-comment-{id}"),
-                        if checked {
-                            "☑ rewrite"
-                        } else {
-                            "☐ rewrite"
-                        },
+                        if checked { "Included" } else { "Include" },
                     )
                     .tooltip(if checked {
                         "Exclude from the next rewrite"
@@ -1360,7 +1404,7 @@ impl ThreadsUi {
             if let Some(range) = location {
                 actions = actions.child(
                     pill(format!("reveal-comment-{id}"), "show passage")
-                        .disabled(dirty)
+                        .disabled(dirty || self.review.is_some())
                         .on_click(cx.listener(move |this, _, window, cx| {
                             this.reveal(range.clone(), window, cx)
                         })),
@@ -1403,8 +1447,8 @@ impl ThreadsUi {
             .gap_1()
             .px_3()
             .py_1()
-            .font_family(MONO)
-            .text_xs()
+            .font_family(".SystemUIFont")
+            .text_sm()
             .bg(rgb(p.alt))
             .border_t_1()
             .border_color(rgb(p.border));
@@ -1594,7 +1638,7 @@ impl ThreadsUi {
                 div()
                     .id("rewrite-scope")
                     .child(format!(
-                        "{included} comment{} · {messages} chat message{}",
+                        "Whole note · {included} comment{} · {messages} chat message{}",
                         if included == 1 { "" } else { "s" },
                         if messages == 1 { "" } else { "s" }
                     ))
@@ -1704,6 +1748,20 @@ impl ThreadsUi {
                     .on_click(cx.listener(|this, _, _, cx| this.show_tile(TileKind::Compare, cx))),
             );
         if review.note.is_some() {
+            bar = bar.child(
+                pill(
+                    "review-read-result",
+                    if self.review_reading {
+                        "Show changes"
+                    } else {
+                        "Read result"
+                    },
+                )
+                .disabled(self.review_editing)
+                .on_click(cx.listener(|this, _, window, cx| {
+                    this.set_review_reading(!this.review_reading, window, cx)
+                })),
+            );
             bar = if self.review_editing {
                 bar.child(
                     pill("prepare-final", "use this text")
@@ -1878,6 +1936,9 @@ impl ThreadsUi {
                 .h_full()
                 .aria_label("Final proposed note text")
                 .into_any_element()
+        } else if self.review_reading {
+            super::document::readable_document(&self.candidate_view, self.note_assets())
+                .into_any_element()
         } else {
             prose_editor(&self.diff_editor)
                 .h_full()
@@ -1904,6 +1965,20 @@ impl ThreadsUi {
                 ))
                 .unwrap_or_default()
         );
+        let mut document = div()
+            .flex()
+            .size_full()
+            .min_h_0()
+            .min_w_0()
+            .child(div().flex_1().min_w_0().h_full().child(body));
+        if self.margin
+            && self
+                .note
+                .as_ref()
+                .is_some_and(|open| review.note.as_deref() == Some(open.record.id.as_str()))
+        {
+            document = document.child(self.margin_column(cx));
+        }
         div()
             .id("review-panel")
             .size_full()
@@ -1918,7 +1993,7 @@ impl ThreadsUi {
                     .flex_1()
                     .min_h_0()
                     .p_2()
-                    .child(body)
+                    .child(document)
                     .test_support(),
             )
             .child(
