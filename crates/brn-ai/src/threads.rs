@@ -41,8 +41,8 @@ pub use trace::{HelperTrace, RunTrace, TraceCall, TraceLevel, TraceUsage};
 mod sources;
 use history::{HistoryArgs, RefreshArgs};
 pub use note_search::{
-    ConnectionHop, ConnectionNode, MAX_SEARCH_LIMIT, NoteNeighbourhood, NoteSearchError,
-    NoteSearchPage, NoteSearchResult, RunNoteSearch,
+    ConnectionHop, ConnectionLink, ConnectionNode, MAX_SEARCH_LIMIT, NoteNeighbourhood,
+    NoteSearchError, NoteSearchPage, NoteSearchResult, RunNoteSearch,
 };
 pub use sources::{TransientAsset, TransientSource};
 #[cfg(test)]
@@ -118,6 +118,9 @@ pub struct ThreadResult {
     pub trace: Option<RunTrace>,
     /// Host notices for the owner, such as an unavailable helper.
     pub notices: Vec<String>,
+    /// Identical re-sends of a model request that was not processed, at
+    /// most `RUN_RESENDS`, recorded whatever the trace level.
+    pub provider_resends: Vec<crate::AiFailureDetail>,
 }
 /// One prepared invocation. It owns its request and authority; consuming it
 /// starts at most one worker. Only the durable exact Run ID is exposed.
@@ -469,7 +472,7 @@ impl Tool for NoteConnections {
     type Output = Value;
     type Error = AiError;
     fn description(&self) -> String {
-        "List a visible note's recorded neighbourhood: linked notes (and optionally sources) with relation names and directions, at most 8 per hop with exact available counts. hops=2 adds neighbours of the listed neighbours.".into()
+        "List a visible note's recorded neighbourhood: linked notes (and optionally sources) with relation names and directions and every Link record behind them (`links`: id, current version for `expected_version`, relation), at most 8 per hop with exact available counts. hops=2 adds neighbours of the listed neighbours.".into()
     }
     fn parameters(&self) -> Value {
         schema(Self::NAME)
@@ -1449,20 +1452,21 @@ async fn provider_client(
     credentials_dir: Option<&std::path::Path>,
     cache_key: Option<&str>,
     transport: Option<DynHttpClient>,
+    on_resend: crate::resend::OnResend,
     cancel: &CancellationToken,
 ) -> AiResult<ProviderClient> {
+    let http = crate::resend::ResendOnce::wrap(
+        transport.unwrap_or_else(|| DynHttpClient::new(rig::rig_reqwest::shared())),
+        crate::resend::RESEND_DELAY,
+        on_resend,
+    );
     // A Codex auth file only serves ChatGPT; Copilot always uses its credentials folder.
     let codex_file = auth_file.filter(|_| selection.provider == Provider::Chatgpt);
     if let Some(file) = codex_file {
-        let http = transport.unwrap_or_else(|| DynHttpClient::new(rig::rig_reqwest::shared()));
         crate::codex_auth::codex_client_pinned(file, selection, cache_key, http, cancel.clone())
             .await
     } else if let Some(dir) = credentials_dir {
-        let auth = Auth::open(dir)?;
-        let auth = match transport {
-            Some(http) => auth.with_http(http),
-            None => auth,
-        };
+        let auth = Auth::open(dir)?.with_http(http);
         auth.client_pinned(selection, cache_key, cancel.clone())
             .await
     } else {
@@ -1499,6 +1503,7 @@ async fn run_prepared_over(
             trace: finish_trace(&scope, &answer),
             notices: Vec::new(),
             answer,
+            provider_resends: Vec::new(),
         });
     }
     let watched = scope.clone();
@@ -1522,12 +1527,24 @@ async fn run_prepared_over(
     if let Some(helper) = &scope.helper {
         helper.set_source(research::HelperSource::Provider(transport.clone()));
     }
+    let trace = scope.trace.clone();
+    let resends = Arc::new(std::sync::Mutex::new(Vec::new()));
+    let resent = resends.clone();
+    let on_resend: crate::resend::OnResend = Arc::new(move |detail| {
+        if let Ok(mut resent) = resent.lock() {
+            resent.push(detail.clone());
+        }
+        if let Some(trace) = &trace {
+            trace.retry(detail);
+        }
+    });
     let client = provider_client(
         &request.selection,
         request.auth_file.as_deref(),
         request.credentials_dir.as_deref(),
         scope.cache_key.as_deref(),
         transport,
+        on_resend,
         &cancel,
     )
     .await;
@@ -1584,6 +1601,7 @@ async fn run_prepared_over(
         trace: finish_trace(&scope, &answer),
         notices: notices(&scope),
         answer,
+        provider_resends: resends.lock().map(|r| r.clone()).unwrap_or_default(),
     })
 }
 fn notices(scope: &Scope) -> Vec<String> {
@@ -1641,6 +1659,7 @@ pub async fn run_prepared_scripted_with_helpers(
         trace: finish_trace(&scope, &answer),
         notices: notices(&scope),
         answer,
+        provider_resends: Vec::new(),
     })
 }
 fn finish_trace(scope: &Scope, answer: &AiAnswer) -> Option<RunTrace> {
@@ -1648,11 +1667,15 @@ fn finish_trace(scope: &Scope, answer: &AiAnswer) -> Option<RunTrace> {
     if matches!(answer.terminal, AiTerminal::Interrupted) {
         trace.stop("cancelled");
     }
-    Some(trace.finish(
+    let mut finished = trace.finish(
         crate::threads_guides::BUNDLE_VERSION,
         scope.search.is_some(),
         scope.max_rounds,
-    ))
+    );
+    if let AiTerminal::Failed(error) = &answer.terminal {
+        finished.failure = Some(error.clone());
+    }
+    Some(finished)
 }
 fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
     request.selection.validate()?;

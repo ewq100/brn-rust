@@ -712,3 +712,119 @@ An independent review of the prototype found six Medium issues; they were fixed 
 - Quality is the same as `main` on these cases. The host context cuts searching by about 3.5× and effective S1 cost by about 28%.
 - S2's remaining misses are shared, so they are agent behaviour rather than a regression.
 - `Failed:Other` occurred at the same step in both arms. It is unrelated to this change. It is an unclassified provider error whose detail BRN does not keep; that is a follow-up.
+
+## Knowledge review Link IDs (14 October 2026)
+
+**Diagnosis.** Recorded S2 runs (bundle 9) failed for two reasons. Both were information gaps in host output.
+
+- The RelationVariant finding carried no records, and `note_connections` returned relation names without Link IDs. Agents said they could not find the `relates-to` Link ID. They spent rounds hunting for it, and some runs hit the 8-round limit before applying anything.
+- Marking "Coop membership fees 2025" as superseded left "Bicycle coop"'s `related` link to it, which the check counts as a BrokenLink. The finding never said which notes link the older note, or that the linking note already links the replacement.
+
+**Changes (bundle `brn-threads-guidance-10`):**
+
+- **Knowledge-check findings** (`crates/brn-threads-app/src/knowledge.rs`) now carry Link IDs and versions:
+  - RelationVariant lists the "Links to rename".
+  - Supersession records the inbound Link IDs, with "Other notes link the older note" and "Already linking the replacement".
+  - BrokenLink names the replacement of a superseded target.
+- **Seeded review message**: adds a deterministic "Usual remedies" line per finding kind present. Contradiction, stale-input and coverage-gap findings get no remedy line.
+- **`note_connections`** neighbours now carry `links`, parallel to `relations`. This is also in CLI `connections` output.
+- **`maintain-notes` guide** adds two sentences:
+  - Rename a relation by updating the Link in place.
+  - When archiving or superseding, re-point or archive inbound links in the same change group.
+- **Host behaviour**: the host still performs no semantic fixes. Every change remains an agent proposal under the owner's checked change flow.
+
+**Offline checks.**
+- New tests:
+  - `a_link_to_a_superseded_note_names_the_replacement`, plus extended RelationVariant assertions.
+  - Scripted journey `s2_review_names_the_links_one_change_group_resolves`. One change group clears RelationVariant, Supersession, UnlistedTopic, Orphan and BrokenLink, and keeps the duplicate for the owner.
+- Gates:
+  - `cargo fmt --check` and `cargo clippy --workspace --all-targets -D warnings` pass.
+  - `cargo test --workspace` passes, with the debug intake helper built first.
+  - Python unittest passes: 131 tests.
+
+**Live A/B.** Codex gpt-6.1-sol medium, scale 1000, synthetic fixtures. B-main is the bundle-9 `main` build; D-review is this branch. Deltas are knowledge-check counts after minus before.
+
+| Run | Pass | Deltas | Input / cached / output tokens |
+| --- | --- | --- | --- |
+| B-main-r1 | no | Supersession −1, UnlistedTopic −1, Orphan −1, BrokenLink +1, RelationVariant 0 | 140,625 / 99,200 / 2,634 |
+| B-main-r2 | no | Duplicate −1, Supersession −1, UnlistedTopic −1, Orphan −1, BrokenLink +1, RelationVariant 0 | 153,061 / 112,000 / 2,841 |
+| B-main-d1 (budget 16) | no | as r2 | 145,310 / 102,272 / 2,874 |
+| B-main-d2 (budget 16) | no | as r2 | 166,011 / 129,664 / 2,831 |
+| D-review-r1 | **yes** | Supersession −1, UnlistedTopic −1, Orphan −1, RelationVariant −1 | 106,861 / 72,832 / 2,856 |
+| D-review-r2 | **yes** | Duplicate −1, Supersession −1, UnlistedTopic −1, Orphan −1, RelationVariant −1 | 91,881 / 64,128 / 3,181 |
+
+- **Summary:** S2 passes 0/2 on B-main and 2/2 on D-review.
+- **Medians:** model-visible bytes fall from 41.4 KB to 19.1 KB; tokens fall from 150k to 102k. Rounds are 8 and 7.5.
+- **S3 regression check**, one run per arm: B-main fails (BrokenLink +1 after an archive), D-review passes. Model-visible bytes are 15.4 KB versus 23.9 KB.
+- **Records:** `files/ab-review/{s2,s3}` in the session state.
+
+**Residual issues.**
+- **Small sample:** N is 2 per arm, and no significance is claimed.
+- **DuplicateTitle:** the opening-hours conflict (13:00 versus 14:00) still needs the owner. Agents merge or ask inconsistently. Both behaviours pass the preservation check.
+- **Rounds:** D-review used 7–8 of its 8 rounds, so larger reviews may still need more budget.
+
+**Review follow-up (offline only).** An independent review led to these hardening changes after the A/B above. The live runs measured the earlier build (`be577ebf`), so S2 should be re-measured before acceptance.
+
+- **Conflicts:** Supersession findings list inbound `contradicts` links separately, to keep or ask about, and never offer them for re-pointing. "Already linking the replacement" now requires the same relation. A broken `contradicts` link is marked as a recorded conflict. The remedies and maintain-notes step 7 forbid archiving or re-pointing a `contradicts` link without an owner decision.
+- **Privacy:** a broken link names its replacement only when it is a current general note. The check follows a supersession chain to that note, and never names chat-owned or project material.
+- **Bounds:**
+  - Record lists, already-linking titles and duplicate names stop at 10 per finding, followed by "and N more".
+  - The seeded review stops at 16 KiB (`REVIEW_MESSAGE_BYTES`) and counts the findings it does not list.
+- **Remedy wording:** remedies are scoped to ordinary unprotected notes, with protected or owner-written material going through the conflict playbook. When no relation name is recommended, the agent picks the most used one and says so.
+- **Connections:** `note_connections` and CLI `connections` list every Link behind a relation, including duplicates, as `{id, version, relation}`.
+- **Tests:** `supersession_keeps_recorded_conflicts_and_matches_relations`, `broken_links_name_only_current_general_replacements`, `hub_findings_and_the_review_message_stay_bounded` and the extended `connections_are_bounded_ordered_and_visibility_checked`.
+- **Gates:** fmt, clippy `-D warnings`, the workspace tests and 131 Python tests pass.
+
+**Live recheck after the review fixes** (build `2c823281`, guide bundle 10, Codex `gpt-6.1-sol` at medium effort, two repetitions):
+- S2 passed **2/2** and S3 passed **2/2**, with no safety blockers.
+- Median bytes read: 22 KB (S2) and 13 KB (S3).
+- Median tokens: 73k per run.
+
+## Provider failure diagnostics and one re-send (15 October 2026)
+
+**Request:** the owner asked for the recurring `Failed:Other` to be diagnosed and made visible.
+
+**Recorded failures (before this change):**
+
+| Run | Failed at | Turns done | Elapsed |
+|---|---|---|---|
+| ab-host `D-host-r1` | step 2, first request | 0 | 1.1 s |
+| ab-host `B-main-r1` | step 2, fourth request after tool round 3 | 3 | 18.6 s |
+| host9 `D-host9-r1` | step 5, fourth request after a 15.7 KB `read_records` | 3 | 11.5 s |
+
+- None carried any detail: `stopped` was null and the CLI printed only the fixed message.
+
+**Root cause:** BRN discarded the information that would have identified the failure. In Rig 0.44's Responses stream, a stream `error` event or a `response.failed` event arrives without an HTTP status. Its code sits at top-level `/code` or `/response/error/code`, where BRN did not look. Several other cases also all became `Other` with nothing kept:
+- a failed `response.completed` (Rig's "the provider failed the turn…" wording),
+- a stream that ended early (`Truncated`),
+- transport errors,
+- 5xx statuses.
+
+The provider's own error class could not be captured, because the failure did not reproduce live (below).
+
+**Changes:**
+- `AiError` gains an optional, boxed `detail` that is never part of `Display`. It holds:
+  - a fixed `origin` label: `http_status`, `stream_error`, `response_failed`, `turn_failed`, `truncated`, `transport`, `finish`, `stream_end`, `decode` and others;
+  - the HTTP status;
+  - the provider `code` and `type` through an allow-list: known codes, `incomplete:<known reason>`, or `[a-z_]` names ending in `_error`/`_exceeded` or starting with `server_`/`rate_limit`/`usage_limit`; anything else becomes `unrecognized`;
+  - `retryable`;
+  - the last stream `phase`.
+- Messages, bodies, headers, tokens and account IDs are never kept.
+- The CLI adds a `failure` field. The trace adds `failure` and `provider_retries`. The `terminal` string is unchanged.
+- `usage_limit_reached`, `rate_limit_exceeded` and `insufficient_quota` now map to `RateLimited`. `Truncated` stays `Other`, because Rig also truncates on replies it could not decode.
+- `ResendOnce` (`crates/brn-ai/src/resend.rs`) re-sends the byte-identical streamed request once, after 1.5 s, at most twice per run.
+  - It applies only where the request provably was not processed: a 503, or a transport error whose reqwest source `is_connect()` (DNS, TCP or TLS setup).
+  - Read timeouts, resets after the request was written, 408, 500, 502 and 504 are not re-sent: "no response headers seen" does not prove the provider did not start generating or billing.
+  - It uses the same transport, the same pinned `session_id` and the same account; there is no fallback.
+  - No tool of that turn can have run, because the model replied with nothing.
+  - 429 and other 4xx are never re-sent. Failures after the stream started (`response.failed`, a stream `error`, truncation) are not re-sent either: a turn-level retry would need a separate idempotence argument.
+  - Every re-send is recorded on `ThreadResult.provider_resends`, and so in the CLI's `provider_resends`, whatever the trace level. It also appears in the trace's `provider_retries` and the harness's per-step and per-run `provider_resends`.
+- `scripts/evaluate_wiki_v2.py` appends the detail to a run's failure line, for example `step 2 ended Failed:Other (origin=response_failed code=server_error phase=tool_result retryable=True)`.
+
+**Live diagnosis:**
+- Codex `gpt-6.1-sol` at medium effort, S1 at scale 1000, two repetitions, run from this worktree's release build.
+- Result: 2/2 passed, all 14 steps `Completed`, no re-sends.
+- Tokens: 1.21 M raw (586 k input + 9 k output for r1, 609 k + 9 k for r2), 72–81% cached.
+- The failure did not reproduce, so the provider's error class is still unknown. The diagnostics stay in place and the next occurrence will name its origin and code.
+
+**Gates:** all pass: `cargo fmt --all --check`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo test --workspace` (with the helper built) and `python3 -m unittest discover -s scripts/tests`.

@@ -71,6 +71,13 @@ pub struct RunTrace {
     /// counts, IDs, versions, sizes and timing, with query text at `Full`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub host_context: Option<Value>,
+    /// Identical re-sends of a model request after a transient provider
+    /// failure, in order (same provider, model and account).
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub provider_retries: Vec<crate::AiFailureDetail>,
+    /// The failed terminal's kind and bounded diagnostic.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub failure: Option<crate::AiError>,
     /// Helper sub-runs started by `research` calls, in start order.
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub helpers: Vec<HelperTrace>,
@@ -97,6 +104,9 @@ pub struct HelperTrace {
     /// `None` for a sub-run that never started a model turn.
     pub trace: Option<RunTrace>,
 }
+
+/// Re-sends kept per trace.
+const MAX_RETRIES_KEPT: usize = 8;
 
 struct Pending {
     seq: usize,
@@ -125,6 +135,7 @@ struct State {
     stopped: Option<String>,
     host_context: Option<Value>,
     helpers: Vec<HelperTrace>,
+    retries: Vec<crate::AiFailureDetail>,
 }
 
 /// Sub-runs kept per trace; a run starts at most 8.
@@ -446,6 +457,15 @@ impl TraceCollector {
         }
     }
 
+    /// Records an identical re-send of a model request.
+    pub(crate) fn retry(&self, detail: crate::AiFailureDetail) {
+        if let Ok(mut state) = self.state.lock()
+            && state.retries.len() < MAX_RETRIES_KEPT
+        {
+            state.retries.push(detail);
+        }
+    }
+
     /// Records why the run stopped early (first reason wins).
     pub(crate) fn stop(&self, reason: &str) {
         if let Ok(mut state) = self.state.lock() {
@@ -465,6 +485,7 @@ impl TraceCollector {
                 s.stopped.clone(),
                 s.host_context.clone(),
                 s.helpers.clone(),
+                s.retries.clone(),
             )
         });
         let (
@@ -477,6 +498,7 @@ impl TraceCollector {
             stopped,
             host_context,
             helpers,
+            provider_retries,
         ) = state.unwrap_or_default();
         RunTrace {
             format: 1,
@@ -494,6 +516,8 @@ impl TraceCollector {
             dropped_calls: dropped,
             host_context,
             helpers,
+            provider_retries,
+            failure: None,
         }
     }
 }

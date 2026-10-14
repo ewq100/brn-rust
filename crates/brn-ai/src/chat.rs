@@ -1,6 +1,6 @@
 //! Common transport stream contract, shared by the final-use runtime and fixtures.
-use crate::error::map_provider;
-use crate::{AiError, AiErrorKind};
+use crate::error::{map_provider, provider_code};
+use crate::{AiError, AiErrorKind, AiFailureDetail};
 use futures::StreamExt;
 use rig::agent::{MultiTurnStreamItem, StreamingResult};
 use rig::completion::{FinishReason, PromptError};
@@ -86,10 +86,48 @@ fn map_stream_error(error: PromptError) -> AiError {
         PromptError::Report(report) => {
             map_provider(rig::error::ProviderError::Relayed(Box::new(report)))
         }
-        PromptError::UnknownToolCall { .. } => AiError::new(AiErrorKind::InvalidToolUse),
-        PromptError::MaxTurns { .. } => AiError::new(AiErrorKind::ToolLimitReached),
-        _ => AiError::new(AiErrorKind::Other),
+        PromptError::UnknownToolCall { .. } => {
+            AiError::new(AiErrorKind::InvalidToolUse).with_detail(origin("unknown_tool"))
+        }
+        PromptError::MaxTurns { .. } => {
+            AiError::new(AiErrorKind::ToolLimitReached).with_detail(origin("max_turns"))
+        }
+        PromptError::Memory(_) => AiError::new(AiErrorKind::Other).with_detail(origin("memory")),
+        PromptError::Cancelled { .. } => {
+            AiError::new(AiErrorKind::Other).with_detail(origin("cancelled"))
+        }
+        _ => AiError::new(AiErrorKind::Other).with_detail(origin("prompt")),
     }
+}
+
+fn origin(origin: &str) -> AiFailureDetail {
+    AiFailureDetail {
+        origin: origin.to_owned(),
+        ..Default::default()
+    }
+}
+
+/// A run that ended on a non-stop finish, labelled by the reason only.
+fn finish_failure(reason: &FinishReason) -> AiError {
+    let code = match reason {
+        FinishReason::Length => Some("length".to_owned()),
+        FinishReason::ContentFilter => Some("content_filter".to_owned()),
+        FinishReason::ToolCalls => Some("tool_calls".to_owned()),
+        FinishReason::Other(reason) => Some(provider_code(&reason.replace(": ", ":"))),
+        _ => None,
+    };
+    AiError::new(AiErrorKind::Other).with_detail(AiFailureDetail {
+        code,
+        ..origin("finish")
+    })
+}
+
+fn with_phase(mut error: AiError, phase: &str) -> AiError {
+    let detail = error
+        .detail
+        .get_or_insert_with(|| Box::new(origin("unknown")));
+    detail.phase = Some(phase.to_owned());
+    error
 }
 
 pub(crate) async fn collect_stream(
@@ -101,6 +139,7 @@ pub(crate) async fn collect_stream(
 ) -> AiAnswer {
     let mut text = String::new();
     let output_limit = strict_output_limit.unwrap_or(MAX_ANSWER_BYTES);
+    let mut phase = "none";
     let terminal = loop {
         let item = tokio::select! {
             biased;
@@ -111,6 +150,7 @@ pub(crate) async fn collect_stream(
             Some(Ok(MultiTurnStreamItem::StreamAssistantItem(Item::Event(
                 StreamEvent::Text { text: delta, .. },
             )))) => {
+                phase = "text";
                 if delta.len() > output_limit.saturating_sub(text.len()) {
                     break AiTerminal::Failed(AiError::new(AiErrorKind::ToolRejected));
                 }
@@ -120,6 +160,7 @@ pub(crate) async fn collect_stream(
                 }
             }
             Some(Ok(MultiTurnStreamItem::ToolCall { tool_call })) => {
+                phase = "tool_call";
                 let name = tool_call.function.name;
                 emit(AiEvent::ToolStarted {
                     name: name.to_string(),
@@ -129,6 +170,7 @@ pub(crate) async fn collect_stream(
                 content: rig::message::AssistantContent::Reasoning(reasoning),
                 ..
             })))) => {
+                phase = "reasoning";
                 if let Some(summary) = public_reasoning_summary(&reasoning) {
                     emit(AiEvent::ReasoningSummary(summary));
                 }
@@ -136,13 +178,13 @@ pub(crate) async fn collect_stream(
             Some(Ok(MultiTurnStreamItem::FinalResponse(response))) => {
                 // Rig may accept useful text from a Length turn. BRN stores only
                 // successful natural completion; retained preview remains partial.
-                if response
+                if let Some(reason) = response
                     .completion_calls
                     .last()
                     .and_then(|call| call.finish_reason.as_ref())
-                    .is_some_and(|reason| reason != &FinishReason::Stop)
+                    .filter(|reason| *reason != &FinishReason::Stop)
                 {
-                    break AiTerminal::Failed(AiError::new(AiErrorKind::Other));
+                    break AiTerminal::Failed(with_phase(finish_failure(reason), phase));
                 }
                 let final_text = response.output();
                 if final_text.len() > output_limit {
@@ -154,9 +196,18 @@ pub(crate) async fn collect_stream(
                 }
                 break AiTerminal::Completed;
             }
-            Some(Err(error)) => break AiTerminal::Failed(map_stream_error(error)),
-            None => break AiTerminal::Failed(AiError::new(AiErrorKind::Other)),
-            Some(Ok(_)) => {}
+            Some(Err(error)) => {
+                break AiTerminal::Failed(with_phase(map_stream_error(error), phase));
+            }
+            None => {
+                break AiTerminal::Failed(with_phase(
+                    AiError::new(AiErrorKind::Other).with_detail(origin("stream_end")),
+                    phase,
+                ));
+            }
+            Some(Ok(MultiTurnStreamItem::ToolResult { .. })) => phase = "tool_result",
+            Some(Ok(MultiTurnStreamItem::CompletionCall(_))) => phase = "turn_end",
+            Some(Ok(_)) => phase = "other",
         }
     };
     drop(stream);
@@ -263,6 +314,73 @@ mod tests {
             None,
         )
         .await
+    }
+
+    fn failure(answer: &AiAnswer) -> &AiError {
+        match &answer.terminal {
+            AiTerminal::Failed(error) => error,
+            other => panic!("{other:?}"),
+        }
+    }
+
+    #[tokio::test]
+    async fn failures_record_their_origin_and_the_last_stream_phase() {
+        let ended = collect(vec![Ok(text_item("partial"))]).await;
+        let detail = failure(&ended).detail.clone().unwrap();
+        assert_eq!(
+            (detail.origin.as_str(), detail.phase.as_deref()),
+            ("stream_end", Some("text"))
+        );
+        let failed = collect(vec![Err(PromptError::Provider(
+            rig::error::ProviderError::from_provider_body(
+                r#"{"type":"response.failed","response":{"error":{"code":"server_error","message":"SYNTHETIC_SECRET"}}}"#,
+            ),
+        ))])
+        .await;
+        let error = failure(&failed);
+        assert_eq!(error.kind, AiErrorKind::Other);
+        let detail = error.detail.clone().unwrap();
+        assert_eq!(
+            (
+                detail.origin.as_str(),
+                detail.code.as_deref(),
+                detail.phase.as_deref(),
+                detail.retryable
+            ),
+            ("response_failed", Some("server_error"), Some("none"), true)
+        );
+        assert!(
+            !serde_json::to_string(error)
+                .unwrap()
+                .contains("SYNTHETIC_SECRET")
+        );
+        assert_eq!(
+            error.to_string(),
+            AiError::new(AiErrorKind::Other).to_string()
+        );
+    }
+
+    #[test]
+    fn non_stop_finishes_keep_only_the_reason_label() {
+        for (reason, code) in [
+            (FinishReason::Length, Some("length")),
+            (FinishReason::ContentFilter, Some("content_filter")),
+            (FinishReason::ToolCalls, Some("tool_calls")),
+            (
+                FinishReason::Other("incomplete: max_output_tokens".into()),
+                Some("incomplete:max_output_tokens"),
+            ),
+            (
+                FinishReason::Other("SYNTHETIC_SECRET free text".into()),
+                Some("unrecognized"),
+            ),
+        ] {
+            let detail = finish_failure(&reason).detail.unwrap();
+            assert_eq!(
+                (detail.origin.as_str(), detail.code.as_deref()),
+                ("finish", code)
+            );
+        }
     }
 
     #[tokio::test]

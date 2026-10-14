@@ -374,6 +374,7 @@ mod tests {
             let error = AiError {
                 kind,
                 retry_after_seconds: Some(u64::MAX),
+                detail: None,
             };
             let result = quote_feedback(Err(error.clone())).unwrap();
             assert_eq!(
@@ -401,6 +402,7 @@ mod tests {
             let error = AiError {
                 kind,
                 retry_after_seconds: Some(42),
+                detail: None,
             };
             assert_eq!(quote_feedback(Err(error.clone())), Err(error));
         }

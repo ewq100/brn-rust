@@ -64,6 +64,7 @@ impl RunNoteSearch for FakeSearch {
                 title: "Harbor".into(),
                 kind: "note".into(),
                 relations: vec![],
+                links: vec![],
                 via: None,
                 inbound_links: 0,
             },

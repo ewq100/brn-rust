@@ -8,6 +8,12 @@ use crate::*;
 pub const FINDINGS_PER_KIND: usize = 25;
 /// Outgoing note links that make a page look like a topic page.
 const TOPIC_LINKS: usize = 5;
+/// Link records named in one finding's detail.
+const LINKS_PER_FINDING: usize = 10;
+/// Bytes of the seeded review message; findings beyond it are counted only.
+pub const REVIEW_MESSAGE_BYTES: usize = 16 * 1024;
+/// Supersession steps followed to find a current replacement.
+const SUPERSESSION_STEPS: usize = 16;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum FindingKind {
@@ -72,6 +78,49 @@ fn relation_key(relation: &str) -> String {
         .collect()
 }
 
+/// Distinct items, at most `LINKS_PER_FINDING`, then how many more.
+fn capped(items: impl IntoIterator<Item = String>, separator: &str) -> String {
+    let mut seen = BTreeSet::new();
+    let items: Vec<String> = items
+        .into_iter()
+        .filter(|item| seen.insert(item.clone()))
+        .collect();
+    let mut text = items
+        .iter()
+        .take(LINKS_PER_FINDING)
+        .cloned()
+        .collect::<Vec<_>>()
+        .join(separator);
+    if items.len() > LINKS_PER_FINDING {
+        text.push_str(&format!(
+            "{separator}and {} more",
+            items.len() - LINKS_PER_FINDING
+        ));
+    }
+    text
+}
+
+/// The first current general note along `start`'s supersession chain, if
+/// any; a chain into chat-owned, project or archived material gives none.
+fn current_replacement<'a>(
+    start: &'a str,
+    by_id: &BTreeMap<&str, &'a Record>,
+    notes: &BTreeMap<&str, (&Record, &Note)>,
+) -> Option<&'a str> {
+    let mut next = start;
+    for _ in 0..SUPERSESSION_STEPS {
+        if notes.contains_key(next) {
+            return Some(next);
+        }
+        let record = by_id.get(next).filter(|r| !r.archived)?;
+        match &record.data {
+            RecordData::Note(n) if n.chat.is_none() => next = n.superseded_by.as_deref()?,
+            _ => return None,
+        }
+    }
+    None
+}
+
 struct Collector {
     counts: BTreeMap<FindingKind, usize>,
     findings: Vec<Finding>,
@@ -89,6 +138,35 @@ impl Collector {
             });
         }
     }
+}
+
+/// A finding kind's usual mechanical fix, named in the seeded review. The
+/// agent still decides from evidence whether it applies.
+fn remedy(kind: FindingKind) -> Option<&'static str> {
+    Some(match kind {
+        FindingKind::BrokenLink => {
+            "BrokenLink: point the Link at the replacement (update it in place with its version as `expected_version`), or archive it when the note already links the replacement."
+        }
+        FindingKind::RelationVariant => {
+            "RelationVariant: update each listed Link in place to the recommended name: same ID, `from` and `to`, its version as `expected_version`. Without a recommended name, pick the most used name and say so."
+        }
+        FindingKind::Supersession => {
+            "Supersession: when the replacement is clear, set the older note's `superseded_by`; in the same change group re-point or archive the listed links from other notes (not recorded conflicts) and update page text naming the older note, or they become BrokenLink findings."
+        }
+        FindingKind::Orphan => {
+            "Orphan: link the note from its subject's page or a related note when the relationship is clear."
+        }
+        FindingKind::UnlistedTopic => {
+            "UnlistedTopic: link the page from the Topics note and add it to the Topics text."
+        }
+        FindingKind::DuplicateTitle | FindingKind::DuplicateContent => {
+            "Duplicates: merge only notes about the same subject, keeping differing facts with their dates and sources, and re-point or archive the retired note's links in the same change group; otherwise give them distinguishing titles. Ask about a real conflict instead of choosing."
+        }
+        FindingKind::StaleInput
+        | FindingKind::StaleCandidate
+        | FindingKind::CoverageGap
+        | FindingKind::Contradiction => return None,
+    })
 }
 
 impl Workspace {
@@ -110,6 +188,26 @@ impl Workspace {
                 .get(id)
                 .map_or_else(|| id.to_owned(), |(_, n)| format!("“{}”", n.title))
         };
+        // A Link as the agent needs it to update or archive it in place.
+        let describe = |record: &Record, link: &Link| {
+            format!(
+                "Link `{}` v{} {} → {} (`{}`)",
+                record.id,
+                record.version,
+                title(&link.from),
+                title(&link.to),
+                link.relation
+            )
+        };
+        let listed =
+            |links: &[(&Record, &Link)]| capped(links.iter().map(|(r, l)| describe(r, l)), "; ");
+        let ids = |links: &[(&Record, &Link)]| {
+            links
+                .iter()
+                .take(LINKS_PER_FINDING)
+                .map(|(r, _)| r.id.clone())
+                .collect::<Vec<_>>()
+        };
         let mut out = Collector {
             counts: BTreeMap::new(),
             findings: Vec::new(),
@@ -117,6 +215,8 @@ impl Workspace {
 
         // Links: every non-archived link with a visible general end.
         let mut note_links: Vec<(&str, &str, &str)> = Vec::new();
+        let mut link_records: Vec<(&Record, &Link)> = Vec::new();
+        let mut named_links: Vec<(&Record, &Link)> = Vec::new();
         let mut relations: BTreeMap<String, BTreeSet<&str>> = BTreeMap::new();
         for record in all.iter().filter(|r| !r.archived) {
             let RecordData::Link(link) = &record.data else {
@@ -140,8 +240,10 @@ impl Workspace {
                 (true, true) => {
                     if notes.contains_key(from) && notes.contains_key(to) {
                         note_links.push((from, to, link.relation.as_str()));
+                        link_records.push((record, link));
                     }
                     if !relations::is_host_owned(&link.relation) {
+                        named_links.push((record, link));
                         relations
                             .entry(relation_key(&link.relation))
                             .or_default()
@@ -156,13 +258,33 @@ impl Workspace {
                 (true, false) => {
                     let (seen, other) = (from, to);
                     if broken(other) && link.relation != relations::SUPERSEDES {
+                        // Name a replacement only when it is current general
+                        // knowledge; private material stays unnamed.
+                        let mut replacement = match by_id.get(other).map(|r| &r.data) {
+                            Some(RecordData::Note(Note {
+                                superseded_by: Some(next),
+                                ..
+                            })) => current_replacement(next, &by_id, &notes)
+                                .map(|next| {
+                                    format!("; it was superseded by {} `{next}`", title(next))
+                                })
+                                .unwrap_or_default(),
+                            _ => String::new(),
+                        };
+                        if link.relation == relations::CONTRADICTS {
+                            replacement.push_str(
+                                "; it records a conflict: keep it, or ask the owner before changing it",
+                            );
+                        }
                         out.add(
                             FindingKind::BrokenLink,
                             vec![record.id.clone(), seen.to_owned()],
                             format!(
-                                "{} has a `{}` link to a missing, archived or superseded record",
+                                "{} has a `{}` link to a missing, archived or superseded record: Link `{}` v{}{replacement}",
                                 title(seen),
-                                link.relation
+                                link.relation,
+                                record.id,
+                                record.version
                             ),
                         );
                     }
@@ -266,15 +388,53 @@ impl Workspace {
                         title(to)
                     ),
                 ),
-                relations::SUPERSEDES => out.add(
-                    FindingKind::Supersession,
-                    vec![to.to_string(), from.to_string()],
-                    format!(
-                        "{} is superseded by {} but is still current",
+                relations::SUPERSEDES => {
+                    // Other notes' links to the older note break once it is
+                    // retired; name them so the same change can fix them.
+                    // Recorded conflicts are kept for the owner, not re-pointed.
+                    let (conflicts, inbound): (Vec<(&Record, &Link)>, Vec<_>) = link_records
+                        .iter()
+                        .filter(|(_, l)| {
+                            l.to == *to && l.from != *from && l.relation != relations::SUPERSEDES
+                        })
+                        .copied()
+                        .partition(|(_, l)| l.relation == relations::CONTRADICTS);
+                    let mut records = vec![to.to_string(), from.to_string()];
+                    records.extend(ids(&inbound));
+                    let mut detail = format!(
+                        "{} `{to}` is superseded by {} `{from}` but is still current",
                         title(to),
                         title(from)
-                    ),
-                ),
+                    );
+                    if !inbound.is_empty() {
+                        let already: Vec<String> = inbound
+                            .iter()
+                            .filter(|(_, l)| {
+                                note_links.iter().any(|(f, t, relation)| {
+                                    *f == l.from && *t == *from && *relation == l.relation
+                                })
+                            })
+                            .map(|(_, l)| format!("{} (`{}`)", title(&l.from), l.relation))
+                            .collect();
+                        detail.push_str(&format!(
+                            ". Other notes link the older note: {}",
+                            listed(&inbound)
+                        ));
+                        if !already.is_empty() {
+                            detail.push_str(&format!(
+                                ". Already linking the replacement with the same relation: {}",
+                                capped(already, ", ")
+                            ));
+                        }
+                    }
+                    if !conflicts.is_empty() {
+                        detail.push_str(&format!(
+                            ". Recorded conflicts with the older note; keep them, or ask the owner before changing them: {}",
+                            listed(&conflicts)
+                        ));
+                    }
+                    out.add(FindingKind::Supersession, records, detail)
+                }
                 _ => {}
             }
         }
@@ -302,10 +462,13 @@ impl Workspace {
             (FindingKind::DuplicateContent, &contents),
         ] {
             for ids in groups.values().filter(|ids| ids.len() > 1) {
-                let names: Vec<String> = ids.iter().map(|id| title(id)).collect();
+                let names = capped(ids.iter().map(|id| title(id)), ", ");
                 out.add(
                     kind,
-                    ids.iter().map(|id| id.to_string()).collect(),
+                    ids.iter()
+                        .take(LINKS_PER_FINDING)
+                        .map(|id| id.to_string())
+                        .collect(),
                     format!(
                         "{} notes share the same {}: {}",
                         ids.len(),
@@ -314,7 +477,7 @@ impl Workspace {
                         } else {
                             "content"
                         },
-                        names.join(", ")
+                        names
                     ),
                 );
             }
@@ -322,21 +485,36 @@ impl Workspace {
 
         for names in relations.values().filter(|names| names.len() > 1) {
             let names: Vec<&str> = names.iter().copied().collect();
-            let preferred = names
-                .iter()
-                .find(|name| relations::is_recommended(name))
+            let recommended = names.iter().find(|name| relations::is_recommended(name));
+            let preferred = recommended
                 .map(|name| format!("; the recommended name is `{name}`"))
                 .unwrap_or_default();
+            // With a recommended name, the links using the other names are
+            // the ones to rename; otherwise every variant link is listed.
+            let affected: Vec<(&Record, &Link)> = named_links
+                .iter()
+                .filter(|(_, l)| {
+                    names.contains(&l.relation.as_str())
+                        && recommended.is_none_or(|name| l.relation != *name)
+                })
+                .copied()
+                .collect();
             out.add(
                 FindingKind::RelationVariant,
-                vec![],
+                ids(&affected),
                 format!(
-                    "Relation names look like variants: {}{preferred}",
+                    "Relation names look like variants: {}{preferred}. {}: {}",
                     names
                         .iter()
                         .map(|n| format!("`{n}`"))
                         .collect::<Vec<_>>()
-                        .join(", ")
+                        .join(", "),
+                    if recommended.is_some() {
+                        "Links to rename"
+                    } else {
+                        "Links"
+                    },
+                    listed(&affected)
                 ),
             );
         }
@@ -382,19 +560,50 @@ impl Workspace {
             text.push_str(&format!("- {kind:?}: {count}\n"));
         }
         text.push('\n');
-        for finding in &check.findings {
-            text.push_str(&format!(
-                "- {:?}: {} [{}]\n",
-                finding.kind,
-                finding.detail,
-                finding.records.join(", ")
-            ));
+        let remedies: Vec<&str> = check
+            .counts
+            .keys()
+            .filter_map(|kind| remedy(*kind))
+            .collect();
+        let mut tail = String::new();
+        if !remedies.is_empty() {
+            tail.push_str(
+                "\nUsual remedies for ordinary unprotected notes, when the evidence supports them. \
+                 Protected or owner-written material goes through the conflict playbook, and never \
+                 archive or re-point a `contradicts` link without an owner decision:\n",
+            );
+            for remedy in remedies {
+                tail.push_str(&format!("- {remedy}\n"));
+            }
         }
-        text.push_str(
+        tail.push_str(
             "\nReview these findings with the maintain-notes playbook within the run budget. \
              Report what was inspected, corrected and left uncertain. A clean check is not proof \
              of correctness.",
         );
+        // Room for the omission line keeps the whole message within budget.
+        let budget = REVIEW_MESSAGE_BYTES.saturating_sub(tail.len() + 128);
+        let mut omitted = 0;
+        for finding in &check.findings {
+            let line = format!(
+                "- {:?}: {} [{}]\n",
+                finding.kind,
+                finding.detail,
+                finding.records.join(", ")
+            );
+            if omitted == 0 && text.len() + line.len() <= budget {
+                text.push_str(&line);
+            } else {
+                omitted += 1;
+            }
+        }
+        let unlisted = check.counts.values().sum::<usize>() - check.findings.len() + omitted;
+        if unlisted > 0 {
+            text.push_str(&format!(
+                "- {unlisted} more findings are not listed here; review the listed ones first.\n"
+            ));
+        }
+        text.push_str(&tail);
         self.post_message(&chat, &text)?;
         Ok(chat)
     }

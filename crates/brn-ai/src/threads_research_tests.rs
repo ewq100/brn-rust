@@ -1042,3 +1042,144 @@ fn findings_are_bounded() {
     f["extra"] = json!(1);
     assert!(!parse_valid("submit_findings", &f));
 }
+
+fn codex_helper_scope(trace: TraceLevel) -> (tempfile::TempDir, Arc<Scope>, Record) {
+    let (root, mut request, plan) = setup();
+    request.trace = trace;
+    let file = root.path().join("auth.json");
+    {
+        use std::os::unix::fs::PermissionsExt;
+        std::fs::write(
+            &file,
+            r#"{"auth_mode":"chatgpt","tokens":{"access_token":"synthetic-not-a-credential","account_id":"synthetic"}}"#,
+        )
+        .unwrap();
+        std::fs::set_permissions(&file, std::fs::Permissions::from_mode(0o600)).unwrap();
+    }
+    let mut helper = luna();
+    helper.auth_file = Some(file.to_str().unwrap().into());
+    set_helper(&request, Some(helper));
+    let (scope, _) = begin(&request).unwrap();
+    (root, scope, plan)
+}
+
+fn unavailable_503() -> rig::test_utils::MockHttpResponse {
+    rig::test_utils::MockHttpResponse::error(
+        rig::http_client::StatusCode::SERVICE_UNAVAILABLE,
+        r#"{"error":{"type":"server_error","message":"SYNTHETIC_SECRET"}}"#,
+    )
+}
+
+fn helper_traces(scope: &Scope) -> Vec<trace::HelperTrace> {
+    scope
+        .trace
+        .as_ref()
+        .unwrap()
+        .finish(crate::threads_guides::BUNDLE_VERSION, true, 8)
+        .helpers
+}
+
+#[tokio::test]
+async fn helper_resends_are_recorded_in_the_helper_trace() {
+    let (_root, scope, plan) = codex_helper_scope(TraceLevel::Summary);
+    let report = findings(vec![citation(
+        "c1",
+        &plan.id,
+        plan.version,
+        PLAN,
+        "Tickets cost 18 EUR.",
+    )]);
+    let call = json!({"type":"function_call","id":"fc_1","call_id":"call_1","name":"submit_findings","arguments":report.to_string(),"status":"completed"});
+    let body = format!(
+        "data: {}\n\ndata: {}\n\ndata: [DONE]\n\n",
+        json!({"type":"response.output_item.done","output_index":0,"sequence_number":1,"item":call}),
+        json!({"type":"response.completed","sequence_number":2,"response":{
+            "id":"r1","object":"response","created_at":1,"status":"completed","model":"gpt-6-luna",
+            "output":[call],"tools":[],"usage":{"input_tokens":50,"output_tokens":1,"total_tokens":51}}}),
+    );
+    let http = rig::test_utils::SequencedHttpClient::new([
+        unavailable_503(),
+        rig::test_utils::MockHttpResponse::success_typed(body, "text/event-stream"),
+    ]);
+    scope
+        .helper
+        .as_ref()
+        .unwrap()
+        .set_source(HelperSource::Provider(Some(DynHttpClient::new(
+            http.clone(),
+        ))));
+    let out = ask(&scope, vec![question("Ticket price?")]).await;
+    assert_eq!(out["reports"][0]["outcome"], "answered", "{out}");
+    let requests = http.requests();
+    assert_eq!(requests.len(), 2);
+    assert_eq!(requests[0].body, requests[1].body);
+    let helpers = helper_traces(&scope);
+    let retries = &helpers[0].trace.as_ref().unwrap().provider_retries;
+    assert_eq!(retries.len(), 1, "{retries:?}");
+    assert_eq!(retries[0].status, Some(503));
+    // The parent's own re-send record stays the parent's.
+    let parent =
+        scope
+            .trace
+            .as_ref()
+            .unwrap()
+            .finish(crate::threads_guides::BUNDLE_VERSION, true, 8);
+    assert!(parent.provider_retries.is_empty());
+    assert!(scope.helper.as_ref().unwrap().notices().is_empty());
+}
+
+#[tokio::test]
+async fn a_helper_provider_outage_is_unavailable_with_status_but_no_provider_text() {
+    let (_root, scope, _) = codex_helper_scope(TraceLevel::Summary);
+    let http = rig::test_utils::SequencedHttpClient::new([
+        unavailable_503(),
+        unavailable_503(),
+        unavailable_503(),
+    ]);
+    scope
+        .helper
+        .as_ref()
+        .unwrap()
+        .set_source(HelperSource::Provider(Some(DynHttpClient::new(
+            http.clone(),
+        ))));
+    let out = ask(&scope, vec![question("Ticket price?")]).await;
+    assert_eq!(out["reports"][0]["outcome"], "unavailable", "{out}");
+    assert!(!out.to_string().contains("SYNTHETIC_SECRET"), "{out}");
+    let notices = scope.helper.as_ref().unwrap().notices();
+    assert_eq!(notices.len(), 1, "{notices:?}");
+    assert!(notices[0].contains("HTTP 503"), "{notices:?}");
+    assert!(notices[0].contains("did not use another model"));
+    assert!(!notices[0].contains("SYNTHETIC_SECRET"));
+    let helpers = helper_traces(&scope);
+    let child = helpers[0].trace.as_ref().unwrap();
+    let failure = child.failure.as_ref().expect("failure detail");
+    assert_eq!(failure.detail.as_ref().and_then(|d| d.status), Some(503));
+    assert!(
+        !serde_json::to_string(&helpers[0])
+            .unwrap()
+            .contains("SYNTHETIC_SECRET")
+    );
+    // Only the owner's helper model was ever asked for.
+    assert_eq!(
+        scope.helper.as_ref().unwrap().requested(),
+        vec!["gpt-6-luna".to_string()]
+    );
+}
+
+#[test]
+fn unavailable_reasons_are_fixed_text() {
+    let mut error = AiError::new(AiErrorKind::Other);
+    assert_eq!(research::unavailable_reason(&error), "not configured");
+    error.detail = Some(Box::new(crate::AiFailureDetail {
+        origin: "http_status".into(),
+        status: Some(502),
+        ..Default::default()
+    }));
+    assert_eq!(
+        research::unavailable_reason(&error),
+        "provider unavailable, HTTP 502"
+    );
+    let limited = AiError::new(AiErrorKind::RateLimited);
+    assert_eq!(research::unavailable_reason(&limited), "rate limited");
+}

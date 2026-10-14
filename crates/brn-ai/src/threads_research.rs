@@ -336,15 +336,9 @@ impl HelperRuntime {
     pub(super) fn requested(&self) -> Vec<String> {
         self.requested.lock().unwrap().clone()
     }
-    fn unavailable_notice(&self, kind: AiErrorKind) {
+    fn unavailable_notice(&self, error: &AiError) {
         self.unavailable.store(true, Ordering::SeqCst);
-        let reason = match kind {
-            AiErrorKind::ReconnectNeeded | AiErrorKind::CodeExpired => "sign-in needed",
-            AiErrorKind::RateLimited => "rate limited",
-            AiErrorKind::Network => "network unavailable",
-            AiErrorKind::ModelRefused => "model refused",
-            _ => "not configured",
-        };
+        let reason = unavailable_reason(error);
         let notice = format!(
             "Helper unavailable ({} · {reason}); the chat continued without helpers. BRN did not use another model.",
             self.model
@@ -631,12 +625,19 @@ fn run_helper<'a>(
                 if let Ok(mut requested) = runtime.requested.lock() {
                     requested.push(model.clone());
                 }
+                let trace = child.trace.clone();
+                let on_resend: crate::resend::OnResend = Arc::new(move |detail| {
+                    if let Some(trace) = &trace {
+                        trace.retry(detail);
+                    }
+                });
                 let client = provider_client(
                     &choice.selection,
                     choice.auth_file.as_deref(),
                     choice.credentials_dir.as_deref(),
                     child.cache_key.as_deref(),
                     transport,
+                    on_resend,
                     &cancel,
                 )
                 .await;
@@ -669,7 +670,10 @@ fn run_helper<'a>(
                             .await
                         }
                     },
-                    Err(error) => failed(error.kind),
+                    Err(error) => AiAnswer {
+                        text: String::new(),
+                        terminal: AiTerminal::Failed(error),
+                    },
                 }
             }
             #[cfg(any(test, feature = "scripted-runs"))]
@@ -694,22 +698,46 @@ fn run_helper<'a>(
     })
 }
 
-fn unavailable_kind(answer: &AiAnswer) -> Option<AiErrorKind> {
-    match &answer.terminal {
-        AiTerminal::Failed(error)
-            if matches!(
-                error.kind,
-                AiErrorKind::ReconnectNeeded
-                    | AiErrorKind::CodeExpired
-                    | AiErrorKind::RateLimited
-                    | AiErrorKind::Network
-                    | AiErrorKind::ModelRefused
-                    | AiErrorKind::UnsafeCredentials
-            ) =>
-        {
-            Some(error.kind)
-        }
-        _ => None,
+/// A helper failure that means the helper model cannot serve this run: an
+/// account, refusal or transport failure, or a provider-side HTTP 5xx.
+fn unavailable_error(answer: &AiAnswer) -> Option<&AiError> {
+    let AiTerminal::Failed(error) = &answer.terminal else {
+        return None;
+    };
+    let provider_down = error
+        .detail
+        .as_ref()
+        .and_then(|detail| detail.status)
+        .is_some_and(|status| status >= 500);
+    (provider_down
+        || matches!(
+            error.kind,
+            AiErrorKind::ReconnectNeeded
+                | AiErrorKind::CodeExpired
+                | AiErrorKind::RateLimited
+                | AiErrorKind::Network
+                | AiErrorKind::ModelRefused
+                | AiErrorKind::UnsafeCredentials
+        ))
+    .then_some(error)
+}
+
+/// The notice's fixed reason. Failure detail adds only its HTTP status; no
+/// provider text, code or message reaches the owner or the parent model.
+pub(super) fn unavailable_reason(error: &AiError) -> String {
+    let status = error.detail.as_ref().and_then(|detail| detail.status);
+    let reason = match error.kind {
+        AiErrorKind::ReconnectNeeded | AiErrorKind::CodeExpired => "sign-in needed",
+        AiErrorKind::UnsafeCredentials => "credentials unsafe",
+        AiErrorKind::RateLimited => "rate limited",
+        AiErrorKind::Network => "network unavailable",
+        AiErrorKind::ModelRefused => "model refused",
+        _ if status.is_some_and(|s| s >= 500) => "provider unavailable",
+        _ => "not configured",
+    };
+    match status {
+        Some(status) => format!("{reason}, HTTP {status}"),
+        None => reason.to_owned(),
     }
 }
 
@@ -795,7 +823,7 @@ async fn question(
         return bare(index, "unavailable");
     }
     let Some(choice) = &runtime.choice else {
-        runtime.unavailable_notice(AiErrorKind::Other);
+        runtime.unavailable_notice(&AiError::new(AiErrorKind::Other));
         return bare(index, "unavailable");
     };
     if runtime.tokens.load(Ordering::SeqCst) >= MAX_HELPER_INPUT_TOKENS {
@@ -840,8 +868,8 @@ async fn question(
         (None, None) => "stopped",
         (None, Some(_)) if cancel.is_cancelled() => "cancelled",
         (None, Some(answer)) => {
-            if let Some(kind) = unavailable_kind(answer) {
-                runtime.unavailable_notice(kind);
+            if let Some(error) = unavailable_error(answer) {
+                runtime.unavailable_notice(error);
                 "unavailable"
             } else if matches!(&answer.terminal, AiTerminal::Failed(e) if e.kind == AiErrorKind::ToolLimitReached)
             {
@@ -887,12 +915,16 @@ async fn question(
             if outcome == "cancelled" {
                 t.stop("cancelled");
             }
-            answer.as_ref().map(|_| {
-                t.finish(
+            answer.as_ref().map(|answer| {
+                let mut finished = t.finish(
                     crate::threads_guides::BUNDLE_VERSION,
                     child.search.is_some(),
                     HELPER_ROUNDS,
-                )
+                );
+                if let AiTerminal::Failed(error) = &answer.terminal {
+                    finished.failure = Some(error.clone());
+                }
+                finished
             })
         });
         trace.helper(trace::HelperTrace {
