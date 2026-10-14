@@ -337,6 +337,7 @@ impl TraceCollector {
             && let Some(object) = summary.as_object_mut()
         {
             object.remove("query_text");
+            object.remove("uncovered_detail");
         }
         if let Ok(mut state) = self.state.lock() {
             state.host_context = Some(summary);

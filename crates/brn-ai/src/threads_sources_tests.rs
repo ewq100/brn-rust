@@ -46,6 +46,7 @@ async fn useful_intake_model_tools_retain_selected_figure_omissions_and_replay_w
     let (_root, mut request, note) = super::tests::fixture();
     request.sources.push(source());
     let (scope, input) = begin(&request).unwrap();
+    super::tests::read_all(&scope);
     let metadata = read_source(
         &scope,
         SourceArgs {
@@ -376,6 +377,7 @@ fn source_changed_after_prepare_refuses_runtime_and_core_owner_apply_atomically(
     let (_root, mut request, note) = super::tests::fixture();
     request.sources.push(source());
     let (scope, _) = begin(&request).unwrap();
+    super::tests::read_all(&scope);
     let prepared: Prepared = serde_json::from_value(
         prepare(
             &scope,
@@ -437,6 +439,7 @@ fn committed_figure_receipt_replays_after_later_source_change() {
     let (_root, mut request, note) = super::tests::fixture();
     request.sources.push(source());
     let (scope, _) = begin(&request).unwrap();
+    super::tests::read_all(&scope);
     let prepared: Prepared = serde_json::from_value(
         prepare(
             &scope,
@@ -633,6 +636,7 @@ fn selected_complete_second_source_cannot_hide_first_source_detected_omission() 
     });
     request.sources = vec![first, second];
     let (scope, _) = begin(&request).unwrap();
+    super::tests::read_all(&scope);
     let prepared: Prepared = serde_json::from_value(prepare(&scope, PrepareArgs { request_key: "multiple-maps".into(), request: ChangeRequest { reason: "Selected knowledge from both sources".into(), writes: vec![Put { id: note.clone(), expected_version: Some(1), archived: false, data: RecordData::Note(Note::working("Two sources", "![First](brn-transient-asset://0/0)\n![Second](brn-transient-asset://1/0)")) }], inputs: vec![] } }).unwrap()).unwrap();
     assert_eq!(
         apply(
