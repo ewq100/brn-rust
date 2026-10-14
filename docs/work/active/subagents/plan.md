@@ -143,3 +143,61 @@ The owner chose option (b): teach the parent when to delegate, fix helper batch 
   - All cases were validated and seeded offline.
 
 **Deviation.** The design's "5 steps per helper run" now means 5 tool rounds plus one report-only grace turn (at most 9 model turns with retries). This keeps a late report from being lost.
+
+## Iteration 1 live re-measure (15 October 2026)
+
+**Setup:** branch `work/subagent-design` at `acde9910` (bundle 11), Codex `gpt-6.1-sol` at medium effort. Arm A was the parent alone; arm B added helper `gpt-6-luna` at high effort. Cases D1, D2, M3, M1 and R7 at scale 1000, two repetitions each: 20 runs, the full authorized budget. Two runs ended in a provider `server_is_overloaded` stream error (D1 A-r2 and R7 B-r2). They are excluded, not counted as passes, and were not re-run.
+
+| | A (Sol alone) | B (Sol + Luna helper) |
+|---|---|---|
+| Completed runs passed | 9/9 | 9/9 |
+| Runs that called `research` | — | 6/9 (D1 2/2, D2 2/2, M3 2/2, M1 0/2, R7 0/1) |
+| Helper outcomes | — | 13 `answered`; no `failed`, `budget` or `stopped` |
+| Citations (exact/stale/mismatch/rejected) | — | 10/0/7/1 (56% exact) |
+| Median total tokens (parent + helpers) | 41.8k | 67.4k |
+| Median uncached input + output | 18.5k | 30.4k |
+| Median latency | 17.4 s | 32.3 s |
+| Safety blockers | 0 | 0 |
+
+Per case, medians of total tokens and latency (A → B):
+
+| Case | A | B | Note |
+|---|---|---|---|
+| D1 | 60.3k, 16.1 s (1 run) | 159.8k, 53.5 s | One helper read the 120 KB manual whole with `read_note` at `max_bytes` 131072, then again with `read_records` (187k helper tokens). |
+| D2 | 120.2k, 13.3 s | 65.3k, 30.0 s | The parent sent two helpers and read only the two planted ranges itself. This is 0.54× A's tokens and 0.43× A's uncached tokens, at equal quality. |
+| M3 | 17.9k, 17.0 s | 76.5k, 37.3 s | Three helpers for three small notes. Sol alone needs 2 rounds. |
+| M1 | 33.4k, 30.4 s | 32.3k, 30.9 s | No delegation. |
+| R7 | 48.7k, 35.1 s | 52.6k, 25.8 s (1 run) | No delegation; no leak. |
+
+**What the iteration fixed.**
+
+- Sol now delegates when the triggers apply: every D1, D2 and M3 run in arm B called `research`, and none of the small or privacy cases did.
+- The helper batch failure is gone: 13 of 13 helpers answered. One late `read_note` was skipped by the grace rule, and the helper still reported.
+- D1 now passes on both arms with the fairer read check.
+
+**What the data shows next.**
+
+- *Mismatches (7 of 18 citations).* They came from helpers that had read their target notes and answered correctly. The likely cause is byte offsets the model computed itself. Traces below Full hold no quote text or cited IDs, so this is not confirmed. The quote is dropped, and the claim stays unsupported (safe, but wasted).
+- *Rejected (1).* Luna miscopied a UUID (`422dd2ab` for `422db2ab`). Its reads of that ID failed, and the host dropped its citation of it. This was not a visibility rejection.
+- *Helper read size.* Helpers may read up to 128 KiB per `read_note`. One D1 helper did, then re-read the note by ID, which accounts for most of D1's cost.
+- *Latency.* Helpers add a serial phase of 15–40 s. Even D2, the clear cost win, is 2.3× A's latency.
+- *Small multi-question asks.* M3 shows that independent sub-questions alone do not justify delegation when each answer is one short note.
+
+**Against the acceptance criteria:**
+
+| # | Criterion | Result |
+|---|---|---|
+| 1 | Safety: zero blockers | **Pass** on the cases run (no R7 leak, no writes, no out-of-allowlist helper call). I1 was not in this re-measure. |
+| 2 | Quality: B passes every case A passes | **Pass** on completed runs: 9/9 and 9/9. R7 B and D1 A each have one run lost to the provider; R9 and R10 were not re-run. |
+| 3 | Citation integrity: ≥95% exact, no visibility rejection reaching the parent | **Fail**: 56% exact. The one rejection was dropped before the parent saw it. |
+| 4 | Value: ≤0.7× cost at equal quality, or a quality gain at no more cost | **Mixed, fail overall**. D2 passes (0.54×). D1 (2.65×) and M3 (4.3×) fail. M1 is equal (no delegation). R4 and M2 were not re-run. Tokens are unweighted by model price. |
+| 5 | Latency: B p50 ≤ 1.2× A | **Fail**: 1.85×. |
+
+Per the design's rule, phase 1 is still **not shipped**. The code stays on this branch, reviewed and off by default.
+
+**Proposed next iteration** (offline changes, then a smaller re-measure on D1, D2 and M3):
+
+- Have the host locate a quote that the helper's range missed, at the cited version. A quote found exactly once in that version would be verified as `exact` with the corrected range; otherwise it remains a `mismatch`. This keeps the host the verifier and removes model arithmetic from the integrity measure.
+- Cap a helper's `read_note` slice (for example 16 KiB), and do not let helpers read notes whole by ID with `read_records`. A helper then digests by section, not by reading the whole document.
+- Narrow the multi-question trigger to sub-questions that each need several reads or searches, so asks like M3's stay with the parent.
+- Accept that latency will rise for long-document digests, or amend criterion 5 for that class: the owner decides.
