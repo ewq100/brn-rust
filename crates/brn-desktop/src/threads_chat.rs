@@ -56,8 +56,8 @@ impl ThreadsUi {
             .flex_wrap()
             .items_center()
             .gap_2()
-            .font_family(MONO)
-            .text_xs()
+            .font_family(UI_FONT)
+            .text_size(SMALL_TEXT)
             .text_color(rgb(pal().muted))
             .aria_label(status.clone())
             .child(status)
@@ -85,8 +85,8 @@ impl ThreadsUi {
         for (index, text) in self.run_activity_labels.iter().enumerate() {
             steps = steps.child(
                 metadata(text.clone())
-                    .font_family(MONO)
-                    .text_xs()
+                    .font_family(UI_FONT)
+                    .text_size(SMALL_TEXT)
                     .id(format!("run-activity-step-{index}"))
                     .aria_label(text.clone())
                     .test_support(),

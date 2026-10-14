@@ -33,8 +33,14 @@ Preflight found the pinned compiler, protoc and Xcode available. Sol verified su
 
 ## Preview correction: writing stays in its tile
 
-- [ ] Add backward-compatible overall feedback to the immutable request, bounded/replay-bound through the same checked service. Sol owns core/app request helpers and tests.
-- [ ] Lead adds per-note draft preservation and an Overall feedback field in the note footer. New Rewrite captures it without chat Send; saved-input disclosure shows it; retry preserves the saved value.
-- [ ] Route writing proposals and writing-specific continuation/progress/Stop into the Note tile; filter writing request rows out of chat. Keep ordinary chat continuation intact and support writing with Chat closed.
-- [ ] Luna simplifies only the comment margin; preserve include/reveal/addressed behavior and truthful unlocated states.
-- [ ] Verify closed-chat generation/review/Apply/Undo, draft navigation, snapshot replay/legacy/size and independent review. Rebuild and native-observe fresh synthetic data; refresh PR #135 and required CI. No merge/release assignment.
+- [x] Add backward-compatible overall feedback to the immutable request, bounded/replay-bound through the same checked service. Sol owns core/app request helpers and tests.
+- [x] Lead adds per-note draft preservation and an Overall feedback field in the note footer. New Rewrite captures it without chat Send; saved-input disclosure shows it; retry preserves the saved value.
+- [x] Route writing proposals and writing-specific continuation/progress/Stop into the Note tile; filter writing request rows out of chat. Keep ordinary chat continuation intact and support writing with Chat closed.
+- [x] Luna simplifies only the comment margin; preserve include/reveal/addressed behavior and truthful unlocated states.
+- [x] Verify closed-chat generation/review/Apply/Undo, draft navigation, snapshot replay/legacy/size and independent review. Rebuild and native-observe fresh synthetic data; refresh PR #135 and required CI. No merge/release assignment.
+
+## Integration with the newly merged UI polish
+
+Owner instructed this work to account for [PR #136](https://github.com/ewq100/brn-rust/pull/136). Fetched `origin/main` is `c0188a3f7daa66885b32427c14323517aaf0a189`. Integrate by normal merge, preserving shared system typography/quiet controls, reusable workspace areas, independent ordinary note/chat navigation and the accepted explicit-review conversation selection. Writing still needs no Chat Send or Apply. Saved input and response asset rendering bind their own captured thread even when an unrelated conversation remains selected.
+
+Merged-source validation: native build/strict all-target lint and **141 tests** pass with serial test execution; **14 core/app writing** and **18 AI rewrite** checks pass; format/diff checks and **65 docs / 280 local links** pass. Independent integration review has no remaining findings; scoped native Rewrite/offline-start, review, Read result, individual captured-comment confirmation and Undo passed with Chat closed. Owner UX acceptance and refreshed hosted CI remain pending. No merge/release of the writing PR is assigned.

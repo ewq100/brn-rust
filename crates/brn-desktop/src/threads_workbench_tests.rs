@@ -316,12 +316,12 @@ fn note_navigation_restores_overall_and_unsent_chat_drafts_without_posting(
         f.view.update(cx, |view, cx| {
             view.open_note(&f.second.id, None, window, cx);
             assert_eq!(view.general_feedback.read(cx).value().as_ref(), "");
-            assert_eq!(view.composer.read(cx).value().as_ref(), "");
+            assert_eq!(
+                view.composer.read(cx).value().as_ref(),
+                "Unsent chat draft for the first note"
+            );
             view.general_feedback.update(cx, |editor, cx| {
                 editor.set_value("Second note direction", window, cx)
-            });
-            view.composer.update(cx, |editor, cx| {
-                editor.set_value("Unsent chat draft for the second note", window, cx)
             });
         });
     })
@@ -346,7 +346,7 @@ fn note_navigation_restores_overall_and_unsent_chat_drafts_without_posting(
             );
             assert_eq!(
                 view.composer.read(cx).value().as_ref(),
-                "Unsent chat draft for the second note"
+                "Unsent chat draft for the first note"
             );
             assert!(!view.layout.contains(TileKind::Chat));
             assert!(

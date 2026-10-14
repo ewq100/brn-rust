@@ -58,11 +58,16 @@ impl ThreadsUi {
                     .flex()
                     .items_center()
                     .gap_2()
-                    .child(div().flex_1().text_sm().child(if self.progress.is_empty() {
-                        "Rewriting…".to_owned()
-                    } else {
-                        self.progress.clone()
-                    }))
+                    .child(
+                        div()
+                            .flex_1()
+                            .text_size(UI_TEXT)
+                            .child(if self.progress.is_empty() {
+                                "Rewriting…".to_owned()
+                            } else {
+                                self.progress.clone()
+                            }),
+                    )
                     .child(
                         pill("stop-writing", "Stop")
                             .on_click(cx.listener(|this, _, _, cx| this.cancel(cx))),
@@ -121,7 +126,7 @@ impl ThreadsUi {
                         .gap_2()
                         .px_3()
                         .py_2()
-                        .child(div().flex_1().text_sm().child(summary))
+                        .child(div().flex_1().text_size(UI_TEXT).child(summary))
                         .child(pill(format!("writing-dismiss-{op}"), "Dismiss").on_click(
                             cx.listener(move |this, _, window, cx| {
                                 this.card_dismiss(dismiss.clone(), window, cx)
@@ -238,7 +243,7 @@ impl ThreadsUi {
             .py_2()
             .child(
                 div()
-                    .text_xs()
+                    .text_size(SMALL_TEXT)
                     .text_color(rgb(pal().muted))
                     .child("BRN · rewrite response"),
             )
@@ -260,7 +265,7 @@ impl ThreadsUi {
             .py_2()
             .child(
                 div()
-                    .text_xs()
+                    .text_size(SMALL_TEXT)
                     .text_color(rgb(pal().muted))
                     .child("Overall feedback"),
             )

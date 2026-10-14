@@ -208,7 +208,7 @@ fn save_decision_reviews_exact_text_cancels_without_writes_and_preserves_drafts(
     cx.update_window(f.window, |_, window, cx| f.view.update(cx, |ui, cx| {
         let notes = ui.workspace.notes().unwrap();
         assert_eq!(notes.len(), 2);
-        assert!(notes.iter().any(|r| matches!(&r.data, RecordData::Note(n) if n.title == "Owner route decision" && n.markdown == "We choose Gamma · õun" && n.protected && n.confirmed && n.chat.is_none())));
+        assert!(notes.iter().any(|r| matches!(&r.data, RecordData::Note(n) if n.title == "Owner route decision" && n.markdown == "We choose Gamma · õun" && n.protected && n.confirmed && n.chat.is_none())), "{notes:?}");
         assert_eq!(ui.workspace.store.record(&f.reply.id).unwrap().unwrap(), f.reply);
         assert!(ui.worker.is_none(), "saving reviewed text must not invoke a model");
         ui.open_thread(&f.thread, window, cx);
@@ -225,6 +225,7 @@ fn first_contextual_note_edit_moves_the_unsent_draft_into_its_new_chat(cx: &mut 
                 .workspace
                 .new_note("Unlinked note", "Saved source")
                 .unwrap();
+            ui.new_thread(window, cx);
             ui.open_note(&note.id, None, window, cx);
             assert!(matches!(&ui.chat, ChatTarget::NewForNote(id) if id == &note.id));
             ui.composer.update(cx, |editor, cx| {
@@ -262,6 +263,7 @@ fn refused_context_draft_handoff_posts_no_instruction_and_retry_posts_once(
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |ui, cx| {
             let note = ui.workspace.new_note("Retry note", "Saved text").unwrap();
+            ui.new_thread(window, cx);
             ui.open_note(&note.id, None, window, cx);
             ui.composer.update(cx, |editor, cx| {
                 editor.set_value("Original unsent draft", window, cx)

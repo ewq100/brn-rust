@@ -258,8 +258,8 @@ impl ThreadsUi {
                     div().flex().flex_col().child(entry).child(
                         div()
                             .px_2()
-                            .font_family(MONO)
-                            .text_xs()
+                            .font_family(UI_FONT)
+                            .text_size(SMALL_TEXT)
                             .text_color(rgb(p.muted))
                             .child(facts.join(" · ")),
                     ),
@@ -324,7 +324,7 @@ impl ThreadsUi {
                         d.child(
                             div()
                                 .px_2()
-                                .text_xs()
+                                .text_size(SMALL_TEXT)
                                 .text_color(rgb(p.muted))
                                 .child(entry.description.clone()),
                         )
@@ -425,7 +425,7 @@ impl ThreadsUi {
                 panel = panel.child(
                     div()
                         .id(format!("knowledge-finding-{index}"))
-                        .text_sm()
+                        .text_size(UI_TEXT)
                         .child(finding.detail.clone()),
                 );
             }

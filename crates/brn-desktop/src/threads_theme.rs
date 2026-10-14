@@ -218,8 +218,12 @@ pub(super) fn apply(theme: ThemeId, cx: &mut App) {
     CURRENT.with(|current| current.set(theme));
     let p = theme.palette();
     Theme::update(cx, |theme| {
-        theme.radius = px(0.);
-        theme.radius_lg = px(0.);
+        theme.font_family = super::UI_FONT.into();
+        theme.font_size = super::PROSE_TEXT;
+        theme.mono_font_family = super::MONO.into();
+        theme.mono_font_size = super::UI_TEXT;
+        theme.radius = px(6.);
+        theme.radius_lg = px(8.);
         theme.shadow = false;
         let colors = &mut theme.colors;
         colors.background = rgb(p.tile).into();
@@ -230,6 +234,15 @@ pub(super) fn apply(theme: ThemeId, cx: &mut App) {
         colors.button_foreground = rgb(p.ink).into();
         colors.button_hover = rgb(p.hover).into();
         colors.button_active = rgb(p.active).into();
+        // Ghost buttons use secondary ink and the secondary active fill.
+        colors.secondary = rgb(p.alt).into();
+        colors.secondary_foreground = rgb(p.ink).into();
+        colors.secondary_hover = rgb(p.hover).into();
+        colors.secondary_active = rgb(p.active).into();
+        colors.button_secondary = colors.secondary;
+        colors.button_secondary_foreground = colors.secondary_foreground;
+        colors.button_secondary_hover = colors.secondary_hover;
+        colors.button_secondary_active = colors.secondary_active;
         colors.primary = rgb(p.accent).into();
         colors.primary_foreground = rgb(p.primary_fg).into();
         colors.primary_hover = rgb(p.accent_hover).into();

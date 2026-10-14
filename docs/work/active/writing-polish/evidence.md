@@ -10,7 +10,7 @@ Rendered selections use the toolkit's exact source mapping, validate parser/sour
 
 This is formatted reading plus Markdown editing with formatting controls. It does not claim editable WYSIWYG, pixel-aligned margin cards, perfect semantic anchors or durable comment drafts beyond the existing window-local behavior.
 
-## Local verification
+## Initial candidate verification (`640911442f`)
 
 Pinned Rust 1.98.1 and GPUI Kit 0.7.3; compatible shared target cache `/Users/evokessler/repos/brn-rust/target`.
 
@@ -54,10 +54,10 @@ These native checks establish the scoped UI interactions, not provider rewrite q
 | Owner-selected layout/workflow | Accepted in this chat; implementation UX acceptance pending |
 | Defined/build ready | Complete; independent plan review passed |
 | Implemented | Complete locally |
-| Local checks | Build, strict lint, 123 native tests, formatting/docs passed |
+| Local checks | Integrated native build, strict lint, 141 native tests, 14 core/app writing tests, 18 AI rewrite checks, format/docs pass |
 | Independent code review | Passed after findings resolved |
 | Native observation | Scoped synthetic reading/comments/formatting/Save/review/Apply/Undo observed |
-| Hosted CI | Pending publication/checks |
+| Hosted CI | Initial `640911442f` required checks passed; refreshed integrated-head checks pending |
 | Owner acceptance | Pending review of the concrete native candidate |
 | Merge/release | Unassigned; no merge or release claimed |
 
@@ -76,3 +76,13 @@ Synthetic final-build native observation with Chat closed: enter overall feedbac
 Failed verification attempts remain in task-owned logs: unsupported Div scrolling lacked a stateful ID; obsolete tests still sought retired chat-card controls; the first accumulated-candidate fixture correctly hit the core guard. A parallel full run also missed two pre-existing dialog controls, while 128 other tests passed; serial execution passed all 129 on that same source. The final expanded checks below supersede these attempts.
 
 Revised hosted checks and owner UX acceptance are pending; merge/release remain unassigned.
+
+## UI polish integration qualification
+
+Integrated [#136](https://github.com/ewq100/brn-rust/pull/136), `c0188a3f7daa66885b32427c14323517aaf0a189`, by normal merge. Retained its reusable workspace areas, shared system-font sizing, quiet controls and navigation contract. Reconciled conflict hunks for comments/Save-and-comment/review and their tests without retiring either flow. Overall-feedback navigation preserves the independent selected chat and its draft. Explicit opening of a writing review retains the merged contract of selecting its intended conversation; this does not open a closed Chat panel.
+
+Final integrated source checks: `CARGO_TARGET_DIR=/Users/evokessler/repos/brn-rust/target RUST_TEST_THREADS=1 scripts/verify-desktop-shell.sh` passes native build, strict all-target Clippy and **141/141 native tests**. Log: `/Users/evokessler/.codex/writing-polish-data/native-verification-integrated-final.log`. Core/app writing **14/14** and AI rewrite **18/18** pass; fmt/diff and docs **65 files / 280 local links / 0 failures** pass. Two obsolete navigation/review test assumptions were updated to the merged contract and Note-owned proposal controls.
+
+Additional reviewed fixes: an old Apply cannot hide the latest rewrite response/Retry; prior Undo remains reachable and current Apply offers Rewrite again. Responses and captured-input figures resolve against their own bound thread, independently of optional Chat selection. The seven new native journeys include exact terminal-run response association, R1 Apply→R2 clarification, old Undo/new Retry, per-note drafts, closed Chat and Stop during review. Independent final/integration review found no remaining actionable defects. An attempted review-thread-preservation finding was withdrawn against #136's explicit accepted review-selection contract.
+
+Native-observed on this integrated build, using fresh `native-integrated-writing-20261014` synthetic data: Chat closed, overall feedback entry, Rewrite persisted before offline refusal, scripted proposal review, Read result, Apply, individual captured-comment addressed confirmation and prior receipt Undo restored the original at v3 and all three pending comments. This also exercised a newer saved request beside an older applied candidate. No provider call. Fresh pending owner-preview data is kept separately. Broader native IME/daily-use and owner UX acceptance remain pending; writing PR merge/release are unassigned.

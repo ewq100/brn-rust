@@ -207,7 +207,7 @@ fn note_and_selected_chat_drafts_and_dirty_buffers_survive_navigation(cx: &mut T
             view.open_note(&f.b.id, None, window, cx);
             assert!(view.comment_anchor.is_none());
             assert!(view.comment_input.read(cx).value().is_empty());
-            assert_eq!(view.composer.read(cx).value().as_ref(), "Chat B draft");
+            assert_eq!(view.composer.read(cx).value().as_ref(), "Chat A draft");
             view.comment_input
                 .update(cx, |editor, cx| editor.set_value("B draft", window, cx));
             view.open_note(&f.a.id, None, window, cx);
@@ -575,6 +575,114 @@ fn narrow_workbench_scrolls_tiles_to_usable_chat_and_keeps_one_editor(cx: &mut T
         assert!(window.find(format!("chat-message-{}", posted.id)).visible());
         assert!(window.find("ask-delegate").visible());
         assert_eq!(f.view.read(cx).note_editor, editor);
+    })
+    .unwrap();
+}
+
+#[gpui_kit::test]
+fn browsing_notes_keeps_selected_chat_and_replacing_main_preserves_review_text(
+    cx: &mut TestAppContext,
+) {
+    let f = fixture(cx);
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            view.open_note(&f.a.id, None, window, cx);
+            view.select_writing_thread(f.a.id.clone(), f.chat_a.clone(), window, cx);
+            view.composer.update(cx, |editor, cx| {
+                editor.set_value("Keep this conversation draft", window, cx)
+            });
+            view.open_note(&f.b.id, None, window, cx);
+            assert_eq!(view.chat_thread(), Some(f.chat_a.as_str()));
+            assert_eq!(
+                view.composer.read(cx).value().as_ref(),
+                "Keep this conversation draft"
+            );
+            view.open_note(&f.a.id, None, window, cx);
+            let (_, candidate) = proposal(
+                view,
+                &f.a,
+                &f.chat_a,
+                &[],
+                "Exact proposed wording",
+                "area-review",
+            );
+            let candidate_id = candidate.operation.clone();
+            view.open_review(candidate, window, cx);
+            view.start_review_edit(window, cx);
+            view.review_editor.update(cx, |editor, cx| {
+                editor.set_value("Owner's unsubmitted final text", window, cx)
+            });
+            view.show_tile(TileKind::Actions, window, cx);
+            assert_eq!(
+                view.review.as_ref().unwrap().candidate.operation,
+                candidate_id
+            );
+            assert_eq!(
+                view.review_editor.read(cx).value().as_ref(),
+                "Owner's unsubmitted final text"
+            );
+            view.show_tile(TileKind::Note, window, cx);
+            assert!(view.review_editing);
+            assert_eq!(
+                view.review.as_ref().unwrap().candidate.operation,
+                candidate_id
+            );
+            assert_eq!(
+                view.review_editor.read(cx).value().as_ref(),
+                "Owner's unsubmitted final text"
+            );
+            assert_eq!(view.workspace.store.note(&f.a.id).unwrap().unwrap(), f.a);
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+}
+
+#[gpui_kit::test]
+fn reopening_current_review_from_solo_chat_removes_hidden_composer_focus(cx: &mut TestAppContext) {
+    let f = fixture(cx);
+    let mut operation = String::new();
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            view.open_note(&f.a.id, None, window, cx);
+            view.select_writing_thread(f.a.id.clone(), f.chat_a.clone(), window, cx);
+            let (_, candidate) =
+                proposal(view, &f.a, &f.chat_a, &[], "Exact proposal", "solo-reopen");
+            operation = candidate.operation.as_str().to_owned();
+            view.open_review(candidate, window, cx);
+            view.start_review_edit(window, cx);
+            view.review_editor.update(cx, |editor, cx| {
+                editor.set_value("Unsubmitted reviewed text", window, cx)
+            });
+            view.show_tile(TileKind::Chat, window, cx);
+            view.apply_layout(Preset::Solo, window, cx);
+            assert!(view.composer.focus_handle(cx).is_focused(window));
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            let candidate = view
+                .candidates
+                .iter()
+                .find(|candidate| candidate.operation.as_str() == operation)
+                .unwrap()
+                .clone();
+            view.open_review(candidate, window, cx);
+        })
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        let view = f.view.read(cx);
+        assert_eq!(view.layout.maximized(), Some(TileKind::Note));
+        assert!(!view.composer.focus_handle(cx).is_focused(window));
+        assert!(view.review_editor.focus_handle(cx).is_focused(window));
+        assert_eq!(
+            view.review_editor.read(cx).value().as_ref(),
+            "Unsubmitted reviewed text"
+        );
     })
     .unwrap();
 }
