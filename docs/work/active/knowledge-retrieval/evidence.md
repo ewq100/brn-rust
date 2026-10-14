@@ -687,3 +687,28 @@ An independent review of the prototype found six Medium issues; they were fixed 
 - **Tests:** 40+ new unit and integration tests, listed in [host-intake.md](host-intake.md#tests).
 
 **Not done:** no live re-measure of tokens or turns after the changes (full pages instead of 8 KB prefixes cost more input on large pages, and the wording change is unmeasured); the desktop was not exercised; the six `brn-threads-intake` qualification tests behave as before.
+
+### A/B against main after the review fixes (14 October 2026)
+
+**Request:** the owner chose a fair A/B before merging.
+
+**Setup:**
+- Arm `B-main` is `main` at `1d1555a3`: bundle 7 with prompt caching.
+- Arm `D-host` is this branch: bundle 9, host context, full-read guard, merged with `main`.
+- Both arms use the same seeder and the same knowledge-check binary.
+- Codex `gpt-6.1-sol` at medium effort, S1–S3, two repetitions each, plus S2's budget-16 diagnostic on B.
+- The earlier one-repetition check (S1 step 5 `Failed:Other`; S2 and S3 failing) showed an Undo false positive: Undo deliberately advances the chat's `context_epoch` (Projects). The harness now ignores that host-managed field and has a test for it.
+
+| | B-main | D-host |
+|---|---|---|
+| S1 complete runs | 1 passed (1 `Failed:Other` at step 2) | 1 passed (1 `Failed:Other` at step 2) |
+| S1 searches / bytes read (complete run) | 21 / 217 KB | 6 / 72 KB |
+| S1 input / cached / effective (cached at 0.1×) | 627k / 70% / 232k | 541k / 76% / **168k (−28%)** |
+| S2 | 0/2: same misses (RelationVariant or a dangling topic link) | 0/2: same |
+| S3 | 2/2 | 2/2 |
+| Safety blockers | 0 | 0 |
+
+**Reading:**
+- Quality is the same as `main` on these cases. The host context cuts searching by about 3.5× and effective S1 cost by about 28%.
+- S2's remaining misses are shared, so they are agent behaviour rather than a regression.
+- `Failed:Other` occurred at the same step in both arms. It is unrelated to this change. It is an unclassified provider error whose detail BRN does not keep; that is a follow-up.
