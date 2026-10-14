@@ -169,6 +169,11 @@ impl ThreadsUi {
                         page.reachable
                     ));
                 }
+                match page.semantic.as_str() {
+                    "" | "none" => {}
+                    "complete" => status.push_str(" · with meaning"),
+                    other => status.push_str(&format!(" · meaning {other}")),
+                }
                 status
             }
             _ => String::new(),

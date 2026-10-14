@@ -284,3 +284,93 @@ These check the plumbing and budgets with a scripted model. They are not evidenc
 - The Connections graph drawing is a separate UI task. The list is the accessible equivalent the ordinary-wiki flow asked for.
 - The live guidance comparison (bundle 3 against bundle 4) has not been run.
 - `context_actions_tests::save_decision_…` and `note_edit_is_contextual_…` occasionally fail when the whole desktop suite runs in parallel: a dialog has not reopened when the test looks for it. The same flake occurs on `main` `56c28879` (4 of 16 full-suite runs), so it is pre-existing and not changed here. Both pass alone and in their module (12 of 12).
+
+## Task 5 — dense lane
+
+**Tree:** `work/knowledge-dense`, stacked on Tasks 3–4. No model was downloaded; only public Hugging Face API metadata (revision, sizes and digests) was read to pin the assets.
+
+**Built:** see the [plan](plan.md#task-5--dense-upgrade-pr-5).
+
+### Commands and results
+
+```sh
+cargo test -p brn-retrieval --features native --lib                 # 35 passed (e5 profile, both manifests)
+cargo test -p brn-retrieval --test search_index                      # 12 passed (vectors, no ID reuse, hybrid)
+cargo test -p brn-threads-app --test search_dense                    # 4 passed, 10 of 10 repeats
+cargo test --workspace; clippy (default, native-retrieval, desktop lanes)  # ok
+```
+
+### Findings
+- **SQLite reused a deleted passage's rowid** for the re-chunked passage. A cached vector was then attributed to new text (seen as 2 of 5 flaky runs). Passages now use `AUTOINCREMENT` (index schema v2; older indexes rebuild in place).
+- **Without a similarity floor**, the dense lane "matches" every note, which would break abstention and inflate `total`. A per-model floor applies; the e5 value is provisional.
+- **Coverage could lag an answered sync.** Counts are now refreshed before the reply.
+
+### Independent review
+
+**Code review of Task 5 (Sonnet 5.5).** It found no visibility leaks. It checked the dense lane's eligibility filter, the core re-check before dense-only notes are counted, and the profile selection, and it confirmed the e5 pins against the Hugging Face revision metadata. Six findings, all fixed:
+1. **A transient failure disabled embedding for the whole process.** The failure is still reported, but a batch is retried after each new request (never in a busy loop), and a success clears it.
+2. **The matrix ignored vectors stored by another process and survived index rebuilds.** It now also reloads when rows are missing, and resets whenever the index is created or rebuilt.
+3. **`semantic` could say "complete" while that request's own sync had added unembedded passages.** Counts are now refreshed right after each sync. A test covers it.
+4. **Other chats' near passages could crowd out visible ones before the visibility filter.** The dense lane now walks up to 2,000 above-floor passages until it has enough visible notes. A test with 300 private near-duplicates covers it.
+5. **`total` could double count dense hits that also match the keywords.** It now adds only true non-matches, checked against the stem lane, and subtracts rejections only from keyword matches. Cursors are documented as unstable while coverage is partial.
+6. **Vectors of replaced models were never purged.** Opening the index with a model configured now deletes other models' vectors.
+
+### Qualification with the pinned model
+
+The owner approved the download on 14 October 2026; the live provider comparison was not approved and was not run. The model was installed into a session folder outside the repository with `brn model-install` (135,392,183 bytes, verified against the pins). `local_embedder` passed, including the meaning check.
+
+**Measurement, then tuning.** The first hybrid run (equal-weight RRF, floor 0.80) at 1k notes gave:
+
+| 1,000 notes | keyword | first hybrid |
+|---|---|---|
+| paraphrase recall@10 / @50 | 0 / 0.10 | 0.30 / 0.35 |
+| inflection recall@10 (MRR) | 0.75 (0.752) | 0.70 (0.445) |
+| section MRR | 0.922 | 0.878 |
+| abstention any-hit | 0 | **0.67** |
+
+The second, third and fourth rows violate the plan's "no stratum regresses" acceptance. Per-query similarities were dumped from one run (temporary instrumentation, since removed) and the fusion simulated offline:
+- e5-small compresses similarity. Unrelated queries score 0.78–0.82 at 1k and up to 0.824 at 10k, which overlaps real matches.
+- The gap between the best passage and the background is the better separator. Abstention reached at most about 0.015 at both sizes.
+- Boosting keyword matches with near neighbours costs inflection and section ranking. Adding only notes no keyword lane found does not.
+
+**Shipped settings:** augment-only fusion, floor 0.82, margin 0.017.
+
+| | keyword 1k | hybrid 1k | keyword 10k | hybrid 10k |
+|---|---|---|---|---|
+| exact / topic / section recall@10 | 1 / 1 / 1 | 1 / 1 / 1 | 1 / 1 / 1 | 1 / 1 / 1 |
+| inflection recall@10 (MRR) | 0.75 (0.752) | 0.75 (0.752) | 0.75 (0.75) | 0.75 (0.75) |
+| section MRR | 0.922 | 0.922 | 0.922 | 0.922 |
+| paraphrase recall@10 / @50 | 0 / 0.10 | **0.05 / 0.20** | 0 / 0 | **0.05 / 0.05** |
+| abstention any-hit | 0 | 0 | 0 | 0 |
+| overall recall@10 (MRR) | 0.706 (0.694) | **0.718 (0.696)** | 0.706 (0.692) | **0.718 (0.694)** |
+| visibility violations / in-chat recall | 0 / 1.0 | 0 / 1.0 | 0 / 1.0 | 0 / 1.0 |
+| embedding the corpus | — | 1,328 passages, 62 s | — | 12,186 passages, 570 s |
+| peak memory | — | 1.77 GB | — | 2.09 GB |
+| query p50 / p95 | 3.3 / 6.5 ms | 7.9 / 16.2 ms | 24.3 / 58.7 ms | 52 / 108 ms* |
+
+\* The 10k harness run measured p50 57 ms and p95 263 ms. Most of that came from checking each dense-only note with its own full-text query. After making it one query, the same embedded 10k workspace measured p50 52–57 ms and p95 108 ms in two passes (keyword-only p95 84 ms in that session). Quality figures are from the harness run; the fix changes only the `total` count, not the ranking.
+
+**Conclusion.** On this synthetic English set, the pinned e5-small adds a small, safe paraphrase gain:
+- Overall recall@10 rises from 0.706 to 0.718.
+- No stratum regresses, abstention stays empty and there are no visibility violations.
+
+The cost is about 47 ms per passage to embed (about 10 minutes for 10k notes, in idle time and resumable) and about 2 GB of peak memory while the model runs.
+
+The synthetic paraphrases are single planted sentences inside long passages, which dilutes passage embeddings. Real notes may behave differently. The floor and margin are per-model settings in `native.rs` and can be re-measured with the same harness.
+
+### Reproducing
+The semantic qualification needs the model download (135,392,183 bytes):
+```sh
+cargo build --release -p brn --features native-retrieval
+target/release/brn --data-dir <any> model-install --destination <fresh absolute folder>
+BRN_EMBEDDING_MODEL_DIR=<folder> cargo run --release -p brn-threads-app --features native-retrieval \
+  --example retrieval_eval -- --root <new root> --notes 10000 --retriever hybrid --out <report>.json
+```
+
+## Task 6 — cleanup
+
+- **Removed:** `brn-retrieval/src/note_index/` (mod, schema, search, embeddings, edges), `chunk.rs`, and the tests `note_index`, `note_search`, `note_reader`, `note_edges`, `note_scopes` and `note_embeddings`.
+- **Kept:** the query helpers, now in `search_index`; the `Embedder` trait, now in `embedding`; and the installer and `LocalEmbedder`.
+- **Dependencies:** `serde` and `serde_json` were dropped from `brn-retrieval`. `Cargo.lock` loses two dependency edges and adds no packages.
+- **Checks:** workspace build, clippy and tests, the `native` and `native-retrieval` lanes, and the Markdown link check all pass.
+- **The legacy `ReadTools` path was assessed and kept;** the reason is in the [plan](plan.md#task-6--cleanup-pr-6-shipped-with-task-5).

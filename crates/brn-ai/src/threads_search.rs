@@ -16,12 +16,14 @@ pub enum NoteSearchError {
 /// Host search bound to a workspace. Implementations must apply core
 /// visibility for `chat` to every result, count and neighbour.
 pub trait RunNoteSearch: Send + Sync {
+    /// `hybrid` adds semantic matching when the host has a model.
     fn search(
         &self,
         chat: &str,
         query: &str,
         limit: usize,
         cursor: Option<&str>,
+        hybrid: bool,
     ) -> std::result::Result<NoteSearchPage, NoteSearchError>;
     fn connections(
         &self,
@@ -39,7 +41,8 @@ pub struct NoteSearchPage {
     pub shown: usize,
     /// Pass back with the same limit for more.
     pub cursor: Option<String>,
-    /// Dense coverage: `none` until an embedding model is installed.
+    /// Dense coverage: `none`, `partial(n/m)`, `complete`, `off (…)` for
+    /// keyword mode, or `failed: …`.
     pub semantic: String,
     pub results: Vec<NoteSearchResult>,
 }
@@ -174,7 +177,14 @@ fn host(scope: &Scope) -> AiResult<(Arc<dyn RunNoteSearch>, String)> {
 pub(super) async fn search_notes(scope: Arc<Scope>, args: SearchNotesArgs) -> AiResult<Value> {
     let (search, chat) = host(&scope)?;
     let page = tokio::task::spawn_blocking(move || {
-        search.search(&chat, &args.query, args.limit, args.cursor.as_deref())
+        let hybrid = args.mode == "hybrid";
+        search.search(
+            &chat,
+            &args.query,
+            args.limit,
+            args.cursor.as_deref(),
+            hybrid,
+        )
     })
     .await
     .map_err(storage)?

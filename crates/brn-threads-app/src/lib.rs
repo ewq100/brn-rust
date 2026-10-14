@@ -91,6 +91,9 @@ pub struct SearchPage {
     pub reachable: usize,
     /// Pass back with the same limit for the next page.
     pub cursor: Option<String>,
+    /// Dense coverage: `none`, `partial(n/m)`, `complete` or `failed: …`.
+    #[serde(default)]
+    pub semantic: String,
 }
 
 impl From<search::SearchResults> for SearchPage {
@@ -100,6 +103,7 @@ impl From<search::SearchResults> for SearchPage {
             offset: results.offset,
             reachable: results.reachable,
             cursor: results.next,
+            semantic: results.semantic,
             hits: results
                 .matches
                 .into_iter()
@@ -124,18 +128,35 @@ impl From<search::SearchResults> for SearchPage {
     }
 }
 
+/// Downloads the pinned embedding model into the fresh absolute `target`
+/// folder: an explicit owner action, verified by size and digest. Returns
+/// the downloaded byte count.
+#[cfg(feature = "native-retrieval")]
+pub fn install_embedding_model(
+    target: &Path,
+    cancel: &std::sync::atomic::AtomicBool,
+    progress: impl Fn(u64, u64),
+) -> AppResult<u64> {
+    Ok(brn_retrieval::native::download::download_model(target, cancel, progress)?.downloaded_bytes)
+}
+
+/// Names the folder of an installed embedding model for semantic search.
+pub const EMBEDDING_MODEL_ENV: &str = "BRN_EMBEDDING_MODEL_DIR";
+
 /// Results [`Workspace::search`] returns.
 pub const SEARCH_LIMIT: usize = 30;
 
 pub struct Workspace {
     pub store: Store,
     search: Option<search::SearchHandle>,
+    embedder: Option<Box<dyn brn_retrieval::embedding::Embedder + Send>>,
 }
 impl Workspace {
     pub fn open(data: impl AsRef<Path>) -> AppResult<Self> {
         let mut workspace = Self {
             store: Store::open(data)?,
             search: None,
+            embedder: None,
         };
         workspace.bootstrap_settings()?;
         workspace.bootstrap_chat_control()?;
@@ -348,9 +369,56 @@ impl Workspace {
             return Ok(handle.clone());
         }
         // The worker stops once the last handle is dropped.
-        let (handle, _worker) = search::SearchHandle::spawn(&self.store)?;
+        let (handle, _worker) =
+            search::SearchHandle::spawn_with(&self.store, self.embedder.take())?;
         self.search = Some(handle.clone());
         Ok(handle)
+    }
+    /// Gives search an embedding model for the dense lane. Must be called
+    /// before the first search starts the worker.
+    pub fn use_embedder(
+        &mut self,
+        embedder: Box<dyn brn_retrieval::embedding::Embedder + Send>,
+    ) -> AppResult<()> {
+        if self.search.is_some() {
+            return Err(AppError::Invalid(
+                "choose the embedding model before searching".into(),
+            ));
+        }
+        self.embedder = Some(embedder);
+        Ok(())
+    }
+    /// Loads the pinned local model from `dir` (never downloads) and uses it
+    /// for the dense lane. Returns the model identity.
+    #[cfg(feature = "native-retrieval")]
+    pub fn open_embedding_model(&mut self, dir: &Path) -> AppResult<String> {
+        use brn_retrieval::embedding::Embedder;
+        let embedder = brn_retrieval::native::LocalEmbedder::open(dir)?;
+        let identity = embedder.identity().to_owned();
+        self.use_embedder(Box::new(embedder))?;
+        Ok(identity)
+    }
+    /// Uses the model folder the owner named in [`EMBEDDING_MODEL_ENV`], if
+    /// any. `None` when unset; an error when it cannot be used, including a
+    /// build without native retrieval. Keyword search works either way.
+    pub fn embedding_model_from_env(&mut self) -> Option<AppResult<String>> {
+        let dir = std::env::var_os(EMBEDDING_MODEL_ENV).filter(|d| !d.is_empty())?;
+        let dir = std::path::PathBuf::from(dir);
+        if !dir.is_absolute() {
+            return Some(Err(AppError::Invalid(format!(
+                "{EMBEDDING_MODEL_ENV} must be an absolute folder"
+            ))));
+        }
+        #[cfg(feature = "native-retrieval")]
+        {
+            Some(self.open_embedding_model(&dir))
+        }
+        #[cfg(not(feature = "native-retrieval"))]
+        {
+            Some(Err(AppError::Unavailable(
+                "this build has no native retrieval; semantic search is off".into(),
+            )))
+        }
     }
     /// The owner's general search: saved text of current notes outside
     /// chats, best first.

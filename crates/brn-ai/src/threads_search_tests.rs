@@ -14,11 +14,12 @@ impl RunNoteSearch for FakeSearch {
         query: &str,
         limit: usize,
         cursor: Option<&str>,
+        hybrid: bool,
     ) -> std::result::Result<NoteSearchPage, NoteSearchError> {
         self.calls
             .lock()
             .unwrap()
-            .push(format!("search {chat} {query} {limit} {cursor:?}"));
+            .push(format!("search {chat} {query} {limit} {cursor:?} {hybrid}"));
         Ok(NoteSearchPage {
             total: 1,
             shown: 1,
@@ -133,7 +134,7 @@ async fn search_tools_use_the_run_chat_and_report_activity() {
     assert_eq!(
         *fake.calls.lock().unwrap(),
         [
-            format!("search {chat} harbor plan 5 None"),
+            format!("search {chat} harbor plan 5 None true"),
             format!("connections {chat} n1 2 true"),
         ]
     );

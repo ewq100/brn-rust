@@ -75,7 +75,7 @@ flowchart LR
 
 ### 2. Derived index (`brn-retrieval::search_index`)
 
-- **Identity and rebuild.** A lean schema with identity `BRNS` v1, independent of the vault-era `NoteIndex`. It reuses the chunk, query-escaping, RRF and embedding code. An outdated or settings-mismatched index is rebuilt in place in one transaction, and a damaged one is replaced; neither is ever repaired. Both happen under an advisory `derived/search.lock` shared by every BRN process. This replaced the planned sibling swap, which could strand WAL files and race across processes. A foreign file is refused unchanged.
+- **Identity and rebuild.** A lean schema with identity `BRNS` (v2 since Task 5: passage IDs are never reused), independent of the vault-era `NoteIndex`, which Task 6 retired. An outdated or settings-mismatched index is rebuilt in place in one transaction, and a damaged one is replaced; neither is ever repaired. Both happen under an advisory `derived/search.lock` shared by every BRN process. This replaced the planned sibling swap, which could strand WAL files and race across processes. A foreign file is refused unchanged.
 - **Tables:**
   - `docs(id, kind, version, sha256, title, visibility, protected, imported, language)`. `kind` is `note` now; `message` is reserved for project chat search. `visibility` is `general`, `chat:<id>` or, later, `project:<id>`.
   - `passages(id, doc, start_byte, end_byte, heading_path, text, indexed_text)`. `indexed_text` is `title › heading path` followed by the passage text. Byte ranges point into the saved Markdown, so quotes and anchors stay exact.
@@ -160,7 +160,7 @@ flowchart LR
 
 ### 6. Dense upgrade (`native-retrieval` feature)
 
-- Replace the MiniLM profile with a pinned **`multilingual-e5-small`**: 384-d, 512 tokens, MIT licence, `query:` and `passage:` prefixes.
+- Replace the MiniLM profile with a pinned **`multilingual-e5-small`**: 384-d, 512 tokens, MIT licence, `query:` and `passage:` prefixes. As built: `Xenova/multilingual-e5-small` at `761b726d…`; an existing MiniLM install is still recognised. Measured on the golden set (Task 5 evidence), the dense lane only adds notes the keyword lanes missed, never reorders keyword matches, and counts a semantic match only at cosine ≥ 0.82 and when the best match stands 0.017 above the background. With those settings, unrelated queries still find nothing and no stratum regresses.
 - `multilingual-e5-base` (768-d) is the alternative if the English evaluation favors it clearly.
 - Assets are pinned by revision, size and digest. The download stays an explicit owner action.
 - A background embedding queue runs inside the search worker in bounded, cancellable batches.

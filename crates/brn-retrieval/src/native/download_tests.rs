@@ -254,26 +254,88 @@ fn private_http_seam_uses_synthetic_manifest_and_local_server_only() {
 }
 
 #[test]
-fn production_manifest_is_immutable_exactly_five_assets_with_exact_bounds() {
+fn production_manifest_pins_multilingual_e5_small() {
     assert_eq!(
         download::REVISION,
-        "2c4055b12046f11709e9df2c122e59ffbdc2f900"
+        "761b726dd34fb83930e26aab4e9ac3899aa1fa78"
     );
-    assert_eq!(download::ASSETS.len(), 5);
+    let actual: Vec<_> = download::ASSETS
+        .iter()
+        .map(|a| {
+            let digest = match a.digest {
+                DigestPin::Sha256(digest) => hex::encode(digest),
+                DigestPin::GitBlobSha1(digest) => hex::encode(digest),
+            };
+            (a.source, a.name, a.bytes, digest)
+        })
+        .collect();
+    assert_eq!(
+        actual,
+        [
+            (
+                "onnx/model_quantized.onnx",
+                "model.onnx",
+                118_308_185,
+                "f80102d3f2a1229f387d3c81909990d8945513e347b0eab049f7de3c6f98c193".to_owned()
+            ),
+            (
+                "tokenizer.json",
+                "tokenizer.json",
+                17_082_730,
+                "0b44a9d7b51c3c62626640cda0e2c2f70fdacdc25bbbd68038369d14ebdf4c39".to_owned()
+            ),
+            (
+                "config.json",
+                "config.json",
+                658,
+                "4104f38273cc595fd9500fd243124e9f6cf383dc".to_owned()
+            ),
+            (
+                "special_tokens_map.json",
+                "special_tokens_map.json",
+                167,
+                "e0b1d18ecd0ae4ff1d47bd297d910c0cf83e504b".to_owned()
+            ),
+            (
+                "tokenizer_config.json",
+                "tokenizer_config.json",
+                443,
+                "059214673d9d6d2ee319411e2ffec8c024b816d5".to_owned()
+            ),
+        ]
+    );
     assert_eq!(
         download::ASSETS.iter().map(|a| a.bytes).sum::<u64>(),
+        135_392_183
+    );
+}
+
+#[test]
+fn previous_minilm_manifest_stays_recognised_exactly() {
+    assert_eq!(download::MINILM_ASSETS.len(), 5);
+    assert_eq!(
+        download::MINILM_ASSETS.iter().map(|a| a.bytes).sum::<u64>(),
         135_392_488
     );
-    assert_eq!(download::ASSETS[0].source, "onnx/model_quantized.onnx");
-    assert_eq!(download::ASSETS[0].name, "model.onnx");
-    assert!(matches!(download::ASSETS[0].digest, DigestPin::Sha256(_)));
-    assert!(matches!(download::ASSETS[1].digest, DigestPin::Sha256(_)));
+    assert_eq!(
+        download::MINILM_ASSETS[0].source,
+        "onnx/model_quantized.onnx"
+    );
+    assert_eq!(download::MINILM_ASSETS[0].name, "model.onnx");
+    assert!(matches!(
+        download::MINILM_ASSETS[0].digest,
+        DigestPin::Sha256(_)
+    ));
+    assert!(matches!(
+        download::MINILM_ASSETS[1].digest,
+        DigestPin::Sha256(_)
+    ));
     assert!(
-        download::ASSETS[2..]
+        download::MINILM_ASSETS[2..]
             .iter()
             .all(|a| matches!(a.digest, DigestPin::GitBlobSha1(_)))
     );
-    let actual: Vec<_> = download::ASSETS
+    let actual: Vec<_> = download::MINILM_ASSETS
         .iter()
         .map(|a| {
             let digest = match a.digest {

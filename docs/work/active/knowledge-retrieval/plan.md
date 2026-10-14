@@ -95,14 +95,21 @@
 
 ## Task 5 — dense upgrade (PR 5)
 
-- [ ] **D3:** a pinned `multilingual-e5-small` profile (revision, sizes, digests, prefixes, 512 tokens), keeping the exclusive installer and its consent rules. Update the installer tests with fixture bytes.
-- [ ] Embedding queue inside the worker: bounded, cancellable, progress reported, vectors keyed by model, in-memory brute-force matrix.
-- [ ] Owner-run qualification (requested separately): install the model, embed the 10k corpus, and run the dense and hybrid lanes. Record timings and memory.
+- [x] **D3:** a pinned `multilingual-e5-small` profile: `Xenova/multilingual-e5-small` at revision `761b726d…` (ONNX of MIT-licensed `intfloat/multilingual-e5-small`), exact sizes and digests, `query: `/`passage: ` prefixes, 512 tokens. The exclusive installer and its consent rules are unchanged; the owner runs `brn model-install --destination …` in a native build. The previous MiniLM pin stays recognised and verified. The installer tests check the new manifest and keep the MiniLM one. The Xenova card declares no licence of its own (as for the MiniLM pin); the base model is MIT.
+- [x] Embedding queue inside the worker: idle-time batches of 16 passages, each followed by a check for queued requests (so one waits at most one batch). Progress is reported (`SearchHandle::embedding_progress`), vectors are stored per model as unit-length little-endian `f32`, and an in-memory contiguous matrix is scanned by brute force. The index schema is now v2: passage IDs are `AUTOINCREMENT`, so a cached vector can never be attributed to a later passage (a test caught this).
+  - The dense lane is fused by RRF with the keyword lanes. Dense-only notes need cosine ≥ the model's floor and count towards `total`.
+  - `semantic` is `none`, `partial(n/m)`, `complete`, `off (…)` in keyword mode, or `failed: …`. It reaches the agent tool, the CLI page and the desktop status line. A failing model is reported while keyword lanes still answer; there is no fallback between models.
+  - Hosts use the folder named by `BRN_EMBEDDING_MODEL_DIR`. An unusable folder is an error in the CLI and a notice on the desktop.
+  - Tests use deterministic fake models: paraphrase found only by the dense lane, prefixes, coverage, visibility, re-embedding after an edit, the floor keeping abstention, a failing model, and keyword mode.
+- [x] Owner-requested qualification (approved 14 October 2026): `brn model-install`, then `retrieval_eval --retriever hybrid` at 1k and 10k notes. Recorded in [evidence](evidence.md#qualification-with-the-pinned-model). The measurements changed the design:
+  - The dense lane now only adds notes the keyword lanes missed; boosting keyword matches cost inflection and section ranking.
+  - A semantic match also needs the best passage to stand 0.017 above the background; the 0.82 floor alone let unrelated queries through at 10k.
+  - `matching_keywords` became one query; it had raised hybrid p95 to 263 ms.
 
-## Task 6 — cleanup (PR 6)
+## Task 6 — cleanup (PR 6, shipped with Task 5)
 
-- [ ] Retire the vault-era `NoteIndex` metadata, UUID, edge-proof and reader code once it has no callers.
-- [ ] Separately assess the legacy `ReadTools::search_notes` path in `brn-ai/src/tools.rs`, which only provider-format tests use.
+- [x] Retired the vault-era `NoteIndex` (metadata, UUID, edge-proof, reader and embedding caches, about 1,700 lines plus six test files) and the old fixed-size chunker, once nothing outside `brn-retrieval` used them. The query helpers moved into `search_index`, the `Embedder` trait into `embedding`. Error variants and `serde`/`serde_json` dependencies used only by that code were removed; the lockfile only loses those edges.
+- [x] Assessed the legacy `ReadTools::search_notes` path in `brn-ai/src/tools.rs`. It belongs to the offline provider-format qualification runtime (`provider_fixture_runtime`, test- or `capability-spike`-only exports, about 6,700 lines of format tests) and does not touch any index. Shipped hosts never reach it; agent runs use `search_notes` through `RunNoteSearch`. Removing it means retiring or porting those provider-format tests, which is a separate owner decision rather than retrieval cleanup, so it is kept unchanged.
 
 ## Projects stage hooks (not built here)
 
