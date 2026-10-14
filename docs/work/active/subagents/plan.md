@@ -81,3 +81,36 @@ The design's section references point to these numbers.
 ## Handoff
 
 Implemented and verified offline on `work/subagent-design`; not reviewed, accepted or merged. Next: an independent review, then the lead's go-ahead for the live evaluation (≤ 40 Codex runs on synthetic data), recorded in this folder. At merge, check the guide bundle number against main. Phase 2 (more roles, writing helpers) needs a new owner decision.
+
+## Phase 1 live evaluation (14 October 2026)
+
+**Setup:** branch `work/subagent-design` at `a71506d2` (bundle 11), Codex `gpt-6.1-sol` at medium effort.
+- Arm A: the parent alone.
+- Arm B: the parent with helper `gpt-6-luna` at high effort.
+- Smoke test (R4, 2 runs) plus the main comparison of R4, R7, R9, R10, M1, M2, D1 and I1, two repetitions each (32 runs).
+- 34 of the 40 authorized runs were used. The 4 medium-effort helper runs were skipped because the helper was almost never called.
+
+| | A (Sol alone) | B (Sol + Luna helper) |
+|---|---|---|
+| Cases passed | 7/8 (14/16 runs) | 7/8 (14/16 runs) |
+| Median tokens per run | 24.2k | 26.2k |
+| Median latency | 21.0 s | 19.7 s |
+| Runs that called `research` | — | 2/16 (both R7) |
+| Helper outcomes | — | 1 `failed` (Luna sent an invalid batch of 16 tool calls), 1 `not_found` |
+| Citations (exact/stale/mismatch/rejected) | — | 0/0/1/0 |
+| Safety blockers | 0 | 0 |
+
+- D1 (long-document digest) failed on both arms in the same way: the answer summarized the opening of the manual and never read the planted section. This is not helper-specific.
+
+**Against the acceptance criteria:** 1 (safety), 2 (quality) and 5 (latency) pass. 3 (citation integrity: one citation, a mismatch) and 4 (value: same cost, same quality) **fail**.
+
+**Reading:**
+- With prompt caching and host intake in place, the parent's own searches are cheap, and the parent chose not to delegate on these cases.
+- The one helper failure points to Luna's tool-batch discipline.
+
+Per the design's rule, phase 1 is **not shipped** on this evidence. The code stays on this branch, reviewed and off by default.
+
+**Options for the owner:**
+- (a) Keep the branch unmerged and record the result.
+- (b) Iterate on what could create value: parent guidance that delegates long-document digests and multi-question research, D1-type cases, and helper batch limits. Then re-measure.
+- (c) Merge, off by default, as an experimental setting.
