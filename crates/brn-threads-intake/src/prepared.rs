@@ -300,7 +300,11 @@ impl Converter {
             budget(),
             cancel,
             true,
-        )?;
+        )
+        .map_err(|error| match error {
+            ConversionError::Invalid => ConversionError::PdfTextInvalid,
+            other => other,
+        })?;
         let pages = parse_pages(&geometry)?;
         if pages.is_empty() || pages.len() > brn_intake::MAX_ASSETS {
             return Err(ConversionError::Budget);
@@ -324,7 +328,11 @@ impl Converter {
             temp,
             budget(),
             cancel,
-        )?;
+        )
+        .map_err(|error| match error {
+            ConversionError::Invalid => ConversionError::PdfRenderInvalid,
+            other => other,
+        })?;
         temp.check_budget(self.limits.max_output_bytes + self.limits.max_input_bytes)?;
         let page_digits = pages.len().to_string().len();
         let mut total_bytes = 0usize;
@@ -343,7 +351,7 @@ impl Converter {
             }
             let bytes = fs::read(path).map_err(|_| ConversionError::Io)?;
             let (w, h) = brn_intake::prepared::validate_preview(&bytes, &self.limits)
-                .map_err(|_| ConversionError::Invalid)?;
+                .map_err(|_| ConversionError::PdfPreviewInvalid)?;
             total_bytes += bytes.len();
             total_pixels += u64::from(w) * u64::from(h);
             if total_bytes > self.limits.max_decoded_bytes

@@ -167,6 +167,9 @@ pub enum ConversionError {
     Budget,
     Unavailable,
     Invalid,
+    PdfTextInvalid,
+    PdfRenderInvalid,
+    PdfPreviewInvalid,
     Protocol,
     Io,
 }
