@@ -25,7 +25,9 @@ fn escape(text: &str) -> String {
         let Some(end) = result[start..].find("\\]").map(|n| n + start) else {
             break;
         };
-        let label = result[start + 3..end].replace("\\-", "-").replace("\\_", "_");
+        let label = result[start + 3..end]
+            .replace("\\-", "-")
+            .replace("\\_", "_");
         if !label.is_empty()
             && label
                 .bytes()

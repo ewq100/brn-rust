@@ -29,6 +29,8 @@ Build the maintained intake helper before Mac workspace tests:
 cargo build --locked -p brn-intake --features helper --bin brn-intake-helper
 ```
 
-PDF qualification needs Poppler `pdftotext` and `pdfimages`. Select explicit `BRN_INTAKE_HELPER`, `BRN_PDFTOTEXT` and `BRN_PDFIMAGES` executable paths for reproducible checks; [verification](verification.md) describes gates. Default checks do not include every optional native feature.
+PDF qualification needs Poppler `pdftotext`, `pdfimages` and native `pdftoppm`. Select explicit `BRN_INTAKE_HELPER`, `BRN_PDFTOTEXT`, `BRN_PDFIMAGES` and `BRN_PDFTOPPM` executable paths for reproducible checks; shell wrappers cannot run inside the restricted renderer. The renderer uses a host-written system-font configuration with its cache inside the owned temporary run. [Verification](verification.md) describes gates. Default checks do not include every optional native feature.
+
+Document imports other than Markdown/text use the existing explicit ChatGPT authentication path and a dedicated `gpt-6-luna` high-effort request. General chat model settings remain independent. No account, model or converter fallback is implicit. Local preparation/checking have separate 5-second budgets (10 seconds for PDF); the provider request has a separate 180-second deadline. Full-page previews and originals remain transient; readable Markdown and linked figures pass through the shared checked import service. PDF layout and scan transcription retain source-coverage limitations.
 
 Provider/account checks follow the current assignment and normal authentication flow; keep credentials out of outputs. Successful builds and component tests are separate from native usability and owner acceptance.

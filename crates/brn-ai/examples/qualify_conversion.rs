@@ -188,13 +188,8 @@ fn recheck_saved(paths: &[PathBuf]) -> Result<(), Box<dyn std::error::Error>> {
     // Preserve original failed/provider receipts and refuse replacement output directories.
     fs::create_dir(output)?;
     let flag = AtomicBool::new(false);
-    let prepared_bytes = brn_threads_intake::read_input_file(
-        &saved.join("prepared.json"),
-        128 * 1024 * 1024,
-        &flag,
-    )?;
-    let plan_bytes =
-        brn_threads_intake::read_input_file(&saved.join("plan.json"), 1024 * 1024, &flag)?;
+    let prepared_bytes = read_receipt(&saved.join("prepared.json"), 128 * 1024 * 1024)?;
+    let plan_bytes = read_receipt(&saved.join("plan.json"), 1024 * 1024)?;
     let prepared: brn_intake::prepared::PreparedDocument = serde_json::from_slice(&prepared_bytes)?;
     let plan: brn_intake::prepared::ConversionPlan = serde_json::from_slice(&plan_bytes)?;
     let kind = match prepared.format.as_str() {
@@ -260,4 +255,19 @@ fn recheck_saved(paths: &[PathBuf]) -> Result<(), Box<dyn std::error::Error>> {
     } else {
         Err("Saved typed plan failed local recheck; receipt retained".into())
     }
+}
+
+fn read_receipt(path: &Path, max_bytes: usize) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
+    use std::io::Read;
+    let file = fs::File::open(path)?;
+    let metadata = file.metadata()?;
+    if !metadata.is_file() || metadata.len() > max_bytes as u64 {
+        return Err("Saved receipt exceeds its bounded profile".into());
+    }
+    let mut bytes = Vec::new();
+    file.take(max_bytes as u64 + 1).read_to_end(&mut bytes)?;
+    if bytes.is_empty() || bytes.len() > max_bytes {
+        return Err("Saved receipt exceeds its bounded profile".into());
+    }
+    Ok(bytes)
 }
