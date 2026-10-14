@@ -616,6 +616,19 @@ fn read_records(scope: &Scope, args: ReadArgs) -> AiResult<Value> {
         {
             continue;
         }
+        // Conversation history and run progress never reach a helper, which
+        // may run on another provider; it reads knowledge records only.
+        if scope.scout.is_some()
+            && !matches!(
+                record.data,
+                RecordData::Note(_)
+                    | RecordData::Link(_)
+                    | RecordData::Source(_)
+                    | RecordData::Comment(_)
+            )
+        {
+            continue;
+        }
         if !args.ids.is_empty() && !args.ids.contains(&record.id) {
             continue;
         }
@@ -632,6 +645,9 @@ fn read_records(scope: &Scope, args: ReadArgs) -> AiResult<Value> {
         }
         if let Some(query) = &args.query {
             let text = match &record.data {
+                _ if scope.scout.is_some() && !matches!(record.data, RecordData::Note(_)) => {
+                    continue;
+                }
                 RecordData::Note(n) => format!("{}\n{}", n.title, n.markdown),
                 RecordData::Message(m) => m.text.clone(),
                 RecordData::Thread(t) => t.title.clone(),

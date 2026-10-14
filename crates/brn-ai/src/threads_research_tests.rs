@@ -103,10 +103,14 @@ fn saved(store: &mut Store, data: RecordData) -> Record {
 }
 
 fn update_note(store: &mut Store, record: &Record, markdown: &str) -> Record {
+    update_with(store, record, |note| note.markdown = markdown.into())
+}
+
+fn update_with(store: &mut Store, record: &Record, change: impl FnOnce(&mut Note)) -> Record {
     let RecordData::Note(mut note) = record.data.clone() else {
         panic!()
     };
-    note.markdown = markdown.into();
+    change(&mut note);
     let op = store.allocate_operation(&unique_host_key()).unwrap();
     store
         .prepare_owner(
@@ -1182,4 +1186,165 @@ fn unavailable_reasons_are_fixed_text() {
     );
     let limited = AiError::new(AiErrorKind::RateLimited);
     assert_eq!(research::unavailable_reason(&limited), "rate limited");
+}
+
+fn other_chat(store: &mut Store) -> Record {
+    saved(
+        store,
+        RecordData::Thread(Thread {
+            private_context: false,
+            context_epoch: 0,
+            title: "Other chat".into(),
+            state: ThreadState::Open,
+            attention: vec![],
+        }),
+    )
+}
+
+#[tokio::test]
+async fn helper_read_records_never_returns_conversation_or_run_progress() {
+    let (_root, request, plan) = setup();
+    let mut store = Store::open(&request.data_dir).unwrap();
+    let message = saved(
+        &mut store,
+        RecordData::Message(Message {
+            thread: request.thread.clone(),
+            role: "owner".into(),
+            text: "EARLIER-DISCUSSION ferry 7731".into(),
+        }),
+    );
+    drop(store);
+    let (scope, _) = begin(&request).unwrap();
+    {
+        let mut store = scope.store.lock().unwrap();
+        update_run(&scope, &mut store, |run| {
+            run.progress = "PROGRESS-8842 ferry".into()
+        })
+        .unwrap();
+    }
+    let helper = MockCompletionModel::from_stream_turns(vec![
+        vec![
+            MockStreamEvent::tool_call("q", "read_records", json!({"ids":[],"query":"ferry"})),
+            tokens(10),
+        ],
+        vec![
+            MockStreamEvent::tool_call(
+                "i",
+                "read_records",
+                json!({"ids":[message.id, scope.run, request.thread],"query":null}),
+            ),
+            tokens(10),
+        ],
+        vec![
+            MockStreamEvent::tool_call("l", "read_records", json!({"ids":[],"query":null})),
+            tokens(10),
+        ],
+        vec![
+            MockStreamEvent::tool_call("s", "submit_findings", findings(vec![])),
+            tokens(10),
+        ],
+    ]);
+    scripted(&scope, vec![Ok(helper.clone())]);
+    let out = ask(&scope, vec![question("When does the ferry leave?")]).await;
+    assert_ne!(out["reports"][0]["outcome"], "failed", "{out}");
+    let requests = helper.requests();
+    // submit_findings ends the sub-run, so its fourth request saw every result.
+    assert_eq!(requests.len(), 4);
+    let seen = format!("{:?}", requests[3].chat_history);
+    // The note query still finds the plan; nothing conversational is returned.
+    assert!(seen.contains(&plan.id), "{seen}");
+    for hidden in ["EARLIER-DISCUSSION", "PROGRESS-8842", "Earlier discussion"] {
+        assert!(!seen.contains(hidden), "{hidden}: {seen}");
+    }
+    for kind in ["\\\"Message\\\"", "\\\"Run\\\"", "\\\"Thread\\\""] {
+        assert!(!seen.contains(kind), "{kind}: {seen}");
+    }
+    // The parent itself still reads its chat's discussion.
+    let parent = read_records(
+        &scope,
+        ReadArgs {
+            ids: vec![],
+            query: Some("EARLIER-DISCUSSION".into()),
+        },
+    )
+    .unwrap();
+    assert!(parent.to_string().contains("EARLIER-DISCUSSION"));
+}
+
+#[tokio::test]
+async fn hidden_history_and_superseded_notes_are_never_verified() {
+    let (_root, request, plan) = setup();
+    let mut store = Store::open(&request.data_dir).unwrap();
+    let other = other_chat(&mut store);
+    // Version 1 was private to another chat; version 2 is general knowledge.
+    let private = "# Budget\n\nOTHER-CHAT budget is 9100 EUR.\n";
+    let mut first = Note::working("Budget", private);
+    first.chat = Some(other.id.clone());
+    let first = saved(&mut store, RecordData::Note(first));
+    let public = "# Budget\n\nThe budget is under review.\n";
+    let promoted = update_with(&mut store, &first, |note| {
+        note.chat = None;
+        note.markdown = public.into();
+    });
+    // A superseded note, visible in this chat but not readable by helpers.
+    let old = "# Old plan\n\nThe ferry left at 06:00.\n";
+    let mut replaced = Note::working("Old plan", old);
+    replaced.superseded_by = Some(plan.id.clone());
+    let replaced = saved(&mut store, RecordData::Note(replaced));
+    drop(store);
+    let (scope, _) = begin(&request).unwrap();
+    assert!(
+        !scope
+            .store
+            .lock()
+            .unwrap()
+            .revision_visible_in_chat(&first.id, first.version, Some(&request.thread))
+            .unwrap()
+    );
+    let report = findings(vec![
+        citation(
+            "hidden-history",
+            &first.id,
+            first.version,
+            private,
+            "OTHER-CHAT budget is 9100 EUR.",
+        ),
+        citation(
+            "superseded",
+            &replaced.id,
+            replaced.version,
+            old,
+            "The ferry left at 06:00.",
+        ),
+        citation(
+            "current",
+            &promoted.id,
+            promoted.version,
+            public,
+            "The budget is under review.",
+        ),
+    ]);
+    scripted(&scope, vec![Ok(scout(&promoted, report))]);
+    let out = ask(&scope, vec![question("Budget and ferry?")]).await;
+    let encoded = out.to_string();
+    assert!(!encoded.contains("OTHER-CHAT"), "{encoded}");
+    assert!(!encoded.contains("06:00"), "{encoded}");
+    assert!(!encoded.contains(&replaced.id), "{encoded}");
+    let report = &out["reports"][0];
+    assert_eq!(report["rejected_citations"], 1, "{report}");
+    let by_ref = |r: &str| {
+        report["citations"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|c| c["ref"] == r)
+            .cloned()
+            .unwrap()
+    };
+    let hidden = by_ref("hidden-history");
+    assert_eq!(hidden["verified"], "mismatch", "{hidden}");
+    assert!(hidden["quote"].is_null());
+    assert!(hidden.get("quote_in_current").is_none(), "{hidden}");
+    assert!(hidden.get("current_version").is_none(), "{hidden}");
+    assert_eq!(by_ref("current")["verified"], "exact");
 }

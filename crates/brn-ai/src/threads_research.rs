@@ -967,13 +967,14 @@ fn verify(store: &Store, chat: &str, citation: &Citation) -> Verdict {
     {
         return Verdict::Rejected;
     }
+    // A superseded note is not readable by helpers, so it cannot be cited.
     let current = match store.record(&citation.id) {
         Ok(Some(Record {
             archived: false,
             version,
             data: RecordData::Note(note),
             ..
-        })) => (version, note.markdown),
+        })) if note.superseded_by.is_none() => (version, note.markdown),
         _ => return Verdict::Rejected,
     };
     if citation.end <= citation.start || citation.end - citation.start > MAX_CITED_RANGE {
@@ -987,6 +988,14 @@ fn verify(store: &Store, chat: &str, citation: &Citation) -> Verdict {
         };
     }
     if citation.version > current.0 {
+        return Verdict::Mismatch;
+    }
+    // A historical revision hidden from this chat is never compared, so the
+    // verdict cannot reveal what it held.
+    if !store
+        .revision_visible_in_chat(&citation.id, citation.version, Some(chat))
+        .unwrap_or(false)
+    {
         return Verdict::Mismatch;
     }
     match store.revision(&citation.id, citation.version) {
