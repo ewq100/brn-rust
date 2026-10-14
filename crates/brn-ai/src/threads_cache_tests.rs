@@ -18,7 +18,7 @@ fn tool_turn(n: u32, response: &str) -> String {
         json!({"type":"response.completed","sequence_number":3,"response":{
             "id":response,"object":"response","created_at":1,"status":"completed","model":"gpt-6.1-sol",
             "output":[reasoning,call],"tools":[],
-            "usage":{"input_tokens":10,"output_tokens":1,"total_tokens":11,"input_tokens_details":{"cached_tokens":0}}}}),
+            "usage":{"input_tokens":1000 * u64::from(n),"output_tokens":1,"total_tokens":11,"input_tokens_details":{"cached_tokens":128 * u64::from(n - 1)}}}}),
     ])
 }
 
@@ -144,4 +144,28 @@ fn cache_keys_are_per_chat_bounded_header_safe_and_codex_only() {
     assert!(long.len() <= 64 && long.starts_with("brn-"), "{long}");
     assert!(long.parse::<rig::http_client::HeaderValue>().is_ok());
     assert_eq!(cache_key(Provider::Copilot, "abc:0"), None);
+}
+
+#[tokio::test]
+async fn trace_records_each_turns_cached_input() {
+    let (_root, mut request, _) = tests::fixture();
+    request.trace = TraceLevel::Summary;
+    let (scope, input) = begin(&request).unwrap();
+    three_turn_run(&scope, &input, true).await;
+    let trace = finish_trace(
+        &scope,
+        &AiAnswer {
+            text: String::new(),
+            terminal: AiTerminal::Completed,
+        },
+    )
+    .unwrap();
+    let turns: Vec<_> = trace
+        .turn_usage
+        .iter()
+        .map(|u| (u.input, u.cached_input))
+        .collect();
+    assert_eq!(turns, [(1000, 0), (2000, 128), (10, 0)]);
+    let total = trace.usage.unwrap();
+    assert_eq!((total.input, total.cached_input), (3010, 128));
 }

@@ -62,6 +62,8 @@ pub struct RunTrace {
     pub stopped: Option<String>,
     /// `None` when the provider reported no token counts.
     pub usage: Option<TraceUsage>,
+    /// Usage of each model turn in order, to show where the prompt cache is hit.
+    pub turn_usage: Vec<TraceUsage>,
     pub elapsed_ms: u64,
     pub calls: Vec<TraceCall>,
     pub dropped_calls: usize,
@@ -87,6 +89,7 @@ struct State {
     dropped: usize,
     seq: usize,
     usage: TraceUsage,
+    turn_usage: Vec<TraceUsage>,
     usage_seen: bool,
     model_turns: usize,
     rounds: u16,
@@ -325,6 +328,13 @@ impl TraceCollector {
         state.usage.input += input;
         state.usage.output += output;
         state.usage.cached_input += cached;
+        if state.turn_usage.len() < MAX_CALLS {
+            state.turn_usage.push(TraceUsage {
+                input,
+                output,
+                cached_input: cached,
+            });
+        }
     }
 
     /// Records why the run stopped early (first reason wins).
@@ -341,11 +351,13 @@ impl TraceCollector {
                 s.dropped,
                 s.model_turns,
                 s.usage_seen.then(|| s.usage.clone()),
+                s.turn_usage.clone(),
                 s.rounds,
                 s.stopped.clone(),
             )
         });
-        let (calls, dropped, model_turns, usage, rounds, stopped) = state.unwrap_or_default();
+        let (calls, dropped, model_turns, usage, turn_usage, rounds, stopped) =
+            state.unwrap_or_default();
         RunTrace {
             format: 1,
             level: self.level,
@@ -356,6 +368,7 @@ impl TraceCollector {
             model_turns,
             stopped,
             usage,
+            turn_usage,
             elapsed_ms: duration_ms(self.started.elapsed()),
             calls,
             dropped_calls: dropped,
