@@ -504,3 +504,48 @@ python3 scripts/evaluate_wiki_v2.py --root ABS_FRESH --seeder target/release/exa
 - **R7 reads about 60 KB** in every arm (up to 9.5 searches at high effort) while looking for the private figure. It stays within budget and leaks nothing.
 
 **Not measured:** other models, the S cases, arms A and C, and 10k scale. These belong to step 7.
+
+## Targeted comparison: bundle 4 against bundle 5 (14 October 2026)
+
+**Request:** the owner asked to execute the plan: merge #134, fix the guides, then run a targeted live comparison instead of the full step 7.
+
+**Arms:** the only difference between them is the guide bundle.
+- B is `main` at `d0523980` with bundle 4.
+- D is the same tree with bundle 5:
+  - intake, prepare-reply and resolve-conflict find related notes with `search_notes` and `note_connections` first;
+  - the base guide asks for reworded searches before concluding that something is not recorded.
+
+**Settings:** Codex `gpt-6.1-sol` at medium effort, cases R9, R10 and S1–S3 at 1,000 fillers, two repetitions, budget 8.
+- 46 runs, including S2's budget-16 diagnostic.
+- 3 network or provider failures (`Failed:Network`, `Failed:Other`), not counted as passes.
+- 3.2 million reported tokens; S1 used about 500,000 per repetition.
+
+| Case | B (bundle 4) | D (bundle 5) | Reading |
+|---|---|---|---|
+| R9 reworded question | 1/2 | 2/2 | D found the gearbox invoice in fewer searches (median 2 vs 3) |
+| R10 abstention | 2/2 | 2/2 | Rewording did not weaken "not recorded" |
+| S3 rename and retire | 0/2 as measured, 2/2 after correction | 0/2 as measured, 2/2 after correction | Every run renamed the page, archived the old list, updated Topics and passed Undo. The only failure was a knowledge-check false positive (below). |
+| S2 knowledge review | 0/2 (budget-16 diagnostic 0/1) | 0/2 | Resolved 4–5 of the 5 finding kinds. A topic page still linked the archived 2025 fee note in every run (one real BrokenLink). The other BrokenLink was a false positive. |
+| S1 six-week renovation | 0/1 complete | 0/1 complete | Below |
+
+**S1:**
+- Budget, not guidance, limited intake. Intake finished cleanly in 2 of 5 steps for B and 4 of 5 for D. The others hit the 8-round limit (`ToolLimitReached`), stopped on an invalid tool batch, or reported that saving failed.
+- B's complete run kept every fact. It failed only `input_lineage`, which was a harness error (below).
+- D's complete run lost the 9 November start and the 7,600 EUR quote. Step 2 hit the budget and step 5 failed to save.
+- Both arms used recommended relation names for every new link and created a renovation topic page listed in Topics.
+
+**Measurement errors found and fixed:**
+- **Knowledge check (product):**
+  - Links *from* an archived or superseded note were reported as broken. Only a visible note's link *to* a retired record is broken now.
+  - A `supersedes` link to the retired note it replaced was reported as broken. It records the replacement and is no longer reported.
+  - Inputs that the same change group also wrote were reported as StaleInput: 16 findings after one clean review.
+
+  A regression test in `topics_knowledge` covers all three.
+- **Harness:**
+  - `input_lineage` required the Source's version after the step. The agent had correctly read v1 and then advanced the Source to v2 in the same group. It now accepts the version read, never one older than before the step.
+  - Knowledge check now always runs with `--measure-bin`, so every arm is measured by the same instrument.
+
+**Conclusions:**
+- Bundle 5 helps reworded questions (R9 here, and in the effort screen) without hurting abstention. It changes nothing measurable in S2 or S3.
+- **The 8-round budget is the binding limit for intake at this wiki size.** It affects both bundles. S1 cannot judge bundle 5 until that changes.
+- Candidate fixes are a larger default intake budget, or compact tool output (design §7 item 5). Either needs a measured S1 rerun of about 2 million tokens.

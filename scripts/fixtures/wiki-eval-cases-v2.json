@@ -17,7 +17,8 @@
       "arms": [
         "A",
         "B",
-        "C"
+        "C",
+        "D"
       ],
       "repetitions": {
         "1000": 3,
@@ -252,7 +253,8 @@
       "arms": [
         "A",
         "B",
-        "C"
+        "C",
+        "D"
       ],
       "repetitions": 3,
       "seeds": {
@@ -392,7 +394,8 @@
       "arms": [
         "A",
         "B",
-        "C"
+        "C",
+        "D"
       ],
       "repetitions": {
         "1000": 3,
@@ -683,7 +686,8 @@
       "arms": [
         "A",
         "B",
-        "C"
+        "C",
+        "D"
       ],
       "repetitions": 3,
       "seeds": {
@@ -869,7 +873,8 @@
       "arms": [
         "A",
         "B",
-        "C"
+        "C",
+        "D"
       ],
       "repetitions": 3,
       "seeds": {
@@ -997,7 +1002,8 @@
       "arms": [
         "A",
         "B",
-        "C"
+        "C",
+        "D"
       ],
       "repetitions": 3,
       "seeds": {
@@ -1155,7 +1161,8 @@
       "arms": [
         "A",
         "B",
-        "C"
+        "C",
+        "D"
       ],
       "repetitions": 3,
       "seeds": {
@@ -1281,7 +1288,8 @@
       "arms": [
         "A",
         "B",
-        "C"
+        "C",
+        "D"
       ],
       "repetitions": 3,
       "seeds": {
@@ -1370,7 +1378,8 @@
       "arms": [
         "A",
         "B",
-        "C"
+        "C",
+        "D"
       ],
       "repetitions": {
         "1000": 3,
@@ -1531,7 +1540,8 @@
       "arms": [
         "A",
         "B",
-        "C"
+        "C",
+        "D"
       ],
       "repetitions": 3,
       "seeds": {
@@ -1622,7 +1632,8 @@
       ],
       "arms": [
         "A",
-        "B"
+        "B",
+        "D"
       ],
       "repetitions": 3,
       "seeds": {
@@ -1964,7 +1975,8 @@
       ],
       "arms": [
         "A",
-        "B"
+        "B",
+        "D"
       ],
       "repetitions": 3,
       "seeds": {
@@ -2240,7 +2252,8 @@
       ],
       "arms": [
         "A",
-        "B"
+        "B",
+        "D"
       ],
       "repetitions": 3,
       "seeds": {
