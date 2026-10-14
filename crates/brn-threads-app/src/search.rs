@@ -1059,18 +1059,17 @@ fn neighbours(
                 order.push(other.clone());
                 (node.clone(), Vec::new())
             });
-            if entry.0 == *node {
-                if !entry
+            if entry.0 == *node
+                && !entry
                     .1
                     .iter()
                     .any(|r| r.relation == link.relation && r.outgoing == outgoing)
-                {
-                    entry.1.push(Relation {
-                        relation: link.relation,
-                        outgoing,
-                        link: link.id,
-                    });
-                }
+            {
+                entry.1.push(Relation {
+                    relation: link.relation,
+                    outgoing,
+                    link: link.id,
+                });
             }
         }
     }

@@ -712,3 +712,53 @@ An independent review of the prototype found six Medium issues; they were fixed 
 - Quality is the same as `main` on these cases. The host context cuts searching by about 3.5× and effective S1 cost by about 28%.
 - S2's remaining misses are shared, so they are agent behaviour rather than a regression.
 - `Failed:Other` occurred at the same step in both arms. It is unrelated to this change. It is an unclassified provider error whose detail BRN does not keep; that is a follow-up.
+
+## Knowledge review Link IDs (14 October 2026)
+
+**Diagnosis.** Recorded S2 runs (bundle 9) failed for two reasons. Both were information gaps in host output.
+
+- The RelationVariant finding carried no records, and `note_connections` returned relation names without Link IDs. Agents said they could not find the `relates-to` Link ID. They spent rounds hunting for it, and some runs hit the 8-round limit before applying anything.
+- Marking "Coop membership fees 2025" as superseded left "Bicycle coop"'s `related` link to it, which the check counts as a BrokenLink. The finding never said which notes link the older note, or that the linking note already links the replacement.
+
+**Changes (bundle `brn-threads-guidance-10`):**
+
+- **Knowledge-check findings** (`crates/brn-threads-app/src/knowledge.rs`) now carry Link IDs and versions:
+  - RelationVariant lists the "Links to rename".
+  - Supersession records the inbound Link IDs, with "Other notes link the older note" and "Already linking the replacement".
+  - BrokenLink names the replacement of a superseded target.
+- **Seeded review message**: adds a deterministic "Usual remedies" line per finding kind present. Contradiction, stale-input and coverage-gap findings get no remedy line.
+- **`note_connections`** neighbours now carry `links`, parallel to `relations`. This is also in CLI `connections` output.
+- **`maintain-notes` guide** adds two sentences:
+  - Rename a relation by updating the Link in place.
+  - When archiving or superseding, re-point or archive inbound links in the same change group.
+- **Host behaviour**: the host still performs no semantic fixes. Every change remains an agent proposal under the owner's checked change flow.
+
+**Offline checks.**
+- New tests:
+  - `a_link_to_a_superseded_note_names_the_replacement`, plus extended RelationVariant assertions.
+  - Scripted journey `s2_review_names_the_links_one_change_group_resolves`. One change group clears RelationVariant, Supersession, UnlistedTopic, Orphan and BrokenLink, and keeps the duplicate for the owner.
+- Gates:
+  - `cargo fmt --check` and `cargo clippy --workspace --all-targets -D warnings` pass.
+  - `cargo test --workspace` passes, with the debug intake helper built first.
+  - Python unittest passes: 131 tests.
+
+**Live A/B.** Codex gpt-6.1-sol medium, scale 1000, synthetic fixtures. B-main is the bundle-9 `main` build; D-review is this branch. Deltas are knowledge-check counts after minus before.
+
+| Run | Pass | Deltas | Input / cached / output tokens |
+| --- | --- | --- | --- |
+| B-main-r1 | no | Supersession −1, UnlistedTopic −1, Orphan −1, BrokenLink +1, RelationVariant 0 | 140,625 / 99,200 / 2,634 |
+| B-main-r2 | no | Duplicate −1, Supersession −1, UnlistedTopic −1, Orphan −1, BrokenLink +1, RelationVariant 0 | 153,061 / 112,000 / 2,841 |
+| B-main-d1 (budget 16) | no | as r2 | 145,310 / 102,272 / 2,874 |
+| B-main-d2 (budget 16) | no | as r2 | 166,011 / 129,664 / 2,831 |
+| D-review-r1 | **yes** | Supersession −1, UnlistedTopic −1, Orphan −1, RelationVariant −1 | 106,861 / 72,832 / 2,856 |
+| D-review-r2 | **yes** | Duplicate −1, Supersession −1, UnlistedTopic −1, Orphan −1, RelationVariant −1 | 91,881 / 64,128 / 3,181 |
+
+- **Summary:** S2 passes 0/2 on B-main and 2/2 on D-review.
+- **Medians:** model-visible bytes fall from 41.4 KB to 19.1 KB; tokens fall from 150k to 102k. Rounds are 8 and 7.5.
+- **S3 regression check**, one run per arm: B-main fails (BrokenLink +1 after an archive), D-review passes. Model-visible bytes are 15.4 KB versus 23.9 KB.
+- **Records:** `files/ab-review/{s2,s3}` in the session state.
+
+**Residual issues.**
+- **Small sample:** N is 2 per arm, and no significance is claimed.
+- **DuplicateTitle:** the opening-hours conflict (13:00 versus 14:00) still needs the owner. Agents merge or ask inconsistently. Both behaviours pass the preservation check.
+- **Rounds:** D-review used 7–8 of its 8 rounds, so larger reviews may still need more budget.
