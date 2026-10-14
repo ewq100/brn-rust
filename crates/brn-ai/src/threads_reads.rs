@@ -6,7 +6,7 @@ use std::collections::{BTreeMap, BTreeSet};
 #[derive(Default)]
 pub(super) struct ReadLedger {
     complete: BTreeSet<(String, u64)>,
-    ranges: BTreeMap<(String, u64), (usize, Vec<(usize, usize)>)>,
+    ranges: BTreeMap<(String, u64), Vec<(usize, usize)>>,
 }
 
 impl ReadLedger {
@@ -19,10 +19,7 @@ impl ReadLedger {
     /// slices seen cover its whole length.
     pub(super) fn slice(&mut self, id: &str, version: u64, start: usize, end: usize, total: usize) {
         let key = (id.to_owned(), version);
-        let (_, spans) = self
-            .ranges
-            .entry(key.clone())
-            .or_insert((total, Vec::new()));
+        let spans = self.ranges.entry(key.clone()).or_default();
         spans.push((start, end));
         spans.sort_unstable();
         let mut covered = 0;

@@ -502,7 +502,7 @@ fn the_summary_trace_has_counts_but_neither_query_text_nor_source_words() {
     for word in ["zephyr", "anchorage", "mooring", "dispute", "private-ref"] {
         assert!(!text.contains(word), "{word} in {text}");
     }
-    assert_eq!(recorded["queries"].as_u64().unwrap() > 0, true);
+    assert!(recorded["queries"].as_u64().unwrap() > 0);
 }
 
 #[tokio::test]
