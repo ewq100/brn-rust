@@ -65,6 +65,8 @@ mod state;
 mod theme;
 #[path = "threads_tiles.rs"]
 mod tiles;
+#[path = "threads_workbench.rs"]
+mod workbench;
 #[path = "threads_writing.rs"]
 mod writing;
 use layout::{Layout, Preset, TileKind};
@@ -95,6 +97,10 @@ mod steering_tests;
 #[cfg(all(test, feature = "native-test-support"))]
 #[path = "threads_writing_tests.rs"]
 mod writing_tests;
+
+#[cfg(all(test, feature = "native-test-support"))]
+#[path = "threads_workbench_tests.rs"]
+mod workbench_tests;
 
 #[cfg(all(test, feature = "native-test-support"))]
 #[path = "threads_document_tests.rs"]
@@ -443,6 +449,8 @@ struct ThreadsUi {
     margin: bool,
     show_coverage: bool,
     selection: Option<(Range<usize>, String)>,
+    general_feedback: Entity<EditorState>,
+    general_drafts: BTreeMap<String, String>,
     comment_input: Entity<EditorState>,
     comment_anchor: Option<(String, u64, Range<usize>, String)>,
     comment_operation: Option<String>,
@@ -505,8 +513,18 @@ impl ThreadsUi {
         let diff_editor = cx.new(|cx| EditorState::new(window, cx).default_value(""));
         diff_editor.update(cx, |editor, cx| editor.set_readonly(true, cx));
         let review_editor = cx.new(|cx| EditorState::new(window, cx).default_value(""));
-        let comment_input =
-            cx.new(|cx| EditorState::new(window, cx).placeholder("What should change here?"));
+        let comment_input = cx.new(|cx| {
+            EditorState::new(window, cx)
+                .line_number(false)
+                .auto_close(false)
+                .placeholder("What should change here?")
+        });
+        let general_feedback = cx.new(|cx| {
+            EditorState::new(window, cx)
+                .line_number(false)
+                .auto_close(false)
+                .placeholder("Tone, structure, or anything for the whole note…")
+        });
         let current_view = cx.new(|cx| {
             TextViewState::markdown("", cx)
                 .selectable(true)
@@ -540,6 +558,19 @@ impl ThreadsUi {
                 .placeholder("Credentials folder (optional)")
         });
         let subscriptions = vec![
+            cx.subscribe_in(
+                &general_feedback,
+                window,
+                |this, editor, event: &InputEvent, _, cx| {
+                    if matches!(event, InputEvent::Change) {
+                        if let Some(note) = this.open_note_id().map(str::to_owned) {
+                            this.general_drafts
+                                .insert(note, editor.read(cx).value().to_string());
+                        }
+                        cx.notify();
+                    }
+                },
+            ),
             cx.observe_in(&note_read_view, window, |this, _, _, cx| {
                 if this.note_reading && this.review.is_none() {
                     this.track_selection(cx);
@@ -697,6 +728,8 @@ impl ThreadsUi {
             margin: true,
             show_coverage: false,
             selection: None,
+            general_feedback,
+            general_drafts: BTreeMap::new(),
             comment_input,
             comment_anchor: None,
             comment_operation: None,
@@ -978,6 +1011,10 @@ impl ThreadsUi {
     }
     fn preserve_comment_draft(&mut self, cx: &Context<Self>) {
         if let Some(open) = &self.note {
+            self.general_drafts.insert(
+                open.record.id.clone(),
+                self.general_feedback.read(cx).value().to_string(),
+            );
             self.comment_drafts.insert(
                 open.record.id.clone(),
                 CommentDraft {
@@ -1067,6 +1104,9 @@ impl ThreadsUi {
                 self.current_view
                     .update(cx, |view, cx| view.set_text(&note.markdown, cx));
                 self.restore_comment_draft(id, window, cx);
+                let feedback = self.general_drafts.get(id).cloned().unwrap_or_default();
+                self.general_feedback
+                    .update(cx, |editor, cx| editor.set_value(feedback, window, cx));
                 self.layout.open(TileKind::Note);
                 self.refresh();
                 // The chat follows the note's selected thread, or a new one for it.
@@ -1673,15 +1713,18 @@ impl ThreadsUi {
             })
             .map(|comment| comment.record.id)
             .collect::<Vec<_>>();
+        let feedback = self.general_feedback.read(cx).value().to_string();
+        self.general_drafts.insert(note.clone(), feedback.clone());
         let result = self
             .ensure_writing_thread(&note, version)
             .and_then(|thread| {
-                self.workspace.snapshot_writing_request(
+                self.workspace.snapshot_writing_request_with_feedback(
                     &format!("writing-request:{}", uuid::Uuid::new_v4()),
                     &note,
                     version,
                     &thread,
                     &ids,
+                    &feedback,
                 )
             });
         self.adopt_writing_thread(&note);
@@ -1837,7 +1880,7 @@ impl ThreadsUi {
             Ok(prepared) => prepared,
             Err(error) => {
                 self.notice = format!(
-                    "Could not start. Your saved message remains available; Continue from the chat. {error}"
+                    "Could not start. Your saved message remains available; Retry from the writing tile or continue from the chat. {error}"
                 );
                 self.refresh();
                 cx.notify();
@@ -1876,7 +1919,7 @@ impl ThreadsUi {
         });
         if let Err(error) = spawned {
             self.notice = format!(
-                "Could not start. Your saved instruction remains available; Continue from the chat. {error}"
+                "Could not start. Your saved instruction remains available; Retry from the writing tile or continue from the chat. {error}"
             );
             self.refresh();
             cx.notify();
@@ -2558,7 +2601,7 @@ impl ThreadsUi {
                 self.pending_send = None;
                 self.stream.clear();
                 self.progress.clear();
-                self.notice="Work stopped unexpectedly. Saved progress remains available; continue from the chat.".into();
+                self.notice="Work stopped unexpectedly. Saved progress remains available; retry from the writing tile or continue from the chat.".into();
                 self.refresh();
                 cx.notify();
             }

@@ -84,6 +84,7 @@ fn rewrite_fixture(
             .iter()
             .map(|id| store.record(id).unwrap().unwrap())
             .collect(),
+        general_feedback: "Keep the rest of the note unchanged; clarify the weekday".into(),
     };
     owner_write(
         &mut store,
@@ -143,6 +144,7 @@ fn rewrite_uses_full_saved_chat_and_never_posts_synthetic_owner_messages_on_retr
         assert!(input.contains("captured-post-000"));
         assert!(input.contains("captured-post-044"));
         assert!(input.contains("Replace the weekday"));
+        assert!(input.contains(&snapshot.general_feedback));
         assert!(!input.contains("LATER FEEDBACK"));
         assert!(!input.contains(&request.prompt));
         assert!(input.contains(&snapshot.request_message));

@@ -25,3 +25,11 @@ The existing 128 KiB rewrite-context bound remains; too-large input fails explic
 ## Qualification boundaries
 
 Use Rust 1.98.1, GPUI Kit 0.7.3 and the existing lockfile. No framework, editor fork, canonical store/schema, provider configuration, global permissions or runtime behavior changes. Synthetic data only. Native interaction is in scope for this visible implementation on the available Mac; provider output quality, real data, release and merge remain separate.
+
+## Owner correction after native preview
+
+The owner wants the complete writing flow inside the writing tile: passage comments, overall feedback, rewrite progress/Stop/retry, proposal review, Apply and Undo. A reply/question from the exact terminal writing run is readable there when no proposal is pending; new overall feedback answers it through a new Rewrite. Chat remains an independent optional panel; writing requests and writing proposal/continuation controls no longer occupy its conversation. Existing posted linked-chat context remains captured without requiring new chat interaction.
+
+Overall feedback is a per-note window draft, captured atomically into the immutable rewrite request when Rewrite is pressed, with no separate chat Send. Snapshot persistence makes retries/restart use exactly that feedback; newer drafts affect only a new rewrite. Empty feedback preserves legacy requests. The shared service binds feedback to replay identity and the existing 128 KiB bound. No database schema or authority changes.
+
+Comments become quieter: body first, muted clickable passage quote, one inclusion toggle; only exceptional unlocated/excluded/addressed states need extra status. Exact anchors, explicit addressed confirmation and Undo remain unchanged.

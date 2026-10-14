@@ -799,12 +799,12 @@ fn review_in_place_applies_exact_candidate_then_marks_addressed_and_undoes(
     let op = candidate.operation.as_str().to_owned();
     on_window(cx, &f, |window, _| {
         assert!(
-            window.find(format!("proposal-{op}")).visible(),
-            "card in the chat"
+            window.find(format!("writing-proposal-{op}")).visible(),
+            "proposal ready in the writing tile"
         );
-        assert!(window.find(format!("card-apply-{op}")).visible());
+        assert!(window.try_find(format!("card-apply-{op}")).is_none());
     });
-    click(cx, &f, format!("thread-review-{op}"));
+    click(cx, &f, format!("writing-review-{op}"));
     cx.read(|cx| {
         let view = f.view.read(cx);
         let shown = view.diff_editor.read(cx).value().to_string();
@@ -867,8 +867,10 @@ fn review_in_place_applies_exact_candidate_then_marks_addressed_and_undoes(
         }
     });
     click(cx, &f, "apply-final");
-    click(cx, &f, format!("card-apply-{op}"));
-    click(cx, &f, format!("card-dismiss-{op}"));
+    update(cx, &f, |view, window, cx| {
+        view.card_apply(candidate.clone(), window, cx);
+        view.card_dismiss(candidate.clone(), window, cx);
+    });
     cx.read(|cx| {
         let view = f.view.read(cx);
         assert!(
@@ -897,7 +899,8 @@ fn review_in_place_applies_exact_candidate_then_marks_addressed_and_undoes(
         review.candidate.operation.as_str().to_owned()
     });
     on_window(cx, &f, |window, _| {
-        assert!(window.try_find(format!("card-apply-{replaced}")).is_some())
+        assert!(window.try_find(format!("card-apply-{replaced}")).is_none());
+        assert!(window.find("apply-final").visible())
     });
     click(cx, &f, "apply-final");
     cx.read(|cx| {
@@ -994,7 +997,7 @@ fn proposal_card_dismiss_keeps_the_note_and_launcher_runs_commands(cx: &mut Test
         cx.notify();
         candidate.operation.as_str().to_owned()
     });
-    click(cx, &f, format!("card-dismiss-{op}"));
+    click(cx, &f, format!("writing-dismiss-{op}"));
     cx.read(|cx| {
         let view = f.view.read(cx);
         assert!(view.candidates.is_empty());

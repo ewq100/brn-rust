@@ -30,3 +30,11 @@ Use the compatible shared target cache `/Users/evokessler/repos/brn-rust/target`
 ## Evidence
 
 Preflight found the pinned compiler, protoc and Xcode available. Sol verified supported exact editor geometry and rendered-to-source selection APIs, and the absence of supported WYSIWYG marker elision. Luna approved the corrected plan. Implementation, build/lint/tests and scoped synthetic native observation are complete; [evidence](evidence.md) records the tested flows, review dispositions and remaining owner/hosted gates.
+
+## Preview correction: writing stays in its tile
+
+- [ ] Add backward-compatible overall feedback to the immutable request, bounded/replay-bound through the same checked service. Sol owns core/app request helpers and tests.
+- [ ] Lead adds per-note draft preservation and an Overall feedback field in the note footer. New Rewrite captures it without chat Send; saved-input disclosure shows it; retry preserves the saved value.
+- [ ] Route writing proposals and writing-specific continuation/progress/Stop into the Note tile; filter writing request rows out of chat. Keep ordinary chat continuation intact and support writing with Chat closed.
+- [ ] Luna simplifies only the comment margin; preserve include/reveal/addressed behavior and truthful unlocated states.
+- [ ] Verify closed-chat generation/review/Apply/Undo, draft navigation, snapshot replay/legacy/size and independent review. Rebuild and native-observe fresh synthetic data; refresh PR #135 and required CI. No merge/release assignment.

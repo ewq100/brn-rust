@@ -60,3 +60,19 @@ These native checks establish the scoped UI interactions, not provider rewrite q
 | Hosted CI | Pending publication/checks |
 | Owner acceptance | Pending review of the concrete native candidate |
 | Merge/release | Unassigned; no merge or release claimed |
+
+## Owner correction: all writing interactions stay in the Note tile
+
+The owner rejected the preview's writing proposal/continuation cards in chat and asked for simpler comments. The revised candidate puts passage comments, overall feedback, generation progress/Stop, saved retry, proposal review, Apply, addressed confirmation and Undo in the Note tile. Exact-run explanations/questions with no pending proposal also appear beside overall feedback, so answering them needs no chat Send. Ordinary chat attention and queue continuation remain available. Writing request/addressed bookkeeping rows are filtered out of chat.
+
+Overall feedback is captured atomically in the same immutable bounded request. Empty-feedback envelopes and replay bindings remain compatible; nonempty feedback binds operation intent and is available to the agent through the existing serialized snapshot. No schema or authority change. Unsent overall drafts are per-note/window-local; saved requests preserve captured feedback across restart.
+
+Comments now lead with the feedback, a muted clickable passage quote and one inclusion toggle. Ordinary saved-version/inclusion explanation banners and full card borders are removed. Unlocated, excluded and addressed states remain truthful. Feedback inputs suppress code line numbers and automatic bracket insertion.
+
+Independent Sol review found and the lead fixed two defects: blanket routing could hide unrelated record-less chat attention; opening review during an active rewrite could hide Stop. Regression checks cover both. A supposed multiple-proposal overflow reproduction was disproved by the core's existing one-active-candidate guard and withdrawn; the footer is bounded, and repeated requests preserve the pending exact review.
+
+Synthetic final-build native observation with Chat closed: enter overall feedback → Rewrite saves inputs while offline startup refuses inference → review a separately scripted exact candidate → Read result → Apply whole note → confirm captured comments → Undo restores the original v3 and pending comments. The feedback draft remains visible. No provider call; scripted text proves the UI/checked lifecycle, not generation quality. A fresh owner preview preserves its pending candidate; image at `/Users/evokessler/.codex/writing-polish-data/writing-tile-preview.png`.
+
+Failed verification attempts remain in task-owned logs: unsupported Div scrolling lacked a stateful ID; obsolete tests still sought retired chat-card controls; the first accumulated-candidate fixture correctly hit the core guard. A parallel full run also missed two pre-existing dialog controls, while 128 other tests passed; serial execution passed all 129 on that same source. The final expanded checks below supersede these attempts.
+
+Revised hosted checks and owner UX acceptance are pending; merge/release remain unassigned.
