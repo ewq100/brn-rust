@@ -1,0 +1,50 @@
+# Independent source comparison
+
+Checked on 14 October 2026 against five small synthetic inputs in `crates/brn-threads-intake/tests/fixtures/luna/`. This is a source-grade inspection of the Rust prepared evidence and final outputs, not another conversion benchmark, a complete format inventory, or native application acceptance. The preserved Python research checkout was read-only.
+
+The comparison used authored HTML/mail content, maintained DOCX/XLSX source structures and embedded figures, all three rendered PDF source pages, the actual prepared PDF previews, and parsed GFM output. Figures were visually inspected; Markdown heading/list/table/footnote structures were checked in the parsed output. Ignored `artifacts/source-qa/` contains the source images, final rendered HTML and diagnostic scratch. No credentials or private documents were used.
+
+## Inputs and accepted receipts
+
+| Input | SHA-256 | Accepted receipt under `artifacts/` |
+| --- | --- | --- |
+| `nested.html` | `1d7075c5616605ad1d35907d06fa385ab2a2d3a6d73756ad60d304e040281dd2` | `qualify-rechecked-nested-04` |
+| `footnotes.docx` | `d753d9a98afe1771c0d0488871e322900ac97f74a5390feb9911fcadc9a0fc4c` | `qualify-rechecked-footnotes-04` |
+| `metadata.eml` | `cf7cc11598ed0c4e6e28c761d467ad77f91e53c0f9ace8b697ba854369c3eb56` | `qualify-rechecked-metadata-04` |
+| `blank-comments.xlsx` | `2e6aa4e183e9e958f502d76798cf8b4158649a5e800968b2166d10fe6709a8ba` | `qualify-rechecked-xlsx-04` |
+| `process-scan.pdf` | `ebc90965a73b6dec328cb7355176c22edb842afa1b74684f2c711ef318e28244` | `qualify-rechecked-scan-02` |
+
+All five returned Partial coverage. The final PDF receipt rechecked the saved `qualify-plan-scan-08` plan offline after a checker correction, with zero additional provider calls. The original failed receipt remains intact. This manual comparison did not feed an independent inventory into the production checker or remove its coverage gaps.
+
+The four final structured receipts also used only offline rechecks, with zero additional provider calls. Their inputs are `qualify-projected-{nested,footnotes,metadata,xlsx}-01`, whose `provenance.json` records the preserved original accepted receipt and prepared/candidate hashes. The table-inspection plan was projected from the saved candidate onto current source-derived table hashes; it is a deterministic fixture projection, not a fresh Luna response or new model inspection. All four projected prepared documents are JSON-identical to the original `qualify-plan-*-02` source evidence. Original model receipts remain unchanged; the current Rust host regenerated formatting, checked binding grammar and stripped validated machine comments before returning the final document.
+
+## Source findings
+
+| Source | Checked source details and result |
+| --- | --- |
+| HTML | 16 prepared blocks; three authored headings and all seven list items at three actual nesting depths. Literal labels `7`, `11`, `z`, `ab`, reversed `AA`/`Z` are retained. Two distinct occurrences/captions of the same dispatch figure use one retained asset. The complete three timing boxes, two arrows and closing-window identifier are visible. This fixture has no table. |
+| DOCX | 33 prepared blocks; two authored footnotes and one endnote bind to three scoped definitions. The cached reused-note field value is preserved, with a precise located unresolved `NOTEREF FreshMassRule` association gap. Seven nested source list items, table cell associations, paragraph wording, header/footer text and one embedded sealing-sequence figure are retained. The figure's three boxes, connecting lines and label-after-sealing qualification are visible. Native chart facts Ready 24/Quarantine 6 remain in source prose; chart graphics and separate authored picture titles remain explicit limitations. |
+| EML | 29 prepared blocks; all eleven meaningful named fields are preserved, including Reply-To, List-ID, run reference, original date offset and both reference IDs. Unique plain-text and HTML alternatives remain distinct. Four heading depths, nested numeric/alphabetic list labels, crew identifiers and table values retain their source associations. Numeric `0` and blank are distinct. The CID dispatch figure is retained in full. Sender authenticity/thread relationships and visual placement retain source gaps. |
+| XLSX | 20 prepared blocks across two worksheets, with 26 source cells each. Numeric leading-zero display and text identifiers remain distinct, including `0007`, `0008`, `00041` and `00042`. All four blank-cell comments, including two comment-only rows, retain their exact text and coordinates. Both formulas retain unavailable-cache status and an empty result. Hyperlinks, merged source coordinates, substantive headers/footers and print areas are preserved. Empty header/footer fields and machine formula-declaration prose are absent. Legacy drawing associations remain gaps. This fixture does not qualify known cached formula values; separate reader tests cover them. |
+| PDF | Three actual previews match the plan's source hashes: two text-layer pages and one scanned card. Parsed final GFM contains eleven headings at correct H1–H4 depths and eight list items, including two actual nested alphabetic substeps. All twelve table cells are correct, especially `--` versus depth `0`. The scanned card retains all nine semantic units, time, identifiers and safety qualification. Inlet/Gate/Outlet precede the caption/footer in source reading order. One actual retained crop includes all three box borders/labels and both complete right-pointing arrows; alt text is accurate. |
+
+The final PDF crop is `1024 × 134` pixels / 9,643 bytes, from page-1 source bounds `[47.0, 362.3, 553.0, 427.7]`. Its retained asset SHA-256 is `3c486cdcddc55eaa3badf4c5976412b1bd20d28ff8ce73296a50d94f357cd235`. Final PDF Markdown SHA-256 is `5b0c0e8a4e3d1aa6efc6efa5396c1755b68ff52c512b7dce88be33de04e058ae`.
+
+The final four structured outputs have zero binding comments. Parsed visible wording, heading/list nesting, table values, footnote definitions and figure occurrences were compared again after stripping. HTML/mail wording and figure attributes match the earlier source-checked outputs. DOCX/XLSX URLs now render exact source dots, hyphens, fragment and closing-parenthesis punctuation; they have no visible escape backslashes or errant `%5C` destinations. Known figure assets are unchanged.
+
+| Final structured Markdown | SHA-256 |
+| --- | --- |
+| nested HTML | `f8f9eed612293620b0f13c6375d5e33978d58cfe65eddf078e36c91812fd2e75` |
+| footnotes DOCX | `7197273dd6586ccf3357387c4a72972bb6323c0e0a3cd934b81acf350b74c071` |
+| metadata EML | `9c8af0951760f7ec26a96e33b41ea94f4644cce52d022eabcc9c1a8b05f13bf2` |
+| blank-comments XLSX | `a1f3880779b85223978154752427e2ab11b8844c50c2a2367c84b387b899d31a` |
+
+## Failures preserved and corrections checked
+
+Earlier full-Markdown replies failed binding/list/escaping checks; their receipts are preserved. Early PDF attempts failed preparation time limits or typed-plan validation. Scan06 source inspection found incorrect heading depth, alphabetic continuation text instead of nested lists, and an Outlet label after the footer. The later plan fixes hierarchy/nesting, while coordinate-bearing source lines now sort stably by vertical/horizontal position; missing geometry retains extraction order.
+
+Scan07 correctly failed because it added two visible arrow glyphs absent from the source text layer. Scan08 removed those glyphs but exposed a checker false positive: parsing the standalone source cell `--` as Markdown consumed it as a Setext underline. Exact literal PageText comparison fixes that expected-side loss; the accepted final table retains `--`. The saved plan was rechecked offline, with no model correction or extra provider call.
+
+Final structured inspection found GFM auto-linking of escaped URL text, which displayed backslashes and produced incorrect escaped destinations. Inert colon escaping prevents that auto-link interpretation while keeping the exact source URL visible. The final `-04` offline receipts include this correction; prior `-03` receipts remain preserved. Binding comments are present during checks and absent from returned Markdown, avoiding technical-marker text in the reader view.
+
+The focused PDF preparation suite passed seven tests, including shuffled line order, incomplete-geometry fallback, nonfinite/out-of-page/reversed coordinates, stable equal positions, entity preservation, empty scan pages and actual crop binding. Strict `brn-threads-intake` library/test Clippy passed. These checks and the five source comparisons do not establish universal format completeness, complex PDF reading order, complete chart rendering, or native UI acceptance.
