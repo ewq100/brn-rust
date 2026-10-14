@@ -378,6 +378,16 @@ class LineageAndSourceChecks(unittest.TestCase):
         ctx['steps'][0]['sources'] = []
         self.assertFalse(run({'type': 'input_lineage', 'step': 2, 'source_of_step': 1}, ctx)['passed'])
 
+    def test_input_lineage_accepts_the_version_read_before_the_step_advanced_it(self):
+        steps = [step('a', sources=['src1'], operations=['op1'])]
+        v1 = {'id': 'src1', 'version': 1, 'archived': False, 'data': {'Source': {}}}
+        v2 = dict(v1, version=2)
+        check = {'type': 'input_lineage', 'step': 1, 'source_of_step': 1}
+        read_then_written = ctx_for(CASE, BASE, BASE + [v2], steps, lineage=self.lineage('src1', 1))
+        self.assertTrue(run(check, read_then_written)['passed'])
+        older_than_step = ctx_for(CASE, BASE + [v2], BASE + [v2], steps, lineage=self.lineage('src1', 1))
+        self.assertFalse(run(check, older_than_step)['passed'])
+
     def test_sources_linked_by_link_or_applied_input(self):
         source = {'id': 'src1', 'version': 1, 'archived': False, 'data': {'Source': {}}}
         steps = [step('a', sources=['src1'])]

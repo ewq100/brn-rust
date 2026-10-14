@@ -739,23 +739,28 @@ def check_input_lineage(c, ctx):
     step = ctx['steps'][number - 1] if number <= len(ctx['steps']) else None
     if not step:
         return False, 'step did not run'
-    state = state_for(ctx, c)
-    versions = {record['id']: record['version'] for record in state['records']}
+    # The version current when the step read it: at least the version before
+    # the step. The step's own group may then advance the record further.
+    before = ctx['states'].get(number - 1) or ctx['states'][0]
+    floor = {record['id']: record['version'] for record in before['records']}
     if c.get('source_of_step'):
         owner = ctx['steps'][c['source_of_step'] - 1]
-        required = {identity for identity in step_sources(owner)}
-        if not required:
+        wanted = set(step_sources(owner))
+        if not wanted:
             return False, 'the step recorded no Source'
-        wanted = [(identity, versions.get(identity)) for identity in required]
         mode = any
     else:
-        wanted = [(key_id(ctx, key), versions.get(key_id(ctx, key))) for key in c['keys']]
+        wanted = [key_id(ctx, key) for key in c['keys']]
         mode = all
-    inputs = {(item['record'], item['version']) for op in operation_inputs(step, ctx['lineage'])
-              for item in op['inputs'] if item.get('expectation', 'Current') == 'Current'}
-    missing = [identity for identity, version in wanted if (identity, version) not in inputs]
-    ok = mode(((identity, version) in inputs) for identity, version in wanted)
-    return ok, f'inputs lack current version of {missing}' if not ok else 'applied inputs include the current version'
+    inputs = [(item['record'], item['version']) for op in operation_inputs(step, ctx['lineage'])
+              for item in op['inputs'] if item.get('expectation', 'Current') == 'Current']
+
+    def used(identity):
+        return any(record == identity and version >= floor.get(identity, 1) for record, version in inputs)
+
+    missing = [identity for identity in wanted if not used(identity)]
+    ok = mode(used(identity) for identity in wanted)
+    return ok, f'inputs lack a current version of {missing}' if not ok else 'applied inputs include the version read'
 
 
 def step_sources(step):
@@ -1231,9 +1236,10 @@ class Sample:
             json.dumps(public_snapshot(self.result), ensure_ascii=False, indent=2) + '\n')
 
     def measure(self, command, **options):
-        """Knowledge check and search use the arm's binary, or --measure-bin on a clone if the arm lacks them."""
-        needed = 'knowledge-check' if command == 'knowledge-check' else 'search'
-        if self.caps.get(needed) or not self.args.measure_bin:
+        """Knowledge check is a measuring instrument: it uses --measure-bin on a clone whenever one is given, so
+        every arm is measured alike. Search ranks measure the arm's own retrieval and use --measure-bin only
+        when the arm lacks search."""
+        if not self.args.measure_bin or (command != 'knowledge-check' and self.caps.get('search')):
             return self.cli.call(command, **options)
         clone = self.folder / 'measure'
         if clone.exists():
@@ -1594,7 +1600,7 @@ def build_parser():
     parser.add_argument('--timeout', type=int, default=180, help='seconds per brn command (1..600)')
     parser.add_argument('--seed', type=int, default=1, help='filler seed passed to the seeder')
     parser.add_argument('--helper', type=Path, help='brn-intake-helper (default: next to each binary)')
-    parser.add_argument('--measure-bin', type=Path, help='binary for knowledge-check/search when an arm binary lacks them (runs on a clone)')
+    parser.add_argument('--measure-bin', type=Path, help='binary for every knowledge-check, and for search when an arm binary lacks it (runs on a clone)')
     parser.add_argument('--prewarm-timeout', type=int, default=1800)
     parser.add_argument('--seed-timeout', type=int, default=1800)
     return parser
