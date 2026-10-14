@@ -39,8 +39,8 @@ pub use trace::{RunTrace, TraceCall, TraceLevel, TraceUsage};
 mod sources;
 use history::{HistoryArgs, RefreshArgs};
 pub use note_search::{
-    ConnectionHop, ConnectionNode, MAX_SEARCH_LIMIT, NoteNeighbourhood, NoteSearchError,
-    NoteSearchPage, NoteSearchResult, RunNoteSearch,
+    ConnectionHop, ConnectionLink, ConnectionNode, MAX_SEARCH_LIMIT, NoteNeighbourhood,
+    NoteSearchError, NoteSearchPage, NoteSearchResult, RunNoteSearch,
 };
 pub use sources::{TransientAsset, TransientSource};
 #[cfg(test)]
@@ -453,7 +453,7 @@ impl Tool for NoteConnections {
     type Output = Value;
     type Error = AiError;
     fn description(&self) -> String {
-        "List a visible note's recorded neighbourhood: linked notes (and optionally sources) with relation names and directions, at most 8 per hop with exact available counts. hops=2 adds neighbours of the listed neighbours.".into()
+        "List a visible note's recorded neighbourhood: linked notes (and optionally sources) with relation names and directions and every Link record behind them (`links`: id, current version for `expected_version`, relation), at most 8 per hop with exact available counts. hops=2 adds neighbours of the listed neighbours.".into()
     }
     fn parameters(&self) -> Value {
         schema(Self::NAME)

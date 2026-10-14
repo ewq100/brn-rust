@@ -519,6 +519,7 @@ async fn execute(inv: &Invocation) -> Result<Value> {
                 json!({"id":n.id,"version":n.version,"title":n.title,
                     "kind":format!("{:?}", n.kind).to_lowercase(),
                     "relations":n.relations.iter().map(|r| format!("{}:{}", if r.outgoing {"out"} else {"in"}, r.relation)).collect::<Vec<_>>(),
+                    "links":n.relations.iter().flat_map(|r| r.links.iter().map(move |l| json!({"id":l.id,"version":l.version,"relation":format!("{}:{}", if r.outgoing {"out"} else {"in"}, r.relation)}))).collect::<Vec<_>>(),
                     "via":n.via,"inbound_links":n.inbound_links})
             };
             json!({"centre":node(&found.centre),"hops":found.hops.iter().enumerate().map(|(i, h)| json!({

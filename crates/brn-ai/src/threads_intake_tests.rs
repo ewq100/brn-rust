@@ -39,6 +39,11 @@ fn node(id: &str) -> ConnectionNode {
         title: format!("Neighbour {id}"),
         kind: "note".into(),
         relations: vec!["out:relates".into()],
+        links: vec![crate::threads::ConnectionLink {
+            id: "l1".into(),
+            version: 1,
+            relation: "out:source".into(),
+        }],
         via: None,
         inbound_links: 0,
     }

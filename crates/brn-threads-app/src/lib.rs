@@ -25,7 +25,9 @@ mod topics;
 mod writing;
 pub use export::ExportManifest;
 pub use intake::import_report;
-pub use knowledge::{FINDINGS_PER_KIND, Finding, FindingKind, KnowledgeCheck};
+pub use knowledge::{
+    FINDINGS_PER_KIND, Finding, FindingKind, KnowledgeCheck, REVIEW_MESSAGE_BYTES,
+};
 pub use review_groups::{ReviewGroup, ReviewGroups};
 pub use topics::{TopicEntry, Topics};
 pub use writing::{WritingComment, WritingCommentInput};
