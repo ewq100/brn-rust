@@ -25,6 +25,8 @@ use tokio_util::sync::CancellationToken;
 
 #[path = "threads_history.rs"]
 mod history;
+#[path = "threads_intake.rs"]
+mod host_intake;
 #[path = "threads_search.rs"]
 mod note_search;
 #[path = "threads_trace.rs"]
@@ -1325,6 +1327,7 @@ pub async fn run_prepared(
             answer,
         });
     }
+    let input = host_intake::with_context(&scope, input).await;
     let watched = scope.clone();
     let observed = cancel.clone();
     let watcher = tokio::spawn(async move {
@@ -1422,6 +1425,7 @@ pub async fn run_prepared_scripted(
         scope,
         input,
     } = prepared;
+    let input = host_intake::with_context(&scope, input).await;
     let mut answer = run_model(
         model,
         scope.clone(),
