@@ -201,7 +201,17 @@ pub(super) async fn search_notes(scope: Arc<Scope>, args: SearchNotesArgs) -> Ai
     .await
     .map_err(storage)?
     .map_err(failed)?;
-    serde_json::to_value(page).map_err(storage)
+    let ids = page
+        .results
+        .iter()
+        .map(|r| r.id.clone())
+        .collect::<Vec<_>>();
+    let mut value = serde_json::to_value(page).map_err(storage)?;
+    let store = scope.store.lock().map_err(storage)?;
+    if let Some(hint) = research::large_notes_hint(&scope, &store, ids)? {
+        value["large_notes"] = hint;
+    }
+    Ok(value)
 }
 
 pub(super) async fn note_connections(scope: Arc<Scope>, args: ConnectionsArgs) -> AiResult<Value> {

@@ -1,5 +1,8 @@
 use crate::*;
 use std::path::PathBuf;
+
+/// The owner's caveat shown wherever the helper model is chosen.
+pub const HELPER_TESTED_NOTE: &str = "Experimental: helper sub-agents are tested only with gpt-6-luna at high effort; other models may give unreliable results. Best for long-document digests; runs that delegate are slower";
 impl Workspace {
     pub fn settings(&self) -> AppResult<WorkspaceSettings> {
         self.records()?
@@ -49,6 +52,7 @@ impl Workspace {
             backup_directory: None,
             theme: None,
             topics_note: None,
+            helper: None,
         };
         let request = ChangeRequest {
             reason: "Initial workspace configuration".into(),
@@ -86,6 +90,9 @@ impl Workspace {
                     "Credential locations must be absolute paths".into(),
                 ));
             }
+        }
+        if let Some(helper) = &settings.helper {
+            validate_helper(helper)?;
         }
         let binding = format!("{:x}", Sha256::digest(serde_json::to_vec(&settings)?));
         let op = self
@@ -154,5 +161,41 @@ impl Workspace {
             paused,
             &HostAuthority::owner("owner maintenance pause"),
         )?)
+    }
+}
+
+/// The helper is an explicit owner selection with its own explicit credentials.
+fn validate_helper(helper: &brn_threads_core::HelperSettings) -> AppResult<()> {
+    let invalid = |message: &str| Err(AppError::Invalid(message.into()));
+    let codex = ["codex", "chatgpt"]
+        .iter()
+        .any(|name| helper.provider.eq_ignore_ascii_case(name));
+    if !codex && !helper.provider.eq_ignore_ascii_case("copilot") {
+        return invalid("Choose Codex or Copilot for the helper");
+    }
+    let model = helper.model.trim();
+    if model.is_empty()
+        || model.len() > 128
+        || !model
+            .bytes()
+            .all(|b| b.is_ascii_alphanumeric() || b"-_.:/".contains(&b))
+    {
+        return invalid("Choose a helper model");
+    }
+    if !["low", "medium", "high"].contains(&helper.effort.as_str()) {
+        return invalid("Choose low, medium or high helper effort");
+    }
+    for path in [&helper.auth_file, &helper.credentials_dir]
+        .into_iter()
+        .flatten()
+    {
+        if !Path::new(path).is_absolute() {
+            return invalid("Credential locations must be absolute paths");
+        }
+    }
+    match (codex, &helper.auth_file, &helper.credentials_dir) {
+        (true, Some(_), None) | (true, None, Some(_)) | (false, None, Some(_)) => Ok(()),
+        (false, Some(_), _) => invalid("Codex sign-in files apply only to a Codex helper"),
+        _ => invalid("Choose one credential location for the helper"),
     }
 }

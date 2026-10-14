@@ -32,9 +32,11 @@ mod host_intake;
 mod note_search;
 #[path = "threads_reads.rs"]
 mod reads;
+#[path = "threads_research.rs"]
+mod research;
 #[path = "threads_trace.rs"]
 mod trace;
-pub use trace::{RunTrace, TraceCall, TraceLevel, TraceUsage};
+pub use trace::{HelperTrace, RunTrace, TraceCall, TraceLevel, TraceUsage};
 #[path = "threads_sources.rs"]
 mod sources;
 use history::{HistoryArgs, RefreshArgs};
@@ -64,6 +66,9 @@ mod project_tests;
 #[cfg(test)]
 #[path = "threads_reads_tests.rs"]
 mod reads_tests;
+#[cfg(test)]
+#[path = "threads_research_tests.rs"]
+mod research_tests;
 
 #[cfg(test)]
 #[path = "threads_search_tests.rs"]
@@ -111,6 +116,8 @@ pub struct ThreadResult {
     pub answer: AiAnswer,
     /// Present when the request asked for a trace.
     pub trace: Option<RunTrace>,
+    /// Host notices for the owner, such as an unavailable helper.
+    pub notices: Vec<String>,
     /// Identical re-sends of a model request that was not processed, at
     /// most `RUN_RESENDS`, recorded whatever the trace level.
     pub provider_resends: Vec<crate::AiFailureDetail>,
@@ -132,7 +139,7 @@ struct Scope {
     private_context: bool,
     project_context: Option<(String, u64)>,
     chat_context_revision: u64,
-    store: Mutex<Store>,
+    store: Arc<Mutex<Store>>,
     run: String,
     fence: AtomicU64,
     instruction: String,
@@ -148,6 +155,10 @@ struct Scope {
     max_rounds: u16,
     /// Routes a Codex conversation's model turns to one prompt cache.
     cache_key: Option<String>,
+    /// The owner's helper for `research`; never set in a helper's own scope.
+    helper: Option<Arc<research::HelperRuntime>>,
+    /// Set only in a helper sub-run's scope.
+    scout: Option<Arc<research::ScoutSlot>>,
 }
 /// Stable for a chat, so the turns of every run in it share a cache, and
 /// carries no content beyond the chat id the prompt already names.
@@ -325,6 +336,8 @@ fn parse_valid(name: &str, args: &Value) -> bool {
         "apply_changes" => serde_json::from_value::<ApplyArgs>(args.clone()).is_ok(),
         "retain_progress" => serde_json::from_value::<ProgressArgs>(args.clone())
             .is_ok_and(|a| a.summary.len() <= 4096),
+        "research" => research::validate_research(args),
+        "submit_findings" => research::validate_findings(args),
         "prepare_changes" => serde_json::from_value::<PrepareArgs>(args.clone()).is_ok_and(|a| {
             !a.request_key.is_empty()
                 && a.request_key.len() <= 128
@@ -378,6 +391,8 @@ fn schema(name: &str) -> Value {
         ),
         "search_notes" => note_search::search_schema(),
         "note_connections" => note_search::connections_schema(),
+        "research" => research::research_schema(),
+        "submit_findings" => research::findings_schema(),
         "read_source" => object(json!({"reference":{"type":"string"}}), json!(["reference"])),
         "read_skill" => object(
             json!({"id":{"type":"string","enum":["intake","maintain-notes","resolve-conflict","prepare-reply"]}}),
@@ -413,6 +428,10 @@ macro_rules! tool {
             async fn call(&self, cx: &mut ToolContext, args: $args) -> AiResult<Value> {
                 {
                     let scope = scope(cx)?;
+                    // A helper sub-run is read-only whatever the model asks.
+                    if scope.scout.is_some() && !research::HELPER_TOOLS.contains(&$name) {
+                        return Err(rejected());
+                    }
                     $handler(scope.as_ref(), args)
                 }
             }
@@ -560,10 +579,22 @@ const SEARCH_TOOLS: [(&str, &str); 2] = [
         "Following note connections…",
     ),
 ];
+/// Registered only for runs with a helper (`research`) or inside a helper.
+const HELPER_TOOL_ACTIVITY: [(&str, &str); 2] = [
+    (
+        <research::Research as Tool>::NAME,
+        "Asking a research helper…",
+    ),
+    (
+        <research::SubmitFindings as Tool>::NAME,
+        "Submitting research findings…",
+    ),
+];
 pub fn tool_activity(name: &str) -> Option<&'static str> {
     core_tool_activity(name).or_else(|| {
         SEARCH_TOOLS
             .iter()
+            .chain(HELPER_TOOL_ACTIVITY.iter())
             .find(|(tool, _)| *tool == name)
             .map(|(_, activity)| *activity)
     })
@@ -585,6 +616,19 @@ fn read_records(scope: &Scope, args: ReadArgs) -> AiResult<Value> {
         {
             continue;
         }
+        // Conversation history and run progress never reach a helper, which
+        // may run on another provider; it reads knowledge records only.
+        if scope.scout.is_some()
+            && !matches!(
+                record.data,
+                RecordData::Note(_)
+                    | RecordData::Link(_)
+                    | RecordData::Source(_)
+                    | RecordData::Comment(_)
+            )
+        {
+            continue;
+        }
         if !args.ids.is_empty() && !args.ids.contains(&record.id) {
             continue;
         }
@@ -601,6 +645,9 @@ fn read_records(scope: &Scope, args: ReadArgs) -> AiResult<Value> {
         }
         if let Some(query) = &args.query {
             let text = match &record.data {
+                _ if scope.scout.is_some() && !matches!(record.data, RecordData::Note(_)) => {
+                    continue;
+                }
                 RecordData::Note(n) => format!("{}\n{}", n.title, n.markdown),
                 RecordData::Message(m) => m.text.clone(),
                 RecordData::Thread(t) => t.title.clone(),
@@ -638,8 +685,14 @@ fn read_records(scope: &Scope, args: ReadArgs) -> AiResult<Value> {
         if let RecordData::Asset(asset) = &record.data {
             value = json!({"id":record.id,"version":record.version,"asset":{"note":asset.note,"source":asset.source,"media_type":asset.media_type,"sha256":asset.content_hash(),"bytes":asset.bytes.len()}});
         }
+        // A helper digests long notes by slices, never whole.
+        let cap = if scope.scout.is_some() {
+            research::HELPER_READ_BYTES
+        } else {
+            MAX_NOTE_READ_BYTES
+        };
         if let RecordData::Note(note) = &record.data
-            && note.markdown.len() <= MAX_NOTE_READ_BYTES
+            && note.markdown.len() <= cap
         {
             scope
                 .reads
@@ -648,20 +701,34 @@ fn read_records(scope: &Scope, args: ReadArgs) -> AiResult<Value> {
                 .complete(&record.id, record.version);
         }
         if let RecordData::Note(note) = &record.data
-            && note.markdown.len() > MAX_NOTE_READ_BYTES
+            && note.markdown.len() > cap
         {
-            let prefix = truncate(&note.markdown, MAX_NOTE_READ_BYTES);
+            let prefix = truncate(&note.markdown, cap);
             value["data"]["Note"]["markdown"] = Value::String(prefix.to_owned());
             value["truncated"] = Value::Bool(true);
             let headings = note_headings(&note.markdown);
-            value["note_read"] = json!({"total_bytes":note.markdown.len(),"next_start":prefix.len(),"max_bytes":MAX_NOTE_READ_BYTES,"headings":headings.iter().take(256).collect::<Vec<_>>(),"headings_truncated":headings.len()>256});
+            value["note_read"] = json!({"total_bytes":note.markdown.len(),"next_start":prefix.len(),"max_bytes":cap,"headings":headings.iter().take(256).collect::<Vec<_>>(),"headings_truncated":headings.len()>256});
         }
         rows.push(value);
         if rows.len() == 100 {
             break;
         }
     }
-    Ok(json!({"records":rows,"limit":100}))
+    let mut out = json!({"records":rows,"limit":100});
+    // Only listings: a note read by ID is already in context.
+    if args.ids.is_empty() {
+        let ids = out["records"]
+            .as_array()
+            .into_iter()
+            .flatten()
+            .filter(|row| row["kind"] == "Note")
+            .filter_map(|row| row["id"].as_str().map(str::to_owned))
+            .collect::<Vec<_>>();
+        if let Some(hint) = research::large_notes_hint(scope, &store, ids)? {
+            out["large_notes"] = hint;
+        }
+    }
+    Ok(out)
 }
 fn read_note(scope: &Scope, args: ReadNoteArgs) -> AiResult<Value> {
     if scope.writing_snapshot.is_some() {
@@ -675,14 +742,14 @@ fn read_note(scope: &Scope, args: ReadNoteArgs) -> AiResult<Value> {
     {
         return Err(rejected());
     }
+    let capped = scope.scout.is_some() && args.max_bytes > research::HELPER_READ_BYTES;
+    let max_bytes = if capped {
+        research::HELPER_READ_BYTES
+    } else {
+        args.max_bytes
+    };
     let outcome = store
-        .read_note_range(
-            &args.id,
-            args.version,
-            args.start,
-            args.max_bytes,
-            args.section,
-        )
+        .read_note_range(&args.id, args.version, args.start, max_bytes, args.section)
         .map_err(storage)?;
     if let NoteReadOutcome::Read { note } = &outcome {
         scope.reads.lock().map_err(storage)?.slice(
@@ -693,7 +760,11 @@ fn read_note(scope: &Scope, args: ReadNoteArgs) -> AiResult<Value> {
             note.total_bytes,
         );
     }
-    serde_json::to_value(outcome).map_err(storage)
+    let mut value = serde_json::to_value(outcome).map_err(storage)?;
+    if capped {
+        value["max_bytes"] = json!(research::HELPER_READ_BYTES);
+    }
+    Ok(value)
 }
 fn read_source(scope: &Scope, args: SourceArgs) -> AiResult<Value> {
     if scope.writing_snapshot.is_some() {
@@ -1256,6 +1327,39 @@ struct BatchHook {
     limit: u16,
     emit: Arc<dyn Fn(AiEvent) + Send + Sync>,
     trace: Option<Arc<trace::TraceCollector>>,
+    /// A helper's role tools; a call outside them is an invalid batch.
+    allowed: Option<&'static [&'static str]>,
+    /// Shared helper input-token budget: (spent, cap).
+    tokens: Option<(Arc<AtomicU64>, u64)>,
+    /// Tool calls dispatched in the current model turn.
+    turn_calls: AtomicU16,
+}
+impl BatchHook {
+    /// A helper call the host skips with an instructive result, so one bad
+    /// call or oversized batch never fails the whole sub-run.
+    fn helper_denial(&self, name: &str, args: &Value) -> Option<String> {
+        self.allowed?;
+        let index = self.turn_calls.fetch_add(1, Ordering::SeqCst) + 1;
+        if usize::from(index) > research::HELPER_BATCH {
+            return Some(format!(
+                "Skipped: at most {} tool calls per turn. Repeat this call in a later turn only if you still need it.",
+                research::HELPER_BATCH
+            ));
+        }
+        if name != "submit_findings" && self.rounds.load(Ordering::SeqCst) > self.limit {
+            return Some("Skipped: your research budget is spent. Call submit_findings now with what you found and list unread leads as gaps.".into());
+        }
+        if !parse_valid(name, args) {
+            return Some(if name == "submit_findings" {
+                research::FINDINGS_LIMITS.into()
+            } else {
+                format!(
+                    "Skipped: invalid arguments for {name}. Check its schema and limits and call it again."
+                )
+            });
+        }
+        None
+    }
 }
 impl AgentHook for BatchHook {
     async fn on_dispatch(&self, _: &HookContext, event: DispatchEvent<'_>) -> DispatchAction {
@@ -1294,6 +1398,15 @@ impl AgentHook for BatchHook {
                 }
             );
             (self.emit)(AiEvent::Activity(text));
+            if let Some(message) = self.helper_denial(
+                name,
+                &serde_json::from_str(event.tool_args().unwrap_or("{}")).unwrap_or(Value::Null),
+            ) {
+                return DispatchAction::Deny(rig::error::ErrorReport::new(
+                    rig::error::ErrorKind::Denied,
+                    message,
+                ));
+            }
         }
         DispatchAction::Proceed
     }
@@ -1331,12 +1444,20 @@ impl AgentHook for BatchHook {
                 }
             })
             .collect();
+        // A helper's schema-invalid call is skipped at dispatch with an
+        // instructive result; unparseable or foreign calls still end its run.
+        let helper = self.allowed.is_some();
+        self.turn_calls.store(0, Ordering::SeqCst);
         if calls.iter().any(|call| {
             call.function.invalid_arguments.is_some()
-                || !parse_valid(
-                    &call.function.name,
-                    &Value::Object(call.function.arguments.clone()),
-                )
+                || self
+                    .allowed
+                    .is_some_and(|allowed| !allowed.contains(&call.function.name.as_str()))
+                || (!helper
+                    && !parse_valid(
+                        &call.function.name,
+                        &Value::Object(call.function.arguments.clone()),
+                    ))
         }) {
             self.invalid.store(true, Ordering::SeqCst);
             if let Some(trace) = &self.trace {
@@ -1345,7 +1466,13 @@ impl AgentHook for BatchHook {
             }
             return ModelTurnAction::Stop("invalid tool batch".into());
         }
-        let rounds = if calls.is_empty() {
+        // A helper's report-only turn never spends a research round.
+        let report_only = helper
+            && !calls.is_empty()
+            && calls
+                .iter()
+                .all(|call| call.function.name == "submit_findings");
+        let rounds = if calls.is_empty() || report_only {
             self.rounds.load(Ordering::SeqCst)
         } else {
             self.rounds.fetch_add(1, Ordering::SeqCst) + 1
@@ -1358,7 +1485,19 @@ impl AgentHook for BatchHook {
             tool_rounds: rounds.min(self.limit),
             max_tool_rounds: self.limit,
         });
-        if rounds > self.limit {
+        let over_tokens = self.tokens.as_ref().is_some_and(|(spent, cap)| {
+            spent.fetch_add(event.usage.input_tokens.unwrap_or(0), Ordering::SeqCst)
+                + event.usage.input_tokens.unwrap_or(0)
+                >= *cap
+        });
+        // A helper gets one grace turn past its budget, in which only
+        // submit_findings runs; anything later stops it.
+        let over_rounds = if helper {
+            rounds > self.limit + 1
+        } else {
+            rounds > self.limit
+        };
+        if over_rounds || (over_tokens && !calls.is_empty() && !report_only) {
             self.limited.store(true, Ordering::SeqCst);
             if let Some(trace) = &self.trace {
                 trace.stop("budget");
@@ -1404,7 +1543,9 @@ pub async fn run_prepared(
 /// The provider client for a run. A Codex run's cache key pins its
 /// `session_id` on top of `transport` (the shared HTTP client when `None`).
 async fn provider_client(
-    request: &ThreadRunRequest,
+    selection: &Selection,
+    auth_file: Option<&std::path::Path>,
+    credentials_dir: Option<&std::path::Path>,
     cache_key: Option<&str>,
     transport: Option<DynHttpClient>,
     on_resend: crate::resend::OnResend,
@@ -1416,22 +1557,13 @@ async fn provider_client(
         on_resend,
     );
     // A Codex auth file only serves ChatGPT; Copilot always uses its credentials folder.
-    let codex_file = request
-        .auth_file
-        .as_ref()
-        .filter(|_| request.selection.provider == Provider::Chatgpt);
+    let codex_file = auth_file.filter(|_| selection.provider == Provider::Chatgpt);
     if let Some(file) = codex_file {
-        crate::codex_auth::codex_client_pinned(
-            file,
-            &request.selection,
-            cache_key,
-            http,
-            cancel.clone(),
-        )
-        .await
-    } else if let Some(dir) = &request.credentials_dir {
+        crate::codex_auth::codex_client_pinned(file, selection, cache_key, http, cancel.clone())
+            .await
+    } else if let Some(dir) = credentials_dir {
         let auth = Auth::open(dir)?.with_http(http);
-        auth.client_pinned(&request.selection, cache_key, cancel.clone())
+        auth.client_pinned(selection, cache_key, cancel.clone())
             .await
     } else {
         Err(AiError::new(AiErrorKind::ReconnectNeeded))
@@ -1465,6 +1597,7 @@ async fn run_prepared_over(
                 .then(|| (scope.run.clone(), scope.fence.load(Ordering::SeqCst) + 1)),
             run_id: scope.run.clone(),
             trace: finish_trace(&scope, &answer),
+            notices: Vec::new(),
             answer,
             provider_resends: Vec::new(),
         });
@@ -1487,6 +1620,9 @@ async fn run_prepared_over(
     });
     // The watcher is already running, so a stop during the context build is seen.
     let input = host_intake::with_context(&scope, input, &cancel).await;
+    if let Some(helper) = &scope.helper {
+        helper.set_source(research::HelperSource::Provider(transport.clone()));
+    }
     let trace = scope.trace.clone();
     let resends = Arc::new(std::sync::Mutex::new(Vec::new()));
     let resent = resends.clone();
@@ -1499,7 +1635,9 @@ async fn run_prepared_over(
         }
     });
     let client = provider_client(
-        &request,
+        &request.selection,
+        request.auth_file.as_deref(),
+        request.credentials_dir.as_deref(),
         scope.cache_key.as_deref(),
         transport,
         on_resend,
@@ -1557,9 +1695,17 @@ async fn run_prepared_over(
             .then(|| (scope.run.clone(), scope.fence.load(Ordering::SeqCst) + 1)),
         run_id: scope.run.clone(),
         trace: finish_trace(&scope, &answer),
+        notices: notices(&scope),
         answer,
         provider_resends: resends.lock().map(|r| r.clone()).unwrap_or_default(),
     })
+}
+fn notices(scope: &Scope) -> Vec<String> {
+    scope
+        .helper
+        .as_ref()
+        .map(|helper| helper.notices())
+        .unwrap_or_default()
 }
 /// Runs a prepared invocation against a scripted model, for offline host
 /// journey tests. Shipped hosts never enable `scripted-runs`.
@@ -1568,11 +1714,24 @@ pub async fn run_prepared_scripted(
     prepared: PreparedThreadRun,
     model: rig::test_utils::MockCompletionModel,
 ) -> AiResult<ThreadResult> {
+    run_prepared_scripted_with_helpers(prepared, model, Vec::new()).await
+}
+/// As [`run_prepared_scripted`], with scripted helper sub-runs taken in start
+/// order; an `Err` entry stands for a helper that could not start.
+#[cfg(feature = "scripted-runs")]
+pub async fn run_prepared_scripted_with_helpers(
+    prepared: PreparedThreadRun,
+    model: rig::test_utils::MockCompletionModel,
+    helpers: Vec<std::result::Result<rig::test_utils::MockCompletionModel, AiErrorKind>>,
+) -> AiResult<ThreadResult> {
     let PreparedThreadRun {
         request,
         scope,
         input,
     } = prepared;
+    if let Some(helper) = &scope.helper {
+        helper.set_source(research::HelperSource::Scripted(helpers.into()));
+    }
     let input = host_intake::with_context(&scope, input, &CancellationToken::new()).await;
     let mut answer = run_model(
         model,
@@ -1594,6 +1753,7 @@ pub async fn run_prepared_scripted(
             .then(|| (scope.run.clone(), scope.fence.load(Ordering::SeqCst) + 1)),
         run_id: scope.run.clone(),
         trace: finish_trace(&scope, &answer),
+        notices: notices(&scope),
         answer,
         provider_resends: Vec::new(),
     })
@@ -2041,6 +2201,10 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
     let attachments = store.records_for_chat(Some(&request.thread)).map_err(storage)?.into_iter().filter_map(|r| match r.data {
         RecordData::Note(n) if n.chat.as_ref() == Some(&request.thread) => Some(json!({"id":r.id,"version":r.version,"title":n.title,"bytes":n.markdown.len(),"coverage":n.import.and_then(|i|i.report)})), _=>None,
     }).take(128).collect::<Vec<_>>();
+    // Owner-chosen helpers serve chat runs; a writing Rewrite never gets one.
+    let helper = settings
+        .and_then(|(_, settings)| settings.helper.clone())
+        .filter(|_| writing_snapshot.is_none());
     Ok((
         Arc::new(Scope {
             chat: request.thread.clone(),
@@ -2052,7 +2216,7 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
                 .find(|r| r.id == request.thread)
                 .map(|r| r.version)
                 .ok_or_else(rejected)?,
-            store: Mutex::new(store),
+            store: Arc::new(Mutex::new(store)),
             run: run_id,
             fence: AtomicU64::new(1),
             instruction,
@@ -2067,6 +2231,8 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
             trace: trace::TraceCollector::new(request.trace).map(Arc::new),
             max_rounds: request.max_tool_rounds,
             cache_key: cache_key(request.selection.provider, &request.thread),
+            helper: helper.map(|helper| Arc::new(research::HelperRuntime::new(&helper))),
+            scout: None,
         }),
         format!(
             "{input}\nCurrent project context (owner-set instructions, within existing authority): {project_context}\nSaved chat documents (read with exact-version note tools): {}\nTopics note (root index of topic pages): {}\nHost maintenance policy: {maintenance_policy}\nHost authority for this invocation only: {}",
@@ -2282,6 +2448,23 @@ async fn run_model(
 ) -> AiAnswer {
     let limited = Arc::new(AtomicBool::new(false));
     let invalid = Arc::new(AtomicBool::new(false));
+    if let Some(slot) = &scope.scout {
+        return research::run_helper_model(
+            model,
+            scope.clone(),
+            input,
+            effort,
+            limit,
+            responses,
+            cancel,
+            emit,
+            slot.clone(),
+        )
+        .await;
+    }
+    if let Some(helper) = &scope.helper {
+        helper.bind(cancel.clone(), emit.clone());
+    }
     let preamble = format!(
         "{}\n\nCanonical records use externally tagged data objects. Note fields: title, markdown, protected, confirmed, superseded_by (null), import (null). Thread: title, state (Open/Resolved), attention [{{kind:Question/Review/Conflict/Blocker,reason,record:null}}]. Action: description,state,internal,evidence:null,due:null. Source: locator,label,observed_at,external_version:null,outcome,gaps:[]; Link: from,to,relation. Message: thread,role,text. Comment: note,base_version,quote,range,mapped_version,mapped_range,body,unresolved. New IDs use new:0 etc. Message/Run/Settings and receipt authority are host-only.",
         crate::threads_guides::preamble(crate::threads_guides::preloaded(
@@ -2291,6 +2474,9 @@ async fn run_model(
     let mut builder = register_tools(rig::AgentBuilder::new(model).preamble(&preamble));
     if scope.search.is_some() {
         builder = builder.tool(SearchNotes).tool(NoteConnections);
+        if scope.helper.is_some() {
+            builder = builder.tool(research::Research);
+        }
     }
     let agent = builder
         // Rig 0.44 maps portable reasoning on Responses. Its Copilot Chat
@@ -2319,6 +2505,9 @@ async fn run_model(
             limit,
             emit: emit.clone(),
             trace: scope.trace.clone(),
+            allowed: None,
+            tokens: None,
+            turn_calls: AtomicU16::new(0),
         })
         .build();
     let stream = agent
@@ -2441,6 +2630,7 @@ mod tests {
                         backup_directory: None,
                         theme: None,
                         topics_note: None,
+                        helper: None,
                     }),
                 },
                 Put {

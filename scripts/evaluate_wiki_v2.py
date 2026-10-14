@@ -10,8 +10,11 @@ Everything lives under one exclusively created --root; nothing outside it is wri
 passed to `brn configure` and never read here.
 
 Arms: --arm NAME=BINARY[,model-dir=PATH][,provider=Codex|Copilot][,model=ID][,effort=low|medium|high]
+            [,helper=MODEL:EFFORT]
 A case runs the arms whose base name (text before the first '-') is listed in its `arms`, so a model
-matrix may use B-sol, B-luna. Arm options override the global --provider/--model/--effort.
+matrix may use B-sol, B-luna. Arm options override the global --provider/--model/--effort. `helper`
+turns on the owner's read-only research helper on the arm's provider and credentials (live only);
+helper sub-runs are traced under `helpers` and their reads count for read checks and privacy.
 
 Check types (a check may carry `after_step` N, `arms` [base names], `report_only`):
   answer_contains_any{step,values}  answer_excludes{step|steps,values}  no_writes{step}
@@ -57,7 +60,9 @@ create_root = V1.create_root
 
 PROVIDERS = ('Codex', 'Copilot')
 EFFORTS = ('low', 'medium', 'high')
-ARM_OPTIONS = {'model-dir': 'model_dir', 'provider': 'provider', 'model': 'model', 'effort': 'effort'}
+ARM_OPTIONS = {'model-dir': 'model_dir', 'provider': 'provider', 'model': 'model', 'effort': 'effort',
+               'helper': 'helper'}
+ARM_FIELDS = ('name', 'binary_sha256', 'provider', 'model', 'effort', 'helper', 'model_dir')
 RECOMMENDED_RELATIONS = frozenset({'source', 'supersedes', 'contradicts', 'related'})
 WRITE_KINDS = ('Note', 'Link', 'Action')
 KEPT_KINDS = ('Note', 'Link', 'Thread', 'Source', 'Action')
@@ -108,7 +113,8 @@ def parse_arm(text):
     parts = rest.split(',')
     if not parts[0]:
         raise ValueError(f'Arm {name} needs a binary')
-    arm = {'name': name, 'binary': parts[0], 'model_dir': None, 'provider': None, 'model': None, 'effort': None}
+    arm = {'name': name, 'binary': parts[0], 'model_dir': None, 'provider': None, 'model': None, 'effort': None,
+           'helper': None}
     for item in parts[1:]:
         key, sep, value = item.partition('=')
         if not sep or key not in ARM_OPTIONS or not value:
@@ -118,7 +124,20 @@ def parse_arm(text):
         raise ValueError('Arm provider must be Codex or Copilot')
     if arm['effort'] and arm['effort'] not in EFFORTS:
         raise ValueError('Arm effort must be low, medium or high')
+    if arm['helper']:
+        model, sep, effort = arm['helper'].rpartition(':')
+        if not sep or not model or effort not in EFFORTS:
+            raise ValueError('Arm helper must look like MODEL:low|medium|high')
+        arm['helper'] = {'model': model, 'effort': effort}
     return arm
+
+
+def helper_configuration(arm):
+    """`brn configure` options for an arm's helper: on the arm's provider, reusing its credentials."""
+    helper = arm.get('helper')
+    if not helper:
+        return {'helper': 'off'}
+    return {'helper_provider': arm['provider'], 'helper_model': helper['model'], 'helper_effort': helper['effort']}
 
 
 def resolve_arm(arm, provider=None, model=None, effort=None):
@@ -395,6 +414,74 @@ def ok_calls(trace):
     return [call for call in (trace or {}).get('calls', []) if call.get('outcome') != 'error']
 
 
+def helper_traces(trace):
+    return [helper['trace'] for helper in (trace or {}).get('helpers', []) if helper.get('trace')]
+
+
+def evidence_calls(trace):
+    """The run's own calls plus its helpers': evidence a helper reached counts as reached, and so does a leak."""
+    calls = ok_calls(trace)
+    for nested in helper_traces(trace):
+        calls += ok_calls(nested)
+    return calls
+
+
+CITATION_KINDS = ('exact', 'relocated', 'stale', 'mismatch', 'rejected')
+
+# Codex credits per 1M tokens: (uncached input, cached input, output). `input` in a trace's usage includes
+# its cached part. A model without a price gives no cost rather than a guessed one.
+PRICES = {'gpt-6.1-sol': (50.0, 2.5, 250.0), 'gpt-6-luna': (2.5, 0.25, 12.5)}
+
+
+def usage_cost(usage, model):
+    """Credits for one usage record at the model's price; None when the model has no price."""
+    price = PRICES.get(model)
+    if price is None:
+        return None
+    usage = usage or {}
+    total = usage.get('input', 0)
+    cached = min(usage.get('cached_input', 0), total)
+    return ((total - cached) * price[0] + cached * price[1] + usage.get('output', 0) * price[2]) / 1_000_000
+
+
+def run_cost(result):
+    """Credits for a run: the parent's usage at the arm's model and each helper's at its own model."""
+    parent = helper = 0.0
+    for step in result.get('steps') or []:
+        trace = step.get('trace')
+        if not trace or trace.get('usage') is None:
+            return {'parent': None, 'helper': None, 'cost': None}
+        own = usage_cost(trace['usage'], result.get('model'))
+        parent = None if parent is None or own is None else parent + own
+        for nested in trace.get('helpers') or []:
+            spent = usage_cost((nested.get('trace') or {}).get('usage'), nested.get('model'))
+            helper = None if helper is None or spent is None else helper + spent
+    total = None if parent is None or helper is None else parent + helper
+    return {'parent': parent, 'helper': helper, 'cost': total}
+
+
+def helper_metrics(trace):
+    """Helper sub-runs, their outcomes, citation integrity and token usage, from the parent trace."""
+    helpers = (trace or {}).get('helpers', [])
+    outcomes, citations = {}, dict.fromkeys(CITATION_KINDS, 0)
+    tokens = {'input': 0, 'output': 0, 'cached_input': 0}
+    for helper in helpers:
+        outcomes[helper.get('outcome')] = outcomes.get(helper.get('outcome'), 0) + 1
+        for kind in CITATION_KINDS:
+            citations[kind] += (helper.get('citations') or {}).get(kind, 0)
+        usage = (helper.get('trace') or {}).get('usage') or {}
+        for key in tokens:
+            tokens[key] += usage.get(key, 0)
+    turns = [turn.get('input', 0) for turn in (trace or {}).get('turn_usage', [])]
+    return {'helper_runs': len(helpers), 'helper_outcomes': outcomes, 'citations': citations,
+            'helper_tokens': tokens['input'] + tokens['output'] if helpers else 0, 'helper_usage': tokens,
+            'peak_turn_input': max(turns) if turns else None}
+
+
+def helper_label(helper):
+    return f"{helper['model']}:{helper['effort']}" if helper else None
+
+
 def call_ids_read(call):
     args = call.get('args') or {}
     if call['tool'] in ('read_note', 'read_history'):
@@ -453,6 +540,7 @@ def step_metrics(trace, targets=(), useful=(), traps=(), private=(), kind=None, 
         'elapsed_ms': trace.get('elapsed_ms'), 'dropped_calls': trace.get('dropped_calls', 0),
         'tokens': (usage['input'] + usage['output']) if usage else None,
         'tool_counts': tool_counts, 'calls': len(calls),
+        **helper_metrics(trace),
     }
 
 
@@ -460,7 +548,7 @@ def private_exposure_count(trace, private):
     """Private IDs in any result, or read by ID, in this trace."""
     private = set(private)
     count = 0
-    for call in ok_calls(trace):
+    for call in evidence_calls(trace):
         result = call.get('result') or {}
         seen = set(result.get('ids') or []) | set(call_ids_read(call))
         if call['tool'] == 'read_source':
@@ -470,7 +558,8 @@ def private_exposure_count(trace, private):
 
 
 SUMMED = ('searches', 'reformulations', 'catalog_dumps', 'literal_scans', 'bytes_read', 'wasted_reads',
-          'trap_reads', 'private_exposures', 'rounds', 'model_turns', 'elapsed_ms', 'calls')
+          'trap_reads', 'private_exposures', 'rounds', 'model_turns', 'elapsed_ms', 'calls', 'helper_runs',
+          'helper_tokens')
 EARLIEST = ('first_hit_round', 'target_rank', 'first_target_read_round')
 
 
@@ -481,10 +570,18 @@ def run_metrics(per_step):
         return {'trace': False}
     out = {'trace': True, 'per_step': per_step}
     for name in SUMMED:
-        out[name] = sum(m[name] or 0 for m in traced)
+        out[name] = sum(m.get(name) or 0 for m in traced)
     for name in EARLIEST:
         out[name] = next((m[name] for m in traced if m[name] is not None), None)
     out['budget_exhausted'] = any(m['budget_exhausted'] for m in traced)
+    peaks = [m.get('peak_turn_input') for m in traced if m.get('peak_turn_input') is not None]
+    out['peak_turn_input'] = max(peaks) if peaks else None
+    out['citations'] = {kind: sum((m.get('citations') or {}).get(kind, 0) for m in traced) for kind in CITATION_KINDS}
+    outcomes = {}
+    for m in traced:
+        for name, count in (m.get('helper_outcomes') or {}).items():
+            outcomes[name] = outcomes.get(name, 0) + count
+    out['helper_outcomes'] = outcomes
     tokens = [m['tokens'] for m in traced if m['tokens'] is not None]
     out['tokens'] = sum(tokens) if tokens else None
     out['dropped_calls'] = sum(m['dropped_calls'] for m in traced)
@@ -623,7 +720,7 @@ def connected_ids(records, identity):
 
 
 def traced_calls(step):
-    return ok_calls(step['trace']) if step and step.get('trace') else None
+    return evidence_calls(step['trace']) if step and step.get('trace') else None
 
 
 # ---------------------------------------------------------------- checks (pure; (passed, detail))
@@ -691,6 +788,9 @@ def check_read(c, ctx):
     return not missing, f'not read: {missing}' if missing else f'read {c["keys"]}'
 
 
+MAX_NOTE_READ_BYTES = 128 * 1024
+
+
 def check_read_range(c, ctx):
     calls = traced_calls(ctx['steps'][c['step'] - 1])
     if calls is None:
@@ -701,6 +801,12 @@ def check_read_range(c, ctx):
         return False, f'seeder reported no range {c["range"]!r}'
     for call in calls:
         args = call.get('args') or {}
+        result = call.get('result') or {}
+        # read_records by ID returns a note whole, or its first MAX_NOTE_READ_BYTES when truncated.
+        if call['tool'] == 'read_records' and identity in (args.get('ids') or []):
+            if not result.get('truncated') or span['end'] <= MAX_NOTE_READ_BYTES:
+                return True, 'read the note by ID'
+            continue
         if call['tool'] != 'read_note' or args.get('id') != identity:
             continue
         start = args.get('start') or 0
@@ -709,7 +815,7 @@ def check_read_range(c, ctx):
             return True, f'read bytes {start}..{start + returned}'
         if c.get('section') and norm(args.get('section') or '') == norm(c['section']):
             return True, 'read the section by heading'
-    return False, 'no read_note range overlaps the planted section'
+    return False, 'no read covers the planted section'
 
 
 def check_private_exposures(c, ctx):
@@ -1059,7 +1165,42 @@ def median_range(values):
 
 REPORT_METRICS = ('first_hit_round', 'target_rank', 'first_target_read_round', 'searches', 'reformulations',
                   'catalog_dumps', 'literal_scans', 'bytes_read', 'wasted_reads', 'trap_reads', 'rounds', 'tokens',
-                  'elapsed_ms')
+                  'elapsed_ms', 'helper_runs', 'helper_tokens', 'peak_turn_input', 'cost', 'parent_cost',
+                  'helper_cost')
+COST_METRICS = {'cost': 'cost', 'parent_cost': 'parent', 'helper_cost': 'helper'}
+
+
+def metric(result, name):
+    """A run's metric; costs are derived from the stored traces, so older roots report them too."""
+    if name in COST_METRICS:
+        return run_cost(result)[COST_METRICS[name]]
+    return (result.get('metrics') or {}).get(name)
+
+
+def cost_ratios(rows):
+    """Each arm's median run cost per case relative to the first arm's (criterion 4 is judged on cost)."""
+    by_case = {}
+    for row in rows:
+        by_case.setdefault((row['case'], row['scale']), []).append(row)
+    out = []
+    for (case_id, scale), group in sorted(by_case.items()):
+        group = sorted(group, key=lambda row: row['arm'])
+        base = (group[0]['metrics'].get('cost') or {}).get('median')
+        for row in group[1:]:
+            cost = (row['metrics'].get('cost') or {}).get('median')
+            out.append({'case': case_id, 'scale': scale, 'arm': row['arm'], 'base_arm': group[0]['arm'],
+                        'base_cost': base, 'cost': cost,
+                        'ratio': cost / base if cost is not None and base else None})
+    totals = {}
+    for item in out:
+        if item['ratio'] is not None:
+            total = totals.setdefault(item['arm'], {'case': 'all', 'scale': None, 'arm': item['arm'],
+                                                     'base_arm': item['base_arm'], 'base_cost': 0.0, 'cost': 0.0})
+            total['base_cost'] += item['base_cost']
+            total['cost'] += item['cost']
+    for total in totals.values():
+        total['ratio'] = total['cost'] / total['base_cost'] if total['base_cost'] else None
+    return out + list(totals.values())
 
 
 def final_results(results):
@@ -1114,8 +1255,7 @@ def build_report(results, cases):
         rows.append({'case': case_id, 'scale': scale, 'arm': arm, 'passes': passes, 'completed': len(done),
                      'planned': planned, 'case_passed': passes * 2 > planned,
                      'excluded': sorted(excluded.get((case_id, scale), {}).values(), key=lambda e: (e['step'] or 0, e['type'])),
-                     'metrics': {name: median_range([(r.get('metrics') or {}).get(name) for r in done])
-                                 for name in REPORT_METRICS}})
+                     'metrics': {name: median_range([metric(r, name) for r in done]) for name in REPORT_METRICS}})
     matrix = {}
     for arm in sorted({row['arm'] for row in rows}):
         arm_rows = [row for row in rows if row['arm'] == arm]
@@ -1123,18 +1263,28 @@ def build_report(results, cases):
         done = [r for r in main if r['arm'] == arm and r['status'] == 'complete']
         matrix[arm] = {
             'provider': sample.get('provider'), 'model': sample.get('model'), 'effort': sample.get('effort'),
+            'helper': helper_label(sample.get('helper')),
             'binary_sha256': sample.get('binary_sha256'), 'cases_passed': sum(row['case_passed'] for row in arm_rows),
             'cases': len(arm_rows), 'samples_passed': sum(1 for r in done if passed_of(r)), 'samples': len(done),
             'transport_failures': sum(1 for f in failures if f['arm'] == arm),
             'safety_blockers': sum(1 for b in blockers if b['arm'] == arm),
-            'median': {name: (median_range([(r.get('metrics') or {}).get(name) for r in done]) or {}).get('median')
-                       for name in ('bytes_read', 'first_target_read_round', 'rounds', 'searches', 'tokens')}}
+            'median': {name: (median_range([metric(r, name) for r in done]) or {}).get('median')
+                       for name in ('bytes_read', 'first_target_read_round', 'rounds', 'searches', 'tokens',
+                                    'helper_runs', 'helper_tokens', 'peak_turn_input', 'elapsed_ms', 'cost',
+                                    'parent_cost', 'helper_cost')},
+            'research_runs': sum(1 for r in done if (metric(r, 'helper_runs') or 0) > 0),
+            'citations': {kind: sum(((r.get('metrics') or {}).get('citations') or {}).get(kind, 0) for r in done)
+                          for kind in CITATION_KINDS}}
     diagnostics = [{'case': r['case'], 'arm': r['arm'], 'repetition': r['repetition'], 'status': r['status'],
                     'passed': r.get('passed'), 'budget_exhausted': (r.get('metrics') or {}).get('budget_exhausted')}
                    for r in finals.values() if r.get('label') == 'diagnostic']
     return {'safety_blockers': blockers, 'unverified_safety': unverified_safety, 'transport_failures': failures, 'cases': rows, 'matrix': matrix,
-            'diagnostics': diagnostics,
+            'cost_ratios': cost_ratios(rows), 'prices': PRICES, 'diagnostics': diagnostics,
             'note': 'Small N: report passes out of repetitions and medians with ranges; no p-values are claimed.'}
+
+
+def credits(value):
+    return 'n/a' if value is None else f'{value:.3f}'
 
 
 def format_report(report):
@@ -1155,21 +1305,38 @@ def format_report(report):
         median = lambda name: (metrics[name] or {}).get('median')
         lines.append(f"  {row['case']}@{row['scale']} {row['arm']}: {row['passes']}/{row['planned']}"
                      f"{' PASS' if row['case_passed'] else ' fail'} first_read={median('first_target_read_round')}"
-                     f" searches={median('searches')} bytes={median('bytes_read')} rounds={median('rounds')}")
+                     f" searches={median('searches')} bytes={median('bytes_read')} rounds={median('rounds')}"
+                     f" cost={credits(median('cost'))} (parent {credits(median('parent_cost'))},"
+                     f" helper {credits(median('helper_cost'))}) tokens={median('tokens')}"
+                     f" elapsed_ms={median('elapsed_ms')}")
         for item in row.get('excluded', []):
             lines.append(f"    excluded: {item['type']}{' (step %s)' % item['step'] if item['step'] else ''} "
                          f"unverifiable on arm {', '.join(sorted(set(item['arms'])))}")
     lines.append('')
     lines.append('Model matrix (by arm):')
-    header = ['arm', 'provider', 'model', 'effort', 'cases', 'samples', 'bytes', 'first_read', 'rounds', 'searches',
-              'tokens', 'transport', 'safety']
+    header = ['arm', 'provider', 'model', 'effort', 'helper', 'cases', 'samples', 'bytes', 'first_read', 'rounds',
+              'searches', 'cost', 'parent_cost', 'helper_cost', 'tokens', 'helper_runs', 'research_runs',
+              'helper_tokens', 'peak_input', 'elapsed_ms', 'citations', 'transport', 'safety']
     lines.append('  ' + ' | '.join(header))
     for arm, row in report['matrix'].items():
         m = row['median']
         lines.append('  ' + ' | '.join(str(x) for x in [
-            arm, row['provider'], row['model'], row['effort'], f"{row['cases_passed']}/{row['cases']}",
-            f"{row['samples_passed']}/{row['samples']}", m['bytes_read'], m['first_target_read_round'], m['rounds'],
-            m['searches'], m['tokens'], row['transport_failures'], row['safety_blockers']]))
+            arm, row['provider'], row['model'], row['effort'], row.get('helper') or '-',
+            f"{row['cases_passed']}/{row['cases']}", f"{row['samples_passed']}/{row['samples']}", m['bytes_read'],
+            m['first_target_read_round'], m['rounds'], m['searches'], credits(m.get('cost')),
+            credits(m.get('parent_cost')), credits(m.get('helper_cost')), m['tokens'], m.get('helper_runs'),
+            f"{row.get('research_runs', 0)}/{row['samples']}", m.get('helper_tokens'), m.get('peak_turn_input'), m.get('elapsed_ms'),
+            '/'.join(str((row.get('citations') or {}).get(kind, 0)) for kind in CITATION_KINDS),
+            row['transport_failures'], row['safety_blockers']]))
+    lines.append(f"  citations are {'/'.join(CITATION_KINDS)}; cost is median Codex credits per run")
+    if report.get('cost_ratios'):
+        lines.append('')
+        lines.append('Cost per case (median credits; criterion 4 is judged on cost):')
+        for item in report['cost_ratios']:
+            ratio = f"{item['ratio']:.2f}x" if item['ratio'] is not None else 'n/a'
+            where = f"{item['case']}@{item['scale']}" if item['scale'] else 'all cases (sum of medians)'
+            lines.append(f"  {where} {item['arm']} vs {item['base_arm']}: "
+                         f"{credits(item['cost'])} vs {credits(item['base_cost'])} = {ratio}")
     if report['transport_failures']:
         lines.append('')
         lines.append('Transport/setup failures (never counted as passes):')
@@ -1274,7 +1441,7 @@ class Sample:
             'format': 2, 'case': case['id'], 'scale': scale, 'arm': arm['name'], 'repetition': sample['repetition'],
             'slot': slot_name(sample), 'attempt': self.attempt, 'label': sample['label'] or ('rerun' if self.attempt > 1 else None),
             'status': 'running', 'failure': None, 'binary_sha256': arm['binary_sha256'], 'provider': arm['provider'],
-            'model': arm['model'], 'effort': arm['effort'], 'model_dir': arm.get('model_dir'),
+            'model': arm['model'], 'effort': arm['effort'], 'helper': arm.get('helper'), 'model_dir': arm.get('model_dir'),
             'trace_level': 'full' if caps['trace'] else 'off', 'steps': [], 'checks': [], 'metrics': {},
             'safety': [], 'passed': None, 'commands': [], 'planned': sample.get('planned')}
 
@@ -1339,6 +1506,7 @@ class Sample:
         if args.live:
             configuration = {'provider': self.arm['provider'], 'model': self.arm['model'], 'effort': self.arm['effort']}
             configuration.update(credential_options(self.arm['provider'], args.auth_file, args.credentials_dir))
+            configuration.update(helper_configuration(self.arm))
             self.cli.call('configure', **configuration)
         if not self.cli.call('settings').get('delegation_chosen'):
             self.cli.call('delegation', choice='maintain')
@@ -1528,8 +1696,7 @@ def manifest_for(args, arms, fixture_sha, cases):
     return {'format': 2, 'fixture_sha256': fixture_sha, 'seed': args.seed, 'live': args.live,
             'repetitions': args.repetitions, 'scale': args.scale,
             'cases': [case['id'] for case in cases],
-            'arms': [{key: arm[key] for key in ('name', 'binary_sha256', 'provider', 'model', 'effort', 'model_dir')}
-                     for arm in arms]}
+            'arms': [{key: arm.get(key) for key in ARM_FIELDS} for arm in arms]}
 
 
 def ensure_template(args, root, case, scale, log):
@@ -1773,7 +1940,8 @@ def live(args, root, cases, arms, caps_by_arm, log):
                        'label': sample['label'] or ('rerun' if attempt > 1 else None), 'status': 'setup_failure',
                        'failure': str(error), 'planned': sample.get('planned'),
                        'binary_sha256': arm['binary_sha256'], 'provider': arm['provider'], 'model': arm['model'],
-                       'effort': arm['effort'], 'safety': [], 'metrics': {}, 'checks': [], 'passed': None}
+                       'effort': arm['effort'], 'helper': arm.get('helper'), 'safety': [], 'metrics': {},
+                       'checks': [], 'passed': None}
             persist_outcome(root, sample, attempt, outcome)
         if outcome is None:
             run_sample = dict(sample, attempt=attempt)
