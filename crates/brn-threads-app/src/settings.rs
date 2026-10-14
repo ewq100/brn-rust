@@ -2,7 +2,7 @@ use crate::*;
 use std::path::PathBuf;
 
 /// The owner's caveat shown wherever the helper model is chosen.
-pub const HELPER_TESTED_NOTE: &str = "Helper sub-agents are tested only with gpt-6-luna at high effort; other models may give unreliable results";
+pub const HELPER_TESTED_NOTE: &str = "Experimental: helper sub-agents are tested only with gpt-6-luna at high effort; other models may give unreliable results. Best for long-document digests; runs that delegate are slower";
 impl Workspace {
     pub fn settings(&self) -> AppResult<WorkspaceSettings> {
         self.records()?

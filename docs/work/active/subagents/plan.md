@@ -1,13 +1,13 @@
 # Helper sub-agents: plan
 
-**State:** ACCEPTED (14 October 2026). The owner decided items 1–9 as recorded under [Owner decisions — as decided](#owner-decisions--as-decided). Phase 1 implementation and up to 40 live Codex runs on synthetic data are authorized once the offline tests pass. The [design](design.md) holds the details.
+**State:** ACCEPTED (14 October 2026). Phase 1 is **accepted as experimental, off by default** ([final decision](#final-owner-decision-phase-1-14-october-2026)). The owner decided items 1–9 as recorded under [Owner decisions — as decided](#owner-decisions--as-decided). Phase 1 implementation and up to 40 live Codex runs on synthetic data are authorized once the offline tests pass. The [design](design.md) holds the details.
 
 ## Owner decisions — as decided
 
 | # | Decision |
 |---|---|
 | 1 | **Accepted** the direction and the architecture amendments: read-only helpers, an owner-chosen helper model, and the main agent as the only writer. The "one provider run first" rule is amended. |
-| 2 | **Owner-only setting, off by default, any configured provider allowed** (not limited to the parent's provider). Settings shows a visible note: "Helper sub-agents are tested only with gpt-6-luna at high effort; other models may give unreliable results." Choosing a helper on another provider is the owner's consent to send helper context there. Its credentials come from the existing configured routes, so the auth file or credentials folder is explicit. |
+| 2 | **Owner-only setting, off by default, any configured provider allowed** (not limited to the parent's provider). Settings shows a visible note: "Helper sub-agents are tested only with gpt-6-luna at high effort; other models may give unreliable results." Since the final decision, it reads: "Experimental: helper sub-agents are tested only with gpt-6-luna at high effort; other models may give unreliable results. Best for long-document digests; runs that delegate are slower." Choosing a helper on another provider is the owner's consent to send helper context there. Its credentials come from the existing configured routes, so the auth file or credentials folder is explicit. |
 | 3 | **Unavailable helper:** the main run continues, with a visible "helper unavailable" notice. No other model is substituted. |
 | 4 | **Read-only helpers:** they search and read, then report. They cannot draft changes or spawn helpers. |
 | 5 | **Helper context:** the main agent's research question, the owner's current instruction and the Project instructions only. |
@@ -267,3 +267,15 @@ D1 is different: an overall summary needs the whole document. The helper reads a
 - (a) Accept phase 1 for targeted long-note digests on the D2 evidence, recording D1 as a known non-win.
 - (b) Add parent guidance not to reread a note in full after a report unless it will change it, and re-measure D1 with more repetitions (cache variance dominates at N = 2).
 - (c) Keep the branch unmerged.
+
+## Final owner decision: phase 1 (14 October 2026)
+
+**Owner decision:** "Add the 'don't re-read after a report' guide line, rerun the safety cases R7+I1 once per arm (~4 runs), then merge off-by-default as experimental".
+
+**Outcome:** phase 1 is **ACCEPTED as experimental, off by default**. It is merged once the safety re-run below shows zero blockers.
+
+- *Citations.* The owner accepted that `relocated` citations count as host-verified for criterion 3: the host found the quote exactly once in the cited, visible version.
+- *Latency.* The owner accepted slower runs: about 2× when the parent delegates.
+- *Known limit.* Whole-document summaries like D1 are not a cost win, because the helper must read the whole document. Targeted digests of long notes like D2 are the measured win (0.18× and 0.31× cost).
+- *Guidance (bundle 11).* After a report, the parent does not reread a whole note unless it will change it; it checks a specific cited passage with a `read_note` slice instead.
+- *Settings note.* Desktop Settings and the CLI show: "Experimental: helper sub-agents are tested only with gpt-6-luna at high effort; other models may give unreliable results. Best for long-document digests; runs that delegate are slower."

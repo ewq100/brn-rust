@@ -1,6 +1,6 @@
 # Helper sub-agents
 
-**State:** ACCEPTED (14 October 2026), with the owner's [decisions](plan.md#owner-decisions--as-decided). Where a decision differs from the proposal below, the decision wins: **any configured provider** may serve the helper (decision 2, with a visible "tested only with gpt-6-luna high" note), and **usage is shown in traces only, not in the UI** (decision 6). The [plan](plan.md) tracks the state.
+**State:** ACCEPTED (14 October 2026); phase 1 is accepted as **experimental, off by default** ([final decision](plan.md#final-owner-decision-phase-1-14-october-2026)), with the owner's [decisions](plan.md#owner-decisions--as-decided). Where a decision differs from the proposal below, the decision wins: **any configured provider** may serve the helper (decision 2, with a visible "tested only with gpt-6-luna high" note), and **usage is shown in traces only, not in the UI** (decision 6). The [plan](plan.md) tracks the state.
 
 **Owner request:** "Imagine a scenario where Sol could spawn built-in Luna sub-agents for thorough searches. Why could the Luna agent not give Sol a summary and links to the notes?" Then: make the research-scout idea a PROPOSED design, widened to full sub-agent capability for the app.
 
@@ -254,7 +254,7 @@ Then one live campaign runs on synthetic data with 1,000 filler notes over Codex
 4. Value: on R4, M1, M2 and D1, either B's median API-equivalent cost is at most 0.7 × A's with equal quality, or B gains quality at no more than A's cost.
 5. Latency: B's p50 is at most 1.2 × A's. **Owner decision (14 October 2026):** for long-document digest cases (D1, D2), slower latency is accepted when B's median cost is at most 0.7 × A's and quality is equal.
 
-Criterion 4 is judged on cost in Codex credits, not raw tokens. The harness prices each run's parent usage at the parent model and each helper's usage at the helper model, with cached input at its own price (`scripts/evaluate_wiki_v2.py`, `PRICES`).
+For criterion 3, `relocated` citations count as host-verified (owner decision, 14 October 2026). Criterion 4 is judged on cost in Codex credits, not raw tokens. The harness prices each run's parent usage at the parent model and each helper's usage at the helper model, with cached input at its own price (`scripts/evaluate_wiki_v2.py`, `PRICES`).
 
 With N = 2 per case, differences under about 20% are noise. If the criteria fail, record the result and do not ship. An honest prior: prompt caching (−57%) and host intake (−28%), both merged, already took most of the cost saving the [earlier simulation][cheaper] gave to a scout (−58%). The case for the scout now rests on research-heavy asks and long documents, not on intake.
 

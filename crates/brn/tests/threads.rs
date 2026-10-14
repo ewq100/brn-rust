@@ -533,7 +533,7 @@ fn helper_setting_is_off_by_default_explicit_and_kept_until_turned_off() {
         .output()
         .unwrap();
     assert!(String::from_utf8_lossy(&help.stdout).contains(
-        "Helper sub-agents are tested only with gpt-6-luna at high effort; other models may give unreliable results"
+        "Experimental: helper sub-agents are tested only with gpt-6-luna at high effort; other models may give unreliable results. Best for long-document digests; runs that delegate are slower"
     ));
     let main = [
         "configure",
