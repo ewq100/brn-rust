@@ -129,6 +129,7 @@ fn request(data: &Path, chat: &str, handle: &SearchHandle, rounds: u16) -> Threa
         credentials_dir: None,
         sources: vec![],
         search: Some(Arc::new(handle.clone())),
+        trace: brn_ai::threads::TraceLevel::Full,
     }
 }
 
@@ -160,6 +161,18 @@ fn operation(data: &Path, prepared: &PreparedThreadRun, kind: &str, key: &str) -
         .unwrap()
         .as_str()
         .to_owned()
+}
+
+/// Every ID a trace lists in tool results.
+fn result_ids(trace: &str) -> Vec<String> {
+    let trace: Value = serde_json::from_str(trace).unwrap();
+    trace["calls"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .flat_map(|c| c["result"]["ids"].as_array().cloned().unwrap_or_default())
+        .filter_map(|id| id.as_str().map(str::to_owned))
+        .collect()
 }
 
 fn change(note: &str, version: u64, markdown: &str) -> Value {
@@ -216,6 +229,32 @@ async fn retrieval_finds_and_reads_the_target_section_within_three_rounds() {
     let seen = seen(&model);
     assert!(seen[1].contains(&w.target) && seen[1].contains("Loading depth"));
     assert!(seen[2].contains("1.2 metres"));
+
+    // The trace records structure: tools, rounds, IDs and sizes, no content.
+    let trace = result.trace.expect("trace requested");
+    assert_eq!((trace.rounds, trace.max_rounds, trace.search), (2, 3, true));
+    let calls: Vec<(&str, u16, &str)> = trace
+        .calls
+        .iter()
+        .map(|c| (c.tool.as_str(), c.round, c.outcome.as_str()))
+        .collect();
+    assert_eq!(
+        calls,
+        [("search_notes", 1, "success"), ("read_note", 2, "success")]
+    );
+    assert_eq!(trace.calls[0].args["query"], "quay dredged depth");
+    assert_eq!(trace.calls[0].result["ids"][0], w.target.as_str());
+    assert!(trace.calls[1].result["returned_bytes"].as_u64().unwrap() > 0);
+    assert!(trace.calls.iter().all(|c| c.bytes > 0));
+    let text = serde_json::to_string(&trace).unwrap();
+    for content in [
+        "Harbor berth",
+        "Loading depth",
+        "1.2 metres",
+        "feeder vessels",
+    ] {
+        assert!(!text.contains(content), "trace leaked {content:?}");
+    }
 }
 
 #[tokio::test(flavor = "multi_thread")]
@@ -336,9 +375,13 @@ async fn another_chats_private_note_stays_invisible_to_search_and_connections() 
         finish("Nothing visible."),
     ]);
     let prepared = prepare_run(request(&w.data, &w.chat, &w.handle, 3)).unwrap();
-    run_prepared_scripted(prepared, model.clone())
+    let result = run_prepared_scripted(prepared, model.clone())
         .await
         .unwrap();
+    // The model asked about the private note by ID; no result may list it.
+    let trace = serde_json::to_string(&result.trace.unwrap()).unwrap();
+    assert!(!result_ids(&trace).contains(&w.private), "{trace}");
+    assert!(!trace.contains("Private attachment") && !trace.contains("zzprivatemarker quay"));
     let seen = seen(&model);
     assert!(seen.len() >= 2);
     for text in &seen[1..] {

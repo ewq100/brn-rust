@@ -1909,6 +1909,7 @@ impl ThreadsUi {
             credentials_dir: self.settings.credentials_dir.as_ref().map(PathBuf::from),
             sources,
             search,
+            trace: brn_ai::threads::TraceLevel::Off,
         };
         let prepared = match brn_ai::threads::prepare_run(request) {
             Ok(prepared) => prepared,

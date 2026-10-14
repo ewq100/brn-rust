@@ -1,0 +1,2432 @@
+{
+  "version": 2,
+  "design": "docs/work/active/knowledge-retrieval/evaluation-design.md",
+  "cases": [
+    {
+      "id": "R1",
+      "name": "described-subject",
+      "hypotheses": [
+        "H1",
+        "H2"
+      ],
+      "filler": 1000,
+      "scales": [
+        1000,
+        10000
+      ],
+      "arms": [
+        "A",
+        "B",
+        "C"
+      ],
+      "repetitions": {
+        "1000": 3,
+        "10000": 2
+      },
+      "seeds": {
+        "threads": [],
+        "notes": [
+          {
+            "key": "target",
+            "title": "Project Kestrel",
+            "text": "Retrofit of the refrigerated warehouse at the north quay. Insulation contractor: Viru Termo. On 6 October 2026 the completion target moved from 15 February 2027 to 3 March 2027. Budget 48,000 EUR.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          }
+        ],
+        "distractors": [
+          {
+            "key": "bird",
+            "count": 30,
+            "title": "Project {bird}",
+            "text": "Retrofit of the {site} at the {quay} quay. Contractor: {firm}. Completion target {date}.",
+            "values": {
+              "bird": [
+                "Heron",
+                "Plover",
+                "Curlew",
+                "Dunlin",
+                "Gannet",
+                "Puffin",
+                "Tern",
+                "Avocet",
+                "Bittern",
+                "Godwit",
+                "Lapwing",
+                "Merlin",
+                "Osprey",
+                "Petrel",
+                "Redshank",
+                "Sanderling",
+                "Shearwater",
+                "Skua",
+                "Snipe",
+                "Swift",
+                "Teal",
+                "Wigeon",
+                "Whimbrel",
+                "Wren",
+                "Bunting",
+                "Chaffinch",
+                "Crossbill",
+                "Dipper",
+                "Fieldfare",
+                "Goldcrest"
+              ],
+              "site": [
+                "dry store",
+                "office block",
+                "workshop",
+                "pump house"
+              ],
+              "quay": [
+                "south",
+                "east",
+                "west"
+              ],
+              "firm": [
+                "Balti Isolatsioon",
+                "Põhja Ehitus",
+                "Saare Kliima",
+                "Läänemere Ehitus",
+                "Harju Projekt",
+                "Kalda Remont",
+                "Sadama Tehnika"
+              ],
+              "date": [
+                "12 December 2026",
+                "30 January 2027",
+                "28 February 2027",
+                "15 April 2027",
+                "1 June 2027",
+                "20 November 2026",
+                "9 March 2027"
+              ]
+            }
+          },
+          {
+            "key": "cold-south",
+            "count": 5,
+            "title": "Project {bird}",
+            "text": "Retrofit of the refrigerated warehouse at the south quay. Insulation contractor: {firm}. Completion target {date}.",
+            "values": {
+              "bird": [
+                "Hobby",
+                "Jackdaw",
+                "Kite",
+                "Linnet",
+                "Martin"
+              ],
+              "firm": [
+                "Balti Isolatsioon",
+                "Põhja Ehitus",
+                "Saare Kliima",
+                "Läänemere Ehitus",
+                "Harju Projekt",
+                "Kalda Remont",
+                "Sadama Tehnika"
+              ],
+              "date": [
+                "12 December 2026",
+                "30 January 2027",
+                "28 February 2027",
+                "15 April 2027",
+                "1 June 2027",
+                "20 November 2026",
+                "9 March 2027"
+              ]
+            }
+          },
+          {
+            "key": "dry-north",
+            "count": 5,
+            "title": "Project {bird}",
+            "text": "Retrofit of the {site} at the north quay. Contractor: {firm}. Completion target {date}.",
+            "values": {
+              "bird": [
+                "Nightjar",
+                "Oriole",
+                "Pipit",
+                "Rook",
+                "Siskin"
+              ],
+              "site": [
+                "dry store",
+                "office block",
+                "workshop",
+                "pump house"
+              ],
+              "firm": [
+                "Balti Isolatsioon",
+                "Põhja Ehitus",
+                "Saare Kliima",
+                "Läänemere Ehitus",
+                "Harju Projekt",
+                "Kalda Remont",
+                "Sadama Tehnika"
+              ],
+              "date": [
+                "12 December 2026",
+                "30 January 2027",
+                "28 February 2027",
+                "15 April 2027",
+                "1 June 2027",
+                "20 November 2026",
+                "9 March 2027"
+              ]
+            }
+          }
+        ],
+        "links": [],
+        "topics": null
+      },
+      "steps": [
+        {
+          "kind": "ask",
+          "thread": "case",
+          "prompt": "When is the cold-store refit by the north quay now due to finish, and which firm is doing the insulation? Answer from my notes only; don't save anything.",
+          "budget": 8
+        }
+      ],
+      "targets": [
+        "target"
+      ],
+      "useful": [],
+      "traps": [
+        "cold-south-0",
+        "cold-south-1",
+        "cold-south-2",
+        "cold-south-3",
+        "cold-south-4",
+        "dry-north-0",
+        "dry-north-1",
+        "dry-north-2",
+        "dry-north-3",
+        "dry-north-4"
+      ],
+      "private": [],
+      "checks": [
+        {
+          "type": "answer_contains_any",
+          "step": 1,
+          "values": [
+            "3 March 2027",
+            "March 3, 2027",
+            "2027-03-03"
+          ]
+        },
+        {
+          "type": "answer_contains_any",
+          "step": 1,
+          "values": [
+            "Viru Termo"
+          ]
+        },
+        {
+          "type": "no_writes",
+          "step": 1
+        },
+        {
+          "type": "read",
+          "step": 1,
+          "keys": [
+            "target"
+          ]
+        }
+      ],
+      "rubric": "Mentions the change of date; no confusion with near-misses; names the note used."
+    },
+    {
+      "id": "R2",
+      "name": "alias-via-linked-note",
+      "hypotheses": [
+        "H1",
+        "H4"
+      ],
+      "filler": 1000,
+      "scales": [
+        1000
+      ],
+      "arms": [
+        "A",
+        "B",
+        "C"
+      ],
+      "repetitions": 3,
+      "seeds": {
+        "threads": [],
+        "notes": [
+          {
+            "key": "roster",
+            "title": "Night pilotage crew roster",
+            "text": "Initials used on the roster: KT = Kadri Tamm; MR = Mart Rebane; AL = Anu Lepp.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "target",
+            "title": "Kadri Tamm",
+            "text": "Pilot on night shifts. Unavailable on Fridays until 15 January 2027 because of a training course.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          }
+        ],
+        "distractors": [
+          {
+            "key": "pilot",
+            "count": 30,
+            "title": "Pilot {name}",
+            "text": "Pilot on {shift} shifts. {availability}",
+            "values": {
+              "name": [
+                "Mart Kask",
+                "Liis Saar",
+                "Peeter Mets",
+                "Kati Kuusk",
+                "Jaan Lill",
+                "Eva Rand",
+                "Toomas Pärn",
+                "Maarja Org",
+                "Rein Jõgi",
+                "Kristi Vaher",
+                "Andres Kivi",
+                "Helen Mägi",
+                "Priit Tamm",
+                "Sirje Laur",
+                "Urmas Kallas",
+                "Tiina Sepp",
+                "Marko Põld",
+                "Kaja Raud",
+                "Indrek Lepik",
+                "Pille Kukk",
+                "Ott Ilves",
+                "Riina Koppel",
+                "Siim Hunt",
+                "Anneli Puu",
+                "Taavi Kuus",
+                "Merike Oja",
+                "Hannes Rätsep",
+                "Ülle Kangur",
+                "Raivo Viik",
+                "Signe Allik"
+              ],
+              "shift": [
+                "day",
+                "night",
+                "weekend"
+              ],
+              "availability": [
+                "Available every day except Mondays.",
+                "On leave from 1 to 14 December 2026.",
+                "Prefers early shifts; not available after 22:00.",
+                "Unavailable on Wednesdays until 1 February 2027.",
+                "Fully available."
+              ]
+            }
+          }
+        ],
+        "links": [
+          {
+            "from": "roster",
+            "to": "target",
+            "relation": "related"
+          }
+        ],
+        "topics": null
+      },
+      "steps": [
+        {
+          "kind": "ask",
+          "thread": "case",
+          "prompt": "KT has offered to take the Friday night shift on 4 December. Does that fit with what my notes say about her availability? Don't change anything.",
+          "budget": 8
+        }
+      ],
+      "targets": [
+        "roster",
+        "target"
+      ],
+      "useful": [],
+      "traps": [],
+      "private": [],
+      "checks": [
+        {
+          "type": "answer_contains_any",
+          "step": 1,
+          "values": [
+            "15 January"
+          ]
+        },
+        {
+          "type": "read",
+          "step": 1,
+          "keys": [
+            "roster",
+            "target"
+          ]
+        },
+        {
+          "type": "no_writes",
+          "step": 1
+        }
+      ],
+      "rubric": "Answers no: 4 December 2026 is a Friday and she is unavailable on Fridays until 15 January 2027."
+    },
+    {
+      "id": "R3",
+      "name": "near-duplicate-buried",
+      "hypotheses": [
+        "H3"
+      ],
+      "filler": 1000,
+      "scales": [
+        1000,
+        10000
+      ],
+      "arms": [
+        "A",
+        "B",
+        "C"
+      ],
+      "repetitions": {
+        "1000": 3,
+        "10000": 2
+      },
+      "seeds": {
+        "threads": [],
+        "notes": [
+          {
+            "key": "gate-2-contractors-2025",
+            "title": "Gate 2 access — contractors (2025)",
+            "text": "Applies 1 January to 31 December 2025. Contractors must show a contractor pass and photo ID.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "gate-2-contractors-2026",
+            "title": "Gate 2 access — contractors (2026)",
+            "text": "Applies 1 January to 31 December 2026. Contractors must show a contractor pass and photo ID.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "gate-2-visitors-2025",
+            "title": "Gate 2 access — visitors (2025)",
+            "text": "Applies 1 January to 31 December 2025. Visitors must show photo ID and a host confirmation.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "gate-2-visitors-2026",
+            "title": "Gate 2 access — visitors (2026)",
+            "text": "Applies 1 January to 31 December 2026. Visitors must show photo ID and a host confirmation.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "gate-2-couriers-2025",
+            "title": "Gate 2 access — couriers (2025)",
+            "text": "Applies 1 January to 31 December 2025. Couriers must show a delivery note and company ID.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "gate-2-couriers-2026",
+            "title": "Gate 2 access — couriers (2026)",
+            "text": "Applies 1 January to 31 December 2026. Couriers must show a delivery note and company ID.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "gate-2-hazardous-cargo-2025",
+            "title": "Gate 2 access — hazardous cargo (2025)",
+            "text": "Applies 1 January to 31 December 2025. Drivers of hazardous cargo must show an ADR certificate only.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "gate-2-hazardous-cargo-2026",
+            "title": "Gate 2 access — hazardous cargo (2026)",
+            "text": "Applies 1 January to 31 December 2026. Drivers of hazardous cargo must show an ADR certificate and a gate slot.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "gate-3-contractors-2025",
+            "title": "Gate 3 access — contractors (2025)",
+            "text": "Applies 1 January to 31 December 2025. Contractors must show a contractor pass and photo ID.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "gate-3-contractors-2026",
+            "title": "Gate 3 access — contractors (2026)",
+            "text": "Applies 1 January to 31 December 2026. Contractors must show a contractor pass and photo ID.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "gate-3-visitors-2025",
+            "title": "Gate 3 access — visitors (2025)",
+            "text": "Applies 1 January to 31 December 2025. Visitors must show photo ID and a host confirmation.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "gate-3-visitors-2026",
+            "title": "Gate 3 access — visitors (2026)",
+            "text": "Applies 1 January to 31 December 2026. Visitors must show photo ID and a host confirmation.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "gate-3-couriers-2025",
+            "title": "Gate 3 access — couriers (2025)",
+            "text": "Applies 1 January to 31 December 2025. Couriers must show a delivery note and company ID.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "gate-3-couriers-2026",
+            "title": "Gate 3 access — couriers (2026)",
+            "text": "Applies 1 January to 31 December 2026. Couriers must show a delivery note and company ID.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "gate-3-hazardous-cargo-2025",
+            "title": "Gate 3 access — hazardous cargo (2025)",
+            "text": "Applies 1 January to 31 December 2025. Drivers of hazardous cargo must show an ADR certificate only.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "gate-3-hazardous-cargo-2026",
+            "title": "Gate 3 access — hazardous cargo (2026)",
+            "text": "Applies 1 January to 31 December 2026. Drivers of hazardous cargo must show an ADR certificate and a booking reference issued at least 24 hours ahead.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "gate-4-contractors-2025",
+            "title": "Gate 4 access — contractors (2025)",
+            "text": "Applies 1 January to 31 December 2025. Contractors must show a contractor pass and photo ID.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "gate-4-contractors-2026",
+            "title": "Gate 4 access — contractors (2026)",
+            "text": "Applies 1 January to 31 December 2026. Contractors must show a contractor pass and photo ID.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "gate-4-visitors-2025",
+            "title": "Gate 4 access — visitors (2025)",
+            "text": "Applies 1 January to 31 December 2025. Visitors must show photo ID and a host confirmation.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "gate-4-visitors-2026",
+            "title": "Gate 4 access — visitors (2026)",
+            "text": "Applies 1 January to 31 December 2026. Visitors must show photo ID and a host confirmation.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "gate-4-couriers-2025",
+            "title": "Gate 4 access — couriers (2025)",
+            "text": "Applies 1 January to 31 December 2025. Couriers must show a delivery note and company ID.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "gate-4-couriers-2026",
+            "title": "Gate 4 access — couriers (2026)",
+            "text": "Applies 1 January to 31 December 2026. Couriers must show a delivery note and company ID.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "gate-4-hazardous-cargo-2025",
+            "title": "Gate 4 access — hazardous cargo (2025)",
+            "text": "Applies 1 January to 31 December 2025. Drivers of hazardous cargo must show an ADR certificate only.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "gate-4-hazardous-cargo-2026",
+            "title": "Gate 4 access — hazardous cargo (2026)",
+            "text": "Applies 1 January to 31 December 2026. Drivers of hazardous cargo must show an ADR certificate and an escort booking.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          }
+        ],
+        "distractors": [],
+        "links": [],
+        "topics": null
+      },
+      "steps": [
+        {
+          "kind": "ask",
+          "thread": "case",
+          "prompt": "A truck carrying hazardous cargo comes through gate 3 tomorrow, 15 October 2026. What does the driver need to show under the rules that apply then?",
+          "budget": 8
+        }
+      ],
+      "targets": [
+        "gate-3-hazardous-cargo-2026"
+      ],
+      "useful": [],
+      "traps": [
+        "gate-3-hazardous-cargo-2025",
+        "gate-4-hazardous-cargo-2026"
+      ],
+      "private": [],
+      "checks": [
+        {
+          "type": "answer_contains_any",
+          "step": 1,
+          "values": [
+            "booking reference"
+          ]
+        },
+        {
+          "type": "answer_contains_any",
+          "step": 1,
+          "values": [
+            "24 hours",
+            "24-hour",
+            "24 h"
+          ]
+        },
+        {
+          "type": "read",
+          "step": 1,
+          "keys": [
+            "gate-3-hazardous-cargo-2026"
+          ]
+        },
+        {
+          "type": "no_writes",
+          "step": 1
+        }
+      ],
+      "rubric": "Uses the 2026 gate 3 rule; does not mix in 2025 or gate 4 requirements."
+    },
+    {
+      "id": "R4",
+      "name": "scattered-evidence",
+      "hypotheses": [
+        "H4"
+      ],
+      "filler": 1000,
+      "scales": [
+        1000
+      ],
+      "arms": [
+        "A",
+        "B",
+        "C"
+      ],
+      "repetitions": 3,
+      "seeds": {
+        "threads": [],
+        "notes": [
+          {
+            "key": "topic",
+            "title": "Spring concert 2027",
+            "text": "Topic page for the choir spring concert.\n\n- Kaarli hall booking\n- Concert programme draft\n- Ticket tally SC-27",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "hall",
+            "title": "Kaarli hall booking",
+            "text": "Booked 14 March 2027, 18:00–21:00. Seated capacity 180. The hall must be empty by 21:00; allow 30 minutes for clearing.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "programme",
+            "title": "Concert programme draft",
+            "text": "Start 19:00. Music 95 minutes plus a 20-minute interval.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "tally",
+            "title": "Ticket tally SC-27",
+            "text": "Event SC-27: 212 tickets sold as of 10 October 2026.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          }
+        ],
+        "distractors": [
+          {
+            "key": "event",
+            "count": 20,
+            "title": "{event} {year}",
+            "text": "Venue: {venue}. Seated capacity {capacity}. {tally} tickets sold so far. Start {start}.",
+            "values": {
+              "event": [
+                "Autumn fair",
+                "Winter recital",
+                "Summer picnic",
+                "Book swap",
+                "Quiz night",
+                "Harbour festival",
+                "Charity run",
+                "Open studio",
+                "Film evening",
+                "Folk dance night",
+                "Craft market",
+                "Garden tour",
+                "Poetry reading",
+                "Board game day",
+                "Jazz brunch",
+                "Lantern walk",
+                "Science fair",
+                "Art auction",
+                "Choir workshop",
+                "Seed exchange"
+              ],
+              "year": [
+                "2026",
+                "2027"
+              ],
+              "venue": [
+                "Town hall",
+                "Library annex",
+                "Old cinema",
+                "School gym"
+              ],
+              "capacity": [
+                "120",
+                "250",
+                "90",
+                "400",
+                "60"
+              ],
+              "tally": [
+                "48",
+                "130",
+                "75",
+                "310",
+                "22"
+              ],
+              "start": [
+                "17:00",
+                "18:30",
+                "19:00",
+                "11:00"
+              ]
+            }
+          }
+        ],
+        "links": [
+          {
+            "from": "topic",
+            "to": "hall",
+            "relation": "related"
+          },
+          {
+            "from": "topic",
+            "to": "programme",
+            "relation": "related"
+          },
+          {
+            "from": "topic",
+            "to": "tally",
+            "relation": "related"
+          }
+        ],
+        "topics": null
+      },
+      "steps": [
+        {
+          "kind": "ask",
+          "thread": "case",
+          "prompt": "Is there anything that doesn't add up for the spring concert — seats or timing? Check my notes and tell me; don't change anything yet.",
+          "budget": 8
+        }
+      ],
+      "targets": [
+        "hall",
+        "programme",
+        "tally"
+      ],
+      "useful": [
+        "topic"
+      ],
+      "traps": [],
+      "private": [],
+      "checks": [
+        {
+          "type": "answer_contains_any",
+          "step": 1,
+          "values": [
+            "212"
+          ]
+        },
+        {
+          "type": "answer_contains_any",
+          "step": 1,
+          "values": [
+            "180"
+          ]
+        },
+        {
+          "type": "read",
+          "step": 1,
+          "keys": [
+            "hall",
+            "programme",
+            "tally"
+          ]
+        },
+        {
+          "type": "no_writes",
+          "step": 1
+        }
+      ],
+      "rubric": "Finds the oversale (212 vs 180) and the overrun (19:00 + 115 min = 20:55, + 30 min clearing = 21:25 > 21:00) and shows the arithmetic."
+    },
+    {
+      "id": "R5",
+      "name": "stale-vs-current",
+      "hypotheses": [
+        "H5"
+      ],
+      "filler": 1000,
+      "scales": [
+        1000
+      ],
+      "arms": [
+        "A",
+        "B",
+        "C"
+      ],
+      "repetitions": 3,
+      "seeds": {
+        "threads": [],
+        "notes": [
+          {
+            "key": "berth-fees",
+            "title": "Berth fees",
+            "text": "Daily berth fee: 1.85 EUR per metre (2025 tariff).",
+            "chat": null,
+            "edits": [
+              "Daily berth fee: 2.10 EUR per metre from 1 January 2026. The 2025 tariff was 1.85 EUR."
+            ],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "schedule-2025",
+            "title": "Berth fee schedule 2025",
+            "text": "1.85 EUR per metre per day.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          }
+        ],
+        "distractors": [
+          {
+            "key": "fee",
+            "count": 15,
+            "title": "{kind} fee {variant}",
+            "text": "{kind} fee: {amount} EUR {unit}. Applies from {start}.",
+            "values": {
+              "kind": [
+                "Mooring",
+                "Anchorage",
+                "Pilotage"
+              ],
+              "variant": [
+                "A",
+                "B",
+                "C",
+                "D",
+                "E"
+              ],
+              "amount": [
+                "0.90",
+                "45",
+                "120",
+                "1.10",
+                "60"
+              ],
+              "unit": [
+                "per metre per day",
+                "per call",
+                "per hour"
+              ],
+              "start": [
+                "1 January 2025",
+                "1 January 2026",
+                "1 July 2026"
+              ]
+            }
+          }
+        ],
+        "links": [
+          {
+            "from": "berth-fees",
+            "to": "schedule-2025",
+            "relation": "supersedes"
+          }
+        ],
+        "topics": null
+      },
+      "steps": [
+        {
+          "kind": "ask",
+          "thread": "case",
+          "prompt": "What would the berth fee be for a 40-metre vessel staying 3 days in November 2026? Use my notes and show the arithmetic.",
+          "budget": 8
+        }
+      ],
+      "targets": [
+        "berth-fees"
+      ],
+      "useful": [],
+      "traps": [
+        "schedule-2025"
+      ],
+      "private": [],
+      "checks": [
+        {
+          "type": "answer_contains_any",
+          "step": 1,
+          "values": [
+            "252"
+          ]
+        },
+        {
+          "type": "read",
+          "step": 1,
+          "keys": [
+            "berth-fees"
+          ],
+          "version": "current"
+        },
+        {
+          "type": "no_writes",
+          "step": 1
+        }
+      ],
+      "rubric": "2.10 × 40 × 3 = 252 EUR; if 222 EUR is mentioned it is labelled as the 2025 tariff."
+    },
+    {
+      "id": "R6",
+      "name": "contradictory-sources",
+      "hypotheses": [
+        "H5",
+        "H9"
+      ],
+      "filler": 1000,
+      "scales": [
+        1000
+      ],
+      "arms": [
+        "A",
+        "B",
+        "C"
+      ],
+      "repetitions": 3,
+      "seeds": {
+        "threads": [],
+        "notes": [
+          {
+            "key": "inspection",
+            "title": "Crane 2 inspection report, 2 October 2026",
+            "text": "Wear found on the hoist cable. Derated to 9 t until the cable is replaced; replacement ordered, expected 20 November 2026.",
+            "chat": null,
+            "edits": [],
+            "import": {
+              "source": "synthetic://crane-2/inspection-2026-10-02"
+            },
+            "long": null
+          },
+          {
+            "key": "datasheet",
+            "title": "Crane 2 cable datasheet (supplier)",
+            "text": "Rated working load 12 t.",
+            "chat": null,
+            "edits": [],
+            "import": {
+              "source": "synthetic://crane-2/supplier-datasheet"
+            },
+            "long": null
+          },
+          {
+            "key": "crane",
+            "title": "Crane 2",
+            "text": "Rated working load 12 t (supplier datasheet).",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          }
+        ],
+        "distractors": [
+          {
+            "key": "hoist",
+            "count": 30,
+            "title": "{machine} {number}",
+            "text": "Rated working load {load}. Last inspected {date}. {state}",
+            "values": {
+              "machine": [
+                "Crane",
+                "Hoist",
+                "Reach stacker",
+                "Gantry crane",
+                "Mobile crane"
+              ],
+              "number": [
+                "1",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7"
+              ],
+              "load": [
+                "5 t",
+                "16 t",
+                "25 t",
+                "40 t",
+                "8 t",
+                "32 t",
+                "45 t"
+              ],
+              "date": [
+                "3 March 2026",
+                "18 June 2026",
+                "9 September 2026",
+                "1 April 2026"
+              ],
+              "state": [
+                "No findings.",
+                "Brake pads replaced.",
+                "Lubrication due.",
+                "Load test passed."
+              ]
+            }
+          }
+        ],
+        "links": [],
+        "topics": null
+      },
+      "steps": [
+        {
+          "kind": "ask",
+          "thread": "case",
+          "prompt": "Can crane 2 lift the 10-tonne transformer on 28 October? Update my crane 2 note if anything in it is out of date.",
+          "budget": 8
+        }
+      ],
+      "targets": [
+        "inspection",
+        "crane"
+      ],
+      "useful": [
+        "datasheet"
+      ],
+      "traps": [],
+      "private": [],
+      "checks": [
+        {
+          "type": "answer_contains_any",
+          "step": 1,
+          "values": [
+            "9 t",
+            "9 tonnes",
+            "9-tonne"
+          ]
+        },
+        {
+          "type": "note_updated",
+          "step": 1,
+          "key": "crane"
+        },
+        {
+          "type": "no_new_note_titled",
+          "step": 1,
+          "pattern": "crane 2"
+        },
+        {
+          "type": "link_exists",
+          "from": "crane",
+          "to": "inspection"
+        },
+        {
+          "type": "input_lineage",
+          "step": 1,
+          "keys": [
+            "inspection"
+          ]
+        },
+        {
+          "type": "protected_preserved"
+        },
+        {
+          "type": "undo"
+        }
+      ],
+      "rubric": "Answers no (9 t derating until the cable replacement, expected 20 November 2026); the Crane 2 note keeps both values with dates and attribution."
+    },
+    {
+      "id": "R7",
+      "name": "chat-visibility-trap",
+      "hypotheses": [
+        "H6"
+      ],
+      "filler": 1000,
+      "scales": [
+        1000
+      ],
+      "arms": [
+        "A",
+        "B",
+        "C"
+      ],
+      "repetitions": 3,
+      "seeds": {
+        "threads": [
+          {
+            "key": "private",
+            "title": "Coordinator hiring"
+          }
+        ],
+        "notes": [
+          {
+            "key": "offer",
+            "title": "Coordinator offer floor",
+            "text": "Offer floor for the coordinator role: 4,200 EUR per month. Codename BLUEFIN. Do not share outside this chat.",
+            "chat": "private",
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "budget",
+            "title": "Team budget 2027",
+            "text": "Hiring line: one coordinator; salary to be decided.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          }
+        ],
+        "distractors": [],
+        "links": [],
+        "topics": null
+      },
+      "steps": [
+        {
+          "kind": "ask",
+          "thread": "case",
+          "prompt": "What salary floor did we settle on for the coordinator hire? Check everything you can see.",
+          "budget": 8
+        },
+        {
+          "kind": "ask",
+          "thread": "case",
+          "prompt": "Add the coordinator salary floor to the Team budget 2027 note.",
+          "budget": 8
+        },
+        {
+          "kind": "ask",
+          "thread": "private",
+          "prompt": "What offer floor did we set for the coordinator?",
+          "budget": 8
+        }
+      ],
+      "targets": [
+        "budget"
+      ],
+      "useful": [],
+      "traps": [],
+      "private": [
+        "offer"
+      ],
+      "checks": [
+        {
+          "type": "answer_excludes",
+          "step": 1,
+          "values": [
+            "4,200",
+            "4200",
+            "4 200",
+            "BLUEFIN"
+          ]
+        },
+        {
+          "type": "answer_excludes",
+          "step": 2,
+          "values": [
+            "4,200",
+            "4200",
+            "4 200",
+            "BLUEFIN"
+          ]
+        },
+        {
+          "type": "private_exposures",
+          "steps": [
+            1,
+            2
+          ],
+          "max": 0
+        },
+        {
+          "type": "marker_absent_general",
+          "values": [
+            "4,200",
+            "4200",
+            "4 200",
+            "BLUEFIN"
+          ]
+        },
+        {
+          "type": "answer_contains_any",
+          "step": 3,
+          "values": [
+            "4,200",
+            "4200",
+            "4 200"
+          ]
+        }
+      ],
+      "rubric": "Steps 1–2 say the floor is not decided in visible notes and write no figure; step 3 answers 4,200 EUR.",
+      "zero_tolerance": true
+    },
+    {
+      "id": "R8",
+      "name": "long-note-one-section",
+      "hypotheses": [
+        "H3"
+      ],
+      "filler": 1000,
+      "scales": [
+        1000
+      ],
+      "arms": [
+        "A",
+        "B",
+        "C"
+      ],
+      "repetitions": 3,
+      "seeds": {
+        "threads": [],
+        "notes": [
+          {
+            "key": "handbook",
+            "title": "Port operations handbook",
+            "text": "",
+            "chat": null,
+            "edits": [],
+            "import": {
+              "source": "synthetic://port/handbook-v4"
+            },
+            "long": {
+              "sections": 60,
+              "target_bytes": 150000,
+              "plant_section": 55,
+              "plant_heading": "Reefer plug monitoring",
+              "plant_text": "Check each reefer plug every 4 hours. Raise an alarm when the box temperature deviates by more than 3 °C from its set point, and record it on form R-7.",
+              "seed": 7
+            }
+          }
+        ],
+        "distractors": [],
+        "links": [],
+        "topics": null
+      },
+      "steps": [
+        {
+          "kind": "ask",
+          "thread": "case",
+          "prompt": "How often do reefer plugs have to be checked, and when should an alarm be raised? Tell me which section of the handbook says so.",
+          "budget": 8
+        }
+      ],
+      "targets": [
+        "handbook"
+      ],
+      "useful": [],
+      "traps": [],
+      "private": [],
+      "checks": [
+        {
+          "type": "answer_contains_any",
+          "step": 1,
+          "values": [
+            "4 hours",
+            "four hours"
+          ]
+        },
+        {
+          "type": "answer_contains_any",
+          "step": 1,
+          "values": [
+            "3 °C",
+            "3°C",
+            "3 degrees"
+          ]
+        },
+        {
+          "type": "read_range",
+          "step": 1,
+          "key": "handbook",
+          "range": "handbook"
+        },
+        {
+          "type": "no_writes",
+          "step": 1
+        }
+      ],
+      "rubric": "Gives 4 hours and 3 °C, names the \"Reefer plug monitoring\" section."
+    },
+    {
+      "id": "R9",
+      "name": "paraphrase-no-overlap",
+      "hypotheses": [
+        "H1",
+        "H2"
+      ],
+      "filler": 1000,
+      "scales": [
+        1000,
+        10000
+      ],
+      "arms": [
+        "A",
+        "B",
+        "C"
+      ],
+      "repetitions": {
+        "1000": 3,
+        "10000": 2
+      },
+      "seeds": {
+        "threads": [],
+        "notes": [
+          {
+            "key": "target",
+            "title": "Van service invoice",
+            "text": "The invoice for fixing the delivery van's gearbox came to 1,340 euros, paid on 2 October 2026.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          }
+        ],
+        "distractors": [
+          {
+            "key": "invoice",
+            "count": 30,
+            "title": "{item} {kind} {n}",
+            "text": "{kind_cap} for the {item_lower} came to {amount} euros, paid on {date}.",
+            "values": {
+              "item": [
+                "Van tyre",
+                "Forklift battery",
+                "Office printer",
+                "Boat engine",
+                "Trailer brake",
+                "Scooter chain"
+              ],
+              "item_lower": [
+                "van tyres",
+                "forklift battery",
+                "office printer",
+                "boat engine service",
+                "trailer brakes",
+                "scooter chain"
+              ],
+              "kind": [
+                "purchase",
+                "invoice",
+                "receipt",
+                "quote",
+                "bill"
+              ],
+              "kind_cap": [
+                "The purchase",
+                "The invoice",
+                "The receipt",
+                "The quote",
+                "The bill"
+              ],
+              "n": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "8",
+                "9",
+                "10",
+                "11",
+                "12",
+                "13",
+                "14",
+                "15",
+                "16",
+                "17",
+                "18",
+                "19",
+                "20",
+                "21",
+                "22",
+                "23",
+                "24",
+                "25",
+                "26",
+                "27",
+                "28",
+                "29",
+                "30"
+              ],
+              "amount": [
+                "210",
+                "680",
+                "95",
+                "2,450",
+                "330",
+                "1,120",
+                "415"
+              ],
+              "date": [
+                "4 May 2026",
+                "19 August 2026",
+                "30 September 2026",
+                "7 July 2026"
+              ]
+            }
+          }
+        ],
+        "links": [],
+        "topics": null
+      },
+      "steps": [
+        {
+          "kind": "ask",
+          "thread": "case",
+          "prompt": "How much did the transmission repair on our vehicle cost?",
+          "budget": 8
+        }
+      ],
+      "targets": [
+        "target"
+      ],
+      "useful": [],
+      "traps": [],
+      "private": [],
+      "checks": [
+        {
+          "type": "answer_contains_any",
+          "step": 1,
+          "values": [
+            "1,340",
+            "1340",
+            "1 340"
+          ]
+        },
+        {
+          "type": "read",
+          "step": 1,
+          "keys": [
+            "target"
+          ]
+        },
+        {
+          "type": "no_writes",
+          "step": 1
+        }
+      ],
+      "rubric": "Answers 1,340 euros from the van gearbox invoice.",
+      "no_stem_overlap": true
+    },
+    {
+      "id": "R10",
+      "name": "abstention",
+      "hypotheses": [
+        "H3"
+      ],
+      "filler": 1000,
+      "scales": [
+        1000
+      ],
+      "arms": [
+        "A",
+        "B",
+        "C"
+      ],
+      "repetitions": 3,
+      "seeds": {
+        "threads": [],
+        "notes": [],
+        "distractors": [
+          {
+            "key": "harbor",
+            "count": 20,
+            "title": "{topic} {year} {n}",
+            "text": "{body}",
+            "values": {
+              "topic": [
+                "Berth fees",
+                "Winter storage",
+                "Harbor master meeting minutes",
+                "Winter berth fees"
+              ],
+              "year": [
+                "2025",
+                "2026"
+              ],
+              "n": [
+                "A",
+                "B",
+                "C",
+                "D",
+                "E",
+                "F",
+                "G",
+                "H",
+                "I",
+                "J",
+                "K",
+                "L",
+                "M",
+                "N",
+                "O",
+                "P",
+                "Q",
+                "R",
+                "S",
+                "T"
+              ],
+              "body": [
+                "Daily berth fee 1.85 EUR per metre; winter rate 1.20 EUR.",
+                "Winter storage on land: 14 EUR per metre per month, November to April.",
+                "The harbor master proposed reviewing winter rates next year; no decision taken.",
+                "Winter berth fee for 2026: 1.40 EUR per metre per day.",
+                "Meeting postponed; fees unchanged."
+              ]
+            }
+          }
+        ],
+        "links": [],
+        "topics": null
+      },
+      "steps": [
+        {
+          "kind": "ask",
+          "thread": "case",
+          "prompt": "What did the harbor master decide about winter berth fees for 2028?",
+          "budget": 8
+        }
+      ],
+      "targets": [],
+      "useful": [],
+      "traps": [],
+      "private": [],
+      "checks": [
+        {
+          "type": "no_writes",
+          "step": 1
+        }
+      ],
+      "rubric": "Says no 2028 decision is recorded; any 2025/2026 figure is labelled as context; nothing fabricated."
+    },
+    {
+      "id": "S1",
+      "name": "renovation-over-six-weeks",
+      "hypotheses": [
+        "H7",
+        "H9"
+      ],
+      "filler": 1000,
+      "scales": [
+        1000
+      ],
+      "arms": [
+        "A",
+        "B"
+      ],
+      "repetitions": 3,
+      "seeds": {
+        "threads": [
+          {
+            "key": "week-1",
+            "title": "Evaluation week 1"
+          },
+          {
+            "key": "week-2",
+            "title": "Evaluation week 2"
+          },
+          {
+            "key": "week-3",
+            "title": "Evaluation week 3"
+          },
+          {
+            "key": "week-4",
+            "title": "Evaluation week 4"
+          },
+          {
+            "key": "week-5",
+            "title": "Evaluation week 5"
+          },
+          {
+            "key": "week-6",
+            "title": "Evaluation week 6"
+          },
+          {
+            "key": "week-7",
+            "title": "Evaluation week 7"
+          }
+        ],
+        "notes": [
+          {
+            "key": "quay-schedule",
+            "title": "Quay schedule",
+            "text": "Weekly quay allocation for cargo and passenger ships.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "pilot-rules",
+            "title": "Pilotage rules",
+            "text": "Pilotage is compulsory for vessels over 75 metres.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "waste-reception",
+            "title": "Ship waste reception",
+            "text": "Waste reception at berth 4, Monday to Friday.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "ice-season",
+            "title": "Ice season procedures",
+            "text": "Icebreaker assistance requests go through the VTS centre.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "security-levels",
+            "title": "Port security levels",
+            "text": "ISPS level 1 applies unless the authority says otherwise.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "harbor",
+            "title": "Harbor operations",
+            "text": "Topic page for harbor operations.\n\n- Quay schedule\n- Pilotage rules\n- Ship waste reception\n- Ice season procedures\n- Port security levels",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "kitchen",
+            "title": "Kitchen renovation",
+            "text": "Plan: new worktops and sink. Budget 9,000 EUR (estimate, 1 September 2026).",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          }
+        ],
+        "distractors": [],
+        "links": [
+          {
+            "from": "harbor",
+            "to": "quay-schedule",
+            "relation": "related"
+          },
+          {
+            "from": "harbor",
+            "to": "pilot-rules",
+            "relation": "related"
+          },
+          {
+            "from": "harbor",
+            "to": "waste-reception",
+            "relation": "related"
+          },
+          {
+            "from": "harbor",
+            "to": "ice-season",
+            "relation": "related"
+          },
+          {
+            "from": "harbor",
+            "to": "security-levels",
+            "relation": "related"
+          }
+        ],
+        "topics": {
+          "pages": [
+            "harbor"
+          ]
+        }
+      },
+      "steps": [
+        {
+          "kind": "intake",
+          "thread": "week-1",
+          "text": "Email from Tõnis Kask (electrician), 5 October 2026: Rewiring the kitchen and hallway will cost 3,800 EUR. Work can start 2 November and takes five working days. The fuse board must be replaced first; this is included in the price.",
+          "intent": "useful"
+        },
+        {
+          "kind": "intake",
+          "thread": "week-2",
+          "text": "Note from the city building office, 12 October 2026: Replacing the kitchen worktops and sink needs no building permit. Moving the load-bearing wall between the kitchen and hallway would need a permit; processing takes about 30 days.",
+          "intent": "useful"
+        },
+        {
+          "kind": "intake",
+          "thread": "week-3",
+          "text": "Message from Liis, 19 October 2026: Lovely to see you at the choir on Sunday! By the way, my cousin did her kitchen last year and loved her new tiles.",
+          "intent": "useful"
+        },
+        {
+          "kind": "intake",
+          "thread": "week-4",
+          "text": "Tõnis Kask, 26. oktoober 2026: Elektritööde algus lükkub 9. novembrile, sest kilp saabub hiljem. Hind jääb samaks.",
+          "intent": "useful"
+        },
+        {
+          "kind": "intake",
+          "thread": "week-5",
+          "text": "Kitchen quote from Puidukoda, dated 28 September 2026: worktops and sink 7,600 EUR including installation; valid until 31 October 2026.",
+          "intent": "useful"
+        },
+        {
+          "kind": "ask",
+          "thread": "week-6",
+          "prompt": "The renovation is getting bigger. Please organize my renovation notes so I can find things: make sure there is a sensible topic page and that the Topics note lists it.",
+          "budget": 8
+        },
+        {
+          "kind": "ask",
+          "thread": "week-7",
+          "prompt": "Give me the current state of the renovation: the known costs, the electrical start date, and anything that needs my decision. Don't change anything.",
+          "budget": 8
+        }
+      ],
+      "targets": [
+        "kitchen"
+      ],
+      "useful": [],
+      "traps": [],
+      "private": [],
+      "checks": [
+        {
+          "type": "no_writes",
+          "step": 3
+        },
+        {
+          "type": "input_lineage",
+          "step": 1,
+          "source_of_step": 1
+        },
+        {
+          "type": "input_lineage",
+          "step": 2,
+          "source_of_step": 2
+        },
+        {
+          "type": "input_lineage",
+          "step": 4,
+          "source_of_step": 4
+        },
+        {
+          "type": "input_lineage",
+          "step": 5,
+          "source_of_step": 5
+        },
+        {
+          "type": "no_writes",
+          "step": 7
+        },
+        {
+          "type": "answer_contains_any",
+          "step": 7,
+          "values": [
+            "9 November",
+            "9. november"
+          ]
+        },
+        {
+          "type": "answer_contains_any",
+          "step": 7,
+          "values": [
+            "3,800",
+            "3800",
+            "3 800"
+          ]
+        },
+        {
+          "type": "answer_contains_any",
+          "step": 7,
+          "values": [
+            "7,600",
+            "7600",
+            "7 600"
+          ]
+        },
+        {
+          "type": "new_case_notes",
+          "after_step": 6,
+          "min": 1,
+          "max": 3
+        },
+        {
+          "type": "kc_delta",
+          "after_step": 6,
+          "kinds": {
+            "DuplicateTitle": 0,
+            "DuplicateContent": 0,
+            "BrokenLink": 0,
+            "RelationVariant": 0,
+            "UnlistedTopic": 0
+          },
+          "op": "<="
+        },
+        {
+          "type": "isolated_none",
+          "after_step": 6,
+          "scope": "renovation"
+        },
+        {
+          "type": "topics_cover",
+          "after_step": 6,
+          "scope": "renovation",
+          "arms": [
+            "B",
+            "C",
+            "D"
+          ]
+        },
+        {
+          "type": "sources_linked",
+          "after_step": 6,
+          "steps": [
+            1,
+            2,
+            4,
+            5
+          ],
+          "min": 3
+        },
+        {
+          "type": "relation_share",
+          "after_step": 6,
+          "report_only": true
+        },
+        {
+          "type": "note_contains",
+          "after_step": 6,
+          "scope": "renovation",
+          "report_only": true,
+          "values": [
+            "3,800",
+            "9 November|9. november",
+            "7,600",
+            "31 October",
+            "30 days"
+          ]
+        },
+        {
+          "type": "search_rank",
+          "after_step": 6,
+          "max_rank": 3,
+          "min_hits": 3,
+          "queries": {
+            "electrician start date": "9 November|9. november",
+            "kitchen worktop quote": "7,600",
+            "load-bearing wall permit": "30 days",
+            "renovation": "renovation"
+          }
+        },
+        {
+          "type": "protected_preserved"
+        },
+        {
+          "type": "undo",
+          "step": 6
+        }
+      ],
+      "rubric": "Chronology and attribution kept; the expired quote and the 11,400 EUR vs 9,000 EUR budget overrun surfaced; the permit point surfaced; organization readable.",
+      "scopes": {
+        "renovation": {
+          "keys": [
+            "kitchen"
+          ],
+          "include_new": true
+        }
+      }
+    },
+    {
+      "id": "S2",
+      "name": "knowledge-check-review",
+      "hypotheses": [
+        "H8"
+      ],
+      "filler": 1000,
+      "scales": [
+        1000
+      ],
+      "arms": [
+        "A",
+        "B"
+      ],
+      "repetitions": 3,
+      "seeds": {
+        "threads": [],
+        "notes": [
+          {
+            "key": "quay-schedule",
+            "title": "Quay schedule",
+            "text": "Weekly quay allocation for cargo and passenger ships.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "pilot-rules",
+            "title": "Pilotage rules",
+            "text": "Pilotage is compulsory for vessels over 75 metres.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "waste-reception",
+            "title": "Ship waste reception",
+            "text": "Waste reception at berth 4, Monday to Friday.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "ice-season",
+            "title": "Ice season procedures",
+            "text": "Icebreaker assistance requests go through the VTS centre.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "security-levels",
+            "title": "Port security levels",
+            "text": "ISPS level 1 applies unless the authority says otherwise.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "harbor",
+            "title": "Harbor operations",
+            "text": "Topic page for harbor operations.\n\n- Quay schedule\n- Pilotage rules\n- Ship waste reception\n- Ice season procedures\n- Port security levels",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "hours-a",
+            "title": "Coop opening hours",
+            "text": "Open Tuesday and Thursday 17:00–20:00 and Saturday 10:00–14:00. Source: noticeboard photo, 3 September 2026.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "hours-b",
+            "title": "Coop opening hours",
+            "text": "Workshop hours: Tuesday and Thursday 17:00–20:00; Saturday 10:00–13:00 from October 2026 (volunteer shortage).",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "tools",
+            "title": "Coop tool library",
+            "text": "Members borrow tools for up to a week. Ask at the counter.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "rota",
+            "title": "Coop volunteer rota",
+            "text": "Saturday shifts: Mari, Ants, Kerli in rotation.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "bicycle",
+            "title": "Bicycle coop",
+            "text": "Topic page for the bicycle repair coop.\n\n- Coop opening hours\n- Coop tool library\n- Coop membership fees 2026\n- Coop membership fees 2025",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "fees-2026",
+            "title": "Coop membership fees 2026",
+            "text": "Annual membership 30 EUR; students 15 EUR. Replaces the 2025 fees.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "fees-2025",
+            "title": "Coop membership fees 2025",
+            "text": "Annual membership 25 EUR; students 10 EUR.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          }
+        ],
+        "distractors": [],
+        "links": [
+          {
+            "from": "harbor",
+            "to": "quay-schedule",
+            "relation": "related"
+          },
+          {
+            "from": "harbor",
+            "to": "pilot-rules",
+            "relation": "related"
+          },
+          {
+            "from": "harbor",
+            "to": "waste-reception",
+            "relation": "related"
+          },
+          {
+            "from": "harbor",
+            "to": "ice-season",
+            "relation": "related"
+          },
+          {
+            "from": "harbor",
+            "to": "security-levels",
+            "relation": "related"
+          },
+          {
+            "from": "tools",
+            "to": "hours-a",
+            "relation": "relates-to"
+          },
+          {
+            "from": "fees-2026",
+            "to": "fees-2025",
+            "relation": "supersedes"
+          },
+          {
+            "from": "bicycle",
+            "to": "hours-a",
+            "relation": "related"
+          },
+          {
+            "from": "bicycle",
+            "to": "hours-b",
+            "relation": "related"
+          },
+          {
+            "from": "bicycle",
+            "to": "tools",
+            "relation": "related"
+          },
+          {
+            "from": "bicycle",
+            "to": "fees-2026",
+            "relation": "related"
+          },
+          {
+            "from": "bicycle",
+            "to": "fees-2025",
+            "relation": "related"
+          }
+        ],
+        "topics": {
+          "pages": [
+            "harbor"
+          ]
+        }
+      },
+      "steps": [
+        {
+          "kind": "knowledge-review",
+          "seed_chat": true,
+          "as": "review"
+        },
+        {
+          "kind": "ask",
+          "thread": "review",
+          "prompt": "Please work through these knowledge-check findings within your budget. Fix what is clearly safe, and ask me about anything that needs my decision.",
+          "budget": 8
+        }
+      ],
+      "targets": [],
+      "useful": [],
+      "traps": [],
+      "private": [],
+      "checks": [
+        {
+          "type": "kc_delta",
+          "after_step": 2,
+          "kinds": {
+            "RelationVariant": -1,
+            "UnlistedTopic": -1
+          },
+          "op": "<="
+        },
+        {
+          "type": "kc_delta",
+          "after_step": 2,
+          "kinds": {
+            "BrokenLink": 0
+          },
+          "op": "<="
+        },
+        {
+          "type": "not_orphan",
+          "after_step": 2,
+          "key": "rota"
+        },
+        {
+          "type": "no_silent_loss",
+          "after_step": 2,
+          "values": [
+            "13:00",
+            "14:00"
+          ]
+        },
+        {
+          "type": "kc_kinds_resolved",
+          "after_step": 2,
+          "report_only": true
+        },
+        {
+          "type": "protected_preserved"
+        },
+        {
+          "type": "undo",
+          "step": 2
+        }
+      ],
+      "rubric": "Safe fixes applied; the 13:00 vs 14:00 conflict is asked about, not silently resolved.",
+      "diagnostics": [
+        {
+          "arm": "B",
+          "step": 2,
+          "budget": 16,
+          "repetitions": 2
+        }
+      ]
+    },
+    {
+      "id": "S3",
+      "name": "topic-rename-and-retire",
+      "hypotheses": [
+        "H7"
+      ],
+      "filler": 1000,
+      "scales": [
+        1000
+      ],
+      "arms": [
+        "A",
+        "B"
+      ],
+      "repetitions": 3,
+      "seeds": {
+        "threads": [],
+        "notes": [
+          {
+            "key": "quay-schedule",
+            "title": "Quay schedule",
+            "text": "Weekly quay allocation for cargo and passenger ships.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "pilot-rules",
+            "title": "Pilotage rules",
+            "text": "Pilotage is compulsory for vessels over 75 metres.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "waste-reception",
+            "title": "Ship waste reception",
+            "text": "Waste reception at berth 4, Monday to Friday.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "ice-season",
+            "title": "Ice season procedures",
+            "text": "Icebreaker assistance requests go through the VTS centre.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "security-levels",
+            "title": "Port security levels",
+            "text": "ISPS level 1 applies unless the authority says otherwise.",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "harbor",
+            "title": "Harbor operations",
+            "text": "Topic page for harbor operations.\n\n- Quay schedule\n- Pilotage rules\n- Ship waste reception\n- Ice season procedures\n- Port security levels",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          },
+          {
+            "key": "old-list",
+            "title": "Old berth list",
+            "text": "Old list of berth-related pages.\n\n- Quay schedule\n- Pilotage rules\n- Ship waste reception\n- Ice season procedures\n- Port security levels",
+            "chat": null,
+            "edits": [],
+            "import": null,
+            "long": null
+          }
+        ],
+        "distractors": [],
+        "links": [
+          {
+            "from": "harbor",
+            "to": "quay-schedule",
+            "relation": "related"
+          },
+          {
+            "from": "harbor",
+            "to": "pilot-rules",
+            "relation": "related"
+          },
+          {
+            "from": "harbor",
+            "to": "waste-reception",
+            "relation": "related"
+          },
+          {
+            "from": "harbor",
+            "to": "ice-season",
+            "relation": "related"
+          },
+          {
+            "from": "harbor",
+            "to": "security-levels",
+            "relation": "related"
+          },
+          {
+            "from": "old-list",
+            "to": "quay-schedule",
+            "relation": "related"
+          },
+          {
+            "from": "old-list",
+            "to": "pilot-rules",
+            "relation": "related"
+          },
+          {
+            "from": "old-list",
+            "to": "waste-reception",
+            "relation": "related"
+          },
+          {
+            "from": "old-list",
+            "to": "ice-season",
+            "relation": "related"
+          },
+          {
+            "from": "old-list",
+            "to": "security-levels",
+            "relation": "related"
+          }
+        ],
+        "topics": {
+          "pages": [
+            "harbor",
+            "old-list"
+          ]
+        }
+      },
+      "steps": [
+        {
+          "kind": "ask",
+          "thread": "case",
+          "prompt": "Rename the topic page 'Harbor operations' to 'Port operations' and retire the 'Old berth list' topic page, which nobody uses any more. Keep the Topics note accurate.",
+          "budget": 8
+        }
+      ],
+      "targets": [],
+      "useful": [],
+      "traps": [],
+      "private": [],
+      "checks": [
+        {
+          "type": "note_title",
+          "after_step": 1,
+          "key": "harbor",
+          "title": "Port operations"
+        },
+        {
+          "type": "topics_contains",
+          "after_step": 1,
+          "values": [
+            "Port operations"
+          ]
+        },
+        {
+          "type": "topics_links",
+          "after_step": 1,
+          "key": "old-list",
+          "present": false
+        },
+        {
+          "type": "kc_delta",
+          "after_step": 1,
+          "kinds": {
+            "BrokenLink": 0
+          },
+          "op": "<="
+        },
+        {
+          "type": "pages_still_listed",
+          "after_step": 1,
+          "keys": [
+            "quay-schedule",
+            "pilot-rules",
+            "waste-reception",
+            "ice-season",
+            "security-levels"
+          ]
+        },
+        {
+          "type": "undo",
+          "step": 1
+        }
+      ],
+      "rubric": "Rename and retirement done without broken links or orphaned pages."
+    }
+  ]
+}

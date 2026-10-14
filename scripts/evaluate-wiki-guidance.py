@@ -154,14 +154,34 @@ def snapshot(cli):
                             'lineage': read_operation_inputs(cli.data, operations)})
 
 
+FILLER_SUBJECTS = [
+    ('Harbor crane maintenance', 'The harbor crane inspection found worn cables; delivery of spare parts is due in November.'),
+    ('Harbor café menu', 'The harbor café serves soup and bread; supplier delivery arrives every Tuesday morning.'),
+    ('Berth cleaning rota', 'Berth cleaning runs weekly; booking the sweeper needs 24 hours notice at the harbor office.'),
+    ('Tide gauge calibration', 'The tide gauge was calibrated to 0.1 metres; access to the gauge hut needs a key from the harbor master.'),
+    ('Cargo insurance renewal', 'Cargo insurance covers loads up to 30 tonnes; the renewal estimate arrives in October.'),
+    ('Pilot boat schedule', 'The pilot boat runs at 07:00 and 15:00; medical transfers take priority over other bookings.'),
+    ('Dredging survey archive', 'An older dredging survey measured depth near the quay; it is not a current access rule.'),
+    ('Warehouse rack capacity', 'Warehouse racks hold 2 tonnes per shelf; delivery trucks unload at gate 3.'),
+]
+
+
+def filler_note(index):
+    """Synthetic distractors that share the cases' vocabulary but not their subjects."""
+    title, text = FILLER_SUBJECTS[index % len(FILLER_SUBJECTS)]
+    return (f'{title} {index:04d}',
+            f'# {title} {index:04d}\n\nArchive entry {index}. {text} Recorded for weekly operations review number {index % 52}.\n')
+
+
 def saved_notes(records):
     return [record for record in records if not record['archived'] and 'Note' in record['data']
             and record['data']['Note']['superseded_by'] is None]
 
 
-def structural_checks(case, before, after):
-    previous = saved_notes(before['records'])
-    current = saved_notes(after['records'])
+def structural_checks(case, before, after, filler=frozenset()):
+    # Distractor notes are workspace scale, not part of the case.
+    previous = [note for note in saved_notes(before['records']) if note['id'] not in filler]
+    current = [note for note in saved_notes(after['records']) if note['id'] not in filler]
     current_ids = {note['id'] for note in current}
     checks = {'protected_references_preserved': protection_preserved(before['records'], after['records'])}
     if case['no_new_notes']:
@@ -248,6 +268,11 @@ def run_arm(binary, root, folder, case, selection, args):
             configuration.update(credential_options(args.provider, args.auth_file, args.credentials_dir))
             cli.call('configure', **configuration)
         cli.call('delegation', choice='maintain')
+        filler = set()
+        for index in range(args.filler):
+            title, text = filler_note(index)
+            filler.add(cli.call('note-create', title=title, text=text)['id'])
+        result['filler_notes'] = len(filler)
         for index, seed in enumerate(case['seeds']):
             if seed['protected']:
                 source = folder / f'reference-{index}.md'
@@ -297,7 +322,7 @@ def run_arm(binary, root, folder, case, selection, args):
     try:
         result['after'] = snapshot(cli)
         if args.live:
-            result['structural_checks'] = structural_checks(case, result['before'], result['after'])
+            result['structural_checks'] = structural_checks(case, result['before'], result['after'], frozenset(filler))
         persist()
         result['stage'] = 'undo'
         if result['provider_completed']:
@@ -334,6 +359,8 @@ def main():
     parser.add_argument('--credentials-dir', type=Path)
     parser.add_argument('--repetitions', type=int, choices=[1, 2], default=2)
     parser.add_argument('--timeout', type=int, default=180)
+    parser.add_argument('--filler', type=int, default=0,
+                        help='synthetic distractor notes created before each case, so retrieval matters')
     args = parser.parse_args()
     for binary in [args.baseline_bin, args.wiki_bin, args.helper]:
         if not binary.is_absolute() or not binary.is_file() or not os.access(binary, os.X_OK):
@@ -348,6 +375,8 @@ def main():
         parser.error('Codex uses auth-file; select only one credential route')
     if args.timeout < 1 or args.timeout > 600:
         parser.error('Timeout must be 1..600 seconds')
+    if not 0 <= args.filler <= 5000:
+        parser.error('Filler must be 0..5000 notes')
     create_root(args.root)
     frozen = json.loads(CASES.read_text())
     selection = {'provider': args.provider, 'model': args.model, 'effort': args.effort}
@@ -355,7 +384,7 @@ def main():
               'budget': 8, 'repetitions': args.repetitions, 'fixture_sha256': digest(CASES),
               'baseline': {'commit': args.baseline_commit, 'binary_sha256': digest(args.baseline_bin)},
               'wiki': {'commit': args.candidate_commit, 'binary_sha256': digest(args.wiki_bin)},
-              'token_usage': 'not exposed by production CLI', 'arms': []}
+              'token_usage': 'not exposed by production CLI', 'filler_notes': args.filler, 'arms': []}
     report_path = args.root / 'comparison.json'
     for repetition in range(args.repetitions):
         arms = [('baseline', args.baseline_bin), ('wiki', args.wiki_bin)]

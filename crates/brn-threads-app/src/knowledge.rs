@@ -141,10 +141,12 @@ impl Workspace {
                     if notes.contains_key(from) && notes.contains_key(to) {
                         note_links.push((from, to, link.relation.as_str()));
                     }
-                    relations
-                        .entry(relation_key(&link.relation))
-                        .or_default()
-                        .insert(link.relation.as_str());
+                    if !relations::is_host_owned(&link.relation) {
+                        relations
+                            .entry(relation_key(&link.relation))
+                            .or_default()
+                            .insert(link.relation.as_str());
+                    }
                 }
                 // A missing, archived or superseded end is reported; an end
                 // that exists only in a chat is private and is not.

@@ -27,6 +27,9 @@ use tokio_util::sync::CancellationToken;
 mod history;
 #[path = "threads_search.rs"]
 mod note_search;
+#[path = "threads_trace.rs"]
+mod trace;
+pub use trace::{RunTrace, TraceCall, TraceLevel, TraceUsage};
 #[path = "threads_sources.rs"]
 mod sources;
 use history::{HistoryArgs, RefreshArgs};
@@ -81,11 +84,15 @@ pub struct ThreadRunRequest {
     /// Host search for this workspace. `None` leaves `search_notes` and
     /// `note_connections` unregistered.
     pub search: Option<Arc<dyn RunNoteSearch>>,
+    /// Opt-in record of tool use for evaluation; `Off` records nothing.
+    pub trace: TraceLevel,
 }
 pub struct ThreadResult {
     pub terminal_run: Option<(String, u64)>,
     pub run_id: String,
     pub answer: AiAnswer,
+    /// Present when the request asked for a trace.
+    pub trace: Option<RunTrace>,
 }
 /// One prepared invocation. It owns its request and authority; consuming it
 /// starts at most one worker. Only the durable exact Run ID is exposed.
@@ -113,6 +120,8 @@ struct Scope {
     writing_snapshot: Option<WritingSnapshot>,
     decision_target: Mutex<Option<String>>,
     search: Option<Arc<dyn RunNoteSearch>>,
+    trace: Option<Arc<trace::TraceCollector>>,
+    max_rounds: u16,
 }
 fn storage(_: impl std::fmt::Display) -> AiError {
     AiError::new(AiErrorKind::Storage)
@@ -1046,6 +1055,7 @@ struct BatchHook {
     rounds: AtomicU16,
     limit: u16,
     emit: Arc<dyn Fn(AiEvent) + Send + Sync>,
+    trace: Option<Arc<trace::TraceCollector>>,
 }
 impl AgentHook for BatchHook {
     async fn on_dispatch(&self, _: &HookContext, event: DispatchEvent<'_>) -> DispatchAction {
@@ -1053,6 +1063,14 @@ impl AgentHook for BatchHook {
             .tool_name()
             .filter(|name| tool_activity(name).is_some())
         {
+            if let Some(trace) = &self.trace {
+                trace.dispatch(
+                    format!("{:?}", event.id),
+                    name,
+                    event.tool_args().unwrap_or("{}"),
+                    self.rounds.load(Ordering::SeqCst),
+                );
+            }
             let mut args = serde_json::from_str::<Value>(event.tool_args().unwrap_or("{}"))
                 .unwrap_or(Value::Null);
             if name == "prepare_changes"
@@ -1085,6 +1103,14 @@ impl AgentHook for BatchHook {
             .filter(|name| tool_activity(name).is_some())
         {
             let status = tool_outcome_label(name, event.tool_result());
+            if let Some(trace) = &self.trace {
+                trace.outcome(
+                    &format!("{:?}", event.id),
+                    name,
+                    status,
+                    event.tool_result(),
+                );
+            }
             (self.emit)(AiEvent::Activity(format!("< {name} · {status}")));
         }
         OutcomeAction::Proceed
@@ -1113,6 +1139,10 @@ impl AgentHook for BatchHook {
                 )
         }) {
             self.invalid.store(true, Ordering::SeqCst);
+            if let Some(trace) = &self.trace {
+                trace.model_turn(&event.usage, self.rounds.load(Ordering::SeqCst));
+                trace.stop("invalid_batch");
+            }
             return ModelTurnAction::Stop("invalid tool batch".into());
         }
         let rounds = if calls.is_empty() {
@@ -1120,6 +1150,9 @@ impl AgentHook for BatchHook {
         } else {
             self.rounds.fetch_add(1, Ordering::SeqCst) + 1
         };
+        if let Some(trace) = &self.trace {
+            trace.model_turn(&event.usage, rounds.min(self.limit));
+        }
         (self.emit)(AiEvent::BudgetProgress {
             model_turns: event.turn as u16,
             tool_rounds: rounds.min(self.limit),
@@ -1127,6 +1160,9 @@ impl AgentHook for BatchHook {
         });
         if rounds > self.limit {
             self.limited.store(true, Ordering::SeqCst);
+            if let Some(trace) = &self.trace {
+                trace.stop("budget");
+            }
             return ModelTurnAction::Stop("tool budget exhausted".into());
         }
         ModelTurnAction::Continue
@@ -1177,6 +1213,7 @@ pub async fn run_prepared(
             terminal_run: committed
                 .then(|| (scope.run.clone(), scope.fence.load(Ordering::SeqCst) + 1)),
             run_id: scope.run.clone(),
+            trace: finish_trace(&scope, &answer),
             answer,
         });
     }
@@ -1261,6 +1298,7 @@ pub async fn run_prepared(
         terminal_run: committed
             .then(|| (scope.run.clone(), scope.fence.load(Ordering::SeqCst) + 1)),
         run_id: scope.run.clone(),
+        trace: finish_trace(&scope, &answer),
         answer,
     })
 }
@@ -1295,8 +1333,20 @@ pub async fn run_prepared_scripted(
         terminal_run: committed
             .then(|| (scope.run.clone(), scope.fence.load(Ordering::SeqCst) + 1)),
         run_id: scope.run.clone(),
+        trace: finish_trace(&scope, &answer),
         answer,
     })
+}
+fn finish_trace(scope: &Scope, answer: &AiAnswer) -> Option<RunTrace> {
+    let trace = scope.trace.as_ref()?;
+    if matches!(answer.terminal, AiTerminal::Interrupted) {
+        trace.stop("cancelled");
+    }
+    Some(trace.finish(
+        crate::threads_guides::BUNDLE_VERSION,
+        scope.search.is_some(),
+        scope.max_rounds,
+    ))
 }
 fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
     request.selection.validate()?;
@@ -1693,6 +1743,8 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
             writing_snapshot,
             decision_target: Mutex::new(None),
             search: request.search.clone(),
+            trace: trace::TraceCollector::new(request.trace).map(Arc::new),
+            max_rounds: request.max_tool_rounds,
         }),
         format!(
             "{input}\nSaved chat documents (read with exact-version note tools): {}\nTopics note (root index of topic pages): {}\nHost maintenance policy: {maintenance_policy}\nHost authority for this invocation only: {}",
@@ -1937,6 +1989,7 @@ async fn run_model(
             rounds: AtomicU16::new(0),
             limit,
             emit: emit.clone(),
+            trace: scope.trace.clone(),
         })
         .build();
     let stream = agent
@@ -2089,6 +2142,7 @@ mod tests {
                 credentials_dir: None,
                 sources: vec![],
                 search: None,
+                trace: TraceLevel::Off,
             },
             note,
         )

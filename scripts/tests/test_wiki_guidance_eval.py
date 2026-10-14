@@ -150,7 +150,7 @@ class WikiGuidanceEvaluationTests(unittest.TestCase):
                 'rubric': ['102'], 'no_new_notes': True, 'expected_existing_note': None}
         saved = {'records': [], 'receipts': [], 'candidates': [], 'lineage': []}
         args = SimpleNamespace(live=True, helper=Path('/helper'), timeout=1, provider='Codex',
-                               auth_file=None, credentials_dir=None)
+                               auth_file=None, credentials_dir=None, filler=0)
         with tempfile.TemporaryDirectory() as directory, patch.object(wiki_eval, 'Cli', FakeCli), \
                 patch.object(wiki_eval, 'snapshot', return_value=saved), \
                 patch.object(wiki_eval, 'undo_latest_note_change', side_effect=wiki_eval.CallFailed('undo failed')):

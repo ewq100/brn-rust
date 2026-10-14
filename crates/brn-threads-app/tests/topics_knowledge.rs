@@ -408,6 +408,41 @@ fn unlisted_topic_pages_are_reported_only_with_a_topics_note() {
 }
 
 #[test]
+fn host_owned_import_relations_are_not_relation_variants() {
+    let (_root, _data, mut ws) = workspace();
+    let puts = (0..3)
+        .map(|i| (None, note(&format!("Imported {i}"), "Imported.\n"), false))
+        .collect();
+    let n = write(&mut ws, "imports", puts);
+    let links = vec![
+        (None, link(&n[0].id, &n[2].id, "full-import:aaaa"), false),
+        (None, link(&n[1].id, &n[2].id, "full-import:bbbb"), false),
+    ];
+    write(&mut ws, "import-links", links);
+    assert!(
+        !ws.knowledge_check()
+            .unwrap()
+            .counts
+            .contains_key(&FindingKind::RelationVariant)
+    );
+    write(
+        &mut ws,
+        "variants",
+        vec![
+            (None, link(&n[0].id, &n[1].id, relations::RELATED), false),
+            (None, link(&n[1].id, &n[0].id, "relates-to"), false),
+        ],
+    );
+    assert_eq!(
+        ws.knowledge_check()
+            .unwrap()
+            .counts
+            .get(&FindingKind::RelationVariant),
+        Some(&1)
+    );
+}
+
+#[test]
 fn archived_chat_material_and_chat_links_are_not_reported_as_broken() {
     let (_root, _data, mut ws) = workspace();
     let chat = ws.new_thread("Private").unwrap().id;
