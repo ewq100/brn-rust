@@ -589,3 +589,41 @@ python3 scripts/evaluate_wiki_v2.py --root ABS_FRESH --seeder target/release/exa
 - Listings still happen once per intake, now compact.
 - Organizing requests use 8 rounds.
 - N is 2.
+
+## Host-driven intake prototype (14 October 2026)
+
+**Request:** the owner asked to prototype making intake a host-driven workflow, to cut turns and tokens. Design: [host-intake.md](host-intake.md) (PROPOSED).
+
+**Build:** branch `work/host-intake` on `316edb2d`, guide bundle `brn-threads-guidance-8`. Before each source run's first turn the host searches the run's chat from the source and appends the source, up to three related pages at exact versions with their link neighbours, and the queries run. Tools stay available.
+
+**Offline gates:** `cargo fmt --all --check` and `cargo clippy --workspace --all-targets -- -D warnings` pass; `python3 -m unittest discover -s scripts/tests` passes (130 tests). `cargo test --workspace --no-fail-fast` passes everything except six `brn-threads-intake` `qualification` tests that return `Unavailable`; they fail identically on the unmodified base in this environment. New tests: 3 unit and 6 integration (`host_intake.rs`).
+
+**Live S1:** one repetition, one arm (`D-host`), Codex `gpt-6.1-sol` at medium effort, 7 provider runs, scale 1000, no embedding model (semantic lane `none`, so the lead query ran as keyword). The seeder was rebuilt from this branch because the earlier one writes the pre-Projects schema. Baseline: the compact arm above (two repetitions, **built before the Projects merge #138**). N is 1, so differences in the tens of percent are suggestive only.
+
+| Intake step | Source | Baseline r1/r2 turns | Host turns | Baseline r2 input | Host input | Host cached | Host output | Host tool calls |
+|---|---|---|---|---|---|---|---|---|
+| 1 | Electrician email | 7 / 6 | 5 | 77.9k | 43.4k | 0 | 1.0k | 2 reads, prepare, apply |
+| 2 | City office note | 9 / 9 | 8 | 126.2k | 118.4k | 19.3k | 1.3k | 4 reads, prepare, apply, read |
+| 3 | Choir message (keep in chat) | 5 / 5 | **1** | 58.6k | **8.1k** | 0 | 0.1k | none |
+| 4 | Same electrician, Estonian | 12 / 12 | 9 | 227.2k | 146.8k | 5.6k | 2.0k | 3 reads, prepare, apply, read, prepare, apply |
+| 5 | Puidukoda quote | 9 / 9 | 9 | 183.0k | 173.4k | 26.6k | 2.7k | 3 reads, prepare, apply, read, prepare, apply |
+| Intakes total | | | | 673k | **490k (−27%)** | | | |
+| Case total input | | | | 784k (r1 870k) | **566k (−28%, −35% vs r1)** | 51.6k | 9.8k | |
+
+Baseline turns come from the two compact runs' `model_turns`; rounds were 5–11. Median per intake: 128k baseline, 118k host.
+
+**Context cost:** the host context was 3.8–7.7 KB and took 50–75 ms. Each turn still resends the preamble, so one turn costs about 8k input and the turn count dominates.
+
+**Checks:** all S1 checks pass, as in both baseline repetitions: lineage inputs on all five intakes, step 3 wrote only a chat-to-Source link, facts present (3,800 EUR, 9 November, 7,600 EUR, 31 October), every page linked, a topic page covers the scope, 4 of 4 Sources linked or recorded, search ranks correct, protected notes unchanged, undo restores. The two report-only checks are unchanged.
+
+**What changed in behaviour:**
+- Every intake found the Kitchen note first (rank 1, the right page, at its current version 1, 2, 3, 4). The related page was in the first prompt, but the model made no `read_source`, `search_notes` or `note_connections` calls in any intake.
+- Step 3 decided to keep the message in the chat with no tool call at all (8.1k tokens instead of 58.6k).
+- The model still called `read_records` with a title query or a catalog listing in steps 1, 2, 4 and 5 (a 15.7 KB catalog twice), re-reading the Kitchen note and looking for Actions, Sources and earlier operations. Steps 4 and 5 still made a second prepare and apply, as in the baseline. So only step 1 and the keep-in-chat step approached the 2–3 turn target (5 and 1 turns).
+- Prepare happened in round 1 or 2 only in step 3's equivalent; in the other intakes it came in rounds 3–4.
+
+**Reading:** pre-loaded retrieval removes the discovery searches and `read_source`, and makes keep-in-chat nearly free. The remaining turns come from record lookups the model still chooses to make and from second change groups. The target of about 20–40k tokens per intake was met only for steps 1 and 3. Cached input was low in both arms; prompt caching is separate work.
+
+**Limits:** N is 1; no embedding model; the baseline predates the Projects merge; the guide wording was not iterated (one live repetition was authorised); no desktop interaction. Total live use was about 0.57M tokens.
+
+**Next:** try guide wording or tool shaping that stops catalog and title-query `read_records` calls when context is present, then re-measure with more repetitions.
