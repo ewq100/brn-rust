@@ -404,3 +404,72 @@ BRN_EMBEDDING_MODEL_DIR=<folder> cargo run --release -p brn-threads-app --featur
 - **Bundle 4 was about 13% slower** on the two-step intake case and about 2% faster on the synthesis. With two repetitions this is within noise.
 - **Limit: the CLI does not report which tools a run called,** so this run cannot show how often `search_notes` was used. Token usage is not exposed either.
 - **Limit: the cases are retrieval-easy.** A case whose request does not name the subject, a larger workspace or real notes would test where search should matter.
+
+## Evaluation v2 offline readiness
+
+**Scope:** steps 2–6 of the [evaluation design](evaluation-design.md#8-roadmap), authorized without provider calls. No provider, network or model download was used. The already-installed pinned e5-small folder served arm C.
+
+**Built:**
+- Seeder example `crates/brn-threads-app/examples/wiki_eval_seed.rs`:
+  - writes a case through checked owner writes;
+  - covers links, chat-only notes, edits to version 2+, protected imports, generated long notes with the planted section's byte range, templated distractors, Topics and linked filler pairs;
+  - has a native `--warm` mode for arm C.
+- Golden set v2: 163 cases in 12 strata.
+- Harness `scripts/evaluate_wiki_v2.py`:
+  - arms carry binary, model folder, provider, model and effort, which also serves the model matrix;
+  - Latin-square order, typed checks, §1 trace metrics, `--resume`, and offline validation without `--live`.
+- Fixture `scripts/fixtures/wiki-eval-cases-v2.json`: R1–R10 and S1–S3. Its 10k variants run two repetitions.
+- Scripted journeys `tests/agent_eval_journeys.rs` for R1–R5, R7 and R8.
+
+**Commands and results:**
+
+| Check | Result |
+|---|---|
+| `cargo test -p brn-threads-app --test wiki_eval_seed --test agent_eval_journeys --test retrieval_eval --test topics_knowledge` | 5, 7, 12 and 6 passed. The journeys take 1.3 s at 1,000 fillers. |
+| `python3 -m unittest discover -s scripts/tests` | 128 passed |
+| Workspace clippy, plus clippy for `brn-threads-app` with `native-retrieval` | clean |
+| Seeding at 1k / 10k fillers (release) | 0.9 s / 4.3 s |
+| Offline harness at 1k with all 13 cases and arms A (`b021b303`), B and C (native `main` + pinned e5-small) | ok for every case and arm in 1 min 46 s. Arm A opens every template. Arm C reached `complete` (R9: 1,031 passages in 7.3 s). S2 seeds exactly the five intended finding kinds. |
+
+**Golden v2 at 1,000 notes** (keyword, `--retriever current`):
+- The six original strata are unchanged in recall@10 (0.706 overall). Three ranks moved because new notes share query words, so MRR goes from 0.693 to 0.680.
+- New strata, recall@10:
+
+  | Stratum | recall@10 | Also |
+  |---|---|---|
+  | described | 1.000 | |
+  | near-duplicate | 1.000 | MRR 1.0 |
+  | scattered | 0.958 | complete@10 0.875, connected@1 0.500 |
+  | sentence-paraphrase | 0.000 | |
+  | deep-section | 1.000 | |
+  | supersession | 1.000 | the new note ranked above the old 0 of 5 times |
+
+- At 10,000 notes the worker's keyword numbers are the same per stratum, with p95 120 ms.
+
+**Findings:**
+- **Product fix: the knowledge check reported host-owned import relations as variants.** Two full imports from different sources wrote `full-import:<sha A>` and `full-import:<sha B>`, which were reported as a RelationVariant the owner cannot act on. Fixed: `relations::is_host_owned` excludes them, with a regression test in `topics_knowledge`.
+- **The CLI cannot warm the dense lane.** `brn search` exits before idle-time embedding starts, so coverage stayed `none` for 20 minutes of polling. The seeder's in-process `--warm` mode replaced it; the design text is updated.
+- **Dense still misses R9 at the agent's wording.** With coverage `complete`, "How much did the transmission repair on our vehicle cost?" returns fillers in the top 3, not the gearbox invoice. The augment-only floor and margin admit no dense-only hit here. This matches `sentence-paraphrase` at 0.000 for keyword search and is a candidate for design §7 items 3–4.
+- **Ranking ignores supersession.** In all five supersession cases the new note ranked below the old one. This supports design §7 item 6 (a supersession hint).
+- **Independent review** (Sonnet 5.5) found seven harness issues, all fixed with tests:
+  - budget-exhausted runs were treated as transport failures;
+  - unverifiable checks counted as passes;
+  - `no_writes` was missing from the safety checks;
+  - the marker scan skipped titles and relations;
+  - intake temp files were written outside the root;
+  - setup failures were lost on resume;
+  - the planned repetition count was wrong.
+
+  It confirmed the fixture's dates and arithmetic, and that every check type matches the harness.
+- **Distractors are unlinked.** Knowledge check reports them as orphans: 41 in R1. The R cases only report knowledge-check deltas; the S cases, which check them, use linked seeds.
+
+**Not yet measured:** agent behaviour. That is the live run (step 7), which needs separate owner authority.
+
+**Reproducing:**
+```
+cargo build --release -p brn --features native-retrieval
+cargo build --release -p brn-threads-app --features native-retrieval --example wiki_eval_seed
+python3 scripts/evaluate_wiki_v2.py --root ABS_FRESH --seeder target/release/examples/wiki_eval_seed \
+  --measure-bin target/release/brn --arm A=BASELINE_BRN --arm B=target/release/brn \
+  --arm C=target/release/brn,model-dir=MODEL_DIR --scale 1000
+```

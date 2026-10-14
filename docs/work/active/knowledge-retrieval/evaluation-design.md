@@ -6,7 +6,7 @@
 - the guide fix is measured first, then tested as arm D;
 - arms A, B and C are all kept.
 
-Steps 1–6 (no provider calls) are authorized. The live run (step 7) still needs separate owner authority.
+Steps 1–6 (no provider calls) are authorized and implemented; see [offline readiness](evidence.md#evaluation-v2-offline-readiness). The live run (step 7) still needs separate owner authority.
 
 **Owner request (verbatim):** "spin ha opus 5.5 subage teh desing better the cease and systening notes and ai tool use and anuthing else that coud help". In other words: design better test cases for how well BRN organizes notes and how the agent uses its tools, plus anything else that could help.
 
@@ -121,7 +121,7 @@ Nothing is persisted. The Run record and schema do not change.
 
 `scripts/evaluate-wiki-guidance.py` is solid on isolation, redaction, lineage and Undo checks. It needs these changes:
 
-1. **Arms list.** Replace the fixed `--baseline-bin/--wiki-bin` pair with repeated `--arm NAME=BINARY[,model-dir=PATH]`. An arm with `model-dir` sets `BRN_EMBEDDING_MODEL_DIR`. Order rotates in a Latin square across repetitions (ABC, BCA, CAB).
+1. **Arms list.** Replace the fixed `--baseline-bin/--wiki-bin` pair with repeated `--arm NAME=BINARY[,model-dir=PATH][,provider=…][,model=…][,effort=…]`. An arm with `model-dir` sets `BRN_EMBEDDING_MODEL_DIR`. Arm-level provider, model and effort override the global ones, so a [model matrix](#choosing-the-model-model-matrix) uses the same mechanism. Order rotates in a Latin square across repetitions (ABC, BCA, CAB). Harness v2 is a new script, `scripts/evaluate_wiki_v2.py`. The v1 script and fixture stay frozen, so the earlier comparison can still be reproduced.
 2. **Seeder.** Add a new example, `crates/brn-threads-app/examples/wiki_eval_seed.rs`, built on the `build` path of `retrieval_eval/support.rs`. It writes a case's seeds through checked owner writes in batches of 100, then prints a key → ID map. It creates what the CLI cannot:
    - links with relations;
    - chat-only notes;
@@ -132,7 +132,7 @@ Nothing is persisted. The Run record and schema do not change.
    - fillers at 1k or 10k, linked in `related` pairs so they are not orphans and do not swamp Knowledge-check findings.
 
    This adds no product CLI surface. It replaces 1,000 `note-create` processes per arm.
-3. **Templates.** Seed each case once per scale. For the hybrid arm, prewarm it with `brn search` until `semantic` is `complete`. Then copy the closed data directory for each arm and repetition (`cp -c` on APFS). Every arm starts byte-identical. Verify offline that arm A's binary (`b021b303`, index `BRNS` v1, no `topics_note`) opens a template; its index rebuilds in place. Arm A ignores the Topics pointer, so D6 checks apply only to bundle 4 arms.
+3. **Templates.** Seed each case once per scale. For the hybrid arm, prewarm it with the seeder's native `--warm DATA_DIR` mode, which embeds every passage in-process; the arm binary's `brn search` then confirms `semantic` is `complete`. The CLI alone never waits for idle-time embedding, so a short-lived `brn search` cannot warm a template. Then copy the closed data directory for each arm and repetition (`cp -c` on APFS). Every arm starts byte-identical. Verify offline that arm A's binary (`b021b303`, index `BRNS` v1, no `topics_note`) opens a template; its index rebuilds in place. Arm A ignores the Topics pointer, so D6 checks apply only to bundle 4 arms.
 4. **Trace.** Pass `--trace full` and keep `trace` in each outcome. Compute §1 metrics with pure functions.
 5. **Fixture v2.** Use `scripts/fixtures/wiki-eval-cases-v2.json` and keep v1 frozen. Each case has:
    - `id`, `hypotheses`, `filler`, `scale`;
@@ -494,7 +494,23 @@ Each item is a hypothesis, not a decision. Implement one only after its measurem
 | 6 | **Supersession hint** in `search_notes` results (a `superseded_by_link` flag) | Fewer stale answers | S | R5, the `supersession` stratum |
 | 7 | **Knowledge-check prompt after N intakes** (still owner-triggered) | Wiki hygiene without scheduled work | S | S1 `kc_delta` across sessions |
 | 8 | **Owner-run real-data protocol** (below) | The only check of real-note behaviour | M: `--golden PATH` option for `retrieval_eval` | Owner-reported aggregates |
-| 9 | **Second provider or model arm** | Generality of the conclusions | Quota only | Same cases |
+| 9 | **Second provider or model arm** ([model matrix](#choosing-the-model-model-matrix)) | Generality of the conclusions; an evidence-based model choice | Quota only | Same cases |
+
+### Choosing the model (model matrix)
+
+Added on 2026-10-14 at the owner's question about whether different LLMs behave differently. The model is not a separate agent. BRN has one agent runtime and one guide bundle; the provider, model and effort are the owner's explicit configuration, with no automatic fallback. Comparing models therefore uses the same harness, cases and checks:
+
+- **Arms carry the model.** Each arm is `NAME=BINARY[,provider=…][,model=…][,effort=…]`. A model matrix fixes the binary (bundle 4, arm B retrieval) and varies the model. Codex and Copilot are the two configurable providers; Copilot reaches several model families.
+- **Two stages.**
+  - The screen runs R1, R3, R5, R6, R7, R9 and R10 with two repetitions per model, about 14 invocations each.
+  - The two or three best models then run the full R and S sets with three repetitions.
+  - Effort (low, medium, high) is a further arm dimension, run only for the leading model.
+- **Ranking.**
+  - Any safety blocker disqualifies a model: a private exposure, a protected change, a write on a no-write step, or a marker leak.
+  - Models are then ranked by passes per case, then blind rubric review, then median latency, rounds and reported tokens.
+- **One guide for all models.** Guides stay model-neutral. A per-model guide fork is out of scope because it would split the behaviour the owner reviews.
+- **Per-role models** (for example a cheaper model for intake) would be a product change. Consider it only if the matrix shows a clear split by step kind.
+- **Authority.** Each live matrix needs owner authority for its providers, models and invocation count.
 
 ### Owner-run real-data protocol
 
