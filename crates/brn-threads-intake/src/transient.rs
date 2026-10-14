@@ -47,8 +47,14 @@ impl TransientDir {
             if index > brn_intake::MAX_ASSETS + 8 {
                 return Err(ConversionError::Budget);
             }
-            let metadata = fs::symlink_metadata(entry.map_err(|_| ConversionError::Io)?.path())
-                .map_err(|_| ConversionError::Io)?;
+            let metadata =
+                match fs::symlink_metadata(entry.map_err(|_| ConversionError::Io)?.path()) {
+                    Ok(metadata) => metadata,
+                    // Renderers atomically rename their owned cache files. An enumerated
+                    // name may vanish before stat; absent entries consume no scratch bytes.
+                    Err(error) if error.kind() == std::io::ErrorKind::NotFound => continue,
+                    Err(_) => return Err(ConversionError::Io),
+                };
             if !metadata.is_file() {
                 return Err(ConversionError::Invalid);
             }
@@ -109,4 +115,70 @@ pub(crate) fn cleanup_expired(root: &Path) -> Result<usize, ConversionError> {
         }
     }
     Ok(removed)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::sync::{
+        Arc, Barrier,
+        atomic::{AtomicBool, Ordering},
+    };
+
+    #[test]
+    fn missing_scratch_root_and_excess_entries_still_fail() {
+        let root = tempfile::tempdir().unwrap();
+        let temp = TransientDir::create(root.path()).unwrap();
+        for index in 0..brn_intake::MAX_ASSETS + 10 {
+            fs::write(temp.path.join(format!("entry-{index}")), []).unwrap();
+        }
+        assert_eq!(temp.check_budget(4096), Err(ConversionError::Budget));
+        temp.cleanup().unwrap();
+        assert_eq!(temp.check_budget(4096), Err(ConversionError::Io));
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn existing_symlinks_and_non_regular_entries_still_fail() {
+        let root = tempfile::tempdir().unwrap();
+        let temp = TransientDir::create(root.path()).unwrap();
+        let directory = temp.path.join("not-a-file");
+        fs::create_dir(&directory).unwrap();
+        assert_eq!(temp.check_budget(4096), Err(ConversionError::Invalid));
+        fs::remove_dir(directory).unwrap();
+        let target = root.path().join("outside-owned-run");
+        fs::write(&target, [0u8; 16]).unwrap();
+        std::os::unix::fs::symlink(&target, temp.path.join("link")).unwrap();
+        assert_eq!(temp.check_budget(4096), Err(ConversionError::Invalid));
+        temp.cleanup().unwrap();
+        assert_eq!(fs::read(target).unwrap(), [0u8; 16]);
+    }
+
+    #[test]
+    fn concurrent_cache_renames_do_not_fail_scratch_budget_monitoring() {
+        let root = tempfile::tempdir().unwrap();
+        let temp = TransientDir::create(root.path()).unwrap();
+        fs::write(temp.path.join("stable-output"), [0u8; 128]).unwrap();
+        let from = temp.path.join("cache-new");
+        let to = temp.path.join("cache-ready");
+        fs::write(&from, [0u8; 32]).unwrap();
+        let running = Arc::new(AtomicBool::new(true));
+        let barrier = Arc::new(Barrier::new(2));
+        let writer_running = running.clone();
+        let writer_barrier = barrier.clone();
+        let writer = std::thread::spawn(move || {
+            writer_barrier.wait();
+            while writer_running.load(Ordering::Acquire) {
+                fs::rename(&from, &to).unwrap();
+                fs::rename(&to, &from).unwrap();
+            }
+        });
+        barrier.wait();
+        let result = (0..5_000).try_for_each(|_| temp.check_budget(4096));
+        running.store(false, Ordering::Release);
+        writer.join().unwrap();
+        assert_eq!(result, Ok(()));
+        assert_eq!(temp.check_budget(159), Err(ConversionError::Budget));
+        temp.cleanup().unwrap();
+    }
 }

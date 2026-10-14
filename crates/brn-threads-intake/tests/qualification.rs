@@ -467,7 +467,7 @@ fn prepared_rust_fixtures_keep_source_and_preview_bindings_in_owned_scratch() {
                 },
                 &AtomicBool::new(false),
             )
-            .unwrap();
+            .unwrap_or_else(|error| panic!("{kind:?} preparation failed: {error:?}"));
         prepared.validate().unwrap();
         assert_eq!(prepared.source_sha256, brn_intake::digest(bytes));
         assert_eq!(prepared.consumed.input_bytes, bytes.len());
