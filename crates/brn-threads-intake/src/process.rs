@@ -112,7 +112,7 @@ fn run_inner(
         // No includes, user font paths or ambient cache-directory fallback. /dev/null
         // cannot hold cache children; Fontconfig still builds its in-memory font set.
         // Fresh conversion scratch never reuses disk caches, whose atomic lock entries
-        // conflict with the file-only scratch monitor on some Fontconfig builds.
+        // can conflict with the file-only scratch monitor on some Fontconfig builds.
         let fonts = temp.path.join("fonts.conf");
         std::fs::write(&fonts, b"<?xml version=\"1.0\"?><fontconfig><dir>/System/Library/Fonts</dir><dir>/Library/Fonts</dir><cachedir>/dev/null</cachedir></fontconfig>")
             .map_err(|_| ConversionError::Io)?;
