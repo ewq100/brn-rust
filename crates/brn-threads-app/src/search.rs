@@ -428,15 +428,26 @@ impl Matrix {
         }
     }
     /// Passage IDs at or above `floor` by descending cosine similarity
-    /// (vectors are unit length).
-    fn nearest(&self, query: &[f32], k: usize, floor: f32) -> Vec<i64> {
+    /// (vectors are unit length). Empty unless the best passage stands at
+    /// least `margin` above the background (median of ranks 10–50), so a
+    /// query nothing really matches finds nothing.
+    fn nearest(&self, query: &[f32], k: usize, floor: f32, margin: f32) -> Vec<i64> {
         let mut scored: Vec<(f32, i64)> = self
             .data
             .chunks_exact(self.dimension)
             .zip(&self.passages)
             .map(|(row, id)| (row.iter().zip(query).map(|(a, b)| a * b).sum::<f32>(), *id))
-            .filter(|(score, _)| *score >= floor)
             .collect();
+        if margin > 0.0 && scored.len() >= 50 {
+            let mut top: Vec<f32> = scored.iter().map(|(s, _)| *s).collect();
+            top.select_nth_unstable_by(49, |a, b| b.total_cmp(a));
+            top.truncate(50);
+            top.sort_by(|a, b| b.total_cmp(a));
+            if top[0] - top[30] < margin {
+                return vec![];
+            }
+        }
+        scored.retain(|(score, _)| *score >= floor);
         let k = k.min(scored.len());
         if k == 0 {
             return vec![];
@@ -557,6 +568,7 @@ impl Dense {
             &vector,
             DENSE_PASSAGES,
             self.embedder.similarity_floor(),
+            self.embedder.min_margin(),
         )))
     }
 }

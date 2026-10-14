@@ -55,12 +55,19 @@ impl Profile {
             Self::Legacy | Self::Multilingual => ("", ""),
         }
     }
-    /// e5 places unrelated text near 0.7 cosine; provisional until the
-    /// owner-run qualification measures it on the golden set.
+    /// e5 compresses similarities (unrelated English text scores about
+    /// 0.78–0.82). Measured on the synthetic golden set (see the plan's
+    /// evidence): 0.82 and a 0.017 margin keep abstention empty.
     fn similarity_floor(self) -> f32 {
         match self {
-            Self::E5Small => 0.80,
+            Self::E5Small => 0.82,
             Self::Legacy | Self::Multilingual => 0.5,
+        }
+    }
+    fn min_margin(self) -> f32 {
+        match self {
+            Self::E5Small => 0.017,
+            Self::Legacy | Self::Multilingual => 0.0,
         }
     }
 }
@@ -171,6 +178,9 @@ impl Embedder for LocalEmbedder {
     fn similarity_floor(&self) -> f32 {
         self.profile.similarity_floor()
     }
+    fn min_margin(&self) -> f32 {
+        self.profile.min_margin()
+    }
 }
 
 #[cfg(test)]
@@ -189,6 +199,10 @@ mod tests {
         assert_eq!(profile.options().max_length, 512);
         assert!(matches!(profile.quantization(), QuantizationMode::Static));
         assert_eq!(profile.prefixes(), ("query: ", "passage: "));
+        assert_eq!(
+            (profile.similarity_floor(), profile.min_margin()),
+            (0.82, 0.017)
+        );
         assert_eq!(profile.assets().unwrap()[0].bytes, 118_308_185);
         let identity = model_identity(profile, &[("model.onnx", b"synthetic model")]);
         assert!(

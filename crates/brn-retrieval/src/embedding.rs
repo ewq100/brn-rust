@@ -18,4 +18,9 @@ pub trait Embedder {
     fn similarity_floor(&self) -> f32 {
         0.5
     }
+    /// How far the best match must stand above the background (the median
+    /// of ranks 10–50) before any semantic match counts. Zero disables it.
+    fn min_margin(&self) -> f32 {
+        0.0
+    }
 }

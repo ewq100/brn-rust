@@ -4,7 +4,7 @@ Derived search components for the BRN application, built for the [knowledge and 
 
 - **`search_index`**: the persisted workspace index `derived/search.sqlite` (brand `BRNS`, schema v2).
   - Exact, English-stemmed and all-words keyword lanes over `markdown_chunk` v1 passages, fused by RRF and collapsed per document.
-  - A dense lane over per-model vectors, a links mirror, exact counts, and link facts scoped to the caller's context.
+  - A dense lane over per-model vectors that only adds documents the keyword lanes missed, a links mirror, exact counts, and link facts scoped to the caller's context.
   - Opens and rebuilds go through an advisory lock shared by every BRN process. Writes are guarded against concurrent writers with `Changes.base`.
   - Passage IDs are never reused. A foreign file is refused unchanged.
   - The app's search worker (`brn-threads-app::search`) keeps it current and re-checks every result with core visibility.
@@ -52,8 +52,9 @@ The host supplies fresh consent and owns the blocking job (`brn model-install
 A recognised pinned bundle requires all five exact assets before initialization
 and hashes the entire bundle into a distinct profile identity. e5-small uses mean
 pooling, 384 dimensions, 512 tokens, Static quantization, `query: ` and
-`passage: ` prefixes and a provisional 0.80 similarity floor; MiniLM keeps 128
-tokens, no prefixes and its identity.
+`passage: ` prefixes, a 0.82 similarity floor and a 0.017 margin above the
+background, measured on the synthetic golden set; MiniLM keeps 128 tokens, no
+prefixes and its identity.
 Other explicit directories retain their exact legacy behavior and identity.
 Synthetic profile checks do not establish ONNX compatibility or quality; that
 is the owner-run qualification in the plan. Native tests use

@@ -263,3 +263,79 @@ fn coverage_is_partial_right_after_a_sync_and_private_passages_cannot_crowd_out(
     assert!(page.semantic.starts_with("partial"), "{}", page.semantic);
     assert_eq!(page.matches.len(), 1, "the keyword lanes still answer");
 }
+
+/// Like [`Topics`], but semantic matches must stand out from the background.
+struct Distinct(Topics);
+
+impl Embedder for Distinct {
+    fn identity(&self) -> &str {
+        "fake-distinct/1"
+    }
+    fn dimension(&self) -> usize {
+        self.0.dimension()
+    }
+    fn embed(&mut self, texts: &[&str]) -> brn_retrieval::Result<Vec<Vec<f32>>> {
+        self.0.embed(texts)
+    }
+    fn min_margin(&self) -> f32 {
+        0.2
+    }
+}
+
+#[test]
+fn semantic_matches_must_stand_out_and_never_reorder_keyword_matches() {
+    let (_root, mut ws) = workspace();
+    let op = ws.store.allocate_operation("garden").unwrap();
+    let owner = HostAuthority::owner("fixture");
+    let mut writes: Vec<Put> = (0..60)
+        .map(|i| Put {
+            id: op.creation_id(i),
+            expected_version: None,
+            archived: false,
+            data: RecordData::Note(Note::working(format!("Bed {i}"), "plant plant\n")),
+        })
+        .collect();
+    writes.push(Put {
+        id: op.creation_id(60),
+        expected_version: None,
+        archived: false,
+        data: RecordData::Note(Note::working("Depot", "One car is parked here.\n")),
+    });
+    let request = ChangeRequest {
+        reason: "garden".into(),
+        writes,
+        inputs: vec![],
+    };
+    ws.store.prepare_owner(&op, &request, &owner).unwrap();
+    ws.store.apply(&op, &owner).unwrap();
+    let seen = Arc::new(Mutex::new(Vec::new()));
+    let (handle, _worker) =
+        SearchHandle::spawn_with(&ws.store, Some(Box::new(Distinct(Topics { seen })))).unwrap();
+    embedded(&handle);
+    // Sixty equally close beds: nothing stands out, so nothing matches.
+    let flower = handle
+        .request_page("flower", None, 10, None)
+        .wait()
+        .unwrap();
+    assert_eq!(flower.total, 0);
+    // One distinct vehicle note stands out.
+    let vehicle = handle
+        .request_page("vehicle", None, 10, None)
+        .wait()
+        .unwrap();
+    assert_eq!(vehicle.matches.len(), 1);
+    assert_eq!(vehicle.matches[0].title, "Depot");
+    // Keyword matches keep their keyword order and are not boosted.
+    let keyword = handle
+        .request_keyword_page("bed", None, 10, None)
+        .wait()
+        .unwrap();
+    let hybrid = handle.request_page("bed", None, 10, None).wait().unwrap();
+    let titles = |page: &brn_threads_app::search::SearchResults| {
+        page.matches
+            .iter()
+            .map(|m| m.title.clone())
+            .collect::<Vec<_>>()
+    };
+    assert_eq!(titles(&keyword), titles(&hybrid));
+}

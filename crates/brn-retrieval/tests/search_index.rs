@@ -629,4 +629,15 @@ fn vectors_of_other_models_are_purged_and_keyword_matching_is_exact() {
         1
     );
     assert!(index.matching_keywords("budget", &docs).unwrap().is_empty());
+    // Candidate IDs travel as a JSON array; odd characters stay exact.
+    let odd = "odd \"id\\ \u{1}".to_string();
+    upsert(
+        &mut index,
+        vec![doc(&odd, 1, "Odd", "Automobile.\n", Visibility::General)],
+        2,
+    );
+    let found = index
+        .matching_keywords("automobile", &[odd.clone(), "n1".into()])
+        .unwrap();
+    assert!(found.contains(&odd) && found.len() == 2);
 }

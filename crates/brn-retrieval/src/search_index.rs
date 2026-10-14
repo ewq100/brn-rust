@@ -413,7 +413,8 @@ impl SearchIndex {
 
     /// [`Self::keyword`] plus a dense lane: `dense` lists passage IDs by
     /// descending similarity to the query. It is collapsed to documents
-    /// visible in `chat` and fused by RRF like the keyword lanes.
+    /// visible in `chat` and adds, by RRF, only documents the keyword lanes
+    /// did not find.
     pub fn hybrid(
         &self,
         query: &str,
@@ -445,6 +446,12 @@ impl SearchIndex {
         for (lane, hits) in ranked.into_iter().enumerate() {
             for (rank, mut hit) in hits.into_iter().enumerate() {
                 hit.keyword = lane < keyword_lanes;
+                // The dense lane only adds notes no keyword lane matched; it
+                // never reorders keyword matches (measured: boosting them
+                // with near neighbours cost inflection and section ranking).
+                if !hit.keyword && fused.contains_key(&hit.doc) {
+                    continue;
+                }
                 let contribution = 1.0 / (RRF_K + rank as f64 + 1.0);
                 let entry = fused.entry(hit.doc.clone()).or_insert_with(|| hit.clone());
                 entry.passages = entry.passages.max(hit.passages);
@@ -638,17 +645,17 @@ impl SearchIndex {
         let Some(fts) = fts_query(query) else {
             return Ok(BTreeSet::new());
         };
-        let mut stmt = self.conn.prepare(
-            "SELECT 1 FROM fts_stem JOIN passages p ON p.id = fts_stem.rowid
-             WHERE fts_stem MATCH ?1 AND p.doc = ?2 LIMIT 1",
-        )?;
-        let mut out = BTreeSet::new();
-        for doc in docs {
-            if stmt.exists(params![fts, doc])? {
-                out.insert(doc.clone());
-            }
+        if docs.is_empty() {
+            return Ok(BTreeSet::new());
         }
-        Ok(out)
+        // One full-text evaluation for all candidates, not one per document.
+        let wanted = json_array(docs);
+        let mut stmt = self.conn.prepare(
+            "SELECT DISTINCT p.doc FROM fts_stem JOIN passages p ON p.id = fts_stem.rowid
+             WHERE fts_stem MATCH ?1 AND p.doc IN (SELECT value FROM json_each(?2))",
+        )?;
+        let rows = stmt.query_map(params![fts, wanted], |r| r.get::<_, String>(0))?;
+        Ok(rows.collect::<rusqlite::Result<_>>()?)
     }
 
     /// Deletes vectors of every model except `model`; returns how many.
@@ -780,6 +787,28 @@ fn fts_query(query: &str) -> Option<String> {
         .map(|term| format!("\"{}\"", term.to_lowercase()))
         .collect();
     (!terms.is_empty()).then(|| terms.join(" OR "))
+}
+
+/// A JSON array of strings for `json_each`, without a JSON dependency.
+fn json_array(items: &[String]) -> String {
+    let mut out = String::from("[");
+    for (i, item) in items.iter().enumerate() {
+        if i > 0 {
+            out.push(',');
+        }
+        out.push('"');
+        for c in item.chars() {
+            match c {
+                '"' => out.push_str("\\\""),
+                '\\' => out.push_str("\\\\"),
+                c if (c as u32) < 0x20 => out.push_str(&format!("\\u{:04x}", c as u32)),
+                c => out.push(c),
+            }
+        }
+        out.push('"');
+    }
+    out.push(']');
+    out
 }
 
 fn scope(chat: Option<&str>) -> String {
