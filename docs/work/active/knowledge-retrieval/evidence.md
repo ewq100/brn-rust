@@ -590,6 +590,53 @@ python3 scripts/evaluate_wiki_v2.py --root ABS_FRESH --seeder target/release/exa
 - Organizing requests use 8 rounds.
 - N is 2.
 
+## Prompt caching and stale tool results (14 October 2026)
+
+**Request:** make prompt caching work, and drop stale tool results if that is cache-compatible.
+
+**Root cause** (offline, Rig 0.44.0):
+- The compact-intake S1 case used 783,878 input tokens, 112,000 cached (14%). Cached counts were small multiples of 128, and a 4-turn ask with a long identical prefix had 0 cached.
+- Rig's ChatGPT dialect (`providers/chatgpt/mod.rs` sets `session_ids: true`) draws a fresh random `session_id` header for every request (`providers/openai/wire/auth.rs`, `headers()`: "Session identity must be fresh for each request"). It sends no `prompt_cache_key`. The Codex backend therefore routes each model turn as a new conversation.
+- The request itself was already stable. A mock Responses run of three turns showed identical `instructions`, `tools` and `reasoning`, `store:false`, `include:["reasoning.encrypted_content"]`, and an `input` that is a strict append-only extension (reasoning items replayed). So there was no prefix churn to fix.
+- The Codex CLI sends `prompt_cache_key` = its session id and a stable `session_id` header (openai/codex `codex-rs/core/src/client.rs`).
+
+**Changes:**
+- `brn-ai`: for Codex, `prompt_cache_key = brn-<chat id>` (sanitized, at most 56 characters) is added through `additional_params`, and a small `HttpMiddleware` pins the `session_id` header to the same value (`auth.rs`, `threads.rs`). One key per chat: all turns of a run, and follow-ups in the same chat, share routing. Copilot is untouched (no evidence that it accepts the key).
+- `brn-ai` trace: `turn_usage` lists each model turn's input, output and cached input (additive; trace format stays 1).
+- Offline tests (`threads_cache_tests.rs`): same key, instructions, tools and reasoning every turn; each request `input` is a byte prefix of the next; `session_id` equals the key; without the pin Rig draws a new session per request; key is per chat, bounded, header-safe and Codex-only; trace records per-turn cached input.
+
+**Stale tool results: not trimmed.**
+- Trimming rewrites the prefix from the first trimmed item, so every later item is read uncached once. Only 1–3 turns usually follow an `apply_changes`.
+- Cost model (bytes/3.2 tokens, 8k-token static prefix, cached price 0.1, 120-token stubs), trimming earlier read/search results after each apply: baseline trace +0.3% (238,966 to 239,670 input-token equivalents), new trace +0.1% (256,446 to 256,781). Per-run deltas −1,435 to +1,622. With no caching the same trim saves 14%, which is why trimming only helps when the cache is broken.
+- Trimmed results also risk losing exact IDs and versions needed for apply and lineage.
+- Better: shrink results at the source. `read_records` returns about 16 KB in every run and `search_notes` about 10 KB.
+
+**Live S1** (one repetition, Codex `gpt-6.1-sol`, medium effort, build `work/prompt-cache`, includes Projects; the baseline is the compact r2 run above, which predates Projects):
+
+| Step | Turns | Input | Cached | Output | Cached share |
+|---|---|---|---|---|---|
+| 1 intake | 7 | 88,285 | 60,288 | 1,515 | 68% |
+| 2 intake | 10 | 164,653 | 126,976 | 1,836 | 77% |
+| 3 intake | 5 | 68,767 | 40,704 | 1,056 | 59% (Failed:InvalidToolUse) |
+| 4 intake | 11 | 197,997 | 168,448 | 3,253 | 85% |
+| 5 intake | 12 | 274,642 | 214,272 | 3,672 | 78% |
+| 6 ask | 9 | 90,099 | 68,992 | 1,410 | 77% (ToolLimitReached) |
+| 7 ask | 5 | 32,517 | 13,696 | 789 | 42% |
+| **Total** | 59 | **916,960** | **693,376** | 13,531 | **75.6%** |
+| Baseline total | 54 | 783,878 | 112,000 | 12,258 | 14.3% |
+
+- Cached share rose from 14% to 76%. Input-equivalent cost (cached at 0.1) fell from about 683k to about 293k (−57%).
+- Raw input is higher (+17%) because this sample took 59 model turns against 54 and ran after Projects. The turn count is model variance, not a cache effect.
+- S1 checks all pass. Step 3 ended `Failed:InvalidToolUse` and step 6 hit its tool limit (6 hit it before); the case still passed. Step 3 is a model behaviour sample, not attributed to this change.
+- The first turn of every run has 0 cached tokens, because each step uses a different chat, hence a different key. Later turns hit from about 5,760 tokens (the static preamble and tools) upward. Some turns dropped to 0 or the static prefix mid-run, so the backend cache is best-effort.
+- Probes: two tiny asks in one chat. The first failed with `Failed:Other` (not diagnosed), the second succeeded with 3,681 input and 0 cached, which is expected without a warm first call. Neither showed cache hits; the S1 run is the evidence.
+
+**Limitations and not done:**
+- Trimming is a proposal only (above). Copilot caching is not attempted.
+- A workspace-wide key would let the first turn of each run reuse the roughly 6k-token static prefix (about 40k tokens per case) but risks overflowing a key's per-minute routing with concurrent runs. Not chosen.
+- `cargo test --workspace` has 6 failures in `brn-threads-intake --test qualification` (`Unavailable`: the document converter helper is absent here). That crate is untouched by this change.
+- N is 1; no statistical claim.
+
 ## Host-driven intake prototype (14 October 2026)
 
 **Request:** the owner asked to prototype making intake a host-driven workflow, to cut turns and tokens. Design: [host-intake.md](host-intake.md) (PROPOSED).
