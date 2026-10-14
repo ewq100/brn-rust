@@ -80,6 +80,8 @@ fn selecting_action_group_keeps_shared_source_guard_and_refuses_newer_evidence()
             expected_version: None,
             archived: false,
             data: RecordData::Action(Action {
+                kept_outside_project: false,
+                chat: None,
                 description: "Check supported evidence".into(),
                 state: ActionState::Suggested,
                 internal: true,
@@ -171,6 +173,8 @@ fn independent_whole_note_and_action_selection_requires_new_displayed_candidate(
                 expected_version: None,
                 archived: false,
                 data: RecordData::Action(Action {
+                    kept_outside_project: false,
+                    chat: None,
                     description: "Human checks wording".into(),
                     state: ActionState::Waiting,
                     internal: false,
@@ -313,6 +317,8 @@ fn review_selection_preserves_structural_new_record_dependencies_and_exact_bases
                     expected_version: None,
                     archived: false,
                     data: RecordData::Action(Action {
+                        kept_outside_project: false,
+                        chat: None,
                         description: "New suggested work".into(),
                         state: ActionState::Suggested,
                         internal: false,
@@ -425,6 +431,8 @@ fn update_and_undo_expose_direct_work_and_one_recoverable_refresh_followup() {
             expected_version: None,
             archived: false,
             data: RecordData::Action(Action {
+                kept_outside_project: false,
+                chat: None,
                 description: "Consider original fact".into(),
                 state: ActionState::Suggested,
                 internal: false,
@@ -809,6 +817,8 @@ fn configuration_and_pause_fence_runs_while_thread_resolution_preserves_actions(
         sources: vec![],
     };
     let action = Action {
+        kept_outside_project: false,
+        chat: None,
         description: "Human sends report".into(),
         state: ActionState::Waiting,
         internal: false,
@@ -1325,6 +1335,8 @@ fn selected_review_groups_and_replacement_preserve_current_or_historical_note_in
                 expected_version: None,
                 archived: false,
                 data: RecordData::Action(Action {
+                    kept_outside_project: false,
+                    chat: None,
                     description: "Prepare delivery Monday".into(),
                     state: ActionState::Suggested,
                     internal: true,
@@ -1358,6 +1370,7 @@ fn selected_review_groups_and_replacement_preserve_current_or_historical_note_in
         );
         let applied = app.review_apply(selected.operation.as_str()).unwrap();
         match expectation {
+            InputExpectation::ChatContext => unreachable!("These cases exercise note inputs"),
             InputExpectation::Current => {
                 assert_eq!(
                     applied,

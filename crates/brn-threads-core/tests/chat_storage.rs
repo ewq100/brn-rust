@@ -34,6 +34,8 @@ fn scoped_ids_assets_and_sources_do_not_enter_unrelated_context() {
         &mut store,
         "chat",
         RecordData::Thread(Thread {
+            private_context: false,
+            context_epoch: 0,
             title: "Private file discussion".into(),
             state: ThreadState::Open,
             attention: vec![],

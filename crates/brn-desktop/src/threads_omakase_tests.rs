@@ -528,6 +528,8 @@ fn completed_chats_remain_in_history_without_auto_resolving(cx: &mut TestAppCont
                         expected_version: Some(asked.version),
                         archived: false,
                         data: RecordData::Thread(Thread {
+                            private_context: false,
+                            context_epoch: 0,
                             title: "Needs a decision".into(),
                             state: ThreadState::Open,
                             attention: vec![Attention {

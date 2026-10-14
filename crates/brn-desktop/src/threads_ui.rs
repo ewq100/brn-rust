@@ -55,6 +55,8 @@ mod formatting;
 mod layout;
 #[path = "threads_lists.rs"]
 mod lists;
+#[path = "threads_projects.rs"]
+mod projects_view;
 #[path = "threads_search.rs"]
 mod search_view;
 #[path = "threads_shell.rs"]
@@ -81,6 +83,9 @@ use theme::{ThemeId, pal};
 #[cfg(all(test, feature = "native-test-support"))]
 #[path = "threads_context_actions_tests.rs"]
 mod context_actions_tests;
+#[cfg(all(test, feature = "native-test-support"))]
+#[path = "threads_projects_tests.rs"]
+mod projects_tests;
 
 #[cfg(all(test, feature = "native-test-support"))]
 #[path = "threads_focus_tests.rs"]
@@ -389,6 +394,7 @@ fn title(record: &Record) -> String {
         RecordData::Asset(_) => "Figure".into(),
         RecordData::Settings(_) => "Workspace settings".into(),
         RecordData::ChatControl(_) => "Chat controls".into(),
+        RecordData::Project(p) => p.title.clone(),
     }
 }
 fn short(text: &str) -> String {
@@ -424,6 +430,9 @@ struct ThreadsUi {
     draft_generations: BTreeMap<String, u64>,
     scrollers: std::cell::RefCell<BTreeMap<String, chat::ChatScroller>>,
     attaching_chat: Option<String>,
+    selected_project: Option<String>,
+    note_project: Option<String>,
+    projects_trash: bool,
     editing_queue: Option<String>,
     note_editor: Entity<EditorState>,
     note_read_view: Entity<TextViewState>,
@@ -706,6 +715,9 @@ impl ThreadsUi {
             draft_generations,
             scrollers: std::cell::RefCell::new(BTreeMap::new()),
             attaching_chat: None,
+            selected_project: None,
+            note_project: None,
+            projects_trash: false,
             editing_queue: None,
             note_editor,
             note_read_view,
@@ -1064,6 +1076,7 @@ impl ThreadsUi {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
+        self.note_project = None;
         if self
             .review
             .as_ref()
@@ -1130,7 +1143,12 @@ impl ThreadsUi {
                 self.layout.open(TileKind::Note);
                 self.refresh();
                 // Remember this note's chat without replacing the owner's selected conversation.
-                if let Some(chat) = &note.chat {
+                if let Some(chat) = &note.chat
+                    && self
+                        .records
+                        .iter()
+                        .any(|r| r.id == *chat && matches!(r.data, RecordData::Thread(_)))
+                {
                     self.writing_threads.insert(id.into(), chat.clone());
                 }
                 let target = self
@@ -1587,6 +1605,14 @@ impl ThreadsUi {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
+        self.note_project = self
+            .workspace
+            .store
+            .project_context_record(&thread)
+            .ok()
+            .flatten()
+            .filter(|r| !r.archived)
+            .map(|r| r.id);
         self.writing_threads.insert(note, thread.clone());
         self.set_chat(ChatTarget::Thread(thread), window, cx);
         self.show_tile(TileKind::Chat, window, cx);
@@ -1599,7 +1625,11 @@ impl ThreadsUi {
         let version = open.record.version;
         let result = self
             .workspace
-            .new_thread(&format!("Writing: {}", title(&open.record)))
+            .new_document_chat(
+                &format!("Writing: {}", title(&open.record)),
+                &note,
+                self.note_project.as_deref(),
+            )
             .and_then(|thread| {
                 self.workspace
                     .link_writing_thread(
@@ -1621,6 +1651,19 @@ impl ThreadsUi {
         cx.notify();
     }
     fn ensure_writing_thread(&mut self, note: &str, version: u64) -> AppResult<String> {
+        if let Some(project) = &self.note_project
+            && self.writing_threads.get(note).is_some_and(|chat| {
+                self.workspace
+                    .store
+                    .project_context_record(chat)
+                    .ok()
+                    .flatten()
+                    .is_none_or(|p| p.id != *project)
+            })
+        {
+            self.writing_threads.remove(note);
+        }
+
         if let Some(thread) = self.writing_threads.get(note).cloned() {
             if !self
                 .workspace
@@ -1634,13 +1677,16 @@ impl ThreadsUi {
             self.reopen_if_resolved(&thread, "Owner continued a resolved chat with new feedback")?;
             return Ok(thread);
         }
-        let thread = self.workspace.new_thread(&format!(
+        let thread_title = format!(
             "Writing: {}",
             self.note
                 .as_ref()
                 .map(|open| title(&open.record))
                 .unwrap_or_else(|| note.into())
-        ))?;
+        );
+        let thread =
+            self.workspace
+                .new_document_chat(&thread_title, note, self.note_project.as_deref())?;
         self.workspace.link_writing_thread(
             &format!("writing-link:{}", uuid::Uuid::new_v4()),
             note,

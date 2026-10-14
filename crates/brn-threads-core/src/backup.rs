@@ -95,7 +95,7 @@ impl StagedBackup {
             &stage.snapshot,
             rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY,
         )?;
-        crate::store::validate_schema(&check, &[3, crate::store::SCHEMA_VERSION])?;
+        crate::store::validate_schema(&check, &[3, 4, crate::store::SCHEMA_VERSION])?;
         drop(check);
         fs::OpenOptions::new()
             .read(true)

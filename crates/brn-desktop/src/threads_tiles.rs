@@ -102,6 +102,16 @@ pub(super) fn thread_menu(
             move |view, window, cx| view.open_note(&note, None, window, cx),
         ));
     }
+    menu = menu.separator();
+    let chat = id.clone();
+    menu = menu.item(item(
+        this,
+        "Move to project…",
+        None,
+        false,
+        false,
+        move |view, window, cx| view.move_chat_dialog(&chat, window, cx),
+    ));
     menu
 }
 

@@ -138,6 +138,8 @@ fn lost_prepare_and_apply_responses_replay_across_connections_and_restart() {
             &op,
             1,
             RecordData::Action(Action {
+                kept_outside_project: false,
+                chat: None,
                 description: "consider follow-up".into(),
                 state: ActionState::Suggested,
                 internal: false,
@@ -437,6 +439,8 @@ fn meaningful_newer_inputs_flag_current_direct_note_and_action_dependents_only()
             &derived,
             1,
             RecordData::Action(Action {
+                kept_outside_project: false,
+                chat: None,
                 description: "Read derived summary".into(),
                 state: ActionState::Suggested,
                 internal: false,
@@ -774,6 +778,8 @@ fn complete_backup_restores_assets_sources_pending_candidates_history_and_buffer
         &op,
         2,
         RecordData::Thread(Thread {
+            private_context: false,
+            context_epoch: 0,
             title: "Synthetic thread".into(),
             state: ThreadState::Open,
             attention: vec![Attention {
@@ -899,6 +905,8 @@ fn host_run_fence_blocks_superseded_commit_but_receipt_replay_survives_cancellat
         &setup,
         0,
         RecordData::Thread(Thread {
+            private_context: false,
+            context_epoch: 0,
             title: "run thread".into(),
             state: ThreadState::Open,
             attention: vec![],
@@ -1100,6 +1108,8 @@ fn human_action_completion_requires_evidence_and_scope_and_thread_resolve_cannot
     let (_dir, mut store) = delegated_store();
     let op = store.allocate_operation("human obligation").unwrap();
     let action = Action {
+        kept_outside_project: false,
+        chat: None,
         description: "human sends report".into(),
         state: ActionState::Open,
         internal: false,
@@ -1154,6 +1164,8 @@ fn human_action_completion_requires_evidence_and_scope_and_thread_resolve_cannot
             &t,
             0,
             RecordData::Thread(Thread {
+                private_context: false,
+                context_epoch: 0,
                 title: "report discussion".into(),
                 state: ThreadState::Resolved,
                 attention: vec![],
@@ -1374,6 +1386,8 @@ fn seed_run(store: &mut Store, key: &str) -> Record {
         &op,
         0,
         RecordData::Thread(Thread {
+            private_context: false,
+            context_epoch: 0,
             title: key.into(),
             state: ThreadState::Open,
             attention: vec![],
@@ -2123,6 +2137,8 @@ fn thread_review_attention_can_reference_known_operations_but_links_remain_recor
             &op,
             0,
             RecordData::Thread(Thread {
+                private_context: false,
+                context_epoch: 0,
                 title: "Review exact candidate".into(),
                 state: ThreadState::Open,
                 attention: vec![Attention {
@@ -2144,6 +2160,8 @@ fn thread_review_attention_can_reference_known_operations_but_links_remain_recor
                 &missing,
                 0,
                 RecordData::Thread(Thread {
+                    private_context: false,
+                    context_epoch: 0,
                     title: "Unknown".into(),
                     state: ThreadState::Open,
                     attention: vec![Attention {
@@ -2347,6 +2365,8 @@ fn working_run_start_rechecks_current_selection_and_accepts_planned_settings_ove
                 &setup,
                 1,
                 RecordData::Thread(Thread {
+                    private_context: false,
+                    context_epoch: 0,
                     title: "work".into(),
                     state: ThreadState::Open,
                     attention: vec![],
@@ -2558,6 +2578,8 @@ fn runtime_settings_snapshot_covers_account_changes_and_provider_aliases() {
                 &setup,
                 1,
                 RecordData::Thread(Thread {
+                    private_context: false,
+                    context_epoch: 0,
                     title: "invoke".into(),
                     state: ThreadState::Open,
                     attention: vec![],

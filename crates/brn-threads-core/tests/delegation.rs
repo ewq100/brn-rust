@@ -279,6 +279,8 @@ fn working_run(store: &mut Store, key: &str) -> Record {
                         expected_version: None,
                         archived: false,
                         data: RecordData::Thread(Thread {
+                            private_context: false,
+                            context_epoch: 0,
                             title: key.into(),
                             state: ThreadState::Open,
                             attention: vec![],

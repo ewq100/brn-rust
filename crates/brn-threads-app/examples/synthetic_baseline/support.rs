@@ -226,6 +226,8 @@ pub fn create(root: &Path, notes: usize, source: &str) -> Result<Corpus> {
                 new_put(
                     thread.clone(),
                     RecordData::Thread(Thread {
+                        private_context: false,
+                        context_epoch: 0,
                         title: format!("Quay reply discussion {index}"),
                         state: ThreadState::Open,
                         attention: if index % 3 == 0 {
@@ -252,6 +254,8 @@ pub fn create(root: &Path, notes: usize, source: &str) -> Result<Corpus> {
                 new_put(
                     op.creation_id(2),
                     RecordData::Action(Action {
+                        kept_outside_project: false,
+                        chat: None,
                         description: format!("Confirm quay inspection {index}"),
                         state: ActionState::Waiting,
                         internal: false,

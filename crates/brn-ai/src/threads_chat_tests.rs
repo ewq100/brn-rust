@@ -149,6 +149,8 @@ fn unrelated_chat_cannot_read_private_ids_history_or_apply_new_foreign_refs() {
         &mut store,
         "other",
         RecordData::Thread(Thread {
+            private_context: false,
+            context_epoch: 0,
             title: "Other".into(),
             state: ThreadState::Open,
             attention: vec![],
@@ -349,6 +351,8 @@ fn foreign_inline_asset_urls_cannot_be_written_or_finalized_in_an_unrelated_chat
         &mut store,
         "asset-owner-chat",
         RecordData::Thread(Thread {
+            private_context: false,
+            context_epoch: 0,
             title: "Private chat".into(),
             state: ThreadState::Open,
             attention: vec![],
@@ -440,6 +444,8 @@ fn a_queue_claim_excludes_nonqueued_start_in_another_chat_until_acknowledgement(
         &mut store,
         "other-chat",
         RecordData::Thread(Thread {
+            private_context: false,
+            context_epoch: 0,
             title: "Other chat".into(),
             state: ThreadState::Open,
             attention: vec![],
