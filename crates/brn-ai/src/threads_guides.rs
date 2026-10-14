@@ -1,5 +1,5 @@
 //! Fixed packaged semantic guidance. Loading text never grants authority.
-pub const BUNDLE_VERSION: &str = "brn-threads-guidance-6";
+pub const BUNDLE_VERSION: &str = "brn-threads-guidance-7";
 pub const BASE: &str = include_str!("../../../agent/BRN.md");
 
 #[derive(Clone, Copy)]
@@ -37,12 +37,27 @@ pub fn read_skill(id: &str) -> Option<&'static str> {
         .find(|skill| skill.id == id)
         .map(|skill| skill.text)
 }
-pub fn preamble() -> String {
+/// Playbooks included in the instructions from the start: a run with
+/// supplied sources always needs intake and maintain-notes.
+pub fn preloaded(sources: bool) -> &'static [&'static str] {
+    if sources {
+        &["intake", "maintain-notes"]
+    } else {
+        &[]
+    }
+}
+pub fn preamble(preloaded: &[&str]) -> String {
     let mut text = format!(
         "{BASE}\n\nInstruction bundle: {BUNDLE_VERSION}\n\nAvailable playbooks (load with read_skill):\n"
     );
-    for skill in CATALOG {
+    for skill in CATALOG.iter().filter(|s| !preloaded.contains(&s.id)) {
         text.push_str(&format!("- {}: {}\n", skill.id, skill.description));
+    }
+    for skill in CATALOG.iter().filter(|s| preloaded.contains(&s.id)) {
+        text.push_str(&format!(
+            "\nPlaybook {} (already loaded; no read_skill needed):\n\n{}\n",
+            skill.id, skill.text
+        ));
     }
     text
 }
@@ -65,7 +80,8 @@ mod tests {
                     .lines()
                     .any(|line| line.starts_with("description: ") && line.len() > 20)
             );
-            assert!(preamble().contains(skill.id));
+            assert!(preamble(&[]).contains(skill.id));
+            assert!(preamble(preloaded(true)).contains(skill.id));
         }
         for invalid in [
             "../AGENTS.md",

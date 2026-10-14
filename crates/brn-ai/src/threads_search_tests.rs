@@ -286,3 +286,80 @@ async fn hidden_notes_are_refused_like_missing_ones_and_outages_are_not() {
         .unwrap_err();
     assert_eq!(error.kind, AiErrorKind::Storage);
 }
+
+#[test]
+fn with_search_a_listing_names_notes_compactly_and_ids_read_them_whole() {
+    let (_root, mut request, note) = tests::fixture();
+    let (plain, _) = begin(&request).unwrap();
+    let full = read_records(
+        &plain,
+        ReadArgs {
+            ids: vec![],
+            query: None,
+        },
+    )
+    .unwrap();
+    let row = |v: &Value| {
+        v["records"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|r| r["id"] == note.as_str())
+            .cloned()
+            .unwrap()
+    };
+    assert!(row(&full)["data"]["Note"]["markdown"].is_string());
+
+    request.search = Some(Arc::new(FakeSearch::default()));
+    let (scope, _) = begin(&request).unwrap();
+    let listed = row(&read_records(
+        &scope,
+        ReadArgs {
+            ids: vec![],
+            query: None,
+        },
+    )
+    .unwrap());
+    assert_eq!(listed["kind"], "Note");
+    assert!(listed["title"].is_string() && listed["bytes"].as_u64().unwrap() > 0);
+    assert!(listed.get("data").is_none(), "{listed}");
+    let exact = read_records(
+        &scope,
+        ReadArgs {
+            ids: vec![note.clone()],
+            query: None,
+        },
+    )
+    .unwrap();
+    assert!(row(&exact)["data"]["Note"]["markdown"].is_string());
+}
+
+#[test]
+fn a_broken_store_rule_is_reported_as_invalid_with_its_reason() {
+    let (_root, request, note) = tests::fixture();
+    let (scope, _) = begin(&request).unwrap();
+    let write = json!({"id":note,"expected_version":1,"archived":false,
+        "data":{"Note":{"title":"Harbor","markdown":"x","protected":false,"confirmed":false,
+            "superseded_by":null,"import":null}}});
+    let args: PrepareArgs = serde_json::from_value(json!({"request_key":"dup","request":{
+        "reason":"Two writes to one note","writes":[write.clone(), write],"inputs":[]}}))
+    .unwrap();
+    let result = prepare(&scope, args).unwrap();
+    assert_eq!(result["outcome"], "Invalid");
+    assert_eq!(result["reason"], "duplicate write target");
+}
+
+#[test]
+fn source_runs_start_with_intake_playbooks_and_more_rounds() {
+    assert_eq!(
+        (default_tool_rounds(false), default_tool_rounds(true)),
+        (8, 12)
+    );
+    let with = crate::threads_guides::preamble(crate::threads_guides::preloaded(true));
+    let without = crate::threads_guides::preamble(crate::threads_guides::preloaded(false));
+    for id in ["intake", "maintain-notes"] {
+        let text = crate::threads_guides::read_skill(id).unwrap();
+        assert!(with.contains(text) && !without.contains(text));
+    }
+    assert!(with.contains("- resolve-conflict:") && without.contains("- intake:"));
+}

@@ -247,6 +247,20 @@ class AnswerAndWriteChecks(unittest.TestCase):
         failed = ctx_for(CASE, BASE, BASE, [step('a', terminal='Failed:Provider')])
         self.assertFalse(run({'type': 'no_writes', 'step': 1}, failed)['passed'])
 
+    def test_no_writes_ignores_a_chat_to_source_link_but_not_a_note_link(self):
+        source = {'id': 's1', 'version': 1, 'archived': False, 'data': {'Source': {}}}
+
+        def link(*ends):
+            write = receipt('o', ('Link', 'l1', None))
+            write['writes'][0]['ends'] = list(ends)
+            return write
+        chat = ctx_for(CASE, BASE + [source], BASE + [source], [step('a', receipts=[link('t-c', 's1')])])
+        self.assertTrue(run({'type': 'no_writes', 'step': 1}, chat)['passed'])
+        note_link = ctx_for(CASE, BASE + [source], BASE + [source], [step('a', receipts=[link('n-k', 's1')])])
+        self.assertFalse(run({'type': 'no_writes', 'step': 1}, note_link)['passed'])
+        unknown = ctx_for(CASE, BASE, BASE, [step('a', receipts=[receipt('o', ('Link', 'l1', None))])])
+        self.assertFalse(run({'type': 'no_writes', 'step': 1}, unknown)['passed'])
+
 
 class TraceChecks(unittest.TestCase):
     def ctx(self, calls, after=None):

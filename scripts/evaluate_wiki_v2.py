@@ -515,8 +515,12 @@ def condense_receipt(receipt):
     for write in receipt.get('writes', []):
         after = write['after']
         before = write.get('before')
-        writes.append({'kind': next(iter(after['data']), None), 'id': after['id'], 'version': after['version'],
-                       'before_version': before['version'] if before else None, 'archived': after['archived']})
+        kind = next(iter(after['data']), None)
+        entry = {'kind': kind, 'id': after['id'], 'version': after['version'],
+                 'before_version': before['version'] if before else None, 'archived': after['archived']}
+        if kind == 'Link':
+            entry['ends'] = [after['data']['Link']['from'], after['data']['Link']['to']]
+        writes.append(entry)
     return {'operation': receipt['operation'], 'undo_of': receipt.get('undo_of'), 'writes': writes}
 
 
@@ -631,9 +635,18 @@ def check_no_writes(c, ctx):
     step = ctx['steps'][c['step'] - 1] if c['step'] <= len(ctx['steps']) else None
     if not step or not evaluated(step.get('terminal')):
         return False, 'step did not run to an evaluated terminal'
+    # A Link counts when it touches a note; a chat-to-Source link keeps the
+    # source in its chat and writes no knowledge. Unknown ends count.
+    kinds = {record['id']: next(iter(record['data']), None) for state in ctx['states'].values()
+             for record in state['records']}
+
+    def knowledge(write):
+        ends = write.get('ends')
+        return write['kind'] != 'Link' or not ends or any(kinds.get(end, 'Note') == 'Note' for end in ends)
+
     writes = [(write['kind'], write['id']) for receipt in step.get('receipts', []) for write in receipt['writes']
-              if write['kind'] in WRITE_KINDS]
-    return not writes, f'{len(writes)} write(s): {writes[:5]}' if writes else 'no Note, Link or Action write'
+              if write['kind'] in WRITE_KINDS and knowledge(write)]
+    return not writes, f'{len(writes)} write(s): {writes[:5]}' if writes else 'no Note, note Link or Action write'
 
 
 def check_read(c, ctx):

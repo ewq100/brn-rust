@@ -241,7 +241,7 @@ async fn ask(
         .map(|n| n.parse::<u16>())
         .transpose()
         .map_err(|_| "Invalid budget")?
-        .unwrap_or(8);
+        .unwrap_or(brn_ai::threads::default_tool_rounds(!sources.is_empty()));
     // Without a handle the search tools are not offered; the reason is reported.
     let (search, search_status) = match workspace.search_handle() {
         Ok(handle) => (
