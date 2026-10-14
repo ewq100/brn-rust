@@ -101,7 +101,10 @@
   - `semantic` is `none`, `partial(n/m)`, `complete`, `off (…)` in keyword mode, or `failed: …`. It reaches the agent tool, the CLI page and the desktop status line. A failing model is reported while keyword lanes still answer; there is no fallback between models.
   - Hosts use the folder named by `BRN_EMBEDDING_MODEL_DIR`. An unusable folder is an error in the CLI and a notice on the desktop.
   - Tests use deterministic fake models: paraphrase found only by the dense lane, prefixes, coverage, visibility, re-embedding after an edit, the floor keeping abstention, a failing model, and keyword mode.
-- [ ] Owner-run qualification (requested separately): `brn model-install`, then `retrieval_eval --retriever hybrid` with `BRN_EMBEDDING_MODEL_DIR` at 1k/5k/10k notes. Record embedding time, memory, paraphrase recall and abstention, and tune the e5 floor.
+- [x] Owner-requested qualification (approved 14 October 2026): `brn model-install`, then `retrieval_eval --retriever hybrid` at 1k and 10k notes. Recorded in [evidence](evidence.md#qualification-with-the-pinned-model). The measurements changed the design:
+  - The dense lane now only adds notes the keyword lanes missed; boosting keyword matches cost inflection and section ranking.
+  - A semantic match also needs the best passage to stand 0.017 above the background; the 0.82 floor alone let unrelated queries through at 10k.
+  - `matching_keywords` became one query; it had raised hybrid p95 to 263 ms.
 
 ## Task 6 — cleanup (PR 6, shipped with Task 5)
 

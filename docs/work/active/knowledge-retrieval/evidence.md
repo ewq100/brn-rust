@@ -315,8 +315,51 @@ cargo test --workspace; clippy (default, native-retrieval, desktop lanes)  # ok
 5. **`total` could double count dense hits that also match the keywords.** It now adds only true non-matches, checked against the stem lane, and subtracts rejections only from keyword matches. Cursors are documented as unstable while coverage is partial.
 6. **Vectors of replaced models were never purged.** Opening the index with a model configured now deletes other models' vectors.
 
-### Not done here
-The semantic qualification needs the model download (135,392,183 bytes) and is an owner-requested run:
+### Qualification with the pinned model
+
+The owner approved the download on 14 October 2026; the live provider comparison was not approved and was not run. The model was installed into a session folder outside the repository with `brn model-install` (135,392,183 bytes, verified against the pins). `local_embedder` passed, including the meaning check.
+
+**Measurement, then tuning.** The first hybrid run (equal-weight RRF, floor 0.80) at 1k notes gave:
+
+| 1,000 notes | keyword | first hybrid |
+|---|---|---|
+| paraphrase recall@10 / @50 | 0 / 0.10 | 0.30 / 0.35 |
+| inflection recall@10 (MRR) | 0.75 (0.752) | 0.70 (0.445) |
+| section MRR | 0.922 | 0.878 |
+| abstention any-hit | 0 | **0.67** |
+
+The second, third and fourth rows violate the plan's "no stratum regresses" acceptance. Per-query similarities were dumped from one run (temporary instrumentation, since removed) and the fusion simulated offline:
+- e5-small compresses similarity. Unrelated queries score 0.78–0.82 at 1k and up to 0.824 at 10k, which overlaps real matches.
+- The gap between the best passage and the background is the better separator. Abstention reached at most about 0.015 at both sizes.
+- Boosting keyword matches with near neighbours costs inflection and section ranking. Adding only notes no keyword lane found does not.
+
+**Shipped settings:** augment-only fusion, floor 0.82, margin 0.017.
+
+| | keyword 1k | hybrid 1k | keyword 10k | hybrid 10k |
+|---|---|---|---|---|
+| exact / topic / section recall@10 | 1 / 1 / 1 | 1 / 1 / 1 | 1 / 1 / 1 | 1 / 1 / 1 |
+| inflection recall@10 (MRR) | 0.75 (0.752) | 0.75 (0.752) | 0.75 (0.75) | 0.75 (0.75) |
+| section MRR | 0.922 | 0.922 | 0.922 | 0.922 |
+| paraphrase recall@10 / @50 | 0 / 0.10 | **0.05 / 0.20** | 0 / 0 | **0.05 / 0.05** |
+| abstention any-hit | 0 | 0 | 0 | 0 |
+| overall recall@10 (MRR) | 0.706 (0.694) | **0.718 (0.696)** | 0.706 (0.692) | **0.718 (0.694)** |
+| visibility violations / in-chat recall | 0 / 1.0 | 0 / 1.0 | 0 / 1.0 | 0 / 1.0 |
+| embedding the corpus | — | 1,328 passages, 62 s | — | 12,186 passages, 570 s |
+| peak memory | — | 1.77 GB | — | 2.09 GB |
+| query p50 / p95 | 3.3 / 6.5 ms | 7.9 / 16.2 ms | 24.3 / 58.7 ms | 52 / 108 ms* |
+
+\* The 10k harness run measured p50 57 ms and p95 263 ms. Most of that came from checking each dense-only note with its own full-text query. After making it one query, the same embedded 10k workspace measured p50 52–57 ms and p95 108 ms in two passes (keyword-only p95 84 ms in that session). Quality figures are from the harness run; the fix changes only the `total` count, not the ranking.
+
+**Conclusion.** On this synthetic English set, the pinned e5-small adds a small, safe paraphrase gain:
+- Overall recall@10 rises from 0.706 to 0.718.
+- No stratum regresses, abstention stays empty and there are no visibility violations.
+
+The cost is about 47 ms per passage to embed (about 10 minutes for 10k notes, in idle time and resumable) and about 2 GB of peak memory while the model runs.
+
+The synthetic paraphrases are single planted sentences inside long passages, which dilutes passage embeddings. Real notes may behave differently. The floor and margin are per-model settings in `native.rs` and can be re-measured with the same harness.
+
+### Reproducing
+The semantic qualification needs the model download (135,392,183 bytes):
 ```sh
 cargo build --release -p brn --features native-retrieval
 target/release/brn --data-dir <any> model-install --destination <fresh absolute folder>

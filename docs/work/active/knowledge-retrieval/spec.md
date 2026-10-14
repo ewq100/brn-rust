@@ -160,7 +160,7 @@ flowchart LR
 
 ### 6. Dense upgrade (`native-retrieval` feature)
 
-- Replace the MiniLM profile with a pinned **`multilingual-e5-small`**: 384-d, 512 tokens, MIT licence, `query:` and `passage:` prefixes. As built: `Xenova/multilingual-e5-small` at `761b726d…`; an existing MiniLM install is still recognised. Dense-only matches need cosine ≥ a per-model floor (provisionally 0.80 for e5), so unrelated queries still find nothing.
+- Replace the MiniLM profile with a pinned **`multilingual-e5-small`**: 384-d, 512 tokens, MIT licence, `query:` and `passage:` prefixes. As built: `Xenova/multilingual-e5-small` at `761b726d…`; an existing MiniLM install is still recognised. Measured on the golden set (Task 5 evidence), the dense lane only adds notes the keyword lanes missed, never reorders keyword matches, and counts a semantic match only at cosine ≥ 0.82 and when the best match stands 0.017 above the background. With those settings, unrelated queries still find nothing and no stratum regresses.
 - `multilingual-e5-base` (768-d) is the alternative if the English evaluation favors it clearly.
 - Assets are pinned by revision, size and digest. The download stays an explicit owner action.
 - A background embedding queue runs inside the search worker in bounded, cancellable batches.
