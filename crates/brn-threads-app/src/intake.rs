@@ -114,7 +114,7 @@ impl Workspace {
             .iter()
             .map(|byte| format!("{byte:02x}"))
             .collect::<String>();
-        let relation = format!("full-import:{source_version}");
+        let relation = format!("{}{source_version}", crate::relations::FULL_IMPORT_PREFIX);
         let previously_imported=records.iter().any(|record|!record.archived && matches!(&record.data,RecordData::Link(link) if link.to==source_id && link.relation==relation && records.iter().any(|note|!note.archived && note.id==link.from && matches!(&note.data,RecordData::Note(n) if n.superseded_by.is_none() && n.import.as_ref().is_some_and(|i|i.full_note && i.source==source_id)))));
         let gaps = converted
             .coverage

@@ -141,20 +141,21 @@ impl Workspace {
                     if notes.contains_key(from) && notes.contains_key(to) {
                         note_links.push((from, to, link.relation.as_str()));
                     }
-                    relations
-                        .entry(relation_key(&link.relation))
-                        .or_default()
-                        .insert(link.relation.as_str());
+                    if !relations::is_host_owned(&link.relation) {
+                        relations
+                            .entry(relation_key(&link.relation))
+                            .or_default()
+                            .insert(link.relation.as_str());
+                    }
                 }
-                // A missing, archived or superseded end is reported; an end
-                // that exists only in a chat is private and is not.
-                (true, false) | (false, true) => {
-                    let (seen, other) = if visible.contains(from) {
-                        (from, to)
-                    } else {
-                        (to, from)
-                    };
-                    if broken(other) {
+                // A visible note's link to a missing, archived or superseded
+                // record is reported. A chat-only end is private and is not.
+                // Links of a retired note no longer navigate anywhere, and a
+                // `supersedes` link to the retired note records the
+                // replacement itself.
+                (true, false) => {
+                    let (seen, other) = (from, to);
+                    if broken(other) && link.relation != relations::SUPERSEDES {
                         out.add(
                             FindingKind::BrokenLink,
                             vec![record.id.clone(), seen.to_owned()],
@@ -166,17 +167,20 @@ impl Workspace {
                         );
                     }
                 }
-                (false, false) => {}
+                (false, true) | (false, false) => {}
             }
         }
 
-        // Input versions recorded by the latest change to each note.
+        // Input versions recorded by the latest change to each note, and the
+        // latest change to every record.
         let mut latest: BTreeMap<String, OperationId> = BTreeMap::new();
+        let mut written: BTreeMap<String, OperationId> = BTreeMap::new();
         for receipt in self.history()? {
             for write in &receipt.writes {
                 if notes.contains_key(write.after.id.as_str()) {
                     latest.insert(write.after.id.clone(), receipt.operation.clone());
                 }
+                written.insert(write.after.id.clone(), receipt.operation.clone());
             }
         }
         for (note, operation) in &latest {
@@ -184,7 +188,11 @@ impl Workspace {
                 continue;
             };
             for input in &prepared.request.inputs {
-                if input.expectation != InputExpectation::Current || input.record == *note {
+                // An input the same change group also wrote moved with it.
+                if input.expectation != InputExpectation::Current
+                    || input.record == *note
+                    || written.get(&input.record) == Some(operation)
+                {
                     continue;
                 }
                 if let Some(current) = by_id.get(input.record.as_str())

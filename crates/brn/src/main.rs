@@ -17,7 +17,7 @@ static CANCEL: AtomicBool = AtomicBool::new(false);
 extern "C" fn on_sigint(_: libc::c_int) {
     CANCEL.store(true, Ordering::SeqCst);
 }
-const HELP: &str = "BRN Threads\n\nUsage: brn --data-dir ABSOLUTE_DIRECTORY COMMAND [--option VALUE]\n\nCommands: init, records, notes, threads, needs-you, history, candidates, settings,\n  projects [--trash yes]; project-create --title TITLE [--key KEY]\n  project-chat --project ID --title TITLE; project-document --project ID --title TITLE --text MARKDOWN\n  project-settings --project ID --base VERSION --title TITLE --instructions TEXT --knowledge yes|no\n  chat-move --thread ID [--project ID|none]; project-link|project-unlink --project ID --note ID\n  project-delete-preview --project ID (save JSON for review)\n  project-delete --preview-file FILE --actions JSON [--key KEY]\n  project-restore --project ID --base VERSION\n  Project commands accept --key KEY for durable retry. Actions JSON maps each unfinished Action ID to Keep or Cancel.\n  Search/connections accept --project ID; intake --intent project --project ID imports privately.\n  note-create --title TITLE --text MARKDOWN\n  thread-start --title TITLE\n  read --id RECORD\n  search --query TEXT [--limit 1..50] [--cursor NEXT] [--thread CHAT]\n  connections --note ID [--hops 1|2] [--sources yes] [--thread CHAT]\n  topics; topics-create; topics-choose --note ID\n  knowledge-check [--seed-chat yes]\n  model-install --destination ABSOLUTE_FRESH_FOLDER (native builds; downloads the pinned model)\n  Semantic search uses the model folder named by BRN_EMBEDDING_MODEL_DIR.\n  begin-edit --note ID --base VERSION\n  update-buffer --session ID --generation N --text MARKDOWN\n  save|discard --session ID --generation N; recovery\n  apply|dismiss --operation ID; undo --operation ID; archive|unarchive --thread ID\n  queue --thread ID --text TEXT; keep-in-brn --note ID --base VERSION\n  ask --thread ID --prompt TEXT [--budget 1..32] [--edit-note ID --base VERSION | --record-decision yes]\n  intake --source ABSOLUTE_FILE --intent useful|full|chat [--title TITLE] [--thread ID]\n  configure --provider Codex|Copilot --model ID --effort low|medium|high\n  delegation --choice maintain|review-first\n  pause; resume; export|backup --destination ABSOLUTE_FRESH_PATH\n  restore --source ABSOLUTE_BACKUP\n  upgrade --backup-directory ABSOLUTE_EXTERNAL_FOLDER\n\nChoose delegation before resuming maintenance. Manual work remains available while pending.\nFresh explicit data only. Originals remain external; no external messages are sent.\nReview apply and Undo are concrete owner actions. Continue uses ask on the same Thread.";
+const HELP: &str = "BRN Threads\n\nUsage: brn --data-dir ABSOLUTE_DIRECTORY COMMAND [--option VALUE]\n\nCommands: init, records, notes, threads, needs-you, history, candidates, settings,\n  projects [--trash yes]; project-create --title TITLE [--key KEY]\n  project-chat --project ID --title TITLE; project-document --project ID --title TITLE --text MARKDOWN\n  project-settings --project ID --base VERSION --title TITLE --instructions TEXT --knowledge yes|no\n  chat-move --thread ID [--project ID|none]; project-link|project-unlink --project ID --note ID\n  project-delete-preview --project ID (save JSON for review)\n  project-delete --preview-file FILE --actions JSON [--key KEY]\n  project-restore --project ID --base VERSION\n  Project commands accept --key KEY for durable retry. Actions JSON maps each unfinished Action ID to Keep or Cancel.\n  Search/connections accept --project ID; intake --intent project --project ID imports privately.\n  note-create --title TITLE --text MARKDOWN\n  thread-start --title TITLE\n  read --id RECORD\n  search --query TEXT [--limit 1..50] [--cursor NEXT] [--thread CHAT]\n  connections --note ID [--hops 1|2] [--sources yes] [--thread CHAT]\n  topics; topics-create; topics-choose --note ID\n  knowledge-check [--seed-chat yes]\n  model-install --destination ABSOLUTE_FRESH_FOLDER (native builds; downloads the pinned model)\n  Semantic search uses the model folder named by BRN_EMBEDDING_MODEL_DIR.\n  begin-edit --note ID --base VERSION\n  update-buffer --session ID --generation N --text MARKDOWN\n  save|discard --session ID --generation N; recovery\n  apply|dismiss --operation ID; undo --operation ID; archive|unarchive --thread ID\n  queue --thread ID --text TEXT; keep-in-brn --note ID --base VERSION\n  ask --thread ID --prompt TEXT [--budget 1..32] [--edit-note ID --base VERSION | --record-decision yes] [--trace summary|full]\n  intake --source ABSOLUTE_FILE --intent useful|full|chat|project [--title TITLE] [--thread ID] [--project ID] [--trace summary|full]\n  configure --provider Codex|Copilot --model ID --effort low|medium|high\n  delegation --choice maintain|review-first\n  pause; resume; export|backup --destination ABSOLUTE_FRESH_PATH\n  restore --source ABSOLUTE_BACKUP\n  upgrade --backup-directory ABSOLUTE_EXTERNAL_FOLDER\n\nChoose delegation before resuming maintenance. Manual work remains available while pending.\nFresh explicit data only. Originals remain external; no external messages are sent.\nReview apply and Undo are concrete owner actions. Continue uses ask on the same Thread.";
 type Result<T> = std::result::Result<T, String>;
 struct Invocation {
     data: PathBuf,
@@ -92,8 +92,9 @@ fn parse(args: impl IntoIterator<Item = String>) -> Result<Option<Invocation>> {
             "edit-note",
             "base",
             "record-decision",
+            "trace",
         ],
-        "intake" => &["source", "intent", "title", "thread", "project"],
+        "intake" => &["source", "intent", "title", "thread", "project", "trace"],
         "configure" => &[
             "provider",
             "model",
@@ -145,6 +146,16 @@ fn install_model(inv: &Invocation) -> Result<Value> {
 #[cfg(not(feature = "native-retrieval"))]
 fn install_model(_: &Invocation) -> Result<Value> {
     Err("This build has no native retrieval; build with --features native-retrieval".into())
+}
+/// `--trace summary|full` records the run's tool use (structure only; `full`
+/// adds query text and is for synthetic evaluation data).
+fn trace_level(inv: &Invocation) -> Result<brn_ai::threads::TraceLevel> {
+    match inv.args.get("trace").map(String::as_str) {
+        None => Ok(brn_ai::threads::TraceLevel::Off),
+        Some("summary") => Ok(brn_ai::threads::TraceLevel::Summary),
+        Some("full") => Ok(brn_ai::threads::TraceLevel::Full),
+        Some(_) => Err("--trace takes summary or full".into()),
+    }
 }
 /// The owner's chosen chat context (`--thread`), which must name a chat.
 fn chat_option(workspace: &Workspace, inv: &Invocation) -> Result<Option<String>> {
@@ -286,6 +297,7 @@ async fn ask(
                 credentials_dir: settings.credentials_dir.map(PathBuf::from),
                 sources,
                 search,
+                trace: trace_level(inv)?,
             },
             cancel,
             Arc::new(|_| {}),
@@ -298,9 +310,11 @@ async fn ask(
         AiTerminal::Interrupted => "Interrupted".into(),
         AiTerminal::Failed(error) => format!("Failed:{:?}", error.kind),
     };
-    Ok(
-        json!({"run":result.run_id,"terminal":terminal,"answer":result.answer.text,"search":search_status}),
-    )
+    let mut output = json!({"run":result.run_id,"terminal":terminal,"answer":result.answer.text,"search":search_status});
+    if let Some(trace) = result.trace {
+        output["trace"] = encode(trace)?;
+    }
+    Ok(output)
 }
 fn converter() -> Result<Converter> {
     let executable = std::env::current_exe().map_err(|e| e.to_string())?;

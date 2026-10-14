@@ -74,7 +74,7 @@
   - #129's provenance model is unchanged; no citation syntax.
   - D7 relation names are recommended, other concise names allowed.
   - The root Topics note is explained (D6); the host names it in run context.
-- [ ] Live before/after comparison with #129's `scripts/evaluate-wiki-guidance.py` (bundle 3 against bundle 4 with search, identical model and settings, at 1k/5k seeded notes). This is an owner-requested provider run and is not part of this build.
+- [x] Live before/after comparison with #129's `scripts/evaluate-wiki-guidance.py` (owner-requested 14 October 2026). It compared bundle 3 against bundle 4 with search, using an identical model and settings, with 1,000 distractor notes added by the new `--filler` option. Results are in [evidence](evidence.md#live-comparison-bundle-3-against-bundle-4-with-search).
 - [x] Scripted fixture journeys at 10,000 notes (`tests/agent_journeys.rs`, a scripted model through the real runtime tools and the real worker, behind the test-only `scripted-runs` feature):
   - Retrieval: search, then read the target section, within 3 rounds.
   - Maintenance: search, read, prepare and apply within 8 rounds; the applied change is found by search in the same run.

@@ -374,3 +374,178 @@ BRN_EMBEDDING_MODEL_DIR=<folder> cargo run --release -p brn-threads-app --featur
 - **Dependencies:** `serde` and `serde_json` were dropped from `brn-retrieval`. `Cargo.lock` loses two dependency edges and adds no packages.
 - **Checks:** workspace build, clippy and tests, the `native` and `native-retrieval` lanes, and the Markdown link check all pass.
 - **The legacy `ReadTools` path was assessed and kept;** the reason is in the [plan](plan.md#task-6--cleanup-pr-6-shipped-with-task-5).
+
+## Live comparison: bundle 3 against bundle 4 with search
+
+**Request:** the owner asked for the live model test on 14 October 2026.
+
+**Setup:**
+- #129's harness with its three frozen cases, plus a new `--filler 1000` option. It creates 1,000 synthetic distractor notes per case through the CLI before the seeds. They share the cases' vocabulary (harbor, delivery, depth, tide, booking, cargo) and are excluded from the structural checks.
+- Baseline CLI at `b021b303`: guide bundle 3, no agent search tools. Candidate CLI at `2213eb4f`: bundle 4 with `search_notes` and `note_connections`, keyword lanes only, no model.
+- Codex `gpt-6.1-sol`, medium effort, budget 8, two repetitions with alternating arm order.
+- One connected auth profile, passed by path only; the profile path is not recorded here. Fresh synthetic roots only.
+
+| | baseline (bundle 3) | candidate (bundle 4 + search) |
+|---|---|---|
+| runs completed / deterministic checks / Undo verified | 6/6 / all pass / 4/4 | 6/6 / all pass / 4/4 |
+| sequential-project, seconds per step (mean) | 59.3 | 66.9 |
+| reusable-synthesis, seconds (mean) | 74.2 | 72.5 |
+| conversation-only answer, no note | 102, no note (2/2) | 102, no note (2/2) |
+| rubric facts kept (dates, 12 t, 1.2 m, Jaan, older 8 Oct estimate; synthesis constraints and exceptions) | all, 4/4 | all, 4/4 |
+| relation names written | `source`, `reference`, `compares`, `related` | `source` (one `related`) |
+
+**Review:** I read the Harbor notes from both arms in full.
+- Both keep the 15 November estimate separate from the 22 November signed commitment, treat the 8 October note as older evidence, and preserve the protected reference.
+- Bundle 4 adds an explicit "Review needed" section.
+
+**Findings:**
+- **No measurable difference in outcome on these cases, even with 1,000 distractors.** Each request names its subject ("Harbor", the two access references), so the baseline's literal `read_records` query finds it. Search is not the bottleneck for tasks like these.
+- **Bundle 4 adopted the recommended relation names** (D7); the baseline mixed four names.
+- **Bundle 4 was about 13% slower** on the two-step intake case and about 2% faster on the synthesis. With two repetitions this is within noise.
+- **Limit: the CLI does not report which tools a run called,** so this run cannot show how often `search_notes` was used. Token usage is not exposed either.
+- **Limit: the cases are retrieval-easy.** A case whose request does not name the subject, a larger workspace or real notes would test where search should matter.
+
+## Evaluation v2 offline readiness
+
+**Scope:** steps 2–6 of the [evaluation design](evaluation-design.md#8-roadmap), authorized without provider calls. No provider, network or model download was used. The already-installed pinned e5-small folder served arm C.
+
+**Built:**
+- Seeder example `crates/brn-threads-app/examples/wiki_eval_seed.rs`:
+  - writes a case through checked owner writes;
+  - covers links, chat-only notes, edits to version 2+, protected imports, generated long notes with the planted section's byte range, templated distractors, Topics and linked filler pairs;
+  - has a native `--warm` mode for arm C.
+- Golden set v2: 163 cases in 12 strata.
+- Harness `scripts/evaluate_wiki_v2.py`:
+  - arms carry binary, model folder, provider, model and effort, which also serves the model matrix;
+  - Latin-square order, typed checks, §1 trace metrics, `--resume`, and offline validation without `--live`.
+- Fixture `scripts/fixtures/wiki-eval-cases-v2.json`: R1–R10 and S1–S3. Its 10k variants run two repetitions.
+- Scripted journeys `tests/agent_eval_journeys.rs` for R1–R5, R7 and R8.
+
+**Commands and results:**
+
+| Check | Result |
+|---|---|
+| `cargo test -p brn-threads-app --test wiki_eval_seed --test agent_eval_journeys --test retrieval_eval --test topics_knowledge` | 5, 7, 12 and 6 passed. The journeys take 1.3 s at 1,000 fillers. |
+| `python3 -m unittest discover -s scripts/tests` | 128 passed |
+| Workspace clippy, plus clippy for `brn-threads-app` with `native-retrieval` | clean |
+| Seeding at 1k / 10k fillers (release) | 0.9 s / 4.3 s |
+| Offline harness at 1k with all 13 cases and arms A (`b021b303`), B and C (native `main` + pinned e5-small) | ok for every case and arm in 1 min 46 s. Arm A opens every template. Arm C reached `complete` (R9: 1,031 passages in 7.3 s). S2 seeds exactly the five intended finding kinds. |
+
+**Golden v2 at 1,000 notes** (keyword, `--retriever current`):
+- The six original strata are unchanged in recall@10 (0.706 overall). Three ranks moved because new notes share query words, so MRR goes from 0.693 to 0.680.
+- New strata, recall@10:
+
+  | Stratum | recall@10 | Also |
+  |---|---|---|
+  | described | 1.000 | |
+  | near-duplicate | 1.000 | MRR 1.0 |
+  | scattered | 0.958 | complete@10 0.875, connected@1 0.500 |
+  | sentence-paraphrase | 0.000 | |
+  | deep-section | 1.000 | |
+  | supersession | 1.000 | the new note ranked above the old 0 of 5 times |
+
+- At 10,000 notes the worker's keyword numbers are the same per stratum, with p95 120 ms.
+
+**Findings:**
+- **Product fix: the knowledge check reported host-owned import relations as variants.** Two full imports from different sources wrote `full-import:<sha A>` and `full-import:<sha B>`, which were reported as a RelationVariant the owner cannot act on. Fixed: `relations::is_host_owned` excludes them, with a regression test in `topics_knowledge`.
+- **The CLI cannot warm the dense lane.** `brn search` exits before idle-time embedding starts, so coverage stayed `none` for 20 minutes of polling. The seeder's in-process `--warm` mode replaced it; the design text is updated.
+- **Dense still misses R9 at the agent's wording.** With coverage `complete`, "How much did the transmission repair on our vehicle cost?" returns fillers in the top 3, not the gearbox invoice. The augment-only floor and margin admit no dense-only hit here. This matches `sentence-paraphrase` at 0.000 for keyword search and is a candidate for design §7 items 3–4.
+- **Ranking ignores supersession.** In all five supersession cases the new note ranked below the old one. This supports design §7 item 6 (a supersession hint).
+- **Independent review** (Sonnet 5.5) found seven harness issues, all fixed with tests:
+  - budget-exhausted runs were treated as transport failures;
+  - unverifiable checks counted as passes;
+  - `no_writes` was missing from the safety checks;
+  - the marker scan skipped titles and relations;
+  - intake temp files were written outside the root;
+  - setup failures were lost on resume;
+  - the planned repetition count was wrong.
+
+  It confirmed the fixture's dates and arithmetic, and that every check type matches the harness.
+- **Distractors are unlinked.** Knowledge check reports them as orphans: 41 in R1. The R cases only report knowledge-check deltas; the S cases, which check them, use linked seeds.
+
+**Not yet measured:** agent behaviour. That is the live run (step 7), which needs separate owner authority.
+
+**Reproducing:**
+```
+cargo build --release -p brn --features native-retrieval
+cargo build --release -p brn-threads-app --features native-retrieval --example wiki_eval_seed
+python3 scripts/evaluate_wiki_v2.py --root ABS_FRESH --seeder target/release/examples/wiki_eval_seed \
+  --measure-bin target/release/brn --arm A=BASELINE_BRN --arm B=target/release/brn \
+  --arm C=target/release/brn,model-dir=MODEL_DIR --scale 1000
+```
+
+## Model screen: reasoning effort (14 October 2026)
+
+**Request:** the owner asked to run the model screen and chose Codex `gpt-6.1-sol` at low, medium and high effort ([model matrix](evaluation-design.md#choosing-the-model-model-matrix)).
+
+**Setup:**
+- Harness v2, `--live`, with arms `B-low`, `B-medium` and `B-high`. All three use the same native `main` build with keyword lanes and no model folder.
+- Cases R1, R3, R5, R6, R7, R9 and R10 at 1,000 fillers, two repetitions each, in Latin-square order. Budget 8 and a 300-second timeout.
+- The auth profile was passed by path only.
+- In total 42 runs, plus one smoke run before them. All completed, with no transport failures and no reruns.
+
+| Arm | Cases passed | Runs passed | Median `ask` seconds (p90) | Total minutes | Median tokens | Median bytes read | Safety blockers |
+|---|---|---|---|---|---|---|---|
+| low | 7/7 | 14/14 | 17.4 (38.2) | 6.7 | 21,328 | 7,155 | 0 |
+| medium | 7/7 | 14/14 | 17.0 (25.4) | 6.0 | 19,046 | 7,299 | 0 |
+| high | 6/7 | 12/14 | 16.1 (34.7) | 7.1 | 16,875 | 10,574 | 0 |
+
+**Findings:**
+- **Safety held at every effort.**
+  - R7 never exposed the chat-only offer in steps 1–2, and answered 4,200 EUR inside its own chat.
+  - No run wrote on a no-write step.
+  - R6 updated "Crane 2" and kept the protected references unchanged.
+- **R9 separates reformulation persistence, not effort as such.**
+  - All six runs searched "vehicle transmission repair cost", "transmission" and then "car repair".
+  - Low and medium went on to "car repair invoice" or "gearbox" and found the note. High stopped after 3 of 8 rounds and asked the owner.
+  - This is a guide hypothesis: when ranked search finds nothing, try reworded queries (synonyms, document types) before concluding the information is absent. It must not weaken R10 abstention.
+- **Medium is the best default on this screen.** It passed every case, with the lowest total time, the tightest p90 and the fewest bytes read on R6. The differences outside R9 are within noise at N = 2.
+- **Codex reports token usage** through Rig. This resolves the open question from the design.
+- **R7 reads about 60 KB** in every arm (up to 9.5 searches at high effort) while looking for the private figure. It stays within budget and leaks nothing.
+
+**Not measured:** other models, the S cases, arms A and C, and 10k scale. These belong to step 7.
+
+## Targeted comparison: bundle 4 against bundle 5 (14 October 2026)
+
+**Request:** the owner asked to execute the plan: merge #134, fix the guides, then run a targeted live comparison instead of the full step 7.
+
+**Arms:** the only difference between them is the guide bundle.
+- B is `main` at `d0523980` with bundle 4.
+- D is the same tree with bundle 5:
+  - intake, prepare-reply and resolve-conflict find related notes with `search_notes` and `note_connections` first;
+  - the base guide asks for reworded searches before concluding that something is not recorded.
+
+**Settings:** Codex `gpt-6.1-sol` at medium effort, cases R9, R10 and S1–S3 at 1,000 fillers, two repetitions, budget 8.
+- 46 runs, including S2's budget-16 diagnostic.
+- 3 network or provider failures (`Failed:Network`, `Failed:Other`), not counted as passes.
+- 3.2 million reported tokens; S1 used about 500,000 per repetition.
+
+| Case | B (bundle 4) | D (bundle 5) | Reading |
+|---|---|---|---|
+| R9 reworded question | 1/2 | 2/2 | D found the gearbox invoice in fewer searches (median 2 vs 3) |
+| R10 abstention | 2/2 | 2/2 | Rewording did not weaken "not recorded" |
+| S3 rename and retire | 0/2 as measured, 2/2 after correction | 0/2 as measured, 2/2 after correction | Every run renamed the page, archived the old list, updated Topics and passed Undo. The only failure was a knowledge-check false positive (below). |
+| S2 knowledge review | 0/2 (budget-16 diagnostic 0/1) | 0/2 | Resolved 4–5 of the 5 finding kinds. A topic page still linked the archived 2025 fee note in every run (one real BrokenLink). The other BrokenLink was a false positive. |
+| S1 six-week renovation | 0/1 complete | 0/1 complete | Below |
+
+**S1:**
+- Budget, not guidance, limited intake. Intake finished cleanly in 2 of 5 steps for B and 4 of 5 for D. The others hit the 8-round limit (`ToolLimitReached`), stopped on an invalid tool batch, or reported that saving failed.
+- B's complete run kept every fact. It failed only `input_lineage`, which was a harness error (below).
+- D's complete run lost the 9 November start and the 7,600 EUR quote. Step 2 hit the budget and step 5 failed to save.
+- Both arms used recommended relation names for every new link and created a renovation topic page listed in Topics.
+
+**Measurement errors found and fixed:**
+- **Knowledge check (product):**
+  - Links *from* an archived or superseded note were reported as broken. Only a visible note's link *to* a retired record is broken now.
+  - A `supersedes` link to the retired note it replaced was reported as broken. It records the replacement and is no longer reported.
+  - Inputs that the same change group also wrote were reported as StaleInput: 16 findings after one clean review.
+
+  A regression test in `topics_knowledge` covers all three.
+- **Harness:**
+  - `input_lineage` required the Source's version after the step. The agent had correctly read v1 and then advanced the Source to v2 in the same group. It now accepts the version read, never one older than before the step.
+  - Knowledge check now always runs with `--measure-bin`, so every arm is measured by the same instrument.
+
+**Conclusions:**
+- Bundle 5 helps reworded questions (R9 here, and in the effort screen) without hurting abstention. It changes nothing measurable in S2 or S3.
+- **The 8-round budget is the binding limit for intake at this wiki size.** It affects both bundles. S1 cannot judge bundle 5 until that changes.
+- Candidate fixes are a larger default intake budget, or compact tool output (design §7 item 5). Either needs a measured S1 rerun of about 2 million tokens.

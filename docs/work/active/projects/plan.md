@@ -2,7 +2,7 @@
 
 **Goal:** Deliver stage two of the accepted [Chats and Projects brief](../chats-and-projects/spec.md).
 
-**Authority:** Owner requested implementation on 14 October 2026 and confirmed Projects. Lead implements; independent reviewers are read-only. Release, real-data access and merge are unassigned. Current instruction to implement the existing decisions supersedes optional skill handoff ceremonies.
+**Authority:** Owner requested implementation on 14 October 2026 and confirmed Projects. Lead implements; independent reviewers are read-only. Release and real-data access are unassigned. On 14 October the owner accepted the candidate for integration and explicitly authorized publication/merge after required checks pass. Current instruction to implement the existing decisions supersedes optional skill handoff ceremonies.
 
 **Baseline:** `85d291cddfa0f5b5a73e3d4f3b2b96c844445839`, fetched origin/main; isolated `codex/projects-feature`. Original checkout and experiments remain untouched. Standalone chat and the latest navigation/writing polish are merged in this baseline.
 
@@ -59,4 +59,8 @@ Plan review approved the accepted scope. Whole-diff code review found six suppor
 
 A second review found missing Configure enforcement for context_epoch, terminal Action Trash coverage, retained-source access after unlink and native public-answer progress preservation. Each is corrected and regression-tested. Final coverage also binds Action privacy to its host-assigned origin, requires unfinished choices for shared documents and preserves explicit independent Keep decisions.
 
-**Candidate gate:** implemented and verified at `3569e6cb`, independently APPROVED at tree `b53af0c9dfbf6dd1cddef10ab183a66dca31bc4b`; representative native walkthrough observed. Owner acceptance, hosted CI/integration and release remain separate as recorded in evidence.
+**Candidate gate:** implemented and verified at `3569e6cb`, independently APPROVED at tree `b53af0c9dfbf6dd1cddef10ab183a66dca31bc4b`; representative native walkthrough observed. The owner authorized integration after required checks on 14 October; hosted CI/integration are now the active gates. Release remains unassigned.
+
+## Integration preparation — 14 October
+
+Fetched main `e6216058` (retrieval/guidance #134/#137). The merge preserves opt-in runtime traces, canonical retained-source lineage and bundle 5 discovery/rewording guidance alongside Projects context. The combined guidance is labelled bundle 6 to distinguish the two formerly concurrent bundle 5 candidates. CLI retains both project options and summary/full trace options. The new synthetic seed initializes the backward-compatible standalone Thread defaults. Current branch protection requires the four core/native Linux/Mac contexts with strict up-to-date status; no bypass is authorized. Integration checks and independent merge review are pending.

@@ -1,6 +1,6 @@
 # Projects candidate evidence
 
-**Scope/authority:** Owner requested implementation and confirmed the planned Projects feature on 14 October 2026. Implements stage two of the [accepted brief](../chats-and-projects/spec.md) using the [plan](plan.md). Release, real-data access and merge are unassigned.
+**Scope/authority:** Owner requested implementation and confirmed the planned Projects feature on 14 October 2026. Implements stage two of the [accepted brief](../chats-and-projects/spec.md) using the [plan](plan.md). Release and real-data access are unassigned. On 14 October the owner accepted the candidate for integration and explicitly authorized publication/merge after required checks pass.
 
 **Baseline:** fetched `origin/main` at `85d291cddfa0f5b5a73e3d4f3b2b96c844445839`. Isolated `codex/projects-feature`; original checkout and unrelated experiments preserved.
 
@@ -13,8 +13,8 @@
 | Automated verification | Satisfied: default workspace 539 passed / 3 subprocess-helper tests ignored; native widgets 144 passed; builds and strict lint passed. |
 | Independent code review | APPROVED for candidate tree above against baseline; supported findings resolved. |
 | Native observation | Representative synthetic create/settings/document Save/chat/delete/Trash Restore/restart observed; limits below. |
-| Owner acceptance | Pending; concrete qualification below. |
-| Hosted CI / merge | Pending and unassigned. No push, PR, merge or integration claim. |
+| Owner acceptance | Accepted for integration on 14 October: owner requested merge after required checks. Daily-use qualification limits remain. |
+| Hosted CI / merge | Authorized; reconciling main and preparing the PR. Required checks and actual merge pending. |
 | Release / real-data access | Unassigned. |
 
 ## Verification receipts
@@ -57,4 +57,8 @@ One earlier broad run was interrupted after discovering unindexed project-metada
 3. Share one private document with a second project. Open it there and create a writing conversation: it uses that project's instructions. Save/review/Undo and see the same record through both links. Unlink the original project without promoting or copying it.
 4. Delete a project with an exclusive document, a shared document and unfinished tasks. Check the removal/retention list and choose Keep outside or Cancel for each task. Restore: shared edits persist, cancelled/outside tasks remain cancelled/outside and work stays paused.
 
-Next consequential gate: owner acceptance of this local candidate, followed by separately authorized publication/CI/integration. Current implementation authorization does not assign release, owner-data adoption or merge.
+Current gate: reconcile current main, publish the PR, require successful protected-branch CI, then merge and verify the actual merged tree/main CI. The owner authorized that sequence on 14 October. Release and owner-data adoption remain unassigned.
+
+## Integration preparation — 14 October
+
+Fetched main `e6216058` (retrieval/guidance #134/#137). The merge preserves opt-in runtime traces, canonical retained-source lineage and bundle 5 discovery/rewording guidance alongside Projects context. The combined guidance is labelled bundle 6 to distinguish the two formerly concurrent bundle 5 candidates. CLI retains both project options and summary/full trace options. The new synthetic seed initializes the backward-compatible standalone Thread defaults. Current branch protection requires the four core/native Linux/Mac contexts with strict up-to-date status; no bypass is authorized. Integration checks and independent merge review are pending.

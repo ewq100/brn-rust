@@ -11,6 +11,15 @@ pub const RELATED: &str = "related";
 
 pub const RECOMMENDED: [&str; 4] = [SOURCE, SUPERSEDES, CONTRADICTS, RELATED];
 
+/// Prefix of the host-owned relation from a full-note import to its Source,
+/// followed by the source version. Not an owner relation name.
+pub const FULL_IMPORT_PREFIX: &str = "full-import:";
+
+/// Whether `relation` is written by the host rather than chosen as a name.
+pub fn is_host_owned(relation: &str) -> bool {
+    relation.starts_with(FULL_IMPORT_PREFIX)
+}
+
 /// Whether `relation` is one of the recommended names.
 pub fn is_recommended(relation: &str) -> bool {
     RECOMMENDED.contains(&relation)

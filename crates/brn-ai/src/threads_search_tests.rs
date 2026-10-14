@@ -188,6 +188,57 @@ async fn without_host_search_the_tools_are_not_offered() {
     assert!(!matches!(answer.terminal, AiTerminal::Completed));
 }
 
+#[tokio::test]
+async fn summary_traces_hash_queries_and_off_records_nothing() {
+    let (_root, mut request, _) = tests::fixture();
+    request.search = Some(Arc::new(FakeSearch::default()));
+    request.trace = TraceLevel::Summary;
+    let (scope, input) = begin(&request).unwrap();
+    let query = json!({"query":"secret harbor words","limit":5,"mode":"keyword","cursor":null});
+    let model = MockCompletionModel::from_stream_turns([
+        vec![
+            search_call("a", query.clone()),
+            MockStreamEvent::final_response_with_total_tokens(1),
+        ],
+        vec![
+            search_call("b", query),
+            MockStreamEvent::final_response_with_total_tokens(1),
+        ],
+        vec![
+            MockStreamEvent::text("Done."),
+            MockStreamEvent::final_response_with_total_tokens(1),
+        ],
+    ]);
+    let answer = run_model(
+        model,
+        scope.clone(),
+        &input,
+        ReasoningEffort::Medium,
+        4,
+        true,
+        CancellationToken::new(),
+        Arc::new(|_| {}),
+    )
+    .await;
+    let trace = finish_trace(&scope, &answer).unwrap();
+    assert_eq!(trace.level, TraceLevel::Summary);
+    assert_eq!(trace.guide, crate::threads_guides::BUNDLE_VERSION);
+    assert_eq!((trace.rounds, trace.calls.len()), (2, 2));
+    let text = serde_json::to_string(&trace).unwrap();
+    assert!(!text.contains("secret harbor"), "{text}");
+    assert_eq!(trace.calls[0].args["words"], 3);
+    assert_eq!(
+        trace.calls[0].args["query_hash"],
+        trace.calls[1].args["query_hash"]
+    );
+    assert_eq!(trace.calls[0].result["ids"][0], "n1");
+
+    let (_root, mut request, _) = tests::fixture();
+    request.trace = TraceLevel::Off;
+    let (scope, _) = begin(&request).unwrap();
+    assert!(finish_trace(&scope, &answer).is_none());
+}
+
 #[test]
 fn search_arguments_are_strict_and_bounded() {
     let ok = json!({"query":"harbor","limit":20,"mode":"hybrid","cursor":"12"});
