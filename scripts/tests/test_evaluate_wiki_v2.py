@@ -244,7 +244,7 @@ class MetricTests(unittest.TestCase):
         m = v2.step_metrics(tr, {'n-k'}, private={'n-s'})
         self.assertEqual(m['helper_runs'], 2)
         self.assertEqual(m['helper_outcomes'], {'answered': 1, 'unavailable': 1})
-        self.assertEqual(m['citations'], {'exact': 2, 'stale': 1, 'mismatch': 0, 'rejected': 1})
+        self.assertEqual(m['citations'], {'exact': 2, 'relocated': 0, 'stale': 1, 'mismatch': 0, 'rejected': 1})
         self.assertEqual(m['helper_tokens'], 320)
         self.assertEqual(m['peak_turn_input'], 30)
         # The parent's own metrics stay its own; a helper's leak still counts.
@@ -256,6 +256,33 @@ class MetricTests(unittest.TestCase):
         self.assertEqual(total['helper_outcomes'], {'answered': 1, 'unavailable': 1})
         plain = v2.step_metrics(trace([]), set())
         self.assertEqual((plain['helper_runs'], plain['helper_tokens'], plain['peak_turn_input']), (0, 0, None))
+
+    def test_usage_cost_discounts_cached_input_per_model(self):
+        usage = {'input': 1_000_000, 'cached_input': 400_000, 'output': 10_000}
+        # Sol: 0.6M uncached x 50 + 0.4M cached x 2.5 + 0.01M output x 250.
+        self.assertAlmostEqual(v2.usage_cost(usage, 'gpt-6.1-sol'), 30 + 1 + 2.5)
+        self.assertAlmostEqual(v2.usage_cost(usage, 'gpt-6-luna'), 1.5 + 0.1 + 0.125)
+        self.assertEqual(v2.usage_cost({}, 'gpt-6.1-sol'), 0)
+        self.assertIsNone(v2.usage_cost(usage, 'unpriced-model'))
+        # A cached count above the input is clamped, never a negative uncached part.
+        self.assertAlmostEqual(v2.usage_cost({'input': 10, 'cached_input': 20}, 'gpt-6.1-sol'), 10 * 2.5 / 1e6)
+
+    def test_run_cost_prices_parent_and_helpers_separately(self):
+        result = {'model': 'gpt-6.1-sol', 'steps': [{'trace': self.helper_trace()}]}
+        cost = v2.run_cost(result)
+        self.assertAlmostEqual(cost['parent'], (50 * 50 + 5 * 250) / 1e6)
+        self.assertAlmostEqual(cost['helper'], (200 * 2.5 + 100 * 0.25 + 20 * 12.5) / 1e6)
+        self.assertAlmostEqual(cost['cost'], cost['parent'] + cost['helper'])
+        self.assertIsNone(v2.run_cost({'model': 'unpriced', 'steps': [{'trace': self.helper_trace()}]})['cost'])
+        self.assertIsNone(v2.run_cost({'model': 'gpt-6.1-sol', 'steps': [{'trace': None}]})['cost'])
+
+    def test_cost_ratios_compare_each_arm_to_the_first(self):
+        row = lambda case, arm, cost: {'case': case, 'scale': 1000, 'arm': arm,
+                                       'metrics': {'cost': v2.median_range([cost])}}
+        ratios = v2.cost_ratios([row('D1', 'A', 2.0), row('D1', 'B', 1.0), row('M3', 'B', 0.6),
+                                 row('M3', 'A', 0.6)])
+        self.assertEqual([(r['case'], r['arm'], r['ratio']) for r in ratios],
+                         [('D1', 'B', 0.5), ('M3', 'B', 1.0), ('all', 'B', 1.6 / 2.6)])
 
     def test_helper_reads_satisfy_read_checks(self):
         ctx = ctx_for(CASE, BASE, BASE, [step('a', tr=self.helper_trace())])
