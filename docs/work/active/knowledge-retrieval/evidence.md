@@ -550,7 +550,7 @@ python3 scripts/evaluate_wiki_v2.py --root ABS_FRESH --seeder target/release/exa
 - **The 8-round budget is the binding limit for intake at this wiki size.** It affects both bundles. S1 cannot judge bundle 5 until that changes.
 - Candidate fixes are a larger default intake budget, or compact tool output (design §7 item 5). Either needs a measured S1 rerun of about 2 million tokens.
 
-## Compact intake: bundle 6 S1 rerun (14 October 2026)
+## Compact intake: S1 rerun (14 October 2026)
 
 **Request:** the owner asked to compact intake and raise its limit, then rerun S1.
 
@@ -560,21 +560,21 @@ python3 scripts/evaluate_wiki_v2.py --root ABS_FRESH --seeder target/release/exa
 - Empty searches were correct: "Tõnis", "Puidukoda" and "Liis choir" were new information.
 - In one run, `prepare_changes` failed twice per step with identical arguments, because the model saw only "Local storage operation failed."
 
-**Changes** (`brn-threads-guidance-6`):
+**Changes** (built as bundle 6 and renamed `brn-threads-guidance-7` on merge, because Projects took bundle 6; same guide text):
 - Runs with supplied sources start with the intake and maintain-notes playbooks loaded and get 12 tool rounds (`threads::default_tool_rounds`). Other runs keep 8.
 - With search offered, a `read_records` listing returns compact note rows (id, version, title, bytes, protected, imported) without Markdown. Exact IDs still return complete records.
 - `prepare_changes` returns outcome `Invalid` with the store's rule when the request breaks one. Scope rejections stay generic, so chat privacy is unchanged.
 - Harness: `no_writes` counts a Link only when one of its ends is a note. A chat-to-Source link keeps the source in its chat.
 
-**Live S1:** one arm, bundle 6, Codex `gpt-6.1-sol` at medium effort, two repetitions, 14 runs.
+**Live S1:** one arm (the compact build), Codex `gpt-6.1-sol` at medium effort, two repetitions, 14 runs.
 
-| | Bundle 4 (B-r1) | Bundle 5 (D-r2) | Bundle 6 r1 | Bundle 6 r2 |
+| | Bundle 4 (B-r1) | Bundle 5 (D-r2) | Compact r1 | Compact r2 |
 |---|---|---|---|---|
 | Intake steps completed | 2/5 | 4/5 | 5/5 | 5/5 |
 | Intake rounds (max) | 8 (limit) | 8 (limit) | 11 | 11 |
 | Intake tokens, median per step | 212k | 145k | 128k | 128k |
 | Tokens for the case | 1.07M | 0.96M | 0.89M | 0.80M |
-| Bytes read for the case | about 0.47M | about 0.50M | 0.21M (median of the two bundle 6 runs) | |
+| Bytes read for the case | about 0.47M | about 0.50M | 0.21M (median of the two compact runs) | |
 | Facts kept, Topics, links, search ranks | all | lost 9 Nov and 7,600 EUR | all | all |
 | S1 checks | lineage only (harness error) | 5 failed | `no_writes` on step 3 | **all pass** |
 
@@ -585,6 +585,7 @@ python3 scripts/evaluate_wiki_v2.py --root ABS_FRESH --seeder target/release/exa
 - Total live use for this rerun was about 1.7 million tokens.
 
 **Remaining:**
+- The live S1 rerun ran before Projects (#138) merged. The merged code passes the offline checks but was not re-measured live.
 - Listings still happen once per intake, now compact.
 - Organizing requests use 8 rounds.
 - N is 2.

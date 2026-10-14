@@ -35,6 +35,8 @@ fn fixture(state: RunState, fence: u64) -> (tempfile::TempDir, Store, String, St
                 expected_version: None,
                 archived: false,
                 data: RecordData::Thread(Thread {
+                    private_context: false,
+                    context_epoch: 0,
                     title: "Synthetic steering".into(),
                     state: ThreadState::Open,
                     attention: vec![],
@@ -408,6 +410,8 @@ fn existing_wrong_thread_membership_is_rejected_without_partial_effects() {
             expected_version: None,
             archived: false,
             data: RecordData::Thread(Thread {
+                private_context: false,
+                context_epoch: 0,
                 title: "Other destination".into(),
                 state: ThreadState::Open,
                 attention: vec![],

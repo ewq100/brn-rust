@@ -16,7 +16,7 @@ pub const DATA_MARKER: &str = ".brn-threads-data";
 pub const DERIVED_DIRECTORY: &str = "derived";
 const IDENTITY: &str = "BRN Threads SQLite v1\n";
 pub(crate) const APPLICATION_ID: i64 = 0x42525448;
-pub(crate) const SCHEMA_VERSION: i64 = 4;
+pub(crate) const SCHEMA_VERSION: i64 = 5;
 pub struct Store {
     pub(crate) conn: Connection,
     directory: PathBuf,
@@ -101,6 +101,7 @@ impl Store {
             let tx = conn.transaction_with_behavior(TransactionBehavior::Immediate)?;
             tx.execute_batch("CREATE TABLE operations(id TEXT PRIMARY KEY, host_key TEXT UNIQUE NOT NULL, input_hash TEXT, hash TEXT, request TEXT, undo_of TEXT, replacement_of TEXT, retired INTEGER NOT NULL DEFAULT 0); CREATE TABLE candidate_targets(note TEXT PRIMARY KEY, operation TEXT NOT NULL REFERENCES operations(id)); CREATE TABLE records(id TEXT PRIMARY KEY, version INTEGER NOT NULL, body TEXT NOT NULL); CREATE UNIQUE INDEX one_workspace_settings ON records((1)) WHERE json_type(body,'$.data.Settings') IS NOT NULL; CREATE UNIQUE INDEX source_locator ON records(json_extract(body,'$.data.Source.locator')) WHERE json_type(body,'$.data.Source') IS NOT NULL; CREATE TABLE revisions(id TEXT NOT NULL, version INTEGER NOT NULL, operation TEXT NOT NULL REFERENCES operations(id), body TEXT NOT NULL, PRIMARY KEY(id,version)); CREATE TABLE receipts(operation TEXT PRIMARY KEY REFERENCES operations(id), body TEXT NOT NULL); CREATE TABLE edit_sessions(id TEXT PRIMARY KEY, note TEXT NOT NULL, base INTEGER NOT NULL, generation INTEGER NOT NULL, markdown TEXT NOT NULL, closed INTEGER NOT NULL DEFAULT 0); CREATE UNIQUE INDEX one_dirty_session ON edit_sessions(note) WHERE closed=0; CREATE TABLE derivation_inputs(operation TEXT NOT NULL, record TEXT NOT NULL, version INTEGER NOT NULL);")?;
             tx.execute_batch(crate::upgrade::CHAT_SCHEMA)?;
+            tx.execute_batch(crate::upgrade::PROJECT_SCHEMA)?;
             tx.pragma_update(None, "application_id", APPLICATION_ID)?;
             tx.pragma_update(None, "user_version", SCHEMA_VERSION)?;
             tx.commit()?;
@@ -345,8 +346,10 @@ impl Store {
                 }
             }
             for input in &request.inputs {
-                if input.expectation == InputExpectation::Current
-                    && !current_input_matches(&tx, input)?
+                if matches!(
+                    input.expectation,
+                    InputExpectation::Current | InputExpectation::ChatContext
+                ) && !current_input_matches(&tx, input)?
                 {
                     return Err(Error::Invalid(
                         "candidate refresh requires current input versions".into(),
@@ -549,6 +552,20 @@ impl Store {
                 .collect(),
             inputs: vec![],
         };
+        for w in &mut request.writes {
+            if let RecordData::Thread(next) = &mut w.data
+                && let Some(Record {
+                    data: RecordData::Thread(current),
+                    ..
+                }) = record_on(&tx, &w.id)?
+            {
+                next.private_context |= current.private_context;
+                next.context_epoch = current
+                    .context_epoch
+                    .checked_add(1)
+                    .ok_or_else(|| Error::Invalid("context epoch overflow".into()))?;
+            }
+        }
         let restored_notes = request
             .writes
             .iter()
@@ -936,7 +953,7 @@ fn open_existing_database(database: &Path) -> Result<Connection> {
         }
     })?;
     let schema: i64 = conn.pragma_query_value(None, "user_version", |r| r.get(0))?;
-    if schema == 3 {
+    if matches!(schema, 3 | 4) {
         crate::upgrade::upgrade_connection(&conn, database, None)?;
     }
     validate_connection(&conn)?;
@@ -1030,6 +1047,14 @@ fn validate_request(operation: &OperationId, request: &ChangeRequest) -> Result<
             return Err(Error::Invalid("full imports begin protected".into()));
         }
         if let RecordData::Action(action) = &write.data
+            && action.kept_outside_project
+            && action.chat.is_some()
+        {
+            return Err(Error::Invalid(
+                "Independent Action cannot retain private project scope".into(),
+            ));
+        }
+        if let RecordData::Action(action) = &write.data
             && action.state == ActionState::Done
             && action
                 .evidence
@@ -1072,6 +1097,21 @@ pub(crate) fn apply_on(
             }
         }
         return Ok(ApplyOutcome::Applied(receipt));
+    }
+    if let Some((chat, expected)) = &authority.project_binding {
+        let rows = crate::projects::project_rows_on(tx)?;
+        let current = crate::project_for_chat(&rows, chat);
+        if current.map(|r| (r.id.clone(), r.version)) != *expected
+            || current.is_some_and(|r| r.archived)
+        {
+            return Ok(ApplyOutcome::Superseded {
+                run: authority
+                    .run_binding
+                    .as_ref()
+                    .map(|(id, _)| id.clone())
+                    .unwrap_or_else(|| chat.clone()),
+            });
+        }
     }
     if let Some((id, version)) = &authority.settings_binding
         && !matches!(record_on(tx, id)?, Some(Record { version: current, archived: false, data: RecordData::Settings(_), .. }) if current == *version)
@@ -1231,6 +1271,41 @@ pub(crate) fn apply_on(
             asset_owners.insert(asset.note.clone());
         }
     }
+    if prepared
+        .request
+        .writes
+        .iter()
+        .any(|w| matches!(w.data, RecordData::Project(_)))
+    {
+        let mut rows = crate::projects::rows_on(tx)?;
+        for w in &prepared.request.writes {
+            rows.retain(|r| r.id != w.id);
+            rows.push(Record {
+                id: w.id.clone(),
+                version: w.expected_version.unwrap_or(0),
+                archived: w.archived,
+                data: w.data.clone(),
+            });
+        }
+        crate::projects::validate_projects(&rows)?;
+        let before_rows = crate::projects::rows_on(tx)?;
+        let mut changed_chats = BTreeSet::new();
+        for w in &prepared.request.writes {
+            if let RecordData::Project(p) = &w.data {
+                changed_chats.extend(p.chats.iter().cloned());
+                if let Some(old) = before_rows.iter().find(|r| r.id == w.id)
+                    && let RecordData::Project(p) = &old.data
+                {
+                    changed_chats.extend(p.chats.iter().cloned());
+                }
+            }
+        }
+        for r in &before_rows {
+            if let RecordData::Run(run) = &r.data && run.state == RunState::Working && !r.archived && changed_chats.contains(&run.thread) && !prepared.request.writes.iter().any(|w| w.id == r.id && matches!(&w.data, RecordData::Run(next) if next.state != RunState::Working && next.fence > run.fence)) {
+                return Err(Error::Invalid("Project context changes must fence current runs in the same checked group".into()));
+            }
+        }
+    }
     let mut stale = vec![];
     let mut guarded = vec![];
     let mut denied = vec![];
@@ -1259,17 +1334,30 @@ pub(crate) fn apply_on(
             return Err(Error::Invalid("record kind is immutable".into()));
         }
         let mut required = BTreeSet::new();
-        if matches!(write.data, RecordData::ChatControl(_)) {
+        if matches!(
+            write.data,
+            RecordData::ChatControl(_) | RecordData::Project(_)
+        ) {
+            required.insert(Capability::Configure);
+        }
+        if let RecordData::Action(a) = &write.data
+            && a.kept_outside_project
+                != current.as_ref().is_some_and(
+                    |r| matches!(&r.data, RecordData::Action(a) if a.kept_outside_project),
+                )
+        {
             required.insert(Capability::Configure);
         }
         let before_context = current.as_ref().and_then(|r| match &r.data {
             RecordData::Note(n) => n.chat.as_deref(),
             RecordData::Source(s) => s.chat.as_deref(),
+            RecordData::Action(a) => a.chat.as_deref(),
             _ => None,
         });
         let after_context = match &write.data {
             RecordData::Note(n) => n.chat.as_deref(),
             RecordData::Source(s) => s.chat.as_deref(),
+            RecordData::Action(a) => a.chat.as_deref(),
             _ => None,
         };
         if before_context != after_context
@@ -1287,7 +1375,7 @@ pub(crate) fn apply_on(
             && !matches!(
                 record_on(tx, chat)?,
                 Some(Record {
-                    data: RecordData::Thread(_),
+                    data: RecordData::Thread(_) | RecordData::Project(_),
                     ..
                 })
             )
@@ -1334,14 +1422,18 @@ pub(crate) fn apply_on(
             }) {
                 denied.push(write.id.clone());
             }
-            let private = *private
+            let private = context_rows.iter().any(|r| {
+                r.id == *chat && matches!(&r.data, RecordData::Thread(t) if t.private_context)
+            }) || *private
+                || crate::project_for_chat(&context_rows, chat).is_some()
                 || context_rows.iter().any(
                     |r| matches!(&r.data, RecordData::Note(n) if n.chat.as_deref() == Some(chat)),
                 );
             if private && matches!(authority.scope, crate::types::Scope::Maintenance) {
                 let local = match &write.data {
-                    RecordData::Note(n) => n.chat.as_deref() == Some(chat),
-                    RecordData::Source(s) => s.chat.as_deref() == Some(chat),
+                    RecordData::Note(n) => n.chat.as_deref().is_some_and(|owner| owner == chat || crate::context::project_scope(&context_rows, Some(chat)).is_some_and(|p| p.id == owner)),
+                    RecordData::Source(s) => s.chat.as_deref().is_some_and(|owner| owner == chat || crate::context::project_scope(&context_rows, Some(chat)).is_some_and(|p| p.id == owner)),
+                    RecordData::Action(a) => a.chat.as_deref().is_some_and(|owner| owner == chat || crate::context::project_scope(&context_rows, Some(chat)).is_some_and(|p| p.id == owner)),
                     RecordData::Thread(_) => write.id == *chat,
                     RecordData::Run(r) => r.thread == *chat,
                     RecordData::Asset(a) => projected_scope.iter().any(|r| r.id == a.note && matches!(&r.data, RecordData::Note(n) if n.chat.as_deref() == Some(chat))),
@@ -1363,6 +1455,29 @@ pub(crate) fn apply_on(
             denied.push(write.id.clone());
             before.push(current);
             continue;
+        }
+        if let RecordData::Thread(next) = &write.data {
+            let old_private = current
+                .as_ref()
+                .is_some_and(|r| matches!(&r.data, RecordData::Thread(t) if t.private_context));
+            if old_private && !next.private_context {
+                return Err(Error::Invalid(
+                    "Private conversation provenance cannot be cleared".into(),
+                ));
+            }
+            let old_epoch = current
+                .as_ref()
+                .and_then(|r| match &r.data {
+                    RecordData::Thread(t) => Some(t.context_epoch),
+                    _ => None,
+                })
+                .unwrap_or(0);
+            if next.context_epoch < old_epoch {
+                return Err(Error::Invalid("Context epoch cannot decrease".into()));
+            }
+            if next.private_context != old_private || next.context_epoch != old_epoch {
+                required.insert(Capability::Configure);
+            }
         }
         if matches!(write.data, RecordData::Settings(_)) {
             required.insert(Capability::Configure);
@@ -1533,8 +1648,10 @@ pub(crate) fn apply_on(
     // Receipt replay above precedes these mutable checks; no grouped write has
     // happened yet. Historical provenance is validated separately below.
     for input in &prepared.request.inputs {
-        if input.expectation == InputExpectation::Current
-            && !current_input_matches(tx, input)?
+        if matches!(
+            input.expectation,
+            InputExpectation::Current | InputExpectation::ChatContext
+        ) && !current_input_matches(tx, input)?
             && !stale.contains(&input.record)
         {
             stale.push(input.record.clone());
@@ -1728,6 +1845,25 @@ pub(crate) fn apply_on(
         }
     }
     for write in &prepared.request.writes {
+        let destination = match &write.data {
+            RecordData::Message(m) if !write.archived && write.expected_version.is_none() => {
+                Some(m.thread.as_str())
+            }
+            RecordData::Run(r) if r.state == RunState::Working && !write.archived => {
+                Some(r.thread.as_str())
+            }
+            _ => None,
+        };
+        if let Some(chat) = destination {
+            let rows = crate::projects::project_rows_on(tx)?;
+            if crate::project_for_chat(&rows, chat).is_some_and(|p| p.archived) {
+                return Err(Error::Invalid(
+                    "Restore this project before continuing its chats".into(),
+                ));
+            }
+        }
+    }
+    for write in &prepared.request.writes {
         let refs: Vec<(&str, Option<&str>)> = match &write.data {
             RecordData::Asset(asset) => std::iter::once((asset.note.as_str(), Some("note")))
                 .chain(asset.source.as_deref().map(|id| (id, Some("source"))))
@@ -1888,6 +2024,21 @@ pub(crate) fn apply_on(
 }
 
 fn current_input_matches(conn: &Connection, input: &RevisionInput) -> Result<bool> {
+    if input.expectation == InputExpectation::ChatContext {
+        let historic: Option<String> = conn
+            .query_row(
+                "SELECT body FROM revisions WHERE id=?1 AND version=?2",
+                params![input.record, crate::integer(input.version)?],
+                |r| r.get(0),
+            )
+            .optional()?;
+        let historic = historic
+            .map(|body| serde_json::from_str::<Record>(&body))
+            .transpose()?;
+        return Ok(
+            matches!((record_on(conn, &input.record)?, historic), (Some(Record { archived: false, data: RecordData::Thread(current), .. }), Some(Record { data: RecordData::Thread(old), .. })) if current.context_epoch == old.context_epoch && current.private_context == old.private_context),
+        );
+    }
     Ok(record_on(conn, &input.record)?.is_some_and(|record| {
         record.version == input.version
             && !record.archived

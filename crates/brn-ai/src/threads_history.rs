@@ -141,6 +141,7 @@ pub(super) fn refresh(scope: &Scope, mut args: RefreshArgs) -> AiResult<Value> {
         Some(&scope.chat),
         &scope.source_ids,
     )?;
+    bind_project_inputs(scope, &store, &mut args.request)?;
     let authority = bind(
         scope,
         HostAuthority::runtime("Threads candidate refresh", &scope.run),
@@ -355,6 +356,8 @@ mod tests {
                         expected_version: None,
                         archived: false,
                         data: RecordData::Thread(Thread {
+                            private_context: false,
+                            context_epoch: 0,
                             title: "Other".into(),
                             state: ThreadState::Open,
                             attention: vec![],

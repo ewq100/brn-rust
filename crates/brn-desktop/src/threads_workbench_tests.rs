@@ -612,6 +612,8 @@ fn ordinary_question_attention_survives_rewrite_and_proposal_stays_with_note(
                             expected_version: Some(current.version),
                             archived: false,
                             data: RecordData::Thread(Thread {
+                                private_context: false,
+                                context_epoch: 0,
                                 title: "Question thread".into(),
                                 state: ThreadState::Open,
                                 attention: vec![Attention {

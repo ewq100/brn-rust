@@ -41,6 +41,13 @@ pub fn search_eligibility(record: &Record, rows: &[Record]) -> SearchEligibility
                 _ => None,
             })
     });
+    if let Some(owner) = &note.chat
+        && rows
+            .iter()
+            .any(|r| r.id == *owner && matches!(r.data, RecordData::Project(_)))
+    {
+        return SearchEligibility::Chat(owner.clone());
+    }
     [note.chat.clone(), source_chat]
         .into_iter()
         .flatten()
@@ -163,6 +170,18 @@ impl Snapshot<'_> {
                 RecordData::Note(note) => {
                     pending.extend(note.import.as_ref().map(|i| i.source.clone()));
                     pending.extend(note.superseded_by.clone());
+                    pending.extend(note.chat.clone());
+                }
+                RecordData::Action(a) => pending.extend(a.chat.clone()),
+                RecordData::Source(_) => {
+                    let mut importing = self.tx.prepare("SELECT id FROM records WHERE json_type(body,'$.data.Note') IS NOT NULL AND json_extract(body,'$.data.Note.import.source')=?1")?;
+                    for id in importing.query_map([&record.id], |r| r.get::<_, String>(0))? {
+                        pending.push(id?);
+                    }
+                    let mut assets = self.tx.prepare("SELECT id FROM records WHERE json_type(body,'$.data.Asset') IS NOT NULL AND json_extract(body,'$.data.Asset.source')=?1")?;
+                    for id in assets.query_map([&record.id], |r| r.get::<_, String>(0))? {
+                        pending.push(id?);
+                    }
                 }
                 RecordData::Asset(asset) => {
                     pending.push(asset.note.clone());
@@ -176,6 +195,26 @@ impl Snapshot<'_> {
                 _ => {}
             }
             found.insert(id, record);
+        }
+        let mut projects = self.tx.prepare(
+            "SELECT body FROM records WHERE json_type(body,'$.data.Project') IS NOT NULL",
+        )?;
+        for body in projects.query_map([], |r| r.get::<_, String>(0))? {
+            let r = record_from(body?)?;
+            found.insert(r.id.clone(), r);
+        }
+        if found
+            .values()
+            .any(|r| matches!(r.data, RecordData::Project(_)))
+        {
+            let ids: Vec<_> = found.keys().cloned().collect();
+            let mut links = self.tx.prepare("SELECT body FROM records WHERE json_type(body,'$.data.Link') IS NOT NULL AND (json_extract(body,'$.data.Link.from')=?1 OR json_extract(body,'$.data.Link.to')=?1) AND json_extract(body,'$.archived')=0")?;
+            for id in ids {
+                for body in links.query_map([id], |r| r.get::<_, String>(0))? {
+                    let r = record_from(body?)?;
+                    found.insert(r.id.clone(), r);
+                }
+            }
         }
         Ok(found.into_values().collect())
     }
@@ -202,10 +241,10 @@ impl Snapshot<'_> {
         Ok(ids
             .iter()
             .filter_map(|id| rows.iter().find(|r| &r.id == id))
-            .filter(|r| match search_eligibility(r, &rows) {
-                SearchEligibility::General => true,
-                SearchEligibility::Chat(owner) => Some(owner.as_str()) == chat,
-                SearchEligibility::Hidden => false,
+            .filter(|r| {
+                !r.archived
+                    && matches!(&r.data, RecordData::Note(n) if n.superseded_by.is_none())
+                    && crate::context::visible(r, &rows, chat)
             })
             .map(|r| r.id.clone())
             .collect())

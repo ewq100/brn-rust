@@ -4,6 +4,11 @@ mod backup;
 mod chat;
 pub use chat::{ChatCommand, ChatCommandOutcome};
 mod context;
+mod projects;
+pub use projects::{
+    Project, ProjectActionChoice, ProjectCommand, ProjectDeletePreview, ProjectTrash,
+    TrashedRecord, project_context_fences, project_document_ids, project_for_chat,
+};
 mod edit;
 mod read;
 mod reader;
@@ -50,5 +55,5 @@ pub(crate) fn read_u64(row: &rusqlite::Row<'_>, index: usize) -> rusqlite::Resul
     u64::try_from(value).map_err(|_| rusqlite::Error::IntegralValueOutOfRange(index, value))
 }
 
-pub use context::{managed_asset_ids, visible as record_in_chat};
+pub use context::{managed_asset_ids, project_scope, visible as record_in_chat};
 pub use reader::{SearchEligibility, Snapshot, StoreReader, search_eligibility};

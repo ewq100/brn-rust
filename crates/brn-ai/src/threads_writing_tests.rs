@@ -20,7 +20,7 @@ fn owner_write(store: &mut Store, key: &str, writes: Vec<Put>) {
     ));
 }
 
-fn rewrite_fixture(
+pub(super) fn rewrite_fixture(
     protected: bool,
     chat_count: usize,
 ) -> (tempfile::TempDir, ThreadRunRequest, WritingSnapshot) {
@@ -172,7 +172,24 @@ fn rewrite_forces_all_current_inputs_and_review_for_ordinary_and_protected_notes
             expectation: InputExpectation::Historical,
         }];
         let prepared: Prepared = serde_json::from_value(prepare(&scope, args).unwrap()).unwrap();
-        assert_eq!(prepared.request.inputs, snapshot.current_inputs());
+        assert_eq!(
+            prepared
+                .request
+                .inputs
+                .iter()
+                .filter(|i| i.expectation != InputExpectation::ChatContext)
+                .cloned()
+                .collect::<Vec<_>>(),
+            snapshot.current_inputs()
+        );
+        assert!(
+            prepared
+                .request
+                .inputs
+                .iter()
+                .any(|i| i.record == snapshot.thread
+                    && i.expectation == InputExpectation::ChatContext)
+        );
         let result = apply(
             &scope,
             ApplyArgs {
@@ -290,6 +307,8 @@ fn rewrite_rejects_forged_snapshot_foreign_thread_and_transient_sources() {
                         expected_version: None,
                         archived: false,
                         data: RecordData::Thread(Thread {
+                            private_context: false,
+                            context_epoch: 0,
                             title: "Other discussion".into(),
                             state: ThreadState::Open,
                             attention: vec![],
@@ -579,7 +598,16 @@ async fn mock_rewrite_prepares_review_without_apply_and_finishes_without_changin
     );
     let candidates = store.candidates().unwrap();
     assert_eq!(candidates.len(), 1);
-    assert_eq!(candidates[0].request.inputs, snapshot.current_inputs());
+    assert_eq!(
+        candidates[0]
+            .request
+            .inputs
+            .iter()
+            .filter(|i| i.expectation != InputExpectation::ChatContext)
+            .cloned()
+            .collect::<Vec<_>>(),
+        snapshot.current_inputs()
+    );
     assert!(
         matches!(store.record(&snapshot.thread).unwrap().unwrap().data,
         RecordData::Thread(thread) if thread.attention.iter().any(|attention|

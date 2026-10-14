@@ -76,6 +76,11 @@ pub(crate) fn partial_text(text: &str) -> Result<()> {
 }
 fn active_chat(tx: &rusqlite::Transaction<'_>, id: &str) -> Result<Record> {
     let r = record_on(tx, id)?.ok_or_else(|| Error::Missing(id.into()))?;
+    if crate::project_for_chat(&crate::projects::rows_on(tx)?, id).is_some_and(|r| r.archived) {
+        return Err(Error::Invalid(
+            "Restore this project before sending work".into(),
+        ));
+    }
     if r.archived || !matches!(&r.data, RecordData::Thread(t) if t.state == ThreadState::Open) {
         return Err(Error::Invalid(
             "Unarchive this chat before sending queued work".into(),
@@ -396,6 +401,13 @@ impl Store {
             ChatCommand::Archive { thread }
             | ChatCommand::ArchiveProgress { thread, .. }
             | ChatCommand::Unarchive { thread } => {
+                if crate::project_for_chat(&crate::projects::project_rows_on(&tx)?, thread)
+                    .is_some_and(|p| p.archived)
+                {
+                    return Err(Error::Invalid(
+                        "Restore this project before changing its chats".into(),
+                    ));
+                }
                 let record =
                     record_on(&tx, thread)?.ok_or_else(|| Error::Missing(thread.clone()))?;
                 let RecordData::Thread(mut t) = record.data else {

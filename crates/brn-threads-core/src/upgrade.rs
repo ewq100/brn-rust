@@ -16,6 +16,13 @@ CREATE TABLE IF NOT EXISTS chat_drafts(
     destination TEXT PRIMARY KEY, generation INTEGER NOT NULL, text TEXT NOT NULL);
 ";
 
+pub(crate) const PROJECT_SCHEMA: &str = "CREATE INDEX IF NOT EXISTS project_records ON records(id) WHERE json_type(body,'$.data.Project') IS NOT NULL;
+CREATE INDEX IF NOT EXISTS context_link_from ON records(json_extract(body,'$.data.Link.from')) WHERE json_type(body,'$.data.Link') IS NOT NULL;
+CREATE INDEX IF NOT EXISTS context_link_to ON records(json_extract(body,'$.data.Link.to')) WHERE json_type(body,'$.data.Link') IS NOT NULL;
+CREATE INDEX IF NOT EXISTS context_asset_source ON records(json_extract(body,'$.data.Asset.source')) WHERE json_type(body,'$.data.Asset') IS NOT NULL;
+CREATE INDEX IF NOT EXISTS context_import_source ON records(json_extract(body,'$.data.Note.import.source')) WHERE json_type(body,'$.data.Note') IS NOT NULL;
+";
+
 impl Store {
     pub fn upgrade(directory: &Path, backup_directory: &Path) -> Result<()> {
         if !directory.is_absolute()
@@ -42,7 +49,7 @@ pub(crate) fn upgrade_connection(
     database: &Path,
     chosen: Option<&Path>,
 ) -> Result<()> {
-    validate_schema(conn, &[3])?;
+    validate_schema(conn, &[3, 4])?;
     let workspace = database
         .parent()
         .ok_or_else(|| Error::UnsafeDirectory("workspace parent missing".into()))?;
@@ -60,16 +67,17 @@ pub(crate) fn upgrade_connection(
         "SELECT json_extract(body,'$.data.Settings.backup_directory') FROM records WHERE json_type(body,'$.data.Settings') IS NOT NULL AND json_extract(body,'$.archived')=0 LIMIT 1", [], |r| r.get(0)
     ).optional()?.flatten();
     let folder = chosen.or_else(|| remembered.as_deref().map(Path::new)).ok_or_else(|| Error::UnsafeDirectory(
-        format!("Schema 3 needs an external pre-upgrade backup folder. Run: brn --data-dir {} upgrade --backup-directory ABSOLUTE_FOLDER", workspace.display())
+        format!("Schema 3/4 needs an external pre-upgrade backup folder. Run: brn --data-dir {} upgrade --backup-directory ABSOLUTE_FOLDER", workspace.display())
     ))?;
     let folder = validate_backup_directory(workspace, folder)?;
     let destination = folder.join(format!(
-        "brn-before-chat-schema-4-{}.sqlite3",
+        "brn-before-project-schema-5-{}.sqlite3",
         uuid::Uuid::new_v4()
     ));
     let snapshot = Connection::open_with_flags(database, OpenFlags::SQLITE_OPEN_READ_ONLY)?;
     crate::backup::StagedBackup::create(&snapshot, &destination)?.publish()?;
     tx.execute_batch(CHAT_SCHEMA)?;
+    tx.execute_batch(PROJECT_SCHEMA)?;
     tx.pragma_update(None, "user_version", crate::store::SCHEMA_VERSION)?;
     tx.commit()?;
     validate_schema(conn, &[crate::store::SCHEMA_VERSION])

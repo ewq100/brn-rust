@@ -87,6 +87,9 @@ pub(super) fn thread_rows(records: &[Record], activity: &Activity) -> Vec<Thread
     let mut rows: Vec<_> = records
         .iter()
         .filter_map(|record| {
+            if brn_threads_app::project_for_chat(records, &record.id).is_some_and(|p| p.archived) {
+                return None;
+            }
             let RecordData::Thread(thread) = &record.data else {
                 return None;
             };
@@ -552,6 +555,8 @@ mod tests {
         record(
             id,
             RecordData::Thread(Thread {
+                private_context: false,
+                context_epoch: 0,
                 title: title.into(),
                 state,
                 attention: reason

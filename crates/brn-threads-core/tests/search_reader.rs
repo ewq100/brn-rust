@@ -33,6 +33,8 @@ fn owner_writes(store: &mut Store, key: &str, data: Vec<(RecordData, bool)>) -> 
 
 fn thread(title: &str) -> RecordData {
     RecordData::Thread(Thread {
+        private_context: false,
+        context_epoch: 0,
         title: title.into(),
         state: ThreadState::Open,
         attention: vec![],

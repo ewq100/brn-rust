@@ -825,6 +825,50 @@ fn attempt_answer(
     }
 }
 
+fn context_facts(
+    snapshot: &Snapshot<'_>,
+    index: &SearchIndex,
+    ids: &[String],
+    chat: Option<&str>,
+) -> AppResult<BTreeMap<String, brn_retrieval::search_index::DocFacts>> {
+    let rows = if chat.is_some() {
+        snapshot.records()?
+    } else {
+        vec![]
+    };
+    if brn_threads_core::project_scope(&rows, chat).is_none() {
+        return Ok(index.facts(ids, chat, crate::relations::SOURCE)?);
+    }
+    let mut out = BTreeMap::new();
+    for id in ids {
+        let mut fact = brn_retrieval::search_index::DocFacts {
+            protected: rows
+                .iter()
+                .any(|r| r.id == *id && matches!(&r.data, RecordData::Note(n) if n.protected)),
+            imported: rows.iter().any(|r| {
+                r.id == *id && matches!(&r.data, RecordData::Note(n) if n.import.is_some())
+            }),
+            ..Default::default()
+        };
+        for r in rows.iter().filter(|r| !r.archived) {
+            if let RecordData::Link(l) = &r.data
+                && l.to == *id
+                && brn_threads_core::record_in_chat(r, &rows, chat)
+                && rows
+                    .iter()
+                    .any(|r| r.id == l.from && !r.archived && matches!(r.data, RecordData::Note(_)))
+            {
+                fact.inbound_links += 1;
+                if l.relation == crate::relations::SOURCE {
+                    fact.evidence_links += 1;
+                }
+            }
+        }
+        out.insert(id.clone(), fact);
+    }
+    Ok(out)
+}
+
 #[allow(clippy::too_many_arguments)]
 fn search(
     snapshot: &Snapshot<'_>,
@@ -837,7 +881,38 @@ fn search(
     last: bool,
     dense: &[i64],
 ) -> AppResult<Option<SearchResults>> {
-    let ranked = index.hybrid(query, chat, PER_LANE, dense)?;
+    let project_rows = if chat.is_some() {
+        snapshot.records()?
+    } else {
+        vec![]
+    };
+    let project = brn_threads_core::project_scope(&project_rows, chat);
+    let mut ranked = index.hybrid(query, chat, PER_LANE, dense)?;
+    if let Some(project) = project {
+        let RecordData::Project(p) = &project.data else {
+            unreachable!()
+        };
+        let mut scopes: BTreeSet<String> = p.chats.iter().cloned().collect();
+        scopes.insert(project.id.clone());
+        let docs = brn_threads_core::project_document_ids(&project_rows, project);
+        for r in project_rows.iter().filter(|r| docs.contains(&r.id)) {
+            if let RecordData::Note(n) = &r.data {
+                scopes.extend(n.chat.clone());
+            }
+        }
+        for scope in scopes {
+            ranked.extend(index.hybrid(query, Some(&scope), PER_LANE, dense)?);
+        }
+        ranked.sort_by(|a, b| {
+            docs.contains(&b.doc)
+                .cmp(&docs.contains(&a.doc))
+                .then_with(|| b.score.total_cmp(&a.score))
+                .then_with(|| a.doc.cmp(&b.doc))
+        });
+        let mut seen = BTreeSet::new();
+        ranked.retain(|r| seen.insert(r.doc.clone()));
+    }
+
     let ids: Vec<String> = ranked.iter().map(|hit| hit.doc.clone()).collect();
     let allowed = snapshot.searchable_notes(&ids, chat)?;
     // Notes only the dense lane ranked may still match the keywords further
@@ -866,7 +941,7 @@ fn search(
         .take(REACHABLE)
         .collect();
     let ids: Vec<String> = ranked.iter().map(|hit| hit.doc.clone()).collect();
-    let facts = index.facts(&ids, chat, crate::relations::SOURCE)?;
+    let facts = context_facts(snapshot, index, &ids, chat)?;
     let evidence: Vec<bool> = ids
         .iter()
         .map(|id| {
@@ -876,8 +951,20 @@ fn search(
         })
         .collect();
     // Exact keyword matches plus the notes only the dense lane found.
-    let total =
-        (index.count(query, chat)?.saturating_sub(rejected) + semantic_only).max(ranked.len());
+    let total = if project.is_some() {
+        let visible: Vec<_> = project_rows
+            .iter()
+            .filter(|r| {
+                !r.archived
+                    && matches!(&r.data, RecordData::Note(n) if n.superseded_by.is_none())
+                    && brn_threads_core::record_in_chat(r, &project_rows, chat)
+            })
+            .map(|r| r.id.clone())
+            .collect();
+        index.matching_keywords(query, &visible)?.len() + semantic_only
+    } else {
+        (index.count(query, chat)?.saturating_sub(rejected) + semantic_only).max(ranked.len())
+    };
     let start = offset(cursor, limit)?;
     let order = arrange(&evidence, limit);
     let mut matches = Vec::new();
@@ -1056,7 +1143,7 @@ fn connections(
     for _ in 0..hops {
         let found = neighbours(snapshot, index, &frontier, &seen, chat, sources)?;
         let ids: Vec<String> = found.iter().map(|(id, ..)| id.clone()).collect();
-        let facts = index.facts(&ids, chat, crate::relations::SOURCE)?;
+        let facts = context_facts(snapshot, index, &ids, chat)?;
         let first_hop = layers.is_empty();
         let mut shown = Vec::new();
         for (id, via, relations) in found {
@@ -1081,11 +1168,7 @@ fn connections(
         frontier = shown.iter().map(|n| n.id.clone()).collect();
         layers.push(Hop { shown, available });
     }
-    let facts = index.facts(
-        std::slice::from_ref(&centre_id),
-        chat,
-        crate::relations::SOURCE,
-    )?;
+    let facts = context_facts(snapshot, index, std::slice::from_ref(&centre_id), chat)?;
     let centre = node(snapshot, &centre_id, vec![], None, &facts)?
         .ok_or_else(|| AppError::Invalid("note not found".into()))?;
     Ok(Connections {

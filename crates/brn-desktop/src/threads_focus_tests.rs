@@ -602,6 +602,8 @@ fn native_whole_group_selection_prepares_new_comparison_before_exact_apply(
                         expected_version: None,
                         archived: false,
                         data: RecordData::Action(Action {
+                            kept_outside_project: false,
+                            chat: None,
                             description: "Human wording check".into(),
                             state: ActionState::Waiting,
                             internal: false,

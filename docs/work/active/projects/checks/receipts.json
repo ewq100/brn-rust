@@ -1,0 +1,59 @@
+{
+  "reviewed_tree": "b53af0c9dfbf6dd1cddef10ab183a66dca31bc4b",
+  "environment": {
+    "CARGO_TARGET_DIR": "/tmp/brn-ui-repairs-target-20261010",
+    "Rust": "1.98.1",
+    "fixtures": "fresh synthetic; no providers or embedding model downloads"
+  },
+  "checks": {
+    "workspace": {
+      "command": "cargo test --workspace --locked --offline",
+      "exit": 0,
+      "log": "checks/workspace.log",
+      "sha256": "9968bb16a1dc6fa1e70d03f1aa0e001fcdfe4da4f22fb457c8274890fb209c50",
+      "passed": 539,
+      "ignored": 3,
+      "failed": 0
+    },
+    "build": {
+      "command": "cargo build --workspace --locked --offline",
+      "exit": 0,
+      "log": "checks/build.log",
+      "sha256": "b565a57c5da6cce7bb44a9bbcab5a58a9dbeb84e80285e80d6bd2c58cb7f3120"
+    },
+    "clippy": {
+      "command": "cargo clippy --workspace --all-targets --locked --offline -- -D warnings",
+      "exit": 0,
+      "log": "checks/clippy.log",
+      "sha256": "873d533920c0ee8486fc3dce6ae645e1ede49fb59aa31efd503c3cae1ff8d2ad"
+    },
+    "native-build": {
+      "command": "cargo build -p brn-desktop --features native-ui --locked --offline",
+      "exit": 0,
+      "log": "checks/native-build.log",
+      "sha256": "7f20cfe30a6a6773b3fff2be75e5a0c9958b0ede5bbe8e4741060a0ea541a8ef"
+    },
+    "native-clippy": {
+      "command": "cargo clippy -p brn-desktop --features native-ui,native-test-support --all-targets --locked --offline -- -D warnings",
+      "exit": 0,
+      "log": "checks/native-clippy.log",
+      "sha256": "65943306e46881dfcbac8962ce2f29be1fe33d5cc4777139b260b9d551b21776"
+    },
+    "native": {
+      "command": "cargo test -p brn-desktop --features native-ui,native-test-support --bin brn-desktop threads_ui:: --locked --offline",
+      "exit": 0,
+      "log": "checks/native.log",
+      "sha256": "b98e518bcd12bacdca02188d34af11f806737b4eb72586c1e94efe874eeed069",
+      "passed": 144,
+      "ignored": 0,
+      "failed": 0
+    },
+    "cli": {
+      "command": "python3 docs/work/active/projects/cli-witness.py /tmp/brn-ui-repairs-target-20261010/debug/brn",
+      "exit": 0,
+      "log": "checks/cli.log",
+      "sha256": "5c5234b5ad2fadf48eb568a7d671795fadf8159b550f6467ab9c036fead58f0e"
+    }
+  },
+  "log_normalization": "Trailing empty lines trimmed for repository whitespace checks; diagnostic content preserved."
+}
