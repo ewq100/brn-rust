@@ -130,6 +130,36 @@ jobs:
               outputs.append(output)
           print(json.dumps({'renderer_exit': int(sys.argv[2]), 'outputs': outputs, 'synthetic_stderr': root.joinpath('stderr').read_bytes()[:4096].decode('utf-8', 'replace')}))
           PY
+          mkdir "$diagnostic/restricted"
+          cp "$diagnostic/fonts.conf" "$diagnostic/restricted/fonts.conf"
+          cp "$GITHUB_WORKSPACE/crates/brn-threads-intake/tests/fixtures/luna/process-scan.pdf" "$diagnostic/restricted/input.pdf"
+          python3 - "$renderer" "$diagnostic" <<'PY'
+          import json, pathlib, sys
+          executable = pathlib.Path(sys.argv[1]).resolve()
+          root = pathlib.Path(sys.argv[2])
+          prefix = next(p.parent for p in executable.parents if p.name == 'Cellar')
+          q = lambda p: json.dumps(str(p))
+          profile = f'''(version 1)
+          (deny default)
+          (allow process-exec (literal {q(executable)}))
+          (allow sysctl-read)
+          (allow file-read* (literal "/"))
+          (allow file-read-metadata (subpath {q(prefix)}))
+          (allow file-read* file-map-executable (subpath {q(prefix / 'Cellar')}) (subpath {q(prefix / 'lib')}) (subpath {q(prefix / 'share')}))
+          (allow file-read* file-map-executable (subpath "/System/Library") (subpath "/System/Volumes/Preboot") (subpath "/private/preboot") (subpath "/usr/lib") (subpath "/private/var/db/dyld") (subpath "/usr/share") (subpath "/Library/Fonts") (literal {q(executable)}))
+          (allow file-read* file-write* (subpath {q(root / 'restricted')}) (literal "/dev/null"))
+          '''
+          root.joinpath('renderer.sb').write_text(profile)
+          PY
+          set +e
+          (cd "$diagnostic/restricted" && ulimit -n 64 && ulimit -t 30 && env -i FONTCONFIG_FILE="$diagnostic/restricted/fonts.conf" FONTCONFIG_PATH="$diagnostic/restricted" /usr/bin/sandbox-exec -f "$diagnostic/renderer.sb" "$renderer" -f 1 -l 3 -scale-to 1600 -png "$diagnostic/restricted/input.pdf" "$diagnostic/restricted/preview") > "$diagnostic/restricted/stdout" 2> "$diagnostic/restricted/stderr"
+          restricted_status=$?
+          set -e
+          python3 - "$diagnostic/restricted" "$restricted_status" <<'PY'
+          import json, pathlib, sys
+          root = pathlib.Path(sys.argv[1])
+          print(json.dumps({'restricted_renderer_exit': int(sys.argv[2]), 'outputs': [p.name for p in root.glob('preview-*.png')], 'synthetic_stderr': root.joinpath('stderr').read_bytes()[:4096].decode('utf-8', 'replace')}))
+          PY
       - name: Test provider capability fixtures offline
         if: ${{ !cancelled() && steps.workspace-build.outcome == 'success' && runner.os != 'Windows' }}
         run: cargo test -p brn-ai --features capability-spike --all-targets --locked --offline
