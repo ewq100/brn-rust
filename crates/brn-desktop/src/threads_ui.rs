@@ -1,8 +1,6 @@
 //! Final-use native Threads workspace. All durable changes use the shared service.
 use brn_threads_app::*;
-use brn_threads_intake::{
-    ConversionRequest, ConversionResult, Converter, DocumentKind, ImportIntent, PdfTools,
-};
+use brn_threads_intake::{ConversionResult, Converter, DocumentKind, ImportIntent, PdfTools};
 use gpui_kit::base::input::{
     RangeDecoration, RangeDecorationCollection, RangeDecorationStyle, TextDecoration,
     TextDecorationCollection,
@@ -2745,7 +2743,13 @@ impl ThreadsUi {
                     {
                         self.record_activity(&text);
                     }
-                    self.progress = text;
+                    if !self
+                        .worker
+                        .as_ref()
+                        .is_some_and(|w| w.cancel.is_cancelled())
+                    {
+                        self.progress = text;
+                    }
                 }
                 WorkerEvent::Activity(text) => {
                     if self
@@ -2839,10 +2843,21 @@ impl ThreadsUi {
                     title,
                     chat,
                 } => {
+                    let cancelled = self.worker.as_ref().is_some_and(|worker| {
+                        worker.cancel.is_cancelled()
+                            || worker
+                                .conversion_cancel
+                                .load(std::sync::atomic::Ordering::Acquire)
+                    });
                     finished = true;
                     self.worker = None;
                     self.progress.clear();
-                    match *result {
+                    let result = if cancelled {
+                        Err("Document conversion was stopped before saving.".into())
+                    } else {
+                        *result
+                    };
+                    match result {
                         Ok(converted) => {
                             if converted.intent == ImportIntent::FullNote {
                                 match if let Some(chat) = &chat {
@@ -3032,8 +3047,13 @@ impl ThreadsUi {
             Some("md" | "markdown") => DocumentKind::Markdown,
             Some("txt") => DocumentKind::Text,
             Some("eml") => DocumentKind::Eml,
+            Some("html" | "htm") => DocumentKind::Html,
+            Some("xlsx") => DocumentKind::Xlsx,
+            Some("pptx") => DocumentKind::Pptx,
             _ => {
-                self.notice = "Choose DOCX, PDF, Markdown, text or an EML email file.".into();
+                self.notice =
+                    "Choose DOCX, PDF, HTML, XLSX, PPTX, Markdown, text or an EML email file."
+                        .into();
                 cx.notify();
                 return;
             }
@@ -3046,15 +3066,21 @@ impl ThreadsUi {
         let reference = path.to_string_lossy().to_string();
         let cancel_flag = Arc::new(AtomicBool::new(false));
         let conversion_cancel = cancel_flag.clone();
+        let cancel = CancellationToken::new();
+        let worker_cancel = cancel.clone();
+        let auth_file = self.settings.auth_file.as_ref().map(PathBuf::from);
+        let credentials_dir = self.settings.credentials_dir.as_ref().map(PathBuf::from);
         let (sender, receiver) = mpsc::sync_channel(8);
+        let progress_sender = sender.clone();
         std::thread::spawn(move || {
             let result = (|| -> Result<ConversionResult, String> {
-                let limits = brn_intake::IntakeLimits::default();
-                let metadata = std::fs::metadata(&path).map_err(|e| e.to_string())?;
-                if !metadata.is_file() || metadata.len() > limits.max_input_bytes as u64 {
-                    return Err("The file exceeds the supported import size.".into());
-                }
-                let bytes = std::fs::read(&path).map_err(|e| e.to_string())?;
+                let limits = brn_threads_intake::import_limits(kind);
+                let bytes = brn_threads_intake::read_input_file(
+                    &path,
+                    limits.max_input_bytes as usize,
+                    &conversion_cancel,
+                )
+                .map_err(|e| e.to_string())?;
                 let helper = std::env::current_exe()
                     .map_err(|e| e.to_string())?
                     .with_file_name("brn-intake-helper");
@@ -3064,17 +3090,29 @@ impl ThreadsUi {
                     temp_root: std::env::temp_dir().join("brn-threads-intake"),
                     limits,
                 };
-                converter
-                    .convert(
-                        ConversionRequest {
+                let runtime = tokio::runtime::Builder::new_current_thread()
+                    .enable_all()
+                    .build()
+                    .map_err(|e| e.to_string())?;
+                runtime
+                    .block_on(brn_ai::conversion::convert(
+                        brn_ai::conversion::ConversionJob {
+                            converter,
                             kind,
                             intent,
-                            bytes: &bytes,
-                            source_reference: &reference,
+                            bytes,
+                            source_reference: reference,
                             inventory: None,
+                            auth_file,
+                            credentials_dir,
                         },
-                        &conversion_cancel,
-                    )
+                        worker_cancel,
+                        conversion_cancel,
+                        Arc::new(move |progress| {
+                            let _ = progress_sender
+                                .try_send(WorkerEvent::Progress(progress.label().into()));
+                        }),
+                    ))
                     .map_err(|e| e.to_string())
             })();
             let _ = sender.send(WorkerEvent::Converted {
@@ -3085,7 +3123,7 @@ impl ThreadsUi {
         });
         self.worker = Some(Worker {
             receiver,
-            cancel: CancellationToken::new(),
+            cancel,
             conversion_cancel: cancel_flag,
             kind: WorkerKind::Import,
             thread: None,

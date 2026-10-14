@@ -2,6 +2,7 @@
 //! Semantic selection for useful intake and protected-note creation belong to the host.
 mod docx_markdown;
 mod pdf_tools;
+mod prepared;
 mod process;
 mod transient;
 
@@ -27,6 +28,53 @@ pub enum DocumentKind {
     Markdown,
     Text,
     Eml,
+    Html,
+    Xlsx,
+    Pptx,
+}
+
+/// Host import profiles stay within the already-qualified hard limits. PDF preparation
+/// adds page rasterization; one cold renderer plus text geometry exceeds five seconds.
+pub fn import_limits(kind: DocumentKind) -> IntakeLimits {
+    IntakeLimits {
+        wall_time_ms: if kind == DocumentKind::Pdf {
+            20_000
+        } else {
+            5_000
+        },
+        ..IntakeLimits::default()
+    }
+}
+
+/// Read from one opened source with a hard cap, even if it grows after metadata inspection.
+pub fn read_input_file(
+    path: &std::path::Path,
+    max_bytes: usize,
+    cancel: &AtomicBool,
+) -> Result<Vec<u8>, ConversionError> {
+    use std::io::Read;
+    if cancel.load(Ordering::Acquire) {
+        return Err(ConversionError::Cancelled);
+    }
+    if !path.is_absolute() || max_bytes == 0 || max_bytes > brn_intake::MAX_INPUT_BYTES {
+        return Err(ConversionError::Invalid);
+    }
+    let file = fs::File::open(path).map_err(|_| ConversionError::Io)?;
+    let meta = file.metadata().map_err(|_| ConversionError::Io)?;
+    if !meta.is_file() || meta.len() > max_bytes as u64 {
+        return Err(ConversionError::Budget);
+    }
+    let mut bytes = Vec::new();
+    file.take(max_bytes as u64 + 1)
+        .read_to_end(&mut bytes)
+        .map_err(|_| ConversionError::Io)?;
+    if cancel.load(Ordering::Acquire) {
+        return Err(ConversionError::Cancelled);
+    }
+    if bytes.is_empty() || bytes.len() > max_bytes {
+        return Err(ConversionError::Budget);
+    }
+    Ok(bytes)
 }
 #[derive(Clone, Debug)]
 pub struct PdfTools {
@@ -119,6 +167,9 @@ pub enum ConversionError {
     Budget,
     Unavailable,
     Invalid,
+    PdfTextInvalid,
+    PdfRenderInvalid,
+    PdfPreviewInvalid,
     Protocol,
     Io,
 }
@@ -159,6 +210,9 @@ impl Converter {
                 }
                 DocumentKind::Markdown | DocumentKind::Text => self.plain(&request)?,
                 DocumentKind::Pdf => self.pdf(&request, cancel, deadline, &temp)?,
+                DocumentKind::Html | DocumentKind::Xlsx | DocumentKind::Pptx => {
+                    return Err(ConversionError::Unavailable);
+                }
             };
             result.check_inventory(request.inventory)?;
             if serde_json::to_vec(&result)

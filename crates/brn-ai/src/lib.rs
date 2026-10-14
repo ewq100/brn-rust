@@ -7,6 +7,7 @@ mod behavior;
 pub mod capability_probe;
 mod chat;
 pub mod codex_auth;
+pub mod conversion;
 mod error;
 #[cfg(any(test, feature = "capability-spike"))]
 mod proposal_tools;

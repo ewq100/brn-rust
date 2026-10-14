@@ -44,7 +44,7 @@ fn discover(
     })
 }
 
-fn executable(path: &Path) -> bool {
+pub(crate) fn executable(path: &Path) -> bool {
     if !path.is_absolute() {
         return false;
     }

@@ -11,6 +11,7 @@ use std::{collections::BTreeMap, io::Cursor};
 const MAX_PACKAGE_BYTES: usize = 16 * 1024 * 1024;
 
 mod pptx;
+pub mod prepared;
 
 #[derive(Default)]
 struct Budget {

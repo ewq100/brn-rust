@@ -31,6 +31,92 @@ pub(super) fn settings(
 }
 
 #[gpui_kit::test]
+fn stop_after_conversion_is_queued_prevents_the_import_commit(cx: &mut TestAppContext) {
+    let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let data = root.path().join("queued-import-stop");
+    let mut workspace = Workspace::open(&data).unwrap();
+    configure_offline_fixture(&mut workspace);
+    let before: Vec<_> = workspace
+        .records()
+        .unwrap()
+        .into_iter()
+        .filter(|record| {
+            matches!(
+                record.data,
+                RecordData::Note(_) | RecordData::Source(_) | RecordData::Asset(_)
+            )
+        })
+        .collect();
+    let settings_before = serde_json::to_value(workspace.settings().unwrap()).unwrap();
+    cx.update(gpui_kit::init);
+    let (window, view) = cx.update(|cx| {
+        gpui_kit::open_window(WindowOptions::default(), cx, |window, cx| {
+            cx.new(|cx| {
+                let mut view = ThreadsUi::new(workspace, data, window, cx);
+                view.poll = None;
+                view
+            })
+        })
+        .unwrap()
+    });
+    let (sender, receiver) = mpsc::sync_channel(4);
+    cx.update_window(window, |_, window, cx| {
+        view.update(cx, |view, cx| {
+            view.worker = Some(Worker {
+                receiver,
+                cancel: CancellationToken::new(),
+                conversion_cancel: Arc::new(AtomicBool::new(false)),
+                kind: WorkerKind::Import,
+                thread: None,
+                run_id: None,
+            });
+            sender
+                .send(WorkerEvent::Converted {
+                    result: Box::new(Ok(ConversionResult {
+                        intent: ImportIntent::FullNote,
+                        markdown: "Synthetic converted body".into(),
+                        assets: vec![],
+                        source_sha256: [1; 32],
+                        source_reference: "synthetic/queued.pdf".into(),
+                        converter: "synthetic".into(),
+                        sources: vec![],
+                        coverage: brn_threads_intake::Coverage {
+                            status: brn_threads_intake::CoverageStatus::Partial,
+                            checked_items: vec![],
+                            gaps: vec![],
+                        },
+                    })),
+                    title: "Stopped import".into(),
+                    chat: None,
+                })
+                .unwrap();
+            view.cancel(cx);
+            view.poll_worker(window, cx);
+            assert!(view.worker.is_none());
+            assert!(view.notice.contains("stopped before saving"));
+            let after: Vec<_> = view
+                .workspace
+                .records()
+                .unwrap()
+                .into_iter()
+                .filter(|record| {
+                    matches!(
+                        record.data,
+                        RecordData::Note(_) | RecordData::Source(_) | RecordData::Asset(_)
+                    )
+                })
+                .collect();
+            assert_eq!(after, before);
+            assert_eq!(
+                serde_json::to_value(view.workspace.settings().unwrap()).unwrap(),
+                settings_before
+            );
+        });
+    })
+    .unwrap();
+}
+
+#[gpui_kit::test]
 fn first_use_choices_preserve_manual_work_and_persist_explicit_policy(cx: &mut TestAppContext) {
     cx.update(gpui_kit::init);
     for (first_page, first_button, review_first, later_button) in [
