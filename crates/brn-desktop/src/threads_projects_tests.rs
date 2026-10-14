@@ -9,7 +9,11 @@ struct Fixture {
     note: String,
 }
 fn fixture(cx: &mut TestAppContext) -> Fixture {
-    cx.update(gpui_kit::init);
+    cx.update(|cx| {
+        gpui_kit::init(cx);
+        // Keep dialog hit targets at their resting positions before simulated clicks.
+        cx.set_reduce_motion(true);
+    });
     cx.update(|cx| cx.bind_keys(bindings()));
     let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
     let data = root.path().join("projects");

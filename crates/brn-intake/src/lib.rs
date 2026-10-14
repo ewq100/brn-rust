@@ -4,6 +4,8 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, BTreeSet};
 
+pub mod prepared;
+
 pub const MAX_INPUT_BYTES: usize = 16 * 1024 * 1024;
 pub const MAX_OUTPUT_BYTES: usize = 64 * 1024 * 1024;
 pub const MAX_REQUEST_BYTES: usize = MAX_INPUT_BYTES * 4 + 1024;

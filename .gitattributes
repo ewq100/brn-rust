@@ -1,1 +1,3 @@
 crates/brn-threads-intake/tests/fixtures/*.pdf binary
+crates/brn-threads-intake/tests/fixtures/luna/*.pdf binary
+crates/brn-threads-intake/tests/fixtures/luna/*.eml -text whitespace=cr-at-eol

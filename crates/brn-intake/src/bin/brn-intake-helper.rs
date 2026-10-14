@@ -50,7 +50,8 @@ fn run() -> Result<(), String> {
             std::thread::sleep(std::time::Duration::from_millis(100));
         }
     }
-    if args.len() != 1 {
+    let prepare = args.len() == 2 && args[1] == "--prepare";
+    if args.len() != 1 && !prepare {
         return Err("unexpected helper arguments".into());
     }
     let mut input = Vec::new();
@@ -64,8 +65,12 @@ fn run() -> Result<(), String> {
     }
     let request: HelperRequest =
         serde_json::from_slice(&input).map_err(|e| format!("invalid helper request: {e}"))?;
-    let result = brn_intake::helper::extract(request)?;
-    let bytes = serde_json::to_vec(&result).map_err(|e| e.to_string())?;
+    let bytes = if prepare {
+        serde_json::to_vec(&brn_intake::helper::prepared::prepare(request)?)
+    } else {
+        serde_json::to_vec(&brn_intake::helper::extract(request)?)
+    }
+    .map_err(|e| e.to_string())?;
     if bytes.len() > MAX_OUTPUT_BYTES {
         return Err("output protocol budget".into());
     }

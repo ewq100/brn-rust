@@ -222,21 +222,24 @@ fn full_markdown_import_export_and_backup_are_fresh_and_readable() {
     let notes = json_command(&data, &["notes"]);
     assert_eq!(notes.as_array().unwrap().len(), 1);
     assert_eq!(notes[0]["data"]["Note"]["protected"], true);
-    assert_eq!(
-        json_command(
-            &data,
-            &[
-                "intake",
-                "--source",
-                source.to_str().unwrap(),
-                "--intent",
-                "full",
-                "--title",
-                "Harbor process"
-            ]
-        ),
-        result
+    let observed_again = json_command(
+        &data,
+        &[
+            "intake",
+            "--source",
+            source.to_str().unwrap(),
+            "--intent",
+            "full",
+            "--title",
+            "Harbor process",
+        ],
     );
+    assert_eq!(observed_again["outcome"], "Applied");
+    assert_ne!(
+        observed_again["receipt"]["operation"],
+        result["receipt"]["operation"]
+    );
+    assert_eq!(json_command(&data, &["notes"]).as_array().unwrap().len(), 1);
     let export = root.path().join("export");
     let manifest = json_command(
         &data,

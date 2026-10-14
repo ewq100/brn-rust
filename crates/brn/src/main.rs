@@ -326,7 +326,7 @@ async fn ask(
     }
     Ok(output)
 }
-fn converter() -> Result<Converter> {
+fn converter(kind: DocumentKind) -> Result<Converter> {
     let executable = std::env::current_exe().map_err(|e| e.to_string())?;
     let helper = std::env::var_os("BRN_INTAKE_HELPER")
         .map(PathBuf::from)
@@ -339,7 +339,7 @@ fn converter() -> Result<Converter> {
             .canonicalize()
             .map_err(|e| e.to_string())?
             .join("brn-threads-intake"),
-        limits: Default::default(),
+        limits: brn_threads_intake::import_limits(kind),
     })
 }
 async fn execute(inv: &Invocation) -> Result<Value> {
@@ -677,11 +677,9 @@ async fn execute(inv: &Invocation) -> Result<Value> {
             if !source.is_absolute() {
                 return Err("Source path must be absolute".into());
             }
-            let meta = std::fs::metadata(source).map_err(|e| e.to_string())?;
-            if !meta.is_file() || meta.len() > brn_intake::MAX_INPUT_BYTES as u64 {
-                return Err("Source exceeds input limit".into());
-            }
-            let bytes = std::fs::read(source).map_err(|e| e.to_string())?;
+            let bytes =
+                brn_threads_intake::read_input_file(source, brn_intake::MAX_INPUT_BYTES, &CANCEL)
+                    .map_err(|e| e.to_string())?;
             let kind = match source
                 .extension()
                 .and_then(|s| s.to_str())
@@ -689,30 +687,60 @@ async fn execute(inv: &Invocation) -> Result<Value> {
                 .to_lowercase()
                 .as_str()
             {
-                "md" => DocumentKind::Markdown,
+                "md" | "markdown" => DocumentKind::Markdown,
                 "txt" => DocumentKind::Text,
                 "eml" => DocumentKind::Eml,
                 "pdf" => DocumentKind::Pdf,
                 "docx" => DocumentKind::Docx,
-                _ => return Err("Supported sources: Markdown, text, EML, PDF, DOCX".into()),
+                "html" | "htm" => DocumentKind::Html,
+                "xlsx" => DocumentKind::Xlsx,
+                "pptx" => DocumentKind::Pptx,
+                _ => {
+                    return Err(
+                        "Supported sources: Markdown, text, EML, PDF, DOCX, HTML, XLSX, PPTX"
+                            .into(),
+                    )
+                }
             };
             let intent = match inv.arg("intent")? {
                 "useful" => ImportIntent::UsefulInformation,
                 "full" | "chat" | "project" => ImportIntent::FullNote,
                 _ => return Err("Choose useful, full, or chat with --thread".into()),
             };
-            let converted = converter()?
-                .convert(
-                    ConversionRequest {
-                        kind,
-                        intent,
-                        bytes: &bytes,
-                        source_reference: inv.arg("source")?,
-                        inventory: None,
-                    },
-                    &CANCEL,
-                )
-                .map_err(|e| e.to_string())?;
+            let settings = workspace.settings().map_err(|e| e.to_string())?;
+            let conversion_job = brn_ai::conversion::ConversionJob {
+                converter: converter(kind)?,
+                kind,
+                intent,
+                bytes,
+                source_reference: inv.arg("source")?.into(),
+                inventory: None,
+                auth_file: settings.auth_file.map(PathBuf::from),
+                credentials_dir: settings.credentials_dir.map(PathBuf::from),
+            };
+            let cancel = CancellationToken::new();
+            let observed = cancel.clone();
+            let watcher = tokio::spawn(async move {
+                loop {
+                    if CANCEL.load(Ordering::SeqCst) {
+                        observed.cancel();
+                        break;
+                    }
+                    tokio::time::sleep(std::time::Duration::from_millis(25)).await;
+                }
+            });
+            let result = brn_ai::conversion::convert(
+                conversion_job,
+                cancel,
+                Arc::new(AtomicBool::new(CANCEL.load(Ordering::SeqCst))),
+                Arc::new(|progress| eprintln!("{}", progress.label())),
+            )
+            .await;
+            watcher.abort();
+            let converted = result.map_err(|e| e.to_string())?;
+            if CANCEL.load(Ordering::SeqCst) {
+                return Err("Import stopped before saving converted content".into());
+            }
             let title = inv
                 .args
                 .get("title")
@@ -727,12 +755,7 @@ async fn execute(inv: &Invocation) -> Result<Value> {
                 return Ok(applied(
                     workspace
                         .attach_full(
-                            &format!(
-                                "cli-attach:{}:{}:{}",
-                                scope,
-                                inv.arg("source")?,
-                                brn_intake::hex(&converted.source_sha256)
-                            ),
+                            &format!("cli-attach:{}", uuid::Uuid::new_v4()),
                             scope,
                             title,
                             &converted,
@@ -744,11 +767,7 @@ async fn execute(inv: &Invocation) -> Result<Value> {
                 applied(
                     workspace
                         .import_full(
-                            &format!(
-                                "import:{}:{}",
-                                inv.arg("source")?,
-                                brn_intake::hex(&converted.source_sha256)
-                            ),
+                            &format!("cli-import:{}", uuid::Uuid::new_v4()),
                             title,
                             &converted,
                         )

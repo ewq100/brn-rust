@@ -5,6 +5,57 @@ use brn_threads_intake::{
 use sha2::{Digest, Sha256};
 
 #[test]
+fn separate_conversion_candidates_preserve_one_protected_full_import_and_undo() {
+    let root =
+        tempfile::TempDir::new_in(std::fs::canonicalize(std::env::temp_dir()).unwrap()).unwrap();
+    let mut app = Workspace::open(root.path().join("candidate-import-dedup")).unwrap();
+    let mut converted = ConversionResult {
+        intent: ImportIntent::FullNote,
+        markdown: "# Original candidate\n\nAll source wording.".into(),
+        assets: vec![],
+        source_sha256: Sha256::digest(b"one exact source").into(),
+        source_reference: "synthetic://same-document".into(),
+        converter: "synthetic Luna candidate".into(),
+        sources: vec![],
+        coverage: Coverage {
+            status: CoverageStatus::Partial,
+            checked_items: vec![],
+            gaps: vec![CoverageGap {
+                kind: GapKind::Unverified,
+                locator: "document".into(),
+                detail: "Independent coverage unverified".into(),
+            }],
+        },
+    };
+    let ApplyOutcome::Applied(first) = app
+        .import_full("invocation-1", "One document", &converted)
+        .unwrap()
+    else {
+        panic!("applied")
+    };
+    let original = app.notes().unwrap();
+    assert_eq!(original.len(), 1);
+    converted.markdown = "# Different valid formatting\n\nAll source wording.".into();
+    let ApplyOutcome::Applied(second) = app
+        .import_full("invocation-2", "One document", &converted)
+        .unwrap()
+    else {
+        panic!("applied")
+    };
+    assert_ne!(first.operation, second.operation);
+    assert_eq!(app.notes().unwrap(), original);
+    let RecordData::Note(note) = &original[0].data else {
+        panic!("note")
+    };
+    assert!(note.protected);
+    assert!(matches!(
+        app.undo(second.operation.as_str()).unwrap(),
+        ApplyOutcome::Applied(_)
+    ));
+    assert_eq!(app.notes().unwrap(), original);
+}
+
+#[test]
 fn full_import_persists_detected_loss_separately_from_unverified_coverage() {
     let root =
         tempfile::TempDir::new_in(std::fs::canonicalize(std::env::temp_dir()).unwrap()).unwrap();
