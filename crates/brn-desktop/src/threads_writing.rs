@@ -120,7 +120,7 @@ impl ThreadsUi {
                         None,
                         false,
                         false,
-                        |view, _, cx| view.show_tile(TileKind::AllThreads, cx),
+                        |view, window, cx| view.show_tile(TileKind::AllThreads, window, cx),
                     ))
                 })
                 .into_any_element(),
@@ -740,7 +740,9 @@ impl ThreadsUi {
         controls.push(
             pill("note-connections", "Connections")
                 .tooltip("Linked notes and sources of this note")
-                .on_click(cx.listener(|this, _, _, cx| this.show_tile(TileKind::Connections, cx)))
+                .on_click(cx.listener(|this, _, window, cx| {
+                    this.show_tile(TileKind::Connections, window, cx)
+                }))
                 .into_any_element(),
         );
         controls.push(
@@ -847,7 +849,6 @@ impl ThreadsUi {
                         false,
                         |view, window, cx| {
                             view.new_writing_thread(window, cx);
-                            view.layout.open(TileKind::Chat);
                         },
                     ))
                 })
@@ -876,9 +877,13 @@ impl ThreadsUi {
                     div()
                         .flex()
                         .gap_2()
-                        .child(button("note-open-notes").label("Open notes").on_click(
-                            cx.listener(|this, _, _, cx| this.show_tile(TileKind::Notes, cx)),
-                        ))
+                        .child(
+                            button("note-open-notes")
+                                .label("Open notes")
+                                .on_click(cx.listener(|this, _, window, cx| {
+                                    this.show_tile(TileKind::Notes, window, cx)
+                                })),
+                        )
                         .child(button("new-note").label("New note ⌘N").on_click(
                             cx.listener(|this, _, window, cx| this.new_note(window, cx)),
                         )),
@@ -1701,7 +1706,9 @@ impl ThreadsUi {
             .child(
                 pill("review-compare", "compare")
                     .tooltip("Open a side-by-side tile")
-                    .on_click(cx.listener(|this, _, _, cx| this.show_tile(TileKind::Compare, cx))),
+                    .on_click(cx.listener(|this, _, window, cx| {
+                        this.show_tile(TileKind::Compare, window, cx)
+                    })),
             );
         if review.note.is_some() {
             bar = if self.review_editing {

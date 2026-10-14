@@ -210,7 +210,7 @@ fn global_tiles_navigation_preserves_human_buffer_and_each_chat_draft(cx: &mut T
         );
         assert_eq!(
             view.composer.read(cx).value().as_ref(),
-            "Selected chat unsent draft"
+            "Standalone unsent draft"
         );
         assert!(view.note.as_ref().unwrap().session.is_some());
         assert_eq!(view.workspace.store.note(&note.id).unwrap().unwrap(), *note);
@@ -253,7 +253,7 @@ fn search_tiles_open_saved_hits_exclude_dirty_text_and_clear_to_navigation(
     cx.update_window(f.window, |_, window, cx| {
         assert!(window.try_find("search-results").is_none());
         assert!(window.find(format!("note-{}", note.id)).visible());
-        assert!(window.find("workspace-nav").visible());
+        assert!(window.find("notes-list").visible());
         let view = f.view.read(cx);
         assert_eq!(view.open_note_id(), Some(note.id.as_str()));
         assert!(view.hits.is_empty() && view.notice.is_empty());
@@ -495,7 +495,6 @@ fn narrow_settings_and_global_controls_remain_reachable_by_scrolling(cx: &mut Te
     .unwrap();
     reveal(cx, &f, "tile-row", "composer-add");
     click(cx, &f, "settings");
-    click(cx, &f, "layout-solo");
     click(cx, &f, "settings-section-models");
     reveal(cx, &f, "settings-content", "connect-copilot");
     reveal(cx, &f, "settings-content", "save-settings");

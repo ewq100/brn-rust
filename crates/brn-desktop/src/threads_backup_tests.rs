@@ -33,7 +33,6 @@ fn fixture(cx: &mut TestAppContext) -> Fixture {
                     ui.poll = None;
                     ui.settings_section = SettingsSection::Data;
                     ui.layout.open(TileKind::Settings);
-                    ui.layout.apply(Preset::Solo);
                     ui
                 })
             },

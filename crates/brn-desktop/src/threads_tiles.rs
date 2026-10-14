@@ -125,7 +125,6 @@ fn note_menu(menu: PopupMenu, this: &WeakEntity<ThreadsUi>, id: String) -> Popup
             view.open_note(&id, None, window, cx);
             if view.open_note_id() == Some(id.as_str()) {
                 view.new_writing_thread(window, cx);
-                view.layout.open(TileKind::Chat);
             }
         },
     ))
@@ -188,7 +187,6 @@ impl ThreadsUi {
         }
     }
     pub(super) fn threads_tile(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
-        let p = pal();
         let this = cx.entity().downgrade();
         let bar = lists::sidebar(&self.thread_rows, self.chat_thread());
         let mut list = scroll("workspace-nav");
@@ -291,9 +289,9 @@ impl ThreadsUi {
                 "",
                 false,
             )
-            .on_click(cx.listener(|this, _, _, cx| {
+            .on_click(cx.listener(|this, _, window, cx| {
                 this.thread_filter = ThreadFilter::All;
-                this.show_tile(TileKind::AllThreads, cx)
+                this.show_tile(TileKind::AllThreads, window, cx)
             })),
         );
         if bar.resolved > 0 {
@@ -304,59 +302,17 @@ impl ThreadsUi {
                     "",
                     false,
                 )
-                .on_click(cx.listener(|this, _, _, cx| {
+                .on_click(cx.listener(|this, _, window, cx| {
                     this.thread_filter = ThreadFilter::Resolved;
-                    this.show_tile(TileKind::AllThreads, cx)
+                    this.show_tile(TileKind::AllThreads, window, cx)
                 })),
             );
         }
-        let open_actions = self
-            .records
-            .iter()
-            .filter(|record| {
-                !record.archived
-                    && matches!(&record.data, RecordData::Action(action) if !matches!(action.state, ActionState::Done | ActionState::Cancelled))
-            })
-            .count();
-        let footer = div()
-            .flex()
-            .flex_col()
-            .flex_shrink_0()
-            .p_2()
-            .gap_1()
-            .border_t_1()
-            .border_color(rgb(p.border))
-            .child(
-                row(
-                    "open-notes",
-                    "notes",
-                    format!("{}", self.note_rows.len()),
-                    false,
-                )
-                .on_click(cx.listener(|this, _, _, cx| this.show_tile(TileKind::Notes, cx))),
-            )
-            .child(
-                row("actions", "actions", format!("{open_actions}"), false)
-                    .on_click(cx.listener(|this, _, _, cx| this.show_tile(TileKind::Actions, cx))),
-            )
-            .child(
-                row("history", "what changed", "", false)
-                    .on_click(cx.listener(|this, _, _, cx| this.show_tile(TileKind::History, cx))),
-            )
-            .child(
-                row("home", "overview", "⌘0", false)
-                    .on_click(cx.listener(|this, _, _, cx| this.show_tile(TileKind::Overview, cx))),
-            )
-            .child(
-                row("settings", "settings", "⌘,", false)
-                    .on_click(cx.listener(|this, _, _, cx| this.show_tile(TileKind::Settings, cx))),
-            );
         div()
             .size_full()
             .flex()
             .flex_col()
             .child(div().flex_1().min_h_0().child(list.test_support()))
-            .child(footer)
             .into_any_element()
     }
     pub(super) fn all_threads_tile(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
@@ -458,13 +414,33 @@ impl ThreadsUi {
             .on_click(cx.listener(move |this, _, window, cx| this.open_note(&id, None, window, cx)))
             .context_menu(move |menu, _, _| note_menu(menu, &this, menu_id.clone()))
         };
-        let mut list = scroll("notes-list")
+        let frame = |header: gpui_kit::Div, body: gpui_kit::AnyElement| {
+            div()
+                .size_full()
+                .flex()
+                .flex_col()
+                .min_h_0()
+                .child(
+                    header
+                        .flex_shrink_0()
+                        .p_2()
+                        .border_b_1()
+                        .border_color(rgb(pal().border)),
+                )
+                .child(div().flex_1().min_h_0().child(body))
+                .into_any_element()
+        };
+        let mut header = div()
+            .flex()
+            .flex_col()
+            .gap_1()
             .child(Input::new(&self.search).w_full())
             .child(metadata(if self.results.preparing {
                 format!("{} current notes · preparing search…", self.note_rows.len())
             } else {
                 format!("{} current notes", self.note_rows.len())
             }));
+        let mut list = scroll("notes-list");
         if !query.trim().is_empty() {
             let (titles, total) = lists::filter_notes(&self.note_rows, &query, 100);
             list = list.child(section(format!("TITLES · {total}")));
@@ -478,16 +454,21 @@ impl ThreadsUi {
                 )));
             }
             let results = self.search_results(cx);
-            return list.child(results).test_support().into_any_element();
+            return frame(
+                header,
+                list.child(results).test_support().into_any_element(),
+            );
         }
         if self.note_rows.is_empty() {
-            return list
-                .child(empty(
+            return frame(
+                header,
+                list.child(empty(
                     "notes-empty",
                     "Create a note (⌘N) or add information with ＋ to begin.",
                 ))
                 .test_support()
-                .into_any_element();
+                .into_any_element(),
+            );
         }
         let linked = lists::notes_linked_to_open(&self.records, &self.thread_rows);
         let letters_present: Vec<char> = {
@@ -505,6 +486,19 @@ impl ThreadsUi {
             lists::letter(&self.note_rows[0].title)
         };
         let view = lists::notes_view(&self.note_rows, &linked, letter);
+        let mut letters = div().flex().flex_wrap().gap_1();
+        for &(ch, count) in &view.letters {
+            letters = letters.child(
+                pill(format!("notes-letter-{}", ch as u32), ch.to_string())
+                    .selected(ch == letter)
+                    .tooltip(format!("{count} notes"))
+                    .on_click(cx.listener(move |this, _, _, cx| {
+                        this.notes_letter = ch;
+                        cx.notify();
+                    })),
+            );
+        }
+        header = header.child(letters);
         list = list.child(self.topics_section(cx)).child(section("RECENT"));
         for data in view.recent {
             list = list.child(note_row("notes-recent-", data, cx));
@@ -537,19 +531,6 @@ impl ThreadsUi {
             }
         }
         list = list.child(section("ALL A–Z"));
-        let mut letters = div().flex().flex_wrap().gap_1();
-        for (ch, count) in view.letters {
-            letters = letters.child(
-                pill(format!("notes-letter-{}", ch as u32), ch.to_string())
-                    .selected(ch == letter)
-                    .tooltip(format!("{count} notes"))
-                    .on_click(cx.listener(move |this, _, _, cx| {
-                        this.notes_letter = ch;
-                        cx.notify();
-                    })),
-            );
-        }
-        list = list.child(letters);
         for data in view.letter.0 {
             list = list.child(note_row("note-", data, cx));
         }
@@ -559,7 +540,7 @@ impl ThreadsUi {
                 view.letter.1 - lists::LETTER_LIMIT
             )));
         }
-        list.test_support().into_any_element()
+        frame(header, list.test_support().into_any_element())
     }
     pub(super) fn overview_tile(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         let mut view = scroll("home-content").gap_3().p_3().child(
@@ -687,11 +668,14 @@ impl ThreadsUi {
                 "Your meaningful changes will appear here.",
             ));
         }
-        recent = recent.child(
-            button("home-open-history")
-                .label("Open What changed and Undo")
-                .on_click(cx.listener(|this, _, _, cx| this.show_tile(TileKind::History, cx))),
-        );
+        recent =
+            recent.child(
+                button("home-open-history")
+                    .label("Open What changed and Undo")
+                    .on_click(cx.listener(|this, _, window, cx| {
+                        this.show_tile(TileKind::History, window, cx)
+                    })),
+            );
         view.child(note_tile)
             .child(recent)
             .child(self.knowledge_panel(cx))
@@ -882,7 +866,7 @@ impl ThreadsUi {
                                 .label(format!("May need refresh: {}", short(&title(&record))))
                                 .on_click(cx.listener(move |this, _, window, cx| match &note {
                                     Some(id) => this.open_note(id, None, window, cx),
-                                    None => this.show_tile(TileKind::Actions, cx),
+                                    None => this.show_tile(TileKind::Actions, window, cx),
                                 })),
                         );
                     }
@@ -1128,7 +1112,7 @@ impl ThreadsUi {
                 .label("Show keys and mouse help")
                 .on_click(cx.listener(|this, _, window, cx| this.show_keys(window, cx))),
         );
-        let mut nav = div().flex().flex_col().gap_1().w(px(130.)).flex_shrink_0();
+        let mut nav = div().flex().flex_wrap().gap_1().p_2().flex_shrink_0();
         for item in SettingsSection::ALL {
             nav = nav.child(
                 button(format!("settings-section-{}", item.key()))
@@ -1147,16 +1131,21 @@ impl ThreadsUi {
             SettingsSection::Data => copies.into_any_element(),
         };
         div()
-            .id("settings-content")
             .size_full()
             .flex()
-            .items_start()
-            .gap_3()
-            .p_3()
-            .overflow_y_scroll()
-            .child(nav)
-            .child(div().flex_1().min_w_0().child(content))
-            .test_support()
+            .flex_col()
+            .min_h_0()
+            .child(nav.border_b_1().border_color(rgb(p.border)))
+            .child(
+                div()
+                    .id("settings-content")
+                    .flex_1()
+                    .min_h_0()
+                    .p_3()
+                    .overflow_y_scroll()
+                    .child(content)
+                    .test_support(),
+            )
             .into_any_element()
     }
 }
