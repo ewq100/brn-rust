@@ -1,6 +1,12 @@
 # Evaluation design: retrieval-hard cases, note systematization and tool use
 
-**Date:** 14 October 2026. **State:** PROPOSED. Owner acceptance is pending. Nothing in this document is implemented.
+**Date:** 14 October 2026. **State:** ACCEPTED (14 October 2026) with the recommended defaults:
+- the trace is an opt-in CLI flag, with query text only at `full` level on synthetic data;
+- the seeder is an example binary;
+- the guide fix is measured first, then tested as arm D;
+- arms A, B and C are all kept.
+
+Steps 1–6 (no provider calls) are authorized. The live run (step 7) still needs separate owner authority.
 
 **Owner request (verbatim):** "spin ha opus 5.5 subage teh desing better the cease and systening notes and ai tool use and anuthing else that coud help". In other words: design better test cases for how well BRN organizes notes and how the agent uses its tools, plus anything else that could help.
 
