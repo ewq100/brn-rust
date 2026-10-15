@@ -172,5 +172,9 @@ handoff.
   qualification checklist.
 - **Owner-accepted / merged / published:** opened as
   [PR #146](https://github.com/ewq100/brn-rust/pull/146) with explicit
-  owner authorization; merge remains gated on the required CI contexts and
-  a separate owner decision. Not merged.
+  owner authorization and merged at `b139221f` after all four required PR
+  contexts passed. Merged-tree verification and required main CI (run
+  38693947454) are green; receipts are recorded on the PR. Non-required
+  optional-platform failures (windows, ubuntu native-retrieval) match the
+  pre-existing main pattern. Integration recorded in
+  [status](../../../status.md).
