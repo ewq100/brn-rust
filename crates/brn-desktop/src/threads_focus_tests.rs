@@ -439,7 +439,8 @@ fn worker_controls_match_real_cancellation_capabilities(cx: &mut TestAppContext)
                     editor.set_value("Chat waiting draft", window, cx)
                 });
                 view.ask(window, cx);
-                assert!(view.notice.contains("queue"));
+                // The queue notice says when it runs ("Queued; runs after …").
+                assert!(view.notice.starts_with("Queued"), "{}", view.notice);
                 assert_eq!(view.composer.read(cx).value().as_ref(), "");
                 assert!(
                     view.queue_state()

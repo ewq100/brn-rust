@@ -1,13 +1,15 @@
 //! Writing and conversation tiles: chat, note, in-place review, compare and
 //! linked work. Every action calls the same checked services as before.
 use super::shell::{item, pill};
+use super::state::ReviewSummary;
 use super::tiles::scroll;
-use super::workbench::WritingRow;
+use super::workbench::{RunOutcome, WritingRow};
 use super::*;
 use gpui_kit::SharedString;
 use gpui_kit::StyledText;
 use gpui_kit::component::button::ButtonVariants;
 use gpui_kit::component::menu::{DropdownMenu, PopupMenu};
+use gpui_kit::component::{Icon, Sizable, Size};
 
 impl ThreadsUi {
     pub(super) fn safe_message(&self, id: String, text: String) -> TextView {
@@ -58,14 +60,15 @@ impl ThreadsUi {
         let mut controls = vec![];
         if let ChatTarget::Thread(id) = &self.chat {
             let id = id.clone();
+            // An archived chat's only Unarchive is in the composer banner.
             controls.push(if self.thread_resolved(&id) {
-                pill("reopen-thread", "Unarchive")
-                    .tooltip("Unarchive this chat")
-                    .on_click(cx.listener(move |this, _, _, cx| this.reopen_thread(&id, cx)))
+                components::status_chip("chat-archived", None, Some(IconName::Archive), "Archived")
                     .into_any_element()
             } else {
+                const ARCHIVE: &str = "Archive this chat. Stops work and pauses the queue.";
                 pill("resolve-thread", "Archive")
-                    .tooltip("Archive this chat; stop work and pause the saved queue")
+                    .accessibility_label(ARCHIVE)
+                    .tooltip(ARCHIVE)
                     .on_click(cx.listener(move |this, _, _, cx| this.resolve_thread(&id, cx)))
                     .into_any_element()
             });
@@ -208,7 +211,6 @@ impl ThreadsUi {
         id: &str,
         cx: &mut Context<Self>,
     ) -> gpui_kit::AnyElement {
-        let p = pal();
         let Some(record) = self.records.iter().find(|r| r.id == id) else {
             return scroll("thread-conversation")
                 .child(empty(
@@ -220,38 +222,52 @@ impl ThreadsUi {
         let RecordData::Thread(thread) = &record.data else {
             return div().into_any_element();
         };
-        let mut conversation = scroll("thread-conversation").gap_3().p_4();
-        let mut cards = BTreeSet::new();
-        for (index, attention) in thread.attention.iter().enumerate() {
-            let candidate = self
-                .candidates
+        let queue = self.queue_state();
+        let messages = self.workspace.messages(id).unwrap_or_default();
+        let path = continue_path(&queue, &messages, id);
+        // A writing continuation never renders in chat; the Note's Retry
+        // saved rewrite owns it.
+        let recovering = !matches!(path, ContinuePath::RetryRewrite(_))
+            && can_continue_thread(
+                &self.records,
+                &self.history,
+                id,
+                &thread.state,
+                self.worker.is_some(),
+            );
+        // Rewrite proposals belong to the Note.
+        let cards: Vec<(usize, &Attention, Option<&Prepared>)> = thread
+            .attention
+            .iter()
+            .enumerate()
+            .filter_map(|(index, attention)| {
+                let candidate = self
+                    .candidates
+                    .iter()
+                    .find(|c| attention.record.as_deref() == Some(c.operation.as_str()));
+                (!candidate.is_some_and(|c| self.writing_candidate_note(c).is_some()))
+                    .then_some((index, attention, candidate))
+            })
+            .collect();
+        // Only the newest card awaiting the owner is filled: the recovery
+        // card below the others, else the last proposal.
+        let lead = if recovering {
+            None
+        } else {
+            cards
                 .iter()
-                .find(|c| attention.record.as_deref() == Some(c.operation.as_str()));
-            let mut card = div()
-                .id(format!("attention-card-{index}"))
-                .flex()
-                .flex_col()
-                .gap_2()
-                .p_3()
-                .border_1()
-                .border_color(rgb(p.accent))
-                .bg(rgb(p.alt))
-                .child(
-                    div()
-                        .font_family(UI_FONT)
-                        .text_size(SMALL_TEXT)
-                        .text_color(rgb(p.accent))
-                        .child(format!("brn needs you · {:?}", attention.kind).to_lowercase()),
-                )
-                .child(attention.reason.clone());
-            if candidate.is_some_and(|candidate| self.writing_candidate_note(candidate).is_some()) {
-                continue;
-            }
-            if let Some(candidate) = candidate {
-                cards.insert(candidate.operation.as_str().to_owned());
-                card = card.child(self.proposal_card(candidate, cx));
-            }
-            conversation = conversation.child(card.test_support());
+                .rev()
+                .find_map(|(index, _, candidate)| candidate.map(|_| *index))
+        };
+        let mut conversation = transcript_column().gap_3();
+        for (index, attention, candidate) in cards {
+            conversation = conversation.child(self.attention_card(
+                index,
+                attention,
+                candidate,
+                lead == Some(index),
+                cx,
+            ));
         }
         if self.latest_writing_instruction(id).is_none()
             && let Some(stream) = self.stream_for(id)
@@ -274,146 +290,232 @@ impl ThreadsUi {
                     )),
             );
         }
-        if (self.latest_writing_instruction(id).is_none()
-            || self
-                .queue_state()
-                .pending
-                .is_some_and(|pending| pending.thread == id))
-            && can_continue_thread(
-                &self.records,
-                &self.history,
-                id,
-                &thread.state,
-                self.worker.is_some(),
-            )
-        {
-            let latest = latest_run(&self.records, &self.history, id);
-            let run = latest.and_then(|record| match &record.data {
-                RecordData::Run(run) => Some(run),
-                _ => None,
-            });
-            let thread_id = id.to_owned();
-            let status = run.map_or_else(
-                || "Saved instruction is ready to continue".into(),
-                |run| {
-                    if run.state == RunState::Working {
-                        "Saved run status: Working · current activity is unconfirmed".into()
+        if recovering {
+            conversation = conversation.child(self.recovery_card(id, &queue, &path, cx));
+        }
+        scroll("thread-conversation")
+            .py_4()
+            .px_0()
+            .when(self.transcript_centered(), |detail| detail.items_center())
+            .child(conversation)
+            .test_support()
+            .into_any_element()
+    }
+    /// The transcript centers in a maximized chat (and Solo), otherwise it
+    /// sits left like the note.
+    fn transcript_centered(&self) -> bool {
+        self.layout.maximized() == Some(TileKind::Chat)
+    }
+    /// A needs-you card. A question (or a review whose proposal is gone) is a
+    /// warning with the recorded reason; a review names its target notes.
+    fn attention_card(
+        &self,
+        index: usize,
+        attention: &Attention,
+        candidate: Option<&Prepared>,
+        lead: bool,
+        cx: &mut Context<Self>,
+    ) -> gpui_kit::AnyElement {
+        let id = format!("attention-card-{index}");
+        if let Some(candidate) = candidate {
+            let summary = review_summary(candidate, &self.records);
+            let label = review_label(&summary, &candidate.request.reason);
+            return components::card(id, None)
+                .aria_label(format!(
+                    "Needs you · {label}{}",
+                    if summary.protected {
+                        " · Protected"
                     } else {
-                        format!("{:?}", run.state)
+                        ""
                     }
-                },
-            );
-            conversation = conversation.child(
+                ))
+                .child(self.proposal_card(candidate, &summary, lead, cx))
+                .test_support()
+                .into_any_element();
+        }
+        components::card(id.clone(), Some(Tone::Warning))
+            .aria_label(format!("Needs you · {}", attention.reason))
+            .child(
                 div()
                     .flex()
-                    .flex_col()
+                    .items_center()
+                    .gap_2()
+                    .child(components::tone_mark(format!("{id}-tone"), Tone::Warning))
+                    .child(
+                        div()
+                            .text_size(SMALL_TEXT)
+                            .font_weight(gpui_kit::FontWeight::SEMIBOLD)
+                            .child("Needs you"),
+                    ),
+            )
+            .child(div().min_w_0().child(attention.reason.clone()))
+            .test_support()
+            .into_any_element()
+    }
+    /// The recovery card: the recorded state and its reason in full, then
+    /// what the button does and what stays paused. Its tone is the strongest
+    /// line's. `continue-{run}` (or `continue-{chat}` without a run) is the
+    /// primary.
+    fn recovery_card(
+        &self,
+        thread: &str,
+        queue: &ChatControl,
+        path: &ContinuePath,
+        cx: &mut Context<Self>,
+    ) -> gpui_kit::AnyElement {
+        let latest = latest_run(&self.records, &self.history, thread);
+        let run = latest.and_then(|record| match &record.data {
+            RecordData::Run(run) => Some(run),
+            _ => None,
+        });
+        let owner_after = owner_message_after_latest_run(&self.records, &self.history, thread);
+        let card = recovery(path, run, owner_after, queue, thread);
+        let tone = severity_tone(card.severity());
+        let id = format!("recovery-card-{thread}");
+        // A saved Working run this window does not hold may still run in
+        // another window or the CLI.
+        let local = self.worker.as_ref().and_then(|w| w.run_id.as_deref());
+        let stop = latest
+            .filter(|record| {
+                run.is_some_and(|run| run.state == RunState::Working)
+                    && local != Some(record.id.as_str())
+            })
+            .map(|record| self.stop_saved_run_button(&record.id, cx));
+        let thread_id = thread.to_owned();
+        let line = |suffix: &str, text: String| {
+            div()
+                .id(SharedString::from(format!("{id}-{suffix}")))
+                .min_w_0()
+                .aria_label(text.clone())
+                .child(text)
+                .test_support()
+        };
+        components::card(id.clone(), tone)
+            .aria_label(card.label())
+            .child(
+                div()
+                    .flex()
+                    .items_center()
+                    .gap_2()
+                    .children(tone.map(|tone| components::tone_mark(format!("{id}-tone"), tone)))
+                    .child(
+                        line("state", card.word.to_owned())
+                            .font_weight(gpui_kit::FontWeight::SEMIBOLD),
+                    ),
+            )
+            // The recorded reason wraps in full, never truncated.
+            .when_some(card.reason.clone(), |card, reason| {
+                card.child(line("reason", reason))
+            })
+            .child(line("next", card.next.clone()))
+            .when_some(card.waiting.clone(), |card, waiting| {
+                card.child(line("waiting", waiting))
+            })
+            .child(
+                div()
+                    .flex()
+                    .flex_wrap()
+                    .justify_end()
                     .gap_1()
-                    .font_family(UI_FONT)
-                    .text_size(SMALL_TEXT)
-                    .text_color(rgb(p.muted))
-                    .child(format!("■ {status}"))
-                    .child(run.map_or_else(String::new, |run| run.progress.clone()))
-                    .child(run.map_or(
-                        "Continue starts fresh with the saved conversation and current notes.",
-                        |run| continuation_notice(&run.state),
-                    ))
+                    .children(stop)
                     .child(
                         button(format!(
                             "continue-{}",
-                            latest.map_or(id, |record| record.id.as_str())
+                            latest.map_or(thread, |record| record.id.as_str())
                         ))
-                        .label(
-                            if self.queue_state().pending.is_some_and(|q| q.thread == id) {
-                                "Resume queue with current context"
-                            } else {
-                                "Continue with current context"
-                            },
-                        )
+                        .label(card.action)
+                        .compact()
+                        .h(components::tokens::COMPACT_CONTROL)
+                        .primary()
                         .on_click(cx.listener(move |this, _, _, cx| {
                             this.continue_run(thread_id.clone(), cx)
                         })),
                     ),
-            );
-        }
-        if record.archived || thread.state == ThreadState::Resolved {
-            let thread_id = id.to_owned();
-            conversation = conversation
-                .child(metadata("Archived chat · saved history remains available"))
-                .child(button("chat-unarchive").label("Unarchive").on_click(
-                    cx.listener(move |this, _, _, cx| this.reopen_thread(&thread_id, cx)),
-                ));
-        }
-        conversation.test_support().into_any_element()
+            )
+            .test_support()
+            .into_any_element()
     }
     /// A compact preview of one exact candidate; Apply binds that candidate.
+    /// It sits inside its attention card, which holds the only border. The
+    /// heading names every target note with the total +a −r and marks a
+    /// protected one; `lead` fills Apply/Approve for the newest proposal.
     pub(super) fn proposal_card(
         &self,
         candidate: &Prepared,
+        summary: &ReviewSummary,
+        lead: bool,
         cx: &mut Context<Self>,
     ) -> gpui_kit::AnyElement {
         let p = pal();
         let op = candidate.operation.as_str().to_owned();
-        let note = candidate
-            .request
-            .writes
-            .iter()
-            .find_map(|write| match &write.data {
-                RecordData::Note(note) => Some((write.id.clone(), note)),
-                _ => None,
-            });
-        let (heading_text, preview, protected) =
-            match &note {
-                Some((id, proposed)) => {
-                    let current =
-                        self.workspace.store.note(id).ok().flatten().and_then(
-                            |record| match record.data {
-                                RecordData::Note(note) => Some((note.markdown, note.protected)),
-                                _ => None,
-                            },
-                        );
-                    let protected = current.as_ref().is_some_and(|(_, protected)| *protected)
-                        || proposed.protected;
-                    let preview = diff::preview(
-                        current.as_ref().map_or("", |(text, _)| text.as_str()),
-                        &proposed.markdown,
-                        2,
-                    );
-                    (
-                        format!(
-                            "proposal · {}  +{} −{}",
-                            short(&proposed.title),
-                            preview.added,
-                            preview.removed
-                        ),
-                        Some(preview),
-                        protected,
-                    )
-                }
-                None => (
-                    format!(
-                        "proposal · {} changes · {}",
-                        candidate.request.writes.len(),
-                        short(&candidate.request.reason)
-                    ),
-                    None,
-                    false,
-                ),
+        let protected = summary.protected;
+        let (mut added, mut removed, mut preview) = (0, 0, None);
+        for write in &candidate.request.writes {
+            let RecordData::Note(proposed) = &write.data else {
+                continue;
             };
+            let current = self
+                .workspace
+                .store
+                .note(&write.id)
+                .ok()
+                .flatten()
+                .and_then(|record| match record.data {
+                    RecordData::Note(note) => Some(note.markdown),
+                    _ => None,
+                });
+            let diff = diff::preview(current.as_deref().unwrap_or(""), &proposed.markdown, 2);
+            added += diff.added;
+            removed += diff.removed;
+            // The first note's lines preview the proposal.
+            preview.get_or_insert(diff);
+        }
+        let label = review_label(summary, &candidate.request.reason);
+        let counts = (!summary.note_titles.is_empty()).then(|| format!("+{added} −{removed}"));
+        let announced = [
+            Some(label.clone()),
+            counts.clone(),
+            protected.then(|| "Protected".to_owned()),
+        ]
+        .into_iter()
+        .flatten()
+        .collect::<Vec<_>>()
+        .join(" · ");
         let mut card = div()
             .id(format!("proposal-{op}"))
             .flex()
             .flex_col()
             .gap_2()
-            .p_2()
-            .border_1()
-            .border_color(rgb(p.border))
-            .bg(rgb(p.tile))
             .child(
                 div()
-                    .font_family(UI_FONT)
-                    .text_size(SMALL_TEXT)
-                    .font_weight(gpui_kit::FontWeight::SEMIBOLD)
-                    .child(heading_text),
+                    .id(format!("proposal-heading-{op}"))
+                    .flex()
+                    .flex_wrap()
+                    .items_center()
+                    .gap_x_2()
+                    .gap_y_1()
+                    .aria_label(announced)
+                    .child(
+                        div()
+                            .min_w_0()
+                            .font_weight(gpui_kit::FontWeight::SEMIBOLD)
+                            .child(label),
+                    )
+                    .children(counts.map(|counts| {
+                        div()
+                            .text_size(SMALL_TEXT)
+                            .text_color(rgb(p.muted))
+                            .child(counts)
+                    }))
+                    .when(protected, |heading| {
+                        heading.child(components::status_chip(
+                            format!("proposal-protected-{op}"),
+                            Some(Tone::Info),
+                            Some(IconName::Lock),
+                            "Protected",
+                        ))
+                    })
+                    .test_support(),
             );
         if let Some(preview) = preview
             && !preview.text.is_empty()
@@ -462,17 +564,25 @@ impl ThreadsUi {
                         move |this, _, window, cx| this.card_dismiss(dismiss.clone(), window, cx),
                     )),
                 )
-                .child(
-                    pill(
-                        format!("card-apply-{op}"),
-                        if protected { "Approve" } else { "Apply" },
-                    )
-                    .primary()
-                    .tooltip("Applies this exact proposal")
-                    .on_click(cx.listener(move |this, _, window, cx| {
-                        this.card_apply(apply.clone(), window, cx)
-                    })),
-                ),
+                .child({
+                    let control = button(format!("card-apply-{op}"))
+                        .label(if protected { "Approve" } else { "Apply" })
+                        .compact()
+                        .h(components::tokens::COMPACT_CONTROL)
+                        .tooltip(if protected {
+                            "Approving saves exactly this proposal, including a protected note"
+                        } else {
+                            "Applying saves exactly this proposal"
+                        })
+                        .on_click(cx.listener(move |this, _, window, cx| {
+                            this.card_apply(apply.clone(), window, cx)
+                        }));
+                    if lead {
+                        control.primary()
+                    } else {
+                        control.outline()
+                    }
+                }),
         )
         .test_support()
         .into_any_element()
@@ -509,6 +619,56 @@ impl ThreadsUi {
                     cx.notify();
                 }));
         let can_steer = self.can_stop_and_send();
+        // Below 420 pt the model control also names the effort (the model
+        // name truncates first) and its menu holds the effort choices.
+        let narrow = self.chat_narrow;
+        let model = self.settings.model.clone();
+        let effort = self.settings.effort.clone();
+        let model_control = if narrow {
+            button("model-pill")
+                .compact()
+                .ghost()
+                .h(components::tokens::COMPACT_CONTROL)
+                .flex_shrink(1.)
+                .min_w_0()
+                .max_w(px(160.))
+                .dropdown_caret(true)
+                .accessibility_label(format!("Model {model}, effort {effort}"))
+                .tooltip("Provider, model and reasoning effort · changes Settings · no fallback")
+                .child(
+                    div()
+                        .flex()
+                        .min_w_0()
+                        .child(div().min_w_0().truncate().child(model))
+                        .child(
+                            div()
+                                .flex_shrink_0()
+                                .whitespace_nowrap()
+                                .child(format!("\u{a0}· {effort}")),
+                        ),
+                )
+                .dropdown_menu(move |menu, _, cx| match model_this.upgrade() {
+                    Some(view) => {
+                        let view = view.read(cx);
+                        view.effort_menu(
+                            view.model_menu(menu, &model_this).separator(),
+                            &model_this,
+                        )
+                    }
+                    None => menu,
+                })
+        } else {
+            pill(
+                "model-pill",
+                super::shell::model_display(&self.settings.provider, &model),
+            )
+            .dropdown_caret(true)
+            .tooltip("Provider and model · changes Settings · no fallback")
+            .dropdown_menu(move |menu, _, cx| match model_this.upgrade() {
+                Some(view) => view.read(cx).model_menu(menu, &model_this),
+                None => menu,
+            })
+        };
         div()
             .id("composer-tile")
             .on_drop(
@@ -549,12 +709,44 @@ impl ThreadsUi {
             .py_1()
             .bg(rgb(p.alt))
             .border_t_1()
-            .border_color(rgb(p.border))
-            .when_some(archived, |composer, _| {
+            .border_color(rgb(p.hairline))
+            // The archived chat's one banner holds its only Unarchive.
+            .when_some(archived, |composer, chat| {
+                let chat = chat.to_owned();
                 composer.child(
-                    metadata("Archived · Unarchive to reply")
+                    div()
                         .id("composer-destination")
-                        .aria_label("Archived · Unarchive to reply")
+                        .flex()
+                        .items_center()
+                        .gap_2()
+                        .px_2()
+                        .py_1()
+                        .rounded(components::tokens::RADIUS_CONTROL)
+                        .border_1()
+                        .border_color(rgb(p.hairline))
+                        .bg(rgb(p.tile))
+                        .font_family(UI_FONT)
+                        .text_size(UI_TEXT)
+                        .text_color(rgb(p.ink))
+                        .aria_label("Archived. Unarchive to reply.")
+                        .child(
+                            Icon::new(IconName::Archive)
+                                .with_size(Size::Small)
+                                .flex_shrink_0()
+                                .text_color(rgb(p.muted)),
+                        )
+                        .child(div().flex_1().min_w_0().child("Archived. Unarchive to reply."))
+                        .child(
+                            button("reopen-thread")
+                                .label("Unarchive")
+                                .compact()
+                                .outline()
+                                .h(components::tokens::COMPACT_CONTROL)
+                                .tooltip("Unarchive this chat. The queue stays paused until you resume it.")
+                                .on_click(cx.listener(move |this, _, _, cx| {
+                                    this.reopen_thread(&chat, cx)
+                                })),
+                        )
                         .test_support(),
                 )
             })
@@ -610,55 +802,48 @@ impl ThreadsUi {
                             }),
                     )
                     .child(div().flex_1())
-                    .child(
-                        pill(
-                            "model-pill",
-                            format!(
-                                "{} · {}",
-                                super::shell::provider_key(&self.settings.provider),
-                                self.settings.model
-                            ),
+                    .child(model_control)
+                    .when(!narrow, |row| {
+                        row.child(
+                            pill("effort-pill", self.settings.effort.clone())
+                                .dropdown_caret(true)
+                                .tooltip("Reasoning effort")
+                                .dropdown_menu(move |menu, _, cx| match effort_this.upgrade() {
+                                    Some(view) => view.read(cx).effort_menu(menu, &effort_this),
+                                    None => menu,
+                                }),
                         )
-                        .dropdown_caret(true)
-                        .tooltip("Provider and model · changes Settings · no fallback")
-                        .dropdown_menu(move |menu, _, cx| match model_this.upgrade() {
-                            Some(view) => view.read(cx).model_menu(menu, &model_this),
-                            None => menu,
-                        }),
-                    )
-                    .child(
-                        pill("effort-pill", self.settings.effort.clone())
-                            .dropdown_caret(true)
-                            .tooltip("Reasoning effort")
-                            .dropdown_menu(move |menu, _, cx| match effort_this.upgrade() {
-                                Some(view) => view.read(cx).effort_menu(menu, &effort_this),
-                                None => menu,
-                            }),
-                    )
+                    })
                     .child(quiet_control)
                     .when(can_steer, |row| {
                         row.child(
                             pill("chat-steer", "Steer")
-                                .tooltip(
-                                    "Stop this invocation and start fresh with this instruction",
-                                )
+                                .tooltip("Stop the current reply and start fresh with this message.")
                                 .on_click(cx.listener(|this, _, window, cx| {
                                     this.stop_and_send(window, cx)
                                 })),
                         )
                     })
                     .child(
+                        // While work runs ↵ queues, so Send reads Queue.
                         button("ask-delegate")
                             .label(if self.editing_queue.is_some() {
                                 "Save queued"
                             } else if busy {
-                                "Queue ↵"
+                                "Queue"
                             } else {
-                                "Send ↵"
+                                "Send"
                             })
                             .primary()
                             .compact()
-                            .tooltip("Enter sends or queues · Shift-Enter adds a line")
+                            .h(components::tokens::COMPACT_CONTROL)
+                            .tooltip(if self.editing_queue.is_some() {
+                                "Save the queued message ↵ · Shift-↵ adds a line"
+                            } else if busy {
+                                "Add this message to the queue ↵"
+                            } else {
+                                "Send ↵ · Shift-↵ adds a line"
+                            })
                             .disabled(false)
                             .on_click(cx.listener(|this, _, window, cx| this.ask(window, cx))),
                     ),
@@ -2301,6 +2486,18 @@ impl ThreadsUi {
             } else {
                 secondary.push(rewrite.ghost().into_any_element());
             }
+            // A rewrite saved as Working that this window does not hold may
+            // still run elsewhere: Stop… asks first. When the queue's pending
+            // item is in this chat, the chat's recovery card offers it.
+            if let Some(RunOutcome::Elsewhere(run)) = self.writing_run_outcome()
+                && self.worker.as_ref().and_then(|w| w.run_id.as_deref()) != Some(run.as_str())
+                && !self
+                    .queue_state()
+                    .pending
+                    .is_some_and(|pending| selected.as_ref() == Some(&pending.thread))
+            {
+                secondary.push(self.stop_saved_run_button(&run, cx).into_any_element());
+            }
         }
         let line = div()
             .flex()
@@ -3116,6 +3313,26 @@ fn reading_column() -> gpui_kit::Div {
         .max_w(px(READING_MEASURE) + components::tokens::SPACE_6 * 2.)
         .px(components::tokens::SPACE_6)
         .py_2()
+}
+
+/// One transcript row's column: the reading measure with 24 px gutters.
+fn transcript_column() -> gpui_kit::Div {
+    div()
+        .flex()
+        .flex_col()
+        .w_full()
+        .min_w_0()
+        .max_w(px(READING_MEASURE) + components::tokens::SPACE_6 * 2.)
+        .px(components::tokens::SPACE_6)
+}
+
+/// A recovery card's tone; neutral has none.
+fn severity_tone(severity: Severity) -> Option<Tone> {
+    match severity {
+        Severity::Neutral => None,
+        Severity::Warning => Some(Tone::Warning),
+        Severity::Error => Some(Tone::Error),
+    }
 }
 
 /// A banner's secondary action: a 28 px outline button.

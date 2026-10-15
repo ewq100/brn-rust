@@ -496,7 +496,14 @@ fn archived_writing_chat_preserves_feedback_and_requires_explicit_unarchive(
     let f = fixture(cx);
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |view, cx| {
-            let state = |view: &ThreadsUi, id: &str| match view.workspace.store.record(id).unwrap().unwrap().data {
+            let state = |view: &ThreadsUi, id: &str| match view
+                .workspace
+                .store
+                .record(id)
+                .unwrap()
+                .unwrap()
+                .data
+            {
                 RecordData::Thread(thread) => thread.state,
                 _ => unreachable!(),
             };
@@ -504,13 +511,58 @@ fn archived_writing_chat_preserves_feedback_and_requires_explicit_unarchive(
             view.select_writing_thread(f.a.id.clone(), f.chat_a.clone(), window, cx);
             view.resolve_thread(&f.chat_a, cx);
             assert_eq!(state(view, &f.chat_a), ThreadState::Open);
-            assert!(view.workspace.store.record(&f.chat_a).unwrap().unwrap().archived);
-            feedback(view, &f.a, "tere", 5..9, "Feedback after resolution", window, cx);
+            assert!(
+                view.workspace
+                    .store
+                    .record(&f.chat_a)
+                    .unwrap()
+                    .unwrap()
+                    .archived
+            );
+            feedback(
+                view,
+                &f.a,
+                "tere",
+                5..9,
+                "Feedback after resolution",
+                window,
+                cx,
+            );
             assert_eq!(view.workspace.writing_comments(&f.a.id).unwrap().len(), 0);
             assert!(view.notice.contains("Unarchive"));
-            assert!(view.comment_input.read(cx).value().contains("Feedback after resolution"));
-            assert!(view.workspace.store.record(&f.chat_a).unwrap().unwrap().archived);
-            view.reopen_thread(&f.chat_a,cx);
+            assert!(
+                view.comment_input
+                    .read(cx)
+                    .value()
+                    .contains("Feedback after resolution")
+            );
+            assert!(
+                view.workspace
+                    .store
+                    .record(&f.chat_a)
+                    .unwrap()
+                    .unwrap()
+                    .archived
+            );
+            cx.notify();
+        })
+    })
+    .unwrap();
+    cx.run_until_parked();
+    // The archived chat's only Unarchive is the composer banner's.
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(window.find("reopen-thread").visible());
+        assert!(window.try_find("chat-unarchive").is_none());
+        window.click("reopen-thread", cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            let state = |view: &ThreadsUi, id: &str| match view.workspace.store.record(id).unwrap().unwrap().data {
+                RecordData::Thread(thread) => thread.state,
+                _ => unreachable!(),
+            };
             assert!(!view.workspace.store.record(&f.chat_a).unwrap().unwrap().archived);
             view.composer.update(cx, |editor, cx| {
                 editor.set_value("Replying reopens", window, cx)

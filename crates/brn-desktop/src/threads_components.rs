@@ -425,6 +425,43 @@ pub(super) fn status_line(
         .test_support()
 }
 
+/// An inline card for something the owner must act on: radius 6, one
+/// hairline border, the tone's tint (`alt` when neutral) and `ink` text.
+/// Cards never nest a bordered card.
+pub(super) fn card(
+    id: impl Into<ElementId>,
+    tone: Option<Tone>,
+) -> gpui_kit::Stateful<gpui_kit::Div> {
+    let p = pal();
+    div()
+        .id(id)
+        .flex()
+        .flex_col()
+        .flex_shrink_0()
+        .gap_2()
+        .p_3()
+        .rounded(RADIUS_CONTROL)
+        .border_1()
+        .border_color(rgb(p.hairline))
+        .bg(rgb(tone.map_or(p.alt, Tone::tint)))
+        .font_family(UI_FONT)
+        .text_size(UI_TEXT)
+        .text_color(rgb(p.ink))
+}
+
+/// A tone's icon in its color, announced by the tone's word as `id`.
+pub(super) fn tone_mark(
+    id: impl Into<SharedString>,
+    tone: Tone,
+) -> gpui_kit::base::ObservedElement<gpui_kit::Stateful<gpui_kit::Div>> {
+    div()
+        .id(id.into())
+        .flex_shrink_0()
+        .aria_label(tone.word())
+        .child(tone_icon(tone, Size::Small))
+        .test_support()
+}
+
 /// A compact status chip on its tone's tint; `None` is neutral.
 pub(super) fn status_chip(
     id: impl Into<ElementId>,

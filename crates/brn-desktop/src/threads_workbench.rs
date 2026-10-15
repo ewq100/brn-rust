@@ -202,14 +202,14 @@ impl ThreadsUi {
             .data
         {
             RecordData::Run(run) if run.instruction.as_deref() == Some(request.as_str()) => {
-                Some(run)
+                Some((record.id.clone(), run))
             }
             _ => None,
         });
         Some(match run {
             None => RunOutcome::InputsSaved,
-            Some(run) => match run.state {
-                RunState::Working => RunOutcome::Elsewhere,
+            Some((id, run)) => match run.state {
+                RunState::Working => RunOutcome::Elsewhere(id),
                 RunState::Completed => RunOutcome::NoProposal,
                 RunState::Failed => RunOutcome::Failed(run.progress.clone()),
                 RunState::Interrupted => RunOutcome::Interrupted(run.progress.clone()),
@@ -360,8 +360,8 @@ pub(super) enum RunOutcome {
     Failed(String),
     Interrupted(String),
     Stopped(String),
-    /// Saved as Working with no live worker here.
-    Elsewhere,
+    /// Saved as Working with no live worker here; holds the run's ID.
+    Elsewhere(String),
     /// Inputs saved, no run recorded.
     InputsSaved,
     /// Completed without a proposal.
@@ -372,7 +372,7 @@ impl RunOutcome {
     pub(super) fn tone(&self) -> Option<Tone> {
         match self {
             Self::Failed(_) => Some(Tone::Error),
-            Self::Interrupted(_) | Self::Stopped(_) | Self::Elsewhere => Some(Tone::Warning),
+            Self::Interrupted(_) | Self::Stopped(_) | Self::Elsewhere(_) => Some(Tone::Warning),
             Self::InputsSaved | Self::NoProposal => None,
         }
     }
@@ -389,7 +389,7 @@ impl RunOutcome {
             Self::Failed(progress) => with("Rewrite failed", progress),
             Self::Interrupted(progress) => with("Rewrite interrupted", progress),
             Self::Stopped(progress) => with("Rewrite stopped", progress),
-            Self::Elsewhere => {
+            Self::Elsewhere(_) => {
                 "This rewrite may still be running elsewhere. Retry starts a new attempt.".into()
             }
             Self::InputsSaved => "Rewrite inputs saved".into(),
@@ -461,7 +461,7 @@ mod tests {
                 false,
                 false,
                 false,
-                Some(&RunOutcome::Elsewhere),
+                Some(&RunOutcome::Elsewhere("run".into())),
                 WritingRow::Retry,
             ),
             (
@@ -503,7 +503,10 @@ mod tests {
             RunOutcome::Interrupted(String::new()).tone(),
             Some(Tone::Warning)
         );
-        assert_eq!(RunOutcome::Elsewhere.tone(), Some(Tone::Warning));
+        assert_eq!(
+            RunOutcome::Elsewhere("run".into()).tone(),
+            Some(Tone::Warning)
+        );
         assert_eq!(RunOutcome::InputsSaved.tone(), None);
         assert_eq!(
             RunOutcome::NoProposal.text(),

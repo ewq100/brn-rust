@@ -524,6 +524,9 @@ impl ThreadsUi {
         let note_width = self.note_panel_width(window);
         self.note_fit = note_width.map_or(layout::NoteFit::Full, layout::NoteFit::for_width);
         self.review_fit = note_width.map_or(layout::ReviewFit::Full, layout::ReviewFit::for_width);
+        self.chat_narrow = self
+            .panel_width(TileKind::Chat, window)
+            .is_some_and(|width| width < CHAT_NARROW);
         if visible.is_empty() {
             return row
                 .items_center()
@@ -638,19 +641,26 @@ impl ThreadsUi {
     /// The Note panel's width as the tile row's flex layout resolves it, from
     /// the same weights, minimums and gaps the renderer uses.
     pub(super) fn note_panel_width(&self, window: &Window) -> Option<f32> {
+        self.panel_width(TileKind::Note, window)
+    }
+    /// A visible panel's resolved width.
+    pub(super) fn panel_width(&self, kind: TileKind, window: &Window) -> Option<f32> {
         let tiles: Vec<(TileKind, f32)> = self
             .layout
             .visible()
             .iter()
             .map(|tile| (tile.kind, tile.weight))
             .collect();
-        let index = tiles.iter().position(|(kind, _)| *kind == TileKind::Note)?;
+        let index = tiles.iter().position(|(tile, _)| *tile == kind)?;
         let available = f32::from(window.viewport_size().width);
         layout::panel_widths(available, &tiles, self.note_margin_width())
             .get(index)
             .copied()
     }
 }
+
+/// Below this Chat panel width the model control also names the effort.
+const CHAT_NARROW: f32 = 420.;
 
 pub(super) fn provider_key(provider: &str) -> &'static str {
     match provider.to_ascii_lowercase().as_str() {
@@ -661,6 +671,14 @@ pub(super) fn provider_key(provider: &str) -> &'static str {
 }
 pub(super) const PROVIDERS: [(&str, &str); 2] =
     [("chatgpt", "ChatGPT"), ("copilot", "GitHub Copilot")];
+/// "ChatGPT · gpt-6.1-sol", or the model alone when no provider is chosen.
+pub(super) fn model_display(provider: &str, model: &str) -> String {
+    let key = provider_key(provider);
+    match PROVIDERS.iter().find(|(provider, _)| *provider == key) {
+        Some((_, name)) => format!("{name} · {model}"),
+        None => model.to_owned(),
+    }
+}
 
 impl ThreadsUi {
     /// Explicit models already configured or used by earlier runs; no fallback.

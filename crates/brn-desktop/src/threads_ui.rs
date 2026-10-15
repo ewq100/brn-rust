@@ -75,8 +75,9 @@ use components::{IconName, Tone};
 use layout::{Layout, Preset, TileKind};
 use lists::{Activity, NoteRow, ThreadFilter, ThreadRow};
 use state::{
-    ComposerDestination, ComposerDrafts, WorkerKind, can_continue_thread, comment_location,
-    continuation_notice, delegation_status, latest_run, linked, outcome_message, refresh_hint,
+    ComposerDestination, ComposerDrafts, ContinuePath, Severity, WorkerKind, can_continue_thread,
+    comment_location, continue_path, delegation_status, latest_run, linked, outcome_message,
+    owner_message_after_latest_run, recovery, refresh_hint, review_label, review_summary,
     save_message, sections,
 };
 use theme::{ThemeId, pal};
@@ -116,6 +117,9 @@ mod document_tests;
 #[path = "threads_tiled_tests.rs"]
 mod tiled_tests;
 
+#[cfg(all(test, feature = "native-test-support"))]
+#[path = "threads_chat_tests.rs"]
+mod chat_tests;
 #[cfg(all(test, feature = "native-test-support"))]
 #[path = "threads_omakase_tests.rs"]
 mod omakase_tests;
@@ -522,6 +526,9 @@ struct ThreadsUi {
     note_fit: layout::NoteFit,
     /// The review bar's arrangement for the Note panel's current width.
     review_fit: layout::ReviewFit,
+    /// The Chat panel is below 420 pt: the model control also names the
+    /// effort, and the effort control folds into its menu.
+    chat_narrow: bool,
     show_coverage: bool,
     selection: Option<(Range<usize>, String)>,
     general_feedback: Entity<TextareaState>,
@@ -828,6 +835,7 @@ impl ThreadsUi {
             margin_mode: layout::MarginMode::Wide,
             note_fit: layout::NoteFit::default(),
             review_fit: layout::ReviewFit::default(),
+            chat_narrow: false,
             show_coverage: false,
             selection: None,
             general_feedback,
@@ -2190,7 +2198,7 @@ impl ThreadsUi {
                 cancellation.cancel();
                 self.progress =
                     "Stopping… New instruction saved; waiting for this run to finish.".into();
-                self.inform("Instruction saved. Waiting for the current run to stop.");
+                self.inform("Message saved. Stopping the current reply, then starting yours.");
                 self.refresh();
             }
             Err(error) => self.fail(format!("Could not send: {error}. Your text is preserved.")),
@@ -2280,7 +2288,9 @@ impl ThreadsUi {
         };
         match result {
             Ok(_) => {
-                self.inform("Chat archived. Work stopped and the queue is paused. Actions retain their progress.");
+                self.inform(
+                    "Chat archived. Work stopped and the queue is paused. Tasks keep their progress.",
+                );
                 if let Some(worker) = &self.worker
                     && worker.thread.as_deref() == Some(thread)
                 {
@@ -2716,28 +2726,12 @@ impl ThreadsUi {
         }
     }
     fn continue_run(&mut self, thread: String, cx: &mut Context<Self>) {
-        if self
-            .queue_state()
-            .pending
-            .is_some_and(|q| q.thread == thread)
-        {
-            self.resume_chat_queue(cx);
-            return;
+        let messages = self.workspace.messages(&thread).unwrap_or_default();
+        match continue_path(&self.queue_state(), &messages, &thread) {
+            ContinuePath::ResumeQueue => self.resume_chat_queue(cx),
+            ContinuePath::RetryRewrite(request) => self.retry_rewrite(request, cx),
+            ContinuePath::FreshRun => self.start_run("Continue the work from the saved conversation, current linked notes and recorded outcomes. Recheck current versions and authority.".into(),thread,vec![],None,cx),
         }
-        if let Ok(messages) = self.workspace.messages(&thread) {
-            for record in messages.iter().rev() {
-                if let RecordData::Message(message) = &record.data {
-                    if message.role == "owner" {
-                        break;
-                    }
-                    if message.role == "writing-request" {
-                        self.retry_rewrite(record.id.clone(), cx);
-                        return;
-                    }
-                }
-            }
-        }
-        self.start_run("Continue the work from the saved conversation, current linked notes and recorded outcomes. Recheck current versions and authority.".into(),thread,vec![],None,cx);
     }
     fn cancel(&mut self, cx: &mut Context<Self>) {
         if self.pending_send.take().is_some() {

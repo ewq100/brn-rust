@@ -63,7 +63,9 @@ impl ThreadsUi {
             .child(status)
             .when(worker.is_some(), |line| {
                 line.child(
-                    pill("run-stop", "stop ⌘.")
+                    pill("run-stop", "Stop")
+                        .icon(IconName::Square)
+                        .tooltip("Stop the current work and pause the queue · ⌘.")
                         .on_click(cx.listener(|this, _, _, cx| this.cancel(cx))),
                 )
             })
@@ -106,6 +108,52 @@ impl ThreadsUi {
             .child(line)
             .test_support()
             .into_any_element()
+    }
+    /// "Stop…" for a saved Working run this window does not hold: BRN can't
+    /// tell whether another window or the CLI still runs it, so it confirms.
+    pub(super) fn stop_saved_run_button(&self, run: &str, cx: &mut Context<Self>) -> Button {
+        let run = run.to_owned();
+        button(format!("stop-saved-run-{run}"))
+            .label("Stop…")
+            .compact()
+            .outline()
+            .h(components::tokens::COMPACT_CONTROL)
+            .tooltip("Stop this reply; asks first")
+            .on_click(cx.listener(move |this, _, window, cx| {
+                this.confirm_stop_saved_run(run.clone(), window, cx)
+            }))
+    }
+    fn confirm_stop_saved_run(&mut self, run: String, window: &mut Window, cx: &mut Context<Self>) {
+        let target = cx.entity().downgrade();
+        window.open_dialog(cx, move |dialog, _, _| {
+            let (target, run) = (target.clone(), run.clone());
+            components::consequence_dialog(
+                dialog,
+                "stop-saved-run",
+                "Stop this reply?",
+                "BRN can't tell whether another BRN window or the CLI is still running it. Stopping marks it stopped and pauses the queue; changes it tries to save after that are refused. You can Continue afterwards.",
+                "Stop reply",
+                std::rc::Rc::new(move |_, cx| {
+                    let _ = target.update(cx, |view, cx| view.stop_saved_run(&run, cx));
+                }),
+            )
+        });
+    }
+    /// The existing checked stop: pauses the queue, marks the Working run
+    /// Interrupted and fences it, so later writes from whoever runs it are
+    /// refused.
+    fn stop_saved_run(&mut self, run: &str, cx: &mut Context<Self>) {
+        match self.workspace.stop_chat_run(
+            &format!("stop-saved:{}", uuid::Uuid::new_v4()),
+            run,
+            None,
+        ) {
+            Ok(_) => self
+                .warn("Reply stopped. The queue is paused; Continue or Resume queue when ready."),
+            Err(e) => self.fail(e.to_string()),
+        }
+        self.refresh();
+        cx.notify();
     }
     pub(super) fn assets_in_chat(&self, chat: Option<&str>) -> Arc<BTreeMap<String, Arc<Image>>> {
         Arc::new(
@@ -200,6 +248,9 @@ impl ThreadsUi {
             return;
         }
         let destination = self.destination();
+        let edited = self.editing_queue.is_some();
+        // Every waiting item ahead of the new one, in any chat.
+        let ahead = self.queue_state().queue.len();
         let result = if let Some(item) = &self.editing_queue {
             self.workspace
                 .edit_queued(
@@ -224,9 +275,26 @@ impl ThreadsUi {
                 if let Some(thread) = thread {
                     self.chat = ChatTarget::Thread(thread);
                 }
-                self.inform("Message saved in the queue. Each item runs as a separate turn with current context.");
                 self.refresh();
-                if self.worker.is_none() && !self.queue_state().paused {
+                let paused = self.queue_state().paused;
+                let busy = self.worker.is_some();
+                // First match wins: Busy and Paused hold together after Stop.
+                if edited {
+                    self.inform("Queued message updated.");
+                } else if paused {
+                    self.warn("Queued. The queue is paused; Resume queue to run it.");
+                } else if busy && ahead > 0 {
+                    self.inform(format!(
+                        "Queued; runs after {ahead} waiting message{}.",
+                        if ahead == 1 { "" } else { "s" }
+                    ));
+                } else if busy {
+                    self.inform("Queued; runs after the current reply.");
+                } else {
+                    // It dispatches at once and the run line shows it.
+                    self.notice.clear();
+                }
+                if !busy && !paused {
                     self.dispatch_next(cx);
                 }
             }
@@ -338,22 +406,61 @@ impl ThreadsUi {
         let c = self.queue_state();
         let mut panel = div().flex().flex_col().gap_1();
         if c.pending.is_some() || !c.queue.is_empty() {
-            panel = panel.child(
-                div()
-                    .flex()
-                    .items_center()
-                    .gap_2()
-                    .child(metadata(format!(
-                        "Queue · {} waiting{}",
-                        c.queue.len(),
-                        if c.paused { " · paused" } else { "" }
-                    )))
+            let here = self.chat_thread().map(str::to_owned);
+            let waiting = format!("{} waiting", c.queue.len());
+            // A paused queue is a warning card holding Resume queue; a running
+            // one is a quiet list.
+            let mut queue = if c.paused {
+                let busy = self.worker.is_some();
+                components::card("queue-panel", Some(Tone::Warning))
+                    .gap_1()
+                    .p_2()
                     .child(
-                        pill("queue-resume", "Resume")
-                            .disabled(self.worker.is_some() || !c.paused)
-                            .on_click(cx.listener(|this, _, _, cx| this.resume_chat_queue(cx))),
-                    ),
-            );
+                        div()
+                            .flex()
+                            .items_center()
+                            .gap_2()
+                            .child(components::tone_mark("queue-panel-tone", Tone::Warning))
+                            .child(
+                                div()
+                                    .flex_1()
+                                    .min_w_0()
+                                    .truncate()
+                                    .text_size(SMALL_TEXT)
+                                    .font_weight(gpui_kit::FontWeight::MEDIUM)
+                                    .child(format!("Queue paused · {waiting}")),
+                            )
+                            .child(
+                                button("queue-resume")
+                                    .label("Resume queue")
+                                    .compact()
+                                    .outline()
+                                    .h(components::tokens::COMPACT_CONTROL)
+                                    .flex_shrink_0()
+                                    .disabled(busy)
+                                    .when(busy, |button| {
+                                        button
+                                            .accessibility_label(
+                                                "Resume queue, unavailable: wait for current work to stop",
+                                            )
+                                            .tooltip("Wait for current work to stop")
+                                    })
+                                    .when(!busy, |button| {
+                                        button.tooltip("Run the waiting messages in order")
+                                    })
+                                    .on_click(
+                                        cx.listener(|this, _, _, cx| this.resume_chat_queue(cx)),
+                                    ),
+                            ),
+                    )
+            } else {
+                div()
+                    .id("queue-panel")
+                    .flex()
+                    .flex_col()
+                    .gap_1()
+                    .child(metadata(format!("Queue · {waiting}")))
+            };
             for (index, q) in c.pending.iter().chain(c.queue.iter()).enumerate() {
                 let edit = q.clone();
                 let remove = q.id.clone();
@@ -367,30 +474,41 @@ impl ThreadsUi {
                     .position(|i| i.id == q.id)
                     .and_then(|i| i.checked_sub(1))
                     .map(|i| c.queue[i].id.clone());
-                panel = panel.child(
+                let state = if active {
+                    "Running"
+                } else if c.pending.as_ref().is_some_and(|p| p.id == q.id) {
+                    "Next"
+                } else {
+                    "Waiting"
+                };
+                // Only items from other chats name their chat.
+                let label = if here.as_deref() == Some(q.thread.as_str()) {
+                    format!("{state} · {}", short(&q.text))
+                } else {
+                    format!(
+                        "{state} · {} · {}",
+                        short(&self.thread_title(&q.thread)),
+                        short(&q.text)
+                    )
+                };
+                queue = queue.child(
                     div()
                         .id(format!("queue-card-{}", q.id))
                         .flex()
                         .items_center()
                         .gap_2()
-                        .px_2()
-                        .py_1()
+                        .px_1()
                         .child(
-                            metadata(format!(
-                                "{} · {} · {}",
-                                if active {
-                                    "running"
-                                } else if c.pending.as_ref().is_some_and(|p| p.id == q.id) {
-                                    "saved turn"
-                                } else {
-                                    "waiting"
-                                },
-                                short(&self.thread_title(&q.thread)),
-                                short(&q.text)
-                            ))
-                            .flex_1()
-                            .min_w_0()
-                            .truncate(),
+                            div()
+                                .id(format!("queue-label-{index}"))
+                                .flex_1()
+                                .min_w_0()
+                                .truncate()
+                                .text_size(SMALL_TEXT)
+                                .text_color(rgb(pal().ink))
+                                .aria_label(label.clone())
+                                .child(label)
+                                .test_support(),
                         )
                         .child(
                             pill(format!("queue-edit-{index}"), "Edit")
@@ -451,6 +569,7 @@ impl ThreadsUi {
                         .test_support(),
                 );
             }
+            panel = panel.child(queue.test_support());
         }
         if let ChatTarget::Thread(chat) = &self.chat {
             for r in self.records.iter().filter(|r| {
@@ -659,16 +778,26 @@ impl ThreadsUi {
                 })
             })
             .unwrap_or_else(|| format!("message-{}", record.id));
-        let mut row = div()
-            .id(format!("chat-message-{}", record.id))
+        // The transcript keeps the reading measure: 680 px of text with 24 px
+        // gutters, centered when the chat fills the window.
+        let mut column = div()
             .flex()
             .flex_col()
             .gap_1()
-            .p_3();
+            .w_full()
+            .min_w_0()
+            .max_w(px(680.) + components::tokens::SPACE_6 * 2.)
+            .px(components::tokens::SPACE_6)
+            .py_2();
         match m.role.as_str() {
             "owner" => {
-                row = row
-                    .child(metadata("you"))
+                column = column
+                    .child(
+                        metadata("You")
+                            .h(components::tokens::ICON_CONTROL)
+                            .flex()
+                            .items_center(),
+                    )
                     .child(self.safe_message(key, m.text.clone()));
             }
             "assistant" | "assistant-partial" => {
@@ -677,31 +806,32 @@ impl ThreadsUi {
                 let save_decision = m.role == "assistant"
                     && !m.text.trim().is_empty()
                     && !self.thread_resolved(&m.thread);
-                row = row
+                column = column
                     .child(
                         div()
                             .flex()
-                            .flex_wrap()
                             .items_center()
-                            .gap_2()
-                            .child(metadata(if m.role == "assistant" {
-                                "BRN"
-                            } else {
-                                "BRN · partial, interrupted"
-                            }))
-                            .child(pill(format!("answer-copy-{}", record.id), "Copy").on_click(
-                                cx.listener(move |_, _, _, cx| {
-                                    cx.write_to_clipboard(gpui_kit::ClipboardItem::new_string(
-                                        copy.clone(),
-                                    ))
-                                }),
-                            ))
+                            .gap_1()
+                            .h(components::tokens::ICON_CONTROL)
+                            .child(
+                                metadata(if m.role == "assistant" {
+                                    "BRN"
+                                } else {
+                                    "BRN · partial, interrupted"
+                                })
+                                .flex_1()
+                                .min_w_0()
+                                .truncate(),
+                            )
                             .when(save_decision, |controls| {
                                 controls.child(
                                     pill(
                                         format!("answer-decision-{}", record.id),
-                                        "Save as decision",
+                                        "Save as decision…",
                                     )
+                                    .h(components::tokens::ICON_CONTROL)
+                                    .text_size(SMALL_TEXT)
+                                    .flex_shrink_0()
                                     .tooltip(
                                         "Review and save this reply as a protected decision in BRN",
                                     )
@@ -711,15 +841,40 @@ impl ThreadsUi {
                                         },
                                     )),
                                 )
-                            }),
+                            })
+                            .child(
+                                components::icon_button(
+                                    format!("answer-copy-{}", record.id),
+                                    IconName::Copy,
+                                    "Copy reply",
+                                )
+                                .flex_shrink_0()
+                                .on_click(cx.listener(
+                                    move |_, _, _, cx| {
+                                        cx.write_to_clipboard(gpui_kit::ClipboardItem::new_string(
+                                            copy.clone(),
+                                        ))
+                                    },
+                                )),
+                            ),
                     )
                     .child(self.safe_message(key, m.text.clone()));
             }
             "writing-request" => {
-                row = row.child(metadata("you · Rewrite with AI · saved context"));
+                column = column.child(metadata("You · Rewrite with AI · saved context"));
             }
             _ => {}
         }
-        row.test_support().into_any_element()
+        div()
+            .id(format!("chat-message-{}", record.id))
+            .flex()
+            .flex_col()
+            .w_full()
+            .when(self.layout.maximized() == Some(TileKind::Chat), |row| {
+                row.items_center()
+            })
+            .child(column)
+            .test_support()
+            .into_any_element()
     }
 }

@@ -450,13 +450,20 @@ fn archived_chats_leave_the_sidebar_stay_findable_and_require_unarchive(cx: &mut
     });
     click(cx, &f, "launcher-item-0");
     on_window(cx, &f, |window, _| {
+        // One Unarchive, in the composer banner; the header shows the chip.
         assert!(window.find("reopen-thread").visible());
         assert!(
             window
-                .find("composer-destination")
-                .label()
-                .unwrap()
-                .contains("Unarchive to reply")
+                .within("composer-destination")
+                .try_find("reopen-thread")
+                .is_some()
+        );
+        assert!(window.try_find("chat-unarchive").is_none());
+        assert!(window.try_find("resolve-thread").is_none());
+        assert_eq!(window.find("chat-archived").label(), Some("Archived"));
+        assert_eq!(
+            window.find("composer-destination").label(),
+            Some("Archived. Unarchive to reply.")
         );
     });
     update(cx, &f, |view, window, cx| {

@@ -754,14 +754,22 @@ fn dismissed_completion_banner_can_be_restored_from_layout_menu(cx: &mut TestApp
     })
     .unwrap();
     cx.run_until_parked();
-    cx.update_window(f.window, |_, window, _| {
+    cx.update_window(f.window, |_, window, cx| {
         assert_eq!(window.find("idle-status").label(), Some("Idle"));
         assert!(
             window.try_find("status-model").is_none(),
             "model selection belongs in the composer"
         );
+        // A chat below 420 pt names the effort in the model control, whose
+        // menu holds the effort choices.
+        let settings = f.view.read(cx).settings.clone();
+        assert!(f.view.read(cx).chat_narrow);
         assert!(window.find("model-pill").visible());
-        assert!(window.find("effort-pill").visible());
+        assert_eq!(
+            window.find("model-pill").label(),
+            Some(format!("Model {}, effort {}", settings.model, settings.effort).as_str())
+        );
+        assert!(window.try_find("effort-pill").is_none());
     })
     .unwrap();
     let original = cx.read(|cx| f.view.read(cx).notice.clone());

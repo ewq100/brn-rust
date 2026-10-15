@@ -1,7 +1,7 @@
 //! Small presentation rules; canonical state and authority remain in the shared core.
 use brn_threads_app::{
-    ApplyOutcome, Comment, Receipt, Record, RecordData, RunState, SaveOutcome, ThreadState,
-    WorkspaceSettings,
+    ApplyOutcome, ChatControl, Comment, Prepared, Receipt, Record, RecordData, Run, RunState,
+    SaveOutcome, ThreadState, WorkspaceSettings,
 };
 use std::{collections::BTreeMap, ops::Range};
 
@@ -120,7 +120,17 @@ pub(super) fn can_continue_thread(
     if latest.is_some_and(|record| matches!(&record.data, RecordData::Run(run) if can_continue(&run.state, state, false))) {
         return true;
     }
-    // Compare receipt order, never timestamps or later Run updates.
+    owner_message_after_latest_run(records, history, thread)
+}
+/// A saved owner message was created after the chat's latest run (or the
+/// chat has an owner message and no run yet). Compares receipt order, never
+/// timestamps or later Run updates.
+pub(super) fn owner_message_after_latest_run(
+    records: &[Record],
+    history: &[Receipt],
+    thread: &str,
+) -> bool {
+    let latest = latest_run(records, history, thread);
     for receipt in history.iter().rev() {
         if latest.is_some_and(|run| {
             receipt
@@ -140,11 +150,215 @@ pub(super) fn can_continue_thread(
     }
     false
 }
-pub(super) fn continuation_notice(state: &RunState) -> &'static str {
-    if *state == RunState::Working {
-        "This run may have been interrupted or may still be running elsewhere. Continue starts fresh with the saved conversation and current notes, and supersedes the previous run."
-    } else {
-        "Continue starts fresh with the saved conversation and current notes."
+
+/// What Continue does for a chat. `continue_run` dispatches on it and the
+/// chat's recovery card is gated and labelled by it, so they cannot disagree.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(super) enum ContinuePath {
+    /// This chat holds the queue's pending item: Resume queue.
+    ResumeQueue,
+    /// The newest request after the last owner message is a rewrite; the
+    /// Note's Retry saved rewrite owns it, never the chat.
+    RetryRewrite(String),
+    /// A fresh reply from the saved chat and current notes.
+    FreshRun,
+}
+/// The pending item's chat first, then the newest writing request after the
+/// last owner message. `messages` are the chat's messages in creation order.
+pub(super) fn continue_path(
+    queue: &ChatControl,
+    messages: &[Record],
+    thread: &str,
+) -> ContinuePath {
+    if queue.pending.as_ref().is_some_and(|q| q.thread == thread) {
+        return ContinuePath::ResumeQueue;
+    }
+    for record in messages.iter().rev() {
+        if let RecordData::Message(message) = &record.data {
+            if message.role == "owner" {
+                break;
+            }
+            if message.role == "writing-request" {
+                return ContinuePath::RetryRewrite(record.id.clone());
+            }
+        }
+    }
+    ContinuePath::FreshRun
+}
+
+/// A recovery line's tone, ordered so the card takes the strongest.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub(super) enum Severity {
+    Neutral,
+    Warning,
+    Error,
+}
+/// The chat's recovery card, filled from recorded state; BRN never supplies
+/// a cause of its own.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(super) struct Recovery {
+    /// Line 1: the latest run's state, or "Not answered yet".
+    pub(super) word: &'static str,
+    pub(super) word_severity: Severity,
+    /// The run's recorded reason, verbatim and shown whole.
+    pub(super) reason: Option<String>,
+    /// Line 2: what the button does.
+    pub(super) next: String,
+    pub(super) next_severity: Severity,
+    /// Waiting messages that stay paused when the button does not resume.
+    pub(super) waiting: Option<String>,
+    /// The button: "Resume queue" or "Continue".
+    pub(super) action: &'static str,
+}
+impl Recovery {
+    pub(super) fn severity(&self) -> Severity {
+        self.word_severity.max(self.next_severity)
+    }
+    /// Every line, as announced.
+    pub(super) fn label(&self) -> String {
+        [
+            Some(self.word.to_owned()),
+            self.reason.clone(),
+            Some(self.next.clone()),
+            self.waiting.clone(),
+        ]
+        .into_iter()
+        .flatten()
+        .collect::<Vec<_>>()
+        .join(" · ")
+    }
+}
+fn messages_count(count: usize) -> String {
+    format!(
+        "{count} waiting message{}",
+        if count == 1 { "" } else { "s" }
+    )
+}
+/// Line 1 uses the latest run's state only when no owner message postdates
+/// it (`owner_after`); line 2 follows the path and queue state.
+pub(super) fn recovery(
+    path: &ContinuePath,
+    latest: Option<&Run>,
+    owner_after: bool,
+    queue: &ChatControl,
+    thread: &str,
+) -> Recovery {
+    const NOT_ANSWERED: &str = "Not answered yet";
+    let (word, word_severity) = match latest.filter(|_| !owner_after).map(|run| &run.state) {
+        Some(RunState::Failed) => ("Failed", Severity::Error),
+        Some(RunState::Interrupted) => ("Interrupted", Severity::Warning),
+        Some(RunState::Cancelled) => ("Stopped", Severity::Warning),
+        Some(RunState::Working) => ("May still be running", Severity::Warning),
+        Some(RunState::Completed) | None => (NOT_ANSWERED, Severity::Neutral),
+    };
+    let reason = latest
+        .filter(|run| word != NOT_ANSWERED && !run.progress.trim().is_empty())
+        .map(|run| run.progress.clone());
+    let still_running = latest.is_some_and(|run| run.state == RunState::Working);
+    let (next, next_severity, action) = match path {
+        ContinuePath::ResumeQueue => {
+            let others = queue.queue.iter().filter(|q| q.thread != thread).count();
+            let saved = if queue.paused {
+                "Your message is saved and the queue is paused."
+            } else {
+                "Your message is saved."
+            };
+            let waiting = 1 + queue.queue.len();
+            let order = if waiting == 1 { "" } else { " in order" };
+            let including = match others {
+                0 => String::new(),
+                1 => ", including 1 from another chat".into(),
+                others => format!(", including {others} from other chats"),
+            };
+            (
+                format!(
+                    "{saved} Resume queue runs {}{order}{including}.",
+                    messages_count(waiting)
+                ),
+                Severity::Neutral,
+                "Resume queue",
+            )
+        }
+        _ if still_running => (
+            format!(
+                "{} may still be running elsewhere. Continue starts a fresh reply and replaces it.",
+                if word == NOT_ANSWERED {
+                    "An earlier reply"
+                } else {
+                    "This reply"
+                }
+            ),
+            Severity::Warning,
+            "Continue",
+        ),
+        _ => (
+            "Your message is saved. Continue starts a fresh reply with the saved chat and current notes."
+                .into(),
+            Severity::Neutral,
+            "Continue",
+        ),
+    };
+    let paused = queue.queue.len();
+    let waiting = (queue.paused && paused > 0 && *path != ContinuePath::ResumeQueue).then(|| {
+        format!(
+            "{} {} paused until you resume the queue.",
+            messages_count(paused),
+            if paused == 1 { "stays" } else { "stay" }
+        )
+    });
+    Recovery {
+        word,
+        word_severity,
+        reason,
+        next,
+        next_severity,
+        waiting,
+        action,
+    }
+}
+
+/// The notes a prepared proposal writes, and whether any is protected now or
+/// would be after it.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub(super) struct ReviewSummary {
+    pub(super) note_titles: Vec<String>,
+    pub(super) protected: bool,
+    pub(super) other_writes: usize,
+}
+pub(super) fn review_summary(candidate: &Prepared, records: &[Record]) -> ReviewSummary {
+    let mut summary = ReviewSummary::default();
+    for write in &candidate.request.writes {
+        let RecordData::Note(proposed) = &write.data else {
+            summary.other_writes += 1;
+            continue;
+        };
+        let current = records.iter().find(|record| record.id == write.id);
+        summary.protected |= proposed.protected
+            || current.is_some_and(
+                |record| matches!(&record.data, RecordData::Note(note) if note.protected),
+            );
+        summary
+            .note_titles
+            .push(if proposed.title.trim().is_empty() {
+                "Untitled note".into()
+            } else {
+                proposed.title.clone()
+            });
+    }
+    summary
+}
+/// "Review changes to A", "… to A and B", "… to A, B and N more", or for a
+/// proposal that writes no note "Review N changes · {reason}".
+pub(super) fn review_label(summary: &ReviewSummary, reason: &str) -> String {
+    match summary.note_titles.as_slice() {
+        [] => format!(
+            "Review {} change{} · {reason}",
+            summary.other_writes,
+            if summary.other_writes == 1 { "" } else { "s" }
+        ),
+        [a] => format!("Review changes to {a}"),
+        [a, b] => format!("Review changes to {a} and {b}"),
+        [a, b, rest @ ..] => format!("Review changes to {a}, {b} and {} more", rest.len()),
     }
 }
 /// Names where to follow up after a change that left derived work behind.
@@ -345,8 +559,336 @@ mod tests {
             &ThreadState::Open,
             false
         ));
-        assert!(continuation_notice(&RunState::Working).contains("running elsewhere"));
-        assert!(continuation_notice(&RunState::Working).contains("supersedes"));
+        // The saved Working run's card says it may still run elsewhere and
+        // that Continue replaces it.
+        let working = run(RunState::Working, "");
+        let card = recovery(
+            &ContinuePath::FreshRun,
+            Some(&working),
+            false,
+            &ChatControl::default(),
+            "chat",
+        );
+        assert!(card.next.contains("running elsewhere"));
+        assert!(card.next.contains("replaces it"));
+    }
+
+    fn run(state: RunState, progress: &str) -> Run {
+        Run {
+            instruction: None,
+            queue_claim: None,
+            thread: "chat".into(),
+            provider: "offline-fixture".into(),
+            model: "synthetic-model".into(),
+            guide_identity: "synthetic".into(),
+            budget: 1,
+            effort: "medium".into(),
+            loaded_skills: vec![],
+            fence: 0,
+            state,
+            progress: progress.into(),
+            operations: vec![],
+            sources: vec![],
+        }
+    }
+    fn message(id: &str, thread: &str, role: &str) -> Record {
+        Record {
+            id: id.into(),
+            version: 1,
+            archived: false,
+            data: RecordData::Message(brn_threads_app::Message {
+                thread: thread.into(),
+                role: role.into(),
+                text: format!("{role} text"),
+            }),
+        }
+    }
+    fn queued(id: &str, thread: &str) -> brn_threads_app::QueuedMessage {
+        brn_threads_app::QueuedMessage {
+            id: id.into(),
+            thread: thread.into(),
+            text: "Waiting text".into(),
+            message: None,
+            run: None,
+            dispatch: None,
+        }
+    }
+
+    #[test]
+    fn continue_path_checks_the_pending_chat_then_the_newest_request() {
+        let rewrite = vec![
+            message("m1", "chat", "owner"),
+            message("w1", "chat", "writing-request"),
+            message("a1", "chat", "assistant"),
+        ];
+        let idle = ChatControl::default();
+        assert_eq!(
+            continue_path(&idle, &rewrite, "chat"),
+            ContinuePath::RetryRewrite("w1".into())
+        );
+        // An owner message after the request makes it an ordinary reply.
+        let mut answered = rewrite.clone();
+        answered.push(message("m2", "chat", "owner"));
+        assert_eq!(
+            continue_path(&idle, &answered, "chat"),
+            ContinuePath::FreshRun
+        );
+        assert_eq!(continue_path(&idle, &[], "chat"), ContinuePath::FreshRun);
+        // The pending item's chat wins over a newer rewrite request.
+        let pending = ChatControl {
+            pending: Some(queued("q1", "chat")),
+            ..ChatControl::default()
+        };
+        assert_eq!(
+            continue_path(&pending, &rewrite, "chat"),
+            ContinuePath::ResumeQueue
+        );
+        assert_eq!(
+            continue_path(&pending, &rewrite, "other"),
+            ContinuePath::RetryRewrite("w1".into())
+        );
+    }
+
+    #[test]
+    fn recovery_cards_state_the_recorded_reason_and_what_the_button_does() {
+        let reason = "Synthetic recorded reason that BRN shows whole.";
+        let idle = ChatControl::default();
+        let failed = run(RunState::Failed, reason);
+        let card = recovery(&ContinuePath::FreshRun, Some(&failed), false, &idle, "chat");
+        assert_eq!(card.word, "Failed");
+        assert_eq!(card.severity(), Severity::Error);
+        assert_eq!(card.reason.as_deref(), Some(reason));
+        assert_eq!(
+            card.next,
+            "Your message is saved. Continue starts a fresh reply with the saved chat and current notes."
+        );
+        assert_eq!(card.waiting, None);
+        assert_eq!(card.action, "Continue");
+        assert_eq!(card.label(), format!("Failed · {reason} · {}", card.next));
+        for (state, word, severity) in [
+            (RunState::Interrupted, "Interrupted", Severity::Warning),
+            (RunState::Cancelled, "Stopped", Severity::Warning),
+            (RunState::Working, "May still be running", Severity::Warning),
+        ] {
+            let saved = run(state, "");
+            let card = recovery(&ContinuePath::FreshRun, Some(&saved), false, &idle, "chat");
+            assert_eq!((card.word, card.word_severity), (word, severity));
+            assert_eq!(card.reason, None, "an empty reason is omitted");
+        }
+        // A newer owner message: Not answered yet, neutral, no reason.
+        let completed = run(RunState::Completed, "Done");
+        let card = recovery(
+            &ContinuePath::FreshRun,
+            Some(&completed),
+            true,
+            &idle,
+            "chat",
+        );
+        assert_eq!(card.word, "Not answered yet");
+        assert_eq!(card.severity(), Severity::Neutral);
+        assert_eq!(card.reason, None);
+        assert!(
+            card.next
+                .starts_with("Your message is saved. Continue starts")
+        );
+        // With an older run still Working the card warns.
+        let working = run(RunState::Working, "Started elsewhere");
+        let card = recovery(&ContinuePath::FreshRun, Some(&working), true, &idle, "chat");
+        assert_eq!(card.word, "Not answered yet");
+        assert_eq!(card.reason, None);
+        assert_eq!(
+            card.next,
+            "An earlier reply may still be running elsewhere. Continue starts a fresh reply and replaces it."
+        );
+        assert_eq!(card.severity(), Severity::Warning);
+        let card = recovery(
+            &ContinuePath::FreshRun,
+            Some(&working),
+            false,
+            &idle,
+            "chat",
+        );
+        assert_eq!(card.reason.as_deref(), Some("Started elsewhere"));
+        assert!(
+            card.next
+                .starts_with("This reply may still be running elsewhere.")
+        );
+        assert_eq!(card.severity(), Severity::Warning);
+        // No run yet.
+        let card = recovery(&ContinuePath::FreshRun, None, true, &idle, "chat");
+        assert_eq!(card.word, "Not answered yet");
+    }
+
+    #[test]
+    fn recovery_cards_count_the_queue() {
+        let failed = run(RunState::Failed, "Synthetic failure");
+        // Shot 29: Failed, no pending item, paused, one queued message.
+        let paused = ChatControl {
+            queue: vec![queued("q1", "chat")],
+            paused: true,
+            ..ChatControl::default()
+        };
+        let card = recovery(
+            &ContinuePath::FreshRun,
+            Some(&failed),
+            false,
+            &paused,
+            "chat",
+        );
+        assert_eq!(card.action, "Continue");
+        assert_eq!(
+            card.waiting.as_deref(),
+            Some("1 waiting message stays paused until you resume the queue.")
+        );
+        let two = ChatControl {
+            queue: vec![queued("q1", "chat"), queued("q2", "other")],
+            ..paused.clone()
+        };
+        let card = recovery(&ContinuePath::FreshRun, Some(&failed), false, &two, "chat");
+        assert_eq!(
+            card.waiting.as_deref(),
+            Some("2 waiting messages stay paused until you resume the queue.")
+        );
+        // Not paused: nothing stays paused.
+        let running = ChatControl {
+            paused: false,
+            ..two.clone()
+        };
+        let card = recovery(
+            &ContinuePath::FreshRun,
+            Some(&failed),
+            false,
+            &running,
+            "chat",
+        );
+        assert_eq!(card.waiting, None);
+        // Resume queue counts the pending item and names other chats.
+        let pending = ChatControl {
+            pending: Some(queued("p", "chat")),
+            ..two.clone()
+        };
+        let working = run(RunState::Working, "");
+        let card = recovery(
+            &ContinuePath::ResumeQueue,
+            Some(&working),
+            false,
+            &pending,
+            "chat",
+        );
+        assert_eq!(card.action, "Resume queue");
+        assert_eq!(card.word, "May still be running");
+        assert_eq!(
+            card.next,
+            "Your message is saved and the queue is paused. Resume queue runs 3 waiting messages in order, including 1 from another chat."
+        );
+        assert_eq!(card.waiting, None, "Resume queue runs them");
+        let alone = ChatControl {
+            pending: Some(queued("p", "chat")),
+            ..ChatControl::default()
+        };
+        let card = recovery(
+            &ContinuePath::ResumeQueue,
+            Some(&failed),
+            false,
+            &alone,
+            "chat",
+        );
+        assert_eq!(
+            card.next,
+            "Your message is saved. Resume queue runs 1 waiting message."
+        );
+        let others = ChatControl {
+            queue: vec![queued("q1", "a"), queued("q2", "b"), queued("q3", "chat")],
+            ..alone
+        };
+        let card = recovery(
+            &ContinuePath::ResumeQueue,
+            Some(&failed),
+            false,
+            &others,
+            "chat",
+        );
+        assert!(
+            card.next
+                .ends_with("runs 4 waiting messages in order, including 2 from other chats.")
+        );
+    }
+
+    #[test]
+    fn review_labels_name_every_target_note_and_mark_protection() {
+        let note = |id: &str, title: &str, protected: bool| Record {
+            id: id.into(),
+            version: 1,
+            archived: false,
+            data: RecordData::Note(brn_threads_app::Note {
+                protected,
+                ..brn_threads_app::Note::working(title, "text")
+            }),
+        };
+        let put = |record: &Record| brn_threads_app::Put {
+            id: record.id.clone(),
+            expected_version: Some(record.version),
+            archived: false,
+            data: record.data.clone(),
+        };
+        let candidate = |writes: Vec<brn_threads_app::Put>| Prepared {
+            operation: serde_json::from_str("\"synthetic-op\"").unwrap(),
+            request_hash: String::new(),
+            request: brn_threads_app::ChangeRequest {
+                reason: "Review prepared changes".into(),
+                writes,
+                inputs: vec![],
+            },
+        };
+        let decision = note("d", "Delivery decision: 22 November", true);
+        let survey = note("s", "Survey", false);
+        // Protection comes from the current record even if the proposal
+        // drops it.
+        let unprotected = note("d", "Delivery decision: 22 November", false);
+        let records = vec![decision.clone(), survey.clone()];
+        let summary = review_summary(&candidate(vec![put(&unprotected), put(&survey)]), &records);
+        assert_eq!(
+            summary,
+            ReviewSummary {
+                note_titles: vec!["Delivery decision: 22 November".into(), "Survey".into()],
+                protected: true,
+                other_writes: 0,
+            }
+        );
+        assert_eq!(
+            review_label(&summary, "Review prepared changes"),
+            "Review changes to Delivery decision: 22 November and Survey"
+        );
+        // A proposal that protects a new note is protected too.
+        let fresh = note("n", "New decision", true);
+        assert!(review_summary(&candidate(vec![put(&fresh)]), &[]).protected);
+        let ordinary = review_summary(&candidate(vec![put(&survey)]), &records);
+        assert!(!ordinary.protected);
+        assert_eq!(review_label(&ordinary, "x"), "Review changes to Survey");
+        let many = ReviewSummary {
+            note_titles: vec!["A".into(), "B".into(), "C".into(), "D".into()],
+            ..ReviewSummary::default()
+        };
+        assert_eq!(
+            review_label(&many, "x"),
+            "Review changes to A, B and 2 more"
+        );
+        let tasks = ReviewSummary {
+            other_writes: 2,
+            ..ReviewSummary::default()
+        };
+        assert_eq!(
+            review_label(&tasks, "Review prepared changes"),
+            "Review 2 changes · Review prepared changes"
+        );
+        let task = ReviewSummary {
+            other_writes: 1,
+            ..ReviewSummary::default()
+        };
+        assert_eq!(
+            review_label(&task, "Close task"),
+            "Review 1 change · Close task"
+        );
     }
     #[test]
     fn linked_work_is_bidirectional_unique_and_excludes_archived_connections() {
