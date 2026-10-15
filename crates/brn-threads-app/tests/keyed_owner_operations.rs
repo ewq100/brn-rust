@@ -35,29 +35,27 @@ fn keyed_undo_retries_its_deferred_compensation_and_then_replays() {
     let created = app.new_note_with_key("n1", "Plan", "Body").unwrap();
     let note = &created.writes[0].after;
     let session = app.store.begin_edit(&note.id, note.version).unwrap();
-    let (deferred_op, deferred) = app
-        .undo_with_key("u1", created.operation.as_str())
-        .unwrap();
-    assert!(matches!(deferred, ApplyOutcome::Deferred { .. }), "{deferred:?}");
+    let (deferred_op, deferred) = app.undo_with_key("u1", created.operation.as_str()).unwrap();
+    assert!(
+        matches!(deferred, ApplyOutcome::Deferred { .. }),
+        "{deferred:?}"
+    );
     app.store.discard(&session.id, session.generation).unwrap();
-    let (applied_op, applied) = app
-        .undo_with_key("u1", created.operation.as_str())
-        .unwrap();
+    let (applied_op, applied) = app.undo_with_key("u1", created.operation.as_str()).unwrap();
     assert_eq!(applied_op, deferred_op);
     let ApplyOutcome::Applied(receipt) = applied else {
         panic!("{applied:?}");
     };
     assert_eq!(receipt.operation, deferred_op);
-    let (replayed_op, replayed) = app
-        .undo_with_key("u1", created.operation.as_str())
-        .unwrap();
+    let (replayed_op, replayed) = app.undo_with_key("u1", created.operation.as_str()).unwrap();
     assert_eq!(replayed_op, deferred_op);
     assert_eq!(replayed, ApplyOutcome::Applied(receipt));
+    // Candidates are unapplied operations only.
     assert!(
         !app.candidates()
             .unwrap()
             .iter()
-            .any(|c| c.operation == deferred_op && app.store.receipt(&c.operation).unwrap().is_none())
+            .any(|c| c.operation == deferred_op)
     );
 }
 

@@ -261,7 +261,9 @@ impl Workspace {
     /// Owner thread creation under a caller-chosen host key; replays like
     /// [`Workspace::new_note_with_key`].
     pub fn new_thread_with_key(&mut self, key: &str, title: &str) -> AppResult<Receipt> {
-        let op = self.store.allocate_operation(&format!("new-thread:{key}"))?;
+        let op = self
+            .store
+            .allocate_operation(&format!("new-thread:{key}"))?;
         let request = ChangeRequest {
             reason: "Owner started a thread".into(),
             writes: vec![Put {
@@ -464,7 +466,9 @@ impl Workspace {
     /// compensation with its outcome so a Deferred compensation is retried, not duplicated.
     pub fn undo_with_key(&mut self, key: &str, id: &str) -> AppResult<(OperationId, ApplyOutcome)> {
         let original = self.store.operation(id)?;
-        let compensation = self.store.allocate_operation(&format!("owner-undo:{key}"))?;
+        let compensation = self
+            .store
+            .allocate_operation(&format!("owner-undo:{key}"))?;
         let outcome = self.store.undo(
             &compensation,
             &original,
