@@ -1746,3 +1746,94 @@ async fn long_notes_carry_a_research_hint_only_when_research_is_offered() {
         }
     }
 }
+
+/// From inside a helper's search, records whether the parent Run's lease is
+/// held and which Runs are Working.
+#[derive(Default)]
+struct LeaseProbe {
+    target: std::sync::OnceLock<(PathBuf, PathBuf, String)>,
+    seen: Mutex<Vec<(bool, Vec<String>)>>,
+}
+impl RunNoteSearch for LeaseProbe {
+    fn search(
+        &self,
+        chat: &str,
+        query: &str,
+        limit: usize,
+        cursor: Option<&str>,
+        hybrid: bool,
+    ) -> std::result::Result<NoteSearchPage, NoteSearchError> {
+        let (data_dir, derived, run) = self.target.get().expect("probe target set");
+        let working = Store::open(data_dir)
+            .unwrap()
+            .records()
+            .unwrap()
+            .into_iter()
+            .filter_map(|r| match r.data {
+                RecordData::Run(run) if run.state == RunState::Working => Some(r.id),
+                _ => None,
+            })
+            .collect();
+        self.seen
+            .lock()
+            .unwrap()
+            .push((crate::run_lease::run_is_live(derived, run), working));
+        FakeSearch.search(chat, query, limit, cursor, hybrid)
+    }
+    fn connections(
+        &self,
+        chat: &str,
+        note: &str,
+        hops: u8,
+        sources: bool,
+    ) -> std::result::Result<NoteNeighbourhood, NoteSearchError> {
+        FakeSearch.connections(chat, note, hops, sources)
+    }
+}
+
+/// Orphan recovery interrupts a Working Run only when its lease is free. A
+/// helper sub-run saves no Run of its own and runs under its parent's lease,
+/// so a live parent with a live helper is never taken for an orphan, and a
+/// parent that ends without finishing (a crash) still frees it.
+#[tokio::test]
+async fn a_helper_sub_run_holds_its_parent_lease_and_saves_no_run() {
+    let (_root, mut request, _) = setup();
+    let probe = Arc::new(LeaseProbe::default());
+    request.search = Some(probe.clone());
+    let (scope, _) = begin(&request).unwrap();
+    let derived = Store::open(&request.data_dir)
+        .unwrap()
+        .derived_directory()
+        .unwrap();
+    let run = scope.run.clone();
+    assert!(
+        probe
+            .target
+            .set((request.data_dir.clone(), derived.clone(), run.clone()))
+            .is_ok()
+    );
+    let helper = MockCompletionModel::from_stream_turns(vec![
+        vec![
+            MockStreamEvent::tool_call(
+                "h1",
+                "search_notes",
+                json!({"query":"ferry","limit":5,"mode":"keyword","cursor":null}),
+            ),
+            tokens(10),
+        ],
+        vec![MockStreamEvent::text("done"), tokens(1)],
+    ]);
+    scripted(&scope, vec![Ok(helper)]);
+    ask(&scope, vec![question("When does the ferry leave?")]).await;
+    assert_eq!(
+        *probe.seen.lock().unwrap(),
+        vec![(true, vec![run.clone()])],
+        "the helper searched under the live parent lease, beside no Run of its own"
+    );
+    drop(scope);
+    assert!(!crate::run_lease::run_is_live(&derived, &run));
+    assert!(matches!(
+        Store::open(&request.data_dir).unwrap().record(&run).unwrap().unwrap().data,
+        RecordData::Run(r) if r.state == RunState::Working
+    ));
+}
