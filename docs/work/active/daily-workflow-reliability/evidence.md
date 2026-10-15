@@ -99,7 +99,7 @@ The current, reproducible list is in [UI findings for the UI agent (final)](#ui-
 
 ## Native observation recommended (not performed)
 
-Run only after the owner's go-ahead, on this branch's build and fresh data, never alongside the UI agent:
+Two checks remain. The owner approved them, but the agent shell could not run them ([attempt](#native-observation-attempt-task-b-not-observed)). Steps for a manual run are in [Owner manual check](#owner-manual-check).
 
 1. Quit with ⌘Q during a useful intake. Check whether the Run is left `Working` (this confirms the finding 1 assumption), then check Resume after the fix.
 2. Fail the provider three times. Check the single blocker that names its cause.
@@ -287,4 +287,106 @@ Setup for every item: a fresh data folder (for example `/private/tmp/brn-ui-chec
 - **Storage.** New derived folder `derived/run-leases/` (excluded from backup/restore like all of `derived/`; no schema change). `begin()` refuses to start a Run when `derived/` is unsafe (for example a symlink).
 - **Mixed builds.** A desktop and CLI from different builds (one without leases) would see each other's live Runs as orphans. Check the combined branch from one build: the full desktop state suite, an unsandboxed `scripts/verify-storage.sh`, and a desktop-plus-CLI run on shared synthetic data.
 - **Docs.** Contract text for `threads-behavior.md`, `invariants.md` and `docs/status.md` is proposed above and not applied, because `docs/status.md` is shared with the UI branch. Apply once at integration.
-- **Native observation** (⌘Q during a run, three provider failures) is still pending and must not run while the UI agent drives the Mac.
+- **Native observation** (⌘Q during a run, three provider failures) is still pending and must not run while the UI agent drives the Mac. See [Owner manual check](#owner-manual-check).
+
+## Native observation attempt (Task B): not observed
+
+On 15 October 2026 (`dfe698aa`) the owner approved native observation, but the agent shell could not perform it. No app was launched and no GUI was observed.
+
+- **Process list denied.** `ps` and `/bin/ps` fail with "operation not permitted", `pgrep` with "Cannot get process list", and `lsof` sees only itself. The shell cannot confirm that no other `brn-desktop` (the UI agent's or the owner's) is running.
+- **Screen capture and UI control denied.** `screencapture -x` fails with "could not create image from display", and System Events fails with error -13056.
+- **B1 has no offline path.** The production desktop cannot hold a Run in Working without a live provider. Its only provider inputs are the settings `auth_file` (Codex) and `credentials_dir` (Copilot). With neither available, `provider_client` (`crates/brn-ai/src/threads.rs`) returns `ReconnectNeeded` at once. The binary has no mock endpoint, base-URL override or scripted provider.
+
+The owner chose to record **B1 (⌘Q during a run) and B2 (three provider failures) as not observed**. Agents remain unauthorized to make live provider calls.
+
+**Automated evidence: credential isolation.**
+- New workspace settings take `auth_file` from `$CODEX_HOME/auth.json`, or from `$HOME/.codex/auth.json` when `CODEX_HOME` is unset (`crates/brn-threads-app/src/settings.rs`, `bootstrap_settings`, run by `Workspace::open`).
+- The Copilot folder defaults to `$HOME/.config/brn` (`threads_ui.rs::default_copilot_credentials_dir`) and is used only when Copilot is connected in Settings.
+- Executed: `HOME=…/native-iso-check/home CODEX_HOME=…/native-iso-check/codex brn-desktop --data-dir …/native-iso-check/data --headless-check startup` printed "Threads ready: 2 records". A read-only copy of the store showed `auth_file` `/private/tmp/brn-dwr-data/native-iso-check/codex/auth.json` (absent) and `credentials_dir` null. The folder was deleted afterwards.
+- No Keychain lookup was found in the code. Absence of any network request with the GUI running was not observed.
+
+## Owner manual check
+
+Run in your own Terminal, outside the agent sandbox, from the worktree root. Use synthetic files only, and make sure the UI agent is not driving the Mac at the same time. Put any screenshots in `/private/tmp/brn-dwr-data/native-evidence/`, outside Git. Use `/private/tmp` paths, because BRN refuses the `/tmp` symlink for data.
+
+**1. Build and confirm nothing else is running.** The existing debug `brn-desktop` was built without `native-ui`, so rebuild it.
+
+```sh
+cd /Users/evokessler/repos/brn-rust/.worktrees/daily-workflow-reliability
+export PATH=/opt/homebrew/opt/rustup/bin:$PATH CARGO_TARGET_DIR=/tmp/brn-dwr-target
+cargo build -p brn-intake --features helper --bin brn-intake-helper --locked --offline
+cargo build -p brn-desktop --features native-ui --locked --offline
+ps -axo pid,command | grep -i '[b]rn-desktop'   # must print nothing
+```
+
+**2. Inspection helper.** Paste this once per Terminal and run it only after BRN has quit. It copies the store to a scratch folder and queries the copy, so BRN data is never written. The copy is needed because a cleanly closed store cannot be opened `mode=ro`, and `immutable=1` would ignore a leftover WAL after ⌘Q.
+
+```sh
+brn_inspect() {
+  local data="$1" copy
+  copy="$(mktemp -d /private/tmp/brn-dwr-data/inspect.XXXXXX)" || return 1
+  cp -p "$data"/threads.sqlite3* "$copy"/ || return 1
+  sqlite3 -header -column "$copy/threads.sqlite3" <<'SQL'
+SELECT json_extract(body,'$.data.Settings.provider') AS provider,
+       json_extract(body,'$.data.Settings.auth_file') AS auth_file,
+       json_extract(body,'$.data.Settings.credentials_dir') AS credentials_dir
+FROM records WHERE json_type(body,'$.data.Settings') IS NOT NULL;
+SELECT substr(id,1,13) AS run, version,
+       json_extract(body,'$.data.Run.state') AS state,
+       json_extract(body,'$.data.Run.fence') AS fence,
+       substr(json_extract(body,'$.data.Run.thread'),1,13) AS chat,
+       json_extract(body,'$.data.Run.queue_claim') IS NOT NULL AS queued
+FROM records WHERE json_type(body,'$.data.Run') IS NOT NULL;
+SELECT substr(r.id,1,13) AS chat,
+       substr(json_extract(r.body,'$.data.Thread.title'),1,30) AS title,
+       json_extract(a.value,'$.kind') AS kind,
+       json_extract(a.value,'$.reason') AS reason
+FROM records r, json_each(r.body,'$.data.Thread.attention') a
+WHERE json_type(r.body,'$.data.Thread') IS NOT NULL;
+SELECT substr(json_extract(body,'$.data.Message.thread'),1,13) AS chat,
+       json_extract(body,'$.data.Message.role') AS role,
+       substr(json_extract(body,'$.data.Message.text'),1,50) AS text
+FROM records WHERE json_type(body,'$.data.Message') IS NOT NULL;
+SQL
+  rm -rf "$copy"
+  ls -la "$data/derived/run-leases/" 2>/dev/null || echo "derived/run-leases/: absent"
+}
+```
+
+**3. B2: three provider failures, offline.** The overrides point both credential lookups at empty folders, so every Run fails as `ReconnectNeeded` before any network request.
+
+```sh
+B2=/private/tmp/brn-dwr-data/native-b2
+mkdir -p "$B2/home" "$B2/codex"
+env HOME="$B2/home" CODEX_HOME="$B2/codex" \
+  BRN_INTAKE_HELPER=/tmp/brn-dwr-target/debug/brn-intake-helper \
+  /tmp/brn-dwr-target/debug/brn-desktop --data-dir "$B2/data" --headless-check startup
+brn_inspect "$B2/data"   # auth_file must be $B2/codex/auth.json (absent) and credentials_dir empty; otherwise stop
+env HOME="$B2/home" CODEX_HOME="$B2/codex" \
+  BRN_INTAKE_HELPER=/tmp/brn-dwr-target/debug/brn-intake-helper \
+  /tmp/brn-dwr-target/debug/brn-desktop --data-dir "$B2/data"
+```
+
+- **Send three times.** Open a new chat (⌘T), type a synthetic question and press Return. Wait for it to fail, then send in the same chat twice more.
+- **Expected in Needs you** (Home, ⌘0): exactly one Blocker for that chat, "Run failed: Reconnect this account before continuing. Continue when the provider is ready." Note any truncation or wording issue as U6 for the UI agent. If the desktop refuses before starting a Run, record that instead.
+- **Then** quit with ⌘Q and run `brn_inspect "$B2/data"`.
+  - *Expected:* three `Failed` Runs in that chat, one Blocker row for it, and an empty or absent `derived/run-leases/`.
+
+**4. B1: ⌘Q during a run.** This needs a live provider on synthetic data, and whether to use one is your call. Use a separate fresh folder and launch **without** the `HOME`/`CODEX_HOME` overrides, so the workspace picks up your normal Codex sign-in. Alternatively, connect a provider in Settings.
+
+```sh
+B1=/private/tmp/brn-dwr-data/native-b1
+printf '# Crane note\n\nSynthetic: the crane arrives on 22 November.\n' > /private/tmp/brn-dwr-data/b1-source.md
+BRN_INTAKE_HELPER=/tmp/brn-dwr-target/debug/brn-intake-helper \
+  /tmp/brn-dwr-target/debug/brn-desktop --data-dir "$B1/data"
+```
+
+1. **Start an intake and quit.** In a chat, click ＋ → "Add useful information…" and choose `b1-source.md`. While it shows "Reading useful information…" or Working, press ⌘Q.
+2. **Inspect.** Run `brn_inspect "$B1/data"`.
+   - A `Working` Run confirms the finding 1 quit assumption. `Interrupted`/`Cancelled` means quit did commit a terminal state.
+   - Note any leftover `<run>.lock` in `derived/run-leases/`. A leftover lock file is unlocked and harmless.
+   - Note the intake chat's attention. It is expected to be empty at this point.
+3. **Relaunch and queue.** Relaunch with the same command. Open another chat (⌘T), type a message and press Return. If Resume (`queue-resume`) is enabled, click it. If it is disabled, record that, and record whether the message dispatched anyway.
+4. **Expected:** the message dispatches once, and the intake chat shows one "Run interrupted; Continue starts fresh" Blocker in Needs you. Quit with ⌘Q and run `brn_inspect "$B1/data"`.
+   - *Expected in the store:* the intake Run is `Interrupted` with its fence raised by one. There is exactly one owner Message with your text, one new Run in the second chat, and one Blocker row for the intake chat.
+5. **Finally**, confirm `ps -axo pid,command | grep -i '[b]rn-desktop'` prints nothing.
