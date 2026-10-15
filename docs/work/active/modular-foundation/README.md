@@ -14,6 +14,12 @@
 
 When the owner starts C0, the lead installs the single active `plan.md` in this folder (master plan §6) and links it from status.
 
+## Experiment results
+
+- [X1 — Xberg PDF qualification](experiments/x1-xberg.md): gates 1–2 passed; gate 3 written design delivered. Bounded adaptation, not adopted; production unchanged.
+
+This records the owner's isolated X1 override. It does not start C0 or change the proposed program's sequencing.
+
 ## Provenance
 
 | Path | Contents |
