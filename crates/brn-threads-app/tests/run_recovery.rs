@@ -114,6 +114,15 @@ fn attention(workspace: &Workspace, chat: &str) -> Vec<Attention> {
     }
 }
 
+fn lease_file(workspace: &Workspace, run: &str) -> PathBuf {
+    workspace
+        .store
+        .derived_directory()
+        .unwrap()
+        .join("run-leases")
+        .join(format!("{}.lock", run.replace(':', "_")))
+}
+
 fn owner_messages(workspace: &Workspace, chat: &str) -> usize {
     workspace
         .messages(chat)
@@ -138,6 +147,8 @@ fn resume_after_a_crash_interrupts_the_orphan_once_and_dispatches_the_queue_once
     // Restart: the desktop pauses a non-empty queue on startup.
     let mut workspace = Workspace::open(&w.data).unwrap();
     assert_eq!(run(&workspace, &orphan).state, RunState::Working);
+    // A killed process leaves its lease file behind, unlocked.
+    std::fs::write(lease_file(&workspace, &orphan), b"").unwrap();
     workspace
         .queue_message("queue-1", &w.questions, "When can the crane arrive?")
         .unwrap();
@@ -145,6 +156,7 @@ fn resume_after_a_crash_interrupts_the_orphan_once_and_dispatches_the_queue_once
 
     // Before: "Finish or stop current work before resuming the queue".
     workspace.resume_queue("resume-1").unwrap();
+    assert!(!lease_file(&workspace, &orphan).exists());
     let recovered = run(&workspace, &orphan);
     assert_eq!(
         (recovered.state, recovered.fence),
@@ -198,6 +210,8 @@ fn a_live_run_keeps_blocking_resume_and_dispatch() {
     assert!(workspace.recover_orphaned_runs().unwrap().is_empty());
     assert_eq!(run(&workspace, &id).state, RunState::Working);
     assert!(attention(&workspace, &w.intake).is_empty());
+    // A live Run's lease file stays.
+    assert!(lease_file(&workspace, &id).exists());
     drop(live);
     // Once its process lets go, the same Resume recovers it.
     workspace.resume_queue("resume-2").unwrap();

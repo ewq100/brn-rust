@@ -307,6 +307,27 @@ impl Workspace {
                         unreachable!()
                     };
                     writes.extend(project_context_fences(&records, &p.chats)?);
+                    // The same Runs the fences stop: their chats get the
+                    // notice and a Review for each candidate left.
+                    let ended: Vec<_> = records
+                        .iter()
+                        .filter_map(|r| match &r.data {
+                            RecordData::Run(run)
+                                if run.state == RunState::Working
+                                    && p.chats.contains(&run.thread) =>
+                            {
+                                Some((r.id.clone(), run.clone()))
+                            }
+                            _ => None,
+                        })
+                        .collect();
+                    brn_threads_core::run_attention::ended_run_attention(
+                        &mut writes,
+                        &ended,
+                        true,
+                        |id| Ok(records.iter().find(|r| r.id == id).cloned()),
+                        |operations| self.store.active_candidates(operations),
+                    )?;
                     p.documents.push(note_id.clone());
                     writes.push(Put {
                         id: project.id,

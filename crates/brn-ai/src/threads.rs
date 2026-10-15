@@ -1231,7 +1231,7 @@ fn attention(
         item.record.as_deref() != Some(operation)
             || !matches!(
                 item.reason.as_str(),
-                "Review prepared changes"
+                REVIEW_ATTENTION
                     | "Prepared changes need a fresh base"
                     | "Changes are waiting for the editor"
             )
@@ -1242,7 +1242,7 @@ fn attention(
         _ => AttentionKind::Blocker,
     };
     let reason = match kind {
-        AttentionKind::Review => "Review prepared changes",
+        AttentionKind::Review => REVIEW_ATTENTION,
         AttentionKind::Conflict => "Prepared changes need a fresh base",
         _ => "Changes are waiting for the editor",
     };
@@ -1763,6 +1763,35 @@ pub async fn run_prepared_scripted_with_helpers(
         provider_resends: Vec::new(),
     })
 }
+/// As [`run_prepared_scripted`], but the process "dies" before its terminal
+/// result: `finish` never runs, so the Run stays Working with whatever it
+/// prepared. Dropping the scope releases the lease and removes its file.
+/// For offline crash tests only; a SIGKILL would also leave the unlocked
+/// file, which tests recreate. Returns the Run ID.
+#[cfg(feature = "scripted-runs")]
+pub async fn run_prepared_scripted_then_abandon(
+    prepared: PreparedThreadRun,
+    model: rig::test_utils::MockCompletionModel,
+) -> AiResult<String> {
+    let PreparedThreadRun {
+        request,
+        scope,
+        input,
+    } = prepared;
+    let input = host_intake::with_context(&scope, input, &CancellationToken::new()).await;
+    run_model(
+        model,
+        scope.clone(),
+        &input,
+        request.effort,
+        request.max_tool_rounds,
+        true,
+        CancellationToken::new(),
+        Arc::new(|_| {}),
+    )
+    .await;
+    Ok(scope.run.clone())
+}
 fn finish_trace(scope: &Scope, answer: &AiAnswer) -> Option<RunTrace> {
     let trace = scope.trace.as_ref()?;
     if matches!(answer.terminal, AiTerminal::Interrupted) {
@@ -1946,6 +1975,7 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
         }
     }
 
+    let mut ended = Vec::new();
     for record in &records {
         match &record.data {
             RecordData::Run(run) if run.thread == request.thread => {
@@ -1957,6 +1987,7 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
                     let mut old = run.clone();
                     old.state = RunState::Interrupted;
                     old.fence = old.fence.checked_add(1).ok_or_else(rejected)?;
+                    ended.push((record.id.clone(), old.clone()));
                     writes.push(Put {
                         id: record.id.clone(),
                         expected_version: Some(record.version),
@@ -1968,6 +1999,16 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
             _ => {}
         }
     }
+    // The new Run follows at once, so no notice; a candidate the stopped Run
+    // left stays reviewable in this chat.
+    brn_threads_core::run_attention::ended_run_attention(
+        &mut writes,
+        &ended,
+        false,
+        |id| Ok(records.iter().find(|r| r.id == id).cloned()),
+        |operations| store.active_candidates(operations),
+    )
+    .map_err(storage)?;
     let private_context = store
         .chat_has_private_context(&request.thread)
         .map_err(storage)?;
@@ -2272,26 +2313,16 @@ fn unique_host_key() -> String {
         SEQ.fetch_add(1, Ordering::SeqCst)
     )
 }
-/// The host's Blocker reason for a Run that stopped before finishing.
-pub const INTERRUPTED_ATTENTION: &str = "Run interrupted. Continue starts fresh.";
-/// Earlier notices, still recognised in saved chats so a newer result
-/// replaces them. Every "Run failed: …" text matches by its prefix.
-const LEGACY_NOTICES: [&str; 2] = [
-    "Run interrupted; Continue starts fresh",
-    "Run failed; check provider or continue from retained progress",
-];
-const FAILED_PREFIX: &str = "Run failed: ";
+// The terminal-notice rules live in the core, so checked changes that end a
+// Run outside `finish` leave the same notice in the same change.
+use brn_threads_core::run_attention::{FAILED_PREFIX, REVIEW_ATTENTION, add_review_attention};
+pub use brn_threads_core::run_attention::{
+    INTERRUPTED_ATTENTION, is_terminal_notice, replace_terminal_notice,
+};
 /// Only for provider failures: account, network, rate limit, unavailable.
 const PROVIDER_RECOVERY: &str = "Continue when the provider is ready.";
 /// Continue starts a new Run with the saved conversation and current notes.
 const FRESH_RECOVERY: &str = "Continue starts fresh.";
-
-/// Whether `reason` is a host terminal notice for an interrupted or failed Run.
-pub fn is_terminal_notice(reason: &str) -> bool {
-    reason == INTERRUPTED_ATTENTION
-        || LEGACY_NOTICES.contains(&reason)
-        || reason.starts_with(FAILED_PREFIX)
-}
 
 /// The saved failure notice: one cause in owner terms, then a recovery
 /// sentence only where it holds. It never carries provider, SQLite or
@@ -2340,30 +2371,6 @@ fn failed_attention(error: &AiError) -> String {
     }
 }
 
-/// Keeps one terminal notice per chat. Drops host terminal Blockers for `run`
-/// and for earlier Runs that `superseded` names, then adds `reason` for
-/// `run`. Questions, reviews, conflicts and other Blockers stay.
-pub fn replace_terminal_notice(
-    attention: &mut Vec<Attention>,
-    run: &str,
-    reason: String,
-    superseded: impl Fn(&str) -> bool,
-) {
-    attention.retain(|item| {
-        item.kind != AttentionKind::Blocker
-            || !is_terminal_notice(&item.reason)
-            || !item
-                .record
-                .as_deref()
-                .is_some_and(|id| id == run || superseded(id))
-    });
-    attention.push(Attention {
-        kind: AttentionKind::Blocker,
-        reason,
-        record: Some(run.to_owned()),
-    });
-}
-
 fn finish(scope: &Scope, answer: &AiAnswer) -> AiResult<bool> {
     let mut store = scope.store.lock().map_err(storage)?;
     // Cancellation, settings steering or newer Continue may already have fenced this run.
@@ -2384,6 +2391,7 @@ fn finish(scope: &Scope, answer: &AiAnswer) -> AiResult<bool> {
     };
     run.fence = run.fence.checked_add(1).ok_or_else(rejected)?;
     let thread = run.thread.clone();
+    let operations = run.operations.clone();
     let op = store
         .allocate_operation(&format!("{}:finish", scope.run))
         .map_err(storage)?;
@@ -2430,7 +2438,10 @@ fn finish(scope: &Scope, answer: &AiAnswer) -> AiResult<bool> {
             && let RecordData::Run(run) = record.data
             && run.thread == thread
             && id != &scope.run
-            && matches!(run.state, RunState::Interrupted | RunState::Failed)
+            && matches!(
+                run.state,
+                RunState::Interrupted | RunState::Failed | RunState::Cancelled
+            )
         {
             superseded.insert(id.clone());
         }
@@ -2446,15 +2457,22 @@ fn finish(scope: &Scope, answer: &AiAnswer) -> AiResult<bool> {
                     .is_some_and(|id| superseded.contains(id))
         }),
         // A newer terminal result replaces older ones, so the chat names one cause.
-        terminal => replace_terminal_notice(
-            &mut data.attention,
-            &scope.run,
-            match terminal {
-                AiTerminal::Failed(error) => failed_attention(error),
-                _ => INTERRUPTED_ATTENTION.into(),
-            },
-            |id| superseded.contains(id),
-        ),
+        // Candidates prepared before the stop stay reviewable from the chat.
+        terminal => {
+            add_review_attention(
+                &mut data.attention,
+                &store.active_candidates(&operations).map_err(storage)?,
+            );
+            replace_terminal_notice(
+                &mut data.attention,
+                &scope.run,
+                match terminal {
+                    AiTerminal::Failed(error) => failed_attention(error),
+                    _ => INTERRUPTED_ATTENTION.into(),
+                },
+                |id| superseded.contains(id),
+            )
+        }
     }
     if data.attention != before {
         writes.push(Put {
@@ -4222,6 +4240,86 @@ mod tests {
         {
             RecordData::Thread(thread) => thread.attention,
             _ => panic!("Thread"),
+        }
+    }
+    /// ⌘Q, cancellation or a failure between prepare and apply: the candidate
+    /// stays reviewable from its chat. A Completed Run chose not to apply.
+    #[test]
+    fn an_interrupted_or_failed_run_keeps_its_prepared_candidate_in_review() {
+        for case in ["interrupted", "failed", "completed", "protected"] {
+            let (_root, request, note) = fixture();
+            let protected = case == "protected";
+            let version = if protected {
+                protect_fixture_note(&request, &note)
+            } else {
+                1
+            };
+            let (scope, _) = begin(&request).unwrap();
+            read_all(&scope);
+            let args = if protected {
+                protected_proposal(&note, version, "Tuesday")
+            } else {
+                prepared_note(&note, version, "Tuesday")
+            };
+            let proposed = prepare(&scope, args).unwrap();
+            let operation = proposed["operation"].as_str().unwrap().to_owned();
+            if protected {
+                let result = apply(
+                    &scope,
+                    ApplyArgs {
+                        operation: operation.clone(),
+                    },
+                )
+                .unwrap();
+                assert_eq!(result["outcome"], "NeedsReview");
+            }
+            let terminal = match case {
+                "failed" => AiTerminal::Failed(AiError::new(AiErrorKind::InvalidToolUse)),
+                "completed" => AiTerminal::Completed,
+                _ => AiTerminal::Interrupted,
+            };
+            let notice = match &terminal {
+                AiTerminal::Failed(error) => failed_attention(error),
+                _ => INTERRUPTED_ATTENTION.into(),
+            };
+            let completed = matches!(terminal, AiTerminal::Completed);
+            assert!(
+                finish(
+                    &scope,
+                    &AiAnswer {
+                        text: String::new(),
+                        terminal,
+                    }
+                )
+                .unwrap()
+            );
+            let review = Attention {
+                kind: AttentionKind::Review,
+                reason: REVIEW_ATTENTION.into(),
+                record: Some(operation.clone()),
+            };
+            let expected = if completed {
+                vec![]
+            } else {
+                vec![
+                    review,
+                    Attention {
+                        kind: AttentionKind::Blocker,
+                        reason: notice,
+                        record: Some(scope.run.clone()),
+                    },
+                ]
+            };
+            assert_eq!(chat_attention(&request), expected, "{case}");
+            assert!(
+                Store::open(&request.data_dir)
+                    .unwrap()
+                    .candidates()
+                    .unwrap()
+                    .iter()
+                    .any(|c| c.operation.as_str() == operation),
+                "{case}: the candidate stays active"
+            );
         }
     }
     #[tokio::test]

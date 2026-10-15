@@ -14,6 +14,7 @@ mod read;
 mod reader;
 mod restore;
 mod revision_read;
+pub mod run_attention;
 mod steering;
 mod store;
 mod types;

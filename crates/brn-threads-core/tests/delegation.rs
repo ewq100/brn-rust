@@ -316,6 +316,24 @@ fn working_run(store: &mut Store, key: &str) -> Record {
     store.record(&op.creation_id(1)).unwrap().unwrap()
 }
 
+fn chat_attention(store: &Store, run: &Record) -> Vec<Attention> {
+    let RecordData::Run(run) = &run.data else {
+        panic!("Run")
+    };
+    match store.record(&run.thread).unwrap().unwrap().data {
+        RecordData::Thread(thread) => thread.attention,
+        _ => panic!("Thread"),
+    }
+}
+
+fn interrupted(run: &str) -> Attention {
+    Attention {
+        kind: AttentionKind::Blocker,
+        reason: run_attention::INTERRUPTED_ATTENTION.into(),
+        record: Some(run.into()),
+    }
+}
+
 #[test]
 fn both_choices_and_pause_fence_every_working_run_and_block_stale_connection() {
     for choice in [
@@ -339,13 +357,15 @@ fn both_choices_and_pause_fence_every_working_run_and_block_stale_connection() {
         let ApplyOutcome::Applied(receipt) = receipt else {
             panic!()
         };
-        assert_eq!(receipt.writes.len(), 3);
+        // Settings, both Runs and both of their chats, each with its notice.
+        assert_eq!(receipt.writes.len(), 5);
         for old in &runs {
             let RecordData::Run(run) = stale.record(&old.id).unwrap().unwrap().data else {
                 panic!()
             };
             assert_eq!(run.state, RunState::Cancelled);
             assert_eq!(run.fence, 2);
+            assert_eq!(chat_attention(&stale, old), [interrupted(&old.id)]);
         }
         assert_eq!(
             stale
@@ -378,6 +398,7 @@ fn both_choices_and_pause_fence_every_working_run_and_block_stale_connection() {
             panic!()
         };
         assert_eq!(run.state, RunState::Cancelled);
+        assert_eq!(chat_attention(&stale, &fresh), [interrupted(&fresh.id)]);
         assert!(!settings(&store).maintenance);
         assert_eq!(
             settings(&store).review_first,

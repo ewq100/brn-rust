@@ -158,6 +158,9 @@ impl Store {
             .unwrap_or_default();
         let mut writes = vec![];
         let mut dispatched = None;
+        // Working Runs this command stops; the owner sees the stop, so their
+        // chats get Review items for left candidates but no notice.
+        let mut ended = vec![];
         match command {
             ChatCommand::Bootstrap => {}
             ChatCommand::Enqueue { thread, text } => {
@@ -248,6 +251,7 @@ impl Store {
                             archived: false,
                             data: RecordData::Run(r.clone()),
                         });
+                        ended.push((id.clone(), r.clone()));
                     }
                     if let Some(text) = partial
                         .as_ref()
@@ -470,6 +474,7 @@ impl Store {
                                 .fence
                                 .checked_add(1)
                                 .ok_or_else(|| Error::Invalid("run fence exhausted".into()))?;
+                            ended.push((r.id.clone(), run.clone()));
                             writes.push(Put {
                                 id: r.id,
                                 expected_version: Some(r.version),
@@ -481,6 +486,13 @@ impl Store {
                 }
             }
         }
+        crate::run_attention::ended_run_attention(
+            &mut writes,
+            &ended,
+            false,
+            |id| record_on(&tx, id),
+            |operations| crate::run_attention::active_candidates_on(&tx, operations),
+        )?;
         if control.queue.len() + usize::from(control.pending.is_some()) > 128
             || control
                 .queue

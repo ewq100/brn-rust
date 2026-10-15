@@ -903,6 +903,7 @@ impl Store {
             archived: false,
             data: RecordData::Settings(next),
         }];
+        let mut ended = Vec::new();
         {
             let mut stmt = tx.prepare(
                 "SELECT body FROM records WHERE json_type(body,'$.data.Run') IS NOT NULL",
@@ -917,6 +918,7 @@ impl Store {
                         .fence
                         .checked_add(1)
                         .ok_or_else(|| Error::Invalid("run fence exhausted".into()))?;
+                    ended.push((record.id.clone(), run.clone()));
                     writes.push(Put {
                         id: record.id,
                         expected_version: Some(record.version),
@@ -926,6 +928,14 @@ impl Store {
                 }
             }
         }
+        // The stopped Runs' chats get their notice and reviews in this change.
+        crate::run_attention::ended_run_attention(
+            &mut writes,
+            &ended,
+            true,
+            |id| record_on(&tx, id),
+            |operations| crate::run_attention::active_candidates_on(&tx, operations),
+        )?;
         let request = ChangeRequest {
             reason: if theme_only {
                 "Owner chose the workspace theme".into()

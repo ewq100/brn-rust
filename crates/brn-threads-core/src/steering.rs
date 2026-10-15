@@ -115,6 +115,7 @@ impl Store {
                 text: text.into(),
             }),
         }];
+        let mut ended = vec![];
         if run.state == RunState::Working {
             if let Some(partial) = partial.filter(|p| !p.trim().is_empty()) {
                 crate::chat::partial_text(partial)?;
@@ -135,6 +136,7 @@ impl Store {
                 .fence
                 .checked_add(1)
                 .ok_or_else(|| Error::Invalid("run fence exhausted".into()))?;
+            ended.push((run_id.to_owned(), run.clone()));
             writes.push(Put {
                 id: run_id.into(),
                 expected_version: Some(record.version),
@@ -160,6 +162,15 @@ impl Store {
                 data: RecordData::ChatControl(c),
             });
         }
+        // The owner's new instruction follows at once, so no notice; a
+        // candidate the stopped Run left stays reviewable.
+        crate::run_attention::ended_run_attention(
+            &mut writes,
+            &ended,
+            false,
+            |id| record_on(&tx, id),
+            |operations| crate::run_attention::active_candidates_on(&tx, operations),
+        )?;
         prepare_on(
             &tx,
             operation,

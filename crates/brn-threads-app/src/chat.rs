@@ -98,8 +98,9 @@ impl Workspace {
     }
     /// Interrupts Working Runs that no process holds a lease for, such as work
     /// left by a crash, kill or quit. Each gets the standard Interrupted notice
-    /// so its chat offers Continue. Live Runs and Runs that finished meanwhile
-    /// are left alone. Returns the interrupted Run IDs.
+    /// so its chat offers Continue, a Review item for each candidate it left,
+    /// and its leftover lease file is removed. Live Runs and Runs that
+    /// finished meanwhile are left alone. Returns the interrupted Run IDs.
     pub fn recover_orphaned_runs(&mut self) -> AppResult<Vec<String>> {
         let records = self.records()?;
         let working: Vec<_> = records
@@ -129,38 +130,22 @@ impl Workspace {
                 .fence
                 .checked_add(1)
                 .ok_or_else(|| AppError::Invalid("run fence exhausted".into()))?;
-            let chat = run.thread.clone();
+            let thread = records.iter().find(|r| r.id == run.thread && !r.archived);
+            let ended = [(record.id.clone(), run.clone())];
             let mut writes = vec![Put {
                 id: record.id.clone(),
                 expected_version: Some(record.version),
                 archived: false,
                 data: RecordData::Run(run),
             }];
-            let thread = records.iter().find(|r| r.id == chat && !r.archived);
-            if let Some(thread) = thread
-                && let RecordData::Thread(mut data) = thread.data.clone()
-            {
-                let superseded = |id: &str| {
-                    id != record.id
-                        && records.iter().any(|r| {
-                            r.id == id
-                                && matches!(&r.data, RecordData::Run(run) if run.thread == chat
-                                    && matches!(run.state, RunState::Interrupted | RunState::Failed))
-                        })
-                };
-                brn_ai::threads::replace_terminal_notice(
-                    &mut data.attention,
-                    &record.id,
-                    brn_ai::threads::INTERRUPTED_ATTENTION.into(),
-                    superseded,
-                );
-                writes.push(Put {
-                    id: thread.id.clone(),
-                    expected_version: Some(thread.version),
-                    archived: false,
-                    data: RecordData::Thread(data),
-                });
-            }
+            // The notice, plus a Review for each candidate the Run left.
+            brn_threads_core::run_attention::ended_run_attention(
+                &mut writes,
+                &ended,
+                true,
+                |id| Ok(records.iter().find(|r| r.id == id).cloned()),
+                |operations| self.store.active_candidates(operations),
+            )?;
             // Same saved state, same key: a retry replays instead of repeating.
             let key = format!(
                 "orphan-recovery:{}:{}:{}",
@@ -176,7 +161,11 @@ impl Workspace {
                     inputs: vec![],
                 },
             )? {
-                ApplyOutcome::Applied(_) => recovered.push(record.id.clone()),
+                ApplyOutcome::Applied(_) => {
+                    // Its lease was free and the Run has ended: drop the leftover file.
+                    let _ = brn_ai::run_lease::remove_free(&derived, &record.id);
+                    recovered.push(record.id.clone());
+                }
                 // The Run finished or the chat changed meanwhile; the next check reads again.
                 ApplyOutcome::Stale { .. } => {}
                 other => {
