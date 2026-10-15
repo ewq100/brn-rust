@@ -24,6 +24,7 @@ pub use settings::HELPER_TESTED_NOTE;
 mod steering;
 mod topics;
 mod writing;
+pub use brn_retrieval::Error as RetrievalError;
 pub use export::ExportManifest;
 pub use intake::import_report;
 pub use knowledge::{
@@ -229,9 +230,17 @@ impl Workspace {
         Ok(self.store.apply(&op, &authority)?)
     }
     pub fn new_note(&mut self, title: &str, markdown: &str) -> AppResult<Record> {
-        let op = self
-            .store
-            .allocate_operation(&format!("new-note:{}", uuid::Uuid::new_v4()))?;
+        first_record(self.new_note_with_key(&uuid::Uuid::new_v4().to_string(), title, markdown)?)
+    }
+    /// Owner note creation under a caller-chosen host key. An identical retry
+    /// replays the receipt; the same key with different content is ImmutableRequest.
+    pub fn new_note_with_key(
+        &mut self,
+        key: &str,
+        title: &str,
+        markdown: &str,
+    ) -> AppResult<Receipt> {
+        let op = self.store.allocate_operation(&format!("new-note:{key}"))?;
         let request = ChangeRequest {
             reason: "Owner created a note".into(),
             writes: vec![Put {
@@ -244,12 +253,15 @@ impl Workspace {
         };
         self.store
             .prepare_owner(&op, &request, &HostAuthority::owner("owner"))?;
-        applied_record(self.store.apply(&op, &HostAuthority::owner("owner"))?)
+        applied_receipt(self.store.apply(&op, &HostAuthority::owner("owner"))?)
     }
     pub fn new_thread(&mut self, title: &str) -> AppResult<Record> {
-        let op = self
-            .store
-            .allocate_operation(&format!("new-thread:{}", uuid::Uuid::new_v4()))?;
+        first_record(self.new_thread_with_key(&uuid::Uuid::new_v4().to_string(), title)?)
+    }
+    /// Owner thread creation under a caller-chosen host key; replays like
+    /// [`Workspace::new_note_with_key`].
+    pub fn new_thread_with_key(&mut self, key: &str, title: &str) -> AppResult<Receipt> {
+        let op = self.store.allocate_operation(&format!("new-thread:{key}"))?;
         let request = ChangeRequest {
             reason: "Owner started a thread".into(),
             writes: vec![Put {
@@ -268,7 +280,7 @@ impl Workspace {
         };
         self.store
             .prepare_owner(&op, &request, &HostAuthority::owner("owner"))?;
-        applied_record(self.store.apply(&op, &HostAuthority::owner("owner"))?)
+        applied_receipt(self.store.apply(&op, &HostAuthority::owner("owner"))?)
     }
     pub fn post_message(&mut self, thread: &str, text: &str) -> AppResult<Receipt> {
         let op = self
@@ -446,15 +458,19 @@ impl Workspace {
             .into())
     }
     pub fn undo(&mut self, id: &str) -> AppResult<ApplyOutcome> {
+        Ok(self.undo_with_key(&uuid::Uuid::new_v4().to_string(), id)?.1)
+    }
+    /// Owner Undo whose compensation identity is `owner-undo:{key}`. Returns the
+    /// compensation with its outcome so a Deferred compensation is retried, not duplicated.
+    pub fn undo_with_key(&mut self, key: &str, id: &str) -> AppResult<(OperationId, ApplyOutcome)> {
         let original = self.store.operation(id)?;
-        let compensation = self
-            .store
-            .allocate_operation(&format!("owner-undo:{}", uuid::Uuid::new_v4()))?;
-        Ok(self.store.undo(
+        let compensation = self.store.allocate_operation(&format!("owner-undo:{key}"))?;
+        let outcome = self.store.undo(
             &compensation,
             &original,
             &HostAuthority::owner("owner Undo"),
-        )?)
+        )?;
+        Ok((compensation, outcome))
     }
     pub fn export_now(&self, destination: &Path) -> AppResult<export::ExportManifest> {
         export::publish(&self.store, destination)
@@ -473,7 +489,10 @@ fn applied_receipt(outcome: ApplyOutcome) -> AppResult<Receipt> {
     }
 }
 fn applied_record(outcome: ApplyOutcome) -> AppResult<Record> {
-    applied_receipt(outcome)?
+    first_record(applied_receipt(outcome)?)
+}
+fn first_record(receipt: Receipt) -> AppResult<Record> {
+    receipt
         .writes
         .into_iter()
         .next()
