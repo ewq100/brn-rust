@@ -170,5 +170,7 @@ handoff.
 - **Native-observed:** no — inline HTML literalness and link-cursor
   behavior remain native checks; collect with the existing owner UI
   qualification checklist.
-- **Owner-accepted / merged / published:** no; not requested by this
-  assignment.
+- **Owner-accepted / merged / published:** opened as
+  [PR #146](https://github.com/ewq100/brn-rust/pull/146) with explicit
+  owner authorization; merge remains gated on the required CI contexts and
+  a separate owner decision. Not merged.
