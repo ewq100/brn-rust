@@ -464,6 +464,25 @@ mod tests {
     }
 
     #[test]
+    fn tab_indented_short_line_after_short_lines_is_still_code() {
+        // Line scanning must stay correct across any number of preceding
+        // lines: a tab-indented line stays code wherever it appears.
+        let text = "one\ntwo\nthree\n\tx";
+        let start = text.find('x').unwrap();
+        assert!(format(text, start..text.len(), Format::Bold).is_none());
+    }
+
+    #[test]
+    fn indented_pseudo_fences_do_not_fence_the_plain_line_between() {
+        // Four-space indented fences are literal code text, so the plain
+        // line between them stays formattable, even selected to its ends.
+        let text = "    ```\nplain\n    ```";
+        let start = text.find("plain").unwrap();
+        let edit = format(text, start..start + 5, Format::Bold).unwrap();
+        assert_eq!(apply(text, &edit), "    ```\n**plain**\n    ```");
+    }
+
+    #[test]
     fn whitespace_only_multiline_selection_is_a_noop() {
         assert!(format(" \n  \n", 0..5, Format::List).is_none());
     }
