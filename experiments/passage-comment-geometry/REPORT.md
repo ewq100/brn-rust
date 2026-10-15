@@ -1,5 +1,16 @@
 # Passage/comment positioning: current BRN editor and viewer
 
+**Handoff completed, 15 October 2026:** the owner selected extending the existing
+Read viewer with no Zorite adoption. The [current integration handoff](HANDOFF.md)
+records qualified code commit `f64a9d50766428ac162d1e2e2d5d7db4c875bb3c`,
+**14 passing headless tests**, exact changed files/patches and reconciliation
+against fetched main `8bef439b133e91ad68b0b76792bcd155d3d06237`.
+Document-switching, a directly armed first-paint probe and a connected
+editor-to-Store dirty/generation/Save/Undo witness complete the missing bounded
+checks. Native observation, independent review and production wiring remain
+pending. The original 11-test prototype report below describes commit
+`26b029756e3f20a3d9f0a7273230ab6cecee756f`; Z1 remains unchanged and separate.
+
 **Result:** a useful missing capability is demonstrated on BRN's existing
 Read viewer: a selected comment can be painted at its exact passage's first
 rendered text glyph, and comment selection reveals the intended occurrence.
@@ -105,7 +116,7 @@ introduced. This is not a fresh license audit of every existing BRN dependency.
 
 ## Verified behavior
 
-Final [headless output](evidence/tests-final-12.stdout): **11 tests passed**,
+Initial-prototype [headless output](evidence/tests-final-12.stdout): **11 tests passed**,
 zero failed/ignored; tests execute GPUI's test platform on this Mac, not a real
 Mac window/text system. Numeric measurements below are test-platform results.
 

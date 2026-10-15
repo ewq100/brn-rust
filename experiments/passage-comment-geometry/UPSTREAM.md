@@ -27,3 +27,9 @@ owner's review and the shared dependency owner's approval. Prefer a tested
 upstream API/release over a permanent BRN fork. Until then the four-file patch
 requires rebasing and regression checks on every gpui-base update; its use of
 internal reveal/Inline layout is the main maintenance cost.
+
+Production disposition for the selected direction: upstream the small API and
+use an owner-approved toolkit source/release. Do not vendor the toolkit into
+BRN merely to expose geometry. The ignored archive extraction is disposable
+experiment input; no toolkit tree is committed. The final [handoff](HANDOFF.md)
+separates the four-file toolkit patch from BRN-specific lifecycle/card wiring.

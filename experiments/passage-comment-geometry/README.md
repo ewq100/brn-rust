@@ -5,8 +5,9 @@ A bounded synthetic host using the same `EditorState`/`Editor` and
 is painted beside its passage in Read. Clicking a comment uses the existing
 viewer reveal API. The host is not BRN's full desktop or a new editor.
 
-Read [REPORT.md](REPORT.md) for evidence and limits, and
-[HANDOFF.md](HANDOFF.md) for the writing owner. The isolated toolkit change is
+Read [HANDOFF.md](HANDOFF.md) for the completed selected-direction handoff,
+14-test evidence, current-main reconciliation and exact patch/commit identities.
+[REPORT.md](REPORT.md) retains the initial prototype investigation. The isolated toolkit change is
 [the patch](patches/gpui-base-0.7.3-range-start.patch); its source and license
 are recorded in [UPSTREAM.md](UPSTREAM.md).
 
