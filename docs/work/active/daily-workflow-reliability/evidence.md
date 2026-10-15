@@ -20,6 +20,9 @@
 | Round 3: U4 typed open-edit error `brn_threads_core::Error::EditSessionOpen { note, session, base_version }` (via `AppError::Core`); CLI `edit_session_open` JSON | yes (`3a7c3d25`) | yes | no (the desktop shows the generic notice until the UI branch matches the variant) | no | no |
 | Round 3: desktop hookup U2 (at the UI agent's request): `useful_intake` in `threads_ui.rs`, new `threads_intake_tests.rs` | yes (`3a7c3d25`) | yes (desktop 150 passed, 1 ignored, headless harness; cross-surface only with the CLI's exact locator string) | **owner, store only** ([results](#owner-native-check-results-15-october-2026)): picker re-supply of a CLI-supplied `/private/tmp` file reused the CLI's chat | no | no |
 | Round 3: U3 read-only check ([finding](u3-finding.md)): no service fields needed; the desktop's `ThreadRow` drops `Attention.record` | n/a (no code) | code reading | n/a | no | n/a |
+| Round 4 ([verification](round4/verification.md)): a Run that ends outside `finish()` (settings, project changes and imports, orphan recovery) leaves one Interrupted notice in the same checked change; Stop, Archive, Steer and Continue add none | yes (`3919c09a`, local) | yes (workspace 721 passed, 12 failed (known sandbox), 5 ignored) | no | no | no |
+| Round 4: every Run end, including ⌘Q, cancellation and failure in `finish()`, adds a "Review prepared changes" item for each candidate it left unapplied; candidates are never applied or retired | yes (`3919c09a`, local) | yes (desktop 152 passed, 1 ignored; headless Home Needs you, attention cards and proposal card) | no ([procedure](round4/verification.md#native-re-check-procedure-owner-or-orchestrator)) | no | no |
+| Round 4: orphan recovery removes the free leftover lease file | yes (`3919c09a`, local) | yes | no | no | no |
 
 Nothing was pushed, merged or released. The branch has no upstream.
 
@@ -348,6 +351,7 @@ The owner ran checks 3–5 below in their own Terminal on this worktree's `nativ
   - *Lease file:* the orphan's lease file is still present after recovery (known limitation, now seen natively).
 - **Accidental empty data path.** A paste error left `$B1F` unset, so the desktop was started with `--data-dir /data`. It refused with raw "storage: Read-only file system (os error 30)" and created nothing.
 - **Process check.** No BRN app was left running. The `grep` matched only `cargo mutants` / `cargo test -p brn-desktop` processes from another worktree (`.worktrees/quality-simplify`), which are headless test runs, not BRN windows.
+- **Round 4 follow-up.** The force-kill gaps (no notice and no Review item after the delegation choice, the leftover lease file) and the missing Resume button are addressed in [round 4](round4/verification.md). That note also explains why Resume did not appear and gives two offline stores for a native re-check.
 
 ## Owner manual check
 
