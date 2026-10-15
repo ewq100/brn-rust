@@ -7,21 +7,37 @@ impl ThreadsUi {
         self.worker.is_none() && queue.pending.is_none() && queue.queue.is_empty()
     }
     pub(super) fn can_edit_note_context(&self) -> bool {
-        self.context_work_idle()
-            && self.review.is_none()
-            && !self.recovery_blocked()
-            && self.note.as_ref().is_some_and(|open| {
-                open.session.is_none()
-                    && !open.record.archived
-                    && self
-                        .workspace
-                        .store
-                        .record(&open.record.id)
-                        .ok()
-                        .flatten()
-                        .as_ref()
-                        == Some(&open.record)
-            })
+        self.edit_note_blocked().is_none()
+    }
+    /// Why Edit note is unavailable, in the words its disabled control shows;
+    /// `None` when the open saved note may be edited.
+    pub(super) fn edit_note_blocked(&self) -> Option<&'static str> {
+        let Some(open) = &self.note else {
+            return Some("no note is open");
+        };
+        if !self.context_work_idle() {
+            Some("BRN is working")
+        } else if self.review.is_some() {
+            Some("finish the review first")
+        } else if self.recovery_blocked() {
+            Some("recover the kept edit first")
+        } else if open.session.is_some() {
+            Some("save or discard your edit first")
+        } else if open.record.archived {
+            Some("this note is archived")
+        } else if self
+            .workspace
+            .store
+            .record(&open.record.id)
+            .ok()
+            .flatten()
+            .as_ref()
+            != Some(&open.record)
+        {
+            Some("open the current version first")
+        } else {
+            None
+        }
     }
     pub(super) fn edit_note_authority(
         &self,
@@ -44,8 +60,10 @@ impl ThreadsUi {
             return;
         }
         let note = self.note.as_ref().unwrap().record.clone();
-        let instruction = cx
-            .new(|cx| EditorState::new(window, cx).placeholder("What should change in this note?"));
+        let instruction = cx.new(|cx| {
+            components::prose_editor_state(window, cx)
+                .placeholder("What should change in this note?")
+        });
         instruction.update(cx, |editor, cx| editor.focus(window, cx));
         let error = cx.new(|_| String::new());
         let target = cx.entity().downgrade();
@@ -163,7 +181,8 @@ impl ThreadsUi {
                 short(&self.thread_title(&reply.thread))
             ))
         });
-        let text = cx.new(|cx| EditorState::new(window, cx).default_value(reply.text.clone()));
+        let text = cx
+            .new(|cx| components::prose_editor_state(window, cx).default_value(reply.text.clone()));
         title.update(cx, |input, cx| input.focus(window, cx));
         let error = cx.new(|_| String::new());
         let target = cx.entity().downgrade();

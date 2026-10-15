@@ -4,6 +4,55 @@ use super::*;
 use gpui_kit::base::RangeHighlight;
 use gpui_kit::component::menu::DropdownMenu;
 
+/// The formatting actions: icon buttons in a wide Note, Format ▾ below.
+const FORMATS: [(&str, &str, IconName, formatting::Format, &str); 5] = [
+    (
+        "format-heading",
+        "Heading",
+        IconName::Heading,
+        formatting::Format::Heading,
+        "Heading · toggle a heading on the selected lines",
+    ),
+    (
+        "format-bold",
+        "Bold",
+        IconName::Bold,
+        formatting::Format::Bold,
+        "Bold · bold the selected words",
+    ),
+    (
+        "format-italic",
+        "Italic",
+        IconName::Italic,
+        formatting::Format::Italic,
+        "Italic · italicize the selected words",
+    ),
+    (
+        "format-list",
+        "List",
+        IconName::List,
+        formatting::Format::List,
+        "List · toggle a bullet list on the selected lines",
+    ),
+    (
+        "format-quote",
+        "Quote",
+        IconName::TextQuote,
+        formatting::Format::Quote,
+        "Quote · toggle a quotation on the selected lines",
+    ),
+];
+
+/// An Outline row reads like its heading, without Markdown emphasis.
+fn outline_label(title: &str) -> String {
+    short(
+        title
+            .strip_prefix("**")
+            .and_then(|value| value.strip_suffix("**"))
+            .unwrap_or(title),
+    )
+}
+
 pub(super) fn readable_document(
     view: &Entity<TextViewState>,
     assets: Arc<BTreeMap<String, Arc<Image>>>,
@@ -140,94 +189,122 @@ impl ThreadsUi {
         }
     }
 
-    pub(super) fn document_toolbar(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
+    /// The Note toolbar's left side: the Write | Read switch, the formatting
+    /// controls (Write only) and the Outline both modes share. `fit` folds
+    /// them as the Note panel narrows.
+    pub(super) fn document_controls(
+        &self,
+        fit: layout::NoteFit,
+        cx: &mut Context<Self>,
+    ) -> Vec<gpui_kit::AnyElement> {
         let blocked = self.recovery_blocked() || self.review.is_some();
-        let mut bar = div()
-            .id("document-toolbar")
-            .flex()
-            .flex_wrap()
-            .items_center()
-            .gap_1()
-            .px_3()
-            .py_2()
-            .border_b_1()
-            .border_color(rgb(pal().border))
-            .child(
-                pill("note-write", "Write")
-                    .selected(!self.note_reading)
-                    .on_click(
-                        cx.listener(|this, _, window, cx| this.set_note_reading(false, window, cx)),
-                    ),
+        let this = cx.entity().downgrade();
+        let mut controls = vec![
+            components::segmented(
+                "note-mode",
+                vec![
+                    button("note-write")
+                        .label("Write")
+                        .selected(!self.note_reading)
+                        .tooltip("Edit the Markdown text")
+                        .on_click(cx.listener(|this, _, window, cx| {
+                            this.set_note_reading(false, window, cx)
+                        })),
+                    button("note-read")
+                        .label("Read")
+                        .selected(self.note_reading)
+                        .tooltip("Read the formatted note; select text to comment")
+                        .on_click(cx.listener(|this, _, window, cx| {
+                            this.set_note_reading(true, window, cx)
+                        })),
+                ],
             )
-            .child(
-                pill("note-read", "Read")
-                    .selected(self.note_reading)
-                    .on_click(
-                        cx.listener(|this, _, window, cx| this.set_note_reading(true, window, cx)),
-                    ),
-            );
+            .into_any_element(),
+        ];
         if !self.note_reading {
-            for (id, label, kind, hint) in [
-                (
-                    "format-heading",
-                    "Heading",
-                    formatting::Format::Heading,
-                    "Toggle a heading on the selected lines",
-                ),
-                (
-                    "format-bold",
-                    "Bold",
-                    formatting::Format::Bold,
-                    "Bold the selected words",
-                ),
-                (
-                    "format-italic",
-                    "Italic",
-                    formatting::Format::Italic,
-                    "Italicize the selected words",
-                ),
-                (
-                    "format-list",
-                    "List",
-                    formatting::Format::List,
-                    "Toggle a bullet list on selected lines",
-                ),
-                (
-                    "format-quote",
-                    "Quote",
-                    formatting::Format::Quote,
-                    "Toggle a quotation on selected lines",
-                ),
-            ] {
-                bar = bar.child(pill(id, label).disabled(blocked).tooltip(hint).on_click(
-                    cx.listener(move |this, _, window, cx| this.format_note(kind, window, cx)),
-                ));
-            }
-        } else {
-            let outline = sections(self.note_editor.read(cx).value().as_ref());
-            let this = cx.entity().downgrade();
-            bar = bar
-                .child(
-                    pill("note-outline", "Outline")
+            if fit.format_menu() {
+                let this = this.clone();
+                let trigger = if fit.icons() {
+                    components::icon_button("format-menu", IconName::Type, "Format")
+                } else {
+                    pill("format-menu", "Format")
                         .dropdown_caret(true)
+                        .tooltip("Format the selected text")
+                };
+                controls.push(
+                    trigger
                         .dropdown_menu(move |mut menu, _, _| {
-                            for (label, range) in &outline {
-                                let range = range.clone();
+                            for (_, label, _, kind, _) in FORMATS {
                                 menu = menu.item(super::shell::item(
                                     &this,
-                                    label.clone(),
+                                    label,
                                     None,
+                                    blocked,
                                     false,
-                                    false,
-                                    move |view, window, cx| view.reveal(range.clone(), window, cx),
+                                    move |view, window, cx| view.format_note(kind, window, cx),
                                 ));
                             }
                             menu
-                        }),
-                )
-                .child(metadata("Select text to comment"));
+                        })
+                        .into_any_element(),
+                );
+            } else {
+                for (id, label, icon, kind, hint) in FORMATS {
+                    controls.push(
+                        components::icon_button(id, icon, label)
+                            .disabled(blocked)
+                            .tooltip(hint)
+                            .on_click(cx.listener(move |this, _, window, cx| {
+                                this.format_note(kind, window, cx)
+                            }))
+                            .into_any_element(),
+                    );
+                }
+            }
         }
-        bar.test_support().into_any_element()
+        // One Outline for Write and Read: the same headings and handler.
+        let outline: Vec<(String, std::ops::Range<usize>)> =
+            sections(self.note_editor.read(cx).value().as_ref())
+                .into_iter()
+                .map(|(title, range)| (outline_label(&title), range))
+                .collect();
+        let trigger = if fit.icons() {
+            components::icon_button("note-outline", IconName::TableOfContents, "Outline")
+        } else {
+            pill("note-outline", "Outline")
+                .dropdown_caret(true)
+                .tooltip("Jump to a heading")
+        };
+        controls.push(
+            trigger
+                .dropdown_menu(move |menu, _, _| {
+                    let mut menu = menu.scrollable(outline.len() > 12);
+                    if outline.is_empty() {
+                        return menu.item(super::shell::item(
+                            &this,
+                            "No headings in this note",
+                            None,
+                            true,
+                            false,
+                            |_, _, _| {},
+                        ));
+                    }
+                    for (label, range) in &outline {
+                        let range = range.clone();
+                        menu = menu.item(super::shell::item(
+                            &this,
+                            label.clone(),
+                            None,
+                            false,
+                            false,
+                            move |view, window, cx| view.reveal(range.clone(), window, cx),
+                        ));
+                    }
+                    menu
+                })
+                .into_any_element(),
+        );
+        controls
     }
 
     pub(super) fn format_note(

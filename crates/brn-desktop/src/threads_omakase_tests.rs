@@ -969,8 +969,15 @@ fn review_in_place_applies_exact_candidate_then_marks_addressed_and_undoes(
         assert!(window.find("applied-state").visible());
         assert_eq!(
             window.find("confirm-addressed").label(),
-            Some("mark 1 comments addressed")
+            Some("Mark 1 comment addressed")
         );
+    });
+    // Applied is the first matching row, so marking comments is the primary.
+    cx.read(|cx| {
+        assert_eq!(
+            f.view.read(cx).writing_bar_row(),
+            Some(workbench::WritingRow::Applied)
+        )
     });
     click(cx, &f, "confirm-addressed");
     cx.read(|cx| {

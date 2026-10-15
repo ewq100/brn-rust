@@ -372,7 +372,8 @@ impl ThreadsUi {
         let name = cx.new(|cx| InputState::new(window, cx).placeholder("Project title"));
         name.update(cx, |i, cx| i.set_value(&p.title, window, cx));
         let instructions = cx.new(|cx| {
-            EditorState::new(window, cx).placeholder("Instructions for every chat in this project")
+            components::prose_editor_state(window, cx)
+                .placeholder("Instructions for every chat in this project")
         });
         instructions.update(cx, |i, cx| i.set_value(&p.instructions, window, cx));
         let knowledge = cx.new(|_| p.use_brn_knowledge);

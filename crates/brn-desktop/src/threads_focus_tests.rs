@@ -604,7 +604,9 @@ fn long_coverage_details_scroll_without_hiding_note_body_or_losing_issues(cx: &m
                 "coverage must leave a usable note body"
             );
             assert!(window.find("note-import-summary").visible());
-            assert!(window.find("section-0").visible());
+            // Headings are reachable from the toolbar's Outline, not a row.
+            assert!(window.find("note-outline").visible());
+            assert!(window.try_find("section-0").is_none());
             last_origin = Some(window.find("note-coverage-detail-5").bounds().origin.y);
             window.scroll(
                 "note-coverage-details",
@@ -636,6 +638,27 @@ fn long_coverage_details_scroll_without_hiding_note_body_or_losing_issues(cx: &m
                 expected,
                 "presentation must preserve all stored issues"
             );
+        });
+        // Outline lists the note's heading; choosing it selects that line.
+        cx.update_window(window, |_, window, cx| window.click("note-outline", cx))
+            .unwrap();
+        cx.run_until_parked();
+        cx.update_window(window, |_, window, cx| {
+            let mut menu = window.within("popup-menu");
+            let index = (0..20usize)
+                .find(|index| {
+                    menu.try_find(*index)
+                        .is_some_and(|row| row.label() == Some("Purpose"))
+                })
+                .expect("Outline lists the Purpose heading");
+            menu.click(index, cx);
+        })
+        .unwrap();
+        cx.run_until_parked();
+        cx.read(|cx| {
+            let editor = view.read(cx).note_editor.read(cx);
+            let range = editor.selected_range();
+            assert_eq!(editor.value().get(range), Some("Purpose"));
         });
     }
 }

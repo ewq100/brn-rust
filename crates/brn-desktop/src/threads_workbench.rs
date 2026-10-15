@@ -2,6 +2,7 @@
 use super::shell::pill;
 use super::*;
 use gpui_kit::component::button::ButtonVariants;
+use gpui_kit::component::{Icon, Sizable, Size};
 impl ThreadsUi {
     pub(super) fn writing_candidate_note(&self, candidate: &Prepared) -> Option<String> {
         candidate.request.inputs.iter().find_map(|input| {
@@ -46,32 +47,39 @@ impl ThreadsUi {
         if !self.writing_worker_for(note) {
             return div().into_any_element();
         }
+        // Shown whenever this note's rewrite runs, whatever the bar shows.
         div()
             .id("writing-progress")
             .flex()
-            .flex_col()
-            .gap_1()
+            .flex_shrink_0()
+            .items_center()
+            .gap_2()
             .px_3()
-            .py_2()
+            .py_1()
+            .font_family(UI_FONT)
+            .text_size(UI_TEXT)
+            .border_t_1()
+            .border_color(rgb(pal().hairline))
             .child(
-                div()
-                    .flex()
-                    .items_center()
-                    .gap_2()
-                    .child(
-                        div()
-                            .flex_1()
-                            .text_size(UI_TEXT)
-                            .child(if self.progress.is_empty() {
-                                "Rewriting…".to_owned()
-                            } else {
-                                self.progress.clone()
-                            }),
-                    )
-                    .child(
-                        pill("stop-writing", "Stop")
-                            .on_click(cx.listener(|this, _, _, cx| this.cancel(cx))),
-                    ),
+                Icon::new(IconName::LoaderCircle)
+                    .with_size(Size::Small)
+                    .flex_shrink_0()
+                    .text_color(rgb(pal().info)),
+            )
+            .child(div().flex_1().min_w_0().child(if self.progress.is_empty() {
+                "Rewriting…".to_owned()
+            } else {
+                self.progress.clone()
+            }))
+            .child(
+                button("stop-writing")
+                    .label("Stop")
+                    .icon(IconName::Square)
+                    .compact()
+                    .outline()
+                    .h(components::tokens::COMPACT_CONTROL)
+                    .tooltip("Stop the current work and pause the queue · ⌘.")
+                    .on_click(cx.listener(|this, _, _, cx| this.cancel(cx))),
             )
             .test_support()
             .into_any_element()
@@ -84,15 +92,22 @@ impl ThreadsUi {
             .id("writing-proposals")
             .flex()
             .flex_col()
-            .gap_1()
             .flex_shrink_0()
             .max_h(px(110.))
             .overflow_y_scroll();
-        for candidate in self
+        let ready: Vec<&Prepared> = self
             .candidates
             .iter()
             .filter(|candidate| self.writing_candidate_note(candidate).as_deref() == Some(note))
-        {
+            .collect();
+        // Only the newest proposal is filled, and only while it is the
+        // bar's first matching row; older ones are outline.
+        let lead = self.writing_bar_row() == Some(WritingRow::ProposalReady);
+        let newest = ready.len().saturating_sub(1);
+        if !ready.is_empty() {
+            proposals = proposals.border_t_1().border_color(rgb(pal().hairline));
+        }
+        for (index, candidate) in ready.into_iter().enumerate() {
             let summary = candidate
                 .request
                 .inputs
@@ -125,22 +140,27 @@ impl ThreadsUi {
                         .items_center()
                         .gap_2()
                         .px_3()
-                        .py_2()
-                        .child(div().flex_1().text_size(UI_TEXT).child(summary))
+                        .py_1()
+                        .child(div().flex_1().min_w_0().text_size(UI_TEXT).child(summary))
                         .child(pill(format!("writing-dismiss-{op}"), "Dismiss").on_click(
                             cx.listener(move |this, _, window, cx| {
                                 this.card_dismiss(dismiss.clone(), window, cx)
                             }),
                         ))
-                        .child(
-                            button(format!("writing-review-{op}"))
+                        .child({
+                            let review = button(format!("writing-review-{op}"))
                                 .label("Review rewrite")
                                 .compact()
-                                .primary()
+                                .h(components::tokens::COMPACT_CONTROL)
                                 .on_click(cx.listener(move |this, _, window, cx| {
                                     this.open_review(show.clone(), window, cx)
-                                })),
-                        )
+                                }));
+                            if lead && index == newest {
+                                review.primary()
+                            } else {
+                                review.outline()
+                            }
+                        })
                         .test_support(),
                 );
         }
@@ -158,7 +178,10 @@ impl ThreadsUi {
                 .is_some_and(|record| record.id == *request)
         })
     }
-    pub(super) fn writing_saved_status(&self) -> Option<String> {
+    /// The last rewrite's recorded outcome, under the conditions today's
+    /// saved-status line used: no live worker for this note, no proposal and
+    /// no applied rewrite.
+    pub(super) fn writing_run_outcome(&self) -> Option<RunOutcome> {
         let note = self.open_note_id()?;
         if self.writing_worker_for(note)
             || self
@@ -184,14 +207,67 @@ impl ThreadsUi {
             _ => None,
         });
         Some(match run {
-            None => "Rewrite inputs saved · ready to retry".into(),
+            None => RunOutcome::InputsSaved,
             Some(run) => match run.state {
-                RunState::Working => "Saved rewrite activity unconfirmed · retry when ready".into(),
-                RunState::Completed => "Rewrite finished · no pending proposal".into(),
-                _ => format!("Rewrite {:?} · saved feedback is ready to retry", run.state)
-                    .to_lowercase(),
+                RunState::Working => RunOutcome::Elsewhere,
+                RunState::Completed => RunOutcome::NoProposal,
+                RunState::Failed => RunOutcome::Failed(run.progress.clone()),
+                RunState::Interrupted => RunOutcome::Interrupted(run.progress.clone()),
+                RunState::Cancelled => RunOutcome::Stopped(run.progress.clone()),
             },
         })
+    }
+    /// `writing-run-status`: the outcome's tone and the full recorded reason,
+    /// wrapping, never truncated.
+    pub(super) fn writing_run_status(&self) -> gpui_kit::AnyElement {
+        let Some(outcome) = self.writing_run_outcome() else {
+            return div().into_any_element();
+        };
+        div()
+            .flex_shrink_0()
+            .px_3()
+            .py_1()
+            .border_t_1()
+            .border_color(rgb(pal().hairline))
+            .child(components::status_line(
+                "writing-run-status",
+                outcome.tone(),
+                outcome.text(),
+            ))
+            .into_any_element()
+    }
+    /// The writing bar's first matching row for the open note.
+    pub(super) fn writing_bar_row(&self) -> Option<WritingRow> {
+        let open = self.note.as_ref()?;
+        let note = open.record.id.as_str();
+        let proposal = self
+            .candidates
+            .iter()
+            .any(|candidate| self.writing_candidate_note(candidate).as_deref() == Some(note));
+        let applied = self.latest_rewrite_applied(note)
+            && self.applied_rewrite.get(note).is_some_and(|(request, _)| {
+                self.workspace
+                    .writing_request(request)
+                    .is_ok_and(|snapshot| snapshot.note.id == note)
+            });
+        Some(writing_row(
+            open.session.is_some(),
+            self.edit_is_stale(),
+            proposal,
+            applied,
+            self.writing_run_outcome().as_ref(),
+        ))
+    }
+    /// An open edit whose base version is behind the saved note.
+    pub(super) fn edit_is_stale(&self) -> bool {
+        self.note
+            .as_ref()
+            .and_then(|open| open.session.as_ref())
+            .is_some_and(|session| {
+                self.records
+                    .iter()
+                    .any(|r| r.id == session.note && r.version != session.base_version)
+            })
     }
     /// A response is writing-owned only when committed with its exact bound terminal run.
     pub(super) fn writing_result_note(&self) -> Option<Record> {
@@ -255,28 +331,178 @@ impl ThreadsUi {
             .test_support()
             .into_any_element()
     }
+    /// The writing bar's feedback field: one line when empty, up to four as
+    /// the owner writes. Its placeholder names it; the label is announced.
     pub(super) fn overall_feedback(&self) -> gpui_kit::AnyElement {
         div()
             .id("overall-feedback")
-            .flex()
-            .flex_col()
-            .gap_1()
-            .px_3()
-            .py_2()
+            .pt_1()
+            .font_family(UI_FONT)
+            .text_size(UI_TEXT)
             .child(
-                div()
-                    .text_size(SMALL_TEXT)
-                    .text_color(rgb(pal().muted))
-                    .child("Overall feedback"),
-            )
-            .child(
-                div().h(px(64.)).child(
-                    prose_editor(&self.general_feedback)
-                        .h_full()
-                        .aria_label("Overall feedback"),
-                ),
+                Textarea::new(&self.general_feedback)
+                    .small()
+                    .aria_label("Overall feedback"),
             )
             .test_support()
             .into_any_element()
+    }
+}
+
+/// How the last rewrite ended, when nothing newer owns the writing bar.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(super) enum RunOutcome {
+    Failed(String),
+    Interrupted(String),
+    Stopped(String),
+    /// Saved as Working with no live worker here.
+    Elsewhere,
+    /// Inputs saved, no run recorded.
+    InputsSaved,
+    /// Completed without a proposal.
+    NoProposal,
+}
+impl RunOutcome {
+    /// `None` is neutral.
+    pub(super) fn tone(&self) -> Option<Tone> {
+        match self {
+            Self::Failed(_) => Some(Tone::Error),
+            Self::Interrupted(_) | Self::Stopped(_) | Self::Elsewhere => Some(Tone::Warning),
+            Self::InputsSaved | Self::NoProposal => None,
+        }
+    }
+    /// The state, then the run's recorded reason verbatim when it has one.
+    pub(super) fn text(&self) -> String {
+        let with = |state: &str, progress: &str| {
+            if progress.trim().is_empty() {
+                state.to_owned()
+            } else {
+                format!("{state} · {progress}")
+            }
+        };
+        match self {
+            Self::Failed(progress) => with("Rewrite failed", progress),
+            Self::Interrupted(progress) => with("Rewrite interrupted", progress),
+            Self::Stopped(progress) => with("Rewrite stopped", progress),
+            Self::Elsewhere => {
+                "This rewrite may still be running elsewhere. Retry starts a new attempt.".into()
+            }
+            Self::InputsSaved => "Rewrite inputs saved".into(),
+            Self::NoProposal => "Rewrite finished · no proposal".into(),
+        }
+    }
+}
+
+/// The writing bar's first matching row (plan.md step 3), which owns the one
+/// filled primary. Rows 5 and 6 come from the recorded run outcome.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) enum WritingRow {
+    /// The note changed since the edit began: Save as new note, in the banner.
+    DirtyStale,
+    /// Save.
+    Dirty,
+    /// Review rewrite, newest proposal.
+    ProposalReady,
+    /// Mark comments addressed, when any are open.
+    Applied,
+    /// Retry saved rewrite.
+    Retry,
+    /// Rewrite with AI, after a run that left no proposal.
+    Finished,
+    /// Rewrite with AI.
+    Idle,
+}
+pub(super) fn writing_row(
+    dirty: bool,
+    stale: bool,
+    proposal: bool,
+    applied: bool,
+    outcome: Option<&RunOutcome>,
+) -> WritingRow {
+    match outcome {
+        _ if dirty && stale => WritingRow::DirtyStale,
+        _ if dirty => WritingRow::Dirty,
+        _ if proposal => WritingRow::ProposalReady,
+        _ if applied => WritingRow::Applied,
+        Some(RunOutcome::NoProposal) => WritingRow::Finished,
+        Some(_) => WritingRow::Retry,
+        None => WritingRow::Idle,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn the_first_matching_writing_row_owns_the_primary() {
+        let failed = RunOutcome::Failed("Provider unavailable".into());
+        let done = RunOutcome::NoProposal;
+        for (dirty, stale, proposal, applied, outcome, row) in [
+            (
+                true,
+                true,
+                true,
+                true,
+                Some(&failed),
+                WritingRow::DirtyStale,
+            ),
+            (true, false, true, true, Some(&failed), WritingRow::Dirty),
+            (false, false, true, true, None, WritingRow::ProposalReady),
+            (false, false, false, true, None, WritingRow::Applied),
+            (false, false, false, false, Some(&failed), WritingRow::Retry),
+            (
+                false,
+                false,
+                false,
+                false,
+                Some(&RunOutcome::Elsewhere),
+                WritingRow::Retry,
+            ),
+            (
+                false,
+                false,
+                false,
+                false,
+                Some(&RunOutcome::InputsSaved),
+                WritingRow::Retry,
+            ),
+            (
+                false,
+                false,
+                false,
+                false,
+                Some(&done),
+                WritingRow::Finished,
+            ),
+            (false, false, false, false, None, WritingRow::Idle),
+        ] {
+            assert_eq!(writing_row(dirty, stale, proposal, applied, outcome), row);
+        }
+    }
+
+    #[test]
+    fn run_outcomes_keep_the_recorded_reason_and_their_tone() {
+        let reason = "Run failed: Reconnect this account before continuing.";
+        assert_eq!(
+            RunOutcome::Failed(reason.into()).text(),
+            format!("Rewrite failed · {reason}")
+        );
+        assert_eq!(RunOutcome::Failed(" ".into()).text(), "Rewrite failed");
+        assert_eq!(
+            RunOutcome::Stopped("Stopped by owner".into()).text(),
+            "Rewrite stopped · Stopped by owner"
+        );
+        assert_eq!(RunOutcome::Failed(String::new()).tone(), Some(Tone::Error));
+        assert_eq!(
+            RunOutcome::Interrupted(String::new()).tone(),
+            Some(Tone::Warning)
+        );
+        assert_eq!(RunOutcome::Elsewhere.tone(), Some(Tone::Warning));
+        assert_eq!(RunOutcome::InputsSaved.tone(), None);
+        assert_eq!(
+            RunOutcome::NoProposal.text(),
+            "Rewrite finished · no proposal"
+        );
     }
 }

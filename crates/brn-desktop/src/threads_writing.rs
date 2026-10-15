@@ -2,7 +2,9 @@
 //! linked work. Every action calls the same checked services as before.
 use super::shell::{item, pill};
 use super::tiles::scroll;
+use super::workbench::WritingRow;
 use super::*;
+use gpui_kit::SharedString;
 use gpui_kit::StyledText;
 use gpui_kit::component::button::ButtonVariants;
 use gpui_kit::component::menu::{DropdownMenu, PopupMenu};
@@ -664,8 +666,10 @@ impl ThreadsUi {
             .test_support()
             .into_any_element()
     }
+    /// The Note toolbar, one row: Write | Read, formatting and Outline on the
+    /// left; the status chip, comments, Edit note and Connections on the
+    /// right. `note_fit` folds controls into menus as the panel narrows.
     pub(super) fn note_controls(&self, cx: &mut Context<Self>) -> Vec<gpui_kit::AnyElement> {
-        let p = pal();
         let Some(open) = &self.note else {
             return vec![];
         };
@@ -674,79 +678,89 @@ impl ThreadsUi {
         };
         if self.review.is_some() {
             return vec![
-                div()
-                    .px_1()
-                    .bg(rgb(p.accent))
-                    .text_color(rgb(p.primary_fg))
-                    .child("reviewing")
-                    .into_any_element(),
+                components::status_chip(
+                    "note-reviewing",
+                    Some(Tone::Info),
+                    Some(IconName::Eye),
+                    "Reviewing",
+                )
+                .into_any_element(),
             ];
         }
-        let dirty = open.session.is_some();
-        let protected = note.protected;
+        let fit = self.note_fit;
         let pending = self
             .workspace
             .writing_comments(&open.record.id)
             .map(|comments| comments.iter().filter(|entry| !entry.addressed).count())
             .unwrap_or_default();
-        let status = format!(
-            "{} v{}",
-            if protected { "protected" } else { "working" },
-            open.record.version
+        let mut controls = self.document_controls(fit, cx);
+        controls.push(div().flex_1().min_w(px(4.)).into_any_element());
+        // Protection and version stay visible in every state, dirty included.
+        let (tone, icon, kind) = if note.protected {
+            (Some(Tone::Info), IconName::Lock, "Protected")
+        } else {
+            (None, IconName::FileText, "Working")
+        };
+        let version = format!("v{}", open.record.version);
+        let status = format!("{kind} · {version}");
+        controls.push(
+            if fit.icons() {
+                components::short_status_chip("note-status-chip", tone, Some(icon), version, status)
+            } else {
+                components::status_chip("note-status-chip", tone, Some(icon), status)
+            }
+            .into_any_element(),
         );
-        let mut controls = vec![
-            div()
-                .id("note-status-chip")
-                .px_1()
-                .border_1()
-                .border_color(rgb(if protected { p.accent } else { p.border }))
-                .aria_label(status.clone())
-                .child(status)
-                .test_support()
-                .into_any_element(),
-        ];
-        if dirty {
-            controls.push(
-                div()
-                    .id("note-unsaved-chip")
-                    .px_1()
-                    .bg(rgb(p.comment))
-                    .child("● unsaved")
-                    .test_support()
-                    .into_any_element(),
-            );
-        }
+        let comments = if pending > 0 {
+            format!("Comments · {pending}")
+        } else {
+            "Comments".into()
+        };
         controls.push(
             if pending > 0 {
                 pill("toggle-margin", pending.to_string())
                     .icon(IconName::MessageSquare)
-                    .accessibility_label(format!("Comments · {pending}"))
+                    .accessibility_label(comments)
             } else {
-                components::icon_button("toggle-margin", IconName::MessageSquare, "Comments")
+                components::icon_button("toggle-margin", IconName::MessageSquare, comments)
             }
             .selected(self.margin)
-            .tooltip("Comments in the margin")
+            .tooltip(if self.margin {
+                "Hide comments · select text to comment (⌘/)"
+            } else {
+                "Show comments · select text to comment (⌘/)"
+            })
             .on_click(cx.listener(|this, _, _, cx| {
                 this.margin = !this.margin;
                 cx.notify();
             }))
             .into_any_element(),
         );
-        controls.push(
-            pill("edit-note-context", "Edit note")
-                .disabled(!self.can_edit_note_context())
-                .tooltip("Give BRN an instruction for this saved note")
-                .on_click(cx.listener(|this, _, window, cx| this.edit_note_dialog(window, cx)))
-                .into_any_element(),
-        );
-        controls.push(
-            pill("note-connections", "Connections")
-                .tooltip("Linked notes and sources of this note")
-                .on_click(cx.listener(|this, _, window, cx| {
-                    this.show_tile(TileKind::Connections, window, cx)
-                }))
-                .into_any_element(),
-        );
+        if !fit.actions_in_menu() {
+            let blocked = self.edit_note_blocked();
+            controls.push(
+                pill("edit-note-context", "Edit note")
+                    .disabled(blocked.is_some())
+                    .accessibility_label(match blocked {
+                        Some(reason) => format!("Edit note, unavailable: {reason}"),
+                        None => "Edit note".into(),
+                    })
+                    .tooltip(match blocked {
+                        Some(reason) => format!("Edit note is unavailable: {reason}"),
+                        None => "Give BRN an instruction for this saved note".into(),
+                    })
+                    .on_click(cx.listener(|this, _, window, cx| this.edit_note_dialog(window, cx)))
+                    .into_any_element(),
+            );
+            controls.push(
+                pill("note-connections", "Connections")
+                    .tooltip("Linked notes and sources of this note")
+                    .on_click(cx.listener(|this, _, window, cx| {
+                        this.show_tile(TileKind::Connections, window, cx)
+                    }))
+                    .into_any_element(),
+            );
+        }
         controls
     }
     /// The Note ⋯'s own items for the open note outside review. The panel
@@ -767,6 +781,9 @@ impl ThreadsUi {
         let busy = self.worker.is_some();
         let imported = note.import.is_some();
         let protected = note.protected;
+        // A narrow Note keeps Edit note and Connections here instead.
+        let collapsed = self.note_fit.actions_in_menu();
+        let edit_blocked = self.edit_note_blocked();
         Some(move |menu: PopupMenu| {
             let mut menu = menu
                 .item(item(
@@ -776,14 +793,6 @@ impl ThreadsUi {
                     !dirty,
                     false,
                     |view, window, cx| view.save(window, cx),
-                ))
-                .item(item(
-                    &this,
-                    "Discard edit",
-                    None,
-                    !dirty,
-                    false,
-                    |view, window, cx| view.discard(window, cx),
                 ))
                 .item(item(
                     &this,
@@ -825,7 +834,30 @@ impl ThreadsUi {
                     dirty || busy,
                     false,
                     |view, _, cx| view.rewrite_note(cx),
-                ))
+                ));
+            if collapsed {
+                menu = menu
+                    .item(item(
+                        &this,
+                        match edit_blocked {
+                            Some(reason) => format!("Edit note… · {reason}"),
+                            None => "Edit note…".into(),
+                        },
+                        None,
+                        edit_blocked.is_some(),
+                        false,
+                        |view, window, cx| view.edit_note_dialog(window, cx),
+                    ))
+                    .item(item(
+                        &this,
+                        "Connections",
+                        None,
+                        false,
+                        false,
+                        |view, window, cx| view.show_tile(TileKind::Connections, window, cx),
+                    ));
+            }
+            let mut menu = menu
                 .separator()
                 .item(item(
                     &this,
@@ -860,17 +892,53 @@ impl ThreadsUi {
                     },
                 ));
             }
-            menu.separator().item(item(
-                &this,
-                "New chat for this note",
-                None,
-                false,
-                false,
-                |view, window, cx| {
-                    view.new_writing_thread(window, cx);
-                },
-            ))
+            // The destructive item comes last and confirms in a dialog.
+            menu.separator()
+                .item(item(
+                    &this,
+                    "New chat for this note",
+                    None,
+                    false,
+                    false,
+                    |view, window, cx| {
+                        view.new_writing_thread(window, cx);
+                    },
+                ))
+                .separator()
+                .item(item(
+                    &this,
+                    "Discard edit…",
+                    None,
+                    !dirty,
+                    false,
+                    |view, window, cx| view.confirm_discard(window, cx),
+                ))
         })
+    }
+    /// Discarding closes the edit with no Undo, so it always confirms; ↵ is
+    /// inert and only the danger button discards.
+    pub(super) fn confirm_discard(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        let Some(session) = self.note.as_ref().and_then(|open| open.session.clone()) else {
+            return;
+        };
+        let body = format!(
+            "Your changes since v{} will be lost. This can't be undone.",
+            session.base_version
+        );
+        let target = cx.entity().downgrade();
+        window.open_dialog(cx, move |dialog, _, _| {
+            let target = target.clone();
+            components::consequence_dialog(
+                dialog,
+                "discard-note",
+                "Discard your unsaved edit?",
+                body.clone(),
+                "Discard",
+                std::rc::Rc::new(move |window, cx| {
+                    let _ = target.update(cx, |view, cx| view.discard(window, cx));
+                }),
+            )
+        });
     }
     pub(super) fn note_tile(
         &mut self,
@@ -884,34 +952,28 @@ impl ThreadsUi {
         self.sync_read_marks(cx);
         let p = pal();
         let Some(open) = &self.note else {
-            return scroll("note-empty-state")
-                .p_4()
-                .gap_3()
-                .child(empty(
+            return div()
+                .id("note-empty-state")
+                .size_full()
+                .flex()
+                .items_center()
+                .justify_center()
+                .child(components::empty_state(
                     "note-empty",
-                    "Pick a note from the notes tile or ⌘K, or create one with ⌘N.",
+                    IconName::FileText,
+                    "No note open",
+                    "Open one from Notes or ⌘K.",
+                    Some(
+                        button("new-note")
+                            .label("New note")
+                            .outline()
+                            .tooltip("New note (⌘N)")
+                            .on_click(cx.listener(|this, _, window, cx| this.new_note(window, cx))),
+                    ),
                 ))
-                .child(
-                    div()
-                        .flex()
-                        .gap_2()
-                        .child(
-                            button("note-open-notes")
-                                .label("Open notes")
-                                .on_click(cx.listener(|this, _, window, cx| {
-                                    this.show_tile(TileKind::Notes, window, cx)
-                                })),
-                        )
-                        .child(button("new-note").label("New note ⌘N").on_click(
-                            cx.listener(|this, _, window, cx| this.new_note(window, cx)),
-                        )),
-                )
                 .into_any_element();
         };
         let _ = window;
-        let RecordData::Note(note) = &open.record.data else {
-            return div().into_any_element();
-        };
         let dirty = open.session.is_some();
         let blocked = self.recovery_blocked();
         let mut content = div()
@@ -919,162 +981,25 @@ impl ThreadsUi {
             .size_full()
             .flex()
             .flex_col()
-            .min_h_0()
-            .child(self.document_toolbar(cx));
-        let mut banners = div()
-            .flex()
-            .flex_col()
-            .gap_1()
-            .px_3()
-            .pt_2()
-            .flex_shrink_0();
-        if let Some(current) = self.records.iter().find(|r| r.id == open.record.id)
-            && current.version != open.record.version
-        {
-            let id = open.record.id.clone();
-            banners = banners.child(
+            .min_h_0();
+        // Banners sit between the toolbar and the text and are never hidden
+        // to make room; hairlines separate adjacent ones. In a short Note only
+        // the saved-version preview gives up height, after the text.
+        let banners = self.note_banners(cx);
+        if !banners.is_empty() {
+            content = content.child(
                 div()
                     .flex()
-                    .items_center()
-                    .gap_2()
-                    .text_size(UI_TEXT)
-                    .child(
-                        "This note has a newer saved version. Your visible text remains preserved.",
-                    )
-                    .child(
-                        pill("show-current-note", "Open current saved note").on_click(cx.listener(
-                            move |this, _, window, cx| this.open_note(&id, None, window, cx),
-                        )),
-                    ),
+                    .flex_col()
+                    .flex_shrink(1.)
+                    .min_h_0()
+                    .gap(px(1.))
+                    .bg(rgb(p.hairline))
+                    .border_b_1()
+                    .border_color(rgb(p.hairline))
+                    .children(banners),
             );
         }
-        if blocked && let Some(buffer) = self.buffers.iter().find(|s| s.note == open.record.id) {
-            let buffer = buffer.clone();
-            let id = buffer.note.clone();
-            banners = banners.child(
-                div()
-                    .flex()
-                    .items_center()
-                    .gap_2()
-                    .text_size(UI_TEXT)
-                    .child("A recoverable edit exists for this note. The text is read-only until you recover it.")
-                    .child(
-                        pill("recover-note-edit", "Recover saved edit").on_click(cx.listener(
-                            move |this, _, window, cx| this.open_note(&id, Some(buffer.clone()), window, cx),
-                        )),
-                    ),
-            );
-        }
-        if let Some(coverage) = &note.import {
-            let intent = if coverage.full_note {
-                "Full imported reference"
-            } else {
-                "Useful information"
-            };
-            let (summary, details) = if let Some(report) = &coverage.report {
-                (
-                    report.summary(),
-                    report
-                        .issues
-                        .iter()
-                        .map(ImportIssue::display)
-                        .collect::<Vec<_>>(),
-                )
-            } else {
-                (
-                    if coverage.gaps.is_empty() {
-                        "Coverage not recorded"
-                    } else {
-                        "Partial / coverage requires inspection"
-                    },
-                    coverage.gaps.clone(),
-                )
-            };
-            let mut line = div().flex().flex_wrap().items_center().gap_2().child(
-                div()
-                    .id("note-import-summary")
-                    .text_size(SMALL_TEXT)
-                    .font_family(UI_FONT)
-                    .text_color(rgb(p.muted))
-                    .child(format!("{intent} · {summary}"))
-                    .test_support(),
-            );
-            if let Some(record) = self.records.iter().find(|r| r.id == coverage.source)
-                && let RecordData::Source(source) = &record.data
-            {
-                let locator = source.locator.clone();
-                line = line.child(pill("open-import-original", "open original").on_click(
-                    move |_, _, cx| {
-                        if std::path::Path::new(&locator).is_absolute() {
-                            cx.open_with_system(std::path::Path::new(&locator));
-                        } else if locator.starts_with("https://") || locator.starts_with("http://")
-                        {
-                            cx.open_url(&locator);
-                        }
-                    },
-                ));
-            }
-            if !details.is_empty() {
-                line = line.child(
-                    pill(
-                        "toggle-coverage",
-                        format!("coverage details ({})", details.len()),
-                    )
-                    .selected(self.show_coverage)
-                    .on_click(cx.listener(|this, _, _, cx| {
-                        this.show_coverage = !this.show_coverage;
-                        cx.notify();
-                    })),
-                );
-            }
-            banners = banners.child(line);
-            if self.show_coverage && !details.is_empty() {
-                // Provenance may contain long paths and many qualifications.
-                // Keep every issue scrollable without consuming the note body.
-                banners = banners.child(
-                    div()
-                        .id("note-coverage-details")
-                        .w_full()
-                        .max_h(px(120.))
-                        .flex_shrink_0()
-                        .overflow_y_scroll()
-                        .flex()
-                        .flex_col()
-                        .gap_1()
-                        .border_1()
-                        .border_color(rgb(p.border))
-                        .bg(rgb(p.alt))
-                        .p_2()
-                        .child(
-                            div()
-                                .text_size(UI_TEXT)
-                                .child(format!("Coverage details ({})", details.len())),
-                        )
-                        .children(details.into_iter().enumerate().map(|(index, detail)| {
-                            div()
-                                .id(format!("note-coverage-detail-{index}"))
-                                .flex_shrink_0()
-                                .text_size(UI_TEXT)
-                                .child(detail)
-                                .test_support()
-                        }))
-                        .test_support(),
-                );
-            }
-        }
-        if let Some(session) = &open.session
-            && self
-                .records
-                .iter()
-                .any(|r| r.id == session.note && r.version != session.base_version)
-        {
-            banners = banners.child(
-                panel()
-                    .child("The current note changed since this edit began. Your text is preserved; compare, then save your text as a new note if needed.")
-                    .child(div().h(px(180.)).child(markdown(&self.current_view, self.note_assets()))),
-            );
-        }
-        content = content.child(banners);
         if let Some((_, quote)) = &self.selection
             && !blocked
         {
@@ -1082,23 +1007,24 @@ impl ThreadsUi {
                 .id("selection-toolbar")
                 .flex()
                 .flex_wrap()
+                .flex_shrink_0()
                 .items_center()
                 .gap_1()
-                .mx_3()
-                .mt_1()
-                .px_2()
+                .min_h(components::tokens::TOOLBAR)
+                .px_3()
                 .py_1()
                 .bg(rgb(p.alt))
-                .border_1()
-                .border_color(rgb(p.border))
+                .border_b_1()
+                .border_color(rgb(p.hairline))
+                .font_family(UI_FONT)
                 .text_size(SMALL_TEXT)
                 .child(
                     div()
                         .flex_1()
                         .min_w_0()
-                        .overflow_hidden()
-                        .whitespace_nowrap()
-                        .child(format!("❝ {}", short(quote))),
+                        .truncate()
+                        .text_color(rgb(p.muted))
+                        .child(format!("“{}”", short(quote))),
                 )
                 .child(
                     pill(
@@ -1130,82 +1056,64 @@ impl ThreadsUi {
                     cx.listener(|this, _, window, cx| this.ask_about_selection(window, cx)),
                 ));
             if dirty {
+                let reason =
+                    "Save and comment saves your edit first, then comments on this passage.";
                 strip = strip.child(
                     div()
                         .id("selection-comment-reason")
                         .w_full()
                         .text_color(rgb(p.muted))
-                        .child("Your edit is recoverable. Save and comment commits it before anchoring feedback to this passage.")
+                        .aria_label(reason)
+                        .child(reason)
                         .test_support(),
                 );
             }
             content = content.child(strip.test_support());
         }
-        let text = self.note_editor.read(cx).value().to_string();
-        let mut nav = div()
-            .flex()
-            .flex_wrap()
-            .gap_1()
-            .px_3()
-            .pt_1()
-            .flex_shrink_0();
-        for (i, (title, range)) in sections(&text).into_iter().enumerate().take(24) {
-            nav = nav.child(
-                pill(
-                    format!("section-{i}"),
-                    short(
-                        title
-                            .strip_prefix("**")
-                            .and_then(|value| value.strip_suffix("**"))
-                            .unwrap_or(&title),
-                    ),
-                )
-                .on_click(
-                    cx.listener(move |this, _, window, cx| this.reveal(range.clone(), window, cx)),
-                ),
-            );
-        }
-        if !self.note_reading {
-            content = content.child(nav);
-        }
-        let editor = prose_editor(&self.note_editor)
-            .h_full()
-            .readonly(blocked)
-            .aria_label("Note text")
-            .context_menu(move |menu, _, _| {
-                menu.menu_with_disabled(
-                    if dirty {
-                        "Comment on selection · save first"
-                    } else {
-                        "Comment on selection"
-                    },
-                    dirty,
-                    Box::new(CommentSelection),
-                )
-                .menu("Ask in chat", Box::new(AskAboutSelection))
-                .separator()
-                .menu_with_disabled("Cut", blocked, Box::new(gpui_kit::base::input::Cut))
-                .menu("Copy", Box::new(gpui_kit::base::input::Copy))
-                .menu_with_disabled("Paste", blocked, Box::new(gpui_kit::base::input::Paste))
-                .separator()
-                .menu("Select All", Box::new(gpui_kit::base::input::SelectAll))
-            })
-            .into_any_element();
         let editor = if self.note_reading {
             super::document::readable_document(&self.note_read_view, self.note_assets())
                 .into_any_element()
         } else {
-            editor
+            prose_editor(&self.note_editor)
+                .h_full()
+                .readonly(blocked)
+                .aria_label("Note text")
+                .context_menu(move |menu, _, _| {
+                    menu.menu_with_disabled(
+                        if dirty {
+                            "Comment on selection · save first"
+                        } else {
+                            "Comment on selection"
+                        },
+                        dirty,
+                        Box::new(CommentSelection),
+                    )
+                    .menu("Ask in chat", Box::new(AskAboutSelection))
+                    .separator()
+                    .menu_with_disabled("Cut", blocked, Box::new(gpui_kit::base::input::Cut))
+                    .menu("Copy", Box::new(gpui_kit::base::input::Copy))
+                    .menu_with_disabled("Paste", blocked, Box::new(gpui_kit::base::input::Paste))
+                    .separator()
+                    .menu("Select All", Box::new(gpui_kit::base::input::SelectAll))
+                })
+                .into_any_element()
         };
-        let mut body = div().flex().flex_1().min_h_0().gap_2().p_2().child(
+        let centered = self.layout.maximized() == Some(TileKind::Note);
+        // The text keeps a few lines however many banners a short Note shows.
+        let mut body = div().flex().flex_1().min_h(px(48.)).child(
             div()
                 .id("note-body")
+                .flex()
                 .flex_1()
                 .min_w_0()
                 .min_h_0()
-                .px_3()
-                .py_2()
-                .child(editor)
+                .when(centered, |body| body.justify_center())
+                .child(
+                    reading_column()
+                        .id("note-column")
+                        .child(editor)
+                        .test_support(),
+                )
                 .on_mouse_up(
                     gpui_kit::MouseButton::Left,
                     cx.listener(|this, _, _, cx| this.track_selection(cx)),
@@ -1219,12 +1127,238 @@ impl ThreadsUi {
         content
             .child(body)
             .child(self.writing_activity(cx))
+            .child(self.writing_run_status())
             .child(self.writing_proposals(cx))
             .child(self.writing_result())
-            .child(self.overall_feedback())
             .child(self.note_bar(cx))
             .test_support()
             .into_any_element()
+    }
+    /// The Note's banners, top to bottom: a kept edit, the edit's stale base
+    /// (with the saved version) or a newer saved version, and the import
+    /// summary with its coverage details.
+    fn note_banners(&self, cx: &mut Context<Self>) -> Vec<gpui_kit::AnyElement> {
+        let p = pal();
+        let mut banners = vec![];
+        let Some(open) = &self.note else {
+            return banners;
+        };
+        let RecordData::Note(note) = &open.record.data else {
+            return banners;
+        };
+        if self.recovery_blocked()
+            && let Some(buffer) = self.buffers.iter().find(|s| s.note == open.record.id)
+        {
+            let (buffer, id) = (buffer.clone(), buffer.note.clone());
+            banners.push(
+                components::banner(
+                    "note-recover-banner",
+                    Tone::Warning,
+                    "An unsaved edit was kept. This note is read-only until you recover it.",
+                    vec![
+                        banner_button("recover-note-edit", "Recover edit")
+                            .on_click(cx.listener(move |this, _, window, cx| {
+                                this.open_note(&id, Some(buffer.clone()), window, cx)
+                            }))
+                            .into_any_element(),
+                    ],
+                    None,
+                )
+                .into_any_element(),
+            );
+        }
+        let id = open.record.id.clone();
+        let current = move |cx: &mut Context<Self>| {
+            let id = id.clone();
+            banner_button("show-current-note", "Open current version")
+                .on_click(
+                    cx.listener(move |this, _, window, cx| this.open_note(&id, None, window, cx)),
+                )
+                .into_any_element()
+        };
+        // An open edit usually makes both version facts true; the stale-edit
+        // banner states both, so Open current version renders once.
+        if self.edit_is_stale() {
+            banners.push(
+                components::banner(
+                    "note-stale-banner",
+                    Tone::Warning,
+                    "This note changed since your edit began. Your text is kept. Compare it with the saved version below, or save your text as a new note.",
+                    vec![
+                        button("save-buffer-copy")
+                            .label("Save as new note")
+                            .compact()
+                            .primary()
+                            .h(components::tokens::COMPACT_CONTROL)
+                            .tooltip("Save your text as a separate working note")
+                            .on_click(cx.listener(|this, _, window, cx| this.save_copy(window, cx)))
+                            .into_any_element(),
+                        current(cx),
+                    ],
+                    None,
+                )
+                .into_any_element(),
+            );
+            banners.push(
+                div()
+                    .id("note-stale-preview")
+                    .flex()
+                    .flex_col()
+                    .h(px(204.))
+                    .min_h(px(84.))
+                    .flex_shrink(1.)
+                    .bg(rgb(p.alt))
+                    .child(
+                        div()
+                            .px_3()
+                            .py_1()
+                            .font_family(UI_FONT)
+                            .text_size(SMALL_TEXT)
+                            .text_color(rgb(p.muted))
+                            .border_b_1()
+                            .border_color(rgb(p.hairline))
+                            .child("Saved version"),
+                    )
+                    .child(
+                        div()
+                            .flex_1()
+                            .min_h_0()
+                            .px_3()
+                            .child(markdown(&self.current_view, self.note_assets())),
+                    )
+                    .test_support()
+                    .into_any_element(),
+            );
+        } else if self
+            .records
+            .iter()
+            .any(|r| r.id == open.record.id && r.version != open.record.version)
+        {
+            banners.push(
+                components::banner(
+                    "note-newer-banner",
+                    Tone::Warning,
+                    "A newer version of this note is saved. Your visible text is kept.",
+                    vec![current(cx)],
+                    None,
+                )
+                .into_any_element(),
+            );
+        }
+        if let Some(coverage) = &note.import {
+            let intent = if coverage.full_note {
+                "Full imported reference"
+            } else {
+                "Useful information"
+            };
+            // Info only when the report records full coverage.
+            let (summary, details, checked) = if let Some(report) = &coverage.report {
+                (
+                    report.summary(),
+                    report
+                        .issues
+                        .iter()
+                        .map(ImportIssue::display)
+                        .collect::<Vec<_>>(),
+                    report.status == ImportStatus::Complete
+                        && report.issues.iter().all(|issue| {
+                            !matches!(
+                                issue.kind,
+                                ImportIssueKind::Omission | ImportIssueKind::Unverified
+                            )
+                        }),
+                )
+            } else {
+                (
+                    if coverage.gaps.is_empty() {
+                        "Coverage not recorded"
+                    } else {
+                        "Partial / coverage requires inspection"
+                    },
+                    coverage.gaps.clone(),
+                    false,
+                )
+            };
+            let mut actions = vec![];
+            if let Some(record) = self.records.iter().find(|r| r.id == coverage.source)
+                && let RecordData::Source(source) = &record.data
+            {
+                let locator = source.locator.clone();
+                actions.push(
+                    banner_button("open-import-original", "Open original")
+                        .on_click(move |_, _, cx| {
+                            if std::path::Path::new(&locator).is_absolute() {
+                                cx.open_with_system(std::path::Path::new(&locator));
+                            } else if locator.starts_with("https://")
+                                || locator.starts_with("http://")
+                            {
+                                cx.open_url(&locator);
+                            }
+                        })
+                        .into_any_element(),
+                );
+            }
+            if !details.is_empty() {
+                actions.push(
+                    pill(
+                        "toggle-coverage",
+                        format!("Coverage details ({})", details.len()),
+                    )
+                    .selected(self.show_coverage)
+                    .on_click(cx.listener(|this, _, _, cx| {
+                        this.show_coverage = !this.show_coverage;
+                        cx.notify();
+                    }))
+                    .into_any_element(),
+                );
+            }
+            banners.push(
+                components::banner(
+                    "note-import-summary",
+                    if checked { Tone::Info } else { Tone::Warning },
+                    format!("{intent} · {summary}"),
+                    actions,
+                    None,
+                )
+                .into_any_element(),
+            );
+            if self.show_coverage && !details.is_empty() {
+                // Provenance may contain long paths and many qualifications.
+                // Keep every issue scrollable without consuming the note body.
+                banners.push(
+                    div()
+                        .id("note-coverage-details")
+                        .w_full()
+                        .max_h(px(120.))
+                        .flex_shrink_0()
+                        .overflow_y_scroll()
+                        .flex()
+                        .flex_col()
+                        .gap_1()
+                        .bg(rgb(p.alt))
+                        .px_3()
+                        .py_2()
+                        .font_family(UI_FONT)
+                        .child(
+                            div()
+                                .text_size(SMALL_TEXT)
+                                .text_color(rgb(p.muted))
+                                .child(format!("Coverage details ({})", details.len())),
+                        )
+                        .children(details.into_iter().enumerate().map(|(index, detail)| {
+                            div()
+                                .id(format!("note-coverage-detail-{index}"))
+                                .flex_shrink_0()
+                                .text_size(UI_TEXT)
+                                .child(detail)
+                                .test_support()
+                        }))
+                        .test_support()
+                        .into_any_element(),
+                );
+            }
+        }
+        banners
     }
     fn margin_column(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         let p = pal();
@@ -1492,7 +1626,7 @@ impl ThreadsUi {
             .text_size(UI_TEXT)
             .bg(rgb(p.alt))
             .border_t_1()
-            .border_color(rgb(p.border));
+            .border_color(rgb(p.hairline));
         let comments = self.workspace.writing_comments(&note_id);
         let feedback_error = comments.is_err();
         let comments = comments.unwrap_or_default();
@@ -1558,28 +1692,60 @@ impl ThreadsUi {
             }
             bar = bar.child(disclosure.test_support());
         }
-        let mut line = div().flex().flex_wrap().items_center().gap_1();
+        bar = bar.child(self.overall_feedback());
+        // The first matching row picks the one filled primary; controls of
+        // lower matching rows still render once, outline or ghost.
+        let busy = self.worker.is_some();
+        let proposals = self
+            .candidates
+            .iter()
+            .any(|candidate| self.writing_candidate_note(candidate).as_deref() == Some(&note_id));
+        let Some(row) = self.writing_bar_row() else {
+            return div().into_any_element();
+        };
+        let mut info: Vec<gpui_kit::AnyElement> = vec![];
+        let mut secondary: Vec<gpui_kit::AnyElement> = vec![];
+        let mut primary: Option<gpui_kit::AnyElement> = None;
+        let mut reason: Option<&'static str> = None;
         if dirty {
-            line = line
-                .child(
-                    div()
-                        .text_color(rgb(p.accent))
-                        .child("● unsaved edit · recoverable"),
+            info.push(
+                components::status_chip(
+                    "note-unsaved-chip",
+                    Some(Tone::Warning),
+                    None,
+                    "Unsaved edit · recoverable",
                 )
-                .child(
-                    pill("save-note", "save ⌘S")
-                        .primary()
-                        .on_click(cx.listener(|this, _, window, cx| this.save(window, cx))),
-                )
-                .child(
-                    pill("discard-note", "discard")
-                        .on_click(cx.listener(|this, _, window, cx| this.discard(window, cx))),
-                )
-                .child(
-                    pill("save-buffer-copy", "save as new note")
-                        .on_click(cx.listener(|this, _, window, cx| this.save_copy(window, cx))),
+                .into_any_element(),
+            );
+            secondary.push(
+                pill("discard-note", "Discard…")
+                    .tooltip("Discard your unsaved edit; asks first")
+                    .on_click(cx.listener(|this, _, window, cx| this.confirm_discard(window, cx)))
+                    .into_any_element(),
+            );
+            // While the note changed since the edit began, Save as new note
+            // is the stale-edit banner's primary and renders only there.
+            if row != WritingRow::DirtyStale {
+                secondary.push(
+                    pill("save-buffer-copy", "Save as new note")
+                        .tooltip("Save your text as a separate working note")
+                        .on_click(cx.listener(|this, _, window, cx| this.save_copy(window, cx)))
+                        .into_any_element(),
                 );
-        } else if let Some((request, operation, snapshot)) = &applied {
+            }
+            let save = button("save-note")
+                .label("Save ⌘S")
+                .compact()
+                .h(components::tokens::COMPACT_CONTROL)
+                .tooltip("Save this edit (⌘S)")
+                .on_click(cx.listener(|this, _, window, cx| this.save(window, cx)));
+            if row == WritingRow::Dirty {
+                primary = Some(save.primary().into_any_element());
+            } else {
+                secondary.push(save.ghost().into_any_element());
+            }
+        }
+        if let Some((request, operation, snapshot)) = &applied {
             let open_ids: Vec<String> = snapshot
                 .comments
                 .iter()
@@ -1593,61 +1759,84 @@ impl ThreadsUi {
             let (request, operation_mark, undo) =
                 (request.clone(), operation.clone(), operation.clone());
             let clear = note_id.clone();
-            line = line
-                .child(
-                    div()
-                        .id("applied-state")
-                        .child(format!(
-                            "✓ applied · v{}{}",
-                            open.record.version,
-                            if open_ids.is_empty() && !snapshot.comments.is_empty() {
-                                format!(" · {} comments addressed", snapshot.comments.len())
-                            } else {
-                                String::new()
-                            }
-                        ))
-                        .test_support(),
+            info.push(
+                components::status_chip(
+                    "applied-state",
+                    Some(Tone::Success),
+                    Some(IconName::CircleCheck),
+                    format!(
+                        "Applied · v{}{}",
+                        open.record.version,
+                        if open_ids.is_empty() && !snapshot.comments.is_empty() {
+                            format!(
+                                " · {} addressed",
+                                plural(snapshot.comments.len(), "comment")
+                            )
+                        } else {
+                            String::new()
+                        }
+                    ),
                 )
-                .child(div().flex_1())
-                .child(
-                    pill(
-                        "confirm-addressed",
-                        format!("mark {} comments addressed", open_ids.len()),
+                .into_any_element(),
+            );
+            info.push(
+                components::icon_button("clear-applied", IconName::Close, "Hide")
+                    .tooltip("Hide; Changes keeps it and its Undo")
+                    .on_click(cx.listener(move |this, _, _, cx| {
+                        this.applied_rewrite.remove(&clear);
+                        cx.notify();
+                    }))
+                    .into_any_element(),
+            );
+            secondary.push(
+                pill("undo-writing-apply", "Undo")
+                    .tooltip("Undo the applied rewrite; Changes keeps the record")
+                    .on_click(
+                        cx.listener(move |this, _, window, cx| {
+                            this.undo_receipt(&undo, window, cx)
+                        }),
                     )
-                    .disabled(open_ids.is_empty())
+                    .into_any_element(),
+            );
+            let again_blocked = if busy {
+                Some("BRN is working")
+            } else if dirty {
+                Some("save your edit first")
+            } else {
+                None
+            };
+            secondary.push(
+                pill("rewrite-again", "Rewrite again")
+                    .disabled(again_blocked.is_some())
+                    .when_some(again_blocked, |button, why| {
+                        button
+                            .accessibility_label(format!("Rewrite again, unavailable: {why}"))
+                            .tooltip(format!("Rewrite again is unavailable: {why}"))
+                    })
+                    .on_click(cx.listener(|this, _, _, cx| this.rewrite_note(cx)))
+                    .into_any_element(),
+            );
+            if !open_ids.is_empty() {
+                let mark = button("confirm-addressed")
+                    .label(format!(
+                        "Mark {} addressed",
+                        plural(open_ids.len(), "comment")
+                    ))
+                    .compact()
+                    .h(components::tokens::COMPACT_CONTROL)
                     .on_click(cx.listener(move |this, _, _, cx| {
                         this.confirm_addressed(&request, &operation_mark, &open_ids, cx)
-                    })),
-                )
-                .child(
-                    pill("undo-writing-apply", "undo")
-                        .tooltip("Undo the applied rewrite (recorded receipt)")
-                        .on_click(cx.listener(move |this, _, window, cx| {
-                            this.undo_receipt(&undo, window, cx)
-                        })),
-                )
-                .child(
-                    button("rewrite-again")
-                        .label("Rewrite again")
-                        .compact()
-                        .primary()
-                        .disabled(self.worker.is_some())
-                        .on_click(cx.listener(|this, _, _, cx| this.rewrite_note(cx))),
-                )
-                .child(
-                    components::icon_button("clear-applied", IconName::Close, "Hide")
-                        .tooltip("Hide; What changed keeps the receipt and its Undo")
-                        .on_click(cx.listener(move |this, _, _, cx| {
-                            this.applied_rewrite.remove(&clear);
-                            cx.notify();
-                        })),
-                );
+                    }));
+                if row == WritingRow::Applied {
+                    primary = Some(mark.primary().into_any_element());
+                } else {
+                    secondary.push(mark.outline().into_any_element());
+                }
+            }
         } else {
             let mut included = 0;
             let mut unresolved_included = false;
-            if let Some(open) = &self.note
-                && let RecordData::Note(note) = &open.record.data
-            {
+            if let RecordData::Note(note) = &open.record.data {
                 for entry in &comments {
                     if let RecordData::Comment(comment) = &entry.record.data
                         && !entry.addressed
@@ -1670,90 +1859,150 @@ impl ThreadsUi {
                         .count()
                 })
                 .unwrap_or_default();
-            let why = if self.worker.is_some() {
-                "BRN is working"
-            } else if feedback_error {
-                "feedback could not load"
-            } else if unresolved_included {
-                "exclude or re-select unlocated comments"
-            } else {
-                ""
-            };
-            line = line.child(
+            let scope = format!(
+                "Whole note · {} · {}",
+                plural(included, "comment"),
+                plural(messages, "saved context message")
+            );
+            info.push(
                 div()
                     .id("rewrite-scope")
-                    .child(format!(
-                        "Whole note · {included} comment{} · {messages} saved context message{}",
-                        if included == 1 { "" } else { "s" },
-                        if messages == 1 { "" } else { "s" }
-                    ))
-                    .test_support(),
+                    .flex_shrink(1.)
+                    .min_w_0()
+                    .truncate()
+                    .text_size(SMALL_TEXT)
+                    .text_color(rgb(p.muted))
+                    .aria_label(scope.clone())
+                    .tooltip({
+                        let scope = SharedString::from(scope.clone());
+                        move |window, cx| {
+                            gpui_kit::component::tooltip::Tooltip::new(scope.clone())
+                                .build(window, cx)
+                        }
+                    })
+                    .child(scope)
+                    .test_support()
+                    .into_any_element(),
             );
+            // Why a rewrite can't start now; shown inline when it blocks the
+            // primary, and always in the control's tooltip and label.
+            let why = if busy {
+                Some("BRN is working")
+            } else if feedback_error {
+                Some("Feedback couldn't load")
+            } else if unresolved_included {
+                Some("Exclude or re-select unlocated comments")
+            } else if dirty {
+                Some("Save your edit first")
+            } else {
+                None
+            };
             if let Some(record) = latest_request {
                 let toggle = record.id.clone();
                 let retry = record.id.clone();
-                line = line
-                    .child(
-                        pill(
-                            "inspect-rewrite-inputs",
-                            if self.expanded_requests.contains(&record.id) {
-                                "hide saved inputs"
-                            } else {
-                                "saved inputs ⓘ"
-                            },
-                        )
-                        .on_click(cx.listener(move |this, _, _, cx| {
-                            if !this.expanded_requests.remove(&toggle) {
-                                this.expanded_requests.insert(toggle.clone());
-                            }
-                            cx.notify();
-                        })),
+                let expanded = self.expanded_requests.contains(&record.id);
+                secondary.push(
+                    components::icon_button(
+                        "inspect-rewrite-inputs",
+                        IconName::Info,
+                        if expanded {
+                            "Hide saved inputs"
+                        } else {
+                            "Saved inputs"
+                        },
                     )
-                    .child(
-                        pill("retry-rewrite", "Retry saved rewrite")
-                            .disabled(
-                                self.worker.is_some()
-                                    || self.candidates.iter().any(|candidate| {
-                                        self.writing_candidate_note(candidate).as_deref()
-                                            == Some(note_id.as_str())
-                                    }),
-                            )
-                            .on_click(cx.listener(move |this, _, _, cx| {
-                                this.retry_rewrite(retry.clone(), cx)
-                            })),
+                    .selected(expanded)
+                    .on_click(cx.listener(move |this, _, _, cx| {
+                        if !this.expanded_requests.remove(&toggle) {
+                            this.expanded_requests.insert(toggle.clone());
+                        }
+                        cx.notify();
+                    }))
+                    .into_any_element(),
+                );
+                let retry_blocked = if busy {
+                    Some("BRN is working")
+                } else if proposals {
+                    Some("Review or dismiss the ready rewrite first")
+                } else if dirty {
+                    Some("Save your edit first")
+                } else {
+                    None
+                };
+                let retry = button("retry-rewrite")
+                    .label("Retry saved rewrite")
+                    .compact()
+                    .h(components::tokens::COMPACT_CONTROL)
+                    .disabled(retry_blocked.is_some())
+                    .accessibility_label(match retry_blocked {
+                        Some(why) => format!("Retry saved rewrite, unavailable: {why}"),
+                        None => "Retry saved rewrite".into(),
+                    })
+                    .tooltip(match retry_blocked {
+                        Some(why) => format!("Retry is unavailable: {why}"),
+                        None => "Run the rewrite again with the same saved inputs".into(),
+                    })
+                    .on_click(
+                        cx.listener(move |this, _, _, cx| this.retry_rewrite(retry.clone(), cx)),
                     );
+                if row == WritingRow::Retry {
+                    reason = retry_blocked;
+                    primary = Some(retry.primary().into_any_element());
+                } else {
+                    secondary.push(retry.ghost().into_any_element());
+                }
             }
             if let Some((_, operation)) = self.applied_rewrite.get(&note_id) {
                 let undo = operation.clone();
-                line =
-                    line.child(
-                        pill("undo-writing-apply", "Undo previous rewrite").on_click(cx.listener(
-                            move |this, _, window, cx| this.undo_receipt(&undo, window, cx),
-                        )),
-                    );
+                secondary.push(
+                    pill("undo-writing-apply", "Undo previous rewrite")
+                        .tooltip("Undo the last applied rewrite; Changes keeps the record")
+                        .on_click(cx.listener(move |this, _, window, cx| {
+                            this.undo_receipt(&undo, window, cx)
+                        }))
+                        .into_any_element(),
+                );
             }
-            line = line.child(div().flex_1());
-            if !why.is_empty() {
-                line = line.child(div().text_color(rgb(p.muted)).child(why));
+            let rewrite = button("rewrite-note")
+                .label("Rewrite with AI ⌘⇧R")
+                .compact()
+                .h(components::tokens::COMPACT_CONTROL)
+                .disabled(why.is_some())
+                .accessibility_label(match why {
+                    Some(why) => format!("Rewrite with AI, unavailable: {why}"),
+                    None => "Rewrite with AI ⌘⇧R".into(),
+                })
+                .tooltip(
+                    "Captures this note, included comments, overall feedback and saved context",
+                )
+                .on_click(cx.listener(|this, _, _, cx| this.rewrite_note(cx)));
+            if matches!(row, WritingRow::Finished | WritingRow::Idle) {
+                reason = why;
+                primary = Some(rewrite.primary().into_any_element());
+            } else {
+                secondary.push(rewrite.ghost().into_any_element());
             }
-            line = line.child(
-                button("rewrite-note")
-                    .label("Rewrite with AI ⌘⇧R")
-                    .compact()
-                    .primary()
-                    .tooltip(
-                        "Captures this note, included comments, overall feedback and saved context",
-                    )
-                    .disabled(!why.is_empty())
-                    .on_click(cx.listener(|this, _, _, cx| this.rewrite_note(cx))),
-            );
         }
-        bar.when_some(self.writing_saved_status(), |bar, status| {
-            bar.child(metadata(status))
-        })
-        .child(line)
-        .test_support()
-        .into_any_element()
+        let line = div()
+            .flex()
+            .flex_wrap()
+            .items_center()
+            .gap_1()
+            .children(info)
+            .child(div().flex_1())
+            .children(secondary)
+            .when_some(reason, |line, why| {
+                line.child(
+                    div()
+                        .id("writing-blocked-reason")
+                        .text_size(SMALL_TEXT)
+                        .text_color(rgb(p.muted))
+                        .child(why)
+                        .test_support(),
+                )
+            })
+            .children(primary);
+        bar.child(line).test_support().into_any_element()
     }
     fn review_body(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         let p = pal();
@@ -2043,12 +2292,16 @@ impl ThreadsUi {
                 ))
                 .unwrap_or_default()
         );
-        let mut document = div()
-            .flex()
-            .size_full()
-            .min_h_0()
-            .min_w_0()
-            .child(div().flex_1().min_w_0().h_full().child(body));
+        let centered = self.layout.maximized() == Some(TileKind::Note);
+        let mut document = div().flex().size_full().min_h_0().min_w_0().child(
+            div()
+                .flex()
+                .flex_1()
+                .min_w_0()
+                .h_full()
+                .when(centered, |text| text.justify_center())
+                .child(reading_column().child(body)),
+        );
         if self.margin
             && self
                 .note
@@ -2070,7 +2323,6 @@ impl ThreadsUi {
                     .id("review-body")
                     .flex_1()
                     .min_h_0()
-                    .p_2()
                     .child(document)
                     .test_support(),
             )
@@ -2301,4 +2553,34 @@ impl ThreadsUi {
         }
         context.test_support().into_any_element()
     }
+}
+
+/// The widest line of note or review text; wider panels keep 24 px gutters
+/// and leave the rest as margin.
+const READING_MEASURE: f32 = 680.;
+
+/// The note and review text column: at most 680 px of text with 24 px
+/// gutters, filling a narrower panel. Long words and URLs wrap.
+fn reading_column() -> gpui_kit::Div {
+    div()
+        .flex_1()
+        .min_w_0()
+        .h_full()
+        .max_w(px(READING_MEASURE) + components::tokens::SPACE_6 * 2.)
+        .px(components::tokens::SPACE_6)
+        .py_2()
+}
+
+/// A banner's secondary action: a 28 px outline button.
+fn banner_button(id: impl Into<gpui_kit::ElementId>, label: &'static str) -> Button {
+    button(id)
+        .label(label)
+        .compact()
+        .outline()
+        .h(components::tokens::COMPACT_CONTROL)
+}
+
+/// "1 comment", "3 comments".
+fn plural(count: usize, noun: &str) -> String {
+    format!("{count} {noun}{}", if count == 1 { "" } else { "s" })
 }

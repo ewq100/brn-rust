@@ -18,7 +18,7 @@ use gpui_kit::{
     component::{
         Root, TitleBar,
         button::{Button, ButtonRounded},
-        input::{Editor, EditorState, Input, InputEvent, InputState},
+        input::{Editor, EditorState, Input, InputEvent, InputState, Textarea, TextareaState},
     },
     div, point,
     prelude::*,
@@ -119,6 +119,9 @@ mod tiled_tests;
 #[cfg(all(test, feature = "native-test-support"))]
 #[path = "threads_omakase_tests.rs"]
 mod omakase_tests;
+#[cfg(all(test, feature = "native-test-support"))]
+#[path = "threads_polish_tests.rs"]
+mod polish_tests;
 
 gpui_kit::actions!(
     brn_threads,
@@ -504,9 +507,11 @@ struct ThreadsUi {
     note: Option<OpenNote>,
     review: Option<Review>,
     margin: bool,
+    /// The Note toolbar's arrangement for the Note panel's current width.
+    note_fit: layout::NoteFit,
     show_coverage: bool,
     selection: Option<(Range<usize>, String)>,
-    general_feedback: Entity<EditorState>,
+    general_feedback: Entity<TextareaState>,
     general_drafts: BTreeMap<String, String>,
     comment_input: Entity<EditorState>,
     comment_anchor: Option<(String, u64, Range<usize>, String)>,
@@ -566,26 +571,27 @@ impl ThreadsUi {
                 .line_number(false)
                 .placeholder("Ask or delegate…")
         });
-        let note_editor = cx.new(|cx| EditorState::new(window, cx).default_value(""));
+        let note_editor = cx.new(|cx| components::prose_editor_state(window, cx).default_value(""));
         let note_read_view = cx.new(|cx| {
             TextViewState::markdown("", cx)
                 .selectable(true)
                 .scrollable(true)
         });
-        let diff_editor = cx.new(|cx| EditorState::new(window, cx).default_value(""));
+        let diff_editor = cx.new(|cx| components::prose_editor_state(window, cx).default_value(""));
         diff_editor.update(cx, |editor, cx| editor.set_readonly(true, cx));
-        let review_editor = cx.new(|cx| EditorState::new(window, cx).default_value(""));
+        let review_editor =
+            cx.new(|cx| components::prose_editor_state(window, cx).default_value(""));
         let comment_input = cx.new(|cx| {
             EditorState::new(window, cx)
                 .line_number(false)
                 .auto_close(false)
                 .placeholder("What should change here?")
         });
+        // One line when empty, growing to four as the owner writes.
         let general_feedback = cx.new(|cx| {
-            EditorState::new(window, cx)
-                .line_number(false)
-                .auto_close(false)
-                .placeholder("Tone, structure, or anything for the whole note…")
+            TextareaState::new(window, cx)
+                .auto_grow(1, 4)
+                .placeholder("Overall feedback: tone, structure, anything for the whole note…")
         });
         let current_view = cx.new(|cx| {
             TextViewState::markdown("", cx)
@@ -804,6 +810,7 @@ impl ThreadsUi {
             note: None,
             review: None,
             margin: true,
+            note_fit: layout::NoteFit::default(),
             show_coverage: false,
             selection: None,
             general_feedback,
@@ -1584,9 +1591,7 @@ impl ThreadsUi {
                 self.open_note(&session.note, None, window, cx);
                 self.inform("Discarded the unsaved edit.");
             }
-            Ok(_) => {
-                self.warn("A newer edit exists. It was preserved; recover it from the notes tile or overview.")
-            }
+            Ok(_) => self.warn("A newer edit exists and was kept. Recover it from Home."),
             Err(e) => self.fail(e.to_string()),
         }
         self.refresh();
@@ -3632,7 +3637,7 @@ impl ThreadsUi {
         match self.workspace.new_note(&name, &text) {
             Ok(record) => {
                 self.open_note(&record.id, None, window, cx);
-                self.inform("Saved your text as a separate working note. The original edit remains recoverable from the overview.");
+                self.inform("Saved your text as a new working note. The original edit stays recoverable from Home.");
             }
             Err(e) => self.fail(e.to_string()),
         };
@@ -3686,7 +3691,12 @@ gpui_kit::assets::icon_assets!(
         MessagesSquare,
         Link,
         RotateCcwClock,
-        Columns2
+        Columns2,
+        Heading,
+        Bold,
+        Italic,
+        List,
+        TextQuote
     ]
 );
 
@@ -3835,6 +3845,12 @@ mod presentation_tests {
             IconName::LoaderCircle,
             IconName::Replace,
             IconName::Check,
+            // Note toolbar formatting.
+            IconName::Heading,
+            IconName::Bold,
+            IconName::Italic,
+            IconName::List,
+            IconName::TextQuote,
         ] {
             let path = icon.path();
             assert!(

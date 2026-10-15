@@ -517,6 +517,9 @@ impl ThreadsUi {
                     cx.notify();
                 }),
             );
+        self.note_fit = self
+            .note_panel_width(window)
+            .map_or(layout::NoteFit::Full, layout::NoteFit::for_width);
         if visible.is_empty() {
             return row
                 .items_center()
@@ -552,8 +555,8 @@ impl ThreadsUi {
                 .h_full()
                 .min_h_0()
                 .min_w(px(kind.min_width()
-                    + if kind == TileKind::Note && self.margin && self.note.is_some() {
-                        250.
+                    + if kind == TileKind::Note {
+                        self.note_margin_width()
                     } else {
                         0.
                     }))
@@ -580,21 +583,19 @@ impl ThreadsUi {
             frame.style().flex_grow = Some(tile.weight);
             frame.style().flex_shrink = Some(1.);
             let header = self.tile_header(kind, cx);
-            let controls = (kind == TileKind::Note).then(|| {
-                div()
-                    .id("note-toolbar")
-                    .flex()
-                    .flex_wrap()
-                    .flex_shrink_0()
-                    .items_center()
-                    .gap_1()
-                    .px_2()
-                    .py_1()
-                    .border_b_1()
-                    .border_color(rgb(p.border))
-                    .children(self.tile_controls(kind, cx))
-                    .test_support()
-            });
+            // The Note's one toolbar row; it folds controls by `note_fit`
+            // rather than wrapping.
+            let controls = if kind == TileKind::Note {
+                let controls = self.tile_controls(kind, cx);
+                (!controls.is_empty()).then(|| {
+                    components::toolbar("note-toolbar")
+                        .overflow_hidden()
+                        .children(controls)
+                        .test_support()
+                })
+            } else {
+                None
+            };
             let body = self.tile_body(kind, window, cx);
             row = row.child(
                 frame
@@ -617,6 +618,32 @@ impl ThreadsUi {
                     .mode(ScrollbarMode::Always),
             )
             .into_any_element()
+    }
+}
+
+impl ThreadsUi {
+    /// Width the comments margin adds to the Note's minimum.
+    fn note_margin_width(&self) -> f32 {
+        if self.margin && self.note.is_some() {
+            250.
+        } else {
+            0.
+        }
+    }
+    /// The Note panel's width as the tile row's flex layout resolves it, from
+    /// the same weights, minimums and gaps the renderer uses.
+    pub(super) fn note_panel_width(&self, window: &Window) -> Option<f32> {
+        let tiles: Vec<(TileKind, f32)> = self
+            .layout
+            .visible()
+            .iter()
+            .map(|tile| (tile.kind, tile.weight))
+            .collect();
+        let index = tiles.iter().position(|(kind, _)| *kind == TileKind::Note)?;
+        let available = f32::from(window.viewport_size().width);
+        layout::panel_widths(available, &tiles, self.note_margin_width())
+            .get(index)
+            .copied()
     }
 }
 

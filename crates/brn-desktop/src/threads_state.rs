@@ -166,7 +166,7 @@ pub(super) fn outcome_message(outcome: &ApplyOutcome) -> String {
 }
 pub(super) fn save_message(outcome: &SaveOutcome) -> &'static str {
     match outcome {
-        SaveOutcome::Saved(_) => "Saved. Your edit is in History.",
+        SaveOutcome::Saved(_) => "Saved. Your edit is in Changes.",
         SaveOutcome::Stale(_) => {
             "The note changed while you were editing. Your text is preserved. Compare the current note or save your text as a new note."
         }
@@ -429,6 +429,34 @@ mod tests {
                 guarded: vec!["n".into()]
             })
             .contains("preserved")
+        );
+    }
+    #[test]
+    fn saved_notices_name_changes_and_the_refresh_follow_up() {
+        let receipt = |needs_refresh: Vec<String>| Receipt {
+            operation: serde_json::from_str("\"synthetic-op\"").unwrap(),
+            request_hash: String::new(),
+            reason: "Owner edit.".into(),
+            writes: vec![],
+            authority: String::new(),
+            committed_at: String::new(),
+            undo_of: None,
+            needs_refresh,
+        };
+        assert_eq!(
+            outcome_message(&ApplyOutcome::Applied(receipt(vec![
+                "a".into(),
+                "b".into()
+            ]))),
+            "Saved. Owner edit. 2 related items may need refresh. Open Changes to review them."
+        );
+        assert_eq!(
+            outcome_message(&ApplyOutcome::Applied(receipt(vec![]))),
+            "Saved. Owner edit."
+        );
+        assert_eq!(
+            save_message(&SaveOutcome::Saved(receipt(vec![]))),
+            "Saved. Your edit is in Changes."
         );
     }
     #[test]

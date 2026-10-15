@@ -335,7 +335,9 @@ pub(super) fn empty_state(
 }
 
 /// BRN's own banner row (Kit's Alert cannot hold actions). It never
-/// dismisses itself. The tone icon is announced as `{id}-tone`.
+/// dismisses itself. The tone icon is announced as `{id}-tone`. Actions sit
+/// beside a short text and wrap below a long one, so the text never narrows
+/// to a column beside them.
 pub(super) fn banner(
     id: impl Into<SharedString>,
     tone: Tone,
@@ -359,15 +361,67 @@ pub(super) fn banner(
         .aria_label(text.clone())
         .child(
             div()
+                .flex_1()
+                .min_w_0()
+                .flex()
+                .flex_wrap()
+                .items_center()
+                .gap_x_3()
+                .gap_y_1()
+                .child(
+                    div()
+                        .flex()
+                        .items_start()
+                        .gap_2()
+                        .min_w_0()
+                        .child(
+                            div()
+                                .id(SharedString::from(format!("{id}-tone")))
+                                .flex_shrink_0()
+                                .mt(px(2.))
+                                .aria_label(tone.word())
+                                .child(tone_icon(tone, Size::Small))
+                                .test_support(),
+                        )
+                        .child(div().min_w_0().child(text)),
+                )
+                .when(!actions.is_empty(), |line| {
+                    line.child(div().flex().flex_wrap().gap_1().children(actions))
+                }),
+        )
+        .children(dismiss)
+        .test_support()
+}
+
+/// A status sentence that wraps in full, never truncated: the tone icon and
+/// text in the tone's color, or muted text when neutral (`None`). The tone is
+/// announced as `{id}-tone`.
+pub(super) fn status_line(
+    id: impl Into<SharedString>,
+    tone: Option<Tone>,
+    text: impl Into<SharedString>,
+) -> gpui_kit::base::ObservedElement<gpui_kit::Stateful<gpui_kit::Div>> {
+    let (id, text) = (id.into(), text.into());
+    div()
+        .id(id.clone())
+        .flex()
+        .items_start()
+        .gap_2()
+        .min_w_0()
+        .font_family(UI_FONT)
+        .text_size(UI_TEXT)
+        .text_color(rgb(tone.map_or(pal().muted, Tone::color)))
+        .aria_label(text.clone())
+        .children(tone.map(|tone| {
+            div()
                 .id(SharedString::from(format!("{id}-tone")))
                 .flex_shrink_0()
+                .mt(px(2.))
                 .aria_label(tone.word())
                 .child(tone_icon(tone, Size::Small))
-                .test_support(),
-        )
+                .test_support()
+        }))
         .child(div().flex_1().min_w_0().child(text))
-        .children(actions)
-        .children(dismiss)
         .test_support()
 }
 
@@ -378,25 +432,50 @@ pub(super) fn status_chip(
     icon: Option<IconName>,
     label: impl Into<SharedString>,
 ) -> gpui_kit::base::ObservedElement<gpui_kit::Stateful<gpui_kit::Div>> {
-    let p = pal();
     let label = label.into();
+    chip(id, tone, icon, label.clone(), label)
+}
+
+/// A status chip that shows less than it says: the visible `text` (for
+/// example "v3"), with the full `label` announced and in the tooltip.
+pub(super) fn short_status_chip(
+    id: impl Into<ElementId>,
+    tone: Option<Tone>,
+    icon: Option<IconName>,
+    text: impl Into<SharedString>,
+    label: impl Into<SharedString>,
+) -> gpui_kit::base::ObservedElement<gpui_kit::Stateful<gpui_kit::Div>> {
+    chip(id, tone, icon, text.into(), label.into())
+}
+
+fn chip(
+    id: impl Into<ElementId>,
+    tone: Option<Tone>,
+    icon: Option<IconName>,
+    text: SharedString,
+    label: SharedString,
+) -> gpui_kit::base::ObservedElement<gpui_kit::Stateful<gpui_kit::Div>> {
+    let p = pal();
     let (bg, fg) = tone.map_or((p.alt, p.muted), |tone| (tone.tint(), tone.color()));
+    let tooltip = (text != label).then(|| label.clone());
     div()
         .id(id)
         .flex_shrink_0()
-        .aria_label(label.clone())
+        .aria_label(label)
+        .when_some(tooltip, |chip, tooltip| {
+            chip.tooltip(move |window, cx| Tooltip::new(tooltip.clone()).build(window, cx))
+        })
         .child(
             Tag::custom(rgb(bg).into(), rgb(fg).into(), rgb(p.hairline).into())
                 .rounded(RADIUS_CHIP)
                 .gap_1()
                 .children(icon.map(|icon| Icon::new(icon).with_size(Size::XSmall)))
-                .child(label),
+                .child(text),
         )
         .test_support()
 }
 
 /// The one row under a panel header, with a hairline below.
-#[allow(dead_code, reason = "S3 moves the Note toolbar onto it")]
 pub(super) fn toolbar(id: impl Into<ElementId>) -> gpui_kit::Stateful<gpui_kit::Div> {
     div()
         .id(id)
@@ -411,7 +490,6 @@ pub(super) fn toolbar(id: impl Into<ElementId>) -> gpui_kit::Stateful<gpui_kit::
 }
 
 /// Prose editors have no line-number gutter. Call inside `cx.new(|cx| ..)`.
-#[allow(dead_code, reason = "S3 builds the prose editors with it")]
 pub(super) fn prose_editor_state(
     window: &mut Window,
     cx: &mut Context<EditorState>,
@@ -420,20 +498,12 @@ pub(super) fn prose_editor_state(
 }
 
 /// What a dialog's confirm does; the dialog builder runs on every render.
-#[allow(
-    dead_code,
-    reason = "S3, S5, S6 and S7 open their destructive dialogs with it"
-)]
 pub(super) type DialogAction = Rc<dyn Fn(&mut Window, &mut App)>;
 
 /// A dialog for an irreversible step: the title states the consequence, the
 /// body says whether it can be undone, and only a click (or Space on the
 /// focused button) confirms. ↵ is inert. IDs: `{id}-body`, `{id}-cancel`,
 /// `{id}-confirm`.
-#[allow(
-    dead_code,
-    reason = "S3, S5, S6 and S7 open their destructive dialogs with it"
-)]
 pub(super) fn consequence_dialog(
     dialog: Dialog,
     id: &str,

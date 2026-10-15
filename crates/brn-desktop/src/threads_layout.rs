@@ -115,11 +115,53 @@ impl MarginMode {
     }
 }
 
+/// How much of the Note toolbar fits on its one row, by the Note panel's
+/// width. Each threshold is the measured width its arrangement needs with a
+/// "Protected · v12" chip and a 12-comment toggle (797, 752 and 543 pt,
+/// padding and borders included), plus about 12 pt for wider versions and
+/// counts. Icons needs 315 pt, under the Note's 360 pt minimum.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord)]
+pub(super) enum NoteFit {
+    /// Format and Outline are icon triggers, and the status chip shows its
+    /// icon and version.
+    Icons,
+    /// Edit note and Connections move into the Note ⋯.
+    Compact,
+    /// The five formatting buttons fold into Format ▾.
+    FormatMenu,
+    #[default]
+    Full,
+}
+impl NoteFit {
+    pub(super) const FULL: f32 = 810.;
+    pub(super) const FORMAT_MENU: f32 = 765.;
+    pub(super) const COMPACT: f32 = 555.;
+    pub(super) fn for_width(width: f32) -> Self {
+        if width >= Self::FULL {
+            Self::Full
+        } else if width >= Self::FORMAT_MENU {
+            Self::FormatMenu
+        } else if width >= Self::COMPACT {
+            Self::Compact
+        } else {
+            Self::Icons
+        }
+    }
+    pub(super) fn format_menu(self) -> bool {
+        self < Self::Full
+    }
+    pub(super) fn actions_in_menu(self) -> bool {
+        self < Self::FormatMenu
+    }
+    pub(super) fn icons(self) -> bool {
+        self == Self::Icons
+    }
+}
+
 /// Resolve layout weights to widths the way flex does: share the space by
 /// weight, pin any panel that would fall below its minimum, and share the rest
 /// again. The Note's minimum includes `margin_width`. When even the minimums
 /// do not fit, every panel gets its minimum and the row scrolls.
-#[allow(dead_code, reason = "S3 and S4 choose content modes with it")]
 pub(super) fn panel_widths(
     available: f32,
     tiles: &[(TileKind, f32)],
@@ -766,6 +808,36 @@ mod width_tests {
         let mut chat = Layout::default();
         chat.apply(Preset::Chat);
         assert_eq!(margin_mode(1600., &chat, false), MarginMode::Stacked);
+    }
+
+    #[test]
+    fn note_toolbar_folds_in_order_as_the_note_narrows() {
+        for (width, fit) in [
+            (1200., NoteFit::Full),
+            (NoteFit::FULL, NoteFit::Full),
+            (NoteFit::FULL - 1., NoteFit::FormatMenu),
+            (NoteFit::FORMAT_MENU, NoteFit::FormatMenu),
+            (NoteFit::FORMAT_MENU - 1., NoteFit::Compact),
+            (NoteFit::COMPACT, NoteFit::Compact),
+            (NoteFit::COMPACT - 1., NoteFit::Icons),
+            (360., NoteFit::Icons),
+        ] {
+            assert_eq!(NoteFit::for_width(width), fit, "{width}");
+        }
+        assert!(!NoteFit::Full.format_menu());
+        assert!(NoteFit::FormatMenu.format_menu() && !NoteFit::FormatMenu.actions_in_menu());
+        assert!(NoteFit::Compact.actions_in_menu() && !NoteFit::Compact.icons());
+        assert!(NoteFit::Icons.icons() && NoteFit::Icons.actions_in_menu());
+        // Write at 1250, 1050 and 900 pt, with the S3 250 pt margin open.
+        let widths = |available| panel_widths(available, &WRITE, 250.)[1];
+        assert_eq!(NoteFit::for_width(widths(1250.)), NoteFit::Compact);
+        assert_eq!(NoteFit::for_width(widths(1050.)), NoteFit::Compact);
+        assert_eq!(NoteFit::for_width(widths(900.)), NoteFit::Compact);
+        // And with it closed: 900 pt leaves the Note about 406 pt.
+        assert_eq!(
+            NoteFit::for_width(panel_widths(900., &WRITE, 0.)[1]),
+            NoteFit::Icons
+        );
     }
 }
 
