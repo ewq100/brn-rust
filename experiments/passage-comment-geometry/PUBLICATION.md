@@ -1,9 +1,12 @@
 # Experiment-only publication
 
-The owner's 15 October 2026 instruction authorizes a PR and merge **only to
-preserve this isolated experiment**, after applicable protected checks/reviews.
-It does not authorize production integration, toolkit adoption, release or
-assignment of the wider C role. C/source/ownership and native acceptance gates
+The owner's latest 15 October 2026 instruction authorizes a normal push and
+**draft PR only** to preserve this isolated experiment as a remote record.
+It supersedes the earlier experiment-only merge authorization. **Do not merge
+or release.** Draft [PR #149](https://github.com/ewq100/brn-rust/pull/149) uses
+`work/passage-comment-geometry` and is titled “experiment: reviewed
+passage-comment positioning prototype”. It does not authorize production
+integration, toolkit adoption or assignment of the wider C role. C/source/ownership and native acceptance gates
 in [INTEGRATION-REVIEW.md](INTEGRATION-REVIEW.md) remain open.
 
 ## Exact reviewed and tested identities
@@ -92,9 +95,13 @@ force-pushes disabled:
 
 No required reviewer count is configured; [applicable rules](evidence/publication-main-rules.json)
 are empty. The completed independent review above remains the review evidence.
-Check live policy and PR state again before merge; no bypass or weakened check.
-PR publication/hosted gates/merge/main verification are pending at this receipt;
-the PR records their exact run identities and eventual result.
+The earlier experiment-only publication created PR #149 at
+`df3fe07b7e08c21a6c327ae96af5b28c3cdce6a1`; hosted checks were queued. The
+latest instruction converts that same PR to draft and stops merge work. The
+subsequent remote-record commit changes only this publication authority record;
+reviewed source, tests, toolkit patch and all evidence remain unchanged.
+Hosted checks may continue, but do not authorize merge. There is no merge or
+release in this assignment; any later merge needs new applicable authority.
 
 **Production integration: none. Toolkit source and production ownership: not
 approved. Native acceptance: pending; Mac locked.** Existing production behavior
