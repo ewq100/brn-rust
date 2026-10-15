@@ -1,0 +1,23 @@
+gpui-pre v0.3.9
+├── gpui-base v0.7.3
+│   ├── gpui-component v0.7.3
+│   │   └── gpui-kit v0.7.3
+│   │       └── brn-z1-zorite v0.1.0 (/Users/evokessler/Documents/Codex/brn-rust/.worktrees/z1-zorite/experiments/z1-zorite)
+│   │       [dev-dependencies]
+│   │       └── brn-z1-zorite v0.1.0 (/Users/evokessler/Documents/Codex/brn-rust/.worktrees/z1-zorite/experiments/z1-zorite)
+│   └── gpui-kit v0.7.3 (*)
+├── gpui-bidi v0.1.1
+│   └── zorite-editor v0.11.2
+│       └── brn-z1-zorite v0.1.0 (/Users/evokessler/Documents/Codex/brn-rust/.worktrees/z1-zorite/experiments/z1-zorite)
+├── gpui-component v0.7.3 (*)
+├── gpui-kit v0.7.3 (*)
+├── gpui-kit-assets v0.7.3
+│   ├── gpui-component v0.7.3 (*)
+│   └── gpui-kit v0.7.3 (*)
+├── gpui-pre-apple v0.3.9
+│   └── gpui-pre-macos v0.3.9
+│       └── gpui-pre-platform v0.3.9
+│           └── gpui-kit v0.7.3 (*)
+├── gpui-pre-macos v0.3.9 (*)
+├── gpui-pre-platform v0.3.9 (*)
+└── zorite-editor v0.11.2 (*)

@@ -1,0 +1,36 @@
+
+running 9 tests
+test byte_ranges_repeated_estonian_combining_emoji_and_crlf ... raw selection "Identical paragraph.\n\nIdentical paragraph.": 22..42 = "Identical paragraph."
+raw selection "tere tere õun — ÕÄÖÜ šž": 5..9 = "tere"
+raw selection "tere tere õun — ÕÄÖÜ šž": 10..32 = "õun — ÕÄÖÜ šž"
+raw selection "a\u{308} before a\u{308}": 11..14 = "a\u{308}"
+raw selection "👩🏽\u{200d}💻 before 👩🏽\u{200d}💻": 23..38 = "👩🏽\u{200d}💻"
+raw selection "First õun.\r\n\r\nSame 🦀.\r\n\r\nSame 🦀.": 29..39 = "Same 🦀."
+ok
+test capture_wrapper_blocks_keys_and_paste_but_input_callbacks_bypass_it ... FAIL read-only qualification: key/action capture blocks typing and cmd-v; direct input-handler paste and marked-text callbacks mutate content
+ok
+test geometry_first_paint_resize_rewrap_and_font ... caret offset 232: wide=Bounds { origin: Point { x: 0px, y: 92.8px }, size: Size { 0px × 23.199997px } }; narrow=Bounds { origin: Point { x: 0px, y: 255.2px }, size: Size { 0px × 23.199997px } }; larger=Bounds { origin: Point { x: 0px, y: 556.80005px }, size: Size { 0px × 34.799988px } }; comment=Point { x: 260px, y: 556.80005px }
+ok
+test ime_api_surface_utf16_marked_text_and_input_commit_only ... IME API only: UTF-16 marked range 5..8 and caret 8; replacement commit clears mark; no native IME claim
+ok
+test margin_comment_element_tracks_caret_after_resize ... FAILED
+test math_load_normalization_is_a_source_fidelity_counterexample ... FAIL exact source identity: loaded "before $$x^2$$ after" as "before\n$$x^2$$\nafter" without Changed
+ok
+test programmatic_replacement_events_undo_redo_and_set_text ... replace_range, Undo, Redo, set_text: no Changed; typing positive control: one event; set_text clears both histories
+ok
+test wysiwyg_hit_testing_and_mouse_selection_use_the_second_occurrence ... WYSIWYG hit mapping: wanted=38..42, hit=38..43, source="# Café 🦀\n\nFirst **echo**.\n\nSecond echo."
+WYSIWYG mouse selection: wanted=38..42, selected=38..43, quote="echo."
+FAILED
+test wysiwyg_source_mapping_against_brn_read_fixtures ... WYSIWYG "# Café 🦀\n\nFirst **echo**.\n\nSecond echo.": editor source=38..42, BRN rendered=30..34, quote="echo"
+WYSIWYG "## Café 🦀\n\nA **formatted** paragraph.": editor source=19..28, BRN rendered=13..22, quote="formatted"
+WYSIWYG "é🦀 same — é🦀 same": editor source=16..27, BRN rendered=16..27, quote="é🦀 same"
+WYSIWYG "# Õun\r\n\r\nA **täpne** a\u{308} 🦀.\r\n\r\nA **täpne** a\u{308} 🦀.": editor source=40..46, BRN rendered=26..32, quote="täpne"
+ok
+
+failures:
+
+failures:
+    margin_comment_element_tracks_caret_after_resize
+    wysiwyg_hit_testing_and_mouse_selection_use_the_second_occurrence
+
+test result: FAILED. 7 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s

@@ -1,0 +1,5 @@
+   Compiling brn-z1-zorite v0.1.0 (/Users/evokessler/Documents/Codex/brn-rust/.worktrees/z1-zorite/experiments/z1-zorite)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.76s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running tests/qualification.rs (/private/tmp/brn-z1-target/debug/deps/qualification-22960e3a4887e7a9)

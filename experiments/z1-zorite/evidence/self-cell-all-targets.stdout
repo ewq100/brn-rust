@@ -1,0 +1,13 @@
+self_cell v1.3.0
+└── cosmic-text v0.19.0
+    └── gpui-pre-wgpu v0.3.9
+        ├── gpui-pre-linux v0.3.9
+        │   └── gpui-pre-platform v0.3.9
+        │       └── gpui-kit v0.7.3
+        │           └── brn-z1-zorite v0.1.0 (/Users/evokessler/Documents/Codex/brn-rust/.worktrees/z1-zorite/experiments/z1-zorite)
+        │           [dev-dependencies]
+        │           └── brn-z1-zorite v0.1.0 (/Users/evokessler/Documents/Codex/brn-rust/.worktrees/z1-zorite/experiments/z1-zorite)
+        ├── gpui-pre-platform v0.3.9 (*)
+        └── gpui-pre-web v0.3.9
+            ├── gpui-kit v0.7.3 (*)
+            └── gpui-pre-platform v0.3.9 (*)

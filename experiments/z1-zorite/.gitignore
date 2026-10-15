@@ -1,0 +1,3 @@
+# Full cargo metadata stays locally available; the committed compact inventory
+# records licenses, sources and the exact baseline/experiment lock hashes.
+/evidence/resolve.stdout

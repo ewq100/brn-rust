@@ -1,0 +1,54 @@
+   Compiling rustix v1.1.5
+   Compiling thiserror v1.0.69
+   Compiling convert_case v0.11.0
+   Compiling thiserror-impl v1.0.69
+   Compiling wait-timeout v0.2.1
+   Compiling bit-vec v0.8.0
+   Compiling quick-error v1.2.3
+   Compiling fnv v1.0.7
+   Compiling gpui-pre v0.3.9
+   Compiling rand_xorshift v0.4.0
+   Compiling crossbeam-queue v0.3.14
+   Compiling static_assertions v1.1.0
+   Compiling atomic v0.5.3
+   Compiling fixedbitset v0.5.7
+   Compiling unarray v0.1.4
+   Compiling bit-set v0.8.0
+   Compiling pollster v0.2.5
+   Compiling gpui-pre-collections v0.3.9
+   Compiling gpui-pre-http-client v0.3.9
+   Compiling proptest-macro v0.5.0
+   Compiling futures-concurrency v7.7.1
+   Compiling tempfile v3.27.0
+   Compiling gpui-component v0.7.3
+   Compiling cbindgen v0.28.0
+   Compiling postage v0.5.0
+   Compiling polling v3.11.0
+   Compiling async-io v2.6.0
+   Compiling rusty-fork v0.3.1
+   Compiling proptest v1.11.0
+   Compiling async-signal v0.2.14
+   Compiling async-net v2.0.0
+   Compiling async-process v2.5.0
+   Compiling smol v2.0.2
+   Compiling gpui-pre-apple v0.3.9
+   Compiling gpui-kit-assets v0.7.3
+   Compiling gpui-base v0.7.3
+   Compiling gpui-bidi v0.1.1
+   Compiling zorite-editor v0.11.2
+   Compiling gpui-pre-macos v0.3.9
+   Compiling gpui-pre-platform v0.3.9
+   Compiling gpui-kit v0.7.3
+   Compiling brn-z1-zorite v0.1.0 (/Users/evokessler/Documents/Codex/brn-rust/.worktrees/z1-zorite/experiments/z1-zorite)
+error[E0277]: the trait bound `gpui_kit::Image: Into<ImageSource>` is not satisfied
+  --> tests/common/mod.rs:66:100
+   |
+66 |             ).image_source(|_| gpui_kit::Image::from_bytes(gpui_kit::ImageFormat::Png, Vec::new()).into())
+   |                                                                                                    ^^^^ the trait `for<'a, 'b> Fn(&'a mut gpui_kit::Window, &'b mut App)` is not implemented for `gpui_kit::Image`
+   |
+   = note: required for `ImageSource` to implement `From<gpui_kit::Image>`
+   = note: required for `gpui_kit::Image` to implement `Into<ImageSource>`
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `brn-z1-zorite` (test "qualification") due to 1 previous error
+warning: build failed, waiting for other jobs to finish...

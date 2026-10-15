@@ -1,0 +1,11 @@
+
+running 1 test
+test brn_read_pointer_ranges_exclude_hidden_emphasis_delimiters ... BRN Read actual pointer selection "formatted": []; source="## Café 🦀\n\nA **formatted** paragraph."
+FAILED
+
+failures:
+
+failures:
+    brn_read_pointer_ranges_exclude_hidden_emphasis_delimiters
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.15s

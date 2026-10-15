@@ -1,0 +1,88 @@
+{
+  "snapshot": "7e9d0376d677ed2a46bdbcd8933f55f9e1746a02",
+  "baseline_lock_sha256": "478792553b19f956ec1945b664243da80a5263860069b3297c5d34e43aa9fd27",
+  "experiment_lock_sha256": "296c8a057ff0624330fa1275980374a52fd2fadf521ddde4a5622842301e58fb",
+  "new_registry_packages": [
+    {
+      "name": "gpui-bidi",
+      "version": "0.1.1",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "license": "MIT",
+      "license_file": null,
+      "repository": "https://github.com/packetThrower/zorite",
+      "new_to_brn_lock": true,
+      "gpl_agpl_flag": false,
+      "lgpl_flag": false,
+      "published_manifest_sha256": "5829f923feac0bb24c57b733346d60902b33a7155255c57558b4120066862c73",
+      "license_notice_sha256": "106b4e0e16feb98773c7b406d8bb6ae8a59e2baf8b7a21c7286ee36b07132f17"
+    },
+    {
+      "name": "zorite-editor",
+      "version": "0.11.2",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "license": "MIT",
+      "license_file": null,
+      "repository": "https://github.com/packetThrower/zorite",
+      "new_to_brn_lock": true,
+      "gpl_agpl_flag": false,
+      "lgpl_flag": false,
+      "published_manifest_sha256": "440449b3d3cbbc97017c864ece4daeee611a8b01eee31e5ee9d2f20204ff96e8",
+      "license_notice_sha256": "106b4e0e16feb98773c7b406d8bb6ae8a59e2baf8b7a21c7286ee36b07132f17"
+    },
+    {
+      "name": "zorite-markdown",
+      "version": "0.10.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "license": "MIT",
+      "license_file": null,
+      "repository": "https://github.com/packetThrower/zorite",
+      "new_to_brn_lock": true,
+      "gpl_agpl_flag": false,
+      "lgpl_flag": false,
+      "published_manifest_sha256": "eab8732d45cd05656d769a5df3dc7fa17966242ba76ac4d0fe06fd695fc776d1",
+      "license_notice_sha256": "106b4e0e16feb98773c7b406d8bb6ae8a59e2baf8b7a21c7286ee36b07132f17"
+    }
+  ],
+  "new_versions_of_existing_names": [],
+  "gpui_pre_versions": [
+    "0.3.9"
+  ],
+  "gpl_agpl_flags": [
+    {
+      "name": "self_cell",
+      "version": "1.3.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "license": "Apache-2.0 OR GPL-2.0-only",
+      "license_file": null,
+      "repository": "https://github.com/Voultapher/self_cell",
+      "new_to_brn_lock": false,
+      "gpl_agpl_flag": true,
+      "lgpl_flag": false
+    }
+  ],
+  "lgpl_flags": [
+    {
+      "name": "r-efi",
+      "version": "5.3.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "license": "MIT OR Apache-2.0 OR LGPL-2.1-or-later",
+      "license_file": null,
+      "repository": "https://github.com/r-efi/r-efi",
+      "new_to_brn_lock": false,
+      "gpl_agpl_flag": false,
+      "lgpl_flag": true
+    },
+    {
+      "name": "r-efi",
+      "version": "6.0.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "license": "MIT OR Apache-2.0 OR LGPL-2.1-or-later",
+      "license_file": null,
+      "repository": "https://github.com/r-efi/r-efi",
+      "new_to_brn_lock": false,
+      "gpl_agpl_flag": false,
+      "lgpl_flag": true
+    }
+  ],
+  "package_count_all_targets": 829
+}
