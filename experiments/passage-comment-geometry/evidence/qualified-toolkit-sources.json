@@ -1,0 +1,6 @@
+{
+  "src/text/range_highlight.rs": "d053c24a56557ab031ba93d237947f22a78337f26cf3160ac056a4cf9e603b64",
+  "src/text/inline.rs": "4ab9e17d839ce4a8b9d3d525aa769071a1efcb8d6f12aea4706ed786952d01f7",
+  "src/text/state.rs": "01b50b757a79459ce6faf2e82c146103ab146022fd4919dd3829f624611b7a3e",
+  "src/text/text_view.rs": "55eb5fa90214802c209de6ef1d2bafdd324ec832e11c40bc951833503ed2e25c"
+}

@@ -1,0 +1,5 @@
+patching file 'src/text/range_highlight.rs'
+patching file 'src/text/inline.rs'
+patching file 'src/text/state.rs'
+patching file 'src/text/text_view.rs'
+Prepared gpui-base-0.7.3, archive SHA256=2e9955b6f4b048fd50ca15fc8e225d80bb00ba9ebc8fecdddde5ad26dbef9270; patch SHA256=762ce603f79fb9eb6686cf59a2721a5be214987c023c7f22b01609372989770e

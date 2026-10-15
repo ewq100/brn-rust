@@ -1,0 +1,19 @@
+[package]
+name = "brn-passage-comment-geometry"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[workspace]
+
+[dependencies]
+gpui-kit = "=0.7.3"
+brn-threads-core = { path = "../../crates/brn-threads-core" }
+
+[dev-dependencies]
+gpui-kit = { version = "=0.7.3", features = ["test-support"] }
+tempfile = "3"
+
+[patch.crates-io]
+# Experiment only. Shared registry and BRN production files are untouched.
+gpui-base = { path = ".vendor/gpui-base" }

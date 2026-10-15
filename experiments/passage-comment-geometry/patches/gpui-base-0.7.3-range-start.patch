@@ -1,0 +1,310 @@
+--- a/src/text/range_highlight.rs
++++ b/src/text/range_highlight.rs
+@@ -1550,6 +1550,24 @@
+         })
+     }
+
++    /// Strict passive measurement: no fallback to a nearby leaf or block.
++    pub(super) fn new_probe(
++        text: &RenderedText,
++        range: &Range<usize>,
++        now: Instant,
++    ) -> Option<Self> {
++        let (key, part) = text.index().resolve(range)?.into_iter().next()?;
++        Some(Self {
++            target: RevealTarget::Line {
++                key,
++                offset: part.start,
++            },
++            requested_at: now,
++            report: Arc::default(),
++            attempts: 0,
++        })
++    }
++
+     pub(super) fn is_expired(&self, now: Instant) -> bool {
+         now.saturating_duration_since(self.requested_at) > REVEAL_TIMEOUT
+             || self.attempts >= REVEAL_ATTEMPTS
+@@ -1590,7 +1608,26 @@
+             key,
+             offset,
+             report: self.report.clone(),
++            scroll: true,
+         })
++    }
++
++    pub(super) fn clear_report(&self) {
++        if let Ok(mut report) = self.report.lock() {
++            *report = None;
++        }
++    }
++
++    /// Measure the existing reveal target without requesting any scrolling.
++    pub(super) fn passive_request(&self) -> Option<RevealRequest> {
++        let mut request = self.request()?;
++        request.scroll = false;
++        Some(request)
++    }
++
++    pub(super) fn visible_bounds(&self) -> Option<Bounds<Pixels>> {
++        let report = self.report.lock().ok().and_then(|report| *report)?;
++        report.visible.then_some(report.line)
+     }
+
+     /// Ends a frame with what the line reported, counting a frame in which
+@@ -1624,6 +1661,7 @@
+ /// that lays that text out.
+ #[derive(Clone, Debug)]
+ pub(crate) struct RevealRequest {
++    scroll: bool,
+     key: TextLeafKey,
+     offset: usize,
+     report: Arc<Mutex<Option<RevealReport>>>,
+@@ -1643,6 +1681,7 @@
+         }
+         RevealAt {
+             offset: self.offset,
++            scroll: self.scroll,
+             report: self.report.clone(),
+         }
+         .rebase(start, end)
+@@ -1652,11 +1691,16 @@
+ /// The start of a pending reveal, in the byte space of one run of text.
+ #[derive(Clone, Debug)]
+ pub(crate) struct RevealAt {
++    scroll: bool,
+     offset: usize,
+     report: Arc<Mutex<Option<RevealReport>>>,
+ }
+
+ impl RevealAt {
++    pub(crate) fn should_scroll(&self) -> bool {
++        self.scroll
++    }
++
+     pub(crate) fn offset(&self) -> usize {
+         self.offset
+     }
+@@ -1665,6 +1709,7 @@
+     /// or `None` when it starts outside it.
+     pub(crate) fn rebase(&self, start: usize, end: usize) -> Option<Self> {
+         (start..end).contains(&self.offset).then(|| Self {
++            scroll: self.scroll,
+             offset: self.offset - start,
+             report: self.report.clone(),
+         })
+@@ -1675,6 +1720,7 @@
+     /// to its end.
+     pub(crate) fn clamp(&self, start: usize, end: usize) -> Self {
+         Self {
++            scroll: self.scroll,
+             offset: self.offset.clamp(start, end) - start,
+             report: self.report.clone(),
+         }
+--- a/src/text/inline.rs
++++ b/src/text/inline.rs
+@@ -447,9 +447,13 @@
+         // The glyph drawing the text at the offset, or, for text with no
+         // glyph of its own such as a line break, the next glyph, or the last.
+         let offset = reveal.offset();
+-        let (row, left, right) = range_boxes(&glyphs, offset..offset + 1)
+-            .first()
+-            .copied()
++        let exact = range_boxes(&glyphs, offset..offset + 1).first().copied();
++        // A passive probe must not borrow a nearby glyph for an invisible
++        // character (newline), an object, or a missing layout.
++        if !reveal.should_scroll() && exact.is_none() {
++            return;
++        }
++        let (row, left, right) = exact
+             .or_else(|| {
+                 glyphs
+                     .iter()
+@@ -468,13 +472,18 @@
+                 bounds.top() + line_height * (row + 1) as f32,
+             ),
+         );
+-        window.request_autoscroll(line);
++        if reveal.should_scroll() {
++            window.request_autoscroll(line);
++        }
+         // A list scrolls the line to its edge, which layout may miss by a
+         // fraction of a pixel.
+         let visible = window.content_mask().bounds.dilate(px(0.5));
+         reveal.report(
+             line,
+-            line.top() >= visible.top() && line.bottom() <= visible.bottom(),
++            line.top() >= visible.top()
++                && line.bottom() <= visible.bottom()
++                && (reveal.should_scroll()
++                    || (line.left() >= visible.left() && line.right() <= visible.right())),
+         );
+     }
+
+--- a/src/text/state.rs
++++ b/src/text/state.rs
+@@ -148,6 +148,8 @@
+     rendered_index: Arc<OnceLock<RenderedIndex>>,
+     range_highlights: Option<Arc<RangeHighlightFrame>>,
+     pub(super) pending_reveal: Option<PendingReveal>,
++    /// One passive passage-start probe. Never remapped across source edits.
++    range_start_probe: Option<(RenderedText, PendingReveal)>,
+     pub(super) selection_revision: usize,
+     compatible_layout_update: bool,
+     layout_text_style: Option<(gpui::TextStyle, Pixels)>,
+@@ -241,6 +243,7 @@
+             rendered_index: Arc::default(),
+             range_highlights: None,
+             pending_reveal: None,
++            range_start_probe: None,
+             selection_revision: 0,
+             compatible_layout_update: false,
+             layout_text_style: None,
+@@ -662,6 +665,53 @@
+         Ok(())
+     }
+
++    /// Track the first rendered glyph box of a passage without scrolling,
++    /// changing selection, or changing source. `range` indexes `rendered_text`.
++    ///
++    /// Reports through TextView::on_range_start_layout during paint, in window
++    /// coordinates. No report is available before layout, offscreen, for a
++    /// non-text block, or after ANY source edit. Re-register after validating
++    /// the host's document/version/range/quote against the new source.
++    /// This is a passage-start glyph box, not full-range geometry or a caret.
++    pub fn track_range_start(
++        &mut self,
++        range: Range<usize>,
++        cx: &mut Context<Self>,
++    ) -> Result<(), RangeHighlightError> {
++        self.range_start_probe = None;
++        // A rejected request must also erase the old anchor on the next paint.
++        cx.notify();
++        let text = self.rendered_text();
++        if text.source() != self.text || self.format != TextViewFormat::Markdown {
++            return Err(RangeHighlightError::Unsupported);
++        }
++        let probe = PendingReveal::new_probe(&text, &range, cx.background_executor().now())
++            .ok_or(RangeHighlightError::InvalidRange(0))?;
++        self.range_start_probe = Some((text, probe));
++        cx.notify();
++        Ok(())
++    }
++
++    pub fn clear_range_start(&mut self, cx: &mut Context<Self>) {
++        self.range_start_probe = None;
++        cx.notify();
++    }
++
++    pub(super) fn begin_range_start_frame(&self) {
++        if let Some((_, probe)) = &self.range_start_probe {
++            probe.clear_report();
++        }
++    }
++
++    /// Internal, read only by the element AFTER its descendants painted.
++    pub(super) fn range_start_bounds(&self) -> Option<Bounds<Pixels>> {
++        let (snapshot, probe) = self.range_start_probe.as_ref()?;
++        if snapshot != &self.rendered_text() || snapshot.source() != self.text {
++            return None;
++        }
++        probe.visible_bounds()
++    }
++
+     /// Scroll the line `range` starts on into view, `range` indexing the
+     /// current rendered text, as with [`Self::set_range_highlights`].
+     ///
+@@ -1065,7 +1115,19 @@
+                 });
+             }));
+         }
+-        let (reveal, reveal_block) = self.reveal_frame(cx.background_executor().now(), window);
++        let (mut reveal, reveal_block) = self.reveal_frame(cx.background_executor().now(), window);
++        // Clear last frame's report even when an explicit reveal takes priority.
++        // The host never receives a stale passive result during a reveal.
++        if let Some((snapshot, probe)) = &self.range_start_probe {
++            let request = probe.passive_request();
++            if reveal.is_none()
++                && snapshot == &self.rendered_text()
++                && snapshot.source() == self.text
++                && self.max_lines.is_none()
++            {
++                reveal = request;
++            }
++        }
+         // Built every frame, so everything in it is shared, not copied.
+         let node_cx = NodeContext {
+             offset: self.parsed_content.node_cx.offset,
+--- a/src/text/text_view.rs
++++ b/src/text/text_view.rs
+@@ -157,6 +157,7 @@
+     link_click_handler: Option<Arc<LinkClickHandlerFn>>,
+     image_source: Option<Arc<ImageSourceFn>>,
+     reveal_handler: Option<Rc<RevealHandlerFn>>,
++    range_start_handler: Option<Rc<dyn Fn(Option<Bounds<Pixels>>, &mut Window, &mut App)>>,
+     markdown_extensions: Arc<MarkdownExtensions>,
+     motion: Option<TextViewMotion>,
+ }
+@@ -204,6 +205,7 @@
+             link_click_handler: None,
+             image_source: None,
+             reveal_handler: None,
++            range_start_handler: None,
+             markdown_extensions: Arc::default(),
+             motion: None,
+         }
+@@ -228,6 +230,7 @@
+             link_click_handler: None,
+             image_source: None,
+             reveal_handler: None,
++            range_start_handler: None,
+             markdown_extensions: Arc::default(),
+             motion: None,
+         }
+@@ -252,6 +255,7 @@
+             link_click_handler: None,
+             image_source: None,
+             reveal_handler: None,
++            range_start_handler: None,
+             markdown_extensions: Arc::default(),
+             motion: None,
+         }
+@@ -415,6 +419,18 @@
+         F: Fn(Bounds<Pixels>, &mut Window, &mut App) + 'static,
+     {
+         self.reveal_handler = Some(Rc::new(handler));
++        self
++    }
++
++    /// Observe this frame's passage-start glyph box after descendants paint.
++    /// Configure the passage with TextViewState::track_range_start. `None`
++    /// means unavailable; do not retain the previous frame's geometry. The
++    /// callback is passive, uses window coordinates, and does not reveal text.
++    pub fn on_range_start_layout(
++        mut self,
++        handler: impl Fn(Option<Bounds<Pixels>>, &mut Window, &mut App) + 'static,
++    ) -> Self {
++        self.range_start_handler = Some(Rc::new(handler));
+         self
+     }
+
+@@ -759,6 +775,7 @@
+         cx: &mut App,
+     ) -> Self::PrepaintState {
+         let state = request_layout.state.clone();
++        state.read(cx).begin_range_start_frame();
+         let max_lines_active = state.read(cx).max_lines.is_some();
+         if max_lines_active {
+             if let Ok(mut line_spans) = state.read(cx).line_spans.lock() {
+@@ -849,6 +866,11 @@
+             request_layout.element.paint(window, cx);
+         }
+         GlobalState::global(cx).pop_text_view_state();
++
++        if let Some(handler) = &self.range_start_handler {
++            let anchor = state.read(cx).range_start_bounds();
++            handler(anchor, window, cx);
++        }
+
+         // Every list has scrolled by now, so the line of a reveal is where
+         // it ends up this frame.
