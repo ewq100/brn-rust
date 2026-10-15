@@ -351,24 +351,83 @@ The owner ran checks 3–5 below in their own Terminal on this worktree's `nativ
   - *Lease file:* the orphan's lease file is still present after recovery (known limitation, now seen natively).
 - **Accidental empty data path.** A paste error left `$B1F` unset, so the desktop was started with `--data-dir /data`. It refused with raw "storage: Read-only file system (os error 30)" and created nothing.
 - **Process check.** No BRN app was left running. The `grep` matched only `cargo mutants` / `cargo test -p brn-desktop` processes from another worktree (`.worktrees/quality-simplify`), which are headless test runs, not BRN windows.
-- **Round 4 follow-up.** The force-kill gaps (no notice and no Review item after the delegation choice, the leftover lease file) and the missing Resume button are addressed in [round 4](round4/verification.md). That note also explains why Resume did not appear and gives two offline stores for a native re-check.
+- **Round 4 follow-up.** The force-kill gaps (no notice and no Review item after the delegation choice, the leftover lease file) and the missing Resume button are addressed in [round 4](#round-4-a-killed-runs-notice-and-candidate-stay-reachable).
+
+## Round 4: a killed Run's notice and candidate stay reachable
+
+Owner request: "1. i did not see Resume button  2. i dont know. also why cant you just run this test yourself?" Implementation `3919c09a`, [verification](round4/verification.md), [review](round4/review.md) (approved). Automated and headless only; not native-observed, not owner-accepted, not merged.
+
+**Native store facts** (agent read of a scratch copy of `/private/tmp/brn-dwr-data/native-b1-kill/data`): the intake Run `1d31fd5f-…` prepared operation 7, host_key `1d31fd5f-…:0:proposal:crane-arrival-source-capture-1`, Note "Crane arrival — reported date", with a `candidate_targets` row and `retired` 0. After relaunch, operation 9 (host_key `delegation-choice:<uuid>`, reason "Owner configured workspace and stopped prior invocations") wrote Settings `maintenance: true`, `delegation_chosen: true` and set the orphan Run to `Cancelled` (fence 2) with no Thread attention. `derived/run-leases/1d31fd5f-…_0.lock` is still there.
+
+| Gap | Before (native store) | After (round 4, tests T1, T2, T8a/b) |
+|---|---|---|
+| G1: no notice for the stopped Run | The delegation choice cancelled the orphan and wrote no Thread; the intake chat had no attention and no Needs you entry. | The same checked change adds one "Run interrupted. Continue starts fresh." Blocker to that chat. A replay adds nothing. |
+| G2: the prepared candidate unreachable from the chat | Candidate active (`candidate_targets` row, not retired, no receipt) but no Review attention pointed at it; only the sidebar "Review · …" row showed it. | The change also adds "Review prepared changes" (`record` = operation 7). Chat attention is exactly `[Review(op), Blocker(run)]`. Nothing is applied, dismissed or retired. |
+| G3: leftover lease file | The unlocked 0-byte lease file stays forever. | Orphan recovery (Resume/Dispatch) removes it with `run_lease::remove_free`, only while holding its lock and only after the recovery change is `Applied`. The settings path still leaves it (limitation). |
+
+**Point 1, no Resume button:** the queue was empty, so Resume (`queue-resume`) had nothing to show. It appears only for a paused queue with saved items (after a restart, a Stop or a failure). **Point 2:** this step's shell is denied `sandbox-exec` and `ps`, and agents may not drive the Mac UI or call a live provider, so the native run stays with the owner.
+
+**Stop and cancel paths and what each now does.** The helper `ended_run_attention` runs inside the change that ends the Run.
+
+| Path | Run ends as | Notice | Review item |
+|---|---|---|---|
+| Workspace settings (Configure, delegation choice, Pause/Resume maintenance, backup folder) | `Cancelled` | added | added |
+| Orphan recovery on Resume/Dispatch | `Interrupted` | kept | added; lease file removed |
+| Stop (`stop_chat_run`: desktop Stop, failed-worker pause, resume-stale stop) | `Interrupted` | none | added |
+| Archive / ArchiveProgress | `Interrupted` | none | added (the archived chat then shows under NEEDS YOU with the proposal card) |
+| Steer (`stop_and_post`) | `Interrupted` | none | added |
+| Project commands that fence chats, including Delete to Trash and Restore | `Interrupted` | added | added |
+| Full-note import into a project | `Interrupted` | added | added |
+| Continue / new Run in the same chat (`begin()`) | `Interrupted` | none | added |
+| `finish()` Interrupted or Failed (⌘Q, cancel, provider failure) | as before | existing | added (a Completed Run still adds none) |
+| Legacy `resolve_thread` (no production caller); Theme/TopicsNote settings | unchanged | unchanged | unchanged |
+
+`Cancelled` now counts as superseded, so the settings notice gives way to the next terminal result. **Observation only:** the settings path also stops Runs that are live in another process. `update_workspace_settings` does not consult `derived/run-leases/`; the other process's watcher stops on the fence and its `finish()` writes nothing, so the settings change's own notice is what the chat keeps. Shown in-process only (`the_settings_change_also_stops_a_run_that_is_still_live`); not changed.
+
+**Desktop visibility (headless gpui harness, no screen).** Yes, the candidate shows after recovery, and no desktop production change was needed. Before the choice the intake row has no reasons and is not in NEEDS YOU. After `choose_delegation`, Home renders `home-attention-{chat}` with both reasons, the sidebar NEEDS YOU lists the chat, and the opened chat shows `attention-card-0` containing `proposal-{operation}` (Apply and Dismiss). After a kill with a paused queue, `queue-resume` renders and Resume gives the same two reasons. **UI finding, none blocking:** archiving a chat whose stopped Run left a candidate keeps the archived chat under NEEDS YOU. Repro: start a useful intake, wait for the prepared note, Archive the chat while the Run works, then open Home. On-screen layout on the UI branch is not observed.
+
+**Verification counts** (all exit 0 unless stated): fmt, helper build, workspace and desktop Clippy `-D warnings`; workspace tests **721 passed, 12 failed (known `brn-threads-intake` sandbox tests), 5 ignored** (baseline 706/12/4); desktop `native-ui,native-test-support` **152 passed, 1 ignored** (baseline 150/1); `verify-end-to-end.sh --fixtures-only` passed; CLI journey unchanged; `verify-storage.sh` stops at the same sandbox tests. Final fmt, `git diff --check` and link check are in [round 4 verification](round4/verification.md#final-gates-finalize-step).
+
+**Round 4 limitations** (from the review, not fixed): the failure and resume-stale stops share the notice-free `stop_chat_run`; the service could treat a lease-free Run there as an orphan (follow-up is service-side, not desktop). A killed Run that is itself the pending queue item, then Resume, goes through that stop: Review added, no notice, lease file kept, item re-dispatched (untested). Settings and Continue leave lease files. No fail-before is recorded for the helper's own `Cancelled` supersession unit test.
+
+**Integration risks for `work/ui-polish`:**
+- Shared seams changed: `begin`, `finish` and `attention` in `crates/brn-ai/src/threads.rs`; `Workspace::recover_orphaned_runs`; core `chat.rs`, `steering.rs`, `projects.rs` and the settings path in `store.rs`; the new `brn_threads_core::run_attention` module. `brn_ai::threads` still re-exports `INTERRUPTED_ATTENTION`, `is_terminal_notice` and `replace_terminal_notice` under the same names.
+- Tests that count settings-change writes (now 5 for two Runs, was 3) or expect empty attention after a settings change, Archive, Stop or Steer with a prepared candidate need the new expectations. Rerun `killed_run_candidate`, `run_recovery`, `delegation` and the desktop suite on the combined branch.
+- Desktop files touched this round: `crates/brn-desktop/src/threads_intake_tests.rs` (tests only). Archived chats with a Review now appear under NEEDS YOU; decide there whether that is wanted.
+- The proposed contract sentences in [round 4 verification](round4/verification.md#proposed-contract-sentences-integration-not-applied) are corrected for Completed Runs and `finish()`; apply them at integration with `docs/status.md`.
 
 ## Owner manual check
 
-Run in your own Terminal, outside the agent sandbox, from the worktree root. Use synthetic files only, and make sure the UI agent is not driving the Mac at the same time. Put any screenshots in `/private/tmp/brn-dwr-data/native-evidence/`, outside Git. Use `/private/tmp` paths, because BRN refuses the `/tmp` symlink for data.
-
-**1. Build and confirm nothing else is running.** The existing debug `brn-desktop` was built without `native-ui`, so rebuild it.
+The earlier checks 3–5 (B2, U2 picker re-supply, B1) ran on 15 October 2026; results are [above](#owner-native-check-results-15-october-2026) and their steps are in commit `d83ba18d`. One check remains: the round 4 native re-check. Run it in your own Terminal, outside the agent sandbox, with no agent driving the Mac. It uses a live provider (your normal Codex sign-in) on synthetic data; whether to run it is your call.
 
 ```sh
 cd /Users/evokessler/repos/brn-rust/.worktrees/daily-workflow-reliability
 export PATH=/opt/homebrew/opt/rustup/bin:$PATH CARGO_TARGET_DIR=/tmp/brn-dwr-target
 cargo build -p brn-intake --features helper --bin brn-intake-helper --locked --offline
 cargo build -p brn-desktop --features native-ui --locked --offline
-cargo build -p brn --locked --offline   # CLI for check 5
-ps -axo pid,command | grep -i '[b]rn-desktop'   # must print nothing
+R=/private/tmp/brn-dwr-data/native-r4   # must not exist yet
+printf '# Crane note\n\nSynthetic: the crane arrives on 22 November.\n' > /private/tmp/brn-dwr-data/b1-source.md
+BRN_INTAKE_HELPER=/tmp/brn-dwr-target/debug/brn-intake-helper \
+  /tmp/brn-dwr-target/debug/brn-desktop --data-dir "$R/data"
 ```
 
-**2. Inspection helper.** Paste this once per Terminal and run it only after BRN has quit. It copies the store to a scratch folder and queries the copy, so BRN data is never written. The copy is needed because a cleanly closed store cannot be opened `mode=ro`, and `immutable=1` would ignore a leftover WAL after ⌘Q.
+1. On Home, make the delegation/maintenance choice first.
+2. In a chat, click ＋ → "Add useful information…", choose `/private/tmp/brn-dwr-data/b1-source.md`, and wait until it shows Working.
+3. From another Terminal: `pkill -9 -f '/private/tmp/brn-dwr-data/native-r4'`.
+4. Relaunch with the same command. Open a new chat (⌘T), send a message, and click Resume if one is shown.
+5. *Expected:* the intake chat shows one "Run interrupted. Continue starts fresh." notice and a Review item for the proposed note in Needs you, and the message dispatches once. If the kill landed after the note was proposed, the chat opens with the proposal card.
+
+Quit with ⌘Q, paste the `brn_inspect` helper below, then run `brn_inspect "$R/data"` and the candidate query:
+
+```sh
+C="$(mktemp -d /private/tmp/brn-dwr-data/inspect.XXXXXX)" && cp -p "$R/data"/threads.sqlite3* "$C"/ && \
+sqlite3 -header -column "$C/threads.sqlite3" \
+  "SELECT o.host_key, o.retired, t.note FROM candidate_targets t JOIN operations o ON o.id = t.operation;"; rm -rf "$C"
+```
+
+*Expected in the store:* the intake Run is `Interrupted` at fence 2, its chat has one Blocker and one Review row, the `candidate_targets` row's operation is `{run}:0:proposal:…` with `retired` 0, and `derived/run-leases/` no longer holds that Run's file. If no Review appears, check whether the `candidate_targets` query returned a row: an empty result means the kill landed before the note was proposed, so repeat with a later kill.
+
+**Inspection helper.** Paste once per Terminal and run only after BRN has quit. It queries a scratch copy, so BRN data is never written (a cleanly closed store cannot be opened `mode=ro`, and `immutable=1` would ignore a leftover WAL).
 
 ```sh
 brn_inspect() {
@@ -405,68 +464,3 @@ SQL
   ls -la "$data/derived/run-leases/" 2>/dev/null || echo "derived/run-leases/: absent"
 }
 ```
-
-**3. B2: three provider failures, offline.** The overrides point both credential lookups at empty folders, so every Run fails as `ReconnectNeeded` before any network request.
-
-```sh
-B2=/private/tmp/brn-dwr-data/native-b2
-mkdir -p "$B2/home" "$B2/codex"
-env HOME="$B2/home" CODEX_HOME="$B2/codex" \
-  BRN_INTAKE_HELPER=/tmp/brn-dwr-target/debug/brn-intake-helper \
-  /tmp/brn-dwr-target/debug/brn-desktop --data-dir "$B2/data" --headless-check startup
-brn_inspect "$B2/data"   # auth_file must be $B2/codex/auth.json (absent) and credentials_dir empty; otherwise stop
-env HOME="$B2/home" CODEX_HOME="$B2/codex" \
-  BRN_INTAKE_HELPER=/tmp/brn-dwr-target/debug/brn-intake-helper \
-  /tmp/brn-dwr-target/debug/brn-desktop --data-dir "$B2/data"
-```
-
-- **Send three times.** Open a new chat (⌘T), type a synthetic question and press Return. Wait for it to fail, then send in the same chat twice more.
-- **Expected in Needs you** (Home, ⌘0): exactly one Blocker for that chat, "Run failed: The provider account needs reconnecting. Continue when the provider is ready." (round 3 text). Note any truncation or wording issue as U6 for the UI agent. If the desktop refuses before starting a Run, record that instead.
-- **Then** quit with ⌘Q and run `brn_inspect "$B2/data"`.
-  - *Expected:* three `Failed` Runs in that chat, one Blocker row for it, and an empty or absent `derived/run-leases/`.
-
-**4. B1: ⌘Q during a run.** This needs a live provider on synthetic data, and whether to use one is your call. Use a separate fresh folder and launch **without** the `HOME`/`CODEX_HOME` overrides, so the workspace picks up your normal Codex sign-in. Alternatively, connect a provider in Settings.
-
-```sh
-B1=/private/tmp/brn-dwr-data/native-b1
-printf '# Crane note\n\nSynthetic: the crane arrives on 22 November.\n' > /private/tmp/brn-dwr-data/b1-source.md
-BRN_INTAKE_HELPER=/tmp/brn-dwr-target/debug/brn-intake-helper \
-  /tmp/brn-dwr-target/debug/brn-desktop --data-dir "$B1/data"
-```
-
-1. **Start an intake and quit.** In a chat, click ＋ → "Add useful information…" and choose `b1-source.md`. While it shows "Reading useful information…" or Working, press ⌘Q.
-2. **Inspect.** Run `brn_inspect "$B1/data"`.
-   - A `Working` Run confirms the finding 1 quit assumption. `Interrupted`/`Cancelled` means quit did commit a terminal state.
-   - Note any leftover `<run>.lock` in `derived/run-leases/`. A leftover lock file is unlocked and harmless.
-   - Note the intake chat's attention. It is expected to be empty at this point.
-3. **Relaunch and queue.** Relaunch with the same command. Open another chat (⌘T), type a message and press Return. If Resume (`queue-resume`) is enabled, click it. If it is disabled, record that, and record whether the message dispatched anyway.
-4. **Expected:** the message dispatches once, and the intake chat shows one "Run interrupted. Continue starts fresh." Blocker in Needs you (round 3 text, `INTERRUPTED_ATTENTION`). Quit with ⌘Q and run `brn_inspect "$B1/data"`.
-   - *Expected in the store:* the intake Run is `Interrupted` with its fence raised by one. There is exactly one owner Message with your text, one new Run in the second chat, and one Blocker row for the intake chat.
-5. **Finally**, confirm `ps -axo pid,command | grep -i '[b]rn-desktop'` prints nothing.
-
-**5. U2: the desktop picker re-supplies a file the CLI supplied (offline).** Reuse matches the Source locator as an exact string. The CLI stores the absolute `--source` text and the desktop stores the picker's path, so this checks that the picker spells the path the way the CLI did. The overrides are the same as B2, so every Run fails as `ReconnectNeeded` before any network request.
-
-```sh
-U2=/private/tmp/brn-dwr-data/native-u2
-mkdir -p "$U2/home" "$U2/codex" "$U2/files"
-printf 'From: Mari Example <mari@example.invalid>\nSubject: Crane delivery\n\nSynthetic: measured berth depth is 1.4 m.\n' > "$U2/files/u2-email.txt"
-env HOME="$U2/home" CODEX_HOME="$U2/codex" \
-  BRN_INTAKE_HELPER=/tmp/brn-dwr-target/debug/brn-intake-helper \
-  /tmp/brn-dwr-target/debug/brn-desktop --data-dir "$U2/data" --headless-check startup
-brn_inspect "$U2/data"   # same credential check as B2; otherwise stop
-env HOME="$U2/home" CODEX_HOME="$U2/codex" \
-  BRN_INTAKE_HELPER=/tmp/brn-dwr-target/debug/brn-intake-helper \
-  /tmp/brn-dwr-target/debug/brn --data-dir "$U2/data" \
-  intake --source "$U2/files/u2-email.txt" --intent useful
-env HOME="$U2/home" CODEX_HOME="$U2/codex" \
-  BRN_INTAKE_HELPER=/tmp/brn-dwr-target/debug/brn-intake-helper \
-  /tmp/brn-dwr-target/debug/brn-desktop --data-dir "$U2/data"
-```
-
-1. **CLI result.** The `intake` JSON shows `"reused_chat": false`, a `thread`, and a `Failed` terminal. Note the thread ID.
-2. **Picker re-supply.** In the desktop, open the "Useful information intake" chat from the chat list. Click ＋ → "Add useful information…", press ⌘⇧G, type `/private/tmp/brn-dwr-data/native-u2/files/` and choose `u2-email.txt`.
-   - *Expected:* no "Information from u2-email" chat appears. The run fails in "Useful information intake", and Needs you shows one Blocker for it.
-3. **Inspect.** Quit with ⌘Q and run `brn_inspect "$U2/data"`.
-   - *Expected:* one Source row with locator `/private/tmp/brn-dwr-data/native-u2/files/u2-email.txt`, two `Failed` Runs in the CLI's chat, and one Blocker row for it. There are two owner Messages there, because the CLI and desktop instruction texts differ (round 3 integration item 5).
-   - *If a second chat and a second Source appear,* record both locators. The picker spelled the path differently, so cross-surface reuse does not hold for that spelling.
-4. **Optional `/tmp` spelling.** Relaunch, repeat step 2 with ⌘⇧G `/tmp/brn-dwr-data/native-u2/files/`, quit and inspect again. Record the new locator and whether a new chat appeared.

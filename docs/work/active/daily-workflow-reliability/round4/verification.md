@@ -1,6 +1,6 @@
 # Round 4 verification: a killed Run's notice and candidate stay reachable
 
-**Branch:** `work/daily-workflow-reliability`, worktree `/Users/evokessler/repos/brn-rust/.worktrees/daily-workflow-reliability`, on base `771116f0`. Implementation commit `3919c09a` (local WIP; the finalize step makes the final commit). The backup ref `work/daily-workflow-reliability-pre-rebase` is kept. Nothing was pushed or merged. [Plan](plan.md).
+**Branch:** `work/daily-workflow-reliability`, worktree `/Users/evokessler/repos/brn-rust/.worktrees/daily-workflow-reliability`, on base `771116f0`. Implementation commit `3919c09a`; the docs are finalized in the local commit that follows it. The backup ref `work/daily-workflow-reliability-pre-rebase` is kept. Nothing was pushed or merged. [Plan](plan.md).
 
 **Owner request:** "1. i did not see Resume button  2. i dont know. also why cant you just run this test yourself?"
 
@@ -35,7 +35,7 @@ Which paths stop Runs is unchanged. Each path's helper call sits in the same che
 | Workspace settings: Configure, delegation Choose, Pause/Resume maintenance, BackupDirectory (`update_workspace_settings`) | `Cancelled`, every Working Run | **added** | added | The owner acted elsewhere; the chat had no trace of the stop. | T1, T1-live, T3, C1 |
 | Orphan recovery (Resume, Dispatch) | `Interrupted`, lease free only | kept (now via the helper) | added | Process died. | T2, R1, T8b |
 | Stop (`stop_chat_run`: desktop Stop, `pause_failed_worker`, resume-stale stop) | `Interrupted` | **none** | added | Deliberate owner Stop in this chat. Existing behaviour: the fenced worker's `finish()` writes nothing, and the chat already shows the Interrupted status with "Continue with current context" (`threads_writing.rs`). A notice would repeat what the owner just did. | T4 |
-| Archive / ArchiveProgress | `Interrupted`, every Working Run in the chat | **none** | added, into the archived Thread write | Deliberate owner action. `needs_you`/`thread_rows` include archived chats, so a notice would raise a just-archived chat with a Continue that is refused until Unarchive. The Review is still added so the candidate stays reachable and its note's candidate slot is visible. | T4 |
+| Archive / ArchiveProgress | `Interrupted`, every Working Run in the chat | **none** | added, into the archived Thread write | Deliberate owner action; a notice would offer a Continue that is refused until Unarchive. The Review is still added so the candidate stays reachable. Because `needs_you`/`thread_rows` include archived chats, the Review alone lists the archived chat under NEEDS YOU with the proposal card (review issue 1). | T4 |
 | Steer (`stop_and_post(_with_partial)`) | `Interrupted` | **none** | added | The owner's new instruction follows at once; its Run's result replaces notices. | T4 |
 | Project commands that fence affected chats (Configure, MoveChat, Link/Unlink/CreateDocument, CreateChat) | `Interrupted` | **added** | added | The owner acted on the project, not in the chat. | T5 |
 | Project Delete (chats to Trash), then Restore | `Interrupted` + archived | **added**, edited into the trashed Thread write | added | Same; the Trash `deleted_version` still matches, and Restore brings both back. | T5 |
@@ -155,18 +155,30 @@ After ⌘Q, inspect with `brn_inspect "$S/data"` from the [owner manual check](.
 - **Settings and leases.** The settings path stops Runs that are live in another process (now with a notice), and it leaves an orphan's lease file in place. Only orphan recovery removes it.
 - **Continue does not clean the lease.** `begin()` fences Working Runs in its chat whether or not they are live, so it does not remove their lease files.
 - **Completed Runs.** A Completed Run that prepared but never applied a candidate still gets no Review item. The candidate stays in the candidates list and Home's "Review changes".
-- **Stop from a failure.** `pause_failed_worker` and the resume-stale stop share `stop_chat_run` with the deliberate Stop, so they also add no notice; the Review is added. Telling them apart needs a desktop change.
+- **Stop from a failure.** `pause_failed_worker` and the resume-stale stop share `stop_chat_run` with the deliberate Stop, so they also add no notice; the Review is added. Both reach it with no live in-process worker, so the service could treat a lease-free Run there as an orphan (notice and lease cleanup) without a desktop change. Recorded as a service-side follow-up.
+- **Killed queued Run, then Resume (untested).** When the killed Run is the pending queue item, Resume goes through the desktop's resume-stale `stop_chat_run`, not orphan recovery: the Review is added, no notice is added, the lease file stays, and the item is re-dispatched.
+- **Archived chats in NEEDS YOU.** Archiving a chat whose stopped Run left a candidate keeps it under NEEDS YOU through the Review.
 - **Stale candidates.** A Review is added for any still-active candidate, including one whose inputs changed since (for example after a project Configure). Applying it then returns the existing Stale outcome. This matches how earlier Review items behave.
 - **Legacy Resolve.** `Workspace::resolve_thread` still clears every attention reason (no production caller).
 
 ## Proposed contract sentences (integration, not applied)
 
 For `docs/architecture/threads-behavior.md`:
-> When a Working Run ends without its own terminal result (process ended, workspace settings, project changes or imports, Archive, Stop, Steer or Continue), the same checked change adds a "Review prepared changes" item for each candidate that Run prepared and left unapplied. When the stop came from outside the chat (process ended, settings, project changes or imports), it also leaves the chat's one "Run interrupted. Continue starts fresh." notice. Stop, Archive, Steer and Continue add no notice.
+> When a Working Run ends Interrupted or Failed in `finish()`, or ends without its own terminal result (process ended, workspace settings, project changes or imports, Archive, Stop, Steer or Continue), the same checked change adds a "Review prepared changes" item for each candidate that Run prepared and left unapplied. When the stop came from outside the chat (process ended, settings, project changes or imports), it also leaves the chat's one "Run interrupted. Continue starts fresh." notice. Stop, Archive, Steer and Continue add no notice.
 
 For `docs/architecture/invariants.md`:
-> Ending a Run never applies, dismisses or retires its candidates; a still-active candidate it prepared stays reachable from its chat's attention. A Cancelled Run's terminal notice is superseded like an Interrupted or Failed one, so a chat keeps one terminal notice.
+> Ending a Run never applies, dismisses or retires its candidates. When a Run ends Interrupted, Failed or Cancelled, or through a checked stop, a still-active candidate it prepared stays reachable from its chat's attention; a Completed Run's unapplied candidate stays in the candidates list only. A Cancelled Run's terminal notice is superseded like an Interrupted or Failed one, so a chat keeps one terminal notice.
 
 ## Integration items for the UI branch
 
 Shared seams touched this round, which the UI branch must rerun at integration: `begin`, `finish` and `attention` in `crates/brn-ai/src/threads.rs`; `Workspace::recover_orphaned_runs`; core `chat.rs`, `steering.rs`, `projects.rs` and the settings path in `store.rs`; and the `brn_ai::threads` re-exports of `INTERRUPTED_ATTENTION`, `is_terminal_notice` and `replace_terminal_notice` (unchanged names). Tests that counted settings-change writes or expected empty attention after a settings change, Archive or Stop with a prepared candidate need the new expectations.
+
+## Final gates (finalize step)
+
+After the [review](review.md) (approved, 6 non-blocking issues; 1–4 are now reflected above and in [evidence](../evidence.md#round-4-a-killed-runs-notice-and-candidate-stay-reachable); 5, a fail-before for the helper's own `Cancelled` supersession, is not recorded; 6 is the sandbox environment). Only docs changed in this step, so the build, Clippy and test counts above stand: workspace 721 passed, 12 failed (known sandbox), 5 ignored; desktop 152 passed, 1 ignored.
+
+| Command | Result |
+|---|---|
+| `cargo fmt --all --check` | exit 0 |
+| `git diff --check` | clean (also `git diff --cached --check` after staging, which covers the two new review files) |
+| `python3 scripts/check-markdown-links.py` | worktree script: 87 files, 403 local links, 0 failures. The main checkout's script (`/Users/evokessler/repos/brn-rust/scripts/…`) checks the main checkout: 102 files, 352 links, 0 failures |
