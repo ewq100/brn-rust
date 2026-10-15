@@ -1129,19 +1129,20 @@ fn outcome_tones_and_a_direct_overwrite_never_inherit_an_older_tone(cx: &mut Tes
 }
 
 #[gpui_kit::test]
-fn a_refused_resume_renders_as_an_error_banner(cx: &mut TestAppContext) {
-    // Err arm in `resume_chat_queue`: the service refuses Resume while a
-    // saved run is still Working.
-    let f = fixture(cx, RunState::Working);
-    cx.update_window(f.window, |_, _, cx| {
+fn a_refused_undo_renders_as_an_error_banner(cx: &mut TestAppContext) {
+    // Err arm in `undo_receipt`: the service refuses Undo of an operation it
+    // never recorded. The refusal does not depend on run liveness, so no
+    // Working run is resumed or dispatched here.
+    let f = fixture(cx, RunState::Completed);
+    cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |ui, cx| {
-            ui.worker = None;
-            ui.resume_chat_queue(cx);
-            assert!(!ui.notice.is_empty());
+            ui.undo_receipt("synthetic-missing-operation", window, cx);
         })
     })
     .unwrap();
-    assert_eq!(banner_tone(cx, &f).as_deref(), Some("Error"));
+    let notice = cx.read(|cx| f.view.read(cx).notice.clone());
+    assert!(!notice.is_empty());
+    assert_eq!(banner_tone(cx, &f).as_deref(), Some("Error"), "{notice}");
 }
 
 #[gpui_kit::test]
