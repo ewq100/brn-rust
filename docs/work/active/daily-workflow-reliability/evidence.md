@@ -20,9 +20,9 @@
 | Round 3: U4 typed open-edit error `brn_threads_core::Error::EditSessionOpen { note, session, base_version }` (via `AppError::Core`); CLI `edit_session_open` JSON | yes (`3a7c3d25`) | yes | no (the desktop shows the generic notice until the UI branch matches the variant) | no | no |
 | Round 3: desktop hookup U2 (at the UI agent's request): `useful_intake` in `threads_ui.rs`, new `threads_intake_tests.rs` | yes (`3a7c3d25`) | yes (desktop 150 passed, 1 ignored, headless harness; cross-surface only with the CLI's exact locator string) | **owner, store only** ([results](#owner-native-check-results-15-october-2026)): picker re-supply of a CLI-supplied `/private/tmp` file reused the CLI's chat | no | no |
 | Round 3: U3 read-only check ([finding](u3-finding.md)): no service fields needed; the desktop's `ThreadRow` drops `Attention.record` | n/a (no code) | code reading | n/a | no | n/a |
-| Round 4 ([verification](round4/verification.md)): a Run that ends outside `finish()` (settings, project changes and imports, orphan recovery) leaves one Interrupted notice in the same checked change; Stop, Archive, Steer and Continue add none | yes (`3919c09a`, local) | yes (workspace 721 passed, 12 failed (known sandbox), 5 ignored) | no | no | no |
-| Round 4: every Run end, including ⌘Q, cancellation and failure in `finish()`, adds a "Review prepared changes" item for each candidate it left unapplied; candidates are never applied or retired | yes (`3919c09a`, local) | yes (desktop 152 passed, 1 ignored; headless Home Needs you, attention cards and proposal card) | no ([procedure](round4/verification.md#native-re-check-procedure-owner-or-orchestrator)) | no | no |
-| Round 4: orphan recovery removes the free leftover lease file | yes (`3919c09a`, local) | yes | no | no | no |
+| Round 4 ([verification](round4/verification.md)): a Run that ends outside `finish()` (settings, project changes and imports, orphan recovery) leaves one Interrupted notice in the same checked change; Stop, Archive, Steer and Continue add none | yes (`3919c09a`, local) | yes (workspace 721 passed, 12 failed (known sandbox), 5 ignored; with the sandbox off, 11 of the 12 pass, see [native round 4](#native-round-4-observation-orchestrator-15-october-2026)) | **yes, settings and Resume paths** ([native round 4](#native-round-4-observation-orchestrator-15-october-2026)) | no | no |
+| Round 4: every Run end, including ⌘Q, cancellation and failure in `finish()`, adds a "Review prepared changes" item for each candidate it left unapplied; candidates are never applied or retired | yes (`3919c09a`, local) | yes (desktop 152 passed, 1 ignored; headless Home Needs you, attention cards and proposal card) | **yes** (proposal card with Apply/Dismiss reachable from Needs you; [native round 4](#native-round-4-observation-orchestrator-15-october-2026)) | no | no |
+| Round 4: orphan recovery removes the free leftover lease file | yes (`3919c09a`, local) | yes | **yes** (Resume path; the settings path keeps it, as recorded) | no | no |
 
 Nothing was pushed, merged or released. The branch has no upstream.
 
@@ -395,6 +395,46 @@ Owner request: "1. i did not see Resume button  2. i dont know. also why cant yo
 - Tests that count settings-change writes (now 5 for two Runs, was 3) or expect empty attention after a settings change, Archive, Stop or Steer with a prepared candidate need the new expectations. Rerun `killed_run_candidate`, `run_recovery`, `delegation` and the desktop suite on the combined branch.
 - Desktop files touched this round: `crates/brn-desktop/src/threads_intake_tests.rs` (tests only). Archived chats with a Review now appear under NEEDS YOU; decide there whether that is wanted.
 - The proposed contract sentences in [round 4 verification](round4/verification.md#proposed-contract-sentences-integration-not-applied) are corrected for Completed Runs and `finish()`; apply them at integration with `docs/status.md`.
+
+## Native round 4 observation (orchestrator, 15 October 2026)
+
+**Setup.** The owner turned off the agent sandbox and granted Accessibility, and confirmed that the UI agent was not driving the Mac.
+- *Build:* this worktree's `native-ui` debug build at `0b08b2e8`.
+- *Data:* scratch copies of the two prepared offline stores (`r4-obs-settings`, `r4-obs-resume`), with `HOME` and `CODEX_HOME` pointed at empty folders, so no provider call was possible.
+- *Driving:* real mouse clicks through a CoreGraphics helper. System Events `click at` does not reach GPUI buttons.
+- *Evidence:* screenshots in `/private/tmp/brn-dwr-data/native-evidence/r4-*.png` (outside Git; they show the owner's desktop and Dock) and read-only copies of each store.
+- *Before Resume:* the run was `Working` at fence 1, and the lease file was present in the resume store.
+
+**Settings store.** Before the choice, the sidebar listed "Review · Re… proposal" only. The owner's chat "Information from b1-source" sat under RECENT CHATS with no attention. Clicking "Review changes first" showed the following.
+- *On screen:*
+  - the status line "Saved. Owner configured workspace and stopped prior invocations";
+  - a "1 needs you" badge whose list names "Information from b1-source";
+  - in the chat, a review card "Review prepared changes" with the proposal "Crane arrival — reported date" (+2 −0, "The source reports that the crane arrives on 22 November.") and Show in note / Dismiss / Apply;
+  - a blocker card "Run interrupted. Continue starts fresh.";
+  - the run line "Cancelled" and "Continue with current context".
+- *In the store:* the Run was `Cancelled` at fence 2. The chat had exactly one Review and one Blocker, and the candidate was unretired. Settings recorded `review_first` 1 and `delegation_chosen` 1. The lease file remained (recorded limitation).
+
+**Resume store.** The composer showed "Queue · 1 waiting · paused" with an enabled Resume and "waiting · Questions · When can the…". Clicking Resume showed the following.
+- *On screen:*
+  - a "2 need you" badge listing "Questions" and "Information from b1-source";
+  - the status line "Work in Questions · Work stopped: Reconnect this account before continuing.";
+  - "Queue · 0 waiting · paused" with "saved turn · Questions · When can…";
+  - in the intake chat, the same review and blocker cards, with the run line "Interrupted".
+- *In the store:*
+  - operation `orphan-recovery:f5a7315d-…:0:2:1` ("Interrupt work whose process ended"), then resume, dispatch, one Run in "Questions" (`Failed`) and "record queued outcome";
+  - the intake Run `Interrupted` at fence 2, with Review and Blocker on its chat;
+  - "Questions" with one owner Message and one Blocker "Run failed: The provider account needs reconnecting. Continue when the provider is ready.";
+  - the candidate unretired, and `derived/run-leases/` empty.
+
+**All expectations in the [procedure](round4/verification.md#native-re-check-procedure-owner-or-orchestrator) matched.** Nothing was applied or dismissed. BRN was closed with its window button, and no BRN process was left running.
+
+**Intake sandbox tests with the sandbox off.** `cargo test -p brn-threads-intake --locked --offline` gave lib 25 passed, 3 ignored, and `qualification` 10 passed, 1 failed. The remaining failure, `prepared_rust_fixtures_keep_source_and_preview_bindings_in_owned_scratch`, is `Pdf preparation failed: Unavailable`. Poppler's `pdftoppm` and `pdfinfo` are not installed on this Mac, and the [preview guide](../../../development/preview-release.md) requires external Poppler for PDF. The crate is unchanged on this branch.
+
+**New UI findings (for the UI agent; reproduce with either store above).**
+- **U7: Needs you rows in the sidebar have no chat title.** Once a chat needs you, it leaves RECENT CHATS, and its sidebar row shows only the reason ("Review prepared changes", "Run failed: The provider a…"). The title appears only in the badge's list. Steps: open `r4-native-resume`, click Resume, then look at the sidebar.
+- **U8: an internal operation reason shows as the status line.** After the maintenance choice, the status line reads "Saved. Owner configured workspace and stopped prior invocations". Steps: open `r4-native-settings` and click either choice.
+- **U9: mixed terms for one stopped run.** After the settings stop, the run line says "Cancelled" while the notice says "Run interrupted. Continue starts fresh.". The notice text is service-owned (round 4 reused `INTERRUPTED_ATTENTION`). Agree the wording with this branch before changing either.
+- **U10: two wordings for one failure.** The live status line says "Work stopped: Reconnect this account before continuing.", while Needs you says "Run failed: The provider account needs reconnecting. …". Steps: the Resume store above.
 
 ## Owner manual check
 
