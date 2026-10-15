@@ -2,6 +2,10 @@ use crate::*;
 use brn_threads_intake::{ConversionResult, CoverageStatus, GapKind, ImportIntent};
 use std::collections::BTreeSet;
 
+/// The owner instruction for useful intake of a source, the same from the
+/// desktop and the CLI, so a reused intake chat can reuse it.
+pub const SOURCE_INTAKE_INSTRUCTION: &str = "Capture useful supported information from this source, maintaining relevant ordinary notes and source references. Preserve qualifications; do not copy the whole source as a note. Retain meaningful selected figures using the read_source host links and preserve detected omissions; unchecked coverage does not mean proven loss.";
+
 /// Preserve the converter's distinction between a detected loss and unchecked coverage.
 pub fn import_report(converted: &ConversionResult) -> ImportReport {
     ImportReport {
@@ -114,6 +118,27 @@ impl Workspace {
             self.new_thread(title)?
         };
         Ok((chat, false))
+    }
+    /// Posts [`SOURCE_INTAKE_INSTRUCTION`] in `chat` before a useful intake
+    /// Run for `locator`, unless that Run reuses the chat's latest instruction
+    /// for this source: then nothing is written and the result is `None`.
+    /// New owner text since then, or another source, gets a fresh instruction.
+    pub fn post_intake_instruction(
+        &mut self,
+        chat: &str,
+        locator: &str,
+    ) -> AppResult<Option<Receipt>> {
+        if brn_ai::threads::intake_instruction_to_reuse(
+            &self.store,
+            chat,
+            SOURCE_INTAKE_INSTRUCTION,
+            &[locator],
+        )?
+        .is_some()
+        {
+            return Ok(None);
+        }
+        self.post_message(chat, SOURCE_INTAKE_INSTRUCTION).map(Some)
     }
     pub fn import_full(
         &mut self,

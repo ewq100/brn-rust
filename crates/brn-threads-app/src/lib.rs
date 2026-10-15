@@ -25,7 +25,7 @@ mod steering;
 mod topics;
 mod writing;
 pub use export::ExportManifest;
-pub use intake::import_report;
+pub use intake::{SOURCE_INTAKE_INSTRUCTION, import_report};
 pub use knowledge::{
     FINDINGS_PER_KIND, Finding, FindingKind, KnowledgeCheck, REVIEW_MESSAGE_BYTES,
 };

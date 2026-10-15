@@ -866,7 +866,14 @@ async fn execute(inv: &Invocation) -> Result<Value> {
                         })
                         .collect(),
                 };
-                let mut output = ask(&mut workspace,inv,thread.clone(),"Retain useful information from the supplied source. Reconcile current notes and suggested Actions, preserve source references and meaningful selected figures using read_source's host asset links, retain detected omissions, leave raw text external, and ask for review of protected decisions.".into(),vec![source]).await?;
+                let mut output = ask(
+                    &mut workspace,
+                    inv,
+                    thread.clone(),
+                    brn_threads_app::SOURCE_INTAKE_INSTRUCTION.into(),
+                    vec![source],
+                )
+                .await?;
                 output["thread"] = json!(thread);
                 output["reused_chat"] = json!(reused);
                 return Ok(output);

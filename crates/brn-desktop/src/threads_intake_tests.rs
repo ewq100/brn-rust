@@ -204,6 +204,147 @@ fn supplying_one_file_through_two_spellings_reuses_its_chat(cx: &mut TestAppCont
     assert_eq!(locators, vec![real.to_str().unwrap()]);
 }
 
+/// `(id, text)` of each owner Message in `chat`, oldest first.
+fn owner_messages(workspace: &Workspace, chat: &str) -> Vec<(String, String)> {
+    workspace
+        .messages(chat)
+        .unwrap()
+        .into_iter()
+        .filter_map(|r| match r.data {
+            RecordData::Message(m) if m.role == "owner" => Some((r.id, m.text)),
+            _ => None,
+        })
+        .collect()
+}
+
+/// `(state, instruction)` of each Run in `chat`.
+fn chat_runs(records: &[Record], chat: &str) -> Vec<(RunState, Option<String>)> {
+    records
+        .iter()
+        .filter_map(|r| match &r.data {
+            RecordData::Run(run) if run.thread == chat => {
+                Some((run.state.clone(), run.instruction.clone()))
+            }
+            _ => None,
+        })
+        .collect()
+}
+
+/// `brn intake --source <reference> --intent useful` in-process: the intake
+/// chat, then a Run with the shared instruction and no posted Message, which
+/// fails offline. Returns the chat.
+fn cli_useful_intake(workspace: &mut Workspace, data: &Path, reference: &str) -> String {
+    let (chat, _) = workspace
+        .source_intake_chat(None, reference, "Useful information intake")
+        .unwrap();
+    let converted = email(reference);
+    let request = brn_ai::threads::ThreadRunRequest {
+        request_message: None,
+        queue_claim: None,
+        owner_request: None,
+        data_dir: data.to_owned(),
+        thread: chat.id.clone(),
+        prompt: brn_threads_app::SOURCE_INTAKE_INSTRUCTION.into(),
+        selection: brn_ai::Selection {
+            provider: brn_ai::Provider::Chatgpt,
+            model: "gpt-6.1-sol".into(),
+        },
+        effort: brn_ai::ReasoningEffort::Medium,
+        max_tool_rounds: brn_ai::threads::default_tool_rounds(true),
+        auth_file: None,
+        credentials_dir: None,
+        sources: vec![brn_ai::threads::TransientSource {
+            fingerprint: Some(brn_intake::hex(&converted.source_sha256)),
+            report: Some(brn_threads_app::import_report(&converted)),
+            reference: converted.source_reference,
+            text: converted.markdown,
+            assets: vec![],
+        }],
+        search: None,
+        trace: brn_ai::threads::TraceLevel::Off,
+    };
+    let result = tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .unwrap()
+        .block_on(brn_ai::threads::run(
+            request,
+            CancellationToken::new(),
+            Arc::new(|_| {}),
+        ))
+        .unwrap();
+    assert!(matches!(
+        result.answer.terminal,
+        brn_ai::AiTerminal::Failed(_)
+    ));
+    chat.id
+}
+
+#[gpui_kit::test]
+fn supplying_the_same_source_twice_posts_one_instruction(cx: &mut TestAppContext) {
+    let f = fixture(cx);
+    let chat = supply(cx, &f, SOURCE);
+    assert_eq!(supply(cx, &f, SOURCE), chat);
+    // Before: a second, identical owner instruction.
+    let owner = cx.read(|cx| owner_messages(&f.view.read(cx).workspace, &chat));
+    assert_eq!(owner.len(), 1, "{owner:?}");
+    assert_eq!(owner[0].1, brn_threads_app::SOURCE_INTAKE_INSTRUCTION);
+    assert_eq!(
+        chat_runs(&saved(cx, &f), &chat),
+        vec![(RunState::Failed, Some(owner[0].0.clone())); 2]
+    );
+}
+
+#[gpui_kit::test]
+fn a_cli_useful_intake_then_a_desktop_supply_post_one_instruction(cx: &mut TestAppContext) {
+    let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let data = root.path().join("intake");
+    let mut workspace = offline_workspace(&data);
+    let chat = cli_useful_intake(&mut workspace, &data, SOURCE);
+    let f = Fixture {
+        _root: Some(root),
+        ..open(cx, workspace, data)
+    };
+    assert_eq!(supply(cx, &f, SOURCE), chat);
+    // Before: the CLI's and the desktop's instructions differed, so two.
+    let owner = cx.read(|cx| owner_messages(&f.view.read(cx).workspace, &chat));
+    assert_eq!(owner.len(), 1, "{owner:?}");
+    assert_eq!(owner[0].1, brn_threads_app::SOURCE_INTAKE_INSTRUCTION);
+    assert_eq!(
+        chat_runs(&saved(cx, &f), &chat),
+        vec![(RunState::Failed, Some(owner[0].0.clone())); 2]
+    );
+}
+
+#[gpui_kit::test]
+fn owner_text_between_supplies_gets_a_fresh_instruction(cx: &mut TestAppContext) {
+    let f = fixture(cx);
+    let chat = supply(cx, &f, SOURCE);
+    update(cx, &f, |ui, _, _| {
+        ui.workspace
+            .post_message(&chat, "Focus on the berth depth")
+            .unwrap();
+    });
+    assert_eq!(supply(cx, &f, SOURCE), chat);
+    let owner = cx.read(|cx| owner_messages(&f.view.read(cx).workspace, &chat));
+    let texts: Vec<_> = owner.iter().map(|(_, text)| text.as_str()).collect();
+    assert_eq!(
+        texts,
+        [
+            brn_threads_app::SOURCE_INTAKE_INSTRUCTION,
+            "Focus on the berth depth",
+            brn_threads_app::SOURCE_INTAKE_INSTRUCTION
+        ]
+    );
+    assert_eq!(
+        chat_runs(&saved(cx, &f), &chat)
+            .into_iter()
+            .map(|(_, instruction)| instruction)
+            .collect::<BTreeSet<_>>(),
+        BTreeSet::from([Some(owner[0].0.clone()), Some(owner[2].0.clone())])
+    );
+}
+
 #[gpui_kit::test]
 fn supplying_from_inside_a_project_keeps_the_source_in_a_project_chat(cx: &mut TestAppContext) {
     let f = fixture(cx);
@@ -712,6 +853,7 @@ fn a_desktop_supply_reuses_the_chat_a_cli_useful_intake_left(cx: &mut TestAppCon
     let threads = workspace.threads().unwrap().len();
     let runs_before = runs(&workspace.records().unwrap());
     assert!(runs_before >= 1, "the CLI intake ran in {chat}");
+    let owner_before = owner_messages(&workspace, &chat);
     let f = open(cx, workspace, data);
     assert_eq!(supply(cx, &f, &source), chat);
     let records = saved(cx, &f);
@@ -724,4 +866,15 @@ fn a_desktop_supply_reuses_the_chat_a_cli_useful_intake_left(cx: &mut TestAppCon
         "no new chat"
     );
     assert_eq!(runs(&records), runs_before + 1);
+    // The desktop reused the CLI's instruction: no owner Message was added,
+    // and the new Run names the CLI's latest one.
+    let owner = cx.read(|cx| owner_messages(&f.view.read(cx).workspace, &chat));
+    assert_eq!(owner, owner_before);
+    let latest = owner.last().unwrap();
+    assert_eq!(latest.1, brn_threads_app::SOURCE_INTAKE_INSTRUCTION);
+    let named = chat_runs(&records, &chat)
+        .into_iter()
+        .filter(|(_, instruction)| instruction.as_ref() == Some(&latest.0))
+        .count();
+    assert!(named >= 2, "the CLI's and the desktop's Runs name it");
 }

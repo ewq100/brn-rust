@@ -408,3 +408,94 @@ Manual CLI check on fresh synthetic data, `/private/tmp/brn-dwr-data/r5-d-settin
 - The UI branch shows "Interrupted" after a settings change with no code change. Its tests that expect `Cancelled` after a settings change need `Interrupted`.
 - No `main.rs` edit was needed.
 - Proposed sentence for `docs/architecture/threads-behavior.md` (not edited here): "A Run stopped because of something outside its chat (settings, project changes or imports, process ended, or a lease-free stop) is recorded as Interrupted, matching its notice."
+## Slice E: reusing an intake chat does not repeat the owner instruction
+
+### Change
+
+- **One instruction.** `brn_threads_app::SOURCE_INTAKE_INSTRUCTION` (`crates/brn-threads-app/src/intake.rs`, re-exported in `lib.rs`) holds the desktop's existing text verbatim. The desktop and the CLI both use it.
+- **One reuse rule, in the runtime.** `brn_ai::threads::reusable_intake_instruction(records, messages, chat, prompt, references)` returns the chat's latest owner Message (durable receipt order) when:
+  - its text equals `prompt`;
+  - a non-archived Run in that chat has it as `instruction`;
+  - that Run's `sources` hold, for every supplied reference, a Source that `matching_sources` (slice B) matches.
+
+  `begin()` applies it when the request has no `request_message` and no `owner_request`, and the chat's last Message is not already that instruction (the existing rule). It sets `instruction` to that Message and writes none. A Run without sources never matches. `begin()`'s message ordering moved into a shared `chat_messages` helper, with the same order as before.
+- **Host wrapper.** `brn_ai::threads::intake_instruction_to_reuse(store, chat, prompt, references)` applies the same rule to saved state and canonicalizes the references. It returns the core `Result` rather than `AiResult`, so the app keeps the store's error through `AppError::Core`.
+- **Desktop.** `Workspace::post_intake_instruction(chat, locator) -> AppResult<Option<Receipt>>` writes nothing and returns `None` when that rule finds an instruction; otherwise it posts `SOURCE_INTAKE_INSTRUCTION`. `useful_intake` (`crates/brn-desktop/src/threads_ui.rs`) uses the constant and calls `post_intake_instruction` instead of `post_message`; the `Ok(_)` arm is unchanged. rustfmt split that `match` head over four lines. This is the call plumbing the slice allows. The desktop's visible text is unchanged.
+- **CLI.** The useful-intake `ask(..)` call (`crates/brn/src/main.rs`) passes `brn_threads_app::SOURCE_INTAKE_INSTRUCTION.into()`. The old literal had kept rustfmt from formatting the call; without it, rustfmt split the call over eight lines (`git diff --stat`: 8 insertions, 1 deletion). The call and its arguments are otherwise unchanged. `HELP`, exit codes and `ask`'s signature are unchanged.
+- **Noted visible change (CLI wording).** CLI useful intake now posts the desktop wording. It drops the CLI-only phrases "Reconcile current notes and suggested Actions", "leave raw text external" and "ask for review of protected decisions". The playbooks preloaded for every source run still carry that guidance: `agent/skills/intake/SKILL.md` ("Original files and messages remain external", "A source request does not authorize changing a protected decision") and `agent/skills/maintain-notes/SKILL.md` (write groups include "related Thread and supported Action context").
+
+No dependency, `Cargo.lock`, `threads.sqlite3` schema, `HELP`, exit-code or `docs/status.md` change. All writes still go through the checked store (`post_message` and `begin()`'s start change); the rule only decides whether to add a Message.
+
+### Behavior table
+
+| Sequence (same source, same chat) | Before | After |
+|---|---|---|
+| CLI, then desktop | 2 owner Messages (two wordings) | 1; both Runs name it |
+| Desktop, then desktop | 2 identical (`post_message` was unconditional) | 1 |
+| CLI or desktop re-supply after an assistant reply | 2 identical | 1 |
+| CLI, then CLI, offline failure (last Message is the instruction) | 1 (existing rule) | 1 |
+| New owner text between supplies | fresh instruction | fresh instruction |
+| Another source in the chat (owner-named chat) | fresh instruction | fresh instruction |
+| Latest instruction in other wording (a chat from an older CLI) | fresh instruction | fresh instruction |
+
+### Tests and fail-before
+
+Fail-before method. The new tests need `SOURCE_INTAKE_INSTRUCTION` and `post_intake_instruction`, so they cannot compile against the unfixed tree. "Rule disabled" makes `reusable_intake_instruction` return `None` (`if true || references.is_empty()`). That restores both pre-fix behaviors: the desktop posts every time, and `begin()` reuses only a last Message. "Old CLI wording" puts the CLI literal back in `main.rs`. Guard tests got their fail-before by breaking the named check. Each mutation was made on a saved copy and then restored; `git diff --stat` afterwards showed only the intended files.
+
+| ID | Test | Before the fix (mutation) | After |
+|---|---|---|---|
+| E-T1 | app `source_intake_chat.rs` `a_cli_then_desktop_supply_of_one_source_leaves_one_instruction_message`: CLI-shape Run with a scripted reply; the desktop reuses the chat, `post_intake_instruction` returns `None` and writes no receipt; one owner Message with the constant, named by both Runs | FAILED `:798` `assertion failed: w.post_intake_instruction(..).is_none()` (rule disabled) | ok |
+| E-T2 | app `a_resupply_after_an_assistant_reply_reuses_the_instruction` (`begin()` alone, last Message `assistant`) | FAILED `:822` `left: 2, right: 1` (rule disabled) | ok |
+| E-T3 | app `new_owner_text_in_between_posts_a_fresh_instruction`: desktop leg and CLI leg after owner text; owner texts `[I, "Focus on the berth depth", I, "Also the crane date", I]`, each Run names its own | guard, ok with the rule disabled. FAILED `:835` (`post_intake_instruction` returned `None`) when the rule takes the latest owner Message *with this text* instead of the latest owner Message | ok |
+| E-T4 | app `a_different_source_in_the_same_chat_posts_its_own_instruction`: desktop leg (second source) and CLI leg (third source); 3 instructions | guard. FAILED `:871` when the per-source check is dropped | ok |
+| E-T5 | app `other_instruction_wording_posts_a_fresh_instruction`: the latest instruction is the old CLI text; a fresh shared instruction is posted | guard. FAILED `:902` when the text check is dropped | ok |
+| E-D1 | desktop `supplying_the_same_source_twice_posts_one_instruction`: two `supply` calls, one owner Message with the constant, both `Failed` Runs name it | FAILED `:290` `left: 2, right: 1` (rule disabled) | ok |
+| E-D2 | desktop `a_cli_useful_intake_then_a_desktop_supply_post_one_instruction`: the CLI's `source_intake_chat` and `run` in-process (offline, `Failed`), then the desktop harness `supply` | FAILED `:311` `left: 2, right: 1` (rule disabled) | ok |
+| E-D3 | desktop `owner_text_between_supplies_gets_a_fresh_instruction` | guard. FAILED `:331` (texts `[I, "Focus…"]`, expected `[I, "Focus…", I]`) with the latest-owner mutation used for E-T3 | ok |
+| E-D4 | desktop ignored `a_desktop_supply_reuses_the_chat_a_cli_useful_intake_left`, extended: no owner Message added, the latest is the constant, and at least 2 Runs name it | FAILED `:872` with a CLI built with the old wording: owner Messages `[CLI text, desktop text]` against `[CLI text]` | ok (below) |
+| E-C1 | CLI `source_locator.rs` `two_cli_useful_intakes_of_one_source_post_one_instruction`: one owner Message whose text is the constant; both Runs' `instruction` name it | count part is a guard (ok with the rule disabled: an offline failure leaves the instruction last). FAILED `:151` with the old CLI wording: `left: "Retain useful information from the supplied source. Reconcile…"` | ok |
+
+The first run of the old-wording E-C1 failed once at `:18` instead (a `brn` command exited non-zero; stderr was not captured). It was the first run after a relink. The next six runs of the same tree failed only at `:151`. Eleven runs of the fixed tree, including three after a forced relink and two after content changes to `main.rs`, all passed. The cause is not known.
+
+### Desktop plus CLI from one build, shared synthetic data
+
+Each case below ran with its own `HOME`, `CODEX_HOME` and `TMPDIR`, Codex configured with a missing auth file, and the binary `/tmp/brn-dwr-target/debug/brn`.
+
+- **Before, `/private/tmp/brn-dwr-data/r5-e-cli-desktop-before/`** (CLI built with the old literal):
+  1. CLI `intake --source …/mari-email.txt --intent useful`: `Failed:ReconnectNeeded`, `reused_chat: false`.
+  2. The desktop harness (E-D4) with `BRN_DWR_SHARED_DATA`, `_SOURCE` and `_CHAT`, `-- --ignored`: FAILED `:872`, because the desktop added its own instruction.
+- **After, `/private/tmp/brn-dwr-data/r5-e-cli-desktop/`** (fixed build; the binary has no "Reconcile current notes and suggested Actions" string):
+  1. CLI intake: `Failed:ReconnectNeeded`, chat `e39c029e-…:0`, `reused_chat: false`.
+  2. The desktop harness E-D4: ok.
+  3. CLI intake again: `reused_chat: true`, same chat.
+
+  Persisted state: 1 Thread, **1** owner Message (the shared text), 3 `Failed` Runs that all name it, and 1 Source at the real path.
+
+### Commands and results (after the fix)
+
+| Command | Result |
+|---|---|
+| `cargo fmt --all --check` | clean |
+| `cargo clippy --workspace --all-targets --locked --offline -- -D warnings` | clean |
+| `cargo clippy -p brn-ai --features scripted-runs --all-targets --locked --offline -- -D warnings` | clean |
+| `cargo clippy --locked --offline -p brn-desktop --features native-ui,native-test-support --all-targets -- -D warnings` | clean |
+| `cargo test -p brn-threads-app --locked --offline --test source_intake_chat --test daily_workflow_eval` | 16 (+5), 1 passed |
+| `cargo test -p brn-ai --locked --offline --lib` | 341 passed, 1 ignored |
+| `cargo build -p brn --locked --offline && cargo test -p brn --locked --offline --test source_locator --test threads` | 2 (+1), 13 passed |
+| desktop test command | 157 passed (+3), 0 failed, 1 ignored (E-D4, run by hand above) |
+| `cargo test --workspace --locked --offline --no-fail-fast` | 772 passed (+6), 1 failed (the baseline Poppler test), 6 ignored |
+| `git diff --exit-code Cargo.lock`; `git diff --check` | clean |
+
+### Limitations
+
+- If the desktop posts the instruction and the Run then never starts (another worker is busy, or `prepare_run` refuses), no Run names that Message. A re-supply after other Messages then posts another. If the instruction is still the chat's last Message, `begin()`'s existing rule reuses it.
+- A chat whose latest instruction is the old CLI wording gets one fresh instruction in the shared wording on its next supply (E-T5).
+- `post_intake_instruction` and `begin()` read the state separately. A write in between (for example, owner text from another process) can make the desktop skip the post while `begin()` then posts a fresh instruction. The result is a correct instruction, never a missing one.
+- No native observation in this slice.
+
+### Integration items
+
+- `crates/brn/src/main.rs`: one statement in the useful-intake sub-block, reflowed by rustfmt to 8 lines. It must survive the merge with work/cli-agent-contract, which keeps that block untouched; take this side.
+- `crates/brn-desktop/src/threads_ui.rs`: the `useful_intake` call plumbing above. The UI branch reruns its intake tests. Any UI test that counts owner Messages after repeated supplies of one source now sees one.
+- New public items: `SOURCE_INTAKE_INSTRUCTION`, `Workspace::post_intake_instruction`, and `brn_ai::threads::{reusable_intake_instruction, intake_instruction_to_reuse}`.
+- Proposed sentence for `docs/architecture/threads-behavior.md` (not edited here): "Useful intake uses one owner instruction from every host. A re-supply of the same source in its chat reuses the chat's latest instruction for that source unless the owner has written since."

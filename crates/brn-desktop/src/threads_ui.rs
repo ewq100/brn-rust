@@ -2988,8 +2988,11 @@ impl ThreadsUi {
             .map(|(chat, _)| chat)
         {
             Ok(thread) => {
-                let instruction = "Capture useful supported information from this source, maintaining relevant ordinary notes and source references. Preserve qualifications; do not copy the whole source as a note. Retain meaningful selected figures using the read_source host links and preserve detected omissions; unchecked coverage does not mean proven loss.";
-                match self.workspace.post_message(&thread.id, instruction) {
+                let instruction = brn_threads_app::SOURCE_INTAKE_INSTRUCTION;
+                match self
+                    .workspace
+                    .post_intake_instruction(&thread.id, &converted.source_reference)
+                {
                     Ok(_) => {
                         self.refresh();
                         self.open_thread(&thread.id, window, cx);

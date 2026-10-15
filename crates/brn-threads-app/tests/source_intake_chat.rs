@@ -741,3 +741,177 @@ fn keep_in_brn_prefers_the_global_source_at_the_real_path() {
     assert_eq!(kept, [global[1].clone(), global[1].clone()]);
     assert_eq!(global_sources(&w), global);
 }
+
+// Reusing an intake chat does not repeat the owner instruction.
+
+/// One useful intake Run of `reference` in `chat` with `prompt` and no
+/// posted Message, as the CLI starts it (and the desktop, after
+/// `post_intake_instruction`). A scripted reply completes it. Returns the Run.
+async fn intake_run(data: &std::path::Path, chat: &str, reference: &str, prompt: &str) -> String {
+    let prepared = prepare_run(ThreadRunRequest {
+        prompt: prompt.into(),
+        ..request_for(data, chat, reference)
+    })
+    .unwrap();
+    let id = prepared.run_id().to_owned();
+    let model = MockCompletionModel::from_stream_turns([vec![
+        MockStreamEvent::text("Recorded."),
+        MockStreamEvent::final_response_with_total_tokens(1),
+    ]]);
+    run_prepared_scripted(prepared, model).await.unwrap();
+    id
+}
+
+/// `(id, text)` of each owner Message in `chat`, oldest first.
+fn owner_messages(w: &Workspace, chat: &str) -> Vec<(String, String)> {
+    w.messages(chat)
+        .unwrap()
+        .into_iter()
+        .filter_map(|r| match r.data {
+            RecordData::Message(m) if m.role == "owner" => Some((r.id, m.text)),
+            _ => None,
+        })
+        .collect()
+}
+
+fn last_role(w: &Workspace, chat: &str) -> String {
+    match &w.messages(chat).unwrap().last().unwrap().data {
+        RecordData::Message(m) => m.role.clone(),
+        _ => panic!("Message"),
+    }
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn a_cli_then_desktop_supply_of_one_source_leaves_one_instruction_message() {
+    let (_root, data, mut w) = workspace();
+    // The CLI: the intake chat, then a Run with the shared instruction.
+    let (chat, _) = w.source_intake_chat(None, LOCATOR, TITLE).unwrap();
+    let cli = intake_run(&data, &chat.id, LOCATOR, SOURCE_INTAKE_INSTRUCTION).await;
+    assert_eq!(last_role(&w, &chat.id), "assistant");
+    // The desktop: the same chat; its instruction is already there.
+    let (again, reused) = w
+        .source_intake_chat(None, LOCATOR, "Information from mari-crane-email")
+        .unwrap();
+    assert_eq!((again.id.as_str(), reused), (chat.id.as_str(), true));
+    let receipts = w.history().unwrap().len();
+    // Before: the desktop posted its own instruction every time.
+    assert!(
+        w.post_intake_instruction(&chat.id, LOCATOR)
+            .unwrap()
+            .is_none()
+    );
+    assert_eq!(w.history().unwrap().len(), receipts, "nothing was written");
+    let desktop = intake_run(&data, &chat.id, LOCATOR, SOURCE_INTAKE_INSTRUCTION).await;
+    let owner = owner_messages(&w, &chat.id);
+    assert_eq!(owner.len(), 1, "{owner:?}");
+    assert_eq!(owner[0].1, SOURCE_INTAKE_INSTRUCTION);
+    for id in [cli, desktop] {
+        assert_eq!(run(&w, &id).instruction.as_ref(), Some(&owner[0].0));
+    }
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn a_resupply_after_an_assistant_reply_reuses_the_instruction() {
+    let (_root, data, mut w) = workspace();
+    let (chat, _) = w.source_intake_chat(None, LOCATOR, TITLE).unwrap();
+    let first = intake_run(&data, &chat.id, LOCATOR, SOURCE_INTAKE_INSTRUCTION).await;
+    assert_eq!(last_role(&w, &chat.id), "assistant");
+    // Before: the reply was the chat's last Message, so a second instruction.
+    let second = intake_run(&data, &chat.id, LOCATOR, SOURCE_INTAKE_INSTRUCTION).await;
+    let owner = owner_messages(&w, &chat.id);
+    assert_eq!(owner.len(), 1, "{owner:?}");
+    assert_eq!(run(&w, &first).instruction, run(&w, &second).instruction);
+    assert_eq!(run(&w, &second).instruction.as_ref(), Some(&owner[0].0));
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn new_owner_text_in_between_posts_a_fresh_instruction() {
+    let (_root, data, mut w) = workspace();
+    let (chat, _) = w.source_intake_chat(None, LOCATOR, TITLE).unwrap();
+    let first = intake_run(&data, &chat.id, LOCATOR, SOURCE_INTAKE_INSTRUCTION).await;
+    // The desktop after owner text in the chat.
+    w.post_message(&chat.id, "Focus on the berth depth")
+        .unwrap();
+    assert!(
+        w.post_intake_instruction(&chat.id, LOCATOR)
+            .unwrap()
+            .is_some()
+    );
+    let second = intake_run(&data, &chat.id, LOCATOR, SOURCE_INTAKE_INSTRUCTION).await;
+    // The CLI after owner text in the chat.
+    w.post_message(&chat.id, "Also the crane date").unwrap();
+    let third = intake_run(&data, &chat.id, LOCATOR, SOURCE_INTAKE_INSTRUCTION).await;
+    let owner = owner_messages(&w, &chat.id);
+    let texts: Vec<_> = owner.iter().map(|(_, text)| text.as_str()).collect();
+    assert_eq!(
+        texts,
+        [
+            SOURCE_INTAKE_INSTRUCTION,
+            "Focus on the berth depth",
+            SOURCE_INTAKE_INSTRUCTION,
+            "Also the crane date",
+            SOURCE_INTAKE_INSTRUCTION
+        ]
+    );
+    for (run_id, message) in [(first, 0), (second, 2), (third, 4)] {
+        assert_eq!(
+            run(&w, &run_id).instruction.as_ref(),
+            Some(&owner[message].0)
+        );
+    }
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn a_different_source_in_the_same_chat_posts_its_own_instruction() {
+    let (_root, data, mut w) = workspace();
+    let (chat, _) = w.source_intake_chat(None, LOCATOR, TITLE).unwrap();
+    let first = intake_run(&data, &chat.id, LOCATOR, SOURCE_INTAKE_INSTRUCTION).await;
+    // The desktop, with another source in this chat.
+    let berth = "/synthetic/berth-survey.txt";
+    assert!(
+        w.post_intake_instruction(&chat.id, berth)
+            .unwrap()
+            .is_some()
+    );
+    let second = intake_run(&data, &chat.id, berth, SOURCE_INTAKE_INSTRUCTION).await;
+    // The CLI, with a third source in this chat.
+    let crane = "/synthetic/crane-schedule.txt";
+    let third = intake_run(&data, &chat.id, crane, SOURCE_INTAKE_INSTRUCTION).await;
+    let owner = owner_messages(&w, &chat.id);
+    assert_eq!(owner.len(), 3, "{owner:?}");
+    assert!(
+        owner
+            .iter()
+            .all(|(_, text)| text == SOURCE_INTAKE_INSTRUCTION)
+    );
+    for (run_id, message) in [(first, 0), (second, 1), (third, 2)] {
+        assert_eq!(
+            run(&w, &run_id).instruction.as_ref(),
+            Some(&owner[message].0)
+        );
+    }
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn other_instruction_wording_posts_a_fresh_instruction() {
+    let (_root, data, mut w) = workspace();
+    let (chat, _) = w.source_intake_chat(None, LOCATOR, TITLE).unwrap();
+    // A chat the CLI left before the instruction was shared.
+    let older = "Retain useful information from the supplied source.";
+    let first = intake_run(&data, &chat.id, LOCATOR, older).await;
+    assert!(
+        w.post_intake_instruction(&chat.id, LOCATOR)
+            .unwrap()
+            .is_some()
+    );
+    let second = intake_run(&data, &chat.id, LOCATOR, SOURCE_INTAKE_INSTRUCTION).await;
+    let owner = owner_messages(&w, &chat.id);
+    let texts: Vec<_> = owner.iter().map(|(_, text)| text.as_str()).collect();
+    assert_eq!(texts, [older, SOURCE_INTAKE_INSTRUCTION]);
+    for (run_id, message) in [(first, 0), (second, 1)] {
+        assert_eq!(
+            run(&w, &run_id).instruction.as_ref(),
+            Some(&owner[message].0)
+        );
+    }
+}

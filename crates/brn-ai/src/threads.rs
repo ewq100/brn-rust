@@ -1540,6 +1540,90 @@ pub fn prepare_run(mut request: ThreadRunRequest) -> AiResult<PreparedThreadRun>
     })
 }
 
+/// The current Messages of `chat` in durable receipt order, as a Run sees
+/// its conversation.
+fn chat_messages<'a>(history: &[Receipt], records: &'a [Record], chat: &str) -> Vec<&'a Record> {
+    let positions: BTreeMap<_, _> = history
+        .iter()
+        .enumerate()
+        .flat_map(|(position, receipt)| {
+            receipt
+                .writes
+                .iter()
+                .filter(|w| matches!(w.after.data, RecordData::Message(_)))
+                .map(move |w| (w.after.id.as_str(), position))
+        })
+        .collect();
+    let mut messages = records
+        .iter()
+        .filter(|r| !r.archived && matches!(&r.data, RecordData::Message(m) if m.thread == chat))
+        .collect::<Vec<_>>();
+    messages.sort_by_key(|r| positions.get(r.id.as_str()).copied().unwrap_or_default());
+    messages
+}
+
+/// The owner instruction Message that a Run supplied with `references`
+/// (canonical locators) reuses in `chat` instead of posting `prompt` again.
+/// It is the chat's latest owner Message, when its text is `prompt` and a Run
+/// in this chat it instructed received every one of those sources. New owner
+/// text since then, other wording or another source posts a fresh
+/// instruction; so does a Run without sources. `messages` are the chat's
+/// current Messages in durable receipt order.
+pub fn reusable_intake_instruction(
+    records: &[Record],
+    messages: &[&Record],
+    chat: &str,
+    prompt: &str,
+    references: &[&str],
+) -> Option<String> {
+    if references.is_empty() {
+        return None;
+    }
+    let latest = messages.iter().rev().find(
+        |r| matches!(&r.data, RecordData::Message(m) if m.thread == chat && m.role == "owner"),
+    )?;
+    if !matches!(&latest.data, RecordData::Message(m) if m.text == prompt) {
+        return None;
+    }
+    let supplied: Vec<_> = references
+        .iter()
+        .map(|reference| matching_sources(records, reference))
+        .collect();
+    records
+        .iter()
+        .any(|r| {
+            !r.archived
+                && matches!(&r.data, RecordData::Run(run)
+                    if run.thread == chat
+                        && run.instruction.as_deref() == Some(latest.id.as_str())
+                        && supplied.iter().all(|ids| run.sources.iter().any(|s| ids.contains(s.as_str()))))
+        })
+        .then(|| latest.id.clone())
+}
+
+/// [`reusable_intake_instruction`] over the saved state, for a host that
+/// posts the instruction itself before it starts the Run. `references` may be
+/// spelled as supplied; they are compared at their real paths.
+pub fn intake_instruction_to_reuse(
+    store: &Store,
+    chat: &str,
+    prompt: &str,
+    references: &[&str],
+) -> brn_threads_core::Result<Option<String>> {
+    let records = store.records()?;
+    let history = store.receipts()?;
+    let messages = chat_messages(&history, &records, chat);
+    let references: Vec<String> = references.iter().map(|r| canonical_locator(r)).collect();
+    let references: Vec<&str> = references.iter().map(String::as_str).collect();
+    Ok(reusable_intake_instruction(
+        &records,
+        &messages,
+        chat,
+        prompt,
+        &references,
+    ))
+}
+
 pub async fn run_prepared(
     prepared: PreparedThreadRun,
     cancel: CancellationToken,
@@ -1933,35 +2017,46 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
     let mut retained = Vec::new();
     let mut prior_operations = Vec::new();
     let history = store.receipts().map_err(storage)?;
-    let message_positions: BTreeMap<_, _> = history
-        .iter()
-        .enumerate()
-        .flat_map(|(position, receipt)| {
-            receipt
-                .writes
-                .iter()
-                .filter(|w| matches!(w.after.data, RecordData::Message(_)))
-                .map(move |w| (w.after.id.clone(), position))
-        })
-        .collect();
-    let mut messages = records
-        .iter()
-        .filter(|r| {
-            !r.archived && matches!(&r.data,RecordData::Message(m) if m.thread==request.thread)
-        })
-        .collect::<Vec<_>>();
-    messages.sort_by_key(|r| message_positions.get(&r.id).copied().unwrap_or_default());
+    let messages = chat_messages(&history, &records, &request.thread);
     if let Some(message) = &request.request_message
         && !messages.iter().rev().find(|r|matches!(&r.data,RecordData::Message(m) if m.role=="owner")).is_some_and(|r| r.id == *message && matches!(&r.data,RecordData::Message(m) if m.role=="owner" && m.text==request.prompt)) { return Err(rejected()); }
 
-    let already_posted = request.request_message.is_some() || writing_snapshot.is_some() || messages.last().is_some_and(
+    let last_is_prompt = messages.last().is_some_and(
         |r| matches!(&r.data,RecordData::Message(m) if m.role=="owner" && m.text==request.prompt),
     );
+    // A re-supply of a source reuses the chat's latest instruction for it,
+    // even after a reply, rather than repeating the same owner instruction.
+    // An owner edit or decision request keeps binding its own instruction.
+    let reused_instruction = if request.request_message.is_none()
+        && request.owner_request.is_none()
+        && !last_is_prompt
+    {
+        let references: Vec<&str> = request
+            .sources
+            .iter()
+            .map(|s| s.reference.as_str())
+            .collect();
+        reusable_intake_instruction(
+            &records,
+            &messages,
+            &request.thread,
+            &request.prompt,
+            &references,
+        )
+    } else {
+        None
+    };
+    let already_posted = request.request_message.is_some()
+        || writing_snapshot.is_some()
+        || last_is_prompt
+        || reused_instruction.is_some();
     let instruction = if let Some(message) = &request.request_message {
         message.clone()
     } else if let Some(snapshot) = &writing_snapshot {
         snapshot.request_message.clone()
-    } else if already_posted {
+    } else if let Some(message) = reused_instruction {
+        message
+    } else if last_is_prompt {
         messages.last().unwrap().id.clone()
     } else {
         op.creation_id(1)

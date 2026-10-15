@@ -88,3 +88,76 @@ fn useful_intake_of_one_markdown_file_through_two_spellings_reuses_its_chat() {
     assert_eq!(sources.len(), 1, "{sources:?}");
     assert_eq!(sources[0]["locator"], real.to_str().unwrap());
 }
+/// A fresh store configured for Codex with a missing auth file, so every
+/// provider step fails offline.
+fn offline_store(root: &Path) -> std::path::PathBuf {
+    let data = root.join("useful");
+    json_command(&data, &["init"]);
+    let missing = root.join("missing-auth.json");
+    json_command(
+        &data,
+        &[
+            "configure",
+            "--provider",
+            "Codex",
+            "--model",
+            "gpt-6.1-sol",
+            "--effort",
+            "medium",
+            "--auth-file",
+            missing.to_str().unwrap(),
+        ],
+    );
+    data
+}
+#[test]
+fn two_cli_useful_intakes_of_one_source_post_one_instruction() {
+    let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let data = offline_store(root.path());
+    let source = root.path().join("crane.md");
+    std::fs::write(
+        &source,
+        "# Crane delivery\n\nThe berth survey measured 1.4 m.\n",
+    )
+    .unwrap();
+    let supply = || {
+        json_command(
+            &data,
+            &[
+                "intake",
+                "--source",
+                source.to_str().unwrap(),
+                "--intent",
+                "useful",
+            ],
+        )
+    };
+    let first = supply();
+    let second = supply();
+    assert_eq!(second["thread"], first["thread"]);
+    let chat = first["thread"].as_str().unwrap();
+    let records = json_command(&data, &["records"]);
+    let records = records.as_array().unwrap();
+    let owner: Vec<_> = records
+        .iter()
+        .filter(|r| {
+            r["data"]
+                .get("Message")
+                .is_some_and(|m| m["thread"] == chat && m["role"] == "owner")
+        })
+        .collect();
+    assert_eq!(owner.len(), 1, "{owner:?}");
+    // The desktop's wording, so a desktop supply in this chat reuses it.
+    assert_eq!(
+        owner[0]["data"]["Message"]["text"],
+        brn_threads_app::SOURCE_INTAKE_INSTRUCTION
+    );
+    for run in [&first["run"], &second["run"]] {
+        let run = records
+            .iter()
+            .find(|r| r["id"] == *run)
+            .and_then(|r| r["data"].get("Run"))
+            .unwrap();
+        assert_eq!(run["instruction"], owner[0]["id"]);
+    }
+}
