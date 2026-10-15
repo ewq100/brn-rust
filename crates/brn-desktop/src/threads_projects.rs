@@ -64,7 +64,8 @@ impl ThreadsUi {
             worker.cancel.cancel();
             self.pending_send = None;
         }
-        self.notice = "Project saved.".into();
+        // A returned receipt is an applied change, like ApplyOutcome::Applied.
+        self.confirm("Project saved.");
         self.refresh();
         cx.notify();
         Ok(receipt)
@@ -130,7 +131,7 @@ impl ThreadsUi {
         let version = record.version;
         if record.archived {
             return body.child(metadata("Restoring returns project contents and settings. Cancelled tasks stay cancelled; tasks kept outside stay outside. Work remains paused."))
-                .child(button("project-restore").label("Restore project").on_click(cx.listener(move |this, _, _, cx| { if let Err(e) = this.apply_project(ProjectCommand::Restore { project: id.clone(), version }, cx) { this.notice = e.to_string(); cx.notify(); } else { this.projects_trash = false; } }))).into_any_element();
+                .child(button("project-restore").label("Restore project").on_click(cx.listener(move |this, _, _, cx| { if let Err(e) = this.apply_project(ProjectCommand::Restore { project: id.clone(), version }, cx) { this.fail(e.to_string()); cx.notify(); } else { this.projects_trash = false; } }))).into_any_element();
         }
         let settings_id = id.clone();
         let chat_id = id.clone();
@@ -213,8 +214,8 @@ impl ThreadsUi {
                                 &keep,
                                 version,
                             ) {
-                                Ok(outcome) => this.notice = outcome_message(&outcome),
-                                Err(e) => this.notice = e.to_string(),
+                                Ok(outcome) => this.report_outcome(&outcome),
+                                Err(e) => this.fail(e.to_string()),
                             };
                             this.refresh();
                             cx.notify();
@@ -232,7 +233,7 @@ impl ThreadsUi {
                             },
                             cx,
                         ) {
-                            this.notice = e.to_string();
+                            this.fail(e.to_string());
                             cx.notify();
                         }
                     }),
@@ -454,7 +455,7 @@ impl ThreadsUi {
         let preview = match self.workspace.project_delete_preview(id) {
             Ok(p) => p,
             Err(e) => {
-                self.notice = e.to_string();
+                self.fail(e.to_string());
                 cx.notify();
                 return;
             }

@@ -807,7 +807,7 @@ fn restoring_old_work_status_preserves_newer_errors_and_active_work(cx: &mut Tes
     let f = fixture(cx, RunState::Working);
     cx.update_window(f.window, |_, _, cx| {
         f.view.update(cx, |ui, cx| {
-            ui.last_work_notice = Some("Previous work finished".into());
+            ui.last_work_notice = Some((Tone::Success, "Previous work finished".into()));
             ui.notice.clear();
             ui.show_last_work_notice(cx);
             assert!(
@@ -887,4 +887,294 @@ fn completed_context_edit_refreshes_saved_text_and_preserves_human_changes(
         })
         .unwrap();
     }
+}
+
+/// The workspace banner's announced tone, as a screen reader hears it.
+fn banner_tone(cx: &mut TestAppContext, f: &Fixture) -> Option<String> {
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, _| {
+        window
+            .try_find("workspace-notice-tone")
+            .and_then(|tone| tone.label().map(str::to_owned))
+    })
+    .unwrap()
+}
+fn finish(cx: &mut TestAppContext, f: &Fixture, result: Result<String, String>) {
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |ui, cx| {
+            f.sender.send(WorkerEvent::Finished(result)).unwrap();
+            ui.poll_worker(window, cx);
+        })
+    })
+    .unwrap();
+}
+fn synthetic_run(ui: &mut ThreadsUi, key: &str, thread: &str, run: Run) -> String {
+    let id = ui
+        .workspace
+        .store
+        .allocate_operation(key)
+        .unwrap()
+        .creation_id(0);
+    ui.workspace
+        .owner_change(
+            key,
+            &ChangeRequest {
+                reason: "Synthetic host invocation".into(),
+                writes: vec![Put {
+                    id: id.clone(),
+                    expected_version: None,
+                    archived: false,
+                    data: RecordData::Run(Run {
+                        thread: thread.into(),
+                        ..run
+                    }),
+                }],
+                inputs: vec![],
+            },
+        )
+        .unwrap();
+    id
+}
+fn run_template(ui: &ThreadsUi, state: RunState) -> Run {
+    let settings = ui.workspace.settings().unwrap();
+    Run {
+        instruction: None,
+        queue_claim: None,
+        thread: String::new(),
+        provider: "offline-fixture".into(),
+        model: settings.model,
+        guide_identity: "synthetic".into(),
+        budget: 1,
+        effort: settings.effort,
+        loaded_skills: vec![],
+        fence: 0,
+        state,
+        progress: "Synthetic progress".into(),
+        operations: vec![],
+        sources: vec![],
+    }
+}
+
+#[gpui_kit::test]
+fn a_failed_finish_is_an_error_banner_and_restores_as_an_error(cx: &mut TestAppContext) {
+    let f = fixture(cx, RunState::Working);
+    finish(cx, &f, Err("Synthetic failure remains visible".into()));
+    let shown = cx.read(|cx| f.view.read(cx).notice.clone());
+    assert!(
+        shown.contains("Synthetic failure remains visible"),
+        "{shown}"
+    );
+    assert_eq!(banner_tone(cx, &f).as_deref(), Some("Error"));
+    cx.update_window(f.window, |_, window, cx| window.click("dismiss-notice", cx))
+        .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(window.try_find("workspace-notice").is_none());
+        window.click("status-layout", cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        let mut menu = window.within("popup-menu");
+        let index = (0..60usize)
+            .find(|i| {
+                menu.try_find(*i)
+                    .is_some_and(|row| row.label() == Some("Last work status"))
+            })
+            .expect("the failure can be restored");
+        menu.click(index, cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, _| {
+        assert_eq!(
+            window.find("workspace-notice").label(),
+            Some(shown.as_str())
+        );
+    })
+    .unwrap();
+    assert_eq!(
+        banner_tone(cx, &f).as_deref(),
+        Some("Error"),
+        "restoring keeps the failure's tone"
+    );
+}
+
+#[gpui_kit::test]
+fn a_finish_takes_its_tone_from_its_own_recorded_run(cx: &mut TestAppContext) {
+    for (state, tone) in [
+        (RunState::Failed, "Error"),
+        (RunState::Completed, "Success"),
+        (RunState::Interrupted, "Warning"),
+        (RunState::Working, "Warning"),
+    ] {
+        let f = fixture(cx, state.clone());
+        // A newer completed run in the same chat must not lend its tone.
+        cx.update_window(f.window, |_, _, cx| {
+            f.view.update(cx, |ui, _| {
+                let newer = run_template(ui, RunState::Completed);
+                synthetic_run(ui, "newer-run", &f.thread, newer);
+            })
+        })
+        .unwrap();
+        finish(
+            cx,
+            &f,
+            Ok("Finished. The answer and saved changes are in this chat.".into()),
+        );
+        assert_eq!(banner_tone(cx, &f).as_deref(), Some(tone), "{state:?}");
+        let last = cx.read(|cx| f.view.read(cx).last_work_notice.clone());
+        assert_eq!(last.map(|(tone, _)| tone.word()), Some(tone), "{state:?}");
+    }
+    // Work without a run (export, backup, import, connect) that finishes is a success.
+    let f = fixture(cx, RunState::Completed);
+    let (sender, receiver) = mpsc::sync_channel(4);
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |ui, cx| {
+            ui.worker = Some(Worker {
+                receiver,
+                cancel: CancellationToken::new(),
+                conversion_cancel: Arc::new(AtomicBool::new(false)),
+                kind: WorkerKind::Backup,
+                thread: None,
+                run_id: None,
+            });
+            sender
+                .send(WorkerEvent::Finished(Ok(
+                    "Full backup created at /private/tmp/brn-synthetic".into(),
+                )))
+                .unwrap();
+            ui.poll_worker(window, cx);
+        })
+    })
+    .unwrap();
+    assert_eq!(banner_tone(cx, &f).as_deref(), Some("Success"));
+}
+
+#[gpui_kit::test]
+fn outcome_tones_and_a_direct_overwrite_never_inherit_an_older_tone(cx: &mut TestAppContext) {
+    let f = fixture(cx, RunState::Completed);
+    let receipt = |ui: &mut ThreadsUi, needs_refresh: Vec<String>| Receipt {
+        operation: ui
+            .workspace
+            .store
+            .allocate_operation("tone-receipt")
+            .unwrap(),
+        request_hash: String::new(),
+        reason: "Synthetic change".into(),
+        writes: vec![],
+        authority: "owner".into(),
+        committed_at: "2026-10-14T19:47:00Z".into(),
+        undo_of: None,
+        needs_refresh,
+    };
+    type Case = Box<dyn Fn(&mut ThreadsUi)>;
+    let cases: [(&str, Case); 6] = [
+        (
+            "Warning",
+            Box::new(|ui| {
+                ui.report_outcome(&ApplyOutcome::Stale {
+                    records: vec!["synthetic".into()],
+                })
+            }),
+        ),
+        (
+            "Warning",
+            Box::new(move |ui| {
+                let receipt = receipt(ui, vec!["derived-a".into(), "derived-b".into()]);
+                ui.report_outcome(&ApplyOutcome::Applied(receipt));
+                assert!(
+                    ui.notice
+                        .contains("2 related items may need refresh. Open Changes"),
+                    "{}",
+                    ui.notice
+                );
+            }),
+        ),
+        (
+            "Success",
+            Box::new(move |ui| {
+                let receipt = receipt(ui, vec![]);
+                ui.report_outcome(&ApplyOutcome::Applied(receipt));
+            }),
+        ),
+        (
+            "Info",
+            Box::new(|ui| {
+                ui.report_outcome(&ApplyOutcome::NeedsReview {
+                    denied: vec!["synthetic".into()],
+                })
+            }),
+        ),
+        ("Error", Box::new(|ui| ui.fail("Synthetic error"))),
+        (
+            "Info",
+            Box::new(|ui| {
+                ui.fail("Synthetic error");
+                ui.notice = "A later direct notice".into();
+            }),
+        ),
+    ];
+    for (expected, case) in cases {
+        cx.update_window(f.window, |_, _, cx| {
+            f.view.update(cx, |ui, cx| {
+                case(ui);
+                cx.notify();
+            })
+        })
+        .unwrap();
+        let notice = cx.read(|cx| f.view.read(cx).notice.clone());
+        assert_eq!(banner_tone(cx, &f).as_deref(), Some(expected), "{notice}");
+    }
+}
+
+#[gpui_kit::test]
+fn a_refused_resume_renders_as_an_error_banner(cx: &mut TestAppContext) {
+    // Err arm in `resume_chat_queue`: the service refuses Resume while a
+    // saved run is still Working.
+    let f = fixture(cx, RunState::Working);
+    cx.update_window(f.window, |_, _, cx| {
+        f.view.update(cx, |ui, cx| {
+            ui.worker = None;
+            ui.resume_chat_queue(cx);
+            assert!(!ui.notice.is_empty());
+        })
+    })
+    .unwrap();
+    assert_eq!(banner_tone(cx, &f).as_deref(), Some("Error"));
+}
+
+#[gpui_kit::test]
+fn a_refused_stop_renders_as_an_error_banner(cx: &mut TestAppContext) {
+    // if-let-Err in `cancel`: the service refuses to stop a run whose fence
+    // cannot advance. (Resume's own if-let-Err needs a bound queued run,
+    // which only a prepared provider run can create.)
+    let f = fixture(cx, RunState::Completed);
+    cx.update_window(f.window, |_, _, cx| {
+        f.view.update(cx, |ui, cx| {
+            let template = run_template(ui, RunState::Working);
+            let run = synthetic_run(
+                ui,
+                "unstoppable-run",
+                &f.thread,
+                Run {
+                    fence: u64::MAX,
+                    ..template
+                },
+            );
+            ui.worker.as_mut().unwrap().run_id = Some(run);
+            cx.notify();
+        })
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| window.click("stop-work", cx))
+        .unwrap();
+    let notice = cx.read(|cx| f.view.read(cx).notice.clone());
+    assert!(!notice.is_empty());
+    assert_eq!(banner_tone(cx, &f).as_deref(), Some("Error"), "{notice}");
+    assert!(
+        !f.cancel.is_cancelled(),
+        "a refused stop leaves the worker running"
+    );
 }

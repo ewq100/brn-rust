@@ -76,13 +76,126 @@ impl TileKind {
         }
     }
     /// Narrow windows scroll the tile row rather than squeezing below this.
+    /// The Note adds its comments margin on top (see `margin_mode`).
     pub(super) fn min_width(self) -> f32 {
         match self {
-            Self::Threads => 170.,
-            Self::Note | Self::Compare => 320.,
+            Self::Threads | Self::AllThreads | Self::Notes => 170.,
+            Self::Note => 360.,
+            Self::Chat => 300.,
+            Self::Compare => 320.,
             _ => 260.,
         }
     }
+}
+
+/// Gap between panels and padding around the row, as the renderer draws them.
+pub(super) const PANEL_GAP: f32 = 6.;
+
+/// Where a Note's comments sit: beside the text at a fixed margin width, or
+/// docked below it when the Note has no room.
+#[allow(dead_code, reason = "S4 places comments with it")]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) enum MarginMode {
+    Wide,
+    Narrow,
+    Stacked,
+}
+#[allow(dead_code, reason = "S4 places comments with it")]
+impl MarginMode {
+    pub(super) const WIDE: f32 = 280.;
+    pub(super) const NARROW: f32 = 220.;
+    /// Width the margin adds to the Note's minimum.
+    pub(super) fn width(self) -> f32 {
+        match self {
+            Self::Wide => Self::WIDE,
+            Self::Narrow => Self::NARROW,
+            Self::Stacked => 0.,
+        }
+    }
+}
+
+/// Resolve layout weights to widths the way flex does: share the space by
+/// weight, pin any panel that would fall below its minimum, and share the rest
+/// again. The Note's minimum includes `margin_width`. When even the minimums
+/// do not fit, every panel gets its minimum and the row scrolls.
+#[allow(dead_code, reason = "S3 and S4 choose content modes with it")]
+pub(super) fn panel_widths(
+    available: f32,
+    tiles: &[(TileKind, f32)],
+    margin_width: f32,
+) -> Vec<f32> {
+    let minimum = |kind: TileKind| {
+        kind.min_width()
+            + if kind == TileKind::Note {
+                margin_width
+            } else {
+                0.
+            }
+    };
+    let gaps = PANEL_GAP * (2. + tiles.len().saturating_sub(1) as f32);
+    let usable = (available - gaps).max(0.);
+    let mut pinned = vec![false; tiles.len()];
+    loop {
+        let fixed: f32 = tiles
+            .iter()
+            .zip(&pinned)
+            .filter(|(_, pinned)| **pinned)
+            .map(|((kind, _), _)| minimum(*kind))
+            .sum();
+        let weight: f32 = tiles
+            .iter()
+            .zip(&pinned)
+            .filter(|(_, pinned)| !**pinned)
+            .map(|((_, weight), _)| weight.max(0.))
+            .sum();
+        let share = |w: f32| {
+            if weight > 0. {
+                (usable - fixed).max(0.) * w.max(0.) / weight
+            } else {
+                0.
+            }
+        };
+        let mut changed = false;
+        for (index, (kind, w)) in tiles.iter().enumerate() {
+            if !pinned[index] && share(*w) < minimum(*kind) {
+                pinned[index] = true;
+                changed = true;
+            }
+        }
+        if !changed {
+            return tiles
+                .iter()
+                .zip(&pinned)
+                .map(
+                    |((kind, w), pinned)| {
+                        if *pinned { minimum(*kind) } else { share(*w) }
+                    },
+                )
+                .collect();
+        }
+    }
+}
+
+/// The widest comments placement whose minimum widths fit. Maximized and
+/// Solo give the Note the whole row; without a visible Note nothing is
+/// reserved.
+#[allow(dead_code, reason = "S4 places comments with it")]
+pub(super) fn margin_mode(available: f32, layout: &Layout, maximized_or_solo: bool) -> MarginMode {
+    let tiles: Vec<(TileKind, f32)> = layout
+        .visible()
+        .iter()
+        .filter(|tile| !maximized_or_solo || tile.kind == TileKind::Note)
+        .map(|tile| (tile.kind, tile.weight))
+        .collect();
+    if !tiles.iter().any(|(kind, _)| *kind == TileKind::Note) {
+        return MarginMode::Stacked;
+    }
+    let gaps = PANEL_GAP * (2. + tiles.len().saturating_sub(1) as f32);
+    let minimums: f32 = tiles.iter().map(|(kind, _)| kind.min_width()).sum::<f32>() + gaps;
+    [MarginMode::Wide, MarginMode::Narrow]
+        .into_iter()
+        .find(|mode| minimums + mode.width() <= available)
+        .unwrap_or(MarginMode::Stacked)
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -583,6 +696,75 @@ mod tests {
             Some(TileKind::Chat),
             "settings preserves focus mode"
         );
+    }
+}
+
+#[cfg(test)]
+mod width_tests {
+    use super::*;
+
+    const WRITE: [(TileKind, f32); 3] = [
+        (TileKind::Threads, 0.62),
+        (TileKind::Note, 2.7),
+        (TileKind::Chat, 1.45),
+    ];
+
+    #[test]
+    fn write_weights_resolve_against_the_renderer_minimums() {
+        for (available, note) in [(900., 406.), (1050., 556.), (1100., 589.), (1250., 687.)] {
+            let widths = panel_widths(available, &WRITE, 0.);
+            assert!(
+                (widths[1] - note).abs() < 1.,
+                "{available}: note {}",
+                widths[1]
+            );
+            assert!(
+                widths[0] >= 170. && widths[2] >= 300.,
+                "{available}: {widths:?}"
+            );
+            let used: f32 = widths.iter().sum::<f32>() + PANEL_GAP * 4.;
+            assert!((used - available).abs() < 0.01, "{available}: {used}");
+        }
+        // A margin raises only the Note's minimum; when it cannot fit the row scrolls.
+        let narrow = panel_widths(1100., &WRITE, MarginMode::NARROW);
+        assert!(narrow[1] >= 360. + MarginMode::NARROW, "{narrow:?}");
+        assert_eq!(
+            panel_widths(900., &WRITE, MarginMode::WIDE),
+            vec![170., 640., 300.]
+        );
+    }
+
+    #[test]
+    fn margin_mode_picks_the_widest_placement_that_fits() {
+        for navigation in [TileKind::Threads, TileKind::Notes, TileKind::AllThreads] {
+            let mut layout = Layout::default();
+            layout.open(navigation);
+            assert_eq!(layout.area(navigation), Some(Area::Navigation));
+            for (available, mode) in [
+                (900., MarginMode::Stacked),
+                (1050., MarginMode::Stacked),
+                (1100., MarginMode::Narrow),
+                (1250., MarginMode::Wide),
+            ] {
+                assert_eq!(
+                    margin_mode(available, &layout, false),
+                    mode,
+                    "{navigation:?} at {available}"
+                );
+            }
+            // The worked thresholds: Wide 1134, Narrow 1074, Stacked below.
+            assert_eq!(margin_mode(1134., &layout, false), MarginMode::Wide);
+            assert_eq!(margin_mode(1133., &layout, false), MarginMode::Narrow);
+            assert_eq!(margin_mode(1074., &layout, false), MarginMode::Narrow);
+            assert_eq!(margin_mode(1073., &layout, false), MarginMode::Stacked);
+            // Solo and maximize give the Note the whole row.
+            assert_eq!(margin_mode(900., &layout, true), MarginMode::Wide);
+            layout.toggle_maximize(TileKind::Note);
+            assert_eq!(margin_mode(900., &layout, false), MarginMode::Wide);
+        }
+        let mut chat = Layout::default();
+        chat.apply(Preset::Chat);
+        assert_eq!(margin_mode(1600., &chat, false), MarginMode::Stacked);
     }
 }
 

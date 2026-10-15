@@ -147,9 +147,17 @@ pub(super) fn continuation_notice(state: &RunState) -> &'static str {
         "Continue starts fresh with the saved conversation and current notes."
     }
 }
+/// Names where to follow up after a change that left derived work behind.
+pub(super) fn refresh_hint(count: usize) -> String {
+    format!(
+        "{count} related item{} may need refresh. Open Changes to review {}.",
+        if count == 1 { "" } else { "s" },
+        if count == 1 { "it" } else { "them" }
+    )
+}
 pub(super) fn outcome_message(outcome: &ApplyOutcome) -> String {
     match outcome {
-        ApplyOutcome::Applied(receipt) => format!("Saved. {}{}", receipt.reason, if receipt.needs_refresh.is_empty() { String::new() } else { format!(" {} directly derived records may need refresh. Open What changed for the affected records and a follow-up.", receipt.needs_refresh.len()) }),
+        ApplyOutcome::Applied(receipt) => format!("Saved. {}{}", receipt.reason, if receipt.needs_refresh.is_empty() { String::new() } else { format!(" {}", refresh_hint(receipt.needs_refresh.len())) }),
         ApplyOutcome::Deferred { .. } => "Waiting for an open edit. Save or discard that edit, then retry this change.".into(),
         ApplyOutcome::Stale { .. } => "The current content changed. This proposal was preserved; compare it with the latest content before preparing a new change.".into(),
         ApplyOutcome::NeedsReview { .. } => "This change needs your review. The current notes are unchanged.".into(),
@@ -421,6 +429,17 @@ mod tests {
                 guarded: vec!["n".into()]
             })
             .contains("preserved")
+        );
+    }
+    #[test]
+    fn refresh_follow_ups_name_changes() {
+        assert_eq!(
+            refresh_hint(1),
+            "1 related item may need refresh. Open Changes to review it."
+        );
+        assert_eq!(
+            refresh_hint(3),
+            "3 related items may need refresh. Open Changes to review them."
         );
     }
 }

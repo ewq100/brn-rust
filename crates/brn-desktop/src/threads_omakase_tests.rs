@@ -2,6 +2,7 @@
 //! and no provider. Native pointer feel, pixels and IME remain owner checks.
 use super::*;
 use gpui_kit::{Focusable, TestAppContext, test::TestWindowExt};
+use std::rc::Rc;
 
 struct Fixture {
     _root: tempfile::TempDir,
@@ -289,7 +290,7 @@ fn themes_switch_from_status_bar_launcher_and_settings_and_wait_for_running_work
     });
     assert_eq!(theme::pal().accent, 0xdf6d66);
     on_window(cx, &f, |window, _| {
-        assert_eq!(window.find("status-theme").label(), Some("◐ Raba"));
+        assert_eq!(window.find("status-theme").label(), Some("Raba"));
     });
     press(cx, &f, "cmd-k");
     on_window(cx, &f, |window, cx| window.input("paber", cx));
@@ -1423,6 +1424,113 @@ fn companion_focus_and_theme_changes_keep_navigation_readable(cx: &mut TestAppCo
                 cx.theme().secondary_active,
                 gpui_kit::Hsla::from(rgb(palette.active))
             );
+            // Button::danger() and Tag read the tone channels.
+            let toward = if palette.dark { 0xffffff } else { 0x000000 };
+            for (channel, tone) in [
+                (cx.theme().danger, palette.danger),
+                (cx.theme().button_danger, palette.danger),
+                (cx.theme().warning, palette.warning),
+                (cx.theme().success, palette.success),
+                (cx.theme().info, palette.info),
+                (
+                    cx.theme().button_danger_hover,
+                    theme::mix(palette.danger, toward, 0.14),
+                ),
+                (
+                    cx.theme().button_danger_active,
+                    theme::mix(palette.danger, toward, 0.26),
+                ),
+                (cx.theme().button_danger_foreground, palette.tile),
+                (cx.theme().info_foreground, palette.tile),
+            ] {
+                assert_eq!(
+                    channel,
+                    gpui_kit::Hsla::from(rgb(tone)),
+                    "{}",
+                    theme.label()
+                );
+            }
         });
     }
+}
+
+#[gpui_kit::test]
+fn a_focused_overflow_menu_opens_and_runs_an_item_from_the_keyboard(cx: &mut TestAppContext) {
+    let f = fixture(cx, |_| {});
+    let note = update(cx, &f, |view, _, _| {
+        view.workspace
+            .new_note("Keyboard menu", "Saved text")
+            .unwrap()
+            .id
+    });
+    update(cx, &f, |view, window, cx| {
+        view.open_note(&note, None, window, cx);
+        view.note_editor.update(cx, |editor, cx| {
+            editor.set_value("Saved from the keyboard", window, cx)
+        });
+        // Typing records the edit; set_value alone does not.
+        view.preserve_visible_note_input(cx);
+    });
+    assert!(cx.read(|cx| f.view.read(cx).note.as_ref().unwrap().session.is_some()));
+    // Start from the workspace root, as after clicking empty space.
+    update(cx, &f, |view, window, cx| view.focus_root(window, cx));
+    let reached = (0..80).any(|_| {
+        press(cx, &f, "tab");
+        on_window(cx, &f, |window, _| {
+            window.find("note-menu").focused() == Some(true)
+        })
+    });
+    assert!(reached, "Tab reaches the Note ⋯ trigger");
+    press(cx, &f, "enter");
+    on_window(cx, &f, |window, _| {
+        assert!(
+            window.within("popup-menu").try_find(0usize).is_some(),
+            "↵ opens the focused trigger's menu"
+        );
+    });
+    // The first row is Save, enabled while the note has an unsaved edit.
+    press(cx, &f, "down");
+    press(cx, &f, "enter");
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        let open = view.note.as_ref().unwrap();
+        assert!(open.session.is_none(), "the chosen item ran: {}", view.notice);
+        assert!(matches!(&open.record.data, RecordData::Note(n) if n.markdown == "Saved from the keyboard"));
+    });
+}
+
+#[gpui_kit::test]
+fn consequence_dialogs_confirm_only_by_their_danger_button(cx: &mut TestAppContext) {
+    let f = fixture(cx, |_| {});
+    let confirmed = Rc::new(std::cell::Cell::new(false));
+    let seen = confirmed.clone();
+    on_window(cx, &f, move |window, cx| {
+        let seen = seen.clone();
+        window.open_dialog(cx, move |dialog, _, _| {
+            let seen = seen.clone();
+            components::consequence_dialog(
+                dialog,
+                "synthetic-discard",
+                "Discard your edit?",
+                "Your changes since v3 will be lost. This cannot be undone.",
+                "Discard edit",
+                Rc::new(move |_, _| seen.set(true)),
+            )
+        });
+    });
+    on_window(cx, &f, |window, _| {
+        assert_eq!(
+            window.find("synthetic-discard-body").label(),
+            Some("Your changes since v3 will be lost. This cannot be undone.")
+        );
+        assert!(window.find("synthetic-discard-confirm").visible());
+    });
+    press(cx, &f, "enter");
+    assert!(!confirmed.get(), "↵ never confirms");
+    on_window(cx, &f, |window, cx| {
+        assert!(window.has_active_dialog(cx), "↵ leaves the dialog open");
+        window.click("synthetic-discard-confirm", cx);
+    });
+    assert!(confirmed.get());
+    on_window(cx, &f, |window, cx| assert!(!window.has_active_dialog(cx)));
 }

@@ -151,7 +151,7 @@ impl ThreadsUi {
             .flex()
             .flex_col()
             .gap_1()
-            .child(section("IN NOTE TEXT"));
+            .child(section("In note text"));
         let status = match (&results.page, results.pending) {
             (_, true) if results.preparing => "Preparing search…".to_owned(),
             (_, true) => "Searching…".to_owned(),

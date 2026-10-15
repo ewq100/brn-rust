@@ -72,6 +72,56 @@ pub(super) fn day_number(stamp: &str) -> Option<i64> {
     Some(era * 146_097 + doe - 719_468)
 }
 
+/// A commit time as people read it, in UTC like the day grouping: "Today
+/// 19:47 UTC", "14 Oct, 19:47 UTC", or "14 Oct 2025, 19:47 UTC" in another
+/// year. Callers keep the raw ISO value in the tooltip; an unreadable stamp is
+/// returned unchanged.
+#[allow(dead_code, reason = "S6 shows list and Changes times with it")]
+pub(super) fn human_time(stamp: &str, today: i64) -> String {
+    const MONTHS: [&str; 12] = [
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+    ];
+    let Some(day) = day_number(stamp) else {
+        return stamp.to_owned();
+    };
+    // `day_number` has checked the `YYYY-MM-DD` prefix.
+    let (year, month, date) = (&stamp[0..4], &stamp[5..7], &stamp[8..10]);
+    let clock = stamp.get(10..16).filter(|rest| {
+        let bytes = rest.as_bytes();
+        matches!(bytes[0], b'T' | b' ')
+            && bytes[3] == b':'
+            && [1, 2, 4, 5].iter().all(|&i| bytes[i].is_ascii_digit())
+    });
+    let when = if day == today {
+        "Today".to_owned()
+    } else {
+        let month = MONTHS[month.parse::<usize>().map_or(0, |m| m - 1)];
+        let date = date.trim_start_matches('0');
+        if year.parse::<i64>().ok() == Some(civil_year(today)) {
+            format!("{date} {month}")
+        } else {
+            format!("{date} {month} {year}")
+        }
+    };
+    match clock {
+        Some(clock) if day == today => format!("{when} {} UTC", &clock[1..]),
+        Some(clock) => format!("{when}, {} UTC", &clock[1..]),
+        None => when,
+    }
+}
+
+/// The UTC calendar year of a day number.
+fn civil_year(day: i64) -> i64 {
+    let z = day + 719_468;
+    let era = z.div_euclid(146_097);
+    let doe = z - era * 146_097;
+    let yoe = (doe - doe / 1460 + doe / 36_524 - doe / 146_096) / 365;
+    let doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
+    let mp = (5 * doy + 2) / 153;
+    let month = if mp < 10 { mp + 3 } else { mp - 9 };
+    yoe + era * 400 + i64::from(month <= 2)
+}
+
 pub(super) fn today() -> i64 {
     std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
@@ -612,6 +662,32 @@ mod tests {
         assert_eq!(day_number("2026-10-12T19:40:31.118Z"), Some(20_738));
         assert_eq!(day_number("2024-03-01"), Some(19_783));
         assert_eq!(day_number("garbage"), None);
+        for (stamp, year) in [
+            ("1970-01-01", 1970),
+            ("2024-02-29", 2024),
+            ("2024-12-31", 2024),
+            ("2025-01-01", 2025),
+            ("2026-10-14", 2026),
+        ] {
+            assert_eq!(civil_year(day_number(stamp).unwrap()), year, "{stamp}");
+        }
+    }
+
+    #[test]
+    fn human_times_read_as_today_or_a_short_utc_date() {
+        let today = day_number("2026-10-14").unwrap();
+        for (stamp, shown) in [
+            ("2026-10-14T19:47:03.118Z", "Today 19:47 UTC"),
+            ("2026-10-13T08:05:00Z", "13 Oct, 08:05 UTC"),
+            ("2026-03-01T00:00:00Z", "1 Mar, 00:00 UTC"),
+            ("2025-12-31T23:59:59Z", "31 Dec 2025, 23:59 UTC"),
+            ("2026-10-14", "Today"),
+            ("2026-10-02", "2 Oct"),
+            ("garbage", "garbage"),
+            ("", ""),
+        ] {
+            assert_eq!(human_time(stamp, today), shown, "{stamp}");
+        }
     }
 
     #[test]

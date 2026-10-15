@@ -70,7 +70,10 @@ const KEYS: [(&str, &str); 18] = [
     ("Save note", "⌘S · status bar · ⋯ menu"),
     ("Layouts", "⌥1 Write · ⌥2 Chat · ⌥3 Solo / restore"),
     ("Focus tile", "⌘[ ⌘] · click a tile"),
-    ("Maximize tile", "⌘⇧↵ · double-click its header · ⤢"),
+    (
+        "Maximize tile",
+        "⌘⇧↵ · double-click its header · Maximize button",
+    ),
     ("Extra split", "Open beside · navigation bar or tile menu"),
     ("Resize tiles", "drag the gap between tiles"),
     ("Swap tiles", "drag a tile header onto another tile"),
@@ -181,18 +184,26 @@ impl ThreadsUi {
         }
         header
             .child(
-                pill(format!("tile-max-{key}"), if maximized { "⤡" } else { "⤢" })
-                    .tooltip(if maximized {
-                        "Restore (⌘⇧↵ · double-click header)"
+                components::icon_button(
+                    format!("tile-max-{key}"),
+                    if maximized {
+                        IconName::Minimize
                     } else {
-                        "Maximize (⌘⇧↵ · double-click header)"
-                    })
-                    .on_click(cx.listener(move |this, _, window, cx| {
-                        this.relayout(window, cx, |layout| layout.toggle_maximize(kind))
-                    })),
+                        IconName::Maximize
+                    },
+                    if maximized { "Restore" } else { "Maximize" },
+                )
+                .tooltip(if maximized {
+                    "Restore (⌘⇧↵ · double-click header)"
+                } else {
+                    "Maximize (⌘⇧↵ · double-click header)"
+                })
+                .on_click(cx.listener(move |this, _, window, cx| {
+                    this.relayout(window, cx, |layout| layout.toggle_maximize(kind))
+                })),
             )
             .child(
-                pill(format!("tile-close-{key}"), "✕")
+                components::icon_button(format!("tile-close-{key}"), IconName::Close, "Close")
                     .tooltip("Close panel · your work stays saved or recoverable")
                     .on_click(cx.listener(move |this, _, window, cx| {
                         this.relayout(window, cx, |layout| layout.close(kind))
@@ -337,7 +348,7 @@ impl ThreadsUi {
             .flex_1()
             .min_h_0()
             .w_full()
-            .p(px(6.))
+            .p(px(layout::PANEL_GAP))
             .overflow_x_scroll()
             .track_scroll(&self.tile_scroll)
             .bg(rgb(p.paper))
@@ -367,7 +378,7 @@ impl ThreadsUi {
                         .id(format!("split-{}", index - 1))
                         .test_support()
                         .flex_shrink_0()
-                        .w(px(6.))
+                        .w(px(layout::PANEL_GAP))
                         .h_full()
                         .cursor_col_resize()
                         .hover(|style| style.bg(rgb(p.border)))
@@ -590,8 +601,7 @@ impl ThreadsUi {
                     })),
             )
             .child(
-                pill("settings", "⚙")
-                    .accessibility_label("Settings")
+                components::icon_button("settings", IconName::Settings, "Settings")
                     .tooltip("Settings (⌘,)")
                     .selected(self.layout.settings_open())
                     .on_click(cx.listener(|view, _, window, cx| {
@@ -599,7 +609,8 @@ impl ThreadsUi {
                     })),
             )
             .child(
-                pill("open-beside", "Open beside ＋")
+                pill("open-beside", "Open beside")
+                    .icon(IconName::Plus)
                     .tooltip("Add an extra split · normal navigation reuses your working areas")
                     .dropdown_menu(move |mut menu, _, _| {
                         menu = menu.label("Open beside · existing panels are focused");
@@ -823,7 +834,9 @@ impl ThreadsUi {
             );
             if worker.kind.can_cancel() {
                 bar = bar.child(
-                    pill("stop-work", "■ Stop ⌘.")
+                    pill("stop-work", "Stop")
+                        .icon(IconName::Square)
+                        .tooltip("Stop the current work and pause the queue · ⌘.")
                         .on_click(cx.listener(|this, _, _, cx| this.cancel(cx))),
                 );
             }
@@ -857,9 +870,9 @@ impl ThreadsUi {
                 });
         }
         let layout_label = match (self.layout.maximized(), self.layout.preset()) {
-            (Some(kind), _) => format!("⊞ max · {}", kind.label()),
-            (None, Some(preset)) => format!("⊞ {}", preset.label()),
-            (None, None) => "⊞ custom".into(),
+            (Some(kind), _) => format!("max · {}", kind.label()),
+            (None, Some(preset)) => preset.label().into(),
+            (None, None) => "custom".into(),
         };
         let layout_this = this.clone();
         let theme_this = this.clone();
@@ -868,55 +881,58 @@ impl ThreadsUi {
         let work_status_visible = self
             .last_work_notice
             .as_ref()
-            .is_some_and(|last| last == &self.notice);
+            .is_some_and(|(_, last)| last == &self.notice);
         let can_show_work_status =
             self.last_work_notice.is_some() && self.notice.is_empty() && self.worker.is_none();
         bar.child(div().flex_1())
             .child(
-                pill("status-layout", layout_label).dropdown_menu(move |mut menu, _, _| {
-                    for (preset, action) in Preset::ALL.into_iter().zip([
-                        Box::new(LayoutWrite) as Box<dyn Action>,
-                        Box::new(LayoutChat),
-                        Box::new(LayoutSolo),
-                    ]) {
-                        menu = menu.item(item(
+                pill("status-layout", layout_label)
+                    .icon(IconName::LayoutDashboard)
+                    .dropdown_menu(move |mut menu, _, _| {
+                        for (preset, action) in Preset::ALL.into_iter().zip([
+                            Box::new(LayoutWrite) as Box<dyn Action>,
+                            Box::new(LayoutChat),
+                            Box::new(LayoutSolo),
+                        ]) {
+                            menu = menu.item(item(
+                                &layout_this,
+                                preset.label(),
+                                Some(action),
+                                false,
+                                layout.preset() == Some(preset),
+                                move |view, window, cx| view.apply_layout(preset, window, cx),
+                            ));
+                        }
+                        menu = menu.separator().item(item(
                             &layout_this,
-                            preset.label(),
-                            Some(action),
-                            false,
-                            layout.preset() == Some(preset),
-                            move |view, window, cx| view.apply_layout(preset, window, cx),
+                            "Last work status",
+                            None,
+                            !can_show_work_status,
+                            work_status_visible,
+                            |view, _, cx| view.show_last_work_notice(cx),
                         ));
-                    }
-                    menu = menu.separator().item(item(
-                        &layout_this,
-                        "Last work status",
-                        None,
-                        !can_show_work_status,
-                        work_status_visible,
-                        |view, _, cx| view.show_last_work_notice(cx),
-                    ));
-                    menu = menu.separator().label("Tiles");
-                    for kind in TileKind::ALL {
-                        menu = menu.item(item(
-                            &layout_this,
-                            kind.label(),
-                            (kind == TileKind::Threads)
-                                .then(|| Box::new(ToggleThreads) as Box<dyn Action>),
-                            false,
-                            layout.contains(kind),
-                            move |view, window, cx| {
-                                view.relayout(window, cx, |layout| layout.toggle(kind));
-                                view.refresh();
-                            },
-                        ));
-                    }
-                    menu
-                }),
+                        menu = menu.separator().label("Tiles");
+                        for kind in TileKind::ALL {
+                            menu = menu.item(item(
+                                &layout_this,
+                                kind.label(),
+                                (kind == TileKind::Threads)
+                                    .then(|| Box::new(ToggleThreads) as Box<dyn Action>),
+                                false,
+                                layout.contains(kind),
+                                move |view, window, cx| {
+                                    view.relayout(window, cx, |layout| layout.toggle(kind));
+                                    view.refresh();
+                                },
+                            ));
+                        }
+                        menu
+                    }),
             )
             .child(
-                pill("status-theme", format!("◐ {}", current_theme.label())).dropdown_menu(
-                    move |mut menu, _, _| {
+                pill("status-theme", current_theme.label())
+                    .icon(IconName::Palette)
+                    .dropdown_menu(move |mut menu, _, _| {
                         for theme in ThemeId::ALL {
                             menu = menu.item(item(
                                 &theme_this,
@@ -928,11 +944,11 @@ impl ThreadsUi {
                             ));
                         }
                         menu
-                    },
-                ),
+                    }),
             )
             .child(
-                pill("status-keys", "? keys")
+                pill("status-keys", "Keys")
+                    .icon(IconName::Keyboard)
                     .tooltip("Keys and mouse")
                     .on_click(cx.listener(|this, _, window, cx| this.show_keys(window, cx))),
             )
@@ -942,36 +958,31 @@ impl ThreadsUi {
         if self.notice.is_empty() {
             return None;
         }
-        let p = pal();
+        let restorable = self
+            .last_work_notice
+            .as_ref()
+            .is_some_and(|(_, last)| last == &self.notice);
+        let dismiss = components::icon_button("dismiss-notice", IconName::Close, "Dismiss")
+            .tooltip(if restorable {
+                "Hide status · restore from Layout → Last work status"
+            } else {
+                "Dismiss"
+            })
+            .on_click(cx.listener(|this, _, _, cx| {
+                this.notice.clear();
+                cx.notify();
+            }));
         Some(
-            div()
-                .id("workspace-notice")
-                .aria_label(self.notice.clone())
-                .flex()
-                .flex_shrink_0()
-                .items_center()
-                .gap_2()
-                .px_3()
-                .py_1()
-                .text_size(UI_TEXT)
-                .bg(rgb(p.tile))
-                .border_t_1()
-                .border_color(rgb(p.border))
-                .child(div().flex_1().min_w_0().child(self.notice.clone()))
-                .child(
-                    pill("dismiss-notice", "✕")
-                        .tooltip(if self.last_work_notice.as_ref() == Some(&self.notice) {
-                            "Hide status · restore from Layout → Last work status"
-                        } else {
-                            "Dismiss"
-                        })
-                        .on_click(cx.listener(|this, _, _, cx| {
-                            this.notice.clear();
-                            cx.notify();
-                        })),
-                )
-                .test_support()
-                .into_any_element(),
+            components::banner(
+                "workspace-notice",
+                self.notice_tone(),
+                self.notice.clone(),
+                vec![],
+                Some(dismiss),
+            )
+            .border_t_1()
+            .border_color(rgb(pal().hairline))
+            .into_any_element(),
         )
     }
     fn launcher_overlay(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {

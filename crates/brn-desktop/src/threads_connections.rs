@@ -183,9 +183,9 @@ impl ThreadsUi {
         }
         list = list
             .child(section(if depth == 1 {
-                "LOCAL CONNECTIONS · DIRECT LINKS"
+                "Local connections · direct links"
             } else {
-                "LOCAL CONNECTIONS · TWO HOPS"
+                "Local connections · two hops"
             }))
             .child(controls)
             .child(filters);
@@ -220,8 +220,8 @@ impl ThreadsUi {
         );
         for (index, hop) in found.hops.iter().enumerate() {
             list = list.child(section(format!(
-                "{} · {} OF {}",
-                if index == 0 { "LINKED" } else { "SECOND HOP" },
+                "{} · {} of {}",
+                if index == 0 { "Linked" } else { "Second hop" },
                 hop.shown.len(),
                 hop.available
             )));
@@ -288,7 +288,7 @@ impl ThreadsUi {
         let mut block = div().id("topics").flex().flex_col().gap_1();
         let Some(topics) = &self.topics else {
             return block
-                .child(section("TOPICS"))
+                .child(section("Topics"))
                 .child(metadata(
                     "A Topics note links your topic pages, so you and BRN start from the same map.",
                 ))
@@ -302,7 +302,7 @@ impl ThreadsUi {
         };
         let id = topics.note.clone();
         block = block
-            .child(section(format!("TOPICS · {}", topics.entries.len())))
+            .child(section(format!("Topics · {}", topics.entries.len())))
             .child(
                 row("topics-note", short(&topics.title), "open", false).on_click(
                     cx.listener(move |this, _, window, cx| this.open_note(&id, None, window, cx)),
@@ -348,14 +348,14 @@ impl ThreadsUi {
         match self.workspace.create_topics_note() {
             Ok((note, outcome)) => {
                 if !matches!(outcome, ApplyOutcome::Applied(_)) {
-                    self.notice =
-                        "The Topics note was created; choose it again after the current run finishes."
-                            .into();
+                    self.warn(
+                        "The Topics note was created; choose it again after the current run finishes.",
+                    );
                 }
                 self.refresh();
                 self.open_note(&note.id, None, window, cx);
             }
-            Err(error) => self.notice = error.to_string(),
+            Err(error) => self.fail(error.to_string()),
         }
         cx.notify();
     }
@@ -391,7 +391,7 @@ impl ThreadsUi {
                 self.refresh();
                 self.open_thread(&chat, window, cx);
             }
-            Err(error) => self.notice = error.to_string(),
+            Err(error) => self.fail(error.to_string()),
         }
         cx.notify();
     }
@@ -401,7 +401,7 @@ impl ThreadsUi {
         let knowledge = &self.knowledge;
         let mut panel = panel()
             .id("knowledge-check")
-            .child(heading("Knowledge check"))
+            .child(subheading("Knowledge check"))
             .child(metadata(
                 "Look for broken links, outdated inputs, gaps, orphans, duplicates and unresolved conflicts. A clean check is not proof of correctness.",
             ))

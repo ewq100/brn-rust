@@ -39,6 +39,8 @@ use std::{
 use tokio_util::sync::CancellationToken;
 #[path = "threads_chat.rs"]
 mod chat;
+#[path = "threads_components.rs"]
+mod components;
 #[path = "threads_connections.rs"]
 mod connections_view;
 #[path = "threads_context_actions.rs"]
@@ -69,12 +71,13 @@ mod tiles;
 mod workbench;
 #[path = "threads_writing.rs"]
 mod writing;
+use components::{IconName, Tone};
 use layout::{Layout, Preset, TileKind};
 use lists::{Activity, NoteRow, ThreadFilter, ThreadRow};
 use state::{
     ComposerDestination, ComposerDrafts, WorkerKind, can_continue_thread, comment_location,
-    continuation_notice, delegation_status, latest_run, linked, outcome_message, save_message,
-    sections,
+    continuation_notice, delegation_status, latest_run, linked, outcome_message, refresh_hint,
+    save_message, sections,
 };
 use theme::{ThemeId, pal};
 
@@ -324,9 +327,10 @@ fn top_bar_window_options() -> WindowOptions {
     }
     options
 }
+/// Controls use the 6 px control radius (`theme.radius`).
 fn button(id: impl Into<gpui_kit::ElementId>) -> Button {
     Button::new(id)
-        .rounded(ButtonRounded::Small)
+        .rounded(ButtonRounded::Medium)
         .font_family(UI_FONT)
         .text_size(UI_TEXT)
 }
@@ -335,18 +339,19 @@ fn prose_editor(state: &Entity<EditorState>) -> Editor {
         .font_family(UI_FONT)
         .text_size(PROSE_TEXT)
 }
+/// A page section separated by a hairline rather than boxed, so sections
+/// can nest without stacking borders. Cards are for things to act on.
 fn panel() -> gpui_kit::Div {
-    let p = pal();
     div()
         .flex()
         .flex_col()
         .gap_2()
         .p_3()
         .min_w_0()
-        .border_1()
-        .border_color(rgb(p.border))
-        .bg(rgb(p.tile))
+        .border_t_1()
+        .border_color(rgb(pal().hairline))
 }
+/// Page and dialog titles only; titles inside a page use `subheading`.
 fn heading(text: impl Into<gpui_kit::SharedString>) -> gpui_kit::Div {
     div()
         .font_family(UI_FONT)
@@ -355,13 +360,18 @@ fn heading(text: impl Into<gpui_kit::SharedString>) -> gpui_kit::Div {
         .font_weight(gpui_kit::FontWeight::SEMIBOLD)
         .child(text.into())
 }
-fn section(text: impl Into<gpui_kit::SharedString>) -> gpui_kit::Div {
+/// A title inside a page or panel.
+fn subheading(text: impl Into<gpui_kit::SharedString>) -> gpui_kit::Div {
     div()
         .font_family(UI_FONT)
-        .text_size(SMALL_TEXT)
-        .text_color(rgb(pal().muted))
-        .pt_2()
+        .text_size(UI_TEXT)
+        .text_color(rgb(pal().ink))
+        .font_weight(gpui_kit::FontWeight::SEMIBOLD)
         .child(text.into())
+}
+/// A sentence-case group label.
+fn section(text: impl Into<gpui_kit::SharedString>) -> gpui_kit::Div {
+    components::section_header(text, None, None)
 }
 fn metadata(text: impl Into<gpui_kit::SharedString>) -> gpui_kit::Div {
     div()
@@ -369,15 +379,43 @@ fn metadata(text: impl Into<gpui_kit::SharedString>) -> gpui_kit::Div {
         .text_color(rgb(pal().muted))
         .child(text.into())
 }
+/// A one-sentence empty state with a neutral icon; richer call sites use
+/// `components::empty_state` directly.
 fn empty(
     id: impl Into<gpui_kit::ElementId>,
     text: impl Into<gpui_kit::SharedString>,
 ) -> gpui_kit::base::ObservedElement<gpui_kit::Stateful<gpui_kit::Div>> {
-    let text = text.into();
-    metadata(text.clone())
-        .id(id)
-        .aria_label(text)
-        .test_support()
+    components::empty_state(id, IconName::Inbox, "", text, None)
+}
+/// Tone of an applied change's notice: refresh follow-ups need attention.
+fn apply_tone(outcome: &ApplyOutcome) -> Tone {
+    match outcome {
+        ApplyOutcome::Applied(receipt) if receipt.needs_refresh.is_empty() => Tone::Success,
+        ApplyOutcome::Applied(_) | ApplyOutcome::Deferred { .. } | ApplyOutcome::Stale { .. } => {
+            Tone::Warning
+        }
+        ApplyOutcome::NeedsReview { .. } | ApplyOutcome::Superseded { .. } => Tone::Info,
+    }
+}
+/// Tone of a Save's notice; every refusal keeps the owner's text.
+fn save_tone(outcome: &SaveOutcome) -> Tone {
+    match outcome {
+        SaveOutcome::Saved(receipt) if receipt.needs_refresh.is_empty() => Tone::Success,
+        _ => Tone::Warning,
+    }
+}
+/// A finished worker's tone. The owner's own Stop is a warning; otherwise a
+/// run's recorded state decides, and work without a run succeeded.
+fn finish_tone(ok: bool, stopped: bool, has_run: bool, state: Option<&RunState>) -> Tone {
+    match (ok, state) {
+        (false, _) if stopped => Tone::Warning,
+        (false, _) => Tone::Error,
+        (true, Some(RunState::Completed)) => Tone::Success,
+        (true, Some(RunState::Failed)) => Tone::Error,
+        (true, Some(_)) => Tone::Warning,
+        (true, None) if has_run => Tone::Warning,
+        (true, None) => Tone::Success,
+    }
 }
 fn title(record: &Record) -> String {
     match &record.data {
@@ -489,7 +527,11 @@ struct ThreadsUi {
     run_activity_status: String,
     run_activity_scroll: gpui_kit::ScrollHandle,
     notice: String,
-    last_work_notice: Option<String>,
+    /// Applies only while `notice` still equals `notice_tone_for`, so a direct
+    /// `notice` write never inherits an older tone.
+    notice_tone: Tone,
+    notice_tone_for: String,
+    last_work_notice: Option<(Tone, String)>,
     export_status: String,
     copilot_models: Vec<String>,
     backup_status: String,
@@ -785,6 +827,8 @@ impl ThreadsUi {
             run_activity_status: String::new(),
             run_activity_scroll: gpui_kit::ScrollHandle::new(),
             notice: String::new(),
+            notice_tone: Tone::Info,
+            notice_tone_for: String::new(),
             last_work_notice: None,
             export_status: "No export created in this session.".into(),
             copilot_models: Vec::new(),
@@ -855,7 +899,7 @@ impl ThreadsUi {
             Ok(())
         })();
         if let Err(error) = result {
-            self.notice = error.to_string();
+            self.fail(error.to_string());
         }
         self.assets = Arc::new(
             self.records
@@ -944,11 +988,40 @@ impl ThreadsUi {
         // Never replace a newer error/status or show a past completion as live work.
         if self.worker.is_none()
             && self.notice.is_empty()
-            && let Some(notice) = &self.last_work_notice
+            && let Some((tone, notice)) = self.last_work_notice.clone()
         {
-            self.notice = notice.clone();
+            self.set_notice(tone, notice);
             cx.notify();
         }
+    }
+    /// Text, tone and the tone's guard change together.
+    fn set_notice(&mut self, tone: Tone, text: impl Into<String>) {
+        self.notice = text.into();
+        self.notice_tone = tone;
+        self.notice_tone_for.clone_from(&self.notice);
+    }
+    fn inform(&mut self, text: impl Into<String>) {
+        self.set_notice(Tone::Info, text);
+    }
+    fn confirm(&mut self, text: impl Into<String>) {
+        self.set_notice(Tone::Success, text);
+    }
+    fn warn(&mut self, text: impl Into<String>) {
+        self.set_notice(Tone::Warning, text);
+    }
+    fn fail(&mut self, text: impl Into<String>) {
+        self.set_notice(Tone::Error, text);
+    }
+    /// The workspace notice's tone; any later direct write reads as Info.
+    fn notice_tone(&self) -> Tone {
+        if self.notice == self.notice_tone_for {
+            self.notice_tone
+        } else {
+            Tone::Info
+        }
+    }
+    fn report_outcome(&mut self, outcome: &ApplyOutcome) {
+        self.set_notice(apply_tone(outcome), outcome_message(outcome));
     }
     fn show_tile(&mut self, kind: TileKind, window: &mut Window, cx: &mut Context<Self>) {
         self.preserve_visible_note_input(cx);
@@ -1176,8 +1249,8 @@ impl ThreadsUi {
                 self.refresh_connections(cx);
                 cx.notify();
             }
-            Ok(None) => self.notice = "That note is no longer current.".into(),
-            Err(e) => self.notice = e.to_string(),
+            Ok(None) => self.warn("That note is no longer current."),
+            Err(e) => self.fail(e.to_string()),
         }
     }
     /// Show a thread in the chat tile; a thread linked to a note also brings
@@ -1333,8 +1406,7 @@ impl ThreadsUi {
     fn comment_on_selection(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         let Some(open) = &self.note else { return };
         if open.session.is_some() {
-            self.notice =
-                "Save your edit first: comments anchor to the saved version of the note.".into();
+            self.warn("Save your edit first: comments anchor to the saved version of the note.");
             cx.notify();
             return;
         }
@@ -1367,8 +1439,7 @@ impl ThreadsUi {
             self.sync_note_marks(cx);
             self.comment_input.update(cx, |e, cx| e.focus(window, cx));
         } else {
-            self.notice =
-                "Select a passage to comment on. The selection must map to the saved note.".into();
+            self.warn("Select a passage to comment on. The selection must map to the saved note.");
         }
         cx.notify();
     }
@@ -1426,7 +1497,7 @@ impl ThreadsUi {
         if open.session.is_none() && text == note.markdown {
             return;
         }
-        let result = (|| -> brn_threads_app::AppResult<()> {
+        let result = (|| -> brn_threads_app::AppResult<Option<(Tone, &'static str)>> {
             if open.session.is_none() {
                 open.session = Some(
                     self.workspace
@@ -1436,36 +1507,54 @@ impl ThreadsUi {
             }
             let session = open.session.as_ref().unwrap();
             if session.markdown == text {
-                return Ok(());
+                return Ok(None);
             }
-            match self.workspace.store.update_buffer(&session.id,session.generation+1,&text)? {
-                BufferOutcome::Updated(updated)=>{open.session=Some(updated);self.notice="Your edit is recoverable. Save to update the note.".into();},
-                BufferOutcome::Ignored(_)=>self.notice="This recovery buffer changed elsewhere. Your visible text is retained; compare before saving.".into(),
-            }
-            Ok(())
+            Ok(Some(
+                match self.workspace.store.update_buffer(
+                    &session.id,
+                    session.generation + 1,
+                    &text,
+                )? {
+                    BufferOutcome::Updated(updated) => {
+                        open.session = Some(updated);
+                        (
+                            Tone::Info,
+                            "Your edit is recoverable. Save to update the note.",
+                        )
+                    }
+                    BufferOutcome::Ignored(_) => (
+                        Tone::Warning,
+                        "This recovery buffer changed elsewhere. Your visible text is retained; compare before saving.",
+                    ),
+                },
+            ))
         })();
-        if let Err(e) = result {
-            self.notice = format!(
+        match result {
+            Ok(Some((tone, text))) => self.set_notice(tone, text),
+            Ok(None) => {}
+            Err(e) => self.fail(format!(
                 "Could not preserve this edit: {e}. Keep this window open or copy your text."
-            );
+            )),
         }
     }
     fn save(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         let text = self.note_editor.read(cx).value().to_string();
         self.note_changed(text);
         let Some(session) = self.note.as_ref().and_then(|n| n.session.clone()) else {
-            self.notice = "No unsaved edit.".into();
+            self.inform("No unsaved edit.");
             cx.notify();
             return;
         };
         match self.workspace.store.save(&session.id, session.generation) {
             Ok(outcome) => {
-                self.notice = save_message(&outcome).into();
+                let mut text = save_message(&outcome).to_owned();
                 if let SaveOutcome::Saved(receipt) = &outcome
                     && !receipt.needs_refresh.is_empty()
                 {
-                    self.notice.push_str(&format!(" {} directly derived records may need refresh. Open What changed for the affected records and a follow-up.", receipt.needs_refresh.len()));
+                    text.push(' ');
+                    text.push_str(&refresh_hint(receipt.needs_refresh.len()));
                 }
+                self.set_notice(save_tone(&outcome), text);
                 if matches!(outcome, SaveOutcome::Saved(_)) {
                     self.open_note(&session.note, None, window, cx);
                 } else if let Ok(Some(record)) = self.workspace.store.note(&session.note)
@@ -1477,7 +1566,7 @@ impl ThreadsUi {
                         .update(cx, |view, cx| view.set_text(&current.markdown, cx));
                 }
             }
-            Err(e) => self.notice = e.to_string(),
+            Err(e) => self.fail(e.to_string()),
         }
         self.refresh();
         cx.notify();
@@ -1493,12 +1582,12 @@ impl ThreadsUi {
         {
             Ok(BufferOutcome::Updated(closed)) if closed.closed => {
                 self.open_note(&session.note, None, window, cx);
-                self.notice = "Discarded the unsaved edit.".into();
+                self.inform("Discarded the unsaved edit.");
             }
             Ok(_) => {
-                self.notice = "A newer edit exists. It was preserved; recover it from the notes tile or overview.".into()
+                self.warn("A newer edit exists. It was preserved; recover it from the notes tile or overview.")
             }
-            Err(e) => self.notice = e.to_string(),
+            Err(e) => self.fail(e.to_string()),
         }
         self.refresh();
         cx.notify();
@@ -1529,7 +1618,7 @@ impl ThreadsUi {
                                         this.open_note(&record.id, None, window, cx);
                                         created = true;
                                     }
-                                    Err(e) => this.notice = e.to_string(),
+                                    Err(e) => this.fail(e.to_string()),
                                 }
                                 cx.notify();
                             });
@@ -1559,8 +1648,8 @@ impl ThreadsUi {
             .workspace
             .owner_change(&format!("ui:{}", uuid::Uuid::new_v4()), &request)
         {
-            Ok(outcome) => self.notice = outcome_message(&outcome),
-            Err(e) => self.notice = e.to_string(),
+            Ok(outcome) => self.report_outcome(&outcome),
+            Err(e) => self.fail(e.to_string()),
         };
         self.refresh();
         cx.notify();
@@ -1568,7 +1657,7 @@ impl ThreadsUi {
     fn prepare_review_selection(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         let Some(review) = &self.review else { return };
         if review.edited {
-            self.notice = "Prepare your edited text before choosing proposal groups.".into();
+            self.warn("Prepare your edited text before choosing proposal groups.");
             cx.notify();
             return;
         }
@@ -1581,9 +1670,9 @@ impl ThreadsUi {
                 // The prepared selection replaces the reviewed candidate.
                 self.review = None;
                 self.open_review(candidate, window, cx);
-                self.notice = "The selected whole records are prepared. Review this new proposal, then apply it.".into();
+                self.inform("The selected whole records are prepared. Review this new proposal, then apply it.");
             }
-            Err(error) => self.notice = error.to_string(),
+            Err(error) => self.fail(error.to_string()),
         }
         self.refresh();
         cx.notify();
@@ -1600,10 +1689,9 @@ impl ThreadsUi {
                 // The prepared final text replaces the reviewed candidate.
                 self.review = None;
                 self.open_review(candidate, window, cx);
-                self.notice =
-                    "Your final text is prepared. Review this version, then apply it.".into();
+                self.inform("Your final text is prepared. Review this version, then apply it.");
             }
-            Err(e) => self.notice = e.to_string(),
+            Err(e) => self.fail(e.to_string()),
         };
         self.refresh();
         cx.notify();
@@ -1652,10 +1740,9 @@ impl ThreadsUi {
             });
         match result {
             Ok(thread) => self.select_writing_thread(note, thread, window, cx),
-            Err(error) => {
-                self.notice =
-                    format!("Could not link a new chat: {error}. Your drafts are preserved.")
-            }
+            Err(error) => self.fail(format!(
+                "Could not link a new chat: {error}. Your drafts are preserved."
+            )),
         };
         self.refresh();
         cx.notify();
@@ -1715,7 +1802,7 @@ impl ThreadsUi {
             .as_ref()
             .is_none_or(|open| open.record.id != note || open.session.is_some())
         {
-            self.notice = "Save your edit, then select the saved passage again. Your comment draft is preserved.".into();
+            self.warn("Save your edit, then select the saved passage again. Your comment draft is preserved.");
             cx.notify();
             return;
         }
@@ -1749,13 +1836,11 @@ impl ThreadsUi {
                 self.comment_input
                     .update(cx, |e, cx| e.set_value("", window, cx));
                 self.focus_visible_editor(window, cx);
-                self.notice =
-                    "Comment added to pending feedback. Rewrite with AI when ready.".into();
+                self.inform("Comment added to pending feedback. Rewrite with AI when ready.");
             }
-            Err(error) => {
-                self.notice =
-                    format!("{error}. Your comment draft and saved passage are preserved.")
-            }
+            Err(error) => self.fail(format!(
+                "{error}. Your comment draft and saved passage are preserved."
+            )),
         }
         self.adopt_writing_thread(&note);
         self.preserve_comment_draft(cx);
@@ -1765,7 +1850,7 @@ impl ThreadsUi {
     }
     fn rewrite_note(&mut self, cx: &mut Context<Self>) {
         if let Some(worker) = &self.worker {
-            self.notice = worker.kind.busy_notice().into();
+            self.warn(worker.kind.busy_notice());
             cx.notify();
             return;
         }
@@ -1773,7 +1858,7 @@ impl ThreadsUi {
             return;
         };
         if open.session.is_some() {
-            self.notice = "Save your edit before requesting a rewrite of the saved note.".into();
+            self.warn("Save your edit before requesting a rewrite of the saved note.");
             cx.notify();
             return;
         }
@@ -1782,7 +1867,7 @@ impl ThreadsUi {
         let comments = match self.workspace.writing_comments(&note) {
             Ok(comments) => comments,
             Err(error) => {
-                self.notice = error.to_string();
+                self.fail(error.to_string());
                 cx.notify();
                 return;
             }
@@ -1812,8 +1897,9 @@ impl ThreadsUi {
         match result {
             Ok(snapshot) => self.retry_rewrite(snapshot.request_message, cx),
             Err(error) => {
-                self.notice =
-                    format!("Rewrite could not be saved: {error}. Your feedback remains pending.");
+                self.fail(format!(
+                    "Rewrite could not be saved: {error}. Your feedback remains pending."
+                ));
                 cx.notify();
             }
         }
@@ -1833,12 +1919,10 @@ impl ThreadsUi {
             operation,
             ids,
         ) {
-            Ok(_) => {
-                self.notice =
-                    "Selected captured comments marked addressed. Other feedback remains pending."
-                        .into()
-            }
-            Err(error) => self.notice = error.to_string(),
+            Ok(_) => self.inform(
+                "Selected captured comments marked addressed. Other feedback remains pending.",
+            ),
+            Err(error) => self.fail(error.to_string()),
         }
         self.refresh();
         cx.notify();
@@ -1855,19 +1939,22 @@ impl ThreadsUi {
                         .is_none_or(|record| record.archived || record.version != input.version)
                 });
                 if changed {
-                    self.notice = "Saved rewrite context changed. Feedback is preserved; Reload saved note, then request a new Rewrite with AI.".into();
+                    self.warn("Saved rewrite context changed. Feedback is preserved; Reload saved note, then request a new Rewrite with AI.");
                     cx.notify();
                     return;
                 }
                 self.start_run("Rewrite the saved document using the captured feedback and selected chat; prepare a whole-note proposal for review.".into(), snapshot.thread, vec![], Some(brn_ai::threads::OwnerRequest::RewriteNote { request_message: message }), cx);
                 if self.worker.is_none() {
-                    self.notice = format!(
+                    // The reason start_run gave keeps its tone.
+                    let tone = self.notice_tone();
+                    let text = format!(
                         "Rewrite request saved; AI has not started. {} Retry rewrite uses these same saved inputs.",
                         self.notice
                     );
+                    self.set_notice(tone, text);
                 }
             }
-            Err(error) => self.notice = error.to_string(),
+            Err(error) => self.fail(error.to_string()),
         }
         self.refresh();
         cx.notify();
@@ -1881,7 +1968,7 @@ impl ThreadsUi {
         cx: &mut Context<Self>,
     ) {
         if let Some(worker) = &self.worker {
-            self.notice = worker.kind.busy_notice().into();
+            self.warn(worker.kind.busy_notice());
             cx.notify();
             return;
         }
@@ -1904,11 +1991,11 @@ impl ThreadsUi {
                 if !self.copilot_models.is_empty()
                     && !self.copilot_models.contains(&self.settings.model)
                 {
-                    self.notice = format!(
+                    self.warn(format!(
                         "{} is not offered by GitHub Copilot, so BRN has not started. Choose a model from the model menu: {}.",
                         self.settings.model,
                         self.copilot_models.join(", ")
-                    );
+                    ));
                     cx.notify();
                     return;
                 }
@@ -1918,7 +2005,7 @@ impl ThreadsUi {
                 }
             }
             _ => {
-                self.notice = "Choose a provider and model in Settings before asking BRN.".into();
+                self.warn("Choose a provider and model in Settings before asking BRN.");
                 cx.notify();
                 return;
             }
@@ -1928,7 +2015,7 @@ impl ThreadsUi {
             "medium" => brn_ai::ReasoningEffort::Medium,
             "high" => brn_ai::ReasoningEffort::High,
             _ => {
-                self.notice = "Choose a supported reasoning effort in Settings.".into();
+                self.warn("Choose a supported reasoning effort in Settings.");
                 cx.notify();
                 return;
             }
@@ -1947,7 +2034,7 @@ impl ThreadsUi {
         let search = match self.workspace.search_handle() {
             Ok(handle) => Some(Arc::new(handle) as Arc<dyn brn_ai::threads::RunNoteSearch>),
             Err(error) => {
-                self.notice = format!("Note search is unavailable for this run: {error}");
+                self.warn(format!("Note search is unavailable for this run: {error}"));
                 None
             }
         };
@@ -1970,9 +2057,9 @@ impl ThreadsUi {
         let prepared = match brn_ai::threads::prepare_run(request) {
             Ok(prepared) => prepared,
             Err(error) => {
-                self.notice = format!(
+                self.fail(format!(
                     "Could not start. Your saved message remains available; {continuation}. {error}"
-                );
+                ));
                 self.refresh();
                 cx.notify();
                 return;
@@ -2013,9 +2100,9 @@ impl ThreadsUi {
             let _ = sender.send(WorkerEvent::RunFinished { result, terminal });
         });
         if let Err(error) = spawned {
-            self.notice = format!(
+            self.fail(format!(
                 "Could not start. Your saved instruction remains available; {continuation}. {error}"
-            );
+            ));
             self.refresh();
             cx.notify();
             return;
@@ -2077,10 +2164,10 @@ impl ThreadsUi {
                 cancellation.cancel();
                 self.progress =
                     "Stopping… New instruction saved; waiting for this run to finish.".into();
-                self.notice = "Instruction saved. Waiting for the current run to stop.".into();
+                self.inform("Instruction saved. Waiting for the current run to stop.");
                 self.refresh();
             }
-            Err(error) => self.notice = format!("Could not send: {error}. Your text is preserved."),
+            Err(error) => self.fail(format!("Could not send: {error}. Your text is preserved.")),
         }
         cx.notify();
     }
@@ -2102,7 +2189,7 @@ impl ThreadsUi {
         cx: &mut Context<Self>,
     ) {
         if let Some(worker) = &self.worker {
-            self.notice = worker.kind.busy_notice().into();
+            self.warn(worker.kind.busy_notice());
             cx.notify();
             return;
         }
@@ -2137,7 +2224,7 @@ impl ThreadsUi {
                 self.chat = ChatTarget::Thread(thread.clone());
                 self.start_run(prompt, thread, vec![], owner_request, cx);
             }
-            Err(e) => self.notice = format!("{e}. Your text is preserved."),
+            Err(e) => self.fail(format!("{e}. Your text is preserved.")),
         }
         self.refresh();
         cx.notify();
@@ -2167,7 +2254,7 @@ impl ThreadsUi {
         };
         match result {
             Ok(_) => {
-                self.notice = "Chat archived. Work stopped and the queue is paused. Actions retain their progress.".into();
+                self.inform("Chat archived. Work stopped and the queue is paused. Actions retain their progress.");
                 if let Some(worker) = &self.worker
                     && worker.thread.as_deref() == Some(thread)
                 {
@@ -2175,7 +2262,7 @@ impl ThreadsUi {
                 }
                 self.pending_send = None;
             }
-            Err(e) => self.notice = e.to_string(),
+            Err(e) => self.fail(e.to_string()),
         }
         self.refresh();
         cx.notify();
@@ -2185,8 +2272,8 @@ impl ThreadsUi {
             .workspace
             .unarchive_chat(&format!("unarchive:{}", uuid::Uuid::new_v4()), thread)
         {
-            Ok(_) => self.notice = "Chat unarchived. The queue stays paused until Resume.".into(),
-            Err(e) => self.notice = e.to_string(),
+            Ok(_) => self.inform("Chat unarchived. The queue stays paused until Resume."),
+            Err(e) => self.fail(e.to_string()),
         }
         self.refresh();
         cx.notify();
@@ -2214,10 +2301,11 @@ impl ThreadsUi {
             .as_ref()
             .is_some_and(|worker| worker.kind == WorkerKind::Run)
         {
-            self.notice = format!(
+            // The theme already applies; only saving waits, so this is not a warning.
+            self.inform(format!(
                 "{} applied. It is saved for next time when the current work finishes.",
                 self.theme.label()
-            );
+            ));
             return;
         }
         match self.workspace.choose_theme(self.theme.key()) {
@@ -2225,14 +2313,12 @@ impl ThreadsUi {
                 self.theme_pending = false;
                 self.refresh();
             }
-            Ok(ApplyOutcome::Deferred { .. }) => {
-                self.notice = format!(
-                    "{} applied. It is saved for next time once no work is running.",
-                    self.theme.label()
-                )
-            }
-            Ok(outcome) => self.notice = outcome_message(&outcome),
-            Err(error) => self.notice = error.to_string(),
+            Ok(ApplyOutcome::Deferred { .. }) => self.inform(format!(
+                "{} applied. It is saved for next time once no work is running.",
+                self.theme.label()
+            )),
+            Ok(outcome) => self.report_outcome(&outcome),
+            Err(error) => self.fail(error.to_string()),
         }
     }
     /// Pills change the explicit Settings through the existing configure path.
@@ -2260,13 +2346,13 @@ impl ThreadsUi {
         cx: &mut Context<Self>,
     ) {
         if let Some(worker) = &self.worker {
-            self.notice = worker.kind.busy_notice().into();
+            self.warn(worker.kind.busy_notice());
             cx.notify();
             return;
         }
         match self.workspace.configure(settings) {
-            Ok(outcome) => self.notice = outcome_message(&outcome),
-            Err(e) => self.notice = e.to_string(),
+            Ok(outcome) => self.report_outcome(&outcome),
+            Err(e) => self.fail(e.to_string()),
         }
         self.refresh();
         let model = self.settings.model.clone();
@@ -2400,7 +2486,7 @@ impl ThreadsUi {
     fn apply_review(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         let Some(review) = &self.review else { return };
         if review.edited || review.selected.len() != review.groups.groups.len() {
-            self.notice = "Prepare your edited text or selected groups before applying it.".into();
+            self.warn("Prepare your edited text or selected groups before applying it.");
             cx.notify();
             return;
         }
@@ -2413,7 +2499,7 @@ impl ThreadsUi {
             review.edited && review.candidate.operation.as_str() == candidate.operation.as_str()
         });
         if editing {
-            self.notice = "You are editing this proposal's final text. Use this text or cancel the edit in the note tile first.".into();
+            self.warn("You are editing this proposal's final text. Use this text or cancel the edit in the note tile first.");
             cx.notify();
         }
         editing
@@ -2437,7 +2523,7 @@ impl ThreadsUi {
     ) {
         match self.workspace.review_apply(candidate.operation.as_str()) {
             Ok(outcome) => {
-                self.notice = outcome_message(&outcome);
+                self.report_outcome(&outcome);
                 if let ApplyOutcome::Applied(receipt) = &outcome {
                     if let Some(input) = candidate
                         .request
@@ -2460,7 +2546,7 @@ impl ThreadsUi {
                     self.reload_open_note(window, cx);
                 }
             }
-            Err(e) => self.notice = e.to_string(),
+            Err(e) => self.fail(e.to_string()),
         };
         self.refresh();
         cx.notify();
@@ -2506,17 +2592,17 @@ impl ThreadsUi {
                     self.review_editing = false;
                 }
                 self.focus_visible_editor(window, cx);
-                self.notice = "Dismissed the proposal. The note is unchanged.".into();
+                self.inform("Dismissed the proposal. The note is unchanged.");
             }
-            Err(error) => self.notice = error.to_string(),
+            Err(error) => self.fail(error.to_string()),
         }
         self.refresh();
         cx.notify();
     }
     fn undo_receipt(&mut self, operation: &str, window: &mut Window, cx: &mut Context<Self>) {
         match self.workspace.undo(operation) {
-            Ok(outcome) => self.notice = outcome_message(&outcome),
-            Err(error) => self.notice = error.to_string(),
+            Ok(outcome) => self.report_outcome(&outcome),
+            Err(error) => self.fail(error.to_string()),
         };
         self.refresh();
         self.reload_open_note(window, cx);
@@ -2629,7 +2715,7 @@ impl ThreadsUi {
     }
     fn cancel(&mut self, cx: &mut Context<Self>) {
         if self.pending_send.take().is_some() {
-            self.notice = "Automatic continuation stopped. Your saved instruction remains in the chat; Continue when ready.".into();
+            self.warn("Automatic continuation stopped. Your saved instruction remains in the chat; Continue when ready.");
         }
         let stopped = if let Some(run) = self.worker.as_ref().and_then(|w| w.run_id.clone()) {
             self.workspace.stop_chat_run(
@@ -2642,7 +2728,7 @@ impl ThreadsUi {
                 .pause_queue(&format!("pause:{}", uuid::Uuid::new_v4()))
         };
         if let Err(e) = stopped {
-            self.notice = e.to_string();
+            self.fail(e.to_string());
             cx.notify();
             return;
         }
@@ -2694,7 +2780,7 @@ impl ThreadsUi {
                 self.pending_send = None;
                 self.stream.clear();
                 self.progress.clear();
-                self.notice="Work stopped unexpectedly. Saved progress remains available; retry from the writing tile or continue from the chat.".into();
+                self.fail("Work stopped unexpectedly. Saved progress remains available; retry from the writing tile or continue from the chat.");
                 self.refresh();
                 cx.notify();
             }
@@ -2776,7 +2862,7 @@ impl ThreadsUi {
                     settings.provider = "copilot".into();
                     settings.credentials_dir = Some(dir);
                     if let Err(error) = self.workspace.configure(settings.clone()) {
-                        self.notice = error.to_string();
+                        self.fail(error.to_string());
                     } else {
                         self.settings = settings;
                     }
@@ -2787,21 +2873,28 @@ impl ThreadsUi {
                     let context_edit = self.context_edit_note.take().filter(|(run, _, _)| {
                         self.worker.as_ref().and_then(|w| w.run_id.as_deref()) == Some(run.as_str())
                     });
+                    // The tone reads this worker's own run, never the chat's latest.
+                    let has_run = self.worker.as_ref().is_some_and(|w| w.run_id.is_some());
+                    let stopped = self
+                        .worker
+                        .as_ref()
+                        .is_some_and(|w| w.cancel.is_cancelled());
+                    let run_state = self
+                        .worker
+                        .as_ref()
+                        .and_then(|w| w.run_id.as_deref())
+                        .and_then(|id| self.workspace.store.record(id).ok().flatten())
+                        .and_then(|r| match r.data {
+                            RecordData::Run(run) => Some(run.state),
+                            _ => None,
+                        });
+                    let tone = finish_tone(result.is_ok(), stopped, has_run, run_state.as_ref());
                     if kind == Some(WorkerKind::Run) {
-                        self.run_activity_status = self
-                            .worker
-                            .as_ref()
-                            .and_then(|w| w.run_id.as_deref())
-                            .and_then(|id| self.workspace.store.record(id).ok().flatten())
-                            .and_then(|r| match r.data {
-                                RecordData::Run(run) => Some(if run.state == RunState::Working {
-                                    "Work ended · status unconfirmed".into()
-                                } else {
-                                    format!("{:?}", run.state)
-                                }),
-                                _ => None,
-                            })
-                            .unwrap_or_else(|| "Work ended".into());
+                        self.run_activity_status = match &run_state {
+                            Some(RunState::Working) => "Work ended · status unconfirmed".into(),
+                            Some(state) => format!("{state:?}"),
+                            None => "Work ended".into(),
+                        };
                     }
                     if kind != Some(WorkerKind::Run) {
                         allow_dispatch = result.is_ok();
@@ -2817,7 +2910,7 @@ impl ThreadsUi {
                     self.worker = None;
                     self.stream.clear();
                     self.progress.clear();
-                    self.notice = result.unwrap_or_else(|e| format!("Work stopped: {e}"));
+                    let mut text = result.unwrap_or_else(|e| format!("Work stopped: {e}"));
                     if let Some(thread) = thread {
                         let name = self
                             .records
@@ -2825,9 +2918,10 @@ impl ThreadsUi {
                             .find(|record| record.id == thread)
                             .map(title)
                             .unwrap_or(thread);
-                        self.notice = format!("Work in {} · {}", short(&name), self.notice);
+                        text = format!("Work in {} · {text}", short(&name));
                     }
-                    self.last_work_notice = Some(self.notice.clone());
+                    self.set_notice(tone, text);
+                    self.last_work_notice = Some((tone, self.notice.clone()));
                     match kind {
                         Some(WorkerKind::Export) => self.export_status = self.notice.clone(),
                         Some(WorkerKind::Backup) => self.backup_status = self.notice.clone(),
@@ -2877,7 +2971,7 @@ impl ThreadsUi {
                                     Ok(outcome) => {
                                         allow_dispatch =
                                             matches!(outcome, ApplyOutcome::Applied(_));
-                                        self.notice = outcome_message(&outcome);
+                                        self.report_outcome(&outcome);
                                         let id = if let ApplyOutcome::Applied(receipt) = outcome {
                                             receipt
                                                 .writes
@@ -2895,13 +2989,15 @@ impl ThreadsUi {
                                             self.open_note(&id, None, window, cx);
                                         }
                                     }
-                                    Err(e) => self.notice = e.to_string(),
+                                    Err(e) => self.fail(e.to_string()),
                                 }
                             } else {
                                 self.useful_intake(converted, title, window, cx);
                             }
                         }
-                        Err(e) => self.notice = format!("Import stopped: {e}"),
+                        // The owner's own Stop is a warning; any other failure is an error.
+                        Err(e) if cancelled => self.warn(format!("Import stopped: {e}")),
+                        Err(e) => self.fail(format!("Import stopped: {e}")),
                     }
                     if !allow_dispatch && self.worker.is_none() {
                         let _ = self
@@ -2937,7 +3033,7 @@ impl ThreadsUi {
             let _ = self
                 .workspace
                 .recover_queue(&format!("disconnect:{}", uuid::Uuid::new_v4()));
-            self.notice = "Work stopped unexpectedly. Your saved instruction remains available; Continue from the chat.".into();
+            self.fail("Work stopped unexpectedly. Your saved instruction remains available; Continue from the chat.");
             self.refresh();
         }
         cx.notify();
@@ -2986,15 +3082,15 @@ impl ThreadsUi {
                             cx,
                         );
                     }
-                    Err(e) => self.notice = e.to_string(),
+                    Err(e) => self.fail(e.to_string()),
                 }
             }
-            Err(e) => self.notice = e.to_string(),
+            Err(e) => self.fail(e.to_string()),
         }
     }
     fn choose_import(&mut self, intent: ImportIntent, window: &mut Window, cx: &mut Context<Self>) {
         if let Some(worker) = &self.worker {
-            self.notice = worker.kind.busy_notice().into();
+            self.warn(worker.kind.busy_notice());
             cx.notify();
             return;
         }
@@ -3016,7 +3112,7 @@ impl ThreadsUi {
                 }
                 Ok(Ok(None)) => {}
                 _ => {
-                    this.notice = "Could not choose a file.".into();
+                    this.fail("Could not choose a file.");
                     cx.notify();
                 }
             });
@@ -3032,7 +3128,10 @@ impl ThreadsUi {
         cx: &mut Context<Self>,
     ) {
         if let Some(worker) = &self.worker {
-            self.notice = format!("{} Then choose this file again.", worker.kind.busy_notice());
+            self.warn(format!(
+                "{} Then choose this file again.",
+                worker.kind.busy_notice()
+            ));
             cx.notify();
             return;
         }
@@ -3051,9 +3150,9 @@ impl ThreadsUi {
             Some("xlsx") => DocumentKind::Xlsx,
             Some("pptx") => DocumentKind::Pptx,
             _ => {
-                self.notice =
-                    "Choose DOCX, PDF, HTML, XLSX, PPTX, Markdown, text or an EML email file."
-                        .into();
+                self.warn(
+                    "Choose DOCX, PDF, HTML, XLSX, PPTX, Markdown, text or an EML email file.",
+                );
                 cx.notify();
                 return;
             }
@@ -3139,7 +3238,7 @@ impl ThreadsUi {
     }
     fn choose_output(&mut self, backup: bool, window: &mut Window, cx: &mut Context<Self>) {
         if let Some(worker) = &self.worker {
-            self.notice = worker.kind.busy_notice().into();
+            self.warn(worker.kind.busy_notice());
             cx.notify();
             return;
         }
@@ -3186,7 +3285,7 @@ impl ThreadsUi {
         cx: &mut Context<Self>,
     ) {
         if let Some(worker) = &self.worker {
-            self.notice = worker.kind.busy_notice().into();
+            self.warn(worker.kind.busy_notice());
             cx.notify();
             return;
         }
@@ -3215,7 +3314,7 @@ impl ThreadsUi {
     ) {
         // A different operation may have started while the system picker was open.
         if let Some(worker) = &self.worker {
-            self.notice = worker.kind.busy_notice().into();
+            self.warn(worker.kind.busy_notice());
             cx.notify();
             return;
         }
@@ -3247,7 +3346,7 @@ impl ThreadsUi {
     // None dispatches a backup using the current persisted preference on the worker.
     fn output(&mut self, export_parent: Option<PathBuf>, cx: &mut Context<Self>) {
         if let Some(worker) = &self.worker {
-            self.notice = worker.kind.busy_notice().into();
+            self.warn(worker.kind.busy_notice());
             cx.notify();
             return;
         }
@@ -3327,7 +3426,7 @@ impl ThreadsUi {
         cx: &mut Context<Self>,
     ) {
         if let Some(worker) = &self.worker {
-            self.notice = worker.kind.busy_notice().into();
+            self.warn(worker.kind.busy_notice());
             cx.notify();
             return;
         }
@@ -3337,15 +3436,16 @@ impl ThreadsUi {
         }
         if dir.is_empty() {
             if !connect {
-                self.notice = "Connect GitHub Copilot in Settings first.".into();
+                self.warn("Connect GitHub Copilot in Settings first.");
                 cx.notify();
                 return;
             }
             match default_copilot_credentials_dir() {
                 Ok(default) => dir = default.to_string_lossy().into_owned(),
                 Err(error) => {
-                    self.notice =
-                        format!("Could not prepare the Copilot credentials folder: {error}");
+                    self.fail(format!(
+                        "Could not prepare the Copilot credentials folder: {error}"
+                    ));
                     cx.notify();
                     return;
                 }
@@ -3419,7 +3519,7 @@ impl ThreadsUi {
                 let _ = sender.send(WorkerEvent::Finished(result));
             });
         if let Err(error) = spawned {
-            self.notice = format!("Could not start GitHub Copilot sign-in. {error}");
+            self.fail(format!("Could not start GitHub Copilot sign-in. {error}"));
             cx.notify();
             return;
         }
@@ -3456,16 +3556,16 @@ impl ThreadsUi {
             .then_some(credentials);
         }
         match self.workspace.configure(self.settings.clone()) {
-            Ok(outcome) => self.notice = outcome_message(&outcome),
-            Err(e) => self.notice = e.to_string(),
+            Ok(outcome) => self.report_outcome(&outcome),
+            Err(e) => self.fail(e.to_string()),
         };
         self.refresh();
         cx.notify();
     }
     fn choose_delegation(&mut self, choice: DelegationChoice, cx: &mut Context<Self>) {
         match self.workspace.choose_delegation(choice) {
-            Ok(outcome) => self.notice = outcome_message(&outcome),
-            Err(error) => self.notice = error.to_string(),
+            Ok(outcome) => self.report_outcome(&outcome),
+            Err(error) => self.fail(error.to_string()),
         }
         self.refresh();
         cx.notify();
@@ -3532,9 +3632,9 @@ impl ThreadsUi {
         match self.workspace.new_note(&name, &text) {
             Ok(record) => {
                 self.open_note(&record.id, None, window, cx);
-                self.notice="Saved your text as a separate working note. The original edit remains recoverable from the overview.".into();
+                self.inform("Saved your text as a separate working note. The original edit remains recoverable from the overview.");
             }
-            Err(e) => self.notice = e.to_string(),
+            Err(e) => self.fail(e.to_string()),
         };
         self.refresh();
         cx.notify();
@@ -3570,6 +3670,45 @@ fn bindings() -> Vec<KeyBinding> {
     bindings
 }
 
+// Lucide icons BRN uses beyond Kit's default component set.
+gpui_kit::assets::icon_assets!(
+    BrnIcons,
+    [
+        MessageSquare,
+        Lock,
+        House,
+        ListTodo,
+        Paperclip,
+        Archive,
+        Keyboard,
+        TableOfContents,
+        Type
+    ]
+);
+
+/// Kit's default icons first, then BRN's additions.
+struct BrnAssets;
+impl gpui_kit::AssetSource for BrnAssets {
+    fn load(&self, path: &str) -> gpui_kit::Result<Option<std::borrow::Cow<'static, [u8]>>> {
+        // Kit's source reports an unknown path as an error, so the extra
+        // set is consulted before that error is returned.
+        match gpui_kit::assets::Assets.load(path) {
+            Ok(Some(bytes)) => Ok(Some(bytes)),
+            kit => match BrnIcons.load(path)? {
+                Some(bytes) => Ok(Some(bytes)),
+                None => kit,
+            },
+        }
+    }
+    fn list(&self, path: &str) -> gpui_kit::Result<Vec<gpui_kit::SharedString>> {
+        let mut paths = gpui_kit::assets::Assets.list(path)?;
+        paths.extend(BrnIcons.list(path)?);
+        paths.sort();
+        paths.dedup();
+        Ok(paths)
+    }
+}
+
 pub fn launch(data_dir: PathBuf) -> Result<(), String> {
     let mut workspace = Workspace::open(&data_dir).map_err(|e| e.to_string())?;
     workspace.settings().map_err(|e| e.to_string())?;
@@ -3579,7 +3718,7 @@ pub fn launch(data_dir: PathBuf) -> Result<(), String> {
         _ => None,
     };
     gpui_kit::application()
-        .with_assets(gpui_kit::assets::Assets)
+        .with_assets(BrnAssets)
         .run(move |cx| {
             gpui_kit::init(cx);
             cx.bind_keys(bindings());
@@ -3602,7 +3741,7 @@ pub fn launch(data_dir: PathBuf) -> Result<(), String> {
                     let view = cx.new(|cx| {
                         let mut view = ThreadsUi::new(workspace, data_dir, window, cx);
                         if let Some(notice) = model_notice {
-                            view.notice = notice;
+                            view.warn(notice);
                         }
                         view
                     });
@@ -3640,4 +3779,101 @@ pub fn launch(data_dir: PathBuf) -> Result<(), String> {
             cx.activate(true);
         });
     Ok(())
+}
+
+#[cfg(test)]
+mod presentation_tests {
+    use super::*;
+    use gpui_kit::AssetSource as _;
+
+    #[test]
+    fn brn_assets_serve_kit_defaults_and_the_added_icons() {
+        // Every icon BRN renders, from Kit's default set and from BrnIcons.
+        for icon in [
+            IconName::Close,
+            IconName::Maximize,
+            IconName::Minimize,
+            IconName::Settings,
+            IconName::Plus,
+            IconName::Ellipsis,
+            IconName::ChevronDown,
+            IconName::Square,
+            IconName::LayoutDashboard,
+            IconName::Palette,
+            IconName::Inbox,
+            IconName::Info,
+            IconName::CircleCheck,
+            IconName::TriangleAlert,
+            IconName::CircleAlert,
+            IconName::MessageSquare,
+            IconName::Lock,
+            IconName::House,
+            IconName::ListTodo,
+            IconName::Paperclip,
+            IconName::Archive,
+            IconName::Keyboard,
+            IconName::TableOfContents,
+            IconName::Type,
+        ] {
+            let path = icon.path();
+            assert!(
+                BrnAssets
+                    .load(&path)
+                    .unwrap()
+                    .is_some_and(|svg| !svg.is_empty()),
+                "{path}"
+            );
+        }
+        assert!(
+            BrnAssets
+                .load("icons/not-a-brn-icon.svg")
+                .map_or(true, |found| found.is_none()),
+            "unknown paths stay unknown"
+        );
+        let listed = BrnAssets.list("icons/").unwrap();
+        for path in ["icons/ellipsis.svg", "icons/keyboard.svg", "icons/type.svg"] {
+            assert_eq!(
+                listed.iter().filter(|p| p.as_ref() == path).count(),
+                1,
+                "{path}"
+            );
+        }
+    }
+
+    #[test]
+    fn finish_tones_follow_the_owner_stop_and_the_recorded_run() {
+        assert_eq!(finish_tone(false, true, true, None), Tone::Warning);
+        assert_eq!(
+            finish_tone(false, false, true, Some(&RunState::Completed)),
+            Tone::Error
+        );
+        assert_eq!(finish_tone(false, false, false, None), Tone::Error);
+        for (state, tone) in [
+            (RunState::Completed, Tone::Success),
+            (RunState::Failed, Tone::Error),
+            (RunState::Interrupted, Tone::Warning),
+            (RunState::Cancelled, Tone::Warning),
+            (RunState::Working, Tone::Warning),
+        ] {
+            assert_eq!(
+                finish_tone(true, false, true, Some(&state)),
+                tone,
+                "{state:?}"
+            );
+        }
+        assert_eq!(finish_tone(true, false, true, None), Tone::Warning);
+        assert_eq!(finish_tone(true, false, false, None), Tone::Success);
+        assert_eq!(
+            save_tone(&SaveOutcome::Deferred { guarded: vec![] }),
+            Tone::Warning
+        );
+        assert_eq!(
+            apply_tone(&ApplyOutcome::Superseded { run: "r".into() }),
+            Tone::Info
+        );
+        assert_eq!(
+            apply_tone(&ApplyOutcome::Deferred { guarded: vec![] }),
+            Tone::Warning
+        );
+    }
 }

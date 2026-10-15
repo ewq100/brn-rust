@@ -194,7 +194,7 @@ impl ThreadsUi {
                             let _ = target.update(cx, |this, cx| {
                                 result = this.workspace.save_chat_decision(&key, &message, &name, &markdown).map(|note| {
                                     this.open_note(&note.id, None, window, cx);
-                                    this.notice = "Decision saved in BRN. Undo is available in What changed.".into();
+                                    this.inform("Decision saved in BRN. Undo is available in What changed.");
                                     this.refresh();
                                     cx.notify();
                                 }).map_err(|e| e.to_string());

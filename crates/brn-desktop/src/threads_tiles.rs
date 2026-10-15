@@ -186,10 +186,13 @@ impl ThreadsUi {
         let busy = self.worker.is_some();
         match kind {
             TileKind::Threads | TileKind::Notes => vec![
-                pill(format!("{}-new", kind.key()), "＋")
-                    .tooltip("New chat, note or information")
-                    .dropdown_menu(move |menu, _, _| new_menu(menu, &this, busy))
-                    .into_any_element(),
+                components::icon_button(
+                    format!("{}-new", kind.key()),
+                    IconName::Plus,
+                    "New chat, note or information",
+                )
+                .dropdown_menu(move |menu, _, _| new_menu(menu, &this, busy))
+                .into_any_element(),
             ],
             TileKind::Chat => self.chat_controls(cx),
             TileKind::Note => self.note_controls(cx),
@@ -201,7 +204,7 @@ impl ThreadsUi {
         let bar = lists::sidebar(&self.thread_rows, self.chat_thread());
         let mut list = scroll("workspace-nav");
         if !bar.needs.is_empty() || !self.buffers.is_empty() || !self.candidates.is_empty() {
-            list = list.child(section("NEEDS YOU"));
+            list = list.child(section("Needs you"));
         }
         for row_data in &bar.needs {
             let id = row_data.id.clone();
@@ -260,7 +263,7 @@ impl ThreadsUi {
                 })),
             );
         }
-        list = list.child(section("RECENT CHATS"));
+        list = list.child(section("Recent chats"));
         if bar.open.is_empty() {
             list = list.child(empty(
                 "threads-empty",
@@ -381,7 +384,7 @@ impl ThreadsUi {
             list = list.child(empty("all-threads-empty", "No chats match this filter."));
         }
         for (name, rows) in grouped.groups {
-            list = list.child(section(name.to_uppercase()));
+            list = list.child(section(name));
             for row_data in rows {
                 let id = row_data.id.clone();
                 let menu_id = id.clone();
@@ -480,7 +483,7 @@ impl ThreadsUi {
         let mut list = scroll("notes-list");
         if !query.trim().is_empty() {
             let (titles, total) = lists::filter_notes(&self.note_rows, &query, 100);
-            list = list.child(section(format!("TITLES · {total}")));
+            list = list.child(section(format!("Titles · {total}")));
             for data in titles {
                 list = list.child(note_row("note-", data, cx));
             }
@@ -536,21 +539,18 @@ impl ThreadsUi {
             );
         }
         header = header.child(letters);
-        list = list.child(self.topics_section(cx)).child(section("RECENT"));
+        list = list.child(self.topics_section(cx)).child(section("Recent"));
         for data in view.recent {
             list = list.child(note_row("notes-recent-", data, cx));
         }
         if view.linked.1 > 0 {
-            list = list.child(section(format!(
-                "LINKED TO OPEN THREADS · {}",
-                view.linked.1
-            )));
+            list = list.child(section(format!("Linked to open chats · {}", view.linked.1)));
             for data in view.linked.0 {
                 list = list.child(note_row("notes-linked-", data, cx));
             }
         }
         if view.kept.1 > 0 {
-            list = list.child(section(format!("PROTECTED & IMPORTED · {}", view.kept.1)));
+            list = list.child(section(format!("Protected & imported · {}", view.kept.1)));
             for data in view.kept.0 {
                 list = list.child(note_row("notes-kept-", data, cx));
             }
@@ -562,12 +562,12 @@ impl ThreadsUi {
             }
         }
         if view.most_linked.1 > 0 {
-            list = list.child(section(format!("MOST LINKED · {}", view.most_linked.1)));
+            list = list.child(section(format!("Most linked · {}", view.most_linked.1)));
             for data in view.most_linked.0 {
                 list = list.child(note_row("notes-most-linked-", data, cx));
             }
         }
-        list = list.child(section("ALL A–Z"));
+        list = list.child(section("All A–Z"));
         for data in view.letter.0 {
             list = list.child(note_row("note-", data, cx));
         }
@@ -594,7 +594,7 @@ impl ThreadsUi {
         let mut queue = panel()
             .id("home-needs-you")
             .test_support()
-            .child(heading("Needs you"));
+            .child(subheading("Needs you"));
         let needs: Vec<_> = self
             .thread_rows
             .iter()
@@ -626,7 +626,7 @@ impl ThreadsUi {
         }
         view = view.child(queue);
         if !self.buffers.is_empty() {
-            let mut recovery = panel().child(heading("Recover your edits")).child(
+            let mut recovery = panel().child(subheading("Recover your edits")).child(
                 "These edits remain separate from current notes until you Save or discard them.",
             );
             for (index, buffer) in self.buffers.iter().enumerate() {
@@ -649,7 +649,7 @@ impl ThreadsUi {
             view = view.child(recovery);
         }
         if !self.candidates.is_empty() {
-            let mut review = panel().child(heading("Review changes"));
+            let mut review = panel().child(subheading("Review changes"));
             for candidate in &self.candidates {
                 let candidate = candidate.clone();
                 review = review.child(
@@ -667,7 +667,7 @@ impl ThreadsUi {
         let mut note_tile = panel()
             .id("home-notes")
             .test_support()
-            .child(heading("Recent notes"))
+            .child(subheading("Recent notes"))
             .child(metadata(format!("{} current notes", notes.len())));
         if notes.is_empty() {
             note_tile = note_tile.child(empty(
@@ -688,7 +688,7 @@ impl ThreadsUi {
         let mut recent = panel()
             .id("home-recent-changes")
             .test_support()
-            .child(heading("What changed"));
+            .child(subheading("What changed"));
         for receipt in self.history.iter().rev().take(6) {
             recent = recent.child(
                 div()
@@ -857,7 +857,7 @@ impl ThreadsUi {
                 .id(format!("actions-group-{key}"))
                 .test_support()
                 .bg(rgb(pal().alt))
-                .child(heading(format!("{label} · {}", records.len())));
+                .child(subheading(format!("{label} · {}", records.len())));
             if records.is_empty() {
                 group = group.child(metadata(format!("No {} actions.", label.to_lowercase())));
             }
@@ -883,7 +883,7 @@ impl ThreadsUi {
             let mut entry = panel()
                 .id(format!("receipt-{id}"))
                 .test_support()
-                .child(heading(receipt.reason.clone()))
+                .child(subheading(receipt.reason.clone()))
                 .child(metadata(receipt.committed_at.clone()));
             for write in &receipt.writes {
                 entry = entry.child(format!(
@@ -919,7 +919,7 @@ impl ThreadsUi {
                                     this.open_thread(&thread.id, window, cx);
                                 }
                                 Err(error) => {
-                                    this.notice = error.to_string();
+                                    this.fail(error.to_string());
                                     cx.notify();
                                 }
                             }
@@ -941,7 +941,7 @@ impl ThreadsUi {
         let status = delegation_status(&self.settings);
         let mut knowledge = panel()
             .id(if self.settings.delegation_chosen { "delegation-settings" } else { "delegation-pending" })
-            .child(heading("Working knowledge"))
+            .child(subheading("Working knowledge"))
             .child(div().id("delegation-status").aria_label(status).child(status).test_support())
             .child("Maintain ordinary notes lets BRN update ordinary notes and useful source references. Review changes first keeps proposed changes for your approval. Protected notes still need an applicable instruction or your review.")
             .child(button("delegation-maintain")
@@ -962,8 +962,8 @@ impl ThreadsUi {
                     })
                     .on_click(cx.listener(|this, _, _, cx| {
                         match this.workspace.pause(this.settings.maintenance) {
-                            Ok(outcome) => this.notice = outcome_message(&outcome),
-                            Err(error) => this.notice = error.to_string(),
+                            Ok(outcome) => this.report_outcome(&outcome),
+                            Err(error) => this.fail(error.to_string()),
                         }
                         this.refresh();
                         cx.notify();
@@ -1039,7 +1039,7 @@ impl ThreadsUi {
         let mut helper_tile = panel()
             .id("settings-helper")
             .test_support()
-            .child(heading("Helper sub-agents"))
+            .child(subheading("Helper sub-agents"))
             .child(
                 "When on, the chat model can ask read-only helpers to research your notes. \
                  Helpers cannot change notes and never replace an unavailable model.",
@@ -1078,7 +1078,7 @@ impl ThreadsUi {
         let provider_tile = panel()
             .id("settings-provider")
             .test_support()
-            .child(heading("Provider and model"))
+            .child(subheading("Provider and model"))
             .child(metadata("Provider"))
             .child(provider)
             .child(metadata("Model"))
@@ -1116,11 +1116,11 @@ impl ThreadsUi {
         let copies = panel()
             .id("settings-copies")
             .test_support()
-            .child(heading("Portable copies"))
+            .child(subheading("Portable copies"))
             .child(
                 panel()
                     .bg(rgb(pal().alt))
-                    .child(heading("Markdown export"))
+                    .child(subheading("Markdown export"))
                     .child("Export a current snapshot of your notes and retained figures.")
                     .child(button("export-now").label("Export Markdown now…").on_click(
                         cx.listener(|this, _, window, cx| this.choose_output(false, window, cx)),
@@ -1130,7 +1130,7 @@ impl ThreadsUi {
             .child(
                 panel()
                     .bg(rgb(pal().alt))
-                    .child(heading("Full backup"))
+                    .child(subheading("Full backup"))
                     .child("Includes notes, discussions, history, figures and recovery state.")
                     .child(
                         div()
@@ -1176,7 +1176,7 @@ impl ThreadsUi {
         let mut general = panel()
             .id("settings-general")
             .test_support()
-            .child(heading("Theme"))
+            .child(subheading("Theme"))
             .child(metadata("Also in the status bar and the launcher (⌘K)."));
         for theme in ThemeId::ALL {
             let colors = theme.palette();
@@ -1215,7 +1215,7 @@ impl ThreadsUi {
                     .child(metadata(theme.description())),
             );
         }
-        general = general.child(heading("Keys and mouse")).child(
+        general = general.child(subheading("Keys and mouse")).child(
             button("settings-keys")
                 .label("Show keys and mouse help")
                 .on_click(cx.listener(|this, _, window, cx| this.show_keys(window, cx))),

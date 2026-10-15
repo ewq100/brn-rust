@@ -101,7 +101,7 @@ impl ThreadsUi {
             .border_1()
             .border_color(rgb(pal().border))
             .bg(rgb(pal().alt))
-            .child(heading("Activity"))
+            .child(subheading("Activity"))
             .child(steps)
             .child(line)
             .test_support()
@@ -140,9 +140,9 @@ impl ThreadsUi {
             self.workspace.recover_queue(&key)
         };
         if let Err(e) = result {
-            self.notice = format!(
+            self.fail(format!(
                 "Could not preserve interruption state: {e}. Copy visible progress before closing."
-            );
+            ));
         }
     }
     pub(super) fn queue_state(&self) -> ChatControl {
@@ -163,17 +163,14 @@ impl ThreadsUi {
         };
         let generation = self.draft_generations.entry(key.clone()).or_default();
         let Some(next) = generation.checked_add(1) else {
-            self.notice =
-                "Composer recovery counter exhausted. Copy your text before closing.".into();
+            self.fail("Composer recovery counter exhausted. Copy your text before closing.");
             return;
         };
         match self.workspace.store.save_chat_draft(&key, next, &text) {
             Ok(_) => *generation = next,
-            Err(e) => {
-                self.notice = format!(
-                    "Composer recovery could not be saved: {e}. Keep this window open or copy your text."
-                )
-            }
+            Err(e) => self.fail(format!(
+                "Composer recovery could not be saved: {e}. Keep this window open or copy your text."
+            )),
         }
     }
     fn composer_chat(&mut self, prompt: &str) -> AppResult<String> {
@@ -227,13 +224,13 @@ impl ThreadsUi {
                 if let Some(thread) = thread {
                     self.chat = ChatTarget::Thread(thread);
                 }
-                self.notice = "Message saved in the queue. Each item runs as a separate turn with current context.".into();
+                self.inform("Message saved in the queue. Each item runs as a separate turn with current context.");
                 self.refresh();
                 if self.worker.is_none() && !self.queue_state().paused {
                     self.dispatch_next(cx);
                 }
             }
-            Err(e) => self.notice = format!("{e}. Your composer text is preserved."),
+            Err(e) => self.fail(format!("{e}. Your composer text is preserved.")),
         }
         cx.notify();
     }
@@ -255,7 +252,7 @@ impl ThreadsUi {
             }
             Ok(None) => {}
             Err(e) => {
-                self.notice = e.to_string();
+                self.fail(e.to_string());
                 let _ = self
                     .workspace
                     .pause_queue(&format!("dispatch-failed:{}", uuid::Uuid::new_v4()));
@@ -266,7 +263,7 @@ impl ThreadsUi {
     }
     pub(super) fn resume_chat_queue(&mut self, cx: &mut Context<Self>) {
         if self.worker.is_some() {
-            self.notice = "Wait for current work to stop before Resume.".into();
+            self.warn("Wait for current work to stop before Resume.");
             cx.notify();
             return;
         }
@@ -278,7 +275,7 @@ impl ThreadsUi {
                 None,
             )
         {
-            self.notice = e.to_string();
+            self.fail(e.to_string());
             cx.notify();
             return;
         }
@@ -287,7 +284,7 @@ impl ThreadsUi {
             .resume_queue(&format!("resume:{}", uuid::Uuid::new_v4()))
         {
             Ok(_) => self.dispatch_next(cx),
-            Err(e) => self.notice = e.to_string(),
+            Err(e) => self.fail(e.to_string()),
         }
         cx.notify();
     }
@@ -422,7 +419,7 @@ impl ThreadsUi {
                                         &format!("remove:{}", uuid::Uuid::new_v4()),
                                         &remove,
                                     ) {
-                                        this.notice = e.to_string();
+                                        this.fail(e.to_string());
                                     }
                                     this.refresh();
                                     cx.notify();
@@ -430,19 +427,25 @@ impl ThreadsUi {
                         )
                         .when(before.is_some(), |row| {
                             row.child(
-                                pill(format!("queue-up-{index}"), "↑")
-                                    .flex_shrink_0()
-                                    .on_click(cx.listener(move |this, _, _, cx| {
+                                components::icon_button(
+                                    format!("queue-up-{index}"),
+                                    IconName::ArrowUp,
+                                    "Move up",
+                                )
+                                .flex_shrink_0()
+                                .on_click(cx.listener(
+                                    move |this, _, _, cx| {
                                         if let Err(e) = this.workspace.move_queued(
                                             &format!("move:{}", uuid::Uuid::new_v4()),
                                             &move_id,
                                             before.as_deref(),
                                         ) {
-                                            this.notice = e.to_string();
+                                            this.fail(e.to_string());
                                         }
                                         this.refresh();
                                         cx.notify();
-                                    })),
+                                    },
+                                )),
                             )
                         })
                         .test_support(),
@@ -505,8 +508,8 @@ impl ThreadsUi {
                                                 &keep,
                                                 version,
                                             ) {
-                                                Ok(o) => this.notice = outcome_message(&o),
-                                                Err(e) => this.notice = e.to_string(),
+                                                Ok(o) => this.report_outcome(&o),
+                                                Err(e) => this.fail(e.to_string()),
                                             }
                                             this.refresh();
                                             cx.notify();
@@ -525,12 +528,12 @@ impl ThreadsUi {
         cx: &mut Context<Self>,
     ) {
         if paths.len() != 1 {
-            self.notice = "Attach one supported document at a time.".into();
+            self.warn("Attach one supported document at a time.");
             cx.notify();
             return;
         }
         if self.worker.is_some() {
-            self.notice = "Finish or stop work before attaching a file.".into();
+            self.warn("Finish or stop work before attaching a file.");
             cx.notify();
             return;
         }
@@ -553,14 +556,14 @@ impl ThreadsUi {
                 );
             }
             Err(e) => {
-                self.notice = e.to_string();
+                self.fail(e.to_string());
                 cx.notify();
             }
         }
     }
     pub(super) fn choose_chat_attachment(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         if self.worker.is_some() {
-            self.notice = "Finish or stop work before attaching a file.".into();
+            self.warn("Finish or stop work before attaching a file.");
             cx.notify();
             return;
         }
@@ -578,7 +581,7 @@ impl ThreadsUi {
                 self.choose_import(ImportIntent::FullNote, window, cx);
             }
             Err(e) => {
-                self.notice = e.to_string();
+                self.fail(e.to_string());
                 cx.notify();
             }
         }

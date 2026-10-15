@@ -81,8 +81,7 @@ impl ThreadsUi {
             .collect();
         let selected = self.chat_thread().map(str::to_owned);
         controls.push(
-            pill("thread-menu", "▾")
-                .tooltip("Chats for this note")
+            components::icon_button("thread-menu", IconName::ChevronDown, "Chats for this note")
                 .dropdown_menu(move |mut menu, _, _| {
                     if let Some((note_id, note_title)) = &note {
                         menu = menu.label(format!("Chats for {}", short(note_title)));
@@ -107,7 +106,7 @@ impl ThreadsUi {
                     }
                     menu.item(item(
                         &this,
-                        "＋ New chat for this note",
+                        "New chat for this note",
                         None,
                         note.is_none(),
                         false,
@@ -503,7 +502,7 @@ impl ThreadsUi {
                         .workspace
                         .choose_quiet(&format!("quiet:{}", uuid::Uuid::new_v4()), quiet)
                     {
-                        this.notice = e.to_string();
+                        this.fail(e.to_string());
                     }
                     cx.notify();
                 }));
@@ -572,8 +571,7 @@ impl ThreadsUi {
                     .items_center()
                     .gap_1()
                     .child(
-                        pill("composer-add", "＋")
-                            .tooltip("Add information")
+                        components::icon_button("composer-add", IconName::Plus, "Add information")
                             .dropdown_menu(move |menu, _, _| {
                                 menu.item(item(
                                     &add_this,
@@ -614,11 +612,12 @@ impl ThreadsUi {
                         pill(
                             "model-pill",
                             format!(
-                                "{} · {} ▾",
+                                "{} · {}",
                                 super::shell::provider_key(&self.settings.provider),
                                 self.settings.model
                             ),
                         )
+                        .dropdown_caret(true)
                         .tooltip("Provider and model · changes Settings · no fallback")
                         .dropdown_menu(move |menu, _, cx| match model_this.upgrade() {
                             Some(view) => view.read(cx).model_menu(menu, &model_this),
@@ -626,7 +625,8 @@ impl ThreadsUi {
                         }),
                     )
                     .child(
-                        pill("effort-pill", format!("{} ▾", self.settings.effort))
+                        pill("effort-pill", self.settings.effort.clone())
+                            .dropdown_caret(true)
                             .tooltip("Reasoning effort")
                             .dropdown_menu(move |menu, _, cx| match effort_this.upgrade() {
                                 Some(view) => view.read(cx).effort_menu(menu, &effort_this),
@@ -720,14 +720,13 @@ impl ThreadsUi {
             );
         }
         controls.push(
-            pill(
-                "toggle-margin",
-                if pending > 0 {
-                    format!("💬 {pending}")
-                } else {
-                    "💬".into()
-                },
-            )
+            if pending > 0 {
+                pill("toggle-margin", pending.to_string())
+                    .icon(IconName::MessageSquare)
+                    .accessibility_label(format!("Comments · {pending}"))
+            } else {
+                components::icon_button("toggle-margin", IconName::MessageSquare, "Comments")
+            }
             .selected(self.margin)
             .tooltip("Comments in the margin")
             .on_click(cx.listener(|this, _, _, cx| {
@@ -752,8 +751,7 @@ impl ThreadsUi {
                 .into_any_element(),
         );
         controls.push(
-            pill("note-menu", "⋯")
-                .tooltip("Note actions")
+            components::overflow_menu("note-menu", "Note actions")
                 .dropdown_menu(move |menu, _, _| {
                     let mut menu = menu
                         .item(item(
@@ -1513,7 +1511,7 @@ impl ThreadsUi {
                 .gap_1()
                 .font_family(UI_FONT)
                 .text_size(PROSE_TEXT)
-                .child(heading("Saved rewrite inputs"))
+                .child(subheading("Saved rewrite inputs"))
                 .child(format!(
                     "Saved note v{} · {} comments · {} posted chat messages. Later additions stay pending.",
                     snapshot.note.version,
@@ -1521,7 +1519,7 @@ impl ThreadsUi {
                     snapshot.messages.len()
                 ));
             if let RecordData::Note(captured) = &snapshot.note.data {
-                disclosure = disclosure.child(heading("Captured saved note")).child(
+                disclosure = disclosure.child(subheading("Captured saved note")).child(
                     self.safe_message_for_thread(
                         format!("captured-note-{}", record.id),
                         captured.markdown.clone(),
@@ -1531,10 +1529,10 @@ impl ThreadsUi {
             }
             if !snapshot.general_feedback.is_empty() {
                 disclosure = disclosure
-                    .child(heading("Overall feedback"))
+                    .child(subheading("Overall feedback"))
                     .child(snapshot.general_feedback.clone());
             }
-            disclosure = disclosure.child(heading("Captured chat"));
+            disclosure = disclosure.child(subheading("Captured chat"));
             for message in &snapshot.messages {
                 if let RecordData::Message(body) = &message.data {
                     disclosure = disclosure
@@ -1625,7 +1623,7 @@ impl ThreadsUi {
                         .on_click(cx.listener(|this, _, _, cx| this.rewrite_note(cx))),
                 )
                 .child(
-                    pill("clear-applied", "✕")
+                    components::icon_button("clear-applied", IconName::Close, "Hide")
                         .tooltip("Hide; What changed keeps the receipt and its Undo")
                         .on_click(cx.listener(move |this, _, _, cx| {
                             this.applied_rewrite.remove(&clear);
@@ -1914,7 +1912,7 @@ impl ThreadsUi {
                 )));
                 if !snapshot.general_feedback.is_empty() {
                     details = details
-                        .child(heading("Overall feedback"))
+                        .child(subheading("Overall feedback"))
                         .child(snapshot.general_feedback);
                 }
             }
@@ -2110,7 +2108,7 @@ impl ThreadsUi {
                     .min_w_0()
                     .flex()
                     .flex_col()
-                    .child(section(format!("CURRENT · v{version}")))
+                    .child(section(format!("Current · v{version}")))
                     .child(
                         div()
                             .flex_1()
@@ -2124,7 +2122,7 @@ impl ThreadsUi {
                     .min_w_0()
                     .flex()
                     .flex_col()
-                    .child(section("CANDIDATE · exact text under review"))
+                    .child(section("Proposal · exact text under review"))
                     .child(
                         div()
                             .flex_1()
@@ -2171,7 +2169,7 @@ impl ThreadsUi {
                             .border_1()
                             .border_color(rgb(p.border))
                             .child(section(format!(
-                                "NOTE · v{}{}",
+                                "Note · v{}{}",
                                 record.version,
                                 if note.protected { " · protected" } else { "" }
                             )))
@@ -2202,7 +2200,7 @@ impl ThreadsUi {
                     let open_locator = locator.clone();
                     context = context.child(
                         panel()
-                            .child(section("SOURCE"))
+                            .child(section("Source"))
                             .child(source.label.clone())
                             .child(metadata(short(&source.locator)))
                             .child(source.outcome.clone())
@@ -2264,7 +2262,7 @@ impl ThreadsUi {
                         _ => None,
                     });
                     let mut passage = panel()
-                        .child(section("PASSAGE"))
+                        .child(section("Passage"))
                         .child(format!("❝ {}", comment.quote))
                         .child(comment.body.clone())
                         .child(metadata(if location.is_some() {

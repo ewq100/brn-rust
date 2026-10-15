@@ -208,20 +208,22 @@ impl ThreadsUi {
             let this = cx.entity().downgrade();
             bar = bar
                 .child(
-                    pill("note-outline", "Outline ▾").dropdown_menu(move |mut menu, _, _| {
-                        for (label, range) in &outline {
-                            let range = range.clone();
-                            menu = menu.item(super::shell::item(
-                                &this,
-                                label.clone(),
-                                None,
-                                false,
-                                false,
-                                move |view, window, cx| view.reveal(range.clone(), window, cx),
-                            ));
-                        }
-                        menu
-                    }),
+                    pill("note-outline", "Outline")
+                        .dropdown_caret(true)
+                        .dropdown_menu(move |mut menu, _, _| {
+                            for (label, range) in &outline {
+                                let range = range.clone();
+                                menu = menu.item(super::shell::item(
+                                    &this,
+                                    label.clone(),
+                                    None,
+                                    false,
+                                    false,
+                                    move |view, window, cx| view.reveal(range.clone(), window, cx),
+                                ));
+                            }
+                            menu
+                        }),
                 )
                 .child(metadata("Select text to comment"));
         }
@@ -242,7 +244,7 @@ impl ThreadsUi {
         let text = editor.value().to_string();
         let range = editor.selected_range();
         let Some(edit) = formatting::format(&text, range, kind) else {
-            self.notice = "Select plain text or a supported paragraph to format. Code and complex Markdown stay unchanged.".into();
+            self.warn("Select plain text or a supported paragraph to format. Code and complex Markdown stay unchanged.");
             cx.notify();
             return;
         };
