@@ -880,7 +880,8 @@ fn review_in_place_applies_exact_candidate_then_marks_addressed_and_undoes(
             op
         );
     });
-    click(cx, &f, "review-read-result");
+    // Changes | Result: the Changes segment returns to the tracked changes.
+    click(cx, &f, "review-show-changes");
     update(cx, &f, |view, window, cx| {
         assert!(!view.review_reading);
         assert!(view.diff_editor.focus_handle(cx).is_focused(window));
@@ -889,12 +890,14 @@ fn review_in_place_applies_exact_candidate_then_marks_addressed_and_undoes(
             op
         );
     });
-    click(cx, &f, "review-compare");
+    click(cx, &f, "note-menu");
+    choose(cx, &f, "Compare side by side");
     on_window(cx, &f, |window, _| {
         assert!(window.find("compare-content").visible())
     });
     // Edit final text creates a new exact candidate; the old one is not applied.
-    click(cx, &f, "review-edit");
+    click(cx, &f, "note-menu");
+    choose(cx, &f, "Edit final text");
     update(cx, &f, |view, window, cx| {
         assert!(view.review_editor.focus_handle(cx).is_focused(window));
         view.review_editor.update(cx, |editor, cx| {

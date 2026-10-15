@@ -676,23 +676,12 @@ impl ThreadsUi {
         let RecordData::Note(note) = &open.record.data else {
             return vec![];
         };
+        // During review the review bar replaces the toolbar; its Proposal
+        // label and Protected chip state the review.
         if self.review.is_some() {
-            return vec![
-                components::status_chip(
-                    "note-reviewing",
-                    Some(Tone::Info),
-                    Some(IconName::Eye),
-                    "Reviewing",
-                )
-                .into_any_element(),
-            ];
+            return vec![];
         }
         let fit = self.note_fit;
-        let pending = self
-            .workspace
-            .writing_comments(&open.record.id)
-            .map(|comments| comments.iter().filter(|entry| !entry.addressed).count())
-            .unwrap_or_default();
         let mut controls = self.document_controls(fit, cx);
         controls.push(div().flex_1().min_w(px(4.)).into_any_element());
         // Protection and version stay visible in every state, dirty included.
@@ -711,31 +700,7 @@ impl ThreadsUi {
             }
             .into_any_element(),
         );
-        let comments = if pending > 0 {
-            format!("Comments · {pending}")
-        } else {
-            "Comments".into()
-        };
-        controls.push(
-            if pending > 0 {
-                pill("toggle-margin", pending.to_string())
-                    .icon(IconName::MessageSquare)
-                    .accessibility_label(comments)
-            } else {
-                components::icon_button("toggle-margin", IconName::MessageSquare, comments)
-            }
-            .selected(self.margin)
-            .tooltip(if self.margin {
-                "Hide comments · select text to comment (⌘/)"
-            } else {
-                "Show comments · select text to comment (⌘/)"
-            })
-            .on_click(cx.listener(|this, _, _, cx| {
-                this.margin = !this.margin;
-                cx.notify();
-            }))
-            .into_any_element(),
-        );
+        controls.extend(self.comments_toggle(cx));
         if !fit.actions_in_menu() {
             let blocked = self.edit_note_blocked();
             controls.push(
@@ -763,19 +728,20 @@ impl ThreadsUi {
         }
         controls
     }
-    /// The Note ⋯'s own items for the open note outside review. The panel
-    /// header renders the ⋯ (`note-menu`) and adds its Panel section.
+    /// The Note ⋯'s own items: the review's during review, otherwise the
+    /// open note's. The panel header renders the ⋯ (`note-menu`) and adds its
+    /// Panel section.
     pub(super) fn note_menu_section(
         &self,
         cx: &mut Context<Self>,
-    ) -> Option<impl Fn(PopupMenu) -> PopupMenu + 'static> {
+    ) -> Option<Box<dyn Fn(PopupMenu) -> PopupMenu + 'static>> {
+        if let Some(review) = &self.review {
+            return Some(Box::new(self.review_menu_section(review, cx)));
+        }
         let open = self.note.as_ref()?;
         let RecordData::Note(note) = &open.record.data else {
             return None;
         };
-        if self.review.is_some() {
-            return None;
-        }
         let this = cx.entity().downgrade();
         let dirty = open.session.is_some();
         let busy = self.worker.is_some();
@@ -784,7 +750,7 @@ impl ThreadsUi {
         // A narrow Note keeps Edit note and Connections here instead.
         let collapsed = self.note_fit.actions_in_menu();
         let edit_blocked = self.edit_note_blocked();
-        Some(move |menu: PopupMenu| {
+        Some(Box::new(move |menu: PopupMenu| {
             let mut menu = menu
                 .item(item(
                     &this,
@@ -913,7 +879,65 @@ impl ThreadsUi {
                     false,
                     |view, window, cx| view.confirm_discard(window, cx),
                 ))
-        })
+        }))
+    }
+    /// The Note ⋯ during review: the side-by-side and editing routes and the
+    /// saved inputs, then Keep for later and Dismiss when the review bar is
+    /// too narrow to show them.
+    fn review_menu_section(
+        &self,
+        review: &Review,
+        cx: &mut Context<Self>,
+    ) -> impl Fn(PopupMenu) -> PopupMenu + 'static {
+        let this = cx.entity().downgrade();
+        let note = review.note.is_some();
+        let editing = self.review_editing;
+        let inputs = self.review_inputs || !note;
+        let collapsed = self.review_fit.actions_in_menu();
+        move |menu: PopupMenu| {
+            let menu = menu
+                .item(item(
+                    &this,
+                    "Compare side by side",
+                    None,
+                    !note,
+                    false,
+                    |view, window, cx| view.show_tile(TileKind::Compare, window, cx),
+                ))
+                .item(item(
+                    &this,
+                    "Edit final text",
+                    None,
+                    !note || editing,
+                    false,
+                    |view, window, cx| view.start_review_edit(window, cx),
+                ))
+                // A proposal without a note always shows its inputs.
+                .item(item(&this, "Inputs", None, !note, inputs, |view, _, cx| {
+                    view.review_inputs = !view.review_inputs;
+                    cx.notify();
+                }));
+            if !collapsed {
+                return menu;
+            }
+            menu.separator()
+                .item(item(
+                    &this,
+                    "Keep for later",
+                    None,
+                    false,
+                    false,
+                    |view, window, cx| view.keep_review(window, cx),
+                ))
+                .item(item(
+                    &this,
+                    "Dismiss",
+                    None,
+                    false,
+                    false,
+                    |view, window, cx| view.dismiss_review(window, cx),
+                ))
+        }
     }
     /// Discarding closes the edit with no Undo, so it always confirms; ↵ is
     /// inert and only the danger button discards.
@@ -1099,8 +1123,10 @@ impl ThreadsUi {
                 .into_any_element()
         };
         let centered = self.layout.maximized() == Some(TileKind::Note);
-        // The text keeps a few lines however many banners a short Note shows.
-        let mut body = div().flex().flex_1().min_h(px(48.)).child(
+        // The text keeps a few lines however many banners a short Note shows,
+        // and 120 px beside an open comments section, which gives way first.
+        let stacked = self.comments_stacked();
+        let mut body = div().flex().flex_1().min_h(text_min(stacked)).child(
             div()
                 .id("note-body")
                 .flex()
@@ -1121,11 +1147,13 @@ impl ThreadsUi {
                 .on_key_up(cx.listener(|this, _, _, cx| this.track_selection(cx)))
                 .test_support(),
         );
-        if self.margin {
+        if self.comments_beside() {
             body = body.child(self.margin_column(cx));
         }
+        // Below the text: comments, then the run's status and reply, then the
+        // writing bar.
         content
-            .child(body)
+            .child(self.text_and_comments(body, text_min(stacked), stacked, cx))
             .child(self.writing_activity(cx))
             .child(self.writing_run_status())
             .child(self.writing_proposals(cx))
@@ -1360,65 +1388,280 @@ impl ThreadsUi {
         }
         banners
     }
+    /// The note whose comments the Note shows: the open note, unless a
+    /// review shows another note's text.
+    fn comments_note(&self) -> Option<&OpenNote> {
+        let open = self.note.as_ref()?;
+        match &self.review {
+            Some(review) if review.note.as_deref() != Some(open.record.id.as_str()) => None,
+            _ => Some(open),
+        }
+    }
+    /// A draft, a comment or a load error to show for that note.
+    fn comments_have_content(&self) -> bool {
+        self.comments_note().is_some_and(|open| {
+            self.comment_anchor
+                .as_ref()
+                .is_some_and(|(note, ..)| note == &open.record.id)
+                || self
+                    .workspace
+                    .writing_comments(&open.record.id)
+                    .map_or(true, |comments| !comments.is_empty())
+        })
+    }
+    /// Whether the comments are open where they sit now. Beside the text
+    /// they follow the note until the toggle decides; the stacked section
+    /// stays collapsed until opened.
+    pub(super) fn comments_open(&self) -> bool {
+        if self.margin_mode == layout::MarginMode::Stacked {
+            self.comments_expanded
+        } else {
+            self.margin.unwrap_or_else(|| self.comments_have_content())
+        }
+    }
+    /// The margin renders beside the text.
+    pub(super) fn comments_beside(&self) -> bool {
+        self.margin_mode != layout::MarginMode::Stacked
+            && self.comments_note().is_some()
+            && self.comments_open()
+    }
+    /// The in-tile section renders below the text.
+    pub(super) fn comments_stacked(&self) -> bool {
+        self.margin_mode == layout::MarginMode::Stacked
+            && self.comments_note().is_some()
+            && self.comments_expanded
+    }
+    /// `toggle-margin`'s one handler, in the toolbar and in the review bar.
+    pub(super) fn toggle_comments(&mut self, cx: &mut Context<Self>) {
+        let open = !self.comments_open();
+        if self.margin_mode == layout::MarginMode::Stacked {
+            self.comments_expanded = open;
+        } else {
+            self.margin = Some(open);
+        }
+        cx.notify();
+    }
+    /// Escape inside the stacked section collapses it, keeps any draft and
+    /// returns focus to the text above.
+    fn collapse_comments(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        self.comments_expanded = false;
+        if !self.review_editing
+            && self
+                .review
+                .as_ref()
+                .is_some_and(|review| review.note.is_some())
+        {
+            self.tile_reveal = None;
+            self.focus_root(window, cx);
+            if self.review_reading {
+                self.candidate_view
+                    .read(cx)
+                    .focus_handle()
+                    .clone()
+                    .focus(window, cx);
+            } else {
+                self.diff_editor
+                    .update(cx, |editor, cx| editor.focus(window, cx));
+            }
+        } else {
+            self.focus_visible_editor(window, cx);
+        }
+        cx.notify();
+    }
+    /// The comment toggle with its open count: the same control, handler and
+    /// state in the Note toolbar and the review bar, which never render
+    /// together.
+    fn comments_toggle(&self, cx: &mut Context<Self>) -> Option<gpui_kit::AnyElement> {
+        let open = self.comments_note()?;
+        let pending = self.pending_comments(&open.record.id);
+        let label = if pending > 0 {
+            format!("Comments · {pending}")
+        } else {
+            "Comments".into()
+        };
+        let shown = self.comments_open();
+        let reviewing = self.review.is_some();
+        Some(
+            if pending > 0 {
+                pill("toggle-margin", pending.to_string())
+                    .icon(IconName::MessageSquare)
+                    .accessibility_label(label)
+            } else {
+                components::icon_button("toggle-margin", IconName::MessageSquare, label)
+            }
+            .selected(shown)
+            .tooltip(match (shown, reviewing) {
+                (true, true) => "Hide comments",
+                (false, true) => "Show comments",
+                (true, false) => "Hide comments · select text to comment (⌘/)",
+                (false, false) => "Show comments · select text to comment (⌘/)",
+            })
+            .on_click(cx.listener(|this, _, _, cx| this.toggle_comments(cx)))
+            .into_any_element(),
+        )
+    }
+    fn pending_comments(&self, note: &str) -> usize {
+        self.workspace
+            .writing_comments(note)
+            .map(|comments| comments.iter().filter(|entry| !entry.addressed).count())
+            .unwrap_or_default()
+    }
+    /// "Comments · N", 12 px, above the list in both placements.
+    fn comments_label(&self, note: &str) -> gpui_kit::AnyElement {
+        let pending = self.pending_comments(note);
+        div()
+            .flex_shrink_0()
+            .font_family(UI_FONT)
+            .text_size(SMALL_TEXT)
+            .font_weight(gpui_kit::FontWeight::MEDIUM)
+            .text_color(rgb(pal().muted))
+            .child(if pending > 0 {
+                format!("Comments · {pending}")
+            } else {
+                "Comments".into()
+            })
+            .into_any_element()
+    }
+    /// Text above, comments below: with the section open the text keeps
+    /// 120 px and the section (at most 40 % of this area) shrinks first.
+    fn text_and_comments(
+        &self,
+        text: impl IntoElement,
+        min: gpui_kit::Pixels,
+        stacked: bool,
+        cx: &mut Context<Self>,
+    ) -> gpui_kit::AnyElement {
+        div()
+            .flex()
+            .flex_col()
+            .flex_1()
+            .min_h(min)
+            .child(text)
+            .when(stacked, |area| area.child(self.comments_section(cx)))
+            .into_any_element()
+    }
+    /// Wide and Narrow: the margin beside the text, at the mode's width.
     fn margin_column(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
-        let p = pal();
-        let Some(open) = &self.note else {
+        let Some(open) = self.comments_note() else {
             return div().into_any_element();
         };
-        let RecordData::Note(note) = &open.record.data else {
-            return div().into_any_element();
-        };
-        let note_id = open.record.id.clone();
-        let dirty = open.session.is_some();
-        let mut margin = div()
+        div()
             .id("writing-feedback")
-            .w(px(250.))
+            .w(px(self.margin_mode.width()))
             .flex_shrink_0()
             .h_full()
             .overflow_y_scroll()
+            .track_scroll(&self.comments_scroll)
             .flex()
             .flex_col()
             .gap_2()
-            .pl_2()
+            .px_2()
+            .py_2()
             .border_l_1()
-            .border_color(rgb(p.border))
+            .border_color(rgb(pal().hairline))
+            .child(self.comments_label(&open.record.id))
+            .children(self.comment_items(cx))
+            .test_support()
+            .into_any_element()
+    }
+    /// Stacked: the docked section below the text, with the same list,
+    /// cards, draft and IDs as the margin. Escape inside collapses it.
+    fn comments_section(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
+        let Some(open) = self.comments_note() else {
+            return div().into_any_element();
+        };
+        div()
+            .id("comments-section")
+            .flex()
+            .flex_col()
+            .flex_shrink(1.)
+            .min_h_0()
+            .max_h(gpui_kit::relative(0.4))
+            .border_t_1()
+            .border_color(rgb(pal().hairline))
+            .on_key_down(
+                cx.listener(|this, event: &gpui_kit::KeyDownEvent, window, cx| {
+                    if event.keystroke.key == "escape" {
+                        this.collapse_comments(window, cx);
+                        cx.stop_propagation();
+                    }
+                }),
+            )
             .child(
                 div()
-                    .text_size(UI_TEXT)
-                    .font_weight(gpui_kit::FontWeight::MEDIUM)
-                    .child("Comments"),
-            );
+                    .flex_shrink_0()
+                    .px_3()
+                    .pt_2()
+                    .pb_1()
+                    .child(self.comments_label(&open.record.id)),
+            )
+            .child(
+                div()
+                    .id("writing-feedback")
+                    .flex()
+                    .flex_col()
+                    .gap_2()
+                    .flex_shrink(1.)
+                    .min_h_0()
+                    .overflow_y_scroll()
+                    .track_scroll(&self.comments_scroll)
+                    .px_3()
+                    .pb_2()
+                    .children(self.comment_items(cx))
+                    .test_support(),
+            )
+            .test_support()
+            .into_any_element()
+    }
+    /// The draft, a load error or the empty hint, then one card per comment.
+    /// Only one placement renders at a time, so the IDs stay unique.
+    fn comment_items(&self, cx: &mut Context<Self>) -> Vec<gpui_kit::AnyElement> {
+        let p = pal();
+        let mut items = vec![];
+        let Some(open) = self.comments_note() else {
+            return items;
+        };
+        let RecordData::Note(note) = &open.record.data else {
+            return items;
+        };
+        let note_id = open.record.id.clone();
+        let dirty = open.session.is_some();
+        let drafting = self
+            .comment_anchor
+            .as_ref()
+            .is_some_and(|(anchor_note, ..)| anchor_note == &note_id);
         if let Some((anchor_note, _, _, quote)) = &self.comment_anchor
             && anchor_note == &note_id
         {
-            margin = margin.child(
+            items.push(
                 div()
                     .id("comment-composer")
                     .flex()
                     .flex_col()
                     .gap_1()
                     .p_2()
-                    .border_1()
+                    .rounded_md()
+                    .border_l_2()
                     .border_color(rgb(p.accent))
                     .bg(rgb(p.tile))
-                    .child(
-                        div()
-                            .text_size(SMALL_TEXT)
-                            .text_color(rgb(p.muted))
-                            .italic()
-                            .child(format!("“{}”", short(quote))),
-                    )
-                    .child(
-                        div().h(px(90.)).child(
-                            prose_editor(&self.comment_input)
-                                .h_full()
-                                .aria_label("Comment"),
-                        ),
-                    )
+                    // The passage and the draft's two actions lead, so they
+                    // stay in view in a short stacked section.
                     .child(
                         div()
                             .flex()
+                            .flex_wrap()
+                            .items_center()
                             .gap_1()
+                            .child(
+                                div()
+                                    .flex_1()
+                                    .min_w(px(80.))
+                                    .truncate()
+                                    .text_size(SMALL_TEXT)
+                                    .text_color(rgb(p.muted))
+                                    .italic()
+                                    .child(format!("“{}”", short(quote))),
+                            )
                             .child(pill("cancel-comment", "Cancel").on_click(cx.listener(
                                 |this, _, window, cx| {
                                     this.comment_anchor = None;
@@ -1430,19 +1673,43 @@ impl ThreadsUi {
                                     cx.notify();
                                 },
                             )))
-                            .child(div().flex_1())
                             .child(
                                 button("post-comment")
                                     .label("Add comment")
                                     .compact()
+                                    .h(components::tokens::COMPACT_CONTROL)
                                     .primary()
                                     .disabled(dirty)
+                                    .when(dirty, |post| {
+                                        post.accessibility_label(
+                                            "Add comment, unavailable: Save your edit first",
+                                        )
+                                    })
+                                    .tooltip(if dirty {
+                                        "Save your edit first; comments anchor to the saved note"
+                                    } else {
+                                        "Add this comment to the note's feedback"
+                                    })
                                     .on_click(cx.listener(|this, _, window, cx| {
                                         this.post_comment(window, cx)
                                     })),
                             ),
                     )
-                    .test_support(),
+                    .child(
+                        div()
+                            .h(px(if self.margin_mode == layout::MarginMode::Stacked {
+                                56.
+                            } else {
+                                90.
+                            }))
+                            .child(
+                                prose_editor(&self.comment_input)
+                                    .h_full()
+                                    .aria_label("Comment"),
+                            ),
+                    )
+                    .test_support()
+                    .into_any_element(),
             );
         }
         let (mut comments, feedback_error) = match self.workspace.writing_comments(&note_id) {
@@ -1450,12 +1717,16 @@ impl ThreadsUi {
             Err(error) => (
                 vec![],
                 Some(format!(
-                    "Could not load pending feedback: {error}. Reload saved note to retry."
+                    "Couldn't load comments: {error}. Reload saved note to try again."
                 )),
             ),
         };
+        let failed = feedback_error.is_some();
         if let Some(error) = feedback_error {
-            margin = margin.child(error);
+            items.push(
+                components::status_line("comments-error", Some(Tone::Error), error)
+                    .into_any_element(),
+            );
         }
         comments.sort_by_key(|entry| {
             let start = match &entry.record.data {
@@ -1477,8 +1748,14 @@ impl ThreadsUi {
                     .filter(|snapshot| snapshot.note.id == note_id)
                     .map(|snapshot| (request.clone(), operation.clone(), snapshot))
             });
-        if comments.is_empty() && self.comment_anchor.is_none() {
-            margin = margin.child(empty("margin-empty", "Select a passage to comment."));
+        if comments.is_empty() && !drafting && !failed {
+            items.push(
+                empty(
+                    "margin-empty",
+                    "No comments yet. Select a passage and press ⌘/.",
+                )
+                .into_any_element(),
+            );
         }
         for entry in &comments {
             let RecordData::Comment(comment) = &entry.record.data else {
@@ -1487,11 +1764,13 @@ impl ThreadsUi {
             let id = entry.record.id.clone();
             let location = comment_location(comment, open.record.version, &note.markdown);
             let checked = !entry.addressed && !self.excluded_comments.contains(&id);
+            // An unlocated comment is kept as written; the owner excludes it
+            // or comments on the passage again to reattach the feedback.
             let status = if entry.addressed {
-                "addressed · history kept".to_owned()
+                "Addressed · history kept".to_owned()
             } else if location.is_none() {
                 format!(
-                    "not located in v{} · kept, not re-anchored",
+                    "Passage not found in v{}. Exclude it, or select the passage and comment again.",
                     open.record.version
                 )
             } else if !checked {
@@ -1499,78 +1778,62 @@ impl ThreadsUi {
             } else {
                 String::new()
             };
-            let card = div()
-                .id(format!("comment-card-{id}"))
-                .flex()
-                .flex_col()
-                .gap_1()
-                .p_2()
-                .rounded_md()
-                .border_l_2()
-                .border_color(rgb(p.border))
-                .bg(rgb(if entry.addressed { p.alt } else { p.tile }))
-                .child(div().text_size(UI_TEXT).child(comment.body.clone()))
-                .child(if let Some(range) = location.clone() {
-                    button(format!("reveal-comment-{id}"))
-                        .label(format!(
-                            "“{}{}”",
-                            comment.quote.chars().take(28).collect::<String>(),
-                            if comment.quote.chars().count() > 28 {
-                                "…"
-                            } else {
-                                ""
-                            }
-                        ))
-                        .ghost()
-                        .compact()
-                        .text_size(SMALL_TEXT)
-                        .text_color(rgb(p.muted))
-                        .tooltip(if dirty || self.review.is_some() {
-                            "Save the note or finish review to show passage"
+            let quote = if let Some(range) = location.clone() {
+                button(format!("reveal-comment-{id}"))
+                    .label(format!(
+                        "“{}{}”",
+                        comment.quote.chars().take(28).collect::<String>(),
+                        if comment.quote.chars().count() > 28 {
+                            "…"
                         } else {
-                            "Show passage in note"
-                        })
-                        .disabled(dirty || self.review.is_some())
-                        .on_click(cx.listener(move |this, _, window, cx| {
-                            this.reveal(range.clone(), window, cx)
-                        }))
-                } else {
-                    button(format!("comment-quote-{id}"))
-                        .label(format!(
-                            "“{}{}”",
-                            comment.quote.chars().take(28).collect::<String>(),
-                            if comment.quote.chars().count() > 28 {
-                                "…"
-                            } else {
-                                ""
-                            }
-                        ))
-                        .ghost()
-                        .compact()
-                        .text_size(SMALL_TEXT)
-                        .text_color(rgb(p.muted))
-                        .disabled(true)
-                        .tooltip("This passage is not located in the current note version")
-                })
-                .when(!status.is_empty(), |card| {
-                    card.child(
-                        div()
-                            .text_size(SMALL_TEXT)
-                            .text_color(rgb(p.muted))
-                            .child(status),
-                    )
-                });
+                            ""
+                        }
+                    ))
+                    .ghost()
+                    .compact()
+                    .text_size(SMALL_TEXT)
+                    .text_color(rgb(p.muted))
+                    .tooltip(if dirty || self.review.is_some() {
+                        "Save the note or finish review to show passage"
+                    } else {
+                        "Show passage in note"
+                    })
+                    .disabled(dirty || self.review.is_some())
+                    .on_click(cx.listener(move |this, _, window, cx| {
+                        this.reveal(range.clone(), window, cx)
+                    }))
+            } else {
+                button(format!("comment-quote-{id}"))
+                    .label(format!(
+                        "“{}{}”",
+                        comment.quote.chars().take(28).collect::<String>(),
+                        if comment.quote.chars().count() > 28 {
+                            "…"
+                        } else {
+                            ""
+                        }
+                    ))
+                    .ghost()
+                    .compact()
+                    .text_size(SMALL_TEXT)
+                    .text_color(rgb(p.muted))
+                    .disabled(true)
+                    .tooltip("This passage is not in the current note version")
+            };
             let mut actions = div().flex().flex_wrap().gap_1();
             if !entry.addressed {
                 let toggle = id.clone();
                 actions = actions.child(
                     pill(
                         format!("include-comment-{id}"),
-                        if checked { "✓ Included" } else { "Include" },
+                        if checked { "Included" } else { "Include" },
                     )
+                    .when(checked, |toggle| toggle.icon(IconName::Check))
                     .selected(checked)
-                    .tooltip(if location.is_none() {
-                        "This passage is not located in the current note version"
+                    .tooltip(if location.is_none() && !checked {
+                        "This passage is not in the current note version"
+                    } else if location.is_none() {
+                        "Exclude this comment; its passage is not in the current note version"
                     } else if checked {
                         "Exclude from the next rewrite"
                     } else {
@@ -1591,7 +1854,7 @@ impl ThreadsUi {
             {
                 let (request, operation, record) = (request.clone(), operation.clone(), id.clone());
                 actions = actions.child(
-                    pill(format!("address-comment-{id}"), "mark addressed").on_click(cx.listener(
+                    pill(format!("address-comment-{id}"), "Mark addressed").on_click(cx.listener(
                         move |this, _, _, cx| {
                             this.confirm_addressed(
                                 &request,
@@ -1603,9 +1866,43 @@ impl ThreadsUi {
                     )),
                 );
             }
-            margin = margin.child(card.child(actions).test_support());
+            // Body first; the passage and the card's controls share a row
+            // that wraps in a narrow margin. Cards keep only the left rule.
+            let card = div()
+                .id(format!("comment-card-{id}"))
+                .flex()
+                .flex_col()
+                .gap_1()
+                .p_2()
+                .rounded_md()
+                .border_l_2()
+                .border_color(rgb(p.border))
+                .bg(rgb(if entry.addressed { p.alt } else { p.tile }))
+                .child(div().text_size(UI_TEXT).child(comment.body.clone()))
+                .when(!status.is_empty(), |card| {
+                    card.child(
+                        div()
+                            .id(format!("comment-status-{id}"))
+                            .text_size(SMALL_TEXT)
+                            .text_color(rgb(p.muted))
+                            .aria_label(status.clone())
+                            .child(status)
+                            .test_support(),
+                    )
+                })
+                .child(
+                    div()
+                        .flex()
+                        .flex_wrap()
+                        .items_center()
+                        .gap_1()
+                        .child(quote)
+                        .child(div().flex_1())
+                        .child(actions),
+                );
+            items.push(card.test_support().into_any_element());
         }
-        margin.test_support().into_any_element()
+        items
     }
     fn note_bar(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         let p = pal();
@@ -1865,10 +2162,13 @@ impl ThreadsUi {
                 plural(messages, "saved context message")
             );
             info.push(
+                // The scope shares the actions' row and truncates (its full
+                // text is in the tooltip) instead of taking a row of its own
+                // in a narrow Note.
                 div()
                     .id("rewrite-scope")
-                    .flex_shrink(1.)
-                    .min_w_0()
+                    .flex_1()
+                    .min_w(px(120.))
                     .truncate()
                     .text_size(SMALL_TEXT)
                     .text_color(rgb(p.muted))
@@ -2009,122 +2309,305 @@ impl ThreadsUi {
         let Some(review) = &self.review else {
             return div().into_any_element();
         };
-        let protected = review.note.as_ref().is_some_and(|id| {
-            self.records.iter().any(|record| {
-                &record.id == id && matches!(&record.data, RecordData::Note(note) if note.protected)
-            })
+        let fit = self.review_fit;
+        let writes = &review.candidate.request.writes;
+        let shape = ProposalShape::of(writes);
+        // Approval wording whenever the proposal writes a protected note.
+        let protected = writes.iter().any(|write| {
+            matches!(&write.data, RecordData::Note(note) if note.protected)
+                || self.records.iter().any(|record| {
+                    record.id == write.id
+                        && matches!(&record.data, RecordData::Note(note) if note.protected)
+                })
         });
-        let counts = if review.note.is_some() {
-            let current = review
-                .note
-                .as_ref()
-                .and_then(|id| self.workspace.store.note(id).ok().flatten())
+        let counts = review.note.as_ref().map(|id| {
+            let current = self
+                .workspace
+                .store
+                .note(id)
+                .ok()
+                .flatten()
                 .and_then(|record| match record.data {
                     RecordData::Note(note) => Some(note.markdown),
                     _ => None,
                 })
                 .unwrap_or_default();
             let tracked = diff::tracked(&current, &review.original);
-            format!("whole note · +{} −{}", tracked.added, tracked.removed)
-        } else {
-            format!("{} changes", review.candidate.request.writes.len())
-        };
+            format!("+{} −{}", tracked.added, tracked.removed)
+        });
+        let editing = self.review_editing;
+        let edited = editing || review.edited;
+        let grouped = review.groups.groups.len() > 1;
         let partial = review.selected.len() != review.groups.groups.len();
-        let mut bar = div()
-            .id("review-bar")
+        let snapshot = review
+            .candidate
+            .request
+            .inputs
+            .iter()
+            .find_map(|input| self.workspace.writing_request(&input.record).ok());
+        let open_comments = snapshot.as_ref().map_or(0, |snapshot| {
+            let addressed: BTreeSet<String> = self
+                .workspace
+                .writing_comments(&snapshot.note.id)
+                .map(|entries| {
+                    entries
+                        .into_iter()
+                        .filter(|entry| entry.addressed)
+                        .map(|entry| entry.record.id)
+                        .collect()
+                })
+                .unwrap_or_default();
+            snapshot
+                .comments
+                .iter()
+                .filter(|comment| !addressed.contains(&comment.id))
+                .count()
+        });
+        let footer = review_footer(shape, protected, open_comments);
+
+        // The Proposal label plus the Protected chip states the review. A
+        // narrower bar keeps the counts, then the shape, in the label's
+        // tooltip and accessible name.
+        let described = match &counts {
+            Some(counts) => format!("Proposal · {} · {counts}", shape.label()),
+            None => format!("Proposal · {}", shape.label()),
+        };
+        let shown_counts = counts.clone().filter(|_| !fit.actions_in_menu());
+        let folded = fit.icons() || (counts.is_some() && shown_counts.is_none());
+        let label = div()
+            .id("review-proposal")
             .flex()
-            .flex_wrap()
+            .flex_shrink_0()
             .items_center()
             .gap_1()
-            .px_3()
-            .py_1()
-            .flex_shrink_0()
-            .font_family(UI_FONT)
-            .text_size(SMALL_TEXT)
-            .bg(rgb(p.alt))
-            .border_b_1()
-            .border_color(rgb(p.border))
+            .aria_label(described.clone())
+            .when(folded, |label| {
+                let tip = SharedString::from(described.clone());
+                label.tooltip(move |window, cx| {
+                    gpui_kit::component::tooltip::Tooltip::new(tip.clone()).build(window, cx)
+                })
+            })
             .child(
                 div()
-                    .font_weight(gpui_kit::FontWeight::BOLD)
-                    .child("proposal"),
+                    .font_weight(gpui_kit::FontWeight::SEMIBOLD)
+                    .child("Proposal"),
             )
-            .child(div().text_color(rgb(p.muted)).child(counts))
-            .child(
-                pill("review-inputs", "ⓘ inputs")
-                    .selected(self.review_inputs)
-                    .on_click(cx.listener(|this, _, _, cx| {
-                        this.review_inputs = !this.review_inputs;
-                        cx.notify();
-                    })),
-            )
-            .child(
-                pill("review-compare", "compare")
-                    .tooltip("Open a side-by-side tile")
-                    .on_click(cx.listener(|this, _, window, cx| {
-                        this.show_tile(TileKind::Compare, window, cx)
-                    })),
-            );
-        if review.note.is_some() {
-            bar = bar.child(
-                pill(
-                    "review-read-result",
-                    if self.review_reading {
-                        "Show changes"
-                    } else {
-                        "Read result"
-                    },
+            .when(!fit.icons(), |label| {
+                label.child(
+                    div()
+                        .text_color(rgb(p.muted))
+                        .child(format!("· {}", shape.label())),
                 )
-                .disabled(self.review_editing)
-                .on_click(cx.listener(|this, _, window, cx| {
-                    this.set_review_reading(!this.review_reading, window, cx)
-                })),
-            );
-            bar = if self.review_editing {
-                bar.child(
-                    pill("prepare-final", "use this text")
-                        .disabled(!review.edited)
-                        .tooltip("Creates a new candidate from your final text")
-                        .on_click(
-                            cx.listener(|this, _, window, cx| this.prepare_review_edit(window, cx)),
-                        ),
+            })
+            .when_some(shown_counts, |label, counts| {
+                label.child(div().text_color(rgb(p.muted)).child(counts))
+            })
+            .test_support();
+        let protected_chip = protected.then(|| {
+            if fit.icons() {
+                components::short_status_chip(
+                    "review-protected",
+                    Some(Tone::Info),
+                    Some(IconName::Lock),
+                    "",
+                    "Protected",
                 )
-                .child(pill("cancel-final", "cancel edit").on_click(
-                    cx.listener(|this, _, window, cx| this.cancel_review_edit(window, cx)),
-                ))
             } else {
-                bar.child(
-                    pill("review-edit", "edit final text")
-                        .tooltip("Edit the final text; this creates a new candidate")
-                        .on_click(
-                            cx.listener(|this, _, window, cx| this.start_review_edit(window, cx)),
-                        ),
+                components::status_chip(
+                    "review-protected",
+                    Some(Tone::Info),
+                    Some(IconName::Lock),
+                    "Protected",
                 )
-            };
-        }
-        bar = bar
-            .child(div().flex_1())
-            .child(
-                pill("close-review", "keep for later")
-                    .on_click(cx.listener(|this, _, window, cx| this.keep_review(window, cx))),
+            }
+        });
+        // Changes | Result: the old toggle's ID stays on Result.
+        let mode = review.note.is_some().then(|| {
+            let why = edited.then_some("Finish or cancel the edit first");
+            components::segmented(
+                "review-mode",
+                vec![
+                    button("review-show-changes")
+                        .label("Changes")
+                        .selected(!self.review_reading)
+                        .disabled(edited)
+                        .when_some(why, |segment, why| {
+                            segment.accessibility_label(format!("Changes, unavailable: {why}"))
+                        })
+                        .tooltip(why.unwrap_or("Show the tracked changes"))
+                        .on_click(cx.listener(|this, _, window, cx| {
+                            this.set_review_reading(false, window, cx)
+                        })),
+                    button("review-read-result")
+                        .label("Result")
+                        .selected(self.review_reading)
+                        .disabled(edited)
+                        .when_some(why, |segment, why| {
+                            segment.accessibility_label(format!("Result, unavailable: {why}"))
+                        })
+                        .tooltip(why.unwrap_or("Read the proposed text, formatted"))
+                        .on_click(cx.listener(|this, _, window, cx| {
+                            this.set_review_reading(true, window, cx)
+                        })),
+                ],
             )
-            .child(
-                pill("dismiss-proposal", "dismiss")
-                    .on_click(cx.listener(|this, _, window, cx| this.dismiss_review(window, cx))),
-            )
-            .child(
-                button("apply-final")
-                    .label(if protected {
-                        "Approve whole note"
-                    } else {
-                        "Apply whole note"
-                    })
-                    .compact()
-                    .primary()
-                    .tooltip("Approval binds exactly this displayed candidate")
-                    .disabled(review.edited || partial)
-                    .on_click(cx.listener(|this, _, window, cx| this.apply_review(window, cx))),
+        });
+        // A proposal without note text names its reason here; the details
+        // below list what it writes.
+        let middle = if review.note.is_none() {
+            let reason = review.candidate.request.reason.clone();
+            let tip = SharedString::from(reason.clone());
+            div()
+                .id("review-reason")
+                .flex_1()
+                .min_w_0()
+                .truncate()
+                .text_color(rgb(p.muted))
+                .aria_label(reason.clone())
+                .tooltip(move |window, cx| {
+                    gpui_kit::component::tooltip::Tooltip::new(tip.clone()).build(window, cx)
+                })
+                .child(reason)
+                .test_support()
+                .into_any_element()
+        } else {
+            div().flex_1().into_any_element()
+        };
+        let mut secondary: Vec<gpui_kit::AnyElement> = vec![];
+        if editing {
+            secondary.push(
+                pill("cancel-final", "Cancel edit")
+                    .tooltip("Discard your edit to the final text and show the proposal again")
+                    .on_click(
+                        cx.listener(|this, _, window, cx| this.cancel_review_edit(window, cx)),
+                    )
+                    .into_any_element(),
             );
+        }
+        if !fit.actions_in_menu() {
+            secondary.push(
+                pill("close-review", "Keep for later")
+                    .tooltip("Close the review; the proposal stays ready in the writing bar")
+                    .on_click(cx.listener(|this, _, window, cx| this.keep_review(window, cx)))
+                    .into_any_element(),
+            );
+            secondary.push(
+                pill("dismiss-proposal", "Dismiss")
+                    .tooltip("Dismiss this proposal; the note stays unchanged")
+                    .on_click(cx.listener(|this, _, window, cx| this.dismiss_review(window, cx)))
+                    .into_any_element(),
+            );
+        }
+        // The one primary, by state; blocked controls stay in place with
+        // their reason.
+        let full = shape.primary(protected);
+        let apply_blocked = if edited {
+            Some("Finish or cancel the edit first")
+        } else if partial {
+            Some("Prepare your selection first")
+        } else {
+            None
+        };
+        // The full label shows only where Apply leads and the bar has room;
+        // it stays the tooltip and accessible name.
+        let apply_leads = !editing && !(grouped && partial);
+        let apply = button("apply-final")
+            .label(if fit.icons() || !apply_leads {
+                if protected { "Approve" } else { "Apply" }.to_owned()
+            } else {
+                full.clone()
+            })
+            .compact()
+            .h(components::tokens::COMPACT_CONTROL)
+            .disabled(apply_blocked.is_some())
+            .accessibility_label(match apply_blocked {
+                Some(why) => format!("{full}, unavailable: {why}"),
+                None => full.clone(),
+            })
+            .tooltip(match apply_blocked {
+                Some(why) => format!("{full} is unavailable: {why}"),
+                None => format!("{full} · {}", shape.binding(protected)),
+            })
+            .on_click(cx.listener(|this, _, window, cx| this.apply_review(window, cx)));
+        let select_blocked = if edited {
+            Some("Finish or cancel the edit first")
+        } else if review.selected.is_empty() {
+            Some("Include at least one group")
+        } else if !partial {
+            Some("Omit a group first")
+        } else {
+            None
+        };
+        let prepare_selected = button("prepare-selected")
+            .label("Prepare selection")
+            .compact()
+            .h(components::tokens::COMPACT_CONTROL)
+            .disabled(select_blocked.is_some())
+            .accessibility_label(match select_blocked {
+                Some(why) => format!("Prepare selection, unavailable: {why}"),
+                None => "Prepare selection".into(),
+            })
+            .tooltip(select_blocked.unwrap_or("Review only the included groups as a new proposal"))
+            .on_click(cx.listener(|this, _, window, cx| this.prepare_review_selection(window, cx)));
+        let primary = if editing {
+            if grouped {
+                secondary.push(prepare_selected.ghost().into_any_element());
+            }
+            secondary.push(apply.outline().into_any_element());
+            button("prepare-final")
+                .label("Use this text")
+                .compact()
+                .h(components::tokens::COMPACT_CONTROL)
+                .disabled(!review.edited)
+                .accessibility_label(if review.edited {
+                    "Use this text"
+                } else {
+                    "Use this text, unavailable: Edit the text first"
+                })
+                .tooltip(if review.edited {
+                    "Review your text as a new proposal"
+                } else {
+                    "Edit the text first"
+                })
+                .on_click(cx.listener(|this, _, window, cx| this.prepare_review_edit(window, cx)))
+                .primary()
+        } else if grouped && partial {
+            secondary.push(apply.outline().into_any_element());
+            prepare_selected.primary()
+        } else if grouped {
+            secondary.push(prepare_selected.ghost().into_any_element());
+            apply.primary()
+        } else {
+            apply.primary()
+        };
+        // One row; a crowded state wraps rather than clipping a control.
+        let bar = components::toolbar("review-bar")
+            .h_auto()
+            .min_h(components::tokens::TOOLBAR)
+            .flex_wrap()
+            .py(px(3.5))
+            .font_family(UI_FONT)
+            .text_size(SMALL_TEXT)
+            .child(label)
+            .children(protected_chip)
+            .children(mode)
+            .child(middle)
+            .children(secondary)
+            .children(self.comments_toggle(cx))
+            .child(primary);
+        let blocked_reason = if editing {
+            Some(
+                "Finish or cancel the edit first. Use this text reviews your text as a new proposal.",
+            )
+        } else if grouped && review.selected.is_empty() {
+            Some("Include at least one group, then prepare your selection.")
+        } else if grouped && partial {
+            Some(
+                "Prepare your selection first. Only the included groups become a new proposal to review.",
+            )
+        } else {
+            None
+        };
         let mut details = div()
             .id("review-details")
             .flex()
@@ -2135,9 +2618,23 @@ impl ThreadsUi {
             .flex_shrink_0()
             .text_size(UI_TEXT)
             .max_h(px(220.))
-            .overflow_y_scroll();
+            .overflow_y_scroll()
+            .when_some(blocked_reason, |details, why| {
+                details.child(
+                    div()
+                        .id("review-blocked-reason")
+                        .text_size(SMALL_TEXT)
+                        .text_color(rgb(p.muted))
+                        .aria_label(why)
+                        .child(why)
+                        .test_support(),
+                )
+            });
         if self.review_inputs || review.note.is_none() {
-            details = details.child(review.candidate.request.reason.clone());
+            // The bar names the reason when the proposal has no note text.
+            if review.note.is_some() {
+                details = details.child(review.candidate.request.reason.clone());
+            }
             for write in &review.candidate.request.writes {
                 details = details.child(metadata(match &write.data {
                     RecordData::Note(n) => format!(
@@ -2145,7 +2642,7 @@ impl ThreadsUi {
                         n.title,
                         if n.protected { " · protected" } else { "" }
                     ),
-                    RecordData::Action(a) => format!("Action: {} · {:?}", a.description, a.state),
+                    RecordData::Action(a) => format!("Task: {} · {:?}", a.description, a.state),
                     RecordData::Thread(t) => format!("Chat: {}", t.title),
                     RecordData::Message(m) => format!("Message: {}", short(&m.text)),
                     RecordData::Link(_) => "Connect related work".into(),
@@ -2158,53 +2655,63 @@ impl ThreadsUi {
                     RecordData::Project(_) => "Change project configuration".into(),
                 }));
             }
-            if let Some(snapshot) = review
-                .candidate
-                .request
-                .inputs
-                .iter()
-                .find_map(|input| self.workspace.writing_request(&input.record).ok())
-            {
+            if let Some(snapshot) = &snapshot {
                 details = details.child(metadata(format!(
-                    "Inputs: saved v{} · {} comments · {} chat messages",
+                    "Inputs: saved v{} · {} · {}",
                     snapshot.note.version,
-                    snapshot.comments.len(),
-                    snapshot.messages.len()
+                    plural(snapshot.comments.len(), "comment"),
+                    plural(snapshot.messages.len(), "chat message")
                 )));
                 if !snapshot.general_feedback.is_empty() {
                     details = details
                         .child(subheading("Overall feedback"))
-                        .child(snapshot.general_feedback);
+                        .child(snapshot.general_feedback.clone());
                 }
             }
-            details = details.child(metadata("Applying saves this exact proposal. Changed or actively edited notes remain unchanged until the issue is resolved. No per-change acceptance."));
+            details = details.child(metadata(
+                "A note that changed since, or has an open edit, stays unchanged until that is resolved.",
+            ));
         }
-        if review.groups.groups.len() > 1 {
-            details = details.child("Choose complete notes and tasks. Prepare your selection to review a new immutable proposal.");
+        if grouped {
+            details = details.child(metadata("Include or omit whole notes and tasks."));
             let mut groups = div().flex().flex_wrap().gap_1();
             for group in &review.groups.groups {
                 let id = group.id.clone();
                 let included = review.selected.contains(&id);
+                let label = format!(
+                    "{} {}: {}",
+                    if included { "Include" } else { "Omit" },
+                    if group.kind == "Action" {
+                        "task"
+                    } else {
+                        "note"
+                    },
+                    short(&group.title)
+                );
+                let blocked = if !review.groups.ungrouped_writes.is_empty() {
+                    Some("These changes can't be separated")
+                } else if edited {
+                    Some("Finish or cancel the edit first")
+                } else {
+                    None
+                };
                 groups = groups.child(
-                    pill(
-                        format!("review-group-{id}"),
-                        format!(
-                            "{} {}: {}",
-                            if included { "Include" } else { "Omit" },
-                            group.kind,
-                            short(&group.title)
-                        ),
-                    )
-                    .selected(included)
-                    .disabled(review.edited || !review.groups.ungrouped_writes.is_empty())
-                    .on_click(cx.listener(move |this, _, _, cx| {
-                        if let Some(review) = &mut this.review
-                            && !review.selected.remove(&id)
-                        {
-                            review.selected.insert(id.clone());
-                        }
-                        cx.notify();
-                    })),
+                    pill(format!("review-group-{id}"), label.clone())
+                        .selected(included)
+                        .disabled(blocked.is_some())
+                        .when_some(blocked, |toggle, why| {
+                            toggle
+                                .accessibility_label(format!("{label}, unavailable: {why}"))
+                                .tooltip(why)
+                        })
+                        .on_click(cx.listener(move |this, _, _, cx| {
+                            if let Some(review) = &mut this.review
+                                && !review.selected.remove(&id)
+                            {
+                                review.selected.insert(id.clone());
+                            }
+                            cx.notify();
+                        })),
                 );
                 if !group.required_groups.is_empty() {
                     let required = group
@@ -2217,16 +2724,16 @@ impl ThreadsUi {
                     groups = groups.child(metadata(format!("Requires: {required}")));
                 }
             }
-            details =
-                details.child(groups).child(
-                    pill("prepare-selected", "prepare selected groups")
-                        .disabled(review.edited || review.selected.is_empty() || !partial)
-                        .on_click(cx.listener(|this, _, window, cx| {
-                            this.prepare_review_selection(window, cx)
-                        })),
-                );
+            details = details.child(groups);
             if !review.groups.ungrouped_writes.is_empty() {
-                details = details.child("This proposal has shared changes that cannot be separated safely. Keep the complete proposal or request a rewrite.");
+                let line = "These changes can't be separated. Apply all or ask for a new rewrite.";
+                details = details.child(
+                    div()
+                        .id("review-inseparable")
+                        .aria_label(line)
+                        .child(line)
+                        .test_support(),
+                );
             }
         }
         let notes: Vec<_> = review
@@ -2240,21 +2747,35 @@ impl ThreadsUi {
             })
             .collect();
         if notes.len() > 1 {
-            let mut members = div().flex().flex_wrap().gap_1();
-            for (id, name) in notes {
+            // "Showing: A · B", the shown note selected.
+            let mut members = div()
+                .id("review-members")
+                .flex()
+                .flex_wrap()
+                .items_center()
+                .gap_1()
+                .child(
+                    div()
+                        .text_size(SMALL_TEXT)
+                        .text_color(rgb(p.muted))
+                        .child("Showing:"),
+                );
+            for (index, (id, name)) in notes.into_iter().enumerate() {
                 let selected = review.note.as_ref() == Some(&id);
+                if index > 0 {
+                    members = members.child(div().text_color(rgb(p.muted)).child("·"));
+                }
                 members = members.child(
-                    pill(
-                        format!("review-member-{id}"),
-                        format!("show {}", short(&name)),
-                    )
-                    .selected(selected)
-                    .on_click(cx.listener(move |this, _, window, cx| {
-                        this.select_review_note(id.clone(), window, cx)
-                    })),
+                    pill(format!("review-member-{id}"), short(&name))
+                        .tooltip(format!("Show {name}"))
+                        .accessibility_label(format!("Show {name}"))
+                        .selected(selected)
+                        .on_click(cx.listener(move |this, _, window, cx| {
+                            this.select_review_note(id.clone(), window, cx)
+                        })),
                 );
             }
-            details = details.child(members);
+            details = details.child(members.test_support());
         }
         let body = if review.note.is_none() {
             div().into_any_element()
@@ -2273,41 +2794,26 @@ impl ThreadsUi {
                 .aria_label("Proposed changes")
                 .into_any_element()
         };
-        let reason = format!(
-            "reviewing {} · approval binds this exact text{}",
-            if self.review_editing {
-                "your final text · use it to create a new candidate"
-            } else {
-                "the candidate"
-            },
-            review
-                .candidate
-                .request
-                .inputs
-                .iter()
-                .find_map(|input| self.workspace.writing_request(&input.record).ok())
-                .map(|snapshot| format!(
-                    " · {} captured comments stay pending until you mark them",
-                    snapshot.comments.len()
-                ))
-                .unwrap_or_default()
-        );
         let centered = self.layout.maximized() == Some(TileKind::Note);
-        let mut document = div().flex().size_full().min_h_0().min_w_0().child(
-            div()
-                .flex()
-                .flex_1()
-                .min_w_0()
-                .h_full()
-                .when(centered, |text| text.justify_center())
-                .child(reading_column().child(body)),
-        );
-        if self.margin
-            && self
-                .note
-                .as_ref()
-                .is_some_and(|open| review.note.as_deref() == Some(open.record.id.as_str()))
-        {
+        // The review text, then comments when they're stacked, then the
+        // footer that names exactly what Apply saves; it never folds.
+        let stacked = self.comments_stacked();
+        let mut document = div()
+            .id("review-body")
+            .flex()
+            .flex_1()
+            .min_h(if stacked { text_min(true) } else { px(0.) })
+            .min_w_0()
+            .child(
+                div()
+                    .flex()
+                    .flex_1()
+                    .min_w_0()
+                    .h_full()
+                    .when(centered, |text| text.justify_center())
+                    .child(reading_column().child(body)),
+            );
+        if self.comments_beside() {
             document = document.child(self.margin_column(cx));
         }
         div()
@@ -2317,28 +2823,28 @@ impl ThreadsUi {
             .flex_col()
             .min_h_0()
             .child(bar.test_support())
-            .child(details)
-            .child(
-                div()
-                    .id("review-body")
-                    .flex_1()
-                    .min_h_0()
-                    .child(document)
-                    .test_support(),
-            )
+            .child(details.test_support())
+            .child(self.text_and_comments(
+                document.test_support(),
+                if stacked { text_min(true) } else { px(0.) },
+                stacked,
+                cx,
+            ))
             .child(self.writing_activity(cx))
             .child(
                 div()
                     .id("note-bar")
-                    .px_3()
-                    .py_1()
                     .flex_shrink_0()
+                    .px_3()
+                    .py_2()
                     .font_family(UI_FONT)
                     .text_size(SMALL_TEXT)
+                    .text_color(rgb(p.ink))
                     .bg(rgb(p.alt))
                     .border_t_1()
-                    .border_color(rgb(p.border))
-                    .child(reason)
+                    .border_color(rgb(p.hairline))
+                    .aria_label(footer.clone())
+                    .child(footer)
                     .test_support(),
             )
             .test_support()
@@ -2583,4 +3089,81 @@ fn banner_button(id: impl Into<gpui_kit::ElementId>, label: &'static str) -> But
 /// "1 comment", "3 comments".
 fn plural(count: usize, noun: &str) -> String {
     format!("{count} {noun}{}", if count == 1 { "" } else { "s" })
+}
+/// The text keeps a few lines under banners, and 120 px beside an open
+/// comments section.
+fn text_min(stacked: bool) -> gpui_kit::Pixels {
+    px(if stacked { 120. } else { 48. })
+}
+
+/// What a proposal writes. It names the review bar's label and primary and
+/// the footer's binding sentence.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) enum ProposalShape {
+    /// One note and nothing else.
+    Note,
+    /// Several notes and nothing else.
+    Notes(usize),
+    /// Anything else, counted as changes.
+    Changes(usize),
+}
+impl ProposalShape {
+    pub(super) fn of(writes: &[Put]) -> Self {
+        let notes = writes
+            .iter()
+            .filter(|write| matches!(write.data, RecordData::Note(_)))
+            .count();
+        match (notes, writes.len()) {
+            (1, 1) => Self::Note,
+            (notes, total) if notes == total && notes > 1 => Self::Notes(notes),
+            (_, total) => Self::Changes(total),
+        }
+    }
+    pub(super) fn label(self) -> String {
+        match self {
+            Self::Note => "whole note".into(),
+            Self::Notes(count) => plural(count, "note"),
+            Self::Changes(count) => plural(count, "change"),
+        }
+    }
+    /// "Apply whole note", or "Approve …" when a protected note is written.
+    pub(super) fn primary(self, protected: bool) -> String {
+        format!(
+            "{} {}",
+            if protected { "Approve" } else { "Apply" },
+            self.label()
+        )
+    }
+    /// The sentence that says exactly what Apply saves.
+    pub(super) fn binding(self, protected: bool) -> String {
+        match (self, protected) {
+            (Self::Note, false) => "Applying saves exactly this text.".into(),
+            (Self::Note, true) => "Approving saves exactly this text to a protected note.".into(),
+            (Self::Notes(count), false) => format!("Applying saves exactly these {count} notes."),
+            (Self::Notes(count), true) => {
+                format!("Approving saves exactly these {count} notes, including protected notes.")
+            }
+            (Self::Changes(1), false) => "Applying saves exactly this change.".into(),
+            (Self::Changes(1), true) => {
+                "Approving saves exactly this change to a protected note.".into()
+            }
+            (Self::Changes(count), false) => {
+                format!("Applying saves exactly these {count} changes.")
+            }
+            (Self::Changes(count), true) => format!(
+                "Approving saves exactly these {count} changes, including a protected note."
+            ),
+        }
+    }
+}
+
+/// The review footer: the binding sentence first, then the comments that
+/// stay open (omitted when none).
+pub(super) fn review_footer(shape: ProposalShape, protected: bool, open: usize) -> String {
+    let binding = shape.binding(protected);
+    match open {
+        0 => binding,
+        1 => format!("{binding} 1 comment stays open until you mark it addressed."),
+        open => format!("{binding} {open} comments stay open until you mark them addressed."),
+    }
 }

@@ -4,14 +4,14 @@
 use super::*;
 use gpui_kit::{TestAppContext, test::TestWindowExt};
 
-struct Fixture {
+pub(super) struct Fixture {
     _root: tempfile::TempDir,
-    window: gpui_kit::AnyWindowHandle,
-    view: Entity<ThreadsUi>,
-    note: Record,
+    pub(super) window: gpui_kit::AnyWindowHandle,
+    pub(super) view: Entity<ThreadsUi>,
+    pub(super) note: Record,
 }
 
-fn fixture(cx: &mut TestAppContext, width: f32, height: f32, markdown: &str) -> Fixture {
+pub(super) fn fixture(cx: &mut TestAppContext, width: f32, height: f32, markdown: &str) -> Fixture {
     fixture_with(cx, width, height, markdown, false)
 }
 
@@ -73,7 +73,7 @@ fn fixture_with(
     f
 }
 
-fn update<R>(
+pub(super) fn update<R>(
     cx: &mut TestAppContext,
     f: &Fixture,
     run: impl FnOnce(&mut ThreadsUi, &mut Window, &mut Context<ThreadsUi>) -> R,
@@ -87,7 +87,7 @@ fn update<R>(
     result
 }
 
-fn on_window<R>(
+pub(super) fn on_window<R>(
     cx: &mut TestAppContext,
     f: &Fixture,
     run: impl FnOnce(&mut Window, &mut App) -> R,
@@ -179,7 +179,7 @@ const TOOLBAR_IDS: [&str; 13] = [
 ];
 
 /// Type into the open note so it has an unsaved, recoverable edit.
-fn type_edit(cx: &mut TestAppContext, f: &Fixture, tail: &str) {
+pub(super) fn type_edit(cx: &mut TestAppContext, f: &Fixture, tail: &str) {
     update(cx, f, |view, window, cx| {
         let text = format!("{}{tail}", view.note_editor.read(cx).value());
         view.note_editor
@@ -220,7 +220,7 @@ fn change_saved(cx: &mut TestAppContext, f: &Fixture, change: impl FnOnce(&mut N
     });
 }
 
-fn assert_in(window: &Window, id: &str, outer: Bounds<gpui_kit::Pixels>) {
+pub(super) fn assert_in(window: &Window, id: &str, outer: Bounds<gpui_kit::Pixels>) {
     let element = window.find(id.to_owned());
     assert!(element.visible(), "{id} is visible");
     let bounds = element.bounds();
@@ -233,12 +233,12 @@ fn assert_in(window: &Window, id: &str, outer: Bounds<gpui_kit::Pixels>) {
     );
 }
 
-fn window_bounds(width: f32, height: f32) -> Bounds<gpui_kit::Pixels> {
+pub(super) fn window_bounds(width: f32, height: f32) -> Bounds<gpui_kit::Pixels> {
     Bounds::new(point(px(0.), px(0.)), size(px(width), px(height)))
 }
 
 /// Labels of the open popup menu's rows, in order.
-fn menu_rows(cx: &mut TestAppContext, f: &Fixture) -> Vec<String> {
+pub(super) fn menu_rows(cx: &mut TestAppContext, f: &Fixture) -> Vec<String> {
     on_window(cx, f, |window, _| {
         let menu = window.within("popup-menu");
         (0..60usize)
@@ -248,7 +248,7 @@ fn menu_rows(cx: &mut TestAppContext, f: &Fixture) -> Vec<String> {
     })
 }
 
-fn choose(cx: &mut TestAppContext, f: &Fixture, label: &str) {
+pub(super) fn choose(cx: &mut TestAppContext, f: &Fixture, label: &str) {
     on_window(cx, f, |window, cx| {
         let mut menu = window.within("popup-menu");
         let index = (0..60usize)
@@ -272,7 +272,9 @@ fn note_toolbar_is_one_row_at_each_window_size_dirty_or_clean(cx: &mut TestAppCo
             for margin in [true, false] {
                 let f = widest(cx, width, height);
                 update(cx, &f, |view, window, cx| {
-                    view.margin = margin;
+                    // Comments open or closed, beside the text or stacked.
+                    view.margin = Some(margin);
+                    view.comments_expanded = margin;
                     view.show_tile(navigation, window, cx);
                 });
                 assert!(cx.read(|cx| f.view.read(cx).layout.contains(navigation)));
@@ -564,11 +566,9 @@ fn a_dirty_protected_note_keeps_protection_and_shows_unsaved_in_the_bar(cx: &mut
     assert_eq!(row(cx, &f), Some(workbench::WritingRow::Dirty));
     // In a narrow Note the chip shows its version and keeps its full name.
     let f = widest(cx, 900., 600.);
-    update(cx, &f, |view, _, cx| {
-        view.margin = false;
-        cx.notify();
-    });
     on_window(cx, &f, |window, cx| {
+        // 900 pt stacks the comments, so the Note keeps about 406 pt.
+        assert_eq!(f.view.read(cx).margin_mode, layout::MarginMode::Stacked);
         assert!(f.view.read(cx).note_fit.icons());
         assert_eq!(
             window.find("note-status-chip").label(),
@@ -591,7 +591,12 @@ fn a_dirty_protected_note_keeps_protection_and_shows_unsaved_in_the_bar(cx: &mut
 }
 
 /// Record a writing run for the open note's latest saved rewrite request.
-fn record_rewrite_run(cx: &mut TestAppContext, f: &Fixture, state: RunState, progress: &str) {
+pub(super) fn record_rewrite_run(
+    cx: &mut TestAppContext,
+    f: &Fixture,
+    state: RunState,
+    progress: &str,
+) {
     update(cx, f, |view, _, cx| {
         let note = f.note.id.clone();
         let thread = view.writing_threads.get(&note).unwrap().clone();

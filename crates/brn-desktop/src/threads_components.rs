@@ -470,7 +470,8 @@ fn chip(
                 .rounded(RADIUS_CHIP)
                 .gap_1()
                 .children(icon.map(|icon| Icon::new(icon).with_size(Size::XSmall)))
-                .child(text),
+                // An icon-only chip has no text child, so no trailing gap.
+                .when(!text.is_empty(), |tag| tag.child(text)),
         )
         .test_support()
 }

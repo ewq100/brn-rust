@@ -4,7 +4,7 @@
 
 ## Accepted outcomes
 
-- The document and passage feedback share the Note tile; the full linked chat stays in its separate resizable Chat tile. Comment cards never move into chat or below the note.
+- The document and passage feedback share the Note tile; the full linked chat stays in its separate resizable Chat tile. Comment cards never move into chat. They stay beside the note when the Note tile has room; in a narrow Note tile they move below the text into the in-tile comments section (owner decision, UI polish).
 - Readable headings, emphasis, lists, tables and figures; a compact formatting toolbar and quieter comment controls. Preserve the existing multi-comment, full-context, proposal-only rewrite and Apply/Undo lifecycle.
 - Preserve typing, composer/comment drafts, exact range/version/quote anchors, protection, candidate identity and current-state checks through navigation, save, review and recovery.
 
@@ -12,7 +12,7 @@
 
 Keep one authoritative Markdown note buffer. Provide a formatted **Read** view of that buffer alongside **Write** with selection-based formatting actions. Comment selection in Read uses the toolkit's exact source mapping; unmapped selections cannot create guessed anchors. True WYSIWYG editing is unavailable in GPUI Kit 0.7.3 and is not claimed by this implementation. Write remains available for editing and existing keyboard journeys.
 
-Feedback is reachable beside both views and has a clear pending count, quote, inclusion and passage reveal. Normal Save remains explicit; a **Save and comment** continuation may preserve/revalidate the exact selected range and quote, and proceeds only when Save committed the exact current buffer without a stale/generation conflict.
+Feedback is reachable beside both views (in a narrow Note tile, in the in-tile comments section below the text) and has a clear pending count, quote, inclusion and passage reveal. Normal Save remains explicit; a **Save and comment** continuation may preserve/revalidate the exact selected range and quote, and proceeds only when Save committed the exact current buffer without a stale/generation conflict.
 
 Save and comment saves the human buffer and opens the existing comment composer; it does not post a comment. The subsequent Add comment remains a separate replayable operation. A failed Add preserves the draft, anchor and operation identity; a saved human edit stays saved. Comment drafts retain existing window-local navigation preservation; restart durability is not newly promised. Recompute Read from the current editor buffer after edit/recovery/Save/Apply; invalidate previous selections whenever that source changes and verify parser source equality before accepting a rendered selection.
 

@@ -122,6 +122,9 @@ mod omakase_tests;
 #[cfg(all(test, feature = "native-test-support"))]
 #[path = "threads_polish_tests.rs"]
 mod polish_tests;
+#[cfg(all(test, feature = "native-test-support"))]
+#[path = "threads_review_tests.rs"]
+mod review_tests;
 
 gpui_kit::actions!(
     brn_threads,
@@ -506,9 +509,19 @@ struct ThreadsUi {
     settings: WorkspaceSettings,
     note: Option<OpenNote>,
     review: Option<Review>,
-    margin: bool,
+    /// The comments margin beside the text (Wide, Narrow): `None` follows the
+    /// note (shown with comments or a draft); the toggle sets it.
+    margin: Option<bool>,
+    /// The in-tile comments section (Stacked), collapsed until opened.
+    comments_expanded: bool,
+    /// Keeps the comments list's scroll position while it is collapsed.
+    comments_scroll: gpui_kit::ScrollHandle,
+    /// Where comments sit for the current window and layout.
+    margin_mode: layout::MarginMode,
     /// The Note toolbar's arrangement for the Note panel's current width.
     note_fit: layout::NoteFit,
+    /// The review bar's arrangement for the Note panel's current width.
+    review_fit: layout::ReviewFit,
     show_coverage: bool,
     selection: Option<(Range<usize>, String)>,
     general_feedback: Entity<TextareaState>,
@@ -809,8 +822,12 @@ impl ThreadsUi {
             settings,
             note: None,
             review: None,
-            margin: true,
+            margin: None,
+            comments_expanded: false,
+            comments_scroll: gpui_kit::ScrollHandle::new(),
+            margin_mode: layout::MarginMode::Wide,
             note_fit: layout::NoteFit::default(),
+            review_fit: layout::ReviewFit::default(),
             show_coverage: false,
             selection: None,
             general_feedback,
@@ -1442,7 +1459,11 @@ impl ThreadsUi {
                 self.comment_operation = None;
                 self.comment_anchor = Some(anchor);
             }
-            self.margin = true;
+            // The new draft opens the comments wherever they sit, scrolled
+            // to the draft at the top of the list.
+            self.margin = Some(true);
+            self.comments_expanded = true;
+            self.comments_scroll.scroll_to_item(0);
             self.sync_note_marks(cx);
             self.comment_input.update(cx, |e, cx| e.focus(window, cx));
         } else {

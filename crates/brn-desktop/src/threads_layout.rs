@@ -94,14 +94,12 @@ pub(super) const PANEL_GAP: f32 = 6.;
 
 /// Where a Note's comments sit: beside the text at a fixed margin width, or
 /// docked below it when the Note has no room.
-#[allow(dead_code, reason = "S4 places comments with it")]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(super) enum MarginMode {
     Wide,
     Narrow,
     Stacked,
 }
-#[allow(dead_code, reason = "S4 places comments with it")]
 impl MarginMode {
     pub(super) const WIDE: f32 = 280.;
     pub(super) const NARROW: f32 = 220.;
@@ -152,6 +150,43 @@ impl NoteFit {
     }
     pub(super) fn actions_in_menu(self) -> bool {
         self < Self::FormatMenu
+    }
+    pub(super) fn icons(self) -> bool {
+        self == Self::Icons
+    }
+}
+
+/// How much of the review bar fits on its one row, by the Note panel's
+/// width. Each threshold is the measured width its arrangement needs on a
+/// protected whole-note review with a 12-comment toggle (915 and 658 pt,
+/// padding and borders included) plus a few points for wider counts; the
+/// icon arrangement needs 405 pt, so 900×600 Write (Note 406 pt) keeps one
+/// row. The exact-text footer below the review never folds.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord)]
+pub(super) enum ReviewFit {
+    /// The primary reads Apply or Approve, the Proposal label drops its
+    /// shape and the Protected chip shows only its lock.
+    Icons,
+    /// Keep for later and Dismiss move into the Note ⋯, and the +a −r counts
+    /// into the Proposal label's tooltip.
+    Compact,
+    #[default]
+    Full,
+}
+impl ReviewFit {
+    pub(super) const FULL: f32 = 920.;
+    pub(super) const COMPACT: f32 = 670.;
+    pub(super) fn for_width(width: f32) -> Self {
+        if width >= Self::FULL {
+            Self::Full
+        } else if width >= Self::COMPACT {
+            Self::Compact
+        } else {
+            Self::Icons
+        }
+    }
+    pub(super) fn actions_in_menu(self) -> bool {
+        self < Self::Full
     }
     pub(super) fn icons(self) -> bool {
         self == Self::Icons
@@ -222,7 +257,6 @@ pub(super) fn panel_widths(
 /// The widest comments placement whose minimum widths fit. Maximized and
 /// Solo give the Note the whole row; without a visible Note nothing is
 /// reserved.
-#[allow(dead_code, reason = "S4 places comments with it")]
 pub(super) fn margin_mode(available: f32, layout: &Layout, maximized_or_solo: bool) -> MarginMode {
     let tiles: Vec<(TileKind, f32)> = layout
         .visible()
@@ -828,16 +862,55 @@ mod width_tests {
         assert!(NoteFit::FormatMenu.format_menu() && !NoteFit::FormatMenu.actions_in_menu());
         assert!(NoteFit::Compact.actions_in_menu() && !NoteFit::Compact.icons());
         assert!(NoteFit::Icons.icons() && NoteFit::Icons.actions_in_menu());
-        // Write at 1250, 1050 and 900 pt, with the S3 250 pt margin open.
-        let widths = |available| panel_widths(available, &WRITE, 250.)[1];
+        // Write at 1250 (Wide margin open), 1050 and 900 pt (stacked).
+        let mut layout = Layout::default();
+        layout.open(TileKind::Threads);
+        let widths = |available| {
+            let mode = margin_mode(available, &layout, false);
+            panel_widths(available, &WRITE, mode.width())[1]
+        };
         assert_eq!(NoteFit::for_width(widths(1250.)), NoteFit::Compact);
         assert_eq!(NoteFit::for_width(widths(1050.)), NoteFit::Compact);
-        assert_eq!(NoteFit::for_width(widths(900.)), NoteFit::Compact);
-        // And with it closed: 900 pt leaves the Note about 406 pt.
+        // 900 pt leaves the Note about 406 pt.
+        assert_eq!(NoteFit::for_width(widths(900.)), NoteFit::Icons);
+    }
+
+    #[test]
+    fn review_bar_folds_in_order_as_the_note_narrows() {
+        for (width, fit) in [
+            (1200., ReviewFit::Full),
+            (ReviewFit::FULL, ReviewFit::Full),
+            (ReviewFit::FULL - 1., ReviewFit::Compact),
+            (ReviewFit::COMPACT, ReviewFit::Compact),
+            (ReviewFit::COMPACT - 1., ReviewFit::Icons),
+            (360., ReviewFit::Icons),
+        ] {
+            assert_eq!(ReviewFit::for_width(width), fit, "{width}");
+        }
+        assert!(!ReviewFit::Full.actions_in_menu());
+        assert!(ReviewFit::Compact.actions_in_menu() && !ReviewFit::Compact.icons());
+        assert!(ReviewFit::Icons.icons() && ReviewFit::Icons.actions_in_menu());
+        // Write: 1250 pt (Note 687, Wide margin) folds Keep for later and
+        // Dismiss into the menu; 900 pt (Note 406) is the icon arrangement.
         assert_eq!(
-            NoteFit::for_width(panel_widths(900., &WRITE, 0.)[1]),
-            NoteFit::Icons
+            ReviewFit::for_width(panel_widths(1250., &WRITE, MarginMode::WIDE)[1]),
+            ReviewFit::Compact
         );
+        assert_eq!(
+            ReviewFit::for_width(panel_widths(900., &WRITE, 0.)[1]),
+            ReviewFit::Icons
+        );
+    }
+
+    #[test]
+    fn solo_gives_the_note_the_wide_margin() {
+        for available in [900., 1050., 1100., 1250.] {
+            let mut layout = Layout::default();
+            layout.set_focus(TileKind::Note);
+            layout.apply(Preset::Solo);
+            assert_eq!(layout.maximized(), Some(TileKind::Note));
+            assert_eq!(margin_mode(available, &layout, false), MarginMode::Wide);
+        }
     }
 }
 

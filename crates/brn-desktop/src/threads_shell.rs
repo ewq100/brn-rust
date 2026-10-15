@@ -517,9 +517,13 @@ impl ThreadsUi {
                     cx.notify();
                 }),
             );
-        self.note_fit = self
-            .note_panel_width(window)
-            .map_or(layout::NoteFit::Full, layout::NoteFit::for_width);
+        // Comments sit beside the text only when the panels' minimums leave
+        // room for the margin; the Note's bars fold by its resolved width.
+        self.margin_mode =
+            layout::margin_mode(f32::from(window.viewport_size().width), &self.layout, false);
+        let note_width = self.note_panel_width(window);
+        self.note_fit = note_width.map_or(layout::NoteFit::Full, layout::NoteFit::for_width);
+        self.review_fit = note_width.map_or(layout::ReviewFit::Full, layout::ReviewFit::for_width);
         if visible.is_empty() {
             return row
                 .items_center()
@@ -622,10 +626,11 @@ impl ThreadsUi {
 }
 
 impl ThreadsUi {
-    /// Width the comments margin adds to the Note's minimum.
+    /// Width the comments margin adds to the Note's minimum: the mode's
+    /// margin while it shows beside the text, nothing when stacked.
     fn note_margin_width(&self) -> f32 {
-        if self.margin && self.note.is_some() {
-            250.
+        if self.comments_beside() {
+            self.margin_mode.width()
         } else {
             0.
         }

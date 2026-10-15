@@ -307,12 +307,15 @@ impl ThreadsUi {
         let RecordData::Message(message) = record.data else {
             return div().into_any_element();
         };
+        // A capped scroller that also gives way in a short Note, so the
+        // writing bar below stays whole; its label and a line stay in view.
         div()
             .id("writing-result")
             .flex()
             .flex_col()
             .gap_1()
-            .flex_shrink_0()
+            .flex_shrink(1.)
+            .min_h(px(44.))
             .max_h(px(120.))
             .overflow_y_scroll()
             .px_3()
