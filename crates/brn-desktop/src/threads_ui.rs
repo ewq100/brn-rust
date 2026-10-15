@@ -79,6 +79,14 @@ use state::{
 use theme::{ThemeId, pal};
 
 #[cfg(all(test, feature = "native-test-support"))]
+#[path = "threads_test_support.rs"]
+mod test_support;
+
+#[cfg(all(test, feature = "native-test-support", target_os = "linux"))]
+#[path = "threads_rendering_tests.rs"]
+mod rendering_tests;
+
+#[cfg(all(test, feature = "native-test-support"))]
 #[path = "threads_context_actions_tests.rs"]
 mod context_actions_tests;
 #[cfg(all(test, feature = "native-test-support"))]

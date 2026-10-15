@@ -135,6 +135,18 @@ class CiTests(unittest.TestCase):
             self.assertFalse(ci.summarize(self.run_info(), jobs, 'a'*40)[1])
         self.assertFalse(ci.summarize(self.run_info(), [], 'a'*40)[1])
 
+    def test_linux_native_ui_is_an_applicable_pr_gate(self):
+        linux_ui = 'Native UI build and state (ubuntu-24.04)'
+        jobs = [dict(name=name, conclusion='success', status='completed')
+                for name in ci.APPLICABLE if name != linux_ui]
+        report, ready = ci.summarize(self.run_info(), jobs, 'a'*40)
+        self.assertFalse(ready)
+        self.assertIn(f'{linux_ui} | applicable PR gate | missing', report)
+        jobs.append(dict(name=linux_ui, conclusion='failure', status='completed'))
+        report, ready = ci.summarize(self.run_info(), jobs, 'a'*40)
+        self.assertFalse(ready)
+        self.assertIn(f'{linux_ui} | applicable PR gate | failure', report)
+
     def test_main_exit_requires_overall_success_and_all_applicable_ready(self):
         for overall, job_result, expected in (
             ('success', 'success', 0), ('success', 'skipped', 1),

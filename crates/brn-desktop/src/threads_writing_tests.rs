@@ -129,7 +129,7 @@ fn keyboard_selection_shows_strip_and_comment_key_anchors_saved_passage(cx: &mut
     .unwrap();
     cx.run_until_parked();
     cx.update_window(f.window, |_, window, cx| {
-        window.press("cmd-left", cx);
+        window.press(test_support::LINE_START_KEY, cx);
         window.press("shift-right", cx);
     })
     .unwrap();

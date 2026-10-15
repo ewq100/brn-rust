@@ -34,3 +34,27 @@ PDF qualification needs Poppler `pdftotext`, `pdfimages` and native `pdftoppm`. 
 Document imports other than Markdown/text use the existing explicit ChatGPT authentication path and a dedicated `gpt-6-luna` high-effort request. General chat model settings remain independent. No account, model or converter fallback is implicit. Local preparation/checking have separate 5-second budgets (20 seconds for PDF, within the existing 30-second hard limit); the provider request has a separate 180-second deadline. Full-page previews and originals remain transient; readable Markdown and linked figures pass through the shared checked import service. PDF layout and scan transcription retain source-coverage limitations.
 
 Provider/account checks follow the current assignment and normal authentication flow; keep credentials out of outputs. Successful builds and component tests are separate from native usability and owner acceptance.
+
+## Linux UI widget checks
+
+The existing GPUI widget suite can run without a display server or GPU. It uses synthetic windows and input events, offline provider fixtures, and the same checked application service as the desktop. Native build dependencies are still required; the Linux package list is maintained in the [Rust setup action](../../.github/actions/setup-rust/action.yml).
+
+From the repository root, after activating the pinned toolchain and any local native dependency prefix:
+
+```sh
+bash scripts/verify-desktop-shell.sh --widgets-only
+```
+
+This mode builds and runs the desktop's feature-gated widget tests with `native-ui,native-test-support`. It refuses a run with no discovered or successfully executed widget tests. It does not build the intake helper or run the full desktop lint gate; the script's default mode retains those broader checks.
+
+Use a private synthetic `TMPDIR` whose ancestors do not contain `.git`. This includes avoiding platform metadata roots in managed environments: if both `/workspace/.git` and `/tmp/.git` exist, use a private directory under `/var/tmp` with the supported filesystem permissions. Do not relax credential-path checks to accommodate a fixture location.
+
+Headless widget success covers component behavior, layout, focus routing and application operations. It does not prove real font rasterization, OS input/IME, clipboard, file dialogs or macOS usability. See the [Linux UI evidence](../work/active/linux-ui/evidence.md) for the selected milestone and current qualification.
+
+The separate Linux renderer witness requires a usable Vulkan/OpenGL driver; Mesa software Vulkan can run it without a display or hardware GPU:
+
+```sh
+cargo test -p brn-desktop --features native-ui,native-test-support --bin brn-desktop threads_ui::rendering_tests::linux_rendered_note_edit_save_and_reopen --locked --offline -- --ignored --exact --nocapture
+```
+
+Confirm exactly one test passed. Optional `BRN_UI_SCREENSHOT_DIR` must name a new absolute directory in an existing parent; the test reserves it and refuses existing paths. The check verifies real Unicode text pixels and Save/reopen, using the actual HiDPI scale. Platform font substitution means these are Linux screenshots rather than Mac golden images.

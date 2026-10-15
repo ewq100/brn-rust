@@ -28,6 +28,8 @@ The [CI workflow](../../.github/workflows/ci.yml) now covers the Threads core/ap
 
 Keep meaningful jobs with the maintained code. Do not add no-op passing jobs, suppress failures, or weaken repository protection to make a rebuild green. Product scope is Mac first; an unrelated platform issue should be reported without silently becoming another development program.
 
+The native UI PR matrix also runs Linux, including the same feature-gated widget suite used on Mac. The local CI summary treats `Native UI build and state (ubuntu-24.04)` as applicable. Hosted branch protection is separate configuration; adding the lane does not itself change GitHub's required checks or remove any existing Mac gate.
+
 ## Evidence and limits
 
 Record tested commit/tree, environment, features, exact command, result, and limitation. Use fresh explicit synthetic data and preserve task evidence. Existing [tooling](tooling.md) can record gate output; read commands before use.
@@ -36,6 +38,8 @@ Distinguish implemented, verified, native-observed, owner-accepted, and merged. 
 
 
 ## Current local gates
+
+`verify-desktop-shell.sh --widgets-only` runs the existing GPUI widget/component tests on Linux or Mac and verifies that actual widget tests were discovered and passed. Use `BRN_VERIFY_OUTPUT_DIR` for the usual current-run command, identity and output receipts. GPUI's synthetic test platform does not inspect rendered pixels; this gate is separate from real rendering and platform interaction acceptance.
 
 Build the maintained `brn-intake-helper` before the Mac workspace tests. PDF fixture qualification needs Poppler `pdftotext`/`pdfimages`/native `pdftoppm`; CI installs Poppler, and local tests accept `BRN_INTAKE_HELPER`, `BRN_PDFTOTEXT`, `BRN_PDFIMAGES`, `BRN_PDFTOPPM`. The default Mac test suite includes the source inventories, prepared-reader/formatter checks, renderer restriction and transient-cleanup witnesses. Provider transport tests use mocks; live dedicated Luna qualification uses fresh synthetic sources only when authorized and reports source QA separately from model success.
 

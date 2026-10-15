@@ -105,8 +105,10 @@ fn read_select_all_comments_the_exact_markdown_source_without_starting_ai(cx: &m
     })
     .unwrap();
     cx.run_until_parked();
-    cx.update_window(f.window, |_, window, cx| window.press("cmd-a", cx))
-        .unwrap();
+    cx.update_window(f.window, |_, window, cx| {
+        window.press(test_support::SELECT_ALL_KEY, cx)
+    })
+    .unwrap();
     cx.run_until_parked();
 
     cx.update_window(f.window, |_, window, cx| {
@@ -171,8 +173,10 @@ fn editing_after_read_selection_clears_old_range_before_comment_shortcut(cx: &mu
     })
     .unwrap();
     cx.run_until_parked();
-    cx.update_window(f.window, |_, window, cx| window.press("cmd-a", cx))
-        .unwrap();
+    cx.update_window(f.window, |_, window, cx| {
+        window.press(test_support::SELECT_ALL_KEY, cx)
+    })
+    .unwrap();
     cx.run_until_parked();
 
     cx.update_window(f.window, |_, window, cx| {

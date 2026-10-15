@@ -78,7 +78,7 @@ fn query(cx: &mut TestAppContext, f: &Fixture, value: &str) {
             .search
             .clone()
             .update(cx, |input, cx| input.focus(window, cx));
-        window.press("cmd-a", cx);
+        window.press(test_support::SELECT_ALL_KEY, cx);
         window.press("backspace", cx);
         if !value.is_empty() {
             window.input(value, cx);

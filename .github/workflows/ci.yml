@@ -122,8 +122,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Qualify Mac native features on PRs; probe all targets on main/manual runs.
-        runner: ${{ fromJSON(github.event_name == 'pull_request' && '["macos-15"]' || '["ubuntu-24.04","windows-2025","macos-15"]') }}
+        # Qualify Linux and Mac UI on PRs; probe Windows on main/manual runs.
+        runner: ${{ fromJSON(github.event_name == 'pull_request' && '["ubuntu-24.04","macos-15"]' || '["ubuntu-24.04","windows-2025","macos-15"]') }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -141,13 +141,12 @@ jobs:
         run: cargo clippy -p brn-desktop --features native-ui --all-targets --locked --offline -- -D warnings
       - name: Test native UI state
         run: cargo test -p brn-desktop --features native-ui --locked --offline
-      - name: Lint native macOS widgets
-        if: runner.os == 'macOS'
+      - name: Lint native widgets on Unix
+        if: runner.os != 'Windows'
         run: cargo clippy -p brn-desktop --features native-ui,native-test-support --all-targets --locked --offline -- -D warnings
-      - name: Test native macOS widgets
-        if: runner.os == 'macOS'
-        run: |
-          cargo test -p brn-desktop --features native-ui,native-test-support --bin brn-desktop threads_ui:: --locked --offline
+      - name: Test native widgets on Unix
+        if: runner.os != 'Windows'
+        run: bash scripts/verify-desktop-shell.sh --widgets-only
       - name: Exercise the desktop headless driver on Unix
         if: runner.os != 'Windows'
         run: |

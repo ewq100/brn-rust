@@ -185,11 +185,11 @@ fn save_decision_reviews_exact_text_cancels_without_writes_and_preserves_drafts(
     cx.read(|cx| assert_eq!(f.view.read(cx).workspace.notes().unwrap().len(), 1));
     click(cx, &f, &action);
     click(cx, &f, "decision-title");
-    cx.simulate_keystrokes(f.window, "cmd-a");
+    cx.simulate_keystrokes(f.window, test_support::SELECT_ALL_KEY);
     cx.simulate_input(f.window, "Owner route decision");
     cx.run_until_parked();
     click(cx, &f, "decision-text");
-    cx.simulate_keystrokes(f.window, "cmd-a");
+    cx.simulate_keystrokes(f.window, test_support::SELECT_ALL_KEY);
     cx.simulate_input(f.window, "Decision with ![missing](brn-asset://missing)");
     cx.run_until_parked();
     click(cx, &f, "decision-save");
@@ -205,7 +205,7 @@ fn save_decision_reviews_exact_text_cancels_without_writes_and_preserves_drafts(
     })
     .unwrap();
     click(cx, &f, "decision-text");
-    cx.simulate_keystrokes(f.window, "cmd-a");
+    cx.simulate_keystrokes(f.window, test_support::SELECT_ALL_KEY);
     cx.simulate_input(f.window, "We choose Gamma · õun");
     cx.run_until_parked();
     click(cx, &f, "decision-save");
