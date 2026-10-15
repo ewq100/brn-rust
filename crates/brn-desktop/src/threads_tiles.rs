@@ -32,17 +32,17 @@ pub(super) fn row(
 }
 
 /// Pages keep their content in one column of at most 720 px.
-const PAGE_WIDTH: f32 = 720.;
+pub(super) const PAGE_WIDTH: f32 = 720.;
 /// Settings forms are narrower.
 const FORM_WIDTH: f32 = 640.;
 
 /// A page's content column, sections stacked without boxes.
-fn column() -> gpui_kit::Div {
+pub(super) fn column() -> gpui_kit::Div {
     div().flex().flex_col().w_full().min_w_0()
 }
 
 /// A page: its one vertical scroller around a column at most `width` wide.
-fn page(
+pub(super) fn page(
     id: impl Into<gpui_kit::ElementId>,
     width: f32,
     column: gpui_kit::Div,
@@ -298,14 +298,18 @@ impl ThreadsUi {
         }
     }
     /// A kept edit for a note, with its Unsaved marker.
-    fn recover_row(&self, id: String, buffer: &EditSession) -> components::ListRow {
+    /// A kept edit's row text: "Recover edit · {note}".
+    fn recover_label(&self, buffer: &EditSession) -> String {
         let name = self
             .records
             .iter()
             .find(|record| record.id == buffer.note)
             .map(title)
             .unwrap_or_else(|| "Unavailable note".into());
-        components::ListRow::new(id.clone(), format!("Recover edit · {name}")).chip(
+        format!("Recover edit · {name}")
+    }
+    fn recover_row(&self, id: String, buffer: &EditSession) -> components::ListRow {
+        components::ListRow::new(id.clone(), self.recover_label(buffer)).chip(
             "Unsaved",
             components::status_chip(
                 format!("{id}-unsaved"),
@@ -375,14 +379,36 @@ impl ThreadsUi {
             );
         }
         list = list.child(section("Recent chats"));
-        if bar.open.is_empty() {
-            list = list.child(components::empty_state(
-                "threads-empty",
-                IconName::MessageSquare,
-                "No chats yet",
-                "Start one with ⌘T.",
-                None,
-            ));
+        match bar.recent_empty() {
+            None => {}
+            Some(lists::RecentEmpty::NoChats) => {
+                list = list.child(components::empty_state(
+                    "threads-empty",
+                    IconName::MessageSquare,
+                    "No chats yet",
+                    "Start one with ⌘T.",
+                    None,
+                ));
+            }
+            // The chats above need you; one quiet line, no second invitation.
+            Some(lists::RecentEmpty::OthersNeedYou) => {
+                list = list.child(
+                    metadata("No other open chats.")
+                        .id("threads-empty")
+                        .aria_label("No other open chats.")
+                        .px_2()
+                        .test_support(),
+                );
+            }
+            Some(lists::RecentEmpty::AllArchived) => {
+                list = list.child(components::empty_state(
+                    "threads-empty",
+                    IconName::Archive,
+                    "No open chats",
+                    "Archived chats are under Archived.",
+                    None,
+                ));
+            }
         }
         for row_data in &bar.open {
             let id = row_data.id.clone();
@@ -792,9 +818,13 @@ impl ThreadsUi {
             for (index, buffer) in self.buffers.iter().enumerate() {
                 let buffer = buffer.clone();
                 let id = buffer.note.clone();
+                let tooltip = format!(
+                    "{} · Kept apart from the saved note until you save or discard it",
+                    self.recover_label(&buffer)
+                );
                 recovery = recovery.child(
                     self.recover_row(format!("home-recover-{index}"), &buffer)
-                        .tooltip("Kept apart from the saved note until you save or discard it")
+                        .tooltip(tooltip)
                         .build()
                         .on_click(cx.listener(move |this, _, window, cx| {
                             this.open_note(&id, Some(buffer.clone()), window, cx)
@@ -1517,22 +1547,24 @@ impl ThreadsUi {
             .child(metadata(
                 "Credentials stay outside notes, exports and Changes. The Codex auth file is used only with Codex / ChatGPT.",
             ))
-            .child(
-                div().child(
-                    button("connect-copilot")
-                        .label("Connect GitHub Copilot…")
-                        .outline()
-                        .disabled(self.worker.is_some())
-                        .tooltip(if self.worker.is_some() {
-                            "Connect GitHub Copilot is unavailable: BRN is working"
-                        } else {
-                            "Sign in with GitHub in your browser; uses the folder above or ~/.config/brn/copilot"
-                        })
-                        .on_click(
-                            cx.listener(|this, _, window, cx| this.connect_copilot(window, cx)),
-                        ),
-                ),
-            );
+            .child(div().child({
+                let connect = button("connect-copilot")
+                    .label("Connect GitHub Copilot…")
+                    .outline()
+                    .disabled(self.worker.is_some())
+                    .on_click(
+                        cx.listener(|this, _, window, cx| this.connect_copilot(window, cx)),
+                    );
+                if self.worker.is_some() {
+                    let (announced, tooltip) =
+                        unavailable("Connect GitHub Copilot", Some("BRN is working"));
+                    connect.accessibility_label(announced).tooltip(tooltip)
+                } else {
+                    connect.tooltip(
+                        "Sign in with GitHub in your browser; uses the folder above or ~/.config/brn/copilot",
+                    )
+                }
+            }));
         let helper_on = |value: &str| match &self.settings.helper {
             None => value == "off",
             Some(helper) => helper.provider.eq_ignore_ascii_case(value),

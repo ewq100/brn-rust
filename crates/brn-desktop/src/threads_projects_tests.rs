@@ -332,3 +332,26 @@ fn projects_primaries_follow_the_view_and_trash_restores_from_active_and_trash(
     })
     .unwrap();
 }
+
+#[gpui_kit::test]
+fn the_projects_page_keeps_its_column_when_maximized(cx: &mut TestAppContext) {
+    let f = fixture(cx);
+    let p = create(cx, &f, "Website refresh");
+    cx.update_window(f.window, |_, _, cx| {
+        f.view.update(cx, |view, cx| {
+            focus_tests::solo(view, TileKind::Projects, cx)
+        })
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, _| {
+        let page = window.find("projects-tile").bounds();
+        assert!(page.size.width > px(1000.), "maximized: {page:?}");
+        // Pages hold one column of at most 720 px, as Home, Tasks and Changes do.
+        for id in [format!("project-row-{p}"), "project-status".into()] {
+            let line = window.find(id.clone()).bounds();
+            assert!(line.size.width <= px(720.), "{id}: {line:?}");
+        }
+    })
+    .unwrap();
+}

@@ -1,6 +1,6 @@
 //! Projects navigation and owner dialogs over shared checked operations.
 use super::shell::{item, pill};
-use super::tiles::{row, scroll};
+use super::tiles::{PAGE_WIDTH, column, page, row, scroll};
 use super::*;
 use gpui_kit::SharedString;
 use gpui_kit::component::button::ButtonVariants;
@@ -259,7 +259,7 @@ impl ThreadsUi {
             .iter()
             .filter(|r| r.archived == trash && matches!(r.data, RecordData::Project(_)))
             .collect();
-        let mut body = scroll("projects-tile").gap_0().px_3().pb_4();
+        let mut body = column();
         let mut list = div()
             .flex()
             .flex_col()
@@ -315,14 +315,20 @@ impl ThreadsUi {
             );
         }
         body = body.child(list);
-        let frame = |body: gpui_kit::Stateful<gpui_kit::Div>| {
+        // The page column, as on Home, Tasks and Changes.
+        let frame = |body: gpui_kit::Div| {
             div()
                 .size_full()
                 .flex()
                 .flex_col()
                 .min_h_0()
                 .child(bar)
-                .child(div().flex_1().min_h_0().child(body.test_support()))
+                .child(
+                    div()
+                        .flex_1()
+                        .min_h_0()
+                        .child(page("projects-tile", PAGE_WIDTH, body).test_support()),
+                )
                 .into_any_element()
         };
         let Some(record) = shown else {

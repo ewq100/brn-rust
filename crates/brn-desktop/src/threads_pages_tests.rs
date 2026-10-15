@@ -852,6 +852,73 @@ fn the_helper_section_shows_its_tested_note_and_saves_with_settings(cx: &mut Tes
             credentials_dir: None,
         })
     );
+    // While work runs, both Models buttons announce why they wait.
+    let _sender = update(cx, &f, |view, _, cx| {
+        let (sender, receiver) = mpsc::sync_channel(1);
+        view.worker = Some(Worker {
+            receiver,
+            cancel: CancellationToken::new(),
+            conversion_cancel: Arc::new(AtomicBool::new(false)),
+            kind: WorkerKind::Backup,
+            thread: None,
+            run_id: None,
+        });
+        cx.notify();
+        sender
+    });
+    on_window(cx, &f, |window, _| {
+        assert_eq!(
+            label(window, "save-settings"),
+            "Save settings, unavailable: BRN is working"
+        );
+        assert!(window.find("save-settings-reason").visible());
+        assert_eq!(
+            label(window, "connect-copilot"),
+            "Connect GitHub Copilot, unavailable: BRN is working"
+        );
+    });
+}
+
+/// Recent chats' empty state names why it lists nothing.
+fn recent_empty(cx: &mut TestAppContext, f: &Fixture) -> String {
+    on_window(cx, f, |window, _| {
+        assert!(window.find("threads-empty").visible());
+        label(window, "threads-empty")
+    })
+}
+
+#[gpui_kit::test]
+fn recent_chats_says_no_chats_yet_only_without_chats(cx: &mut TestAppContext) {
+    let f = fixture(cx, 1250., 860., |_| {});
+    assert_eq!(recent_empty(cx, &f), "No chats yet · Start one with ⌘T.");
+}
+
+#[gpui_kit::test]
+fn recent_chats_under_a_chat_that_needs_you_says_no_other_open_chats(cx: &mut TestAppContext) {
+    let mut thread = String::new();
+    let f = fixture(cx, 1250., 860., |workspace| {
+        thread = workspace.new_thread("Delivery update").unwrap().id;
+        needs(workspace, &thread, AttentionKind::Blocker, FAILURE, None);
+    });
+    on_window(cx, &f, |window, _| {
+        assert!(window.find(format!("attention-{thread}")).visible());
+    });
+    assert_eq!(recent_empty(cx, &f), "No other open chats.");
+}
+
+#[gpui_kit::test]
+fn recent_chats_with_only_archived_chats_points_to_archived(cx: &mut TestAppContext) {
+    let f = fixture(cx, 1250., 860., |workspace| {
+        let thread = workspace.new_thread("Old question").unwrap().id;
+        workspace.resolve_thread(&thread).unwrap();
+    });
+    assert_eq!(
+        recent_empty(cx, &f),
+        "No open chats · Archived chats are under Archived."
+    );
+    on_window(cx, &f, |window, _| {
+        assert_eq!(label(window, "resolved-count"), "Archived · 1");
+    });
 }
 
 #[gpui_kit::test]

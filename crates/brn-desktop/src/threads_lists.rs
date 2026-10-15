@@ -303,6 +303,30 @@ pub(super) fn sidebar<'a>(rows: &'a [ThreadRow], current: Option<&str>) -> Sideb
     }
 }
 
+/// Why Recent chats lists no chat, so its empty state stays true.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) enum RecentEmpty {
+    /// The workspace has no chats.
+    NoChats,
+    /// Every remaining chat is listed under Needs you.
+    OthersNeedYou,
+    /// Every chat is archived.
+    AllArchived,
+}
+impl Sidebar<'_> {
+    pub(super) fn recent_empty(&self) -> Option<RecentEmpty> {
+        if !self.open.is_empty() {
+            None
+        } else if self.total == 0 {
+            Some(RecentEmpty::NoChats)
+        } else if !self.needs.is_empty() {
+            Some(RecentEmpty::OthersNeedYou)
+        } else {
+            Some(RecentEmpty::AllArchived)
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(super) enum ThreadFilter {
     All,
@@ -909,6 +933,37 @@ mod tests {
                 .iter()
                 .all(|row| row.id != "done")
         );
+        assert_eq!(bar.recent_empty(), None);
+    }
+
+    #[test]
+    fn recent_chats_says_no_chats_yet_only_without_chats() {
+        let empty = |records: &[Record]| {
+            let rows = thread_rows(records, &Activity::new(&[]));
+            sidebar(&rows, None).recent_empty()
+        };
+        assert_eq!(empty(&[]), Some(RecentEmpty::NoChats));
+        let needs = thread(
+            "n",
+            "Delivery update",
+            ThreadState::Open,
+            Some("Run failed"),
+        );
+        let archived = thread("a", "Old question", ThreadState::Resolved, None);
+        assert_eq!(
+            empty(std::slice::from_ref(&needs)),
+            Some(RecentEmpty::OthersNeedYou)
+        );
+        assert_eq!(
+            empty(&[needs, archived.clone()]),
+            Some(RecentEmpty::OthersNeedYou)
+        );
+        assert_eq!(
+            empty(std::slice::from_ref(&archived)),
+            Some(RecentEmpty::AllArchived)
+        );
+        let open = thread("o", "Plan", ThreadState::Open, None);
+        assert_eq!(empty(&[archived, open]), None);
     }
 
     #[test]

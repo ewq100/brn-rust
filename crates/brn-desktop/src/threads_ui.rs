@@ -3696,7 +3696,8 @@ gpui_kit::assets::icon_assets!(
         Bold,
         Italic,
         List,
-        TextQuote
+        TextQuote,
+        Trash
     ]
 );
 
@@ -3845,6 +3846,10 @@ mod presentation_tests {
             IconName::LoaderCircle,
             IconName::Replace,
             IconName::Check,
+            // Page rows and empty states.
+            IconName::Copy,
+            IconName::Undo2,
+            IconName::Trash,
             // Note toolbar formatting.
             IconName::Heading,
             IconName::Bold,
