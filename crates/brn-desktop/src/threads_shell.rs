@@ -13,6 +13,8 @@ use gpui_kit::{
 
 /// Below this window width the title and navigation bars use icon controls.
 const COMPACT_WIDTH: f32 = 1000.;
+/// Below this window height the chat queue collapses to one row.
+const SHORT_HEIGHT: f32 = 700.;
 fn compact(window: &Window) -> bool {
     window.viewport_size().width < px(COMPACT_WIDTH)
 }
@@ -247,32 +249,37 @@ pub(super) const KEYS: [(&str, &str); 20] = [
 
 impl ThreadsUi {
     pub(super) fn show_keys(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        window.open_dialog(cx, |dialog, _, _| {
+        // Information: ↵ and Esc both close it, Kit's default.
+        window.open_dialog(cx, |dialog, window, _| {
             let p = pal();
-            dialog.title("Keys and mouse").child(
-                div()
-                    .id("keys-help")
-                    .flex()
-                    .flex_col()
-                    .gap_1()
-                    .children(KEYS.iter().enumerate().map(|(index, (what, how))| {
+            dialog.title("Keys and mouse").on_ok(|_, _, _| true).child(
+                components::dialog_body("keys-help-body", window)
+                    .child(
                         div()
-                            .id(format!("keys-row-{index}"))
+                            .id("keys-help")
                             .flex()
-                            .gap_3()
-                            .aria_label(format!("{what}: {how}"))
-                            .child(div().w(px(170.)).flex_shrink_0().child(*what))
-                            .child(
+                            .flex_col()
+                            .gap_1()
+                            .children(KEYS.iter().enumerate().map(|(index, (what, how))| {
                                 div()
-                                    .flex_1()
-                                    .min_w_0()
-                                    .font_family(UI_FONT)
-                                    .text_size(SMALL_TEXT)
-                                    .text_color(rgb(p.muted))
-                                    .child(*how),
-                            )
-                            .test_support()
-                    }))
+                                    .id(format!("keys-row-{index}"))
+                                    .flex()
+                                    .gap_3()
+                                    .aria_label(format!("{what}: {how}"))
+                                    .child(div().w(px(170.)).flex_shrink_0().child(*what))
+                                    .child(
+                                        div()
+                                            .flex_1()
+                                            .min_w_0()
+                                            .font_family(UI_FONT)
+                                            .text_size(SMALL_TEXT)
+                                            .text_color(rgb(p.muted))
+                                            .child(*how),
+                                    )
+                                    .test_support()
+                            }))
+                            .test_support(),
+                    )
                     .test_support(),
             )
         });
@@ -411,7 +418,12 @@ impl ThreadsUi {
                     } else {
                         IconName::Maximize
                     },
-                    if maximized { "Restore" } else { "Maximize" },
+                    // The announced name says which panel.
+                    format!(
+                        "{} {}",
+                        if maximized { "Restore" } else { "Maximize" },
+                        kind.label()
+                    ),
                 )
                 .tooltip(if maximized {
                     "Restore (⌘⇧↵ · double-click header)"
@@ -423,11 +435,15 @@ impl ThreadsUi {
                 })),
             )
             .child(
-                components::icon_button(format!("tile-close-{key}"), IconName::Close, "Close")
-                    .tooltip("Close panel · your work stays saved or recoverable")
-                    .on_click(cx.listener(move |this, _, window, cx| {
-                        this.relayout(window, cx, |layout| layout.close(kind))
-                    })),
+                components::icon_button(
+                    format!("tile-close-{key}"),
+                    IconName::Close,
+                    format!("Close {}", kind.label()),
+                )
+                .tooltip("Close panel · your work stays saved or recoverable")
+                .on_click(cx.listener(move |this, _, window, cx| {
+                    this.relayout(window, cx, |layout| layout.close(kind))
+                })),
             )
             .on_click(cx.listener(move |this, event: &ClickEvent, window, cx| {
                 if event.click_count() >= 2 {
@@ -531,9 +547,12 @@ impl ThreadsUi {
             return row
                 .items_center()
                 .justify_center()
-                .child(empty(
+                .child(components::empty_state(
                     "tiles-empty",
-                    "No panels open · ⌘K or choose Write, Chat or Solo",
+                    IconName::LayoutDashboard,
+                    "No panels open",
+                    "Press ⌘K, or choose Write, Chat or Solo.",
+                    None,
                 ))
                 .into_any_element();
         }
@@ -605,10 +624,16 @@ impl ThreadsUi {
             };
             let body = self.tile_body(kind, window, cx);
             row = row.child(
-                frame
-                    .child(header)
-                    .children(controls)
-                    .child(div().flex_1().min_h_0().w_full().child(body)),
+                frame.child(header).children(controls).child(
+                    div()
+                        .id(format!("tile-body-{}", kind.key()))
+                        .track_focus(self.panel_body(kind))
+                        .flex_1()
+                        .min_h_0()
+                        .w_full()
+                        .child(body)
+                        .test_support(),
+                ),
             );
         }
         // Kit draws the horizontal bar only while the panels overflow the row.
@@ -661,6 +686,8 @@ impl ThreadsUi {
 
 /// Below this Chat panel width the model control also names the effort.
 const CHAT_NARROW: f32 = 420.;
+/// Why the model and effort menus' rows are disabled while work runs.
+const BUSY_MENU_REASON: &str = "Available when the current work finishes";
 
 pub(super) fn provider_key(provider: &str) -> &'static str {
     match provider.to_ascii_lowercase().as_str() {
@@ -698,7 +725,12 @@ impl ThreadsUi {
     pub(super) fn model_menu(&self, menu: PopupMenu, this: &WeakEntity<Self>) -> PopupMenu {
         let busy = self.worker.is_some();
         let current = provider_key(&self.settings.provider);
-        let mut menu = menu;
+        // Disabled rows say why once, above them.
+        let mut menu = if busy {
+            menu.label(BUSY_MENU_REASON)
+        } else {
+            menu
+        };
         for (provider, label) in PROVIDERS {
             menu = menu.label(label);
             let models = if provider == "copilot" && !self.copilot_models.is_empty() {
@@ -741,6 +773,16 @@ impl ThreadsUi {
             ))
     }
     pub(super) fn effort_menu(&self, menu: PopupMenu, this: &WeakEntity<Self>) -> PopupMenu {
+        let menu = if self.worker.is_some() {
+            menu.label(BUSY_MENU_REASON)
+        } else {
+            menu
+        };
+        self.effort_section(menu, this)
+    }
+    /// The effort choices; the model menu adds them below 420 pt after its
+    /// own reason line.
+    pub(super) fn effort_section(&self, menu: PopupMenu, this: &WeakEntity<Self>) -> PopupMenu {
         let busy = self.worker.is_some();
         let mut menu = menu.label("Reasoning effort");
         for effort in ["low", "medium", "high"] {
@@ -912,7 +954,15 @@ impl ThreadsUi {
                                 },
                             ))),
                     )
-                    .child(div().flex_1().min_h_0().child(self.settings_tile(cx))),
+                    .child(
+                        div()
+                            .id("tile-body-settings")
+                            .track_focus(self.panel_body(TileKind::Settings))
+                            .flex_1()
+                            .min_h_0()
+                            .child(self.settings_tile(cx))
+                            .test_support(),
+                    ),
             )
             .test_support()
             .into_any_element()
@@ -1278,11 +1328,15 @@ impl ThreadsUi {
             .flex()
             .flex_col()
             .max_h(results)
-            .overflow_y_scroll();
+            .overflow_y_scroll()
+            .track_scroll(&self.launcher_scroll);
         if items.is_empty() {
-            list = list.child(empty(
+            list = list.child(components::empty_state(
                 "launcher-empty",
-                "No matching notes, chats or commands.",
+                IconName::Search,
+                "No matches",
+                "No note, chat or command matches. Try fewer words.",
+                None,
             ));
         }
         let mut group = "";
@@ -1405,17 +1459,50 @@ impl ThreadsUi {
             )
             .into_any_element()
     }
+    /// Focus lands in the destination's visible content: the Note's editor,
+    /// the Chat's composer, the Notes search and the All chats filter.
+    /// Other panels focus their body, then (after the frame that draws it)
+    /// its first control; with none, focus stays on the body.
     pub(super) fn focus_tile_contents(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         // Explicit navigation also reveals a panel manually scrolled away since last focus.
         self.tile_reveal = None;
+        self.focus_first = None;
         match self.layout.focus() {
             Some(TileKind::Note) => self.focus_visible_editor(window, cx),
             Some(TileKind::Chat) => self
                 .composer
                 .update(cx, |editor, cx| editor.focus(window, cx)),
-            _ => self.focus_root(window, cx),
+            Some(TileKind::Notes) => self.search.update(cx, |input, cx| input.focus(window, cx)),
+            Some(TileKind::AllThreads) => self
+                .threads_query
+                .update(cx, |input, cx| input.focus(window, cx)),
+            Some(kind) => {
+                self.panel_focus[&kind].focus(window, cx);
+                self.focus_first = Some(kind);
+            }
+            None => self.focus_root(window, cx),
         }
         cx.notify();
+    }
+    /// The panel body's focus handle, tracked by the element around it.
+    pub(super) fn panel_body(&self, kind: TileKind) -> &gpui_kit::FocusHandle {
+        &self.panel_focus[&kind]
+    }
+    /// After the frame that drew the panel, move from its body to its first
+    /// control, unless focus moved elsewhere meanwhile.
+    fn schedule_focus_first(&mut self, window: &mut Window) {
+        let Some(kind) = self.focus_first.take() else {
+            return;
+        };
+        let body = self.panel_body(kind).clone();
+        window.on_next_frame(move |window, cx| {
+            if body.is_focused(window) {
+                window.focus_next(cx);
+                if !body.contains_focused(window, cx) {
+                    body.focus(window, cx);
+                }
+            }
+        });
     }
 }
 
@@ -1423,6 +1510,9 @@ impl Render for ThreadsUi {
     fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         let _retained = (&self.subscriptions, &self.poll);
         let p = pal();
+        self.schedule_focus_first(window);
+        // Short windows collapse the chat queue to one row.
+        self.short_window = window.viewport_size().height < px(SHORT_HEIGHT);
         let tiles = if self.layout.settings_open() {
             self.settings_surface(cx)
         } else {
@@ -1434,7 +1524,10 @@ impl Render for ThreadsUi {
             .text_size(UI_TEXT)
             .track_focus(&self.root_focus)
             .key_context("BrnWorkspace")
-            .capture_key_down(
+            // Escape closes Settings last: bubbling, it reaches the root only
+            // after the launcher, an open menu or popover, a dialog and the
+            // stacked comments section had their turn. It never stops work.
+            .on_key_down(
                 cx.listener(|view, event: &gpui_kit::KeyDownEvent, window, cx| {
                     if event.keystroke.key == "escape"
                         && view.layout.settings_open()

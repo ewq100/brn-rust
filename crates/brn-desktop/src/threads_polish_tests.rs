@@ -190,7 +190,7 @@ pub(super) fn type_edit(cx: &mut TestAppContext, f: &Fixture, tail: &str) {
 }
 
 /// Change the saved note outside this view, as another window or BRN would.
-fn change_saved(cx: &mut TestAppContext, f: &Fixture, change: impl FnOnce(&mut Note)) {
+pub(super) fn change_saved(cx: &mut TestAppContext, f: &Fixture, change: impl FnOnce(&mut Note)) {
     update(cx, f, |view, _, cx| {
         let current = view.workspace.store.note(&f.note.id).unwrap().unwrap();
         let RecordData::Note(mut note) = current.data.clone() else {

@@ -1,5 +1,5 @@
-//! Navigation and workspace tiles: threads, notes, overview, Actions, What
-//! changed and Settings. Every control calls the existing checked services.
+//! Navigation and workspace panels: Chats, Notes, Home, Tasks, Changes and
+//! Settings. Every control calls the existing checked services.
 use super::shell::{item, pill};
 use super::*;
 use gpui_kit::component::button::ButtonVariants;
@@ -83,16 +83,7 @@ fn field(label: &str, control: impl IntoElement) -> gpui_kit::Div {
         .child(control)
 }
 
-/// The tooltip and announced name of a disabled control's reason.
-fn unavailable(label: &str, why: Option<&str>) -> (String, String) {
-    match why {
-        Some(why) => (
-            format!("{label}, unavailable: {why}"),
-            format!("{label} is unavailable: {why}"),
-        ),
-        None => (label.to_owned(), label.to_owned()),
-    }
-}
+use components::unavailable;
 
 pub(super) fn thread_menu(
     menu: PopupMenu,

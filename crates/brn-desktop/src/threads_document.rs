@@ -74,6 +74,9 @@ pub(super) fn readable_document(
         )
 }
 
+/// Why formatting is unavailable while a kept edit blocks the text.
+const RECOVER_FIRST_REASON: &str = "Recover the kept edit first";
+
 impl ThreadsUi {
     pub(super) fn set_review_reading(
         &mut self,
@@ -234,6 +237,10 @@ impl ThreadsUi {
                 controls.push(
                     trigger
                         .dropdown_menu(move |mut menu, _, _| {
+                            // A kept edit makes the text read-only; say so once.
+                            if blocked {
+                                menu = menu.label(RECOVER_FIRST_REASON);
+                            }
                             for (_, label, _, kind, _) in FORMATS {
                                 menu = menu.item(super::shell::item(
                                     &this,
@@ -250,10 +257,16 @@ impl ThreadsUi {
                 );
             } else {
                 for (id, label, icon, kind, hint) in FORMATS {
+                    let (announced, tooltip) = if blocked {
+                        components::unavailable(label, Some("recover the kept edit first"))
+                    } else {
+                        (label.to_owned(), hint.to_owned())
+                    };
                     controls.push(
                         components::icon_button(id, icon, label)
                             .disabled(blocked)
-                            .tooltip(hint)
+                            .accessibility_label(announced)
+                            .tooltip(tooltip)
                             .on_click(cx.listener(move |this, _, window, cx| {
                                 this.format_note(kind, window, cx)
                             }))

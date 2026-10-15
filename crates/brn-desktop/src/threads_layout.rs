@@ -739,7 +739,7 @@ mod tests {
         layout.resize(0, 0.30);
         let tiles = layout.tiles();
         assert!((tiles[0].weight / total - 0.30).abs() < 1e-4);
-        assert_eq!(tiles[2].weight, third, "other tiles keep width");
+        assert_eq!(tiles[2].weight, third, "other panels keep width");
         let sum: f32 = tiles.iter().map(|tile| tile.weight).sum();
         assert!((sum - total).abs() < 1e-4);
         layout.resize(0, -5.);

@@ -295,3 +295,69 @@ fn refused_context_draft_handoff_posts_no_instruction_and_retry_posts_once(
     })
     .unwrap();
 }
+
+fn dialog_open(cx: &mut TestAppContext, f: &Fixture) -> bool {
+    cx.update_window(f.window, |_, window, cx| window.has_active_dialog(cx))
+        .unwrap()
+}
+
+/// A multi-line form: ↵ in the instruction adds a line, and ⌘↵ with the
+/// editor focused sends the instruction with no extra newline.
+#[gpui_kit::test]
+fn edit_note_dialog_adds_a_line_on_enter_and_submits_on_cmd_enter(cx: &mut TestAppContext) {
+    let f = fixture(cx);
+    click(cx, &f, "edit-note-context");
+    // The instruction has focus on open.
+    cx.simulate_input(f.window, "Tighten the opening");
+    cx.simulate_keystrokes(f.window, "enter");
+    cx.simulate_input(f.window, "Keep the dates");
+    cx.run_until_parked();
+    assert!(
+        dialog_open(cx, &f),
+        "↵ adds a line and keeps the dialog open"
+    );
+    cx.read(|cx| {
+        assert_eq!(
+            f.view.read(cx).workspace.messages(&f.thread).unwrap().len(),
+            1
+        )
+    });
+    cx.simulate_keystrokes(f.window, "cmd-enter");
+    cx.run_until_parked();
+    assert!(!dialog_open(cx, &f), "⌘↵ submits and closes");
+    cx.read(|cx| {
+        let messages = f.view.read(cx).workspace.messages(&f.thread).unwrap();
+        assert_eq!(messages.len(), 2);
+        assert!(
+            matches!(&messages[1].data, RecordData::Message(m) if m.role == "owner" && m.text == "Tighten the opening\nKeep the dates"),
+            "{:?}",
+            messages[1].data
+        );
+    });
+}
+
+/// ↵ in the decision title does nothing; ⌘↵ saves the reviewed text.
+#[gpui_kit::test]
+fn save_as_decision_dialog_ignores_enter_in_the_title_and_saves_on_cmd_enter(
+    cx: &mut TestAppContext,
+) {
+    let f = fixture(cx);
+    click(cx, &f, format!("answer-decision-{}", f.reply.id));
+    // The title has focus on open.
+    cx.simulate_keystrokes(f.window, "cmd-a");
+    cx.simulate_input(f.window, "Route decision");
+    cx.simulate_keystrokes(f.window, "enter");
+    cx.run_until_parked();
+    assert!(dialog_open(cx, &f), "↵ in the title leaves the dialog open");
+    cx.read(|cx| assert_eq!(f.view.read(cx).workspace.notes().unwrap().len(), 1));
+    cx.simulate_keystrokes(f.window, "cmd-enter");
+    cx.run_until_parked();
+    assert!(!dialog_open(cx, &f), "⌘↵ saves and closes");
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        let notes = view.workspace.notes().unwrap();
+        assert!(notes.iter().any(|r| matches!(&r.data, RecordData::Note(n) if n.title == "Route decision" && n.markdown == "Choose Alpha · õun" && n.protected)), "{notes:?}");
+        assert_eq!(view.notice_tone(), Tone::Success);
+        assert!(view.notice.contains("Undo is in Changes"), "{}", view.notice);
+    });
+}

@@ -222,7 +222,7 @@ impl ThreadsUi {
         let available: usize = found.hops.iter().map(|h| h.available).sum();
         list = list.child(
             metadata(format!(
-                "{shown} of {available} connected records shown · click a note to open and recenter"
+                "{shown} of {available} connected items shown · click a note to open and recenter"
             ))
             .id("connections-status")
             .test_support(),
@@ -246,7 +246,7 @@ impl ThreadsUi {
                 let id = node.id.clone();
                 let mut facts: Vec<String> = node.relations.iter().map(relation_label).collect();
                 if node.kind == NodeKind::Source {
-                    facts.push("source record".into());
+                    facts.push("source".into());
                 }
                 if let Some(via) = &node.via {
                     let through = found
@@ -278,7 +278,7 @@ impl ThreadsUi {
             }
         }
         list = list.child(metadata(
-            "Only recorded links are shown; nothing is inferred. Relation names appear as written.",
+            "Only saved links are shown; nothing is inferred. Relation names appear as written.",
         ));
         list.test_support().into_any_element()
     }
@@ -415,7 +415,13 @@ impl ThreadsUi {
                             "Check knowledge"
                         })
                         .outline()
+                        .loading(knowledge.running)
                         .disabled(knowledge.running)
+                        .when(knowledge.running, |button| {
+                            let (announced, tooltip) =
+                                components::unavailable("Check knowledge", Some("a check is running"));
+                            button.accessibility_label(announced).tooltip(tooltip)
+                        })
                         .on_click(cx.listener(|this, _, _, cx| this.run_knowledge_check(cx))),
                 ),
             );

@@ -549,9 +549,9 @@ fn each_open_task_has_one_quiet_main_action_and_a_menu_for_its_state(cx: &mut Te
         assert_eq!(
             reasons,
             [
-                "Owner cancelled an Action",
-                "Owner opened an Action",
-                "Owner opened an Action"
+                "Owner cancelled a task",
+                "Owner opened a task",
+                "Owner opened a task"
             ]
         );
     });
@@ -936,4 +936,129 @@ fn preparing_search_shows_a_spinner_with_its_text(cx: &mut TestAppContext) {
         assert!(window.find("notes-letters").bounds().size.height <= px(32.));
         assert_eq!(label(window, "topics"), "Topics · Create Topics note");
     });
+}
+
+fn press(cx: &mut TestAppContext, f: &Fixture, key: &str) {
+    on_window(cx, f, |window, cx| window.press(key, cx));
+}
+/// Tab until `id` has focus; false if it never does.
+fn tab_to(cx: &mut TestAppContext, f: &Fixture, id: &str) -> bool {
+    (0..80).any(|_| {
+        press(cx, f, "tab");
+        on_window(cx, f, |window, _| {
+            window.try_find(id.to_owned()).and_then(|e| e.focused()) == Some(true)
+        })
+    })
+}
+
+/// S6-R6: Home's rows are not Tab stops, so every Home item keeps a
+/// keyboard route: a note and its kept edit through ⌘K, a review through
+/// the needs-you badge to its chat and then Tab into the chat's review
+/// card, and a change through ⌘K Changes and its Undo buttons.
+#[gpui_kit::test]
+fn each_home_item_keeps_a_keyboard_route(cx: &mut TestAppContext) {
+    let (mut kept, mut thread, mut operation) = (String::new(), String::new(), String::new());
+    let f = fixture(cx, 1400., 1000., |workspace| {
+        let note = workspace.new_note("Kept plan", "Saved text").unwrap();
+        let edit = workspace.store.begin_edit(&note.id, note.version).unwrap();
+        workspace
+            .store
+            .update_buffer(&edit.id, 1, "Kept text")
+            .unwrap();
+        kept = note.id;
+        thread = workspace.new_thread("Review chat").unwrap().id;
+        let survey = workspace
+            .new_note("Survey", "Survey closes Thursday.")
+            .unwrap();
+        let RecordData::Note(mut data) = survey.data.clone() else {
+            unreachable!()
+        };
+        data.markdown = "Survey closes Friday.".into();
+        let op = workspace.store.allocate_operation("home-route").unwrap();
+        workspace
+            .store
+            .prepare(
+                &op,
+                &ChangeRequest {
+                    reason: "Review prepared changes".into(),
+                    inputs: vec![],
+                    writes: vec![Put {
+                        id: survey.id.clone(),
+                        expected_version: Some(survey.version),
+                        archived: false,
+                        data: RecordData::Note(data),
+                    }],
+                },
+            )
+            .unwrap();
+        operation = op.as_str().to_owned();
+        needs(
+            workspace,
+            &thread,
+            AttentionKind::Review,
+            "Review prepared changes",
+            Some(operation.clone()),
+        );
+    });
+    click(cx, &f, "home");
+    on_window(cx, &f, |window, _| {
+        assert!(window.find("home-recover-0").visible());
+        assert!(window.find(format!("home-candidate-{operation}")).visible());
+    });
+    // The note and its kept edit: ⌘K opens the note.
+    press(cx, &f, "cmd-k");
+    on_window(cx, &f, |window, cx| window.input("Kept plan", cx));
+    press(cx, &f, "enter");
+    // Opening the note resumes its kept edit, as the Home row does.
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert_eq!(view.open_note_id(), Some(kept.as_str()));
+        assert!(
+            view.note
+                .as_ref()
+                .is_some_and(|open| open.session.is_some())
+        );
+        assert_eq!(view.note_editor.read(cx).value(), "Kept text");
+    });
+    // The review: the needs-you badge opens from the keyboard, ↓ ↵ opens
+    // its chat, and Tab reaches the card's Show in note.
+    update(cx, &f, |view, window, cx| view.focus_root(window, cx));
+    assert!(
+        tab_to(cx, &f, "needs-badge"),
+        "Tab reaches the needs-you badge"
+    );
+    press(cx, &f, "enter");
+    // Kit's first ↓ lands on the menu's "Needs you" heading, the next on
+    // the first chat.
+    press(cx, &f, "down");
+    press(cx, &f, "down");
+    press(cx, &f, "enter");
+    cx.read(|cx| assert_eq!(f.view.read(cx).chat_thread(), Some(thread.as_str())));
+    // The composer takes Tab for indentation, so ⌘0 moves to Home, beside
+    // the chat, and Tab continues from Home into the chat's review card.
+    press(cx, &f, "cmd-0");
+    on_window(cx, &f, |window, cx| {
+        window.simulate_next_frame(cx);
+    });
+    let review = format!("thread-review-{operation}");
+    assert!(tab_to(cx, &f, &review), "Tab reaches Show in note");
+    press(cx, &f, "space");
+    cx.read(|cx| assert!(f.view.read(cx).review.is_some()));
+    // The change: ⌘K opens Changes, where each change has an Undo button.
+    update(cx, &f, |view, window, cx| view.keep_review(window, cx));
+    press(cx, &f, "cmd-k");
+    on_window(cx, &f, |window, cx| window.input("Changes", cx));
+    press(cx, &f, "enter");
+    cx.read(|cx| assert_eq!(f.view.read(cx).layout.focus(), Some(TileKind::History)));
+    let undo = cx.read(|cx| {
+        let view = f.view.read(cx);
+        let receipt = view
+            .history
+            .iter()
+            .rev()
+            .find(|receipt| receipt.writes.iter().any(|w| w.after.id == kept))
+            .unwrap();
+        format!("undo-{}", receipt.operation.as_str())
+    });
+    assert!(tab_to(cx, &f, &undo), "Tab reaches {undo}");
 }

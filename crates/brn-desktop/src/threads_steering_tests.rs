@@ -698,11 +698,11 @@ fn long_queue_and_attachment_labels_keep_controls_inside_the_chat_tile(cx: &mut 
             assert!(control.visible(), "{id} must remain reachable");
             assert!(
                 bounds.origin.x >= tile.origin.x,
-                "{id} starts outside the tile"
+                "{id} starts outside the panel"
             );
             assert!(
                 bounds.origin.x + bounds.size.width <= tile.origin.x + tile.size.width,
-                "{id} overflows the chat tile"
+                "{id} overflows the Chat panel"
             );
         }
     })
@@ -883,7 +883,7 @@ fn completed_context_edit_refreshes_saved_text_and_preserves_human_changes(
                 if hide_note {
                     assert!(
                         !ui.note_tile_visible(),
-                        "completion must not reopen a hidden note tile"
+                        "completion must not reopen a hidden Note panel"
                     );
                 } else if human_typing {
                     assert_eq!(ui.note_editor.read(cx).value(), "Human draft stays visible");

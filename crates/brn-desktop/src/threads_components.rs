@@ -648,6 +648,82 @@ pub(super) fn prose_editor_state(
     EditorState::new(window, cx).line_number(false)
 }
 
+/// A disabled control's accessible label and tooltip, both naming why:
+/// ("Save, unavailable: BRN is working", "Save is unavailable: BRN is
+/// working"). With no reason both are the label.
+pub(super) fn unavailable(label: &str, why: Option<&str>) -> (String, String) {
+    match why {
+        Some(why) => (
+            format!("{label}, unavailable: {why}"),
+            format!("{label} is unavailable: {why}"),
+        ),
+        None => (label.to_owned(), label.to_owned()),
+    }
+}
+
+/// Dialogs stay this much shorter than the window, so the window around
+/// them stays visible (plan.md, Overlays).
+pub(super) const DIALOG_CLEARANCE: f32 = 96.;
+/// Kit's dialog surface around the body: 16 px padding above and below,
+/// the title row and its gap, and the footer's row and gap.
+const DIALOG_CHROME: f32 = 128.;
+
+/// A dialog's body: it scrolls inside what is left of window − 96 after the
+/// title and the footer, so the footer's buttons stay visible in a short
+/// window. Put the content in one child.
+pub(super) fn dialog_body(
+    id: impl Into<ElementId>,
+    window: &Window,
+) -> gpui_kit::Stateful<gpui_kit::Div> {
+    let height = window.viewport_size().height;
+    let cap = (height - px(DIALOG_CLEARANCE + DIALOG_CHROME)).max(px(96.));
+    div().id(id).w_full().max_h(cap).overflow_y_scroll()
+}
+
+/// A dialog's footer row, right-aligned: Cancel first, then the confirm.
+pub(super) fn dialog_footer() -> gpui_kit::Div {
+    div().flex().justify_end().gap_2()
+}
+
+/// A dialog's error line under its fields: the error icon and what to do.
+/// It stays in the tree while empty, so its ID is always addressable.
+pub(super) fn field_error(
+    id: impl Into<ElementId>,
+    text: impl Into<SharedString>,
+) -> gpui_kit::base::ObservedElement<gpui_kit::Stateful<gpui_kit::Div>> {
+    let text = text.into();
+    div()
+        .id(id)
+        .flex()
+        .items_start()
+        .gap_1()
+        .font_family(UI_FONT)
+        .text_size(SMALL_TEXT)
+        .text_color(rgb(pal().danger))
+        .aria_label(text.clone())
+        .when(!text.is_empty(), |line| {
+            line.child(tone_icon(Tone::Error, Size::XSmall).mt(px(2.)))
+                .child(div().flex_1().min_w_0().child(text))
+        })
+        .test_support()
+}
+
+/// A multi-line form's ⌘↵: it submits from any field without adding a
+/// newline (the capture runs before the editor's own handler), and from a
+/// focused button through `Ask`. Apply it to the body and to the footer.
+pub(super) fn form_keys(root: gpui_kit::Div, submit: DialogAction) -> gpui_kit::Div {
+    let on_enter = submit.clone();
+    root.capture_action(
+        move |action: &gpui_kit::component::input::Enter, window, cx| {
+            if action.secondary && !action.shift {
+                on_enter(window, cx);
+                cx.stop_propagation();
+            }
+        },
+    )
+    .on_action(move |_: &super::Ask, window, cx| submit(window, cx))
+}
+
 /// What a dialog's confirm does; the dialog builder runs on every render.
 pub(super) type DialogAction = Rc<dyn Fn(&mut Window, &mut App)>;
 
@@ -676,10 +752,7 @@ pub(super) fn consequence_dialog(
                 .test_support(),
         )
         .footer(
-            div()
-                .flex()
-                .justify_end()
-                .gap_2()
+            dialog_footer()
                 .child(
                     super::button(SharedString::from(format!("{id}-cancel")))
                         .label("Cancel")

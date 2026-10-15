@@ -2,7 +2,8 @@
 //! the headless GPUI harness. Pixels and pointer feel remain native checks.
 use super::layout::{MarginMode, ReviewFit};
 use super::polish_tests::{
-    Fixture, assert_in, choose, fixture, menu_rows, on_window, type_edit, update, window_bounds,
+    Fixture, assert_in, change_saved, choose, fixture, menu_rows, on_window, type_edit, update,
+    window_bounds,
 };
 use super::writing::{COMMENTS_FLOOR, ProposalShape, review_footer};
 use super::*;
@@ -996,6 +997,31 @@ fn review_states_keep_one_primary_and_the_exact_footer(cx: &mut TestAppContext) 
             Some("Prepare selection, unavailable: Omit a group first")
         );
         assert_after(window, "toggle-margin", "apply-final");
+        // At the default window the waiting Prepare selection sits with the
+        // group toggles, so the bar keeps one row with the primary last.
+        assert!(
+            window
+                .within("review-details")
+                .try_find("prepare-selected")
+                .is_some()
+        );
+        assert!(
+            window
+                .within("review-bar")
+                .try_find("prepare-selected")
+                .is_none()
+        );
+        assert_one_row(
+            window,
+            &[
+                "review-proposal",
+                "review-protected",
+                "review-show-changes",
+                "review-read-result",
+                "toggle-margin",
+                "apply-final",
+            ],
+        );
     });
 
     // A proposal without note text: N changes, its reason and details.
@@ -1377,17 +1403,13 @@ fn stacked_comments_keep_every_comment_capability(cx: &mut TestAppContext) {
     });
 }
 
-/// N3: below the text come the comments, the run's status and reply, then
-/// the writing bar; the text keeps 120 px and the section gives way first.
-#[gpui_kit::test]
-fn a_failed_run_and_open_comments_leave_the_text_120_px_at_900x600(cx: &mut TestAppContext) {
-    let f = fixture(cx, 900., 600., TEXT);
-    let thread = commented(cx, &f, false);
-    update(cx, &f, |view, _, cx| view.rewrite_note(cx));
-    let reason = "Run failed: Synthetic provider stopped before finishing the rewrite.";
-    update(cx, &f, |view, _, cx| {
+/// A failed rewrite run for the note's latest writing request, with its
+/// recorded reason and the partial reply it saved.
+fn failed_rewrite(cx: &mut TestAppContext, f: &Fixture, thread: &str, reason: &str) {
+    update(cx, f, |view, _, cx| {
         let request = view.latest_note_writing_request(&f.note.id).unwrap().id;
-        let key = "s4-failed-run";
+        let key = format!("s4-failed-run-{}", uuid::Uuid::new_v4());
+        let key = key.as_str();
         let operation = view.workspace.store.allocate_operation(key).unwrap();
         let settings = view.workspace.settings().unwrap();
         view.workspace
@@ -1404,7 +1426,7 @@ fn a_failed_run_and_open_comments_leave_the_text_120_px_at_900x600(cx: &mut Test
                             data: RecordData::Run(Run {
                                 instruction: Some(request),
                                 queue_claim: None,
-                                thread: thread.clone(),
+                                thread: thread.into(),
                                 provider: "offline-fixture".into(),
                                 model: settings.model,
                                 guide_identity: "s4-fixture".into(),
@@ -1423,7 +1445,7 @@ fn a_failed_run_and_open_comments_leave_the_text_120_px_at_900x600(cx: &mut Test
                             expected_version: None,
                             archived: false,
                             data: RecordData::Message(Message {
-                                thread: thread.clone(),
+                                thread: thread.into(),
                                 role: "assistant-partial".into(),
                                 text: "A partial reply that stopped mid-sentence, kept for you to read before you retry the rewrite.".into(),
                             }),
@@ -1433,6 +1455,20 @@ fn a_failed_run_and_open_comments_leave_the_text_120_px_at_900x600(cx: &mut Test
             )
             .unwrap();
         view.refresh();
+        cx.notify();
+    });
+}
+
+/// N3: below the text come the comments, the run's status and reply, then
+/// the writing bar; the text keeps 120 px and the section gives way first.
+#[gpui_kit::test]
+fn a_failed_run_and_open_comments_leave_the_text_120_px_at_900x600(cx: &mut TestAppContext) {
+    let f = fixture(cx, 900., 600., TEXT);
+    let thread = commented(cx, &f, false);
+    update(cx, &f, |view, _, cx| view.rewrite_note(cx));
+    let reason = "Run failed: Synthetic provider stopped before finishing the rewrite.";
+    failed_rewrite(cx, &f, &thread, reason);
+    update(cx, &f, |view, _, cx| {
         view.comments_expanded = true;
         cx.notify();
     });
@@ -1507,5 +1543,80 @@ fn a_failed_run_and_open_comments_leave_the_text_120_px_at_900x600(cx: &mut Test
             "{first:?} in {section:?}"
         );
         assert!(window.find("writing-result").bounds().size.height >= px(44.));
+    });
+}
+
+/// S3-R1 and S4-R7: the banner stack has a budget. At 900×600 with a stale
+/// edit (its banner and the saved version), a wrapped failed-run status,
+/// the partial reply, a two-line writing bar and the stacked comments open,
+/// no banner is painted over the text, the text keeps 120 px and the
+/// writing bar stays in the Note.
+#[gpui_kit::test]
+fn the_banner_stack_keeps_its_budget_above_the_text_at_900x600(cx: &mut TestAppContext) {
+    let f = fixture(cx, 900., 600., TEXT);
+    let thread = commented(cx, &f, false);
+    update(cx, &f, |view, _, cx| view.rewrite_note(cx));
+    failed_rewrite(
+        cx,
+        &f,
+        &thread,
+        "Run failed: Synthetic provider stopped before finishing the rewrite.",
+    );
+    // Saved elsewhere first, then edited here: the edit's base is behind.
+    change_saved(cx, &f, |note| {
+        note.markdown = format!("{TEXT}\n\nChanged elsewhere.")
+    });
+    type_edit(cx, &f, " My words.");
+    update(cx, &f, |view, _, cx| {
+        view.comments_expanded = true;
+        cx.notify();
+    });
+    on_window(cx, &f, |window, cx| window.click("dismiss-notice", cx));
+    on_window(cx, &f, |window, _| {
+        let tile = window.find("tile-note").bounds();
+        // The text, the rows below it and the bar keep their room; the
+        // stack scrolls inside its own box rather than covering the text.
+        let stack = window.find("note-banners").bounds();
+        let text = window.find("note-body").bounds();
+        assert!(
+            stack.bottom() <= text.top() + px(0.5),
+            "{stack:?} above {text:?}"
+        );
+        assert!(text.size.height >= px(120.), "{text:?}");
+        assert_in(window, "note-bar", tile);
+        for id in [
+            "writing-run-status",
+            "writing-result",
+            "save-note",
+            "discard-note",
+        ] {
+            assert_in(window, id, tile);
+        }
+        // The stale banner opens the stack, its first line in view; the
+        // rest of it and the saved version scroll inside the stack.
+        let banner = window.find("note-stale-banner").bounds();
+        assert!(window.find("note-stale-banner").visible());
+        assert!(
+            (banner.top() - stack.top()).abs() <= px(0.5),
+            "{banner:?} in {stack:?}"
+        );
+        assert!(stack.size.height >= px(48.) - px(0.5), "{stack:?}");
+        assert!(window.find("comments-section-label").bounds().top() >= text.bottom() - px(0.5));
+    });
+    // With the bars at rest (no failed run), the same stale edit shows the
+    // whole banner and the saved version.
+    let f = fixture(cx, 900., 600., TEXT);
+    change_saved(cx, &f, |note| {
+        note.markdown = format!("{TEXT}\n\nChanged elsewhere.")
+    });
+    type_edit(cx, &f, " My words.");
+    on_window(cx, &f, |window, cx| window.click("dismiss-notice", cx));
+    on_window(cx, &f, |window, _| {
+        let stack = window.find("note-banners").bounds();
+        assert_in(window, "save-buffer-copy", stack);
+        assert_in(window, "show-current-note", stack);
+        assert!(window.find("note-stale-preview").visible());
+        let text = window.find("note-body").bounds();
+        assert!(stack.bottom() <= text.top() + px(0.5));
     });
 }

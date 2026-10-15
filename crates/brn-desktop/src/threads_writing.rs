@@ -143,19 +143,36 @@ impl ThreadsUi {
         let body = match &self.chat {
             ChatTarget::Thread(id) => self.conversation(id, cx),
             target => {
-                let mut start = scroll("thread-conversation")
-                    .gap_3()
-                    .p_4()
-                    .child(metadata(match target {
-                        ChatTarget::NewForNote(note) => format!(
-                            "New chat about {}. It stays linked to the note.",
+                // A new chat's empty state: what it is, and what the
+                // composer below can do.
+                let (title, body) = match target {
+                    ChatTarget::NewForNote(note) => (
+                        format!(
+                            "New chat about {}",
                             self.note_rows
                                 .iter()
                                 .find(|row| &row.id == note)
-                                .map_or_else(|| note.clone(), |row| row.title.clone())
+                                .map_or_else(|| note.clone(), |row| short(&row.title))
                         ),
-                        _ => "Start a chat with BRN. Attach files for this conversation, or use your saved knowledge.".into(),
-                    }));
+                        "It stays linked to the note.".to_owned(),
+                    ),
+                    _ => (
+                        "New chat".to_owned(),
+                        "Ask below. Attach files for this chat, or let BRN use your saved notes."
+                            .to_owned(),
+                    ),
+                };
+                let mut start =
+                    scroll("thread-conversation")
+                        .gap_3()
+                        .p_4()
+                        .child(components::empty_state(
+                            "chat-start",
+                            IconName::MessageSquare,
+                            title,
+                            body,
+                            None,
+                        ));
                 if self.delegation_host() == Some(TileKind::Chat) {
                     start = start.child(self.working_knowledge(cx));
                 }
@@ -213,9 +230,12 @@ impl ThreadsUi {
     ) -> gpui_kit::AnyElement {
         let Some(record) = self.records.iter().find(|r| r.id == id) else {
             return scroll("thread-conversation")
-                .child(empty(
+                .child(components::empty_state(
                     "thread-unavailable",
-                    "This chat is unavailable. Open another chat from the sidebar.",
+                    IconName::MessageSquare,
+                    "Chat unavailable",
+                    "Open another from Chats or ⌘K.",
+                    None,
                 ))
                 .into_any_element();
         };
@@ -707,7 +727,7 @@ impl ThreadsUi {
                 .dropdown_menu(move |menu, _, cx| match model_this.upgrade() {
                     Some(view) => {
                         let view = view.read(cx);
-                        view.effort_menu(
+                        view.effort_section(
                             view.model_menu(menu, &model_this).separator(),
                             &model_this,
                         )
@@ -1254,23 +1274,35 @@ impl ThreadsUi {
             .flex()
             .flex_col()
             .min_h_0();
-        // Banners sit between the toolbar and the text and are never hidden
-        // to make room; hairlines separate adjacent ones. In a short Note only
-        // the saved-version preview gives up height, after the text (and
-        // before an open comments section's floor).
+        // Banners sit between the toolbar and the text and never move into a
+        // menu; hairlines separate adjacent ones. In a short Note the
+        // saved-version preview gives up height first; past that the stack
+        // scrolls inside its own box, which keeps BANNER_FLOOR, so no banner
+        // is painted over the text, the text keeps its minimum and the
+        // writing bar stays in the Note.
         let banners = self.note_banners(cx);
         if !banners.is_empty() {
+            // One banner never shrinks. Several share a box that keeps its
+            // floor (less than any two of them) and scrolls the rest.
+            let shared = banners.len() > 1;
             content = content.child(
                 div()
+                    .id("note-banners")
                     .flex()
                     .flex_col()
-                    .flex_shrink(1.)
-                    .min_h_0()
+                    .when(shared, |stack| {
+                        stack
+                            .flex_shrink(1.)
+                            .min_h(BANNER_FLOOR)
+                            .overflow_y_scroll()
+                    })
+                    .when(!shared, |stack| stack.flex_shrink_0())
                     .gap(px(1.))
                     .bg(rgb(p.hairline))
                     .border_b_1()
                     .border_color(rgb(p.hairline))
-                    .children(banners),
+                    .children(banners)
+                    .test_support(),
             );
         }
         if let Some((_, quote)) = &self.selection
@@ -1367,7 +1399,7 @@ impl ThreadsUi {
                     .menu("Copy", Box::new(gpui_kit::base::input::Copy))
                     .menu_with_disabled("Paste", blocked, Box::new(gpui_kit::base::input::Paste))
                     .separator()
-                    .menu("Select All", Box::new(gpui_kit::base::input::SelectAll))
+                    .menu("Select all", Box::new(gpui_kit::base::input::SelectAll))
                 })
                 .into_any_element()
         };
@@ -2017,9 +2049,12 @@ impl ThreadsUi {
             });
         if comments.is_empty() && !drafting && !failed {
             items.push(
-                empty(
+                components::empty_state(
                     "margin-empty",
-                    "No comments yet. Select a passage and press ⌘/.",
+                    IconName::MessageSquare,
+                    "No comments yet",
+                    "Select a passage and press ⌘/.",
+                    None,
                 )
                 .into_any_element(),
             );
@@ -2065,6 +2100,16 @@ impl ThreadsUi {
                     } else {
                         "Show passage in note"
                     })
+                    .when(dirty || self.review.is_some(), |quote| {
+                        quote.accessibility_label(format!(
+                            "Show passage, unavailable: {}",
+                            if dirty {
+                                "save your edit first"
+                            } else {
+                                "finish the review first"
+                            }
+                        ))
+                    })
                     .disabled(dirty || self.review.is_some())
                     .on_click(cx.listener(move |this, _, window, cx| {
                         this.reveal(range.clone(), window, cx)
@@ -2085,6 +2130,9 @@ impl ThreadsUi {
                     .text_size(SMALL_TEXT)
                     .text_color(rgb(p.muted))
                     .disabled(true)
+                    .accessibility_label(
+                        "Show passage, unavailable: the passage is not in the current note version",
+                    )
                     .tooltip("This passage is not in the current note version")
             };
             let mut actions = div().flex().flex_wrap().gap_1();
@@ -2105,6 +2153,11 @@ impl ThreadsUi {
                         "Exclude from the next rewrite"
                     } else {
                         "Include in the next rewrite"
+                    })
+                    .when(!checked && location.is_none(), |toggle| {
+                        toggle.accessibility_label(
+                            "Include, unavailable: the passage is not in the current note version",
+                        )
                     })
                     .disabled(!checked && location.is_none())
                     .on_click(cx.listener(move |this, _, _, cx| {
@@ -2354,7 +2407,7 @@ impl ThreadsUi {
             );
             secondary.push(
                 pill("undo-writing-apply", "Undo")
-                    .tooltip("Undo the applied rewrite; Changes keeps the record")
+                    .tooltip("Undo the applied rewrite; Changes keeps it")
                     .on_click(
                         cx.listener(move |this, _, window, cx| {
                             this.undo_receipt(&undo, window, cx)
@@ -2523,7 +2576,7 @@ impl ThreadsUi {
                 let undo = operation.clone();
                 secondary.push(
                     pill("undo-writing-apply", "Undo previous rewrite")
-                        .tooltip("Undo the last applied rewrite; Changes keeps the record")
+                        .tooltip("Undo the last applied rewrite; Changes keeps it")
                         .on_click(cx.listener(move |this, _, window, cx| {
                             this.undo_receipt(&undo, window, cx)
                         }))
@@ -2825,14 +2878,15 @@ impl ThreadsUi {
             })
             .tooltip(select_blocked.unwrap_or("Review only the included groups as a new proposal"))
             .on_click(cx.listener(|this, _, window, cx| this.prepare_review_selection(window, cx)));
-        // A Prepare selection that waits sits in the bar when it has room;
-        // the icon arrangement moves it beside the group toggles, where its
-        // reason applies, so the bar keeps one row.
+        // A Prepare selection that waits sits in the bar only when the full
+        // bar has room; otherwise it moves beside the group toggles, where
+        // its reason applies, so the bar keeps one row with the primary
+        // last.
         let mut waiting_selection = None;
         let mut prepare_selected = Some(prepare_selected);
         if grouped && (editing || !partial) {
             let waiting = prepare_selected.take().map(|control| control.ghost());
-            if fit.icons() {
+            if fit.actions_in_menu() {
                 waiting_selection = waiting;
             } else {
                 secondary.extend(waiting.map(IntoElement::into_any_element));
@@ -2940,7 +2994,7 @@ impl ThreadsUi {
                     RecordData::Comment(c) => format!("Comment: {}", short(&c.body)),
                     RecordData::Source(s) => format!("Source: {}", s.label),
                     RecordData::Asset(_) => "Retain a meaningful figure".into(),
-                    RecordData::Run(_) => "Record work progress".into(),
+                    RecordData::Run(_) => "Save work progress".into(),
                     RecordData::Settings(_) => "Change workspace settings".into(),
                     RecordData::ChatControl(_) => "Change chat controls".into(),
                     RecordData::Project(_) => "Change project configuration".into(),
@@ -3155,7 +3209,13 @@ impl ThreadsUi {
             .is_none_or(|review| review.note.is_none())
         {
             return scroll("compare-content")
-                .child(empty("compare-empty", "No whole-note proposal to compare."))
+                .child(components::empty_state(
+                    "compare-empty",
+                    IconName::Columns2,
+                    "Nothing to compare",
+                    "Compare shows a whole-note proposal beside the saved note.",
+                    None,
+                ))
                 .into_any_element();
         }
         let version = self
@@ -3456,6 +3516,12 @@ fn text_min(stacked: bool) -> gpui_kit::Pixels {
 /// The open comments section's floor: its label and the first card's
 /// first line.
 pub(super) const COMMENTS_FLOOR: gpui_kit::Pixels = px(64.);
+
+/// The Note banner stack's floor when it must share a short Note: the
+/// first banner's opening line stays in view and the rest scrolls. Two
+/// banners are always taller (each at least one 32 px line), so the floor
+/// never leaves an empty band.
+const BANNER_FLOOR: gpui_kit::Pixels = px(48.);
 
 /// The shrink factor of the review or note text area: next to the reply's
 /// and the details' factor of 1, it gives way only once they reach their

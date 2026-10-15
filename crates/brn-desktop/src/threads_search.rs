@@ -285,6 +285,20 @@ impl ThreadsUi {
                     .child(
                         pill("search-previous", "← Previous")
                             .disabled(!has_previous || results.pending)
+                            .when_some(
+                                if results.pending {
+                                    Some("search is preparing")
+                                } else if !has_previous {
+                                    Some("this is the first page")
+                                } else {
+                                    None
+                                },
+                                |button, why| {
+                                    let (announced, tooltip) =
+                                        components::unavailable("Previous", Some(why));
+                                    button.accessibility_label(announced).tooltip(tooltip)
+                                },
+                            )
                             .on_click(cx.listener(|this, _, window, cx| {
                                 this.previous_search_page(window, cx);
                                 cx.notify();
@@ -293,6 +307,20 @@ impl ThreadsUi {
                     .child(
                         pill("search-next", "Next →")
                             .disabled(!has_next || results.pending)
+                            .when_some(
+                                if results.pending {
+                                    Some("search is preparing")
+                                } else if !has_next {
+                                    Some("this is the last page")
+                                } else {
+                                    None
+                                },
+                                |button, why| {
+                                    let (announced, tooltip) =
+                                        components::unavailable("Next", Some(why));
+                                    button.accessibility_label(announced).tooltip(tooltip)
+                                },
+                            )
                             .on_click(cx.listener(|this, _, window, cx| {
                                 this.next_search_page(window, cx);
                                 cx.notify();

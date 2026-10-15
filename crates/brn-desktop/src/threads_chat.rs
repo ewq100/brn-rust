@@ -420,6 +420,27 @@ impl ThreadsUi {
         if c.pending.is_some() || !c.queue.is_empty() {
             let here = self.chat_thread().map(str::to_owned);
             let waiting = format!("{} waiting", c.queue.len());
+            // A short window keeps the queue to its one summary row; the
+            // disclosure shows the items.
+            let collapsed = self.short_window && !self.queue_expanded;
+            let disclosure = self.short_window.then(|| {
+                let (icon, label) = if collapsed {
+                    (IconName::ChevronRight, "Show waiting messages")
+                } else {
+                    (IconName::ChevronDown, "Hide waiting messages")
+                };
+                components::icon_button("queue-disclosure", icon, label)
+                    .flex_shrink_0()
+                    .on_click(cx.listener(|this, _, _, cx| {
+                        this.queue_expanded = !this.queue_expanded;
+                        cx.notify();
+                    }))
+            });
+            let summary = match (c.paused, self.short_window) {
+                (true, true) => format!("{waiting} · Paused"),
+                (true, false) => format!("Queue paused · {waiting}"),
+                (false, _) => format!("Queue · {waiting}"),
+            };
             // A paused queue is a warning card holding Resume queue; a running
             // one is a quiet list.
             let mut queue = if c.paused {
@@ -432,15 +453,19 @@ impl ThreadsUi {
                             .flex()
                             .items_center()
                             .gap_2()
+                            .children(disclosure)
                             .child(components::tone_mark("queue-panel-tone", Tone::Warning))
                             .child(
                                 div()
+                                    .id("queue-summary")
                                     .flex_1()
                                     .min_w_0()
                                     .truncate()
                                     .text_size(SMALL_TEXT)
                                     .font_weight(gpui_kit::FontWeight::MEDIUM)
-                                    .child(format!("Queue paused · {waiting}")),
+                                    .aria_label(summary.clone())
+                                    .child(summary)
+                                    .test_support(),
                             )
                             .child(
                                 button("queue-resume")
@@ -466,14 +491,29 @@ impl ThreadsUi {
                             ),
                     )
             } else {
-                div()
-                    .id("queue-panel")
-                    .flex()
-                    .flex_col()
-                    .gap_1()
-                    .child(metadata(format!("Queue · {waiting}")))
+                div().id("queue-panel").flex().flex_col().gap_1().child(
+                    div()
+                        .flex()
+                        .items_center()
+                        .gap_1()
+                        .children(disclosure)
+                        .child(
+                            metadata(summary.clone())
+                                .id("queue-summary")
+                                .flex_1()
+                                .min_w_0()
+                                .truncate()
+                                .aria_label(summary)
+                                .test_support(),
+                        ),
+                )
             };
-            for (index, q) in c.pending.iter().chain(c.queue.iter()).enumerate() {
+            let items = if collapsed {
+                Vec::new()
+            } else {
+                c.pending.iter().chain(c.queue.iter()).collect()
+            };
+            for (index, q) in items.into_iter().enumerate() {
                 let edit = q.clone();
                 let remove = q.id.clone();
                 let move_id = q.id.clone();
@@ -526,6 +566,13 @@ impl ThreadsUi {
                             pill(format!("queue-edit-{index}"), "Edit")
                                 .flex_shrink_0()
                                 .disabled(active)
+                                .when(active, |button| {
+                                    let (announced, tooltip) = components::unavailable(
+                                        "Edit",
+                                        Some("this message is running"),
+                                    );
+                                    button.accessibility_label(announced).tooltip(tooltip)
+                                })
                                 .on_click(cx.listener(move |this, _, window, cx| {
                                     this.set_chat(
                                         ChatTarget::Thread(edit.thread.clone()),
@@ -544,6 +591,13 @@ impl ThreadsUi {
                             pill(format!("queue-remove-{index}"), "Remove")
                                 .flex_shrink_0()
                                 .disabled(active)
+                                .when(active, |button| {
+                                    let (announced, tooltip) = components::unavailable(
+                                        "Remove",
+                                        Some("this message is running; Stop it first"),
+                                    );
+                                    button.accessibility_label(announced).tooltip(tooltip)
+                                })
                                 .on_click(cx.listener(move |this, _, _, cx| {
                                     if let Err(e) = this.workspace.remove_queued(
                                         &format!("remove:{}", uuid::Uuid::new_v4()),

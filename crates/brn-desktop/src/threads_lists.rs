@@ -200,13 +200,13 @@ impl TaskStep {
             Self::Cancel => ActionState::Cancelled,
         }
     }
-    /// The reason each change records, as before.
+    /// The reason each change records, in the Tasks vocabulary.
     pub(super) fn reason(self) -> &'static str {
         match self {
-            Self::Accept | Self::MarkOpen => "Owner opened an Action",
-            Self::ConfirmDone => "Owner confirmed an Action is complete",
-            Self::Waiting => "Owner marked an Action Waiting",
-            Self::Cancel => "Owner cancelled an Action",
+            Self::Accept | Self::MarkOpen => "Owner opened a task",
+            Self::ConfirmDone => "Owner confirmed a task is done",
+            Self::Waiting => "Owner marked a task waiting",
+            Self::Cancel => "Owner cancelled a task",
         }
     }
 }

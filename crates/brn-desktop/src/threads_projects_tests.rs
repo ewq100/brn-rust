@@ -355,3 +355,81 @@ fn the_projects_page_keeps_its_column_when_maximized(cx: &mut TestAppContext) {
     })
     .unwrap();
 }
+
+fn dialog_open(cx: &mut TestAppContext, f: &Fixture) -> bool {
+    cx.update_window(f.window, |_, window, cx| window.has_active_dialog(cx))
+        .unwrap()
+}
+fn press(cx: &mut TestAppContext, f: &Fixture, key: &str) {
+    cx.update_window(f.window, |_, window, cx| window.press(key, cx))
+        .unwrap();
+    cx.run_until_parked();
+}
+fn archived(cx: &mut TestAppContext, f: &Fixture, id: &str) -> bool {
+    cx.read(|cx| {
+        f.view
+            .read(cx)
+            .workspace
+            .store
+            .record(id)
+            .unwrap()
+            .unwrap()
+            .archived
+    })
+}
+
+/// The destructive dialog: ↵ moves nothing, even on the focused confirm;
+/// Escape closes it; Space on the confirm, reached by Tab, moves the
+/// project to Trash when no task choice is pending.
+#[gpui_kit::test]
+fn project_delete_dialog_confirms_only_by_space_on_its_danger_button(cx: &mut TestAppContext) {
+    let f = fixture(cx);
+    let p = create(cx, &f, "Website refresh");
+    project_action(cx, &f, "Move to Trash…");
+    press(cx, &f, "enter");
+    assert!(dialog_open(cx, &f), "↵ leaves the dialog open");
+    assert!(!archived(cx, &f, &p), "↵ moves nothing");
+    press(cx, &f, "escape");
+    assert!(!dialog_open(cx, &f), "Escape closes it");
+    assert!(!archived(cx, &f, &p));
+    project_action(cx, &f, "Move to Trash…");
+    let reached = (0..12).any(|_| {
+        press(cx, &f, "tab");
+        cx.update_window(f.window, |_, window, _| {
+            window.find("project-delete-confirm").focused() == Some(true)
+        })
+        .unwrap()
+    });
+    assert!(reached, "Tab reaches the danger button");
+    press(cx, &f, "enter");
+    assert!(dialog_open(cx, &f), "↵ on the focused confirm is inert");
+    assert!(!archived(cx, &f, &p));
+    press(cx, &f, "space");
+    assert!(!dialog_open(cx, &f));
+    assert!(archived(cx, &f, &p), "Space presses the focused confirm");
+}
+
+/// Project instructions are a multi-line form: ↵ adds a line, ⌘↵ saves.
+#[gpui_kit::test]
+fn project_settings_dialog_adds_a_line_on_enter_and_saves_on_cmd_enter(cx: &mut TestAppContext) {
+    let f = fixture(cx);
+    let p = create(cx, &f, "Japan trip");
+    project_action(cx, &f, "Instructions & settings");
+    click(cx, &f, "project-instructions");
+    cx.simulate_input(f.window, "For beginners");
+    cx.simulate_keystrokes(f.window, "enter");
+    cx.simulate_input(f.window, "In Estonian");
+    cx.run_until_parked();
+    assert!(dialog_open(cx, &f));
+    cx.simulate_keystrokes(f.window, "cmd-enter");
+    cx.run_until_parked();
+    assert!(!dialog_open(cx, &f));
+    cx.read(|cx| {
+        let record = f.view.read(cx).workspace.store.record(&p).unwrap().unwrap();
+        assert!(
+            matches!(&record.data, RecordData::Project(project) if project.instructions == "For beginners\nIn Estonian"),
+            "{:?}",
+            record.data
+        );
+    });
+}

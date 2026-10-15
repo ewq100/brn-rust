@@ -1112,3 +1112,53 @@ fn while_work_runs_send_reads_queue_at_a_wide_chat_and_replies_keep_the_measure(
         );
     });
 }
+
+/// Below 700 pt the paused queue is one row, "N waiting · Paused" with
+/// Resume queue; its disclosure shows the items. Taller windows list them.
+#[gpui_kit::test]
+fn a_short_window_collapses_the_paused_queue_to_one_row(cx: &mut TestAppContext) {
+    let seed = |workspace: &mut Workspace, _: &str, other: &str| {
+        workspace
+            .queue_message("short-first", other, "Check the venue")
+            .unwrap();
+        workspace
+            .queue_message("short-second", other, "Book the room")
+            .unwrap();
+        workspace.pause_queue("short-paused").unwrap();
+    };
+    let f = fixture(cx, 900., 600., seed);
+    on_window(cx, &f, |window, _| {
+        assert_eq!(label(window, "queue-summary"), "2 waiting · Paused");
+        assert_eq!(label(window, "queue-resume"), "Resume queue");
+        assert_eq!(label(window, "queue-disclosure"), "Show waiting messages");
+        assert!(window.try_find("queue-label-0").is_none());
+        // One row: the summary, the disclosure and Resume queue line up.
+        let (summary, resume) = (
+            window.find("queue-summary").bounds(),
+            window.find("queue-resume").bounds(),
+        );
+        assert!(resume.top() < summary.bottom() && summary.top() < resume.bottom());
+    });
+    click(cx, &f, "queue-disclosure");
+    on_window(cx, &f, |window, _| {
+        assert_eq!(
+            label(window, "queue-label-0"),
+            "Waiting · Other chat · Check the venue"
+        );
+        assert_eq!(
+            label(window, "queue-label-1"),
+            "Waiting · Other chat · Book the room"
+        );
+        assert_eq!(label(window, "queue-disclosure"), "Hide waiting messages");
+        assert!(window.find("queue-resume").visible());
+    });
+    let f = fixture(cx, 1250., 860., seed);
+    on_window(cx, &f, |window, _| {
+        assert_eq!(label(window, "queue-summary"), "Queue paused · 2 waiting");
+        assert!(window.try_find("queue-disclosure").is_none());
+        assert_eq!(
+            label(window, "queue-label-0"),
+            "Waiting · Other chat · Check the venue"
+        );
+    });
+}

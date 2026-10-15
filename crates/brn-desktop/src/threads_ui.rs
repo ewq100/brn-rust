@@ -17,7 +17,7 @@ use gpui_kit::{
     },
     component::{
         Root, TitleBar,
-        button::{Button, ButtonRounded},
+        button::{Button, ButtonRounded, ButtonVariants as _},
         input::{Editor, EditorState, Input, InputEvent, InputState, Textarea, TextareaState},
     },
     div, point,
@@ -120,6 +120,9 @@ mod tiled_tests;
 #[cfg(all(test, feature = "native-test-support"))]
 #[path = "threads_chat_tests.rs"]
 mod chat_tests;
+#[cfg(all(test, feature = "native-test-support"))]
+#[path = "threads_dialogs_tests.rs"]
+mod dialogs_tests;
 #[cfg(all(test, feature = "native-test-support"))]
 #[path = "threads_omakase_tests.rs"]
 mod omakase_tests;
@@ -371,14 +374,6 @@ fn metadata(text: impl Into<gpui_kit::SharedString>) -> gpui_kit::Div {
         .text_color(rgb(pal().muted))
         .child(text.into())
 }
-/// A one-sentence empty state with a neutral icon; richer call sites use
-/// `components::empty_state` directly.
-fn empty(
-    id: impl Into<gpui_kit::ElementId>,
-    text: impl Into<gpui_kit::SharedString>,
-) -> gpui_kit::base::ObservedElement<gpui_kit::Stateful<gpui_kit::Div>> {
-    components::empty_state(id, IconName::Inbox, "", text, None)
-}
 /// Tone of an applied change's notice: refresh follow-ups need attention.
 fn apply_tone(outcome: &ApplyOutcome) -> Tone {
     match outcome {
@@ -439,6 +434,12 @@ struct ThreadsUi {
     workspace: Workspace,
     data_dir: PathBuf,
     root_focus: FocusHandle,
+    /// Each panel body's own focus handle. A destination without a field of
+    /// its own takes focus here, then moves on to its first control.
+    panel_focus: BTreeMap<TileKind, FocusHandle>,
+    /// The panel whose body took focus; after its next frame, focus moves
+    /// to its first control.
+    focus_first: Option<TileKind>,
     layout: Layout,
     tile_scroll: gpui_kit::ScrollHandle,
     tile_reveal: Option<(Vec<TileKind>, Option<TileKind>)>,
@@ -490,6 +491,8 @@ struct ThreadsUi {
     launcher_query: Entity<InputState>,
     launcher_open: bool,
     launcher_index: usize,
+    /// Keeps the keyboard-selected launcher row in view.
+    launcher_scroll: gpui_kit::ScrollHandle,
     model: Entity<InputState>,
     auth_path: Entity<InputState>,
     credentials_path: Entity<InputState>,
@@ -513,6 +516,10 @@ struct ThreadsUi {
     /// The Chat panel is below 420 pt: the model control also names the
     /// effort, and the effort control folds into its menu.
     chat_narrow: bool,
+    /// The window is below 700 pt tall: the chat queue collapses to one row.
+    short_window: bool,
+    /// The collapsed queue's items are shown (session-only).
+    queue_expanded: bool,
     show_coverage: bool,
     selection: Option<(Range<usize>, String)>,
     general_feedback: Entity<TextareaState>,
@@ -733,6 +740,7 @@ impl ThreadsUi {
                 |this, _, event: &InputEvent, window, cx| match event {
                     InputEvent::Change => {
                         this.launcher_index = 0;
+                        this.launcher_scroll.scroll_to_item(0);
                         cx.notify();
                     }
                     InputEvent::PressEnter { .. } => this.run_launcher(None, window, cx),
@@ -757,6 +765,11 @@ impl ThreadsUi {
             workspace,
             data_dir,
             root_focus: cx.focus_handle(),
+            panel_focus: TileKind::ALL
+                .into_iter()
+                .map(|kind| (kind, cx.focus_handle()))
+                .collect(),
+            focus_first: None,
             layout: Layout::default(),
             tile_scroll: gpui_kit::ScrollHandle::new(),
             tile_reveal: None,
@@ -807,6 +820,7 @@ impl ThreadsUi {
             launcher_query,
             launcher_open: false,
             launcher_index: 0,
+            launcher_scroll: gpui_kit::ScrollHandle::new(),
             model,
             auth_path,
             credentials_path,
@@ -821,6 +835,8 @@ impl ThreadsUi {
             note_fit: layout::NoteFit::default(),
             review_fit: layout::ReviewFit::default(),
             chat_narrow: false,
+            short_window: false,
+            queue_expanded: false,
             show_coverage: false,
             selection: None,
             general_feedback,
@@ -1611,46 +1627,83 @@ impl ThreadsUi {
         self.refresh();
         cx.notify();
     }
+    /// One field: ↵ anywhere in the dialog creates the note through the
+    /// same function as Create note; an empty title keeps it open and says
+    /// why.
     fn new_note(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         let input = cx.new(|cx| InputState::new(window, cx).placeholder("Note title"));
+        let error = cx.new(|_| String::new());
         let target = cx.entity().downgrade();
-        input.update(cx, |input, cx| input.focus(window, cx));
-        window.open_dialog(cx, move |dialog, _, _| {
-            let input = input.clone();
-            let target = target.clone();
-            dialog.title("New note").child(
-                div()
-                    .flex()
-                    .flex_col()
-                    .gap_3()
-                    .child(Input::new(&input))
-                    .child(button("create-named-note").label("Create note").on_click(
-                        move |_, window, cx| {
-                            let name = input.read(cx).value().to_string();
-                            if name.trim().is_empty() {
-                                return;
-                            }
-                            let mut created = false;
-                            let _ = target.update(cx, |this, cx| {
-                                match this.workspace.new_note(name.trim(), "") {
-                                    Ok(record) => {
-                                        this.open_note(&record.id, None, window, cx);
-                                        created = true;
-                                    }
-                                    Err(e) => this.fail(e.to_string()),
-                                }
-                                cx.notify();
-                            });
-                            if created {
-                                window.close_dialog(cx);
-                                let _ = target.update(cx, |this, cx| {
-                                    this.focus_visible_editor(window, cx);
-                                });
-                            }
-                        },
-                    )),
-            )
+        let create: components::DialogAction = {
+            let (input, error) = (input.clone(), error.clone());
+            std::rc::Rc::new(move |window, cx| {
+                let name = input.read(cx).value().trim().to_owned();
+                let mut result = Err("Enter a title.".to_owned());
+                if !name.is_empty() {
+                    result = Err("This window is unavailable.".to_owned());
+                    let _ = target.update(cx, |this, cx| {
+                        result = this
+                            .workspace
+                            .new_note(&name, "")
+                            .map(|record| this.open_note(&record.id, None, window, cx))
+                            .map_err(|e| format!("{e}. Nothing was created."));
+                        cx.notify();
+                    });
+                }
+                match result {
+                    Ok(()) => {
+                        window.close_dialog(cx);
+                        let _ = target.update(cx, |this, cx| this.focus_visible_editor(window, cx));
+                    }
+                    Err(message) => error.update(cx, |error, cx| {
+                        *error = message;
+                        cx.notify();
+                    }),
+                }
+            })
+        };
+        let field = input.clone();
+        window.open_dialog(cx, move |dialog, window, cx| {
+            let (ok, click) = (create.clone(), create.clone());
+            dialog
+                .title("New note")
+                .on_ok(move |_, window, cx| {
+                    ok(window, cx);
+                    false
+                })
+                .child(
+                    components::dialog_body("new-note-body", window)
+                        .child(
+                            div()
+                                .flex()
+                                .flex_col()
+                                .gap_2()
+                                .child(Input::new(&field).id("new-note-title"))
+                                .child(components::field_error(
+                                    "new-note-error",
+                                    error.read(cx).clone(),
+                                )),
+                        )
+                        .test_support(),
+                )
+                .footer(
+                    components::dialog_footer()
+                        .child(
+                            button("new-note-cancel")
+                                .label("Cancel")
+                                .outline()
+                                .on_click(|_, window, cx| window.close_dialog(cx)),
+                        )
+                        .child(
+                            button("create-named-note")
+                                .label("Create note")
+                                .primary()
+                                .on_click(move |_, window, cx| click(window, cx)),
+                        ),
+                )
         });
+        // Kit focuses the dialog as it opens; the title field takes it after.
+        input.update(cx, |input, cx| input.focus(window, cx));
     }
     fn change(&mut self, reason: &str, record: Record, data: RecordData, cx: &mut Context<Self>) {
         let request = ChangeRequest {
@@ -1689,7 +1742,7 @@ impl ThreadsUi {
                 // The prepared selection replaces the reviewed candidate.
                 self.review = None;
                 self.open_review(candidate, window, cx);
-                self.inform("The selected whole records are prepared. Review this new proposal, then apply it.");
+                self.inform("The selected notes and tasks are prepared as a new proposal. Review it, then apply it.");
             }
             Err(error) => self.fail(error.to_string()),
         }
@@ -1997,7 +2050,7 @@ impl ThreadsUi {
             Some(brn_ai::threads::OwnerRequest::RewriteNote { .. })
         );
         let continuation = if writing {
-            "Retry from the writing tile"
+            "Retry from the note"
         } else {
             "Continue from the chat"
         };
@@ -2109,7 +2162,7 @@ impl ThreadsUi {
                     // Host notices (such as an unavailable helper) follow the outcome.
                     let notices = r.notices.iter().map(|n| format!(" {n}")).collect::<String>();
                     (match r.answer.terminal {
-                        brn_ai::AiTerminal::Completed => Ok(format!("{}{notices}", if writing { "Finished. Check the writing tile for the result." } else { "Finished. The answer and saved changes are in this chat." })),
+                        brn_ai::AiTerminal::Completed => Ok(format!("{}{notices}", if writing { "Finished. The result is in the note." } else { "Finished. The answer and saved changes are in this chat." })),
                         brn_ai::AiTerminal::Interrupted => Err(format!("Interrupted. The queue is paused; Resume when ready.{notices}")),
                         brn_ai::AiTerminal::Failed(e) => Err(format!("{e}{notices}")),
                     }, r.terminal_run)
@@ -2520,7 +2573,7 @@ impl ThreadsUi {
             review.edited && review.candidate.operation.as_str() == candidate.operation.as_str()
         });
         if editing {
-            self.warn("You are editing this proposal's final text. Use this text or cancel the edit in the note tile first.");
+            self.warn("You are editing this proposal's final text. Choose Use this text, or cancel the edit in the note first.");
             cx.notify();
         }
         editing
@@ -2651,6 +2704,7 @@ impl ThreadsUi {
     fn open_launcher(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         self.launcher_open = true;
         self.launcher_index = 0;
+        self.launcher_scroll.scroll_to_item(0);
         self.launcher_query
             .update(cx, |input, cx| input.set_value("", window, cx));
         self.launcher_query
@@ -2672,12 +2726,31 @@ impl ThreadsUi {
         )
     }
     fn move_launcher(&mut self, delta: isize, cx: &mut Context<Self>) {
-        let count = self.launcher_items(cx).len();
-        if count > 0 {
-            self.launcher_index =
-                (self.launcher_index as isize + delta).rem_euclid(count as isize) as usize;
-            cx.notify();
+        let items = self.launcher_items(cx);
+        if items.is_empty() {
+            return;
         }
+        self.launcher_index =
+            (self.launcher_index as isize + delta).rem_euclid(items.len() as isize) as usize;
+        // The results interleave group headings with rows: scroll the
+        // selected row's element into view. Moving up onto a group's first
+        // row, or back to the top, shows its heading too.
+        let (mut child, mut group) = (0, "");
+        for (index, entry) in items.iter().enumerate() {
+            let leads = entry.group() != group;
+            if leads {
+                group = entry.group();
+                child += 1;
+            }
+            if index == self.launcher_index {
+                let heading = leads && (delta < 0 || index == 0);
+                self.launcher_scroll
+                    .scroll_to_item(if heading { child - 1 } else { child });
+                break;
+            }
+            child += 1;
+        }
+        cx.notify();
     }
     fn run_launcher(&mut self, index: Option<usize>, window: &mut Window, cx: &mut Context<Self>) {
         let items = self.launcher_items(cx);
@@ -2785,7 +2858,7 @@ impl ThreadsUi {
                 self.pending_send = None;
                 self.stream.clear();
                 self.progress.clear();
-                self.fail("Work stopped unexpectedly. Saved progress remains available; retry from the writing tile or continue from the chat.");
+                self.fail("Work stopped unexpectedly. Saved progress is kept; retry from the note or continue from the chat.");
                 self.refresh();
                 cx.notify();
             }

@@ -272,7 +272,7 @@ fn layouts_resize_swap_maximize_and_tile_menu_work_by_mouse_and_keys(cx: &mut Te
     on_window(cx, &f, |window, cx| {
         assert!(
             f.view.read(cx).composer.focus_handle(cx).is_focused(window),
-            "focusing the chat tile focuses its composer"
+            "focusing the Chat panel focuses its composer"
         );
     });
 }
@@ -846,7 +846,7 @@ fn review_in_place_applies_exact_candidate_then_marks_addressed_and_undoes(
     on_window(cx, &f, |window, _| {
         assert!(
             window.find(format!("writing-proposal-{op}")).visible(),
-            "proposal ready in the writing tile"
+            "proposal ready in the Note panel"
         );
         assert!(window.try_find(format!("card-apply-{op}")).is_none());
     });

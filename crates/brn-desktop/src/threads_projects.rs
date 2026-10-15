@@ -1,10 +1,23 @@
 //! Projects navigation and owner dialogs over shared checked operations.
 use super::shell::{item, pill};
-use super::tiles::{PAGE_WIDTH, column, page, row, scroll};
+use super::tiles::{PAGE_WIDTH, column, page, row};
 use super::*;
 use gpui_kit::SharedString;
 use gpui_kit::component::button::ButtonVariants;
 use gpui_kit::component::menu::PopupMenu;
+
+/// A dialog pick-list row: a full-width ghost button, so Tab reaches it and
+/// Space chooses it. The title truncates; the full text is its name.
+fn pick_row(id: impl Into<gpui_kit::ElementId>, label: impl Into<SharedString>) -> Button {
+    let label = label.into();
+    button(id)
+        .ghost()
+        .w_full()
+        .h(components::tokens::COMPACT_CONTROL)
+        .accessibility_label(label.clone())
+        .tooltip(label.clone())
+        .child(div().flex_1().min_w_0().truncate().child(label))
+}
 
 /// Shown beside Restore project, before the owner chooses it.
 const RESTORE_LINE: &str = "Restoring returns contents and settings. Cancelled tasks stay cancelled; tasks kept outside stay outside. Work stays paused.";
@@ -512,18 +525,64 @@ impl ThreadsUi {
         cx: &mut Context<Self>,
     ) {
         let input = cx.new(|cx| InputState::new(window, cx).placeholder("Title"));
-        input.update(cx, |input, cx| input.focus(window, cx));
         let target = cx.entity().downgrade();
         let error = cx.new(|_| String::new());
-        window.open_dialog(cx, move |dialog, _, cx| {
-            let (input, target, project, error) = (
-                input.clone(),
-                target.clone(),
-                project.clone(),
-                error.clone(),
-            );
-            let submit_error = error.clone();
-            let submit = input.clone();
+        // One field: ↵ anywhere in the dialog creates, through the same
+        // function as Create; a refusal keeps the dialog open with its reason.
+        let create: components::DialogAction = {
+            let (input, error, project) = (input.clone(), error.clone(), project.clone());
+            std::rc::Rc::new(move |window, cx| {
+                let name = input.read(cx).value().to_string();
+                let command = match &project {
+                    None => ProjectCommand::Create { title: name },
+                    Some(p) if chat => ProjectCommand::CreateChat {
+                        project: p.clone(),
+                        title: name,
+                    },
+                    Some(p) => ProjectCommand::CreateDocument {
+                        project: p.clone(),
+                        title: name,
+                        markdown: String::new(),
+                    },
+                };
+                let mut result = Err("This window is unavailable.".to_owned());
+                let _ = target.update(cx, |this, cx| {
+                    result = this
+                        .apply_project(command, cx)
+                        .map(|r| {
+                            for w in r.writes {
+                                match &w.after.data {
+                                    RecordData::Project(_) => {
+                                        this.selected_project = Some(w.after.id.clone())
+                                    }
+                                    RecordData::Thread(_) if w.before.is_none() => {
+                                        this.open_thread(&w.after.id, window, cx)
+                                    }
+                                    RecordData::Note(_) if w.before.is_none() => {
+                                        if let Some(p) = &project {
+                                            this.open_project_note(p, &w.after.id, window, cx);
+                                        } else {
+                                            this.open_note(&w.after.id, None, window, cx);
+                                        }
+                                    }
+                                    _ => {}
+                                }
+                            }
+                        })
+                        .map_err(|e| e.to_string());
+                });
+                match result {
+                    Ok(()) => window.close_dialog(cx),
+                    Err(e) => error.update(cx, |s, cx| {
+                        *s = e;
+                        cx.notify();
+                    }),
+                }
+            })
+        };
+        let field = input.clone();
+        window.open_dialog(cx, move |dialog, window, cx| {
+            let (ok, click) = (create.clone(), create.clone());
             dialog
                 .title(if project.is_none() {
                     "New project"
@@ -532,76 +591,42 @@ impl ThreadsUi {
                 } else {
                     "New project document"
                 })
+                .on_ok(move |_, window, cx| {
+                    ok(window, cx);
+                    false
+                })
                 .child(
-                    div()
-                        .flex()
-                        .flex_col()
-                        .gap_3()
-                        .child(Input::new(&input).id("project-name-input"))
-                        .child(metadata(error.read(cx).clone()))
-                        .child(button("project-name-submit").label("Create").on_click(
-                            move |_, window, cx| {
-                                let name = submit.read(cx).value().to_string();
-                                let command = match &project {
-                                    None => ProjectCommand::Create { title: name },
-                                    Some(p) if chat => ProjectCommand::CreateChat {
-                                        project: p.clone(),
-                                        title: name,
-                                    },
-                                    Some(p) => ProjectCommand::CreateDocument {
-                                        project: p.clone(),
-                                        title: name,
-                                        markdown: String::new(),
-                                    },
-                                };
-                                let mut result = Err("Window unavailable".to_owned());
-                                let _ = target.update(cx, |this, cx| {
-                                    result = this
-                                        .apply_project(command, cx)
-                                        .map(|r| {
-                                            for w in r.writes {
-                                                match &w.after.data {
-                                                    RecordData::Project(_) => {
-                                                        this.selected_project =
-                                                            Some(w.after.id.clone())
-                                                    }
-                                                    RecordData::Thread(_) if w.before.is_none() => {
-                                                        this.open_thread(&w.after.id, window, cx)
-                                                    }
-                                                    RecordData::Note(_) if w.before.is_none() => {
-                                                        if let Some(p) = &project {
-                                                            this.open_project_note(
-                                                                p,
-                                                                &w.after.id,
-                                                                window,
-                                                                cx,
-                                                            );
-                                                        } else {
-                                                            this.open_note(
-                                                                &w.after.id,
-                                                                None,
-                                                                window,
-                                                                cx,
-                                                            );
-                                                        }
-                                                    }
-                                                    _ => {}
-                                                }
-                                            }
-                                        })
-                                        .map_err(|e| e.to_string());
-                                });
-                                match result {
-                                    Ok(()) => window.close_dialog(cx),
-                                    Err(e) => submit_error.update(cx, |s, cx| {
-                                        *s = e;
-                                        cx.notify();
-                                    }),
-                                }
-                            },
-                        )),
+                    components::dialog_body("project-name-body", window)
+                        .child(
+                            div()
+                                .flex()
+                                .flex_col()
+                                .gap_2()
+                                .child(Input::new(&field).id("project-name-input"))
+                                .child(components::field_error(
+                                    "project-name-error",
+                                    error.read(cx).clone(),
+                                )),
+                        )
+                        .test_support(),
+                )
+                .footer(
+                    components::dialog_footer()
+                        .child(
+                            button("project-name-cancel")
+                                .label("Cancel")
+                                .outline()
+                                .on_click(|_, window, cx| window.close_dialog(cx)),
+                        )
+                        .child(
+                            button("project-name-submit")
+                                .label("Create")
+                                .primary()
+                                .on_click(move |_, window, cx| click(window, cx)),
+                        ),
                 )
         });
+        input.update(cx, |input, cx| input.focus(window, cx));
     }
     pub(super) fn project_settings_dialog(
         &mut self,
@@ -625,21 +650,118 @@ impl ThreadsUi {
         let knowledge = cx.new(|_| p.use_brn_knowledge);
         let error = cx.new(|_| String::new());
         let target = cx.entity().downgrade();
-        window.open_dialog(cx, move |dialog, _, cx| {
-            let (name, instructions, knowledge, error, target, id) = (name.clone(), instructions.clone(), knowledge.clone(), error.clone(), target.clone(), r.id.clone());
-            let toggle = knowledge.clone(); let submit_error = error.clone();
-            dialog.title("Project instructions & settings").width(px(620.)).child(div().flex().flex_col().gap_3()
-                .child(Input::new(&name))
-                .child(div().id("project-instructions").h(px(180.)).child(prose_editor(&instructions).h_full().aria_label("Project instructions")).test_support())
-                .child(pill("project-knowledge-toggle", if *knowledge.read(cx) { "Use BRN knowledge: on" } else { "Use BRN knowledge: off" }).on_click(move |_, _, cx| toggle.update(cx, |v, cx| { *v = !*v; cx.notify(); })))
-                .child(metadata("Off stops new general-BRN lookups. Linked documents and saved project discussion remain usable. Instructions grant no additional write authority."))
-                .child(metadata(error.read(cx).clone()))
-                .child(button("project-settings-save").label("Save").on_click(move |_, window, cx| {
-                    let command = ProjectCommand::Configure { project: id.clone(), version: r.version, title: name.read(cx).value().to_string(), instructions: instructions.read(cx).value().to_string(), use_brn_knowledge: *knowledge.read(cx) };
-                    let mut result = Err("Window unavailable".to_owned()); let _ = target.update(cx, |this, cx| result = this.apply_project(command, cx).map(|_| ()).map_err(|e| e.to_string()));
-                    match result { Ok(()) => window.close_dialog(cx), Err(e) => submit_error.update(cx, |s, cx| { *s = e; cx.notify(); }) }
-                })))
+        // A multi-line form: ↵ adds a line in the instructions; ⌘↵ saves.
+        let save: components::DialogAction = {
+            let (name, instructions, knowledge, error, id) = (
+                name.clone(),
+                instructions.clone(),
+                knowledge.clone(),
+                error.clone(),
+                r.id.clone(),
+            );
+            std::rc::Rc::new(move |window, cx| {
+                let command = ProjectCommand::Configure {
+                    project: id.clone(),
+                    version: r.version,
+                    title: name.read(cx).value().to_string(),
+                    instructions: instructions.read(cx).value().to_string(),
+                    use_brn_knowledge: *knowledge.read(cx),
+                };
+                let mut result = Err("This window is unavailable.".to_owned());
+                let _ = target.update(cx, |this, cx| {
+                    result = this
+                        .apply_project(command, cx)
+                        .map(|_| ())
+                        .map_err(|e| e.to_string())
+                });
+                match result {
+                    Ok(()) => window.close_dialog(cx),
+                    Err(e) => error.update(cx, |s, cx| {
+                        *s = e;
+                        cx.notify();
+                    }),
+                }
+            })
+        };
+        let field = name.clone();
+        window.open_dialog(cx, move |dialog, window, cx| {
+            let toggle = knowledge.clone();
+            let on = *knowledge.read(cx);
+            dialog
+                .title("Project instructions & settings")
+                .width(px(620.))
+                .on_ok(|_, _, _| false)
+                .child(
+                    components::dialog_body("project-settings-body", window).child(
+                        components::form_keys(
+                            div().flex().flex_col().gap_3(),
+                            save.clone(),
+                        )
+                        .child(Input::new(&name).id("project-settings-title"))
+                        .child(
+                            div()
+                                .id("project-instructions")
+                                .h(px(180.))
+                                .child(
+                                    prose_editor(&instructions)
+                                        .h_full()
+                                        .aria_label("Project instructions"),
+                                )
+                                .test_support(),
+                        )
+                        .child(
+                            div()
+                                .flex()
+                                .flex_col()
+                                .gap_1()
+                                .child(
+                                    div().child(
+                                        pill(
+                                            "project-knowledge-toggle",
+                                            if on {
+                                                "Use BRN knowledge: on"
+                                            } else {
+                                                "Use BRN knowledge: off"
+                                            },
+                                        )
+                                        .selected(on)
+                                        .on_click(move |_, _, cx| {
+                                            toggle.update(cx, |v, cx| {
+                                                *v = !*v;
+                                                cx.notify();
+                                            })
+                                        }),
+                                    ),
+                                )
+                                .child(metadata(
+                                    "Off stops new lookups in the rest of BRN; linked documents and saved project discussion stay usable. Instructions grant no extra write authority.",
+                                )),
+                        )
+                        .child(components::field_error(
+                            "project-settings-error",
+                            error.read(cx).clone(),
+                        )),
+                    ).test_support(),
+                )
+                .footer(
+                    components::form_keys(components::dialog_footer(), save.clone())
+                        .child(
+                            button("project-settings-cancel")
+                                .label("Cancel")
+                                .outline()
+                                .on_click(|_, window, cx| window.close_dialog(cx)),
+                        )
+                        .child({
+                            let save = save.clone();
+                            button("project-settings-save")
+                                .label("Save")
+                                .primary()
+                                .tooltip("Save (⌘↵)")
+                                .on_click(move |_, window, cx| save(window, cx))
+                        }),
+                )
         });
+        field.update(cx, |input, cx| input.focus(window, cx));
     }
     pub(super) fn move_chat_dialog(
         &mut self,
@@ -658,13 +780,65 @@ impl ThreadsUi {
         let chat = chat.to_owned();
         let target = cx.entity().downgrade();
         let error = cx.new(|_| String::new());
-        window.open_dialog(cx, move |dialog, _, cx| {
-            let mut body = div().flex().flex_col().gap_2().child(metadata("History and attachments stay saved. Subsequent work uses the destination context; current work stops."));
+        // A pick list: each row is a tab stop; click it, or Tab to it and
+        // press Space. ↵ chooses nothing.
+        window.open_dialog(cx, move |dialog, window, cx| {
+            let mut rows = div().flex().flex_col();
             for (i, (project, label)) in choices.iter().enumerate() {
-                let (project, chat, target, error) = (project.clone(), chat.clone(), target.clone(), error.clone());
-                body = body.child(button(format!("move-chat-{i}")).label(label.clone()).on_click(move |_, window, cx| { let mut result = Err("Window unavailable".to_owned()); let _ = target.update(cx, |this, cx| result = this.apply_project(ProjectCommand::MoveChat { chat: chat.clone(), project: project.clone() }, cx).map(|_| ()).map_err(|e| e.to_string())); match result { Ok(()) => window.close_dialog(cx), Err(e) => error.update(cx, |s, cx| { *s = e; cx.notify(); }) } }));
+                let (project, chat, target, error) =
+                    (project.clone(), chat.clone(), target.clone(), error.clone());
+                rows = rows.child(pick_row(format!("move-chat-{i}"), label.clone()).on_click(
+                    move |_, window, cx| {
+                        let mut result = Err("This window is unavailable.".to_owned());
+                        let _ = target.update(cx, |this, cx| {
+                            result = this
+                                .apply_project(
+                                    ProjectCommand::MoveChat {
+                                        chat: chat.clone(),
+                                        project: project.clone(),
+                                    },
+                                    cx,
+                                )
+                                .map(|_| ())
+                                .map_err(|e| e.to_string())
+                        });
+                        match result {
+                            Ok(()) => window.close_dialog(cx),
+                            Err(e) => error.update(cx, |s, cx| {
+                                *s = e;
+                                cx.notify();
+                            }),
+                        }
+                    },
+                ));
             }
-            dialog.title("Move chat").child(body.child(metadata(error.read(cx).clone())))
+            dialog
+                .title("Move chat")
+                .on_ok(|_, _, _| false)
+                .child(
+                    components::dialog_body("move-chat-list", window).child(
+                        div()
+                            .flex()
+                            .flex_col()
+                            .gap_2()
+                            .child(metadata(
+                                "History and attachments stay saved. Later replies use the destination's context; current work stops.",
+                            ))
+                            .child(rows)
+                            .child(components::field_error(
+                                "move-chat-error",
+                                error.read(cx).clone(),
+                            )),
+                    ).test_support(),
+                )
+                .footer(
+                    components::dialog_footer().child(
+                        button("move-chat-cancel")
+                            .label("Cancel")
+                            .outline()
+                            .on_click(|_, window, cx| window.close_dialog(cx)),
+                    ),
+                )
         });
     }
     pub(super) fn project_link_dialog(
@@ -684,13 +858,76 @@ impl ThreadsUi {
         let project = project.to_owned();
         let target = cx.entity().downgrade();
         let error = cx.new(|_| String::new());
-        window.open_dialog(cx, move |dialog, _, cx| {
-            let mut body = scroll("project-link-list").max_h(px(420.)).child(metadata("Link the same saved document. Its content becomes context for this project; its other chats and instructions remain private."));
+        // A pick list, like Move chat: rows are tab stops and ↵ chooses
+        // nothing.
+        window.open_dialog(cx, move |dialog, window, cx| {
+            let mut rows = div().flex().flex_col();
             for r in &docs {
-                let (project, note, target, error) = (project.clone(), r.id.clone(), target.clone(), error.clone());
-                body = body.child(row(format!("project-link-doc-{}", r.id), title(r), "", false).on_click(move |_, window, cx| { let mut result = Err("Window unavailable".to_owned()); let _ = target.update(cx, |this, cx| result = this.apply_project(ProjectCommand::LinkDocument { project: project.clone(), note: note.clone() }, cx).map(|_| ()).map_err(|e| e.to_string())); match result { Ok(()) => window.close_dialog(cx), Err(e) => error.update(cx, |s, cx| { *s = e; cx.notify(); }) } }));
+                let (project, note, target, error) =
+                    (project.clone(), r.id.clone(), target.clone(), error.clone());
+                rows = rows.child(
+                    pick_row(format!("project-link-doc-{}", r.id), title(r)).on_click(
+                        move |_, window, cx| {
+                            let mut result = Err("This window is unavailable.".to_owned());
+                            let _ = target.update(cx, |this, cx| {
+                                result = this
+                                    .apply_project(
+                                        ProjectCommand::LinkDocument {
+                                            project: project.clone(),
+                                            note: note.clone(),
+                                        },
+                                        cx,
+                                    )
+                                    .map(|_| ())
+                                    .map_err(|e| e.to_string())
+                            });
+                            match result {
+                                Ok(()) => window.close_dialog(cx),
+                                Err(e) => error.update(cx, |s, cx| {
+                                    *s = e;
+                                    cx.notify();
+                                }),
+                            }
+                        },
+                    ),
+                );
             }
-            dialog.title("Link document").child(body.child(metadata(error.read(cx).clone())))
+            if docs.is_empty() {
+                rows = rows.child(components::empty_state(
+                    "project-link-empty",
+                    IconName::FileText,
+                    "No documents to link",
+                    "Create a note first, then link it here.",
+                    None,
+                ));
+            }
+            dialog
+                .title("Link document")
+                .on_ok(|_, _, _| false)
+                .child(
+                    components::dialog_body("project-link-list", window).child(
+                        div()
+                            .flex()
+                            .flex_col()
+                            .gap_2()
+                            .child(metadata(
+                                "Links the same saved document. Its text becomes context for this project; its other chats and instructions stay private.",
+                            ))
+                            .child(rows)
+                            .child(components::field_error(
+                                "project-link-error",
+                                error.read(cx).clone(),
+                            )),
+                    ).test_support(),
+                )
+                .footer(
+                    components::dialog_footer().child(
+                        button("project-link-cancel")
+                            .label("Cancel")
+                            .outline()
+                            .on_click(|_, window, cx| window.close_dialog(cx)),
+                    ),
+                )
         });
     }
     pub(super) fn project_delete_dialog(
@@ -716,7 +953,7 @@ impl ThreadsUi {
         let choices = cx.new(|_| BTreeMap::<String, ProjectActionChoice>::new());
         let error = cx.new(|_| String::new());
         let target = cx.entity().downgrade();
-        window.open_dialog(cx, move |dialog, _, cx| {
+        window.open_dialog(cx, move |dialog, window, cx| {
             let line = |id: &str, label: &str, titles: Vec<String>| {
                 let text = format!("{label}: {}.", titles.join(", "));
                 div()
@@ -727,10 +964,10 @@ impl ThreadsUi {
             };
             let moved: Vec<String> = preview.removed.iter().filter(|r| listed(r)).map(title).collect();
             let kept: Vec<String> = preview.retained.iter().map(title).collect();
-            let mut body = scroll("project-delete-preview")
-                .max_h(px(480.))
+            let mut body = div()
+                .flex()
+                .flex_col()
                 .gap_2()
-                .p_0()
                 .text_size(UI_TEXT)
                 .child(metadata("You can restore it from Projects → Trash."))
                 .child(line("project-delete-moves", "Moves to Trash", moved));
@@ -791,12 +1028,9 @@ impl ThreadsUi {
                 .title(format!("Move \u{201c}{name}\u{201d} to Trash?"))
                 .width(px(640.))
                 .on_ok(|_, _, _| false)
-                .child(body)
+                .child(components::dialog_body("project-delete-preview", window).child(body).test_support())
                 .footer(
-                    div()
-                        .flex()
-                        .justify_end()
-                        .gap_2()
+                    components::dialog_footer()
                         .child(
                             button("project-delete-cancel")
                                 .label("Cancel")
