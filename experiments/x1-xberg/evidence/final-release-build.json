@@ -1,0 +1,6 @@
+{
+  "command": "/usr/bin/sandbox-exec -p '(version 1) (allow default) (deny network*)' /Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo build --manifest-path /Users/evokessler/Documents/Codex/brn-rust/.worktrees/x1-xberg/experiments/x1-xberg/Cargo.toml --locked --offline --release --bin xberg-probe --features candidate",
+  "seconds": 6.458124915952794,
+  "returncode": 0,
+  "kind": "incremental after rustfmt only"
+}

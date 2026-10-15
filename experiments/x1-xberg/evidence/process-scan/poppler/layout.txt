@@ -1,0 +1,73 @@
+Marsh gate survey
+Procedure MG-023 | Revision 2 | Station M-0042
+
+Record the route of water before opening the demonstration gate.
+
+
+1. Intake
+
+1.1 Field preparation
+
+1.1.1 Marker checks
+
+  1. Match marker M-0042 to the intake register.
+
+      a. Read the final two digits aloud; do not shorten 0042 to 42.
+
+  2. Place ruler R-0006 against the lower sill.
+
+
+1.2 Route
+
+
+
+
+  Inlet                                 Gate M-0042                          Outlet
+
+
+
+Figure 1. Water route; arrows show the observed direction.
+
+
+Note 1. The route is descriptive; gate opening requires a separate permit.
+
+
+
+
+MG-023 / 1
+2. Verification
+
+2.1 Marker checks
+
+Repeat the marker reading at the outlet and retain both observations.
+
+
+Table 1. Verification readings
+
+ Marker                            Depth (cm)                    Status
+
+ M-0042                            0                             Dry at intake
+
+ M-0108                            12.5                          Outlet flowing
+
+ M-0110                            --                            Not observed
+
+
+
+Table note. -- means no observation; it is different from depth 0 cm.
+
+
+2.2 Disposition
+
+  1. Keep the gate closed if either reading is missing.
+
+  2. File the card with Procedure MG-023, revision 2.
+
+
+Reference: Survey register SR-0019, section 4 (synthetic internal reference).
+
+
+
+
+MG-023 / 2
+

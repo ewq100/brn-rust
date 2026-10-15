@@ -1,0 +1,18 @@
+{
+  "baseline": {
+    "bytes": 469208,
+    "sha256": "6234c806df6ea1ed93c5a16ae2b8f53854f30d1d021f289ca7662375513996b2"
+  },
+  "xberg-probe": {
+    "bytes": 37449984,
+    "sha256": "504a9c9882c5c446015a82608e7d0c71bc4e434ae78796a9ebc72a3ad3c1f576"
+  },
+  "baseline.apple-stripped": {
+    "bytes": 434184,
+    "sha256": "4e7648cd57d0f1203ac75ec233d603ecfd3cd1ee2de338f89c48686f3d02d46f"
+  },
+  "xberg-probe.apple-stripped": {
+    "bytes": 37391944,
+    "sha256": "6c1d138a8777d94d9fe04f1681d6c51e1e9ecc5702c0efcbed1c9741d355cf49"
+  }
+}

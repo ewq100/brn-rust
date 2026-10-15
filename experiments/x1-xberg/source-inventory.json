@@ -1,0 +1,27 @@
+{
+  "provenance": "Manually transcribed from all three rendered process-scan.pdf source pages on 15 October 2026, checked against the earlier source-qa.md inventory. It is independent of Xberg's extracted text. The existing harbor-study inventory is used unchanged.",
+  "process-scan": {
+    "sha256": "ebc90965a73b6dec328cb7355176c22edb842afa1b74684f2c711ef318e28244",
+    "heading_levels": [[1,"Marsh gate survey",1],[1,"1. Intake",2],[1,"1.1 Field preparation",3],[1,"1.1.1 Marker checks",4],[1,"1.2 Route",3],[2,"2. Verification",2],[2,"2.1 Marker checks",3],[2,"2.2 Disposition",3],[3,"Appendix A. Handheld intake card",2],[3,"A.1 Observation",3],[3,"A.1.1 Follow-up",4]],
+    "page1_source_units": [
+      "Marsh gate survey",
+      "Procedure MG-023 | Revision 2 | Station M-0042",
+      "Record the route of water before opening the demonstration gate.",
+      "1. Intake", "1.1 Field preparation", "1.1.1 Marker checks",
+      "1. Match marker M-0042 to the intake register.",
+      "a. Read the final two digits aloud; do not shorten 0042 to 42.",
+      "2. Place ruler R-0006 against the lower sill.",
+      "1.2 Route", "Inlet", "Gate M-0042", "Outlet",
+      "Figure 1. Water route; arrows show the observed direction.",
+      "Note 1. The route is descriptive; gate opening requires a separate permit.",
+      "MG-023 / 1"
+    ],
+    "page2_before_table": ["2. Verification", "2.1 Marker checks", "Repeat the marker reading at the outlet and retain both observations.", "Table 1. Verification readings"],
+    "page2_table": [["Marker", "Depth (cm)", "Status"], ["M-0042", "0", "Dry at intake"], ["M-0108", "12.5", "Outlet flowing"], ["M-0110", "--", "Not observed"]],
+    "page2_after_table": ["Table note. -- means no observation; it is different from depth 0 cm.", "2.2 Disposition", "1. Keep the gate closed if either reading is missing.", "2. File the card with Procedure MG-023, revision 2.", "Reference: Survey register SR-0019, section 4 (synthetic internal reference).", "MG-023 / 2"],
+    "page3_scan_units": ["Appendix A. Handheld intake card", "CARD 09 / Station M-0042", "A.1 Observation", "At 06:40, the north inlet was clear.", "A.1.1 Follow-up", "1. Photograph the gate marker.", "a. Include ruler R-0006 in the frame.", "2. Revisit after the afternoon tide.", "Card note: a clear inlet does not establish safe passage."],
+    "vector_figure": {"page": 1, "boxes_left_to_right": ["Inlet", "Gate M-0042", "Outlet"], "complete_right_arrows": 2, "caption_after_boxes": true, "embedded_raster": false},
+    "embedded_images": [{"page": 3, "width": 1650, "height": 2100, "purpose": "full scanned card with nine source units"}],
+    "list_items_by_page": [3, 2, 3]
+  }
+}

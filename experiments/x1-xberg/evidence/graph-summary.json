@@ -1,0 +1,41 @@
+{
+  "packages": 303,
+  "xberg_features": [
+    "html",
+    "image-encode",
+    "pdf",
+    "pdf-native"
+  ],
+  "licenses": {
+    "0BSD OR MIT OR Apache-2.0": 1,
+    "MIT OR Apache-2.0": 141,
+    "Unlicense OR MIT": 4,
+    "MIT": 69,
+    "BSD-3-Clause": 10,
+    "BSD-2-Clause": 5,
+    "Apache-2.0 OR MIT": 18,
+    "Apache-2.0/MIT": 1,
+    "MIT/Apache-2.0": 8,
+    "CC0-1.0 OR Apache-2.0 OR Apache-2.0 WITH LLVM-exception": 1,
+    "null": 1,
+    "BSD-3-Clause AND MIT": 1,
+    "BSD-3-Clause/MIT": 2,
+    "Zlib OR Apache-2.0 OR MIT": 3,
+    "CC0-1.0 OR MIT-0 OR Apache-2.0": 1,
+    "(Apache-2.0 OR MIT) AND BSD-3-Clause": 1,
+    "(MIT OR Apache-2.0) AND Unicode-DFS-2016": 1,
+    "Apache-2.0 / MIT": 1,
+    "Zlib": 2,
+    "Unicode-3.0": 18,
+    "CC0-1.0 OR Apache-2.0": 1,
+    "MIT OR Zlib OR Apache-2.0": 2,
+    "BSD-3-Clause OR Apache-2.0": 2,
+    "MPL-2.0": 1,
+    "Apache-2.0 OR BSL-1.0": 1,
+    "CC0-1.0": 1,
+    "(MIT OR Apache-2.0) AND Unicode-3.0": 1,
+    "BSD-2-Clause OR Apache-2.0 OR MIT": 2,
+    "MIT OR Apache-2.0 OR Zlib": 3
+  },
+  "forbidden_present": []
+}

@@ -1,0 +1,15 @@
+{
+  "timing_status": "provisional",
+  "reason": "Concurrent brn-z1-target compilation observed during candidate build",
+  "foreign_rustc_samples": 9,
+  "foreign_processes": [
+    "88174",
+    "88197",
+    "88235",
+    "88237",
+    "88238",
+    "88240",
+    "88263",
+    "88265"
+  ]
+}

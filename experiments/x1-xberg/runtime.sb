@@ -1,0 +1,13 @@
+(version 1)
+(deny default)
+(allow process-exec (literal (param "BINARY")))
+(allow sysctl-read)
+(allow file-read* (literal "/"))
+(allow file-read-metadata (subpath "/Users") (subpath "/private/tmp") (subpath "/opt/homebrew"))
+(allow file-read* file-map-executable
+  (subpath "/System/Library") (subpath "/System/Volumes/Preboot")
+  (subpath "/private/preboot") (subpath "/usr/lib")
+  (subpath "/private/var/db/dyld") (subpath "/usr/share")
+  (subpath "/Library/Fonts") (literal (param "BINARY")))
+(allow file-read* (literal (param "INPUT")) (literal "/dev/urandom") (literal "/dev/random"))
+(allow file-read* file-write* (subpath (param "OUTPUT")) (literal "/dev/null"))

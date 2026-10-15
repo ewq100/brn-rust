@@ -1,0 +1,4 @@
+/private/tmp/brn-x1-target/release/xberg-probe:
+	/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation (compatibility version 150.0.0, current version 3502.1.255)
+	/usr/lib/libiconv.2.dylib (compatibility version 7.0.0, current version 7.0.0)
+	/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1351.0.0)

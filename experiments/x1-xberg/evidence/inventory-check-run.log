@@ -1,0 +1,123 @@
+{
+  "harbor-study/poppler": {
+    "page1_ordered_inventory": {
+      "passed": true,
+      "units": 13,
+      "exact_substantive_sequence": true
+    },
+    "page2_ordered_inventory": {
+      "passed": true,
+      "units": 6,
+      "exact_substantive_sequence": true
+    },
+    "table_rows": {
+      "passed": true,
+      "units": 3,
+      "exact_substantive_sequence": false
+    }
+  },
+  "harbor-study/xberg": {
+    "page1_ordered_inventory": {
+      "passed": true,
+      "units": 13,
+      "exact_substantive_sequence": true
+    },
+    "page2_ordered_inventory": {
+      "passed": true,
+      "units": 6,
+      "exact_substantive_sequence": true
+    },
+    "table_rows": {
+      "passed": true,
+      "units": 3,
+      "exact_substantive_sequence": false
+    }
+  },
+  "process-scan/poppler": {
+    "page1_ordered_inventory": {
+      "passed": true,
+      "units": 16,
+      "exact_substantive_sequence": true
+    },
+    "page2_raw_source_order": {
+      "passed": true,
+      "units": 22,
+      "exact_substantive_sequence": true
+    },
+    "source_line_order": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21
+    ],
+    "page2_reflow_inventory": {
+      "passed": true,
+      "units": 22,
+      "exact_substantive_sequence": true
+    },
+    "scan_has_no_native_text": true
+  },
+  "process-scan/xberg": {
+    "page1_ordered_inventory": {
+      "passed": true,
+      "units": 16,
+      "exact_substantive_sequence": true
+    },
+    "page2_raw_source_order": {
+      "passed": false,
+      "missing_or_out_of_order": "M-0042"
+    },
+    "source_line_order": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      8,
+      5,
+      9,
+      6,
+      10,
+      7,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
+    ],
+    "page2_reflow_inventory": {
+      "passed": true,
+      "units": 22,
+      "exact_substantive_sequence": true
+    },
+    "scan_has_no_native_text": true
+  },
+  "harbor-study/images": {
+    "counts_match": true,
+    "ordered_pixels_equal": true
+  },
+  "process-scan/images": {
+    "counts_match": true,
+    "ordered_pixels_equal": true
+  }
+}

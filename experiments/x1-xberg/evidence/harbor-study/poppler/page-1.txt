@@ -1,0 +1,19 @@
+Harbor handoff study 
+1. Purpose 
+This synthetic study compares two inspection routes over six weekday trials. 
+The observations describe this sample only; weather and staffing were held constant. 
+2. Findings 
+Table 1 records median elapsed time and the number of missed handoffs. 
+Route 
+Median (min) 
+Missed handoffs 
+Check first 
+12 
+1 
+Test first 
+19 
+3 
+The check-first route was faster by 7 minutes, but this is not a causal estimate. 
+Figure 1. Gate order: check, test, then release; each gate must pass before the next. 
+3. Limits 
+The trial excluded overnight operations and must not be generalized to storms. 

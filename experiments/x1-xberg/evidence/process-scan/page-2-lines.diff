@@ -1,0 +1,24 @@
+--- poppler prepared source
++++ xberg plain page
+@@ -2,17 +2,13 @@
+ 2.1 Marker checks
+ Repeat the marker reading at the outlet and retain both observations.
+ Table 1. Verification readings
+-Marker
+-Depth (cm)
++Marker Depth (cm)
++M-0042 0
++M-0108 12.5
++M-0110 --
+ Status
+-M-0042
+-0
+ Dry at intake
+-M-0108
+-12.5
+ Outlet flowing
+-M-0110
+---
+ Not observed
+ Table note. -- means no observation; it is different from depth 0 cm.
+ 2.2 Disposition

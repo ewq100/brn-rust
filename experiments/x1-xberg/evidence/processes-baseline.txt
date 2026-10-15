@@ -1,0 +1,1 @@
+87000 86986       00:00 /Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo build --manifest-path /Users/evokessler/Documents/Codex/brn-rust/.worktrees/x1-xberg/experiments/x1-xberg/Cargo.toml --locked --offline --release --bin baseline

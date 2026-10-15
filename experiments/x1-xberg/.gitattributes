@@ -1,0 +1,6 @@
+# Raw tool/source evidence preserves original trailing spaces and final blank lines.
+# Keep ordinary whitespace checking for the authored report and harness.
+evidence/build-*.log -whitespace
+evidence/final-release-build.log -whitespace
+evidence/build-scripts.txt -whitespace
+evidence/**/poppler/page-*.txt -whitespace

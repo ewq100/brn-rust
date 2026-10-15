@@ -1,0 +1,24 @@
+[
+  {
+    "command": "/usr/bin/sandbox-exec -p '(version 1) (allow default) (deny network*)' /Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo build --manifest-path /Users/evokessler/Documents/Codex/brn-rust/.worktrees/x1-xberg/experiments/x1-xberg/Cargo.toml --locked --offline --release --bin baseline",
+    "started_unix": 1792073065.436897,
+    "seconds": 0.23420795798301697,
+    "returncode": 0,
+    "bytes": 469208,
+    "environment": {
+      "CARGO_TARGET_DIR": "/private/tmp/brn-x1-target",
+      "CARGO_BUILD_JOBS": "4"
+    }
+  },
+  {
+    "command": "/usr/bin/sandbox-exec -p '(version 1) (allow default) (deny network*)' /Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo build --manifest-path /Users/evokessler/Documents/Codex/brn-rust/.worktrees/x1-xberg/experiments/x1-xberg/Cargo.toml --locked --offline --release --bin xberg-probe --features candidate",
+    "started_unix": 1792073065.684886,
+    "seconds": 126.33567341696471,
+    "returncode": 0,
+    "bytes": 37449984,
+    "environment": {
+      "CARGO_TARGET_DIR": "/private/tmp/brn-x1-target",
+      "CARGO_BUILD_JOBS": "4"
+    }
+  }
+]

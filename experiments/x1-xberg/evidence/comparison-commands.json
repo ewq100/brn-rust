@@ -1,0 +1,62 @@
+[
+  {
+    "command": "/usr/bin/sandbox-exec -f /Users/evokessler/Documents/Codex/brn-rust/.worktrees/x1-xberg/experiments/x1-xberg/runtime.sb -D BINARY=/private/tmp/brn-x1-target/release/xberg-probe -D INPUT=/Users/evokessler/Documents/Codex/brn-rust/.worktrees/x1-xberg/crates/brn-threads-intake/tests/fixtures/harbor-study.pdf -D OUTPUT=/Users/evokessler/Documents/Codex/brn-rust/.worktrees/x1-xberg/experiments/x1-xberg/evidence/harbor-study/xberg /private/tmp/brn-x1-target/release/xberg-probe /Users/evokessler/Documents/Codex/brn-rust/.worktrees/x1-xberg/crates/brn-threads-intake/tests/fixtures/harbor-study.pdf /Users/evokessler/Documents/Codex/brn-rust/.worktrees/x1-xberg/experiments/x1-xberg/evidence/harbor-study/xberg",
+    "returncode": 0,
+    "seconds": 1.2428125840378925
+  },
+  {
+    "command": "/opt/homebrew/bin/pdftotext -bbox-layout -enc UTF-8 /Users/evokessler/Documents/Codex/brn-rust/.worktrees/x1-xberg/crates/brn-threads-intake/tests/fixtures/harbor-study.pdf -",
+    "returncode": 0,
+    "seconds": 0.034455542103387415
+  },
+  {
+    "command": "/opt/homebrew/bin/pdftotext -layout -enc UTF-8 /Users/evokessler/Documents/Codex/brn-rust/.worktrees/x1-xberg/crates/brn-threads-intake/tests/fixtures/harbor-study.pdf -",
+    "returncode": 0,
+    "seconds": 0.012115916004404426
+  },
+  {
+    "command": "/opt/homebrew/bin/pdfimages -list /Users/evokessler/Documents/Codex/brn-rust/.worktrees/x1-xberg/crates/brn-threads-intake/tests/fixtures/harbor-study.pdf",
+    "returncode": 0,
+    "seconds": 0.01337433303706348
+  },
+  {
+    "command": "/opt/homebrew/bin/pdfimages -png /Users/evokessler/Documents/Codex/brn-rust/.worktrees/x1-xberg/crates/brn-threads-intake/tests/fixtures/harbor-study.pdf /Users/evokessler/Documents/Codex/brn-rust/.worktrees/x1-xberg/experiments/x1-xberg/evidence/harbor-study/poppler/image",
+    "returncode": 0,
+    "seconds": 0.01776629197411239
+  },
+  {
+    "command": "/opt/homebrew/bin/pdftoppm -f 1 -l 2 -scale-to 1600 -png /Users/evokessler/Documents/Codex/brn-rust/.worktrees/x1-xberg/crates/brn-threads-intake/tests/fixtures/harbor-study.pdf /Users/evokessler/Documents/Codex/brn-rust/.worktrees/x1-xberg/experiments/x1-xberg/evidence/harbor-study/poppler/preview",
+    "returncode": 0,
+    "seconds": 0.1785340839996934
+  },
+  {
+    "command": "/usr/bin/sandbox-exec -f /Users/evokessler/Documents/Codex/brn-rust/.worktrees/x1-xberg/experiments/x1-xberg/runtime.sb -D BINARY=/private/tmp/brn-x1-target/release/xberg-probe -D INPUT=/Users/evokessler/Documents/Codex/brn-rust/.worktrees/x1-xberg/crates/brn-threads-intake/tests/fixtures/luna/process-scan.pdf -D OUTPUT=/Users/evokessler/Documents/Codex/brn-rust/.worktrees/x1-xberg/experiments/x1-xberg/evidence/process-scan/xberg /private/tmp/brn-x1-target/release/xberg-probe /Users/evokessler/Documents/Codex/brn-rust/.worktrees/x1-xberg/crates/brn-threads-intake/tests/fixtures/luna/process-scan.pdf /Users/evokessler/Documents/Codex/brn-rust/.worktrees/x1-xberg/experiments/x1-xberg/evidence/process-scan/xberg",
+    "returncode": 0,
+    "seconds": 0.12545737496111542
+  },
+  {
+    "command": "/opt/homebrew/bin/pdftotext -bbox-layout -enc UTF-8 /Users/evokessler/Documents/Codex/brn-rust/.worktrees/x1-xberg/crates/brn-threads-intake/tests/fixtures/luna/process-scan.pdf -",
+    "returncode": 0,
+    "seconds": 0.01600987499114126
+  },
+  {
+    "command": "/opt/homebrew/bin/pdftotext -layout -enc UTF-8 /Users/evokessler/Documents/Codex/brn-rust/.worktrees/x1-xberg/crates/brn-threads-intake/tests/fixtures/luna/process-scan.pdf -",
+    "returncode": 0,
+    "seconds": 0.014342624926939607
+  },
+  {
+    "command": "/opt/homebrew/bin/pdfimages -list /Users/evokessler/Documents/Codex/brn-rust/.worktrees/x1-xberg/crates/brn-threads-intake/tests/fixtures/luna/process-scan.pdf",
+    "returncode": 0,
+    "seconds": 0.013791959034278989
+  },
+  {
+    "command": "/opt/homebrew/bin/pdfimages -png /Users/evokessler/Documents/Codex/brn-rust/.worktrees/x1-xberg/crates/brn-threads-intake/tests/fixtures/luna/process-scan.pdf /Users/evokessler/Documents/Codex/brn-rust/.worktrees/x1-xberg/experiments/x1-xberg/evidence/process-scan/poppler/image",
+    "returncode": 0,
+    "seconds": 0.13165350002236664
+  },
+  {
+    "command": "/opt/homebrew/bin/pdftoppm -f 1 -l 3 -scale-to 1600 -png /Users/evokessler/Documents/Codex/brn-rust/.worktrees/x1-xberg/crates/brn-threads-intake/tests/fixtures/luna/process-scan.pdf /Users/evokessler/Documents/Codex/brn-rust/.worktrees/x1-xberg/experiments/x1-xberg/evidence/process-scan/poppler/preview",
+    "returncode": 0,
+    "seconds": 0.27028337493538857
+  }
+]

@@ -1,0 +1,6 @@
+{
+  "command": "/usr/bin/sandbox-exec -f /Users/evokessler/Documents/Codex/brn-rust/.worktrees/x1-xberg/experiments/x1-xberg/runtime.sb -D BINARY=/private/tmp/brn-x1-target/sandbox-witness -D INPUT=/Users/evokessler/Documents/Codex/brn-rust/.worktrees/x1-xberg/crates/brn-threads-intake/tests/fixtures/harbor-study.pdf -D OUTPUT=/Users/evokessler/Documents/Codex/brn-rust/.worktrees/x1-xberg/experiments/x1-xberg/evidence/sandbox /private/tmp/brn-x1-target/sandbox-witness 127.0.0.1:51954 /Users/evokessler/Documents/Codex/brn-rust/.worktrees/x1-xberg/experiments/x1-xberg/evidence/excluded-canary.txt /Users/evokessler/Documents/Codex/brn-rust/.worktrees/x1-xberg/experiments/x1-xberg/evidence/sandbox",
+  "returncode": 0,
+  "stdout": "{\"external_denied\":true,\"network_denied\":true,\"scratch_allowed\":true}\n",
+  "stderr": ""
+}

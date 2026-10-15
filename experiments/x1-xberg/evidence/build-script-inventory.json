@@ -1,0 +1,248 @@
+[
+  {
+    "package": "ahash",
+    "version": "0.8.12",
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ahash-0.8.12/build.rs",
+    "sha256": "d7dd5428c78b80bb3c99068561641ec661f0f94defbda17f85b443e358ab6396"
+  },
+  {
+    "package": "anyhow",
+    "version": "1.0.104",
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anyhow-1.0.104/build.rs",
+    "sha256": "89d1baedcff59822ed692d3a33f131c211a213bdec33c83f68b54110d9c64223"
+  },
+  {
+    "package": "av-scenechange",
+    "version": "0.14.1",
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/av-scenechange-0.14.1/build.rs",
+    "sha256": "ac91ff305fd1b0ab4607c3b6c4ad152b63563bbd8e6e4076aff47c837a9fda3e"
+  },
+  {
+    "package": "blake3",
+    "version": "1.8.7",
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/blake3-1.8.7/build.rs",
+    "sha256": "9ec9b359db417071b525a459a191b810e3dd79b9708ae66be4085b2efd2ba7d9"
+  },
+  {
+    "package": "borsh",
+    "version": "1.8.1",
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/borsh-1.8.1/build.rs",
+    "sha256": "82fe063f8195129b109c988c0d33165a472d579b53dfe3342d7d78c71579b361"
+  },
+  {
+    "package": "comrak",
+    "version": "0.56.0",
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/comrak-0.56.0/build.rs",
+    "sha256": "f954de32648c2263372a746af67a6083fb8cfb0c867951d48bed8870c273ff02"
+  },
+  {
+    "package": "crc32fast",
+    "version": "1.5.2",
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/crc32fast-1.5.2/build.rs",
+    "sha256": "deb6052c4a586e8875ef677fe2d9e9dcfafebfa949803455ea8eff6e7dbde436"
+  },
+  {
+    "package": "crossbeam-deque",
+    "version": "0.8.8",
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/crossbeam-deque-0.8.8/build.rs",
+    "sha256": "c8c35fc536a2e6481549bc13979293cb51244cd9c72d4ed9e35c22a1d70fa9ae"
+  },
+  {
+    "package": "crossbeam-epoch",
+    "version": "0.9.21",
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/crossbeam-epoch-0.9.21/build.rs",
+    "sha256": "c8c35fc536a2e6481549bc13979293cb51244cd9c72d4ed9e35c22a1d70fa9ae"
+  },
+  {
+    "package": "crossbeam-utils",
+    "version": "0.8.23",
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/crossbeam-utils-0.8.23/build.rs",
+    "sha256": "79cc5363313f77ab76e2de4779e384c672a747fbcd4b96647a79286568714807"
+  },
+  {
+    "package": "crunchy",
+    "version": "0.2.4",
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/crunchy-0.2.4/build.rs",
+    "sha256": "08bfcfa380ded6870ed262baa4b6e87ec54482306aebffabefbd19c83ad4b6ba"
+  },
+  {
+    "package": "encoding_rs",
+    "version": "0.8.42",
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/encoding_rs-0.8.42/build.rs",
+    "sha256": "10340f257415e3adf390f894347b8bf7e0a992098200450b8e3ecd818e6550de"
+  },
+  {
+    "package": "getrandom",
+    "version": "0.3.4",
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/getrandom-0.3.4/build.rs",
+    "sha256": "d542c9c3bbc2f64a26c758eac8af16178aab52464bdd8bf0b9a767ba87665021"
+  },
+  {
+    "package": "getrandom",
+    "version": "0.4.3",
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/getrandom-0.4.3/build.rs",
+    "sha256": "662faa06d7b2a9c5bea2c17a127a90e00b9f9b31105b0360da516e47cf816e95"
+  },
+  {
+    "package": "icu_normalizer_data",
+    "version": "2.3.0",
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/icu_normalizer_data-2.3.0/build.rs",
+    "sha256": "c2d446772e3d766a804963dbf36e51729f910920f91f4b68c0c199fe6ca0853e"
+  },
+  {
+    "package": "icu_properties_data",
+    "version": "2.3.0",
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/icu_properties_data-2.3.0/build.rs",
+    "sha256": "c2d446772e3d766a804963dbf36e51729f910920f91f4b68c0c199fe6ca0853e"
+  },
+  {
+    "package": "libc",
+    "version": "0.2.190",
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libc-0.2.190/build.rs",
+    "sha256": "feede9bdbbcf70c6409faef8fb2f2c065e942107eb6596677bb36dce6c5075fb"
+  },
+  {
+    "package": "libm",
+    "version": "0.2.16",
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libm-0.2.16/build.rs",
+    "sha256": "85dfa93693f40e282ecf2d9a3115280d8f508f056063862add9e529b8143b71b"
+  },
+  {
+    "package": "mime_guess",
+    "version": "2.0.5",
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mime_guess-2.0.5/build.rs",
+    "sha256": "bc413487e376b343b65089a9a897f4bb3c9d5fbaa5a6833e87db1d3c18c462d8"
+  },
+  {
+    "package": "num-traits",
+    "version": "0.2.19",
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/num-traits-0.2.19/build.rs",
+    "sha256": "d3969209fc1c9d201c66ed11820d0b328600d75b3971f8ceebeab04900bc0587"
+  },
+  {
+    "package": "parking_lot_core",
+    "version": "0.9.12",
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/parking_lot_core-0.9.12/build.rs",
+    "sha256": "3698c936b75f8332d9b6b30a8a6838ea116c1ff0a819a025c9ea9696e4d8ce72"
+  },
+  {
+    "package": "paste",
+    "version": "1.0.15",
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/paste-1.0.15/build.rs",
+    "sha256": "dba46ae4291317fb644ba2143f44eaf54a8ab946ba1367a33d055d694715f68a"
+  },
+  {
+    "package": "proc-macro2",
+    "version": "1.0.107",
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro2-1.0.107/build.rs",
+    "sha256": "baeb20b52f6b536be8657a566591a507bb2e34a45cf8baa42b135510a0c3c729"
+  },
+  {
+    "package": "pulldown-cmark",
+    "version": "0.13.4",
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/pulldown-cmark-0.13.4/build.rs",
+    "sha256": "f21fbde26b144bd5c6c54aad655242ecbbac85fdbe567da8f1241492f7c83ece"
+  },
+  {
+    "package": "pulp",
+    "version": "0.22.3",
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/pulp-0.22.3/build.rs",
+    "sha256": "ba006df9f748fd817b68f9ff9b174ece596cf9fa3e4f1a008dbcb762bd7f00b8"
+  },
+  {
+    "package": "quote",
+    "version": "1.0.47",
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/quote-1.0.47/build.rs",
+    "sha256": "cd6808c02e476b09a520105e2c6f6d325cccb1ecd542cbbcc836a0ae6f6fb0f1"
+  },
+  {
+    "package": "radium",
+    "version": "0.7.0",
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/radium-0.7.0/build.rs",
+    "sha256": "198e126042203936db2a99e9440569f3b5ff0f8bd9b3648e3b79807e26a82591"
+  },
+  {
+    "package": "rav1e",
+    "version": "0.8.1",
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rav1e-0.8.1/build.rs",
+    "sha256": "762a52a53ca01a04d5c173619555391ec0d4029377d43e31a177d14bb0562add"
+  },
+  {
+    "package": "rayon-core",
+    "version": "1.13.0",
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rayon-core-1.13.0/build.rs",
+    "sha256": "fa31cb198b772600d100a7c403ddedccef637d2e6b2da431fa7f02ca41307fc6"
+  },
+  {
+    "package": "rustversion",
+    "version": "1.0.23",
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rustversion-1.0.23/build/build.rs",
+    "sha256": "4438b108d5b198ca43ef0a78509da89861020674abd05166addd1c3058afbfa6"
+  },
+  {
+    "package": "serde",
+    "version": "1.0.229",
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/build.rs",
+    "sha256": "e2ea6a7a82f5404c3e28cb055883c737ee7903367a10206fbb47b75c009f0eb3"
+  },
+  {
+    "package": "serde_core",
+    "version": "1.0.229",
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde_core-1.0.229/build.rs",
+    "sha256": "7bc6b1eec8913ff4cd8e4b9b92cd04a82a4f38beb30a0b73a64c1e6e49f07b5f"
+  },
+  {
+    "package": "serde_json",
+    "version": "1.0.154",
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde_json-1.0.154/build.rs",
+    "sha256": "a681e754be844c7dbef957f5d2d00b01f37c5dca160ef1055a8d8f975697a881"
+  },
+  {
+    "package": "thiserror",
+    "version": "2.0.21",
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.21/build.rs",
+    "sha256": "ccc38283604f99237ad2333bbe395259e29fdf2ff4e04a60a95de9e4499c09a3"
+  },
+  {
+    "package": "tiny-keccak",
+    "version": "2.0.2",
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tiny-keccak-2.0.2/build.rs",
+    "sha256": "c3e63c57ab0d28633f522c4a056c3230e9399fda6e511954da81ebfd00b216b2"
+  },
+  {
+    "package": "wasm-bindgen",
+    "version": "0.2.129",
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasm-bindgen-0.2.129/build.rs",
+    "sha256": "363b0c2cf7b1353ff702898612ab98956a87fa85e943b41377627c08a053406a"
+  },
+  {
+    "package": "wasm-bindgen-shared",
+    "version": "0.2.129",
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasm-bindgen-shared-0.2.129/build.rs",
+    "sha256": "2ad2b0d08ef35c6a9013b5488bdf568630f0fc517d10b47f3851ad5c6ef10da4"
+  },
+  {
+    "package": "web_atoms",
+    "version": "0.3.0",
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/web_atoms-0.3.0/build.rs",
+    "sha256": "8b50922bbb295e90a26edc3e2ab34f068fee930cefd73ae03cca210cf08f9d89"
+  },
+  {
+    "package": "xberg",
+    "version": "1.3.10",
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/build.rs",
+    "sha256": "a33a241314b2ee7b07920148850b68199e35e9bcd372b73b01d8196ce537eeac"
+  },
+  {
+    "package": "zerocopy",
+    "version": "0.8.63",
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zerocopy-0.8.63/build.rs",
+    "sha256": "075d31f4f99cf4e42132e9c3652c846de832576e2f18be281b16405235644fcd"
+  },
+  {
+    "package": "zmij",
+    "version": "1.0.23",
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zmij-1.0.23/build.rs",
+    "sha256": "ad320bc635887879bdbbf1b9322da4a157ec2c5a4243bd7c2cf9b6884a3b2a41"
+  }
+]

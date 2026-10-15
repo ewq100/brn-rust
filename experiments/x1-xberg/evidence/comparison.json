@@ -1,0 +1,232 @@
+[
+  {
+    "fixture": "harbor-study",
+    "source": "crates/brn-threads-intake/tests/fixtures/harbor-study.pdf",
+    "sha256": "f5739675823b6900a212bdd10e27423f7fc29038c03fb7d103fa78430abd3fe0",
+    "pages": [
+      {
+        "page": 1,
+        "poppler_lines": 19,
+        "xberg_lines": 13,
+        "exact_line_sequence": false,
+        "whitespace_folded_text_equal": true,
+        "xberg_render_raw_size": [
+          1275,
+          1650
+        ],
+        "poppler_preview": {
+          "file": "preview-1.png",
+          "size": [
+            1237,
+            1600
+          ],
+          "bytes": 99095,
+          "sha256": "7a23c065029ef67d41c878722adfd74baa5a09dc032b0d911bcd30956c219328",
+          "rgb_sha256": "953195271fff4db7e1588c67c58eafb3799619dad834990d8a82e79782e3e543"
+        },
+        "xberg_preview": {
+          "file": "preview-1.png",
+          "size": [
+            1236,
+            1600
+          ],
+          "bytes": 191004,
+          "sha256": "d86e0a15e562a699cebd89b7e457841c05ed1b0c4ed8cb8c2da2d88cbeaa0077",
+          "rgb_sha256": "68efa11c18824d21ecf9951e49d5672858856f3c5b2524aebe196526e2d8dd7c"
+        },
+        "mean_absolute_rgb_difference": 2.120183070600916
+      },
+      {
+        "page": 2,
+        "poppler_lines": 6,
+        "xberg_lines": 6,
+        "exact_line_sequence": true,
+        "whitespace_folded_text_equal": true,
+        "xberg_render_raw_size": [
+          1275,
+          1650
+        ],
+        "poppler_preview": {
+          "file": "preview-2.png",
+          "size": [
+            1237,
+            1600
+          ],
+          "bytes": 55964,
+          "sha256": "fb71bd8b500337be88bdadce8973350048cd157ce20b62bd5dfe1607548faf9a",
+          "rgb_sha256": "f02a5ab5bdb8ac67db2b61f84e6cebd52b3c64531a7ce819303aa6a3eebcd809"
+        },
+        "xberg_preview": {
+          "file": "preview-2.png",
+          "size": [
+            1236,
+            1600
+          ],
+          "bytes": 102691,
+          "sha256": "913e8bcf315e4f51079c6a293fae25182b593baa26fa8b45293968659f361461",
+          "rgb_sha256": "12a42f55b4770829989e7f8edab896850e0468a003751f1453da690a54da43bd"
+        },
+        "mean_absolute_rgb_difference": 1.5243239692805173
+      }
+    ],
+    "images": {
+      "poppler": [
+        {
+          "file": "image-000.png",
+          "size": [
+            720,
+            200
+          ],
+          "bytes": 3257,
+          "sha256": "75817c9dd0fb816e03cc61a9edf1a20a85e1a12fe6a4922c57685a4a939a8273",
+          "rgb_sha256": "efd7dd3591a80a54b90074718d964dbd672850ea37bc8ab439c5450219ee30ab"
+        }
+      ],
+      "xberg": [
+        {
+          "file": "image-000.png",
+          "size": [
+            720,
+            200
+          ],
+          "bytes": 6985,
+          "sha256": "7b16ca41f312e08c8e7b55d6da8ad7fb50cf17031b55c780d50364122e4f60aa",
+          "rgb_sha256": "efd7dd3591a80a54b90074718d964dbd672850ea37bc8ab439c5450219ee30ab"
+        }
+      ]
+    },
+    "render_warnings": [],
+    "warnings": []
+  },
+  {
+    "fixture": "process-scan",
+    "source": "crates/brn-threads-intake/tests/fixtures/luna/process-scan.pdf",
+    "sha256": "ebc90965a73b6dec328cb7355176c22edb842afa1b74684f2c711ef318e28244",
+    "pages": [
+      {
+        "page": 1,
+        "poppler_lines": 16,
+        "xberg_lines": 14,
+        "exact_line_sequence": false,
+        "whitespace_folded_text_equal": true,
+        "xberg_render_raw_size": [
+          1275,
+          1650
+        ],
+        "poppler_preview": {
+          "file": "preview-1.png",
+          "size": [
+            1237,
+            1600
+          ],
+          "bytes": 94705,
+          "sha256": "7af5907f7bcbcaf774c7553a0967c6dafe9189158969997f394068eae965b9ea",
+          "rgb_sha256": "27605d6b7ed6829d2705091fd7e7affe88ed1cb7938f8c5d768fd8bc7cc15d2f"
+        },
+        "xberg_preview": {
+          "file": "preview-1.png",
+          "size": [
+            1236,
+            1600
+          ],
+          "bytes": 168990,
+          "sha256": "0fdfff59992690e802506630aa927ba52dfcc9d986ccd3c32430fa742bfbf2a3",
+          "rgb_sha256": "53017af1a725b44bd67d2b27a4312394cdf2e8f9c66a77872c17d8cf8625f838"
+        },
+        "mean_absolute_rgb_difference": 2.081693613581245
+      },
+      {
+        "page": 2,
+        "poppler_lines": 22,
+        "xberg_lines": 18,
+        "exact_line_sequence": false,
+        "whitespace_folded_text_equal": false,
+        "xberg_render_raw_size": [
+          1275,
+          1650
+        ],
+        "poppler_preview": {
+          "file": "preview-2.png",
+          "size": [
+            1237,
+            1600
+          ],
+          "bytes": 89084,
+          "sha256": "4bbaa70e7bfe35bc68be711ea925228191828adc6445c1fe4dcb6f7b8e7b0e4a",
+          "rgb_sha256": "fbaa7a2a581a1c541f9d5ec7afec5d334da95c13a89f8520a379cf43674e72dd"
+        },
+        "xberg_preview": {
+          "file": "preview-2.png",
+          "size": [
+            1236,
+            1600
+          ],
+          "bytes": 160709,
+          "sha256": "4f694190b135b6f8dbabc32da2240c14aafb935259adef304b7c3390e7c46b69",
+          "rgb_sha256": "b1b10170b476ba1bc8f18268b7ee6f376d64fc594fd1bb31aa6e3d45b4bdff2f"
+        },
+        "mean_absolute_rgb_difference": 2.302463621665319
+      },
+      {
+        "page": 3,
+        "poppler_lines": 0,
+        "xberg_lines": 0,
+        "exact_line_sequence": true,
+        "whitespace_folded_text_equal": true,
+        "xberg_render_raw_size": [
+          1275,
+          1650
+        ],
+        "poppler_preview": {
+          "file": "preview-3.png",
+          "size": [
+            1237,
+            1600
+          ],
+          "bytes": 56683,
+          "sha256": "33336ef615bb592d19f9573d725d50b3b00d61c2fdb68ef9bac1e6e9dc2570e9",
+          "rgb_sha256": "659014f5d3c96d4e7d3814162a96ae85c0830239291b56552755b2677f2db217"
+        },
+        "xberg_preview": {
+          "file": "preview-3.png",
+          "size": [
+            1236,
+            1600
+          ],
+          "bytes": 113222,
+          "sha256": "6b69762d9e4715782ac155e826d4ac5a76b534156f16910c413ed1f023945909",
+          "rgb_sha256": "32e82de24c7202a1e9f9a45a28cf410f1f4477bdc0dd02b08284654910cf9f03"
+        },
+        "mean_absolute_rgb_difference": 0.7054191929399084
+      }
+    ],
+    "images": {
+      "poppler": [
+        {
+          "file": "image-000.png",
+          "size": [
+            1650,
+            2100
+          ],
+          "bytes": 70789,
+          "sha256": "b62c350bf4fa6ddb330151f8f2f8cfe326a9574170139534b6403c55325e72a6",
+          "rgb_sha256": "1a07326d9feba32a035cdbcf4117f6115f1b2947f15ef45edf1c83cb3409547e"
+        }
+      ],
+      "xberg": [
+        {
+          "file": "image-000.png",
+          "size": [
+            1650,
+            2100
+          ],
+          "bytes": 153764,
+          "sha256": "d2fc582305fbfb2b3f4224bd47a7dd68f909d4f39020459c5e58f3aa0d9c319d",
+          "rgb_sha256": "1a07326d9feba32a035cdbcf4117f6115f1b2947f15ef45edf1c83cb3409547e"
+        }
+      ]
+    },
+    "render_warnings": [],
+    "warnings": []
+  }
+]

@@ -1,0 +1,35 @@
+2. Verification
+
+2.1 Marker checks
+
+Repeat the marker reading at the outlet and retain both observations.
+
+Table 1. Verification readings
+
+Marker Depth (cm)
+
+M-0042 0
+
+M-0108 12.5
+
+M-0110 --
+
+Status
+
+Dry at intake
+
+Outlet flowing
+
+Not observed
+
+Table note. -- means no observation; it is different from depth 0 cm.
+
+2.2 Disposition
+
+1. Keep the gate closed if either reading is missing.
+
+2. File the card with Procedure MG-023, revision 2.
+
+Reference: Survey register SR-0019, section 4 (synthetic internal reference).
+
+MG-023 / 2

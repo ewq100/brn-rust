@@ -1,0 +1,24 @@
+[package]
+name = "brn-x1-xberg"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[workspace]
+
+[features]
+default = []
+candidate = ["dep:xberg", "dep:serde_json"]
+
+[dependencies]
+serde_json = { version = "=1.0.154", optional = true }
+xberg = { version = "=1.3.10", optional = true, default-features = false, features = ["pdf"] }
+
+[[bin]]
+name = "baseline"
+path = "src/bin/baseline.rs"
+
+[[bin]]
+name = "xberg-probe"
+path = "src/bin/xberg_probe.rs"
+required-features = ["candidate"]

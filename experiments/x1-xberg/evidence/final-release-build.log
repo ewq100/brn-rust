@@ -1,0 +1,10 @@
+   Compiling brn-x1-xberg v0.1.0 (/Users/evokessler/Documents/Codex/brn-rust/.worktrees/x1-xberg/experiments/x1-xberg)
+warning: stripping debug info with `rust-objcopy` failed: signal: 6 (SIGABRT)
+  |
+  = note: dyld[90631]: Library not loaded: @rpath/libLLVM.dylib
+            Referenced from: <AC0D75A8-23BF-301F-B7CE-3E5CC0C1BC06> /Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/aarch64-apple-darwin/bin/rust-objcopy
+            Reason: tried: '/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/aarch64-apple-darwin/bin/../lib/libLLVM.dylib' (no such file), '/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/aarch64-apple-darwin/bin/../lib/libLLVM.dylib' (no such file), '/private/tmp/brn-x1-target/release/deps/libLLVM.dylib' (no such file), '/Users/evokessler/lib/libLLVM.dylib' (no such file), '/usr/local/lib/libLLVM.dylib' (no such file), '/usr/lib/libLLVM.dylib' (no such file, not in dyld cache)
+          
+
+warning: `brn-x1-xberg` (bin "xberg-probe") generated 1 warning
+    Finished `release` profile [optimized] target(s) in 6.43s

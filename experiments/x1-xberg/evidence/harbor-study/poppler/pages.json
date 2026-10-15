@@ -1,0 +1,70 @@
+[
+  {
+    "width": 612.0,
+    "height": 792.0,
+    "raw_lines": [
+      "Harbor handoff study",
+      "1. Purpose",
+      "This synthetic study compares two inspection routes over six weekday trials.",
+      "The observations describe this sample only; weather and staffing were held constant.",
+      "2. Findings",
+      "Table 1 records median elapsed time and the number of missed handoffs.",
+      "Route",
+      "Median (min)",
+      "Missed handoffs",
+      "Check first",
+      "12",
+      "1",
+      "Test first",
+      "19",
+      "3",
+      "The check-first route was faster by 7 minutes, but this is not a causal estimate.",
+      "Figure 1. Gate order: check, test, then release; each gate must pass before the next.",
+      "3. Limits",
+      "The trial excluded overnight operations and must not be generalized to storms."
+    ],
+    "source_lines": [
+      "Harbor handoff study",
+      "1. Purpose",
+      "This synthetic study compares two inspection routes over six weekday trials.",
+      "The observations describe this sample only; weather and staffing were held constant.",
+      "2. Findings",
+      "Table 1 records median elapsed time and the number of missed handoffs.",
+      "Route",
+      "Median (min)",
+      "Missed handoffs",
+      "Check first",
+      "12",
+      "1",
+      "Test first",
+      "19",
+      "3",
+      "The check-first route was faster by 7 minutes, but this is not a causal estimate.",
+      "Figure 1. Gate order: check, test, then release; each gate must pass before the next.",
+      "3. Limits",
+      "The trial excluded overnight operations and must not be generalized to storms."
+    ],
+    "text": "Harbor handoff study \n1. Purpose \nThis synthetic study compares two inspection routes over six weekday trials. \nThe observations describe this sample only; weather and staffing were held constant. \n2. Findings \nTable 1 records median elapsed time and the number of missed handoffs. \nRoute \nMedian (min) \nMissed handoffs \nCheck first \n12 \n1 \nTest first \n19 \n3 \nThe check-first route was faster by 7 minutes, but this is not a causal estimate. \nFigure 1. Gate order: check, test, then release; each gate must pass before the next. \n3. Limits \nThe trial excluded overnight operations and must not be generalized to storms. \n"
+  },
+  {
+    "width": 612.0,
+    "height": 792.0,
+    "raw_lines": [
+      "4. References",
+      "[1] Harbor Lab. Handoff protocol, synthetic edition, 2026, sections 2-3.",
+      "[2] Harbor Lab. Trial log, synthetic edition, 2026, entries 1-6.",
+      "Appendix A. Observation rule",
+      "A missed handoff means a parcel waited more than 5 minutes after its release signal.",
+      "Observers recorded one timestamp per gate and did not change the route mid-trial."
+    ],
+    "source_lines": [
+      "4. References",
+      "[1] Harbor Lab. Handoff protocol, synthetic edition, 2026, sections 2-3.",
+      "[2] Harbor Lab. Trial log, synthetic edition, 2026, entries 1-6.",
+      "Appendix A. Observation rule",
+      "A missed handoff means a parcel waited more than 5 minutes after its release signal.",
+      "Observers recorded one timestamp per gate and did not change the route mid-trial."
+    ],
+    "text": "4. References \n[1] Harbor Lab. Handoff protocol, synthetic edition, 2026, sections 2-3. \n[2] Harbor Lab. Trial log, synthetic edition, 2026, entries 1-6. \nAppendix A. Observation rule \nA missed handoff means a parcel waited more than 5 minutes after its release signal. \nObservers recorded one timestamp per gate and did not change the route mid-trial. \n"
+  }
+]

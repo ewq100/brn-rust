@@ -1,0 +1,237 @@
+alloc-no-stdlib v2.0.4
+├── alloc-stdlib v0.2.4
+│   └── brotli-decompressor v5.0.3
+│       └── lopdf v0.45.0
+│           └── xberg v1.3.10
+│               └── brn-x1-xberg v0.1.0 (/Users/evokessler/Documents/Codex/brn-rust/.worktrees/x1-xberg/experiments/x1-xberg)
+└── brotli-decompressor v5.0.3 (*)
+
+alloc-no-stdlib v3.0.0
+├── alloc-stdlib v0.3.0
+│   ├── brotli v9.0.0
+│   │   └── xberg-native-pdf v1.3.10
+│   │       └── xberg v1.3.10 (*)
+│   └── brotli-decompressor v6.0.1
+│       └── brotli v9.0.0 (*)
+├── brotli v9.0.0 (*)
+└── brotli-decompressor v6.0.1 (*)
+
+alloc-stdlib v0.2.4 (*)
+
+alloc-stdlib v0.3.0 (*)
+
+brotli-decompressor v5.0.3 (*)
+
+brotli-decompressor v6.0.1 (*)
+
+fax v0.2.7
+└── tiff v0.11.3
+    └── image v0.25.10
+        ├── html-to-markdown-rs v3.18.1
+        │   └── xberg v1.3.10 (*)
+        ├── xberg v1.3.10 (*)
+        └── xberg-native-pdf v1.3.10 (*)
+
+fax v0.3.0
+└── xberg-native-pdf v1.3.10 (*)
+
+getrandom v0.2.17
+└── const-random-macro v0.1.16 (proc-macro)
+    └── const-random v0.1.18
+        └── ahash v0.8.12
+            ├── html-to-markdown-rs v3.18.1 (*)
+            └── xberg v1.3.10 (*)
+
+getrandom v0.3.4
+└── ahash v0.8.12 (*)
+
+getrandom v0.4.3
+├── lopdf v0.45.0 (*)
+├── rand v0.10.3
+│   └── lopdf v0.45.0 (*)
+├── uuid v1.28.0
+│   ├── cfb v0.14.0
+│   │   └── infer v0.22.0
+│   │       └── xberg v1.3.10 (*)
+│   └── xberg-native-pdf v1.3.10 (*)
+└── xberg-native-pdf v1.3.10 (*)
+
+libc v0.2.190
+└── getrandom v0.2.17 (*)
+
+libc v0.2.190
+├── cpufeatures v0.3.1
+│   ├── aes v0.9.3
+│   │   ├── lopdf v0.45.0 (*)
+│   │   └── xberg-native-pdf v1.3.10 (*)
+│   └── sha2 v0.11.1
+│       ├── lopdf v0.45.0 (*)
+│       └── xberg-native-pdf v1.3.10 (*)
+├── dirs-sys v0.5.0
+│   └── dirs v7.0.0
+│       └── xberg v1.3.10 (*)
+├── getrandom v0.3.4 (*)
+├── getrandom v0.4.3 (*)
+├── memmap2 v0.9.11
+│   └── xberg v1.3.10 (*)
+├── num_cpus v1.17.0
+│   └── xberg v1.3.10 (*)
+├── parking_lot_core v0.9.12
+│   └── parking_lot v0.12.5
+│       ├── string_cache v0.11.0
+│       │   └── web_atoms v0.3.0
+│       │       └── markup5ever v0.40.0
+│       │           └── html5ever v0.40.1
+│       │               └── html-to-markdown-rs v3.18.1 (*)
+│       └── xberg v1.3.10 (*)
+└── xberg v1.3.10 (*)
+
+miniz_oxide v0.8.9
+└── png v0.18.1
+    ├── image v0.25.10 (*)
+    └── tiny-skia v0.12.0
+        └── xberg-native-pdf v1.3.10 (*)
+
+miniz_oxide v0.9.1
+└── flate2 v1.1.10
+    ├── lopdf v0.45.0 (*)
+    ├── png v0.18.1 (*)
+    ├── tiff v0.11.3 (*)
+    ├── xberg v1.3.10 (*)
+    └── xberg-native-pdf v1.3.10 (*)
+
+once_cell v1.21.4
+├── ahash v0.8.12 (*)
+├── html-to-markdown-rs v3.18.1 (*)
+├── read-fonts v0.45.0
+│   ├── harfrust v0.14.0
+│   │   └── xberg-native-pdf v1.3.10 (*)
+│   └── skrifa v0.48.0
+│       └── xberg-native-pdf v1.3.10 (*)
+├── tracing-core v0.1.36
+│   ├── tracing v0.1.44
+│   │   ├── html-to-markdown-rs v3.18.1 (*)
+│   │   ├── xberg v1.3.10 (*)
+│   │   └── xberg-native-pdf v1.3.10 (*)
+│   └── tracing-subscriber v0.3.23
+│       └── xberg v1.3.10 (*)
+└── xberg v1.3.10 (*)
+
+once_cell v1.21.4
+└── const-random-macro v0.1.16 (proc-macro) (*)
+
+syn v2.0.119
+├── phf_macros v0.14.0 (proc-macro)
+│   └── phf v0.14.0
+│       ├── comrak v0.56.0
+│       │   └── xberg v1.3.10 (*)
+│       ├── html-to-markdown-rs v3.18.1 (*)
+│       ├── web_atoms v0.3.0 (*)
+│       └── xberg-native-pdf v1.3.10 (*)
+├── tracing-attributes v0.1.31 (proc-macro)
+│   └── tracing v0.1.44 (*)
+└── zerocopy-derive v0.8.63 (proc-macro)
+    └── zerocopy v0.8.63
+        ├── ahash v0.8.12 (*)
+        └── half v2.7.1
+            └── tiff v0.11.3 (*)
+
+syn v3.0.9
+├── async-trait v0.1.92 (proc-macro)
+│   └── xberg v1.3.10 (*)
+├── bytemuck_derive v1.12.1 (proc-macro)
+│   └── bytemuck v1.25.2
+│       ├── font-types v0.12.6
+│       │   └── read-fonts v0.45.0 (*)
+│       ├── harfrust v0.14.0 (*)
+│       ├── image v0.25.10 (*)
+│       ├── read-fonts v0.45.0 (*)
+│       ├── skrifa v0.48.0 (*)
+│       ├── tiny-skia v0.12.0 (*)
+│       └── tiny-skia-path v0.12.0
+│           └── tiny-skia v0.12.0 (*)
+├── displaydoc v0.2.7 (proc-macro)
+│   ├── icu_collections v2.3.0
+│   │   ├── icu_normalizer v2.3.0
+│   │   │   └── idna_adapter v1.2.2
+│   │   │       └── idna v1.1.0
+│   │   │           └── url v2.5.8
+│   │   │               ├── html-to-markdown-rs v3.18.1 (*)
+│   │   │               └── xberg v1.3.10 (*)
+│   │   └── icu_properties v2.3.0
+│   │       └── idna_adapter v1.2.2 (*)
+│   ├── icu_locale_core v2.3.0
+│   │   ├── icu_properties v2.3.0 (*)
+│   │   └── icu_provider v2.3.1
+│   │       ├── icu_normalizer v2.3.0 (*)
+│   │       └── icu_properties v2.3.0 (*)
+│   ├── icu_properties v2.3.0 (*)
+│   ├── icu_provider v2.3.1 (*)
+│   ├── tinystr v0.8.4
+│   │   └── icu_locale_core v2.3.0 (*)
+│   └── zerotrie v0.2.5
+│       ├── icu_properties v2.3.0 (*)
+│       └── icu_provider v2.3.1 (*)
+├── fearless_simd_macros v0.1.0 (proc-macro)
+│   └── memchr-n v0.1.9
+│       └── comrak v0.56.0 (*)
+├── serde_derive v1.0.229 (proc-macro)
+│   └── serde v1.0.229
+│       ├── ahash v0.8.12 (*)
+│       ├── bytes v1.12.1
+│       │   ├── xberg v1.3.10 (*)
+│       │   └── xberg-native-pdf v1.3.10 (*)
+│       ├── html-to-markdown-rs v3.18.1 (*)
+│       ├── rmp-serde v1.3.1
+│       │   └── xberg v1.3.10 (*)
+│       ├── serde_toon_format v0.2.0
+│       │   └── xberg v1.3.10 (*)
+│       ├── xberg v1.3.10 (*)
+│       ├── xberg-native-pdf v1.3.10 (*)
+│       └── yaml_serde v0.10.7
+│           └── xberg v1.3.10 (*)
+├── synstructure v0.14.0
+│   ├── yoke-derive v0.8.4 (proc-macro)
+│   │   └── yoke v0.8.3
+│   │       ├── icu_collections v2.3.0 (*)
+│   │       ├── icu_provider v2.3.1 (*)
+│   │       ├── read-fonts v0.45.0 (*)
+│   │       ├── zerotrie v0.2.5 (*)
+│   │       └── zerovec v0.11.8
+│   │           ├── icu_collections v2.3.0 (*)
+│   │           ├── icu_locale_core v2.3.0 (*)
+│   │           ├── icu_normalizer v2.3.0 (*)
+│   │           ├── icu_properties v2.3.0 (*)
+│   │           ├── icu_provider v2.3.1 (*)
+│   │           ├── potential_utf v0.1.6
+│   │           │   └── icu_collections v2.3.0 (*)
+│   │           └── tinystr v0.8.4 (*)
+│   └── zerofrom-derive v0.1.8 (proc-macro)
+│       └── zerofrom v0.1.8
+│           ├── icu_collections v2.3.0 (*)
+│           ├── icu_provider v2.3.1 (*)
+│           ├── yoke v0.8.3 (*)
+│           ├── zerotrie v0.2.5 (*)
+│           └── zerovec v0.11.8 (*)
+├── thiserror-impl v2.0.21 (proc-macro)
+│   └── thiserror v2.0.21
+│       ├── fast_image_resize v6.1.0
+│       │   └── xberg-native-pdf v1.3.10 (*)
+│       ├── html-to-markdown-rs v3.18.1 (*)
+│       ├── lopdf v0.45.0 (*)
+│       ├── serde_toon_format v0.2.0 (*)
+│       ├── xberg v1.3.10 (*)
+│       └── xberg-native-pdf v1.3.10 (*)
+├── yoke-derive v0.8.4 (proc-macro) (*)
+├── zerofrom-derive v0.1.8 (proc-macro) (*)
+└── zerovec-derive v0.11.6 (proc-macro)
+    └── zerovec v0.11.8 (*)
+
+weezl v0.1.12
+├── gif v0.14.2
+│   └── image v0.25.10 (*)
+└── tiff v0.11.3 (*)
+
+weezl v0.2.1
+├── lopdf v0.45.0 (*)
+└── xberg-native-pdf v1.3.10 (*)

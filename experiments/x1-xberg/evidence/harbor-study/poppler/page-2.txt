@@ -1,0 +1,6 @@
+4. References 
+[1] Harbor Lab. Handoff protocol, synthetic edition, 2026, sections 2-3. 
+[2] Harbor Lab. Trial log, synthetic edition, 2026, entries 1-6. 
+Appendix A. Observation rule 
+A missed handoff means a parcel waited more than 5 minutes after its release signal. 
+Observers recorded one timestamp per gate and did not change the route mid-trial. 

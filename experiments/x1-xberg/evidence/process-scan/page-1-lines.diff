@@ -1,0 +1,13 @@
+--- poppler prepared source
++++ xberg plain page
+@@ -8,9 +8,7 @@
+ a. Read the final two digits aloud; do not shorten 0042 to 42.
+ 2. Place ruler R-0006 against the lower sill.
+ 1.2 Route
+-Inlet
+-Gate M-0042
+-Outlet
++Inlet Gate M-0042 Outlet
+ Figure 1. Water route; arrows show the observed direction.
+ Note 1. The route is descriptive; gate opening requires a separate permit.
+ MG-023 / 1

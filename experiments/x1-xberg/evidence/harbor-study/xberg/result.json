@@ -1,0 +1,214 @@
+{
+  "pages": [
+    {
+      "page_number": 1,
+      "content": "Harbor handoff study\n\n1. Purpose\n\nThis synthetic study compares two inspection routes over six weekday trials.\n\nThe observations describe this sample only; weather and staffing were held constant.\n\n2. Findings\n\nTable 1 records median elapsed time and the number of missed handoffs.\n\nRoute        Median (min)     Missed handoffs\n\nCheck first       12                 1\n\nTest first        19                 3\n\nThe check-first route was faster by 7 minutes, but this is not a causal estimate.\n\nFigure 1. Gate order: check, test, then release; each gate must pass before the next.\n\n3. Limits\n\nThe trial excluded overnight operations and must not be generalized to storms.",
+      "image_indices": [
+        0
+      ],
+      "hierarchy": {
+        "block_count": 13,
+        "blocks": [
+          {
+            "text": "Harbor handoff study",
+            "font_size": 12.0,
+            "level": "body"
+          },
+          {
+            "text": "1. Purpose",
+            "font_size": 12.0,
+            "level": "body"
+          },
+          {
+            "text": "This synthetic study compares two inspection routes over six weekday trials.",
+            "font_size": 12.0,
+            "level": "body"
+          },
+          {
+            "text": "The observations describe this sample only; weather and staffing were held constant.",
+            "font_size": 12.0,
+            "level": "body"
+          },
+          {
+            "text": "2. Findings",
+            "font_size": 12.0,
+            "level": "body"
+          },
+          {
+            "text": "Table 1 records median elapsed time and the number of missed handoffs.",
+            "font_size": 12.0,
+            "level": "body"
+          },
+          {
+            "text": "Route        Median (min)     Missed handoffs",
+            "font_size": 12.0,
+            "level": "body"
+          },
+          {
+            "text": "Check first       12                 1",
+            "font_size": 12.0,
+            "level": "body"
+          },
+          {
+            "text": "Test first        19                 3",
+            "font_size": 12.0,
+            "level": "body"
+          },
+          {
+            "text": "The check-first route was faster by 7 minutes, but this is not a causal estimate.",
+            "font_size": 12.0,
+            "level": "body"
+          },
+          {
+            "text": "Figure 1. Gate order: check, test, then release; each gate must pass before the next.",
+            "font_size": 12.0,
+            "level": "body"
+          },
+          {
+            "text": "3. Limits",
+            "font_size": 12.0,
+            "level": "body"
+          },
+          {
+            "text": "The trial excluded overnight operations and must not be generalized to storms.",
+            "font_size": 12.0,
+            "level": "body"
+          }
+        ]
+      },
+      "is_blank": false
+    },
+    {
+      "page_number": 2,
+      "content": "4. References\n\n[1] Harbor Lab. Handoff protocol, synthetic edition, 2026, sections 2-3.\n\n[2] Harbor Lab. Trial log, synthetic edition, 2026, entries 1-6.\n\nAppendix A. Observation rule\n\nA missed handoff means a parcel waited more than 5 minutes after its release signal.\n\nObservers recorded one timestamp per gate and did not change the route mid-trial.",
+      "hierarchy": {
+        "block_count": 6,
+        "blocks": [
+          {
+            "text": "4. References",
+            "font_size": 12.0,
+            "level": "body"
+          },
+          {
+            "text": "[1] Harbor Lab. Handoff protocol, synthetic edition, 2026, sections 2-3.",
+            "font_size": 12.0,
+            "level": "body"
+          },
+          {
+            "text": "[2] Harbor Lab. Trial log, synthetic edition, 2026, entries 1-6.",
+            "font_size": 12.0,
+            "level": "body"
+          },
+          {
+            "text": "Appendix A. Observation rule",
+            "font_size": 12.0,
+            "level": "body"
+          },
+          {
+            "text": "A missed handoff means a parcel waited more than 5 minutes after its release signal.",
+            "font_size": 12.0,
+            "level": "body"
+          },
+          {
+            "text": "Observers recorded one timestamp per gate and did not change the route mid-trial.",
+            "font_size": 12.0,
+            "level": "body"
+          }
+        ]
+      },
+      "is_blank": false
+    }
+  ],
+  "metadata": {
+    "title": "untitled",
+    "subject": "unspecified",
+    "authors": [
+      "anonymous"
+    ],
+    "created_at": "2000-01-01T00:00:00Z",
+    "modified_at": "2000-01-01T00:00:00Z",
+    "created_by": "anonymous",
+    "pages": {
+      "total_count": 2,
+      "unit_type": "page",
+      "boundaries": [
+        {
+          "byte_start": 0,
+          "byte_end": 669,
+          "page_number": 1
+        },
+        {
+          "byte_start": 671,
+          "byte_end": 1023,
+          "page_number": 2
+        }
+      ],
+      "pages": [
+        {
+          "number": 1,
+          "dimensions": {
+            "width": 612.0,
+            "height": 792.0
+          },
+          "is_blank": false
+        },
+        {
+          "number": 2,
+          "dimensions": {
+            "width": 612.0,
+            "height": 792.0
+          },
+          "is_blank": false
+        }
+      ]
+    },
+    "format": {
+      "format_type": "pdf",
+      "pdf_version": "1.3",
+      "producer": "ReportLab PDF Library - (opensource)",
+      "is_encrypted": false,
+      "width": 612,
+      "height": 792,
+      "page_count": 2,
+      "scanned_confidence": 0.0,
+      "scanned_pages": [],
+      "fabricated_text_pages": []
+    },
+    "output_format": "plain",
+    "ocr_used": false,
+    "additional": {
+      "extraction_method": "native",
+      "source_index": 0,
+      "source_uri": "fixture.pdf",
+      "source_kind": "bytes",
+      "final_uri": "fixture.pdf"
+    }
+  },
+  "images": [
+    {
+      "file": "image-000.png",
+      "format": "png",
+      "page": 1,
+      "index": 0,
+      "width": 720,
+      "height": 200,
+      "bbox": {
+        "x0": 48.0,
+        "y0": 290.0,
+        "x1": 552.0,
+        "y1": 430.0
+      },
+      "is_mask": false,
+      "bytes": 6985,
+      "ocr": false
+    }
+  ],
+  "counts": {
+    "pages": 2,
+    "tables": 0,
+    "images": 1
+  },
+  "warnings": [],
+  "render_warnings": [],
+  "render_page_count": 2
+}

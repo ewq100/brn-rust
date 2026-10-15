@@ -1,0 +1,16 @@
+# Build/runtime native-download audit
+
+Target: macOS arm64, xberg 1.3.10 with defaults disabled and only `pdf` requested.
+
+- `metadata-macos.json` contains 303 nodes including the local harness; all-target metadata contains 337. `build-script-inventory.json` records the paths and SHA-256 of all 41 build scripts in the target-filtered graph. `build-scripts.txt` preserves their inspected source.
+- `xberg/build.rs` emits cfg/build-ID metadata. Its subprocess calls are local `git rev-parse`, `git diff` and `git ls-files`; no fetch or HTTP call. Optional inference cfgs remain off.
+- `xberg-native-pdf/Cargo.toml` explicitly sets `build = false`. Native means its Rust PDF engine, not a downloaded dynamic library. It uses tiny-skia, skrifa/harfrust and bundled Rust codecs. It also discovers installed fonts; runtime restrictions allow system fonts, deny user font contents.
+- `blake3 1.8.7` compiles the crate's bundled `c/blake3_neon.c` using the installed compiler and links `static=blake3_neon`. Actual emitted link directives are saved in `native-link-build-output.txt`. No native source acquisition occurs in that script.
+- `av-scenechange 0.14.1` and `rav1e 0.8.1` have local assembly build paths, gated by `asm`, which is absent in this graph. Their enabled build paths generate local metadata. No source/library download is present.
+- The other inspected scripts generate bundled lookup tables, probe compiler/target capabilities, or emit cfg/link metadata. No network/source/model acquisition path was found in their enabled configuration. URLs in comments are not executed acquisition steps.
+- No `ort`, `ort-sys`, `xberg-tesseract`, `pdfium-render`, `hf-hub`, `reqwest`, `ureq` or Kreuzberg package is present in the evaluated graph. `flate2` uses Rust backends; no `zlib-sys`, OpenSSL, Tesseract or Leptonica build is needed. No model is configured.
+- The entire clean release build succeeded with Cargo `--locked --offline` inside macOS `(deny network*)`. This denies build-script network too; Cargo offline alone would not do that.
+- Both real fixture extraction/render passes succeeded with the deny-default `runtime.sb`, an empty inherited environment, only explicit input/output access, and system font/library access. Network is denied. The separate witness using that same profile denies a synthetic excluded file and a listening loopback TCP socket while allowing owned scratch writes; see `sandbox/result.json`.
+- Runtime code inspected: `xberg/src/pdf/render.rs`, `pdf/native/images.rs`, `engine/mod.rs`, `engine/extract_impl.rs`, `xberg-native-pdf/src/rendering/text_rasterizer.rs` and `vendor/fontdb/system_fonts.rs`. Rendering uses `PdfRenderSession` and tiny-skia; local extraction is the no-Tokio path. Optional model/OCR/paddle/pdfium/embedding paths are not compiled. Cache is explicitly disabled; no source/model/native artifact is fetched.
+
+This establishes no automatic native/model acquisition for this locked feature set and the exercised local PDF route. It is not an audit of disabled optional features, nor a universal proof about every future version/input. The fixture harness is not BRN's production restricted helper and does not establish hard RSS enforcement, cancellation/reaping or production acceptance.
