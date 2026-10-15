@@ -1,5 +1,6 @@
 use crate::{
     DATA_MARKER, DATABASE_FILENAME, Error, Result, Store,
+    stage::{self, StageDir, StageKind},
     store::{has_symlink_ancestor, validate_database, validate_schema},
 };
 use rusqlite::Connection;
@@ -17,9 +18,14 @@ impl Store {
     }
 }
 
-/// Own only the private stage. After rename, this path is absent, so cleanup
-/// never removes a complete published workspace when flush or reopen fails.
+/// Own only the private stage, which holds the workspace in `directory`
+/// (`<stage>/workspace`). Publication renames that folder, so dropping the
+/// stage never removes a complete published workspace when flush or reopen
+/// fails, and the stage marker is never published. A killed process may leave
+/// the stage; the next restore into the same parent removes it.
 struct StagedRestore {
+    // Held for its Drop, which removes the stage.
+    _stage: StageDir,
     directory: PathBuf,
     destination: PathBuf,
 }
@@ -49,7 +55,10 @@ impl StagedRestore {
         if has_symlink_ancestor(parent)? {
             return Err(Error::UnsafeDirectory("symlink restore ancestor".into()));
         }
-        let directory = parent.join(format!(".brn-restore-stage-{}", uuid::Uuid::new_v4()));
+        // Remove what killed restores left in this parent before staging ours.
+        stage::sweep_abandoned(parent, StageKind::Restore, destination);
+        let stage = StageDir::create(parent, StageKind::Restore)?;
+        let directory = stage.path().join("workspace");
         let builder = fs::DirBuilder::new();
         #[cfg(unix)]
         let mut builder = builder;
@@ -58,8 +67,10 @@ impl StagedRestore {
             use std::os::unix::fs::DirBuilderExt;
             builder.mode(0o700);
         }
+        // On failure, dropping the stage removes it.
         builder.create(&directory)?;
         Ok(Self {
+            _stage: stage,
             directory,
             destination: destination.to_owned(),
         })
@@ -150,12 +161,6 @@ impl StagedRestore {
         }
     }
 }
-impl Drop for StagedRestore {
-    fn drop(&mut self) {
-        let _ = fs::remove_dir_all(&self.directory);
-    }
-}
-
 fn require_fresh_destination(destination: &Path) -> Result<()> {
     match fs::symlink_metadata(destination) {
         Ok(metadata) => {
@@ -176,6 +181,17 @@ fn require_fresh_destination(destination: &Path) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[cfg(unix)]
+    use crate::stage::tree;
+    use crate::stage::{STAGE_MARKER, stages};
+
+    /// The staged workspace and its stage wrapper are both gone.
+    fn assert_stage_gone(staging: &Path) {
+        assert!(!staging.exists());
+        let wrapper = staging.parent().unwrap();
+        assert!(!wrapper.exists(), "{} must be removed", wrapper.display());
+    }
+
     #[test]
     fn staging_never_exposes_ready_destination() {
         let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
@@ -185,23 +201,42 @@ mod tests {
         let destination = root.path().join("restored");
         let stage = StagedRestore::create(&backup, &destination).unwrap();
         let staging = stage.directory.clone();
-        assert_eq!(staging.parent(), destination.parent());
+        let wrapper = staging.parent().unwrap();
+        assert_eq!(wrapper.parent(), destination.parent());
+        assert!(wrapper.join(STAGE_MARKER).is_file());
         assert_eq!(fs::read_dir(&staging).unwrap().count(), 2);
         validate_database(&staging.join(DATABASE_FILENAME)).unwrap();
         #[cfg(unix)]
         {
             use std::os::unix::fs::PermissionsExt;
+            // Windows locks are mandatory, so only Unix can read a held marker.
             assert_eq!(
-                fs::metadata(&staging).unwrap().permissions().mode() & 0o777,
-                0o700
+                fs::read(wrapper.join(STAGE_MARKER)).unwrap(),
+                StageKind::Restore.marker().as_bytes()
             );
+            for folder in [&staging, wrapper] {
+                assert_eq!(
+                    fs::metadata(folder).unwrap().permissions().mode() & 0o777,
+                    0o700
+                );
+            }
         }
         assert!(
             !destination.exists(),
             "restore must publish only a complete staged directory"
         );
         stage.publish().unwrap();
-        assert!(!staging.exists());
+        assert_stage_gone(&staging);
+        // The published workspace is the staged one, without the stage marker.
+        assert!(!destination.join(STAGE_MARKER).exists());
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            assert_eq!(
+                fs::metadata(&destination).unwrap().permissions().mode() & 0o777,
+                0o700
+            );
+        }
     }
 
     fn fixture() -> (tempfile::TempDir, PathBuf) {
@@ -254,7 +289,7 @@ mod tests {
                 assert!(stage.publish().is_err());
             }
             assert_eq!(fs::read(destination.join("keep")).unwrap(), b"new occupant");
-            assert!(!staging.exists());
+            assert_stage_gone(&staging);
         }
         assert_eq!(fs::read(unrelated.join("keep")).unwrap(), b"unrelated");
     }
@@ -266,7 +301,7 @@ mod tests {
         let stage = StagedRestore::create(&backup, &destination).unwrap();
         let staging = stage.directory.clone();
         drop(stage);
-        assert!(!staging.exists());
+        assert_stage_gone(&staging);
         assert!(!destination.exists());
         // Opening succeeds, but the SQLite backup call fails on corrupt input.
         let corrupt = root.path().join("corrupt.sqlite3");
@@ -275,9 +310,68 @@ mod tests {
         let stage = StagedRestore::prepare(&destination).unwrap();
         let staging = stage.directory.clone();
         assert!(matches!(stage.copy_from(&source), Err(Error::Sqlite(_))));
-        assert!(!staging.exists());
+        assert_stage_gone(&staging);
         assert!(!destination.exists());
         assert_eq!(fs::read(&corrupt).unwrap(), b"not a database");
+        assert_eq!(
+            stages(root.path(), StageKind::Restore),
+            Vec::<PathBuf>::new()
+        );
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn a_killed_restores_stage_is_removed_by_the_next_restore_into_that_parent() {
+        let (root, backup) = fixture();
+        let backup_bytes = fs::read(&backup).unwrap();
+        let earlier = root.path().join("earlier");
+        drop(Store::restore(&backup, &earlier).unwrap());
+        let earlier_before = tree(&earlier);
+        // Killed after the full copy was staged, before publication.
+        let StagedRestore {
+            _stage: full,
+            directory,
+            ..
+        } = StagedRestore::create(&backup, &root.path().join("killed")).unwrap();
+        assert!(directory.join(DATABASE_FILENAME).is_file());
+        let full = full.abandon();
+        // Killed after publication, before the wrapper was removed.
+        let wrapper = StageDir::create(root.path(), StageKind::Restore)
+            .unwrap()
+            .abandon();
+        let unrelated = root.path().join(".brn-restore-stage-not-owned");
+        fs::create_dir(&unrelated).unwrap();
+        fs::write(unrelated.join("keep"), b"unrelated").unwrap();
+        let destination = root.path().join("restored");
+        let store = Store::restore(&backup, &destination).unwrap();
+        assert!(store.records().unwrap().is_empty());
+        assert!(!full.exists(), "the full leftover copy must be removed");
+        assert!(!wrapper.exists(), "the leftover wrapper must be removed");
+        assert_eq!(
+            stages(root.path(), StageKind::Restore),
+            vec![unrelated.clone()]
+        );
+        assert_eq!(fs::read(unrelated.join("keep")).unwrap(), b"unrelated");
+        assert_eq!(tree(&earlier), earlier_before);
+        assert_eq!(fs::read(&backup).unwrap(), backup_bytes);
+        assert!(!root.path().join("killed").exists());
+        assert!(!destination.join(STAGE_MARKER).exists());
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn a_live_restore_stage_survives() {
+        let (root, backup) = fixture();
+        let live = StageDir::create(root.path(), StageKind::Restore).unwrap();
+        fs::create_dir(live.path().join("workspace")).unwrap();
+        fs::write(live.path().join("workspace").join("partial"), b"copying").unwrap();
+        let before = tree(live.path());
+        Store::restore(&backup, root.path().join("restored")).unwrap();
+        assert!(live.path().is_dir(), "a held stage is never removed");
+        assert_eq!(tree(live.path()), before, "a held stage is never touched");
+        let path = live.path().to_owned();
+        drop(live);
+        assert!(!path.exists());
     }
 
     #[test]
@@ -292,7 +386,7 @@ mod tests {
         assert!(stage.publish().is_err());
         assert!(destination.is_dir());
         assert_eq!(fs::read_dir(&destination).unwrap().count(), 0);
-        assert!(!staging.exists());
+        assert_stage_gone(&staging);
     }
 
     #[test]
@@ -312,7 +406,7 @@ mod tests {
                 }
             });
             assert!(result.is_err());
-            assert!(!staging.exists());
+            assert_stage_gone(&staging);
             validate_database(&destination.join(DATABASE_FILENAME)).unwrap();
             assert!(destination.join(DATA_MARKER).is_file());
             Store::open(&destination).unwrap();
@@ -398,7 +492,7 @@ mod tests {
         let staging = stage.directory.clone();
         symlink(&outside, &destination).unwrap();
         assert!(stage.publish().is_err());
-        assert!(!staging.exists());
+        assert_stage_gone(&staging);
         assert!(
             fs::symlink_metadata(&destination)
                 .unwrap()
