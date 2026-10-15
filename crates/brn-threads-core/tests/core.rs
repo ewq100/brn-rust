@@ -2074,6 +2074,40 @@ fn discarded_and_saved_sessions_clear_buffer_text_but_keep_late_write_tombstones
     ));
 }
 #[test]
+fn a_second_edit_session_names_the_open_one_and_leaves_it_untouched() {
+    let (_dir, mut store) = store();
+    let a = note(&mut store, "A", false);
+    let open = store.begin_edit(&a.id, 1).unwrap();
+    store
+        .update_buffer(&open.id, 1, "typed in window one")
+        .unwrap();
+    let typed = store.edit_session(&open.id).unwrap();
+    // Before: `SQLite: UNIQUE constraint failed: edit_sessions.note`.
+    let error = store.begin_edit(&a.id, 1).unwrap_err();
+    assert!(!error.to_string().contains("SQLite"), "{error}");
+    assert!(
+        matches!(&error, Error::EditSessionOpen { note, session, base_version }
+            if *note == a.id && *session == open.id && *base_version == 1),
+        "{error:?}"
+    );
+    assert_eq!(store.edit_session(&open.id).unwrap(), typed);
+    assert_eq!(store.recovery_buffers().unwrap(), vec![typed.clone()]);
+    // A session left open at an old base after another writer saved is named too.
+    store.discard(&open.id, 1).unwrap();
+    let save = store.begin_edit(&a.id, 1).unwrap();
+    store.update_buffer(&save.id, 1, "saved v2").unwrap();
+    assert!(matches!(
+        store.save(&save.id, 1).unwrap(),
+        SaveOutcome::Saved(_)
+    ));
+    let stale = store.begin_edit(&a.id, 1).unwrap();
+    assert!(matches!(
+        store.begin_edit(&a.id, 2),
+        Err(Error::EditSessionOpen { session, base_version: 1, .. }) if session == stale.id
+    ));
+    assert_eq!(store.recovery_buffers().unwrap(), vec![stale]);
+}
+#[test]
 fn configuration_reads_and_fences_runs_at_the_actual_writer_boundary() {
     let (_dir, mut store) = store();
     let settings = WorkspaceSettings {

@@ -2273,24 +2273,71 @@ fn unique_host_key() -> String {
     )
 }
 /// The host's Blocker reason for a Run that stopped before finishing.
-pub const INTERRUPTED_ATTENTION: &str = "Run interrupted; Continue starts fresh";
-/// The earlier fixed failure reason, still recognised in saved chats.
-const FAILED_ATTENTION: &str = "Run failed; check provider or continue from retained progress";
+pub const INTERRUPTED_ATTENTION: &str = "Run interrupted. Continue starts fresh.";
+/// Earlier notices, still recognised in saved chats so a newer result
+/// replaces them. Every "Run failed: …" text matches by its prefix.
+const LEGACY_NOTICES: [&str; 2] = [
+    "Run interrupted; Continue starts fresh",
+    "Run failed; check provider or continue from retained progress",
+];
 const FAILED_PREFIX: &str = "Run failed: ";
-const MAX_NOTICE_BYTES: usize = 512;
+/// Only for provider failures: account, network, rate limit, unavailable.
+const PROVIDER_RECOVERY: &str = "Continue when the provider is ready.";
+/// Continue starts a new Run with the saved conversation and current notes.
+const FRESH_RECOVERY: &str = "Continue starts fresh.";
 
 /// Whether `reason` is a host terminal notice for an interrupted or failed Run.
 pub fn is_terminal_notice(reason: &str) -> bool {
     reason == INTERRUPTED_ATTENTION
-        || reason == FAILED_ATTENTION
+        || LEGACY_NOTICES.contains(&reason)
         || reason.starts_with(FAILED_PREFIX)
 }
 
-/// Names the failure's owner-facing cause. `AiError`'s Display is fixed
-/// text and never includes provider detail.
+/// The saved failure notice: one cause in owner terms, then a recovery
+/// sentence only where it holds. It never carries provider, SQLite or
+/// file-system text. The technical cause stays in the live run outcome
+/// (`AiError`'s Display) and the CLI's `failure` JSON.
 fn failed_attention(error: &AiError) -> String {
-    let reason = format!("{FAILED_PREFIX}{error} Continue when the provider is ready.");
-    truncate(&reason, MAX_NOTICE_BYTES).to_owned()
+    use AiErrorKind as K;
+    let (cause, recovery) = match error.kind {
+        K::ReconnectNeeded => (
+            "The provider account needs reconnecting.",
+            Some(PROVIDER_RECOVERY),
+        ),
+        K::CodeExpired => ("The sign-in code expired.", Some(PROVIDER_RECOVERY)),
+        K::RateLimited => (
+            "The account usage limit was reached.",
+            Some(PROVIDER_RECOVERY),
+        ),
+        K::Network => ("BRN couldn't reach the provider.", Some(PROVIDER_RECOVERY)),
+        // A provider error worth retrying (a 5xx, overload or dropped stream).
+        K::Other if error.detail.as_ref().is_some_and(|d| d.retryable) => (
+            "The provider is unavailable right now.",
+            Some(PROVIDER_RECOVERY),
+        ),
+        K::ModelRefused => (
+            "The provider doesn't offer this model.",
+            Some("Choose another model, then Continue."),
+        ),
+        K::ToolLimitReached => ("The tool-call limit was reached.", Some(FRESH_RECOVERY)),
+        K::TimeLimitReached => ("The work time limit was reached.", Some(FRESH_RECOVERY)),
+        K::InvalidToolUse => (
+            "The model asked for a step BRN doesn't offer.",
+            Some(FRESH_RECOVERY),
+        ),
+        K::QuoteNotFound | K::QuoteAmbiguous | K::QuoteOccurrenceInvalid => {
+            ("A quotation didn't match the saved note.", None)
+        }
+        K::ToolRejected => ("BRN refused one of the run's steps.", None),
+        K::UnsafeCredentials => ("The saved sign-in isn't stored safely.", None),
+        K::IndexStale => ("The note index needs refreshing.", None),
+        K::Storage => ("BRN couldn't save its work.", None),
+        K::Other => ("The run didn't finish.", None),
+    };
+    match recovery {
+        Some(recovery) => format!("{FAILED_PREFIX}{cause} {recovery}"),
+        None => format!("{FAILED_PREFIX}{cause}"),
+    }
 }
 
 /// Keeps one terminal notice per chat. Drops host terminal Blockers for `run`
@@ -4230,7 +4277,7 @@ mod tests {
                 question.clone(),
                 Attention {
                     kind: AttentionKind::Blocker,
-                    reason: "Run failed: Reconnect this account before continuing. Continue when the provider is ready.".into(),
+                    reason: "Run failed: The provider account needs reconnecting. Continue when the provider is ready.".into(),
                     record: Some(runs[2].clone()),
                 },
             ]
@@ -4263,17 +4310,170 @@ mod tests {
             .count();
         assert_eq!(owner_messages, 1);
     }
+    /// Notices saved by earlier builds, which a newer result must replace.
+    const SAVED_NOTICES: [&str; 4] = [
+        "Run failed; check provider or continue from retained progress",
+        "Run interrupted; Continue starts fresh",
+        "Run failed: Reconnect this account before continuing. Continue when the provider is ready.",
+        "Run failed: The tool round limit was reached. Continue when the provider is ready.",
+    ];
     #[test]
-    fn terminal_notices_are_recognised_including_the_earlier_fixed_text() {
-        assert!(is_terminal_notice(INTERRUPTED_ATTENTION));
-        assert!(is_terminal_notice(FAILED_ATTENTION));
-        let named = failed_attention(&AiError::new(AiErrorKind::RateLimited));
+    fn terminal_notices_are_recognised_including_every_earlier_saved_text() {
         assert_eq!(
-            named,
-            "Run failed: Account usage limit reached. Continue when the provider is ready."
+            INTERRUPTED_ATTENTION,
+            "Run interrupted. Continue starts fresh."
         );
-        assert!(is_terminal_notice(&named));
+        assert!(is_terminal_notice(INTERRUPTED_ATTENTION));
+        for saved in SAVED_NOTICES {
+            assert!(is_terminal_notice(saved), "{saved}");
+        }
         assert!(!is_terminal_notice("External dependency is still blocked"));
+        assert!(!is_terminal_notice("Review prepared changes"));
+    }
+    #[test]
+    fn failure_notices_name_the_cause_in_owner_terms_and_only_true_recovery() {
+        use AiErrorKind as K;
+        // Exhaustive, so a new kind needs a decision here too.
+        let provider = |kind: K| match kind {
+            K::ReconnectNeeded | K::CodeExpired | K::RateLimited | K::Network => true,
+            K::QuoteNotFound
+            | K::QuoteAmbiguous
+            | K::QuoteOccurrenceInvalid
+            | K::ModelRefused
+            | K::InvalidToolUse
+            | K::ToolLimitReached
+            | K::TimeLimitReached
+            | K::UnsafeCredentials
+            | K::ToolRejected
+            | K::IndexStale
+            | K::Storage
+            | K::Other => false,
+        };
+        let mut cases: Vec<(AiError, bool)> = [
+            K::QuoteNotFound,
+            K::QuoteAmbiguous,
+            K::QuoteOccurrenceInvalid,
+            K::ReconnectNeeded,
+            K::CodeExpired,
+            K::RateLimited,
+            K::Network,
+            K::ModelRefused,
+            K::InvalidToolUse,
+            K::ToolLimitReached,
+            K::TimeLimitReached,
+            K::UnsafeCredentials,
+            K::ToolRejected,
+            K::IndexStale,
+            K::Storage,
+            K::Other,
+        ]
+        .into_iter()
+        .map(|kind| (AiError::new(kind), provider(kind)))
+        .collect();
+        let mut limited = AiError::new(K::RateLimited);
+        limited.retry_after_seconds = Some(3600);
+        cases.push((limited, true));
+        // An overloaded provider: retryable, otherwise unclassified.
+        let unavailable = AiError::new(K::Other).with_detail(crate::AiFailureDetail {
+            origin: "http_status".into(),
+            status: Some(503),
+            code: Some("server_is_overloaded".into()),
+            retryable: true,
+            ..Default::default()
+        });
+        cases.push((unavailable, true));
+        for (error, provider) in cases {
+            let notice = failed_attention(&error);
+            assert!(notice.starts_with("Run failed: "), "{notice}");
+            assert!(notice.chars().count() <= 100, "{notice}");
+            assert_eq!(
+                notice.matches(PROVIDER_RECOVERY).count(),
+                usize::from(provider),
+                "{notice}"
+            );
+            assert!(!provider || notice.ends_with(PROVIDER_RECOVERY), "{notice}");
+            for raw in [
+                "SQLite",
+                "/",
+                "\\",
+                "tool round",
+                "Retry after",
+                "503",
+                "overloaded",
+            ] {
+                assert!(!notice.contains(raw), "{raw} in {notice}");
+            }
+            // One cause sentence, then at most one recovery sentence.
+            assert!(notice.matches(". ").count() <= 1, "{notice}");
+            assert!(is_terminal_notice(&notice));
+        }
+        for (kind, notice) in [
+            (
+                K::ReconnectNeeded,
+                "Run failed: The provider account needs reconnecting. Continue when the provider is ready.",
+            ),
+            (
+                K::ToolLimitReached,
+                "Run failed: The tool-call limit was reached. Continue starts fresh.",
+            ),
+            (K::Storage, "Run failed: BRN couldn't save its work."),
+            (K::Other, "Run failed: The run didn't finish."),
+        ] {
+            assert_eq!(failed_attention(&AiError::new(kind)), notice);
+        }
+    }
+    #[tokio::test]
+    async fn a_notice_saved_by_an_earlier_build_is_replaced_not_duplicated() {
+        for saved in SAVED_NOTICES {
+            let (_root, request, _) = fixture();
+            let first = run(again(&request), CancellationToken::new(), Arc::new(|_| {}))
+                .await
+                .unwrap();
+            // Rewrite the notice as an earlier build saved it.
+            let mut store = Store::open(&request.data_dir).unwrap();
+            let record = store.record(&request.thread).unwrap().unwrap();
+            let RecordData::Thread(mut thread) = record.data else {
+                panic!("Thread")
+            };
+            for item in &mut thread.attention {
+                if item.record.as_deref() == Some(first.run_id.as_str()) {
+                    item.reason = saved.into();
+                }
+            }
+            let op = store.allocate_operation(&format!("saved {saved}")).unwrap();
+            let owner = HostAuthority::owner("earlier build");
+            store
+                .prepare_owner(
+                    &op,
+                    &ChangeRequest {
+                        reason: "Earlier saved notice".into(),
+                        writes: vec![Put {
+                            id: record.id,
+                            expected_version: Some(record.version),
+                            archived: false,
+                            data: RecordData::Thread(thread),
+                        }],
+                        inputs: vec![],
+                    },
+                    &owner,
+                )
+                .unwrap();
+            store.apply(&op, &owner).unwrap();
+            drop(store);
+            assert_eq!(chat_attention(&request)[0].reason, saved);
+            let second = run(again(&request), CancellationToken::new(), Arc::new(|_| {}))
+                .await
+                .unwrap();
+            assert_eq!(
+                chat_attention(&request),
+                vec![Attention {
+                    kind: AttentionKind::Blocker,
+                    reason: "Run failed: The provider account needs reconnecting. Continue when the provider is ready.".into(),
+                    record: Some(second.run_id),
+                }],
+                "{saved}"
+            );
+        }
     }
     #[tokio::test]
     async fn the_run_lease_lasts_from_preparation_until_the_run_returns() {

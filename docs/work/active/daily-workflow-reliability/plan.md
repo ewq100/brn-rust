@@ -119,6 +119,9 @@
       Regression: `source_intake_chat.rs::a_chat_whose_run_is_still_live_is_not_reused_until_its_lease_is_free` (fail-before `(Interrupted, 2)` vs `(Working, 1)`; pass-after). Results are in the [evidence](evidence.md#task-a-intake-chat-reuse-skips-a-chat-whose-run-is-live-review-issue-1).
       Review issue 2 (provider-centric suffix) is not applied: the reason is desktop-visible wording, handed off as U6.
 
+- [x] 6. **Round 3, agreed with the UI agent: U6 notice wording, U4 typed edit-session error, U2 desktop intake reuse; U3 read-only.**
+      Kind-specific "Run failed: …" notices with a provider sentence only for provider failures, and "Run interrupted. Continue starts fresh.". `Error::EditSessionOpen` from `begin_edit` and CLI `edit_session_open` JSON. Desktop `useful_intake` calls `source_intake_chat`. Results: [round 3 verification](round3-verification.md) and [U3 finding](u3-finding.md).
+
 ## Integration risks (check both branches together later)
 
 - `crates/brn-ai/src/threads.rs` (`begin`, `finish`, `Scope`) and `crates/brn-threads-app/src/chat.rs` are shared seams. The UI branch (`work/ui-polish`) consumes the Resume/Dispatch notices and the attention reasons, and its native tests seed Working runs.
@@ -129,7 +132,7 @@
 
 ## Remaining limitations after this plan
 
-- Desktop useful intake still creates a chat per supply until the U2 hookup is approved.
+- Desktop useful intake reuses its chat (item 6). It still posts one instruction per supply, and it reads the project when conversion finishes.
 - No Stop control for a stale run (U1).
 - Findings 4–10 are recorded but unfixed.
 - Model-quality judgments (answer support, duplicate avoidance on re-supply, reply wording) need authorized live runs.

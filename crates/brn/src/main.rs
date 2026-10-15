@@ -598,7 +598,7 @@ async fn execute(inv: &Invocation) -> Result<Value> {
             workspace
                 .store
                 .begin_edit(inv.arg("note")?, inv.number("base")?)
-                .map_err(|e| e.to_string())?,
+                .map_err(begin_edit_error)?,
         )?,
         "update-buffer" => match workspace
             .store
@@ -886,6 +886,25 @@ async fn execute(inv: &Invocation) -> Result<Value> {
         _ => return Err("Unknown command".into()),
     };
     Ok(result)
+}
+/// An open edit session is reported as JSON with a stable `kind` and its ids,
+/// so a caller can save or discard that session without matching text.
+fn begin_edit_error(error: brn_threads_app::Error) -> String {
+    match error {
+        brn_threads_app::Error::EditSessionOpen {
+            note,
+            session,
+            base_version,
+        } => json!({"error":{
+            "kind":"edit_session_open",
+            "message":"This note already has an open unsaved edit. Save or discard that session first; the recovery command lists it.",
+            "note":note,
+            "session":session,
+            "base_version":base_version,
+        }})
+        .to_string(),
+        error => error.to_string(),
+    }
 }
 #[tokio::main]
 async fn main() -> ExitCode {

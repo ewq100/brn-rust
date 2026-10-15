@@ -197,6 +197,37 @@ fn save_recovers_across_processes_replays_and_undo_keeps_later_edit() {
     );
 }
 #[test]
+fn a_second_begin_edit_reports_the_open_session_as_structured_json() {
+    let root = root();
+    let data = root.path().join("data");
+    let note = json_command(
+        &data,
+        &["note-create", "--title", "Survey", "--text", "alpha"],
+    )["id"]
+        .as_str()
+        .unwrap()
+        .to_owned();
+    let open = json_command(&data, &["begin-edit", "--note", &note, "--base", "1"]);
+    let second = command(&data, &["begin-edit", "--note", &note, "--base", "1"]);
+    assert!(!second.status.success());
+    // Before: `SQLite: UNIQUE constraint failed: edit_sessions.note`.
+    let stderr = String::from_utf8_lossy(&second.stderr);
+    assert!(!stderr.contains("SQLite"), "{stderr}");
+    let error: Value = serde_json::from_str(stderr.trim()).unwrap();
+    assert_eq!(error["error"]["kind"], "edit_session_open");
+    assert_eq!(error["error"]["note"], note.as_str());
+    assert_eq!(error["error"]["session"], open["id"]);
+    assert_eq!(error["error"]["base_version"], 1);
+    assert!(error["error"]["message"]
+        .as_str()
+        .unwrap()
+        .contains("open unsaved edit"));
+    // The open session is untouched and still recoverable.
+    let recovery = json_command(&data, &["recovery"]);
+    assert_eq!(recovery.as_array().unwrap().len(), 1);
+    assert_eq!(recovery[0]["id"], open["id"]);
+}
+#[test]
 fn full_markdown_import_export_and_backup_are_fresh_and_readable() {
     let root = root();
     let data = root.path().join("data");
@@ -603,10 +634,10 @@ fn useful_intake_for_a_project_stays_in_one_project_chat_across_retries() {
         .filter(|a| a["kind"] == "Blocker")
         .collect();
     assert_eq!(blockers.len(), 1, "{attention}");
-    assert!(blockers[0]["reason"]
-        .as_str()
-        .unwrap()
-        .contains("Reconnect this account"));
+    assert_eq!(
+        blockers[0]["reason"],
+        "Run failed: The provider account needs reconnecting. Continue when the provider is ready."
+    );
     assert_eq!(
         json_command(&data, &["search", "--query", "berth survey"])["total"],
         search_before

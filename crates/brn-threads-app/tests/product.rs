@@ -1425,3 +1425,30 @@ fn missing_storage_never_opens_an_empty_workspace_or_rewrites_evidence() {
         b"app recovery evidence"
     );
 }
+#[test]
+fn an_open_edit_session_is_a_typed_app_error_naming_note_and_session() {
+    let (_dir, mut app) = workspace();
+    let note = app.new_note("Berth survey", "Survey scheduled").unwrap();
+    let open = app.store.begin_edit(&note.id, note.version).unwrap();
+    app.store.update_buffer(&open.id, 1, "Depth 1.4 m").unwrap();
+    // The desktop reaches this through `AppResult`; it must not match text.
+    let error: AppError = app
+        .store
+        .begin_edit(&note.id, note.version)
+        .unwrap_err()
+        .into();
+    assert!(
+        matches!(&error, AppError::Core(Error::EditSessionOpen { note: id, session, base_version })
+            if *id == note.id && *session == open.id && *base_version == note.version),
+        "{error:?}"
+    );
+    assert_eq!(
+        error.to_string(),
+        "this note already has an open unsaved edit"
+    );
+    let kept = app.store.edit_session(&open.id).unwrap();
+    assert_eq!(
+        (kept.generation, kept.markdown.as_str(), kept.closed),
+        (1, "Depth 1.4 m", false)
+    );
+}

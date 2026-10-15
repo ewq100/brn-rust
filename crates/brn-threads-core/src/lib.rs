@@ -43,6 +43,14 @@ pub enum Error {
     ImmutableRequest,
     #[error("record or operation not found: {0}")]
     Missing(String),
+    /// The note already has an open edit session, which stays untouched so
+    /// the owner can compare, save or discard it.
+    #[error("this note already has an open unsaved edit")]
+    EditSessionOpen {
+        note: String,
+        session: String,
+        base_version: u64,
+    },
 }
 pub type Result<T> = std::result::Result<T, Error>;
 
