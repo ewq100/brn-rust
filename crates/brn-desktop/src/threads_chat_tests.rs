@@ -941,7 +941,13 @@ fn an_idle_send_skips_the_queue_and_replaces_an_earlier_queue_notice(cx: &mut Te
 
 #[gpui_kit::test]
 fn archive_states_its_consequence_and_an_archived_chat_has_one_unarchive(cx: &mut TestAppContext) {
+    // The fixture's owner message is unanswered, so the recovery card shows
+    // (shot 25's state) with Continue as its primary.
     let f = fixture(cx, 1250., 860., |_, _, _| {});
+    let card = format!("recovery-card-{}", f.thread);
+    let next = format!("{card}-next");
+    let fresh = "Your message is saved. Continue starts a fresh reply with the saved chat and current notes.";
+    let continue_id = format!("continue-{}", f.thread);
     on_window(cx, &f, |window, _| {
         assert_eq!(
             label(window, "resolve-thread"),
@@ -949,14 +955,13 @@ fn archive_states_its_consequence_and_an_archived_chat_has_one_unarchive(cx: &mu
         );
         assert!(window.try_find("chat-archived").is_none());
         assert!(window.try_find("reopen-thread").is_none());
+        assert_eq!(label(window, next.clone()), fresh);
+        assert_eq!(label(window, continue_id.clone()), "Continue");
     });
     click(cx, &f, "resolve-thread");
-    cx.read(|cx| {
-        assert_eq!(
-            f.view.read(cx).notice,
-            "Chat archived. Work stopped and the queue is paused. Tasks keep their progress."
-        )
-    });
+    let archived =
+        "Chat archived. Work stopped and the queue is paused. Tasks keep their progress.";
+    cx.read(|cx| assert_eq!(f.view.read(cx).notice, archived));
     on_window(cx, &f, |window, _| {
         assert_eq!(label(window, "chat-archived"), "Archived");
         assert!(window.try_find("resolve-thread").is_none());
@@ -967,11 +972,30 @@ fn archive_states_its_consequence_and_an_archived_chat_has_one_unarchive(cx: &mu
                 .try_find("reopen-thread")
                 .is_some()
         );
+        // The card keeps its state word but waits for Unarchive: the service
+        // refuses a run in an archived chat, so Continue is unavailable.
+        assert_eq!(label(window, format!("{card}-state")), "Not answered yet");
+        assert_eq!(label(window, next.clone()), "Unarchive to continue.");
+        // Kit snapshots do not expose a Button's disabled state; the label
+        // and the click below witness it.
+        assert_eq!(
+            label(window, continue_id.clone()),
+            "Continue, unavailable: unarchive to continue"
+        );
+    });
+    // Clicking the unavailable Continue starts nothing.
+    click(cx, &f, continue_id.clone());
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert!(view.worker.is_none());
+        assert_eq!(view.notice, archived);
     });
     click(cx, &f, "reopen-thread");
     on_window(cx, &f, |window, _| {
         assert!(window.find("resolve-thread").visible());
         assert!(window.try_find("composer-destination").is_none());
+        assert_eq!(label(window, next.clone()), fresh);
+        assert_eq!(label(window, continue_id.clone()), "Continue");
     });
 }
 

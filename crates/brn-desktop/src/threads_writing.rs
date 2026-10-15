@@ -390,7 +390,9 @@ impl ThreadsUi {
     /// The recovery card: the recorded state and its reason in full, then
     /// what the button does and what stays paused. Its tone is the strongest
     /// line's. `continue-{run}` (or `continue-{chat}` without a run) is the
-    /// primary.
+    /// primary, except in an archived chat, where it is unavailable until
+    /// Unarchive. Stop… does not depend on Archive, so `chat_card_stop`
+    /// stays in step with the card.
     fn recovery_card(
         &self,
         thread: &str,
@@ -404,7 +406,7 @@ impl ThreadsUi {
             _ => None,
         });
         let owner_after = owner_message_after_latest_run(&self.records, &self.history, thread);
-        let card = recovery(
+        let mut card = recovery(
             path,
             self.pending_run_working(queue),
             run,
@@ -412,6 +414,11 @@ impl ThreadsUi {
             queue,
             thread,
         );
+        // Archive keeps the chat Open, but the service refuses a run there:
+        // the composer banner's Unarchive is the next action.
+        if self.thread_resolved(thread) {
+            card = card.archived();
+        }
         let tone = severity_tone(card.severity());
         let id = format!("recovery-card-{thread}");
         let stop = self
@@ -454,19 +461,33 @@ impl ThreadsUi {
                     .justify_end()
                     .gap_1()
                     .children(stop)
-                    .child(
-                        button(format!(
+                    .child({
+                        let control = button(format!(
                             "continue-{}",
                             latest.map_or(thread, |record| record.id.as_str())
                         ))
                         .label(card.action)
                         .compact()
-                        .h(components::tokens::COMPACT_CONTROL)
-                        .primary()
-                        .on_click(cx.listener(move |this, _, _, cx| {
-                            this.continue_run(thread_id.clone(), cx)
-                        })),
-                    ),
+                        .h(components::tokens::COMPACT_CONTROL);
+                        if card.available {
+                            control
+                                .primary()
+                                .on_click(cx.listener(move |this, _, _, cx| {
+                                    this.continue_run(thread_id.clone(), cx)
+                                }))
+                        } else {
+                            // Unarchive (the composer banner) is the only
+                            // filled control.
+                            control
+                                .outline()
+                                .disabled(true)
+                                .accessibility_label(format!(
+                                    "{}, unavailable: unarchive to continue",
+                                    card.action
+                                ))
+                                .tooltip("Unarchive to continue")
+                        }
+                    }),
             )
             .test_support()
             .into_any_element()

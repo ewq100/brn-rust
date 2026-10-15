@@ -209,10 +209,23 @@ pub(super) struct Recovery {
     pub(super) waiting: Option<String>,
     /// The button: "Resume queue" or "Continue".
     pub(super) action: &'static str,
+    /// False in an archived chat, where the service refuses a run.
+    pub(super) available: bool,
 }
 impl Recovery {
     pub(super) fn severity(&self) -> Severity {
         self.word_severity.max(self.next_severity)
+    }
+    /// An archived chat keeps line 1 and the recorded reason, but the
+    /// service refuses a run there, so Unarchive comes first and the button
+    /// is unavailable.
+    pub(super) fn archived(self) -> Self {
+        Recovery {
+            next: "Unarchive to continue.".into(),
+            next_severity: Severity::Neutral,
+            available: false,
+            ..self
+        }
     }
     /// Every line, as announced.
     pub(super) fn label(&self) -> String {
@@ -325,6 +338,7 @@ pub(super) fn recovery(
         next_severity,
         waiting,
         action,
+        available: true,
     }
 }
 
@@ -888,6 +902,63 @@ mod tests {
             card.next
                 .ends_with("runs 4 waiting messages in order, including 2 from other chats.")
         );
+    }
+
+    #[test]
+    fn an_archived_chat_keeps_the_recorded_reason_and_waits_for_unarchive() {
+        let reason = "Synthetic recorded reason kept while archived.";
+        let failed = run(RunState::Failed, reason);
+        let paused = ChatControl {
+            queue: vec![queued("q1", "other")],
+            paused: true,
+            ..ChatControl::default()
+        };
+        let open = recovery(
+            &ContinuePath::FreshRun,
+            false,
+            Some(&failed),
+            false,
+            &paused,
+            "chat",
+        );
+        assert!(open.available);
+        let card = open.clone().archived();
+        // Line 1 and the reason stay; line 2 and the button follow Unarchive.
+        assert_eq!(
+            (card.word, card.reason.as_deref()),
+            ("Failed", Some(reason))
+        );
+        assert_eq!(card.next, "Unarchive to continue.");
+        assert_eq!(card.next_severity, Severity::Neutral);
+        assert_eq!(card.severity(), Severity::Error);
+        assert_eq!(card.waiting, open.waiting);
+        assert!(!card.available);
+        assert_eq!(
+            card.label(),
+            format!(
+                "Failed · {reason} · Unarchive to continue. · 1 waiting message stays paused until you resume the queue."
+            )
+        );
+        // A Resume queue card waits for Unarchive too, without the stop
+        // clause's warning.
+        let pending = ChatControl {
+            pending: Some(queued("p", "chat")),
+            ..paused
+        };
+        let working = run(RunState::Working, "");
+        let card = recovery(
+            &ContinuePath::ResumeQueue,
+            true,
+            Some(&working),
+            true,
+            &pending,
+            "chat",
+        )
+        .archived();
+        assert_eq!(card.word, "Not answered yet");
+        assert_eq!(card.next, "Unarchive to continue.");
+        assert_eq!(card.severity(), Severity::Neutral);
+        assert!(!card.available);
     }
 
     #[test]
