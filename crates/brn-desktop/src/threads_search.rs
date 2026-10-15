@@ -152,9 +152,18 @@ impl ThreadsUi {
             .flex_col()
             .gap_1()
             .child(section("In note text"));
+        if results.pending {
+            block = block.child(components::loading(
+                "search-status",
+                if results.preparing {
+                    "Preparing search…"
+                } else {
+                    "Searching…"
+                },
+            ));
+        }
         let status = match (&results.page, results.pending) {
-            (_, true) if results.preparing => "Preparing search…".to_owned(),
-            (_, true) => "Searching…".to_owned(),
+            (_, true) => String::new(),
             (Some(page), false) if page.total > 0 => {
                 let first = page.offset + 1;
                 let last = page.offset + page.hits.len();
@@ -187,7 +196,15 @@ impl ThreadsUi {
             );
         }
         if let Some(error) = &results.error {
-            block = block.child(empty("search-error", format!("Search failed: {error}")));
+            block = block.child(components::banner(
+                "search-error",
+                Tone::Error,
+                format!(
+                    "Search failed: {error}. Note titles above still match; edit the search to try again."
+                ),
+                vec![],
+                None,
+            ));
         }
         for (index, hit) in self.hits.iter().enumerate() {
             let id = hit.note.clone();
@@ -221,7 +238,7 @@ impl ThreadsUi {
                 )
             });
             let mut entry = div().flex().flex_col().pb_1().child(
-                tiles::row(format!("hit-{index}"), short(&hit.title), links, false).on_click(
+                tiles::row(format!("hit-{index}"), hit.title.clone(), links, false).on_click(
                     cx.listener(move |this, _, window, cx| {
                         this.open_note(&id, None, window, cx);
                         this.reveal(range.clone(), window, cx);
@@ -249,9 +266,12 @@ impl ThreadsUi {
         }
         let answered = results.page.is_some() && !results.pending;
         if answered && self.hits.is_empty() {
-            block = block.child(empty(
+            block = block.child(components::empty_state(
                 "search-empty",
-                "No current note text matches. Try another word or clear the filter to browse.",
+                IconName::Search,
+                "No matching note text",
+                "Try another word, or clear the search to browse.",
+                None,
             ));
         }
         if let Some(page) = results.page.as_ref().filter(|p| p.total > p.hits.len()) {

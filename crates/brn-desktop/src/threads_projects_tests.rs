@@ -62,6 +62,26 @@ fn click(cx: &mut TestAppContext, f: &Fixture, id: impl Into<String>) {
         .unwrap();
     cx.run_until_parked();
 }
+/// Choose a row of the open popup menu by its accessible label.
+fn choose(cx: &mut TestAppContext, f: &Fixture, label: &str) {
+    cx.update_window(f.window, |_, window, cx| {
+        let mut menu = window.within("popup-menu");
+        let index = (0..60usize)
+            .find(|index| {
+                menu.try_find(*index)
+                    .is_some_and(|row| row.label() == Some(label))
+            })
+            .unwrap_or_else(|| panic!("menu row {label} not found"));
+        menu.click(index, cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
+}
+/// Run a selected project's action from the Projects ⋯.
+fn project_action(cx: &mut TestAppContext, f: &Fixture, label: &str) {
+    click(cx, f, "tile-menu-projects");
+    choose(cx, f, label);
+}
 fn create(cx: &mut TestAppContext, f: &Fixture, name: &str) -> String {
     click(cx, f, "project-new");
     click(cx, f, "project-name-input");
@@ -81,7 +101,7 @@ fn project_creation_move_and_settings_preserve_saved_chat_and_draft(cx: &mut Tes
     .unwrap();
     cx.run_until_parked();
     click(cx, &f, "move-chat-1");
-    click(cx, &f, "project-settings");
+    project_action(cx, &f, "Instructions & settings");
     click(cx, &f, "project-instructions");
     cx.simulate_input(f.window, "For beginners, in Estonian");
     cx.run_until_parked();
@@ -93,9 +113,9 @@ fn project_creation_move_and_settings_preserve_saved_chat_and_draft(cx: &mut Tes
 fn linked_document_survives_project_delete_and_trash_restore(cx: &mut TestAppContext) {
     let f = fixture(cx);
     let p = create(cx, &f, "Travel writing");
-    click(cx, &f, "project-link");
+    project_action(cx, &f, "Link document…");
     click(cx, &f, format!("project-link-doc-{}", f.note));
-    click(cx, &f, "project-delete");
+    project_action(cx, &f, "Move to Trash…");
     click(cx, &f, "project-delete-confirm");
     cx.read(|cx| {
         let ui = f.view.read(cx);
@@ -124,7 +144,7 @@ fn linked_document_survives_project_delete_and_trash_restore(cx: &mut TestAppCon
 fn exclusive_project_note_opens_and_writing_chat_inherits_project(cx: &mut TestAppContext) {
     let f = fixture(cx);
     let p = create(cx, &f, "Japan");
-    click(cx, &f, "project-note");
+    project_action(cx, &f, "New document");
     click(cx, &f, "project-name-input");
     cx.simulate_input(f.window, "Itinerary");
     cx.run_until_parked();
@@ -180,4 +200,135 @@ fn native_project_delete_preserves_displayed_partial_and_pauses_even_an_empty_qu
         sender.send(WorkerEvent::RunFinished { result: Ok("Old worker returned".into()), terminal: None }).unwrap(); ui.poll_worker(window, cx); assert!(ui.queue_state().paused);
     })).unwrap();
     cx.run_until_parked();
+}
+
+#[test]
+fn each_projects_view_has_at_most_one_primary() {
+    use projects_view::projects_primary;
+    assert_eq!(projects_primary(false, false), Some("project-new"));
+    assert_eq!(projects_primary(false, true), Some("project-chat"));
+    assert_eq!(projects_primary(true, true), Some("project-restore"));
+    assert_eq!(projects_primary(true, false), None);
+}
+
+#[test]
+fn the_delete_preview_names_only_the_other_kinds_present() {
+    use projects_view::other_items_line;
+    let record = |id: &str, data: RecordData| Record {
+        id: id.into(),
+        version: 1,
+        archived: false,
+        data,
+    };
+    let note = record("n", RecordData::Note(Note::working("Brief", "text")));
+    assert_eq!(other_items_line(std::slice::from_ref(&note)), None);
+    let link = record(
+        "l",
+        RecordData::Link(Link {
+            from: "n".into(),
+            to: "m".into(),
+            relation: "related".into(),
+        }),
+    );
+    let message = record(
+        "m",
+        RecordData::Message(Message {
+            thread: "t".into(),
+            role: "owner".into(),
+            text: "Hello".into(),
+        }),
+    );
+    assert_eq!(
+        other_items_line(&[note, link.clone(), message.clone(), link]),
+        Some("Also moves 3 other items (messages, links).".into())
+    );
+    assert_eq!(
+        other_items_line(&[message]),
+        Some("Also moves 1 other item (messages).".into())
+    );
+}
+
+#[gpui_kit::test]
+fn projects_primaries_follow_the_view_and_trash_restores_from_active_and_trash(
+    cx: &mut TestAppContext,
+) {
+    let f = fixture(cx);
+    cx.update_window(f.window, |_, window, _| {
+        assert!(window.find("project-new").visible());
+        assert!(window.find("project-active").visible());
+        assert!(window.try_find("project-chat").is_none());
+        assert!(window.find("projects-empty").visible());
+    })
+    .unwrap();
+    let p = create(cx, &f, "Website refresh");
+    project_action(cx, &f, "Link document…");
+    click(cx, &f, format!("project-link-doc-{}", f.note));
+    cx.update_window(f.window, |_, window, _| {
+        assert!(window.find("project-chat").visible());
+        assert!(
+            window.find("project-new").visible(),
+            "New project stays, quieter"
+        );
+        assert_eq!(
+            window.find("project-status").label(),
+            Some("BRN knowledge: on · No project instructions")
+        );
+    })
+    .unwrap();
+    // The delete dialog states the consequence and ↵ never confirms.
+    project_action(cx, &f, "Move to Trash…");
+    cx.update_window(f.window, |_, window, cx| {
+        assert_eq!(
+            window.find("project-delete-moves").label(),
+            Some("Moves to Trash: Website refresh.")
+        );
+        assert_eq!(
+            window.find("project-delete-stays").label(),
+            Some("Stays active: Shared reference.")
+        );
+        assert!(window.find("project-delete-cancel").visible());
+        assert!(window.find("project-delete-confirm").visible());
+        window.press("enter", cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(window.has_active_dialog(cx), "↵ leaves the dialog open");
+        let ui = f.view.read(cx);
+        assert!(!ui.workspace.store.record(&p).unwrap().unwrap().archived);
+    })
+    .unwrap();
+    click(cx, &f, "project-delete-confirm");
+    click(cx, &f, "project-trash");
+    cx.update_window(f.window, |_, window, _| {
+        assert!(
+            window.try_find("project-restore").is_none(),
+            "no primary yet"
+        );
+        assert!(window.try_find("project-new").is_none());
+        assert!(window.find("projects-trash-hint").visible());
+    })
+    .unwrap();
+    click(cx, &f, format!("project-row-{p}"));
+    cx.update_window(f.window, |_, window, _| {
+        assert!(window.find("project-restore").visible());
+        assert_eq!(
+            window.find("project-restore-line").label(),
+            Some(
+                "Restoring returns contents and settings. Cancelled tasks stay cancelled; tasks kept outside stay outside. Work stays paused."
+            )
+        );
+    })
+    .unwrap();
+    click(cx, &f, "project-active");
+    cx.read(|cx| {
+        let ui = f.view.read(cx);
+        assert!(!ui.projects_trash);
+        assert!(ui.workspace.store.record(&p).unwrap().unwrap().archived);
+    });
+    cx.update_window(f.window, |_, window, _| {
+        assert!(window.find("project-new").visible());
+        assert!(window.try_find(format!("project-row-{p}")).is_none());
+    })
+    .unwrap();
 }

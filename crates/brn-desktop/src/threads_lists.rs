@@ -3,7 +3,7 @@
 use super::layout::{Preset, TileKind};
 use super::state::linked;
 use super::theme::ThemeId;
-use brn_threads_app::{Receipt, Record, RecordData, ThreadState};
+use brn_threads_app::{ActionState, Receipt, Record, RecordData, ThreadState};
 use std::collections::{BTreeMap, BTreeSet};
 
 /// Latest receipt position and commit time for records and the threads their
@@ -76,7 +76,6 @@ pub(super) fn day_number(stamp: &str) -> Option<i64> {
 /// 19:47 UTC", "14 Oct, 19:47 UTC", or "14 Oct 2025, 19:47 UTC" in another
 /// year. Callers keep the raw ISO value in the tooltip; an unreadable stamp is
 /// returned unchanged.
-#[allow(dead_code, reason = "S6 shows list and Changes times with it")]
 pub(super) fn human_time(stamp: &str, today: i64) -> String {
     const MONTHS: [&str; 12] = [
         "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
@@ -120,6 +119,108 @@ fn civil_year(day: i64) -> i64 {
     let mp = (5 * doy + 2) / 153;
     let month = if mp < 10 { mp + 3 } else { mp - 9 };
     yoe + era * 400 + i64::from(month <= 2)
+}
+
+/// Bookkeeping that writes only chat controls (queue set-up and recovery on
+/// every launch). Changes groups it under Background and Home leaves it out;
+/// a change that needs refresh is never background.
+pub(super) fn is_background(receipt: &Receipt) -> bool {
+    receipt.needs_refresh.is_empty()
+        && !receipt.writes.is_empty()
+        && receipt
+            .writes
+            .iter()
+            .all(|write| matches!(write.after.data, RecordData::ChatControl(_)))
+}
+
+/// A recorded reason as the owner reads it: chat-control bookkeeping drops
+/// its "Chat control: " prefix. The recorded reason itself is unchanged.
+pub(super) fn receipt_reason(reason: &str) -> String {
+    let Some(rest) = reason.strip_prefix("Chat control: ") else {
+        return reason.to_owned();
+    };
+    let mut chars = rest.chars();
+    match chars.next() {
+        Some(first) => first.to_uppercase().chain(chars).collect(),
+        None => reason.to_owned(),
+    }
+}
+
+/// The notes, chats, tasks, projects and sources a change touched, by title:
+/// "A", "A, B" or "A, B and N more".
+pub(super) fn affected_titles(receipt: &Receipt) -> String {
+    let mut titles: Vec<String> = vec![];
+    for write in &receipt.writes {
+        let title = match &write.after.data {
+            RecordData::Note(note) => note.title.as_str(),
+            RecordData::Thread(thread) => thread.title.as_str(),
+            RecordData::Action(action) => action.description.as_str(),
+            RecordData::Project(project) => project.title.as_str(),
+            RecordData::Source(source) => source.label.as_str(),
+            RecordData::Settings(_) => "Workspace settings",
+            _ => continue,
+        };
+        let title = title.split_whitespace().collect::<Vec<_>>().join(" ");
+        if !title.is_empty() && !titles.contains(&title) {
+            titles.push(title);
+        }
+    }
+    match titles.as_slice() {
+        [] => String::new(),
+        [a] => a.clone(),
+        [a, b] => format!("{a}, {b}"),
+        [a, b, rest @ ..] => format!("{a}, {b} and {} more", rest.len()),
+    }
+}
+
+/// A task state change offered from its row.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) enum TaskStep {
+    Accept,
+    ConfirmDone,
+    Waiting,
+    MarkOpen,
+    Cancel,
+}
+impl TaskStep {
+    pub(super) fn label(self) -> &'static str {
+        match self {
+            Self::Accept => "Accept task",
+            Self::ConfirmDone => "Confirm done",
+            Self::Waiting => "Waiting",
+            Self::MarkOpen => "Mark open",
+            Self::Cancel => "Cancel task",
+        }
+    }
+    pub(super) fn state(self) -> ActionState {
+        match self {
+            Self::Accept | Self::MarkOpen => ActionState::Open,
+            Self::ConfirmDone => ActionState::Done,
+            Self::Waiting => ActionState::Waiting,
+            Self::Cancel => ActionState::Cancelled,
+        }
+    }
+    /// The reason each change records, as before.
+    pub(super) fn reason(self) -> &'static str {
+        match self {
+            Self::Accept | Self::MarkOpen => "Owner opened an Action",
+            Self::ConfirmDone => "Owner confirmed an Action is complete",
+            Self::Waiting => "Owner marked an Action Waiting",
+            Self::Cancel => "Owner cancelled an Action",
+        }
+    }
+}
+
+/// An open task's one visible main action and its row ⋯ items, which hold
+/// only changes of state, Cancel task last. Done and Cancelled offer none.
+pub(super) fn task_steps(state: &ActionState) -> (Option<TaskStep>, Vec<TaskStep>) {
+    use TaskStep::*;
+    match state {
+        ActionState::Suggested => (Some(Accept), vec![Waiting, ConfirmDone, Cancel]),
+        ActionState::Open => (Some(ConfirmDone), vec![Waiting, Cancel]),
+        ActionState::Waiting => (Some(ConfirmDone), vec![MarkOpen, Cancel]),
+        ActionState::Done | ActionState::Cancelled => (None, vec![]),
+    }
 }
 
 pub(super) fn today() -> i64 {
@@ -232,12 +333,12 @@ impl ThreadFilter {
     }
     pub(super) fn label(self) -> &'static str {
         match self {
-            Self::All => "all",
-            Self::Open => "open",
-            Self::Resolved => "archived",
-            Self::NeedsYou => "needs you",
-            Self::LinkedNote => "linked note",
-            Self::HasAction => "has task",
+            Self::All => "All",
+            Self::Open => "Open",
+            Self::Resolved => "Archived",
+            Self::NeedsYou => "Needs you",
+            Self::LinkedNote => "Linked note",
+            Self::HasAction => "Has task",
         }
     }
     fn accepts(self, row: &ThreadRow) -> bool {
@@ -705,6 +806,55 @@ mod tests {
         ] {
             assert_eq!(human_time(stamp, today), shown, "{stamp}");
         }
+    }
+
+    #[test]
+    fn bookkeeping_and_reasons_read_as_the_owner_sees_them() {
+        assert_eq!(
+            receipt_reason("Chat control: recover paused queue"),
+            "Recover paused queue"
+        );
+        assert_eq!(receipt_reason("Saved the brief"), "Saved the brief");
+        let control = record(
+            "control",
+            RecordData::ChatControl(ChatControl {
+                queue: vec![],
+                pending: None,
+                paused: false,
+                quiet: false,
+            }),
+        );
+        let only = |writes: Vec<Record>| {
+            receipt(
+                &format!("bookkeeping-{}", writes.len()),
+                "owner:x",
+                "2026-10-14T10:00:00Z",
+                writes.into_iter().map(|after| (None, after)).collect(),
+            )
+        };
+        assert!(is_background(&only(vec![control.clone()])));
+        let mut refresh = only(vec![control.clone()]);
+        refresh.needs_refresh = vec!["n".into()];
+        assert!(
+            !is_background(&refresh),
+            "needs refresh is never background"
+        );
+        assert!(!is_background(&only(vec![
+            control.clone(),
+            note("n", "Brief", false)
+        ])));
+        assert!(!is_background(&only(vec![])));
+        assert_eq!(
+            affected_titles(&only(vec![
+                note("a", "Brief", false),
+                control,
+                note("b", "Plan", false),
+                note("c", "Brief", false),
+                note("d", "Notes", false),
+                note("e", "More", false),
+            ])),
+            "Brief, Plan and 2 more"
+        );
     }
 
     #[test]

@@ -247,19 +247,18 @@ fn first_use_choices_preserve_manual_work_and_persist_explicit_policy(cx: &mut T
                     "BRN may maintain ordinary notes within your delegated scope."
                 })
             );
-            assert_eq!(
-                window.find("maintenance-setting").label(),
-                Some("Pause maintenance")
-            );
+            // The switch shows Running; switching it off pauses maintenance.
+            let switch = window.find("maintenance-setting");
+            assert_eq!(switch.label(), Some("Maintenance: Running"));
+            assert_eq!(switch.checked(), Some(true));
             window.click("maintenance-setting", cx);
         })
         .unwrap();
         cx.run_until_parked();
         cx.update_window(window, |_, window, cx| {
-            assert_eq!(
-                window.find("maintenance-setting").label(),
-                Some("Resume maintenance")
-            );
+            let switch = window.find("maintenance-setting");
+            assert_eq!(switch.label(), Some("Maintenance: Paused"));
+            assert_eq!(switch.checked(), Some(false));
             assert!(
                 window
                     .find("delegation-status")

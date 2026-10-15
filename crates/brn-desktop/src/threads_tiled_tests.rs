@@ -71,6 +71,22 @@ fn click(cx: &mut TestAppContext, f: &Fixture, id: impl Into<String>) {
     cx.run_until_parked();
 }
 
+/// Choose a popup menu row by its accessible label, as a mouse user would.
+fn choose(cx: &mut TestAppContext, f: &Fixture, label: &str) {
+    cx.update_window(f.window, |_, window, cx| {
+        let mut menu = window.within("popup-menu");
+        let index = (0..60usize)
+            .find(|index| {
+                menu.try_find(*index)
+                    .is_some_and(|row| row.label() == Some(label))
+            })
+            .unwrap_or_else(|| panic!("menu row {label} not found"));
+        menu.click(index, cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
+}
+
 fn query(cx: &mut TestAppContext, f: &Fixture, value: &str) {
     cx.update_window(f.window, |_, window, cx| {
         f.view
@@ -108,9 +124,14 @@ fn assert_in_window(window: &Window, f: &Fixture, id: &str) {
 fn reveal(cx: &mut TestAppContext, f: &Fixture, container: &str, target: &str) {
     // Exercise real scrolling rather than counting an offscreen test element as accessible.
     for _ in 0..20 {
+        // Wholly inside the scroller, so a click at its center lands on it.
         let visible = cx
             .update_window(f.window, |_, window, _| {
-                window.find(target.to_owned()).visible()
+                let shown = window.find(target.to_owned());
+                let (item, frame) = (shown.bounds(), window.find(container.to_owned()).bounds());
+                shown.visible()
+                    && item.origin.y >= frame.origin.y
+                    && item.origin.y + item.size.height <= frame.origin.y + frame.size.height
             })
             .unwrap();
         if visible {
@@ -324,7 +345,13 @@ fn action_status_tile_writes_one_checked_receipt_and_history_undo_compensates(
     })
     .unwrap();
     let before = cx.read(|cx| f.view.read(cx).workspace.history().unwrap().len());
-    click(cx, &f, format!("wait-action-{}", action.id));
+    // Waiting moved into the task row's ⋯; Confirm done is the main action.
+    cx.update_window(f.window, |_, window, _| {
+        assert!(window.find(format!("done-action-{}", action.id)).visible());
+    })
+    .unwrap();
+    click(cx, &f, format!("task-menu-{}", action.id));
+    choose(cx, &f, "Waiting");
     let receipt = cx.read(|cx| {
         let view = f.view.read(cx);
         let current = view.workspace.store.record(&action.id).unwrap().unwrap();

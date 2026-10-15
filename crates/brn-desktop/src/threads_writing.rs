@@ -3203,23 +3203,41 @@ impl ThreadsUi {
     }
     pub(super) fn linked_tile(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         let p = pal();
-        let mut context = scroll("thread-linked-work").gap_3().p_3();
+        let mut context = scroll("thread-linked-work").gap_0().px_3().pb_3();
         let Some(id) = self.chat_thread() else {
             return context
-                .child(empty(
+                .child(components::empty_state(
                     "linked-empty",
+                    IconName::Link,
+                    "No chat open",
                     "Notes, sources and tasks used in a chat appear here.",
+                    None,
                 ))
                 .test_support()
                 .into_any_element();
         };
         let linked_ids = linked(&self.records, id);
         if linked_ids.is_empty() {
-            context = context.child(empty(
+            context = context.child(components::empty_state(
                 "linked-empty",
+                IconName::Link,
+                "Nothing linked yet",
                 "Notes, sources and tasks used in this chat appear here.",
+                None,
             ));
         }
+        // Entries are separated by hairlines, never boxed.
+        let entry = || {
+            div()
+                .flex()
+                .flex_col()
+                .flex_shrink_0()
+                .gap_1()
+                .py_3()
+                .min_w_0()
+                .border_b_1()
+                .border_color(rgb(p.hairline))
+        };
         for record in self
             .records
             .iter()
@@ -3229,22 +3247,35 @@ impl ThreadsUi {
                 RecordData::Note(note) => {
                     let id = record.id.clone();
                     context = context.child(
-                        div()
-                            .flex()
-                            .flex_col()
-                            .gap_1()
-                            .p_2()
-                            .border_1()
-                            .border_color(rgb(p.border))
-                            .child(section(format!(
-                                "Note · v{}{}",
-                                record.version,
-                                if note.protected { " · protected" } else { "" }
-                            )))
+                        entry()
                             .child(
                                 div()
-                                    .font_weight(gpui_kit::FontWeight::SEMIBOLD)
-                                    .child(note.title.clone()),
+                                    .flex()
+                                    .items_center()
+                                    .gap_2()
+                                    .min_w_0()
+                                    .child(
+                                        div()
+                                            .flex_1()
+                                            .min_w_0()
+                                            .truncate()
+                                            .font_weight(gpui_kit::FontWeight::SEMIBOLD)
+                                            .child(note.title.clone()),
+                                    )
+                                    .when(note.protected, |line| {
+                                        line.child(components::status_chip(
+                                            format!("linked-note-protected-{id}"),
+                                            Some(Tone::Info),
+                                            Some(IconName::Lock),
+                                            "Protected",
+                                        ))
+                                    })
+                                    .child(components::status_chip(
+                                        format!("linked-note-version-{id}"),
+                                        None,
+                                        None,
+                                        format!("v{}", record.version),
+                                    )),
                             )
                             .child(
                                 self.safe_message(
@@ -3253,23 +3284,27 @@ impl ThreadsUi {
                                 )
                                 .max_lines(8),
                             )
-                            .child(
-                                pill(format!("linked-note-{id}"), "open in note tile").on_click(
+                            .child(div().child(
+                                pill(format!("linked-note-{id}"), "Open note").on_click(
                                     cx.listener(move |this, _, window, cx| {
                                         this.open_note(&id, None, window, cx)
                                     }),
                                 ),
-                            ),
+                            )),
                     );
                 }
-                RecordData::Action(_) => context = context.child(self.action_row(record, cx)),
+                RecordData::Action(_) => context = context.child(self.action_row(record, true, cx)),
                 RecordData::Source(source) => {
                     let locator = source.locator.clone();
                     let open_locator = locator.clone();
                     context = context.child(
-                        panel()
-                            .child(section("Source"))
-                            .child(source.label.clone())
+                        entry()
+                            .child(metadata("Source"))
+                            .child(
+                                div()
+                                    .font_weight(gpui_kit::FontWeight::SEMIBOLD)
+                                    .child(source.label.clone()),
+                            )
                             .child(metadata(short(&source.locator)))
                             .child(source.outcome.clone())
                             .children(
@@ -3290,7 +3325,7 @@ impl ThreadsUi {
                                     .flex()
                                     .gap_1()
                                     .child(
-                                        pill(format!("open-source-{}", record.id), "open")
+                                        pill(format!("open-source-{}", record.id), "Open")
                                             .on_click(move |_, _, cx| {
                                                 if std::path::Path::new(&open_locator).is_absolute()
                                                 {
@@ -3308,7 +3343,7 @@ impl ThreadsUi {
                                     .child(
                                         pill(
                                             format!("copy-source-{}", record.id),
-                                            "copy reference",
+                                            "Copy reference",
                                         )
                                         .on_click(
                                             move |_, _, cx| {
@@ -3329,8 +3364,8 @@ impl ThreadsUi {
                         RecordData::Note(n) => comment_location(comment, r.version, &n.markdown),
                         _ => None,
                     });
-                    let mut passage = panel()
-                        .child(section("Passage"))
+                    let mut passage = entry()
+                        .child(metadata("Passage"))
                         .child(format!("❝ {}", comment.quote))
                         .child(comment.body.clone())
                         .child(metadata(if location.is_some() {
@@ -3341,13 +3376,17 @@ impl ThreadsUi {
                     if let Some(note) = note {
                         let id = note.id.clone();
                         passage = passage.child(
-                            pill(
-                                format!("comment-note-{}", record.id),
-                                format!("open {}", short(&title(note))),
-                            )
-                            .on_click(cx.listener(
-                                move |this, _, window, cx| this.open_note(&id, None, window, cx),
-                            )),
+                            div().child(
+                                pill(
+                                    format!("comment-note-{}", record.id),
+                                    format!("Open {}", short(&title(note))),
+                                )
+                                .on_click(cx.listener(
+                                    move |this, _, window, cx| {
+                                        this.open_note(&id, None, window, cx)
+                                    },
+                                )),
+                            ),
                         );
                     }
                     context = context.child(passage);

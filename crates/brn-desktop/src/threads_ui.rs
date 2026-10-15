@@ -124,6 +124,9 @@ mod chat_tests;
 #[path = "threads_omakase_tests.rs"]
 mod omakase_tests;
 #[cfg(all(test, feature = "native-test-support"))]
+#[path = "threads_pages_tests.rs"]
+mod pages_tests;
+#[cfg(all(test, feature = "native-test-support"))]
 #[path = "threads_polish_tests.rs"]
 mod polish_tests;
 #[cfg(all(test, feature = "native-test-support"))]
@@ -349,27 +352,6 @@ fn prose_editor(state: &Entity<EditorState>) -> Editor {
         .font_family(UI_FONT)
         .text_size(PROSE_TEXT)
 }
-/// A page section separated by a hairline rather than boxed, so sections
-/// can nest without stacking borders. Cards are for things to act on.
-fn panel() -> gpui_kit::Div {
-    div()
-        .flex()
-        .flex_col()
-        .gap_2()
-        .p_3()
-        .min_w_0()
-        .border_t_1()
-        .border_color(rgb(pal().hairline))
-}
-/// Page and dialog titles only; titles inside a page use `subheading`.
-fn heading(text: impl Into<gpui_kit::SharedString>) -> gpui_kit::Div {
-    div()
-        .font_family(UI_FONT)
-        .text_size(TITLE_TEXT)
-        .text_color(rgb(pal().ink))
-        .font_weight(gpui_kit::FontWeight::SEMIBOLD)
-        .child(text.into())
-}
 /// A title inside a page or panel.
 fn subheading(text: impl Into<gpui_kit::SharedString>) -> gpui_kit::Div {
     div()
@@ -479,6 +461,8 @@ struct ThreadsUi {
     selected_project: Option<String>,
     note_project: Option<String>,
     projects_trash: bool,
+    /// Session-only disclosures: Done and Cancelled tasks, Background changes.
+    open_sections: BTreeSet<&'static str>,
     editing_queue: Option<String>,
     note_editor: Entity<EditorState>,
     note_read_view: Entity<TextViewState>,
@@ -795,6 +779,7 @@ impl ThreadsUi {
             selected_project: None,
             note_project: None,
             projects_trash: false,
+            open_sections: BTreeSet::new(),
             editing_queue: None,
             note_editor,
             note_read_view,

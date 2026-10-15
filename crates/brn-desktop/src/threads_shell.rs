@@ -380,10 +380,10 @@ impl ThreadsUi {
                 header.children(self.tile_controls(kind, cx))
             });
         // Exactly one ⋯ per panel: the panel's own items, then a Panel section.
-        let object = if kind == TileKind::Note {
-            self.note_menu_section(cx)
-        } else {
-            None
+        let object = match kind {
+            TileKind::Note => self.note_menu_section(cx),
+            TileKind::Projects => self.projects_menu_section(cx),
+            _ => None,
         };
         let menu_this = this.clone();
         let more = if kind == TileKind::Note {
@@ -964,11 +964,23 @@ impl ThreadsUi {
                 }
                 .on_click(cx.listener(|this, _, window, cx| this.open_launcher(window, cx))),
             );
+        // Each item names the chat and why it needs you, on one line; the
+        // full text is its accessible name and tooltip.
         let needs: Vec<(String, String)> = self
             .thread_rows
             .iter()
             .filter(|row| row.needs_you())
-            .map(|row| (row.id.clone(), row.title.clone()))
+            .map(|row| {
+                let text = match self.needs_reason(&row.id) {
+                    Some((reason, protected)) => format!(
+                        "{} · {reason}{}",
+                        one_line(&row.title),
+                        if protected { " · Protected" } else { "" }
+                    ),
+                    None => one_line(&row.title),
+                };
+                (row.id.clone(), text)
+            })
             .collect();
         if !needs.is_empty() {
             let count = needs.len();
@@ -984,17 +996,33 @@ impl ThreadsUi {
                     .compact()
                     .primary()
                     .dropdown_menu(move |mut menu, _, _| {
-                        menu = menu.label("Needs you");
-                        for (id, title) in &needs {
-                            let id = id.clone();
-                            menu = menu.item(item(
-                                &this,
-                                short(title),
-                                None,
-                                false,
-                                false,
-                                move |view, window, cx| view.open_thread(&id, window, cx),
-                            ));
+                        menu = menu.max_w(px(420.)).label("Needs you");
+                        for (id, text) in &needs {
+                            let (open, text) = (id.clone(), SharedString::from(text.clone()));
+                            let this = this.clone();
+                            let id = format!("needs-item-{id}");
+                            menu = menu.item(
+                                PopupMenuItem::element(move |_, _| {
+                                    let tooltip = text.clone();
+                                    // Kit's item row grows to its content, so
+                                    // the line sets its own limit.
+                                    div()
+                                        .id(SharedString::from(id.clone()))
+                                        .max_w(px(380.))
+                                        .min_w_0()
+                                        .truncate()
+                                        .aria_label(text.clone())
+                                        .tooltip(move |window, cx| {
+                                            Tooltip::new(tooltip.clone()).build(window, cx)
+                                        })
+                                        .child(text.clone())
+                                        .test_support()
+                                })
+                                .on_click(move |_, window, cx| {
+                                    let _ = this
+                                        .update(cx, |view, cx| view.open_thread(&open, window, cx));
+                                }),
+                            );
                         }
                         menu
                     }),

@@ -5,6 +5,7 @@ use super::{SMALL_TEXT, UI_FONT, UI_TEXT};
 use gpui_kit::component::button::{Button, ButtonGroup, ButtonVariants};
 use gpui_kit::component::dialog::Dialog;
 use gpui_kit::component::input::EditorState;
+use gpui_kit::component::spinner::Spinner;
 use gpui_kit::component::tag::Tag;
 use gpui_kit::component::tooltip::Tooltip;
 use gpui_kit::component::{Icon, Sizable, Size, WindowExt};
@@ -171,16 +172,17 @@ pub(super) fn section_header(
 }
 
 fn row_frame(
-    id: impl Into<ElementId>,
+    id: SharedString,
     full: SharedString,
+    tooltip: SharedString,
     selected: bool,
 ) -> gpui_kit::Stateful<gpui_kit::Div> {
     let p = pal();
-    let tooltip = full.clone();
     div()
         .id(id)
         .flex()
         .flex_shrink_0()
+        .min_w_0()
         .px_2()
         .rounded(RADIUS_CONTROL)
         .font_family(UI_FONT)
@@ -196,26 +198,36 @@ fn row_frame(
         .tooltip(move |window, cx| Tooltip::new(tooltip.clone()).build(window, cx))
 }
 
-fn row_title(title: SharedString, selected: bool) -> gpui_kit::Div {
-    div()
-        .flex_1()
-        .min_w_0()
-        .truncate()
-        .when(selected, |title| title.font_weight(FontWeight::MEDIUM))
-        .child(title)
+/// One line that truncates with an ellipsis; `{row}-title` and
+/// `{row}-reason` report their bounds to tests.
+fn row_line(id: SharedString, text: SharedString) -> gpui_kit::Stateful<gpui_kit::Div> {
+    div().id(id).min_w_0().truncate().child(text)
 }
 
-/// Metadata is capped at 40 % and truncates; selected rows switch it to ink
-/// because muted text is not readable on the selection tint.
-fn row_meta(meta: SharedString, selected: bool) -> gpui_kit::Div {
+fn row_title(row: &SharedString, title: SharedString, selected: bool) -> AnyElement {
+    row_line(format!("{row}-title").into(), title)
+        .flex_1()
+        .when(selected, |title| title.font_weight(FontWeight::MEDIUM))
+        .test_support()
+        .into_any_element()
+}
+
+/// A row's secondary text color: muted is not readable on the selection
+/// tint, so a selected row's metadata and reason use ink.
+pub(super) fn row_meta_color(selected: bool) -> u32 {
     let p = pal();
+    if selected { p.ink } else { p.muted }
+}
+
+/// Metadata is capped at 40 % and truncates.
+fn row_meta(meta: SharedString, selected: bool) -> gpui_kit::Div {
     div()
         .flex_shrink_0()
         .max_w(relative(0.4))
         .min_w_0()
         .truncate()
         .text_size(SMALL_TEXT)
-        .text_color(rgb(if selected { p.ink } else { p.muted }))
+        .text_color(rgb(row_meta_color(selected)))
         .child(meta)
 }
 
@@ -229,59 +241,160 @@ fn row_text(title: &SharedString, more: &[&SharedString]) -> SharedString {
         .into()
 }
 
-/// A 28 px list row. The title never yields to metadata; the full text is in
-/// the tooltip and accessible label.
-#[allow(dead_code, reason = "S6 moves the navigation lists onto it")]
+/// A list row: 28 px with one line, or 44 px with a reason under the title.
+/// Each line truncates with an ellipsis and the title never yields to the
+/// metadata or chip; the full text is the accessible label and, unless
+/// replaced, the tooltip.
+pub(super) struct ListRow {
+    id: SharedString,
+    title: SharedString,
+    reason: Option<SharedString>,
+    meta: SharedString,
+    chip: Option<(SharedString, AnyElement)>,
+    tooltip: Option<SharedString>,
+    selected: bool,
+}
+impl ListRow {
+    pub(super) fn new(id: impl Into<SharedString>, title: impl Into<SharedString>) -> Self {
+        Self {
+            id: id.into(),
+            title: title.into(),
+            reason: None,
+            meta: SharedString::default(),
+            chip: None,
+            tooltip: None,
+            selected: false,
+        }
+    }
+    /// A second line saying why the row needs attention.
+    pub(super) fn reason(mut self, reason: impl Into<SharedString>) -> Self {
+        self.reason = Some(reason.into());
+        self
+    }
+    pub(super) fn meta(mut self, meta: impl Into<SharedString>) -> Self {
+        self.meta = meta.into();
+        self
+    }
+    /// A trailing status chip; `announced` joins the accessible label.
+    pub(super) fn chip(
+        mut self,
+        announced: impl Into<SharedString>,
+        chip: impl IntoElement,
+    ) -> Self {
+        self.chip = Some((announced.into(), chip.into_any_element()));
+        self
+    }
+    /// Replaces the tooltip, which otherwise repeats the full text.
+    pub(super) fn tooltip(mut self, tooltip: impl Into<SharedString>) -> Self {
+        self.tooltip = Some(tooltip.into());
+        self
+    }
+    pub(super) fn selected(mut self, selected: bool) -> Self {
+        self.selected = selected;
+        self
+    }
+    pub(super) fn build(
+        self,
+    ) -> gpui_kit::base::ObservedElement<gpui_kit::Stateful<gpui_kit::Div>> {
+        let Self {
+            id,
+            title,
+            reason,
+            meta,
+            chip,
+            tooltip,
+            selected,
+        } = self;
+        let empty = SharedString::default();
+        let announced = chip.as_ref().map_or(&empty, |(announced, _)| announced);
+        let full = row_text(
+            &title,
+            &[reason.as_ref().unwrap_or(&empty), &meta, announced],
+        );
+        let frame = row_frame(id.clone(), full.clone(), tooltip.unwrap_or(full), selected);
+        let first = div()
+            .flex()
+            .items_center()
+            .gap_2()
+            .min_w_0()
+            .child(row_title(&id, title, selected))
+            .when(!meta.is_empty(), |line| {
+                line.child(row_meta(meta, selected))
+            })
+            .children(chip.map(|(_, chip)| chip));
+        match reason {
+            None => frame
+                .items_center()
+                .h(COMPACT_CONTROL)
+                .child(first.flex_1())
+                .test_support(),
+            Some(reason) => frame
+                .flex_col()
+                .justify_center()
+                .h(px(44.))
+                .child(first)
+                .child(
+                    row_line(format!("{id}-reason").into(), reason)
+                        .text_size(SMALL_TEXT)
+                        .text_color(rgb(row_meta_color(selected)))
+                        .test_support(),
+                )
+                .test_support(),
+        }
+    }
+}
+
+/// A 28 px list row (`ListRow` with metadata).
 pub(super) fn list_row(
-    id: impl Into<ElementId>,
+    id: impl Into<SharedString>,
     title: impl Into<SharedString>,
     meta: impl Into<SharedString>,
     selected: bool,
 ) -> gpui_kit::base::ObservedElement<gpui_kit::Stateful<gpui_kit::Div>> {
-    let (title, meta) = (title.into(), meta.into());
-    row_frame(id, row_text(&title, &[&meta]), selected)
-        .items_center()
-        .gap_2()
-        .h(COMPACT_CONTROL)
-        .child(row_title(title, selected))
-        .when(!meta.is_empty(), |row| row.child(row_meta(meta, selected)))
-        .test_support()
+    ListRow::new(id, title)
+        .meta(meta)
+        .selected(selected)
+        .build()
 }
 
 /// A 44 px row whose second line states why it needs attention.
-#[allow(dead_code, reason = "S6 uses it for needs-you rows")]
+#[allow(dead_code, reason = "callers with a chip use ListRow directly")]
 pub(super) fn list_row_two_line(
-    id: impl Into<ElementId>,
+    id: impl Into<SharedString>,
     title: impl Into<SharedString>,
     reason: impl Into<SharedString>,
     meta: impl Into<SharedString>,
     selected: bool,
 ) -> gpui_kit::base::ObservedElement<gpui_kit::Stateful<gpui_kit::Div>> {
-    let p = pal();
-    let (title, reason, meta) = (title.into(), reason.into(), meta.into());
-    row_frame(id, row_text(&title, &[&reason, &meta]), selected)
-        .flex_col()
-        .justify_center()
-        .h(px(44.))
+    ListRow::new(id, title)
+        .reason(reason)
+        .meta(meta)
+        .selected(selected)
+        .build()
+}
+
+/// A loading line: a spinner beside its text, announced as the text.
+pub(super) fn loading(
+    id: impl Into<ElementId>,
+    text: impl Into<SharedString>,
+) -> gpui_kit::base::ObservedElement<gpui_kit::Stateful<gpui_kit::Div>> {
+    let text = text.into();
+    div()
+        .id(id)
+        .flex()
+        .flex_shrink_0()
+        .items_center()
+        .gap_2()
+        .font_family(UI_FONT)
+        .text_size(SMALL_TEXT)
+        .text_color(rgb(pal().muted))
+        .aria_label(text.clone())
         .child(
-            div()
-                .flex()
-                .items_center()
-                .gap_2()
-                .min_w_0()
-                .child(row_title(title, selected))
-                .when(!meta.is_empty(), |line| {
-                    line.child(row_meta(meta, selected))
-                }),
+            Spinner::new()
+                .with_size(Size::XSmall)
+                .color(rgb(pal().muted).into()),
         )
-        .child(
-            div()
-                .min_w_0()
-                .truncate()
-                .text_size(SMALL_TEXT)
-                .text_color(rgb(if selected { p.ink } else { p.muted }))
-                .child(reason),
-        )
+        .child(text)
         .test_support()
 }
 
