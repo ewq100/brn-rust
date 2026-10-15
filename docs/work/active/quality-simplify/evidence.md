@@ -15,14 +15,17 @@ plugins with parser revision 1, image resolution through `stored_image()`
 (only the caller's own asset map; everything else falls back to an empty PNG
 placeholder), and `external_link()` gating which links may open. `markdown()`
 keeps the note Read view's typography and scrolling; `safe_message_for_thread()`
-keeps the message construction and its chat-scoped asset map. Production
-diff: +48/−47 lines (`threads_ui.rs` +44/−25, `threads_writing.rs` +4/−22)
-— essentially line-neutral, as expected for replacing two copies with one
+keeps the message construction and its chat-scoped asset map. Diff stats
+(`git diff --numstat 771116f0..HEAD`, the two UI files): +89/−47 total,
+of which +41 added lines are the `policy_tests` module — production is
+**+48/−47** (`threads_ui.rs` +44/−25, `threads_writing.rs` +4/−22):
+essentially line-neutral, as expected when replacing two copies with one
 function plus two named helpers. The value is the single policy location and
-testability, not line count. No behavior change intended; the
-source-locator http(s) checks in `threads_writing.rs` were deliberately not
-consolidated (explicit controls over trusted stored locators are a different
-trust boundary than untrusted rendered Markdown).
+testability, not line count. Tests add 136 lines (95 Read-view journey, 41
+unit). No behavior change intended; the source-locator http(s) checks in
+`threads_writing.rs` were deliberately not consolidated (explicit controls
+over trusted stored locators are a different trust boundary than untrusted
+rendered Markdown).
 
 Tests: `read_view_shows_block_html_literally_and_renders_all_link_text`
 (real note Read view, stored and missing figures, https and javascript
@@ -51,17 +54,18 @@ cargo mutants -p brn-desktop --features native-ui,native-test-support \
 ```
 
 27 mutants (18 selected + 9 struct-field drag; see the quirk below):
-**15 missed, 4 caught, 8 unviable** (23 min).
+**15 missed, 4 caught, 8 unviable** (23 min). The selected-area misses were
+six: three genuine gaps and three headless-unobservable survivors.
 
 - **Caught (4):** the asset-visibility boundary (`assets_in_chat`/
   `note_assets` emptied or `&&`→`||`) is protected by the existing
   private-asset tests.
-- **Genuine gaps (2):** `LiteralHtml::parse → None` and the http(s) link
-  check `|| → &&` in `safe_message_for_thread` survived — no test covered
-  the rendering policy. Both are closed by the new tests (see run 2). The
-  Read-view test was also demonstrated by hand: passes on unmodified
-  production code, fails under `parse → None` on the block-HTML
-  literalness assertion.
+- **Genuine gaps (3):** `LiteralHtml::parse → None`, the http(s) link check
+  `|| → &&` in `safe_message_for_thread`, and `is_block → false` survived —
+  no test covered the rendering policy. All three are closed by the new
+  tests (see run 2). The Read-view test was also demonstrated by hand:
+  passes on unmodified production code, fails under `parse → None` on the
+  block-HTML literalness assertion.
 - **Headless-unobservable (3):** `LiteralHtml::name` ×2 (renderer identity
   only) and `is_block → true` (inline-plugin registration; inline literal
   glyphs are excluded from the plain copy by Kit design). Native
@@ -94,9 +98,9 @@ cargo mutants -p brn-desktop --features native-ui,native-test-support \
 
 - **Caught (9):** `external_link` → true / → false / `||`→`&&` (unit
   tests), `LiteralHtml::parse → None` and `is_block → false` (Read-view
-  test), and the four asset-visibility mutants above. Both run-1 gaps are
-  confirmed closed; mutation locations moved into the extracted helpers as
-  expected.
+  test), and the four asset-visibility mutants above. All three run-1 gaps
+  are confirmed closed; mutation locations moved into the extracted helpers
+  as expected.
 - **Missed (3 in area):** `name` ×2 and `is_block → true` — the same
   headless-unobservable survivors classified in run 1. Plus the 9 dragged
   struct-field mutants (styling/window options), unchanged.
@@ -142,8 +146,17 @@ worktree explicitly.
 
 ## Independent review
 
-OUTSTANDING — see the handoff report. Self-review performed; not counted as
-independent verification.
+An independent read-only review (reviewer agent, separate context; no file
+access beyond the diff and logs) covered behavior preservation, duplication
+removal, abstraction simplicity, test strength, docs accuracy and safety
+boundaries. Verdict: **approved**. It verified builder-order semantics
+against GPUI Kit 0.7.3 sources, confirmed `safe_markdown` is the crate's
+only policy registration point, confirmed the asset-visibility functions
+are untouched, and reproduced the mutation-run counts from the artifacts.
+Two low-severity documentation findings — imprecise diff-stat arithmetic
+and an undercounted run-1 gap list (`is_block → false` was a third genuine
+gap) — are fixed in this record. Human owner review remains open with the
+handoff.
 
 ## Gate separation
 
