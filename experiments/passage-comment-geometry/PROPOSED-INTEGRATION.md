@@ -50,12 +50,21 @@ fallback into Write. Passive measurement must not request reveal or scrolling.
 
 On every document/version/source/mode change, close/reload, selected comment
 removal, addressed/resolution/archival change, or payload/range/quote change:
-clear the binding, probe, highlight, frame result **and pending explicit reveal**.
-Identical Markdown in different documents must clear. A later revert/reopen
-must require new validated selection. Cancel only the host-owned request; if
-production introduces multiple reveal owners, use ownership/token semantics or
-coordinate at the single TextView state boundary rather than cancelling an
-unrelated request. Current toolkit keeps one pending explicit reveal per view.
+clear the binding, probe, highlight and frame result. Cancel its pending
+comment-owned reveal too. Document/mode invalidation cancels any reveal belonging
+to the invalidated document/mode, including outline requests. Identical Markdown
+in different documents must clear. A later revert/reopen requires new selection.
+
+BRN's existing outline navigation already calls `ThreadsUi::reveal` through
+`threads_document.rs`; both outline and comment navigation reach the same
+TextView. `clear_reveal` cancels unconditionally. Coordinate all Read reveal
+requests at that shared boundary with host-owned owner/document/generation
+state (or a supported request token). Track which request superseded which.
+Clearing a comment must not cancel a newer outline request. An invalid comment
+selection cancels its prior comment request but must leave an unrelated outline
+request alone. A valid explicit comment selection may supersede an outline
+request. The toolkit currently keeps one pending explicit reveal per view.
+This ownership rule belongs in BRN's integration, not in the passive glyph API.
 
 Consume each callback once after the viewer paints; paint the margin card
 later in that frame. Convert coordinates by subtracting the margin's window
@@ -93,7 +102,9 @@ and coordinate conversion, offscreen passive no-scroll, explicit reveal,
 resize/rewrap, first paint, same-text document switch, version switch, remove/
 reorder/addressed/payload mutation, clean mode round trip, failed replacement
 selection, pending reveal cancellation and large async change/revert checks.
-Use actual Store record IDs and actual document/navigation transitions.
+Add outline → comment and comment → outline supersession tests, including clear
+and rejected selection before the first reveal frame; only the request still
+owned by the invalidated context may be cancelled. Use actual Store record IDs and actual document/navigation transitions.
 
 Observe the actual note's text, clean/dirty session, generation/recovery record,
 Save eligibility and version, editor Undo/Redo and checked durable Undo before

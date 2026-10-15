@@ -14,12 +14,12 @@ geometry, collision layout, publication, merge or release.
 - Reviewer: `read_geometry_review`; two lenses (requirements and correctness).
   Stop/reassess on concrete review findings or missing C/source authority;
   do not create a competing writing build or an unapproved dependency fork.
-- Actual reviewed candidate: clean commit `38e0c95fd46e8ee96f5397d7f66e08662315e974`,
+- Initial reviewed candidate: clean commit `38e0c95fd46e8ee96f5397d7f66e08662315e974`,
   executable prototype `f64a9d50766428ac162d1e2e2d5d7db4c875bb3c`, verified base
-  `7e9d0376d677ed2a46bdbcd8933f55f9e1746a02`. New review records/evidence do not
-  change that implementation. Reviewer is inspecting the exact four-file
-  gpui-base patch, full host/tests and proposed BRN wiring against actual source.
-  This is not yet an actual production integration candidate.
+  `7e9d0376d677ed2a46bdbcd8933f55f9e1746a02`. The reviewer inspected its exact
+  four-file gpui-base patch, full host/tests and proposed BRN wiring, then
+  re-reviewed corrected clean commit **`c20bda2dda16257164f7c584f0c5fc20a301075f`**.
+  This is an isolated review reference, not a production integration candidate.
 - Original Z1 remains `b9bd1a14862fe2efe246790e887797c949f13c50`, unchanged.
 
 ## Current integration authority and dependency decision
@@ -53,7 +53,7 @@ self-assign C's authority or treat fetched main as C's integration ref.
 | Selected direction and bounded local integration-review assignment | Satisfied by current owner request. |
 | Fresh main and overlap inspection | Satisfied as above; live C confirmation pending. |
 | C integration ref, ownership and toolkit source | Blocked on specific missing confirmation/approval above. |
-| Independent toolkit/proposal review | Initial review complete: five valid findings, reproduced then fixed in the isolated reference. Corrected candidate review pending. |
+| Independent toolkit/proposal review | Complete for corrected reference `c20bda2`: all five findings fixed, no remaining actionable finding; reviewer independently reran 21/21 tests. Not production approval. |
 | Production integration commit and ported geometry fixtures | Pending dependency/ownership approval; no integration commit exists. |
 | Existing fallback production regression checks | Passed: 150 desktop tests; unchanged production code and stock toolkit. See exact command/evidence below. |
 | Native acceptance | Pending: console reports `CGSSessionScreenIsLocked = true`; no GUI launched. Also requires an approved actual integration candidate. |
@@ -62,9 +62,13 @@ self-assign C's authority or treat fetched main as C's integration ref.
 ## Corrected review artifacts
 
 The corrected implementation remains wholly under this experiment. Baseline
-is `7e9d0376d677ed2a46bdbcd8933f55f9e1746a02`; the final review record will pin
-its code commit independently of the original qualified prototype `f64a9d5`.
+is `7e9d0376d677ed2a46bdbcd8933f55f9e1746a02`; corrected reviewed code commit
+is **`c20bda2dda16257164f7c584f0c5fc20a301075f`**, separate from the original
+qualified prototype `f64a9d50766428ac162d1e2e2d5d7db4c875bb3c`. The final
+receipt changes only documentation/evidence, not this reviewed implementation.
 
+- [Exact corrected-reference changed files](review/CHANGED-FILES.txt), relative
+  to the prior handoff `38e0c95`. The final receipt adds only docs/evidence.
 - [Current four-file toolkit patch](patches/gpui-base-0.7.3-range-start.patch),
   SHA-256 `de6dcb320028f4d1848a44c3b2141fc87cd8edd7d23adb930500e4f40839b6d4`.
   Relative to stock pinned gpui-base 0.7.3, inside upstream `crates/base`.
@@ -106,6 +110,16 @@ evaluation or a production integration. The reviewed v1 remains immutable at
 `38e0c95`; original Z1 remains unchanged. The new [integration proposal](PROPOSED-INTEGRATION.md)
 adds pending-reveal cancellation and distinguishes addressed/resolved comments
 from `Comment.unresolved` (an unmappable passage).
+
+[Independent corrected review](review/independent-corrected.md) found no remaining
+actionable issue in the bounded reference, verified its patch hash and
+independently reran **21/21**, zero ignored. Its proposal verdict explicitly
+requires shared reveal ownership: existing outline navigation also calls the
+same TextView reveal path. Lead disposition: **valid integration requirement,
+deferred to the C/B production gate**; the proposal now names outline/comment
+supersession tests and conditional cancellation. The prototype has no outline
+owner and does not qualify that actual production interaction. No toolkit
+source approval or production acceptance is inferred from the clean review.
 
 ## Executed checks and practical limits
 

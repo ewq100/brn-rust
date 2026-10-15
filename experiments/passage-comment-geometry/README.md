@@ -5,8 +5,12 @@ A bounded synthetic host using the same `EditorState`/`Editor` and
 is painted beside its passage in Read. Clicking a comment uses the existing
 viewer reveal API. The host is not BRN's full desktop or a new editor.
 
-Read [HANDOFF.md](HANDOFF.md) for the completed selected-direction handoff,
-14-test evidence, current-main reconciliation and exact patch/commit identities.
+Read [INTEGRATION-REVIEW.md](INTEGRATION-REVIEW.md) for the corrected reference
+`c20bda2`, 21 passing tests, independent review, the 150-test retained production
+fallback result, and current blockers. Owner reply: “no c yet”; production
+integration has no approved ref/ownership/toolkit source. Native acceptance is
+pending. [PROPOSED-INTEGRATION.md](PROPOSED-INTEGRATION.md) is the bounded B/C
+handoff. [HANDOFF.md](HANDOFF.md) preserves the historical 14-test qualification;
 [REPORT.md](REPORT.md) retains the initial prototype investigation. The isolated toolkit change is
 [the patch](patches/gpui-base-0.7.3-range-start.patch); its source and license
 are recorded in [UPSTREAM.md](UPSTREAM.md).
@@ -20,6 +24,7 @@ python3 experiments/passage-comment-geometry/run.py build cargo build --locked -
 python3 experiments/passage-comment-geometry/run.py lint cargo clippy --locked --manifest-path experiments/passage-comment-geometry/Cargo.toml --all-targets -- -D warnings
 python3 experiments/passage-comment-geometry/run.py format cargo fmt --manifest-path experiments/passage-comment-geometry/Cargo.toml -- --check
 python3 experiments/passage-comment-geometry/run.py audit python3 experiments/passage-comment-geometry/audit.py
+python3 experiments/passage-comment-geometry/run.py integration-audit python3 experiments/passage-comment-geometry/integration-audit.py
 ```
 
 `run.py` selects this Mac's installed pinned compiler and

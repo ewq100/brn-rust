@@ -1,3 +1,7 @@
+> Historical investigation/qualification below. Current corrected reference,
+> independent review and pending integration/native gates are recorded in
+> [INTEGRATION-REVIEW.md](INTEGRATION-REVIEW.md). Original Z1 is unchanged.
+
 # Passage/comment positioning: current BRN editor and viewer
 
 **Handoff completed, 15 October 2026:** the owner selected extending the existing
