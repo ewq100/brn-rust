@@ -1,19 +1,25 @@
 # Daily workflow reliability: evaluation evidence
 
-**Date:** 15 October 2026. **Base:** `34c9239d` (#144). **Fix commits:** `422c9582` (fixes 1–3) and `dfe698aa` (Task A) on local branch `work/daily-workflow-reliability`, isolated worktree, approved in [review](review.md). **Scope:** service/runtime/CLI. The evaluation sections below describe the base tree; the fixes, their before/after results and the final verification follow under [Verification](#verification). `crates/brn-desktop` was read but not edited; the UI agent's worktree was not touched.
+**Date:** 15 October 2026. **Base:** `771116f0` (main, #145 helper sub-agents), after a [rebase](rebase-notes.md). **Fix commits:** `9f70efa7` (fixes 1–3, approved in [review](review.md)), `2530805f` (Task A), `145b8884` (helper sub-run lease test) and `3a7c3d25` (round 3) on local branch `work/daily-workflow-reliability`, isolated worktree. **History:** the evaluation and the fixes before round 3 ran on the earlier base `34c9239d` (#144), where fixes 1–3 were `422c9582` and Task A was `dfe698aa`. Hashes in sections labelled pre-rebase refer to that history, which the backup ref `work/daily-workflow-reliability-pre-rebase` (`914e2e6f`) keeps; the [rebase notes](rebase-notes.md) map each commit. **Scope:** service/runtime/CLI. The evaluation sections below describe the base tree; the fixes, their before/after results and the final verification follow under [Verification](#verification). Through Task A, `crates/brn-desktop` was read but not edited. Round 3 edited it at the UI agent's request (U2): `useful_intake` in `crates/brn-desktop/src/threads_ui.rs` (plus its test-module declaration) and a new `crates/brn-desktop/src/threads_intake_tests.rs`. The UI agent's worktree was not touched.
+
+**Round 3** (`3a7c3d25`, after the rebase onto `771116f0`; [round 3 verification](round3-verification.md)) applied U6, U4 and U2 as agreed with the UI agent, including the `useful_intake` call in `crates/brn-desktop`. Where a notice text below differs from the [round 3 table](round3-verification.md#u6-failure-notice-wording-cratesbrn-aisrcthreadsrs), the round 3 text is what this build shows. The owner manual check and the UI findings use the round 3 texts.
 
 ## Status
 
 | Item | Implemented | Verified (automated) | Native-observed | Owner-accepted | Merged |
 |---|---|---|---|---|---|
-| Fix 1: one terminal notice per chat, naming the cause | yes | yes | no | no | no |
-| Fix 2: lease-based orphan recovery on Resume/Dispatch | yes | yes (in-process; no two-process check) | no | no | no |
-| Fix 3: CLI useful intake honours `--project` and reuses its chat | yes | yes | n/a (CLI) | no | no |
-| Task A (review issue 1): intake-chat reuse skips a chat whose Run is live | yes (`dfe698aa`) | yes (in-process lease; [review](task-a-review.md) approved) | n/a (service/CLI) | no | no |
+| Fix 1: one terminal notice per chat, naming the cause | yes (`9f70efa7`) | yes | no | no | no |
+| Fix 2: lease-based orphan recovery on Resume/Dispatch | yes (`9f70efa7`) | yes (in-process; no two-process check) | no | no | no |
+| Fix 3: CLI useful intake honours `--project` and reuses its chat | yes (`9f70efa7`) | yes | n/a (CLI) | no | no |
+| Task A (review issue 1): intake-chat reuse skips a chat whose Run is live | yes (`2530805f`) | yes (in-process lease; [review](task-a-review.md) approved) | n/a (service/CLI) | no | no |
+| Rebase onto `771116f0`; a helper sub-run holds its parent's lease | yes (`145b8884`; [rebase notes](rebase-notes.md)) | yes (702 passed after the rebase) | n/a (service) | no | no |
 | Task B1: ⌘Q during a run, then Resume | n/a | service only (`run_recovery`) | **no** (shell denied; [attempt](#native-observation-attempt-task-b-not-observed)) | no | n/a |
 | Task B2: three provider failures, one Blocker | n/a | service/CLI only (Fix 1) | **no** (shell denied) | no | n/a |
 | Contract doc updates (`threads-behavior.md`, `invariants.md`, `status.md`) | no (proposed text below) | no | n/a | no | no |
-| Desktop hookup U2 | no (UI-owned) | no | no | no | no |
+| Round 3: U6 kind-specific notices, for example "Run failed: The provider account needs reconnecting. Continue when the provider is ready." and "Run interrupted. Continue starts fresh." ([table](round3-verification.md#u6-failure-notice-wording-cratesbrn-aisrcthreadsrs)) | yes (`3a7c3d25`) | yes (workspace 706 passed, 12 failed (known sandbox), 4 ignored) | no (owner checks 3–4) | no | no |
+| Round 3: U4 typed open-edit error `brn_threads_core::Error::EditSessionOpen { note, session, base_version }` (via `AppError::Core`); CLI `edit_session_open` JSON | yes (`3a7c3d25`) | yes | no (the desktop shows the generic notice until the UI branch matches the variant) | no | no |
+| Round 3: desktop hookup U2 (at the UI agent's request): `useful_intake` in `threads_ui.rs`, new `threads_intake_tests.rs` | yes (`3a7c3d25`) | yes (desktop 150 passed, 1 ignored, headless harness; cross-surface only with the CLI's exact locator string) | **no** (picker re-supply is [owner check 5](#owner-manual-check)) | no | no |
+| Round 3: U3 read-only check ([finding](u3-finding.md)): no service fields needed; the desktop's `ThreadRow` drops `Attention.record` | n/a (no code) | code reading | n/a | no | n/a |
 
 Nothing was pushed, merged or released. The branch has no upstream.
 
@@ -102,10 +108,11 @@ The current, reproducible list is in [UI findings for the UI agent (final)](#ui-
 
 ## Native observation recommended (not performed)
 
-Two checks remain. The owner approved them, but the agent shell could not run them ([attempt](#native-observation-attempt-task-b-not-observed)). Steps for a manual run are in [Owner manual check](#owner-manual-check).
+Three checks remain. The owner approved the first two, but the agent shell could not run them ([attempt](#native-observation-attempt-task-b-not-observed)). Steps for a manual run are in [Owner manual check](#owner-manual-check).
 
 1. Quit with ⌘Q during a useful intake. Check whether the Run is left `Working` (this confirms the finding 1 assumption), then check Resume after the fix.
 2. Fail the provider three times. Check the single blocker that names its cause.
+3. Round 3: supply a file through the CLI, then pick the same file in the desktop. Check that the desktop reuses the CLI's chat.
 
 ## Evaluation commands (base tree)
 
@@ -116,6 +123,8 @@ Two checks remain. The owner approved them, but the agent shell could not run th
 
 ## Verification
 
+*Pre-rebase history:* this section, the final verification and Task A below ran on `34c9239d`; the backup ref `work/daily-workflow-reliability-pre-rebase` keeps that tree. Results after the rebase are in the [rebase notes](rebase-notes.md#verification-after-rebase), and the current results are in [round 3 verification](round3-verification.md#repository-checks-all-run-once-on-the-final-tree).
+
 **Implementation iteration 1**, branch `work/daily-workflow-reliability` on `34c9239d`. Plan items 1–3 are implemented and item 4's journey regression is in place. Files changed: `crates/brn-ai/src/{run_lease.rs,lib.rs,threads.rs}`, `crates/brn-threads-app/src/{chat.rs,intake.rs}`, `crates/brn/src/main.rs`, `crates/brn/tests/threads.rs`, and the tests `crates/brn-threads-app/tests/{run_recovery,source_intake_chat,daily_workflow_eval}.rs`. `crates/brn-desktop`, `agent/` and `docs/status.md` are untouched. No dependencies or schema changes were added.
 
 Evidence classes: everything below is **automated, executed** on macOS arm64 with Rust 1.98.1, `CARGO_TARGET_DIR=/tmp/brn-dwr-target` and fresh synthetic data. **Native observation: none.** No provider calls were made: every provider step fails offline as `ReconnectNeeded`.
@@ -124,11 +133,13 @@ Evidence classes: everything below is **automated, executed** on macOS arm64 wit
 
 **Fix 1: one terminal notice per chat, naming the cause (finding 3).** `finish()` now removes the host terminal notices of earlier Interrupted/Failed Runs of the same chat before adding the new one (`replace_terminal_notice`). A failure names its owner-facing `AiError` text, which never includes provider detail. The earlier fixed text is still recognised in saved chats.
 
-| | Before | After |
+| | Before | After (round 1 texts; round 3 replaced them, see below) |
 |---|---|---|
 | Three failed asks in one chat (CLI journey, "Crane delivery") | 3 × `Blocker "Run failed; check provider or continue from retained progress"` | 1 × `Blocker "Run failed: Reconnect this account before continuing. Continue when the provider is ready."` on the newest Run |
 | A later Run stopped at startup | Failure notices kept, plus an Interrupted one | Only `"Run interrupted; Continue starts fresh"` remains; an owner Question in the chat survives |
 | Restart | Cause lost | Cause stays in the persisted attention reason |
+
+Round 3 replaced these texts: the no-credentials failure is now "Run failed: The provider account needs reconnecting. Continue when the provider is ready." and the interrupted notice is "Run interrupted. Continue starts fresh." (`INTERRUPTED_ATTENTION`). After a restart only that owner-terms cause remains. Technical detail such as a retry-after delay, an HTTP status or a provider code is not persisted ([round 3 limitation](round3-verification.md#known-limitations)).
 
 **Fix 2: lease-based orphan recovery on Resume/Dispatch (finding 1).** `begin()` takes an OS file lock on `derived/run-leases/<run>.lock` before the Run is saved as Working, and holds it in the Run's `Scope` until the Run ends. `Workspace::resume_queue` and `dispatch_queued` first call `recover_orphaned_runs`, which interrupts each Working Run whose lease is free. One checked owner change sets the Run to Interrupted, bumps its fence and adds the standard Interrupted notice. Its key is `orphan-recovery:{run}:{run version}:{chat version}`, so a retry replays. A live Run keeps today's refusals.
 
@@ -171,7 +182,7 @@ All other journey observations are unchanged (project create replay, document im
 - Fix 2 off (no recovery call): `resume_after_a_crash…` and `a_live_run_keeps_blocking…` failed with `Finish or stop current work before resuming the queue`.
 - Fix 3 off (`new_thread` per supply): `useful_intake_for_a_project_stays_in_one_project_chat_across_retries` failed with `reused_chat` `(false, false)`.
 
-### Final verification (tree `422c9582`, rerun after review)
+### Final verification (pre-rebase tree `422c9582`, now `9f70efa7`; rerun after review)
 
 Run from the worktree root with `PATH=/opt/homebrew/opt/rustup/bin:$PATH`, `CARGO_TARGET_DIR=/tmp/brn-dwr-target`, rustc 1.98.1, fresh data under `/private/tmp/brn-dwr-data/final-*`. All automated; no Mac UI driven, no provider calls.
 
@@ -226,7 +237,7 @@ Commands, run from the worktree with `PATH=/opt/homebrew/opt/rustup/bin:$PATH`, 
   - *Stop and recovery:* "A Run holds a liveness lease (`derived/run-leases/`) while it executes. Resume and queue dispatch interrupt any Working Run whose lease is free, with the standard Interrupted notice, so a crash or kill never blocks the queue. A newer interrupted or failed result replaces the chat's earlier host terminal notice; a failure names its cause."
   - *Attachments:* "CLI useful intake honours `--project`; supplying the same source again reuses the open chat in that scope that already received it."
   - *Invariants, chat context and saved queue:* "An orphaned Working Run (no live lease) is interrupted on Resume or dispatch; a live one keeps blocking."
-- **Desktop hookup U2.** Using `source_intake_chat` in `crates/brn-desktop/src/threads_ui.rs::useful_intake` still needs owner approval or UI-agent coordination.
+- **Desktop hookup U2.** Using `source_intake_chat` in `crates/brn-desktop/src/threads_ui.rs::useful_intake` still needs owner approval or UI-agent coordination. *Superseded:* round 3 applied it at the UI agent's request.
 
 ### Remaining limitations
 
@@ -238,12 +249,13 @@ Commands, run from the worktree with `PATH=/opt/homebrew/opt/rustup/bin:$PATH`, 
 - Two concurrent supplies of the same source still make two chats (Task A): the second skips the chat whose Run is live rather than interrupt it. A Run that is live but stuck in another process keeps its chat out of reuse until that process ends (see U1).
   - *Selection-to-begin window (Task A review).* Two same-source supplies that both pick the chat before either Run begins still share it, and the later `begin()` fences the earlier Run: the liveness check and the fence are separate transactions. Closing it needs a liveness check inside `begin()`'s write.
   - *Empty chat when `derived/` is unusable (Task A review).* Unknown liveness skips the chat, a new chat is created, and `begin()` then refuses on the same `derived/` check, leaving one empty chat per attempt.
-- Findings 4–10 and U3–U5 are unchanged.
+- Findings 4–10 and U3–U5 are unchanged. *Round 3:* finding 4 (U4) now gives a typed `EditSessionOpen` error; findings 5–10, U3 and U5 are unchanged.
 - **Model quality not judged.** The deterministic fixtures (scripted Rig model, offline `ReconnectNeeded` provider) prove only what the host offers, enforces and persists. They cannot judge whether a real model combines both sources with the existing note, states uncertainty honestly, asks the right owner question, avoids duplicate notes on re-supply or drafts a good reply. That needs an authorized live run on synthetic data.
 - **Email conversion not exercised.** `.eml` needs live Luna conversion, so the email was supplied as `.txt`/transient source.
-- **Native observation: none.** B1 and B2 were approved but not observed (shell denied process list, screen capture and UI control; B1 also needs a live provider). The ⌘Q-during-run assumption (finding 1) is from code inspection only.
+- **Native observation: none.** B1 and B2 were approved but not observed (shell denied process list, screen capture and UI control; B1 also needs a live provider). The round 3 picker re-supply (owner check 5) is also unobserved. The ⌘Q-during-run assumption (finding 1) is from code inspection only.
+- **Technical failure cause not persisted (round 3).** Only the owner-terms cause in the saved notice survives a restart; see U6 below and the [round 3 limitation](round3-verification.md#known-limitations).
 - Open non-blocking review issues ([review](review.md)), recorded rather than fixed:
-  - *Provider-centric suffix.* "Continue when the provider is ready." is appended for every failure kind, including tool/time limits and storage errors, and persists after restart.
+  - *Provider-centric suffix.* "Continue when the provider is ready." is appended for every failure kind, including tool/time limits and storage errors, and persists after restart. *Resolved in round 3:* the sentence now appears only for provider failures.
   - *Single-snapshot recovery.* Two simultaneous orphans in one chat need two Resumes, and the stale owner-direct preparation stays listed in `candidates()`.
   - *Destructive journey script.* `cli-journey.py` deletes its `ROOT` argument recursively before running; pass only a fresh path under `/private/tmp/brn-dwr-data/`.
 
@@ -255,13 +267,14 @@ Setup for every item: a fresh data folder (for example `/private/tmp/brn-ui-chec
   1. Open a chat, click ＋ (`composer-add`) → "Add useful information…", choose a synthetic `.md`.
   2. While "Reading useful information…" shows, force-quit BRN (⌘⌥Esc → Force Quit).
   3. Reopen BRN on the same data, type a message in another chat, press Return, then click "Resume" (`queue-resume`).
-  - *Expected:* the queued message dispatches, and the earlier chat shows "Run interrupted; Continue starts fresh" in Needs you.
+  - *Expected:* the queued message dispatches, and the earlier chat shows "Run interrupted. Continue starts fresh." in Needs you.
   - *Observed:* before the fix, Resume showed "Finish or stop current work before resuming the queue" and Needs you was empty (service tests). After the fix the service clears it (`run_recovery` tests). Remaining UI gap: when the Run is held by a live but stuck process, there is still no Stop control; consider one for a Run with no local worker.
 - **U2: one chat per desktop source supply.**
   1. In a chat, click ＋ → "Add useful information…" and pick `mari-email.txt`.
   2. Repeat step 1 with the same file.
   - *Expected:* the second supply goes into the existing "Information from mari-email" chat.
-  - *Observed (code):* `threads_ui.rs::useful_intake` calls `new_thread("Information from {title}")` every time, so there are two chats. Fix: call `Workspace::source_intake_chat(project, &converted.source_reference, &format!("Information from {title}"))`, passing the current project (or `None` for general). This is a desktop edit, so it belongs to the UI agent.
+  - *Observed (code, before round 3):* `threads_ui.rs::useful_intake` called `new_thread("Information from {title}")` every time, so there were two chats. Proposed fix at the time: call `Workspace::source_intake_chat(project, &converted.source_reference, &format!("Information from {title}"))`, passing the current project (or `None` for general). This is a desktop edit, so it belongs to the UI agent.
+  - *Round 3:* applied on this branch at the UI agent's request, with the open chat's project. Reuse matches the Source locator as an exact string. The desktop stores the picker's `path.to_string_lossy()` and the CLI the raw absolute `--source`, so a CLI-supplied file is reused from the picker only when both spell the path the same way (`/tmp` and `/private/tmp`, or a symlinked folder, would give a second chat). Not observed natively; see [owner check 5](#owner-manual-check).
 - **U3: identical review reasons.**
   1. Create a protected note "Delivery decision: 22 November" and an ordinary note "Survey".
   2. In a project chat, ask the agent to change the decision to 15 November and update Survey (a run in Review-first mode, or a project chat, so both come back as candidates).
@@ -273,27 +286,36 @@ Setup for every item: a fresh data folder (for example `/private/tmp/brn-ui-chec
   2. Leave the stale buffer open and start editing the same note again.
   - *Expected:* a message naming the open buffer and offering Compare/Discard.
   - *Observed (CLI):* `SQLite: UNIQUE constraint failed: edit_sessions.note`. Whether the desktop shows this raw text was not observed.
+  - *Round 3:* `begin_edit` returns `Error::EditSessionOpen { note, session, base_version }`, and CLI `begin-edit` prints `edit_session_open` JSON. Until the UI branch matches the variant, the desktop shows "Could not preserve this edit: this note already has an open unsaved edit. Keep this window open or copy your text." (code reading, not observed).
 - **U5: "Partial" badge on verbatim imports.** Click ＋ → "Import full note…" and pick a plain `.md`. *Observed (service):* outcome Partial, "completeness is unverified". The rule is deliberate; the owner should decide whether verbatim Markdown/text counts as Complete before any UI change.
-- **U6: longer failure notice, with a provider hint on every failure.** Leave the provider unconnected and send a message three times in one chat. *Expected after this branch:* one Blocker "Run failed: Reconnect this account before continuing. Continue when the provider is ready." The desktop does not match on the old fixed text, but rows are longer; check truncation.
-  - *Wording decision for the UI agent:* `failed_attention` (`crates/brn-ai/src/threads.rs`) appends "Continue when the provider is ready." for every failure kind. A tool-round limit gives "Run failed: The tool round limit was reached. Continue when the provider is ready.", which points at the wrong cause and persists after restart. Repro: a scripted run that exceeds `max_tool_rounds`, or code reading of `failed_attention`.
-  - *Proposed service change once the wording is agreed:* append the provider hint only for provider-kind failures, and a neutral "Continue starts fresh." or nothing otherwise. Keep the `"Run failed: "` prefix so `is_terminal_notice` still matches. Not applied here, because the reason is shown verbatim in Needs you.
+- **U6: kind-specific failure notice (applied in round 3).** Leave the provider unconnected and send a message three times in one chat. *Expected with this build:* one Blocker "Run failed: The provider account needs reconnecting. Continue when the provider is ready." Every failure kind's text is in the [round 3 table](round3-verification.md#u6-failure-notice-wording-cratesbrn-aisrcthreadsrs); none is longer than 89 characters. The interrupted notice is "Run interrupted. Continue starts fresh." (`INTERRUPTED_ATTENTION`).
+  - *Round 1 history:* `failed_attention` appended "Continue when the provider is ready." for every failure kind, so a tool-round limit gave "Run failed: The tool round limit was reached. Continue when the provider is ready.". Round 3 applied the wording agreed with the UI agent: the provider sentence only for account, network, rate-limit and unavailable-provider failures, and "Continue starts fresh." only where that is true. The `"Run failed: "` prefix is kept, and `is_terminal_notice` still recognises every earlier saved text.
+  - *Known limitation for the UI agent:* the technical cause is not persisted. A retry-after delay, an HTTP status or a provider code appears only in the desktop's live run outcome line (`threads_ui.rs`, `Failed(e) => Err(format!("{e}{notices}"))`) and in the CLI's `failure` JSON. After a restart only the owner-terms cause in the notice remains. `Run.progress` was left alone because it feeds the next model run. A structured failure field on the Run would be a later product choice.
 
 ## Integration risks with `work/ui-polish`
 
-- **Shared runtime seams.** `begin`, `finish` and `Scope` in `crates/brn-ai/src/threads.rs`; `resume_queue`, `dispatch_queued` and the new `recover_orphaned_runs` in `crates/brn-threads-app/src/chat.rs`; `crates/brn-threads-app/src/intake.rs`. If the UI branch touches these, resolve by hand and rerun `run_recovery`, `source_intake_chat` and the brn-ai notice/lease tests.
+State at `3a7c3d25` (round 3). Both branches now start from `771116f0`.
+
+- **Remaining shared runtime seams.** `begin`, `finish`, `Scope` and `failed_attention` in `crates/brn-ai/src/threads.rs`; `resume_queue`, `dispatch_queued` and the new `recover_orphaned_runs` in `crates/brn-threads-app/src/chat.rs`; `source_intake_chat` in `crates/brn-threads-app/src/intake.rs`; `begin_edit` in `crates/brn-threads-core/src/edit.rs`. The UI branch keeps these files off its branch. If either side touches them, resolve by hand and rerun `run_recovery`, `source_intake_chat`, the brn-ai notice/lease tests and the U4 core/app/CLI tests.
+- **Desktop files touched on this branch (U2, done here at the UI agent's request).** `crates/brn-desktop/src/threads_ui.rs`: `useful_intake` calls `Workspace::source_intake_chat` with the open chat's project (`project_for_chat`, or `None` for general), plus the `mod intake_tests` declaration. New file `crates/brn-desktop/src/threads_intake_tests.rs`. No layout, styling, control or wording change. Expect a small textual conflict if the UI branch touches the module list or `useful_intake`.
+  - Cross-surface reuse needs one path spelling: reuse matches `Source.locator` exactly, the desktop stores the picker's `path.to_string_lossy()` and the CLI the raw absolute `--source`. A `/tmp` against `/private/tmp` spelling, or a symlinked folder, gives a second chat and Source. Owner check 5 covers it (not observed).
+- **New notice texts (U6).** Saved notices are fixed per `AiErrorKind` ([round 3 table](round3-verification.md#u6-failure-notice-wording-cratesbrn-aisrcthreadsrs)). With no provider account: "Run failed: The provider account needs reconnecting. Continue when the provider is ready." Interrupted (`INTERRUPTED_ATTENTION`): "Run interrupted. Continue starts fresh." Any UI test asserting "Run failed; check provider…" or a round-1 text will fail. Assert on `brn_ai::threads::INTERRUPTED_ATTENTION` and the `Run failed: ` prefix instead. `is_terminal_notice` and `replace_terminal_notice` are public, and older saved notices are replaced, not duplicated. The technical cause is not persisted (U6 known limitation above).
+- **U4 typed error.** The UI should match `brn_threads_core::Error::EditSessionOpen { note, session, base_version }`, which reaches the desktop as `AppError::Core(Error::EditSessionOpen { .. })`, to offer Compare/Discard without matching text. The CLI equivalent is `begin-edit`'s `{"error":{"kind":"edit_session_open",…}}` on stderr with exit 1. Until the UI branch matches it, `note_changed` shows the generic notice with the non-raw Display.
+- **U3 finding (no service fields needed).** Target note titles and the Protected marker come from joining `Attention.record` to a `Prepared` in `ThreadsUi.candidates`, its note `Put`s and `ThreadsUi.records` ([finding](u3-finding.md)). The desktop's `ThreadRow` (`threads_lists.rs`) keeps only `reasons` and drops `Attention.record`, so the Needs you row cannot reach the candidate. Keeping `record` in the row model is a UI-branch change.
 - **Desktop behaviour that depends on this branch.**
-  - `threads_chat.rs::resume_chat_queue` already calls `stop_chat_run` on a queue-claimed Working Run without a liveness check, then `resume_queue`. That pre-existing desktop path is unchanged here and can still stop a Run that is live in another process; `resume_queue` now additionally interrupts lease-free orphans.
-  - Desktop tests that seed a Working Run to stand for a live worker and then call Resume/Dispatch will see it interrupted, because the seeded Run has no lease. None exists at `dfe698aa` (147 headless tests pass); new ones on `work/ui-polish` might.
-  - Terminal notice text changed (`failed_attention` now names the cause; `INTERRUPTED_ATTENTION`, `is_terminal_notice`, `replace_terminal_notice` are public). Any UI test asserting "Run failed; check provider…" will fail.
-- **Service API additions (no removals).** `Workspace::source_intake_chat(project, locator, title)`; `brn_ai::run_lease::{RunLease, run_is_live}`. CLI useful-intake JSON gains `thread` and `reused_chat` (`false` with a new `thread` when the earlier chat's Run is still live); `--project` with `--thread` is now refused; help gains two lines (possible conflict with `work/cli-agent-contract`). If the UI agent adopts `source_intake_chat` for U2, a desktop supply while a CLI Run on the same source is live gets its own chat instead of interrupting that Run.
+  - `threads_chat.rs::resume_chat_queue` already calls `stop_chat_run` on a queue-claimed Working Run without a liveness check, then `resume_queue`. That pre-existing desktop path is unchanged here and can still stop a Run that is live in another process; `resume_queue` now additionally interrupts lease-free orphans. A lease check there is left for integration, because leases are not on main yet.
+  - Desktop tests that seed a Working Run to stand for a live worker and then call Resume/Dispatch will see it interrupted, because the seeded Run has no lease. None exists at `3a7c3d25` (150 headless tests pass, 1 ignored); new ones on `work/ui-polish` might.
+  - The UI branch's secondary Stop (U1) uses the existing `stop_chat_run` (a `ChatCommand::Pause`). It is unchanged here and does not check the Run's lease, so the confirmation that another window or the CLI may still be running it stays necessary.
+- **Mixed CLI error formats.** `begin-edit` writes `edit_session_open` JSON to stderr and plain text for every other error on the same stream (`crates/brn/src/main.rs`, `begin_edit_error`). Keep this on the `work/cli-agent-contract` integration list: that design already uses the same names and plans to carry the line in `CliError.message`.
+- **Service API additions (no removals).** `Workspace::source_intake_chat(project, locator, title)`; `brn_ai::run_lease::{RunLease, run_is_live}`. CLI useful-intake JSON gains `thread` and `reused_chat` (`false` with a new `thread` when the earlier chat's Run is still live); `--project` with `--thread` is now refused; help gains two lines (possible conflict with `work/cli-agent-contract`). `brn_threads_core::Error::EditSessionOpen` is a new variant (round 3). Since desktop `useful_intake` uses `source_intake_chat` (U2), a desktop supply while a CLI Run on the same source is live gets its own chat instead of interrupting that Run.
 - **Storage.** New derived folder `derived/run-leases/` (excluded from backup/restore like all of `derived/`; no schema change). `begin()` refuses to start a Run when `derived/` is unsafe (for example a symlink).
 - **Mixed builds.** A desktop and CLI from different builds (one without leases) would see each other's live Runs as orphans. Check the combined branch from one build: the full desktop state suite, an unsandboxed `scripts/verify-storage.sh`, and a desktop-plus-CLI run on shared synthetic data.
 - **Docs.** Contract text for `threads-behavior.md`, `invariants.md` and `docs/status.md` is proposed above and not applied, because `docs/status.md` is shared with the UI branch. Apply once at integration.
-- **Native observation** (⌘Q during a run, three provider failures) is still pending and must not run while the UI agent drives the Mac. See [Owner manual check](#owner-manual-check).
+- **Native observation** (⌘Q during a run, three provider failures, and the round 3 picker re-supply of a CLI-supplied file) is still pending and must not run while the UI agent drives the Mac. See [Owner manual check](#owner-manual-check).
 
 ## Native observation attempt (Task B): not observed
 
-On 15 October 2026 (`dfe698aa`) the owner approved native observation, but the agent shell could not perform it. No app was launched and no GUI was observed.
+On 15 October 2026 (pre-rebase `dfe698aa`, now `2530805f`) the owner approved native observation, but the agent shell could not perform it. No app was launched and no GUI was observed.
 
 - **Process list denied.** `ps` and `/bin/ps` fail with "operation not permitted", `pgrep` with "Cannot get process list", and `lsof` sees only itself. The shell cannot confirm that no other `brn-desktop` (the UI agent's or the owner's) is running.
 - **Screen capture and UI control denied.** `screencapture -x` fails with "could not create image from display", and System Events fails with error -13056.
@@ -318,6 +340,7 @@ cd /Users/evokessler/repos/brn-rust/.worktrees/daily-workflow-reliability
 export PATH=/opt/homebrew/opt/rustup/bin:$PATH CARGO_TARGET_DIR=/tmp/brn-dwr-target
 cargo build -p brn-intake --features helper --bin brn-intake-helper --locked --offline
 cargo build -p brn-desktop --features native-ui --locked --offline
+cargo build -p brn --locked --offline   # CLI for check 5
 ps -axo pid,command | grep -i '[b]rn-desktop'   # must print nothing
 ```
 
@@ -349,6 +372,10 @@ SELECT substr(json_extract(body,'$.data.Message.thread'),1,13) AS chat,
        json_extract(body,'$.data.Message.role') AS role,
        substr(json_extract(body,'$.data.Message.text'),1,50) AS text
 FROM records WHERE json_type(body,'$.data.Message') IS NOT NULL;
+SELECT substr(id,1,13) AS source,
+       json_extract(body,'$.data.Source.locator') AS locator,
+       substr(json_extract(body,'$.data.Source.chat'),1,13) AS source_chat
+FROM records WHERE json_type(body,'$.data.Source') IS NOT NULL;
 SQL
   rm -rf "$copy"
   ls -la "$data/derived/run-leases/" 2>/dev/null || echo "derived/run-leases/: absent"
@@ -370,7 +397,7 @@ env HOME="$B2/home" CODEX_HOME="$B2/codex" \
 ```
 
 - **Send three times.** Open a new chat (⌘T), type a synthetic question and press Return. Wait for it to fail, then send in the same chat twice more.
-- **Expected in Needs you** (Home, ⌘0): exactly one Blocker for that chat, "Run failed: Reconnect this account before continuing. Continue when the provider is ready." Note any truncation or wording issue as U6 for the UI agent. If the desktop refuses before starting a Run, record that instead.
+- **Expected in Needs you** (Home, ⌘0): exactly one Blocker for that chat, "Run failed: The provider account needs reconnecting. Continue when the provider is ready." (round 3 text). Note any truncation or wording issue as U6 for the UI agent. If the desktop refuses before starting a Run, record that instead.
 - **Then** quit with ⌘Q and run `brn_inspect "$B2/data"`.
   - *Expected:* three `Failed` Runs in that chat, one Blocker row for it, and an empty or absent `derived/run-leases/`.
 
@@ -389,6 +416,33 @@ BRN_INTAKE_HELPER=/tmp/brn-dwr-target/debug/brn-intake-helper \
    - Note any leftover `<run>.lock` in `derived/run-leases/`. A leftover lock file is unlocked and harmless.
    - Note the intake chat's attention. It is expected to be empty at this point.
 3. **Relaunch and queue.** Relaunch with the same command. Open another chat (⌘T), type a message and press Return. If Resume (`queue-resume`) is enabled, click it. If it is disabled, record that, and record whether the message dispatched anyway.
-4. **Expected:** the message dispatches once, and the intake chat shows one "Run interrupted; Continue starts fresh" Blocker in Needs you. Quit with ⌘Q and run `brn_inspect "$B1/data"`.
+4. **Expected:** the message dispatches once, and the intake chat shows one "Run interrupted. Continue starts fresh." Blocker in Needs you (round 3 text, `INTERRUPTED_ATTENTION`). Quit with ⌘Q and run `brn_inspect "$B1/data"`.
    - *Expected in the store:* the intake Run is `Interrupted` with its fence raised by one. There is exactly one owner Message with your text, one new Run in the second chat, and one Blocker row for the intake chat.
 5. **Finally**, confirm `ps -axo pid,command | grep -i '[b]rn-desktop'` prints nothing.
+
+**5. U2: the desktop picker re-supplies a file the CLI supplied (offline).** Reuse matches the Source locator as an exact string. The CLI stores the absolute `--source` text and the desktop stores the picker's path, so this checks that the picker spells the path the way the CLI did. The overrides are the same as B2, so every Run fails as `ReconnectNeeded` before any network request.
+
+```sh
+U2=/private/tmp/brn-dwr-data/native-u2
+mkdir -p "$U2/home" "$U2/codex" "$U2/files"
+printf 'From: Mari Example <mari@example.invalid>\nSubject: Crane delivery\n\nSynthetic: measured berth depth is 1.4 m.\n' > "$U2/files/u2-email.txt"
+env HOME="$U2/home" CODEX_HOME="$U2/codex" \
+  BRN_INTAKE_HELPER=/tmp/brn-dwr-target/debug/brn-intake-helper \
+  /tmp/brn-dwr-target/debug/brn-desktop --data-dir "$U2/data" --headless-check startup
+brn_inspect "$U2/data"   # same credential check as B2; otherwise stop
+env HOME="$U2/home" CODEX_HOME="$U2/codex" \
+  BRN_INTAKE_HELPER=/tmp/brn-dwr-target/debug/brn-intake-helper \
+  /tmp/brn-dwr-target/debug/brn --data-dir "$U2/data" \
+  intake --source "$U2/files/u2-email.txt" --intent useful
+env HOME="$U2/home" CODEX_HOME="$U2/codex" \
+  BRN_INTAKE_HELPER=/tmp/brn-dwr-target/debug/brn-intake-helper \
+  /tmp/brn-dwr-target/debug/brn-desktop --data-dir "$U2/data"
+```
+
+1. **CLI result.** The `intake` JSON shows `"reused_chat": false`, a `thread`, and a `Failed` terminal. Note the thread ID.
+2. **Picker re-supply.** In the desktop, open the "Useful information intake" chat from the chat list. Click ＋ → "Add useful information…", press ⌘⇧G, type `/private/tmp/brn-dwr-data/native-u2/files/` and choose `u2-email.txt`.
+   - *Expected:* no "Information from u2-email" chat appears. The run fails in "Useful information intake", and Needs you shows one Blocker for it.
+3. **Inspect.** Quit with ⌘Q and run `brn_inspect "$U2/data"`.
+   - *Expected:* one Source row with locator `/private/tmp/brn-dwr-data/native-u2/files/u2-email.txt`, two `Failed` Runs in the CLI's chat, and one Blocker row for it. There are two owner Messages there, because the CLI and desktop instruction texts differ (round 3 integration item 5).
+   - *If a second chat and a second Source appear,* record both locators. The picker spelled the path differently, so cross-surface reuse does not hold for that spelling.
+4. **Optional `/tmp` spelling.** Relaunch, repeat step 2 with ⌘⇧G `/tmp/brn-dwr-data/native-u2/files/`, quit and inspect again. Record the new locator and whether a new chat appeared.

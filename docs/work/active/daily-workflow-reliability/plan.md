@@ -2,7 +2,7 @@
 
 **Assignment:** owner request of 15 October 2026. Test complete daily workflows, including interruption and recovery, then fix the highest-impact demonstrated problems within service/runtime ownership. **No publish, push, merge or release.** Work only in `/Users/evokessler/repos/brn-rust/.worktrees/daily-workflow-reliability`, using `CARGO_TARGET_DIR=/tmp/brn-dwr-target` and fresh data under `/private/tmp/brn-dwr-data/` (not `/tmp`, which is a symlink). Commit locally after each item.
 
-**Ownership:** edit only `crates/brn-threads-core`, `brn-threads-app`, `brn-threads-intake`, `brn-intake`, `brn-ai`, `brn-retrieval`, `brn` and docs. **Do not edit `crates/brn-desktop`.** Items marked REQUIRES-OWNER-APPROVAL are listed and not applied. Change `agent/` guidance only for a demonstrated runtime need; none is planned. No new dependencies. Cargo.lock is version authority, and std `File::try_lock` (Rust ≥ 1.89) is available under the pinned 1.98.1.
+**Ownership:** edit only `crates/brn-threads-core`, `brn-threads-app`, `brn-threads-intake`, `brn-intake`, `brn-ai`, `brn-retrieval`, `brn` and docs. **Do not edit `crates/brn-desktop`.** Items marked REQUIRES-OWNER-APPROVAL are listed and not applied. *Superseded by item 6:* at the UI agent's request, round 3 edits `crates/brn-desktop/src/threads_ui.rs::useful_intake` (the U2 call and its project lookup) and adds `crates/brn-desktop/src/threads_intake_tests.rs`. No other desktop edits. Change `agent/` guidance only for a demonstrated runtime need; none is planned. No new dependencies. Cargo.lock is version authority, and std `File::try_lock` (Rust ≥ 1.89) is available under the pinned 1.98.1.
 
 **Evidence:** [evaluation](evidence.md). Selected findings: **1** (orphaned Working run blocks every queue), **2** (useful intake ignores the CLI project and makes a chat per supply), **3** (failure blockers pile up and lose their cause). Implementation follows dependency order: item 1 adds the terminal-notice helper that item 2 reuses.
 
@@ -32,12 +32,12 @@
       - Add `pub fn is_terminal_notice(reason: &str) -> bool`: the interrupted text, the legacy failed text, or a `"Run failed: "` prefix.
       - Add `pub fn replace_terminal_notice(attention: &mut Vec<Attention>, run: &str, reason: String, superseded: impl Fn(&str) -> bool)`. It drops Blocker items whose reason is a terminal notice and whose `record` is `run` or a superseded earlier run of this chat, then pushes the new Blocker.
       - In `finish()`'s non-Completed branch, compute the superseded runs exactly as the Completed branch does (same-thread Run records in Failed/Interrupted state, other than this run) and call the helper.
-      - Failed reason: `format!("Run failed: {error} Continue when the provider is ready.")`, bounded to 512 bytes, using `AiError`'s Display (never `detail`).
+      - Failed reason: `format!("Run failed: {error} Continue when the provider is ready.")`, bounded to 512 bytes, using `AiError`'s Display (never `detail`). *Superseded by item 6:* kind-specific fixed texts.
       - Update the success branch to match through `is_terminal_notice`.
       - Question, Review and Conflict attention, and unrelated Blockers, are untouched.
 
       Regression (fail-before/pass-after) in the brn-ai threads test module, beside the existing attention tests around `threads.rs` ~3854/4039:
-      - Three `run()` calls with `auth_file: None` and `credentials_dir: None`, which yield `ReconnectNeeded` before any network, leave exactly one Blocker containing "Reconnect this account". A pre-existing Question survives.
+      - Three `run()` calls with `auth_file: None` and `credentials_dir: None`, which yield `ReconnectNeeded` before any network, leave exactly one Blocker containing "Reconnect this account" (item 6 changed the expected text to the new `ReconnectNeeded` notice). A pre-existing Question survives.
       - A later startup-cancelled run replaces it with one Interrupted blocker. Fail-before: three blockers.
 
       Files: `crates/brn-ai/src/threads.rs` (and its in-file tests or `threads_*_tests.rs`).
@@ -50,7 +50,7 @@
       - `pub fn run_is_live(data_dir, run) -> bool`: a missing file is not live. `try_lock` Ok is not live (unlock immediately). `WouldBlock` or any other error is live; when unsure, do not interrupt.
       - Add the module to `lib.rs`.
 
-      In `begin()` (`threads.rs`), acquire the lease for `run_id` immediately after `op.creation_id(0)` and **before** `store.apply` of the start group. Move it into `Scope` (new field `_lease: RunLease`, built at ~line 2045) so it lives until the run future and `PreparedThreadRun` drop.
+      In `begin()` (`threads.rs`), acquire the lease for `run_id` immediately after `op.creation_id(0)` and **before** `store.apply` of the start group. Move it into `Scope` (new field `_lease: RunLease`, built at ~line 2045; after the rebase `lease: Arc<RunLease>`, shared with helper scopes) so it lives until the run future and `PreparedThreadRun` drop.
 
       In `crates/brn-threads-app/src/chat.rs`, add `pub fn recover_orphaned_runs(&mut self) -> AppResult<Vec<String>>`:
       - Take each non-archived `RunState::Working` Run where `!brn_ai::run_lease::run_is_live(self.store.directory(), id)`.
@@ -92,6 +92,7 @@
       - New CLI test in `crates/brn/tests/threads.rs`, `useful_intake_for_a_project_stays_in_one_project_chat_across_retries`. Configure Codex with a nonexistent auth file so the provider fails offline, following the existing CLI test helpers. Run `intake --intent useful --project P` on a synthetic `.txt` twice. Expect exactly one new thread, listed in P's `chats`; the Source record's `chat` equal to that thread (not `null`); one owner instruction Message; general `search` unchanged; `--thread X --project P` exits non-zero. Fail-before: two general threads and a `chat: null` Source.
 
       REQUIRES-OWNER-APPROVAL, not applied: in `crates/brn-desktop/src/threads_ui.rs::useful_intake`, replace `self.workspace.new_thread(&format!("Information from {title}"))` with `self.workspace.source_intake_chat(None, &converted.source_reference, &format!("Information from {title}")).map(|(chat, _)| chat)`. Hand off as UI finding U2.
+      *Superseded by item 6:* round 3 applied this call at the UI agent's request, passing the open chat's project (`project_for_chat`) instead of `None`, or `None` for a general chat.
 
       Files: `crates/brn-threads-app/src/intake.rs`, `crates/brn/src/main.rs`, `crates/brn-threads-app/tests/source_intake_chat.rs`, `crates/brn/tests/threads.rs`.
       Verify: `CARGO_TARGET_DIR=/tmp/brn-dwr-target cargo test --locked --offline -p brn-threads-app -p brn` passes.
@@ -120,14 +121,18 @@
       Review issue 2 (provider-centric suffix) is not applied: the reason is desktop-visible wording, handed off as U6.
 
 - [x] 6. **Round 3, agreed with the UI agent: U6 notice wording, U4 typed edit-session error, U2 desktop intake reuse; U3 read-only.**
-      Kind-specific "Run failed: …" notices with a provider sentence only for provider failures, and "Run interrupted. Continue starts fresh.". `Error::EditSessionOpen` from `begin_edit` and CLI `edit_session_open` JSON. Desktop `useful_intake` calls `source_intake_chat`. Results: [round 3 verification](round3-verification.md) and [U3 finding](u3-finding.md).
+      Kind-specific "Run failed: …" notices with a provider sentence only for provider failures, and "Run interrupted. Continue starts fresh.". `Error::EditSessionOpen` from `begin_edit` and CLI `edit_session_open` JSON. Desktop `useful_intake` calls `source_intake_chat`. Commit `3a7c3d25`, on the branch rebased onto `771116f0` ([rebase notes](rebase-notes.md)). At the UI agent's request this item supersedes the header's "Do not edit `crates/brn-desktop`" and item 3's unapplied U2 note. Results: [round 3 verification](round3-verification.md) and [U3 finding](u3-finding.md).
 
 ## Integration risks (check both branches together later)
 
-- `crates/brn-ai/src/threads.rs` (`begin`, `finish`, `Scope`) and `crates/brn-threads-app/src/chat.rs` are shared seams. The UI branch (`work/ui-polish`) consumes the Resume/Dispatch notices and the attention reasons, and its native tests seed Working runs.
+The current list, updated for round 3, is in the [evidence](evidence.md#integration-risks-with-workui-polish).
+
+- `crates/brn-ai/src/threads.rs` (`begin`, `finish`, `Scope`, `failed_attention`), `crates/brn-threads-app/src/chat.rs`, `crates/brn-threads-app/src/intake.rs` and `crates/brn-threads-core/src/edit.rs` are shared seams. The UI branch (`work/ui-polish`) consumes the Resume/Dispatch notices and the attention reasons, and its native tests seed Working runs.
+- Item 6 touched `crates/brn-desktop/src/threads_ui.rs` (`useful_intake` and a test-module declaration) and added `crates/brn-desktop/src/threads_intake_tests.rs`.
 - Run the combined desktop state suite after merging both branches.
-- The failure blocker text changes from the fixed "Run failed; check provider…" to "Run failed: {cause} …". The desktop does not match this text (checked), but snapshots or wording reviews might.
-- `crates/brn/src/main.rs` (useful intake JSON gains `thread`/`reused_chat`) may conflict with `work/cli-agent-contract`.
+- The failure blocker text changed from the fixed "Run failed; check provider…" to kind-specific texts such as "Run failed: The provider account needs reconnecting. Continue when the provider is ready.", and the interrupted notice is "Run interrupted. Continue starts fresh.". The desktop does not match this text (checked), but snapshots or wording reviews might.
+- U4: the UI matches `brn_threads_core::Error::EditSessionOpen { note, session, base_version }` (via `AppError::Core`). U3 needs no service fields.
+- `crates/brn/src/main.rs` (useful intake JSON gains `thread`/`reused_chat`; `begin-edit` writes `edit_session_open` JSON but plain text for other errors on the same stream) may conflict with `work/cli-agent-contract`.
 - `derived/run-leases/` is a new derived subfolder. Backups and restores ignore it, and `Store::open` already permits `derived/`.
 
 ## Remaining limitations after this plan

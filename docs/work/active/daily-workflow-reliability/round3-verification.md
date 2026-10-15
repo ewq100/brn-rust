@@ -1,6 +1,6 @@
 # Round 3: U6 notice wording, U4 typed edit-session error, U2 desktop intake reuse
 
-**Date:** 15 October 2026. **Base:** `c408b1d4` on `work/daily-workflow-reliability` (rebased onto `771116f0`). Local only: nothing pushed, merged or released. U3 was a read-only check; its result is in [u3-finding.md](u3-finding.md).
+**Date:** 15 October 2026. **Commit:** `3a7c3d25`. **Base:** `c408b1d4` on `work/daily-workflow-reliability` (rebased onto `771116f0`). Local only: nothing pushed, merged or released. U3 was a read-only check; its result is in [u3-finding.md](u3-finding.md).
 
 **Environment:** worktree `.worktrees/daily-workflow-reliability`, `PATH=/opt/homebrew/opt/rustup/bin:$PATH`, `CARGO_TARGET_DIR=/tmp/brn-dwr-target`, rustc 1.98.1, `--locked --offline`. Synthetic data under `/private/tmp/brn-dwr-data/` and test temp directories only. No provider calls: every run had no credentials or a missing auth file and failed as `ReconnectNeeded` before any network. No Mac UI was driven.
 
@@ -8,7 +8,7 @@
 
 ### U6: failure notice wording (`crates/brn-ai/src/threads.rs`)
 
-`failed_attention` maps each `AiErrorKind` to one cause sentence in owner terms. "Continue when the provider is ready." is added only for provider failures, and another recovery sentence only where it is true. `AiError`'s Display is unchanged. The desktop's live run outcome line (`threads_ui.rs`, `Failed(e) => Err(format!("{e}…"))`) and the CLI's `failure` JSON still carry the technical cause, including `Retry after N seconds`, so no cause is lost from the run's progress. Nothing was written to `Run.progress`, because that field feeds the next model run.
+`failed_attention` maps each `AiErrorKind` to one cause sentence in owner terms. "Continue when the provider is ready." is added only for provider failures, and another recovery sentence only where it is true. `AiError`'s Display is unchanged. The desktop's live run outcome line (`threads_ui.rs`, `Failed(e) => Err(format!("{e}…"))`) and the CLI's `failure` JSON still carry the technical cause, including `Retry after N seconds`, while the run's session is live. Nothing was written to `Run.progress`, because that field feeds the next model run. The technical cause is therefore not persisted; see [Known limitations](#known-limitations).
 
 | Kind | Saved notice | Chars |
 |---|---|---|
@@ -81,6 +81,8 @@ Both binaries came from the same tree and target directory (`/tmp/brn-dwr-target
 
 Persisted state after all three: 1 Thread, 3 Runs in it (all Failed), 1 Source (general, `chat: null`), 3 owner Messages, and **1** Blocker: "Run failed: The provider account needs reconnecting. Continue when the provider is ready.". No Run was live at any step, so reuse was expected.
 
+**Precondition: the same locator string.** Reuse matches `Source.locator` exactly. The desktop builds it from the picker path (`threads_ui.rs`, `path.to_string_lossy()`), and the CLI stores the raw `--source` argument, which only has to be absolute (`main.rs`, `intake`). This check passed the CLI's string to the desktop harness through `BRN_DWR_SHARED_SOURCE`, so it shows reuse when the two strings match. It does not show that a macOS picker selection of the same file produces that string. A `/tmp` against `/private/tmp` spelling, or a symlinked folder, would give a second chat and a second Source. The picker re-supply is [owner manual check 5](evidence.md#owner-manual-check) (not observed).
+
 ## Repository checks (all run once on the final tree)
 
 | Command | Result |
@@ -115,4 +117,11 @@ Persisted state after all three: 1 Thread, 3 Runs in it (all Failed), 1 Source (
 3. **U4:** match `AppError::Core(Error::EditSessionOpen { note, session, base_version })` to offer Compare/Discard. `Workspace.store.edit_session(&session)` returns the buffer and its generation for Discard. Until then, the generic notice shows the non-raw Display.
 4. **Project choice timing:** `useful_intake` reads the open chat's project when conversion finishes, not when the file was chosen. If the owner switches chats during conversion, the source follows the chat open at the end. Capturing it at choose time needs a `WorkerEvent::Converted` field, which is UI-owned plumbing.
 5. **Repeated instruction messages:** each desktop supply still posts its instruction (unchanged logic), and the CLI and desktop instruction texts differ. A reused chat therefore gets one owner Message per supply, and in the CLI-desktop-CLI check there were 3 for 3 supplies. The CLI alone does not repost on an identical retry.
-6. **CLI JSON errors** go to stderr. `HELP` does not mention `edit_session_open` yet, to avoid a conflict with `work/cli-agent-contract`.
+6. **CLI JSON errors** go to stderr. `HELP` does not mention `edit_session_open` yet, to avoid a conflict with `work/cli-agent-contract`. **Mixed formats:** `begin-edit` writes JSON for `edit_session_open` and plain text for every other error on the same stream (`main.rs`, `begin_edit_error`). This stays on the `work/cli-agent-contract` integration list: section 10 of that design already uses the same names and plans to carry the line in `CliError.message`, which leaves a one-line conflict for the lead.
+7. **Cross-surface reuse needs one path spelling.** A desktop picker supply reuses a CLI intake chat only when both store the same locator string (see the precondition above).
+
+## Known limitations
+
+- **Technical failure cause not persisted (for the UI agent).** After a restart only the owner-terms cause in the saved notice remains. A retry-after delay, an HTTP status or a provider code appears only in the desktop's live run outcome line and in the CLI's `failure` JSON. `Run.progress` was left alone because it feeds the next model run. A structured failure field on the Run would be a later product choice; this branch adds none.
+- **Desktop picker spelling not observed.** See the precondition and owner manual check 5.
+- **No native observation.** The desktop checks used the headless gpui state harness.
