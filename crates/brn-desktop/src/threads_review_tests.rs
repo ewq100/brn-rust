@@ -4,7 +4,7 @@ use super::layout::{MarginMode, ReviewFit};
 use super::polish_tests::{
     Fixture, assert_in, choose, fixture, menu_rows, on_window, type_edit, update, window_bounds,
 };
-use super::writing::{ProposalShape, review_footer};
+use super::writing::{COMMENTS_FLOOR, ProposalShape, review_footer};
 use super::*;
 use gpui_kit::{Focusable, TestAppContext, test::TestWindowExt};
 
@@ -524,6 +524,53 @@ fn review_bar_keeps_one_row_and_opens_stacked_comments_above_the_footer_at_900x6
         assert!(window.find("comment-composer").visible());
         assert_in(window, "note-bar", window.find("tile-note").bounds());
     });
+
+    // In Result, Escape inside the section returns focus to the formatted
+    // proposal.
+    on_window(cx, &f, |window, cx| window.click("review-read-result", cx));
+    escape_from_comments(cx, &f);
+    update(cx, &f, |view, window, cx| {
+        assert!(view.review_reading && !view.comments_expanded);
+        assert!(
+            view.candidate_view
+                .read(cx)
+                .focus_handle()
+                .is_focused(window)
+        );
+        assert_eq!(view.comment_input.read(cx).value().as_ref(), "Draft kept");
+    });
+    // While editing the final text, it returns focus to the text being
+    // edited.
+    on_window(cx, &f, |window, cx| window.click("note-menu", cx));
+    choose(cx, &f, "Edit final text");
+    escape_from_comments(cx, &f);
+    update(cx, &f, |view, window, cx| {
+        assert!(view.review_editing && !view.comments_expanded);
+        assert!(
+            view.review_editor
+                .read(cx)
+                .focus_handle(cx)
+                .is_focused(window)
+        );
+        assert_eq!(view.comment_input.read(cx).value().as_ref(), "Draft kept");
+    });
+}
+
+/// Open the stacked section, focus the kept draft inside it and press
+/// Escape.
+fn escape_from_comments(cx: &mut TestAppContext, f: &Fixture) {
+    if !cx.read(|cx| f.view.read(cx).comments_expanded) {
+        on_window(cx, f, |window, cx| window.click("toggle-margin", cx));
+    }
+    update(cx, f, |view, window, cx| {
+        assert!(view.comments_expanded);
+        view.comment_input
+            .update(cx, |editor, cx| editor.focus(window, cx));
+    });
+    on_window(cx, f, |window, _| {
+        assert!(window.find("comment-composer").visible())
+    });
+    on_window(cx, f, |window, cx| window.press("escape", cx));
 }
 
 /// The icon arrangement still fits one row at 900×600 with a two-digit
@@ -580,6 +627,175 @@ fn review_bar_keeps_one_row_with_twelve_comments_at_900x600(cx: &mut TestAppCont
         let used = px_of(apply.right() - first - space);
         assert!(used <= px_of(bar.size.width) - 16., "{used} of {bar:?}");
     });
+}
+
+/// A whole-note rewrite of the open note with overall feedback, plus the
+/// other writes given, opened in review.
+fn review_rewrite_with(
+    cx: &mut TestAppContext,
+    f: &Fixture,
+    thread: &str,
+    feedback: &str,
+    also: Vec<Put>,
+) {
+    let ids = comment_ids(cx, f);
+    update(cx, f, |view, window, cx| {
+        let note = view.workspace.store.note(&f.note.id).unwrap().unwrap();
+        let key = format!("s4-request-{}", uuid::Uuid::new_v4());
+        let snapshot = view
+            .workspace
+            .snapshot_writing_request_with_feedback(
+                &key,
+                &note.id,
+                note.version,
+                thread,
+                &ids,
+                feedback,
+            )
+            .unwrap();
+        let mut request = snapshot.change_request(REVISED).unwrap();
+        request.writes.extend(also);
+        let operation = view
+            .workspace
+            .store
+            .allocate_operation(&format!("s4-proposal-{}", uuid::Uuid::new_v4()))
+            .unwrap();
+        let candidate = view.workspace.store.prepare(&operation, &request).unwrap();
+        view.refresh();
+        view.open_review(candidate, window, cx);
+    });
+}
+
+/// The exact-text footer is whole inside the Note panel and the window,
+/// with its full text.
+fn assert_footer_whole(window: &Window, footer: &str, case: &str) {
+    assert_eq!(window.find("note-bar").label(), Some(footer), "{case}");
+    assert_in(window, "note-bar", window.find("tile-note").bounds());
+    assert!(
+        window.find("note-bar").bounds().bottom() <= px(600.),
+        "{case}"
+    );
+}
+
+/// The details give way, then the text, while the open section keeps its
+/// label and first card's first line.
+fn assert_shared_height(window: &Window, comments: &[String], case: &str) {
+    let details = window.find("review-details").bounds();
+    assert!(details.size.height >= px(44.), "{case}: {details:?}");
+    let text = window.find("review-body").bounds();
+    assert!(text.size.height >= px(119.), "{case}: {text:?}");
+    let section = window.find("comments-section").bounds();
+    assert!(
+        section.size.height >= COMMENTS_FLOOR - px(1.),
+        "{case}: {section:?}"
+    );
+    let first = comments
+        .iter()
+        .map(|id| window.find(format!("comment-card-{id}")).bounds())
+        .min_by(|a, b| a.top().partial_cmp(&b.top()).unwrap())
+        .unwrap();
+    assert!(
+        first.top() + px(28.) <= section.bottom(),
+        "{case}: {first:?} in {section:?}"
+    );
+    let footer = window.find("note-bar").bounds();
+    assert!(
+        details.bottom() <= text.top() && text.bottom() <= section.top(),
+        "{case}"
+    );
+    assert!(section.bottom() <= footer.top(), "{case}");
+}
+
+/// The footer never moves: at 900×600 and 850×600, with Inputs, long
+/// overall feedback and the stacked comments open, the details give way
+/// first, so the exact-text footer stays whole for a several-notes
+/// protected review and while editing the final text.
+#[gpui_kit::test]
+fn review_footer_stays_whole_with_inputs_and_comments_open_at_600_tall(cx: &mut TestAppContext) {
+    let feedback = "Tighten the opening, keep the pilot's dates and owners exactly as written, name the venue once, and say who confirms the booking and by when. ".repeat(3);
+    for width in [900., 850.] {
+        // Several notes, one of them protected, every group included.
+        let f = fixture(cx, width, 600., TEXT);
+        let thread = commented(cx, &f, true);
+        let comments = comment_ids(cx, &f);
+        let other = update(cx, &f, |view, _, _| {
+            view.workspace.new_note("Second", "Second text").unwrap()
+        });
+        review_rewrite_with(
+            cx,
+            &f,
+            &thread,
+            &feedback,
+            vec![note_put(&other, "Second text, tidied")],
+        );
+        on_window(cx, &f, |window, cx| window.click("note-menu", cx));
+        choose(cx, &f, "Inputs");
+        on_window(cx, &f, |window, cx| window.click("toggle-margin", cx));
+        let case = format!("{width}x600, 2 notes");
+        on_window(cx, &f, |window, cx| {
+            let view = f.view.read(cx);
+            assert!(view.review_inputs && view.comments_expanded, "{case}");
+            assert_eq!(view.review_fit, ReviewFit::Icons, "{case}");
+            assert_footer_whole(
+                window,
+                "Approving saves exactly these 2 notes, including protected notes. 2 comments stay open until you mark them addressed.",
+                &case,
+            );
+            assert_shared_height(window, &comments, &case);
+            // The waiting Prepare selection sits with the group toggles in
+            // the scrolling details, so the bar keeps one row at 900×600.
+            assert_eq!(
+                window.find("prepare-selected").label(),
+                Some("Prepare selection, unavailable: Omit a group first")
+            );
+            let details = window.within("review-details");
+            assert!(details.try_find("prepare-selected").is_some(), "{case}");
+            assert!(details.try_find("review-members").is_some(), "{case}");
+            assert!(
+                window
+                    .within("review-bar")
+                    .try_find("prepare-selected")
+                    .is_none(),
+                "{case}"
+            );
+            assert_eq!(window.find("apply-final").label(), Some("Approve 2 notes"));
+            if width == 900. {
+                assert_one_row(
+                    window,
+                    &[
+                        "review-proposal",
+                        "review-protected",
+                        "review-show-changes",
+                        "review-read-result",
+                        "toggle-margin",
+                        "apply-final",
+                    ],
+                );
+            }
+        });
+
+        // Editing the final text with Inputs open.
+        let f = fixture(cx, width, 600., TEXT);
+        let thread = commented(cx, &f, true);
+        let comments = comment_ids(cx, &f);
+        review_rewrite_with(cx, &f, &thread, &feedback, vec![]);
+        on_window(cx, &f, |window, cx| window.click("note-menu", cx));
+        choose(cx, &f, "Inputs");
+        on_window(cx, &f, |window, cx| window.click("note-menu", cx));
+        choose(cx, &f, "Edit final text");
+        on_window(cx, &f, |window, cx| window.click("toggle-margin", cx));
+        let case = format!("{width}x600, editing");
+        on_window(cx, &f, |window, cx| {
+            let view = f.view.read(cx);
+            assert!(view.review_inputs && view.review_editing, "{case}");
+            assert!(view.comments_expanded, "{case}");
+            assert_footer_whole(window, PROTECTED_FOOTER, &case);
+            assert_shared_height(window, &comments, &case);
+            assert!(window.find("review-blocked-reason").visible(), "{case}");
+            assert_in(window, "prepare-final", window.find("review-bar").bounds());
+            assert_after(window, "toggle-margin", "prepare-final");
+        });
+    }
 }
 
 /// At 1100×760 and 1250×860 the review shows the comments beside the text,
@@ -1220,7 +1436,8 @@ fn a_failed_run_and_open_comments_leave_the_text_120_px_at_900x600(cx: &mut Test
         view.comments_expanded = true;
         cx.notify();
     });
-    on_window(cx, &f, |window, _| {
+    let comments = comment_ids(cx, &f);
+    let check = |window: &Window| {
         let tile = window.find("tile-note").bounds();
         let order = [
             "note-body",
@@ -1252,9 +1469,43 @@ fn a_failed_run_and_open_comments_leave_the_text_120_px_at_900x600(cx: &mut Test
             px_of(section.size.height) <= px_of(shared) * 0.4 + 0.5,
             "{section:?} of {shared:?}"
         );
+        // An open section is never empty: at least its "Comments · 2" row
+        // is in view, and the reply keeps its label.
+        let label = window.find("comments-section-label").bounds();
+        assert!(section.size.height >= px(24.), "{section:?}");
+        assert!(label.top() >= section.top(), "{label:?} in {section:?}");
+        assert!(window.find("writing-result").bounds().size.height >= px(32.));
         assert_eq!(
             window.find("writing-run-status").label(),
             Some(format!("Rewrite failed · {reason}").as_str())
         );
+        section
+    };
+    // With the offline setup's two-line notice the Note has 358 px: the
+    // reply gives way to its label and the section to its label row.
+    on_window(cx, &f, |window, _| {
+        assert!(window.find("workspace-notice").visible());
+        check(window);
+    });
+    // Without it the section has its floor, the label and the first card's
+    // first line, and the reply keeps a line.
+    on_window(cx, &f, |window, cx| window.click("dismiss-notice", cx));
+    on_window(cx, &f, |window, _| {
+        assert!(window.try_find("workspace-notice").is_none());
+        let section = check(window);
+        assert!(
+            section.size.height >= COMMENTS_FLOOR - px(1.),
+            "{section:?}"
+        );
+        let first = comments
+            .iter()
+            .map(|id| window.find(format!("comment-card-{id}")).bounds())
+            .min_by(|a, b| a.top().partial_cmp(&b.top()).unwrap())
+            .unwrap();
+        assert!(
+            first.top() + px(28.) <= section.bottom(),
+            "{first:?} in {section:?}"
+        );
+        assert!(window.find("writing-result").bounds().size.height >= px(44.));
     });
 }

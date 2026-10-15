@@ -309,13 +309,15 @@ impl ThreadsUi {
         };
         // A capped scroller that also gives way in a short Note, so the
         // writing bar below stays whole; its label and a line stay in view.
+        // It gives way before the text and an open comments section, down
+        // to its label while the section is open.
         div()
             .id("writing-result")
             .flex()
             .flex_col()
             .gap_1()
             .flex_shrink(1.)
-            .min_h(px(44.))
+            .min_h(px(if self.comments_stacked() { 32. } else { 44. }))
             .max_h(px(120.))
             .overflow_y_scroll()
             .px_3()

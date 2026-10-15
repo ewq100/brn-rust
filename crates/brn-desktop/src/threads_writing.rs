@@ -1008,7 +1008,8 @@ impl ThreadsUi {
             .min_h_0();
         // Banners sit between the toolbar and the text and are never hidden
         // to make room; hairlines separate adjacent ones. In a short Note only
-        // the saved-version preview gives up height, after the text.
+        // the saved-version preview gives up height, after the text (and
+        // before an open comments section's floor).
         let banners = self.note_banners(cx);
         if !banners.is_empty() {
             content = content.child(
@@ -1124,7 +1125,8 @@ impl ThreadsUi {
         };
         let centered = self.layout.maximized() == Some(TileKind::Note);
         // The text keeps a few lines however many banners a short Note shows,
-        // and 120 px beside an open comments section, which gives way first.
+        // and 120 px beside an open comments section. The section asks for
+        // its floor after the reply below gives way, and gives way first.
         let stacked = self.comments_stacked();
         let mut body = div().flex().flex_1().min_h(text_min(stacked)).child(
             div()
@@ -1152,8 +1154,13 @@ impl ThreadsUi {
         }
         // Below the text: comments, then the run's status and reply, then the
         // writing bar.
+        let prefer = if stacked {
+            text_min(true) + COMMENTS_FLOOR
+        } else {
+            px(0.)
+        };
         content
-            .child(self.text_and_comments(body, text_min(stacked), stacked, cx))
+            .child(self.text_and_comments(body, prefer, text_min(stacked), stacked, cx))
             .child(self.writing_activity(cx))
             .child(self.writing_run_status())
             .child(self.writing_proposals(cx))
@@ -1522,11 +1529,15 @@ impl ThreadsUi {
             })
             .into_any_element()
     }
-    /// Text above, comments below: with the section open the text keeps
-    /// 120 px and the section (at most 40 % of this area) shrinks first.
+    /// Text above, comments below. The area asks for `prefer` (the text's
+    /// 120 px plus the open section's floor) and gives way only after the
+    /// rows around it reach their minimums (the reply in Write, the details
+    /// in review), down to `min`. Inside, the section (at most 40 % of the
+    /// area, clipped) shrinks before the text.
     fn text_and_comments(
         &self,
         text: impl IntoElement,
+        prefer: gpui_kit::Pixels,
         min: gpui_kit::Pixels,
         stacked: bool,
         cx: &mut Context<Self>,
@@ -1534,7 +1545,9 @@ impl ThreadsUi {
         div()
             .flex()
             .flex_col()
-            .flex_1()
+            .flex_grow(1.)
+            .flex_basis(prefer)
+            .flex_shrink(YIELD_LAST)
             .min_h(min)
             .child(text)
             .when(stacked, |area| area.child(self.comments_section(cx)))
@@ -1570,6 +1583,8 @@ impl ThreadsUi {
         let Some(open) = self.comments_note() else {
             return div().into_any_element();
         };
+        // Clipped, so a squeezed section reads as its one-line label row
+        // and never paints over the rows below.
         div()
             .id("comments-section")
             .flex()
@@ -1577,6 +1592,7 @@ impl ThreadsUi {
             .flex_shrink(1.)
             .min_h_0()
             .max_h(gpui_kit::relative(0.4))
+            .overflow_hidden()
             .border_t_1()
             .border_color(rgb(pal().hairline))
             .on_key_down(
@@ -1589,11 +1605,12 @@ impl ThreadsUi {
             )
             .child(
                 div()
+                    .id("comments-section-label")
                     .flex_shrink_0()
                     .px_3()
-                    .pt_2()
-                    .pb_1()
-                    .child(self.comments_label(&open.record.id)),
+                    .py_1()
+                    .child(self.comments_label(&open.record.id))
+                    .test_support(),
             )
             .child(
                 div()
@@ -1674,11 +1691,13 @@ impl ThreadsUi {
                                 },
                             )))
                             .child(
+                                // Outline: the panel's one filled primary
+                                // stays in the writing or review bar.
                                 button("post-comment")
                                     .label("Add comment")
                                     .compact()
                                     .h(components::tokens::COMPACT_CONTROL)
-                                    .primary()
+                                    .outline()
                                     .disabled(dirty)
                                     .when(dirty, |post| {
                                         post.accessibility_label(
@@ -2549,10 +2568,20 @@ impl ThreadsUi {
             })
             .tooltip(select_blocked.unwrap_or("Review only the included groups as a new proposal"))
             .on_click(cx.listener(|this, _, window, cx| this.prepare_review_selection(window, cx)));
-        let primary = if editing {
-            if grouped {
-                secondary.push(prepare_selected.ghost().into_any_element());
+        // A Prepare selection that waits sits in the bar when it has room;
+        // the icon arrangement moves it beside the group toggles, where its
+        // reason applies, so the bar keeps one row.
+        let mut waiting_selection = None;
+        let mut prepare_selected = Some(prepare_selected);
+        if grouped && (editing || !partial) {
+            let waiting = prepare_selected.take().map(|control| control.ghost());
+            if fit.icons() {
+                waiting_selection = waiting;
+            } else {
+                secondary.extend(waiting.map(IntoElement::into_any_element));
             }
+        }
+        let primary = if editing {
             secondary.push(apply.outline().into_any_element());
             button("prepare-final")
                 .label("Use this text")
@@ -2571,12 +2600,9 @@ impl ThreadsUi {
                 })
                 .on_click(cx.listener(|this, _, window, cx| this.prepare_review_edit(window, cx)))
                 .primary()
-        } else if grouped && partial {
+        } else if let Some(selection) = prepare_selected.filter(|_| grouped && partial) {
             secondary.push(apply.outline().into_any_element());
-            prepare_selected.primary()
-        } else if grouped {
-            secondary.push(prepare_selected.ghost().into_any_element());
-            apply.primary()
+            selection.primary()
         } else {
             apply.primary()
         };
@@ -2608,6 +2634,13 @@ impl ThreadsUi {
         } else {
             None
         };
+        // The details scroll; with several rows they give way first, down to
+        // a line or two, so the review text and the footer keep their room.
+        let note_writes = writes
+            .iter()
+            .filter(|write| matches!(write.data, RecordData::Note(_)))
+            .count();
+        let tall = self.review_inputs || review.note.is_none() || grouped || note_writes > 1;
         let mut details = div()
             .id("review-details")
             .flex()
@@ -2616,6 +2649,7 @@ impl ThreadsUi {
             .px_3()
             .py_1()
             .flex_shrink_0()
+            .when(tall, |details| details.flex_shrink(1.).min_h(px(44.)))
             .text_size(UI_TEXT)
             .max_h(px(220.))
             .overflow_y_scroll()
@@ -2724,7 +2758,7 @@ impl ThreadsUi {
                     groups = groups.child(metadata(format!("Requires: {required}")));
                 }
             }
-            details = details.child(groups);
+            details = details.child(groups.children(waiting_selection));
             if !review.groups.ungrouped_writes.is_empty() {
                 let line = "These changes can't be separated. Apply all or ask for a new rewrite.";
                 details = details.child(
@@ -2796,13 +2830,25 @@ impl ThreadsUi {
         };
         let centered = self.layout.maximized() == Some(TileKind::Note);
         // The review text, then comments when they're stacked, then the
-        // footer that names exactly what Apply saves; it never folds.
+        // footer that names exactly what Apply saves; it never folds and
+        // never moves. The text asks for 120 px (plus the open section's
+        // floor) after the details give way, and yields to a few lines
+        // before the footer would.
         let stacked = self.comments_stacked();
+        let text = review.note.is_some();
+        let (prefer, min) = match (text, stacked) {
+            (false, _) => (px(0.), px(0.)),
+            (true, false) => (text_min(true), text_min(false)),
+            (true, true) => (text_min(true) + COMMENTS_FLOOR, text_min(false)),
+        };
         let mut document = div()
             .id("review-body")
             .flex()
-            .flex_1()
-            .min_h(if stacked { text_min(true) } else { px(0.) })
+            .flex_grow(1.)
+            .flex_basis(if text { text_min(true) } else { px(0.) })
+            // Inside the area the open section gives way before the text.
+            .flex_shrink(YIELD_LAST)
+            .min_h(min)
             .min_w_0()
             .child(
                 div()
@@ -2824,12 +2870,7 @@ impl ThreadsUi {
             .min_h_0()
             .child(bar.test_support())
             .child(details.test_support())
-            .child(self.text_and_comments(
-                document.test_support(),
-                if stacked { text_min(true) } else { px(0.) },
-                stacked,
-                cx,
-            ))
+            .child(self.text_and_comments(document.test_support(), prefer, min, stacked, cx))
             .child(self.writing_activity(cx))
             .child(
                 div()
@@ -3095,6 +3136,15 @@ fn plural(count: usize, noun: &str) -> String {
 fn text_min(stacked: bool) -> gpui_kit::Pixels {
     px(if stacked { 120. } else { 48. })
 }
+
+/// The open comments section's floor: its label and the first card's
+/// first line.
+pub(super) const COMMENTS_FLOOR: gpui_kit::Pixels = px(64.);
+
+/// The shrink factor of the review or note text area: next to the reply's
+/// and the details' factor of 1, it gives way only once they reach their
+/// minimums.
+const YIELD_LAST: f32 = 0.01;
 
 /// What a proposal writes. It names the review bar's label and primary and
 /// the footer's binding sentence.
