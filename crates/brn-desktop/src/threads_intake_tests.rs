@@ -460,7 +460,7 @@ fn a_killed_intake_candidate_reaches_needs_you_after_the_delegation_choice(
         ui.choose_delegation(DelegationChoice::MaintainOrdinaryNotes, cx);
         assert!(
             matches!(&ui.workspace.store.record(&run).unwrap().unwrap().data,
-                RecordData::Run(r) if r.state == RunState::Cancelled)
+                RecordData::Run(r) if r.state == RunState::Interrupted)
         );
         assert_eq!(row(ui, &chat).reasons, killed_reasons());
         assert!(in_needs_you(ui, &chat));
@@ -487,9 +487,20 @@ fn a_killed_intake_candidate_reaches_needs_you_after_the_delegation_choice(
             ui,
             thread.attention[0].record.as_deref().unwrap()
         ));
+        // The run line above Continue shows the latest Run's state. Before
+        // slice D it said Cancelled beside the "Run interrupted" notice.
+        let latest = latest_run(&ui.records, &ui.history, &chat).unwrap();
+        let RecordData::Run(latest_state) = &latest.data else {
+            panic!("Run")
+        };
+        assert_eq!(
+            (latest.id.as_str(), format!("{:?}", latest_state.state)),
+            (run.as_str(), "Interrupted".to_owned())
+        );
     });
     // Two attention cards; the first carries the exact candidate's proposal.
     cx.update_window(f.window, |_, window, _| {
+        assert!(window.try_find(format!("continue-{run}")).is_some());
         assert!(window.try_find("attention-card-0").is_some());
         assert!(window.try_find("attention-card-1").is_some());
         assert!(

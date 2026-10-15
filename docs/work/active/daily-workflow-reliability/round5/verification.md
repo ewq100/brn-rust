@@ -333,3 +333,78 @@ Manual CLI check on fresh synthetic data. Each store was written by the ignored 
 - No desktop production change. The desktop's existing `stop_chat_run`, `resume_queue`, `archive_chat(_progress)` and `stop_and_post_with_partial` calls get the new behavior.
 - The UI branch must rerun its Stop, Archive and Resume tests. A Stop, Archive or Steer of a lease-free Run now adds the notice, and Continue in a killed chat shows it until the new Run's result.
 - Proposed sentence for `docs/architecture/invariants.md` (not edited here): "Any checked change that ends a Working Run no process holds a lease for treats it as orphaned: one Interrupted notice in its chat, a Review item for each candidate it left, and removal of its free lease file. A live lease is never removed, and a deliberate stop of live work adds no notice."
+
+## Slice D: owner decision U9, go with Interrupted
+
+### Change
+
+`update_workspace_settings` (`crates/brn-threads-core/src/store.rs:918`) now ends every Working Run as `Interrupted` instead of `Cancelled`. The reason text, fence bump, `ended_run_attention` call and slice C's lease removal are unchanged. This covers Configure, the delegation choice, maintenance Pause/Resume and the backup folder. After a settings stop the run line now says Interrupted, matching the notice "Run interrupted. Continue starts fresh."
+
+That was the only notice-adding path that wrote `Cancelled`. Every other path that adds the notice because the stop came from outside the chat already wrote `Interrupted`, in the same checked change as the notice: orphan recovery (`brn-threads-app/src/chat.rs:193`), project commands and project imports (`brn-threads-core/src/projects.rs:114`, `:697`), and slice C's lease-free Stop, Archive, Steer and Continue (`chat.rs:259`, `:488`, `steering.rs:160`, `brn-ai/src/threads.rs:1994`).
+
+No dependency, `Cargo.lock`, `threads.sqlite3` schema, desktop production, CLI, `main.rs`, `HELP` or exit-code change. Saved `Cancelled` Runs are not migrated. A settings operation prepared before this change and replayed later replays its recorded request, so it still writes `Cancelled`.
+
+### Fact check: a deliberate Stop
+
+The spec says a deliberate owner Stop of a live worker keeps `Cancelled`. It never wrote `Cancelled`. Desktop Stop (`threads_ui.rs` `cancel`) calls `stop_chat_run`, which is `ChatCommand::Pause { run }`, which writes `Interrupted` with no notice for a live Run. The fenced worker's `finish()` then writes nothing. So "keeps Cancelled" is implemented as "keeps its current behavior": `Interrupted`, no notice, lease kept. Nothing changes for Stop, and slice C's `a_deliberate_stop_of_a_live_run_adds_no_notice_and_keeps_its_lease` still passes.
+
+The only other `Cancelled` writer is the legacy `Workspace::resolve_thread(_because)` (`brn-threads-app/src/lib.rs:324`). It adds no notice, clears attention and has no production caller (the desktop's Archive calls `archive_chat`), so it is unchanged.
+
+### Consumers checked
+
+| Consumer | Where | Effect of `Interrupted` instead of `Cancelled` |
+|---|---|---|
+| Queue `Finish` (`success = false`) | core `chat.rs:409` | Accepts `Failed`, `Interrupted` or `Cancelled`; pauses the queue. New test D-T1 covers a settings-stopped queued Run |
+| Desktop queue acknowledgement | `threads_chat.rs` `acknowledge_run` | Key `finish-queue:{run}:{fence}` uses the fence only; the non-queue branch checks `!= Working` |
+| Continue | desktop `can_continue` (`threads_state.rs:104`) | Allows `Working`, `Interrupted`, `Failed` and `Cancelled`; `continuation_notice` only distinguishes `Working` |
+| Notice supersession | `run_attention.rs:132`; `finish()` in `brn-ai/src/threads.rs:2474` | Treat `Interrupted`, `Failed` and `Cancelled` alike, so one notice per chat holds |
+| `is_terminal_notice` | `run_attention.rs:20` | Text-based; state not read |
+| Replay keys | orphan recovery `orphan-recovery:{run}:{version}:{thread version}`; settings replay the recorded request; chat commands bind the command | No key or binding includes the Run state |
+| CLI terminal strings | `crates/brn/src/main.rs:363` | Prints `AiTerminal`, not `RunState`. `records` and receipts print the record JSON, now `"state":"Interrupted"` |
+| Desktop run line | `threads_writing.rs:301`, `threads_ui.rs:2804` (`format!("{:?}", run.state)`) | Shows "Interrupted" with no desktop code change |
+| Desktop rewrite status | `threads_workbench.rs:190` | A settings-stopped rewrite now reads "rewrite interrupted · saved feedback is ready to retry" (was "rewrite cancelled · …") |
+
+### Tests and fail-before
+
+Expectations were changed first and run against the unfixed `store.rs`; then the fix was applied.
+
+| ID | Test | Result before the fix |
+|---|---|---|
+| D-T1 (new) | core `delegation.rs` `a_settings_stop_records_interrupted_matching_its_notice`: a queued instruction dispatched and claimed by its Working Run, then `pause_workspace(true)`. Expects the Run `Interrupted` at fence 2, the chat `[Blocker(run, INTERRUPTED_ATTENTION)]`, the queue not yet paused, then `Finish { success: false }` accepted with the queue paused and the item still pending on that Run | FAILED `:530` `left: (Cancelled, 2)`, `right: (Interrupted, 2)` |
+| D-T2 | core `delegation.rs` `both_choices_and_pause_fence_every_working_run_and_block_stale_connection` | FAILED `:366` `left: Cancelled`. With `:366` reverted for the run, FAILED `:400` (the Pause leg) `left: Cancelled` |
+| D-T3 | core `core.rs` `configuration_reads_and_fences_runs_at_the_actual_writer_boundary` | FAILED `:2227` `left: Cancelled` |
+| D-T4 | core `backup_directory.rs` `folder_patch_preserves_current_settings_fences_runs_and_replays_raw_intent_without_filesystem` (its Run is seeded `Working` and stopped by the backup-folder change) | FAILED `:153` `left: Cancelled` |
+| D-T5 | app `product.rs` `configuration_and_pause_fence_runs_while_thread_resolution_preserves_actions` | FAILED `:857` `left: Cancelled` |
+| D-T6 | app `killed_run_candidate.rs` T1 `the_delegation_choice_after_a_kill_leaves_one_notice_and_a_review_for_the_candidate` | FAILED `:289` `left: (Cancelled, 2)` |
+| D-T7 | app `killed_run_candidate.rs` T1-live `the_settings_change_also_stops_a_run_that_is_still_live` | FAILED `:337` `left: (Cancelled, 2)` |
+| D-D1 | desktop `a_killed_intake_candidate_reaches_needs_you_after_the_delegation_choice`: the Run is `Interrupted`, and after opening the chat the run line's latest Run is that Run with status text "Interrupted" and `continue-{run}` is drawn | FAILED `:461` (state). With the state line reverted for the run, FAILED `:496`: `left: (run, "Cancelled")`, `right: (run, "Interrupted")` |
+
+Line numbers are from the fail-before runs; `cargo fmt` later moved D-T1's assertion to `:532`. Each temporary revert was made on a saved copy and restored (`git diff --stat` afterwards showed only the intended files). Left as they are: tests that seed `Cancelled` Runs (`core.rs:1031`, `:1501`, `:1537`, `steering.rs:216`, the `run_attention.rs` unit fixtures, including `a_notice_on_a_cancelled_run_is_replaced` for old saved Runs) and the legacy resolve test (`thread_lifecycle.rs:71`).
+
+### Commands and results (after the fix)
+
+| Command | Result |
+|---|---|
+| `cargo fmt --all --check` | clean |
+| `cargo clippy --workspace --all-targets --locked --offline -- -D warnings` | clean |
+| `cargo clippy -p brn-ai --features scripted-runs --all-targets --locked --offline -- -D warnings` | clean |
+| `cargo clippy --locked --offline -p brn-desktop --features native-ui,native-test-support --all-targets -- -D warnings` | clean |
+| `cargo test -p brn-threads-core --locked --offline --no-fail-fast` | all passed: lib 41 (1 ignored), `delegation` 8 (+1), `core` 45, `backup_directory` 5, `steering` 8 |
+| `cargo test -p brn-threads-app --locked --offline --test product --test killed_run_candidate --test delegation --test thread_lifecycle` | 19, 12 (1 ignored), 3, 3 passed |
+| desktop test command | 154 passed, 0 failed, 1 ignored |
+| `cargo test --workspace --locked --offline --no-fail-fast` | 766 passed, 1 failed (the baseline Poppler test), 6 ignored |
+| `git diff --exit-code Cargo.lock`; `git diff --check` | clean |
+
+Manual CLI check on fresh synthetic data, `/private/tmp/brn-dwr-data/r5-d-settings/` (store written by the ignored `native_check_store_with_a_killed_intake_and_its_candidate`, mode `settings`; `HOME`, `CODEX_HOME` and `TMPDIR` inside the case). Before: the Run `Working` at fence 1 with an unlocked leftover lease file. `brn --data-dir …/data pause` applied "Owner configured workspace and stopped prior invocations". After: the Run is `Interrupted` at fence 2, the chat holds `[Review(op), Blocker(run, "Run interrupted. Continue starts fresh.")]`, and the lease file is gone.
+
+### Limitations
+
+- Saved `Cancelled` Runs keep their state; the run line still shows "Cancelled" for them.
+- A settings operation prepared under an older build and replayed after this change writes its recorded `Cancelled`.
+- No native observation in this slice.
+
+### Integration items
+
+- The UI branch shows "Interrupted" after a settings change with no code change. Its tests that expect `Cancelled` after a settings change need `Interrupted`.
+- No `main.rs` edit was needed.
+- Proposed sentence for `docs/architecture/threads-behavior.md` (not edited here): "A Run stopped because of something outside its chat (settings, project changes or imports, process ended, or a lease-free stop) is recorded as Interrupted, matching its notice."

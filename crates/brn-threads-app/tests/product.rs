@@ -854,7 +854,7 @@ fn configuration_and_pause_fence_runs_while_thread_resolution_preserves_actions(
     else {
         panic!()
     };
-    assert_eq!(stopped.state, RunState::Cancelled);
+    assert_eq!(stopped.state, RunState::Interrupted);
     assert_eq!(stopped.fence, 2);
     assert!(!app.settings().unwrap().maintenance);
     let mut settings = app.settings().unwrap();

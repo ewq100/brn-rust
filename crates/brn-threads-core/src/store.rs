@@ -913,7 +913,9 @@ impl Store {
                 if let RecordData::Run(mut run) = record.data
                     && run.state == RunState::Working
                 {
-                    run.state = RunState::Cancelled;
+                    // The stop came from outside the chat, so the Run is
+                    // Interrupted, matching the notice its chat gets below.
+                    run.state = RunState::Interrupted;
                     run.fence = run
                         .fence
                         .checked_add(1)

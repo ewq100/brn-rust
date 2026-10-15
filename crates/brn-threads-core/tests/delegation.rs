@@ -363,7 +363,7 @@ fn both_choices_and_pause_fence_every_working_run_and_block_stale_connection() {
             let RecordData::Run(run) = stale.record(&old.id).unwrap().unwrap().data else {
                 panic!()
             };
-            assert_eq!(run.state, RunState::Cancelled);
+            assert_eq!(run.state, RunState::Interrupted);
             assert_eq!(run.fence, 2);
             assert_eq!(chat_attention(&stale, old), [interrupted(&old.id)]);
         }
@@ -397,7 +397,7 @@ fn both_choices_and_pause_fence_every_working_run_and_block_stale_connection() {
         let RecordData::Run(run) = stale.record(&fresh.id).unwrap().unwrap().data else {
             panic!()
         };
-        assert_eq!(run.state, RunState::Cancelled);
+        assert_eq!(run.state, RunState::Interrupted);
         assert_eq!(chat_attention(&stale, &fresh), [interrupted(&fresh.id)]);
         assert!(!settings(&store).maintenance);
         assert_eq!(
@@ -405,6 +405,154 @@ fn both_choices_and_pause_fence_every_working_run_and_block_stale_connection() {
             choice == DelegationChoice::ReviewFirst
         );
     }
+}
+
+/// One owner queue command, bound to its exact text as the app binds it.
+fn chat(store: &mut Store, key: &str, command: ChatCommand) -> ChatCommandOutcome {
+    use sha2::{Digest, Sha256};
+    let binding = format!(
+        "{:x}",
+        Sha256::digest(serde_json::to_vec(&command).unwrap())
+    );
+    let op = store.allocate_bound_operation(key, &binding).unwrap();
+    store
+        .chat_command(&op, &command, &HostAuthority::owner("owner"))
+        .unwrap()
+}
+
+fn chat_control(store: &Store) -> (Record, ChatControl) {
+    let record = store.chat_control().unwrap().unwrap();
+    let RecordData::ChatControl(control) = record.data.clone() else {
+        panic!("ChatControl")
+    };
+    (record, control)
+}
+
+#[test]
+fn a_settings_stop_records_interrupted_matching_its_notice() {
+    let (_root, mut store) = fixture();
+    legacy_settings(&mut store, false);
+    let op = store.allocate_operation("queued chat").unwrap();
+    let thread = op.creation_id(0);
+    store
+        .prepare_owner(
+            &op,
+            &ChangeRequest {
+                reason: "Synthetic chat".into(),
+                inputs: vec![],
+                writes: vec![Put {
+                    id: thread.clone(),
+                    expected_version: None,
+                    archived: false,
+                    data: RecordData::Thread(Thread {
+                        private_context: false,
+                        context_epoch: 0,
+                        title: "Crane delivery".into(),
+                        state: ThreadState::Open,
+                        attention: vec![],
+                    }),
+                }],
+            },
+            &HostAuthority::owner("fixture"),
+        )
+        .unwrap();
+    store.apply(&op, &HostAuthority::owner("fixture")).unwrap();
+    // A queued owner instruction, dispatched and claimed by its Working Run.
+    chat(&mut store, "bootstrap", ChatCommand::Bootstrap);
+    chat(
+        &mut store,
+        "enqueue",
+        ChatCommand::Enqueue {
+            thread: thread.clone(),
+            text: "Summarize the crane delivery".into(),
+        },
+    );
+    let q = chat(&mut store, "dispatch", ChatCommand::Dispatch)
+        .dispatched
+        .unwrap();
+    let (message, dispatch) = (q.message.clone().unwrap(), q.dispatch.clone().unwrap());
+    let start = store.allocate_operation("queued start").unwrap();
+    let run = start.creation_id(0);
+    let (control_record, mut control) = chat_control(&store);
+    control.pending.as_mut().unwrap().run = Some(run.clone());
+    store
+        .prepare_owner(
+            &start,
+            &ChangeRequest {
+                reason: "Synthetic queued invocation".into(),
+                inputs: vec![],
+                writes: vec![
+                    Put {
+                        id: run.clone(),
+                        expected_version: None,
+                        archived: false,
+                        data: RecordData::Run(Run {
+                            instruction: Some(message.clone()),
+                            queue_claim: Some(dispatch),
+                            thread: thread.clone(),
+                            provider: "Codex".into(),
+                            model: "gpt-6.1-sol".into(),
+                            effort: "medium".into(),
+                            guide_identity: "fixture".into(),
+                            budget: 3,
+                            loaded_skills: vec![],
+                            fence: 1,
+                            state: RunState::Working,
+                            progress: String::new(),
+                            operations: vec![],
+                            sources: vec![],
+                        }),
+                    },
+                    Put {
+                        id: control_record.id,
+                        expected_version: Some(control_record.version),
+                        archived: false,
+                        data: RecordData::ChatControl(control),
+                    },
+                ],
+            },
+            &HostAuthority::owner("fixture"),
+        )
+        .unwrap();
+    store
+        .apply(&start, &HostAuthority::owner("fixture"))
+        .unwrap();
+    // The owner pauses maintenance in Settings, outside this chat.
+    let pause = store.allocate_operation("pause in settings").unwrap();
+    assert!(matches!(
+        store
+            .pause_workspace(&pause, true, &HostAuthority::owner("owner"))
+            .unwrap(),
+        ApplyOutcome::Applied(_)
+    ));
+    let RecordData::Run(stopped) = store.record(&run).unwrap().unwrap().data else {
+        panic!("Run")
+    };
+    // Before: Cancelled, while the chat's notice said "Run interrupted".
+    assert_eq!((stopped.state, stopped.fence), (RunState::Interrupted, 2));
+    match store.record(&thread).unwrap().unwrap().data {
+        RecordData::Thread(t) => assert_eq!(t.attention, [interrupted(&run)]),
+        _ => panic!("Thread"),
+    }
+    // The queue accepts the stopped Run as an unsuccessful end and pauses.
+    assert!(!chat_control(&store).1.paused);
+    chat(
+        &mut store,
+        "finish",
+        ChatCommand::Finish {
+            item: q.id.clone(),
+            message,
+            run: run.clone(),
+            fence: stopped.fence,
+            success: false,
+        },
+    );
+    let (_, control) = chat_control(&store);
+    assert!(control.paused);
+    assert_eq!(
+        control.pending.map(|p| (p.id, p.run)),
+        Some((q.id, Some(run)))
+    );
 }
 
 #[test]

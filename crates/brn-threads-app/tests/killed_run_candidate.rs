@@ -283,9 +283,10 @@ async fn the_delegation_choice_after_a_kill_leaves_one_notice_and_a_review_for_t
     else {
         panic!("applied")
     };
-    let cancelled = run(&workspace, &id);
-    // Before: Cancelled, with no attention, so nothing reached Needs you.
-    assert_eq!((cancelled.state, cancelled.fence), (RunState::Cancelled, 2));
+    let stopped = run(&workspace, &id);
+    // Before (round 4): no attention, so nothing reached Needs you. Before
+    // slice D: Cancelled, while its notice said "Run interrupted".
+    assert_eq!((stopped.state, stopped.fence), (RunState::Interrupted, 2));
     let expected = vec![review(&operation), interrupted(&id)];
     assert_eq!(attention(&workspace, &w.intake), expected);
     assert_reviewable(&workspace, &operation);
@@ -331,9 +332,9 @@ fn the_settings_change_also_stops_a_run_that_is_still_live() {
         .choose_delegation(DelegationChoice::MaintainOrdinaryNotes)
         .unwrap();
     // Recorded, not changed: settings never consult leases, so a Run live in
-    // another process is cancelled too; its fenced finish writes nothing.
+    // another process is stopped too; its fenced finish writes nothing.
     let stopped = run(&workspace, &id);
-    assert_eq!((stopped.state, stopped.fence), (RunState::Cancelled, 2));
+    assert_eq!((stopped.state, stopped.fence), (RunState::Interrupted, 2));
     assert_eq!(attention(&workspace, &w.intake), vec![interrupted(&id)]);
     // A live lease is never removed; its holder drops it.
     assert!(brn_ai::run_lease::run_is_live(&derived, &id));
@@ -565,7 +566,7 @@ async fn a_later_run_replaces_the_notice_of_a_run_the_settings_change_cancelled(
     .await
     .unwrap();
     assert!(matches!(result.answer.terminal, AiTerminal::Completed));
-    // Before: the Cancelled Run's notice stayed beside the success.
+    // Before (round 4): the stopped Run's notice stayed beside the success.
     assert_eq!(attention(&workspace, &w.intake), vec![review(&operation)]);
     assert_reviewable(&workspace, &operation);
 }

@@ -2221,11 +2221,11 @@ fn configuration_reads_and_fences_runs_at_the_actual_writer_boundary() {
         panic!()
     };
     assert!(receipt.writes.iter().any(|write| write.after.id == run.id));
-    let RecordData::Run(cancelled) = other.record(&run.id).unwrap().unwrap().data else {
+    let RecordData::Run(stopped) = other.record(&run.id).unwrap().unwrap().data else {
         panic!()
     };
-    assert_eq!(cancelled.state, RunState::Cancelled);
-    assert_eq!(cancelled.fence, 2);
+    assert_eq!(stopped.state, RunState::Interrupted);
+    assert_eq!(stopped.fence, 2);
     assert_eq!(store.pause_workspace(&op, true, &owner()).unwrap(), result);
 }
 #[test]
