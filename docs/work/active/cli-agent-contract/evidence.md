@@ -131,6 +131,20 @@ The test fix: a freshly written Python stub sometimes took more than 1 s to star
 
 Coordination, re-checked: the only shared-service file changed is `crates/brn-threads-app/src/lib.rs` (33 added, 10 removed lines: three keyed functions and the `RetrievalError` re-export; `new_note`, `new_thread`, `undo` became wrappers); nothing under `brn-threads-core`, `brn-desktop`, `brn-threads-intake` or `brn-intake`. `git log 771116f0..<branch> -- crates/brn-threads-app/src/lib.rs` is empty for every branch named in design §10 except `codex/rust-luna-intake`, whose one hit (`859b7f46`) is pre-#144 history already squash-merged as `34c9239d`. `work/daily-workflow-reliability` is still `0efb6bef`, so the scratch test-merge was not repeated; `git merge-tree --write-tree` (no worktree) still reports the one known conflict file, `crates/brn/src/main.rs`, at both `7ad43581` and the candidate. `origin/codex/linux-ui-cloud` (`7075c46a`) merges without conflicts.
 
+### Orchestrator-run checks outside the sandbox (candidate `00eaa639`)
+
+The orchestrator ran these from an unsandboxed shell in the task worktree. They replace the two sandbox-blocked results above and the failed fetch. I confirmed the counts against its two logs before deleting them, and I confirmed that line 70 of `ci.yml` installs Poppler, that `BRN_SKIP_PTY_TESTS` appears nowhere under `.github/` or `scripts/`, and that `pdftoppm` is not on `PATH` here.
+
+| Command | Result |
+|---|---|
+| `git fetch origin` | exit 0; `origin/main` still `8bef439b` and contained in `HEAD`; local `main` still `771116f0`; no rebase needed |
+| `env -u BRN_SKIP_PTY_TESTS cargo test -p brn --locked --test agent_contract` | 22 passed, 0 failed; `terminal_sources_are_refused_without_blocking` ran for real and passed |
+| `bash scripts/verify-storage.sh` | **exit 101**. `fmt --check`, the helper build, the workspace build and `clippy -D warnings` passed first. Inside it, `cargo test --workspace --locked --offline` gave 745 passed, 1 failed, 4 ignored |
+| `cargo test --workspace --locked --offline --no-fail-fast` | 745 passed, 1 failed, 4 ignored. The 11 sandbox-exec intake failures do not occur |
+| The script's tail, run by hand | `brn --help` 0; `brn` 1; `brn --unknown` 1; desktop `--help` 0; desktop `--unknown` 1; desktop `--headless-check startup` on a fresh data dir prints `Threads ready: 2 records`, exit 0 |
+
+The one failure is `brn-threads-intake --test qualification` `prepared_rust_fixtures_keep_source_and_preview_bindings_in_owned_scratch`, which panics with `Pdf preparation failed: Unavailable` because this machine has no Poppler `pdftoppm`. **Status: local-env-blocked, covered by the CI macOS job, not passed.** CI installs Poppler with `brew install poppler`. `brn-threads-intake` and `brn-intake`, its only dependency, have no diff in `8bef439b..HEAD`.
+
 Safety: the main checkout has no tracked changes (only the owner's untracked `.vscode/` and `experiments/`); `main` is `771116f0`; `work/cli-agent-contract` has no upstream and no remote ref; no tag contains a task commit; no PR, merge, publish or release; no gate or control file is in any task commit.
 
 ## Remaining gaps (ranked)
@@ -144,6 +158,6 @@ Safety: the main checkout has no tracked changes (only the owner's untracked `.v
 7. Read-only commands on a mistyped directory still create a workspace; enum values other than `--trace` are validated after opening.
 8. `AppError::Invalid(String)` stays one code; the useful-intake sub-block keeps a coarse `invalid_request` mapping and `conflict: []` until the daily-workflow merge.
 9. Owner authority is stated, not enforced, at the CLI.
-10. The pseudo-terminal test and the intake sandbox tests were not run in this environment (above); CI must run them.
+10. The orchestrator ran the pseudo-terminal test outside the sandbox, and it passed. `prepared_rust_fixtures_keep_source_and_preview_bindings_in_owned_scratch` still needs Poppler `pdftoppm`, so the CI macOS job must cover it.
 11. No process test reuses an Undo or keep-in-brn key for a different original (the core refuses it, `store.rs` 511–521).
 12. Merging `work/daily-workflow-reliability` needs the recorded resolution, including changing `open_edit_session_reports_edit_session_open` to assert the structured `edit_session_open` default output.
