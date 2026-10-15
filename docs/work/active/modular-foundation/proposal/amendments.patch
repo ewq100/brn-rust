@@ -1,0 +1,768 @@
+--- a/00-start-here.md
++++ b/00-start-here.md
+@@ -8,8 +8,8 @@
+ |---|---|
+ | `01-master-plan.md` | Shared product/architecture contract, work breakdown, ownership, qualification and acceptance. |
+ | `02-foundation-lead-prompt.md` | Session C: establish the common baseline, strengthen core/retrieval, own integration. |
+-| `03-intake-build-prompt.md` | Session A: intake boundary and Xberg/Kreuzberg qualification/cutover. |
+-| `04-writing-build-prompt.md` | Session B: writing extraction, references, and Zorite qualification/cutover. |
++| `03-intake-build-prompt.md` | Session A: time-boxed Xberg qualification spike in `experiments/`; cutover is a later decision. |
++| `04-writing-build-prompt.md` | Session B: writing extraction and references with the current editor; separate time-boxed Zorite spike. |
+ | `05-integrated-review-prompt.md` | Independent final review of the actual combined candidate. |
+ | `06-native-qualification.md` | Consolidated target-Mac owner/native test outline; lead fills exact setup and evidence. |
+ 
+@@ -19,36 +19,40 @@
+ 
+ C checks current main, unpushed worktrees and active owners. It installs/reconciles the shared plan at `docs/work/active/modular-foundation/plan.md`, records exact ownership/contracts and the common local baseline, and completes the small C0 slice. This step does not need to finish all core improvements.
+ 
+-**2. Start A and B in separate worktrees/sessions.** Give each the shared plan and its role prompt. Use the baseline/ref C supplies, not a guessed historic commit. A is the intake build; B is the writing/editor build. Their isolated research can start before C0, but production integration waits for C0.
++**2. Start the spikes, then B.** The A (Xberg) and Zorite spikes live only in `experiments/` and may start immediately, even before C0, because they touch no shared code. Start B in its own worktree from C's integration ref once `work/ui-polish` has landed or been owner-paused, since that branch rewrites the same writing files. Give each agent the shared plan and its role prompt.
+ 
+-**3. Continue C in Build mode.** Return to the same C session with: “C0 is established; A and B are running. Continue Build mode within your ownership. Preserve their files and integrate only explicit reviewed handoffs.” C performs core/retrieval work while A and B build. It is the single integration owner, not a separate fourth feature build.
++**3. Continue C in Build mode.** Return to the same C session with: "C0 is established. Implement CW1, then CW2 once `work/daily-workflow-reliability` has landed or been paused. Preserve B's files and integrate only explicit reviewed handoffs." C is the single integration owner, not a separate fourth feature build.
+ 
+ **4. Integrate in small slices.** C reconciles the recorded contracts/manifests/lockfile and reruns relevant cross-component checks. Do not wait for two large final branches before discovering incompatibilities.
+ 
+ **5. Review the combined candidate and run native qualification.** Give `05-integrated-review-prompt.md` to an independent reviewer. C prepares the exact setup for `06-native-qualification.md`. Publish/merge/release only within current explicit owner authority.
+ 
+-With only two concurrent build slots: complete C0, run A and B together, then continue C's remaining hardening and integration. Read-only research and fixture work can overlap without shared-code changes.
++With only two concurrent build slots, count the already active `ui-polish` and `daily-workflow-reliability` branches first; at plan review they occupied both. Order: land or pause those, C0 → C (CW1/CW2) and B1 together → B3/B4. The `experiments/` spikes are light and can overlap, but never run two heavy native builds or benchmarks at once.
+ 
+ ## Copy/paste bootstrap message
+ 
+ ```text
+ Use the attached BRN master plan and foundation-lead prompt in Bootstrap mode.
+ First inspect the actual current repository, local worktrees, active assignments,
+-and remote state. Do not assume the planning snapshot is still current.
++and remote state. Do not assume the planning snapshot is still current. Read the
++repository AGENTS.md at HEAD; treat any conflicting injected guide as stale.
+ 
+-Establish C0 only: baseline, minimum contracts, exact file ownership, shared
+-fixtures, and a common integration ref. Preserve existing work and current
+-product behavior. Do not start a whole-core rewrite.
++Establish C0 only: baseline, one plan with exact file ownership and contracts,
++failing-first tests for the writing-context contract (master plan 7.2), the
++default-build CI rule, and a common integration ref. Record how active
++ui-polish and daily-workflow-reliability work is sequenced. Preserve existing
++work and current product behavior. Do not start a whole-core rewrite.
+ 
+-Install/reconcile the plan under docs/work/active/modular-foundation/ and give
+-me the precise baseline and start messages for the intake and writing sessions.
+-Work locally on synthetic data. No publication, merge, release, real-data use,
+-model download or live provider spending without current explicit authority.
++Install/reconcile the plan under docs/work/active/modular-foundation/plan.md and give
++me the precise baseline and start messages for the Xberg spike, the Zorite spike and
++the writing session. Work locally on synthetic data. No publication, merge,
++release, real-data use, model download or live provider spending without current
++explicit authority.
+ ```
+ 
+ ## Operating defaults
+ 
+-One repository; separate worktrees and synthetic data per stream. Keep existing checked state, scopes, dirty guards, exact review, replay and Undo. No mandatory new model or general framework. Adopt Xberg/Zorite only after qualification. A negative dependency decision can still produce a successful modularization.
++One repository; separate worktrees and synthetic data per stream. Keep existing checked state, scopes, dirty guards, exact review, replay and Undo. No mandatory new model or general framework. Xberg and Zorite are qualification spikes; adopting either is a separate later decision. A negative result is still a successful spike.
+ 
+ The pack does not order a NoteGen/Zed fork, production standalone Writer, sync system or database replacement. The later standalone Writer is a small consumer of proven shared components.
+ 
+--- a/01-master-plan.md
++++ b/01-master-plan.md
+@@ -9,11 +9,11 @@
+ 
+ Strengthen BRN in place through three coordinated workstreams:
+ 
+-- **A — Intake:** independently testable document extraction, qualification of Xberg/Kreuzberg, and integration through BRN's existing checked import path.
+-- **B — Writing:** a reusable, reference-assisted writing workspace inside BRN, plus an evidence-based Zorite editor decision.
+-- **C — Foundation and integration:** shared contracts, checked-core hardening, a scoped retrieval/evidence capability, dependency discipline, and final integration.
++- **A — Intake:** a time-boxed qualification of Xberg against BRN's demonstrated PDF/Poppler weakness, run as an `experiments/` spike. Production cutover is a separate later decision.
++- **B — Writing:** a reusable, reference-assisted writing workspace inside BRN using the current editor, plus a separate time-boxed Zorite spike against named missing editor capabilities.
++- **C — Foundation and integration:** C0, the shared writing changes B needs (setup record, request v2, candidate source provenance, shared run start), the related regression tests, and integration. Broader core/retrieval/provider reorganization is deferred.
+ 
+-C is also the integration lead. It is not a fourth competing rewrite. Start C's small contract/baseline slice first; then A and B can build concurrently while C continues foundation work.
++C is also the integration lead, not a fourth competing rewrite. Start C0 first; the `experiments/` spikes can start immediately. B and C's shared writing changes then proceed together once the active branches in section 3 have landed or been paused.
+ 
+ **End-state product outcome:** Open or create a document, attach reference materials, set a brief, write directly, collect passage comments and overall feedback, generate a source-grounded proposed revision, inspect sources and changes, Apply or reject, Undo, and recover the workspace after restart. This works inside BRN even with the ordinary chat panel closed.
+ 
+@@ -48,6 +48,10 @@
+ | Retrieval | An existing accepted plan and harness cover derived indexes, scoped search, keyword/dense behavior, Connections, and 1k/5k/10k synthetic corpora. | Reuse these; do not start another retrieval implementation or assume semantic search is still absent. |
+ | Integration | Repository workflow already assigns shared interfaces to one lead. Required checks include Linux core as well as macOS core/native lanes. | Product scope remains Mac-first without ignoring required Linux core failures. |
+ | Archive | The open PR response includes #112, explicitly marked archive/do-not-merge. | Reuse any relevant design ideas deliberately; do not merge the archive as part of this work. |
++| Active local work (plan review, 15 Oct) | Two unpushed worktrees were committed to on the morning of 15 October. `work/ui-polish` (`13d6224e` plus an untracked plan) changes 17 `brn-desktop` files, including `threads_ui.rs` and `threads_writing.rs`. `work/daily-workflow-reliability` (8 commits plus uncommitted docs) changes `brn-ai/src/threads.rs`, `run_lease.rs`, `brn-threads-core/src/edit.rs`, `lib.rs`, `brn-threads-app/src/{intake,chat}.rs`, `brn/src/main.rs` and `brn-desktop/src/threads_ui.rs`. | These are the current owners of those files. C0 records them and sequences around them (section 11). They also occupy build capacity. |
++| Writing request shape | `WritingSnapshot` is stored in an immutable `writing-request` Message capped at 128 KiB. It binds the note, comments, every posted message of one linked thread, and overall feedback, all as `Current` inputs. `add_writing_comment` requires a `discusses` link between the thread and the note. Rewrite runs reject transient sources (`brn-ai/src/threads.rs:1799`). `writing_request()` replaces the model's declared inputs with the snapshot's, so references a run reads are not recorded on the candidate. The run's `ReadLedger` is in-memory only. | References, the brief and "Sources used" need specific changes to the shared request and candidate. Existing scoped read/search tools are reused. |
++| Scope and inputs | One core predicate, `context::visible(record, rows, chat)`, governs exact IDs, search and historical reads. `InputExpectation::{Current, Historical, ChatContext}` already exists. Apply rechecks the visibility of current and historical inputs for chat-bound authority (`store.rs:1183-1213`). | No new permission or evidence model is needed. Reference binding chooses among the existing expectations. |
++| Run orchestration | Provider/model/effort resolution, search-handle wiring and the worker thread live in `ThreadsUi::start_run` (`threads_ui.rs:1892-2030`). The CLI duplicates selection resolution (`brn/src/main.rs:339`). Writing-thread choice is UI state (`ThreadsUi::writing_threads`). | A development host would have to copy this code. Moving it into the shared service is a prerequisite for B's host. |
+ 
+ GitHub cannot establish what unpushed local work or active agent sessions exist. **C0 must inspect the actual local worktrees, active assignments, and fresh remote state before assigning files.** The inspected commit is a reference, not an instruction to reset to an older revision.
+ 
+@@ -76,13 +80,15 @@
+ | Checked core (`brn-threads-core`) | Authoritative records/revisions, grants, version checks, atomic writes, replay, dirty guards, Undo, backup/recovery. | UI widgets, remote model calls, converter implementation details. |
+ | Shared application service (`brn-threads-app`) | Use-case coordination and host implementations for imports, writing, context, and search. | Duplicated permission engines or framework-specific editor state. |
+ | Retrieval (`brn-retrieval` plus existing host adapter) | Rebuildable index, ranking, exact results, bounded search, capability/coverage reporting. | Canonical content authority, permission grants, automatic model calls for every query. |
+-| Writing engine (proposed `brn-writing`) | Writing-session state, briefs/references, comments, immutable revision requests, proposal/review lifecycle. | BRN navigation, concrete database handles, parser internals, provider credentials. |
+-| Writing UI (proposed `brn-writing-ui`) | Reusable document/comments/references/review panel and editor adapter. | Another persistence, authorization, or Undo system. |
++| Writing domain (existing `brn-threads-core::writing` and `brn-threads-app::writing`) | Writing setup (brief and references), comments, the immutable request, proposal/review lifecycle and shared run start. These modules are already headless and UI-free. | GPUI types, BRN navigation, parser internals, provider credentials. |
++| Writing UI (one new crate, proposed `brn-writing-ui`) | Reusable document/comments/references/review panel, writing view-state extracted from `ThreadsUi`, and the editor seam. Depends on `brn-threads-app` and `gpui-kit`, with `gpui-kit` behind an optional `native-ui` feature. | `brn-desktop` imports, another persistence/authorization/Undo system, or copied run orchestration. |
+ | Existing AI layer (`brn-ai`) | Provider transport and runtime tools with explicit product/transport boundaries. | A new generic agent framework or authority derived from model output. |
+ | BRN host and small development host | Compose the real components and present their state. | Copied implementations of the writing workflow. |
+ 
+-The headless writing component must not depend on `brn-desktop` or the full application-service crate. Declare the narrow host operations where that avoids cycles; implement them in the application layer. Reuse neutral existing data types where possible. If types need moving, move the minimum coherent set with C's ownership; do not introduce a universal `common` crate or dependency cycle.
++Do not create a separate headless `brn-writing` crate or host-operation traits. The headless writing logic is already in core/app modules. A host trait would have one real implementation, and the development host needs the real `brn-threads-app` service anyway. The enforceable boundary is compile-time: `brn-writing-ui` must not depend on `brn-desktop`, and the development host must build without it. `brn-threads-app` pulls in no GPUI, so depending on it does not import the BRN UI.
+ 
++GPUI must stay out of default builds. The required `Core and CLI (ubuntu-24.04)` job runs `cargo build/clippy/test --workspace` with default features. Any new crate that depends on `gpui-kit` must make it optional, as `brn-desktop`'s `native-ui` feature does. Native lanes must build and test it explicitly. Do not introduce a universal `common` crate or a dependency cycle.
++
+ Independence means bounded responsibilities, documented contracts, isolated tests, and no accidental knowledge of the full shell. It does **not** mean duplicating core services so every module has its own database.
+ 
+ ## 6. C0: establish the common starting point
+@@ -100,15 +106,25 @@
+ - Agree minimal shared contracts in section 7, naming existing types/methods wherever suitable. Add enough executable contract fixtures to support both A and B without implementing their products.
+ - Establish a common local integration ref and a committed C0 boundary revision. Record it in the coordination log. No branch name in this pack authorizes resetting an existing branch.
+ - Establish fixture families and a baseline cost/latency/artifact-size record. No new performance promises based on marketing.
++- Sequence around active work (section 11). Do not assign B any file that `work/ui-polish` changes until that branch is merged or owner-paused and its changes are on the integration ref. Do not assign A or C any file that `work/daily-workflow-reliability` changes until the same holds for it. Count active streams against available build slots.
++- Fix the writing-context contract in section 7.2 as failing-first tests in `brn-threads-core`/`brn-threads-app`, plus the CI rule in section 5. Do not define a conversion contract for B: B consumes notes (section 7.1).
+ 
+ ### C0 deliverables
+ 
+-`plan.md`, `contracts.md`, `ownership.md`, `baseline.md`, and `coordination.md` under `docs/work/active/modular-foundation/`, or equivalent existing canonical paths selected by the lead. Avoid duplicating existing documentation authorities; link to maintained specifications.
++One `plan.md` under `docs/work/active/modular-foundation/`, linked from `docs/status.md`. Its short sections cover baseline, ownership, contracts and coordination. Add a separate `evidence.md` only when results exist. Link to maintained specifications instead of restating them. The repository workflow asks for "one short active plan and concise status".
+ 
+ ### C0 exit
+ 
+-A and B can identify exactly what they consume, what they may edit, which baseline they build against, and what the lead alone can change. Contract fixtures compile where appropriate. This is a small integration prerequisite—not completion of all core refactoring.
++C0 is complete when all of these hold:
+ 
++- Every path has one named owner.
++- The active-work items in section 3 are resolved or explicitly carved out.
++- The section 7.2 tests exist and fail for the right reason.
++- The integration ref is committed.
++- The A and B spikes (sections 8 and 9) have scratch locations outside shared code.
++
++This is a small integration prerequisite, not completion of core work.
++
+ ## 7. Shared contract requirements
+ 
+ These describe semantics. C must map them to existing interfaces before inventing new public APIs.
+@@ -123,18 +139,60 @@
+ 
+ Cancellation/errors cannot produce an apparent successful import. The host performs the checked save only after validating the result and rechecking cancellation and scope.
+ 
++This contract is A's internal boundary. It is already implemented by `brn-threads-intake::ConversionResult` and `brn-ai::conversion` (merged in #144). **B does not consume it.** A writing reference is always a BRN note. Writing runs reject transient sources (`brn-ai/src/threads.rs:1799`), so "import a file as a reference" means the existing full-note import (protected, in the chosen general, private or project scope) followed by attaching the resulting note. A's extractor decision therefore never blocks B, and C0 freezes no conversion API for B.
++
+ ### 7.2 Writing context and versioned request
+ 
+-Persist a writing workspace's document link, reference links, brief, comments, and conversation association through existing shared records wherever suitable. Workspace context survives switching/new chats and restart. Opening a document does not force a project-setup ceremony.
++These semantics are decided here so that B and C implement the same rules. C chooses the exact field and record encoding.
+ 
+-A request binds its identity, draft/document snapshot, document version, editor generation where relevant, chosen references and revisions, source purpose, comments, brief, host scope/context epoch, model selection, and limits. Do not overload the existing immutable-message payload by embedding every reference document in it. Inspect and respect current byte bounds, and distinguish serialized-byte bounds from model token budgets.
++**Anchor.** The working document is one Note. Its **writing setup** consists of:
+ 
+-Default to the existing safe Save-and-rewrite/Save-and-comment semantics. Make any required save explicit; do not introduce implicit writes just to start AI. Supporting an unsaved snapshot is allowed only with a proven generation/base-version contract and no loss of unsaved owner text.
++- an optional brief;
++- an ordered list of reference note IDs, each with a purpose (requirements, evidence or style).
+ 
+-A retry that uses the same snapshot must revalidate present access and its declared current prerequisites. A refresh/regeneration creates a new request and candidate; it cannot reuse prior approval.
++The setup is one owner-only, versioned record per working note. It is separate from the Note, so editing it never bumps the note version. Changes go through checked owner operations with replay and Undo, and backups include the record.
++
++Do not store the setup in note Markdown or Note fields, in a chat Message, or as a range-less Comment. It needs a new record kind, so C owns a schema increment with the existing pre-upgrade backup rules and older-request decoding.
++
++**Conversations.** Several conversations may link to the note through the existing `discusses` link. Each request runs in exactly one linked conversation, the request's scope. The existing predicate `context::visible(record, rows, Some(conversation))` decides which references are usable:
++
++- A reference that is not visible in that scope is excluded from the request and never shown to the model.
++- The owner UI shows it as "not available in this conversation".
++- Comments keep their current note anchoring.
++- With Chat closed, the shared service chooses or creates the note's writing conversation. This moves today's `ThreadsUi::writing_threads` heuristic into shared code.
++
++**Request capture.** The immutable request (`WritingSnapshot` envelope v2) adds the brief text and the usable references as IDs, versions and purposes, never their content. It keeps the 128 KiB serialized bound, and v1 requests still decode. Serialized bytes are not model tokens; the run's existing tool-round and output budgets govern reading.
++
++**Input binding.**
++
++| Input | Expectation | Effect |
++|---|---|---|
++| Note, comments, linked messages, request marker | `Current` (unchanged) | Edits make the candidate stale. |
++| Setup record version | `Current` | Brief or reference-list edits during a run make the candidate stale. A new request is required. |
++| Reference revisions the run actually read | `Historical`, recorded on the candidate | Later edits, including delegated maintenance, do not make the candidate stale. Review shows "changed since". |
++| Conversation/project context | Existing `ChatContext` and project inputs | Membership or privacy changes are fenced as today. |
+ 
++At Apply, the visibility of every input, including historical ones, is rechecked with the same predicate. Losing access refuses Apply or returns NeedsReview. The core does this today under chat-bound authority (`store.rs:1183-1213`). C0 adds a test proving that the owner-review Apply path behaves the same for writing candidates, and fixes it if not.
++
++**Sources used and coverage.** Persist the run's `ReadLedger` entries (ID, version, covered bytes, complete) with the candidate. "Sources used" is derived only from these entries and from host-verified quotations. This changes `brn-ai::threads::writing_request()`, which currently replaces the model's declared inputs, and is owned by C.
++
++- A targeted edit uses the existing scoped search/read tools.
++- An exhaustive check of a requirements-purpose reference counts as complete only when the ledger shows that reference version completely read. Otherwise the candidate is labeled partial with the covered fraction.
++- No separate coverage planner is needed.
++
++**Save, retry and regenerate.** Keep explicit Save-and-rewrite. Unsaved-snapshot requests are out of scope for this program. Retry reuses the request identity and revalidates current inputs and visibility. Regenerate or refresh creates a new request and candidate, and prior approval is never reused.
++
+ ### 7.3 Scoped evidence/retrieval service
+ 
++**Reuse, do not rebuild.** The capability already exists:
++
++- run-scoped `search_notes`, `read_note`, `read_note_range` and `note_connections` tools under the host-fixed `Scope.chat`;
++- the core `visible()` predicate;
++- the `ReadLedger` coverage accounting;
++- the research helper's host verification of citation quotes.
++
++Writing reuses these unchanged except for the candidate provenance in section 7.2. No new evidence API, adapter crate or cross-cutting "evidence service" refactor is part of this program. The requirements below describe properties the existing tools must keep. Where a test shows they do not, fix that gap.
++
+ The trusted host supplies scope. Query, selected document IDs, requested task type, and budget are untrusted request inputs, not authority.
+ 
+ Return stable canonical document IDs, immutable revision IDs/versions, exact quoted text, validated byte ranges in retained content, honest source locators, retrieval mode/status, and the scope/index generations needed for validation. Keep provenance mapping from a converted paragraph to a source page/section distinct from the paragraph's own byte range.
+@@ -153,14 +211,28 @@
+ 
+ Local editor undo concerns uncommitted typing. Durable BRN Undo concerns accepted saved operations. Define and test their interaction so that accepting/undoing an AI revision does not resurrect stale local content on the next save.
+ 
++These are requirements on the editor seam inside `brn-writing-ui`. With one editor, it is a module boundary, not a public trait. Introduce an abstraction only when a second editor passes the qualification gates in section 9 (B2).
++
+ ### 7.5 Applying a proposal
+ 
+ Existing checked services receive exact candidate identity/content, operation identity, expected document/base version, relevant current inputs/context fences, and real host authority. The core commits or refuses atomically and records a receipt. A model cannot create an approval receipt. No interface returns “applied” before this succeeds.
+ 
+ ## 8. Workstream A — intake qualification and modularization
+ 
++**Framing.** The extraction boundary already exists and is tested (#144, merged 14 October):
++
++- a restricted helper process with schema-2 prepared readers;
++- a store-free, tool-free Luna conversion stage;
++- a checked host save.
++
++The demonstrated weaknesses are the PDF path's reliance on external Poppler executables (a distribution prerequisite in the preview guide) and unqualified complex/scanned PDF fidelity. A is therefore a **time-boxed qualification spike** aimed at those weaknesses. It is not a re-modularization and not a production cutover.
++
++A's code lives in a standalone `experiments/` manifest until gate 3. Any cutover is a separate later owner decision, and this program's completion does not depend on A.
++
+ ### A1. Establish baseline and maintainable extraction boundary
+ 
++Record the existing boundary, including the files and tests listed in section 18 and `docs/work/active/rust-luna-intake/`. Do not refactor production intake in this program unless a gate-3 integration is approved. Leave `brn-threads-app/src/intake.rs` to `work/daily-workflow-reliability` until it lands.
++
+ Trace all current import surfaces and the dedicated prepared/Luna path. Record supported formats, assets, locators, completeness obligations, hard limits, provider usage, and current failure/recovery behavior.
+ 
+ Extract only orchestration/parsing coupling that demonstrably violates the agreed boundary. Keep application persistence outside the extractor. Reuse existing worker restrictions, temporary-directory lifecycle, prepared result validation, and import tests.
+@@ -169,8 +241,22 @@
+ 
+ ### A2. Qualify Xberg/Kreuzberg as the preferred candidate family
+ 
+-Verify current official project identity, published Rust package, release/tag, license and dependency provenance. Older Kreuzberg docs describe v4 LTS and redirect to Xberg; current Xberg presents a fresh v1 line. Do not infer the package version from the old “v5+” wording.
++Facts verified on 15 October 2026 (see the review report):
+ 
++- Xberg is the "direct continuation of Kreuzberg" with versioning restarted at v1. The current release is `xberg 1.3.10` (13 October), a first-class Rust `rlib`, MIT, MSRV 1.92.
++- Kreuzberg v4 is LTS-only, with best-effort fixes until the end of 2026. Earlier v4 releases were under ELv2. `kreuzberg 4.10.4` pins `ort =2.0.0-rc.12`, which conflicts with fastembed 7.1.0's rc.13 through `ort-sys links = "onnxruntime"`. **Evaluate `xberg =1.3.10` only.**
++- Xberg's default features contain no PDF, OCR or ONNX support. `pdf` selects `xberg-native-pdf` + `lopdf`. `ocr` builds Tesseract/Leptonica, and its build script downloads sources. `paddle-ocr` uses ONNX and downloads models at runtime.
++- Optional dependencies duplicate BRN pins (`quick-xml 0.42` vs 0.41, `zip 9` vs 8.6).
++- Xberg documents `max_pages` and an extraction timeout, but no memory limit or process isolation. BRN's restricted helper process remains the isolation boundary.
++
++Run three gates in order and stop at the first failure.
++
++1. **Graph gate (offline, cheap).** In `experiments/`, resolve `xberg =1.3.10` with `pdf` only. Record duplicate crates, build time, binary-size delta and native requirements. Show that no build-time or runtime downloads occur with this feature set.
++2. **PDF evidence gate.** On existing PDF fixtures and source inventories, produce the evidence BRN's schema-2 prepared PDF stage needs and compare with Poppler: text with line order, page rasterization for Luna previews, and embedded images. If rasterization requires `pdf-pdfium` (a downloaded native library), record that as a separate decision rather than a pass.
++3. **Integration design.** Only after gates 1–2 pass, design integration inside the existing restricted helper.
++
++Do not evaluate replacing the recently qualified DOCX/PPTX/XLSX/EML/HTML readers unless a fixture demonstrates a gap.
++
+ Prefer a maintained native Rust interface in an isolated bounded worker. Select the minimum features required for the agreed existing formats. Explicitly inspect native dependencies, PDF backend, optional OCR engines, ONNX use, model assets/downloads, transitive licenses, binary footprint, feature unification, and interaction with BRN's existing embedding runtime.
+ 
+ A separate process is not automatically a security sandbox. Verify the restrictions actually available on the target host: permitted inputs/scratch, no canonical-store/credential access, network denied for local extraction, output/input/memory/page/time bounds, child-process cancellation, and cleanup. Document residual limitations.
+@@ -203,6 +289,8 @@
+ 
+ ### A5. Cutover and retirement
+ 
++**Outside this program's completion.** After gate 3, A delivers a decision report (adopt / keep current / bounded adaptation). Production cutover is a separate owner-approved slice integrated by C. The rules below apply to that later slice.
++
+ Adopt only after mandatory fidelity, scope, failure-handling, platform/build, and integration gates pass. Measure latency, memory, native requirements, build impact, and maintenance/glue cost against baseline. No full-success claim from library marketing or a handful of easy files.
+ 
+ Switch one selected production route. Remove replaced parser/orchestration paths, redundant helpers, stale defaults, unused dependencies, and tests asserting retired behavior. Preserve needed historical result readers and source evidence, not a hidden old converter. Record a clean rollback ref and data compatibility.
+@@ -213,14 +301,41 @@
+ 
+ ### B1. Characterize and extract existing behavior
+ 
++**Starts only after `work/ui-polish` is merged or owner-paused and on the integration ref.** That branch is rewriting the same writing surfaces.
++
+ Using the current editor, preserve Read/Write, formatting, passage comments, overall feedback, saved request context, proposal-only rewrite, exact review, Apply/reject, Stop/retry, durable Undo, and per-document draft recovery.
+ 
++Move the writing panel and its view-state out of the monolithic `impl ThreadsUi` (`threads_writing.rs`, about 2,300 lines, plus writing parts of `threads_ui.rs` and `threads_workbench.rs`) into `brn-writing-ui`. The desktop then consumes the crate, with no behavior change. Desktop and the development host call C's shared run start (section 10) instead of `ThreadsUi::start_run`.
++
+ Separate headless writing behavior from `ThreadsUi` and global chat selection. Introduce a reusable writing panel only where needed. Do not copy the writing implementation into another directory and leave both production routes alive.
+ 
+ Keep canonical changes behind the agreed host service. Move shared writing/core types only through C's ownership and compatibility review. Continue to use the current tested editor while extraction is verified; do not mix every extraction diff with an editor replacement.
+ 
+ ### B2. Evaluate Zorite in an isolated development host
++
++**A time-boxed qualification spike in `experiments/`, outside this program's completion.** The canonical target says to "evaluate an existing embeddable editor only against a concrete missing capability". The named capabilities are:
++
++- (a) range geometry for placing margin comments (GPUI Kit 0.7.3 exposes no selection bounds);
++- (b) live WYSIWYG Markdown;
++- (c) macOS IME/composition quality.
++
++Facts verified on 15 October 2026:
+ 
++- `zorite-editor 0.11.2` is published on crates.io under MIT and depends on `gpui-pre ^0.3`. This is the same crate family as BRN's `gpui-pre 0.3.9`; Zorite's own lock uses 0.3.2.
++- The Zorite application is GPL-3.0-or-later and has an AGPL-marked dependency. Never depend on the app crate. Its `[patch.crates-io]` is not inherited by consumers.
++- Public offsets are UTF-8 bytes. `replace_range` is undoable and does not emit `Changed`; `Changed` signals user edits including IME.
++- `set_text` clears undo history.
++- There is no read-only mode. `bounds_for_offset` returns only a caret box.
++- WYSIWYG uses `zorite-markdown`, a second Markdown interpreter alongside BRN's consolidated renderer policy (#146).
++
++Gates, in order (stop at the first failure):
++
++1. Compile a standalone experiment using `zorite-editor =0.11.2` with `gpui-kit =0.7.3` (`gpui-pre 0.3.9`) and no patches.
++2. Headless checks: byte-offset mapping on repeated, Unicode and CRLF fixtures; read-only enforcement by a wrapper; agreement between rendered and source mapping under WYSIWYG versus BRN's Read view.
++3. Native checks on the target Mac: IME, selection and comment geometry. This gate stays open while the Mac is inaccessible.
++
++Report the result against capabilities (a)–(c). Any editor cutover is a later owner decision.
++
+ Compare the current editor with a precisely pinned Zorite package/commit using the same document corpus and host contract. Inspect the published package as well as upstream checkout: upstream workspace patches or demo dependencies may not be inherited by consumers.
+ 
+ Verify one compatible GPUI graph with BRN's existing GPUI Kit pin. No broad toolkit/compiler upgrade to make the demo run. Inspect any upstream patches, license boundaries and unpublished dependencies. Reuse editor/library code, not the whole GPL application by accident. Record notices and transitive obligations; do not treat this plan as legal advice.
+@@ -246,9 +361,9 @@
+ 
+ ### B3. Implement persistent reference-assisted writing
+ 
+-Workspace contains a working document, read-only reference links, optional brief, passage feedback, overall feedback, and associated conversations. A brief supports purpose/audience/tone/requirements without a new taxonomy system. Reference purpose such as requirements/evidence/style may be lightweight workspace metadata, not globally imposed document roles.
++Workspace contains a working document, read-only reference links, optional brief, passage feedback, overall feedback, and associated conversations. Section 7.2 defines storage, scope, capture and input binding; B builds the UI and flows on C's implementation of it. A brief supports purpose/audience/tone/requirements without a new taxonomy system. Reference purpose such as requirements/evidence/style may be lightweight workspace metadata, not globally imposed document roles.
+ 
+-Support attaching an existing BRN note/project document and importing a file through A's interface. Use C's current project/visibility services rather than a second membership table or access policy. A shared document is one canonical record with appropriate links.
++Support attaching an existing BRN note/project document, and importing a file through the existing full-note import followed by attaching the resulting note (section 7.1). Use C's current project/visibility services rather than a second membership table or access policy. A shared document is one canonical record with appropriate links.
+ 
+ References/brief survive new chat, chat switch, note navigation, closed chat panel and application restart. Adding/removing references is an owner configuration action. Multiple independent conversations about the same document remain possible; the document is not itself a single chat.
+ 
+@@ -260,18 +375,38 @@
+ 
+ ### B4. Prove independence without shipping another app
+ 
+-Build a minimal development host with the reusable writing panel, synthetic documents/references, and the same checked service or explicit contract-test adapters. It must not initialize the full BRN desktop/navigation/task system. At least one host journey must use the real shared service, not just mocks.
++Build a minimal development host as a binary or example of `brn-writing-ui`, behind its `native-ui` feature. It renders the reusable writing panel over synthetic documents and references and opens a real `brn-threads-app` `Workspace` in a disposable directory. It uses C's shared run start and writing-conversation selection, with no copied orchestration. It must not depend on `brn-desktop` or initialize BRN navigation or tasks. At least one host journey uses the real shared service with a scripted provider (`brn-ai` `scripted-runs`), not just mocks.
+ 
+ Changing a passage-comment or review behavior should change both BRN and the development host through one implementation. No second document library, production settings suite, sync engine, installer, or release is required.
+ 
+ ### B5. Writing exit
+ 
+-The entire user workflow runs in BRN using the extracted implementation. Reference context persists. Scopes and exact review hold. Editor choice is evidenced. Restart and native interaction are verified where the environment permits; unobserved native cases remain an explicit gate, not a pass.
++The entire user workflow runs in BRN using the extracted implementation with the current editor. Reference context persists. Scopes and exact review hold. Restart and native interaction are verified where the environment permits; unobserved native cases remain an explicit gate, not a pass. The Zorite spike reports separately and does not gate this exit.
+ 
+ ## 10. Workstream C — checked foundation, retrieval and integration
+ 
++**Scope in this program.** C's production work is limited to:
++
++- C0;
++- the shared changes that B's outcome needs (CW below);
++- regression tests for the invariants those changes touch;
++- integration.
++
++C2–C4 below are **deferred**. Reopen one only when a failing test or observed defect demonstrates a need; this removes a second concurrent refactor of the shared core. Run the retrieval evaluation and the strict 10k scale test only when retrieval code changes.
++
++### CW. Shared writing changes (owned by C, consumed by B)
++
++1. Add the writing-setup record and its schema increment, with transactional upgrade, pre-upgrade backup, backup/restore, replay and Undo tests.
++2. Add request envelope v2 (brief, reference IDs, versions and purposes) with v1 decoding.
++3. Record reference reads as `Historical` inputs and persist ledger entries on writing candidates (change `brn-ai::threads::writing_request()`). Test that Apply rechecks visibility on the owner-review path.
++4. Move run start (settings → selection/effort, search handle, worker) out of `ThreadsUi::start_run` into `brn-threads-app` (or `brn-ai`), together with writing-conversation selection. The CLI uses the same code.
++
++Items 3 and 4 touch `brn-ai/src/threads.rs`, so they wait for `work/daily-workflow-reliability` to land.
++
+ ### C1. Make invariants executable before changing implementation
+ 
++*Limited to the invariants touched by CW and by the F-suite. A program-wide invariant audit or mutation campaign is deferred.*
++
+ Map each relevant core invariant to current code and a meaningful test. Add missing regression/property/fault tests first, then fix actual defects or remove evidenced duplication. An audit may legitimately find a component needs no production change.
+ 
+ Prioritize atomic grouped writes, replay after lost responses, version/protection changes, draft generation/dirty guards across processes, exact-candidate approval, current versus historical inputs, private/project fencing, interrupted import/rewrite, Undo after subsequent edits, backups/restores and upgrades.
+@@ -280,7 +415,7 @@
+ 
+ Keep model/network/conversion work outside canonical transactions. Do not introduce CRDTs, event sourcing, a new datastore, new universal command/event buses, or generic dependency-injection infrastructure without a concrete current requirement.
+ 
+-### C2. Consolidate reference/context assembly
++### C2. Consolidate reference/context assembly *(deferred; see the section 10 scope note)*
+ 
+ Reuse the current project and private-context predicates, source reads, snapshot logic, and application service. Expose the scoped evidence capabilities agreed in section 7 to writing and existing chat/tools.
+ 
+@@ -290,7 +425,7 @@
+ 
+ Cache keys/invalidation must include the relevant scope epoch and document/index generation. Reference access revoked during a run cannot leak through an old Sources used pane or result cache. Revalidation uses the same core predicate.
+ 
+-### C3. Strengthen existing retrieval as a dedicated capability
++### C3. Strengthen existing retrieval as a dedicated capability *(deferred; see the section 10 scope note)*
+ 
+ Preserve the existing retrieval/index/worker and harness first. Improve boundaries or deficiencies demonstrated by tests, rather than replacing working retrieval to fit a new name.
+ 
+@@ -308,7 +443,7 @@
+ 
+ Any optional “expert” model uses these read-only tools, bounded rounds and explicit budget, returns source-backed evidence, and has no persistence/permission authority. Preserve any existing experimental/off-by-default helper setting. Qualification of such a helper is optional and cannot block deterministic search or become a mandatory hidden tax on every writing request.
+ 
+-### C4. Clarify provider/runtime ownership only where needed
++### C4. Clarify provider/runtime ownership only where needed *(deferred apart from CW item 4)*
+ 
+ Separate reusable provider communication from BRN-specific tools, request context and policy at the module/interface level. Preserve the existing qualified Rig integration and credentials behavior. Only create a new provider crate when a concrete consumer and dependency graph justify it.
+ 
+@@ -332,18 +467,28 @@
+ 
+ | Surface | Primary owner | Rule |
+ |---|---|---|
+-| Intake implementations, extraction worker, prepared readers/checks, intake fixtures | A | Preserve declared contracts. Changes to dedicated AI conversion files are explicitly carved out in C0. |
+-| New writing packages, writing-specific app operations/tests, writing-related desktop files and editor adapter | B | No ownership of generic core or shared AI runtime. |
+-| Core storage/authorization/visibility/recovery; retrieval and context adapters/tests | C | Do not concurrently edit B's allocated writing files. |
+-| Shared type declarations, core writing-snapshot representation, schema/migrations, root manifests/lockfile, generic runtime dispatch, CI, canonical architecture docs | C/integration lead | A/B submit a small explicit interface/change request with rationale and compatibility notes. |
++| `experiments/xberg-*` spike; later, after gate 3 and owner approval, `brn-intake`/`brn-threads-intake` and the restricted helper | A | No production intake edits during the spike. `brn-threads-app/src/intake.rs` stays with `daily-workflow-reliability` until it lands. |
++| `brn-writing-ui` (new), writing-specific desktop files once `ui-polish` lands, `experiments/zorite-*` spike | B | No ownership of core, app writing ops, the shared run start or `brn-ai`. |
++| `brn-threads-core`, `brn-threads-app` (including `writing.rs`), `brn-ai/src/threads.rs` CW changes, schema, root manifests/lockfile, CI, canonical docs | C/integration lead | A and B submit a small change request with rationale and compatibility notes. |
+ | Stream-specific plan/evidence/handoff files | Respective stream | Use separate files; no shared append race. |
+ 
+ C0 must turn these conceptual boundaries into exact current paths and owners. Shared ownership of an entire crate is too vague.
+ 
+ A/B may make clearly recorded minimal local manifest/module-declaration patches needed to compile their isolated candidates. These do not transfer integration ownership. C reconciles shared patches and regenerates the final lockfile from agreed manifests; do not merge generated lock conflicts blindly. Cross-cutting schema/authority changes are never smuggled in as build fixes.
+ 
+-A uses conversion fixtures; B consumes the same contract fixtures and current adapter until A qualifies. C supplies an initial evidence interface backed by the existing retrieval behavior. Thus A's engine decision does not block B's UI extraction, and B's Zorite decision does not block C's scope tests.
++A works only in `experiments/` until gate 3 and consumes no shared contract. B consumes notes, not conversion results (section 7.1), and builds its UI against C's CW items as they land. Thus A's engine decision does not block B, and B's Zorite decision blocks nothing.
+ 
++**Active work and capacity.** At plan review, `work/ui-polish` and `work/daily-workflow-reliability` were active on the files listed in section 3, and they already use the owner's build capacity.
++
++- B1 waits for `ui-polish`.
++- CW items 3–4 and any A integration wait for `daily-workflow-reliability`.
++- Either branch landing or being explicitly owner-paused satisfies its condition.
++- With two build slots, run at most two of: these active branches, C (CW), B1/B2/B4. The A and Zorite spikes are light and may overlap as read-only or experiment work. Never run two heavy native builds or benchmarks at once.
++
++**Contract changes.** Only C edits the section 7 contracts. A change bumps the plan's contract revision and names the affected consumers; C updates or notifies them before integration. No agent waits in a polling loop. A blocked stream records its blocker and finishes independent work.
++
++**Launch messages.** Start messages tell each agent to read the repository `AGENTS.md` at the integration ref. Any injected guide that disagrees is stale. This review observed a harness-injected copy of an older `AGENTS.md`, from before commit `c7e3eda3`, describing removed crates and a paused-production state.
++
+ Do not casually cherry-pick another agent's unreviewed working commits. Coordinate through explicit contract revisions and reviewable slices. A contract change records affected consumers and migration steps; update both consumers and tests before declaring integration complete.
+ 
+ ## 12. Delivery slices and order
+@@ -352,18 +497,16 @@
+ 
+ | Slice | Contents | Dependencies |
+ |---|---|---|
+-| C0 | Baseline, ownership, minimum contracts, shared fixtures | None |
+-| A1 | Existing intake characterization and candidate harness | C0 |
+-| B1 | Writing extraction using current editor and minimal host | C0 |
+-| C1 | Scoped evidence adapter over existing retrieval; missing core regression tests | C0 |
+-| A2 | Pinned extractor qualification and dependency/fidelity decision | A1 |
+-| B2 | Pinned Zorite qualification using editor adapter | B1 interface; isolated spike may begin earlier |
+-| C2 | Targeted core fixes and retrieval boundary/evaluation improvements | C1 |
+-| B3 | Persistent brief/references and source-grounded rewriting | B1 + C1; can use current intake |
+-| A3 | Qualified intake cutover or retained-backend modular boundary | A2 + current shared contracts |
+-| B4 | Qualified editor cutover or documented current-editor decision | B2 + B3, with refreshed checks |
+-| C3 | Combined intake → references → retrieval → rewrite → review → Undo/restart | A3 + B3/B4 + C2 |
+-| C4 | Dead-route cleanup, final documentation, independent integrated review | C3 |
++| C0 | Reconcile active work; one plan with ownership and contracts; section 7.2 failing tests; CI rule; integration ref | None |
++| X1 | Xberg gates 1–2 in `experiments/` (A) | None; may start now |
++| Z1 | Zorite gates 1–2 in `experiments/` (B or a helper) | None; may start now |
++| CW1 | Writing-setup record, schema increment, request v2 | C0 |
++| CW2 | Candidate reference provenance and Sources used; shared run start and conversation selection | C0 + `daily-workflow-reliability` landed |
++| B1 | Extract the writing panel into `brn-writing-ui`; desktop consumes it unchanged | C0 + `ui-polish` landed |
++| B3 | Brief/references UI, Sources used, coverage states | B1 + CW1 + CW2 |
++| B4 | Development host binary over the real `Workspace` | B1 + CW2 |
++| INT | Integrate, F-suite, independent review, prepare native qualification | B3 + B4 |
++| Later, separate assignments | Xberg cutover (X gate 3+), Zorite cutover (Z gate 3+), deferred C2–C4 | Owner decision on spike reports |
+ 
+ Land non-behavioral extraction separately from dependency or behavior cutovers where practical. After each integrated slice, consumers build against the recorded integration ref. Do not leave integration until all streams finish independently.
+ 
+@@ -375,26 +518,28 @@
+ 
+ | ID | Scenario | Required result |
+ |---|---|---|
+-| F01 | Import supported reference as full note | Substantive content/assets preserved or explicit partial/unchecked status; provenance retained. |
++| F01 | Import supported reference as full note | Substantive content/assets preserved or explicit partial/unchecked status; provenance retained. Run the existing import regression; fidelity comparison applies only to a later intake cutover. |
+ | F02 | Repeated import operation after lost response | One canonical outcome; no duplicate document or receipt. |
+ | F03 | Worker/model failure or Stop near commit | No falsely successful or unauthorized partial write; scratch cleaned/recovered. |
+-| F04 | Close/reopen writing workspace; new/closed chat | Document, brief, reference links and comments persist independently of one selected chat. |
++| F04 | Close/reopen writing workspace; new/closed chat | Document, brief, reference links and comments persist independently of one selected chat. Editing the brief does not change the note version. |
+ | F05 | Select second occurrence of repeated paragraph, Unicode/emoji text | Exact intended source range; no guessed reattachment. |
+ | F06 | Several passage comments plus overall feedback | Immutable request captures selected inputs; proposal available in document panel. |
+ | F07 | Targeted paragraph rewrite | Only permitted relevant material supplied; actual sources visible. |
+-| F08 | Exhaustive requirements check with oversized reference | Full-reading coverage is explicit; incomplete/budget-limited work is not presented as exhaustive. |
++| F08 | Exhaustive requirements check with oversized reference | Complete only when the persisted read ledger shows the requirements reference version completely read; otherwise the candidate is labeled partial with covered bytes. Never presented as exhaustive on top-k results. |
+ | F09 | Edit working draft while generation runs | New typing preserved; stale candidate refused or explicitly refreshed into a newly reviewed candidate. |
+-| F10 | Change/remove/revoke reference or project membership during run | Fences and current-input policy enforced; no leaked source content or continued unauthorized access. |
++| F10 | Change/remove/revoke reference or project membership during run | Brief/reference-list edit → stale candidate. Reference content edit, including delegated maintenance of an ordinary reference → candidate still applicable and review shows "changed since". Revoked access → owner-review Apply refused or NeedsReview; no leaked source content. |
+ | F11 | Malicious instructions embedded in a reference | No new authority, provider change, hidden writes or broader retrieval. |
+ | F12 | Accept candidate, repeat acceptance, Undo, then conflicting newer edit | Exact reviewed result, idempotency, safe compensation and visible conflict. |
+-| F13 | Missing/corrupt index, partial/unavailable embeddings, restart | Honest capability/error state; rebuild from canonical content; no fake empty result or model substitution. |
++| F13 | Missing/corrupt index, partial/unavailable embeddings, restart | Honest capability/error state; rebuild from canonical content; no fake empty result or model substitution. Required only when retrieval code changes; otherwise existing retrieval tests stand. |
+ | F14 | General/private/project searches and source panes | No leaks through IDs, quotes, counts, cursors, links, assets, caches or traces. |
+ | F15 | Local editor Undo after accepted AI revision/refresh | No stale content resurrection or mistaken implicit Save. |
+ | F16 | Crash with drafts, request/candidate and queued work | Meaningful work recoverable; authority/identity preserved; no duplicate apply. |
+ | F17 | Backup/restore/imported references without original available | Retained notes/assets/revisions/context remain usable; originals were not secretly retained. |
+-| F18 | Real shared-service development host | Same writing implementation works without full BRN navigation. |
++| F18 | Real shared-service development host | The same writing implementation works without `brn-desktop`. Run start and conversation selection come from the shared service; no copied orchestration. |
+ | F19 | Existing chats/tasks/projects and delegated maintenance | No unrelated behavior or authority regression. |
+ | F20 | Native complete workflow on target Mac | Readable comments/review, functional keyboard/IME, source inspection, Apply and Undo; observable evidence, not screenshots alone. |
++| F21 | One working note linked from conversations in two scopes (project P1, project P2 or general) with a P1-private reference | A request from the P2 conversation never sends or exposes the P1 reference to the model (tools, counts, Sources used). The owner sees "not available in this conversation". |
++| F22 | Default workspace on the required Linux lane | `cargo build/clippy/test --workspace` with default features compiles no GPUI. The new crate's native tests run in the macOS native lane. |
+ 
+ A successful test asserts meaningful outcomes; zero tests, self-skipped tests and mocked-only acceptance do not count. Use mocks/scripted providers for deterministic CI. Live selected-provider tests need current authority and fresh public/synthetic sources, recorded model/account-selection mechanism, effort and outcome; secrets stay out of receipts.
+ 
+@@ -448,11 +593,11 @@
+ 
+ - A/B/C responsibilities and dependencies are documented and enforced by useful tests.
+ - Existing core contracts remain intact and identified weaknesses are fixed or explicitly gated.
+-- Intake and editor evaluations have exact-source, reproducible decisions rather than assumed winners.
++- Intake and editor spikes have exact-source, reproducible decision reports rather than assumed winners. Their cutovers are separate assignments.
+ - The reference-assisted writing workflow works inside BRN and in a small real-service development host with one implementation.
+-- Retrieval/evidence is scoped, current, independently testable, and honest about reading/search coverage and errors.
++- Writing uses the existing scoped tools with honest Sources used and coverage, and the F21 cross-scope case passes.
+ - Combined failure/recovery and existing-product regressions pass relevant gates.
+-- Replaced production routes and stale dependencies are retired coherently.
++- Production routes replaced inside this program (desktop writing code moved to `brn-writing-ui`, duplicated run start) are retired coherently.
+ - Required native observation, independent review and integration evidence are recorded; any pending owner/merge/release gates remain honestly separate.
+ 
+ Only then consider the standalone Writer: a small document navigation/settings/packaging host consuming the proven writing components and existing shared services. Do not move the library out of BRN or duplicate its logic. A separate repository needs a real maintenance/release reason and is not automatic.
+@@ -488,3 +633,8 @@
+ - Xberg repository: `https://github.com/xberg-io/xberg` — describes a rebranded fresh v1 line. Exact release, Rust dependency and feature pin must be established by A; no advertised speed/coverage claim is treated as a BRN benchmark.
+ 
+ External projects and docs can change. Pin exact qualified artifacts and preserve decision evidence. This plan does not claim that Zorite or Xberg builds, passes BRN's fixtures, or is ready for adoption.
++
++Plan-review verification, 15 October 2026 (details and links are in the review report):
++
++- **Zorite.** `zorite-editor` is published on crates.io (0.10.0–0.11.2; 0.11.2 on 12 October), MIT. The published manifest depends on `gpui-pre ^0.3`, `gpui-bidi ^0.1` and `zorite-markdown ^0.10`. The main HEAD is `7670d91d4be86b8c8300d8e47a63c758bf9ef36e`. The root app is GPL-3.0-or-later. The workspace `[patch.crates-io] gpui-pre-wgpu` is not inherited by consumers.
++- **Xberg.** `xberg 1.3.10` (13 October) is MIT with MSRV 1.92. Its migration guide calls it a "direct continuation of Kreuzberg" with versioning restarted at v1. `kreuzberg 4.10.4` (21 September) is LTS until the end of 2026 and pins `ort` rc.12. `fastembed 7.1.0` and `xberg 1.3.10` both pin `ort =2.0.0-rc.13`.
+--- a/02-foundation-lead-prompt.md
++++ b/02-foundation-lead-prompt.md
+@@ -19,18 +19,37 @@
+ 1. Inventory current HEAD/remote baseline, local worktrees, active tasks/owners, dirty changes and open PRs. Preserve unpushed work. Reuse current owners rather than creating duplicate competing builds. Archive/do-not-merge PRs remain archives.
+ 2. Trace real current entrypoints for intake, writing, reference/project scope, retrieval, AI requests, canonical Save/Apply and Undo. Identify current capabilities and gaps; do not infer unsupported behavior merely from a legacy code path.
+ 3. Record meaningful baseline checks and known failures. Check dependency/native-tool constraints, schema/data compatibility and required CI. A source audit is not a verified build.
+-4. Install/reconcile the common program plan. Write a compact `baseline.md`, `contracts.md`, `ownership.md` and `coordination.md` in `docs/work/active/modular-foundation/`. Reuse existing authoritative docs instead of duplicating them.
+-5. Define minimum conversion, versioned writing-context, scoped evidence, editor-adapter and checked-apply semantics. Prefer existing types/APIs. Avoid cycles and placeholder crate proliferation. In particular, the writing engine cannot import full `brn-threads-app` or `brn-desktop`.
+-6. Establish exact file ownership, including carve-outs inside the shared app/AI crates. You own shared schemas/types/root manifests/lockfile/general runtime/CI. A/B may need clearly recorded local build patches; you own their integration. Do not make A/B wait for your entire foundation refactor.
+-7. Create minimal executable contract fixtures/adapters backed by existing behavior. B must be able to develop with synthetic/current conversion and existing scoped retrieval independently of Xberg adoption.
+-8. Commit the C0 local baseline, record its ref, and independently review the interfaces proportionately.
++4. Install/reconcile the common program plan as one `docs/work/active/modular-foundation/plan.md`, with short baseline, ownership, contracts and coordination sections, and link it from status. Reuse existing authoritative docs instead of duplicating them.
++5. Fix the master plan section 7.2 semantics as failing-first tests in `brn-threads-core`/`brn-threads-app`: writing-setup record, request v2 capture, `Historical` reference inputs with Apply-time visibility, and Sources used from the persisted read ledger. Prefer existing types. Do not create a headless `brn-writing` crate or host traits. The writing UI crate depends on `brn-threads-app` and an optional `gpui-kit`, never on `brn-desktop`. The default Linux workspace build must compile no GPUI (F22).
++6. Establish exact file ownership by path. Record the active `work/ui-polish` and `work/daily-workflow-reliability` files as owned by those branches until they land or the owner pauses them, and sequence B1 and CW2 behind them. You own core/app writing ops, shared run start, schema, root manifests/lockfile, CI and canonical docs.
++7. Give A and the Zorite spike `experiments/` locations with standalone manifests. B consumes notes, not conversion results, so no conversion fixture is needed for B.
++8. Commit the C0 local baseline, record its ref, and independently review the plan and tests proportionately.
+ 
+-End Bootstrap with: current factual baseline; preserved active work; exact common ref; ownership table; interface/fixture locations; precise A/B launch messages; known risks; any authorization/prerequisite gates. Mark C0 complete only when both builds can start against usable contracts. Do not continue broad Build mode unless assigned.
++End Bootstrap with these items:
+ 
++- the current factual baseline;
++- the preserved active work and how it is sequenced;
++- the exact common ref;
++- the ownership table;
++- the test and contract locations;
++- precise launch messages for the Xberg spike, the Zorite spike and B;
++- known risks;
++- any authorization or prerequisite gates.
++
++Mark C0 complete only when the master plan section 6 exit holds. Do not continue into broad Build mode unless assigned.
++
+ ## Build mode — C1 onward
+ 
+ Read A/B handoff/status files and the current integration ref before changing shared code. Do not take over their assigned files.
+ 
++### Shared writing changes (CW, first priority)
++
++Implement master plan section 10 CW1 (setup record, schema increment, request v2), then CW2: candidate reference provenance and Sources used, plus the shared run start and writing-conversation selection used by desktop, CLI and the development host. CW2 starts only after `work/daily-workflow-reliability` has landed or been paused. Each item lands with regression tests for the invariants it touches.
++
++### Deferred unless a failing test demonstrates need
++
++The sections below (broad checked-core audit, context consolidation, retrieval boundary work, AI/runtime reorganization) are deferred by master plan section 10. Apply them only to a demonstrated defect found while doing CW or the F-suite.
++
+ ### Checked core
+ 
+ Map relevant invariants to meaningful tests. Add missing regression/property/fault witnesses before fixes. Preserve atomic groups, version/protection checks, replay after lost responses, cross-process dirty guards, exact candidate identity, current/historical input semantics, project/private fencing, crash/restart, compensating Undo, backup/restore and compatible upgrades.
+--- a/03-intake-build-prompt.md
++++ b/03-intake-build-prompt.md
+@@ -4,13 +4,13 @@
+ 
+ ## Objective
+ 
+-Strengthen the existing intake boundary, qualify a maintained Rust Xberg/Kreuzberg extractor against BRN's actual current route, and adopt it only if mandatory gates pass. Deliver maintainable, independently testable intake consumed through the existing checked import service. Do not rewrite BRN or build new parsers.
++Run a time-boxed qualification of `xberg =1.3.10` against BRN's demonstrated intake weakness: the PDF path depends on external Poppler executables, and complex PDF fidelity is unqualified. Use three staged gates (master plan section 8, A2) and deliver a decision report. The extraction boundary already exists (#144: restricted helper, schema-2 prepared readers, store-free Luna stage, checked host save). Do not re-modularize it, rewrite BRN or build new parsers. Production cutover is a separate later owner decision.
+ 
+ ## Preflight and scope
+ 
+ Read `AGENTS.md`, status, architecture invariants, workflow/verification, current intake and Rust/Luna conversion plans, source and tests. Inspect the actual branch/HEAD, remote and local ownership. Start from C's explicit common ref in your isolated worktree. The planning snapshot is not permission to discard newer work.
+ 
+-Confirm exact owned paths with C. Default focus: `brn-intake`, `brn-threads-intake`, their fixtures and agreed dedicated AI-conversion files. Shared schemas/types/root manifests/lockfile/app-runtime dispatch belong to C. Record a concise shared-file change request when needed. Local compile-only patches must be disclosed for C's integration.
++Confirm exact owned paths with C. During the spike, own only `experiments/xberg-*`, with its own manifest and lockfile per repository rules, plus its evidence file. Do not edit `brn-intake`, `brn-threads-intake`, `brn-ai/src/conversion.rs` or `brn-threads-app/src/intake.rs`; the last is being changed by `work/daily-workflow-reliability`. Shared schemas, types, root manifests, the lockfile and app-runtime dispatch belong to C. Production integration after gate 3 needs C's ownership allocation and owner approval.
+ 
+ Use separate synthetic data/scratch and task outputs. Work locally, test, review, document and commit within scope. No publication/merge/release, real user data, model spending or model downloads without current explicit authority. Use current compiler/lockfile and selected model. Do not silently substitute provider/account/model. No UI use on a locked Mac.
+ 
+@@ -26,8 +26,14 @@
+ 
+ ### A2 — exact candidate qualification
+ 
+-Check current official Xberg/Kreuzberg lineage, release, Rust package, features, license/provenance and supported integration interface. Legacy docs use a different version narrative from current Xberg's rebranded line; pin actual qualified artifacts rather than guessing a version.
++Pin `xberg =1.3.10`. Do not use Kreuzberg 4.10.4: its `ort` rc.12 conflicts with fastembed's rc.13 through `ort-sys links`, and older v4 releases were ELv2.
+ 
++- **Gate 1:** `pdf` feature only. Record duplicates (`quick-xml` 0.42/0.41, `zip` 9/8.6), build time, binary delta and native requirements, and confirm no downloads.
++- **Gate 2:** produce the schema-2 PDF prepared evidence (line-ordered text, page rasterization for Luna previews, embedded images) on existing fixtures and inventories versus Poppler. If rasterization needs `pdf-pdfium`, record it as a separate decision.
++- **Gate 3:** design integration inside the existing restricted helper only after gates 1 and 2 pass.
++
++Stop at the first failed gate and report.
++
+ Use a minimal-feature native Rust integration in an isolated bounded worker. Inspect transitive/native requirements, PDF backends, OCR/model assets, package size, build cost and ONNX/embedding-runtime interactions. Preserve existing GUI/compiler/Rig/storage pins unless a separately justified shared change is accepted by C.
+ 
+ Do not enable optional web crawling, embeddings, entity extraction, transcription, remote LLM calls or extra formats by default. Native extraction precedes any selective explicitly enabled OCR; do not OCR files with usable extracted text. Do not broaden scope into a universal renderer or math-layout system.
+@@ -42,6 +48,8 @@
+ 
+ ### A4 — end-to-end evidence
+ 
++*During the spike, run only the extractor-level cases (malformed, truncated, password-protected, limits, Unicode, tables and figures against inventories). The host-service cases below belong to a later approved integration slice.*
++
+ Preserve every supported user-facing baseline format. Test DOCX/PDF/email/Markdown/text and any active supported HTML/spreadsheet/presentation cases with source inventories. Include nested lists, footnotes, duplicate figures, tables and associations, leading zeros, numeric values, supported formulas/caches/comments, Unicode and exact locators.
+ 
+ Test malformed/truncated/password-protected sources, unknown coverage, missing native tools, oversized outputs, worker death, timeouts, cancellation after completion but before save, restart and temp cleanup. A returned result is not proof of complete extraction.
+@@ -50,9 +58,9 @@
+ 
+ Use scripted/mocked model tests in CI. Live provider tests use only currently authorized models/accounts, synthetic/public sources and explicit authority. Report conversion-source QA separately from model success.
+ 
+-### A5 — decide, integrate, retire
++### A5 — decide (integration and retirement are a later assignment)
+ 
+-Record adopt/keep-current/bounded-adaptation with mandatory pass/fail evidence, exact pins/features, fidelity, runtime/memory/build footprint and maintenance/glue cost. C accepts shared integration patches.
++Record adopt/keep-current/bounded-adaptation with mandatory pass/fail evidence, exact pins/features, fidelity, runtime/memory/build footprint and maintenance/glue cost. If the owner later approves adoption, that separate slice follows the retirement rules below and C integrates it.
+ 
+ For adoption, switch one production route and remove replaced parsers/orchestration/helpers/defaults/dependencies coherently after caller/data-reader checks. Keep rollback evidence and needed historical result readers, not a hidden alternate converter. Preserve current schema/data compatibility or submit a separately qualified C-owned change.
+ 
+--- a/04-writing-build-prompt.md
++++ b/04-writing-build-prompt.md
+@@ -4,7 +4,7 @@
+ 
+ ## Objective
+ 
+-Extract and complete a reference-assisted writing module inside BRN. Independently qualify the Zorite editor and adopt it only after its gates pass. Prove the same writing implementation in a minimal development host. Do not ship a second production app or fork NoteGen/Zed/Zorite as the product.
++Extract the existing writing UI into a reusable `brn-writing-ui` crate using the current editor, and build persistent brief/references with honest Sources used on C's shared changes. Prove the same implementation in a minimal development host. Separately, run a time-boxed Zorite spike against named missing capabilities; adoption is a later decision. Do not ship a second production app or fork NoteGen/Zed/Zorite.
+ 
+ The user workflow is: open/create a document, attach references, set a brief, write directly, add several passage comments and overall feedback, ask AI to revise using those materials, inspect sources and changes, Apply/reject, Undo and recover after restart. It must work with ordinary chat closed and across separate conversations about the same document.
+ 
+@@ -12,7 +12,7 @@
+ 
+ Read `AGENTS.md`, status, architecture target/behavior/invariants, workflow/verification, current writing-polish/projects plans, relevant writing/core/app/AI/UI code and tests. Inspect actual local state and active owners. Use C's common ref and an isolated worktree/data directory; preserve newer work and unrelated changes.
+ 
+-Own new writing components, allocated writing-specific app/tests, editor adapter and writing-related desktop paths. C owns shared core types/schema/root manifests/lockfile/general runtime and generic scope logic. Submit explicit requests for shared changes. Disclose any minimal local manifest/module patches needed to compile; C reconciles them.
++Own `brn-writing-ui`, the writing-related desktop paths and `experiments/zorite-*`. Do not edit desktop writing files until `work/ui-polish` has landed or been owner-paused and is on C's integration ref. C owns core/app writing operations (`brn-threads-core::writing`, `brn-threads-app::writing`), the writing-setup record, request v2, candidate provenance, the shared run start, schema, root manifests, the lockfile and generic scope logic. Submit explicit requests for shared changes. Disclose any minimal local manifest/module patches needed to compile; C reconciles them.
+ 
+ Work locally with synthetic data, review, documentation and commits. Publication/merge/release, real-data access, provider spending or downloads require current explicit authority. Use existing compiler/GUI/Rig/provider pins unless a separately qualified coordinated change is necessary. No computer use on a locked Mac; collect native gates instead.
+ 
+@@ -20,14 +20,30 @@
+ 
+ Characterize current Read/Write, formatting, saved selections, passage and overall feedback, captured request context, Stop/retry, review, exact Apply, rejection, Undo and draft recovery. Keep those flows working while extracting.
+ 
+-Separate headless writing state/workflow from `ThreadsUi`, global navigation and whichever unrelated chat is selected. The headless component cannot import `brn-desktop`, full `brn-threads-app`, a concrete store handle or provider credentials. Use C's narrow host interfaces; keep writes through existing checked services. Avoid dependency cycles or large generic-common crates.
++Move the writing panel and its view-state out of the monolithic `impl ThreadsUi` (`threads_writing.rs` plus writing parts of `threads_ui.rs` and `threads_workbench.rs`) into `brn-writing-ui`. That crate depends on `brn-threads-app` and an optional `gpui-kit` (`native-ui`), never on `brn-desktop`, and compiles no GPUI in default builds (F22). The existing core/app writing modules are the headless component; do not add a separate headless crate or host traits. Call C's shared run start rather than `ThreadsUi::start_run`. Avoid dependency cycles or large generic-common crates.
+ 
+-Add a reusable writing panel and thin editor adapter only where justified. Do not copy a second workflow into the development host. Separate extraction from editor/dependency replacement in reviewable slices.
++Use a thin editor seam inside the crate, not a public trait, while there is one editor. Do not copy a second workflow into the development host. Separate extraction from editor/dependency replacement in reviewable slices.
+ 
+ ## B2 — Zorite qualification, not assumed adoption
+ 
+-Compare current editor and exact pinned Zorite package/commit using the same fixtures and host operations. Inspect actual public APIs, published-package contents versus upstream workspace patches, license/source boundaries and native dependencies. A package's main-branch version is not proof of a compatible published build.
++This is a time-boxed spike in `experiments/zorite-*`. It may start now and does not gate B's exit. Target the named missing capabilities: (a) range geometry for margin comments, (b) live WYSIWYG, (c) IME.
+ 
++Verified facts:
++
++- `zorite-editor 0.11.2` is on crates.io under MIT and depends on `gpui-pre ^0.3`, the same family as BRN's 0.3.9.
++- The Zorite application is GPL-3.0-or-later; never depend on it. Its workspace patch is not inherited by consumers.
++- Offsets are UTF-8 bytes. `replace_range` emits no `Changed`. `set_text` clears undo history.
++- There is no read-only mode. Geometry is caret-only.
++- WYSIWYG uses `zorite-markdown`, a second Markdown interpreter.
++
++Gates, in order:
++
++1. Compile against `gpui-kit =0.7.3` without patches.
++2. Headless checks of offsets, read-only enforcement and rendered-to-source mapping.
++3. Native checks on the target Mac.
++
++Compare the current editor and the pinned Zorite package using the same fixtures and host operations. Inspect actual public APIs, published-package contents versus upstream workspace patches, license/source boundaries and native dependencies.
++
+ Resolve one compatible GPUI dependency graph with BRN's current GPUI Kit. Do not upgrade/replatform the entire interface to make one demo compile. Record any required patch and its maintenance/upstream path.
+ 
+ Mandatory evidence: exact rendered-to-source selection; correct occurrence in repeated text; Unicode/graphemes/emoji/CRLF; scroll/wrap/resize/font/first-layout geometry; native keyboard/mouse/clipboard/IME; safe programmatic replacement; real read-only/review state; no implicit save on display refresh; formatting round-trip; long-document performance; current safe Markdown/asset/link policy; exact review identity; and coordination between local editing Undo and durable BRN Undo.
+@@ -38,28 +54,34 @@
+ 
+ ## B3 — persistent writing context and sources
+ 
+-Use existing BRN project/document links and C's scoped context/evidence interfaces. A workspace retains one editable document, references, optional brief, comments/overall feedback and associated conversations. Do not create a competing project membership/permissions system or duplicate canonical notes per project.
++Use existing BRN project/document links, the core `visible()` predicate and the existing scoped search/read tools. Master plan section 7.2 fixes storage, scope, capture and input binding, and C implements them (CW1/CW2). A workspace retains one editable document, references, optional brief, comments/overall feedback and associated conversations. Do not create a competing project membership/permissions system or duplicate canonical notes per project.
+ 
+-Support existing BRN reference documents plus file imports through A's agreed result contract/current adapter. Develop against fixtures before A's extractor is selected. References belong to the writing task, not one chat; they persist across new/switch/closed chat, note navigation and restart.
++Support existing BRN reference notes. A file becomes a reference through the existing full-note import followed by attaching the resulting note; writing never consumes conversion results. References belong to the working document's setup, not one chat. They persist across new/switch/closed chat, note navigation and restart. A reference not visible in the request's conversation is excluded and shown to the owner as "not available in this conversation" (F21).
+ 
+ Brief/reference-purpose metadata can express audience/tone/requirements and whether a reference supplies requirements, evidence or style. It must not become a global taxonomy or grant authority. Reference content is read-only to writing; embedded source instructions remain untrusted.
+ 
+-Capture exact request identity, document/base version, editor generation where relevant, brief/comments, selected reference revisions, current scope/context fence, model and budgets. Preserve safe explicit Save-and-rewrite/Save-and-comment semantics. No silent save to start a run. Unsaved-snapshot support needs proven generation/dirty-guard behavior and cannot erase typing.
++Capture is defined in master plan section 7.2. Preserve safe explicit Save-and-rewrite/Save-and-comment semantics. No silent save to start a run. Unsaved-snapshot requests are out of scope for this program.
+ 
+-Use C's relevant-passage retrieval for targeted edits and explicit coverage-aware reading for exhaustive checks. Do not paste every reference into every request or confuse serialized-byte limits with model token limits. Report omitted/budget-limited/partial material. Attached does not mean read in full.
++Targeted edits use the existing scoped search/read tools. An exhaustive check counts as complete only when the persisted read ledger shows each requirements reference version completely read; otherwise label it partial. Do not paste every reference into every request or confuse serialized-byte limits with model token limits. Attached does not mean read in full.
+ 
+ Show actual Sources used with stable retained revisions/locators and validated quotations. Do not invent bibliography entries or treat a quote match as proof of all generated claims. Distinguish available/used/incomplete/changed/removed/inaccessible source state. Access revocation must clear/restrict cached previews as required by the host.
+ 
+-A proposal changes only the working document. Keep exact candidate identity and atomic checked Apply. Reference/document/scope changes during the run obey C's current-input policy. Retry preserves identity/snapshot only where allowed; refresh/regeneration needs a new request and new review. Cancellation fences late results.
++A proposal changes only the working document. Keep exact candidate identity and atomic checked Apply. Apply section 7.2's binding:
+ 
+-## B4 — development host and final cutover
++- Brief or reference-list edits make the candidate stale.
++- Reference content edits leave it applicable, with "changed since" shown.
++- Access loss refuses Apply.
+ 
+-Build a minimal native development host that renders the same writing panel without full BRN navigation/tasks. Use synthetic documents/references and at least one real shared-service journey. Mocks alone do not prove reuse. No separate production data model, sync system, installer, settings product or release.
++Retry preserves identity/snapshot only where allowed; refresh/regeneration needs a new request and new review. Cancellation fences late results.
+ 
+-After successful qualification, land any editor switch separately, rerun writing/native/security gates and remove replaced production routes. Preserve data readers and rollback compatibility. If the current editor wins, deliver the module and documented negative Zorite result.
++## B4 — development host (an editor cutover is a later assignment)
+ 
++Build the development host as a binary or example of `brn-writing-ui` behind `native-ui`. It opens a real `brn-threads-app` `Workspace` in a disposable directory, uses C's shared run start with a scripted provider for deterministic journeys, and does not depend on `brn-desktop`. Mocks alone do not prove reuse. No separate production data model, sync system, installer, settings product or release.
++
++Deliver the Zorite spike report separately. Any editor switch after a positive report is a separate owner-approved slice that reruns writing, native and security gates and removes replaced routes.
++
+ ## Verification and handoff
+ 
+-Run relevant shared F01–F20 cases: persistent context, exact repeated/Unicode selection, multi-comment rewrite with Chat closed, targeted vs full-reference coverage, malicious references, stale draft/reference/access revocation, exact Apply/replay/Undo, local undo after refresh, cancellation, restart and unchanged ordinary chat/projects/tasks behavior.
++Run relevant shared F01–F22 cases: persistent context, exact repeated/Unicode selection, multi-comment rewrite with Chat closed, targeted vs full-reference coverage, cross-scope references (F21), malicious references, stale draft/reference/access revocation, exact Apply/replay/Undo, local undo after refresh, cancellation, restart, default Linux build (F22) and unchanged ordinary chat/projects/tasks behavior.
+ 
+ Hand C exact commits/contract revision, paths and shared-file patches, editor decision/pins/API proof, native observation and limitations, source-context tests, independent review, data/rollback compatibility and remaining gates. Update relevant canonical docs and runtime guidance through coordinated ownership. Separate implemented, tested, live-verified, native-observed, accepted and merged; do not claim a finished product based on a successful build alone.
+--- a/05-integrated-review-prompt.md
++++ b/05-integrated-review-prompt.md
+@@ -7,11 +7,11 @@
+ ## Review objectives
+ 
+ 1. **Product fit:** Is reference-assisted writing complete inside BRN? Can references/brief persist across chats and restart, with document-local feedback/review and Chat closed? Does the development host reuse the same implementation and real shared service?
+-2. **Real modularity:** Trace dependencies. Ensure writing is not secretly a wrapper around the full desktop/workspace. Intake and retrieval remain reusable behind narrow interfaces. Reject duplicated storage, permissions, context membership, provider clients, saved-operation Undo or parallel writing implementations.
++2. **Real modularity:** Trace dependencies. Ensure writing is not secretly a wrapper around the full desktop/workspace: `brn-writing-ui` must not depend on `brn-desktop`, and run start and conversation selection must come from the shared service, not copies in desktop, CLI and host. Check that the default workspace build on Linux compiles no GPUI (F22). Intake and retrieval remain reusable behind narrow interfaces. Reject duplicated storage, permissions, context membership, provider clients, saved-operation Undo or parallel writing implementations.
+ 3. **Safety contracts:** Trace every changed write/read path to shared authority. Test stale document/protection/reference/scope changes, dirty generations, exact candidate binding, replay after lost responses, cancellation-before-save, grouped atomicity, local-vs-durable Undo, private provenance and restart/backup behavior.
+-4. **Information scope:** Search/exact reads/source panes/assets/snippets/counts/cursors/Connections/caches/traces use the same host-owned scope. Historical citations do not defeat access revocation. Source content cannot expand tools/provider/permissions.
++4. **Information scope:** Search/exact reads/source panes/assets/snippets/counts/cursors/Connections/caches/traces use the same host-owned scope. Historical citations do not defeat access revocation; specifically, owner-review Apply of a writing candidate rechecks visibility of its `Historical` reference inputs. A reference private to one conversation's scope never reaches a run in another (F21). Source content cannot expand tools/provider/permissions.
+ 5. **Source fidelity:** Full import has independently checked expected content or honest gaps. Table/figure association is verified, not just word presence. Original files are not secretly retained. Sources used reflect actual supplied/read retained revisions, and top-k retrieval is not labeled exhaustive reading.
+-6. **Dependency decisions:** Inspect exact Xberg/Zorite pins/features, package versus upstream workspace differences, GUI/native runtime graph, licenses/provenance, build/maintenance footprint and mandatory qualification failures. Negative adoption decisions are valid. Neither marketing nor successful demos prove qualification.
++6. **Dependency decisions:** Inspect the Xberg/Zorite spike reports: exact pins/features, package versus upstream workspace differences, GUI/native runtime graph, licenses/provenance, build/maintenance footprint and mandatory qualification failures. Confirm no spike code reached production paths without a separate approved cutover. Negative adoption decisions are valid. Neither marketing nor successful demos prove qualification.
+ 7. **Baseline behavior:** Dedicated conversion behavior is preserved or explicitly superseded with evidence. Existing model selection, delegated maintenance, projects/private scopes, queue, recovery and supported import formats have not regressed incidentally.
+ 8. **Tests:** Relevant tests assert actual outcomes and are not zero-test/self-skipped/mocked-only substitutes. Required native and Linux core contexts remain meaningful. Mutation survivors and performance/retrieval comparisons have honest interpretation. No relaxed threshold or deleted test hides a regression.
+ 9. **Cleanup and compatibility:** Retired routes are gone after qualified cutover; no hidden fallback or duplicate policy remains. Necessary saved-data readers survive. Schema changes, backups and code/data rollback are coherent.
+--- a/06-native-qualification.md
++++ b/06-native-qualification.md
+@@ -12,8 +12,8 @@
+ | Mac/OS and app launch command | |
+ | Fresh synthetic workspace path | |
+ | Backup/recovery test paths | |
+-| Current editor choice and pin | |
+-| Current extraction route and pin | |
++| Current editor choice and pin (Zorite spike result recorded separately) | |
++| Current extraction route and pin (Xberg spike result recorded separately) | |
+ | Selected provider/model/effort and current authorization | |
+ | Installed embedding profile, or explicitly unavailable | |
+ | Known pre-existing limitations | |
+@@ -24,19 +24,22 @@
+ 
+ 1. Open/create the draft and write text. Switch documents and restart. Confirm draft recovery and no implicit data loss.
+ 2. Attach an existing reference and import another through the native file picker. Check progress, fidelity/partial states, assets and correct project/private scope.
+-3. Add a brief and reference purposes. Open a new chat, switch chat and close Chat. Verify these remain available to document-level writing.
++3. Add a brief and reference purposes. Open a new chat, switch chat and close Chat. Verify these remain available to document-level writing. Link the same draft from a conversation in a second project; confirm a reference private to the first project is shown as "not available in this conversation" and never appears in that run's sources.
+ 4. Select the second copy of an identical paragraph and add a comment. Repeat with Estonian diacritics, combining characters and emoji. Confirm exact highlighting/reveal.
+ 5. Resize, wrap and scroll a long document. Reopen the comment after layout changes; test keyboard selection, clipboard and native IME/composition. Record any unperformed IME case explicitly.
+ 6. Add several comments plus overall feedback and run a document-level rewrite with Chat closed. Confirm actual Sources used and a review candidate, not an automatic saved rewrite.
+ 7. Ask for a paragraph change; then separately ask for a full requirements check against an oversized reference. Confirm honest relevant-passages versus full-reading/partial coverage.
+ 8. Inspect before/after review and source passages. Confirm references were not modified, unsupported material is flagged and source content cannot trigger actions.
+ 9. Generate another revision, then type a new edit before completion. Confirm typing is retained and stale Apply cannot overwrite it.
+-10. Change/remove a reference or revoke project access during a run. Confirm the result/source pane obeys current fencing and no inaccessible content leaks through cached previews.
++10. During a run, perform each of these and check the stated result:
++    - Edit the brief: the candidate becomes stale.
++    - Edit a reference's content: the candidate remains applicable and shows "changed since".
++    - Remove a reference or revoke project access: Apply is refused or needs review, and no inaccessible content leaks through cached previews.
+ 11. Apply an exact reviewed revision; repeat the operation and use durable Undo. Then test local typing Undo and subsequent Save. Confirm no duplicate operation or stale text resurrection.
+ 12. Stop import/rewrite at a late stage. Confirm no false success/late save. Restart and inspect retained work, queued requests, candidate identity and cleanup.
+ 13. Exercise scoped search, source reading and Connections with a private distractor. Check visible counts and source previews. Exercise unavailable/partial embeddings and rebuild a disposable derived index.
+ 14. Backup the synthetic workspace and restore to a separate fresh destination. Confirm references, brief, assets, drafts/revisions and history survive without the original binary source being retained in BRN.
+-15. Launch the minimal writing development host and run a representative real-service comment/rewrite/review/Undo flow. Confirm it does not need BRN's entire desktop shell.
++15. Launch the minimal writing development host (the `brn-writing-ui` binary built without `brn-desktop`) and run a representative real-service comment/rewrite/review/Undo flow. Confirm it does not need BRN's entire desktop shell.
+ 16. Recheck ordinary chat, project navigation, queue/Stop, tasks and an existing authorized-maintenance fixture. Confirm writing modularization did not change their behavior.
+ 
+ ## Results
