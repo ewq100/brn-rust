@@ -135,31 +135,38 @@ class EnvelopeChecks(unittest.TestCase):
         self.assertIn("command 'read' differs", failure['check'])
 
     def test_a_hung_child_is_killed_with_its_process_group(self):
-        with tempfile.TemporaryDirectory() as root, tempfile.TemporaryDirectory() as bin_dir:
-            root = Path(root)
-            (root / 'tmp').mkdir()
-            (root / 'home').mkdir()
-            pid_file = root / 'grandchild.pid'
-            body = (f"child = subprocess.Popen(['sleep', '30'])\n"
-                    f"open({str(pid_file)!r}, 'w').write(str(child.pid))\n"
-                    f"time.sleep(30)")
-            brn = cli_journey.Brn(stub(bin_dir, body), root, timeout=1)
-            started = time.monotonic()
-            with self.assertRaises(cli_journey.JourneyFailure) as raised:
-                brn.call('notes', data=root / 'data')
-            self.assertLess(time.monotonic() - started, 10)
-            self.assertIn('timed out', str(raised.exception))
-            self.assertEqual(raised.exception.step['index'], 0)
-            grandchild = int(pid_file.read_text())
-            deadline = time.monotonic() + 5
-            while time.monotonic() < deadline:
-                try:
-                    os.kill(grandchild, 0)
-                except ProcessLookupError:
-                    break
-                time.sleep(0.05)
-            else:
+        # A freshly written stub can take seconds to start on a busy host. An
+        # attempt whose stub was killed before it spawned the grandchild still
+        # proves the timeout, but not the group kill, so it is repeated.
+        for _ in range(5):
+            with tempfile.TemporaryDirectory() as root, tempfile.TemporaryDirectory() as bin_dir:
+                root = Path(root)
+                (root / 'tmp').mkdir()
+                (root / 'home').mkdir()
+                pid_file = root / 'grandchild.pid'
+                body = (f"child = subprocess.Popen(['sleep', '30'])\n"
+                        f"open({str(pid_file)!r}, 'w').write(str(child.pid))\n"
+                        f"time.sleep(30)")
+                brn = cli_journey.Brn(stub(bin_dir, body), root, timeout=2)
+                started = time.monotonic()
+                with self.assertRaises(cli_journey.JourneyFailure) as raised:
+                    brn.call('notes', data=root / 'data')
+                self.assertLess(time.monotonic() - started, 10)
+                self.assertIn('timed out', str(raised.exception))
+                self.assertEqual(raised.exception.step['index'], 0)
+                written = pid_file.read_text() if pid_file.exists() else ''
+                if not written:
+                    continue
+                grandchild = int(written)
+                deadline = time.monotonic() + 5
+                while time.monotonic() < deadline:
+                    try:
+                        os.kill(grandchild, 0)
+                    except ProcessLookupError:
+                        return
+                    time.sleep(0.05)
                 self.fail('the process group survived the timeout')
+        self.fail('the stub never spawned its grandchild before the timeout')
 
 
 if __name__ == '__main__':
