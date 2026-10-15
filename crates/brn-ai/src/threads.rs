@@ -1526,7 +1526,12 @@ pub async fn run(
 pub fn default_tool_rounds(sources: bool) -> u16 {
     if sources { 12 } else { 8 }
 }
-pub fn prepare_run(request: ThreadRunRequest) -> AiResult<PreparedThreadRun> {
+pub fn prepare_run(mut request: ThreadRunRequest) -> AiResult<PreparedThreadRun> {
+    // One file is one Source however its path was spelled; the prompt,
+    // `read_source` and the recorded Source all use its real path.
+    for source in &mut request.sources {
+        source.reference = brn_threads_core::canonical_locator(&source.reference);
+    }
     let (scope, input) = begin(&request)?;
     Ok(PreparedThreadRun {
         request,
@@ -2024,13 +2029,37 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
     sources::validate_sources(&sources)?;
     let mut source_ids = Vec::new();
     for (i, (reference, supplied)) in sources.iter().enumerate() {
+        // The exact spelling first; a Source saved under an older spelling of
+        // the same file still matches and is recorded at the real path below.
         let existing = records
             .iter()
-            .find(|r| matches!(&r.data,RecordData::Source(s) if s.locator==*reference && s.chat==source_chat));
+            .find(|r| matches!(&r.data,RecordData::Source(s) if s.locator==*reference && s.chat==source_chat))
+            .or_else(|| records.iter().find(|r| matches!(&r.data,RecordData::Source(s) if s.chat==source_chat && brn_threads_core::same_locator(&s.locator, reference))));
         let id = existing
             .map(|r| r.id.clone())
             .unwrap_or_else(|| op.creation_id(i + 2));
-        if existing.is_none() || supplied.report.is_some() {
+        let observed_at = format!(
+            "unix:{}",
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap_or_default()
+                .as_secs()
+        );
+        if let Some(record) = existing
+            && supplied.report.is_none()
+            && let RecordData::Source(source) = &record.data
+            && source.locator != *reference
+        {
+            let mut source = source.clone();
+            source.locator = reference.clone();
+            source.observed_at = observed_at;
+            writes.push(Put {
+                id: id.clone(),
+                expected_version: Some(record.version),
+                archived: record.archived,
+                data: RecordData::Source(source),
+            });
+        } else if existing.is_none() || supplied.report.is_some() {
             writes.push(Put {
                 id: id.clone(),
                 expected_version: existing.map(|record| record.version),
@@ -2039,13 +2068,7 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
                     chat: source_chat.clone(),
                     locator: reference.clone(),
                     label: reference.clone(),
-                    observed_at: format!(
-                        "unix:{}",
-                        std::time::SystemTime::now()
-                            .duration_since(std::time::UNIX_EPOCH)
-                            .unwrap_or_default()
-                            .as_secs()
-                    ),
+                    observed_at,
                     external_version: supplied.fingerprint.clone(),
                     outcome: supplied
                         .report

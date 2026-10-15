@@ -167,6 +167,38 @@ fn supplying_the_same_source_twice_in_general_reuses_its_chat(cx: &mut TestAppCo
     assert!(brn_threads_app::project_for_chat(&records, &first).is_none());
 }
 
+#[cfg(unix)]
+#[gpui_kit::test]
+fn supplying_one_file_through_two_spellings_reuses_its_chat(cx: &mut TestAppContext) {
+    let f = fixture(cx);
+    // A real file in `real/`, also reachable through the symlinked `alias/`.
+    let root = f.data.parent().unwrap();
+    let real = root.join("real");
+    std::fs::create_dir(&real).unwrap();
+    std::os::unix::fs::symlink(&real, root.join("alias")).unwrap();
+    std::fs::write(
+        real.join("mari-email.txt"),
+        "The berth survey measured 1.4 m.\n",
+    )
+    .unwrap();
+    let alias = root.join("alias/mari-email.txt");
+    let real = real.join("mari-email.txt");
+    let first = supply(cx, &f, alias.to_str().unwrap());
+    let second = supply(cx, &f, real.to_str().unwrap());
+    // Before: a second "Information from mari-email" chat.
+    assert_eq!(second, first);
+    let records = saved(cx, &f);
+    assert_eq!(intake_chats(&records), vec![first]);
+    let locators: Vec<_> = records
+        .iter()
+        .filter_map(|r| match &r.data {
+            RecordData::Source(s) => Some(s.locator.as_str()),
+            _ => None,
+        })
+        .collect();
+    assert_eq!(locators, vec![real.to_str().unwrap()]);
+}
+
 #[gpui_kit::test]
 fn supplying_from_inside_a_project_keeps_the_source_in_a_project_chat(cx: &mut TestAppContext) {
     let f = fixture(cx);

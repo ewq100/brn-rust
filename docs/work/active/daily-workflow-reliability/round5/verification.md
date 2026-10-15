@@ -87,3 +87,78 @@ What the new tests cover:
 
 - On-disk format: a restore stage now holds `workspace/` plus `.brn-stage`; a backup stage holds `snapshot.sqlite3` plus `.brn-stage`. Final backups and restored folders are unchanged.
 - No API, CLI, desktop or UI-branch impact. Proposed sentence for `docs/architecture/invariants.md` (not edited here): "A backup or restore removes only abandoned BRN stages in its destination's parent: exact BRN stage name, real directory, BRN marker text, and no process holding the marker's lock."
+
+## Slice B: count one file as one source regardless of path spelling
+
+### Change
+
+- New `brn-threads-core/src/locator.rs`, exported at the crate root (and so through `brn_threads_app`):
+  - `canonical_locator(locator)`: on Unix, an absolute path (`/…`) whose `fs::canonicalize` succeeds, names a regular file and is UTF-8 becomes its real path. Every other locator is returned unchanged: URLs, `synthetic://` and other schemes, relative, missing, non-UTF-8 and directory paths.
+  - `same_locator(stored, canonical)`: exact match, or both absolute and `canonical_locator(stored) == canonical`. Non-path locators never touch the filesystem.
+- Runtime (`brn-ai/src/threads.rs`):
+  - `prepare_run` rewrites each `request.sources[i].reference` to its canonical locator before `begin`. The prompt, `read_source`, the Scope's source map and the recorded Source then use one spelling. `run()` goes through `prepare_run`, so the CLI and desktop need no change.
+  - `begin()` looks up the Source by exact canonical locator in the chat scope first, then by `same_locator`. When the match is a Source saved under an older spelling and no report is supplied, the start change now also writes that Source: a clone with only `locator` (canonical) and `observed_at` updated, at its current version and archived flag. With a report the existing Source Put already writes the canonical locator. This is a new revision in the existing checked start change, so history keeps the old spelling. It cannot collide on the `(chat, locator)` unique index: an exact canonical match in the same scope is always chosen first.
+- App (`brn-threads-app/src/intake.rs`):
+  - `source_intake_chat` canonicalizes its `locator` and counts every Source that matches through `same_locator`, so old duplicates (one `/tmp`, one `/private/tmp`) all lead to the same chat.
+  - `import_full_scoped` uses the canonical locator for the Source it records and matches exact first, then `same_locator`. The Source Put it always writes records the canonical locator. Its operation binding still hashes `converted` as given, so retry identity is unchanged.
+  - `keep_in_brn`'s global-Source lookups (note source and figure source, including the staged one) match through `same_locator`. A global Source it creates copies the chat Source as before.
+- Label: a new Source's label is still its locator in `begin()` (now the real path) and the title in full import. An existing Source keeps its label unless it receives a report, as before.
+
+No dependency, `Cargo.lock`, `threads.sqlite3` schema, desktop production, CLI, `main.rs`, `HELP` or exit-code change.
+
+### Tests and fail-before
+
+Integration tests were written first and run against the unfixed code (HEAD `e07354db`):
+
+| Test | Result before the fix |
+| --- | --- |
+| app `the_same_file_through_a_symlinked_folder_reuses_one_chat_and_one_source` | FAILED: `source_intake_chat` returned `(<new chat>, false)` vs `(<first chat>, true)` |
+| app `tmp_and_private_tmp_spellings_reuse_one_chat_and_one_source` (macOS) | FAILED: same, new chat for `/private/tmp/…` after `/tmp/…` |
+| app `a_source_saved_under_an_older_spelling_still_matches_and_is_recorded_canonically` | FAILED: `(<new chat>, false)` vs `(<seeded chat>, true)` |
+| app `full_import_of_one_file_through_two_spellings_observes_one_source` | FAILED: reason `Full-note import: Crane report (Unchecked)` vs `Observed previously imported full note: Crane report` |
+| app `a_different_file_with_the_same_name_gets_its_own_chat_and_source` (guard) | passed, as expected |
+| CLI `useful_intake_of_one_markdown_file_through_two_spellings_reuses_its_chat` | FAILED: `reused_chat` `(false, false)` vs `(false, true)` |
+| desktop `supplying_one_file_through_two_spellings_reuses_its_chat` | FAILED: second chat id differs from the first |
+
+After the fix, temporary edits (each restored, `git diff` then showed only intended changes):
+
+| Experiment (temporary edit) | Tests that failed |
+| --- | --- |
+| `canonical_locator` never canonicalizes (`if false && …`) | core `tmp_maps_to_private_tmp` (`/tmp/…` vs `/private/tmp/…`), `a_file_through_a_symlinked_folder_maps_to_its_real_path` (`alias/mail.txt` vs `real/mail.txt`), `an_older_spelling_matches_and_another_file_with_the_same_name_does_not`; app symlink, `/tmp`, older-spelling and full-import tests as before the fix |
+| `real.is_file()` check dropped (folders canonicalized) | core `a_file_through_a_symlinked_folder_maps_to_its_real_path`: the symlinked folder became `…/real` vs `…/alias` |
+| `same_locator` compares file names only | core `an_older_spelling_matches_and_another_file_with_the_same_name_does_not`; app guard `a_different_file_with_the_same_name_gets_its_own_chat_and_source` |
+| `begin()` respelling Put disabled (`&& false`) | app `a_source_saved_under_an_older_spelling_still_matches_and_is_recorded_canonically`: locator stayed `…/alias/mail.txt` vs `…/real/mail.txt` |
+
+The older-spelling test seeds a Source with the alias locator and a Failed Run naming it through a checked owner change (`prepare_owner` + `apply`). Supplying the real path reuses that chat and that Source ID; the Source's latest revision has the real path, revision 1 keeps the alias, and both Runs name the same Source.
+
+### Commands and results (after the fix)
+
+| Command | Result |
+| --- | --- |
+| `cargo fmt --all --check` | clean |
+| `cargo clippy --workspace --all-targets --locked --offline -- -D warnings` | clean |
+| `cargo clippy -p brn-ai --features scripted-runs --all-targets --locked --offline -- -D warnings` | clean |
+| `cargo clippy --locked --offline -p brn-desktop --features native-ui,native-test-support --all-targets -- -D warnings` | clean |
+| `cargo test -p brn-threads-core --locked --offline` | lib 39 passed (was 35), 1 ignored; all others pass |
+| `cargo test -p brn-threads-app --locked --offline --test source_intake_chat --test host_intake --test import_coverage --test chat` | 7 + 15 + 2 + 9 passed |
+| `cargo test -p brn-ai --locked --offline` | 340 passed, 1 ignored |
+| `cargo build -p brn --locked --offline && cargo test -p brn --locked --offline` | `source_locator` 1 passed, `threads` 13 passed |
+| `cargo test --workspace --locked --offline --no-fail-fast` | 752 passed, 1 failed (the baseline Poppler test), 6 ignored |
+| desktop test command | 153 passed, 0 failed, 1 ignored |
+| `git diff --exit-code Cargo.lock` | clean |
+
+Manual CLI check on fresh synthetic data, `/private/tmp/brn-dwr-data/r5-b-locator/` (offline: missing auth file, every run `Failed:ReconnectNeeded`): `intake --intent useful` of one Markdown file as `/tmp/brn-dwr-data/r5-b-locator/src/mail.md`, then `/private/tmp/…/src/mail.md`, then through the symlinked `…/alias/mail.md` gave one chat (`reused_chat` false, true, true) and one Source at `/private/tmp/brn-dwr-data/r5-b-locator/src/mail.md`. A different `other/mail.md` got its own chat (`reused_chat` false) and its own Source.
+
+### Limitations
+
+- Canonicalization is Unix-only; elsewhere locators stay as given.
+- A file is matched by path, not content: a Source whose file was deleted or moved keeps its stored spelling and matches only exactly. A hard link with another path is a different source.
+- A Source saved under an older spelling is rewritten to the real path only when a later run or full import of that file records it. Old duplicate Sources (one per spelling) are not merged; both still lead to the same chat.
+- `source_intake_chat` canonicalizes each stored absolute-path Source locator when no exact match exists, one `realpath` each.
+- New file Sources show the real path, so a `/tmp/...` supply now shows `/private/tmp/...` in Source rows.
+
+### Integration items
+
+- New core exports `canonical_locator` and `same_locator`. `brn_ai::threads::prepare_run`'s signature is unchanged; it now canonicalizes the request's source references.
+- Tests elsewhere that compare a real temp file path with `Source.locator` must use the canonical path. Synthetic locators are unchanged.
+- Proposed sentence for `docs/architecture/threads-behavior.md` (not edited here): "A local file supplied as a source is recorded and matched by its real path, so one file is one Source however its path is spelled; a Source saved under an older spelling still matches and is recorded at the real path by the next checked observation."

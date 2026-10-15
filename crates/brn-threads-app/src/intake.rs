@@ -49,9 +49,14 @@ impl Workspace {
                 "Choose an active project for this source".into(),
             ));
         }
+        // One file is one source however its path is spelled, including a
+        // Source saved under an older spelling.
+        let locator = canonical_locator(locator);
         let sources: BTreeSet<&str> = records
             .iter()
-            .filter(|r| matches!(&r.data, RecordData::Source(s) if s.locator == locator))
+            .filter(
+                |r| matches!(&r.data, RecordData::Source(s) if same_locator(&s.locator, &locator)),
+            )
             .map(|r| r.id.as_str())
             .collect();
         if !sources.is_empty() {
@@ -195,7 +200,11 @@ impl Workspace {
             return Ok(self.store.apply(&op, &authority)?);
         }
         let records = self.records()?;
-        let existing=records.iter().find(|record|matches!(&record.data,RecordData::Source(source) if source.locator==converted.source_reference && source.chat.as_deref()==chat));
+        // The exact real path first, then a Source saved under an older
+        // spelling of the same file; the Put below records the real path.
+        let locator = canonical_locator(&converted.source_reference);
+        let existing=records.iter().find(|record|matches!(&record.data,RecordData::Source(source) if source.locator==locator && source.chat.as_deref()==chat))
+            .or_else(||records.iter().find(|record|matches!(&record.data,RecordData::Source(source) if source.chat.as_deref()==chat && same_locator(&source.locator,&locator))));
         let source_id = existing
             .map(|record| record.id.clone())
             .unwrap_or_else(|| op.creation_id(0));
@@ -229,7 +238,7 @@ impl Workspace {
         } else {
             Source {
                 chat: chat.map(str::to_owned),
-                locator: converted.source_reference.clone(),
+                locator: locator.clone(),
                 label: title.into(),
                 observed_at: observed_at.clone(),
                 external_version: None,
@@ -238,6 +247,7 @@ impl Workspace {
                 report: None,
             }
         };
+        source.locator = locator;
         source.observed_at = observed_at;
         if !previously_imported {
             source.external_version = Some(source_version);
@@ -432,7 +442,8 @@ impl Workspace {
             });
             if let RecordData::Source(mut observation) = source.data {
                 let old_source = source.id;
-                let global = records.iter().find(|r| matches!(&r.data, RecordData::Source(s) if s.chat.is_none() && s.locator == observation.locator));
+                let locator = canonical_locator(&observation.locator);
+                let global = records.iter().find(|r| matches!(&r.data, RecordData::Source(s) if s.chat.is_none() && same_locator(&s.locator, &locator)));
                 let source_id = global
                     .map(|r| r.id.clone())
                     .unwrap_or_else(|| op.creation_id(0));
@@ -509,8 +520,9 @@ impl Workspace {
                 if let RecordData::Source(observation) = &source_record.data
                     && observation.chat.is_some()
                 {
-                    let global=records.iter().find(|r|matches!(&r.data,RecordData::Source(s) if s.chat.is_none() && s.locator==observation.locator));
-                    let staged=writes.iter().find(|w|matches!(&w.data,RecordData::Source(s) if s.chat.is_none() && s.locator==observation.locator));
+                    let locator = canonical_locator(&observation.locator);
+                    let global=records.iter().find(|r|matches!(&r.data,RecordData::Source(s) if s.chat.is_none() && same_locator(&s.locator,&locator)));
+                    let staged=writes.iter().find(|w|matches!(&w.data,RecordData::Source(s) if s.chat.is_none() && same_locator(&s.locator,&locator)));
                     let source_id = global
                         .map(|r| r.id.clone())
                         .or_else(|| staged.map(|w| w.id.clone()))

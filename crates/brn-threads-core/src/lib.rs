@@ -10,6 +10,8 @@ pub use projects::{
     TrashedRecord, project_context_fences, project_document_ids, project_for_chat,
 };
 mod edit;
+pub mod locator;
+pub use locator::{canonical_locator, same_locator};
 mod read;
 mod reader;
 mod restore;
