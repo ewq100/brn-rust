@@ -13,12 +13,12 @@
 | Fix 3: CLI useful intake honours `--project` and reuses its chat | yes (`9f70efa7`) | yes | n/a (CLI) | no | no |
 | Task A (review issue 1): intake-chat reuse skips a chat whose Run is live | yes (`2530805f`) | yes (in-process lease; [review](task-a-review.md) approved) | n/a (service/CLI) | no | no |
 | Rebase onto `771116f0`; a helper sub-run holds its parent's lease | yes (`145b8884`; [rebase notes](rebase-notes.md)) | yes (702 passed after the rebase) | n/a (service) | no | no |
-| Task B1: ⌘Q during a run, then Resume | n/a | service only (`run_recovery`) | **no** (shell denied; [attempt](#native-observation-attempt-task-b-not-observed)) | no | n/a |
-| Task B2: three provider failures, one Blocker | n/a | service/CLI only (Fix 1) | **no** (shell denied) | no | n/a |
+| Task B1: ⌘Q during a run, then Resume | n/a | service only (`run_recovery`) | **owner, store only** ([results](#owner-native-check-results-15-october-2026)): ⌘Q recorded `Interrupted`, so no orphan arose and Resume recovery was not exercised natively | no | n/a |
+| Task B2: three provider failures, one Blocker | n/a | service/CLI only (Fix 1) | **owner, store only** ([results](#owner-native-check-results-15-october-2026)): one Blocker, three `Failed` Runs; on-screen appearance not reported | no | n/a |
 | Contract doc updates (`threads-behavior.md`, `invariants.md`, `status.md`) | no (proposed text below) | no | n/a | no | no |
 | Round 3: U6 kind-specific notices, for example "Run failed: The provider account needs reconnecting. Continue when the provider is ready." and "Run interrupted. Continue starts fresh." ([table](round3-verification.md#u6-failure-notice-wording-cratesbrn-aisrcthreadsrs)) | yes (`3a7c3d25`) | yes (workspace 706 passed, 12 failed (known sandbox), 4 ignored) | no (owner checks 3–4) | no | no |
 | Round 3: U4 typed open-edit error `brn_threads_core::Error::EditSessionOpen { note, session, base_version }` (via `AppError::Core`); CLI `edit_session_open` JSON | yes (`3a7c3d25`) | yes | no (the desktop shows the generic notice until the UI branch matches the variant) | no | no |
-| Round 3: desktop hookup U2 (at the UI agent's request): `useful_intake` in `threads_ui.rs`, new `threads_intake_tests.rs` | yes (`3a7c3d25`) | yes (desktop 150 passed, 1 ignored, headless harness; cross-surface only with the CLI's exact locator string) | **no** (picker re-supply is [owner check 5](#owner-manual-check)) | no | no |
+| Round 3: desktop hookup U2 (at the UI agent's request): `useful_intake` in `threads_ui.rs`, new `threads_intake_tests.rs` | yes (`3a7c3d25`) | yes (desktop 150 passed, 1 ignored, headless harness; cross-surface only with the CLI's exact locator string) | **owner, store only** ([results](#owner-native-check-results-15-october-2026)): picker re-supply of a CLI-supplied `/private/tmp` file reused the CLI's chat | no | no |
 | Round 3: U3 read-only check ([finding](u3-finding.md)): no service fields needed; the desktop's `ThreadRow` drops `Attention.record` | n/a (no code) | code reading | n/a | no | n/a |
 
 Nothing was pushed, merged or released. The branch has no upstream.
@@ -108,7 +108,7 @@ The current, reproducible list is in [UI findings for the UI agent (final)](#ui-
 
 ## Native observation recommended (not performed)
 
-Three checks remain. The owner approved the first two, but the agent shell could not run them ([attempt](#native-observation-attempt-task-b-not-observed)). Steps for a manual run are in [Owner manual check](#owner-manual-check).
+The agent shell could not run these ([attempt](#native-observation-attempt-task-b-not-observed)). The owner ran all three on 15 October 2026; see [results](#owner-native-check-results-15-october-2026). Steps are in [Owner manual check](#owner-manual-check).
 
 1. Quit with ⌘Q during a useful intake. Check whether the Run is left `Working` (this confirms the finding 1 assumption), then check Resume after the fix.
 2. Fail the provider three times. Check the single blocker that names its cause.
@@ -311,7 +311,7 @@ State at `3a7c3d25` (round 3). Both branches now start from `771116f0`.
 - **Storage.** New derived folder `derived/run-leases/` (excluded from backup/restore like all of `derived/`; no schema change). `begin()` refuses to start a Run when `derived/` is unsafe (for example a symlink).
 - **Mixed builds.** A desktop and CLI from different builds (one without leases) would see each other's live Runs as orphans. Check the combined branch from one build: the full desktop state suite, an unsandboxed `scripts/verify-storage.sh`, and a desktop-plus-CLI run on shared synthetic data.
 - **Docs.** Contract text for `threads-behavior.md`, `invariants.md` and `docs/status.md` is proposed above and not applied, because `docs/status.md` is shared with the UI branch. Apply once at integration.
-- **Native observation** (⌘Q during a run, three provider failures, and the round 3 picker re-supply of a CLI-supplied file) is still pending and must not run while the UI agent drives the Mac. See [Owner manual check](#owner-manual-check).
+- **Native observation.** The owner ran the three checks on this branch's build ([results](#owner-native-check-results-15-october-2026)). Still to do on the combined branch: a Force Quit during a run, then Resume (the only native path that creates an orphan), and the on-screen Needs you rendering. Neither may run while the UI agent drives the Mac.
 
 ## Native observation attempt (Task B): not observed
 
@@ -328,6 +328,18 @@ The owner chose to record **B1 (⌘Q during a run) and B2 (three provider failur
 - The Copilot folder defaults to `$HOME/.config/brn` (`threads_ui.rs::default_copilot_credentials_dir`) and is used only when Copilot is connected in Settings.
 - Executed: `HOME=…/native-iso-check/home CODEX_HOME=…/native-iso-check/codex brn-desktop --data-dir …/native-iso-check/data --headless-check startup` printed "Threads ready: 2 records". A read-only copy of the store showed `auth_file` `/private/tmp/brn-dwr-data/native-iso-check/codex/auth.json` (absent) and `credentials_dir` null. The folder was deleted afterwards.
 - No Keychain lookup was found in the code. Absence of any network request with the GUI running was not observed.
+
+## Owner native check results (15 October 2026)
+
+The owner ran checks 3–5 below in their own Terminal on this worktree's `native-ui` debug build at `20f73edb`, with fresh synthetic data under `/private/tmp/brn-dwr-data/`. Evidence is the owner's `brn_inspect` output, plus an agent read of copies of the synthetic B1 store (operations table). On-screen Needs you appearance, truncation and the state of the Resume control were not reported, so they remain unobserved.
+
+- **B2 (offline).** `auth_file` was `/private/tmp/brn-dwr-data/native-b2/codex/auth.json` (absent). After three sends in one chat: three owner Messages, three `Failed` Runs (fence 2 each), one Blocker "Run failed: The provider account needs reconnecting. Continue when the provider is ready.", and an empty `derived/run-leases/`. **Matches.**
+- **Check 5, U2 picker re-supply (offline).** The CLI gave `reused_chat: false`, `Failed:ReconnectNeeded` and `failure.kind` `reconnect_needed`. A desktop picker re-supply through ⌘⇧G `/private/tmp/brn-dwr-data/native-u2/files/` added a second `Failed` Run to the CLI's chat, with no new chat. There was one Source, locator `/private/tmp/brn-dwr-data/native-u2/files/u2-email.txt` and `chat` null (general scope), and one Blocker. The chat has two owner instruction Messages, because the CLI and desktop instruction texts differ (known integration item). **Matches.** The optional `/tmp` spelling was not run.
+- **B1 (live provider via the owner's Codex sign-in, synthetic data, owner's choice).**
+  - *⌘Q during the intake:* the Run was already `Interrupted` (fence 2) with one Blocker "Run interrupted. Continue starts fresh.", and the store holds its "Record terminal run result" operation. `derived/run-leases/` was empty.
+  - *What this means for finding 1:* ⌘Q at this stage commits a terminal state, so the code-inspection assumption that desktop quit leaves the Run `Working` is **not confirmed**. No orphan arose, so lease recovery on Resume was not exercised natively. Crash, kill and Force Quit stay covered by the `run_recovery` service tests only; the U1 Force Quit repro was not run.
+  - *After relaunch:* the owner sent "Quick test" in a new chat. About 133 s later they sent "Quick test " (trailing space) in the intake chat. Both Runs `Completed` with replies, and the intake chat's success cleared its Interrupted notice, as designed. The store shows two separate `owner-message:` operations, so these were two sends, not one send dispatched twice.
+- **Process check.** No BRN app was left running. The `grep` matched only `cargo mutants` / `cargo test -p brn-desktop` processes from another worktree (`.worktrees/quality-simplify`), which are headless test runs, not BRN windows.
 
 ## Owner manual check
 
