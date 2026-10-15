@@ -1177,7 +1177,7 @@ impl ThreadsUi {
             .id("settings-general")
             .test_support()
             .child(subheading("Theme"))
-            .child(metadata("Also in the status bar and the launcher (⌘K)."));
+            .child(metadata("Also in ⌘K."));
         for theme in ThemeId::ALL {
             let colors = theme.palette();
             let swatches = div().flex().gap_1().children(

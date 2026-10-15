@@ -49,21 +49,22 @@ impl TileKind {
             Self::Projects => "projects",
         }
     }
+    /// The sentence-case panel name shown in headers and menus.
     pub(super) fn label(self) -> &'static str {
         match self {
-            Self::Threads => "chats",
-            Self::Note => "note",
-            Self::Chat => "chat",
-            Self::Linked => "linked work",
-            Self::Notes => "notes",
-            Self::AllThreads => "all chats",
-            Self::Overview => "home",
-            Self::Actions => "tasks",
-            Self::History => "changes",
-            Self::Settings => "settings",
-            Self::Compare => "compare",
-            Self::Connections => "connections",
-            Self::Projects => "projects",
+            Self::Threads => "Chats",
+            Self::Note => "Note",
+            Self::Chat => "Chat",
+            Self::Linked => "Linked work",
+            Self::Notes => "Notes",
+            Self::AllThreads => "All chats",
+            Self::Overview => "Home",
+            Self::Actions => "Tasks",
+            Self::History => "Changes",
+            Self::Settings => "Settings",
+            Self::Compare => "Compare",
+            Self::Connections => "Connections",
+            Self::Projects => "Projects",
         }
     }
     pub(super) fn default_weight(self) -> f32 {

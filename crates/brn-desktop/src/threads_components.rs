@@ -117,10 +117,6 @@ pub(super) fn icon_button(
 }
 
 /// An icon control whose tooltip shows the action's key binding.
-#[allow(
-    dead_code,
-    reason = "S2 adopts it for shortcut-bearing header controls"
-)]
 pub(super) fn icon_button_with_action(
     id: impl Into<ElementId>,
     icon: IconName,
@@ -134,7 +130,6 @@ pub(super) fn icon_button_with_action(
 /// A mode switch. Each segment keeps its own ID, handler and tooltip because
 /// the group has no click handler of its own; Kit reports the selected
 /// segment as pressed.
-#[allow(dead_code, reason = "S2 adopts it for Write/Chat/Solo")]
 pub(super) fn segmented(id: impl Into<ElementId>, buttons: Vec<Button>) -> ButtonGroup {
     ButtonGroup::new(id).children(
         buttons
@@ -377,7 +372,6 @@ pub(super) fn banner(
 }
 
 /// A compact status chip on its tone's tint; `None` is neutral.
-#[allow(dead_code, reason = "S3 adopts it for the Note status chip")]
 pub(super) fn status_chip(
     id: impl Into<ElementId>,
     tone: Option<Tone>,

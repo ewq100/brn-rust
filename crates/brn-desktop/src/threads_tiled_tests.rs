@@ -473,6 +473,72 @@ fn empty_tiles_explain_home_search_actions_and_history_without_starting_work(
     .unwrap();
 }
 
+/// Gives a new chat a synthetic question so it needs the owner.
+fn ask_owner(view: &mut ThreadsUi, title: &str) {
+    let asked = view.workspace.new_thread(title).unwrap();
+    view.workspace
+        .owner_change(
+            "tiled-attention",
+            &ChangeRequest {
+                reason: "Synthetic attention".into(),
+                inputs: vec![],
+                writes: vec![Put {
+                    id: asked.id.clone(),
+                    expected_version: Some(asked.version),
+                    archived: false,
+                    data: RecordData::Thread(Thread {
+                        private_context: false,
+                        context_epoch: 0,
+                        title: title.into(),
+                        state: ThreadState::Open,
+                        attention: vec![Attention {
+                            kind: AttentionKind::Question,
+                            reason: "Choose the renewal date".into(),
+                            record: None,
+                        }],
+                    }),
+                }],
+            },
+        )
+        .unwrap();
+    view.refresh();
+}
+
+#[gpui_kit::test]
+fn compact_chrome_shortens_the_needs_badge_and_keeps_its_full_name(cx: &mut TestAppContext) {
+    let mut widths = vec![];
+    for width in [1260., 900.] {
+        let f = fixture(cx, false, width, 700.);
+        update(cx, &f, |view, _, cx| {
+            ask_owner(view, "Needs a decision");
+            cx.notify();
+        });
+        cx.update_window(f.window, |_, window, _| {
+            let badge = window.find("needs-badge");
+            assert_eq!(badge.label(), Some("1 needs you"), "{width}");
+            assert_in_window(window, &f, "needs-badge");
+            widths.push(badge.bounds().size.width);
+            let search = window.find("launcher");
+            assert_eq!(search.label(), Some("Search notes, chats and commands"));
+            if width < 1000. {
+                assert!(
+                    search.bounds().size.width <= px(32.),
+                    "{:?}",
+                    search.bounds()
+                );
+            } else {
+                assert!(
+                    search.bounds().size.width >= px(150.),
+                    "{:?}",
+                    search.bounds()
+                );
+            }
+        })
+        .unwrap();
+    }
+    assert!(widths[1] < widths[0], "Compact reads ● 1: {widths:?}");
+}
+
 #[gpui_kit::test]
 fn narrow_settings_and_global_controls_remain_reachable_by_scrolling(cx: &mut TestAppContext) {
     let f = fixture(cx, false, 850., 600.);
@@ -488,11 +554,27 @@ fn narrow_settings_and_global_controls_remain_reachable_by_scrolling(cx: &mut Te
             "history",
             "settings",
             "status-layout",
-            "status-theme",
             "status-keys",
+            "open-beside",
         ] {
             assert_in_window(window, &f, id);
         }
+        // Compact chrome: icon controls keep their full accessible names.
+        assert!(window.try_find("status-theme").is_none());
+        let search = window.find("launcher");
+        assert_eq!(search.label(), Some("Search notes, chats and commands"));
+        assert!(
+            search.bounds().size.width <= px(32.),
+            "{:?}",
+            search.bounds()
+        );
+        let beside = window.find("open-beside");
+        assert_eq!(beside.label(), Some("Open beside"));
+        assert!(
+            beside.bounds().size.width <= px(32.),
+            "{:?}",
+            beside.bounds()
+        );
     })
     .unwrap();
     reveal(cx, &f, "tile-row", "composer-add");

@@ -3682,7 +3682,11 @@ gpui_kit::assets::icon_assets!(
         Archive,
         Keyboard,
         TableOfContents,
-        Type
+        Type,
+        MessagesSquare,
+        Link,
+        RotateCcwClock,
+        Columns2
     ]
 );
 
@@ -3817,6 +3821,20 @@ mod presentation_tests {
             IconName::Keyboard,
             IconName::TableOfContents,
             IconName::Type,
+            // Panel header, launcher and shell icons.
+            IconName::MessagesSquare,
+            IconName::Link,
+            IconName::RotateCcwClock,
+            IconName::Columns2,
+            IconName::FileText,
+            IconName::BookOpen,
+            IconName::Network,
+            IconName::Folder,
+            IconName::Search,
+            IconName::PanelRightOpen,
+            IconName::LoaderCircle,
+            IconName::Replace,
+            IconName::Check,
         ] {
             let path = icon.path();
             assert!(

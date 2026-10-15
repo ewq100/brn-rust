@@ -755,7 +755,7 @@ fn dismissed_completion_banner_can_be_restored_from_layout_menu(cx: &mut TestApp
     .unwrap();
     cx.run_until_parked();
     cx.update_window(f.window, |_, window, _| {
-        assert_eq!(window.find("idle-status").label(), Some("○ Idle"));
+        assert_eq!(window.find("idle-status").label(), Some("Idle"));
         assert!(
             window.try_find("status-model").is_none(),
             "model selection belongs in the composer"

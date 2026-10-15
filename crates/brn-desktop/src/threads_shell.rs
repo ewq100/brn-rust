@@ -1,10 +1,21 @@
 //! Workspace shell: top bar, tile row, status bar, launcher and menus.
 use super::*;
+use components::tokens;
 use gpui_kit::component::button::ButtonVariants;
+use gpui_kit::component::kbd::Kbd;
 use gpui_kit::component::menu::{ContextMenuExt, DropdownMenu, PopupMenu, PopupMenuItem};
+use gpui_kit::component::scroll::{Scrollbar, ScrollbarMode};
+use gpui_kit::component::tooltip::Tooltip;
+use gpui_kit::component::{Icon, Sizable, Size};
 use gpui_kit::{
-    Action, ClickEvent, DragMoveEvent, Focusable, MouseButton, SharedString, WeakEntity,
+    Action, ClickEvent, DragMoveEvent, Focusable, Keystroke, MouseButton, SharedString, WeakEntity,
 };
+
+/// Below this window width the title and navigation bars use icon controls.
+const COMPACT_WIDTH: f32 = 1000.;
+fn compact(window: &Window) -> bool {
+    window.viewport_size().width < px(COMPACT_WIDTH)
+}
 
 /// Header drag payload for swapping tiles.
 #[derive(Clone, Copy)]
@@ -60,28 +71,178 @@ pub(super) fn pill(id: impl Into<gpui_kit::ElementId>, label: impl Into<SharedSt
     button(id).label(label).compact().ghost().h(px(28.))
 }
 
-const KEYS: [(&str, &str); 18] = [
+/// Collapses whitespace so a title renders on one line; the element
+/// truncates it with an ellipsis instead of cutting the text.
+fn one_line(text: &str) -> String {
+    text.split_whitespace().collect::<Vec<_>>().join(" ")
+}
+
+/// The kind icon shown in panel headers and launcher rows.
+pub(super) fn kind_icon(kind: TileKind) -> IconName {
+    match kind {
+        TileKind::Threads | TileKind::AllThreads => IconName::MessagesSquare,
+        TileKind::Chat => IconName::MessageSquare,
+        TileKind::Note => IconName::FileText,
+        TileKind::Notes => IconName::BookOpen,
+        TileKind::Linked => IconName::Link,
+        TileKind::Overview => IconName::House,
+        TileKind::Actions => IconName::ListTodo,
+        TileKind::History => IconName::RotateCcwClock,
+        TileKind::Settings => IconName::Settings,
+        TileKind::Compare => IconName::Columns2,
+        TileKind::Connections => IconName::Network,
+        TileKind::Projects => IconName::Folder,
+    }
+}
+
+/// Launcher rows show what a command does with an icon, not a prefix.
+fn command_icon(command: lists::Command) -> IconName {
+    match command {
+        lists::Command::NewThread | lists::Command::NewNote => IconName::Plus,
+        lists::Command::Rewrite => IconName::Replace,
+        lists::Command::Save => IconName::Check,
+        lists::Command::Layout(_) => IconName::LayoutDashboard,
+        lists::Command::Theme(_) => IconName::Palette,
+        lists::Command::OpenTile(kind) => kind_icon(kind),
+        lists::Command::Keys => IconName::Keyboard,
+    }
+}
+
+// Panel items shared by the header ⋯ and the right-click menu, so both run
+// the same layout handlers.
+fn maximize_item(this: &WeakEntity<ThreadsUi>, kind: TileKind, layout: &Layout) -> PopupMenuItem {
+    item(
+        this,
+        if layout.maximized() == Some(kind) {
+            "Restore"
+        } else {
+            "Maximize"
+        },
+        Some(Box::new(MaximizeTile)),
+        false,
+        false,
+        move |view, window, cx| view.relayout(window, cx, |layout| layout.toggle_maximize(kind)),
+    )
+}
+fn move_item(
+    this: &WeakEntity<ThreadsUi>,
+    kind: TileKind,
+    delta: isize,
+    layout: &Layout,
+) -> PopupMenuItem {
+    item(
+        this,
+        if delta < 0 { "Move left" } else { "Move right" },
+        None,
+        !layout.can_move(kind, delta),
+        false,
+        move |view, _, cx| {
+            view.layout.move_by(kind, delta);
+            cx.notify();
+        },
+    )
+}
+fn close_item(this: &WeakEntity<ThreadsUi>, kind: TileKind) -> PopupMenuItem {
+    item(
+        this,
+        "Close",
+        None,
+        false,
+        false,
+        move |view, window, cx| view.relayout(window, cx, |layout| layout.close(kind)),
+    )
+}
+fn close_splits_item(
+    this: &WeakEntity<ThreadsUi>,
+    kind: TileKind,
+    layout: &Layout,
+) -> PopupMenuItem {
+    item(
+        this,
+        "Close other splits",
+        None,
+        !layout.has_splits(),
+        false,
+        move |view, window, cx| view.relayout(window, cx, |layout| layout.close_other_splits(kind)),
+    )
+}
+fn beside_items(
+    mut menu: PopupMenu,
+    this: &WeakEntity<ThreadsUi>,
+    kind: TileKind,
+    layout: &Layout,
+) -> PopupMenu {
+    for other in TileKind::ALL
+        .into_iter()
+        .filter(|other| *other != TileKind::Settings)
+    {
+        menu = menu.item(item(
+            this,
+            other.label(),
+            None,
+            false,
+            layout.contains(other),
+            move |view, window, cx| {
+                view.layout.set_focus(kind);
+                view.show_beside(other, window, cx);
+            },
+        ));
+    }
+    menu
+}
+/// The header ⋯'s last section: the right-click menu's panel actions, so
+/// splitting is discoverable without right-clicking.
+fn panel_section(
+    menu: PopupMenu,
+    this: &WeakEntity<ThreadsUi>,
+    kind: TileKind,
+    window: &mut Window,
+    cx: &mut Context<PopupMenu>,
+) -> PopupMenu {
+    let Some(view) = this.upgrade() else {
+        return menu;
+    };
+    let layout = view.read(cx).layout.clone();
+    let (beside_this, beside_layout) = (this.clone(), layout.clone());
+    menu.separator()
+        .label("Panel")
+        .item(maximize_item(this, kind, &layout))
+        .item(move_item(this, kind, -1, &layout))
+        .item(move_item(this, kind, 1, &layout))
+        .submenu("Open beside", window, cx, move |menu, _, _| {
+            beside_items(menu, &beside_this, kind, &beside_layout)
+        })
+        .item(close_splits_item(this, kind, &layout))
+        .item(close_item(this, kind))
+}
+
+pub(super) const KEYS: [(&str, &str); 20] = [
     ("Launcher", "⌘K · click the search field"),
-    ("New chat / note", "⌘T / ⌘N · ＋ in chats and notes"),
+    ("New chat / note", "⌘T / ⌘N · + in Chats and Notes"),
     ("Send / new line", "↵ or ⌘↵ / ⇧↵ · send button"),
-    ("Stop", "⌘. · status bar or run line"),
+    ("Stop", "⌘. · status bar · Stop button"),
     ("Comment on selection", "⌘/ · selection strip · right-click"),
-    ("Rewrite with AI", "⌘⇧R · note foot bar · ⋯ menu"),
+    ("Rewrite with AI", "⌘⇧R · writing bar · ⋯ menu"),
     ("Save note", "⌘S · status bar · ⋯ menu"),
     ("Layouts", "⌥1 Write · ⌥2 Chat · ⌥3 Solo / restore"),
-    ("Focus tile", "⌘[ ⌘] · click a tile"),
+    ("Focus panel", "⌘[ ⌘] · click a panel"),
     (
-        "Maximize tile",
+        "Maximize",
         "⌘⇧↵ · double-click its header · Maximize button",
     ),
-    ("Extra split", "Open beside · navigation bar or tile menu"),
-    ("Resize tiles", "drag the gap between tiles"),
-    ("Swap tiles", "drag a tile header onto another tile"),
-    ("Tile menu", "right-click a tile header"),
-    ("Toggle chats", "⌘\\ · layout menu"),
-    ("Theme", "status bar · launcher · Settings"),
+    ("Extra split", "Open beside · navigation bar or panel menu"),
+    ("Resize panels", "drag the gap between panels"),
+    ("Swap panels", "drag a panel header onto another panel"),
+    ("Panel menu", "⋯ in the header · right-click the header"),
+    ("Toggle chats", "⌘\\ · Layout menu"),
+    ("Theme", "Settings → General · ⌘K"),
     ("Settings", "⌘, · navigation gear"),
     ("Home", "⌘0 · brn logo · launcher"),
+    ("Menus", "Tab to ⋯ · ↵ opens · ↑↓ ↵ · Esc"),
+    (
+        "Dialogs",
+        "↵ submits a one-field dialog · ⌘↵ submits a form · Space presses the focused button · Esc cancels",
+    ),
 ];
 
 impl ThreadsUi {
@@ -94,51 +255,63 @@ impl ThreadsUi {
                     .flex()
                     .flex_col()
                     .gap_1()
-                    .children(KEYS.iter().map(|(what, how)| {
+                    .children(KEYS.iter().enumerate().map(|(index, (what, how))| {
                         div()
+                            .id(format!("keys-row-{index}"))
                             .flex()
                             .gap_3()
-                            .child(div().w(px(170.)).child(*what))
+                            .aria_label(format!("{what}: {how}"))
+                            .child(div().w(px(170.)).flex_shrink_0().child(*what))
                             .child(
                                 div()
+                                    .flex_1()
+                                    .min_w_0()
                                     .font_family(UI_FONT)
                                     .text_size(SMALL_TEXT)
                                     .text_color(rgb(p.muted))
                                     .child(*how),
                             )
+                            .test_support()
                     }))
                     .test_support(),
             )
         });
     }
-    fn tile_title(&self, kind: TileKind) -> String {
+    /// The panel's visible title (the object, in sentence case) and its
+    /// announced name, which keeps the kind: ("Pilot proposal", "Note: Pilot
+    /// proposal"). During review the Note keeps the note's title.
+    pub(super) fn tile_title(&self, kind: TileKind) -> (String, String) {
+        let named = |title: String| (title.clone(), format!("{}: {title}", kind.label()));
         match kind {
-            TileKind::AllThreads => "chats".into(),
+            // All chats is a view of the Chats panel (Recent / All / Archived).
+            TileKind::AllThreads => (
+                TileKind::Threads.label().into(),
+                TileKind::Threads.label().into(),
+            ),
             TileKind::Note => match (&self.review, &self.note) {
-                (Some(review), None) => {
-                    format!("review · {}", short(&review.candidate.request.reason))
-                }
-                (_, Some(open)) => format!("note · {}", short(&title(&open.record))),
-                _ => "note".into(),
+                (_, Some(open)) => named(one_line(&title(&open.record))),
+                (Some(review), None) => named(format!(
+                    "Review · {}",
+                    one_line(&review.candidate.request.reason)
+                )),
+                _ => (kind.label().into(), kind.label().into()),
             },
-            TileKind::Chat => match &self.chat {
-                ChatTarget::Thread(id) => format!(
-                    "chat · {}",
-                    self.thread_rows
-                        .iter()
-                        .find(|row| &row.id == id)
-                        .map_or_else(|| id.clone(), |row| short(&row.title))
-                ),
+            TileKind::Chat => named(match &self.chat {
+                ChatTarget::Thread(id) => self
+                    .thread_rows
+                    .iter()
+                    .find(|row| &row.id == id)
+                    .map_or_else(|| id.clone(), |row| one_line(&row.title)),
                 ChatTarget::NewForNote(note) => format!(
-                    "chat · new chat about {}",
+                    "New chat about {}",
                     self.note_rows
                         .iter()
                         .find(|row| &row.id == note)
-                        .map_or_else(|| note.clone(), |row| short(&row.title))
+                        .map_or_else(|| note.clone(), |row| one_line(&row.title))
                 ),
-                ChatTarget::New => "chat · new chat".into(),
-            },
-            kind => kind.label().into(),
+                ChatTarget::New => "New chat".into(),
+            }),
+            kind => (kind.label().into(), kind.label().into()),
         }
     }
     fn tile_header(&self, kind: TileKind, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
@@ -147,23 +320,35 @@ impl ThreadsUi {
         let focused = self.layout.focus() == Some(kind);
         let maximized = self.layout.maximized() == Some(kind);
         let this = cx.entity().downgrade();
-        let label = self.tile_title(kind);
+        let (label, announced) = self.tile_title(kind);
         let ghost = SharedString::from(label.clone());
-        let mut header = div()
+        let full = SharedString::from(label.clone());
+        let header = div()
             .id(format!("tile-header-{key}"))
             .test_support()
             .flex()
             .flex_shrink_0()
             .items_center()
             .gap_1()
-            .h(px(36.))
+            .h(tokens::PANEL_HEADER)
             .px_2()
             .font_family(UI_FONT)
             .text_size(UI_TEXT)
             .bg(rgb(p.tile))
-            .border_b_1()
-            .border_color(rgb(if focused { p.accent } else { p.border }))
+            // The focused panel: accent title plus a 2 px accent underline.
+            .when(focused, |header| {
+                header.border_b_2().border_color(rgb(p.accent))
+            })
+            .when(!focused, |header| {
+                header.border_b_1().border_color(rgb(p.hairline))
+            })
             .cursor_grab()
+            .child(
+                Icon::new(kind_icon(kind))
+                    .with_size(Size::Small)
+                    .flex_shrink_0()
+                    .text_color(rgb(if focused { p.accent } else { p.muted })),
+            )
             .child(
                 div()
                     .id(format!("tile-title-{key}"))
@@ -172,17 +357,52 @@ impl ThreadsUi {
                     .truncate()
                     .text_color(rgb(if focused { p.accent } else { p.ink }))
                     .font_weight(gpui_kit::FontWeight::SEMIBOLD)
-                    .aria_label(label.clone())
+                    .aria_label(announced)
+                    .tooltip(move |window, cx| Tooltip::new(full.clone()).build(window, cx))
                     .child(label)
                     .test_support(),
-            );
-        if self.layout.area(kind) == Some(layout::Area::Beside) {
-            header = header.child(div().text_color(rgb(p.muted)).child("split"));
+            )
+            .when(
+                self.layout.area(kind) == Some(layout::Area::Beside),
+                |header| {
+                    header.child(
+                        components::status_chip(format!("tile-split-{key}"), None, None, "Split")
+                            .tooltip(|window, cx| {
+                                Tooltip::new(
+                                    "Opened with Open beside. Navigation doesn't replace it.",
+                                )
+                                .build(window, cx)
+                            }),
+                    )
+                },
+            )
+            .when(kind != TileKind::Note, |header| {
+                header.children(self.tile_controls(kind, cx))
+            });
+        // Exactly one ⋯ per panel: the panel's own items, then a Panel section.
+        let object = if kind == TileKind::Note {
+            self.note_menu_section(cx)
+        } else {
+            None
+        };
+        let menu_this = this.clone();
+        let more = if kind == TileKind::Note {
+            components::overflow_menu("note-menu", "Note actions")
+        } else {
+            components::overflow_menu(
+                format!("tile-menu-{key}"),
+                format!("{} panel actions", kind.label()),
+            )
         }
-        if kind != TileKind::Note {
-            header = header.children(self.tile_controls(kind, cx));
-        }
+        .dropdown_menu(move |menu, window, cx| {
+            let menu = match &object {
+                Some(section) => section(menu),
+                None => menu,
+            };
+            panel_section(menu, &menu_this, kind, window, cx)
+        });
         header
+            .child(more)
             .child(
                 components::icon_button(
                     format!("tile-max-{key}"),
@@ -226,79 +446,15 @@ impl ThreadsUi {
                     return menu;
                 };
                 let layout = view.read(cx).layout.clone();
-                let maximized = layout.maximized() == Some(kind);
-                let mut menu = menu
-                    .item(item(
-                        &this,
-                        if maximized { "Restore" } else { "Maximize" },
-                        Some(Box::new(MaximizeTile)),
-                        false,
-                        false,
-                        move |view, window, cx| {
-                            view.relayout(window, cx, |layout| layout.toggle_maximize(kind))
-                        },
-                    ))
-                    .item(item(
-                        &this,
-                        "Move left",
-                        None,
-                        !layout.can_move(kind, -1),
-                        false,
-                        move |view, _, cx| {
-                            view.layout.move_by(kind, -1);
-                            cx.notify();
-                        },
-                    ))
-                    .item(item(
-                        &this,
-                        "Move right",
-                        None,
-                        !layout.can_move(kind, 1),
-                        false,
-                        move |view, _, cx| {
-                            view.layout.move_by(kind, 1);
-                            cx.notify();
-                        },
-                    ))
-                    .item(item(
-                        &this,
-                        "Close",
-                        None,
-                        false,
-                        false,
-                        move |view, window, cx| {
-                            view.relayout(window, cx, |layout| layout.close(kind))
-                        },
-                    ))
-                    .item(item(
-                        &this,
-                        "Close other splits",
-                        None,
-                        !layout.has_splits(),
-                        false,
-                        move |view, window, cx| {
-                            view.relayout(window, cx, |layout| layout.close_other_splits(kind))
-                        },
-                    ))
+                let menu = menu
+                    .item(maximize_item(&this, kind, &layout))
+                    .item(move_item(&this, kind, -1, &layout))
+                    .item(move_item(&this, kind, 1, &layout))
+                    .item(close_item(&this, kind))
+                    .item(close_splits_item(&this, kind, &layout))
                     .separator()
                     .label("Open beside");
-                for other in TileKind::ALL
-                    .into_iter()
-                    .filter(|other| *other != TileKind::Settings)
-                {
-                    menu = menu.item(item(
-                        &this,
-                        other.label(),
-                        None,
-                        false,
-                        layout.contains(other),
-                        move |view, window, cx| {
-                            view.layout.set_focus(kind);
-                            view.show_beside(other, window, cx);
-                        },
-                    ));
-                }
-                menu
+                beside_items(menu, &this, kind, &layout)
             })
             .into_any_element()
     }
@@ -367,7 +523,7 @@ impl ThreadsUi {
                 .justify_center()
                 .child(empty(
                     "tiles-empty",
-                    "No tiles open · ⌘K or choose Write, Chat or Solo",
+                    "No panels open · ⌘K or choose Write, Chat or Solo",
                 ))
                 .into_any_element();
         }
@@ -403,8 +559,8 @@ impl ThreadsUi {
                     }))
                 .flex_basis(px(0.))
                 .border_1()
-                .border_color(rgb(p.border))
-                .rounded(px(6.))
+                .border_color(rgb(p.hairline))
+                .rounded(tokens::RADIUS_PANEL)
                 .overflow_hidden()
                 .bg(rgb(p.tile))
                 .on_mouse_down(
@@ -447,7 +603,20 @@ impl ThreadsUi {
                     .child(div().flex_1().min_h_0().w_full().child(body)),
             );
         }
-        row.into_any_element()
+        // Kit draws the horizontal bar only while the panels overflow the row.
+        div()
+            .relative()
+            .flex()
+            .flex_1()
+            .min_h_0()
+            .w_full()
+            .child(row)
+            .child(
+                Scrollbar::horizontal(&self.tile_scroll)
+                    .id("tile-row-scrollbar")
+                    .mode(ScrollbarMode::Always),
+            )
+            .into_any_element()
     }
 }
 
@@ -561,22 +730,23 @@ impl ThreadsUi {
             kind => Some(kind),
         }
     }
-    fn navigation_bar(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
+    fn navigation_bar(&self, window: &Window, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         let p = pal();
         let this = cx.entity().downgrade();
         let layout = self.layout.clone();
+        let compact = compact(window);
         let mut bar = div()
             .id("workspace-navigation")
             .flex()
             .flex_shrink_0()
             .items_center()
             .gap_1()
+            .h(tokens::NAV_BAR)
             .px_2()
-            .py_1()
             .overflow_x_scroll()
             .bg(rgb(p.alt))
             .border_b_1()
-            .border_color(rgb(p.border));
+            .border_color(rgb(p.hairline));
         for (id, label, kind) in [
             ("browse-chats", "Chats", TileKind::Threads),
             ("open-notes", "Notes", TileKind::Notes),
@@ -601,45 +771,54 @@ impl ThreadsUi {
                     })),
             )
             .child(
-                components::icon_button("settings", IconName::Settings, "Settings")
-                    .tooltip("Settings (⌘,)")
-                    .selected(self.layout.settings_open())
-                    .on_click(cx.listener(|view, _, window, cx| {
+                components::icon_button_with_action(
+                    "settings",
+                    IconName::Settings,
+                    "Settings",
+                    &OpenSettings,
+                )
+                .selected(self.layout.settings_open())
+                .on_click(
+                    cx.listener(|view, _, window, cx| {
                         view.show_tile(TileKind::Settings, window, cx)
-                    })),
+                    }),
+                ),
             )
             .child(
-                pill("open-beside", "Open beside")
-                    .icon(IconName::Plus)
-                    .tooltip("Add an extra split · normal navigation reuses your working areas")
-                    .dropdown_menu(move |mut menu, _, _| {
-                        menu = menu.label("Open beside · existing panels are focused");
-                        for kind in TileKind::ALL
-                            .into_iter()
-                            .filter(|kind| *kind != TileKind::Settings)
-                        {
-                            menu = menu.item(item(
-                                &this,
-                                kind.label(),
-                                None,
-                                false,
-                                layout.contains(kind),
-                                move |view, window, cx| view.show_beside(kind, window, cx),
-                            ));
-                        }
-                        menu.separator().item(item(
+                if compact {
+                    components::icon_button("open-beside", IconName::PanelRightOpen, "Open beside")
+                } else {
+                    pill("open-beside", "Open beside").icon(IconName::PanelRightOpen)
+                }
+                .tooltip("Add an extra split · normal navigation reuses your working areas")
+                .dropdown_menu(move |mut menu, _, _| {
+                    menu = menu.label("Open beside · existing panels are focused");
+                    for kind in TileKind::ALL
+                        .into_iter()
+                        .filter(|kind| *kind != TileKind::Settings)
+                    {
+                        menu = menu.item(item(
                             &this,
-                            "Close extra splits",
+                            kind.label(),
                             None,
-                            !layout.has_splits(),
                             false,
-                            |view, window, cx| {
-                                view.relayout(window, cx, |layout| {
-                                    layout.close_other_splits(TileKind::Settings)
-                                })
-                            },
-                        ))
-                    }),
+                            layout.contains(kind),
+                            move |view, window, cx| view.show_beside(kind, window, cx),
+                        ));
+                    }
+                    menu.separator().item(item(
+                        &this,
+                        "Close extra splits",
+                        None,
+                        !layout.has_splits(),
+                        false,
+                        |view, window, cx| {
+                            view.relayout(window, cx, |layout| {
+                                layout.close_other_splits(TileKind::Settings)
+                            })
+                        },
+                    ))
+                }),
             )
             .test_support()
             .into_any_element()
@@ -688,9 +867,10 @@ impl ThreadsUi {
             .test_support()
             .into_any_element()
     }
-    fn top_bar(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
+    fn top_bar(&self, window: &Window, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         let p = pal();
         let this = cx.entity().downgrade();
+        let compact = compact(window);
         let mut bar = div()
             .id("top-bar")
             .test_support()
@@ -714,33 +894,26 @@ impl ThreadsUi {
                     })),
             )
             .child(
-                button("launcher")
-                    .label("Search…   ⌘K")
-                    .accessibility_label("Search notes, chats and commands")
-                    .w(px(220.))
-                    .min_w(px(150.))
-                    .flex_shrink(1.)
-                    .tooltip("Search notes, chats and commands (⌘K)")
-                    .on_click(cx.listener(|this, _, window, cx| this.open_launcher(window, cx))),
-            )
-            .child(div().flex_1());
-        for (preset, shortcut) in Preset::ALL.into_iter().zip(["⌥1", "⌥2", "⌥3"]) {
-            bar = bar.child(
-                button(format!("layout-{}", preset.key()))
-                    .label(preset.label())
-                    .ghost()
-                    .compact()
-                    .selected(self.layout.preset() == Some(preset))
-                    .tooltip(if preset == Preset::Solo {
-                        "Focus current panel / restore arrangement (⌥3)".into()
-                    } else {
-                        format!("Reset to {} layout ({shortcut})", preset.label())
-                    })
-                    .on_click(cx.listener(move |this, _, window, cx| {
-                        this.apply_layout(preset, window, cx)
-                    })),
+                if compact {
+                    components::icon_button(
+                        "launcher",
+                        IconName::Search,
+                        "Search notes, chats and commands",
+                    )
+                    .tooltip_with_action("Search", &OpenLauncher, None)
+                } else {
+                    button("launcher")
+                        .label("Search…")
+                        .child(div().flex_1())
+                        .children(Keystroke::parse("cmd-k").ok().map(Kbd::new))
+                        .accessibility_label("Search notes, chats and commands")
+                        .w(px(220.))
+                        .min_w(px(150.))
+                        .flex_shrink(1.)
+                        .tooltip("Search notes, chats and commands (⌘K)")
+                }
+                .on_click(cx.listener(|this, _, window, cx| this.open_launcher(window, cx))),
             );
-        }
         let needs: Vec<(String, String)> = self
             .thread_rows
             .iter()
@@ -749,12 +922,15 @@ impl ThreadsUi {
             .collect();
         if !needs.is_empty() {
             let count = needs.len();
+            let announced = format!("{count} need{} you", if count == 1 { "s" } else { "" });
             bar = bar.child(
                 button("needs-badge")
-                    .label(format!(
-                        "● {count} need{} you",
-                        if count == 1 { "s" } else { "" }
-                    ))
+                    .label(if compact {
+                        format!("● {count}")
+                    } else {
+                        format!("● {announced}")
+                    })
+                    .accessibility_label(announced)
                     .compact()
                     .primary()
                     .dropdown_menu(move |mut menu, _, _| {
@@ -774,10 +950,33 @@ impl ThreadsUi {
                     }),
             );
         }
+        // Write, Chat and Solo are one mode switch; each segment keeps its ID,
+        // handler and tooltip.
+        let presets =
+            Preset::ALL
+                .into_iter()
+                .zip(["⌥1", "⌥2", "⌥3"])
+                .map(|(preset, shortcut)| {
+                    button(format!("layout-{}", preset.key()))
+                        .label(preset.label())
+                        .selected(self.layout.preset() == Some(preset))
+                        .tooltip(if preset == Preset::Solo {
+                            "Focus current panel / restore arrangement (⌥3)".into()
+                        } else {
+                            format!("Reset to {} layout ({shortcut})", preset.label())
+                        })
+                        .on_click(cx.listener(move |this, _, window, cx| {
+                            this.apply_layout(preset, window, cx)
+                        }))
+                })
+                .collect();
+        bar = bar
+            .child(div().flex_1())
+            .child(components::segmented("layout-presets", presets));
         gpui_kit::component::TitleBar::new()
             .h(TOP_BAR_HEIGHT)
             .bg(rgb(p.alt))
-            .border_color(rgb(p.border))
+            .border_color(rgb(p.hairline))
             .child(bar)
             .into_any_element()
     }
@@ -791,13 +990,13 @@ impl ThreadsUi {
             .flex_shrink_0()
             .items_center()
             .gap_1()
-            .h(px(32.))
+            .h(tokens::STATUS_BAR)
             .px_2()
             .font_family(UI_FONT)
             .text_size(SMALL_TEXT)
             .bg(rgb(p.alt))
             .border_t_1()
-            .border_color(rgb(p.border));
+            .border_color(rgb(p.hairline));
         if let Some(worker) = &self.worker {
             let status = self.worker_status(worker);
             let thread = worker.thread.clone();
@@ -816,15 +1015,28 @@ impl ThreadsUi {
             bar = bar.child(
                 div()
                     .id("worker-status")
+                    .flex()
+                    .items_center()
+                    .gap_1()
                     .flex_shrink(1.)
                     .min_w_0()
                     .overflow_hidden()
                     .whitespace_nowrap()
                     .px_2()
-                    .text_color(rgb(p.accent))
+                    .text_color(rgb(p.ink))
                     .cursor_pointer()
                     .aria_label(progress.clone())
-                    .child(format!("◌ {progress}"))
+                    .tooltip({
+                        let progress = SharedString::from(progress.clone());
+                        move |window, cx| Tooltip::new(progress.clone()).build(window, cx)
+                    })
+                    .child(
+                        Icon::new(IconName::LoaderCircle)
+                            .with_size(Size::XSmall)
+                            .flex_shrink_0()
+                            .text_color(rgb(p.info)),
+                    )
+                    .child(div().min_w_0().truncate().child(progress))
                     .on_click(cx.listener(move |this, _, window, cx| {
                         if let Some(thread) = &thread {
                             this.open_thread(thread, window, cx);
@@ -835,6 +1047,7 @@ impl ThreadsUi {
             if worker.kind.can_cancel() {
                 bar = bar.child(
                     pill("stop-work", "Stop")
+                        .h(tokens::ICON_CONTROL)
                         .icon(IconName::Square)
                         .tooltip("Stop the current work and pause the queue · ⌘.")
                         .on_click(cx.listener(|this, _, _, cx| this.cancel(cx))),
@@ -846,37 +1059,39 @@ impl ThreadsUi {
                     .id("idle-status")
                     .px_2()
                     .text_color(rgb(p.muted))
-                    .aria_label("○ Idle")
-                    .child("○ Idle")
+                    .aria_label("Idle")
+                    .child("Idle")
                     .test_support(),
             );
         }
+        // The open note's save state stays visible even when its panel is
+        // hidden: unsaved saves on click, saved opens Changes.
         if let Some(open) = &self.note {
-            let name = short(&title(&open.record));
-            bar =
-                bar.child(if open.session.is_some() {
-                    pill("status-save", format!("● {name} unsaved · ⌘S"))
-                        .tooltip("Save (⌘S)")
-                        .on_click(cx.listener(|this, _, window, cx| this.save(window, cx)))
-                } else {
-                    pill(
-                        "status-save",
-                        format!("{name} v{} saved", open.record.version),
-                    )
-                    .tooltip("Saved · open What changed")
+            let name = one_line(&title(&open.record));
+            bar = bar.child(if open.session.is_some() {
+                pill("status-save", "● Unsaved · ⌘S")
+                    .h(tokens::ICON_CONTROL)
+                    .text_color(rgb(p.warning))
+                    .tooltip(format!("Save {name} (⌘S)"))
+                    .on_click(cx.listener(|this, _, window, cx| this.save(window, cx)))
+            } else {
+                pill("status-save", "Saved")
+                    .h(tokens::ICON_CONTROL)
+                    .text_color(rgb(p.muted))
+                    .tooltip(format!(
+                        "{name} v{} saved · Open Changes",
+                        open.record.version
+                    ))
                     .on_click(cx.listener(|this, _, window, cx| {
                         this.show_tile(TileKind::History, window, cx)
                     }))
-                });
+            });
         }
-        let layout_label = match (self.layout.maximized(), self.layout.preset()) {
-            (Some(kind), _) => format!("max · {}", kind.label()),
-            (None, Some(preset)) => preset.label().into(),
-            (None, None) => "custom".into(),
+        let layout_label = match self.layout.maximized() {
+            Some(kind) => format!("Maximized · {}", kind.label()),
+            None => "Layout".into(),
         };
         let layout_this = this.clone();
-        let theme_this = this.clone();
-        let current_theme = self.theme;
         let layout = self.layout.clone();
         let work_status_visible = self
             .last_work_notice
@@ -884,11 +1099,16 @@ impl ThreadsUi {
             .is_some_and(|(_, last)| last == &self.notice);
         let can_show_work_status =
             self.last_work_notice.is_some() && self.notice.is_empty() && self.worker.is_none();
+        // Theme lives in Settings → General and ⌘K only (owner decision), so
+        // the status bar and its Layout menu carry no theme control.
         bar.child(div().flex_1())
             .child(
                 pill("status-layout", layout_label)
+                    .h(tokens::ICON_CONTROL)
                     .icon(IconName::LayoutDashboard)
+                    .tooltip("Layouts, panels and the last work status")
                     .dropdown_menu(move |mut menu, _, _| {
+                        menu = menu.label("Layouts");
                         for (preset, action) in Preset::ALL.into_iter().zip([
                             Box::new(LayoutWrite) as Box<dyn Action>,
                             Box::new(LayoutChat),
@@ -903,15 +1123,7 @@ impl ThreadsUi {
                                 move |view, window, cx| view.apply_layout(preset, window, cx),
                             ));
                         }
-                        menu = menu.separator().item(item(
-                            &layout_this,
-                            "Last work status",
-                            None,
-                            !can_show_work_status,
-                            work_status_visible,
-                            |view, _, cx| view.show_last_work_notice(cx),
-                        ));
-                        menu = menu.separator().label("Tiles");
+                        menu = menu.separator().label("Panels");
                         for kind in TileKind::ALL {
                             menu = menu.item(item(
                                 &layout_this,
@@ -926,29 +1138,18 @@ impl ThreadsUi {
                                 },
                             ));
                         }
-                        menu
+                        menu.separator().item(item(
+                            &layout_this,
+                            "Last work status",
+                            None,
+                            !can_show_work_status,
+                            work_status_visible,
+                            |view, _, cx| view.show_last_work_notice(cx),
+                        ))
                     }),
             )
             .child(
-                pill("status-theme", current_theme.label())
-                    .icon(IconName::Palette)
-                    .dropdown_menu(move |mut menu, _, _| {
-                        for theme in ThemeId::ALL {
-                            menu = menu.item(item(
-                                &theme_this,
-                                format!("{} · {}", theme.label(), theme.description()),
-                                None,
-                                false,
-                                theme == current_theme,
-                                move |view, window, cx| view.choose_theme(theme, window, cx),
-                            ));
-                        }
-                        menu
-                    }),
-            )
-            .child(
-                pill("status-keys", "Keys")
-                    .icon(IconName::Keyboard)
+                components::icon_button("status-keys", IconName::Keyboard, "Keys")
                     .tooltip("Keys and mouse")
                     .on_click(cx.listener(|this, _, window, cx| this.show_keys(window, cx))),
             )
@@ -985,14 +1186,20 @@ impl ThreadsUi {
             .into_any_element(),
         )
     }
-    fn launcher_overlay(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
+    fn launcher_overlay(&self, window: &Window, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         let p = pal();
         let items = self.launcher_items(cx);
+        let viewport = window.viewport_size();
+        // At most 580 wide with 32 pt either side; the results fit their
+        // content up to 60 % of the window (less the search field).
+        let width = px(580.).min(viewport.width - px(64.));
+        let results = (viewport.height * 0.6 - px(56.)).max(px(120.));
         let mut list = div()
             .id("launcher-results")
+            .test_support()
             .flex()
             .flex_col()
-            .max_h(px(420.))
+            .max_h(results)
             .overflow_y_scroll();
         if items.is_empty() {
             list = list.child(empty(
@@ -1000,31 +1207,71 @@ impl ThreadsUi {
                 "No matching notes, chats or commands.",
             ));
         }
+        let mut group = "";
         for (index, entry) in items.iter().enumerate() {
-            let shortcut = match entry {
-                lists::LaunchItem::Command(command) => command.shortcut(),
-                _ => "",
-            };
+            if entry.group() != group {
+                group = entry.group();
+                list = list.child(
+                    components::section_header(group, None, None)
+                        .id(format!("launcher-group-{}", group.to_lowercase()))
+                        .px_2()
+                        .pt(if index == 0 {
+                            tokens::SPACE_1
+                        } else {
+                            tokens::SPACE_2
+                        })
+                        .aria_label(group)
+                        .test_support(),
+                );
+            }
             let selected = index == self.launcher_index;
+            let (icon, keystroke, archived) = match entry {
+                lists::LaunchItem::Thread { resolved, .. } => {
+                    (IconName::MessageSquare, None, *resolved)
+                }
+                lists::LaunchItem::Note { .. } => (IconName::FileText, None, false),
+                lists::LaunchItem::Command(command) => {
+                    (command_icon(*command), command.keystroke(), false)
+                }
+            };
             let label = entry.label();
             list = list.child(
                 div()
                     .id(format!("launcher-item-{index}"))
                     .flex()
+                    .flex_shrink_0()
+                    .items_center()
                     .gap_2()
-                    .px_3()
-                    .py_1()
+                    .h(tokens::COMPACT_CONTROL)
+                    .px_2()
+                    .rounded(tokens::RADIUS_CONTROL)
                     .cursor_pointer()
-                    .bg(rgb(if selected { p.selection } else { p.tile }))
-                    .hover(|style| style.bg(rgb(pal().hover)))
-                    .aria_label(label.clone())
-                    .child(div().flex_1().min_w_0().child(label))
+                    .text_color(rgb(p.ink))
+                    .when(selected, |row| row.bg(rgb(p.selection)))
+                    .when(!selected, |row| {
+                        row.hover(|style| style.bg(rgb(pal().hover)))
+                    })
+                    .aria_label(entry.accessible_label())
+                    .aria_selected(selected)
                     .child(
-                        div()
-                            .font_family(UI_FONT)
-                            .text_size(SMALL_TEXT)
-                            .text_color(rgb(p.muted))
-                            .child(shortcut),
+                        Icon::new(icon)
+                            .with_size(Size::Small)
+                            .flex_shrink_0()
+                            .text_color(rgb(if selected { p.ink } else { p.muted })),
+                    )
+                    .child(div().flex_1().min_w_0().truncate().child(label))
+                    .when(archived, |row| {
+                        row.child(components::status_chip(
+                            format!("launcher-item-{index}-archived"),
+                            None,
+                            None,
+                            "Archived",
+                        ))
+                    })
+                    .children(
+                        keystroke
+                            .and_then(|key| Keystroke::parse(key).ok())
+                            .map(Kbd::new),
                     )
                     .on_click(cx.listener(move |this, _, window, cx| {
                         this.run_launcher(Some(index), window, cx)
@@ -1050,7 +1297,7 @@ impl ThreadsUi {
                 div()
                     .id("launcher")
                     .key_context("BrnLauncher")
-                    .w(px(580.))
+                    .w(width)
                     .h_auto()
                     .flex()
                     .flex_col()
@@ -1058,7 +1305,9 @@ impl ThreadsUi {
                     .p_2()
                     .bg(rgb(p.tile))
                     .border_1()
-                    .border_color(rgb(p.accent))
+                    .border_color(rgb(p.border))
+                    .rounded(tokens::RADIUS_PANEL)
+                    .shadow_lg()
                     .on_mouse_down(MouseButton::Left, |_, _, cx| cx.stop_propagation())
                     // The text input owns escape/up/down; the launcher claims them first.
                     .capture_key_down(cx.listener(
@@ -1201,13 +1450,13 @@ impl Render for ThreadsUi {
                 this.apply_layout(Preset::Solo, window, cx)
             }))
             .on_action(cx.listener(|this, _: &ShowKeys, window, cx| this.show_keys(window, cx)))
-            .child(self.top_bar(cx))
-            .child(self.navigation_bar(cx))
+            .child(self.top_bar(window, cx))
+            .child(self.navigation_bar(window, cx))
             .child(tiles)
             .children(self.notice_line(cx))
             .child(self.status_bar(cx));
         if self.launcher_open {
-            root = root.child(self.launcher_overlay(cx));
+            root = root.child(self.launcher_overlay(window, cx));
         }
         root
     }

@@ -202,20 +202,26 @@ fn layouts_resize_swap_maximize_and_tile_menu_work_by_mouse_and_keys(cx: &mut Te
     });
     assert_eq!(kinds(cx, &f), [TileKind::Note]);
     on_window(cx, &f, |window, _| {
-        assert!(
-            window
-                .find("status-layout")
-                .label()
-                .unwrap()
-                .contains("max")
+        assert_eq!(
+            window.find("status-layout").label(),
+            Some("Maximized · Note")
         );
     });
     on_window(cx, &f, |window, cx| {
         window.double_click("tile-header-note", cx)
     });
     assert_eq!(kinds(cx, &f).len(), 3);
+    on_window(cx, &f, |window, _| {
+        assert_eq!(window.find("status-layout").label(), Some("Layout"));
+    });
     click(cx, &f, "tile-max-chat");
     assert_eq!(kinds(cx, &f), [TileKind::Chat]);
+    on_window(cx, &f, |window, _| {
+        assert_eq!(
+            window.find("status-layout").label(),
+            Some("Maximized · Chat")
+        );
+    });
     press(cx, &f, "cmd-shift-enter");
     assert_eq!(kinds(cx, &f).len(), 3);
 
@@ -237,7 +243,7 @@ fn layouts_resize_swap_maximize_and_tile_menu_work_by_mouse_and_keys(cx: &mut Te
     assert!(kinds(cx, &f).contains(&TileKind::Threads));
     click(cx, &f, "tile-close-threads");
     click(cx, &f, "status-layout");
-    choose(cx, &f, "chats");
+    choose(cx, &f, "Chats");
     assert!(kinds(cx, &f).contains(&TileKind::Threads));
     click(cx, &f, "settings");
     assert_eq!(
@@ -272,13 +278,33 @@ fn layouts_resize_swap_maximize_and_tile_menu_work_by_mouse_and_keys(cx: &mut Te
 }
 
 #[gpui_kit::test]
-fn themes_switch_from_status_bar_launcher_and_settings_and_wait_for_running_work(
-    cx: &mut TestAppContext,
-) {
+fn themes_switch_from_settings_and_launcher_and_wait_for_running_work(cx: &mut TestAppContext) {
     let f = fixture(cx, |_| {});
     assert_eq!(theme::pal(), ThemeId::Sammal.palette());
-    click(cx, &f, "status-theme");
-    choose(cx, &f, "Raba · dark bog peat · red");
+    // Owner decision: no theme control in the status bar or its Layout menu.
+    on_window(cx, &f, |window, _| {
+        assert!(window.try_find("status-theme").is_none());
+    });
+    click(cx, &f, "status-layout");
+    on_window(cx, &f, |window, _| {
+        let menu = window.within("popup-menu");
+        let rows: Vec<String> = (0..60usize)
+            .filter_map(|index| menu.try_find(index))
+            .filter_map(|row| row.label().map(str::to_owned))
+            .collect();
+        assert!(rows.iter().any(|row| row == "Chats"), "{rows:?}");
+        for theme in ThemeId::ALL {
+            assert!(
+                rows.iter()
+                    .all(|row| !row.contains(theme.label()) && !row.contains("Theme")),
+                "{rows:?}"
+            );
+        }
+    });
+    press(cx, &f, "escape");
+    press(cx, &f, "cmd-k");
+    on_window(cx, &f, |window, cx| window.input("raba", cx));
+    press(cx, &f, "enter");
     cx.read(|cx| {
         let view = f.view.read(cx);
         assert_eq!(view.theme, ThemeId::Raba);
@@ -287,11 +313,9 @@ fn themes_switch_from_status_bar_launcher_and_settings_and_wait_for_running_work
             view.workspace.settings().unwrap().theme.as_deref(),
             Some("raba")
         );
+        assert!(!view.launcher_open);
     });
     assert_eq!(theme::pal().accent, 0xdf6d66);
-    on_window(cx, &f, |window, _| {
-        assert_eq!(window.find("status-theme").label(), Some("Raba"));
-    });
     press(cx, &f, "cmd-k");
     on_window(cx, &f, |window, cx| window.input("paber", cx));
     press(cx, &f, "enter");
@@ -300,8 +324,20 @@ fn themes_switch_from_status_bar_launcher_and_settings_and_wait_for_running_work
     update(cx, &f, |view, _, cx| {
         focus_tests::settings(view, SettingsSection::General, cx)
     });
+    on_window(cx, &f, |window, _| {
+        assert!(window.find("settings-general").visible());
+    });
     click(cx, &f, "settings-theme-virmalised");
     assert_eq!(theme::pal(), ThemeId::Virmalised.palette());
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert_eq!(view.theme, ThemeId::Virmalised);
+        assert!(!view.theme_pending, "saved at once while no work runs");
+        assert_eq!(
+            view.workspace.settings().unwrap().theme.as_deref(),
+            Some("virmalised")
+        );
+    });
 
     // A working run is bound to the Settings version, so saving waits.
     let thread = update(cx, &f, |view, _, _| {
@@ -404,8 +440,13 @@ fn archived_chats_leave_the_sidebar_stay_findable_and_require_unarchive(cx: &mut
     on_window(cx, &f, |window, _| {
         assert_eq!(
             window.find("launcher-item-0").label(),
-            Some("chat · Open question 00 · archived")
+            Some("Chat: Open question 00 · archived")
         );
+        assert_eq!(
+            window.find("launcher-item-0-archived").label(),
+            Some("Archived")
+        );
+        assert!(window.find("launcher-group-chats").visible());
     });
     click(cx, &f, "launcher-item-0");
     on_window(cx, &f, |window, _| {
@@ -695,13 +736,7 @@ fn dirty_note_requires_an_explicit_save_before_commenting(cx: &mut TestAppContex
     on_window(cx, &f, |window, _| {
         assert!(window.find("selection-comment-reason").visible());
         assert!(window.find("note-unsaved-chip").visible());
-        assert!(
-            window
-                .find("status-save")
-                .label()
-                .unwrap()
-                .contains("unsaved")
-        );
+        assert_eq!(window.find("status-save").label(), Some("● Unsaved · ⌘S"));
     });
     press(cx, &f, "cmd-/");
     cx.read(|cx| {
@@ -826,6 +861,9 @@ fn review_in_place_applies_exact_candidate_then_marks_addressed_and_undoes(
         assert!(window.try_find("note-body").is_none());
         assert_eq!(window.find("apply-final").label(), Some("Apply whole note"));
         assert!(window.find("writing-feedback").visible());
+        // The header keeps the note's title; the review bar states the review.
+        assert_eq!(window.find("tile-title-note").label(), Some("Note: Essay"));
+        assert!(window.find("note-menu").visible());
     });
     click(cx, &f, "review-read-result");
     update(cx, &f, |view, window, cx| {
@@ -1208,10 +1246,19 @@ fn normal_navigation_stays_bounded_and_explicit_splits_are_reused(cx: &mut TestA
     }
     click(cx, &f, "layout-write");
     click(cx, &f, "open-beside");
-    choose(cx, &f, "connections");
+    choose(cx, &f, "Connections");
     assert_eq!(kinds(cx, &f).len(), 4);
+    on_window(cx, &f, |window, _| {
+        let split = window.find("tile-split-connections");
+        assert!(split.visible());
+        assert_eq!(split.label(), Some("Split"));
+        assert!(
+            window.try_find("tile-split-note").is_none(),
+            "reused areas carry no Split chip"
+        );
+    });
     click(cx, &f, "open-beside");
-    choose(cx, &f, "connections");
+    choose(cx, &f, "Connections");
     assert_eq!(kinds(cx, &f).len(), 4, "an existing panel is reused");
     click(cx, &f, "actions");
     assert_eq!(kinds(cx, &f).len(), 4);
@@ -1532,5 +1579,237 @@ fn consequence_dialogs_confirm_only_by_their_danger_button(cx: &mut TestAppConte
         window.click("synthetic-discard-confirm", cx);
     });
     assert!(confirmed.get());
+    on_window(cx, &f, |window, cx| assert!(!window.has_active_dialog(cx)));
+}
+
+/// Labels of the open popup menu's rows, in order.
+fn menu_rows(cx: &mut TestAppContext, f: &Fixture) -> Vec<String> {
+    on_window(cx, f, |window, _| {
+        let menu = window.within("popup-menu");
+        (0..60usize)
+            .filter_map(|index| menu.try_find(index))
+            .filter_map(|row| row.label().map(str::to_owned))
+            .collect()
+    })
+}
+
+#[gpui_kit::test]
+fn panel_headers_name_the_object_and_hold_one_menu_with_a_panel_section(cx: &mut TestAppContext) {
+    let mut note = String::new();
+    let f = fixture(cx, |workspace| {
+        note = workspace
+            .new_note("Pilot proposal", "Saved text")
+            .unwrap()
+            .id;
+    });
+    update(cx, &f, |view, window, cx| {
+        view.open_note(&note, None, window, cx)
+    });
+    assert_eq!(
+        kinds(cx, &f),
+        [TileKind::Threads, TileKind::Note, TileKind::Chat]
+    );
+    on_window(cx, &f, |window, _| {
+        assert_eq!(
+            window.find("tile-title-note").label(),
+            Some("Note: Pilot proposal")
+        );
+        assert_eq!(window.find("tile-title-threads").label(), Some("Chats"));
+        assert_eq!(
+            window.find("tile-title-chat").label(),
+            Some("Chat: New chat about Pilot proposal")
+        );
+        // One ⋯ per panel, in its header; the Note's keeps note-menu.
+        for (menu, header) in [
+            ("note-menu", "tile-header-note"),
+            ("tile-menu-threads", "tile-header-threads"),
+            ("tile-menu-chat", "tile-header-chat"),
+        ] {
+            let (menu, header) = (window.find(menu).bounds(), window.find(header).bounds());
+            assert!(
+                menu.left() >= header.left()
+                    && menu.right() <= header.right()
+                    && menu.top() >= header.top()
+                    && menu.bottom() <= header.bottom(),
+                "{menu:?} inside {header:?}"
+            );
+        }
+        assert!(window.try_find("tile-menu-note").is_none());
+    });
+    click(cx, &f, "note-menu");
+    let rows = menu_rows(cx, &f);
+    assert_eq!(rows.first().map(String::as_str), Some("Save"), "{rows:?}");
+    let panel = rows.iter().position(|row| row == "Panel").expect("Panel");
+    assert_eq!(
+        &rows[panel..],
+        [
+            "Panel",
+            "Maximize",
+            "Move left",
+            "Move right",
+            "Open beside",
+            "Close other splits",
+            "Close"
+        ],
+        "the Panel section comes last"
+    );
+    choose(cx, &f, "Move right");
+    assert_eq!(
+        kinds(cx, &f),
+        [TileKind::Threads, TileKind::Chat, TileKind::Note]
+    );
+    click(cx, &f, "tile-menu-chat");
+    assert_eq!(menu_rows(cx, &f).first().map(String::as_str), Some("Panel"));
+    choose(cx, &f, "Move left");
+    assert_eq!(
+        kinds(cx, &f),
+        [TileKind::Chat, TileKind::Threads, TileKind::Note]
+    );
+    click(cx, &f, "tile-menu-threads");
+    choose(cx, &f, "Maximize");
+    assert_eq!(kinds(cx, &f), [TileKind::Threads]);
+    on_window(cx, &f, |window, _| {
+        assert_eq!(
+            window.find("status-layout").label(),
+            Some("Maximized · Chats")
+        );
+    });
+    click(cx, &f, "tile-menu-threads");
+    choose(cx, &f, "Restore");
+    assert_eq!(kinds(cx, &f).len(), 3);
+    click(cx, &f, "tile-menu-threads");
+    choose(cx, &f, "Close");
+    assert!(!kinds(cx, &f).contains(&TileKind::Threads));
+    cx.read(|cx| assert!(f.view.read(cx).worker.is_none()));
+}
+
+#[gpui_kit::test]
+fn status_save_reads_unsaved_while_dirty_and_saved_otherwise(cx: &mut TestAppContext) {
+    let mut note = String::new();
+    let f = fixture(cx, |workspace| {
+        note = workspace
+            .new_note("Status witness", "Saved text")
+            .unwrap()
+            .id;
+    });
+    on_window(cx, &f, |window, _| {
+        assert!(
+            window.try_find("status-save").is_none(),
+            "no open note, no save state"
+        );
+    });
+    update(cx, &f, |view, window, cx| {
+        view.open_note(&note, None, window, cx)
+    });
+    on_window(cx, &f, |window, _| {
+        assert_eq!(window.find("status-save").label(), Some("Saved"));
+    });
+    update(cx, &f, |view, window, cx| {
+        view.note_editor.update(cx, |editor, cx| {
+            editor.set_value("Unsaved status text", window, cx)
+        });
+        view.preserve_visible_note_input(cx);
+    });
+    // The open note's unsaved state stays visible with its panel closed.
+    update(cx, &f, |view, window, cx| {
+        view.relayout(window, cx, |layout| layout.close(TileKind::Note))
+    });
+    assert!(!kinds(cx, &f).contains(&TileKind::Note));
+    on_window(cx, &f, |window, _| {
+        assert_eq!(window.find("status-save").label(), Some("● Unsaved · ⌘S"));
+    });
+    click(cx, &f, "status-save");
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        let open = view.note.as_ref().unwrap();
+        assert!(open.session.is_none(), "clicking saves: {}", view.notice);
+        assert!(
+            matches!(&open.record.data, RecordData::Note(n) if n.markdown == "Unsaved status text")
+        );
+    });
+    on_window(cx, &f, |window, _| {
+        assert_eq!(window.find("status-save").label(), Some("Saved"));
+    });
+    click(cx, &f, "status-save");
+    assert_eq!(
+        cx.read(|cx| f.view.read(cx).layout.focus()),
+        Some(TileKind::History),
+        "Saved opens Changes"
+    );
+}
+
+#[gpui_kit::test]
+fn launcher_groups_results_and_lists_projects(cx: &mut TestAppContext) {
+    let f = fixture(cx, |workspace| {
+        workspace.new_thread("Grouped chat").unwrap();
+        workspace.new_note("Grouped note", "Saved text").unwrap();
+    });
+    press(cx, &f, "cmd-k");
+    on_window(cx, &f, |window, _| {
+        for group in ["chats", "notes", "commands"] {
+            assert!(
+                window.find(format!("launcher-group-{group}")).visible(),
+                "{group}"
+            );
+        }
+        assert_eq!(
+            window.find("launcher-item-0").label(),
+            Some("Chat: Grouped chat")
+        );
+        assert_eq!(
+            window.find("launcher-item-1").label(),
+            Some("Note: Grouped note")
+        );
+        let launcher = window.within("launcher-scrim").find("launcher").bounds();
+        assert!(launcher.size.width <= px(580.), "{launcher:?}");
+        assert!(
+            window.find("launcher-results").bounds().size.height <= px(600.),
+            "results fit within 60 % of the window"
+        );
+    });
+    on_window(cx, &f, |window, cx| window.input("projects", cx));
+    on_window(cx, &f, |window, _| {
+        assert_eq!(window.find("launcher-item-0").label(), Some("Projects"));
+        assert!(window.find("launcher-group-commands").visible());
+        assert!(window.try_find("launcher-item-1").is_none());
+    });
+    press(cx, &f, "enter");
+    assert_eq!(
+        cx.read(|cx| f.view.read(cx).layout.focus()),
+        Some(TileKind::Projects)
+    );
+}
+
+#[gpui_kit::test]
+fn keys_help_names_panels_menus_dialogs_and_the_settings_theme(cx: &mut TestAppContext) {
+    let f = fixture(cx, |_| {});
+    click(cx, &f, "status-keys");
+    let rows: Vec<String> = on_window(cx, &f, |window, _| {
+        assert!(window.find("keys-help").visible());
+        (0..40)
+            .filter_map(|index| window.try_find(format!("keys-row-{index}")))
+            .filter_map(|row| row.label().map(str::to_owned))
+            .collect()
+    });
+    assert_eq!(rows.len(), shell::KEYS.len());
+    for expected in [
+        "Theme: Settings → General · ⌘K",
+        "Panel menu: ⋯ in the header · right-click the header",
+        "Maximize: ⌘⇧↵ · double-click its header · Maximize button",
+        "Rewrite with AI: ⌘⇧R · writing bar · ⋯ menu",
+        "Stop: ⌘. · status bar · Stop button",
+        "Menus: Tab to ⋯ · ↵ opens · ↑↓ ↵ · Esc",
+        "Dialogs: ↵ submits a one-field dialog · ⌘↵ submits a form · Space presses the focused button · Esc cancels",
+    ] {
+        assert!(
+            rows.iter().any(|row| row == expected),
+            "{expected}: {rows:?}"
+        );
+    }
+    assert!(
+        rows.iter().all(|row| !row.to_lowercase().contains("tile")),
+        "{rows:?}"
+    );
+    press(cx, &f, "escape");
     on_window(cx, &f, |window, cx| assert!(!window.has_active_dialog(cx)));
 }

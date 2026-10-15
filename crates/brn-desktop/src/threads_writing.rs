@@ -5,7 +5,7 @@ use super::tiles::scroll;
 use super::*;
 use gpui_kit::StyledText;
 use gpui_kit::component::button::ButtonVariants;
-use gpui_kit::component::menu::DropdownMenu;
+use gpui_kit::component::menu::{DropdownMenu, PopupMenu};
 
 impl ThreadsUi {
     pub(super) fn safe_message(&self, id: String, text: String) -> TextView {
@@ -682,10 +682,7 @@ impl ThreadsUi {
                     .into_any_element(),
             ];
         }
-        let this = cx.entity().downgrade();
         let dirty = open.session.is_some();
-        let busy = self.worker.is_some();
-        let imported = note.import.is_some();
         let protected = note.protected;
         let pending = self
             .workspace
@@ -750,115 +747,130 @@ impl ThreadsUi {
                 }))
                 .into_any_element(),
         );
-        controls.push(
-            components::overflow_menu("note-menu", "Note actions")
-                .dropdown_menu(move |menu, _, _| {
-                    let mut menu = menu
-                        .item(item(
-                            &this,
-                            "Save",
-                            Some(Box::new(Save)),
-                            !dirty,
-                            false,
-                            |view, window, cx| view.save(window, cx),
-                        ))
-                        .item(item(
-                            &this,
-                            "Discard edit",
-                            None,
-                            !dirty,
-                            false,
-                            |view, window, cx| view.discard(window, cx),
-                        ))
-                        .item(item(
-                            &this,
-                            "Reload saved note",
-                            None,
-                            dirty,
-                            false,
-                            |view, window, cx| {
-                                if let Some(id) = view.open_note_id().map(str::to_owned) {
-                                    view.open_note(&id, None, window, cx);
-                                }
-                            },
-                        ))
-                        .item(item(
-                            &this,
-                            "Save text as a new note",
-                            None,
-                            !dirty,
-                            false,
-                            |view, window, cx| view.save_copy(window, cx),
-                        ))
-                        .separator()
-                        .item(item(
-                            &this,
-                            if dirty {
-                                "Comment on selection · save first"
-                            } else {
-                                "Comment on selection"
-                            },
-                            Some(Box::new(CommentSelection)),
-                            dirty,
-                            false,
-                            |view, window, cx| view.comment_on_selection(window, cx),
-                        ))
-                        .item(item(
-                            &this,
-                            "Rewrite with AI",
-                            Some(Box::new(Rewrite)),
-                            dirty || busy,
-                            false,
-                            |view, _, cx| view.rewrite_note(cx),
-                        ))
-                        .separator()
-                        .item(item(
-                            &this,
-                            if protected {
-                                "Make working note"
-                            } else {
-                                "Protect note"
-                            },
-                            None,
-                            dirty,
-                            false,
-                            |view, window, cx| view.toggle_protection(window, cx),
-                        ))
-                        .item(item(
-                            &this,
-                            "Export Markdown snapshot…",
-                            None,
-                            busy,
-                            false,
-                            |view, window, cx| view.choose_output(false, window, cx),
-                        ));
-                    if imported {
-                        menu = menu.item(item(
-                            &this,
-                            "Coverage details",
-                            None,
-                            false,
-                            false,
-                            |view, _, cx| {
-                                view.show_coverage = !view.show_coverage;
-                                cx.notify();
-                            },
-                        ));
-                    }
-                    menu.separator().item(item(
-                        &this,
-                        "New chat for this note",
-                        None,
-                        false,
-                        false,
-                        |view, window, cx| {
-                            view.new_writing_thread(window, cx);
-                        },
-                    ))
-                })
-                .into_any_element(),
-        );
         controls
+    }
+    /// The Note ⋯'s own items for the open note outside review. The panel
+    /// header renders the ⋯ (`note-menu`) and adds its Panel section.
+    pub(super) fn note_menu_section(
+        &self,
+        cx: &mut Context<Self>,
+    ) -> Option<impl Fn(PopupMenu) -> PopupMenu + 'static> {
+        let open = self.note.as_ref()?;
+        let RecordData::Note(note) = &open.record.data else {
+            return None;
+        };
+        if self.review.is_some() {
+            return None;
+        }
+        let this = cx.entity().downgrade();
+        let dirty = open.session.is_some();
+        let busy = self.worker.is_some();
+        let imported = note.import.is_some();
+        let protected = note.protected;
+        Some(move |menu: PopupMenu| {
+            let mut menu = menu
+                .item(item(
+                    &this,
+                    "Save",
+                    Some(Box::new(Save)),
+                    !dirty,
+                    false,
+                    |view, window, cx| view.save(window, cx),
+                ))
+                .item(item(
+                    &this,
+                    "Discard edit",
+                    None,
+                    !dirty,
+                    false,
+                    |view, window, cx| view.discard(window, cx),
+                ))
+                .item(item(
+                    &this,
+                    "Reload saved note",
+                    None,
+                    dirty,
+                    false,
+                    |view, window, cx| {
+                        if let Some(id) = view.open_note_id().map(str::to_owned) {
+                            view.open_note(&id, None, window, cx);
+                        }
+                    },
+                ))
+                .item(item(
+                    &this,
+                    "Save text as a new note",
+                    None,
+                    !dirty,
+                    false,
+                    |view, window, cx| view.save_copy(window, cx),
+                ))
+                .separator()
+                .item(item(
+                    &this,
+                    if dirty {
+                        "Comment on selection · save first"
+                    } else {
+                        "Comment on selection"
+                    },
+                    Some(Box::new(CommentSelection)),
+                    dirty,
+                    false,
+                    |view, window, cx| view.comment_on_selection(window, cx),
+                ))
+                .item(item(
+                    &this,
+                    "Rewrite with AI",
+                    Some(Box::new(Rewrite)),
+                    dirty || busy,
+                    false,
+                    |view, _, cx| view.rewrite_note(cx),
+                ))
+                .separator()
+                .item(item(
+                    &this,
+                    if protected {
+                        "Make working note"
+                    } else {
+                        "Protect note"
+                    },
+                    None,
+                    dirty,
+                    false,
+                    |view, window, cx| view.toggle_protection(window, cx),
+                ))
+                .item(item(
+                    &this,
+                    "Export Markdown snapshot…",
+                    None,
+                    busy,
+                    false,
+                    |view, window, cx| view.choose_output(false, window, cx),
+                ));
+            if imported {
+                menu = menu.item(item(
+                    &this,
+                    "Coverage details",
+                    None,
+                    false,
+                    false,
+                    |view, _, cx| {
+                        view.show_coverage = !view.show_coverage;
+                        cx.notify();
+                    },
+                ));
+            }
+            menu.separator().item(item(
+                &this,
+                "New chat for this note",
+                None,
+                false,
+                false,
+                |view, window, cx| {
+                    view.new_writing_thread(window, cx);
+                },
+            ))
+        })
     }
     pub(super) fn note_tile(
         &mut self,

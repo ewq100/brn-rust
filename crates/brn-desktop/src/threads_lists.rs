@@ -467,6 +467,7 @@ pub(super) enum Command {
     Keys,
 }
 impl Command {
+    /// Destinations are named, never "Open tile: …".
     pub(super) fn label(self) -> String {
         match self {
             Self::NewThread => "New chat".into(),
@@ -475,28 +476,27 @@ impl Command {
             Self::Save => "Save note".into(),
             Self::Layout(preset) => format!("Layout: {}", preset.label()),
             Self::Theme(theme) => format!("Theme: {} · {}", theme.label(), theme.description()),
-            Self::OpenTile(TileKind::History) => "Changes".into(),
-            Self::OpenTile(TileKind::Actions) => "Tasks".into(),
-            Self::OpenTile(TileKind::Settings) => "Settings".into(),
-            Self::OpenTile(TileKind::Overview) => "Home".into(),
-            Self::OpenTile(kind) => format!("Open tile: {}", kind.label()),
+            Self::OpenTile(TileKind::Note) => "Current note".into(),
+            Self::OpenTile(TileKind::Chat) => "Current chat".into(),
+            Self::OpenTile(kind) => kind.label().into(),
             Self::Keys => "Keys and mouse".into(),
         }
     }
-    pub(super) fn shortcut(self) -> &'static str {
-        match self {
-            Self::NewThread => "⌘T",
-            Self::NewNote => "⌘N",
-            Self::Rewrite => "⌘⇧R",
-            Self::Save => "⌘S",
-            Self::Layout(Preset::Write) => "⌥1",
-            Self::Layout(Preset::Chat) => "⌥2",
-            Self::Layout(Preset::Solo) => "⌥3",
-            Self::OpenTile(TileKind::Threads) => "⌘\\",
-            Self::OpenTile(TileKind::Settings) => "⌘,",
-            Self::OpenTile(TileKind::Overview) => "⌘0",
-            _ => "",
-        }
+    /// The bound keystroke, shown in launcher rows with Kit's `Kbd`.
+    pub(super) fn keystroke(self) -> Option<&'static str> {
+        Some(match self {
+            Self::NewThread => "cmd-t",
+            Self::NewNote => "cmd-n",
+            Self::Rewrite => "cmd-shift-r",
+            Self::Save => "cmd-s",
+            Self::Layout(Preset::Write) => "alt-1",
+            Self::Layout(Preset::Chat) => "alt-2",
+            Self::Layout(Preset::Solo) => "alt-3",
+            Self::OpenTile(TileKind::Threads) => "cmd-\\",
+            Self::OpenTile(TileKind::Settings) => "cmd-,",
+            Self::OpenTile(TileKind::Overview) => "cmd-0",
+            _ => return None,
+        })
     }
     pub(super) fn all() -> Vec<Self> {
         let mut out = vec![Self::NewThread, Self::NewNote, Self::Rewrite, Self::Save];
@@ -511,6 +511,7 @@ impl Command {
                 TileKind::Note,
                 TileKind::Chat,
                 TileKind::Linked,
+                TileKind::Projects,
                 TileKind::History,
                 TileKind::Actions,
                 TileKind::Settings,
@@ -537,16 +538,32 @@ pub(super) enum LaunchItem {
     Command(Command),
 }
 impl LaunchItem {
+    /// The visible text; the group heading and kind icon name the kind.
     pub(super) fn label(&self) -> String {
+        match self {
+            Self::Thread { title, .. } | Self::Note { title, .. } => title.clone(),
+            Self::Command(command) => command.label(),
+        }
+    }
+    /// The announced name keeps the kind and the archived state.
+    pub(super) fn accessible_label(&self) -> String {
         match self {
             Self::Thread {
                 title, resolved, ..
             } => format!(
-                "chat · {title}{}",
+                "Chat: {title}{}",
                 if *resolved { " · archived" } else { "" }
             ),
-            Self::Note { title, .. } => format!("note · {title}"),
+            Self::Note { title, .. } => format!("Note: {title}"),
             Self::Command(command) => command.label(),
+        }
+    }
+    /// Results are ordered chats, notes, commands, so headings follow order.
+    pub(super) fn group(&self) -> &'static str {
+        match self {
+            Self::Thread { .. } => "Chats",
+            Self::Note { .. } => "Notes",
+            Self::Command(_) => "Commands",
         }
     }
 }
@@ -583,7 +600,7 @@ pub(super) fn launcher(query: &str, threads: &[ThreadRow], notes: &[NoteRow]) ->
         .map(thread)
         .chain(notes.iter().map(note))
         .chain(Command::all().into_iter().map(LaunchItem::Command))
-        .filter(|item| item.label().to_lowercase().contains(&query))
+        .filter(|item| item.accessible_label().to_lowercase().contains(&query))
         .take(LAUNCH_LIMIT)
         .collect()
 }
@@ -866,7 +883,16 @@ mod tests {
         let notes = note_rows(&records, &activity);
         let items = launcher("renewal", &threads, &notes);
         assert_eq!(items.len(), 2);
-        assert_eq!(items[0].label(), "chat · Renewal date · archived");
+        assert_eq!(items[0].label(), "Renewal date");
+        assert_eq!(items[0].accessible_label(), "Chat: Renewal date · archived");
+        assert_eq!(items[0].group(), "Chats");
+        assert_eq!(items[1].accessible_label(), "Note: Renewal contract");
+        assert_eq!(items[1].group(), "Notes");
+        assert_eq!(
+            launcher("archived", &threads, &notes),
+            [items[0].clone()],
+            "the archived state stays searchable"
+        );
         assert!(
             launcher("raba", &threads, &notes)
                 .contains(&LaunchItem::Command(Command::Theme(ThemeId::Raba)))
@@ -879,6 +905,39 @@ mod tests {
             "resolved stay out of recent"
         );
         assert!(empty.contains(&LaunchItem::Command(Command::NewThread)));
-        assert_eq!(Command::Layout(Preset::Chat).shortcut(), "⌥2");
+        assert_eq!(Command::Layout(Preset::Chat).keystroke(), Some("alt-2"));
+        assert_eq!(Command::Keys.keystroke(), None);
+    }
+
+    #[test]
+    fn launcher_commands_name_every_destination_including_projects() {
+        let labels: Vec<String> = Command::all().into_iter().map(Command::label).collect();
+        for destination in [
+            "Notes",
+            "Connections",
+            "All chats",
+            "Chats",
+            "Current note",
+            "Current chat",
+            "Linked work",
+            "Projects",
+            "Changes",
+            "Tasks",
+            "Settings",
+            "Home",
+        ] {
+            assert!(
+                labels.iter().any(|label| label == destination),
+                "{destination}"
+            );
+        }
+        assert!(
+            labels.iter().all(|label| !label.starts_with("Open tile:")),
+            "{labels:?}"
+        );
+        assert_eq!(
+            launcher("projects", &[], &[]),
+            [LaunchItem::Command(Command::OpenTile(TileKind::Projects))]
+        );
     }
 }
