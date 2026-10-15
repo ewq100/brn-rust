@@ -6,7 +6,7 @@ use gpui_kit::{
     Subscription, TestSupportExt, TextAlign, Window,
     base::{
         MarkdownExtensions, MarkdownNode, MarkdownParseContext, MarkdownPlugin, RangeHighlight,
-        TextView, TextViewState, TextViewStyle, markdown_ast::Node,
+        RenderedText, TextView, TextViewState, TextViewStyle, markdown_ast::Node,
     },
     canvas,
     component::input::{Editor, EditorState, InputEvent},
@@ -81,14 +81,44 @@ pub struct Measurement {
     pub serial: usize,
 }
 
+/// Synthetic record identity. Production must use the Store's comment record ID.
+#[derive(Clone, Debug)]
+pub struct SavedComment {
+    pub id: String,
+    /// Mirrors the current writing-comment list's resolved/addressed lifecycle.
+    pub addressed: bool,
+    pub comment: Comment,
+}
+pub fn fixture_comments(comments: Vec<Comment>) -> Vec<SavedComment> {
+    comments
+        .into_iter()
+        .enumerate()
+        .map(|(i, comment)| SavedComment {
+            id: format!("synthetic-comment-{i}"),
+            addressed: false,
+            comment,
+        })
+        .collect()
+}
+
+#[derive(Clone)]
+struct SelectedComment {
+    id: String,
+    comment: Comment,
+    note: String,
+    version: u64,
+    source: String,
+    snapshot: RenderedText,
+}
+
 pub struct Workshop {
     pub editor: Entity<EditorState>,
     pub reader: Entity<TextViewState>,
     pub note_id: String,
     pub version: u64,
     pub saved: String,
-    pub comments: Vec<Comment>,
-    pub active: Option<usize>,
+    pub comments: Vec<SavedComment>,
+    active: Option<SelectedComment>,
     pub unavailable: Option<Unavailable>,
     pub generation: u64,
     pub show_write: bool,
@@ -131,7 +161,7 @@ impl Workshop {
             note_id: "synthetic".into(),
             version: 1,
             saved: source.into(),
-            comments,
+            comments: fixture_comments(comments),
             active: None,
             unavailable: Some(Unavailable::NoComment),
             generation: 0,
@@ -150,10 +180,8 @@ impl Workshop {
             return;
         }
         self.seen_source = source.clone();
-        *self.pending_anchor.borrow_mut() = None;
+        self.clear_comment_anchor(cx);
         self.unavailable = Some(Unavailable::DirtyDocument);
-        self.measurement.borrow_mut().passage = None;
-        self.measurement.borrow_mut().card = None;
         self.reader.update(cx, |reader, cx| {
             reader.clear_range_start(cx);
             reader.clear_range_highlights(cx);
@@ -173,6 +201,7 @@ impl Workshop {
         self.reader.update(cx, |reader, cx| {
             reader.clear_range_start(cx);
             reader.clear_range_highlights(cx);
+            reader.clear_reveal(cx);
         });
         cx.notify();
     }
@@ -183,16 +212,9 @@ impl Workshop {
         reveal: bool,
         cx: &mut Context<Self>,
     ) -> Result<(), Unavailable> {
-        *self.pending_anchor.borrow_mut() = None;
-        self.measurement.borrow_mut().passage = None;
-        self.measurement.borrow_mut().card = None;
-        self.reader.update(cx, |r, cx| {
-            r.clear_range_start(cx);
-            r.clear_range_highlights(cx);
-        });
-        self.active = Some(index);
+        self.clear_comment_anchor(cx);
+        let text = self.reader.read(cx).rendered_text();
         let result = self.valid_range(index, cx).and_then(|range| {
-            let text = self.reader.read(cx).rendered_text();
             if text.source() != self.saved {
                 return Err(Unavailable::AwaitingLayout);
             }
@@ -221,6 +243,15 @@ impl Workshop {
             self.unavailable = Some(Unavailable::Unmapped);
             return Err(Unavailable::Unmapped);
         }
+        let record = &self.comments[index];
+        self.active = Some(SelectedComment {
+            id: record.id.clone(),
+            comment: record.comment.clone(),
+            note: self.note_id.clone(),
+            version: self.version,
+            source: self.saved.clone(),
+            snapshot: text,
+        });
         self.unavailable = Some(Unavailable::AwaitingLayout);
         cx.notify();
         Ok(())
@@ -230,7 +261,11 @@ impl Workshop {
         if self.editor.read(cx).value().as_ref() != self.saved {
             return Err(Unavailable::DirtyDocument);
         }
-        let comment = self.comments.get(index).ok_or(Unavailable::NoComment)?;
+        let record = self.comments.get(index).ok_or(Unavailable::NoComment)?;
+        if record.addressed {
+            return Err(Unavailable::NoComment);
+        }
+        let comment = &record.comment;
         if comment.note != self.note_id {
             return Err(Unavailable::WrongNoteOrVersion);
         }
@@ -238,9 +273,37 @@ impl Workshop {
             .map(|(a, b)| a..b)
             .ok_or(Unavailable::WrongNoteOrVersion)
     }
+
+    fn selected_comment(&self, cx: &App) -> Option<&SavedComment> {
+        let selected = self.active.as_ref()?;
+        if selected.note != self.note_id
+            || selected.version != self.version
+            || selected.source != self.saved
+            || selected.snapshot != self.reader.read(cx).rendered_text()
+            || selected.source != self.reader.read(cx).rendered_text().source()
+        {
+            return None;
+        }
+        let mut matches = self
+            .comments
+            .iter()
+            .enumerate()
+            .filter(|(_, c)| c.id == selected.id);
+        let (index, record) = matches.next()?;
+        if matches.next().is_some()
+            || record.comment != selected.comment
+            || self.valid_range(index, cx).is_err()
+        {
+            return None;
+        }
+        Some(record)
+    }
 }
 impl Render for Workshop {
     fn render(&mut self, _: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        if self.active.is_some() && (self.show_write || self.selected_comment(cx).is_none()) {
+            self.clear_comment_anchor(cx);
+        }
         {
             let mut frame = self.measurement.borrow_mut();
             *self.pending_anchor.borrow_mut() = None;
@@ -271,15 +334,14 @@ impl Render for Workshop {
                 .py_1()
                 .child("Read / Write")
                 .on_click(cx.listener(|this, _, _, cx| {
+                    this.clear_comment_anchor(cx);
                     this.show_write = !this.show_write;
                     cx.notify();
                 }))
                 .test_support(),
         );
         let pending = self.pending_anchor.clone();
-        let allowed = self
-            .active
-            .is_some_and(|index| self.valid_range(index, cx).is_ok());
+        let allowed = self.selected_comment(cx).is_some() && !self.show_write;
         let viewer = readable(&self.reader)
             .text_size(px(self.font_size))
             .on_range_start_layout(move |geometry, _, _| {
@@ -297,9 +359,8 @@ impl Render for Workshop {
         let frame = self.measurement.clone();
         let pending = self.pending_anchor.clone();
         let label: SharedString = self
-            .active
-            .and_then(|i| self.comments.get(i))
-            .map(|c| c.body.clone())
+            .selected_comment(cx)
+            .map(|c| c.comment.body.clone())
             .unwrap_or_else(|| "Select a comment".into())
             .into();
         let margin = canvas(

@@ -1,3 +1,10 @@
+> Historical qualification/handoff at `38e0c95`. The integration-review pass
+> reproduced five additional gaps and corrected the isolated reference. Use
+> [INTEGRATION-REVIEW.md](INTEGRATION-REVIEW.md) and
+> [PROPOSED-INTEGRATION.md](PROPOSED-INTEGRATION.md) for current review status,
+> patch identity, source/ownership blockers and pending production/native gates.
+> No C exists yet (owner reply); no production integration is approved.
+
 # Selected direction: one selected passage comment in Read
 
 Owner selected this direction on 15 October 2026: extend BRN's existing Read

@@ -1,6 +1,6 @@
 --- a/src/text/range_highlight.rs
 +++ b/src/text/range_highlight.rs
-@@ -1550,6 +1550,24 @@
+@@ -1550,6 +1550,39 @@
          })
      }
 
@@ -10,12 +10,27 @@
 +        range: &Range<usize>,
 +        now: Instant,
 +    ) -> Option<Self> {
-+        let (key, part) = text.index().resolve(range)?.into_iter().next()?;
++        let index = text.index();
++        let pieces = index.resolve(range)?;
++        let (mut key, part) = pieces.first()?.clone();
++        let mut offset = part.start;
++        // Hard line breaks have no shaped glyph. Skip them only INSIDE the
++        // exact covered leaf pieces; never borrow a character beyond range.
++        // A newline-only passage retains its no-glyph target and reports None.
++        for (piece_key, part) in pieces {
++            let leaf = index.leaves.iter().find(|leaf| leaf.key == piece_key)?;
++            let covered = &index.text[leaf.range.start + part.start..leaf.range.start + part.end];
++            if let Some((byte, _)) = covered
++                .char_indices()
++                .find(|(_, ch)| !matches!(ch, '\r' | '\n'))
++            {
++                key = piece_key;
++                offset = part.start + byte;
++                break;
++            }
++        }
 +        Some(Self {
-+            target: RevealTarget::Line {
-+                key,
-+                offset: part.start,
-+            },
++            target: RevealTarget::Line { key, offset },
 +            requested_at: now,
 +            report: Arc::default(),
 +            attempts: 0,
@@ -25,7 +40,7 @@
      pub(super) fn is_expired(&self, now: Instant) -> bool {
          now.saturating_duration_since(self.requested_at) > REVEAL_TIMEOUT
              || self.attempts >= REVEAL_ATTEMPTS
-@@ -1590,7 +1608,26 @@
+@@ -1590,7 +1623,26 @@
              key,
              offset,
              report: self.report.clone(),
@@ -52,7 +67,7 @@
      }
 
      /// Ends a frame with what the line reported, counting a frame in which
-@@ -1624,6 +1661,7 @@
+@@ -1624,6 +1676,7 @@
  /// that lays that text out.
  #[derive(Clone, Debug)]
  pub(crate) struct RevealRequest {
@@ -60,7 +75,7 @@
      key: TextLeafKey,
      offset: usize,
      report: Arc<Mutex<Option<RevealReport>>>,
-@@ -1643,6 +1681,7 @@
+@@ -1643,6 +1696,7 @@
          }
          RevealAt {
              offset: self.offset,
@@ -68,7 +83,7 @@
              report: self.report.clone(),
          }
          .rebase(start, end)
-@@ -1652,11 +1691,16 @@
+@@ -1652,11 +1706,16 @@
  /// The start of a pending reveal, in the byte space of one run of text.
  #[derive(Clone, Debug)]
  pub(crate) struct RevealAt {
@@ -85,7 +100,7 @@
      pub(crate) fn offset(&self) -> usize {
          self.offset
      }
-@@ -1665,6 +1709,7 @@
+@@ -1665,6 +1724,7 @@
      /// or `None` when it starts outside it.
      pub(crate) fn rebase(&self, start: usize, end: usize) -> Option<Self> {
          (start..end).contains(&self.offset).then(|| Self {
@@ -93,7 +108,7 @@
              offset: self.offset - start,
              report: self.report.clone(),
          })
-@@ -1675,6 +1720,7 @@
+@@ -1675,6 +1735,7 @@
      /// to its end.
      pub(crate) fn clamp(&self, start: usize, end: usize) -> Self {
          Self {
@@ -160,7 +175,17 @@
              selection_revision: 0,
              compatible_layout_update: false,
              layout_text_style: None,
-@@ -662,6 +665,53 @@
+@@ -500,6 +503,9 @@
+     }
+
+     fn increment_update(&mut self, text: &str, append: bool, cx: &mut Context<Self>) {
++        // Invalidate synchronously, including large asynchronous change/revert.
++        // A committed snapshot/source comparison alone cannot observe that race.
++        self.range_start_probe = None;
+         self.revision += 1;
+         if !append {
+             self.full_update_revision = self.revision;
+@@ -662,6 +668,61 @@
          Ok(())
      }
 
@@ -196,6 +221,14 @@
 +        cx.notify();
 +    }
 +
++    /// Cancel a pending explicit reveal without moving the viewport. Use when
++    /// its host-owned document/comment context is invalidated before painting.
++    /// Scrolling already completed in an earlier frame is not reversed.
++    pub fn clear_reveal(&mut self, cx: &mut Context<Self>) {
++        self.pending_reveal = None;
++        cx.notify();
++    }
++
 +    pub(super) fn begin_range_start_frame(&self) {
 +        if let Some((_, probe)) = &self.range_start_probe {
 +            probe.clear_report();
@@ -214,7 +247,7 @@
      /// Scroll the line `range` starts on into view, `range` indexing the
      /// current rendered text, as with [`Self::set_range_highlights`].
      ///
-@@ -1065,7 +1115,19 @@
+@@ -1065,7 +1126,19 @@
                  });
              }));
          }

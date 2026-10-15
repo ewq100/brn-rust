@@ -649,7 +649,7 @@ impl Fixture {
                 h.note_id = note.into();
                 h.version = 1;
                 h.saved = source.into();
-                h.comments = comments;
+                h.comments = fixture_comments(comments);
                 h.editor.update(cx, |e, cx| e.set_value(source, w, cx));
                 h.reader.update(cx, |r, cx| {
                     r.clear_selection(cx);
@@ -948,4 +948,217 @@ fn coupled_editor_store_witness_preserves_clean_dirty_generation_save_and_durabl
         "coupled witness: clean display/reveal/resize/clear -> no Change, no session, no revision/receipt; typing positive control -> persisted generation {}; dirty display -> same text/generation/recovery; stale Save refused, explicit Save/replay/durable Undo passed",
         dirty.generation
     );
+}
+
+#[gpui_kit::test]
+fn selected_comment_removal_reorder_and_resolution_are_identity_bound(cx: &mut TestAppContext) {
+    let (source, comments) = demo_source();
+    let f = Fixture::new(cx, &source, comments, 850., 310.);
+    f.select(0, false, cx).unwrap();
+    let first = aligned(&f.measure(cx));
+    f.host.update(cx, |h, cx| {
+        h.comments.swap(0, 1);
+        cx.notify();
+    });
+    f.frames(cx);
+    assert_eq!(
+        aligned(&f.measure(cx)),
+        first,
+        "reorder retains the selected record, not its old index"
+    );
+    f.host.update(cx, |h, cx| {
+        h.comments.remove(1);
+        cx.notify();
+    });
+    f.frames(cx);
+    assert!(
+        f.measure(cx).card.is_none(),
+        "removed selected record cannot borrow another record's passage"
+    );
+    f.select(0, true, cx).unwrap();
+    aligned(&f.measure(cx));
+    f.host.update(cx, |h, cx| {
+        h.comments[0].addressed = true;
+        cx.notify();
+    });
+    f.frames(cx);
+    assert!(
+        f.measure(cx).card.is_none(),
+        "addressed/resolved selected comment is unavailable"
+    );
+}
+
+#[gpui_kit::test]
+fn clearing_before_first_reveal_frame_cancels_scroll_in_identical_document(
+    cx: &mut TestAppContext,
+) {
+    let (source, comments) = demo_source();
+    let f = Fixture::new(cx, &source, comments, 850., 310.);
+    let before = f.top(cx);
+    f.host.update(cx, |h, cx| {
+        h.select_comment(1, true, cx).unwrap();
+        h.clear_comment_anchor(cx);
+        h.note_id = "identical-document-B".into();
+        h.reader.update(cx, |r, cx| r.set_text(&source, cx));
+    });
+    f.frames(cx);
+    assert_eq!(
+        f.top(cx),
+        before,
+        "a cancelled comment's pending reveal must not scroll the new document"
+    );
+    assert!(f.measure(cx).card.is_none());
+}
+
+#[gpui_kit::test]
+fn large_async_source_change_revert_cannot_revive_probe(cx: &mut TestAppContext) {
+    let source = format!(
+        "**target**\n\n{}",
+        "large synthetic paragraph. ".repeat(250)
+    );
+    assert!(source.len() > 4096);
+    let f = Fixture::new(
+        cx,
+        &source,
+        vec![synthetic_comment(
+            &source,
+            last(&source, "target"),
+            "target",
+        )],
+        850.,
+        500.,
+    );
+    f.select(0, false, cx).unwrap();
+    aligned(&f.measure(cx));
+    let reader = f.reader(cx);
+    let snapshot = reader.read_with(cx, |r, _| r.rendered_text());
+    cx.update_window(f.window, |_, w, cx| {
+        reader.update(cx, |r, cx| {
+            r.set_text(&format!("changed {source}"), cx);
+            r.set_text(&source, cx);
+            assert_eq!(
+                r.rendered_text(),
+                snapshot,
+                "both large parses are still uncommitted"
+            );
+        });
+        w.render_frame(cx);
+    })
+    .unwrap();
+    assert!(
+        f.measure(cx).passage.is_none(),
+        "transient mutation invalidates synchronously before any background parse commits"
+    );
+    f.frames(cx);
+    assert!(f.measure(cx).card.is_none());
+}
+
+#[gpui_kit::test]
+fn clean_read_write_read_round_trip_clears_selected_anchor(cx: &mut TestAppContext) {
+    let source = "A **target** passage.";
+    let f = Fixture::new(
+        cx,
+        source,
+        vec![synthetic_comment(source, last(source, "target"), "target")],
+        850.,
+        500.,
+    );
+    f.select(0, false, cx).unwrap();
+    aligned(&f.measure(cx));
+    f.click("write-toggle", cx);
+    assert!(f.measure(cx).card.is_none());
+    f.click("write-toggle", cx);
+    assert!(
+        f.measure(cx).card.is_none(),
+        "returning to Read requires a new explicit selection"
+    );
+    assert_eq!(f.text(cx), source);
+    assert_eq!(f.host.read_with(cx, |h, _| h.generation), 0);
+}
+
+#[gpui_kit::test]
+fn hard_newline_plus_text_uses_first_covered_glyph_only(cx: &mut TestAppContext) {
+    let source = "hello  \nworld";
+    let newline = source.find('\n').unwrap();
+    let word = source.find("world").unwrap();
+    let f = Fixture::new(
+        cx,
+        source,
+        vec![
+            synthetic_comment(source, word..source.len(), "word"),
+            synthetic_comment(source, newline..source.len(), "newline plus word"),
+            synthetic_comment(source, newline..newline + 1, "newline only"),
+        ],
+        850.,
+        500.,
+    );
+    f.select(0, false, cx).unwrap();
+    let world = aligned(&f.measure(cx));
+    f.select(1, false, cx).unwrap();
+    assert_eq!(
+        aligned(&f.measure(cx)),
+        world,
+        "first covered actual glyph is w, inside the exact passage"
+    );
+    f.select(2, false, cx).unwrap();
+    assert!(
+        f.measure(cx).card.is_none(),
+        "newline-only passage cannot borrow w outside its range"
+    );
+}
+
+#[gpui_kit::test]
+fn rejected_replacement_selection_cancels_previous_reveal(cx: &mut TestAppContext) {
+    let (source, comments) = demo_source();
+    let f = Fixture::new(cx, &source, comments, 850., 310.);
+    let before = f.top(cx);
+    f.host.update(cx, |h, cx| {
+        h.select_comment(1, true, cx).unwrap();
+        assert_eq!(h.select_comment(99, true, cx), Err(Unavailable::NoComment));
+    });
+    f.frames(cx);
+    assert_eq!(f.top(cx), before);
+    assert!(f.measure(cx).card.is_none());
+}
+
+#[gpui_kit::test]
+fn changed_version_or_record_payload_drops_anchor_without_edit(cx: &mut TestAppContext) {
+    let source = "First **target** then **target**.";
+    let f = Fixture::new(
+        cx,
+        source,
+        vec![synthetic_comment(source, last(source, "target"), "target")],
+        850.,
+        500.,
+    );
+    f.select(0, false, cx).unwrap();
+    aligned(&f.measure(cx));
+    f.host.update(cx, |h, cx| {
+        h.version = 2;
+        cx.notify();
+    });
+    f.frames(cx);
+    assert!(
+        f.measure(cx).card.is_none(),
+        "same-source version switch clears selection"
+    );
+    f.host.update(cx, |h, cx| {
+        h.version = 1;
+        cx.notify();
+    });
+    f.frames(cx);
+    assert!(
+        f.measure(cx).card.is_none(),
+        "restoring a version cannot revive a cleared anchor"
+    );
+    f.select(0, false, cx).unwrap();
+    aligned(&f.measure(cx));
+    f.host.update(cx, |h, cx| {
+        h.comments[0].comment.body = "changed record at the same ID".into();
+        cx.notify();
+    });
+    f.frames(cx);
+    assert!(f.measure(cx).card.is_none());
+    assert_eq!(f.text(cx), source);
+    assert_eq!(f.host.read_with(cx, |h, _| h.generation), 0);
 }

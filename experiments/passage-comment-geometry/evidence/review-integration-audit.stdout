@@ -1,0 +1,37 @@
+{
+  "checked_utc": "2026-10-15T17:45:12.585318+00:00",
+  "head_at_check": "38e0c95fd46e8ee96f5397d7f66e08662315e974",
+  "branch": "work/passage-comment-geometry",
+  "baseline": "7e9d0376d677ed2a46bdbcd8933f55f9e1746a02",
+  "freshly_fetched_origin_main": "8bef439b133e91ad68b0b76792bcd155d3d06237",
+  "production_and_guidance_objects_match_fetched_main": {
+    "AGENTS.md": true,
+    "Cargo.toml": true,
+    "Cargo.lock": true,
+    "rust-toolchain.toml": true,
+    "crates/brn-desktop": true,
+    "crates/brn-threads-core": true,
+    "crates/brn-threads-app": true
+  },
+  "original_z1_unchanged_and_clean": "b9bd1a14862fe2efe246790e887797c949f13c50",
+  "all_changed_and_untracked_paths_in_experiment": true,
+  "tracked_vendor_files": [],
+  "production_manifest_or_lock_changes": [],
+  "toolkit_patch_sha256": "de6dcb320028f4d1848a44c3b2141fc87cd8edd7d23adb930500e4f40839b6d4",
+  "applied_patch_reproduces_tested_sources": {
+    "src/text/range_highlight.rs": "72d87179f9bfeb336fbeeed56b622b6d446976892b10e727a9498071451f84f4",
+    "src/text/inline.rs": "4ab9e17d839ce4a8b9d3d525aa769071a1efcb8d6f12aea4706ed786952d01f7",
+    "src/text/state.rs": "24241fec5dcee897baaf4f78cb47452423eb047a1bbcb24e141cf37c42b50f3a",
+    "src/text/text_view.rs": "55eb5fa90214802c209de6ef1d2bafdd324ec832e11c40bc951833503ed2e25c"
+  },
+  "macos": "27.0.1",
+  "console_session_flags": [
+    {
+      "CGSSessionScreenIsLocked": true
+    }
+  ],
+  "c_owner_response": "no c yet",
+  "c_confirmed_integration_ref": null,
+  "approved_production_toolkit_source": null,
+  "production_integration_commit": null
+}
