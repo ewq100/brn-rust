@@ -1,6 +1,6 @@
 # Commands and reproduction
 
-Commands ran on 15 October 2026. Worktree: `/Users/evokessler/Documents/Codex/brn-rust/.worktrees/x1-xberg`. Every relative path below is from that worktree. All Cargo invocations used the existing 1.98.1 binaries and `CARGO_TARGET_DIR=/private/tmp/brn-x1-target` (except harmless metadata/tree invocations where the variable has no build effect). No root Cargo command was run.
+Qualification commands ran on 15 October 2026 at `/Users/evokessler/Documents/Codex/brn-rust/.worktrees/x1-xberg`. The current worktree is `/Users/evokessler/repos/brn-rust/.worktrees/x1-xberg`, created in a fresh clone after the owner selected that location. Captured command paths preserve the original execution location; relative reproduction commands work from the current worktree. All Cargo invocations used the existing 1.98.1 binaries and `CARGO_TARGET_DIR=/private/tmp/brn-x1-target` (except harmless metadata/tree invocations where the variable has no build effect). No root Cargo command was run.
 
 ## Preflight and source reads
 
@@ -80,3 +80,18 @@ git status --short
 ```
 
 The experiment includes direct deterministic checks instead of adding production tests. No BRN workspace/native UI/provider test, deliberate package installation, push, PR, merge or gate-3 design was run. The unintended default-stable acquisition is disclosed above.
+
+## Owner-selected fresh-clone location
+
+After qualification, the owner's answer selected a fresh clone at the originally requested path. These commands created it and transferred the existing local commit without a push:
+
+```sh
+git clone https://github.com/ewq100/brn-rust.git /Users/evokessler/repos/brn-rust
+cd /Users/evokessler/repos/brn-rust
+git fetch --no-tags /Users/evokessler/Documents/Codex/brn-rust refs/heads/work/x1-xberg:refs/heads/work/x1-xberg
+git worktree add .worktrees/x1-xberg work/x1-xberg
+cd /Users/evokessler/repos/brn-rust/.worktrees/x1-xberg
+python3 experiments/x1-xberg/check_inventory.py
+```
+
+The fresh clone has its own Git object store (no alternates); its only configured remote is the original GitHub origin. `/.worktrees/` was added only to the fresh clone's local `.git/info/exclude`. All 132 transferred experiment files were compared byte-for-byte with the preserved checkout before documentation changes; recorded source hashes and fixture inventories passed again. See [relocation evidence](evidence/relocation.md). Build/PDF extraction benchmarks were not repeated or relabeled; the original snapshot and gate evidence remain unchanged. Only location documentation and relocation verification records were added in the new worktree.

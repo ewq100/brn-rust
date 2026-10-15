@@ -14,3 +14,7 @@
 - Independent plan/evidence reviews approved; four small evidence/checker findings corrected and independently verified. See final-review.md.
 
 Git scope and staged whitespace verification passed before the local commit: every staged path is under experiments/x1-xberg. The local .gitattributes exempts only raw Poppler page text, build logs and the copied build-script source from whitespace diagnostics, preserving their original bytes. Authored scripts and report retain ordinary whitespace checking.
+
+## Fresh-clone verification
+
+The owner subsequently selected `/Users/evokessler/repos/brn-rust`. The fresh clone's `.worktrees/x1-xberg` contains the exact original local X1 commit and unchanged qualification snapshot. Before documentation edits, all 132 transferred experiment files were byte-identical to the preserved checkout. Recorded source hashes and `check_inventory.py` passed at the new location; relocation-checks.log records the check output. Original benchmark/extraction evidence was preserved. See relocation.md for setup and scope details.
