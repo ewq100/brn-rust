@@ -951,7 +951,7 @@ fn tab_to(cx: &mut TestAppContext, f: &Fixture, id: &str) -> bool {
     })
 }
 
-/// S6-R6: Home's rows are not Tab stops, so every Home item keeps a
+/// Home's rows are not Tab stops, so every Home item keeps a
 /// keyboard route: a note and its kept edit through ⌘K, a review through
 /// the needs-you badge to its chat and then Tab into the chat's review
 /// card, and a change through ⌘K Changes and its Undo buttons.

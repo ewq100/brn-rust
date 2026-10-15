@@ -1307,6 +1307,13 @@ fn settings_and_solo_restore_arrangement_and_preserve_dirty_input(cx: &mut TestA
     click(cx, &f, "settings");
     on_window(cx, &f, |window, cx| {
         assert!(window.find("settings-surface").visible());
+        // Settings is headed like a panel: 6 px gap, hairline, 36 px header.
+        let surface = window.find("settings-surface").bounds();
+        let body = window.find("tile-body-settings").bounds();
+        let header = f32::from(body.top() - surface.top());
+        assert!((42. ..=45.).contains(&header), "settings header {header}");
+        let done = window.find("close-settings").bounds();
+        assert!(done.top() > surface.top() && done.bottom() < body.top());
         assert!(window.try_find("note-body").is_none());
         assert!(
             !f.view

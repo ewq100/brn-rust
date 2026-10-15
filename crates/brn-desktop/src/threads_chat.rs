@@ -3,6 +3,7 @@ use super::shell::pill;
 use super::*;
 use gpui_kit::Focusable;
 use gpui_kit::component::message_scroller::{MessageScroller, MessageScrollerState};
+use gpui_kit::component::{Icon, Sizable, Size};
 
 pub(super) struct ChatScroller {
     pub state: Entity<MessageScrollerState>,
@@ -48,7 +49,7 @@ impl ThreadsUi {
         let worker = self.worker.as_ref().filter(|_| active);
         let status = worker.map_or_else(
             || format!("Activity · {}", self.run_activity_status),
-            |worker| format!("◌ {}", self.worker_status(worker)),
+            |worker| self.worker_status(worker),
         );
         let line = div()
             .id("run-line")
@@ -60,6 +61,15 @@ impl ThreadsUi {
             .text_size(SMALL_TEXT)
             .text_color(rgb(pal().muted))
             .aria_label(status.clone())
+            // Running work shows the status bar's LoaderCircle, not a glyph.
+            .when(worker.is_some(), |line| {
+                line.child(
+                    Icon::new(IconName::LoaderCircle)
+                        .with_size(Size::XSmall)
+                        .flex_shrink_0()
+                        .text_color(rgb(pal().info)),
+                )
+            })
             .child(status)
             .when(worker.is_some(), |line| {
                 line.child(
@@ -101,7 +111,8 @@ impl ThreadsUi {
             .gap_2()
             .p_2()
             .border_1()
-            .border_color(rgb(pal().border))
+            .border_color(rgb(pal().hairline))
+            .rounded(components::tokens::RADIUS_CONTROL)
             .bg(rgb(pal().alt))
             .child(subheading("Activity"))
             .child(steps)

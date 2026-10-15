@@ -22,7 +22,7 @@ pub(super) use gpui_kit::assets::IconName;
 /// Spacing scale, bar heights, control heights and radii.
 #[allow(
     dead_code,
-    reason = "the scale is complete; later slices adopt the rest"
+    reason = "the spacing scale stays complete; 12 and 32 px have no user yet"
 )]
 pub(super) mod tokens {
     use gpui_kit::{Pixels, px};

@@ -467,6 +467,13 @@ fn quiet_toggle_removes_activity_from_every_live_status_without_changing_work(
                 .contains("Reading a note passage")
         );
         assert!(window.find("run-activity").visible());
+        // The live line names the status beside an icon, as the status bar does.
+        assert!(
+            window
+                .find("run-line")
+                .label()
+                .is_some_and(|label| label.starts_with("Reading a note passage"))
+        );
         assert_eq!(
             window.find("run-activity-step-0").label(),
             Some("Finding current notes…")

@@ -1,4 +1,4 @@
-//! Review bar and comment placement journeys (S4) on synthetic data with
+//! Review bar and comment placement journeys on synthetic data with
 //! the headless GPUI harness. Pixels and pointer feel remain native checks.
 use super::layout::{MarginMode, ReviewFit};
 use super::polish_tests::{
@@ -1546,7 +1546,7 @@ fn a_failed_run_and_open_comments_leave_the_text_120_px_at_900x600(cx: &mut Test
     });
 }
 
-/// S3-R1 and S4-R7: the banner stack has a budget. At 900×600 with a stale
+/// The banner stack has a budget. At 900×600 with a stale
 /// edit (its banner and the saved version), a wrapped failed-run status,
 /// the partial reply, a two-line writing bar and the stacked comments open,
 /// no banner is painted over the text, the text keeps 120 px and the

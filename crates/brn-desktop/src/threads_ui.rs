@@ -334,7 +334,7 @@ fn default_copilot_credentials_dir() -> std::io::Result<PathBuf> {
         .create(&parent)?;
     Ok(parent.join("copilot"))
 }
-const TOP_BAR_HEIGHT: gpui_kit::Pixels = px(38.);
+const TOP_BAR_HEIGHT: gpui_kit::Pixels = components::tokens::TITLE_BAR;
 fn top_bar_window_options() -> WindowOptions {
     let mut options = TitleBar::window_options();
     if let Some(titlebar) = options.titlebar.as_mut() {

@@ -70,7 +70,11 @@ pub(super) fn item(
 }
 
 pub(super) fn pill(id: impl Into<gpui_kit::ElementId>, label: impl Into<SharedString>) -> Button {
-    button(id).label(label).compact().ghost().h(px(28.))
+    button(id)
+        .label(label)
+        .compact()
+        .ghost()
+        .h(tokens::COMPACT_CONTROL)
 }
 
 /// Collapses whitespace so a title renders on one line; the element
@@ -917,13 +921,15 @@ impl ThreadsUi {
     }
     fn settings_surface(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         let p = pal();
+        // Framed and headed like a panel: hairline outline, panel radius and
+        // a 36 px header with the kind icon and a semibold title.
         div()
             .id("settings-surface")
             .flex()
             .flex_1()
             .min_h_0()
             .justify_center()
-            .p_2()
+            .p(px(layout::PANEL_GAP))
             .bg(rgb(p.paper))
             .child(
                 div()
@@ -935,17 +941,36 @@ impl ThreadsUi {
                     .min_h_0()
                     .bg(rgb(p.tile))
                     .border_1()
-                    .border_color(rgb(p.border))
+                    .border_color(rgb(p.hairline))
+                    .rounded(tokens::RADIUS_PANEL)
+                    .overflow_hidden()
                     .child(
                         div()
                             .flex()
+                            .flex_shrink_0()
                             .items_center()
-                            .gap_2()
-                            .px_3()
-                            .py_2()
+                            .gap_1()
+                            .h(tokens::PANEL_HEADER)
+                            .px_2()
+                            .font_family(UI_FONT)
+                            .text_size(UI_TEXT)
                             .border_b_1()
-                            .border_color(rgb(p.border))
-                            .child(div().flex_1().child("Settings"))
+                            .border_color(rgb(p.hairline))
+                            .child(
+                                Icon::new(kind_icon(TileKind::Settings))
+                                    .with_size(Size::Small)
+                                    .flex_shrink_0()
+                                    .text_color(rgb(p.muted)),
+                            )
+                            .child(
+                                div()
+                                    .flex_1()
+                                    .min_w_0()
+                                    .truncate()
+                                    .text_color(rgb(p.ink))
+                                    .font_weight(gpui_kit::FontWeight::SEMIBOLD)
+                                    .child("Settings"),
+                            )
                             .child(pill("close-settings", "Done · Esc").on_click(cx.listener(
                                 |view, _, window, cx| {
                                     view.relayout(window, cx, |layout| {
