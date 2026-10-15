@@ -1,16 +1,25 @@
-# X1 — Xberg PDF qualification, gates 1–2
+# X1 — Xberg PDF qualification, gates 1–3
 
-**Decision: proceed to gate 3, limited to integration design inside the existing restricted helper.** Gates 1 and 2 pass for the two maintained synthetic PDF fixtures. Xberg provides local text, page rasters and embedded images without pdfium or model/native downloads. Its raw text order differs on one table; an explicit complete source-line permutation is needed to preserve the independently checked row associations. This report does not authorize or implement production integration.
+**Decision: bounded adaptation proposed; gate-3 written design delivered in [DESIGN.md](DESIGN.md).** Gates 1 and 2 pass for the two maintained synthetic PDF fixtures. Xberg provides local text, page rasters and embedded images without pdfium or model/native downloads. Its raw text order differs on one table; an explicit complete source-line permutation is needed to preserve the independently checked row associations. Production integration remains pending and requires `work/daily-workflow-reliability` to land, C0, C's file allocation and explicit owner approval. This report does not authorize or implement it.
 
 | Gate | Status | Evidence |
 |---|---|---|
 | 1 — dependency graph/build | **passed** | Defaults disabled; locked offline release build with network denied; native-source/build-script audit; no ORT/OCR/pdfium/model graph; linked-library, size and license records. Build timings are **provisional** because a separate Z1 build overlapped. |
 | 2 — PDF prepared evidence | **passed, bounded to these fixtures** | Five page-bound text outputs and rasters; both embedded images pixel-identical to Poppler; independent prose/table/figure/scan source inspection. Process page 2 needs a complete unchanged-line reordering receipt. |
-| 3 — integration design | **pending** | Outside this assignment. No production helper, schema, provider, app or root dependency changes. |
+| 3 — integration design | **passed — written design delivered** | Owner's continuation authorizes [DESIGN.md](DESIGN.md) only. Exact helper containment, resource enforcement, combined graph, real Luna and host acceptance remain pending integration gates. No production changes or owner acceptance claimed. |
+
+## Gate-3 prerequisite confirmation — 15 October 2026
+
+**Gate 2 passed on both maintained PDF fixtures without `pdf-pdfium`, OCR or any download during PDF extraction, rasterization or evidence checking.** The saved graph enables only `pdf` and its required closure; the actual runs explicitly disable OCR and caches and use the native renderer under network-denied restrictions. This confirmation was rechecked before starting the written gate-3 design.
+
+Source-inventory verification covers **per-page source lines and reading order** (including the explicit complete unchanged-line permutation for process page 2), **all five page previews**, and **both embedded images** with exact decoded RGB pixels and page associations. Harbor uses its existing 19-item inventory; the process fixture uses the existing source QA plus the hand-checked exact inventory. The raw process-table order difference remains visible and is not a raw-order-equivalence claim. Scans retain empty native text and require the existing explicit Luna stage.
+
+This no-download finding is specific to gate-2 execution. Normal pinned Cargo acquisition in gate 1 and the unintended preflight stable-toolchain installation remain disclosed below; neither is relabeled as a download-free activity. No new build, extraction, provider call or download was performed for this confirmation.
 
 ## Authority, snapshot and isolation
 
 - Owner override: **15 October 2026**, X1 gates 1–2 may run before the stored overlapping-branch release condition. No C0 or broader program start is claimed.
+- Owner continuation: **15 October 2026**, gate 3 is a written integration design only, confined to this experiment and committed locally. Production still waits for `work/daily-workflow-reliability` to land, C0 and owner approval. This does not release either overlapping branch's file ownership.
 - Fetched `origin/main` and worktree starting SHA: **`7e9d0376d677ed2a46bdbcd8933f55f9e1746a02`** (PR147). Required current AGENTS/status/pack reads were completed at this SHA; master-plan sections 8/A2 and 11 and the final intake prompt governed the qualification.
 - Branch: **`work/x1-xberg`**, created from `origin/main`. **Current worktree: `/Users/evokessler/repos/brn-rust/.worktrees/x1-xberg`**, in a fresh clone of `https://github.com/ewq100/brn-rust.git`, following the owner's location choice. The original qualification ran at `/Users/evokessler/Documents/Codex/brn-rust/.worktrees/x1-xberg` while the location question was pending. Its local commit **`f6092462065a6d614fe337f7a2639ca2e75b55a4`** was fetched into the new clone without pushing; all 132 experiment files transferred byte-for-byte. Historical absolute paths in captured evidence intentionally retain the original execution location. The old checkout is preserved. See the [relocation record](evidence/relocation.md).
 - All task files are under **`experiments/x1-xberg/`** in that worktree. The experiment has its own Cargo.toml, Cargo.lock and empty `[workspace]`; the root manifest/lock and production sources are unchanged. The main checkout's untracked experiment material was not used. Neither named overlapping branch nor its worktree was modified.
@@ -126,6 +135,24 @@ All five native rasters rendered at **150 DPI (1275×1650)** through **`PdfRende
 
 Encoded PNG bytes/sizes differ because compression differs; decoded dimensions and every RGB pixel agree. Full names, encoded hashes, page/bounds metadata and comparisons are in [comparison.json](evidence/comparison.json) and the fixture `xberg/result.json` files. Page preview hashes/line diffs and five visual pairs are under [Harbor evidence](evidence/harbor-study/) and [process evidence](evidence/process-scan/).
 
+## Gate 3 — written integration design
+
+[DESIGN.md](DESIGN.md) traces both existing PDF routes and proposes the exact `xberg =1.3.10`, defaults-off, PDF-only dependency inside `brn-intake`'s optional helper feature. It retains schemas 1/2 and the explicit Luna/receipt/crop/checked-save stage, replaces all three Poppler executables without fallback, and lists proposed production files, costs, limits, cancellation, cleanup, errors, acceptance tests and rollback. The design includes a transient schema-1 root-byte echo required by its existing validator; original bytes must still be discarded before retained output.
+
+The exact production helper profile is stricter than the gate-2 harness, especially its font and file allowances. Native PDF behavior under that profile, pre-allocation/expansion enforcement and hard RSS remain unqualified. These are explicit cutover gates, not passed security claims. The existing `PreparedGap` projection treats gaps as limitations, so the proposed adapter refuses missing/damaged evidence rather than hiding substantive omissions there. Source-line reordering stays with the existing complete receipt mechanism, with no fixture permutation hardcoded into production.
+
+Gate 3 used read-only source/evidence inspection and documentation changes. The selected lead configuration was retained; no delegated work, build slots, new extraction, dependency acquisition, provider/model call or UI work was used. Stop/reassessment conditions were a false gate-2 prerequisite or a need to change production scope; neither was needed to deliver the conditional written design. Independent reviews linked elsewhere in this report concern gates 1–2; this design received a source-grounded lead review only.
+
+Documentation verification commands (run from the current X1 worktree):
+
+```sh
+git diff --check
+/Users/evokessler/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 scripts/check-markdown-links.py
+git status --short
+```
+
+Local links and whitespace checks passed. No production tests/builds were run for this documentation-only continuation; DESIGN.md labels future integration commands and live/native gates as pending.
+
 ## Residual risks and disposition
 
 | Risk or unqualified area | Consequence / next requirement |
@@ -139,6 +166,6 @@ Encoded PNG bytes/sizes differ because compression differs; decoded dimensions a
 | Cost and licenses | ~35.25 MiB stripped harness delta, a broad transitive graph, MPL-2.0 package and bundled-font notices merit later packaging review. Provisional timings require an uncontended benchmark if used for a performance decision. |
 | C0/new baseline | C0 does not yet supply an integration ref for this experiment. Reconcile root graph, source contracts and fixtures against that ref before relying on these results for integration. |
 
-**Recommendation:** proceed to **gate 3 design only**, preserving the current restricted helper and schema-2 source/preview/receipt contracts. These deterministic results justify investigating removal of the external Poppler prerequisite; they do not justify cutover, expanded parser scope, an optional PDF/OCR/model feature or any pin upgrade. The writing milestone and overlapping work remain independent.
+**Recommendation:** retain the completed **gate-3 design** as a bounded adaptation proposal for a separate integration slice, preserving the current restricted helper and source/preview/receipt contracts. Production integration waits for `work/daily-workflow-reliability` to land, C0 and explicit owner approval, and must pass the pending DESIGN.md gates. No cutover, expanded parser scope, optional PDF/OCR/model feature or pin upgrade is authorized. The writing milestone and overlapping work remain independent.
 
-Formatting, strict experiment Clippy and deterministic source-inventory checks passed; the [final verification](evidence/verification.md) and [independent evidence review](evidence/final-review.md) record the results and resolved findings. Local commit only; pushing requires the owner's separate instruction.
+For gates 1–2, formatting, strict experiment Clippy and deterministic source-inventory checks passed; the [final verification](evidence/verification.md) and [independent evidence review](evidence/final-review.md) record those results and resolved findings. Gate 3 has the documentation checks above only. Local commit only; no push, PR or merge.
