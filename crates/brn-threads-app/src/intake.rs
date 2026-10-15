@@ -30,7 +30,9 @@ impl Workspace {
     /// The chat for useful intake of `locator`: the most recent open chat in
     /// the same scope (`project`, or general when `None`) whose Run already
     /// received this source, so a retry or re-supply lands beside the earlier
-    /// outcome. Otherwise a new chat titled `title`. `true` means reused.
+    /// outcome. A chat whose Working Run is still live in some process is
+    /// skipped, because the next Run there would interrupt it. Otherwise a new
+    /// chat titled `title`. `true` means reused.
     pub fn source_intake_chat(
         &mut self,
         project: Option<&str>,
@@ -62,6 +64,19 @@ impl Workspace {
                     }
                 }
             }
+            // `begin()` interrupts every Working Run in its chat. Skip a chat
+            // whose Working Run still holds its lease; an orphaned one (lease
+            // free) does not block reuse, as the next Run there recovers it.
+            // Unknown liveness counts as live.
+            let derived = self.store.derived_directory().ok();
+            let busy = |chat: &str| {
+                records.iter().any(|r| {
+                    matches!(&r.data, RecordData::Run(run) if run.thread == chat && run.state == RunState::Working)
+                        && derived
+                            .as_deref()
+                            .is_none_or(|d| brn_ai::run_lease::run_is_live(d, &r.id))
+                })
+            };
             let reused = records
                 .iter()
                 .filter_map(|r| match &r.data {
@@ -76,6 +91,7 @@ impl Workspace {
                             && !r.archived
                             && matches!(&r.data, RecordData::Thread(t) if t.state == ThreadState::Open)
                     }) && project_for_chat(&records, chat).map(|p| p.id.as_str()) == project
+                        && !busy(chat)
                 })
                 .max_by_key(|(position, _)| *position)
                 .and_then(|(_, chat)| records.iter().find(|r| r.id == *chat));

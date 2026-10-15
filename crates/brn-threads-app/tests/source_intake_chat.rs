@@ -44,9 +44,8 @@ fn project(workspace: &mut Workspace, title: &str) -> String {
         .id
 }
 
-/// One useful intake run of the synthetic email in `chat`.
-async fn supply(data: &std::path::Path, chat: &str) {
-    let prepared = prepare_run(ThreadRunRequest {
+fn request(data: &std::path::Path, chat: &str) -> ThreadRunRequest {
+    ThreadRunRequest {
         request_message: None,
         queue_claim: None,
         owner_request: None,
@@ -67,8 +66,12 @@ async fn supply(data: &std::path::Path, chat: &str) {
         )],
         search: None,
         trace: brn_ai::threads::TraceLevel::Off,
-    })
-    .unwrap();
+    }
+}
+
+/// One useful intake run of the synthetic email in `chat`.
+async fn supply(data: &std::path::Path, chat: &str) {
+    let prepared = prepare_run(request(data, chat)).unwrap();
     let model = MockCompletionModel::from_stream_turns([vec![
         MockStreamEvent::text("Recorded."),
         MockStreamEvent::final_response_with_total_tokens(1),
@@ -129,4 +132,49 @@ async fn the_same_source_reuses_its_chat_per_scope_and_never_an_archived_or_fore
         .source_intake_chat(Some("missing"), LOCATOR, TITLE)
         .unwrap_err();
     assert!(missing.to_string().contains("active project"), "{missing}");
+}
+
+fn run(workspace: &Workspace, id: &str) -> Run {
+    match workspace.store.record(id).unwrap().unwrap().data {
+        RecordData::Run(run) => run,
+        _ => panic!("Run"),
+    }
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn a_chat_whose_run_is_still_live_is_not_reused_until_its_lease_is_free() {
+    let (_root, data, mut w) = workspace();
+    let (original, _) = w.source_intake_chat(None, LOCATOR, TITLE).unwrap();
+    supply(&data, &original.id).await;
+    // Another process is still working on this source there: its prepared
+    // Run is Working and holds the lease through its own file handle.
+    let live = prepare_run(request(&data, &original.id)).unwrap();
+    let live_id = live.run_id().to_owned();
+    let before = run(&w, &live_id);
+    assert_eq!(before.state, RunState::Working);
+
+    // Before: the original chat was reused and `begin()` fenced the live Run.
+    let (other, reused) = w.source_intake_chat(None, LOCATOR, TITLE).unwrap();
+    supply(&data, &other.id).await;
+    let after = run(&w, &live_id);
+    assert_eq!(
+        (after.state, after.fence),
+        (RunState::Working, before.fence),
+        "the live Run is not interrupted"
+    );
+    assert!(!reused);
+    assert_ne!(other.id, original.id);
+
+    // Once its process lets go, the orphan no longer blocks reuse, and the
+    // next Run there interrupts it as Continue does.
+    drop(live);
+    w.archive_chat("archive-other", &other.id).unwrap();
+    let (again, reused) = w.source_intake_chat(None, LOCATOR, TITLE).unwrap();
+    assert_eq!((again.id.as_str(), reused), (original.id.as_str(), true));
+    supply(&data, &original.id).await;
+    let recovered = run(&w, &live_id);
+    assert_eq!(
+        (recovered.state, recovered.fence),
+        (RunState::Interrupted, before.fence + 1)
+    );
 }

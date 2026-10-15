@@ -114,6 +114,11 @@
       - `git diff --check`.
       All must pass; record counts.
 
+- [x] 5. **Intake-chat reuse skips a chat whose Run is live (review issue 1).**
+      In `Workspace::source_intake_chat`, skip a candidate chat that has a Working Run whose lease is held (`brn_ai::run_lease::run_is_live`); unknown liveness counts as live. Fall back to the next eligible chat or a new one. A lease-free orphan does not block reuse. The CLI reports `reused_chat: false` with the new `thread`.
+      Regression: `source_intake_chat.rs::a_chat_whose_run_is_still_live_is_not_reused_until_its_lease_is_free` (fail-before `(Interrupted, 2)` vs `(Working, 1)`; pass-after). Results are in the [evidence](evidence.md#task-a-intake-chat-reuse-skips-a-chat-whose-run-is-live-review-issue-1).
+      Review issue 2 (provider-centric suffix) is not applied: the reason is desktop-visible wording, handed off as U6.
+
 ## Integration risks (check both branches together later)
 
 - `crates/brn-ai/src/threads.rs` (`begin`, `finish`, `Scope`) and `crates/brn-threads-app/src/chat.rs` are shared seams. The UI branch (`work/ui-polish`) consumes the Resume/Dispatch notices and the attention reasons, and its native tests seed Working runs.

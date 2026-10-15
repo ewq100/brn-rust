@@ -9,6 +9,7 @@
 | Fix 1: one terminal notice per chat, naming the cause | yes | yes | no | no | no |
 | Fix 2: lease-based orphan recovery on Resume/Dispatch | yes | yes (in-process; no two-process check) | no | no | no |
 | Fix 3: CLI useful intake honours `--project` and reuses its chat | yes | yes | n/a (CLI) | no | no |
+| Task A (review issue 1): intake-chat reuse skips a chat whose Run is live | yes | yes (in-process lease) | n/a (service/CLI) | no | no |
 | Contract doc updates (`threads-behavior.md`, `invariants.md`, `status.md`) | no (proposed text below) | no | n/a | no | no |
 | Desktop hookup U2 | no (UI-owned) | no | no | no | no |
 
@@ -187,6 +188,35 @@ Run from the worktree root with `PATH=/opt/homebrew/opt/rustup/bin:$PATH`, `CARG
 
 `scripts/verify-storage.sh` as a whole stops at the same 12 sandbox tests in this shell; its individual steps are listed above. Rerun it unsandboxed on the combined branch.
 
+### Task A: intake-chat reuse skips a chat whose Run is live (review issue 1)
+
+`Workspace::source_intake_chat` now skips a candidate chat that has a Working Run whose lease is held (`brn_ai::run_lease::run_is_live`), because `begin()` interrupts every Working Run in the chat it starts in. It falls back to the next eligible chat, or creates a new one. A lease-free (orphaned) Working Run does not block reuse; the next Run in that chat interrupts it with a fence bump, as Continue already does. If `derived/` cannot be checked, liveness counts as unknown and the chat is skipped. The skip set matches what `begin()` would fence: every Run record in the chat in state Working. No schema, dependency or desktop change.
+
+**CLI reporting.** `intake --intent useful` returns `reused_chat: false` and the new chat's ID in `thread` when the earlier chat is skipped, which is the same shape as a first supply. The help line now says so. `--thread` still names the chat explicitly and reports `reused_chat: null`.
+
+| Concurrent same-source supply while a Run in the earlier chat holds its lease | Before | After |
+|---|---|---|
+| Chosen chat | the earlier chat (`reused_chat: true`) | a new chat (`reused_chat: false`) |
+| The live Run (state, fence) | `(Interrupted, 2)`: fenced by `begin()`, its in-flight turn lost | `(Working, 1)`: unchanged |
+| After the lease is released (newer chat archived) | n/a | the earlier chat is reused again (`true`), and the next Run there interrupts the orphan: `(Interrupted, 2)` |
+
+Regression: `crates/brn-threads-app/tests/source_intake_chat.rs::a_chat_whose_run_is_still_live_is_not_reused_until_its_lease_is_free`. A `PreparedThreadRun` holds the live lease through its own file handle, as in `run_recovery`.
+- **Fail-before** (skip disabled in place as `(true || !busy(chat))`): FAILED at `source_intake_chat.rs:160`, "the live Run is not interrupted", `left: (Interrupted, 2)`, `right: (Working, 1)`. The other test in the file passed.
+- **Pass-after** (fix restored): 2 passed, 0 failed.
+
+Commands, run from the worktree with `PATH=/opt/homebrew/opt/rustup/bin:$PATH`, `CARGO_TARGET_DIR=/tmp/brn-dwr-target` and rustc 1.98.1 (automated only; no Mac UI driven, no provider calls):
+
+| Command | Result |
+|---|---|
+| `cargo fmt --all --check` | passed |
+| `cargo clippy --workspace --all-targets --locked --offline -- -D warnings` | passed |
+| `cargo test --workspace --locked --offline --no-fail-fast` | **670 passed, 12 failed, 4 ignored**: baseline 669 plus the new test. The 12 failures are the same `brn-threads-intake` sandbox tests (`process::tests` 3, `tests/qualification.rs` 9); `sandbox-exec -p '(version 1)(allow default)' /usr/bin/true` → `sandbox_apply: Operation not permitted` (exit 71) in this shell. `crates/brn-threads-intake` and `crates/brn-intake` are unchanged. No new failures. |
+| `cargo test --locked --offline -p brn-desktop --features native-ui,native-test-support --bin brn-desktop` | **147 passed**, 0 failed (headless state) |
+| `cargo clippy --locked --offline -p brn-desktop --features native-ui,native-test-support --all-targets -- -D warnings` | passed |
+| `python3 docs/work/active/daily-workflow-reliability/cli-journey.py /tmp/brn-dwr-target/debug/brn /private/tmp/brn-dwr-data/cli-journey-fresh` (after rebuilding `brn`) | exit 0; unchanged from the final verification: `useful_intake_new_threads` 1, email Source in the project intake chat, `needs_you` 2, 24 receipts, `derived/run-leases/` empty afterwards. The journey's supplies run one after another, so reuse still applies. |
+
+**Provider-centric suffix (review issue 2): not changed.** The Blocker reason is persisted and shown verbatim by the desktop (`threads_tiles.rs` Needs-you rows and chat entries, `threads_writing.rs` attention, `threads_lists.rs` reason filter), so changing it is desktop-visible wording. It is handed to the UI agent as U6.
+
 ### Not done in this step
 
 - **Shared docs.** The plan's updates to `docs/architecture/threads-behavior.md`, `docs/architecture/invariants.md` and the `docs/status.md` line are outside this step's doc scope (`docs/status.md` is shared with the UI branch). They are left for integration. Proposed contract text:
@@ -202,12 +232,15 @@ Run from the worktree root with `PATH=/opt/homebrew/opt/rustup/bin:$PATH`, `CARG
 - Liveness relies on `flock`, verified in-process across separate file handles (the same mechanism that separates processes). A two-process check was not run, because the CLI exposes no queue Resume/Dispatch command.
 - A BRN build without leases (for example a desktop built from another branch) running beside this branch would have its Working Runs treated as orphans on Resume/Dispatch.
 - If the chat is created but the run start is refused (for example a settings mismatch), the next CLI supply creates another chat, because reuse keys on a Run that received the Source.
+- Two concurrent supplies of the same source still make two chats (Task A): the second skips the chat whose Run is live rather than interrupt it. A Run that is live but stuck in another process keeps its chat out of reuse until that process ends (see U1).
+  - *Selection-to-begin window (Task A review).* Two same-source supplies that both pick the chat before either Run begins still share it, and the later `begin()` fences the earlier Run: the liveness check and the fence are separate transactions. Closing it needs a liveness check inside `begin()`'s write.
+  - *Empty chat when `derived/` is unusable (Task A review).* Unknown liveness skips the chat, a new chat is created, and `begin()` then refuses on the same `derived/` check, leaving one empty chat per attempt.
 - Findings 4–10 and U3–U5 are unchanged.
 - **Model quality not judged.** The deterministic fixtures (scripted Rig model, offline `ReconnectNeeded` provider) prove only what the host offers, enforces and persists. They cannot judge whether a real model combines both sources with the existing note, states uncertainty honestly, asks the right owner question, avoids duplicate notes on re-supply or drafts a good reply. That needs an authorized live run on synthetic data.
 - **Email conversion not exercised.** `.eml` needs live Luna conversion, so the email was supplied as `.txt`/transient source.
 - **Native observation: none.** The ⌘Q-during-run assumption (finding 1) is from code inspection only.
 - Open non-blocking review issues ([review](review.md)), recorded rather than fixed:
-  - *Reuse can fence a live run.* `source_intake_chat` does not skip a chat whose Working Run is live in another process; a concurrent same-source supply then interrupts that Run through `begin()`. Suggested fix: skip candidates with a live lease (`run_lease::run_is_live`).
+  - *Reuse can fence a live run.* Fixed in [Task A](#task-a-intake-chat-reuse-skips-a-chat-whose-run-is-live-review-issue-1).
   - *Provider-centric suffix.* "Continue when the provider is ready." is appended for every failure kind, including tool/time limits and storage errors, and persists after restart.
   - *Single-snapshot recovery.* Two simultaneous orphans in one chat need two Resumes, and the stale owner-direct preparation stays listed in `candidates()`.
   - *Destructive journey script.* `cli-journey.py` deletes its `ROOT` argument recursively before running; pass only a fresh path under `/private/tmp/brn-dwr-data/`.
@@ -239,7 +272,9 @@ Setup for every item: a fresh data folder (for example `/private/tmp/brn-ui-chec
   - *Expected:* a message naming the open buffer and offering Compare/Discard.
   - *Observed (CLI):* `SQLite: UNIQUE constraint failed: edit_sessions.note`. Whether the desktop shows this raw text was not observed.
 - **U5: "Partial" badge on verbatim imports.** Click ＋ → "Import full note…" and pick a plain `.md`. *Observed (service):* outcome Partial, "completeness is unverified". The rule is deliberate; the owner should decide whether verbatim Markdown/text counts as Complete before any UI change.
-- **U6: longer failure notice.** Leave the provider unconnected and send a message three times in one chat. *Expected after this branch:* one Blocker "Run failed: Reconnect this account before continuing. Continue when the provider is ready." The desktop does not match on the old fixed text, but rows are longer; check truncation and decide final wording together (see the provider-centric suffix limitation).
+- **U6: longer failure notice, with a provider hint on every failure.** Leave the provider unconnected and send a message three times in one chat. *Expected after this branch:* one Blocker "Run failed: Reconnect this account before continuing. Continue when the provider is ready." The desktop does not match on the old fixed text, but rows are longer; check truncation.
+  - *Wording decision for the UI agent:* `failed_attention` (`crates/brn-ai/src/threads.rs`) appends "Continue when the provider is ready." for every failure kind. A tool-round limit gives "Run failed: The tool round limit was reached. Continue when the provider is ready.", which points at the wrong cause and persists after restart. Repro: a scripted run that exceeds `max_tool_rounds`, or code reading of `failed_attention`.
+  - *Proposed service change once the wording is agreed:* append the provider hint only for provider-kind failures, and a neutral "Continue starts fresh." or nothing otherwise. Keep the `"Run failed: "` prefix so `is_terminal_notice` still matches. Not applied here, because the reason is shown verbatim in Needs you.
 
 ## Integration risks with `work/ui-polish`
 
@@ -248,7 +283,7 @@ Setup for every item: a fresh data folder (for example `/private/tmp/brn-ui-chec
   - `threads_chat.rs::resume_chat_queue` already calls `stop_chat_run` on a queue-claimed Working Run without a liveness check, then `resume_queue`. That pre-existing desktop path is unchanged here and can still stop a Run that is live in another process; `resume_queue` now additionally interrupts lease-free orphans.
   - Desktop tests that seed a Working Run to stand for a live worker and then call Resume/Dispatch will see it interrupted, because the seeded Run has no lease. None exists at `422c9582` (147 headless tests pass); new ones on `work/ui-polish` might.
   - Terminal notice text changed (`failed_attention` now names the cause; `INTERRUPTED_ATTENTION`, `is_terminal_notice`, `replace_terminal_notice` are public). Any UI test asserting "Run failed; check provider…" will fail.
-- **Service API additions (no removals).** `Workspace::source_intake_chat(project, locator, title)`; `brn_ai::run_lease::{RunLease, run_is_live}`. CLI useful-intake JSON gains `thread` and `reused_chat`; `--project` with `--thread` is now refused; help gains one line (possible conflict with `work/cli-agent-contract`).
+- **Service API additions (no removals).** `Workspace::source_intake_chat(project, locator, title)`; `brn_ai::run_lease::{RunLease, run_is_live}`. CLI useful-intake JSON gains `thread` and `reused_chat` (`false` with a new `thread` when the earlier chat's Run is still live); `--project` with `--thread` is now refused; help gains two lines (possible conflict with `work/cli-agent-contract`). If the UI agent adopts `source_intake_chat` for U2, a desktop supply while a CLI Run on the same source is live gets its own chat instead of interrupting that Run.
 - **Storage.** New derived folder `derived/run-leases/` (excluded from backup/restore like all of `derived/`; no schema change). `begin()` refuses to start a Run when `derived/` is unsafe (for example a symlink).
 - **Mixed builds.** A desktop and CLI from different builds (one without leases) would see each other's live Runs as orphans. Check the combined branch from one build: the full desktop state suite, an unsandboxed `scripts/verify-storage.sh`, and a desktop-plus-CLI run on shared synthetic data.
 - **Docs.** Contract text for `threads-behavior.md`, `invariants.md` and `docs/status.md` is proposed above and not applied, because `docs/status.md` is shared with the UI branch. Apply once at integration.
