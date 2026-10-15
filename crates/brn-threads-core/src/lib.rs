@@ -11,7 +11,7 @@ pub use projects::{
 };
 mod edit;
 pub mod locator;
-pub use locator::{canonical_locator, same_locator};
+pub use locator::{canonical_locator, find_source, matching_sources, same_locator};
 mod read;
 mod reader;
 mod restore;

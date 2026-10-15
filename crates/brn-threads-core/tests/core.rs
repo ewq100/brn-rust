@@ -624,6 +624,80 @@ fn source_observation_metadata_does_not_refresh_but_new_external_version_does() 
     );
     assert_eq!(receipt.needs_refresh, vec![dependent.creation_id(0)]);
 }
+#[cfg(unix)]
+#[test]
+fn another_spelling_of_the_same_file_does_not_refresh_but_another_file_does() {
+    let (dir, mut store) = delegated_store();
+    let file = |folder: &str| {
+        let folder = dir.path().join(folder);
+        std::fs::create_dir_all(&folder).unwrap();
+        std::fs::write(folder.join("mail.txt"), "synthetic").unwrap();
+        folder.join("mail.txt").to_str().unwrap().to_owned()
+    };
+    let (real, other) = (file("real"), file("other"));
+    std::os::unix::fs::symlink(dir.path().join("real"), dir.path().join("alias")).unwrap();
+    let alias = dir
+        .path()
+        .join("alias/mail.txt")
+        .to_str()
+        .unwrap()
+        .to_owned();
+    let source_op = store.allocate_operation("source fixture").unwrap();
+    let mut source = apply(
+        &mut store,
+        &source_op,
+        &request(vec![created(
+            &source_op,
+            0,
+            RecordData::Source(Source {
+                chat: None,
+                locator: alias,
+                label: "mail".into(),
+                observed_at: "first".into(),
+                external_version: Some("v1".into()),
+                outcome: "read".into(),
+                gaps: vec![],
+                report: None,
+            }),
+        )]),
+        &owner(),
+    )
+    .writes[0]
+        .after
+        .clone();
+    let dependent = store.allocate_operation("derived mail summary").unwrap();
+    let mut req = request(vec![created(
+        &dependent,
+        0,
+        RecordData::Note(Note::working("summary", "mail evidence")),
+    )]);
+    req.inputs.push(RevisionInput {
+        expectation: InputExpectation::Current,
+        record: source.id.clone(),
+        version: 1,
+    });
+    apply(&mut store, &dependent, &req, &ai());
+    for (key, locator, refresh) in [
+        ("real path of the same file", real, vec![]),
+        ("another file", other, vec![dependent.creation_id(0)]),
+    ] {
+        let RecordData::Source(mut observation) = source.data.clone() else {
+            panic!()
+        };
+        observation.locator = locator;
+        observation.observed_at = key.into();
+        let op = store.allocate_operation(key).unwrap();
+        let receipt = apply(
+            &mut store,
+            &op,
+            &request(vec![edited(&source, RecordData::Source(observation))]),
+            &owner(),
+        );
+        // Before: the real path of the same file also refreshed the summary.
+        assert_eq!(receipt.needs_refresh, refresh, "{key}");
+        source = receipt.writes[0].after.clone();
+    }
+}
 #[test]
 fn undo_restores_exact_direct_input_footing_even_when_derived_text_was_identical() {
     for second_text in ["Based on source B", "Original derived writing"] {

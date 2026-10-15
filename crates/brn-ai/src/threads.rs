@@ -2031,10 +2031,8 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
     for (i, (reference, supplied)) in sources.iter().enumerate() {
         // The exact spelling first; a Source saved under an older spelling of
         // the same file still matches and is recorded at the real path below.
-        let existing = records
-            .iter()
-            .find(|r| matches!(&r.data,RecordData::Source(s) if s.locator==*reference && s.chat==source_chat))
-            .or_else(|| records.iter().find(|r| matches!(&r.data,RecordData::Source(s) if s.chat==source_chat && brn_threads_core::same_locator(&s.locator, reference))));
+        let existing =
+            brn_threads_core::find_source(&records, reference, |s| s.chat == source_chat);
         let id = existing
             .map(|r| r.id.clone())
             .unwrap_or_else(|| op.creation_id(i + 2));
@@ -2974,6 +2972,100 @@ mod tests {
                 );
             }
         }
+    }
+
+    #[cfg(unix)]
+    #[tokio::test]
+    async fn requalifying_a_source_respelled_since_an_older_build_drops_its_retained_omission() {
+        let (root, mut request, note) = fixture();
+        std::fs::create_dir(root.path().join("real")).unwrap();
+        std::fs::write(root.path().join("real/a.txt"), "A result.").unwrap();
+        std::os::unix::fs::symlink(root.path().join("real"), root.path().join("alias")).unwrap();
+        let spelling = |dir: &str| {
+            root.path()
+                .join(dir)
+                .join("a.txt")
+                .to_str()
+                .unwrap()
+                .to_owned()
+        };
+        let (alias, real) = (spelling("alias"), spelling("real"));
+        // An older build recorded A under the alias spelling. `begin()` keeps
+        // the reference as given; only `prepare_run` canonicalizes it.
+        let first = TransientSource {
+            reference: alias.clone(),
+            text: "A result.".into(),
+            fingerprint: Some("a-v1".into()),
+            report: Some(ImportReport {
+                status: ImportStatus::Partial,
+                issues: vec![ImportIssue {
+                    kind: ImportIssueKind::Omission,
+                    locator: "chart".into(),
+                    detail: "Chart was not extracted".into(),
+                }],
+            }),
+            assets: vec![],
+        };
+        request.sources = vec![first.clone()];
+        useful_source_run(&request, &note, 1, "A result.").await;
+        request.sources = vec![TransientSource {
+            reference: "synthetic://qualified-b".into(),
+            text: "B result.".into(),
+            fingerprint: Some("b-v1".into()),
+            report: Some(ImportReport {
+                status: ImportStatus::Complete,
+                issues: vec![],
+            }),
+            assets: vec![],
+        }];
+        let retained = "A result.\n\nB result.";
+        let combined = useful_source_run(&request, &note, 2, retained).await;
+        let RecordData::Note(combined) = combined.data else {
+            panic!()
+        };
+        let issues = combined.import.unwrap().report.unwrap().issues;
+        assert!(
+            issues
+                .iter()
+                .any(|issue| issue.locator == format!("{alias} · chart")),
+            "{issues:?}"
+        );
+        // A again, at its real path and now fully qualified.
+        let mut requalified = first;
+        requalified.reference = real.clone();
+        requalified.fingerprint = Some("a-v2-qualified".into());
+        requalified.report = Some(ImportReport {
+            status: ImportStatus::Complete,
+            issues: vec![],
+        });
+        request.sources = vec![requalified];
+        let updated = useful_source_run(&request, &note, 3, retained).await;
+        let RecordData::Note(updated) = updated.data else {
+            panic!()
+        };
+        let report = updated.import.unwrap().report.unwrap();
+        // Before: A's omission, scoped under A's old spelling, fell back to
+        // B (the note's primary Source) and was kept.
+        assert!(
+            !report
+                .issues
+                .iter()
+                .any(|issue| issue.kind == ImportIssueKind::Omission),
+            "{:?}",
+            report.issues
+        );
+        assert_eq!(report.status, ImportStatus::Complete);
+        let locators: Vec<_> = Store::open(&request.data_dir)
+            .unwrap()
+            .records()
+            .unwrap()
+            .into_iter()
+            .filter_map(|r| match r.data {
+                RecordData::Source(s) => Some(s.locator),
+                _ => None,
+            })
+            .collect();
+        assert!(locators.contains(&real) && !locators.contains(&alias));
     }
 
     #[tokio::test]

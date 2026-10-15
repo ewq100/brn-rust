@@ -1984,7 +1984,9 @@ pub(crate) fn apply_on(
         let Some(prior) = &input_change.before else {
             continue;
         };
-        if !meaningful_input_change(prior, &input_change.after) {
+        if !meaningful_input_change(prior, &input_change.after)
+            || respelled_source(prior, &input_change.after)
+        {
             continue;
         }
         // Only current directly derived revisions are affected. An observation-only
@@ -2079,6 +2081,24 @@ fn meaningful_input_change(before: &Record, after: &Record) -> bool {
         (RecordData::Asset(old), RecordData::Asset(new)) => old != new,
         _ => false,
     }
+}
+
+/// A Source whose only meaningful change is another spelling of the same local
+/// file (`/tmp` vs `/private/tmp`, a symlinked folder) is the same evidence,
+/// so the records derived from it need no refresh. The filesystem is read
+/// only when nothing but the locator changed.
+fn respelled_source(before: &Record, after: &Record) -> bool {
+    let (RecordData::Source(old), RecordData::Source(new)) = (&before.data, &after.data) else {
+        return false;
+    };
+    if before.archived != after.archived || old.locator == new.locator {
+        return false;
+    }
+    let mut same = old.clone();
+    same.observed_at = new.observed_at.clone();
+    same.label = new.label.clone();
+    same.locator = new.locator.clone();
+    same == *new && crate::canonical_locator(&old.locator) == crate::canonical_locator(&new.locator)
 }
 
 fn derivation_is_current(derived: &Record, current: &Record) -> bool {
