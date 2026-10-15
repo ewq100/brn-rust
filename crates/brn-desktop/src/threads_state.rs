@@ -236,8 +236,11 @@ fn messages_count(count: usize) -> String {
 }
 /// Line 1 uses the latest run's state only when no owner message postdates
 /// it (`owner_after`); line 2 follows the path and queue state.
+/// `pending_working` is `resume_chat_queue`'s own check (the pending item's
+/// run is saved as Working): Resume queue then stops that reply first.
 pub(super) fn recovery(
     path: &ContinuePath,
+    pending_working: bool,
     latest: Option<&Run>,
     owner_after: bool,
     queue: &ChatControl,
@@ -270,12 +273,20 @@ pub(super) fn recovery(
                 1 => ", including 1 from another chat".into(),
                 others => format!(", including {others} from other chats"),
             };
+            let (stops, severity) = if pending_working {
+                (
+                    "stops the reply that may still be running, then ",
+                    Severity::Warning,
+                )
+            } else {
+                ("", Severity::Neutral)
+            };
             (
                 format!(
-                    "{saved} Resume queue runs {}{order}{including}.",
+                    "{saved} Resume queue {stops}runs {}{order}{including}.",
                     messages_count(waiting)
                 ),
-                Severity::Neutral,
+                severity,
                 "Resume queue",
             )
         }
@@ -564,6 +575,7 @@ mod tests {
         let working = run(RunState::Working, "");
         let card = recovery(
             &ContinuePath::FreshRun,
+            false,
             Some(&working),
             false,
             &ChatControl::default(),
@@ -654,7 +666,14 @@ mod tests {
         let reason = "Synthetic recorded reason that BRN shows whole.";
         let idle = ChatControl::default();
         let failed = run(RunState::Failed, reason);
-        let card = recovery(&ContinuePath::FreshRun, Some(&failed), false, &idle, "chat");
+        let card = recovery(
+            &ContinuePath::FreshRun,
+            false,
+            Some(&failed),
+            false,
+            &idle,
+            "chat",
+        );
         assert_eq!(card.word, "Failed");
         assert_eq!(card.severity(), Severity::Error);
         assert_eq!(card.reason.as_deref(), Some(reason));
@@ -671,7 +690,14 @@ mod tests {
             (RunState::Working, "May still be running", Severity::Warning),
         ] {
             let saved = run(state, "");
-            let card = recovery(&ContinuePath::FreshRun, Some(&saved), false, &idle, "chat");
+            let card = recovery(
+                &ContinuePath::FreshRun,
+                false,
+                Some(&saved),
+                false,
+                &idle,
+                "chat",
+            );
             assert_eq!((card.word, card.word_severity), (word, severity));
             assert_eq!(card.reason, None, "an empty reason is omitted");
         }
@@ -679,6 +705,7 @@ mod tests {
         let completed = run(RunState::Completed, "Done");
         let card = recovery(
             &ContinuePath::FreshRun,
+            false,
             Some(&completed),
             true,
             &idle,
@@ -693,7 +720,14 @@ mod tests {
         );
         // With an older run still Working the card warns.
         let working = run(RunState::Working, "Started elsewhere");
-        let card = recovery(&ContinuePath::FreshRun, Some(&working), true, &idle, "chat");
+        let card = recovery(
+            &ContinuePath::FreshRun,
+            false,
+            Some(&working),
+            true,
+            &idle,
+            "chat",
+        );
         assert_eq!(card.word, "Not answered yet");
         assert_eq!(card.reason, None);
         assert_eq!(
@@ -703,6 +737,7 @@ mod tests {
         assert_eq!(card.severity(), Severity::Warning);
         let card = recovery(
             &ContinuePath::FreshRun,
+            false,
             Some(&working),
             false,
             &idle,
@@ -715,7 +750,7 @@ mod tests {
         );
         assert_eq!(card.severity(), Severity::Warning);
         // No run yet.
-        let card = recovery(&ContinuePath::FreshRun, None, true, &idle, "chat");
+        let card = recovery(&ContinuePath::FreshRun, false, None, true, &idle, "chat");
         assert_eq!(card.word, "Not answered yet");
     }
 
@@ -730,6 +765,7 @@ mod tests {
         };
         let card = recovery(
             &ContinuePath::FreshRun,
+            false,
             Some(&failed),
             false,
             &paused,
@@ -744,7 +780,14 @@ mod tests {
             queue: vec![queued("q1", "chat"), queued("q2", "other")],
             ..paused.clone()
         };
-        let card = recovery(&ContinuePath::FreshRun, Some(&failed), false, &two, "chat");
+        let card = recovery(
+            &ContinuePath::FreshRun,
+            false,
+            Some(&failed),
+            false,
+            &two,
+            "chat",
+        );
         assert_eq!(
             card.waiting.as_deref(),
             Some("2 waiting messages stay paused until you resume the queue.")
@@ -756,6 +799,7 @@ mod tests {
         };
         let card = recovery(
             &ContinuePath::FreshRun,
+            false,
             Some(&failed),
             false,
             &running,
@@ -768,8 +812,11 @@ mod tests {
             ..two.clone()
         };
         let working = run(RunState::Working, "");
+        // The pending item's run is saved as Working: Resume queue stops it
+        // first, and line 2 says so in the warning tone.
         let card = recovery(
             &ContinuePath::ResumeQueue,
+            true,
             Some(&working),
             false,
             &pending,
@@ -779,15 +826,31 @@ mod tests {
         assert_eq!(card.word, "May still be running");
         assert_eq!(
             card.next,
+            "Your message is saved and the queue is paused. Resume queue stops the reply that may still be running, then runs 3 waiting messages in order, including 1 from another chat."
+        );
+        assert_eq!(card.next_severity, Severity::Warning);
+        assert_eq!(card.waiting, None, "Resume queue runs them");
+        // Without a Working pending run nothing is stopped.
+        let card = recovery(
+            &ContinuePath::ResumeQueue,
+            false,
+            Some(&working),
+            false,
+            &pending,
+            "chat",
+        );
+        assert_eq!(
+            card.next,
             "Your message is saved and the queue is paused. Resume queue runs 3 waiting messages in order, including 1 from another chat."
         );
-        assert_eq!(card.waiting, None, "Resume queue runs them");
+        assert_eq!(card.next_severity, Severity::Neutral);
         let alone = ChatControl {
             pending: Some(queued("p", "chat")),
             ..ChatControl::default()
         };
         let card = recovery(
             &ContinuePath::ResumeQueue,
+            false,
             Some(&failed),
             false,
             &alone,
@@ -797,12 +860,25 @@ mod tests {
             card.next,
             "Your message is saved. Resume queue runs 1 waiting message."
         );
+        let card = recovery(
+            &ContinuePath::ResumeQueue,
+            true,
+            Some(&working),
+            false,
+            &alone,
+            "chat",
+        );
+        assert_eq!(
+            card.next,
+            "Your message is saved. Resume queue stops the reply that may still be running, then runs 1 waiting message."
+        );
         let others = ChatControl {
             queue: vec![queued("q1", "a"), queued("q2", "b"), queued("q3", "chat")],
             ..alone
         };
         let card = recovery(
             &ContinuePath::ResumeQueue,
+            false,
             Some(&failed),
             false,
             &others,

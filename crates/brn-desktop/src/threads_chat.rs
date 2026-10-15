@@ -150,10 +150,23 @@ impl ThreadsUi {
         ) {
             Ok(_) => self
                 .warn("Reply stopped. The queue is paused; Continue or Resume queue when ready."),
-            Err(e) => self.fail(e.to_string()),
+            Err(e) => self.fail(format!(
+                "Could not stop this reply: {e}. It may still be running; try Stop… again."
+            )),
         }
         self.refresh();
         cx.notify();
+    }
+    /// `resume_chat_queue`'s own check: the queue's pending item has a run
+    /// saved as Working, which Resume queue stops before it resumes.
+    pub(super) fn pending_run_working(&self, queue: &ChatControl) -> bool {
+        queue
+            .pending
+            .as_ref()
+            .and_then(|q| q.run.as_deref())
+            .is_some_and(|run| {
+                matches!(self.workspace.store.record(run), Ok(Some(Record { data: RecordData::Run(r), .. })) if r.state == RunState::Working)
+            })
     }
     pub(super) fn assets_in_chat(&self, chat: Option<&str>) -> Arc<BTreeMap<String, Arc<Image>>> {
         Arc::new(
@@ -290,10 +303,9 @@ impl ThreadsUi {
                     ));
                 } else if busy {
                     self.inform("Queued; runs after the current reply.");
-                } else {
-                    // It dispatches at once and the run line shows it.
-                    self.notice.clear();
                 }
+                // An idle, unpaused send never reaches this queue path: `ask`
+                // starts it directly, and `start_run` clears an earlier notice.
                 if !busy && !paused {
                     self.dispatch_next(cx);
                 }

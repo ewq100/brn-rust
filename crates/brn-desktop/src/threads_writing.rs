@@ -225,16 +225,7 @@ impl ThreadsUi {
         let queue = self.queue_state();
         let messages = self.workspace.messages(id).unwrap_or_default();
         let path = continue_path(&queue, &messages, id);
-        // A writing continuation never renders in chat; the Note's Retry
-        // saved rewrite owns it.
-        let recovering = !matches!(path, ContinuePath::RetryRewrite(_))
-            && can_continue_thread(
-                &self.records,
-                &self.history,
-                id,
-                &thread.state,
-                self.worker.is_some(),
-            );
+        let recovering = self.shows_recovery_card(id, &thread.state, &path);
         // Rewrite proposals belong to the Note.
         let cards: Vec<(usize, &Attention, Option<&Prepared>)> = thread
             .attention
@@ -352,6 +343,50 @@ impl ThreadsUi {
             .test_support()
             .into_any_element()
     }
+    /// The chat's recovery card shows when Continue applies. A writing
+    /// continuation never renders in chat; the Note's Retry saved rewrite
+    /// owns it.
+    fn shows_recovery_card(&self, thread: &str, state: &ThreadState, path: &ContinuePath) -> bool {
+        !matches!(path, ContinuePath::RetryRewrite(_))
+            && can_continue_thread(
+                &self.records,
+                &self.history,
+                thread,
+                state,
+                self.worker.is_some(),
+            )
+    }
+    /// The chat's latest run when it is saved as Working and this window
+    /// does not hold it: it may still run in another window or the CLI, so
+    /// the recovery card offers Stop….
+    fn saved_run_to_stop(&self, thread: &str) -> Option<String> {
+        let latest = latest_run(&self.records, &self.history, thread)?;
+        let local = self.worker.as_ref().and_then(|w| w.run_id.as_deref());
+        (matches!(&latest.data, RecordData::Run(run) if run.state == RunState::Working)
+            && local != Some(latest.id.as_str()))
+        .then(|| latest.id.clone())
+    }
+    /// The run whose Stop… the visible Chat tile's recovery card renders, so
+    /// the Note bar leaves that one control to the card (IDs stay unique).
+    fn chat_card_stop(&self) -> Option<String> {
+        if !self
+            .layout
+            .visible()
+            .iter()
+            .any(|tile| tile.kind == TileKind::Chat)
+        {
+            return None;
+        }
+        let thread = self.chat_thread()?;
+        let RecordData::Thread(data) = &self.records.iter().find(|r| r.id == thread)?.data else {
+            return None;
+        };
+        let messages = self.workspace.messages(thread).unwrap_or_default();
+        let path = continue_path(&self.queue_state(), &messages, thread);
+        self.shows_recovery_card(thread, &data.state, &path)
+            .then(|| self.saved_run_to_stop(thread))
+            .flatten()
+    }
     /// The recovery card: the recorded state and its reason in full, then
     /// what the button does and what stays paused. Its tone is the strongest
     /// line's. `continue-{run}` (or `continue-{chat}` without a run) is the
@@ -369,18 +404,19 @@ impl ThreadsUi {
             _ => None,
         });
         let owner_after = owner_message_after_latest_run(&self.records, &self.history, thread);
-        let card = recovery(path, run, owner_after, queue, thread);
+        let card = recovery(
+            path,
+            self.pending_run_working(queue),
+            run,
+            owner_after,
+            queue,
+            thread,
+        );
         let tone = severity_tone(card.severity());
         let id = format!("recovery-card-{thread}");
-        // A saved Working run this window does not hold may still run in
-        // another window or the CLI.
-        let local = self.worker.as_ref().and_then(|w| w.run_id.as_deref());
-        let stop = latest
-            .filter(|record| {
-                run.is_some_and(|run| run.state == RunState::Working)
-                    && local != Some(record.id.as_str())
-            })
-            .map(|record| self.stop_saved_run_button(&record.id, cx));
+        let stop = self
+            .saved_run_to_stop(thread)
+            .map(|run| self.stop_saved_run_button(&run, cx));
         let thread_id = thread.to_owned();
         let line = |suffix: &str, text: String| {
             div()
@@ -737,10 +773,11 @@ impl ThreadsUi {
                         )
                         .child(div().flex_1().min_w_0().child("Archived. Unarchive to reply."))
                         .child(
+                            // The archived chat's next action; Send waits.
                             button("reopen-thread")
                                 .label("Unarchive")
                                 .compact()
-                                .outline()
+                                .primary()
                                 .h(components::tokens::COMPACT_CONTROL)
                                 .tooltip("Unarchive this chat. The queue stays paused until you resume it.")
                                 .on_click(cx.listener(move |this, _, _, cx| {
@@ -824,29 +861,34 @@ impl ThreadsUi {
                                 })),
                         )
                     })
-                    .child(
-                        // While work runs ↵ queues, so Send reads Queue.
-                        button("ask-delegate")
-                            .label(if self.editing_queue.is_some() {
-                                "Save queued"
-                            } else if busy {
-                                "Queue"
-                            } else {
-                                "Send"
-                            })
-                            .primary()
-                            .compact()
-                            .h(components::tokens::COMPACT_CONTROL)
-                            .tooltip(if self.editing_queue.is_some() {
-                                "Save the queued message ↵ · Shift-↵ adds a line"
-                            } else if busy {
-                                "Add this message to the queue ↵"
-                            } else {
-                                "Send ↵ · Shift-↵ adds a line"
-                            })
-                            .disabled(false)
-                            .on_click(cx.listener(|this, _, window, cx| this.ask(window, cx))),
-                    ),
+                    .child({
+                        // While work runs ↵ queues, so Send reads Queue. In an
+                        // archived chat Unarchive is the filled control.
+                        let send = button("ask-delegate");
+                        let send = if archived.is_some() {
+                            send.outline()
+                        } else {
+                            send.primary()
+                        };
+                        send.label(if self.editing_queue.is_some() {
+                            "Save queued"
+                        } else if busy {
+                            "Queue"
+                        } else {
+                            "Send"
+                        })
+                        .compact()
+                        .h(components::tokens::COMPACT_CONTROL)
+                        .tooltip(if self.editing_queue.is_some() {
+                            "Save the queued message ↵ · Shift-↵ adds a line"
+                        } else if busy {
+                            "Add this message to the queue ↵"
+                        } else {
+                            "Send ↵ · Shift-↵ adds a line"
+                        })
+                        .disabled(false)
+                        .on_click(cx.listener(|this, _, window, cx| this.ask(window, cx)))
+                    }),
             )
             .test_support()
             .into_any_element()
@@ -2487,14 +2529,11 @@ impl ThreadsUi {
                 secondary.push(rewrite.ghost().into_any_element());
             }
             // A rewrite saved as Working that this window does not hold may
-            // still run elsewhere: Stop… asks first. When the queue's pending
-            // item is in this chat, the chat's recovery card offers it.
+            // still run elsewhere: Stop… asks first. When the visible chat's
+            // recovery card already offers Stop… for this run, it is there.
             if let Some(RunOutcome::Elsewhere(run)) = self.writing_run_outcome()
                 && self.worker.as_ref().and_then(|w| w.run_id.as_deref()) != Some(run.as_str())
-                && !self
-                    .queue_state()
-                    .pending
-                    .is_some_and(|pending| selected.as_ref() == Some(&pending.thread))
+                && self.chat_card_stop().as_deref() != Some(run.as_str())
             {
                 secondary.push(self.stop_saved_run_button(&run, cx).into_any_element());
             }

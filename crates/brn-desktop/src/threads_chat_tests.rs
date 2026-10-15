@@ -360,9 +360,14 @@ fn resume_queue_names_the_waiting_messages_while_the_pending_reply_may_still_run
             "Started in another window"
         );
         // Opening BRN keeps a pending item paused until explicit Resume.
+        // The pending item's run is saved as Working, so Resume queue stops
+        // it first and the line beside the button says so.
         assert_eq!(
             label(window, format!("{card}-next")),
-            "Your message is saved and the queue is paused. Resume queue runs 2 waiting messages in order, including 1 from another chat."
+            "Your message is saved and the queue is paused. Resume queue stops the reply that may still be running, then runs 2 waiting messages in order, including 1 from another chat."
+        );
+        assert!(
+            label(window, &card).contains("Resume queue stops the reply that may still be running")
         );
         assert!(window.try_find(format!("{card}-waiting")).is_none());
         assert!(window.find(format!("stop-saved-run-{run}")).visible());
@@ -543,6 +548,97 @@ fn a_saved_working_rewrite_offers_the_same_confirmed_stop_in_the_note(cx: &mut T
         );
         assert!(window.try_find(stop.clone()).is_none());
         assert!(window.find("retry-rewrite").visible());
+    });
+}
+
+#[gpui_kit::test]
+fn the_note_leaves_stop_to_the_chat_card_only_while_that_card_shows_it(cx: &mut TestAppContext) {
+    use polish_tests::{fixture, on_window, record_rewrite_run, update};
+    let f = fixture(cx, 1250., 860., "Saved text for a rewrite.");
+    let thread = update(cx, &f, |view, window, cx| {
+        let thread = view.workspace.new_thread("Rewrite chat").unwrap().id;
+        view.workspace
+            .link_writing_thread("chat-polish-link", &f.note.id, f.note.version, &thread)
+            .unwrap();
+        view.refresh();
+        view.select_writing_thread(f.note.id.clone(), thread.clone(), window, cx);
+        // Offline: the request is saved and no AI starts.
+        view.rewrite_note(cx);
+        thread
+    });
+    record_rewrite_run(cx, &f, RunState::Working, "Started elsewhere");
+    // A later queued message in this chat is the queue's pending item. The
+    // saved control is written directly: nothing is resumed or dispatched
+    // after the Working run is seeded.
+    update(cx, &f, |view, _, cx| {
+        view.workspace
+            .queue_message("rewrite-chat-queued", &thread, "After the rewrite")
+            .unwrap();
+        let control = view.workspace.chat_control().unwrap();
+        let RecordData::ChatControl(mut queue) = control.data.clone() else {
+            unreachable!()
+        };
+        let mut pending = queue.queue.remove(0);
+        pending.dispatch = Some("synthetic-claim".into());
+        queue.pending = Some(pending);
+        view.workspace
+            .owner_change(
+                "rewrite-chat-pending",
+                &ChangeRequest {
+                    reason: "Synthetic pending item".into(),
+                    inputs: vec![],
+                    writes: vec![Put {
+                        id: control.id.clone(),
+                        expected_version: Some(control.version),
+                        archived: false,
+                        data: RecordData::ChatControl(queue),
+                    }],
+                },
+            )
+            .unwrap();
+        view.refresh();
+        cx.notify();
+    });
+    let run = cx.read(|cx| {
+        let view = f.view.read(cx);
+        latest_run(&view.records, &view.history, &thread)
+            .unwrap()
+            .id
+            .clone()
+    });
+    let stop = format!("stop-saved-run-{run}");
+    // The visible chat's recovery card offers Stop… for this run, so the
+    // Note does not repeat it.
+    on_window(cx, &f, |window, _| {
+        assert_eq!(
+            window.find("writing-run-status").label(),
+            Some("This rewrite may still be running elsewhere. Retry starts a new attempt.")
+        );
+        assert!(
+            window
+                .within(format!("recovery-card-{thread}"))
+                .try_find(stop.clone())
+                .is_some()
+        );
+        assert!(window.within("tile-note").try_find(stop.clone()).is_none());
+    });
+    // With the Chat tile hidden the Note offers it.
+    update(cx, &f, |view, _, cx| {
+        view.layout.close(TileKind::Chat);
+        cx.notify();
+    });
+    on_window(cx, &f, |window, _| {
+        assert!(window.try_find("tile-chat").is_none());
+        assert!(window.within("tile-note").try_find(stop.clone()).is_some());
+    });
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert!(view.worker.is_none());
+        let RecordData::Run(saved) = view.workspace.store.record(&run).unwrap().unwrap().data
+        else {
+            unreachable!()
+        };
+        assert_eq!(saved.state, RunState::Working);
     });
 }
 
@@ -818,7 +914,9 @@ fn queue_notices_follow_the_queue_state_and_paused_wins_after_stop(cx: &mut Test
 }
 
 #[gpui_kit::test]
-fn an_idle_send_clears_an_earlier_queue_notice(cx: &mut TestAppContext) {
+fn an_idle_send_skips_the_queue_and_replaces_an_earlier_queue_notice(cx: &mut TestAppContext) {
+    // An idle, unpaused send starts directly (start_run clears the notice
+    // when a run starts); offline the provider refusal replaces it instead.
     let f = fixture(cx, 1250., 860., |workspace, thread, _| {
         record_run(workspace, thread, RunState::Completed, "Done");
     });
@@ -830,10 +928,15 @@ fn an_idle_send_clears_an_earlier_queue_notice(cx: &mut TestAppContext) {
         view.ask(window, cx);
         view.notice.clone()
     });
-    // Offline, the send is saved and the provider refusal replaces the old
-    // notice, which no longer describes the queue.
     assert!(!notice.contains("Queued"), "{notice}");
     assert!(notice.contains("Choose a provider"), "{notice}");
+    cx.read(|cx| {
+        let queue = f.view.read(cx).queue_state();
+        assert!(
+            queue.pending.is_none() && queue.queue.is_empty(),
+            "{queue:?}"
+        );
+    });
 }
 
 #[gpui_kit::test]
