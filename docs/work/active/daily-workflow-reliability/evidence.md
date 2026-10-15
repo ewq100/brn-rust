@@ -1,6 +1,6 @@
 # Daily workflow reliability: evaluation evidence
 
-**Date:** 15 October 2026. **Base:** `34c9239d` (#144). **Fix commit:** `422c9582` on local branch `work/daily-workflow-reliability`, isolated worktree, approved in [review](review.md). **Scope:** service/runtime/CLI. The evaluation sections below describe the base tree; the fixes, their before/after results and the final verification follow under [Verification](#verification). `crates/brn-desktop` was read but not edited; the UI agent's worktree was not touched.
+**Date:** 15 October 2026. **Base:** `34c9239d` (#144). **Fix commits:** `422c9582` (fixes 1–3) and `dfe698aa` (Task A) on local branch `work/daily-workflow-reliability`, isolated worktree, approved in [review](review.md). **Scope:** service/runtime/CLI. The evaluation sections below describe the base tree; the fixes, their before/after results and the final verification follow under [Verification](#verification). `crates/brn-desktop` was read but not edited; the UI agent's worktree was not touched.
 
 ## Status
 
@@ -9,7 +9,9 @@
 | Fix 1: one terminal notice per chat, naming the cause | yes | yes | no | no | no |
 | Fix 2: lease-based orphan recovery on Resume/Dispatch | yes | yes (in-process; no two-process check) | no | no | no |
 | Fix 3: CLI useful intake honours `--project` and reuses its chat | yes | yes | n/a (CLI) | no | no |
-| Task A (review issue 1): intake-chat reuse skips a chat whose Run is live | yes | yes (in-process lease) | n/a (service/CLI) | no | no |
+| Task A (review issue 1): intake-chat reuse skips a chat whose Run is live | yes (`dfe698aa`) | yes (in-process lease; [review](task-a-review.md) approved) | n/a (service/CLI) | no | no |
+| Task B1: ⌘Q during a run, then Resume | n/a | service only (`run_recovery`) | **no** (shell denied; [attempt](#native-observation-attempt-task-b-not-observed)) | no | n/a |
+| Task B2: three provider failures, one Blocker | n/a | service/CLI only (Fix 1) | **no** (shell denied) | no | n/a |
 | Contract doc updates (`threads-behavior.md`, `invariants.md`, `status.md`) | no (proposed text below) | no | n/a | no | no |
 | Desktop hookup U2 | no (UI-owned) | no | no | no | no |
 
@@ -23,7 +25,8 @@ Nothing was pushed, merged or released. The branch has no upstream.
 |---|---|
 | Automated, executed | [`cli-journey.py`](cli-journey.py) drives the real `brn` CLI through the journey and failure cases and reads SQLite read-only. `crates/brn-threads-app/tests/daily_workflow_eval.rs` drives the real runtime tools with a scripted Rig model (`run_prepared_scripted`), the real search worker and persisted state; it prints `EVAL` lines. There is also a SIGKILL backup/restore loop over an 85 MB synthetic store. Commands and results are listed at the end. |
 | Code inspection | Desktop quit/close handling, Resume/Continue paths and the useful-intake call site. These are cited by file. |
-| Native observation | **None.** Recommended items are listed at the end. They wait for the owner's go-ahead and must not run alongside the UI agent. |
+| Native observation | **None.** The owner approved B1/B2, but this shell cannot list processes, capture the screen or drive the UI ([attempt](#native-observation-attempt-task-b-not-observed)). A manual procedure is in [Owner manual check](#owner-manual-check). |
+| Unverified assumptions | Desktop ⌘Q skips the terminal commit (finding 1, code reading); a two-process lease check; desktop rendering of U3, U4 and U6. |
 | Not judged | Model quality: whether a real model finds both sources, phrases honest uncertainty, avoids duplicate notes on re-supply or drafts a good reply. The scripted model shows only what the host offers, enforces and persists. |
 
 ## Workflow evaluation (steps 1–7)
@@ -238,9 +241,8 @@ Commands, run from the worktree with `PATH=/opt/homebrew/opt/rustup/bin:$PATH`, 
 - Findings 4–10 and U3–U5 are unchanged.
 - **Model quality not judged.** The deterministic fixtures (scripted Rig model, offline `ReconnectNeeded` provider) prove only what the host offers, enforces and persists. They cannot judge whether a real model combines both sources with the existing note, states uncertainty honestly, asks the right owner question, avoids duplicate notes on re-supply or drafts a good reply. That needs an authorized live run on synthetic data.
 - **Email conversion not exercised.** `.eml` needs live Luna conversion, so the email was supplied as `.txt`/transient source.
-- **Native observation: none.** The ⌘Q-during-run assumption (finding 1) is from code inspection only.
+- **Native observation: none.** B1 and B2 were approved but not observed (shell denied process list, screen capture and UI control; B1 also needs a live provider). The ⌘Q-during-run assumption (finding 1) is from code inspection only.
 - Open non-blocking review issues ([review](review.md)), recorded rather than fixed:
-  - *Reuse can fence a live run.* Fixed in [Task A](#task-a-intake-chat-reuse-skips-a-chat-whose-run-is-live-review-issue-1).
   - *Provider-centric suffix.* "Continue when the provider is ready." is appended for every failure kind, including tool/time limits and storage errors, and persists after restart.
   - *Single-snapshot recovery.* Two simultaneous orphans in one chat need two Resumes, and the stale owner-direct preparation stays listed in `candidates()`.
   - *Destructive journey script.* `cli-journey.py` deletes its `ROOT` argument recursively before running; pass only a fresh path under `/private/tmp/brn-dwr-data/`.
@@ -281,7 +283,7 @@ Setup for every item: a fresh data folder (for example `/private/tmp/brn-ui-chec
 - **Shared runtime seams.** `begin`, `finish` and `Scope` in `crates/brn-ai/src/threads.rs`; `resume_queue`, `dispatch_queued` and the new `recover_orphaned_runs` in `crates/brn-threads-app/src/chat.rs`; `crates/brn-threads-app/src/intake.rs`. If the UI branch touches these, resolve by hand and rerun `run_recovery`, `source_intake_chat` and the brn-ai notice/lease tests.
 - **Desktop behaviour that depends on this branch.**
   - `threads_chat.rs::resume_chat_queue` already calls `stop_chat_run` on a queue-claimed Working Run without a liveness check, then `resume_queue`. That pre-existing desktop path is unchanged here and can still stop a Run that is live in another process; `resume_queue` now additionally interrupts lease-free orphans.
-  - Desktop tests that seed a Working Run to stand for a live worker and then call Resume/Dispatch will see it interrupted, because the seeded Run has no lease. None exists at `422c9582` (147 headless tests pass); new ones on `work/ui-polish` might.
+  - Desktop tests that seed a Working Run to stand for a live worker and then call Resume/Dispatch will see it interrupted, because the seeded Run has no lease. None exists at `dfe698aa` (147 headless tests pass); new ones on `work/ui-polish` might.
   - Terminal notice text changed (`failed_attention` now names the cause; `INTERRUPTED_ATTENTION`, `is_terminal_notice`, `replace_terminal_notice` are public). Any UI test asserting "Run failed; check provider…" will fail.
 - **Service API additions (no removals).** `Workspace::source_intake_chat(project, locator, title)`; `brn_ai::run_lease::{RunLease, run_is_live}`. CLI useful-intake JSON gains `thread` and `reused_chat` (`false` with a new `thread` when the earlier chat's Run is still live); `--project` with `--thread` is now refused; help gains two lines (possible conflict with `work/cli-agent-contract`). If the UI agent adopts `source_intake_chat` for U2, a desktop supply while a CLI Run on the same source is live gets its own chat instead of interrupting that Run.
 - **Storage.** New derived folder `derived/run-leases/` (excluded from backup/restore like all of `derived/`; no schema change). `begin()` refuses to start a Run when `derived/` is unsafe (for example a symlink).
