@@ -98,6 +98,41 @@ $ brn --json --data-dir "$R/none" intake --source "$R/plan.md" --intent chat   #
 
 The contract is documented in [the CLI README, "Agents and scripts"](../../../../crates/brn/README.md#agents-and-scripts) and served by `brn --json --help` from the same table the parser uses; `machine_description_lists_every_parsed_command_and_matches_readme` compares the README's status, error-code, retry and owner tables and the owner-rule line with the description. Summary: one compact envelope line on stdout (`contract, command, ok, status, exit, outcome, operation, key, retry, changed, conflict, result, error`); exits 0 ok, 1 internal, 2 usage, 3 stale, 4 deferred, 5 needs_review, 6 rejected, 7 failed, 130 interrupted; 26 stable error codes; retry classes read, replay, converge, refuse, duplicate per command and variant; owner-decision marks are documentation only. Without `--json`, output stays as before apart from the README's five compatibility items.
 
+## Review
+
+Two independent reviews of the task range `8bef439b..7983bc4f` (the six task commits): reviewer A **APPROVED**, reviewer B **APPROVED**, aggregate **APPROVED** with seven non-blocking findings. Handled here: the untracked duplicate `evidence.md` symlink at the worktree root is deleted (it also made the link check fail, because its relative links resolve from the root), and the plan no longer names machine-local paths or branch-deletion commands. Left open and listed under the gaps: the CI-only PTY and intake sandbox tests, the merge-time test edit for `work/daily-workflow-reliability`, no process test for reusing an Undo or keep-in-brn key on a different original (the core refuses it), and the unit-only outcome paths.
+
+## Final verification
+
+Code tree verified: `3638a54a` (base `8bef439b` = `origin/main` as last fetched; local `main` `771116f0`, an ancestor). The only change after the reviewed range is `3638a54a`, a test-only fix (below); the commit that adds this section changes records only. `git fetch origin` failed (`Could not resolve host: github.com`; no network in the agent sandbox), so no newer remote `main` could be checked; neither known ref is ahead of the base, so no rebase was needed. `BRN_*` unset unless shown; synthetic data under `/private/tmp/brn-cli-agent-contract`; no provider call.
+
+| Command | Result |
+|---|---|
+| `cargo fmt --all -- --check` | clean |
+| `cargo build --workspace --locked --offline` | ok |
+| `cargo clippy --workspace --all-targets --locked --offline -- -D warnings` | clean |
+| `cargo build -p brn-intake --features helper --bin brn-intake-helper --locked --offline` | ok |
+| `git diff --exit-code Cargo.lock` | clean |
+| `cargo test -p brn --locked --offline` (no skip variable) | 22 unit and 11 `threads.rs` passed; `agent_contract` 21 passed, 1 failed: `terminal_sources_are_refused_without_blocking`, `posix_openpt failed: Operation not permitted` (sandbox) |
+| `BRN_SKIP_PTY_TESTS=1 cargo test -p brn --locked --offline --no-fail-fast` | 22 + 22 + 11 passed; the PTY test self-skips, so it is **not** proof |
+| `cargo test -p brn-threads-app --locked --offline --no-fail-fast` | 145 passed, 0 failed (`keyed_owner_operations` 3) |
+| `BRN_SKIP_PTY_TESTS=1 BRN_INTAKE_HELPER=… cargo test --workspace --locked --offline --no-fail-fast` | 735 passed, 11 failed, 4 ignored; all 11 in `brn-threads-intake` (lib 3, `qualification` 8) |
+| Same 11 on the untouched baseline: `git archive 8bef439b`, own target dir, `cargo test -p brn-threads-intake --locked --offline --no-fail-fast` | the same 11 fail (identical list): the helper sandbox cannot start here (`sandbox-exec … /usr/bin/true` → `sandbox_apply: Operation not permitted`) |
+| `bash scripts/verify-storage.sh` | **exit 101**, stopping at the first failing intake target (3 failed of 25 in its lib tests); its tail by hand: `brn --help` 0, `brn` 1, `brn --unknown` 1, desktop `--help` 0, `--unknown` 1, `--headless-check startup` 0 |
+| CI macOS fixture step as in `ci.yml` (`RUNNER_TEMP` under the task root; `mktemp -d`, `pwd -P`, `trap 'rmdir …' EXIT`, `TMPDIR=…`, `bash scripts/verify-end-to-end.sh --fixtures-only`) | exit 0 in 3 s, journey included (`{"journey":"passed","steps":61,"checks":590}`); `rmdir` succeeded |
+| `python3 scripts/cli_journey.py "$PWD/target/debug/brn" --evidence-dir …`, `TMPDIR` a fresh empty parent, `BRN_*` unset | exit 0 in 0.98 s, 61 steps, 590 checks, stderr empty, parent left empty; transcript 62 lines (paths, IDs and SHA-256 only) kept with the task artifacts |
+| `python3 docs/work/active/projects/cli-witness.py target/debug/brn` | passed, 19 checks, 41 calls |
+| `python3 -m unittest discover -s scripts/tests` | first run: 146 passed, 1 error (`test_a_hung_child_is_killed_with_its_process_group`); after `3638a54a`: 147 passed |
+| `python3 scripts/check-markdown-links.py` | 0 failures (after deleting the root symlink) |
+| `for s in scripts/*.sh; do bash -n "$s"; done`; `git diff --check 8bef439b..HEAD` | ok; clean |
+| `cargo build -p brn --features native-retrieval --locked --offline`; `cargo check -p brn -p brn-threads-app --features brn-threads-app/native-retrieval --locked --offline` | ok; ok |
+
+The test fix: a freshly written Python stub sometimes took more than 1 s to start here, so the 1 s timeout killed it before it spawned the grandchild and the test failed reading the pid file (3 of 6 isolated runs; 8 of 15 in a probe loop). `3638a54a` uses a 2 s timeout and repeats an attempt whose stub never spawned the grandchild; the timeout and group-kill assertions are unchanged. It then passed 8 of 8 runs. The journey runner itself is unchanged.
+
+Coordination, re-checked: the only shared-service file changed is `crates/brn-threads-app/src/lib.rs` (33 added, 10 removed lines: three keyed functions and the `RetrievalError` re-export; `new_note`, `new_thread`, `undo` became wrappers); nothing under `brn-threads-core`, `brn-desktop`, `brn-threads-intake` or `brn-intake`. `git log 771116f0..<branch> -- crates/brn-threads-app/src/lib.rs` is empty for every branch named in design §10 except `codex/rust-luna-intake`, whose one hit (`859b7f46`) is pre-#144 history already squash-merged as `34c9239d`. `work/daily-workflow-reliability` is still `0efb6bef`, so the scratch test-merge was not repeated; `git merge-tree --write-tree` (no worktree) still reports the one known conflict file, `crates/brn/src/main.rs`, at both `7ad43581` and the candidate. `origin/codex/linux-ui-cloud` (`7075c46a`) merges without conflicts.
+
+Safety: the main checkout has no tracked changes (only the owner's untracked `.vscode/` and `experiments/`); `main` is `771116f0`; `work/cli-agent-contract` has no upstream and no remote ref; no tag contains a task commit; no PR, merge, publish or release; no gate or control file is in any task commit.
+
 ## Remaining gaps (ranked)
 
 1. No bounded, paginated inspection: `history`, revisions, receipts and candidates stay unpaged; `evaluate-wiki-guidance.py` still reads SQLite read-only.
@@ -110,3 +145,5 @@ The contract is documented in [the CLI README, "Agents and scripts"](../../../..
 8. `AppError::Invalid(String)` stays one code; the useful-intake sub-block keeps a coarse `invalid_request` mapping and `conflict: []` until the daily-workflow merge.
 9. Owner authority is stated, not enforced, at the CLI.
 10. The pseudo-terminal test and the intake sandbox tests were not run in this environment (above); CI must run them.
+11. No process test reuses an Undo or keep-in-brn key for a different original (the core refuses it, `store.rs` 511–521).
+12. Merging `work/daily-workflow-reliability` needs the recorded resolution, including changing `open_edit_session_reports_edit_session_open` to assert the structured `edit_session_open` default output.
