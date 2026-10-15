@@ -162,6 +162,21 @@ impl Workshop {
         cx.notify();
     }
 
+    /// Drop derived comment presentation on note/version/mode transitions,
+    /// including a switch to a different document with identical Markdown.
+    /// This does not load text, change dirty state, Save, or alter Undo.
+    pub fn clear_comment_anchor(&mut self, cx: &mut Context<Self>) {
+        *self.pending_anchor.borrow_mut() = None;
+        *self.measurement.borrow_mut() = Measurement::default();
+        self.active = None;
+        self.unavailable = Some(Unavailable::NoComment);
+        self.reader.update(cx, |reader, cx| {
+            reader.clear_range_start(cx);
+            reader.clear_range_highlights(cx);
+        });
+        cx.notify();
+    }
+
     pub fn select_comment(
         &mut self,
         index: usize,

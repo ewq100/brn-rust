@@ -632,3 +632,320 @@ fn silent_programmatic_editor_edit_invalidates_without_faking_draft_event(cx: &m
         "silent programmatic set_value: source observer clears anchor; no invented Change/draft generation event"
     );
 }
+
+/// Test-only navigation seam matching current open_note's programmatic load.
+/// Production navigation itself is not modified by this experiment.
+impl Fixture {
+    fn switch_saved_document(
+        &self,
+        note: &str,
+        source: &str,
+        comments: Vec<Comment>,
+        cx: &mut TestAppContext,
+    ) {
+        cx.update_window(self.window, |_, w, cx| {
+            self.host.update(cx, |h, cx| {
+                h.clear_comment_anchor(cx);
+                h.note_id = note.into();
+                h.version = 1;
+                h.saved = source.into();
+                h.comments = comments;
+                h.editor.update(cx, |e, cx| e.set_value(source, w, cx));
+                h.reader.update(cx, |r, cx| {
+                    r.clear_selection(cx);
+                    r.set_text(source, cx);
+                });
+                assert!(h.measurement.borrow().passage.is_none());
+                assert!(h.measurement.borrow().card.is_none());
+                cx.notify();
+            });
+        })
+        .unwrap();
+        self.frames(cx);
+    }
+}
+
+#[gpui_kit::test]
+fn document_switch_identical_text_and_changed_text_clear_old_anchor(cx: &mut TestAppContext) {
+    let source = "**same õun**\n\n**same õun**";
+    let a = synthetic_comment(source, last(source, "õun"), "note A second occurrence");
+    let f = Fixture::new(cx, source, vec![a.clone()], 850., 500.);
+    f.select(0, false, cx).unwrap();
+    aligned(&f.measure(cx));
+    let reader = f.reader(cx);
+    let editor = f.host.read_with(cx, |h, _| h.editor.clone());
+    let snapshot = reader.read_with(cx, |r, _| r.rendered_text());
+    let mut b = a.clone();
+    b.note = "note-B".into();
+    // Same source, same version, same range, same quote and same component
+    // entities: only document identity and explicit invalidation distinguish B.
+    f.switch_saved_document("note-B", source, vec![a.clone(), b], cx);
+    assert_eq!(f.reader(cx), reader);
+    assert_eq!(f.host.read_with(cx, |h, _| h.editor.clone()), editor);
+    assert_eq!(reader.read_with(cx, |r, _| r.rendered_text()), snapshot);
+    assert!(f.measure(cx).passage.is_none());
+    assert!(f.measure(cx).card.is_none());
+    assert_eq!(f.select(0, true, cx), Err(Unavailable::WrongNoteOrVersion));
+    f.select(1, true, cx).unwrap();
+    let note_b = aligned(&f.measure(cx));
+    assert_eq!(f.text(cx), source);
+    assert_eq!(f.host.read_with(cx, |h, _| h.generation), 0);
+
+    let changed = "New heading\n\nFirst **same õun**\n\nSecond **same õun**";
+    let mut c = synthetic_comment(changed, last(changed, "õun"), "note C second occurrence");
+    c.note = "note-C".into();
+    f.switch_saved_document("note-C", changed, vec![a, c], cx);
+    assert!(f.measure(cx).passage.is_none());
+    assert!(f.measure(cx).card.is_none());
+    assert_eq!(f.select(0, true, cx), Err(Unavailable::WrongNoteOrVersion));
+    f.select(1, true, cx).unwrap();
+    let note_c = aligned(&f.measure(cx));
+    assert_ne!(note_b, note_c);
+    assert_eq!(f.text(cx), changed);
+    assert_eq!(f.host.read_with(cx, |h, _| h.generation), 0);
+    println!(
+        "navigation seam: identical-source note B retained the same parsed snapshot but cleared A's anchor; changed-source C also starts unavailable; old-note comment refused; B={note_b:?}, C={note_c:?}"
+    );
+}
+
+#[gpui_kit::test]
+fn armed_passage_has_no_report_before_first_paint_then_measures(cx: &mut TestAppContext) {
+    use gpui_kit::{
+        App, Context, IntoElement, Render, Styled, Window,
+        base::{TextView, TextViewState},
+    };
+    use std::{cell::RefCell, rc::Rc};
+    struct FirstPaint {
+        reader: Entity<TextViewState>,
+        reports: Rc<RefCell<Vec<Option<Bounds<Pixels>>>>>,
+    }
+    impl Render for FirstPaint {
+        fn render(&mut self, _: &mut Window, _: &mut Context<Self>) -> impl IntoElement {
+            let reports = self.reports.clone();
+            TextView::new(&self.reader)
+                .w_full()
+                .h_full()
+                .scrollable(true)
+                .on_range_start_layout(move |geometry, _: &mut Window, _: &mut App| {
+                    reports.borrow_mut().push(geometry)
+                })
+        }
+    }
+    cx.update(gpui_kit::init);
+    let source = "First **õun**.\n\nSecond **õun**.";
+    let reports = Rc::new(RefCell::new(Vec::new()));
+    let reader = cx.new(|cx| TextViewState::markdown(source, cx).scrollable(true));
+    reader.update(cx, |r, cx| {
+        let text = r.rendered_text();
+        assert_eq!(text.source(), source);
+        let range = text.range_for_source(last(source, "õun")).unwrap();
+        r.track_range_start(range, cx).unwrap();
+    });
+    assert!(
+        reports.borrow().is_empty(),
+        "armed probe has no geometry before a window/layout exists"
+    );
+    let (window, _) = cx.update(|cx| {
+        gpui_kit::open_window(WindowOptions::default(), cx, |_, cx| {
+            cx.new(|_| FirstPaint {
+                reader: reader.clone(),
+                reports: reports.clone(),
+            })
+        })
+        .unwrap()
+    });
+    cx.update_window(window, |_, w, cx| w.render_frame(cx))
+        .unwrap();
+    assert!(!reports.borrow().is_empty());
+    let first = reports.borrow()[0].expect("first painted frame supplies a visible glyph");
+    assert!(first.size.width > px(0.) && first.size.height > px(0.));
+    assert_eq!(
+        reader.read_with(cx, |r, _| r.rendered_text().source().to_owned()),
+        source
+    );
+    println!(
+        "first layout: armed exact range before window creation -> no callback/position; first painted frame -> {first:?}"
+    );
+}
+
+#[gpui_kit::test]
+fn coupled_editor_store_witness_preserves_clean_dirty_generation_save_and_durable_undo(
+    cx: &mut TestAppContext,
+) {
+    use gpui_kit::component::input::InputEvent;
+    use std::{
+        cell::{Cell, RefCell},
+        rc::Rc,
+    };
+    let source = "Saved **õun** passage.";
+    let dir = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let mut store = Store::open(dir.path().join("coupled-synthetic")).unwrap();
+    let authority = HostAuthority::owner("geometry-witness");
+    let op = store.allocate_operation("coupled-note").unwrap();
+    let note = op.creation_id(0);
+    store
+        .prepare_owner(
+            &op,
+            &ChangeRequest {
+                reason: "Synthetic saved note".into(),
+                inputs: vec![],
+                writes: vec![Put {
+                    id: note.clone(),
+                    expected_version: None,
+                    archived: false,
+                    data: RecordData::Note(Note::working("Coupled witness", source)),
+                }],
+            },
+            &authority,
+        )
+        .unwrap();
+    assert!(matches!(
+        store.apply(&op, &authority).unwrap(),
+        ApplyOutcome::Applied(_)
+    ));
+    let store = Rc::new(RefCell::new(store));
+    let session = Rc::new(RefCell::new(None::<EditSession>));
+    let events = Rc::new(Cell::new(0usize));
+    let f = Fixture::new(
+        cx,
+        source,
+        vec![synthetic_comment(source, last(source, "õun"), "selected")],
+        850.,
+        500.,
+    );
+    // This is a coupled test witness, not a copy of ThreadsUi::note_changed.
+    // A real editor Change enters the actual checked recovery-buffer APIs;
+    // geometry must leave this live callback completely idle.
+    let _subscription = f.host.update(cx, |h, cx| {
+        let store = store.clone();
+        let session = session.clone();
+        let events = events.clone();
+        let note = note.clone();
+        cx.subscribe(&h.editor, move |_, editor, event, cx| {
+            if !matches!(event, InputEvent::Change) {
+                return;
+            }
+            events.set(events.get() + 1);
+            let text = editor.read(cx).value().to_string();
+            let mut store = store.borrow_mut();
+            let old = session
+                .borrow()
+                .clone()
+                .unwrap_or_else(|| store.begin_edit(&note, 1).unwrap());
+            if let BufferOutcome::Updated(next) = store
+                .update_buffer(&old.id, old.generation + 1, &text)
+                .unwrap()
+            {
+                *session.borrow_mut() = Some(next);
+            }
+        })
+    });
+    let clean_records = store.borrow().records().unwrap();
+    let clean_receipts = store.borrow().receipts().unwrap();
+    for _ in 0..3 {
+        f.click("comment-0", cx);
+        aligned(&f.measure(cx));
+    }
+    cx.simulate_window_resize(f.window, size(px(650.), px(500.)));
+    f.frames(cx);
+    f.host.update(cx, |h, cx| h.clear_comment_anchor(cx));
+    f.frames(cx);
+    assert_eq!(f.text(cx), source);
+    assert_eq!(events.get(), 0);
+    assert!(session.borrow().is_none());
+    assert!(
+        store.borrow().recovery_buffers().unwrap().is_empty(),
+        "clean remains clean, no edit session created"
+    );
+    assert_eq!(store.borrow().records().unwrap(), clean_records);
+    assert_eq!(store.borrow().receipts().unwrap(), clean_receipts);
+    assert!(
+        store.borrow().revision(&note, 2).unwrap().is_none(),
+        "no implicit Save"
+    );
+
+    // Positive control: real input exercises the connected callback and SQLite.
+    f.click("write-toggle", cx);
+    let editor = f.host.read_with(cx, |h, _| h.editor.clone());
+    cx.update_window(f.window, |_, w, cx| {
+        editor.update(cx, |e, cx| e.focus(w, cx))
+    })
+    .unwrap();
+    cx.update_window(f.window, |_, w, cx| w.input("typed ", cx))
+        .unwrap();
+    f.frames(cx);
+    let typed = f.text(cx);
+    assert_ne!(typed, source);
+    assert!(events.get() > 0);
+    let dirty = session.borrow().clone().unwrap();
+    assert_eq!(dirty.markdown, typed);
+    assert!(dirty.generation > 0);
+    let dirty_events = events.get();
+    let dirty_records = store.borrow().records().unwrap();
+    let dirty_receipts = store.borrow().receipts().unwrap();
+    let recovery = store.borrow().recovery_buffers().unwrap();
+    f.click("write-toggle", cx);
+    for _ in 0..3 {
+        assert_eq!(f.select(0, true, cx), Err(Unavailable::DirtyDocument));
+    }
+    cx.simulate_window_resize(f.window, size(px(900.), px(450.)));
+    f.frames(cx);
+    f.host.update(cx, |h, cx| h.clear_comment_anchor(cx));
+    f.frames(cx);
+    assert_eq!(f.text(cx), typed);
+    assert_eq!(events.get(), dirty_events);
+    assert_eq!(store.borrow().edit_session(&dirty.id).unwrap(), dirty);
+    assert_eq!(
+        store.borrow().recovery_buffers().unwrap(),
+        recovery,
+        "dirty remains recoverable with same generation"
+    );
+    assert_eq!(store.borrow().records().unwrap(), dirty_records);
+    assert_eq!(store.borrow().receipts().unwrap(), dirty_receipts);
+    assert!(store.borrow().revision(&note, 2).unwrap().is_none());
+    assert!(matches!(
+        store
+            .borrow_mut()
+            .save(&dirty.id, dirty.generation - 1)
+            .unwrap(),
+        SaveOutcome::GenerationMismatch(_)
+    ));
+    let SaveOutcome::Saved(saved) = store
+        .borrow_mut()
+        .save(&dirty.id, dirty.generation)
+        .unwrap()
+    else {
+        panic!("explicit Save must work")
+    };
+    assert_eq!(store.borrow().record(&note).unwrap().unwrap().version, 2);
+    assert_eq!(
+        store
+            .borrow_mut()
+            .save(&dirty.id, dirty.generation)
+            .unwrap(),
+        SaveOutcome::Saved(saved.clone()),
+        "Save replay still idempotent"
+    );
+    let compensation = store
+        .borrow_mut()
+        .allocate_operation("undo-explicit-save")
+        .unwrap();
+    assert!(matches!(
+        store
+            .borrow_mut()
+            .undo(&compensation, &saved.operation, &authority)
+            .unwrap(),
+        ApplyOutcome::Applied(_)
+    ));
+    let RecordData::Note(restored) = store.borrow().note(&note).unwrap().unwrap().data else {
+        panic!()
+    };
+    assert_eq!(
+        restored.markdown, source,
+        "durable checked Undo restores saved source"
+    );
+    println!(
+        "coupled witness: clean display/reveal/resize/clear -> no Change, no session, no revision/receipt; typing positive control -> persisted generation {}; dirty display -> same text/generation/recovery; stale Save refused, explicit Save/replay/durable Undo passed",
+        dirty.generation
+    );
+}
