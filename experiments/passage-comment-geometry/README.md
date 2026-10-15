@@ -5,6 +5,10 @@ A bounded synthetic host using the same `EditorState`/`Editor` and
 is painted beside its passage in Read. Clicking a comment uses the existing
 viewer reveal API. The host is not BRN's full desktop or a new editor.
 
+[PUBLICATION.md](PUBLICATION.md) records the separately authorized experiment-only
+publication, exact reconciled check tree and remaining gates. Production/source/
+ownership approval is still absent.
+
 Read [INTEGRATION-REVIEW.md](INTEGRATION-REVIEW.md) for the corrected reference
 `c20bda2`, 21 passing tests, independent review, the 150-test retained production
 fallback result, and current blockers. Owner reply: “no c yet”; production
