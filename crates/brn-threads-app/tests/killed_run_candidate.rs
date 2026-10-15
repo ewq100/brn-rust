@@ -1,8 +1,9 @@
 //! The owner's `native-b1-kill` case: a useful-intake Run prepares a candidate
 //! through the real runtime tools, then its process is killed before the
 //! terminal result. However that Run ends afterwards, its chat gets one
-//! Interrupted notice where the stop came from elsewhere, and a Review item
-//! for the candidate in every case. The candidate is never applied, dismissed
+//! Interrupted notice, a Review item for the candidate, and loses the leftover
+//! lease file. A live Run the owner stops in its own chat gets no notice and
+//! keeps its lease. The candidate is never applied, dismissed
 //! or retired for the owner. Synthetic data and a scripted model; no provider
 //! is contacted.
 use brn_ai::threads::{
@@ -10,7 +11,7 @@ use brn_ai::threads::{
     run_prepared_scripted_then_abandon,
 };
 use brn_ai::{AiTerminal, Provider, ReasoningEffort, Selection};
-use brn_threads_app::run_attention::REVIEW_ATTENTION;
+use brn_threads_app::run_attention::{FAILED_PREFIX, REVIEW_ATTENTION};
 use brn_threads_app::*;
 use brn_threads_intake::{ConversionResult, Coverage, CoverageStatus, ImportIntent};
 use rig::test_utils::{MockCompletionModel, MockStreamEvent};
@@ -213,7 +214,12 @@ fn assert_reviewable(workspace: &Workspace, operation: &str) {
 /// `prepare_changes` tool, then its process dies before the terminal result.
 /// Returns the Run and its candidate operation.
 async fn killed_intake(data: &Path, chat: &str) -> (String, String) {
-    let prepared = prepare_run(intake_request(data, chat)).unwrap();
+    killed_run(data, chat, intake_request(data, chat)).await
+}
+
+/// As [`killed_intake`], for an exact `request` in `chat`.
+async fn killed_run(data: &Path, chat: &str, request: ThreadRunRequest) -> (String, String) {
+    let prepared = prepare_run(request).unwrap();
     let id = prepared.run_id().to_owned();
     let model = MockCompletionModel::from_stream_turns([
         call(
@@ -309,8 +315,8 @@ async fn the_delegation_choice_after_a_kill_leaves_one_notice_and_a_review_for_t
     assert_eq!(workspace.history().unwrap().len(), receipts);
     assert_eq!(attention(&workspace, &w.intake), expected);
     assert_reviewable(&workspace, &operation);
-    // Recorded limitation: only orphan recovery removes the leftover file.
-    assert!(lease_file(&workspace, &id).exists());
+    // Before (round 4): only orphan recovery removed the leftover file.
+    assert!(!lease_file(&workspace, &id).exists());
 }
 
 #[test]
@@ -329,7 +335,159 @@ fn the_settings_change_also_stops_a_run_that_is_still_live() {
     let stopped = run(&workspace, &id);
     assert_eq!((stopped.state, stopped.fence), (RunState::Cancelled, 2));
     assert_eq!(attention(&workspace, &w.intake), vec![interrupted(&id)]);
+    // A live lease is never removed; its holder drops it.
     assert!(brn_ai::run_lease::run_is_live(&derived, &id));
+    assert!(lease_file(&workspace, &id).exists());
+    drop(live);
+    assert!(!lease_file(&workspace, &id).exists());
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn stop_after_a_failure_treats_a_lease_free_run_as_interrupted_work() {
+    // `leftover`: a SIGKILL left the unlocked file. Otherwise the failed
+    // worker dropped its lease, which removed the file.
+    for leftover in [true, false] {
+        let w = world();
+        let (id, operation) = killed_intake(&w.data, &w.intake).await;
+        let mut workspace = Workspace::open(&w.data).unwrap();
+        if !leftover {
+            std::fs::remove_file(lease_file(&workspace, &id)).unwrap();
+        }
+        // The desktop's `pause_failed_worker` call.
+        let stop = |workspace: &mut Workspace| {
+            workspace
+                .stop_chat_run("worker-failure:1", &id, Some("partial text"))
+                .unwrap()
+        };
+        let receipt = stop(&mut workspace);
+        let stopped = run(&workspace, &id);
+        assert_eq!(
+            (stopped.state, stopped.fence),
+            (RunState::Interrupted, 2),
+            "{leftover}"
+        );
+        // Before: `[Review(op)]` and the lease file left.
+        let expected = vec![review(&operation), interrupted(&id)];
+        assert_eq!(attention(&workspace, &w.intake), expected, "{leftover}");
+        assert!(!lease_file(&workspace, &id).exists(), "{leftover}");
+        let partials = |workspace: &Workspace| {
+            workspace
+                .messages(&w.intake)
+                .unwrap()
+                .iter()
+                .filter(|m| matches!(&m.data, RecordData::Message(m) if m.role == "assistant-partial" && m.text == "partial text"))
+                .count()
+        };
+        assert_eq!(partials(&workspace), 1);
+        assert_reviewable(&workspace, &operation);
+        // The same key replays the same receipt and adds nothing.
+        let receipts = workspace.history().unwrap().len();
+        assert_eq!(stop(&mut workspace), receipt);
+        assert_eq!(workspace.history().unwrap().len(), receipts);
+        assert_eq!(attention(&workspace, &w.intake), expected);
+        assert_eq!(partials(&workspace), 1);
+    }
+}
+
+fn scripted_failure() -> MockCompletionModel {
+    MockCompletionModel::from_stream_turns([vec![MockStreamEvent::error(
+        "synthetic provider failure",
+    )]])
+}
+
+/// The one terminal notice the chat keeps after `run` failed.
+fn assert_failed_notice(workspace: &Workspace, chat: &str, run: &str, operation: &str) {
+    let items = attention(workspace, chat);
+    assert_eq!(items.len(), 2, "{items:?}");
+    assert_eq!(items[0], review(operation));
+    assert_eq!(items[1].kind, AttentionKind::Blocker);
+    assert_eq!(items[1].record.as_deref(), Some(run));
+    assert!(items[1].reason.starts_with(FAILED_PREFIX), "{items:?}");
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn resume_after_a_killed_queued_run_leaves_one_notice_and_redispatches_once() {
+    let w = world();
+    let mut workspace = Workspace::open(&w.data).unwrap();
+    workspace
+        .queue_message("queue-1", &w.intake, QUESTION)
+        .unwrap();
+    let queued = workspace.dispatch_queued("dispatch-1").unwrap().unwrap();
+    drop(workspace);
+    // As the desktop's `start_run` builds a queued item's request.
+    let queued_request = |q: &QueuedMessage| ThreadRunRequest {
+        request_message: q.message.clone(),
+        queue_claim: q.dispatch.clone(),
+        ..request(&w.data, &q.thread, &q.text, vec![])
+    };
+    let (id, operation) = killed_run(&w.data, &w.intake, queued_request(&queued)).await;
+    let mut workspace = Workspace::open(&w.data).unwrap();
+    let pending = |workspace: &Workspace| match workspace.chat_control().unwrap().data {
+        RecordData::ChatControl(c) => c.pending,
+        _ => panic!("ChatControl"),
+    };
+    assert_eq!(
+        pending(&workspace).and_then(|q| q.run).as_deref(),
+        Some(id.as_str())
+    );
+    // The desktop's Resume: stop the pending item's stale Run, resume, dispatch.
+    let receipt = workspace
+        .stop_chat_run("resume-stale:1", &id, None)
+        .unwrap();
+    let stopped = run(&workspace, &id);
+    assert_eq!((stopped.state, stopped.fence), (RunState::Interrupted, 2));
+    // Before: `[Review(op)]` and the lease file left.
+    let expected = vec![review(&operation), interrupted(&id)];
+    assert_eq!(attention(&workspace, &w.intake), expected);
+    assert!(!lease_file(&workspace, &id).exists());
+    workspace.resume_queue("resume-1").unwrap();
+    let again = workspace.dispatch_queued("dispatch-2").unwrap().unwrap();
+    assert_eq!(attention(&workspace, &w.intake), expected);
+    assert_reviewable(&workspace, &operation);
+    // The same item and the same owner Message: nothing is reposted.
+    assert_eq!(
+        (&again.id, &again.message, &again.text),
+        (&queued.id, &queued.message, &queued.text)
+    );
+    assert_eq!(owner_messages(&workspace, &w.intake), 1);
+    assert!(!matches!(
+        workspace.dispatch_queued("dispatch-3"),
+        Ok(Some(_))
+    ));
+    // A replayed stop adds nothing.
+    let receipts = workspace.history().unwrap().len();
+    assert_eq!(
+        workspace
+            .stop_chat_run("resume-stale:1", &id, None)
+            .unwrap(),
+        receipt
+    );
+    assert_eq!(workspace.history().unwrap().len(), receipts);
+    // The item runs once more and fails: its result replaces the notice.
+    let prepared = prepare_run(queued_request(&again)).unwrap();
+    let rerun = prepared.run_id().to_owned();
+    let result = run_prepared_scripted(prepared, scripted_failure())
+        .await
+        .unwrap();
+    assert!(matches!(result.answer.terminal, AiTerminal::Failed(_)));
+    assert_failed_notice(&workspace, &w.intake, &rerun, &operation);
+    assert_eq!(owner_messages(&workspace, &w.intake), 1);
+    assert_reviewable(&workspace, &operation);
+}
+
+#[test]
+fn a_deliberate_stop_of_a_live_run_adds_no_notice_and_keeps_its_lease() {
+    let w = world();
+    let live = prepare_run(intake_request(&w.data, &w.intake)).unwrap();
+    let id = live.run_id().to_owned();
+    let mut workspace = Workspace::open(&w.data).unwrap();
+    let derived = workspace.store.derived_directory().unwrap();
+    workspace.stop_chat_run("stop-1", &id, None).unwrap();
+    let stopped = run(&workspace, &id);
+    assert_eq!((stopped.state, stopped.fence), (RunState::Interrupted, 2));
+    assert!(attention(&workspace, &w.intake).is_empty());
+    assert!(brn_ai::run_lease::run_is_live(&derived, &id));
+    assert!(lease_file(&workspace, &id).exists());
     drop(live);
 }
 
@@ -412,32 +570,36 @@ async fn a_later_run_replaces_the_notice_of_a_run_the_settings_change_cancelled(
     assert_reviewable(&workspace, &operation);
 }
 
+/// The owner's stop, archive or steer of Run `id` in the intake chat.
+fn stop_path(path: &str, workspace: &mut Workspace, w: &World, id: &str) -> Receipt {
+    match path {
+        "stop" => workspace.stop_chat_run("stop-1", id, None).unwrap(),
+        "archive" => workspace.archive_chat("archive-1", &w.intake).unwrap(),
+        _ => workspace
+            .stop_and_post("steer-1", id, &w.intake, "Use the berth survey instead.")
+            .unwrap(),
+    }
+}
+
 #[tokio::test(flavor = "multi_thread")]
-async fn stop_archive_and_steer_keep_the_candidate_in_review_without_a_notice() {
+async fn stop_archive_and_steer_of_a_killed_run_add_the_notice_and_remove_the_lease() {
     for path in ["stop", "archive", "steer"] {
         let w = world();
         let (id, operation) = killed_intake(&w.data, &w.intake).await;
         let mut workspace = Workspace::open(&w.data).unwrap();
-        let act = |workspace: &mut Workspace| match path {
-            "stop" => workspace.stop_chat_run("stop-1", &id, None).unwrap(),
-            "archive" => workspace.archive_chat("archive-1", &w.intake).unwrap(),
-            _ => workspace
-                .stop_and_post("steer-1", &id, &w.intake, "Use the berth survey instead.")
-                .unwrap(),
-        };
-        let receipt = act(&mut workspace);
+        let receipt = stop_path(path, &mut workspace, &w, &id);
         let stopped = run(&workspace, &id);
         assert_eq!(
             (stopped.state, stopped.fence),
             (RunState::Interrupted, 2),
             "{path}"
         );
-        // The owner stopped this chat's work and sees that: no notice.
-        assert_eq!(
-            attention(&workspace, &w.intake),
-            vec![review(&operation)],
-            "{path}"
-        );
+        // No process held this Run, so it ended like an orphan. Before: only
+        // the Review, and the lease file left. The archived chat's own write
+        // carries both.
+        let expected = vec![review(&operation), interrupted(&id)];
+        assert_eq!(attention(&workspace, &w.intake), expected, "{path}");
+        assert!(!lease_file(&workspace, &id).exists(), "{path}");
         assert_eq!(
             workspace.store.record(&w.intake).unwrap().unwrap().archived,
             path == "archive"
@@ -445,9 +607,32 @@ async fn stop_archive_and_steer_keep_the_candidate_in_review_without_a_notice() 
         assert_reviewable(&workspace, &operation);
         // The same key replays the same receipt and changes nothing.
         let receipts = workspace.history().unwrap().len();
-        assert_eq!(act(&mut workspace), receipt, "{path}");
+        assert_eq!(stop_path(path, &mut workspace, &w, &id), receipt, "{path}");
         assert_eq!(workspace.history().unwrap().len(), receipts);
-        assert_eq!(attention(&workspace, &w.intake), vec![review(&operation)]);
+        assert_eq!(attention(&workspace, &w.intake), expected);
+    }
+}
+
+#[test]
+fn stop_archive_and_steer_of_a_live_run_add_no_notice() {
+    for path in ["stop", "archive", "steer"] {
+        let w = world();
+        let live = prepare_run(intake_request(&w.data, &w.intake)).unwrap();
+        let id = live.run_id().to_owned();
+        let mut workspace = Workspace::open(&w.data).unwrap();
+        let derived = workspace.store.derived_directory().unwrap();
+        stop_path(path, &mut workspace, &w, &id);
+        let stopped = run(&workspace, &id);
+        assert_eq!(
+            (stopped.state, stopped.fence),
+            (RunState::Interrupted, 2),
+            "{path}"
+        );
+        // The owner stopped this chat's live work and sees that: no notice.
+        assert!(attention(&workspace, &w.intake).is_empty(), "{path}");
+        assert!(brn_ai::run_lease::run_is_live(&derived, &id), "{path}");
+        assert!(lease_file(&workspace, &id).exists(), "{path}");
+        drop(live);
     }
 }
 
@@ -518,6 +703,7 @@ async fn project_changes_and_project_imports_leave_the_notice_and_the_review() {
                 // The trashed chat keeps both, so Restore brings them back.
                 assert!(workspace.store.record(&w.intake).unwrap().unwrap().archived);
                 assert_eq!(attention(&workspace, &w.intake), expected);
+                assert!(!lease_file(&workspace, &id).exists());
                 let version = workspace.store.record(&w.project).unwrap().unwrap().version;
                 workspace
                     .project_command(
@@ -541,28 +727,54 @@ async fn project_changes_and_project_imports_leave_the_notice_and_the_review() {
         );
         assert_eq!(attention(&workspace, &w.intake), expected, "{path}");
         assert_reviewable(&workspace, &operation);
+        // Before: the leftover lease file stayed.
+        assert!(!lease_file(&workspace, &id).exists(), "{path}");
     }
 }
 
 #[tokio::test(flavor = "multi_thread")]
-async fn continue_in_the_killed_chat_keeps_the_candidate_in_review() {
+async fn continue_in_the_killed_chat_adds_the_notice_and_removes_the_lease() {
     let w = world();
     let (id, operation) = killed_intake(&w.data, &w.intake).await;
+    let prepared = prepare_run(request(&w.data, &w.intake, "Continue", vec![])).unwrap();
+    let continued = prepared.run_id().to_owned();
+    let workspace = Workspace::open(&w.data).unwrap();
+    let fenced = run(&workspace, &id);
+    assert_eq!((fenced.state, fenced.fence), (RunState::Interrupted, 2));
+    // No process held the fenced Run, so it ended like an orphan. Before:
+    // only the Review, and the lease file left.
+    assert_eq!(
+        attention(&workspace, &w.intake),
+        vec![review(&operation), interrupted(&id)]
+    );
+    assert!(!lease_file(&workspace, &id).exists());
+    // The new Run holds its own lease.
+    let derived = workspace.store.derived_directory().unwrap();
+    assert!(brn_ai::run_lease::run_is_live(&derived, &continued));
+    let result = run_prepared_scripted(prepared, scripted_failure())
+        .await
+        .unwrap();
+    assert!(matches!(result.answer.terminal, AiTerminal::Failed(_)));
+    // Its result replaces the notice: one per chat.
+    assert_failed_notice(&workspace, &w.intake, &continued, &operation);
+    assert_reviewable(&workspace, &operation);
+}
+
+#[test]
+fn continue_beside_a_live_run_adds_no_notice_and_keeps_its_lease() {
+    let w = world();
+    let live = prepare_run(intake_request(&w.data, &w.intake)).unwrap();
+    let id = live.run_id().to_owned();
     let prepared = prepare_run(request(&w.data, &w.intake, "Continue", vec![])).unwrap();
     let workspace = Workspace::open(&w.data).unwrap();
     let fenced = run(&workspace, &id);
     assert_eq!((fenced.state, fenced.fence), (RunState::Interrupted, 2));
-    // A fresh Run follows at once, so no notice; before: no Review either.
-    assert_eq!(attention(&workspace, &w.intake), vec![review(&operation)]);
-    let result = run_prepared_scripted(
-        prepared,
-        MockCompletionModel::from_stream_turns([finish("The crane note waits for your review.")]),
-    )
-    .await
-    .unwrap();
-    assert!(matches!(result.answer.terminal, AiTerminal::Completed));
-    assert_eq!(attention(&workspace, &w.intake), vec![review(&operation)]);
-    assert_reviewable(&workspace, &operation);
+    assert!(attention(&workspace, &w.intake).is_empty());
+    let derived = workspace.store.derived_directory().unwrap();
+    assert!(brn_ai::run_lease::run_is_live(&derived, &id));
+    assert!(lease_file(&workspace, &id).exists());
+    drop(prepared);
+    drop(live);
 }
 
 /// Writes a fresh store for the owner's offline native re-check. `settings`:

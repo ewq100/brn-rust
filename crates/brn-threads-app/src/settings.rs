@@ -98,11 +98,14 @@ impl Workspace {
         let op = self
             .store
             .allocate_bound_operation(&format!("configure:{}", uuid::Uuid::new_v4()), &binding)?;
-        Ok(self.store.configure_workspace(
+        // Each settings change below stops Working Runs; a stopped Run's free
+        // lease file goes with it, and a live one is kept.
+        let outcome = self.store.configure_workspace(
             &op,
             &settings,
             &HostAuthority::owner("owner configuration"),
-        )?)
+        )?;
+        Ok(self.remove_leases_ended_by(outcome))
     }
     pub fn choose_delegation(&mut self, choice: DelegationChoice) -> AppResult<ApplyOutcome> {
         let binding = format!("{:x}", Sha256::digest(serde_json::to_vec(&choice)?));
@@ -110,21 +113,23 @@ impl Workspace {
             &format!("delegation-choice:{}", uuid::Uuid::new_v4()),
             &binding,
         )?;
-        Ok(self.store.choose_delegation(
+        let outcome = self.store.choose_delegation(
             &op,
             choice,
             &HostAuthority::owner("owner delegation choice"),
-        )?)
+        )?;
+        Ok(self.remove_leases_ended_by(outcome))
     }
     pub fn choose_backup_directory(&mut self, directory: &Path) -> AppResult<ApplyOutcome> {
         let op = self
             .store
             .allocate_operation(&format!("backup-directory:{}", uuid::Uuid::new_v4()))?;
-        Ok(self.store.choose_backup_directory(
+        let outcome = self.store.choose_backup_directory(
             &op,
             directory,
             &HostAuthority::owner("owner backup folder selection"),
-        )?)
+        )?;
+        Ok(self.remove_leases_ended_by(outcome))
     }
 
     /// Reload and validate the preference for this workspace, then publish a fresh backup.
@@ -156,11 +161,12 @@ impl Workspace {
         let op = self
             .store
             .allocate_bound_operation(&format!("pause:{}", uuid::Uuid::new_v4()), &binding)?;
-        Ok(self.store.pause_workspace(
+        let outcome = self.store.pause_workspace(
             &op,
             paused,
             &HostAuthority::owner("owner maintenance pause"),
-        )?)
+        )?;
+        Ok(self.remove_leases_ended_by(outcome))
     }
 }
 

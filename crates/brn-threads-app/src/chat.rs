@@ -18,9 +18,74 @@ impl Workspace {
         let op = self
             .store
             .allocate_bound_operation(&format!("chat-control:{key}"), &binding)?;
+        // Only a stop or an archive ends Runs.
+        let orphans = if matches!(
+            command,
+            ChatCommand::Pause { run: Some(_), .. }
+                | ChatCommand::Archive { .. }
+                | ChatCommand::ArchiveProgress { .. }
+        ) {
+            self.lease_free_working_runs()?
+        } else {
+            BTreeSet::new()
+        };
+        let outcome = self.store.chat_command_with_orphans(
+            &op,
+            &command,
+            &HostAuthority::owner("owner chat action"),
+            &orphans,
+        )?;
+        self.remove_ended_leases(&outcome.receipt);
+        Ok(outcome)
+    }
+    /// Non-archived Working Runs that no process holds a lease for. A stop
+    /// treats them as orphans: notice, Review items and lease removal. Without
+    /// a usable lease folder liveness is unknown, so every Run counts as live.
+    /// A free lease stays free: only a new Run ID ever takes one.
+    pub(crate) fn lease_free_working_runs(&self) -> AppResult<BTreeSet<String>> {
+        let Ok(derived) = self.store.derived_directory() else {
+            return Ok(BTreeSet::new());
+        };
         Ok(self
-            .store
-            .chat_command(&op, &command, &HostAuthority::owner("owner chat action"))?)
+            .records()?
+            .into_iter()
+            .filter(|r| {
+                !r.archived
+                    && matches!(&r.data, RecordData::Run(run) if run.state == RunState::Working)
+                    && !brn_ai::run_lease::run_is_live(&derived, &r.id)
+            })
+            .map(|r| r.id)
+            .collect())
+    }
+    /// Removes the leftover lease file of each Run that `receipt` ended. A
+    /// lease a process still holds is never removed, so a live Run keeps its
+    /// file until its own worker drops it. Best effort: errors keep the file.
+    pub(crate) fn remove_ended_leases(&self, receipt: &Receipt) {
+        let ended: Vec<&str> = receipt
+            .writes
+            .iter()
+            .filter(|w| {
+                matches!(&w.before, Some(Record { data: RecordData::Run(run), .. }) if run.state == RunState::Working)
+                    && matches!(&w.after.data, RecordData::Run(run) if run.state != RunState::Working)
+            })
+            .map(|w| w.after.id.as_str())
+            .collect();
+        if ended.is_empty() {
+            return;
+        }
+        let Ok(derived) = self.store.derived_directory() else {
+            return;
+        };
+        for run in ended {
+            let _ = brn_ai::run_lease::remove_free(&derived, run);
+        }
+    }
+    /// [`Self::remove_ended_leases`] for an applied outcome.
+    pub(crate) fn remove_leases_ended_by(&self, outcome: ApplyOutcome) -> ApplyOutcome {
+        if let ApplyOutcome::Applied(receipt) = &outcome {
+            self.remove_ended_leases(receipt);
+        }
+        outcome
     }
     pub fn queue_message(&mut self, key: &str, thread: &str, text: &str) -> AppResult<Receipt> {
         Ok(self

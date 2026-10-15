@@ -79,6 +79,19 @@ pub fn ended_run_attention(
     record: impl Fn(&str) -> Result<Option<Record>>,
     active: impl Fn(&[OperationId]) -> Result<Vec<String>>,
 ) -> Result<()> {
+    ended_run_attention_with(writes, ended, |_| notice, record, active)
+}
+
+/// As [`ended_run_attention`], with the notice chosen per Run: `notice(id)`
+/// says whether ended Run `id` gets the Interrupted notice, such as a Run
+/// whose lease no process holds. Each chat still keeps at most one notice.
+pub fn ended_run_attention_with(
+    writes: &mut Vec<Put>,
+    ended: &[(String, Run)],
+    notice: impl Fn(&str) -> bool,
+    record: impl Fn(&str) -> Result<Option<Record>>,
+    active: impl Fn(&[OperationId]) -> Result<Vec<String>>,
+) -> Result<()> {
     let mut chats: Vec<&str> = Vec::new();
     for (_, run) in ended {
         if !chats.contains(&run.thread.as_str()) {
@@ -107,7 +120,7 @@ pub fn ended_run_attention(
         let before = thread.attention.clone();
         for (id, run) in ended.iter().filter(|(_, run)| run.thread == chat) {
             add_review_attention(&mut thread.attention, &active(&run.operations)?);
-            if notice {
+            if notice(id) {
                 replace_terminal_notice(
                     &mut thread.attention,
                     id,
@@ -299,6 +312,29 @@ mod tests {
         let mut writes = vec![];
         ended(&mut writes, &[("run", run("chat", &["op"]))], true, &saved).unwrap();
         assert_eq!(attention(&writes[0]), [review("op"), blocker("run")]);
+    }
+
+    #[test]
+    fn per_run_notice_marks_only_lease_free_runs() {
+        let saved = [chat(vec![], false)];
+        let runs = [
+            ("orphan".to_owned(), run("chat", &["op-a"])),
+            ("live".to_owned(), run("chat", &["op-b"])),
+        ];
+        let mut writes = vec![];
+        ended_run_attention_with(
+            &mut writes,
+            &runs,
+            |id| id == "orphan",
+            |id| Ok(saved.iter().find(|r| r.id == id).cloned()),
+            |ops| Ok(ops.iter().map(|op| op.as_str().to_owned()).collect()),
+        )
+        .unwrap();
+        assert_eq!(writes.len(), 1);
+        assert_eq!(
+            attention(&writes[0]),
+            [review("op-a"), blocker("orphan"), review("op-b")]
+        );
     }
 
     #[test]

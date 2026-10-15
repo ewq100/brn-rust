@@ -221,3 +221,115 @@ Manual CLI check on fresh synthetic data, `/private/tmp/brn-dwr-data/r5-b-locato
 - New core exports `canonical_locator`, `same_locator`, `find_source` and `matching_sources`. Slice E should use `find_source` (or `matching_sources`) for Source matching, so it gets exact-first and the host-recorded filter. `brn_ai::threads::prepare_run`'s signature is unchanged; it now canonicalizes the request's source references.
 - Tests elsewhere that compare a real temp file path with `Source.locator` must use the canonical path. Synthetic locators are unchanged.
 - Proposed sentence for `docs/architecture/threads-behavior.md` (not edited here): "A local file supplied as a source is recorded and matched by its real path, so one file is one Source however its path is spelled; a Source saved under an older spelling still matches and is recorded at the real path by the next checked observation."
+
+## Slice C: the remaining stop paths end lease-free Runs like orphans
+
+### Change
+
+The core cannot see leases (`run_lease` lives in `brn-ai` and uses `libc`), so the service passes liveness to it as data and removes free lease files after the change.
+
+- Core (`brn-threads-core`):
+  - `run_attention::ended_run_attention_with(writes, ended, notice: Fn(&str) -> bool, record, active)` picks the notice per Run. `ended_run_attention(.., notice: bool, ..)` is now a one-line wrapper, so every round 4 caller is unchanged. A chat still keeps one terminal notice.
+  - `Store::chat_command_with_orphans(op, command, owner, orphans)`. The Pause and Archive/ArchiveProgress arms give the Interrupted notice to a stopped Run whose ID is in `orphans`. `chat_command` delegates with an empty set.
+  - `Store::stop_and_post_checked(.., orphans)`, the same for steering. `stop_and_post` and `stop_and_post_with_partial` delegate with an empty set.
+  - `orphans` is not part of either operation binding. A replay returns the recorded receipt.
+- App (`brn-threads-app`):
+  - `lease_free_working_runs()`: non-archived Working Runs with `!run_is_live`. It is empty when `derived_directory()` fails, so unknown liveness counts as live, as in `recover_orphaned_runs`. `chat_command` computes it only for `Pause { run: Some }`, `Archive` and `ArchiveProgress`, the commands that end Runs. `stop_and_post_with_partial` always computes it.
+  - `remove_ended_leases(receipt)`: for each write whose `before` is a Working Run and whose `after` Run is not Working, it calls `run_lease::remove_free`. That function removes a file only while it holds the lock, so a live lease is never touched.
+  - Wired into `chat_command` (Stop, the failure stop, the resume-stale stop, Archive, every queue command), `stop_and_post_with_partial`, the four settings wrappers that stop Runs (`configure`, `choose_delegation`, `choose_backup_directory`, `pause`) on `Applied`, `project_command`, and all three applied returns of `import_full_scoped`. `recover_orphaned_runs` keeps its own call.
+- Runtime (`brn-ai/src/threads.rs`, `begin()`): each Run it fences is an orphan when `!run_is_live(&derived, id)`, using the `derived` folder it already opens for the new lease. Orphans get the notice in the "Start a fresh invocation" change, and `remove_free` runs for them after that change is `Applied`.
+
+No dependency, `Cargo.lock`, `threads.sqlite3` schema, desktop production, CLI, `main.rs`, `HELP` or exit-code change. Settings still write `Cancelled` (slice D changes that).
+
+### Path table after slice C
+
+Round 4's table, with this slice's changes in bold. "Lease-free" means no process holds the Run's lease: a leftover unlocked file or no file at all.
+
+| Path | Ends Run as | Notice | Review | Lease file | Test |
+|---|---|---|---|---|---|
+| Settings: Configure, delegation Choose, Pause/Resume maintenance, BackupDirectory | `Cancelled`, every Working Run | added (round 4) | added | **free file removed; a live one kept** | T1, T1-live |
+| Orphan recovery (Resume, Dispatch) | `Interrupted`, lease-free only | added | added | removed (round 4) | T2, R1 |
+| Stop (`stop_chat_run`): desktop Stop, `pause_failed_worker`, resume-stale stop | `Interrupted` | **lease-free: added**; live: none | added | **lease-free: removed**; live: kept | C-T1, C-T2, C-T3, T4, T4-live, C-D1 |
+| Archive / ArchiveProgress | `Interrupted`, every Working Run in the chat | **lease-free: added, into the archived Thread write**; live: none | added | **lease-free: removed**; live: kept | T4, T4-live |
+| Steer (`stop_and_post(_with_partial)`) | `Interrupted` | **lease-free: added**; live: none | added | **lease-free: removed**; live: kept | T4, T4-live |
+| Project commands, Delete then Restore | `Interrupted` | added (round 4) | added | **removed** | T5 |
+| Full-note import into a project | `Interrupted` | added (round 4) | added | **removed** | T5 |
+| Continue / new Run in the same chat (`begin()`) | `Interrupted` | **lease-free: added, then replaced by the new Run's result**; live: none | added | **lease-free: removed**; live: kept | T6, T6-live |
+| In-process terminal in `finish()` | `Interrupted` / `Failed` | existing | added | the worker's `RunLease::drop` | T7 (round 4) |
+| Legacy `resolve_thread(_because)` | `Cancelled`, clears all attention | unchanged | unchanged | unchanged | none |
+
+### Contract correction (T4, T6)
+
+Round 4 chose no notice for Stop, Archive, Steer and Continue because the owner acted in that chat. That holds for a live Run. A lease-free Run's process had already died, so the owner's action did not stop it, and the chat had no trace of the death. These paths now treat it as orphan recovery does. T4 and T6 expected `[Review(op)]` for the killed Run. They now expect `[Review(op), Blocker(run, INTERRUPTED_ATTENTION)]` and the lease file gone. New live counterparts assert no notice and a kept, live lease.
+
+Two consequences an owner can see:
+- Archiving a chat whose Run had died puts the notice into the archived chat. Continue there is refused until Unarchive, as it already is for a trashed project chat, which gets the notice since round 4.
+- Continue in a killed chat shows the Interrupted notice while the new Run works. The new Run's own result then replaces it, so the chat keeps one notice.
+
+### Tests and fail-before
+
+New and updated tests are in `crates/brn-threads-app/tests/killed_run_candidate.rs`, unless noted. Each one was run against the unfixed source: the nine source files were stashed with `git stash push -- <files>`, the tests kept, then the stash popped. All nine files were then compared with saved copies (`cmp`, identical).
+
+| ID | Test | Result before the fix |
+|---|---|---|
+| C-T1 | `stop_after_a_failure_treats_a_lease_free_run_as_interrupted_work` (the `pause_failed_worker` call, with the leftover file and with no file) | FAILED `:371` leftover case: `left: [Review(op)]`, `right: [Review(op), Blocker(run) INTERRUPTED]` |
+| C-T2 | `resume_after_a_killed_queued_run_leaves_one_notice_and_redispatches_once` (`queue_message`, `dispatch_queued`, `prepare_run` with `request_message` and `queue_claim`, kill, then `stop_chat_run("resume-stale:…")`, `resume_queue`, `dispatch_queued`) | FAILED `:441` `left: [Review(op)]`, `right: [Review(op), Blocker(run)]` |
+| T4 | `stop_archive_and_steer_of_a_killed_run_add_the_notice_and_remove_the_lease` (renamed from `…keep_the_candidate_in_review_without_a_notice`) | FAILED `:601` "stop": `left: [Review(op)]`, `right: [Review(op), Blocker(run)]` |
+| T1 | `the_delegation_choice_after_a_kill_leaves_one_notice_and_a_review_for_the_candidate` (now expects the lease file removed) | FAILED `:319` `assertion failed: !lease_file(&workspace, &id).exists()` |
+| T5 | `project_changes_and_project_imports_leave_the_notice_and_the_review` (now expects the lease file removed) | FAILED `:731` "configure": lease file still present |
+| T6 | `continue_in_the_killed_chat_adds_the_notice_and_removes_the_lease` (renamed from `…keeps_the_candidate_in_review`; the new Run now fails, scripted) | FAILED `:746` `left: [Review(op)]`, `right: [Review(op), Blocker(old run)]` |
+| C-D1 | desktop `resume_after_a_killed_queued_intake_shows_one_notice` (`crates/brn-desktop/src/threads_intake_tests.rs`) | FAILED `:623` `assertion failed: !lease_file(ui, &run).exists()`. With that line commented out for the run, it FAILED `:649`: the resume-stale receipt's chat write `left: ["Review prepared changes"]`, `right: ["Review prepared changes", "Run interrupted. Continue starts fresh."]` |
+| Guards | C-T3 `a_deliberate_stop_of_a_live_run_adds_no_notice_and_keeps_its_lease`, T4-live `stop_archive_and_steer_of_a_live_run_add_no_notice`, T6-live `continue_beside_a_live_run_adds_no_notice_and_keeps_its_lease`, T1-live `the_settings_change_also_stops_a_run_that_is_still_live` (now also asserts the live lease file is kept, then removed by its holder's drop) | passed, as expected; see G1 and G2 |
+
+C-D1's line numbers are from the fail-before run, before `cargo fmt` reflowed three statements in that file.
+
+After the fix, temporary edits (each restored; the files were compared with saved copies and `grep` found no leftover edit):
+
+| Experiment (temporary edit) | Tests that failed |
+|---|---|
+| G1: `lease_free_working_runs` and `begin()` treat every Working Run as lease-free (`true \|\| !run_is_live(..)`) | `a_deliberate_stop_of_a_live_run…` `:488` attention not empty; `stop_archive_and_steer_of_a_live_run…` `:632` "stop"; `continue_beside_a_live_run…` `:772` attention not empty. The desktop suite still passed (154), so the live-Stop guard lives in these app tests |
+| G2: lease removal deletes the file without taking the lock (`fs::remove_file` instead of `remove_free`) | `the_settings_change_also_stops_a_run_that_is_still_live` `:339` and `a_deliberate_stop_of_a_live_run…` `:489` `assertion failed: run_is_live(&derived, &id)`; `stop_archive_and_steer_of_a_live_run…` `:633` |
+| G3: `ended_run_attention_with` ignores `notice(id)` (always adds) | core `per_run_notice_marks_only_lease_free_runs` (`left: [Review(op-a), Review(op-b), Blocker(live)]`, `right: [Review(op-a), Blocker(orphan), Review(op-b)]`); also round 4's `without_a_notice_only_the_review_is_added` and `an_unchanged_or_archived_chat_gets_no_write` |
+| G5: `import_full_scoped` returns without lease removal | T5 `:731` "import" (configure passed) |
+| G6: `project_command` returns without lease removal | T5 `:731` "configure" |
+| G7: steering passes an empty orphan set | T4 `:601` "steer" (stop, archive passed): `left: [Review(op)]` |
+| G8: `chat_command` computes orphans only for `Pause` | T4 `:601` "archive" (stop passed): `left: [Review(op)]` |
+| G9: `begin()` skips `remove_free` for orphans (`.take(0)`) | T6 `:750` `assertion failed: !lease_file(&workspace, &id).exists()` |
+
+What the new tests cover beyond the table:
+- C-T1 also checks one `assistant-partial` Message, and that a replay of `worker-failure:1` returns the same receipt and adds no receipt, notice or Message.
+- C-T2 checks the old Run is `Interrupted` at fence 2, the re-dispatch is the same item with the same owner Message (one owner Message in the chat), and a third dispatch is refused. A replayed resume-stale stop adds nothing. The item then runs once more against a scripted provider failure, and the chat holds `[Review(op), Blocker(new run, "Run failed: …")]`: one notice.
+- C-D1 builds the killed queued intake before the window opens, so the desktop's startup `recover_queue` pauses the queue as after a real restart. `ui.resume_chat_queue(cx)` then goes through the resume-stale stop. Afterwards: the old Run is `Interrupted` at fence 2, the lease file is gone, the resume-stale receipt ("Chat control: stop and pause") wrote `[REVIEW_ATTENTION, INTERRUPTED_ATTENTION]`, the chat's Runs are one `Interrupted` and one `Failed` (offline), the row's reasons are `[REVIEW_ATTENTION, "Run failed: …"]`, the chat is in Needs you, the candidate is listed, and the chat has one owner Message.
+- Plan deviation: the plan expected C-D1's final row reasons to be `[REVIEW_ATTENTION, INTERRUPTED_ATTENTION]`. The re-dispatched item runs in the same chat and fails offline, and its result replaces the notice. That is the one-notice rule, so the test asserts the notice in the resume-stale receipt and the failure notice on the row.
+- T6 now runs the new Run against a scripted provider failure, as the plan asks, and asserts `[Review(op), Blocker(new run, "Run failed: …")]`.
+
+### Commands and results (after the fix)
+
+| Command | Result |
+|---|---|
+| `cargo fmt --all --check` | clean |
+| `cargo clippy --workspace --all-targets --locked --offline -- -D warnings` | clean |
+| `cargo clippy -p brn-ai --features scripted-runs --all-targets --locked --offline -- -D warnings` | clean |
+| `cargo clippy --locked --offline -p brn-desktop --features native-ui,native-test-support --all-targets -- -D warnings` | clean |
+| `cargo test --workspace --locked --offline --no-fail-fast` | 765 passed, 1 failed (the baseline Poppler test), 6 ignored. Core lib 41 (+1), core `delegation` 7, core `steering` 8, core `core` 45, app `killed_run_candidate` 12 (+5) and 1 ignored, `run_recovery` 4, `chat` 9, `steering` 2, `projects` 8, `delegation` 3, `product` 19, brn-ai lib 341 |
+| desktop test command | 154 passed (+1), 0 failed, 1 ignored |
+| `git diff --exit-code Cargo.lock`; `git diff --check` | clean |
+
+Manual CLI check on fresh synthetic data. Each store was written by the ignored `native_check_store_with_a_killed_intake_and_its_candidate` (a killed intake with its candidate and an unlocked leftover lease file). `HOME`, `CODEX_HOME` and `TMPDIR` were inside the case folder.
+- `/private/tmp/brn-dwr-data/r5-c-archive/` (mode `resume`): `brn archive --thread <intake>` applied "Chat control: archive chat". The lease file went from present to gone. The Run is `Interrupted` at fence 2, and the archived chat holds `[Review(op), Blocker(run, "Run interrupted. Continue starts fresh.")]`.
+- `/private/tmp/brn-dwr-data/r5-c-pause/` (mode `settings`): `brn pause` applied. The lease file went from present to gone. The Run is `Cancelled` at fence 2 (slice D changes the state), and the chat holds the same two items.
+
+### Limitations
+
+- Liveness is read before the checked change. A Run found lease-free stays lease-free, since only a new Run ID takes a lease, so the unsafe direction cannot happen. A Run whose process dies after the check is treated as live: no notice, and its file stays until orphan recovery or a later stop removes it.
+- A Working Run whose lease file was deleted while its process still runs counts as lease-free, as in orphan recovery since round 4.
+- Lease removal is best effort. An I/O error keeps the file, and the change still applies.
+- The legacy `resolve_thread(_because)` (no production caller) is unchanged: it still writes `Cancelled`, clears attention and leaves the file.
+- No native observation in this slice.
+
+### Integration items
+
+- New core APIs: `run_attention::ended_run_attention_with`, `Store::chat_command_with_orphans`, `Store::stop_and_post_checked`. Old signatures are kept and behave as before.
+- No desktop production change. The desktop's existing `stop_chat_run`, `resume_queue`, `archive_chat(_progress)` and `stop_and_post_with_partial` calls get the new behavior.
+- The UI branch must rerun its Stop, Archive and Resume tests. A Stop, Archive or Steer of a lease-free Run now adds the notice, and Continue in a killed chat shows it until the new Run's result.
+- Proposed sentence for `docs/architecture/invariants.md` (not edited here): "Any checked change that ends a Working Run no process holds a lease for treats it as orphaned: one Interrupted notice in its chat, a Review item for each candidate it left, and removal of its free lease file. A live lease is never removed, and a deliberate stop of live work adds no notice."

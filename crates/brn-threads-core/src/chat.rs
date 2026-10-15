@@ -4,6 +4,7 @@ use crate::*;
 use rusqlite::{OptionalExtension, TransactionBehavior, params};
 use serde::Serialize;
 use sha2::{Digest, Sha256};
+use std::collections::BTreeSet;
 
 #[derive(Clone, Debug, Serialize)]
 pub enum ChatCommand {
@@ -112,6 +113,20 @@ impl Store {
         command: &ChatCommand,
         owner: &HostAuthority,
     ) -> Result<ChatCommandOutcome> {
+        self.chat_command_with_orphans(op, command, owner, &BTreeSet::new())
+    }
+
+    /// As [`Store::chat_command`]. A Working Run this command stops whose ID
+    /// is in `orphans` (the host found no process holding its lease) also
+    /// gets the Interrupted notice, as orphan recovery gives it. `orphans` is
+    /// not part of the binding: a replay returns the recorded receipt.
+    pub fn chat_command_with_orphans(
+        &mut self,
+        op: &OperationId,
+        command: &ChatCommand,
+        owner: &HostAuthority,
+        orphans: &BTreeSet<String>,
+    ) -> Result<ChatCommandOutcome> {
         if !matches!(owner.scope, crate::types::Scope::Owner) {
             return Err(Error::Invalid(
                 "chat controls require trusted owner authority".into(),
@@ -158,8 +173,9 @@ impl Store {
             .unwrap_or_default();
         let mut writes = vec![];
         let mut dispatched = None;
-        // Working Runs this command stops; the owner sees the stop, so their
-        // chats get Review items for left candidates but no notice.
+        // Working Runs this command stops. Their chats get Review items for
+        // left candidates; the owner sees a live Run stop, so only an orphan
+        // gets the notice.
         let mut ended = vec![];
         match command {
             ChatCommand::Bootstrap => {}
@@ -486,10 +502,10 @@ impl Store {
                 }
             }
         }
-        crate::run_attention::ended_run_attention(
+        crate::run_attention::ended_run_attention_with(
             &mut writes,
             &ended,
-            false,
+            |id| orphans.contains(id),
             |id| record_on(&tx, id),
             |operations| crate::run_attention::active_candidates_on(&tx, operations),
         )?;

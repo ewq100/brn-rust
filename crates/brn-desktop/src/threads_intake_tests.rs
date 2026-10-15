@@ -37,10 +37,8 @@ fn open(cx: &mut TestAppContext, workspace: Workspace, data: PathBuf) -> Fixture
     }
 }
 
-fn fixture(cx: &mut TestAppContext) -> Fixture {
-    let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
-    let data = root.path().join("intake");
-    let mut workspace = Workspace::open(&data).unwrap();
+fn offline_workspace(data: &Path) -> Workspace {
+    let mut workspace = Workspace::open(data).unwrap();
     let mut settings = workspace.settings().unwrap();
     settings.provider = "Codex".into();
     settings.model = "gpt-6.1-sol".into();
@@ -49,6 +47,13 @@ fn fixture(cx: &mut TestAppContext) -> Fixture {
     settings.auth_file = None;
     settings.credentials_dir = None;
     workspace.configure(settings).unwrap();
+    workspace
+}
+
+fn fixture(cx: &mut TestAppContext) -> Fixture {
+    let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let data = root.path().join("intake");
+    let workspace = offline_workspace(&data);
     Fixture {
         _root: Some(root),
         ..open(cx, workspace, data)
@@ -298,7 +303,11 @@ fn a_chat_whose_run_is_still_live_is_not_reused(cx: &mut TestAppContext) {
 const KILLED_TITLE: &str = "Information from b1-source";
 
 fn lease_file(ui: &ThreadsUi, run: &str) -> PathBuf {
-    ui.workspace
+    lease_path(&ui.workspace, run)
+}
+
+fn lease_path(workspace: &Workspace, run: &str) -> PathBuf {
+    workspace
         .store
         .derived_directory()
         .unwrap()
@@ -313,13 +322,29 @@ fn lease_file(ui: &ThreadsUi, run: &str) -> PathBuf {
 /// Run and candidate operation.
 fn killed_intake_in(ui: &mut ThreadsUi, data: &Path) -> (String, String, String) {
     let chat = ui.workspace.new_thread(KILLED_TITLE).unwrap().id;
+    let (run, operation) = killed_run_in(&mut ui.workspace, data, &chat, None);
+    ui.refresh();
+    (chat, run, operation)
+}
+
+/// As [`killed_intake_in`], in `chat`. With `queued`, the Run is that
+/// dispatched queue item's, built as `start_run` builds it. Returns the Run
+/// and candidate operation.
+fn killed_run_in(
+    workspace: &mut Workspace,
+    data: &Path,
+    chat: &str,
+    queued: Option<&QueuedMessage>,
+) -> (String, String) {
     let live = brn_ai::threads::prepare_run(brn_ai::threads::ThreadRunRequest {
-        request_message: None,
-        queue_claim: None,
+        request_message: queued.and_then(|q| q.message.clone()),
+        queue_claim: queued.and_then(|q| q.dispatch.clone()),
         owner_request: None,
         data_dir: data.to_owned(),
-        thread: chat.clone(),
-        prompt: "Capture useful information.".into(),
+        thread: chat.to_owned(),
+        prompt: queued
+            .map_or("Capture useful information.", |q| q.text.as_str())
+            .into(),
         selection: brn_ai::Selection {
             provider: brn_ai::Provider::Chatgpt,
             model: "gpt-6.1-sol".into(),
@@ -334,7 +359,7 @@ fn killed_intake_in(ui: &mut ThreadsUi, data: &Path) -> (String, String, String)
     })
     .unwrap();
     let run = live.run_id().to_owned();
-    let store = &mut ui.workspace.store;
+    let store = &mut workspace.store;
     let operation = store
         .allocate_operation(&format!("{run}:proposal:crane-arrival-source-capture-1"))
         .unwrap();
@@ -344,8 +369,7 @@ fn killed_intake_in(ui: &mut ThreadsUi, data: &Path) -> (String, String, String)
         panic!("Run")
     };
     working.operations.push(operation.clone());
-    let recorded = ui
-        .workspace
+    let recorded = workspace
         .owner_change(
             &format!("{run}:names-operation"),
             &ChangeRequest {
@@ -361,7 +385,7 @@ fn killed_intake_in(ui: &mut ThreadsUi, data: &Path) -> (String, String, String)
         )
         .unwrap();
     assert!(matches!(recorded, ApplyOutcome::Applied(_)));
-    ui.workspace
+    workspace
         .store
         .prepare(
             &operation,
@@ -381,9 +405,8 @@ fn killed_intake_in(ui: &mut ThreadsUi, data: &Path) -> (String, String, String)
         )
         .unwrap();
     drop(live);
-    std::fs::write(lease_file(ui, &run), b"").unwrap();
-    ui.refresh();
-    (chat, run, operation.as_str().to_owned())
+    std::fs::write(lease_path(workspace, &run), b"").unwrap();
+    (run, operation.as_str().to_owned())
 }
 
 fn row<'a>(ui: &'a ThreadsUi, chat: &str) -> &'a ThreadRow {
@@ -543,6 +566,118 @@ fn resume_after_a_kill_recovers_the_intake_and_keeps_its_candidate_reviewable(
         let asked = records
             .iter()
             .filter(|r| matches!(&r.data, RecordData::Message(m) if m.thread == questions && m.role == "owner"))
+            .count();
+        assert_eq!(asked, 1);
+    });
+}
+
+/// A kill during a queued intake, then a restart and Resume. The killed Run is
+/// the pending item's, so Resume goes through the desktop's resume-stale stop.
+#[gpui_kit::test]
+fn resume_after_a_killed_queued_intake_shows_one_notice(cx: &mut TestAppContext) {
+    let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let data = root.path().join("intake");
+    let mut workspace = offline_workspace(&data);
+    workspace
+        .choose_delegation(DelegationChoice::MaintainOrdinaryNotes)
+        .unwrap();
+    let chat = workspace.new_thread(KILLED_TITLE).unwrap().id;
+    workspace
+        .queue_message("killed-queue", &chat, "Capture useful information.")
+        .unwrap();
+    let queued = workspace
+        .dispatch_queued("killed-dispatch")
+        .unwrap()
+        .unwrap();
+    let (run, operation) = killed_run_in(&mut workspace, &data, &chat, Some(&queued));
+    // The restart: startup pauses the saved queue.
+    let f = Fixture {
+        _root: Some(root),
+        ..open(cx, workspace, data)
+    };
+    update(cx, &f, |ui, _, _| {
+        let queue = ui.queue_state();
+        assert!(queue.paused);
+        assert_eq!(
+            queue.pending.and_then(|q| q.run).as_deref(),
+            Some(run.as_str())
+        );
+        assert!(ui.worker.is_none());
+        assert!(row(ui, &chat).reasons.is_empty());
+        assert!(lease_file(ui, &run).exists());
+    });
+    update(cx, &f, |ui, _, cx| ui.resume_chat_queue(cx));
+    for _ in 0..1000 {
+        if update(cx, &f, |ui, window, cx| {
+            ui.poll_worker(window, cx);
+            ui.worker.is_none()
+        }) {
+            break;
+        }
+        std::thread::sleep(Duration::from_millis(10));
+    }
+    update(cx, &f, |ui, _, _| {
+        assert!(ui.worker.is_none(), "the offline run did not finish");
+        ui.refresh();
+        assert!(
+            matches!(&ui.workspace.store.record(&run).unwrap().unwrap().data,
+                RecordData::Run(r) if r.state == RunState::Interrupted && r.fence == 2)
+        );
+        // Before: the resume-stale stop added only the Review and left the
+        // lease file.
+        assert!(!lease_file(ui, &run).exists());
+        let history = ui.workspace.history().unwrap();
+        let stop = history
+            .iter()
+            .find(|receipt| {
+                receipt.writes.iter().any(|w| {
+                    w.after.id == run
+                        && matches!(&w.before, Some(Record { data: RecordData::Run(r), .. }) if r.state == RunState::Working)
+                        && matches!(&w.after.data, RecordData::Run(r) if r.state == RunState::Interrupted)
+                })
+            })
+            .expect("the resume-stale stop");
+        assert_eq!(stop.reason, "Chat control: stop and pause");
+        let stopped_with = stop
+            .writes
+            .iter()
+            .find_map(|w| match &w.after.data {
+                RecordData::Thread(t) if w.after.id == chat => Some(
+                    t.attention
+                        .iter()
+                        .map(|a| a.reason.clone())
+                        .collect::<Vec<_>>(),
+                ),
+                _ => None,
+            })
+            .expect("the stop's chat write");
+        assert_eq!(stopped_with, killed_reasons());
+        // The item ran once more and failed offline; its result replaced the
+        // notice, so the chat names one cause.
+        let mut states: Vec<_> = ui
+            .workspace
+            .records()
+            .unwrap()
+            .iter()
+            .filter_map(|r| match &r.data {
+                RecordData::Run(r) if r.thread == chat => Some(r.state.clone()),
+                _ => None,
+            })
+            .collect();
+        states.sort_by_key(|state| format!("{state:?}"));
+        assert_eq!(states, vec![RunState::Failed, RunState::Interrupted]);
+        let reasons = &row(ui, &chat).reasons;
+        assert_eq!(reasons.len(), 2, "{reasons:?}");
+        assert_eq!(reasons[0], brn_threads_app::run_attention::REVIEW_ATTENTION);
+        assert!(reasons[1].starts_with("Run failed: "), "{reasons:?}");
+        assert!(in_needs_you(ui, &chat));
+        assert!(has_candidate(ui, &operation));
+        let asked = ui
+            .workspace
+            .records()
+            .unwrap()
+            .iter()
+            .filter(|r| matches!(&r.data, RecordData::Message(m) if m.thread == chat && m.role == "owner"))
             .count();
         assert_eq!(asked, 1);
     });

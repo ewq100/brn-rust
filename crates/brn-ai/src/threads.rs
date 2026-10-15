@@ -1927,9 +1927,8 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
         .map_err(storage)?;
     let run_id = op.creation_id(0);
     // Taken before the Run is saved as Working and held until it ends.
-    let lease =
-        crate::run_lease::RunLease::acquire(&store.derived_directory().map_err(storage)?, &run_id)
-            .map_err(storage)?;
+    let derived = store.derived_directory().map_err(storage)?;
+    let lease = crate::run_lease::RunLease::acquire(&derived, &run_id).map_err(storage)?;
     let mut writes = Vec::new();
     let mut retained = Vec::new();
     let mut prior_operations = Vec::new();
@@ -1981,6 +1980,8 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
     }
 
     let mut ended = Vec::new();
+    // Fenced Runs that no process holds a lease for: orphans.
+    let mut orphans = std::collections::BTreeSet::new();
     for record in &records {
         match &record.data {
             RecordData::Run(run) if run.thread == request.thread => {
@@ -1992,6 +1993,9 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
                     let mut old = run.clone();
                     old.state = RunState::Interrupted;
                     old.fence = old.fence.checked_add(1).ok_or_else(rejected)?;
+                    if !crate::run_lease::run_is_live(&derived, &record.id) {
+                        orphans.insert(record.id.clone());
+                    }
                     ended.push((record.id.clone(), old.clone()));
                     writes.push(Put {
                         id: record.id.clone(),
@@ -2004,12 +2008,13 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
             _ => {}
         }
     }
-    // The new Run follows at once, so no notice; a candidate the stopped Run
-    // left stays reviewable in this chat.
-    brn_threads_core::run_attention::ended_run_attention(
+    // A candidate the stopped Run left stays reviewable in this chat. The new
+    // Run follows at once, so a live stopped Run gets no notice; an orphan
+    // gets the Interrupted notice, which the new Run's result then replaces.
+    brn_threads_core::run_attention::ended_run_attention_with(
         &mut writes,
         &ended,
-        false,
+        |id| orphans.contains(id),
         |id| Ok(records.iter().find(|r| r.id == id).cloned()),
         |operations| store.active_candidates(operations),
     )
@@ -2204,6 +2209,11 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
         ApplyOutcome::Applied(_)
     ) {
         return Err(rejected());
+    }
+    // The orphans have ended, so no holder can return: drop their leftover
+    // lease files. A held lease is never removed.
+    for id in &orphans {
+        let _ = crate::run_lease::remove_free(&derived, id);
     }
     let mut operations = Vec::new();
     for operation in prior_operations {

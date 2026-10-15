@@ -2,6 +2,7 @@ use crate::store::{apply_on, prepare_on, receipt_on, record_on};
 use crate::*;
 use rusqlite::{OptionalExtension, TransactionBehavior, params};
 use sha2::{Digest, Sha256};
+use std::collections::BTreeSet;
 
 impl Store {
     /// Save a new owner instruction and fence the exact invocation atomically.
@@ -25,6 +26,31 @@ impl Store {
         text: &str,
         partial: Option<&str>,
         authority: &HostAuthority,
+    ) -> Result<ApplyOutcome> {
+        self.stop_and_post_checked(
+            operation,
+            run_id,
+            thread,
+            text,
+            partial,
+            authority,
+            &BTreeSet::new(),
+        )
+    }
+    /// As [`Store::stop_and_post_with_partial`]. When `run_id` is in
+    /// `orphans` (the host found no process holding its lease), the stopped
+    /// Run also gets the Interrupted notice. `orphans` is not part of the
+    /// binding: a replay returns the recorded receipt.
+    #[allow(clippy::too_many_arguments)]
+    pub fn stop_and_post_checked(
+        &mut self,
+        operation: &OperationId,
+        run_id: &str,
+        thread: &str,
+        text: &str,
+        partial: Option<&str>,
+        authority: &HostAuthority,
+        orphans: &BTreeSet<String>,
     ) -> Result<ApplyOutcome> {
         if !matches!(authority.scope, crate::types::Scope::Owner) {
             return Err(Error::Invalid(
@@ -162,12 +188,13 @@ impl Store {
                 data: RecordData::ChatControl(c),
             });
         }
-        // The owner's new instruction follows at once, so no notice; a
-        // candidate the stopped Run left stays reviewable.
-        crate::run_attention::ended_run_attention(
+        // The owner's new instruction follows at once, so a live Run gets no
+        // notice and an orphan does; a candidate the stopped Run left stays
+        // reviewable.
+        crate::run_attention::ended_run_attention_with(
             &mut writes,
             &ended,
-            false,
+            |id| orphans.contains(id),
             |id| record_on(&tx, id),
             |operations| crate::run_attention::active_candidates_on(&tx, operations),
         )?;

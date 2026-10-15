@@ -169,8 +169,11 @@ impl Workspace {
             .store
             .allocate_bound_operation(&format!("full-import:{key}"), &binding)?;
         let authority = HostAuthority::owner("full-note import request");
+        // A project import stops that project's Working Runs; their free
+        // lease files go with them on every applied path below.
         if self.store.receipt(&op)?.is_some() {
-            return Ok(self.store.apply(&op, &authority)?);
+            let outcome = self.store.apply(&op, &authority)?;
+            return Ok(self.remove_leases_ended_by(outcome));
         }
         if let Some(thread) = chat
             && !matches!(
@@ -190,7 +193,8 @@ impl Workspace {
             ));
         }
         if self.store.prepared(&op).is_ok() {
-            return Ok(self.store.apply(&op, &authority)?);
+            let outcome = self.store.apply(&op, &authority)?;
+            return Ok(self.remove_leases_ended_by(outcome));
         }
         let records = self.records()?;
         // The exact real path first, then a Source saved under an older
@@ -363,7 +367,8 @@ impl Workspace {
             inputs: vec![],
         };
         self.store.prepare_owner(&op, &request, &authority)?;
-        Ok(self.store.apply(&op, &authority)?)
+        let outcome = self.store.apply(&op, &authority)?;
+        Ok(self.remove_leases_ended_by(outcome))
     }
     pub fn keep_in_brn(
         &mut self,
