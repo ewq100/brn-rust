@@ -177,4 +177,4 @@ handoff.
   38693947454) are green; receipts are recorded on the PR. Non-required
   optional-platform failures (windows, ubuntu native-retrieval) match the
   pre-existing main pattern. Integration recorded in
-  [status](../../status.md).
+  [status](../../../status.md).
