@@ -66,10 +66,11 @@ impl Run {
             self.stdout
         );
         let value: Value = serde_json::from_str(&self.stdout).unwrap();
-        assert_eq!(value["contract"], 2);
+        assert_eq!(value["contract"], 3);
         assert_eq!(value["exit"], self.code);
         assert_eq!(value["ok"], self.code == 0);
-        assert_eq!(value.as_object().unwrap().len(), 15, "{value}");
+        assert_eq!(value.as_object().unwrap().len(), 16, "{value}");
+        assert_eq!(value["authority"]["enforced"], false, "{value}");
         assert!(!value["retry"].is_null());
         assert!(self.stderr.is_empty() || !self.stderr.contains("panicked"));
         value
@@ -141,6 +142,37 @@ fn call(root: &Root, data: &Path, rest: &[&str]) -> Value {
 fn call_in(root: &Root, data: &Path, rest: &[&str], stdin: &[u8]) -> Value {
     run(root, true, data, rest, Some(stdin)).envelope()
 }
+/// A fresh test workspace (`init --purpose test`) for a writing test.
+fn workspace(root: &Root, name: &str) -> PathBuf {
+    let data = root.join(name);
+    let run = run(root, true, &data, &["init", "--purpose", "test"], None);
+    assert_eq!(run.code, 0, "init --purpose test: {}", run.stdout);
+    data
+}
+/// `begin-edit … --token-out FILE`: the envelope and the token file.
+fn begin(root: &Root, data: &Path, note: &str, base: &str) -> (Value, String) {
+    let token = root.join(&format!("token-{note}-{base}-{}", next()));
+    let token = token.to_str().unwrap().to_owned();
+    let envelope = call(
+        root,
+        data,
+        &[
+            "begin-edit",
+            "--note",
+            note,
+            "--base",
+            base,
+            "--token-out",
+            &token,
+        ],
+    );
+    (envelope, token)
+}
+fn next() -> u64 {
+    use std::sync::atomic::{AtomicU64, Ordering};
+    static NEXT: AtomicU64 = AtomicU64::new(0);
+    NEXT.fetch_add(1, Ordering::SeqCst)
+}
 /// A machine-mode call that must succeed: the legacy result.
 fn ok(root: &Root, data: &Path, rest: &[&str]) -> Value {
     let envelope = call(root, data, rest);
@@ -180,7 +212,7 @@ fn assert_error(envelope: &Value, status: &str, code: &str) {
 #[test]
 fn json_success_envelope_has_every_field_and_result_matches_default_mode() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = workspace(&root, "data");
     let init = call(&root, &data, &["init"]);
     assert_eq!(
         (&init["outcome"], &init["operation"], &init["changed"]),
@@ -546,7 +578,7 @@ type Refusal<'a> = (Vec<&'a str>, Option<&'a [u8]>, &'a str, Value, &'a str);
 #[test]
 fn caller_input_mistakes_after_open_are_usage_or_rejected_not_internal() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = workspace(&root, "data");
     let project = ok(&root, &data, &["project-create", "--title", "P"]);
     let project = project["writes"][0]["after"]["id"]
         .as_str()
@@ -846,7 +878,7 @@ const UNICODE: &str = "--leading dashes $HOME ${PATH} $(whoami) `echo INJECTED`\
 #[test]
 fn text_files_and_stdin_preserve_exact_multiline_unicode() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = workspace(&root, "data");
     let path = root.file("text.md", UNICODE.as_bytes());
     let title = root.file("title.txt", "Plan “β” 👩‍💻".as_bytes());
     let from_file = ok(
@@ -864,12 +896,8 @@ fn text_files_and_stdin_preserve_exact_multiline_unicode() {
         UNICODE.as_bytes(),
     );
     assert_eq!(markdown(&root, &data, &id(&from_stdin["result"])), UNICODE);
-    let session = ok(
-        &root,
-        &data,
-        &["begin-edit", "--note", &note, "--base", "1"],
-    );
-    let session = id(&session);
+    let (session, token) = begin(&root, &data, &note, "1");
+    let session = id(&session["result"]);
     let edited = format!("{UNICODE}more\n");
     let update = call_in(
         &root,
@@ -882,6 +910,8 @@ fn text_files_and_stdin_preserve_exact_multiline_unicode() {
             "1",
             "--text-file",
             "-",
+            "--token-file",
+            &token,
         ],
         edited.as_bytes(),
     );
@@ -889,7 +919,15 @@ fn text_files_and_stdin_preserve_exact_multiline_unicode() {
     ok(
         &root,
         &data,
-        &["save", "--session", &session, "--generation", "1"],
+        &[
+            "save",
+            "--session",
+            &session,
+            "--generation",
+            "1",
+            "--token-file",
+            &token,
+        ],
     );
     assert_eq!(markdown(&root, &data, &note), edited);
 }
@@ -897,7 +935,7 @@ fn text_files_and_stdin_preserve_exact_multiline_unicode() {
 #[test]
 fn large_text_beyond_argv_limits_is_saved_through_a_file() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = workspace(&root, "data");
     let text: String = "line of synthetic text\n".repeat(2 * 1024 * 1024 / 23 + 1);
     assert!(text.len() > 2 * 1024 * 1024);
     let path = root.file("large.md", text.as_bytes());
@@ -912,14 +950,11 @@ fn large_text_beyond_argv_limits_is_saved_through_a_file() {
 #[test]
 fn stale_generation_closed_and_ignored_exit_3_with_current_versions() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = workspace(&root, "data");
     let note = id(&note(&root, &data, "N", "one"));
     let edit = |base: &str, text: &str| {
-        let session = id(&ok(
-            &root,
-            &data,
-            &["begin-edit", "--note", &note, "--base", base],
-        ));
+        let (session, token) = begin(&root, &data, &note, base);
+        let session = id(&session["result"]);
         ok(
             &root,
             &data,
@@ -931,73 +966,67 @@ fn stale_generation_closed_and_ignored_exit_3_with_current_versions() {
                 "1",
                 "--text",
                 text,
+                "--token-file",
+                &token,
             ],
         );
-        session
+        (session, token)
+    };
+    let save = |(session, token): &(String, String), generation: &str| {
+        call(
+            &root,
+            &data,
+            &[
+                "save",
+                "--session",
+                session,
+                "--generation",
+                generation,
+                "--token-file",
+                token,
+            ],
+        )
     };
     let a = edit("1", "two");
-    ok(
-        &root,
-        &data,
-        &["save", "--session", &a, "--generation", "1"],
-    );
+    assert_eq!(save(&a, "1")["status"], "ok");
     let b = edit("2", "three");
-    ok(
-        &root,
-        &data,
-        &["save", "--session", &b, "--generation", "1"],
-    );
+    assert_eq!(save(&b, "1")["status"], "ok");
     // A session based on version 2 while the note is at version 3.
     let stale = edit("2", "late");
-    let identical = call(
-        &root,
-        &data,
-        &[
-            "update-buffer",
-            "--session",
-            &stale,
-            "--generation",
-            "1",
-            "--text",
-            "late",
-        ],
-    );
+    let buffer = |text: &str| {
+        call(
+            &root,
+            &data,
+            &[
+                "update-buffer",
+                "--session",
+                &stale.0,
+                "--generation",
+                "1",
+                "--text",
+                text,
+                "--token-file",
+                &stale.1,
+            ],
+        )
+    };
+    let identical = buffer("late");
     assert_eq!(
         (identical["exit"].clone(), identical["outcome"].clone()),
         (json!(0), json!("Ignored"))
     );
     assert_eq!(identical["retry"], "replay");
-    let older = call(
-        &root,
-        &data,
-        &[
-            "update-buffer",
-            "--session",
-            &stale,
-            "--generation",
-            "1",
-            "--text",
-            "other",
-        ],
-    );
+    let older = buffer("other");
     assert_eq!(
         (older["exit"].clone(), older["status"].clone()),
         (json!(3), json!("stale"))
     );
-    let mismatch = call(
-        &root,
-        &data,
-        &["save", "--session", &stale, "--generation", "2"],
-    );
+    let mismatch = save(&stale, "2");
     assert_eq!(
         (mismatch["exit"].clone(), mismatch["outcome"].clone()),
         (json!(3), json!("GenerationMismatch"))
     );
-    let saved = call(
-        &root,
-        &data,
-        &["save", "--session", &stale, "--generation", "1"],
-    );
+    let saved = save(&stale, "1");
     assert_eq!(
         (saved["exit"].clone(), saved["outcome"].clone()),
         (json!(3), json!("Stale"))
@@ -1009,30 +1038,33 @@ fn stale_generation_closed_and_ignored_exit_3_with_current_versions() {
         json!([{"id":note,"kind":"Note","version":3,"archived":false,"open_edit":true}])
     );
     assert_eq!(saved["result"]["session"]["markdown"], "late");
-    let discarded = call(
-        &root,
-        &data,
-        &["discard", "--session", &stale, "--generation", "1"],
-    );
+    let discard = || {
+        call(
+            &root,
+            &data,
+            &[
+                "discard",
+                "--session",
+                &stale.0,
+                "--generation",
+                "1",
+                "--token-file",
+                &stale.1,
+            ],
+        )
+    };
+    let discarded = discard();
     assert_eq!(
         (discarded["exit"].clone(), discarded["outcome"].clone()),
         (json!(0), json!("Discarded"))
     );
-    let again = call(
-        &root,
-        &data,
-        &["discard", "--session", &stale, "--generation", "1"],
-    );
+    let again = discard();
     assert_eq!(
         (again["exit"].clone(), again["outcome"].clone()),
         (json!(3), json!("Ignored"))
     );
     assert_eq!(again["retry"], "refuse");
-    let closed = call(
-        &root,
-        &data,
-        &["save", "--session", &stale, "--generation", "1"],
-    );
+    let closed = save(&stale, "1");
     assert_eq!(
         (closed["exit"].clone(), closed["outcome"].clone()),
         (json!(3), json!("Closed"))
@@ -1044,13 +1076,10 @@ fn stale_generation_closed_and_ignored_exit_3_with_current_versions() {
 #[test]
 fn open_edit_session_reports_edit_session_open() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = workspace(&root, "data");
     let note = id(&note(&root, &data, "N", "one"));
-    let session = id(&ok(
-        &root,
-        &data,
-        &["begin-edit", "--note", &note, "--base", "1"],
-    ));
+    let (session, token) = begin(&root, &data, &note, "1");
+    let session = id(&session["result"]);
     let envelope = call(
         &root,
         &data,
@@ -1060,14 +1089,16 @@ fn open_edit_session_reports_edit_session_open() {
     assert_error(&envelope, "rejected", "edit_session_open");
     assert_eq!(
         envelope["error"]["details"],
-        json!({"note":note,"base_version":1})
+        json!({"note":note,"base_version":1,"holder":"caller"})
     );
+    let secret = std::fs::read_to_string(&token).unwrap();
+    assert!(!envelope.to_string().contains(secret.trim()));
     // Owner decision B3 part 1: the open session's ID is never named.
     assert!(!envelope.to_string().contains(&session));
     let message = envelope["error"]["message"].as_str().unwrap();
     assert_eq!(
         message,
-        "This note has an open unsaved edit session (details.note, details.base_version). Write to it only if your own successful begin-edit returned it; otherwise report it to the owner."
+        "This note has an open unsaved edit session (details.note, details.base_version, details.holder). Write to it only with the token your own successful begin-edit returned; otherwise report it to the owner."
     );
     assert!(!message.contains("Save or discard"));
     let default = run(
@@ -1092,7 +1123,7 @@ fn open_edit_session_reports_edit_session_open() {
     assert!(!default.stderr.contains(&session));
 }
 
-fn deferred_undo_setup(root: &Root, data: &Path) -> (String, String, String) {
+fn deferred_undo_setup(root: &Root, data: &Path) -> (String, String, (String, String)) {
     let created = call(
         root,
         data,
@@ -1100,12 +1131,23 @@ fn deferred_undo_setup(root: &Root, data: &Path) -> (String, String, String) {
     );
     let operation = created["operation"].as_str().unwrap().to_owned();
     let note = id(&created["result"]);
-    let session = id(&ok(
+    let (session, token) = begin(root, data, &note, "1");
+    (operation, note, (id(&session["result"]), token))
+}
+fn discard_zero(root: &Root, data: &Path, (session, token): &(String, String)) {
+    ok(
         root,
         data,
-        &["begin-edit", "--note", &note, "--base", "1"],
-    ));
-    (operation, note, session)
+        &[
+            "discard",
+            "--session",
+            session,
+            "--generation",
+            "0",
+            "--token-file",
+            token,
+        ],
+    );
 }
 fn unapplied(root: &Root, data: &Path) -> Vec<String> {
     ok(root, data, &["candidates"])
@@ -1119,7 +1161,7 @@ fn unapplied(root: &Root, data: &Path) -> Vec<String> {
 #[test]
 fn deferred_undo_exits_4_and_keyed_retry_applies_the_same_compensation() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = workspace(&root, "data");
     let (operation, note, session) = deferred_undo_setup(&root, &data);
     let undo = ["undo", "--operation", operation.as_str(), "--key", "u1"];
     let deferred = call(&root, &data, &undo);
@@ -1134,11 +1176,7 @@ fn deferred_undo_exits_4_and_keyed_retry_applies_the_same_compensation() {
     assert_eq!(deferred["conflict"][0]["kind"], "Note");
     assert_eq!(deferred["conflict"][0]["id"], note);
     assert_eq!(deferred["conflict"][0]["open_edit"], true);
-    ok(
-        &root,
-        &data,
-        &["discard", "--session", &session, "--generation", "0"],
-    );
+    discard_zero(&root, &data, &session);
     for _ in 0..2 {
         let applied = call(&root, &data, &undo);
         assert_eq!(
@@ -1154,18 +1192,14 @@ fn deferred_undo_exits_4_and_keyed_retry_applies_the_same_compensation() {
 #[test]
 fn unkeyed_deferred_undo_reports_duplicate() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = workspace(&root, "data");
     let (operation, _note, session) = deferred_undo_setup(&root, &data);
     let undo = ["undo", "--operation", operation.as_str()];
     let deferred = call(&root, &data, &undo);
     assert_eq!(deferred["exit"], 4);
     assert_eq!(deferred["retry"], "duplicate");
     let first = deferred["operation"].as_str().unwrap().to_owned();
-    ok(
-        &root,
-        &data,
-        &["discard", "--session", &session, "--generation", "0"],
-    );
+    discard_zero(&root, &data, &session);
     let applied = call(&root, &data, &undo);
     assert_eq!(applied["outcome"], "Applied");
     assert_ne!(applied["operation"], first);
@@ -1176,7 +1210,7 @@ fn unkeyed_deferred_undo_reports_duplicate() {
 #[test]
 fn not_found_destination_exists_and_unsafe_directory_are_rejected() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = workspace(&root, "data");
     note(&root, &data, "N", "one");
     let missing = call(&root, &data, &["read", "--id", "no-such-record"]);
     assert_error(&missing, "rejected", "not_found");
@@ -1232,8 +1266,7 @@ fn not_found_destination_exists_and_unsafe_directory_are_rejected() {
 #[test]
 fn symlinked_data_dir_is_data_folder_unusable() {
     let root = Root::new();
-    let real = root.join("real");
-    ok(&root, &real, &["init"]);
+    let real = workspace(&root, "real");
     let link = root.join("link");
     std::os::unix::fs::symlink(&real, &link).unwrap();
     let refused = call(&root, &link, &["notes"]);
@@ -1263,8 +1296,7 @@ fn symlinked_data_dir_is_data_folder_unusable() {
 #[test]
 fn ask_refused_before_the_provider_is_rejected_not_failed() {
     let root = Root::new();
-    let data = root.join("data");
-    ok(&root, &data, &["init"]);
+    let data = workspace(&root, "data");
     // Round 2: a CLI-created workspace has no credential source until configured.
     let creds = root.join("creds");
     std::fs::create_dir(&creds).unwrap();
@@ -1355,7 +1387,7 @@ fn queue_length(root: &Root, data: &Path) -> usize {
 #[test]
 fn keyed_creates_replay_and_reuse_with_other_inputs_is_refused() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = workspace(&root, "data");
     let chat = id(&ok(&root, &data, &["thread-start", "--title", "Base chat"]));
     let other = id(&ok(
         &root,
@@ -1503,7 +1535,7 @@ fn sigint_while_a_fifo_has_no_writer_is_interrupted() {
 #[test]
 fn refuse_retry_after_an_interrupted_first_attempt_applies_once() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = workspace(&root, "data");
     let receipt = ok(&root, &data, &["project-create", "--title", "P"]);
     let project = receipt["writes"][0]["after"]["id"]
         .as_str()
@@ -1565,7 +1597,7 @@ fn markdown_source(root: &Root) -> String {
 #[test]
 fn keyed_keep_in_brn_retry_replays() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = workspace(&root, "data");
     let chat = id(&ok(&root, &data, &["thread-start", "--title", "Chat"]));
     let source = markdown_source(&root);
     let attached = call(
@@ -1605,9 +1637,8 @@ fn keyed_keep_in_brn_retry_replays() {
 #[test]
 fn keyed_markdown_full_import_replays_and_title_change_conflicts() {
     let root = Root::new();
-    let data = root.join("data");
     // Round 2: machine-mode reads never create a workspace; init does.
-    ok(&root, &data, &["init"]);
+    let data = workspace(&root, "data");
     let settings = ok(&root, &data, &["settings"]);
     if let Some(auth) = settings["auth_file"].as_str() {
         assert!(
@@ -1648,7 +1679,7 @@ fn keyed_markdown_full_import_replays_and_title_change_conflicts() {
 #[test]
 fn closed_stdout_does_not_panic() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = workspace(&root, "data");
     let path = root.file("big.md", &vec![b'x'; 200 * 1024]);
     let note = id(&ok(
         &root,
@@ -1672,7 +1703,7 @@ fn closed_stdout_does_not_panic() {
 #[test]
 fn default_mode_domain_outcomes_still_exit_zero() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = workspace(&root, "data");
     let created = call(
         &root,
         &data,
@@ -1835,6 +1866,32 @@ fn machine_description_lists_every_parsed_command_and_matches_readme() {
         })
         .collect();
     assert_eq!(readme_rows, expected);
+    // Every global option, `actor` included, is named where the README lists them.
+    let globals = readme
+        .lines()
+        .find(|line| line.contains("The global options"))
+        .expect("README global options sentence");
+    for option in description["global_options"].as_array().unwrap() {
+        let name = option["option"].as_str().unwrap();
+        assert!(globals.contains(&format!("`--{name}`")), "{name}");
+    }
+    assert_eq!(description["global_options"][2]["env"], "BRN_ACTOR");
+    assert!(readme.contains(&format!(
+        "`{}`",
+        description["global_options"][2]["grammar"]["pattern"]
+            .as_str()
+            .unwrap()
+    )));
+    // The envelope's authority keys and the edit token pattern are documented.
+    let envelope = section(&readme, "Envelope");
+    for key in ["workspace_purpose", "cli_authority", "enforced", "actor"] {
+        assert!(envelope.contains(&format!("`{key}`")), "{key}");
+    }
+    assert_eq!(description["authority"]["enforced"], false);
+    assert!(readme.contains(&format!(
+        "`{}`",
+        description["edit_token"]["pattern"].as_str().unwrap()
+    )));
     let rule = format!("> {}", description["owner_decision_rule"].as_str().unwrap());
     assert!(
         readme.lines().any(|line| line == rule),

@@ -30,7 +30,7 @@ fn assert_reason(envelope: &Value, reason: &str) {
 #[test]
 fn stale_project_settings_reason_is_version_mismatch() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = root.workspace("data");
     let project = project(&root, &data);
     let argv = [
         "project-settings",
@@ -54,7 +54,7 @@ fn stale_project_settings_reason_is_version_mismatch() {
 #[test]
 fn trashed_project_chat_reason_is_inactive_target() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = root.workspace("data");
     let project = project(&root, &data);
     let chat = call(
         &root,
@@ -86,7 +86,7 @@ fn trashed_project_chat_reason_is_inactive_target() {
 #[test]
 fn incomplete_project_delete_actions_reason_is_project_boundary() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = root.workspace("data");
     let project = project(&root, &data);
     let preview = run(
         &root,
@@ -112,7 +112,7 @@ fn incomplete_project_delete_actions_reason_is_project_boundary() {
 #[test]
 fn oversized_project_title_reason_is_size_limit() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = root.workspace("data");
     let title = root.file("title.txt", &vec![b't'; 1025]);
     let refused = call(&root, &data, &["project-create", "--title-file", &title]);
     assert_reason(&refused, "size_limit");
@@ -121,7 +121,7 @@ fn oversized_project_title_reason_is_size_limit() {
 #[test]
 fn search_thread_naming_a_note_reason_is_wrong_kind() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = root.workspace("data");
     let note = note(&root, &data, "N", "text");
     let refused = call(
         &root,

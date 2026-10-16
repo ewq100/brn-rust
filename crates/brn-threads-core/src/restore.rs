@@ -33,7 +33,7 @@ impl StagedRestore {
     fn create(backup: &Path, destination: &Path) -> Result<Self> {
         let source =
             Connection::open_with_flags(backup, rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY)?;
-        validate_schema(&source, &[3, 4, 5])?;
+        validate_schema(&source, &[3, 4, 5, crate::store::SCHEMA_VERSION])?;
         Self::prepare(destination)?.copy_from(&source)
     }
 
@@ -83,19 +83,21 @@ impl StagedRestore {
             Duration::from_millis(1),
             None,
         )?;
-        if source.pragma_query_value::<i64, _>(None, "user_version", |r| r.get(0))?
-            < crate::store::SCHEMA_VERSION
-        {
-            // The read-only, validated original backup is the pre-upgrade snapshot.
-            // Only this unpublished copy changes; the source remains untouched.
-            let tx = store
-                .conn
-                .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)?;
-            tx.execute_batch(crate::upgrade::CHAT_SCHEMA)?;
-            tx.execute_batch(crate::upgrade::PROJECT_SCHEMA)?;
-            tx.pragma_update(None, "user_version", crate::store::SCHEMA_VERSION)?;
-            tx.commit()?;
-        }
+        // The read-only, validated original backup is the pre-upgrade snapshot.
+        // Only this unpublished copy changes; the source remains untouched.
+        // One transaction: the missing schema steps; then every edit session
+        // becomes owner-held (tokens for the original cannot write the copy);
+        // then the copy is an owner workspace, whatever the source's purpose.
+        let from: i64 = source.pragma_query_value(None, "user_version", |r| r.get(0))?;
+        let tx = store
+            .conn
+            .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)?;
+        crate::upgrade::upgrade_steps(&tx, from)?;
+        tx.execute_batch(
+            "DELETE FROM edit_session_bindings;
+             INSERT OR REPLACE INTO workspace_profile(id,purpose,changed_at) VALUES(1,'owner',NULL);",
+        )?;
+        tx.commit()?;
         // Online Backup inherits WAL mode. Close a standalone DELETE database
         // before validation/flush and before moving the entire directory.
         store.conn.pragma_update(None, "journal_mode", "DELETE")?;

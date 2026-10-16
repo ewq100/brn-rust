@@ -25,7 +25,7 @@ static CANCEL: AtomicBool = AtomicBool::new(false);
 extern "C" fn on_sigint(_: libc::c_int) {
     CANCEL.store(true, Ordering::SeqCst);
 }
-const HELP: &str = "BRN Threads\n\nUsage: brn --data-dir ABSOLUTE_DIRECTORY COMMAND [--option VALUE]\n\nCommands: init, records, notes, threads, needs-you, history, candidates, settings,\n  projects [--trash yes]; project-create --title TITLE [--key KEY]\n  project-chat --project ID --title TITLE; project-document --project ID --title TITLE --text MARKDOWN\n  project-settings --project ID --base VERSION --title TITLE --instructions TEXT --knowledge yes|no\n  chat-move --thread ID [--project ID|none]; project-link|project-unlink --project ID --note ID\n  project-delete-preview --project ID (save JSON for review)\n  project-delete --preview-file FILE --actions JSON [--key KEY]\n  project-restore --project ID --base VERSION\n  Project commands accept --key KEY for durable retry. Actions JSON maps each unfinished Action ID to Keep or Cancel.\n  Search/connections accept --project ID; intake --intent project --project ID imports privately.\n  intake --intent useful reuses the chat that already received the same source (in --project ID when given),\n  unless work there is still running; then it starts a new chat (reused_chat false).\n  note-create --title TITLE --text MARKDOWN\n  thread-start --title TITLE\n  read --id RECORD\n  search --query TEXT [--limit 1..50] [--cursor NEXT] [--thread CHAT]\n  connections --note ID [--hops 1|2] [--sources yes] [--thread CHAT]\n  topics; topics-create; topics-choose --note ID\n  knowledge-check [--seed-chat yes]\n  model-install --destination ABSOLUTE_FRESH_FOLDER (native builds; downloads the pinned model)\n  Semantic search uses the model folder named by BRN_EMBEDDING_MODEL_DIR.\n  begin-edit --note ID --base VERSION\n  update-buffer --session ID --generation N --text MARKDOWN\n  save|discard --session ID --generation N; recovery\n  apply|dismiss --operation ID; undo --operation ID; archive|unarchive --thread ID\n  queue --thread ID --text TEXT; keep-in-brn --note ID --base VERSION\n  ask --thread ID --prompt TEXT [--budget 1..32] [--edit-note ID --base VERSION | --record-decision yes] [--trace summary|full]\n  intake --source ABSOLUTE_FILE --intent useful|full|chat|project [--title TITLE] [--thread ID] [--project ID] [--trace summary|full]\n  configure --provider Codex|Copilot --model ID --effort low|medium|high\n    [--helper off | --helper-provider Codex|Copilot --helper-model ID --helper-effort low|medium|high\n     [--helper-auth-file FILE|--helper-credentials-dir DIR]] (read-only research helper, off by default.\n     Experimental: helper sub-agents are tested only with gpt-6-luna at high effort; other models may give unreliable results. Best for long-document digests; runs that delegate are slower)\n  delegation --choice maintain|review-first\n  pause; resume; export|backup --destination ABSOLUTE_FRESH_PATH\n  restore --source ABSOLUTE_BACKUP\n  upgrade --backup-directory ABSOLUTE_EXTERNAL_FOLDER\n\nChoose delegation before resuming maintenance. Manual work remains available while pending.\nFresh explicit data only. Originals remain external; no external messages are sent.\nReview apply and Undo are concrete owner actions. Continue uses ask on the same Thread.";
+const HELP: &str = "BRN Threads\n\nUsage: brn --data-dir ABSOLUTE_DIRECTORY COMMAND [--option VALUE]\n\nCommands: init [--purpose test], records, notes, threads, needs-you, history, candidates, settings,\n  projects [--trash yes]; project-create --title TITLE [--key KEY]\n  project-chat --project ID --title TITLE; project-document --project ID --title TITLE --text MARKDOWN\n  project-settings --project ID --base VERSION --title TITLE --instructions TEXT --knowledge yes|no\n  chat-move --thread ID [--project ID|none]; project-link|project-unlink --project ID --note ID\n  project-delete-preview --project ID (save JSON for review)\n  project-delete --preview-file FILE --actions JSON [--key KEY]\n  project-restore --project ID --base VERSION\n  Project commands accept --key KEY for durable retry. Actions JSON maps each unfinished Action ID to Keep or Cancel.\n  Search/connections accept --project ID; intake --intent project --project ID imports privately.\n  intake --intent useful reuses the chat that already received the same source (in --project ID when given),\n  unless work there is still running; then it starts a new chat (reused_chat false).\n  note-create --title TITLE --text MARKDOWN\n  thread-start --title TITLE\n  read --id RECORD\n  search --query TEXT [--limit 1..50] [--cursor NEXT] [--thread CHAT]\n  connections --note ID [--hops 1|2] [--sources yes] [--thread CHAT]\n  topics; topics-create; topics-choose --note ID\n  knowledge-check [--seed-chat yes]\n  model-install --destination ABSOLUTE_FRESH_FOLDER (native builds; downloads the pinned model)\n  Semantic search uses the model folder named by BRN_EMBEDDING_MODEL_DIR.\n  begin-edit --note ID --base VERSION [--token-out ABSOLUTE_NEW_FILE] (prints the session token once)\n  update-buffer --session ID --generation N --text MARKDOWN --token-file ABSOLUTE_FILE|-\n  save|discard --session ID --generation N --token-file ABSOLUTE_FILE|-; recovery\n  reclaim-edit --session ID [--token-out ABSOLUTE_NEW_FILE] (test workspaces only)\n  apply|dismiss --operation ID; undo --operation ID; archive|unarchive --thread ID\n  queue --thread ID --text TEXT; keep-in-brn --note ID --base VERSION\n  ask --thread ID --prompt TEXT [--budget 1..32] [--edit-note ID --base VERSION | --record-decision yes] [--trace summary|full]\n  intake --source ABSOLUTE_FILE --intent useful|full|chat|project [--title TITLE] [--thread ID] [--project ID] [--trace summary|full]\n  configure --provider Codex|Copilot --model ID --effort low|medium|high\n    [--helper off | --helper-provider Codex|Copilot --helper-model ID --helper-effort low|medium|high\n     [--helper-auth-file FILE|--helper-credentials-dir DIR]] (read-only research helper, off by default.\n     Experimental: helper sub-agents are tested only with gpt-6-luna at high effort; other models may give unreliable results. Best for long-document digests; runs that delegate are slower)\n  delegation --choice maintain|review-first\n  pause; resume; export|backup --destination ABSOLUTE_FRESH_PATH\n  restore --source ABSOLUTE_BACKUP\n  upgrade --backup-directory ABSOLUTE_EXTERNAL_FOLDER\n\nChoose delegation before resuming maintenance. Manual work remains available while pending.\nFresh explicit data only. Originals remain external; no external messages are sent.\nReview apply and Undo are concrete owner actions. Continue uses ask on the same Thread.";
 /// Printed after `HELP` by `--help`.
 const AGENT_HELP: &str = "
 Agents and scripts: brn --json --data-dir DIR COMMAND ... prints one JSON envelope on stdout.
@@ -33,6 +33,8 @@ Agents and scripts: brn --json --data-dir DIR COMMAND ... prints one JSON envelo
   7 failed (including busy and timeout), 130 interrupted (SIGINT), 143 terminated (SIGTERM).
   Without --json, failures exit 1 and outcomes such as Stale exit 0.
   --timeout SECONDS after --data-dir bounds the call; it never hides a commit (envelope stop).
+  --actor NAME (or BRN_ACTOR) names the caller on the receipts this call commits; it is not identity.
+  Every envelope reports authority {workspace_purpose, cli_authority, enforced: false, actor}.
   brn --json --help prints the machine contract (commands, options, outcomes, retry classes, error codes);
   brn [--json] COMMAND --help prints one command's help. --data-dir and --timeout may follow the command.
   Bounded inspection: history|candidates|records|notes|threads|needs-you|recovery --limit N [--cursor C],
@@ -46,8 +48,12 @@ Agents and scripts: brn --json --data-dir DIR COMMAND ... prints one JSON envelo
   replay on retry. resolve is an alias of archive. A keyed full/chat/project intake replays when bytes,
   path, scope and title match a committed import, without converting or sending the document again;
   if that import found the bytes already imported, the retry converts again and records only an observation.
-  Stale save (exit 3): keep result.session.markdown; discard your session; begin-edit --base
-  <conflict[0].version>; reapply; update-buffer --generation 1 --text-file merged.md; save --generation 1.
+  Edit writes need the session token: begin-edit --token-out FILE, then --token-file FILE (never argv).
+  Stale save (exit 3): keep result.session.markdown; discard your session (--token-file OLD); begin-edit --base
+  <conflict[0].version> --token-out NEW; reapply; update-buffer --generation 1 --text-file merged.md --token-file NEW;
+  save --generation 1 --token-file NEW.
+  upgrade_required (exit 6): the workspace has an older schema and nothing changed; the CLI never upgrades
+  implicitly. On the owner's instruction: brn --data-dir DIR upgrade --backup-directory ABSOLUTE_DIR (backs up first).
   intake --intent chat --thread <PROJECT_ID> attaches the document to that project: an owner decision.
   Commands marked owner_decision record an owner decision. Running the CLI does not make you the owner:
   run them only on the owner's explicit instruction for that exact operation.";
@@ -64,6 +70,12 @@ struct Invocation {
     pending_inputs: Vec<(&'static str, String)>,
     /// Global `--timeout SECONDS`, already checked to be 1..86400.
     timeout: Option<u64>,
+    /// `--token-file ABSOLUTE_PATH|-`, read by `input::resolve` into `token`.
+    token_source: Option<String>,
+    /// The edit session token; never stored in `args`.
+    token: Option<EditToken>,
+    /// Global `--actor NAME` (else `BRN_ACTOR`), already checked.
+    actor: Option<String>,
 }
 /// A refusal found while parsing argv, before anything is opened or read.
 struct Refused {
@@ -160,9 +172,24 @@ fn parse(
     let mut iter = tokens.into_iter().enumerate().skip(start);
     let usage = |code, message: &str| CliError::new(code, message);
     let supply = "Supply --data-dir ABSOLUTE_DIRECTORY; run --help";
-    // Global options: --data-dir and --timeout in any option-name position.
+    // Global options: --data-dir, --timeout and --actor in any option-name position.
     let mut data: Option<PathBuf> = None;
     let mut timeout = None;
+    let mut actor: Option<String> = None;
+    let set_actor =
+        |actor: &mut Option<String>, value: Option<String>| -> std::result::Result<(), CliError> {
+            if actor.is_some() {
+                return Err(usage(Code::RepeatedOption, "Repeated option").with_option("actor"));
+            }
+            let value = value.ok_or_else(|| {
+                usage(Code::MissingValue, "Missing option value").with_option("actor")
+            })?;
+            if !actor_is_valid(&value) {
+                return Err(CliError::invalid_value("actor", ACTOR_EXPECTED));
+            }
+            *actor = Some(value);
+            Ok(())
+        };
     let set_data = |data: &mut Option<PathBuf>,
                     value: Option<String>|
      -> std::result::Result<(), CliError> {
@@ -200,6 +227,10 @@ fn parse(
             Some((_, token)) if token == "--timeout" => {
                 let value = iter.next().map(|(_, v)| v);
                 set_timeout(&mut timeout, value).map_err(|e| refuse(None, e))?;
+            }
+            Some((_, token)) if token == "--actor" => {
+                let value = iter.next().map(|(_, v)| v);
+                set_actor(&mut actor, value).map_err(|e| refuse(None, e))?;
             }
             // Before the command, any other option needs --data-dir first.
             Some((_, token)) if token.starts_with("--") && data.is_none() => {
@@ -247,6 +278,7 @@ fn parse(
         match name {
             "data-dir" => set_data(&mut data, value).map_err(refuse)?,
             "timeout" => set_timeout(&mut timeout, value).map_err(refuse)?,
+            "actor" => set_actor(&mut actor, value).map_err(refuse)?,
             _ => {
                 let Some(value) = value else {
                     let error = usage(Code::MissingValue, "Missing option value");
@@ -284,6 +316,21 @@ fn parse(
             .with_option(unknown)
             .with("allowed", spec.options);
         return Err(refuse(error));
+    }
+    if actor.is_none() {
+        if let Some(value) = std::env::var_os("BRN_ACTOR") {
+            match value.into_string() {
+                Ok(value) if actor_is_valid(&value) => actor = Some(value),
+                _ => {
+                    let error =
+                        CliError::invalid_value("actor", ACTOR_EXPECTED).with("source", "env");
+                    return Err(refuse(error));
+                }
+            }
+        }
+    }
+    if let Some(actor) = &actor {
+        contract::set_actor(actor);
     }
     let key = options
         .get("key")
@@ -346,8 +393,31 @@ fn parse(
         }
         pending_inputs.push((name, source));
     }
+    // The edit token is secret input: a 0600 file or a pipe, never argv.
+    let token_source = options.remove("token-file");
+    if let Some(source) = &token_source {
+        if source != "-" && !Path::new(source).is_absolute() {
+            let message = "--token-file takes an absolute path or -";
+            return Err(refuse(
+                CliError::invalid_value("token-file", message)
+                    .with("expected", "absolute path or -"),
+            ));
+        }
+        if source == "-" {
+            if let Some(first) = &stdin {
+                let message = format!("--token-file -: stdin is already read by --{first}");
+                return Err(refuse(CliError::invalid_input(
+                    "token-file",
+                    "stdin_reused",
+                    message,
+                )));
+            }
+        }
+    }
     let given = |name: &str| {
-        options.contains_key(name) || pending_inputs.iter().any(|(pending, _)| *pending == name)
+        options.contains_key(name)
+            || pending_inputs.iter().any(|(pending, _)| *pending == name)
+            || (name == "token-file" && token_source.is_some())
     };
     let conditional = spec
         .required_when
@@ -388,6 +458,9 @@ fn parse(
     if command == "delegation" {
         delegation_choice(&options["choice"]).map_err(refuse)?;
     }
+    if let Some(out) = options.get("token-out") {
+        token_out_free(Path::new(out)).map_err(refuse)?;
+    }
     Ok(Some(Invocation {
         data,
         command,
@@ -396,7 +469,37 @@ fn parse(
         key,
         pending_inputs,
         timeout,
+        token_source,
+        token: None,
+        actor,
     }))
+}
+const ACTOR_EXPECTED: &str = "--actor takes a name matching [A-Za-z0-9._:-]{1,64}";
+/// `^[A-Za-z0-9._:-]{1,64}$`, the shared service's actor rule.
+fn actor_is_valid(actor: &str) -> bool {
+    (1..=64).contains(&actor.len())
+        && actor
+            .bytes()
+            .all(|b| b.is_ascii_alphanumeric() || matches!(b, b'.' | b'_' | b':' | b'-'))
+}
+/// `--token-out`: a new file whose parent folder exists, checked before opening.
+fn token_out_free(path: &Path) -> Result<()> {
+    if std::fs::symlink_metadata(path).is_ok() {
+        return Err(CliError::new(
+            Code::DestinationExists,
+            "--token-out already exists; choose a new path",
+        )
+        .with("option", "token-out"));
+    }
+    if path.parent().is_some_and(|parent| !parent.is_dir()) {
+        return Err(CliError::new(
+            Code::InvalidRequest,
+            "--token-out needs an existing parent folder",
+        )
+        .with("option", "token-out")
+        .with("reason", "parent_missing"));
+    }
+    Ok(())
 }
 /// `--timeout SECONDS`: an integer 1..86400.
 fn timeout_seconds(value: &str) -> Result<u64> {
@@ -430,6 +533,12 @@ impl Invocation {
             None => format!("{prefix}:{}", uuid::Uuid::new_v4()),
         }
     }
+    /// The edit token read from `--token-file`.
+    fn token(&self) -> Result<&EditToken> {
+        self.token
+            .as_ref()
+            .ok_or_else(|| CliError::missing_option("token-file"))
+    }
     /// The caller's key for the shared keyed functions, or a fresh one.
     fn owner_key(&self) -> String {
         match &self.key {
@@ -438,8 +547,86 @@ impl Invocation {
         }
     }
 }
-/// True when `data` does not exist or is an empty folder (no workspace marker).
+/// The `--token-out` file, created empty and owner-only before the service
+/// call: `create_new` refuses an existing path or symlink.
+fn token_file(inv: &Invocation) -> Result<Option<(PathBuf, std::fs::File)>> {
+    let Some(path) = inv.args.get("token-out").map(PathBuf::from) else {
+        return Ok(None);
+    };
+    let mut options = std::fs::OpenOptions::new();
+    options.write(true).create_new(true);
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::OpenOptionsExt;
+        options.mode(0o600);
+    }
+    match options.open(&path) {
+        Ok(file) => Ok(Some((path, file))),
+        Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => Err(CliError::new(
+            Code::DestinationExists,
+            "--token-out already exists; choose a new path",
+        )
+        .with("option", "token-out")),
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => Err(CliError::new(
+            Code::InvalidRequest,
+            "--token-out needs an existing parent folder",
+        )
+        .with("option", "token-out")
+        .with("reason", "parent_missing")),
+        Err(error) => Err(error.into()),
+    }
+}
+fn discard_token_file(out: &Option<(PathBuf, std::fs::File)>) {
+    if let Some((path, _)) = out {
+        let _ = std::fs::remove_file(path);
+    }
+}
+/// `begin-edit` and `reclaim-edit`: the session with its holder, and the
+/// token once, in `result.token` or in the `--token-out` file. If the file
+/// cannot be written, `begin-edit` closes its new session (`closed`).
+fn issued_output(
+    workspace: &mut Workspace,
+    issued: IssuedEdit,
+    out: Option<(PathBuf, std::fs::File)>,
+    close_on_failure: bool,
+) -> Result<Value> {
+    use std::io::Write;
+    let IssuedEdit { session, token } = issued;
+    let mut output = encode(&session)?;
+    let Some((path, mut file)) = out else {
+        output["token"] = json!(token.expose());
+        output["token_file"] = Value::Null;
+        return Ok(output);
+    };
+    let written = file
+        .write_all(format!("{}\n", token.expose()).as_bytes())
+        .and_then(|()| file.sync_all());
+    if let Err(error) = written {
+        let _ = std::fs::remove_file(&path);
+        let closed = close_on_failure
+            && matches!(
+                workspace
+                    .store
+                    .discard_caller_edit(&session.id, &token, session.generation),
+                Ok(BufferOutcome::Updated(_))
+            );
+        let message = format!("Could not write --token-out: {error}");
+        return Err(CliError::new(Code::IoError, message).with("closed", closed));
+    }
+    output["token"] = Value::Null;
+    output["token_file"] = json!(path);
+    Ok(output)
+}
+/// True when `data` does not exist or is an empty folder (no workspace
+/// marker). A symlinked folder or ancestor is never missing: opening it
+/// refuses it as `data_folder_unusable`, before anything is created.
 fn workspace_missing(data: &Path) -> bool {
+    if data
+        .ancestors()
+        .any(|path| std::fs::symlink_metadata(path).is_ok_and(|m| m.file_type().is_symlink()))
+    {
+        return false;
+    }
     match std::fs::read_dir(data) {
         Err(error) => error.kind() == std::io::ErrorKind::NotFound,
         Ok(mut entries) => entries.next().is_none(),
@@ -713,7 +900,9 @@ async fn execute(inv: &Invocation, notes: &mut Annotations) -> Result<Value> {
     }
     if inv.command == "restore" {
         let store = Store::restore(inv.arg("source")?, &inv.data)?;
-        return Ok(json!({"restored":store.directory()}));
+        // Every restored copy is an owner workspace; read back from the copy.
+        let purpose = store.workspace_purpose()?;
+        return Ok(json!({"restored":store.directory(),"workspace_purpose":purpose.as_str()}));
     }
     if inv.command == "model-install" {
         return install_model(inv);
@@ -730,7 +919,15 @@ async fn execute(inv: &Invocation, notes: &mut Annotations) -> Result<Value> {
         ));
     }
     // A workspace the CLI creates has no credential source until `configure`.
-    let mut workspace = Workspace::open_without_default_credentials(&inv.data)?;
+    // The CLI never upgrades: an older workspace is refused unchanged
+    // (upgrade_required); only `upgrade` upgrades, backup-first.
+    let mut workspace = if inv.command == "init" && inv.args.contains_key("purpose") {
+        Workspace::create_without_default_credentials(&inv.data, WorkspacePurpose::Test)?
+    } else {
+        Workspace::open_existing_no_upgrade(&inv.data)?
+    };
+    workspace.store.set_actor(inv.actor.as_deref())?;
+    contract::set_purpose(workspace.store.workspace_purpose()?);
     stop::check()?;
     // A named but unusable model folder is an error, never a silent fallback.
     if matches!(inv.command.as_str(), "search" | "ask" | "intake") {
@@ -933,31 +1130,53 @@ async fn execute(inv: &Invocation, notes: &mut Annotations) -> Result<Value> {
             )?;
             stop::check()?;
             let shown = page.hits.len();
-            notes.page = Some(
-                json!({"limit": limit, "shown": shown, "cursor": page.cursor, "total": page.total}),
-            );
+            // The envelope page covers both lanes, which share one offset:
+            // null means neither lane has more.
+            let cursor = page.cursor.clone().or_else(|| page.message_cursor.clone());
+            let total = page.total + page.message_total;
+            let both = shown + page.messages.len();
+            notes.page =
+                Some(json!({"limit": limit, "shown": both, "cursor": cursor, "total": total}));
             let mut output = encode(page)?;
             output["shown"] = json!(shown);
             output
         }
-        "begin-edit" => encode(
-            workspace
+        "begin-edit" => {
+            let out = token_file(inv)?;
+            let issued = workspace
                 .store
-                .begin_edit(inv.arg("note")?, inv.number("base")?)
-                .map_err(contract::begin_edit_error)?,
-        )?,
-        "update-buffer" => match workspace.store.update_buffer(
+                .begin_caller_edit(inv.arg("note")?, inv.number("base")?)
+                .map_err(|error| {
+                    discard_token_file(&out);
+                    contract::begin_edit_error(error)
+                })?;
+            issued_output(&mut workspace, issued, out, true)?
+        }
+        "reclaim-edit" => {
+            let out = token_file(inv)?;
+            let issued = workspace
+                .store
+                .reclaim_caller_edit(inv.arg("session")?)
+                .map_err(|error| {
+                    discard_token_file(&out);
+                    CliError::from(error)
+                })?;
+            issued_output(&mut workspace, issued, out, false)?
+        }
+        "update-buffer" => match workspace.store.update_caller_buffer(
             inv.arg("session")?,
+            inv.token()?,
             inv.number("generation")?,
             inv.arg("text")?,
         )? {
             BufferOutcome::Updated(session) => json!({"outcome":"Updated","session":session}),
             BufferOutcome::Ignored(session) => json!({"outcome":"Ignored","session":session}),
         },
-        "save" => match workspace
-            .store
-            .save(inv.arg("session")?, inv.number("generation")?)?
-        {
+        "save" => match workspace.store.save_caller_edit(
+            inv.arg("session")?,
+            inv.token()?,
+            inv.number("generation")?,
+        )? {
             SaveOutcome::Saved(receipt) => json!({"outcome":"Saved","receipt":receipt}),
             SaveOutcome::Stale(session) => json!({"outcome":"Stale","session":session}),
             SaveOutcome::GenerationMismatch(session) => {
@@ -966,10 +1185,11 @@ async fn execute(inv: &Invocation, notes: &mut Annotations) -> Result<Value> {
             SaveOutcome::Closed(session) => json!({"outcome":"Closed","session":session}),
             SaveOutcome::Deferred { guarded } => json!({"outcome":"Deferred","guarded":guarded}),
         },
-        "discard" => match workspace
-            .store
-            .discard(inv.arg("session")?, inv.number("generation")?)?
-        {
+        "discard" => match workspace.store.discard_caller_edit(
+            inv.arg("session")?,
+            inv.token()?,
+            inv.number("generation")?,
+        )? {
             BufferOutcome::Updated(session) => json!({"outcome":"Discarded","session":session}),
             BufferOutcome::Ignored(session) => json!({"outcome":"Ignored","session":session}),
         },

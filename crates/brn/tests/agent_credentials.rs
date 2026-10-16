@@ -16,6 +16,7 @@ fn cli_created_workspace_has_no_credential_source() {
     root.file("home/auth.json", b"{}");
     std::fs::create_dir(root.join("home/.codex")).unwrap();
     root.file("home/.codex/auth.json", b"{}");
+    // creation semantics: B2 covers every workspace the CLI creates.
     let data = root.join("data");
     ok(&root, &data, &["init"]);
     let settings = ok(&root, &data, &["settings"]);
@@ -23,11 +24,17 @@ fn cli_created_workspace_has_no_credential_source() {
     assert_eq!(settings["credentials_dir"], Value::Null);
     let init = plain(&root, &root.join("other"), &["init"]);
     assert_eq!(init["settings"]["auth_file"], Value::Null);
+    // A test workspace (B1 phase 1) gets no credential source either.
+    let test = root.workspace("test");
+    let settings = ok(&root, &test, &["settings"]);
+    assert_eq!(settings["auth_file"], Value::Null, "{settings}");
+    assert_eq!(settings["credentials_dir"], Value::Null);
 }
 
 #[test]
 fn ask_without_credentials_is_refused_before_any_commit() {
     let root = Root::new();
+    // creation semantics: B2 covers every workspace the CLI creates.
     let data = root.join("data");
     let chat = id(&ok(&root, &data, &["thread-start", "--title", "Chat"]));
     let before = history_total(&root, &data);
@@ -46,6 +53,7 @@ fn ask_without_credentials_is_refused_before_any_commit() {
 #[test]
 fn provider_intake_without_credentials_is_refused_before_conversion() {
     let root = Root::new();
+    // creation semantics: B2 covers every workspace the CLI creates.
     let data = root.join("data");
     ok(&root, &data, &["init"]);
     let before = history_total(&root, &data);
@@ -79,6 +87,7 @@ fn provider_intake_without_credentials_is_refused_before_conversion() {
 #[test]
 fn refused_ask_stays_refused_and_records_nothing() {
     let root = Root::new();
+    // creation semantics: B2 covers every workspace the CLI creates.
     let data = root.join("data");
     let chat = id(&ok(&root, &data, &["thread-start", "--title", "Chat"]));
     let argv = ["ask", "--thread", chat.as_str(), "--prompt", "Hello"];

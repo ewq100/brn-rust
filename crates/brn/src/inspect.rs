@@ -64,10 +64,13 @@ fn write_summaries(writes: &[Written]) -> Result<(Vec<contract::Changed>, usize)
     Ok((changed, total))
 }
 
-fn receipt_summary(receipt: &Receipt) -> Result<Value> {
+/// `actor` is the caller name recorded with the receipt: null for receipts
+/// from the desktop, from a Run, or from before contract 3.
+fn receipt_summary(receipt: &Receipt, actor: Option<String>) -> Result<Value> {
     let (writes, writes_total) = write_summaries(&receipt.writes)?;
     Ok(json!({
         "operation": receipt.operation.as_str(),
+        "actor": actor,
         "reason": cut(&receipt.reason, MAX_TEXT),
         "authority": cut(&receipt.authority, MAX_TEXT),
         "committed_at": receipt.committed_at,
@@ -110,7 +113,9 @@ pub(crate) fn history(
         .flatten();
     let receipts = rows
         .iter()
-        .map(|(_, receipt)| receipt_summary(receipt))
+        .map(|(_, receipt)| {
+            receipt_summary(receipt, workspace.store.receipt_actor(&receipt.operation)?)
+        })
         .collect::<Result<Vec<_>>>()?;
     set_page(notes, limit, receipts.len(), &cursor, Some(total));
     Ok(json!({"receipts": receipts, "shown": receipts.len(), "cursor": cursor, "total": total}))
@@ -551,9 +556,14 @@ pub(crate) fn operation(workspace: &Workspace, inv: &Invocation) -> Result<Value
         .as_ref()
         .map(|r| r.request_hash.clone())
         .or(info.prepared.as_ref().map(|p| p.request_hash.clone()));
+    let actor = match &info.receipt {
+        Some(_) => workspace.store.receipt_actor(&info.id)?,
+        None => None,
+    };
     Ok(json!({
         "operation": info.id.as_str(),
         "state": state,
+        "actor": actor,
         "undo_of": info.undo_of.as_ref().map(OperationId::as_str),
         "replacement_of": info.replacement_of.as_ref().map(OperationId::as_str),
         "request_hash": request_hash,

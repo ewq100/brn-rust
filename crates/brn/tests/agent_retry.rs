@@ -20,7 +20,7 @@ fn created(envelope: &Value, kind: &str) -> String {
 #[test]
 fn keyed_topics_create_retries_without_a_second_note() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = root.workspace("data");
     let first = call(&root, &data, &["topics-create", "--key", "t1"]);
     assert_eq!(first["status"], "ok", "{first}");
     assert_eq!(first["retry"], "converge");
@@ -39,7 +39,7 @@ fn keyed_topics_create_retries_without_a_second_note() {
 #[test]
 fn keyed_seed_chat_replays_and_ignores_later_findings() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = root.workspace("data");
     let argv = ["knowledge-check", "--seed-chat", "yes", "--key", "s1"];
     let first = call(&root, &data, &argv);
     assert_eq!(first["status"], "ok", "{first}");
@@ -88,7 +88,7 @@ fn knowledge_check_key_requires_seed_chat() {
 #[test]
 fn keyed_intake_retry_replays_before_conversion_through_a_symlinked_folder() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = root.workspace("data");
     std::fs::create_dir(root.join("real")).unwrap();
     std::os::unix::fs::symlink(root.join("real"), root.join("link")).unwrap();
     std::fs::write(root.join("real/doc.md"), "# Doc\n\nBody “β”.\n").unwrap();
@@ -130,7 +130,7 @@ fn keyed_intake_retry_replays_before_conversion_through_a_symlinked_folder() {
 #[test]
 fn keyed_undo_with_a_different_original_is_key_conflict() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = root.workspace("data");
     let a = call(
         &root,
         &data,
@@ -167,7 +167,7 @@ fn keyed_undo_with_a_different_original_is_key_conflict() {
 #[test]
 fn keyed_keep_in_brn_with_a_different_note_is_key_conflict() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = root.workspace("data");
     let chat = id(&ok(&root, &data, &["thread-start", "--title", "Chat"]));
     let attach = |name: &str| {
         let source = root.file(name, format!("# {name}\n").as_bytes());
@@ -194,4 +194,64 @@ fn keyed_keep_in_brn_with_a_different_note_is_key_conflict() {
     assert_error(&refused, "rejected", "key_conflict");
     assert_eq!(refused["error"]["details"]["key"], "k1");
     assert_eq!(ok(&root, &data, &["history"]), before);
+}
+
+/// PR #156 LOW 1: a keyed full intake retried under another spelling of the
+/// same file (a symlinked parent; on macOS also `/tmp` for `/private/tmp`)
+/// replays: the binding compares canonical locators. Same operation, no
+/// conversion, no `key_conflict`, one note.
+#[cfg(unix)]
+#[test]
+fn keyed_full_intake_retry_with_another_spelling_replays() {
+    let root = Root::new();
+    let data = root.workspace("data");
+    std::fs::create_dir(root.join("real")).unwrap();
+    std::os::unix::fs::symlink(root.join("real"), root.join("link")).unwrap();
+    std::fs::write(root.join("real/doc.md"), "# Doc\n\nSpelled twice.\n").unwrap();
+    let real = root.join("real/doc.md");
+    let link = root.join("link/doc.md");
+    let intake = |source: &str, key: &str| {
+        run(
+            &root,
+            true,
+            &data,
+            &[
+                "intake", "--source", source, "--intent", "full", "--title", "Doc", "--key", key,
+            ],
+        )
+    };
+    let first = intake(real.to_str().unwrap(), "s1");
+    let applied = first.envelope();
+    assert_eq!(applied["outcome"], "Applied", "{applied}");
+    let retry = intake(link.to_str().unwrap(), "s1");
+    let replayed = retry.envelope();
+    assert_eq!(replayed["status"], "ok", "{replayed}");
+    assert_eq!(replayed["operation"], applied["operation"]);
+    assert_eq!(replayed["retry"], "replay");
+    assert_eq!(retry.stderr, "", "the retry converted again");
+    assert_eq!(ok(&root, &data, &["notes"]).as_array().unwrap().len(), 1);
+    // `/tmp` and `/private/tmp` name the same file on macOS.
+    let private = std::path::Path::new("/private/tmp");
+    let aliased = std::fs::canonicalize("/tmp").is_ok_and(|tmp| tmp == private);
+    if !aliased {
+        eprintln!("skipped: /tmp is not /private/tmp here");
+        return;
+    }
+    let scratch = tempfile::Builder::new()
+        .prefix("brn-r3-locator-")
+        .tempdir_in(private)
+        .unwrap();
+    let file = scratch.path().join("tmp-doc.md");
+    std::fs::write(&file, "# Tmp doc\n\nSpelled via /tmp.\n").unwrap();
+    let private_spelling = file.to_str().unwrap().to_owned();
+    let tmp_spelling = private_spelling.replacen("/private/tmp/", "/tmp/", 1);
+    let first = intake(&private_spelling, "s2");
+    let applied = first.envelope();
+    assert_eq!(applied["outcome"], "Applied", "{applied}");
+    let retry = intake(&tmp_spelling, "s2");
+    let replayed = retry.envelope();
+    assert_eq!(replayed["operation"], applied["operation"], "{replayed}");
+    assert_eq!(replayed["retry"], "replay");
+    assert_eq!(retry.stderr, "");
+    assert_eq!(ok(&root, &data, &["notes"]).as_array().unwrap().len(), 2);
 }

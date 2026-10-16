@@ -47,7 +47,7 @@ fn operations(items: &[Value]) -> Vec<String> {
 #[test]
 fn history_pages_are_bounded_stable_and_filter_by_record() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = root.workspace("data");
     for i in 0..25 {
         note(&root, &data, &format!("N{i}"), "text");
     }
@@ -81,18 +81,30 @@ fn history_pages_are_bounded_stable_and_filter_by_record() {
     let page = plain(&root, &data, &["history", "--limit", "3"]);
     assert_eq!(page["shown"], 3);
     // --record keeps the receipts that wrote that record.
-    let session = ok(
-        &root,
-        &data,
-        &["begin-edit", "--note", &late, "--base", "1"],
-    );
+    let (session, token) = begin_edit(&root, &data, &late, 1);
     let session = id(&session);
-    let text = ["update-buffer", "--session", &session, "--generation", "1"];
+    let text = [
+        "update-buffer",
+        "--session",
+        &session,
+        "--generation",
+        "1",
+        "--token-file",
+        &token,
+    ];
     ok(&root, &data, &[&text[..], &["--text", "edited"]].concat());
     ok(
         &root,
         &data,
-        &["save", "--session", &session, "--generation", "1"],
+        &[
+            "save",
+            "--session",
+            &session,
+            "--generation",
+            "1",
+            "--token-file",
+            &token,
+        ],
     );
     let pages = all_pages(
         &root,
@@ -108,6 +120,7 @@ fn history_pages_are_bounded_stable_and_filter_by_record() {
             .iter()
             .any(|w| w["id"] == late.as_str()));
         for field in [
+            "actor",
             "reason",
             "authority",
             "committed_at",
@@ -165,11 +178,8 @@ fn history_pages_are_bounded_stable_and_filter_by_record() {
 }
 
 fn edit(root: &Root, data: &Path, note: &str, base: u64, text: &str) {
-    let session = id(&ok(
-        root,
-        data,
-        &["begin-edit", "--note", note, "--base", &base.to_string()],
-    ));
+    let (session, token) = begin_edit(root, data, note, base);
+    let session = id(&session);
     let file = root.file(&format!("edit-{base}.md"), text.as_bytes());
     ok(
         root,
@@ -182,12 +192,22 @@ fn edit(root: &Root, data: &Path, note: &str, base: u64, text: &str) {
             "1",
             "--text-file",
             &file,
+            "--token-file",
+            &token,
         ],
     );
     let saved = call(
         root,
         data,
-        &["save", "--session", &session, "--generation", "1"],
+        &[
+            "save",
+            "--session",
+            &session,
+            "--generation",
+            "1",
+            "--token-file",
+            &token,
+        ],
     );
     assert_eq!(saved["outcome"], "Saved", "{saved}");
 }
@@ -223,7 +243,7 @@ fn reassemble(root: &Root, data: &Path, note: &str, version: u64, limit: usize) 
 #[test]
 fn revisions_and_revision_read_page_through_a_large_note() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = root.workspace("data");
     let body = |tag: &str| {
         let line = format!("{tag} — “β” 👩‍💻 مرحبا 你好 $HOME `x`\n");
         line.repeat(200 * 1024 / line.len() + 1)
@@ -290,7 +310,7 @@ fn revisions_and_revision_read_page_through_a_large_note() {
 #[test]
 fn records_page_by_kind_and_cursor() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = root.workspace("data");
     let mut ids = vec![];
     for i in 0..5 {
         ids.push(note(&root, &data, &format!("Note {i}"), "text"));
@@ -318,8 +338,7 @@ fn records_page_by_kind_and_cursor() {
 #[test]
 fn runs_page_validates_options_and_lists_nothing_on_a_fresh_workspace() {
     let root = Root::new();
-    let data = root.join("data");
-    ok(&root, &data, &["init"]);
+    let data = root.workspace("data");
     let envelope = call(&root, &data, &["runs"]);
     assert_eq!(envelope["status"], "ok", "{envelope}");
     assert_eq!(
@@ -407,7 +426,7 @@ fn page_options_are_refused_before_opening() {
 #[test]
 fn read_pages_detect_a_change_between_pages() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = root.workspace("data");
     let note = note(&root, &data, "N", "0123456789");
     let first = ok(&root, &data, &["read", "--id", &note, "--limit", "4"]);
     assert_eq!(first["note"]["markdown"], "0123");
@@ -448,7 +467,7 @@ fn read_pages_detect_a_change_between_pages() {
 #[test]
 fn page_refusals_after_opening_name_the_cause() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = root.workspace("data");
     let note = note(&root, &data, "N", "é");
     let unknown = call(&root, &data, &["history", "--record", "no-such-record"]);
     assert_error(&unknown, "rejected", "not_found");
@@ -473,7 +492,7 @@ fn page_refusals_after_opening_name_the_cause() {
 #[test]
 fn identical_page_reads_return_identical_pages() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = root.workspace("data");
     for i in 0..3 {
         note(&root, &data, &format!("N{i}"), "text");
     }
@@ -514,7 +533,7 @@ fn keyed_once(root: &Root, data: &Path, argv: &[&str], command: &str, key: &str)
 #[test]
 fn operation_by_key_finds_every_keyed_command() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = root.workspace("data");
     let made = keyed_once(
         &root,
         &data,
@@ -596,7 +615,7 @@ fn operation_by_key_finds_every_keyed_command() {
 #[test]
 fn candidates_and_operation_report_unapplied_candidates() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = root.workspace("data");
     let made = call(
         &root,
         &data,
@@ -604,11 +623,8 @@ fn candidates_and_operation_report_unapplied_candidates() {
     );
     let note = made["changed"][0]["id"].as_str().unwrap().to_owned();
     let original = made["operation"].as_str().unwrap().to_owned();
-    let session = id(&ok(
-        &root,
-        &data,
-        &["begin-edit", "--note", &note, "--base", "1"],
-    ));
+    let (session, token) = begin_edit(&root, &data, &note, 1);
+    let session = id(&session);
     let undo = ["undo", "--operation", original.as_str(), "--key", "u1"];
     let deferred = call(&root, &data, &undo);
     assert_eq!(deferred["status"], "deferred", "{deferred}");
@@ -631,7 +647,15 @@ fn candidates_and_operation_report_unapplied_candidates() {
     ok(
         &root,
         &data,
-        &["discard", "--session", &session, "--generation", "0"],
+        &[
+            "discard",
+            "--session",
+            &session,
+            "--generation",
+            "0",
+            "--token-file",
+            &token,
+        ],
     );
     let applied = call(&root, &data, &undo);
     assert_eq!(applied["outcome"], "Applied", "{applied}");
@@ -687,8 +711,7 @@ fn operation_lookup_refuses_bad_forms_and_never_allocates() {
         }
     }
     assert!(!absent.exists());
-    let data = root.join("data");
-    ok(&root, &data, &["init"]);
+    let data = root.workspace("data");
     assert_error(
         &call(&root, &data, &["operation", "--id", "no-such-op"]),
         "rejected",

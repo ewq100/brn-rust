@@ -63,7 +63,7 @@ fn runs(root: &Root, data: &Path, filter: &[&str]) -> Vec<Value> {
 #[test]
 fn stub_ask_completes() {
     let root = root();
-    let data = root.join("data");
+    let data = root.workspace("data");
     let stub = Stub::start(vec![answer("Synthetic answer.")]);
     let chat = configured(&root, &data, &stub);
     let envelope = ask(&root, &data, &chat);
@@ -81,7 +81,7 @@ fn stub_ask_completes() {
 #[test]
 fn configure_then_ask_reaches_the_provider() {
     let root = root();
-    let data = root.join("data");
+    let data = root.workspace("data");
     let stub = Stub::start(vec![answer("After configure.")]);
     let chat = id(&ok(&root, &data, &["thread-start", "--title", "Chat"]));
     let refused = ask(&root, &data, &chat);
@@ -95,7 +95,7 @@ fn configure_then_ask_reaches_the_provider() {
 #[test]
 fn stub_ask_on_an_unknown_chat_never_contacts_the_stub() {
     let root = root();
-    let data = root.join("data");
+    let data = root.workspace("data");
     let stub = Stub::start(vec![answer("never")]);
     configured(&root, &data, &stub);
     let refused = ask(&root, &data, "no-such-chat");
@@ -107,7 +107,7 @@ fn stub_ask_on_an_unknown_chat_never_contacts_the_stub() {
 #[test]
 fn stub_provider_error_ends_failed() {
     let root = root();
-    let data = root.join("data");
+    let data = root.workspace("data");
     let stub = Stub::start(vec![Reply::Status(500)]);
     let chat = configured(&root, &data, &stub);
     let envelope = ask(&root, &data, &chat);
@@ -120,7 +120,7 @@ fn stub_provider_error_ends_failed() {
 #[test]
 fn stub_model_candidate_review_apply_and_dismiss() {
     let root = root();
-    let data = root.join("data");
+    let data = root.workspace("data");
     ok(&root, &data, &["delegation", "--choice", "review-first"]);
     let a = note(&root, &data, "Alpha", "alpha one");
     let b = note(&root, &data, "Beta", "beta one");
@@ -178,7 +178,7 @@ fn stub_model_candidate_review_apply_and_dismiss() {
 #[test]
 fn stub_candidate_goes_stale_after_owner_edit() {
     let root = root();
-    let data = root.join("data");
+    let data = root.workspace("data");
     ok(&root, &data, &["delegation", "--choice", "review-first"]);
     let a = note(&root, &data, "Alpha", "alpha one");
     let stub = Stub::start(vec![
@@ -192,11 +192,8 @@ fn stub_candidate_goes_stale_after_owner_edit() {
         .as_str()
         .unwrap()
         .to_owned();
-    let session = id(&ok(
-        &root,
-        &data,
-        &["begin-edit", "--note", &a, "--base", "1"],
-    ));
+    let (session, token) = begin_edit(&root, &data, &a, 1);
+    let session = id(&session);
     let buffer = [
         "update-buffer",
         "--session",
@@ -205,12 +202,22 @@ fn stub_candidate_goes_stale_after_owner_edit() {
         "1",
         "--text",
         "owner edit",
+        "--token-file",
+        &token,
     ];
     ok(&root, &data, &buffer);
     ok(
         &root,
         &data,
-        &["save", "--session", &session, "--generation", "1"],
+        &[
+            "save",
+            "--session",
+            &session,
+            "--generation",
+            "1",
+            "--token-file",
+            &token,
+        ],
     );
     let stale = call(&root, &data, &["apply", "--operation", &candidate]);
     assert_eq!(stale["status"], "stale", "{stale}");
@@ -219,10 +226,69 @@ fn stub_candidate_goes_stale_after_owner_edit() {
     assert_eq!(stale["conflict"][0]["version"], 2);
 }
 
+/// B1 phase 1: the CLI's own receipts carry `--actor`; receipts a Run wrote
+/// (through brn-ai's own connections) carry none, even under `ask --actor`.
+#[test]
+fn stub_run_receipts_carry_no_actor_and_the_cli_apply_carries_it() {
+    let root = root();
+    let data = root.workspace("data");
+    ok(&root, &data, &["delegation", "--choice", "review-first"]);
+    let a = note(&root, &data, "Alpha", "alpha one");
+    let stub = Stub::start(vec![
+        read_note(&a),
+        prepare("a", &a, "Alpha", "alpha from the model"),
+        answer("Proposed."),
+    ]);
+    let chat = configured(&root, &data, &stub);
+    let asked = call(
+        &root,
+        &data,
+        &[
+            "--actor", "a1", "ask", "--thread", &chat, "--prompt", "Hello",
+        ],
+    );
+    assert_eq!(asked["outcome"], "Completed", "{asked}");
+    assert_eq!(asked["authority"]["actor"], "a1");
+    let candidate = ok(&root, &data, &["candidates", "--limit", "1"])["candidates"][0]["operation"]
+        .as_str()
+        .unwrap()
+        .to_owned();
+    let before = ok(&root, &data, &["history", "--limit", "100"])["receipts"]
+        .as_array()
+        .unwrap()
+        .clone();
+    let applied = call(
+        &root,
+        &data,
+        &["apply", "--operation", &candidate, "--actor", "a1"],
+    );
+    assert_eq!(applied["outcome"], "Applied", "{applied}");
+    let history = ok(&root, &data, &["history", "--limit", "100"])["receipts"]
+        .as_array()
+        .unwrap()
+        .clone();
+    let receipt = history
+        .iter()
+        .find(|r| r["operation"] == candidate.as_str())
+        .unwrap();
+    assert_eq!(receipt["actor"], "a1", "{receipt}");
+    let info = ok(&root, &data, &["operation", "--id", &candidate]);
+    assert_eq!(info["actor"], "a1");
+    // Every receipt from before the apply (setup and the Run's own) has none.
+    assert!(!before.is_empty());
+    for earlier in &before {
+        assert_eq!(earlier["actor"], Value::Null, "{earlier}");
+    }
+    let run_receipts: Vec<_> = before
+        .iter()
+        .filter(|r| r["authority"].as_str().is_some_and(|a| a.contains("run")))
+        .collect();
+    assert!(!run_receipts.is_empty(), "{before:?}");
+}
 #[test]
 fn runs_page_filters_by_thread_and_state() {
     let root = root();
-    let data = root.join("data");
+    let data = root.workspace("data");
     let stub = Stub::start(vec![answer("one"), answer("two"), Reply::Status(500)]);
     let first = configured(&root, &data, &stub);
     let second = id(&ok(&root, &data, &["thread-start", "--title", "Second"]));
@@ -260,7 +326,7 @@ fn held_ask(root: &Root, data: &Path, extra: &[&str]) -> (std::process::Child, S
 #[test]
 fn stub_sigint_interrupts_a_held_stream() {
     let root = root();
-    let data = root.join("data");
+    let data = root.workspace("data");
     let (child, _stub, _) = held_ask(&root, &data, &[]);
     signal(&child, libc::SIGINT);
     let run = wait_output(child, Duration::from_secs(30));
@@ -270,7 +336,7 @@ fn stub_sigint_interrupts_a_held_stream() {
     assert_eq!(envelope["stop"], "sigint");
     assert_eq!(runs(&root, &data, &["--state", "interrupted"]).len(), 1);
     // Default mode: exit 0 with "terminal":"Interrupted" (the live-journeys contract).
-    let other = root.join("default");
+    let other = root.workspace("default");
     let stub = Stub::start(vec![Reply::Hold]);
     let chat = configured(&root, &other, &stub);
     let argv = argv(
@@ -293,7 +359,7 @@ fn stub_sigint_interrupts_a_held_stream() {
 #[test]
 fn stub_sigterm_interrupts_a_held_stream() {
     let root = root();
-    let data = root.join("data");
+    let data = root.workspace("data");
     let (child, _stub, chat) = held_ask(&root, &data, &[]);
     signal(&child, libc::SIGTERM);
     let run = wait_output(child, Duration::from_secs(30));
@@ -310,7 +376,7 @@ fn stub_sigterm_interrupts_a_held_stream() {
 #[test]
 fn stub_deadline_interrupts_a_held_stream() {
     let root = root();
-    let data = root.join("data");
+    let data = root.workspace("data");
     let (child, _stub, _) = held_ask(&root, &data, &["--timeout", "2"]);
     let run = wait_output(child, Duration::from_secs(30));
     assert_eq!(run.code, 7, "{} {}", run.stdout, run.stderr);
@@ -324,7 +390,7 @@ fn stub_deadline_interrupts_a_held_stream() {
 #[test]
 fn stub_killed_ask_leaves_a_working_run() {
     let root = root();
-    let data = root.join("data");
+    let data = root.workspace("data");
     let topics = id(&ok(
         &root,
         &data,
