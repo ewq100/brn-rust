@@ -944,3 +944,805 @@ fn inactive_conversations_keep_v1_v2_setup_inspection_but_refuse_new_writes() {
         );
     }
 }
+
+#[test]
+fn scoped_message_pages_cross_filtered_batches_without_losing_visible_lookahead() {
+    for hidden in [1, 5] {
+        let (_root, mut app, note, thread) = fixture();
+        for i in 0..hidden {
+            snapshot(&mut app, &format!("former-{i}"), &note, &thread.id);
+        }
+        let (p, _) = project(&mut app, "destination");
+        app.project_command(
+            "move",
+            ProjectCommand::MoveChat {
+                chat: thread.id.clone(),
+                project: Some(p),
+            },
+        )
+        .unwrap();
+        let mut expected = Vec::new();
+        for text in ["Visible first", "Visible second", "Visible third"] {
+            let receipt = app.post_message(&thread.id, text).unwrap();
+            expected.push(receipt.writes[0].after.id.clone());
+        }
+        let (first, more) = app.store.message_page(&thread.id, 0, 2).unwrap();
+        assert_eq!(
+            first.iter().map(|(_, r)| &r.id).collect::<Vec<_>>(),
+            expected[..2].iter().collect::<Vec<_>>()
+        );
+        assert!(
+            more,
+            "a later visible message must remain after hidden={hidden}"
+        );
+        let (last, more) = app
+            .store
+            .message_page(&thread.id, first.last().unwrap().0, 2)
+            .unwrap();
+        assert_eq!(
+            last.iter().map(|(_, r)| &r.id).collect::<Vec<_>>(),
+            expected[2..].iter().collect::<Vec<_>>()
+        );
+        assert!(!more);
+        assert_eq!(
+            app.messages(&thread.id)
+                .unwrap()
+                .iter()
+                .map(|r| &r.id)
+                .collect::<Vec<_>>(),
+            expected.iter().collect::<Vec<_>>()
+        );
+    }
+}
+
+#[test]
+fn malformed_legacy_history_remains_visible_but_invalid_v2_metadata_is_hidden() {
+    let (_root, mut app, _note, thread) = fixture();
+    let mut ids = Vec::new();
+    for (key, text) in [
+        ("legacy", "retained legacy request body"),
+        (
+            "invalid-v2",
+            r#"{"version":2,"snapshot":{"brief":"unavailable setup metadata"}}"#,
+        ),
+    ] {
+        let op = app.store.allocate_operation(key).unwrap();
+        let id = op.creation_id(0);
+        app.owner_change(
+            key,
+            &ChangeRequest {
+                reason: "Retained opaque request fixture".into(),
+                writes: vec![Put {
+                    id: id.clone(),
+                    expected_version: None,
+                    archived: false,
+                    data: RecordData::Message(Message {
+                        thread: thread.id.clone(),
+                        role: WRITING_REQUEST_ROLE.into(),
+                        text: text.into(),
+                    }),
+                }],
+                inputs: vec![],
+            },
+        )
+        .unwrap();
+        ids.push(id);
+    }
+    assert_eq!(
+        app.messages(&thread.id)
+            .unwrap()
+            .iter()
+            .map(|r| &r.id)
+            .collect::<Vec<_>>(),
+        vec![&ids[0]]
+    );
+    let (page, more) = app.store.message_page(&thread.id, 0, 1).unwrap();
+    assert_eq!(
+        page.iter().map(|(_, r)| &r.id).collect::<Vec<_>>(),
+        vec![&ids[0]]
+    );
+    assert!(!more);
+    let rows = app.store.records_for_chat(Some(&thread.id)).unwrap();
+    assert!(rows.iter().any(|r| r.id == ids[0]));
+    assert!(!rows.iter().any(|r| r.id == ids[1]));
+}
+
+#[test]
+fn archived_project_with_retained_messages_keeps_v1_inspection_and_fences_v2_metadata() {
+    let (_root, mut app, note, _) = fixture();
+    let (p, c) = project(&mut app, "trash-visibility");
+    link(&mut app, &note, &p, &c);
+    let v2 = snapshot(&mut app, "v2", &note, &c);
+    let op = app.store.allocate_operation("v1").unwrap();
+    let mut v1 = v2.clone();
+    v1.setup = None;
+    v1.request_message = op.creation_id(0);
+    let text = v1.message_text().unwrap();
+    app.owner_change(
+        "v1",
+        &ChangeRequest {
+            reason: "Retained v1 request".into(),
+            writes: vec![Put {
+                id: v1.request_message.clone(),
+                expected_version: None,
+                archived: false,
+                data: RecordData::Message(Message {
+                    thread: c.clone(),
+                    role: WRITING_REQUEST_ROLE.into(),
+                    text: text.clone(),
+                }),
+            }],
+            inputs: vec![],
+        },
+    )
+    .unwrap();
+    // The checked store can retain active history under an archived Project.
+    // ProjectCommand::Delete separately archives its removed messages as before.
+    let project = app.store.record(&p).unwrap().unwrap();
+    app.owner_change(
+        "archived-project",
+        &ChangeRequest {
+            reason: "Archived Project with retained history".into(),
+            writes: vec![Put {
+                id: p,
+                expected_version: Some(project.version),
+                archived: true,
+                data: project.data,
+            }],
+            inputs: vec![],
+        },
+    )
+    .unwrap();
+    let (page, more) = app.store.message_page(&c, 0, 10).unwrap();
+    assert!(!more);
+    assert_eq!(
+        page.iter().map(|(_, r)| &r.id).collect::<Vec<_>>(),
+        vec![&v1.request_message]
+    );
+    assert_eq!(
+        app.messages(&c).unwrap(),
+        page.into_iter().map(|(_, r)| r).collect::<Vec<_>>()
+    );
+    assert!(
+        !app.store
+            .record_visible_in_chat(&v2.request_message, Some(&c))
+            .unwrap()
+    );
+    assert!(
+        matches!(app.store.record(&v1.request_message).unwrap().unwrap().data, RecordData::Message(m) if m.text == text)
+    );
+}
+
+#[test]
+fn unrelated_note_write_with_request_provenance_does_not_depend_on_writing_setup() {
+    let (_root, mut app, note, thread) = fixture();
+    let capture = snapshot(&mut app, "capture", &note, &thread.id);
+    let other = app.new_note("Unrelated", "Before").unwrap();
+    let mut data = other.data.clone();
+    if let RecordData::Note(n) = &mut data {
+        n.markdown = "After".into();
+    }
+    let op = app.store.allocate_operation("unrelated-candidate").unwrap();
+    let request = ChangeRequest {
+        reason: "Owner edit with retained request provenance".into(),
+        writes: vec![Put {
+            id: other.id.clone(),
+            expected_version: Some(other.version),
+            archived: false,
+            data,
+        }],
+        inputs: vec![RevisionInput {
+            record: capture.request_message,
+            version: 1,
+            expectation: InputExpectation::Current,
+        }],
+    };
+    let owner = HostAuthority::owner("unrelated owner edit");
+    app.store.prepare_owner(&op, &request, &owner).unwrap();
+    let setup = capture.setup.unwrap();
+    app.set_writing_setup(
+        "later-setup",
+        Some(setup.input.version),
+        &configuration(&note.id, None, "Changed independently", &[]),
+    )
+    .unwrap();
+    assert!(matches!(
+        app.store.apply(&op, &owner).unwrap(),
+        ApplyOutcome::Applied(_)
+    ));
+    assert!(
+        matches!(app.store.record(&other.id).unwrap().unwrap().data, RecordData::Note(n) if n.markdown == "After")
+    );
+}
+
+#[test]
+fn stored_v2_context_rejects_forged_binding_and_reference_metadata() {
+    let (_root, mut app, note, thread) = fixture();
+    let reference = app.new_note("Reference", "Saved evidence").unwrap();
+    let style = app.new_note("Style", "Saved style").unwrap();
+    let other = app
+        .new_note("Other working Note", "Canonical unrelated text")
+        .unwrap();
+    app.set_writing_setup(
+        "setup",
+        None,
+        &configuration(
+            &note.id,
+            None,
+            "Brief",
+            &[
+                (&reference.id, WritingPurpose::Evidence),
+                (&style.id, WritingPurpose::Style),
+            ],
+        ),
+    )
+    .unwrap();
+    let captured = snapshot(&mut app, "canonical", &note, &thread.id);
+    for (index, (pointer, value)) in [
+        (
+            "/snapshot/setup/input/expectation",
+            serde_json::json!("Historical"),
+        ),
+        ("/snapshot/setup/input/version", serde_json::json!(0)),
+        ("/snapshot/setup/input/record", serde_json::json!(note.id)),
+        ("/snapshot/setup/chat", serde_json::json!("")),
+        ("/snapshot/setup/references/0/version", serde_json::json!(0)),
+        (
+            "/snapshot/setup/references/0/note",
+            serde_json::json!(note.id),
+        ),
+        ("/snapshot/setup/references/0/note", serde_json::json!("")),
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        let key = format!("forged-{index}");
+        let op = app.store.allocate_operation(&key).unwrap();
+        let id = op.creation_id(0);
+        let mut payload: serde_json::Value =
+            serde_json::from_str(&captured.message_text().unwrap()).unwrap();
+        payload["snapshot"]["request_message"] = serde_json::json!(id);
+        if pointer == "/snapshot/setup/input/expectation" {
+            // Current is deliberately omitted from canonical serialized input.
+            payload["snapshot"]["setup"]["input"]["expectation"] = value;
+        } else {
+            *payload.pointer_mut(pointer).unwrap() = value;
+        }
+        let outcome = app
+            .owner_change(
+                &key,
+                &ChangeRequest {
+                    reason: "Retained modified request fixture".into(),
+                    writes: vec![Put {
+                        id: id.clone(),
+                        expected_version: None,
+                        archived: false,
+                        data: RecordData::Message(Message {
+                            thread: thread.id.clone(),
+                            role: WRITING_REQUEST_ROLE.into(),
+                            text: serde_json::to_string(&payload).unwrap(),
+                        }),
+                    }],
+                    inputs: vec![],
+                },
+            )
+            .unwrap();
+        assert!(matches!(outcome, ApplyOutcome::Applied(_)));
+        assert!(
+            WritingSnapshot::from_message(&app.store.record(&id).unwrap().unwrap()).is_err(),
+            "{pointer}"
+        );
+        assert!(app.writing_request(&id).is_err(), "{pointer}");
+    }
+    for (index, (pointer, value)) in [
+        ("/snapshot/note", serde_json::to_value(&other).unwrap()),
+        (
+            "/snapshot/setup/references",
+            serde_json::json!([
+                {"note": style.id, "version": 1, "purpose": "Style"},
+                {"note": reference.id, "version": 1, "purpose": "Evidence"}
+            ]),
+        ),
+        (
+            "/snapshot/setup/brief",
+            serde_json::json!("Not the saved brief"),
+        ),
+        ("/snapshot/setup/chat", serde_json::json!("another-scope")),
+        (
+            "/snapshot/setup/input/record",
+            serde_json::json!(reference.id),
+        ),
+        ("/snapshot/setup/input/version", serde_json::json!(999)),
+        (
+            "/snapshot/setup/references/0/purpose",
+            serde_json::json!("Style"),
+        ),
+        (
+            "/snapshot/setup/references/0/version",
+            serde_json::json!(999),
+        ),
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        let key = format!("noncanonical-{index}");
+        let op = app.store.allocate_operation(&key).unwrap();
+        let id = op.creation_id(0);
+        let mut payload: serde_json::Value =
+            serde_json::from_str(&captured.message_text().unwrap()).unwrap();
+        payload["snapshot"]["request_message"] = serde_json::json!(id);
+        *payload.pointer_mut(pointer).unwrap() = value;
+        let outcome = app
+            .owner_change(
+                &key,
+                &ChangeRequest {
+                    reason: "Retained noncanonical request fixture".into(),
+                    writes: vec![Put {
+                        id: id.clone(),
+                        expected_version: None,
+                        archived: false,
+                        data: RecordData::Message(Message {
+                            thread: thread.id.clone(),
+                            role: WRITING_REQUEST_ROLE.into(),
+                            text: serde_json::to_string(&payload).unwrap(),
+                        }),
+                    }],
+                    inputs: vec![],
+                },
+            )
+            .unwrap();
+        assert!(matches!(outcome, ApplyOutcome::Applied(_)));
+        assert!(
+            WritingSnapshot::from_message(&app.store.record(&id).unwrap().unwrap()).is_ok(),
+            "well formed {pointer}"
+        );
+        assert!(
+            app.writing_request(&id).is_err(),
+            "canonical evidence {pointer}"
+        );
+    }
+    let key = "duplicate-reference";
+    let op = app.store.allocate_operation(key).unwrap();
+    let mut invalid = captured.clone();
+    invalid.request_message = op.creation_id(0);
+    let reference = invalid.setup.as_ref().unwrap().references[0].clone();
+    invalid.setup.as_mut().unwrap().references.push(reference);
+    assert!(invalid.message_text().is_err());
+    assert_eq!(
+        app.writing_request(&captured.request_message).unwrap(),
+        captured
+    );
+}
+
+#[test]
+fn setup_size_boundary_is_exact_and_overflow_does_not_mutate_saved_configuration() {
+    let (_root, mut app, note, thread) = fixture();
+    let mut setup = configuration(&note.id, Some(&thread.id), "é", &[]);
+    // Stored identity is canonical general scope, so size the actual setup bytes.
+    setup.chat = None;
+    let length = serde_json::to_vec(&setup).unwrap().len();
+    setup
+        .brief
+        .as_mut()
+        .unwrap()
+        .push_str(&"x".repeat(MAX_WRITING_REQUEST_BYTES - length));
+    assert_eq!(
+        serde_json::to_vec(&setup).unwrap().len(),
+        MAX_WRITING_REQUEST_BYTES
+    );
+    let receipt = app.set_writing_setup("at-boundary", None, &setup).unwrap();
+    let saved = config_record(&receipt);
+    assert_eq!(saved.data, RecordData::WritingSetup(setup.clone()));
+    let before = app.records().unwrap();
+    setup.brief.as_mut().unwrap().push('é');
+    assert!(
+        app.set_writing_setup("overflow", Some(saved.version), &setup)
+            .is_err()
+    );
+    assert_eq!(app.records().unwrap(), before);
+    assert_eq!(app.store.record(&note.id).unwrap().unwrap(), note);
+}
+
+#[test]
+fn first_capture_undo_archives_exact_records_after_conversation_inactivation_or_move() {
+    for scope in ["general", "private", "project"] {
+        for change in ["archive", "resolve", "move"] {
+            let (root, mut app, note, ordinary) = fixture();
+            let chat = if scope == "project" {
+                let (p, c) = project(&mut app, "original-project");
+                link(&mut app, &note, &p, &c);
+                c
+            } else {
+                ordinary.id.clone()
+            };
+            if scope == "private" {
+                let current = app.store.record(&chat).unwrap().unwrap();
+                let mut data = current.data;
+                if let RecordData::Thread(t) = &mut data {
+                    t.private_context = true;
+                }
+                app.owner_change(
+                    "existing-private",
+                    &ChangeRequest {
+                        reason: "Existing private host context".into(),
+                        writes: vec![Put {
+                            id: chat.clone(),
+                            expected_version: Some(current.version),
+                            archived: false,
+                            data,
+                        }],
+                        inputs: vec![],
+                    },
+                )
+                .unwrap();
+            }
+            let capture = snapshot(&mut app, "first", &note, &chat);
+            let original = app
+                .history()
+                .unwrap()
+                .into_iter()
+                .find(|r| {
+                    r.writes
+                        .iter()
+                        .any(|w| w.after.id == capture.request_message)
+                })
+                .unwrap();
+            assert!(original.writes.iter().all(|w| w.before.is_none()));
+            if change == "move" {
+                let (p, _) = project(&mut app, "destination");
+                app.project_command(
+                    "move",
+                    ProjectCommand::MoveChat {
+                        chat: chat.clone(),
+                        project: Some(p),
+                    },
+                )
+                .unwrap();
+            } else {
+                let current = app.store.record(&chat).unwrap().unwrap();
+                let mut data = current.data;
+                if let RecordData::Thread(t) = &mut data
+                    && change == "resolve"
+                {
+                    t.state = ThreadState::Resolved;
+                }
+                app.owner_change(
+                    "inactive",
+                    &ChangeRequest {
+                        reason: "Conversation is no longer active".into(),
+                        writes: vec![Put {
+                            id: chat.clone(),
+                            expected_version: Some(current.version),
+                            archived: change == "archive",
+                            data,
+                        }],
+                        inputs: vec![],
+                    },
+                )
+                .unwrap();
+            }
+            let thread_after = app.store.record(&chat).unwrap().unwrap();
+            let (compensation, outcome) = app
+                .undo_with_key("undo-first", original.operation.as_str())
+                .unwrap();
+            let ApplyOutcome::Applied(undo) = &outcome else {
+                panic!("{scope}/{change}: {outcome:?}")
+            };
+            assert_eq!(undo.writes.len(), original.writes.len());
+            for written in &original.writes {
+                let retained = app.store.record(&written.after.id).unwrap().unwrap();
+                assert!(retained.archived);
+                assert_eq!(retained.data, written.after.data);
+                assert_eq!(retained.version, written.after.version + 1);
+            }
+            assert_eq!(app.store.record(&note.id).unwrap().unwrap(), note);
+            assert_eq!(app.store.record(&chat).unwrap().unwrap(), thread_after);
+            assert_eq!(
+                app.store.receipt(&original.operation).unwrap(),
+                Some(original.clone())
+            );
+            let prepared = app.store.prepared(&compensation).unwrap();
+            drop(app);
+            let mut reopened = Workspace::open(root.path().join("data")).unwrap();
+            assert_eq!(
+                reopened
+                    .undo_with_key("undo-first", original.operation.as_str())
+                    .unwrap(),
+                (compensation.clone(), outcome)
+            );
+            assert_eq!(reopened.store.prepared(&compensation).unwrap(), prepared);
+        }
+    }
+}
+
+#[test]
+fn project_setup_undo_fails_closed_after_conversation_move_or_working_link_removal() {
+    for change in ["move", "unlink"] {
+        let (_root, mut app, note, _) = fixture();
+        let (p, c) = project(&mut app, "knowledge-off-undo");
+        let current = app.store.record(&p).unwrap().unwrap();
+        let RecordData::Project(data) = current.data else {
+            panic!()
+        };
+        app.project_command(
+            "knowledge-off",
+            ProjectCommand::Configure {
+                project: p.clone(),
+                version: current.version,
+                title: data.title,
+                instructions: data.instructions,
+                use_brn_knowledge: false,
+            },
+        )
+        .unwrap();
+        app.link_writing_thread("working-link", &note.id, note.version, &c)
+            .unwrap();
+        let first = app
+            .set_writing_setup(
+                "first",
+                None,
+                &configuration(&note.id, Some(&c), "Before", &[]),
+            )
+            .unwrap();
+        let setup = config_record(&first);
+        let edit = app
+            .set_writing_setup(
+                "edit",
+                Some(setup.version),
+                &configuration(&note.id, Some(&c), "After", &[]),
+            )
+            .unwrap();
+        let before = config_record(&edit);
+        if change == "move" {
+            let (other, _) = project(&mut app, "other");
+            app.project_command(
+                "move",
+                ProjectCommand::MoveChat {
+                    chat: c.clone(),
+                    project: Some(other),
+                },
+            )
+            .unwrap();
+        } else {
+            let link = app
+                .records()
+                .unwrap()
+                .into_iter()
+                .find(|r| matches!(&r.data, RecordData::Link(l) if l.from == c && l.to == note.id))
+                .unwrap();
+            app.owner_change(
+                "unlink",
+                &ChangeRequest {
+                    reason: "Remove actual conversation access".into(),
+                    writes: vec![Put {
+                        id: link.id,
+                        expected_version: Some(link.version),
+                        archived: true,
+                        data: link.data,
+                    }],
+                    inputs: vec![],
+                },
+            )
+            .unwrap();
+        }
+        if change == "unlink" {
+            assert!(app.writing_setup(&note.id, Some(&c)).is_err());
+            assert!(
+                !app.store
+                    .records_for_chat(Some(&c))
+                    .unwrap()
+                    .iter()
+                    .any(|r| r.id == before.id)
+            );
+        }
+        let outcome = app.undo_with_key("must-not-revive", edit.operation.as_str());
+        assert!(
+            !matches!(outcome, Ok((_, ApplyOutcome::Applied(_)))),
+            "{change}"
+        );
+        assert_eq!(app.store.record(&before.id).unwrap().unwrap(), before);
+        assert_eq!(app.store.record(&note.id).unwrap().unwrap(), note);
+    }
+}
+
+#[test]
+fn capture_after_undo_reuses_default_setup_identity_at_its_actual_new_version() {
+    let (_root, mut app, note, thread) = fixture();
+    let first = snapshot(&mut app, "first", &note, &thread.id);
+    let original = app
+        .history()
+        .unwrap()
+        .into_iter()
+        .find(|r| r.writes.iter().any(|w| w.after.id == first.request_message))
+        .unwrap();
+    assert!(matches!(
+        app.undo(original.operation.as_str()).unwrap(),
+        ApplyOutcome::Applied(_)
+    ));
+    let second = snapshot(&mut app, "second", &note, &thread.id);
+    let before = first.setup.unwrap();
+    let after = second.setup.as_ref().unwrap();
+    assert_eq!(after.input.record, before.input.record);
+    assert_eq!(after.input.version, before.input.version + 2);
+    assert_eq!(
+        app.store
+            .record(&after.input.record)
+            .unwrap()
+            .unwrap()
+            .version,
+        after.input.version
+    );
+    assert_eq!(
+        app.writing_request(&second.request_message).unwrap(),
+        second
+    );
+    assert_eq!(snapshot(&mut app, "second", &note, &thread.id), second);
+    assert_eq!(app.store.record(&note.id).unwrap().unwrap(), note);
+}
+
+#[test]
+fn delayed_real_capture_prepare_rejects_changed_note_or_existing_setup_before_replay() {
+    for existing_setup in [false, true] {
+        let (root, mut app, note, thread) = fixture();
+        if existing_setup {
+            app.set_writing_setup(
+                "existing",
+                None,
+                &configuration(&note.id, None, "Before", &[]),
+            )
+            .unwrap();
+        }
+        let backup = root.path().join("before-capture.sqlite3");
+        app.store.backup(&backup).unwrap();
+        let captured = snapshot(&mut app, "shape", &note, &thread.id);
+        let receipt = app
+            .history()
+            .unwrap()
+            .into_iter()
+            .find(|r| {
+                r.writes
+                    .iter()
+                    .any(|w| w.after.id == captured.request_message)
+            })
+            .unwrap();
+        let mut request = app.store.prepared(&receipt.operation).unwrap().request;
+        drop(app);
+        let restored = root.path().join("delayed-capture");
+        drop(Store::restore(&backup, &restored).unwrap());
+        let mut app = Workspace::open(&restored).unwrap();
+        let binding = format!(
+            "{:x}",
+            Sha256::digest(
+                serde_json::to_vec(&(
+                    "request",
+                    (&note.id, note.version, &thread.id, Vec::<String>::new())
+                ))
+                .unwrap()
+            )
+        );
+        let op = app
+            .store
+            .allocate_bound_operation("writing-request:pending", &binding)
+            .unwrap();
+        let mut pending = captured.clone();
+        pending.request_message = op.creation_id(0);
+        if !existing_setup {
+            pending.setup.as_mut().unwrap().input.record = op.creation_id(1);
+        }
+        for write in &mut request.writes {
+            match &mut write.data {
+                RecordData::Message(m) => {
+                    write.id = pending.request_message.clone();
+                    m.text = pending.message_text().unwrap();
+                }
+                RecordData::WritingSetup(_) => {
+                    write.id = op.creation_id(1);
+                }
+                _ => panic!(),
+            }
+        }
+        app.store
+            .prepare_owner(&op, &request, &HostAuthority::owner("delayed host capture"))
+            .unwrap();
+        let prepared = app.store.prepared(&op).unwrap();
+        if existing_setup {
+            let current = pending.setup.as_ref().unwrap();
+            app.set_writing_setup(
+                "changed",
+                Some(current.input.version),
+                &configuration(&note.id, None, "After", &[]),
+            )
+            .unwrap();
+        } else {
+            let mut data = note.data.clone();
+            if let RecordData::Note(n) = &mut data {
+                n.markdown = "Changed after prepare".into();
+            }
+            app.owner_change(
+                "changed-note",
+                &ChangeRequest {
+                    reason: "Saved Note changed after capture prepare".into(),
+                    writes: vec![Put {
+                        id: note.id.clone(),
+                        expected_version: Some(note.version),
+                        archived: false,
+                        data,
+                    }],
+                    inputs: vec![],
+                },
+            )
+            .unwrap();
+        }
+        assert!(
+            app.snapshot_writing_request("pending", &note.id, note.version, &thread.id, &[])
+                .is_err()
+        );
+        assert!(app.store.receipt(&op).unwrap().is_none());
+        assert!(
+            app.store
+                .record(&pending.request_message)
+                .unwrap()
+                .is_none()
+        );
+        assert_eq!(app.store.prepared(&op).unwrap(), prepared);
+    }
+}
+
+#[test]
+fn live_canonical_setup_undo_does_not_need_its_archived_conversation() {
+    for project_scope in [false, true] {
+        let (_root, mut app, note, ordinary) = fixture();
+        let chat = if project_scope {
+            let (p, c) = project(&mut app, "shared-working-note");
+            link(&mut app, &note, &p, &c);
+            c
+        } else {
+            ordinary.id
+        };
+        let first = app
+            .set_writing_setup(
+                "before",
+                None,
+                &configuration(&note.id, Some(&chat), "Before", &[]),
+            )
+            .unwrap();
+        let saved = config_record(&first);
+        let edit = app
+            .set_writing_setup(
+                "after",
+                Some(saved.version),
+                &configuration(&note.id, Some(&chat), "After", &[]),
+            )
+            .unwrap();
+        let current = app.store.record(&chat).unwrap().unwrap();
+        app.owner_change(
+            "archive",
+            &ChangeRequest {
+                reason: "Archive only the conversation".into(),
+                writes: vec![Put {
+                    id: chat.clone(),
+                    expected_version: Some(current.version),
+                    archived: true,
+                    data: current.data,
+                }],
+                inputs: vec![],
+            },
+        )
+        .unwrap();
+        let (_, outcome) = app
+            .undo_with_key("restore-setup", edit.operation.as_str())
+            .unwrap();
+        assert!(matches!(outcome, ApplyOutcome::Applied(_)));
+        let restored = app.store.record(&saved.id).unwrap().unwrap();
+        assert!(!restored.archived);
+        assert_eq!(restored.data, saved.data);
+        assert_eq!(
+            app.undo_with_key("restore-setup", edit.operation.as_str())
+                .unwrap()
+                .1,
+            outcome
+        );
+        assert_eq!(app.store.record(&note.id).unwrap().unwrap(), note);
+        assert!(app.store.record(&chat).unwrap().unwrap().archived);
+    }
+}

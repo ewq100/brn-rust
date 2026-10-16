@@ -1,0 +1,113 @@
+{
+  "source_candidate": "690fb7055eb27d6b234082ca38f3a88bd06360e6",
+  "binary_features": "native-retrieval",
+  "binary_sha256": "3d6531ba592bbaf09f6647350af0f57a8e072f0d9cea9eb6296d69b84028e08b",
+  "fixture_sha256": "d7d77417f50db42e5efbe9b8906ab3256953603c89750607e8437101f1ec6561",
+  "fixture_root": "/private/tmp/brn-cw1-20261016-fixtures/cw1-schema6-refusal-afterhash-7zxrhsr2",
+  "calls": [
+    {
+      "argv": [
+        "/private/tmp/brn-c0-20261016-target/debug/brn",
+        "--json",
+        "--data-dir",
+        "/private/tmp/brn-cw1-20261016-fixtures/cw1-schema6-refusal-afterhash-7zxrhsr2/data",
+        "notes"
+      ],
+      "exit": 6,
+      "stdout": {
+        "contract": 3,
+        "command": "notes",
+        "ok": false,
+        "status": "rejected",
+        "exit": 6,
+        "outcome": null,
+        "operation": null,
+        "key": null,
+        "retry": "refuse",
+        "changed": [],
+        "conflict": null,
+        "result": null,
+        "error": {
+          "code": "upgrade_required",
+          "message": "workspace schema 6 needs an upgrade to schema 7; nothing was changed. Run brn upgrade --backup-directory ABSOLUTE_DIR, which backs up first",
+          "details": {
+            "schema_found": 6,
+            "schema_required": 7
+          }
+        },
+        "page": null,
+        "stop": null,
+        "authority": {
+          "workspace_purpose": null,
+          "cli_authority": null,
+          "enforced": false,
+          "actor": null
+        }
+      },
+      "stderr": "",
+      "before_hashes": {
+        ".brn-threads-data": "fcfb1474a9320049b178a6e7d4c8f5fc6c089bf2e12bb0a9946014287385ae2d",
+        "threads.sqlite3": "d7d77417f50db42e5efbe9b8906ab3256953603c89750607e8437101f1ec6561"
+      },
+      "after_hashes": {
+        ".brn-threads-data": "fcfb1474a9320049b178a6e7d4c8f5fc6c089bf2e12bb0a9946014287385ae2d",
+        "threads.sqlite3": "d7d77417f50db42e5efbe9b8906ab3256953603c89750607e8437101f1ec6561"
+      },
+      "unchanged": true
+    },
+    {
+      "argv": [
+        "/private/tmp/brn-c0-20261016-target/debug/brn",
+        "--json",
+        "--data-dir",
+        "/private/tmp/brn-cw1-20261016-fixtures/cw1-schema6-refusal-afterhash-7zxrhsr2/data",
+        "note-create",
+        "--title",
+        "Refused synthetic note",
+        "--text",
+        "No write"
+      ],
+      "exit": 6,
+      "stdout": {
+        "contract": 3,
+        "command": "note-create",
+        "ok": false,
+        "status": "rejected",
+        "exit": 6,
+        "outcome": null,
+        "operation": null,
+        "key": null,
+        "retry": "refuse",
+        "changed": [],
+        "conflict": null,
+        "result": null,
+        "error": {
+          "code": "upgrade_required",
+          "message": "workspace schema 6 needs an upgrade to schema 7; nothing was changed. Run brn upgrade --backup-directory ABSOLUTE_DIR, which backs up first",
+          "details": {
+            "schema_found": 6,
+            "schema_required": 7
+          }
+        },
+        "page": null,
+        "stop": null,
+        "authority": {
+          "workspace_purpose": null,
+          "cli_authority": null,
+          "enforced": false,
+          "actor": null
+        }
+      },
+      "stderr": "",
+      "before_hashes": {
+        ".brn-threads-data": "fcfb1474a9320049b178a6e7d4c8f5fc6c089bf2e12bb0a9946014287385ae2d",
+        "threads.sqlite3": "d7d77417f50db42e5efbe9b8906ab3256953603c89750607e8437101f1ec6561"
+      },
+      "after_hashes": {
+        ".brn-threads-data": "fcfb1474a9320049b178a6e7d4c8f5fc6c089bf2e12bb0a9946014287385ae2d",
+        "threads.sqlite3": "d7d77417f50db42e5efbe9b8906ab3256953603c89750607e8437101f1ec6561"
+      },
+      "unchanged": true
+    }
+  ]
+}

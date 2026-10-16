@@ -1,0 +1,26 @@
+[
+  {
+    "command": [
+      "/private/tmp/brn-c0-20261016-target/debug/brn-desktop",
+      "--data-dir",
+      "/private/tmp/brn-cw1-20261016-fixtures/cw1-corrected-native-startup-a06q73y9/data",
+      "--headless-check",
+      "startup"
+    ],
+    "exit": 0,
+    "stdout": "Threads ready: 2 records\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/private/tmp/brn-c0-20261016-target/debug/brn-desktop",
+      "--data-dir",
+      "/private/tmp/brn-cw1-20261016-fixtures/cw1-corrected-native-startup-a06q73y9/data",
+      "--headless-check",
+      "startup"
+    ],
+    "exit": 0,
+    "stdout": "Threads ready: 2 records\n",
+    "stderr": ""
+  }
+]

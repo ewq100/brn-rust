@@ -160,7 +160,7 @@ fn immutable_context_duplicate_identity_and_invalid_references_are_refused() {
     for (key, data) in [
         ("duplicate", config(&note.id)),
         (
-            "self-reference",
+            "duplicate-reference",
             WritingSetup {
                 references: vec![WritingReference {
                     note: note.id.clone(),
@@ -169,10 +169,20 @@ fn immutable_context_duplicate_identity_and_invalid_references_are_refused() {
                 ..config(&other.id)
             },
         ),
+        (
+            "self-reference",
+            WritingSetup {
+                references: vec![WritingReference {
+                    note: other.id.clone(),
+                    purpose: WritingPurpose::Evidence,
+                }],
+                ..config(&other.id)
+            },
+        ),
     ] {
         let op = store.allocate_operation(key).unwrap();
         let mut data = data;
-        if key == "self-reference" {
+        if key == "duplicate-reference" {
             data.references.push(data.references[0].clone());
         }
         let request = ChangeRequest {
@@ -677,108 +687,298 @@ fn knowledge_off_working_note_uses_bound_conversation_and_references_keep_projec
 
 #[test]
 fn deferred_setup_undo_keeps_identity_after_unrelated_conversation_attention_and_restart() {
+    for case in [
+        "general-attention",
+        "project-attention",
+        "project-knowledge",
+    ] {
+        let needs_conversation = case != "general-attention";
+        let root = root();
+        let data = root.path().join("data");
+        let mut store = Store::open(&data).unwrap();
+        let owner = HostAuthority::owner("owner");
+        let note = create(
+            &mut store,
+            "note",
+            RecordData::Note(Note::working("Draft", "Before")),
+        );
+        let chat = create(
+            &mut store,
+            "ordinary-chat",
+            RecordData::Thread(Thread {
+                private_context: needs_conversation,
+                context_epoch: 0,
+                title: "General".into(),
+                state: ThreadState::Open,
+                attention: vec![],
+            }),
+        );
+        let setup = if needs_conversation {
+            let project = create(
+                &mut store,
+                "project",
+                RecordData::Project(Project {
+                    title: "Knowledge off".into(),
+                    instructions: String::new(),
+                    use_brn_knowledge: false,
+                    chats: vec![chat.id.clone()],
+                    documents: vec![],
+                    trash: None,
+                }),
+            );
+            create(
+                &mut store,
+                "working-link",
+                RecordData::Link(Link {
+                    from: chat.id.clone(),
+                    to: note.id.clone(),
+                    relation: "discusses".into(),
+                }),
+            );
+            let mut data = config(&note.id);
+            data.chat = Some(project.id);
+            let op = store.allocate_operation("setup").unwrap();
+            store
+                .prepare_owner(
+                    &op,
+                    &ChangeRequest {
+                        reason: "Project setup with actual conversation access".into(),
+                        writes: vec![Put {
+                            id: op.creation_id(0),
+                            expected_version: None,
+                            archived: false,
+                            data: RecordData::WritingSetup(data),
+                        }],
+                        inputs: vec![RevisionInput {
+                            record: chat.id.clone(),
+                            version: chat.version,
+                            expectation: InputExpectation::Current,
+                        }],
+                    },
+                    &owner,
+                )
+                .unwrap();
+            let ApplyOutcome::Applied(receipt) = store.apply(&op, &owner).unwrap() else {
+                panic!()
+            };
+            receipt.writes[0].after.clone()
+        } else {
+            create(
+                &mut store,
+                "setup",
+                RecordData::WritingSetup(config(&note.id)),
+            )
+        };
+        let original = store.allocate_operation("owner-group").unwrap();
+        let RecordData::WritingSetup(mut changed) = setup.data.clone() else {
+            panic!()
+        };
+        changed.brief = Some("Changed".into());
+        store
+            .prepare_owner(
+                &original,
+                &ChangeRequest {
+                    reason: "Owner group".into(),
+                    writes: vec![
+                        Put {
+                            id: setup.id,
+                            expected_version: Some(1),
+                            archived: false,
+                            data: RecordData::WritingSetup(changed),
+                        },
+                        Put {
+                            id: note.id.clone(),
+                            expected_version: Some(1),
+                            archived: false,
+                            data: RecordData::Note(Note::working("Draft", "After")),
+                        },
+                    ],
+                    inputs: vec![RevisionInput {
+                        record: chat.id.clone(),
+                        version: chat.version,
+                        expectation: InputExpectation::Current,
+                    }],
+                },
+                &owner,
+            )
+            .unwrap();
+        assert!(matches!(
+            store.apply(&original, &owner).unwrap(),
+            ApplyOutcome::Applied(_)
+        ));
+        let edit = store.begin_edit(&note.id, 2).unwrap();
+        let compensation = store.allocate_operation("stable-undo").unwrap();
+        assert!(matches!(
+            store.undo(&compensation, &original, &owner).unwrap(),
+            ApplyOutcome::Deferred { .. }
+        ));
+        let prepared = store.prepared(&compensation).unwrap();
+        let mut data_chat = chat.data;
+        if let RecordData::Thread(t) = &mut data_chat {
+            if case == "project-knowledge" {
+                t.context_epoch += 1;
+            }
+            t.attention.push(Attention {
+                kind: AttentionKind::Question,
+                reason: "Unrelated attention".into(),
+                record: None,
+            });
+        }
+        let mut changed_context = vec![Put {
+            id: chat.id.clone(),
+            expected_version: Some(1),
+            archived: false,
+            data: data_chat,
+        }];
+        if case == "project-knowledge" {
+            let project = store
+                .records()
+                .unwrap()
+                .into_iter()
+                .find(|r| matches!(r.data, RecordData::Project(_)))
+                .unwrap();
+            let mut data = project.data;
+            if let RecordData::Project(p) = &mut data {
+                p.use_brn_knowledge = true;
+            }
+            changed_context.push(Put {
+                id: project.id,
+                expected_version: Some(project.version),
+                archived: false,
+                data,
+            });
+        }
+        let attention = store.allocate_operation("attention").unwrap();
+        store
+            .prepare_owner(
+                &attention,
+                &ChangeRequest {
+                    reason: "Unrelated attention".into(),
+                    writes: changed_context,
+                    inputs: vec![],
+                },
+                &owner,
+            )
+            .unwrap();
+        store.apply(&attention, &owner).unwrap();
+        store.discard(&edit.id, edit.generation).unwrap();
+        drop(store);
+        let mut reopened = Store::open(root.path().join("data")).unwrap();
+        let outcome = reopened.undo(&compensation, &original, &owner).unwrap();
+        let expected = if case == "project-knowledge" {
+            assert!(matches!(outcome, ApplyOutcome::Stale { .. }));
+            assert!(reopened.receipt(&compensation).unwrap().is_none());
+            "After"
+        } else {
+            assert!(matches!(outcome, ApplyOutcome::Applied(_)));
+            "Before"
+        };
+        assert_eq!(reopened.prepared(&compensation).unwrap(), prepared);
+        assert!(
+            matches!(reopened.record(&note.id).unwrap().unwrap().data,RecordData::Note(n) if n.markdown==expected)
+        );
+    }
+}
+
+#[test]
+fn raw_ordinary_conversation_setup_is_rejected_without_creating_private_scope() {
     let root = root();
-    let data = root.path().join("data");
-    let mut store = Store::open(&data).unwrap();
-    let owner = HostAuthority::owner("owner");
+    let mut store = Store::open(root.path().join("data")).unwrap();
     let note = create(
         &mut store,
         "note",
-        RecordData::Note(Note::working("Draft", "Before")),
+        RecordData::Note(Note::working("Draft", "General")),
     );
     let chat = create(
         &mut store,
-        "ordinary-chat",
+        "ordinary",
         RecordData::Thread(Thread {
             private_context: false,
             context_epoch: 0,
-            title: "General".into(),
+            title: "Ordinary".into(),
             state: ThreadState::Open,
             attention: vec![],
         }),
     );
-    let setup = create(
-        &mut store,
-        "setup",
-        RecordData::WritingSetup(config(&note.id)),
+    let before = store.records().unwrap();
+    let op = store.allocate_operation("raw-thread-scope").unwrap();
+    let mut setup = config(&note.id);
+    setup.chat = Some(chat.id.clone());
+    let request = ChangeRequest {
+        reason: "Raw noncanonical conversation setup".into(),
+        writes: vec![Put {
+            id: op.creation_id(0),
+            expected_version: None,
+            archived: false,
+            data: RecordData::WritingSetup(setup),
+        }],
+        inputs: vec![],
+    };
+    let owner = HostAuthority::owner("owner");
+    store.prepare_owner(&op, &request, &owner).unwrap();
+    assert!(store.apply(&op, &owner).is_err());
+    assert_eq!(store.records().unwrap(), before);
+    assert_eq!(store.record(&chat.id).unwrap().unwrap(), chat);
+    assert_eq!(
+        writing_setup_scope(&store.records().unwrap(), Some(&chat.id)).unwrap(),
+        None
     );
-    let original = store.allocate_operation("owner-group").unwrap();
-    let mut changed = config(&note.id);
-    changed.brief = Some("Changed".into());
-    store
-        .prepare_owner(
-            &original,
-            &ChangeRequest {
-                reason: "Owner group".into(),
-                writes: vec![
-                    Put {
-                        id: setup.id,
-                        expected_version: Some(1),
-                        archived: false,
-                        data: RecordData::WritingSetup(changed),
-                    },
-                    Put {
-                        id: note.id.clone(),
-                        expected_version: Some(1),
-                        archived: false,
-                        data: RecordData::Note(Note::working("Draft", "After")),
-                    },
-                ],
-                inputs: vec![RevisionInput {
-                    record: chat.id.clone(),
-                    version: chat.version,
-                    expectation: InputExpectation::Current,
-                }],
-            },
-            &owner,
-        )
-        .unwrap();
-    assert!(matches!(
-        store.apply(&original, &owner).unwrap(),
-        ApplyOutcome::Applied(_)
-    ));
-    let edit = store.begin_edit(&note.id, 2).unwrap();
-    let compensation = store.allocate_operation("stable-undo").unwrap();
-    assert!(matches!(
-        store.undo(&compensation, &original, &owner).unwrap(),
-        ApplyOutcome::Deferred { .. }
-    ));
-    let prepared = store.prepared(&compensation).unwrap();
-    let mut data_chat = chat.data;
-    if let RecordData::Thread(t) = &mut data_chat {
-        t.attention.push(Attention {
-            kind: AttentionKind::Question,
-            reason: "Unrelated attention".into(),
-            record: None,
-        });
+    assert!(store.receipt(&op).unwrap().is_none());
+    for invalid in ["missing-scope", note.id.as_str()] {
+        assert!(writing_setup_scope(&store.records().unwrap(), Some(invalid)).is_err());
     }
-    let attention = store.allocate_operation("attention").unwrap();
-    store
-        .prepare_owner(
-            &attention,
-            &ChangeRequest {
-                reason: "Unrelated attention".into(),
-                writes: vec![Put {
-                    id: chat.id,
-                    expected_version: Some(1),
-                    archived: false,
-                    data: data_chat,
-                }],
-                inputs: vec![],
-            },
-            &owner,
-        )
-        .unwrap();
-    store.apply(&attention, &owner).unwrap();
-    store.discard(&edit.id, edit.generation).unwrap();
-    drop(store);
-    let mut reopened = Store::open(root.path().join("data")).unwrap();
-    assert!(matches!(
-        reopened.undo(&compensation, &original, &owner).unwrap(),
-        ApplyOutcome::Applied(_)
-    ));
-    assert_eq!(reopened.prepared(&compensation).unwrap(), prepared);
-    assert!(
-        matches!(reopened.record(&note.id).unwrap().unwrap().data,RecordData::Note(n) if n.markdown=="Before")
-    );
+}
+
+#[test]
+fn checked_setup_mutation_requires_active_context_even_with_current_thread_input() {
+    for private in [false, true] {
+        let root = root();
+        let mut store = Store::open(root.path().join("data")).unwrap();
+        let note = create(
+            &mut store,
+            "note",
+            RecordData::Note(Note::working("Draft", "General")),
+        );
+        let chat = create(
+            &mut store,
+            "resolved",
+            RecordData::Thread(Thread {
+                private_context: private,
+                context_epoch: 0,
+                title: "Resolved".into(),
+                state: ThreadState::Resolved,
+                attention: vec![],
+            }),
+        );
+        let before = store.records().unwrap();
+        let op = store.allocate_operation("inactive-config").unwrap();
+        let mut setup = config(&note.id);
+        if private {
+            setup.chat = Some(chat.id.clone());
+        }
+        let owner = HostAuthority::owner("selected inactive context").for_chat(&chat.id, private);
+        store
+            .prepare_owner(
+                &op,
+                &ChangeRequest {
+                    reason: "New configuration in inactive context".into(),
+                    writes: vec![Put {
+                        id: op.creation_id(0),
+                        expected_version: None,
+                        archived: false,
+                        data: RecordData::WritingSetup(setup),
+                    }],
+                    inputs: vec![RevisionInput {
+                        record: chat.id,
+                        version: chat.version,
+                        expectation: InputExpectation::Current,
+                    }],
+                },
+                &owner,
+            )
+            .unwrap();
+        assert!(store.apply(&op, &owner).is_err());
+        assert_eq!(store.records().unwrap(), before);
+        assert!(store.receipt(&op).unwrap().is_none());
+    }
 }
