@@ -178,3 +178,98 @@ handoff.
   optional-platform failures (windows, ubuntu native-retrieval) match the
   pre-existing main pattern. Integration recorded in
   [status](../../../status.md).
+
+## Second batch — formatting rules and deferred items (15 October 2026)
+
+Owner requested the deferred list be executed. Branch
+`work/quality-format-batch` from merged main `8bef439b`.
+
+### Formatting mutation area (`threads_format.rs`)
+
+Full-file pilot on the merged-main baseline (same command shape as above,
+`-f crates/brn-desktop/src/threads_format.rs`; 175 mutants, 24 min):
+**147 caught, 21 missed, 4 unviable, 3 timeouts.**
+
+Investigation of the 21 survivors classified:
+
+- **14 genuine gaps** in required behavior, closed by behavior tests across
+  the two test commits (the first twelve in `df21d6fd`, the tab-indented
+  and pseudo-fence cases in the follow-up): a mid-line selection on a
+  non-final line (the most common editing case, never exercised — the
+  `line_end` arithmetic could be replaced with a panicking variant);
+  one-sided, exact and neighboring-marker emphasis selections (refused, not
+  mangled); complete-marker unwrap at line start and on later lines; a fence
+  with an info string still enclosing following lines; four-space content
+  inside a quote being indented code, not a fence; deeply indented container
+  content staying untouched; selections mapping across every prefix newline
+  and anchoring inside removed prefixes; reversed selections at valid
+  boundaries; syntax elsewhere on the line; a tab-indented short line after
+  short lines still being code; indented pseudo-fences leaving the plain
+  line between them formattable.
+- **3 timeouts** (`prefix_len → Some(0)`, `strip_ordered_list → Some("")/
+  Some("xyzzy")`): infinite/looping replacements; the timeout budget
+  terminates them. Not counted as caught behavior.
+- **4 unviable**: non-compiling replacements — three `Default::default()`
+  function bodies and one deleted `safe_lines` match arm (type
+  inference failure).
+- **equivalent survivors**, each with the reason: `inline` threshold
+  `>`→`>=` (the only exact-length case with both marker edges is refused
+  either way); `selection.end + n`→`−` (the newline between the line end
+  and any following text can never equal the marker); `map_offset` `<`→`<=`
+  and `+ new_len`→`− new_len` (reachable inside-change cases always have
+  `new_len == 0` in remove mode, and the boundary case accumulates
+  identically); `safe_lines` break `>`→`==`/`>=` (`offset == target.end` is
+  unreachable at the break because inline/block targets end at the newline,
+  not after it).
+
+  The independent review of this batch rejected two of the initial
+  equivalence claims with concrete killing inputs — `inline` `2 * n`→`2 + n`
+  (a short fully-marked italic word stopped unwrapping) and
+  `strip_containers` `>`→`>=` (a fence behind a container nested at exactly
+  three inner spaces stopped enclosing). Both were verified distinguishable
+  by applying the mutations, and both are closed by the review-follow-up
+  tests `short_fully_marked_italic_word_still_unwraps` and
+  `fence_behind_a_container_nested_at_three_spaces_encloses`.
+
+Re-run after the first test commit (175 mutants, 37 min under heavy external
+machine load): **159 caught, 9 missed**, timeouts/unviable unchanged — the
+12 targeted mutants are caught, no catch regressed. Two further tests closed
+`safe_lines` offset advance (`242:30`) and pinned the true behavior of
+indented pseudo-fences.
+
+A full re-run on the intermediate test set (175 mutants, 39 min, same
+external load): **160 caught, 8 missed, 4 unviable, 3 timeouts**. The
+review-follow-up tests close two of those eight.
+
+Final full re-run on the finished test set (175 mutants, 21 min):
+**162 caught, 6 missed, 4 unviable, 3 timeouts**. The six missed are
+exactly the equivalents retained above; no previously caught mutant
+regressed and no new survivor appeared.
+
+## Independent review — second batch
+
+A second independent read-only review (reviewer agent, separate context)
+verified the test-only scope, hand-checked every new assertion against the
+source (including a validated port of the inline/safe_lines/strip_containers
+logic), and reproduced all run counts from the artifacts. Verdict: changes
+requested, with two substantive findings — both equivalence claims it
+rejected (`2 * n`→`2 + n` and `strip_containers` `>`→`>=`) were confirmed
+distinguishable by applying the mutations and are now closed by tests —
+plus two trivia findings (unviable description, a stale comment) fixed in
+this record and code. The reviewer's validated port also confirmed the
+six retained equivalence classifications.
+
+### Deferred items resolved without code changes
+
+- **Styling mutants** (diff-highlight/proposal-card `HighlightStyle`
+  fields): investigated against GPUI Kit 0.7.3's public API — decoration
+  collections expose `get_ranges` only, with no style getter, and the plain
+  copy excludes styling; wholesale decoration removal would be observable,
+  individual style fields are not. Stays a native/snapshot check; no test
+  machinery added.
+- **cargo-mutants filter quirk**: 27.1.0 is the newest published version
+  (crates.io search; the upstream repository is not reachable from this
+  environment), so no upgrade exists yet. The documented workaround —
+  file globs bound the `delete field` drag that bypasses name filters —
+  remains in effect.
+
