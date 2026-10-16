@@ -313,6 +313,28 @@ impl Store {
         command: &ProjectCommand,
         owner: &HostAuthority,
     ) -> Result<Receipt> {
+        match self.project_command_body(op, command, owner, false)? {
+            Converged::Changed(receipt) => Ok(receipt),
+            Converged::Unchanged(_) => Err(Error::Invalid("no-op detection is off".into())),
+        }
+    }
+    /// `project_command`, except that a chat move or document link/unlink
+    /// whose state already holds returns `Unchanged` without committing.
+    pub fn project_command_converging(
+        &mut self,
+        op: &OperationId,
+        command: &ProjectCommand,
+        owner: &HostAuthority,
+    ) -> Result<Converged<Receipt>> {
+        self.project_command_body(op, command, owner, true)
+    }
+    fn project_command_body(
+        &mut self,
+        op: &OperationId,
+        command: &ProjectCommand,
+        owner: &HostAuthority,
+        converge: bool,
+    ) -> Result<Converged<Receipt>> {
         if !matches!(owner.scope, crate::types::Scope::Owner) {
             return Err(Error::Invalid(
                 "Projects require owner configuration authority".into(),
@@ -332,7 +354,7 @@ impl Store {
         }
         if let Some(receipt) = receipt_on(&tx, op)? {
             tx.commit()?;
-            return Ok(receipt);
+            return Ok(Converged::Changed(receipt));
         }
         let rows = rows_on(&tx)?;
         let (command, partial) = match command {
@@ -769,6 +791,16 @@ impl Store {
             writes: writes.into_values().collect(),
             inputs: vec![],
         };
+        if let (true, Some(record)) = (converge, converge_target(command))
+            && let Some(unchanged) = crate::converge::detect_unchanged(
+                &tx,
+                record,
+                &request.writes,
+                matches!(command, ProjectCommand::MoveChat { .. }),
+            )?
+        {
+            return Ok(Converged::Unchanged(unchanged));
+        }
         prepare_on(&tx, op, &request, true)?;
         let outcome = apply_on(&tx, op, owner, None)?;
         let ApplyOutcome::Applied(receipt) = outcome else {
@@ -777,7 +809,16 @@ impl Store {
             )));
         };
         tx.commit()?;
-        Ok(receipt)
+        Ok(Converged::Changed(receipt))
+    }
+}
+/// The record a converging project command reports when nothing changes.
+fn converge_target(command: &ProjectCommand) -> Option<&str> {
+    match command {
+        ProjectCommand::MoveChat { chat, .. } => Some(chat),
+        ProjectCommand::LinkDocument { project, .. }
+        | ProjectCommand::UnlinkDocument { project, .. } => Some(project),
+        _ => None,
     }
 }
 /// Checked writer validates membership even for raw owner proposals and Undo.

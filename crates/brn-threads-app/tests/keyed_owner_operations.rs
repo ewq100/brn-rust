@@ -255,3 +255,41 @@ fn open_without_default_credentials_stores_no_auth_file() {
     let again = Workspace::open_without_default_credentials(dir.path().join("data")).unwrap();
     assert_eq!(again.settings().unwrap().auth_file, None);
 }
+#[test]
+fn converged_twins_share_host_keys_and_authority() {
+    let (_dir, mut app) = open();
+    let chat = app.new_thread("Chat").unwrap().id;
+    let receipt = app.archive_chat("k1", &chat).unwrap();
+    // Same key and command: the converged twin replays the twin's receipt.
+    assert_eq!(
+        app.archive_chat_converged("k1", &chat).unwrap(),
+        Converged::Changed(receipt.clone())
+    );
+    assert_eq!(receipt.authority, "owner:owner chat action");
+    // A new key on the archived chat records nothing.
+    let before = app.store.receipts().unwrap().len();
+    assert!(matches!(
+        app.archive_chat_converged("k2", &chat).unwrap(),
+        Converged::Unchanged(Unchanged { ref record, .. }) if *record == chat
+    ));
+    assert_eq!(app.store.receipts().unwrap().len(), before);
+    let project = app
+        .project_command("p1", ProjectCommand::Create { title: "P".into() })
+        .unwrap();
+    let id = project.writes[0].after.id.clone();
+    let note = app.new_note("Doc", "text").unwrap().id;
+    let link = || ProjectCommand::LinkDocument {
+        project: id.clone(),
+        note: note.clone(),
+    };
+    let linked = app.project_command("p2", link()).unwrap();
+    assert_eq!(
+        app.project_command_converged("p2", link()).unwrap(),
+        Converged::Changed(linked.clone())
+    );
+    assert_eq!(linked.authority, "owner:owner project action");
+    assert!(matches!(
+        app.project_command_converged("p3", link()).unwrap(),
+        Converged::Unchanged(_)
+    ));
+}

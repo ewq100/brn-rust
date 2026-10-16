@@ -736,7 +736,7 @@ Command: `git -C /Users/evokessler/repos/brn-rust -c core.fsmonitor=false log --
       Files: `crates/brn/src/{contract.rs,main.rs}`, `crates/brn/README.md`, `crates/brn/tests/{agent_edits.rs,agent_contract.rs}`, `scripts/cli_journey.py`
       Verify: `cargo test -p brn --locked --offline` passes; `cli_journey.py` passes; the baseline run of `edit_session_open_never_names_the_session` fails.
 
-- [ ] R2-10. **⚑ A11: no-op converge commands record nothing (owner B4)** (design A11; appendix §A11; B4 coordination exception).
+- [x] R2-10. **⚑ A11: no-op converge commands record nothing (owner B4)** (design A11; appendix §A11; B4 coordination exception).
       Read BOARD.md first, and record the current daily tip.
       **⚑ Core** (owner-approved write-path change).
       - New `crates/brn-threads-core/src/converge.rs` (`mod converge;` after `mod inspect;`) defines:

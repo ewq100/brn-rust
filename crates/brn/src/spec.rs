@@ -35,7 +35,7 @@ impl Class {
         match self {
             Class::Read => "Changes nothing (a fresh data directory may have been initialised).",
             Class::Replay => "The retry uses the same operation identity. If that operation was applied, the retry returns its receipt (same operation) and changes nothing; a replayed receipt shows the original versions, even after later edits. If it was not applied (the first attempt was Deferred, Stale, failed, interrupted or lost before commit), the retry re-attempts exactly that request. Under that identity it applies at most once and never creates another record, message or candidate.",
-            Class::Converge => "Reaches the same end state. It may record a new operation and bump versions, but creates no new records and leaves no unapplied candidate. init and upgrade on a current workspace record nothing. model-install into a destination that already holds the verified model downloads nothing and returns downloaded_bytes: 0.",
+            Class::Converge => "Reaches the same end state. It may record a new operation and bump versions, but creates no new records and leaves no unapplied candidate. A no-op archive, resolve, unarchive, chat-move, project-link or project-unlink returns Unchanged and records nothing; a keyed retry of an earlier change still replays its receipt. init and upgrade on a current workspace record nothing. model-install into a destination that already holds the verified model downloads nothing and returns downloaded_bytes: 0.",
             Class::Refuse => "At most once, never a duplicate. If the first attempt took effect, an identical retry changes nothing and returns a non-ok status (stale or rejected) instead of the original result. If it did not take effect (for example interrupted, internal, or a crash before commit), the retry performs the change once and can return ok. After a lost response, read state (read, projects, recovery, or check the destination) to tell which happened. Every usage and rejected envelope also reports refuse: the same argv meets the same refusal while the state that caused it is unchanged.",
             Class::Duplicate => "Repeats the change: another record, message, model turn or unapplied candidate. Never retry blindly.",
         }
@@ -288,6 +288,8 @@ pub(crate) const BUFFER_OUTCOMES: &[&str] = &["Updated", "Ignored"];
 pub(crate) const DISCARD_OUTCOMES: &[&str] = &["Discarded", "Ignored"];
 pub(crate) const DISMISS_OUTCOMES: &[&str] = &["Dismissed"];
 pub(crate) const RECEIPT_OUTCOMES: &[&str] = &["Applied"];
+/// archive, resolve, unarchive, chat-move, project-link, project-unlink.
+pub(crate) const CONVERGE_OUTCOMES: &[&str] = &["Applied", "Unchanged"];
 pub(crate) const TERMINAL_OUTCOMES: &[&str] = &["Completed", "Interrupted", "Failed"];
 /// `read --limit`: a NoteReadOutcome.
 pub(crate) const READ_OUTCOMES: &[&str] = &["Read", "Stale"];
@@ -406,7 +408,7 @@ const ARCHIVE: Spec = cmd(
     Converge,
     Some(Replay),
     ReceiptAt::Root,
-    RECEIPT_OUTCOMES,
+    CONVERGE_OUTCOMES,
 );
 const CONFIGURE_OPTIONS: &[&str] = &[
     "provider",
@@ -497,24 +499,33 @@ pub(crate) static COMMANDS: &[Spec] = &[
         &["project", "base", "title", "instructions", "knowledge"],
         Refuse,
     ),
-    project(
-        "chat-move",
-        &["thread", "project", "key"],
-        &["thread"],
-        Converge,
-    ),
-    project(
-        "project-link",
-        &["project", "note", "key"],
-        &["project", "note"],
-        Converge,
-    ),
-    project(
-        "project-unlink",
-        &["project", "note", "key"],
-        &["project", "note"],
-        Converge,
-    ),
+    Spec {
+        outcomes: CONVERGE_OUTCOMES,
+        ..project(
+            "chat-move",
+            &["thread", "project", "key"],
+            &["thread"],
+            Converge,
+        )
+    },
+    Spec {
+        outcomes: CONVERGE_OUTCOMES,
+        ..project(
+            "project-link",
+            &["project", "note", "key"],
+            &["project", "note"],
+            Converge,
+        )
+    },
+    Spec {
+        outcomes: CONVERGE_OUTCOMES,
+        ..project(
+            "project-unlink",
+            &["project", "note", "key"],
+            &["project", "note"],
+            Converge,
+        )
+    },
     read("project-delete-preview", &["project"], &["project"]),
     project(
         "project-delete",
@@ -716,7 +727,7 @@ pub(crate) static COMMANDS: &[Spec] = &[
         Converge,
         Some(Replay),
         ReceiptAt::Root,
-        RECEIPT_OUTCOMES,
+        CONVERGE_OUTCOMES,
     ),
     cmd(
         "keep-in-brn",
@@ -1236,6 +1247,8 @@ mod tests {
                 "dismiss" => DISMISS_OUTCOMES,
                 "ask" => TERMINAL_OUTCOMES,
                 "read" => READ_OUTCOMES,
+                "archive" | "resolve" | "unarchive" | "chat-move" | "project-link"
+                | "project-unlink" => CONVERGE_OUTCOMES,
                 _ if spec.receipt == ReceiptAt::Root || spec.receipt == ReceiptAt::Arm => {
                     RECEIPT_OUTCOMES
                 }

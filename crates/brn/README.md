@@ -39,7 +39,7 @@ stdout carries exactly one line, a compact JSON object. Every key is always pres
 | `command` | The command as invoked (`resolve` stays `resolve`). Null when parsing failed before a known command was read: `missing_data_dir`, `invalid_data_dir`, `missing_command`, `unknown_command`, and a non-UTF-8 `malformed_option`. |
 | `ok` | `true` exactly when `exit == 0`. |
 | `status`, `exit` | One status, one-to-one with the exit code (table below). |
-| `outcome` | Domain outcome (`Read`, `Applied`, `Saved`, `Updated`, `Discarded`, `Dismissed`, `Ignored`, `Stale`, `GenerationMismatch`, `Closed`, `Deferred`, `NeedsReview`, `Superseded`, `Completed`, `Interrupted`, `Failed`), or null. Null whenever `error` is set. |
+| `outcome` | Domain outcome (`Read`, `Applied`, `Unchanged`, `Saved`, `Updated`, `Discarded`, `Dismissed`, `Ignored`, `Stale`, `GenerationMismatch`, `Closed`, `Deferred`, `NeedsReview`, `Superseded`, `Completed`, `Interrupted`, `Failed`), or null. Null whenever `error` is set. |
 | `operation` | The operation this invocation applied, replayed or (for `undo`) prepared, per the outcome table below. |
 | `key` | Echo of `--key`; null when absent or not matching the key pattern. |
 | `retry` | What an identical retry of this exact invocation does to state (Retries below). Always `refuse` for `usage` and `rejected`. Never null. The status decides whether to retry; `retry` only says what a retry does. |
@@ -103,6 +103,7 @@ In machine mode, `ask`, useful intake and the intake of a format that needs conv
 |---|---|---|---|
 | Reads (`records`, `notes`, `threads`, `needs-you`, `history`, `candidates`, `settings`, `projects`, `project-delete-preview`, `read` without `--limit`, `revisions`, `revision`, `runs`, `operation`, `search`, `connections`, `topics`, `recovery`, `knowledge-check`) and non-receipt writes (`init`, `begin-edit`, `export`, `backup`, `restore`, `upgrade`, `model-install`, `knowledge-check --seed-chat yes`) | null | null | `[]` |
 | Project commands, `queue`, `archive`, `resolve`, `unarchive` (result is a receipt) | `Applied` | `result.operation` | the receipt's writes |
+| `archive`, `resolve`, `unarchive`, `chat-move`, `project-link`, `project-unlink` when the requested state already holds | `Unchanged` (ok, exit 0); `result` is `{outcome: "Unchanged", record, version}` with `record` the chat (archive, resolve, unarchive, chat-move) or the project (link, unlink) at its current version | null | `[]`: nothing was recorded |
 | `note-create`, `thread-start` (result is the created record) | `Applied` | the receipt's operation | the receipt's writes |
 | `undo` | ApplyOutcome | the compensation operation, in every outcome | writes when Applied |
 | `apply`, `keep-in-brn`, `delegation`, `configure`, `pause`, `resume`, `topics-choose`, `intake --intent full\|chat\|project` | ApplyOutcome | `result.receipt.operation` when Applied | writes when Applied |
@@ -215,7 +216,7 @@ A key names one intended change. Reuse it only to retry the same command with th
 |---|---|
 | `read` | Changes nothing (a fresh data directory may have been initialised). |
 | `replay` | The retry uses the same operation identity. If it was applied, the retry returns its receipt (same `operation`) and changes nothing; a replayed receipt shows the original versions. If it was not applied, the retry re-attempts exactly that request, at most once, and never creates another record, message or candidate. |
-| `converge` | Reaches the same end state. It may record a new operation and bump versions, but creates no new records and leaves no unapplied candidate. |
+| `converge` | Reaches the same end state. It may record a new operation and bump versions, but creates no new records and leaves no unapplied candidate. A no-op `archive`, `resolve`, `unarchive`, `chat-move`, `project-link` or `project-unlink` returns `Unchanged` and records nothing; a keyed retry of an earlier change still replays its receipt. |
 | `refuse` | At most once, never a duplicate. If the first attempt took effect, an identical retry changes nothing and returns `stale` or `rejected`. If it did not, the retry performs the change once and can return `ok`. After a lost response, read state first. |
 | `duplicate` | Repeats the change: another record, message, model turn or unapplied candidate. Never retry blindly. |
 
@@ -311,6 +312,7 @@ Without `--json`, stdout bytes, stderr text and exit statuses (0 or 1) stay as b
 5. `--help` prints the same text followed by a short "Agents and scripts" block.
 9. New commands (`revisions`, `revision`, `runs`, `operation`), options (page options, `--timeout`, `--key` on `topics-create` and `knowledge-check --seed-chat yes`) and description keys are accepted; flag-less output of existing commands is unchanged.
 10. The "Agents and scripts" block of `--help` covers the new surface; the `HELP` text before it is byte-identical.
+11. A no-op `archive`, `resolve`, `unarchive`, `chat-move`, `project-link` or `project-unlink` prints `{"outcome":"Unchanged","record":ID,"version":V}` (exit 0) instead of a new receipt, and records nothing (owner decision B4). Checked in-repo callers make only real changes: `crates/brn/tests/agent_contract.rs` (keyed archive), `docs/work/active/chats-and-projects/cli-witness.py` (archive, unarchive) and `docs/work/active/projects/cli-witness.py` (all real changes). The desktop keeps the receipt path for now.
 12. A workspace the CLI creates gets `auth_file: null` instead of a derived `CODEX_HOME/auth.json` or `~/.codex/auth.json` (owner decision B2, see Credentials). Every in-repo caller that runs a provider passes `--auth-file` or `--credentials-dir` to `configure`.
 
 ### Changes from contract 1
@@ -326,6 +328,7 @@ Every in-repo consumer moved to contract 2 in the same change; there is no contr
 | `--timeout` | none | global `--timeout SECONDS`; `timeout` gains `{deadline_seconds, hard}` |
 | `busy` | lock contention was `storage_error` (internal, 1) | `busy` (failed, 7) |
 | `edit_session_open` | `details` `{note, session, base_version}` | `{note, base_version}`: the open session's ID is never named (owner decision B3 part 1) |
+| `Unchanged` | a no-op converge command appended a receipt and bumped versions | outcome `Unchanged` (ok, 0), no receipt, no version bump |
 | Credentials | CLI-created workspaces derived `auth_file` from `CODEX_HOME` or `HOME` | no credential source until `configure`; machine-mode `credentials_not_configured` (rejected, 6) before any provider contact |
 | Retry keys | `topics-create` and `knowledge-check --seed-chat yes` duplicated; keyed intake converted (and sent non-Markdown documents to the provider) before replaying | `--key` on both (converge, replay); keyed full/chat/project intake replays before conversion |
 | Inspection | `history`, `candidates`, `records` return everything | page options and the `revisions`, `revision`, `runs`, `operation` commands; `read --limit` returns `Read` or `Stale` |

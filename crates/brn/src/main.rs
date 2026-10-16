@@ -450,6 +450,16 @@ fn delegation_choice(value: &str) -> Result<DelegationChoice> {
         )),
     }
 }
+/// A converging command's receipt, or `{outcome: "Unchanged", record, version}`
+/// when the requested state already held and nothing was recorded.
+fn converged(outcome: Converged<Receipt>) -> Result<Value> {
+    match outcome {
+        Converged::Changed(receipt) => encode(receipt),
+        Converged::Unchanged(unchanged) => {
+            Ok(json!({"outcome":"Unchanged","record":unchanged.record,"version":unchanged.version}))
+        }
+    }
+}
 fn applied(outcome: ApplyOutcome) -> Value {
     match outcome {
         ApplyOutcome::Applied(receipt) => json!({"outcome":"Applied","receipt":receipt}),
@@ -730,7 +740,14 @@ async fn execute(inv: &Invocation, notes: &mut Annotations) -> Result<Value> {
                 .get("key")
                 .cloned()
                 .unwrap_or_else(|| format!("cli:{}", uuid::Uuid::new_v4()));
-            encode(workspace.project_command(&key, command)?)?
+            match command {
+                ProjectCommand::MoveChat { .. }
+                | ProjectCommand::LinkDocument { .. }
+                | ProjectCommand::UnlinkDocument { .. } => {
+                    converged(workspace.project_command_converged(&key, command)?)?
+                }
+                command => encode(workspace.project_command(&key, command)?)?,
+            }
         }
         "records" if inspect::page_mode(inv) => inspect::records(&workspace, inv, notes)?,
         "records" => encode(workspace.records()?)?,
@@ -892,12 +909,13 @@ async fn execute(inv: &Invocation, notes: &mut Annotations) -> Result<Value> {
             }
             applied(outcome)
         }
-        "resolve" | "archive" => {
-            encode(workspace.archive_chat(&inv.host_key("cli-archive"), inv.arg("thread")?)?)?
-        }
-        "unarchive" => {
-            encode(workspace.unarchive_chat(&inv.host_key("cli-unarchive"), inv.arg("thread")?)?)?
-        }
+        "resolve" | "archive" => converged(
+            workspace.archive_chat_converged(&inv.host_key("cli-archive"), inv.arg("thread")?)?,
+        )?,
+        "unarchive" => converged(
+            workspace
+                .unarchive_chat_converged(&inv.host_key("cli-unarchive"), inv.arg("thread")?)?,
+        )?,
         "keep-in-brn" => applied(workspace.keep_in_brn(
             &inv.host_key("cli-keep"),
             inv.arg("note")?,

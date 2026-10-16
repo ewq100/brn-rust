@@ -699,6 +699,8 @@ pub(crate) fn classify(
                 ..ok(None)
             },
         },
+        // A converging command that found its state already held recorded nothing.
+        ReceiptAt::Root if value["outcome"] == "Unchanged" => ok(Some("Unchanged".into())),
         ReceiptAt::Root => Classified {
             status: Status::Ok,
             outcome: Some("Applied".into()),

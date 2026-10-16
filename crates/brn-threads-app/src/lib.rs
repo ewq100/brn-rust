@@ -9,6 +9,7 @@ use std::{
 
 mod assets;
 mod chat;
+mod converge;
 mod decisions;
 mod export;
 mod intake;
