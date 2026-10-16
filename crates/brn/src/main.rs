@@ -3,6 +3,7 @@ mod contract;
 mod input;
 mod inspect;
 mod spec;
+mod stop;
 use brn_ai::{AiTerminal, Provider, ReasoningEffort, Selection};
 use brn_threads_app::*;
 use brn_threads_intake::*;
@@ -28,7 +29,9 @@ const HELP: &str = "BRN Threads\n\nUsage: brn --data-dir ABSOLUTE_DIRECTORY COMM
 const AGENT_HELP: &str = "
 Agents and scripts: brn --json --data-dir DIR COMMAND ... prints one JSON envelope on stdout.
   In --json mode: exit 0 ok, 1 internal, 2 usage, 3 stale, 4 deferred, 5 needs review, 6 rejected,
-  7 failed, 130 interrupted. Without --json, failures exit 1 and outcomes such as Stale exit 0.
+  7 failed (including busy and timeout), 130 interrupted (SIGINT), 143 terminated (SIGTERM).
+  Without --json, failures exit 1 and outcomes such as Stale exit 0.
+  --timeout SECONDS after --data-dir bounds the call; it never hides a commit (envelope stop).
   brn --json --help prints the machine contract (commands, options, outcomes, retry classes, error codes).
   Bounded inspection: history|candidates|records --limit N [--cursor C], revisions --note ID,
   revision --note ID --version V, runs [--thread ID] [--state STATE], read --id ID --limit BYTES;
@@ -50,6 +53,8 @@ struct Invocation {
     key: Option<String>,
     /// `(NAME, SOURCE)` for each `--NAME-file`, read by `input::resolve`.
     pending_inputs: Vec<(&'static str, String)>,
+    /// Global `--timeout SECONDS`, already checked to be 1..86400.
+    timeout: Option<u64>,
 }
 /// A refusal found while parsing argv, before anything is opened or read.
 struct Refused {
@@ -160,7 +165,21 @@ fn parse(
         let message = "Data directory must be absolute";
         return Err(refuse(None, usage(Code::InvalidDataDir, message)));
     }
-    let Some((_, command)) = iter.next() else {
+    let mut timeout = None;
+    let mut next = iter.next();
+    while next.as_ref().is_some_and(|(_, token)| token == "--timeout") {
+        if timeout.is_some() {
+            let error = usage(Code::RepeatedOption, "Repeated option").with_option("timeout");
+            return Err(refuse(None, error));
+        }
+        let Some((_, value)) = iter.next() else {
+            let error = usage(Code::MissingValue, "Missing option value").with_option("timeout");
+            return Err(refuse(None, error));
+        };
+        timeout = Some(timeout_seconds(&value).map_err(|error| refuse(None, error))?);
+        next = iter.next();
+    }
+    let Some((_, command)) = next else {
         return Err(refuse(None, usage(Code::MissingCommand, "Missing command")));
     };
     let Some(spec) = spec::spec(&command) else {
@@ -299,7 +318,20 @@ fn parse(
         machine,
         key,
         pending_inputs,
+        timeout,
     }))
+}
+/// `--timeout SECONDS`: an integer 1..86400.
+fn timeout_seconds(value: &str) -> Result<u64> {
+    value
+        .parse::<u64>()
+        .ok()
+        .filter(|seconds| {
+            (1..=86400).contains(seconds) && value.bytes().all(|b| b.is_ascii_digit())
+        })
+        .ok_or_else(|| {
+            CliError::invalid_value("timeout", "--timeout takes an integer 1..86400 (seconds)")
+        })
 }
 impl Invocation {
     fn arg(&self, key: &str) -> Result<&str> {
@@ -460,6 +492,7 @@ async fn ask(
         ),
         Err(error) => (None, format!("unavailable: {error}")),
     };
+    stop::check()?;
     let cancel = CancellationToken::new();
     let observed = cancel.clone();
     let watcher = tokio::spawn(async move {
@@ -594,6 +627,7 @@ async fn execute(inv: &Invocation, notes: &mut Annotations) -> Result<Value> {
         return Ok(json!({"upgraded":true,"data":inv.data}));
     }
     let mut workspace = Workspace::open(&inv.data)?;
+    stop::check()?;
     // A named but unusable model folder is an error, never a silent fallback.
     if matches!(inv.command.as_str(), "search" | "ask" | "intake") {
         if let Some(Err(error)) = workspace.embedding_model_from_env() {
@@ -746,6 +780,7 @@ async fn execute(inv: &Invocation, notes: &mut Annotations) -> Result<Value> {
             };
             let chat = chat_option(&workspace, inv)?;
             let handle = workspace.search_handle()?;
+            stop::check()?;
             let found = handle.connections(inv.arg("note")?, chat.as_deref(), hops, sources)?;
             let node = |n: &brn_threads_app::search::Neighbour| {
                 json!({"id":n.id,"version":n.version,"title":n.title,
@@ -771,6 +806,7 @@ async fn execute(inv: &Invocation, notes: &mut Annotations) -> Result<Value> {
                 limit,
                 inv.args.get("cursor").map(String::as_str),
             )?;
+            stop::check()?;
             let shown = page.hits.len();
             notes.page = Some(
                 json!({"limit": limit, "shown": shown, "cursor": page.cursor, "total": page.total}),
@@ -1040,6 +1076,18 @@ async fn main() -> ExitCode {
     match parse(std::env::args_os().skip(1)) {
         Ok(None) => ExitCode::SUCCESS,
         Ok(Some(mut inv)) => {
+            if inv.machine {
+                stop::install_sigterm();
+            }
+            if inv.machine || inv.timeout.is_some() {
+                stop::start(stop::Watch {
+                    machine: inv.machine,
+                    deadline: inv.timeout,
+                    command: inv.command.clone(),
+                    key: inv.key.clone(),
+                    retry: spec::retry_for(&inv),
+                });
+            }
             let mut notes = Annotations::default();
             let outcome = match input::resolve(&mut inv, &CANCEL) {
                 Ok(()) => execute(&inv, &mut notes).await,
@@ -1065,7 +1113,9 @@ async fn main() -> ExitCode {
             emit_envelope(envelope)
         }
         Err(refused) => {
-            contract::emit_err(&format!("{}\n", refused.error.default_message()));
+            if stop::claim_output() {
+                contract::emit_err(&format!("{}\n", refused.error.default_message()));
+            }
             ExitCode::FAILURE
         }
     }
@@ -1077,10 +1127,13 @@ fn finish(inv: &Invocation, outcome: Result<Value>, notes: Annotations) -> ExitC
         Ok(Value::Null) if inv.machine && inv.command == "read" => {
             Err(CliError::new(Code::NotFound, "Record not found"))
         }
-        Err(error) => Err(error.bind_key(inv.key.as_deref())),
+        Err(error) => Err(stop::restamp(error, inv.timeout).bind_key(inv.key.as_deref())),
         other => other,
     };
     if !inv.machine {
+        if !stop::claim_output() {
+            park();
+        }
         return match outcome {
             Ok(result) => {
                 contract::emit_line(&result.to_string());
@@ -1092,11 +1145,11 @@ fn finish(inv: &Invocation, outcome: Result<Value>, notes: Annotations) -> ExitC
             }
         };
     }
+    let stop = notes.stop.unwrap_or_else(stop::reason);
     let retry = spec::retry_for(inv);
     let envelope = match outcome {
         Ok(result) => {
-            let sigint = notes.sigint.unwrap_or(CANCEL.load(Ordering::SeqCst));
-            let classified = contract::classify(inv, &result, &notes, sigint);
+            let classified = contract::classify(inv, &result, &notes, stop);
             contract::Envelope {
                 command: Some(&inv.command),
                 status: classified.status,
@@ -1109,7 +1162,7 @@ fn finish(inv: &Invocation, outcome: Result<Value>, notes: Annotations) -> ExitC
                 result,
                 error: None,
                 page: notes.page,
-                stop: None,
+                stop,
             }
         }
         Err(error) => contract::Envelope {
@@ -1124,12 +1177,21 @@ fn finish(inv: &Invocation, outcome: Result<Value>, notes: Annotations) -> ExitC
             result: Value::Null,
             error: Some(error),
             page: None,
-            stop: None,
+            stop,
         },
     };
     emit_envelope(envelope)
 }
+/// The watchdog claimed the output and is ending the process; wait for it.
+fn park() -> ! {
+    loop {
+        std::thread::sleep(std::time::Duration::from_secs(60));
+    }
+}
 fn emit_envelope(envelope: contract::Envelope) -> ExitCode {
+    if !stop::claim_output() {
+        park();
+    }
     let value = envelope.to_value();
     contract::emit_line(&value.to_string());
     ExitCode::from(envelope.status.exit())

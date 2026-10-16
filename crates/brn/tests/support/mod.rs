@@ -194,3 +194,18 @@ pub fn assert_error(envelope: &Value, status: &str, code: &str) {
 pub fn receipts(root: &Root, data: &Path) -> usize {
     ok(root, data, &["history"]).as_array().unwrap().len()
 }
+/// Starts `argv` with piped stdin, stdout and stderr; finish with `wait_output`.
+pub fn spawn(root: &Root, argv: &[&str]) -> Child {
+    let args: Vec<&OsStr> = argv.iter().map(OsStr::new).collect();
+    root.command(&args)
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .unwrap()
+}
+/// Sends `signal` to a child this test spawned.
+pub fn signal(child: &Child, signal: i32) {
+    // SAFETY: signals only the child this test spawned.
+    assert_eq!(unsafe { libc::kill(child.id() as i32, signal) }, 0);
+}

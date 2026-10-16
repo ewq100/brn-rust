@@ -976,7 +976,7 @@ pub(crate) fn description() -> Value {
         .collect();
     json!({
         "contract": crate::contract::CONTRACT,
-        "usage": "brn [--json] --data-dir ABSOLUTE_DIRECTORY COMMAND [--option VALUE]...",
+        "usage": "brn [--json] --data-dir ABSOLUTE_DIRECTORY [--timeout SECONDS] COMMAND [--option VALUE]...",
         "statuses": Status::ALL.iter().map(|s| json!({
             "status": s.as_str(), "exit": s.exit(), "meaning": s.meaning(), "action": s.action(),
         })).collect::<Vec<_>>(),
@@ -1258,7 +1258,7 @@ mod tests {
         assert_eq!(value["owner_decision_rule"], OWNER_DECISION_RULE);
         assert!(value.get("owner_decision").is_none());
         assert_eq!(value["key"]["pattern"], KEY_PATTERN);
-        assert_eq!(value["statuses"].as_array().unwrap().len(), 9);
+        assert_eq!(value["statuses"].as_array().unwrap().len(), 10);
     }
 
     #[test]

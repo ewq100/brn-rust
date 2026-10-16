@@ -1,0 +1,286 @@
+//! Process checks of bounded execution: SIGTERM, the global `--timeout`
+//! deadline (soft and hard stops) and SQLite lock contention (`busy`).
+#![cfg(unix)]
+mod support;
+use serde_json::Value;
+use std::{
+    io::{BufRead, BufReader, Write},
+    path::Path,
+    process::{Child, Command, Stdio},
+    time::{Duration, Instant},
+};
+use support::*;
+
+/// A `python3` child holding `BEGIN IMMEDIATE` on the workspace database
+/// (no DML) until `release`, which rolls back. Fails the test without python3.
+struct HeldLock {
+    child: Child,
+}
+impl HeldLock {
+    fn hold(data: &Path) -> Self {
+        let script = "import sqlite3, sys\n\
+            c = sqlite3.connect(sys.argv[1], isolation_level=None, timeout=0)\n\
+            c.execute('BEGIN IMMEDIATE')\n\
+            print('locked', flush=True)\n\
+            sys.stdin.readline()\n\
+            c.execute('ROLLBACK')\n";
+        let mut child = Command::new("python3")
+            .args(["-c", script])
+            .arg(data.join("threads.sqlite3"))
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .spawn()
+            .expect("python3 is required for the lock-contention tests");
+        let mut line = String::new();
+        BufReader::new(child.stdout.as_mut().unwrap())
+            .read_line(&mut line)
+            .unwrap();
+        assert_eq!(line, "locked\n");
+        Self { child }
+    }
+    fn release(mut self) {
+        self.child.stdin.as_mut().unwrap().write_all(b"\n").unwrap();
+        assert!(self.child.wait().unwrap().success());
+    }
+}
+
+fn receipt_total(root: &Root, data: &Path) -> Value {
+    ok(root, data, &["history", "--limit", "100"])["total"].clone()
+}
+
+#[test]
+fn timeout_with_time_to_spare_changes_nothing() {
+    let root = Root::new();
+    let data = root.join("data");
+    let argv = [
+        "--json",
+        "--data-dir",
+        data.to_str().unwrap(),
+        "--timeout",
+        "60",
+        "note-create",
+        "--title",
+        "T",
+        "--text",
+        "x",
+    ];
+    let envelope = run_argv(&root, &argv, None).envelope();
+    assert_eq!(envelope["status"], "ok", "{envelope}");
+    assert_eq!(envelope["stop"], Value::Null);
+    assert_eq!(envelope["changed"][0]["created"], true);
+}
+
+#[test]
+fn timeout_values_are_refused_before_opening() {
+    let root = Root::new();
+    let data = root.join("absent");
+    let d = data.to_str().unwrap();
+    for (values, code) in [
+        (vec!["0"], "invalid_value"),
+        (vec!["86401"], "invalid_value"),
+        (vec!["abc"], "invalid_value"),
+        (vec!["-5"], "invalid_value"),
+        (vec!["10", "10"], "repeated_option"),
+    ] {
+        let mut argv = vec!["--json", "--data-dir", d];
+        for value in &values {
+            argv.extend(["--timeout", value]);
+        }
+        argv.push("notes");
+        let envelope = run_argv(&root, &argv, None).envelope();
+        assert_error(&envelope, "usage", code);
+        assert_eq!(envelope["error"]["details"]["option"], "timeout");
+        let default = run_argv(&root, &argv[1..], None);
+        assert_eq!(default.code, 1);
+        assert!(default.stderr.contains("--timeout") || default.stderr.contains("Repeated"));
+    }
+    assert!(!data.exists());
+}
+
+#[test]
+fn sigterm_during_stdin_wait_is_terminated_and_creates_nothing() {
+    let root = Root::new();
+    let data = root.join("absent");
+    let argv = argv(
+        true,
+        &data,
+        &["note-create", "--title", "T", "--text-file", "-"],
+    );
+    let child = spawn(&root, &argv);
+    // Past startup the handler is installed; the stdin pipe stays open.
+    std::thread::sleep(Duration::from_millis(500));
+    signal(&child, libc::SIGTERM);
+    let run = wait_output(child, Duration::from_secs(10));
+    assert_eq!(run.code, 143, "{} {}", run.stdout, run.stderr);
+    let envelope = run.envelope();
+    assert_error(&envelope, "terminated", "terminated");
+    assert_eq!(envelope["stop"], "sigterm");
+    assert_eq!(envelope["retry"], "duplicate");
+    assert!(!data.exists());
+}
+
+#[test]
+fn default_mode_sigterm_keeps_default_disposition() {
+    let root = Root::new();
+    let data = root.join("absent");
+    let argv = argv(
+        false,
+        &data,
+        &["note-create", "--title", "T", "--text-file", "-"],
+    );
+    let child = spawn(&root, &argv);
+    std::thread::sleep(Duration::from_millis(500));
+    signal(&child, libc::SIGTERM);
+    let run = wait_output(child, Duration::from_secs(10));
+    assert_eq!(run.signal, Some(libc::SIGTERM));
+    assert!(run.stdout.is_empty());
+}
+
+#[test]
+fn timeout_during_fifo_wait_is_a_soft_deadline() {
+    let root = Root::new();
+    let data = root.join("absent");
+    let fifo = root.join("input.fifo");
+    let path = std::ffi::CString::new(fifo.to_str().unwrap()).unwrap();
+    // SAFETY: creates a FIFO inside the test root.
+    assert_eq!(unsafe { libc::mkfifo(path.as_ptr(), 0o600) }, 0);
+    let argv = [
+        "--json",
+        "--data-dir",
+        data.to_str().unwrap(),
+        "--timeout",
+        "1",
+        "note-create",
+        "--title",
+        "T",
+        "--text-file",
+        fifo.to_str().unwrap(),
+    ];
+    let started = Instant::now();
+    let run = run_argv(&root, &argv, None);
+    assert!(
+        started.elapsed() < Duration::from_secs(2),
+        "{:?}",
+        started.elapsed()
+    );
+    assert_eq!(run.code, 7);
+    let envelope = run.envelope();
+    assert_error(&envelope, "failed", "timeout");
+    assert_eq!(envelope["error"]["details"]["deadline_seconds"], 1);
+    assert_eq!(envelope["error"]["details"]["hard"], false);
+    assert_eq!(envelope["stop"], "deadline");
+    let default = run_argv(&root, &argv[1..], None);
+    assert_eq!(default.code, 1);
+    assert_eq!(
+        default.stderr,
+        "Stopped at the --timeout deadline (1 s); nothing was committed\n"
+    );
+    assert!(!data.exists());
+}
+
+#[test]
+fn held_write_lock_reports_busy_and_creates_nothing() {
+    let root = Root::new();
+    let data = root.join("data");
+    ok(&root, &data, &["init"]);
+    let before = receipt_total(&root, &data);
+    let lock = HeldLock::hold(&data);
+    let started = Instant::now();
+    let envelope = call(
+        &root,
+        &data,
+        &["note-create", "--title", "T", "--text", "x"],
+    );
+    assert!(
+        started.elapsed() >= Duration::from_secs(4),
+        "{:?}",
+        started.elapsed()
+    );
+    assert_error(&envelope, "failed", "busy");
+    assert_eq!(envelope["exit"], 7);
+    let default = run(
+        &root,
+        false,
+        &data,
+        &["note-create", "--title", "T", "--text", "x"],
+    );
+    assert_eq!(default.code, 1);
+    assert!(default.stderr.starts_with("SQLite: "), "{}", default.stderr);
+    lock.release();
+    assert_eq!(receipt_total(&root, &data), before);
+}
+
+#[test]
+fn held_lock_past_deadline_hard_stops_with_one_line() {
+    let root = Root::new();
+    let data = root.join("data");
+    ok(&root, &data, &["init"]);
+    let before = receipt_total(&root, &data);
+    let lock = HeldLock::hold(&data);
+    let argv = [
+        "--json",
+        "--data-dir",
+        data.to_str().unwrap(),
+        "--timeout",
+        "1",
+        "note-create",
+        "--title",
+        "T",
+        "--text",
+        "x",
+    ];
+    let started = Instant::now();
+    let run = run_argv(&root, &argv, None);
+    let elapsed = started.elapsed();
+    assert!(
+        elapsed >= Duration::from_millis(3500) && elapsed < Duration::from_millis(4900),
+        "{elapsed:?}"
+    );
+    assert_eq!(run.code, 7);
+    let envelope = run.envelope();
+    assert_error(&envelope, "failed", "timeout");
+    assert_eq!(envelope["error"]["details"]["hard"], true);
+    assert_eq!(envelope["stop"], "deadline");
+    lock.release();
+    assert_eq!(receipt_total(&root, &data), before);
+}
+
+#[test]
+fn busy_then_keyed_retry_applies_once() {
+    let root = Root::new();
+    let data = root.join("data");
+    ok(&root, &data, &["init"]);
+    let argv = ["note-create", "--title", "T", "--text", "x", "--key", "b1"];
+    let lock = HeldLock::hold(&data);
+    let busy = call(&root, &data, &argv);
+    assert_error(&busy, "failed", "busy");
+    lock.release();
+    let first = call(&root, &data, &argv);
+    assert_eq!(first["status"], "ok", "{first}");
+    let replay = call(&root, &data, &argv);
+    assert_eq!(replay["operation"], first["operation"]);
+    let notes = ok(&root, &data, &["notes"]);
+    assert_eq!(notes.as_array().unwrap().len(), 1);
+}
+
+/// SIGINT envelopes name their reason. (This sandbox does not deliver SIGINT
+/// to children of non-shell parents; CI runs it.)
+#[test]
+fn sigint_envelopes_report_stop_sigint() {
+    let root = Root::new();
+    let data = root.join("absent");
+    let argv = argv(
+        true,
+        &data,
+        &["note-create", "--title", "T", "--text-file", "-"],
+    );
+    let child = spawn(&root, &argv);
+    std::thread::sleep(Duration::from_millis(500));
+    signal(&child, libc::SIGINT);
+    let run = wait_output(child, Duration::from_secs(10));
+    assert_eq!(run.code, 130);
+    let envelope = run.envelope();
+    assert_error(&envelope, "interrupted", "interrupted");
+    assert_eq!(envelope["stop"], "sigint");
+    assert!(!data.exists());
+}

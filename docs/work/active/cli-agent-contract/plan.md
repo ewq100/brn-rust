@@ -507,7 +507,7 @@ Command: `git -C /Users/evokessler/repos/brn-rust -c core.fsmonitor=false log --
       Files: `crates/brn/src/{spec.rs,main.rs}`, `crates/brn/README.md`, `crates/brn/tests/agent_inspect.rs`, `scripts/evaluate-wiki-guidance.py`, `scripts/tests/test_wiki_guidance_eval.py`
       Verify: `cargo test -p brn --locked --offline` passes; `python3 -m unittest discover -s scripts/tests` passes; the baseline run of the new tests fails.
 
-- [ ] R2-5. **A4: SIGTERM, `--timeout`, hard stop, `busy`** (design A4; appendix §A4). CLI only.
+- [x] R2-5. **A4: SIGTERM, `--timeout`, hard stop, `busy`** (design A4; appendix §A4). CLI only.
       **Stop state.** Add `static STOP: AtomicU8` (0 none, 1 sigint, 2 sigterm, 3 deadline) and `fn stop_reason()`:
       - A raised STOP wins.
       - If `CANCEL` is set while STOP is still 0, the reason is `sigint`, so `on_sigint` and the `libc::signal(SIGINT…)` block stay **untouched**.

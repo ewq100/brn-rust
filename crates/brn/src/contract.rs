@@ -24,9 +24,10 @@ pub(crate) enum Status {
     Rejected,
     Failed,
     Interrupted,
+    Terminated,
 }
 impl Status {
-    pub(crate) const ALL: [Status; 9] = [
+    pub(crate) const ALL: [Status; 10] = [
         Status::Ok,
         Status::Internal,
         Status::Usage,
@@ -36,6 +37,7 @@ impl Status {
         Status::Rejected,
         Status::Failed,
         Status::Interrupted,
+        Status::Terminated,
     ];
     pub(crate) fn exit(self) -> u8 {
         match self {
@@ -48,6 +50,7 @@ impl Status {
             Status::Rejected => 6,
             Status::Failed => 7,
             Status::Interrupted => 130,
+            Status::Terminated => 143,
         }
     }
     pub(crate) fn as_str(self) -> &'static str {
@@ -61,6 +64,7 @@ impl Status {
             Status::Rejected => "rejected",
             Status::Failed => "failed",
             Status::Interrupted => "interrupted",
+            Status::Terminated => "terminated",
         }
     }
     pub(crate) fn meaning(self) -> &'static str {
@@ -74,6 +78,7 @@ impl Status {
             Status::Rejected => "Refused by a safeguard or by current state: not found, invalid request (including an ask or useful intake refused before contacting a provider, and a text over a shared-service field limit), key conflict, unsafe or occupied path, open edit session.",
             Status::Failed => "A dependency failed: provider, conversion, helper, semantic index, or an ask run ended Failed.",
             Status::Interrupted => "SIGINT was acknowledged. The requested change was not committed, unless result shows a recorded partial run (ask). A fresh data directory may have been initialised.",
+            Status::Terminated => "SIGTERM was acknowledged (machine mode). The requested change was not committed, unless result shows a recorded partial run (ask) or details.hard is true: then the process stopped without reaching a safe point and may have committed. A fresh data directory may have been initialised.",
         }
     }
     pub(crate) fn action(self) -> &'static str {
@@ -87,6 +92,7 @@ impl Status {
             Status::Rejected => "Fix the cause, or wait for the state to change; do not retry unchanged against unchanged state.",
             Status::Failed => "May succeed later or with other input; check retry first.",
             Status::Interrupted => "Re-run if still wanted. Nothing was committed, so the re-run attempts the change afresh and applies it at most once. After ask or useful intake, a re-run is another model turn on top of the recorded partial run.",
+            Status::Terminated => "Re-run if still wanted, as for interrupted. When details.hard is true, first read state as the retry class describes.",
         }
     }
 }
@@ -116,13 +122,15 @@ pub(crate) enum Code {
     ProviderFailed,
     ConversionFailed,
     Timeout,
+    Busy,
     Interrupted,
+    Terminated,
     StorageError,
     IoError,
     Internal,
 }
 impl Code {
-    pub(crate) const ALL: [Code; 26] = [
+    pub(crate) const ALL: [Code; 28] = [
         Code::MissingDataDir,
         Code::InvalidDataDir,
         Code::MissingCommand,
@@ -145,7 +153,9 @@ impl Code {
         Code::ProviderFailed,
         Code::ConversionFailed,
         Code::Timeout,
+        Code::Busy,
         Code::Interrupted,
+        Code::Terminated,
         Code::StorageError,
         Code::IoError,
         Code::Internal,
@@ -174,7 +184,9 @@ impl Code {
             Code::ProviderFailed => "provider_failed",
             Code::ConversionFailed => "conversion_failed",
             Code::Timeout => "timeout",
+            Code::Busy => "busy",
             Code::Interrupted => "interrupted",
+            Code::Terminated => "terminated",
             Code::StorageError => "storage_error",
             Code::IoError => "io_error",
             Code::Internal => "internal",
@@ -200,10 +212,13 @@ impl Code {
             | Code::UnsafeDirectory
             | Code::DestinationExists
             | Code::EditSessionOpen => Status::Rejected,
-            Code::Unavailable | Code::ProviderFailed | Code::ConversionFailed | Code::Timeout => {
-                Status::Failed
-            }
+            Code::Unavailable
+            | Code::ProviderFailed
+            | Code::ConversionFailed
+            | Code::Timeout
+            | Code::Busy => Status::Failed,
             Code::Interrupted => Status::Interrupted,
+            Code::Terminated => Status::Terminated,
             Code::StorageError | Code::IoError | Code::Internal => Status::Internal,
         }
     }
@@ -230,8 +245,10 @@ impl Code {
             Code::Unavailable => "A service is not available in this build or platform, for example semantic search, conversion for this format, or model installation.",
             Code::ProviderFailed => "ask or useful intake: any other AiErrorKind (none is known to reach Err from run at 771116f0; kept as a fallback); also a provider failure during document conversion. details.kind is the AiErrorKind in snake_case.",
             Code::ConversionFailed => "Document conversion failed; details.reason names the failure.",
-            Code::Timeout => "Document conversion exceeded its time limit.",
+            Code::Timeout => "Document conversion exceeded its time limit, or the --timeout deadline passed before the command committed (details.deadline_seconds; details.hard is true when the process stopped without reaching a safe point and may have committed).",
+            Code::Busy => "SQLite stayed locked past the 5 s busy timeout. This transaction did not commit, although earlier steps of the command may have.",
             Code::Interrupted => "SIGINT was observed before the change was committed.",
+            Code::Terminated => "SIGTERM was observed before the change was committed (machine mode; details.hard is true when the process stopped without reaching a safe point and may have committed).",
             Code::StorageError => "Unexpected storage or record-encoding failure.",
             Code::IoError => "Unexpected I/O failure on the CLI's own paths.",
             Code::Internal => "Unexpected failure, or a committed review whose attention cleanup needs a retry (details.applied or details.dismissed: retry the same command).",
@@ -316,6 +333,7 @@ impl From<brn_threads_app::Error> for CliError {
         let message = error.to_string();
         // Exhaustive on purpose: a new core variant must be mapped here.
         let code = match &error {
+            Error::Sqlite(e) if busy(e.sqlite_extended_error_code()) => Code::Busy,
             Error::Sqlite(_) | Error::Json(_) => Code::StorageError,
             Error::Io(e) if e.kind() == std::io::ErrorKind::AlreadyExists => {
                 return Self::new(Code::DestinationExists, message).with("option", "destination");
@@ -348,6 +366,7 @@ impl From<RetrievalError> for CliError {
             RetrievalError::Invalid(_) => Code::InvalidRequest,
             RetrievalError::Unavailable(_) | RetrievalError::Stale => Code::Unavailable,
             RetrievalError::Cancelled => Code::Interrupted,
+            RetrievalError::Sql(e) if busy(e.sqlite_extended_error_code()) => Code::Busy,
             RetrievalError::Corrupt(_) | RetrievalError::Sql(_) | RetrievalError::Native(_) => {
                 Code::StorageError
             }
@@ -359,6 +378,10 @@ impl From<RetrievalError> for CliError {
         };
         Self::new(code, message)
     }
+}
+/// SQLITE_BUSY or SQLITE_LOCKED (any extended form): the lock outlasted the busy timeout.
+fn busy(extended_code: Option<std::ffi::c_int>) -> bool {
+    extended_code.is_some_and(|code| matches!(code & 0xff, 5 | 6))
 }
 /// snake_case of a unit variant's CamelCase `Debug` name.
 pub(crate) fn snake(name: &str) -> String {
@@ -532,7 +555,8 @@ pub(crate) struct Annotations {
     pub(crate) operation: Option<String>,
     pub(crate) changed: Vec<Changed>,
     pub(crate) conflict: Option<Vec<Conflict>>,
-    pub(crate) sigint: Option<bool>,
+    /// The stop reason seen when the result was classified: `Some(None)` for none.
+    pub(crate) stop: Option<Option<&'static str>>,
     /// The envelope `page` of a paged result.
     pub(crate) page: Option<Value>,
 }
@@ -596,7 +620,7 @@ pub(crate) fn classify(
     inv: &Invocation,
     value: &Value,
     notes: &Annotations,
-    sigint: bool,
+    stop: Option<&str>,
 ) -> Classified {
     let ok = |outcome: Option<String>| Classified {
         status: Status::Ok,
@@ -706,7 +730,9 @@ pub(crate) fn classify(
             let terminal = value["terminal"].as_str().unwrap_or_default();
             let (status, outcome) = match terminal {
                 "Completed" => (Status::Ok, "Completed"),
-                "Interrupted" if sigint => (Status::Interrupted, "Interrupted"),
+                "Interrupted" if stop == Some("sigint") => (Status::Interrupted, "Interrupted"),
+                "Interrupted" if stop == Some("sigterm") => (Status::Terminated, "Interrupted"),
+                "Interrupted" if stop == Some("deadline") => (Status::Failed, "Interrupted"),
                 "Interrupted" => (Status::Stale, "Interrupted"),
                 _ if terminal.starts_with("Failed") => (Status::Failed, "Failed"),
                 _ => (Status::Internal, "Failed"),
@@ -752,9 +778,9 @@ pub(crate) fn fill_conflicts(
     if !inv.machine {
         return;
     }
-    let sigint = crate::CANCEL.load(std::sync::atomic::Ordering::SeqCst);
-    notes.sigint = Some(sigint);
-    let status = classify(inv, value, notes, sigint).status;
+    let stop = crate::stop::reason();
+    notes.stop = Some(stop);
+    let status = classify(inv, value, notes, stop).status;
     if !matches!(status, Status::Stale | Status::Deferred) {
         return;
     }
@@ -870,6 +896,7 @@ mod tests {
                 .find(|(k, _)| *k == "key")
                 .map(|(_, v)| v.to_string()),
             pending_inputs: vec![],
+            timeout: None,
         }
     }
     fn write(id: &str, version: u64, before: bool) -> Value {
@@ -880,7 +907,8 @@ mod tests {
         json!({"operation":operation,"writes":[write("n:0", 2, true)]})
     }
     fn status(command: &str, args: &[(&str, &str)], value: Value, sigint: bool) -> Status {
-        classify(&inv(command, args), &value, &Annotations::default(), sigint).status
+        let stop = sigint.then_some("sigint");
+        classify(&inv(command, args), &value, &Annotations::default(), stop).status
     }
 
     #[test]
@@ -1004,18 +1032,13 @@ mod tests {
             Status::Ok
         );
         let root = receipt("op");
-        let created = classify(&inv("queue", &[]), &root, &Annotations::default(), false);
+        let created = classify(&inv("queue", &[]), &root, &Annotations::default(), None);
         assert_eq!(created.status, Status::Ok);
         assert_eq!(created.outcome.as_deref(), Some("Applied"));
         assert_eq!(created.operation.as_deref(), Some("op"));
         assert_eq!(created.changed.len(), 1);
         for read in ["notes", "read", "topics", "init", "begin-edit", "export"] {
-            let classified = classify(
-                &inv(read, &[]),
-                &Value::Null,
-                &Annotations::default(),
-                false,
-            );
+            let classified = classify(&inv(read, &[]), &Value::Null, &Annotations::default(), None);
             assert_eq!(
                 classified,
                 Classified {
@@ -1051,7 +1074,7 @@ mod tests {
                 &inv(name, &args),
                 &run("Interrupted"),
                 &Annotations::default(),
-                false,
+                None,
             );
             assert_eq!(classified.outcome.as_deref(), Some("Interrupted"));
             assert_eq!((classified.operation, classified.changed), (None, vec![]));
@@ -1083,7 +1106,7 @@ mod tests {
             &full,
             &json!({"outcome":"Applied","receipt":receipt("op")}),
             &Annotations::default(),
-            false,
+            None,
         );
         assert_eq!(applied.operation.as_deref(), Some("op"));
         assert!(!applied.changed[0].created);
@@ -1091,7 +1114,7 @@ mod tests {
             &full,
             &json!({"outcome":"Stale","records":["n:0"]}),
             &Annotations::default(),
-            false,
+            None,
         );
         assert_eq!((stale.operation, stale.changed), (None, vec![]));
         let useful = inv("intake", &[("intent", "useful")]);
@@ -1102,7 +1125,7 @@ mod tests {
             &inv("topics-create", &[]),
             &deferred,
             &Annotations::default(),
-            false,
+            None,
         );
         assert_eq!(topics.status, Status::Deferred);
         assert_eq!(topics.operation, None);
@@ -1119,7 +1142,7 @@ mod tests {
                 &inv("topics-create", &[]),
                 &pointer,
                 &Annotations::default(),
-                false
+                None
             )
             .changed
             .len(),
@@ -1134,7 +1157,7 @@ mod tests {
             &inv("undo", &[]),
             &json!({"outcome":"Deferred","guarded":["n:0"]}),
             &notes,
-            false,
+            None,
         );
         assert_eq!(
             (undo.status, undo.operation.as_deref()),
@@ -1512,9 +1535,9 @@ mod tests {
     fn statuses_and_codes_are_one_to_one_and_complete() {
         let mut exits: Vec<u8> = Status::ALL.iter().map(|s| s.exit()).collect();
         exits.dedup();
-        assert_eq!(exits, [0, 1, 2, 3, 4, 5, 6, 7, 130]);
+        assert_eq!(exits, [0, 1, 2, 3, 4, 5, 6, 7, 130, 143]);
         let names: std::collections::BTreeSet<_> = Status::ALL.iter().map(|s| s.as_str()).collect();
-        assert_eq!(names.len(), 9);
+        assert_eq!(names.len(), 10);
         let codes: std::collections::BTreeSet<_> = Code::ALL.iter().map(|c| c.as_str()).collect();
         assert_eq!(codes.len(), Code::ALL.len());
         for code in Code::ALL {

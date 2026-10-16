@@ -89,6 +89,7 @@ Attach a document to a project only with `--intent project --project ID`, which 
 | 6 | `rejected` | Refused by a safeguard or current state: not found, invalid request (including an `ask` or useful intake refused before contacting a provider, and a text over a shared-service field limit), key conflict, unsafe or occupied path, open edit session. | Fix the cause or wait for the state to change; do not retry unchanged against unchanged state. |
 | 7 | `failed` | A dependency failed: provider, conversion, helper, semantic index, or an `ask` run ended Failed. | May succeed later or with other input; check `retry` first. |
 | 130 | `interrupted` | SIGINT was acknowledged. Nothing was committed, unless `result` shows a recorded partial run (`ask`). | Re-run if still wanted; it applies at most once. After `ask` or useful intake, a re-run is another model turn. |
+| 143 | `terminated` | SIGTERM was acknowledged (machine mode). Nothing was committed, unless `result` shows a recorded partial run (`ask`) or `details.hard` is true (the process stopped without reaching a safe point and may have committed). | Re-run if still wanted, as for `interrupted`; when `details.hard` is true, read state first as `retry` describes. |
 
 ### Outcomes, operation and changed
 
@@ -138,8 +139,10 @@ ApplyOutcome `Applied` is `ok`, `Stale` and `Superseded` are `stale`, `Deferred`
 | `unavailable` | failed | Semantic search or a model folder is unusable; no native retrieval in this build; conversion unsupported on this platform or format; model install refused. | `{}` or `{reason: "model_install"}` |
 | `provider_failed` | failed | `ask` or useful intake: any other `AiErrorKind` (none is known to reach `Err` from `run` at `771116f0`; kept as a fallback); also `ConversionFailure::Provider`. | `{kind}` in snake_case |
 | `conversion_failed` | failed | Document conversion failed. | `{reason}` |
-| `timeout` | failed | Document conversion exceeded its time limit. | `{}` |
+| `timeout` | failed | Document conversion exceeded its time limit, or the `--timeout` deadline passed before the command committed. | `{}` for conversion; `{deadline_seconds, hard}` for `--timeout` |
+| `busy` | failed | SQLite stayed locked past the 5 s busy timeout (another writer holds the workspace). This transaction did not commit, although earlier steps of the command may have. | `{}` |
 | `interrupted` | interrupted | SIGINT while waiting for input, before opening, during an intake read or conversion, or during a model download. | `{}` |
+| `terminated` | terminated | SIGTERM (machine mode) at any point where SIGINT or the deadline is observed. | `{}`, or `{hard: true}` after a hard stop |
 | `storage_error` | internal | Unexpected SQLite or record-encoding failure; an `ask` run storage error. | `{}` |
 | `io_error` | internal | Other I/O failures on the CLI's own paths. | `{}` |
 | `internal` | internal | Result encoding failed; input reader stopped; a committed review whose cleanup failed. | `{}`, `{applied: true}` or `{dismissed: true}` |
@@ -154,8 +157,13 @@ The #145 helper refusals keep their messages: `--helper off` with helper options
 
 - stdout is exactly the envelope line. stderr carries only existing human progress lines (intake conversion labels, `model-install` bytes). Never parse stderr. Machine mode does not duplicate errors on stderr.
 - stdin is read only for `--NAME-file -`. Nothing prompts, and no terminal is read as input.
-- SIGINT is observed only at these points, and then gives `interrupted` (exit 130): while waiting for `--NAME-file` input (within 25 ms, even with a blocked read or FIFO open); before the workspace opens; while reading or converting an intake source; during a model download; and as an `ask` run that ends `Interrupted`. At any other point (for example `export`, `backup`, `restore`, `upgrade`, an index build or a large `history`) the command completes and reports its normal status. SIGINT during a commit does not stop the commit. SIGTERM, and SIGINT before startup, kill the process without an envelope.
-- There is no caller time limit: bound each call with your own timeout.
+- **Stop reasons.** SIGINT, SIGTERM (machine mode only) and the global `--timeout SECONDS` deadline (1..86400, after `--data-dir`) all ask the command to stop. The first reason wins and the envelope `stop` names it (`sigint`, `sigterm`, `deadline`). They are observed while waiting for `--NAME-file` input (within 25 ms, even with a blocked read or FIFO open); before the workspace opens; while reading or converting an intake source; during a model download; and as an `ask` run that ends `Interrupted`. SIGTERM and the deadline are also observed right after the workspace opens and after the search index is ready (`search`, `connections`, `ask`).
+- **Results.** Before anything is committed: SIGINT gives `interrupted` (130), SIGTERM `terminated` (143), the deadline `failed` with `timeout` and `{deadline_seconds, hard: false}` (7). A fresh data directory may already have been initialised. An `ask` or useful-intake run that stops ends `Interrupted` with its `result`: exit 130 after SIGINT, 143 after SIGTERM, 7 (`failed`, outcome `Interrupted`) after the deadline.
+- **Never aborted.** A call already in flight finishes and reports its real outcome, so a stop never hides a commit; the SQLite transaction stays the unit of change, so nothing is half-applied. Once started, `export`, `backup`, `restore`, `upgrade` and index builds run to completion. SIGINT during a commit does not stop the commit.
+- **Hard stop.** If no result is ready 3 s after SIGTERM or the deadline, the process writes one envelope line itself (`terminated` 143, or `failed`/`timeout` 7, with `details.hard: true` and the message "the command may have committed") and exits. Read state as `retry` describes before retrying. It can leave: a Working run (see `runs`), conversion scratch under the temporary directory, a restore stage, or a backup or export temporary.
+- **Default mode.** SIGTERM keeps the default action (the process is killed, no output). A deadline before a commit prints `Stopped at the --timeout deadline (N s); nothing was committed` (exit 1); a stopped run prints its JSON (exit 0); a hard stop prints `Stopped at the --timeout deadline (N s); state unknown` (exit 1).
+- **Busy.** SQLite waits 5 s for another writer before `busy` (exit 7 in machine mode; default mode keeps SQLite's text, exit 1). A keyed retry after the lock clears applies once.
+- SIGTERM before the handler is installed, a second SIGTERM, and SIGINT before startup kill the process without an envelope.
 - Checks of required options, `intake`'s conditional requirements, option conflicts, the key pattern, `--NAME-file` sources and `--trace` run before the workspace opens. `intake --intent chat` requires `--thread`, and `--intent project` requires `--project` (`required_when` in the description), so nothing is read or converted before that refusal. Other value checks run where they always have, sometimes after a fresh directory was initialised.
 
 ### Inspection
@@ -273,6 +281,7 @@ Keyed edge cases: different inputs under the same key give `key_conflict` (a dif
 - **`edit_session_open`** (exit 6). The note has unsaved writing in `details.session`. BRN does not record which caller opened a session. Write only to a session returned by your own successful `begin-edit`. If your `begin-edit` response was lost, you cannot prove the session is yours: do not `update-buffer`, `save` or `discard` it. Report it to the owner, or wait until `recovery` no longer lists it, then `begin-edit` again.
 - **Deferred** (exit 4). For `conflict[].kind` `Note`, an edit session holds the note: wait until `recovery` no longer lists it, and discard it only if your own `begin-edit` opened it. For `Run`, wait until `read --id RUN` no longer shows it Working. Wait only within your own time budget, then report it to the owner: a run left Working by a killed process stays Working until it is recovered or the owner stops it. Once the guard clears, retry the same argv (same `--key`) if `retry` is `replay` or `converge`. If it is `duplicate` (unkeyed `undo` or `keep-in-brn`), a retry is a new operation and the first attempt stays as an unapplied candidate that `candidates` lists; report that to the owner (`dismiss` is an owner decision) and use `--key` next time. `topics-create` exception: run `topics-choose --note <result.note.id>`.
 - **Stopped run** (`ask`, exit 3, outcome `Interrupted`). Another writer stopped the run; `read --id <result.run>` shows what it recorded. A new `ask` is a new model turn.
+- **Killed `ask`** (the process died, for example after SIGKILL or a hard stop). Its run can stay Working: `runs --state working` lists it with `guards_writes: true`, and writes to its chat come back Deferred. A new `ask` in that chat marks it `Interrupted` before it starts. On the owner's instruction only, `pause` or `archive` stops it; it then shows `Cancelled` (or `Interrupted` once the daily-workflow branch is merged). `ask` has no `--key`: after a lost `ask` response, `runs --thread T --limit 5` finds the run and `read --id RUN` shows what it recorded.
 - **Committed review with failed cleanup** (exit 1, `details.applied` or `details.dismissed`): retry the same `apply` or `dismiss`.
 - **Generations.** `begin-edit` returns generation 0. Each `update-buffer` uses a generation greater than `session.generation`; the first is 1. `save` and `discard` use the latest generation.
 
@@ -295,6 +304,9 @@ Every in-repo consumer moved to contract 2 in the same change; there is no contr
 | `contract` | `1` | `2`, in every envelope and in `brn --json --help` |
 | `page` | absent | always present: null, or `{limit, shown, cursor, total}` |
 | `stop` | absent | always present: null, `sigint`, `sigterm` or `deadline` |
+| `terminated` | SIGTERM killed the process | machine mode: status `terminated`, exit 143, code `terminated` |
+| `--timeout` | none | global `--timeout SECONDS`; `timeout` gains `{deadline_seconds, hard}` |
+| `busy` | lock contention was `storage_error` (internal, 1) | `busy` (failed, 7) |
 | Inspection | `history`, `candidates`, `records` return everything | page options and the `revisions`, `revision`, `runs`, `operation` commands; `read --limit` returns `Read` or `Stale` |
 
 ### Before and after

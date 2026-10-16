@@ -25,7 +25,7 @@ import tempfile
 import time
 
 STATUSES = {'ok': 0, 'internal': 1, 'usage': 2, 'stale': 3, 'deferred': 4,
-            'needs_review': 5, 'rejected': 6, 'failed': 7, 'interrupted': 130}
+            'needs_review': 5, 'rejected': 6, 'failed': 7, 'interrupted': 130, 'terminated': 143}
 RETRY_CLASSES = {'read', 'replay', 'converge', 'refuse', 'duplicate'}
 # Usage refusals found before a known command was read report `command: null`.
 NULL_COMMAND_CODES = {'missing_data_dir', 'invalid_data_dir', 'missing_command',
@@ -201,7 +201,7 @@ def journey(brn, root):
             'update-buffer', 'save', 'discard', 'search', 'history', 'undo', 'candidates', 'notes',
             'intake', 'backup', 'export', 'restore', 'projects']
     check(all(name in commands for name in used), 'a journey command is missing from the description')
-    check(len(description['statuses']) == 9, 'description does not list 9 statuses')
+    check(len(description['statuses']) == 10, 'description does not list 10 statuses')
     check(any(v['when'] == {'option': 'intent', 'equals': 'useful'} for v in commands['intake']['retry']['variants']),
           'intake lacks the --intent useful variant')
     owner = [name for name in used if commands[name]['owner_decision']]
