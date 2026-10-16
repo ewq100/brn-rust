@@ -4,8 +4,8 @@
 
 - **Implemented and automated-verified** on the combined tree. The workspace gives 827 passed, 1 failed and 6 ignored; the failure is the Poppler-only PDF test, an environment gap. The desktop shell gives 294 passed and 1 ignored, both native-ui lanes 80 each, and default features 30. Windows native-ui has not been compiled.
 - **Native-observed** on the combined build `6db39420` (the code is unchanged since) for F-UI1, the ⌘K order, U4, U10, Continue clearing the notice, U11 on open, R1 and the killed-then-archived chat. Paging, ⌘L, R2, R3 and the busiest Note with a recorded notice were not observed.
-- **Owner-accepted** only for the 16 October owner decisions. The 48 px text floor under a Note banner in the busiest 900×600 state is pending owner acceptance on this build.
-- **Not pushed or merged.**
+- **Owner-accepted** for the 16 October decisions, including the 48 px text floor under a Note banner in the busiest 900×600 state. The lead's extension of that floor to an open comment draft (R1) can be overruled. The UI hasn't been accepted from hands-on use.
+- **Publication:** the owner authorized one PR to `main` on 16 October, merged after the four required checks; Windows native-ui gets its first compile in that PR's CI. Release stays unassigned. Remaining UI work for a later polish agent is in the [UI polish handoff](work/active/ui-polish/handoff.md).
 
 **Dedicated document conversion assignment, 14 October 2026:** the owner authorized the [Rust Luna intake plan](work/active/rust-luna-intake/plan.md), including dedicated Luna conversion in imports, PR publication and merge after required checks. The isolated `codex/rust-luna-intake` implementation, tracked in [PR #144](https://github.com/ewq100/brn-rust/pull/144), ports prepared readers/formatting/checks and uses fixed GPT-6 Luna high with the existing explicit ChatGPT account. Markdown/text stay verbatim; checked protected imports, private/project scope, replay and Undo remain shared. [Evidence](work/active/rust-luna-intake/evidence.md) separates deterministic checks, live conversion, native observation and integration. Release and real-data access are outside this assignment.
 
