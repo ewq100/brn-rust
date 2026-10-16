@@ -1,0 +1,6 @@
+{
+  "utc": "2026-10-16T18:45:48Z",
+  "method": "ps -axo pid,ppid,comm,args; executable-name Cargo/rustc/rustdoc/mutants, task-target executables and all CW2 mutation/collector scripts; excludes inspection process and ancestors",
+  "active_heavy_or_cw2_children": [],
+  "all_started_exec_sessions_completed": true
+}
