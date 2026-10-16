@@ -340,4 +340,3 @@ test threads_ui::tiled_tests::note_hits_and_chat_messages_page_independently ...
 test threads_ui::polish_tests::note_toolbar_is_one_row_at_each_window_size_dirty_or_clean ... ok
 
 test result: ok. 306 passed; 0 failed; 1 ignored; 0 measured; 3 filtered out; finished in 2.93s
-

@@ -3,7 +3,8 @@
     "command": [
       "git",
       "diff",
-      "--check"
+      "--check",
+      "8f768943964a77711b26d5235df146f8efe1dc6c"
     ],
     "exit": 0,
     "stdout": "",
@@ -15,7 +16,7 @@
       "scripts/check-markdown-links.py"
     ],
     "exit": 0,
-    "stdout": "Markdown links: 156 files, 749 local links, 0 failures; historical outgoing policy=docs/archive/ only\n",
+    "stdout": "Markdown links: 156 files, 751 local links, 0 failures; historical outgoing policy=docs/archive/ only\n",
     "stderr": ""
   },
   {

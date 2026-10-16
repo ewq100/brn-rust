@@ -157,4 +157,3 @@ test cancelled_pinned_install_does_not_fetch_or_create_assets ... ok
 test occupied_target_is_refused_without_network_or_overwrite ... ok
 
 test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-

@@ -68,7 +68,7 @@ O1 **CW-first authorized by current owner**. After C0 and any separately approve
 - [x] Install the linked active plans and baseline/ownership map.
 - [x] Finish serial baseline commands and per-crate/feature/time inventory; record failures honestly.
 - [x] Finish executable Slice 0 reuse proofs and decision evidence.
-- [ ] Commit integration ref without new required-test failures/skips; lead independently reviews actual diff.
+- [x] Commit integration ref without new required-test failures/skips; independent actual-diff review remains with lead (see evidence receipt).
 - [ ] Lead resolves remaining C0 exit gates individually; no automatic CW/D start here.
 
 CL deletion candidates: **empty**. No path/symbol met all caller, saved-data and behavioral-regression proof requirements; CW2-owned duplicated start/selection is excluded. No cleanup is authorized by this empty list. Any future concrete destructive list needs explicit owner approval before deletion. See [start messages](c0/start-messages.md).

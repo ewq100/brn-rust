@@ -65,8 +65,16 @@ Lead's read-only H0 scratch inventory `/Users/evokessler/.codex/brn-build-orches
 | X1/Z1/#149 snapshots and applicability | Recorded; retained outcomes, moved surfaces and no rerun/adoption claims |
 | O1 and consequential gates | O1 CW-first owner-authorized; D-S/D-M unresolved, T/PC deferred, X retains Poppler, L no live qualification |
 | CL list and start messages | Satisfied: defensible empty removal list, no-op proposal; destructive approval still required for any future concrete list |
-| Common committed integration ref | Pending receipt below |
+| Common committed integration ref | Satisfied by the exact local implementation commit and receipt below |
 | No new failing/skipped required tests | Production tree unchanged; baseline failures retained, experiment final tests pass; final diff check pending receipt |
 | Independent actual-diff review | **Pending principal lead's Copilot Opus review**, not reviewed/approved here |
 
 C0 deliverables are locally implemented/deterministic-verified within the stated baseline failures. C0 is **not unconditionally complete**: restore native Poppler tooling for the PDF gate, investigate/requalify the hosted native-widget failure under separate authority, and obtain independent lead review. Native-observed, live-provider-verified, owner-accepted, published, merged and released are all **not performed** by this worker. No schema/data migration introduced; local rollback is omission/revert of these docs/standalone experiment commits, with production baseline unchanged.
+
+## Local integration receipt
+
+Implementation integration commit: `c3447893dde8d5456b6a9cb6af79a767d3a01856`, parent `8f768943964a77711b26d5235df146f8efe1dc6c`. It contains both plans, contract revision C0-20261016-1, standalone proof source/lock and captured baseline evidence. The following receipt commit records this immutable reference plus log-ending normalization only; no self-referential final SHA is embedded. Integrate both commits from `work/build-c0-20261016`; final HEAD is reported in the worker handoff.
+
+Initial staged/full-commit `git diff --check` flagged terminal blank lines in captured Cargo logs ([failure receipt](c0/initial-diff-check.log)). Terminal blank lines were normalized; no test output content, command, count or failure was removed. Final validation checks the **whole diff against baseline**, including the new tracked evidence; the earlier unstaged check had not included untracked logs.
+
+**H0 inventory update:** after the C0 implementation commit, the owner separately authorized the principal lead to remove old remote branches/worktrees, archiving merged branch tips first. C0's 26-checkout inventory is a dated **pre-cleanup** snapshot, not the live post-H0 inventory. Root completed **129** fully merged remote-branch deletions after verified `archive/<original-name>` tags and **11** clean inactive worktree removals; **35 remote branches / 15 worktrees** remain, local branches/docs/source untouched. Root owns `cleanup-report.md`, `cleanup-candidates.json`/`cleanup-results.json` and ledger under `/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/`; this worker performs no housekeeping. Current C0 checkout, unmerged/dirty/open-PR/current-program work are preserved by that separate assignment. This does not amend the empty CL production deletion list or authorize later slices.

@@ -387,4 +387,3 @@ test threads_ui::state::integrity_tests::newest_run_uses_creation_order_without_
 test threads_ui::lists::tests::notes_view_stays_bounded_at_five_thousand_notes ... ok
 
 test result: ok. 95 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.42s
-
