@@ -103,7 +103,6 @@ graph LR
 | T | Toolkit-patch route for PC: vendored `[patch]` of `gpui-base` 0.7.3, upstream contribution, or maintained fork | PC | PC deferred; the comment list stays navigation |
 | X | Xberg cutover approval | X1-int | Poppler retained |
 | L | Live provider authority: D1B semantic qualification, I01, the X1-int Luna comparison | Each qualification | Recorded as blocked, not passed |
-| Z | Publish `work/z1-zorite` (`b9bd1a1`) from the machine that holds it | Any time | Z1 record cites the #149 handoff |
 
 ## What this updates in the stored packs
 
