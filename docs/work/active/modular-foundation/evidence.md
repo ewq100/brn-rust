@@ -1,5 +1,7 @@
 # Combined C0 evidence
 
+**Principal B3 local disposition, 17 October:** [Opus3](b3/opus-review-round3.md) APPROVED final source93b92d7b and [the principal accepts its local contracts](b3/principal-disposition.md). Final native287/0/1, library44, strict lint/fmt and genuine hidden-draft before proof are reconciled against328 hashes/eight raw check associations. Earlier broad counts and two actual guard catches retain their original pins and limitations. B4 source preparation is eligible; D2 retains heavy. INT-W/full F21/native-human/hosted/owner/PDF and separate-lane integration remain open.
+
 Worktree: `/Users/evokessler/.t3/worktrees/brn-rust/t3-ceb6e16c`
 Branch: `work/build-c0-20261016`
 Baseline: `8f768943964a77711b26d5235df146f8efe1dc6c` (fetched origin/main, 16 October 2026).

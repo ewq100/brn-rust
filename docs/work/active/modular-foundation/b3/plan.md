@@ -1,5 +1,7 @@
 # B3 persistent reference-assisted writing implementation plan
 
+**Principal disposition, 17 October:** final source93b92d7b is independently APPROVED by Opus3 and [accepted for local dependent development](principal-disposition.md) after cleanfc0ce49b handoff. B4 is next for source-only preparation while D2 owns heavy. Original source/test/qualification identities below remain historical; no full INT-W/hosted/native-human/owner/PDF acceptance is implied.
+
 **Goal:** expose the existing scoped brief/reference configuration and immutable host-recorded Sources used in the reusable writing panel.
 
 **Identity:** provider OpenAI/Codex, model gpt-6.1-sol (Sol6.1), task B3; bound checkout `/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc`, branch `work/b3-20261017`, exact clean base `f2b060bb17080d0241143afb6fadd6ec22350f34`. Local origin/main `8f768943964a77711b26d5235df146f8efe1dc6c` inspected without fetch. B1a/B1b refs and all other worktrees preserved. [B1b acceptance](../b1b/principal-disposition.md) permits local dependent progress, not hosted/native-human/owner/program acceptance.

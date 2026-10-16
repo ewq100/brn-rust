@@ -1,5 +1,7 @@
 # Combined C0 implementation plan
 
+**Principal disposition, 17 October:** B3 source93b92d7b has Opus3 approval and [local contract acceptance](b3/principal-disposition.md). B4 may prepare the real-Workspace development host source-only; D2 owns the sole heavy slot. INT-W, full F21, hosted/native-human/owner and carried PDF qualifications remain separate. This supersedes the dated current-slice checkpoint below.
+
 **Current slice:** B1b is source-reviewed and accepted for local dependent development after clean final handoff `d9aab018`. [Principal disposition](b1b/principal-disposition.md) records exact normal checks, the bounded contextual-reader recheck and outstanding qualification gates. B3 is next in the writing lane; D1B proceeds separately. No combined-lane integration, hosted/native-human/owner acceptance or main merge is implied.
 
 **C0 goal:** establish a reviewable baseline for modular foundation plus agent-capabilities Slice 0, without production edits.
