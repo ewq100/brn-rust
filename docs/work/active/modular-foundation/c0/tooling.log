@@ -1,0 +1,180 @@
+test_child_env_keeps_home_and_temp_inside_the_root_without_brn_variables (test_cli_journey.ChildEnvironment.test_child_env_keeps_home_and_temp_inside_the_root_without_brn_variables) ... ok
+test_a_hung_child_is_killed_with_its_process_group (test_cli_journey.EnvelopeChecks.test_a_hung_child_is_killed_with_its_process_group) ... ok
+test_malformed_stdout_is_rejected_with_the_step_index (test_cli_journey.EnvelopeChecks.test_malformed_stdout_is_rejected_with_the_step_index) ... ok
+test_null_command_is_accepted_only_for_pre_command_usage (test_cli_journey.EnvelopeChecks.test_null_command_is_accepted_only_for_pre_command_usage) ... ok
+test_a_leak_into_the_parent_fails_and_is_named (test_cli_journey.ParentCheck.test_a_leak_into_the_parent_fails_and_is_named) ... ok
+test_scratch_under_the_child_tmpdir_stays_inside_the_root (test_cli_journey.ParentCheck.test_scratch_under_the_child_tmpdir_stays_inside_the_root) ... ok
+test_same_pages_accepts_matching_pages (test_cli_journey.RoundTwoBHelperTests.test_same_pages_accepts_matching_pages) ... ok
+test_same_pages_fails_when_pages_differ_from_the_list (test_cli_journey.RoundTwoBHelperTests.test_same_pages_fails_when_pages_differ_from_the_list) ... ok
+test_a_stale_token_refusal_is_an_expected_rejected_envelope (test_cli_journey.RoundTwoHelperTests.test_a_stale_token_refusal_is_an_expected_rejected_envelope) ... ok
+test_contract_3_statuses_and_option_names (test_cli_journey.RoundTwoHelperTests.test_contract_3_statuses_and_option_names) ... ok
+test_pages_follow_the_cursor_and_require_a_mirrored_page (test_cli_journey.RoundTwoHelperTests.test_pages_follow_the_cursor_and_require_a_mirrored_page) ... ok
+test_comparison_keeps_error_assertion_and_backtrace_differences (test_development_tooling.CiTests.test_comparison_keeps_error_assertion_and_backtrace_differences) ... ok
+test_failed_informational_platform_remains_red (test_development_tooling.CiTests.test_failed_informational_platform_remains_red) ... ok
+test_main_exit_requires_overall_success_and_all_applicable_ready (test_development_tooling.CiTests.test_main_exit_requires_overall_success_and_all_applicable_ready) ... ok
+test_missing_cancelled_or_failed_applicable_checks_do_not_pass (test_development_tooling.CiTests.test_missing_cancelled_or_failed_applicable_checks_do_not_pass) ... ok
+test_checkout_changes_are_explicit_and_cannot_reuse_start_identity (test_development_tooling.EvidenceTests.test_checkout_changes_are_explicit_and_cannot_reuse_start_identity) ... ok
+test_interrupted_never_passes_and_initial_record_is_running (test_development_tooling.EvidenceTests.test_interrupted_never_passes_and_initial_record_is_running) ... ok
+test_pass_failure_exact_identity_and_atomic_publication (test_development_tooling.EvidenceTests.test_pass_failure_exact_identity_and_atomic_publication) ... ok
+test_refuses_arbitrary_gate_and_checkout_output (test_development_tooling.EvidenceTests.test_refuses_arbitrary_gate_and_checkout_output) ... ok
+test_untracked_contents_invalidate_snapshot (test_development_tooling.EvidenceTests.test_untracked_contents_invalidate_snapshot) ... ok
+test_balanced_paths_encoded_spaces_and_html_anchor (test_development_tooling.MarkdownTests.test_balanced_paths_encoded_spaces_and_html_anchor) ... ok
+test_blockquoted_fences_exclude_samples_without_hiding_real_links (test_development_tooling.MarkdownTests.test_blockquoted_fences_exclude_samples_without_hiding_real_links) ... ok
+test_collects_all_missing_files_and_fragments (test_development_tooling.MarkdownTests.test_collects_all_missing_files_and_fragments) ... ok
+test_explicit_historical_policy_still_validates_incoming (test_development_tooling.MarkdownTests.test_explicit_historical_policy_still_validates_incoming) ... ok
+test_fences_inline_samples_and_reference_links (test_development_tooling.MarkdownTests.test_fences_inline_samples_and_reference_links) ... ok
+test_heading_link_destinations_with_parentheses_do_not_pollute_slug (test_development_tooling.MarkdownTests.test_heading_link_destinations_with_parentheses_do_not_pollute_slug) ... ok
+test_nested_labels_check_outer_links_and_inner_images (test_development_tooling.MarkdownTests.test_nested_labels_check_outer_links_and_inner_images) ... ok
+test_answer_checks_normalise_text (test_evaluate_wiki_v2.AnswerAndWriteChecks.test_answer_checks_normalise_text) ... ok
+test_no_writes_ignores_a_chat_to_source_link_but_not_a_note_link (test_evaluate_wiki_v2.AnswerAndWriteChecks.test_no_writes_ignores_a_chat_to_source_link_but_not_a_note_link) ... ok
+test_no_writes_only_counts_note_link_action (test_evaluate_wiki_v2.AnswerAndWriteChecks.test_no_writes_only_counts_note_link_action) ... ok
+test_base_name_and_case_filter (test_evaluate_wiki_v2.ArmTests.test_base_name_and_case_filter) ... ok
+test_environment_sets_model_dir_only_for_its_arm (test_evaluate_wiki_v2.ArmTests.test_environment_sets_model_dir_only_for_its_arm) ... ok
+test_helper_option (test_evaluate_wiki_v2.ArmTests.test_helper_option) ... ok
+test_latin_square_balances_positions (test_evaluate_wiki_v2.ArmTests.test_latin_square_balances_positions) ... ok
+test_parse_with_overrides (test_evaluate_wiki_v2.ArmTests.test_parse_with_overrides) ... ok
+test_plan_rotates_skips_and_adds_diagnostics (test_evaluate_wiki_v2.ArmTests.test_plan_rotates_skips_and_adds_diagnostics) ... ok
+test_rejects_malformed_specs (test_evaluate_wiki_v2.ArmTests.test_rejects_malformed_specs) ... ok
+test_report_lists_blockers_first_and_rerun_supersedes (test_evaluate_wiki_v2.BlockerAndReportTests.test_report_lists_blockers_first_and_rerun_supersedes) ... ok
+test_safety_and_zero_tolerance (test_evaluate_wiki_v2.BlockerAndReportTests.test_safety_and_zero_tolerance) ... ok
+test_transport_failure_never_counts_as_pass (test_evaluate_wiki_v2.BlockerAndReportTests.test_transport_failure_never_counts_as_pass) ... ok
+test_clean (test_evaluate_wiki_v2.EndStateDistinguishesMessyFromClean.test_clean) ... ok
+test_messy (test_evaluate_wiki_v2.EndStateDistinguishesMessyFromClean.test_messy) ... ok
+test_real_fixture_is_valid (test_evaluate_wiki_v2.FixtureTests.test_real_fixture_is_valid) ... ok
+test_reference_errors (test_evaluate_wiki_v2.FixtureTests.test_reference_errors) ... ok
+test_review_alias_binds_after_knowledge_review (test_evaluate_wiki_v2.FixtureTests.test_review_alias_binds_after_knowledge_review) ... ok
+test_stem_overlap_rule (test_evaluate_wiki_v2.FixtureTests.test_stem_overlap_rule) ... ok
+test_valid_small_fixture (test_evaluate_wiki_v2.FixtureTests.test_valid_small_fixture) ... ok
+test_wrong_version (test_evaluate_wiki_v2.FixtureTests.test_wrong_version) ... ok
+test_host_links_do_not_connect_or_count (test_evaluate_wiki_v2.GraphChecks.test_host_links_do_not_connect_or_count) ... ok
+test_isolated_none_and_not_orphan (test_evaluate_wiki_v2.GraphChecks.test_isolated_none_and_not_orphan) ... ok
+test_no_silent_loss (test_evaluate_wiki_v2.GraphChecks.test_no_silent_loss) ... ok
+test_relation_share_excludes_host_links (test_evaluate_wiki_v2.GraphChecks.test_relation_share_excludes_host_links) ... ok
+test_search_rank (test_evaluate_wiki_v2.GraphChecks.test_search_rank) ... ok
+test_topics_contains_links_and_pages_still_listed (test_evaluate_wiki_v2.GraphChecks.test_topics_contains_links_and_pages_still_listed) ... ok
+test_topics_cover (test_evaluate_wiki_v2.GraphChecks.test_topics_cover) ... ok
+test_kc_delta (test_evaluate_wiki_v2.KnowledgeCheckTests.test_kc_delta) ... ok
+test_kc_delta_without_capture_is_unknown (test_evaluate_wiki_v2.KnowledgeCheckTests.test_kc_delta_without_capture_is_unknown) ... ok
+test_kinds_resolved_is_report_only_info (test_evaluate_wiki_v2.KnowledgeCheckTests.test_kinds_resolved_is_report_only_info) ... ok
+test_created_sources_counted_from_receipts (test_evaluate_wiki_v2.LineageAndSourceChecks.test_created_sources_counted_from_receipts) ... ok
+test_input_lineage_accepts_the_version_read_before_the_step_advanced_it (test_evaluate_wiki_v2.LineageAndSourceChecks.test_input_lineage_accepts_the_version_read_before_the_step_advanced_it) ... ok
+test_input_lineage_keys (test_evaluate_wiki_v2.LineageAndSourceChecks.test_input_lineage_keys) ... ok
+test_input_lineage_source_of_step (test_evaluate_wiki_v2.LineageAndSourceChecks.test_input_lineage_source_of_step) ... ok
+test_sources_linked_by_link_or_applied_input (test_evaluate_wiki_v2.LineageAndSourceChecks.test_sources_linked_by_link_or_applied_input) ... ok
+test_cost_ratios_compare_each_arm_to_the_first (test_evaluate_wiki_v2.MetricTests.test_cost_ratios_compare_each_arm_to_the_first) ... ok
+test_discovery_and_reads (test_evaluate_wiki_v2.MetricTests.test_discovery_and_reads) ... ok
+test_helper_metrics_and_nested_evidence (test_evaluate_wiki_v2.MetricTests.test_helper_metrics_and_nested_evidence) ... ok
+test_helper_reads_satisfy_read_checks (test_evaluate_wiki_v2.MetricTests.test_helper_reads_satisfy_read_checks) ... ok
+test_median_range (test_evaluate_wiki_v2.MetricTests.test_median_range) ... ok
+test_no_hit_gives_none_and_budget_flag (test_evaluate_wiki_v2.MetricTests.test_no_hit_gives_none_and_budget_flag) ... ok
+test_private_exposure_counts_results_and_reads_but_not_errors (test_evaluate_wiki_v2.MetricTests.test_private_exposure_counts_results_and_reads_but_not_errors) ... ok
+test_reformulations_before_first_hit (test_evaluate_wiki_v2.MetricTests.test_reformulations_before_first_hit) ... ok
+test_run_cost_prices_parent_and_helpers_separately (test_evaluate_wiki_v2.MetricTests.test_run_cost_prices_parent_and_helpers_separately) ... ok
+test_run_metrics_sum_and_earliest (test_evaluate_wiki_v2.MetricTests.test_run_metrics_sum_and_earliest) ... ok
+test_untraced_arm (test_evaluate_wiki_v2.MetricTests.test_untraced_arm) ... ok
+test_usage_cost_discounts_cached_input_per_model (test_evaluate_wiki_v2.MetricTests.test_usage_cost_discounts_cached_input_per_model) ... ok
+test_offline_run_never_configures_a_provider (test_evaluate_wiki_v2.OfflineEndToEnd.test_offline_run_never_configures_a_provider) ... {"event": "seeded T1@1000 in 0.3s"}
+{"event": "warmed T1-1000 for arm A"}
+{"event": "warmed T1-1000 for arm B-x"}
+{"mode": "offline", "fixture": "valid", "checked": 1, "ok": true, "report": "/Users/evokessler/.t3/worktrees/brn-rust/t3-ceb6e16c/target/eval-v2-tests/tmp7dgqvlm6/root/offline.json"}
+ok
+test_helper_arm_configures_the_helper_and_others_turn_it_off (test_evaluate_wiki_v2.PipelineWithStubBinary.test_helper_arm_configures_the_helper_and_others_turn_it_off) ... ok
+test_live_codex_arm_needs_an_absolute_auth_file (test_evaluate_wiki_v2.PipelineWithStubBinary.test_live_codex_arm_needs_an_absolute_auth_file) ... ok
+test_nonzero_exit_is_a_transport_failure (test_evaluate_wiki_v2.PipelineWithStubBinary.test_nonzero_exit_is_a_transport_failure) ... ok
+test_setup_failure_is_persisted_and_reported (test_evaluate_wiki_v2.PipelineWithStubBinary.test_setup_failure_is_persisted_and_reported) ... ok
+test_stale_slot_without_result_is_replaced_and_crash_stub_is_running (test_evaluate_wiki_v2.PipelineWithStubBinary.test_stale_slot_without_result_is_replaced_and_crash_stub_is_running) ... ok
+test_tool_limit_terminal_is_evaluated_not_a_transport_failure (test_evaluate_wiki_v2.PipelineWithStubBinary.test_tool_limit_terminal_is_evaluated_not_a_transport_failure) ... ok
+test_actions (test_evaluate_wiki_v2.ResumeTests.test_actions) ... ok
+test_open_root_requires_marker (test_evaluate_wiki_v2.ResumeTests.test_open_root_requires_marker) ... ok
+test_slot_attempts_read_persisted_results (test_evaluate_wiki_v2.ResumeTests.test_slot_attempts_read_persisted_results) ... ok
+test_environment_points_temp_dirs_under_root (test_evaluate_wiki_v2.RootAndResumeTests.test_environment_points_temp_dirs_under_root) ... ok
+test_next_attempt_and_slot_folder (test_evaluate_wiki_v2.RootAndResumeTests.test_next_attempt_and_slot_folder) ... ok
+test_marker_scans_titles_and_relations (test_evaluate_wiki_v2.SafetyScopeTests.test_marker_scans_titles_and_relations) ... ok
+test_no_writes_is_a_safety_check (test_evaluate_wiki_v2.SafetyScopeTests.test_no_writes_is_a_safety_check) ... ok
+test_condense_drops_unchanged_filler_text_and_filler_links (test_evaluate_wiki_v2.SnapshotTests.test_condense_drops_unchanged_filler_text_and_filler_links) ... ok
+test_condense_receipt (test_evaluate_wiki_v2.SnapshotTests.test_condense_receipt) ... ok
+test_copy_tree_and_exclusive_root (test_evaluate_wiki_v2.SnapshotTests.test_copy_tree_and_exclusive_root) ... ok
+test_arm_filter_and_unrunnable_check (test_evaluate_wiki_v2.StateChecks.test_arm_filter_and_unrunnable_check) ... ok
+test_chat_notes_and_superseded_are_not_current (test_evaluate_wiki_v2.StateChecks.test_chat_notes_and_superseded_are_not_current) ... ok
+test_link_exists_with_relation (test_evaluate_wiki_v2.StateChecks.test_link_exists_with_relation) ... ok
+test_marker_absent_general_ignores_chat_notes (test_evaluate_wiki_v2.StateChecks.test_marker_absent_general_ignores_chat_notes) ... ok
+test_new_notes_and_titles (test_evaluate_wiki_v2.StateChecks.test_new_notes_and_titles) ... ok
+test_note_contains_scope_alternatives_and_after_step (test_evaluate_wiki_v2.StateChecks.test_note_contains_scope_alternatives_and_after_step) ... ok
+test_note_updated_and_title (test_evaluate_wiki_v2.StateChecks.test_note_updated_and_title) ... ok
+test_protected_preserved (test_evaluate_wiki_v2.StateChecks.test_protected_preserved) ... ok
+test_report_only_never_fails (test_evaluate_wiki_v2.StateChecks.test_report_only_never_fails) ... ok
+test_evaluated_terminals (test_evaluate_wiki_v2.TerminalTests.test_evaluated_terminals) ... ok
+test_failure_summary_keeps_only_the_redacted_detail_fields (test_evaluate_wiki_v2.TerminalTests.test_failure_summary_keeps_only_the_redacted_detail_fields) ... ok
+test_provider_resends_are_counted_across_steps (test_evaluate_wiki_v2.TerminalTests.test_provider_resends_are_counted_across_steps) ... ok
+test_tool_limit_step_is_checked_and_marks_budget (test_evaluate_wiki_v2.TerminalTests.test_tool_limit_step_is_checked_and_marks_budget) ... ok
+test_transport_terminal_does_not_count_as_ran (test_evaluate_wiki_v2.TerminalTests.test_transport_terminal_does_not_count_as_ran) ... ok
+test_missing_trace_gives_unknown (test_evaluate_wiki_v2.TraceChecks.test_missing_trace_gives_unknown) ... ok
+test_private_exposures_and_exempt_private_thread (test_evaluate_wiki_v2.TraceChecks.test_private_exposures_and_exempt_private_thread) ... ok
+test_read_range_accepts_whole_note_reads (test_evaluate_wiki_v2.TraceChecks.test_read_range_accepts_whole_note_reads) ... ok
+test_read_range_overlap (test_evaluate_wiki_v2.TraceChecks.test_read_range_overlap) ... ok
+test_read_with_current_version (test_evaluate_wiki_v2.TraceChecks.test_read_with_current_version) ... ok
+test_statuses (test_evaluate_wiki_v2.UndoChecks.test_statuses) ... ok
+test_undo_ignores_the_thread_context_epoch_but_not_content (test_evaluate_wiki_v2.UndoVerification.test_undo_ignores_the_thread_context_epoch_but_not_content) ... ok
+test_evaluate_checks_marks_unverified (test_evaluate_wiki_v2.UnverifiedTests.test_evaluate_checks_marks_unverified) ... ok
+test_none_is_not_a_pass (test_evaluate_wiki_v2.UnverifiedTests.test_none_is_not_a_pass) ... ok
+test_planned_uses_persisted_effective_repetitions (test_evaluate_wiki_v2.UnverifiedTests.test_planned_uses_persisted_effective_repetitions) ... ok
+test_unverifiable_check_is_excluded_for_all_arms_and_listed (test_evaluate_wiki_v2.UnverifiedTests.test_unverifiable_check_is_excluded_for_all_arms_and_listed) ... ok
+test_unverified_safety_is_surfaced (test_evaluate_wiki_v2.UnverifiedTests.test_unverified_safety_is_surfaced) ... ok
+test_unverified_sample_without_exclusion_group_does_not_pass (test_evaluate_wiki_v2.UnverifiedTests.test_unverified_sample_without_exclusion_group_does_not_pass) ... ok
+test_explicit_launcher_existing_contract (test_macos_packaging.LauncherTests.test_explicit_launcher_existing_contract) ... ok
+test_invalid_input_and_occupied_output_refuse (test_macos_packaging.LauncherTests.test_invalid_input_and_occupied_output_refuse) ... ok
+test_missing_bundled_helper_and_failure_are_visible (test_macos_packaging.LauncherTests.test_missing_bundled_helper_and_failure_are_visible) ... ok
+test_relocation_and_upgrade_keep_recipient_workspace (test_macos_packaging.LauncherTests.test_relocation_and_upgrade_keep_recipient_workspace) ... ok
+test_actual_macho_signing_extraction_manifest_and_collision (test_macos_packaging.NativePackageTests.test_actual_macho_signing_extraction_manifest_and_collision) ... ok
+test_fork_pr_stale_sha_incomplete_or_wrong_workflow_refuse (test_preview_release.EligibilityTests.test_fork_pr_stale_sha_incomplete_or_wrong_workflow_refuse) ... ok
+test_four_passed_required_jobs_allow_informational_platform_failure (test_preview_release.EligibilityTests.test_four_passed_required_jobs_allow_informational_platform_failure) ... ok
+test_missing_failed_skipped_stale_duplicate_required_jobs_refuse (test_preview_release.EligibilityTests.test_missing_failed_skipped_stale_duplicate_required_jobs_refuse) ... ok
+test_no_local_token_discovery (test_preview_release.EligibilityTests.test_no_local_token_discovery) ... ok
+test_unchanged_or_unapproved_manifest_refuses (test_preview_release.EligibilityTests.test_unchanged_or_unapproved_manifest_refuses) ... ok
+test_deleted_replaced_published_or_retargeted_draft_blocks_final_patch (test_preview_release.PublicationTests.test_deleted_replaced_published_or_retargeted_draft_blocks_final_patch) ... ok
+test_exact_existing_draft_resumes_without_replacing_assets (test_preview_release.PublicationTests.test_exact_existing_draft_resumes_without_replacing_assets) ... ok
+test_existing_published_release_is_never_overwritten (test_preview_release.PublicationTests.test_existing_published_release_is_never_overwritten) ... ok
+test_main_advance_or_bad_upload_leaves_draft_unpublished (test_preview_release.PublicationTests.test_main_advance_or_bad_upload_leaves_draft_unpublished) ... ok
+test_publish_only_after_uploads_and_final_exact_identity_guard (test_preview_release.PublicationTests.test_publish_only_after_uploads_and_final_exact_identity_guard) ... ok
+test_tag_or_release_identity_is_never_retargeted (test_preview_release.PublicationTests.test_tag_or_release_identity_is_never_retargeted) ... ok
+test_wrong_source_corrupt_archive_checksum_or_incomplete_receipt_refuses (test_preview_release.PublicationTests.test_wrong_source_corrupt_archive_checksum_or_incomplete_receipt_refuses) ... ok
+test_duplicate_version_across_pages_refuses (test_preview_release.ReleaseLookupTests.test_duplicate_version_across_pages_refuses) ... ok
+test_published_state_preserved_and_nonpreview_identity_refuses (test_preview_release.ReleaseLookupTests.test_published_state_preserved_and_nonpreview_identity_refuses) ... ok
+test_untagged_draft_on_later_page_is_found (test_preview_release.ReleaseLookupTests.test_untagged_draft_on_later_page_is_found) ... ok
+test_applied_inputs_are_available_without_request_bodies (test_wiki_guidance_eval.WikiGuidanceEvaluationTests.test_applied_inputs_are_available_without_request_bodies) ... ok
+test_codex_auth_file_is_not_cleared_by_cache_selection (test_wiki_guidance_eval.WikiGuidanceEvaluationTests.test_codex_auth_file_is_not_cleared_by_cache_selection) ... ok
+test_created_note_undo_requires_archival (test_wiki_guidance_eval.WikiGuidanceEvaluationTests.test_created_note_undo_requires_archival) ... ok
+test_disconnected_summaries_do_not_pass_synthesis_lineage (test_wiki_guidance_eval.WikiGuidanceEvaluationTests.test_disconnected_summaries_do_not_pass_synthesis_lineage) ... ok
+test_evaluator_does_not_import_sqlite3 (test_wiki_guidance_eval.WikiGuidanceEvaluationTests.test_evaluator_does_not_import_sqlite3) ... ok
+test_failed_assertions_or_undo_cannot_count_as_verified (test_wiki_guidance_eval.WikiGuidanceEvaluationTests.test_failed_assertions_or_undo_cannot_count_as_verified) ... ok
+test_late_undo_failure_retains_the_completed_provider_and_snapshot (test_wiki_guidance_eval.WikiGuidanceEvaluationTests.test_late_undo_failure_retains_the_completed_provider_and_snapshot) ... Safety blockers: none
+
+Per case (passes/planned repetitions; medians):
+  T1@1000 A: 0/1 fail first_read=None searches=None bytes=None rounds=None cost=n/a (parent n/a, helper n/a) tokens=None elapsed_ms=None
+
+Model matrix (by arm):
+  arm | provider | model | effort | helper | cases | samples | bytes | first_read | rounds | searches | cost | parent_cost | helper_cost | tokens | helper_runs | research_runs | helper_tokens | peak_input | elapsed_ms | citations | transport | safety
+  A | Codex | m | low | - | 0/1 | 0/0 | None | None | None | None | n/a | n/a | n/a | None | None | 0/0 | None | None | None | 0/0/0/0/0 | 1 | 0
+  citations are exact/relocated/stale/mismatch/rejected; cost is median Codex credits per run
+
+Transport/setup failures (never counted as passes):
+  T1@1000 A rep 1 attempt 1: setup_failure seeder failed: boom
+
+Small N: report passes out of repetitions and medians with ranges; no p-values are claimed.
+{"case": "conversation-only", "arm": "tmps7o5y8en", "step": 0, "terminal": "Completed", "seconds": 0}
+ok
+test_live_codex_needs_an_absolute_auth_file (test_wiki_guidance_eval.WikiGuidanceEvaluationTests.test_live_codex_needs_an_absolute_auth_file) ... ok
+test_nested_configuration_is_excluded (test_wiki_guidance_eval.WikiGuidanceEvaluationTests.test_nested_configuration_is_excluded) ... ok
+test_occupied_root_is_preserved (test_wiki_guidance_eval.WikiGuidanceEvaluationTests.test_occupied_root_is_preserved) ... ok
+test_protected_change_is_detected (test_wiki_guidance_eval.WikiGuidanceEvaluationTests.test_protected_change_is_detected) ... ok
+test_provider_failure_is_not_completed (test_wiki_guidance_eval.WikiGuidanceEvaluationTests.test_provider_failure_is_not_completed) ... ok
+test_redaction_preserves_schema_nulls_for_failed_run_inspection (test_wiki_guidance_eval.WikiGuidanceEvaluationTests.test_redaction_preserves_schema_nulls_for_failed_run_inspection) ... ok
+test_relative_root_is_refused (test_wiki_guidance_eval.WikiGuidanceEvaluationTests.test_relative_root_is_refused) ... ok
+test_truncated_operation_inputs_fail_loudly (test_wiki_guidance_eval.WikiGuidanceEvaluationTests.test_truncated_operation_inputs_fail_loudly) ... ok
+test_undo_requires_restoration_of_affected_content (test_wiki_guidance_eval.WikiGuidanceEvaluationTests.test_undo_requires_restoration_of_affected_content) ... ok
+test_unrelated_records_must_survive_undo (test_wiki_guidance_eval.WikiGuidanceEvaluationTests.test_unrelated_records_must_survive_undo) ... ok
+
+----------------------------------------------------------------------
+Ran 156 tests in 12.940s
+
+OK

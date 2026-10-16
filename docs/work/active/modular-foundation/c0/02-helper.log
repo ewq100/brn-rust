@@ -1,0 +1,223 @@
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+   Compiling cfg-if v1.0.5
+   Compiling scopeguard v1.2.0
+   Compiling log v0.4.34
+   Compiling smallvec v1.16.2
+   Compiling simd-adler32 v0.3.10
+   Compiling memchr v2.8.3
+   Compiling serde_core v1.0.229
+   Compiling serde v1.0.229
+   Compiling libc v0.2.189
+   Compiling crc32fast v1.5.2
+   Compiling adler2 v2.0.1
+   Compiling parking_lot_core v0.9.12
+   Compiling once_cell v1.21.4
+   Compiling equivalent v1.0.2
+   Compiling zlib-rs v0.6.8
+   Compiling lock_api v0.4.14
+   Compiling hashbrown v0.17.1
+   Compiling zmij v1.0.23
+   Compiling miniz_oxide v0.9.1
+   Compiling bytemuck v1.25.2
+   Compiling encoding_rs v0.8.42
+   Compiling simdutf8 v0.1.5
+   Compiling libm v0.2.16
+   Compiling serde_json v1.0.151
+   Compiling generic-array v0.14.7
+   Compiling siphasher v1.0.4
+   Compiling itoa v1.0.18
+   Compiling bumpalo v3.20.3
+   Compiling typenum v1.20.1
+   Compiling new_debug_unreachable v1.0.6
+   Compiling phf_shared v0.11.3
+   Compiling wasm-bindgen-shared v0.2.129
+   Compiling zopfli v0.8.4
+   Compiling bitflags v2.13.2
+   Compiling mac v0.1.1
+   Compiling typed-path v0.12.3
+   Compiling futf v0.1.5
+   Compiling thiserror v2.0.21
+   Compiling font-types v0.12.5
+   Compiling utf-8 v0.7.6
+   Compiling parking v2.2.1
+   Compiling parking_lot v0.12.5
+   Compiling unicode-ident v1.0.26
+   Compiling precomputed-hash v0.1.1
+   Compiling pin-project-lite v0.2.17
+   Compiling crossbeam-utils v0.8.23
+   Compiling read-fonts v0.41.0
+   Compiling tendril v0.4.3
+   Compiling event-listener v5.4.2
+   Compiling markup5ever v0.12.1
+   Compiling phf v0.11.3
+   Compiling unicode-properties v0.1.3
+   Compiling wasm-bindgen v0.2.129
+   Compiling unicode-ccc v0.4.0
+   Compiling unicode-bidi-mirroring v0.4.0
+   Compiling indexmap v2.14.2
+   Compiling quick-xml v0.41.0
+   Compiling core_maths v0.1.1
+   Compiling ttf-parser v0.25.1
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling unicode-script v0.5.8
+   Compiling string_cache v0.8.9
+   Compiling digest v0.10.7
+   Compiling event-listener-strategy v0.5.4
+   Compiling betteroffice-drawingml v0.3.0
+   Compiling num-traits v0.2.19
+   Compiling cpufeatures v0.2.17
+   Compiling hashbrown v0.14.5
+   Compiling unicode-bidi v0.3.18
+   Compiling flate2 v1.1.10
+   Compiling unicode-linebreak v0.1.5
+   Compiling base64 v0.22.1
+   Compiling dashmap v6.2.1
+   Compiling ref-cast v1.0.27
+   Compiling zip v8.6.0
+   Compiling sha2 v0.10.9
+   Compiling html5ever v0.27.0
+   Compiling async-lock v3.4.2
+   Compiling smallstr v0.3.1
+   Compiling miniz_oxide v0.8.9
+   Compiling fdeflate v0.3.7
+   Compiling rustybuzz v0.20.1
+   Compiling arc-swap v1.9.2
+   Compiling zune-core v0.5.3
+   Compiling unicode-segmentation v1.13.3
+   Compiling pxfm v0.1.30
+   Compiling fastrand v2.5.0
+   Compiling debug_unsafe v0.1.4
+   Compiling ryu-js v1.0.3
+   Compiling atoi_simd v0.18.1
+   Compiling yrs v0.27.4
+   Compiling zune-jpeg v0.5.15
+   Compiling png v0.18.1
+   Compiling xml5ever v0.18.1
+   Compiling codepage v0.1.3
+   Compiling byteorder-lite v0.1.0
+   Compiling unicode-id v0.3.7
+   Compiling tinyvec v1.13.3
+   Compiling fast-float2 v0.2.4
+   Compiling byteorder v1.5.0
+   Compiling dyn-clone v1.0.20
+   Compiling betteroffice-ooxml-diff v0.3.0
+   Compiling calamine v0.36.1
+   Compiling schemars v1.2.2
+   Compiling unicode-normalization v0.1.25
+   Compiling markup5ever_rcdom v0.3.0
+   Compiling markdown v1.0.0
+   Compiling mail-parser v0.11.8
+   Compiling moxcms v0.8.1
+   Compiling betteroffice-opc v0.3.0
+   Compiling skrifa v0.44.0
+   Compiling betteroffice-ooxml-text v0.3.0
+   Compiling image v0.25.10
+   Compiling betteroffice-docx-parse v0.3.0
+   Compiling betteroffice-pptx-parse v0.3.0
+   Compiling betteroffice-docx-layout v0.3.0
+   Compiling betteroffice-docx-edit v0.3.0
+   Compiling brn-intake v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-ceb6e16c/crates/brn-intake)
+    Finished `test` profile [optimized] target(s) in 42.20s
+     Running unittests src/lib.rs (/private/tmp/brn-c0-20261016-target/debug/deps/brn_intake-e25e4983f6480546)
+
+running 27 tests
+test helper::prepared::xlsx::tests::rejects_unbounded_shared_string_reservation_before_calamine ... ok
+test helper::prepared::xlsx::tests::rejects_huge_shared_formula_index_before_calamine ... ok
+test helper::prepared::xlsx::tests::zero_masks_are_conservative_and_never_evaluate_formulas ... ok
+test helper::prepared::xlsx::tests::prevents_escaping_relationships_and_duplicate_coordinates ... ok
+test helper::prepared::xlsx::tests::empty_header_footer_fields_are_not_readable_content ... ok
+test helper::prepared::xlsx::tests::shared_formula_followers_retain_their_own_cache_and_expanded_expression ... ok
+test helper::prepared::tests::email_keeps_duplicate_named_headers_and_unique_alternative_wording ... ok
+test helper::prepared::tests::html_preserves_ordinal_nesting_and_sparse_spanned_cells ... ok
+test helper::prepared::xlsx::tests::preserves_exact_numeric_identifiers_beyond_float_precision ... ok
+test helper::prepared::xlsx::tests::repeated_image_bytes_keep_distinct_anchored_occurrences ... ok
+test prepared::tests::literal_control_text_is_not_markdown_structure ... ok
+test helper::prepared::xlsx::tests::sparse_far_apart_cells_do_not_allocate_a_dense_rectangle ... ok
+test prepared::tests::quotas_and_duplicate_coordinates_fail_before_provider ... ok
+test helper::prepared::xlsx::tests::sparse_coordinates_formulas_zero_padding_blank_comments_and_links ... ok
+test prepared::tests::prepared_draft_preserves_readable_structure ... ok
+test prepared::tests::unknown_images_and_mismatched_identity_rejected ... ok
+test prepared::tests::changed_table_binding_and_leading_zero_are_rejected ... ok
+test prepared::tests::nested_list_heading_footnote_and_metadata_changes_rejected ... ok
+test prepared::tests::unbound_prose_raw_html_and_role_swaps_fail ... ok
+test prepared::tests::numeric_extensions_signs_decimals_and_added_qualifications_fail ... ok
+test prepared::tests::host_plan_writes_all_nested_grammar_and_table_values ... ok
+test prepared::tests::literal_punctuation_is_inert_and_internal_bindings_do_not_reach_note_prose ... ok
+test helper::prepared::tests::inline_document_figure_stays_between_its_authored_text ... ok
+test helper::prepared::tests::html_repeated_figures_remain_two_occurrences_of_one_asset ... ok
+test helper::prepared::tests::attachment_footnotes_do_not_collide_and_bind_their_own_assertions ... ok
+test helper::prepared::tests::document_sections_are_human_labels_and_noteref_association_is_qualified ... ok
+test helper::prepared::tests::maintained_docx_and_pptx_expose_bound_objects ... ok
+
+test result: ok. 27 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running unittests src/bin/brn-intake-helper.rs (/private/tmp/brn-c0-20261016-target/debug/deps/brn_intake_helper-01db66a41e8812f4)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/maintained.rs (/private/tmp/brn-c0-20261016-target/debug/deps/maintained-19c5c2d1c29f7b42)
+
+running 17 tests
+test email_plain_headers_preserve_all_identifiers_without_false_absence_or_html_gaps ... ok
+test email_multiple_reply_identifiers_keep_parser_order_and_repetitions_without_verified_threading ... ok
+test email_repeated_physical_reply_fields_preserve_mixed_scalar_lists_in_source_order ... ok
+test email_authentication_results_remain_original_claims_without_verified_identity ... ok
+test missing_and_ambiguous_cid_never_cross_related_scope ... ok
+test email_html_labels_and_remote_or_cid_gaps_describe_only_actual_content ... ok
+test email_missing_identifiers_individually_and_together_remain_unknown_without_inferred_threads ... ok
+test unknown_attachment_and_malformed_docx_remain_exact_unprocessed_children ... ok
+test cid_resolution_is_scoped_to_its_own_related_container ... ok
+test hostile_packages_refuse_without_bespoke_package_or_xml_interpreter ... ok
+test namespace_prefix_gap_is_honest_and_never_guesses_asset_joins ... ok
+test useful_docx_maintains_exact_assets_and_repeated_occurrence_identity ... ok
+test chart_omission_is_visible_and_has_no_invented_chart_facts ... ok
+test package_members_and_mime_parts_have_aggregate_job_budgets ... ok
+test resolved_exact_images_do_not_retain_upstream_byte_omission_diagnostics ... ok
+test actual_single_and_plural_eml_preserve_bodies_ids_parents_and_unsupported_bytes ... ok
+test configured_quotas_and_actual_consumption_survive_protocol_round_trip ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s
+
+     Running tests/pptx.rs (/private/tmp/brn-c0-20261016-target/debug/deps/pptx-5b2c483f73ae9a47)
+
+running 12 tests
+test unrelated_deck_keeps_presentation_order_exact_parts_groups_cells_hidden_content_and_notes ... ok
+test harbor_preserves_prerequisite_notes_titles_and_repeated_picture_without_chart_facts ... ok
+test review_distinct_notes_relationship_ids_refuse_ambiguous_page_selection ... ok
+test duplicate_shape_and_relationship_identity_refuse_instead_of_guessing ... ok
+test failed_attachment_merge_is_atomic_and_keeps_exact_unprocessed_original ... ok
+test identical_email_attachments_retain_distinct_descendants_occurrences_and_quote_locations ... ok
+test review_consumed_root_layout_and_master_singleton_edges_refuse_distinct_id_ambiguity ... ok
+test missing_external_damaged_and_unsupported_rasters_have_located_gaps ... ok
+test unsupported_graphics_media_and_missing_notes_are_located_without_factual_projection ... ok
+test hostile_packages_and_tight_quotas_refuse_without_partial_output ... ok
+test single_part_email_attachment_keeps_email_headers_separate_from_document_source ... ok
+test review_generic_mime_office_attachments_keep_validated_package_type_and_raw_email ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests/protocol.rs (/private/tmp/brn-c0-20261016-target/debug/deps/protocol-2233619e7835d18a)
+
+running 5 tests
+test refuses_cyclic_sources_and_factual_unsupported_content ... ok
+test rejects_hash_aliases_utf8_splits_and_duplicate_occurrence_locators ... ok
+test exact_retained_bytes_round_trip_and_root_integrity ... ok
+test retained_old_email_caveat_and_partial_snapshot_remain_exact_and_readable ... ok
+test maintained_png_decoder_requires_complete_terminal_chunks_and_checksums ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/restricted_helper.rs (/private/tmp/brn-c0-20261016-target/debug/deps/restricted_helper-c6c5d0044a583933)
+
+running 3 tests
+test owned_process_group_cancellation_joins_the_helper_and_descendants ... ok
+test native_restriction_denies_existing_synthetic_secret_and_live_loopback ... ok
+test constrained_process_parses_public_payload_after_native_activation ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.38s
+

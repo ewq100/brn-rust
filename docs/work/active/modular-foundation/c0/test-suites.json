@@ -1,0 +1,1272 @@
+[
+  {
+    "log": "02-helper.log",
+    "command": "cargo test -p brn-intake --features helper --all-targets --locked --offline",
+    "crate": "brn-intake",
+    "suite": "Running unittests src/lib.rs",
+    "passed": 27,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.07
+  },
+  {
+    "log": "02-helper.log",
+    "command": "cargo test -p brn-intake --features helper --all-targets --locked --offline",
+    "crate": "brn-intake",
+    "suite": "Running unittests src/bin/brn-intake-helper.rs",
+    "passed": 0,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.0
+  },
+  {
+    "log": "02-helper.log",
+    "command": "cargo test -p brn-intake --features helper --all-targets --locked --offline",
+    "crate": "brn-intake",
+    "suite": "Running tests/maintained.rs",
+    "passed": 17,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.12
+  },
+  {
+    "log": "02-helper.log",
+    "command": "cargo test -p brn-intake --features helper --all-targets --locked --offline",
+    "crate": "brn-intake",
+    "suite": "Running tests/pptx.rs",
+    "passed": 12,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.07
+  },
+  {
+    "log": "02-helper.log",
+    "command": "cargo test -p brn-intake --features helper --all-targets --locked --offline",
+    "crate": "brn-intake",
+    "suite": "Running tests/protocol.rs",
+    "passed": 5,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.0
+  },
+  {
+    "log": "02-helper.log",
+    "command": "cargo test -p brn-intake --features helper --all-targets --locked --offline",
+    "crate": "brn-intake",
+    "suite": "Running tests/restricted_helper.rs",
+    "passed": 3,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.38
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn",
+    "suite": "Running unittests src/main.rs",
+    "passed": 25,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.03
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn",
+    "suite": "Running tests/agent_authority.rs",
+    "passed": 5,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.56
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn",
+    "suite": "Running tests/agent_bounds.rs",
+    "passed": 12,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 10.9
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn",
+    "suite": "Running tests/agent_contract.rs",
+    "passed": 23,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 1.14
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn",
+    "suite": "Running tests/agent_converge.rs",
+    "passed": 5,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.35
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn",
+    "suite": "Running tests/agent_credentials.rs",
+    "passed": 4,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.09
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn",
+    "suite": "Running tests/agent_credentials_existing.rs",
+    "passed": 1,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.01
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn",
+    "suite": "Running tests/agent_discovery.rs",
+    "passed": 11,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 1.36
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn",
+    "suite": "Running tests/agent_edits.rs",
+    "passed": 8,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.34
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn",
+    "suite": "Running tests/agent_inspect.rs",
+    "passed": 11,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.82
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn",
+    "suite": "Running tests/agent_lists.rs",
+    "passed": 5,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.38
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn",
+    "suite": "Running tests/agent_reasons.rs",
+    "passed": 5,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.08
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn",
+    "suite": "Running tests/agent_retry.rs",
+    "passed": 7,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.14
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn",
+    "suite": "Running tests/agent_runs.rs",
+    "passed": 12,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 2.15
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn",
+    "suite": "Running tests/agent_upgrade.rs",
+    "passed": 4,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.0
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn",
+    "suite": "Running tests/data_folder.rs",
+    "passed": 3,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.02
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn",
+    "suite": "Running tests/edit_authority_guard.rs",
+    "passed": 2,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.01
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn",
+    "suite": "Running tests/search_messages.rs",
+    "passed": 2,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.15
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn",
+    "suite": "Running tests/source_locator.rs",
+    "passed": 2,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.09
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn",
+    "suite": "Running tests/threads.rs",
+    "passed": 13,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.39
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-ai",
+    "suite": "Running unittests src/lib.rs",
+    "passed": 343,
+    "failed": 0,
+    "ignored": 1,
+    "seconds": 2.93
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-desktop",
+    "suite": "Running unittests src/main.rs",
+    "passed": 30,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.04
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-intake",
+    "suite": "Running unittests src/lib.rs",
+    "passed": 10,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.0
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-intake",
+    "suite": "Running tests/maintained.rs",
+    "passed": 0,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.0
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-intake",
+    "suite": "Running tests/pptx.rs",
+    "passed": 0,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.0
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-intake",
+    "suite": "Running tests/protocol.rs",
+    "passed": 5,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.0
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-intake",
+    "suite": "Running tests/restricted_helper.rs",
+    "passed": 0,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.0
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-retrieval",
+    "suite": "Running unittests src/lib.rs",
+    "passed": 20,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.24
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-retrieval",
+    "suite": "Running tests/local_embedder.rs",
+    "passed": 0,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.0
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-retrieval",
+    "suite": "Running tests/model_download.rs",
+    "passed": 0,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.0
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-retrieval",
+    "suite": "Running tests/search_index.rs",
+    "passed": 16,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.12
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running unittests src/lib.rs",
+    "passed": 0,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.0
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/agent_eval_journeys.rs",
+    "passed": 8,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 2.18
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/agent_journeys.rs",
+    "passed": 4,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 4.4
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/backup_directory.rs",
+    "passed": 4,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.19
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/chat.rs",
+    "passed": 9,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.14
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/chat_decisions.rs",
+    "passed": 4,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.03
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/daily_workflow_eval.rs",
+    "passed": 1,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.06
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/delegation.rs",
+    "passed": 3,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.03
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/export_metadata.rs",
+    "passed": 4,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.06
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/host_intake.rs",
+    "passed": 15,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.45
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/import_coverage.rs",
+    "passed": 2,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.06
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/keyed_owner_operations.rs",
+    "passed": 11,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.04
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/killed_run_candidate.rs",
+    "passed": 16,
+    "failed": 0,
+    "ignored": 1,
+    "seconds": 0.21
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/product.rs",
+    "passed": 19,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.23
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/projects.rs",
+    "passed": 8,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.1
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/retrieval_eval.rs",
+    "passed": 12,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 2.31
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/run_recovery.rs",
+    "passed": 4,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.03
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/search_dense.rs",
+    "passed": 6,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.08
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/search_messages.rs",
+    "passed": 11,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.14
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/search_worker.rs",
+    "passed": 11,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.12
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/source_intake_chat.rs",
+    "passed": 16,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.09
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/steering.rs",
+    "passed": 2,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.01
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/synthetic_baseline.rs",
+    "passed": 3,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.35
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/thread_lifecycle.rs",
+    "passed": 3,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.02
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/topics_knowledge.rs",
+    "passed": 11,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.08
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/user_scale.rs",
+    "passed": 1,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 2.15
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/wiki_eval_seed.rs",
+    "passed": 5,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.06
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/withdraw_proposal.rs",
+    "passed": 6,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.06
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/workspace_purpose.rs",
+    "passed": 2,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.01
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/writing.rs",
+    "passed": 9,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.06
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-core",
+    "suite": "Running unittests src/lib.rs",
+    "passed": 43,
+    "failed": 0,
+    "ignored": 1,
+    "seconds": 0.7
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-core",
+    "suite": "Running tests/backup_directory.rs",
+    "passed": 5,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.04
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-core",
+    "suite": "Running tests/candidate_refresh.rs",
+    "passed": 1,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.01
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-core",
+    "suite": "Running tests/chat_format.rs",
+    "passed": 1,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.0
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-core",
+    "suite": "Running tests/chat_storage.rs",
+    "passed": 7,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.12
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-core",
+    "suite": "Running tests/converge.rs",
+    "passed": 4,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.02
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-core",
+    "suite": "Running tests/core.rs",
+    "passed": 45,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.23
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-core",
+    "suite": "Running tests/current_inputs.rs",
+    "passed": 9,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.04
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-core",
+    "suite": "Running tests/data_folder.rs",
+    "passed": 4,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.0
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-core",
+    "suite": "Running tests/delegation.rs",
+    "passed": 8,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.04
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-core",
+    "suite": "Running tests/edit_tokens.rs",
+    "passed": 14,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 5.55
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-core",
+    "suite": "Running tests/inspect.rs",
+    "passed": 11,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.03
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-core",
+    "suite": "Running tests/message_search_scope.rs",
+    "passed": 11,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.07
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-core",
+    "suite": "Running tests/note_read.rs",
+    "passed": 2,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.02
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-core",
+    "suite": "Running tests/project_format.rs",
+    "passed": 1,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.06
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-core",
+    "suite": "Running tests/revision_read.rs",
+    "passed": 1,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.02
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-core",
+    "suite": "Running tests/search_reader.rs",
+    "passed": 3,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.08
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-core",
+    "suite": "Running tests/steering.rs",
+    "passed": 8,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.07
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-core",
+    "suite": "Running tests/writing.rs",
+    "passed": 5,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.02
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-intake",
+    "suite": "Running unittests src/lib.rs",
+    "passed": 25,
+    "failed": 0,
+    "ignored": 3,
+    "seconds": 0.19
+  },
+  {
+    "log": "06-core.log",
+    "command": "cargo test --workspace --locked --offline",
+    "crate": "brn-threads-intake",
+    "suite": "Running tests/qualification.rs",
+    "passed": 10,
+    "failed": 1,
+    "ignored": 0,
+    "seconds": 0.24
+  },
+  {
+    "log": "07-core.log",
+    "command": "cargo test -p brn-ai --features capability-spike --all-targets --locked --offline",
+    "crate": "brn-ai",
+    "suite": "Running unittests src/lib.rs",
+    "passed": 343,
+    "failed": 0,
+    "ignored": 1,
+    "seconds": 2.96
+  },
+  {
+    "log": "07-core.log",
+    "command": "cargo test -p brn-ai --features capability-spike --all-targets --locked --offline",
+    "crate": "brn-ai",
+    "suite": "Running unittests examples/provider_capabilities.rs",
+    "passed": 3,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.0
+  },
+  {
+    "log": "07-core.log",
+    "command": "cargo test -p brn-ai --features capability-spike --all-targets --locked --offline",
+    "crate": "brn-ai",
+    "suite": "Running unittests examples/qualify_conversion.rs",
+    "passed": 0,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.0
+  },
+  {
+    "log": "12-native-ui.log",
+    "command": "cargo test -p brn-desktop --features native-ui --locked --offline",
+    "crate": "brn-desktop",
+    "suite": "Running unittests src/main.rs",
+    "passed": 95,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.42
+  },
+  {
+    "log": "14-native-ui.log",
+    "command": "cargo test -p brn-desktop --features native-ui,native-test-support --bin brn-desktop threads_ui:: --locked --offline",
+    "crate": "brn-desktop",
+    "suite": "Running unittests src/main.rs",
+    "passed": 306,
+    "failed": 0,
+    "ignored": 1,
+    "seconds": 2.93
+  },
+  {
+    "log": "15-native-retrieval.log",
+    "command": "cargo test -p brn-retrieval --features native --lib --test model_download --locked --offline",
+    "crate": "brn-retrieval",
+    "suite": "Running unittests src/lib.rs",
+    "passed": 33,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.24
+  },
+  {
+    "log": "15-native-retrieval.log",
+    "command": "cargo test -p brn-retrieval --features native --lib --test model_download --locked --offline",
+    "crate": "brn-retrieval",
+    "suite": "Running tests/model_download.rs",
+    "passed": 2,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.0
+  },
+  {
+    "log": "16-native-retrieval.log",
+    "command": "cargo test -p brn-threads-app --features native-retrieval --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running unittests src/lib.rs",
+    "passed": 0,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.0
+  },
+  {
+    "log": "16-native-retrieval.log",
+    "command": "cargo test -p brn-threads-app --features native-retrieval --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/agent_eval_journeys.rs",
+    "passed": 8,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 2.27
+  },
+  {
+    "log": "16-native-retrieval.log",
+    "command": "cargo test -p brn-threads-app --features native-retrieval --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/agent_journeys.rs",
+    "passed": 4,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 4.46
+  },
+  {
+    "log": "16-native-retrieval.log",
+    "command": "cargo test -p brn-threads-app --features native-retrieval --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/backup_directory.rs",
+    "passed": 4,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.16
+  },
+  {
+    "log": "16-native-retrieval.log",
+    "command": "cargo test -p brn-threads-app --features native-retrieval --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/chat.rs",
+    "passed": 9,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.12
+  },
+  {
+    "log": "16-native-retrieval.log",
+    "command": "cargo test -p brn-threads-app --features native-retrieval --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/chat_decisions.rs",
+    "passed": 4,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.03
+  },
+  {
+    "log": "16-native-retrieval.log",
+    "command": "cargo test -p brn-threads-app --features native-retrieval --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/daily_workflow_eval.rs",
+    "passed": 1,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.05
+  },
+  {
+    "log": "16-native-retrieval.log",
+    "command": "cargo test -p brn-threads-app --features native-retrieval --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/delegation.rs",
+    "passed": 3,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.02
+  },
+  {
+    "log": "16-native-retrieval.log",
+    "command": "cargo test -p brn-threads-app --features native-retrieval --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/export_metadata.rs",
+    "passed": 4,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.05
+  },
+  {
+    "log": "16-native-retrieval.log",
+    "command": "cargo test -p brn-threads-app --features native-retrieval --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/host_intake.rs",
+    "passed": 15,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.45
+  },
+  {
+    "log": "16-native-retrieval.log",
+    "command": "cargo test -p brn-threads-app --features native-retrieval --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/import_coverage.rs",
+    "passed": 2,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.05
+  },
+  {
+    "log": "16-native-retrieval.log",
+    "command": "cargo test -p brn-threads-app --features native-retrieval --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/keyed_owner_operations.rs",
+    "passed": 11,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.04
+  },
+  {
+    "log": "16-native-retrieval.log",
+    "command": "cargo test -p brn-threads-app --features native-retrieval --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/killed_run_candidate.rs",
+    "passed": 16,
+    "failed": 0,
+    "ignored": 1,
+    "seconds": 0.21
+  },
+  {
+    "log": "16-native-retrieval.log",
+    "command": "cargo test -p brn-threads-app --features native-retrieval --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/product.rs",
+    "passed": 19,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.19
+  },
+  {
+    "log": "16-native-retrieval.log",
+    "command": "cargo test -p brn-threads-app --features native-retrieval --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/projects.rs",
+    "passed": 8,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.11
+  },
+  {
+    "log": "16-native-retrieval.log",
+    "command": "cargo test -p brn-threads-app --features native-retrieval --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/retrieval_eval.rs",
+    "passed": 12,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 2.73
+  },
+  {
+    "log": "16-native-retrieval.log",
+    "command": "cargo test -p brn-threads-app --features native-retrieval --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/run_recovery.rs",
+    "passed": 4,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.03
+  },
+  {
+    "log": "16-native-retrieval.log",
+    "command": "cargo test -p brn-threads-app --features native-retrieval --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/search_dense.rs",
+    "passed": 6,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.07
+  },
+  {
+    "log": "16-native-retrieval.log",
+    "command": "cargo test -p brn-threads-app --features native-retrieval --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/search_messages.rs",
+    "passed": 11,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.15
+  },
+  {
+    "log": "16-native-retrieval.log",
+    "command": "cargo test -p brn-threads-app --features native-retrieval --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/search_worker.rs",
+    "passed": 11,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.1
+  },
+  {
+    "log": "16-native-retrieval.log",
+    "command": "cargo test -p brn-threads-app --features native-retrieval --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/source_intake_chat.rs",
+    "passed": 16,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.09
+  },
+  {
+    "log": "16-native-retrieval.log",
+    "command": "cargo test -p brn-threads-app --features native-retrieval --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/steering.rs",
+    "passed": 2,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.01
+  },
+  {
+    "log": "16-native-retrieval.log",
+    "command": "cargo test -p brn-threads-app --features native-retrieval --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/synthetic_baseline.rs",
+    "passed": 3,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.38
+  },
+  {
+    "log": "16-native-retrieval.log",
+    "command": "cargo test -p brn-threads-app --features native-retrieval --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/thread_lifecycle.rs",
+    "passed": 3,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.01
+  },
+  {
+    "log": "16-native-retrieval.log",
+    "command": "cargo test -p brn-threads-app --features native-retrieval --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/topics_knowledge.rs",
+    "passed": 11,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.08
+  },
+  {
+    "log": "16-native-retrieval.log",
+    "command": "cargo test -p brn-threads-app --features native-retrieval --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/user_scale.rs",
+    "passed": 1,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 2.37
+  },
+  {
+    "log": "16-native-retrieval.log",
+    "command": "cargo test -p brn-threads-app --features native-retrieval --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/wiki_eval_seed.rs",
+    "passed": 5,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.06
+  },
+  {
+    "log": "16-native-retrieval.log",
+    "command": "cargo test -p brn-threads-app --features native-retrieval --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/withdraw_proposal.rs",
+    "passed": 6,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.1
+  },
+  {
+    "log": "16-native-retrieval.log",
+    "command": "cargo test -p brn-threads-app --features native-retrieval --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/workspace_purpose.rs",
+    "passed": 2,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.01
+  },
+  {
+    "log": "16-native-retrieval.log",
+    "command": "cargo test -p brn-threads-app --features native-retrieval --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "Running tests/writing.rs",
+    "passed": 9,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.05
+  },
+  {
+    "log": "16-native-retrieval.log",
+    "command": "cargo test -p brn-threads-app --features native-retrieval --locked --offline",
+    "crate": "brn-threads-app",
+    "suite": "doc-tests",
+    "passed": 0,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.0
+  },
+  {
+    "log": "20-native-retrieval.log",
+    "command": "cargo test -p brn-desktop --features native-ui,native-retrieval --locked --offline",
+    "crate": "brn-desktop",
+    "suite": "Running unittests src/main.rs",
+    "passed": 95,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.29
+  }
+]

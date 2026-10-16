@@ -1,0 +1,220 @@
+[
+  {
+    "model": "synthetic",
+    "messages": [
+      {
+        "role": "system",
+        "content": [
+          {
+            "type": "text",
+            "text": "fixed authority"
+          }
+        ]
+      },
+      {
+        "role": "user",
+        "content": "requirement"
+      },
+      {
+        "role": "assistant",
+        "content": "ack"
+      },
+      {
+        "role": "user",
+        "content": "request one"
+      }
+    ],
+    "tools": [
+      {
+        "type": "function",
+        "function": {
+          "name": "read",
+          "description": "read synthetic evidence",
+          "parameters": {
+            "type": "object",
+            "properties": {}
+          }
+        }
+      }
+    ]
+  },
+  {
+    "model": "synthetic",
+    "messages": [
+      {
+        "role": "system",
+        "content": [
+          {
+            "type": "text",
+            "text": "fixed authority"
+          }
+        ]
+      },
+      {
+        "role": "user",
+        "content": "requirement"
+      },
+      {
+        "role": "assistant",
+        "content": "ack"
+      },
+      {
+        "role": "user",
+        "content": "request one"
+      },
+      {
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_1",
+            "type": "function",
+            "function": {
+              "name": "read",
+              "arguments": "{}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_1",
+        "content": "source"
+      }
+    ],
+    "tools": [
+      {
+        "type": "function",
+        "function": {
+          "name": "read",
+          "description": "read synthetic evidence",
+          "parameters": {
+            "type": "object",
+            "properties": {}
+          }
+        }
+      }
+    ]
+  },
+  {
+    "model": "synthetic",
+    "messages": [
+      {
+        "role": "system",
+        "content": [
+          {
+            "type": "text",
+            "text": "fixed authority"
+          }
+        ]
+      },
+      {
+        "role": "user",
+        "content": "requirement"
+      },
+      {
+        "role": "assistant",
+        "content": "ack"
+      },
+      {
+        "role": "user",
+        "content": "request one"
+      },
+      {
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_1",
+            "type": "function",
+            "function": {
+              "name": "read",
+              "arguments": "{}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_1",
+        "content": "source"
+      },
+      {
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_2",
+            "type": "function",
+            "function": {
+              "name": "read",
+              "arguments": "{}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "call_2",
+        "content": "source"
+      }
+    ],
+    "tools": [
+      {
+        "type": "function",
+        "function": {
+          "name": "read",
+          "description": "read synthetic evidence",
+          "parameters": {
+            "type": "object",
+            "properties": {}
+          }
+        }
+      }
+    ]
+  },
+  {
+    "model": "synthetic",
+    "messages": [
+      {
+        "role": "system",
+        "content": [
+          {
+            "type": "text",
+            "text": "fixed authority"
+          }
+        ]
+      },
+      {
+        "role": "user",
+        "content": "requirement"
+      },
+      {
+        "role": "assistant",
+        "content": "ack"
+      },
+      {
+        "role": "user",
+        "content": "request one"
+      },
+      {
+        "role": "assistant",
+        "content": "done"
+      },
+      {
+        "role": "user",
+        "content": "request two"
+      }
+    ],
+    "tools": [
+      {
+        "type": "function",
+        "function": {
+          "name": "read",
+          "description": "read synthetic evidence",
+          "parameters": {
+            "type": "object",
+            "properties": {}
+          }
+        }
+      }
+    ]
+  }
+]

@@ -1,0 +1,38 @@
+{
+  "identity": {
+    "checkout": "/Users/evokessler/.t3/worktrees/brn-rust/t3-ceb6e16c",
+    "branch": "work/build-c0-20261016",
+    "commit": "8f768943964a77711b26d5235df146f8efe1dc6c",
+    "tree": "47c057b06f7bb542ce3ee942db903beb85ad14e6",
+    "dirty": true,
+    "dirty_snapshot_sha256": "ef84546ce0295e9c36e2f9ec3ea2b11f12422af0056ea5ed026e0c54c06a2d61"
+  },
+  "tools": {
+    "git": "/usr/bin/git",
+    "bash": "/bin/bash",
+    "python3": "/Users/evokessler/.local/bin/python3",
+    "cargo": "/Users/evokessler/.cargo/bin/cargo",
+    "rustup": "/Users/evokessler/.cargo/bin/rustup",
+    "protoc": "/Users/evokessler/.local/bin/protoc",
+    "xcrun": "/usr/bin/xcrun"
+  },
+  "workflow": "/Users/evokessler/.t3/worktrees/brn-rust/t3-ceb6e16c/docs/development/workflow.md",
+  "router_skill": {
+    "path": "/Users/evokessler/.codex/skills/developing-product-feature/SKILL.md",
+    "available": true,
+    "required": false
+  },
+  "pr_skill": {
+    "path": "/Users/evokessler/.codex/skills/pr/SKILL.md",
+    "available": false,
+    "required": false,
+    "scope": "explicit owner request when writing PRs"
+  },
+  "toolchain_pin": "[toolchain]\nchannel = \"1.98.1\"\nprofile = \"minimal\"\ncomponents = [\"clippy\", \"rustfmt\"]",
+  "pinned_toolchain_installed": true,
+  "installed_toolchains": [
+    "1.98.1-aarch64-apple-darwin (active, default)"
+  ],
+  "toolchain_inventory_exit": 0,
+  "macos_clang": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
+}

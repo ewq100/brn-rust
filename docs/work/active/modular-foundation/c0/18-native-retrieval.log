@@ -1,0 +1,55 @@
+   Compiling rand v0.9.5
+   Compiling tokio-rustls v0.26.5
+   Compiling darling_core v0.20.11
+   Compiling hashbrown v0.16.1
+   Compiling ureq-proto v0.6.4
+   Compiling image v0.25.10
+   Compiling gpui-pre-sum-tree v0.3.9
+   Compiling rustls-platform-verifier v0.7.1
+   Compiling num-integer v0.1.47
+   Compiling monostate-impl v0.1.18
+   Compiling compact_str v0.9.1
+   Compiling spm_precompiled v0.1.4
+   Compiling ahash v0.8.12
+   Compiling dary_heap v0.3.9
+   Compiling unicode-normalization-alignments v0.1.12
+   Compiling hyper-rustls v0.27.10
+   Compiling itertools v0.13.0
+   Compiling ndarray v0.17.2
+   Compiling sha1 v0.10.6
+   Compiling ureq v3.4.2
+   Compiling gpui-pre-scheduler v0.3.9
+   Compiling accesskit_consumer v0.38.0
+   Compiling reqwest v0.13.5
+   Compiling safetensors v0.8.0
+   Compiling monostate v0.1.18
+   Compiling reqwest v0.12.28
+   Compiling accesskit_macos v0.26.3
+   Compiling darling_macro v0.20.11
+   Compiling ort-sys v2.0.0-rc.13
+   Compiling darling v0.20.11
+   Compiling rig-reqwest v0.44.0
+   Compiling derive_builder_core v0.20.2
+   Compiling rig-core v0.44.0
+   Compiling derive_builder_macro v0.20.2
+   Compiling gpui-pre v0.3.9
+   Compiling derive_builder v0.20.2
+   Compiling ort v2.0.0-rc.13
+   Compiling tokenizers v0.23.2
+   Compiling fastembed v7.1.0
+   Compiling brn-retrieval v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-ceb6e16c/crates/brn-retrieval)
+   Compiling gpui-pre-apple v0.3.9
+   Compiling gpui-kit-assets v0.7.3
+   Compiling gpui-base v0.7.3
+   Compiling rig-agent v0.44.0
+   Compiling gpui-pre-macos v0.3.9
+   Compiling gpui-pre-platform v0.3.9
+   Compiling rig v0.44.0
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-ceb6e16c/crates/brn-ai)
+   Compiling brn-threads-app v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-ceb6e16c/crates/brn-threads-app)
+   Compiling gpui-component v0.7.3
+   Compiling gpui-kit v0.7.3
+   Compiling brn-desktop v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-ceb6e16c/crates/brn-desktop)
+    Finished `dev` profile [unoptimized] target(s) in 21.47s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`

@@ -1,0 +1,17 @@
+   Compiling brn-c0-rig-reuse v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-ceb6e16c/experiments/r0-rig-reuse)
+    Finished `test` profile [unoptimized] target(s) in 2.21s
+     Running unittests src/main.rs (/private/tmp/brn-c0-r0-20261016-target/debug/deps/brn_c0_rig_reuse-61f1d901b19fe505)
+
+running 4 tests
+memory: explicit 4→2 window; stub invoked; stable reload; reconstruction compacts twice; canonical bytes unchanged
+test memory::explicit_policy_and_process_local_summary_never_write_source ... ok
+checkpoint retained keys: format, max_turns, max_invalid_tool_call_retries, max_consecutive_malformed_tool_calls, unhandled_invalid_tool_call, tool_choice, output_tool_name, output_schema, max_output_retries, output_retries, chat_history, new_messages, current_turn, usage, completion_calls, completion_call_index, invalid_tool_call_retries, malformed_tool_call_retries, rollback_pending, streamed_completion_call_recorded, previous_model, turn_tools, entries, state
+checkpoint: input/history/entries and pending state roundtrip; direct step skips configured hook; hook-aware invocation calls it; unknown format refuses
+test prefix::disposable_checkpoint_retains_payload_but_not_configured_runtime ... ok
+prefix: 3 requests in run 1, 1 in run 2; all serialized message-prefix bytes/tools stable; live cached-input share unmeasured
+test prefix::serialized_http_prefix_stable_within_run_and_between_boundaries ... ok
+MCP: conversion result; timeout error; remote cancellation observed; list-change removes old/adds new; disconnect retires availability
+test mcp::conversion_timeout_cancellation_and_list_change_refresh ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+

@@ -1,0 +1,40 @@
+rmcp v2.2.0
+├── rmcp feature "__reqwest"
+│   └── rmcp feature "transport-streamable-http-client-reqwest"
+│       └── brn-c0-rig-reuse v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-ceb6e16c/experiments/r0-rig-reuse)
+│           └── brn-c0-rig-reuse feature "default" (command-line)
+├── rmcp feature "base64"
+│   └── rmcp feature "default"
+│       └── rig-rmcp v0.44.0
+│           └── rig-rmcp feature "default"
+│               └── rig v0.44.0
+│                   ├── rig feature "agent"
+│                   │   └── brn-c0-rig-reuse v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-ceb6e16c/experiments/r0-rig-reuse) (*)
+│                   ├── rig feature "memory"
+│                   │   └── brn-c0-rig-reuse v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-ceb6e16c/experiments/r0-rig-reuse) (*)
+│                   ├── rig feature "rmcp"
+│                   │   └── brn-c0-rig-reuse v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-ceb6e16c/experiments/r0-rig-reuse) (*)
+│                   └── rig feature "test-utils"
+│                       └── brn-c0-rig-reuse v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-ceb6e16c/experiments/r0-rig-reuse) (*)
+├── rmcp feature "client"
+│   ├── brn-c0-rig-reuse v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-ceb6e16c/experiments/r0-rig-reuse) (*)
+│   └── rig-rmcp v0.44.0 (*)
+├── rmcp feature "client-side-sse"
+│   └── rmcp feature "transport-streamable-http-client"
+│       └── rmcp feature "transport-streamable-http-client-reqwest" (*)
+├── rmcp feature "default" (*)
+├── rmcp feature "macros"
+│   └── brn-c0-rig-reuse v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-ceb6e16c/experiments/r0-rig-reuse) (*)
+│   └── rmcp feature "default" (*)
+├── rmcp feature "server"
+│   └── brn-c0-rig-reuse v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-ceb6e16c/experiments/r0-rig-reuse) (*)
+│   └── rmcp feature "default" (*)
+├── rmcp feature "transport-async-rw"
+│   ├── rmcp feature "server" (*)
+│   └── rmcp feature "transport-io"
+│       └── brn-c0-rig-reuse v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-ceb6e16c/experiments/r0-rig-reuse) (*)
+├── rmcp feature "transport-io" (*)
+├── rmcp feature "transport-streamable-http-client" (*)
+├── rmcp feature "transport-streamable-http-client-reqwest" (*)
+└── rmcp feature "transport-worker"
+    └── rmcp feature "transport-streamable-http-client" (*)

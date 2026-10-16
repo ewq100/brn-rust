@@ -1,0 +1,156 @@
+[
+  {
+    "worktree": "/Users/evokessler/repos/brn-rust",
+    "HEAD": "9b47b285d23bb5f89db02ba398244827032fab6b",
+    "branch": "refs/heads/main",
+    "status": "?? .vscode/\n?? experiments/\n"
+  },
+  {
+    "worktree": "/Users/evokessler/.codex/worktrees/brn-cli-cancellation-fix/brn-rust",
+    "HEAD": "5f40ec8c73039dac2a6d41114f9ff708c45f45bb",
+    "branch": "refs/heads/codex/v1-cli-cancellation-isolation",
+    "status": ""
+  },
+  {
+    "worktree": "/Users/evokessler/.codex/worktrees/brn-h1-titles/brn-rust",
+    "HEAD": "80187552f6f84eaec4ffc82190ee08ec33358ef0",
+    "branch": "refs/heads/codex/h1-integration-record",
+    "status": ""
+  },
+  {
+    "worktree": "/Users/evokessler/.codex/worktrees/brn-v1-stage1-checkpoint/brn-rust",
+    "HEAD": "74725adf74fca2f3abf231c0712b19d358740b6c",
+    "branch": "refs/heads/codex/v1-inbox-knowledge-handoff",
+    "status": ""
+  },
+  {
+    "worktree": "/Users/evokessler/.codex/worktrees/brn-v1-stage2-checkpoint/brn-rust",
+    "HEAD": "114090c5d0915daf5ee6c83b421e05b262e90a6d",
+    "branch": "refs/heads/codex/v1-native-dashboard",
+    "status": ""
+  },
+  {
+    "worktree": "/Users/evokessler/.codex/worktrees/document-ingestion-research/brn-rust",
+    "HEAD": "8d4372ca883282c93243d3afbdb0bd1709030ed1",
+    "branch": "refs/heads/codex/document-ingestion-research",
+    "status": ""
+  },
+  {
+    "worktree": "/Users/evokessler/.codex/worktrees/macbook-ui-repairs/brn-rust",
+    "HEAD": "b309dc4be97ea78debc1f8402fdb9e6b6e23671c",
+    "branch": "refs/heads/codex/macbook-ui-repairs",
+    "status": ""
+  },
+  {
+    "worktree": "/Users/evokessler/.codex/worktrees/normal-notes-llm-wiki-research/brn-rust",
+    "HEAD": "becbb2a626dabffaade6d4f3c542ae079136e75f",
+    "branch": "refs/heads/codex/ordinary-wiki-guidance",
+    "status": ""
+  },
+  {
+    "worktree": "/Users/evokessler/.codex/worktrees/ordinary-wiki-notes-ui/brn-rust",
+    "HEAD": "61f33b954591036c7e5b3230fcf8159442f31de0",
+    "branch": "refs/heads/codex/ordinary-wiki-ui-prototype",
+    "status": ""
+  },
+  {
+    "worktree": "/Users/evokessler/.codex/worktrees/projects-feature/brn-rust",
+    "HEAD": "0fab9d3bfc06ef80698aded4f79a79227d5a3a76",
+    "branch": "refs/heads/codex/projects-feature",
+    "status": ""
+  },
+  {
+    "worktree": "/Users/evokessler/.codex/worktrees/rust-luna-intake/brn-rust",
+    "HEAD": "b29e853e55a996de0b66a2bd39de77e6b3e73d96",
+    "branch": "refs/heads/codex/rust-luna-intake",
+    "status": ""
+  },
+  {
+    "worktree": "/Users/evokessler/.codex/worktrees/thread-product-discovery/brn-rust",
+    "HEAD": "56c28879e483d8eb9bf733b01003bcab2cf50366",
+    "status": ""
+  },
+  {
+    "worktree": "/Users/evokessler/.codex/worktrees/tile-ui-review/brn-rust",
+    "HEAD": "c0188a3f7daa66885b32427c14323517aaf0a189",
+    "branch": "refs/heads/codex/tile-ui-polish",
+    "status": ""
+  },
+  {
+    "worktree": "/Users/evokessler/.codex/worktrees/writing-polish/brn-rust",
+    "HEAD": "457f03b90b6fce2141496528031fe5f2ce2d62f0",
+    "branch": "refs/heads/codex/writing-polish",
+    "status": ""
+  },
+  {
+    "worktree": "/Users/evokessler/.codex/worktrees/writing-ux-research/brn-rust",
+    "HEAD": "dbbf76c282cf15c1982a3d3c745868a608b38880",
+    "branch": "refs/heads/codex/writing-ux-research",
+    "status": "A  docs/work/active/writing-ux-research/audit-luna.md\nA  docs/work/active/writing-ux-research/passage-proposal-superseded.md\nA  docs/work/active/writing-ux-research/plan.md\nA  docs/work/active/writing-ux-research/proposal.md\nA  docs/work/active/writing-ux-research/research-sol.md\n"
+  },
+  {
+    "worktree": "/Users/evokessler/.t3/worktrees/brn-rust/t3-ceb6e16c",
+    "HEAD": "8f768943964a77711b26d5235df146f8efe1dc6c",
+    "branch": "refs/heads/work/build-c0-20261016",
+    "status": "?? docs/work/active/modular-foundation/c0/\n?? docs/work/active/modular-foundation/evidence.md\n?? experiments/\n"
+  },
+  {
+    "worktree": "/Users/evokessler/repos/brn-h2-action-schema",
+    "HEAD": "3db27a4c3143fb1fda0e8a8b254570f58353d9f9",
+    "branch": "refs/heads/codex/h2-action-schema",
+    "status": ""
+  },
+  {
+    "worktree": "/Users/evokessler/repos/brn-h4-docx-reader",
+    "HEAD": "0f3e277984772322b28798d4539dd618a414c748",
+    "branch": "refs/heads/codex/h4-docx-reader-evaluation",
+    "status": ""
+  },
+  {
+    "worktree": "/Users/evokessler/repos/brn-h5-cli-parsing",
+    "HEAD": "be59a7a9f9698cedd7f62e7416e347b4f385e84c",
+    "branch": "refs/heads/codex/h5-cli-parsing-evaluation",
+    "status": ""
+  },
+  {
+    "worktree": "/Users/evokessler/repos/brn-rust/.worktrees/daily-workflow-reliability",
+    "HEAD": "192cd765dbbe389c84115c8163eddfc7f2a5b000",
+    "branch": "refs/heads/work/daily-workflow-reliability",
+    "status": ""
+  },
+  {
+    "worktree": "/Users/evokessler/repos/brn-rust/.worktrees/quality-simplify",
+    "HEAD": "b48acde1e4934276d60a518fd9bc7e59fd5b1998",
+    "branch": "refs/heads/work/quality-format-batch",
+    "status": ""
+  },
+  {
+    "worktree": "/Users/evokessler/repos/brn-ux-design",
+    "HEAD": "c557e3bb7d62dc44fc2c7fa0d249f247aefab506",
+    "branch": "refs/heads/ux/design-handbook",
+    "status": ""
+  },
+  {
+    "worktree": "/Users/evokessler/repos/copilot-worktrees/brn-rust/copilot-prewarm-potential-eureka",
+    "HEAD": "af9239c741c7ab0983e62f0253e607b9607727e6",
+    "status": ""
+  },
+  {
+    "worktree": "/Users/evokessler/repos/copilot-worktrees/brn-rust/evokessler-ericcp-laughing-eureka",
+    "HEAD": "c0a352612654f2bcf49104c6d333264692dcb599",
+    "branch": "refs/heads/evokessler-ericcp-rig-architecture-reset",
+    "status": "?? .DS_Store\n?? docs/.DS_Store\n"
+  },
+  {
+    "worktree": "/Users/evokessler/repos/copilot-worktrees/brn-rust/ewq100-glowing-happiness",
+    "HEAD": "92f9f7420f6fdbbbb5d14e4c5ca6329ebc202a4d",
+    "branch": "refs/heads/ewq100-radical-ux-concepts",
+    "status": ""
+  },
+  {
+    "worktree": "/Users/evokessler/repos/copilot-worktrees/brn-rust/ewq100-refactored-barnacle",
+    "HEAD": "dd08920196b4316601ce9ffbf1c2ee8f7936e44a",
+    "branch": "refs/heads/ewq100-omakase-native-ui-rebuild",
+    "status": ""
+  }
+]
