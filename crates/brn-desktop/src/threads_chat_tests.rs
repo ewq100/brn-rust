@@ -162,8 +162,18 @@ fn label(window: &mut Window, id: impl Into<String>) -> String {
         .unwrap_or_default()
         .to_owned()
 }
-/// A live local worker for the chat's run, as a running reply has.
-fn hold_worker(ui: &mut ThreadsUi, thread: &str, run: &str) -> mpsc::SyncSender<WorkerEvent> {
+/// A live local worker for the chat's run, as a running reply has. It holds
+/// the run's lease as a real worker does; keep the lease for as long as the
+/// worker stands for live work, or every stop path treats the run as
+/// crashed.
+fn hold_worker(
+    ui: &mut ThreadsUi,
+    thread: &str,
+    run: &str,
+) -> (mpsc::SyncSender<WorkerEvent>, brn_ai::run_lease::RunLease) {
+    let lease =
+        brn_ai::run_lease::RunLease::acquire(&ui.workspace.store.derived_directory().unwrap(), run)
+            .unwrap();
     let (sender, receiver) = mpsc::sync_channel(16);
     ui.worker = Some(Worker {
         receiver,
@@ -173,7 +183,7 @@ fn hold_worker(ui: &mut ThreadsUi, thread: &str, run: &str) -> mpsc::SyncSender<
         thread: Some(thread.into()),
         run_id: Some(run.into()),
     });
-    sender
+    (sender, lease)
 }
 fn notice_tone(cx: &mut TestAppContext, f: &Fixture) -> Option<String> {
     on_window(cx, f, |window, _| {
@@ -940,10 +950,10 @@ fn queue_notices_follow_the_queue_state_and_paused_wins_after_stop(cx: &mut Test
             view.notice.clone()
         })
     };
-    let sender = update(cx, &f, |view, _, cx| {
-        let sender = hold_worker(view, &f.thread, &run);
+    let (sender, lease) = update(cx, &f, |view, _, cx| {
+        let held = hold_worker(view, &f.thread, &run);
         cx.notify();
-        sender
+        held
     });
     on_window(cx, &f, |window, _| {
         assert_eq!(label(window, "ask-delegate"), "Queue");
@@ -972,6 +982,24 @@ fn queue_notices_follow_the_queue_state_and_paused_wins_after_stop(cx: &mut Test
     cx.read(|cx| {
         let view = f.view.read(cx);
         assert!(view.worker.is_some() && view.queue_state().paused);
+        // The owner's Stop of live work adds no notice to the chat.
+        let RecordData::Thread(chat) = view
+            .workspace
+            .store
+            .record(&f.thread)
+            .unwrap()
+            .unwrap()
+            .data
+        else {
+            unreachable!()
+        };
+        assert!(
+            chat.attention
+                .iter()
+                .all(|item| item.record.as_deref() != Some(run.as_str())),
+            "{:?}",
+            chat.attention
+        );
     });
     assert_eq!(
         send(cx, "Third queued"),
@@ -993,6 +1021,7 @@ fn queue_notices_follow_the_queue_state_and_paused_wins_after_stop(cx: &mut Test
         assert!(view.worker.is_none());
         assert_eq!(view.queue_state().queue.len(), 3);
     });
+    drop(lease);
 }
 
 #[gpui_kit::test]
@@ -1084,6 +1113,14 @@ fn archive_states_its_consequence_and_an_archived_chat_has_one_unarchive(cx: &mu
         // One Unarchive: the composer banner's.
         assert!(window.try_find("chat-unarchive").is_none());
     });
+    // ⌘L (focus the composer) lands on Unarchive too, from anywhere.
+    update(cx, &f, |ui, window, cx| ui.focus_root(window, cx));
+    on_window(cx, &f, |window, cx| window.press("cmd-l", cx));
+    on_window(cx, &f, |window, cx| window.simulate_next_frame(cx));
+    on_window(cx, &f, |window, cx| {
+        assert!(!f.view.read(cx).composer.focus_handle(cx).is_focused(window));
+        assert_eq!(window.find("reopen-thread").focused(), Some(true));
+    });
     click(cx, &f, "reopen-thread");
     on_window(cx, &f, |window, _| {
         assert!(window.find("resolve-thread").visible());
@@ -1091,10 +1128,15 @@ fn archive_states_its_consequence_and_an_archived_chat_has_one_unarchive(cx: &mu
         assert_eq!(label(window, next.clone()), fresh);
         assert_eq!(label(window, continue_id.clone()), "Continue");
     });
-    // Unarchived, the chat's landing is its composer again.
+    // Unarchived, the chat's landing is its composer again, and so is ⌘L's.
     update(cx, &f, |ui, window, cx| {
         ui.open_thread(&f.thread, window, cx)
     });
+    on_window(cx, &f, |window, cx| {
+        assert!(f.view.read(cx).composer.focus_handle(cx).is_focused(window));
+    });
+    update(cx, &f, |ui, window, cx| ui.focus_root(window, cx));
+    on_window(cx, &f, |window, cx| window.press("cmd-l", cx));
     on_window(cx, &f, |window, cx| {
         assert!(f.view.read(cx).composer.focus_handle(cx).is_focused(window));
     });
@@ -1180,10 +1222,11 @@ fn while_work_runs_send_reads_queue_at_a_wide_chat_and_replies_keep_the_measure(
             .unwrap();
         run = record_run(workspace, thread, RunState::Working, "");
     });
-    update(cx, &f, |view, _, cx| {
-        hold_worker(view, &f.thread, &run);
+    let _lease = update(cx, &f, |view, _, cx| {
+        let (_, lease) = hold_worker(view, &f.thread, &run);
         view.layout.toggle_maximize(TileKind::Chat);
         cx.notify();
+        lease
     });
     let model = cx.read(|cx| {
         let view = f.view.read(cx);
@@ -1283,15 +1326,16 @@ fn a_short_window_keeps_a_running_queue_to_one_quiet_row(cx: &mut TestAppContext
     let f = fixture(cx, 900., 600., |_, _, chat| other = chat.to_owned());
     // The window is open before the run exists, so startup recovery never
     // sees it; this window's worker holds it.
-    update(cx, &f, |view, window, cx| {
+    let _lease = update(cx, &f, |view, window, cx| {
         let run = record_run(&mut view.workspace, &f.thread, RunState::Working, "");
-        hold_worker(view, &f.thread, &run);
+        let (_, lease) = hold_worker(view, &f.thread, &run);
         view.workspace
             .queue_message("running-first", &other, "Check the venue")
             .unwrap();
         view.refresh();
         view.apply_layout(Preset::Write, window, cx);
         cx.notify();
+        lease
     });
     on_window(cx, &f, |window, _| {
         assert_eq!(label(window, "queue-summary"), "Queue · 1 waiting");

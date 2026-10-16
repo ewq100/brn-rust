@@ -1498,6 +1498,14 @@ impl ThreadsUi {
                     .test_support(),
             );
         }
+        if !items.is_empty() && self.launcher_search.pending {
+            // Saved chat Messages join below the label matches when the
+            // search answers; the rows above never move.
+            list = list.child(div().px_2().py_1().child(components::loading(
+                "launcher-searching",
+                "Searching chats…",
+            )));
+        }
         div()
             .id("launcher-scrim")
             .absolute()

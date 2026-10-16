@@ -1153,10 +1153,11 @@ impl ThreadsUi {
     /// a rewrite request's text is its saved JSON snapshot).
     fn refresh_name(&self, record: &Record) -> String {
         let name = match &record.data {
+            // The request's note title was resolved when history refreshed.
             RecordData::Message(message) if message.role == WRITING_REQUEST_ROLE => {
-                match self.workspace.writing_request(&record.id) {
-                    Ok(snapshot) => format!("Rewrite request · {}", title(&snapshot.note)),
-                    Err(_) => "Rewrite request".into(),
+                match self.refresh_names.get(&record.id) {
+                    Some(note) => format!("Rewrite request · {note}"),
+                    None => "Rewrite request".into(),
                 }
             }
             RecordData::Message(_) => "Chat message".into(),

@@ -805,7 +805,7 @@ impl LaunchItem {
             Self::Command(command) => command.label(),
         }
     }
-    /// Results are ordered chats, notes, chat messages, commands, so
+    /// Results are ordered chats, notes, commands, then chat messages, so
     /// headings follow order.
     pub(super) fn group(&self) -> &'static str {
         match self {
@@ -819,9 +819,11 @@ impl LaunchItem {
 pub(super) const LAUNCH_LIMIT: usize = 20;
 
 /// Empty queries show recent work then commands; otherwise every thread
-/// (including resolved), note and command whose label matches, with the
-/// owner search's matching chat Messages (`messages`, as the Notes search
-/// lists them under "In chats") before the commands.
+/// (including resolved), note and command whose label matches (at most
+/// `LAUNCH_LIMIT`), then the owner search's matching chat Messages
+/// (`messages`, as the Notes search lists them under "In chats"). The
+/// Messages arrive after the label matches, so they come last: an answer
+/// landing never moves a row the selection or ↵ already points at.
 pub(super) fn launcher(
     query: &str,
     threads: &[ThreadRow],
@@ -865,17 +867,13 @@ pub(super) fn launcher(
         .iter()
         .map(thread)
         .chain(notes.iter().map(note))
+        .chain(Command::all().into_iter().map(LaunchItem::Command))
         .filter(matches)
-        // The search already matched these; their text need not contain
-        // the query verbatim.
-        .chain(messages.iter().map(message))
-        .chain(
-            Command::all()
-                .into_iter()
-                .map(LaunchItem::Command)
-                .filter(matches),
-        )
         .take(LAUNCH_LIMIT)
+        // The search already matched these; their text need not contain
+        // the query verbatim. The request asks for at most
+        // `LAUNCH_MESSAGES`.
+        .chain(messages.iter().map(message))
         .collect()
 }
 
@@ -1289,9 +1287,9 @@ mod tests {
     }
 
     /// F-UI1: the launcher lists the owner search's chat Messages under
-    /// "In chats", after notes and before commands, with an archived label.
+    /// "In chats", after every label match, with an archived label.
     #[test]
-    fn launcher_lists_matching_chat_messages_before_commands() {
+    fn launcher_lists_matching_chat_messages_after_the_label_matches() {
         let records = vec![note("n", "Berth plan", false)];
         let activity = Activity::default();
         let notes = note_rows(&records, &activity);
@@ -1332,6 +1330,23 @@ mod tests {
             launcher("berth", &[], &[], &[]).is_empty(),
             "no label matches and no Messages"
         );
+        // A word that is a command and also in saved chat text (the theme
+        // names are everyday Estonian words): the command keeps its row
+        // when the search answers, so ↵ and the selection never move to a
+        // Message that arrived later.
+        let before = launcher("raba", &[], &notes, &[]);
+        let theme = LaunchItem::Command(Command::Theme(ThemeId::Raba));
+        assert_eq!(before.first(), Some(&theme));
+        let raba = [hit("m3", "Raba walk on Saturday", false)];
+        let after = launcher("raba", &[], &notes, &raba);
+        assert_eq!(after[..before.len()], before[..], "earlier rows stay put");
+        assert_eq!(after.first(), Some(&theme));
+        let groups: Vec<_> = after.iter().map(LaunchItem::group).collect();
+        assert_eq!(groups, ["Commands", "In chats"]);
+        assert!(matches!(
+            after.last(),
+            Some(LaunchItem::Message { message, .. }) if message == "m3"
+        ));
     }
 
     #[test]

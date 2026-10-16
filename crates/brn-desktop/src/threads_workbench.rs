@@ -237,7 +237,8 @@ impl ThreadsUi {
         })
     }
     /// `writing-run-status`: the outcome's tone and the full recorded reason,
-    /// wrapping, never truncated.
+    /// wrapping, never truncated. Beside a recorded notice, the run's
+    /// progress is a muted second line, `writing-run-detail` (U10).
     pub(super) fn writing_run_status(&self) -> gpui_kit::AnyElement {
         let Some(outcome) = self.writing_run_outcome() else {
             return div().into_any_element();
@@ -253,6 +254,17 @@ impl ThreadsUi {
                 outcome.tone(),
                 outcome.text(),
             ))
+            .children(outcome.detail().map(|detail| {
+                div()
+                    .id("writing-run-detail")
+                    .min_w_0()
+                    .font_family(UI_FONT)
+                    .text_size(SMALL_TEXT)
+                    .text_color(rgb(pal().muted))
+                    .aria_label(detail.to_owned())
+                    .child(detail.to_owned())
+                    .test_support()
+            }))
             .into_any_element()
     }
     /// The writing bar's first matching row for the open note.
@@ -418,10 +430,9 @@ impl RunOutcome {
             }
         };
         match self {
-            Self::Recorded { notice, detail, .. } if detail.trim() == notice.trim() => {
-                notice.clone()
-            }
-            Self::Recorded { notice, detail, .. } => with(notice, detail),
+            // The recorded notice alone, as Needs you and the status line
+            // read; the progress is its own line (`detail`).
+            Self::Recorded { notice, .. } => notice.clone(),
             Self::Failed(progress) => with("Rewrite failed", progress),
             Self::Interrupted(progress) => with("Rewrite interrupted", progress),
             Self::Stopped(progress) => with("Rewrite stopped", progress),
@@ -430,6 +441,18 @@ impl RunOutcome {
             }
             Self::InputsSaved => "Rewrite inputs saved".into(),
             Self::NoProposal => "Rewrite finished · no proposal".into(),
+        }
+    }
+    /// The run's progress beside a recorded notice, as the chat's recovery
+    /// card shows it: a secondary line, only when it says something else.
+    pub(super) fn detail(&self) -> Option<&str> {
+        match self {
+            Self::Recorded { notice, detail, .. }
+                if !detail.trim().is_empty() && detail.trim() != notice.trim() =>
+            {
+                Some(detail.as_str())
+            }
+            _ => None,
         }
     }
 }
@@ -524,8 +547,8 @@ mod tests {
         }
     }
 
-    /// U10: a recorded notice is the line; progress follows only when it
-    /// adds something.
+    /// U10: a recorded notice is the whole status line; progress is a
+    /// separate secondary line only when it adds something.
     #[test]
     fn a_recorded_notice_leads_and_progress_is_secondary() {
         let notice = "Run failed: The provider account needs reconnecting. Continue when the provider is ready.";
@@ -534,7 +557,8 @@ mod tests {
             notice: notice.into(),
             detail: "Read 2 notes".into(),
         };
-        assert_eq!(failed.text(), format!("{notice} · Read 2 notes"));
+        assert_eq!(failed.text(), notice);
+        assert_eq!(failed.detail(), Some("Read 2 notes"));
         assert_eq!(failed.tone(), Some(Tone::Error));
         let interrupted = RunOutcome::Recorded {
             failed: false,
@@ -545,6 +569,7 @@ mod tests {
             interrupted.text(),
             "Run interrupted. Continue starts fresh."
         );
+        assert_eq!(interrupted.detail(), None);
         assert_eq!(interrupted.tone(), Some(Tone::Warning));
         let same = RunOutcome::Recorded {
             failed: true,
@@ -552,6 +577,9 @@ mod tests {
             detail: notice.into(),
         };
         assert_eq!(same.text(), notice);
+        assert_eq!(same.detail(), None);
+        // Outcomes without a notice keep their one line.
+        assert_eq!(RunOutcome::Failed("Read 2 notes".into()).detail(), None);
     }
     #[test]
     fn run_outcomes_keep_the_recorded_reason_and_their_tone() {

@@ -817,7 +817,8 @@ fn an_edit_already_open_elsewhere_offers_compare_and_discard(cx: &mut TestAppCon
     })
     .unwrap();
     cx.run_until_parked();
-    // Discard: the existing confirmation, for the other edit.
+    // Discard: the existing confirmation, worded for the other edit (the
+    // owner's own Discard… says "Your changes since vN will be lost").
     cx.update_window(f.window, |_, window, cx| {
         assert!(!window.has_active_dialog(cx));
         window.click("note-edit-open-discard", cx);
@@ -830,7 +831,7 @@ fn an_edit_already_open_elsewhere_offers_compare_and_discard(cx: &mut TestAppCon
             window.find("discard-note-body").label(),
             Some(
                 format!(
-                    "Your changes since v{} will be lost. This can't be undone.",
+                    "Its changes since v{} will be lost. What you typed here is kept. This can't be undone.",
                     f.a.version
                 )
                 .as_str()

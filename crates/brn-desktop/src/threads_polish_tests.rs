@@ -781,8 +781,8 @@ pub(super) fn record_notice(cx: &mut TestAppContext, f: &Fixture, thread: &str, 
 
 /// U10: the Note's run status reads as the chat's recorded notice for a
 /// failed or interrupted rewrite, the same text Needs you shows, with the
-/// run's progress after it as detail. Without a notice (the owner's Stop
-/// records none) it keeps "Rewrite …" and the progress.
+/// run's progress as a muted line below it. Without a notice (the owner's
+/// Stop records none) it keeps "Rewrite …" and the progress.
 #[gpui_kit::test]
 fn a_failed_rewrite_reads_as_the_chats_recorded_notice(cx: &mut TestAppContext) {
     use workbench::WritingRow;
@@ -817,12 +817,26 @@ fn a_failed_rewrite_reads_as_the_chats_recorded_notice(cx: &mut TestAppContext) 
         record_notice(cx, &f, &thread, notice);
         assert_eq!(row(cx, &f), Some(WritingRow::Retry));
         on_window(cx, &f, |window, _| {
+            // The notice alone, in the outcome's tone; the progress is a
+            // muted line of its own below it.
             assert_eq!(
                 window.find("writing-run-status").label(),
-                Some(format!("{notice} · Synthetic agent progress").as_str()),
+                Some(notice),
                 "{state:?}"
             );
             assert_eq!(window.find("writing-run-status-tone").label(), Some(tone));
+            let detail = window.find("writing-run-detail");
+            assert_eq!(detail.label(), Some("Synthetic agent progress"));
+            assert!(
+                detail.bounds().top()
+                    >= window.find("writing-run-status").bounds().bottom() - px(0.5),
+                "{state:?}"
+            );
+            assert_in(
+                window,
+                "writing-run-detail",
+                window.find("tile-note").bounds(),
+            );
         });
         cx.read(|cx| {
             let view = f.view.read(cx);

@@ -1884,6 +1884,53 @@ fn launcher_lists_saved_chat_messages_and_opens_their_chat(cx: &mut TestAppConte
     });
 }
 
+/// ⌘K with a word that is both a command and saved chat text: the theme
+/// names are everyday Estonian words. The chat Messages arrive after the
+/// command's label match, so they follow it; ↵ still runs the command once
+/// the search has answered, and the Message stays reachable below.
+#[gpui_kit::test]
+fn launcher_keeps_a_matching_command_ahead_of_chat_messages(cx: &mut TestAppContext) {
+    let mut chat = String::new();
+    let f = fixture(cx, |workspace| {
+        chat = workspace.new_thread("Weekend").unwrap().id;
+        workspace
+            .post_message(&chat, "Raba walk on Saturday")
+            .unwrap();
+    });
+    let command = lists::Command::Theme(ThemeId::Raba).label();
+    press(cx, &f, "cmd-k");
+    on_window(cx, &f, |window, cx| window.input("raba", cx));
+    on_window(cx, &f, |window, _| {
+        // The search has answered: the Message is listed, after the command.
+        assert_eq!(
+            window.find("launcher-item-0").label(),
+            Some(command.as_str())
+        );
+        assert_eq!(
+            window.find("launcher-item-1").label(),
+            Some("Message in Weekend, You: Raba walk on Saturday")
+        );
+        let (commands, chats) = (
+            window.find("launcher-group-commands").bounds(),
+            window.find("launcher-group-in-chats").bounds(),
+        );
+        assert!(commands.bottom() <= chats.top() + px(0.5));
+    });
+    press(cx, &f, "enter");
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert_eq!(view.theme, ThemeId::Raba);
+        assert!(!view.launcher_open);
+        assert_ne!(view.chat, ChatTarget::Thread(chat.clone()));
+    });
+    // The Message is the next row down.
+    press(cx, &f, "cmd-k");
+    on_window(cx, &f, |window, cx| window.input("raba", cx));
+    press(cx, &f, "down");
+    press(cx, &f, "enter");
+    cx.read(|cx| assert_eq!(f.view.read(cx).chat, ChatTarget::Thread(chat.clone())));
+}
+
 #[gpui_kit::test]
 fn keys_help_names_panels_menus_dialogs_and_the_settings_theme(cx: &mut TestAppContext) {
     let f = fixture(cx, |_| {});

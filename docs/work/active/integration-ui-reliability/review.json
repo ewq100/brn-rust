@@ -1,0 +1,96 @@
+{
+  "verdict": "CHANGES_REQUESTED",
+  "findings": [
+    {
+      "id": 1,
+      "title": "⌘K Enter target moves when chat hits arrive",
+      "blocking": true,
+      "confidence": "confirmed",
+      "requirement": 2,
+      "location": "crates/brn-desktop/src/threads_lists.rs launcher(); threads_ui.rs run_launcher/launcher_search_changed",
+      "detail": "launcher() orders label-matched chats, notes, then the asynchronous owner-search Message hits, then commands. launcher_index resets to 0 on each keystroke and isn't adjusted when the answer lands, and run_launcher acts on items[launcher_index]. Enter right after typing is nondeterministic, and once the answer arrives any saved chat text containing the typed word beats the command. Example: typing 'raba' (a theme command that is also an everyday Estonian word) opens a chat instead of switching theme, a path the owner decided ⌘K keeps.",
+      "action": "Append Message hits after commands (or keep the selection by identity when the list changes), add a launcher test where a Message and a command both match, and update the evidence's ordering sentence."
+    },
+    {
+      "id": 2,
+      "title": "Progress appended to the recorded notice",
+      "blocking": false,
+      "confidence": "likely",
+      "requirement": 5,
+      "location": "threads_workbench.rs RunOutcome::Recorded text(); threads_state.rs Recovery::label",
+      "detail": "The notice is the reason on all four surfaces, but the Note's writing-run-status renders 'notice · progress' as one error-toned string, and the card is announced as 'Failed · notice · progress · next'. The status line and Needs you show the notice alone.",
+      "action": "Render progress as a separate muted line in the Note as the card does, or state in the contract that the agent's progress may follow the notice."
+    },
+    {
+      "id": 3,
+      "title": "hold_worker stands for a live worker without a RunLease",
+      "blocking": false,
+      "confidence": "confirmed",
+      "requirement": 1,
+      "location": "crates/brn-desktop/src/threads_chat_tests.rs hold_worker",
+      "detail": "Documented as 'A live local worker for the chat's run', but holds no lease. queue_notices_follow_the_queue_state_and_paused_wins_after_stop Stops through it, so the service takes the lease-free path. The outcome matches under decision 2, but the evidence's lease justification only names the workbench run_fixture.",
+      "action": "Hold a RunLease in hold_worker, or add it to the evidence's justification."
+    },
+    {
+      "id": 4,
+      "title": "Chat paging not fully independent of notes",
+      "blocking": false,
+      "confidence": "confirmed",
+      "requirement": 2,
+      "location": "crates/brn-desktop/src/threads_search.rs search_paging / chat_results",
+      "detail": "Chats' Previous/Next are disabled on results.pending(), which includes a notes page in flight. chat_results infers a new query from notes.pending() && messages.pending(), so the whole 'In chats' group and its paging row disappear while both lanes page.",
+      "action": "Track 'new query pending' explicitly and gate each lane only on its own request."
+    },
+    {
+      "id": 5,
+      "title": "U4 Discard dialog wording",
+      "blocking": false,
+      "confidence": "likely",
+      "requirement": 3,
+      "location": "crates/brn-desktop/src/threads_writing.rs confirm_discard_of",
+      "detail": "The reused confirmation 'Discard your unsaved edit?' / 'Your changes since vN will be lost' describes the other open edit, possibly the CLI's, as if it were the owner's typing here. Only the tooltip says that what was typed here is kept.",
+      "action": "Give the open-edit path its own title and body, for example 'Discard the edit open elsewhere?' and 'What you typed here is kept.'"
+    },
+    {
+      "id": 6,
+      "title": "Focus-composer shortcut on an archived chat",
+      "blocking": false,
+      "confidence": "confirmed",
+      "requirement": 6,
+      "location": "crates/brn-desktop/src/threads_ui.rs focus_composer",
+      "detail": "focus_landing sends an archived chat's focus to Unarchive, but focus_composer (the FocusAsk action and quote-into-chat) has no archived guard and still focuses the archived composer.",
+      "action": "Route focus_composer to the archived banner for an archived chat, or record that an explicit shortcut may focus it."
+    },
+    {
+      "id": 7,
+      "title": "Native-ui Windows compile only after merge",
+      "blocking": false,
+      "confidence": "confirmed",
+      "requirement": 8,
+      "location": ".github/workflows/ci.yml native-ui matrix",
+      "detail": "Windows was never compiled for this branch; the evidence justifies this (no target installed, no platform-specific call added). On a pull request, though, CI's native-ui lane runs only on macos-15, and Windows runs only on main or manual runs, so a native-ui Windows break would first show after merge.",
+      "action": "Run the manual all-targets workflow on the PR branch before merging, or accept the risk explicitly."
+    },
+    {
+      "id": 8,
+      "title": "Archived note hits read differently from archived Message hits",
+      "blocking": false,
+      "confidence": "confirmed",
+      "requirement": 2,
+      "location": "crates/brn-desktop/src/threads_search.rs search_results facts",
+      "detail": "Note hits from archived chats get a lowercase 'archived chat' fact, while Message hits get an 'Archived' chip. Decision 3 asks for one Archived label.",
+      "action": "Use the same Archived label or chip for both kinds."
+    },
+    {
+      "id": 9,
+      "title": "Store reads in the Changes render path",
+      "blocking": false,
+      "confidence": "possible",
+      "requirement": null,
+      "location": "crates/brn-desktop/src/threads_tiles.rs refresh_name",
+      "detail": "R3's refresh_name calls workspace.writing_request (a SQLite read and a JSON parse) for every 'May need refresh' pill on every render. The read is confirmed; any noticeable cost is unmeasured.",
+      "action": "Resolve refresh names when history refreshes rather than per render."
+    }
+  ],
+  "reviewDoc": "/Users/evokessler/repos/brn-rust/.worktrees/integration-ui-reliability/docs/work/active/integration-ui-reliability/review.md"
+}

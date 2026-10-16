@@ -832,6 +832,52 @@ fn note_hits_and_chat_messages_page_independently(cx: &mut TestAppContext) {
     reveal(cx, &f, "notes-list", "search-chats-previous");
     click(cx, &f, "search-chats-previous");
     assert_eq!(pages(cx), ((14, 12, 2), (14, 0, 12)));
+    // While a notes page loads, chat paging stays available and "In chats"
+    // stays in view; with both lanes paging, the group shows its own
+    // loading line rather than disappearing. Nothing answers until parked.
+    reveal(cx, &f, "notes-list", "search-previous");
+    cx.update_window(f.window, |_, window, cx| {
+        window.click("search-previous", cx);
+        window.render_frame(cx);
+        assert!(window.find("search-status").visible(), "notes are loading");
+        assert!(window.find("search-chats").visible());
+        let next = window.find("search-chats-next");
+        assert_eq!(next.label(), Some("Next →"), "not waiting on notes");
+        // The note hits gave way to their loading line: scroll to the chats'
+        // Next without letting either request answer.
+        for _ in 0..20 {
+            let (item, frame) = (
+                window.find("search-chats-next").bounds(),
+                window.find("notes-list").bounds(),
+            );
+            if window.find("search-chats-next").visible()
+                && item.top() >= frame.top()
+                && item.bottom() <= frame.bottom()
+            {
+                break;
+            }
+            let up = if item.top() < frame.top() {
+                120.
+            } else {
+                -120.
+            };
+            window.scroll(
+                "notes-list",
+                gpui_kit::ScrollDelta::Pixels(point(px(0.), px(up))),
+                cx,
+            );
+        }
+        window.click("search-chats-next", cx);
+        window.render_frame(cx);
+        assert!(window.find("search-chats").visible(), "both lanes paging");
+        assert_eq!(
+            window.find("search-chats-status").label(),
+            Some("Searching chats…")
+        );
+    })
+    .unwrap();
+    cx.run_until_parked();
+    assert_eq!(pages(cx), ((14, 0, 12), (14, 12, 2)));
     // A new query starts both lanes at their first page.
     query(cx, &f, "curlew sighting");
     cx.read(|cx| {
@@ -839,6 +885,42 @@ fn note_hits_and_chat_messages_page_independently(cx: &mut TestAppContext) {
         assert_eq!(results.page.as_ref().unwrap().offset, 0);
         assert_eq!(results.chats.as_ref().unwrap().offset, 0);
     });
+}
+
+/// Owner decision 3: a note hit from an archived chat carries the same
+/// Archived chip as a Message hit, never a different wording. The Notes
+/// search has no project scope, where the service lists such notes, so the
+/// hit's `archived` field is set here directly.
+#[gpui_kit::test]
+fn an_archived_chats_note_hit_reads_archived_like_its_messages(cx: &mut TestAppContext) {
+    let f = fixture(cx, false, 1400., 1100.);
+    update(cx, &f, |view, _, _| {
+        view.workspace
+            .new_note("Curlew attachment", "A curlew at berth 4.")
+            .unwrap();
+        view.refresh();
+    });
+    click(cx, &f, "open-notes");
+    query(cx, &f, "curlew");
+    cx.update_window(f.window, |_, window, _| {
+        assert_eq!(window.find("hit-0").label(), Some("Curlew attachment"));
+        assert!(window.try_find("hit-0-archived").is_none());
+    })
+    .unwrap();
+    update(cx, &f, |view, _, cx| {
+        view.hits[0].archived = true;
+        cx.notify();
+    });
+    cx.update_window(f.window, |_, window, cx| {
+        window.render_frame(cx);
+        assert_eq!(
+            window.find("hit-0").label(),
+            Some("Curlew attachment · Archived")
+        );
+        assert_eq!(window.find("hit-0-archived").label(), Some("Archived"));
+        assert!(window.find("hit-0-archived").visible());
+    })
+    .unwrap();
 }
 
 fn owner_write(view: &mut ThreadsUi, key: &str, data: Vec<RecordData>) -> Vec<Record> {

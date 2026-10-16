@@ -582,6 +582,9 @@ struct ThreadsUi {
     excluded_comments: BTreeSet<String>,
     expanded_requests: BTreeSet<String>,
     applied_rewrite: BTreeMap<String, (String, String)>,
+    /// Rewrite request → its note's title, for Changes' "May need refresh"
+    /// pills (R3), resolved when history refreshes rather than per render.
+    refresh_names: BTreeMap<String, String>,
     assets: Arc<BTreeMap<String, Arc<Image>>>,
     worker: Option<Worker>,
     pending_send: Option<PendingSend>,
@@ -905,6 +908,7 @@ impl ThreadsUi {
             excluded_comments: BTreeSet::new(),
             expanded_requests: BTreeSet::new(),
             applied_rewrite: BTreeMap::new(),
+            refresh_names: BTreeMap::new(),
             assets: Arc::new(BTreeMap::new()),
             worker: None,
             pending_send: None,
@@ -947,6 +951,25 @@ impl ThreadsUi {
             self.buffers = self.workspace.store.recovery_buffers()?;
             self.settings = self.workspace.settings()?;
             self.topics = self.workspace.topics()?;
+            // Changes names a flagged rewrite request by its note (R3); the
+            // snapshot is read here, once per refresh, not on every render.
+            let flagged = self
+                .history
+                .iter()
+                .flat_map(|receipt| receipt.needs_refresh.iter().map(String::as_str))
+                .collect::<BTreeSet<_>>();
+            self.refresh_names = self
+                .records
+                .iter()
+                .filter(|record| {
+                    flagged.contains(record.id.as_str())
+                        && matches!(&record.data, RecordData::Message(message) if message.role == WRITING_REQUEST_ROLE)
+                })
+                .filter_map(|record| {
+                    let snapshot = self.workspace.writing_request(&record.id).ok()?;
+                    Some((record.id.clone(), title(&snapshot.note)))
+                })
+                .collect();
             // Only an actual target-note Apply receipt proves addressed feedback or Undo.
             self.applied_rewrite.clear();
             let requests=self.records.iter().filter(|record| !record.archived && matches!(&record.data,RecordData::Message(message) if message.role=="writing-request")).map(|record|record.id.as_str()).collect::<BTreeSet<_>>();
@@ -1069,8 +1092,18 @@ impl ThreadsUi {
     fn focus_composer(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         self.tile_reveal = None;
         self.layout.open(TileKind::Chat);
-        self.composer
-            .update(cx, |editor, cx| editor.focus(window, cx));
+        // An archived chat's composer can't send: ⌘L and quoting into the
+        // chat land on its banner's Unarchive, as opening the chat does (U11).
+        if self
+            .chat_thread()
+            .is_some_and(|thread| self.thread_resolved(thread))
+        {
+            self.archived_banner.focus(window, cx);
+            self.focus_first = Some(self.archived_banner.clone());
+        } else {
+            self.composer
+                .update(cx, |editor, cx| editor.focus(window, cx));
+        }
         cx.notify();
     }
     fn show_last_work_notice(&mut self, cx: &mut Context<Self>) {

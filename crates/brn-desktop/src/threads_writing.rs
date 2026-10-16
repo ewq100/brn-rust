@@ -1285,7 +1285,11 @@ impl ThreadsUi {
         let Some(session) = self.note.as_ref().and_then(|open| open.session.clone()) else {
             return;
         };
-        self.confirm_discard_of(session, window, cx);
+        let body = format!(
+            "Your changes since v{} will be lost. This can't be undone.",
+            session.base_version
+        );
+        self.confirm_discard_of(session, "Discard your unsaved edit?", body, window, cx);
     }
     /// The other open edit of the open note (U4), found by its note: the
     /// typed error's session is never used.
@@ -1298,33 +1302,41 @@ impl ThreadsUi {
         let buffer = self.buffers.iter().find(|s| s.note == *note)?;
         Some((buffer.clone(), *base))
     }
-    /// The same confirmation for the other open edit (U4).
+    /// The same confirmation for the other open edit (U4), worded for that
+    /// edit: what the owner typed here is kept.
     pub(super) fn confirm_discard_open_edit(
         &mut self,
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        if let Some((session, _)) = self.open_edit_elsewhere() {
-            self.confirm_discard_of(session, window, cx);
+        if let Some((session, base)) = self.open_edit_elsewhere() {
+            let body = format!(
+                "Its changes since v{base} will be lost. What you typed here is kept. This can't be undone."
+            );
+            self.confirm_discard_of(
+                session,
+                "Discard the edit open elsewhere?",
+                body,
+                window,
+                cx,
+            );
         }
     }
     fn confirm_discard_of(
         &mut self,
         session: EditSession,
+        title: &'static str,
+        body: String,
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        let body = format!(
-            "Your changes since v{} will be lost. This can't be undone.",
-            session.base_version
-        );
         let target = cx.entity().downgrade();
         self.open_dialog(window, cx, move |dialog, _, _| {
             let target = target.clone();
             components::consequence_dialog(
                 dialog,
                 "discard-note",
-                "Discard your unsaved edit?",
+                title,
                 body.clone(),
                 "Discard",
                 std::rc::Rc::new({

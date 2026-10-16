@@ -58,12 +58,11 @@ pub(super) struct SearchView {
     pub(super) error: Option<String>,
     notes: Lane,
     messages: Lane,
+    /// A new query's request, which fills both lanes; until it answers no
+    /// earlier page shows. Paging a lane never sets it.
+    fresh: Option<u64>,
 }
 impl SearchView {
-    /// A request is outstanding for the current query.
-    pub(super) fn pending(&self) -> bool {
-        self.notes.pending() || self.messages.pending()
-    }
     /// The saved chat Messages on the shown page, best first.
     pub(super) fn message_hits(&self) -> &[ChatMessageHit] {
         self.chats
@@ -88,6 +87,19 @@ pub(super) fn role_label(role: &str) -> &'static str {
         "owner" => "You",
         _ => "BRN",
     }
+}
+
+/// The one Archived label for a hit from an archived chat (owner decision
+/// 3), a note or a Message alike: a neutral chip, `{row}-archived`, that
+/// joins the row's announced name.
+fn archived_chip(entry: components::ListRow, row: &str, archived: bool) -> components::ListRow {
+    if !archived {
+        return entry;
+    }
+    entry.chip(
+        "Archived",
+        components::status_chip(format!("{row}-archived"), None, None, "Archived"),
+    )
 }
 
 /// A snippet with the service's highlight ranges in ink and semibold.
@@ -160,6 +172,9 @@ impl ThreadsUi {
         results.error = None;
         let notes = lanes != Lanes::Chats;
         let chats = lanes != Lanes::Notes;
+        if lanes == Lanes::Both {
+            results.fresh = None;
+        }
         if notes {
             let lane = &mut results.notes;
             (lane.task, lane.cancel, lane.awaiting) = (None, None, None);
@@ -196,7 +211,7 @@ impl ThreadsUi {
             });
         });
         // The lane that pages owns the request; a new query's request sits
-        // in the notes lane, and paging waits until it answers.
+        // in the notes lane, and both lanes wait for it.
         let owner = if chats && !notes {
             &mut results.messages
         } else {
@@ -209,6 +224,9 @@ impl ThreadsUi {
         }
         if chats {
             results.messages.awaiting = Some(request);
+        }
+        if lanes == Lanes::Both {
+            results.fresh = Some(request);
         }
     }
 
@@ -223,6 +241,9 @@ impl ThreadsUi {
         let chats = results.messages.awaiting == Some(request);
         if !notes && !chats {
             return;
+        }
+        if results.fresh == Some(request) {
+            results.fresh = None;
         }
         if notes {
             results.notes.awaiting = None;
@@ -353,8 +374,9 @@ impl ThreadsUi {
         }));
     }
 
-    /// One lane's Previous and Next, disabled with their reason. Notes wait
-    /// for their own request; chats also wait while a new query answers.
+    /// One lane's Previous and Next, disabled with their reason. Each lane
+    /// waits only for its own request (a new query's request is both
+    /// lanes'), never for the other lane's page.
     fn search_paging(&self, lane: Lanes, cx: &mut Context<Self>) -> gpui_kit::Div {
         let results = &self.results;
         let (id, has_previous, has_next, pending) = match lane {
@@ -365,7 +387,7 @@ impl ThreadsUi {
                     .chats
                     .as_ref()
                     .is_some_and(|page| page.message_cursor.is_some()),
-                results.pending(),
+                results.messages.pending(),
             ),
             _ => (
                 "search",
@@ -431,7 +453,7 @@ impl ThreadsUi {
     pub(super) fn search_results(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         let p = pal();
         let results = &self.results;
-        let typing = results.notes.pending() && results.messages.pending();
+        let typing = results.fresh.is_some();
         let notes_pending = results.notes.pending();
         let mut block = div()
             .id("search-results")
@@ -509,21 +531,23 @@ impl ThreadsUi {
             if hit.protected {
                 facts.push("protected".into());
             }
-            if hit.archived {
-                facts.push("archived chat".into());
-            }
             let links = if hit.inbound_links > 0 {
                 format!("← {}", hit.inbound_links)
             } else {
                 String::new()
             };
+            let row = format!("hit-{index}");
             let mut entry = div().flex().flex_col().pb_1().child(
-                tiles::row(format!("hit-{index}"), hit.title.clone(), links, false).on_click(
-                    cx.listener(move |this, _, window, cx| {
-                        this.open_note(&id, None, window, cx);
-                        this.reveal(range.clone(), window, cx);
-                    }),
-                ),
+                archived_chip(
+                    components::ListRow::new(row.clone(), hit.title.clone()).meta(links),
+                    &row,
+                    hit.archived,
+                )
+                .build()
+                .on_click(cx.listener(move |this, _, window, cx| {
+                    this.open_note(&id, None, window, cx);
+                    this.reveal(range.clone(), window, cx);
+                })),
             );
             if !facts.is_empty() {
                 entry = entry.child(
@@ -620,14 +644,12 @@ impl ThreadsUi {
             );
             for (index, hit) in page.messages.iter().enumerate() {
                 let row = format!("chat-hit-{index}");
-                let mut entry = components::ListRow::new(row.clone(), hit.chat_title.clone())
-                    .meta(role_label(&hit.role));
-                if hit.archived {
-                    entry = entry.chip(
-                        "Archived",
-                        components::status_chip(format!("{row}-archived"), None, None, "Archived"),
-                    );
-                }
+                let entry = archived_chip(
+                    components::ListRow::new(row.clone(), hit.chat_title.clone())
+                        .meta(role_label(&hit.role)),
+                    &row,
+                    hit.archived,
+                );
                 let (chat, message) = (hit.chat.clone(), hit.message.clone());
                 block =
                     block.child(
