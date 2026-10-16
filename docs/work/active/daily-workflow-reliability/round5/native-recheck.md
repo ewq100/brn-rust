@@ -1,5 +1,7 @@
 # Round 5 native re-check (slices C, D, F)
 
+**Superseded for builds from round 6 on** (owner decisions of 16 October 2026). Use the [round 6 re-check](../round6/native-recheck.md): Archive no longer adds the notice (C), and search keeps an archived chat's Message, flagged (F). D is unchanged and is part B there.
+
 For the orchestrator or the owner. Everything here is offline: `HOME` and `CODEX_HOME` point at empty folders, so no provider call is possible. Run it outside the agent sandbox, with no other agent driving the Mac. Each check uses a fresh copy, so the source stores stay untouched.
 
 The two round 4 stores are the source for C and D: `/private/tmp/brn-dwr-data/r4-native-resume/data` and `r4-native-settings/data`. Each holds a killed intake Run (`Working`, fence 1) in "Information from b1-source", an unlocked lease file in `derived/run-leases/`, and an unretired candidate "Crane arrival — reported date". F builds its own store with the CLI.

@@ -2,7 +2,9 @@
 
 **Date:** 15 October 2026. **Base:** `8bef439b` (main, #148 quality integration), after a [second rebase](rebase-notes.md#second-rebase-onto-8bef439b). The branch is now on `8bef439b`; the commit hashes in this record were taken before that rebase, on `771116f0` (#145 helper sub-agents), and the [second rebase table](rebase-notes.md#commit-map) maps each one to its new hash. **Fix commits:** `9f70efa7` (fixes 1–3, approved in [review](review.md)), `2530805f` (Task A), `145b8884` (helper sub-run lease test) and `3a7c3d25` (round 3) on local branch `work/daily-workflow-reliability`, isolated worktree. **History:** the evaluation and the fixes before round 3 ran on the earlier base `34c9239d` (#144), where fixes 1–3 were `422c9582` and Task A was `dfe698aa`. Hashes in sections labelled pre-rebase refer to that history, which the backup ref `work/daily-workflow-reliability-pre-rebase` (`914e2e6f`) keeps; the [rebase notes](rebase-notes.md) map each commit. **Scope:** service/runtime/CLI. The evaluation sections below describe the base tree; the fixes, their before/after results and the final verification follow under [Verification](#verification). Through Task A, `crates/brn-desktop` was read but not edited. Round 3 edited it at the UI agent's request (U2): `useful_intake` in `crates/brn-desktop/src/threads_ui.rs` (plus its test-module declaration) and a new `crates/brn-desktop/src/threads_intake_tests.rs`. The UI agent's worktree was not touched.
 
-**Round 5** (`e07354db`…`28e64cdf`, eight slices A–H) is summarized in [Round 5](#round-5-eight-reliability-slices-ah); per-slice detail is in [round 5 verification](round5/verification.md).
+**Round 5** (`e07354db`…`28e64cdf`, eight slices A–H) is summarized in [Round 5](#round-5-eight-reliability-slices-ah); per-slice detail is in [round 5 verification](round5/verification.md). Round 5 hashes are the pre-second-rebase ones; [rebase notes](rebase-notes.md#commit-map) map them.
+
+**Round 6** (`7ecc43aa`, `b5212618`, `747755b3`) implements the owner's decisions 1–3 of 16 October 2026: see [Round 6](#round-6-owner-decisions-13).
 
 **Round 3** (`3a7c3d25`, after the rebase onto `771116f0`; [round 3 verification](round3-verification.md)) applied U6, U4 and U2 as agreed with the UI agent, including the `useful_intake` call in `crates/brn-desktop`. Where a notice text below differs from the [round 3 table](round3-verification.md#u6-failure-notice-wording-cratesbrn-aisrcthreadsrs), the round 3 text is what this build shows. The owner manual check and the UI findings use the round 3 texts.
 
@@ -33,6 +35,10 @@
 | Round 5 F: owner search lists saved chat Messages | yes (`f5872774`) | yes (service/CLI; desktop does not render them, F-UI1) | no ([procedure](round5/native-recheck.md)) | no | no |
 | Round 5 G: runtime tool `withdraw_proposal` | yes (`7ed74f26`) | yes (scripted model) | n/a (runtime) | no | no |
 | Round 5 H: an unusable data folder is named in owner terms | yes (`28e64cdf`) | yes (CLI and headless desktop startup) | no | no | no |
+| Round 6, decision 1: a chat's notice clears when its next Run starts | yes (`7ecc43aa`) | yes ([round 6](#round-6-owner-decisions-13)) | no ([procedure](round6/native-recheck.md)) | decision yes; build no | no |
+| Round 6, decision 2: Archive adds Review items but no new notice | yes (`7ecc43aa`) | yes (service and headless desktop) | no ([procedure](round6/native-recheck.md)) | decision yes; build no | no |
+| Round 6, decision 2 applied to the owner's Stop (interpretation pending) | yes (`b5212618`, own commit) | yes | no (no native path on this branch) | no | no |
+| Round 6, decision 3: archived chats stay in owner search, labelled `archived` | yes (`747755b3`) | yes (service, CLI and headless desktop data; the desktop does not render it, F-UI1) | no ([procedure](round6/native-recheck.md)) | decision yes; build no | no |
 
 Nothing was pushed, merged or released. The branch has no upstream.
 
@@ -480,15 +486,15 @@ Owner request: "can you fix all 5 . and let go wiht interrupted". Base `f519534e
 **UI findings (for the UI agent).** No slice paused for a desktop decision.
 - **F-UI1: the notes search shows no chat Message hits.** Steps (offline): `brn --data-dir $D init`; `configure --provider Codex --model gpt-6.1-sol --effort medium --auth-file <missing>`; `thread-start --title Replies`; `ask --thread <id> --prompt "Berth survey reply draft 1.4 m"` (fails offline, and the owner Message is saved); `search --query berth` gives `message_total: 1`, `messages[0]` with `chat_title "Replies"` and `role "owner"`. Then `brn-desktop --data-dir $D`, open Notes and type `berth`. *Observed (headless harness):* only `search-empty`, with no `search-status` and no `hit-0`, although `page.messages.len() == 1`. *Expected:* an "In chats" kind that opens `chat`, paged with `message_cursor`.
 - **U9 resolved (D).** After the maintenance choice on `r4-native-settings`, the run line should read "Interrupted", matching the notice. Not native-observed.
-- **Continue shows the notice while the new Run works (C).** Kill a Run (`pkill -9` during intake), relaunch, and click Continue in that chat. The row stays in Needs you with "Run interrupted. Continue starts fresh." until the new Run's result replaces it. This conflicts with `threads-behavior.md` §State ("an interruption only enters Needs you when resuming requires an owner action"); decide at integration.
-- **An archived killed chat carries the notice (C).** Archive the chat in [the C procedure](round5/native-recheck.md#c-archiving-a-chat-whose-run-died-adds-the-notice): it shows under NEEDS YOU with the review and blocker cards. Continue there is refused until Unarchive.
+- **Continue shows the notice while the new Run works (C). Resolved in [round 6](#round-6-owner-decisions-13) (decision 1):** the notice now clears when the next Run starts.
+- **An archived killed chat carries the notice (C). Resolved in [round 6](#round-6-owner-decisions-13) (decision 2):** Archive now adds the Review only.
 - **A desktop instruction whose Run never started is posted again (E).** Supply a source while another worker is busy so the Run never starts, then supply it again: two identical owner Messages, because reuse needs a Run that named the Message (code reading in review-E; not observed).
 - **Not part of round 5:** `brn project-delete` of a project whose chat has a Run fails with "invalid request: run control changes must advance the fence" (`ProjectCommand::Delete` archives Runs without a fence advance; same at `771116f0`). It needs its own slice and an owner decision.
 
 **Integration risks for `work/ui-polish`.**
 - *Desktop files touched in round 5:* `crates/brn-desktop/src/threads_ui.rs`, slice E only: `useful_intake` uses `SOURCE_INTAKE_INSTRUCTION` and calls `Workspace::post_intake_instruction` instead of `post_message`, 7 lines. Also `crates/brn-desktop/src/threads_intake_tests.rs` (tests; slices B, C, D, E and F). No layout, control or wording edit.
 - *Run state (D):* a settings change (Configure, delegation choice, maintenance Pause/Resume, backup folder) now ends every Working Run as `Interrupted`, not `Cancelled`. Every outside-the-chat stop now writes `Interrupted`, and only the legacy `resolve_thread` (no production caller) still writes `Cancelled`. Run state no longer tells a deliberate Stop from an outside stop; only the notice does. UI tests expecting `Cancelled` after a settings change need `Interrupted`. The core and app READMEs still say settings "cancel" Runs (review-D, not edited).
-- *Stop paths (C):* Stop, Archive, Steer and Continue of a lease-free Run now add the Interrupted notice and remove the lease file. Rerun the UI branch's Stop, Archive and Resume tests. Seeded Working Runs without a lease count as lease-free.
+- *Stop paths (C), as changed in [round 6](#round-6-owner-decisions-13):* Steer, the failure stop and the resume-stale stop of a lease-free Run add the Interrupted notice. The owner's Stop, Archive and Continue no longer do. Every path still removes the free lease file. Rerun the UI branch's Stop, Archive and Resume tests. Seeded Working Runs without a lease count as lease-free.
 - *Search hit kind (F):* `SearchPage` gains serde-default `messages: Vec<ChatMessageHit { message, version, chat, chat_title, role, snippet, highlights }>`, `message_total` and `message_cursor`. Notes stay in `hits` with the same `total`. `search.sqlite` schema v3 is rebuilt in place on first open, and again after a rollback. The desktop pays the Message re-check on every keystroke search without rendering it. `user_scale` measured query p95 22.9 ms at 10,000 notes; review-F estimates (not measured) that a query whose candidates span many chats may add 0.3–1.4 s.
 - *Runtime tool (G):* the activity line "Withdrawing an obsolete proposal…" with outcomes `Withdrawn`/`Refused`. Tests that count tools (now 10) or pin the bundle (now `brn-threads-guidance-12`) need updating; renumber at merge if 12 is taken. Core `Store::{dismiss_candidate, clear_review_attention}` now carry the owner's Dismiss/Apply cleanup, with unchanged keys and texts.
 - *Source paths (B):* new file Sources show the real path (`/private/tmp/...`), and tests comparing temp paths with `Source.locator` must canonicalize.
@@ -515,15 +521,15 @@ Owner request: "can you fix all 5 . and let go wiht interrupted". Base `f519534e
   - *U8:* the desktop will stop showing receipt reasons. It will say "Saved." or "Saved. Running work was stopped.", and service strings stay as they are.
   - *F-UI1 and U4 (Compare/Discard on `EditSessionOpen`):* done on the combined branch, because they need this branch's APIs.
   - *U2:* the UI branch leaves `useful_intake` logic alone, but adds notice tones across `threads_ui.rs`. Expect a small textual conflict near `useful_intake`.
-  - *Integration checklist addition:* the UI branch's U1 Stop tests seed a lease-free Working Run and then Stop it. Here that Run gets an Interrupted notice, so those tests need a `RunLease` or a new expected result.
+  - *Integration checklist addition:* the UI branch's U1 Stop tests seed a lease-free Working Run and then Stop it. At round 5 that Run got an Interrupted notice. From round 6 (`b5212618`), the owner's Stop adds none; see [round 6](#round-6-owner-decisions-13).
   - *Bundle id and tool count:* decided at integration.
 
 **Proposed contract sentences (not applied; apply at integration with `docs/status.md`).**
-- `threads-behavior.md`, State and attention: "A Run stopped because of something outside its chat (settings, project changes or imports, process ended, or a lease-free stop) is recorded as Interrupted, matching its notice." (D) If the owner keeps C's Continue behavior, qualify the "only enters Needs you" sentence: "A Run whose process died keeps its Interrupted notice until the next Run in its chat records a result."
+- `threads-behavior.md`, State and attention: "A Run stopped because of something outside its chat (settings, project changes or imports, process ended, or a lease-free stop) is recorded as Interrupted, matching its notice." (D) For Continue, owner decision 1 replaces the earlier proposal ("keeps its Interrupted notice until the next Run in its chat records a result"): "A chat's Interrupted or Failed notice clears when the next Run in that chat starts; if that Run fails or is interrupted, it records a new notice." (round 6)
 - `threads-behavior.md`, Attachments or source identity: "A local file supplied as a source is recorded and matched by its real path, so one file is one Source however its path is spelled; a Source saved under an older spelling still matches and is recorded at the real path by the next checked observation." (B) And: "Useful intake uses one owner instruction from every host. A re-supply of the same source in its chat reuses the chat's latest instruction for that source unless the owner has written since." (E)
-- `threads-behavior.md`, search: "Owner search also lists saved final chat Messages (owner and assistant, never partial progress) as their own kind with their chat, scoped like notes: general chats in general search, project chats only in their project's search, and a chat with private context only from itself. Archived and Trashed chats are excluded until restored. Agent note search never returns chat Messages." (F; review-F notes that a Resolved project chat's Messages still show in project search, while its chat-only notes do not.)
+- `threads-behavior.md`, search: "Owner search also lists saved final chat Messages (owner and assistant, never partial progress) as their own kind with their chat, scoped like notes: general chats in general search, project chats only in their project's search, and a chat with private context only from itself. An archived or legacy Resolved chat keeps that scope, and its Messages and chat-only notes are marked archived; Trashed chats are excluded until restored. Agent note search never returns chat Messages." (F as corrected by round 6 decision 3. Review-F's note that a Resolved project chat's chat-only notes do not show was a misreading: they are project documents and always showed; see the [caveat](round6/decision3-caveat.md).)
 - `threads-behavior.md` §142: "Every run registers ten tools: …, `refresh_candidate`, `withdraw_proposal`." Then: "`withdraw_proposal` dismisses only an unapplied candidate that a Run of the same chat prepared, through the owner's checked dismissal path with a receipt and replay; it never applies anything, refuses applied operations, owner changes and other chats, and is never offered to helpers." (G)
-- `invariants.md`: "Any checked change that ends a Working Run no process holds a lease for treats it as orphaned: one Interrupted notice in its chat, a Review item for each candidate it left, and removal of its free lease file. A live lease is never removed, and a deliberate stop of live work adds no notice." (C) And: "A backup or restore removes only abandoned BRN stages in its destination's parent: exact BRN stage name, real directory, BRN marker text, and no process holding the marker's lock." (A) And: "An unusable data folder is refused with the folder and the reason in owner terms; the OS detail is kept for logs only." (H)
+- `invariants.md`: superseded by the round 6 sentence in [Round 6](#round-6-owner-decisions-13) (C as changed by decisions 1 and 2). And: "A backup or restore removes only abandoned BRN stages in its destination's parent: exact BRN stage name, real directory, BRN marker text, and no process holding the marker's lock." (A) And: "An unusable data folder is refused with the folder and the reason in owner terms; the OS detail is kept for logs only." (H)
 - `docs/status.md` (not edited): "nine registered tools" becomes "ten".
 
 **Open review notes (non-blocking, not fixed).**
@@ -531,7 +537,85 @@ Owner request: "can you fix all 5 . and let go wiht interrupted". Base `f519534e
 - *G:* a later ordinary Run can withdraw an earlier Rewrite proposal; retirement happens before the fence-bound cleanup; and a replay after the owner's Undo removes the restored Review item again.
 - *H:* marker reads on an existing folder still surface `storage: … (os error N)`, and the "Choose a folder you own" advice also covers a macOS privacy denial.
 
-**Native re-check.** [round5/native-recheck.md](round5/native-recheck.md) covers C (Archive of a killed chat), D (settings stop run line) and F (search) on offline copies of the `r4-native-*` stores. CLI dry runs on copies gave the expected store states for C and D: Run `Interrupted` at fence 2, `[Review, Blocker]`, the candidate unretired, `derived/run-leases/` empty.
+**Native re-check.** [round5/native-recheck.md](round5/native-recheck.md) covers C (Archive of a killed chat), D (settings stop run line) and F (search) on offline copies of the `r4-native-*` stores; for builds from round 6 on, use [round6/native-recheck.md](round6/native-recheck.md). CLI dry runs on copies gave the expected store states for C and D: Run `Interrupted` at fence 2, `[Review, Blocker]`, the candidate unretired, `derived/run-leases/` empty.
+
+## Round 6: owner decisions 1–3
+
+These are the owner decisions of 16 October 2026 (coordination board, "ok of all 4"). Commits:
+
+- `7ecc43aa`: decision 1, and decision 2 for Archive.
+- `b5212618`: decision 2 applied to the owner's Stop, kept in its own commit.
+- `747755b3`: decision 3, with the [caveat check](round6/decision3-caveat.md).
+- The docs commit that adds this section.
+
+All checks were automated and headless. The work is not native-observed, not owner-accepted and not merged. No `threads.sqlite3` schema, dependency, `Cargo.lock` or `main.rs` change. The derived `search.sqlite` moves to v4.
+
+**Caveat result.** No contract reason. No archive-based exclusion of chat-only notes existed. A project chat's notes are project documents (`project_document_ids`), so the shared context predicate already admits them anywhere in their project, open or not. A general chat's chat-only notes stay private to that chat. The only archive rule in owner search was round 5 F's Message rule. Review-F issue 2 misread this. One currency sentence in `threads-target.md:136` and `chats-and-projects/spec.md:70` needs a correction at integration.
+
+| Decision | Before (round 5) | After (round 6) |
+|---|---|---|
+| 1. Notice and the next Run | Continue in a killed chat added "Run interrupted. Continue starts fresh." in its start change. An existing Interrupted or Failed notice stayed until the new Run's result, so a chat with no candidate sat in Needs you during the Continue. | `begin()` removes the chat's host terminal notices in the same "Start a fresh invocation" change. These are Interrupted or Failed Blockers, legacy texts included, that name a Run of that chat. A fenced orphan gets none. Reviews, Questions and independent Blockers stay. `finish()` records a new notice when this Run fails or is interrupted. A replay of the start change adds nothing. |
+| 2. Archive of a killed Run | Archive and ArchiveProgress of a lease-free Run added the notice, added the Review items and removed the lease file. | No new notice, even for an orphan. The Review items for unapplied proposals are still added, existing notices stay, and the free lease file is still removed. The Run is written `Interrupted`, the state the owner's Stop has always written (review-D). Only the legacy `resolve_thread` writes `Cancelled`, so one state covers every deliberate stop, and Continue treats both alike. |
+| 2 applied to Stop (`b5212618`, interpretation pending the lead's confirmation) | `stop_chat_run` of a lease-free Run added the notice. | `stop_chat_run` is the owner's Stop: no notice, Review items added, lease file removed. The new `interrupt_chat_run` keeps the notice for BRN's own stops. Desktop `pause_failed_worker` and the resume-stale stop call it. Revert `b5212618` alone to flip this back; it reverts cleanly on `747755b3`. |
+| 3. Search and archived chats | Owner search dropped an archived chat's Messages in every context, and no hit had a label. Chat-only notes already showed under their scope. | Archived and legacy Resolved chats' Messages keep their normal scope. `ChatMessageHit.archived` and `SearchHit.archived` (serde default `false`) label hits from such chats. The label is read from the hit's own snapshot, so Archive, Unarchive, Trash and Restore show on the next search. Trashed chats stay out. Schema v4 rebuilds a v3 index, which had archived chats tagged `hidden`. Agent `search_notes` is unchanged: no Messages, no label, the same predicate, and `context.rs` untouched. |
+
+**Paths that end a lease-free Working Run, after round 6.**
+
+| Path | Interrupted notice | Review items | Free lease file |
+|---|---|---|---|
+| Orphan recovery on Resume or Dispatch | added | added | removed |
+| Settings, project commands, project imports | added | added | removed |
+| BRN's own stop: failed worker, resume-stale (`interrupt_chat_run`) | added | added | removed |
+| Steer (`stop_and_post`) | added; the follow-up Run's start clears it | added | removed |
+| The owner's Stop (`stop_chat_run`) | none | added | removed |
+| Archive, ArchiveProgress | none; existing notices kept | added | removed |
+| Continue or any next Run in the chat (`begin()`) | cleared | added | removed |
+
+**Verification** at `747755b3`, run unsandboxed with the round 5 environment and a fresh `TMPDIR` under `/private/tmp/brn-dwr-data/` for each run. The fail-before lines for every new or changed test are in the three commit messages.
+
+| Check | Result |
+|---|---|
+| `cargo fmt --all --check` | clean |
+| `cargo build -p brn-intake --features helper --bin brn-intake-helper --locked --offline` | ok |
+| `cargo clippy --workspace --all-targets --locked --offline -- -D warnings` | clean |
+| `cargo clippy -p brn-desktop --features native-ui,native-test-support --all-targets --locked --offline -- -D warnings` | clean |
+| `cargo test --workspace --locked --offline --no-fail-fast` | **817 passed, 1 failed, 6 ignored**. Baseline 808 / 1 / 6, plus 9 new tests. The failure is the Poppler-only `prepared_rust_fixtures_keep_source_and_preview_bindings_in_owned_scratch`. |
+| `cargo test --locked --offline -p brn-desktop --features native-ui,native-test-support --bin brn-desktop` | **162 passed, 1 ignored**. Baseline 161 / 1, plus the Archive test. |
+| `scripts/verify-end-to-end.sh --fixtures-only` | passed |
+| `cli-journey.py` on a fresh `/private/tmp/brn-dwr-data/r6-journey` | exit 0. 43 steps: 40 succeeded and 3 were refused as designed (two `begin-edit`, one occupied backup), as in round 5. |
+| `brn-desktop --headless-check startup` on fresh data | "Threads ready: 2 records" |
+| `git diff --check`; `scripts/check-markdown-links.py` | clean; 0 failures |
+| `cargo build -p brn-desktop --features native-ui --locked --offline` | rebuilt at the code head for the native re-check |
+
+**Corrected proposed contract sentences** (not applied; apply once at integration with `docs/status.md`):
+- `threads-behavior.md`, State and attention, after "An interruption only enters Needs you when resuming requires an owner action.": "A chat's Interrupted or Failed notice clears when the next Run in that chat starts; if that Run fails or is interrupted, it records a new notice." (decision 1)
+- `threads-behavior.md`, State and attention, after "Archiving preserves outstanding attention requests…": "Archive is a deliberate owner stop: it adds a Review item for each proposal its stopped Run left unapplied, but never a new Interrupted notice, even for work whose process had already ended. The owner's Stop does the same." (decision 2; the Stop sentence is pending the lead's confirmation)
+- `invariants.md` (replaces round 5 C's sentence): "Any checked change that ends a Working Run no process holds a lease for adds a Review item for each candidate that Run left and removes its free lease file. BRN's own stops (orphan recovery, settings, project changes, imports, a failed worker, the stale Run before Resume) and Steer also leave one Interrupted notice in its chat. The owner's Stop and Archive add none, and starting the chat's next Run clears it. A live lease is never removed."
+- `threads-behavior.md`, search: the round 5 F sentence as corrected above.
+- `threads-target.md:136` and `chats-and-projects/spec.md:70`: "Owner search also lists an archived (or legacy Resolved) chat's saved Messages under that chat's normal scope, and labels them and its chat-only notes Archived. Agent retrieval is unchanged."
+
+**Integration risks for `work/ui-polish`.**
+- *New fields:*
+  - `ChatMessageHit.archived` and `SearchHit.archived`, both serde-default `false`.
+  - `archived: bool` on `search::MessageMatch` and `search::NoteMatch`, which are not serde types, so any struct literal needs the field.
+  - F-UI1's "In chats" group shows the Archived label from `archived`. Note hits can use theirs too.
+- *U1 Stop tests:* the owner's Stop of a lease-free Working Run now adds no notice. It still adds the Review items and removes the free lease file. Those tests should expect no notice, and need no `RunLease` for that. If the interpretation is rejected, revert `b5212618`.
+- *Automatic stops:* new `Workspace::interrupt_chat_run`. `threads_chat.rs` `pause_failed_worker` and `resume_chat_queue` call it (two call sites). Keep them if the UI branch edits those lines. Any new automatic stop uses `interrupt_chat_run`; an owner-initiated Stop uses `stop_chat_run`.
+- *Notice clearing at Run start:* once a Run starts in a chat, that chat's Interrupted or Failed notice is gone, and the row leaves Needs you unless something else needs the owner. U10's status line therefore has no recorded notice to show while that Run works. UI tests that expect a notice or recovery card during a Continue need new expectations.
+- *Archive of a killed chat:* the archived chat shows the Review card only, with no blocker card, beside Unarchive.
+- *Index:* `search.sqlite` v4 is rebuilt in place on first open, as v3 was.
+- *Desktop files touched in round 6:*
+  - `crates/brn-desktop/src/threads_chat.rs`: two call sites, in `b5212618`;
+  - `crates/brn-desktop/src/threads_intake_tests.rs`: tests (an Archive test, and an archived leg in the search-answer test).
+
+**Integration risks for `work/cli-agent-contract`.** `search` JSON gains `archived` on every `messages[]` and `hits[]` entry, default `false`. Round 6 makes no `main.rs` change. `stop_chat_run` and the new `interrupt_chat_run` have no CLI caller.
+
+**Native re-check.** See [round6/native-recheck.md](round6/native-recheck.md):
+
+- Archive of a killed chat: the Review card, no new notice, the lease file gone.
+- Settings stop: the run line reads "Interrupted", with the notice.
+- Continue after a crash: the notice clears when the Run starts, as the chat's revisions show.
+- Search: the archived Message hit is flagged; desktop rendering is still F-UI1.
 
 ## Owner manual check
 
