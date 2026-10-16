@@ -13,8 +13,6 @@ use gpui_kit::{
 };
 use tokens::*;
 
-/// The complete Lucide catalog; BRN composes the icons it adds beyond Kit's
-/// default set in `launch`.
 /// An icon control whose tooltip shows the action's key binding.
 pub(super) fn icon_button_with_action(
     id: impl Into<ElementId>,
@@ -26,39 +24,9 @@ pub(super) fn icon_button_with_action(
     icon_button(id, icon, label.clone()).tooltip_with_action(label, action, None)
 }
 
-/// A mode switch. Each segment keeps its own ID, handler and tooltip because
-/// the group has no click handler of its own; Kit reports the selected
-/// segment as pressed.
 /// The ⋯ trigger; callers chain `.dropdown_menu(..)`.
 pub(super) fn overflow_menu(id: impl Into<ElementId>, label: impl Into<SharedString>) -> Button {
     icon_button(id, IconName::Ellipsis, label)
-}
-
-/// A quiet, sentence-case group label with an optional count and trailing
-/// control.
-pub(super) fn section_header(
-    label: impl Into<SharedString>,
-    count: Option<usize>,
-    trailing: Option<AnyElement>,
-) -> gpui_kit::Div {
-    let label = label.into();
-    let text: SharedString = match count {
-        Some(count) => format!("{label} · {count}").into(),
-        None => label,
-    };
-    div()
-        .flex()
-        .flex_shrink_0()
-        .items_center()
-        .gap_2()
-        .pt(SPACE_4)
-        .pb(SPACE_1)
-        .font_family(UI_FONT)
-        .text_size(SMALL_TEXT)
-        .font_weight(FontWeight::MEDIUM)
-        .text_color(rgb(pal().muted))
-        .child(div().flex_1().min_w_0().truncate().child(text))
-        .children(trailing)
 }
 
 fn row_frame(
@@ -278,8 +246,8 @@ pub(super) fn loading(
         .test_support()
 }
 
-/// A quiet empty state: icon, optional title, one sentence and at most one
-/// action. Other routes belong in the body text.
+/// An inline card for something the owner must act on: radius 6, one
+/// hairline border, the tone's tint (`alt` when neutral) and `ink` text.
 /// Cards never nest a bordered card.
 pub(super) fn card(
     id: impl Into<ElementId>,
@@ -315,7 +283,7 @@ pub(super) fn tone_mark(
         .test_support()
 }
 
-/// A compact status chip on its tone's tint; `None` is neutral.
+/// A dialog's error line under its fields: the error icon and what to do.
 /// It stays in the tree while empty, so its ID is always addressable.
 pub(super) fn field_error(
     id: impl Into<ElementId>,

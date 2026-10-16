@@ -1,6 +1,8 @@
 //! Shared writing and shell presentation primitives; no service or authority.
 use crate::native::{SMALL_TEXT, UI_FONT, UI_TEXT, button};
 use crate::theme::pal;
+/// The complete Lucide catalog; BRN composes the icons it adds beyond Kit's
+/// default set in the desktop `launch`.
 pub use gpui_kit::assets::IconName;
 use gpui_kit::component::button::{Button, ButtonGroup, ButtonVariants};
 use gpui_kit::component::dialog::Dialog;
@@ -112,12 +114,42 @@ pub fn icon_button(
         .tooltip(label)
 }
 
+/// A mode switch. Each segment keeps its own ID, handler and tooltip because
+/// the group has no click handler of its own; Kit reports the selected
+/// segment as pressed.
 pub fn segmented(id: impl Into<ElementId>, buttons: Vec<Button>) -> ButtonGroup {
     ButtonGroup::new(id).children(
         buttons
             .into_iter()
             .map(|button| button.compact().ghost().h(COMPACT_CONTROL)),
     )
+}
+
+/// A quiet, sentence-case group label with an optional count and trailing
+/// control.
+pub fn section_header(
+    label: impl Into<SharedString>,
+    count: Option<usize>,
+    trailing: Option<AnyElement>,
+) -> gpui_kit::Div {
+    let label = label.into();
+    let text: SharedString = match count {
+        Some(count) => format!("{label} · {count}").into(),
+        None => label,
+    };
+    div()
+        .flex()
+        .flex_shrink_0()
+        .items_center()
+        .gap_2()
+        .pt(SPACE_4)
+        .pb(SPACE_1)
+        .font_family(UI_FONT)
+        .text_size(SMALL_TEXT)
+        .font_weight(FontWeight::MEDIUM)
+        .text_color(rgb(pal().muted))
+        .child(div().flex_1().min_w_0().truncate().child(text))
+        .children(trailing)
 }
 
 pub fn row_text(title: &SharedString, more: &[&SharedString]) -> SharedString {
@@ -130,6 +162,8 @@ pub fn row_text(title: &SharedString, more: &[&SharedString]) -> SharedString {
         .into()
 }
 
+/// A quiet empty state: icon, optional title, one sentence and at most one
+/// action. Other routes belong in the body text.
 pub fn empty_state(
     id: impl Into<ElementId>,
     icon: IconName,
@@ -333,8 +367,7 @@ pub fn status_line(
         .test_support()
 }
 
-/// An inline card for something the owner must act on: radius 6, one
-/// hairline border, the tone's tint (`alt` when neutral) and `ink` text.
+/// A compact status chip on its tone's tint; `None` is neutral.
 pub fn status_chip(
     id: impl Into<ElementId>,
     tone: Option<Tone>,
@@ -357,6 +390,7 @@ pub fn short_status_chip(
     chip(id, tone, icon, text.into(), label.into())
 }
 
+/// A status chip with separate visible text and a full accessible label.
 fn chip(
     id: impl Into<ElementId>,
     tone: Option<Tone>,
@@ -438,7 +472,7 @@ pub fn dialog_footer() -> gpui_kit::Div {
     div().flex().justify_end().gap_2()
 }
 
-/// A dialog's error line under its fields: the error icon and what to do.
+/// What a dialog's confirm does; the dialog builder runs on every render.
 pub type DialogAction = Rc<dyn Fn(&mut Window, &mut App)>;
 
 /// A dialog for an irreversible step: the title states the consequence, the

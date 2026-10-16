@@ -41,6 +41,7 @@ pub const SMALL_TEXT: gpui_kit::Pixels = px(12.);
 pub const UI_TEXT: gpui_kit::Pixels = px(14.);
 pub const PROSE_TEXT: gpui_kit::Pixels = px(16.);
 pub const TITLE_TEXT: gpui_kit::Pixels = px(18.);
+/// Controls use the 6 px control radius (`theme.radius`).
 pub fn button(id: impl Into<gpui_kit::ElementId>) -> Button {
     Button::new(id)
         .rounded(ButtonRounded::Medium)
@@ -63,18 +64,7 @@ pub fn subheading(text: impl Into<gpui_kit::SharedString>) -> gpui_kit::Div {
 }
 /// A sentence-case group label.
 pub fn section(text: impl Into<gpui_kit::SharedString>) -> gpui_kit::Div {
-    div()
-        .flex()
-        .flex_shrink_0()
-        .items_center()
-        .gap_2()
-        .pt(components::tokens::SPACE_4)
-        .pb(components::tokens::SPACE_1)
-        .font_family(UI_FONT)
-        .text_size(SMALL_TEXT)
-        .font_weight(gpui_kit::FontWeight::MEDIUM)
-        .text_color(rgb(pal().muted))
-        .child(div().flex_1().min_w_0().truncate().child(text.into()))
+    components::section_header(text, None, None)
 }
 pub fn metadata(text: impl Into<gpui_kit::SharedString>) -> gpui_kit::Div {
     div()
@@ -82,7 +72,6 @@ pub fn metadata(text: impl Into<gpui_kit::SharedString>) -> gpui_kit::Div {
         .text_color(rgb(pal().muted))
         .child(text.into())
 }
-/// Tone of an applied change's notice: refresh follow-ups need attention.
 pub fn title(record: &Record) -> String {
     match &record.data {
         RecordData::Note(n) => n.title.clone(),
@@ -126,13 +115,22 @@ pub struct WritingPanel {
     pub review_editing: bool,
     pub review_inputs: bool,
     pub note: Option<OpenNote>,
+    /// Starting this view's edit found another open edit of the note: its
+    /// note and base version, from the typed `EditSessionOpen` (U4).
     pub edit_open: Option<(String, u64)>,
     pub review: Option<Review>,
+    /// The comments margin beside the text (Wide, Narrow): `None` follows the
+    /// note (shown with comments or a draft); the toggle sets it.
     pub margin: Option<bool>,
+    /// The in-tile comments section (Stacked), collapsed until opened.
     pub comments_expanded: bool,
+    /// Keeps the comments list's scroll position while it is collapsed.
     pub comments_scroll: gpui_kit::ScrollHandle,
+    /// Where comments sit for the current window and layout.
     pub margin_mode: layout::MarginMode,
+    /// The Note toolbar's arrangement for the Note panel's current width.
     pub note_fit: layout::NoteFit,
+    /// The review bar's arrangement for the Note panel's current width.
     pub review_fit: layout::ReviewFit,
     pub show_coverage: bool,
     pub selection: Option<(Range<usize>, String)>,
@@ -474,6 +472,11 @@ pub fn scroll(id: impl Into<gpui_kit::ElementId>) -> gpui_kit::Stateful<gpui_kit
         .p_2()
 }
 
+/// A run that ended Failed or Interrupted, as the chat's recorded notice for
+/// it (the Blocker attention whose record is this run, the text Needs you
+/// shows) in that state's tone. `None` for other states, or when the chat
+/// holds no such notice; the caller then keeps its own error text. The
+/// run's progress is the agent's own summary, never the failure.
 pub fn terminal_notice(run: &Run, run_id: &str, attention: &[Attention]) -> Option<(Tone, String)> {
     let tone = match run.state {
         RunState::Failed => Tone::Error,

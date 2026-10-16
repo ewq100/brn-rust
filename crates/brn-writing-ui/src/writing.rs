@@ -14,6 +14,13 @@ use gpui_kit::component::menu::PopupMenu;
 use gpui_kit::{Context, SharedString, TestSupportExt, Window, div, prelude::*, px, rgb};
 use std::collections::BTreeSet;
 impl<T: 'static> WritingView<'_, T> {
+    /// What each Note toolbar arrangement needs for the open note: each
+    /// label's measured text plus its control's fixed chrome, as measured on
+    /// the toolbar (Write 16 and Read 17 pt, Format ▾ and Outline 41, the
+    /// status chip 38, the comment toggle 40 with a count or 24 without,
+    /// Edit note and Connections 17), 50 pt of gaps, padding, spacer and
+    /// borders, and 8 pt of slack. The full row's five 24 pt formatting
+    /// buttons and their gaps (136 pt) replace Format ▾.
     pub fn note_toolbar_needs(&self, window: &Window) -> layout::NoteNeeds {
         let Some(open) = &self.note else {
             return layout::NoteNeeds::WIDEST;
@@ -57,6 +64,9 @@ impl<T: 'static> WritingView<'_, T> {
         }
     }
 
+    /// The Note toolbar, one row: Write | Read, formatting and Outline on the
+    /// left; the status chip, comments, Edit note and Connections on the
+    /// right. `note_fit` folds controls into menus as the panel narrows.
     pub fn note_controls(&self, cx: &mut Context<T>) -> Vec<gpui_kit::AnyElement> {
         let Some(open) = &self.note else {
             return vec![];
@@ -115,6 +125,9 @@ impl<T: 'static> WritingView<'_, T> {
         controls
     }
 
+    /// The Note ⋯'s own items: the review's during review, otherwise the
+    /// open note's. The panel header renders the ⋯ (`note-menu`) and adds its
+    /// Panel section.
     pub fn note_menu_section(
         &self,
         cx: &mut Context<T>,
@@ -270,6 +283,9 @@ impl<T: 'static> WritingView<'_, T> {
         }))
     }
 
+    /// The Note ⋯ during review: the side-by-side and editing routes and the
+    /// saved inputs, then Keep for later and Dismiss when the review bar is
+    /// too narrow to show them.
     fn review_menu_section(
         &self,
         review: &Review,
@@ -336,6 +352,8 @@ impl<T: 'static> WritingView<'_, T> {
         }
     }
 
+    /// The other open edit of the open note (U4), found by its note: the
+    /// typed error's session is never used.
     pub fn open_edit_elsewhere(&self) -> Option<(EditSession, u64)> {
         let open = self.note.as_ref()?;
         let (note, base) = self.edit_open.as_ref()?;
@@ -597,6 +615,9 @@ impl<T: 'static> WritingView<'_, T> {
             .into_any_element()
     }
 
+    /// The Note's banners, top to bottom: a kept edit, the edit's stale base
+    /// (with the saved version) or a newer saved version, and the import
+    /// summary with its coverage details.
     fn note_banners(&self, cx: &mut Context<T>) -> Vec<gpui_kit::AnyElement> {
         let p = pal();
         let mut banners: Vec<gpui_kit::AnyElement> = vec![];
@@ -866,6 +887,8 @@ impl<T: 'static> WritingView<'_, T> {
         banners
     }
 
+    /// The note whose comments the Note shows: the open note, unless a
+    /// review shows another note's text.
     fn comments_note(&self) -> Option<&OpenNote> {
         let open = self.note.as_ref()?;
         match &self.review {
@@ -874,6 +897,7 @@ impl<T: 'static> WritingView<'_, T> {
         }
     }
 
+    /// A draft, a comment or a load error to show for that note.
     fn comments_have_content(&self) -> bool {
         self.comments_note().is_some_and(|open| {
             self.comment_anchor
@@ -886,6 +910,9 @@ impl<T: 'static> WritingView<'_, T> {
         })
     }
 
+    /// Whether the comments are open where they sit now. Beside the text
+    /// they follow the note until the toggle decides; the stacked section
+    /// stays collapsed until opened.
     pub fn comments_open(&self) -> bool {
         if self.margin_mode == layout::MarginMode::Stacked {
             self.comments_expanded
@@ -894,18 +921,22 @@ impl<T: 'static> WritingView<'_, T> {
         }
     }
 
+    /// The margin renders beside the text.
     pub fn comments_beside(&self) -> bool {
         self.margin_mode != layout::MarginMode::Stacked
             && self.comments_note().is_some()
             && self.comments_open()
     }
 
+    /// The in-tile section renders below the text.
     pub fn comments_stacked(&self) -> bool {
         self.margin_mode == layout::MarginMode::Stacked
             && self.comments_note().is_some()
             && self.comments_expanded
     }
 
+    /// The open stacked section's floor: the label and a card's first
+    /// line, or the whole draft while one is open.
     fn stacked_floor(&self) -> gpui_kit::Pixels {
         if self.comment_drafting() {
             STACKED_DRAFT_FLOOR
@@ -914,6 +945,9 @@ impl<T: 'static> WritingView<'_, T> {
         }
     }
 
+    /// The comment toggle with its open count: the same control, handler and
+    /// state in the Note toolbar and the review bar, which never render
+    /// together.
     fn comments_toggle(&self, cx: &mut Context<T>) -> Option<gpui_kit::AnyElement> {
         let open = self.comments_note()?;
         let pending = self.pending_comments(&open.record.id);
@@ -951,6 +985,7 @@ impl<T: 'static> WritingView<'_, T> {
             .unwrap_or_default()
     }
 
+    /// "Comments · N", 12 px, above the list in both placements.
     fn comments_label(&self, note: &str) -> gpui_kit::AnyElement {
         let pending = self.pending_comments(note);
         div()
@@ -967,6 +1002,11 @@ impl<T: 'static> WritingView<'_, T> {
             .into_any_element()
     }
 
+    /// Text above, comments below. The area asks for `prefer` (the text's
+    /// 120 px plus the open section's floor) and gives way only after the
+    /// rows around it reach their minimums (the reply in Write, the details
+    /// in review), down to `min`. Inside, the section (at most 40 % of the
+    /// area, clipped) shrinks before the text.
     fn text_and_comments(
         &self,
         text: impl IntoElement,
@@ -989,6 +1029,7 @@ impl<T: 'static> WritingView<'_, T> {
             .into_any_element()
     }
 
+    /// Wide and Narrow: the margin beside the text, at the mode's width.
     fn margin_column(&self, cx: &mut Context<T>) -> gpui_kit::AnyElement {
         let Some(open) = self.comments_note() else {
             return div().into_any_element();
@@ -1013,6 +1054,8 @@ impl<T: 'static> WritingView<'_, T> {
             .into_any_element()
     }
 
+    /// Stacked: the docked section below the text, with the same list,
+    /// cards, draft and IDs as the margin. Escape inside collapses it.
     fn comments_section(&self, cx: &mut Context<T>) -> gpui_kit::AnyElement {
         let Some(open) = self.comments_note() else {
             return div().into_any_element();
@@ -1070,6 +1113,9 @@ impl<T: 'static> WritingView<'_, T> {
             .into_any_element()
     }
 
+    /// The draft, a load error or the empty hint, then one card per comment.
+    /// Only one placement renders at a time, so the IDs stay unique. The
+    /// stacked section renders the draft itself, above its scroller.
     fn comment_items(&self, with_draft: bool, cx: &mut Context<T>) -> Vec<gpui_kit::AnyElement> {
         let mut items = vec![];
         let Some(open) = self.comments_note() else {
@@ -1092,6 +1138,8 @@ impl<T: 'static> WritingView<'_, T> {
         self.comment_cards(items, comments, feedback_error, drafting, cx)
     }
 
+    /// The passage draft: its passage, Cancel and Add comment, then the
+    /// input. The stacked section keeps all of it in view.
     fn comment_draft(&self, cx: &mut Context<T>) -> Option<gpui_kit::AnyElement> {
         let p = pal();
         let open = self.comments_note()?;
@@ -1174,6 +1222,7 @@ impl<T: 'static> WritingView<'_, T> {
         )
     }
 
+    /// A passage draft is open for the note the comments show.
     fn comment_drafting(&self) -> bool {
         self.comments_note().is_some_and(|open| {
             self.comment_anchor
@@ -1182,6 +1231,7 @@ impl<T: 'static> WritingView<'_, T> {
         })
     }
 
+    /// The load error or the empty hint, then one card per comment.
     fn comment_cards(
         &self,
         mut items: Vec<gpui_kit::AnyElement>,
@@ -1392,6 +1442,7 @@ impl<T: 'static> WritingView<'_, T> {
         items
     }
 
+    /// The expanded saved inputs, when shown, then the writing bar.
     fn note_bar(&self, cx: &mut Context<T>) -> Vec<gpui_kit::AnyElement> {
         let p = pal();
         let Some(open) = &self.note else {

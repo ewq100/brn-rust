@@ -1259,7 +1259,7 @@ fn pure_writing_queries_and_write_notifies_do_not_load_unconsumed_display_data(
         });
         assert_eq!(
             after, before,
-            "pure queries, per-candidate filters and unchanged Write redraws must not resolve assets/read latest Run/reload the canonical batch"
+            "without a saved writing request, pure queries, per-candidate filters and unchanged Write redraws must not resolve assets/read latest Run/reload the canonical batch"
         );
     }
     // Positive controls use real consumers, so a disconnected counter cannot

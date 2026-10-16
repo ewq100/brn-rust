@@ -259,7 +259,7 @@ fn top_bar_window_options() -> WindowOptions {
     }
     options
 }
-/// Controls use the 6 px control radius (`theme.radius`).
+/// Tone of an applied change's notice: refresh follow-ups need attention.
 fn apply_tone(outcome: &ApplyOutcome) -> Tone {
     match outcome {
         ApplyOutcome::Applied(receipt) if receipt.needs_refresh.is_empty() => Tone::Success,
@@ -276,11 +276,6 @@ fn save_tone(outcome: &SaveOutcome) -> Tone {
         _ => Tone::Warning,
     }
 }
-/// A run that ended Failed or Interrupted, as the chat's recorded notice for
-/// it (the Blocker attention whose record is this run, the text Needs you
-/// shows) in that state's tone. `None` for other states, or when the chat
-/// holds no such notice; the caller then keeps its own error text. The
-/// run's progress is the agent's own summary, never the failure.
 /// A finished worker's tone. The owner's own Stop is a warning; otherwise a
 /// run's recorded state decides, and work without a run succeeded.
 fn finish_tone(ok: bool, stopped: bool, has_run: bool, state: Option<&RunState>) -> Tone {
@@ -386,15 +381,6 @@ struct ThreadsUi {
     credentials_path: Entity<InputState>,
     helper_model: Entity<InputState>,
     settings: WorkspaceSettings,
-    /// Starting this view's edit found another open edit of the note: its
-    /// note and base version, from the typed `EditSessionOpen` (U4).
-    /// The comments margin beside the text (Wide, Narrow): `None` follows the
-    /// note (shown with comments or a draft); the toggle sets it.
-    /// The in-tile comments section (Stacked), collapsed until opened.
-    /// Keeps the comments list's scroll position while it is collapsed.
-    /// Where comments sit for the current window and layout.
-    /// The Note toolbar's arrangement for the Note panel's current width.
-    /// The review bar's arrangement for the Note panel's current width.
     /// The Chat panel is below 420 pt: the model control also names the
     /// effort, and the effort control folds into its menu.
     chat_narrow: bool,
@@ -3540,6 +3526,8 @@ impl ThreadsUi {
         self.refresh();
         cx.notify();
     }
+    /// Discarding closes the edit with no Undo, so it always confirms; ↵ is
+    /// inert and only the danger button discards.
     pub(super) fn confirm_discard(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         let Some(session) = self
             .writing
@@ -3556,6 +3544,8 @@ impl ThreadsUi {
         self.confirm_discard_of(session, "Discard your unsaved edit?", body, window, cx);
     }
 
+    /// The same confirmation for the other open edit (U4), worded for that
+    /// edit: what the owner typed here is kept.
     pub(super) fn confirm_discard_open_edit(
         &mut self,
         window: &mut Window,
@@ -3604,6 +3594,7 @@ impl ThreadsUi {
         });
     }
 
+    /// Compare (U4): the other open edit beside the saved note, read-only.
     pub(super) fn compare_open_edit(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         let Some((buffer, base)) = self.open_edit_elsewhere() else {
             return;
@@ -3627,10 +3618,13 @@ impl ThreadsUi {
         });
     }
 
+    /// `toggle-margin`'s one handler, in the toolbar and in the review bar.
     pub(super) fn toggle_comments(&mut self, cx: &mut Context<Self>) {
         self.writing.toggle_comments(!self.comments_open());
         cx.notify();
     }
+    /// Escape inside the stacked section collapses it, keeps any draft and
+    /// returns focus to the text above.
     fn collapse_comments(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         self.writing.comments_expanded = false;
         if !self.writing.review_editing

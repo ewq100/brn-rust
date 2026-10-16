@@ -76,8 +76,12 @@ pub fn readable_document(
         )
 }
 
+/// Why formatting is unavailable while a kept edit blocks the text.
 const RECOVER_FIRST_REASON: &str = "Recover the kept edit first";
 impl<T: 'static> WritingView<'_, T> {
+    /// The Note toolbar's left side: the Write | Read switch, the formatting
+    /// controls (Write only) and the Outline both modes share. `fit` folds
+    /// them as the Note panel narrows.
     pub fn document_controls(
         &self,
         fit: layout::NoteFit,
