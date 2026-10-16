@@ -712,3 +712,76 @@ M1 shows why the membership check matters: without it, an owner-created candidat
 - New core `Store::{clear_review_attention, dismiss_candidate}` and `run_attention::CleanupOutcome`; owner behavior is unchanged.
 - Proposed sentence for `docs/architecture/threads-behavior.md` §142 (not edited here): "Every run registers ten tools: `read_records`, `read_note`, `read_source`, `read_skill`, `prepare_changes`, `apply_changes`, `retain_progress`, `read_history`, `refresh_candidate`, `withdraw_proposal`." Add after the refresh sentence: "`withdraw_proposal` dismisses only an unapplied candidate that a Run of the same chat prepared, through the owner's checked dismissal path with a receipt and replay; it never applies anything, refuses applied operations, owner changes and other chats, and is never offered to helpers."
 - `docs/status.md` says "nine registered tools"; it needs "ten" at integration (not edited here).
+
+## Slice H: a clear error for an unusable data folder
+
+### Change
+
+- **Core error (`crates/brn-threads-core/src/lib.rs`).** New `Error::DataFolder { folder, problem: DataFolderProblem, #[source] cause: io::Error }`, displayed as "BRN cannot use the data folder {folder}: {problem}". `DataFolderProblem` texts carry no OS wording:
+  - `ReadOnly`: "it is on a read-only disk. Choose a folder you can write to."
+  - `PermissionDenied`: "BRN does not have permission to use it. Choose a folder you own."
+  - `NotAFolder`: "that path, or part of it, is a file rather than a folder."
+  - `SymlinkRefused`: "part of its path is a symbolic link. Choose the folder's real location."
+  - `MissingParent`: "a folder above it is missing or unavailable."
+
+  The OS detail stays in `cause`, reachable through `std::error::Error::source()`. Neither host logs errors today, so that is the place kept for logs.
+- **Classification (`store.rs` `data_folder_error`).** `ReadOnlyFilesystem` maps to `ReadOnly`, `PermissionDenied` to `PermissionDenied`, `NotADirectory` to `NotAFolder`, `AlreadyExists` to `NotAFolder` when the path is not a directory (how `create_dir_all` reports a file in the folder's place), and `NotFound` to `MissingParent`. Any other kind, including `AlreadyExists` on a real folder and a full disk, keeps `Error::Io`.
+- **`Store::open`.** It now uses the classification for `has_symlink_ancestor`'s own I/O errors, `create_dir_all`, `read_dir` and the marker create/write. A symlink ancestor becomes `DataFolder { SymlinkRefused, cause: io::Error::other("symbolic link in path") }` instead of `UnsafeDirectory("symlink directory")`. The relative-path, non-empty-without-marker, foreign-marker and unexpected-entry refusals stay `UnsafeDirectory`.
+- **Hosts.** The CLI and desktop show the error through their existing `to_string()` display and exit 1 as before (`AppError::Core` is `transparent`). No change to `crates/brn/src/main.rs` (0 lines), `HELP`, exit codes, desktop code or wording, `Cargo.lock` or the `threads.sqlite3` schema.
+
+| `--data-dir` | Before (CLI stderr, exit 1) | After (CLI and `brn-desktop --headless-check startup`, exit 1) |
+|---|---|---|
+| `/data` (sealed macOS system volume) | `storage: Read-only file system (os error 30)` | `BRN cannot use the data folder /data: it is on a read-only disk. Choose a folder you can write to.` |
+| `<case>/file` (a file) | `storage: File exists (os error 17)` | `BRN cannot use the data folder <case>/file: that path, or part of it, is a file rather than a folder.` |
+| `<case>/file/data` (under a file) | `storage: Not a directory (os error 20)` | `BRN cannot use the data folder <case>/file/data: that path, or part of it, is a file rather than a folder.` |
+| `<case>/locked/data` (parent mode 0500) | `storage: Permission denied (os error 13)` | `BRN cannot use the data folder <case>/locked/data: BRN does not have permission to use it. Choose a folder you own.` |
+| `<case>/alias/data` (symlinked folder) | `incompatible or unsafe data directory: symlink directory` | `BRN cannot use the data folder <case>/alias/data: part of its path is a symbolic link. Choose the folder's real location.` |
+| `/tmp/brn-dwr-r5-h` | (same symlink text) | `BRN cannot use the data folder /tmp/brn-dwr-r5-h: part of its path is a symbolic link. Choose the folder's real location.` |
+
+`<case>` is `/private/tmp/brn-dwr-data/r5-h` (after) and `/private/tmp/brn-dwr-data/r5-h-before` (before), fresh synthetic folders. The "after" column is the recorded output of both `/tmp/brn-dwr-target/debug/brn --data-dir <p> notes` and `/tmp/brn-dwr-target/debug/brn-desktop --headless-check startup --data-dir <p>`, which printed identical text and exited 1. Nothing was created under `real/` or `locked/`.
+
+### Tests and fail-before
+
+Method: the implementation was written first. For the fail-before run, `Store::open` was put back to its old body (`?` into `Error::Io`, `UnsafeDirectory("symlink directory")`), and `data_folder_error` was made to return `Error::Io` for every absolute path. The new types stayed, so the tests compiled. The tests were run, then the fixed source was restored. A second mutation removed only the `NotFound` arm, to show the missing-parent case on its own. `store.rs` was then byte-identical to a copy of the fixed file. Lines are those of the committed files.
+
+| Reason | Test | Before the fix | After |
+|---|---|---|---|
+| read-only | core `tests/data_folder.rs` `a_read_only_disk_is_named` (macOS: `/brn-dwr-readonly-<uuid>`, skipped if `/` is writable; it ran here) | FAILED `:17`, `storage: Read-only file system (os error 30)` | ok |
+| read-only | CLI `tests/data_folder.rs` `a_data_folder_on_a_read_only_disk_is_named` (the evidence `/data` case) | FAILED `:20`, `storage: Read-only file system (os error 30)` | ok |
+| permission denied | core `a_folder_without_permission_is_named` (parent mode 0500; skipped when privileged; it ran here) | FAILED `:17`, `storage: Permission denied (os error 13)` | ok |
+| not a directory | core `a_file_in_place_of_the_folder_is_named` (the path is a file, and the path is under a file) | FAILED `:17`, `storage: File exists (os error 17)` | ok |
+| not a directory | CLI `a_file_given_as_the_data_folder_is_named`: exit 1, empty stdout, stderr starts with the owner text and has no "os error" | FAILED `:20`, `storage: File exists (os error 17)` | ok |
+| symlink refused | core `a_symlinked_path_is_refused_by_name` (the alias folder, a folder under it, and `/tmp/<uuid>` on macOS; nothing created) | FAILED `:17`, `incompatible or unsafe data directory: symlink directory` | ok |
+| symlink refused | core `core.rs` `data_selection_refuses_symlink_ancestor_without_creating_database` (updated to expect `DataFolder { SymlinkRefused }`) | FAILED `:1103` `matches!(.., Err(Error::DataFolder { problem: SymlinkRefused, .. }))` | ok |
+| all, plus missing parent | core unit `store::storage_open_tests::data_folder_failures_are_named_in_owner_terms`: raw codes 30, 13, 20, 17 (on a file) and 2 map to their reasons; the message starts with the folder and has no "os error"; `source()` is `Some`; 17 on a real folder and 28 (disk full) stay `Error::Io` | FAILED `:2510`, `storage: Read-only file system (os error 30)` (first mutation). FAILED `:2510`, `storage: No such file or directory (os error 2)` (`NotFound` arm removed) | ok |
+
+Each core integration test checks the variant and problem, that `to_string()` contains the folder path and no "os error", and that `source()` is `Some`. No other core or app test matched the symlink refusal; the `chat_storage.rs` and `core.rs` tests about entries inside the folder stay `UnsafeDirectory` and pass unchanged.
+
+### Commands and results (after the fix)
+
+| Command | Result |
+|---|---|
+| `cargo fmt --all --check` | clean |
+| `cargo clippy --workspace --all-targets --locked --offline -- -D warnings` | clean |
+| `cargo clippy -p brn-ai --features scripted-runs --all-targets --locked --offline -- -D warnings` | clean |
+| `cargo test -p brn-threads-core --locked --offline` | 150 passed, 1 ignored (unit 42 (+1) and 1 ignored; `data_folder` 4, new; `core` 45) |
+| `cargo build -p brn -p brn-desktop --locked --offline && cargo test -p brn --locked --offline --test data_folder` | 2 passed (new) |
+| `cargo test -p brn --locked --offline --no-fail-fast` | all passed (`threads` 13, `source_locator` 2, `search_messages` 1, `data_folder` 2) |
+| `cargo test -p brn-threads-app --locked --offline --no-fail-fast` | 191 passed, 1 ignored |
+| manual CLI and headless desktop, table above | owner text, exit 1 |
+| `TMPDIR=/private/tmp/brn-dwr-data/r5-h-ws cargo test --workspace --locked --offline --no-fail-fast` | 808 passed (+7), 1 failed (the baseline Poppler test), 6 ignored |
+| `git diff --exit-code 771116f0 -- Cargo.lock`; `git diff --check` | clean |
+
+### Limitations
+
+- `MissingParent` has no deterministic filesystem repro, since `create_dir_all` creates missing parents. It covers a folder above that disappears during the open. Only the classification unit test shows it.
+- An existing workspace on a read-only disk still reports the SQLite text (for example from the WAL pragma), because SQLite failures on an existing database are unchanged.
+- Other I/O failures (a full disk, an `AlreadyExists` race on a real folder) keep the `storage: …` text.
+- `Store::restore` and `Store::upgrade` keep their own folder errors; this slice changes only `Store::open`.
+- No native observation in this slice (headless startup only).
+
+### Integration items
+
+- New `brn_threads_core::Error::DataFolder` variant and `DataFolderProblem` enum. work/cli-agent-contract's exhaustive `From<Error>` match in its `main.rs` must map it at merge, as `EditSessionOpen` needed. Suggested code `data_folder_unusable` with details `{folder, problem}`.
+- The symlinked data-folder refusal changed from `UnsafeDirectory("symlink directory")` to `DataFolder { SymlinkRefused }`. Callers that matched the old variant for a symlinked data folder need the new one.
+- `crates/brn/src/main.rs`: 0 lines changed in this slice. The desktop shows the error through its existing `to_string()` display, with no wording edit.

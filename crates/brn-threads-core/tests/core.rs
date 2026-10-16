@@ -1102,7 +1102,10 @@ fn data_selection_refuses_symlink_ancestor_without_creating_database() {
     std::os::unix::fs::symlink(&actual, &link).unwrap();
     assert!(matches!(
         Store::open(link.join("data")),
-        Err(Error::UnsafeDirectory(_))
+        Err(Error::DataFolder {
+            problem: DataFolderProblem::SymlinkRefused,
+            ..
+        })
     ));
     assert!(!actual.join("data").exists());
 }

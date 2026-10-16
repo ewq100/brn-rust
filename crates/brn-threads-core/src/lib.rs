@@ -55,8 +55,43 @@ pub enum Error {
         session: String,
         base_version: u64,
     },
+    /// The data folder cannot be opened or created. The message names the
+    /// folder and the reason in the owner's terms; the OS detail stays in
+    /// `cause`, reachable through `source()` for logs.
+    #[error("BRN cannot use the data folder {folder}: {problem}")]
+    DataFolder {
+        folder: String,
+        problem: DataFolderProblem,
+        #[source]
+        cause: std::io::Error,
+    },
 }
 pub type Result<T> = std::result::Result<T, Error>;
+
+/// Why a data folder is unusable. Its text never carries OS error wording.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum DataFolderProblem {
+    ReadOnly,
+    PermissionDenied,
+    NotAFolder,
+    SymlinkRefused,
+    MissingParent,
+}
+impl std::fmt::Display for DataFolderProblem {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match self {
+            Self::ReadOnly => "it is on a read-only disk. Choose a folder you can write to.",
+            Self::PermissionDenied => {
+                "BRN does not have permission to use it. Choose a folder you own."
+            }
+            Self::NotAFolder => "that path, or part of it, is a file rather than a folder.",
+            Self::SymlinkRefused => {
+                "part of its path is a symbolic link. Choose the folder's real location."
+            }
+            Self::MissingParent => "a folder above it is missing or unavailable.",
+        })
+    }
+}
 
 pub(crate) fn integer(value: u64) -> Result<i64> {
     i64::try_from(value)
