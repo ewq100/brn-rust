@@ -194,7 +194,7 @@ Plus verification deliverables: `crates/brn/tests/agent_contract.rs`, `scripts/c
 
 **Worktree.** `/Users/evokessler/repos/brn-rust/.worktrees/cli-agent-contract`, branch `work/cli-agent-contract`, base `8bef439b`. Round 2 starts at HEAD `2537db54`. Commit locally after each step. Never push, open a PR, merge, rebase, tag, or touch `main` or another branch.
 
-**Status.** Implemented and verified on the branch (R2-1…R2-16 ticked; see [evidence](evidence.md#round-2-report)); not merged.
+**Status.** Implemented and verified on the branch (R2-1…R2-16 ticked; see [evidence](evidence.md#round-2-report)); not merged. Both round-2 reviewers approved (aggregated verdict APPROVED, low findings only). The final verify step, on the orchestrator's instruction, rebased the branch locally onto `origin/main` `027aa7c2` (upstream had advanced with docs and `brn-desktop` test changes only) and re-ran the full list on the rebased candidate ([final verification](evidence.md#final-round-2-verification-rebased-candidate)).
 
 ## The three highest-value bounded improvements (do these first)
 

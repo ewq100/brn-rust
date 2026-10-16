@@ -464,6 +464,41 @@ Code tree verified: HEAD `1f871ecd` (tree `f885f286`), base `8bef439b`. `BRN_*` 
 - Merge-time items still to apply on the real merge: search results gain daily's `archived` on every `hits[]`/`messages[]` entry (pass-through; README "Search lanes" note to add then); outside stops read `Interrupted` (tighten the "not Working" assertions in `agent_runs.rs` and `agent_converge.rs`).
 - Safety: the main checkout has no tracked changes (only the owner's untracked `.vscode/` and `experiments/`); `main` is `a4ad9677` (moved by others, docs-only after `8bef439b`); daily is still `192cd765`; nothing was pushed, merged, tagged or published.
 
+### Round 2 review verdicts
+
+Two independent reviewers covered `8bef439b..771bb2d3`, including the round-1 commits `3638a54a`, `00eaa639` and `2537db54`. Reviewer A: approved, 5 findings (info only). Reviewer B: approved, 6 findings (3 low, 3 nit/info). Aggregated verdict: **APPROVED** (`.worktrees/cli-agent-contract.artifacts/round2/review-2.json`). The low findings are listed under remaining gaps below and were not changed after review.
+
+### Final round-2 verification (rebased candidate)
+
+`origin/main` had moved from `8bef439b` to `027aa7c2` (local `main` `a4ad9677` is behind it). On the orchestrator's instruction, the branch was rebased locally onto `027aa7c2`: 27 commits, no conflicts, nothing pushed. Upstream added docs and `crates/brn-desktop/src/threads_format.rs` tests, and the only file both sides touch is `docs/status.md` (different lines). `git diff 771bb2d3 101f3923` equals `git diff 8bef439b 027aa7c2` outside `docs/status.md`, where the only difference is hunk context. The reviewed code is therefore unchanged. Code tree verified: `101f3923`, base `027aa7c2`. Commands ran inside a `( … )` subshell with `BRN_*` unset and `--locked --offline`. Logs are in `/private/tmp/brn-cli-agent-contract/final/` (synthetic, deleted after the run).
+
+| Command | Result |
+|---|---|
+| `cargo fmt --all -- --check` | clean |
+| `cargo build -p brn-intake --features helper --bin brn-intake-helper`; `cargo build --workspace` | ok; ok |
+| `cargo clippy --workspace --all-targets --locked --offline -- -D warnings` | clean |
+| `git diff --exit-code Cargo.lock` | clean |
+| `env -u BRN_SKIP_PTY_TESTS cargo test -p brn --no-fail-fast` | 122 passed, 0 failed, 0 ignored. The pseudo-terminal test `terminal_sources_are_refused_without_blocking` ran for real (it panics if `posix_openpt` fails) and passed |
+| `cargo test -p brn-threads-app --no-fail-fast` | 153 passed, 0 failed |
+| `env -u BRN_SKIP_PTY_TESTS BRN_INTAKE_HELPER=$PWD/target/debug/brn-intake-helper cargo test --workspace --no-fail-fast` | 831 passed, 1 failed, 4 ignored. The failure is `prepared_rust_fixtures_keep_source_and_preview_bindings_in_owned_scratch` (`Pdf preparation failed: Unavailable`, no `pdftoppm` here): **local-env-blocked, not passed** |
+| `bash scripts/verify-storage.sh` | exit 101 at the same Poppler-only test, after fmt, the helper build, the workspace build and clippy passed. The steps after it, run by hand: `brn --help` 0, `brn` 1, `brn --unknown` 1, desktop `--help` 0, desktop `--unknown` 1, `--headless-check startup` on a fresh `/private/tmp` data dir `Threads ready: 2 records`, exit 0 |
+| CI macOS fixture step (`mktemp -d`, `pwd -P`, `trap 'rmdir …' EXIT`, `TMPDIR=… bash scripts/verify-end-to-end.sh --fixtures-only`) | exit 0, journey `{"journey":"passed","steps":95,"checks":1001}`, the `rmdir` trap succeeded (parent gone) |
+| `TMPDIR=<fresh> python3 scripts/cli_journey.py "$PWD/target/debug/brn" --evidence-dir /private/tmp/brn-cli-agent-contract/final-run/journey-evidence` | exit 0, `{"journey":"passed","steps":95,"checks":1001}`, stderr 0 bytes, TMPDIR parent empty, 96-line `transcript.jsonl` |
+| `python3 docs/work/active/projects/cli-witness.py target/debug/brn`; `TMPDIR=<fresh> python3 docs/work/active/chats-and-projects/cli-witness.py "$PWD/target/debug/brn"` | exit 0 (19 checks, 41 calls); exit 0, parent empty |
+| `python3 -m unittest discover -s scripts/tests` | 153 OK |
+| `evaluate-wiki-guidance.py` tests (`python3 -m unittest test_wiki_guidance_eval`, `test_evaluate_wiki_v2` in `scripts/tests`) | 17 OK; 92 OK |
+| `python3 scripts/check-markdown-links.py` | 112 files, 395 local links, 0 failures |
+| `cargo build -p brn --features native-retrieval`; `cargo check -p brn -p brn-threads-app --features brn-threads-app/native-retrieval` | ok; ok (default `brn` rebuilt afterwards for the runs above) |
+| `for s in scripts/*.sh; do bash -n "$s"; done`; `git diff --check 027aa7c2..HEAD` | ok; clean |
+| `git diff --stat 027aa7c2..HEAD -- crates/brn-desktop crates/brn-ai`; `HELP` diff count | empty; 0 |
+| `before_after_2.py <2537db54 binary> <candidate>` | exit 0. The output equals `before-after-2.txt` apart from fresh IDs and hashes (`round2/before-after-final.txt`) |
+
+Not rerun: the baseline-failure matrix (R2-15; the tests and the baseline binary are unchanged).
+
+**Merge check** (`git merge-tree --write-tree --name-only work/cli-agent-contract work/daily-workflow-reliability`, daily still `192cd765`): conflicts only in `crates/brn-threads-core/src/chat.rs` and `crates/brn/src/main.rs`. `brn-threads-app/src/{lib,settings}.rs`, core `lib.rs` and `projects.rs` auto-merge. Against `work/integration-ui-reliability` (`6f51d22c`) the same two files conflict. This is the same result as R2-15, so the saved resolution notes and diffs still apply unchanged.
+
+**Safety.** The main checkout has no tracked changes, only the owner's untracked `.vscode/` and `experiments/`. Local `main` is `a4ad9677`, a fast-forward of `771116f0`. Nothing was pushed, merged, tagged or published.
+
 ## Round 2 remaining gaps
 
 - `notes`, `threads`, `needs-you`, `recovery` and `projects` stay unbounded (marked `"bounded": false` without a page form); there is no `messages` listing. `operation` lists at most 64 inputs; `records`, `runs` and `candidates` pages can miss items created while paging (restart without a cursor for a full pass).
@@ -473,12 +508,13 @@ Code tree verified: HEAD `1f871ecd` (tree `f885f286`), base `8bef439b`. `BRN_*` 
 - NeedsReview and Superseded are not reachable from CLI owner authority (R2-8 audit); they stay unit/app-tested.
 - Agent-environment note: SIGINT is not delivered to test children when commands run directly from the agent's top-level shell; inside a `( … )` subshell all seven SIGINT tests and the pseudo-terminal test pass (R2-15). `prepared_rust_fixtures_keep_source_and_preview_bindings_in_owned_scratch` needs Poppler `pdftoppm` (absent here; CI macOS installs it).
 - Owner-decision gaps: the desktop keeps writing receipts for no-op converges (B4 desktop surface); a lost `begin-edit` response cannot be recovered from the error and `recovery` lists session IDs for the owner (B3 part 2, round 3); CLI authority is stated, not enforced (B1, round 3 and later); desktop must choose a sign-in file for CLI-created workspaces (B2).
+- Review findings left open (all low): `begin_edit_error` reports any SQLite error on a note with a recovery buffer as `edit_session_open`, so lock contention there reads `rejected` instead of `busy` (the typed mapping at the daily merge removes the inference). The README usage row still cites `--knowledge maybe` as a post-open error, although round 2 refuses it before opening. After an earlier SIGINT, a later `--timeout` or SIGTERM does not arm the 3 s hard stop. The `agent_bounds` wall-clock windows leave about 2 s of slack on a loaded runner.
 - A writable Copilot cache can route Copilot traffic to any `endpoints.api`, including plain HTTP (pre-existing rig behavior; owner question below).
 - Owner questions (not blocking): should `intake --intent chat --thread <PROJECT_ID>` be refused, or keep the mark? Should the Copilot HTTP redirect go upstream, or should `validate_record` require HTTPS? Should a slice be filed for `project-delete` when the project's chat has a Run?
 
 ## Round 2 report
 
-Status, reported separately: **implemented** yes (A1–A12, plan steps R2-1…R2-16, local commits on `work/cli-agent-contract` from `9dfd53ba`); **verified** yes (R2-15, with the Poppler-only intake test local-env-blocked and covered by the CI macOS job); **native-observed** not applicable (CLI only; CLI checks do not establish native UI usability; `brn-desktop --headless-check` only, no window); **owner-accepted** not requested; **merged** no (nothing pushed, no PR, no merge, tag, publish or release).
+Status, reported separately: **implemented** yes (A1–A12, plan steps R2-1…R2-16, local commits on `work/cli-agent-contract` from `9dfd53ba`); **verified (automated)** yes (R2-15, re-run on the candidate rebased onto `027aa7c2`, see [final verification](#final-round-2-verification-rebased-candidate); the Poppler-only intake test is local-env-blocked and covered by the CI macOS job); **reviewed** both reviewers approved; **native-observed** not applicable (CLI only; CLI checks do not establish native UI usability; `brn-desktop --headless-check` only, no window); **owner-accepted** not requested; **merged** no (nothing pushed, no PR, no merge, tag, publish or release).
 
 - **The three highest-value improvements, done first:** A1 bounded, cursor-paginated inspection (R2-2…R2-4); A4 SIGTERM, `--timeout` and `busy` (R2-5); A3 retry identities and keyed intake that replays before conversion (R2-6). Then A10 (B2), A2, A12 (B3.1), A11 (B4), A6, A5 and A7.
 - **Machine contract:** documented in the [CLI README, "Agents and scripts"](../../../../crates/brn/README.md#agents-and-scripts) and served by `brn --json --help` and `brn --json COMMAND --help` from the same table the parser uses; `machine_description_lists_every_parsed_command_and_matches_readme` still compares the README's status, error-code, retry and owner tables with the description, and `every_command_has_text_and_json_help_matching_the_description` covers per-command help. Contract 2: every envelope has `page` and `stop` (15 keys); statuses add `terminated` (143); codes add `busy`, `terminated`, `credentials_not_configured`, `missing_workspace` and the reserved `data_folder_unusable`; outcomes add `Unchanged`, `Read`; `timeout` details gain `{deadline_seconds, hard}`; `invalid_request` details gain an optional `reason`; `edit_session_open` details drop `session`. The README "Changes from contract 1" table lists every change; the forward rule is to ignore unknown keys and treat an unknown `status` or `outcome` as non-success. Default mode changes only per README Compatibility items 6–12.
