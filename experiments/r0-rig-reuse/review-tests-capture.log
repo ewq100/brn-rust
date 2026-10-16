@@ -1,0 +1,21 @@
+
+running 5 tests
+memory: explicit 4→2 window; stub invoked; stable reload; reconstruction compacts twice; canonical bytes unchanged
+test memory::explicit_policy_and_process_local_summary_never_write_source ... ok
+fresh runner: start=1 settled=1 tool=0 memory_load=1 memory_append=1
+actual Agent::resume twice from CallTools checkpoint: start=0 settled=2 tool=3 (1 pre-crash + 2 re-executions) memory_load=0 memory_append=2
+checkpoint retained keys: format, max_turns, max_invalid_tool_call_retries, max_consecutive_malformed_tool_calls, unhandled_invalid_tool_call, tool_choice, output_tool_name, output_schema, max_output_retries, output_retries, chat_history, new_messages, current_turn, usage, completion_calls, completion_call_index, invalid_tool_call_retries, malformed_tool_call_retries, rollback_pending, streamed_completion_call_recorded, previous_model, turn_tools, entries, state
+checkpoint: input/history/entries and pending state roundtrip; direct driving skips services; fresh runner and actual resume counted separately; pending tool re-executes; unknown format refuses
+test prefix::disposable_checkpoint_retains_payload_but_not_configured_runtime ... ok
+prefix: 3 requests in run 1, 1 in run 2; all serialized message-prefix bytes/tools stable; live cached-input share unmeasured
+test prefix::serialized_http_prefix_stable_within_run_and_between_boundaries ... ok
+MCP: conversion result; timeout error; remote cancellation observed; list-change removes old/adds new; disconnect retires availability
+test mcp::conversion_timeout_cancellation_and_list_change_refresh ... ok
+MCP abort: server-start barrier; local abort leaves remote pending/no cancel after 200ms (deadline 60s); explicit disconnect retires tools but no request cancel/handler termination after another 200ms; server-controlled release drains handler
+test mcp::local_abort_and_disconnect_do_not_guarantee_remote_cancellation ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.41s
+
+   Compiling brn-c0-rig-reuse v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-ceb6e16c/experiments/r0-rig-reuse)
+    Finished `test` profile [unoptimized] target(s) in 2.08s
+     Running unittests src/main.rs (/private/tmp/brn-c0-r0-20261016-target/debug/deps/brn_c0_rig_reuse-a193e3d1ae484fa4)

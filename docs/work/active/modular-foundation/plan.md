@@ -13,20 +13,22 @@ Stage 0 release condition **landed**: `81129f07` UI polish, `192cd765` reliabili
 
 ## Ownership by path
 
-These are allocations for the lead to use in later starts, not authorization to implement later slices here.
+Current write authority is only the C0 row. **Principal** below names integration lead thread `2f893fce-357e-4754-9842-468b65c24d66`; it holds custody of every other path until it explicitly allocates a writer for a named slice. Future slice reservations are not concurrent write grants. Each path has one primary owner: specific rows take precedence over the final catch-all; manifests remain principal-owned even inside a reserved crate. Other worktrees retain their own owners and are outside this checkout's allocation.
 
-| Paths | Owner and boundary |
-|---|---|
-| `docs/work/active/modular-foundation/{plan.md,evidence.md,c0/**}`, `docs/work/active/agent-capabilities/{plan.md,evidence.md}`, `docs/status.md` minimal links/corrections, `experiments/r0-rig-reuse/**` | C0 worker, local commits only |
-| `crates/brn-threads-core/src/{writing.rs,store.rs,types.rs,context.rs,converge.rs}`, `crates/brn-threads-core/tests/**` | C lead: CW1 schema/setup/request v2; CW2 input binding, visibility and compatibility |
-| `crates/brn-threads-app/src/{writing.rs,review.rs,lib.rs}`, `crates/brn-threads-app/tests/{writing,agent_journeys,workspace_purpose}.rs` and related compatibility witnesses | C lead: checked operations, shared active writing context; B consumes real Workspace |
-| `crates/brn-ai/src/{threads.rs,threads_reads.rs,threads_guides.rs,threads_trace.rs,threads_research.rs}`, runtime tests | C lead: CW2 shared start first; then serial D1A, D1B, D2; D3/D4 gated |
-| `Cargo.toml`, `Cargo.lock`, `.github/workflows/ci.yml`, crate manifests/module declarations, canonical architecture/development docs | Principal integration lead; B submits minimal patches, no co-editing |
-| `crates/brn-desktop/src/{threads_ui.rs,threads_writing.rs,threads_writing_tests.rs,threads_workbench_tests.rs,threads_format.rs,threads_layout.rs,threads_document.rs,threads_workbench.rs}` and new `crates/brn-writing-ui/**` | B after a fresh exact file allocation; C reserves shared-start/active-context hunks in `threads_ui.rs` for CW2; serialize that overlap |
-| `crates/brn-intake/**`, `crates/brn-threads-intake/**`, `crates/brn-threads-app/src/intake.rs`, intake fixtures | Existing production retained; A may integrate only after X approval and explicit allocation |
-| `crates/brn-retrieval/**`, app `search.rs`, `search_index` and retrieval fixtures | C lead only for a demonstrated defect; ranking/model work deferred |
-| `agent/BRN.md`, `agent/skills/**`, runtime settings/CLI routes | C lead for a specifically assigned D slice; D-S/D-M unresolved |
-| Existing X1/Z1/#149 trees and all other worktrees | Preserved prior owners, no takeover; #149 do not merge |
+| Paths | Current primary owner | Reserved slice / handoff rule |
+|---|---|---|
+| `docs/work/active/modular-foundation/{plan.md,evidence.md,c0/**}`, `docs/work/active/agent-capabilities/{plan.md,evidence.md}`, `docs/status.md` minimal links/corrections, `experiments/r0-rig-reuse/**` | C0 worker | Local C0 corrections only |
+| `crates/brn-threads-core/src/{writing.rs,store.rs,types.rs,lib.rs,context.rs,converge.rs,stage.rs,edit.rs,backup.rs,restore.rs,upgrade.rs}`, `crates/brn-threads-core/tests/**` | Principal | C/CW1 schema/setup/request v2, backup/restore/upgrade; C/CW2 binding, visibility, compatibility |
+| `crates/brn-threads-app/src/{writing.rs,review.rs,lib.rs}`, `crates/brn-threads-app/tests/**` | Principal | C checked operations/shared active context; B consumes Workspace |
+| `crates/brn-ai/src/{threads.rs,threads_reads.rs,threads_guides.rs,threads_trace.rs,threads_research.rs}`, `crates/brn-ai/src/*_tests.rs` | Principal | C/CW2 shared start before serial D1A/D1B/D2; D3/D4 gated |
+| `crates/brn/src/{main.rs,spec.rs,contract.rs,help.rs}`, `crates/brn/tests/**` | Principal | CLI writing `ask`/`--edit-note` (`main.rs::ask`), exact `apply`/`dismiss`, edit/save/Undo routes and contract compatibility; C submits any CW/D adapter patch to principal |
+| `Cargo.toml`, `Cargo.lock`, `crates/*/Cargo.toml`, `.github/**`, `docs/architecture/**`, `docs/development/**`, `scripts/**`, `release/**` | Principal | Shared dependencies/CI/canonical docs/verification and integration; no co-editing |
+| `crates/brn-desktop/src/threads_ui.rs` | Principal | Shared start/active-context for CW2; B1a/B1b submit bounded extraction hunks for serialized handoff, never a second writer |
+| `crates/brn-desktop/src/{threads_writing.rs,threads_writing_tests.rs,threads_workbench_tests.rs,threads_format.rs,threads_layout.rs,threads_document.rs,threads_workbench.rs}`, future `crates/brn-writing-ui/**` excluding its manifest | Principal | B reservation only after exact allocation and writing-widget failure disposition before moving implicated `threads_writing_tests.rs` |
+| `crates/brn-intake/**`, `crates/brn-threads-intake/**`, `crates/brn-threads-app/src/intake.rs` excluding manifests | Principal | Retain production; A integration only after X approval and exact allocation |
+| `crates/brn-retrieval/**` excluding manifest, `crates/brn-threads-app/src/search.rs` | Principal | C correction only for demonstrated defect; ranking/model work deferred |
+| `agent/BRN.md`, `agent/skills/**` | Principal | C/D slice only after its gate and explicit allocation |
+| **All other paths in this checkout**, including unlisted core/app/AI/desktop/CLI modules, fixtures and docs, and prior experiment records | **Principal; no writer without allocation** | Preserve existing work/provenance; catch-all grants no implementation authority |
 
 The [route trace](c0/routes.md) supplies current exact symbols and gaps. CW2 extends `brn_ai::threads::prepare_run(ThreadRunRequest) -> AiResult<PreparedThreadRun>` then consumes it through `run_prepared`; it must not extract a competing start service. B consumes notes, not `ConversionResult`.
 
@@ -62,7 +64,7 @@ Review focuses: cross-scope metadata leakage (F21), owner Apply after revocation
 
 ## Sequence and gates
 
-O1 **CW-first authorized by current owner**. After C0 and any separately approved CL: CW1 → CW2 → D1A → D1B → D2; B1a can overlap CW1 after precise allocation, B1b follows CW2. D3/D4 cannot start until D-S/D-M respectively. PC deferred (T unresolved); retain Poppler (X); no live-provider qualification (L). Native observation, real data, release, publication and merge remain outside this worker's authority.
+O1 **CW-first authorized by current owner**. After C0 and any separately approved CL: CW1 → CW2 → D1A → D1B → D2; B1a can overlap CW1 only after precise allocation and principal disposition of the implicated writing-widget file, B1b follows CW2. D3/D4 cannot start until D-S/D-M respectively. PC deferred (T unresolved); retain Poppler (X); no live-provider qualification (L). Native observation, real data, release, publication and merge remain outside this worker's authority.
 
 - [x] Inspect actual baseline, preserved work, pack contracts and routes.
 - [x] Install the linked active plans and baseline/ownership map.
@@ -71,4 +73,6 @@ O1 **CW-first authorized by current owner**. After C0 and any separately approve
 - [x] Commit integration ref without new required-test failures/skips; independent actual-diff review remains with lead (see evidence receipt).
 - [ ] Lead resolves remaining C0 exit gates individually; no automatic CW/D start here.
 
-CL deletion candidates: **empty**. No path/symbol met all caller, saved-data and behavioral-regression proof requirements; CW2-owned duplicated start/selection is excluded. No cleanup is authorized by this empty list. Any future concrete destructive list needs explicit owner approval before deletion. See [start messages](c0/start-messages.md).
+CL deletion candidates: **empty**. Examined and rejected: `brn-threads-intake/src/pdf_tools.rs::PdfTools::discover` is a used production Poppler path and X is unapproved; `brn-ai/src/threads.rs::begin`'s `.take(40)` history assembly is still active and belongs to D1A replacement, not removal; `ThreadsUi::open_note`'s linked-thread fallback (`threads_ui.rs:1307–1324`) and duplicated host start need CW2/B1b replacement, not CL deletion. No cleanup is authorized by this empty list. Any future concrete destructive list needs explicit owner approval before deletion. See [start messages](c0/start-messages.md).
+
+Baseline PDF/hosted-widget failures are disclosures under master §6, **not C0 exit prerequisites**. Principal owns their carry-forward/disposition. After C0 review, an empty CL can be recorded as no-op without claiming four green lanes; any later change/green-baseline claim needs explicit failure disposition. CW1 may proceed after C0 with failures retained. B1a waits before moving `threads_writing_tests.rs` for the principal's bounded follow-on diagnostic disposition. [Correction record](c0/review-corrections.md) tracks Opus round 1 and the diagnostic evidence; no review approval or later-slice start is implied.

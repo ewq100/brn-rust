@@ -1,5 +1,5 @@
 use rig::{
-    agent::{AgentBuilder, AgentHook, HookContext, RunStart, RunStartAction},
+    agent::{AgentBuilder, AgentHook, HookContext, RunSettled, RunStart, RunStartAction},
     completion::Message,
     memory::{MemoryPolicy, TokenWindowMemory},
     run::{AgentRun, AgentRunStep, ModelTurn, RunEntry},
@@ -58,17 +58,36 @@ async fn serialized_http_prefix_stable_within_run_and_between_boundaries() {
         .await
         .unwrap();
     let captured = http.requests();
-    std::fs::write(
-        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("http-requests.json"),
-        serde_json::to_vec_pretty(
+    if let Some(path) = std::env::var_os("BRN_R0_CAPTURE_PATH") {
+        let path = std::path::PathBuf::from(path);
+        assert!(
+            path.is_absolute(),
+            "capture path must be explicit and absolute"
+        );
+        assert!(
+            !path.starts_with(
+                std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+                    .parent()
+                    .unwrap()
+                    .parent()
+                    .unwrap()
+            ),
+            "captures belong outside the source tree"
+        );
+        let mut output = std::fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(path)
+            .unwrap();
+        serde_json::to_writer_pretty(
+            &mut output,
             &captured
                 .iter()
                 .map(|r| serde_json::from_slice::<Value>(&r.body).unwrap())
                 .collect::<Vec<_>>(),
         )
-        .unwrap(),
-    )
-    .unwrap();
+        .unwrap();
+    }
     let requests: Vec<Value> = captured
         .iter()
         .map(|r| serde_json::from_slice(&r.body).unwrap())
@@ -76,9 +95,9 @@ async fn serialized_http_prefix_stable_within_run_and_between_boundaries() {
     assert_eq!(requests.len(), 4);
     // Exclude only the closing history delimiter and subsequent appended turns.
     // The preceding envelope and serialized history must match actual wire bytes.
-    for pair in captured[..3].windows(2) {
-        let old = std::str::from_utf8(&pair[0].body).unwrap();
-        let new = std::str::from_utf8(&pair[1].body).unwrap();
+    for (prior, next) in [(0, 1), (1, 2), (0, 3)] {
+        let old = std::str::from_utf8(&captured[prior].body).unwrap();
+        let new = std::str::from_utf8(&captured[next].body).unwrap();
         let messages =
             serde_json::to_string(&serde_json::from_str::<Value>(old).unwrap()["messages"])
                 .unwrap();
@@ -104,20 +123,24 @@ async fn serialized_http_prefix_stable_within_run_and_between_boundaries() {
         serde_json::to_vec(&b[..a.len()]).unwrap()
     );
     assert_ne!(a.last(), b.last());
+    assert_eq!(requests[0]["tools"], requests[3]["tools"]);
     assert_eq!(http.remaining_responses(), 0);
     println!(
         "prefix: 3 requests in run 1, 1 in run 2; all serialized message-prefix bytes/tools stable; live cached-input share unmeasured"
     );
 }
 #[derive(Clone)]
-struct Memory(Arc<AtomicUsize>);
+struct Memory {
+    loads: Arc<AtomicUsize>,
+    appends: Arc<AtomicUsize>,
+}
 impl rig::memory::ConversationMemory for Memory {
     fn load<'a>(
         &'a self,
         _: &'a rig::id::ConversationId,
     ) -> rig::wasm_compat::WasmBoxedFuture<'a, Result<Vec<Message>, rig::memory::MemoryError>> {
         Box::pin(async move {
-            self.0.fetch_add(1, Ordering::SeqCst);
+            self.loads.fetch_add(1, Ordering::SeqCst);
             Ok(vec![])
         })
     }
@@ -127,7 +150,7 @@ impl rig::memory::ConversationMemory for Memory {
         _: Vec<Message>,
     ) -> rig::wasm_compat::WasmBoxedFuture<'a, Result<(), rig::memory::MemoryError>> {
         Box::pin(async move {
-            self.0.fetch_add(1, Ordering::SeqCst);
+            self.appends.fetch_add(1, Ordering::SeqCst);
             Ok(())
         })
     }
@@ -138,19 +161,27 @@ impl rig::memory::ConversationMemory for Memory {
         Box::pin(async { Ok(()) })
     }
 }
-struct Hook(Arc<AtomicUsize>);
+struct Hook {
+    starts: Arc<AtomicUsize>,
+    settled: Arc<AtomicUsize>,
+}
 impl AgentHook for Hook {
     async fn on_run_start(&self, _: &HookContext, _: RunStart<'_>) -> RunStartAction {
-        self.0.fetch_add(1, Ordering::SeqCst);
+        self.starts.fetch_add(1, Ordering::SeqCst);
         RunStartAction::Continue
+    }
+    async fn on_run_settled(&self, _: &HookContext, _: RunSettled<'_>) {
+        self.settled.fetch_add(1, Ordering::SeqCst);
     }
 }
 #[tokio::test]
 async fn disposable_checkpoint_retains_payload_but_not_configured_runtime() {
     let calls = Arc::new(AtomicUsize::new(0));
     let tool_calls = Arc::new(AtomicUsize::new(0));
-    let memory_calls = Arc::new(AtomicUsize::new(0));
-    let http = SequencedHttpClient::new([reply(true), reply(false)]);
+    let memory_loads = Arc::new(AtomicUsize::new(0));
+    let memory_appends = Arc::new(AtomicUsize::new(0));
+    let settled = Arc::new(AtomicUsize::new(0));
+    let http = SequencedHttpClient::new([reply(true), reply(false), reply(false), reply(false)]);
     let client = rig::providers::openai::OpenAIConfig::new("synthetic").connect(http);
     let captured = tool_calls.clone();
     let tool = DynamicTool::new(
@@ -163,8 +194,14 @@ async fn disposable_checkpoint_retains_payload_but_not_configured_runtime() {
         },
     );
     let agent = AgentBuilder::new(client.chat("synthetic"))
-        .add_hook(Hook(calls.clone()))
-        .memory(Memory(memory_calls.clone()))
+        .add_hook(Hook {
+            starts: calls.clone(),
+            settled: settled.clone(),
+        })
+        .memory(Memory {
+            loads: memory_loads.clone(),
+            appends: memory_appends.clone(),
+        })
         .conversation("synthetic")
         .dynamic_tool(tool)
         .build();
@@ -177,6 +214,43 @@ async fn disposable_checkpoint_retains_payload_but_not_configured_runtime() {
         value: json!({"secret_like":"fixture-only"}),
     });
     let before = serde_json::to_value(&direct).unwrap();
+    let expected_fields: std::collections::BTreeSet<&str> = [
+        "format",
+        "max_turns",
+        "max_invalid_tool_call_retries",
+        "max_consecutive_malformed_tool_calls",
+        "unhandled_invalid_tool_call",
+        "tool_choice",
+        "output_tool_name",
+        "output_schema",
+        "max_output_retries",
+        "output_retries",
+        "chat_history",
+        "new_messages",
+        "current_turn",
+        "usage",
+        "completion_calls",
+        "completion_call_index",
+        "invalid_tool_call_retries",
+        "malformed_tool_call_retries",
+        "rollback_pending",
+        "streamed_completion_call_recorded",
+        "previous_model",
+        "turn_tools",
+        "entries",
+        "state",
+    ]
+    .into_iter()
+    .collect();
+    assert_eq!(
+        before
+            .as_object()
+            .unwrap()
+            .keys()
+            .map(String::as_str)
+            .collect::<std::collections::BTreeSet<_>>(),
+        expected_fields
+    );
     let mut restored: AgentRun = serde_json::from_value(before.clone()).unwrap();
     assert_eq!(before, serde_json::to_value(&restored).unwrap());
     assert!(matches!(
@@ -227,17 +301,61 @@ async fn disposable_checkpoint_retains_payload_but_not_configured_runtime() {
         "direct CallTools is data, not automatic execution"
     );
     assert_eq!(
-        memory_calls.load(Ordering::SeqCst),
+        memory_loads.load(Ordering::SeqCst) + memory_appends.load(Ordering::SeqCst),
         0,
         "direct drive never loads/appends configured memory"
     );
     assert_eq!(agent.tool_server_handle().static_tool_defs().len(), 1);
     agent.prompt("hook-aware fresh invocation").await.unwrap();
     assert_eq!(calls.load(Ordering::SeqCst), 1);
-    assert_eq!(
-        memory_calls.load(Ordering::SeqCst),
-        2,
-        "hook-aware run loads and appends memory"
+    assert_eq!(settled.load(Ordering::SeqCst), 1);
+    assert_eq!(memory_loads.load(Ordering::SeqCst), 1);
+    assert_eq!(memory_appends.load(Ordering::SeqCst), 1);
+    println!("fresh runner: start=1 settled=1 tool=0 memory_load=1 memory_append=1");
+    for counter in [
+        &calls,
+        &settled,
+        &tool_calls,
+        &memory_loads,
+        &memory_appends,
+    ] {
+        counter.store(0, Ordering::SeqCst);
+    }
+    // Simulate the tool effect having completed, with no result fed to the run
+    // before a crash. The serialized pending CallTools state cannot know this.
+    let outcome = agent
+        .tool_server_handle()
+        .execute("read", "{}", &mut rig::tool::ToolContext::default())
+        .await;
+    assert!(outcome.is_success());
+    assert_eq!(tool_calls.load(Ordering::SeqCst), 1);
+    for replay in 1..=2 {
+        let pending: AgentRun = serde_json::from_value(tool_checkpoint.clone()).unwrap();
+        agent.resume(pending).await.unwrap();
+        assert_eq!(
+            tool_calls.load(Ordering::SeqCst),
+            1 + replay,
+            "pending tool re-executes, no effect receipt fence"
+        );
+        assert_eq!(
+            calls.load(Ordering::SeqCst),
+            0,
+            "started run has no initial-prompt hook"
+        );
+        assert_eq!(
+            settled.load(Ordering::SeqCst),
+            replay,
+            "resume runs settlement hooks"
+        );
+        assert_eq!(memory_loads.load(Ordering::SeqCst), 0);
+        assert_eq!(
+            memory_appends.load(Ordering::SeqCst),
+            replay,
+            "resume appends, never loads, memory"
+        );
+    }
+    println!(
+        "actual Agent::resume twice from CallTools checkpoint: start=0 settled=2 tool=3 (1 pre-crash + 2 re-executions) memory_load=0 memory_append=2"
     );
     let mut unknown = before.clone();
     unknown["format"] = json!(999);
@@ -253,6 +371,6 @@ async fn disposable_checkpoint_retains_payload_but_not_configured_runtime() {
             .join(", ")
     );
     println!(
-        "checkpoint: input/history/entries and pending state roundtrip; direct step skips configured hook; hook-aware invocation calls it; unknown format refuses"
+        "checkpoint: input/history/entries and pending state roundtrip; direct driving skips services; fresh runner and actual resume counted separately; pending tool re-executes; unknown format refuses"
     );
 }

@@ -11,7 +11,6 @@ rig = { version = "=0.44.0", default-features = false, features = ["agent", "mem
 rmcp = { version = "=2.2.0", default-features = false, features = ["server", "client", "macros", "transport-io", "transport-streamable-http-client-reqwest"] }
 serde_json = "=1.0.151"
 tokio = { version = "=1.53.1", features = ["macros", "rt-multi-thread", "sync", "time", "io-util"] }
-tokio-util = "=0.7.19"
 
 [profile.dev]
 debug = 0

@@ -1,0 +1,84 @@
+{
+  "starting_commit": "dfe2fa8f57820cb576a9651f2718cf4953cafd1e",
+  "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-ceb6e16c",
+  "results": [
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--manifest-path",
+        "experiments/r0-rig-reuse/Cargo.toml",
+        "--locked",
+        "--offline",
+        "--",
+        "--nocapture"
+      ],
+      "seconds": 3.3075,
+      "exit": 0,
+      "environment": {
+        "CARGO_TARGET_DIR": "/private/tmp/brn-c0-r0-20261016-target",
+        "CARGO_INCREMENTAL": "0",
+        "BRN_R0_CAPTURE_PATH": "/private/tmp/brn-c0-r0-20261016-target/capture-d59e3b33-1f6e-47e8-8de0-83df2cf91805.json"
+      },
+      "before": {
+        "status": " M docs/status.md\n M docs/work/active/agent-capabilities/evidence.md\n M docs/work/active/agent-capabilities/plan.md\n M docs/work/active/modular-foundation/c0/start-messages.md\n M docs/work/active/modular-foundation/plan.md\n M experiments/r0-rig-reuse/Cargo.lock\n M experiments/r0-rig-reuse/Cargo.toml\n M experiments/r0-rig-reuse/REPORT.md\n M experiments/r0-rig-reuse/lock-delta.json\n M experiments/r0-rig-reuse/src/mcp.rs\n M experiments/r0-rig-reuse/src/memory.rs\n M experiments/r0-rig-reuse/src/prefix.rs\n?? docs/work/active/modular-foundation/c0/complete-test-inventory.json\n?? docs/work/active/modular-foundation/c0/complete-test-inventory.md\n?? docs/work/active/modular-foundation/c0/complete-test-inventory.py\n?? docs/work/active/modular-foundation/c0/hosted-core-macos-baseline.log\n?? docs/work/active/modular-foundation/c0/hosted-core-metadata.json\n?? docs/work/active/modular-foundation/c0/review-lightweight-checks.json\n?? experiments/r0-rig-reuse/review-corrections-first.log\n?? experiments/r0-rig-reuse/review-corrections-second.log\n",
+        "tracked_diff_sha256": "e043dca0a164fa921105314160bdef7cdc1ec9c2709fc6f0720b1e7d73e0aa49",
+        "sample_sha256": "5ae14f93f8877900abc23c4458240875de9b8c4cd650b59799c5e8290419f02e"
+      },
+      "after": {
+        "status": " M docs/status.md\n M docs/work/active/agent-capabilities/evidence.md\n M docs/work/active/agent-capabilities/plan.md\n M docs/work/active/modular-foundation/c0/start-messages.md\n M docs/work/active/modular-foundation/plan.md\n M experiments/r0-rig-reuse/Cargo.lock\n M experiments/r0-rig-reuse/Cargo.toml\n M experiments/r0-rig-reuse/REPORT.md\n M experiments/r0-rig-reuse/lock-delta.json\n M experiments/r0-rig-reuse/src/mcp.rs\n M experiments/r0-rig-reuse/src/memory.rs\n M experiments/r0-rig-reuse/src/prefix.rs\n?? docs/work/active/modular-foundation/c0/complete-test-inventory.json\n?? docs/work/active/modular-foundation/c0/complete-test-inventory.md\n?? docs/work/active/modular-foundation/c0/complete-test-inventory.py\n?? docs/work/active/modular-foundation/c0/hosted-core-macos-baseline.log\n?? docs/work/active/modular-foundation/c0/hosted-core-metadata.json\n?? docs/work/active/modular-foundation/c0/review-lightweight-checks.json\n?? experiments/r0-rig-reuse/review-corrections-first.log\n?? experiments/r0-rig-reuse/review-corrections-second.log\n",
+        "tracked_diff_sha256": "e043dca0a164fa921105314160bdef7cdc1ec9c2709fc6f0720b1e7d73e0aa49",
+        "sample_sha256": "5ae14f93f8877900abc23c4458240875de9b8c4cd650b59799c5e8290419f02e"
+      },
+      "git_unchanged": true,
+      "log": "review-tests-capture.log"
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--manifest-path",
+        "experiments/r0-rig-reuse/Cargo.toml",
+        "--locked",
+        "--offline",
+        "--",
+        "--nocapture"
+      ],
+      "seconds": 0.6175,
+      "exit": 0,
+      "environment": {
+        "CARGO_TARGET_DIR": "/private/tmp/brn-c0-r0-20261016-target",
+        "CARGO_INCREMENTAL": "0"
+      },
+      "before": {
+        "status": " M docs/status.md\n M docs/work/active/agent-capabilities/evidence.md\n M docs/work/active/agent-capabilities/plan.md\n M docs/work/active/modular-foundation/c0/start-messages.md\n M docs/work/active/modular-foundation/plan.md\n M experiments/r0-rig-reuse/Cargo.lock\n M experiments/r0-rig-reuse/Cargo.toml\n M experiments/r0-rig-reuse/REPORT.md\n M experiments/r0-rig-reuse/lock-delta.json\n M experiments/r0-rig-reuse/src/mcp.rs\n M experiments/r0-rig-reuse/src/memory.rs\n M experiments/r0-rig-reuse/src/prefix.rs\n?? docs/work/active/modular-foundation/c0/complete-test-inventory.json\n?? docs/work/active/modular-foundation/c0/complete-test-inventory.md\n?? docs/work/active/modular-foundation/c0/complete-test-inventory.py\n?? docs/work/active/modular-foundation/c0/hosted-core-macos-baseline.log\n?? docs/work/active/modular-foundation/c0/hosted-core-metadata.json\n?? docs/work/active/modular-foundation/c0/review-lightweight-checks.json\n?? experiments/r0-rig-reuse/review-corrections-first.log\n?? experiments/r0-rig-reuse/review-corrections-second.log\n",
+        "tracked_diff_sha256": "e043dca0a164fa921105314160bdef7cdc1ec9c2709fc6f0720b1e7d73e0aa49",
+        "sample_sha256": "5ae14f93f8877900abc23c4458240875de9b8c4cd650b59799c5e8290419f02e"
+      },
+      "after": {
+        "status": " M docs/status.md\n M docs/work/active/agent-capabilities/evidence.md\n M docs/work/active/agent-capabilities/plan.md\n M docs/work/active/modular-foundation/c0/start-messages.md\n M docs/work/active/modular-foundation/plan.md\n M experiments/r0-rig-reuse/Cargo.lock\n M experiments/r0-rig-reuse/Cargo.toml\n M experiments/r0-rig-reuse/REPORT.md\n M experiments/r0-rig-reuse/lock-delta.json\n M experiments/r0-rig-reuse/src/mcp.rs\n M experiments/r0-rig-reuse/src/memory.rs\n M experiments/r0-rig-reuse/src/prefix.rs\n?? docs/work/active/modular-foundation/c0/complete-test-inventory.json\n?? docs/work/active/modular-foundation/c0/complete-test-inventory.md\n?? docs/work/active/modular-foundation/c0/complete-test-inventory.py\n?? docs/work/active/modular-foundation/c0/hosted-core-macos-baseline.log\n?? docs/work/active/modular-foundation/c0/hosted-core-metadata.json\n?? docs/work/active/modular-foundation/c0/review-lightweight-checks.json\n?? experiments/r0-rig-reuse/review-corrections-first.log\n?? experiments/r0-rig-reuse/review-corrections-second.log\n",
+        "tracked_diff_sha256": "e043dca0a164fa921105314160bdef7cdc1ec9c2709fc6f0720b1e7d73e0aa49",
+        "sample_sha256": "5ae14f93f8877900abc23c4458240875de9b8c4cd650b59799c5e8290419f02e"
+      },
+      "git_unchanged": true,
+      "log": "review-tests-rerun.log"
+    },
+    {
+      "command": [
+        "cargo",
+        "clippy",
+        "--manifest-path",
+        "experiments/r0-rig-reuse/Cargo.toml",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "seconds": 0.5732,
+      "exit": 0,
+      "log": "review-clippy.log"
+    }
+  ]
+}

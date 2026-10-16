@@ -42,8 +42,10 @@ async fn explicit_policy_and_process_local_summary_never_write_source() {
     let saved = serde_json::to_vec(&canonical).unwrap();
     let policy = TokenWindowMemory::new(2, |_: &Message| 1);
     let kept = policy.apply(canonical.clone()).unwrap();
-    assert_eq!(kept.len(), 2);
-    assert_eq!(saved, serde_json::to_vec(&canonical).unwrap());
+    assert_eq!(
+        serde_json::to_value(&kept).unwrap(),
+        serde_json::to_value(&canonical[2..]).unwrap()
+    );
     let store = Arc::new(InMemoryConversationMemory::new());
     let id = ConversationId::from("synthetic");
     store.append(&id, canonical.clone()).await.unwrap();

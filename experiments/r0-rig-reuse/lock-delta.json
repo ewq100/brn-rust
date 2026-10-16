@@ -48,7 +48,7 @@
   "not_in_experiment_count": 783,
   "root_packages": 952,
   "experiment_packages": 180,
-  "duplicates": {
+  "resolved_versions": {
     "reqwest": [
       "0.13.5"
     ],
@@ -56,7 +56,7 @@
       "1.2.2"
     ]
   },
-  "root_duplicates": {
+  "root_resolved_versions": {
     "reqwest": [
       "0.12.28",
       "0.13.5"
@@ -64,5 +64,10 @@
     "schemars": [
       "1.2.2"
     ]
-  }
+  },
+  "duplicate_version_names": [],
+  "root_duplicate_version_names": [
+    "reqwest"
+  ],
+  "review_direct_dependency_removed": "tokio-util; still required transitively, no resolved package identity removed"
 }
