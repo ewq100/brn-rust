@@ -1,11 +1,11 @@
 {
-  "actual_HEAD": "f2b060bb17080d0241143afb6fadd6ec22350f34",
+  "actual_HEAD": "29c9cf68a7841a3a6329d0c4de7a5be7d7b347b5",
   "base": "f2b060bb17080d0241143afb6fadd6ec22350f34",
   "branch": "work/b3-20261017",
   "material_patch": {
-    "base_index_applycheck": "passed; no application/staging",
-    "path": "/private/tmp/brn-b3-source-20261017/compiled-source.patch",
-    "sha256": "86c15b36e32a88dd1c0a7cc13b8df7f08c6d32d7ca30ce9e9a71f8307399ec93"
+    "base_index_applycheck": "passed against isolated accepted-base index; no application/staging",
+    "path": "/private/tmp/brn-b3-source-20261017/current-source.patch",
+    "sha256": "d180b418f340a365d63a31ba041f8e9a7cb9a13449f1453cf21ea498670525ee"
   },
   "prepared_app_tests": [
     "b3_import_resolution_reads_initial_observation_and_current_owner_edited_note_without_writes",
@@ -134,8 +134,8 @@
     "scripts/verify-end-to-end.sh": "cf47f13d6691d378b3b2cb821dee51f29437c698adf5d090a9cead60c0e17841",
     "scripts/verify-storage.sh": "cc84b634b6aa816050dead761f9fba0e2e69cf12f20e308c4714ad476e6daf6b"
   },
-  "recorded_utc": "2026-10-16T22:14:17.988961+00:00",
-  "source_fingerprint": "db861edaecc80e123a45e11d3a56d42d7d9a393f414a406d453b21fc05e712a1",
+  "recorded_utc": "2026-10-16T22:18:38.125388+00:00",
+  "source_fingerprint": "0d37d7cfcbf73aa8e32422b1e295eb48c9854c6d9667bf7895b7daf0ab53e5eb",
   "source_paths": {
     "crates/brn-desktop/src/threads_ui.rs": {
       "base_sha256": "bd03c560faeecdfb3e73440e9f1da83a3e944b3ea18965b79713942fcae06aeb",
@@ -154,8 +154,8 @@
     },
     "crates/brn-threads-app/tests/import_coverage.rs": {
       "base_sha256": "fef8d89f176db36ccf829ea42afa0b61e0134b76e2af393c22368790e3c8dc2f",
-      "bytes": 21755,
-      "current_sha256": "41e321c4aa8ef21681ece42a3bc05bb8dec2d94b32b75653a7ef009005b8b2fe"
+      "bytes": 22033,
+      "current_sha256": "8fe7755e3e74c1e4a527b355adad53d6eb9cdd122dd0f16600e63d1b410a4345"
     },
     "crates/brn-writing-ui/src/native.rs": {
       "base_sha256": "71c227263750c49085b3e89a80d455f45b65e4634175432d0a532e85f249acdb",

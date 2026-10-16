@@ -387,6 +387,13 @@ fn b3_import_resolution_rejects_fabricated_receipts_and_hidden_scope_without_met
             .to_string(),
         hidden
     );
+    assert_eq!(
+        app.full_import_note_in_scope(&fabricated, &converted.source_sha256, Some(&project))
+            .unwrap_err()
+            .to_string(),
+        hidden,
+        "even a currently visible scope cannot make an altered receipt payload authoritative"
+    );
     fabricated = receipt.clone();
     fabricated.operation = app
         .store
