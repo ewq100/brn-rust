@@ -746,6 +746,8 @@ fn reopening_current_review_from_solo_chat_removes_hidden_composer_focus(cx: &mu
 /// usual confirmation), which keeps what was typed here as the new edit.
 #[gpui_kit::test]
 fn an_edit_already_open_elsewhere_offers_compare_and_discard(cx: &mut TestAppContext) {
+    // Control real-time dialog entrance motion while testing confirmation behavior.
+    cx.update(|cx| cx.set_reduce_motion(true));
     let f = fixture(cx);
     cx.update_window(f.window, |_, window, cx| {
         f.view

@@ -1,0 +1,23 @@
+COMMAND ["/private/tmp/brn-c0-20261016-target/debug/deps/brn_desktop-9a2a2eca0aadc8f6", "threads_ui::chat_tests::a_saved_working_rewrite_offers_the_same_confirmed_stop_in_the_note", "--exact", "--nocapture", "--test-threads=1"]
+ENV {"TMPDIR": "/private/tmp/brn-widget-sol-20261016/fixtures", "SEED": "0", "ITERATIONS": "100"}
+
+running 1 test
+test threads_ui::chat_tests::a_saved_working_rewrite_offers_the_same_confirmed_stop_in_the_note ... seed = 0
+seed = 1
+seed = 2
+
+thread 'threads_ui::chat_tests::a_saved_working_rewrite_offers_the_same_confirmed_stop_in_the_note' (26651867) panicked at crates/brn-desktop/src/threads_chat_tests.rs:630:9:
+assertion `left == right` failed
+  left: Working
+ right: Interrupted
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+failing seed: 2
+You can rerun from this seed by setting the environmental variable SEED to 2
+FAILED
+
+failures:
+
+failures:
+    threads_ui::chat_tests::a_saved_working_rewrite_offers_the_same_confirmed_stop_in_the_note
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 309 filtered out; finished in 0.43s

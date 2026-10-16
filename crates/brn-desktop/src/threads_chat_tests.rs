@@ -585,6 +585,8 @@ fn a_saved_working_reply_stops_only_through_its_confirming_dialog(cx: &mut TestA
 #[gpui_kit::test]
 fn a_saved_working_rewrite_offers_the_same_confirmed_stop_in_the_note(cx: &mut TestAppContext) {
     use polish_tests::{fixture, on_window, record_rewrite_run, update};
+    // Control real-time dialog entrance motion while testing confirmation behavior.
+    cx.update(|cx| cx.set_reduce_motion(true));
     let f = fixture(cx, 1250., 860., "Saved text for a rewrite.");
     let thread = update(cx, &f, |view, window, cx| {
         let thread = view.workspace.new_thread("Rewrite chat").unwrap().id;

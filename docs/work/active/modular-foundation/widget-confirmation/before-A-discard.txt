@@ -1,0 +1,61 @@
+seed = 64
+[DEBUG-widget-sol] configure reduce_motion_before=false request_reduce=false
+[DEBUG-widget-sol] click id=compare-open-edit-close stage=initial-render/before-move at=Instant { tv_sec: 617565, tv_nsec: 54543458 } elapsed=3.706292ms captured_bounds=Bounds { origin: Point { x: 773px, y: 249px }, size: Size { 64px × 32px } } point=Point { x: 805px, y: 265px } current(bounds,visible,contains,disabled)=Some((Bounds { origin: Point { x: 773px, y: 249px }, size: Size { 64px × 32px } }, true, true, None))
+[DEBUG-widget-sol] click id=compare-open-edit-close stage=move-dispatched/last-render at=Instant { tv_sec: 617565, tv_nsec: 55546375 } elapsed=4.709209ms captured_bounds=Bounds { origin: Point { x: 773px, y: 249px }, size: Size { 64px × 32px } } point=Point { x: 805px, y: 265px } current(bounds,visible,contains,disabled)=Some((Bounds { origin: Point { x: 773px, y: 249px }, size: Size { 64px × 32px } }, true, true, None))
+[DEBUG-widget-sol] click id=compare-open-edit-close stage=move-rendered/before-down at=Instant { tv_sec: 617565, tv_nsec: 60601041 } elapsed=9.763875ms captured_bounds=Bounds { origin: Point { x: 773px, y: 249px }, size: Size { 64px × 32px } } point=Point { x: 805px, y: 265px } current(bounds,visible,contains,disabled)=Some((Bounds { origin: Point { x: 773px, y: 249px }, size: Size { 64px × 32px } }, true, true, None))
+[DEBUG-widget-sol] click id=compare-open-edit-close stage=down-dispatched/last-render at=Instant { tv_sec: 617565, tv_nsec: 61641541 } elapsed=10.804375ms captured_bounds=Bounds { origin: Point { x: 773px, y: 249px }, size: Size { 64px × 32px } } point=Point { x: 805px, y: 265px } current(bounds,visible,contains,disabled)=Some((Bounds { origin: Point { x: 773px, y: 249px }, size: Size { 64px × 32px } }, true, true, None))
+[DEBUG-widget-sol] click id=compare-open-edit-close stage=down-rendered/before-up at=Instant { tv_sec: 617565, tv_nsec: 67123583 } elapsed=16.286417ms captured_bounds=Bounds { origin: Point { x: 773px, y: 249px }, size: Size { 64px × 32px } } point=Point { x: 805px, y: 265px } current(bounds,visible,contains,disabled)=Some((Bounds { origin: Point { x: 773px, y: 251px }, size: Size { 64px × 32px } }, true, true, None))
+[DEBUG-widget-sol] click id=compare-open-edit-close stage=up-dispatched/last-render at=Instant { tv_sec: 617565, tv_nsec: 68708916 } elapsed=17.87175ms captured_bounds=Bounds { origin: Point { x: 773px, y: 249px }, size: Size { 64px × 32px } } point=Point { x: 805px, y: 265px } current(bounds,visible,contains,disabled)=Some((Bounds { origin: Point { x: 773px, y: 251px }, size: Size { 64px × 32px } }, true, true, None))
+[DEBUG-widget-sol] click id=compare-open-edit-close stage=up-rendered at=Instant { tv_sec: 617565, tv_nsec: 73745708 } elapsed=22.908542ms captured_bounds=Bounds { origin: Point { x: 773px, y: 249px }, size: Size { 64px × 32px } } point=Point { x: 805px, y: 265px } current(bounds,visible,contains,disabled)=None
+[DEBUG-widget-sol] A compare-close after-parked dialog=false edit_open=Some(("0f133d95-10e3-420b-932c-72822f3d0932:0", 1)) notice="An edit of this note is already open from v1. What you typed here isn't saved."
+[DEBUG-widget-sol] click id=discard-note-confirm stage=initial-render/before-move at=Instant { tv_sec: 617565, tv_nsec: 100001625 } elapsed=3.56375ms captured_bounds=Bounds { origin: Point { x: 758px, y: 121.5px }, size: Size { 79px × 32px } } point=Point { x: 797.5px, y: 137.5px } current(bounds,visible,contains,disabled)=Some((Bounds { origin: Point { x: 758px, y: 121.5px }, size: Size { 79px × 32px } }, true, true, None))
+[DEBUG-widget-sol] click id=discard-note-confirm stage=move-dispatched/last-render at=Instant { tv_sec: 617565, tv_nsec: 100887916 } elapsed=4.450041ms captured_bounds=Bounds { origin: Point { x: 758px, y: 121.5px }, size: Size { 79px × 32px } } point=Point { x: 797.5px, y: 137.5px } current(bounds,visible,contains,disabled)=Some((Bounds { origin: Point { x: 758px, y: 121.5px }, size: Size { 79px × 32px } }, true, true, None))
+[DEBUG-widget-sol] click id=discard-note-confirm stage=move-rendered/before-down at=Instant { tv_sec: 617565, tv_nsec: 105066708 } elapsed=8.628833ms captured_bounds=Bounds { origin: Point { x: 758px, y: 121.5px }, size: Size { 79px × 32px } } point=Point { x: 797.5px, y: 137.5px } current(bounds,visible,contains,disabled)=Some((Bounds { origin: Point { x: 758px, y: 121.5px }, size: Size { 79px × 32px } }, true, true, None))
+[DEBUG-widget-sol] click id=discard-note-confirm stage=down-dispatched/last-render at=Instant { tv_sec: 617565, tv_nsec: 154163458 } elapsed=57.725583ms captured_bounds=Bounds { origin: Point { x: 758px, y: 121.5px }, size: Size { 79px × 32px } } point=Point { x: 797.5px, y: 137.5px } current(bounds,visible,contains,disabled)=Some((Bounds { origin: Point { x: 758px, y: 121.5px }, size: Size { 79px × 32px } }, true, true, None))
+[DEBUG-widget-sol] click id=discard-note-confirm stage=down-rendered/before-up at=Instant { tv_sec: 617565, tv_nsec: 163841000 } elapsed=67.403125ms captured_bounds=Bounds { origin: Point { x: 758px, y: 121.5px }, size: Size { 79px × 32px } } point=Point { x: 797.5px, y: 137.5px } current(bounds,visible,contains,disabled)=Some((Bounds { origin: Point { x: 758px, y: 162.5px }, size: Size { 79px × 32px } }, true, false, None))
+[DEBUG-widget-sol] click id=discard-note-confirm stage=up-dispatched/last-render at=Instant { tv_sec: 617565, tv_nsec: 164837916 } elapsed=68.400041ms captured_bounds=Bounds { origin: Point { x: 758px, y: 121.5px }, size: Size { 79px × 32px } } point=Point { x: 797.5px, y: 137.5px } current(bounds,visible,contains,disabled)=Some((Bounds { origin: Point { x: 758px, y: 162.5px }, size: Size { 79px × 32px } }, true, false, None))
+[DEBUG-widget-sol] click id=discard-note-confirm stage=up-rendered at=Instant { tv_sec: 617565, tv_nsec: 169309833 } elapsed=72.871958ms captured_bounds=Bounds { origin: Point { x: 758px, y: 121.5px }, size: Size { 79px × 32px } } point=Point { x: 797.5px, y: 137.5px } current(bounds,visible,contains,disabled)=Some((Bounds { origin: Point { x: 758px, y: 165.5px }, size: Size { 79px × 32px } }, true, false, None))
+[DEBUG-widget-sol] A discard-confirm immediately-after-click dialog=true
+[DEBUG-widget-sol] A after-parked dialog=Some(true) edit_open=Some(("0f133d95-10e3-420b-932c-72822f3d0932:0", 1)) own_session(id,generation,closed)=None external_session(id,generation,closed)=Ok(("42f48c45-86d5-47fa-a8aa-6da7f8ed6e11", 1, false)) saved_version=Ok(Some(1)) notice="An edit of this note is already open from v1. What you typed here isn't saved."
+
+thread 'threads_ui::writing_tests::an_edit_already_open_elsewhere_offers_compare_and_discard' (27179882) panicked at crates/brn-desktop/src/threads_writing_tests.rs:879:9:
+assertion `left == right` failed
+  left: Some(("0f133d95-10e3-420b-932c-72822f3d0932:0", 1))
+ right: None
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/std/src/panicking.rs:679:5
+   1: core::panicking::panic_fmt
+             at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:80:14
+   2: core::panicking::assert_failed_inner
+   3: core::panicking::assert_failed::<core::option::Option<(alloc::string::String, u64)>, core::option::Option<(alloc::string::String, u64)>>
+             at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:394:5
+   4: <gpui::app::App>::update_window_id::<(), brn_desktop::threads_ui::writing_tests::an_edit_already_open_elsewhere_offers_compare_and_discard::__an_edit_already_open_elsewhere_offers_compare_and_discard::{closure#7}>::{closure#0}
+   5: <gpui::app::App>::update_window_erased
+   6: <gpui::app::App>::update_window_id::<(), brn_desktop::threads_ui::writing_tests::an_edit_already_open_elsewhere_offers_compare_and_discard::__an_edit_already_open_elsewhere_offers_compare_and_discard::{closure#7}>
+             at /Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/gpui-pre-0.3.9/src/app.rs:2207:14
+   7: <gpui::app::App as gpui::AppContext>::update_window::<(), brn_desktop::threads_ui::writing_tests::an_edit_already_open_elsewhere_offers_compare_and_discard::__an_edit_already_open_elsewhere_offers_compare_and_discard::{closure#7}>
+             at /Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/gpui-pre-0.3.9/src/app.rs:3301:14
+   8: <gpui::app::test_context::TestAppContext as gpui::AppContext>::update_window::<(), brn_desktop::threads_ui::writing_tests::an_edit_already_open_elsewhere_offers_compare_and_discard::__an_edit_already_open_elsewhere_offers_compare_and_discard::{closure#7}>
+             at /Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/gpui-pre-0.3.9/src/app/test_context.rs:85:14
+   9: brn_desktop::threads_ui::writing_tests::an_edit_already_open_elsewhere_offers_compare_and_discard::{closure#0}
+  10: gpui::test::run_test
+  11: brn_desktop::threads_ui::writing_tests::an_edit_already_open_elsewhere_offers_compare_and_discard
+             at ./crates/brn-desktop/src/threads_writing_tests.rs:747:1
+  12: brn_desktop::threads_ui::writing_tests::an_edit_already_open_elsewhere_offers_compare_and_discard::{closure#0}
+             at ./crates/brn-desktop/src/threads_writing_tests.rs:747:18
+  13: <brn_desktop::threads_ui::writing_tests::an_edit_already_open_elsewhere_offers_compare_and_discard::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+  14: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+failing seed: 64
+You can rerun from this seed by setting the environmental variable SEED to 64
+FAILED
+
+failures:
+
+failures:
+    threads_ui::writing_tests::an_edit_already_open_elsewhere_offers_compare_and_discard
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 309 filtered out; finished in 7.72s

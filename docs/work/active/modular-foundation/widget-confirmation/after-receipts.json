@@ -1,0 +1,805 @@
+{
+  "baseline": "c8b3026f582c8770c24a984111f562becf529cad",
+  "source": {
+    "head": "c8b3026f582c8770c24a984111f562becf529cad",
+    "patch_sha256": "9d55b1c16debfe0a00cb236db757617546f0badfa604809c794457c474b5de4c",
+    "files": {
+      "crates/brn-desktop/src/threads_components.rs": "d3a695b7d0cbbe9075f4428e55d8db684d72b8c6a26bbb3ee73c9c6003c1bc37",
+      "crates/brn-desktop/src/threads_writing_tests.rs": "790f6f7ecee03157d28f74f8f25f0d31e9ef77621080bfcec2619aa8bc734adf",
+      "crates/brn-desktop/src/threads_chat_tests.rs": "b4f208ae67a2d2b5c549480a329ec0b982fab72f040a0f4256128be80f3db85e"
+    },
+    "components_equals_baseline": true
+  },
+  "artifact": {
+    "artifact": {
+      "reason": "compiler-artifact",
+      "package_id": "path+file:///Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-desktop#0.1.0",
+      "manifest_path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-desktop/Cargo.toml",
+      "target": {
+        "kind": [
+          "bin"
+        ],
+        "crate_types": [
+          "bin"
+        ],
+        "name": "brn-desktop",
+        "src_path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-desktop/src/main.rs",
+        "edition": "2024",
+        "doc": true,
+        "doctest": false,
+        "test": true
+      },
+      "profile": {
+        "opt_level": "1",
+        "debuginfo": 1,
+        "debug_assertions": true,
+        "overflow_checks": true,
+        "test": true
+      },
+      "features": [
+        "default",
+        "native-test-support",
+        "native-ui"
+      ],
+      "filenames": [
+        "/private/tmp/brn-c0-20261016-target/debug/deps/brn_desktop-5e25dae08c408761"
+      ],
+      "executable": "/private/tmp/brn-c0-20261016-target/debug/deps/brn_desktop-5e25dae08c408761",
+      "fresh": false
+    },
+    "sha256": "a35858a2b9a6095095a56ed98d5be43c38e375921a2fa5fbccd55390804b8b8f",
+    "size": 74045616,
+    "markers": {
+      "[DEBUG-widget-sol]": false,
+      "BRN_WIDGET_DIAGNOSTICS": false,
+      "BRN_WIDGET_PAUSE80_TARGET": false,
+      "BRN_WIDGET_REDUCE_MOTION": false
+    },
+    "source": {
+      "head": "c8b3026f582c8770c24a984111f562becf529cad",
+      "patch_sha256": "9d55b1c16debfe0a00cb236db757617546f0badfa604809c794457c474b5de4c",
+      "files": {
+        "crates/brn-desktop/src/threads_components.rs": "d3a695b7d0cbbe9075f4428e55d8db684d72b8c6a26bbb3ee73c9c6003c1bc37",
+        "crates/brn-desktop/src/threads_writing_tests.rs": "790f6f7ecee03157d28f74f8f25f0d31e9ef77621080bfcec2619aa8bc734adf",
+        "crates/brn-desktop/src/threads_chat_tests.rs": "b4f208ae67a2d2b5c549480a329ec0b982fab72f040a0f4256128be80f3db85e"
+      },
+      "components_equals_baseline": true
+    },
+    "local_artifacts": [
+      {
+        "reason": "compiler-artifact",
+        "package_id": "path+file:///Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-intake#0.1.0",
+        "manifest_path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-intake/Cargo.toml",
+        "target": {
+          "kind": [
+            "lib"
+          ],
+          "crate_types": [
+            "lib"
+          ],
+          "name": "brn_intake",
+          "src_path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-intake/src/lib.rs",
+          "edition": "2024",
+          "doc": true,
+          "doctest": true,
+          "test": true
+        },
+        "profile": {
+          "opt_level": "1",
+          "debuginfo": 1,
+          "debug_assertions": true,
+          "overflow_checks": true,
+          "test": false
+        },
+        "features": [
+          "default"
+        ],
+        "filenames": [
+          "/private/tmp/brn-c0-20261016-target/debug/deps/libbrn_intake-0349dd2c9f72b0f1.rlib",
+          "/private/tmp/brn-c0-20261016-target/debug/deps/libbrn_intake-0349dd2c9f72b0f1.rmeta"
+        ],
+        "executable": null,
+        "fresh": true
+      },
+      {
+        "reason": "compiler-artifact",
+        "package_id": "path+file:///Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-threads-intake#0.1.0",
+        "manifest_path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-threads-intake/Cargo.toml",
+        "target": {
+          "kind": [
+            "lib"
+          ],
+          "crate_types": [
+            "lib"
+          ],
+          "name": "brn_threads_intake",
+          "src_path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-threads-intake/src/lib.rs",
+          "edition": "2024",
+          "doc": true,
+          "doctest": true,
+          "test": true
+        },
+        "profile": {
+          "opt_level": "1",
+          "debuginfo": 1,
+          "debug_assertions": true,
+          "overflow_checks": true,
+          "test": false
+        },
+        "features": [],
+        "filenames": [
+          "/private/tmp/brn-c0-20261016-target/debug/deps/libbrn_threads_intake-ae688a9639381bf6.rlib",
+          "/private/tmp/brn-c0-20261016-target/debug/deps/libbrn_threads_intake-ae688a9639381bf6.rmeta"
+        ],
+        "executable": null,
+        "fresh": true
+      },
+      {
+        "reason": "compiler-artifact",
+        "package_id": "path+file:///Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-threads-core#0.1.0",
+        "manifest_path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-threads-core/Cargo.toml",
+        "target": {
+          "kind": [
+            "lib"
+          ],
+          "crate_types": [
+            "lib"
+          ],
+          "name": "brn_threads_core",
+          "src_path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-threads-core/src/lib.rs",
+          "edition": "2024",
+          "doc": true,
+          "doctest": true,
+          "test": true
+        },
+        "profile": {
+          "opt_level": "1",
+          "debuginfo": 1,
+          "debug_assertions": true,
+          "overflow_checks": true,
+          "test": false
+        },
+        "features": [],
+        "filenames": [
+          "/private/tmp/brn-c0-20261016-target/debug/deps/libbrn_threads_core-9dd96547e5a3996d.rlib",
+          "/private/tmp/brn-c0-20261016-target/debug/deps/libbrn_threads_core-9dd96547e5a3996d.rmeta"
+        ],
+        "executable": null,
+        "fresh": true
+      },
+      {
+        "reason": "compiler-artifact",
+        "package_id": "path+file:///Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-ai#0.1.0",
+        "manifest_path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-ai/Cargo.toml",
+        "target": {
+          "kind": [
+            "lib"
+          ],
+          "crate_types": [
+            "lib"
+          ],
+          "name": "brn_ai",
+          "src_path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-ai/src/lib.rs",
+          "edition": "2024",
+          "doc": true,
+          "doctest": true,
+          "test": true
+        },
+        "profile": {
+          "opt_level": "1",
+          "debuginfo": 1,
+          "debug_assertions": true,
+          "overflow_checks": true,
+          "test": false
+        },
+        "features": [],
+        "filenames": [
+          "/private/tmp/brn-c0-20261016-target/debug/deps/libbrn_ai-66ed4a96023e475a.rlib",
+          "/private/tmp/brn-c0-20261016-target/debug/deps/libbrn_ai-66ed4a96023e475a.rmeta"
+        ],
+        "executable": null,
+        "fresh": true
+      },
+      {
+        "reason": "compiler-artifact",
+        "package_id": "path+file:///Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-retrieval#0.1.0",
+        "manifest_path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-retrieval/Cargo.toml",
+        "target": {
+          "kind": [
+            "lib"
+          ],
+          "crate_types": [
+            "lib"
+          ],
+          "name": "brn_retrieval",
+          "src_path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-retrieval/src/lib.rs",
+          "edition": "2024",
+          "doc": true,
+          "doctest": true,
+          "test": true
+        },
+        "profile": {
+          "opt_level": "1",
+          "debuginfo": 1,
+          "debug_assertions": true,
+          "overflow_checks": true,
+          "test": false
+        },
+        "features": [
+          "default"
+        ],
+        "filenames": [
+          "/private/tmp/brn-c0-20261016-target/debug/deps/libbrn_retrieval-ac9c25e913b968a4.rlib",
+          "/private/tmp/brn-c0-20261016-target/debug/deps/libbrn_retrieval-ac9c25e913b968a4.rmeta"
+        ],
+        "executable": null,
+        "fresh": true
+      },
+      {
+        "reason": "compiler-artifact",
+        "package_id": "path+file:///Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-threads-app#0.1.0",
+        "manifest_path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-threads-app/Cargo.toml",
+        "target": {
+          "kind": [
+            "lib"
+          ],
+          "crate_types": [
+            "lib"
+          ],
+          "name": "brn_threads_app",
+          "src_path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-threads-app/src/lib.rs",
+          "edition": "2024",
+          "doc": true,
+          "doctest": true,
+          "test": true
+        },
+        "profile": {
+          "opt_level": "1",
+          "debuginfo": 1,
+          "debug_assertions": true,
+          "overflow_checks": true,
+          "test": false
+        },
+        "features": [],
+        "filenames": [
+          "/private/tmp/brn-c0-20261016-target/debug/deps/libbrn_threads_app-81b2c15d37eb8cff.rlib",
+          "/private/tmp/brn-c0-20261016-target/debug/deps/libbrn_threads_app-81b2c15d37eb8cff.rmeta"
+        ],
+        "executable": null,
+        "fresh": true
+      },
+      {
+        "reason": "compiler-artifact",
+        "package_id": "path+file:///Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-desktop#0.1.0",
+        "manifest_path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-desktop/Cargo.toml",
+        "target": {
+          "kind": [
+            "bin"
+          ],
+          "crate_types": [
+            "bin"
+          ],
+          "name": "brn-desktop",
+          "src_path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-desktop/src/main.rs",
+          "edition": "2024",
+          "doc": true,
+          "doctest": false,
+          "test": true
+        },
+        "profile": {
+          "opt_level": "1",
+          "debuginfo": 1,
+          "debug_assertions": true,
+          "overflow_checks": true,
+          "test": true
+        },
+        "features": [
+          "default",
+          "native-test-support",
+          "native-ui"
+        ],
+        "filenames": [
+          "/private/tmp/brn-c0-20261016-target/debug/deps/brn_desktop-5e25dae08c408761"
+        ],
+        "executable": "/private/tmp/brn-c0-20261016-target/debug/deps/brn_desktop-5e25dae08c408761",
+        "fresh": false
+      }
+    ],
+    "dependency_provenance": "Same artifact filenames as phase3 c8b3026f all-local fresh rebuild; no intervening other-worker builds authorized."
+  },
+  "build": {
+    "cmd": [
+      "cargo",
+      "test",
+      "-p",
+      "brn-desktop",
+      "--features",
+      "native-ui,native-test-support",
+      "--bin",
+      "brn-desktop",
+      "--locked",
+      "--offline",
+      "--no-run",
+      "--message-format=json",
+      "--config",
+      "profile.test.package.brn.debug=1",
+      "--config",
+      "profile.test.package.brn-retrieval.debug=1",
+      "--config",
+      "profile.test.package.brn-desktop.debug=1",
+      "--config",
+      "profile.test.package.brn-ai.debug=1",
+      "--config",
+      "profile.test.package.brn-intake.debug=1",
+      "--config",
+      "profile.test.package.brn-threads-core.debug=1",
+      "--config",
+      "profile.test.package.brn-threads-intake.debug=1",
+      "--config",
+      "profile.test.package.brn-threads-app.debug=1"
+    ],
+    "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6",
+    "env": {
+      "CARGO_INCREMENTAL": "0",
+      "CARGO_TARGET_DIR": "/private/tmp/brn-c0-20261016-target",
+      "TMPDIR": "/private/tmp/brn-widget-sol-20261016/phase4-fixtures/build",
+      "RUST_BACKTRACE": "1",
+      "SEED": null,
+      "ITERATIONS": null,
+      "RUST_TEST_THREADS": null,
+      "BRN_WIDGET_DIAGNOSTICS": null,
+      "BRN_WIDGET_PAUSE80_TARGET": null,
+      "BRN_WIDGET_REDUCE_MOTION": null
+    },
+    "start_unix": 1792167748.435101,
+    "exit": 0,
+    "seconds": 18.988161582965404
+  },
+  "clippy": {
+    "cmd": [
+      "cargo",
+      "clippy",
+      "-p",
+      "brn-desktop",
+      "--features",
+      "native-ui,native-test-support",
+      "--all-targets",
+      "--locked",
+      "--offline",
+      "--message-format=json",
+      "--config",
+      "profile.test.package.brn.debug=1",
+      "--config",
+      "profile.dev.package.brn.debug=1",
+      "--config",
+      "profile.test.package.brn-retrieval.debug=1",
+      "--config",
+      "profile.dev.package.brn-retrieval.debug=1",
+      "--config",
+      "profile.test.package.brn-desktop.debug=1",
+      "--config",
+      "profile.dev.package.brn-desktop.debug=1",
+      "--config",
+      "profile.test.package.brn-ai.debug=1",
+      "--config",
+      "profile.dev.package.brn-ai.debug=1",
+      "--config",
+      "profile.test.package.brn-intake.debug=1",
+      "--config",
+      "profile.dev.package.brn-intake.debug=1",
+      "--config",
+      "profile.test.package.brn-threads-core.debug=1",
+      "--config",
+      "profile.dev.package.brn-threads-core.debug=1",
+      "--config",
+      "profile.test.package.brn-threads-intake.debug=1",
+      "--config",
+      "profile.dev.package.brn-threads-intake.debug=1",
+      "--config",
+      "profile.test.package.brn-threads-app.debug=1",
+      "--config",
+      "profile.dev.package.brn-threads-app.debug=1",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6",
+    "env": {
+      "CARGO_INCREMENTAL": "0",
+      "CARGO_TARGET_DIR": "/private/tmp/brn-c0-20261016-target",
+      "TMPDIR": "/private/tmp/brn-widget-sol-20261016/phase4-fixtures/clippy",
+      "RUST_BACKTRACE": "1",
+      "SEED": null,
+      "ITERATIONS": null,
+      "RUST_TEST_THREADS": null,
+      "BRN_WIDGET_DIAGNOSTICS": null,
+      "BRN_WIDGET_PAUSE80_TARGET": null,
+      "BRN_WIDGET_REDUCE_MOTION": null
+    },
+    "start_unix": 1792167792.587571,
+    "exit": 0,
+    "seconds": 5.963446124922484
+  },
+  "exact_tests": [
+    {
+      "label": "exact-A",
+      "tag": "A",
+      "cmd": [
+        "/private/tmp/brn-widget-sol-20261016/corrected-brn-desktop-phase4",
+        "threads_ui::writing_tests::an_edit_already_open_elsewhere_offers_compare_and_discard",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "env": {
+        "TMPDIR": "/private/tmp/brn-widget-sol-20261016/phase4-fixtures/exact-A",
+        "SEED": "0",
+        "ITERATIONS": "1",
+        "RUST_BACKTRACE": "1",
+        "RUST_TEST_THREADS": null,
+        "BRN_WIDGET_DIAGNOSTICS": null,
+        "BRN_WIDGET_PAUSE80_TARGET": null,
+        "BRN_WIDGET_REDUCE_MOTION": null
+      },
+      "exit": 0,
+      "seconds": 1.4948,
+      "log": "/private/tmp/brn-widget-sol-20261016/phase4-exact-A.log",
+      "iterations_started": 1,
+      "failing_seed": [],
+      "failure": [],
+      "test_result": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 309 filtered out; finished in 0.08s"
+      ]
+    },
+    {
+      "label": "exact-B",
+      "tag": "B",
+      "cmd": [
+        "/private/tmp/brn-widget-sol-20261016/corrected-brn-desktop-phase4",
+        "threads_ui::chat_tests::a_saved_working_rewrite_offers_the_same_confirmed_stop_in_the_note",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "env": {
+        "TMPDIR": "/private/tmp/brn-widget-sol-20261016/phase4-fixtures/exact-B",
+        "SEED": "0",
+        "ITERATIONS": "1",
+        "RUST_BACKTRACE": "1",
+        "RUST_TEST_THREADS": null,
+        "BRN_WIDGET_DIAGNOSTICS": null,
+        "BRN_WIDGET_PAUSE80_TARGET": null,
+        "BRN_WIDGET_REDUCE_MOTION": null
+      },
+      "exit": 0,
+      "seconds": 0.0817,
+      "log": "/private/tmp/brn-widget-sol-20261016/phase4-exact-B.log",
+      "iterations_started": 1,
+      "failing_seed": [],
+      "failure": [],
+      "test_result": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 309 filtered out; finished in 0.05s"
+      ]
+    }
+  ],
+  "stress": {
+    "batches": 1,
+    "seconds": 10.192845209036022,
+    "results": [
+      {
+        "label": "stress-0",
+        "tag": "A",
+        "cmd": [
+          "/private/tmp/brn-widget-sol-20261016/corrected-brn-desktop-phase4",
+          "threads_ui::writing_tests::an_edit_already_open_elsewhere_offers_compare_and_discard",
+          "--exact",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "env": {
+          "TMPDIR": "/private/tmp/brn-widget-sol-20261016/phase4-fixtures/stress-0",
+          "SEED": "0",
+          "ITERATIONS": "100",
+          "RUST_BACKTRACE": "1",
+          "RUST_TEST_THREADS": null,
+          "BRN_WIDGET_DIAGNOSTICS": null,
+          "BRN_WIDGET_PAUSE80_TARGET": null,
+          "BRN_WIDGET_REDUCE_MOTION": null
+        },
+        "exit": 0,
+        "seconds": 10.1164,
+        "log": "/private/tmp/brn-widget-sol-20261016/phase4-stress-0.log",
+        "iterations_started": 100,
+        "failing_seed": [],
+        "failure": [],
+        "test_result": [
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 309 filtered out; finished in 10.05s"
+        ]
+      },
+      {
+        "label": "stress-1",
+        "tag": "B",
+        "cmd": [
+          "/private/tmp/brn-widget-sol-20261016/corrected-brn-desktop-phase4",
+          "threads_ui::chat_tests::a_saved_working_rewrite_offers_the_same_confirmed_stop_in_the_note",
+          "--exact",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "env": {
+          "TMPDIR": "/private/tmp/brn-widget-sol-20261016/phase4-fixtures/stress-1",
+          "SEED": "0",
+          "ITERATIONS": "100",
+          "RUST_BACKTRACE": "1",
+          "RUST_TEST_THREADS": null,
+          "BRN_WIDGET_DIAGNOSTICS": null,
+          "BRN_WIDGET_PAUSE80_TARGET": null,
+          "BRN_WIDGET_REDUCE_MOTION": null
+        },
+        "exit": 0,
+        "seconds": 7.5808,
+        "log": "/private/tmp/brn-widget-sol-20261016/phase4-stress-1.log",
+        "iterations_started": 100,
+        "failing_seed": [],
+        "failure": [],
+        "test_result": [
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 309 filtered out; finished in 7.54s"
+        ]
+      },
+      {
+        "label": "stress-2",
+        "tag": "A",
+        "cmd": [
+          "/private/tmp/brn-widget-sol-20261016/corrected-brn-desktop-phase4",
+          "threads_ui::writing_tests::an_edit_already_open_elsewhere_offers_compare_and_discard",
+          "--exact",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "env": {
+          "TMPDIR": "/private/tmp/brn-widget-sol-20261016/phase4-fixtures/stress-2",
+          "SEED": "0",
+          "ITERATIONS": "100",
+          "RUST_BACKTRACE": "1",
+          "RUST_TEST_THREADS": null,
+          "BRN_WIDGET_DIAGNOSTICS": null,
+          "BRN_WIDGET_PAUSE80_TARGET": null,
+          "BRN_WIDGET_REDUCE_MOTION": null
+        },
+        "exit": 0,
+        "seconds": 10.1541,
+        "log": "/private/tmp/brn-widget-sol-20261016/phase4-stress-2.log",
+        "iterations_started": 100,
+        "failing_seed": [],
+        "failure": [],
+        "test_result": [
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 309 filtered out; finished in 10.09s"
+        ]
+      },
+      {
+        "label": "stress-3",
+        "tag": "B",
+        "cmd": [
+          "/private/tmp/brn-widget-sol-20261016/corrected-brn-desktop-phase4",
+          "threads_ui::chat_tests::a_saved_working_rewrite_offers_the_same_confirmed_stop_in_the_note",
+          "--exact",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "env": {
+          "TMPDIR": "/private/tmp/brn-widget-sol-20261016/phase4-fixtures/stress-3",
+          "SEED": "0",
+          "ITERATIONS": "100",
+          "RUST_BACKTRACE": "1",
+          "RUST_TEST_THREADS": null,
+          "BRN_WIDGET_DIAGNOSTICS": null,
+          "BRN_WIDGET_PAUSE80_TARGET": null,
+          "BRN_WIDGET_REDUCE_MOTION": null
+        },
+        "exit": 0,
+        "seconds": 7.6336,
+        "log": "/private/tmp/brn-widget-sol-20261016/phase4-stress-3.log",
+        "iterations_started": 100,
+        "failing_seed": [],
+        "failure": [],
+        "test_result": [
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 309 filtered out; finished in 7.58s"
+        ]
+      },
+      {
+        "label": "stress-4",
+        "tag": "A",
+        "cmd": [
+          "/private/tmp/brn-widget-sol-20261016/corrected-brn-desktop-phase4",
+          "threads_ui::writing_tests::an_edit_already_open_elsewhere_offers_compare_and_discard",
+          "--exact",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "env": {
+          "TMPDIR": "/private/tmp/brn-widget-sol-20261016/phase4-fixtures/stress-4",
+          "SEED": "0",
+          "ITERATIONS": "100",
+          "RUST_BACKTRACE": "1",
+          "RUST_TEST_THREADS": null,
+          "BRN_WIDGET_DIAGNOSTICS": null,
+          "BRN_WIDGET_PAUSE80_TARGET": null,
+          "BRN_WIDGET_REDUCE_MOTION": null
+        },
+        "exit": 0,
+        "seconds": 10.1662,
+        "log": "/private/tmp/brn-widget-sol-20261016/phase4-stress-4.log",
+        "iterations_started": 100,
+        "failing_seed": [],
+        "failure": [],
+        "test_result": [
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 309 filtered out; finished in 10.08s"
+        ]
+      },
+      {
+        "label": "stress-5",
+        "tag": "B",
+        "cmd": [
+          "/private/tmp/brn-widget-sol-20261016/corrected-brn-desktop-phase4",
+          "threads_ui::chat_tests::a_saved_working_rewrite_offers_the_same_confirmed_stop_in_the_note",
+          "--exact",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "env": {
+          "TMPDIR": "/private/tmp/brn-widget-sol-20261016/phase4-fixtures/stress-5",
+          "SEED": "0",
+          "ITERATIONS": "100",
+          "RUST_BACKTRACE": "1",
+          "RUST_TEST_THREADS": null,
+          "BRN_WIDGET_DIAGNOSTICS": null,
+          "BRN_WIDGET_PAUSE80_TARGET": null,
+          "BRN_WIDGET_REDUCE_MOTION": null
+        },
+        "exit": 0,
+        "seconds": 7.5761,
+        "log": "/private/tmp/brn-widget-sol-20261016/phase4-stress-5.log",
+        "iterations_started": 100,
+        "failing_seed": [],
+        "failure": [],
+        "test_result": [
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 309 filtered out; finished in 7.53s"
+        ]
+      },
+      {
+        "label": "stress-6",
+        "tag": "A",
+        "cmd": [
+          "/private/tmp/brn-widget-sol-20261016/corrected-brn-desktop-phase4",
+          "threads_ui::writing_tests::an_edit_already_open_elsewhere_offers_compare_and_discard",
+          "--exact",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "env": {
+          "TMPDIR": "/private/tmp/brn-widget-sol-20261016/phase4-fixtures/stress-6",
+          "SEED": "0",
+          "ITERATIONS": "100",
+          "RUST_BACKTRACE": "1",
+          "RUST_TEST_THREADS": null,
+          "BRN_WIDGET_DIAGNOSTICS": null,
+          "BRN_WIDGET_PAUSE80_TARGET": null,
+          "BRN_WIDGET_REDUCE_MOTION": null
+        },
+        "exit": 0,
+        "seconds": 10.1816,
+        "log": "/private/tmp/brn-widget-sol-20261016/phase4-stress-6.log",
+        "iterations_started": 100,
+        "failing_seed": [],
+        "failure": [],
+        "test_result": [
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 309 filtered out; finished in 10.11s"
+        ]
+      },
+      {
+        "label": "stress-7",
+        "tag": "B",
+        "cmd": [
+          "/private/tmp/brn-widget-sol-20261016/corrected-brn-desktop-phase4",
+          "threads_ui::chat_tests::a_saved_working_rewrite_offers_the_same_confirmed_stop_in_the_note",
+          "--exact",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "env": {
+          "TMPDIR": "/private/tmp/brn-widget-sol-20261016/phase4-fixtures/stress-7",
+          "SEED": "0",
+          "ITERATIONS": "100",
+          "RUST_BACKTRACE": "1",
+          "RUST_TEST_THREADS": null,
+          "BRN_WIDGET_DIAGNOSTICS": null,
+          "BRN_WIDGET_PAUSE80_TARGET": null,
+          "BRN_WIDGET_REDUCE_MOTION": null
+        },
+        "exit": 0,
+        "seconds": 7.5904,
+        "log": "/private/tmp/brn-widget-sol-20261016/phase4-stress-7.log",
+        "iterations_started": 100,
+        "failing_seed": [],
+        "failure": [],
+        "test_result": [
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 309 filtered out; finished in 7.52s"
+        ]
+      }
+    ]
+  },
+  "suite": {
+    "cmd": [
+      "cargo",
+      "test",
+      "-p",
+      "brn-desktop",
+      "--features",
+      "native-ui,native-test-support",
+      "--bin",
+      "brn-desktop",
+      "threads_ui::",
+      "--locked",
+      "--offline",
+      "--config",
+      "profile.test.package.brn.debug=1",
+      "--config",
+      "profile.test.package.brn-retrieval.debug=1",
+      "--config",
+      "profile.test.package.brn-desktop.debug=1",
+      "--config",
+      "profile.test.package.brn-ai.debug=1",
+      "--config",
+      "profile.test.package.brn-intake.debug=1",
+      "--config",
+      "profile.test.package.brn-threads-core.debug=1",
+      "--config",
+      "profile.test.package.brn-threads-intake.debug=1",
+      "--config",
+      "profile.test.package.brn-threads-app.debug=1"
+    ],
+    "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6",
+    "env": {
+      "CARGO_INCREMENTAL": "0",
+      "CARGO_TARGET_DIR": "/private/tmp/brn-c0-20261016-target",
+      "TMPDIR": "/private/tmp/brn-widget-sol-20261016/phase4-fixtures/suite",
+      "RUST_BACKTRACE": "1",
+      "SEED": null,
+      "ITERATIONS": null,
+      "RUST_TEST_THREADS": null,
+      "BRN_WIDGET_DIAGNOSTICS": null,
+      "BRN_WIDGET_PAUSE80_TARGET": null,
+      "BRN_WIDGET_REDUCE_MOTION": null
+    },
+    "start_unix": 1792167879.018709,
+    "exit": 0,
+    "seconds": 5.611142541980371
+  },
+  "suite_summary": [
+    "test result: ok. 306 passed; 0 failed; 1 ignored; 0 measured; 3 filtered out; finished in 3.00s"
+  ],
+  "suite_binary_identity": {
+    "sha256": "a35858a2b9a6095095a56ed98d5be43c38e375921a2fa5fbccd55390804b8b8f",
+    "matches_build_artifact": true
+  },
+  "final_processes": [],
+  "raw_scratch_sha256": {
+    "phase4-build.stdout": "14c86fda7ede01606380926a63e6ef96cba102564a7e2c38dabc634ecd09fcb8",
+    "phase4-build.stderr": "962d5998fdb18124e2760bb2a26bb9aa9037c6c9005019d6267a1e873bbd5cd7",
+    "phase4-clippy.stdout": "a8d9c5ceb25a222664771f33dee5bfccc68396ffa71c345c26901ff45bfd166f",
+    "phase4-clippy.stderr": "cbfa5c00c8f3fcfd8df56137d18f1dca33f88f0868816c09c1750c4641cf74e9",
+    "phase4-suite.stdout": "bcbc18895ef7e57203bd1e042bcd44f0db4f165ae5c1c87bd6230468713297c9",
+    "phase4-suite.stderr": "35a13d6cca63049f2f3288eb38fd38fef124d126721844b64fef5ed5fc6d7c7c",
+    "phase4-source.patch": "9d55b1c16debfe0a00cb236db757617546f0badfa604809c794457c474b5de4c",
+    "phase4-exact-A.log": "cb95dbd6a86a052ff66d7906a8216a297ca3098b090960ea40ec223a294c870c",
+    "phase4-exact-B.log": "ebb8e05d987ff97cf038dfdcd148b49aad4cd6b76723462015f091ef002d9776",
+    "phase4-stress-0.log": "2dba3d466ce13a32003564a91ea8bf90cd1daca20ce5651a133c4dc892985426",
+    "phase4-stress-1.log": "d18092c2c1884180f7b457b06e3e69dab47e9b81c6ece0f83f89e499eb216c81",
+    "phase4-stress-2.log": "fe68ee3a780e41568a6e246ec8e99fc185551777d84938946f2b7c90995b88c2",
+    "phase4-stress-3.log": "3d406a230d6361e80d2cf55f6995d87af10834a0be2dcd417d6a6643025f8f26",
+    "phase4-stress-4.log": "17fd17c7214b5031c4fa3abb11e8651df721cb6d5270d11f6da230f8f4ecfdc7",
+    "phase4-stress-5.log": "381c4caffb1dfad6534fcc10c3e7662213a06fafd775ff61e1a2c752fef6d9f1",
+    "phase4-stress-6.log": "13d21a47b54c72802a66d3c83da03b490822fc72cffc4fdb4d710b93fde56c16",
+    "phase4-stress-7.log": "b8852709add2ca29d34453d0a18547a60bbe00d78d57917bb1365ed99aaac557"
+  }
+}
