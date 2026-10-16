@@ -80,10 +80,10 @@ pub(super) fn schema() -> Value {
     object(
         json!({
             "summary":{"type":"string","maxLength":4096,"description":"Concise reported progress; total retained UTF-8 report must fit 4096 bytes. No raw source/tool transcript."},
-            "objective":{"type":["string","null"],"maxLength":768},
-            "remaining_work":{"type":"array","maxItems":8,"items":{"type":"string","maxLength":256}},
-            "open_questions":{"type":"array","maxItems":4,"items":{"type":"string","maxLength":256}},
-            "operations":{"type":"array","maxItems":16,"items":{"type":"string","maxLength":256},"description":"Exact host-recorded operation IDs from this chat; reported text is never an Applied receipt."}
+            "objective":{"type":["string","null"],"maxLength":768,"description":"Optional objective: non-blank when provided, at most 768 UTF-8 bytes. All fields together must fit the 4096-byte retained report; JSON maxLength counts characters, host limits count UTF-8 bytes."},
+            "remaining_work":{"type":"array","maxItems":8,"items":{"type":"string","maxLength":256,"description":"Non-blank remaining step, at most 256 UTF-8 bytes."},"description":"At most 8 non-blank steps, each at most 256 UTF-8 bytes; included in the aggregate 4096-byte retained report."},
+            "open_questions":{"type":"array","maxItems":4,"items":{"type":"string","maxLength":256,"description":"Non-blank open question, at most 256 UTF-8 bytes."},"description":"At most 4 non-blank questions, each at most 256 UTF-8 bytes; included in the aggregate 4096-byte retained report."},
+            "operations":{"type":"array","maxItems":16,"items":{"type":"string","maxLength":256,"description":"One exact nonempty host-recorded operation ID, at most 256 UTF-8 bytes."},"description":"At most 16 exact host-recorded operation IDs from this chat, each at most 256 UTF-8 bytes; included in the aggregate 4096-byte retained report. Reported text is never an Applied receipt."}
         }),
         json!(["summary"]),
     )
