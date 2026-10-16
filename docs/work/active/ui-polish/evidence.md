@@ -43,6 +43,24 @@ On `ed8daa82`, Rust 1.98.1, with `--locked --offline`:
 
 The workspace test suite was not rerun, because `git diff --stat 771116f0 -- crates ':!crates/brn-desktop'` is empty.
 
+### Sync with `origin/main` `8bef439b`
+
+Merge commit `9fecaea1` (`--no-ff`, not a rebase) brings in #146 quality-simplify (one `safe_markdown` policy with `external_link` and `stored_image`, and the rendered-Markdown Read-view test), #147 docs and #148 status. `threads_writing.rs` and `threads_document_tests.rs` merged automatically. The one conflict was the end of `threads_ui.rs`, where both sides appended a test module. Both are kept unchanged: the branch's `presentation_tests` (icons, notice tones) and #146's `policy_tests`. `markdown()` and `safe_message_for_thread` both go through `safe_markdown`, so there is still one rendering policy. No service reason string and no `useful_intake` logic changed. `Cargo.lock` and the crate manifests are unchanged from `771116f0`, and `docs/status.md` carries only #148's change.
+
+Full gate on `9fecaea1`:
+
+| Check | Result |
+|---|---|
+| `RUST_TEST_THREADS=1 scripts/verify-desktop-shell.sh` | **248 passed**, 0 failed (245 plus #146's two policy tests and its Read-view test) |
+| `cargo test -p brn-desktop --features native-ui` | **75 passed** |
+| `cargo test -p brn-desktop --features native-ui,native-retrieval` | **75 passed** |
+| `cargo test -p brn-desktop` (default features) | **27 passed** |
+| clippy `-D warnings`, both feature sets and `--workspace --all-targets` | clean |
+| `cargo fmt --all -- --check`, `git diff --check` | clean |
+| `python3 scripts/check-markdown-links.py` | 116 files, 432 local links, 0 failures |
+
+The workspace test suite was not rerun: `git diff --stat 771116f0 -- crates ':!crates/brn-desktop'` is still empty. The merge was not observed natively.
+
 ## Native-observed
 
 **How:** real keyboard and mouse input (CGEvents with Accessibility trust) on the unmodified product build, wrapped in scratch `.app` bundles. Windows were captured with ScreenCaptureKit. The data was synthetic, in fresh `/private/tmp` directories, with the `offline-fixture` provider and no provider requests. The observation harness was not used. Window use ran from 07:21 to 07:49 EEST on 16 October 2026, and every window was quit afterwards.
