@@ -578,3 +578,35 @@ The headless startup line replaces the earlier round-2b record: `round2b/verify-
 **Merge check** (worktree-free `git merge-tree --write-tree --name-only` of `d2dbe725`): against `work/daily-workflow-reliability` `192cd765` and against `work/integration-ui-reliability` `6db39420`, conflicts only in `crates/brn-threads-core/src/chat.rs` (two hunks, the B4 hook) and `crates/brn/src/main.rs` (two hunks: the `HELP`/`AGENT_HELP` block and the `begin-edit` `map_err`). These are the recorded regions.
 
 Status, reported separately: **implemented** yes; **verified (automated)** yes, except the Poppler-only test (local-env-blocked); **reviewed** APPROVED; **native-observed** not applicable (CLI only); **owner-accepted** no; **merged** no.
+
+## Merge of main 9b47b285
+
+Merge commit `6bdb48f8`: `git merge --no-ff origin/main` (`9b47b285`, PR #155, ui-polish and daily-workflow-reliability) into `a5dc0a7c`, no rebase. Content conflicts only in `crates/brn/src/main.rs` and `crates/brn-threads-core/src/chat.rs`, resolved as the round-2 merge-resolution notes record:
+
+- `main.rs`: main's `HELP` (two useful-intake lines) and its whole useful-intake sub-block (`useful_project`, "Choose either --project or --thread", `source_intake_chat`, `SOURCE_INTAKE_INSTRUCTION`, `thread`/`reused_chat`); this branch's `AGENT_HELP` and `CliError` result. The chat lookup's error goes through the typed mapping instead of plain text, so the README no longer calls useful intake's mapping coarse.
+- `chat.rs`: one private `chat_command_body(op, command, owner, orphans, converge)` behind `chat_command`, `chat_command_with_orphans` and `chat_command_converging`; the B4 hook stays after `ended_run_attention_with`, right before `prepare_on`. The app's converging twins now remove ended Run leases, as `chat_command` and `project_command` do.
+- `edit_session_open` maps the core `Error::EditSessionOpen` directly to `{note, base_version}`; main's default-mode stderr JSON line is kept without `session` (owner decision B3 part 1, both modes). The round-2b UNIQUE (2067) and `recovery_buffers()` inference is deleted. Lock contention stays `busy`. Main's `threads.rs` now asserts `session` absent.
+- `Error::DataFolder` maps to `data_folder_unusable {problem}`, no longer reserved. `details` omit the folder (README no-echo rule); the message names it. New process test `symlinked_data_dir_is_data_folder_unusable` (`symlink_refused`, `not_a_directory`, default exit 1).
+- `same_source` became core `same_locator(stored, &canonical_locator(reference))`.
+- Outside stops: `agent_runs.rs` and `agent_converge.rs` assert `interrupted`. The README documents the search message lane (`messages`, `message_total`, `message_cursor`, `archived` on `hits[]` and `messages[]`, one `--cursor` for both lanes, `page` describing the note lane).
+- No tool list or guide-bundle id is pinned on this branch, so the `-12` bundle and `withdraw_proposal` need no change here.
+
+Gates on one build in the worktree `target/`, fresh synthetic env, no provider calls (full table in the artifacts folder, `merge/verification.md`):
+
+| Check | Result |
+|---|---|
+| fmt; strict workspace clippy; helper, capability-spike and the three desktop clippy lanes | pass |
+| `env -u BRN_SKIP_PTY_TESTS cargo test -p brn --no-fail-fast` | 17 binaries, 140 passed, 0 failed; the PTY test ran and passed |
+| `cargo test -p brn-threads-core -p brn-threads-app` | 376 passed, 0 failed, 2 ignored |
+| `cargo test --workspace --no-fail-fast` | 83 binaries, 975 passed, 1 failed, 6 ignored. The failure is the Poppler-only `prepared_rust_fixtures_keep_source_and_preview_bindings_in_owned_scratch`: **LOCAL-ENV-BLOCKED, not passed** |
+| desktop: default features; `native-ui`; `native-ui,native-test-support`; `native-ui,native-retrieval` | 30; 95; 309 (1 ignored); 95 passed. `brn-retrieval --features native` 35, `brn-threads-app --features native-retrieval` 207 passed, native-retrieval CLI and desktop builds pass |
+| `python3 -m unittest discover -s scripts/tests` | 155 OK |
+| `scripts/verify-storage.sh` | exit 101 at the same Poppler-only test; its tail by hand passed (`Threads ready: 2 records`) |
+| CI macOS fixture step with `rmdir` trap; `scripts/cli_journey.py` | pass; 102 steps, 1079 checks, parents empty |
+| both `cli-witness.py`; reliability `cli-journey.py` (fresh `/private/tmp` root) | pass; exit 0, 43 steps (3 refusals by design) |
+| reliability `threads`, `source_locator`, `search_messages` tests | 13, 2, 1 passed |
+| links; `git diff --check origin/main HEAD` | 0 failures; clean |
+
+`git diff origin/main HEAD -- crates/brn-desktop crates/brn-ai` is empty.
+
+Status: **implemented** yes; **verified (automated)** yes, except the Poppler-only test (local-env-blocked); **native-observed** not applicable; **owner-accepted** no; **merged** into this branch, not into `main`.

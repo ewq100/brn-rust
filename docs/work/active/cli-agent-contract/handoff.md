@@ -14,7 +14,7 @@ Written 16 October 2026, when the owner asked to wrap up and merge the reviewed 
   - more keys (`topics-create`, `knowledge-check --seed-chat`, keyed intake that replays before conversion);
   - an offline loopback stub for `ask` outcomes;
   - owner items B2 (no default credentials in CLI-created workspaces), B4 (no-op converges return `Unchanged` with no receipt) and B3 part 1 (`edit_session_open` without the session ID, documented stale-save recipe).
-- **Round 2b (still contract 2; see evidence "Round 2b"):** paged `notes`, `threads`, `needs-you`, `recovery` and `projects`, a paged `messages --thread`, `--hops`/`--budget`/`--trash` checked before opening, the hard stop after an earlier SIGINT, `busy` for `begin-edit` lock contention, the README usage row, and signal tests isolated from the caller's signal mask. At merge, delete the round-2b `SQLITE_CONSTRAINT_UNIQUE` inference in `begin_edit_error` together with `recovery_buffers()` and keep the typed arm (merge-resolution notes).
+- **Round 2b (still contract 2; see evidence "Round 2b"):** paged `notes`, `threads`, `needs-you`, `recovery` and `projects`, a paged `messages --thread`, `--hops`/`--budget`/`--trash` checked before opening, the hard stop after an earlier SIGINT, `busy` for `begin-edit` lock contention, the README usage row, and signal tests isolated from the caller's signal mask. The merge of `main` `9b47b285` replaced the round-2b `SQLITE_CONSTRAINT_UNIQUE` inference with the typed `Error::EditSessionOpen` arm (evidence "Merge of main 9b47b285").
 - All three rounds were independently reviewed by two reviewers, and both approved. Shared-service changes are additive: no `brn-desktop` or `brn-ai` change, and no `ApplyOutcome` variant.
 
 ## Left for the next agent, in priority order
@@ -31,6 +31,8 @@ Items 1 and 2 (round 3) are owner-approved as a follow-up PR on a new branch fro
    - follow the schema-upgrade rules for the schema change.
 
    **Coordination:** the `work/ui-polish` lead asked for the proposed shared-seam API on the coordination board *before* the design is approved. Desktop U4 uses only `note` and `base_version` from `Error::EditSessionOpen`.
+
+   **Design requirement (desktop lead's board ASK):** U4's "Discard edit…" closes an edit the desktop did not open, calling `Store::discard` with the session `recovery_buffers` lists for the note. The round-3 API must define how the desktop (owner host) discards or adopts an edit it doesn't hold, without exposing the secret.
 2. **Round 3, workspace-scoped CLI authority, phase 1 (owner B1).** Record a workspace purpose:
    - `brn init --purpose test` sets it, and only at creation. Existing and desktop workspaces are owner workspaces. The CLI has no command to change purpose; a desktop-only API can be defined later.
    - A caller-supplied actor is recorded on receipts. Define whether it affects the request hash and replay.

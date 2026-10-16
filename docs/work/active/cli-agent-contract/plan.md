@@ -991,3 +991,7 @@ Design and plan: `../cli-agent-contract.artifacts/round2b/plan-2b.md` (outside t
 - Still deferred (handoff): round 3, `--key` for `ask` and useful intake, cooperative cancellation inside started long writes, NeedsReview/Superseded from the CLI.
 
 <!-- ===================== ROUND 2B END ===================== -->
+
+# Merge of main 9b47b285
+
+`origin/main` `9b47b285` merged with `--no-ff` as `6bdb48f8`. Conflicts in `crates/brn/src/main.rs` and `crates/brn-threads-core/src/chat.rs` were resolved per the round-2 merge-resolution notes, and every merge-time item is done: typed `edit_session_open` without `session`, `data_folder_unusable {problem}`, `same_locator`, `archived` and the message lane documented, `Interrupted` assertions. Gates (evidence "Merge of main 9b47b285"): `brn` 140 passed with the PTY test; workspace 975 passed, 1 failed (Poppler-only, local-env-blocked); desktop lanes, journeys, witnesses and reliability's journey and tests pass.
