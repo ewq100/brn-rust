@@ -1,0 +1,12 @@
+diff --git a/crates/brn-ai/src/threads_summary.rs b/crates/brn-ai/src/threads_summary.rs
+--- a/crates/brn-ai/src/threads_summary.rs
++++ b/crates/brn-ai/src/threads_summary.rs
+@@ -417,7 +417,7 @@
+         && entry.context == key
+         && entry.chunks > 0
+         && entry.chunks <= chunks.len()
+-        && encoded_hash(&chunks[..entry.chunks]).is_ok_and(|d| d == entry.content_digest)
++        && !entry.content_digest.is_empty()
+         && evidence(&chunks[..entry.chunks]).is_ok_and(|e| {
+             e.order.first() == Some(&entry.first)
+                 && e.order.last() == Some(&entry.last)

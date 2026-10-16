@@ -1,0 +1,12 @@
+diff --git a/crates/brn-ai/src/threads_summary.rs b/crates/brn-ai/src/threads_summary.rs
+--- a/crates/brn-ai/src/threads_summary.rs
++++ b/crates/brn-ai/src/threads_summary.rs
+@@ -35,7 +35,7 @@
+         .as_deref()
+         .filter(|account| !account.trim().is_empty())
+     {
+-        Some(account) => json!({"account":account}),
++        Some(account) => json!({"account":account,"token_sha256":digest(config.api_key.expose().as_bytes())}),
+         None => json!({"token_sha256":digest(config.api_key.expose().as_bytes())}),
+     };
+     digest(json!([config.base_url, identity]).to_string().as_bytes())

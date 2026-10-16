@@ -1,6 +1,6 @@
 # Agent capabilities Slice 0 implementation plan
 
-**Current slice:** D1A remains accepted at `964567aa`. D1B Opus1 corrections now pass [actual normal checks/fresh Opus2 brief](d1b/review1-verified-response.md): AI419/0/1, core15/0/0, CLI161/0/0, export5/0/0 and affected lint/fmt. New immutable pin, fresh independent source review and principal disposition remain separate. Original mutation results retain their source identities; live semantic qualification remains blocked by L.
+**Current slice:** D1A remains accepted at `964567aa`. D1B corrected source a94b9c99 is frozen for fresh principal Opus2; [handoff](d1b/review1-final-handoff.md) records AI419/0/1, core15/0/0, CLI161/0/0, export5/0/0, affected lint/fmt and six actual targeted supplement catches. Original mutation verdicts remain source-bound; cumulative827.261617/1800s, heavy explicitly released. Independent approval/principal disposition/live qualification remain separate.
 
 **Goal:** prove minimal upstream reuse and choose bounded adapters, without shipping D features.
 **Architecture:** apply Rig policies explicitly to BRN-owned history, retain checked progress/operations and add narrowly scoped adapters only in their assigned slices.
