@@ -4902,7 +4902,231 @@
           }
         }
       ]
+    },
+    {
+      "receipt": "mutation-guard-recheck.json",
+      "pin": "12b0d3296ce116e99d4dee5800f2f02edebec5ac",
+      "crates_tree": "53bcfa293e56c04c629b5eb80fee306d955d3eae",
+      "phases": [
+        {
+          "name": "core-scope-history-token",
+          "selected": 4,
+          "command": [
+            "cargo",
+            "mutants",
+            "--in-diff",
+            "/private/tmp/brn-cw2-mutation-recheck-12b0d329/source.diff",
+            "--jobs",
+            "1",
+            "--timeout",
+            "12",
+            "--build-timeout",
+            "70",
+            "--cargo-arg=--locked",
+            "--cargo-arg=--offline",
+            "--colors",
+            "never",
+            "--no-times",
+            "--leak-dirs",
+            "--copy-vcs=true",
+            "-p",
+            "brn-threads-core",
+            "--file",
+            "crates/brn-threads-core/src/store.rs",
+            "--re",
+            "Store::change_token|:1540:|:1558:",
+            "--test-package",
+            "brn-threads-core",
+            "--cargo-arg=--test=cw2_visibility",
+            "--output",
+            "/private/tmp/brn-cw2-mutation-recheck-12b0d329/core-scope-history-token"
+          ],
+          "controller_interrupted": false,
+          "ids": [
+            {
+              "id": "Baseline",
+              "verdict": "Success",
+              "log_path": {
+                "path": "/private/tmp/brn-cw2-mutation-recheck-12b0d329/core-scope-history-token/mutants.out/log/baseline.log",
+                "sha256": "13d86e0386d899a695130cb15a63bdc025e658fd8130e12f6bc7c998629fc250"
+              }
+            },
+            {
+              "id": "crates/brn-threads-core/src/store.rs:230:9: replace Store::change_token -> Result<ViewChangeToken> with Ok(Default::default())",
+              "verdict": "CaughtMutant",
+              "log_path": {
+                "path": "/private/tmp/brn-cw2-mutation-recheck-12b0d329/core-scope-history-token/mutants.out/log/crates__brn-threads-core__src__store.rs_line_230_col_9.log",
+                "sha256": "d390383f84ed5c203ea1c1df816c153df4eb95d33958909e23be78fe949781b4"
+              },
+              "diff_path": {
+                "path": "/private/tmp/brn-cw2-mutation-recheck-12b0d329/core-scope-history-token/mutants.out/diff/crates__brn-threads-core__src__store.rs_line_230_col_9.diff",
+                "sha256": "7871145112c44247c98c51ee4d6649da7e8a46cdfcf7e613af9d3184b2b481a5"
+              }
+            },
+            {
+              "id": "crates/brn-threads-core/src/store.rs:1540:34: replace != with == in apply_on",
+              "verdict": "CaughtMutant",
+              "log_path": {
+                "path": "/private/tmp/brn-cw2-mutation-recheck-12b0d329/core-scope-history-token/mutants.out/log/crates__brn-threads-core__src__store.rs_line_1540_col_34.log",
+                "sha256": "9c34edb41a3f3c02b0a0dfd1791b8be2524864aa9940a672f6fb5a50e48bb1bc"
+              },
+              "diff_path": {
+                "path": "/private/tmp/brn-cw2-mutation-recheck-12b0d329/core-scope-history-token/mutants.out/diff/crates__brn-threads-core__src__store.rs_line_1540_col_34.diff",
+                "sha256": "a48634db4405d3dc13b3dfe5a7f0b7c7053130f705abcdd094b66ff7d2827c59"
+              }
+            },
+            {
+              "id": "crates/brn-threads-core/src/store.rs:1558:48: replace || with && in apply_on",
+              "verdict": "CaughtMutant",
+              "log_path": {
+                "path": "/private/tmp/brn-cw2-mutation-recheck-12b0d329/core-scope-history-token/mutants.out/log/crates__brn-threads-core__src__store.rs_line_1558_col_48.log",
+                "sha256": "480da5ffadaad509f83dbf504ad75c6f945821267cb5105d01212a882e366abc"
+              },
+              "diff_path": {
+                "path": "/private/tmp/brn-cw2-mutation-recheck-12b0d329/core-scope-history-token/mutants.out/diff/crates__brn-threads-core__src__store.rs_line_1558_col_48.diff",
+                "sha256": "6892c468ecc520d1623d0eb3d03315e719d66f624e24eb136c017853b5409bed"
+              }
+            },
+            {
+              "id": "crates/brn-threads-core/src/store.rs:1558:51: delete ! in apply_on",
+              "verdict": "CaughtMutant",
+              "log_path": {
+                "path": "/private/tmp/brn-cw2-mutation-recheck-12b0d329/core-scope-history-token/mutants.out/log/crates__brn-threads-core__src__store.rs_line_1558_col_51.log",
+                "sha256": "76a8df2da0c891cb2fa67eb40eac38f29b9144cafe68ffe924b84536d7fa634a"
+              },
+              "diff_path": {
+                "path": "/private/tmp/brn-cw2-mutation-recheck-12b0d329/core-scope-history-token/mutants.out/diff/crates__brn-threads-core__src__store.rs_line_1558_col_51.diff",
+                "sha256": "d190fad63d619d210cd6a1811fbd2341ee7d4db1de72d77dbbf99f6f4e8d3ada"
+              }
+            }
+          ],
+          "raw_files": {
+            "/private/tmp/brn-cw2-mutation-recheck-12b0d329/core-scope-history-token/mutants.out/outcomes.json": {
+              "sha256": "ca3ece6150ba320045e9c6444e650d144dbfedf98ab18cada0ecc51f917aec25",
+              "bytes": 9576
+            },
+            "/private/tmp/brn-cw2-mutation-recheck-12b0d329/core-scope-history-token/mutants.out/mutants.json": {
+              "sha256": "9c575f4f33697259c166b4a3e475183af683f38cb3a20b6bdcd1a0041758c576",
+              "bytes": 7636
+            },
+            "/private/tmp/brn-cw2-mutation-recheck-12b0d329/core-scope-history-token/mutants.out/debug.log": {
+              "sha256": "ea3cb4bb850bff01e8666d61fd22e6fafdb64f7da3ff6c792fa9590353dd7544",
+              "bytes": 23816
+            },
+            "/private/tmp/brn-cw2-mutation-recheck-12b0d329/core-scope-history-token-selected.json": {
+              "sha256": "9c575f4f33697259c166b4a3e475183af683f38cb3a20b6bdcd1a0041758c576",
+              "bytes": 7636
+            },
+            "/private/tmp/brn-cw2-mutation-recheck-12b0d329/source.diff": {
+              "sha256": "38ede81bd80e4021df18679d8f0090422e2ab9c5db281cc4a78f1f6c111fb41e",
+              "bytes": 268525
+            }
+          },
+          "counts": {
+            "Success": 1,
+            "CaughtMutant": 4
+          },
+          "unexecuted_ids": [],
+          "copy_identity": {
+            "path": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/cargo-mutants-t3-3205580d-9Eijc1.tmp",
+            "files": 204,
+            "matches": 204,
+            "mismatches": {}
+          }
+        },
+        {
+          "name": "app-request-route",
+          "selected": 1,
+          "command": [
+            "cargo",
+            "mutants",
+            "--in-diff",
+            "/private/tmp/brn-cw2-mutation-recheck-12b0d329/source.diff",
+            "--jobs",
+            "1",
+            "--timeout",
+            "12",
+            "--build-timeout",
+            "70",
+            "--cargo-arg=--locked",
+            "--cargo-arg=--offline",
+            "--colors",
+            "never",
+            "--no-times",
+            "--leak-dirs",
+            "--copy-vcs=true",
+            "-p",
+            "brn-threads-app",
+            "--file",
+            "crates/brn-threads-app/src/review.rs",
+            "--re",
+            ":433:",
+            "--test-package",
+            "brn-threads-app",
+            "--cargo-arg=--lib",
+            "--cargo-arg=--test=writing_context",
+            "--output",
+            "/private/tmp/brn-cw2-mutation-recheck-12b0d329/app-request-route"
+          ],
+          "controller_interrupted": false,
+          "ids": [
+            {
+              "id": "Baseline",
+              "verdict": "Success",
+              "log_path": {
+                "path": "/private/tmp/brn-cw2-mutation-recheck-12b0d329/app-request-route/mutants.out/log/baseline.log",
+                "sha256": "c76a4676156b2fc33080551ffaee51eaf5a060670c3c151e7f49abbadef78fdc"
+              }
+            },
+            {
+              "id": "crates/brn-threads-app/src/review.rs:433:39: replace != with == in Workspace::writing_context_review",
+              "verdict": "CaughtMutant",
+              "log_path": {
+                "path": "/private/tmp/brn-cw2-mutation-recheck-12b0d329/app-request-route/mutants.out/log/crates__brn-threads-app__src__review.rs_line_433_col_39.log",
+                "sha256": "0bc379095b7d924b5e26f6a75e3af5b95ec3a975a6c8c30e73cd15e6a2c6dabe"
+              },
+              "diff_path": {
+                "path": "/private/tmp/brn-cw2-mutation-recheck-12b0d329/app-request-route/mutants.out/diff/crates__brn-threads-app__src__review.rs_line_433_col_39.diff",
+                "sha256": "6d786abfe67a759c5578847f0837871f025894676cb4c1568a16c43328bcb73a"
+              }
+            }
+          ],
+          "raw_files": {
+            "/private/tmp/brn-cw2-mutation-recheck-12b0d329/app-request-route/mutants.out/outcomes.json": {
+              "sha256": "c3e0242a292f291054c495ceeab1b30b5cb1e5f7d20dcb94e6c61e741b30e197",
+              "bytes": 3500
+            },
+            "/private/tmp/brn-cw2-mutation-recheck-12b0d329/app-request-route/mutants.out/mutants.json": {
+              "sha256": "5ef45bcd20f648342bc074c20882385324b23b5f35998d6dcab63d13cff0ae04",
+              "bytes": 1801
+            },
+            "/private/tmp/brn-cw2-mutation-recheck-12b0d329/app-request-route/mutants.out/debug.log": {
+              "sha256": "52a1f5a5fcfb4986a07247e02a8b7d95e2a0f4fb484921cdbcf7d6c1ff8ea889",
+              "bytes": 9369
+            },
+            "/private/tmp/brn-cw2-mutation-recheck-12b0d329/app-request-route-selected.json": {
+              "sha256": "5ef45bcd20f648342bc074c20882385324b23b5f35998d6dcab63d13cff0ae04",
+              "bytes": 1801
+            },
+            "/private/tmp/brn-cw2-mutation-recheck-12b0d329/source.diff": {
+              "sha256": "38ede81bd80e4021df18679d8f0090422e2ab9c5db281cc4a78f1f6c111fb41e",
+              "bytes": 268525
+            }
+          },
+          "counts": {
+            "Success": 1,
+            "CaughtMutant": 1
+          },
+          "unexecuted_ids": [],
+          "copy_identity": {
+            "path": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/cargo-mutants-t3-3205580d-62iSj9.tmp",
+            "files": 204,
+            "matches": 204,
+            "mismatches": {}
+          }
+        }
+      ]
     }
   ],
-  "total_shared_seconds": 1567.9456461259397
+  "total_shared_seconds": 1604.808563916944
 }

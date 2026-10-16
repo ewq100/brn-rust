@@ -2,6 +2,12 @@
 """Read-only per-ID receipts; never upgrades a survivor without a mutant rerun."""
 import collections,hashlib,json,pathlib,re,subprocess
 root=pathlib.Path(__file__).resolve().parents[5];evidence=pathlib.Path(__file__).resolve().parent
+source_cache={}
+def source_bytes(pin,file):
+ key=(pin,file)
+ if key not in source_cache:source_cache[key]=subprocess.check_output(['git','show',pin+':'+file],cwd=root)
+ return source_cache[key]
+
 
 def classification(m,old):
  name=m['name'];line=m['span']['start']['line'];file=m['file']
@@ -47,7 +53,7 @@ def classification(m,old):
  return {'classification':'coverage-gap-or-unproven-redundancy','reason':reason}
 
 result={'original_cap_seconds':1800,'qualification':'Partial targeted campaigns, no full mutation pass. New tests are not kills absent actual mutant recheck. All setup time counts.','campaigns':[]}
-for receipt_name in ['mutation-run.json','mutation-supplement.json']:
+for receipt_name in ['mutation-run.json','mutation-supplement.json','mutation-guard-recheck.json']:
  path=evidence/receipt_name
  if not path.exists():continue
  receipt=json.loads(path.read_text());work=pathlib.Path(receipt['work']);old=receipt_name=='mutation-run.json'
@@ -66,7 +72,7 @@ for receipt_name in ['mutation-run.json','mutation-supplement.json']:
       raw=base/outcome[field];entry[field]={'path':str(raw),'sha256':hashlib.sha256(raw.read_bytes()).hexdigest() if raw.exists() else None}
     if mutant and outcome['summary']=='MissedMutant':
      entry.update(classification(mutant,old))
-     lines=subprocess.check_output(['git','show',receipt['pin']+':'+mutant['file']],cwd=root,text=True).splitlines();at=mutant['span']['start']['line']
+     lines=source_bytes(receipt['pin'],mutant['file']).decode().splitlines();at=mutant['span']['start']['line']
      entry['source_window']={'file':mutant['file'],'start_line':max(1,at-1),'lines':lines[max(0,at-2):at+1]}
     p['ids'].append(entry)
    attempted={i['id'] for i in p['ids']}
@@ -82,7 +88,7 @@ for receipt_name in ['mutation-run.json','mutation-supplement.json']:
     copy=pathlib.Path(matches[0]);files=subprocess.check_output(['git','ls-tree','-r','--name-only',receipt['pin'],'--','crates/brn-ai','crates/brn-threads-core','crates/brn-threads-app','crates/brn','crates/brn-desktop'],cwd=root,text=True).splitlines();proof={}
     for file in files:
      if file.endswith('.rs'):
-      raw=copy/file;expected=hashlib.sha256(subprocess.check_output(['git','show',receipt['pin']+':'+file],cwd=root)).hexdigest();actual=hashlib.sha256(raw.read_bytes()).hexdigest() if raw.exists() else None
+      raw=copy/file;expected=hashlib.sha256(source_bytes(receipt['pin'],file)).hexdigest();actual=hashlib.sha256(raw.read_bytes()).hexdigest() if raw.exists() else None
       proof[file]={'expected':expected,'actual':actual,'match':actual==expected}
     p['copy_identity']={'path':str(copy),'files':len(proof),'matches':sum(v['match'] for v in proof.values()),'mismatches':{k:v for k,v in proof.items() if not v['match']}}
   campaign['phases'].append(p)
