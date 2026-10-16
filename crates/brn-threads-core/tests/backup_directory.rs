@@ -150,7 +150,7 @@ fn folder_patch_preserves_current_settings_fences_runs_and_replays_raw_intent_wi
     let RecordData::Run(run) = store.record(&run_id).unwrap().unwrap().data else {
         panic!("run")
     };
-    assert_eq!(run.state, RunState::Cancelled);
+    assert_eq!(run.state, RunState::Interrupted);
     assert_eq!(run.fence, 1);
     assert!(matches!(
         store.choose_backup_directory(&selection, &folder, &HostAuthority::owner("retry")),

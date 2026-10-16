@@ -136,6 +136,10 @@ mod polish_tests;
 #[path = "threads_review_tests.rs"]
 mod review_tests;
 
+#[cfg(all(test, feature = "native-test-support"))]
+#[path = "threads_intake_tests.rs"]
+mod intake_tests;
+
 gpui_kit::actions!(
     brn_threads,
     [
@@ -3199,13 +3203,27 @@ impl ThreadsUi {
     ) {
         let report = brn_threads_app::import_report(&converted);
         let fingerprint = brn_intake::hex(&converted.source_sha256);
+        // Re-supply lands in the chat that already received this source, in
+        // the open chat's project (general otherwise), unless work there is live.
+        let project = self
+            .chat_thread()
+            .and_then(|chat| brn_threads_app::project_for_chat(&self.records, chat))
+            .map(|project| project.id.clone());
         match self
             .workspace
-            .new_thread(&format!("Information from {title}"))
+            .source_intake_chat(
+                project.as_deref(),
+                &converted.source_reference,
+                &format!("Information from {title}"),
+            )
+            .map(|(chat, _)| chat)
         {
             Ok(thread) => {
-                let instruction = "Capture useful supported information from this source, maintaining relevant ordinary notes and source references. Preserve qualifications; do not copy the whole source as a note. Retain meaningful selected figures using the read_source host links and preserve detected omissions; unchecked coverage does not mean proven loss.";
-                match self.workspace.post_message(&thread.id, instruction) {
+                let instruction = brn_threads_app::SOURCE_INTAKE_INSTRUCTION;
+                match self
+                    .workspace
+                    .post_intake_instruction(&thread.id, &converted.source_reference)
+                {
                     Ok(_) => {
                         self.refresh();
                         self.open_thread(&thread.id, window, cx);

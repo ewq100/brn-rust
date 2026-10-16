@@ -159,6 +159,9 @@ struct Scope {
     helper: Option<Arc<research::HelperRuntime>>,
     /// Set only in a helper sub-run's scope.
     scout: Option<Arc<research::ScoutSlot>>,
+    /// Tells other processes this Working Run is still live. A helper
+    /// sub-run shares its parent's Run, so its scope shares this lease.
+    lease: Arc<crate::run_lease::RunLease>,
 }
 /// Stable for a chat, so the turns of every run in it share a cache, and
 /// carries no content beyond the chat id the prompt already names.
@@ -313,6 +316,11 @@ struct ApplyArgs {
 }
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
+struct WithdrawArgs {
+    operation: String,
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
 struct ProgressArgs {
     summary: String,
 }
@@ -334,6 +342,7 @@ fn parse_valid(name: &str, args: &Value) -> bool {
         "read_skill" => serde_json::from_value::<SkillArgs>(args.clone())
             .is_ok_and(|a| crate::threads_guides::read_skill(&a.id).is_some()),
         "apply_changes" => serde_json::from_value::<ApplyArgs>(args.clone()).is_ok(),
+        "withdraw_proposal" => serde_json::from_value::<WithdrawArgs>(args.clone()).is_ok(),
         "retain_progress" => serde_json::from_value::<ProgressArgs>(args.clone())
             .is_ok_and(|a| a.summary.len() <= 4096),
         "research" => research::validate_research(args),
@@ -399,6 +408,10 @@ fn schema(name: &str) -> Value {
             json!(["id"]),
         ),
         "apply_changes" => object(json!({"operation":{"type":"string"}}), json!(["operation"])),
+        "withdraw_proposal" => object(
+            json!({"operation":{"type":"string","description":"Your own unapplied candidate from this chat"}}),
+            json!(["operation"]),
+        ),
         "retain_progress" => object(
             json!({"summary":{"type":"string","maxLength":4096}}),
             json!(["summary"]),
@@ -537,6 +550,13 @@ tool!(
     "Prepare a fresh immutable replacement for this Thread's unapplied candidate from current versions. Retires the old candidate atomically, grants no apply authority. Reuse request_key for identical retries.",
     refresh_candidate
 );
+tool!(
+    WithdrawProposal,
+    "withdraw_proposal",
+    WithdrawArgs,
+    "Withdraw your own pending proposal in this chat after the owner's decision made it obsolete. It never applies anything and cannot touch owner changes or other chats.",
+    withdraw
+);
 fn read_history(scope: &Scope, args: HistoryArgs) -> AiResult<Value> {
     if scope.writing_snapshot.is_some() {
         return Err(rejected());
@@ -570,6 +590,7 @@ runtime_catalog!(
     (RetainProgress, "Saving useful progress…"),
     (ReadHistory, "Inspecting an accepted note revision…"),
     (RefreshCandidate, "Preparing a fresh proposal…"),
+    (WithdrawProposal, "Withdrawing an obsolete proposal…"),
 );
 
 const SEARCH_TOOLS: [(&str, &str); 2] = [
@@ -1203,6 +1224,58 @@ fn apply(scope: &Scope, args: ApplyArgs) -> AiResult<Value> {
     }
     Ok(result)
 }
+/// The receipt reason of a withdrawal's attention cleanup.
+const WITHDRAW_REASON: &str =
+    "Agent withdrew its obsolete proposal; preserve other attention requests";
+/// Withdraws one of this chat's own unapplied proposals through the shared
+/// checked dismissal path, as the owner's Dismiss does, under this Run's
+/// fenced authority. It never applies anything. Owner changes and other
+/// chats' or projects' proposals are in no Run of this chat, so they are
+/// rejected like any other scope failure.
+fn withdraw(scope: &Scope, args: WithdrawArgs) -> AiResult<Value> {
+    if scope.writing_snapshot.is_some() {
+        return Err(rejected());
+    }
+    let mut store = scope.store.lock().map_err(storage)?;
+    live(scope, &store)?;
+    let op = store.operation(&args.operation).map_err(|_| rejected())?;
+    let thread = thread_for(scope, &store)?;
+    let belongs = store.records().map_err(storage)?.into_iter().any(|r| {
+        matches!(r.data, RecordData::Run(run) if run.thread == thread && run.operations.contains(&op))
+    });
+    if !belongs {
+        return Err(rejected());
+    }
+    if store.receipt(&op).map_err(storage)?.is_some() {
+        return Ok(
+            json!({"outcome":"Refused","reason":"This proposal was applied; prepare a new change to revise it."}),
+        );
+    }
+    store.prepared(&op).map_err(|_| rejected())?;
+    // Already retired: replay, which also repairs a lost attention cleanup.
+    let replay = store
+        .active_candidates(std::slice::from_ref(&op))
+        .map_err(storage)?
+        .is_empty();
+    let authority = bind(scope, HostAuthority::owner("runtime withdrawal"));
+    let key = format!("{}:withdraw", scope.run);
+    let outcome = if replay {
+        store.clear_review_attention(&op, &key, WITHDRAW_REASON, &authority)
+    } else {
+        store.dismiss_candidate(&op, &key, WITHDRAW_REASON, &authority)
+    }
+    .map_err(storage)?;
+    match outcome {
+        run_attention::CleanupOutcome::Done(_) if replay => {
+            Ok(json!({"outcome":"Withdrawn","operation":op.as_str(),"replay":true}))
+        }
+        run_attention::CleanupOutcome::Done(_) => {
+            Ok(json!({"outcome":"Withdrawn","operation":op.as_str()}))
+        }
+        // A stopped Run's cleanup is refused; a retry repairs a contended one.
+        _ => Err(rejected()),
+    }
+}
 fn thread_for(scope: &Scope, store: &Store) -> AiResult<String> {
     match store.record(&scope.run).map_err(storage)?.map(|r| r.data) {
         Some(RecordData::Run(run)) => Ok(run.thread),
@@ -1228,7 +1301,7 @@ fn attention(
         item.record.as_deref() != Some(operation)
             || !matches!(
                 item.reason.as_str(),
-                "Review prepared changes"
+                REVIEW_ATTENTION
                     | "Prepared changes need a fresh base"
                     | "Changes are waiting for the editor"
             )
@@ -1239,7 +1312,7 @@ fn attention(
         _ => AttentionKind::Blocker,
     };
     let reason = match kind {
-        AttentionKind::Review => "Review prepared changes",
+        AttentionKind::Review => REVIEW_ATTENTION,
         AttentionKind::Conflict => "Prepared changes need a fresh base",
         _ => "Changes are waiting for the editor",
     };
@@ -1303,6 +1376,15 @@ fn tool_outcome_label<'a>(name: &str, result: Option<&'a rig::tool::ToolResult>)
             == Some("Invalid")
     {
         return "Invalid";
+    }
+    if name == "withdraw_proposal" && result.status_name() == "success" {
+        return result
+            .output()
+            .as_json()
+            .and_then(|v| v.get("outcome"))
+            .and_then(Value::as_str)
+            .filter(|outcome| matches!(*outcome, "Withdrawn" | "Refused"))
+            .unwrap_or("outcome unconfirmed");
     }
     if name == "apply_changes" && result.status_name() == "success" {
         return result
@@ -1523,13 +1605,102 @@ pub async fn run(
 pub fn default_tool_rounds(sources: bool) -> u16 {
     if sources { 12 } else { 8 }
 }
-pub fn prepare_run(request: ThreadRunRequest) -> AiResult<PreparedThreadRun> {
+pub fn prepare_run(mut request: ThreadRunRequest) -> AiResult<PreparedThreadRun> {
+    // One file is one Source however its path was spelled; the prompt,
+    // `read_source` and the recorded Source all use its real path.
+    for source in &mut request.sources {
+        source.reference = brn_threads_core::canonical_locator(&source.reference);
+    }
     let (scope, input) = begin(&request)?;
     Ok(PreparedThreadRun {
         request,
         scope,
         input,
     })
+}
+
+/// The current Messages of `chat` in durable receipt order, as a Run sees
+/// its conversation.
+fn chat_messages<'a>(history: &[Receipt], records: &'a [Record], chat: &str) -> Vec<&'a Record> {
+    let positions: BTreeMap<_, _> = history
+        .iter()
+        .enumerate()
+        .flat_map(|(position, receipt)| {
+            receipt
+                .writes
+                .iter()
+                .filter(|w| matches!(w.after.data, RecordData::Message(_)))
+                .map(move |w| (w.after.id.as_str(), position))
+        })
+        .collect();
+    let mut messages = records
+        .iter()
+        .filter(|r| !r.archived && matches!(&r.data, RecordData::Message(m) if m.thread == chat))
+        .collect::<Vec<_>>();
+    messages.sort_by_key(|r| positions.get(r.id.as_str()).copied().unwrap_or_default());
+    messages
+}
+
+/// The owner instruction Message that a Run supplied with `references`
+/// (canonical locators) reuses in `chat` instead of posting `prompt` again.
+/// It is the chat's latest owner Message, when its text is `prompt` and a Run
+/// in this chat it instructed received every one of those sources. New owner
+/// text since then, other wording or another source posts a fresh
+/// instruction; so does a Run without sources. `messages` are the chat's
+/// current Messages in durable receipt order.
+pub fn reusable_intake_instruction(
+    records: &[Record],
+    messages: &[&Record],
+    chat: &str,
+    prompt: &str,
+    references: &[&str],
+) -> Option<String> {
+    if references.is_empty() {
+        return None;
+    }
+    let latest = messages.iter().rev().find(
+        |r| matches!(&r.data, RecordData::Message(m) if m.thread == chat && m.role == "owner"),
+    )?;
+    if !matches!(&latest.data, RecordData::Message(m) if m.text == prompt) {
+        return None;
+    }
+    let supplied: Vec<_> = references
+        .iter()
+        .map(|reference| matching_sources(records, reference))
+        .collect();
+    records
+        .iter()
+        .any(|r| {
+            !r.archived
+                && matches!(&r.data, RecordData::Run(run)
+                    if run.thread == chat
+                        && run.instruction.as_deref() == Some(latest.id.as_str())
+                        && supplied.iter().all(|ids| run.sources.iter().any(|s| ids.contains(s.as_str()))))
+        })
+        .then(|| latest.id.clone())
+}
+
+/// [`reusable_intake_instruction`] over the saved state, for a host that
+/// posts the instruction itself before it starts the Run. `references` may be
+/// spelled as supplied; they are compared at their real paths.
+pub fn intake_instruction_to_reuse(
+    store: &Store,
+    chat: &str,
+    prompt: &str,
+    references: &[&str],
+) -> brn_threads_core::Result<Option<String>> {
+    let records = store.records()?;
+    let history = store.receipts()?;
+    let messages = chat_messages(&history, &records, chat);
+    let references: Vec<String> = references.iter().map(|r| canonical_locator(r)).collect();
+    let references: Vec<&str> = references.iter().map(String::as_str).collect();
+    Ok(reusable_intake_instruction(
+        &records,
+        &messages,
+        chat,
+        prompt,
+        &references,
+    ))
 }
 
 pub async fn run_prepared(
@@ -1686,6 +1857,8 @@ async fn run_prepared_over(
         },
     };
     watcher.abort();
+    // The watcher shares the Scope; waiting for it lets the lease end with the run.
+    let _ = watcher.await;
     let committed = finish(&scope, &answer)?;
     if !committed {
         answer.terminal = AiTerminal::Interrupted;
@@ -1757,6 +1930,35 @@ pub async fn run_prepared_scripted_with_helpers(
         answer,
         provider_resends: Vec::new(),
     })
+}
+/// As [`run_prepared_scripted`], but the process "dies" before its terminal
+/// result: `finish` never runs, so the Run stays Working with whatever it
+/// prepared. Dropping the scope releases the lease and removes its file.
+/// For offline crash tests only; a SIGKILL would also leave the unlocked
+/// file, which tests recreate. Returns the Run ID.
+#[cfg(feature = "scripted-runs")]
+pub async fn run_prepared_scripted_then_abandon(
+    prepared: PreparedThreadRun,
+    model: rig::test_utils::MockCompletionModel,
+) -> AiResult<String> {
+    let PreparedThreadRun {
+        request,
+        scope,
+        input,
+    } = prepared;
+    let input = host_intake::with_context(&scope, input, &CancellationToken::new()).await;
+    run_model(
+        model,
+        scope.clone(),
+        &input,
+        request.effort,
+        request.max_tool_rounds,
+        true,
+        CancellationToken::new(),
+        Arc::new(|_| {}),
+    )
+    .await;
+    Ok(scope.run.clone())
 }
 fn finish_trace(scope: &Scope, answer: &AiAnswer) -> Option<RunTrace> {
     let trace = scope.trace.as_ref()?;
@@ -1887,39 +2089,53 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
         ))
         .map_err(storage)?;
     let run_id = op.creation_id(0);
+    // Taken before the Run is saved as Working and held until it ends.
+    let derived = store.derived_directory().map_err(storage)?;
+    let lease = crate::run_lease::RunLease::acquire(&derived, &run_id).map_err(storage)?;
     let mut writes = Vec::new();
     let mut retained = Vec::new();
     let mut prior_operations = Vec::new();
     let history = store.receipts().map_err(storage)?;
-    let message_positions: BTreeMap<_, _> = history
-        .iter()
-        .enumerate()
-        .flat_map(|(position, receipt)| {
-            receipt
-                .writes
-                .iter()
-                .filter(|w| matches!(w.after.data, RecordData::Message(_)))
-                .map(move |w| (w.after.id.clone(), position))
-        })
-        .collect();
-    let mut messages = records
-        .iter()
-        .filter(|r| {
-            !r.archived && matches!(&r.data,RecordData::Message(m) if m.thread==request.thread)
-        })
-        .collect::<Vec<_>>();
-    messages.sort_by_key(|r| message_positions.get(&r.id).copied().unwrap_or_default());
+    let messages = chat_messages(&history, &records, &request.thread);
     if let Some(message) = &request.request_message
         && !messages.iter().rev().find(|r|matches!(&r.data,RecordData::Message(m) if m.role=="owner")).is_some_and(|r| r.id == *message && matches!(&r.data,RecordData::Message(m) if m.role=="owner" && m.text==request.prompt)) { return Err(rejected()); }
 
-    let already_posted = request.request_message.is_some() || writing_snapshot.is_some() || messages.last().is_some_and(
+    let last_is_prompt = messages.last().is_some_and(
         |r| matches!(&r.data,RecordData::Message(m) if m.role=="owner" && m.text==request.prompt),
     );
+    // A re-supply of a source reuses the chat's latest instruction for it,
+    // even after a reply, rather than repeating the same owner instruction.
+    // An owner edit or decision request keeps binding its own instruction.
+    let reused_instruction = if request.request_message.is_none()
+        && request.owner_request.is_none()
+        && !last_is_prompt
+    {
+        let references: Vec<&str> = request
+            .sources
+            .iter()
+            .map(|s| s.reference.as_str())
+            .collect();
+        reusable_intake_instruction(
+            &records,
+            &messages,
+            &request.thread,
+            &request.prompt,
+            &references,
+        )
+    } else {
+        None
+    };
+    let already_posted = request.request_message.is_some()
+        || writing_snapshot.is_some()
+        || last_is_prompt
+        || reused_instruction.is_some();
     let instruction = if let Some(message) = &request.request_message {
         message.clone()
     } else if let Some(snapshot) = &writing_snapshot {
         snapshot.request_message.clone()
-    } else if already_posted {
+    } else if let Some(message) = reused_instruction {
+        message
+    } else if last_is_prompt {
         messages.last().unwrap().id.clone()
     } else {
         op.creation_id(1)
@@ -1937,6 +2153,9 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
         }
     }
 
+    let mut ended = Vec::new();
+    // Fenced Runs that no process holds a lease for: orphans.
+    let mut orphans = std::collections::BTreeSet::new();
     for record in &records {
         match &record.data {
             RecordData::Run(run) if run.thread == request.thread => {
@@ -1948,6 +2167,10 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
                     let mut old = run.clone();
                     old.state = RunState::Interrupted;
                     old.fence = old.fence.checked_add(1).ok_or_else(rejected)?;
+                    if !crate::run_lease::run_is_live(&derived, &record.id) {
+                        orphans.insert(record.id.clone());
+                    }
+                    ended.push((record.id.clone(), old.clone()));
                     writes.push(Put {
                         id: record.id.clone(),
                         expected_version: Some(record.version),
@@ -1957,6 +2180,53 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
                 }
             }
             _ => {}
+        }
+    }
+    // A candidate the stopped Run left stays reviewable in this chat.
+    brn_threads_core::run_attention::ended_run_attention(
+        &mut writes,
+        &ended,
+        false,
+        |id| Ok(records.iter().find(|r| r.id == id).cloned()),
+        |operations| store.active_candidates(operations),
+    )
+    .map_err(storage)?;
+    // Starting this Run clears the chat's Interrupted or Failed notice in the
+    // same change (owner decision 1, 16 October 2026), so a fenced orphan
+    // gets none either. If this Run fails or is interrupted, `finish` records
+    // a new one. Reviews, Questions and other attention stay.
+    let chat_run = |id: &str| {
+        records.iter().any(|r| {
+            r.id == id && matches!(&r.data, RecordData::Run(run) if run.thread == request.thread)
+        })
+    };
+    match writes
+        .iter_mut()
+        .find(|w| w.id == request.thread && matches!(w.data, RecordData::Thread(_)))
+    {
+        Some(Put {
+            data: RecordData::Thread(thread),
+            ..
+        }) => {
+            clear_terminal_notices(&mut thread.attention, chat_run);
+        }
+        _ => {
+            if let Some(Record {
+                version,
+                data: RecordData::Thread(thread),
+                ..
+            }) = records.iter().find(|r| r.id == request.thread)
+            {
+                let mut thread = thread.clone();
+                if clear_terminal_notices(&mut thread.attention, chat_run) {
+                    writes.push(Put {
+                        id: request.thread.clone(),
+                        expected_version: Some(*version),
+                        archived: false,
+                        data: RecordData::Thread(thread),
+                    });
+                }
+            }
         }
     }
     let private_context = store
@@ -1974,13 +2244,35 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
     sources::validate_sources(&sources)?;
     let mut source_ids = Vec::new();
     for (i, (reference, supplied)) in sources.iter().enumerate() {
-        let existing = records
-            .iter()
-            .find(|r| matches!(&r.data,RecordData::Source(s) if s.locator==*reference && s.chat==source_chat));
+        // The exact spelling first; a Source saved under an older spelling of
+        // the same file still matches and is recorded at the real path below.
+        let existing =
+            brn_threads_core::find_source(&records, reference, |s| s.chat == source_chat);
         let id = existing
             .map(|r| r.id.clone())
             .unwrap_or_else(|| op.creation_id(i + 2));
-        if existing.is_none() || supplied.report.is_some() {
+        let observed_at = format!(
+            "unix:{}",
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap_or_default()
+                .as_secs()
+        );
+        if let Some(record) = existing
+            && supplied.report.is_none()
+            && let RecordData::Source(source) = &record.data
+            && source.locator != *reference
+        {
+            let mut source = source.clone();
+            source.locator = reference.clone();
+            source.observed_at = observed_at;
+            writes.push(Put {
+                id: id.clone(),
+                expected_version: Some(record.version),
+                archived: record.archived,
+                data: RecordData::Source(source),
+            });
+        } else if existing.is_none() || supplied.report.is_some() {
             writes.push(Put {
                 id: id.clone(),
                 expected_version: existing.map(|record| record.version),
@@ -1989,13 +2281,7 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
                     chat: source_chat.clone(),
                     locator: reference.clone(),
                     label: reference.clone(),
-                    observed_at: format!(
-                        "unix:{}",
-                        std::time::SystemTime::now()
-                            .duration_since(std::time::UNIX_EPOCH)
-                            .unwrap_or_default()
-                            .as_secs()
-                    ),
+                    observed_at,
                     external_version: supplied.fingerprint.clone(),
                     outcome: supplied
                         .report
@@ -2134,6 +2420,11 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
     ) {
         return Err(rejected());
     }
+    // The orphans have ended, so no holder can return: drop their leftover
+    // lease files. A held lease is never removed.
+    for id in &orphans {
+        let _ = crate::run_lease::remove_free(&derived, id);
+    }
     let mut operations = Vec::new();
     for operation in prior_operations {
         if let Some(receipt) = store.receipt(&operation).map_err(storage)? {
@@ -2233,6 +2524,7 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
             cache_key: cache_key(request.selection.provider, &request.thread),
             helper: helper.map(|helper| Arc::new(research::HelperRuntime::new(&helper))),
             scout: None,
+            lease: Arc::new(lease),
         }),
         format!(
             "{input}\nCurrent project context (owner-set instructions, within existing authority): {project_context}\nSaved chat documents (read with exact-version note tools): {}\nTopics note (root index of topic pages): {}\nHost maintenance policy: {maintenance_policy}\nHost authority for this invocation only: {}",
@@ -2262,8 +2554,65 @@ fn unique_host_key() -> String {
         SEQ.fetch_add(1, Ordering::SeqCst)
     )
 }
-const INTERRUPTED_ATTENTION: &str = "Run interrupted; Continue starts fresh";
-const FAILED_ATTENTION: &str = "Run failed; check provider or continue from retained progress";
+// The terminal-notice rules live in the core, so checked changes that end a
+// Run outside `finish` leave the same notice in the same change.
+use brn_threads_core::run_attention::{
+    FAILED_PREFIX, REVIEW_ATTENTION, add_review_attention, clear_terminal_notices,
+};
+pub use brn_threads_core::run_attention::{
+    INTERRUPTED_ATTENTION, is_terminal_notice, replace_terminal_notice,
+};
+/// Only for provider failures: account, network, rate limit, unavailable.
+const PROVIDER_RECOVERY: &str = "Continue when the provider is ready.";
+/// Continue starts a new Run with the saved conversation and current notes.
+const FRESH_RECOVERY: &str = "Continue starts fresh.";
+
+/// The saved failure notice: one cause in owner terms, then a recovery
+/// sentence only where it holds. It never carries provider, SQLite or
+/// file-system text. The technical cause stays in the live run outcome
+/// (`AiError`'s Display) and the CLI's `failure` JSON.
+fn failed_attention(error: &AiError) -> String {
+    use AiErrorKind as K;
+    let (cause, recovery) = match error.kind {
+        K::ReconnectNeeded => (
+            "The provider account needs reconnecting.",
+            Some(PROVIDER_RECOVERY),
+        ),
+        K::CodeExpired => ("The sign-in code expired.", Some(PROVIDER_RECOVERY)),
+        K::RateLimited => (
+            "The account usage limit was reached.",
+            Some(PROVIDER_RECOVERY),
+        ),
+        K::Network => ("BRN couldn't reach the provider.", Some(PROVIDER_RECOVERY)),
+        // A provider error worth retrying (a 5xx, overload or dropped stream).
+        K::Other if error.detail.as_ref().is_some_and(|d| d.retryable) => (
+            "The provider is unavailable right now.",
+            Some(PROVIDER_RECOVERY),
+        ),
+        K::ModelRefused => (
+            "The provider doesn't offer this model.",
+            Some("Choose another model, then Continue."),
+        ),
+        K::ToolLimitReached => ("The tool-call limit was reached.", Some(FRESH_RECOVERY)),
+        K::TimeLimitReached => ("The work time limit was reached.", Some(FRESH_RECOVERY)),
+        K::InvalidToolUse => (
+            "The model asked for a step BRN doesn't offer.",
+            Some(FRESH_RECOVERY),
+        ),
+        K::QuoteNotFound | K::QuoteAmbiguous | K::QuoteOccurrenceInvalid => {
+            ("A quotation didn't match the saved note.", None)
+        }
+        K::ToolRejected => ("BRN refused one of the run's steps.", None),
+        K::UnsafeCredentials => ("The saved sign-in isn't stored safely.", None),
+        K::IndexStale => ("The note index needs refreshing.", None),
+        K::Storage => ("BRN couldn't save its work.", None),
+        K::Other => ("The run didn't finish.", None),
+    };
+    match recovery {
+        Some(recovery) => format!("{FAILED_PREFIX}{cause} {recovery}"),
+        None => format!("{FAILED_PREFIX}{cause}"),
+    }
+}
 
 fn finish(scope: &Scope, answer: &AiAnswer) -> AiResult<bool> {
     let mut store = scope.store.lock().map_err(storage)?;
@@ -2285,6 +2634,7 @@ fn finish(scope: &Scope, answer: &AiAnswer) -> AiResult<bool> {
     };
     run.fence = run.fence.checked_add(1).ok_or_else(rejected)?;
     let thread = run.thread.clone();
+    let operations = run.operations.clone();
     let op = store
         .allocate_operation(&format!("{}:finish", scope.run))
         .map_err(storage)?;
@@ -2319,59 +2669,53 @@ fn finish(scope: &Scope, answer: &AiAnswer) -> AiResult<bool> {
         return Err(rejected());
     };
     let before = data.attention.clone();
-    if matches!(answer.terminal, AiTerminal::Completed) {
-        // Successful fresh work retires only the host's obsolete terminal notice.
-        // Questions/reviews and independent blockers remain, even for the same Run.
-        let mut superseded = BTreeMap::new();
-        for item in &data.attention {
-            if item.kind != AttentionKind::Blocker
-                || !matches!(
-                    item.reason.as_str(),
-                    INTERRUPTED_ATTENTION | FAILED_ATTENTION
-                )
-            {
-                continue;
-            }
-            let Some(id) = &item.record else { continue };
-            if let Some(record) = store.record(id).map_err(storage)?
-                && let RecordData::Run(run) = record.data
-                && run.thread == thread
-                && id != &scope.run
-            {
-                let reason = match run.state {
-                    RunState::Interrupted => INTERRUPTED_ATTENTION,
-                    RunState::Failed => FAILED_ATTENTION,
-                    _ => continue,
-                };
-                superseded.insert(id.clone(), reason);
-            }
+    // The host's notices for earlier interrupted or failed Runs of this chat.
+    // Questions/reviews and independent blockers remain, even for the same Run.
+    let mut superseded = std::collections::BTreeSet::new();
+    for item in &data.attention {
+        if item.kind != AttentionKind::Blocker || !is_terminal_notice(&item.reason) {
+            continue;
         }
-        data.attention.retain(|item| {
+        let Some(id) = &item.record else { continue };
+        if let Some(record) = store.record(id).map_err(storage)?
+            && let RecordData::Run(run) = record.data
+            && run.thread == thread
+            && id != &scope.run
+            && matches!(
+                run.state,
+                RunState::Interrupted | RunState::Failed | RunState::Cancelled
+            )
+        {
+            superseded.insert(id.clone());
+        }
+    }
+    match &answer.terminal {
+        // Successful fresh work retires only the host's obsolete terminal notices.
+        AiTerminal::Completed => data.attention.retain(|item| {
             item.kind != AttentionKind::Blocker
+                || !is_terminal_notice(&item.reason)
                 || !item
                     .record
                     .as_ref()
-                    .and_then(|id| superseded.get(id))
-                    .is_some_and(|reason| item.reason == *reason)
-        });
-    } else {
-        data.attention.retain(|item| {
-            item.kind != AttentionKind::Blocker
-                || item.record.as_deref() != Some(scope.run.as_str())
-                || !matches!(
-                    item.reason.as_str(),
-                    INTERRUPTED_ATTENTION | FAILED_ATTENTION
-                )
-        });
-        data.attention.push(Attention {
-            kind: AttentionKind::Blocker,
-            reason: match answer.terminal {
-                AiTerminal::Interrupted => INTERRUPTED_ATTENTION,
-                _ => FAILED_ATTENTION,
-            }
-            .into(),
-            record: Some(scope.run.clone()),
-        });
+                    .is_some_and(|id| superseded.contains(id))
+        }),
+        // A newer terminal result replaces older ones, so the chat names one cause.
+        // Candidates prepared before the stop stay reviewable from the chat.
+        terminal => {
+            add_review_attention(
+                &mut data.attention,
+                &store.active_candidates(&operations).map_err(storage)?,
+            );
+            replace_terminal_notice(
+                &mut data.attention,
+                &scope.run,
+                match terminal {
+                    AiTerminal::Failed(error) => failed_attention(error),
+                    _ => INTERRUPTED_ATTENTION.into(),
+                },
+                |id| superseded.contains(id),
+            )
+        }
     }
     if data.attention != before {
         writes.push(Put {
@@ -2584,6 +2928,17 @@ mod tests {
         ));
         assert_eq!(
             tool_outcome_label("apply_changes", Some(&result)),
+            "outcome unconfirmed"
+        );
+        for outcome in ["Withdrawn", "Refused"] {
+            let result = ToolResult::success(ToolOutput::json(json!({"outcome":outcome})));
+            assert_eq!(
+                tool_outcome_label("withdraw_proposal", Some(&result)),
+                outcome
+            );
+        }
+        assert_eq!(
+            tool_outcome_label("withdraw_proposal", Some(&result)),
             "outcome unconfirmed"
         );
         assert_eq!(tool_outcome_label("apply_changes", None), "error");
@@ -2850,6 +3205,100 @@ mod tests {
                 );
             }
         }
+    }
+
+    #[cfg(unix)]
+    #[tokio::test]
+    async fn requalifying_a_source_respelled_since_an_older_build_drops_its_retained_omission() {
+        let (root, mut request, note) = fixture();
+        std::fs::create_dir(root.path().join("real")).unwrap();
+        std::fs::write(root.path().join("real/a.txt"), "A result.").unwrap();
+        std::os::unix::fs::symlink(root.path().join("real"), root.path().join("alias")).unwrap();
+        let spelling = |dir: &str| {
+            root.path()
+                .join(dir)
+                .join("a.txt")
+                .to_str()
+                .unwrap()
+                .to_owned()
+        };
+        let (alias, real) = (spelling("alias"), spelling("real"));
+        // An older build recorded A under the alias spelling. `begin()` keeps
+        // the reference as given; only `prepare_run` canonicalizes it.
+        let first = TransientSource {
+            reference: alias.clone(),
+            text: "A result.".into(),
+            fingerprint: Some("a-v1".into()),
+            report: Some(ImportReport {
+                status: ImportStatus::Partial,
+                issues: vec![ImportIssue {
+                    kind: ImportIssueKind::Omission,
+                    locator: "chart".into(),
+                    detail: "Chart was not extracted".into(),
+                }],
+            }),
+            assets: vec![],
+        };
+        request.sources = vec![first.clone()];
+        useful_source_run(&request, &note, 1, "A result.").await;
+        request.sources = vec![TransientSource {
+            reference: "synthetic://qualified-b".into(),
+            text: "B result.".into(),
+            fingerprint: Some("b-v1".into()),
+            report: Some(ImportReport {
+                status: ImportStatus::Complete,
+                issues: vec![],
+            }),
+            assets: vec![],
+        }];
+        let retained = "A result.\n\nB result.";
+        let combined = useful_source_run(&request, &note, 2, retained).await;
+        let RecordData::Note(combined) = combined.data else {
+            panic!()
+        };
+        let issues = combined.import.unwrap().report.unwrap().issues;
+        assert!(
+            issues
+                .iter()
+                .any(|issue| issue.locator == format!("{alias} · chart")),
+            "{issues:?}"
+        );
+        // A again, at its real path and now fully qualified.
+        let mut requalified = first;
+        requalified.reference = real.clone();
+        requalified.fingerprint = Some("a-v2-qualified".into());
+        requalified.report = Some(ImportReport {
+            status: ImportStatus::Complete,
+            issues: vec![],
+        });
+        request.sources = vec![requalified];
+        let updated = useful_source_run(&request, &note, 3, retained).await;
+        let RecordData::Note(updated) = updated.data else {
+            panic!()
+        };
+        let report = updated.import.unwrap().report.unwrap();
+        // Before: A's omission, scoped under A's old spelling, fell back to
+        // B (the note's primary Source) and was kept.
+        assert!(
+            !report
+                .issues
+                .iter()
+                .any(|issue| issue.kind == ImportIssueKind::Omission),
+            "{:?}",
+            report.issues
+        );
+        assert_eq!(report.status, ImportStatus::Complete);
+        let locators: Vec<_> = Store::open(&request.data_dir)
+            .unwrap()
+            .records()
+            .unwrap()
+            .into_iter()
+            .filter_map(|r| match r.data {
+                RecordData::Source(s) => Some(s.locator),
+                _ => None,
+            })
+            .collect();
+        assert!(locators.contains(&real) && !locators.contains(&alias));
     }
 
     #[tokio::test]
@@ -3504,7 +3953,8 @@ mod tests {
                 |e| matches!(e, AiEvent::Activity(text) if text == &format!("< {name} · {outcome}"))
             ));
         }
-        assert_eq!(tool_names().len(), 9);
+        assert_eq!(tool_names().len(), 10);
+        assert!(tool_names().contains(&"withdraw_proposal"));
         for name in tool_names() {
             assert!(tool_activity(name).is_some());
             assert!(schema(name).is_object());
@@ -4077,12 +4527,14 @@ mod tests {
             ));
             request.prompt = "Continue the saved work".into();
             let (fresh, _) = begin(&request).unwrap();
-            // Starting Continue alone must not claim that the blocked work succeeded.
+            // Owner decision 1 (16 October 2026): starting Continue clears only
+            // the host's notice for the earlier Run. Before: it stayed until
+            // the result. Independent items stay, even with a notice's text.
             let RecordData::Thread(started) = store.record(&request.thread).unwrap().unwrap().data
             else {
                 panic!("Thread")
             };
-            assert_eq!(started.attention.len(), retained.len() + 1);
+            assert_eq!(started.attention, retained);
             assert!(
                 finish(
                     &fresh,
@@ -4109,6 +4561,394 @@ mod tests {
                 matches!(store.record(&old_run).unwrap().unwrap().data, RecordData::Run(run) if matches!(run.state, RunState::Interrupted | RunState::Failed))
             );
         }
+    }
+    /// The same owner request again, with no provider credentials configured.
+    fn again(request: &ThreadRunRequest) -> ThreadRunRequest {
+        ThreadRunRequest {
+            request_message: None,
+            queue_claim: None,
+            owner_request: None,
+            data_dir: request.data_dir.clone(),
+            thread: request.thread.clone(),
+            prompt: request.prompt.clone(),
+            selection: request.selection.clone(),
+            effort: request.effort,
+            max_tool_rounds: request.max_tool_rounds,
+            auth_file: None,
+            credentials_dir: None,
+            sources: vec![],
+            search: None,
+            trace: TraceLevel::Off,
+        }
+    }
+    fn chat_attention(request: &ThreadRunRequest) -> Vec<Attention> {
+        match Store::open(&request.data_dir)
+            .unwrap()
+            .record(&request.thread)
+            .unwrap()
+            .unwrap()
+            .data
+        {
+            RecordData::Thread(thread) => thread.attention,
+            _ => panic!("Thread"),
+        }
+    }
+    /// ⌘Q, cancellation or a failure between prepare and apply: the candidate
+    /// stays reviewable from its chat. A Completed Run chose not to apply.
+    #[test]
+    fn an_interrupted_or_failed_run_keeps_its_prepared_candidate_in_review() {
+        for case in ["interrupted", "failed", "completed", "protected"] {
+            let (_root, request, note) = fixture();
+            let protected = case == "protected";
+            let version = if protected {
+                protect_fixture_note(&request, &note)
+            } else {
+                1
+            };
+            let (scope, _) = begin(&request).unwrap();
+            read_all(&scope);
+            let args = if protected {
+                protected_proposal(&note, version, "Tuesday")
+            } else {
+                prepared_note(&note, version, "Tuesday")
+            };
+            let proposed = prepare(&scope, args).unwrap();
+            let operation = proposed["operation"].as_str().unwrap().to_owned();
+            if protected {
+                let result = apply(
+                    &scope,
+                    ApplyArgs {
+                        operation: operation.clone(),
+                    },
+                )
+                .unwrap();
+                assert_eq!(result["outcome"], "NeedsReview");
+            }
+            let terminal = match case {
+                "failed" => AiTerminal::Failed(AiError::new(AiErrorKind::InvalidToolUse)),
+                "completed" => AiTerminal::Completed,
+                _ => AiTerminal::Interrupted,
+            };
+            let notice = match &terminal {
+                AiTerminal::Failed(error) => failed_attention(error),
+                _ => INTERRUPTED_ATTENTION.into(),
+            };
+            let completed = matches!(terminal, AiTerminal::Completed);
+            assert!(
+                finish(
+                    &scope,
+                    &AiAnswer {
+                        text: String::new(),
+                        terminal,
+                    }
+                )
+                .unwrap()
+            );
+            let review = Attention {
+                kind: AttentionKind::Review,
+                reason: REVIEW_ATTENTION.into(),
+                record: Some(operation.clone()),
+            };
+            let expected = if completed {
+                vec![]
+            } else {
+                vec![
+                    review,
+                    Attention {
+                        kind: AttentionKind::Blocker,
+                        reason: notice,
+                        record: Some(scope.run.clone()),
+                    },
+                ]
+            };
+            assert_eq!(chat_attention(&request), expected, "{case}");
+            assert!(
+                Store::open(&request.data_dir)
+                    .unwrap()
+                    .candidates()
+                    .unwrap()
+                    .iter()
+                    .any(|c| c.operation.as_str() == operation),
+                "{case}: the candidate stays active"
+            );
+        }
+    }
+    #[tokio::test]
+    async fn repeated_failures_keep_one_notice_naming_the_cause_until_an_interrupt_replaces_it() {
+        let (_root, request, _) = fixture();
+        let mut store = Store::open(&request.data_dir).unwrap();
+        let record = store.record(&request.thread).unwrap().unwrap();
+        let RecordData::Thread(mut thread) = record.data else {
+            panic!("Thread")
+        };
+        let question = Attention {
+            kind: AttentionKind::Question,
+            reason: "Which berth should the crane use?".into(),
+            record: None,
+        };
+        thread.attention.push(question.clone());
+        let op = store.allocate_operation("owner question").unwrap();
+        let owner = HostAuthority::owner("synthetic question");
+        store
+            .prepare_owner(
+                &op,
+                &ChangeRequest {
+                    reason: "Owner question".into(),
+                    writes: vec![Put {
+                        id: record.id,
+                        expected_version: Some(record.version),
+                        archived: false,
+                        data: RecordData::Thread(thread),
+                    }],
+                    inputs: vec![],
+                },
+                &owner,
+            )
+            .unwrap();
+        store.apply(&op, &owner).unwrap();
+        drop(store);
+        // No credentials: each run fails as ReconnectNeeded before any network.
+        let mut runs = Vec::new();
+        for _ in 0..3 {
+            let result = run(again(&request), CancellationToken::new(), Arc::new(|_| {}))
+                .await
+                .unwrap();
+            assert!(matches!(
+                &result.answer.terminal,
+                AiTerminal::Failed(e) if e.kind == AiErrorKind::ReconnectNeeded
+            ));
+            runs.push(result.run_id);
+        }
+        let attention = chat_attention(&request);
+        assert_eq!(
+            attention,
+            vec![
+                question.clone(),
+                Attention {
+                    kind: AttentionKind::Blocker,
+                    reason: "Run failed: The provider account needs reconnecting. Continue when the provider is ready.".into(),
+                    record: Some(runs[2].clone()),
+                },
+            ]
+        );
+        // A later run stopped at startup leaves one Interrupted notice instead.
+        let cancel = CancellationToken::new();
+        cancel.cancel();
+        let stopped = run(again(&request), cancel, Arc::new(|_| {}))
+            .await
+            .unwrap();
+        assert!(matches!(stopped.answer.terminal, AiTerminal::Interrupted));
+        assert_eq!(
+            chat_attention(&request),
+            vec![
+                question,
+                Attention {
+                    kind: AttentionKind::Blocker,
+                    reason: INTERRUPTED_ATTENTION.into(),
+                    record: Some(stopped.run_id),
+                },
+            ]
+        );
+        // Every retry reused the one owner Message.
+        let owner_messages = Store::open(&request.data_dir)
+            .unwrap()
+            .records()
+            .unwrap()
+            .into_iter()
+            .filter(|r| matches!(&r.data, RecordData::Message(m) if m.role == "owner"))
+            .count();
+        assert_eq!(owner_messages, 1);
+    }
+    /// Notices saved by earlier builds, which a newer result must replace.
+    const SAVED_NOTICES: [&str; 4] = [
+        "Run failed; check provider or continue from retained progress",
+        "Run interrupted; Continue starts fresh",
+        "Run failed: Reconnect this account before continuing. Continue when the provider is ready.",
+        "Run failed: The tool round limit was reached. Continue when the provider is ready.",
+    ];
+    #[test]
+    fn terminal_notices_are_recognised_including_every_earlier_saved_text() {
+        assert_eq!(
+            INTERRUPTED_ATTENTION,
+            "Run interrupted. Continue starts fresh."
+        );
+        assert!(is_terminal_notice(INTERRUPTED_ATTENTION));
+        for saved in SAVED_NOTICES {
+            assert!(is_terminal_notice(saved), "{saved}");
+        }
+        assert!(!is_terminal_notice("External dependency is still blocked"));
+        assert!(!is_terminal_notice("Review prepared changes"));
+    }
+    #[test]
+    fn failure_notices_name_the_cause_in_owner_terms_and_only_true_recovery() {
+        use AiErrorKind as K;
+        // Exhaustive, so a new kind needs a decision here too.
+        let provider = |kind: K| match kind {
+            K::ReconnectNeeded | K::CodeExpired | K::RateLimited | K::Network => true,
+            K::QuoteNotFound
+            | K::QuoteAmbiguous
+            | K::QuoteOccurrenceInvalid
+            | K::ModelRefused
+            | K::InvalidToolUse
+            | K::ToolLimitReached
+            | K::TimeLimitReached
+            | K::UnsafeCredentials
+            | K::ToolRejected
+            | K::IndexStale
+            | K::Storage
+            | K::Other => false,
+        };
+        let mut cases: Vec<(AiError, bool)> = [
+            K::QuoteNotFound,
+            K::QuoteAmbiguous,
+            K::QuoteOccurrenceInvalid,
+            K::ReconnectNeeded,
+            K::CodeExpired,
+            K::RateLimited,
+            K::Network,
+            K::ModelRefused,
+            K::InvalidToolUse,
+            K::ToolLimitReached,
+            K::TimeLimitReached,
+            K::UnsafeCredentials,
+            K::ToolRejected,
+            K::IndexStale,
+            K::Storage,
+            K::Other,
+        ]
+        .into_iter()
+        .map(|kind| (AiError::new(kind), provider(kind)))
+        .collect();
+        let mut limited = AiError::new(K::RateLimited);
+        limited.retry_after_seconds = Some(3600);
+        cases.push((limited, true));
+        // An overloaded provider: retryable, otherwise unclassified.
+        let unavailable = AiError::new(K::Other).with_detail(crate::AiFailureDetail {
+            origin: "http_status".into(),
+            status: Some(503),
+            code: Some("server_is_overloaded".into()),
+            retryable: true,
+            ..Default::default()
+        });
+        cases.push((unavailable, true));
+        for (error, provider) in cases {
+            let notice = failed_attention(&error);
+            assert!(notice.starts_with("Run failed: "), "{notice}");
+            assert!(notice.chars().count() <= 100, "{notice}");
+            assert_eq!(
+                notice.matches(PROVIDER_RECOVERY).count(),
+                usize::from(provider),
+                "{notice}"
+            );
+            assert!(!provider || notice.ends_with(PROVIDER_RECOVERY), "{notice}");
+            for raw in [
+                "SQLite",
+                "/",
+                "\\",
+                "tool round",
+                "Retry after",
+                "503",
+                "overloaded",
+            ] {
+                assert!(!notice.contains(raw), "{raw} in {notice}");
+            }
+            // One cause sentence, then at most one recovery sentence.
+            assert!(notice.matches(". ").count() <= 1, "{notice}");
+            assert!(is_terminal_notice(&notice));
+        }
+        for (kind, notice) in [
+            (
+                K::ReconnectNeeded,
+                "Run failed: The provider account needs reconnecting. Continue when the provider is ready.",
+            ),
+            (
+                K::ToolLimitReached,
+                "Run failed: The tool-call limit was reached. Continue starts fresh.",
+            ),
+            (K::Storage, "Run failed: BRN couldn't save its work."),
+            (K::Other, "Run failed: The run didn't finish."),
+        ] {
+            assert_eq!(failed_attention(&AiError::new(kind)), notice);
+        }
+    }
+    #[tokio::test]
+    async fn a_notice_saved_by_an_earlier_build_is_replaced_not_duplicated() {
+        for saved in SAVED_NOTICES {
+            let (_root, request, _) = fixture();
+            let first = run(again(&request), CancellationToken::new(), Arc::new(|_| {}))
+                .await
+                .unwrap();
+            // Rewrite the notice as an earlier build saved it.
+            let mut store = Store::open(&request.data_dir).unwrap();
+            let record = store.record(&request.thread).unwrap().unwrap();
+            let RecordData::Thread(mut thread) = record.data else {
+                panic!("Thread")
+            };
+            for item in &mut thread.attention {
+                if item.record.as_deref() == Some(first.run_id.as_str()) {
+                    item.reason = saved.into();
+                }
+            }
+            let op = store.allocate_operation(&format!("saved {saved}")).unwrap();
+            let owner = HostAuthority::owner("earlier build");
+            store
+                .prepare_owner(
+                    &op,
+                    &ChangeRequest {
+                        reason: "Earlier saved notice".into(),
+                        writes: vec![Put {
+                            id: record.id,
+                            expected_version: Some(record.version),
+                            archived: false,
+                            data: RecordData::Thread(thread),
+                        }],
+                        inputs: vec![],
+                    },
+                    &owner,
+                )
+                .unwrap();
+            store.apply(&op, &owner).unwrap();
+            drop(store);
+            assert_eq!(chat_attention(&request)[0].reason, saved);
+            let second = run(again(&request), CancellationToken::new(), Arc::new(|_| {}))
+                .await
+                .unwrap();
+            assert_eq!(
+                chat_attention(&request),
+                vec![Attention {
+                    kind: AttentionKind::Blocker,
+                    reason: "Run failed: The provider account needs reconnecting. Continue when the provider is ready.".into(),
+                    record: Some(second.run_id),
+                }],
+                "{saved}"
+            );
+        }
+    }
+    #[tokio::test]
+    async fn the_run_lease_lasts_from_preparation_until_the_run_returns() {
+        let (_root, request, _) = fixture();
+        let derived = Store::open(&request.data_dir)
+            .unwrap()
+            .derived_directory()
+            .unwrap();
+        let prepared = prepare_run(again(&request)).unwrap();
+        let run_id = prepared.run_id().to_owned();
+        assert!(crate::run_lease::run_is_live(&derived, &run_id));
+        let result = run_prepared(prepared, CancellationToken::new(), Arc::new(|_| {}))
+            .await
+            .unwrap();
+        assert_eq!(result.run_id, run_id);
+        assert!(!crate::run_lease::run_is_live(&derived, &run_id));
+        // Dropping prepared work without running it is a crash: the Run stays
+        // Working and nothing holds its lease.
+        let abandoned = prepare_run(again(&request)).unwrap();
+        let abandoned_id = abandoned.run_id().to_owned();
+        drop(abandoned);
+        assert!(!crate::run_lease::run_is_live(&derived, &abandoned_id));
+        assert!(matches!(
+            Store::open(&request.data_dir).unwrap().record(&abandoned_id).unwrap().unwrap().data,
+            RecordData::Run(run) if run.state == RunState::Working
+        ));
     }
     #[test]
     fn durable_candidate_retry_receipt_and_fresh_continue_have_no_source_archive() {

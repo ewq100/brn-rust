@@ -1,0 +1,14 @@
+{
+  "verdict": "APPROVED",
+  "findings": [
+    {
+      "id": "E-R1",
+      "label": "Desktop orphan-instruction limitation is misstated",
+      "severity": "non-blocking",
+      "confidence": "confirmed",
+      "detail": "The first Limitations bullet in round5/verification.md slice E ends: 'If the instruction is still the chat's last Message, begin()'s existing rule reuses it.' That holds only for the CLI. Workspace::post_intake_instruction (crates/brn-threads-app/src/intake.rs) relies on reusable_intake_instruction, which needs a Run with run.instruction == latest.id (crates/brn-ai/src/threads.rs reusable_intake_instruction). post_message does no deduplication. Sequence: the desktop posts an instruction in a reused chat; start_run then returns before prepare_run (no provider chosen, a Copilot model not offered, an unsupported effort, or a busy worker) or prepare_run refuses; the source is supplied again. The desktop then posts a second identical instruction directly after the orphan, and begin() binds the new copy through last_is_prompt. This is pre-existing (the desktop used to post unconditionally) and narrow (it needs an earlier Run for the source in that chat). Found by reading the code; not executed.",
+      "action": "Restrict that sentence to the CLI host, or make post_intake_instruction also return None when the chat's last Message is an owner Message with SOURCE_INTAKE_INSTRUCTION text, so begin()'s last_is_prompt binds it."
+    }
+  ],
+  "reviewDoc": "/Users/evokessler/repos/brn-rust/.worktrees/daily-workflow-reliability/docs/work/active/daily-workflow-reliability/round5/review-E.md"
+}

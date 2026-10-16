@@ -13,11 +13,14 @@ impl Workspace {
         let op = self
             .store
             .allocate_bound_operation(&format!("project:{key}"), &binding)?;
-        Ok(self.store.project_command(
+        let receipt = self.store.project_command(
             &op,
             &command,
             &HostAuthority::owner("owner project action"),
-        )?)
+        )?;
+        // A Run the command stopped leaves no free lease file behind.
+        self.remove_ended_leases(&receipt);
+        Ok(receipt)
     }
     /// New writing conversations inherit an explicitly selected linked project.
     pub fn new_document_chat(

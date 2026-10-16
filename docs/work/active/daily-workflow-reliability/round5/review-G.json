@@ -1,0 +1,46 @@
+{
+  "verdict": "APPROVED",
+  "findings": [
+    {
+      "id": "G-R1",
+      "label": "Rewrite proposals can be withdrawn",
+      "severity": "non-blocking",
+      "confidence": "confirmed",
+      "detail": "withdraw (crates/brn-ai/src/threads.rs) rejects only calls from a Rewrite run. It has no writing-request check, while threads_history::refresh rejects any candidate with a WRITING_REQUEST_ROLE input. A later ordinary Run in the same chat can therefore retire an owner-requested Rewrite proposal before the owner reviews it. Once retired, the proposal cannot be applied even after Undo. Pending feedback survives. The verification lists this as a limitation, and it fits the slice wording 'prepared by agent Runs in the same chat'.",
+      "action": "Refuse candidates carrying a writing-request input the way refresh does, or have the owner accept this behavior at integration."
+    },
+    {
+      "id": "G-R2",
+      "label": "Retirement runs before the fence check",
+      "severity": "non-blocking",
+      "confidence": "likely",
+      "detail": "Store::dismiss_candidate calls Store::retire, which opens its own transaction and checks only for a receipt, before the Run-bound cleanup apply. On the agent path only the live() read just before it guards retirement. The scope.store mutex is in-process, so a desktop Stop or a CLI process writing through another connection can commit in that gap. The stopped Run's candidate is then retired, the cleanup returns Superseded (tool rejection), and the Review item stays with an Apply that fails. The recorded limitation covers only a stop after retirement. Refresh has no such gap because replace_candidate_inner retires inside one fenced transaction.",
+      "action": "Retire inside a transaction that checks the Run binding, or widen the recorded limitation to cover the gap between live() and retirement."
+    },
+    {
+      "id": "G-R3",
+      "label": "Replay undoes an owner Undo",
+      "severity": "non-blocking",
+      "confidence": "confirmed",
+      "detail": "For an already retired candidate, the replay branch always calls clear_review_attention. After the owner Undoes a withdrawal or Dismiss cleanup, which restores the Review item, a later withdraw_proposal removes it again with a fresh digest and a new receipt. withdrawing_twice_replays_without_another_receipt covers only replay with no attention left. Nothing the owner could apply is hidden, but the agent reverses a visible owner action without the Undo paragraph saying so.",
+      "action": "State this in the slice G Undo paragraph of verification.md, or have replay leave attention alone once the cleanup was undone."
+    },
+    {
+      "id": "G-R4",
+      "label": "Some refusals have no test",
+      "severity": "non-blocking",
+      "confidence": "confirmed",
+      "detail": "withdraw_proposal.rs covers the other-chat, owner-created and applied refusals. Nothing exercises a project-member chat's proposal (same membership rule as another chat), a call from a Rewrite run (the writing_snapshot rejection) or a call from a stopped Run (live() and the Run-bound cleanup).",
+      "action": "Add a project-member chat case to withdraw_proposal.rs and a brn-ai test for the Rewrite-run and stopped-Run rejections."
+    },
+    {
+      "id": "G-R5",
+      "label": "Bundle history not in the integration items",
+      "severity": "non-blocking",
+      "confidence": "confirmed",
+      "detail": "docs/architecture/threads-behavior.md line 95 records each guidance bundle through brn-threads-guidance-11. The slice G integration items propose text only for §142 (the tool list) and docs/status.md.",
+      "action": "Add a proposed brn-threads-guidance-12 sentence (when to withdraw your own obsolete proposal) to the integration items next to the §142 proposal."
+    }
+  ],
+  "reviewDoc": "/Users/evokessler/repos/brn-rust/.worktrees/daily-workflow-reliability/docs/work/active/daily-workflow-reliability/round5/review-G.md"
+}

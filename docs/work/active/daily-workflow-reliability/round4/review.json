@@ -1,0 +1,42 @@
+{
+  "verdict": "APPROVED",
+  "findings": [
+    {
+      "label": "Archived chat enters NEEDS YOU through the Review",
+      "blocking": false,
+      "confidence": "confirmed",
+      "action": "In round4/verification.md (Archive row and Limitations), state that archiving a chat whose stopped Run left a candidate now lists the archived chat under NEEDS YOU with the proposal card. Reword the reason that a notice 'would raise a just-archived chat'."
+    },
+    {
+      "label": "Proposed contract sentences overstate reachability",
+      "blocking": false,
+      "confidence": "confirmed",
+      "action": "Before integration, limit the invariants.md sentence to Runs that end Interrupted, Failed or Cancelled, or through a checked stop. A Completed Run's unapplied candidate gets no chat attention (T7 case c). Also add finish()'s Interrupted and Failed results to the threads-behavior.md sentence."
+    },
+    {
+      "label": "'Needs a desktop change' is the wrong reason for the failure and resume-stale stops",
+      "blocking": false,
+      "confidence": "likely",
+      "action": "pause_failed_worker and the resume-stale stop reach stop_chat_run with no live in-process worker. The service could recognise a lease-free Run there (run_is_live, or recover_orphaned_runs first) and give it the notice and the lease cleanup. Correct the limitation text and record the follow-up as a service-side change."
+    },
+    {
+      "label": "Killed queued Run + Resume is untested",
+      "blocking": false,
+      "confidence": "confirmed",
+      "action": "When the killed Run is the pending queue item, Resume goes through the desktop's resume-stale stop_chat_run instead of orphan recovery. The Review is added, no notice is added, the lease file stays, and the item is re-dispatched. Add this case to the limitations and the native procedure's expectations, or cover the same sequence with an app-level test."
+    },
+    {
+      "label": "Helper's own Cancelled supersession has no fail-before record",
+      "blocking": false,
+      "confidence": "confirmed",
+      "action": "U1 is marked n/a, and T3 exercises only finish()'s Cancelled match. Reading the code, each U1 case fails when its rule is removed. Record one mutation result for a_notice_on_a_cancelled_run_is_replaced."
+    },
+    {
+      "label": "Sandbox-dependent checks still unverified",
+      "blocking": false,
+      "confidence": "confirmed",
+      "action": "Rerun the 12 brn-threads-intake sandbox tests and scripts/verify-storage.sh from a shell where sandbox-exec works, or rely on required CI, before calling the branch verified for merge."
+    }
+  ],
+  "reviewDoc": "/Users/evokessler/repos/brn-rust/.worktrees/daily-workflow-reliability/docs/work/active/daily-workflow-reliability/round4/review.md"
+}

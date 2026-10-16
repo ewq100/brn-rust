@@ -1,0 +1,30 @@
+{
+  "verdict": "APPROVED",
+  "findings": [
+    {
+      "id": "B-R7",
+      "label": "A model can make its own Source a fallback candidate",
+      "severity": "non-blocking",
+      "confidence": "likely",
+      "detail": "older_spelling_candidates trusts any Note.import.source. prepare_changes validation rejects only Run, Settings, Asset, Message and ChatControl writes; materialize_selected_sources rewrites note.import only when a host-supplied source is selected; the core checks only that import.source names a Source. A model can therefore create a Source plus a Note whose non-full import names it, and that Source is then resolved by realpath and can be adopted (and respelled) by begin() for another spelling of a host-supplied file in the same scope. The verification.md limitations 'Paths that only a model named are never resolved' and 'A Source only a model named, under an older spelling of a file, is not matched' overstate this.",
+      "action": "Reword the two limitations in round5/verification.md to say a model can still bring a Source it named into the older-spelling match by naming it in a Note's import. Restricting candidates to full_note imports would break Keep in BRN of a useful note."
+    },
+    {
+      "id": "B-R8",
+      "label": "respelled_source reads the filesystem inside apply's write transaction",
+      "severity": "non-blocking",
+      "confidence": "likely",
+      "detail": "respelled_source runs in apply_on's refresh loop with the write transaction open and calls canonical_locator on both locators of any Source whose only meaningful change is its locator. Besides the host respell, this includes a model's locator edit to a Source it named (allowed for non-host-observed Sources) and owner edits. A stalled network path blocks realpath while desktop, CLI and agent writes wait on the lock.",
+      "action": "Add to the slice B limitations that this read happens with the store's write lock held and that a model's or owner's locator edit can trigger it."
+    },
+    {
+      "id": "B-R9",
+      "label": "Longest-prefix choice in the retained-scope fallback is untested",
+      "severity": "non-blocking",
+      "confidence": "confirmed",
+      "detail": "The B-R4 test's issue locator has one ' · ' separator, so replacing .last() with .next() in retained_useful_report's canonical prefix fallback leaves the suite green.",
+      "action": "Add a respelled issue locator with a second separator to requalifying_a_source_respelled_since_an_older_build_drops_its_retained_omission, or accept the gap."
+    }
+  ],
+  "reviewDoc": "/Users/evokessler/repos/brn-rust/.worktrees/daily-workflow-reliability/docs/work/active/daily-workflow-reliability/round5/review-B.md"
+}

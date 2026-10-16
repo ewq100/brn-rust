@@ -1,0 +1,12 @@
+{
+  "verdict": "APPROVED",
+  "findings": [
+    "Non-blocking: Stale 'pending' Stop interpretation. evidence.md:40, :559 and :592, plus the doc comment at killed_run_candidate.rs:627, still call the decision-2-applied-to-Stop interpretation pending; the lead confirmed it on the board. Update them to 'confirmed by the lead, 16 Oct 2026' when posting round 6.",
+    "Non-blocking: Canonical-target correction may be missed at integration. The caveat proposes new text for threads-target.md:136 and chats-and-projects/spec.md:70, but the board's integration plan lists only threads-behavior.md, invariants.md and docs/status.md. Post the correction on the board so the integration lead applies it.",
+    "Non-blocking: Inaccurate 'Before' comment. search_messages.rs:499 says 'Before: gone from project search once the chat was archived' over both the note and Message assertions. Only the Message was gone; the note always showed, and only its label is new. Reword the comment.",
+    "Non-blocking: Round 5 verification record not pointed forward. round5/verification.md:334 still says Stop and Archive of a lease-free Run add the notice, and that Continue shows it until the result. Add a one-line pointer to round 6, as round5/native-recheck.md got.",
+    "Non-blocking: Board and native re-check pending. The reliability section on the board is still at b76cc5a7, and round6/native-recheck.md is a procedure that hasn't been run. Post the round 6 result on the board, run the re-check under the Mac lock, and only then post READY FOR INTEGRATION.",
+    "Non-blocking: Decision 3's note half isn't visible in the desktop. Desktop search always uses the general context (threads_search.rs:91, request_page(.., None, ..)), so archived chats' chat-only notes and project chats' Messages never show there; only CLI --thread/--project searches show them. Post this on the board for the lead (F-UI1) and the owner. No change is needed on this branch."
+  ],
+  "reviewDoc": "/Users/evokessler/repos/brn-rust/.worktrees/daily-workflow-reliability/docs/work/active/daily-workflow-reliability/round6/review.md"
+}

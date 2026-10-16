@@ -205,19 +205,37 @@ fn retained_useful_report(
     for issue in previous_report.issues {
         // Multi-source reports already scope each issue by the external locator.
         // Recover that scope so qualifying one source cannot erase another.
-        let scoped = records
+        let references: Vec<_> = records
             .iter()
             .filter_map(|record| match &record.data {
                 RecordData::Source(source) => Some(source.locator.as_str()),
                 _ => None,
             })
+            .collect();
+        let scoped = references
+            .iter()
             .filter_map(|reference| {
                 issue
                     .locator
                     .strip_prefix(&format!("{reference} · "))
-                    .map(|locator| (reference, locator))
+                    .map(|locator| (*reference, locator))
             })
-            .max_by_key(|(reference, _)| reference.len());
+            .max_by_key(|(reference, _)| reference.len())
+            .or_else(|| {
+                // An older build may have scoped the issue under another
+                // spelling of the file its Source now records at the real path.
+                issue
+                    .locator
+                    .match_indices(" · ")
+                    .filter_map(|(at, separator)| {
+                        let canonical = brn_threads_core::canonical_locator(&issue.locator[..at]);
+                        references
+                            .iter()
+                            .find(|reference| **reference == canonical)
+                            .map(|reference| (*reference, &issue.locator[at + separator.len()..]))
+                    })
+                    .last()
+            });
         let (reference, locator) = scoped.unwrap_or((primary, issue.locator.as_str()));
         if !retained(reference) || requalified(reference) {
             continue;

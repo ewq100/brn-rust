@@ -641,3 +641,258 @@ fn vectors_of_other_models_are_purged_and_keyword_matching_is_exact() {
         .unwrap();
     assert!(found.contains(&odd) && found.len() == 2);
 }
+fn message(id: &str, chat: &str, version: u64, role: &str, text: &str) -> MessageInput {
+    MessageInput {
+        id: id.into(),
+        chat: chat.into(),
+        version,
+        role: role.into(),
+        text: text.into(),
+    }
+}
+fn messages_for(index: &SearchIndex, query: &str, scopes: &[ChatScope]) -> Vec<String> {
+    let mut ids: Vec<String> = index
+        .message_hits(query, scopes, 100)
+        .unwrap()
+        .into_iter()
+        .map(|h| h.message)
+        .collect();
+    ids.sort();
+    ids
+}
+fn message_fts_consistent(path: &Path) {
+    let conn = Connection::open(path.join(FILE_NAME)).unwrap();
+    for table in ["fts_message_exact", "fts_message_stem"] {
+        conn.execute(
+            &format!("INSERT INTO {table}({table}, rank) VALUES ('integrity-check', 1)"),
+            [],
+        )
+        .unwrap();
+    }
+}
+#[test]
+fn messages_are_replaced_and_removed_without_stale_terms() {
+    let (_root, dir) = derived();
+    let (mut index, _) = SearchIndex::open(&dir).unwrap();
+    let general = [ChatScope::General];
+    step(
+        &mut index,
+        Changes {
+            upsert_messages: vec![message("m1", "c", 1, "owner", "Walking the heron trail")],
+            chat_scopes: vec![("c".into(), ChatScope::General)],
+            watermark: 1,
+            ..Changes::default()
+        },
+    );
+    assert_eq!(messages_for(&index, "heron", &general), ["m1"]);
+    // Only the stemmed lane matches inflected forms.
+    assert_eq!(messages_for(&index, "walks trails", &general), ["m1"]);
+    let hit = &index.message_hits("heron", &general, 10).unwrap()[0];
+    assert_eq!(
+        (
+            hit.chat.as_str(),
+            hit.version,
+            hit.role.as_str(),
+            hit.text.as_str()
+        ),
+        ("c", 1, "owner", "Walking the heron trail")
+    );
+    step(
+        &mut index,
+        Changes {
+            upsert_messages: vec![message("m1", "c", 2, "owner", "Walking the egret trail")],
+            watermark: 2,
+            ..Changes::default()
+        },
+    );
+    assert!(messages_for(&index, "heron", &general).is_empty());
+    assert_eq!(messages_for(&index, "egret", &general), ["m1"]);
+    assert_eq!(
+        index.message_hits("egret", &general, 10).unwrap()[0].version,
+        2
+    );
+    message_fts_consistent(&dir);
+    // Messages are replace-only.
+    let conn = Connection::open(dir.join(FILE_NAME)).unwrap();
+    assert!(
+        conn.execute("UPDATE messages SET text = 'x' WHERE id = 'm1'", [])
+            .is_err()
+    );
+    drop(conn);
+    step(
+        &mut index,
+        Changes {
+            remove_messages: vec!["m1".into()],
+            watermark: 3,
+            ..Changes::default()
+        },
+    );
+    assert!(messages_for(&index, "egret", &general).is_empty());
+    assert_eq!(index.message_count("egret", &general).unwrap(), 0);
+    message_fts_consistent(&dir);
+    // Partial progress and other roles are never indexed.
+    let base = index.sync_state().unwrap();
+    assert!(matches!(
+        index.apply(&Changes {
+            base,
+            upsert_messages: vec![message("m2", "c", 1, "assistant-partial", "half")],
+            watermark: 4,
+            ..Changes::default()
+        }),
+        Err(brn_retrieval::Error::Invalid(_))
+    ));
+    // A full resync replaces every message and chat scope.
+    step(
+        &mut index,
+        Changes {
+            upsert_messages: vec![message("m3", "c", 1, "assistant", "Egret reply")],
+            watermark: 5,
+            ..Changes::default()
+        },
+    );
+    step(
+        &mut index,
+        Changes {
+            full: true,
+            watermark: 6,
+            ..Changes::default()
+        },
+    );
+    assert!(messages_for(&index, "egret", &general).is_empty());
+    message_fts_consistent(&dir);
+}
+#[test]
+fn message_scopes_filter_hits_and_count_exactly_apart_from_notes() {
+    let (_root, dir) = derived();
+    let (mut index, _) = SearchIndex::open(&dir).unwrap();
+    step(
+        &mut index,
+        Changes {
+            upsert_messages: vec![
+                message("mg", "g", 1, "assistant", "Berth survey reply (not sent)"),
+                message("mp", "p", 1, "owner", "Berth survey question"),
+                message("mc", "c", 1, "owner", "Berth survey private"),
+                message("mh", "h", 1, "owner", "Berth survey archived"),
+                message("mx", "unscoped", 1, "owner", "Berth survey unscoped"),
+            ],
+            chat_scopes: vec![
+                ("g".into(), ChatScope::General),
+                ("p".into(), ChatScope::Project("P".into())),
+                ("c".into(), ChatScope::Chat("c".into())),
+                ("h".into(), ChatScope::Hidden),
+            ],
+            watermark: 1,
+            ..Changes::default()
+        },
+    );
+    let cases: Vec<(Vec<ChatScope>, Vec<&str>)> = vec![
+        (vec![ChatScope::General], vec!["mg"]),
+        (
+            vec![ChatScope::Project("P".into()), ChatScope::General],
+            vec!["mg", "mp"],
+        ),
+        (vec![ChatScope::Project("P".into())], vec!["mp"]),
+        (
+            vec![ChatScope::General, ChatScope::Chat("c".into())],
+            vec!["mc", "mg"],
+        ),
+        (vec![ChatScope::Project("Q".into())], vec![]),
+        (vec![], vec![]),
+    ];
+    for (scopes, expected) in cases {
+        assert_eq!(
+            messages_for(&index, "berth", &scopes),
+            expected,
+            "{scopes:?}"
+        );
+        assert_eq!(
+            index.message_count("berth surveys", &scopes).unwrap(),
+            expected.len(),
+            "{scopes:?}"
+        );
+    }
+    // Notes never see messages: their lanes and counts stay empty.
+    assert!(docs_for(&index, "berth", None).is_empty());
+    assert_eq!(index.count("berth", None).unwrap(), 0);
+    assert_eq!(index.doc_count().unwrap(), 0);
+    // A chat's scope moves without re-indexing its messages.
+    step(
+        &mut index,
+        Changes {
+            chat_scopes: vec![
+                ("c".into(), ChatScope::General),
+                ("g".into(), ChatScope::Hidden),
+            ],
+            watermark: 2,
+            ..Changes::default()
+        },
+    );
+    assert_eq!(messages_for(&index, "berth", &[ChatScope::General]), ["mc"]);
+    // Ties are broken by text, then ID, never by insertion order.
+    step(
+        &mut index,
+        Changes {
+            upsert_messages: vec![
+                message("z", "c", 1, "owner", "Tide"),
+                message("a", "c", 1, "owner", "Tide"),
+            ],
+            watermark: 3,
+            ..Changes::default()
+        },
+    );
+    let order: Vec<String> = index
+        .message_hits("tide", &[ChatScope::General], 10)
+        .unwrap()
+        .into_iter()
+        .map(|h| h.message)
+        .collect();
+    assert_eq!(order, ["a", "z"]);
+    assert!(
+        index
+            .message_hits("tide", &[ChatScope::General], 101)
+            .is_err()
+    );
+}
+#[test]
+fn a_version_2_index_is_rebuilt_with_message_tables() {
+    let (_root, dir) = derived();
+    let (mut index, _) = SearchIndex::open(&dir).unwrap();
+    upsert(
+        &mut index,
+        vec![doc("n", 1, "N", "kept\n", Visibility::General)],
+        3,
+    );
+    drop(index);
+    // The shape the previous build wrote: no message objects, version 2.
+    let conn = Connection::open(dir.join(FILE_NAME)).unwrap();
+    conn.execute_batch(
+        "DROP TRIGGER messages_exact_insert; DROP TRIGGER messages_exact_delete;
+         DROP TRIGGER messages_stem_insert; DROP TRIGGER messages_stem_delete;
+         DROP TRIGGER messages_no_update; DROP TABLE fts_message_exact;
+         DROP TABLE fts_message_stem; DROP TABLE messages; DROP TABLE chats;
+         PRAGMA user_version = 2;",
+    )
+    .unwrap();
+    drop(conn);
+    let (mut index, opened) = SearchIndex::open(&dir).unwrap();
+    assert_eq!(opened, Opened::Rebuilt);
+    // No sync state: the next synchronization is full and backfills messages.
+    assert_eq!(
+        (index.doc_count().unwrap(), index.sync_state().unwrap()),
+        (0, None)
+    );
+    step(
+        &mut index,
+        Changes {
+            full: true,
+            upsert_messages: vec![message("m", "c", 1, "assistant", "Berth reply")],
+            chat_scopes: vec![("c".into(), ChatScope::General)],
+            watermark: 3,
+            ..Changes::default()
+        },
+    );
+    assert_eq!(messages_for(&index, "berth", &[ChatScope::General]), ["m"]);
+    drop(index);
+    assert_eq!(SearchIndex::open(&dir).unwrap().1, Opened::Existing);
+    message_fts_consistent(&dir);
+}
