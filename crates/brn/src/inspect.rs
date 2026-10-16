@@ -371,7 +371,19 @@ pub(crate) fn operation(workspace: &Workspace, inv: &Invocation) -> Result<Value
                 .store
                 .operation_by_host_key(&stored)?
                 .ok_or_else(not_found)?;
-            (id.as_str().to_owned(), Vec::<String>::new())
+            // knowledge-check --seed-chat yes records the chat under its own key.
+            let related = match crate::spec::spec(command).map(|s| s.name) {
+                Some("knowledge-check") => workspace
+                    .store
+                    .operation_by_host_key(&format!(
+                        "new-thread:knowledge-review-chat:{}",
+                        crate::spec::cli_key(command, key)
+                    ))?
+                    .map(|op| vec![op.as_str().to_owned()])
+                    .unwrap_or_default(),
+                _ => vec![],
+            };
+            (id.as_str().to_owned(), related)
         }
         (None, None) => return Err(CliError::missing_option("id")),
     };

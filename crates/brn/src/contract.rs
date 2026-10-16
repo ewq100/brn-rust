@@ -674,7 +674,11 @@ pub(crate) fn classify(
                     ..ok(outcome)
                 }
             }
-            _ => ok(None),
+            // A keyed seeded knowledge-check reports its message operation.
+            _ => Classified {
+                operation: notes.operation.clone(),
+                ..ok(None)
+            },
         },
         ReceiptAt::Root => Classified {
             status: Status::Ok,

@@ -126,7 +126,7 @@ ApplyOutcome `Applied` is `ok`, `Stale` and `Superseded` are `stale`, `Deferred`
 | `missing_value` | usage | `--name` with no value. | `{option}` |
 | `repeated_option` | usage | An option given twice. | `{option}` |
 | `unknown_option` | usage | Option not allowed for the command. | `{option, allowed}` |
-| `conflicting_options` | usage | `--NAME` with `--NAME-file`; `--key` with `--intent useful`; `--project` with `--thread`; `--helper off` with helper options; `--edit-note` with `--record-decision`. | `{options}` |
+| `conflicting_options` | usage | `--NAME` with `--NAME-file`; `--key` with `--intent useful`; `--key` on `knowledge-check` without `--seed-chat yes`; `--project` with `--thread`; `--helper off` with helper options; `--edit-note` with `--record-decision`. | `{options}` |
 | `missing_option` | usage | Required option absent (checked before the workspace opens). | `{option}` |
 | `invalid_value` | usage | Bad integer, enum or yes/no value, key format, relative path, `--trace`, a page `--limit` out of range or a malformed `--cursor`, or malformed `--actions` JSON. | `{option, expected}` (`expected` is human text) |
 | `invalid_input` | usage | `--NAME-file` problem; an unreadable or empty intake source; an unreadable or malformed `--preview-file`. | `{option, reason}`, plus `max_bytes` for `too_large` |
@@ -224,7 +224,7 @@ A key names one intended change. Reuse it only to retry the same command with th
 | `resume` | no | converge | — | yes |
 | `recovery` | no | read | — | no |
 | `topics` | no | read | — | no |
-| `topics-create` | no | duplicate | — | yes |
+| `topics-create` | yes | duplicate | converge (replays the note and chooses it again) | yes |
 | `projects` | no | read | — | no |
 | `project-create` | yes | duplicate | replay | yes |
 | `project-chat` | yes | duplicate | replay | yes |
@@ -238,8 +238,8 @@ A key names one intended change. Reuse it only to retry the same command with th
 | `project-restore` | yes | refuse (version-bound) | replay | yes |
 | `topics-choose` | no | converge | — | yes |
 | `connections` | no | read | — | no |
-| `knowledge-check` | no | read | — | no |
-| `knowledge-check` (--seed-chat yes) | no | duplicate (seeds another review chat) | — | no |
+| `knowledge-check` | yes | read (`--key` needs `--seed-chat yes`) | — | no |
+| `knowledge-check` (--seed-chat yes) | yes | duplicate (seeds another review chat) | replay (the first findings win) | no |
 | `model-install` | no | converge (a verified destination downloads nothing) | — | yes |
 | `note-create` | yes | duplicate | replay | no |
 | `thread-start` | yes | duplicate | replay | no |
@@ -271,7 +271,7 @@ A key names one intended change. Reuse it only to retry the same command with th
 | `restore` | no | refuse (`unsafe_directory` after success) | — | no |
 | `upgrade` | no | converge | — | yes |
 
-Keyed edge cases: different inputs under the same key give `key_conflict` (a different title or text for `note-create`, a different thread for `queue`, a different title for `intake`). Keyed intake replay needs the same source bytes; Markdown and text convert deterministically. A keyed retry of a PDF, DOCX, EML, HTML, XLSX or PPTX intake converts the document again with GPT-6 Luna, sending it to the provider, before it replays or returns `key_conflict`. A keyed `undo` that was Deferred keeps its prepared compensation; the retry applies exactly that operation and reports the same `operation`.
+Keyed edge cases: different inputs under the same key give `key_conflict` (a different title or text for `note-create`, a different thread for `queue`, a different title for `intake`). A keyed full/chat/project intake replays when bytes, path, scope and title match a committed import, without converting or sending the document again; if that import found the bytes already imported, the retry converts again and records only an observation. A changed title, path or scope under the key is `key_conflict`, also before conversion. A keyed `undo` that was Deferred keeps its prepared compensation; the retry applies exactly that operation and reports the same `operation`. A keyed `topics-create` replays the Topics note and points Topics at it again; if Topics was changed in between, use a new key. A keyed `knowledge-check --seed-chat yes` reuses the chat and message its first attempt committed, so later findings do not change the replay; `--key` without `--seed-chat yes` is `conflicting_options`. Its envelope `operation` is the message; `operation --key K --command knowledge-check` lists the chat operation in `related`. `ask` and useful intake take no key: after a lost `ask` response, `runs --thread T --limit 5` and `read --id RUN` show what happened.
 
 ### Recovery recipes
 
@@ -307,6 +307,7 @@ Every in-repo consumer moved to contract 2 in the same change; there is no contr
 | `terminated` | SIGTERM killed the process | machine mode: status `terminated`, exit 143, code `terminated` |
 | `--timeout` | none | global `--timeout SECONDS`; `timeout` gains `{deadline_seconds, hard}` |
 | `busy` | lock contention was `storage_error` (internal, 1) | `busy` (failed, 7) |
+| Retry keys | `topics-create` and `knowledge-check --seed-chat yes` duplicated; keyed intake converted (and sent non-Markdown documents to the provider) before replaying | `--key` on both (converge, replay); keyed full/chat/project intake replays before conversion |
 | Inspection | `history`, `candidates`, `records` return everything | page options and the `revisions`, `revision`, `runs`, `operation` commands; `read --limit` returns `Read` or `Stale` |
 
 ### Before and after

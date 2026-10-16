@@ -12,6 +12,7 @@ mod chat;
 mod decisions;
 mod export;
 mod intake;
+mod keyed;
 mod knowledge;
 mod projects;
 mod refresh;

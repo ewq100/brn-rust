@@ -571,7 +571,7 @@ Command: `git -C /Users/evokessler/repos/brn-rust -c core.fsmonitor=false log --
       - `bash scripts/verify-storage.sh` tail (`brn --help` 0, `brn` 1, `brn --unknown` 1) is unchanged;
       - the baseline run of `agent_bounds` fails on every non-guard test.
 
-- [ ] R2-6. **⚑ A3: retry keys for topics-create and seeded knowledge-check; replay keyed intake before conversion** (design A3; appendix §A3).
+- [x] R2-6. **⚑ A3: retry keys for topics-create and seeded knowledge-check; replay keyed intake before conversion** (design A3; appendix §A3).
       Read BOARD.md first. Re-run the overlap check for app `keyed.rs`, `lib.rs`, `topics.rs`, `knowledge.rs` and `intake.rs`. If any `work/knowledge-*` branch now touches `seed_knowledge_review`, defer the knowledge-check row and record it.
       **⚑ App `crates/brn-threads-app/src/keyed.rs`** (new; `mod keyed;` after `mod knowledge;` in `lib.rs`). Every function takes the unprefixed `cli_key`:
       - `create_topics_note_with_key(k)`:

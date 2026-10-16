@@ -209,3 +209,38 @@ pub fn signal(child: &Child, signal: i32) {
     // SAFETY: signals only the child this test spawned.
     assert_eq!(unsafe { libc::kill(child.id() as i32, signal) }, 0);
 }
+/// A FIFO in the root. `ready_writer` waits until a reader (the child) has it
+/// open, which proves the child is past startup, then returns the writer.
+pub struct Fifo {
+    pub path: PathBuf,
+}
+impl Fifo {
+    pub fn new(root: &Root, name: &str) -> Self {
+        let path = root.join(name);
+        let c = std::ffi::CString::new(path.to_str().unwrap()).unwrap();
+        // SAFETY: creates a FIFO inside the test root.
+        assert_eq!(unsafe { libc::mkfifo(c.as_ptr(), 0o600) }, 0);
+        Self { path }
+    }
+    pub fn arg(&self) -> &str {
+        self.path.to_str().unwrap()
+    }
+    /// Opens the write end once the child has opened the read end (within 20 s).
+    pub fn ready_writer(&self) -> std::fs::File {
+        use std::os::unix::fs::OpenOptionsExt;
+        let started = std::time::Instant::now();
+        loop {
+            match std::fs::OpenOptions::new()
+                .write(true)
+                .custom_flags(libc::O_NONBLOCK)
+                .open(&self.path)
+            {
+                Ok(file) => return file,
+                Err(_) if started.elapsed() < Duration::from_secs(20) => {
+                    std::thread::sleep(Duration::from_millis(10));
+                }
+                Err(error) => panic!("the child never opened the FIFO: {error}"),
+            }
+        }
+    }
+}

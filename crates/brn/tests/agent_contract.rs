@@ -327,17 +327,10 @@ fn usage_errors_are_json_with_stable_codes_and_create_nothing() {
             false,
         ),
         (
-            vec![
-                "--data-dir",
-                d,
-                "knowledge-check",
-                "--seed-chat",
-                "yes",
-                "--key",
-                "k1",
-            ],
-            "unknown_option",
-            Some("key"),
+            // Round 2: --key is accepted only with --seed-chat yes.
+            vec!["--data-dir", d, "knowledge-check", "--key", "k1"],
+            "conflicting_options",
+            None,
             false,
         ),
         (
@@ -1746,7 +1739,7 @@ fn machine_description_lists_every_parsed_command_and_matches_readme() {
                 ),
                 if variant["key"] == true { "yes" } else { "no" }.to_owned(),
                 variant["retry"].as_str().unwrap().to_owned(),
-                "—".to_owned(),
+                variant["keyed"].as_str().unwrap_or("—").to_owned(),
                 owner.clone(),
             ));
         }

@@ -77,6 +77,8 @@ pub(crate) struct Variant {
     pub(crate) retry: Class,
     /// `false`: `--key` is refused for this variant.
     pub(crate) key: bool,
+    /// The class under `--key`, when the variant takes a key.
+    pub(crate) keyed: Option<Class>,
     /// Classification override; not part of the description.
     pub(crate) receipt: Option<ReceiptAt>,
 }
@@ -108,6 +110,8 @@ pub(crate) struct Spec {
     pub(crate) bounded_form: Option<&'static str>,
     /// `(OPTION, NEEDS)`: OPTION is accepted only together with NEEDS.
     pub(crate) needs: &'static [(&'static str, &'static str)],
+    /// `--key` is accepted only with `--OPTION VALUE`.
+    pub(crate) key_requires: Option<(&'static str, &'static str)>,
 }
 
 /// The `--limit` range and `--cursor` form of a page command.
@@ -329,6 +333,7 @@ const fn cmd(
         bounded: None,
         bounded_form: None,
         needs: &[],
+        key_requires: None,
     }
 }
 const fn paged(min: u64, max: u64, default: Option<u64>, cursor: CursorForm) -> Option<PageSpec> {
@@ -447,11 +452,11 @@ pub(crate) static COMMANDS: &[Spec] = &[
     read("topics", &[], &[]),
     cmd(
         "topics-create",
-        &[],
+        &["key"],
         &[],
         YES,
         Duplicate,
-        None,
+        Some(Converge),
         ReceiptAt::NoteAndPointer,
         APPLY_OUTCOMES,
     ),
@@ -530,6 +535,8 @@ pub(crate) static COMMANDS: &[Spec] = &[
         &["note"],
     ),
     Spec {
+        keyed: true,
+        key_requires: Some(("seed-chat", "yes")),
         retry: Retry {
             default: Read,
             keyed: None,
@@ -537,11 +544,12 @@ pub(crate) static COMMANDS: &[Spec] = &[
                 option: "seed-chat",
                 equals: "yes",
                 retry: Duplicate,
-                key: false,
+                key: true,
+                keyed: Some(Replay),
                 receipt: None,
             }],
         },
-        ..read("knowledge-check", &["seed-chat"], &[])
+        ..read("knowledge-check", &["seed-chat", "key"], &[])
     },
     cmd(
         "model-install",
@@ -770,6 +778,7 @@ pub(crate) static COMMANDS: &[Spec] = &[
                 equals: "useful",
                 retry: Duplicate,
                 key: false,
+                keyed: None,
                 receipt: Some(ReceiptAt::Terminal),
             }],
         },
@@ -853,7 +862,10 @@ fn variant<'a>(spec: &'a Spec, args: &BTreeMap<String, String>) -> Option<&'a Va
 
 fn retry_of(spec: &Spec, args: &BTreeMap<String, String>) -> Class {
     if let Some(variant) = variant(spec, args) {
-        return variant.retry;
+        return match variant.keyed {
+            Some(keyed) if args.contains_key("key") => keyed,
+            _ => variant.retry,
+        };
     }
     match spec.retry.keyed {
         Some(keyed) if args.contains_key("key") => keyed,
@@ -914,6 +926,10 @@ pub(crate) fn stored_host_key(command: &str, key: &str) -> Option<String> {
         "keep-in-brn" => "keep-in-brn:",
         // intake.rs `import_full_scoped`
         "intake" => "full-import:",
+        // keyed.rs `create_topics_note_with_key` (`new_note_with_key("topics:{key}")`)
+        "topics-create" => "new-note:topics:",
+        // keyed.rs `seed_knowledge_review_with_key`: the message operation
+        "knowledge-check" => "knowledge-review-message:",
         // projects.rs `project_command`: one raw-key scope for every project command
         "project-create" | "project-chat" | "project-document" | "project-settings"
         | "chat-move" | "project-link" | "project-unlink" | "project-delete"
@@ -960,6 +976,7 @@ pub(crate) fn description() -> Value {
                     "keyed": spec.retry.keyed.map(Class::as_str),
                     "variants": spec.retry.variants.iter().map(|v| json!({
                         "when": when(v.option, v.equals), "retry": v.retry.as_str(), "key": v.key,
+                        "keyed": v.keyed.map(Class::as_str),
                     })).collect::<Vec<_>>(),
                 },
                 "outcomes": spec.outcomes,
@@ -970,6 +987,7 @@ pub(crate) fn description() -> Value {
                 "bounded": spec.bounded,
                 "bounded_form": spec.bounded_form,
                 "values": values_of(spec.name),
+                "key_requires": spec.key_requires.map(|(option, equals)| when(option, equals)),
                 "needs": spec.needs.iter().map(|(option, needs)| json!({"option": option, "needs": needs})).collect::<Vec<_>>(),
             })
         })
@@ -1042,12 +1060,11 @@ mod tests {
                     if with_key {
                         given.insert("key".into(), "k".into());
                     }
-                    assert_eq!(
-                        retry_of(spec, &given).as_str(),
-                        variant["retry"],
-                        "{}",
-                        spec.name
-                    );
+                    let expected = match variant["keyed"].as_str() {
+                        Some(keyed) if with_key => keyed,
+                        _ => variant["retry"].as_str().unwrap(),
+                    };
+                    assert_eq!(retry_of(spec, &given).as_str(), expected, "{}", spec.name);
                 }
                 // A different value matches no variant.
                 let other = retry_of(spec, &args(&[(option, "other-value")]));
@@ -1273,6 +1290,11 @@ mod tests {
             ("queue", "chat-control:cli-key:queue:K"),
             ("keep-in-brn", "keep-in-brn:cli-key:keep-in-brn:K"),
             ("intake", "full-import:cli-key:intake:K"),
+            ("topics-create", "new-note:topics:cli-key:topics-create:K"),
+            (
+                "knowledge-check",
+                "knowledge-review-message:cli-key:knowledge-check:K",
+            ),
             ("project-create", "project:K"),
             ("project-restore", "project:K"),
         ] {

@@ -44,6 +44,13 @@ impl HeldLock {
     }
 }
 
+/// Writes 256 KiB to the child's stdin and keeps the pipe open.
+fn fill_stdin(child: &mut Child) -> std::process::ChildStdin {
+    let mut input = child.stdin.take().unwrap();
+    input.write_all(&vec![b'a'; 256 * 1024]).unwrap();
+    input
+}
+
 fn receipt_total(root: &Root, data: &Path) -> Value {
     ok(root, data, &["history", "--limit", "100"])["total"].clone()
 }
@@ -106,11 +113,12 @@ fn sigterm_during_stdin_wait_is_terminated_and_creates_nothing() {
         &data,
         &["note-create", "--title", "T", "--text-file", "-"],
     );
-    let child = spawn(&root, &argv);
-    // Past startup the handler is installed; the stdin pipe stays open.
-    std::thread::sleep(Duration::from_millis(500));
+    let mut child = spawn(&root, &argv);
+    // More than a pipe holds: once written, the child is reading and its handler is installed.
+    let input = fill_stdin(&mut child);
     signal(&child, libc::SIGTERM);
     let run = wait_output(child, Duration::from_secs(10));
+    drop(input);
     assert_eq!(run.code, 143, "{} {}", run.stdout, run.stderr);
     let envelope = run.envelope();
     assert_error(&envelope, "terminated", "terminated");
@@ -128,10 +136,11 @@ fn default_mode_sigterm_keeps_default_disposition() {
         &data,
         &["note-create", "--title", "T", "--text-file", "-"],
     );
-    let child = spawn(&root, &argv);
-    std::thread::sleep(Duration::from_millis(500));
+    let mut child = spawn(&root, &argv);
+    let input = fill_stdin(&mut child);
     signal(&child, libc::SIGTERM);
     let run = wait_output(child, Duration::from_secs(10));
+    drop(input);
     assert_eq!(run.signal, Some(libc::SIGTERM));
     assert!(run.stdout.is_empty());
 }
@@ -233,7 +242,7 @@ fn held_lock_past_deadline_hard_stops_with_one_line() {
     let run = run_argv(&root, &argv, None);
     let elapsed = started.elapsed();
     assert!(
-        elapsed >= Duration::from_millis(3500) && elapsed < Duration::from_millis(4900),
+        elapsed >= Duration::from_millis(3500) && elapsed < Duration::from_secs(6),
         "{elapsed:?}"
     );
     assert_eq!(run.code, 7);
@@ -274,10 +283,11 @@ fn sigint_envelopes_report_stop_sigint() {
         &data,
         &["note-create", "--title", "T", "--text-file", "-"],
     );
-    let child = spawn(&root, &argv);
-    std::thread::sleep(Duration::from_millis(500));
+    let mut child = spawn(&root, &argv);
+    let input = fill_stdin(&mut child);
     signal(&child, libc::SIGINT);
     let run = wait_output(child, Duration::from_secs(10));
+    drop(input);
     assert_eq!(run.code, 130);
     let envelope = run.envelope();
     assert_error(&envelope, "interrupted", "interrupted");

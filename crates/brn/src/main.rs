@@ -39,7 +39,10 @@ Agents and scripts: brn --json --data-dir DIR COMMAND ... prints one JSON envelo
   shows whether an operation (or a keyed command's key) applied, without using the key.
   Text options --title, --text, --prompt, --instructions, --actions also accept --NAME-file ABSOLUTE_FILE or --NAME-file - (stdin).
   --key KEY makes note-create, thread-start, undo, queue, archive|resolve, unarchive, keep-in-brn,
-  intake --intent full|chat|project and project commands replay on retry. resolve is an alias of archive.
+  intake --intent full|chat|project, topics-create, knowledge-check --seed-chat yes and project commands
+  replay on retry. resolve is an alias of archive. A keyed full/chat/project intake replays when bytes,
+  path, scope and title match a committed import, without converting or sending the document again;
+  if that import found the bytes already imported, the retry converts again and records only an observation.
   Commands marked owner_decision record an owner decision. Running the CLI does not make you the owner:
   run them only on the owner's explicit instruction for that exact operation.";
 type Result<T> = std::result::Result<T, CliError>;
@@ -238,6 +241,12 @@ fn parse(
             &["key", variant.option],
             message,
         )));
+    }
+    if let Some((option, equals)) = spec.key_requires {
+        if options.contains_key("key") && options.get(option).map(String::as_str) != Some(equals) {
+            let message = format!("--key needs --{option} {equals}");
+            return Err(refuse(CliError::conflicting(&["key", option], message)));
+        }
     }
     if options.contains_key("key") && key.is_none() {
         let message = "--key must match [A-Za-z0-9._:-]{1,128}";
@@ -747,13 +756,22 @@ async fn execute(inv: &Invocation, notes: &mut Annotations) -> Result<Value> {
         )?,
         "topics" => encode(workspace.topics()?)?,
         "topics-create" => {
-            let (note, outcome) = workspace.create_topics_note()?;
+            let (note, outcome) = match &inv.key {
+                Some(_) => workspace.create_topics_note_with_key(&inv.host_key("cli-topics"))?,
+                None => workspace.create_topics_note()?,
+            };
             json!({"note":note,"pointer":applied(outcome)})
         }
         "topics-choose" => applied(workspace.choose_topics_note(inv.arg("note")?)?),
         "knowledge-check" => {
             let check = workspace.knowledge_check()?;
             let chat = match inv.args.get("seed-chat").map(String::as_str) {
+                Some("yes") if inv.key.is_some() => {
+                    let (chat, message) = workspace
+                        .seed_knowledge_review_with_key(&inv.host_key("cli-knowledge"), &check)?;
+                    notes.operation = Some(message.as_str().into());
+                    Some(chat)
+                }
                 Some("yes") => Some(workspace.seed_knowledge_review(&check)?),
                 None => None,
                 Some(_) => {
@@ -961,6 +979,31 @@ async fn execute(inv: &Invocation, notes: &mut Annotations) -> Result<Value> {
                     ))
                 }
             };
+            // A keyed full/chat/project intake whose committed import matches
+            // replays here, before conversion: nothing is converted or sent again.
+            if let (Some(key), ImportIntent::FullNote) = (&inv.key, intent) {
+                let scope = match inv.arg("intent")? {
+                    "chat" => Some(inv.arg("thread")?),
+                    "project" => Some(inv.arg("project")?),
+                    _ => None,
+                };
+                let title = inv
+                    .args
+                    .get("title")
+                    .map_or("Imported note", String::as_str);
+                let replayed = workspace.full_import_replay(
+                    &spec::cli_key(&inv.command, key),
+                    title,
+                    inv.arg("source")?,
+                    &bytes,
+                    scope,
+                )?;
+                if let Some(outcome) = replayed {
+                    let value = applied(outcome);
+                    contract::fill_conflicts(&workspace, inv, &value, notes);
+                    return Ok(value);
+                }
+            }
             let settings = workspace.settings()?;
             let conversion_job = brn_ai::conversion::ConversionJob {
                 converter: converter(kind)?,
