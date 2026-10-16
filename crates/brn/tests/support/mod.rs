@@ -70,6 +70,8 @@ impl Root {
             .env("TMP", &tmp)
             .env("TEMP", &tmp)
             .envs(self.env.iter().map(|(k, v)| (k, v)))
+            // A relative path a binary accepts (the baseline did) lands in the root.
+            .current_dir(&self.path)
             .args(args);
         command
     }
