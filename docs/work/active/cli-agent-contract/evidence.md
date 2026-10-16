@@ -620,3 +620,47 @@ Branch `work/cli-agent-round3`, base `origin/main` `fb1b2100`. Scope: caller-bou
 The shared-seam API (design §9) was posted on the coordination board in the CLI section as an ASK at 14:30 on 16 October 2026. The owner answered at 14:33: "approve lets go wiht b" (API approved; schema upgrade option B). `owner-decisions.md` § Round 3 records it.
 
 Baseline binary for process comparisons: `fb1b2100` built with `CARGO_TARGET_DIR=/private/tmp/brn-r3-base-target cargo build -p brn --locked --offline` before any edit; `brn --json --help` reports `"contract":2`.
+
+## Round 3 changes
+
+Code at `29cab9c8` (feature commit `7ef9cb0e`; tests and witnesses `da55cdd2`; docs `29cab9c8`), on `fb1b2100`.
+
+- **Caller-bound edit sessions (B3 part 2).** Core `begin_caller_edit`, `update_caller_buffer`, `save_caller_edit`, `discard_caller_edit`, `reclaim_caller_edit`; tokens `brnet1_` + 64 hex from two v4 UUIDs, stored only as SHA-256 hex and compared in constant time. The owner-host `begin_edit`/`update_buffer`/`save`/`discard` keep their signatures; owner typing adopts a caller session (its binding is deleted in the same transaction). CLI tokens come back once (`result.token`, or a new 0600 `--token-out` file) and go in by `--token-file PATH|-` only.
+- **B1 phase 1.** `workspace_profile` (purpose, default `owner`), `Store::create` (fresh folders only), `init --purpose test`, `receipt_actors` filled from a connection-scoped temp table after the single receipt insert, `--actor`/`BRN_ACTOR`, `authority` in every envelope with `enforced: false`. Restore forces `owner` and deletes every binding in its stage transaction.
+- **Schema 6, option B.** `Store::open_existing_without_upgrade` refuses schema 3–5 with `UpgradeRequired` before any pragma or write; the CLI opens only through it (`Workspace::open_existing_no_upgrade`). `Store::open` (desktop, `brn-ai`) keeps the backup-first implicit upgrade, now for 3|4|5. Upgrades publish `brn-before-schema-6-<uuid>.sqlite3`; the 3/4 hint is byte-identical and a schema 5 sentence is added.
+- **PR #156 LOW 1–4.** Tests for canonical-locator keyed replay, lease removal on the converging twins, the search page over both lanes (code change) and a symlinked data folder that is empty or dangling (code change).
+- `git diff origin/main..HEAD -- crates/brn-desktop crates/brn-ai Cargo.lock` and every `Cargo.toml` are empty.
+
+## Round 3 verification
+
+Gates from one build of the tree at `29cab9c8`, with a fresh `TMPDIR` and no `BRN_*` variables. Logs stayed outside the worktree.
+
+| Command | Result |
+|---|---|
+| `git diff --check origin/main HEAD`; `cargo fmt --all -- --check` | clean |
+| `cargo clippy --workspace --all-targets --locked --offline -- -D warnings` (as `scripts/verify-storage.sh`) | clean |
+| capability-spike, desktop `native-ui`, `native-ui,native-test-support` and `native-ui,native-retrieval` clippy lanes | clean |
+| `cargo test -p brn --locked --offline --no-fail-fast` (PTY test ran) | 20 binaries, 160 passed, 0 failed |
+| `cargo test -p brn-threads-core -p brn-threads-app -p brn` | 553 passed, 0 failed, 2 ignored |
+| `cargo test --workspace --locked --offline --no-fail-fast` | 82 binaries, 1012 passed, 1 failed, 6 ignored. The failure is the Poppler-only `prepared_rust_fixtures_keep_source_and_preview_bindings_in_owned_scratch`: **LOCAL-ENV-BLOCKED, not passed** |
+| desktop `native-ui` tests; `native-ui,native-test-support --bin brn-desktop threads_ui::` | 95 passed; 306 passed, 1 ignored (U4 `threads_writing_tests.rs` unchanged) |
+| `brn-ai --features capability-spike`; `brn-threads-app --features native-retrieval` | 346 passed, 1 ignored; 210 passed, 1 ignored |
+| native-retrieval CLI and desktop builds; desktop `native-ui` build | pass |
+| `AGENT_CONTRACT_SCHEMA5_BIN=<fb1b2100 brn> cargo test -p brn --test agent_upgrade` | 4 passed, no skip line |
+| `python3 -m unittest discover -s scripts/tests` | 156 OK |
+| `scripts/verify-end-to-end.sh --fixtures-only` | pass; `cli_journey.py` 108 steps, 1266 checks |
+| both `cli-witness.py`; reliability `cli-journey.py` (fresh `/private/tmp` root) | pass; 43 steps, 3 refused by design |
+| reliability `threads`, `source_locator`, `search_messages` tests | 17 passed |
+
+Baseline (`fb1b2100` binary as `AGENT_CONTRACT_BASELINE_BIN`, and as the candidate in `agent_upgrade`): every new or changed support-based process test fails. Most fail first at `init --purpose test` (`unknown_option`). `agent_upgrade` fails on `notes`, `note-create` and `upgrade` returning `ok` on a schema-5 store; `enum_values…` on `--token-file` being unknown; `repeated_global_options…` on `--actor` being unknown. Not switchable to the base binary, checked by hand instead: LOW 4 at base gives `missing_workspace` for a symlink to an empty folder (branch: `data_folder_unusable {problem: symlink_refused}`); LOW 3 at base gives `page {shown: 1, cursor: null, total: 1}` while `result.message_cursor` is `"1"` (branch: `{shown: 2, cursor: "1", total: 4}`). The guard's scan finds six owner-host calls in the base sources (`main.rs` four, `contract.rs` two) and none on the branch.
+
+Mutations (each reverted, `git diff` empty afterwards): LOW 1, `canonical_locator(source_reference)` replaced by the raw path in `keyed.rs`, makes `keyed_full_intake_retry_with_another_spelling_replays` fail with `key_conflict`. LOW 2, both `remove_ended_leases` calls in `converge.rs` disabled, makes `converging_archive_and_chat_move_remove_free_leases` fail at the archive lease assertion.
+
+Status: **implemented** yes; **verified (automated)** yes, except the Poppler-only test (local-env-blocked); **native-observed** not applicable (no desktop change); **owner-accepted** no; **merged** no.
+
+## Round 3 remaining gaps
+
+- B1 phases 2 and 3 (proposals-only CLI writes in owner workspaces, refused owner-decision commands there, desktop-issued grants) need a desktop review UI: a separate assignment.
+- Receipts written inside a Run carry no actor; `set_workspace_purpose` has no caller and no audit receipt yet.
+- The brief named a `session_token_required` code; the approved design maps a missing token to `missing_option {option: "token-file"}` instead, so no such code exists. Adding it is one row if the owner wants it.
+- CI has no schema-5 binary: the CLI upgrade process tests skip there, and the core tests cover the upgrade.
