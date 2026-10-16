@@ -1,6 +1,6 @@
 # Combined C0 implementation plan
 
-**Current slice:** B1a source `60f604f5` is accepted for local dependent development after independent source review and principal reconciliation of the final LOW corrections and serial qualification. B1b follows over the accepted CW2 shared seam; D1A corrections own the sole heavy slot. [B1a disposition](b1a/principal-disposition.md) records the carried PDF and outstanding hosted/native/owner gates.
+**Current slice:** B1b is source-reviewed and accepted for local dependent development after clean final handoff `d9aab018`. [Principal disposition](b1b/principal-disposition.md) records exact normal checks, the bounded contextual-reader recheck and outstanding qualification gates. B3 is next in the writing lane; D1B proceeds separately. No combined-lane integration, hosted/native-human/owner acceptance or main merge is implied.
 
 **C0 goal:** establish a reviewable baseline for modular foundation plus agent-capabilities Slice 0, without production edits.
 **Architecture:** keep the checked core/app services and Rig runtime. C0 documents their seams and tests upstream reuse in an independent experiment.

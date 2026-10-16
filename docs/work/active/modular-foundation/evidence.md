@@ -242,3 +242,8 @@ The principal reconciled worker final `4ccece6f`, approved source `12b0d329`, al
 ## Principal B1a local disposition
 
 The principal accepted final B1a source `60f604f5` for local dependent development after verifying 295 production hashes, 21 raw command/source-manifest identities, actual harness totals and the bounded LOW review corrections. [Disposition](b1a/principal-disposition.md) separates local source acceptance from the carried PDF tooling failure, hosted CI, native human observation and owner/program qualification. B1a has explicitly released all paths and its heavy slot; D1A owns the sole heavy slot while B1b can prepare source. No publication or main merge.
+
+
+## Principal B1b local disposition — 17 October 2026
+
+[Opus approval](b1b/opus-review-round1.md) and [principal disposition](b1b/principal-disposition.md) accept reviewed601 production with the tested precision-only correction in final handoff `d9aab018` for local dependent development. The one contextual-reader omission was actually caught within208.817199/300s; all old assertions and before identities remain. PDF tooling, hosted/native-human/owner/full-program qualification remain open. B3 may prepare source; no main merge/publication.
