@@ -1,0 +1,21 @@
+# D1B principal local contract disposition
+
+On 17 October 2026 the principal accepts source/test `a94b9c995f35715d41a285073617f3a253746bb1` for local dependent development. Independent [Copilot Opus round 2](opus-review-round2.md) APPROVED the actual original and correction diffs. The clean evidence handoff is `4774dfe628d8f4e61cb0b695521fd43fde327b92`; its crates tree `100732a4514569fc98571d480995b39126d26305` exactly matches the reviewed pin. This is local contract acceptance, with qualification below still open.
+
+The implementation reuses Rig Compactor, the existing authenticated client, history policy and checked source/receipt services. It adds bounded semantic context in the rebuildable derived cache, host-computed coverage and fresh publication fences. Summaries remain untrusted user context and grant no authority. Corrected admission preserves fitting mandatory input; stable account identity survives token refresh; one empty-refusal Copilot route fallback preserves partial-output, budget and cancellation rules. No new canonical store, schema, runtime loop, write authority or raw transcript persistence was adopted.
+
+## Verification and review reconciliation
+
+The principal verified twelve raw correction command receipt/log hashes and actual test counts, source hashes against reviewed Git blobs, both complete diffs, and the final mutation artifacts. Corrected focused tests passed 25/0 plus filesystem 1/0; full AI 419/0/1, core 15/0/0, CLI 161/0/0 and export 5/0/0 passed, with affected strict all-target Clippy and workspace formatting. Before fixtures on exact a673 production failed behaviorally 15/7; compiler errors and the intermediate partial-output detector defect remain separately recorded. Broad workspace 1129/1 PDF Unavailable/6 belongs to a673 and is not relabelled as an a94 execution.
+
+Original a673 mutation outcomes remain 6 caught and 2 MISSED. The separate a94 supplement passed its full AI baseline 419/0/1 and actually caught six fixed guards, including digest-only corruption, unique derived prior fallback, optional admission, both account rotations and partial-refusal retry. The principal verified seven raw receipt/log associations, six exact mutation diffs and successful mutated compilation with behavioral assertion failures. All 288 candidate and copied material hashes match a94. These are targeted results, not a complete mutation pass or retroactive changes to earlier verdicts.
+
+The one original D1B 1800-second cap closes at 827.2616174221039 seconds charged and 972.7383825778961 seconds unused, including planning/setup/baselines/restoration/reaping/cleanup. The unused allowance is finalized and is not transferred to D2. Heavy ownership was explicitly released with an empty process inventory; B3 now owns the serial build window. The principal takes the frozen D1B paths for disposition. D2 may begin source-only preparation from the resulting local acceptance commit, preserving D1B refs and receipts.
+
+## Remaining qualifications
+
+Live semantic quality and live JSON/timeout behavior remain blocked by owner decision L. Hosted candidate lanes, native-human, owner, full program/integration acceptance and missing pdftoppm/PDF qualification remain open. No publication, main merge or release is authorized by this disposition.
+
+The review's historical statement that M02/M07 were not rechecked is superseded by the actual final supplement receipts, while its original report stays verbatim. Its stale credential-rotation sentence is corrected in implementation.md. The omitted-budget trace fields have no direct assertion; admission/input equality and real dispatch are tested. This nonblocking gap does not require another source change or review cycle. Bounded calls may publish a summary later omitted for budget; account-level ChatGPT identity, overlapping safety guards, coarse global invalidation, unmeasured full-record loads and crash-orphan temporary-file cleanup retain the disclosed limits. No further D1B refactoring is assigned.
+
+See [final handoff](review1-final-handoff.md), [normal/source association](review1-checks.json), [mutation results](review1-mutation-results.json) and [release](review1-final-release.json) for exact source-bound evidence.
