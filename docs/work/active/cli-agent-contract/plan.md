@@ -1004,6 +1004,7 @@ Branch `work/cli-agent-round3` from `main` `fb1b2100`. The approved design (`rou
 - **B1 phase 1.** `init --purpose test` creates a test workspace (creation only); every other workspace, including every restored copy, is an owner workspace, and only the desktop changes purpose. `--actor`/`BRN_ACTOR` names the caller on the receipts it commits. Every envelope reports `authority {workspace_purpose, cli_authority, enforced: false, actor}`. Every in-repo CLI test, script and witness that writes uses a test workspace.
 - **Schema 6, option B.** New tables for bindings, the workspace profile and receipt actors. The CLI refuses a schema 3–5 store with `upgrade_required` before anything changes; only `upgrade --backup-directory` upgrades, backup-first. The desktop's open upgrades as before.
 - **PR #156 LOW 1–4** have their own tests; contract 3 lists its changes in the README.
+- **Final verification** (evidence "Round 3 final verification"): every gate passes from one build. Two exceptions are not passes: the Poppler-only test is local-env-blocked, and two desktop tests are a flake that also occurs on `main`.
 
 ## Round 3 remaining gaps
 

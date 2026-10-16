@@ -658,6 +658,37 @@ Mutations (each reverted, `git diff` empty afterwards): LOW 1, `canonical_locato
 
 Status: **implemented** yes; **verified (automated)** yes, except the Poppler-only test (local-env-blocked); **native-observed** not applicable (no desktop change); **owner-accepted** no; **merged** no.
 
+## Round 3 final verification
+
+A fail-closed rerun on `ac3867c4`, from one build in the worktree `target/`. It used a fresh `HOME`, `CODEX_HOME` and `TMPDIR`, no `BRN_*` variables (`BRN_INTAKE_HELPER` only where CI sets it) and no provider calls. The full table is in `cli-agent-contract.artifacts/round3/verification-3.md`.
+
+| Check | Result |
+|---|---|
+| fmt; strict workspace clippy; helper, capability-spike and the three desktop clippy lanes | pass |
+| `env -u BRN_SKIP_PTY_TESTS cargo test -p brn --no-fail-fast` | 20 binaries, 160 passed, 0 failed; the PTY test ran and passed |
+| `cargo test -p brn-threads-core -p brn-threads-app` | 393 passed, 0 failed, 2 ignored |
+| `cargo test --workspace --no-fail-fast` | 88 binaries, 1012 passed, 1 failed, 6 ignored. The failure is the Poppler-only `prepared_rust_fixtures_keep_source_and_preview_bindings_in_owned_scratch`: **LOCAL-ENV-BLOCKED, not passed** |
+| desktop: default; `native-ui`; `native-ui,native-test-support --bin brn-desktop threads_ui::`; `native-ui,native-retrieval` | 30; 95; first run 305 passed, 1 failed, 1 ignored (flake below), three reruns 306 passed, 1 ignored; 95 |
+| `brn-retrieval --features native`; `brn-threads-app --features native-retrieval`; intake helper; capability-spike | 35; 210 (1 ignored); 64; 346 (1 ignored) |
+| `python3 -m unittest discover -s scripts/tests` | 156 OK |
+| `scripts/verify-storage.sh` | exit 101 at the same Poppler-only test. Its tail, run by hand, passed (`Threads ready: 2 records`) |
+| CI macOS fixture step with its `rmdir` trap; `scripts/cli_journey.py` | pass; 108 steps, 1266 checks, parents empty |
+| both `cli-witness.py`; reliability `cli-journey.py` (fresh `/private/tmp` root) | pass; 43 steps (3 refusals by design) |
+| links; `git diff --check` (tree and `origin/main HEAD`) | 147 files, 676 links, 0 failures; clean |
+
+`git diff origin/main..HEAD -- crates/brn-desktop` and `-- Cargo.lock` are empty.
+
+**Pre-existing desktop flake, not a pass.** Two `native-ui,native-test-support` tests fail intermittently when the lane runs in parallel. The same happens on `origin/main` `fb1b2100`, built from `git archive` with its own target:
+
+| Test (30 runs each binary, parallel) | `fb1b2100` | `ac3867c4` |
+|---|---|---|
+| `writing_tests::an_edit_already_open_elsewhere_offers_compare_and_discard` | 3/30 failed | 5/30 failed |
+| `chat_tests::a_saved_working_rewrite_offers_the_same_confirmed_stop_in_the_note` | 9/30 failed | 13/30 failed |
+
+With `--test-threads=1`, the branch passed 8 of 8 runs; three cargo reruns of the gate lane passed at 306/0. The branch rates are a little higher than base, but the samples are small and taken under heavy machine load, and `crates/brn-desktop` has no round-3 code. De-flaking is a desktop follow-up (handoff).
+
+Status: **implemented** yes; **verified (automated)** yes, except the Poppler-only test (local-env-blocked) and the pre-existing desktop flake; **native-observed** not applicable; **owner-accepted** no; **merged** no.
+
 ## Round 3 remaining gaps
 
 - B1 phases 2 and 3 (proposals-only CLI writes in owner workspaces, refused owner-decision commands there, desktop-issued grants) need a desktop review UI: a separate assignment.
