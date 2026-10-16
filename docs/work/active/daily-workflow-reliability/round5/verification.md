@@ -785,3 +785,7 @@ Each core integration test checks the variant and problem, that `to_string()` co
 - New `brn_threads_core::Error::DataFolder` variant and `DataFolderProblem` enum. work/cli-agent-contract's exhaustive `From<Error>` match in its `main.rs` must map it at merge, as `EditSessionOpen` needed. Suggested code `data_folder_unusable` with details `{folder, problem}`.
 - The symlinked data-folder refusal changed from `UnsafeDirectory("symlink directory")` to `DataFolder { SymlinkRefused }`. Callers that matched the old variant for a symlinked data folder need the new one.
 - `crates/brn/src/main.rs`: 0 lines changed in this slice. The desktop shows the error through its existing `to_string()` display, with no wording edit.
+
+## Round close
+
+Full verification at `28e64cdf`, the before/after per slice, the status matrix, UI findings, integration risks and proposed contract sentences are in [evidence.md](../evidence.md#round-5-eight-reliability-slices-ah). Workspace 808 passed, 1 failed (Poppler), 6 ignored; desktop 158 passed, 1 ignored; end-to-end fixtures and CLI journey passed. The native re-check for C, D and F is in [native-recheck.md](native-recheck.md).

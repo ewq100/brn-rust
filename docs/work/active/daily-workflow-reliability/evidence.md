@@ -2,6 +2,8 @@
 
 **Date:** 15 October 2026. **Base:** `771116f0` (main, #145 helper sub-agents), after a [rebase](rebase-notes.md). **Fix commits:** `9f70efa7` (fixes 1–3, approved in [review](review.md)), `2530805f` (Task A), `145b8884` (helper sub-run lease test) and `3a7c3d25` (round 3) on local branch `work/daily-workflow-reliability`, isolated worktree. **History:** the evaluation and the fixes before round 3 ran on the earlier base `34c9239d` (#144), where fixes 1–3 were `422c9582` and Task A was `dfe698aa`. Hashes in sections labelled pre-rebase refer to that history, which the backup ref `work/daily-workflow-reliability-pre-rebase` (`914e2e6f`) keeps; the [rebase notes](rebase-notes.md) map each commit. **Scope:** service/runtime/CLI. The evaluation sections below describe the base tree; the fixes, their before/after results and the final verification follow under [Verification](#verification). Through Task A, `crates/brn-desktop` was read but not edited. Round 3 edited it at the UI agent's request (U2): `useful_intake` in `crates/brn-desktop/src/threads_ui.rs` (plus its test-module declaration) and a new `crates/brn-desktop/src/threads_intake_tests.rs`. The UI agent's worktree was not touched.
 
+**Round 5** (`e07354db`…`28e64cdf`, eight slices A–H) is summarized in [Round 5](#round-5-eight-reliability-slices-ah); per-slice detail is in [round 5 verification](round5/verification.md).
+
 **Round 3** (`3a7c3d25`, after the rebase onto `771116f0`; [round 3 verification](round3-verification.md)) applied U6, U4 and U2 as agreed with the UI agent, including the `useful_intake` call in `crates/brn-desktop`. Where a notice text below differs from the [round 3 table](round3-verification.md#u6-failure-notice-wording-cratesbrn-aisrcthreadsrs), the round 3 text is what this build shows. The owner manual check and the UI findings use the round 3 texts.
 
 ## Status
@@ -23,6 +25,14 @@
 | Round 4 ([verification](round4/verification.md)): a Run that ends outside `finish()` (settings, project changes and imports, orphan recovery) leaves one Interrupted notice in the same checked change; Stop, Archive, Steer and Continue add none | yes (`3919c09a`, local) | yes (workspace 721 passed, 12 failed (known sandbox), 5 ignored; with the sandbox off, 11 of the 12 pass, see [native round 4](#native-round-4-observation-orchestrator-15-october-2026)) | **yes, settings and Resume paths** ([native round 4](#native-round-4-observation-orchestrator-15-october-2026)) | no | no |
 | Round 4: every Run end, including ⌘Q, cancellation and failure in `finish()`, adds a "Review prepared changes" item for each candidate it left unapplied; candidates are never applied or retired | yes (`3919c09a`, local) | yes (desktop 152 passed, 1 ignored; headless Home Needs you, attention cards and proposal card) | **yes** (proposal card with Apply/Dismiss reachable from Needs you; [native round 4](#native-round-4-observation-orchestrator-15-october-2026)) | no | no |
 | Round 4: orphan recovery removes the free leftover lease file | yes (`3919c09a`, local) | yes | **yes** (Resume path; the settings path keeps it, as recorded) | no | no |
+| Round 5 A: abandoned backup/restore stages are swept | yes (`e07354db`) | yes ([round 5](#round-5-eight-reliability-slices-ah)) | no | no | no |
+| Round 5 B: one file is one Source however its path is spelled | yes (`02bd457b`, `28c4a757`) | yes | no | no | no |
+| Round 5 C: every stop path treats a lease-free Run as an orphan | yes (`abd9a84f`) | yes (CLI dry run of the native procedure) | no ([procedure](round5/native-recheck.md)) | no | no |
+| Round 5 D: settings stops record `Interrupted` (owner decision U9) | yes (`b037140c`) | yes (CLI dry run) | no ([procedure](round5/native-recheck.md)) | no | no |
+| Round 5 E: one shared intake instruction, reused on re-supply | yes (`dd2c8ce8`) | yes (CLI + headless desktop on one store) | no | no | no |
+| Round 5 F: owner search lists saved chat Messages | yes (`f5872774`) | yes (service/CLI; desktop does not render them, F-UI1) | no ([procedure](round5/native-recheck.md)) | no | no |
+| Round 5 G: runtime tool `withdraw_proposal` | yes (`7ed74f26`) | yes (scripted model) | n/a (runtime) | no | no |
+| Round 5 H: an unusable data folder is named in owner terms | yes (`28e64cdf`) | yes (CLI and headless desktop startup) | no | no | no |
 
 Nothing was pushed, merged or released. The branch has no upstream.
 
@@ -435,6 +445,81 @@ Owner request: "1. i did not see Resume button  2. i dont know. also why cant yo
 - **U8: an internal operation reason shows as the status line.** After the maintenance choice, the status line reads "Saved. Owner configured workspace and stopped prior invocations". Steps: open `r4-native-settings` and click either choice.
 - **U9: mixed terms for one stopped run.** After the settings stop, the run line says "Cancelled" while the notice says "Run interrupted. Continue starts fresh.". The notice text is service-owned (round 4 reused `INTERRUPTED_ATTENTION`). Agree the wording with this branch before changing either.
 - **U10: two wordings for one failure.** The live status line says "Work stopped: Reconnect this account before continuing.", while Needs you says "Run failed: The provider account needs reconnecting. …". Steps: the Resume store above.
+
+## Round 5: eight reliability slices (A–H)
+
+Owner request: "can you fix all 5 . and let go wiht interrupted". Base `f519534e`; [plan](round5/plan.md), [verification](round5/verification.md) and one approved review per slice (`round5/review-*.md`). Automated and headless only: not native-observed, not owner-accepted, not merged. No slice was deferred. No `threads.sqlite3` schema, dependency or `Cargo.lock` change.
+
+| Slice | Before | After |
+|---|---|---|
+| A (`e07354db`) | A killed backup or restore left `.brn-backup-stage-*` / `.brn-restore-stage-*` folders forever; restore stages are full data copies (finding 9). | Each stage carries a `.brn-stage` marker its process keeps locked. Error paths remove their stage, and the next backup or restore into the same parent removes abandoned marked stages (Unix). Markerless stages from older builds are kept. |
+| B (`02bd457b`, `28c4a757`) | `/tmp/x.md`, `/private/tmp/x.md` or a symlinked folder gave a second chat and a second Source. | Local files are recorded and matched by real path: one chat, one Source. A Source under an older spelling still matches, and the next checked observation records the real path. |
+| C (`abd9a84f`) | Stop, the failure and resume-stale stops, Archive, Steer and Continue of a killed (lease-free) Run added a Review item only: no notice, lease file kept. Settings, project commands and imports kept the lease file. | Every path treats a lease-free Working Run as orphan recovery does: one "Run interrupted. Continue starts fresh." notice, Review items and the free lease file removed. A live lease is never removed, and stopping live work adds no notice. |
+| D (`b037140c`) | A settings stop wrote `Cancelled` while its notice said "Run interrupted…" (U9). | It writes `Interrupted`. Saved `Cancelled` Runs are not migrated. |
+| E (`dd2c8ce8`) | The CLI and desktop posted different instruction texts, and each re-supply posted another owner Message (CLI then desktop: 2). | One text, `brn_threads_app::SOURCE_INTAKE_INSTRUCTION` (the desktop's wording), reused on re-supply unless the owner wrote since: CLI → desktop → CLI gives 1 owner Message and 3 Runs naming it. |
+| F (`f5872774`) | Owner search returned notes only, so a saved chat reply could not be found. | Owner search pages carry `messages`, `message_total` and `message_cursor`: final owner/assistant Messages, scoped like notes, hidden while archived or trashed. `search.sqlite` v3 (rebuilt in place). Agent `search_notes` is unchanged. |
+| G (`7ed74f26`) | The agent could not retire its own proposal after the owner's decision made it obsolete; it stayed in Review. | Runtime tool `withdraw_proposal { operation }` dismisses only an unapplied candidate a Run of the same chat prepared, through the owner's checked dismissal path. Tools 9 → 10; bundle `brn-threads-guidance-12`. |
+| H (`28e64cdf`) | `--data-dir /data` printed "storage: Read-only file system (os error 30)"; a file, a locked parent or a symlink gave similar raw text. | "BRN cannot use the data folder /data: it is on a read-only disk. Choose a folder you can write to." (and named reasons for the other cases), exit 1 as before. |
+
+**Verification (round close, HEAD `28e64cdf`, unsandboxed shell).** Environment as above, plus a fresh `TMPDIR=/private/tmp/brn-dwr-data/r5-final-tmp/`. The first workspace run inherited a `TMPDIR` that pointed at a deleted case folder and failed in `tempdir`; it was rerun, and these are the rerun's results.
+
+| Check | Result |
+|---|---|
+| `cargo fmt --all --check` | clean |
+| `cargo build -p brn-intake --features helper --bin brn-intake-helper` | ok |
+| Clippy `-D warnings`: workspace, `brn-ai --features scripted-runs`, desktop `native-ui,native-test-support` | clean (all three) |
+| `cargo test --workspace --no-fail-fast` | **808 passed, 1 failed, 6 ignored** (round 4: 721 / 12 sandbox / 5; round 5 baseline: 732 / 1 / 5). The failure is `prepared_rust_fixtures_keep_source_and_preview_bindings_in_owned_scratch` (Poppler not installed); the other 11 sandbox-class tests pass with the sandbox off. |
+| Desktop `--features native-ui,native-test-support --bin brn-desktop` | **158 passed, 1 ignored** (baseline 152 / 1) |
+| `scripts/verify-end-to-end.sh --fixtures-only` (`TMPDIR=/private/tmp/brn-dwr-data/r5-final-e2e/`) | passed |
+| `cli-journey.py` on `/private/tmp/brn-dwr-data/r5-final-journey` | exit 0. 43 steps: 40 succeeded and 3 refused as designed (two `begin-edit`, occupied backup). The intake chat's first owner Message is now the shared instruction (E). The four killed backups all published before the kill, with 0 stages left; this exercises no sweep. |
+| `git diff --check`; `scripts/check-markdown-links.py` | clean; 0 failures |
+| `git diff --exit-code 771116f0 -- Cargo.lock` | clean |
+| `git diff --numstat f519534e -- crates/brn/src/main.rs` | 8 added, 1 removed (one statement, slice E) |
+
+**UI findings (for the UI agent).** No slice paused for a desktop decision.
+- **F-UI1: the notes search shows no chat Message hits.** Steps (offline): `brn --data-dir $D init`; `configure --provider Codex --model gpt-6.1-sol --effort medium --auth-file <missing>`; `thread-start --title Replies`; `ask --thread <id> --prompt "Berth survey reply draft 1.4 m"` (fails offline, and the owner Message is saved); `search --query berth` gives `message_total: 1`, `messages[0]` with `chat_title "Replies"` and `role "owner"`. Then `brn-desktop --data-dir $D`, open Notes and type `berth`. *Observed (headless harness):* only `search-empty`, with no `search-status` and no `hit-0`, although `page.messages.len() == 1`. *Expected:* an "In chats" kind that opens `chat`, paged with `message_cursor`.
+- **U9 resolved (D).** After the maintenance choice on `r4-native-settings`, the run line should read "Interrupted", matching the notice. Not native-observed.
+- **Continue shows the notice while the new Run works (C).** Kill a Run (`pkill -9` during intake), relaunch, and click Continue in that chat. The row stays in Needs you with "Run interrupted. Continue starts fresh." until the new Run's result replaces it. This conflicts with `threads-behavior.md` §State ("an interruption only enters Needs you when resuming requires an owner action"); decide at integration.
+- **An archived killed chat carries the notice (C).** Archive the chat in [the C procedure](round5/native-recheck.md#c-archiving-a-chat-whose-run-died-adds-the-notice): it shows under NEEDS YOU with the review and blocker cards. Continue there is refused until Unarchive.
+- **A desktop instruction whose Run never started is posted again (E).** Supply a source while another worker is busy so the Run never starts, then supply it again: two identical owner Messages, because reuse needs a Run that named the Message (code reading in review-E; not observed).
+- **Not part of round 5:** `brn project-delete` of a project whose chat has a Run fails with "invalid request: run control changes must advance the fence" (`ProjectCommand::Delete` archives Runs without a fence advance; same at `771116f0`). It needs its own slice and an owner decision.
+
+**Integration risks for `work/ui-polish`.**
+- *Desktop files touched in round 5:* `crates/brn-desktop/src/threads_ui.rs`, slice E only: `useful_intake` uses `SOURCE_INTAKE_INSTRUCTION` and calls `Workspace::post_intake_instruction` instead of `post_message`, 7 lines. Also `crates/brn-desktop/src/threads_intake_tests.rs` (tests; slices B, C, D, E and F). No layout, control or wording edit.
+- *Run state (D):* a settings change (Configure, delegation choice, maintenance Pause/Resume, backup folder) now ends every Working Run as `Interrupted`, not `Cancelled`. Every outside-the-chat stop now writes `Interrupted`, and only the legacy `resolve_thread` (no production caller) still writes `Cancelled`. Run state no longer tells a deliberate Stop from an outside stop; only the notice does. UI tests expecting `Cancelled` after a settings change need `Interrupted`. The core and app READMEs still say settings "cancel" Runs (review-D, not edited).
+- *Stop paths (C):* Stop, Archive, Steer and Continue of a lease-free Run now add the Interrupted notice and remove the lease file. Rerun the UI branch's Stop, Archive and Resume tests. Seeded Working Runs without a lease count as lease-free.
+- *Search hit kind (F):* `SearchPage` gains serde-default `messages: Vec<ChatMessageHit { message, version, chat, chat_title, role, snippet, highlights }>`, `message_total` and `message_cursor`. Notes stay in `hits` with the same `total`. `search.sqlite` schema v3 is rebuilt in place on first open, and again after a rollback. The desktop pays the Message re-check on every keystroke search without rendering it. `user_scale` measured query p95 22.9 ms at 10,000 notes; review-F estimates (not measured) that a query whose candidates span many chats may add 0.3–1.4 s.
+- *Runtime tool (G):* the activity line "Withdrawing an obsolete proposal…" with outcomes `Withdrawn`/`Refused`. Tests that count tools (now 10) or pin the bundle (now `brn-threads-guidance-12`) need updating; renumber at merge if 12 is taken. Core `Store::{dismiss_candidate, clear_review_attention}` now carry the owner's Dismiss/Apply cleanup, with unchanged keys and texts.
+- *Source paths (B):* new file Sources show the real path (`/private/tmp/...`), and tests comparing temp paths with `Source.locator` must canonicalize.
+- *Errors (H):* new `brn_threads_core::Error::DataFolder`; a symlinked data folder is `DataFolder { SymlinkRefused }`, no longer `UnsafeDirectory`.
+
+**Integration risks for `work/cli-agent-contract`.**
+- *`crates/brn/src/main.rs` edits on this branch (vs `771116f0`):*
+  1. `HELP`: two useful-intake lines (Fix 3).
+  2. `begin-edit`: `.map_err(begin_edit_error)` and the new `begin_edit_error` function (`edit_session_open` JSON, round 3 U4).
+  3. Intake: `useful_project` from `--project`, checked before reading (Fix 3).
+  4. Intake: `source_intake_chat` instead of `new_thread`, giving `(thread, reused)` (Fix 3, Task A).
+  5. Intake: the `ask` call takes `brn_threads_app::SOURCE_INTAKE_INSTRUCTION` instead of the inline literal, and the output gains `thread` and `reused_chat` (Fix 3; the instruction is round 5 slice E, one statement reflowed to 8 lines). Take this side at merge.
+
+  Slices A–D and F–H change no line of `main.rs`.
+- *Exhaustive error mapping (H):* the contract branch's `From<Error>` must map `Error::DataFolder { folder, problem, cause }` (suggested `data_folder_unusable` with `{folder, problem}`), as it maps `EditSessionOpen`.
+- *Output fields:* `search` JSON gains `messages`, `message_total` and `message_cursor` (F). Useful intake now posts the desktop wording (E), and the preloaded intake playbooks keep the dropped guidance.
+- *Run states:* CLI terminal strings come from `AiTerminal` and are unchanged. A Run read back after a settings change shows `Interrupted` (D).
+
+**Proposed contract sentences (not applied; apply at integration with `docs/status.md`).**
+- `threads-behavior.md`, State and attention: "A Run stopped because of something outside its chat (settings, project changes or imports, process ended, or a lease-free stop) is recorded as Interrupted, matching its notice." (D) If the owner keeps C's Continue behavior, qualify the "only enters Needs you" sentence: "A Run whose process died keeps its Interrupted notice until the next Run in its chat records a result."
+- `threads-behavior.md`, Attachments or source identity: "A local file supplied as a source is recorded and matched by its real path, so one file is one Source however its path is spelled; a Source saved under an older spelling still matches and is recorded at the real path by the next checked observation." (B) And: "Useful intake uses one owner instruction from every host. A re-supply of the same source in its chat reuses the chat's latest instruction for that source unless the owner has written since." (E)
+- `threads-behavior.md`, search: "Owner search also lists saved final chat Messages (owner and assistant, never partial progress) as their own kind with their chat, scoped like notes: general chats in general search, project chats only in their project's search, and a chat with private context only from itself. Archived and Trashed chats are excluded until restored. Agent note search never returns chat Messages." (F; review-F notes that a Resolved project chat's Messages still show in project search, while its chat-only notes do not.)
+- `threads-behavior.md` §142: "Every run registers ten tools: …, `refresh_candidate`, `withdraw_proposal`." Then: "`withdraw_proposal` dismisses only an unapplied candidate that a Run of the same chat prepared, through the owner's checked dismissal path with a receipt and replay; it never applies anything, refuses applied operations, owner changes and other chats, and is never offered to helpers." (G)
+- `invariants.md`: "Any checked change that ends a Working Run no process holds a lease for treats it as orphaned: one Interrupted notice in its chat, a Review item for each candidate it left, and removal of its free lease file. A live lease is never removed, and a deliberate stop of live work adds no notice." (C) And: "A backup or restore removes only abandoned BRN stages in its destination's parent: exact BRN stage name, real directory, BRN marker text, and no process holding the marker's lock." (A) And: "An unusable data folder is refused with the folder and the reason in owner terms; the OS detail is kept for logs only." (H)
+- `docs/status.md` (not edited): "nine registered tools" becomes "ten".
+
+**Open review notes (non-blocking, not fixed).**
+- *A:* the sweep removes whatever is nested in an abandoned stage, including a data folder the owner opened from `<stage>/workspace`.
+- *G:* a later ordinary Run can withdraw an earlier Rewrite proposal; retirement happens before the fence-bound cleanup; and a replay after the owner's Undo removes the restored Review item again.
+- *H:* marker reads on an existing folder still surface `storage: … (os error N)`, and the "Choose a folder you own" advice also covers a macOS privacy denial.
+
+**Native re-check.** [round5/native-recheck.md](round5/native-recheck.md) covers C (Archive of a killed chat), D (settings stop run line) and F (search) on offline copies of the `r4-native-*` stores. CLI dry runs on copies gave the expected store states for C and D: Run `Interrupted` at fence 2, `[Review, Blocker]`, the candidate unretired, `derived/run-leases/` empty.
 
 ## Owner manual check
 

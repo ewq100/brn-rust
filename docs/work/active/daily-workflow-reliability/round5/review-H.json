@@ -1,0 +1,22 @@
+{
+  "verdict": "APPROVED",
+  "findings": [
+    {
+      "id": "H-R1",
+      "label": "Existing-folder marker reads keep OS text",
+      "severity": "non-blocking",
+      "confidence": "confirmed",
+      "detail": "In crates/brn-threads-core/src/store.rs Store::open, the existing-folder branch (unchanged lines) still runs fs::symlink_metadata(&marker)?, fs::read_to_string(&marker)? and entry.file_type()? into Error::Io. A listable BRN folder with an unreadable marker (mode 0600 owned by another account) or a directory in the marker's place therefore shows 'storage: Permission denied (os error 13)' or 'storage: Is a directory (os error 21)'. The plan scoped classification to four call sites and the diff wraps exactly those, but the commit message and verification claim permission denied without qualification, and the Limitations list names only the SQLite path.",
+      "action": "Add this path to the slice H Limitations list in round5/verification.md, or wrap the two marker reads in .map_err(unusable)."
+    },
+    {
+      "id": "H-R2",
+      "label": "'Choose a folder you own' for macOS privacy denials",
+      "severity": "non-blocking",
+      "confidence": "likely",
+      "detail": "Rust maps both EACCES and EPERM to ErrorKind::PermissionDenied. macOS privacy controls return EPERM when the terminal or app lacks access to Documents, Desktop or a removable volume, which the owner does own, so the PermissionDenied advice 'Choose a folder you own.' points the wrong way. The plan prescribed the wording, and no OS text appears either way.",
+      "action": "Revisit the PermissionDenied wording at integration, for example 'Choose a folder BRN is allowed to use'."
+    }
+  ],
+  "reviewDoc": "/Users/evokessler/repos/brn-rust/.worktrees/daily-workflow-reliability/docs/work/active/daily-workflow-reliability/round5/review-H.md"
+}
