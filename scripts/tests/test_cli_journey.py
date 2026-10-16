@@ -191,5 +191,34 @@ class RoundTwoHelperTests(unittest.TestCase):
         self.assertEqual(brn.pages('history', 'items', data='/d', limit=1), ['1', '2'])
         self.assertEqual(brn.seen, [None, '2'])
 
+
+class SamePages(cli_journey.Brn):
+    """Two pages of `[1]` then `[2]`; the unpaged call returns `unpaged`."""
+
+    def __init__(self, unpaged):
+        self.checks = 0
+        self.unpaged = unpaged
+
+    def call(self, command, *, data, stdin=None, expect=0, **options):
+        if 'limit' not in options:
+            return {'result': self.unpaged}
+        cursor = {None: '1', '1': None}[options.get('cursor')]
+        items = [2] if options.get('cursor') else [1]
+        return {'result': {'notes': items, 'cursor': cursor},
+                'page': {'limit': 1, 'shown': 1, 'cursor': cursor, 'total': None}}
+
+
+class RoundTwoBHelperTests(unittest.TestCase):
+    def test_same_pages_accepts_matching_pages(self):
+        brn = SamePages([1, 2])
+        self.assertEqual(brn.same_pages('notes', 'notes', data='/d', limit=1), [1, 2])
+
+    def test_same_pages_fails_when_pages_differ_from_the_list(self):
+        for unpaged in ([1], [2, 1], [1, 2, 3]):
+            with self.subTest(unpaged):
+                with self.assertRaises(cli_journey.JourneyFailure) as raised:
+                    SamePages(unpaged).same_pages('notes', 'notes', data='/d', limit=1)
+                self.assertIn('notes pages differ from the unpaged list', str(raised.exception))
+
 if __name__ == '__main__':
     unittest.main()

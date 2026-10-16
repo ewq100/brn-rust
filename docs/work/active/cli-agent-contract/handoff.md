@@ -35,7 +35,7 @@ Written 16 October 2026, when the owner asked to wrap up and merge the reviewed 
    - Move in-repo tests, scripts and witnesses to `--purpose test`.
 
    Phase 1 enforces nothing new. **Phases 2–3 are a separate assignment that needs desktop review UI:** CLI writes in owner workspaces become exact-candidate proposals, and the owner issues scoped, expiring grants. This guards against agent overreach. It does not protect against code running as the same OS user.
-3. **Remaining CLI gaps ("round 2b", planned but not started):**
+3. **Remaining CLI gaps ("round 2b", implemented locally; see evidence "Round 2b"):**
    - page `notes`, `threads`, `needs-you`, `recovery` and `projects` with the round-2 convention, and add a paged `messages --thread`;
    - validate `--trash`, `--hops` and `--budget` before the workspace opens;
    - after an earlier SIGINT, a later `--timeout`/SIGTERM must still arm the 3 s hard stop;

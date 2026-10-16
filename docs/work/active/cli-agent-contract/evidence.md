@@ -524,3 +524,29 @@ Status, reported separately: **implemented** yes (A1–A12, plan steps R2-1…R2
 - **Coordination items for the orchestrator to post on the board:** round 2 is implemented locally; the expected `chat.rs`/`main.rs` conflicts with daily `192cd765` and `work/integration-ui-reliability` `6f51d22c` were resolved in a scratch merge that built and passed (resolution notes and diffs in the artifacts folder); merge-time items: typed `EditSessionOpen` mapping, `data_folder_unusable` arm, `same_locator`, daily's `archived` search field, `Interrupted` tightening.
 
 <!-- ===================== ROUND 2 END ===================== -->
+
+# Round 2b
+
+Plan and design: `../cli-agent-contract.artifacts/round2b/plan-2b.md` (outside the worktree). Contract stays 2: every change is additive or makes the README's existing promise true. Shared seam ⚑: core `inspect.rs` gains SELECT-only, parameterised page functions (`note_page`, `thread_page`, `needs_you_page`, `project_page`, `recovery_page`, `message_page`), unused by the desktop. No `brn-desktop`, `brn-ai` or `brn-threads-app` change; no manifest or `Cargo.lock` change; `HELP` and the useful-intake sub-block are untouched.
+
+## Round 2b changes
+
+- **Lists page.** `notes`, `threads`, `needs-you`, `recovery` and `projects` take `--limit 1..100 [--cursor ID]`. A page holds exactly the unpaged items in the same order (full records; `recovery` pages the existing EditSession fields only), so the concatenated pages equal the unpaged list. Flag-less output is byte-identical to the base binary (`notes`, `threads`, `needs-you`, `recovery`, `projects [--trash yes]`, `history`, `records`, `candidates`, `settings`, `connections`, `runs`, and `--help` up to the "Agents and scripts" block, compared on one synthetic workspace).
+- **`messages --thread ID [--limit] [--cursor POS]`.** The app's `messages()` rule (non-archived Message records of the chat, creation order); the position is the rowid of a message's first revision. Archived or trashed chats are listed (`chat_archived`), partial replies appear as `assistant-partial`. A non-chat ID is `invalid_request` `{option: "thread", reason: "wrong_kind"}`.
+- **Pre-open ranges.** `connections --hops 1..2`, `ask --budget 1..32` and `projects --trash yes|no` are refused before the workspace opens with the after-open code and text (pinned from the base binary). `--trash` values other than `yes`/`no` used to list active projects; they are now `invalid_value` (README Compatibility 8; flagged for review).
+- **Hard stop after SIGINT.** `stop.rs` keeps the first-wins `STOP` for the envelope `stop` and adds `ARMED`, the first SIGTERM or deadline, which arms the watchdog and decides the hard-stop status.
+- **`begin-edit` busy.** Only `SQLITE_CONSTRAINT_UNIQUE` (2067) infers `edit_session_open`; lock contention is `busy` (merge note updated).
+- **Docs.** README usage row example is now malformed `project-delete --actions` JSON (`usage_after_opening_may_initialise_a_fresh_directory`, a doc-fix pin that passes on the base binary too).
+- **Test robustness.** `support::isolate` gives children their own process group and unblocked default SIGINT/SIGTERM. This agent's top-level shell has SIGINT blocked in its signal mask (`pthread_sigmask` shows `{SIGINT}`), which children inherited across exec; that was the "not delivered outside a subshell" cause. The bounds tests now assert lower bounds plus generous hang bounds (`hard` proves the path).
+
+## Round 2b verification
+
+- New process tests fail on the base binary (`AGENT_CONTRACT_BASELINE_BIN`): all 5 `agent_lists` tests (`unknown_option`/`usage`), `service_ranges_and_trash_are_refused_before_opening` (`missing_workspace`), `sigint_then_sigterm_still_hard_stops` (exit 7 `busy`), `sigint_then_deadline_still_hard_stops` (`busy`), `begin_edit_under_a_held_lock_is_busy` (`rejected`). Before `support::isolate`, `sigint_envelopes_report_stop_sigint` hung and was killed from the top-level shell; after, it passes.
+- Ten runs each from the top-level shell, all 10/10: the three `agent_contract` SIGINT tests, `sigint_envelopes_report_stop_sigint`, `stub_sigint_interrupts_a_held_stream`, `timeout_during_fifo_wait_is_a_soft_deadline`, `held_lock_past_deadline_hard_stops_with_one_line`, `sigint_then_sigterm_still_hard_stops`, `sigint_then_deadline_still_hard_stops` and `begin_edit_under_a_held_lock_is_busy` (no SIGINT-before-busy retries were needed).
+- `cargo build --locked --offline --workspace` ok; `cargo test --locked --offline -p brn -p brn-threads-core -p brn-threads-app --no-fail-fast` 55 binaries, 412 passed, 0 failed; strict clippy ok; `python3 -m unittest discover -s scripts/tests` 155 ok; `scripts/cli_journey.py` passed (102 steps, 1079 checks, empty temp parent left clean); `brn-desktop --data-dir FRESH --headless-check startup` ok; `git diff --check` and `scripts/check-markdown-links.py` clean. PDF/Poppler: LOCAL-ENV-BLOCKED, not rerun.
+
+## Round 2b remaining gaps
+
+- `ask` and useful intake take no `--key`; started `export`, `backup`, `restore`, `upgrade` and index builds stop only at the hard stop; NeedsReview and Superseded stay unreachable from the CLI; recovery still lists session IDs for the owner (B3 part 2).
+- `needs-you` parity is process-tested only on the lists the CLI can reach offline; the core test covers the attention predicate.
+- `notes`, `threads`, `needs-you`, `projects` and `recovery` pages are ID-ordered and can miss items created while paging; `messages` pages follow creation order.

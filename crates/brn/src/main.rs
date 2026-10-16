@@ -35,7 +35,8 @@ Agents and scripts: brn --json --data-dir DIR COMMAND ... prints one JSON envelo
   --timeout SECONDS after --data-dir bounds the call; it never hides a commit (envelope stop).
   brn --json --help prints the machine contract (commands, options, outcomes, retry classes, error codes);
   brn [--json] COMMAND --help prints one command's help. --data-dir and --timeout may follow the command.
-  Bounded inspection: history|candidates|records --limit N [--cursor C], revisions --note ID,
+  Bounded inspection: history|candidates|records|notes|threads|needs-you|recovery --limit N [--cursor C],
+  projects [--trash yes] --limit N, messages --thread ID, revisions --note ID,
   revision --note ID --version V, runs [--thread ID] [--state STATE], read --id ID --limit BYTES;
   pass result.cursor back as --cursor for the next page. operation --id OP | --key K --command NAME
   shows whether an operation (or a keyed command's key) applied, without using the key.
@@ -742,6 +743,7 @@ async fn execute(inv: &Invocation, notes: &mut Annotations) -> Result<Value> {
         "init" => {
             json!({"ready":true,"data":inv.data,"settings":settings_output(workspace.settings()?)?})
         }
+        "projects" if inspect::page_mode(inv) => inspect::projects(&workspace, inv, notes)?,
         "projects" => {
             encode(workspace.projects(inv.args.get("trash").is_some_and(|v| v == "yes"))?)?
         }
@@ -830,8 +832,11 @@ async fn execute(inv: &Invocation, notes: &mut Annotations) -> Result<Value> {
         }
         "records" if inspect::page_mode(inv) => inspect::records(&workspace, inv, notes)?,
         "records" => encode(workspace.records()?)?,
+        "notes" if inspect::page_mode(inv) => inspect::notes(&workspace, inv, notes)?,
         "notes" => encode(workspace.notes()?)?,
+        "threads" if inspect::page_mode(inv) => inspect::threads(&workspace, inv, notes)?,
         "threads" => encode(workspace.threads()?)?,
+        "needs-you" if inspect::page_mode(inv) => inspect::needs_you(&workspace, inv, notes)?,
         "needs-you" => encode(workspace.needs_you()?)?,
         "history" if inspect::page_mode(inv) => inspect::history(&workspace, inv, notes)?,
         "history" => encode(workspace.history()?)?,
@@ -840,6 +845,7 @@ async fn execute(inv: &Invocation, notes: &mut Annotations) -> Result<Value> {
         "revisions" => inspect::revisions(&workspace, inv, notes)?,
         "revision" => inspect::revision(&workspace, inv, notes)?,
         "runs" => inspect::runs(&workspace, inv, notes)?,
+        "messages" => inspect::messages(&workspace, inv, notes)?,
         "operation" => inspect::operation(&workspace, inv)?,
         "settings" => settings_output(workspace.settings()?)?,
         "delegation" => {
@@ -967,6 +973,7 @@ async fn execute(inv: &Invocation, notes: &mut Annotations) -> Result<Value> {
             BufferOutcome::Updated(session) => json!({"outcome":"Discarded","session":session}),
             BufferOutcome::Ignored(session) => json!({"outcome":"Ignored","session":session}),
         },
+        "recovery" if inspect::page_mode(inv) => inspect::recovery(&workspace, inv, notes)?,
         "recovery" => encode(workspace.store.recovery_buffers()?)?,
         "apply" => applied(
             workspace

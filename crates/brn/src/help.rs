@@ -7,18 +7,18 @@ use serde_json::{json, Value};
 pub(crate) static TEXT: &[(&str, &str, &str)] = &[
     ("init", "Create or open the workspace and print its settings.", "brn --json --data-dir DIR init"),
     ("records", "List every record (or one page with --limit).", "brn --json --data-dir DIR records --kind Note --limit 20"),
-    ("notes", "List current general notes.", "brn --json --data-dir DIR notes"),
-    ("threads", "List chats.", "brn --json --data-dir DIR threads"),
-    ("needs-you", "List items waiting for the owner.", "brn --json --data-dir DIR needs-you"),
+    ("notes", "List current general notes (or one page with --limit).", "brn --json --data-dir DIR notes --limit 20"),
+    ("threads", "List chats that are not archived (or one page with --limit).", "brn --json --data-dir DIR threads --limit 20"),
+    ("needs-you", "List chats waiting for the owner (or one page with --limit).", "brn --json --data-dir DIR needs-you --limit 20"),
     ("history", "List receipts (or one page with --limit, optionally for one record).", "brn --json --data-dir DIR history --record NOTE --limit 10"),
     ("candidates", "List unapplied candidates (or one page with --limit).", "brn --json --data-dir DIR candidates --limit 5"),
     ("settings", "Print the workspace settings.", "brn --json --data-dir DIR settings"),
     ("pause", "Pause maintenance; stops Working runs.", "brn --json --data-dir DIR pause"),
     ("resume", "Resume the chosen maintenance mode.", "brn --json --data-dir DIR resume"),
-    ("recovery", "List open edit sessions with unsaved text.", "brn --json --data-dir DIR recovery"),
+    ("recovery", "List open edit sessions with unsaved text (or one page with --limit).", "brn --json --data-dir DIR recovery --limit 20"),
     ("topics", "Print the Topics note and its entries.", "brn --json --data-dir DIR topics"),
     ("topics-create", "Create a Topics note and point the workspace at it.", "brn --json --data-dir DIR topics-create --key topics-1"),
-    ("projects", "List projects (with --trash yes, also deleted ones).", "brn --json --data-dir DIR projects"),
+    ("projects", "List projects (with --trash yes, also deleted ones; or one page with --limit).", "brn --json --data-dir DIR projects --limit 20"),
     ("project-create", "Create a project.", "brn --json --data-dir DIR project-create --title-file /abs/title.txt --key p1"),
     ("project-chat", "Create a chat inside a project.", "brn --json --data-dir DIR project-chat --project P --title Planning"),
     ("project-document", "Create a document inside a project.", "brn --json --data-dir DIR project-document --project P --title Plan --text-file /abs/plan.md"),
@@ -40,6 +40,7 @@ pub(crate) static TEXT: &[(&str, &str, &str)] = &[
     ("revisions", "List a note's accepted revisions.", "brn --json --data-dir DIR revisions --note N --limit 10"),
     ("revision", "Print a slice of one accepted note revision.", "brn --json --data-dir DIR revision --note N --version 2"),
     ("runs", "List runs, optionally for one chat or state.", "brn --json --data-dir DIR runs --state working"),
+    ("messages", "List one chat's messages in creation order, one page at a time.", "brn --json --data-dir DIR messages --thread CHAT --limit 20"),
     ("operation", "Show where an operation stands, by id or by a keyed command's key.", "brn --json --data-dir DIR operation --key plan-1 --command note-create"),
     ("search", "Search current notes; page with --cursor.", "brn --json --data-dir DIR search --query 'loading depth' --limit 5"),
     ("begin-edit", "Open an edit session on a note at a base version.", "brn --json --data-dir DIR begin-edit --note N --base 2"),
@@ -66,6 +67,7 @@ pub(crate) static TEXT: &[(&str, &str, &str)] = &[
 /// Longer notes for commands whose retries or recovery need explaining.
 pub(crate) static NOTES: &[(&str, &str)] = &[
     ("intake", "A keyed full/chat/project intake replays when bytes, path, scope and title match a committed import, without converting or sending the document again; if that import found the bytes already imported, the retry converts again and records only an observation. --thread names a chat; naming a project there attaches the document to that project, which is an owner decision (use --intent project --project ID)."),
+    ("messages", "Lists the chat's messages that are not archived, in creation order, also when the chat is archived (chat_archived says so). Partial replies appear as recorded (role assistant-partial). search's message lane (after the daily-workflow merge) differs: it leaves out archived or trashed chats and partial replies."),
     ("save", "Stale save (exit 3), only for a session your own begin-edit returned: 1. keep result.session.markdown; 2. discard --session <result.session.id> --generation <result.session.generation>; 3. begin-edit --note N --base <conflict[0].version>; 4. reapply your edit; 5. update-buffer --session NEW --generation 1 --text-file merged.md; 6. save --session NEW --generation 1."),
 ];
 

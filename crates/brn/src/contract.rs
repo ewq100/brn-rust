@@ -622,12 +622,22 @@ pub(crate) fn run_error(error: brn_ai::AiError) -> CliError {
 /// base version, never by session ID (owner decision B3 part 1); the
 /// default-mode text stays the original error.
 pub(crate) const EDIT_SESSION_OPEN: &str = "This note has an open unsaved edit session (details.note, details.base_version). Write to it only if your own successful begin-edit returned it; otherwise report it to the owner.";
+/// SQLITE_CONSTRAINT_UNIQUE: the `one_dirty_session` index refused a second
+/// open session on the note. Only this conflict is `edit_session_open`.
+const SQLITE_CONSTRAINT_UNIQUE: std::ffi::c_int = 2067;
 pub(crate) fn begin_edit_error(
     store: &Store,
     note: &str,
     error: brn_threads_app::Error,
 ) -> CliError {
-    if matches!(error, brn_threads_app::Error::Sqlite(_)) {
+    let unique = matches!(
+        &error,
+        brn_threads_app::Error::Sqlite(e)
+            if e.sqlite_extended_error_code() == Some(SQLITE_CONSTRAINT_UNIQUE)
+    );
+    // Lock contention (and any other storage error) keeps its own mapping:
+    // `busy` stays retryable even when the note has an open session.
+    if unique {
         if let Ok(sessions) = store.recovery_buffers() {
             if let Some(session) = sessions.iter().find(|s| s.note == note) {
                 let mut open = CliError::new(Code::EditSessionOpen, EDIT_SESSION_OPEN)

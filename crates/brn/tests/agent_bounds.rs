@@ -167,11 +167,12 @@ fn timeout_during_fifo_wait_is_a_soft_deadline() {
     ];
     let started = Instant::now();
     let run = run_argv(&root, &argv, None);
-    // About 1 s; the bound leaves room for a loaded parallel test run.
+    // About 1 s. `hard: false` below proves the soft path; the upper bound
+    // only catches a hang, generous enough for a loaded parallel run.
+    let elapsed = started.elapsed();
     assert!(
-        started.elapsed() < Duration::from_secs(3),
-        "{:?}",
-        started.elapsed()
+        elapsed >= Duration::from_secs(1) && elapsed < Duration::from_secs(20),
+        "{elapsed:?}"
     );
     assert_eq!(run.code, 7);
     let envelope = run.envelope();
@@ -241,9 +242,11 @@ fn held_lock_past_deadline_hard_stops_with_one_line() {
     ];
     let started = Instant::now();
     let run = run_argv(&root, &argv, None);
+    // Deadline 1 s plus the 3 s grace, measured from before spawn. `hard: true`
+    // below proves the hard path; the upper bound only catches a hang.
     let elapsed = started.elapsed();
     assert!(
-        elapsed >= Duration::from_millis(3500) && elapsed < Duration::from_secs(6),
+        elapsed >= Duration::from_millis(3900) && elapsed < Duration::from_secs(30),
         "{elapsed:?}"
     );
     assert_eq!(run.code, 7);
@@ -273,8 +276,8 @@ fn busy_then_keyed_retry_applies_once() {
     assert_eq!(notes.as_array().unwrap().len(), 1);
 }
 
-/// SIGINT envelopes name their reason. (This sandbox does not deliver SIGINT
-/// to children of non-shell parents; CI runs it.)
+/// SIGINT envelopes name their reason. The child is isolated (its own
+/// process group, SIGINT unblocked), so this passes from any parent shell.
 #[test]
 fn sigint_envelopes_report_stop_sigint() {
     let root = Root::new();
@@ -294,4 +297,98 @@ fn sigint_envelopes_report_stop_sigint() {
     assert_error(&envelope, "interrupted", "interrupted");
     assert_eq!(envelope["stop"], "sigint");
     assert!(!data.exists());
+}
+
+/// Starts a keyed-less `note-create` that reads its text from stdin while
+/// `lock` holds the database, sends SIGINT once the child is past input
+/// (inside the 5 s busy wait), then `then` (SIGTERM, or nothing for a
+/// deadline). A fast 130 means SIGINT arrived before the busy wait: retry
+/// with a longer delay, up to three attempts.
+fn sigint_during_busy_wait(timeout: Option<&str>, then: Option<i32>) -> (Root, Run, Value, Value) {
+    let mut delays = [300u64, 600, 1200].into_iter().enumerate();
+    loop {
+        let (attempt, delay) = delays
+            .next()
+            .expect("SIGINT always arrived before the busy wait");
+        let root = Root::new();
+        let data = root.join("data");
+        ok(&root, &data, &["init"]);
+        let before = receipt_total(&root, &data);
+        let lock = HeldLock::hold(&data);
+        let mut argv = vec!["--json", "--data-dir", data.to_str().unwrap()];
+        if let Some(seconds) = timeout {
+            argv.extend(["--timeout", seconds]);
+        }
+        argv.extend(["note-create", "--title", "T", "--text-file", "-"]);
+        let mut child = spawn(&root, &argv);
+        drop(fill_stdin(&mut child));
+        std::thread::sleep(Duration::from_millis(delay));
+        signal(&child, libc::SIGINT);
+        if let Some(next) = then {
+            // Signals sent back to back can be handled in either order; the
+            // pause makes SIGINT the first reason.
+            std::thread::sleep(Duration::from_millis(200));
+            signal(&child, next);
+        }
+        let run = wait_output(child, Duration::from_secs(30));
+        lock.release();
+        let after = receipt_total(&root, &data);
+        if run.code == 130 {
+            eprintln!(
+                "attempt {}: SIGINT before the busy wait; retrying",
+                attempt + 1
+            );
+            continue;
+        }
+        eprintln!("attempt {} reached the busy wait", attempt + 1);
+        return (root, run, before, after);
+    }
+}
+
+#[test]
+fn sigint_then_sigterm_still_hard_stops() {
+    let (_root, run, before, after) = sigint_during_busy_wait(None, Some(libc::SIGTERM));
+    assert_eq!(run.code, 143, "{} {}", run.stdout, run.stderr);
+    let envelope = run.envelope();
+    assert_error(&envelope, "terminated", "terminated");
+    assert_eq!(envelope["error"]["details"]["hard"], true);
+    // `stop` keeps the first reason.
+    assert_eq!(envelope["stop"], "sigint");
+    assert_eq!(after, before);
+}
+
+#[test]
+fn sigint_then_deadline_still_hard_stops() {
+    let (_root, run, before, after) = sigint_during_busy_wait(Some("1"), None);
+    assert_eq!(run.code, 7, "{} {}", run.stdout, run.stderr);
+    let envelope = run.envelope();
+    assert_error(&envelope, "failed", "timeout");
+    assert_eq!(envelope["error"]["details"]["hard"], true);
+    assert_eq!(envelope["error"]["details"]["deadline_seconds"], 1);
+    assert_eq!(envelope["stop"], "sigint");
+    assert_eq!(after, before);
+}
+
+#[test]
+fn begin_edit_under_a_held_lock_is_busy() {
+    let root = Root::new();
+    let data = root.join("data");
+    let note = note(&root, &data, "N", "text");
+    let begin = ["begin-edit", "--note", note.as_str(), "--base", "1"];
+    ok(&root, &data, &begin);
+    let lock = HeldLock::hold(&data);
+    let busy = call(&root, &data, &begin);
+    assert_error(&busy, "failed", "busy");
+    assert_eq!(busy["exit"], 7);
+    let default = run(&root, false, &data, &begin);
+    assert_eq!(default.code, 1);
+    assert!(default.stderr.starts_with("SQLite: "), "{}", default.stderr);
+    lock.release();
+    // Without the lock, the open session is reported as before.
+    let open = call(&root, &data, &begin);
+    assert_error(&open, "rejected", "edit_session_open");
+    assert_eq!(
+        open["error"]["details"],
+        serde_json::json!({"note": note, "base_version": 1})
+    );
 }

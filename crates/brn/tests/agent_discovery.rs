@@ -151,6 +151,152 @@ fn enum_values_are_refused_before_the_workspace_opens() {
     );
 }
 
+/// Round 2b: service ranges and `--trash` are refused before opening, with
+/// the code and text the after-open path gave (pinned from the base binary).
+#[test]
+fn service_ranges_and_trash_are_refused_before_opening() {
+    let root = Root::new();
+    let data = root.join("absent");
+    let hops = "connections need a note ID and 1 or 2 hops";
+    let conversion = "out of range integral type conversion attempted";
+    let budget = "Provider run failed: ToolRejected";
+    let cases: &[(&[&str], &str, &str, Value, &str)] = &[
+        (
+            &["connections", "--note", "n", "--hops", "0"],
+            "rejected",
+            "invalid_request",
+            json!({}),
+            hops,
+        ),
+        (
+            &["connections", "--note", "n", "--hops", "3"],
+            "rejected",
+            "invalid_request",
+            json!({}),
+            hops,
+        ),
+        (
+            &["connections", "--note", "n", "--hops", "300"],
+            "usage",
+            "invalid_value",
+            json!({"option": "hops", "expected": conversion}),
+            conversion,
+        ),
+        (
+            &["ask", "--thread", "t", "--prompt", "p", "--budget", "0"],
+            "rejected",
+            "invalid_request",
+            json!({"kind": "tool_rejected"}),
+            budget,
+        ),
+        (
+            &["ask", "--thread", "t", "--prompt", "p", "--budget", "33"],
+            "rejected",
+            "invalid_request",
+            json!({"kind": "tool_rejected"}),
+            budget,
+        ),
+        (
+            &["ask", "--thread", "t", "--prompt", "p", "--budget", "70000"],
+            "usage",
+            "invalid_value",
+            json!({"option": "budget", "expected": "Invalid budget"}),
+            "Invalid budget",
+        ),
+        (
+            &["projects", "--trash", "maybe"],
+            "usage",
+            "invalid_value",
+            json!({"option": "trash", "expected": "--trash takes yes|no"}),
+            "--trash takes yes|no",
+        ),
+    ];
+    for (argv, status, code, details, text) in cases {
+        let envelope = call(&root, &data, argv);
+        assert_error(&envelope, status, code);
+        assert_eq!(envelope["error"]["details"], *details, "{argv:?}");
+        assert_eq!(envelope["error"]["message"], *text, "{argv:?}");
+        let default = run(&root, false, &data, argv);
+        assert_eq!(default.code, 1, "{argv:?}");
+        assert_eq!(default.stderr, format!("{text}\n"), "{argv:?}");
+        assert!(!data.exists(), "{argv:?} created the data directory");
+    }
+    // In range, the values still reach the workspace (guard).
+    let ranges = call(&root, &data, &["connections", "--note", "n", "--hops", "2"]);
+    assert_error(&ranges, "rejected", "missing_workspace");
+    // `--trash no` lists what no option lists; `--trash yes` adds trashed projects.
+    let data = root.join("data");
+    let kept = ok(&root, &data, &["project-create", "--title", "Kept"]);
+    let trashed = ok(&root, &data, &["project-create", "--title", "Trashed"]);
+    let trashed = trashed["writes"][0]["after"]["id"]
+        .as_str()
+        .unwrap()
+        .to_owned();
+    let preview = ok(
+        &root,
+        &data,
+        &["project-delete-preview", "--project", &trashed],
+    );
+    let preview = root.file("preview.json", preview.to_string().as_bytes());
+    let deleted = call(
+        &root,
+        &data,
+        &[
+            "project-delete",
+            "--preview-file",
+            &preview,
+            "--actions",
+            "{}",
+        ],
+    );
+    assert_eq!(deleted["status"], "ok", "{deleted}");
+    let active = ok(&root, &data, &["projects"]);
+    assert_eq!(ok(&root, &data, &["projects", "--trash", "no"]), active);
+    assert_eq!(active.as_array().unwrap().len(), 1);
+    assert_eq!(active[0]["id"], kept["writes"][0]["after"]["id"]);
+    let all = ok(&root, &data, &["projects", "--trash", "yes"]);
+    assert_eq!(all.as_array().unwrap().len(), 2);
+}
+
+/// The README `usage` row's example: malformed `project-delete --actions`
+/// JSON is found after opening, so a fresh directory is initialised. (A doc
+/// fix: this pins behavior that did not change.)
+#[test]
+fn usage_after_opening_may_initialise_a_fresh_directory() {
+    let root = Root::new();
+    let source = root.join("source");
+    let project = ok(&root, &source, &["project-create", "--title", "P"]);
+    let project = project["writes"][0]["after"]["id"]
+        .as_str()
+        .unwrap()
+        .to_owned();
+    let preview = ok(
+        &root,
+        &source,
+        &["project-delete-preview", "--project", &project],
+    );
+    let preview = root.file("preview.json", preview.to_string().as_bytes());
+    for json in [true, false] {
+        let fresh = root.join(if json { "fresh-json" } else { "fresh-plain" });
+        let argv = [
+            "project-delete",
+            "--preview-file",
+            &preview,
+            "--actions",
+            "{not json",
+        ];
+        let outcome = run(&root, json, &fresh, &argv);
+        if json {
+            let envelope = outcome.envelope();
+            assert_error(&envelope, "usage", "invalid_value");
+            assert_eq!(envelope["error"]["details"]["option"], "actions");
+        } else {
+            assert_eq!(outcome.code, 1);
+        }
+        assert!(fresh.join("threads.sqlite3").exists(), "json={json}");
+    }
+}
+
 #[test]
 fn machine_mode_reads_on_missing_or_empty_dirs_are_missing_workspace() {
     let root = Root::new();

@@ -205,10 +205,36 @@ pub fn assert_error(envelope: &Value, status: &str, code: &str) {
 pub fn receipts(root: &Root, data: &Path) -> usize {
     ok(root, data, &["history"]).as_array().unwrap().len()
 }
+/// Makes a child's signal delivery independent of the parent shell: its own
+/// process group (a terminal Ctrl-C reaches only the test), and SIGINT and
+/// SIGTERM at their default disposition and unblocked, whatever the parent
+/// inherited (some agent shells block SIGINT, and the mask survives exec).
+/// Tests signal the child directly with `kill(child.id(), …)`.
+pub fn isolate(command: &mut Command) -> &mut Command {
+    use std::os::unix::process::CommandExt;
+    command.process_group(0);
+    // SAFETY: the hook runs in the forked child before exec and calls only
+    // async-signal-safe functions (sigemptyset, sigaddset, sigprocmask, signal).
+    unsafe {
+        command.pre_exec(|| {
+            let mut set: libc::sigset_t = std::mem::zeroed();
+            libc::sigemptyset(&mut set);
+            libc::sigaddset(&mut set, libc::SIGINT);
+            libc::sigaddset(&mut set, libc::SIGTERM);
+            libc::sigprocmask(libc::SIG_UNBLOCK, &set, std::ptr::null_mut());
+            libc::signal(libc::SIGINT, libc::SIG_DFL);
+            libc::signal(libc::SIGTERM, libc::SIG_DFL);
+            Ok(())
+        });
+    }
+    command
+}
 /// Starts `argv` with piped stdin, stdout and stderr; finish with `wait_output`.
+/// The child is isolated (see `isolate`) so signal tests pass from any shell.
 pub fn spawn(root: &Root, argv: &[&str]) -> Child {
     let args: Vec<&OsStr> = argv.iter().map(OsStr::new).collect();
-    root.command(&args)
+    let mut command = root.command(&args);
+    isolate(&mut command)
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())

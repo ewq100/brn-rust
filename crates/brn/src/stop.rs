@@ -2,7 +2,9 @@
 //! `--timeout` deadline. Every reason also raises `CANCEL`, so each existing
 //! observation point serves all three. A watchdog raises the deadline and,
 //! when no envelope appears 3 s after SIGTERM or the deadline, writes one
-//! line itself and exits: the command may have committed by then.
+//! line itself and exits: the command may have committed by then. The hard
+//! stop arms on the first SIGTERM or deadline even after an earlier SIGINT;
+//! the envelope `stop` still names the first reason.
 use crate::contract::{self, CliError, Code, Status};
 use crate::spec::Class;
 use crate::CANCEL;
@@ -10,8 +12,12 @@ use serde_json::Value;
 use std::sync::atomic::{AtomicBool, AtomicU8, Ordering::SeqCst};
 use std::time::{Duration, Instant};
 
-/// 0 none (SIGINT is inferred from `CANCEL`), 2 SIGTERM, 3 deadline.
+/// The first reason, for the envelope `stop`: 0 none (SIGINT is inferred
+/// from `CANCEL`), 2 SIGTERM, 3 deadline.
 static STOP: AtomicU8 = AtomicU8::new(0);
+/// The first SIGTERM or deadline, whatever came before it (an earlier SIGINT
+/// included): what arms the hard stop and picks its status.
+static ARMED: AtomicU8 = AtomicU8::new(0);
 /// Claimed by whoever writes the single result: the command or the watchdog.
 static EMITTED: AtomicBool = AtomicBool::new(false);
 const SIGTERM: u8 = 2;
@@ -19,11 +25,13 @@ const DEADLINE: u8 = 3;
 /// How long the watchdog waits for a safe point after SIGTERM or the deadline.
 const GRACE: Duration = Duration::from_secs(3);
 
-/// The first reason wins; a SIGINT already seen keeps its reason.
+/// The first reason wins `STOP`; a SIGINT already seen keeps its reason.
+/// `ARMED` records the first SIGTERM or deadline in every case.
 fn raise(reason: u8) {
     if !CANCEL.load(SeqCst) {
         let _ = STOP.compare_exchange(0, reason, SeqCst, SeqCst);
     }
+    let _ = ARMED.compare_exchange(0, reason, SeqCst, SeqCst);
     CANCEL.store(true, SeqCst);
 }
 extern "C" fn on_sigterm(_: libc::c_int) {
@@ -42,7 +50,7 @@ pub(crate) fn reason() -> Option<&'static str> {
 
 /// The observation points added for SIGTERM and the deadline (SIGINT keeps its points).
 pub(crate) fn check() -> Result<(), CliError> {
-    if matches!(STOP.load(SeqCst), SIGTERM | DEADLINE) {
+    if matches!(ARMED.load(SeqCst), SIGTERM | DEADLINE) {
         return Err(CliError::interrupted());
     }
     Ok(())
@@ -110,7 +118,8 @@ fn hard_stop(watch: &Watch) {
     if !claim_output() {
         return;
     }
-    let deadline = reason() == Some("deadline");
+    // The status follows what armed the stop; `stop` stays the first reason.
+    let deadline = ARMED.load(SeqCst) == DEADLINE;
     if !watch.machine {
         let seconds = watch.deadline.unwrap_or_default();
         contract::emit_err(&format!(
@@ -164,7 +173,7 @@ pub(crate) fn start(watch: Watch) {
                     raise(DEADLINE);
                 }
             }
-            if matches!(STOP.load(SeqCst), SIGTERM | DEADLINE) {
+            if matches!(ARMED.load(SeqCst), SIGTERM | DEADLINE) {
                 let at = *stopped_at.get_or_insert_with(Instant::now);
                 if at.elapsed() >= GRACE {
                     hard_stop(&watch);

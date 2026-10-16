@@ -255,8 +255,8 @@ fn held_ask(root: &Root, data: &Path, extra: &[&str]) -> (std::process::Child, S
     (child, stub, chat)
 }
 
-/// SIGINT stops a held run. (This sandbox does not deliver SIGINT to children
-/// of non-shell parents; CI runs it.)
+/// SIGINT stops a held run. `spawn` isolates the child, so this passes from
+/// any parent shell.
 #[test]
 fn stub_sigint_interrupts_a_held_stream() {
     let root = root();

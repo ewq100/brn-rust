@@ -1,6 +1,8 @@
 //! Bounded, read-only inspection pages for hosts (the CLI): receipts,
-//! unapplied candidates, records, runs and one operation. SELECT only; no
-//! transaction, no write, and nothing here is used by the desktop.
+//! unapplied candidates, records, runs, one operation, and pages of the
+//! app's notes, chats, needs-you, projects, open edit sessions and one chat's
+//! messages. SELECT only with bound parameters; no transaction, no write, and
+//! nothing here is used by the desktop.
 use crate::*;
 use rusqlite::{OptionalExtension, params};
 
@@ -210,6 +212,110 @@ impl Store {
             .iter()
             .map(|body| decode(body))
             .collect::<Result<Vec<Record>>>()?;
+        Ok(split(rows, limit))
+    }
+    /// Decoded record bodies from `sql` (which selects one `body` column and
+    /// fetches `limit + 1` rows), split into a page and whether more followed.
+    fn body_page(
+        &self,
+        sql: &str,
+        params: impl rusqlite::Params,
+        limit: usize,
+    ) -> Result<(Vec<Record>, bool)> {
+        let mut stmt = self.conn.prepare(sql)?;
+        let rows: Vec<String> = stmt
+            .query_map(params, |r| r.get(0))?
+            .collect::<std::result::Result<_, _>>()?;
+        let rows = rows
+            .iter()
+            .map(|body| decode(body))
+            .collect::<Result<Vec<Record>>>()?;
+        Ok(split(rows, limit))
+    }
+    /// Current general notes with an ID after `after`, in ID order: the
+    /// app's `notes()` filter (not archived, not superseded, no chat).
+    pub fn note_page(&self, after: &str, limit: usize) -> Result<(Vec<Record>, bool)> {
+        let fetch = page_limit(limit)?;
+        self.body_page(
+            "SELECT body FROM records WHERE json_type(body,'$.data.Note') IS NOT NULL AND json_extract(body,'$.archived')=0 AND json_extract(body,'$.data.Note.superseded_by') IS NULL AND json_extract(body,'$.data.Note.chat') IS NULL AND id>?1 ORDER BY id LIMIT ?2",
+            params![after, fetch],
+            limit,
+        )
+    }
+    /// Chats that are not archived, after `after` in ID order: the app's `threads()` filter.
+    pub fn thread_page(&self, after: &str, limit: usize) -> Result<(Vec<Record>, bool)> {
+        let fetch = page_limit(limit)?;
+        self.body_page(
+            "SELECT body FROM records WHERE json_type(body,'$.data.Thread') IS NOT NULL AND json_extract(body,'$.archived')=0 AND id>?1 ORDER BY id LIMIT ?2",
+            params![after, fetch],
+            limit,
+        )
+    }
+    /// Chats with attention, archived ones included, after `after` in ID
+    /// order: the app's `needs_you()` filter.
+    pub fn needs_you_page(&self, after: &str, limit: usize) -> Result<(Vec<Record>, bool)> {
+        let fetch = page_limit(limit)?;
+        self.body_page(
+            "SELECT body FROM records WHERE json_type(body,'$.data.Thread') IS NOT NULL AND json_array_length(body,'$.data.Thread.attention')>0 AND id>?1 ORDER BY id LIMIT ?2",
+            params![after, fetch],
+            limit,
+        )
+    }
+    /// Projects after `after` in ID order, trashed ones only with
+    /// `include_trash`: the app's `projects()` filter.
+    pub fn project_page(
+        &self,
+        include_trash: bool,
+        after: &str,
+        limit: usize,
+    ) -> Result<(Vec<Record>, bool)> {
+        let fetch = page_limit(limit)?;
+        self.body_page(
+            "SELECT body FROM records WHERE json_type(body,'$.data.Project') IS NOT NULL AND (?1 OR json_extract(body,'$.archived')=0) AND id>?2 ORDER BY id LIMIT ?3",
+            params![include_trash, after, fetch],
+            limit,
+        )
+    }
+    /// Open edit sessions with an ID after `after`, in ID order, as
+    /// `recovery_buffers()` returns them.
+    pub fn recovery_page(&self, after: &str, limit: usize) -> Result<(Vec<EditSession>, bool)> {
+        let fetch = page_limit(limit)?;
+        let mut stmt = self.conn.prepare(
+            "SELECT id FROM edit_sessions WHERE closed=0 AND id>?1 ORDER BY id LIMIT ?2",
+        )?;
+        let ids: Vec<String> = stmt
+            .query_map(params![after, fetch], |r| r.get(0))?
+            .collect::<std::result::Result<_, _>>()?;
+        let sessions = ids
+            .iter()
+            .map(|id| self.edit_session(id))
+            .collect::<Result<Vec<_>>>()?;
+        Ok(split(sessions, limit))
+    }
+    /// The non-archived Message records of `thread`, in creation order, after
+    /// position `after`: the app's `messages()` filter and order. A message's
+    /// position is the rowid of its first revision; revisions and receipts are
+    /// inserted in write order inside one transaction, so this is the app's
+    /// (receipt, write) order, and an edit keeps the original position.
+    pub fn message_page(
+        &self,
+        thread: &str,
+        after: i64,
+        limit: usize,
+    ) -> Result<(Vec<(i64, Record)>, bool)> {
+        let fetch = page_limit(limit)?;
+        let mut stmt = self.conn.prepare(
+            "SELECT pos,body FROM (SELECT (SELECT MIN(v.rowid) FROM revisions v WHERE v.id=r.id) AS pos, r.body AS body FROM records r WHERE json_type(r.body,'$.data.Message') IS NOT NULL AND json_extract(r.body,'$.data.Message.thread')=?1 AND json_extract(r.body,'$.archived')=0) WHERE pos>?2 ORDER BY pos LIMIT ?3",
+        )?;
+        let rows: Vec<(i64, String)> = stmt
+            .query_map(params![thread, after, fetch], |r| {
+                Ok((r.get(0)?, r.get(1)?))
+            })?
+            .collect::<std::result::Result<_, _>>()?;
+        let rows = rows
+            .into_iter()
+            .map(|(pos, body)| Ok((pos, decode(&body)?)))
+            .collect::<Result<Vec<_>>>()?;
         Ok(split(rows, limit))
     }
     /// The operation allocated under exactly this host key; never allocates.

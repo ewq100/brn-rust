@@ -17,8 +17,9 @@ fn cut(text: &str, max: usize) -> String {
     text.chars().take(max).collect()
 }
 
-/// `history`, `candidates` and `records` page only when a page option is given;
-/// without one they keep today's unbounded output.
+/// `history`, `candidates`, `records`, `notes`, `threads`, `needs-you`,
+/// `projects` and `recovery` page only when a page option is given; without
+/// one they keep today's unbounded output.
 pub(crate) fn page_mode(inv: &Invocation) -> bool {
     ["limit", "cursor", "record", "kind"]
         .iter()
@@ -276,6 +277,122 @@ pub(crate) fn read(
     let mut value = encode(&outcome)?;
     value["cursor"] = json!(cursor);
     Ok(value)
+}
+
+/// The `--cursor` of an ID-ordered list, or the start.
+fn id_after(inv: &Invocation) -> &str {
+    inv.args.get("cursor").map(String::as_str).unwrap_or("")
+}
+
+/// One page of a list whose items are exactly the unpaged command's items,
+/// in the same order: `{KEY: [...], shown, cursor, total: null}`.
+fn list_page<T: serde::Serialize>(
+    notes: &mut Annotations,
+    limit: usize,
+    key: &str,
+    (rows, more): (Vec<T>, bool),
+    id: impl Fn(&T) -> &str,
+) -> Result<Value> {
+    let cursor = more
+        .then(|| rows.last().map(|row| id(row).to_owned()))
+        .flatten();
+    set_page(notes, limit, rows.len(), &cursor, None);
+    let mut page = serde_json::Map::new();
+    page.insert(key.into(), encode(&rows)?);
+    page.insert("shown".into(), json!(rows.len()));
+    page.insert("cursor".into(), json!(cursor));
+    page.insert("total".into(), Value::Null);
+    Ok(Value::Object(page))
+}
+
+/// `notes --limit N [--cursor ID]`: current general notes, as `notes` lists them.
+pub(crate) fn notes(
+    workspace: &Workspace,
+    inv: &Invocation,
+    notes: &mut Annotations,
+) -> Result<Value> {
+    let limit = limit(inv);
+    let page = workspace.store.note_page(id_after(inv), limit)?;
+    list_page(notes, limit, "notes", page, |r: &Record| &r.id)
+}
+
+/// `threads --limit N [--cursor ID]`: chats that are not archived.
+pub(crate) fn threads(
+    workspace: &Workspace,
+    inv: &Invocation,
+    notes: &mut Annotations,
+) -> Result<Value> {
+    let limit = limit(inv);
+    let page = workspace.store.thread_page(id_after(inv), limit)?;
+    list_page(notes, limit, "threads", page, |r: &Record| &r.id)
+}
+
+/// `needs-you --limit N [--cursor ID]`: chats with attention, archived ones included.
+pub(crate) fn needs_you(
+    workspace: &Workspace,
+    inv: &Invocation,
+    notes: &mut Annotations,
+) -> Result<Value> {
+    let limit = limit(inv);
+    let page = workspace.store.needs_you_page(id_after(inv), limit)?;
+    list_page(notes, limit, "threads", page, |r: &Record| &r.id)
+}
+
+/// `projects [--trash yes] --limit N [--cursor ID]`.
+pub(crate) fn projects(
+    workspace: &Workspace,
+    inv: &Invocation,
+    notes: &mut Annotations,
+) -> Result<Value> {
+    let limit = limit(inv);
+    let trash = inv.args.get("trash").is_some_and(|v| v == "yes");
+    let page = workspace.store.project_page(trash, id_after(inv), limit)?;
+    list_page(notes, limit, "projects", page, |r: &Record| &r.id)
+}
+
+/// `recovery --limit N [--cursor ID]`: open edit sessions, as `recovery` lists them.
+pub(crate) fn recovery(
+    workspace: &Workspace,
+    inv: &Invocation,
+    notes: &mut Annotations,
+) -> Result<Value> {
+    let limit = limit(inv);
+    let page = workspace.store.recovery_page(id_after(inv), limit)?;
+    list_page(notes, limit, "sessions", page, |s: &EditSession| &s.id)
+}
+
+/// `messages --thread ID [--limit N] [--cursor POS]`: the chat's non-archived
+/// messages in creation order, whether or not the chat is archived (the
+/// owner's view), partial replies included as recorded.
+pub(crate) fn messages(
+    workspace: &Workspace,
+    inv: &Invocation,
+    notes: &mut Annotations,
+) -> Result<Value> {
+    let limit = limit(inv);
+    let thread = inv.arg("thread")?;
+    let chat = workspace
+        .store
+        .record(thread)?
+        .ok_or_else(|| CliError::new(Code::NotFound, "Record not found"))?;
+    if !matches!(chat.data, RecordData::Thread(_)) {
+        return Err(CliError::invalid_request("--thread must name a chat").with("option", "thread"));
+    }
+    let after = number_cursor(inv, 0) as i64;
+    let (rows, more) = workspace.store.message_page(thread, after, limit)?;
+    let cursor = more
+        .then(|| rows.last().map(|(position, _)| position.to_string()))
+        .flatten();
+    let messages: Vec<&Record> = rows.iter().map(|(_, record)| record).collect();
+    set_page(notes, limit, messages.len(), &cursor, None);
+    Ok(json!({
+        "thread": thread,
+        "chat_archived": chat.archived,
+        "messages": encode(&messages)?,
+        "shown": messages.len(),
+        "cursor": cursor,
+        "total": null,
+    }))
 }
 
 fn run_state(name: &str) -> Option<RunState> {

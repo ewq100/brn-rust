@@ -1,5 +1,7 @@
 //! Process-level checks of the `--json` machine contract, `--NAME-file`
 //! input and `--key` retries, through the built `brn` only.
+#[cfg(unix)]
+mod support;
 use serde_json::{json, Value};
 use std::{
     ffi::OsStr,
@@ -489,7 +491,13 @@ fn usage_errors_are_json_with_stable_codes_and_create_nothing() {
     let malformed = call(&root, &data, &["notes", "oops"]);
     assert_eq!(malformed["error"]["details"]["position"], 5);
     let unknown = call(&root, &data, &["notes", "--bogus", "x"]);
-    assert_eq!(unknown["error"]["details"]["allowed"], json!([]));
+    // Round 2b: `notes` takes the page options.
+    assert_eq!(
+        unknown["error"]["details"]["allowed"],
+        json!(["limit", "cursor"])
+    );
+    let bare = call(&root, &data, &["settings", "--bogus", "x"]);
+    assert_eq!(bare["error"]["details"]["allowed"], json!([]));
     let private = call(&root, &data, &["notes", "--Secret Text", "x"]);
     assert!(private["error"]["details"].get("option").is_none());
     // `--json` is special only as the first argument.
@@ -1377,7 +1385,7 @@ fn keyed_creates_replay_and_reuse_with_other_inputs_is_refused() {
 
 #[cfg(unix)]
 fn interrupt_after_writing(mut command: Command, bytes: &[u8]) -> (Run, Instant) {
-    command
+    support::isolate(&mut command)
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::piped());
@@ -1388,7 +1396,7 @@ fn interrupt_after_writing(mut command: Command, bytes: &[u8]) -> (Run, Instant)
     let sent = Instant::now();
     // SAFETY: signals only the child this test spawned.
     assert_eq!(unsafe { libc::kill(child.id() as i32, libc::SIGINT) }, 0);
-    let output = wait_output(child, Duration::from_secs(5));
+    let output = wait_output(child, Duration::from_secs(20));
     drop(input);
     (output, sent)
 }
@@ -1404,7 +1412,8 @@ fn sigint_while_stdin_stays_open_is_interrupted_and_creates_nothing() {
         &["note-create", "--title", "T", "--text-file", "-"],
     ));
     let (output, sent) = interrupt_after_writing(command, &vec![b'a'; 256 * 1024]);
-    assert!(sent.elapsed() < Duration::from_secs(5));
+    // Prompt in practice; the bound only catches a hang on a loaded runner.
+    assert!(sent.elapsed() < Duration::from_secs(20));
     assert_eq!(output.code, 130);
     let envelope = output.envelope();
     assert_error(&envelope, "interrupted", "interrupted");
@@ -1432,17 +1441,19 @@ fn sigint_while_a_fifo_has_no_writer_is_interrupted() {
             fifo.to_str().unwrap(),
         ],
     ));
-    command
+    support::isolate(&mut command)
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::piped());
     let mut child = command.spawn().unwrap();
     let mut input = child.stdin.take().unwrap();
+    // Once 256 KiB of title is written the child is inside input resolution:
+    // either reading stdin or waiting on the FIFO, and both points give 130.
     input.write_all(&vec![b't'; 256 * 1024]).unwrap();
     drop(input);
-    std::thread::sleep(Duration::from_millis(200));
+    // SAFETY: signals only the child this test spawned.
     assert_eq!(unsafe { libc::kill(child.id() as i32, libc::SIGINT) }, 0);
-    let output = wait_output(child, Duration::from_secs(5));
+    let output = wait_output(child, Duration::from_secs(20));
     assert_eq!(output.code, 130);
     assert_error(&output.envelope(), "interrupted", "interrupted");
     assert!(!data.exists());

@@ -196,6 +196,13 @@ class Brn:
             if cursor is None:
                 return items
 
+    def same_pages(self, command, list_key, *, data, limit, **options):
+        """Pages of `command --limit N` concatenated equal its unpaged output."""
+        unpaged = self.ok(command, data=data, **options)
+        paged = self.pages(command, list_key, data=data, limit=limit, **options)
+        self.check(paged == unpaged, f'{command} pages differ from the unpaged list')
+        return paged
+
     def ok(self, command, *, data, stdin=None, **options):
         return self.call(command, data=data, stdin=stdin, expect=0, **options)['result']
 
@@ -225,7 +232,7 @@ def journey(brn, root):
     check(entry == {'contract': 2, 'command': commands['note-create']}, 'note-create --help differs from the description')
     used = ['init', 'settings', 'project-create', 'project-document', 'note-create', 'read', 'begin-edit',
             'update-buffer', 'save', 'discard', 'search', 'history', 'undo', 'candidates', 'notes',
-            'intake', 'backup', 'export', 'restore', 'projects']
+            'intake', 'backup', 'export', 'restore', 'projects', 'messages', 'knowledge-check']
     check(all(name in commands for name in used), 'a journey command is missing from the description')
     check(len(description['statuses']) == 10, 'description does not list 10 statuses')
     check(any(v['when'] == {'option': 'intent', 'equals': 'useful'} for v in commands['intake']['retry']['variants']),
@@ -368,6 +375,10 @@ def journey(brn, root):
     check(unkeyed['retry'] == 'duplicate', 'unkeyed note-create is not duplicate')
     found = brn.ok('operation', data=workspace, key='n1', command_='note-create')
     check(found['operation'] == first['operation'] and found['state'] == 'applied', 'operation --key misses the keyed note')
+    # Bounded lists: pages concatenate to exactly the unpaged list.
+    paged_notes = brn.same_pages('notes', 'notes', data=workspace, limit=2)
+    check(len(paged_notes) == before + 2, 'paged notes miss a note')
+    brn.same_pages('projects', 'projects', data=workspace, limit=1)
 
     # 12b. A no-op archive records nothing.
     chat = brn.ok('thread-start', data=workspace, title_file=files['keyed_title'])['id']
@@ -377,6 +388,11 @@ def journey(brn, root):
     check(again['outcome'] == 'Unchanged' and again['operation'] is None and again['changed'] == [],
           'a repeated archive was not Unchanged')
     check(brn.ok('history', data=workspace, limit=1)['total'] == total, 'Unchanged recorded a receipt')
+    # A seeded review chat's one owner message, read page by page.
+    review_chat = brn.ok('knowledge-check', data=workspace, seed_chat='yes')['review_chat']
+    messages = brn.pages('messages', 'messages', data=workspace, thread=review_chat, limit=1)
+    check([m['data']['Message']['role'] for m in messages] == ['owner'],
+          'the review chat does not hold one owner message')
 
     # 13. Keyed Markdown intake replays; a new title under the key is refused.
     imported = brn.call('intake', data=workspace, source=files['intake'], intent='full',

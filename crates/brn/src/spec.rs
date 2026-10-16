@@ -1,6 +1,6 @@
 //! The command table: one entry per command, read by `parse()`, the envelope
 //! and `brn --json --help`, so the grammar and the description cannot drift.
-use crate::contract::{Code, Status};
+use crate::contract::{CliError, Code, Status};
 use crate::Invocation;
 use serde_json::{json, Value};
 use std::collections::BTreeMap;
@@ -190,7 +190,7 @@ pub(crate) enum Grammar {
     /// An absolute filesystem path.
     AbsolutePath,
     /// An existing after-open check moved before opening, with its message:
-    /// a decimal that parses as an integer up to `max` (service ranges stay after opening).
+    /// a decimal that parses as an integer up to `max`.
     Number {
         max: u64,
         message: &'static str,
@@ -200,6 +200,16 @@ pub(crate) enum Grammar {
         values: &'static [&'static str],
         ignore_case: bool,
         message: &'static str,
+    },
+    /// A service range moved before opening. A value that does not parse as
+    /// an integer is `invalid_value` with `syntax`; a value outside
+    /// `min..=max` gets `refusal(value)`, the exact error the service (or the
+    /// CLI's own conversion) returned after opening.
+    Service {
+        syntax: &'static str,
+        min: u64,
+        max: u64,
+        refusal: fn(u64) -> CliError,
     },
 }
 impl Grammar {
@@ -214,6 +224,9 @@ impl Grammar {
             Grammar::Cursor(form) => form.accepts(value),
             Grammar::AbsolutePath => std::path::Path::new(value).is_absolute(),
             Grammar::Number { max, .. } => value.parse::<u64>().is_ok_and(|v| v <= max),
+            Grammar::Service { min, max, .. } => {
+                value.parse::<u64>().is_ok_and(|v| (min..=max).contains(&v))
+            }
             Grammar::Choice {
                 values,
                 ignore_case,
@@ -231,6 +244,7 @@ impl Grammar {
     fn expected(self, option: &str) -> String {
         match self {
             Grammar::Number { message, .. } | Grammar::Choice { message, .. } => message.to_owned(),
+            Grammar::Service { syntax, .. } => syntax.to_owned(),
             Grammar::Enum(values) => format!("--{option} takes {}", values.join("|")),
             Grammar::Int(min, max) => format!("--{option} takes an integer {min}..{max}"),
             Grammar::Cursor(form) => format!("--{option} takes {}", form.expected()),
@@ -248,6 +262,9 @@ impl Grammar {
             }
             Grammar::Number { max, .. } => {
                 json!({"option": option, "grammar": "integer", "min": 0, "max": max})
+            }
+            Grammar::Service { min, max, .. } => {
+                json!({"option": option, "grammar": "integer", "min": min, "max": max})
             }
             Grammar::AbsolutePath => json!({"option": option, "grammar": "absolute_path"}),
             Grammar::Choice {
@@ -290,6 +307,37 @@ const EFFORT: Grammar = Grammar::Choice {
     ignore_case: false,
     message: "Effort must be low, medium or high",
 };
+/// `connections --hops`: 1 or 2 (the search service's range). Past 255 the
+/// CLI's `u8` conversion refused it; 0 and 3..=255 reached the service.
+const HOPS: Grammar = Grammar::Service {
+    syntax: "--hops must be an integer",
+    min: 1,
+    max: 2,
+    refusal: hops_refusal,
+};
+fn hops_refusal(value: u64) -> CliError {
+    match u8::try_from(value) {
+        Err(error) => CliError::invalid_value("hops", error.to_string()),
+        Ok(_) => {
+            brn_threads_app::AppError::Invalid("connections need a note ID and 1 or 2 hops".into())
+                .into()
+        }
+    }
+}
+/// `ask --budget`: 1..32 tool rounds (the run service's range, `begin` in
+/// brn-ai `threads.rs`). Past 65535 the CLI's `u16` parse refused it.
+const BUDGET: Grammar = Grammar::Service {
+    syntax: "Invalid budget",
+    min: 1,
+    max: 32,
+    refusal: budget_refusal,
+};
+fn budget_refusal(value: u64) -> CliError {
+    if value > u64::from(u16::MAX) {
+        return CliError::invalid_value("budget", "Invalid budget");
+    }
+    crate::contract::run_error(brn_ai::AiError::new(brn_ai::AiErrorKind::ToolRejected))
+}
 const NOTE_BYTES: Grammar = Grammar::Int(1, brn_threads_app::MAX_NOTE_READ_BYTES as u64);
 /// `(command, option, grammar)`, checked in `parse()` for every present option.
 pub(crate) static VALUES: &[(&str, &str, Grammar)] = &[
@@ -309,6 +357,18 @@ pub(crate) static VALUES: &[(&str, &str, Grammar)] = &[
     ("revision", "version", Grammar::Cursor(CursorForm::Version)),
     ("revision", "limit", NOTE_BYTES),
     ("revision", "cursor", Grammar::Cursor(CursorForm::Byte)),
+    ("notes", "limit", PAGE_100),
+    ("notes", "cursor", Grammar::Cursor(CursorForm::Id)),
+    ("threads", "limit", PAGE_100),
+    ("threads", "cursor", Grammar::Cursor(CursorForm::Id)),
+    ("needs-you", "limit", PAGE_100),
+    ("needs-you", "cursor", Grammar::Cursor(CursorForm::Id)),
+    ("recovery", "limit", PAGE_100),
+    ("recovery", "cursor", Grammar::Cursor(CursorForm::Id)),
+    ("projects", "limit", PAGE_100),
+    ("projects", "cursor", Grammar::Cursor(CursorForm::Id)),
+    ("messages", "limit", PAGE_100),
+    ("messages", "cursor", Grammar::Cursor(CursorForm::Rowid)),
     ("runs", "state", Grammar::Enum(RUN_STATES)),
     ("runs", "limit", PAGE_100),
     ("runs", "cursor", Grammar::Cursor(CursorForm::Id)),
@@ -323,14 +383,16 @@ pub(crate) static VALUES: &[(&str, &str, Grammar)] = &[
     ("update-buffer", "generation", GENERATION),
     ("save", "generation", GENERATION),
     ("discard", "generation", GENERATION),
-    ("connections", "hops", integer("--hops must be an integer")),
+    ("connections", "hops", HOPS),
     ("search", "limit", integer("--limit must be an integer")),
+    ("ask", "budget", BUDGET),
     (
-        "ask",
-        "budget",
-        Grammar::Number {
-            max: u16::MAX as u64,
-            message: "Invalid budget",
+        "projects",
+        "trash",
+        Grammar::Choice {
+            values: &["yes", "no"],
+            ignore_case: false,
+            message: "--trash takes yes|no",
         },
     ),
     (
@@ -385,15 +447,20 @@ pub(crate) static VALUES: &[(&str, &str, Grammar)] = &[
 pub(crate) fn check_values(
     command: &str,
     options: &BTreeMap<String, String>,
-) -> Result<(), crate::contract::CliError> {
+) -> Result<(), CliError> {
     for (name, option, grammar) in VALUES {
         if *name != command {
             continue;
         }
         if let Some(value) = options.get(*option) {
             if !grammar.accepts(value) {
+                if let (Grammar::Service { refusal, .. }, Ok(number)) =
+                    (grammar, value.parse::<u64>())
+                {
+                    return Err(refusal(number));
+                }
                 let expected = grammar.expected(option);
-                return Err(crate::contract::CliError::invalid_value(option, expected));
+                return Err(CliError::invalid_value(option, expected));
             }
         }
     }
@@ -478,11 +545,14 @@ const fn paged(min: u64, max: u64, default: Option<u64>, cursor: CursorForm) -> 
         cursor,
     })
 }
-/// An unbounded list with no page form.
-const fn unbounded(name: &'static str) -> Spec {
+/// A list that prints everything without page options and pages with
+/// `--limit N [--cursor ID]` (record or session ID order).
+const fn list(name: &'static str, bounded_form: &'static str) -> Spec {
     Spec {
+        page: paged(1, 100, Some(20), CursorForm::Id),
         bounded: Some(false),
-        ..read(name, &[], &[])
+        bounded_form: Some(bounded_form),
+        ..read(name, &["limit", "cursor"], &[])
     }
 }
 
@@ -564,9 +634,9 @@ pub(crate) static COMMANDS: &[Spec] = &[
         bounded_form: Some("records --limit N [--kind KIND] [--cursor ID]"),
         ..read("records", &["kind", "limit", "cursor"], &[])
     },
-    unbounded("notes"),
-    unbounded("threads"),
-    unbounded("needs-you"),
+    list("notes", "notes --limit N [--cursor ID]"),
+    list("threads", "threads --limit N [--cursor ID]"),
+    list("needs-you", "needs-you --limit N [--cursor ID]"),
     Spec {
         page: paged(1, 100, Some(20), CursorForm::Rowid),
         bounded: Some(false),
@@ -582,7 +652,7 @@ pub(crate) static COMMANDS: &[Spec] = &[
     read("settings", &[], &[]),
     setting("pause", &[], &[]),
     setting("resume", &[], &[]),
-    unbounded("recovery"),
+    list("recovery", "recovery --limit N [--cursor ID]"),
     read("topics", &[], &[]),
     cmd(
         "topics-create",
@@ -595,8 +665,10 @@ pub(crate) static COMMANDS: &[Spec] = &[
         APPLY_OUTCOMES,
     ),
     Spec {
+        page: paged(1, 100, Some(20), CursorForm::Id),
         bounded: Some(false),
-        ..read("projects", &["trash"], &[])
+        bounded_form: Some("projects [--trash yes] --limit N [--cursor ID]"),
+        ..read("projects", &["trash", "limit", "cursor"], &[])
     },
     project(
         "project-create",
@@ -761,6 +833,11 @@ pub(crate) static COMMANDS: &[Spec] = &[
         page: paged(1, 100, Some(20), CursorForm::Id),
         bounded: Some(true),
         ..read("runs", &["thread", "state", "limit", "cursor"], &[])
+    },
+    Spec {
+        page: paged(1, 100, Some(20), CursorForm::Rowid),
+        bounded: Some(true),
+        ..read("messages", &["thread", "limit", "cursor"], &["thread"])
     },
     Spec {
         bounded: Some(true),
@@ -1274,6 +1351,7 @@ mod tests {
             ("revisions", &["note"]),
             ("revision", &["note", "version"]),
             ("search", &["query"]),
+            ("messages", &["thread"]),
             ("begin-edit", &["note", "base"]),
             ("keep-in-brn", &["note", "base"]),
             ("update-buffer", &["session", "generation", "text"]),
