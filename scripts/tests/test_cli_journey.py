@@ -170,5 +170,26 @@ class EnvelopeChecks(unittest.TestCase):
         self.fail('the stub never spawned its grandchild before the timeout')
 
 
+class RoundTwoHelperTests(unittest.TestCase):
+    def test_contract_2_statuses_and_option_names(self):
+        self.assertEqual(cli_journey.STATUSES['terminated'], 143)
+        self.assertEqual(cli_journey.option_name('text_file'), '--text-file')
+        self.assertEqual(cli_journey.option_name('command_'), '--command')
+
+    def test_pages_follow_the_cursor_and_require_a_mirrored_page(self):
+        class Paged(cli_journey.Brn):
+            def __init__(self):
+                self.checks = 0
+                self.seen = []
+            def call(self, command, *, data, stdin=None, expect=0, **options):
+                self.seen.append(options.get('cursor'))
+                cursor = {None: '2', '2': None}[options.get('cursor')]
+                items = [options.get('cursor') or '1']
+                return {'result': {'items': items, 'cursor': cursor},
+                        'page': {'limit': 1, 'shown': 1, 'cursor': cursor, 'total': None}}
+        brn = Paged()
+        self.assertEqual(brn.pages('history', 'items', data='/d', limit=1), ['1', '2'])
+        self.assertEqual(brn.seen, [None, '2'])
+
 if __name__ == '__main__':
     unittest.main()

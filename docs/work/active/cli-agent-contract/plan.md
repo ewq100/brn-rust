@@ -871,7 +871,7 @@ Command: `git -C /Users/evokessler/repos/brn-rust -c core.fsmonitor=false log --
       Files: `crates/brn/src/contract.rs`, `crates/brn/README.md`, `crates/brn/tests/{agent_reasons.rs,agent_inspect.rs}`
       Verify: `cargo test -p brn --locked --offline` passes; the baseline run of `agent_reasons` fails (no `reason`).
 
-- [ ] R2-14. **Journey runner, docs, before/after and status.**
+- [x] R2-14. **Journey runner, docs, before/after and status.**
       **`scripts/cli_journey.py` gains these steps:** paged `history --record`, `revisions`/`revision` reassembly, `operation --key` for the keyed note, `candidates --limit 1`, an `Unchanged` re-archive, the A12 recipe (replacing today's recover block, `:252-285`), and `COMMAND --help --json` for one command. It must finish with empty stderr and an empty temp parent. Keep `scripts/tests/test_cli_journey.py` in step (statuses, `Unchanged`, contract 2).
       **README.** Finish the "Changes from contract 1" table: every row of design §2 plus each step's additions. Complete Compatibility items 6–12. "Remaining gaps" points to the evidence.
       **Before/after.** In the artifacts `before_after.py` (outside the repo), add every new code, outcome, command and option, run against the R2-1 baseline binary and the new binary, and paste the output into `evidence.md` "Round 2 before and after".

@@ -73,7 +73,8 @@ def child_env(root):
 
 
 def option_name(name):
-    return '--' + name.replace('_', '-')
+    """`text_file` is `--text-file`; a trailing `_` (`command_`) avoids a Python name clash."""
+    return '--' + name.rstrip('_').replace('_', '-')
 
 
 class Brn:
@@ -172,6 +173,29 @@ class Brn:
         self.check(code == 0, f'--json --help exited {code}', step)
         return description
 
+    def command_help(self, command):
+        """`brn --json COMMAND --help`: the command's description entry."""
+        argv = [self.binary, '--json', command, '--help']
+        code, stdout, stderr, seconds, timed_out = self._run(argv, None)
+        step = self._record(f'{command} --help', argv, None, code, stdout, stderr, seconds)
+        value = self._one_line(step, stdout, code, timed_out)
+        self.check(code == 0, f'{command} --help exited {code}', step)
+        return value
+
+    def pages(self, command, list_key, *, data, **options):
+        """Every page of a bounded read, following `result.cursor`."""
+        items, cursor = [], None
+        while True:
+            extra = {'cursor': cursor} if cursor else {}
+            envelope = self.call(command, data=data, **options, **extra)
+            result = envelope['result']
+            self.check(envelope['page'] is not None and envelope['page']['cursor'] == result['cursor'],
+                       f'{command} page does not mirror its cursor')
+            items.extend(result[list_key])
+            cursor = result['cursor']
+            if cursor is None:
+                return items
+
     def ok(self, command, *, data, stdin=None, **options):
         return self.call(command, data=data, stdin=stdin, expect=0, **options)['result']
 
@@ -197,6 +221,8 @@ def journey(brn, root):
     description = brn.describe()
     check(description.get('contract') == 2, 'description contract is not 2')
     commands = {c['name']: c for c in description['commands']}
+    entry = brn.command_help('note-create')
+    check(entry == {'contract': 2, 'command': commands['note-create']}, 'note-create --help differs from the description')
     used = ['init', 'settings', 'project-create', 'project-document', 'note-create', 'read', 'begin-edit',
             'update-buffer', 'save', 'discard', 'search', 'history', 'undo', 'candidates', 'notes',
             'intake', 'backup', 'export', 'restore', 'projects']
@@ -250,6 +276,10 @@ def journey(brn, root):
     check(all(hit['note'] != document_id for hit in general['hits']), 'general search shows the project document')
     history = brn.ok('history', data=workspace)
     check(any(receipt['operation'] == save_a['operation'] for receipt in history), 'history lacks the save')
+    # Bounded history for one record: pages of one, in commit order.
+    paged = brn.pages('history', 'receipts', data=workspace, record=note, limit=1)
+    check([r['operation'] for r in paged] == [note_call['operation'], save_a['operation']],
+          'paged history --record differs from the note\'s receipts')
 
     # 9. A stale save, and the open session it leaves.
     b = brn.ok('begin-edit', data=workspace, note=note, base=2)['id']
@@ -263,6 +293,9 @@ def journey(brn, root):
           f'unexpected stale conflict {stale["conflict"]}')
     kept = stale['result']['session']['markdown']
     check(kept == FIXTURES['edit_late'], 'the stale result lost the unsaved text')
+    # A later page of a bounded read of the stale version reports Stale.
+    first_page = brn.ok('read', data=workspace, id=note, limit=8)
+    check(first_page['outcome'] == 'Read' and first_page['cursor'], 'paged read did not return a cursor')
     busy = brn.call('begin-edit', data=workspace, note=note, base=3, expect=6)
     check(busy['error']['code'] == 'edit_session_open', 'second begin-edit was not edit_session_open')
     # Owner decision B3 part 1: the open session is never named; the runner
@@ -271,8 +304,9 @@ def journey(brn, root):
           'edit_session_open names the open session')
     check(busy['error']['details'] == {'note': note, 'base_version': 2}, 'edit_session_open details changed')
 
-    # 10. Recover: discard A2, merge onto version 3, save version 4.
-    brn.call('discard', data=workspace, session=a2, generation=1)
+    # 10. Recover by the README recipe: keep the buffer, discard, begin at the current version, save.
+    session = stale['result']['session']
+    brn.call('discard', data=workspace, session=session['id'], generation=session['generation'])
     c = brn.ok('begin-edit', data=workspace, note=note, base=stale['conflict'][0]['version'])['id']
     brn.call('update-buffer', data=workspace, session=c, generation=1, text_file=files['merged'])
     merged = brn.call('save', data=workspace, session=c, generation=1)
@@ -281,12 +315,34 @@ def journey(brn, root):
           'merged text not saved')
     closed = brn.call('save', data=workspace, session=a2, generation=1, expect=3)
     check(closed['outcome'] == 'Closed', 'save on the discarded session was not Closed')
+    # Every accepted revision reassembles from bounded byte pages.
+    revisions = brn.pages('revisions', 'revisions', data=workspace, note=note, limit=2)
+    check([r['version'] for r in revisions] == [1, 2, 3, 4], 'revisions are not 1..4')
+    texts = {1: FIXTURES['note'], 2: FIXTURES['edit_a'], 3: FIXTURES['edit_b'], 4: FIXTURES['merged']}
+    for version, text in texts.items():
+        parts, cursor = [], None
+        while True:
+            extra = {'cursor': cursor} if cursor else {}
+            page = brn.ok('revision', data=workspace, note=note, version=version, limit=16, **extra)
+            parts.append(page['markdown'])
+            cursor = page['cursor']
+            if cursor is None:
+                break
+        check(''.join(parts) == text, f'revision {version} did not reassemble')
+    stale_page = brn.call('read', data=workspace, id=note, limit=8, cursor=first_page['cursor'], expect=3)
+    check(stale_page['outcome'] == 'Stale' and stale_page['conflict'][0]['version'] == 4,
+          'a later page of a changed note was not Stale')
 
     # 11. A Deferred keyed undo, retried after the guard clears.
     d = brn.ok('begin-edit', data=workspace, note=note, base=4)['id']
     deferred = brn.call('undo', data=workspace, operation=merged['operation'], key='u1', expect=4)
     check(deferred['retry'] == 'replay' and deferred['operation'], 'deferred keyed undo lacks replay identity')
     check(deferred['conflict'][0]['kind'] == 'Note', 'deferred undo does not name the note')
+    pending = brn.ok('candidates', data=workspace, limit=1)
+    check(pending['candidates'][0]['operation'] == deferred['operation'], 'candidates --limit 1 misses the compensation')
+    state = brn.ok('operation', data=workspace, key='u1', command_='undo')
+    check(state['state'] == 'prepared' and state['operation'] == deferred['operation'],
+          'operation --key does not show the prepared compensation')
     brn.call('discard', data=workspace, session=d, generation=0)
     undone = brn.call('undo', data=workspace, operation=merged['operation'], key='u1')
     check(undone['outcome'] == 'Applied' and undone['operation'] == deferred['operation'],
@@ -310,6 +366,17 @@ def journey(brn, root):
     check(len(brn.ok('notes', data=workspace)) == before + 1, 'refused key reuse changed notes')
     unkeyed = brn.call('note-create', data=workspace, title_file=files['keyed_title'], text_file=files['keyed'])
     check(unkeyed['retry'] == 'duplicate', 'unkeyed note-create is not duplicate')
+    found = brn.ok('operation', data=workspace, key='n1', command_='note-create')
+    check(found['operation'] == first['operation'] and found['state'] == 'applied', 'operation --key misses the keyed note')
+
+    # 12b. A no-op archive records nothing.
+    chat = brn.ok('thread-start', data=workspace, title_file=files['keyed_title'])['id']
+    brn.call('archive', data=workspace, thread=chat)
+    total = brn.ok('history', data=workspace, limit=1)['total']
+    again = brn.call('archive', data=workspace, thread=chat)
+    check(again['outcome'] == 'Unchanged' and again['operation'] is None and again['changed'] == [],
+          'a repeated archive was not Unchanged')
+    check(brn.ok('history', data=workspace, limit=1)['total'] == total, 'Unchanged recorded a receipt')
 
     # 13. Keyed Markdown intake replays; a new title under the key is refused.
     imported = brn.call('intake', data=workspace, source=files['intake'], intent='full',
