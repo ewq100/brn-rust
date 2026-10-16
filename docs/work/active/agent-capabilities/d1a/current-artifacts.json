@@ -1,0 +1,50 @@
+{
+  "command_receipt": "ai-final-before-review.json",
+  "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+  "artifacts": [
+    {
+      "path": "/private/tmp/brn-d1a-20261016-target/debug/deps/brn_ai-28a197b27edef53b",
+      "sha256": "fbcddb88d5ab01c8a955c6215baea99d6fb17bb6b355b0a39a84cba23e1d2a3e"
+    },
+    {
+      "path": "/private/tmp/brn-d1a-20261016-target/debug/deps/libbrn_threads_core-441e246c1aee373f.rlib",
+      "sha256": "80b05027171355cf768c10db2c2ec1c6ec836771022ef18996086be8c7005393"
+    },
+    {
+      "path": "/private/tmp/brn-d1a-20261016-target/debug/deps/libbrn_threads_core-441e246c1aee373f.rmeta",
+      "sha256": "ac2eb0234080ee00d730aae5b71f134690789ae9b29325d8f170ead45dd7a461"
+    },
+    {
+      "path": "/private/tmp/brn-d1a-20261016-target/debug/.fingerprint/brn-threads-core-441e246c1aee373f/dep-lib-brn_threads_core",
+      "sha256": "c234644e957fc6585e5f145f581f01330ae9b86118e9d0d32e528a989c8b7988",
+      "dep_info_paths": [
+        "src/types.rs",
+        "src/inspect.rs",
+        "src/revision_read.rs",
+        "src/lib.rs",
+        "src/projects.rs",
+        "src/read.rs",
+        "src/backup.rs",
+        "src/stage.rs",
+        "src/run_attention.rs",
+        "src/converge.rs",
+        "src/steering.rs",
+        "src/upgrade.rs",
+        "src/restore.rs",
+        "src/writing.rs",
+        "src/locator.rs",
+        "src/store.rs",
+        "src/reader.rs",
+        "src/context.rs",
+        "src/chat.rs",
+        "src/edit.rs"
+      ]
+    }
+  ],
+  "request_inputs": {
+    "Cargo.lock": "5dab395bdbaac4d39ed29a842913580efc0a656ea95eb18d486b037724b89687",
+    "crates/brn-ai/Cargo.toml": "98c735c12a48a36b487415bc110399d61ea09a09931f0b250cbded12df316f97",
+    "rust-toolchain.toml": "c910997cb152c6dc8ed13b1fdf9fa28a4ed30d6776123e27dd6170e5c66067a0",
+    "crates/brn-ai/src/threads_model_limits.json": "bba2a0c650169ebfabbd160fa1ab19c14443127855f2ec21455ce80c8e2c0f82"
+  }
+}

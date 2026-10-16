@@ -1,0 +1,33 @@
+{
+  "reason": "cargo clean aborted because own task target has no CACHEDIR.TAG (preserved); manually remove only identified stale own core fingerprint/library artifacts under explicit principal narrow cleanup authority. No tag created and no other package/target removed.",
+  "removed": [
+    {
+      "path": "/private/tmp/brn-d1a-20261016-target/debug/.fingerprint/brn-threads-core-441e246c1aee373f/lib-brn_threads_core.json",
+      "sha256": "33d98a89cb8d6920fcbeda0160108824fd813fd95cf400ea4b239fc527619345"
+    },
+    {
+      "path": "/private/tmp/brn-d1a-20261016-target/debug/.fingerprint/brn-threads-core-441e246c1aee373f/lib-brn_threads_core",
+      "sha256": "c20c11a591693812e176d83d66002210c630235075bcd5e7d4cd40c19a7940fe"
+    },
+    {
+      "path": "/private/tmp/brn-d1a-20261016-target/debug/.fingerprint/brn-threads-core-441e246c1aee373f/invoked.timestamp",
+      "sha256": "5a109e6643e8d3e88642e3f35e85d2a83e639d07523aa6e99166c48178e965c3"
+    },
+    {
+      "path": "/private/tmp/brn-d1a-20261016-target/debug/.fingerprint/brn-threads-core-441e246c1aee373f/dep-lib-brn_threads_core",
+      "sha256": "7c0c16c66d8737bf6f3450add002c26d6aa839dad218736072b0672b32c9bdf7"
+    },
+    {
+      "path": "/private/tmp/brn-d1a-20261016-target/debug/deps/libbrn_threads_core-441e246c1aee373f.rlib",
+      "sha256": "15bd403688973fe740a7d4d82a97847899c67d6880a7eed3e2d7da6727ed36c7"
+    },
+    {
+      "path": "/private/tmp/brn-d1a-20261016-target/debug/deps/libbrn_threads_core-441e246c1aee373f.rmeta",
+      "sha256": "399cd6d8b752998bd6de3647cdbd313d2514c03315d2e40e3fce41ff15284e8f"
+    },
+    {
+      "path": "/private/tmp/brn-d1a-20261016-target/debug/deps/brn_threads_core-441e246c1aee373f.d",
+      "sha256": "bd88004075cf45aadd032d109c90c2f144f2b09917c15cb3230e3aaebb9bb6cf"
+    }
+  ]
+}

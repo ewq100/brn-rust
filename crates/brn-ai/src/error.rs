@@ -5,6 +5,15 @@ use rig::providers::chatgpt::auth::AuthError;
 const MAX_DELAY_SECONDS: u64 = 365 * 24 * 60 * 60;
 
 impl AiError {
+    /// Context exhaustion keeps the existing serialized error kind. Both the
+    /// local estimator and the provider's safe code use this observable cause.
+    pub(crate) fn is_context_limit(&self) -> bool {
+        self.kind == AiErrorKind::Other
+            && self
+                .detail
+                .as_ref()
+                .is_some_and(|d| d.code.as_deref() == Some("context_length_exceeded"))
+    }
     pub fn new(kind: AiErrorKind) -> Self {
         Self {
             kind,
@@ -79,6 +88,9 @@ pub(crate) fn provider_code(value: &str) -> String {
 
 impl std::fmt::Display for AiError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if self.is_context_limit() {
+            return f.write_str("The context limit was reached. Continue starts a fresh invocation with retained progress.");
+        }
         let text = match self.kind {
             AiErrorKind::QuoteNotFound => "The quotation was not found in the saved note body.",
             AiErrorKind::QuoteAmbiguous => {

@@ -1,0 +1,49 @@
+{
+  "added": [
+    {
+      "name": "rig-memory",
+      "version": "0.44.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "65fba1ed92d11b4a7ccaedcc4270d728a8c7276c4fcaf8f747bcb89a3a02eec2",
+      "dependencies": [
+        "rig-core",
+        "tracing"
+      ]
+    }
+  ],
+  "removed": [],
+  "changed": [
+    {
+      "before": {
+        "name": "rig",
+        "version": "0.44.0",
+        "source": "registry+https://github.com/rust-lang/crates.io-index",
+        "checksum": "63b75cffdc553348b30a4213837b75dc3f0f35634716bfa67e797627f49ea955",
+        "dependencies": [
+          "rig-agent",
+          "rig-cassette",
+          "rig-core",
+          "rig-derive",
+          "rig-reqwest",
+          "rig-typesafeai"
+        ]
+      },
+      "after": {
+        "name": "rig",
+        "version": "0.44.0",
+        "source": "registry+https://github.com/rust-lang/crates.io-index",
+        "checksum": "63b75cffdc553348b30a4213837b75dc3f0f35634716bfa67e797627f49ea955",
+        "dependencies": [
+          "rig-agent",
+          "rig-cassette",
+          "rig-core",
+          "rig-derive",
+          "rig-memory",
+          "rig-reqwest",
+          "rig-typesafeai"
+        ]
+      }
+    }
+  ],
+  "after_sha256": "5dab395bdbaac4d39ed29a842913580efc0a656ea95eb18d486b037724b89687"
+}

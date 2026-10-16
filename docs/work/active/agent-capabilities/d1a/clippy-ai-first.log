@@ -1,0 +1,219 @@
+    Checking memchr v2.8.3
+    Checking pin-project-lite v0.2.17
+    Checking futures-core v0.3.34
+    Checking stable_deref_trait v1.2.1
+    Checking itoa v1.0.18
+    Checking bitflags v2.13.2
+    Checking foldhash v0.2.0
+    Checking cfg-if v1.0.5
+    Checking once_cell v1.21.4
+    Checking futures-sink v0.3.34
+    Checking bytes v1.12.1
+    Checking futures-task v0.3.34
+    Checking libc v0.2.189
+    Checking zerofrom v0.1.8
+    Checking smallvec v1.16.2
+    Checking slab v0.4.12
+    Checking futures-io v0.3.34
+    Checking equivalent v1.0.2
+   Compiling aws-lc-sys v0.45.0
+    Checking yoke v0.8.3
+    Checking futures-channel v0.3.34
+    Checking core-foundation-sys v0.8.7
+    Checking hashbrown v0.17.1
+    Checking writeable v0.6.4
+    Checking litemap v0.8.3
+   Compiling serde_core v1.0.229
+    Checking tracing-core v0.1.36
+    Checking utf8_iter v1.0.4
+   Compiling icu_normalizer_data v2.3.0
+   Compiling icu_properties_data v2.3.0
+    Checking zerovec v0.11.8
+    Checking zerotrie v0.2.5
+    Checking zeroize v1.9.0
+    Checking futures-util v0.3.34
+   Compiling zmij v1.0.23
+   Compiling generic-array v0.14.7
+    Checking typenum v1.20.1
+    Checking http v1.5.0
+    Checking percent-encoding v2.3.2
+   Compiling serde v1.0.229
+    Checking mio v1.2.3
+    Checking socket2 v0.6.5
+    Checking tracing v0.1.44
+    Checking indexmap v2.14.2
+    Checking rustls-pki-types v1.15.1
+    Checking tinystr v0.8.4
+    Checking potential_utf v0.1.6
+    Checking tokio v1.53.1
+   Compiling serde_json v1.0.151
+    Checking icu_locale_core v2.3.0
+    Checking icu_collections v2.3.0
+    Checking http-body v1.1.0
+    Checking untrusted v0.9.0
+   Compiling system-configuration-sys v0.6.0
+   Compiling httparse v1.10.1
+    Checking try-lock v0.2.5
+    Checking subtle v2.6.1
+    Checking fnv v1.0.7
+    Checking atomic-waker v1.1.2
+    Checking tower-service v0.3.3
+    Checking want v0.3.1
+   Compiling getrandom v0.4.3
+    Checking form_urlencoded v1.2.2
+    Checking core-foundation v0.9.4
+    Checking log v0.4.34
+    Checking icu_provider v2.3.1
+   Compiling ref-cast v1.0.27
+   Compiling thiserror v2.0.21
+    Checking icu_normalizer v2.3.0
+    Checking icu_properties v2.3.0
+    Checking cpufeatures v0.2.17
+    Checking core-foundation v0.10.1
+    Checking security-framework-sys v2.17.0
+    Checking futures-executor v0.3.34
+    Checking sync_wrapper v1.0.2
+    Checking tower-layer v0.3.3
+    Checking ipnet v2.12.2
+    Checking base64 v0.23.1
+    Checking mime v0.3.17
+    Checking futures v0.3.34
+    Checking security-framework v3.7.0
+   Compiling encoding_rs v0.8.42
+   Compiling mime_guess v2.0.5
+    Checking idna_adapter v1.2.2
+    Checking unicase v2.9.0
+    Checking idna v1.1.0
+    Checking block-buffer v0.10.4
+    Checking crypto-common v0.1.7
+    Checking simdutf8 v0.1.5
+    Checking digest v0.10.7
+    Checking url v2.5.8
+    Checking dyn-clone v1.0.20
+    Checking sha2 v0.10.9
+    Checking scopeguard v1.2.0
+    Checking simd-adler32 v0.3.10
+   Compiling num-traits v0.2.19
+    Checking http-body-util v0.1.5
+    Checking futures-timer v3.0.4
+    Checking base64 v0.22.1
+    Checking lazy_static v1.5.0
+    Checking adler2 v2.0.1
+   Compiling crc32fast v1.5.2
+    Checking sharded-slab v0.1.7
+    Checking tracing-log v0.2.0
+    Checking thread_local v1.1.10
+    Checking system-configuration v0.7.0
+    Checking nu-ansi-term v0.50.3
+    Checking fastrand v2.5.0
+    Checking async-stream v0.3.6
+    Checking miniz_oxide v0.9.1
+    Checking glob v0.3.4
+    Checking pin-project v1.1.13
+    Checking tracing-subscriber v0.3.23
+   Compiling libsqlite3-sys v0.38.2
+    Checking tokio-util v0.7.19
+    Checking tower v0.5.3
+    Checking miniz_oxide v0.8.9
+    Checking fdeflate v0.3.7
+    Checking tinyvec v1.13.3
+    Checking tower-http v0.6.11
+    Checking unicode-id v0.3.7
+    Checking uuid v1.26.1
+    Checking tracing-futures v0.2.5
+    Checking markdown v1.0.0
+    Checking h2 v0.4.19
+    Checking unicode-normalization v0.1.25
+    Checking hashlink v0.12.2
+    Checking fallible-iterator v0.3.0
+    Checking fallible-streaming-iterator v0.1.9
+   Compiling rustix v1.1.5
+    Checking errno v0.3.14
+    Checking schemars v1.2.2
+    Checking quick-xml v0.41.0
+    Checking rig-http v0.44.0
+    Checking hyper v1.11.1
+    Checking flate2 v1.1.10
+    Checking ordered-float v5.5.0
+    Checking png v0.18.1
+    Checking hyper-util v0.1.21
+    Checking brn-intake v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407/crates/brn-intake)
+    Checking tempfile v3.27.0
+    Checking brn-threads-intake v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407/crates/brn-threads-intake)
+    Checking rusqlite v0.40.2
+    Checking brn-threads-core v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407/crates/brn-threads-core)
+   Compiling aws-lc-rs v1.18.1
+   Compiling rustls v0.23.45
+    Checking rustls-webpki v0.103.15
+    Checking tokio-rustls v0.26.5
+    Checking rustls-platform-verifier v0.7.1
+    Checking hyper-rustls v0.27.10
+    Checking reqwest v0.13.5
+    Checking rig-reqwest v0.44.0
+    Checking rig-core v0.44.0
+    Checking rig-agent v0.44.0
+    Checking rig-memory v0.44.0
+    Checking rig v0.44.0
+    Checking brn-ai v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407/crates/brn-ai)
+error: this `if` can be collapsed into the outer `match`
+    --> crates/brn-ai/src/threads.rs:2511:17
+     |
+2511 | /                 if run.state == RunState::Working {
+2512 | |                     let mut old = run.clone();
+2513 | |                     old.state = RunState::Interrupted;
+2514 | |                     old.fence = old.fence.checked_add(1).ok_or_else(rejected)?;
+...    |
+2524 | |                     });
+2525 | |                 }
+     | |_________________^
+     |
+     = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#collapsible_match
+     = note: `-D clippy::collapsible-match` implied by `-D warnings`
+     = help: to override `-D warnings` add `#[allow(clippy::collapsible_match)]`
+help: collapse nested if block
+     |
+2510 ~             RecordData::Run(run) if run.thread == request.thread
+2511 ~                 && run.state == RunState::Working => {
+2512 |                     let mut old = run.clone();
+ ...
+2524 |                     });
+2525 ~                 }
+     |
+
+error: could not compile `brn-ai` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: the borrowed expression implements the required traits
+   --> crates/brn-ai/src/threads_budget_tests.rs:351:59
+    |
+351 |             data: RecordData::Note(Note::working("Large", &"õun English ".repeat(5000))),
+    |                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: change this to: `"õun English ".repeat(5000)`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#needless_borrows_for_generic_args
+    = note: `-D clippy::needless-borrows-for-generic-args` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::needless_borrows_for_generic_args)]`
+
+error: the borrowed expression implements the required traits
+   --> crates/brn-ai/src/threads_budget_tests.rs:365:69
+    |
+365 |                 data: RecordData::Note(Note::working("Large extra", &"õun English ".repeat(5000))),
+    |                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: change this to: `"õun English ".repeat(5000)`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#needless_borrows_for_generic_args
+
+error: the borrowed expression implements the required traits
+   --> crates/brn-ai/src/threads_budget_tests.rs:373:21
+    |
+373 |                     &"õun English ".repeat(5000),
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: change this to: `"õun English ".repeat(5000)`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#needless_borrows_for_generic_args
+
+error: the borrowed expression implements the required traits
+   --> crates/brn-ai/src/threads_budget_tests.rs:410:62
+    |
+410 |             data: RecordData::Note(Note::working("Moderate", &"õun English ".repeat(800))),
+    |                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: change this to: `"õun English ".repeat(800)`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#needless_borrows_for_generic_args
+
+error: could not compile `brn-ai` (lib test) due to 5 previous errors

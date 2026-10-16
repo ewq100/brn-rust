@@ -1,0 +1,5 @@
+{
+  "crates/brn-threads-core/src/projects.rs": "3b0acfbff093271f093e7ed7b0a600f46ae41e88a7013227637d61882d629a79",
+  "crates/brn-threads-core/tests/message_search_scope.rs": "11e78ba9032b87753ec0c9ac233ea3494a7d9da028913b031d80f33458c8203c",
+  "projects_matches_accepted_base": true
+}

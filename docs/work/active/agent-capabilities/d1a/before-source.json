@@ -1,0 +1,7 @@
+{
+  "base": "b617d7842c1e668292b4f23c7b321ec195a76a1d",
+  "source": "/private/tmp/brn-d1a-20261016-target/failing-before-source",
+  "archive_sha256": "e36524137fcdc61de456ecd4b3c8e7189bd198d28b7dd1ebbb97e1c2e9a5da22",
+  "only_changed_source": "crates/brn-ai/src/threads.rs appended cfg(test) d1a_before_witness",
+  "witness_sha256": "165881f3baddb3b807f85ed1b44d2408beed5030d6cbd3288d52f65c2045f50a"
+}

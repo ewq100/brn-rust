@@ -1,0 +1,19 @@
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407/crates/brn-ai)
+    Finished `test` profile [optimized] target(s) in 11.32s
+     Running unittests src/lib.rs (/private/tmp/brn-d1a-20261016-target/debug/deps/brn_ai-28a197b27edef53b)
+
+running 1 test
+
+thread 'threads::budget_tests::exact_message_scope_is_fresh_across_knowledge_off_move_archive_delete_and_restore' (28022663) panicked at crates/brn-ai/src/threads_project_tests.rs:13:33:
+project fixture Delete { preview: ProjectDeletePreview { project: "68337e6f-115d-44cf-acc9-cbbe14c43314:0", snapshot: "88779818491ec06117cf06fdb60789e8229304e0d18da6b3342af02da821bef9", removed: [Record { id: "3b21341c-aef8-465d-a44b-b33864947242:0", version: 1, archived: false, data: Run(Run { instruction: Some("b59b3d02-6305-4f2c-81b6-f7bf0d3b5602:1"), queue_claim: None, thread: "3d7cd5d6-f2ea-4a57-bb5e-b27e057ed635:0", provider: "Codex", model: "gpt-6.1-sol", guide_identity: "brn-threads-guidance-12", budget: 4, effort: "medium", loaded_skills: [], fence: 1, state: Working, progress: "", operations: [], sources: [] }) }, Record { id: "3d7cd5d6-f2ea-4a57-bb5e-b27e057ed635:0", version: 4, archived: false, data: Thread(Thread { private_context: true, context_epoch: 1, title: "Journey", state: Open, attention: [] }) }, Record { id: "68337e6f-115d-44cf-acc9-cbbe14c43314:0", version: 5, archived: false, data: Project(Project { title: "D1A first", instructions: "õun in Estonian", use_brn_knowledge: false, chats: ["3d7cd5d6-f2ea-4a57-bb5e-b27e057ed635:0"], documents: [], trash: None }) }, Record { id: "b59b3d02-6305-4f2c-81b6-f7bf0d3b5602:0", version: 2, archived: false, data: Run(Run { instruction: Some("b59b3d02-6305-4f2c-81b6-f7bf0d3b5602:1"), queue_claim: None, thread: "3d7cd5d6-f2ea-4a57-bb5e-b27e057ed635:0", provider: "Codex", model: "gpt-6.1-sol", guide_identity: "brn-threads-guidance-12", budget: 4, effort: "medium", loaded_skills: [], fence: 2, state: Interrupted, progress: "", operations: [], sources: [] }) }, Record { id: "b59b3d02-6305-4f2c-81b6-f7bf0d3b5602:1", version: 1, archived: false, data: Message(Message { thread: "3d7cd5d6-f2ea-4a57-bb5e-b27e057ed635:0", role: "owner", text: "Investigate the synthetic change" }) }], retained: [], unfinished_actions: [] }, actions: {} }: invalid request: run control changes must advance the fence
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test threads::budget_tests::exact_message_scope_is_fresh_across_knowledge_off_move_archive_delete_and_restore ... FAILED
+
+failures:
+
+failures:
+    threads::budget_tests::exact_message_scope_is_fresh_across_knowledge_off_move_archive_delete_and_restore
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 367 filtered out; finished in 0.02s
+
+error: test failed, to rerun pass `-p brn-ai --lib`

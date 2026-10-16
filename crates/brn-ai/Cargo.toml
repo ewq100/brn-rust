@@ -19,7 +19,7 @@ required-features = ["capability-spike"]
 brn-threads-core = { path = "../brn-threads-core" }
 brn-intake = { path = "../brn-intake" }
 brn-threads-intake = { path = "../brn-threads-intake" }
-rig = { version = "=0.44.0", default-features = false, features = ["agent", "derive", "reqwest"] }
+rig = { version = "=0.44.0", default-features = false, features = ["agent", "derive", "reqwest", "memory"] }
 rig-core = { version = "=0.44.0", default-features = false, features = ["rustls"] }
 rig-reqwest = { version = "=0.44.0", default-features = false, features = ["rustls"] }
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "time", "sync"] }

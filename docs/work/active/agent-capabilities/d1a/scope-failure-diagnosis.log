@@ -1,0 +1,25 @@
+    Finished `test` profile [optimized] target(s) in 0.40s
+     Running unittests src/lib.rs (/private/tmp/brn-d1a-20261016-target/debug/deps/brn_ai-28a197b27edef53b)
+
+running 1 test
+
+thread 'threads::budget_tests::exact_message_scope_is_fresh_across_knowledge_off_move_archive_delete_and_restore' (28020208) panicked at crates/brn-ai/src/threads_project_tests.rs:13:10:
+called `Result::unwrap()` on an `Err` value: Invalid("run control changes must advance the fence")
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+   1: core::panicking::panic_fmt
+   2: core::result::unwrap_failed
+   3: brn_ai::threads::project_tests::project_command
+   4: brn_ai::threads::budget_tests::exact_message_scope_is_fresh_across_knowledge_off_move_archive_delete_and_restore
+   5: <brn_ai::threads::budget_tests::exact_message_scope_is_fresh_across_knowledge_off_move_archive_delete_and_restore::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+test threads::budget_tests::exact_message_scope_is_fresh_across_knowledge_off_move_archive_delete_and_restore ... FAILED
+
+failures:
+
+failures:
+    threads::budget_tests::exact_message_scope_is_fresh_across_knowledge_off_move_archive_delete_and_restore
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 367 filtered out; finished in 0.02s
+
+error: test failed, to rerun pass `-p brn-ai --lib`

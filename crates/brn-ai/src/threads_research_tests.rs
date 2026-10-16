@@ -7,6 +7,140 @@ use rig::completion::Usage;
 use rig::test_utils::{MockCompletionModel, MockStreamEvent};
 use std::time::Duration;
 
+#[tokio::test]
+async fn helper_request_budget_refuses_before_any_scripted_dispatch() {
+    let (_root, request, _) = setup();
+    let (parent, _) = begin(&request).unwrap();
+    let child = research::test_child_scope(&parent);
+    let model = MockCompletionModel::from_stream_turns([answer_turn()]);
+    let answer = run_model_budgeted(
+        model.clone(),
+        child,
+        &"õun English ".repeat(500),
+        ReasoningEffort::High,
+        research::HELPER_ROUNDS,
+        true,
+        CancellationToken::new(),
+        Arc::new(|_| {}),
+        context_budget::Budget::test_cap(100),
+    )
+    .await;
+    assert!(matches!(&answer.terminal,AiTerminal::Failed(e) if e.is_context_limit()));
+    assert_eq!(model.request_count(), 0);
+}
+
+#[tokio::test]
+async fn helper_growth_uses_its_chosen_route_budget_instead_of_parent_catalog_limit() {
+    let (_root, mut request, plan) = setup();
+    request.trace = TraceLevel::Summary;
+    let mut helper = luna();
+    helper.provider = "copilot".into();
+    set_helper(&request, Some(helper));
+    let (scope, _) = begin(&request).unwrap();
+    // The parent's listed ChatGPT limit is 272000. This chosen Copilot
+    // helper has unknown model context and a separate 128KiB host cap.
+    // Its first request fits; the returned assistant/tool history does not.
+    let helper = MockCompletionModel::from_stream_turns([
+        vec![
+            MockStreamEvent::text("x".repeat(120 * 1024)),
+            read_call("read", &plan),
+            tokens(1),
+        ],
+        vec![
+            MockStreamEvent::tool_call("report", "submit_findings", findings(vec![])),
+            tokens(1),
+        ],
+    ]);
+    scripted(&scope, vec![Ok(helper.clone())]);
+    let result = ask(&scope, vec![question("Read the plan")]).await;
+    assert_eq!(result["reports"][0]["outcome"], "budget", "{result}");
+    assert_eq!(
+        helper.request_count(),
+        1,
+        "never dispatch a next request under the parent's larger route limit"
+    );
+    assert!(
+        scope.helper.as_ref().unwrap().notices().is_empty(),
+        "context budget is not helper unavailability"
+    );
+    let trace = helper_traces(&scope);
+    assert_eq!(trace[0].outcome, "budget");
+    assert!(
+        trace[0]
+            .trace
+            .as_ref()
+            .unwrap()
+            .failure
+            .as_ref()
+            .unwrap()
+            .is_context_limit()
+    );
+}
+
+#[tokio::test]
+async fn helper_dispatch_keeps_append_only_history_under_the_shared_guard() {
+    let (_root, request, plan) = setup();
+    let (parent, _) = begin(&request).unwrap();
+    let child = research::test_child_scope(&parent);
+    let helper = MockCompletionModel::from_stream_turns([
+        vec![read_call("first", &plan), tokens(1)],
+        vec![read_call("second", &plan), tokens(1)],
+        answer_turn(),
+    ]);
+    let answer = run_model_budgeted(
+        helper.clone(),
+        child,
+        "Read synthetic evidence",
+        ReasoningEffort::High,
+        research::HELPER_ROUNDS,
+        true,
+        CancellationToken::new(),
+        Arc::new(|_| {}),
+        context_budget::Budget::selected(Provider::Chatgpt, "gpt-6-luna"),
+    )
+    .await;
+    assert!(
+        matches!(answer.terminal, AiTerminal::Completed),
+        "{:?}",
+        answer.terminal
+    );
+    let requests = helper.requests();
+    assert_eq!(requests.len(), 3);
+    for pair in requests.windows(2) {
+        assert_eq!(
+            &pair[1].chat_history[..pair[0].chat_history.len()],
+            &pair[0].chat_history
+        );
+        assert_eq!(pair[0].tools, pair[1].tools);
+    }
+}
+
+#[tokio::test]
+async fn helper_provider_context_limit_is_budget_with_safe_diagnostics_and_no_fallback() {
+    let (_root, scope, _) = codex_helper_scope(TraceLevel::Summary);
+    let http =
+        rig::test_utils::SequencedHttpClient::new([rig::test_utils::MockHttpResponse::error(
+            rig::http_client::StatusCode::BAD_REQUEST,
+            r#"{"error":{"code":"context_length_exceeded","message":"CANARY_PROVIDER_CONTEXT"}}"#,
+        )]);
+    scope
+        .helper
+        .as_ref()
+        .unwrap()
+        .set_source(HelperSource::Provider(Some(DynHttpClient::new(
+            http.clone(),
+        ))));
+    let result = ask(&scope, vec![question("Read the synthetic plan")]).await;
+    assert_eq!(result["reports"][0]["outcome"], "budget", "{result}");
+    assert_eq!(http.requests().len(), 1);
+    assert!(scope.helper.as_ref().unwrap().notices().is_empty());
+    assert!(
+        !serde_json::to_string(&helper_traces(&scope))
+            .unwrap()
+            .contains("CANARY_PROVIDER_CONTEXT")
+    );
+}
+
 const PLAN: &str =
     "# Harbor plan\n\nThe ferry leaves at 07:40 from pier 3.\nTickets cost 18 EUR.\n";
 

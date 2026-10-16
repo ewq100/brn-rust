@@ -1,0 +1,220 @@
+   Compiling proc-macro2 v1.0.107
+   Compiling unicode-ident v1.0.26
+   Compiling quote v1.0.47
+   Compiling libc v0.2.189
+   Compiling find-msvc-tools v0.1.14
+   Compiling shlex v2.0.1
+   Compiling memchr v2.8.3
+   Compiling pin-project-lite v0.2.17
+   Compiling futures-core v0.3.34
+   Compiling pkg-config v0.3.34
+   Compiling stable_deref_trait v1.2.1
+   Compiling itoa v1.0.18
+   Compiling foldhash v0.2.0
+   Compiling cfg-if v1.0.5
+   Compiling bitflags v2.13.2
+   Compiling futures-sink v0.3.34
+   Compiling once_cell v1.21.4
+   Compiling bytes v1.12.1
+   Compiling hashbrown v0.17.1
+   Compiling slab v0.4.12
+   Compiling futures-task v0.3.34
+   Compiling futures-io v0.3.34
+   Compiling smallvec v1.16.2
+   Compiling fs_extra v1.3.0
+   Compiling futures-channel v0.3.34
+   Compiling dunce v1.0.5
+   Compiling equivalent v1.0.2
+   Compiling litemap v0.8.3
+   Compiling core-foundation-sys v0.8.7
+   Compiling serde_core v1.0.229
+   Compiling writeable v0.6.4
+   Compiling tracing-core v0.1.36
+   Compiling version_check v0.9.5
+   Compiling icu_normalizer_data v2.3.0
+   Compiling utf8_iter v1.0.4
+   Compiling indexmap v2.14.2
+   Compiling http v1.5.0
+   Compiling icu_properties_data v2.3.0
+   Compiling aws-lc-rs v1.18.1
+   Compiling zeroize v1.9.0
+   Compiling zmij v1.0.23
+   Compiling generic-array v0.14.7
+   Compiling serde v1.0.229
+   Compiling serde_json v1.0.151
+   Compiling typenum v1.20.1
+   Compiling percent-encoding v2.3.2
+   Compiling http-body v1.1.0
+   Compiling rustls-pki-types v1.15.1
+   Compiling system-configuration-sys v0.6.0
+   Compiling httparse v1.10.1
+   Compiling rustversion v1.0.23
+   Compiling untrusted v0.9.0
+   Compiling rustls v0.23.45
+   Compiling syn v3.0.6
+   Compiling syn v2.0.119
+   Compiling socket2 v0.6.5
+   Compiling jobserver v0.1.35
+   Compiling mio v1.2.3
+   Compiling cc v1.5.1
+   Compiling atomic-waker v1.1.2
+   Compiling tower-service v0.3.3
+   Compiling try-lock v0.2.5
+   Compiling subtle v2.6.1
+   Compiling getrandom v0.4.3
+   Compiling fnv v1.0.7
+   Compiling want v0.3.1
+   Compiling core-foundation v0.9.4
+   Compiling form_urlencoded v1.2.2
+   Compiling cmake v0.1.58
+   Compiling thiserror v2.0.21
+   Compiling log v0.4.34
+   Compiling ref-cast v1.0.27
+   Compiling unicase v2.9.0
+   Compiling security-framework-sys v2.17.0
+   Compiling core-foundation v0.10.1
+   Compiling mime_guess v2.0.5
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling digest v0.10.7
+   Compiling cpufeatures v0.2.17
+   Compiling aws-lc-sys v0.45.0
+   Compiling sync_wrapper v1.0.2
+   Compiling base64 v0.23.1
+   Compiling winnow v1.0.4
+   Compiling autocfg v1.5.1
+   Compiling simd-adler32 v0.3.10
+   Compiling ipnet v2.12.2
+   Compiling tower-layer v0.3.3
+   Compiling mime v0.3.17
+   Compiling synstructure v0.14.0
+   Compiling serde_derive_internals v0.30.0
+   Compiling toml_parser v1.1.3+spec-1.1.0
+   Compiling num-traits v0.2.19
+   Compiling encoding_rs v0.8.42
+   Compiling system-configuration v0.7.0
+   Compiling sha2 v0.10.9
+   Compiling security-framework v3.7.0
+   Compiling crc32fast v1.5.2
+   Compiling toml_datetime v1.1.1+spec-1.1.0
+   Compiling adler2 v2.0.1
+   Compiling scopeguard v1.2.0
+   Compiling simdutf8 v0.1.5
+   Compiling tracing-attributes v0.1.31
+   Compiling multiversion_no_op v1.0.0
+   Compiling dyn-clone v1.0.20
+   Compiling toml_edit v0.25.15+spec-1.1.0
+   Compiling uuid v1.26.1
+   Compiling zerofrom-derive v0.1.8
+   Compiling yoke-derive v0.8.3
+   Compiling zerovec-derive v0.11.6
+   Compiling futures-macro v0.3.34
+   Compiling displaydoc v0.2.7
+   Compiling tokio-macros v2.7.2
+   Compiling serde_derive v1.0.229
+   Compiling tracing v0.1.44
+   Compiling thiserror-impl v2.0.21
+   Compiling zerofrom v0.1.8
+   Compiling tokio v1.53.1
+   Compiling ref-cast-impl v1.0.27
+   Compiling schemars_derive v1.2.2
+   Compiling futures-util v0.3.34
+   Compiling http-body-util v0.1.5
+   Compiling vcpkg v0.2.15
+   Compiling base64 v0.22.1
+   Compiling unicode-segmentation v1.13.3
+   Compiling lazy_static v1.5.0
+   Compiling futures-timer v3.0.4
+   Compiling convert_case v0.11.0
+   Compiling libsqlite3-sys v0.38.2
+   Compiling sharded-slab v0.1.7
+   Compiling proc-macro-crate v3.5.0
+   Compiling async-stream-impl v0.3.6
+   Compiling pin-project-internal v1.1.13
+   Compiling yoke v0.8.3
+   Compiling miniz_oxide v0.9.1
+   Compiling tracing-log v0.2.0
+   Compiling thread_local v1.1.10
+   Compiling fastrand v2.5.0
+   Compiling nu-ansi-term v0.50.3
+   Compiling async-stream v0.3.6
+   Compiling rig-derive v0.44.0
+   Compiling ordered-float v5.5.0
+   Compiling tracing-subscriber v0.3.23
+   Compiling flate2 v1.1.10
+   Compiling pin-project v1.1.13
+   Compiling miniz_oxide v0.8.9
+   Compiling fdeflate v0.3.7
+   Compiling tinyvec v1.13.3
+   Compiling rustix v1.1.5
+   Compiling glob v0.3.4
+   Compiling unicode-id v0.3.7
+   Compiling markdown v1.0.0
+   Compiling unicode-normalization v0.1.25
+   Compiling zerovec v0.11.8
+   Compiling zerotrie v0.2.5
+   Compiling futures-executor v0.3.34
+   Compiling png v0.18.1
+   Compiling errno v0.3.14
+   Compiling hashlink v0.12.2
+   Compiling futures v0.3.34
+   Compiling fallible-iterator v0.3.0
+   Compiling fallible-streaming-iterator v0.1.9
+   Compiling quick-xml v0.41.0
+   Compiling schemars v1.2.2
+   Compiling tracing-futures v0.2.5
+   Compiling tokio-util v0.7.19
+   Compiling tower v0.5.3
+   Compiling tinystr v0.8.4
+   Compiling potential_utf v0.1.6
+   Compiling h2 v0.4.19
+   Compiling icu_locale_core v2.3.0
+   Compiling icu_collections v2.3.0
+   Compiling tempfile v3.27.0
+   Compiling icu_provider v2.3.1
+   Compiling icu_normalizer v2.3.0
+   Compiling icu_properties v2.3.0
+   Compiling brn-intake v0.1.0 (/private/tmp/brn-d1a-20261016-target/failing-before-source/crates/brn-intake)
+   Compiling idna_adapter v1.2.2
+   Compiling idna v1.1.0
+   Compiling hyper v1.11.1
+   Compiling url v2.5.8
+   Compiling brn-threads-intake v0.1.0 (/private/tmp/brn-d1a-20261016-target/failing-before-source/crates/brn-threads-intake)
+   Compiling tower-http v0.6.11
+   Compiling rig-http v0.44.0
+   Compiling hyper-util v0.1.21
+   Compiling rusqlite v0.40.2
+   Compiling brn-threads-core v0.1.0 (/private/tmp/brn-d1a-20261016-target/failing-before-source/crates/brn-threads-core)
+   Compiling rustls-webpki v0.103.15
+   Compiling tokio-rustls v0.26.5
+   Compiling rustls-platform-verifier v0.7.1
+   Compiling hyper-rustls v0.27.10
+   Compiling reqwest v0.13.5
+   Compiling rig-reqwest v0.44.0
+   Compiling rig-core v0.44.0
+   Compiling rig-agent v0.44.0
+   Compiling rig v0.44.0
+   Compiling brn-ai v0.1.0 (/private/tmp/brn-d1a-20261016-target/failing-before-source/crates/brn-ai)
+    Finished `test` profile [optimized] target(s) in 44.80s
+     Running unittests src/lib.rs (/private/tmp/brn-d1a-20261016-target/debug/deps/brn_ai-4bdff0807a0d4cb7)
+
+running 2 tests
+
+thread 'threads::d1a_before_witness::older_discussion_query_exposes_exact_matching_passage_beyond_old_read_cap' (28004305) panicked at crates/brn-ai/src/threads.rs:5529:10:
+called `Result::unwrap()` on an `Err` value: Invalid("creation ID must be preassigned by this operation")
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'threads::d1a_before_witness::canonical_seventy_messages_preserve_early_requirement_without_the_old_forty_cut' (28004304) panicked at crates/brn-ai/src/threads.rs:5529:10:
+called `Result::unwrap()` on an `Err` value: Invalid("creation ID must be preassigned by this operation")
+test threads::d1a_before_witness::canonical_seventy_messages_preserve_early_requirement_without_the_old_forty_cut ... FAILED
+test threads::d1a_before_witness::older_discussion_query_exposes_exact_matching_passage_beyond_old_read_cap ... FAILED
+
+failures:
+
+failures:
+    threads::d1a_before_witness::canonical_seventy_messages_preserve_early_requirement_without_the_old_forty_cut
+    threads::d1a_before_witness::older_discussion_query_exposes_exact_matching_passage_beyond_old_read_cap
+
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 355 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p brn-ai --lib`

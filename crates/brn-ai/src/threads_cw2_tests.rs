@@ -19,7 +19,7 @@ fn owner_write(store: &mut Store, key: &str, writes: Vec<Put>) {
         ApplyOutcome::Applied(_)
     ));
 }
-fn fixture(
+pub(super) fn fixture(
     text: &str,
     mut requirements: WritingReadRequirements,
 ) -> (tempfile::TempDir, ThreadRunRequest, WritingSnapshot, String) {
