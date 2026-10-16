@@ -507,6 +507,17 @@ Owner request: "can you fix all 5 . and let go wiht interrupted". Base `f519534e
 - *Output fields:* `search` JSON gains `messages`, `message_total` and `message_cursor` (F). Useful intake now posts the desktop wording (E), and the preloaded intake playbooks keep the dropped guidance.
 - *Run states:* CLI terminal strings come from `AiTerminal` and are unchanged. A Run read back after a settings change shows `Interrupted` (D).
 
+**Coordination outcomes (16 October 2026).**
+- *CLI exit codes:* the owner confirmed they stay with `work/cli-agent-contract`, and gave that branch this branch's integration notes. This branch does not change exit codes.
+- *UI branch decisions* (`work/ui-polish`, now on main `8bef439b`):
+  - *U10:* when a Run ends Failed or Interrupted, the desktop status line will show the chat's recorded notice, the same text as Needs you and the recovery card. It drops its own "Work stopped: " formatting. This branch's notice text stays the only source, unchanged.
+  - *U7:* the UI branch already shows two-line Needs you rows (chat title, then reason). The native observation here was of the older UI. The UI branch's fix pass adds a test.
+  - *U8:* the desktop will stop showing receipt reasons. It will say "Saved." or "Saved. Running work was stopped.", and service strings stay as they are.
+  - *F-UI1 and U4 (Compare/Discard on `EditSessionOpen`):* done on the combined branch, because they need this branch's APIs.
+  - *U2:* the UI branch leaves `useful_intake` logic alone, but adds notice tones across `threads_ui.rs`. Expect a small textual conflict near `useful_intake`.
+  - *Integration checklist addition:* the UI branch's U1 Stop tests seed a lease-free Working Run and then Stop it. Here that Run gets an Interrupted notice, so those tests need a `RunLease` or a new expected result.
+  - *Bundle id and tool count:* decided at integration.
+
 **Proposed contract sentences (not applied; apply at integration with `docs/status.md`).**
 - `threads-behavior.md`, State and attention: "A Run stopped because of something outside its chat (settings, project changes or imports, process ended, or a lease-free stop) is recorded as Interrupted, matching its notice." (D) If the owner keeps C's Continue behavior, qualify the "only enters Needs you" sentence: "A Run whose process died keeps its Interrupted notice until the next Run in its chat records a result."
 - `threads-behavior.md`, Attachments or source identity: "A local file supplied as a source is recorded and matched by its real path, so one file is one Source however its path is spelled; a Source saved under an older spelling still matches and is recorded at the real path by the next checked observation." (B) And: "Useful intake uses one owner instruction from every host. A re-supply of the same source in its chat reuses the chat's latest instruction for that source unless the owner has written since." (E)
