@@ -981,3 +981,13 @@ If git prints "daemon terminated", retry with `git -c core.fsmonitor=false`.
 Gaps after round 2: appendix §Gaps. Plus: desktop no-ops still write receipts (B4 desktop gap); B1 and B3 part 2 (options-only, round 3); `--trash` unvalidated; the scratch-merge items from design §1.1(a)–(e) land only at merge.
 
 <!-- ===================== ROUND 2 END ===================== -->
+
+# Round 2b: remaining CLI gaps
+
+Design and plan: `../cli-agent-contract.artifacts/round2b/plan-2b.md` (outside the worktree), steps 1–9 all done. Contract stays 2; every change is additive or makes an existing README promise true. Implemented in `946884f3`, reviewed APPROVED by two reviewers with no blocking findings (`round2b/review-2b.json`), verified on candidate `d2dbe725` and its record commit (evidence "Round 2b final verification").
+
+- Items done: paged `notes`, `threads`, `needs-you`, `recovery` and `projects`; new paged `messages --thread`; `--hops`, `--budget` and `--trash` checked before opening; the hard stop arms after an earlier SIGINT; `begin-edit` lock contention is `busy`; README usage row fixed; signal tests isolated from the caller's signal mask and the bounds tests use lower bounds.
+- Open for the owner at merge: `projects --trash` values other than `yes`/`no` are now `invalid_value` (README Compatibility 8).
+- Still deferred (handoff): round 3, `--key` for `ask` and useful intake, cooperative cancellation inside started long writes, NeedsReview/Superseded from the CLI.
+
+<!-- ===================== ROUND 2B END ===================== -->

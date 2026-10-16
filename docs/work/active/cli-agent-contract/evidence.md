@@ -552,3 +552,29 @@ Plan and design: `../cli-agent-contract.artifacts/round2b/plan-2b.md` (outside t
 - `ask` and useful intake take no `--key`; started `export`, `backup`, `restore`, `upgrade` and index builds stop only at the hard stop; NeedsReview and Superseded stay unreachable from the CLI; recovery still lists session IDs for the owner (B3 part 2).
 - `needs-you` parity is process-tested only on the lists the CLI can reach offline; the core test covers the attention predicate.
 - `notes`, `threads`, `needs-you`, `projects` and `recovery` pages are ID-ordered and can miss items created while paging; `messages` pages follow creation order.
+
+## Round 2b final verification
+
+Candidate `d2dbe725` (code `946884f3`), base origin/main `027aa7c2`. Run 16 October 2026 from the task worktree in a fresh `/private/tmp/brn-cli-agent-contract/r2b-final.*` root with fresh `HOME`, `CODEX_HOME` and `TMPDIR`, no `BRN_*` variables except `BRN_INTAKE_HELPER`, synthetic data only and no provider calls. The root was deleted afterwards.
+
+| Check | Result |
+|---|---|
+| `cargo fmt --all -- --check` | exit 0 |
+| `cargo clippy --workspace --all-targets --locked --offline -- -D warnings` (as `verify-storage.sh`) | exit 0 |
+| `env -u BRN_SKIP_PTY_TESTS cargo test -p brn --locked --offline --no-fail-fast` | 14 binaries, 132 passed, 0 failed, 0 ignored; the PTY test `terminal_sources_are_refused_without_blocking` ran and passed |
+| `cargo test -p brn-threads-core -p brn-threads-app` | 41 binaries, 280 passed, 0 failed |
+| `cargo test --workspace --locked --offline --no-fail-fast` | 72 binaries, 845 passed, 1 failed, 4 ignored. The failure is the Poppler-only `prepared_rust_fixtures_keep_source_and_preview_bindings_in_owned_scratch` (`Pdf preparation failed: Unavailable`, no `pdftoppm`): **LOCAL-ENV-BLOCKED, not passed** |
+| `python3 -m unittest discover -s scripts/tests` (Python 3.14) | 155 tests OK |
+| `bash scripts/verify-storage.sh` | exit 101 at the same Poppler-only test, after fmt, the helper build, the workspace build and clippy passed. Its tail by hand: `brn --help` 0, `brn` 1, `brn --unknown` 1, desktop `--help` 0, desktop `--unknown` 1, `brn-desktop --headless-check startup --data-dir <fresh>` printed `Threads ready: 2 records`, exit 0 |
+| CI macOS fixture step (`RUNNER_TEMP` under the root, `mktemp -d`, `pwd -P`, `trap 'rmdir …' EXIT`, `TMPDIR=…`, `bash scripts/verify-end-to-end.sh --fixtures-only`) | exit 0, `{"journey":"passed","steps":102,"checks":1079}`, the `rmdir` trap succeeded |
+| `python3 scripts/cli_journey.py target/debug/brn` (fresh empty `TMPDIR` parent) | `{"journey":"passed","steps":102,"checks":1079}`, parent left empty |
+| `docs/work/active/projects/cli-witness.py` | passed, 19 checks, 41 calls, parent empty |
+| `docs/work/active/chats-and-projects/cli-witness.py` | passed, parent empty |
+| `python3 scripts/check-markdown-links.py`; `git diff --check 027aa7c2..HEAD` | 0 failures; clean |
+| `git diff 027aa7c2..HEAD -- crates/brn-desktop crates/brn-ai` | empty |
+
+The headless startup line replaces the earlier round-2b record: `round2b/verify-summary.log` ran `brn-desktop --headless-check` without `startup` or `--data-dir`, which exits 1 (reviewer-a nit).
+
+**Merge check** (worktree-free `git merge-tree --write-tree --name-only` of `d2dbe725`): against `work/daily-workflow-reliability` `192cd765` and against `work/integration-ui-reliability` `6db39420`, conflicts only in `crates/brn-threads-core/src/chat.rs` (two hunks, the B4 hook) and `crates/brn/src/main.rs` (two hunks: the `HELP`/`AGENT_HELP` block and the `begin-edit` `map_err`). These are the recorded regions.
+
+Status, reported separately: **implemented** yes; **verified (automated)** yes, except the Poppler-only test (local-env-blocked); **reviewed** APPROVED; **native-observed** not applicable (CLI only); **owner-accepted** no; **merged** no.

@@ -14,7 +14,8 @@ Written 16 October 2026, when the owner asked to wrap up and merge the reviewed 
   - more keys (`topics-create`, `knowledge-check --seed-chat`, keyed intake that replays before conversion);
   - an offline loopback stub for `ask` outcomes;
   - owner items B2 (no default credentials in CLI-created workspaces), B4 (no-op converges return `Unchanged` with no receipt) and B3 part 1 (`edit_session_open` without the session ID, documented stale-save recipe).
-- Both rounds were independently reviewed by two reviewers, and both approved. Shared-service changes are additive: no `brn-desktop` or `brn-ai` change, and no `ApplyOutcome` variant.
+- **Round 2b (still contract 2; see evidence "Round 2b"):** paged `notes`, `threads`, `needs-you`, `recovery` and `projects`, a paged `messages --thread`, `--hops`/`--budget`/`--trash` checked before opening, the hard stop after an earlier SIGINT, `busy` for `begin-edit` lock contention, the README usage row, and signal tests isolated from the caller's signal mask. At merge, delete the round-2b `SQLITE_CONSTRAINT_UNIQUE` inference in `begin_edit_error` together with `recovery_buffers()` and keep the typed arm (merge-resolution notes).
+- All three rounds were independently reviewed by two reviewers, and both approved. Shared-service changes are additive: no `brn-desktop` or `brn-ai` change, and no `ApplyOutcome` variant.
 
 ## Left for the next agent, in priority order
 
@@ -35,18 +36,11 @@ Written 16 October 2026, when the owner asked to wrap up and merge the reviewed 
    - Move in-repo tests, scripts and witnesses to `--purpose test`.
 
    Phase 1 enforces nothing new. **Phases 2–3 are a separate assignment that needs desktop review UI:** CLI writes in owner workspaces become exact-candidate proposals, and the owner issues scoped, expiring grants. This guards against agent overreach. It does not protect against code running as the same OS user.
-3. **Remaining CLI gaps ("round 2b", implemented locally; see evidence "Round 2b"):**
-   - page `notes`, `threads`, `needs-you`, `recovery` and `projects` with the round-2 convention, and add a paged `messages --thread`;
-   - validate `--trash`, `--hops` and `--budget` before the workspace opens;
-   - after an earlier SIGINT, a later `--timeout`/SIGTERM must still arm the 3 s hard stop;
-   - lock contention in `begin-edit` must map to `busy`, not `edit_session_open` (the typed core mapping from the reliability merge may already fix this; check);
-   - fix the README usage row that cites `--knowledge maybe`;
-   - make the signal tests pass outside a subshell, and remove the wall-clock slack in the bounds tests.
-4. **Still open, lower priority:**
+3. **Still open, lower priority:**
    - `--key` for `ask` and useful intake (`brn-ai` mints the run identity);
    - cooperative cancellation inside an already-started backup, export, restore, upgrade or index build;
    - `NeedsReview` and `Superseded` cannot be reached from the CLI (they arrive with B1 phase 2).
-5. **Desktop follow-ups (for a UI agent):**
+4. **Desktop follow-ups (for a UI agent):**
    - desktop no-op archive/link still writes receipts; the core `*_converging` functions exist if the same behavior is wanted;
    - a CLI-created workspace has no default sign-in, so the desktop must ask for configuration.
 
@@ -54,6 +48,7 @@ Written 16 October 2026, when the owner asked to wrap up and merge the reviewed 
 
 - **Security, predates this branch:** a writable Copilot cache can redirect Copilot traffic to plain HTTP. The recommendation is that `validate_record` require HTTPS, as a small separate task in `brn-ai`.
 - `brn project-delete` of a project whose chat has a Run fails with "run control changes must advance the fence". This also happens on `main`, and it needs its own slice.
+- Round 2b made `projects --trash` values other than `yes`/`no` an `invalid_value` usage error; they used to list active projects with exit 0 (README Compatibility 8). Confirm with the owner at merge.
 - Should chat intake into a project be refused? It is currently marked as an owner decision, and the recommendation is to keep the mark until B1 phase 2.
 
 ## Environment
