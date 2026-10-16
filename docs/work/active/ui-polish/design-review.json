@@ -1,0 +1,41 @@
+{
+  "verdict": "CHANGES_REQUESTED",
+  "findings": [
+    {
+      "id": "M1",
+      "severity": "MEDIUM",
+      "title": "In Stacked mode the owner cannot see comments during review: the review bar replaces the toolbar that holds toggle-margin",
+      "location": "Layout rules → Comments → Stacked ('in review, between the review text and the footer'; 'toggle-margin… is the only expand/collapse control. The section starts collapsed'); step 3 → Comments ('comments-section placed in both Write and review'); review bar state table; Small-window rules → Review bar; Tests → Comments and Review",
+      "fix": "toggle-margin (Comment icon plus count, same ID, handler and state) renders in the review bar in every margin mode, as the bar's last control before the primary. Only one of the toolbar and the review bar renders at a time. Below 480 pt the Proposal label reads 'Proposal', and the shape ('whole note', 'N notes', 'N changes') moves into its tooltip and accessible name, next to the +a −r counts. At 900×600 that is about 374 of the ~382 usable pt; step 3 confirms it from measured widths. Layout rules → Stacked add: 'During review, the review bar's toggle-margin expands and collapses the section, which sits between the review text and the footer.' Review tests at 900×600 in Write, on a protected note with two comments: toggle-margin is visible in the one-row bar; clicking it expands comments-section between the review text and the footer, and both cards render; the footer stays fully visible; Escape collapses the section and toggle-margin reopens it. At 1250×860 in review, the cards render beside the text (threads_omakase_tests.rs 827)."
+    },
+    {
+      "id": "N1",
+      "severity": "NIT",
+      "title": "The contract correction misses writing polish spec line 15 ('Feedback is reachable beside both views')",
+      "location": "Step 3 → Contract correction; Gates → Contract corrections",
+      "fix": "Add: writing polish spec line 15 becomes 'Feedback is reachable beside both views (in a narrow Note tile, in the in-tile comments section below the text)…'. Leave line 3 (owner quote) and docs/status.md line 11 as historical records."
+    },
+    {
+      "id": "N2",
+      "severity": "NIT",
+      "title": "The plan doesn't say where focus goes when Escape collapses comments-section",
+      "location": "Layout rules → Comments → Stacked; Escape order; Tests → Comments ('Escape inside the section collapses it and keeps its draft')",
+      "fix": "When Escape collapses comments-section, focus moves to the visible editor (focus_visible_editor, as cancel-comment does today), or to the review text during review. Assert this in the Escape test."
+    },
+    {
+      "id": "N3",
+      "severity": "NIT",
+      "title": "The vertical order and height share of comments-section are unspecified next to writing-run-status, writing-result and writing-proposals",
+      "location": "Layout rules → Comments → Stacked and Note tile chrome budget; step 3 → Writing bar",
+      "fix": "Order below the text: comments-section, writing-run-status, writing-proposals or writing-result, then the writing bar. The text keeps at least 120 px. The section's cap is 40% of the height left after those rows, and the section shrinks before the text does. Add a 900×600 test with a failed run, its partial reply and an expanded section, asserting that note-body is at least 120 px tall."
+    },
+    {
+      "id": "N4",
+      "severity": "NIT",
+      "title": "The theme journey test keeps its status-bar name and loses its only plain saved-setting check",
+      "location": "Step 2 → Test updates (threads_omakase_tests.rs 274ff); Tests → Theme",
+      "fix": "Rename the test to themes_switch_from_settings_and_launcher_and_wait_for_running_work. After the Settings switch to Virmalised, assert !theme_pending and settings().theme == Some(\"virmalised\")."
+    }
+  ],
+  "reviewDoc": "/Users/evokessler/repos/brn-rust/.worktrees/ui-polish/docs/work/active/ui-polish/design-review.md"
+}

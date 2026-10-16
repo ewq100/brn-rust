@@ -1,0 +1,156 @@
+//! OBSERVATION-ONLY HARNESS for the ui-polish design phase. Lives only in a
+//! scratch export outside Git; never committed. It applies navigation commands
+//! from the file named by BRN_OBSERVE_COMMANDS so native rendering can be
+//! captured where synthetic keyboard/mouse input is not permitted. Every
+//! command calls the same view methods a click or shortcut would.
+use super::*;
+use std::time::{Duration, SystemTime};
+
+impl ThreadsUi {
+    pub(super) fn start_observe(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        let Some(path) = std::env::var_os("BRN_OBSERVE_COMMANDS").map(PathBuf::from) else {
+            return;
+        };
+        cx.spawn_in(window, async move |this, cx| {
+            let mut seen: Option<SystemTime> = None;
+            loop {
+                cx.background_executor()
+                    .timer(Duration::from_millis(250))
+                    .await;
+                let Some(modified) = std::fs::metadata(&path).and_then(|m| m.modified()).ok() else {
+                    continue;
+                };
+                if seen == Some(modified) {
+                    continue;
+                }
+                seen = Some(modified);
+                let text = std::fs::read_to_string(&path).unwrap_or_default();
+                let done = this.update_in(cx, |this, window, cx| {
+                    for line in text.lines() {
+                        this.observe_command(line.trim(), window, cx);
+                    }
+                    cx.notify();
+                });
+                if done.is_err() {
+                    break;
+                }
+            }
+        })
+        .detach();
+    }
+
+    fn observe_record(&self, kind: &str, wanted: &str) -> Option<String> {
+        self.records
+            .iter()
+            .find(|r| {
+                title(r) == wanted
+                    && match kind {
+                        "note" => matches!(r.data, RecordData::Note(_)),
+                        "chat" => matches!(r.data, RecordData::Thread(_)),
+                        _ => matches!(r.data, RecordData::Project(_)),
+                    }
+            })
+            .map(|r| r.id.clone())
+    }
+
+    fn observe_command(&mut self, line: &str, window: &mut Window, cx: &mut Context<Self>) {
+        let (verb, rest) = line.split_once(' ').unwrap_or((line, ""));
+        let on = rest == "on";
+        match verb {
+            "size" => {
+                let mut parts = rest.split_whitespace().filter_map(|n| n.parse::<f32>().ok());
+                if let (Some(w), Some(h)) = (parts.next(), parts.next()) {
+                    window.resize(size(px(w), px(h)));
+                }
+            }
+            "theme" => self.choose_theme(ThemeId::from_key(Some(rest)), window, cx),
+            "layout" => {
+                if let Some(preset) = Preset::ALL.into_iter().find(|p| p.key() == rest) {
+                    self.apply_layout(preset, window, cx)
+                }
+            }
+            "tile" => {
+                if let Some(kind) = TileKind::ALL.into_iter().find(|k| k.key() == rest) {
+                    self.show_tile(kind, window, cx)
+                }
+            }
+            "beside" => {
+                if let Some(kind) = TileKind::ALL.into_iter().find(|k| k.key() == rest) {
+                    self.show_beside(kind, window, cx)
+                }
+            }
+            "settings" => {
+                if let Some(section) = SettingsSection::ALL.into_iter().find(|s| s.key() == rest) {
+                    self.settings_section = section;
+                }
+                self.show_tile(TileKind::Settings, window, cx)
+            }
+            "filter" => {
+                if let Some(filter) = ThreadFilter::ALL.into_iter().find(|f| f.key() == rest) {
+                    self.thread_filter = filter;
+                }
+                self.show_tile(TileKind::AllThreads, window, cx)
+            }
+            "note" => {
+                if let Some(id) = self.observe_record("note", rest) {
+                    self.open_note(&id, None, window, cx)
+                }
+            }
+            "chat" => {
+                if let Some(id) = self.observe_record("chat", rest) {
+                    self.open_thread(&id, window, cx)
+                }
+            }
+            "project" => {
+                self.selected_project = self.observe_record("project", rest);
+                self.show_tile(TileKind::Projects, window, cx)
+            }
+            "deleteproject" => {
+                if let Some(id) = self.observe_record("project", rest) {
+                    self.project_delete_dialog(&id, window, cx)
+                }
+            }
+            "trash" => {
+                self.projects_trash = on;
+                self.show_tile(TileKind::Projects, window, cx)
+            }
+            "review" => {
+                if let Some(candidate) = self.candidates.first().cloned() {
+                    self.open_review(candidate, window, cx)
+                }
+            }
+            "read" => self.set_note_reading(on, window, cx),
+            "reviewread" => self.set_review_reading(on, window, cx),
+            "margin" => self.margin = on,
+            "launcher" => {
+                self.open_launcher(window, cx);
+                let query = rest.to_owned();
+                self.launcher_query
+                    .update(cx, |input, cx| input.set_value(query, window, cx));
+            }
+            "closelauncher" => self.close_launcher(window, cx),
+            "notesearch" => {
+                let query = rest.to_owned();
+                self.search
+                    .update(cx, |input, cx| input.set_value(query, window, cx));
+            }
+            "compose" => {
+                let text = rest.to_owned();
+                self.composer
+                    .update(cx, |editor, cx| editor.set_value(text, window, cx));
+            }
+            "ask" => self.ask(window, cx),
+            "keys" => self.show_keys(window, cx),
+            "newnote" => self.new_note(window, cx),
+            "newchat" => self.new_thread(window, cx),
+            "closedialog" => window.close_dialog(cx),
+            "quit" => cx.quit(),
+            "maximize" => {
+                if let Some(kind) = TileKind::ALL.into_iter().find(|k| k.key() == rest) {
+                    self.relayout(window, cx, |layout| layout.toggle_maximize(kind))
+                }
+            }
+            _ => {}
+        }
+    }
+}
