@@ -556,11 +556,7 @@ fn operation_by_key_finds_every_keyed_command() {
     keyed_once(
         &root,
         &data,
-        &[
-            "undo",
-            "--operation",
-            made["operation"].as_str().unwrap(),
-        ],
+        &["undo", "--operation", made["operation"].as_str().unwrap()],
         "undo",
         "u1",
     );
