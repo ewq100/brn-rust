@@ -24,8 +24,9 @@
 - [x] Route `ThreadsUi::retry_rewrite` directly to shared `start_request`. Keep ordinary `start_run` chat queue/EditNote request assembly; remove its RewriteNote detection and writing-specific strings. Extract the existing busy/refreshed admission into `begin_run_start`, invoked once before dispatch; keep one provider/search/preparation/worker implementation.
 - [x] Prepare two native fixtures in `threads_writing_tests.rs`: real panel Rewrite/Retry catalogue refusal with Chat different/hidden, followed by the same panel request consumed by the shared preparer and existing scripted runtime with actual model-input inspection; and wrong Note/general-vs-project/explicit-conversation-change/archive refusals with exact record/receipt/feedback preservation. Preserve every existing test byte.
 - [x] Apply only the separately granted app type re-export and desktop test-only dependency hunks. No lock update in this window.
-- [ ] On explicit heavy grant: reconcile only an expected desktop→existing-rig lock edge if needed; execute a separate-target baseline refusal fixture, affected native library/desktop/shared-start/CLI checks, strict lint/format/default F22 graph/build and any principal-bounded guard recheck. Retain all failures and original source associations.
-- [ ] Create/qualify a final compiled source pin and obtain fresh principal-owned Copilot Opus actual-diff review/local acceptance. A source-only preparation pin is not this gate.
+- [x] Granted normal window: exact desktop→rig lock edge, separate-root/target baseline refusal failure, candidate native/default/shared-start/CLI/combined/headless checks executed; carried PDF failure and source compile correction retained. [Actual qualification](verification.md). Targeted guard recheck remains separately ungranted.
+- [x] Prepare the final compiled-source/evidence pin with exact source associations and sole carried baseline PDF failure.
+- [ ] Fresh principal-owned Copilot Opus actual-diff review/local acceptance. No source-only preparation or local test result substitutes for this gate.
 
 ## Later commands, not executed
 
@@ -44,3 +45,5 @@ cargo build --workspace --locked --offline
 Principal allocates the serial window and strict/default/combined breadth. A narrowly affected guard check may be justified by the new contextual-reader integration; no unchanged-guard campaign, benchmark or broad stress. Any targeted mutants require a separate grant, failing-before evidence, normal checks/pin and one original cumulative ≤1800s slice cap.
 
 F04/F06/F07: scoped saved request and delivered model input; F09: retained stale input and synchronous dirty guard; F10/F21: contextual retry refusal plus unchanged CW2 privacy/access witnesses (partial program evidence); F12/F15: retained exact Apply/durable Undo/local editor Undo suites; F16: saved retry/reopen/queue witnesses; F22: default GPUI-free graph/build/lint/tests qualification later. Reference-ranking/intake changes and B3/B4/PC are outside this slice. PDF/native pdftoppm, shared external fixture, hosted CI, native human/owner and full program gates remain open.
+
+**Current gate:** the [compiled candidate qualification](verification.md) supersedes the source-only scheduling constraints above for the completed granted window. Heavy ownership is explicitly returned after the pin; UI source remains frozen for review. No new grant is inferred.

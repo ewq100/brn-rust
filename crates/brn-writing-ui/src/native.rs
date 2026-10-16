@@ -162,7 +162,7 @@ impl WritingPanel {
         message: &str,
         displayed_scope: Option<&str>,
         offered_copilot_models: Vec<String>,
-    ) -> Result<ThreadRunStart, RewriteStartError> {
+    ) -> std::result::Result<ThreadRunStart, RewriteStartError> {
         let note = self.open_note_id().ok_or_else(|| {
             RewriteStartError::Context(AppError::Invalid("Working Note is unavailable".into()))
         })?;

@@ -1,4 +1,6 @@
-# B1b source-only preparation — BUILD NEED
+# B1b source-only preparation — historical pin 9bd8f469
+
+The [compiled candidate qualification](verification.md) now supersedes this preparation gate. Original source-only fingerprints and unexecuted-fixture statements below describe pin 9bd8f469; actual baseline/candidate executions and the Result type-resolution correction are recorded separately.
 
 Prepared on clean accepted base `5e98b0157a70076f2fe69346f1496cccc869bc78`, branch `work/b1b-20261016`, same bound `t3-239c29dc` checkout. [Plan](plan.md) records requirements and proportional acceptance; [ownership](ownership.md) records the exact five current source/manifest paths and principal's two added grants. All other refs/worktrees and D1A work are preserved.
 

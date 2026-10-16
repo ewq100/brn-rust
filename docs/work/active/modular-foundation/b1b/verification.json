@@ -1,0 +1,2286 @@
+{
+  "artifact_identities": [
+    {
+      "bytes": 70614112,
+      "path": "/private/tmp/brn-b1b-before-20261016-target/debug/deps/brn_desktop-f8e8bac48a5a3b3c",
+      "sha256": "8de882a6aa964d3a954916ddc60c7f57a9ac9851e22499785b30231a74a70961"
+    },
+    {
+      "bytes": 71087120,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/brn_desktop-ddcd9d7ab3061f22",
+      "sha256": "d58176be3d56ac2bf65a463e7034fb991309b12ced3dbc643d54fab37ec7c095"
+    },
+    {
+      "bytes": 5582416,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/brn_writing_ui-312dec7c0abdb770",
+      "sha256": "219635bcd88c340c8fb1f059847803dc0d3f5645110e7bac7b3038b509b8d931"
+    },
+    {
+      "bytes": 1369712,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/agent_authority-24d9d9c88f46ce92",
+      "sha256": "71a3869f6498e31dd3ed4ae6e158d734d0d26bde87a224fec49aebc09217505d"
+    },
+    {
+      "bytes": 1391600,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/agent_bounds-1078cd9cc7473770",
+      "sha256": "212887e87f39ac240bccfcdce7741cf3b3a5c5ebf71e8902ccb9dcaee6cbb166"
+    },
+    {
+      "bytes": 1564640,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/agent_contract-d755b6e01cc448d2",
+      "sha256": "219ef88a9b870e6209f2dcdc7bc7ba977864ae55ee57677a5b14ddfd2a041fc2"
+    },
+    {
+      "bytes": 1463296,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/agent_converge-5679c8e6d3acb88e",
+      "sha256": "e21e14e01e54ac7c38e407d38940224153c9dbaa30a1c4b31f2cd6951c8d3a70"
+    },
+    {
+      "bytes": 1334560,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/agent_credentials-af763e60155e5bdd",
+      "sha256": "e0fb11947745e58979843425d582885563268c2c35b6c9b93728c058bd255b58"
+    },
+    {
+      "bytes": 5230480,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/agent_credentials_existing-1d5d4889e60acff0",
+      "sha256": "cb156e1759a48ba6205403b181e0e8f92fcf00ce5d6f7d1c9a43495abfcb94ff"
+    },
+    {
+      "bytes": 1408304,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/agent_discovery-bb95d277f565af74",
+      "sha256": "0654ee0629b4fc8f752c1625f5665422b33b98c4d6c66d20cf512e20b3d4be8c"
+    },
+    {
+      "bytes": 1512720,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/agent_edits-9be74ad23a0cfc42",
+      "sha256": "4593b5dfa0eaf68355f91c48ec33859e221e0cdc8fc8c8eb77cfc3bfe3ae3020"
+    },
+    {
+      "bytes": 22767504,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/agent_eval_journeys-e3fb3ed356e7d8c5",
+      "sha256": "4a94f376c448586132d421812c5e50f6ef0c869c16d03d329ea9b27d0363d8be"
+    },
+    {
+      "bytes": 1428640,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/agent_inspect-e0e3daf2e9a8da29",
+      "sha256": "b1c29b0e89c14c0048a320847dab8560b0e2c27ce5bccfb06483d3f532e5f508"
+    },
+    {
+      "bytes": 22010992,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/agent_journeys-131a0899af90f4d6",
+      "sha256": "a0bac3e4cf2ba3b8676e3878d22ca6e1533c2fedfafbe3d6c0bb31c14429d4e7"
+    },
+    {
+      "bytes": 1541216,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/agent_lists-e20c79c5598cf58a",
+      "sha256": "a885aa7bf9255f799f0012a4d8c9918b4c0346dca7107d5938ea58284d15bf3a"
+    },
+    {
+      "bytes": 1330272,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/agent_reasons-28210eea46612703",
+      "sha256": "1cf190566a1b99e8333c337141433519066f27d236f9cf04386ebe488caaa789"
+    },
+    {
+      "bytes": 1365952,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/agent_retry-816170f69c69e9b4",
+      "sha256": "04ba2b7a1f88738d9741d9819857f3fbfd169788d491d1df6ad6c01583441d5a"
+    },
+    {
+      "bytes": 1538128,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/agent_runs-a2f904a6448405ad",
+      "sha256": "507b316fb012d369f9fbe7caca45f6dde3776aa8d28d7f7b8a4b9e3287d04f9f"
+    },
+    {
+      "bytes": 1390000,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/agent_upgrade-387da509ef3eba64",
+      "sha256": "b83fec14b6f2a7eaaee365e7952a74828e5cec3d35c1939fb9e37cf85e0a2c0b"
+    },
+    {
+      "bytes": 5214176,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/backup_directory-3f78b14c9a01061f",
+      "sha256": "0a6faaf22e791922ae17a128e70dfcd73e471939ad215cda43be231c8b2257a3"
+    },
+    {
+      "bytes": 4232672,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/backup_directory-ad86ffb2d307c405",
+      "sha256": "c4d6d6d314ece642b10e892d1ce279581b0b00f66f1592e765d43a32a81524e8"
+    },
+    {
+      "bytes": 6421200,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/brn-fee94833639c86d5",
+      "sha256": "3c45686bd57baa16ebb90a0ba94f49ffa0ab549f261325de6ba230aa6481ed0f"
+    },
+    {
+      "bytes": 30235568,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/brn_ai-4bdff0807a0d4cb7",
+      "sha256": "b134dfc04fb5b6f796e5a48abf64dbd51398d3d40b7f249a6684ac2713942e7a"
+    },
+    {
+      "bytes": 5589632,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/brn_desktop-bbdde215060e951c",
+      "sha256": "3dd339a4ed40b560ded6181c699ca0c05001e2027c3650408b2c8c55d9a7ffd3"
+    },
+    {
+      "bytes": 2552528,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/brn_intake-428de214cafa0800",
+      "sha256": "04b780a67a677051a27eabd7982f1414dd9a98e760fe7a778897c7d02d6683fd"
+    },
+    {
+      "bytes": 1090368,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/brn_retrieval-f6fcb83680fe0c5e",
+      "sha256": "19675649739e800643470d3cdeed3153d0b4682bcd506c1d0e9f77e69672a59e"
+    },
+    {
+      "bytes": 5612992,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/brn_threads_app-254d35bb8e1cd57c",
+      "sha256": "f3591ea6559f3713acedcacbb74304f1b586bf5082a61e800edb7a36bf8ee9d9"
+    },
+    {
+      "bytes": 4405200,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/brn_threads_core-e42750de0bd1a950",
+      "sha256": "1f059b3861233e8ceb26f9d4a9afe7df1d861b1efb91d42917bad21870b857dd"
+    },
+    {
+      "bytes": 3222272,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/brn_threads_intake-2fce79e002a28627",
+      "sha256": "411f7a39ed91a621a08ac6bb34979f470da473964ef6ea96a970771f4cd8e385"
+    },
+    {
+      "bytes": 1811344,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/brn_writing_ui-22be94d3812284ea",
+      "sha256": "c9b9120400868f4552887a74fd3f5cd35783dd50725c2e1424dccbed98e5bbbb"
+    },
+    {
+      "bytes": 4166576,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/candidate_refresh-2286328efbd5fb45",
+      "sha256": "d54f16242084a31891eadf564fb17f07493ada3641883d19525c0cb33cf173da"
+    },
+    {
+      "bytes": 6806208,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/chat-2fbc00b20a82b469",
+      "sha256": "b1a7bc14290df1accc53f8c66d372bfa9310c2b45ac6335c8e89cfe4a6b96c6e"
+    },
+    {
+      "bytes": 5255200,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/chat_decisions-550b20a6612e5342",
+      "sha256": "25d2ee0ddd5f396a6008b8e289ae36b5fd74e14a759ede57f47e415ee3f07c68"
+    },
+    {
+      "bytes": 1270368,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/chat_format-bafcaeb4752a3563",
+      "sha256": "5a7e0b964554f068fd2b1df1a42a35e8a56aca375ac1b3b7a519f730333db803"
+    },
+    {
+      "bytes": 4208240,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/chat_storage-18ee8ec22973f196",
+      "sha256": "d89e8e4b9fa6b0a9494fb4d46a009d1a23bd0a9b627057027210897d5ec8f8b8"
+    },
+    {
+      "bytes": 4463696,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/converge-c9225277d1dddfb3",
+      "sha256": "70f12183f97c1c77e0ebcc1d189ef52843c921691a9326b3287e094dbffd5511"
+    },
+    {
+      "bytes": 4793440,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/core-6be094f2aba70f00",
+      "sha256": "63143198fbb6a2a24104edb3a45cff1bb5f6e857eaf6bc72abc09fdbb3e165c9"
+    },
+    {
+      "bytes": 4280544,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/current_inputs-c17370f9580df944",
+      "sha256": "a7f3031d42aa093e524c571d3e00bd92a0c2740f6285d447331d0429d79e6ef0"
+    },
+    {
+      "bytes": 22616272,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/cw2_review-d4d0c2da036154fd",
+      "sha256": "ea2149e9739101f4f382f8d826b3c940cbaf66f63f2ff475675f22eac1bb5b08"
+    },
+    {
+      "bytes": 4387920,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/cw2_visibility-71ef364477077027",
+      "sha256": "4db2f80d8795cb4d25e1a02c909ffad5b778b0a77be2ccb99da3849e162ecd95"
+    },
+    {
+      "bytes": 22174832,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/daily_workflow_eval-1b5a3d45668df4c1",
+      "sha256": "f339d9481963419a5855665f4ec86f0989404bd65e087806dc2b1933b7582129"
+    },
+    {
+      "bytes": 2873744,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/data_folder-522075bbc4ead883",
+      "sha256": "e51100754486015de6470964f18d46b03a9abde1bf850ab5aa06b80d262ab177"
+    },
+    {
+      "bytes": 1260512,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/data_folder-96f59051a2040a80",
+      "sha256": "7cbf70f0d9dae3074a02fc6103d85f5478b12a64d293e6525267deb9ec0e9d8a"
+    },
+    {
+      "bytes": 6269472,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/delegation-0d58cd5978c68fe1",
+      "sha256": "17d3c8b368a3eea38d4382d6ca3558d1b8dff1e21f2a5bdb34c5ea42cdfc3431"
+    },
+    {
+      "bytes": 4358240,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/delegation-9ae88f284ac93d0d",
+      "sha256": "1a6283698fe085b6e03866ca9fef0e74680f4ecf34b93365d3b06dce62661300"
+    },
+    {
+      "bytes": 965376,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/edit_authority_guard-58b621514c769f39",
+      "sha256": "2dbbc6663a55dbb6691e16cf50a5e28ee487ae66603e33550fe5c71796fe1654"
+    },
+    {
+      "bytes": 4420256,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/edit_tokens-0deb4fc689b81de4",
+      "sha256": "9b54907b1ba8684887bad834f75297525181a92e4e84b8c9190064daab02fc19"
+    },
+    {
+      "bytes": 5330992,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/export_metadata-9655706224e12b65",
+      "sha256": "5c6fdf8b1695454303db5d11552536e1100183fb51ca3ef07ded1f6ac95eedfa"
+    },
+    {
+      "bytes": 22228752,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/host_intake-e7de8aff7a674c96",
+      "sha256": "67f225bfe2acf67d33cc4dae7587038b4acddb4c2873748e934b8ab5d932000d"
+    },
+    {
+      "bytes": 5347600,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/import_coverage-f6a2affc176847e1",
+      "sha256": "729e4c44055e3d0bccf53d3462d3fcd8608c579e27f1a8cfd2e65ee49750c111"
+    },
+    {
+      "bytes": 4455072,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/inspect-fecdaf645c74b585",
+      "sha256": "aebb619f40cd64262788c95b173d94a359fdaec6bab47133dfbf3bea08cbd8cf"
+    },
+    {
+      "bytes": 6053152,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/keyed_owner_operations-bdf73059f0eef635",
+      "sha256": "e6d2beb58f38940ca2079fe881d3de0b159ec2cb698a40a0556bafd00dec0b38"
+    },
+    {
+      "bytes": 21329648,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/killed_run_candidate-463617f1a62fc746",
+      "sha256": "5d211ddcec09ff4790f8abe128766038972cc59de118a138770dbf5996222501"
+    },
+    {
+      "bytes": 944304,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/local_embedder-bafff530b1479136",
+      "sha256": "6463a58dcd22e992006f07363dad123059d0959f2d2e3f618e492f8c9d795461"
+    },
+    {
+      "bytes": 944288,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/maintained-8a3af3ba2a13751a",
+      "sha256": "f53cc3ad5e931d4958c6235520d4a32f4c9e9c625ed6b9206b9b0223b2860dcc"
+    },
+    {
+      "bytes": 4507312,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/message_search_scope-710d727cddbeccd0",
+      "sha256": "354c4f3818d577929e3f6d0d58efe6dc8bc623ac0040da93ff645bdf716d5f78"
+    },
+    {
+      "bytes": 944304,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/model_download-92187191c57b2fc2",
+      "sha256": "a25b65814585c14d878ef54713bcd4eb67b7ed0c3b361eefea67db2c6b70815a"
+    },
+    {
+      "bytes": 4153728,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/note_read-dc0be41bce4e6f86",
+      "sha256": "e30c732b418a651c7122b6e0d50323decf82402921e31a256d3ff6bec358ba32"
+    },
+    {
+      "bytes": 944256,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/pptx-c2f6a4f0409adb59",
+      "sha256": "763b1a93e74155cb24ebdefa2a81521e71ee74bed7700fc8780860a6244ea9ce"
+    },
+    {
+      "bytes": 7103296,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/product-2edbf8f1db96803d",
+      "sha256": "b228e55d3aae27b0ef35d33165618207de91872c0caf1011304e54d8ec8dd6f1"
+    },
+    {
+      "bytes": 4162944,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/project_format-950295569117a307",
+      "sha256": "b045695f0df299c587eeba20d14185c2e15468e93871dc5f36174105662e0393"
+    },
+    {
+      "bytes": 6939184,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/projects-fb73b2ddb6b55faf",
+      "sha256": "a7257f7f210e09f19f0537c5c6ab7c0aa2dc4367d908dc5aa1fc6b372fe64845"
+    },
+    {
+      "bytes": 1622416,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/protocol-a2e972eacc4f8182",
+      "sha256": "3ce96c651438339be8e10714cbfaadac374c2cd753434d84d57f5e88217fefaa"
+    },
+    {
+      "bytes": 4295264,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/qualification-934231d9a61b24a3",
+      "sha256": "292d973fc1bf6d3199425f538cf28bf871a63d02d1bd99810371cf86a765ae10"
+    },
+    {
+      "bytes": 944336,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/restricted_helper-8b22183601c2bcba",
+      "sha256": "f0dbb0b3e29c2441eb11540b49e104eb41feca6d666e16403c68a7807c4d6664"
+    },
+    {
+      "bytes": 6911424,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/retrieval_eval-318f5eb4ab690f96",
+      "sha256": "aba09e8f43f3e955c2e6f6873b58743edf04eabcd18b02b9cca0e2c03b0f6937"
+    },
+    {
+      "bytes": 4100688,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/revision_read-38ad1739a60f2e75",
+      "sha256": "495f45eeb91eda7cddaecff84746aae92144bec9d83f6164e79287758282d54b"
+    },
+    {
+      "bytes": 6124160,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/run_recovery-affe11c8769a4190",
+      "sha256": "45396ff432360861d223defaf291839fd56f582f327b36c5e3fefb4c53fe4ded"
+    },
+    {
+      "bytes": 6332880,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/search_dense-7ed2907ddc88d510",
+      "sha256": "4277975d11f5d76cf2ff48aeac728f974b47a59ebc3d71501b3d85d427ec1676"
+    },
+    {
+      "bytes": 3322080,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/search_index-1a16ba90b21a3fdb",
+      "sha256": "7d755060fcbc2d6991e514bc93c6db9227510c808443f81256758182871dc014"
+    },
+    {
+      "bytes": 1262368,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/search_messages-49598d5327e1105a",
+      "sha256": "836041c4a4468c2b9b56ed6748fcdf946f1cfec4a931b4cdb1bdbacaf4559cc9"
+    },
+    {
+      "bytes": 22171920,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/search_messages-f902dd5b2a8ff31a",
+      "sha256": "3fac9ff9d1fa178aece8a24a42bf653d7af78d778ea90a350c81a1f11be8d98d"
+    },
+    {
+      "bytes": 4247184,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/search_reader-cea64e946ad43833",
+      "sha256": "7ce85e86e1c18e5230cc349f8b2ae5c2db5ec73c43b91d279380103908653fa3"
+    },
+    {
+      "bytes": 6421184,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/search_worker-9710fb078cb23571",
+      "sha256": "79ed5a2fff8ae1d14f665add8622828d78bf1a193ad0f99aa5d4655b97460897"
+    },
+    {
+      "bytes": 21788256,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/shared_run-2b401c7c9199274d",
+      "sha256": "f925fd117c5e9e6b144f2448d27ac7e39797c5e6d2ee3dcd77192faada3bda3b"
+    },
+    {
+      "bytes": 21350560,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/source_intake_chat-fccd36a8fb24bddb",
+      "sha256": "0c5f03c3b7497abe375ae64c382358e243e82bc477c8b6e79631f24d6aa8b091"
+    },
+    {
+      "bytes": 1961712,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/source_locator-8b1a4f09a49c9adf",
+      "sha256": "d6aad9d88397630cc363ebe41a540c7a4763cea3d6205a474017f6887cddb96c"
+    },
+    {
+      "bytes": 5218256,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/steering-862dd5020fd14865",
+      "sha256": "214a630831547ab615b1f4de488306caee0204e4d014029ca29aae9c01873a56"
+    },
+    {
+      "bytes": 4222912,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/steering-e6e901951c2fdd54",
+      "sha256": "c0d375fe544d82235b5ab84f8c49207c287c69db1961bd1d7e96fa9ffd4becea"
+    },
+    {
+      "bytes": 6623008,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/synthetic_baseline-5af20bd25772d534",
+      "sha256": "8a88dd55d5e32a2c99796671e8d234f475fb3b3dd13c691e66c737d519d24a5b"
+    },
+    {
+      "bytes": 5158064,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/thread_lifecycle-279649e0626ca95a",
+      "sha256": "b4113b4fb8feabceabbff1b66bc498322e182482f39c9e7d1249f11bb3ffa284"
+    },
+    {
+      "bytes": 2082304,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/threads-be0a1895e06e2aaa",
+      "sha256": "474adf7ff1e9c5297145406293cec979d7c91d98368736bf82ec679623fe2d44"
+    },
+    {
+      "bytes": 6066896,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/topics_knowledge-e14e359188db3873",
+      "sha256": "e8d1480eae3cd0f28462899e42c52ebefa7ed29e4dcaf617ea8e85d0bdb3a415"
+    },
+    {
+      "bytes": 6307232,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/user_scale-6ab4a4a2284cdc5f",
+      "sha256": "b3f0d74da21008f96139f7ceb5c6b039d8844a3d73d760f47c7951668d4cdc44"
+    },
+    {
+      "bytes": 6120144,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/wiki_eval_seed-3ba3501f0d67861d",
+      "sha256": "f549f4e25ad6da45133e192e2883176dc49bf041405069f9e47a8793dc57e4c2"
+    },
+    {
+      "bytes": 20980720,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/withdraw_proposal-d1390c3809a53d8b",
+      "sha256": "0ec92dea0102e8cd5369a4103ec11251167c5d381fe92443f1e3591df617bd92"
+    },
+    {
+      "bytes": 5118688,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/workspace_purpose-55b2e9fa11d8624e",
+      "sha256": "7171099c1b1c1dcb59b30e6169bd1c81062752b60c4e0e5f7fd0a52347b73751"
+    },
+    {
+      "bytes": 4292720,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/writing-56b70fa92eb8fc3e",
+      "sha256": "c17d9028c97a5b23d976637507598a2500de6ed039d6adb18a731989bbfc37ab"
+    },
+    {
+      "bytes": 5643040,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/writing-e5f9303e752fdcc1",
+      "sha256": "e34f6f4c2ab71d329eaca7a433d1cb3e3ea3af51510552c942535575f6af65a9"
+    },
+    {
+      "bytes": 6080464,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/writing_context-a85501614bd3572d",
+      "sha256": "794a34c9ce1f6615b29f08e311a5bd8a70f2a8bda7fef9585403518ecf12d67a"
+    },
+    {
+      "bytes": 7312048,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/writing_setup-809506aac4036a0b",
+      "sha256": "2a3e7b1c9977a15fa8c5aa78f1367ebd74cd9fe132a588f4319c42095245c9ae"
+    },
+    {
+      "bytes": 4591040,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/writing_setup-e9b887f0a22be3b5",
+      "sha256": "7a11dc1dc8a2eae75f65122b4c82ed0cd4089e1234decd8cb0dfadca5451a4cd"
+    },
+    {
+      "bytes": 92804176,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/brn_desktop-3f2cd0654d7aab2c",
+      "sha256": "b908dd4e4c2af79d6f9e6ed8a7e82f9bf9884c666b680077fe2ff25acfa7d4e5"
+    },
+    {
+      "bytes": 106177040,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/brn",
+      "sha256": "6284a84aea924c79d09104153854e54a9837e46ef9e5e10f7f4a199e29389b3d"
+    },
+    {
+      "bytes": 189173040,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/brn-desktop",
+      "sha256": "d31d92d594a71228f648132365b054f6ed98b7f3bcc2ed10cbf18ee415d84631"
+    },
+    {
+      "bytes": 34084368,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/brn-intake-helper",
+      "sha256": "25b6e40b3e4aa29f90465c3234ac02b132b2b4d5ab4387dd1a5bcd597d68e445"
+    }
+  ],
+  "base": "5e98b0157a70076f2fe69346f1496cccc869bc78",
+  "before_source": {
+    "accepted_base": "5e98b0157a70076f2fe69346f1496cccc869bc78",
+    "accepted_tree": "c3e5e792827b63f2dcfd69d60d7af8029f220b7c",
+    "baseline_file_tree_exact_before_patch": true,
+    "candidate_target": "/private/tmp/brn-b1a-20261016-target",
+    "no_candidate_manifest_or_lock_changes_copied": true,
+    "only_patch_paths": [
+      "crates/brn-desktop/src/threads_writing_tests.rs"
+    ],
+    "patch_sha256": "97df04a50de5ae3a4d9d8c93188122469962a4001558f7813a0d4016ab7eba26",
+    "source_root": "/private/tmp/brn-b1b-before-20261016-source",
+    "synthetic_Git_base_tree": "c3e5e792827b63f2dcfd69d60d7af8029f220b7c",
+    "synthetic_commit": "459e2c94b0ddadd3c9a8ee25a643707a5f6d8dd7",
+    "target": "/private/tmp/brn-b1b-before-20261016-target"
+  },
+  "branch": "work/b1b-20261016",
+  "cargo_fingerprint_receipt": "/private/tmp/brn-b1b-window1-20261016/cargo-fingerprint-identities.json",
+  "cargo_fingerprint_receipt_sha256": "e2e23b6548a20e593d43d158c83c2743494bfcd29c1092c94bbd9f6f6f0b76c5",
+  "commands": [
+    {
+      "command": [
+        "cargo",
+        "metadata",
+        "--format-version",
+        "1",
+        "--offline"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "dirty_diff": "/private/tmp/brn-b1b-window1-20261016/metadata-edge-diff.patch",
+      "dirty_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "duration_seconds": 0.5450462090084329,
+      "env": {
+        "BRN_INTAKE_HELPER": "/private/tmp/brn-b1a-20261016-target/debug/brn-intake-helper",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "ORT_LIB_PATH": "/Users/evokessler/Library/Caches/ort.pyke.io/dfbin/aarch64-apple-darwin/6934874e2e953576d9c1db47ff1af39c62c4f4220dbe6f988e131f72879674c7",
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "TMPDIR": "/private/tmp/brn-b1b-window1-20261016/synthetic-tmp"
+      },
+      "evidence_role": "authorized unlocked offline edge resolution, snapshot before lock update",
+      "executed_artifacts_after_command": [],
+      "exit_code": 0,
+      "finished_utc": "2026-10-16T20:47:43.133363+00:00",
+      "head": "9bd8f4693890d5b4d01fae2e2c74bacb62e04d40",
+      "ignored_lines": [],
+      "label": "metadata-edge",
+      "log": "/private/tmp/brn-b1b-window1-20261016/metadata-edge.log",
+      "log_sha256": "c4ecb1d770c440183bd739afc91529959ded6569d0f6b94f979fefe90c88345b",
+      "matches_final_production": false,
+      "source_identity_sha256": "de30eb2634a82cf8841bd089d1acee363fe3e46819c34056d8bb6d36f13f3aa2",
+      "source_manifest": "/private/tmp/brn-b1b-window1-20261016/metadata-edge-source.json",
+      "source_manifest_sha256": "8342c2ab791c8cf294381ef114685e0cc6d67827753ffb5b601b226a71606ebb",
+      "started_utc": "2026-10-16T20:47:42.588014+00:00",
+      "test_totals": {
+        "failed": 0,
+        "filtered": 0,
+        "ignored": 0,
+        "measured": 0,
+        "passed": 0
+      }
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "--bin",
+        "brn-desktop",
+        "saved_retry_refuses_wrong_displayed_note_scope_and_archived_context_without_writes",
+        "--locked",
+        "--offline"
+      ],
+      "cwd": "/private/tmp/brn-b1b-before-20261016-source",
+      "dirty_diff": "/private/tmp/brn-b1b-window1-20261016/before-context-refusal-diff.patch",
+      "dirty_diff_sha256": "68b87ba222f5c71774a8b2c0c01fd09830bfd0fd81de0976efce4c82cac9a568",
+      "duration_seconds": 85.69525849993806,
+      "env": {
+        "BRN_INTAKE_HELPER": "/private/tmp/brn-b1b-before-20261016-target/debug/brn-intake-helper",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1b-before-20261016-target",
+        "ORT_LIB_PATH": "/Users/evokessler/Library/Caches/ort.pyke.io/dfbin/aarch64-apple-darwin/6934874e2e953576d9c1db47ff1af39c62c4f4220dbe6f988e131f72879674c7",
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "TMPDIR": "/private/tmp/brn-b1b-window1-20261016/synthetic-tmp"
+      },
+      "evidence_role": "expected baseline refusal-precedence failure; accepted production tree plus one test-only fixture",
+      "executed_artifacts_after_command": [
+        {
+          "bytes": 70614112,
+          "path": "/private/tmp/brn-b1b-before-20261016-target/debug/deps/brn_desktop-f8e8bac48a5a3b3c",
+          "sha256": "8de882a6aa964d3a954916ddc60c7f57a9ac9851e22499785b30231a74a70961"
+        }
+      ],
+      "exit_code": 101,
+      "finished_utc": "2026-10-16T20:49:56.861731+00:00",
+      "head": "459e2c94b0ddadd3c9a8ee25a643707a5f6d8dd7",
+      "ignored_lines": [],
+      "label": "before-context-refusal",
+      "log": "/private/tmp/brn-b1b-window1-20261016/before-context-refusal.log",
+      "log_sha256": "9520eb8133b0497c52a08d160f314651360bb8e2f8c5aad603ff57c56a4f3c4a",
+      "matches_final_production": false,
+      "source_identity_sha256": "4ff726f92aca613c2ed14b9f9772ae6dd1337451971034732e9592f5fa384edb",
+      "source_manifest": "/private/tmp/brn-b1b-window1-20261016/before-context-refusal-source.json",
+      "source_manifest_sha256": "52b9e40e19351f2d4b7abb8bab2640e304e8f2691ae7db6870ef7b8b26ffa8f8",
+      "started_utc": "2026-10-16T20:48:31.167082+00:00",
+      "test_totals": {
+        "failed": 1,
+        "filtered": 271,
+        "ignored": 0,
+        "measured": 0,
+        "passed": 0
+      }
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "--bin",
+        "brn-desktop",
+        "threads_ui::writing_tests::",
+        "--locked",
+        "--offline",
+        "--",
+        "panel_shared_start_keeps_scoped_saved_retry_when_chat_is_other_and_hidden",
+        "saved_retry_refuses_wrong_displayed_note_scope_and_archived_context_without_writes"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "dirty_diff": "/private/tmp/brn-b1b-window1-20261016/candidate-new-fixtures-diff.patch",
+      "dirty_diff_sha256": "a5e74b2c5302b8575e0dc9323789797e27f1b3d911772c68c7618a10b76595a0",
+      "duration_seconds": 33.79429566604085,
+      "env": {
+        "BRN_INTAKE_HELPER": "/private/tmp/brn-b1a-20261016-target/debug/brn-intake-helper",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "ORT_LIB_PATH": "/Users/evokessler/Library/Caches/ort.pyke.io/dfbin/aarch64-apple-darwin/6934874e2e953576d9c1db47ff1af39c62c4f4220dbe6f988e131f72879674c7",
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "TMPDIR": "/private/tmp/brn-b1b-window1-20261016/synthetic-tmp"
+      },
+      "evidence_role": "retained source compile failure: Result alias; no tests executed",
+      "executed_artifacts_after_command": [],
+      "exit_code": 101,
+      "finished_utc": "2026-10-16T20:50:41.823438+00:00",
+      "head": "9bd8f4693890d5b4d01fae2e2c74bacb62e04d40",
+      "ignored_lines": [],
+      "label": "candidate-new-fixtures",
+      "log": "/private/tmp/brn-b1b-window1-20261016/candidate-new-fixtures.log",
+      "log_sha256": "3c7cd179b9d62c20035869fdaa6fc7f8196ef264672778a84e76be120c9df8e7",
+      "matches_final_production": false,
+      "source_identity_sha256": "b3c9e7a355e5e138142c1e8256c7dda6bad4545826cdb9e7fdb6d8015f32aa47",
+      "source_manifest": "/private/tmp/brn-b1b-window1-20261016/candidate-new-fixtures-source.json",
+      "source_manifest_sha256": "a2e86a614cf830777bd10f8d20511df19910e2994a928ce6aeef0244a7be463e",
+      "started_utc": "2026-10-16T20:50:08.029297+00:00",
+      "test_totals": {
+        "failed": 0,
+        "filtered": 0,
+        "ignored": 0,
+        "measured": 0,
+        "passed": 0
+      }
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "--bin",
+        "brn-desktop",
+        "--locked",
+        "--offline",
+        "--",
+        "panel_shared_start_keeps_scoped_saved_retry_when_chat_is_other_and_hidden",
+        "saved_retry_refuses_wrong_displayed_note_scope_and_archived_context_without_writes"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "dirty_diff": "/private/tmp/brn-b1b-window1-20261016/candidate-new-two-corrected-diff.patch",
+      "dirty_diff_sha256": "509170c9e3f693023f0c0ed15b1a4b82b21e18f09cee82284b99cb16efbaf9f2",
+      "duration_seconds": 16.563219291041605,
+      "env": {
+        "BRN_INTAKE_HELPER": "/private/tmp/brn-b1a-20261016-target/debug/brn-intake-helper",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "ORT_LIB_PATH": "/Users/evokessler/Library/Caches/ort.pyke.io/dfbin/aarch64-apple-darwin/6934874e2e953576d9c1db47ff1af39c62c4f4220dbe6f988e131f72879674c7",
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "TMPDIR": "/private/tmp/brn-b1b-window1-20261016/synthetic-tmp"
+      },
+      "evidence_role": "actual candidate command",
+      "executed_artifacts_after_command": [
+        {
+          "bytes": 71087120,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/brn_desktop-ddcd9d7ab3061f22",
+          "sha256": "d58176be3d56ac2bf65a463e7034fb991309b12ced3dbc643d54fab37ec7c095"
+        }
+      ],
+      "exit_code": 0,
+      "finished_utc": "2026-10-16T20:51:18.711384+00:00",
+      "head": "9bd8f4693890d5b4d01fae2e2c74bacb62e04d40",
+      "ignored_lines": [],
+      "label": "candidate-new-two-corrected",
+      "log": "/private/tmp/brn-b1b-window1-20261016/candidate-new-two-corrected.log",
+      "log_sha256": "2a26939537c63ac7a52e958e3f6e7e5d3f953c0ea676a46fb8dea3b006a35147",
+      "matches_final_production": true,
+      "source_identity_sha256": "0d15660eb7ac333cf41886e02d31810bac4547685a319ff485056e629420529d",
+      "source_manifest": "/private/tmp/brn-b1b-window1-20261016/candidate-new-two-corrected-source.json",
+      "source_manifest_sha256": "7034801a5a4544a541281967b4dc42adeba3f40b47d625776b1cbacef2b73e59",
+      "started_utc": "2026-10-16T20:51:02.148197+00:00",
+      "test_totals": {
+        "failed": 0,
+        "filtered": 271,
+        "ignored": 0,
+        "measured": 0,
+        "passed": 2
+      }
+    },
+    {
+      "command": [
+        "cargo",
+        "--version"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "dirty_diff": "/private/tmp/brn-b1b-window1-20261016/native-shell-diff.patch",
+      "dirty_diff_sha256": "509170c9e3f693023f0c0ed15b1a4b82b21e18f09cee82284b99cb16efbaf9f2",
+      "duration_seconds": 0.03869208297692239,
+      "env": {
+        "BRN_INTAKE_HELPER": "/private/tmp/brn-b1a-20261016-target/debug/brn-intake-helper",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "ORT_LIB_PATH": "/Users/evokessler/Library/Caches/ort.pyke.io/dfbin/aarch64-apple-darwin/6934874e2e953576d9c1db47ff1af39c62c4f4220dbe6f988e131f72879674c7",
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "TMPDIR": "/private/tmp/brn-b1b-window1-20261016/synthetic-tmp"
+      },
+      "evidence_role": "Cargo version identity only; label native-shell was misnamed, actual maintained script is native-shell-actual",
+      "executed_artifacts_after_command": [],
+      "exit_code": 0,
+      "finished_utc": "2026-10-16T20:51:43.666086+00:00",
+      "head": "9bd8f4693890d5b4d01fae2e2c74bacb62e04d40",
+      "ignored_lines": [],
+      "label": "native-shell",
+      "log": "/private/tmp/brn-b1b-window1-20261016/native-shell.log",
+      "log_sha256": "9950bbb2d5c3417b1a068f0e81f6d3cac991a363193bdf2a22d447f5acf8b503",
+      "matches_final_production": true,
+      "source_identity_sha256": "0d15660eb7ac333cf41886e02d31810bac4547685a319ff485056e629420529d",
+      "source_manifest": "/private/tmp/brn-b1b-window1-20261016/native-shell-source.json",
+      "source_manifest_sha256": "7034801a5a4544a541281967b4dc42adeba3f40b47d625776b1cbacef2b73e59",
+      "started_utc": "2026-10-16T20:51:43.627264+00:00",
+      "test_totals": {
+        "failed": 0,
+        "filtered": 0,
+        "ignored": 0,
+        "measured": 0,
+        "passed": 0
+      }
+    },
+    {
+      "command": [
+        "bash",
+        "scripts/verify-desktop-shell.sh"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "dirty_diff": "/private/tmp/brn-b1b-window1-20261016/native-shell-actual-diff.patch",
+      "dirty_diff_sha256": "509170c9e3f693023f0c0ed15b1a4b82b21e18f09cee82284b99cb16efbaf9f2",
+      "duration_seconds": 31.566658374969848,
+      "env": {
+        "BRN_INTAKE_HELPER": "/private/tmp/brn-b1a-20261016-target/debug/brn-intake-helper",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "ORT_LIB_PATH": "/Users/evokessler/Library/Caches/ort.pyke.io/dfbin/aarch64-apple-darwin/6934874e2e953576d9c1db47ff1af39c62c4f4220dbe6f988e131f72879674c7",
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "TMPDIR": "/private/tmp/brn-b1b-window1-20261016/synthetic-tmp"
+      },
+      "evidence_role": "actual candidate command",
+      "executed_artifacts_after_command": [
+        {
+          "bytes": 71087120,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/brn_desktop-ddcd9d7ab3061f22",
+          "sha256": "d58176be3d56ac2bf65a463e7034fb991309b12ced3dbc643d54fab37ec7c095"
+        },
+        {
+          "bytes": 5582416,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/brn_writing_ui-312dec7c0abdb770",
+          "sha256": "219635bcd88c340c8fb1f059847803dc0d3f5645110e7bac7b3038b509b8d931"
+        }
+      ],
+      "exit_code": 0,
+      "finished_utc": "2026-10-16T20:52:23.290336+00:00",
+      "head": "9bd8f4693890d5b4d01fae2e2c74bacb62e04d40",
+      "ignored_lines": [
+        "test threads_ui::intake_tests::a_desktop_supply_reuses_the_chat_a_cli_useful_intake_left ... ignored, needs BRN_DWR_SHARED_DATA, BRN_DWR_SHARED_SOURCE and BRN_DWR_SHARED_CHAT from a CLI useful intake"
+      ],
+      "label": "native-shell-actual",
+      "log": "/private/tmp/brn-b1b-window1-20261016/native-shell-actual.log",
+      "log_sha256": "7b667307107767274af7072cc2e0c0bdf4e45b4e1f914d1b5e91ddc45f2f9c1a",
+      "matches_final_production": true,
+      "source_identity_sha256": "0d15660eb7ac333cf41886e02d31810bac4547685a319ff485056e629420529d",
+      "source_manifest": "/private/tmp/brn-b1b-window1-20261016/native-shell-actual-source.json",
+      "source_manifest_sha256": "7034801a5a4544a541281967b4dc42adeba3f40b47d625776b1cbacef2b73e59",
+      "started_utc": "2026-10-16T20:51:51.723838+00:00",
+      "test_totals": {
+        "failed": 0,
+        "filtered": 0,
+        "ignored": 1,
+        "measured": 0,
+        "passed": 316
+      }
+    },
+    {
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "dirty_diff": "/private/tmp/brn-b1b-window1-20261016/fmt-all-diff.patch",
+      "dirty_diff_sha256": "509170c9e3f693023f0c0ed15b1a4b82b21e18f09cee82284b99cb16efbaf9f2",
+      "duration_seconds": 1.503340582945384,
+      "env": {
+        "BRN_INTAKE_HELPER": "/private/tmp/brn-b1a-20261016-target/debug/brn-intake-helper",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "ORT_LIB_PATH": "/Users/evokessler/Library/Caches/ort.pyke.io/dfbin/aarch64-apple-darwin/6934874e2e953576d9c1db47ff1af39c62c4f4220dbe6f988e131f72879674c7",
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "TMPDIR": "/private/tmp/brn-b1b-window1-20261016/synthetic-tmp"
+      },
+      "evidence_role": "actual candidate command",
+      "executed_artifacts_after_command": [],
+      "exit_code": 0,
+      "finished_utc": "2026-10-16T20:52:47.343146+00:00",
+      "head": "9bd8f4693890d5b4d01fae2e2c74bacb62e04d40",
+      "ignored_lines": [],
+      "label": "fmt-all",
+      "log": "/private/tmp/brn-b1b-window1-20261016/fmt-all.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matches_final_production": true,
+      "source_identity_sha256": "0d15660eb7ac333cf41886e02d31810bac4547685a319ff485056e629420529d",
+      "source_manifest": "/private/tmp/brn-b1b-window1-20261016/fmt-all-source.json",
+      "source_manifest_sha256": "7034801a5a4544a541281967b4dc42adeba3f40b47d625776b1cbacef2b73e59",
+      "started_utc": "2026-10-16T20:52:45.839582+00:00",
+      "test_totals": {
+        "failed": 0,
+        "filtered": 0,
+        "ignored": 0,
+        "measured": 0,
+        "passed": 0
+      }
+    },
+    {
+      "command": [
+        "cargo",
+        "tree",
+        "--workspace",
+        "--edges",
+        "normal",
+        "--locked",
+        "--offline"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "dirty_diff": "/private/tmp/brn-b1b-window1-20261016/default-tree-normal-diff.patch",
+      "dirty_diff_sha256": "509170c9e3f693023f0c0ed15b1a4b82b21e18f09cee82284b99cb16efbaf9f2",
+      "duration_seconds": 0.28429145796690136,
+      "env": {
+        "BRN_INTAKE_HELPER": "/private/tmp/brn-b1a-20261016-target/debug/brn-intake-helper",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "ORT_LIB_PATH": "/Users/evokessler/Library/Caches/ort.pyke.io/dfbin/aarch64-apple-darwin/6934874e2e953576d9c1db47ff1af39c62c4f4220dbe6f988e131f72879674c7",
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "TMPDIR": "/private/tmp/brn-b1b-window1-20261016/synthetic-tmp"
+      },
+      "evidence_role": "actual candidate command",
+      "executed_artifacts_after_command": [],
+      "exit_code": 0,
+      "finished_utc": "2026-10-16T20:52:47.799311+00:00",
+      "head": "9bd8f4693890d5b4d01fae2e2c74bacb62e04d40",
+      "ignored_lines": [],
+      "label": "default-tree-normal",
+      "log": "/private/tmp/brn-b1b-window1-20261016/default-tree-normal.log",
+      "log_sha256": "029d23bf34dc6f5feb5e6d7bff41923dbe6f3a1eb749976e4be5b150cfe0e012",
+      "matches_final_production": true,
+      "source_identity_sha256": "0d15660eb7ac333cf41886e02d31810bac4547685a319ff485056e629420529d",
+      "source_manifest": "/private/tmp/brn-b1b-window1-20261016/default-tree-normal-source.json",
+      "source_manifest_sha256": "7034801a5a4544a541281967b4dc42adeba3f40b47d625776b1cbacef2b73e59",
+      "started_utc": "2026-10-16T20:52:47.514873+00:00",
+      "test_totals": {
+        "failed": 0,
+        "filtered": 0,
+        "ignored": 0,
+        "measured": 0,
+        "passed": 0
+      }
+    },
+    {
+      "command": [
+        "cargo",
+        "tree",
+        "--workspace",
+        "--edges",
+        "features",
+        "--locked",
+        "--offline"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "dirty_diff": "/private/tmp/brn-b1b-window1-20261016/default-tree-features-diff.patch",
+      "dirty_diff_sha256": "509170c9e3f693023f0c0ed15b1a4b82b21e18f09cee82284b99cb16efbaf9f2",
+      "duration_seconds": 0.17560674995183945,
+      "env": {
+        "BRN_INTAKE_HELPER": "/private/tmp/brn-b1a-20261016-target/debug/brn-intake-helper",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "ORT_LIB_PATH": "/Users/evokessler/Library/Caches/ort.pyke.io/dfbin/aarch64-apple-darwin/6934874e2e953576d9c1db47ff1af39c62c4f4220dbe6f988e131f72879674c7",
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "TMPDIR": "/private/tmp/brn-b1b-window1-20261016/synthetic-tmp"
+      },
+      "evidence_role": "actual candidate command",
+      "executed_artifacts_after_command": [],
+      "exit_code": 0,
+      "finished_utc": "2026-10-16T20:52:48.146482+00:00",
+      "head": "9bd8f4693890d5b4d01fae2e2c74bacb62e04d40",
+      "ignored_lines": [],
+      "label": "default-tree-features",
+      "log": "/private/tmp/brn-b1b-window1-20261016/default-tree-features.log",
+      "log_sha256": "dea18b85d75272426ec4ed47a0d45980e7cce51c89e22a0f042c689ea0400f1f",
+      "matches_final_production": true,
+      "source_identity_sha256": "0d15660eb7ac333cf41886e02d31810bac4547685a319ff485056e629420529d",
+      "source_manifest": "/private/tmp/brn-b1b-window1-20261016/default-tree-features-source.json",
+      "source_manifest_sha256": "7034801a5a4544a541281967b4dc42adeba3f40b47d625776b1cbacef2b73e59",
+      "started_utc": "2026-10-16T20:52:47.970736+00:00",
+      "test_totals": {
+        "failed": 0,
+        "filtered": 0,
+        "ignored": 0,
+        "measured": 0,
+        "passed": 0
+      }
+    },
+    {
+      "command": [
+        "cargo",
+        "build",
+        "--workspace",
+        "--locked",
+        "--offline"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "dirty_diff": "/private/tmp/brn-b1b-window1-20261016/default-build-diff.patch",
+      "dirty_diff_sha256": "509170c9e3f693023f0c0ed15b1a4b82b21e18f09cee82284b99cb16efbaf9f2",
+      "duration_seconds": 3.105663083959371,
+      "env": {
+        "BRN_INTAKE_HELPER": "/private/tmp/brn-b1a-20261016-target/debug/brn-intake-helper",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "ORT_LIB_PATH": "/Users/evokessler/Library/Caches/ort.pyke.io/dfbin/aarch64-apple-darwin/6934874e2e953576d9c1db47ff1af39c62c4f4220dbe6f988e131f72879674c7",
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "TMPDIR": "/private/tmp/brn-b1b-window1-20261016/synthetic-tmp"
+      },
+      "evidence_role": "actual candidate command",
+      "executed_artifacts_after_command": [],
+      "exit_code": 0,
+      "finished_utc": "2026-10-16T20:52:51.412067+00:00",
+      "head": "9bd8f4693890d5b4d01fae2e2c74bacb62e04d40",
+      "ignored_lines": [],
+      "label": "default-build",
+      "log": "/private/tmp/brn-b1b-window1-20261016/default-build.log",
+      "log_sha256": "073f413ebb43c58c0c9f2cd35eb58e655eea838a0d08e5a89c3434a2e75648ec",
+      "matches_final_production": true,
+      "source_identity_sha256": "0d15660eb7ac333cf41886e02d31810bac4547685a319ff485056e629420529d",
+      "source_manifest": "/private/tmp/brn-b1b-window1-20261016/default-build-source.json",
+      "source_manifest_sha256": "7034801a5a4544a541281967b4dc42adeba3f40b47d625776b1cbacef2b73e59",
+      "started_utc": "2026-10-16T20:52:48.306468+00:00",
+      "test_totals": {
+        "failed": 0,
+        "filtered": 0,
+        "ignored": 0,
+        "measured": 0,
+        "passed": 0
+      }
+    },
+    {
+      "command": [
+        "cargo",
+        "clippy",
+        "--workspace",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "dirty_diff": "/private/tmp/brn-b1b-window1-20261016/default-clippy-diff.patch",
+      "dirty_diff_sha256": "509170c9e3f693023f0c0ed15b1a4b82b21e18f09cee82284b99cb16efbaf9f2",
+      "duration_seconds": 5.10323008405976,
+      "env": {
+        "BRN_INTAKE_HELPER": "/private/tmp/brn-b1a-20261016-target/debug/brn-intake-helper",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "ORT_LIB_PATH": "/Users/evokessler/Library/Caches/ort.pyke.io/dfbin/aarch64-apple-darwin/6934874e2e953576d9c1db47ff1af39c62c4f4220dbe6f988e131f72879674c7",
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "TMPDIR": "/private/tmp/brn-b1b-window1-20261016/synthetic-tmp"
+      },
+      "evidence_role": "actual candidate command",
+      "executed_artifacts_after_command": [],
+      "exit_code": 0,
+      "finished_utc": "2026-10-16T20:52:56.680639+00:00",
+      "head": "9bd8f4693890d5b4d01fae2e2c74bacb62e04d40",
+      "ignored_lines": [],
+      "label": "default-clippy",
+      "log": "/private/tmp/brn-b1b-window1-20261016/default-clippy.log",
+      "log_sha256": "1d387c0338b7fb4b6641bc2228c6d1323e354a29d39c0630915f1f004ef10300",
+      "matches_final_production": true,
+      "source_identity_sha256": "0d15660eb7ac333cf41886e02d31810bac4547685a319ff485056e629420529d",
+      "source_manifest": "/private/tmp/brn-b1b-window1-20261016/default-clippy-source.json",
+      "source_manifest_sha256": "7034801a5a4544a541281967b4dc42adeba3f40b47d625776b1cbacef2b73e59",
+      "started_utc": "2026-10-16T20:52:51.577291+00:00",
+      "test_totals": {
+        "failed": 0,
+        "filtered": 0,
+        "ignored": 0,
+        "measured": 0,
+        "passed": 0
+      }
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--workspace",
+        "--no-fail-fast",
+        "--locked",
+        "--offline"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "dirty_diff": "/private/tmp/brn-b1b-window1-20261016/default-tests-complete-diff.patch",
+      "dirty_diff_sha256": "509170c9e3f693023f0c0ed15b1a4b82b21e18f09cee82284b99cb16efbaf9f2",
+      "duration_seconds": 83.77299141697586,
+      "env": {
+        "BRN_INTAKE_HELPER": "/private/tmp/brn-b1a-20261016-target/debug/brn-intake-helper",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "ORT_LIB_PATH": "/Users/evokessler/Library/Caches/ort.pyke.io/dfbin/aarch64-apple-darwin/6934874e2e953576d9c1db47ff1af39c62c4f4220dbe6f988e131f72879674c7",
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "TMPDIR": "/private/tmp/brn-b1b-window1-20261016/synthetic-tmp"
+      },
+      "evidence_role": "actual candidate command",
+      "executed_artifacts_after_command": [
+        {
+          "bytes": 1369712,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/agent_authority-24d9d9c88f46ce92",
+          "sha256": "71a3869f6498e31dd3ed4ae6e158d734d0d26bde87a224fec49aebc09217505d"
+        },
+        {
+          "bytes": 1391600,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/agent_bounds-1078cd9cc7473770",
+          "sha256": "212887e87f39ac240bccfcdce7741cf3b3a5c5ebf71e8902ccb9dcaee6cbb166"
+        },
+        {
+          "bytes": 1564640,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/agent_contract-d755b6e01cc448d2",
+          "sha256": "219ef88a9b870e6209f2dcdc7bc7ba977864ae55ee57677a5b14ddfd2a041fc2"
+        },
+        {
+          "bytes": 1463296,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/agent_converge-5679c8e6d3acb88e",
+          "sha256": "e21e14e01e54ac7c38e407d38940224153c9dbaa30a1c4b31f2cd6951c8d3a70"
+        },
+        {
+          "bytes": 1334560,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/agent_credentials-af763e60155e5bdd",
+          "sha256": "e0fb11947745e58979843425d582885563268c2c35b6c9b93728c058bd255b58"
+        },
+        {
+          "bytes": 5230480,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/agent_credentials_existing-1d5d4889e60acff0",
+          "sha256": "cb156e1759a48ba6205403b181e0e8f92fcf00ce5d6f7d1c9a43495abfcb94ff"
+        },
+        {
+          "bytes": 1408304,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/agent_discovery-bb95d277f565af74",
+          "sha256": "0654ee0629b4fc8f752c1625f5665422b33b98c4d6c66d20cf512e20b3d4be8c"
+        },
+        {
+          "bytes": 1512720,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/agent_edits-9be74ad23a0cfc42",
+          "sha256": "4593b5dfa0eaf68355f91c48ec33859e221e0cdc8fc8c8eb77cfc3bfe3ae3020"
+        },
+        {
+          "bytes": 22767504,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/agent_eval_journeys-e3fb3ed356e7d8c5",
+          "sha256": "4a94f376c448586132d421812c5e50f6ef0c869c16d03d329ea9b27d0363d8be"
+        },
+        {
+          "bytes": 1428640,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/agent_inspect-e0e3daf2e9a8da29",
+          "sha256": "b1c29b0e89c14c0048a320847dab8560b0e2c27ce5bccfb06483d3f532e5f508"
+        },
+        {
+          "bytes": 22010992,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/agent_journeys-131a0899af90f4d6",
+          "sha256": "a0bac3e4cf2ba3b8676e3878d22ca6e1533c2fedfafbe3d6c0bb31c14429d4e7"
+        },
+        {
+          "bytes": 1541216,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/agent_lists-e20c79c5598cf58a",
+          "sha256": "a885aa7bf9255f799f0012a4d8c9918b4c0346dca7107d5938ea58284d15bf3a"
+        },
+        {
+          "bytes": 1330272,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/agent_reasons-28210eea46612703",
+          "sha256": "1cf190566a1b99e8333c337141433519066f27d236f9cf04386ebe488caaa789"
+        },
+        {
+          "bytes": 1365952,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/agent_retry-816170f69c69e9b4",
+          "sha256": "04ba2b7a1f88738d9741d9819857f3fbfd169788d491d1df6ad6c01583441d5a"
+        },
+        {
+          "bytes": 1538128,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/agent_runs-a2f904a6448405ad",
+          "sha256": "507b316fb012d369f9fbe7caca45f6dde3776aa8d28d7f7b8a4b9e3287d04f9f"
+        },
+        {
+          "bytes": 1390000,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/agent_upgrade-387da509ef3eba64",
+          "sha256": "b83fec14b6f2a7eaaee365e7952a74828e5cec3d35c1939fb9e37cf85e0a2c0b"
+        },
+        {
+          "bytes": 5214176,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/backup_directory-3f78b14c9a01061f",
+          "sha256": "0a6faaf22e791922ae17a128e70dfcd73e471939ad215cda43be231c8b2257a3"
+        },
+        {
+          "bytes": 4232672,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/backup_directory-ad86ffb2d307c405",
+          "sha256": "c4d6d6d314ece642b10e892d1ce279581b0b00f66f1592e765d43a32a81524e8"
+        },
+        {
+          "bytes": 6421200,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/brn-fee94833639c86d5",
+          "sha256": "3c45686bd57baa16ebb90a0ba94f49ffa0ab549f261325de6ba230aa6481ed0f"
+        },
+        {
+          "bytes": 30235568,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/brn_ai-4bdff0807a0d4cb7",
+          "sha256": "b134dfc04fb5b6f796e5a48abf64dbd51398d3d40b7f249a6684ac2713942e7a"
+        },
+        {
+          "bytes": 5589632,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/brn_desktop-bbdde215060e951c",
+          "sha256": "3dd339a4ed40b560ded6181c699ca0c05001e2027c3650408b2c8c55d9a7ffd3"
+        },
+        {
+          "bytes": 2552528,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/brn_intake-428de214cafa0800",
+          "sha256": "04b780a67a677051a27eabd7982f1414dd9a98e760fe7a778897c7d02d6683fd"
+        },
+        {
+          "bytes": 1090368,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/brn_retrieval-f6fcb83680fe0c5e",
+          "sha256": "19675649739e800643470d3cdeed3153d0b4682bcd506c1d0e9f77e69672a59e"
+        },
+        {
+          "bytes": 5612992,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/brn_threads_app-254d35bb8e1cd57c",
+          "sha256": "f3591ea6559f3713acedcacbb74304f1b586bf5082a61e800edb7a36bf8ee9d9"
+        },
+        {
+          "bytes": 4405200,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/brn_threads_core-e42750de0bd1a950",
+          "sha256": "1f059b3861233e8ceb26f9d4a9afe7df1d861b1efb91d42917bad21870b857dd"
+        },
+        {
+          "bytes": 3222272,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/brn_threads_intake-2fce79e002a28627",
+          "sha256": "411f7a39ed91a621a08ac6bb34979f470da473964ef6ea96a970771f4cd8e385"
+        },
+        {
+          "bytes": 1811344,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/brn_writing_ui-22be94d3812284ea",
+          "sha256": "c9b9120400868f4552887a74fd3f5cd35783dd50725c2e1424dccbed98e5bbbb"
+        },
+        {
+          "bytes": 4166576,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/candidate_refresh-2286328efbd5fb45",
+          "sha256": "d54f16242084a31891eadf564fb17f07493ada3641883d19525c0cb33cf173da"
+        },
+        {
+          "bytes": 6806208,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/chat-2fbc00b20a82b469",
+          "sha256": "b1a7bc14290df1accc53f8c66d372bfa9310c2b45ac6335c8e89cfe4a6b96c6e"
+        },
+        {
+          "bytes": 5255200,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/chat_decisions-550b20a6612e5342",
+          "sha256": "25d2ee0ddd5f396a6008b8e289ae36b5fd74e14a759ede57f47e415ee3f07c68"
+        },
+        {
+          "bytes": 1270368,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/chat_format-bafcaeb4752a3563",
+          "sha256": "5a7e0b964554f068fd2b1df1a42a35e8a56aca375ac1b3b7a519f730333db803"
+        },
+        {
+          "bytes": 4208240,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/chat_storage-18ee8ec22973f196",
+          "sha256": "d89e8e4b9fa6b0a9494fb4d46a009d1a23bd0a9b627057027210897d5ec8f8b8"
+        },
+        {
+          "bytes": 4463696,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/converge-c9225277d1dddfb3",
+          "sha256": "70f12183f97c1c77e0ebcc1d189ef52843c921691a9326b3287e094dbffd5511"
+        },
+        {
+          "bytes": 4793440,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/core-6be094f2aba70f00",
+          "sha256": "63143198fbb6a2a24104edb3a45cff1bb5f6e857eaf6bc72abc09fdbb3e165c9"
+        },
+        {
+          "bytes": 4280544,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/current_inputs-c17370f9580df944",
+          "sha256": "a7f3031d42aa093e524c571d3e00bd92a0c2740f6285d447331d0429d79e6ef0"
+        },
+        {
+          "bytes": 22616272,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/cw2_review-d4d0c2da036154fd",
+          "sha256": "ea2149e9739101f4f382f8d826b3c940cbaf66f63f2ff475675f22eac1bb5b08"
+        },
+        {
+          "bytes": 4387920,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/cw2_visibility-71ef364477077027",
+          "sha256": "4db2f80d8795cb4d25e1a02c909ffad5b778b0a77be2ccb99da3849e162ecd95"
+        },
+        {
+          "bytes": 22174832,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/daily_workflow_eval-1b5a3d45668df4c1",
+          "sha256": "f339d9481963419a5855665f4ec86f0989404bd65e087806dc2b1933b7582129"
+        },
+        {
+          "bytes": 2873744,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/data_folder-522075bbc4ead883",
+          "sha256": "e51100754486015de6470964f18d46b03a9abde1bf850ab5aa06b80d262ab177"
+        },
+        {
+          "bytes": 1260512,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/data_folder-96f59051a2040a80",
+          "sha256": "7cbf70f0d9dae3074a02fc6103d85f5478b12a64d293e6525267deb9ec0e9d8a"
+        },
+        {
+          "bytes": 6269472,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/delegation-0d58cd5978c68fe1",
+          "sha256": "17d3c8b368a3eea38d4382d6ca3558d1b8dff1e21f2a5bdb34c5ea42cdfc3431"
+        },
+        {
+          "bytes": 4358240,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/delegation-9ae88f284ac93d0d",
+          "sha256": "1a6283698fe085b6e03866ca9fef0e74680f4ecf34b93365d3b06dce62661300"
+        },
+        {
+          "bytes": 965376,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/edit_authority_guard-58b621514c769f39",
+          "sha256": "2dbbc6663a55dbb6691e16cf50a5e28ee487ae66603e33550fe5c71796fe1654"
+        },
+        {
+          "bytes": 4420256,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/edit_tokens-0deb4fc689b81de4",
+          "sha256": "9b54907b1ba8684887bad834f75297525181a92e4e84b8c9190064daab02fc19"
+        },
+        {
+          "bytes": 5330992,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/export_metadata-9655706224e12b65",
+          "sha256": "5c6fdf8b1695454303db5d11552536e1100183fb51ca3ef07ded1f6ac95eedfa"
+        },
+        {
+          "bytes": 22228752,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/host_intake-e7de8aff7a674c96",
+          "sha256": "67f225bfe2acf67d33cc4dae7587038b4acddb4c2873748e934b8ab5d932000d"
+        },
+        {
+          "bytes": 5347600,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/import_coverage-f6a2affc176847e1",
+          "sha256": "729e4c44055e3d0bccf53d3462d3fcd8608c579e27f1a8cfd2e65ee49750c111"
+        },
+        {
+          "bytes": 4455072,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/inspect-fecdaf645c74b585",
+          "sha256": "aebb619f40cd64262788c95b173d94a359fdaec6bab47133dfbf3bea08cbd8cf"
+        },
+        {
+          "bytes": 6053152,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/keyed_owner_operations-bdf73059f0eef635",
+          "sha256": "e6d2beb58f38940ca2079fe881d3de0b159ec2cb698a40a0556bafd00dec0b38"
+        },
+        {
+          "bytes": 21329648,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/killed_run_candidate-463617f1a62fc746",
+          "sha256": "5d211ddcec09ff4790f8abe128766038972cc59de118a138770dbf5996222501"
+        },
+        {
+          "bytes": 944304,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/local_embedder-bafff530b1479136",
+          "sha256": "6463a58dcd22e992006f07363dad123059d0959f2d2e3f618e492f8c9d795461"
+        },
+        {
+          "bytes": 944288,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/maintained-8a3af3ba2a13751a",
+          "sha256": "f53cc3ad5e931d4958c6235520d4a32f4c9e9c625ed6b9206b9b0223b2860dcc"
+        },
+        {
+          "bytes": 4507312,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/message_search_scope-710d727cddbeccd0",
+          "sha256": "354c4f3818d577929e3f6d0d58efe6dc8bc623ac0040da93ff645bdf716d5f78"
+        },
+        {
+          "bytes": 944304,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/model_download-92187191c57b2fc2",
+          "sha256": "a25b65814585c14d878ef54713bcd4eb67b7ed0c3b361eefea67db2c6b70815a"
+        },
+        {
+          "bytes": 4153728,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/note_read-dc0be41bce4e6f86",
+          "sha256": "e30c732b418a651c7122b6e0d50323decf82402921e31a256d3ff6bec358ba32"
+        },
+        {
+          "bytes": 944256,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/pptx-c2f6a4f0409adb59",
+          "sha256": "763b1a93e74155cb24ebdefa2a81521e71ee74bed7700fc8780860a6244ea9ce"
+        },
+        {
+          "bytes": 7103296,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/product-2edbf8f1db96803d",
+          "sha256": "b228e55d3aae27b0ef35d33165618207de91872c0caf1011304e54d8ec8dd6f1"
+        },
+        {
+          "bytes": 4162944,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/project_format-950295569117a307",
+          "sha256": "b045695f0df299c587eeba20d14185c2e15468e93871dc5f36174105662e0393"
+        },
+        {
+          "bytes": 6939184,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/projects-fb73b2ddb6b55faf",
+          "sha256": "a7257f7f210e09f19f0537c5c6ab7c0aa2dc4367d908dc5aa1fc6b372fe64845"
+        },
+        {
+          "bytes": 1622416,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/protocol-a2e972eacc4f8182",
+          "sha256": "3ce96c651438339be8e10714cbfaadac374c2cd753434d84d57f5e88217fefaa"
+        },
+        {
+          "bytes": 4295264,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/qualification-934231d9a61b24a3",
+          "sha256": "292d973fc1bf6d3199425f538cf28bf871a63d02d1bd99810371cf86a765ae10"
+        },
+        {
+          "bytes": 944336,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/restricted_helper-8b22183601c2bcba",
+          "sha256": "f0dbb0b3e29c2441eb11540b49e104eb41feca6d666e16403c68a7807c4d6664"
+        },
+        {
+          "bytes": 6911424,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/retrieval_eval-318f5eb4ab690f96",
+          "sha256": "aba09e8f43f3e955c2e6f6873b58743edf04eabcd18b02b9cca0e2c03b0f6937"
+        },
+        {
+          "bytes": 4100688,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/revision_read-38ad1739a60f2e75",
+          "sha256": "495f45eeb91eda7cddaecff84746aae92144bec9d83f6164e79287758282d54b"
+        },
+        {
+          "bytes": 6124160,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/run_recovery-affe11c8769a4190",
+          "sha256": "45396ff432360861d223defaf291839fd56f582f327b36c5e3fefb4c53fe4ded"
+        },
+        {
+          "bytes": 6332880,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/search_dense-7ed2907ddc88d510",
+          "sha256": "4277975d11f5d76cf2ff48aeac728f974b47a59ebc3d71501b3d85d427ec1676"
+        },
+        {
+          "bytes": 3322080,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/search_index-1a16ba90b21a3fdb",
+          "sha256": "7d755060fcbc2d6991e514bc93c6db9227510c808443f81256758182871dc014"
+        },
+        {
+          "bytes": 1262368,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/search_messages-49598d5327e1105a",
+          "sha256": "836041c4a4468c2b9b56ed6748fcdf946f1cfec4a931b4cdb1bdbacaf4559cc9"
+        },
+        {
+          "bytes": 22171920,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/search_messages-f902dd5b2a8ff31a",
+          "sha256": "3fac9ff9d1fa178aece8a24a42bf653d7af78d778ea90a350c81a1f11be8d98d"
+        },
+        {
+          "bytes": 4247184,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/search_reader-cea64e946ad43833",
+          "sha256": "7ce85e86e1c18e5230cc349f8b2ae5c2db5ec73c43b91d279380103908653fa3"
+        },
+        {
+          "bytes": 6421184,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/search_worker-9710fb078cb23571",
+          "sha256": "79ed5a2fff8ae1d14f665add8622828d78bf1a193ad0f99aa5d4655b97460897"
+        },
+        {
+          "bytes": 21788256,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/shared_run-2b401c7c9199274d",
+          "sha256": "f925fd117c5e9e6b144f2448d27ac7e39797c5e6d2ee3dcd77192faada3bda3b"
+        },
+        {
+          "bytes": 21350560,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/source_intake_chat-fccd36a8fb24bddb",
+          "sha256": "0c5f03c3b7497abe375ae64c382358e243e82bc477c8b6e79631f24d6aa8b091"
+        },
+        {
+          "bytes": 1961712,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/source_locator-8b1a4f09a49c9adf",
+          "sha256": "d6aad9d88397630cc363ebe41a540c7a4763cea3d6205a474017f6887cddb96c"
+        },
+        {
+          "bytes": 5218256,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/steering-862dd5020fd14865",
+          "sha256": "214a630831547ab615b1f4de488306caee0204e4d014029ca29aae9c01873a56"
+        },
+        {
+          "bytes": 4222912,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/steering-e6e901951c2fdd54",
+          "sha256": "c0d375fe544d82235b5ab84f8c49207c287c69db1961bd1d7e96fa9ffd4becea"
+        },
+        {
+          "bytes": 6623008,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/synthetic_baseline-5af20bd25772d534",
+          "sha256": "8a88dd55d5e32a2c99796671e8d234f475fb3b3dd13c691e66c737d519d24a5b"
+        },
+        {
+          "bytes": 5158064,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/thread_lifecycle-279649e0626ca95a",
+          "sha256": "b4113b4fb8feabceabbff1b66bc498322e182482f39c9e7d1249f11bb3ffa284"
+        },
+        {
+          "bytes": 2082304,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/threads-be0a1895e06e2aaa",
+          "sha256": "474adf7ff1e9c5297145406293cec979d7c91d98368736bf82ec679623fe2d44"
+        },
+        {
+          "bytes": 6066896,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/topics_knowledge-e14e359188db3873",
+          "sha256": "e8d1480eae3cd0f28462899e42c52ebefa7ed29e4dcaf617ea8e85d0bdb3a415"
+        },
+        {
+          "bytes": 6307232,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/user_scale-6ab4a4a2284cdc5f",
+          "sha256": "b3f0d74da21008f96139f7ceb5c6b039d8844a3d73d760f47c7951668d4cdc44"
+        },
+        {
+          "bytes": 6120144,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/wiki_eval_seed-3ba3501f0d67861d",
+          "sha256": "f549f4e25ad6da45133e192e2883176dc49bf041405069f9e47a8793dc57e4c2"
+        },
+        {
+          "bytes": 20980720,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/withdraw_proposal-d1390c3809a53d8b",
+          "sha256": "0ec92dea0102e8cd5369a4103ec11251167c5d381fe92443f1e3591df617bd92"
+        },
+        {
+          "bytes": 5118688,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/workspace_purpose-55b2e9fa11d8624e",
+          "sha256": "7171099c1b1c1dcb59b30e6169bd1c81062752b60c4e0e5f7fd0a52347b73751"
+        },
+        {
+          "bytes": 4292720,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/writing-56b70fa92eb8fc3e",
+          "sha256": "c17d9028c97a5b23d976637507598a2500de6ed039d6adb18a731989bbfc37ab"
+        },
+        {
+          "bytes": 5643040,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/writing-e5f9303e752fdcc1",
+          "sha256": "e34f6f4c2ab71d329eaca7a433d1cb3e3ea3af51510552c942535575f6af65a9"
+        },
+        {
+          "bytes": 6080464,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/writing_context-a85501614bd3572d",
+          "sha256": "794a34c9ce1f6615b29f08e311a5bd8a70f2a8bda7fef9585403518ecf12d67a"
+        },
+        {
+          "bytes": 7312048,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/writing_setup-809506aac4036a0b",
+          "sha256": "2a3e7b1c9977a15fa8c5aa78f1367ebd74cd9fe132a588f4319c42095245c9ae"
+        },
+        {
+          "bytes": 4591040,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/writing_setup-e9b887f0a22be3b5",
+          "sha256": "7a11dc1dc8a2eae75f65122b4c82ed0cd4089e1234decd8cb0dfadca5451a4cd"
+        }
+      ],
+      "exit_code": 101,
+      "finished_utc": "2026-10-16T20:54:20.636328+00:00",
+      "head": "9bd8f4693890d5b4d01fae2e2c74bacb62e04d40",
+      "ignored_lines": [
+        "test provider_formats_tests::provider_stderr_tests::provider_stderr_child ... ignored, only the parent test launches this isolated synthetic stderr fixture",
+        "test native_check_store_with_a_killed_intake_and_its_candidate ... ignored, writes a store for the owner's native check; set BRN_DWR_NATIVE_DATA and BRN_DWR_NATIVE_MODE",
+        "test backup::tests::stage_holder_child ... ignored, runs only as the child of the SIGKILL stage test",
+        "test process::tests::process_tree_child ... ignored, subprocess witness only",
+        "test process::tests::renderer_probe_child ... ignored, subprocess witness only",
+        "test process::tests::sandbox_probe_child ... ignored, subprocess witness only"
+      ],
+      "label": "default-tests-complete",
+      "log": "/private/tmp/brn-b1b-window1-20261016/default-tests-complete.log",
+      "log_sha256": "22ec42942a3c0d620f92942943ae4a824325bdab1d2c4c7dab3136ecd47bbe8f",
+      "matches_final_production": true,
+      "source_identity_sha256": "0d15660eb7ac333cf41886e02d31810bac4547685a319ff485056e629420529d",
+      "source_manifest": "/private/tmp/brn-b1b-window1-20261016/default-tests-complete-source.json",
+      "source_manifest_sha256": "7034801a5a4544a541281967b4dc42adeba3f40b47d625776b1cbacef2b73e59",
+      "started_utc": "2026-10-16T20:52:56.863891+00:00",
+      "test_totals": {
+        "failed": 1,
+        "filtered": 0,
+        "ignored": 6,
+        "measured": 0,
+        "passed": 1109
+      }
+    },
+    {
+      "command": [
+        "cargo",
+        "build",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-retrieval",
+        "--locked",
+        "--offline"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "dirty_diff": "/private/tmp/brn-b1b-window1-20261016/combined-desktop-build-diff.patch",
+      "dirty_diff_sha256": "509170c9e3f693023f0c0ed15b1a4b82b21e18f09cee82284b99cb16efbaf9f2",
+      "duration_seconds": 5.754016374936327,
+      "env": {
+        "BRN_INTAKE_HELPER": "/private/tmp/brn-b1a-20261016-target/debug/brn-intake-helper",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "ORT_LIB_PATH": "/Users/evokessler/Library/Caches/ort.pyke.io/dfbin/aarch64-apple-darwin/6934874e2e953576d9c1db47ff1af39c62c4f4220dbe6f988e131f72879674c7",
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "TMPDIR": "/private/tmp/brn-b1b-window1-20261016/synthetic-tmp"
+      },
+      "evidence_role": "actual candidate command",
+      "executed_artifacts_after_command": [],
+      "exit_code": 0,
+      "finished_utc": "2026-10-16T20:54:26.575871+00:00",
+      "head": "9bd8f4693890d5b4d01fae2e2c74bacb62e04d40",
+      "ignored_lines": [],
+      "label": "combined-desktop-build",
+      "log": "/private/tmp/brn-b1b-window1-20261016/combined-desktop-build.log",
+      "log_sha256": "d7e35b13fd7734a9f52ddd9e7750b3683da179da0cf73cfaa68ecf262fdd74e4",
+      "matches_final_production": true,
+      "source_identity_sha256": "0d15660eb7ac333cf41886e02d31810bac4547685a319ff485056e629420529d",
+      "source_manifest": "/private/tmp/brn-b1b-window1-20261016/combined-desktop-build-source.json",
+      "source_manifest_sha256": "7034801a5a4544a541281967b4dc42adeba3f40b47d625776b1cbacef2b73e59",
+      "started_utc": "2026-10-16T20:54:20.821782+00:00",
+      "test_totals": {
+        "failed": 0,
+        "filtered": 0,
+        "ignored": 0,
+        "measured": 0,
+        "passed": 0
+      }
+    },
+    {
+      "command": [
+        "cargo",
+        "build",
+        "-p",
+        "brn",
+        "--features",
+        "native-retrieval",
+        "--locked",
+        "--offline"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "dirty_diff": "/private/tmp/brn-b1b-window1-20261016/native-retrieval-cli-build-diff.patch",
+      "dirty_diff_sha256": "509170c9e3f693023f0c0ed15b1a4b82b21e18f09cee82284b99cb16efbaf9f2",
+      "duration_seconds": 2.9045581249520183,
+      "env": {
+        "BRN_INTAKE_HELPER": "/private/tmp/brn-b1a-20261016-target/debug/brn-intake-helper",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "ORT_LIB_PATH": "/Users/evokessler/Library/Caches/ort.pyke.io/dfbin/aarch64-apple-darwin/6934874e2e953576d9c1db47ff1af39c62c4f4220dbe6f988e131f72879674c7",
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "TMPDIR": "/private/tmp/brn-b1b-window1-20261016/synthetic-tmp"
+      },
+      "evidence_role": "actual candidate command",
+      "executed_artifacts_after_command": [],
+      "exit_code": 0,
+      "finished_utc": "2026-10-16T20:54:29.703321+00:00",
+      "head": "9bd8f4693890d5b4d01fae2e2c74bacb62e04d40",
+      "ignored_lines": [],
+      "label": "native-retrieval-cli-build",
+      "log": "/private/tmp/brn-b1b-window1-20261016/native-retrieval-cli-build.log",
+      "log_sha256": "54b5eca3e09fb5fded77f2c6df591b674db066ab66d26a5144dc19cae7b986e0",
+      "matches_final_production": true,
+      "source_identity_sha256": "0d15660eb7ac333cf41886e02d31810bac4547685a319ff485056e629420529d",
+      "source_manifest": "/private/tmp/brn-b1b-window1-20261016/native-retrieval-cli-build-source.json",
+      "source_manifest_sha256": "7034801a5a4544a541281967b4dc42adeba3f40b47d625776b1cbacef2b73e59",
+      "started_utc": "2026-10-16T20:54:26.798674+00:00",
+      "test_totals": {
+        "failed": 0,
+        "filtered": 0,
+        "ignored": 0,
+        "measured": 0,
+        "passed": 0
+      }
+    },
+    {
+      "command": [
+        "cargo",
+        "clippy",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-retrieval,native-test-support",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "dirty_diff": "/private/tmp/brn-b1b-window1-20261016/combined-union-clippy-diff.patch",
+      "dirty_diff_sha256": "509170c9e3f693023f0c0ed15b1a4b82b21e18f09cee82284b99cb16efbaf9f2",
+      "duration_seconds": 13.3566525420174,
+      "env": {
+        "BRN_INTAKE_HELPER": "/private/tmp/brn-b1a-20261016-target/debug/brn-intake-helper",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "ORT_LIB_PATH": "/Users/evokessler/Library/Caches/ort.pyke.io/dfbin/aarch64-apple-darwin/6934874e2e953576d9c1db47ff1af39c62c4f4220dbe6f988e131f72879674c7",
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "TMPDIR": "/private/tmp/brn-b1b-window1-20261016/synthetic-tmp"
+      },
+      "evidence_role": "actual candidate command",
+      "executed_artifacts_after_command": [],
+      "exit_code": 0,
+      "finished_utc": "2026-10-16T20:54:43.223165+00:00",
+      "head": "9bd8f4693890d5b4d01fae2e2c74bacb62e04d40",
+      "ignored_lines": [],
+      "label": "combined-union-clippy",
+      "log": "/private/tmp/brn-b1b-window1-20261016/combined-union-clippy.log",
+      "log_sha256": "2a0533841ceb9642b465a5dc2586a5beb3013a4674b242d7861f6d50f8748f8e",
+      "matches_final_production": true,
+      "source_identity_sha256": "0d15660eb7ac333cf41886e02d31810bac4547685a319ff485056e629420529d",
+      "source_manifest": "/private/tmp/brn-b1b-window1-20261016/combined-union-clippy-source.json",
+      "source_manifest_sha256": "7034801a5a4544a541281967b4dc42adeba3f40b47d625776b1cbacef2b73e59",
+      "started_utc": "2026-10-16T20:54:29.866501+00:00",
+      "test_totals": {
+        "failed": 0,
+        "filtered": 0,
+        "ignored": 0,
+        "measured": 0,
+        "passed": 0
+      }
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-retrieval",
+        "--locked",
+        "--offline"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "dirty_diff": "/private/tmp/brn-b1b-window1-20261016/combined-state-tests-diff.patch",
+      "dirty_diff_sha256": "509170c9e3f693023f0c0ed15b1a4b82b21e18f09cee82284b99cb16efbaf9f2",
+      "duration_seconds": 40.99704562500119,
+      "env": {
+        "BRN_INTAKE_HELPER": "/private/tmp/brn-b1a-20261016-target/debug/brn-intake-helper",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "ORT_LIB_PATH": "/Users/evokessler/Library/Caches/ort.pyke.io/dfbin/aarch64-apple-darwin/6934874e2e953576d9c1db47ff1af39c62c4f4220dbe6f988e131f72879674c7",
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "TMPDIR": "/private/tmp/brn-b1b-window1-20261016/synthetic-tmp"
+      },
+      "evidence_role": "actual candidate command",
+      "executed_artifacts_after_command": [
+        {
+          "bytes": 92804176,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/brn_desktop-3f2cd0654d7aab2c",
+          "sha256": "b908dd4e4c2af79d6f9e6ed8a7e82f9bf9884c666b680077fe2ff25acfa7d4e5"
+        }
+      ],
+      "exit_code": 0,
+      "external_model_directory_env": "explicitly absent; no model assets authorized",
+      "finished_utc": "2026-10-16T20:55:24.399732+00:00",
+      "head": "9bd8f4693890d5b4d01fae2e2c74bacb62e04d40",
+      "ignored_lines": [],
+      "label": "combined-state-tests",
+      "log": "/private/tmp/brn-b1b-window1-20261016/combined-state-tests.log",
+      "log_sha256": "b79738e6888a9b772ac31a32a2787ec3323fc12d2786b2e7ab0147ae753cc660",
+      "matches_final_production": true,
+      "source_identity_sha256": "0d15660eb7ac333cf41886e02d31810bac4547685a319ff485056e629420529d",
+      "source_manifest": "/private/tmp/brn-b1b-window1-20261016/combined-state-tests-source.json",
+      "source_manifest_sha256": "7034801a5a4544a541281967b4dc42adeba3f40b47d625776b1cbacef2b73e59",
+      "started_utc": "2026-10-16T20:54:43.402897+00:00",
+      "test_totals": {
+        "failed": 0,
+        "filtered": 0,
+        "ignored": 0,
+        "measured": 0,
+        "passed": 55
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "/private/tmp/brn-b1b-window1-20261016/native-headless.py"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "dirty_diff": "/private/tmp/brn-b1b-window1-20261016/combined-native-headless-diff.patch",
+      "dirty_diff_sha256": "509170c9e3f693023f0c0ed15b1a4b82b21e18f09cee82284b99cb16efbaf9f2",
+      "duration_seconds": 1.869198750006035,
+      "env": {
+        "BRN_INTAKE_HELPER": "/private/tmp/brn-b1a-20261016-target/debug/brn-intake-helper",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "ORT_LIB_PATH": "/Users/evokessler/Library/Caches/ort.pyke.io/dfbin/aarch64-apple-darwin/6934874e2e953576d9c1db47ff1af39c62c4f4220dbe6f988e131f72879674c7",
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "TMPDIR": "/private/tmp/brn-b1b-window1-20261016/synthetic-tmp"
+      },
+      "evidence_role": "actual candidate command",
+      "executed_artifacts_after_command": [],
+      "exit_code": 0,
+      "external_model_directory_env": "explicitly absent; no model assets authorized",
+      "finished_utc": "2026-10-16T20:55:40.470127+00:00",
+      "head": "9bd8f4693890d5b4d01fae2e2c74bacb62e04d40",
+      "ignored_lines": [],
+      "label": "combined-native-headless",
+      "log": "/private/tmp/brn-b1b-window1-20261016/combined-native-headless.log",
+      "log_sha256": "e28fe459755fc26bfede6ac1fb1480e76477587325b8e03b6cf32ef11a935d83",
+      "matches_final_production": true,
+      "source_identity_sha256": "0d15660eb7ac333cf41886e02d31810bac4547685a319ff485056e629420529d",
+      "source_manifest": "/private/tmp/brn-b1b-window1-20261016/combined-native-headless-source.json",
+      "source_manifest_sha256": "7034801a5a4544a541281967b4dc42adeba3f40b47d625776b1cbacef2b73e59",
+      "started_utc": "2026-10-16T20:55:38.600827+00:00",
+      "test_totals": {
+        "failed": 0,
+        "filtered": 0,
+        "ignored": 0,
+        "measured": 0,
+        "passed": 0
+      }
+    }
+  ],
+  "commands_serial_no_overlap": true,
+  "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+  "empty_process_receipt": {
+    "own_controllers_or_children": [],
+    "path": "/private/tmp/brn-b1b-window1-20261016/empty-process-receipt.json",
+    "precise_heavy_executables": [],
+    "sha256": "5af866bf6efa4593ea518506dbeac10f2c982f5ac36e47c952d4e07df99c2566"
+  },
+  "final_depinfo_receipt": "/private/tmp/brn-b1b-window1-20261016/final-depinfo.json",
+  "final_depinfo_receipt_sha256": "9d061c633f10f4d0fa0125ad41d325269c314d1737586454f8010b7fb78dd62f",
+  "final_static_checks": {
+    "final-diff-check": {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "log": "/private/tmp/brn-b1b-window1-20261016/final-diff-check.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "result": ""
+    },
+    "final-markdown-links": {
+      "command": [
+        "python3",
+        "scripts/check-markdown-links.py"
+      ],
+      "exit_code": 0,
+      "log": "/private/tmp/brn-b1b-window1-20261016/final-markdown-links.log",
+      "log_sha256": "ea137219682109ae22b50141d288f83eca03a56fa9c8619b53281e3db99c76cc",
+      "result": "Markdown links: 187 files, 923 local links, 0 failures; historical outgoing policy=docs/archive/ only"
+    }
+  },
+  "heavy_slot": "will be explicitly released after compiled local pin and empty own-process receipt",
+  "helper": {
+    "bytes": 34084368,
+    "path": "/private/tmp/brn-b1a-20261016-target/debug/brn-intake-helper",
+    "sha256": "25b6e40b3e4aa29f90465c3234ac02b132b2b4d5ab4387dd1a5bcd597d68e445"
+  },
+  "initial_environment_and_cache": {
+    "ORT": {
+      "ORT_LIB_PATH": "/Users/evokessler/Library/Caches/ort.pyke.io/dfbin/aarch64-apple-darwin/6934874e2e953576d9c1db47ff1af39c62c4f4220dbe6f988e131f72879674c7",
+      "cache_identity": "ort-sys2.0.0-rc.13 manifest aarch64-apple-darwin coreml distribution hash6934874e2e953576d9c1db47ff1af39c62c4f4220dbe6f988e131f72879674c7; extracted lib hash recorded independently",
+      "cause": "CARGO_NET_OFFLINE=true triggers ort-sys SKIP_DOWNLOAD path before automatic cached distribution resolution; ORT_LIB_PATH not set. Local source/lock unchanged.",
+      "correction": "Explicit ORT_LIB_PATH to existing exact ort-sys distribution cache; static single-file linking is supported in build/static_link/mod.rs. Keep offline/locked/CARGO_NET_OFFLINE=true. No downloads, model assets, linking stub, compiler/feature/dependency changes.",
+      "dist_tsv_sha256": "c706a8bf67367fbec3ad7851d9b119f8830fbabe53696e20f4740131f7f59e78",
+      "library_bytes": 80425592,
+      "library_sha256": "d68759bf6c644dd5c6cb4e735699fba89e431b49ca588f73c11ee1c48ba838b3"
+    },
+    "candidate_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+    "candidate_target": "/private/tmp/brn-b1a-20261016-target",
+    "depinfo_roots": {
+      "/private/tmp/brn-b1a-20261016-target/debug/brn-desktop.d": {
+        "roots": [
+          "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc"
+        ],
+        "sha256": "7c37e5345691610630db8ad3de9a2428f32f837ce92927e1706b46cbc646bb7c"
+      },
+      "/private/tmp/brn-b1a-20261016-target/debug/brn-intake-helper.d": {
+        "roots": [
+          "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc"
+        ],
+        "sha256": "b8035fc15c19b9612aebf6ee1c76b3681d120beb8e0327d73ac925cf1af977ef"
+      },
+      "/private/tmp/brn-b1a-20261016-target/debug/brn.d": {
+        "roots": [
+          "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc"
+        ],
+        "sha256": "a8304f66e687882c41a31c36034006ae659fd61dc44bf1d69d3894daaf7af70b"
+      },
+      "/private/tmp/brn-b1a-20261016-target/debug/libbrn_ai.d": {
+        "roots": [
+          "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc"
+        ],
+        "sha256": "9a356fbdecbc9aa1780639c55b5839499b8c6653f88e1e3c7efacdc11e901db7"
+      },
+      "/private/tmp/brn-b1a-20261016-target/debug/libbrn_intake.d": {
+        "roots": [
+          "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc"
+        ],
+        "sha256": "2e8386596219ac8a6d9f616548a43d1d7f0e728598c2dd9b621a3652d356a079"
+      },
+      "/private/tmp/brn-b1a-20261016-target/debug/libbrn_retrieval.d": {
+        "roots": [
+          "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc"
+        ],
+        "sha256": "e6450102c36a4f8aeb918e2053c69efb3c3c6b7ba7f6e203599d258eacc80db1"
+      },
+      "/private/tmp/brn-b1a-20261016-target/debug/libbrn_threads_app.d": {
+        "roots": [
+          "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc"
+        ],
+        "sha256": "51d50ab16ad8184c122ab73276351b991645adfbeb675ec850d3c09665289426"
+      },
+      "/private/tmp/brn-b1a-20261016-target/debug/libbrn_threads_core.d": {
+        "roots": [
+          "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc"
+        ],
+        "sha256": "59bd853a74cea4ee5b1606222a34ea26785c067f1b31445837b79e00cab9f058"
+      },
+      "/private/tmp/brn-b1a-20261016-target/debug/libbrn_threads_intake.d": {
+        "roots": [
+          "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc"
+        ],
+        "sha256": "18218ba37bf3eed54deaeef373da181839d59e6ec709d218cffc67456121c470"
+      },
+      "/private/tmp/brn-b1a-20261016-target/debug/libbrn_writing_ui.d": {
+        "roots": [
+          "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc"
+        ],
+        "sha256": "d89bcbfaaf6f446120a3fc8087812e59f0c6d1df4b7e0a4ac30cc8fff937befd"
+      }
+    },
+    "initial_HEAD": "9bd8f4693890d5b4d01fae2e2c74bacb62e04d40",
+    "initial_branch": "work/b1b-20261016",
+    "initial_process_check": "ps comm regex for cargo/rustc/clippy/rustfmt/mutants/brn/retrieval returned no matches (exit1), before any worker started; user grant also supplies principal independent empty-process witness.",
+    "initial_status": "",
+    "same_root_reuse_only": true,
+    "toolchain": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: aarch64-apple-darwin\nrelease: 1.98.1\nLLVM version: 22.1.8\n",
+    "unexpected_roots": {}
+  },
+  "kind": "B1b compiled candidate qualification, sole carried PDF failure; principal review/acceptance pending",
+  "lock_delta": {
+    "after_sha256": "b742357ec641f357c7beecc14bcc3c81657a039f01bb6fcd397dac6413d0d313",
+    "before_sha256": "db9897de266af25068aab354bf8df502a1ce3657b96b08ca00d78733f6e666ce",
+    "diff": "diff --git a/Cargo.lock b/Cargo.lock\nindex 6f0a34c4..55a5c242 100644\n--- a/Cargo.lock\n+++ b/Cargo.lock\n@@ -897,6 +897,7 @@ dependencies = [\n  \"brn-threads-intake\",\n  \"brn-writing-ui\",\n  \"gpui-kit\",\n+ \"rig\",\n  \"serde\",\n  \"serde_json\",\n  \"tempfile\",\n",
+    "only_change": "brn-desktop\u2192existing rig dependency edge",
+    "package_identities_unchanged": 953
+  },
+  "native_script": {
+    "content": "#!/usr/bin/env bash\n# Compile and verify the Threads desktop state on the repository toolchain.\nset -euo pipefail\nrepo_root=\"$(cd \"$(dirname \"${BASH_SOURCE[0]}\")/..\" && pwd)\"\nexport PATH=\"/opt/homebrew/opt/rustup/bin:$PATH\"\nif [[ -n \"${BRN_VERIFY_OUTPUT_DIR:-}\" && -z \"${_BRN_EVIDENCE_CHILD:-}\" ]]; then\n  exec python3 \"$repo_root/scripts/verification_evidence.py\" \"$(basename \"$0\")\" -- \"$@\"\nfi\nif [[ $# -ne 0 ]]; then printf 'Usage: verify-desktop-shell.sh\\n' >&2; exit 2; fi\ncd \"$repo_root\"\ncargo build -p brn-intake --features helper --bin brn-intake-helper --locked --offline\ncargo build -p brn-writing-ui --features native-ui --locked --offline\ncargo clippy -p brn-writing-ui --features native-ui,native-test-support --all-targets --locked --offline -- -D warnings\ncargo test -p brn-writing-ui --features native-ui,native-test-support --locked --offline\ncargo build -p brn-desktop --features native-ui,native-test-support --locked --offline\ncargo clippy -p brn-desktop --features native-ui,native-test-support --all-targets --locked --offline -- -D warnings\ncargo test -p brn-desktop --features native-ui,native-test-support --locked --offline\nprintf 'Native compilation and state checks passed; hands-on interaction is a separate gate.\\n'\n",
+    "invocations": 1,
+    "path": "scripts/verify-desktop-shell.sh",
+    "receipt": "native-shell-actual",
+    "sha256": "684213a46b07ca96041e8985dc058761f000d19ed1b1f59460e27edc9c2188fc"
+  },
+  "precommit_HEAD": "9bd8f4693890d5b4d01fae2e2c74bacb62e04d40",
+  "production_manifest": {
+    ".github/workflows/ci.yml": "22291660f707ae56491fff9e91cb5c0fca49a02efc17243af96cd6608ce804d6",
+    "Cargo.lock": "b742357ec641f357c7beecc14bcc3c81657a039f01bb6fcd397dac6413d0d313",
+    "Cargo.toml": "92d4e068aefe844db0d4d725f9c33df53b48544a2084c282597bc6ca5336fc28",
+    "crates/brn-ai/Cargo.toml": "1f6a3ba871179622b36846490633cc2c6737c4fa3705185e12fbd5b879082f48",
+    "crates/brn-ai/README.md": "2a112ee2314998997d5105f46a110c8f612de85591cff45d14e97999a902d2db",
+    "crates/brn-ai/examples/provider_capabilities.rs": "58c4bf604531973e7959704de54c012bf1d0a466bbcb50f27fea01c3ef7b4fdb",
+    "crates/brn-ai/examples/qualify_conversion.rs": "ac0582120c12d4b72ecf3fd578a7f270e0673d4116a73ced2db7cfd692ae5f01",
+    "crates/brn-ai/src/action_candidates.rs": "cb41022f3f8211bc0ad7bac0336305f9347410d622d8012513fac8abc20a928d",
+    "crates/brn-ai/src/auth.rs": "dcb18a9caa0e159a41d5e8f28644e93cbacff9d4884603f3ae006ba4f41b95a5",
+    "crates/brn-ai/src/behavior.rs": "bc6c0ed0cdc586b036268db4ff519488dc66648aa740c0075629d34bccd8d0ca",
+    "crates/brn-ai/src/capability_probe.rs": "46dace916f9528fb95e1a38002e4f897f9af5791fd0a0aedebf07ff95416a3d6",
+    "crates/brn-ai/src/chat.rs": "aa2c5507149267339b9afbce5be6839bc68e46cabdae494e9b1188ef40a4afef",
+    "crates/brn-ai/src/codex_auth.rs": "a18dfe82e54833c6d2eb56ce907bc9fc23cbb0b4e0bdbb0ab3909e29fc5e5dba",
+    "crates/brn-ai/src/conversion.rs": "bba4fcd120ecde2df1b8eeb6c1e31c1ed91f908a3592ad88a4bb6e78d01576c9",
+    "crates/brn-ai/src/conversion_tests.rs": "811b362fe10619f0038854a7d32b0c3b53b2187434a0a60c6e29e5a798c2d00b",
+    "crates/brn-ai/src/error.rs": "d538d61e3afcc167c823d56c88a37f7a8f2be44c252aa8c36cd4b70be0db48be",
+    "crates/brn-ai/src/fixtures/capability.png": "ef016c9a976b5c618e1942fad4dcbaee48ff5b4d4599df2de9874438c4a64ae4",
+    "crates/brn-ai/src/lib.rs": "1fa66fb2cb995ac0a0ae5a13bd3958c39b09d9b31399de6d0b996bae869a85e8",
+    "crates/brn-ai/src/proposal_tools.rs": "38914d7211302841a4db639bdc76e860c0e6c591dfcef23c82d0c9bbb88538fe",
+    "crates/brn-ai/src/provider_fixture_runtime.rs": "4e78c1d8f4545fcb711e14b8028ba5f33f80844309bdfd890775362143d9d223",
+    "crates/brn-ai/src/provider_formats_tests.rs": "4806009c6a7c290a4b55fd23304acad5776c5bf9fb9d85821bdb0f36f080223b",
+    "crates/brn-ai/src/provider_stderr_tests.rs": "d0d6c88ab7ba3cfe23524aabe3b44ddd43b0f49c8bfeed629a1f4a6d91b757c1",
+    "crates/brn-ai/src/resend.rs": "4a318fe996d135a24152645456ce05d8277a0823cf9561dbce84baa7ce6dae72",
+    "crates/brn-ai/src/run_lease.rs": "af3b3e5b106a9c75ba898ce35eb4e681018b6a26c20814cfcfc9a68ea9267939",
+    "crates/brn-ai/src/threads.rs": "090c51955efedbc7e62b0a8c9d0bb54bb848ebe05544ae086a4ca1674070dd94",
+    "crates/brn-ai/src/threads_cache_tests.rs": "73a9877961b89cce3a80bfb256ce51f64b404db15fb4e78bf9276dde92d21fd3",
+    "crates/brn-ai/src/threads_chat_tests.rs": "201f98b2942d60101bc3a474594cc8bdb255f02eafd849c9b85d53b6ba4898c6",
+    "crates/brn-ai/src/threads_current_inputs_tests.rs": "86ddb8cd19e50eaa6954c70ab5899daa9562eb5262711cd4881603e4510bf7a4",
+    "crates/brn-ai/src/threads_cw2_tests.rs": "c834c2d8c461d5413f18bef5f9de6cad887532161fc7bcfb81562e1f1872fc97",
+    "crates/brn-ai/src/threads_delegation_tests.rs": "9522fb68ac4748a9a295101f15224bce9419d84712eeb35df4c0b0b9a7bb65ef",
+    "crates/brn-ai/src/threads_guides.rs": "186e999845bfdc87863c0fdf385981aeae0873cba51fa10e3e32650185981aad",
+    "crates/brn-ai/src/threads_history.rs": "fd8709a8d2c022d0ffbb6820e0a7adc1a05ba40b2fe97fcb983450f99a4f6e40",
+    "crates/brn-ai/src/threads_intake.rs": "71ddf51d921eb2e70527bb5005f25e9d60e3f251e10b54a3d8bf218eed805a6b",
+    "crates/brn-ai/src/threads_intake_tests.rs": "8620759dec6a1c186fd8b1b9b1a961aefdd04a9c6cdd6afcbf50097f8f351e61",
+    "crates/brn-ai/src/threads_project_tests.rs": "04298ce1529311dc6dea1fa5fdd3bdd36576638582df10a3936333073bb1f230",
+    "crates/brn-ai/src/threads_reads.rs": "22a3ab59c66b84d4744d2b800f0d1d7a452c01e3697b001ea196e6871ddc5730",
+    "crates/brn-ai/src/threads_reads_tests.rs": "9472e502cbc616747a7c81d90da21edaf992b22d23faa79faabd932bc31d3966",
+    "crates/brn-ai/src/threads_research.rs": "0e6e6ea468243c861c43ed8a57c03f4278b6cc7669634dcd44b80cbea7ff1421",
+    "crates/brn-ai/src/threads_research_tests.rs": "8bd131eb1e5b503f0a8f7b0f1e838918e50cb8fa82aa271671a1ad2e2b20fb1f",
+    "crates/brn-ai/src/threads_search.rs": "77f2ac37ac4944b18050f3e98c02db667a12a018979df79465ef4083f869e224",
+    "crates/brn-ai/src/threads_search_tests.rs": "7656f9700bf212ecd1ac40a727615e59d8cd38a99554c0a0aaf6d87a53bedd67",
+    "crates/brn-ai/src/threads_sources.rs": "d358e5a6275ac8bbece030aeecaefe8383900e86c79bf54a61c697f919dd5712",
+    "crates/brn-ai/src/threads_sources_tests.rs": "24f56c5be2348257969c59b4b08d8c395975f035814834000fbffe76120bc5fb",
+    "crates/brn-ai/src/threads_steering_tests.rs": "9772c9c8d28d3b01661088320de5f6a8d17cdb398c6056ddf7c1dc849109222c",
+    "crates/brn-ai/src/threads_trace.rs": "09bd4c273f6a99a09e98b101c594902e9f4d40b82a1e5426b930ee81dd1ee0de",
+    "crates/brn-ai/src/threads_writing_tests.rs": "dadc1e1ed2be990bcf6216f68086627243eee2cbf413b30a340b9cb5de38374c",
+    "crates/brn-ai/src/tools.rs": "7ce0b41e7a000d8b548ac97b8a8bc670d1589d96eded39fb1d85aeb000eba64e",
+    "crates/brn-ai/src/visual.rs": "e3b6ea0b58c52189d4436617100927e9ad76f54c9ae280b00eed599c6260e50c",
+    "crates/brn-desktop/Cargo.toml": "5b21d2ccb2121a53c02c603d70a2d9be513c88ff86ec7e27435a12c31e7ed8f7",
+    "crates/brn-desktop/README.md": "722b12b7696bead045c77b17990c397728c0621d7b7c151db16f07d7bcb06106",
+    "crates/brn-desktop/src/main.rs": "50fce489fcd7c032e7c26d66a9acb68ebfc3529597170549b7da191f6b692896",
+    "crates/brn-desktop/src/threads_backup_tests.rs": "da072667f9daf70807736d09fa5df6e9c28b73d393d963660af40f60796daa62",
+    "crates/brn-desktop/src/threads_chat.rs": "56f597bbb7acf13796b62b6a9cab2646cd7e0f6959a78bfc0e9b10effe0cd5ec",
+    "crates/brn-desktop/src/threads_chat_tests.rs": "b4f208ae67a2d2b5c549480a329ec0b982fab72f040a0f4256128be80f3db85e",
+    "crates/brn-desktop/src/threads_components.rs": "0c3f72899581b7aadc8fd46f87053eb78921ca1cb8b354a9b0686b8421f436be",
+    "crates/brn-desktop/src/threads_connections.rs": "1a6975d6c55c92617a4c0ca857e64ed61475506beb77534a5331a9ec168f7270",
+    "crates/brn-desktop/src/threads_context_actions.rs": "fb7f881f79a91984c9c7799db58de440f24513b2698277f3712a1c241bdca795",
+    "crates/brn-desktop/src/threads_context_actions_tests.rs": "961d450df453f07f3aa894144d3cedeab9725977a94ce45a62a858817b0b460d",
+    "crates/brn-desktop/src/threads_dialogs_tests.rs": "2dfe26e52edbb1816b6b5dee59c731a4946dac669d4f560d4785491d3f90accc",
+    "crates/brn-desktop/src/threads_document_tests.rs": "a8c14a3f70346a187cc91e09e3f41b8cfd56a3f87cfdeecc5ec4af4e3f8d08a3",
+    "crates/brn-desktop/src/threads_focus_tests.rs": "7bdf58ec2fd248f263434118c0fc31f88fea00bbaa37ca898d8eb61cccd85adf",
+    "crates/brn-desktop/src/threads_intake_tests.rs": "260f37de4d36e0ae77eff8fc93a225bbc7586d533d88d0b01f8ecd6c226fc01b",
+    "crates/brn-desktop/src/threads_layout.rs": "66e89e7aff29218266fa596698ba0c5010753c0c08c98c2649c774545e11251b",
+    "crates/brn-desktop/src/threads_lists.rs": "f39301da515c97deca5797b2f5659f8f22eca7f479ac609481f95606f0ced7b6",
+    "crates/brn-desktop/src/threads_omakase_tests.rs": "0e6f18d63370e8690b398a4b8568d04e20e2ea55a22665b457b6166d57e9e6d8",
+    "crates/brn-desktop/src/threads_pages_tests.rs": "57a0e47681794b644e4e2aa7e6b350c3242d86fc9136c9b4fc95ef93e2c683d7",
+    "crates/brn-desktop/src/threads_polish_tests.rs": "18261f3147d20e6ec032364d3bab4e7c261b74d4e7d0668b37fea03997325d00",
+    "crates/brn-desktop/src/threads_projects.rs": "e8f6fa3de63cf472d70d5f3dc8f5c9dac871477eafd4eb5d290a38c8f78a7cf5",
+    "crates/brn-desktop/src/threads_projects_tests.rs": "4303883718a5fb79655b24094e94c420fd5e2720c95ff0e99cec164a472a6fc0",
+    "crates/brn-desktop/src/threads_review_tests.rs": "18f678bd5024a65c303c11328691cc5524dbc1d1b1dbd7e5ad30a85c09ae9024",
+    "crates/brn-desktop/src/threads_search.rs": "668b676fdb802b3ede8944a8554114e853fab23c80ade422b64215857066e747",
+    "crates/brn-desktop/src/threads_shell.rs": "721792ae516bd4238ab989cc2def86fcee5501da014bf706980f516e3c7c86b5",
+    "crates/brn-desktop/src/threads_state.rs": "3c6ed6890eeafc2a2f90ffd876c5d697b4977c4d345f645b203178ad282c5c2c",
+    "crates/brn-desktop/src/threads_steering_tests.rs": "e5b3fd8e244b24b7561756d3127b04a844cb7cf13ab5b1674c21e54a5f42a52e",
+    "crates/brn-desktop/src/threads_theme.rs": "2a71bc6a6ebecb0e5e97d67ba01854ce743c7dddbaca02a809e51092dbf57ae0",
+    "crates/brn-desktop/src/threads_tiled_tests.rs": "211ec9c1d463fef2af21086a8a192cca5918d96447401757dc9d49c1214d7c22",
+    "crates/brn-desktop/src/threads_tiles.rs": "7aadfecd226ee8f4b741a8ca79a1761cf1583ba3233def5040ff0e609267243e",
+    "crates/brn-desktop/src/threads_ui.rs": "bd03c560faeecdfb3e73440e9f1da83a3e944b3ea18965b79713942fcae06aeb",
+    "crates/brn-desktop/src/threads_workbench_tests.rs": "4de440ab805881bc887226eb38183e8cd72202be307937e09651d10f590d22c1",
+    "crates/brn-desktop/src/threads_writing.rs": "0cbfa77960e179f76ac6897403429694157ff5c7acf58dbad92fe7dbaf86e489",
+    "crates/brn-desktop/src/threads_writing_tests.rs": "f91bac5f41553d20bca0785acac8dcec371f4fc419ac93ce1eb3c99fd42c7e06",
+    "crates/brn-intake/Cargo.toml": "ef10870cab9736b29a00f6b78cbe55531e859393a20bff3871a484e4d31cba03",
+    "crates/brn-intake/README.md": "d0d24a6fd0752d8840100ce2b51cb42a0a2e00671b9a479b5a434ed158bfa159",
+    "crates/brn-intake/src/bin/brn-intake-helper.rs": "7297061f1cfa3c635f4338db9c29a9af90fbb6a068f7326b3fa9c1a017ced44e",
+    "crates/brn-intake/src/helper.rs": "c243dace17a64bac8f017246093e7ad6c28b302581fb31b0e6f7f062a69252ba",
+    "crates/brn-intake/src/helper/pptx.rs": "d1ccbf449f0990f4d2b5e97732813b2d8e10f1f077adad96a675adaecd23c7cc",
+    "crates/brn-intake/src/helper/prepared.rs": "27d4592f13e7b994aa2ce50a2ab8541ab30f5a093213c81e3f2d34abc083336b",
+    "crates/brn-intake/src/helper/prepared/html.rs": "c354efd570cbc403fe2218929b5abab08f3e165705d1a3d13244948304f9ba56",
+    "crates/brn-intake/src/helper/prepared/pptx.rs": "13c34da0c174141e1923360e2a45f90945a4ebe503e5ca50ec2a9585a0d2ce0d",
+    "crates/brn-intake/src/helper/prepared/xlsx.rs": "6be6e88bb067f071e95c0668328b6742382498a03c0bf87b5d5e3ed720da81e2",
+    "crates/brn-intake/src/lib.rs": "fdcfe7e838ac438416d1b2a4f4b217d632db67c8c107c3f7fe1ba02aff8ae94f",
+    "crates/brn-intake/src/prepared.rs": "2f4befbe98c32c9dd3028a879e8a856d34c72f3339340838e77ec6e8cdd0c1d1",
+    "crates/brn-intake/src/prepared/formatting.rs": "994d5edbbd514efe65fab2f0306430d6a2f6504fb07861b52ac91f7e86abec4d",
+    "crates/brn-intake/src/prepared/tests.rs": "70a59dff4df93161dfb7c342312c24b13892d95f34070f37f52058a2eb6f906c",
+    "crates/brn-intake/tests/fixtures/README.md": "5e12a62618f1898f7491821a9c180807ff32ef64b74d44a52fc8ff762dc4d685",
+    "crates/brn-intake/tests/fixtures/features.docx": "04db9ac31374868d55d0ff579f23ad5bc558fb9fe9a2363305498817e335ea6d",
+    "crates/brn-intake/tests/fixtures/forecast.xlsx": "916dc333d40b37dce3b0a32e4b9ea6bea145fee8369271778ca7e71196d04704",
+    "crates/brn-intake/tests/fixtures/harbor.docx": "46a227162352ff616344ab5bc91350d1c1f2810bb099f873ab49979c3133df85",
+    "crates/brn-intake/tests/fixtures/harbor.pptx": "8fa8c3d08fc157cd08d4a5cb17c48c54ca7b7723930b6d35c484f9b975455280",
+    "crates/brn-intake/tests/fixtures/hostile-dtd.docx": "c5da4fb9c60f4c9455f6216ddef345c059953f3879afbb849239a3d5b8fb967b",
+    "crates/brn-intake/tests/fixtures/hostile-inflate.docx": "c79196faaded8e6d6f9eeb2a2b733607ee1e7b49a7affc076a0bb9c1b033d019",
+    "crates/brn-intake/tests/fixtures/hostile-members.docx": "befb44dbb220473403906cbbf4485e5561f5714e9dd8a171647cd22b561c32f2",
+    "crates/brn-intake/tests/fixtures/hostile-path.docx": "c85c4bad47aa98a3b763eade88307968da6ab18a42619d9a2d54007a841ecb74",
+    "crates/brn-intake/tests/fixtures/make-quay.py": "842f6af32e03d7e753a9dc29ec84398e0d5f0bae8c26d8068a0b4a6497bae714",
+    "crates/brn-intake/tests/fixtures/plural.eml": "f10516cc3db6eb065290c9e372aba0a80373f2a7bc9b8582e51562e719c48c14",
+    "crates/brn-intake/tests/fixtures/prefix-variation.docx": "7c2c8f4f4866db174495ad616d6995f002b63479d3ba3a22b182fb8151493709",
+    "crates/brn-intake/tests/fixtures/quay-map.jpg": "6a780dae8fa6a378b29effbabc6c10d8a0a659da56177f74145ee746484e96ca",
+    "crates/brn-intake/tests/fixtures/quay-map.png": "c3f5feba0efb93f37544885e543dad0ae156624b1e4b651985895b7599de3711",
+    "crates/brn-intake/tests/fixtures/quay.pptx": "64ae69174985357d81523fc92a239fc9f947620e813f30a899e79b15848cdc46",
+    "crates/brn-intake/tests/fixtures/single.eml": "47f34537c79fb7ad86f4751f6b59d856af5819e4e5918b93775403fd4970dd82",
+    "crates/brn-intake/tests/fixtures/water-use.png": "f76dd37920a0fc5889b1d53a0c448f7ec6c619ed8200eef5d31621e36ca4d61d",
+    "crates/brn-intake/tests/maintained.rs": "06595f3a95e969db0b20e03fa0515ad8997011d01c308038506d07bd980a8e2c",
+    "crates/brn-intake/tests/pptx.rs": "717d3c9f99a6e35114409b78b31a82c6398e19c160d471b1709d906193ae3944",
+    "crates/brn-intake/tests/protocol.rs": "14fbee2b90af769cc18c09084018287577b7099047ab8ebd6c54c162cbeb3af8",
+    "crates/brn-intake/tests/restricted_helper.rs": "3e5ead64430a942d03c59fa167f11637086a16ddf10835817c49cd824987af14",
+    "crates/brn-retrieval/Cargo.toml": "6264cdf9f313bb7eb62db128e24316cc120b8299deaa0f3660b623051e6812c1",
+    "crates/brn-retrieval/README.md": "b851c0e8e7d5f2f035f286705fd9e7c5d620a92c1db82b1f000d7f2ecb92b60b",
+    "crates/brn-retrieval/src/embedding.rs": "28d889685bc33742b90ae4f87a80e60df4a92bbd25bdaebcb4d8d1048304769d",
+    "crates/brn-retrieval/src/lib.rs": "6de88a037430434167e5156b7a6ffb4feff75686e837d569d9e9da7bf5166fbc",
+    "crates/brn-retrieval/src/markdown_chunk.rs": "fb81dd747a06dc39721a8962b6ad01c498a9c5dc7bcb11f3406ba5741a03ca44",
+    "crates/brn-retrieval/src/native.rs": "5b2839188b506dc9bc162c532c53839a284fdc00373ef2ce47213b4a9804e777",
+    "crates/brn-retrieval/src/native/download.rs": "f5d8cfd4b506978f29d6d02ee1466120585e467d4ef713f7cb8256db306567c3",
+    "crates/brn-retrieval/src/native/download_tests.rs": "7577ef6580d412e11b3aeb6854f1debd9ba6e31e0a37bca4e88f9c90419e0973",
+    "crates/brn-retrieval/src/search_index.rs": "94efb75c085c933130196aa2681aa47624674f6a2a3074522c1280992044cc70",
+    "crates/brn-retrieval/src/snippet.rs": "d89a6ed8d41dae93300d75906d8e7d13cd7cdaae1921c363cfe89d3c0f8a1298",
+    "crates/brn-retrieval/tests/local_embedder.rs": "67b1c20c5ebfe24c8c5c85a27cf67a1ae367d1d4e2a96027215982128ddb10b8",
+    "crates/brn-retrieval/tests/model_download.rs": "cb778263e44ce53e4989ab5775175188e88cbb2fd2d5c30bfdf53dea13bee6cf",
+    "crates/brn-retrieval/tests/search_index.rs": "1227b9fbeaefa1624c203a31a44806b9cdfe3571839a3943119acd739e0eb9a4",
+    "crates/brn-threads-app/Cargo.toml": "dd8cc20026768a1ffc703c5cd7dfe93933f4bdea2c67b4c6c9dfe848e7766880",
+    "crates/brn-threads-app/README.md": "4e06b34ad1632dfcb2cde54a489b9fcf29e8d0a6426c682ec2a93328649ec69b",
+    "crates/brn-threads-app/examples/retrieval_eval.rs": "b6a6b0cf69492b70beda58c3194ca8cf2b2fba614ee51c692663603431b178d2",
+    "crates/brn-threads-app/examples/retrieval_eval/support.rs": "cebd3ae31233f232ddef6ae926e4c2219e555e90d1162ea0305ee6fd6a38e270",
+    "crates/brn-threads-app/examples/synthetic_baseline.rs": "dd2da5e1b594ea49f56fee4cb96b3b0b10b88e0741bae5f0e45389fb2a30ace0",
+    "crates/brn-threads-app/examples/synthetic_baseline/support.rs": "564426be0de42252e2303dbab551e72c8277516b8f9ae987ef744f660364477a",
+    "crates/brn-threads-app/examples/wiki_eval_seed.rs": "fcae6e96ae02755c5d50cdd13b4b80adbcf52239cf50c6428c0aeb8dbee11670",
+    "crates/brn-threads-app/examples/wiki_eval_seed/seed.rs": "bffe290e78231f0b313af69ebac4163f61280d5910d30c1df473964704df6ab1",
+    "crates/brn-threads-app/src/assets.rs": "9f209070e18ada05c50380273899b72a83fc2b0e0001700b497873e184b59c54",
+    "crates/brn-threads-app/src/chat.rs": "8d5382ef0ad3a6dd1cf2c79c2c59e1be4608c1eff91bf05ae8773020bec9396b",
+    "crates/brn-threads-app/src/converge.rs": "ff2c57504c698cc2950818d32c8235a8b1edaeadc4ba523619d4c980df16eb11",
+    "crates/brn-threads-app/src/decisions.rs": "4711dd359b16432c4e90ec2e62be980cb372a52c1f61021494bb9de38d0b982c",
+    "crates/brn-threads-app/src/export.rs": "f255be8db5e5c61ae0af4e5895cfb1b5b217cffd3d7f9c9275c7c99f4541d199",
+    "crates/brn-threads-app/src/intake.rs": "3d935a5ab37cbb28ef10c76502045896e95db031bf2b2815717b19f251fac034",
+    "crates/brn-threads-app/src/keyed.rs": "6ee6f149e5519c56156ea3686a589ee5ac3893ac49356ecc97b362930bc2830b",
+    "crates/brn-threads-app/src/knowledge.rs": "5f9f436fc24814b4743606507383653e1e9a3e4d573fe90d31c383bd67ca9b7a",
+    "crates/brn-threads-app/src/lib.rs": "1221b3fb1e7ff004f2d27125062655fba1b870d5d95e7daa2747aa729b1262b2",
+    "crates/brn-threads-app/src/projects.rs": "353cf34a37fc0973ee9c1e57b19e39b5e68dc1c0f79add82bad946abcf18c9eb",
+    "crates/brn-threads-app/src/refresh.rs": "1a3fd0233d988a4412673deee9d709756bb404f2b91532988d6401e0d3be65a7",
+    "crates/brn-threads-app/src/relations.rs": "a3e68d61e7e2361b5b8e67c78138a231eed25116ed054bd2d85637341eed359b",
+    "crates/brn-threads-app/src/review.rs": "5881da88e4a9d8e63a1d0a22918e20313039698e33f4f8e2a0a729f132ada8b2",
+    "crates/brn-threads-app/src/review_groups.rs": "a78640cb5ac7336d56b71a90bc2058545b251b2cbc114a717059bdd9310ecaaa",
+    "crates/brn-threads-app/src/run.rs": "7d3583e8a8b8952adab7fdf06dd79274bc0a1d93f3dfd80f0abe575bc6f77716",
+    "crates/brn-threads-app/src/search.rs": "e857d4f6a6fd19febe3e599a38812875fe5e8790fab50fdf340fdc5587ec48b5",
+    "crates/brn-threads-app/src/settings.rs": "c2091dbbbe8ea8d8d20946ab1c4f9d02358547e3ec03b037d7b703949f02a68f",
+    "crates/brn-threads-app/src/steering.rs": "77c5213c400ea9959600e74a86f19bfb54a3a1c07ed0fd5f34c60ee2b7432eab",
+    "crates/brn-threads-app/src/topics.rs": "1065253ecc145e84147f10a133990a903406de55ad67c98c976482eb7fb27cb5",
+    "crates/brn-threads-app/src/writing.rs": "eb6198e019bc9e874728adb941d7bb8c44f7d9dcdf9d07b9e58c96da6edae9a1",
+    "crates/brn-threads-app/tests/agent_eval_journeys.rs": "5f4ac01c0da8bdf107baf81894dc82b5ce76348f0d541015ba3af8b2450e1061",
+    "crates/brn-threads-app/tests/agent_journeys.rs": "8f349b55e39ce76dc4d2295eaa1d546dc2f616b070376a1653de561f62e3f5bc",
+    "crates/brn-threads-app/tests/backup_directory.rs": "982e9e683030ef268011fd645db1da3370fc6e526e4d33441cb6022f9560aaf1",
+    "crates/brn-threads-app/tests/chat.rs": "b5aaed8c3b4e92b6e7cebdd49d8b40ae4c46fe6dd5797d8ce9c3f8236939c654",
+    "crates/brn-threads-app/tests/chat_decisions.rs": "6555832ff7546bd8ecbb14d0ce2d7ea85257fa20a7981f9992de6df2fcc52e34",
+    "crates/brn-threads-app/tests/cw2_review.rs": "cd7245057b6ffde562e55b053bda5769d67df301a9e6dec46c7093a390539628",
+    "crates/brn-threads-app/tests/daily_workflow_eval.rs": "c1c8e7458d482e4207afff5977e0ffb1207b8897d948600235aad0cdf9b86d58",
+    "crates/brn-threads-app/tests/delegation.rs": "2d90d3a6a3284ef2c4388230e7538f5184fdde0a91c4bf2f9d129c63d15d3d40",
+    "crates/brn-threads-app/tests/export_metadata.rs": "2b4955aa0bf349339dec3aeb96ffc8807419567535f91c83cbe73e5330b0cfa3",
+    "crates/brn-threads-app/tests/fixtures/retrieval_golden.json": "6450ba8ebe901b8b89387428c988f0fab9e58106728c896df433a41229c92c46",
+    "crates/brn-threads-app/tests/host_intake.rs": "c68d8d44396d26f62c96943a77d9fad8c5c3c47daf3041c0e24eb90a2ce0e6cb",
+    "crates/brn-threads-app/tests/import_coverage.rs": "fef8d89f176db36ccf829ea42afa0b61e0134b76e2af393c22368790e3c8dc2f",
+    "crates/brn-threads-app/tests/keyed_owner_operations.rs": "f6cc61fa5b10c911941af8848160a90f5a3d07792c315f4ca2b22fdc88d06909",
+    "crates/brn-threads-app/tests/killed_run_candidate.rs": "81155f5cb68b1353ce4ff22aeb281b9f35997455d2eaa7fd42b1382d01ac9088",
+    "crates/brn-threads-app/tests/product.rs": "dfd81d0295a648072089fb86a696c940f06958070bfc02dd56ac39d05c86372f",
+    "crates/brn-threads-app/tests/projects.rs": "6d30161f54ab34818edba2e8bdcbf600e16f433adc13a91603a5d977be1227e5",
+    "crates/brn-threads-app/tests/retrieval_eval.rs": "70ffdc17a5a055aea9a454960bd537d7dd7e0acf75389568f7be55d8098739a6",
+    "crates/brn-threads-app/tests/run_recovery.rs": "99113e10df5936a4c1a067973928d0e612716858b3a222ab6a7cc6464d1f9c23",
+    "crates/brn-threads-app/tests/search_dense.rs": "86d048f01c938dc6c3463e40b12f192240d0e836e59e2160e3c34e4c54d16388",
+    "crates/brn-threads-app/tests/search_messages.rs": "c2a61105c7dcfa4326dc2a78bba465337b5a6b1945f6e48e30226c49569cb25f",
+    "crates/brn-threads-app/tests/search_worker.rs": "04b0b3fadbad651d3d87f0e3c830752ba8db85316aaaa604ef35063c013c4e89",
+    "crates/brn-threads-app/tests/shared_run.rs": "65b03d31062cdb8b21a1a4a3df7abc10616f6feb2acaed678e9c58deecd40c07",
+    "crates/brn-threads-app/tests/source_intake_chat.rs": "21547071fd941b2e4b1663c501a186eee2ac134b90d9cffb8cc7c955ae5f7da6",
+    "crates/brn-threads-app/tests/steering.rs": "9aa286ac90ce169706ff71aded96e2358e376a06f9c3b185adebe82d6d02f1d1",
+    "crates/brn-threads-app/tests/synthetic_baseline.rs": "ebad516e8591ecdfc1284b2db95156bb3cb000daa67fb0001a13ad953f8d3c0f",
+    "crates/brn-threads-app/tests/thread_lifecycle.rs": "655e161d53eb1ba79b85b6705b99e94033c7b5327e4ab8b3b58acd3c902879a5",
+    "crates/brn-threads-app/tests/topics_knowledge.rs": "9272b70005e1424cb61cfd7bd68d2d707545de860ec768cba4fde2e09a296960",
+    "crates/brn-threads-app/tests/user_scale.rs": "28da8a70aeb1c8281d6228ce7bf3ddfe090d2f5a6b1b09ecdf2647a8d3d8dcc5",
+    "crates/brn-threads-app/tests/wiki_eval_seed.rs": "bc676539c16f8a9af68fcba49ee8c67ee1be43239c42d1cbc7b869e5c4de5963",
+    "crates/brn-threads-app/tests/withdraw_proposal.rs": "e84b9ae7b9cce577ebc8d4c5bed89f0b01d51a0c21c24bd0fbbf04910f790d9a",
+    "crates/brn-threads-app/tests/workspace_purpose.rs": "6ab6208f63798a55006dbf767b082f7e7b19adfd7b81a16b79873c65c7212e04",
+    "crates/brn-threads-app/tests/writing.rs": "179c793d6d58bab9fbcac5d26d0009cf7c1382de5fdf5c199e883b0311b79cff",
+    "crates/brn-threads-app/tests/writing_context.rs": "3924f7af33f8103c4af4b83f4c98e233a4383b42f8467c27651f0d5b14f61028",
+    "crates/brn-threads-app/tests/writing_setup.rs": "241ef3a5e87d8e0e1d02487aba5e43759664428196a0f2546a91937ee036f2b8",
+    "crates/brn-threads-core/Cargo.toml": "75afba32ce5ecdd9d9f17f9e86f1f8ebf7522330e8c28dd5485b90d7672f3bd1",
+    "crates/brn-threads-core/README.md": "765e537f27de04d6671f4ddb0e352739c00635ab89d0641dd699cec8042c443f",
+    "crates/brn-threads-core/src/backup.rs": "7753364a044ab47d68d608e0587b628b20df7c226b4c3c66c05d59f65f337157",
+    "crates/brn-threads-core/src/chat.rs": "387c8cc3c9e5e6bba96ab23d694059879a55800c7b952c33b73d42041dd91835",
+    "crates/brn-threads-core/src/context.rs": "6180027d696e8bd1a36c5169078594640e4559bc0031302c0660c944655acb0a",
+    "crates/brn-threads-core/src/converge.rs": "494500444b98ddebe923a8a4257bc8bfc1f2701c24fd541170671ec88b3f8c6b",
+    "crates/brn-threads-core/src/edit.rs": "bacd61369d064110037ba97bcaf3f5f5034ce483f955ca364eca40ee18921b56",
+    "crates/brn-threads-core/src/inspect.rs": "5ab4c813d07bdc9adba458c80827db1afb0f30bf9d1182d6c937cf468f6a7c25",
+    "crates/brn-threads-core/src/lib.rs": "cf0509dea4df4f71584be681d29f8dc66f891939447cf27bf5a7e1c57f7aff1b",
+    "crates/brn-threads-core/src/locator.rs": "ee45fc9cdddf8f9bf5c2452d4867ae3fb9554d06548f9175b5549f4537ff5832",
+    "crates/brn-threads-core/src/projects.rs": "3b0acfbff093271f093e7ed7b0a600f46ae41e88a7013227637d61882d629a79",
+    "crates/brn-threads-core/src/read.rs": "28f6f40120863c307a5e9daf12d111461a509a9be5c5a7fd46bdf55827850426",
+    "crates/brn-threads-core/src/reader.rs": "bed4ae74fcfa41d41c512ad6a8f3ffa399501b532d98ea760e2b23558b6f2d2f",
+    "crates/brn-threads-core/src/restore.rs": "fac2fa49449a36dde949a445ceea41b8613b02744b982b174c81b3126ff08b66",
+    "crates/brn-threads-core/src/revision_read.rs": "918484cb38bbb8a8df2b737c46cb7d2ac8b477dee0e69d485d4a60454c50c5b9",
+    "crates/brn-threads-core/src/run_attention.rs": "0841d41a16c86a42058088b045c11283d50b3dc0498994260c84ecea151bf06d",
+    "crates/brn-threads-core/src/stage.rs": "2f1a267dbbf21d30ab9ce07930085dabe4b7305ae3ed983ebe499371c17528cd",
+    "crates/brn-threads-core/src/steering.rs": "218708c09ea9de9f7e91718fad6c8e8561d3e15069cdadaa87c37c8f57029cd9",
+    "crates/brn-threads-core/src/store.rs": "83774e35dbea2eecadcbebc13181b748074d8b856729113f243e325b8327c11b",
+    "crates/brn-threads-core/src/types.rs": "dabc9fa0bdab920cf01439524edba99465f3bc08c395e1ebe65475183608f923",
+    "crates/brn-threads-core/src/upgrade.rs": "1cd5946ae9cf62eb0b963919abcfed78438ca2e8528bef9ad91c19145659132e",
+    "crates/brn-threads-core/src/writing.rs": "ba497e5fa68be773c2932d71c62d838a28a697b5decfc8628920e0e812983184",
+    "crates/brn-threads-core/tests/backup_directory.rs": "2d75a9b3eda8ad529e7bec54dcce4a94c041e5d863fce086a86b1dbe9a57631e",
+    "crates/brn-threads-core/tests/candidate_refresh.rs": "09bfdfe8dee61a83086fb4a6a7c0a0b1a90430a316119ee0dadb7580ed6a288a",
+    "crates/brn-threads-core/tests/chat_format.rs": "66654fba481fc0069e61d7003a5b52ffcd9f415677297eb169e91ab5a141afd5",
+    "crates/brn-threads-core/tests/chat_storage.rs": "c36c3c3f11f5d6e89a6bc9de86135ce686ac7a329056ca1087da4ef3acfce019",
+    "crates/brn-threads-core/tests/converge.rs": "ff2e206ba0760f7e640f9878295e4bcdda02c8567ffec7723354a600a05c29a7",
+    "crates/brn-threads-core/tests/core.rs": "a6520b4ccd8e76b4859b98dd081cef6f1369ae871c4fd4de4c76fc25cd3c83fe",
+    "crates/brn-threads-core/tests/current_inputs.rs": "e5a90cffe6422d14c708788e8ad655fb6dea35c902ce7b787fe2365ef48e72c4",
+    "crates/brn-threads-core/tests/cw2_visibility.rs": "f7bcd405247875396b8b5afcdf7165764b0573737514458deeaea70a4d706f4c",
+    "crates/brn-threads-core/tests/data_folder.rs": "c67e631edd88d94d21f391dc9db747f5e02db3c7c7ec9e53e9b3ceade455e280",
+    "crates/brn-threads-core/tests/delegation.rs": "ab138a0c11cc5df16d5fe25075f39ffadc04b08138d7a5a96389b84b6ecbeb9c",
+    "crates/brn-threads-core/tests/edit_tokens.rs": "f535c856f54871df806693b84f840257d4fdb5abacca48e4eeaacbc7b1e88192",
+    "crates/brn-threads-core/tests/inspect.rs": "8bf5a887c1276a9d7ae538161f8bc121458da4cf45041f44ba2c8601e906567f",
+    "crates/brn-threads-core/tests/message_search_scope.rs": "d74362ed9fa81fa7636ddb7f7f590a22fcafa2a4a92b93a23dc3dda7a2123287",
+    "crates/brn-threads-core/tests/note_read.rs": "3747cc2946626654fa84856fcd578deba500a90b4ded0ae3b6e9b97c58e3e3df",
+    "crates/brn-threads-core/tests/project_format.rs": "fa95ac61da64271a5fca46643a52363225c38a381470806fba08a2fed8720d58",
+    "crates/brn-threads-core/tests/revision_read.rs": "24f5bfb73a898464eb7335a1bbb84519c7c70a04ef8bb88258a3a8f57d1b2569",
+    "crates/brn-threads-core/tests/search_reader.rs": "02726f49fcfe53afd5d18df8bfab469e301b3c8b878bb2ce9c069b43ce743b41",
+    "crates/brn-threads-core/tests/steering.rs": "207de3da82ee2c52d1fdda6fdb3cbcf1c087d4089c6cc7e839e7a70fe9df2224",
+    "crates/brn-threads-core/tests/writing.rs": "4c368bea49f3c4ec55bd92ade5608509f714e8651bf7adbb9c5f10a371398409",
+    "crates/brn-threads-core/tests/writing_setup.rs": "cbf8b8bd0555014937d146ffbbfa583160d2be980eec488ed364a23ad1676bce",
+    "crates/brn-threads-intake/Cargo.toml": "0bb7d50c6fcc8cdeb18835ab4c492dfbfa204e8241af2d3617c3f3aadb677b4e",
+    "crates/brn-threads-intake/README.md": "7ba9218e6266944b79c6e291bec2ed536cfd2c37ff1f3c541844b28e9972c5eb",
+    "crates/brn-threads-intake/src/docx_markdown.rs": "a3dbe14cbc233552d52ecee18d00255fd65acbe5ed08d2d6fbd587982073a78d",
+    "crates/brn-threads-intake/src/lib.rs": "44c68a45e1608938822fef6f4fdb9098a94efb3d2e3e9671a844509c85543fdc",
+    "crates/brn-threads-intake/src/pdf_tools.rs": "f23b1367920b2c309125922dc9fe48e7c672f688e71920c5828dba8da61ee06f",
+    "crates/brn-threads-intake/src/prepared.rs": "03ba7af4c53324b600a83f08f8411283755d2797b92930b810c4abcd5c11f155",
+    "crates/brn-threads-intake/src/process.rs": "326f35c55d209acebe4a4efed4eec935c859628aef362ce7927a373fb8a096de",
+    "crates/brn-threads-intake/src/transient.rs": "cc0c7a43cd488323af0bf75cfc1ea3b7d23e16d301844e7901de3c9a09d1d69e",
+    "crates/brn-threads-intake/tests/fixtures/harbor-process.docx": "9ddfe6b3e116b3334513b5048e4c326682da3ec886c87fdbcfe3b311d23a0b87",
+    "crates/brn-threads-intake/tests/fixtures/harbor-process.inventory.json": "cf048f03d70c13cec8b0679889fb7aa93ce1fc27d106fc206137ab53f6c19b52",
+    "crates/brn-threads-intake/tests/fixtures/harbor-study.inventory.json": "3515de028f527aafb7f57209d76ddb152a0df149fea1f6c5c9c38ca1f2335690",
+    "crates/brn-threads-intake/tests/fixtures/harbor-study.pdf": "f5739675823b6900a212bdd10e27423f7fc29038c03fb7d103fa78430abd3fe0",
+    "crates/brn-threads-intake/tests/fixtures/luna/README.md": "e50392792736d5b8c9432bf6e5ede1d66b324233702055a11bcaf72f90574aff",
+    "crates/brn-threads-intake/tests/fixtures/luna/blank-comments.xlsx": "2e6aa4e183e9e958f502d76798cf8b4158649a5e800968b2166d10fe6709a8ba",
+    "crates/brn-threads-intake/tests/fixtures/luna/footnotes.docx": "d753d9a98afe1771c0d0488871e322900ac97f74a5390feb9911fcadc9a0fc4c",
+    "crates/brn-threads-intake/tests/fixtures/luna/metadata.eml": "cf7cc11598ed0c4e6e28c761d467ad77f91e53c0f9ace8b697ba854369c3eb56",
+    "crates/brn-threads-intake/tests/fixtures/luna/nested.html": "1d7075c5616605ad1d35907d06fa385ab2a2d3a6d73756ad60d304e040281dd2",
+    "crates/brn-threads-intake/tests/fixtures/luna/process-scan.pdf": "ebc90965a73b6dec328cb7355176c22edb842afa1b74684f2c711ef318e28244",
+    "crates/brn-threads-intake/tests/qualification.rs": "040f4644d420c20e4d3e1790e2e446f6cf35baf786942c645b70677b35556e91",
+    "crates/brn-writing-ui/Cargo.toml": "be0c63d49bb253b3b637277d49a51ccee895f2764602c291eae79a4db6ab7f60",
+    "crates/brn-writing-ui/src/components.rs": "debf33086144032f6ce81631905a873d040cbbca287363b7e8525f9fdb89e5a1",
+    "crates/brn-writing-ui/src/diff.rs": "a5b8f160695c0db0e7399af919a16c35ef184e876dcc0547b6341ca936e4ed07",
+    "crates/brn-writing-ui/src/document.rs": "a7999572ad3d95079f7a55fb77f6addc49d30152ef3bb0f3557ad5070927018e",
+    "crates/brn-writing-ui/src/formatting.rs": "0380a29e43e356e44ef99e891aa16a87de570f343023e9b87c8e1524b456b903",
+    "crates/brn-writing-ui/src/layout.rs": "830e4852a64ee8a3659b6378ae7296a02c89d6a59541094e65bd4959505c318e",
+    "crates/brn-writing-ui/src/lib.rs": "3f5f8eda01b6042dd373ddbdfffcb5e2f7c4d903c3dccf31e064d74299391c8f",
+    "crates/brn-writing-ui/src/markdown.rs": "6d1478bb1715c89878065ca167d04738658f30d6a5f53fec17e5e95fb27b8a7b",
+    "crates/brn-writing-ui/src/native.rs": "71c227263750c49085b3e89a80d455f45b65e4634175432d0a532e85f249acdb",
+    "crates/brn-writing-ui/src/theme.rs": "056f4ee0234cc84654c59fd06e124bfcf40d6b257d9d449f6423a213b7367de9",
+    "crates/brn-writing-ui/src/workbench.rs": "6f8b788080e63cc14a8de34cd8e5bf430a789f24e2956891719bd678e3620213",
+    "crates/brn-writing-ui/src/writing.rs": "7e9335483c525b25dfbfd10c56bb27515d4eb133502585b2345544e843cf167a",
+    "crates/brn/Cargo.toml": "b06112cea5a1f9dfb0c353f4279b4182e77a04c24ee5d5e37611abf93d590338",
+    "crates/brn/README.md": "435a4dfc23f981b42f8a0903775580e1eb074942963fa8340e8a1108f3a6200d",
+    "crates/brn/src/contract.rs": "838573a0336f665af0b79f879775e26b6c9d4220f1dda8ed228b76850f939ff3",
+    "crates/brn/src/help.rs": "71783ea1dedc8f7f5250de7b58518940f7e68d57cb51b37c78c54b89d4c54698",
+    "crates/brn/src/input.rs": "9ec4202229ba2e8a3f68a9a3176b1d0f86008399f931fbcffba79bee00eca359",
+    "crates/brn/src/inspect.rs": "8d5d91c6b1dcc70737d0aab6de149afeea826c4876cc38af924de37d9ddb6ea2",
+    "crates/brn/src/main.rs": "3e1ffee1811695b717739050564f7604313fba19ab7cca26d18ea5f080c565ce",
+    "crates/brn/src/spec.rs": "6a8719b0cdbe56ccf7d93c42be1cc6e6b8948f31855375993f98dffef1512db2",
+    "crates/brn/src/stop.rs": "3e5218b3e11d77f93a30c6c9c4603bbec20f42a51670dbb03a8429e1af008ea9",
+    "crates/brn/tests/agent_authority.rs": "95f9afb2ad1beaabf21e381ac06610337cd78d90111004590496c8fcbf25fc15",
+    "crates/brn/tests/agent_bounds.rs": "96dcb412ff61f5a98f4e0c6511c30e9748c75ceff01516f03d5dce5193345089",
+    "crates/brn/tests/agent_contract.rs": "320be90f7e431fe494146d0ab302b049f3f6911279313b84f381b4de83acadd0",
+    "crates/brn/tests/agent_converge.rs": "5c390180b12b621d9d09bc9e9b3f2078952d3d50a1582e9bbe7a62f8ced09d3b",
+    "crates/brn/tests/agent_credentials.rs": "6712761dc780ef8d035cb595103a28bacfe1faa9d1c1e1b176b392eb64c7501f",
+    "crates/brn/tests/agent_credentials_existing.rs": "081cc2bca900560cfa1b33b95da65ef798ba81a5df18912032d70cf1fb18f46f",
+    "crates/brn/tests/agent_discovery.rs": "2021976d6fb516dd8393adde69c664d6a7541a1e62cbd85e56e4e2f48a70ca37",
+    "crates/brn/tests/agent_edits.rs": "9fda5e6ca83d6a23a44f721a87e8bde163636d8a5a2a75bb30a3c1ce49c8e351",
+    "crates/brn/tests/agent_inspect.rs": "38e530bd52e407794c4f635b033ea80fc281110c31b67f2563373fa7a0d5cb5d",
+    "crates/brn/tests/agent_lists.rs": "153184e53d369ebc95c1106abb70036b7bac3bd6345f2c94747dea5fb8615050",
+    "crates/brn/tests/agent_reasons.rs": "7884ac185b2be309e2f194c20d0ee9e96dc761b1d69d3fa4a260e8dcc5ca0bc0",
+    "crates/brn/tests/agent_retry.rs": "2a16d669a02f7c44b76d14fab05fc8e24ce45fbc45df204072424b7de7180a32",
+    "crates/brn/tests/agent_runs.rs": "239e03f6bbcccd34c22cc2524756d5f2fa93e00963e519aaeee87dc7fb124fac",
+    "crates/brn/tests/agent_upgrade.rs": "e47521113eb45ab649eb3ac1264ebf03ccc7b015f210c23a57138890983d70af",
+    "crates/brn/tests/data_folder.rs": "f91db5bf5fe48400ab060b97f7c7246ed9c12e97efd73a1f8bdfff899bed16be",
+    "crates/brn/tests/edit_authority_guard.rs": "8295cd8b41454582978899b552949eb461d604da0b41971254594b013c6eb39c",
+    "crates/brn/tests/search_messages.rs": "494732a8455b64b1d46271f2004be187f8205c8e07049ba1f40b7b0e3b1f4ffd",
+    "crates/brn/tests/source_locator.rs": "0e0e70f6368534d9f8702d46c17bb6dfe4f270194f60c12fb84f7b31b4e6a6b9",
+    "crates/brn/tests/support/mod.rs": "6bcf9ab737f124ee32a21ec37e0e1c031a79bef5441258033fbb42f229768346",
+    "crates/brn/tests/support/stub.rs": "464783dfed50443b653dd7bbd85e622b401015c5af3744b54cdf84ad57c5c299",
+    "crates/brn/tests/threads.rs": "7188b9e3b71ddbac9f5f48e5bce2eb072901cda871dec14dbeed11b09b96eb60",
+    "rust-toolchain.toml": "c910997cb152c6dc8ed13b1fdf9fa28a4ed30d6776123e27dd6170e5c66067a0",
+    "scripts/verify-desktop-shell.sh": "684213a46b07ca96041e8985dc058761f000d19ed1b1f59460e27edc9c2188fc"
+  },
+  "production_manifest_sha256": "9e7bcdde4ff41327ae971a65a3183681a6103303d5ca637dfd42cd5535b861c7",
+  "qualification_limits": [
+    "Default workspace tests1109 passed/1 carried PDF Unavailable failure/6 existing ignored; native pdftoppm absent; no skips/wrappers/retry.",
+    "Native desktop272 passed/1 existing ignored BRN_DWR_SHARED fixture; no shared external fixture supplied.",
+    "Combined native state55 passed; native library44 passed; counts overlap across feature configurations.",
+    "No new app native/retrieval test restart: re-export-only contract change; prior B1a evidence retains its original source association.",
+    "No full F21/program/four-green/hosted/native-human/owner acceptance or publication claim.",
+    "No mutants/benchmarks/stress; any tiny changed contextual-reader recheck needs principal allocation after compiled pin."
+  ],
+  "required_default_target_coverage": {
+    "agent_contract": {
+      "result": "test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.29s",
+      "run_line": "Running tests/agent_contract.rs (/private/tmp/brn-b1a-20261016-target/debug/deps/agent_contract-d755b6e01cc448d2)"
+    },
+    "agent_edits": {
+      "result": "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.37s",
+      "run_line": "Running tests/agent_edits.rs (/private/tmp/brn-b1a-20261016-target/debug/deps/agent_edits-9be74ad23a0cfc42)"
+    },
+    "agent_retry": {
+      "result": "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s",
+      "run_line": "Running tests/agent_retry.rs (/private/tmp/brn-b1a-20261016-target/debug/deps/agent_retry-816170f69c69e9b4)"
+    },
+    "agent_runs": {
+      "result": "test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.15s",
+      "run_line": "Running tests/agent_runs.rs (/private/tmp/brn-b1a-20261016-target/debug/deps/agent_runs-a2f904a6448405ad)"
+    },
+    "shared_run": {
+      "result": "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s",
+      "run_line": "Running tests/shared_run.rs (/private/tmp/brn-b1a-20261016-target/debug/deps/shared_run-2b401c7c9199274d)"
+    },
+    "writing": {
+      "result": "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s",
+      "run_line": "Running tests/writing.rs (/private/tmp/brn-b1a-20261016-target/debug/deps/writing-56b70fa92eb8fc3e)"
+    },
+    "writing_context": {
+      "result": "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s",
+      "run_line": "Running tests/writing_context.rs (/private/tmp/brn-b1a-20261016-target/debug/deps/writing_context-a85501614bd3572d)"
+    },
+    "writing_setup": {
+      "result": "test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s",
+      "run_line": "Running tests/writing_setup.rs (/private/tmp/brn-b1a-20261016-target/debug/deps/writing_setup-e9b887f0a22be3b5)"
+    }
+  },
+  "retained_ownership": "Exact B1b hunks in ownership.md, including public existing-type re-export, test-only manifest hunk and allowed desktop\u2192rig lock edge. Source frozen for principal independent review; no D1A overlap.",
+  "source_association": "Each command retains its actual precommit HEAD, dirty diff and full source manifest; final commit is associated by matching bytes after creation, never substituted into command HEADs.",
+  "source_diff_from_base": "/private/tmp/brn-b1b-window1-20261016/final-source.patch",
+  "source_diff_from_base_sha256": "f3c81f7052390cafe9b8c8f07cfcc9e9cb2c351172a4757d970b80d4b3b33283",
+  "source_fingerprint_sha256": "204254d0291047ec8110e7b6c1cb4d3dd8e35786149290bf9e8747ed627e819d",
+  "source_paths": {
+    "Cargo.lock": {
+      "base_sha256": "db9897de266af25068aab354bf8df502a1ce3657b96b08ca00d78733f6e666ce",
+      "current_sha256": "b742357ec641f357c7beecc14bcc3c81657a039f01bb6fcd397dac6413d0d313"
+    },
+    "crates/brn-desktop/Cargo.toml": {
+      "base_sha256": "672e0569e87dfa5ea7af04c8a61dcac675797b11c9095cfb8f863b50dd6d3c5a",
+      "current_sha256": "5b21d2ccb2121a53c02c603d70a2d9be513c88ff86ec7e27435a12c31e7ed8f7"
+    },
+    "crates/brn-desktop/src/threads_ui.rs": {
+      "base_sha256": "3d6fc494c9281129a8827572d4fd4ba8114e8efb69ec0efe28b86075cdac7a5e",
+      "current_sha256": "bd03c560faeecdfb3e73440e9f1da83a3e944b3ea18965b79713942fcae06aeb"
+    },
+    "crates/brn-desktop/src/threads_writing_tests.rs": {
+      "base_sha256": "97582c5af8dd28ae6b949d0b05c9781190d810184a680b9ead48f1d048bfa251",
+      "current_sha256": "f91bac5f41553d20bca0785acac8dcec371f4fc419ac93ce1eb3c99fd42c7e06"
+    },
+    "crates/brn-threads-app/src/lib.rs": {
+      "base_sha256": "582d48dce2576474aa5fcf3f63ec13ba895f18bc0b927655fb51ab874dae24be",
+      "current_sha256": "1221b3fb1e7ff004f2d27125062655fba1b870d5d95e7daa2747aa729b1262b2"
+    },
+    "crates/brn-writing-ui/src/native.rs": {
+      "base_sha256": "7750bd724017f38462f8e99af09a03a3d71ed9cb8cc751db078c43328a6f92ab",
+      "current_sha256": "71c227263750c49085b3e89a80d455f45b65e4634175432d0a532e85f249acdb"
+    }
+  },
+  "tools": {
+    "pdfimages": {
+      "file": "/Users/evokessler/.local/bin/pdfimages: Mach-O 64-bit executable arm64",
+      "path": "/Users/evokessler/.local/bin/pdfimages",
+      "sha256": "adc3b7f3e43a78bcb497d99e3c388ea010351febc6236ff2dd9dbf8a1fde85a7"
+    },
+    "pdftoppm": {
+      "file": null,
+      "path": null,
+      "sha256": null
+    },
+    "pdftotext": {
+      "file": "/Users/evokessler/.local/bin/pdftotext: Mach-O 64-bit executable arm64",
+      "path": "/Users/evokessler/.local/bin/pdftotext",
+      "sha256": "47dc9f7013c900875f09faf1f8788269b6a422adb2e0dd5218590b7731f328a7"
+    }
+  }
+}

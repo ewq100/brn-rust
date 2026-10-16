@@ -1,6 +1,6 @@
-# B1b exact ownership and source-only allocation
+# B1b exact ownership and compiled-window handoff
 
-Worker: Codex Sol6.1, branch `work/b1b-20261016`, base `5e98b0157a70076f2fe69346f1496cccc869bc78`, bound checkout `/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc`. D1A retains the sole heavy slot and its own AI source/manifests; no process polling or other-worktree write is authorized.
+Worker: Codex Sol6.1, branch `work/b1b-20261016`, base `5e98b0157a70076f2fe69346f1496cccc869bc78`, bound checkout `/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc`. The initial source-only phase left the heavy slot with D1A. Principal later granted the exclusive normal window recorded in verification.md; this worker returns the heavy slot after the compiled pin. D1A source/manifests and every other worktree remain untouched.
 
 | Path | Exact owned symbols/hunks | Current action |
 |---|---|---|
@@ -13,8 +13,10 @@ Worker: Codex Sol6.1, branch `work/b1b-20261016`, base `5e98b0157a70076f2fe69346
 
 Granted reserve, **no current delta**: narrowly necessary library writing/workbench adapters; desktop threads_writing host adapters and threads_workbench_tests; minimal status/plan/evidence links. None is used merely to fill scope. Do not expand into other source/tests without an exact principal hunk.
 
-Cargo.lock remains byte-identical to the base in this window. On a later explicit heavy grant, principal permits only the expected existing brn-desktop→rig dependency edge if offline resolution requires it; all package/source/version/checksum identities stay fixed. Any other lock delta stops for disposition. No new library AI dependency or manifests/AI upgrade. No root/CI/script edits.
+**Granted lock hunk:** Cargo.lock now adds exactly the existing brn-desktop package dependency edge to rig. Offline metadata preserved all 953 package/source/version/checksum identities. This edge was explicitly allocated in the heavy grant; no other lock ownership, D1A memory integration, new library AI dependency, manifest/AI upgrade or root/CI/script edit.
 
 `writing_threads` remains the canonical-resolution presentation/draft cache. It is populated by checked open/select/ensure calls and consumed by cache keys, composer draft handoff and contextual display. It is not a first-linked fallback. Deleting it indiscriminately would break accepted CW2/B1a behavior. Only the obsolete start_run routing is retired here.
 
 Worker retains these B1b UI/source/test hunks pending compile/review/fix allocation. No heavy slot was acquired; no permission to build is implied by source readiness. Principal owns independent Opus review, acceptance, integration and any next slice.
+
+**Compiled-window handoff:** [qualification](verification.md) records actual checks and limitations. The heavy slot is released after the compiled local pin and empty process receipt. Retained/frozen source ownership is only the five tabled source/manifest hunks plus this exact lock edge and B1b docs; unused narrow library writing/workbench, desktop threads_writing and workbench-test reserves have no delta and no edits are planned. Principal may reallocate unused reserves; any review fix still follows exact hunk ownership.

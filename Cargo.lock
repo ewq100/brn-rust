@@ -897,6 +897,7 @@ dependencies = [
  "brn-threads-intake",
  "brn-writing-ui",
  "gpui-kit",
+ "rig",
  "serde",
  "serde_json",
  "tempfile",
