@@ -243,3 +243,15 @@ fn keyed_full_import_replay_after_reimport_is_none() {
         .unwrap();
     assert!(replay.is_none());
 }
+#[test]
+fn open_without_default_credentials_stores_no_auth_file() {
+    let dir = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let app = Workspace::open_without_default_credentials(dir.path().join("data")).unwrap();
+    let settings = app.settings().unwrap();
+    assert_eq!((settings.auth_file, settings.credentials_dir), (None, None));
+    assert_eq!(settings.provider, "Codex");
+    drop(app);
+    // Reopening keeps the stored Settings.
+    let again = Workspace::open_without_default_credentials(dir.path().join("data")).unwrap();
+    assert_eq!(again.settings().unwrap().auth_file, None);
+}

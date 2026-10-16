@@ -211,8 +211,9 @@ def journey(brn, root):
     # 2. A fresh workspace with no credentials.
     brn.call('init', data=workspace)
     settings = brn.ok('settings', data=workspace)
-    auth = settings.get('auth_file')
-    check(auth is None or Path(auth).resolve().is_relative_to(root), 'auth_file points outside the journey root')
+    # A workspace the CLI creates has no credential source until `configure`.
+    check(settings.get('auth_file') is None and settings.get('credentials_dir') is None,
+          'a CLI-created workspace has a credential source')
 
     # 3-4. A keyed project and its document, from files.
     project_call = brn.call('project-create', data=workspace, title_file=files['project_title'], key='p1')

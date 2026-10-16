@@ -1114,6 +1114,18 @@ class PipelineWithStubBinary(unittest.TestCase):
                 'case': 'T1', 'scale': 1000, 'arm': 'A', 'repetition': 1, 'label': None})), 'rerun')
 
 
+    def test_live_codex_arm_needs_an_absolute_auth_file(self):
+        import argparse, sys
+        class Parser:
+            def error(self, message):
+                raise SystemExit(message)
+        args = argparse.Namespace(arm=[f'A={sys.executable}'], provider='Codex', model='m', effort='low',
+                                  live=True, auth_file=None, credentials_dir=None)
+        with self.assertRaises(SystemExit) as raised:
+            v2.prepare_arms(args, Parser())
+        self.assertIn('Codex needs an absolute --auth-file', str(raised.exception))
+        args.auth_file = Path('/abs/auth.json')
+        self.assertEqual(v2.prepare_arms(args, Parser())[0]['provider'], 'Codex')
 if __name__ == '__main__':
     unittest.main()
 

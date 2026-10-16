@@ -188,5 +188,15 @@ class WikiGuidanceEvaluationTests(unittest.TestCase):
         self.assertEqual(result['verification_failure'], 'undo failed')
 
 
+    def test_live_codex_needs_an_absolute_auth_file(self):
+        executable = Path(__import__('sys').executable)
+        argv = ['evaluate-wiki-guidance.py', '--baseline-bin', str(executable), '--wiki-bin', str(executable),
+                '--helper', str(executable), '--root', '/nonexistent/eval-root', '--baseline-commit', 'a',
+                '--candidate-commit', 'b', '--live', '--provider', 'Codex', '--model', 'm', '--effort', 'low']
+        stderr = __import__('io').StringIO()
+        with patch('sys.argv', argv), patch('sys.stderr', stderr), self.assertRaises(SystemExit) as raised:
+            wiki_eval.main()
+        self.assertEqual(raised.exception.code, 2)
+        self.assertIn('Codex needs an absolute --auth-file', stderr.getvalue())
 if __name__ == '__main__':
     unittest.main()

@@ -76,6 +76,12 @@ Test harnesses on synthetic data act as the owner. The marks are documentation: 
 
 Attach a document to a project only with `--intent project --project ID`, which is an owner decision; `--thread` must name a chat. Edit a protected note (`read` shows it) only on the owner's explicit instruction: Save records an owner change.
 
+### Credentials
+
+A workspace the CLI creates (an explicit `--data-dir` that did not exist) starts with no provider credential source: `settings` shows `auth_file` and `credentials_dir` as null. Only an explicit `configure --provider NAME --model ID --effort LEVEL --auth-file ABSOLUTE_FILE` (Codex) or `--credentials-dir ABSOLUTE_DIR` (Copilot), on the owner's instruction, sets one. Workspaces that already exist, including ones the desktop created, keep their stored Settings. Desktop shows no sign-in file for such a workspace; choose one in Settings before running work.
+
+In machine mode, `ask`, useful intake and the intake of a format that needs conversion by a model (anything but Markdown and text) are refused with `credentials_not_configured` before any provider contact or commit. `ask` also runs useful intake, so the intake check fires first and the `ask` check guards both. A keyed intake retry that replays (Retries) needs no credentials. Default mode keeps the previous path, where the run reports its own failure.
+
 ### Statuses
 
 | Exit | Status | Meaning | Agent action |
@@ -136,6 +142,7 @@ ApplyOutcome `Applied` is `ok`, `Stale` and `Superseded` are `stale`, `Deferred`
 | `unsafe_directory` | rejected | Old or foreign format, missing database, symlink, non-empty restore target, backup inside the workspace. | `{}` |
 | `destination_exists` | rejected | `backup` or `export` destination already exists. | `{option: "destination"}` |
 | `edit_session_open` | rejected | `begin-edit` on a note with an open unsaved session. | `{note, session, base_version}` |
+| `credentials_not_configured` | rejected | Machine mode: `ask`, useful intake, or a non-Markdown/text intake on a workspace with no credential source. Nothing was committed and no provider was contacted. | `{provider}` |
 | `unavailable` | failed | Semantic search or a model folder is unusable; no native retrieval in this build; conversion unsupported on this platform or format; model install refused. | `{}` or `{reason: "model_install"}` |
 | `provider_failed` | failed | `ask` or useful intake: any other `AiErrorKind` (none is known to reach `Err` from `run` at `771116f0`; kept as a fallback); also `ConversionFailure::Provider`. | `{kind}` in snake_case |
 | `conversion_failed` | failed | Document conversion failed. | `{reason}` |
@@ -294,6 +301,9 @@ Without `--json`, stdout bytes, stderr text and exit statuses (0 or 1) stay as b
 3. `--key` on the newly keyed commands and `--NAME-file` are accepted; refusals of the new grammar have new texts, for example `Choose either --text or --text-file`, `--key is not accepted with --intent useful`, `--NAME-file takes an absolute path or -`.
 4. `--key` must match `^[A-Za-z0-9._:-]{1,128}$`, also on project commands (`--key "trip 2026"` is now refused).
 5. `--help` prints the same text followed by a short "Agents and scripts" block.
+9. New commands (`revisions`, `revision`, `runs`, `operation`), options (page options, `--timeout`, `--key` on `topics-create` and `knowledge-check --seed-chat yes`) and description keys are accepted; flag-less output of existing commands is unchanged.
+10. The "Agents and scripts" block of `--help` covers the new surface; the `HELP` text before it is byte-identical.
+12. A workspace the CLI creates gets `auth_file: null` instead of a derived `CODEX_HOME/auth.json` or `~/.codex/auth.json` (owner decision B2, see Credentials). Every in-repo caller that runs a provider passes `--auth-file` or `--credentials-dir` to `configure`.
 
 ### Changes from contract 1
 
@@ -307,6 +317,7 @@ Every in-repo consumer moved to contract 2 in the same change; there is no contr
 | `terminated` | SIGTERM killed the process | machine mode: status `terminated`, exit 143, code `terminated` |
 | `--timeout` | none | global `--timeout SECONDS`; `timeout` gains `{deadline_seconds, hard}` |
 | `busy` | lock contention was `storage_error` (internal, 1) | `busy` (failed, 7) |
+| Credentials | CLI-created workspaces derived `auth_file` from `CODEX_HOME` or `HOME` | no credential source until `configure`; machine-mode `credentials_not_configured` (rejected, 6) before any provider contact |
 | Retry keys | `topics-create` and `knowledge-check --seed-chat yes` duplicated; keyed intake converted (and sent non-Markdown documents to the provider) before replaying | `--key` on both (converge, replay); keyed full/chat/project intake replays before conversion |
 | Inspection | `history`, `candidates`, `records` return everything | page options and the `revisions`, `revision`, `runs`, `operation` commands; `read --limit` returns `Read` or `Stale` |
 

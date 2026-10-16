@@ -486,6 +486,8 @@ async fn ask(
     sources: Vec<brn_ai::threads::TransientSource>,
 ) -> Result<Value> {
     let settings = workspace.settings()?;
+    // Shared with useful intake, whose arm checks first; this also guards it.
+    contract::require_credentials(inv, &settings)?;
     let budget = inv
         .args
         .get("budget")
@@ -635,7 +637,8 @@ async fn execute(inv: &Invocation, notes: &mut Annotations) -> Result<Value> {
         Store::upgrade(&inv.data, Path::new(inv.arg("backup-directory")?))?;
         return Ok(json!({"upgraded":true,"data":inv.data}));
     }
-    let mut workspace = Workspace::open(&inv.data)?;
+    // A workspace the CLI creates has no credential source until `configure`.
+    let mut workspace = Workspace::open_without_default_credentials(&inv.data)?;
     stop::check()?;
     // A named but unusable model folder is an error, never a silent fallback.
     if matches!(inv.command.as_str(), "search" | "ask" | "intake") {
@@ -1005,6 +1008,12 @@ async fn execute(inv: &Invocation, notes: &mut Annotations) -> Result<Value> {
                 }
             }
             let settings = workspace.settings()?;
+            // Only useful intake and non-text conversion contact a provider.
+            if intent == ImportIntent::UsefulInformation
+                || !matches!(kind, DocumentKind::Markdown | DocumentKind::Text)
+            {
+                contract::require_credentials(inv, &settings)?;
+            }
             let conversion_job = brn_ai::conversion::ConversionJob {
                 converter: converter(kind)?,
                 kind,

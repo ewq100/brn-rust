@@ -393,6 +393,9 @@ def main():
         parser.error('Copilot requires one existing absolute credentials-dir and no auth-file')
     if args.live and args.provider == 'Codex' and args.credentials_dir:
         parser.error('Codex uses auth-file; select only one credential route')
+    # CLI-created workspaces have no default credential source.
+    if args.live and args.provider == 'Codex' and not (args.auth_file and args.auth_file.is_absolute()):
+        parser.error('Codex needs an absolute --auth-file')
     if args.timeout < 1 or args.timeout > 600:
         parser.error('Timeout must be 1..600 seconds')
     if not 0 <= args.filler <= 5000:

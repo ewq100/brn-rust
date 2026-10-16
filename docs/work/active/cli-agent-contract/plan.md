@@ -632,7 +632,7 @@ Command: `git -C /Users/evokessler/repos/brn-rust -c core.fsmonitor=false log --
       - `git diff 2537db54 -- crates/brn-threads-app/src/intake.rs crates/brn-desktop crates/brn-ai` is empty;
       - the baseline run of `agent_retry` fails on every non-guard test.
 
-- [ ] R2-7. **⚑ A10: no default credentials in CLI-created workspaces (owner B2)** (design A10; appendix §A10).
+- [x] R2-7. **⚑ A10: no default credentials in CLI-created workspaces (owner B2)** (design A10; appendix §A10).
       Read BOARD.md first.
       **⚑ App.** `Workspace::open_without_default_credentials(data)` sits beside `open`. Both call a private `open_with(data, DefaultCredentials::{Derive, None})`, which passes the choice to `bootstrap_settings`. `None` writes `auth_file: None`. `open` behaves exactly as before, and desktop keeps calling it. Daily edits `settings.rs` only from :98, so the change stays inside `bootstrap_settings` (:21-74).
       **CLI.** `main.rs:583` calls the new function. Existing workspaces keep their Settings.

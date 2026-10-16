@@ -1214,6 +1214,24 @@ fn ask_refused_before_the_provider_is_rejected_not_failed() {
     let root = Root::new();
     let data = root.join("data");
     ok(&root, &data, &["init"]);
+    // Round 2: a CLI-created workspace has no credential source until configured.
+    let creds = root.join("creds");
+    std::fs::create_dir(&creds).unwrap();
+    ok(
+        &root,
+        &data,
+        &[
+            "configure",
+            "--provider",
+            "Copilot",
+            "--model",
+            "synthetic",
+            "--effort",
+            "low",
+            "--credentials-dir",
+            creds.to_str().unwrap(),
+        ],
+    );
     let refused = call(
         &root,
         &data,

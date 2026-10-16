@@ -3,6 +3,14 @@ use std::path::PathBuf;
 
 /// The owner's caveat shown wherever the helper model is chosen.
 pub const HELPER_TESTED_NOTE: &str = "Experimental: helper sub-agents are tested only with gpt-6-luna at high effort; other models may give unreliable results. Best for long-document digests; runs that delegate are slower";
+/// Whether a workspace created now gets the derived Codex sign-in file.
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(crate) enum DefaultCredentials {
+    /// `CODEX_HOME/auth.json`, else `HOME/.codex/auth.json` (desktop).
+    Derive,
+    /// No credential source until an explicit `configure` (the CLI).
+    None,
+}
 impl Workspace {
     pub fn settings(&self) -> AppResult<WorkspaceSettings> {
         self.records()?
@@ -18,7 +26,7 @@ impl Workspace {
             })
             .ok_or_else(|| AppError::Invalid("Workspace configuration is missing".into()))
     }
-    pub(crate) fn bootstrap_settings(&mut self) -> AppResult<()> {
+    pub(crate) fn bootstrap_settings(&mut self, credentials: DefaultCredentials) -> AppResult<()> {
         if self
             .records()?
             .iter()
@@ -36,10 +44,13 @@ impl Workspace {
             )?;
             return Ok(());
         }
-        let auth = std::env::var_os("CODEX_HOME")
-            .map(PathBuf::from)
-            .or_else(|| std::env::var_os("HOME").map(|home| PathBuf::from(home).join(".codex")))
-            .map(|home| home.join("auth.json"));
+        let auth = match credentials {
+            DefaultCredentials::Derive => std::env::var_os("CODEX_HOME")
+                .map(PathBuf::from)
+                .or_else(|| std::env::var_os("HOME").map(|home| PathBuf::from(home).join(".codex")))
+                .map(|home| home.join("auth.json")),
+            DefaultCredentials::None => None,
+        };
         let settings = WorkspaceSettings {
             provider: "Codex".into(),
             model: "gpt-6.1-sol".into(),

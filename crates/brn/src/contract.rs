@@ -118,6 +118,7 @@ pub(crate) enum Code {
     UnsafeDirectory,
     DestinationExists,
     EditSessionOpen,
+    CredentialsNotConfigured,
     Unavailable,
     ProviderFailed,
     ConversionFailed,
@@ -130,7 +131,7 @@ pub(crate) enum Code {
     Internal,
 }
 impl Code {
-    pub(crate) const ALL: [Code; 28] = [
+    pub(crate) const ALL: [Code; 29] = [
         Code::MissingDataDir,
         Code::InvalidDataDir,
         Code::MissingCommand,
@@ -149,6 +150,7 @@ impl Code {
         Code::UnsafeDirectory,
         Code::DestinationExists,
         Code::EditSessionOpen,
+        Code::CredentialsNotConfigured,
         Code::Unavailable,
         Code::ProviderFailed,
         Code::ConversionFailed,
@@ -180,6 +182,7 @@ impl Code {
             Code::UnsafeDirectory => "unsafe_directory",
             Code::DestinationExists => "destination_exists",
             Code::EditSessionOpen => "edit_session_open",
+            Code::CredentialsNotConfigured => "credentials_not_configured",
             Code::Unavailable => "unavailable",
             Code::ProviderFailed => "provider_failed",
             Code::ConversionFailed => "conversion_failed",
@@ -211,7 +214,8 @@ impl Code {
             | Code::KeyConflict
             | Code::UnsafeDirectory
             | Code::DestinationExists
-            | Code::EditSessionOpen => Status::Rejected,
+            | Code::EditSessionOpen
+            | Code::CredentialsNotConfigured => Status::Rejected,
             Code::Unavailable
             | Code::ProviderFailed
             | Code::ConversionFailed
@@ -242,6 +246,7 @@ impl Code {
             Code::UnsafeDirectory => "Old or foreign format, missing database, symlink, non-empty restore target, or backup inside the workspace.",
             Code::DestinationExists => "The backup or export destination already exists; choose a new path.",
             Code::EditSessionOpen => "The note has an open unsaved edit session (details.session). Write to it only if your own successful begin-edit returned it.",
+            Code::CredentialsNotConfigured => "Machine mode: ask or a provider-backed intake on a workspace with no credential source (a workspace the CLI created and nobody configured). Nothing was committed and no provider was contacted. Run configure --provider NAME --model ID --effort LEVEL with --auth-file ABSOLUTE_FILE or --credentials-dir ABSOLUTE_DIR on the owner's instruction (details.provider names the selected provider).",
             Code::Unavailable => "A service is not available in this build or platform, for example semantic search, conversion for this format, or model installation.",
             Code::ProviderFailed => "ask or useful intake: any other AiErrorKind (none is known to reach Err from run at 771116f0; kept as a fallback); also a provider failure during document conversion. details.kind is the AiErrorKind in snake_case.",
             Code::ConversionFailed => "Document conversion failed; details.reason names the failure.",
@@ -479,6 +484,22 @@ pub(crate) fn begin_edit_error(
         }
     }
     error.into()
+}
+/// Machine mode: a provider run needs a configured credential source. A
+/// workspace the CLI created has none until `configure`; default mode keeps
+/// today's path.
+pub(crate) fn require_credentials(
+    inv: &Invocation,
+    settings: &brn_threads_app::WorkspaceSettings,
+) -> Result<(), CliError> {
+    if inv.machine && settings.auth_file.is_none() && settings.credentials_dir.is_none() {
+        return Err(CliError::new(
+            Code::CredentialsNotConfigured,
+            "No provider credentials are configured for this workspace; run configure --provider … with --auth-file ABS or --credentials-dir ABS",
+        )
+        .with("provider", settings.provider.clone()));
+    }
+    Ok(())
 }
 /// `backup` and `export` destinations are caller input.
 pub(crate) fn destination_error(destination: &std::path::Path, error: AppError) -> CliError {

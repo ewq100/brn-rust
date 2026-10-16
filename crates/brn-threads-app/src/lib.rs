@@ -159,12 +159,23 @@ pub struct Workspace {
 }
 impl Workspace {
     pub fn open(data: impl AsRef<Path>) -> AppResult<Self> {
+        Self::open_with(data, settings::DefaultCredentials::Derive)
+    }
+    /// `open`, except that a workspace created now records no credential
+    /// source; one that already exists keeps its stored Settings.
+    pub fn open_without_default_credentials(data: impl AsRef<Path>) -> AppResult<Self> {
+        Self::open_with(data, settings::DefaultCredentials::None)
+    }
+    fn open_with(
+        data: impl AsRef<Path>,
+        credentials: settings::DefaultCredentials,
+    ) -> AppResult<Self> {
         let mut workspace = Self {
             store: Store::open(data)?,
             search: None,
             embedder: None,
         };
-        workspace.bootstrap_settings()?;
+        workspace.bootstrap_settings(credentials)?;
         workspace.bootstrap_chat_control()?;
         Ok(workspace)
     }
