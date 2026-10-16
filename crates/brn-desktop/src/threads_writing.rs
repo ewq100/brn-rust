@@ -1477,32 +1477,46 @@ impl ThreadsUi {
         let centered = self.layout.maximized() == Some(TileKind::Note);
         // The text keeps a few lines however many banners a short Note shows,
         // and 120 px beside an open comments section. The section asks for
-        // its floor after the reply below gives way, and gives way first.
-        // Banners outrank that 120 px: they are never hidden to meet it, so
-        // with a banner shown the text keeps its few lines.
+        // its floor after the reply below gives way, and gives way first,
+        // before the text. Banners are never hidden to meet that 120 px:
+        // with a banner shown the text still asks for 120 px and gives way
+        // last, below it only when the rows that never hide (the banners'
+        // actions, a failed run's reason, the reply's label and the whole
+        // writing bar) leave less, down to its few lines.
         let stacked = self.comments_stacked();
         let text_floor = text_min(stacked && !banner_shown);
-        let mut body = div().flex().flex_1().min_h(text_floor).child(
-            div()
-                .id("note-body")
-                .flex()
-                .flex_1()
-                .min_w_0()
-                .min_h_0()
-                .when(centered, |body| body.justify_center())
-                .child(
-                    reading_column()
-                        .id("note-column")
-                        .child(editor)
-                        .test_support(),
-                )
-                .on_mouse_up(
-                    gpui_kit::MouseButton::Left,
-                    cx.listener(|this, _, _, cx| this.track_selection(cx)),
-                )
-                .on_key_up(cx.listener(|this, _, _, cx| this.track_selection(cx)))
-                .test_support(),
-        );
+        let text_prefer = text_min(stacked);
+        // A shrink factor of 1 beside the section's YIELD_FIRST: the
+        // section gives way first, and once it is at its floor the text
+        // takes up the whole remaining overflow (a factor below 1 would
+        // leave part of it painted over the rows below).
+        let mut body = div()
+            .flex()
+            .flex_grow(1.)
+            .flex_basis(if stacked { text_prefer } else { px(0.) })
+            .flex_shrink(1.)
+            .min_h(text_floor)
+            .child(
+                div()
+                    .id("note-body")
+                    .flex()
+                    .flex_1()
+                    .min_w_0()
+                    .min_h_0()
+                    .when(centered, |body| body.justify_center())
+                    .child(
+                        reading_column()
+                            .id("note-column")
+                            .child(editor)
+                            .test_support(),
+                    )
+                    .on_mouse_up(
+                        gpui_kit::MouseButton::Left,
+                        cx.listener(|this, _, _, cx| this.track_selection(cx)),
+                    )
+                    .on_key_up(cx.listener(|this, _, _, cx| this.track_selection(cx)))
+                    .test_support(),
+            );
         if self.comments_beside() {
             body = body.child(self.margin_column(cx));
         }
@@ -1517,7 +1531,7 @@ impl ThreadsUi {
             } else {
                 text_floor
             };
-            (text_floor + floor, min)
+            (text_prefer + floor, min)
         } else {
             (px(0.), text_floor)
         };
@@ -1969,11 +1983,12 @@ impl ThreadsUi {
         // the list and keeps the section at least as tall as itself, so
         // its input is never cut off; the cards scroll below it.
         let drafting = self.comment_drafting();
+        // Beside the text's 120 px ask the section gives way first.
         div()
             .id("comments-section")
             .flex()
             .flex_col()
-            .flex_shrink(1.)
+            .flex_shrink(YIELD_FIRST)
             .min_h(if drafting {
                 STACKED_DRAFT_FLOOR
             } else {
@@ -3689,8 +3704,9 @@ fn banner_button(id: impl Into<gpui_kit::ElementId>, label: &'static str) -> But
 fn plural(count: usize, noun: &str) -> String {
     format!("{count} {noun}{}", if count == 1 { "" } else { "s" })
 }
-/// The text keeps a few lines under banners, and 120 px beside an open
-/// comments section.
+/// The text's few lines, or the 120 px it keeps beside an open comments
+/// section. With a banner shown it asks for the 120 px and keeps the few
+/// lines as its floor.
 fn text_min(stacked: bool) -> gpui_kit::Pixels {
     px(if stacked { 120. } else { 48. })
 }

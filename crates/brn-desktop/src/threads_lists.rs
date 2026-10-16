@@ -139,6 +139,12 @@ pub(super) fn human_time_at(stamp: &str, now: i64, offset: impl Fn(i64) -> i64) 
 /// Seconds east of UTC in this Mac's time zone at `epoch` (UTC seconds),
 /// from the C library's `localtime_r`, so each date gets its own daylight
 /// saving. UTC (0) when the system can't say.
+#[cfg(unix)]
+#[allow(
+    clippy::useless_conversion,
+    clippy::unnecessary_fallible_conversions,
+    reason = "`c_long` is 64 bits on 64-bit macOS and Linux, 32 bits on 32-bit targets"
+)]
 fn local_offset(epoch: i64) -> i64 {
     use std::ffi::{c_char, c_int, c_long};
     // `struct tm` as macOS and glibc lay it out; only `gmtoff` is read.
@@ -160,8 +166,11 @@ fn local_offset(epoch: i64) -> i64 {
     unsafe extern "C" {
         fn localtime_r(time: *const c_long, out: *mut Tm) -> *mut Tm;
     }
-    // `time_t` is `long` on 64-bit macOS and Linux.
-    let time: c_long = epoch;
+    // `time_t` is `long` on macOS and Linux; where `long` is 32 bits, an
+    // instant it can't hold reads as UTC.
+    let Some(time) = c_long::try_from(epoch).ok() else {
+        return 0;
+    };
     let mut out = std::mem::MaybeUninit::<Tm>::zeroed();
     // SAFETY: both pointers are valid for the call; `localtime_r` only reads
     // `time` and writes the zeroed `out`, which it fully initializes when it
@@ -171,7 +180,14 @@ fn local_offset(epoch: i64) -> i64 {
         return 0;
     }
     // SAFETY: `localtime_r` succeeded, so `out` is initialized.
-    unsafe { out.assume_init() }.gmtoff
+    i64::from(unsafe { out.assume_init() }.gmtoff)
+}
+
+/// Without the C library's `localtime_r` (Windows), times read as UTC, the
+/// documented fallback.
+#[cfg(not(unix))]
+fn local_offset(_epoch: i64) -> i64 {
+    0
 }
 
 /// The civil (year, month, day) of a day number (days since 1970-01-01).

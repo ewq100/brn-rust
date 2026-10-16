@@ -1066,27 +1066,56 @@ fn a_finish_takes_its_tone_from_its_own_recorded_run(cx: &mut TestAppContext) {
     assert_eq!(banner_tone(cx, &f).as_deref(), Some("Success"));
 }
 
-/// Gives the fixture's run its recorded terminal text, as the service does
-/// when a run ends.
+/// Gives the fixture's chat a recorded notice for its run, the shape the
+/// service leaves when a run ends Failed or Interrupted: a Blocker attention
+/// whose record is the run, holding the text Needs you shows. The run's
+/// progress (the agent's own summary) is set to something else, and an
+/// older notice for another run stays beside it.
 fn record_terminal(cx: &mut TestAppContext, f: &Fixture, text: &str) {
     cx.update_window(f.window, |_, _, cx| {
         f.view.update(cx, |ui, _| {
+            let older = run_template(ui, RunState::Failed);
+            let older = synthetic_run(ui, "older-terminal-run", &f.thread, older);
             let record = ui.workspace.store.record(&f.run).unwrap().unwrap();
             let RecordData::Run(mut run) = record.data else {
                 unreachable!()
             };
-            run.progress = text.into();
+            run.progress = "Synthetic agent progress: drafted section 2".into();
+            let chat = ui.workspace.store.record(&f.thread).unwrap().unwrap();
+            let RecordData::Thread(mut data) = chat.data else {
+                unreachable!()
+            };
+            data.attention = vec![
+                Attention {
+                    kind: AttentionKind::Blocker,
+                    reason: "Synthetic notice for an older run".into(),
+                    record: Some(older),
+                },
+                Attention {
+                    kind: AttentionKind::Blocker,
+                    reason: text.into(),
+                    record: Some(f.run.clone()),
+                },
+            ];
             ui.workspace
                 .owner_change(
-                    "synthetic-terminal-text",
+                    "synthetic-terminal-notice",
                     &ChangeRequest {
-                        reason: "Synthetic terminal text".into(),
-                        writes: vec![Put {
-                            id: f.run.clone(),
-                            expected_version: Some(record.version),
-                            archived: false,
-                            data: RecordData::Run(run),
-                        }],
+                        reason: "Synthetic terminal notice".into(),
+                        writes: vec![
+                            Put {
+                                id: f.run.clone(),
+                                expected_version: Some(record.version),
+                                archived: false,
+                                data: RecordData::Run(run),
+                            },
+                            Put {
+                                id: f.thread.clone(),
+                                expected_version: Some(chat.version),
+                                archived: false,
+                                data: RecordData::Thread(data),
+                            },
+                        ],
                         inputs: vec![],
                     },
                 )
@@ -1096,10 +1125,11 @@ fn record_terminal(cx: &mut TestAppContext, f: &Fixture, text: &str) {
     .unwrap();
 }
 
-/// U10: a run that ended Failed or Interrupted reads as its recorded
-/// terminal text, the recovery card's source, in that state's tone, never
-/// the raw error. The owner's own Stop keeps its short warning. The texts
-/// are seeded here; none is the service's wording.
+/// U10: a run that ended Failed or Interrupted reads as the chat's
+/// recorded notice for that run (the text Needs you shows), in that state's
+/// tone, never the raw error or the agent's progress. Without a recorded
+/// notice the error text stays. The owner's own Stop keeps its short
+/// warning. The texts are seeded here; none is the service's wording.
 #[gpui_kit::test]
 fn a_failed_or_interrupted_finish_shows_the_recorded_terminal_text(cx: &mut TestAppContext) {
     let recorded = "Synthetic recorded terminal notice for this chat.";
@@ -1113,10 +1143,22 @@ fn a_failed_or_interrupted_finish_shows_the_recorded_terminal_text(cx: &mut Test
         let shown = cx.read(|cx| f.view.read(cx).notice.clone());
         assert_eq!(shown, format!("Work in Active destination · {recorded}"));
         assert!(!shown.contains("raw provider"), "{shown}");
+        assert!(!shown.contains("Synthetic agent progress"), "{shown}");
+        assert!(!shown.contains("older run"), "{shown}");
         assert_eq!(banner_tone(cx, &f).as_deref(), Some(tone), "{state:?}");
         let last = cx.read(|cx| f.view.read(cx).last_work_notice.clone());
         assert_eq!(last.map(|(tone, _)| tone.word()), Some(tone));
     }
+    // No recorded notice for this run: the error text, never the progress.
+    let f = fixture(cx, RunState::Failed);
+    finish(cx, &f, Err("Synthetic provider error".into()));
+    let shown = cx.read(|cx| f.view.read(cx).notice.clone());
+    assert_eq!(
+        shown,
+        "Work in Active destination · Work stopped: Synthetic provider error"
+    );
+    assert!(!shown.contains("Synthetic progress"), "{shown}");
+    assert_eq!(banner_tone(cx, &f).as_deref(), Some("Error"));
     // The owner stopped it: the short Stop warning, not the recorded text.
     let f = fixture(cx, RunState::Interrupted);
     record_terminal(cx, &f, recorded);

@@ -396,14 +396,16 @@ fn choose(cx: &mut TestAppContext, f: &Fixture, label: &str) {
     });
 }
 
-/// A dialog opened from a ⋯ or ＋ menu item gives focus back to its panel's
-/// landing when Escape closes it, so ⌘K works without a click: the note
-/// text after Edit note… and Discard edit…, the Chats panel after New note.
+/// A dialog opened from a ⋯, ＋ or row menu item gives focus back to its
+/// panel's landing when Escape closes it, so ⌘K works without a click: the
+/// note text after Edit note… and Discard edit…, the Chats panel after New
+/// note and after a chat row's Move to project….
 #[gpui_kit::test]
 fn escape_from_a_menu_launched_dialog_returns_focus_to_the_panel(cx: &mut TestAppContext) {
-    let mut note = String::new();
+    let (mut note, mut chat) = (String::new(), String::new());
     let f = fixture(cx, 900., 600., |workspace| {
         note = workspace.new_note("Menu witness", "Saved text").unwrap().id;
+        chat = workspace.new_thread("Row menu chat").unwrap().id;
     });
     update(cx, &f, |view, window, cx| {
         view.apply_layout(Preset::Write, window, cx);
@@ -446,10 +448,28 @@ fn escape_from_a_menu_launched_dialog_returns_focus_to_the_panel(cx: &mut TestAp
     });
     on_window(cx, &f, |window, cx| window.click("threads-new", cx));
     choose(cx, &f, "New note");
-    escape_returns(cx, &|view, window, cx| {
+    let in_the_workspace = |view: &ThreadsUi, window: &Window, cx: &App| {
         assert!(view.root_focus.contains_focused(window, cx));
         assert!(window.focused(cx).is_some());
+    };
+    escape_returns(cx, &in_the_workspace);
+    // A chat row's menu: Move to project…, then Escape moves nothing.
+    let version = |cx: &mut TestAppContext| {
+        cx.read(|cx| {
+            let view = f.view.read(cx);
+            view.workspace.store.record(&chat).unwrap().unwrap().version
+        })
+    };
+    let before = version(cx);
+    on_window(cx, &f, |window, cx| {
+        window.right_click(format!("thread-{chat}"), cx)
     });
+    choose(cx, &f, "Move to project…");
+    on_window(cx, &f, |window, _| {
+        assert_eq!(window.find("move-chat-0").label(), Some("Standalone chat"));
+    });
+    escape_returns(cx, &in_the_workspace);
+    assert_eq!(version(cx), before, "Escape moves nothing");
 }
 
 /// A 170 pt list leaves Maximize to its ⋯ menu so its title stays readable,

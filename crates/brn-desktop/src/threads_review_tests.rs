@@ -1598,13 +1598,62 @@ fn a_failed_run_and_open_comments_leave_the_text_120_px_at_900x600(cx: &mut Test
     });
 }
 
-/// The banner stack has a budget. At 900×600 with a stale
-/// edit (its banner and the saved version), a wrapped failed-run status,
-/// the partial reply, a two-line writing bar and the stacked comments open,
-/// no banner is painted over the text, the text keeps 120 px and the
-/// writing bar stays in the Note.
+/// The stale banner's actions stay in view at the banner stack's floor
+/// (`note-banners` pins its lead banner, `note-banners-more` holds the rest),
+/// no banner is painted over the text and the writing bar stays in the Note.
+///
+/// At 900×600 with the stale banner, open stacked comments and a dirty
+/// writing bar, the text keeps 120 px: the saved version below the banner
+/// and the open section give way first.
+///
+/// The busiest stale state adds a failed run (its full reason wraps) and
+/// its partial reply. There the rows that never hide don't leave 120 px:
+/// in the test text system the pinned banner (64), the saved version's
+/// line (28), the run's reason (76.5), the reply's label (32) and the
+/// three-row writing bar (132) take 332.5 of the Note's 416 px. The open
+/// section then gives way to nothing and the text, which gives way last,
+/// takes all the rest (83.5 px) above its 48 px floor (plan.md N3, pending
+/// owner acceptance).
 #[gpui_kit::test]
 fn the_banner_stack_keeps_its_budget_above_the_text_at_900x600(cx: &mut TestAppContext) {
+    // The stale banner, open comments and a dirty bar: the text keeps 120 px.
+    let f = fixture(cx, 900., 600., TEXT);
+    commented(cx, &f, false);
+    // Saved elsewhere first, then edited here: the edit's base is behind.
+    change_saved(cx, &f, |note| {
+        note.markdown = format!("{TEXT}\n\nChanged elsewhere.")
+    });
+    type_edit(cx, &f, " My words.");
+    update(cx, &f, |view, _, cx| {
+        view.comments_expanded = true;
+        cx.notify();
+    });
+    on_window(cx, &f, |window, cx| window.click("dismiss-notice", cx));
+    on_window(cx, &f, |window, _| {
+        let tile = window.find("tile-note").bounds();
+        let stack = window.find("note-banners").bounds();
+        let text = window.find("note-body").bounds();
+        assert!(
+            stack.bottom() <= text.top() + px(0.5),
+            "{stack:?} above {text:?}"
+        );
+        assert!(text.size.height >= px(120.), "{text:?}");
+        assert_in(window, "save-buffer-copy", stack);
+        assert_in(window, "show-current-note", stack);
+        let more = window.find("note-banners-more").bounds();
+        assert!(more.top() >= stack.bottom() - px(0.5) && more.bottom() <= text.top() + px(0.5));
+        assert!(more.size.height >= px(28.) - px(0.5), "{more:?}");
+        // The open section sits below the text and keeps its label row.
+        let section = window.find("comments-section").bounds();
+        assert!(section.top() >= text.bottom() - px(0.5), "{section:?}");
+        assert!(section.size.height >= px(24.), "{section:?}");
+        for id in ["note-bar", "save-note", "discard-note"] {
+            assert_in(window, id, tile);
+        }
+        assert!(section.bottom() <= window.find("note-bar").bounds().top() + px(0.5));
+    });
+    // The busiest stale state: the failed run's reason and its partial
+    // reply join the rows that never hide.
     let f = fixture(cx, 900., 600., TEXT);
     let thread = commented(cx, &f, false);
     update(cx, &f, |view, _, cx| view.rewrite_note(cx));
@@ -1614,7 +1663,6 @@ fn the_banner_stack_keeps_its_budget_above_the_text_at_900x600(cx: &mut TestAppC
         &thread,
         "Run failed: Synthetic provider stopped before finishing the rewrite.",
     );
-    // Saved elsewhere first, then edited here: the edit's base is behind.
     change_saved(cx, &f, |note| {
         note.markdown = format!("{TEXT}\n\nChanged elsewhere.")
     });
@@ -1634,9 +1682,6 @@ fn the_banner_stack_keeps_its_budget_above_the_text_at_900x600(cx: &mut TestAppC
             stack.bottom() <= text.top() + px(0.5),
             "{stack:?} above {text:?}"
         );
-        // Banners are never hidden to meet the text's 120 px beside open
-        // comments, so with this whole stack the text keeps its few lines.
-        assert!(text.size.height >= px(48.), "{text:?}");
         assert_in(window, "note-bar", tile);
         for id in [
             "writing-run-status",
@@ -1663,7 +1708,34 @@ fn the_banner_stack_keeps_its_budget_above_the_text_at_900x600(cx: &mut TestAppC
         // The banner's own text keeps at least its first line.
         let first = window.find("note-stale-banner-text").bounds();
         assert!(first.size.height >= px(20.) - px(0.5), "{first:?}");
+        // Everything that gives way before the text is at its floor: the
+        // saved version at its line, the reply at its label and the open
+        // section at nothing. The text takes the whole rest of its area,
+        // above its few lines, and the bar ends at the Note's bottom.
+        assert!(more.size.height <= px(28.) + px(0.5), "{more:?}");
+        let reply = window.find("writing-result").bounds();
+        assert!(reply.size.height <= px(32.) + px(0.5), "{reply:?}");
+        let area = window.find("text-and-comments").bounds();
+        assert!(
+            text.size.height >= area.size.height - px(0.5),
+            "{text:?} in {area:?}"
+        );
+        // ... and never runs past it onto the run's reason.
+        assert!(
+            text.bottom() <= area.bottom() + px(0.5),
+            "{text:?} in {area:?}"
+        );
+        assert!(
+            text.bottom() <= window.find("writing-run-status").bounds().top() + px(0.5),
+            "{text:?}"
+        );
+        assert!(text.size.height >= px(48.), "{text:?}");
         assert!(window.find("comments-section-label").bounds().top() >= text.bottom() - px(0.5));
+        let note = window.find("note-tile").bounds();
+        assert!(
+            (window.find("note-bar").bounds().bottom() - note.bottom()).abs() <= px(0.5),
+            "the bar ends the Note"
+        );
     });
     // With the bars at rest (no failed run), the same stale edit shows the
     // whole banner and the saved version.

@@ -408,27 +408,27 @@ fn save_tone(outcome: &SaveOutcome) -> Tone {
         _ => Tone::Warning,
     }
 }
-/// A finished worker's tone. The owner's own Stop is a warning; otherwise a
-/// run's recorded state decides, and work without a run succeeded.
-/// A run that ended Failed or Interrupted, as its recorded terminal text (the
-/// recovery card's reason) in that state's tone; the card's state word when
-/// nothing was recorded. Other states have no terminal notice.
-fn terminal_notice(run: &Run) -> Option<(Tone, String)> {
-    let (tone, word) = match run.state {
-        RunState::Failed => (Tone::Error, "Failed"),
-        RunState::Interrupted => (Tone::Warning, "Interrupted"),
+/// A run that ended Failed or Interrupted, as the chat's recorded notice for
+/// it (the Blocker attention whose record is this run, the text Needs you
+/// shows) in that state's tone. `None` for other states, or when the chat
+/// holds no such notice; the caller then keeps its own error text. The
+/// run's progress is the agent's own summary, never the failure.
+fn terminal_notice(run: &Run, run_id: &str, attention: &[Attention]) -> Option<(Tone, String)> {
+    let tone = match run.state {
+        RunState::Failed => Tone::Error,
+        RunState::Interrupted => Tone::Warning,
         _ => return None,
     };
-    let recorded = run.progress.trim();
-    Some((
-        tone,
-        if recorded.is_empty() {
-            word.to_owned()
-        } else {
-            recorded.to_owned()
-        },
-    ))
+    attention
+        .iter()
+        .rev()
+        .find(|item| item.kind == AttentionKind::Blocker && item.record.as_deref() == Some(run_id))
+        .map(|item| item.reason.trim())
+        .filter(|reason| !reason.is_empty())
+        .map(|reason| (tone, reason.to_owned()))
 }
+/// A finished worker's tone. The owner's own Stop is a warning; otherwise a
+/// run's recorded state decides, and work without a run succeeded.
 fn finish_tone(ok: bool, stopped: bool, has_run: bool, state: Option<&RunState>) -> Tone {
     match (ok, state) {
         (false, _) if stopped => Tone::Warning,
@@ -2993,10 +2993,9 @@ impl ThreadsUi {
                         .worker
                         .as_ref()
                         .is_some_and(|w| w.cancel.is_cancelled());
-                    let run = self
-                        .worker
-                        .as_ref()
-                        .and_then(|w| w.run_id.as_deref())
+                    let run_id = self.worker.as_ref().and_then(|w| w.run_id.clone());
+                    let run = run_id
+                        .as_deref()
                         .and_then(|id| self.workspace.store.record(id).ok().flatten())
                         .and_then(|r| match r.data {
                             RecordData::Run(run) => Some(run),
@@ -3005,14 +3004,22 @@ impl ThreadsUi {
                     let run_state = run.as_ref().map(|run| run.state.clone());
                     let mut tone =
                         finish_tone(result.is_ok(), stopped, has_run, run_state.as_ref());
-                    // A run that ended Failed or Interrupted reads as its
-                    // recorded terminal text, the recovery card's source, in
+                    // A run that ended Failed or Interrupted reads as the
+                    // chat's recorded notice for it (the Needs you text), in
                     // that state's tone, not the raw error. The owner's own
-                    // Stop keeps its short warning.
+                    // Stop keeps its short warning, and without a recorded
+                    // notice the error text stays.
                     let terminal = run
                         .as_ref()
+                        .zip(run_id.as_deref())
                         .filter(|_| kind == Some(WorkerKind::Run) && !stopped)
-                        .and_then(terminal_notice);
+                        .and_then(|(run, id)| {
+                            let chat = self.workspace.store.record(&run.thread).ok().flatten()?;
+                            let RecordData::Thread(chat) = chat.data else {
+                                return None;
+                            };
+                            terminal_notice(run, id, &chat.attention)
+                        });
                     if let Some((terminal_tone, _)) = &terminal {
                         tone = *terminal_tone;
                     }
