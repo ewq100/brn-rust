@@ -1,12 +1,14 @@
 //! Saved chat replies are findable in owner search, as their own kind with
 //! their chat. Project chats appear only in their project's search, general
-//! search shows general chats, archived and Trashed chats disappear until
-//! restored, partial progress is never found, and agent tools never see
-//! chat Messages. Synthetic data and a scripted model; no provider is
-//! contacted.
+//! search shows general chats, Trashed chats disappear until restored,
+//! partial progress is never found, and agent tools never see chat
+//! Messages. Archived (and legacy Resolved) chats' Messages and chat-only
+//! notes stay in owner search, labelled `archived` (owner decision 3,
+//! 16 October 2026); agent search is unchanged. Synthetic data and a
+//! scripted model; no provider is contacted.
 use brn_ai::threads::{RunNoteSearch, ThreadRunRequest, prepare_run, run_prepared_scripted};
 use brn_ai::{AiTerminal, Provider, ReasoningEffort, Selection};
-use brn_retrieval::search_index::{Changes, FILE_NAME, SearchIndex};
+use brn_retrieval::search_index::{Changes, ChatScope, FILE_NAME, SearchIndex};
 use brn_threads_app::*;
 use rig::test_utils::{MockCompletionModel, MockStreamEvent};
 use std::collections::{BTreeMap, BTreeSet};
@@ -282,8 +284,61 @@ fn project_chats_appear_only_in_their_project_search() {
     assert_eq!(found(ws, "pontoon", None), set(&[&mg]));
 }
 
+/// Message ID -> `archived` label of each Message owner search lists.
+fn labelled(
+    workspace: &mut Workspace,
+    query: &str,
+    context: Option<&str>,
+) -> BTreeMap<String, bool> {
+    let page = workspace.search_page(query, context, 12, None).unwrap();
+    assert_eq!(page.message_total, page.messages.len(), "{context:?}");
+    page.messages
+        .into_iter()
+        .map(|m| (m.message, m.archived))
+        .collect()
+}
+
+/// Note ID -> `archived` label of each note owner search lists.
+fn labelled_notes(
+    workspace: &mut Workspace,
+    query: &str,
+    context: Option<&str>,
+) -> BTreeMap<String, bool> {
+    let page = workspace.search_page(query, context, 12, None).unwrap();
+    assert_eq!(page.total, page.hits.len(), "{context:?}");
+    page.hits
+        .into_iter()
+        .map(|h| (h.note, h.archived))
+        .collect()
+}
+
+fn labels(pairs: &[(&String, bool)]) -> BTreeMap<String, bool> {
+    pairs.iter().map(|(id, a)| ((*id).clone(), *a)).collect()
+}
+
+/// Saves chat `id` as a legacy Resolved chat: not archived, state Resolved.
+fn resolve_legacy(workspace: &mut Workspace, id: &str) {
+    let record = workspace.store.record(id).unwrap().unwrap();
+    let RecordData::Thread(mut thread) = record.data.clone() else {
+        panic!("Thread")
+    };
+    thread.state = ThreadState::Resolved;
+    owner_change(
+        workspace,
+        &format!("legacy-resolve:{id}"),
+        vec![Put {
+            id: id.into(),
+            expected_version: Some(record.version),
+            archived: false,
+            data: RecordData::Thread(thread),
+        }],
+    );
+}
+
+/// Owner decision 3: an archived chat's Messages stay in owner search under
+/// the chat's normal scope, labelled; Trash hides them until Restore.
 #[test]
-fn archived_and_trashed_chats_disappear_and_return_on_restore() {
+fn archived_chats_stay_labelled_and_trashed_chats_return_on_restore() {
     let mut w = world();
     let ws = &mut w.workspace;
     let g = ws.new_thread("Replies").unwrap().id;
@@ -291,13 +346,29 @@ fn archived_and_trashed_chats_disappear_and_return_on_restore() {
     let p = project(ws, "Crane");
     let pc = project_chat(ws, &p, "Crane chat");
     let mp = post(ws, &pc, "Pontoon reply in the project");
-    assert_eq!(found(ws, "pontoon", None), set(&[&mg]));
+    assert_eq!(labelled(ws, "pontoon", None), labels(&[(&mg, false)]));
     ws.archive_chat("archive:replies", &g).unwrap();
-    assert!(found(ws, "pontoon", None).is_empty());
-    assert!(found(ws, "pontoon", Some(&g)).is_empty());
-    assert_eq!(found(ws, "pontoon", Some(&p)), set(&[&mp]));
+    // Before: gone from every context until Unarchive.
+    assert_eq!(labelled(ws, "pontoon", None), labels(&[(&mg, true)]));
+    assert_eq!(labelled(ws, "pontoon", Some(&g)), labels(&[(&mg, true)]));
+    assert_eq!(
+        labelled(ws, "pontoon", Some(&p)),
+        labels(&[(&mp, false), (&mg, true)])
+    );
+    ws.archive_chat("archive:crane-chat", &pc).unwrap();
+    assert_eq!(
+        labelled(ws, "pontoon", Some(&p)),
+        labels(&[(&mp, true), (&mg, true)])
+    );
+    assert_eq!(labelled(ws, "pontoon", None), labels(&[(&mg, true)]));
     ws.unarchive_chat("unarchive:replies", &g).unwrap();
-    assert_eq!(found(ws, "pontoon", None), set(&[&mg]));
+    ws.unarchive_chat("unarchive:crane-chat", &pc).unwrap();
+    assert_eq!(labelled(ws, "pontoon", None), labels(&[(&mg, false)]));
+    // A legacy Resolved chat counts as archived.
+    resolve_legacy(ws, &g);
+    assert_eq!(labelled(ws, "pontoon", None), labels(&[(&mg, true)]));
+    ws.unarchive_chat("unarchive:legacy", &g).unwrap();
+    assert_eq!(labelled(ws, "pontoon", None), labels(&[(&mg, false)]));
     let preview = ws.project_delete_preview(&p).unwrap();
     ws.project_command(
         "delete:crane",
@@ -323,10 +394,11 @@ fn archived_and_trashed_chats_disappear_and_return_on_restore() {
     assert_eq!(found(ws, "pontoon", None), set(&[&mg]));
 }
 
-/// The index drops an archived chat's Messages itself, so they cannot fill
-/// the reachable window ahead of visible ones.
+/// An archived chat's Messages stay counted and each listed hit carries its
+/// own chat's label, beside a current chat's. Before decision 3 the index
+/// dropped them (round 5 F-A5).
 #[test]
-fn an_archived_chats_messages_never_crowd_out_visible_ones() {
+fn an_archived_chats_messages_stay_counted_and_labelled() {
     let mut w = world();
     let ws = &mut w.workspace;
     let old = ws.new_thread("Old log").unwrap().id;
@@ -345,11 +417,8 @@ fn an_archived_chats_messages_never_crowd_out_visible_ones() {
         .collect();
     owner_change(ws, "old-log", puts);
     let current = ws.new_thread("Current").unwrap().id;
-    let m = post(
-        ws,
-        &current,
-        "Pontoon reply in the current chat, longer than every old entry",
-    );
+    // The shortest text ranks first, so it is always within reach.
+    let m = post(ws, &current, "Pontoon");
     assert_eq!(
         ws.search_page("pontoon", None, 12, None)
             .unwrap()
@@ -357,7 +426,152 @@ fn an_archived_chats_messages_never_crowd_out_visible_ones() {
         101
     );
     ws.archive_chat("archive:old", &old).unwrap();
-    assert_eq!(found(ws, "pontoon", None), set(&[&m]));
+    let page = ws.search_page("pontoon", None, 50, None).unwrap();
+    assert_eq!(page.message_total, 101);
+    let mut listed = page.messages.clone();
+    listed.extend(
+        ws.search_page("pontoon", None, 50, page.message_cursor.as_deref())
+            .unwrap()
+            .messages,
+    );
+    assert_eq!(listed.len(), 100, "reach stays capped at 100");
+    for hit in &listed {
+        assert_eq!(hit.archived, hit.chat == old, "{}", hit.message);
+    }
+    assert!(listed.iter().any(|hit| hit.message == m && !hit.archived));
+}
+
+/// Owner decision 3: an archived (or legacy Resolved) project chat's
+/// chat-only note and Message show in that project's owner search, labelled,
+/// and nowhere else. Agent retrieval is exactly as before: `search_notes`
+/// finds the note (a project document, archived or not) and never the
+/// Message, and exact reads from a sibling chat still refuse the archived
+/// chat's Message.
+#[test]
+fn an_archived_project_chats_note_is_found_in_its_project_and_agents_keep_their_scope() {
+    let mut w = world();
+    let ws = &mut w.workspace;
+    let p = project(ws, "Crane");
+    let pc = project_chat(ws, &p, "Crane chat");
+    let sibling = project_chat(ws, &p, "Crane sibling");
+    let q = project(ws, "Garden");
+    let qc = project_chat(ws, &q, "Garden chat");
+    let general = ws.new_thread("General").unwrap().id;
+    let op = ws.store.allocate_operation("crane-attachment").unwrap();
+    let n = op.creation_id(0);
+    owner_change(
+        ws,
+        "crane-attachment",
+        vec![Put {
+            id: n.clone(),
+            expected_version: None,
+            archived: false,
+            data: RecordData::Note(Note {
+                chat: Some(pc.clone()),
+                ..Note::working("Crane attachment", "Pontoon depth 1.4 m at berth 4.")
+            }),
+        }],
+    );
+    let mp = post(ws, &pc, "Pontoon question in the crane chat");
+    let handle = ws.search_handle().unwrap();
+    let agent = |chat: &str| -> BTreeSet<String> {
+        let mut seen = BTreeSet::new();
+        for hybrid in [true, false] {
+            let page = RunNoteSearch::search(&handle, chat, "pontoon", 10, None, hybrid).unwrap();
+            assert_eq!(page.total, page.results.len());
+            seen.extend(page.results.into_iter().map(|r| r.id));
+        }
+        seen
+    };
+    for context in [&p, &sibling, &pc] {
+        assert_eq!(
+            labelled_notes(ws, "pontoon", Some(context)),
+            labels(&[(&n, false)])
+        );
+    }
+    assert_eq!(agent(&sibling), set(&[&n]));
+    for leg in ["archive", "legacy-resolved"] {
+        if leg == "archive" {
+            ws.archive_chat("archive:crane-chat", &pc).unwrap();
+        } else {
+            resolve_legacy(ws, &pc);
+        }
+        // Before: gone from project search once the chat was archived.
+        for context in [&p, &sibling] {
+            assert_eq!(
+                labelled_notes(ws, "pontoon", Some(context)),
+                labels(&[(&n, true)]),
+                "{leg}"
+            );
+            assert_eq!(
+                labelled(ws, "pontoon", Some(context)),
+                labels(&[(&mp, true)]),
+                "{leg}"
+            );
+        }
+        for context in [None, Some(q.as_str()), Some(&qc), Some(&general)] {
+            assert!(
+                labelled_notes(ws, "pontoon", context).is_empty(),
+                "{leg} {context:?}"
+            );
+            assert!(
+                labelled(ws, "pontoon", context).is_empty(),
+                "{leg} {context:?}"
+            );
+        }
+        // Agent retrieval scope is unchanged: the same note, with no label
+        // (agent results carry none), and no exact read of the Message.
+        assert_eq!(agent(&sibling), set(&[&n]), "{leg}");
+        assert!(ws.store.record_visible_in_chat(&n, Some(&sibling)).unwrap());
+        assert!(
+            !ws.store
+                .record_visible_in_chat(&mp, Some(&sibling))
+                .unwrap()
+        );
+        ws.unarchive_chat(&format!("unarchive:{leg}"), &pc).unwrap();
+        assert_eq!(
+            labelled_notes(ws, "pontoon", Some(&p)),
+            labels(&[(&n, false)])
+        );
+        assert_eq!(agent(&sibling), set(&[&n]), "{leg}");
+        assert!(
+            ws.store
+                .record_visible_in_chat(&mp, Some(&sibling))
+                .unwrap()
+        );
+    }
+    // Trash hides the note and the Message from owner search; Restore
+    // brings them back.
+    let preview = ws.project_delete_preview(&p).unwrap();
+    ws.project_command(
+        "delete:crane",
+        ProjectCommand::Delete {
+            preview,
+            actions: BTreeMap::new(),
+        },
+    )
+    .unwrap();
+    for context in [None, Some(pc.as_str())] {
+        assert!(
+            labelled_notes(ws, "pontoon", context).is_empty(),
+            "{context:?}"
+        );
+        assert!(labelled(ws, "pontoon", context).is_empty(), "{context:?}");
+    }
+    let version = ws.store.record(&p).unwrap().unwrap().version;
+    ws.project_command(
+        "restore:crane",
+        ProjectCommand::Restore {
+            project: p.clone(),
+            version,
+        },
+    )
+    .unwrap();
+    assert_eq!(
+        labelled_notes(ws, "pontoon", Some(&p)),
+        labels(&[(&n, false)])
+    );
+    assert_eq!(labelled(ws, "pontoon", Some(&p)), labels(&[(&mp, false)]));
 }
 
 #[test]
@@ -447,6 +661,43 @@ fn rebuilding_the_index_backfills_messages() {
     }
     let mut view = Workspace::open(&w.data).unwrap();
     assert_eq!(found(&mut view, "pontoon", None), set(&[&m]));
+}
+
+/// A v3 index (round 5) tagged an archived chat `hidden`. Schema v4 rebuilds
+/// it, so the archived chat's Message returns, labelled, without any new
+/// write to the chat.
+#[test]
+fn a_v3_index_is_rebuilt_so_an_archived_chat_is_rescoped() {
+    let w = world();
+    let mut ws = w.workspace;
+    let chat = ws.new_thread("Replies").unwrap().id;
+    let m = post(&mut ws, &chat, "Pontoon reply to keep");
+    ws.archive_chat("archive:replies", &chat).unwrap();
+    let (handle, worker) = search::SearchHandle::spawn(&ws.store).unwrap();
+    let watermark = handle.search("pontoon", None, 10).unwrap().watermark;
+    drop(handle);
+    worker.join().unwrap();
+    drop(ws);
+    // The state a round 5 build left: the archived chat tagged hidden, v3.
+    let derived = Store::open(&w.data).unwrap().derived_directory().unwrap();
+    let (mut index, _) = SearchIndex::open(&derived).unwrap();
+    let base = index.sync_state().unwrap();
+    assert_eq!(base.as_ref().map(|s| s.watermark), Some(watermark));
+    index
+        .apply(&Changes {
+            base,
+            chat_scopes: vec![(chat.clone(), ChatScope::Hidden)],
+            watermark,
+            ..Changes::default()
+        })
+        .unwrap();
+    drop(index);
+    let file = derived.join(FILE_NAME);
+    assert!(!derived.join(format!("{FILE_NAME}-wal")).exists());
+    set_user_version(&file, 3);
+    let mut view = Workspace::open(&w.data).unwrap();
+    // Before the bump the stale `hidden` tag stayed until the chat changed.
+    assert_eq!(labelled(&mut view, "pontoon", None), labels(&[(&m, true)]));
 }
 
 /// Writes `version` into the SQLite header's `user_version` (offset 60) of a

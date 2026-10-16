@@ -77,12 +77,13 @@ pub fn message_searchable(record: &Record) -> bool {
         && matches!(&record.data, RecordData::Message(m) if SEARCHABLE_MESSAGE_ROLES.contains(&m.role.as_str()))
 }
 
-/// The owner-search scope of `thread`'s Messages. Archived chats (Archive,
-/// and a project Delete that moved them to Trash) are hidden. `rows` must
-/// hold the chat, every Project and the Notes saved in the chat (see
-/// [`Snapshot::message_scope_rows`]).
+/// The owner-search scope of `thread`'s Messages. An archived or legacy
+/// Resolved chat keeps the scope it has open; owner search labels it with
+/// [`chat_is_archived`] (owner decision 3, 16 October 2026). A chat whose
+/// project is in Trash is hidden. `rows` must hold the chat, every Project
+/// and the Notes saved in the chat (see [`Snapshot::message_scope_rows`]).
 pub fn message_scope(thread: &Record, rows: &[Record]) -> MessageScope {
-    if thread.archived || !matches!(thread.data, RecordData::Thread(_)) {
+    if !matches!(thread.data, RecordData::Thread(_)) {
         return MessageScope::Hidden;
     }
     if let Some(project) = crate::project_for_chat(rows, &thread.id) {
@@ -97,6 +98,13 @@ pub fn message_scope(thread: &Record, rows: &[Record]) -> MessageScope {
     } else {
         MessageScope::General
     }
+}
+
+/// Whether owner search labels `chat`'s Messages and chat-only notes
+/// Archived: an archived chat, or a legacy Resolved one, which shows as
+/// archived. False for anything that is not a chat.
+pub fn chat_is_archived(chat: &Record) -> bool {
+    matches!(&chat.data, RecordData::Thread(t) if chat.archived || t.state == ThreadState::Resolved)
 }
 
 /// The scopes whose Messages owner search shows in `context` (`None` =

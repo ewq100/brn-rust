@@ -939,5 +939,17 @@ fn the_notes_search_answer_carries_a_saved_chat_message(cx: &mut TestAppContext)
             ),
             (chat.as_str(), "Replies", "owner")
         );
+        assert!(!hit.archived);
+    });
+    // Owner decision 3: after Archive the Message stays, labelled for the
+    // UI's Archived marker (F-UI1 renders it on the combined branch).
+    update(cx, &f, |ui, window, cx| {
+        ui.resolve_thread(&chat, cx);
+        ui.search_changed("berth survey".into(), window, cx)
+    });
+    cx.read(|cx| {
+        let page = f.view.read(cx).results.page.clone().expect("answered");
+        assert_eq!(page.message_total, 1);
+        assert!(page.messages[0].archived);
     });
 }

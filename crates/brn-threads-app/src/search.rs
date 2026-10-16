@@ -64,6 +64,9 @@ pub struct NoteMatch {
     pub inbound_links: usize,
     /// Imported, or the target of a visible `source` link.
     pub evidence: bool,
+    /// Owner search only: a chat-only note whose chat is archived or legacy
+    /// Resolved, to be labelled Archived. Always false for agent searches.
+    pub archived: bool,
 }
 
 /// One saved chat Message matching an owner search. A saved reply is text in
@@ -79,6 +82,8 @@ pub struct MessageMatch {
     /// Up to [`SNIPPET_BYTES`] of the Message around the first matching word.
     pub snippet: Snippet,
     pub score: f64,
+    /// Its chat is archived or legacy Resolved, to be labelled Archived.
+    pub archived: bool,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -170,9 +175,10 @@ enum Work {
         cursor: Option<String>,
         /// Add the dense lane when an embedding model is configured.
         hybrid: bool,
-        /// Owner search: also list matching chat Messages. Agent tools
-        /// never set it.
-        messages: bool,
+        /// Owner search: also list matching chat Messages, and label hits
+        /// from archived chats (owner decision 3). Agent tools never set it;
+        /// both use the same core context predicate for notes.
+        owner: bool,
     },
     /// Only bring the index up to date (warm-up and measurement).
     Sync,
@@ -368,7 +374,7 @@ impl SearchHandle {
         limit: usize,
         cursor: Option<&str>,
         hybrid: bool,
-        messages: bool,
+        owner: bool,
     ) -> SearchTicket {
         self.results(Work::Search {
             query: query.into(),
@@ -376,7 +382,7 @@ impl SearchHandle {
             limit,
             cursor: cursor.map(Into::into),
             hybrid,
-            messages,
+            owner,
         })
     }
 
@@ -429,7 +435,8 @@ impl SearchHandle {
         }
     }
 
-    /// Blocking search for the CLI and agent runs.
+    /// Blocking owner search (the CLI's). Agent hosts use the
+    /// [`brn_ai::threads::RunNoteSearch`] impl, which keeps the agent scope.
     pub fn search(
         &self,
         query: &str,
@@ -843,7 +850,7 @@ fn attempt_answer(
             limit,
             cursor,
             hybrid,
-            messages,
+            owner,
         } => {
             let (nearest, semantic) = match dense {
                 Some(d) if *hybrid => {
@@ -866,12 +873,13 @@ fn attempt_answer(
                 watermark,
                 last,
                 nearest.as_deref().unwrap_or_default(),
+                *owner,
             )?
             else {
                 return Ok(None);
             };
             results.semantic = semantic;
-            if *messages {
+            if *owner {
                 let Some(found) = message_search(
                     &snapshot,
                     &open.index,
@@ -961,6 +969,7 @@ fn search(
     watermark: i64,
     last: bool,
     dense: &[i64],
+    owner: bool,
 ) -> AppResult<Option<SearchResults>> {
     let project_rows = if chat.is_some() {
         snapshot.records()?
@@ -1068,6 +1077,15 @@ fn search(
             return Ok(None);
         }
         let fact = facts.get(&hit.doc).copied().unwrap_or_default();
+        // Owner decision 3: a chat-only note keeps the scope it has while its
+        // chat is open (a project chat's notes are project documents), and
+        // owner search labels it when that chat is archived or Resolved.
+        let archived = match note.chat.as_deref() {
+            Some(owner_chat) if owner => snapshot
+                .record(owner_chat)?
+                .is_some_and(|r| brn_threads_core::chat_is_archived(&r)),
+            _ => false,
+        };
         matches.push(NoteMatch {
             note: hit.doc.clone(),
             version,
@@ -1083,6 +1101,7 @@ fn search(
             imported: note.import.is_some(),
             inbound_links: fact.inbound_links,
             evidence: evidence[i],
+            archived,
         });
     }
     let next = (start + limit < ranked.len()).then(|| (start + limit).to_string());
@@ -1167,7 +1186,13 @@ fn message_search(
             }
             return Ok(None);
         }
-        let chat_title = match snapshot.record(&hit.chat)? {
+        // Read from the same snapshot, so the label follows Archive,
+        // Unarchive, Trash and Restore at once.
+        let saved_chat = snapshot.record(&hit.chat)?;
+        let archived = saved_chat
+            .as_ref()
+            .is_some_and(brn_threads_core::chat_is_archived);
+        let chat_title = match saved_chat {
             Some(Record {
                 data: RecordData::Thread(thread),
                 ..
@@ -1182,6 +1207,7 @@ fn message_search(
             role: hit.role.clone(),
             snippet: snippet(&hit.text, query, SNIPPET_BYTES),
             score: hit.score,
+            archived,
         });
     }
     let next = (start + limit < ranked.len()).then(|| (start + limit).to_string());

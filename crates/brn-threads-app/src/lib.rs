@@ -81,6 +81,10 @@ pub struct SearchHit {
     /// Imported, or cited by a visible `source` link.
     #[serde(default)]
     pub evidence: bool,
+    /// A chat-only note whose chat is archived (or legacy Resolved): label
+    /// it Archived. Owner search lists these under the chat's normal scope.
+    #[serde(default)]
+    pub archived: bool,
 }
 
 /// One page of search results with exact counts.
@@ -126,6 +130,9 @@ pub struct ChatMessageHit {
     /// Byte ranges in `snippet` to highlight.
     #[serde(default)]
     pub highlights: Vec<std::ops::Range<usize>>,
+    /// Its chat is archived (or legacy Resolved): label it Archived.
+    #[serde(default)]
+    pub archived: bool,
 }
 
 impl From<search::SearchResults> for SearchPage {
@@ -149,6 +156,7 @@ impl From<search::SearchResults> for SearchPage {
                     role: m.role,
                     snippet: m.snippet.text,
                     highlights: m.snippet.highlights,
+                    archived: m.archived,
                 })
                 .collect(),
             hits: results
@@ -169,6 +177,7 @@ impl From<search::SearchResults> for SearchPage {
                     protected: m.protected,
                     imported: m.imported,
                     evidence: m.evidence,
+                    archived: m.archived,
                 })
                 .collect(),
         }

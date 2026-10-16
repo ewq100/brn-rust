@@ -85,4 +85,26 @@ fn search_lists_a_saved_chat_message_with_its_chat() {
         .to_owned();
     let page = json_command(&data, &["search", "--query", "berth", "--thread", &other]);
     assert_eq!(page["messages"][0]["chat"], json!(chat));
+    assert_eq!(page["messages"][0]["archived"], json!(false));
+    // Owner decision 3: an archived chat's Message stays, labelled. Before:
+    // `message_total` 0 until Unarchive.
+    json_command(
+        &data,
+        &["note-create", "--title", "Berth", "--text", "Berth depth."],
+    );
+    json_command(&data, &["archive", "--thread", &chat]);
+    let page = json_command(&data, &["search", "--query", "berth"]);
+    assert_eq!(page["message_total"], json!(1), "{page}");
+    assert_eq!(
+        (
+            &page["messages"][0]["chat"],
+            &page["messages"][0]["archived"]
+        ),
+        (&json!(chat), &json!(true))
+    );
+    // A general note hit carries the field too, false.
+    assert_eq!(page["hits"][0]["archived"], json!(false), "{page}");
+    json_command(&data, &["unarchive", "--thread", &chat]);
+    let page = json_command(&data, &["search", "--query", "berth"]);
+    assert_eq!(page["messages"][0]["archived"], json!(false));
 }

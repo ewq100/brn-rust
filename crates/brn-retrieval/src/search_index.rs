@@ -20,8 +20,10 @@ const LOCK_NAME: &str = "search.lock";
 const APPLICATION_ID: i64 = 0x4252_4e53; // BRNS
 /// 2: passage IDs are never reused, so a cached vector cannot be attributed
 /// to a later passage. 3: final chat Messages, in their own tables, for owner
-/// search; a v2 index is rebuilt and the next sync backfills them.
-const SCHEMA_VERSION: i64 = 3;
+/// search; a v2 index is rebuilt and the next sync backfills them. 4: an
+/// archived chat keeps its scope tag instead of `hidden` (owner decision 3),
+/// so a v3 index is rebuilt and the next full sync rescopes every chat.
+const SCHEMA_VERSION: i64 = 4;
 const DEFAULT_LANGUAGE: &str = "en";
 const NOT_OURS: &str = "derived search path holds a file that is not a BRN search index";
 /// Reciprocal-rank fusion constant.

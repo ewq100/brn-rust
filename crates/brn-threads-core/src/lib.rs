@@ -105,5 +105,5 @@ pub(crate) fn read_u64(row: &rusqlite::Row<'_>, index: usize) -> rusqlite::Resul
 pub use context::{managed_asset_ids, project_scope, visible as record_in_chat};
 pub use reader::{
     MessageScope, SEARCHABLE_MESSAGE_ROLES, SearchEligibility, Snapshot, StoreReader,
-    message_scope, message_scopes_for, message_searchable, search_eligibility,
+    chat_is_archived, message_scope, message_scopes_for, message_searchable, search_eligibility,
 };

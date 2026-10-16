@@ -1,8 +1,10 @@
 //! Owner search shows saved chat Messages where the chat's notes would
 //! appear: general chats in general search, project chats only in their
-//! project, private chats only in themselves. Archived and Trashed chats are
-//! hidden until restored, and partial progress is never searchable.
-//! Synthetic data only.
+//! project, private chats only in themselves. An archived or legacy Resolved
+//! chat keeps that scope for its Messages (owner decision 3), as its
+//! chat-only notes already did under the unchanged context predicate.
+//! Trashed chats are hidden until restored, and partial progress is never
+//! searchable. Synthetic data only.
 use brn_threads_core::*;
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
@@ -250,29 +252,156 @@ fn a_project_without_brn_knowledge_shows_only_its_own_chats() {
     assert_eq!(searchable(&w.data, &[&mg, &mp], None), set(&[&mg]));
 }
 
+/// Saves chat `id` archived or not, and Open or legacy Resolved.
+fn set_chat(store: &mut Store, id: &str, archived: bool, state: ThreadState) {
+    let record = store.record(id).unwrap().unwrap();
+    let RecordData::Thread(mut thread) = record.data.clone() else {
+        panic!("Thread")
+    };
+    thread.state = state;
+    write(
+        store,
+        &format!("{id}:{archived}:{:?}:{}", thread.state, record.version),
+        vec![(Some(&record), RecordData::Thread(thread), archived)],
+    );
+}
+
+fn chat_note(store: &mut Store, chat: &str, title: &str) -> String {
+    let data = RecordData::Note(Note {
+        chat: Some(chat.into()),
+        ..Note::working(title, "Berth survey depth 1.4 m.")
+    });
+    write(store, title, vec![(None, data, false)])[0].id.clone()
+}
+
+/// The one note re-check owner and agent search share in `context`.
+fn notes(data: &Path, ids: &[&str], context: Option<&str>) -> BTreeSet<String> {
+    let ids: Vec<String> = ids.iter().map(|id| (*id).to_owned()).collect();
+    let mut reader = Store::open_reader(data).unwrap();
+    let snapshot = reader.snapshot().unwrap();
+    snapshot.searchable_notes(&ids, context).unwrap()
+}
+
 #[test]
-fn an_archived_chat_is_hidden_until_it_is_unarchived() {
+fn an_archived_or_resolved_chat_keeps_its_message_scope() {
     let mut w = world();
     let general = chat(&mut w.store, "Replies");
     let m = message(&mut w.store, &general, "assistant", "Berth survey reply");
-    let record = w.store.record(&general).unwrap().unwrap();
-    write(
-        &mut w.store,
-        "archive",
-        vec![(Some(&record), record.data.clone(), true)],
-    );
-    assert_eq!(scope(&w.data, &general), MessageScope::Hidden);
-    for context in [None, Some(general.as_str())] {
-        assert!(searchable(&w.data, &[&m], context).is_empty());
+    let p = project(&mut w.store, "Crane");
+    let pc = project_chat(&mut w.store, &p, "Crane chat");
+    let mp = message(&mut w.store, &pc, "owner", "Berth survey question");
+    let label = |data: &Path, chat: &str| {
+        let mut reader = Store::open_reader(data).unwrap();
+        let snapshot = reader.snapshot().unwrap();
+        chat_is_archived(&snapshot.record(chat).unwrap().unwrap())
+    };
+    for (archived, state) in [
+        (true, ThreadState::Open),
+        (false, ThreadState::Resolved),
+        (true, ThreadState::Resolved),
+    ] {
+        set_chat(&mut w.store, &general, archived, state.clone());
+        set_chat(&mut w.store, &pc, archived, state.clone());
+        // Before: an archived chat was `Hidden` everywhere.
+        assert_eq!(scope(&w.data, &general), MessageScope::General);
+        assert_eq!(scope(&w.data, &pc), MessageScope::Project(p.clone()));
+        for context in [None, Some(general.as_str())] {
+            assert_eq!(searchable(&w.data, &[&m], context), set(&[&m]));
+        }
+        for context in [Some(p.as_str()), Some(&pc)] {
+            assert_eq!(searchable(&w.data, &[&mp], context), set(&[&mp]));
+        }
+        assert!(searchable(&w.data, &[&mp], None).is_empty());
+        assert!(
+            label(&w.data, &general) && label(&w.data, &pc),
+            "{archived} {state:?}"
+        );
     }
-    let record = w.store.record(&general).unwrap().unwrap();
-    write(
-        &mut w.store,
-        "unarchive",
-        vec![(Some(&record), record.data.clone(), false)],
-    );
+    set_chat(&mut w.store, &general, false, ThreadState::Open);
     assert_eq!(scope(&w.data, &general), MessageScope::General);
+    assert!(!label(&w.data, &general));
     assert_eq!(searchable(&w.data, &[&m], None), set(&[&m]));
+}
+
+/// The decision 3 caveat check, as a test: a project chat's chat-only note
+/// is a project document (`project_document_ids`), so the one context
+/// predicate admits it throughout its project whether its chat is open,
+/// archived or legacy Resolved, and nowhere else. Nothing about the chat's
+/// state excluded it, and this is unchanged.
+#[test]
+fn an_archived_project_chats_notes_stay_project_documents() {
+    let mut w = world();
+    let p = project(&mut w.store, "Crane");
+    let pc = project_chat(&mut w.store, &p, "Crane chat");
+    let sibling = project_chat(&mut w.store, &p, "Crane sibling");
+    let q = project(&mut w.store, "Garden");
+    let qc = project_chat(&mut w.store, &q, "Garden chat");
+    let general = chat(&mut w.store, "General");
+    let n = chat_note(&mut w.store, &pc, "Crane berth attachment");
+    for (archived, state) in [
+        (false, ThreadState::Open),
+        (true, ThreadState::Open),
+        (false, ThreadState::Resolved),
+    ] {
+        set_chat(&mut w.store, &pc, archived, state.clone());
+        for context in [Some(p.as_str()), Some(&sibling), Some(&pc)] {
+            assert_eq!(
+                notes(&w.data, &[&n], context),
+                set(&[&n]),
+                "{archived} {state:?} {context:?}"
+            );
+        }
+        for context in [None, Some(q.as_str()), Some(&qc), Some(&general)] {
+            assert!(notes(&w.data, &[&n], context).is_empty(), "{context:?}");
+        }
+    }
+}
+
+#[test]
+fn an_archived_general_chats_notes_stay_private_to_it() {
+    let mut w = world();
+    let private = chat(&mut w.store, "Attachments");
+    let other = chat(&mut w.store, "Other");
+    let p = project(&mut w.store, "Crane");
+    let n = chat_note(&mut w.store, &private, "Survey attachment");
+    set_chat(&mut w.store, &private, true, ThreadState::Open);
+    assert_eq!(notes(&w.data, &[&n], Some(&private)), set(&[&n]));
+    for context in [None, Some(other.as_str()), Some(&p)] {
+        assert!(notes(&w.data, &[&n], context).is_empty(), "{context:?}");
+    }
+}
+
+#[test]
+fn a_trashed_chats_notes_stay_out_of_search_until_restore() {
+    let mut w = world();
+    let p = project(&mut w.store, "Crane");
+    let pc = project_chat(&mut w.store, &p, "Crane chat");
+    let n = chat_note(&mut w.store, &pc, "Crane berth attachment");
+    set_chat(&mut w.store, &pc, true, ThreadState::Open);
+    let preview = w.store.project_delete_preview(&p).unwrap();
+    project_command(
+        &mut w.store,
+        ProjectCommand::Delete {
+            preview,
+            actions: BTreeMap::new(),
+        },
+    );
+    for context in [None, Some(p.as_str()), Some(&pc)] {
+        assert!(notes(&w.data, &[&n], context).is_empty(), "{context:?}");
+    }
+    let version = w.store.record(&p).unwrap().unwrap().version;
+    project_command(
+        &mut w.store,
+        ProjectCommand::Restore {
+            project: p.clone(),
+            version,
+        },
+    );
+    // Restore brings the chat back as it was: archived, so labelled.
+    assert_eq!(notes(&w.data, &[&n], Some(&p)), set(&[&n]));
+    let mut reader = Store::open_reader(&w.data).unwrap();
+    let snapshot = reader.snapshot().unwrap();
+    assert!(chat_is_archived(&snapshot.record(&pc).unwrap().unwrap()));
 }
 
 #[test]
