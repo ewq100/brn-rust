@@ -1,0 +1,10 @@
+Found 20 mutants to test
+ok       Unmutated baseline
+TIMEOUT  crates/brn-ai/src/threads_context_budget.rs:133:5: replace fit_prefix -> Option<String> with Some(String::new())
+TIMEOUT  crates/brn-ai/src/threads_context_budget.rs:133:5: replace fit_prefix -> Option<String> with Some("xyzzy".into())
+MISSED   crates/brn-ai/src/threads_context_budget.rs:144:52: replace - with + in fit_prefix
+MISSED   crates/brn-ai/src/threads_context_budget.rs:144:52: replace - with / in fit_prefix
+TIMEOUT  crates/brn-ai/src/threads_context_budget.rs:145:15: replace < with <= in fit_prefix
+TIMEOUT  crates/brn-ai/src/threads_context_budget.rs:146:23: replace + with * in fit_prefix
+TIMEOUT  crates/brn-ai/src/threads_context_budget.rs:146:31: replace - with + in fit_prefix
+TIMEOUT  crates/brn-ai/src/threads_context_budget.rs:150:24: replace - with + in fit_prefix

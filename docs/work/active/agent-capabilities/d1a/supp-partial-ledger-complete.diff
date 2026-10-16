@@ -1,0 +1,11 @@
+--- a/crates/brn-ai/src/threads.rs
++++ b/crates/brn-ai/src/threads.rs
+@@ -919,7 +919,7 @@
+             row["note_read"]["total_bytes"].as_u64(),
+         ) {
+             let total = usize::try_from(total).map_err(storage)?;
+-            if markdown.len() == total {
++            if true {
+                 reads.complete(id, version);
+             } else {
+                 reads.slice(id, version, 0, markdown.len(), total);

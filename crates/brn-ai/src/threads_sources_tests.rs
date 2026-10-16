@@ -51,6 +51,7 @@ async fn useful_intake_model_tools_retain_selected_figure_omissions_and_replay_w
         &scope,
         SourceArgs {
             reference: request.sources[0].reference.clone(),
+            start: 0,
         },
     )
     .unwrap();

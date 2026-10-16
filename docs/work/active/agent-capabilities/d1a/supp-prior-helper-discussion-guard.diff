@@ -1,0 +1,11 @@
+--- a/crates/brn-ai/src/threads_search.rs
++++ b/crates/brn-ai/src/threads_search.rs
+@@ -46,7 +46,7 @@
+ }
+ pub(super) fn read_message(scope: &Scope, args: MessageArgs) -> AiResult<Value> {
+     if !(1..=8192).contains(&args.max_bytes)
+-        || scope.scout.is_some()
++        && scope.scout.is_some()
+         || scope.writing_snapshot.is_some()
+     {
+         return Err(rejected());

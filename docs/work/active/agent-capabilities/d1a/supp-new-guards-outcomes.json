@@ -1,0 +1,1277 @@
+{
+  "outcomes": [
+    {
+      "scenario": "Baseline",
+      "summary": "Success",
+      "log_path": "log/baseline.log",
+      "diff_path": null,
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 10.455722542,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--features=scripted-runs",
+            "--lib",
+            "--locked",
+            "--offline"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 4.282807292,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--features=scripted-runs",
+            "--lib",
+            "--locked",
+            "--offline"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/brn-ai/src/threads.rs:679:5: replace record_note_prefix with ()",
+          "package": "brn-ai",
+          "file": "crates/brn-ai/src/threads.rs",
+          "function": {
+            "function_name": "record_note_prefix",
+            "return_type": "",
+            "span": {
+              "start": {
+                "line": 678,
+                "column": 1
+              },
+              "end": {
+                "line": 685,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 679,
+              "column": 5
+            },
+            "end": {
+              "line": 684,
+              "column": 65
+            }
+          },
+          "replacement": "()",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__brn-ai__src__threads.rs_line_679_col_5.log",
+      "diff_path": "diff/crates__brn-ai__src__threads.rs_line_679_col_5.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 10.737473667,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--features=scripted-runs",
+            "--lib",
+            "--locked",
+            "--offline"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 4.662250917,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--features=scripted-runs",
+            "--lib",
+            "--locked",
+            "--offline"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/brn-ai/src/threads_context_budget.rs:113:9: delete field origin from struct crate::AiFailureDetail expression in result_failure",
+          "package": "brn-ai",
+          "file": "crates/brn-ai/src/threads_context_budget.rs",
+          "function": {
+            "function_name": "result_failure",
+            "return_type": "-> AiError",
+            "span": {
+              "start": {
+                "line": 111,
+                "column": 1
+              },
+              "end": {
+                "line": 117,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 113,
+              "column": 9
+            },
+            "end": {
+              "line": 113,
+              "column": 41
+            }
+          },
+          "replacement": "",
+          "genre": "StructField"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__brn-ai__src__threads_context_budget.rs_line_113_col_9.log",
+      "diff_path": "diff/crates__brn-ai__src__threads_context_budget.rs_line_113_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 10.291034625,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--features=scripted-runs",
+            "--lib",
+            "--locked",
+            "--offline"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 4.5666196249999995,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--features=scripted-runs",
+            "--lib",
+            "--locked",
+            "--offline"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/brn-ai/src/threads_context_budget.rs:114:9: delete field code from struct crate::AiFailureDetail expression in result_failure",
+          "package": "brn-ai",
+          "file": "crates/brn-ai/src/threads_context_budget.rs",
+          "function": {
+            "function_name": "result_failure",
+            "return_type": "-> AiError",
+            "span": {
+              "start": {
+                "line": 111,
+                "column": 1
+              },
+              "end": {
+                "line": 117,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 114,
+              "column": 9
+            },
+            "end": {
+              "line": 114,
+              "column": 65
+            }
+          },
+          "replacement": "",
+          "genre": "StructField"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__brn-ai__src__threads_context_budget.rs_line_114_col_9.log",
+      "diff_path": "diff/crates__brn-ai__src__threads_context_budget.rs_line_114_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 9.709281042,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--features=scripted-runs",
+            "--lib",
+            "--locked",
+            "--offline"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 4.274721416,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--features=scripted-runs",
+            "--lib",
+            "--locked",
+            "--offline"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/brn-ai/src/threads_context_budget.rs:133:5: replace fit_prefix -> Option<String> with None",
+          "package": "brn-ai",
+          "file": "crates/brn-ai/src/threads_context_budget.rs",
+          "function": {
+            "function_name": "fit_prefix",
+            "return_type": "-> Option<String>",
+            "span": {
+              "start": {
+                "line": 131,
+                "column": 1
+              },
+              "end": {
+                "line": 155,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 133,
+              "column": 5
+            },
+            "end": {
+              "line": 154,
+              "column": 71
+            }
+          },
+          "replacement": "None",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__brn-ai__src__threads_context_budget.rs_line_133_col_5.log",
+      "diff_path": "diff/crates__brn-ai__src__threads_context_budget.rs_line_133_col_5.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 9.560332416,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--features=scripted-runs",
+            "--lib",
+            "--locked",
+            "--offline"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 4.3451585,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--features=scripted-runs",
+            "--lib",
+            "--locked",
+            "--offline"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/brn-ai/src/threads_context_budget.rs:133:5: replace fit_prefix -> Option<String> with Some(String::new())",
+          "package": "brn-ai",
+          "file": "crates/brn-ai/src/threads_context_budget.rs",
+          "function": {
+            "function_name": "fit_prefix",
+            "return_type": "-> Option<String>",
+            "span": {
+              "start": {
+                "line": 131,
+                "column": 1
+              },
+              "end": {
+                "line": 155,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 133,
+              "column": 5
+            },
+            "end": {
+              "line": 154,
+              "column": 71
+            }
+          },
+          "replacement": "Some(String::new())",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Timeout",
+      "log_path": "log/crates__brn-ai__src__threads_context_budget.rs_line_133_col_5_001.log",
+      "diff_path": "diff/crates__brn-ai__src__threads_context_budget.rs_line_133_col_5_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 9.810947791,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--features=scripted-runs",
+            "--lib",
+            "--locked",
+            "--offline"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 15.015260291,
+          "process_status": "Timeout",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--features=scripted-runs",
+            "--lib",
+            "--locked",
+            "--offline"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/brn-ai/src/threads_context_budget.rs:133:5: replace fit_prefix -> Option<String> with Some(\"xyzzy\".into())",
+          "package": "brn-ai",
+          "file": "crates/brn-ai/src/threads_context_budget.rs",
+          "function": {
+            "function_name": "fit_prefix",
+            "return_type": "-> Option<String>",
+            "span": {
+              "start": {
+                "line": 131,
+                "column": 1
+              },
+              "end": {
+                "line": 155,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 133,
+              "column": 5
+            },
+            "end": {
+              "line": 154,
+              "column": 71
+            }
+          },
+          "replacement": "Some(\"xyzzy\".into())",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Timeout",
+      "log_path": "log/crates__brn-ai__src__threads_context_budget.rs_line_133_col_5_002.log",
+      "diff_path": "diff/crates__brn-ai__src__threads_context_budget.rs_line_133_col_5_002.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 9.624118750000001,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--features=scripted-runs",
+            "--lib",
+            "--locked",
+            "--offline"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 15.00369725,
+          "process_status": "Timeout",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--features=scripted-runs",
+            "--lib",
+            "--locked",
+            "--offline"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/brn-ai/src/threads_context_budget.rs:136:8: delete ! in fit_prefix",
+          "package": "brn-ai",
+          "file": "crates/brn-ai/src/threads_context_budget.rs",
+          "function": {
+            "function_name": "fit_prefix",
+            "return_type": "-> Option<String>",
+            "span": {
+              "start": {
+                "line": 131,
+                "column": 1
+              },
+              "end": {
+                "line": 155,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 136,
+              "column": 8
+            },
+            "end": {
+              "line": 136,
+              "column": 9
+            }
+          },
+          "replacement": "",
+          "genre": "UnaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__brn-ai__src__threads_context_budget.rs_line_136_col_8.log",
+      "diff_path": "diff/crates__brn-ai__src__threads_context_budget.rs_line_136_col_8.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 9.577820792,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--features=scripted-runs",
+            "--lib",
+            "--locked",
+            "--offline"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 4.306876875,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--features=scripted-runs",
+            "--lib",
+            "--locked",
+            "--offline"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/brn-ai/src/threads_context_budget.rs:144:52: replace - with + in fit_prefix",
+          "package": "brn-ai",
+          "file": "crates/brn-ai/src/threads_context_budget.rs",
+          "function": {
+            "function_name": "fit_prefix",
+            "return_type": "-> Option<String>",
+            "span": {
+              "start": {
+                "line": 131,
+                "column": 1
+              },
+              "end": {
+                "line": 155,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 144,
+              "column": 52
+            },
+            "end": {
+              "line": 144,
+              "column": 53
+            }
+          },
+          "replacement": "+",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/crates__brn-ai__src__threads_context_budget.rs_line_144_col_52.log",
+      "diff_path": "diff/crates__brn-ai__src__threads_context_budget.rs_line_144_col_52.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 9.610369292,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--features=scripted-runs",
+            "--lib",
+            "--locked",
+            "--offline"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 4.295288375,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--features=scripted-runs",
+            "--lib",
+            "--locked",
+            "--offline"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/brn-ai/src/threads_context_budget.rs:144:52: replace - with / in fit_prefix",
+          "package": "brn-ai",
+          "file": "crates/brn-ai/src/threads_context_budget.rs",
+          "function": {
+            "function_name": "fit_prefix",
+            "return_type": "-> Option<String>",
+            "span": {
+              "start": {
+                "line": 131,
+                "column": 1
+              },
+              "end": {
+                "line": 155,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 144,
+              "column": 52
+            },
+            "end": {
+              "line": 144,
+              "column": 53
+            }
+          },
+          "replacement": "/",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/crates__brn-ai__src__threads_context_budget.rs_line_144_col_52_001.log",
+      "diff_path": "diff/crates__brn-ai__src__threads_context_budget.rs_line_144_col_52_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 9.919227709,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--features=scripted-runs",
+            "--lib",
+            "--locked",
+            "--offline"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 4.285866417,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--features=scripted-runs",
+            "--lib",
+            "--locked",
+            "--offline"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/brn-ai/src/threads_context_budget.rs:145:15: replace < with == in fit_prefix",
+          "package": "brn-ai",
+          "file": "crates/brn-ai/src/threads_context_budget.rs",
+          "function": {
+            "function_name": "fit_prefix",
+            "return_type": "-> Option<String>",
+            "span": {
+              "start": {
+                "line": 131,
+                "column": 1
+              },
+              "end": {
+                "line": 155,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 145,
+              "column": 15
+            },
+            "end": {
+              "line": 145,
+              "column": 16
+            }
+          },
+          "replacement": "==",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__brn-ai__src__threads_context_budget.rs_line_145_col_15.log",
+      "diff_path": "diff/crates__brn-ai__src__threads_context_budget.rs_line_145_col_15.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 9.838332708,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--features=scripted-runs",
+            "--lib",
+            "--locked",
+            "--offline"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 4.297584625,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--features=scripted-runs",
+            "--lib",
+            "--locked",
+            "--offline"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/brn-ai/src/threads_context_budget.rs:145:15: replace < with > in fit_prefix",
+          "package": "brn-ai",
+          "file": "crates/brn-ai/src/threads_context_budget.rs",
+          "function": {
+            "function_name": "fit_prefix",
+            "return_type": "-> Option<String>",
+            "span": {
+              "start": {
+                "line": 131,
+                "column": 1
+              },
+              "end": {
+                "line": 155,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 145,
+              "column": 15
+            },
+            "end": {
+              "line": 145,
+              "column": 16
+            }
+          },
+          "replacement": ">",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__brn-ai__src__threads_context_budget.rs_line_145_col_15_001.log",
+      "diff_path": "diff/crates__brn-ai__src__threads_context_budget.rs_line_145_col_15_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 10.766749042,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--features=scripted-runs",
+            "--lib",
+            "--locked",
+            "--offline"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 4.571096834,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--features=scripted-runs",
+            "--lib",
+            "--locked",
+            "--offline"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/brn-ai/src/threads_context_budget.rs:145:15: replace < with <= in fit_prefix",
+          "package": "brn-ai",
+          "file": "crates/brn-ai/src/threads_context_budget.rs",
+          "function": {
+            "function_name": "fit_prefix",
+            "return_type": "-> Option<String>",
+            "span": {
+              "start": {
+                "line": 131,
+                "column": 1
+              },
+              "end": {
+                "line": 155,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 145,
+              "column": 15
+            },
+            "end": {
+              "line": 145,
+              "column": 16
+            }
+          },
+          "replacement": "<=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "Timeout",
+      "log_path": "log/crates__brn-ai__src__threads_context_budget.rs_line_145_col_15_002.log",
+      "diff_path": "diff/crates__brn-ai__src__threads_context_budget.rs_line_145_col_15_002.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 10.165012375,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--features=scripted-runs",
+            "--lib",
+            "--locked",
+            "--offline"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 15.014213208,
+          "process_status": "Timeout",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--features=scripted-runs",
+            "--lib",
+            "--locked",
+            "--offline"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/brn-ai/src/threads_context_budget.rs:146:23: replace + with - in fit_prefix",
+          "package": "brn-ai",
+          "file": "crates/brn-ai/src/threads_context_budget.rs",
+          "function": {
+            "function_name": "fit_prefix",
+            "return_type": "-> Option<String>",
+            "span": {
+              "start": {
+                "line": 131,
+                "column": 1
+              },
+              "end": {
+                "line": 155,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 146,
+              "column": 23
+            },
+            "end": {
+              "line": 146,
+              "column": 24
+            }
+          },
+          "replacement": "-",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__brn-ai__src__threads_context_budget.rs_line_146_col_23.log",
+      "diff_path": "diff/crates__brn-ai__src__threads_context_budget.rs_line_146_col_23.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 10.066561166,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--features=scripted-runs",
+            "--lib",
+            "--locked",
+            "--offline"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 4.538226875,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--features=scripted-runs",
+            "--lib",
+            "--locked",
+            "--offline"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/brn-ai/src/threads_context_budget.rs:146:23: replace + with * in fit_prefix",
+          "package": "brn-ai",
+          "file": "crates/brn-ai/src/threads_context_budget.rs",
+          "function": {
+            "function_name": "fit_prefix",
+            "return_type": "-> Option<String>",
+            "span": {
+              "start": {
+                "line": 131,
+                "column": 1
+              },
+              "end": {
+                "line": 155,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 146,
+              "column": 23
+            },
+            "end": {
+              "line": 146,
+              "column": 24
+            }
+          },
+          "replacement": "*",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "Timeout",
+      "log_path": "log/crates__brn-ai__src__threads_context_budget.rs_line_146_col_23_001.log",
+      "diff_path": "diff/crates__brn-ai__src__threads_context_budget.rs_line_146_col_23_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 9.775596917,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--features=scripted-runs",
+            "--lib",
+            "--locked",
+            "--offline"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 15.02474775,
+          "process_status": "Timeout",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--features=scripted-runs",
+            "--lib",
+            "--locked",
+            "--offline"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/brn-ai/src/threads_context_budget.rs:146:31: replace - with + in fit_prefix",
+          "package": "brn-ai",
+          "file": "crates/brn-ai/src/threads_context_budget.rs",
+          "function": {
+            "function_name": "fit_prefix",
+            "return_type": "-> Option<String>",
+            "span": {
+              "start": {
+                "line": 131,
+                "column": 1
+              },
+              "end": {
+                "line": 155,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 146,
+              "column": 31
+            },
+            "end": {
+              "line": 146,
+              "column": 32
+            }
+          },
+          "replacement": "+",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "Timeout",
+      "log_path": "log/crates__brn-ai__src__threads_context_budget.rs_line_146_col_31.log",
+      "diff_path": "diff/crates__brn-ai__src__threads_context_budget.rs_line_146_col_31.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 10.700798,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--features=scripted-runs",
+            "--lib",
+            "--locked",
+            "--offline"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 15.005979458,
+          "process_status": "Timeout",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--features=scripted-runs",
+            "--lib",
+            "--locked",
+            "--offline"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/brn-ai/src/threads_context_budget.rs:146:31: replace - with / in fit_prefix",
+          "package": "brn-ai",
+          "file": "crates/brn-ai/src/threads_context_budget.rs",
+          "function": {
+            "function_name": "fit_prefix",
+            "return_type": "-> Option<String>",
+            "span": {
+              "start": {
+                "line": 131,
+                "column": 1
+              },
+              "end": {
+                "line": 155,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 146,
+              "column": 31
+            },
+            "end": {
+              "line": 146,
+              "column": 32
+            }
+          },
+          "replacement": "/",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__brn-ai__src__threads_context_budget.rs_line_146_col_31_001.log",
+      "diff_path": "diff/crates__brn-ai__src__threads_context_budget.rs_line_146_col_31_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 10.753699375,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--features=scripted-runs",
+            "--lib",
+            "--locked",
+            "--offline"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 4.474831,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--features=scripted-runs",
+            "--lib",
+            "--locked",
+            "--offline"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/brn-ai/src/threads_context_budget.rs:150:24: replace - with + in fit_prefix",
+          "package": "brn-ai",
+          "file": "crates/brn-ai/src/threads_context_budget.rs",
+          "function": {
+            "function_name": "fit_prefix",
+            "return_type": "-> Option<String>",
+            "span": {
+              "start": {
+                "line": 131,
+                "column": 1
+              },
+              "end": {
+                "line": 155,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 150,
+              "column": 24
+            },
+            "end": {
+              "line": 150,
+              "column": 25
+            }
+          },
+          "replacement": "+",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "Timeout",
+      "log_path": "log/crates__brn-ai__src__threads_context_budget.rs_line_150_col_24.log",
+      "diff_path": "diff/crates__brn-ai__src__threads_context_budget.rs_line_150_col_24.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 9.638130875,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--features=scripted-runs",
+            "--lib",
+            "--locked",
+            "--offline"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 15.027087333,
+          "process_status": "Timeout",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--features=scripted-runs",
+            "--lib",
+            "--locked",
+            "--offline"
+          ]
+        }
+      ]
+    }
+  ],
+  "total_mutants": 17,
+  "missed": 2,
+  "caught": 9,
+  "timeout": 6,
+  "unviable": 0,
+  "success": 0,
+  "start_time": "2026-10-16T20:38:40.698417Z",
+  "end_time": null,
+  "cargo_mutants_version": "27.1.0"
+}

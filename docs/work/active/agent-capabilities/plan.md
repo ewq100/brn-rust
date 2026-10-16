@@ -1,6 +1,6 @@
 # Agent capabilities Slice 0 implementation plan
 
-**Current slice:** D1A is authorized on accepted local CW2 integration `b617d784`; lane C implementation and checks are recorded in [D1A receipt](d1a/README.md). The Slice 0 record below remains provenance, not a new roadmap. Independent review, normal integration and mutation evidence remain separate.
+**Current slice:** D1A is authorized on accepted local CW2 integration `b617d784`; lane C implementation and checks are recorded in [D1A receipt](d1a/README.md). The Slice 0 record below remains provenance, not a new roadmap. Independent review, normal integration and mutation evidence remain separate. [Opus3 correction response](d1a/review3-response.md) records passing local checks and preserved before/fixture failures; fresh Opus4 and integration acceptance remain separate.
 
 **Goal:** prove minimal upstream reuse and choose bounded adapters, without shipping D features.
 **Architecture:** apply Rig policies explicitly to BRN-owned history, retain checked progress/operations and add narrowly scoped adapters only in their assigned slices.

@@ -1,0 +1,12 @@
+   Compiling brn-ai v0.1.0 (/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/source/crates/brn-ai)
+warning: unused variable: `value`
+   --> crates/brn-ai/src/threads_context_budget.rs:128:27
+    |
+128 | pub(super) fn result_fits(value: &Value) -> bool {
+    |                           ^^^^^ help: if this is intentional, prefix it with an underscore: `_value`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `brn-ai` (lib test) generated 1 warning (run `cargo fix --lib -p brn-ai --tests` to apply 1 suggestion)
+    Finished `test` profile [optimized] target(s) in 9.59s
+  Executable unittests src/lib.rs (/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts/debug/deps/brn_ai-28a197b27edef53b)

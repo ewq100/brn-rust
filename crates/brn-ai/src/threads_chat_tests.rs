@@ -294,6 +294,7 @@ fn private_context_scopes_generated_notes_and_binds_exact_local_source_observati
         &scope,
         SourceArgs {
             reference: "same://file".into(),
+            start: 0,
         },
     )
     .unwrap();

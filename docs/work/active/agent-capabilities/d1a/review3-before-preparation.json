@@ -1,0 +1,19 @@
+{
+  "baseline_pin": "efc0e380fe3fb3ab872c8bfaa31fdfd1d41eaf65",
+  "source": "/private/tmp/brn-d1a-20261016-target/review3-before-source",
+  "target": "/private/tmp/brn-d1a-20261016-target/review3-before-artifacts",
+  "fixture_patch_sha256": "8600a81c55eb30fafbb0ae4305908b830102f993984131ac395e161f64df775b",
+  "production_sha256": {
+    "crates/brn-ai/src/threads.rs": "026a2905981e205cb96e2261458fd00bce32699cd7fc8c3ed260ff1283b348f8",
+    "crates/brn-ai/src/threads_sources.rs": "d358e5a6275ac8bbece030aeecaefe8383900e86c79bf54a61c697f919dd5712",
+    "crates/brn-ai/src/threads_history.rs": "fd8709a8d2c022d0ffbb6820e0a7adc1a05ba40b2fe97fcb983450f99a4f6e40",
+    "crates/brn-ai/src/threads_context_budget.rs": "2c59a8fd472ccdb2aad65f70dc4a7958612f0c66edef18ffff5fcd0a86810f6b"
+  },
+  "git_context": "genuine isolated git init, no remote/credentials/history copied",
+  "execution": "Granted 2026-10-17; before witnesses starting, results pending",
+  "fixture_only_correction": "Initial read_source call omits optional start to reach pre-existing accepted call/hook on unchanged efc; later pages use returned start. Static preparation only; no executed result.",
+  "corrected_fixture_patch_sha256": "a9862f643cc3204a59d86f5867a8a534c445cfb8f24290b3a1b8591dec71bef1",
+  "static_final_patch_sha256": "50f379f628c301171cad7d7aaf232d62bcddaae897ca9cd74f53d219c0062cfd",
+  "static_api_correction": "Use existing OperationId::as_str().to_owned(), not unsupported Display/to_string. No compiler/test executed.",
+  "synthetic_git_head": "16da044a67ff94257032729482364e8108e37e1e"
+}

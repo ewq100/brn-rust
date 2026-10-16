@@ -470,26 +470,33 @@ async fn prior_progress_and_operation_receipts_are_bounded_in_the_actual_request
     );
 }
 
+// Never registered in production. Only the admission/no-later-effect witness
+// uses an intentionally inadmissible result; normal readers must page instead.
+#[derive(Clone)]
+struct OversizedBudgetResult;
+impl Tool for OversizedBudgetResult {
+    const NAME: &'static str = "synthetic_oversized_result";
+    type Args = Value;
+    type Output = Value;
+    type Error = AiError;
+    fn description(&self) -> String {
+        "Synthetic result admission witness".into()
+    }
+    fn parameters(&self) -> Value {
+        object(json!({}), json!([]))
+    }
+    async fn call(&self, _: &mut ToolContext, _: Value) -> AiResult<Value> {
+        Ok(json!({"text":"x".repeat(256 * 1024)}))
+    }
+}
+
 #[tokio::test]
 async fn oversized_tool_result_is_not_admitted_and_later_batch_writes_do_not_run() {
-    let (_root, request, note) = tests::fixture();
-    let mut store = Store::open(&request.data_dir).unwrap();
-    owner_write(
-        &mut store,
-        vec![Put {
-            id: note.clone(),
-            expected_version: Some(1),
-            archived: false,
-            data: RecordData::Note(Note::working("Large", "\n\"\\õ".repeat(30000))),
-        }],
-    );
+    let (_root, request, _) = tests::fixture();
+    let store = Store::open(&request.data_dir).unwrap();
     let (scope, input) = begin(&request).unwrap();
     let model = MockCompletionModel::from_stream_turns([vec![
-        MockStreamEvent::tool_call(
-            "read",
-            "read_history",
-            json!({"id":note,"version":2,"start":0,"max_bytes":131072}),
-        ),
+        MockStreamEvent::tool_call("oversized", "synthetic_oversized_result", json!({})),
         MockStreamEvent::tool_call(
             "late",
             "retain_progress",
@@ -497,12 +504,38 @@ async fn oversized_tool_result_is_not_admitted_and_later_batch_writes_do_not_run
         ),
         MockStreamEvent::final_response_with_total_tokens(1),
     ]]);
-    let answer = capped(model.clone(), scope.clone(), &input, 272000).await;
-    context_failure(&answer);
+    // The only extra tool is defined in this cfg(test) module. Exercise the
+    // production result hook and the real later writer, without abusing a
+    // valid canonical reader as the oversized-result source.
+    let exhausted = Arc::new(AtomicU16::new(0));
+    let budget = context_budget::Budget::test_cap(4 * 1024 * 1024);
+    let agent = register_tools(rig::AgentBuilder::new(model.clone()))
+        .tool(OversizedBudgetResult)
+        .add_hook(context_budget::BudgetHook {
+            budget,
+            exhausted: exhausted.clone(),
+            scope: scope.clone(),
+        })
+        .build();
+    let stream = agent
+        .prompt(input.as_str())
+        .tool_context(ToolContext::new().with_scope(scope.clone()))
+        .without_memory()
+        .tool_concurrency(1)
+        .stream();
+    let answer = crate::chat::collect_stream(
+        stream,
+        CancellationToken::new(),
+        Arc::new(|_| {}),
+        Arc::new(AtomicBool::new(false)),
+        None,
+    )
+    .await;
+    assert!(!matches!(answer.terminal, AiTerminal::Completed));
+    assert_eq!(exhausted.load(Ordering::SeqCst), 2);
     assert_eq!(model.request_count(), 1);
-    let AiTerminal::Failed(error) = &answer.terminal else {
-        panic!()
-    };
+    let error = context_budget::exhausted_failure(budget, exhausted.load(Ordering::SeqCst));
+    assert!(error.is_context_limit());
     assert!(error.to_string().contains("per-tool-result"));
     assert!(!error.to_string().contains("request-size estimate"));
     assert!(
@@ -1474,10 +1507,24 @@ async fn large_heading_note_record_is_delivered_with_exact_partial_coverage_in_m
     assert_eq!(row["note_read"]["total_bytes"], text.len());
     assert_eq!(row["truncated"], true);
     assert_eq!(row["note_read"]["headings_truncated"], true);
-    assert!(row["note_read"]["headings"].as_array().unwrap().len() <= 256);
+    let headings = row["note_read"]["headings"].as_array().unwrap();
+    assert!(!headings.is_empty() && headings.len() < 256);
+    assert!(serde_json::to_vec(headings).unwrap().len() <= 8192);
+    let expected = note_headings(&text);
+    assert_eq!(
+        row["note_read"]["headings"],
+        json!(&expected[..headings.len()])
+    );
+    assert!(
+        serde_json::to_vec(&expected[..headings.len() + 1])
+            .unwrap()
+            .len()
+            > 8192
+    );
     {
         let reads = scope.reads.lock().unwrap();
         assert!(!reads.knows(&id, 2));
+        assert!(reads.covers(&id, 2, 0, shown.len()));
         assert!(!reads.covers(&id, 2, shown.len(), text.len()));
     }
     refused_whole_replacement(&scope, &id, 2);
@@ -1567,14 +1614,23 @@ async fn medium_note_batch_omits_only_visible_ids_and_never_grants_unshown_full_
     assert!(!omitted.is_empty());
     let delivered = result["records"].as_array().unwrap();
     assert_eq!(delivered.len() + omitted.len(), 4);
+    assert_eq!(
+        delivered
+            .iter()
+            .filter(|row| row["note_read"]["complete"] == false)
+            .count(),
+        1
+    );
     for row in delivered {
         let id = row["id"].as_str().unwrap();
         let version = row["version"].as_u64().unwrap();
         let shown = row["data"]["Note"]["markdown"].as_str().unwrap().len();
-        assert_eq!(
-            scope.reads.lock().unwrap().knows(id, version),
-            shown == 64 * 1024
-        );
+        let reads = scope.reads.lock().unwrap();
+        assert_eq!(reads.knows(id, version), shown == 64 * 1024);
+        assert!(reads.covers(id, version, 0, shown));
+        if shown < 64 * 1024 {
+            assert!(!reads.covers(id, version, shown, 64 * 1024));
+        }
     }
     for row in omitted {
         let id = row["id"].as_str().unwrap();
@@ -1627,6 +1683,7 @@ async fn bounded_reference_delivery_cannot_validate_an_undelivered_writing_quota
         cw2_tests::fixture(&text, WritingReadRequirements::default());
     let (scope, input) = begin(&request).unwrap();
     let change = snapshot.change_request("Tuesday").unwrap();
+    let delivered_quote = &text[..10];
     let model = MockCompletionModel::from_stream_turns([
         vec![
             MockStreamEvent::tool_call(
@@ -1640,7 +1697,7 @@ async fn bounded_reference_delivery_cannot_validate_an_undelivered_writing_quota
             MockStreamEvent::tool_call(
                 "proposal",
                 "prepare_changes",
-                json!({"request_key":"valid-partial-reference-proposal","request":change,"writing":null}),
+                json!({"request_key":"valid-partial-reference-proposal","request":change,"writing":{"quotations":[{"id":reference,"version":1,"start":0,"end":delivered_quote.len(),"quote":delivered_quote}],"requirements_reported":[]}}),
             ),
             MockStreamEvent::final_response_with_total_tokens(1),
         ],
@@ -1669,7 +1726,7 @@ async fn bounded_reference_delivery_cannot_validate_an_undelivered_writing_quota
             request: snapshot.change_request("Tuesday").unwrap(),
             writing: Some(WritingEvidenceArgs {
                 quotations: vec![WritingQuotation {
-                    id: reference,
+                    id: reference.clone(),
                     version: 1,
                     start: text.len() - tail.len(),
                     end: text.len(),
@@ -1684,4 +1741,475 @@ async fn bounded_reference_delivery_cannot_validate_an_undelivered_writing_quota
         scope.store.lock().unwrap().candidates().unwrap().len(),
         before
     );
+    assert!(
+        scope
+            .reads
+            .lock()
+            .unwrap()
+            .covers(&reference, 1, 0, delivered_quote.len())
+    );
+    let candidates = scope.store.lock().unwrap().candidates().unwrap();
+    let proof: WritingCandidateEvidence = candidates[0]
+        .request
+        .writes
+        .iter()
+        .find_map(|write| match &write.data {
+            RecordData::Message(message) if message.role == WRITING_EVIDENCE_ROLE => {
+                Some(serde_json::from_str(&message.text).unwrap())
+            }
+            _ => None,
+        })
+        .unwrap();
+    assert_eq!(proof.quotations.len(), 1);
+    assert_eq!(proof.quotations[0].quote, delivered_quote);
+    assert_eq!(proof.quotations[0].start, 0);
+    assert_eq!(proof.quotations[0].end, delivered_quote.len());
+}
+
+// Round 3 witnesses are captured as a test-only patch against unchanged efc.
+fn round3_change(id: &str, version: u64, text: &str) -> ChangeRequest {
+    ChangeRequest {
+        reason: "Round 3 bounded model output witness".into(),
+        writes: vec![Put {
+            id: id.into(),
+            expected_version: Some(version),
+            archived: false,
+            data: RecordData::Note(Note::working("Decision", text)),
+        }],
+        inputs: vec![],
+    }
+}
+
+#[tokio::test]
+async fn large_committed_apply_delivers_compact_receipt_and_continues_model_loop() {
+    let (_root, request, id) = tests::fixture();
+    let text = "a".repeat(70 * 1024);
+    owner_write(
+        &mut Store::open(&request.data_dir).unwrap(),
+        round3_change(&id, 1, &text).writes,
+    );
+    let (scope, input) = begin(&request).unwrap();
+    tests::read_all(&scope);
+    let replacement = "b".repeat(text.len());
+    let prepared = prepare(
+        &scope,
+        PrepareArgs {
+            writing: None,
+            request_key: "round3-large-apply".into(),
+            request: round3_change(&id, 2, &replacement),
+        },
+    )
+    .unwrap();
+    let op = scope
+        .store
+        .lock()
+        .unwrap()
+        .operation(prepared["operation"].as_str().unwrap())
+        .unwrap();
+    let question = Attention {
+        kind: AttentionKind::Question,
+        reason: "Keep this independent question".into(),
+        record: None,
+    };
+    {
+        let mut store = scope.store.lock().unwrap();
+        let record = store.record(&request.thread).unwrap().unwrap();
+        let RecordData::Thread(mut thread) = record.data else {
+            panic!()
+        };
+        thread.attention.push(question.clone());
+        thread.attention.push(Attention {
+            kind: AttentionKind::Review,
+            reason: REVIEW_ATTENTION.into(),
+            record: Some(op.as_str().to_owned()),
+        });
+        owner_write(
+            &mut store,
+            vec![Put {
+                id: request.thread.clone(),
+                expected_version: Some(record.version),
+                archived: false,
+                data: RecordData::Thread(thread),
+            }],
+        );
+    }
+    let model = read_model("apply_changes", json!({"operation":op}));
+    let answer = capped(model.clone(), scope.clone(), &input, 4 * 1024 * 1024).await;
+    // Even the failing-before path has committed: keep that fact explicit.
+    let receipt = scope.store.lock().unwrap().receipt(&op).unwrap().unwrap();
+    assert!(
+        matches!(&receipt.writes[0].before.as_ref().unwrap().data, RecordData::Note(n) if n.markdown == text)
+    );
+    assert!(
+        matches!(&receipt.writes[0].after.data, RecordData::Note(n) if n.markdown == replacement)
+    );
+    assert_eq!(receipt.request_hash, prepared["request_hash"]);
+    let RecordData::Thread(thread) = scope
+        .store
+        .lock()
+        .unwrap()
+        .record(&request.thread)
+        .unwrap()
+        .unwrap()
+        .data
+    else {
+        panic!()
+    };
+    assert_eq!(thread.attention, vec![question]);
+    assert!(
+        matches!(answer.terminal, AiTerminal::Completed),
+        "{:?}",
+        answer.terminal
+    );
+    assert_eq!(model.request_count(), 2);
+    let out = delivered_result(&model);
+    assert_eq!(out["outcome"], "Applied");
+    assert_eq!(out["compacted"], true);
+    assert_eq!(out["receipt"]["operation"], prepared["operation"]);
+    assert_eq!(out["receipt"]["request_hash"], prepared["request_hash"]);
+    assert_eq!(out["receipt"]["writes"][0]["id"], id);
+    assert_eq!(out["receipt"]["writes"][0]["version"], 3);
+    assert_eq!(out["receipt"]["writes"][0]["kind"], "Note");
+    assert!(!out.to_string().contains(&"b".repeat(100)));
+    assert_eq!(
+        apply(
+            &scope,
+            ApplyArgs {
+                operation: op.as_str().to_owned()
+            }
+        )
+        .unwrap(),
+        out
+    );
+    let requests = model.requests();
+    assert_eq!(
+        &requests[1].chat_history[..requests[0].chat_history.len()],
+        &requests[0].chat_history
+    );
+}
+
+#[tokio::test]
+async fn selected_real_figure_prepares_full_owner_candidate_with_compact_model_output() {
+    let (_root, mut request, id) = tests::fixture();
+    // A valid existing PNG with a valid 40KiB ancillary tEXt chunk before IEND.
+    // The CRC is over tEXt + Comment\\0 + 40960 ASCII x bytes.
+    let png = include_bytes!("../../brn-intake/tests/fixtures/quay-map.png");
+    let mut bytes = png[..png.len() - 12].to_vec();
+    bytes.extend_from_slice(&(40968u32).to_be_bytes());
+    bytes.extend_from_slice(b"tEXtComment\0");
+    bytes.extend(std::iter::repeat_n(b'x', 40 * 1024));
+    bytes.extend_from_slice(&0x34c3f297u32.to_be_bytes());
+    bytes.extend_from_slice(&png[png.len() - 12..]);
+    let asset = Asset {
+        note: id.clone(),
+        source: None,
+        media_type: "image/png".into(),
+        bytes: bytes.clone(),
+    };
+    let hash = asset.content_hash();
+    request.sources.push(TransientSource {
+        reference: "synthetic://round3-figure".into(),
+        text: "Supported map. ![Map](map.png)".into(),
+        fingerprint: Some("round3-figure-v1".into()),
+        report: None,
+        assets: vec![TransientAsset {
+            name: "map.png".into(),
+            media_type: "image/png".into(),
+            width: 480,
+            height: 240,
+            sha256: std::array::from_fn(|n| {
+                u8::from_str_radix(&hash[n * 2..n * 2 + 2], 16).unwrap()
+            }),
+            bytes: bytes.clone(),
+        }],
+    });
+    let (scope, input) = begin(&request).unwrap();
+    tests::read_all(&scope);
+    let change = round3_change(&id, 1, "Supported map. ![Map](brn-transient-asset://0/0)");
+    let op = scope
+        .store
+        .lock()
+        .unwrap()
+        .allocate_operation(&format!("{}:proposal:round3-figure", scope.run))
+        .unwrap();
+    let model = read_model(
+        "prepare_changes",
+        json!({"request_key":"round3-figure","request":change}),
+    );
+    let answer = capped(model.clone(), scope.clone(), &input, 4 * 1024 * 1024).await;
+    let stored = scope.store.lock().unwrap().prepared(&op).unwrap();
+    let selected = stored
+        .request
+        .writes
+        .iter()
+        .find(|w| matches!(w.data, RecordData::Asset(_)))
+        .unwrap();
+    assert!(
+        matches!(&selected.data, RecordData::Asset(a) if a.bytes == bytes && a.content_hash() == hash)
+    );
+    assert!(
+        matches!(&stored.request.writes[0].data, RecordData::Note(n) if n.markdown.contains(&format!("brn-asset://{}", selected.id)))
+    );
+    assert!(scope.store.lock().unwrap().receipt(&op).unwrap().is_none());
+    assert!(
+        scope
+            .store
+            .lock()
+            .unwrap()
+            .candidates()
+            .unwrap()
+            .contains(&stored)
+    );
+    assert!(
+        matches!(answer.terminal, AiTerminal::Completed),
+        "{:?}",
+        answer.terminal
+    );
+    assert_eq!(model.request_count(), 2);
+    let out = delivered_result(&model);
+    assert_eq!(out["compacted"], true);
+    assert_eq!(out["operation"], op.as_str());
+    assert_eq!(out["request_hash"], stored.request_hash);
+    let info = out["writes"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|w| w["id"] == selected.id)
+        .unwrap();
+    assert_eq!(info["kind"], "Asset");
+    assert_eq!(info["asset"]["byte_length"], bytes.len());
+    assert_eq!(info["asset"]["sha256"], hash);
+    assert_eq!(info["asset"]["media_type"], "image/png");
+    assert!(info["asset"].get("bytes").is_none());
+    let requests = model.requests();
+    assert_eq!(
+        &requests[1].chat_history[..requests[0].chat_history.len()],
+        &requests[0].chat_history
+    );
+}
+
+#[tokio::test]
+async fn escaped_source_pages_exactly_in_actual_model_loop_without_claiming_whole_read() {
+    let (_root, mut request, _) = tests::fixture();
+    let text = "\n\"\\õ".repeat(40000);
+    request.sources.push(TransientSource {
+        reference: "synthetic://round3-large".into(),
+        text: text.clone(),
+        fingerprint: Some("round3-source-v1".into()),
+        report: None,
+        assets: vec![],
+    });
+    let (scope, input) = begin(&request).unwrap();
+    let mut start = 0;
+    let mut reconstructed = String::new();
+    let mut metadata = None;
+    loop {
+        let args = if start == 0 {
+            json!({"reference":"synthetic://round3-large"})
+        } else {
+            json!({"reference":"synthetic://round3-large","start":start})
+        };
+        let model = read_model("read_source", args);
+        read_in_model(model.clone(), scope.clone(), &input).await;
+        let mut page = delivered_result(&model);
+        assert_eq!(page["start"], start);
+        assert_eq!(page["total_bytes"], text.len());
+        let end = page["end"].as_u64().unwrap() as usize;
+        assert!(end > start && text.is_char_boundary(end));
+        assert_eq!(page["text"], &text[start..end]);
+        assert_eq!(page["complete"], start == 0 && end == text.len());
+        if start == 0 {
+            assert!(end < text.len());
+        }
+        reconstructed.push_str(page["text"].as_str().unwrap());
+        assert_eq!(page["next_start"], json!((end < text.len()).then_some(end)));
+        for key in [
+            "text",
+            "start",
+            "end",
+            "total_bytes",
+            "next_start",
+            "complete",
+        ] {
+            page.as_object_mut().unwrap().remove(key);
+        }
+        if let Some(previous) = &metadata {
+            assert_eq!(&page, previous);
+        } else {
+            metadata = Some(page);
+        }
+        if end == text.len() {
+            break;
+        }
+        start = end;
+    }
+    assert_eq!(reconstructed, text);
+}
+
+#[tokio::test]
+async fn escaped_historical_revision_pages_without_current_evidence_grants() {
+    let (_root, request, id) = tests::fixture();
+    let text = "\n\"\\õ".repeat(30000);
+    let mut store = Store::open(&request.data_dir).unwrap();
+    owner_write(&mut store, round3_change(&id, 1, &text).writes);
+    owner_write(
+        &mut store,
+        round3_change(&id, 2, "Current text differs").writes,
+    );
+    let (scope, input) = begin(&request).unwrap();
+    let mut start = 0;
+    let mut reconstructed = String::new();
+    loop {
+        let model = read_model(
+            "read_history",
+            json!({"id":id,"version":2,"start":start,"max_bytes":131072}),
+        );
+        read_in_model(model.clone(), scope.clone(), &input).await;
+        let out = delivered_result(&model);
+        assert_eq!(out["outcome"], "HistoricalRevision");
+        assert_eq!(out["revision_input"]["expectation"], "Historical");
+        let note = &out["note"];
+        let end = note["end"].as_u64().unwrap() as usize;
+        assert!(end > start && text.is_char_boundary(end));
+        assert_eq!(note["start"], start);
+        assert_eq!(note["total_bytes"], text.len());
+        assert_eq!(note["markdown"], &text[start..end]);
+        assert_eq!(note["complete"], start == 0 && end == text.len());
+        assert_eq!(note["next_start"], json!((end < text.len()).then_some(end)));
+        reconstructed.push_str(note["markdown"].as_str().unwrap());
+        assert!(!scope.reads.lock().unwrap().covers(&id, 2, start, end));
+        assert!(!scope.reads.lock().unwrap().knows(&id, 3));
+        if end == text.len() {
+            break;
+        }
+        start = end;
+    }
+    assert_eq!(reconstructed, text);
+}
+
+#[tokio::test]
+async fn nonlast_section_next_start_honors_core_end_for_whole_and_encoded_cropped_reads() {
+    for dense in [false, true] {
+        let (_root, request, id) = tests::fixture();
+        let section = if dense {
+            format!("# First\n{}\n", "\n\"\\õ".repeat(24000))
+        } else {
+            "# First\nShort body\n".into()
+        };
+        let text = format!("{section}# Next\nOther section\n");
+        owner_write(
+            &mut Store::open(&request.data_dir).unwrap(),
+            round3_change(&id, 1, &text).writes,
+        );
+        let (scope, input) = begin(&request).unwrap();
+        let model = read_model(
+            "read_note",
+            json!({"id":id,"version":2,"start":0,"max_bytes":131072,"section":true}),
+        );
+        read_in_model(model.clone(), scope.clone(), &input).await;
+        let out = delivered_result(&model);
+        let page = &out["note"];
+        let end = page["end"].as_u64().unwrap() as usize;
+        assert_eq!(page["section_end"], section.len());
+        assert_eq!(page["markdown"], &text[..end]);
+        assert_eq!(
+            page["next_start"],
+            json!((end < section.len()).then_some(end))
+        );
+        assert_eq!(page["complete"], false);
+        assert_eq!(end < section.len(), dense);
+    }
+}
+
+#[test]
+fn overflowing_compact_metadata_acknowledges_exact_identity_and_omissions() {
+    let (_root, request, id) = tests::fixture();
+    let (scope, _) = begin(&request).unwrap();
+    tests::read_all(&scope);
+    let prepared = prepare(
+        &scope,
+        PrepareArgs {
+            writing: None,
+            request_key: "round3-metadata".into(),
+            request: round3_change(&id, 1, "Tuesday"),
+        },
+    )
+    .unwrap();
+    let out = apply(
+        &scope,
+        ApplyArgs {
+            operation: prepared["operation"].as_str().unwrap().into(),
+        },
+    )
+    .unwrap();
+    let op = scope
+        .store
+        .lock()
+        .unwrap()
+        .operation(prepared["operation"].as_str().unwrap())
+        .unwrap();
+    let durable = scope.store.lock().unwrap().receipt(&op).unwrap().unwrap();
+    let mut synthetic = durable.clone();
+    synthetic.needs_refresh = (0..5000)
+        .map(|n| format!("direct-dependent-{n:04}-{}", "x".repeat(64)))
+        .collect();
+    let rows = synthetic
+        .needs_refresh
+        .iter()
+        .map(|id| json!({"id":id,"version":1,"kind":"Note","title":"Dependent"}))
+        .collect::<Vec<_>>();
+    let full = json!({"outcome":"Applied","receipt":synthetic,"refresh":{"records":rows,"follow_up":"Read these directly recorded dependents and current inputs before deciding whether to refresh them. No recursive dependency or automatic content rewrite is implied."}});
+    let ack = applied_output(&synthetic, full);
+    assert!(context_budget::result_fits(&ack));
+    assert_eq!(ack["outcome"], "Applied");
+    assert_eq!(ack["receipt"]["operation"], out["receipt"]["operation"]);
+    assert_eq!(
+        ack["receipt"]["request_hash"],
+        out["receipt"]["request_hash"]
+    );
+    assert_eq!(ack["metadata_complete"], false);
+    assert_eq!(ack["metadata_truncated"], true);
+    assert_eq!(ack["receipt"]["needs_refresh_total"], 5000);
+    let shown = ack["refresh"]["records"].as_array().unwrap();
+    assert!(!shown.is_empty() && shown.len() <= 100);
+    assert_eq!(ack["refresh"]["records_omitted"], 5000 - shown.len());
+    assert_eq!(ack["refresh"]["complete"], false);
+    let expected = rows[..shown.len()]
+        .iter()
+        .map(|row| json!({"id":row["id"],"version":row["version"],"kind":row["kind"]}))
+        .collect::<Vec<_>>();
+    assert_eq!(ack["refresh"]["records"], json!(expected));
+    assert!(
+        ack["refresh"]["follow_up"]
+            .as_str()
+            .unwrap()
+            .contains("No recursive dependency")
+    );
+    assert_eq!(
+        scope.store.lock().unwrap().receipt(&op).unwrap().unwrap(),
+        durable
+    );
+    // The final acknowledgement also bounds an oversized Prepared metadata
+    // envelope; this is direct output-only coverage, not an accepted request.
+    let mut oversized = scope.store.lock().unwrap().prepared(&op).unwrap();
+    let write = oversized.request.writes[0].clone();
+    oversized.request.writes = (0..5000)
+        .map(|n| Put {
+            id: format!("synthetic-write-{n:04}-{}", "x".repeat(64)),
+            ..write.clone()
+        })
+        .collect();
+    let ack = prepared_output(&oversized).unwrap();
+    assert!(context_budget::result_fits(&ack));
+    assert_eq!(ack["operation"], prepared["operation"]);
+    assert_eq!(ack["request_hash"], prepared["request_hash"]);
+    assert_eq!(ack["metadata_complete"], false);
+    let shown = ack["writes"].as_array().unwrap().len();
+    assert!(shown <= 100);
+    assert_eq!(ack["writes_omitted"], 5000 - shown);
+}
+
+#[test]
+fn encoded_capacity_that_cannot_fit_one_utf8_character_returns_no_passage() {
+    assert_eq!(context_budget::fit_prefix("õ", str::is_empty), None);
 }

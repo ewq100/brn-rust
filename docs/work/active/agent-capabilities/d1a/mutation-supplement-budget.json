@@ -1,0 +1,8 @@
+{
+  "pin": "efc0e380fe3fb3ab872c8bfaa31fdfd1d41eaf65",
+  "prior_used_seconds": 426.87080216407776,
+  "remaining_at_segment_start": 1373.1291978359222,
+  "segment_started_epoch": 1792182787.4923258,
+  "deadline_epoch": 1792184160.6215236,
+  "method": "conservatively charges all time since corrected pin receipt, including post-pin planning/script preparation, setup/list/baseline/rechecks/cleanup; original budget never reset"
+}

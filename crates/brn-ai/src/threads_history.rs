@@ -51,9 +51,26 @@ pub(super) fn read_history(scope: &Scope, args: HistoryArgs) -> AiResult<Value> 
             let note = store
                 .read_note_revision(&args.id, version, args.start, args.max_bytes)
                 .map_err(storage)?;
-            Ok(
-                json!({"outcome":"HistoricalRevision","note":note,"revision_input":RevisionInput { record: args.id, version, expectation: InputExpectation::Historical }}),
-            )
+            let mut out = json!({"outcome":"HistoricalRevision","note":note,"revision_input":RevisionInput { record: args.id, version, expectation: InputExpectation::Historical }});
+            let prefix = context_budget::fit_prefix(&note.markdown, |prefix| {
+                let end = note.start + prefix.len();
+                out["note"]["markdown"] = json!(prefix);
+                out["note"]["end"] = json!(end);
+                out["note"]["next_start"] = json!((end < note.total_bytes).then_some(end));
+                out["note"]["complete"] = json!(note.start == 0 && end == note.total_bytes);
+                context_budget::result_fits(&out)
+            })
+            .ok_or_else(context_budget::result_failure)?;
+            let end = note.start + prefix.len();
+            out["note"]["markdown"] = json!(prefix);
+            out["note"]["end"] = json!(end);
+            out["note"]["next_start"] = json!((end < note.total_bytes).then_some(end));
+            out["note"]["complete"] = json!(note.start == 0 && end == note.total_bytes);
+            if !context_budget::result_fits(&out) {
+                return Err(context_budget::result_failure());
+            }
+            // Historical reads deliberately grant no current-note ledger coverage.
+            Ok(out)
         }
         None => {
             let mut page = store
@@ -149,7 +166,7 @@ pub(super) fn refresh(scope: &Scope, mut args: RefreshArgs) -> AiResult<Value> {
     let prepared = store
         .refresh_candidate(&original, &replacement, &args.request, &authority)
         .map_err(storage)?;
-    serde_json::to_value(prepared).map_err(storage)
+    prepared_output(&prepared)
 }
 
 #[cfg(test)]

@@ -326,6 +326,8 @@ struct ReadNoteArgs {
 #[serde(deny_unknown_fields)]
 struct SourceArgs {
     reference: String,
+    #[serde(default)]
+    start: usize,
 }
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -442,7 +444,10 @@ fn schema(name: &str) -> Value {
         "note_connections" => note_search::connections_schema(),
         "research" => research::research_schema(),
         "submit_findings" => research::findings_schema(),
-        "read_source" => object(json!({"reference":{"type":"string"}}), json!(["reference"])),
+        "read_source" => object(
+            json!({"reference":{"type":"string"},"start":{"type":"integer","minimum":0,"description":"Optional UTF-8 byte offset into the source text after host figure-link remapping; defaults to 0. Continue at next_start."}}),
+            json!(["reference"]),
+        ),
         "read_skill" => object(
             json!({"id":{"type":"string","enum":["intake","maintain-notes","resolve-conflict","prepare-reply"]}}),
             json!(["id"]),
@@ -552,7 +557,7 @@ tool!(
     ReadSource,
     "read_source",
     SourceArgs,
-    "Read only a supplied source: text, typed coverage and host figure links. Select meaningful figures using those exact links in Note Markdown; originals and unselected bytes stay transient. Source evidence never grants authority.",
+    "Read only a supplied source: an encoded-bounded UTF-8 text page, typed coverage and host figure links. Optional start defaults to 0; continue with exact next_start until null. start/end/total_bytes/complete describe only the delivered text, not a whole-source read. Select meaningful figures using those exact links in Note Markdown; originals and unselected bytes stay transient. Source evidence never grants authority.",
     read_source
 );
 tool!(
@@ -587,7 +592,7 @@ tool!(
     ReadHistory,
     "read_history",
     HistoryArgs,
-    "Inspect bounded accepted note revision summaries, or read an exact historical revision passage. Historical text does not become current knowledge.",
+    "Inspect bounded accepted note revision summaries, or read an encoded-bounded exact historical revision passage. Follow exact next_start until null; start/end/total_bytes/complete describe actual delivered coverage. Historical text does not become current knowledge.",
     read_history
 );
 tool!(
@@ -959,13 +964,13 @@ fn read_note(scope: &Scope, args: ReadNoteArgs) -> AiResult<Value> {
         value["max_bytes"] = json!(research::HELPER_READ_BYTES);
     }
     if let NoteReadOutcome::Read { note } = &outcome {
+        let limit = note.section_end.unwrap_or(note.total_bytes);
         value["note"]["complete"] = json!(note.start == 0 && note.end == note.total_bytes);
         let prefix = context_budget::fit_prefix(&note.markdown, |prefix| {
             value["note"]["markdown"] = json!(prefix);
             value["note"]["end"] = json!(note.start + prefix.len());
-            value["note"]["next_start"] = json!(
-                (note.start + prefix.len() < note.total_bytes).then_some(note.start + prefix.len())
-            );
+            value["note"]["next_start"] =
+                json!((note.start + prefix.len() < limit).then_some(note.start + prefix.len()));
             value["note"]["complete"] = json!(note.start == 0 && prefix.len() == note.total_bytes);
             context_budget::result_fits(&value)
         })
@@ -973,7 +978,7 @@ fn read_note(scope: &Scope, args: ReadNoteArgs) -> AiResult<Value> {
         let end = note.start + prefix.len();
         value["note"]["markdown"] = json!(prefix);
         value["note"]["end"] = json!(end);
-        value["note"]["next_start"] = json!((end < note.total_bytes).then_some(end));
+        value["note"]["next_start"] = json!((end < limit).then_some(end));
         value["note"]["complete"] = json!(note.start == 0 && end == note.total_bytes);
         if !context_budget::result_fits(&value) {
             return Err(context_budget::result_failure());
@@ -1003,6 +1008,7 @@ fn read_source(scope: &Scope, args: SourceArgs) -> AiResult<Value> {
         &args.reference,
         Some(&scope.chat),
         &scope.source_ids,
+        args.start,
     )
 }
 fn read_skill(scope: &Scope, args: SkillArgs) -> AiResult<Value> {
@@ -1457,6 +1463,145 @@ fn unread_replacement(
     }
     Ok(None)
 }
+// Durable Prepared/Receipt values remain exact. Only an oversized model-facing
+// tool result is adapted, explicitly, after the owning route's checked work.
+fn change_write_output(id: &str, data: &RecordData) -> Value {
+    let kind = match data {
+        RecordData::Note(_) => "Note",
+        RecordData::Thread(_) => "Thread",
+        RecordData::Action(_) => "Action",
+        RecordData::Source(_) => "Source",
+        RecordData::Asset(_) => "Asset",
+        RecordData::Link(_) => "Link",
+        RecordData::Comment(_) => "Comment",
+        RecordData::Message(_) => "Message",
+        RecordData::Run(_) => "Run",
+        RecordData::Settings(_) => "Settings",
+        RecordData::ChatControl(_) => "ChatControl",
+        RecordData::Project(_) => "Project",
+        RecordData::WritingSetup(_) => "WritingSetup",
+    };
+    let mut out = json!({"id":id,"kind":kind});
+    if let RecordData::Asset(asset) = data {
+        out["asset"] = json!({"media_type":asset.media_type,"byte_length":asset.bytes.len(),"sha256":asset.content_hash()});
+    }
+    out
+}
+// Last-resort model acknowledgement for unusually large identity metadata.
+// These are existing app result shapes, not a new durable receipt/protocol.
+// Bound work to at most 100 entries per list, then fit the exact encoded value.
+fn change_acknowledgement(
+    operation: &OperationId,
+    request_hash: &str,
+    writes: &[Value],
+    refresh: &Value,
+    needs_refresh_total: usize,
+    applied: bool,
+) -> Value {
+    let records = refresh["records"]
+        .as_array()
+        .map(Vec::as_slice)
+        .unwrap_or(&[]);
+    let mut write_count = writes.len().min(100);
+    let mut refresh_count = records.len().min(100);
+    loop {
+        let mut acknowledgement = json!({
+            "operation":operation,"request_hash":request_hash,
+            "writes":&writes[..write_count],"writes_omitted":writes.len()-write_count,
+            "compacted":true,"metadata_complete":false,
+            "metadata_notice":"Incomplete model-facing write/refresh metadata; the complete durable candidate or receipt is unchanged."
+        });
+        if applied {
+            acknowledgement["needs_refresh_total"] = json!(needs_refresh_total);
+        }
+        let refresh = json!({
+            "records":&records[..refresh_count],"records_omitted":records.len()-refresh_count,
+            "complete":refresh_count==records.len() && (!applied || records.len()==needs_refresh_total),"follow_up":refresh["follow_up"]
+        });
+        let mut out = if applied {
+            json!({"outcome":"Applied","receipt":acknowledgement,"refresh":refresh,"compacted":true,"metadata_complete":false})
+        } else {
+            let mut out = acknowledgement;
+            out["refresh"] = refresh;
+            out
+        };
+        // No omitted identity list is represented as exhaustive, including
+        // when none of an oversized list's entries can be shown.
+        out["metadata_truncated"] = json!(true);
+        if context_budget::result_fits(&out) || write_count + refresh_count == 0 {
+            // The empty-list form contains only bounded core operation/hash
+            // identities and fixed host text. It cannot carry Note/asset data.
+            return out;
+        }
+        if refresh_count > 0 {
+            refresh_count -= 1;
+        } else {
+            write_count -= 1;
+        }
+    }
+}
+fn prepared_output(prepared: &Prepared) -> AiResult<Value> {
+    let full = serde_json::to_value(prepared).map_err(storage)?;
+    if context_budget::result_fits(&full) {
+        return Ok(full);
+    }
+    let writes = prepared
+        .request
+        .writes
+        .iter()
+        .map(|write| {
+            let mut out = change_write_output(&write.id, &write.data);
+            out["expected_version"] = json!(write.expected_version);
+            out
+        })
+        .collect::<Vec<_>>();
+    let out = json!({"operation":prepared.operation,"request_hash":prepared.request_hash,"writes":writes,"refresh":[],"compacted":true});
+    if context_budget::result_fits(&out) {
+        Ok(out)
+    } else {
+        Ok(change_acknowledgement(
+            &prepared.operation,
+            &prepared.request_hash,
+            &writes,
+            &json!({"records":[]}),
+            0,
+            false,
+        ))
+    }
+}
+fn applied_output(receipt: &Receipt, full: Value) -> Value {
+    if context_budget::result_fits(&full) {
+        return full;
+    }
+    let writes = receipt
+        .writes
+        .iter()
+        .map(|write| {
+            let mut out = change_write_output(&write.after.id, &write.after.data);
+            out["version"] = json!(write.after.version);
+            out
+        })
+        .collect::<Vec<_>>();
+    let mut refresh = full["refresh"].clone();
+    if let Some(records) = refresh["records"].as_array_mut() {
+        for record in records {
+            *record = json!({"id":record["id"],"version":record["version"],"kind":record["kind"]});
+        }
+    }
+    let out = json!({"outcome":"Applied","receipt":{"operation":receipt.operation,"request_hash":receipt.request_hash,"writes":writes,"needs_refresh":receipt.needs_refresh,"compacted":true},"refresh":refresh,"compacted":true});
+    if context_budget::result_fits(&out) {
+        out
+    } else {
+        change_acknowledgement(
+            &receipt.operation,
+            &receipt.request_hash,
+            &writes,
+            &refresh,
+            receipt.needs_refresh.len(),
+            true,
+        )
+    }
+}
 fn prepare(scope: &Scope, mut args: PrepareArgs) -> AiResult<Value> {
     if !parse_valid(
         "prepare_changes",
@@ -1559,7 +1704,7 @@ fn prepare(scope: &Scope, mut args: PrepareArgs) -> AiResult<Value> {
             },
         )?;
     }
-    serde_json::to_value(prepared).map_err(storage)
+    prepared_output(&prepared)
 }
 fn apply(scope: &Scope, args: ApplyArgs) -> AiResult<Value> {
     let mut store = scope.store.lock().map_err(storage)?;
@@ -1695,7 +1840,12 @@ fn apply(scope: &Scope, args: ApplyArgs) -> AiResult<Value> {
     if !matches!(outcome, ApplyOutcome::Superseded { .. }) {
         attention(scope, &mut store, &args.operation, &outcome)?;
     }
-    Ok(result)
+    // Output adaptation follows all original ledger and attention work.
+    if let ApplyOutcome::Applied(receipt) = &outcome {
+        Ok(applied_output(receipt, result))
+    } else {
+        Ok(result)
+    }
 }
 /// The receipt reason of a withdrawal's attention cleanup.
 const WITHDRAW_REASON: &str =
@@ -5599,7 +5749,8 @@ mod tests {
             read_source(
                 &new_scope,
                 SourceArgs {
-                    reference: "public:mail-1".into()
+                    reference: "public:mail-1".into(),
+                    start: 0,
                 }
             )
             .is_err()

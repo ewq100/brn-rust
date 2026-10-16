@@ -83,3 +83,13 @@ The principal refined scheduling: after this coherent self-check/pin handoff, D1
 ## Independent round2: bounded reads and trusted diagnostic origin
 
 Opus2 confirmed all five original corrections and returned CHANGES_REQUIRED for encoded read-result overflow and provider spoofing of a local code. The [full report and response](review2-response.md) retain exact before witnesses, initial fixture errors and the bounded correction. Result132KiB and unknown-request4MiB remain unchanged. Actual Rig structured encoding governs UTF-8 paging/aggregate record omission, with read evidence committed only for final delivered Markdown. Whole request admission and prior transcript remain intact. Full correction checks and fresh source pin precede principal-owned Opus3; no self-acceptance.
+
+
+## Independent round3: source-only correction preparation
+
+Opus3 confirmed round2 fixes and returned CHANGES_REQUIRED for oversized prepare/apply outputs, source/historical read outputs and section cursors. The [verbatim report, stopped mutation receipt and source-only response](review3-response.md) record actual prior-pin mutation verdicts, safe reaping/restoration and explicit heavy release. Original budget1192.5642304420471s charged/607.4357695579529s remaining. New allocated output adaptation, final bounded metadata acknowledgements, reader paging and focused witnesses are prepared but uncompiled. Before production edits, exact-efc test-only witnesses were saved in a separate source/target. No new behavioral pass, source pin, independent acceptance or integration is claimed; build need awaits the next explicit heavy grant.
+
+
+## Round3 actual verification
+
+[Round3 response and source association](review3-response.md) record exact-efc26/5 behavioral before results, preserved first candidate30/2 fixture failures, corrected focused32/0 and final AI393/0/1, core15/0/0, CLI161/0/0, strict affected all-target Clippy and fmt passes. Actual checks use precommitHEAD efc+fingerprinted WIP; a future pin is not invented. Source/test pin is ready for fresh principal-owned Opus4; approval/integration remain separate. The new UTF-8 boundary assertion addresses the real +1 survivor; the exact /1 redundancy qualification does not relabel its raw efc MISSED. Final targeted supplement remains within the unchanged607.4357695579529s original remainder and has not started at this verification receipt.

@@ -366,7 +366,8 @@ fn rewrite_closes_mutable_reads_old_apply_refresh_and_progress_cannot_expand_sco
         read_source(
             &scope,
             SourceArgs {
-                reference: "outside-snapshot".into()
+                reference: "outside-snapshot".into(),
+                start: 0,
             }
         )
         .is_err()
