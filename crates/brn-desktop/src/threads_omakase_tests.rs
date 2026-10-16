@@ -1832,6 +1832,58 @@ fn launcher_groups_results_and_lists_projects(cx: &mut TestAppContext) {
     );
 }
 
+/// F-UI1 in ⌘K: "berth" matches no chat, note or command label, so before
+/// this only the empty state showed. The launcher now lists the owner
+/// search's saved chat Messages under "In chats", labelled when archived,
+/// and ↵ opens the chat.
+#[gpui_kit::test]
+fn launcher_lists_saved_chat_messages_and_opens_their_chat(cx: &mut TestAppContext) {
+    let mut chat = String::new();
+    let f = fixture(cx, |workspace| {
+        chat = workspace.new_thread("Replies").unwrap().id;
+        workspace
+            .post_message(&chat, "Berth survey reply draft 1.4 m")
+            .unwrap();
+    });
+    press(cx, &f, "cmd-k");
+    on_window(cx, &f, |window, cx| window.input("berth", cx));
+    on_window(cx, &f, |window, _| {
+        assert!(window.try_find("launcher-empty").is_none());
+        assert!(window.find("launcher-group-in-chats").visible());
+        assert_eq!(
+            window.find("launcher-item-0").label(),
+            Some("Message in Replies, You: Berth survey reply draft 1.4 m")
+        );
+        assert!(window.try_find("launcher-item-0-archived").is_none());
+    });
+    press(cx, &f, "enter");
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert!(!view.launcher_open);
+        assert_eq!(view.chat, ChatTarget::Thread(chat.clone()));
+    });
+    // Owner decision 3: an archived chat's Message stays, labelled.
+    update(cx, &f, |view, _, cx| view.resolve_thread(&chat, cx));
+    press(cx, &f, "cmd-k");
+    on_window(cx, &f, |window, cx| window.input("berth", cx));
+    on_window(cx, &f, |window, _| {
+        assert_eq!(
+            window.find("launcher-item-0").label(),
+            Some("Message in Replies, You: Berth survey reply draft 1.4 m · archived")
+        );
+        assert!(window.find("launcher-item-0-archived").visible());
+    });
+    // A word nothing matches still reads as no matches.
+    on_window(cx, &f, |window, cx| {
+        window.press("cmd-a", cx);
+        window.press("backspace", cx);
+        window.input("zzznothing", cx);
+    });
+    on_window(cx, &f, |window, _| {
+        assert!(window.find("launcher-empty").visible());
+    });
+}
+
 #[gpui_kit::test]
 fn keys_help_names_panels_menus_dialogs_and_the_settings_theme(cx: &mut TestAppContext) {
     let f = fixture(cx, |_| {});

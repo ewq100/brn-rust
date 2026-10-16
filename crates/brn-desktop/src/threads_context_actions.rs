@@ -16,8 +16,16 @@ impl ThreadsUi {
         let Some(open) = &self.note else {
             return Some("no note is open");
         };
-        if !self.context_work_idle() {
+        // Saved queue work also blocks it; the reason says which (R2), as
+        // the status bar does.
+        if self.worker.is_some() {
             Some("BRN is working")
+        } else if !self.context_work_idle() {
+            Some(if self.queue_state().paused {
+                "a queued message is paused · Resume or clear the queue"
+            } else {
+                "a queued message is about to run"
+            })
         } else if self.review.is_some() {
             Some("finish the review first")
         } else if self.recovery_blocked() {

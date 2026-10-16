@@ -477,9 +477,12 @@ struct ThreadsUi {
     /// Each panel body's own focus handle. A destination without a field of
     /// its own takes focus here, then moves on to its first control.
     panel_focus: BTreeMap<TileKind, FocusHandle>,
-    /// The panel whose body took focus; after its next frame, focus moves
-    /// to its first control.
-    focus_first: Option<TileKind>,
+    /// The panel body (or archived chat banner) that took focus; after its
+    /// next frame, focus moves to its first control.
+    focus_first: Option<gpui_kit::FocusHandle>,
+    /// The archived chat's banner, where focus lands instead of the
+    /// composer; its Unarchive is the first control inside.
+    archived_banner: gpui_kit::FocusHandle,
     layout: Layout,
     tile_scroll: gpui_kit::ScrollHandle,
     tile_reveal: Option<(Vec<TileKind>, Option<TileKind>)>,
@@ -522,6 +525,10 @@ struct ThreadsUi {
     search: Entity<InputState>,
     hits: Vec<brn_threads_app::SearchHit>,
     results: search_view::SearchView,
+    /// The ⌘K launcher's "In chats" search.
+    launcher_search: search_view::LauncherSearch,
+    /// A Message to scroll to once its chat's transcript renders.
+    reveal_message: std::cell::RefCell<Option<(String, String)>>,
     topics: Option<Topics>,
     graph: connections_view::ConnectionsView,
     knowledge: connections_view::KnowledgeView,
@@ -539,6 +546,9 @@ struct ThreadsUi {
     helper_model: Entity<InputState>,
     settings: WorkspaceSettings,
     note: Option<OpenNote>,
+    /// Starting this view's edit found another open edit of the note: its
+    /// note and base version, from the typed `EditSessionOpen` (U4).
+    edit_open: Option<(String, u64)>,
     review: Option<Review>,
     /// The comments margin beside the text (Wide, Narrow): `None` follows the
     /// note (shown with comments or a draft); the toggle sets it.
@@ -777,10 +787,12 @@ impl ThreadsUi {
             cx.subscribe_in(
                 &launcher_query,
                 window,
-                |this, _, event: &InputEvent, window, cx| match event {
+                |this, input, event: &InputEvent, window, cx| match event {
                     InputEvent::Change => {
                         this.launcher_index = 0;
                         this.launcher_scroll.scroll_to_item(0);
+                        let query = input.read(cx).value().to_string();
+                        this.launcher_search_changed(query, window, cx);
                         cx.notify();
                     }
                     InputEvent::PressEnter { .. } => this.run_launcher(None, window, cx),
@@ -810,6 +822,7 @@ impl ThreadsUi {
                 .map(|kind| (kind, cx.focus_handle()))
                 .collect(),
             focus_first: None,
+            archived_banner: cx.focus_handle(),
             layout: Layout::default(),
             tile_scroll: gpui_kit::ScrollHandle::new(),
             tile_reveal: None,
@@ -851,6 +864,8 @@ impl ThreadsUi {
             search,
             hits: vec![],
             results: search_view::SearchView::default(),
+            launcher_search: search_view::LauncherSearch::default(),
+            reveal_message: std::cell::RefCell::new(None),
             topics: None,
             graph: connections_view::ConnectionsView::default(),
             knowledge: connections_view::KnowledgeView::default(),
@@ -867,6 +882,7 @@ impl ThreadsUi {
             helper_model,
             settings,
             note: None,
+            edit_open: None,
             review: None,
             margin: None,
             comments_expanded: false,
@@ -1245,6 +1261,7 @@ impl ThreadsUi {
         }
         self.preserve_visible_note_input(cx);
         self.preserve_comment_draft(cx);
+        self.edit_open = None;
         self.focus_root(window, cx);
         let recovery = recovery.or_else(|| {
             self.workspace
@@ -1609,6 +1626,21 @@ impl ThreadsUi {
         match result {
             Ok(Some((tone, text))) => self.set_notice(tone, text),
             Ok(None) => {}
+            // Another edit of this note is open (U4). It stays untouched; the
+            // note becomes read-only like any kept edit, and its banner
+            // offers Compare and Discard. Only the note and base version are
+            // used, never the session.
+            Err(AppError::Core(brn_threads_app::Error::EditSessionOpen {
+                note,
+                base_version,
+                ..
+            })) => {
+                self.edit_open = Some((note, base_version));
+                self.refresh();
+                self.warn(format!(
+                    "An edit of this note is already open from v{base_version}. What you typed here isn't saved."
+                ));
+            }
             Err(e) => self.fail(format!(
                 "Could not preserve this edit: {e}. Keep this window open or copy your text."
             )),
@@ -1648,18 +1680,45 @@ impl ThreadsUi {
         self.refresh();
         cx.notify();
     }
-    fn discard(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        let Some(session) = self.note.as_ref().and_then(|n| n.session.clone()) else {
-            return;
-        };
+    /// Discards `session`: this view's edit, or the other open edit of the
+    /// open note (U4). Discarding the other one keeps what the owner typed
+    /// here, which then becomes this view's unsaved edit.
+    fn discard_session(
+        &mut self,
+        session: EditSession,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        let own = self
+            .note
+            .as_ref()
+            .and_then(|open| open.session.as_ref())
+            .is_some_and(|open| open.id == session.id);
         match self
             .workspace
             .store
             .discard(&session.id, session.generation)
         {
-            Ok(BufferOutcome::Updated(closed)) if closed.closed => {
+            Ok(BufferOutcome::Updated(closed)) if closed.closed && own => {
                 self.open_note(&session.note, None, window, cx);
                 self.inform("Discarded the unsaved edit.");
+            }
+            Ok(BufferOutcome::Updated(closed)) if closed.closed => {
+                self.edit_open = None;
+                self.refresh();
+                let typed = self.note_editor.read(cx).value().to_string();
+                self.note_changed(typed);
+                if self
+                    .note
+                    .as_ref()
+                    .is_some_and(|open| open.session.is_some())
+                {
+                    self.inform(
+                        "Discarded the open edit. What you typed here is now your unsaved edit.",
+                    );
+                } else {
+                    self.inform("Discarded the open edit.");
+                }
             }
             Ok(_) => self.warn("A newer edit exists and was kept. Recover it from Home."),
             Err(e) => self.fail(e.to_string()),
@@ -2747,6 +2806,7 @@ impl ThreadsUi {
         self.launcher_scroll.scroll_to_item(0);
         self.launcher_query
             .update(cx, |input, cx| input.set_value("", window, cx));
+        self.launcher_search_changed(String::new(), window, cx);
         self.launcher_query
             .update(cx, |input, cx| input.focus(window, cx));
         cx.notify();
@@ -2763,6 +2823,7 @@ impl ThreadsUi {
             self.launcher_query.read(cx).value().as_ref(),
             &self.thread_rows,
             &self.note_rows,
+            &self.launcher_search.messages,
         )
     }
     fn move_launcher(&mut self, delta: isize, cx: &mut Context<Self>) {
@@ -2801,6 +2862,9 @@ impl ThreadsUi {
         match item {
             lists::LaunchItem::Thread { id, .. } => self.open_thread(&id, window, cx),
             lists::LaunchItem::Note { id, .. } => self.open_note(&id, None, window, cx),
+            lists::LaunchItem::Message { chat, message, .. } => {
+                self.open_chat_message(&chat, &message, window, cx)
+            }
             lists::LaunchItem::Command(command) => self.run_command(command, window, cx),
         }
     }

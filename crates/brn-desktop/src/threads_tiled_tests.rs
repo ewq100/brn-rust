@@ -708,6 +708,139 @@ fn search_pages_show_exact_counts_context_and_ignore_superseded_queries(cx: &mut
     .unwrap();
 }
 
+fn message_id(view: &ThreadsUi, chat: &str, text: &str) -> String {
+    view.workspace
+        .messages(chat)
+        .unwrap()
+        .into_iter()
+        .find(|r| matches!(&r.data, RecordData::Message(m) if m.text == text))
+        .unwrap()
+        .id
+}
+
+/// F-UI1 (round 5 native recheck, section F): typing "berth" in Notes lists
+/// the saved chat reply under "In chats" with its chat, role and highlighted
+/// snippet; activating it opens the chat scrolled to that Message; after
+/// Archive the hit stays, labelled Archived (owner decision 3).
+#[gpui_kit::test]
+fn notes_search_lists_saved_chat_messages_and_opens_their_chat(cx: &mut TestAppContext) {
+    let f = fixture(cx, false, 1400., 1100.);
+    let berth = "Berth survey reply draft 1.4 m";
+    let mut chat = String::new();
+    let mut message = String::new();
+    update(cx, &f, |view, _, _| {
+        chat = view.workspace.new_thread("Replies").unwrap().id;
+        view.workspace.post_message(&chat, berth).unwrap();
+        // Enough later Messages that the transcript opens far below it.
+        for i in 0..30 {
+            view.workspace
+                .post_message(
+                    &chat,
+                    &format!(
+                        "Later unrelated message {i}. {}",
+                        "Filler words. ".repeat(20)
+                    ),
+                )
+                .unwrap();
+        }
+        message = message_id(view, &chat, berth);
+        view.refresh();
+    });
+    click(cx, &f, "open-notes");
+    query(cx, &f, "berth");
+    cx.update_window(f.window, |_, window, cx| {
+        let view = f.view.read(cx);
+        assert!(view.hits.is_empty());
+        assert_eq!(view.results.message_hits().len(), 1);
+        // Before: only the note-text empty state, nothing for the Message.
+        assert!(window.find("search-empty").visible());
+        assert!(window.find("search-chats").visible());
+        assert!(window.find("search-chats-status").visible());
+        assert_eq!(window.find("chat-hit-0").label(), Some("Replies · You"));
+        assert_eq!(window.find("chat-hit-0-snippet").label(), Some(berth));
+        assert!(window.try_find("chat-hit-0-archived").is_none());
+        // Chat Messages never count as note hits.
+        let page = view.results.page.clone().unwrap();
+        assert_eq!((page.total, page.message_total), (0, 1));
+    })
+    .unwrap();
+    // Archived: the same hit, labelled (owner decision 3).
+    update(cx, &f, |view, _, cx| view.resolve_thread(&chat, cx));
+    query(cx, &f, "berth survey");
+    cx.update_window(f.window, |_, window, _| {
+        assert_eq!(
+            window.find("chat-hit-0").label(),
+            Some("Replies · You · Archived")
+        );
+        assert!(window.find("chat-hit-0-archived").visible());
+    })
+    .unwrap();
+    reveal(cx, &f, "notes-list", "chat-hit-0");
+    click(cx, &f, "chat-hit-0");
+    cx.update_window(f.window, |_, window, cx| {
+        let view = f.view.read(cx);
+        assert_eq!(view.chat, ChatTarget::Thread(chat.clone()));
+        assert!(view.reveal_message.borrow().is_none(), "revealed once");
+        let row = window.find(format!("chat-message-{message}"));
+        assert!(row.visible(), "the transcript shows the matching Message");
+    })
+    .unwrap();
+}
+
+/// F-UI1: note hits and chat Messages page independently.
+#[gpui_kit::test]
+fn note_hits_and_chat_messages_page_independently(cx: &mut TestAppContext) {
+    let f = fixture(cx, false, 1400., 1100.);
+    update(cx, &f, |view, _, _| {
+        for i in 0..14 {
+            view.workspace
+                .new_note(
+                    &format!("Curlew {i:02}"),
+                    &format!("A curlew sighting {i}."),
+                )
+                .unwrap();
+        }
+        let chat = view.workspace.new_thread("Field chat").unwrap().id;
+        for i in 0..14 {
+            view.workspace
+                .post_message(&chat, &format!("Curlew seen at the marsh, entry {i}"))
+                .unwrap();
+        }
+        view.refresh();
+    });
+    click(cx, &f, "open-notes");
+    query(cx, &f, "curlew");
+    let pages = |cx: &mut TestAppContext| {
+        cx.read(|cx| {
+            let results = &f.view.read(cx).results;
+            let notes = results.page.clone().unwrap();
+            let chats = results.chats.clone().unwrap();
+            (
+                (notes.total, notes.offset, notes.hits.len()),
+                (chats.message_total, chats.offset, chats.messages.len()),
+            )
+        })
+    };
+    assert_eq!(pages(cx), ((14, 0, 12), (14, 0, 12)));
+    reveal(cx, &f, "notes-list", "search-chats-next");
+    click(cx, &f, "search-chats-next");
+    assert_eq!(pages(cx), ((14, 0, 12), (14, 12, 2)));
+    cx.read(|cx| assert_eq!(f.view.read(cx).hits.len(), 12, "note hits stay"));
+    reveal(cx, &f, "notes-list", "search-next");
+    click(cx, &f, "search-next");
+    assert_eq!(pages(cx), ((14, 12, 2), (14, 12, 2)));
+    reveal(cx, &f, "notes-list", "search-chats-previous");
+    click(cx, &f, "search-chats-previous");
+    assert_eq!(pages(cx), ((14, 12, 2), (14, 0, 12)));
+    // A new query starts both lanes at their first page.
+    query(cx, &f, "curlew sighting");
+    cx.read(|cx| {
+        let results = &f.view.read(cx).results;
+        assert_eq!(results.page.as_ref().unwrap().offset, 0);
+        assert_eq!(results.chats.as_ref().unwrap().offset, 0);
+    });
+}
+
 fn owner_write(view: &mut ThreadsUi, key: &str, data: Vec<RecordData>) -> Vec<Record> {
     let op = view.workspace.store.allocate_operation(key).unwrap();
     let writes = data

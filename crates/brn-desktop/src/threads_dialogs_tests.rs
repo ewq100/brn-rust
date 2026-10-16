@@ -537,8 +537,13 @@ fn a_narrow_list_header_keeps_its_title_and_its_menu_opens_beside(cx: &mut TestA
     });
 }
 
-/// A synthetic Working run held by a local worker in this window.
-fn working_run(cx: &mut TestAppContext, f: &Fixture, thread: &str) -> (String, CancellationToken) {
+/// A synthetic Working run held by a local worker in this window, which
+/// holds the run's lease as a real worker does.
+fn working_run(
+    cx: &mut TestAppContext,
+    f: &Fixture,
+    thread: &str,
+) -> (String, CancellationToken, brn_ai::run_lease::RunLease) {
     update(cx, f, |view, _, cx| {
         let key = "escape-working-run";
         let run = view
@@ -588,9 +593,14 @@ fn working_run(cx: &mut TestAppContext, f: &Fixture, thread: &str) -> (String, C
             thread: Some(thread.into()),
             run_id: Some(run.clone()),
         });
+        let lease = brn_ai::run_lease::RunLease::acquire(
+            &view.workspace.store.derived_directory().unwrap(),
+            &run,
+        )
+        .unwrap();
         view.refresh();
         cx.notify();
-        (run, cancel)
+        (run, cancel, lease)
     })
 }
 
@@ -605,7 +615,7 @@ fn escape_closes_one_layer_at_a_time_and_never_stops_work(cx: &mut TestAppContex
     update(cx, &f, |view, window, cx| {
         view.open_thread(&chat, window, cx)
     });
-    let (run, cancel) = working_run(cx, &f, &chat);
+    let (run, cancel, _lease) = working_run(cx, &f, &chat);
     let still_working = |cx: &mut TestAppContext| {
         cx.read(|cx| {
             let view = f.view.read(cx);

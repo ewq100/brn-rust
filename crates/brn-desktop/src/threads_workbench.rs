@@ -206,6 +206,25 @@ impl ThreadsUi {
             }
             _ => None,
         });
+        // A failed or interrupted rewrite reads as its chat's recorded
+        // notice (the Needs you text), as the status line and the chat's
+        // recovery card do.
+        let notice = |id: &str, run: &Run| {
+            let RecordData::Thread(chat) = &self.records.iter().find(|r| r.id == *thread)?.data
+            else {
+                return None;
+            };
+            terminal_notice(run, id, &chat.attention).map(|(_, notice)| notice)
+        };
+        if let Some((id, run)) = &run
+            && let Some(notice) = notice(id, run)
+        {
+            return Some(RunOutcome::Recorded {
+                failed: run.state == RunState::Failed,
+                notice,
+                detail: run.progress.clone(),
+            });
+        }
         Some(match run {
             None => RunOutcome::InputsSaved,
             Some((id, run)) => match run.state {
@@ -362,6 +381,13 @@ impl ThreadsUi {
 /// How the last rewrite ended, when nothing newer owns the writing bar.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(super) enum RunOutcome {
+    /// Failed or Interrupted with the chat's recorded notice for this run;
+    /// the run's progress is secondary detail.
+    Recorded {
+        failed: bool,
+        notice: String,
+        detail: String,
+    },
     Failed(String),
     Interrupted(String),
     Stopped(String),
@@ -376,7 +402,8 @@ impl RunOutcome {
     /// `None` is neutral.
     pub(super) fn tone(&self) -> Option<Tone> {
         match self {
-            Self::Failed(_) => Some(Tone::Error),
+            Self::Recorded { failed: true, .. } | Self::Failed(_) => Some(Tone::Error),
+            Self::Recorded { .. } => Some(Tone::Warning),
             Self::Interrupted(_) | Self::Stopped(_) | Self::Elsewhere(_) => Some(Tone::Warning),
             Self::InputsSaved | Self::NoProposal => None,
         }
@@ -391,6 +418,10 @@ impl RunOutcome {
             }
         };
         match self {
+            Self::Recorded { notice, detail, .. } if detail.trim() == notice.trim() => {
+                notice.clone()
+            }
+            Self::Recorded { notice, detail, .. } => with(notice, detail),
             Self::Failed(progress) => with("Rewrite failed", progress),
             Self::Interrupted(progress) => with("Rewrite interrupted", progress),
             Self::Stopped(progress) => with("Rewrite stopped", progress),
@@ -493,6 +524,35 @@ mod tests {
         }
     }
 
+    /// U10: a recorded notice is the line; progress follows only when it
+    /// adds something.
+    #[test]
+    fn a_recorded_notice_leads_and_progress_is_secondary() {
+        let notice = "Run failed: The provider account needs reconnecting. Continue when the provider is ready.";
+        let failed = RunOutcome::Recorded {
+            failed: true,
+            notice: notice.into(),
+            detail: "Read 2 notes".into(),
+        };
+        assert_eq!(failed.text(), format!("{notice} · Read 2 notes"));
+        assert_eq!(failed.tone(), Some(Tone::Error));
+        let interrupted = RunOutcome::Recorded {
+            failed: false,
+            notice: "Run interrupted. Continue starts fresh.".into(),
+            detail: " ".into(),
+        };
+        assert_eq!(
+            interrupted.text(),
+            "Run interrupted. Continue starts fresh."
+        );
+        assert_eq!(interrupted.tone(), Some(Tone::Warning));
+        let same = RunOutcome::Recorded {
+            failed: true,
+            notice: notice.into(),
+            detail: notice.into(),
+        };
+        assert_eq!(same.text(), notice);
+    }
     #[test]
     fn run_outcomes_keep_the_recorded_reason_and_their_tone() {
         let reason = "Run failed: Reconnect this account before continuing.";

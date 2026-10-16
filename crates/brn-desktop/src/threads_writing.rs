@@ -426,6 +426,18 @@ impl ThreadsUi {
             _ => None,
         });
         let owner_after = owner_message_after_latest_run(&self.records, &self.history, thread);
+        // The chat's recorded notice for its latest run (U10), unless a
+        // newer owner message makes line 1 "Not answered yet".
+        let notice = latest
+            .zip(run)
+            .filter(|_| !owner_after)
+            .and_then(|(record, run)| {
+                let RecordData::Thread(chat) = &self.records.iter().find(|r| r.id == thread)?.data
+                else {
+                    return None;
+                };
+                terminal_notice(run, &record.id, &chat.attention).map(|(_, notice)| notice)
+            });
         let mut card = recovery(
             path,
             self.pending_run_working(queue),
@@ -433,7 +445,8 @@ impl ThreadsUi {
             owner_after,
             queue,
             thread,
-        );
+        )
+        .with_notice(notice);
         // Archive keeps the chat Open, but the service refuses a run there:
         // the composer banner's Unarchive is the next action.
         if self.thread_resolved(thread) {
@@ -469,6 +482,13 @@ impl ThreadsUi {
             // The recorded reason wraps in full, never truncated.
             .when_some(card.reason.clone(), |card, reason| {
                 card.child(line("reason", reason))
+            })
+            .when_some(card.detail.clone(), |card, detail| {
+                card.child(
+                    line("detail", detail)
+                        .text_size(SMALL_TEXT)
+                        .text_color(rgb(pal().muted)),
+                )
             })
             .child(line("next", card.next.clone()))
             .when_some(card.waiting.clone(), |card, waiting| {
@@ -793,6 +813,7 @@ impl ThreadsUi {
                 composer.child(
                     div()
                         .id("composer-destination")
+                        .track_focus(&self.archived_banner)
                         .flex()
                         .items_center()
                         .gap_2()
@@ -1264,6 +1285,35 @@ impl ThreadsUi {
         let Some(session) = self.note.as_ref().and_then(|open| open.session.clone()) else {
             return;
         };
+        self.confirm_discard_of(session, window, cx);
+    }
+    /// The other open edit of the open note (U4), found by its note: the
+    /// typed error's session is never used.
+    fn open_edit_elsewhere(&self) -> Option<(EditSession, u64)> {
+        let open = self.note.as_ref()?;
+        let (note, base) = self.edit_open.as_ref()?;
+        if *note != open.record.id || !self.recovery_blocked() {
+            return None;
+        }
+        let buffer = self.buffers.iter().find(|s| s.note == *note)?;
+        Some((buffer.clone(), *base))
+    }
+    /// The same confirmation for the other open edit (U4).
+    pub(super) fn confirm_discard_open_edit(
+        &mut self,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        if let Some((session, _)) = self.open_edit_elsewhere() {
+            self.confirm_discard_of(session, window, cx);
+        }
+    }
+    fn confirm_discard_of(
+        &mut self,
+        session: EditSession,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
         let body = format!(
             "Your changes since v{} will be lost. This can't be undone.",
             session.base_version
@@ -1277,10 +1327,83 @@ impl ThreadsUi {
                 "Discard your unsaved edit?",
                 body.clone(),
                 "Discard",
-                std::rc::Rc::new(move |window, cx| {
-                    let _ = target.update(cx, |view, cx| view.discard(window, cx));
+                std::rc::Rc::new({
+                    let session = session.clone();
+                    move |window, cx| {
+                        let session = session.clone();
+                        let _ =
+                            target.update(cx, |view, cx| view.discard_session(session, window, cx));
+                    }
                 }),
             )
+        });
+    }
+    /// Compare (U4): the other open edit beside the saved note, read-only.
+    pub(super) fn compare_open_edit(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        let Some((buffer, base)) = self.open_edit_elsewhere() else {
+            return;
+        };
+        let saved = self
+            .records
+            .iter()
+            .find(|record| record.id == buffer.note)
+            .and_then(|record| match &record.data {
+                RecordData::Note(note) => Some((record.version, note.markdown.clone())),
+                _ => None,
+            });
+        let Some((version, saved)) = saved else {
+            return;
+        };
+        let edit = buffer.markdown.clone();
+        self.open_dialog(window, cx, move |dialog, window, _| {
+            let side = |id: &'static str, label: String, text: &str| {
+                div().flex().flex_col().gap_1().child(section(label)).child(
+                    div()
+                        .id(id)
+                        .p_2()
+                        .rounded(components::tokens::RADIUS_CONTROL)
+                        .bg(rgb(pal().alt))
+                        .text_size(UI_TEXT)
+                        .aria_label(text.to_owned())
+                        .child(if text.trim().is_empty() {
+                            "(empty)".to_owned()
+                        } else {
+                            text.to_owned()
+                        })
+                        .test_support(),
+                )
+            };
+            dialog
+                .title("Compare the open edit")
+                .on_ok(|_, _, _| false)
+                .child(
+                    components::dialog_body("compare-open-edit-body", window)
+                        .child(
+                            div()
+                                .flex()
+                                .flex_col()
+                                .gap_2()
+                                .child(side(
+                                    "compare-open-edit-buffer",
+                                    format!("Open edit · from v{base}"),
+                                    &edit,
+                                ))
+                                .child(side(
+                                    "compare-open-edit-saved",
+                                    format!("Saved · v{version}"),
+                                    &saved,
+                                )),
+                        )
+                        .test_support(),
+                )
+                .footer(
+                    components::dialog_footer().child(
+                        button("compare-open-edit-close")
+                            .label("Close")
+                            .outline()
+                            .on_click(|_, window, cx| window.close_dialog(cx)),
+                    ),
+                )
         });
     }
     pub(super) fn note_tile(
@@ -1483,8 +1606,11 @@ impl ThreadsUi {
         // last, below it only when the rows that never hide (the banners'
         // actions, a failed run's reason, the reply's label and the whole
         // writing bar) leave less, down to its few lines.
+        // An open stacked draft keeps its whole input, so beside it the text
+        // gives way to its few lines too and the writing bar stays whole
+        // (R1, 900×600).
         let stacked = self.comments_stacked();
-        let text_floor = text_min(stacked && !banner_shown);
+        let text_floor = text_min(stacked && !banner_shown && !self.comment_drafting());
         let text_prefer = text_min(stacked);
         // A shrink factor of 1 beside the section's YIELD_FIRST: the
         // section gives way first, and once it is at its floor the text
@@ -1570,7 +1696,45 @@ impl ThreadsUi {
         let RecordData::Note(note) = &open.record.data else {
             return banners;
         };
-        if self.recovery_blocked()
+        if let Some((buffer, base)) = self.open_edit_elsewhere() {
+            // Starting this view's edit found another open edit (U4): name
+            // its base, keep it, and offer Compare and Discard beside the
+            // usual Recover edit.
+            let id = buffer.note.clone();
+            banners.push(banner(
+                banners.is_empty(),
+                "note-edit-open-banner",
+                Tone::Warning,
+                format!(
+                    "An edit of this note is already open from v{base} and is kept. What you typed here isn't saved. Compare it with the saved note, recover it, or discard it."
+                )
+                .into(),
+                vec![
+                    button("recover-note-edit")
+                        .label("Recover edit")
+                        .compact()
+                        .primary()
+                        .h(components::tokens::COMPACT_CONTROL)
+                        .tooltip("Reopen the open edit here so you can save or discard it")
+                        .on_click(cx.listener(move |this, _, window, cx| {
+                            this.open_note(&id, Some(buffer.clone()), window, cx)
+                        }))
+                        .into_any_element(),
+                    banner_button("note-edit-open-compare", "Compare")
+                        .tooltip("Show the open edit beside the saved note")
+                        .on_click(cx.listener(|this, _, window, cx| {
+                            this.compare_open_edit(window, cx)
+                        }))
+                        .into_any_element(),
+                    banner_button("note-edit-open-discard", "Discard edit…")
+                        .tooltip("Discard the open edit; what you typed here is kept")
+                        .on_click(cx.listener(|this, _, window, cx| {
+                            this.confirm_discard_open_edit(window, cx)
+                        }))
+                        .into_any_element(),
+                ],
+            ));
+        } else if self.recovery_blocked()
             && let Some(buffer) = self.buffers.iter().find(|s| s.note == open.record.id)
         {
             let (buffer, id) = (buffer.clone(), buffer.note.clone());

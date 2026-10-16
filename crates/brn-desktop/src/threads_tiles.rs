@@ -288,27 +288,37 @@ impl ThreadsUi {
             row
         }
     }
-    /// A kept edit for a note, with its Unsaved marker.
-    /// A kept edit's row text: "Recover edit · {note}".
-    fn recover_label(&self, buffer: &EditSession) -> String {
-        let name = self
-            .records
+    /// The note a kept edit belongs to.
+    fn recover_note_name(&self, buffer: &EditSession) -> String {
+        self.records
             .iter()
             .find(|record| record.id == buffer.note)
             .map(title)
-            .unwrap_or_else(|| "Unavailable note".into());
-        format!("Recover edit · {name}")
+            .unwrap_or_else(|| "Unavailable note".into())
     }
-    fn recover_row(&self, id: String, buffer: &EditSession) -> components::ListRow {
-        components::ListRow::new(id.clone(), self.recover_label(buffer)).chip(
-            "Unsaved",
-            components::status_chip(
-                format!("{id}-unsaved"),
+    /// A kept edit's full text: "Recover edit · {note}".
+    fn recover_label(&self, buffer: &EditSession) -> String {
+        format!("Recover edit · {}", self.recover_note_name(buffer))
+    }
+    /// A kept edit as a needs-you row: the note's title first, "Recover
+    /// edit" below it, and the Unsaved marker, icon-only in a narrow list
+    /// (R4) so the title keeps its room.
+    fn recover_row(&self, id: String, buffer: &EditSession, compact: bool) -> components::ListRow {
+        let chip = format!("{id}-unsaved");
+        let marker = if compact {
+            components::short_status_chip(
+                chip,
                 Some(Tone::Warning),
-                None,
+                Some(IconName::TriangleAlert),
+                "",
                 "Unsaved",
-            ),
-        )
+            )
+        } else {
+            components::status_chip(chip, Some(Tone::Warning), None, "Unsaved")
+        };
+        components::ListRow::new(id.clone(), self.recover_note_name(buffer))
+            .reason("Recover edit")
+            .chip("Unsaved", marker)
     }
     pub(super) fn threads_tile(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         let this = cx.entity().downgrade();
@@ -348,7 +358,7 @@ impl ThreadsUi {
             let buffer = buffer.clone();
             let id = buffer.note.clone();
             list = list.child(
-                self.recover_row(format!("recover-{index}"), &buffer)
+                self.recover_row(format!("recover-{index}"), &buffer, true)
                     .build()
                     .on_click(cx.listener(move |this, _, window, cx| {
                         this.open_note(&id, Some(buffer.clone()), window, cx)
@@ -818,7 +828,7 @@ impl ThreadsUi {
                     self.recover_label(&buffer)
                 );
                 recovery = recovery.child(
-                    self.recover_row(format!("home-recover-{index}"), &buffer)
+                    self.recover_row(format!("home-recover-{index}"), &buffer, false)
                         .tooltip(tooltip)
                         .build()
                         .on_click(cx.listener(move |this, _, window, cx| {
@@ -1138,6 +1148,22 @@ impl ThreadsUi {
             .test_support()
             .into_any_element()
     }
+    /// A record that may need refresh, in owner terms on one line: its
+    /// title, or for a chat Message its kind, never its stored payload (R3;
+    /// a rewrite request's text is its saved JSON snapshot).
+    fn refresh_name(&self, record: &Record) -> String {
+        let name = match &record.data {
+            RecordData::Message(message) if message.role == WRITING_REQUEST_ROLE => {
+                match self.workspace.writing_request(&record.id) {
+                    Ok(snapshot) => format!("Rewrite request · {}", title(&snapshot.note)),
+                    Err(_) => "Rewrite request".into(),
+                }
+            }
+            RecordData::Message(_) => "Chat message".into(),
+            _ => title(record),
+        };
+        name.split_whitespace().collect::<Vec<_>>().join(" ")
+    }
     /// One recorded change: its reason, what it touched and when, an Undo
     /// ghost, and for derived work a "May need refresh" sub-row.
     fn receipt_row(&self, receipt: &Receipt, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
@@ -1247,14 +1273,18 @@ impl ThreadsUi {
                 for record in records {
                     let note =
                         matches!(record.data, RecordData::Note(_)).then(|| record.id.clone());
-                    let name = title(&record);
+                    let name = self.refresh_name(&record);
+                    // One line that ellipsizes inside the panel (R3); the
+                    // full name is the tooltip and the accessible name.
                     refresh = refresh.child(
-                        pill(format!("refresh-record-{id}-{}", record.id), short(&name))
+                        pill(format!("refresh-record-{id}-{}", record.id), name.clone())
+                            .max_w(gpui_kit::relative(1.))
+                            .min_w_0()
                             .accessibility_label(format!("May need refresh: {name}"))
                             .tooltip(if note.is_some() {
-                                "Open this note to review its inputs"
+                                format!("{name} · Open this note to review its inputs")
                             } else {
-                                "Open Tasks to review it"
+                                format!("{name} · Open Tasks to review it")
                             })
                             .on_click(cx.listener(move |this, _, window, cx| match &note {
                                 Some(id) => this.open_note(id, None, window, cx),

@@ -200,8 +200,11 @@ pub(super) struct Recovery {
     /// Line 1: the latest run's state, or "Not answered yet".
     pub(super) word: &'static str,
     pub(super) word_severity: Severity,
-    /// The run's recorded reason, verbatim and shown whole.
+    /// The run's recorded reason, verbatim and shown whole: the chat's
+    /// notice for a failed or interrupted run, otherwise its progress.
     pub(super) reason: Option<String>,
+    /// The run's progress beside a notice, when it says something else.
+    pub(super) detail: Option<String>,
     /// Line 2: what the button does.
     pub(super) next: String,
     pub(super) next_severity: Severity,
@@ -227,11 +230,29 @@ impl Recovery {
             ..self
         }
     }
+    /// A failed or interrupted run's reason is the chat's recorded notice
+    /// for it, the text Needs you and the status line show (U10). The run's
+    /// progress, the agent's own summary, stays as a secondary line when it
+    /// says something else. Without a notice the card is unchanged.
+    pub(super) fn with_notice(self, notice: Option<String>) -> Self {
+        let Some(notice) = notice else {
+            return self;
+        };
+        let detail = self
+            .reason
+            .filter(|progress| progress.trim() != notice.trim());
+        Recovery {
+            reason: Some(notice),
+            detail,
+            ..self
+        }
+    }
     /// Every line, as announced.
     pub(super) fn label(&self) -> String {
         [
             Some(self.word.to_owned()),
             self.reason.clone(),
+            self.detail.clone(),
             Some(self.next.clone()),
             self.waiting.clone(),
         ]
@@ -334,6 +355,7 @@ pub(super) fn recovery(
         word,
         word_severity,
         reason,
+        detail: None,
         next,
         next_severity,
         waiting,
@@ -723,6 +745,74 @@ mod tests {
         assert_eq!(
             continue_path(&pending, &rewrite, "other"),
             ContinuePath::RetryRewrite("w1".into())
+        );
+    }
+
+    /// U10: the chat's recorded notice is the card's reason; the run's
+    /// progress becomes a secondary line only when it says something else.
+    #[test]
+    fn a_recorded_notice_is_the_recovery_reason_and_progress_is_detail() {
+        let notice = "Run failed: The provider account needs reconnecting. Continue when the provider is ready.";
+        let idle = ChatControl::default();
+        let failed = run(RunState::Failed, "Read the delivery note");
+        let card = recovery(
+            &ContinuePath::FreshRun,
+            false,
+            Some(&failed),
+            false,
+            &idle,
+            "chat",
+        )
+        .with_notice(Some(notice.into()));
+        assert_eq!(card.reason.as_deref(), Some(notice));
+        assert_eq!(card.detail.as_deref(), Some("Read the delivery note"));
+        assert_eq!(
+            card.label(),
+            format!("Failed · {notice} · Read the delivery note · {}", card.next)
+        );
+        // Progress that repeats the notice, or none, adds no line.
+        let same = run(
+            RunState::Interrupted,
+            "Run interrupted. Continue starts fresh.",
+        );
+        let card = recovery(
+            &ContinuePath::FreshRun,
+            false,
+            Some(&same),
+            false,
+            &idle,
+            "chat",
+        )
+        .with_notice(Some("Run interrupted. Continue starts fresh.".into()));
+        assert_eq!(card.detail, None);
+        let empty = run(RunState::Interrupted, "");
+        let card = recovery(
+            &ContinuePath::FreshRun,
+            false,
+            Some(&empty),
+            false,
+            &idle,
+            "chat",
+        )
+        .with_notice(Some("Run interrupted. Continue starts fresh.".into()));
+        assert_eq!(
+            (card.reason.as_deref(), card.detail),
+            (Some("Run interrupted. Continue starts fresh."), None)
+        );
+        // Without a notice (the owner's own Stop records none) the progress
+        // stays the reason.
+        let card = recovery(
+            &ContinuePath::FreshRun,
+            false,
+            Some(&failed),
+            false,
+            &idle,
+            "chat",
+        )
+        .with_notice(None);
+        assert_eq!(
+            (card.reason.as_deref(), card.detail),
+            (Some("Read the delivery note"), None)
         );
     }
 

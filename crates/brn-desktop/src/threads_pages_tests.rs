@@ -562,11 +562,22 @@ fn kept_edits_read_recover_edit_with_an_unsaved_chip(cx: &mut TestAppContext) {
         note = saved.id;
     });
     on_window(cx, &f, |window, _| {
+        // R4: the note's title leads, "Recover edit" is the reason line, and
+        // the narrow list shows the Unsaved marker as its icon, announced
+        // and in the tooltip.
         assert_eq!(
             label(window, "recover-0"),
-            "Recover edit · Pilot proposal · Unsaved"
+            "Pilot proposal · Recover edit · Unsaved"
         );
         assert_eq!(label(window, "recover-0-unsaved"), "Unsaved");
+        let title = window.find("recover-0-title").bounds();
+        let chip = window.find("recover-0-unsaved").bounds();
+        assert!(chip.size.width <= px(36.), "icon form, no text: {chip:?}");
+        // The title keeps most of the 170 pt row (94 px in the test text
+        // system); the marker beside it is the icon alone.
+        assert!(title.size.width >= px(90.), "{title:?} {chip:?}");
+        assert!(title.right() <= chip.left(), "{title:?} {chip:?}");
+        assert!(window.find("recover-0-reason").visible());
     });
     click(cx, &f, "recover-0");
     cx.read(|cx| assert_eq!(f.view.read(cx).open_note_id(), Some(note.as_str())));

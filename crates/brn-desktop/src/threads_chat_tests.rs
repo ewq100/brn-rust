@@ -5,7 +5,7 @@
 //! Fixtures that seed a Working run with no live worker never Resume or
 //! Dispatch after seeding it (integration watch item).
 use super::*;
-use gpui_kit::{TestAppContext, test::TestWindowExt};
+use gpui_kit::{Focusable, TestAppContext, test::TestWindowExt};
 
 struct Fixture {
     _root: tempfile::TempDir,
@@ -440,6 +440,71 @@ fn a_newer_message_reads_not_answered_yet_and_warns_about_an_earlier_working_rep
         assert!(window.find(format!("stop-saved-run-{working}")).visible());
     });
     assert_eq!(run_state(cx, &f, &working), RunState::Working);
+}
+
+/// Gives `run` the chat's recorded notice, as the service leaves it when a
+/// run ends Failed or Interrupted: a Blocker whose record is that run.
+fn record_notice(workspace: &mut Workspace, thread: &str, run: &str, notice: &str) {
+    let chat = workspace.store.record(thread).unwrap().unwrap();
+    let RecordData::Thread(mut data) = chat.data else {
+        unreachable!()
+    };
+    data.attention = vec![Attention {
+        kind: AttentionKind::Blocker,
+        reason: notice.into(),
+        record: Some(run.into()),
+    }];
+    workspace
+        .owner_change(
+            &format!("notice-{}", uuid::Uuid::new_v4()),
+            &ChangeRequest {
+                reason: "Synthetic terminal notice".into(),
+                inputs: vec![],
+                writes: vec![Put {
+                    id: thread.into(),
+                    expected_version: Some(chat.version),
+                    archived: false,
+                    data: RecordData::Thread(data),
+                }],
+            },
+        )
+        .unwrap();
+}
+
+/// U10: the recovery card's reason is the chat's recorded notice, the same
+/// text Needs you shows; the run's progress is a secondary line.
+#[gpui_kit::test]
+fn a_failed_reply_reads_as_its_recorded_notice_on_the_card_and_in_needs_you(
+    cx: &mut TestAppContext,
+) {
+    let notice =
+        "Run failed: The provider account needs reconnecting. Continue when the provider is ready.";
+    let mut run = String::new();
+    let f = fixture(cx, 1250., 860., |workspace, thread, _| {
+        run = record_run(
+            workspace,
+            thread,
+            RunState::Failed,
+            "Read the delivery note",
+        );
+        record_notice(workspace, thread, &run, notice);
+    });
+    let card = format!("recovery-card-{}", f.thread);
+    on_window(cx, &f, |window, _| {
+        assert_eq!(label(window, format!("{card}-state")), "Failed");
+        assert_eq!(label(window, format!("{card}-reason")), notice);
+        assert_eq!(
+            label(window, format!("{card}-detail")),
+            "Read the delivery note"
+        );
+        assert_eq!(label(window, format!("continue-{run}")), "Continue");
+    });
+    cx.read(|cx| {
+        let ui = f.view.read(cx);
+        let needs = lists::sidebar(&ui.thread_rows, None).needs;
+        let row = needs.iter().find(|row| row.id == f.thread).unwrap();
+        assert_eq!(row.reasons, vec![notice.to_owned()]);
+    });
 }
 
 #[gpui_kit::test]
@@ -1007,12 +1072,31 @@ fn archive_states_its_consequence_and_an_archived_chat_has_one_unarchive(cx: &mu
         assert!(view.worker.is_none());
         assert_eq!(view.notice, archived);
     });
+    // U11: opening the archived chat never focuses its composer; focus
+    // lands on Unarchive, the one next step.
+    update(cx, &f, |ui, window, cx| {
+        ui.open_thread(&f.thread, window, cx)
+    });
+    on_window(cx, &f, |window, cx| window.simulate_next_frame(cx));
+    on_window(cx, &f, |window, cx| {
+        assert!(!f.view.read(cx).composer.focus_handle(cx).is_focused(window));
+        assert_eq!(window.find("reopen-thread").focused(), Some(true));
+        // One Unarchive: the composer banner's.
+        assert!(window.try_find("chat-unarchive").is_none());
+    });
     click(cx, &f, "reopen-thread");
     on_window(cx, &f, |window, _| {
         assert!(window.find("resolve-thread").visible());
         assert!(window.try_find("composer-destination").is_none());
         assert_eq!(label(window, next.clone()), fresh);
         assert_eq!(label(window, continue_id.clone()), "Continue");
+    });
+    // Unarchived, the chat's landing is its composer again.
+    update(cx, &f, |ui, window, cx| {
+        ui.open_thread(&f.thread, window, cx)
+    });
+    on_window(cx, &f, |window, cx| {
+        assert!(f.view.read(cx).composer.focus_handle(cx).is_focused(window));
     });
 }
 

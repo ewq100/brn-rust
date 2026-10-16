@@ -1226,13 +1226,26 @@ impl ThreadsUi {
                 );
             }
         } else {
+            // Nothing runs, but saved queue work is not idle: say what waits,
+            // in the queue strip's words (R2).
+            let queue = self.queue_state();
+            let waiting = queue.queue.len() + usize::from(queue.pending.is_some());
+            let status = match (waiting, queue.paused) {
+                (0, _) => "Idle".to_owned(),
+                (n, true) => format!("Queue paused · {n} waiting"),
+                (n, false) => format!("Queue · {n} waiting"),
+            };
             bar = bar.child(
                 div()
                     .id("idle-status")
                     .px_2()
-                    .text_color(rgb(p.muted))
-                    .aria_label("Idle")
-                    .child("Idle")
+                    .text_color(rgb(if waiting > 0 && queue.paused {
+                        p.warning
+                    } else {
+                        p.muted
+                    }))
+                    .aria_label(status.clone())
+                    .child(status)
                     .test_support(),
             );
         }
@@ -1374,7 +1387,13 @@ impl ThreadsUi {
             .max_h(results)
             .overflow_y_scroll()
             .track_scroll(&self.launcher_scroll);
-        if items.is_empty() {
+        if items.is_empty() && self.launcher_search.pending {
+            // Saved chat Messages are still being searched.
+            list = list.child(div().px_2().py_1().child(components::loading(
+                "launcher-searching",
+                "Searching chats…",
+            )));
+        } else if items.is_empty() {
             list = list.child(components::empty_state(
                 "launcher-empty",
                 IconName::Search,
@@ -1389,7 +1408,10 @@ impl ThreadsUi {
                 group = entry.group();
                 list = list.child(
                     components::section_header(group, None, None)
-                        .id(format!("launcher-group-{}", group.to_lowercase()))
+                        .id(format!(
+                            "launcher-group-{}",
+                            group.to_lowercase().replace(' ', "-")
+                        ))
                         .px_2()
                         .pt(if index == 0 {
                             tokens::SPACE_1
@@ -1406,11 +1428,22 @@ impl ThreadsUi {
                     (IconName::MessageSquare, None, *resolved)
                 }
                 lists::LaunchItem::Note { .. } => (IconName::FileText, None, false),
+                lists::LaunchItem::Message { archived, .. } => {
+                    (IconName::MessageSquare, None, *archived)
+                }
                 lists::LaunchItem::Command(command) => {
                     (command_icon(*command), command.keystroke(), false)
                 }
             };
-            let label = entry.label();
+            let label = match entry {
+                lists::LaunchItem::Message {
+                    snippet,
+                    highlights,
+                    ..
+                } => search_view::highlighted(snippet, highlights).into_any_element(),
+                _ => entry.label().into_any_element(),
+            };
+            let meta = entry.meta();
             list = list.child(
                 div()
                     .id(format!("launcher-item-{index}"))
@@ -1436,6 +1469,16 @@ impl ThreadsUi {
                             .text_color(rgb(if selected { p.ink } else { p.muted })),
                     )
                     .child(div().flex_1().min_w_0().truncate().child(label))
+                    .children(meta.map(|meta| {
+                        div()
+                            .flex_shrink_0()
+                            .max_w(gpui_kit::relative(0.4))
+                            .min_w_0()
+                            .truncate()
+                            .text_size(SMALL_TEXT)
+                            .text_color(rgb(components::row_meta_color(selected)))
+                            .child(meta)
+                    }))
                     .when(archived, |row| {
                         row.child(components::status_chip(
                             format!("launcher-item-{index}-archived"),
@@ -1514,10 +1557,24 @@ impl ThreadsUi {
         cx.notify();
     }
     /// Focus the focused panel's landing from the focus table. Returns the
-    /// panel whose body took focus, for the move to its first control.
-    fn focus_landing(&mut self, window: &mut Window, cx: &mut Context<Self>) -> Option<TileKind> {
+    /// container that took focus, for the move to its first control.
+    fn focus_landing(
+        &mut self,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) -> Option<gpui_kit::FocusHandle> {
         match self.layout.focus() {
             Some(TileKind::Note) => self.focus_visible_editor(window, cx),
+            // An archived chat's composer can't send: its one next step is
+            // the archived banner's Unarchive, so focus moves there (U11).
+            Some(TileKind::Chat)
+                if self
+                    .chat_thread()
+                    .is_some_and(|thread| self.thread_resolved(thread)) =>
+            {
+                self.archived_banner.focus(window, cx);
+                return Some(self.archived_banner.clone());
+            }
             Some(TileKind::Chat) => self
                 .composer
                 .update(cx, |editor, cx| editor.focus(window, cx)),
@@ -1527,7 +1584,7 @@ impl ThreadsUi {
                 .update(cx, |input, cx| input.focus(window, cx)),
             Some(kind) => {
                 self.panel_focus[&kind].focus(window, cx);
-                return Some(kind);
+                return Some(self.panel_focus[&kind].clone());
             }
             None => self.focus_root(window, cx),
         }
@@ -1564,13 +1621,13 @@ impl ThreadsUi {
     pub(super) fn panel_body(&self, kind: TileKind) -> &gpui_kit::FocusHandle {
         &self.panel_focus[&kind]
     }
-    /// After the frame that drew the panel, move from its body to its first
-    /// control, unless focus moved elsewhere meanwhile.
+    /// After the frame that drew the panel, move from its body (or the
+    /// archived chat's banner) to its first control, unless focus moved
+    /// elsewhere meanwhile.
     fn schedule_focus_first(&mut self, window: &mut Window) {
-        let Some(kind) = self.focus_first.take() else {
+        let Some(body) = self.focus_first.take() else {
             return;
         };
-        let body = self.panel_body(kind).clone();
         window.on_next_frame(move |window, cx| {
             if body.is_focused(window) {
                 window.focus_next(cx);

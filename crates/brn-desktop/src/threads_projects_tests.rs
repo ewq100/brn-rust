@@ -194,9 +194,14 @@ fn native_project_delete_preserves_displayed_partial_and_pauses_even_an_empty_qu
         let p = ui.apply_project(ProjectCommand::Create { title: "Working project".into() }, cx).unwrap().writes[0].after.id.clone(); ui.apply_project(ProjectCommand::MoveChat { chat: f.chat.clone(), project: Some(p.clone()) }, cx).unwrap();
         let settings = ui.workspace.settings().unwrap(); let op = ui.workspace.store.allocate_operation("project-synthetic-worker").unwrap(); let run = op.creation_id(0);
         ui.workspace.owner_change("project-synthetic-worker", &ChangeRequest { reason: "Offline displayed worker".into(), inputs: vec![], writes: vec![Put { id: run.clone(), expected_version: None, archived: false, data: RecordData::Run(Run { instruction: None, queue_claim: None, thread: f.chat.clone(), provider: settings.provider, model: settings.model, guide_identity: "synthetic".into(), budget: 1, effort: settings.effort, loaded_skills: vec![], fence: 1, state: RunState::Working, progress: "Saved useful summary".into(), operations: vec![], sources: vec![] }) }] }).unwrap();
-        let (sender, receiver) = mpsc::sync_channel(8); let cancel = CancellationToken::new(); ui.worker = Some(Worker { receiver, cancel: cancel.clone(), conversion_cancel: Arc::new(AtomicBool::new(false)), kind: WorkerKind::Run, thread: Some(f.chat.clone()), run_id: Some(run) }); ui.stream = "Displayed useful partial · õun".into();
+        // The displayed worker is live, so it holds the run's lease as a real worker does.
+        let lease = brn_ai::run_lease::RunLease::acquire(&ui.workspace.store.derived_directory().unwrap(), &run).unwrap();
+        let (sender, receiver) = mpsc::sync_channel(8); let cancel = CancellationToken::new(); ui.worker = Some(Worker { receiver, cancel: cancel.clone(), conversion_cancel: Arc::new(AtomicBool::new(false)), kind: WorkerKind::Run, thread: Some(f.chat.clone()), run_id: Some(run.clone()) }); ui.stream = "Displayed useful partial · õun".into();
         let preview = ui.workspace.project_delete_preview(&p).unwrap(); let receipt = ui.apply_project(ProjectCommand::Delete { preview, actions: BTreeMap::new() }, cx).unwrap();
         assert!(receipt.writes.iter().any(|w| w.after.archived && matches!(&w.after.data, RecordData::Message(m) if m.role == "assistant-partial" && m.text == "Displayed useful partial · õun"))); assert!(cancel.is_cancelled()); assert!(ui.queue_state().paused);
+        // The owner acted on the project, not in the chat: the stopped Run leaves its Interrupted notice in the chat's own write, live or not.
+        assert!(receipt.writes.iter().any(|w| w.after.id == f.chat && matches!(&w.after.data, RecordData::Thread(t) if t.attention.iter().any(|a| a.reason == brn_ai::threads::INTERRUPTED_ATTENTION))));
+        drop(lease);
         sender.send(WorkerEvent::RunFinished { result: Ok("Old worker returned".into()), terminal: None }).unwrap(); ui.poll_worker(window, cx); assert!(ui.queue_state().paused);
     })).unwrap();
     cx.run_until_parked();

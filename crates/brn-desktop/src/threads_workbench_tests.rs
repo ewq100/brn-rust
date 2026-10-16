@@ -1023,7 +1023,10 @@ fn bound_terminal_clarification_stays_in_note_and_unrelated_chat_cannot_replace_
             window.find("retry-rewrite").label(),
             Some("Retry saved rewrite, unavailable: Save your edit first")
         );
-        f.view.update(cx, |view, cx| view.discard(window, cx));
+        f.view.update(cx, |view, cx| {
+            let session = view.note.as_ref().unwrap().session.clone().unwrap();
+            view.discard_session(session, window, cx)
+        });
     })
     .unwrap();
     cx.run_until_parked();

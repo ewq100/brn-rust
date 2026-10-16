@@ -866,6 +866,174 @@ fn archiving_a_killed_chat_adds_its_review_but_no_notice(cx: &mut TestAppContext
     });
 }
 
+fn chat_attention(ui: &ThreadsUi, chat: &str) -> Vec<Attention> {
+    match &ui.workspace.store.record(chat).unwrap().unwrap().data {
+        RecordData::Thread(thread) => thread.attention.clone(),
+        _ => panic!("Thread"),
+    }
+}
+
+/// Polls the window until its worker finishes.
+fn wait_for_worker(cx: &mut TestAppContext, f: &Fixture) {
+    for _ in 0..1000 {
+        if update(cx, f, |ui, window, cx| {
+            ui.poll_worker(window, cx);
+            ui.worker.is_none()
+        }) {
+            return;
+        }
+        std::thread::sleep(Duration::from_millis(10));
+    }
+    panic!("the offline run did not finish");
+}
+
+/// The chat write of the receipt that created a new Run in `chat` other
+/// than `old`: the "Start a fresh invocation" change.
+fn start_change_attention(ui: &ThreadsUi, chat: &str, old: &str) -> Vec<String> {
+    let history = ui.workspace.history().unwrap();
+    let start = history
+        .iter()
+        .find(|receipt| {
+            receipt.writes.iter().any(|w| {
+                w.before.is_none()
+                    && w.after.id != old
+                    && matches!(&w.after.data, RecordData::Run(r) if r.thread == chat)
+            })
+        })
+        .expect("the next Run's start");
+    start
+        .writes
+        .iter()
+        .find_map(|w| match &w.after.data {
+            RecordData::Thread(t) if w.after.id == chat => {
+                Some(t.attention.iter().map(|a| a.reason.clone()).collect())
+            }
+            _ => None,
+        })
+        .unwrap_or_default()
+}
+
+/// The owner's U1 Stop… of a saved Working reply that no process holds
+/// (owner decision 2 as the lead read it for Stop, 16 October 2026): no new
+/// notice, a Review item for the proposal the Run left unapplied, the free
+/// lease file removed and the Run recorded as Interrupted. No `RunLease` is
+/// held: this seed stands for a killed process.
+#[gpui_kit::test]
+fn the_owners_stop_of_a_killed_reply_adds_its_review_but_no_notice(cx: &mut TestAppContext) {
+    let f = fixture(cx);
+    let (chat, run, operation) = update(cx, &f, |ui, window, cx| {
+        ui.choose_delegation(DelegationChoice::MaintainOrdinaryNotes, cx);
+        let killed = killed_intake_in(ui, &f.data);
+        assert!(row(ui, &killed.0).reasons.is_empty());
+        ui.open_thread(&killed.0, window, cx);
+        killed
+    });
+    let stop = format!("stop-saved-run-{run}");
+    cx.update_window(f.window, |_, window, cx| window.click(stop.clone(), cx))
+        .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(window.has_active_dialog(cx));
+        window.click("stop-saved-run-confirm", cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
+    update(cx, &f, |ui, _, _| {
+        assert!(
+            matches!(&ui.workspace.store.record(&run).unwrap().unwrap().data,
+                RecordData::Run(r) if r.state == RunState::Interrupted && r.fence == 2)
+        );
+        assert_eq!(
+            row(ui, &chat).reasons,
+            vec![brn_threads_app::run_attention::REVIEW_ATTENTION.to_owned()]
+        );
+        assert!(
+            chat_attention(ui, &chat)
+                .iter()
+                .all(|a| a.kind != AttentionKind::Blocker),
+            "the owner's Stop adds no notice"
+        );
+        assert!(has_candidate(ui, &operation));
+        assert!(!lease_file(ui, &run).exists());
+        assert_eq!(
+            ui.notice,
+            "Reply stopped. The queue is paused; Continue or Resume queue when ready."
+        );
+    });
+}
+
+/// Owner decision 1 through the desktop's Continue: starting the next Run
+/// removes the chat's Interrupted notice in its own start change; the new
+/// Run's offline failure then records its own notice. The Review stays.
+#[gpui_kit::test]
+fn continue_clears_the_interrupted_notice_when_the_next_run_starts(cx: &mut TestAppContext) {
+    let f = fixture(cx);
+    let (chat, run, operation) = update(cx, &f, |ui, _, cx| {
+        let killed = killed_intake_in(ui, &f.data);
+        // The settings stop interrupts it with the notice.
+        ui.choose_delegation(DelegationChoice::MaintainOrdinaryNotes, cx);
+        assert_eq!(row(ui, &killed.0).reasons, killed_reasons());
+        killed
+    });
+    update(cx, &f, |ui, window, cx| {
+        ui.open_thread(&chat, window, cx);
+        ui.continue_run(chat.clone(), cx);
+        assert!(ui.worker.is_some(), "{}", ui.notice);
+    });
+    wait_for_worker(cx, &f);
+    update(cx, &f, |ui, _, _| {
+        ui.refresh();
+        // Before (round 5): the start change kept "Run interrupted…".
+        assert_eq!(
+            start_change_attention(ui, &chat, &run),
+            vec![brn_threads_app::run_attention::REVIEW_ATTENTION.to_owned()]
+        );
+        let reasons = &row(ui, &chat).reasons;
+        assert_eq!(reasons.len(), 2, "{reasons:?}");
+        assert_eq!(reasons[0], brn_threads_app::run_attention::REVIEW_ATTENTION);
+        assert!(reasons[1].starts_with("Run failed: "), "{reasons:?}");
+        assert!(
+            !reasons
+                .iter()
+                .any(|r| r == brn_ai::threads::INTERRUPTED_ATTENTION),
+            "{reasons:?}"
+        );
+        assert!(has_candidate(ui, &operation));
+    });
+}
+
+/// A seeded Working Run with no lease counts as crashed: Continue in its
+/// chat ends it as Interrupted, adds the Review item for its proposal and
+/// removes its free lease file before the next Run starts.
+#[gpui_kit::test]
+fn continue_in_a_chat_whose_reply_no_process_holds_interrupts_it(cx: &mut TestAppContext) {
+    let f = fixture(cx);
+    let (chat, run, operation) = update(cx, &f, |ui, window, cx| {
+        ui.choose_delegation(DelegationChoice::MaintainOrdinaryNotes, cx);
+        let killed = killed_intake_in(ui, &f.data);
+        assert!(row(ui, &killed.0).reasons.is_empty());
+        assert!(lease_file(ui, &killed.1).exists());
+        ui.open_thread(&killed.0, window, cx);
+        killed
+    });
+    update(cx, &f, |ui, _, cx| {
+        ui.continue_run(chat.clone(), cx);
+        assert!(ui.worker.is_some(), "{}", ui.notice);
+    });
+    wait_for_worker(cx, &f);
+    update(cx, &f, |ui, _, _| {
+        ui.refresh();
+        assert!(
+            matches!(&ui.workspace.store.record(&run).unwrap().unwrap().data,
+                RecordData::Run(r) if r.state == RunState::Interrupted)
+        );
+        assert!(!lease_file(ui, &run).exists());
+        let reasons = &row(ui, &chat).reasons;
+        assert_eq!(reasons[0], brn_threads_app::run_attention::REVIEW_ATTENTION);
+        assert!(has_candidate(ui, &operation));
+    });
+}
+
 /// The CLI half runs first on shared synthetic data from the same build:
 /// `brn intake --intent useful --source SOURCE` with offline credentials.
 #[gpui_kit::test]

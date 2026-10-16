@@ -840,6 +840,20 @@ impl ThreadsUi {
                 });
                 slot.signature = signature;
             }
+            // A search hit opened this chat: show its Message once.
+            let reveal = self
+                .reveal_message
+                .borrow()
+                .clone()
+                .filter(|(chat, _)| chat == id);
+            if let Some((_, message)) = reveal {
+                if let Some(index) = messages.iter().position(|record| record.id == message) {
+                    slot.state.update(cx, |s, cx| {
+                        s.scroll_to_item(index, cx);
+                    });
+                }
+                self.reveal_message.borrow_mut().take();
+            }
             slot.state.clone()
         };
         let weak = cx.entity().downgrade();

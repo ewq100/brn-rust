@@ -685,6 +685,161 @@ pub(super) fn record_rewrite_run(
     });
 }
 
+/// R3 (native recheck at `354c1940`): a rewrite request that may need
+/// refresh reads in owner terms in Changes, on one line inside the panel,
+/// never as its saved JSON; the full name is in the tooltip and label.
+#[gpui_kit::test]
+fn changes_name_a_rewrite_request_that_may_need_refresh_in_owner_terms(cx: &mut TestAppContext) {
+    let f = fixture(cx, 900., 600., "Saved text for a rewrite.");
+    update(cx, &f, |view, window, cx| {
+        let thread = view.workspace.new_thread("Rewrite chat").unwrap().id;
+        view.workspace
+            .link_writing_thread("polish-link", &f.note.id, f.note.version, &thread)
+            .unwrap();
+        view.refresh();
+        view.select_writing_thread(f.note.id.clone(), thread, window, cx);
+        // Offline: the request is saved and no AI starts.
+        view.rewrite_note(cx);
+    });
+    change_saved(cx, &f, |note| note.markdown = "Changed elsewhere.".into());
+    let (operation, request, note_title) = cx.read(|cx| {
+        let view = f.view.read(cx);
+        let receipt = view.history.last().unwrap();
+        let request = receipt
+            .needs_refresh
+            .iter()
+            .find(|id| {
+                matches!(view.workspace.store.record(id).unwrap().map(|r| r.data),
+                    Some(RecordData::Message(m)) if m.role == WRITING_REQUEST_ROLE)
+            })
+            .cloned()
+            .expect("the saved rewrite request may need refresh");
+        (
+            receipt.operation.as_str().to_owned(),
+            request,
+            title(&f.note),
+        )
+    });
+    update(cx, &f, |view, window, cx| {
+        view.show_tile(TileKind::History, window, cx)
+    });
+    on_window(cx, &f, |window, _| {
+        let pill = window.find(format!("refresh-record-{operation}-{request}"));
+        assert_eq!(
+            pill.label(),
+            Some(format!("May need refresh: Rewrite request · {note_title}").as_str())
+        );
+        // Before: the pill showed `{"version":1,"snapshot":…` past the edge.
+        assert!(!pill.label().unwrap().contains('{'));
+        let panel = window.find("tile-history").bounds();
+        let bounds = pill.bounds();
+        assert!(
+            bounds.left() >= panel.left() && bounds.right() <= panel.right() + px(0.5),
+            "{bounds:?} in {panel:?}"
+        );
+        assert!(bounds.size.height <= px(32.), "one line: {bounds:?}");
+    });
+}
+
+/// Gives the latest run of `thread` the chat's recorded notice, as the
+/// service leaves it when a run ends Failed or Interrupted: a Blocker whose
+/// record is that run.
+pub(super) fn record_notice(cx: &mut TestAppContext, f: &Fixture, thread: &str, notice: &str) {
+    update(cx, f, |view, _, cx| {
+        let run = latest_run(&view.records, &view.history, thread)
+            .unwrap()
+            .id
+            .clone();
+        let chat = view.workspace.store.record(thread).unwrap().unwrap();
+        let RecordData::Thread(mut data) = chat.data else {
+            unreachable!()
+        };
+        data.attention = vec![Attention {
+            kind: AttentionKind::Blocker,
+            reason: notice.into(),
+            record: Some(run),
+        }];
+        view.workspace
+            .owner_change(
+                &format!("notice-{}", uuid::Uuid::new_v4()),
+                &ChangeRequest {
+                    reason: "Synthetic terminal notice".into(),
+                    inputs: vec![],
+                    writes: vec![Put {
+                        id: thread.into(),
+                        expected_version: Some(chat.version),
+                        archived: false,
+                        data: RecordData::Thread(data),
+                    }],
+                },
+            )
+            .unwrap();
+        view.refresh();
+        cx.notify();
+    });
+}
+
+/// U10: the Note's run status reads as the chat's recorded notice for a
+/// failed or interrupted rewrite, the same text Needs you shows, with the
+/// run's progress after it as detail. Without a notice (the owner's Stop
+/// records none) it keeps "Rewrite …" and the progress.
+#[gpui_kit::test]
+fn a_failed_rewrite_reads_as_the_chats_recorded_notice(cx: &mut TestAppContext) {
+    use workbench::WritingRow;
+    let f = fixture(cx, 1250., 860., "Saved text for a rewrite.");
+    let thread = update(cx, &f, |view, window, cx| {
+        let thread = view.workspace.new_thread("Rewrite chat").unwrap().id;
+        view.workspace
+            .link_writing_thread("polish-link", &f.note.id, f.note.version, &thread)
+            .unwrap();
+        view.refresh();
+        view.select_writing_thread(f.note.id.clone(), thread.clone(), window, cx);
+        view.rewrite_note(cx);
+        thread
+    });
+    let notice =
+        "Run failed: The provider account needs reconnecting. Continue when the provider is ready.";
+    for (state, tone) in [
+        (RunState::Failed, "Error"),
+        (RunState::Interrupted, "Warning"),
+    ] {
+        record_rewrite_run(cx, &f, state.clone(), "Synthetic agent progress");
+        // Before the notice: the state and the run's progress.
+        on_window(cx, &f, |window, _| {
+            let text = window
+                .find("writing-run-status")
+                .label()
+                .unwrap()
+                .to_owned();
+            assert!(text.starts_with("Rewrite "), "{text}");
+            assert!(text.ends_with("· Synthetic agent progress"), "{text}");
+        });
+        record_notice(cx, &f, &thread, notice);
+        assert_eq!(row(cx, &f), Some(WritingRow::Retry));
+        on_window(cx, &f, |window, _| {
+            assert_eq!(
+                window.find("writing-run-status").label(),
+                Some(format!("{notice} · Synthetic agent progress").as_str()),
+                "{state:?}"
+            );
+            assert_eq!(window.find("writing-run-status-tone").label(), Some(tone));
+        });
+        cx.read(|cx| {
+            let view = f.view.read(cx);
+            let row = view
+                .thread_rows
+                .iter()
+                .find(|row| row.id == thread)
+                .unwrap();
+            assert_eq!(
+                row.reasons,
+                vec![notice.to_owned()],
+                "Needs you shows the same text"
+            );
+        });
+    }
+}
+
 #[gpui_kit::test]
 fn each_writing_state_has_one_primary_and_run_outcomes_show_their_full_reason(
     cx: &mut TestAppContext,

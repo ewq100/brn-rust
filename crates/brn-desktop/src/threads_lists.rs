@@ -748,6 +748,16 @@ pub(super) enum LaunchItem {
         id: String,
         title: String,
     },
+    /// A saved chat Message the owner search matched; opens its chat.
+    Message {
+        chat: String,
+        message: String,
+        chat_title: String,
+        role: String,
+        snippet: String,
+        highlights: Vec<std::ops::Range<usize>>,
+        archived: bool,
+    },
     Command(Command),
 }
 impl LaunchItem {
@@ -755,7 +765,20 @@ impl LaunchItem {
     pub(super) fn label(&self) -> String {
         match self {
             Self::Thread { title, .. } | Self::Note { title, .. } => title.clone(),
+            Self::Message { snippet, .. } => snippet.clone(),
             Self::Command(command) => command.label(),
+        }
+    }
+    /// Muted text after the label: a Message's chat and who wrote it.
+    pub(super) fn meta(&self) -> Option<String> {
+        match self {
+            Self::Message {
+                chat_title, role, ..
+            } => Some(format!(
+                "{chat_title} · {}",
+                super::search_view::role_label(role)
+            )),
+            _ => None,
         }
     }
     /// The announced name keeps the kind and the archived state.
@@ -768,14 +791,27 @@ impl LaunchItem {
                 if *resolved { " · archived" } else { "" }
             ),
             Self::Note { title, .. } => format!("Note: {title}"),
+            Self::Message {
+                chat_title,
+                role,
+                snippet,
+                archived,
+                ..
+            } => format!(
+                "Message in {chat_title}, {}: {snippet}{}",
+                super::search_view::role_label(role),
+                if *archived { " · archived" } else { "" }
+            ),
             Self::Command(command) => command.label(),
         }
     }
-    /// Results are ordered chats, notes, commands, so headings follow order.
+    /// Results are ordered chats, notes, chat messages, commands, so
+    /// headings follow order.
     pub(super) fn group(&self) -> &'static str {
         match self {
             Self::Thread { .. } => "Chats",
             Self::Note { .. } => "Notes",
+            Self::Message { .. } => "In chats",
             Self::Command(_) => "Commands",
         }
     }
@@ -783,8 +819,15 @@ impl LaunchItem {
 pub(super) const LAUNCH_LIMIT: usize = 20;
 
 /// Empty queries show recent work then commands; otherwise every thread
-/// (including resolved), note and command whose label matches.
-pub(super) fn launcher(query: &str, threads: &[ThreadRow], notes: &[NoteRow]) -> Vec<LaunchItem> {
+/// (including resolved), note and command whose label matches, with the
+/// owner search's matching chat Messages (`messages`, as the Notes search
+/// lists them under "In chats") before the commands.
+pub(super) fn launcher(
+    query: &str,
+    threads: &[ThreadRow],
+    notes: &[NoteRow],
+    messages: &[brn_threads_app::ChatMessageHit],
+) -> Vec<LaunchItem> {
     let query = query.trim().to_lowercase();
     let thread = |row: &ThreadRow| LaunchItem::Thread {
         id: row.id.clone(),
@@ -808,12 +851,30 @@ pub(super) fn launcher(query: &str, threads: &[ThreadRow], notes: &[NoteRow]) ->
             .take(LAUNCH_LIMIT)
             .collect();
     }
+    let matches = |item: &LaunchItem| item.accessible_label().to_lowercase().contains(&query);
+    let message = |hit: &brn_threads_app::ChatMessageHit| LaunchItem::Message {
+        chat: hit.chat.clone(),
+        message: hit.message.clone(),
+        chat_title: hit.chat_title.clone(),
+        role: hit.role.clone(),
+        snippet: hit.snippet.clone(),
+        highlights: hit.highlights.clone(),
+        archived: hit.archived,
+    };
     threads
         .iter()
         .map(thread)
         .chain(notes.iter().map(note))
-        .chain(Command::all().into_iter().map(LaunchItem::Command))
-        .filter(|item| item.accessible_label().to_lowercase().contains(&query))
+        .filter(matches)
+        // The search already matched these; their text need not contain
+        // the query verbatim.
+        .chain(messages.iter().map(message))
+        .chain(
+            Command::all()
+                .into_iter()
+                .map(LaunchItem::Command)
+                .filter(matches),
+        )
         .take(LAUNCH_LIMIT)
         .collect()
 }
@@ -1199,7 +1260,7 @@ mod tests {
         let activity = Activity::default();
         let threads = thread_rows(&records, &activity);
         let notes = note_rows(&records, &activity);
-        let items = launcher("renewal", &threads, &notes);
+        let items = launcher("renewal", &threads, &notes, &[]);
         assert_eq!(items.len(), 2);
         assert_eq!(items[0].label(), "Renewal date");
         assert_eq!(items[0].accessible_label(), "Chat: Renewal date · archived");
@@ -1207,15 +1268,15 @@ mod tests {
         assert_eq!(items[1].accessible_label(), "Note: Renewal contract");
         assert_eq!(items[1].group(), "Notes");
         assert_eq!(
-            launcher("archived", &threads, &notes),
+            launcher("archived", &threads, &notes, &[]),
             [items[0].clone()],
             "the archived state stays searchable"
         );
         assert!(
-            launcher("raba", &threads, &notes)
+            launcher("raba", &threads, &notes, &[])
                 .contains(&LaunchItem::Command(Command::Theme(ThemeId::Raba)))
         );
-        let empty = launcher("", &threads, &notes);
+        let empty = launcher("", &threads, &notes, &[]);
         assert!(
             !empty
                 .iter()
@@ -1225,6 +1286,52 @@ mod tests {
         assert!(empty.contains(&LaunchItem::Command(Command::NewThread)));
         assert_eq!(Command::Layout(Preset::Chat).keystroke(), Some("alt-2"));
         assert_eq!(Command::Keys.keystroke(), None);
+    }
+
+    /// F-UI1: the launcher lists the owner search's chat Messages under
+    /// "In chats", after notes and before commands, with an archived label.
+    #[test]
+    fn launcher_lists_matching_chat_messages_before_commands() {
+        let records = vec![note("n", "Berth plan", false)];
+        let activity = Activity::default();
+        let notes = note_rows(&records, &activity);
+        let hit = |message: &str, snippet: &str, archived: bool| ChatMessageHit {
+            message: message.into(),
+            version: 1,
+            chat: "chat".into(),
+            chat_title: "Replies".into(),
+            role: "owner".into(),
+            snippet: snippet.into(),
+            highlights: vec![std::ops::Range { start: 0, end: 5 }],
+            archived,
+        };
+        // The service matched both; the second snippet lacks the word.
+        let messages = [
+            hit("m1", "Berth survey reply draft 1.4 m", false),
+            hit("m2", "Survey reply, kept", true),
+        ];
+        let items = launcher("berth", &[], &notes, &messages);
+        let groups: Vec<_> = items.iter().map(LaunchItem::group).collect();
+        assert_eq!(groups, ["Notes", "In chats", "In chats"]);
+        assert_eq!(items[1].label(), "Berth survey reply draft 1.4 m");
+        assert_eq!(items[1].meta().as_deref(), Some("Replies · You"));
+        assert_eq!(
+            items[1].accessible_label(),
+            "Message in Replies, You: Berth survey reply draft 1.4 m"
+        );
+        assert_eq!(
+            items[2].accessible_label(),
+            "Message in Replies, You: Survey reply, kept · archived"
+        );
+        assert!(matches!(
+            &items[2],
+            LaunchItem::Message { chat, message, archived: true, .. } if chat == "chat" && message == "m2"
+        ));
+        // Without a search answer nothing is invented.
+        assert!(
+            launcher("berth", &[], &[], &[]).is_empty(),
+            "no label matches and no Messages"
+        );
     }
 
     #[test]
@@ -1254,7 +1361,7 @@ mod tests {
             "{labels:?}"
         );
         assert_eq!(
-            launcher("projects", &[], &[]),
+            launcher("projects", &[], &[], &[]),
             [LaunchItem::Command(Command::OpenTile(TileKind::Projects))]
         );
     }

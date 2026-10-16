@@ -361,3 +361,42 @@ fn save_as_decision_dialog_ignores_enter_in_the_title_and_saves_on_cmd_enter(
         assert!(view.notice.contains("Undo is in Changes"), "{}", view.notice);
     });
 }
+
+/// R2 (native recheck at `354c1940`): saved queue work still blocks Edit
+/// note (the base gating), but the reason says what waits instead of "BRN
+/// is working", and the status bar says the same instead of "Idle".
+#[gpui_kit::test]
+fn a_paused_queue_blocks_edit_note_with_a_reason_the_status_bar_shares(cx: &mut TestAppContext) {
+    let f = fixture(cx);
+    cx.update_window(f.window, |_, window, _| {
+        assert_eq!(window.find("edit-note-context").label(), Some("Edit note"));
+        assert_eq!(window.find("idle-status").label(), Some("Idle"));
+    })
+    .unwrap();
+    cx.update_window(f.window, |_, _, cx| {
+        f.view.update(cx, |ui, cx| {
+            ui.workspace
+                .queue_message("r2-queued", &f.thread, "Later question")
+                .unwrap();
+            ui.workspace.pause_queue("r2-pause").unwrap();
+            ui.refresh();
+            cx.notify();
+        })
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        let ui = f.view.read(cx);
+        assert!(ui.worker.is_none());
+        assert!(!ui.can_edit_note_context(), "the gating is unchanged");
+        assert_eq!(
+            window.find("edit-note-context").label(),
+            Some("Edit note, unavailable: a queued message is paused · Resume or clear the queue")
+        );
+        assert_eq!(
+            window.find("idle-status").label(),
+            Some("Queue paused · 1 waiting")
+        );
+    })
+    .unwrap();
+}

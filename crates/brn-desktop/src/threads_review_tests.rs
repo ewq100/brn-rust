@@ -1205,6 +1205,47 @@ fn comment_placement_follows_the_note_width(cx: &mut TestAppContext) {
     });
 }
 
+/// R1 (native recheck at `354c1940`): at 900×600 with a stacked draft open,
+/// the writing bar stays whole inside the Note, also with a notice shown
+/// and Retry saved rewrite as its primary. The draft keeps its whole input;
+/// the text gives way to its few lines, never under 48 px.
+#[gpui_kit::test]
+fn an_open_stacked_draft_keeps_the_whole_writing_bar_at_900x600(cx: &mut TestAppContext) {
+    let f = fixture(cx, 900., 600., TEXT);
+    cx.update(|cx| cx.bind_keys(bindings()));
+    commented(cx, &f, false);
+    // Offline the request is saved and no AI starts: Retry saved rewrite
+    // becomes the bar's primary.
+    update(cx, &f, |view, _, cx| view.rewrite_note(cx));
+    for notice in [false, true] {
+        if notice {
+            update(cx, &f, |view, _, _| {
+                view.inform(
+                    "Undone. 8 related items may need refresh. Open Changes to review them.",
+                )
+            });
+        }
+        select(cx, &f, "brown");
+        on_window(cx, &f, |window, cx| window.press("cmd-/", cx));
+        on_window(cx, &f, |window, _| {
+            if notice {
+                assert!(window.find("workspace-notice").visible());
+            }
+            let note = window.find("tile-note").bounds();
+            let bar = window.find("note-bar").bounds();
+            assert!(
+                bar.bottom() <= note.bottom() + px(0.5),
+                "notice {notice}: {bar:?} in {note:?}"
+            );
+            assert_in(window, "retry-rewrite", note);
+            assert_draft_in(window, window.find("comments-section").bounds());
+            let text = window.find("note-body").bounds();
+            assert!(text.size.height >= px(48.), "{text:?}");
+        });
+        on_window(cx, &f, |window, cx| window.click("cancel-comment", cx));
+    }
+}
+
 /// Every comment capability works in the stacked section at 900×600.
 #[gpui_kit::test]
 fn stacked_comments_keep_every_comment_capability(cx: &mut TestAppContext) {

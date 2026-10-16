@@ -12,6 +12,10 @@ struct Fixture {
     run: String,
     sender: mpsc::SyncSender<WorkerEvent>,
     cancel: CancellationToken,
+    /// A seeded Working run stands for this window's live worker, so it
+    /// holds the run's lease as a real worker does; without it every stop
+    /// path would treat the run as crashed.
+    lease: Option<brn_ai::run_lease::RunLease>,
 }
 fn fixture(cx: &mut TestAppContext, state: RunState) -> Fixture {
     cx.update(gpui_kit::init);
@@ -27,6 +31,7 @@ fn fixture(cx: &mut TestAppContext, state: RunState) -> Fixture {
         .unwrap();
     let operation = workspace.store.allocate_operation("synthetic-run").unwrap();
     let run = operation.creation_id(0);
+    let live = state == RunState::Working;
     workspace
         .owner_change(
             "synthetic-run",
@@ -57,6 +62,10 @@ fn fixture(cx: &mut TestAppContext, state: RunState) -> Fixture {
             },
         )
         .unwrap();
+    let lease = live.then(|| {
+        brn_ai::run_lease::RunLease::acquire(&workspace.store.derived_directory().unwrap(), &run)
+            .unwrap()
+    });
     let (sender, receiver) = mpsc::sync_channel(16);
     let cancel = CancellationToken::new();
     let (window, view) = cx.update(|cx| {
@@ -102,7 +111,26 @@ fn fixture(cx: &mut TestAppContext, state: RunState) -> Fixture {
         run,
         sender,
         cancel,
+        lease,
     }
+}
+/// The chat's attention reasons, read from the saved chat.
+fn saved_reasons(f: &Fixture) -> Vec<String> {
+    let workspace = Workspace::open(&f.data).unwrap();
+    match workspace.store.record(&f.thread).unwrap().unwrap().data {
+        RecordData::Thread(thread) => thread.attention.into_iter().map(|a| a.reason).collect(),
+        _ => panic!("Thread"),
+    }
+}
+fn lease_exists(f: &Fixture) -> bool {
+    Workspace::open(&f.data)
+        .unwrap()
+        .store
+        .derived_directory()
+        .unwrap()
+        .join("run-leases")
+        .join(format!("{}.lock", f.run.replace(':', "_")))
+        .exists()
 }
 fn assert_saved(f: &Fixture, expected_state: RunState, expected_fence: u64) {
     let workspace = Workspace::open(&f.data).unwrap();
@@ -134,6 +162,15 @@ fn stop_and_send_click_is_durable_and_waits_then_drains_without_retargeting(
     cx.run_until_parked();
     assert!(f.cancel.is_cancelled());
     assert_saved(&f, RunState::Interrupted, 1);
+    // Steering live work adds no notice, and the worker keeps its lease.
+    assert!(
+        !saved_reasons(&f)
+            .iter()
+            .any(|r| r == brn_ai::threads::INTERRUPTED_ATTENTION),
+        "{:?}",
+        saved_reasons(&f)
+    );
+    assert!(lease_exists(&f));
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |ui, cx| {
             assert_eq!(ui.composer.read(cx).value().as_ref(), "");
@@ -194,6 +231,34 @@ fn stop_and_send_click_is_durable_and_waits_then_drains_without_retargeting(
     })
     .unwrap();
     assert_saved(&f, RunState::Interrupted, 1);
+}
+
+/// A seeded Working run whose process ended (no lease) counts as crashed:
+/// Steer stops it with the Interrupted notice and removes its free lease
+/// file. The follow-up run's start would clear the notice (decision 1);
+/// offline, no run starts here.
+#[gpui_kit::test]
+fn steer_of_a_reply_no_process_holds_records_the_interrupted_notice(cx: &mut TestAppContext) {
+    let mut f = fixture(cx, RunState::Working);
+    // The process ended: its lease is gone, its file left behind.
+    drop(f.lease.take());
+    let leftover = Workspace::open(&f.data)
+        .unwrap()
+        .store
+        .derived_directory()
+        .unwrap()
+        .join("run-leases")
+        .join(format!("{}.lock", f.run.replace(':', "_")));
+    std::fs::write(&leftover, b"").unwrap();
+    cx.update_window(f.window, |_, window, cx| window.click("chat-steer", cx))
+        .unwrap();
+    cx.run_until_parked();
+    assert_saved(&f, RunState::Interrupted, 1);
+    assert_eq!(
+        saved_reasons(&f),
+        vec![brn_ai::threads::INTERRUPTED_ATTENTION.to_owned()]
+    );
+    assert!(!lease_exists(&f));
 }
 
 #[gpui_kit::test]
