@@ -43,6 +43,6 @@ Review focuses: mandatory input exceeding budget; stale summary publication afte
 - [x] Read current routes, map implemented recovery/search instead of reimplementing it.
 - [x] Choose four bounded mechanisms, document their remaining qualification.
 - [x] Run and report explicit memory/compactor, scripted-HTTP prefix, rmcp conversion/cancellation/refresh and checkpoint proofs (initial 4 passed; corrected 5-test proof includes actual resume and local Stop semantics; see evidence).
-- [ ] Lead independently reviews exact C0 diff; no later slice starts from this worker.
+- [x] Copilot Opus approved corrected C0 candidate `adfab879`; principal accepted C0 exit. [Review](../modular-foundation/c0/opus-review-round2.md) and [disposition](../modular-foundation/evidence.md#principal-exit-and-cl-disposition). D slices retain their CW2 and owner-decision dependencies.
 
 No live/provider/native qualification or owner acceptance is claimed. D-S/D-M unresolved; PC/T deferred; X retains Poppler; L prevents live comparison. Raw `AgentRun` serialization is disposable test material: use small BRN progress records plus fresh invocations in production. Rig already provides hook-aware `Agent::resume`; no custom driver is proposed. The CallTools probe observes re-execution of a pre-crash effect, settlement hooks, zero memory loads and one memory append per resume. Replaying a checkpoint can repeat both effect and append; it is not BRN receipt/authority recovery. D2 retains the bounded progress/fresh-invocation design (R01/R03).
