@@ -62,3 +62,7 @@ The executed diagnostic WIP (`a10d9d7076ac34892d43e264f289ac018c65ef1ca9838a6713
 ## Handback
 
 All build/Clippy/native-test children were reaped, final process check was empty, and the worker explicitly released the heavy slot before finishing this record. Source is frozen for the principal's independent review. Implemented and locally automated-verified only; not independently approved, integrated, native-observed or owner-accepted. B1a disposition stays with the principal.
+
+## Principal local carry-forward after CW2
+
+The principal retained the independent [fixture review](opus-review-round1.md) from local foundation `22624ac1`. Its source correction is already present here through `aea4830f`; no additional source patch is applied. The diagnostic file-movement hold is lifted for B1a after CW2 explicit release. Original widget-B attribution, hosted CI and native observation remain open. See the [CW2 local disposition](../cw2/principal-disposition.md).

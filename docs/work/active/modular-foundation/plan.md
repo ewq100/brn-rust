@@ -1,6 +1,6 @@
 # Combined C0 implementation plan
 
-**Current slice:** CW1 source/contracts locally accepted for dependent development at `df1bba4a` (source/test pin `521454f2`, Opus rounds 2/3 approved). Full qualification remains open for carried PDF/widget failures; no four-green, native-observed, owner-accepted or merged claim. CW2 is allocated next; B1a remains held pending the bounded dialog-test disposition.
+**Current slice:** CW2 source `12b0d329` is reviewed and locally accepted for dependent development after explicit clean handoff `4ccece6f`. B1a and D1A are eligible with disjoint ownership and one heavy build at a time. Full qualification remains open. [Principal disposition](cw2/principal-disposition.md) supersedes historical checkpoint/hold statements below.
 
 **C0 goal:** establish a reviewable baseline for modular foundation plus agent-capabilities Slice 0, without production edits.
 **Architecture:** keep the checked core/app services and Rig runtime. C0 documents their seams and tests upstream reuse in an independent experiment.
