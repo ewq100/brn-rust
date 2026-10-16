@@ -94,7 +94,7 @@ Attach a document to a project only with `--intent project --project ID`, which 
 
 | Commands | `outcome` | `operation` | `changed` |
 |---|---|---|---|
-| Reads (`records`, `notes`, `threads`, `needs-you`, `history`, `candidates`, `settings`, `projects`, `project-delete-preview`, `read` without `--limit`, `revisions`, `revision`, `runs`, `search`, `connections`, `topics`, `recovery`, `knowledge-check`) and non-receipt writes (`init`, `begin-edit`, `export`, `backup`, `restore`, `upgrade`, `model-install`, `knowledge-check --seed-chat yes`) | null | null | `[]` |
+| Reads (`records`, `notes`, `threads`, `needs-you`, `history`, `candidates`, `settings`, `projects`, `project-delete-preview`, `read` without `--limit`, `revisions`, `revision`, `runs`, `operation`, `search`, `connections`, `topics`, `recovery`, `knowledge-check`) and non-receipt writes (`init`, `begin-edit`, `export`, `backup`, `restore`, `upgrade`, `model-install`, `knowledge-check --seed-chat yes`) | null | null | `[]` |
 | Project commands, `queue`, `archive`, `resolve`, `unarchive` (result is a receipt) | `Applied` | `result.operation` | the receipt's writes |
 | `note-create`, `thread-start` (result is the created record) | `Applied` | the receipt's operation | the receipt's writes |
 | `undo` | ApplyOutcome | the compensation operation, in every outcome | writes when Applied |
@@ -170,6 +170,7 @@ Lists that can grow without bound have a bounded page form. Without page options
 | `revisions` | `--note ID [--limit 1..32, default 32] [--cursor VERSION]` | `{id, revisions, shown, cursor}`; each revision is `{version, operation, reason, authority, committed_at}`. |
 | `revision` | `--note ID --version V [--limit 1..131072, default 65536] [--cursor BYTE]` | One accepted revision's text slice `{id, version, title, start, end, total_bytes, markdown, next_start, cursor}`; stays readable after later edits. |
 | `read` | `--id ID --limit 1..131072 [--cursor VERSION.START]` | `{outcome: "Read", note: {…}, cursor}`, or `{outcome: "Stale", id, expected_version, current_version, cursor: null}` (exit 3, `conflict` names the note) when the note changed since the first page. `--cursor` needs `--limit`; a Thread or other record is `invalid_request`. |
+| `operation` | `--id OP`, or `--key K --command NAME` | `{operation, state, undo_of, replacement_of, request_hash, reason, inputs, inputs_total, writes, writes_total, receipt, related}`. `state` is `applied`, `prepared` (an unapplied candidate), `retired` or `allocated` (the key was used but nothing was prepared). `writes` come from the receipt, else from the prepared request; `inputs` lists at most 64 `{record, version, expectation}`; `receipt` is `{committed_at, authority}` or null. `--key` finds the operation a keyed command recorded under that key (`--command` names the command; `resolve` shares `archive`'s scope, project commands share one scope). A lookup never allocates, so looking a key up does not use it. An unknown id or unused key is `not_found`; `--command` naming a command without `--key` is `invalid_value`. The envelope `key` echoes the looked-up key. |
 | `runs` | `[--thread ID] [--state working\|interrupted\|completed\|cancelled\|failed] [--limit 1..100, default 20] [--cursor RUN]` | `{runs, shown, cursor, total: null}`; each run is `{id, version, archived, thread, state, provider, model, effort, budget, fence, progress, operations_total, guards_writes}`. |
 
 - Pass `cursor` back unchanged with the same options to get the next page; it is null on the last page. Cursors are checked before the workspace opens (`invalid_value`); a well-formed cursor that does not fit (a byte offset inside a character) is `invalid_request`, and an unknown well-formed record or run cursor gives the following page or an empty one.
@@ -191,7 +192,7 @@ Lists that can grow without bound have a bounded page form. Without page options
 
 ### Retries
 
-A key names one intended change. Reuse it only to retry the same command with the same inputs; use a new key for every new change. Keys are scoped per command (`resolve` shares `archive`'s scope; project commands share one scope and keep their existing raw keys). Keys are stored in the workspace, so a retry against a restored backup replays too.
+A key names one intended change. Reuse it only to retry the same command with the same inputs; use a new key for every new change. Keys are scoped per command (`resolve` shares `archive`'s scope; project commands share one scope and keep their existing raw keys, so use one key per project change). `operation --key K --command NAME` shows what a key recorded without using it. Keys are stored in the workspace, so a retry against a restored backup replays too.
 
 | Class | Meaning |
 |---|---|
@@ -239,6 +240,7 @@ A key names one intended change. Reuse it only to retry the same command with th
 | `revisions` | no | read | — | no |
 | `revision` | no | read | — | no |
 | `runs` | no | read | — | no |
+| `operation` | no | read | — | no |
 | `search` | no | read | — | no |
 | `begin-edit` | no | refuse (`edit_session_open` names the open session) | — | no |
 | `update-buffer` | no | replay (an identical retry exits 0 with `Ignored`) | — | no |
@@ -293,7 +295,7 @@ Every in-repo consumer moved to contract 2 in the same change; there is no contr
 | `contract` | `1` | `2`, in every envelope and in `brn --json --help` |
 | `page` | absent | always present: null, or `{limit, shown, cursor, total}` |
 | `stop` | absent | always present: null, `sigint`, `sigterm` or `deadline` |
-| Inspection | `history`, `candidates`, `records` return everything | page options and the `revisions`, `revision`, `runs` commands; `read --limit` returns `Read` or `Stale` |
+| Inspection | `history`, `candidates`, `records` return everything | page options and the `revisions`, `revision`, `runs`, `operation` commands; `read --limit` returns `Read` or `Stale` |
 
 ### Before and after
 

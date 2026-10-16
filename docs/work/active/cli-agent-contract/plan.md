@@ -453,7 +453,7 @@ Command: `git -C /Users/evokessler/repos/brn-rust -c core.fsmonitor=false log --
       - the baseline run of `agent_inspect` fails, and every failure is recorded;
       - `python3 scripts/cli_journey.py "$PWD/target/debug/brn"` still passes.
 
-- [ ] R2-4. **A1 CLI: `operation`, `cli_key`, and the evaluator migration** (design A1 "Keys", "Migrate").
+- [x] R2-4. **A1 CLI: `operation`, `cli_key`, and the evaluator migration** (design A1 "Keys", "Migrate").
       **Key refactor.**
       - Move the `--key` branch of `Invocation::host_key` (`main.rs:302-310`) verbatim into `spec::cli_key(cmd, key) -> String`. It returns `"cli-key:{canonical}:{key}"` and resolves `alias_of`. `host_key` calls it, and write paths keep passing this unprefixed key.
       - Add `spec::stored_host_key(cmd, key) -> Option<String>` (lookup only). Each entry gets a comment citing the app line that adds the prefix:

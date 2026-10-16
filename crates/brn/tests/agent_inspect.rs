@@ -483,3 +483,238 @@ fn identical_page_reads_return_identical_pages() {
     assert_eq!(first["retry"], "read");
     assert_eq!(ok(&root, &data, &["records"]), before);
 }
+
+/// `operation --key KEY --command COMMAND`: the envelope.
+fn lookup(root: &Root, data: &Path, command: &str, key: &str) -> Value {
+    call(
+        root,
+        data,
+        &["operation", "--key", key, "--command", command],
+    )
+}
+/// A keyed call, its replay and the lookup all name one operation.
+fn keyed_once(root: &Root, data: &Path, argv: &[&str], command: &str, key: &str) -> Value {
+    let argv = [argv, &["--key", key]].concat();
+    let first = call(root, data, &argv);
+    assert_eq!(first["status"], "ok", "{first}");
+    let replay = call(root, data, &argv);
+    assert_eq!(replay["operation"], first["operation"], "{argv:?}");
+    let found = lookup(root, data, command, key);
+    assert_eq!(found["status"], "ok", "{found}");
+    assert_eq!(found["key"], key);
+    assert_eq!(found["retry"], "read");
+    assert_eq!(found["result"]["operation"], first["operation"], "{argv:?}");
+    assert_eq!(found["result"]["state"], "applied");
+    assert_eq!(found["result"]["writes"], first["changed"], "{argv:?}");
+    first
+}
+
+#[test]
+fn operation_by_key_finds_every_keyed_command() {
+    let root = Root::new();
+    let data = root.join("data");
+    let made = keyed_once(
+        &root,
+        &data,
+        &["note-create", "--title", "N", "--text", "x"],
+        "note-create",
+        "n1",
+    );
+    let chat = keyed_once(
+        &root,
+        &data,
+        &["thread-start", "--title", "C"],
+        "thread-start",
+        "t1",
+    );
+    let chat = chat["changed"][0]["id"].as_str().unwrap().to_owned();
+    keyed_once(
+        &root,
+        &data,
+        &["queue", "--thread", &chat, "--text", "later"],
+        "queue",
+        "q1",
+    );
+    let source = root.file("doc.md", b"# Doc\n\nBody.\n");
+    let attached = keyed_once(
+        &root,
+        &data,
+        &[
+            "intake", "--source", &source, "--intent", "chat", "--thread", &chat,
+        ],
+        "intake",
+        "i1",
+    );
+    let attachment = created(&attached, "Note");
+    keyed_once(
+        &root,
+        &data,
+        &["keep-in-brn", "--note", &attachment, "--base", "1"],
+        "keep-in-brn",
+        "k1",
+    );
+    keyed_once(
+        &root,
+        &data,
+        &[
+            "undo",
+            "--operation",
+            made["operation"].as_str().unwrap(),
+        ],
+        "undo",
+        "u1",
+    );
+    keyed_once(
+        &root,
+        &data,
+        &["archive", "--thread", &chat],
+        "archive",
+        "a1",
+    );
+    // resolve shares archive's scope.
+    assert_eq!(
+        lookup(&root, &data, "resolve", "a1")["result"]["operation"],
+        lookup(&root, &data, "archive", "a1")["result"]["operation"]
+    );
+    keyed_once(
+        &root,
+        &data,
+        &["unarchive", "--thread", &chat],
+        "unarchive",
+        "a2",
+    );
+    let project = keyed_once(
+        &root,
+        &data,
+        &["project-create", "--title", "P"],
+        "project-create",
+        "p1",
+    );
+    // Project commands share one raw-key scope: any project command finds it.
+    let via_chat = lookup(&root, &data, "project-chat", "p1");
+    assert_eq!(via_chat["result"]["operation"], project["operation"]);
+}
+
+#[test]
+fn candidates_and_operation_report_unapplied_candidates() {
+    let root = Root::new();
+    let data = root.join("data");
+    let made = call(
+        &root,
+        &data,
+        &["note-create", "--title", "N", "--text", "one"],
+    );
+    let note = made["changed"][0]["id"].as_str().unwrap().to_owned();
+    let original = made["operation"].as_str().unwrap().to_owned();
+    let session = id(&ok(
+        &root,
+        &data,
+        &["begin-edit", "--note", &note, "--base", "1"],
+    ));
+    let undo = ["undo", "--operation", original.as_str(), "--key", "u1"];
+    let deferred = call(&root, &data, &undo);
+    assert_eq!(deferred["status"], "deferred", "{deferred}");
+    let compensation = deferred["operation"].as_str().unwrap().to_owned();
+    let page = call(&root, &data, &["candidates", "--limit", "1"]);
+    let listed = &page["result"]["candidates"][0];
+    assert_eq!(listed["operation"], compensation.as_str());
+    assert_eq!(listed["undo_of"], original.as_str());
+    assert_eq!(listed["writes"][0]["id"], note.as_str());
+    assert_eq!(listed["writes"][0]["version"], 1);
+    assert_eq!(page["page"]["shown"], 1);
+    let info = ok(&root, &data, &["operation", "--id", &compensation]);
+    assert_eq!(info["state"], "prepared");
+    assert_eq!(info["receipt"], Value::Null);
+    assert_eq!(info["undo_of"], original.as_str());
+    assert_eq!(
+        lookup(&root, &data, "undo", "u1")["result"]["state"],
+        "prepared"
+    );
+    ok(
+        &root,
+        &data,
+        &["discard", "--session", &session, "--generation", "0"],
+    );
+    let applied = call(&root, &data, &undo);
+    assert_eq!(applied["outcome"], "Applied", "{applied}");
+    assert_eq!(applied["operation"], compensation.as_str());
+    let info = ok(&root, &data, &["operation", "--id", &compensation]);
+    assert_eq!(info["state"], "applied");
+    assert!(info["receipt"]["committed_at"].is_string());
+    let empty = ok(&root, &data, &["candidates", "--limit", "10"]);
+    assert_eq!(empty["candidates"], json!([]));
+}
+
+#[test]
+fn operation_lookup_refuses_bad_forms_and_never_allocates() {
+    let root = Root::new();
+    let absent = root.join("absent");
+    let cases: &[(&[&str], &str, &str)] = &[
+        (
+            &[
+                "operation",
+                "--id",
+                "x",
+                "--key",
+                "k",
+                "--command",
+                "note-create",
+            ],
+            "conflicting_options",
+            "",
+        ),
+        (&["operation", "--key", "k"], "missing_option", "command"),
+        (
+            &["operation", "--command", "note-create"],
+            "missing_option",
+            "key",
+        ),
+        (&["operation"], "missing_option", "id"),
+        (
+            &["operation", "--key", "k", "--command", "notes"],
+            "invalid_value",
+            "command",
+        ),
+        (
+            &["operation", "--key", "bad key", "--command", "note-create"],
+            "invalid_value",
+            "key",
+        ),
+    ];
+    for (argv, code, option) in cases {
+        let envelope = call(&root, &absent, argv);
+        assert_error(&envelope, "usage", code);
+        if !option.is_empty() {
+            assert_eq!(envelope["error"]["details"]["option"], *option, "{argv:?}");
+        }
+    }
+    assert!(!absent.exists());
+    let data = root.join("data");
+    ok(&root, &data, &["init"]);
+    assert_error(
+        &call(&root, &data, &["operation", "--id", "no-such-op"]),
+        "rejected",
+        "not_found",
+    );
+    let unused = lookup(&root, &data, "note-create", "fresh");
+    assert_error(&unused, "rejected", "not_found");
+    // Looking a key up did not use it: the keyed write still creates normally.
+    let first = call(
+        &root,
+        &data,
+        &[
+            "note-create",
+            "--title",
+            "T",
+            "--text",
+            "x",
+            "--key",
+            "fresh",
+        ],
+    );
+    assert_eq!(first["changed"][0]["created"], true, "{first}");
+    assert_eq!(
+        lookup(&root, &data, "note-create", "fresh")["result"]["operation"],
+        first["operation"]
+    );
+}

@@ -32,7 +32,8 @@ Agents and scripts: brn --json --data-dir DIR COMMAND ... prints one JSON envelo
   brn --json --help prints the machine contract (commands, options, outcomes, retry classes, error codes).
   Bounded inspection: history|candidates|records --limit N [--cursor C], revisions --note ID,
   revision --note ID --version V, runs [--thread ID] [--state STATE], read --id ID --limit BYTES;
-  pass result.cursor back as --cursor for the next page.
+  pass result.cursor back as --cursor for the next page. operation --id OP | --key K --command NAME
+  shows whether an operation (or a keyed command's key) applied, without using the key.
   Text options --title, --text, --prompt, --instructions, --actions also accept --NAME-file ABSOLUTE_FILE or --NAME-file - (stdin).
   --key KEY makes note-create, thread-start, undo, queue, archive|resolve, unarchive, keep-in-brn,
   intake --intent full|chat|project and project commands replay on retry. resolve is an alias of archive.
@@ -277,6 +278,9 @@ fn parse(
         return Err(refuse(CliError::missing_option(needs)));
     }
     spec::check_values(spec.name, &options).map_err(refuse)?;
+    if spec.name == "operation" {
+        inspect::operation_form(&options).map_err(refuse)?;
+    }
     if matches!(spec.name, "ask" | "intake") {
         if let Some(trace) = options.get("trace") {
             if !matches!(trace.as_str(), "summary" | "full") {
@@ -312,11 +316,8 @@ impl Invocation {
     /// The host request key: `cli-key:{command}:{KEY}` under `--key`, else
     /// today's random key with `prefix`.
     fn host_key(&self, prefix: &str) -> String {
-        let command = spec::spec(&self.command)
-            .and_then(|spec| spec.alias_of)
-            .unwrap_or(&self.command);
         match &self.key {
-            Some(key) => format!("cli-key:{command}:{key}"),
+            Some(key) => spec::cli_key(&self.command, key),
             None => format!("{prefix}:{}", uuid::Uuid::new_v4()),
         }
     }
@@ -695,6 +696,7 @@ async fn execute(inv: &Invocation, notes: &mut Annotations) -> Result<Value> {
         "revisions" => inspect::revisions(&workspace, inv, notes)?,
         "revision" => inspect::revision(&workspace, inv, notes)?,
         "runs" => inspect::runs(&workspace, inv, notes)?,
+        "operation" => inspect::operation(&workspace, inv)?,
         "settings" => settings_output(workspace.settings()?)?,
         "delegation" => {
             applied(workspace.choose_delegation(delegation_choice(inv.arg("choice")?)?)?)

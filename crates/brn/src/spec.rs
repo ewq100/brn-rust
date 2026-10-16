@@ -612,6 +612,10 @@ pub(crate) static COMMANDS: &[Spec] = &[
         ..read("runs", &["thread", "state", "limit", "cursor"], &[])
     },
     Spec {
+        bounded: Some(true),
+        ..read("operation", &["id", "key", "command"], &[])
+    },
+    Spec {
         page: paged(1, 50, Some(12), CursorForm::Opaque),
         bounded: Some(true),
         ..read(
@@ -883,6 +887,42 @@ pub(crate) fn key_refused<'a>(
     variant(spec, args).filter(|v| !v.key)
 }
 
+/// The unprefixed host key a `--key` write passes to the shared service:
+/// `cli-key:{command}:{KEY}`, with an alias resolved to its command.
+pub(crate) fn cli_key(command: &str, key: &str) -> String {
+    let command = spec(command)
+        .and_then(|spec| spec.alias_of)
+        .unwrap_or(command);
+    format!("cli-key:{command}:{key}")
+}
+
+/// The host key the shared service stores for `COMMAND --key KEY`, for
+/// lookup only (`operation --key`). Each prefix is added by the app function
+/// named in the comment; project commands keep the caller's raw key.
+pub(crate) fn stored_host_key(command: &str, key: &str) -> Option<String> {
+    let canonical = spec(command)?.alias_of.unwrap_or(command);
+    let prefix = match canonical {
+        // brn-threads-app lib.rs `new_note_with_key`
+        "note-create" => "new-note:",
+        // lib.rs `new_thread_with_key`
+        "thread-start" => "new-thread:",
+        // lib.rs `undo_with_key`
+        "undo" => "owner-undo:",
+        // chat.rs `chat_command`
+        "archive" | "unarchive" | "queue" => "chat-control:",
+        // intake.rs `keep_in_brn`
+        "keep-in-brn" => "keep-in-brn:",
+        // intake.rs `import_full_scoped`
+        "intake" => "full-import:",
+        // projects.rs `project_command`: one raw-key scope for every project command
+        "project-create" | "project-chat" | "project-document" | "project-settings"
+        | "chat-move" | "project-link" | "project-unlink" | "project-delete"
+        | "project-restore" => return Some(format!("project:{key}")),
+        _ => return None,
+    };
+    Some(format!("{prefix}{}", cli_key(canonical, key)))
+}
+
 pub(crate) fn key_is_valid(key: &str) -> bool {
     (1..=128).contains(&key.len())
         && key
@@ -1023,7 +1063,10 @@ mod tests {
                 let given = args(&[(variant.option, variant.equals), ("key", "k")]);
                 assert!(key_refused(spec, &given).is_none(), "{}", spec.name);
             }
-            assert!(!spec.options.contains(&"key"), "{}", spec.name);
+            // `operation --key` looks a key up; it does not take one.
+            if spec.name != "operation" {
+                assert!(!spec.options.contains(&"key"), "{}", spec.name);
+            }
         }
         let intake = spec("intake").unwrap();
         assert!(key_refused(intake, &args(&[("intent", "useful"), ("key", "k")])).is_some());
@@ -1216,6 +1259,39 @@ mod tests {
         assert!(value.get("owner_decision").is_none());
         assert_eq!(value["key"]["pattern"], KEY_PATTERN);
         assert_eq!(value["statuses"].as_array().unwrap().len(), 9);
+    }
+
+    #[test]
+    fn cli_keys_are_byte_identical_to_round_one() {
+        for (command, stored) in [
+            ("note-create", "new-note:cli-key:note-create:K"),
+            ("thread-start", "new-thread:cli-key:thread-start:K"),
+            ("undo", "owner-undo:cli-key:undo:K"),
+            ("archive", "chat-control:cli-key:archive:K"),
+            ("resolve", "chat-control:cli-key:archive:K"),
+            ("unarchive", "chat-control:cli-key:unarchive:K"),
+            ("queue", "chat-control:cli-key:queue:K"),
+            ("keep-in-brn", "keep-in-brn:cli-key:keep-in-brn:K"),
+            ("intake", "full-import:cli-key:intake:K"),
+            ("project-create", "project:K"),
+            ("project-restore", "project:K"),
+        ] {
+            assert_eq!(
+                stored_host_key(command, "K").as_deref(),
+                Some(stored),
+                "{command}"
+            );
+        }
+        assert_eq!(cli_key("resolve", "K"), "cli-key:archive:K");
+        assert_eq!(cli_key("note-create", "K"), "cli-key:note-create:K");
+        for spec in COMMANDS {
+            assert_eq!(
+                stored_host_key(spec.name, "K").is_some(),
+                spec.keyed,
+                "{}",
+                spec.name
+            );
+        }
     }
 
     #[test]

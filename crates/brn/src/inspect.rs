@@ -326,3 +326,117 @@ pub(crate) fn runs(
     set_page(notes, limit, runs.len(), &cursor, None);
     Ok(json!({"runs": runs, "shown": runs.len(), "cursor": cursor, "total": null}))
 }
+
+/// Inputs listed per operation.
+const MAX_INPUTS: usize = 64;
+
+/// `operation --id OP | --key K --command NAME`, checked before opening.
+pub(crate) fn operation_form(options: &std::collections::BTreeMap<String, String>) -> Result<()> {
+    let has = |name: &str| options.contains_key(name);
+    if has("id") && has("key") {
+        return Err(CliError::conflicting(
+            &["id", "key"],
+            "Choose either --id or --key with --command",
+        ));
+    }
+    if has("key") && !has("command") {
+        return Err(CliError::missing_option("command"));
+    }
+    if has("command") && !has("key") {
+        return Err(CliError::missing_option("key"));
+    }
+    if !has("id") && !has("key") {
+        return Err(CliError::missing_option("id"));
+    }
+    if let Some(command) = options.get("command") {
+        if crate::spec::stored_host_key(command, "k").is_none() {
+            return Err(CliError::invalid_value(
+                "command",
+                "--command must name a command that takes --key",
+            ));
+        }
+    }
+    Ok(())
+}
+
+/// Where one operation stands. A key lookup is a pure SELECT: it never allocates.
+pub(crate) fn operation(workspace: &Workspace, inv: &Invocation) -> Result<Value> {
+    let not_found = || CliError::new(Code::NotFound, "No such operation");
+    let (id, related) = match (inv.args.get("id"), inv.args.get("key")) {
+        (Some(id), _) => (id.clone(), vec![]),
+        (None, Some(key)) => {
+            let command = inv.arg("command")?;
+            let stored = crate::spec::stored_host_key(command, key).ok_or_else(not_found)?;
+            let id = workspace
+                .store
+                .operation_by_host_key(&stored)?
+                .ok_or_else(not_found)?;
+            (id.as_str().to_owned(), Vec::<String>::new())
+        }
+        (None, None) => return Err(CliError::missing_option("id")),
+    };
+    let info = workspace
+        .store
+        .operation_info(&id)
+        .map_err(|error| match error {
+            brn_threads_app::Error::Missing(_) => not_found(),
+            other => other.into(),
+        })?;
+    let state = match info.state {
+        OperationState::Applied => "applied",
+        OperationState::Prepared => "prepared",
+        OperationState::Retired => "retired",
+        OperationState::Allocated => "allocated",
+    };
+    let request = info.prepared.as_ref().map(|p| &p.request);
+    let mut inputs = vec![];
+    for input in request.map(|r| r.inputs.as_slice()).unwrap_or_default() {
+        if inputs.len() == MAX_INPUTS {
+            break;
+        }
+        inputs.push(json!({
+            "record": input.record,
+            "version": input.version,
+            "expectation": format!("{:?}", input.expectation),
+        }));
+    }
+    let (writes, writes_total) = match (&info.receipt, request) {
+        (Some(receipt), _) => {
+            let (writes, total) = write_summaries(&receipt.writes)?;
+            (encode(writes)?, total)
+        }
+        (None, Some(request)) => {
+            let (writes, total) = request_writes(request)?;
+            (json!(writes), total)
+        }
+        (None, None) => (json!([]), 0),
+    };
+    let reason = info
+        .receipt
+        .as_ref()
+        .map(|r| r.reason.as_str())
+        .or(request.map(|r| r.reason.as_str()))
+        .map(|reason| cut(reason, MAX_TEXT));
+    let request_hash = info
+        .receipt
+        .as_ref()
+        .map(|r| r.request_hash.clone())
+        .or(info.prepared.as_ref().map(|p| p.request_hash.clone()));
+    Ok(json!({
+        "operation": info.id.as_str(),
+        "state": state,
+        "undo_of": info.undo_of.as_ref().map(OperationId::as_str),
+        "replacement_of": info.replacement_of.as_ref().map(OperationId::as_str),
+        "request_hash": request_hash,
+        "reason": reason,
+        "inputs": inputs,
+        "inputs_total": request.map_or(0, |r| r.inputs.len()),
+        "writes": writes,
+        "writes_total": writes_total,
+        "receipt": info.receipt.as_ref().map(|r| json!({
+            "committed_at": r.committed_at,
+            "authority": cut(&r.authority, MAX_TEXT),
+        })),
+        "related": related,
+    }))
+}
