@@ -575,6 +575,15 @@ impl Store {
                     let action_link = matches!(&removed.data, RecordData::Link(l) if actions.contains_key(&l.from) || actions.contains_key(&l.to));
                     let mut w = put(removed);
                     w.archived = true;
+                    if !removed.archived
+                        && let RecordData::Run(run) = &mut w.data
+                        && run.state != RunState::Working
+                    {
+                        run.fence = run
+                            .fence
+                            .checked_add(1)
+                            .ok_or_else(|| Error::Invalid("run fence overflow".into()))?;
+                    }
                     if !action_link {
                         trash.push(TrashedRecord {
                             id: removed.id.clone(),
