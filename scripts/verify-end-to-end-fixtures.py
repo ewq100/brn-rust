@@ -17,12 +17,15 @@ with tempfile.TemporaryDirectory(prefix='brn-threads-fixture-',dir=parent) as ro
             if not ok: raise AssertionError('Unexpected success')
             return json.loads(result.stdout)
         if ok: raise AssertionError(result.stderr)
+    # A test workspace (B1 phase 1): created explicitly, before the first write.
+    call('init','--purpose','test')
     note=call('note-create','--title','Harbor','--text','Monday delivery')['id']
-    session=call('begin-edit','--note',note,'--base','1')['id']
-    call('update-buffer','--session',session,'--generation','1','--text','Tuesday delivery')
+    token=str(root/'edit.token')
+    session=call('begin-edit','--note',note,'--base','1','--token-out',token)['id']
+    call('update-buffer','--session',session,'--generation','1','--text','Tuesday delivery','--token-file',token)
     assert call('recovery')[0]['markdown']=='Tuesday delivery'
-    saved=call('save','--session',session,'--generation','1')
-    assert saved==call('save','--session',session,'--generation','1')
+    saved=call('save','--session',session,'--generation','1','--token-file',token)
+    assert saved==call('save','--session',session,'--generation','1','--token-file',token)
     assert call('read','--id',note)['data']['Note']['markdown']=='Tuesday delivery'
     assert call('search','--query','Tuesday')['hits'][0]['note']==note
     call('export','--destination',str(root/'export'))

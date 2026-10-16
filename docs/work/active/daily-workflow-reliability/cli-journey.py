@@ -81,7 +81,13 @@ def records(kind):
 
 
 obs = evidence["observations"]
-brn("init")
+# A test workspace (B1 phase 1): created explicitly, before the first write.
+brn("init", "--purpose", "test")
+def tok(name):
+    # Edit tokens travel only through owner-only files, never argv.
+    return str(ROOT / f"{name}.token")
+def begin(name, *args, ok=True):
+    return brn("begin-edit", *args, "--token-out", tok(name), ok=ok)
 obs["files"] = sorted(p.name for p in DATA.iterdir())
 brn("configure", "--provider", "Codex", "--model", "gpt-6.1-sol", "--effort", "medium",
     "--auth-file", str(ROOT / "missing-auth.json"))
@@ -136,30 +142,30 @@ obs["needs_you"] = len(brn("needs-you"))
 
 # Stale edit from another writer: session A (desktop) and B (CLI).
 note_id = note["id"]
-a = brn("begin-edit", "--note", note_id, "--base", "1")
-second = brn("begin-edit", "--note", note_id, "--base", "1", ok=False)
+a = begin("a", "--note", note_id, "--base", "1")
+second = begin("second", "--note", note_id, "--base", "1", ok=False)
 obs["second_dirty_session_refused"] = evidence["steps"][-1]["exit"] != 0
 obs["second_session_error"] = evidence["steps"][-1].get("stderr")
-brn("update-buffer", "--session", a["id"], "--generation", "1", "--text", "# Berth survey\n\nDesktop typing: depth 1.4 m.\n")
+brn("update-buffer", "--session", a["id"], "--generation", "1", "--text", "# Berth survey\n\nDesktop typing: depth 1.4 m.\n", "--token-file", tok("a"))
 obs["recovery_before_save"] = [(r["note"], r["generation"]) for r in brn("recovery")]
-saved = brn("save", "--session", a["id"], "--generation", "1")
+saved = brn("save", "--session", a["id"], "--generation", "1", "--token-file", tok("a"))
 obs["save_outcome"] = saved["outcome"]
-replay = brn("save", "--session", a["id"], "--generation", "1")
+replay = brn("save", "--session", a["id"], "--generation", "1", "--token-file", tok("a"))
 obs["save_replay_outcome"] = replay["outcome"]
-old = brn("begin-edit", "--note", note_id, "--base", "1", ok=False)
+old = begin("old", "--note", note_id, "--base", "1", ok=False)
 obs["begin_edit_at_old_base"] = evidence["steps"][-1].get("stderr") or {"opened_base": old.get("base")}
 if isinstance(old, dict):
-    current = brn("begin-edit", "--note", note_id, "--base", "2", ok=False)
+    current = begin("current", "--note", note_id, "--base", "2", ok=False)
     obs["begin_edit_current_while_old_open"] = evidence["steps"][-1].get("stderr") or "opened"
     obs["recovery_with_old_base_session"] = [(r["note"], r["base_version"], r["generation"]) for r in brn("recovery")]
-    brn("discard", "--session", old["id"], "--generation", str(old["generation"]), ok=False)
+    brn("discard", "--session", old["id"], "--generation", str(old["generation"]), "--token-file", tok("old"), ok=False)
     obs["discard_untyped_old_session"] = evidence["steps"][-1].get("stderr") or "discarded"
-b = brn("begin-edit", "--note", note_id, "--base", "2")
-brn("update-buffer", "--session", b["id"], "--generation", "1", "--text", "# Berth survey\n\nCLI edit.\n")
+b = begin("b", "--note", note_id, "--base", "2")
+brn("update-buffer", "--session", b["id"], "--generation", "1", "--text", "# Berth survey\n\nCLI edit.\n", "--token-file", tok("b"))
 # Another writer changes the note underneath the open session B.
 undo = brn("undo", "--operation", saved["receipt"]["operation"], ok=False)
 obs["undo_while_other_session_open"] = undo["outcome"] if isinstance(undo, dict) else evidence["steps"][-1].get("stderr")
-stale = brn("save", "--session", b["id"], "--generation", "1")
+stale = brn("save", "--session", b["id"], "--generation", "1", "--token-file", tok("b"))
 obs["save_after_other_writer"] = stale["outcome"]
 obs["recovery_after"] = [(r["note"], r["generation"], r["markdown"][-12:]) for r in brn("recovery")]
 
@@ -180,6 +186,7 @@ for delay in (0.02, 0.05, 0.1, 0.2):
                    "stages": len(list(ROOT.glob(".brn-backup-stage-*")))})
 obs["killed_backups"] = killed
 restored = ROOT / "restored"
+# reads only: restored copy is an owner workspace
 proc = subprocess.run([BRN, "--data-dir", str(restored), "restore", "--source", str(backup)], capture_output=True, text=True)
 obs["restore_exit"] = proc.returncode
 obs["restored_threads_equal"] = proc.returncode == 0 and len(json.loads(subprocess.run(

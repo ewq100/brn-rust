@@ -13,6 +13,8 @@ with tempfile.TemporaryDirectory(prefix='chat-cli-',dir=fixture_parent) as temp:
         if ok: assert r.returncode==0,r.stderr
         else: assert r.returncode!=0;return r.stderr
         return json.loads(r.stdout)
+    # A test workspace (B1 phase 1): created explicitly, before the first write.
+    call('init','--purpose','test')
     ordinary=call('note-create','--title','Historical note','--text','Unchanged ordinary knowledge')['id']
     # The CLI cannot produce an old format (invariant 17); old-format adoption is
     # covered by chat_storage.rs::adopted_upgrade_requires_external_backup_and_preserves_the_v3_snapshot.

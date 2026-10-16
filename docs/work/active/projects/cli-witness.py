@@ -37,7 +37,7 @@ with tempfile.TemporaryDirectory(prefix="brn-projects-cli-", dir="/private/tmp")
     def hits(**options):
         return {hit["note"] for hit in run("search", query="mercury", **options)["hits"]}
 
-    run("init")
+    run("init", purpose="test")
     first = run("project-create", title="Japan", key="project-once")
     check(run("project-create", title="Japan", key="project-once") == first)
     a = created(first, "Project")
@@ -67,9 +67,10 @@ with tempfile.TemporaryDirectory(prefix="brn-projects-cli-", dir="/private/tmp")
     check(run("read", id=exclusive)["archived"])
     check(shared in hits(project=b))
     note = run("read", id=shared)
-    edit = run("begin-edit", note=shared, base=note["version"])
-    update = run("update-buffer", session=edit["id"], generation=edit["generation"] + 1, text="mercury later shared edit")
-    check(run("save", session=edit["id"], generation=update["session"]["generation"])["outcome"] == "Saved")
+    token = root / "edit.token"
+    edit = run("begin-edit", note=shared, base=note["version"], token_out=token)
+    update = run("update-buffer", session=edit["id"], generation=edit["generation"] + 1, text="mercury later shared edit", token_file=token)
+    check(run("save", session=edit["id"], generation=update["session"]["generation"], token_file=token)["outcome"] == "Saved")
     deleted = run("read", id=a)
     run("project-restore", project=a, base=deleted["version"])
     check(not run("read", id=exclusive)["archived"])
@@ -81,6 +82,7 @@ with tempfile.TemporaryDirectory(prefix="brn-projects-cli-", dir="/private/tmp")
     run("backup", destination=backup)
     restored = root / "restored"
     run("restore", source=backup, directory=restored)
+    # reads only: restored copy is an owner workspace
     check(run("read", id=shared, directory=restored)["data"]["Note"]["markdown"] == "mercury later shared edit")
     check(run("projects", directory=restored) == run("projects"))
     check({h["note"] for h in run("search", query="mercury", project=a, directory=restored)["hits"]} == {shared, exclusive})
