@@ -18,10 +18,11 @@ spec.loader.exec_module(cli_journey)
 
 
 def envelope(command='notes', status='ok', exit_code=0, code=None):
-    return {'contract': 1, 'command': command, 'ok': exit_code == 0, 'status': status, 'exit': exit_code,
+    return {'contract': 2, 'command': command, 'ok': exit_code == 0, 'status': status, 'exit': exit_code,
             'outcome': None, 'operation': None, 'key': None, 'retry': 'refuse' if code else 'read',
             'changed': [], 'conflict': None, 'result': [],
-            'error': {'code': code, 'message': 'synthetic', 'details': {}} if code else None}
+            'error': {'code': code, 'message': 'synthetic', 'details': {}} if code else None,
+            'page': None, 'stop': None}
 
 
 def stub(directory, body):

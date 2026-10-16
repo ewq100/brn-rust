@@ -64,10 +64,10 @@ impl Run {
             self.stdout
         );
         let value: Value = serde_json::from_str(&self.stdout).unwrap();
-        assert_eq!(value["contract"], 1);
+        assert_eq!(value["contract"], 2);
         assert_eq!(value["exit"], self.code);
         assert_eq!(value["ok"], self.code == 0);
-        assert_eq!(value.as_object().unwrap().len(), 13, "{value}");
+        assert_eq!(value.as_object().unwrap().len(), 15, "{value}");
         assert!(!value["retry"].is_null());
         assert!(self.stderr.is_empty() || !self.stderr.contains("panicked"));
         value

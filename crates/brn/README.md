@@ -35,7 +35,7 @@ stdout carries exactly one line, a compact JSON object. Every key is always pres
 
 | Field | Meaning |
 |---|---|
-| `contract` | `1`. Additive fields keep 1; a removal or change of meaning increments it. |
+| `contract` | `2`. Additive fields keep the number; a removal or change of meaning increments it (see "Changes from contract 1"). |
 | `command` | The command as invoked (`resolve` stays `resolve`). Null when parsing failed before a known command was read: `missing_data_dir`, `invalid_data_dir`, `missing_command`, `unknown_command`, and a non-UTF-8 `malformed_option`. |
 | `ok` | `true` exactly when `exit == 0`. |
 | `status`, `exit` | One status, one-to-one with the exit code (table below). |
@@ -47,6 +47,10 @@ stdout carries exactly one line, a compact JSON object. Every key is always pres
 | `conflict` | Non-null exactly when `status` is `stale` or `deferred`: `{id, kind, version, archived, open_edit}` per record the outcome names, read after the outcome. `open_edit` is true when any open edit session exists for that note, including the one that produced the outcome. A record that no longer exists has null `kind`, `version`, `archived`. Session IDs are never included. If the lookup fails, `[]`. `intake --intent useful` always reports `[]`; its run is `result.run`. |
 | `result` | Exactly what default mode prints on stdout for the same invocation, or null. |
 | `error` | `{code, message, details}` when the command failed without a result. `message` is human text, not contract. Domain outcomes (`stale`, `deferred`, `needs_review`, `ask` `Failed`/`Interrupted`) carry `result` and `outcome` instead. |
+| `page` | `{limit, shown, cursor, total}` on a paged result (`search` and the Inspection pages), else null. `cursor` is null on the last page; `total` is null when not computed. |
+| `stop` | Why the command stopped early: `sigint`, `sigterm` or `deadline` (`--timeout`); null otherwise. |
+
+Forward rule: ignore unknown keys. Treat an unknown `status` or `outcome` as non-success.
 
 `details` never echo option values or text content; they name options, positions, limits, record IDs and versions. An argv token is echoed in `details.option` or `details.command` only when it matches `^[a-z][a-z-]{0,39}$`. The one exception is `key` and `key_conflict`'s `details.key`, which repeat the caller's key; keys must match `^[A-Za-z0-9._:-]{1,128}$`.
 
@@ -255,6 +259,16 @@ Without `--json`, stdout bytes, stderr text and exit statuses (0 or 1) stay as b
 3. `--key` on the newly keyed commands and `--NAME-file` are accepted; refusals of the new grammar have new texts, for example `Choose either --text or --text-file`, `--key is not accepted with --intent useful`, `--NAME-file takes an absolute path or -`.
 4. `--key` must match `^[A-Za-z0-9._:-]{1,128}$`, also on project commands (`--key "trip 2026"` is now refused).
 5. `--help` prints the same text followed by a short "Agents and scripts" block.
+
+### Changes from contract 1
+
+Every in-repo consumer moved to contract 2 in the same change; there is no contract-1 switch.
+
+| Change | Contract 1 | Contract 2 |
+|---|---|---|
+| `contract` | `1` | `2`, in every envelope and in `brn --json --help` |
+| `page` | absent | always present: null, or `{limit, shown, cursor, total}` |
+| `stop` | absent | always present: null, `sigint`, `sigterm` or `deadline` |
 
 ### Before and after
 

@@ -143,7 +143,8 @@ class Brn:
         self.check(isinstance(envelope, dict), 'the envelope is not an object', step)
         step.update({name: envelope.get(name) for name in ('status', 'outcome', 'operation', 'key', 'retry')})
         step['error_code'] = (envelope.get('error') or {}).get('code')
-        self.check(envelope.get('contract') == 1, 'contract is not 1', step)
+        self.check(envelope.get('contract') == 2, 'contract is not 2', step)
+        self.check('page' in envelope and 'stop' in envelope, 'the envelope lacks page or stop', step)
         self.check(envelope.get('exit') == code, f'exit {envelope.get("exit")} differs from {code}', step)
         self.check(envelope.get('ok') == (code == 0), 'ok does not match exit', step)
         self.check(STATUSES.get(envelope.get('status')) == code,
@@ -194,7 +195,7 @@ def journey(brn, root):
 
     # 1. Discovery.
     description = brn.describe()
-    check(description.get('contract') == 1, 'description contract is not 1')
+    check(description.get('contract') == 2, 'description contract is not 2')
     commands = {c['name']: c for c in description['commands']}
     used = ['init', 'settings', 'project-create', 'project-document', 'note-create', 'read', 'begin-edit',
             'update-buffer', 'save', 'discard', 'search', 'history', 'undo', 'candidates', 'notes',

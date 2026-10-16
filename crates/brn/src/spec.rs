@@ -678,7 +678,7 @@ pub(crate) fn description() -> Value {
         })
         .collect();
     json!({
-        "contract": 1,
+        "contract": crate::contract::CONTRACT,
         "usage": "brn [--json] --data-dir ABSOLUTE_DIRECTORY COMMAND [--option VALUE]...",
         "statuses": Status::ALL.iter().map(|s| json!({
             "status": s.as_str(), "exit": s.exit(), "meaning": s.meaning(), "action": s.action(),

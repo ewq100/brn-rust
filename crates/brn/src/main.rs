@@ -1035,6 +1035,8 @@ async fn main() -> ExitCode {
                 conflict: None,
                 result: Value::Null,
                 error: Some(refused.error),
+                page: None,
+                stop: None,
             };
             emit_envelope(envelope)
         }
@@ -1082,6 +1084,8 @@ fn finish(inv: &Invocation, outcome: Result<Value>, notes: Annotations) -> ExitC
                 conflict: notes.conflict,
                 result,
                 error: None,
+                page: None,
+                stop: None,
             }
         }
         Err(error) => contract::Envelope {
@@ -1095,6 +1099,8 @@ fn finish(inv: &Invocation, outcome: Result<Value>, notes: Annotations) -> ExitC
             conflict: None,
             result: Value::Null,
             error: Some(error),
+            page: None,
+            stop: None,
         },
     };
     emit_envelope(envelope)

@@ -9,6 +9,9 @@ use serde::Serialize;
 use serde_json::{json, Map, Value};
 use std::io::Write;
 
+/// The machine contract version in every envelope and the description.
+pub(crate) const CONTRACT: u64 = 2;
+
 /// Machine-mode status, one-to-one with the exit code.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum Status {
@@ -778,6 +781,10 @@ pub(crate) struct Envelope<'a> {
     pub(crate) conflict: Option<Vec<Conflict>>,
     pub(crate) result: Value,
     pub(crate) error: Option<CliError>,
+    /// `{limit, shown, cursor, total}` on a page, else null.
+    pub(crate) page: Option<Value>,
+    /// Why the command stopped early: `sigint`, `sigterm` or `deadline`.
+    pub(crate) stop: Option<&'static str>,
 }
 impl Envelope<'_> {
     pub(crate) fn to_value(&self) -> Value {
@@ -791,7 +798,7 @@ impl Envelope<'_> {
             _ => None,
         };
         json!({
-            "contract": 1,
+            "contract": CONTRACT,
             "command": self.command,
             "ok": self.status == Status::Ok,
             "status": self.status.as_str(),
@@ -806,6 +813,8 @@ impl Envelope<'_> {
             "error": self.error.as_ref().map(|e| json!({
                 "code": e.code.as_str(), "message": e.message, "details": e.details,
             })),
+            "page": self.page,
+            "stop": self.stop,
         })
     }
 }
@@ -1042,6 +1051,8 @@ mod tests {
             conflict: Some(vec![]),
             result: run("Interrupted"),
             error: None,
+            page: None,
+            stop: None,
         }
         .to_value();
         assert_eq!(interrupted["exit"], 130);
@@ -1419,6 +1430,8 @@ mod tests {
             conflict: None,
             result: Value::Null,
             error: Some(error),
+            page: None,
+            stop: None,
         };
         assert_eq!(envelope.to_value()["retry"], "refuse");
         let dismiss = inv("dismiss", &[("operation", op)]);
@@ -1508,6 +1521,8 @@ mod tests {
                     conflict: None,
                     result: Value::Null,
                     error: None,
+                    page: None,
+                    stop: None,
                 }
                 .to_value();
                 let expected = match status {
@@ -1521,7 +1536,7 @@ mod tests {
                     value["conflict"].is_array(),
                     matches!(status, Status::Stale | Status::Deferred)
                 );
-                assert_eq!(value.as_object().unwrap().len(), 13);
+                assert_eq!(value.as_object().unwrap().len(), 15);
             }
         }
         for (token, echoed) in [

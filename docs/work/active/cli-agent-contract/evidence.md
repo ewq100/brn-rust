@@ -213,4 +213,14 @@ Everything ships as contract 2, with a "Changes from contract 1" table and a for
 - `merge-tree` and scratch-merge results.
 - Round-2 before/after examples, machine-contract changes and remaining gaps.
 
+## Round 2 step records
+
+### R2-1 contract 2 foundation
+
+- Pre-flight: worktree at `2537db54`; `git status --porcelain` showed only `owner-decisions.md` (untracked), `plan.md` and `evidence.md`. Daily tip at implementation time: `b5212618` "fix: the owner's Stop of a lease-free Run adds no notice (round 6, decision 2 applied to Stop)". `work/integration-ui-reliability` absent. BOARD.md read (no new ASK for this branch beyond the ones already answered).
+- Baseline binary: `git archive 2537db54` into `/tmp/brn-cli-agent-contract/r2-baseline/src`, `cargo build -p brn --locked --offline --target-dir /tmp/brn-cli-agent-contract/r2-baseline/target`; `/tmp/brn-cli-agent-contract/r2-baseline/target/debug/brn --json --help` reports `"contract":1`.
+- **Sandbox limit found (environment, not the change):** in this agent session a SIGINT sent to any process spawned by a non-shell parent (cargo's test harness, Python) never reaches its handler, while SIGTERM does (a Python child with its own SIGINT handler sleeps through `os.kill(pid, SIGINT)`; the same `brn` spawned by zsh gets it). The three round-1 SIGINT tests (`refuse_retry_after_an_interrupted_first_attempt_applies_once`, `sigint_while_stdin_stays_open_is_interrupted_and_creates_nothing`, `sigint_while_a_fifo_has_no_writer_is_interrupted`) therefore time out here **on the unchanged `2537db54` tree too** (checked with the change stashed). They are recorded as sandbox-blocked, not passed; CI runs them.
+- Verification: `cargo test -p brn --locked --offline --test agent_discovery --test threads` 1 + 11 passed; unit tests 22 passed; `agent_contract` 19 passed, 3 sandbox-blocked (above), PTY test skipped with `BRN_SKIP_PTY_TESTS=1`; `python3 -m unittest discover -s scripts/tests` 147 OK; `cli_journey.py target/debug/brn` with a fresh `TMPDIR` parent: passed (61 steps, 650 checks), parent empty; `cargo clippy -p brn --all-targets --locked --offline -- -D warnings` clean.
+- Baseline run (`AGENT_CONTRACT_BASELINE_BIN=… --test agent_discovery`): `every_envelope_has_contract_2_page_and_stop` fails: `contract` is 1.
+
 <!-- ===================== ROUND 2 END ===================== -->
