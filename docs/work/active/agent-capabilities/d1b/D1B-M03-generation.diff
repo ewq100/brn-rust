@@ -1,0 +1,11 @@
+--- a/crates/brn-ai/src/threads_summary.rs
++++ b/crates/brn-ai/src/threads_summary.rs
+@@ -595,7 +595,7 @@
+             }
+             let now = snapshot(scope, &account, compactor.effort)?;
+             if now.key != start.key
+-                || now.token != start.token
++                || false
+                 || now.chunks.len() < end
+                 || now.chunks[..end] != evicted[..end]
+             {

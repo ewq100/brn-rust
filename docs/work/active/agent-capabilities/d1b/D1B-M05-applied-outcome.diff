@@ -1,0 +1,11 @@
+--- a/crates/brn-ai/src/threads_summary.rs
++++ b/crates/brn-ai/src/threads_summary.rs
+@@ -169,7 +169,7 @@
+             if !source
+                 .operations
+                 .get(id)
+-                .is_some_and(|source| !outcome || source.applied)
++                .is_some_and(|_| true)
+             {
+                 return Err(rejected());
+             }

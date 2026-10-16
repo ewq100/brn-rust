@@ -1,0 +1,436 @@
+{
+  "pin": "a6736855ea5bc6af7406cf433bf60a08217a6d36",
+  "crates": "65791a04de361ca0cbe6635cd81fb3fb26d3f346",
+  "source_root": "/private/tmp/brn-d1b-20261017-mutant-source",
+  "target": "/private/tmp/brn-d1b-20261017-mutant-target",
+  "engine": "Eight fixed manual production-guard mutations; actual Rig/model/HTTP tests, no cargo-mutants broad sweep",
+  "baseline": {
+    "id": "baseline",
+    "command": [
+      "cargo",
+      "+1.98.1",
+      "test",
+      "-p",
+      "brn-ai",
+      "--features",
+      "scripted-runs",
+      "--lib",
+      "--tests",
+      "--locked",
+      "--offline"
+    ],
+    "source": "/private/tmp/brn-d1b-20261017-mutant-source",
+    "target": "/private/tmp/brn-d1b-20261017-mutant-target",
+    "pid_pgid": 58536,
+    "exit": 0,
+    "seconds": 46.75369691848755,
+    "timeout": false,
+    "external_stop": false,
+    "counts": [
+      407,
+      0,
+      1
+    ],
+    "source_sha256": "6a2e5be8d0f728d4adc937edebb1f46f12e35d4e3d6e279f6e4538f794bc7ae5",
+    "log_sha256": "1305313375a58d0b72fe8497afb7778264d4bd622325460d84094bc9730ccaba",
+    "failed_tests": [],
+    "outcome": "PASS"
+  },
+  "outcomes": [
+    {
+      "id": "D1B-M01-context-key",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "--tests",
+        "--locked",
+        "--offline",
+        "threads::summary_tests",
+        "--",
+        "--nocapture"
+      ],
+      "source": "/private/tmp/brn-d1b-20261017-mutant-source",
+      "target": "/private/tmp/brn-d1b-20261017-mutant-target",
+      "pid_pgid": 61854,
+      "exit": 101,
+      "seconds": 12.111656904220581,
+      "timeout": false,
+      "external_stop": false,
+      "counts": [
+        12,
+        2,
+        0
+      ],
+      "source_sha256": "227b09d9f01f1dd26f6ac44b4b8d53e10a671653661f36e63f119548f3ca10ce",
+      "log_sha256": "f8f36fd2bd53d7fd8c92e2b5266c7cd8fbdb920357f1a50f0e91aa467abb5181",
+      "failed_tests": [
+        "threads::summary_tests::resolved_account_change_invalidates_without_a_settings_or_history_change",
+        "threads::summary_tests::project_move_knowledge_off_delete_restore_and_source_versions_invalidate_cache"
+      ],
+      "outcome": "CAUGHT"
+    },
+    {
+      "id": "D1B-M02-source-digest",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "--tests",
+        "--locked",
+        "--offline",
+        "threads::summary_tests",
+        "--",
+        "--nocapture"
+      ],
+      "source": "/private/tmp/brn-d1b-20261017-mutant-source",
+      "target": "/private/tmp/brn-d1b-20261017-mutant-target",
+      "pid_pgid": 62064,
+      "exit": 0,
+      "seconds": 11.860549211502075,
+      "timeout": false,
+      "external_stop": false,
+      "counts": [
+        14,
+        0,
+        0
+      ],
+      "source_sha256": "97d898f01b4fd751529373cd20f125a8daf70c19ba2807d5f70071a18b93642f",
+      "log_sha256": "a068ccf57a4a27b57df5ecff64824f792523a1a0e24d61eb4e2c0cd6b37cc073",
+      "failed_tests": [],
+      "outcome": "MISSED"
+    },
+    {
+      "id": "D1B-M03-generation",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "--tests",
+        "--locked",
+        "--offline",
+        "threads::summary_tests",
+        "--",
+        "--nocapture"
+      ],
+      "source": "/private/tmp/brn-d1b-20261017-mutant-source",
+      "target": "/private/tmp/brn-d1b-20261017-mutant-target",
+      "pid_pgid": 62148,
+      "exit": 101,
+      "seconds": 11.822782039642334,
+      "timeout": false,
+      "external_stop": false,
+      "counts": [
+        13,
+        1,
+        0
+      ],
+      "source_sha256": "e09f68f9908feda51b92b9c7715691c0ec1dcc20edf1db4e9a83f934c67a1418",
+      "log_sha256": "aedf5bb23eec5d1b58922d81042234167af814a3619cb3bae0158b1ff75f01c3",
+      "failed_tests": [
+        "threads::summary_tests::canonical_generation_change_rejects_publication_even_when_run_and_sources_stay_live"
+      ],
+      "outcome": "CAUGHT"
+    },
+    {
+      "id": "D1B-M04-publication-check",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "--tests",
+        "--locked",
+        "--offline",
+        "threads::summary_tests",
+        "--",
+        "--nocapture"
+      ],
+      "source": "/private/tmp/brn-d1b-20261017-mutant-source",
+      "target": "/private/tmp/brn-d1b-20261017-mutant-target",
+      "pid_pgid": 62176,
+      "exit": 101,
+      "seconds": 12.253428220748901,
+      "timeout": false,
+      "external_stop": false,
+      "counts": [
+        12,
+        2,
+        0
+      ],
+      "source_sha256": "db666a3dc57decf282f16e670c79dae10742da953f725628c69b11bb3783a333",
+      "log_sha256": "f2d8059ed6ece88370561b59edb32bd373a7392ea1782f6e90ad6f3dff9d3a59",
+      "failed_tests": [
+        "threads::summary_tests::canonical_generation_change_rejects_publication_even_when_run_and_sources_stay_live",
+        "threads::summary_tests::stop_and_concurrent_configuration_change_never_publish_inflight_summary"
+      ],
+      "outcome": "CAUGHT"
+    },
+    {
+      "id": "D1B-M05-applied-outcome",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "--tests",
+        "--locked",
+        "--offline",
+        "threads::summary_tests",
+        "--",
+        "--nocapture"
+      ],
+      "source": "/private/tmp/brn-d1b-20261017-mutant-source",
+      "target": "/private/tmp/brn-d1b-20261017-mutant-target",
+      "pid_pgid": 62275,
+      "exit": 101,
+      "seconds": 12.031934022903442,
+      "timeout": false,
+      "external_stop": false,
+      "counts": [
+        13,
+        1,
+        0
+      ],
+      "source_sha256": "7d44735a6835bae1cb5aad4de532f8953cb9fdb3e461f49f904fbb5f46969c7e",
+      "log_sha256": "3dda334a1d2f4a6b2c09da25f80cc6755772aa3ef2e039d419f8216e592161c7",
+      "failed_tests": [
+        "threads::summary_tests::applied_receipts_get_host_stamps_but_proposals_cannot_be_summarized_as_applied"
+      ],
+      "outcome": "CAUGHT"
+    },
+    {
+      "id": "D1B-M06-artifact-validation",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "--tests",
+        "--locked",
+        "--offline",
+        "threads::summary_tests",
+        "--",
+        "--nocapture"
+      ],
+      "source": "/private/tmp/brn-d1b-20261017-mutant-source",
+      "target": "/private/tmp/brn-d1b-20261017-mutant-target",
+      "pid_pgid": 62419,
+      "exit": 101,
+      "seconds": 12.390048027038574,
+      "timeout": false,
+      "external_stop": false,
+      "counts": [
+        7,
+        7,
+        0
+      ],
+      "source_sha256": "bd41c9903224763abc8b187e1283f89f0554ab4a1df272f2523e87538d82bf69",
+      "log_sha256": "006cc78582447d18b1716ad39ace417efa5fb82d3c0591ad2b64ee6972c042a8",
+      "failed_tests": [
+        "threads::summary_tests::frozen_summary_is_in_the_actual_dispatch_budget",
+        "threads::summary_tests::model_backed_summary_precedes_chat_without_chat_cache_authority",
+        "threads::summary_tests::applied_receipts_get_host_stamps_but_proposals_cannot_be_summarized_as_applied",
+        "threads::summary_tests::derived_instructions_cannot_become_system_authority_or_note_read_evidence",
+        "threads::summary_tests::copilot_compaction_uses_same_chosen_account_model_effort_and_wire_without_caps",
+        "threads::summary_tests::cold_reopen_reuses_valid_coverage_then_corruption_and_loss_recompute",
+        "threads::summary_tests::malformed_or_invented_summary_has_visible_gap_and_keeps_mandatory_request"
+      ],
+      "outcome": "CAUGHT"
+    },
+    {
+      "id": "D1B-M07-prior-fallback",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "--tests",
+        "--locked",
+        "--offline",
+        "threads::summary_tests",
+        "--",
+        "--nocapture"
+      ],
+      "source": "/private/tmp/brn-d1b-20261017-mutant-source",
+      "target": "/private/tmp/brn-d1b-20261017-mutant-target",
+      "pid_pgid": 62475,
+      "exit": 0,
+      "seconds": 12.521193981170654,
+      "timeout": false,
+      "external_stop": false,
+      "counts": [
+        14,
+        0,
+        0
+      ],
+      "source_sha256": "7c2d4106c1adb947b20e12839e064ada5054e185c18f6d5da7fc5e9fa3410d69",
+      "log_sha256": "d8b6bbea3d220402460f8c89bc425c31601334b2e8a21afbaa5753420bc184ab",
+      "failed_tests": [],
+      "outcome": "MISSED"
+    },
+    {
+      "id": "D1B-M08-context-inclusion",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "--tests",
+        "--locked",
+        "--offline",
+        "threads::summary_tests",
+        "--",
+        "--nocapture"
+      ],
+      "source": "/private/tmp/brn-d1b-20261017-mutant-source",
+      "target": "/private/tmp/brn-d1b-20261017-mutant-target",
+      "pid_pgid": 62588,
+      "exit": 101,
+      "seconds": 13.057973146438599,
+      "timeout": false,
+      "external_stop": false,
+      "counts": [
+        11,
+        3,
+        0
+      ],
+      "source_sha256": "eed463413e951471e89497f8593fea6767a9e275c4ae0e6795653bd29e23ebaf",
+      "log_sha256": "9f8ecad1cd96d0bb47178a6f063556f3dcd5aba1106d5f2872f4482b64e93b7e",
+      "failed_tests": [
+        "threads::summary_tests::frozen_summary_is_in_the_actual_dispatch_budget",
+        "threads::summary_tests::derived_instructions_cannot_become_system_authority_or_note_read_evidence",
+        "threads::summary_tests::model_backed_summary_precedes_chat_without_chat_cache_authority"
+      ],
+      "outcome": "CAUGHT"
+    }
+  ],
+  "counts": {
+    "selected": 8,
+    "caught": 6,
+    "missed": 2,
+    "timeout": 0,
+    "unviable": 0,
+    "without_verdict": 0
+  },
+  "material_source_restored": true,
+  "verified_material_files": 288,
+  "original_cap_seconds": 1800,
+  "accounting": {
+    "source_pin": "a6736855ea5bc6af7406cf433bf60a08217a6d36",
+    "start_epoch": 1792187594.2807696,
+    "deadline_epoch": 1792189394.2807696,
+    "cap_seconds": 1800,
+    "accounting": "Conservatively charge from source-pin receipt creation, before all post-pin campaign planning, setup, baseline, controller, cleanup. No reset.",
+    "planning_seconds_already_charged": 127.9608383178711,
+    "source": "/private/tmp/brn-d1b-20261017-mutant-source",
+    "target": "/private/tmp/brn-d1b-20261017-mutant-target",
+    "candidate_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+    "candidate_target": "/private/tmp/brn-d1b-20261017-target"
+  },
+  "controller_end_elapsed": 326.13953948020935,
+  "controller_end_remaining": 1473.8604595661163,
+  "raw_artifacts": {
+    "/private/tmp/brn-d1b-20261017-artifacts/mutation/budget.json": {
+      "sha256": "acd56db464711090c4ecb01f647f778d9612d56266d75abbd3f1931bef28759b",
+      "bytes": 638
+    },
+    "/private/tmp/brn-d1b-20261017-artifacts/mutation/copy-proof.json": {
+      "sha256": "61ae64c030233ed65a7704b37381053a12dd69c60d48cce4bb575083c9e1f3f1",
+      "bytes": 297
+    },
+    "/private/tmp/brn-d1b-20261017-artifacts/mutation/selection.json": {
+      "sha256": "9cdc03e17279ca81d8ff607db0847d3b59b00859c178eb4772249b545d34f653",
+      "bytes": 1692
+    },
+    "/private/tmp/brn-d1b-20261017-artifacts/mutation/final.json": {
+      "sha256": "97f4fa56bd5f36e62e2538ad0e60989e5914d8037f46116082222ce2bd3abfc3",
+      "bytes": 10176
+    },
+    "/private/tmp/brn-d1b-20261017-artifacts/mutation/cleanup-process-check.json": {
+      "sha256": "6ca3e9b869404bc37f5a1d87f6a1bf6089e8315a38b992558ec510f9307ec59f",
+      "bytes": 493
+    },
+    "/private/tmp/brn-d1b-20261017-artifacts/mutation/controller.py": {
+      "sha256": "60d2cf2303b82044dd4e49d925cbb5da70657d19b6ddc915e2abcb65fb7a52b3",
+      "bytes": 6259
+    },
+    "/private/tmp/brn-d1b-20261017-artifacts/mutation/D1B-M01-context-key.log": {
+      "sha256": "f8f36fd2bd53d7fd8c92e2b5266c7cd8fbdb920357f1a50f0e91aa467abb5181",
+      "bytes": 3494
+    },
+    "/private/tmp/brn-d1b-20261017-artifacts/mutation/D1B-M02-source-digest.log": {
+      "sha256": "a068ccf57a4a27b57df5ecff64824f792523a1a0e24d61eb4e2c0cd6b37cc073",
+      "bytes": 1881
+    },
+    "/private/tmp/brn-d1b-20261017-artifacts/mutation/D1B-M03-generation.log": {
+      "sha256": "aedf5bb23eec5d1b58922d81042234167af814a3619cb3bae0158b1ff75f01c3",
+      "bytes": 2756
+    },
+    "/private/tmp/brn-d1b-20261017-artifacts/mutation/D1B-M04-publication-check.log": {
+      "sha256": "f2d8059ed6ece88370561b59edb32bd373a7392ea1782f6e90ad6f3dff9d3a59",
+      "bytes": 2696
+    },
+    "/private/tmp/brn-d1b-20261017-artifacts/mutation/D1B-M05-applied-outcome.log": {
+      "sha256": "3dda334a1d2f4a6b2c09da25f80cc6755772aa3ef2e039d419f8216e592161c7",
+      "bytes": 2383
+    },
+    "/private/tmp/brn-d1b-20261017-artifacts/mutation/D1B-M06-artifact-validation.log": {
+      "sha256": "006cc78582447d18b1716ad39ace417efa5fb82d3c0591ad2b64ee6972c042a8",
+      "bytes": 4383
+    },
+    "/private/tmp/brn-d1b-20261017-artifacts/mutation/D1B-M07-prior-fallback.log": {
+      "sha256": "d8b6bbea3d220402460f8c89bc425c31601334b2e8a21afbaa5753420bc184ab",
+      "bytes": 1881
+    },
+    "/private/tmp/brn-d1b-20261017-artifacts/mutation/D1B-M08-context-inclusion.log": {
+      "sha256": "9f8ecad1cd96d0bb47178a6f063556f3dcd5aba1106d5f2872f4482b64e93b7e",
+      "bytes": 3007
+    },
+    "/private/tmp/brn-d1b-20261017-artifacts/mutation/baseline.log": {
+      "sha256": "1305313375a58d0b72fe8497afb7778264d4bd622325460d84094bc9730ccaba",
+      "bytes": 48673
+    }
+  },
+  "retained_gaps": {
+    "D1B-M02-source-digest": "Digest-only bypass survives with first/last/reference checks intact. No general equivalence claim; independent digest guard coverage gap.",
+    "D1B-M07-prior-fallback": "Clearing valid prior artifact on a compactor/cache error survives. Fixture checks a phrase also present in recent appended raw discussion; does not uniquely prove prior DERIVED delivery. Production retains prior, but this is a real test gap."
+  },
+  "last_mutant_artifact_note": "Copied target last contains M08-built artifacts; source restored/hash-verified, not rebuilt or relabelled as unmutated. Per-ID source/diff/command/log identities recorded; per-phase binary hashes were not captured. Candidate target never used for copy.",
+  "final_release_receipt": "/private/tmp/brn-d1b-20261017-artifacts/final-release.json"
+}

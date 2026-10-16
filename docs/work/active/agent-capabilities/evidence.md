@@ -35,3 +35,6 @@ After explicit17October heavy regrant, [round3 checks](d1a/review3-source-associ
 ## D1B candidate — 17 October 2026
 
 [Implementation/review brief](d1b/implementation.md) and [exact self-check receipts](d1b/self-checks.json) record the accepted964567aa baseline, genuine test-only feature-absence failures0/2, frozen model-backed semantic coverage, derived cache invalidation/restart and trust/usage/budget/prefix witnesses. Fourteen focused cases pass; final AI407/0/1, core15/0/0, full CLI161/0/0 and app export5/0/0 pass. Strict workspace all-target lint, fmt and helper/default builds pass. One workspace no-fail-fast invocation exits101 with1129passed/1PDF-Unavailable failure/6ignored from94raw summaries; no new native/live/owner/hosted or source-acceptance claim. D1A mutation is closed; the new D1B campaign is separate and has not started at source-pin preparation.
+
+
+[D1B source handoff](d1b/final-handoff.md) pins a6736855/crates65791a04. [Targeted mutation](d1b/mutation-results.json) has baseline407/0/1PASS and actual6caught/2missed across8fixed guards; both gaps retained without equivalence/retroactive-kill claims. Copy restored288/288 and controller reaped. Final budget/release receipt separately records cleanup charged to the same original1800s deadline. Source review/acceptance and live/native/hosted/owner qualification remain separate.

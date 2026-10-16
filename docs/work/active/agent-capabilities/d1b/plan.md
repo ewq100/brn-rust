@@ -34,7 +34,8 @@ Reuse: Rig0.44 Compactor::compact(conversation,evicted,carry), DynModel/AgentBui
 - [x] Inspect plan§5.1B/C01–C07, C0/R0 and pinned Rig/provider/storage seams.
 - [x] Prepare model/cache/history/trace integration and meaningful scripted/HTTP fixtures.
 - [x] Record granted build handoff, exact source fingerprints, empty heavy processes and synthetic TMPDIR before first Cargo.
-- [ ] Under explicit grant: complete focused/fullAI/app/CLI and strict lint/fmt, pin for independent review, then one NEW D1B mutation cap<=1800s including setup/baselines/cleanup.
+- [x] Under explicit grant: focused/fullAI/app/CLI, strict lint/fmt and material pin; one NEW bounded D1B campaign with all setup/baseline/cleanup charged.
+- [ ] Principal independent source review/disposition; mutation gaps and PDF/native/hosted/live/owner limits remain explicitly qualified.
 
 | Acceptance | Prepared witness |
 |---|---|
@@ -46,4 +47,4 @@ Reuse: Rig0.44 Compactor::compact(conversation,evicted,carry), DynModel/AgentBui
 | C07 | Captured HTTP summary separate/no chat cache key; selected route/model/effort/same account; parent raw prefix append-only within run and stable between cuts; real reported per-call usage only |
 | Existing interfaces | Real backup/restore/export/search exclude derived cache; source/helper/writing/CW2/CLI contracts retained |
 
-Behavioral before witnesses compiled and failed0/2 at exact accepted production; candidate focused14/14 passed. Initial compiler/fixture failures are preserved. Final stronger-fixture fullAI407/0/1; core15/0/0, CLI161/0/0, app5/0/0, strict workspace all-target Clippy/fmt and helper/default builds pass. One workspace no-fail-fast invocation:1129passed/1PDF-Unavailable failure/6ignored across94raw summaries. No rerun. No D1B mutation executed yet. Semantic quality/live is BLOCKED by L; workspace/native/hosted/owner/program acceptance remain separate gates. Verification is not source approval.
+Behavioral before witnesses compiled and failed0/2 at exact accepted production; candidate focused14/14 passed. Initial compiler/fixture failures are preserved. Final stronger-fixture fullAI407/0/1; core15/0/0, CLI161/0/0, app5/0/0, strict workspace all-target Clippy/fmt and helper/default builds pass. One workspace no-fail-fast invocation:1129passed/1PDF-Unavailable failure/6ignored across94raw summaries. No rerun. At pin preparation no D1B mutation had run; [final targeted campaign](mutation-results.json) subsequently records6caught/2missed with both gaps retained. Semantic quality/live is BLOCKED by L; workspace/native/hosted/owner/program acceptance remain separate gates. Verification is not source approval.

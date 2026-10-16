@@ -1,0 +1,11 @@
+--- a/crates/brn-ai/src/threads_summary.rs
++++ b/crates/brn-ai/src/threads_summary.rs
+@@ -378,7 +378,7 @@
+             // Check after potentially slow filesystem work, immediately before
+             // the atomic replacement. The per-chat lease prevents older writers
+             // replacing a newer generation; every later use revalidates too.
+-            fresh()?;
++            let _ = &fresh;
+             fs::rename(&stage, &self.path).map_err(storage)?;
+             File::open(self.path.parent().ok_or_else(rejected)?)
+                 .map_err(storage)?

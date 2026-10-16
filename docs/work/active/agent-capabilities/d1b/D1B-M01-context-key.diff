@@ -1,0 +1,11 @@
+--- a/crates/brn-ai/src/threads_summary.rs
++++ b/crates/brn-ai/src/threads_summary.rs
+@@ -391,7 +391,7 @@
+ }
+ fn valid(entry: &Entry, key: &str, chunks: &[String]) -> bool {
+     entry.format == VERSION
+-        && entry.context == key
++        && !key.is_empty()
+         && entry.chunks > 0
+         && entry.chunks <= chunks.len()
+         && encoded_hash(&chunks[..entry.chunks]).is_ok_and(|d| d == entry.content_digest)

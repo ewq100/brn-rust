@@ -1,0 +1,11 @@
+--- a/crates/brn-ai/src/threads_summary.rs
++++ b/crates/brn-ai/src/threads_summary.rs
+@@ -644,7 +644,7 @@
+         (emit)(AiEvent::Activity(GAP.into()));
+     }
+     Context {
+-        input: prefix,
++        input,
+         notice: gap.then(|| GAP.into()),
+     }
+ }
