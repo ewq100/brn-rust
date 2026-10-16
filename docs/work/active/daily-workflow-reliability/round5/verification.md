@@ -633,3 +633,82 @@ The case folder was deleted afterwards.
 - The knowledge-retrieval plan's projects hook "Indexing of `kind=message` for earlier-chat search" is done for owner search, through separate tables rather than `docs.kind`. Agent `search_notes` still excludes Messages.
 - Proposed sentence for `docs/architecture/threads-behavior.md` (not edited here): "Owner search also lists saved final chat Messages (owner and assistant, never partial progress) as their own kind with their chat, scoped like notes: general chats in general search, project chats only in their project's search, and a chat with private context only from itself. Archived and Trashed chats are excluded until restored. Agent note search never returns chat Messages."
 - Separate finding for a later slice: project Delete refuses when a project chat has a Run (manual case, step 7).
+
+## Slice G: the agent can withdraw its own obsolete proposal
+
+### Change
+
+- **Core shared dismissal path (`crates/brn-threads-core/src/run_attention.rs`).** The app's review cleanup loop moved into `impl Store`:
+  - `clear_review_attention(candidate, key_prefix, reason, authority) -> CleanupOutcome` removes every attention item naming the candidate, in one checked change keyed `{key_prefix}:{candidate}:{digest}`, with up to 3 Stale retries. Other attention stays.
+  - `dismiss_candidate(..)` is `prepared`, then `retire` (durable first; refuses an applied operation), then `clear_review_attention`. It never applies anything.
+  - `CleanupOutcome { Done(Option<Receipt>), Unexpected(ApplyOutcome), Contended }`.
+- **App (`crates/brn-threads-app/src/review.rs`).** `review_dismiss` and `review_apply` call these with the same key prefix (`review-attention-cleanup`), reasons, `HostAuthority::owner("owner interaction")` and error texts as before. Owner receipts, keys and messages are unchanged; the existing owner dismiss and apply tests pass unedited.
+- **Runtime tool `withdraw_proposal { operation }` (`crates/brn-ai/src/threads.rs`).** Strict schema; `WithdrawArgs` has `deny_unknown_fields`, and `parse_valid` accepts it. The handler runs in this order:
+  1. It is rejected in a writing (Rewrite) run, and `live(scope)` must hold.
+  2. The operation must be in a Run of this chat (the `apply_changes` membership check). Owner-created operations are never in `Run.operations`, and other chats' and projects' proposals are in other chats' Runs, so all of these get the generic rejection, as does an unknown ID.
+  3. Applied (a receipt exists): `{"outcome":"Refused","reason":"This proposal was applied; prepare a new change to revise it."}`.
+  4. Already retired: `clear_review_attention` (which repairs a lost cleanup), then `{"outcome":"Withdrawn","operation":…,"replay":true}`.
+  5. Otherwise `dismiss_candidate(op, "{run}:withdraw", "Agent withdrew its obsolete proposal; preserve other attention requests", bind(scope, owner("runtime withdrawal")))`, then `{"outcome":"Withdrawn","operation":…}`. The authority is bound to this Run's fence, chat, Project context and Settings, so a stopped Run's cleanup is refused (`Superseded`, returned as a rejection).
+- **Registration.** `runtime_catalog!` gains `(WithdrawProposal, "Withdrawing an obsolete proposal…")`, which is new visible progress text. The activity outcome reads `< withdraw_proposal · Withdrawn`, `Refused` or `error` instead of `success`. The trace records only the operation ID. The tool is not in `HELPER_TOOLS`, the helper builder does not register it, and the `tool!` guard rejects it in a helper scope. **Registered tools: 9 → 10.**
+- **Guidance (bundle `brn-threads-guidance-11` → `brn-threads-guidance-12`).**
+  - `agent/BRN.md`, after the candidate paragraph: "When the owner's decision makes one of your own pending proposals in this chat obsolete, withdraw it with `withdraw_proposal`. Never withdraw the owner's changes or another chat's proposals; withdrawing never applies anything."
+  - `agent/skills/resolve-conflict/SKILL.md` step 4: "After the owner decides, withdraw your own pending proposal that contradicts the decision with `withdraw_proposal`."
+  - The research-scout role guide is unchanged and never names the tool.
+- **`crates/brn-ai/README.md`** says ten registered tools.
+
+Undo follows the owner's Dismiss. Retirement is recorded on the operation; the attention cleanup is a checked change with a receipt whenever an attention item named the candidate. Undo of that receipt restores the Review item, and the candidate stays retired, so an owner Apply is still refused. A withdrawal of a candidate that no attention named leaves no cleanup receipt, as Dismiss does.
+
+No dependency, `Cargo.lock`, `threads.sqlite3` schema, `main.rs`, `HELP`, exit-code, desktop or `docs/status.md` change.
+
+### Tests and fail-before
+
+Method: the implementation was written first. Each mutation below was applied to the fixed source by an exact single-match replacement. The affected tests were run, then the file was restored and touched so Cargo rebuilt it. After the pass, all five mutated files matched their recorded SHA-256. M0 is the state before the tool existed (no catalog entry, no `parse_valid` arm). Guards got their own mutations. Line numbers are those of the committed files.
+
+| ID | Test | Before the fix (mutation) | After |
+|---|---|---|---|
+| G-A1 | app `withdraw_proposal.rs` `the_agent_withdraws_its_own_obsolete_proposal_after_the_owner_decides`: review-first; Run 1 prepares "15 November" (NeedsReview, one Review item); owner posts "Keep 22 November."; Run 2 withdraws. Not listed, retired, no attention names it, one cleanup receipt writing only the chat, no receipt for the operation, owner Apply refused, note unchanged | FAILED `:147`, Run 2 `Failed(InvalidToolUse, origin "unknown_tool")` (M0). FAILED `:222`, attention still names it (M4: retire only) | ok |
+| G-A2 | app `withdrawing_another_chats_proposal_is_refused`: outcome `error`; candidate and the other chat's attention unchanged | FAILED `:147` (M0). FAILED `:251` `listed(..)`, it was withdrawn (M1: no membership check) | ok |
+| G-A3 | app `withdrawing_an_owner_created_candidate_is_refused` (`allocate_operation` + `prepare_owner`, with an owner Review item) | FAILED `:147` (M0). FAILED `:302` `left: "Withdrawn", right: "error"` (M1) | ok |
+| G-A4 | app `withdrawing_an_applied_proposal_is_refused` (maintenance, Applied): `Refused`; receipt and note unchanged | FAILED `:147` (M0). FAILED `:318` `left: "Withdrawn", right: "Refused"` (M2: no receipt check; the applied operation is not an active candidate, so the replay path took it) | ok |
+| G-A5 | app `withdrawing_twice_replays_without_another_receipt`: second call `Withdrawn` with `replay: true`; cleanup receipts identical | FAILED `:147` (M0). FAILED `:335` `left: "error", right: "Withdrawn"` (M3: retired not replayed). FAILED `:333` `left: 0, right: 1` (M4) | ok |
+| G-A6 | app `undo_after_a_withdrawal_matches_undo_after_dismiss`: one candidate withdrawn, another dismissed by the owner in another chat; Undo of each cleanup is `Applied`, each Review item returns, both stay retired and owner Apply is refused for both | FAILED `:147` (M0). FAILED `:353` `Err([])`, no cleanup receipt to undo (M4) | ok |
+| G-R1 | brn-ai `research_tests::the_helper_is_never_offered_withdraw_proposal`: a helper that calls it fails and the proposal stays; the helper's `requests()[0].tools` and `HELPER_TOOLS` lack it; a direct call in a helper scope is `ToolRejected`; the parent's direct call withdraws | FAILED `:549` `unwrap_err()` on `Ok({"outcome":"Withdrawn"…})` (M5: helper guard exempts it). FAILED `:536` tool list (M6: helper builder registers it) | ok |
+| G-R2 | brn-ai `production_catalog_tools_report_activity_and_tool_loop_saves_only_final_once`: `tool_names().len() == 10` and contains it | FAILED `:3916` `left: 9, right: 10` (M0) | ok |
+| G-R3 | brn-ai `threads_guides::guidance_says_when_to_withdraw_an_obsolete_proposal`: preambles carry `brn-threads-guidance-12`; `BASE` and the resolve-conflict skill say when to withdraw; the scout guide does not name it | FAILED `:107` bundle (M7: still -11). FAILED `:109` `BASE` (M8). FAILED `:110` skill (M9) | ok |
+| G-R4 | brn-ai `activity_reports_apply_domain_outcomes_without_exposing_results` (extended): `Withdrawn`/`Refused` labels, otherwise "outcome unconfirmed" | FAILED `:2897` `left: "success", right: "Withdrawn"` (M10) | ok |
+
+M1 shows why the membership check matters: without it, an owner-created candidate was withdrawn. M2 shows why the receipt check comes before the replay path.
+
+### Commands and results (after the fix)
+
+| Command | Result |
+|---|---|
+| `cargo fmt --all --check` | clean |
+| `cargo clippy --workspace --all-targets --locked --offline -- -D warnings` | clean |
+| `cargo clippy -p brn-ai --features scripted-runs --all-targets --locked --offline -- -D warnings` | clean |
+| `cargo clippy --locked --offline -p brn-desktop --features native-ui,native-test-support --all-targets -- -D warnings` | clean (desktop calls `review_dismiss`) |
+| `cargo build -p brn-intake --features helper --bin brn-intake-helper --locked --offline` | ok |
+| `TMPDIR=/private/tmp/brn-dwr-data/r5-g-withdraw cargo test -p brn-threads-app --locked --offline --test withdraw_proposal` | 6 passed (new), fresh synthetic data |
+| `TMPDIR=/private/tmp/brn-dwr-data/r5-g-withdraw cargo test -p brn-ai --locked --offline -- the_helper_is_never_offered_withdraw_proposal guidance_says_when_to_withdraw production_catalog_tools activity_reports_apply` | 4 passed |
+| `cargo test -p brn-threads-core --locked --offline` | all passed |
+| `cargo test -p brn-ai --locked --offline` | 343 passed (+2), 1 ignored |
+| `cargo test -p brn-threads-app --locked --offline --test withdraw_proposal --test agent_journeys --test product --test chat_decisions --test writing --test killed_run_candidate` | 6, 4, 19, 4, 9, 12 passed (1 ignored) |
+| desktop test command | 158 passed, 0 failed, 1 ignored |
+| `cargo test --workspace --locked --offline --no-fail-fast` | 801 passed (+8), 1 failed (the baseline Poppler test), 6 ignored |
+| `git diff --exit-code 771116f0 -- Cargo.lock`; `git diff --check` | clean |
+
+### Limitations
+
+- Whether a live model withdraws at the right moment is not measured; only the guidance and the scripted runs are.
+- An operation that refresh or an owner edit already replaced is retired, so withdrawing it replays as `Withdrawn` and leaves the replacement alone. A refreshed replacement is in this chat's Run and can be withdrawn by its own ID. An owner-edited replacement is an owner change and is refused.
+- A writing proposal from an earlier Rewrite run in the same chat is the agent's own proposal, so a later ordinary run may withdraw it. A Rewrite run cannot withdraw anything.
+- If another process stops the Run between retirement and cleanup, the candidate stays retired with its Review item, and the tool returns a rejection. The owner's Dismiss, or a later withdrawal (replay), clears the item. A lost owner cleanup behaves the same way.
+- No native observation in this slice.
+
+### Integration items
+
+- Registered tools 9 → 10 and bundle `brn-threads-guidance-12` (renumber at merge if another branch has taken 12). Docs and UI tests that count tools or pin the bundle need updating; `crates/brn-ai/README.md` is updated here.
+- New activity label "Withdrawing an obsolete proposal…" and outcome labels `Withdrawn`/`Refused`.
+- New core `Store::{clear_review_attention, dismiss_candidate}` and `run_attention::CleanupOutcome`; owner behavior is unchanged.
+- Proposed sentence for `docs/architecture/threads-behavior.md` §142 (not edited here): "Every run registers ten tools: `read_records`, `read_note`, `read_source`, `read_skill`, `prepare_changes`, `apply_changes`, `retain_progress`, `read_history`, `refresh_candidate`, `withdraw_proposal`." Add after the refresh sentence: "`withdraw_proposal` dismisses only an unapplied candidate that a Run of the same chat prepared, through the owner's checked dismissal path with a receipt and replay; it never applies anything, refuses applied operations, owner changes and other chats, and is never offered to helpers."
+- `docs/status.md` says "nine registered tools"; it needs "ten" at integration (not edited here).

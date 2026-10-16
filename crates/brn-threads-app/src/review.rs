@@ -4,12 +4,13 @@ impl Workspace {
     /// Retiring is durable before cleanup, so retry also repairs a lost cleanup response.
     pub fn review_dismiss(&mut self, id: &str) -> AppResult<()> {
         let operation = self.store.operation(id)?;
-        self.store.prepared(&operation)?;
-        self.store.retire(&operation)?;
-        self.finish_review_attention(
+        let outcome = self.store.dismiss_candidate(
             &operation,
+            REVIEW_CLEANUP_KEY,
             "Dismissed proposal; preserve other attention requests",
-        )
+            &HostAuthority::owner("owner interaction"),
+        )?;
+        review_cleanup(outcome)
     }
 
     pub fn review_apply(&mut self, id: &str) -> AppResult<ApplyOutcome> {
@@ -18,60 +19,15 @@ impl Workspace {
             .store
             .apply(&op, &HostAuthority::owner("reviewed immutable candidate"))?;
         if matches!(outcome, ApplyOutcome::Applied(_)) {
-            self.finish_review_attention(
+            let cleanup = self.store.clear_review_attention(
                 &op,
+                REVIEW_CLEANUP_KEY,
                 "Accepted exact review; preserve other attention requests",
+                &HostAuthority::owner("owner interaction"),
             )?;
+            review_cleanup(cleanup)?;
         }
         Ok(outcome)
-    }
-    fn finish_review_attention(&mut self, review: &OperationId, reason: &str) -> AppResult<()> {
-        for _ in 0..3 {
-            let writes = self
-                .records()?
-                .into_iter()
-                .filter_map(|record| {
-                    let RecordData::Thread(mut thread) = record.data else {
-                        return None;
-                    };
-                    let before = thread.attention.len();
-                    thread
-                        .attention
-                        .retain(|attention| attention.record.as_deref() != Some(review.as_str()));
-                    if thread.attention.len() == before {
-                        return None;
-                    }
-                    Some(Put {
-                        id: record.id,
-                        expected_version: Some(record.version),
-                        archived: record.archived,
-                        data: RecordData::Thread(thread),
-                    })
-                })
-                .collect::<Vec<_>>();
-            if writes.is_empty() {
-                return Ok(());
-            }
-            let request = ChangeRequest {
-                reason: reason.into(),
-                writes,
-                inputs: vec![],
-            };
-            let digest = format!("{:x}", Sha256::digest(serde_json::to_vec(&request)?));
-            let key = format!("review-attention-cleanup:{}:{digest}", review.as_str());
-            match self.owner_change(&key, &request)? {
-                ApplyOutcome::Applied(_) => return Ok(()),
-                ApplyOutcome::Stale { .. } => continue,
-                other => {
-                    return Err(AppError::Invalid(format!(
-                        "Review applied; attention cleanup needs a retry: {other:?}"
-                    )));
-                }
-            }
-        }
-        Err(AppError::Invalid(
-            "Review applied; concurrent attention changes need a refresh and retry".into(),
-        ))
     }
 
     pub fn review_replace(&mut self, id: &str, note: &str, markdown: &str) -> AppResult<Prepared> {
@@ -174,6 +130,19 @@ impl Workspace {
             &request,
             &HostAuthority::owner("owner edited displayed candidate"),
         )?)
+    }
+}
+/// Key prefix of the owner's review attention cleanup changes.
+const REVIEW_CLEANUP_KEY: &str = "review-attention-cleanup";
+fn review_cleanup(outcome: run_attention::CleanupOutcome) -> AppResult<()> {
+    match outcome {
+        run_attention::CleanupOutcome::Done(_) => Ok(()),
+        run_attention::CleanupOutcome::Unexpected(other) => Err(AppError::Invalid(format!(
+            "Review applied; attention cleanup needs a retry: {other:?}"
+        ))),
+        run_attention::CleanupOutcome::Contended => Err(AppError::Invalid(
+            "Review applied; concurrent attention changes need a refresh and retry".into(),
+        )),
     }
 }
 fn remap(value: &mut String, map: &BTreeMap<String, String>) {

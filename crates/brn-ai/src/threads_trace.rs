@@ -277,7 +277,7 @@ impl TraceCollector {
                     .map_or(0, Vec::len);
                 json!({"writes": kinds, "inputs": inputs})
             }
-            "apply_changes" => json!({"operation": n("operation")}),
+            "apply_changes" | "withdraw_proposal" => json!({"operation": n("operation")}),
             "research" => {
                 let questions = args.get("questions").and_then(Value::as_array);
                 json!({

@@ -1,5 +1,5 @@
 //! Fixed packaged semantic guidance. Loading text never grants authority.
-pub const BUNDLE_VERSION: &str = "brn-threads-guidance-11";
+pub const BUNDLE_VERSION: &str = "brn-threads-guidance-12";
 pub const BASE: &str = include_str!("../../../agent/BRN.md");
 /// The research helper's packaged role guide (subagents phase 1).
 pub const RESEARCH_SCOUT: &str = include_str!("../../../agent/roles/research-scout.md");
@@ -100,5 +100,19 @@ mod tests {
         ] {
             assert!(read_skill(invalid).is_none());
         }
+    }
+
+    #[test]
+    fn guidance_says_when_to_withdraw_an_obsolete_proposal() {
+        assert!(preamble(&[]).contains("Instruction bundle: brn-threads-guidance-12"));
+        assert!(scout_preamble().contains("brn-threads-guidance-12"));
+        assert!(BASE.contains("withdraw it with `withdraw_proposal`"));
+        assert!(
+            read_skill("resolve-conflict")
+                .unwrap()
+                .contains("withdraw your own pending proposal that contradicts the decision")
+        );
+        // The read-only helper's role guide never offers it.
+        assert!(!RESEARCH_SCOUT.contains("withdraw_proposal"));
     }
 }

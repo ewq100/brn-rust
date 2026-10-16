@@ -316,6 +316,11 @@ struct ApplyArgs {
 }
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
+struct WithdrawArgs {
+    operation: String,
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
 struct ProgressArgs {
     summary: String,
 }
@@ -337,6 +342,7 @@ fn parse_valid(name: &str, args: &Value) -> bool {
         "read_skill" => serde_json::from_value::<SkillArgs>(args.clone())
             .is_ok_and(|a| crate::threads_guides::read_skill(&a.id).is_some()),
         "apply_changes" => serde_json::from_value::<ApplyArgs>(args.clone()).is_ok(),
+        "withdraw_proposal" => serde_json::from_value::<WithdrawArgs>(args.clone()).is_ok(),
         "retain_progress" => serde_json::from_value::<ProgressArgs>(args.clone())
             .is_ok_and(|a| a.summary.len() <= 4096),
         "research" => research::validate_research(args),
@@ -402,6 +408,10 @@ fn schema(name: &str) -> Value {
             json!(["id"]),
         ),
         "apply_changes" => object(json!({"operation":{"type":"string"}}), json!(["operation"])),
+        "withdraw_proposal" => object(
+            json!({"operation":{"type":"string","description":"Your own unapplied candidate from this chat"}}),
+            json!(["operation"]),
+        ),
         "retain_progress" => object(
             json!({"summary":{"type":"string","maxLength":4096}}),
             json!(["summary"]),
@@ -540,6 +550,13 @@ tool!(
     "Prepare a fresh immutable replacement for this Thread's unapplied candidate from current versions. Retires the old candidate atomically, grants no apply authority. Reuse request_key for identical retries.",
     refresh_candidate
 );
+tool!(
+    WithdrawProposal,
+    "withdraw_proposal",
+    WithdrawArgs,
+    "Withdraw your own pending proposal in this chat after the owner's decision made it obsolete. It never applies anything and cannot touch owner changes or other chats.",
+    withdraw
+);
 fn read_history(scope: &Scope, args: HistoryArgs) -> AiResult<Value> {
     if scope.writing_snapshot.is_some() {
         return Err(rejected());
@@ -573,6 +590,7 @@ runtime_catalog!(
     (RetainProgress, "Saving useful progress…"),
     (ReadHistory, "Inspecting an accepted note revision…"),
     (RefreshCandidate, "Preparing a fresh proposal…"),
+    (WithdrawProposal, "Withdrawing an obsolete proposal…"),
 );
 
 const SEARCH_TOOLS: [(&str, &str); 2] = [
@@ -1206,6 +1224,58 @@ fn apply(scope: &Scope, args: ApplyArgs) -> AiResult<Value> {
     }
     Ok(result)
 }
+/// The receipt reason of a withdrawal's attention cleanup.
+const WITHDRAW_REASON: &str =
+    "Agent withdrew its obsolete proposal; preserve other attention requests";
+/// Withdraws one of this chat's own unapplied proposals through the shared
+/// checked dismissal path, as the owner's Dismiss does, under this Run's
+/// fenced authority. It never applies anything. Owner changes and other
+/// chats' or projects' proposals are in no Run of this chat, so they are
+/// rejected like any other scope failure.
+fn withdraw(scope: &Scope, args: WithdrawArgs) -> AiResult<Value> {
+    if scope.writing_snapshot.is_some() {
+        return Err(rejected());
+    }
+    let mut store = scope.store.lock().map_err(storage)?;
+    live(scope, &store)?;
+    let op = store.operation(&args.operation).map_err(|_| rejected())?;
+    let thread = thread_for(scope, &store)?;
+    let belongs = store.records().map_err(storage)?.into_iter().any(|r| {
+        matches!(r.data, RecordData::Run(run) if run.thread == thread && run.operations.contains(&op))
+    });
+    if !belongs {
+        return Err(rejected());
+    }
+    if store.receipt(&op).map_err(storage)?.is_some() {
+        return Ok(
+            json!({"outcome":"Refused","reason":"This proposal was applied; prepare a new change to revise it."}),
+        );
+    }
+    store.prepared(&op).map_err(|_| rejected())?;
+    // Already retired: replay, which also repairs a lost attention cleanup.
+    let replay = store
+        .active_candidates(std::slice::from_ref(&op))
+        .map_err(storage)?
+        .is_empty();
+    let authority = bind(scope, HostAuthority::owner("runtime withdrawal"));
+    let key = format!("{}:withdraw", scope.run);
+    let outcome = if replay {
+        store.clear_review_attention(&op, &key, WITHDRAW_REASON, &authority)
+    } else {
+        store.dismiss_candidate(&op, &key, WITHDRAW_REASON, &authority)
+    }
+    .map_err(storage)?;
+    match outcome {
+        run_attention::CleanupOutcome::Done(_) if replay => {
+            Ok(json!({"outcome":"Withdrawn","operation":op.as_str(),"replay":true}))
+        }
+        run_attention::CleanupOutcome::Done(_) => {
+            Ok(json!({"outcome":"Withdrawn","operation":op.as_str()}))
+        }
+        // A stopped Run's cleanup is refused; a retry repairs a contended one.
+        _ => Err(rejected()),
+    }
+}
 fn thread_for(scope: &Scope, store: &Store) -> AiResult<String> {
     match store.record(&scope.run).map_err(storage)?.map(|r| r.data) {
         Some(RecordData::Run(run)) => Ok(run.thread),
@@ -1306,6 +1376,15 @@ fn tool_outcome_label<'a>(name: &str, result: Option<&'a rig::tool::ToolResult>)
             == Some("Invalid")
     {
         return "Invalid";
+    }
+    if name == "withdraw_proposal" && result.status_name() == "success" {
+        return result
+            .output()
+            .as_json()
+            .and_then(|v| v.get("outcome"))
+            .and_then(Value::as_str)
+            .filter(|outcome| matches!(*outcome, "Withdrawn" | "Refused"))
+            .unwrap_or("outcome unconfirmed");
     }
     if name == "apply_changes" && result.status_name() == "success" {
         return result
@@ -2813,6 +2892,17 @@ mod tests {
             tool_outcome_label("apply_changes", Some(&result)),
             "outcome unconfirmed"
         );
+        for outcome in ["Withdrawn", "Refused"] {
+            let result = ToolResult::success(ToolOutput::json(json!({"outcome":outcome})));
+            assert_eq!(
+                tool_outcome_label("withdraw_proposal", Some(&result)),
+                outcome
+            );
+        }
+        assert_eq!(
+            tool_outcome_label("withdraw_proposal", Some(&result)),
+            "outcome unconfirmed"
+        );
         assert_eq!(tool_outcome_label("apply_changes", None), "error");
         let skipped = ToolResult::skipped("PRIVATE REASON");
         assert_eq!(
@@ -3825,7 +3915,8 @@ mod tests {
                 |e| matches!(e, AiEvent::Activity(text) if text == &format!("< {name} · {outcome}"))
             ));
         }
-        assert_eq!(tool_names().len(), 9);
+        assert_eq!(tool_names().len(), 10);
+        assert!(tool_names().contains(&"withdraw_proposal"));
         for name in tool_names() {
             assert!(tool_activity(name).is_some());
             assert!(schema(name).is_object());

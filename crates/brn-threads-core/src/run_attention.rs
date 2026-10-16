@@ -1,8 +1,10 @@
 //! Host attention for a Run that ends: the terminal notice (one per chat) and
 //! a Review item for each candidate it prepared but never applied. The runtime's
 //! terminal result and every checked change that ends a Working Run outside it
-//! share these rules, inside that same change.
+//! share these rules, inside that same change. The shared dismissal path,
+//! which retires a candidate and clears its attention, lives here too.
 use crate::*;
+use sha2::{Digest, Sha256};
 
 /// The host's Blocker reason for a Run that stopped before finishing.
 pub const INTERRUPTED_ATTENTION: &str = "Run interrupted. Continue starts fresh.";
@@ -173,6 +175,93 @@ impl Store {
     /// See [`active_candidates_on`].
     pub fn active_candidates(&self, operations: &[OperationId]) -> Result<Vec<String>> {
         active_candidates_on(&self.conn, operations)
+    }
+}
+
+/// How [`Store::clear_review_attention`] ended.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum CleanupOutcome {
+    /// No attention item names the candidate any more. The receipt is the
+    /// cleanup change's, absent when no item named it.
+    Done(Option<Receipt>),
+    /// The cleanup change returned this outcome instead of applying.
+    Unexpected(ApplyOutcome),
+    /// Concurrent attention changes kept the cleanup stale three times.
+    Contended,
+}
+
+/// The shared dismissal path. The owner's Dismiss and Accept and the agent's
+/// withdrawal of its own proposal use it, each with its own authority.
+impl Store {
+    /// Removes every attention item naming `candidate`, across all chats, in
+    /// one checked change keyed `{key_prefix}:{candidate}:{digest}`, so a
+    /// retry replays it. Other attention stays. Stale is retried up to three
+    /// times. `authority` must be owner-scoped; it may be bound to a Run.
+    pub fn clear_review_attention(
+        &mut self,
+        candidate: &OperationId,
+        key_prefix: &str,
+        reason: &str,
+        authority: &HostAuthority,
+    ) -> Result<CleanupOutcome> {
+        for _ in 0..3 {
+            let writes = self
+                .records()?
+                .into_iter()
+                .filter_map(|record| {
+                    let RecordData::Thread(mut thread) = record.data else {
+                        return None;
+                    };
+                    let before = thread.attention.len();
+                    thread.attention.retain(|attention| {
+                        attention.record.as_deref() != Some(candidate.as_str())
+                    });
+                    if thread.attention.len() == before {
+                        return None;
+                    }
+                    Some(Put {
+                        id: record.id,
+                        expected_version: Some(record.version),
+                        archived: record.archived,
+                        data: RecordData::Thread(thread),
+                    })
+                })
+                .collect::<Vec<_>>();
+            if writes.is_empty() {
+                return Ok(CleanupOutcome::Done(None));
+            }
+            let request = ChangeRequest {
+                reason: reason.into(),
+                writes,
+                inputs: vec![],
+            };
+            let digest = format!("{:x}", Sha256::digest(serde_json::to_vec(&request)?));
+            let key = format!("{key_prefix}:{}:{digest}", candidate.as_str());
+            let op = self.allocate_operation(&key)?;
+            self.prepare_owner(&op, &request, authority)?;
+            match self.apply(&op, authority)? {
+                ApplyOutcome::Applied(receipt) => return Ok(CleanupOutcome::Done(Some(receipt))),
+                ApplyOutcome::Stale { .. } => continue,
+                other => return Ok(CleanupOutcome::Unexpected(other)),
+            }
+        }
+        Ok(CleanupOutcome::Contended)
+    }
+
+    /// Dismisses one unapplied candidate: retires it (durable first, so a
+    /// retry also repairs a lost cleanup), then clears its attention as
+    /// [`Store::clear_review_attention`]. Never applies it; an applied
+    /// operation is refused. Notes and unrelated attention stay intact.
+    pub fn dismiss_candidate(
+        &mut self,
+        candidate: &OperationId,
+        key_prefix: &str,
+        reason: &str,
+        authority: &HostAuthority,
+    ) -> Result<CleanupOutcome> {
+        self.prepared(candidate)?;
+        self.retire(candidate)?;
+        self.clear_review_attention(candidate, key_prefix, reason, authority)
     }
 }
 
