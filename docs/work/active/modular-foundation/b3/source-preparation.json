@@ -1,0 +1,236 @@
+{
+  "BUILD_NEED": [
+    "cargo test -p brn-threads-app --test import_coverage --locked --offline",
+    "cargo test -p brn-desktop --features native-ui,native-test-support --bin brn-desktop b3_ --locked --offline",
+    "cargo clippy -p brn-writing-ui --features native-ui,native-test-support --all-targets --locked --offline -- -D warnings",
+    "cargo clippy -p brn-desktop --features native-ui,native-test-support --all-targets --locked --offline -- -D warnings"
+  ],
+  "actual_HEAD": "f2b060bb17080d0241143afb6fadd6ec22350f34",
+  "additional_app_grant": {
+    "D1B_export_metadata_scope": "not touched",
+    "importer": "byte-unchanged",
+    "paths": [
+      "crates/brn-threads-app/src/intake.rs::Workspace::full_import_note_in_scope",
+      "crates/brn-threads-app/tests/import_coverage.rs::appended B3 scenarios"
+    ],
+    "receipt_binding": "stored actual applied Receipt equality before using its Source",
+    "scope": "existing canonical scope/visibility; current live nonsuperseded full Note, Source and link; exactly one eligible Note",
+    "sha_binding": "requested converted source SHA bound to FULL_IMPORT_PREFIX; never Source.external_version/title/path"
+  },
+  "base_tree": "32df2282c30fe45fa4d4380596809558cbb14b43",
+  "before_fixture": {
+    "base": "f2b060bb17080d0241143afb6fadd6ec22350f34",
+    "base_index_apply_check": "passed; no application/staging",
+    "execution": "NOT RUN; meaningful expected missing Sources-used UI assertion, never a missing API compile-error claim",
+    "fixture": "b3_saved_host_evidence_has_visible_sources_used_without_opening_inputs",
+    "fixture_path": "/private/tmp/brn-b3-source-20261017/before-sources-used-fixture.rs",
+    "fixture_sha256": "bccb89e455e5c53aed6edea4f27908215971ff62c9e1be2954152403cce2e9e5",
+    "only_patch_path": "crates/brn-desktop/src/threads_writing_tests.rs",
+    "patch_path": "/private/tmp/brn-b3-source-20261017/before-sources-used.patch",
+    "patch_sha256": "17d5e766445505ea2d9c90d05667258f05c842bb59a6742da329979b044e0681",
+    "source_target_isolation_after_grant": "Distinct fixed source root AND target, not the bound B3 candidate target. No source copy/target created in this source-only window.",
+    "uses_only_base_existing_service_and_native_apis": true
+  },
+  "branch": "work/b3-20261017",
+  "broader_later_qualification": "Principal allocates maintained native library44/full desktop suite plus relevant app writing_setup/writing_context/shared_run/intake integration, default fmt/graph/build/lint/tests F22. No current execution grant.",
+  "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+  "fingerprint_encoding": "sha256 of sorted compact JSON path-to-current-sha256 map, UTF-8, no newline",
+  "kind": "B3 source-only preparation; no executed behavior qualification",
+  "model": "gpt-6.1-sol",
+  "mutation_seconds_used": 0,
+  "old_B1b_budget": "closed; not reused",
+  "origin_main_local": "8f768943964a77711b26d5235df146f8efe1dc6c",
+  "pending": [
+    "Explicit serial heavy grant",
+    "Compile/type/borrow/lint corrections in exact owned scope",
+    "Execute genuine before fixture on isolated source/target",
+    "Execute candidate native12/app6 and existing integration coverage",
+    "Fresh principal-owned Opus material actual-diff review",
+    "Hosted/native-human/IME/file-picker/owner/full F21/program qualification; carried PDF tooling gap"
+  ],
+  "prepared_app_tests": [
+    "b3_import_resolution_reads_initial_observation_and_current_owner_edited_note_without_writes",
+    "b3_import_resolution_binds_requested_x_after_y_without_using_current_external_version",
+    "b3_import_resolution_rejects_fabricated_receipts_and_hidden_scope_without_metadata",
+    "b3_import_resolution_rejects_archived_source_note_or_link_and_superseded_note",
+    "b3_import_resolution_rejects_ambiguous_canonical_notes_instead_of_taking_first",
+    "b3_import_resolution_rejects_canonical_scope_movement_without_global_fallback"
+  ],
+  "prepared_native_tests": [
+    "b3_brief_reference_purpose_persist_through_chats_navigation_closed_chat_and_reopen",
+    "b3_stale_setup_save_refuses_preserves_form_and_checked_replay_is_exact",
+    "b3_setup_labels_and_drafts_fail_closed_on_scope_switch_and_notify_only_revocation",
+    "b3_full_note_import_attaches_once_and_wrong_target_completion_keeps_canonical_result",
+    "b3_import_completion_refuses_stale_setup_and_revoked_working_context",
+    "b3_sources_used_separates_import_reading_claims_quotes_and_changed_removed_material",
+    "b3_configured_requirements_run_uses_real_shared_start_and_recorded_read_ledger",
+    "b3_exhaustive_check_refuses_unavailable_requirements_before_new_saved_request",
+    "b3_saved_host_evidence_has_visible_sources_used_without_opening_inputs",
+    "b3_cancelled_reference_conversion_never_imports_or_attaches_and_clears_intent",
+    "b3_delayed_scoped_search_reply_cannot_publish_titles_or_counts_into_another_form",
+    "b3_reimport_same_bytes_attaches_existing_canonical_note_without_a_duplicate"
+  ],
+  "preservation_checks": {
+    "WorkerEvent/Worker/existing adjacent declarations": {
+      "byte_identical": true,
+      "sha256": "66840a02eda3253a53f68749c566375580bd277f39e6700be2ddd8869d7b259b"
+    },
+    "crates/brn-desktop/src/threads_writing_tests.rs": {
+      "byte_identical": true,
+      "prefix_bytes": 72479,
+      "prefix_sha256": "a05c3756f5a72fe11b8bfc30b07ed6316afb213963f711ba621bbe657d2f7c1e"
+    },
+    "crates/brn-threads-app/tests/import_coverage.rs": {
+      "byte_identical": true,
+      "prefix_bytes": 5919,
+      "prefix_sha256": "fef8d89f176db36ccf829ea42afa0b61e0134b76e2af393c22368790e3c8dc2f"
+    },
+    "fn apply_review(": {
+      "byte_identical": true,
+      "sha256": "e2ccd1ef74626c8495c2bf82c8b613211285b5891b76b3b11cca2989bb646b43"
+    },
+    "fn begin_run_start(": {
+      "byte_identical": true,
+      "sha256": "600fa7b1c856bbd19b9687cc53a5888f70baa39217a4c65e77ba28bfc5842a51"
+    },
+    "fn convert_file(": {
+      "byte_identical": true,
+      "sha256": "b3d432ad7c8b8858bf5ddda738a63832a3e0a25ac97d6b9325fdd9484a85dcd9"
+    },
+    "fn ensure_writing_thread(": {
+      "byte_identical": true,
+      "sha256": "19bcf79dfb8ad6c8c18c94251a095385d13f5cffb1f90c7e3efc875d76b5b49b"
+    },
+    "fn note_changed(": {
+      "byte_identical": true,
+      "sha256": "6882f46a62f61cc51066740b3121a156dcc598b08e8ec390e06ebaab4de8da5f"
+    },
+    "fn refresh_writing_review_cache(": {
+      "byte_identical": true,
+      "sha256": "c3f4c9e2d217abc8ef70ed2fec1ee4f531e5e30acf1d6bbc39c8e93d7210519f"
+    },
+    "fn retry_rewrite(": {
+      "byte_identical": true,
+      "sha256": "a1aadaa7b6f8bb2081d6c5cf40e7ba7a4091880d5d9cabeb11f297e98c434df0"
+    },
+    "fn select_writing_thread(": {
+      "byte_identical": true,
+      "sha256": "c7b87f06fe048f99feea5127d994d5b9742a5245882137e52361ab7a96762207"
+    },
+    "fn start_request(": {
+      "byte_identical": true,
+      "sha256": "65f8e96b86e70269e47531fc9d743e9aa2b0c5f601909afb1317fdbac84497e7"
+    },
+    "intake.rs exact additional helper only": {
+      "byte_identical_after_removing_new_helper": true,
+      "importer_unchanged": true
+    }
+  },
+  "preserved_refs": {
+    "work/b1a-cw2-20261016": "5e98b0157a70076f2fe69346f1496cccc869bc78",
+    "work/b1b-20261016": "f2b060bb17080d0241143afb6fadd6ec22350f34"
+  },
+  "protected_manifest_lock_toolchain_CI_scripts_helpers_and_lib_gate_hashes": {
+    ".github/actions/setup-rust/action.yml": "d0fe9400e9e98f75b1c384faf60cca8388c8cf5a5a026fcf017bf227a474bb07",
+    ".github/copilot-instructions.md": "896b9a5681d8ea555d87b85761ff8d647ac0f7d39dc414c2b51f92df53d34c53",
+    ".github/workflows/ci.yml": "22291660f707ae56491fff9e91cb5c0fca49a02efc17243af96cd6608ce804d6",
+    ".github/workflows/preview-release.yml": "bb0439fbd63296f03a2eefcf14c90937a137dbf00244e0efadbb1db91caa3af1",
+    "Cargo.lock": "b742357ec641f357c7beecc14bcc3c81657a039f01bb6fcd397dac6413d0d313",
+    "Cargo.toml": "92d4e068aefe844db0d4d725f9c33df53b48544a2084c282597bc6ca5336fc28",
+    "crates/brn-ai/Cargo.toml": "1f6a3ba871179622b36846490633cc2c6737c4fa3705185e12fbd5b879082f48",
+    "crates/brn-desktop/Cargo.toml": "5b21d2ccb2121a53c02c603d70a2d9be513c88ff86ec7e27435a12c31e7ed8f7",
+    "crates/brn-intake/Cargo.toml": "ef10870cab9736b29a00f6b78cbe55531e859393a20bff3871a484e4d31cba03",
+    "crates/brn-retrieval/Cargo.toml": "6264cdf9f313bb7eb62db128e24316cc120b8299deaa0f3660b623051e6812c1",
+    "crates/brn-threads-app/Cargo.toml": "dd8cc20026768a1ffc703c5cd7dfe93933f4bdea2c67b4c6c9dfe848e7766880",
+    "crates/brn-threads-core/Cargo.toml": "75afba32ce5ecdd9d9f17f9e86f1f8ebf7522330e8c28dd5485b90d7672f3bd1",
+    "crates/brn-threads-intake/Cargo.toml": "0bb7d50c6fcc8cdeb18835ab4c492dfbfa204e8241af2d3617c3f3aadb677b4e",
+    "crates/brn-writing-ui/Cargo.toml": "be0c63d49bb253b3b637277d49a51ccee895f2764602c291eae79a4db6ab7f60",
+    "crates/brn-writing-ui/src/diff.rs": "a5b8f160695c0db0e7399af919a16c35ef184e876dcc0547b6341ca936e4ed07",
+    "crates/brn-writing-ui/src/formatting.rs": "0380a29e43e356e44ef99e891aa16a87de570f343023e9b87c8e1524b456b903",
+    "crates/brn-writing-ui/src/lib.rs": "3f5f8eda01b6042dd373ddbdfffcb5e2f7c4d903c3dccf31e064d74299391c8f",
+    "crates/brn/Cargo.toml": "b06112cea5a1f9dfb0c353f4279b4182e77a04c24ee5d5e37611abf93d590338",
+    "experiments/r0-rig-reuse/Cargo.toml": "1c1dbc63b09d3921d3c6e5f351af0c4eb7ea1dc908f2bb9415f88aac4c4d7883",
+    "rust-toolchain.toml": "c910997cb152c6dc8ed13b1fdf9fa28a4ed30d6776123e27dd6170e5c66067a0",
+    "scripts/check-intake-retirement.py": "b65a7c0634fc92b8dd404bb591a804d53dc934f5cae93f2a3f6e31950383205c",
+    "scripts/check-markdown-links.py": "6fd83e3030dffea93a05eb37a3ba9621b11f3c4162cbebbcfb036f0660ca9b0e",
+    "scripts/check-provider-retirement.py": "68d5c5b3510e8fdc6bf2a4298be6d22b245ff4ad6be47d78a4dc95a8a3a7fe90",
+    "scripts/ci-summary.py": "a934f23737236125f6a100ac907587a37a71df7f6227436071f1292f59aa39a7",
+    "scripts/cli_journey.py": "fe1d8ffbb90396c3f2d839960a75e50734dc1774f44946b9913828eccd96ab25",
+    "scripts/development-preflight.py": "83d8258e8fc9043612ee81c9d03240076a950c8a43b9af131901fef97722f13a",
+    "scripts/evaluate-wiki-guidance.py": "819f8a02151c3a49016a296d4209d637396b789a2276d2f819736628fc44e4ae",
+    "scripts/evaluate_wiki_v2.py": "67a4fe20c6422dd87cbe002f88f3214e507ab5dc04e34779d48fdbfa30a43a69",
+    "scripts/fixtures/wiki-eval-cases-v2.json": "9b9b7e36dd17c52678960ab02035a2ffb6b27d03b92a5ab96a32bdb866d243b2",
+    "scripts/fixtures/wiki-guidance-cases.json": "6f8e0666fccd5e52986702732cc7c041a94f2ce109522b47fe03ee0848c6e7dd",
+    "scripts/make-macos-app.sh": "1823a8522e7291e765557bbc2499fd431914f78be93b96a628c630f59fd54aee",
+    "scripts/package-macos-preview.py": "25e8a1c81bbf8fd728f74eb81836852898864a078f4ad0f9056e5a92f6d8f07d",
+    "scripts/qualification/threads-runtime/live-journeys.py": "6ebfba58afea5e5156576b7f3446d66d0a54eee1a209253e45c22c80c098158b",
+    "scripts/release-preview.py": "977d09d94c6c6ba1bbfeceb299e4677cc1beb221bebf9f1c5867d8a0f70af282",
+    "scripts/report-sizes.sh": "14f0d4a3df4f9ed2680b047a0ef287c779ac5473d2f2f30158db2eee72bf705c",
+    "scripts/test-make-macos-app.sh": "a56fdc15b4f903d9ce912e1d088133f6078ea44d55d2e46e33e62589ada7e3a5",
+    "scripts/tests/test_cli_journey.py": "ef50256156aa750a3730bc606d35a465cdc102835c21e3bab321287777bfb865",
+    "scripts/tests/test_development_tooling.py": "7c8823e94701c82b1db6d1fe5f6a28c938dff9d8a2492c87c4c9eb1becc70a17",
+    "scripts/tests/test_evaluate_wiki_v2.py": "3d1f9c021d6e54a6d9af819246c7bda6cd87a006d61dfcefcd2a912ceab668a3",
+    "scripts/tests/test_macos_packaging.py": "d7d4e4090866a725c56f8ef513f42411ebac51ac841b008d97e88fddfcf646b0",
+    "scripts/tests/test_preview_release.py": "0d0534d8ad39b052633bd0cffe55d63acebefcdaba37413fd36316c856d2fbee",
+    "scripts/tests/test_wiki_guidance_eval.py": "a4d55ae543c63bc717a34ce3abb2b011c066f878fe54111a2ccc94cd890f62a5",
+    "scripts/verification_evidence.py": "1224e3bd71264714a58ae7b2b913b9d4527b8a7ffaf411bce9456a4c5d7a742f",
+    "scripts/verify-desktop-shell.sh": "684213a46b07ca96041e8985dc058761f000d19ed1b1f59460e27edc9c2188fc",
+    "scripts/verify-end-to-end-fixtures.py": "abfdbeb11adce12eb8883363604037441d36dcb3ddb778897d6b981e481f3594",
+    "scripts/verify-end-to-end.sh": "cf47f13d6691d378b3b2cb821dee51f29437c698adf5d090a9cead60c0e17841",
+    "scripts/verify-storage.sh": "cc84b634b6aa816050dead761f9fba0e2e69cf12f20e308c4714ad476e6daf6b"
+  },
+  "provider": "OpenAI via Codex",
+  "recorded_utc": "2026-10-16T22:04:43.511884+00:00",
+  "resource_authority": "D1B sole heavy slot; NO Cargo/build/test/lint/metadata/mutants/list/stress/headless/process polling/delegation executed",
+  "source_fingerprint_sha256": "36cd051da6ec28e78e071d148902bc255f93820a339bab7473d08fad8712a105",
+  "source_patch": {
+    "base_index_apply_check": "passed; no application/staging",
+    "path": "/private/tmp/brn-b3-source-20261017/prepared-source.patch",
+    "sha256": "1b2f20448637f2b9e2f05ba8e548b9d63809e265ecf9d5534cba8617628ea8a6"
+  },
+  "source_paths": {
+    "crates/brn-desktop/src/threads_ui.rs": {
+      "base_sha256": "bd03c560faeecdfb3e73440e9f1da83a3e944b3ea18965b79713942fcae06aeb",
+      "bytes": 194582,
+      "current_sha256": "9d8139b8032c4e55397127875f15ddefe868b66658d3d84559afa28844e07b8f"
+    },
+    "crates/brn-desktop/src/threads_writing_tests.rs": {
+      "base_sha256": "a05c3756f5a72fe11b8bfc30b07ed6316afb213963f711ba621bbe657d2f7c1e",
+      "bytes": 124723,
+      "current_sha256": "88f2aaaf215edb5c211ea4f080384ed369e5db84c214e11886d3c20d3f74575c"
+    },
+    "crates/brn-threads-app/src/intake.rs": {
+      "base_sha256": "3d935a5ab37cbb28ef10c76502045896e95db031bf2b2815717b19f251fac034",
+      "bytes": 29842,
+      "current_sha256": "b514c7eac693eadc2b2bb4b94eb75fe18d79ccf1b8f72defaca6dd7c8ca2094b"
+    },
+    "crates/brn-threads-app/tests/import_coverage.rs": {
+      "base_sha256": "fef8d89f176db36ccf829ea42afa0b61e0134b76e2af393c22368790e3c8dc2f",
+      "bytes": 21755,
+      "current_sha256": "41e321c4aa8ef21681ece42a3bc05bb8dec2d94b32b75653a7ef009005b8b2fe"
+    },
+    "crates/brn-writing-ui/src/native.rs": {
+      "base_sha256": "71c227263750c49085b3e89a80d455f45b65e4634175432d0a532e85f249acdb",
+      "bytes": 21061,
+      "current_sha256": "662d5903ddb76ad0cd00f475585f0ea602a3c3fb5efc0bb6711ad4f9c98cf421"
+    },
+    "crates/brn-writing-ui/src/references.rs": {
+      "base_sha256": null,
+      "bytes": 5752,
+      "current_sha256": "1a223086ccde1e964b73f8a7e2ff775e867315f82ab2ee6ecef73555c945c5db"
+    },
+    "crates/brn-writing-ui/src/setup.rs": {
+      "base_sha256": null,
+      "bytes": 17631,
+      "current_sha256": "51ef9f5b2e58bf45a5fb1fb27666464e33625a22f653b81f28be28178f5b0c8e"
+    },
+    "crates/brn-writing-ui/src/writing.rs": {
+      "base_sha256": "7e9335483c525b25dfbfd10c56bb27515d4eb133502585b2345544e843cf167a",
+      "bytes": 114066,
+      "current_sha256": "8a1d87ed408406907bf4fee6b2739a39acf5b4ef47ac432128c2ae8b60965b9d"
+    }
+  },
+  "state": "Unstaged/uncommitted source preparation. No compiler/type/borrow/behavior/F22 graph or independent-review/acceptance claim.",
+  "static_formatter": "direct pinned rustfmt --check on 8 changed/new Rust files; successful command recorded separately",
+  "task": "B3"
+}

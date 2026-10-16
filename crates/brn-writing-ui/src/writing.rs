@@ -228,6 +228,15 @@ impl<T: 'static> WritingView<'_, T> {
                 .separator()
                 .item(item(
                     &this,
+                    "Brief & references…",
+                    None,
+                    false,
+                    false,
+                    WritingRequest::OpenSetup,
+                    dispatch,
+                ))
+                .item(item(
+                    &this,
                     if protected {
                         "Make working note"
                     } else {
@@ -605,6 +614,7 @@ impl<T: 'static> WritingView<'_, T> {
             (px(0.), text_floor)
         };
         content
+            .child(self.setup_drawer(cx))
             .child(self.text_and_comments(body, prefer, min, stacked, cx))
             .child(self.writing_activity(cx))
             .child(self.writing_run_status())
@@ -2243,6 +2253,14 @@ impl<T: 'static> WritingView<'_, T> {
                         .test_support(),
                 );
             }
+        }
+        if let Some(evidence) = &writing_evidence {
+            // New attachment annotations consume only the host's checked context batch;
+            // the legacy snapshot reader above remains unchanged for existing review UI.
+            let captured = snapshot
+                .as_ref()
+                .filter(|saved| self.writing_requests.get(&saved.request_message) == Some(*saved));
+            details = details.child(self.sources_used(evidence, captured));
         }
         if self.review_inputs || review.note.is_none() {
             // The bar names the reason when the proposal has no note text.

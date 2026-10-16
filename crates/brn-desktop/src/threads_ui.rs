@@ -313,6 +313,13 @@ type WritingReviewCacheKey = (
     Option<String>,
     Vec<Prepared>,
 );
+#[derive(Clone)]
+struct ReferenceImportIntent {
+    target: setup::SetupTarget,
+    purpose: WritingPurpose,
+    key: String,
+}
+
 struct ThreadsUi {
     writing: WritingPanel,
     workspace: Workspace,
@@ -346,6 +353,9 @@ struct ThreadsUi {
     draft_generations: BTreeMap<String, u64>,
     scrollers: std::cell::RefCell<BTreeMap<String, chat::ChatScroller>>,
     attaching_chat: Option<String>,
+    reference_import: Option<ReferenceImportIntent>,
+    reference_search_generation: u64,
+    reference_search_cancel: Option<brn_threads_app::search::CancelOnDrop>,
     selected_project: Option<String>,
     note_project: Option<String>,
     note_writing_scope: Option<String>,
@@ -628,6 +638,9 @@ impl ThreadsUi {
             draft_generations,
             scrollers: std::cell::RefCell::new(BTreeMap::new()),
             attaching_chat: None,
+            reference_import: None,
+            reference_search_generation: 0,
+            reference_search_cancel: None,
             selected_project: None,
             note_project: None,
             note_writing_scope: None,
@@ -1713,6 +1726,13 @@ impl ThreadsUi {
         cx.notify();
     }
     fn rewrite_note(&mut self, cx: &mut Context<Self>) {
+        self.rewrite_note_with_requirements(WritingReadRequirements::default(), cx);
+    }
+    fn rewrite_note_with_requirements(
+        &mut self,
+        requirements: WritingReadRequirements,
+        cx: &mut Context<Self>,
+    ) {
         if let Some(worker) = &self.worker {
             self.warn(worker.kind.busy_notice());
             cx.notify();
@@ -1748,13 +1768,14 @@ impl ThreadsUi {
             .general_drafts
             .insert(note.clone(), feedback.clone());
         let result = self.ensure_writing_thread(&note).and_then(|thread| {
-            self.workspace.snapshot_writing_request_with_feedback(
+            self.workspace.snapshot_writing_request_with_requirements(
                 &format!("writing-request:{}", uuid::Uuid::new_v4()),
                 &note,
                 version,
                 &thread,
                 &ids,
                 &feedback,
+                &requirements,
             )
         });
         self.adopt_writing_thread(&note);
@@ -2914,7 +2935,11 @@ impl ThreadsUi {
                     };
                     match result {
                         Ok(converted) => {
-                            if converted.intent == ImportIntent::FullNote {
+                            if let Some(reference) = self.reference_import.take() {
+                                allow_dispatch = self.complete_writing_reference_import(
+                                    &reference, &title, &converted, window, cx,
+                                );
+                            } else if converted.intent == ImportIntent::FullNote {
                                 match if let Some(chat) = &chat {
                                     self.workspace.attach_full(
                                         &format!("attach:{}", uuid::Uuid::new_v4()),
@@ -2958,8 +2983,16 @@ impl ThreadsUi {
                         }
                         // The owner's own Stop is a warning; any other failure is an error.
                         Err(e) if cancelled => self.warn(format!("Import stopped: {e}")),
+                        Err(_)
+                            if self.reference_import.as_ref().is_some_and(|reference| {
+                                !self.reference_import_context_displayed(reference)
+                            }) =>
+                        {
+                            self.warn("Reference conversion stopped; no Note was attached. Return to the original writing context to inspect its import state.");
+                        }
                         Err(e) => self.fail(format!("Import stopped: {e}")),
                     }
+                    self.reference_import = None;
                     if !allow_dispatch && self.worker.is_none() {
                         let _ = self
                             .workspace
@@ -2978,6 +3011,7 @@ impl ThreadsUi {
                 self.dispatch_next(cx);
             }
         } else if disconnected && self.worker.is_some() {
+            self.reference_import = None;
             self.pause_failed_worker();
             if self
                 .worker
@@ -3064,12 +3098,25 @@ impl ThreadsUi {
         }
     }
     fn choose_import(&mut self, intent: ImportIntent, window: &mut Window, cx: &mut Context<Self>) {
+        self.choose_import_for_reference(intent, None, window, cx);
+    }
+    fn choose_import_for_reference(
+        &mut self,
+        intent: ImportIntent,
+        reference: Option<ReferenceImportIntent>,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
         if let Some(worker) = &self.worker {
             self.warn(worker.kind.busy_notice());
             cx.notify();
             return;
         }
-        let attachment_chat = self.attaching_chat.take();
+        let attachment_chat = if reference.is_some() {
+            None
+        } else {
+            self.attaching_chat.take()
+        };
         let receiver = cx.prompt_for_paths(PathPromptOptions {
             files: true,
             directories: false,
@@ -3082,7 +3129,36 @@ impl ThreadsUi {
             let _ = this.update_in(cx, |this, _, cx| match paths {
                 Ok(Ok(Some(paths))) => {
                     if let Some(path) = paths.into_iter().next() {
+                        if let Some(worker) = &this.worker {
+                            this.warn(format!(
+                                "{} Then choose this file again.",
+                                worker.kind.busy_notice()
+                            ));
+                            cx.notify();
+                            return;
+                        }
+                        if let Some(reference) = &reference
+                            && let Err(error) = reference.target.validate(
+                                &this.workspace,
+                                this.open_note_id(),
+                                this.note_writing_scope.as_deref(),
+                            )
+                        {
+                            this.warn(error.to_string());
+                            cx.notify();
+                            return;
+                        }
+                        if this.worker.is_none() {
+                            this.reference_import = None;
+                        }
                         this.convert_file(data, path, intent, attachment_chat, cx);
+                        if this
+                            .worker
+                            .as_ref()
+                            .is_some_and(|worker| worker.kind == WorkerKind::Import)
+                        {
+                            this.reference_import = reference;
+                        }
                     }
                 }
                 Ok(Ok(None)) => {}
@@ -3781,9 +3857,377 @@ impl ThreadsUi {
         cx.notify();
     }
 
+    fn writing_setup_form_current(&self) -> bool {
+        self.writing.setup.as_ref().is_some_and(|draft| {
+            draft.displayed(
+                &self.workspace,
+                self.open_note_id(),
+                self.note_writing_scope.as_deref(),
+            )
+        })
+    }
+    fn load_writing_setup(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        self.reference_search_cancel = None;
+        self.reference_search_generation += 1;
+        self.writing.setup_open = true;
+        // Clear before the fallible load: no old brief/names can survive a refused context.
+        self.writing.setup = None;
+        let loaded = self
+            .open_note_id()
+            .ok_or_else(|| AppError::Invalid("Open a working Note first".into()))
+            .and_then(|note| {
+                setup::SetupDraft::load(&self.workspace, note, self.note_writing_scope.as_deref())
+            });
+        match loaded {
+            Ok(draft) => {
+                if self
+                    .writing
+                    .note
+                    .as_ref()
+                    .is_none_or(|open| open.record.version != draft.target.note_version)
+                {
+                    self.warn("Open the current saved Note before changing brief & references.");
+                } else {
+                    self.writing.setup_brief.update(cx, |input, cx| {
+                        input.set_value(draft.saved.brief.as_deref().unwrap_or(""), window, cx)
+                    });
+                    self.writing
+                        .reference_query
+                        .update(cx, |input, cx| input.set_value("", window, cx));
+                    self.writing.setup = Some(draft);
+                }
+            }
+            Err(error) => self.warn(error.to_string()),
+        }
+        cx.notify();
+    }
+    fn save_writing_setup(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        let Some(draft) = &self.writing.setup else {
+            return;
+        };
+        let brief = self.writing.setup_brief.read(cx).value().to_string();
+        let note = self.open_note_id().map(str::to_owned);
+        let scope = self.note_writing_scope.clone();
+        match draft.save(
+            &mut self.workspace,
+            &format!("writing-setup-ui:{}", uuid::Uuid::new_v4()),
+            note.as_deref(),
+            scope.as_deref(),
+            &brief,
+        ) {
+            Ok(_) => {
+                self.load_writing_setup(window, cx);
+                self.inform("Brief & references saved for this Note and writing scope. Existing proposals keep their original inputs; request a fresh rewrite to use changes.");
+            }
+            Err(error) => self.warn(format!(
+                "{} Your form is retained; Reload explicitly to use the saved setup.",
+                error
+            )),
+        }
+        self.refresh();
+        cx.notify();
+    }
+    fn search_writing_references(
+        &mut self,
+        cursor: Option<String>,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        if !self.writing_setup_form_current() {
+            self.warn("Writing context changed; Reload before searching references.");
+            cx.notify();
+            return;
+        }
+        let query = self.writing.reference_query.read(cx).value().to_string();
+        if query.trim().is_empty() {
+            self.warn("Enter a reference Note title or saved text.");
+            cx.notify();
+            return;
+        }
+        let Some(draft) = &mut self.writing.setup else {
+            return;
+        };
+        let target = draft.target.clone();
+        let observed = draft.observed.clone();
+        draft.matches.clear();
+        draft.next = None;
+        draft.match_total = 0;
+        draft.search_pending = true;
+        self.reference_search_cancel = None;
+        self.reference_search_generation += 1;
+        let generation = self.reference_search_generation;
+        let ticket = match self.workspace.search_handle() {
+            Ok(handle) => {
+                handle.request_page(&query, target.scope.as_deref(), 12, cursor.as_deref())
+            }
+            Err(error) => {
+                if let Some(draft) = &mut self.writing.setup {
+                    draft.search_pending = false;
+                }
+                self.warn(error.to_string());
+                cx.notify();
+                return;
+            }
+        };
+        self.reference_search_cancel = Some(ticket.cancel_on_drop());
+        cx.spawn_in(window, async move |this, cx| {
+            let answer = cx
+                .background_executor()
+                .spawn(async move { ticket.wait() })
+                .await;
+            let _ = this.update_in(cx, |this, _, cx| {
+                this.finish_reference_search(generation, target, observed, answer, cx)
+            });
+        })
+        .detach();
+        cx.notify();
+    }
+    fn finish_reference_search(
+        &mut self,
+        generation: u64,
+        target: setup::SetupTarget,
+        observed: ViewChangeToken,
+        answer: AppResult<brn_threads_app::search::SearchResults>,
+        cx: &mut Context<Self>,
+    ) {
+        if self.reference_search_generation != generation {
+            return;
+        }
+        self.reference_search_cancel = None;
+        // One concrete reply path: no global-Chat rebinding, stale names or stale counts.
+        if !self.writing_setup_form_current()
+            || self
+                .writing
+                .setup
+                .as_ref()
+                .is_none_or(|draft| draft.target != target || draft.observed != observed)
+        {
+            cx.notify();
+            return;
+        }
+        if let Some(draft) = &mut self.writing.setup {
+            draft.search_pending = false;
+            match answer {
+                Ok(page) => {
+                    draft.matches = page.matches;
+                    draft.next = page.next;
+                    draft.match_total = page.total;
+                }
+                Err(error) => self.warn(format!("Reference search unavailable: {error}")),
+            }
+        }
+        cx.notify();
+    }
+    fn saved_setup_for_action(&self, cx: &Context<Self>) -> AppResult<setup::SetupTarget> {
+        let draft = self
+            .writing
+            .setup
+            .as_ref()
+            .ok_or_else(|| AppError::Invalid("Open brief & references first".into()))?;
+        draft.target.validate(
+            &self.workspace,
+            self.open_note_id(),
+            self.note_writing_scope.as_deref(),
+        )?;
+        let brief = self.writing.setup_brief.read(cx).value();
+        if draft.value(brief.as_ref()) != draft.saved {
+            return Err(AppError::Invalid(
+                "Save brief & references before rewriting or importing".into(),
+            ));
+        }
+        Ok(draft.target.clone())
+    }
+    fn rewrite_with_setup(&mut self, exhaustive: bool, cx: &mut Context<Self>) {
+        if let Err(error) = self.saved_setup_for_action(cx) {
+            self.warn(error.to_string());
+            cx.notify();
+            return;
+        }
+        let Some(draft) = &self.writing.setup else {
+            return;
+        };
+        if exhaustive
+            && !draft
+                .saved
+                .references
+                .iter()
+                .any(|r| r.purpose == WritingPurpose::Requirements)
+        {
+            self.warn("Attach a Requirements reference before checking all requirements.");
+            cx.notify();
+            return;
+        }
+        if exhaustive {
+            match self
+                .workspace
+                .writing_setup(&draft.target.note, draft.target.scope.as_deref())
+            {
+                Ok(view)
+                    if view.references.iter().any(|r| {
+                        r.reference.purpose == WritingPurpose::Requirements && r.version.is_none()
+                    }) =>
+                {
+                    self.warn("A Requirements reference is no longer available here. Restore access or remove it and save before checking all requirements.");
+                    cx.notify();
+                    return;
+                }
+                Err(error) => {
+                    self.warn(error.to_string());
+                    cx.notify();
+                    return;
+                }
+                _ => {}
+            }
+        }
+        let requirements = WritingReadRequirements {
+            exhaustive,
+            must_be_current: draft.must_be_current.iter().cloned().collect(),
+        };
+        self.rewrite_note_with_requirements(requirements, cx);
+    }
+    fn import_writing_reference(
+        &mut self,
+        purpose: WritingPurpose,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        match self.saved_setup_for_action(cx) {
+            Ok(target) => self.choose_import_for_reference(
+                ImportIntent::FullNote,
+                Some(ReferenceImportIntent {
+                    target,
+                    purpose,
+                    key: format!("writing-reference:{}", uuid::Uuid::new_v4()),
+                }),
+                window,
+                cx,
+            ),
+            Err(error) => {
+                self.warn(error.to_string());
+                cx.notify();
+            }
+        }
+    }
+    fn reference_import_context_displayed(&self, intent: &ReferenceImportIntent) -> bool {
+        self.open_note_id() == Some(intent.target.note.as_str())
+            && self.note_writing_scope == intent.target.scope
+            && self
+                .workspace
+                .writing_setup(&intent.target.note, intent.target.scope.as_deref())
+                .is_ok()
+    }
+    /// Only the existing full-note import creates canonical content. Attachment is a separate checked setup action.
+    fn complete_writing_reference_import(
+        &mut self,
+        intent: &ReferenceImportIntent,
+        title: &str,
+        converted: &ConversionResult,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) -> bool {
+        let outcome = match self.workspace.import_full_scoped(
+            &intent.key,
+            title,
+            converted,
+            intent.target.scope.as_deref(),
+        ) {
+            Ok(outcome) => outcome,
+            Err(error) => {
+                if self.reference_import_context_displayed(intent) {
+                    self.warn(format!(
+                        "Reference import was not saved or attached: {error}"
+                    ));
+                } else {
+                    self.warn("Reference import could not be saved in its original scope; no reference was attached.");
+                }
+                return false;
+            }
+        };
+        let ApplyOutcome::Applied(receipt) = outcome else {
+            self.warn("Reference import needs resolution; no reference was attached. Existing import review/recovery remains available.");
+            return false;
+        };
+        let imported = match self.workspace.full_import_note_in_scope(
+            &receipt,
+            &converted.source_sha256,
+            intent.target.scope.as_deref(),
+        ) {
+            Ok(note) => note.id,
+            Err(_) => {
+                self.warn("Imported Note retained in its original scope; attachment is unavailable. No reference was attached or retargeted.");
+                return true;
+            }
+        };
+        if self.open_note_id() == Some(intent.target.note.as_str())
+            && self.note_writing_scope == intent.target.scope
+        {
+            // A repeated completion never changes an already-attached link or a newer owner purpose.
+            let already_attached = setup::SetupTarget::resolve(
+                &self.workspace,
+                &intent.target.note,
+                intent.target.scope.as_deref(),
+            )
+            .is_ok_and(|(_, view)| {
+                view.references
+                    .iter()
+                    .any(|r| r.reference.note == imported && r.version.is_some())
+            });
+            if already_attached {
+                self.inform("Full Note is already attached in this writing scope. Existing reference purpose and saved setup are unchanged.");
+                return true;
+            }
+        }
+        let attachment = (|| -> AppResult<()> {
+            // Fresh target and visibility checks AFTER import, not the global Chat or a presentation token.
+            let view = intent.target.validate(
+                &self.workspace,
+                self.open_note_id(),
+                self.note_writing_scope.as_deref(),
+            )?;
+            let mut value = view
+                .record
+                .and_then(|r| match r.data {
+                    RecordData::WritingSetup(s) => Some(s),
+                    _ => None,
+                })
+                .unwrap_or(WritingSetup {
+                    note: intent.target.note.clone(),
+                    chat: intent.target.scope.clone(),
+                    brief: None,
+                    references: vec![],
+                });
+            if !value.references.iter().any(|r| r.note == imported) {
+                value.references.push(WritingReference {
+                    note: imported.clone(),
+                    purpose: intent.purpose,
+                });
+            }
+            self.workspace.set_writing_setup(
+                &format!("{}:attach", intent.key),
+                intent.target.setup_version,
+                &value,
+            )?;
+            Ok(())
+        })();
+        match attachment {
+            Ok(()) => { self.load_writing_setup(window, cx); self.inform("Full Note imported and attached as a read-only reference in this writing scope. Import coverage and actual reading remain separate."); }
+            Err(_) => self.warn("Imported Note retained in its original scope; no reference was attached. Target, saved Note, setup or access changed. Open the original context and explicitly attach the available Note."),
+        }
+        true
+    }
+
     fn writing_view(&self) -> WritingView<'_, Self> {
         WritingView {
             host: self,
+            displayed_scope: self.note_writing_scope.as_deref(),
+            reference_importing: self
+                .worker
+                .as_ref()
+                .is_some_and(|worker| worker.kind == WorkerKind::Import)
+                && self.reference_import.as_ref().is_some_and(|intent| {
+                    self.open_note_id() == Some(intent.target.note.as_str())
+                        && self.note_writing_scope == intent.target.scope
+                }),
             panel: &self.writing,
             workspace: &self.workspace,
             records: &self.records,
@@ -3815,6 +4259,97 @@ impl ThreadsUi {
         cx: &mut Context<Self>,
     ) {
         match request {
+            WritingRequest::OpenSetup => self.load_writing_setup(window, cx),
+            WritingRequest::CloseSetup => {
+                self.writing.setup_open = false;
+                self.reference_search_generation += 1;
+                self.reference_search_cancel = None;
+                cx.notify();
+            }
+            WritingRequest::SaveSetup => self.save_writing_setup(window, cx),
+            WritingRequest::SearchReferences(cursor) => {
+                self.search_writing_references(cursor, window, cx)
+            }
+            WritingRequest::AttachReference { note, purpose } => {
+                let displayed = self.writing.setup.as_ref().is_some_and(|d| {
+                    d.displayed(
+                        &self.workspace,
+                        self.open_note_id(),
+                        self.note_writing_scope.as_deref(),
+                    )
+                });
+                if displayed {
+                    if let Some(draft) = &mut self.writing.setup
+                        && let Err(error) = draft.attach_match(&self.workspace, &note, purpose)
+                    {
+                        self.warn(error.to_string());
+                    }
+                } else {
+                    self.warn("Writing context changed; Reload before choosing references.");
+                }
+                cx.notify();
+            }
+            WritingRequest::ReferencePurpose { note, purpose } => {
+                if self.writing_setup_form_current()
+                    && let Some(reference) = self
+                        .writing
+                        .setup
+                        .as_mut()
+                        .and_then(|d| d.references.iter_mut().find(|r| r.note == note))
+                {
+                    reference.purpose = purpose;
+                }
+                cx.notify();
+            }
+            WritingRequest::ReferenceCurrent(note) => {
+                if self.writing_setup_form_current()
+                    && let Some(draft) = &mut self.writing.setup
+                    && draft.references.iter().any(|r| r.note == note)
+                    && !draft.must_be_current.remove(&note)
+                {
+                    draft.must_be_current.insert(note);
+                }
+                cx.notify();
+            }
+            WritingRequest::RemoveReference(note) => {
+                if self.writing_setup_form_current()
+                    && let Some(draft) = &mut self.writing.setup
+                {
+                    draft.references.retain(|r| r.note != note);
+                    draft.must_be_current.remove(&note);
+                }
+                cx.notify();
+            }
+            WritingRequest::OpenReference(note) => {
+                let scope = self.note_writing_scope.clone();
+                let allowed = self
+                    .writing
+                    .setup
+                    .as_ref()
+                    .and_then(|draft| {
+                        draft
+                            .target
+                            .validate(&self.workspace, self.open_note_id(), scope.as_deref())
+                            .ok()
+                    })
+                    .is_some_and(|view| {
+                        view.references.iter().any(|reference| {
+                            reference.reference.note == note && reference.version.is_some()
+                        })
+                    });
+                if allowed {
+                    self.open_note_in_context(&note, None, scope.as_deref(), window, cx);
+                } else {
+                    self.warn("Reference is no longer available here.");
+                    cx.notify();
+                }
+            }
+            WritingRequest::ImportReference(purpose) => {
+                self.import_writing_reference(purpose, window, cx)
+            }
+            WritingRequest::RewriteConfigured(exhaustive) => {
+                self.rewrite_with_setup(exhaustive, cx)
+            }
             WritingRequest::Noop => {}
             WritingRequest::Save => self.save(window, cx),
             WritingRequest::Reload => {

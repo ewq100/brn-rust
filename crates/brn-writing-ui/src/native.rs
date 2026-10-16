@@ -12,6 +12,12 @@ use std::{
     sync::Arc,
 };
 
+#[path = "references.rs"]
+mod references;
+#[path = "setup.rs"]
+pub mod setup;
+use gpui_kit::component::input::InputState;
+
 gpui_kit::actions!(
     brn_threads,
     [Save, CommentSelection, AskAboutSelection, Rewrite]
@@ -100,6 +106,10 @@ pub fn short(text: &str) -> String {
 }
 
 pub struct WritingPanel {
+    pub setup_open: bool,
+    pub setup: Option<setup::SetupDraft>,
+    pub setup_brief: Entity<TextareaState>,
+    pub reference_query: Entity<InputState>,
     pub note_editor: Entity<EditorState>,
     pub note_read_view: Entity<TextViewState>,
     pub note_reading: bool,
@@ -255,7 +265,19 @@ impl WritingPanel {
                 .selectable(true)
                 .scrollable(true)
         });
+        let setup_brief = cx.new(|cx| {
+            TextareaState::new(window, cx)
+                .auto_grow(2, 5)
+                .placeholder("Purpose, audience, tone, requirements (optional)")
+        });
+        let reference_query = cx.new(|cx| {
+            InputState::new(window, cx).placeholder("Reference Note title or saved text")
+        });
         Self {
+            setup_open: false,
+            setup: None,
+            setup_brief,
+            reference_query,
             note_editor,
             note_read_view,
             note_reading: false,
@@ -298,6 +320,23 @@ impl WritingPanel {
 /// in that window's existing checked handlers; this is not a durable command.
 #[derive(Clone)]
 pub enum WritingRequest {
+    OpenSetup,
+    CloseSetup,
+    SaveSetup,
+    SearchReferences(Option<String>),
+    AttachReference {
+        note: String,
+        purpose: WritingPurpose,
+    },
+    ReferencePurpose {
+        note: String,
+        purpose: WritingPurpose,
+    },
+    ReferenceCurrent(String),
+    RemoveReference(String),
+    OpenReference(String),
+    ImportReference(WritingPurpose),
+    RewriteConfigured(bool),
     Noop,
     Save,
     Reload,
@@ -370,6 +409,8 @@ pub struct WritingWorker<'a> {
 /// No Workspace or cache is copied or retained by the panel.
 pub struct WritingView<'a, T: 'static> {
     pub host: &'a T,
+    pub displayed_scope: Option<&'a str>,
+    pub reference_importing: bool,
     pub panel: &'a WritingPanel,
     pub workspace: &'a Workspace,
     pub records: &'a Vec<Record>,
