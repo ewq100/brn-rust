@@ -20,14 +20,15 @@ pub enum RunPreparationError {
     #[error(transparent)]
     Selection(AppError),
     #[error(transparent)]
-    Preparation(AppError),
+    Preparation(brn_ai::AiError),
+    #[error(transparent)]
+    Settings(AppError),
 }
 impl From<RunPreparationError> for AppError {
     fn from(error: RunPreparationError) -> Self {
         match error {
-            RunPreparationError::Selection(error) | RunPreparationError::Preparation(error) => {
-                error
-            }
+            RunPreparationError::Selection(error) | RunPreparationError::Settings(error) => error,
+            RunPreparationError::Preparation(error) => AppError::Invalid(error.to_string()),
         }
     }
 }
@@ -82,7 +83,7 @@ impl Workspace {
         &mut self,
         start: ThreadRunStart,
     ) -> std::result::Result<PreparedWorkspaceRun, RunPreparationError> {
-        let settings = self.settings().map_err(RunPreparationError::Preparation)?;
+        let settings = self.settings().map_err(RunPreparationError::Settings)?;
         let (selection, effort) =
             resolve_run_selection(&settings, start.offered_copilot_models.as_deref())
                 .map_err(RunPreparationError::Selection)?;
@@ -111,8 +112,7 @@ impl Workspace {
             search,
             trace: start.trace,
         };
-        let prepared = prepare_run(request)
-            .map_err(|e| RunPreparationError::Preparation(AppError::Invalid(e.to_string())))?;
+        let prepared = prepare_run(request).map_err(RunPreparationError::Preparation)?;
         Ok(PreparedWorkspaceRun {
             prepared,
             search_status,

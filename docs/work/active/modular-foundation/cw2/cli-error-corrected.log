@@ -1,0 +1,40 @@
+   Compiling brn-threads-app v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-threads-app)
+   Compiling brn v0.0.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn)
+    Finished `test` profile [optimized] target(s) in 5.21s
+     Running tests/agent_contract.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/agent_contract-d755b6e01cc448d2)
+
+running 23 tests
+test sigint_while_a_fifo_has_no_writer_is_interrupted ... ok
+test keyed_keep_in_brn_retry_replays ... ok
+test default_mode_domain_outcomes_still_exit_zero ... ok
+test sigint_while_stdin_stays_open_is_interrupted_and_creates_nothing ... ok
+test open_edit_session_reports_edit_session_open ... ok
+test large_text_beyond_argv_limits_is_saved_through_a_file ... ok
+test ask_refused_before_the_provider_is_rejected_not_failed ... ok
+test closed_stdout_does_not_panic ... ok
+test keyed_markdown_full_import_replays_and_title_change_conflicts ... ok
+test symlinked_data_dir_is_data_folder_unusable ... ok
+test terminal_sources_are_refused_without_blocking ... ok
+test json_success_envelope_has_every_field_and_result_matches_default_mode ... ok
+test refuse_retry_after_an_interrupted_first_attempt_applies_once ... ok
+test deferred_undo_exits_4_and_keyed_retry_applies_the_same_compensation ... ok
+test not_found_destination_exists_and_unsafe_directory_are_rejected ... ok
+test unkeyed_deferred_undo_reports_duplicate ... ok
+test text_files_and_stdin_preserve_exact_multiline_unicode ... ok
+test text_input_refusals_create_nothing ... ok
+test caller_input_mistakes_after_open_are_usage_or_rejected_not_internal ... ok
+test stale_generation_closed_and_ignored_exit_3_with_current_versions ... ok
+test usage_errors_are_json_with_stable_codes_and_create_nothing ... ok
+test machine_description_lists_every_parsed_command_and_matches_readme ... ok
+test keyed_creates_replay_and_reuse_with_other_inputs_is_refused ... ok
+
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.67s
+
+     Running tests/shared_run.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/shared_run-2b401c7c9199274d)
+
+running 2 tests
+test selection_errors_precede_any_run_write_and_catalogue_never_substitutes ... ok
+test shared_preparation_runs_scripted_with_the_same_durable_run_identity ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+

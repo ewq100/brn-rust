@@ -800,7 +800,10 @@ async fn ask(
             trace: trace_level(inv)?,
             offered_copilot_models: None,
         })
-        .map_err(brn_threads_app::AppError::from)?;
+        .map_err(|error| match error {
+            RunPreparationError::Preparation(error) => contract::run_error(error),
+            other => CliError::from(AppError::from(other)),
+        })?;
     let search_status = prepared.search_status;
     let observed = cancel.clone();
     let watcher = tokio::spawn(async move {

@@ -110,7 +110,7 @@
     },
     {
       "path": "crates/brn-threads-app/src/run.rs",
-      "sha256": "e792ea0cc942ba3fef1e2621d41773600f18e599c560505758b304f794561b35",
+      "sha256": "ff7f21a073a53e2903c3e9c6a8d7aad16bff56af38a6ba8818d4c4364d5ff350",
       "ownership": "CW2 source/test; desktop hunk limits in handoff.md"
     },
     {
@@ -125,7 +125,7 @@
     },
     {
       "path": "crates/brn-threads-app/tests/shared_run.rs",
-      "sha256": "0fb6e961485b4936fecb48ac9c8a72dc6345d48d6841064a3fa5896189e2c30e",
+      "sha256": "65b03d31062cdb8b21a1a4a3df7abc10616f6feb2acaed678e9c58deecd40c07",
       "ownership": "CW2 source/test; desktop hunk limits in handoff.md"
     },
     {
@@ -170,7 +170,7 @@
     },
     {
       "path": "crates/brn/src/main.rs",
-      "sha256": "f903c6325e71c95bea8f1cbbef9282f924831d4ab11b26db44fb78b78ec53056",
+      "sha256": "49c1eeab7ea89cede8b0f049956df0dda66e1efe677a9feb3b22d42c9aac53f1",
       "ownership": "CW2 source/test; desktop hunk limits in handoff.md"
     }
   ]

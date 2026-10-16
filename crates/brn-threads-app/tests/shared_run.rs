@@ -32,7 +32,13 @@ fn selection_errors_precede_any_run_write_and_catalogue_never_substitutes() {
         trace: TraceLevel::Off,
         offered_copilot_models: None,
     });
-    assert!(result.is_err());
+    assert!(matches!(
+        result,
+        Err(RunPreparationError::Preparation(brn_ai::AiError {
+            kind: brn_ai::AiErrorKind::ToolRejected,
+            ..
+        }))
+    ));
     assert_eq!(app.records().unwrap(), before);
 }
 #[tokio::test]

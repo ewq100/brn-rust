@@ -1,0 +1,109 @@
+   Compiling brn-threads-core v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-threads-core)
+   Compiling brn-threads-app v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-threads-app)
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-ai)
+   Compiling brn v0.0.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn)
+    Finished `test` profile [optimized] target(s) in 17.36s
+     Running unittests src/main.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/brn-fee94833639c86d5)
+
+running 25 tests
+test contract::tests::run_terminals_tell_sigint_from_another_writer ... ok
+test input::tests::a_set_cancel_flag_interrupts_before_reading ... ok
+test contract::tests::envelopes_refuse_on_usage_and_rejected_and_never_echo_bad_keys ... ok
+test input::tests::relative_paths_and_a_reused_stdin_are_refused_at_parse ... ok
+test spec::tests::cli_keys_are_byte_identical_to_round_one ... ok
+test contract::tests::every_ai_error_kind_has_one_run_error_mapping ... ok
+test contract::tests::every_domain_outcome_maps_to_its_status ... ok
+test contract::tests::receipts_give_operation_and_changed_only_when_applied ... ok
+test contract::tests::statuses_and_codes_are_one_to_one_and_complete ... ok
+test contract::tests::destinations_are_classified_as_caller_input ... ok
+test contract::tests::refusal_reasons_name_live_service_messages ... ok
+test spec::tests::global_options_are_not_command_options_and_every_command_has_help ... ok
+test input::tests::content_is_exact_utf8_without_nul ... ok
+test spec::tests::key_refusal_applies_only_to_commands_that_take_a_key ... ok
+test spec::tests::key_validation_matches_the_published_pattern ... ok
+test spec::tests::outcomes_list_every_label_of_the_returned_types ... ok
+test spec::tests::required_lists_follow_the_first_use_order ... ok
+test spec::tests::only_intake_has_conditional_requirements ... ok
+test spec::tests::description_is_one_line_with_the_owner_rule ... ok
+test spec::tests::text_options_have_file_variants_and_class_meanings_are_pinned ... ok
+test spec::tests::owner_marks_match_the_owner_decision_table ... ok
+test contract::tests::committed_review_cleanup_is_internal_and_keeps_the_replay_class ... ok
+test input::tests::the_limit_is_inclusive_and_one_more_byte_is_refused ... ok
+test contract::tests::every_error_variant_maps_to_one_code_and_details_shape ... ok
+test spec::tests::retry_for_agrees_with_the_description_for_every_command_and_variant ... ok
+
+test result: ok. 25 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/agent_authority.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/agent_authority-24d9d9c88f46ce92)
+
+running 5 tests
+test the_actor_option_wins_over_the_variable_and_bad_values_are_refused_before_opening ... ok
+test every_envelope_reports_authority_and_nulls_where_nothing_opened ... ok
+test actors_show_in_history_and_operation_and_a_keyed_retry_keeps_the_first ... ok
+test a_restored_copy_of_a_test_workspace_is_an_owner_workspace ... ok
+test purpose_test_is_creation_only_and_test_is_the_only_value ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.74s
+
+     Running tests/agent_bounds.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/agent_bounds-1078cd9cc7473770)
+
+running 12 tests
+test default_mode_sigterm_keeps_default_disposition ... ok
+test sigterm_during_stdin_wait_is_terminated_and_creates_nothing ... ok
+test sigint_envelopes_report_stop_sigint ... ok
+test timeout_with_time_to_spare_changes_nothing ... ok
+test timeout_values_are_refused_before_opening ... ok
+test timeout_during_fifo_wait_is_a_soft_deadline ... ok
+test sigint_then_sigterm_still_hard_stops ... ok
+test sigint_then_deadline_still_hard_stops ... ok
+test held_lock_past_deadline_hard_stops_with_one_line ... ok
+test busy_then_keyed_retry_applies_once ... ok
+test held_write_lock_reports_busy_and_creates_nothing ... ok
+test begin_edit_under_a_held_lock_is_busy ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 10.89s
+
+     Running tests/agent_contract.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/agent_contract-d755b6e01cc448d2)
+
+running 23 tests
+test sigint_while_a_fifo_has_no_writer_is_interrupted ... ok
+test ask_refused_before_the_provider_is_rejected_not_failed ... FAILED
+test sigint_while_stdin_stays_open_is_interrupted_and_creates_nothing ... ok
+test default_mode_domain_outcomes_still_exit_zero ... ok
+test keyed_keep_in_brn_retry_replays ... ok
+test open_edit_session_reports_edit_session_open ... ok
+test closed_stdout_does_not_panic ... ok
+test large_text_beyond_argv_limits_is_saved_through_a_file ... ok
+test terminal_sources_are_refused_without_blocking ... ok
+test deferred_undo_exits_4_and_keyed_retry_applies_the_same_compensation ... ok
+test keyed_markdown_full_import_replays_and_title_change_conflicts ... ok
+test json_success_envelope_has_every_field_and_result_matches_default_mode ... ok
+test symlinked_data_dir_is_data_folder_unusable ... ok
+test refuse_retry_after_an_interrupted_first_attempt_applies_once ... ok
+test not_found_destination_exists_and_unsafe_directory_are_rejected ... ok
+test text_files_and_stdin_preserve_exact_multiline_unicode ... ok
+test unkeyed_deferred_undo_reports_duplicate ... ok
+test caller_input_mistakes_after_open_are_usage_or_rejected_not_internal ... ok
+test stale_generation_closed_and_ignored_exit_3_with_current_versions ... ok
+test text_input_refusals_create_nothing ... ok
+test usage_errors_are_json_with_stable_codes_and_create_nothing ... ok
+test machine_description_lists_every_parsed_command_and_matches_readme ... ok
+test keyed_creates_replay_and_reuse_with_other_inputs_is_refused ... ok
+
+failures:
+
+---- ask_refused_before_the_provider_is_rejected_not_failed stdout ----
+
+thread 'ask_refused_before_the_provider_is_rejected_not_failed' (27379722) panicked at crates/brn/tests/agent_contract.rs:1325:5:
+assertion `left == right` failed
+  left: Object {}
+ right: Object {"kind": String("tool_rejected")}
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    ask_refused_before_the_provider_is_rejected_not_failed
+
+test result: FAILED. 22 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.30s
+
+error: test failed, to rerun pass `-p brn --test agent_contract`
