@@ -1,0 +1,23 @@
+   Compiling brn-threads-app v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-threads-app)
+    Finished `test` profile [optimized] target(s) in 0.72s
+     Running tests/writing_context.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/writing_context-a85501614bd3572d)
+
+running 2 tests
+test knowledge_off_display_batch_keeps_only_the_actual_linked_working_note_exception ... FAILED
+test explicit_conversations_are_scoped_durable_and_inspection_does_not_create ... ok
+
+failures:
+
+---- knowledge_off_display_batch_keeps_only_the_actual_linked_working_note_exception stdout ----
+
+thread 'knowledge_off_display_batch_keeps_only_the_actual_linked_working_note_exception' (27643967) panicked at crates/brn-threads-app/tests/writing_context.rs:202:5:
+general display cannot manufacture the private selected-chat exception
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    knowledge_off_display_batch_keeps_only_the_actual_linked_working_note_exception
+
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+error: test failed, to rerun pass `-p brn-threads-app --test writing_context`

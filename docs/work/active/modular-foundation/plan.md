@@ -96,3 +96,8 @@ CW1 handoff: local implementation/corrections are committed through source/test 
 ## CW2 local source checkpoint
 
 Approved CW2 is implemented in the isolated lane-C branch on `3e09b979`; exact [ownership, contracts and evidence](cw2/handoff.md) remain reviewable. Failing-before visibility/disclosure receipts and corrected native 310/0/1 plus strict affected lint are retained separately. Committed-source verification/mutation and independent Opus review are pending. No acceptance, full F21/qualification, hosted CI or integration claim; other slices remain unassigned/held per existing ordering.
+
+
+## CW2 review correction checkpoint
+
+Independent Opus round1 on d4a51409 is CHANGES_REQUIRED; the verbatim report and numbered response are retained under cw2/. The actual general-scope read/search privacy defect (original finding5) is HIGH, proved by two distinct failing-before0/1/0 receipts against unchanged f282 production. Corrections limit selected-conversation access to host-bound workingNote, preserve safe v1/plain Undo while gating reapplication, harden evidence replacement flags, retain typed CLI invalid_value(provider/effort), eliminate repeated/programmatic selection writes, and batch checked display reviews with local/external change-token invalidation. Exact extra desktop hunks/callers are allocated and mapped in [handoff](cw2/handoff.md). Current affected strict lint and actual repository cargo fmt pass; corrected native310/0/1 includes access cycles/cache work-bound proof. Final source pin, broader normal/feature checks, remaining one-budget mutation and fresh independent review are pending. No full acceptance/F21/native-human/hostedCI/integration or B1a handoff.

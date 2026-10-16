@@ -9,15 +9,15 @@ use brn_ai::{AiTerminal, Provider, ReasoningEffort};
 use brn_threads_app::*;
 use brn_threads_intake::*;
 use contract::{Annotations, CliError, Code};
-use serde_json::{Value, json};
+use serde_json::{json, Value};
 use std::{
     collections::BTreeMap,
     ffi::OsString,
     path::{Path, PathBuf},
     process::ExitCode,
     sync::{
-        Arc,
         atomic::{AtomicBool, Ordering},
+        Arc,
     },
 };
 use tokio_util::sync::CancellationToken;
@@ -750,6 +750,21 @@ fn provider(text: &str) -> Result<Provider> {
         )),
     }
 }
+fn preparation_cli_error(error: RunPreparationError) -> CliError {
+    match error {
+        RunPreparationError::Preparation(error)
+        | RunPreparationError::Selection(RunSelectionError::Model(error)) => {
+            contract::run_error(error)
+        }
+        RunPreparationError::Selection(RunSelectionError::Provider) => {
+            CliError::invalid_value("provider", "Provider must be Codex or Copilot")
+        }
+        RunPreparationError::Selection(RunSelectionError::Effort) => {
+            CliError::invalid_value("effort", "Effort must be low, medium or high")
+        }
+        other => CliError::from(AppError::from(other)),
+    }
+}
 async fn ask(
     workspace: &mut Workspace,
     inv: &Invocation,
@@ -800,10 +815,7 @@ async fn ask(
             trace: trace_level(inv)?,
             offered_copilot_models: None,
         })
-        .map_err(|error| match error {
-            RunPreparationError::Preparation(error) => contract::run_error(error),
-            other => CliError::from(AppError::from(other)),
-        })?;
+        .map_err(preparation_cli_error)?;
     let search_status = prepared.search_status;
     let observed = cancel.clone();
     let watcher = tokio::spawn(async move {
@@ -1583,4 +1595,40 @@ fn emit_envelope(envelope: contract::Envelope) -> ExitCode {
     let value = envelope.to_value();
     contract::emit_line(&value.to_string());
     ExitCode::from(envelope.status.exit())
+}
+
+#[cfg(test)]
+mod cw2_run_tests {
+    use super::*;
+    #[test]
+    fn shared_selection_retains_cli_invalid_provider_and_effort_contract() {
+        for option in ["provider", "effort"] {
+            let mut settings = WorkspaceSettings {
+                provider: "Codex".into(),
+                model: "synthetic".into(),
+                effort: "medium".into(),
+                auth_file: None,
+                credentials_dir: None,
+                maintenance: false,
+                review_first: true,
+                delegation_chosen: false,
+                backup_directory: None,
+                theme: None,
+                topics_note: None,
+                helper: None,
+            };
+            let expected = if option == "provider" {
+                settings.provider = "unsupported".into();
+                provider(&settings.provider).unwrap_err()
+            } else {
+                settings.effort = "unsupported".into();
+                effort(&settings.effort).unwrap_err()
+            };
+            let error = resolve_run_selection(&settings, None).unwrap_err();
+            let actual = preparation_cli_error(RunPreparationError::Selection(error));
+            assert_eq!(actual.code.as_str(), expected.code.as_str());
+            assert_eq!(actual.message, expected.message);
+            assert_eq!(actual.details, expected.details);
+        }
+    }
 }

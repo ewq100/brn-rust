@@ -289,7 +289,7 @@ struct SnippetSearch {
 impl RunNoteSearch for SnippetSearch {
     fn search(
         &self,
-        _: &str,
+        _: Option<&str>,
         _: &str,
         _: usize,
         _: Option<&str>,
@@ -317,7 +317,7 @@ impl RunNoteSearch for SnippetSearch {
     }
     fn connections(
         &self,
-        _: &str,
+        _: Option<&str>,
         _: &str,
         _: u8,
         _: bool,
@@ -359,4 +359,162 @@ async fn top_k_snippet_exposure_binds_version_without_inventing_exact_read_cover
     assert!(prepared.request.inputs.iter().any(|i| i.record == reference
         && i.version == 1
         && i.expectation == InputExpectation::Current));
+}
+
+struct CanonicalSearch {
+    inner: SnippetSearch,
+    scopes: Arc<Mutex<Vec<Value>>>,
+}
+impl RunNoteSearch for CanonicalSearch {
+    fn search(
+        &self,
+        chat: Option<&str>,
+        query: &str,
+        limit: usize,
+        cursor: Option<&str>,
+        hybrid: bool,
+    ) -> std::result::Result<NoteSearchPage, NoteSearchError> {
+        self.scopes.lock().unwrap().push(json!(chat));
+        self.inner.search(chat, query, limit, cursor, hybrid)
+    }
+    fn connections(
+        &self,
+        chat: Option<&str>,
+        note: &str,
+        hops: u8,
+        sources: bool,
+    ) -> std::result::Result<NoteNeighbourhood, NoteSearchError> {
+        self.inner.connections(chat, note, hops, sources)
+    }
+}
+#[tokio::test]
+async fn general_writing_search_passes_canonical_general_scope_to_the_real_host_seam() {
+    let (_root, mut request, _snapshot, reference) =
+        fixture("Requirement", WritingReadRequirements::default());
+    let calls = Arc::new(Mutex::new(Vec::new()));
+    request.search = Some(Arc::new(CanonicalSearch {
+        inner: SnippetSearch { id: reference },
+        scopes: calls.clone(),
+    }));
+    let (scope, _id) = begin(&request).unwrap();
+    note_search::search_notes(
+        scope,
+        serde_json::from_value(
+            json!({"query":"Requirement","limit":5,"cursor":null,"mode":"keyword"}),
+        )
+        .unwrap(),
+    )
+    .await
+    .unwrap();
+    assert_eq!(
+        *calls.lock().unwrap(),
+        vec![Value::Null],
+        "canonical general must stay None instead of falling back to the selected conversation"
+    );
+}
+
+#[test]
+fn general_run_does_not_gain_other_private_notes_when_selected_conversation_changes() {
+    let (_root, request, snapshot, _reference) =
+        fixture("Requirement", WritingReadRequirements::default());
+    let thread = request.thread.clone();
+    let (scope, _) = begin(&request).unwrap();
+    let other;
+    {
+        let mut store = scope.store.lock().unwrap();
+        let op = store
+            .allocate_operation("during-run-private-notes")
+            .unwrap();
+        other = op.creation_id(0);
+        let mut unrelated = Note::working("Private other", "OTHER PRIVATE SENTINEL");
+        unrelated.chat = Some(thread.clone());
+        let mut working = match snapshot.note.data.clone() {
+            RecordData::Note(note) => note,
+            _ => unreachable!(),
+        };
+        working.chat = Some(thread.clone());
+        working.markdown = "WORKING NOTE EXCEPTION".into();
+        owner_write(
+            &mut store,
+            "during-run-private-notes",
+            vec![
+                Put {
+                    id: other.clone(),
+                    expected_version: None,
+                    archived: false,
+                    data: RecordData::Note(unrelated),
+                },
+                Put {
+                    id: snapshot.note.id.clone(),
+                    expected_version: Some(snapshot.note.version),
+                    archived: false,
+                    data: RecordData::Note(working),
+                },
+            ],
+        );
+    }
+    let page = read_records(
+        &scope,
+        ReadArgs {
+            ids: vec![other.clone(), snapshot.note.id.clone()],
+            query: None,
+        },
+    )
+    .unwrap();
+    let shown = page.to_string();
+    assert!(
+        shown.contains("WORKING NOTE EXCEPTION"),
+        "actual working-Note selected-conversation exception remains"
+    );
+    assert!(
+        !shown.contains("OTHER PRIVATE SENTINEL"),
+        "canonical general context never inherits unrelated private material during the run"
+    );
+}
+
+#[test]
+fn unavailable_required_current_reference_returns_safe_invalid_before_allocating_proposal() {
+    for exhaustive in [false, true] {
+        let (_root, request, snapshot, reference) = fixture(
+            "Private required content",
+            WritingReadRequirements {
+                exhaustive,
+                must_be_current: if exhaustive {
+                    vec![]
+                } else {
+                    vec!["$reference".into()]
+                },
+            },
+        );
+        let (scope, _) = begin(&request).unwrap();
+        let mut store = scope.store.lock().unwrap();
+        let record = store.record(&reference).unwrap().unwrap();
+        owner_write(
+            &mut store,
+            "revoke-required",
+            vec![Put {
+                id: reference.clone(),
+                expected_version: Some(record.version),
+                archived: true,
+                data: record.data,
+            }],
+        );
+        let records = store.records().unwrap();
+        let candidates = store.candidates().unwrap();
+        let token = store.change_token().unwrap();
+        drop(store);
+        let result = prepare(&scope, args(&snapshot)).unwrap();
+        assert_eq!(result["outcome"], "Invalid");
+        let reason = result["reason"].as_str().unwrap();
+        assert!(reason.contains("Restore access") && reason.contains("Refresh"));
+        assert!(!reason.contains(&reference) && !reason.contains("Private required content"));
+        let store = scope.store.lock().unwrap();
+        assert_eq!(store.records().unwrap(), records);
+        assert_eq!(store.candidates().unwrap(), candidates);
+        assert_eq!(
+            store.change_token().unwrap(),
+            token,
+            "refusal allocates no proposal or run operation"
+        );
+    }
 }

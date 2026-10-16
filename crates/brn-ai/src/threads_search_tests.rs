@@ -10,16 +10,16 @@ struct FakeSearch {
 impl RunNoteSearch for FakeSearch {
     fn search(
         &self,
-        chat: &str,
+        chat: Option<&str>,
         query: &str,
         limit: usize,
         cursor: Option<&str>,
         hybrid: bool,
     ) -> std::result::Result<NoteSearchPage, NoteSearchError> {
-        self.calls
-            .lock()
-            .unwrap()
-            .push(format!("search {chat} {query} {limit} {cursor:?} {hybrid}"));
+        self.calls.lock().unwrap().push(format!(
+            "search {} {query} {limit} {cursor:?} {hybrid}",
+            chat.unwrap_or("general")
+        ));
         Ok(NoteSearchPage {
             total: 1,
             shown: 1,
@@ -42,15 +42,15 @@ impl RunNoteSearch for FakeSearch {
     }
     fn connections(
         &self,
-        chat: &str,
+        chat: Option<&str>,
         note: &str,
         hops: u8,
         sources: bool,
     ) -> std::result::Result<NoteNeighbourhood, NoteSearchError> {
-        self.calls
-            .lock()
-            .unwrap()
-            .push(format!("connections {chat} {note} {hops} {sources}"));
+        self.calls.lock().unwrap().push(format!(
+            "connections {} {note} {hops} {sources}",
+            chat.unwrap_or("general")
+        ));
         if note == "hidden" {
             return Err(NoteSearchError::Rejected);
         }

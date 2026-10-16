@@ -16,9 +16,22 @@ pub struct ThreadRunStart {
     pub offered_copilot_models: Option<Vec<String>>,
 }
 #[derive(Debug, thiserror::Error)]
+pub enum RunSelectionError {
+    #[error("Choose a provider and model in Settings before asking BRN.")]
+    Provider,
+    #[error("Choose a supported reasoning effort in Settings.")]
+    Effort,
+    #[error(transparent)]
+    Model(brn_ai::AiError),
+    #[error(
+        "{model} is not offered by GitHub Copilot, so BRN has not started. Choose a model from the model menu: {offered}."
+    )]
+    CopilotCatalogue { model: String, offered: String },
+}
+#[derive(Debug, thiserror::Error)]
 pub enum RunPreparationError {
     #[error(transparent)]
-    Selection(AppError),
+    Selection(RunSelectionError),
     #[error(transparent)]
     Preparation(brn_ai::AiError),
     #[error(transparent)]
@@ -27,7 +40,8 @@ pub enum RunPreparationError {
 impl From<RunPreparationError> for AppError {
     fn from(error: RunPreparationError) -> Self {
         match error {
-            RunPreparationError::Selection(error) | RunPreparationError::Settings(error) => error,
+            RunPreparationError::Settings(error) => error,
+            RunPreparationError::Selection(error) => AppError::Invalid(error.to_string()),
             RunPreparationError::Preparation(error) => AppError::Invalid(error.to_string()),
         }
     }
@@ -40,42 +54,35 @@ pub struct PreparedWorkspaceRun {
 pub fn resolve_run_selection(
     settings: &WorkspaceSettings,
     offered: Option<&[String]>,
-) -> AppResult<(Selection, ReasoningEffort)> {
+) -> std::result::Result<(Selection, ReasoningEffort), RunSelectionError> {
     let provider = match settings.provider.to_ascii_lowercase().as_str() {
         "codex" | "chatgpt" => Provider::Chatgpt,
         "copilot" => Provider::Copilot,
         _ => {
-            return Err(AppError::Invalid(
-                "Choose a provider and model in Settings before asking BRN.".into(),
-            ));
+            return Err(RunSelectionError::Provider);
         }
     };
     if provider == Provider::Copilot
         && offered.is_some_and(|models| !models.is_empty() && !models.contains(&settings.model))
     {
-        return Err(AppError::Invalid(format!(
-            "{} is not offered by GitHub Copilot, so BRN has not started. Choose a model from the model menu: {}.",
-            settings.model,
-            offered.unwrap_or_default().join(", ")
-        )));
+        return Err(RunSelectionError::CopilotCatalogue {
+            model: settings.model.clone(),
+            offered: offered.unwrap_or_default().join(", "),
+        });
     }
     let effort = match settings.effort.as_str() {
         "low" => ReasoningEffort::Low,
         "medium" => ReasoningEffort::Medium,
         "high" => ReasoningEffort::High,
         _ => {
-            return Err(AppError::Invalid(
-                "Choose a supported reasoning effort in Settings.".into(),
-            ));
+            return Err(RunSelectionError::Effort);
         }
     };
     let selection = Selection {
         provider,
         model: settings.model.clone(),
     };
-    selection
-        .validate()
-        .map_err(|e| AppError::Invalid(e.to_string()))?;
+    selection.validate().map_err(RunSelectionError::Model)?;
     Ok((selection, effort))
 }
 impl Workspace {

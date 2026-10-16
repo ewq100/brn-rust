@@ -1,0 +1,25 @@
+    Checking brn-threads-core v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-threads-core)
+    Checking brn-ai v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-ai)
+error: this expression creates a reference which is immediately dereferenced by the compiler
+   --> crates/brn-ai/src/threads.rs:678:39
+    |
+678 |             || scoped_writing_request(&record)
+    |                                       ^^^^^^^ help: change this to: `record`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#needless_borrow
+    = note: `-D clippy::needless-borrow` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::needless_borrow)]`
+
+error: the borrowed expression implements the required traits
+   --> crates/brn-ai/src/threads.rs:743:46
+    |
+743 |         let mut value = serde_json::to_value(&record).map_err(storage)?;
+    |                                              ^^^^^^^ help: change this to: `record`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#needless_borrows_for_generic_args
+    = note: `-D clippy::needless-borrows-for-generic-args` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::needless_borrows_for_generic_args)]`
+
+error: could not compile `brn-ai` (lib) due to 2 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `brn-ai` (lib test) due to 2 previous errors

@@ -19,7 +19,7 @@ pub trait RunNoteSearch: Send + Sync {
     /// `hybrid` adds semantic matching when the host has a model.
     fn search(
         &self,
-        chat: &str,
+        chat: Option<&str>,
         query: &str,
         limit: usize,
         cursor: Option<&str>,
@@ -27,7 +27,7 @@ pub trait RunNoteSearch: Send + Sync {
     ) -> std::result::Result<NoteSearchPage, NoteSearchError>;
     fn connections(
         &self,
-        chat: &str,
+        chat: Option<&str>,
         note: &str,
         hops: u8,
         sources: bool,
@@ -176,7 +176,7 @@ fn failed(error: NoteSearchError) -> AiError {
 
 /// The host search and the run's chat, after the same live-run and
 /// writing-mode checks as the other read tools. No lock is held afterwards.
-fn host(scope: &Scope) -> AiResult<(Arc<dyn RunNoteSearch>, String)> {
+fn host(scope: &Scope) -> AiResult<(Arc<dyn RunNoteSearch>, Option<String>)> {
     if scope
         .writing_snapshot
         .as_ref()
@@ -187,12 +187,14 @@ fn host(scope: &Scope) -> AiResult<(Arc<dyn RunNoteSearch>, String)> {
     let search = scope.search.clone().ok_or_else(rejected)?;
     let store = scope.store.lock().map_err(storage)?;
     live(scope, &store)?;
-    let chat = scope
+    let chat = match scope
         .writing_snapshot
         .as_ref()
         .and_then(|s| s.setup.as_ref())
-        .and_then(|s| s.chat.clone())
-        .unwrap_or_else(|| scope.chat.clone());
+    {
+        Some(setup) => setup.chat.clone(),
+        None => Some(scope.chat.clone()),
+    };
     Ok((search, chat))
 }
 
@@ -201,7 +203,7 @@ pub(super) async fn search_notes(scope: Arc<Scope>, args: SearchNotesArgs) -> Ai
     let page = tokio::task::spawn_blocking(move || {
         let hybrid = args.mode == "hybrid";
         search.search(
-            &chat,
+            chat.as_deref(),
             &args.query,
             args.limit,
             args.cursor.as_deref(),
@@ -256,7 +258,7 @@ pub(super) async fn search_notes(scope: Arc<Scope>, args: SearchNotesArgs) -> Ai
 pub(super) async fn note_connections(scope: Arc<Scope>, args: ConnectionsArgs) -> AiResult<Value> {
     let (search, chat) = host(&scope)?;
     let neighbourhood = tokio::task::spawn_blocking(move || {
-        search.connections(&chat, &args.id, args.hops, args.sources)
+        search.connections(chat.as_deref(), &args.id, args.hops, args.sources)
     })
     .await
     .map_err(storage)?

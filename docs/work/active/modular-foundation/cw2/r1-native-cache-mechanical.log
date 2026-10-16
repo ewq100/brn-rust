@@ -1,0 +1,15 @@
+   Compiling brn-desktop v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-desktop)
+error[E0433]: cannot find module or crate `brn_threads_core` in this scope
+   --> crates/brn-desktop/src/threads_lists.rs:219:114
+    |
+219 | ...:Message(m) if m.role == brn_threads_core::WRITING_CONTEXT_ROLE)))
+    |                             ^^^^^^^^^^^^^^^^ use of unresolved module or unlinked crate `brn_threads_core`
+    |
+help: there is a crate or module with a similar name
+    |
+219 -             || receipt.writes.iter().all(|write| matches!(&write.after.data, RecordData::Message(m) if m.role == brn_threads_core::WRITING_CONTEXT_ROLE)))
+219 +             || receipt.writes.iter().all(|write| matches!(&write.after.data, RecordData::Message(m) if m.role == brn_threads_app::WRITING_CONTEXT_ROLE)))
+    |
+
+For more information about this error, try `rustc --explain E0433`.
+error: could not compile `brn-desktop` (bin "brn-desktop" test) due to 1 previous error

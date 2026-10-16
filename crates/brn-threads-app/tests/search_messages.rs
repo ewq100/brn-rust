@@ -477,7 +477,8 @@ fn an_archived_project_chats_note_is_found_in_its_project_and_agents_keep_their_
     let agent = |chat: &str| -> BTreeSet<String> {
         let mut seen = BTreeSet::new();
         for hybrid in [true, false] {
-            let page = RunNoteSearch::search(&handle, chat, "pontoon", 10, None, hybrid).unwrap();
+            let page =
+                RunNoteSearch::search(&handle, Some(chat), "pontoon", 10, None, hybrid).unwrap();
             assert_eq!(page.total, page.results.len());
             seen.extend(page.results.into_iter().map(|r| r.id));
         }
@@ -716,7 +717,8 @@ fn agent_search_never_returns_messages() {
     assert_eq!(found(&mut w.workspace, "pontoon", Some(&chat)), set(&[&m]));
     let handle = w.workspace.search_handle().unwrap();
     for hybrid in [true, false] {
-        let page = RunNoteSearch::search(&handle, &chat, "pontoon", 10, None, hybrid).unwrap();
+        let page =
+            RunNoteSearch::search(&handle, Some(&chat), "pontoon", 10, None, hybrid).unwrap();
         assert_eq!(
             (page.total, page.shown, page.results.len(), page.cursor),
             (0, 0, 0, None)

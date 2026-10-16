@@ -255,14 +255,7 @@ impl ThreadsUi {
                 }
                 Ok(id)
             }
-            ChatTarget::NewForNote(note) => {
-                let version = self
-                    .records
-                    .iter()
-                    .find(|r| r.id == note)
-                    .map_or(0, |r| r.version);
-                self.ensure_writing_thread(&note, version)
-            }
+            ChatTarget::NewForNote(note) => self.ensure_writing_thread(&note),
             ChatTarget::New => self.workspace.new_thread(&short(prompt)).map(|r| r.id),
         }
     }

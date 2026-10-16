@@ -1,0 +1,28 @@
+    Checking brn-threads-app v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-threads-app)
+    Checking brn v0.0.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn)
+    Checking brn-desktop v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-desktop)
+error: this `if` statement can be collapsed
+    --> crates/brn-desktop/src/threads_ui.rs:1460:9
+     |
+1460 | /         if let Some(note) = self.thread_note(id)
+1461 | |             && self.layout.contains(TileKind::Note)
+1462 | |         {
+1463 | |             if self.open_note_id() != Some(note.as_str()) {
+...    |
+1466 | |         }
+     | |_________^
+     |
+     = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#collapsible_if
+     = note: `-D clippy::collapsible-if` implied by `-D warnings`
+     = help: to override `-D warnings` add `#[allow(clippy::collapsible_if)]`
+help: collapse nested if block
+     |
+1461 ~             && self.layout.contains(TileKind::Note)
+1462 ~             && self.open_note_id() != Some(note.as_str()) {
+1463 |                 self.open_note_in_context(&note, None, Some(id), window, cx);
+1464 ~             }
+     |
+
+error: could not compile `brn-desktop` (bin "brn-desktop") due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `brn-desktop` (bin "brn-desktop" test) due to 1 previous error

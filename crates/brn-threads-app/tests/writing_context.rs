@@ -68,6 +68,39 @@ fn explicit_conversations_are_scoped_durable_and_inspection_does_not_create() {
             .snapshot_writing_request(&format!("{key}-request"), &note.id, 1, &next.id, &[])
             .unwrap();
         assert_eq!(snap.setup.unwrap().chat, Some(p.clone()));
+        let records = app.records().unwrap();
+        let history = app.history().unwrap();
+        app.select_writing_conversation(&format!("{key}-same"), &note.id, &next.id)
+            .unwrap();
+        assert_eq!(
+            app.records().unwrap(),
+            records,
+            "repeated active choice writes nothing"
+        );
+        assert_eq!(app.history().unwrap(), history);
+        let first_id = first.conversation.unwrap();
+        app.select_writing_conversation(&format!("{key}-choose-first"), &note.id, &first_id)
+            .unwrap();
+        assert_eq!(
+            app.active_writing_context(&note.id, Some(&p))
+                .unwrap()
+                .conversation
+                .as_deref(),
+            Some(first_id.as_str())
+        );
+        let choice = app.history().unwrap().last().unwrap().operation.clone();
+        assert!(matches!(
+            app.undo(choice.as_str()).unwrap(),
+            ApplyOutcome::Applied(_)
+        ));
+        assert_eq!(
+            app.active_writing_context(&note.id, Some(&p))
+                .unwrap()
+                .conversation
+                .as_deref(),
+            Some(next.id.as_str()),
+            "Undo ignores the archived choice without creating another selection"
+        );
         scopes.push((p, next.id));
     }
     drop(app);
@@ -89,4 +122,90 @@ fn explicit_conversations_are_scoped_durable_and_inspection_does_not_create() {
         None
     );
     assert_eq!(app.store.note(&note.id).unwrap().unwrap().version, 1);
+}
+
+#[test]
+fn knowledge_off_display_batch_keeps_only_the_actual_linked_working_note_exception() {
+    let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let mut app = Workspace::open_without_default_credentials(root.path().join("data")).unwrap();
+    let note = app.new_note("Working", "Saved working text").unwrap();
+    let project = app
+        .project_command(
+            "project",
+            ProjectCommand::Create {
+                title: "Project".into(),
+            },
+        )
+        .unwrap()
+        .writes[0]
+        .after
+        .clone();
+    let chat = app
+        .project_command(
+            "chat",
+            ProjectCommand::CreateChat {
+                project: project.id.clone(),
+                title: "Writing".into(),
+            },
+        )
+        .unwrap()
+        .writes
+        .into_iter()
+        .find(|w| matches!(w.after.data, RecordData::Thread(_)))
+        .unwrap()
+        .after;
+    app.link_writing_thread("explicit-working-link", &note.id, note.version, &chat.id)
+        .unwrap();
+    let project = app.store.record(&project.id).unwrap().unwrap();
+    let RecordData::Project(p) = project.data else {
+        panic!()
+    };
+    app.project_command(
+        "knowledge-off",
+        ProjectCommand::Configure {
+            project: project.id.clone(),
+            version: project.version,
+            title: p.title,
+            instructions: p.instructions,
+            use_brn_knowledge: false,
+        },
+    )
+    .unwrap();
+    assert!(
+        app.store
+            .record_visible_in_chat(&note.id, Some(&chat.id))
+            .unwrap()
+    );
+    assert!(
+        !app.store
+            .record_visible_in_chat(&note.id, Some(&project.id))
+            .unwrap()
+    );
+    let snapshot = app
+        .snapshot_writing_request("request", &note.id, note.version, &chat.id, &[])
+        .unwrap();
+    assert_eq!(
+        app.active_writing_context(&note.id, Some(&project.id))
+            .unwrap()
+            .conversation
+            .as_deref(),
+        Some(chat.id.as_str())
+    );
+    let (token, batch) = app
+        .writing_context_review(&note.id, Some(&project.id), &[])
+        .unwrap();
+    assert_eq!(token, app.store.change_token().unwrap());
+    assert_eq!(
+        batch.requests.get(&snapshot.request_message),
+        Some(&snapshot)
+    );
+    let (_, general) = app.writing_context_review(&note.id, None, &[]).unwrap();
+    assert!(
+        !general.requests.contains_key(&snapshot.request_message),
+        "a public working Note remains openable generally, but its private-scope request must stay hidden"
+    );
+    assert!(
+        app.writing_request_in_context(&snapshot.request_message, &note.id, None)
+            .is_err()
+    );
 }

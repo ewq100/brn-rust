@@ -1,0 +1,24 @@
+   Compiling brn v0.0.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn)
+    Finished `test` profile [optimized] target(s) in 1.93s
+     Running unittests src/main.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/brn-fee94833639c86d5)
+
+running 1 test
+test cw2_run_tests::shared_selection_retains_cli_invalid_provider_and_effort_contract ... FAILED
+
+failures:
+
+---- cw2_run_tests::shared_selection_retains_cli_invalid_provider_and_effort_contract stdout ----
+
+thread 'cw2_run_tests::shared_selection_retains_cli_invalid_provider_and_effort_contract' (27521083) panicked at crates/brn/src/main.rs:1611:13:
+assertion `left == right` failed
+  left: "invalid_request"
+ right: "invalid_value"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    cw2_run_tests::shared_selection_retains_cli_invalid_provider_and_effort_contract
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 25 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p brn --bin brn`

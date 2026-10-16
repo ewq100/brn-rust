@@ -471,6 +471,13 @@ fn short(text: &str) -> String {
     }
 }
 
+type WritingReviewCacheKey = (
+    (u64, u64),
+    String,
+    Option<String>,
+    Option<String>,
+    Vec<Prepared>,
+);
 struct ThreadsUi {
     workspace: Workspace,
     data_dir: PathBuf,
@@ -506,6 +513,11 @@ struct ThreadsUi {
     selected_project: Option<String>,
     note_project: Option<String>,
     note_writing_scope: Option<String>,
+    writing_review_key: Option<WritingReviewCacheKey>,
+    writing_reviews: BTreeMap<String, WritingCandidateReview>,
+    writing_requests: BTreeMap<String, WritingSnapshot>,
+    #[cfg(all(test, feature = "native-test-support"))]
+    writing_review_loads: usize,
     projects_trash: bool,
     /// Session-only disclosures: Done and Cancelled tasks, Background changes.
     open_sections: BTreeSet<&'static str>,
@@ -850,6 +862,11 @@ impl ThreadsUi {
             selected_project: None,
             note_project: None,
             note_writing_scope: None,
+            writing_review_key: None,
+            writing_reviews: BTreeMap::new(),
+            writing_requests: BTreeMap::new(),
+            #[cfg(all(test, feature = "native-test-support"))]
+            writing_review_loads: 0,
             projects_trash: false,
             open_sections: BTreeSet::new(),
             editing_queue: None,
@@ -945,6 +962,70 @@ impl ThreadsUi {
             .update(cx, |e, cx| e.set_value(home, window, cx));
         this.root_focus.focus(window, cx);
         this
+    }
+    /// One checked display batch per canonical change; never an Apply/read grant.
+    fn refresh_writing_review_cache(&mut self) {
+        let loaded = (|| -> AppResult<()> {
+            let note = self
+                .open_note_id()
+                .ok_or_else(|| AppError::Invalid("No displayed writing Note".into()))?
+                .to_owned();
+            let token = self.workspace.store.change_token()?;
+            let mut shown = self.candidates.iter().filter(|c| c.request.writes.iter().any(|w| matches!(&w.data, RecordData::Message(m) if m.role == WRITING_EVIDENCE_ROLE))).collect::<Vec<_>>();
+            if let Some(review) = &self.review
+                && review.candidate.request.writes.iter().any(|w| matches!(&w.data, RecordData::Message(m) if m.role == WRITING_EVIDENCE_ROLE))
+            {
+                if let Some(slot) = shown.iter_mut().find(|c| c.operation == review.candidate.operation) {
+                    *slot = &review.candidate;
+                } else {
+                    shown.push(&review.candidate);
+                }
+            }
+            let conversation = self.writing_threads.get(&note).cloned();
+            if self.writing_review_key.as_ref().is_some_and(|key| {
+                key.0 == token
+                    && key.1 == note
+                    && key.2 == self.note_writing_scope
+                    && key.3 == conversation
+                    && key.4.iter().eq(shown.iter().copied())
+            }) {
+                return Ok(());
+            }
+            let shown = shown.into_iter().cloned().collect::<Vec<_>>();
+            // Clear before a fallible reload. Errors cannot retain private data.
+            self.writing_review_key = None;
+            self.writing_reviews.clear();
+            self.writing_requests.clear();
+            #[cfg(all(test, feature = "native-test-support"))]
+            {
+                self.writing_review_loads += 1;
+            }
+            let (observed, checked) = self.workspace.writing_context_review(
+                &note,
+                self.note_writing_scope.as_deref(),
+                &shown,
+            )?;
+            if observed != token {
+                return Err(AppError::Unavailable(
+                    "Writing context changed during inspection".into(),
+                ));
+            }
+            self.writing_reviews = checked.candidates;
+            self.writing_requests = checked.requests;
+            self.writing_review_key = Some((
+                observed,
+                note,
+                self.note_writing_scope.clone(),
+                conversation,
+                shown,
+            ));
+            Ok(())
+        })();
+        if loaded.is_err() {
+            self.writing_review_key = None;
+            self.writing_reviews.clear();
+            self.writing_requests.clear();
+        }
     }
     fn refresh(&mut self) {
         let result = (|| -> AppResult<()> {
@@ -1378,13 +1459,9 @@ impl ThreadsUi {
     fn open_thread(&mut self, id: &str, window: &mut Window, cx: &mut Context<Self>) {
         if let Some(note) = self.thread_note(id)
             && self.layout.contains(TileKind::Note)
+            && self.open_note_id() != Some(note.as_str())
         {
-            if self.open_note_id() != Some(note.as_str()) {
-                self.open_note_in_context(&note, None, Some(id), window, cx);
-            }
-            if self.open_note_id() == Some(note.as_str()) {
-                self.select_writing_thread(note, id.into(), window, cx);
-            }
+            self.open_note_in_context(&note, None, Some(id), window, cx);
         }
         self.set_chat(ChatTarget::Thread(id.into()), window, cx);
         self.layout.open(TileKind::Chat);
@@ -1961,7 +2038,7 @@ impl ThreadsUi {
         self.refresh();
         cx.notify();
     }
-    fn ensure_writing_thread(&mut self, note: &str, version: u64) -> AppResult<String> {
+    fn ensure_writing_thread(&mut self, note: &str) -> AppResult<String> {
         let context = self.workspace.ensure_writing_context(
             &format!("writing-context:{}", uuid::Uuid::new_v4()),
             note,
@@ -1970,8 +2047,6 @@ impl ThreadsUi {
         let thread = context
             .conversation
             .ok_or_else(|| AppError::Invalid("Writing conversation is unavailable".into()))?;
-        // The caller still captures exact saved version before comment/rewrite.
-        let _ = version;
         self.writing_threads.insert(note.into(), thread.clone());
         Ok(thread)
     }
@@ -1992,25 +2067,23 @@ impl ThreadsUi {
         if body.trim().is_empty() {
             return;
         }
-        let result = self
-            .ensure_writing_thread(&note, version)
-            .and_then(|thread| {
-                let key = self
-                    .comment_operation
-                    .get_or_insert_with(|| format!("writing-comment:{}", uuid::Uuid::new_v4()))
-                    .clone();
-                self.workspace.add_writing_comment(
-                    &key,
-                    &WritingCommentInput {
-                        note: note.clone(),
-                        version,
-                        thread,
-                        range: (range.start, range.end),
-                        quote,
-                        body,
-                    },
-                )
-            });
+        let result = self.ensure_writing_thread(&note).and_then(|thread| {
+            let key = self
+                .comment_operation
+                .get_or_insert_with(|| format!("writing-comment:{}", uuid::Uuid::new_v4()))
+                .clone();
+            self.workspace.add_writing_comment(
+                &key,
+                &WritingCommentInput {
+                    note: note.clone(),
+                    version,
+                    thread,
+                    range: (range.start, range.end),
+                    quote,
+                    body,
+                },
+            )
+        });
         match result {
             Ok(_) => {
                 self.comment_anchor = None;
@@ -2063,18 +2136,16 @@ impl ThreadsUi {
             .collect::<Vec<_>>();
         let feedback = self.general_feedback.read(cx).value().to_string();
         self.general_drafts.insert(note.clone(), feedback.clone());
-        let result = self
-            .ensure_writing_thread(&note, version)
-            .and_then(|thread| {
-                self.workspace.snapshot_writing_request_with_feedback(
-                    &format!("writing-request:{}", uuid::Uuid::new_v4()),
-                    &note,
-                    version,
-                    &thread,
-                    &ids,
-                    &feedback,
-                )
-            });
+        let result = self.ensure_writing_thread(&note).and_then(|thread| {
+            self.workspace.snapshot_writing_request_with_feedback(
+                &format!("writing-request:{}", uuid::Uuid::new_v4()),
+                &note,
+                version,
+                &thread,
+                &ids,
+                &feedback,
+            )
+        });
         self.adopt_writing_thread(&note);
         match result {
             Ok(snapshot) => self.retry_rewrite(snapshot.request_message, cx),
@@ -2385,14 +2456,7 @@ impl ThreadsUi {
             ChatTarget::Thread(id) => self
                 .reopen_if_resolved(&id, "Owner replied to a resolved chat")
                 .map(|_| id),
-            ChatTarget::NewForNote(note) => {
-                let version = self
-                    .records
-                    .iter()
-                    .find(|record| record.id == note)
-                    .map_or(0, |record| record.version);
-                self.ensure_writing_thread(&note, version)
-            }
+            ChatTarget::NewForNote(note) => self.ensure_writing_thread(&note),
             ChatTarget::New => self.workspace.new_thread(&short(&prompt)).map(|r| r.id),
         };
         match thread.and_then(|thread| {

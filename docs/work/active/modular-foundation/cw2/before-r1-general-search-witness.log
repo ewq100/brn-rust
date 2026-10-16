@@ -1,0 +1,34 @@
+   Compiling brn-threads-core v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-threads-core)
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-ai)
+error[E0422]: cannot find struct, variant or union type `SearchNotesArgs` in this scope
+   --> crates/brn-ai/src/threads_cw2_tests.rs:383:33
+    |
+383 |     search::search_notes(scope, SearchNotesArgs { query: "Requirement".into(), limit: 5, cursor: None, mode: "keyword".into() }).aw...
+    |                                 ^^^^^^^^^^^^^^^
+    |
+   ::: crates/brn-ai/src/threads.rs:495:1
+    |
+495 | struct SearchNotes;
+    | ------------------- similarly named struct `SearchNotes` defined here
+    |
+help: a struct with a similar name exists
+    |
+383 -     search::search_notes(scope, SearchNotesArgs { query: "Requirement".into(), limit: 5, cursor: None, mode: "keyword".into() }).await.unwrap();
+383 +     search::search_notes(scope, SearchNotes { query: "Requirement".into(), limit: 5, cursor: None, mode: "keyword".into() }).await.unwrap();
+    |
+help: consider importing this struct
+    |
+  1 + use crate::threads::note_search::SearchNotesArgs;
+    |
+
+error[E0433]: cannot find module or crate `search` in this scope
+   --> crates/brn-ai/src/threads_cw2_tests.rs:383:5
+    |
+383 |     search::search_notes(scope, SearchNotesArgs { query: "Requirement".into(), limit: 5, cursor: None, mode: "keyword".into() }).aw...
+    |     ^^^^^^ use of unresolved module or unlinked crate `search`
+    |
+    = help: if you wanted to use a crate named `search`, use `cargo add search` to add it to your `Cargo.toml`
+
+Some errors have detailed explanations: E0422, E0433.
+For more information about an error, try `rustc --explain E0422`.
+error: could not compile `brn-ai` (lib test) due to 2 previous errors

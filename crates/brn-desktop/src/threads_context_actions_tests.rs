@@ -272,7 +272,7 @@ fn refused_context_draft_handoff_posts_no_instruction_and_retry_posts_once(
             ui.composer.update(cx, |editor, cx| {
                 editor.set_value("Original unsent draft", window, cx)
             });
-            let thread = ui.ensure_writing_thread(&note.id, note.version).unwrap();
+            let thread = ui.ensure_writing_thread(&note.id).unwrap();
             let key = serde_json::to_string(&ComposerDestination::Thread(thread.clone())).unwrap();
             ui.workspace
                 .store

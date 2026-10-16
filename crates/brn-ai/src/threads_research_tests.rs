@@ -20,7 +20,7 @@ struct GateSearch {
 impl RunNoteSearch for GateSearch {
     fn search(
         &self,
-        chat: &str,
+        chat: Option<&str>,
         query: &str,
         limit: usize,
         cursor: Option<&str>,
@@ -38,7 +38,7 @@ impl RunNoteSearch for GateSearch {
     }
     fn connections(
         &self,
-        chat: &str,
+        chat: Option<&str>,
         note: &str,
         hops: u8,
         sources: bool,
@@ -52,7 +52,7 @@ struct FakeSearch;
 impl RunNoteSearch for FakeSearch {
     fn search(
         &self,
-        _: &str,
+        _: Option<&str>,
         _: &str,
         _: usize,
         _: Option<&str>,
@@ -68,7 +68,7 @@ impl RunNoteSearch for FakeSearch {
     }
     fn connections(
         &self,
-        _: &str,
+        _: Option<&str>,
         _: &str,
         _: u8,
         _: bool,
@@ -1709,7 +1709,7 @@ struct ListSearch(Vec<(String, u64)>);
 impl RunNoteSearch for ListSearch {
     fn search(
         &self,
-        _: &str,
+        _: Option<&str>,
         _: &str,
         _: usize,
         _: Option<&str>,
@@ -1741,7 +1741,7 @@ impl RunNoteSearch for ListSearch {
     }
     fn connections(
         &self,
-        _: &str,
+        _: Option<&str>,
         _: &str,
         _: u8,
         _: bool,
@@ -1813,7 +1813,7 @@ struct LeaseProbe {
 impl RunNoteSearch for LeaseProbe {
     fn search(
         &self,
-        chat: &str,
+        chat: Option<&str>,
         query: &str,
         limit: usize,
         cursor: Option<&str>,
@@ -1838,7 +1838,7 @@ impl RunNoteSearch for LeaseProbe {
     }
     fn connections(
         &self,
-        chat: &str,
+        chat: Option<&str>,
         note: &str,
         hops: u8,
         sources: bool,

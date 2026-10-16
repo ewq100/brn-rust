@@ -665,12 +665,17 @@ fn read_records(scope: &Scope, args: ReadArgs) -> AiResult<Value> {
     }
     let store = scope.store.lock().map_err(storage)?;
     live(scope, &store)?;
+    let all = store.records().map_err(storage)?;
     let mut rows = Vec::new();
-    for record in store.records_for_chat(Some(&scope.chat)).map_err(storage)? {
+    for record in &all {
+        if !args.ids.is_empty() && !args.ids.contains(&record.id) {
+            continue;
+        }
         if record.archived
-            || !writing_read_allowed(scope, &store, &record.id, record.version)?
+            || !record_in_chat(record, &all, Some(&scope.chat))
+            || !writing_read_allowed_record(scope, &store, &all, record, record.version)?
             || matches!(record.data, RecordData::WritingSetup(_))
-            || scoped_writing_request(&record)
+            || scoped_writing_request(record)
             || matches!(&record.data,RecordData::Note(n) if n.superseded_by.is_some())
         {
             continue;
@@ -735,7 +740,7 @@ fn read_records(scope: &Scope, args: ReadArgs) -> AiResult<Value> {
             }
             continue;
         }
-        let mut value = serde_json::to_value(&record).map_err(storage)?;
+        let mut value = serde_json::to_value(record).map_err(storage)?;
         if let RecordData::Message(m) = &record.data {
             value["data"]["Message"]["text"] =
                 Value::String(truncate(&m.text, MAX_NOTE_READ_BYTES).to_owned());
@@ -937,7 +942,7 @@ fn writing_request(snapshot: &WritingSnapshot, request: &ChangeRequest) -> AiRes
         return Err(rejected());
     }
     safe.reason = if snapshot.setup.is_some() {
-        "Whole-note writing proposal for owner review".into()
+        WRITING_PUBLIC_REASON.into()
     } else {
         request.reason.clone()
     };
@@ -946,27 +951,56 @@ fn writing_request(snapshot: &WritingSnapshot, request: &ChangeRequest) -> AiRes
 /// Writing references are checked in their canonical setup scope; the working
 /// Note alone keeps CW1's actual selected-conversation access exception.
 fn writing_read_allowed(scope: &Scope, store: &Store, id: &str, version: u64) -> AiResult<bool> {
+    let rows = store.records().map_err(storage)?;
+    writing_read_allowed_in(scope, store, &rows, id, version)
+}
+fn writing_read_allowed_in(
+    scope: &Scope,
+    store: &Store,
+    rows: &[Record],
+    id: &str,
+    version: u64,
+) -> AiResult<bool> {
+    let Some(current) = rows.iter().find(|r| r.id == id) else {
+        return Ok(false);
+    };
+    writing_read_allowed_record(scope, store, rows, current, version)
+}
+fn writing_read_allowed_record(
+    scope: &Scope,
+    store: &Store,
+    rows: &[Record],
+    current: &Record,
+    version: u64,
+) -> AiResult<bool> {
     let Some(snapshot) = &scope.writing_snapshot else {
         return Ok(true);
     };
     let Some(setup) = &snapshot.setup else {
         return Ok(false);
     };
-    let Some(record) = store.record(id).map_err(storage)? else {
-        return Ok(false);
-    };
-    if record.archived || !matches!(&record.data, RecordData::Note(n) if n.superseded_by.is_none())
+    let id = current.id.as_str();
+    if current.archived
+        || !matches!(&current.data, RecordData::Note(n) if n.superseded_by.is_none())
     {
         return Ok(false);
     }
-    let chat = if setup.references.iter().any(|r| r.note == id) {
-        setup.chat.as_deref()
-    } else {
+    let chat = if id == snapshot.note.id {
         Some(scope.chat.as_str())
+    } else {
+        setup.chat.as_deref()
     };
-    store
-        .revision_visible_in_chat(id, version, chat)
-        .map_err(storage)
+    if !record_in_chat(current, rows, chat) {
+        return Ok(false);
+    }
+    if current.version == version {
+        return Ok(true);
+    }
+    Ok(store
+        .revision(id, version)
+        .map_err(storage)?
+        .as_ref()
+        .is_some_and(|r| !r.archived && record_in_chat(r, rows, chat)))
 }
 
 fn attach_writing_evidence(
@@ -1296,6 +1330,30 @@ fn prepare(scope: &Scope, mut args: PrepareArgs) -> AiResult<Value> {
     }
     let mut store = scope.store.lock().map_err(storage)?;
     live(scope, &store)?;
+    if let Some(setup) = scope
+        .writing_snapshot
+        .as_ref()
+        .and_then(|s| s.setup.as_ref())
+    {
+        let rows = store.records().map_err(storage)?;
+        for reference in &setup.references {
+            if (setup.requirements.must_be_current.contains(&reference.note)
+                || setup.requirements.exhaustive
+                    && reference.purpose == WritingPurpose::Requirements)
+                && !writing_read_allowed_in(
+                    scope,
+                    &store,
+                    &rows,
+                    &reference.note,
+                    reference.version,
+                )?
+            {
+                return Ok(
+                    json!({"outcome":"Invalid","reason":"A reference required to be current is unavailable here. Restore access and explicitly review again, or Refresh in the matching writing context."}),
+                );
+            }
+        }
+    }
     let op = store
         .allocate_operation(&format!("{}:proposal:{}", scope.run, args.request_key))
         .map_err(storage)?;

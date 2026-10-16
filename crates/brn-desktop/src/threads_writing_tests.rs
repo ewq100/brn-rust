@@ -524,6 +524,46 @@ fn private_writing_disclosure_is_mandatory_and_wrong_displayed_scope_hides_revie
         );
     })
     .unwrap();
+    let loaded = cx.read(|cx| f.view.read(cx).writing_review_loads);
+    for _ in 0..10 {
+        cx.update_window(f.window, |_, _window, cx| {
+            f.view.update(cx, |_, cx| cx.notify());
+        })
+        .unwrap();
+        cx.run_until_parked();
+    }
+    assert_eq!(
+        cx.read(|cx| f.view.read(cx).writing_review_loads),
+        loaded,
+        "unchanged repeated native renders reuse one checked batch instead of rescanning records/receipts"
+    );
+    // Candidate content is part of the cache key even when SQLite is unchanged.
+    cx.update_window(f.window, |_, _window, cx| {
+        f.view.update(cx, |view, cx| {
+            view.review.as_mut().unwrap().candidate.request.reason =
+                "UNBOUND PRIVATE REASON".into();
+            cx.notify();
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(window.find("writing-evidence-unavailable").visible());
+        assert!(
+            !format!("{:?}", gpui_kit::base::test_support::snapshots(window))
+                .contains("UNBOUND PRIVATE REASON")
+        );
+        f.view.update(cx, |view, cx| {
+            view.review.as_mut().unwrap().candidate = candidate.clone();
+            cx.notify();
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, _| {
+        assert!(window.find("writing-private-disclosure").visible());
+    })
+    .unwrap();
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |view, cx| {
             view.open_project_note(&other, &f.a.id, window, cx);
@@ -651,14 +691,17 @@ fn private_writing_disclosure_is_mandatory_and_wrong_displayed_scope_hides_revie
     cx.update_window(f.window, |_, _window, cx| {
         f.view.update(cx, |view, cx| {
             let saved = view.workspace.store.note(&reference).unwrap().unwrap();
+            let mut external =
+                Workspace::open_without_default_credentials(view.workspace.store.directory())
+                    .unwrap();
             assert!(matches!(
-                view.workspace
+                external
                     .owner_change(
                         "native-reference-restored",
                         &ChangeRequest {
                             reason: "Restore existing access".into(),
                             writes: vec![Put {
-                                id: reference,
+                                id: reference.clone(),
                                 expected_version: Some(saved.version),
                                 archived: false,
                                 data: saved.data
@@ -676,6 +719,80 @@ fn private_writing_disclosure_is_mandatory_and_wrong_displayed_scope_hides_revie
                     .unwrap()
                     .is_none()
             );
+            cx.notify();
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    // External revocation and same-connection restoration also invalidate on
+    // notify alone, without granting cached review permission to Apply.
+    cx.update_window(f.window, |_, _window, cx| {
+        f.view.update(cx, |view, cx| {
+            let mut external =
+                Workspace::open_without_default_credentials(view.workspace.store.directory())
+                    .unwrap();
+            let saved = external.store.note(&reference).unwrap().unwrap();
+            assert!(matches!(
+                external
+                    .owner_change(
+                        "native-external-revoke",
+                        &ChangeRequest {
+                            reason: "Revoke existing access externally".into(),
+                            writes: vec![Put {
+                                id: reference.clone(),
+                                expected_version: Some(saved.version),
+                                archived: true,
+                                data: saved.data
+                            }],
+                            inputs: vec![],
+                        }
+                    )
+                    .unwrap(),
+                ApplyOutcome::Applied(_)
+            ));
+            cx.notify();
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(window.find("writing-evidence-unavailable").visible());
+        assert!(
+            !format!("{:?}", gpui_kit::base::test_support::snapshots(window))
+                .contains("PRIVATE NAMED REQUIREMENTS")
+        );
+        assert!(
+            !format!("{:?}", gpui_kit::base::test_support::snapshots(window))
+                .contains("PRIVATE GENERATED QUOTE")
+        );
+        f.view.update(cx, |view, cx| {
+            view.apply_review(window, cx);
+            assert!(
+                view.workspace
+                    .store
+                    .receipt(&candidate.operation)
+                    .unwrap()
+                    .is_none()
+            );
+            let saved = view.workspace.store.note(&reference).unwrap().unwrap();
+            assert!(matches!(
+                view.workspace
+                    .owner_change(
+                        "native-local-restore",
+                        &ChangeRequest {
+                            reason: "Restore existing access locally".into(),
+                            writes: vec![Put {
+                                id: reference.clone(),
+                                expected_version: Some(saved.version),
+                                archived: false,
+                                data: saved.data
+                            }],
+                            inputs: vec![],
+                        }
+                    )
+                    .unwrap(),
+                ApplyOutcome::Applied(_)
+            ));
             cx.notify();
         });
     })

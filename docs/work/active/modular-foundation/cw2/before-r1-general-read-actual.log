@@ -1,0 +1,22 @@
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-ai)
+    Finished `test` profile [optimized] target(s) in 10.11s
+     Running unittests src/lib.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/brn_ai-4bdff0807a0d4cb7)
+
+running 1 test
+test threads::cw2_tests::general_run_does_not_gain_other_private_notes_when_selected_conversation_changes ... FAILED
+
+failures:
+
+---- threads::cw2_tests::general_run_does_not_gain_other_private_notes_when_selected_conversation_changes stdout ----
+
+thread 'threads::cw2_tests::general_run_does_not_gain_other_private_notes_when_selected_conversation_changes' (27544660) panicked at crates/brn-ai/src/threads_cw2_tests.rs:409:5:
+canonical general context never inherits unrelated private material during the run
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    threads::cw2_tests::general_run_does_not_gain_other_private_notes_when_selected_conversation_changes
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 353 filtered out; finished in 0.02s
+
+error: test failed, to rerun pass `-p brn-ai --lib`

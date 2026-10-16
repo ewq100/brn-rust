@@ -219,6 +219,15 @@ impl Store {
             )
             .optional()?)
     }
+    /// Invalidate read-only host views after local writes or external commits.
+    /// No permission decision may be authorized from this token alone.
+    pub fn change_token(&self) -> Result<(u64, u64)> {
+        Ok((
+            self.conn.total_changes(),
+            self.conn
+                .query_row("PRAGMA data_version", [], |row| crate::read_u64(row, 0))?,
+        ))
+    }
     pub fn directory(&self) -> &Path {
         &self.directory
     }
@@ -443,15 +452,14 @@ impl Store {
                     .request
                     .writes
                     .iter()
-                    .filter_map(|w| match &w.data {
-                        RecordData::Message(m) if m.role == WRITING_EVIDENCE_ROLE => Some(m),
-                        _ => None,
-                    })
+                    .filter(|w| matches!(&w.data, RecordData::Message(m) if m.role == WRITING_EVIDENCE_ROLE))
                     .any(|evidence| {
                         !request
                             .writes
                             .iter()
-                            .any(|w| matches!(&w.data, RecordData::Message(m) if m == evidence))
+                            .any(|w| w.data == evidence.data
+                                && w.archived == evidence.archived
+                                && w.expected_version == evidence.expected_version)
                     }))
         {
             return Err(Error::Invalid("Writing candidate evidence and input bindings must survive replacement; Refresh creates a new request".into()));
@@ -1432,8 +1440,10 @@ pub(crate) fn apply_on(
     let mut visibility_requests = vec![prepared.request.clone()];
     let mut ancestor = operation.clone();
     let mut seen = BTreeSet::new();
-    // A compensation (including Undo of Undo) cannot restore a writing result
-    // through a wider owner context than the original candidate's evidence.
+    let mut ancestors = Vec::new();
+    // Odd-depth compensation restores pre-AI content and remains available after
+    // evidence revocation. Even-depth compensation re-applies the AI result and
+    // must recheck its original provenance. Existing request hashes stay intact.
     while seen.insert(ancestor.as_str().to_owned()) {
         let parent: Option<String> = tx.query_row(
             "SELECT undo_of FROM operations WHERE id=?1",
@@ -1444,7 +1454,10 @@ pub(crate) fn apply_on(
             break;
         };
         ancestor = OperationId(parent);
-        visibility_requests.push(prepared_on(tx, &ancestor)?.request);
+        ancestors.push(prepared_on(tx, &ancestor)?.request);
+    }
+    if ancestors.len() % 2 == 0 {
+        visibility_requests.extend(ancestors);
     }
     let mut writing_contexts = Vec::new();
     for visibility_request in &visibility_requests {
@@ -1504,12 +1517,15 @@ pub(crate) fn apply_on(
         for input in &visibility_request.inputs {
             // Reference access uses canonical setup scope, preserving CW1's
             // selected-conversation exception only for the working Note.
+            let current = context_rows.iter().find(|r| r.id == input.record);
             let chat = snapshot
                 .setup
                 .as_ref()
-                .filter(|s| s.references.iter().any(|r| r.note == input.record))
+                .filter(|_| {
+                    input.record != snapshot.note.id
+                        && current.is_some_and(|r| matches!(r.data, RecordData::Note(_)))
+                })
                 .map_or(Some(snapshot.thread.as_str()), |s| s.chat.as_deref());
-            let current = context_rows.iter().find(|r| r.id == input.record);
             let body: Option<String> = tx
                 .query_row(
                     "SELECT body FROM revisions WHERE id=?1 AND version=?2",

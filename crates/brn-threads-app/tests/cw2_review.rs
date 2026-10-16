@@ -287,6 +287,37 @@ async fn scripted_private_sources_have_separate_import_read_claims_and_owner_app
             )
             .is_err()
     );
+    // Direct core replacement, not the app wrapper which already normalizes reason.
+    let archive_evidence = app
+        .store
+        .allocate_operation("archived-evidence-replacement")
+        .unwrap();
+    let before_records = app.store.records().unwrap();
+    let before_candidates = app.store.candidates().unwrap();
+    let original = app.store.prepared(&candidate.operation).unwrap();
+    let mut forged = candidate.request.clone();
+    forged.reason = "P1 PRIVATE EXPLANATION sentinel".into();
+    for write in &mut forged.writes {
+        if matches!(&write.data, RecordData::Message(m) if m.role == WRITING_EVIDENCE_ROLE) {
+            write.id = archive_evidence.creation_id(0);
+            write.archived = true;
+        }
+    }
+    let refused = app.store.replace_candidate(
+        &candidate.operation,
+        &archive_evidence,
+        &forged,
+        &HostAuthority::owner("replacement must retain active immutable evidence"),
+    );
+    assert!(
+        refused.is_err(),
+        "archiving evidence must not bypass immutable binding and the public reason gate"
+    );
+    assert_eq!(app.store.records().unwrap(), before_records);
+    assert_eq!(app.store.candidates().unwrap(), before_candidates);
+    assert_eq!(app.store.prepared(&candidate.operation).unwrap(), original);
+    assert!(app.store.prepared(&archive_evidence).is_err());
+    assert!(app.store.receipt(&archive_evidence).unwrap().is_none());
     let replacement = app
         .review_replace(
             candidate.operation.as_str(),
@@ -319,7 +350,7 @@ async fn scripted_private_sources_have_separate_import_read_claims_and_owner_app
         &mut app,
         "restore-reference",
         Put {
-            id: reference,
+            id: reference.clone(),
             expected_version: Some(3),
             archived: false,
             data: RecordData::Note(ref_note),
@@ -379,11 +410,277 @@ async fn scripted_private_sources_have_separate_import_read_claims_and_owner_app
             .len(),
         1
     );
+    let saved = app.store.note(&reference).unwrap().unwrap();
+    owner_put(
+        &mut app,
+        "revoke-before-safe-undo",
+        Put {
+            id: reference.clone(),
+            expected_version: Some(saved.version),
+            archived: true,
+            data: saved.data,
+        },
+    );
+    let ApplyOutcome::Applied(undone) = app.undo(replacement.operation.as_str()).unwrap() else {
+        panic!("safe compensation restores pre-AI text after revocation");
+    };
+    assert!(
+        matches!(app.store.note(&note.id).unwrap().unwrap().data, RecordData::Note(n) if n.markdown == "Original working text")
+    );
+    let redo = app.store.allocate_operation("new-style-reapply").unwrap();
+    assert!(
+        matches!(app.store.undo(&redo, &undone.operation, &HostAuthority::owner("explicit reapply")).unwrap(), ApplyOutcome::NeedsReview { denied } if denied.contains(&reference))
+    );
+    assert!(app.store.receipt(&redo).unwrap().is_none());
+    let saved = app.store.note(&reference).unwrap().unwrap();
+    owner_put(
+        &mut app,
+        "restore-before-exact-reapply",
+        Put {
+            id: reference.clone(),
+            expected_version: Some(saved.version),
+            archived: false,
+            data: saved.data,
+        },
+    );
+    let reapplied = app
+        .store
+        .undo(
+            &redo,
+            &undone.operation,
+            &HostAuthority::owner("new exact restored-access reapply"),
+        )
+        .unwrap();
+    assert!(matches!(&reapplied, ApplyOutcome::Applied(_)));
+    let saved = app.store.note(&reference).unwrap().unwrap();
+    owner_put(
+        &mut app,
+        "revoke-before-reapply-replay",
+        Put {
+            id: reference,
+            expected_version: Some(saved.version),
+            archived: true,
+            data: saved.data,
+        },
+    );
+    assert_eq!(
+        app.store
+            .undo(
+                &redo,
+                &undone.operation,
+                &HostAuthority::owner("lost response replay")
+            )
+            .unwrap(),
+        reapplied
+    );
+    let third = app
+        .store
+        .allocate_operation("new-style-safe-compensation-again")
+        .unwrap();
     assert!(matches!(
-        app.undo(replacement.operation.as_str()).unwrap(),
+        app.store
+            .undo(&third, &redo, &HostAuthority::owner("safe compensation"))
+            .unwrap(),
         ApplyOutcome::Applied(_)
     ));
     assert!(
         matches!(app.store.note(&note.id).unwrap().unwrap().data, RecordData::Note(n) if n.markdown == "Original working text")
     );
+}
+
+#[tokio::test]
+async fn general_writing_uses_real_search_counts_and_never_delivers_new_private_retained_material()
+{
+    let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let mut app = Workspace::open_without_default_credentials(root.path().join("data")).unwrap();
+    let note = app
+        .new_note("Working draft", "WORKING POSITIVE CONTROL")
+        .unwrap();
+    let reference = app
+        .new_note("Beacon public", "Beacon permitted reference")
+        .unwrap();
+    let thread = app
+        .ensure_writing_context("general-first", &note.id, None)
+        .unwrap()
+        .conversation
+        .unwrap();
+    app.set_writing_setup(
+        "general-setup",
+        None,
+        &WritingSetup {
+            note: note.id.clone(),
+            chat: None,
+            brief: None,
+            references: vec![WritingReference {
+                note: reference.id.clone(),
+                purpose: WritingPurpose::Evidence,
+            }],
+        },
+    )
+    .unwrap();
+    let snapshot = app
+        .snapshot_writing_request("general-request", &note.id, 1, &thread, &[])
+        .unwrap();
+    let prepared = app
+        .prepare_thread_run(ThreadRunStart {
+            thread: thread.clone(),
+            prompt: "unused".into(),
+            request_message: None,
+            queue_claim: None,
+            owner_request: Some(OwnerRequest::RewriteNote {
+                request_message: snapshot.request_message.clone(),
+            }),
+            sources: vec![],
+            max_tool_rounds: Some(4),
+            trace: TraceLevel::Full,
+            offered_copilot_models: None,
+        })
+        .unwrap();
+    // A general Note created DURING the run retains a conversation-private
+    // source. It is visible in the selected chat, never canonical general.
+    let op = app.store.allocate_operation("new-private-source").unwrap();
+    let source = op.creation_id(0);
+    owner_put(
+        &mut app,
+        "new-private-source",
+        Put {
+            id: source.clone(),
+            expected_version: None,
+            archived: false,
+            data: RecordData::Source(Source {
+                chat: Some(thread.clone()),
+                locator: "synthetic:beacon-private".into(),
+                label: "Private retained source".into(),
+                observed_at: "synthetic".into(),
+                external_version: None,
+                outcome: "Synthetic retained text".into(),
+                gaps: vec![],
+                report: None,
+            }),
+        },
+    );
+    let op = app
+        .store
+        .allocate_operation("new-general-note-private-source")
+        .unwrap();
+    let other = op.creation_id(0);
+    let mut private = Note::working("PRIVATE BEACON TITLE", "Beacon OTHER PRIVATE SENTINEL");
+    private.import = Some(ImportCoverage {
+        source,
+        full_note: false,
+        gaps: vec![],
+        report: None,
+    });
+    owner_put(
+        &mut app,
+        "new-general-note-private-source",
+        Put {
+            id: other.clone(),
+            expected_version: None,
+            archived: false,
+            data: RecordData::Note(private),
+        },
+    );
+    assert_eq!(
+        app.search_page("Beacon", Some(&thread), 10, None)
+            .unwrap()
+            .total,
+        2
+    );
+    assert_eq!(app.search_page("Beacon", None, 10, None).unwrap().total, 1);
+    let model = MockCompletionModel::from_stream_turns(vec![
+        vec![
+            MockStreamEvent::tool_call(
+                "search",
+                "search_notes",
+                json!({"query":"Beacon","limit":10,"cursor":null,"mode":"keyword"}),
+            ),
+            MockStreamEvent::final_response_with_total_tokens(1),
+        ],
+        vec![
+            MockStreamEvent::tool_call(
+                "read",
+                "read_records",
+                json!({"ids":[note.id,other],"query":null}),
+            ),
+            MockStreamEvent::final_response_with_total_tokens(1),
+        ],
+        vec![
+            MockStreamEvent::tool_call(
+                "prepare",
+                "prepare_changes",
+                json!({"request_key":"general-proposal","request":snapshot.change_request("Permitted rewrite").unwrap(),"writing":null}),
+            ),
+            MockStreamEvent::final_response_with_total_tokens(1),
+        ],
+        vec![
+            MockStreamEvent::text("Ready for exact review."),
+            MockStreamEvent::final_response_with_total_tokens(1),
+        ],
+    ]);
+    let result = run_prepared_scripted(prepared.prepared, model.clone())
+        .await
+        .unwrap();
+    assert!(
+        matches!(result.answer.terminal, AiTerminal::Completed),
+        "{:?}",
+        result.answer.terminal
+    );
+    let delivery = serde_json::to_value(model.requests()).unwrap();
+    let delivered = delivery.to_string();
+    assert!(delivered.contains("WORKING POSITIVE CONTROL"));
+    assert!(!delivered.contains("OTHER PRIVATE SENTINEL"));
+    assert!(!delivered.contains("PRIVATE BEACON TITLE"));
+    fn search_pages(value: &serde_json::Value, found: &mut Vec<serde_json::Value>) {
+        if value
+            .get("results")
+            .is_some_and(serde_json::Value::is_array)
+            && value.get("total").is_some()
+        {
+            found.push(value.clone());
+        }
+        match value {
+            serde_json::Value::String(s) => {
+                if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(s) {
+                    search_pages(&parsed, found);
+                }
+            }
+            serde_json::Value::Array(a) => {
+                for v in a {
+                    search_pages(v, found);
+                }
+            }
+            serde_json::Value::Object(o) => {
+                for v in o.values() {
+                    search_pages(v, found);
+                }
+            }
+            _ => {}
+        }
+    }
+    let mut pages = vec![];
+    search_pages(&delivery, &mut pages);
+    assert!(
+        !pages.is_empty(),
+        "actual host search tool result reached the scripted model"
+    );
+    assert!(pages.iter().all(|p| {
+        p["total"] == 1
+            && p["results"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .all(|r| r["id"] != other)
+    }));
+    let candidate = app
+        .candidates()
+        .unwrap()
+        .into_iter()
+        .find(|c| c.request.writes.iter().any(|w| w.id == note.id))
+        .unwrap();
+    assert!(!candidate.request.inputs.iter().any(|i| i.record == other));
+    let review = app
+        .writing_candidate_review(candidate.operation.as_str(), None)
+        .unwrap();
+    assert!(review.sources.iter().all(|s| s.id != other));
 }

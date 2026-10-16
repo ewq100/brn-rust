@@ -19,9 +19,12 @@ mod projects;
 mod refresh;
 pub mod relations;
 mod run;
-pub use run::{PreparedWorkspaceRun, RunPreparationError, ThreadRunStart, resolve_run_selection};
+pub use run::{
+    PreparedWorkspaceRun, RunPreparationError, RunSelectionError, ThreadRunStart,
+    resolve_run_selection,
+};
 mod review;
-pub use review::{WritingCandidateReview, WritingSourceReview};
+pub use review::{WritingCandidateReview, WritingContextReview, WritingSourceReview};
 mod review_groups;
 pub mod search;
 mod settings;

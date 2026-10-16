@@ -774,9 +774,7 @@ fn repeated_rewrite_requests_preserve_pending_review_and_reading_space(cx: &mut 
     cx.update_window(f.window, |_, _, cx| {
         f.view.update(cx, |view, cx| {
             view.layout.close(TileKind::Chat);
-            let thread = view
-                .ensure_writing_thread(&f.first.id, f.first.version)
-                .unwrap();
+            let thread = view.ensure_writing_thread(&f.first.id).unwrap();
             for index in 0..8 {
                 let snapshot = view
                     .workspace
@@ -831,9 +829,7 @@ fn bound_terminal_clarification_stays_in_note_and_unrelated_chat_cannot_replace_
         .update_window(f.window, |_, window, cx| {
             f.view.update(cx, |view, cx| {
                 view.layout.close(TileKind::Chat);
-                let thread = view
-                    .ensure_writing_thread(&f.first.id, f.first.version)
-                    .unwrap();
+                let thread = view.ensure_writing_thread(&f.first.id).unwrap();
                 let first = view
                     .workspace
                     .snapshot_writing_request(

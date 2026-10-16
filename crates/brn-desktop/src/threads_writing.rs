@@ -2663,7 +2663,7 @@ impl ThreadsUi {
             .candidates
             .iter()
             .filter(|candidate| !candidate.request.writes.iter().any(|w| matches!(&w.data, RecordData::Message(m) if m.role == WRITING_EVIDENCE_ROLE))
-                || self.workspace.writing_candidate_review(candidate.operation.as_str(), self.note_writing_scope.as_deref()).is_ok())
+                || self.writing_reviews.contains_key(candidate.operation.as_str()))
             .any(|candidate| self.writing_candidate_note(candidate).as_deref() == Some(&note_id));
         let Some(row) = self.writing_bar_row() else {
             return vec![];
@@ -3005,9 +3005,9 @@ impl ThreadsUi {
                 |w| matches!(&w.data, RecordData::Message(m) if m.role == WRITING_EVIDENCE_ROLE),
             );
         let writing_evidence = if has_evidence {
-            match self.workspace.writing_candidate_review(review.candidate.operation.as_str(), self.note_writing_scope.as_deref()) {
-                Ok(evidence) => Some(evidence),
-                Err(_) => return div().id("writing-evidence-unavailable").flex().flex_col().gap_2().p_3()
+            match self.writing_reviews.get(review.candidate.operation.as_str()) {
+                Some(evidence) => Some(evidence),
+                None => return div().id("writing-evidence-unavailable").flex().flex_col().gap_2().p_3()
                     .aria_label("Writing proposal unavailable here. Open and review it in its matching writing context, or Refresh after restoring access.")
                     .child("Writing proposal unavailable here. Open and review it in its matching writing context, or Refresh after restoring access.")
                     .child(pill("close-review", "Keep for later").on_click(cx.listener(|this, _, window, cx| this.keep_review(window, cx))))
@@ -3607,13 +3607,9 @@ impl ThreadsUi {
             && review.candidate.request.writes.iter().any(
                 |w| matches!(&w.data, RecordData::Message(m) if m.role == WRITING_EVIDENCE_ROLE),
             )
-            && self
-                .workspace
-                .writing_candidate_review(
-                    review.candidate.operation.as_str(),
-                    self.note_writing_scope.as_deref(),
-                )
-                .is_err()
+            && !self
+                .writing_reviews
+                .contains_key(review.candidate.operation.as_str())
         {
             return div().id("compare-evidence-unavailable").p_3()
                 .aria_label("Writing comparison unavailable in this context. Open and review the matching writing context or Refresh after restoring access.")

@@ -1,0 +1,16 @@
+[
+  {
+    "phase": "core",
+    "copy": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/cargo-mutants-t3-3205580d-hO785h.tmp",
+    "matched_rust_files": 204,
+    "mismatches": [],
+    "no_mutants_attempted": true
+  },
+  {
+    "phase": "ai",
+    "copy": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/cargo-mutants-t3-3205580d-9sJq15.tmp",
+    "matched_rust_files": 204,
+    "mismatches": [],
+    "no_mutants_attempted": true
+  }
+]

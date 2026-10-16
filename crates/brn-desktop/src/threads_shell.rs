@@ -1649,6 +1649,7 @@ impl ThreadsUi {
 
 impl Render for ThreadsUi {
     fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        self.refresh_writing_review_cache();
         let _retained = (&self.subscriptions, &self.poll);
         let p = pal();
         self.schedule_focus_first(window);

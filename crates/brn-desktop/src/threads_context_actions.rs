@@ -163,7 +163,7 @@ impl ThreadsUi {
                     self.composer.read(cx).value().to_string(),
                 )
             });
-        let thread = self.ensure_writing_thread(&note.id, note.version)?;
+        let thread = self.ensure_writing_thread(&note.id)?;
         if let Some((_, draft)) = &new_note_draft {
             // A first contextual edit creates the note's writing chat. Move its
             // unsent draft into that chat, including persisted recovery.

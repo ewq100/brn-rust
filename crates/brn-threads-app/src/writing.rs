@@ -50,24 +50,46 @@ impl Workspace {
         note: &str,
         opened_from: Option<&str>,
     ) -> AppResult<ActiveWritingContext> {
-        let saved = self.writing_note(note, None)?;
         let rows = self.records()?;
+        let receipts = self.store.receipts()?;
+        self.active_writing_context_from(note, opened_from, &rows, &receipts)
+    }
+    pub(crate) fn active_writing_context_from(
+        &self,
+        note: &str,
+        opened_from: Option<&str>,
+        rows: &[Record],
+        receipts: &[Receipt],
+    ) -> AppResult<ActiveWritingContext> {
+        let saved = rows
+            .iter()
+            .find(|r| {
+                r.id == note
+                    && !r.archived
+                    && matches!(&r.data, RecordData::Note(n) if n.superseded_by.is_none())
+            })
+            .ok_or_else(|| AppError::Invalid("Working Note is unavailable".into()))?;
         let RecordData::Note(data) = &saved.data else {
             unreachable!()
         };
         let opening = opened_from.or(data.chat.as_deref());
-        let scope = writing_setup_scope(&rows, opening)?;
-        if !record_in_chat(&saved, &rows, opening) {
-            return Err(AppError::Invalid(
-                "Working Note is unavailable in this writing context".into(),
-            ));
-        }
+        let scope = writing_setup_scope(rows, opening)?;
         // Receipt order is durable; arbitrary links and current window chat are
         // not a selection. V2 requests record the scope at the time of use.
         let mut conversation = None;
-        for receipt in self.store.receipts()? {
-            for write in receipt.writes {
-                if write.before.is_some() || write.after.archived {
+        let current = rows
+            .iter()
+            .map(|r| (r.id.as_str(), r))
+            .collect::<BTreeMap<_, _>>();
+        let mut thread_scopes = BTreeMap::new();
+        for receipt in receipts {
+            for write in &receipt.writes {
+                if write.before.is_some()
+                    || write.after.archived
+                    || !current
+                        .get(write.after.id.as_str())
+                        .is_some_and(|r| !r.archived)
+                {
                     continue;
                 }
                 let used = match &write.after.data {
@@ -92,15 +114,30 @@ impl Workspace {
                     && used.chat == scope
                 {
                     // A moved conversation never follows the Note into another scope.
-                    if writing_request_scope(&rows, &used.thread).ok().as_ref() == Some(&scope)
-                        && rows
-                            .iter()
-                            .any(|r| r.id == used.thread && matches!(r.data, RecordData::Thread(_)))
+                    if thread_scopes
+                        .entry(used.thread.clone())
+                        .or_insert_with(|| writing_request_scope(rows, &used.thread).ok())
+                        .as_ref()
+                        == Some(&scope)
+                        && current
+                            .get(used.thread.as_str())
+                            .is_some_and(|r| matches!(r.data, RecordData::Thread(_)))
                     {
                         conversation = Some(used.thread);
                     }
                 }
             }
+        }
+        // CW1's actual selected-conversation exception applies to this working
+        // Note only. References and evidence keep their canonical scope.
+        if !record_in_chat(saved, rows, opening)
+            && !conversation
+                .as_deref()
+                .is_some_and(|thread| record_in_chat(saved, rows, Some(thread)))
+        {
+            return Err(AppError::Invalid(
+                "Working Note is unavailable in this writing context".into(),
+            ));
         }
         Ok(ActiveWritingContext {
             note: note.into(),
@@ -131,10 +168,19 @@ impl Workspace {
         key: &str,
         note: &str,
         thread: &str,
-    ) -> AppResult<Receipt> {
+    ) -> AppResult<Option<Receipt>> {
+        // Repeated explicit picks do not create operations, Messages or receipts.
+        if self
+            .active_writing_context(note, Some(thread))?
+            .conversation
+            .as_deref()
+            == Some(thread)
+        {
+            return Ok(None);
+        }
         let op = self.writing_operation("context", key, (note, thread))?;
         if let Some(receipt) = self.writing_replay(&op)? {
-            return Ok(receipt);
+            return Ok(Some(receipt));
         }
         let saved = self.writing_note(note, None)?;
         let chat = self.writing_thread(thread)?;
@@ -152,6 +198,7 @@ impl Workspace {
                 inputs: current_records([&saved, &chat, &link]),
             },
         )
+        .map(Some)
     }
     /// First comment/rewrite creates a scoped conversation only when no explicit
     /// selection exists. Private scope is its existing host-owned conversation.
@@ -516,7 +563,13 @@ impl Workspace {
             .store
             .record(message)?
             .ok_or_else(|| AppError::Invalid("Saved writing request is missing".into()))?;
-        let snapshot = WritingSnapshot::from_message(&record)?;
+        self.writing_request_from_record(&record)
+    }
+    pub(crate) fn writing_request_from_record(
+        &self,
+        record: &Record,
+    ) -> AppResult<WritingSnapshot> {
+        let snapshot = WritingSnapshot::from_message(record)?;
         for captured in std::iter::once(&snapshot.note)
             .chain(snapshot.comments.iter())
             .chain(snapshot.messages.iter())
@@ -543,20 +596,37 @@ impl Workspace {
         note: &str,
         displayed: Option<&str>,
     ) -> AppResult<WritingSnapshot> {
-        let snapshot = self.writing_request(message)?;
-        let context = self.active_writing_context(note, displayed)?;
         let rows = self.records()?;
-        if snapshot.note.id != note
+        let receipts = self.store.receipts()?;
+        let context = self.active_writing_context_from(note, displayed, &rows, &receipts)?;
+        if context.scope != writing_setup_scope(&rows, displayed)? {
+            return Err(AppError::Invalid(
+                "Saved writing request is unavailable in this displayed context".into(),
+            ));
+        }
+        let record = rows
+            .iter()
+            .find(|r| r.id == message)
+            .ok_or_else(|| AppError::Invalid("Saved writing request is missing".into()))?;
+        self.writing_request_in_context_from(record, &context, &rows)
+    }
+    pub(crate) fn writing_request_in_context_from(
+        &self,
+        record: &Record,
+        context: &ActiveWritingContext,
+        rows: &[Record],
+    ) -> AppResult<WritingSnapshot> {
+        let snapshot = self.writing_request_from_record(record)?;
+        if snapshot.note.id != context.note
             || snapshot.setup.is_some()
                 && context.conversation.as_deref() != Some(snapshot.thread.as_str())
             || snapshot
                 .setup
                 .as_ref()
                 .is_some_and(|setup| setup.chat != context.scope)
-            || writing_request_scope(&rows, &snapshot.thread)? != context.scope
-            || !self
-                .store
-                .record_visible_in_chat(message, Some(&snapshot.thread))?
+            || writing_request_scope(rows, &snapshot.thread)? != context.scope
+            || record.archived
+            || !record_in_chat(record, rows, Some(&snapshot.thread))
         {
             return Err(AppError::Invalid(
                 "Saved writing request is unavailable in this displayed context".into(),

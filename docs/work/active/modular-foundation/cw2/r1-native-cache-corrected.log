@@ -1,0 +1,102 @@
+   Compiling brn-threads-app v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-threads-app)
+   Compiling brn-desktop v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-desktop)
+error[E0061]: this method takes 1 argument but 2 arguments were supplied
+    --> crates/brn-desktop/src/threads_chat.rs:264:22
+     |
+ 264 |                 self.ensure_writing_thread(&note, version)
+     |                      ^^^^^^^^^^^^^^^^^^^^^        ------- unexpected argument #2 of type `u64`
+     |
+note: method defined here
+    --> crates/brn-desktop/src/threads_ui.rs:2042:8
+     |
+2042 |     fn ensure_writing_thread(&mut self, note: &str) -> AppResult<String> {
+     |        ^^^^^^^^^^^^^^^^^^^^^
+help: remove the extra argument
+     |
+ 264 -                 self.ensure_writing_thread(&note, version)
+ 264 +                 self.ensure_writing_thread(&note)
+     |
+
+error[E0061]: this method takes 1 argument but 2 arguments were supplied
+    --> crates/brn-desktop/src/threads_context_actions.rs:166:27
+     |
+ 166 |         let thread = self.ensure_writing_thread(&note.id, note.version)?;
+     |                           ^^^^^^^^^^^^^^^^^^^^^           ------------ unexpected argument #2 of type `u64`
+     |
+note: method defined here
+    --> crates/brn-desktop/src/threads_ui.rs:2042:8
+     |
+2042 |     fn ensure_writing_thread(&mut self, note: &str) -> AppResult<String> {
+     |        ^^^^^^^^^^^^^^^^^^^^^
+help: remove the extra argument
+     |
+ 166 -         let thread = self.ensure_writing_thread(&note.id, note.version)?;
+ 166 +         let thread = self.ensure_writing_thread(&note.id)?;
+     |
+
+error[E0433]: cannot find module or crate `brn_threads_core` in this scope
+   --> crates/brn-desktop/src/threads_lists.rs:219:114
+    |
+219 | ...:Message(m) if m.role == brn_threads_core::WRITING_CONTEXT_ROLE)))
+    |                             ^^^^^^^^^^^^^^^^ use of unresolved module or unlinked crate `brn_threads_core`
+    |
+help: there is a crate or module with a similar name
+    |
+219 -             || receipt.writes.iter().all(|write| matches!(&write.after.data, RecordData::Message(m) if m.role == brn_threads_core::WRITING_CONTEXT_ROLE)))
+219 +             || receipt.writes.iter().all(|write| matches!(&write.after.data, RecordData::Message(m) if m.role == brn_threads_app::WRITING_CONTEXT_ROLE)))
+    |
+
+error[E0061]: this method takes 1 argument but 2 arguments were supplied
+    --> crates/brn-desktop/src/threads_context_actions_tests.rs:275:29
+     |
+ 275 |             let thread = ui.ensure_writing_thread(&note.id, note.version).unwrap();
+     |                             ^^^^^^^^^^^^^^^^^^^^^           ------------ unexpected argument #2 of type `u64`
+     |
+note: method defined here
+    --> crates/brn-desktop/src/threads_ui.rs:2042:8
+     |
+2042 |     fn ensure_writing_thread(&mut self, note: &str) -> AppResult<String> {
+     |        ^^^^^^^^^^^^^^^^^^^^^
+help: remove the extra argument
+     |
+ 275 -             let thread = ui.ensure_writing_thread(&note.id, note.version).unwrap();
+ 275 +             let thread = ui.ensure_writing_thread(&note.id).unwrap();
+     |
+
+error[E0061]: this method takes 1 argument but 2 arguments were supplied
+    --> crates/brn-desktop/src/threads_workbench_tests.rs:778:18
+     |
+ 778 |                 .ensure_writing_thread(&f.first.id, f.first.version)
+     |                  ^^^^^^^^^^^^^^^^^^^^^              --------------- unexpected argument #2 of type `u64`
+     |
+note: method defined here
+    --> crates/brn-desktop/src/threads_ui.rs:2042:8
+     |
+2042 |     fn ensure_writing_thread(&mut self, note: &str) -> AppResult<String> {
+     |        ^^^^^^^^^^^^^^^^^^^^^
+help: remove the extra argument
+     |
+ 778 -                 .ensure_writing_thread(&f.first.id, f.first.version)
+ 778 +                 .ensure_writing_thread(&f.first.id)
+     |
+
+error[E0061]: this method takes 1 argument but 2 arguments were supplied
+    --> crates/brn-desktop/src/threads_workbench_tests.rs:835:22
+     |
+ 835 |                     .ensure_writing_thread(&f.first.id, f.first.version)
+     |                      ^^^^^^^^^^^^^^^^^^^^^              --------------- unexpected argument #2 of type `u64`
+     |
+note: method defined here
+    --> crates/brn-desktop/src/threads_ui.rs:2042:8
+     |
+2042 |     fn ensure_writing_thread(&mut self, note: &str) -> AppResult<String> {
+     |        ^^^^^^^^^^^^^^^^^^^^^
+help: remove the extra argument
+     |
+ 835 -                     .ensure_writing_thread(&f.first.id, f.first.version)
+ 835 +                     .ensure_writing_thread(&f.first.id)
+     |
+
+Some errors have detailed explanations: E0061, E0433.
+For more information about an error, try `rustc --explain E0061`.
+error: could not compile `brn-desktop` (bin "brn-desktop" test) due to 6 previous errors

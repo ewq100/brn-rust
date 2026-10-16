@@ -1,3 +1,5 @@
+**CW2 independent review corrections in progress, 16 October 2026:** Opus round1 requested changes; actual general-scope read/search privacy defect is HIGH and has separate failing-before receipts. Bounded corrections and source-hashed native310/0/1 plus strict affected lint/format proof are recorded. Fresh source review, final qualification and remaining capped mutation are pending; no acceptance/integration/full-F21 claim. See [response](work/active/modular-foundation/cw2/round1-response.md) and [handoff](work/active/modular-foundation/cw2/handoff.md).
+
 **CW2 local implementation checkpoint, 16 October 2026:** lane C is implemented on the accepted CW1 local foundation, with synthetic failing-before owner visibility and missing-disclosure receipts. Corrected native tests are 310 passed/0 failed/1 ignored; affected strict lint passes. Source review, final committed-source verification/mutation and full integration qualification remain pending. See [CW2 handoff](work/active/modular-foundation/cw2/handoff.md). This is not owner acceptance, hosted CI, native human observation or merge.
 
 # BRN Threads status

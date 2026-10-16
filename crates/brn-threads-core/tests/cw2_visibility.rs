@@ -200,14 +200,20 @@ fn visible_historical_edit_remains_applicable_while_current_edit_stales() {
 }
 
 #[test]
-fn access_loss_fences_undo_and_undo_of_undo_without_rewriting_provenance() {
+fn revoked_v1_evidence_allows_safe_undo_but_fences_reapplying_candidate_content() {
     let (_root, mut store, snapshot, reference, elsewhere) = fixture();
+    assert!(
+        snapshot.setup.is_none(),
+        "actual saved v1 compatibility fixture"
+    );
+    let saved_marker = store.record(&snapshot.request_message).unwrap();
     let op = candidate(
         &mut store,
         &snapshot,
         &reference,
         InputExpectation::Historical,
     );
+    let original = store.prepared(&op).unwrap();
     assert!(matches!(
         store
             .apply(&op, &HostAuthority::owner("exact review"))
@@ -216,44 +222,66 @@ fn access_loss_fences_undo_and_undo_of_undo_without_rewriting_provenance() {
     ));
     change_reference(&mut store, &reference, Some(&elsewhere), false);
     let undo = store.allocate_operation("undo-writing").unwrap();
-    assert!(matches!(
-        store
-            .undo(&undo, &op, &HostAuthority::owner("Undo"))
-            .unwrap(),
-        ApplyOutcome::NeedsReview { .. }
-    ));
-    assert_eq!(store.record(&snapshot.note.id).unwrap().unwrap().version, 2);
-    assert!(store.receipt(&undo).unwrap().is_none());
-    change_reference(&mut store, &reference, None, false);
-    assert!(matches!(
-        store
-            .undo(
-                &undo,
-                &op,
-                &HostAuthority::owner("new explicit Undo after restoring access")
-            )
-            .unwrap(),
-        ApplyOutcome::Applied(_)
-    ));
-    change_reference(&mut store, &reference, Some(&elsewhere), false);
+    let ApplyOutcome::Applied(undone) = store
+        .undo(
+            &undo,
+            &op,
+            &HostAuthority::owner("safe Undo after revocation"),
+        )
+        .unwrap()
+    else {
+        panic!("restoring the pre-AI draft must not depend on the AI evidence still being visible")
+    };
+    assert!(
+        matches!(store.note(&snapshot.note.id).unwrap().unwrap().data, RecordData::Note(n) if n.markdown == "Original")
+    );
+    assert_eq!(undone.undo_of.as_ref(), Some(&op));
     let redo = store.allocate_operation("undo-the-undo").unwrap();
-    assert!(matches!(
-        store
-            .undo(&redo, &undo, &HostAuthority::owner("Undo the Undo"))
-            .unwrap(),
-        ApplyOutcome::NeedsReview { .. }
-    ));
+    assert!(
+        matches!(store.undo(&redo, &undo, &HostAuthority::owner("explicit reapply")).unwrap(), ApplyOutcome::NeedsReview { denied } if denied.contains(&reference))
+    );
+    assert!(store.receipt(&redo).unwrap().is_none());
     assert_eq!(store.record(&snapshot.note.id).unwrap().unwrap().version, 3);
     change_reference(&mut store, &reference, None, false);
+    let reapplied = store
+        .undo(
+            &redo,
+            &undo,
+            &HostAuthority::owner("new exact review after access restoration"),
+        )
+        .unwrap();
+    assert!(matches!(&reapplied, ApplyOutcome::Applied(_)));
+    assert!(
+        matches!(store.note(&snapshot.note.id).unwrap().unwrap().data, RecordData::Note(n) if n.markdown == "Exact reviewed rewrite")
+    );
+    change_reference(&mut store, &reference, Some(&elsewhere), false);
+    assert_eq!(
+        store
+            .undo(&redo, &undo, &HostAuthority::owner("lost response replay"))
+            .unwrap(),
+        reapplied
+    );
+    let third = store.allocate_operation("undo-restored-rewrite").unwrap();
     assert!(matches!(
         store
             .undo(
+                &third,
                 &redo,
-                &undo,
-                &HostAuthority::owner("explicit restored-access Undo")
+                &HostAuthority::owner("safe compensation again")
             )
             .unwrap(),
         ApplyOutcome::Applied(_)
     ));
-    assert_eq!(store.record(&snapshot.note.id).unwrap().unwrap().version, 4);
+    assert!(
+        matches!(store.note(&snapshot.note.id).unwrap().unwrap().data, RecordData::Note(n) if n.markdown == "Original")
+    );
+    assert_eq!(
+        store.prepared(&op).unwrap(),
+        original,
+        "saved v1 candidate/hash is not rewritten"
+    );
+    assert_eq!(
+        store.record(&snapshot.request_message).unwrap(),
+        saved_marker
+    );
 }

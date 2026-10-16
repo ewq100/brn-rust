@@ -197,6 +197,12 @@ pub struct WritingCandidateReview {
     pub complete_over_retained_text: bool,
     pub model_explanation: String,
 }
+/// One authoritative display inspection; never an Apply/read grant.
+#[derive(Debug, Clone, Default)]
+pub struct WritingContextReview {
+    pub candidates: BTreeMap<String, WritingCandidateReview>,
+    pub requests: BTreeMap<String, WritingSnapshot>,
+}
 impl Workspace {
     /// The caller supplies the displayed writing context, never a global fallback.
     pub fn writing_candidate_review(
@@ -206,6 +212,22 @@ impl Workspace {
     ) -> AppResult<WritingCandidateReview> {
         let op = self.store.operation(id)?;
         let request = self.store.prepared(&op)?.request;
+        let rows = self.records()?;
+        let index = rows
+            .iter()
+            .map(|r| (r.id.as_str(), r))
+            .collect::<BTreeMap<_, _>>();
+        self.writing_candidate_review_from(&request, chat, &rows, &index, None, None)
+    }
+    fn writing_candidate_review_from(
+        &self,
+        request: &ChangeRequest,
+        chat: Option<&str>,
+        rows: &[Record],
+        index: &BTreeMap<&str, &Record>,
+        displayed_note: Option<&str>,
+        wider: Option<bool>,
+    ) -> AppResult<WritingCandidateReview> {
         let evidence = request
             .writes
             .iter()
@@ -218,9 +240,21 @@ impl Workspace {
             .ok_or_else(|| {
                 AppError::Invalid("This candidate has no host-recorded writing evidence".into())
             })?;
-        let snapshot = self.writing_request(&evidence.request_message)?;
-        let scope = writing_setup_scope(&self.records()?, chat)?;
-        if evidence.version != 1
+        let marker = request
+            .inputs
+            .iter()
+            .find(|i| {
+                i.record == evidence.request_message && i.expectation == InputExpectation::Current
+            })
+            .ok_or_else(|| AppError::Invalid("Writing request binding is unavailable".into()))?;
+        let saved = self
+            .store
+            .revision(&marker.record, marker.version)?
+            .ok_or_else(|| AppError::Invalid("Writing request revision is unavailable".into()))?;
+        let snapshot = self.writing_request_from_record(&saved)?;
+        let scope = writing_setup_scope(rows, chat)?;
+        if displayed_note.is_some_and(|note| snapshot.note.id != note)
+            || evidence.version != 1
             || evidence.thread != snapshot.thread
             || evidence.chat != scope
             || snapshot.setup.as_ref().is_none_or(|s| s.chat != scope)
@@ -243,38 +277,19 @@ impl Workspace {
                     .map(|r| (r.id.clone(), r.version)),
             )
             .collect::<BTreeSet<_>>();
-        let rows = self.records()?;
-        let working_wider = self.store.record_visible_in_chat(&snapshot.note.id, None)?
-            || rows
-                .iter()
-                .filter(|r| matches!(r.data, RecordData::Project(_)))
-                .any(|p| {
-                    p.id != scope.as_deref().unwrap_or("")
-                        && self
-                            .store
-                            .record_visible_in_chat(&snapshot.note.id, Some(&p.id))
-                            .unwrap_or(false)
-                });
+        let working_wider =
+            wider.unwrap_or_else(|| working_note_wider(rows, &snapshot.note.id, scope.as_deref()));
         for (id, version) in versions {
             let read = evidence
                 .reads
                 .iter()
                 .find(|r| r.id == id && r.version == version)
                 .cloned();
-            let source_chat = if setup.references.iter().any(|r| r.note == id) {
-                setup.chat.as_deref()
-            } else {
-                Some(evidence.thread.as_str())
-            };
-            if !self
-                .store
-                .revision_visible_in_chat(&id, version, source_chat)?
-            {
-                return Err(AppError::Invalid("A writing source is no longer available here; Refresh or restore access before reviewing".into()));
-            }
-            let current = self
-                .store
-                .record(&id)?
+            let source_chat = setup.chat.as_deref();
+            let current = index
+                .get(id.as_str())
+                .copied()
+                .cloned()
                 .ok_or_else(|| AppError::Invalid("Writing source is unavailable".into()))?;
             if current.archived {
                 return Err(AppError::Invalid(
@@ -284,11 +299,16 @@ impl Workspace {
             let old = self.store.revision(&id, version)?.ok_or_else(|| {
                 AppError::Invalid("Writing source revision is unavailable".into())
             })?;
+            if !record_in_chat(&current, rows, source_chat)
+                || !record_in_chat(&old, rows, source_chat)
+            {
+                return Err(AppError::Invalid("A writing source is no longer available here; Refresh or restore access before reviewing".into()));
+            }
+            let private = working_wider
+                && !(record_in_chat(&current, rows, None) && record_in_chat(&old, rows, None));
             let RecordData::Note(note) = old.data else {
                 return Err(AppError::Invalid("Writing source is not a Note".into()));
             };
-            let private =
-                working_wider && !self.store.revision_visible_in_chat(&id, version, None)?;
             sources.push(WritingSourceReview {
                 id,
                 title: note.title,
@@ -324,4 +344,83 @@ impl Workspace {
             model_explanation: evidence.explanation,
         })
     }
+    /// Load canonical records and receipt context once for a displayed Note.
+    /// The returned token is the one observed before *and* after the inspection.
+    pub fn writing_context_review(
+        &self,
+        note: &str,
+        displayed: Option<&str>,
+        shown: &[Prepared],
+    ) -> AppResult<((u64, u64), WritingContextReview)> {
+        let token = self.store.change_token()?;
+        let rows = self.records()?;
+        let receipts = self.store.receipts()?;
+        let context = self.active_writing_context_from(note, displayed, &rows, &receipts)?;
+        if context.scope != writing_setup_scope(&rows, displayed)? {
+            return Err(AppError::Invalid(
+                "Writing context is no longer displayed here".into(),
+            ));
+        }
+        let wider = working_note_wider(&rows, note, context.scope.as_deref());
+        let mut checked = WritingContextReview::default();
+        let index = rows
+            .iter()
+            .map(|r| (r.id.as_str(), r))
+            .collect::<BTreeMap<_, _>>();
+        let active = self
+            .store
+            .candidates()?
+            .into_iter()
+            .map(|c| (c.operation.as_str().to_owned(), c))
+            .collect::<BTreeMap<_, _>>();
+        let mut invalid = BTreeSet::new();
+        for candidate in shown {
+            let id = candidate.operation.as_str();
+            if active.get(id) != Some(candidate) {
+                checked.candidates.remove(id);
+                invalid.insert(id);
+                continue;
+            }
+            if invalid.contains(id) {
+                continue;
+            }
+            if let Ok(review) = self.writing_candidate_review_from(
+                &candidate.request,
+                context.scope.as_deref(),
+                &rows,
+                &index,
+                Some(note),
+                Some(wider),
+            ) {
+                checked
+                    .candidates
+                    .insert(candidate.operation.as_str().to_owned(), review);
+            }
+        }
+        for record in &rows {
+            if !record.archived
+                && matches!(&record.data, RecordData::Message(m) if m.role == WRITING_REQUEST_ROLE)
+                && let Ok(snapshot) = self.writing_request_in_context_from(record, &context, &rows)
+            {
+                checked.requests.insert(record.id.clone(), snapshot);
+            }
+        }
+        if self.store.change_token()? != token {
+            return Err(AppError::Unavailable(
+                "Writing context changed during inspection; review the current context".into(),
+            ));
+        }
+        Ok((token, checked))
+    }
+}
+
+fn working_note_wider(rows: &[Record], note: &str, scope: Option<&str>) -> bool {
+    let Some(record) = rows.iter().find(|r| r.id == note) else {
+        return false;
+    };
+    record_in_chat(record, rows, None)
+        || rows
+            .iter()
+            .filter(|r| matches!(r.data, RecordData::Project(_)))
+            .any(|p| Some(p.id.as_str()) != scope && record_in_chat(record, rows, Some(&p.id)))
 }

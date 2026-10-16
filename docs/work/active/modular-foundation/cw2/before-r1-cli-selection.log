@@ -1,0 +1,25 @@
+   Compiling tracing v0.1.44
+   Compiling log v0.4.34
+   Compiling rig-http v0.44.0
+   Compiling rustls-platform-verifier v0.7.1
+   Compiling h2 v0.4.19
+   Compiling tracing-futures v0.2.5
+   Compiling hyper v1.11.1
+   Compiling hyper-util v0.1.21
+   Compiling hyper-rustls v0.27.10
+   Compiling reqwest v0.13.5
+   Compiling rig-reqwest v0.44.0
+   Compiling rig-core v0.44.0
+   Compiling rig-agent v0.44.0
+   Compiling rig v0.44.0
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-ai)
+   Compiling brn-threads-app v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-threads-app)
+   Compiling brn v0.0.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn)
+error[E0599]: no associated function or constant named `default` found for struct `brn_threads_app::WorkspaceSettings` in the current scope
+    --> crates/brn/src/main.rs:1597:51
+     |
+1597 |             let mut settings = WorkspaceSettings::default();
+     |                                                   ^^^^^^^ associated function or constant not found in `brn_threads_app::WorkspaceSettings`
+
+For more information about this error, try `rustc --explain E0599`.
+error: could not compile `brn` (bin "brn" test) due to 1 previous error

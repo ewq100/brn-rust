@@ -1,0 +1,25 @@
+   Compiling brn-threads-core v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-threads-core)
+error[E0277]: the trait bound `u64: FromSql` is not satisfied
+   --> crates/brn-threads-core/src/store.rs:225:97
+    |
+225 |         Ok((self.conn.total_changes(), self.conn.query_row("PRAGMA data_version", [], |row| row.get(0))?))
+    |                                                                                                 ^^^ the trait `FromSql` is not implemented for `u64`
+    |
+    = help: the following other types implement trait `FromSql`:
+              f32
+              f64
+              i16
+              i32
+              i64
+              i8
+              isize
+              u16
+            and 2 others
+note: required by a bound in `Row::<'_>::get`
+   --> /Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rusqlite-0.40.2/src/row.rs:285:32
+    |
+285 |     pub fn get<I: RowIndex, T: FromSql>(&self, idx: I) -> Result<T> {
+    |                                ^^^^^^^ required by this bound in `Row::<'_>::get`
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `brn-threads-core` (lib) due to 1 previous error

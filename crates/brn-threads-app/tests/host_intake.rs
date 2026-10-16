@@ -702,7 +702,7 @@ struct Down;
 impl RunNoteSearch for Down {
     fn search(
         &self,
-        _: &str,
+        _: Option<&str>,
         _: &str,
         _: usize,
         _: Option<&str>,
@@ -712,7 +712,7 @@ impl RunNoteSearch for Down {
     }
     fn connections(
         &self,
-        _: &str,
+        _: Option<&str>,
         _: &str,
         _: u8,
         _: bool,

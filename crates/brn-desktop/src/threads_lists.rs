@@ -215,10 +215,8 @@ fn civil_year(day: i64) -> i64 {
 pub(super) fn is_background(receipt: &Receipt) -> bool {
     receipt.needs_refresh.is_empty()
         && !receipt.writes.is_empty()
-        && receipt
-            .writes
-            .iter()
-            .all(|write| matches!(write.after.data, RecordData::ChatControl(_)))
+        && (receipt.writes.iter().all(|write| matches!(write.after.data, RecordData::ChatControl(_)))
+            || receipt.writes.iter().all(|write| matches!(&write.after.data, RecordData::Message(m) if m.role == brn_threads_app::WRITING_CONTEXT_ROLE)))
 }
 
 /// A recorded reason as the owner reads it: chat-control bookkeeping drops

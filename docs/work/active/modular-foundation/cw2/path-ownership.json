@@ -5,7 +5,7 @@
   "paths": [
     {
       "path": "crates/brn-ai/src/threads.rs",
-      "sha256": "613b35703db48f9d5f98a3bcb32855df0f59fd81a4b29371072abf7461e66c09",
+      "sha256": "090c51955efedbc7e62b0a8c9d0bb54bb848ebe05544ae086a4ca1674070dd94",
       "ownership": "CW2 source/test; desktop hunk limits in handoff.md"
     },
     {
@@ -15,7 +15,7 @@
     },
     {
       "path": "crates/brn-ai/src/threads_cw2_tests.rs",
-      "sha256": "3baaf0edbac13241c61c654e486795cac2c6d6155923a24a15bcdabe62433cf0",
+      "sha256": "c834c2d8c461d5413f18bef5f9de6cad887532161fc7bcfb81562e1f1872fc97",
       "ownership": "CW2 source/test; desktop hunk limits in handoff.md"
     },
     {
@@ -27,6 +27,16 @@
       "path": "crates/brn-ai/src/threads_history.rs",
       "sha256": "fd8709a8d2c022d0ffbb6820e0a7adc1a05ba40b2fe97fcb983450f99a4f6e40",
       "ownership": "CW2 source/test; desktop hunk limits in handoff.md"
+    },
+    {
+      "path": "crates/brn-ai/src/threads_intake.rs",
+      "ownership": "CW2 relevant caller/mock mechanical Option scope; desktop exact hunks in handoff.md",
+      "sha256": "71ddf51d921eb2e70527bb5005f25e9d60e3f251e10b54a3d8bf218eed805a6b"
+    },
+    {
+      "path": "crates/brn-ai/src/threads_intake_tests.rs",
+      "ownership": "CW2 relevant caller/mock mechanical Option scope; desktop exact hunks in handoff.md",
+      "sha256": "8620759dec6a1c186fd8b1b9b1a961aefdd04a9c6cdd6afcbf50097f8f351e61"
     },
     {
       "path": "crates/brn-ai/src/threads_project_tests.rs",
@@ -49,9 +59,19 @@
       "ownership": "CW2 source/test; desktop hunk limits in handoff.md"
     },
     {
+      "path": "crates/brn-ai/src/threads_research_tests.rs",
+      "ownership": "CW2 relevant caller/mock mechanical Option scope; desktop exact hunks in handoff.md",
+      "sha256": "8bd131eb1e5b503f0a8f7b0f1e838918e50cb8fa82aa271671a1ad2e2b20fb1f"
+    },
+    {
       "path": "crates/brn-ai/src/threads_search.rs",
-      "sha256": "054c7b5eedd34974a73412bd7c28ebf31c8d7d88dafaa20913ce8e42a2cfd025",
+      "sha256": "77f2ac37ac4944b18050f3e98c02db667a12a018979df79465ef4083f869e224",
       "ownership": "CW2 source/test; desktop hunk limits in handoff.md"
+    },
+    {
+      "path": "crates/brn-ai/src/threads_search_tests.rs",
+      "ownership": "CW2 relevant caller/mock mechanical Option scope; desktop exact hunks in handoff.md",
+      "sha256": "7656f9700bf212ecd1ac40a727615e59d8cd38a99554c0a0aaf6d87a53bedd67"
     },
     {
       "path": "crates/brn-ai/src/threads_sources_tests.rs",
@@ -69,9 +89,29 @@
       "ownership": "CW2 source/test; desktop hunk limits in handoff.md"
     },
     {
+      "path": "crates/brn-desktop/src/threads_chat.rs",
+      "ownership": "Principal exact allocation; see handoff.md",
+      "sha256": "755f257e9413cb39a29784cc96cd4ce2cd07a1822e9c44b392c31e492a465790"
+    },
+    {
       "path": "crates/brn-desktop/src/threads_chat_tests.rs",
       "sha256": "b4f208ae67a2d2b5c549480a329ec0b982fab72f040a0f4256128be80f3db85e",
       "ownership": "reviewed widget cherry-pick only; no CW2 edit"
+    },
+    {
+      "path": "crates/brn-desktop/src/threads_context_actions.rs",
+      "ownership": "Principal exact allocation; see handoff.md",
+      "sha256": "629f05c665d264addf3d87b227a1eeea7258b4b4dbb2363df3868d5e888584e9"
+    },
+    {
+      "path": "crates/brn-desktop/src/threads_context_actions_tests.rs",
+      "ownership": "Principal exact allocation; see handoff.md",
+      "sha256": "961d450df453f07f3aa894144d3cedeab9725977a94ce45a62a858817b0b460d"
+    },
+    {
+      "path": "crates/brn-desktop/src/threads_lists.rs",
+      "ownership": "Principal exact allocation; see handoff.md",
+      "sha256": "f39301da515c97deca5797b2f5659f8f22eca7f479ac609481f95606f0ced7b6"
     },
     {
       "path": "crates/brn-desktop/src/threads_projects.rs",
@@ -79,49 +119,74 @@
       "ownership": "CW2 source/test; desktop hunk limits in handoff.md"
     },
     {
+      "path": "crates/brn-desktop/src/threads_shell.rs",
+      "ownership": "Principal exact allocation; see handoff.md",
+      "sha256": "7d0dd32298cfdae5baa9cc722718a703157cbef0ddc45fa9e7fa63385b5fd2d1"
+    },
+    {
       "path": "crates/brn-desktop/src/threads_ui.rs",
-      "sha256": "e76a054da910d626ede764433252d3fc6c23e853f36a481ff47c34b99b378666",
+      "sha256": "620642250b99e1b2f80e4214dfd574186b9c7f20466efc606222f93585e350ea",
       "ownership": "CW2 source/test; desktop hunk limits in handoff.md"
     },
     {
       "path": "crates/brn-desktop/src/threads_workbench.rs",
-      "sha256": "6bfc0c468f9a14004a57a0cb9694e05c2540eac0e941e309218a8c3e6fa0eec6",
+      "sha256": "f0659f8c444855f153693e4a4a2cdcd4e6ec117e615ee89f6e733d84d779cd28",
       "ownership": "CW2 source/test; desktop hunk limits in handoff.md"
     },
     {
+      "path": "crates/brn-desktop/src/threads_workbench_tests.rs",
+      "ownership": "Principal exact allocation; see handoff.md",
+      "sha256": "b90d3dc34608ddf165569020daff701f1e668e84687cb59b197a8ef3537ccf98"
+    },
+    {
       "path": "crates/brn-desktop/src/threads_writing.rs",
-      "sha256": "9445f873609a410f26e3b23a4809b29eeba3434b3cc1fda927b06dc4440ac51f",
+      "sha256": "f63fa16c4f260e906fe4b8fc834fd10aae1fd4747668653e7f69d54f84cab056",
       "ownership": "CW2 source/test; desktop hunk limits in handoff.md"
     },
     {
       "path": "crates/brn-desktop/src/threads_writing_tests.rs",
-      "sha256": "4ad83777bf65d1ebb5aadbc3214be7e1ef0da241d822f607ff72716d22a3f97b",
+      "sha256": "6962ac09281940c8248e91c411c83851cc0e6b42b6c3d3a8da21fee3a652407e",
       "ownership": "CW2 source/test; desktop hunk limits in handoff.md"
     },
     {
       "path": "crates/brn-threads-app/src/lib.rs",
-      "sha256": "8567238f91db7865982515d8d732b3b82ff36a3e86ceed46914c42d3dbd6b8ae",
+      "sha256": "582d48dce2576474aa5fcf3f63ec13ba895f18bc0b927655fb51ab874dae24be",
       "ownership": "CW2 source/test; desktop hunk limits in handoff.md"
     },
     {
       "path": "crates/brn-threads-app/src/review.rs",
-      "sha256": "95745f3402ae561339a8916fefdacd4597ffa33ff76359c31fc0aaac80ccdde4",
+      "sha256": "610e1c34f69450b84b676c4b05752c298e45fd4079234d8c2ba5d83dbec8658a",
       "ownership": "CW2 source/test; desktop hunk limits in handoff.md"
     },
     {
       "path": "crates/brn-threads-app/src/run.rs",
-      "sha256": "ff7f21a073a53e2903c3e9c6a8d7aad16bff56af38a6ba8818d4c4364d5ff350",
+      "sha256": "7d3583e8a8b8952adab7fdf06dd79274bc0a1d93f3dfd80f0abe575bc6f77716",
       "ownership": "CW2 source/test; desktop hunk limits in handoff.md"
     },
     {
+      "path": "crates/brn-threads-app/src/search.rs",
+      "ownership": "CW2 relevant caller/mock mechanical Option scope; desktop exact hunks in handoff.md",
+      "sha256": "e857d4f6a6fd19febe3e599a38812875fe5e8790fab50fdf340fdc5587ec48b5"
+    },
+    {
       "path": "crates/brn-threads-app/src/writing.rs",
-      "sha256": "31a522e64ca7e5e31b259897a7acacc6eda7bdc4fb453b350877b25d54331275",
+      "sha256": "eb6198e019bc9e874728adb941d7bb8c44f7d9dcdf9d07b9e58c96da6edae9a1",
       "ownership": "CW2 source/test; desktop hunk limits in handoff.md"
     },
     {
       "path": "crates/brn-threads-app/tests/cw2_review.rs",
-      "sha256": "cf00eb30b9c76d73349564ac9bfba5333de7d507a5dc3d7eb4624f6947e1e597",
+      "sha256": "cd7245057b6ffde562e55b053bda5769d67df301a9e6dec46c7093a390539628",
       "ownership": "CW2 source/test; desktop hunk limits in handoff.md"
+    },
+    {
+      "path": "crates/brn-threads-app/tests/host_intake.rs",
+      "ownership": "CW2 relevant caller/mock mechanical Option scope; desktop exact hunks in handoff.md",
+      "sha256": "c68d8d44396d26f62c96943a77d9fad8c5c3c47daf3041c0e24eb90a2ce0e6cb"
+    },
+    {
+      "path": "crates/brn-threads-app/tests/search_messages.rs",
+      "ownership": "CW2 relevant caller/mock mechanical Option scope; desktop exact hunks in handoff.md",
+      "sha256": "c2a61105c7dcfa4326dc2a78bba465337b5a6b1945f6e48e30226c49569cb25f"
     },
     {
       "path": "crates/brn-threads-app/tests/shared_run.rs",
@@ -130,7 +195,7 @@
     },
     {
       "path": "crates/brn-threads-app/tests/writing_context.rs",
-      "sha256": "e12282c7f93e8ddb4b0c6da6b40b59b4838b6de0cd3c3dcb3e3edff74ecbfc32",
+      "sha256": "3924f7af33f8103c4af4b83f4c98e233a4383b42f8467c27651f0d5b14f61028",
       "ownership": "CW2 source/test; desktop hunk limits in handoff.md"
     },
     {
@@ -150,7 +215,7 @@
     },
     {
       "path": "crates/brn-threads-core/src/store.rs",
-      "sha256": "98cfc50630aab506aff4a076067f2592ed091cc26226109a659aeca909b219a8",
+      "sha256": "deacb0a73cef111000a452ebe4a5becf6032915ee7ab9420e95f8dfebf990a32",
       "ownership": "CW2 source/test; desktop hunk limits in handoff.md"
     },
     {
@@ -160,7 +225,7 @@
     },
     {
       "path": "crates/brn-threads-core/tests/cw2_visibility.rs",
-      "sha256": "c0452059a74f0eb5b63cd6d8081e4e340a102f33c063f6e18c55d802df615699",
+      "sha256": "2347d03aceddd93143026f3a9998fa53bb7380896dbfa63c095faed6b0e93921",
       "ownership": "CW2 source/test; desktop hunk limits in handoff.md"
     },
     {
@@ -170,7 +235,7 @@
     },
     {
       "path": "crates/brn/src/main.rs",
-      "sha256": "49c1eeab7ea89cede8b0f049956df0dda66e1efe677a9feb3b22d42c9aac53f1",
+      "sha256": "3e1ffee1811695b717739050564f7604313fba19ab7cca26d18ea5f080c565ce",
       "ownership": "CW2 source/test; desktop hunk limits in handoff.md"
     }
   ]

@@ -1,0 +1,47 @@
+   Compiling brn-threads-core v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-threads-core)
+   Compiling brn-threads-app v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-threads-app)
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-ai)
+   Compiling brn v0.0.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn)
+error[E0308]: mismatched types
+   --> crates/brn-threads-app/tests/search_messages.rs:480:55
+    |
+480 |             let page = RunNoteSearch::search(&handle, chat, "pontoon", 10, None, hybrid).unwrap();
+    |                        ---------------------          ^^^^ expected `Option<&str>`, found `&str`
+    |                        |
+    |                        arguments to this function are incorrect
+    |
+    = note:   expected enum `std::option::Option<&str>`
+            found reference `&str`
+note: method defined here
+   --> crates/brn-ai/src/threads_search.rs:20:8
+    |
+ 20 |     fn search(
+    |        ^^^^^^
+help: try wrapping the expression in `Some`
+    |
+480 |             let page = RunNoteSearch::search(&handle, Some(chat), "pontoon", 10, None, hybrid).unwrap();
+    |                                                       +++++    +
+
+error[E0308]: mismatched types
+   --> crates/brn-threads-app/tests/search_messages.rs:719:51
+    |
+719 |         let page = RunNoteSearch::search(&handle, &chat, "pontoon", 10, None, hybrid).unwrap();
+    |                    ---------------------          ^^^^^ expected `Option<&str>`, found `&String`
+    |                    |
+    |                    arguments to this function are incorrect
+    |
+    = note:   expected enum `std::option::Option<&str>`
+            found reference `&std::string::String`
+note: method defined here
+   --> crates/brn-ai/src/threads_search.rs:20:8
+    |
+ 20 |     fn search(
+    |        ^^^^^^
+help: try wrapping the expression in `Some`
+    |
+719 |         let page = RunNoteSearch::search(&handle, Some(&chat), "pontoon", 10, None, hybrid).unwrap();
+    |                                                   +++++     +
+
+For more information about this error, try `rustc --explain E0308`.
+error: could not compile `brn-threads-app` (test "search_messages") due to 2 previous errors
+warning: build failed, waiting for other jobs to finish...

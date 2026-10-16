@@ -1563,14 +1563,14 @@ pub fn index_path(store: &Store) -> AppResult<PathBuf> {
 impl brn_ai::threads::RunNoteSearch for SearchHandle {
     fn search(
         &self,
-        chat: &str,
+        chat: Option<&str>,
         query: &str,
         limit: usize,
         cursor: Option<&str>,
         hybrid: bool,
     ) -> Result<brn_ai::threads::NoteSearchPage, brn_ai::threads::NoteSearchError> {
         let results = self
-            .notes_request(query, Some(chat), limit, cursor, hybrid)
+            .notes_request(query, chat, limit, cursor, hybrid)
             .wait()
             .map_err(agent_error)?;
         Ok(brn_ai::threads::NoteSearchPage {
@@ -1600,13 +1600,13 @@ impl brn_ai::threads::RunNoteSearch for SearchHandle {
 
     fn connections(
         &self,
-        chat: &str,
+        chat: Option<&str>,
         note: &str,
         hops: u8,
         sources: bool,
     ) -> Result<brn_ai::threads::NoteNeighbourhood, brn_ai::threads::NoteSearchError> {
         let found = self
-            .request_connections(note, Some(chat), hops, sources)
+            .request_connections(note, chat, hops, sources)
             .wait()
             .map_err(agent_error)?;
         Ok(brn_ai::threads::NoteNeighbourhood {
