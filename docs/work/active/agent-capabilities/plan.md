@@ -1,6 +1,6 @@
 # Agent capabilities Slice 0 implementation plan
 
-**Current slice:** D1A source `4db5b357` is independently approved and accepted for local dependent development after clean handoff `56eeb8c2`. [Principal disposition](d1a/principal-disposition.md) records exact source checks, partial mutation qualifications and open hosted/native/live/owner gates. D1B semantic summary is next in lane C; it may prepare source while B1b holds the sole heavy slot. Historical Slice 0/D1A checkpoints below remain provenance.
+**Current slice:** D1A remains accepted at `964567aa`. D1B model-backed untrusted derived context is implemented in lane C on `work/d1b-20261017`; [execution record](d1b/plan.md), [implementation/review brief](d1b/implementation.md) and [actual self-checks](d1b/self-checks.json) retain exact source/result associations. Independent source review, targeted D1B mutation and principal disposition remain separate. Live semantic qualification is blocked by L.
 
 **Goal:** prove minimal upstream reuse and choose bounded adapters, without shipping D features.
 **Architecture:** apply Rig policies explicitly to BRN-owned history, retain checked progress/operations and add narrowly scoped adapters only in their assigned slices.

@@ -29,6 +29,11 @@ use tokio_util::sync::CancellationToken;
 mod budget_tests;
 #[path = "threads_context_budget.rs"]
 mod context_budget;
+#[path = "threads_summary.rs"]
+mod summary;
+#[cfg(test)]
+#[path = "threads_summary_tests.rs"]
+mod summary_tests;
 
 #[path = "threads_history.rs"]
 mod history;
@@ -42,7 +47,7 @@ mod reads;
 mod research;
 #[path = "threads_trace.rs"]
 mod trace;
-pub use trace::{HelperTrace, RunTrace, TraceCall, TraceLevel, TraceUsage};
+pub use trace::{HelperTrace, RunTrace, SummaryTrace, TraceCall, TraceLevel, TraceUsage};
 #[path = "threads_sources.rs"]
 mod sources;
 use history::{HistoryArgs, RefreshArgs};
@@ -138,6 +143,7 @@ pub struct PreparedThreadRun {
     request: ThreadRunRequest,
     scope: Arc<Scope>,
     input: String,
+    summary_chunks: Vec<String>,
 }
 impl PreparedThreadRun {
     pub fn run_id(&self) -> &str {
@@ -2234,11 +2240,12 @@ pub fn prepare_run(mut request: ThreadRunRequest) -> AiResult<PreparedThreadRun>
     for source in &mut request.sources {
         source.reference = brn_threads_core::canonical_locator(&source.reference);
     }
-    let (scope, input) = begin(&request)?;
+    let (scope, input, summary_chunks) = begin_context(&request)?;
     Ok(PreparedThreadRun {
         request,
         scope,
         input,
+        summary_chunks,
     })
 }
 
@@ -2375,6 +2382,7 @@ async fn run_prepared_over(
         request,
         scope,
         input,
+        summary_chunks,
     } = prepared;
     let current = {
         let store = scope.store.lock().map_err(storage)?;
@@ -2429,6 +2437,8 @@ async fn run_prepared_over(
             trace.retry(detail);
         }
     });
+    let base_http = transport.unwrap_or_else(|| DynHttpClient::new(rig::rig_reqwest::shared()));
+    let mut summary_notice = None;
     let client = match context_budget::preflight(&scope, &input) {
         Err(error) => Err(error),
         Ok(()) => {
@@ -2436,9 +2446,9 @@ async fn run_prepared_over(
                 &request.selection,
                 request.auth_file.as_deref(),
                 request.credentials_dir.as_deref(),
-                scope.cache_key.as_deref(),
-                transport,
-                on_resend,
+                None,
+                Some(base_http.clone()),
+                on_resend.clone(),
                 &cancel,
             )
             .await
@@ -2449,24 +2459,91 @@ async fn run_prepared_over(
             let model = request.selection.model.clone();
             match client.inner {
                 OwnedClient::Chatgpt(client) => {
-                    run_model(
-                        client.completion(model),
-                        scope.clone(),
-                        &input,
-                        request.effort,
-                        request.max_tool_rounds,
-                        true,
-                        cancel.clone(),
-                        emit,
+                    let config = client.config();
+                    let account = summary::digest(
+                        serde_json::to_string(&json!([
+                            config.base_url,
+                            config.account_id,
+                            summary::digest(config.api_key.expose().as_bytes())
+                        ]))
+                        .unwrap_or_default()
+                        .as_bytes(),
+                    );
+                    let context = summary::prepare(
+                        summary::ModelCompactor::new(
+                            client.completion(model.clone()),
+                            scope.clone(),
+                            request.effort,
+                            true,
+                            cancel.clone(),
+                        ),
+                        input,
+                        summary_chunks,
+                        account,
+                        emit.clone(),
                     )
-                    .await
+                    .await;
+                    summary_notice = context.notice;
+                    let http = crate::resend::ResendOnce::wrap(
+                        base_http,
+                        crate::resend::RESEND_DELAY,
+                        on_resend,
+                    );
+                    let http = match scope.cache_key.as_deref() {
+                        Some(key) => crate::auth::pinned_session_http(http, key),
+                        None => Ok(http),
+                    };
+                    match http {
+                        Ok(http) => {
+                            run_model(
+                                client.with_http(http).completion(model),
+                                scope.clone(),
+                                &context.input,
+                                request.effort,
+                                request.max_tool_rounds,
+                                true,
+                                cancel.clone(),
+                                emit,
+                            )
+                            .await
+                        }
+                        Err(error) => AiAnswer {
+                            text: String::new(),
+                            terminal: AiTerminal::Failed(error),
+                        },
+                    }
                 }
                 OwnedClient::Copilot(client) => {
+                    let config = client.config();
+                    let account = summary::digest(
+                        serde_json::to_string(&json!([
+                            config.base_url,
+                            summary::digest(config.api_key.expose().as_bytes())
+                        ]))
+                        .unwrap_or_default()
+                        .as_bytes(),
+                    );
+                    let responses = rig::providers::copilot::wire::routes_through_responses(&model);
+                    let context = summary::prepare(
+                        summary::ModelCompactor::new(
+                            crate::auth::copilot_completion(&client, model.clone(), responses),
+                            scope.clone(),
+                            request.effort,
+                            responses,
+                            cancel.clone(),
+                        ),
+                        input,
+                        summary_chunks,
+                        account,
+                        emit.clone(),
+                    )
+                    .await;
+                    summary_notice = context.notice;
                     run_copilot(
                         &client,
                         model,
                         scope.clone(),
-                        &input,
+                        &context.input,
                         request.effort,
                         request.max_tool_rounds,
                         cancel.clone(),
@@ -2497,7 +2574,7 @@ async fn run_prepared_over(
             .then(|| (scope.run.clone(), scope.fence.load(Ordering::SeqCst) + 1)),
         run_id: scope.run.clone(),
         trace: finish_trace(&scope, &answer),
-        notices: notices(&scope),
+        notices: notices(&scope).into_iter().chain(summary_notice).collect(),
         answer,
         provider_resends: resends.lock().map(|r| r.clone()).unwrap_or_default(),
     })
@@ -2530,11 +2607,27 @@ pub async fn run_prepared_scripted_with_helpers(
         request,
         scope,
         input,
+        summary_chunks,
     } = prepared;
     if let Some(helper) = &scope.helper {
         helper.set_source(research::HelperSource::Scripted(helpers.into()));
     }
     let input = host_intake::with_context(&scope, input, &CancellationToken::new()).await;
+    let context = summary::prepare(
+        summary::ModelCompactor::new(
+            model.clone(),
+            scope.clone(),
+            request.effort,
+            true,
+            CancellationToken::new(),
+        ),
+        input,
+        summary_chunks,
+        "scripted-synthetic-account".into(),
+        Arc::new(|_| {}),
+    )
+    .await;
+    let input = context.input;
     let mut answer = run_model(
         model,
         scope.clone(),
@@ -2555,7 +2648,7 @@ pub async fn run_prepared_scripted_with_helpers(
             .then(|| (scope.run.clone(), scope.fence.load(Ordering::SeqCst) + 1)),
         run_id: scope.run.clone(),
         trace: finish_trace(&scope, &answer),
-        notices: notices(&scope),
+        notices: notices(&scope).into_iter().chain(context.notice).collect(),
         answer,
         provider_resends: Vec::new(),
     })
@@ -2574,8 +2667,24 @@ pub async fn run_prepared_scripted_then_abandon(
         request,
         scope,
         input,
+        summary_chunks,
     } = prepared;
     let input = host_intake::with_context(&scope, input, &CancellationToken::new()).await;
+    let context = summary::prepare(
+        summary::ModelCompactor::new(
+            model.clone(),
+            scope.clone(),
+            request.effort,
+            true,
+            CancellationToken::new(),
+        ),
+        input,
+        summary_chunks,
+        "scripted-synthetic-account".into(),
+        Arc::new(|_| {}),
+    )
+    .await;
+    let input = context.input;
     run_model(
         model,
         scope.clone(),
@@ -2606,7 +2715,11 @@ fn finish_trace(scope: &Scope, answer: &AiAnswer) -> Option<RunTrace> {
     }
     Some(finished)
 }
+#[cfg(test)]
 fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
+    begin_context(request).map(|(scope, input, _)| (scope, input))
+}
+fn begin_context(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String, Vec<String>)> {
     request.selection.validate()?;
     if !(1..=32).contains(&request.max_tool_rounds)
         || request.prompt.len() > 128 * 1024
@@ -3169,8 +3282,9 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
         serde_json::to_string(&topics_note).map_err(storage)?,
         serde_json::to_string(&request.owner_request).map_err(storage)?
     );
-    let input = context_budget::history_input(&scope, input, &records, &history)?;
-    Ok((scope, input))
+    let (input, summary_chunks) =
+        context_budget::history_snapshot(&scope, input, &records, &history)?;
+    Ok((scope, input, summary_chunks))
 }
 fn truncate(text: &str, limit: usize) -> &str {
     let mut end = text.len().min(limit);

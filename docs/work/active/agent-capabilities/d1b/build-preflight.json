@@ -1,0 +1,24 @@
+{
+  "time": "2026-10-16T21:33:44.487978+00:00",
+  "branch": "work/d1b-20261017",
+  "base": "964567aa5ea41a9333bccb6790be464e0018dfa3",
+  "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+  "target": "/private/tmp/brn-d1b-20261017-target",
+  "TMPDIR": "/private/tmp/brn-d1b-synthetic-f0d38wwh",
+  "rust": "1.98.1",
+  "offline": true,
+  "locked": true,
+  "CARGO_INCREMENTAL": "0",
+  "heavy_processes": [],
+  "sha256": {
+    "crates/brn-ai/Cargo.toml": "989fe141f1dc29e4d1b8a4a57e00c51e29be5e094731aa3b771aa06b64caba20",
+    "crates/brn-ai/src/threads.rs": "0375e09d62fe2cb7e50ff027259cc692b636c1237693f7abe10ad9a251286998",
+    "crates/brn-ai/src/threads_context_budget.rs": "01a771f525e2dfcabce62e1fb854cd44d2b40e406176499abeab4a5dd3bf0c06",
+    "crates/brn-ai/src/threads_summary.rs": "3b29b0d6214e021ed49373671a96a7b6ad47bfba31e09f6f1a9c44e036ca65c1",
+    "crates/brn-ai/src/threads_summary_tests.rs": "8e10a95b9ff1ff87f7a4d8f84ba3c397037245f524df396ac9f4fb4491907d05",
+    "crates/brn-ai/src/threads_trace.rs": "d8a71f3a1c23ab3d57a8a43a367b8b46e41d346b50f802ccc6b052f954503c88",
+    "Cargo.lock": "5dab395bdbaac4d39ed29a842913580efc0a656ea95eb18d486b037724b89687"
+  },
+  "git_diff_sha256": "ac54e8b586f2197420b3e5ca90e98795dc5f1a0df300eb11400cb68a4bc83478",
+  "tests_executed": false
+}

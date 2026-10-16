@@ -30,3 +30,8 @@ After explicit17October heavy regrant, [round3 checks](d1a/review3-source-associ
 ## Principal D1A local disposition — 17 October 2026
 
 [Opus round4](d1a/opus-review-round4.md) approved source `4db5b357`; [principal disposition](d1a/principal-disposition.md) accepts it for local dependent development after clean `56eeb8c2` handoff. Final AI393/0/1, core15/0/0, CLI161/0/0 and lint/format source receipts reconcile; five final targeted checks were caught, with all prior verdicts retained and cumulative1387.797149/1800s. This is not full campaign/workspace/native/hosted/live/owner/program acceptance or a main merge. D1B C02/C06 is next, with live qualification still blocked by L.
+
+
+## D1B candidate — 17 October 2026
+
+[Implementation/review brief](d1b/implementation.md) and [exact self-check receipts](d1b/self-checks.json) record the accepted964567aa baseline, genuine test-only feature-absence failures0/2, frozen model-backed semantic coverage, derived cache invalidation/restart and trust/usage/budget/prefix witnesses. Fourteen focused cases pass; final AI407/0/1, core15/0/0, full CLI161/0/0 and app export5/0/0 pass. Strict workspace all-target lint, fmt and helper/default builds pass. One workspace no-fail-fast invocation exits101 with1129passed/1PDF-Unavailable failure/6ignored from94raw summaries; no new native/live/owner/hosted or source-acceptance claim. D1A mutation is closed; the new D1B campaign is separate and has not started at source-pin preparation.

@@ -1,0 +1,33 @@
+{
+  "rust": "1.98.1",
+  "Rig": "0.44.0",
+  "pinned_local_primary_sources": {
+    "rig-core-0.44.0/src/memory.rs": "ce868da12c3f8dc2a166320e55a621e723f9f9600e2815e7d7f085ce87cdfb31",
+    "rig-memory-0.44.0/src/lib.rs": "3e595d2f148204949004ef9c8377ade8d0cb43e2d56bfa8e2e4e9df1902ea99c",
+    "rig-core-0.44.0/src/client/macros.rs": "d8e7e3c9ad4f314410072673ea7832e178f406c36a606ed74036b3c1a6ea8b54",
+    "rig-core-0.44.0/src/providers/openai/wire.rs": "335f0df6ea7533f407f25a9ca2e43ef533204fef9226c27d50bccc33292b7524"
+  },
+  "inspection": "Compactor typed artifact contract, no default TextSummary conversion or process-local persistence; reuse authenticated config/connect/with_http. No model downloads or provider requests.",
+  "public_package_identity": {
+    "rig-core": {
+      "git": {
+        "sha1": "2d1071e0e0c602f994e9d6cfd8cf5faea6f53650"
+      },
+      "path_in_vcs": "crates/rig-core"
+    },
+    "rig-memory": {
+      "git": {
+        "sha1": "2d1071e0e0c602f994e9d6cfd8cf5faea6f53650"
+      },
+      "path_in_vcs": "crates/rig-memory"
+    }
+  },
+  "app_test_original_prefix": {
+    "path": "crates/brn-threads-app/tests/export_metadata.rs",
+    "bytes": 11401,
+    "sha256": "2b4955aa0bf349339dec3aeb96ffc8807419567535f91c83cbe73e5330b0cfa3",
+    "unchanged": true
+  },
+  "Cargo.lock_sha256": "5dab395bdbaac4d39ed29a842913580efc0a656ea95eb18d486b037724b89687",
+  "lock_unchanged": true
+}
