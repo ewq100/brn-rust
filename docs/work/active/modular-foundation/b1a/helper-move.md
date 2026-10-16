@@ -1,4 +1,4 @@
-# B1a pure-helper move: pending review
+# B1a pure-helper move: reviewed local implementation
 
 **16 October 2026:** the current formatting and tracked-diff helpers are adopted by the pending desktop imports in `brn-writing-ui`, with one production implementation each. This is the first B1a helper slice, **not panel extraction or B1a completion**. [CW2 acceptance](../cw2/principal-disposition.md) is the local foundation; [refreshed panel proposal](panel-scope.md) remains unimplemented.
 
@@ -37,3 +37,9 @@ Production content is pinned by SHA-256 **`279a618a6d9dbfbb6506f91dbe0e2b3ce9b1a
 **No commit or staging has occurred.** Principal check-receipt review and explicit commit allocation remain pending; fresh independent Opus actual-diff review/integration remain principal-owned. The immutable production patch plus final complete candidate fingerprint in scratch support that review without claiming a nonexistent commit SHA.
 
 **Heavy slot explicitly released** at `2026-10-16T18:53:33.958326+00:00`: every started build child completed; precise cargo/rustc/clippy/rustfmt/mutant/desktop process check empty. No further Cargo/build/test by this worker without a new allocation. D1A's separate source/research work and later principal-serialized lock reconciliation are unaffected.
+
+## Principal disposition after the receipt
+
+The preceding pre-commit receipt preserves the actual chronology. The principal checked its source/log hashes and committed the atomic helper move at `01fba9a59b51ea13b01e88f176c3dda1ad9b0961`. Fresh independent [Copilot Opus review](helper-opus-review-round1.md) approved that exact source. The stale desktop README link is corrected and this disposition resolves the two nonblocking documentation findings. No source or tests changed after approval, and no repeat build is claimed.
+
+The helper unit is accepted locally as a B1a prerequisite. Full B1a remains in progress: panel/state extraction, real-editor F15 witness and affected verification/review are still required. Default/native compilation is not hosted CI, native human observation or owner acceptance. The original receipt omits the desktop manifest from its per-command hash map; that manifest is retained in the initial snapshot and production candidate record. No contemporaneous hash is invented. D1A owns the sole heavy slot; subsequent B1a source preparation cannot invoke Cargo/tests until explicitly allocated.
