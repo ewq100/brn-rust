@@ -145,7 +145,55 @@ pub struct WritingPanel {
     pub applied_rewrite: BTreeMap<String, (String, String)>,
 }
 
+/// A saved-request failure before run selection or any durable run write.
+#[derive(Debug)]
+pub enum RewriteStartError {
+    Context(AppError),
+    StaleInputs,
+}
+
 impl WritingPanel {
+    /// Build the shared start request from this Note's exact saved inputs.
+    /// The host owns preparation/worker dispatch; current Chat and display
+    /// caches cannot authorize or retarget a saved retry.
+    pub fn rewrite_run_start(
+        &self,
+        workspace: &Workspace,
+        message: &str,
+        displayed_scope: Option<&str>,
+        offered_copilot_models: Vec<String>,
+    ) -> Result<ThreadRunStart, RewriteStartError> {
+        let note = self.open_note_id().ok_or_else(|| {
+            RewriteStartError::Context(AppError::Invalid("Working Note is unavailable".into()))
+        })?;
+        let snapshot = workspace
+            .writing_request_in_context(message, note, displayed_scope)
+            .map_err(RewriteStartError::Context)?;
+        let changed = snapshot.current_inputs().iter().any(|input| {
+            workspace
+                .store
+                .record(&input.record)
+                .ok()
+                .flatten()
+                .is_none_or(|record| record.archived || record.version != input.version)
+        });
+        if changed {
+            return Err(RewriteStartError::StaleInputs);
+        }
+        Ok(ThreadRunStart {
+            thread: snapshot.thread,
+            prompt: "Rewrite the saved document using the captured feedback and selected chat; prepare a whole-note proposal for review.".into(),
+            request_message: None,
+            queue_claim: None,
+            owner_request: Some(OwnerRequest::RewriteNote {
+                request_message: message.into(),
+            }),
+            sources: vec![],
+            max_tool_rounds: None,
+            trace: TraceLevel::Off,
+            offered_copilot_models: Some(offered_copilot_models),
+        })
+    }
     pub(crate) fn note_asset_chat(&self) -> Option<&str> {
         self.note.as_ref().and_then(|open| match &open.record.data {
             RecordData::Note(note) => note.chat.as_deref(),

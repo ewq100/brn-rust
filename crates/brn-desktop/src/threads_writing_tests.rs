@@ -1439,3 +1439,357 @@ fn an_edit_already_open_elsewhere_offers_compare_and_discard(cx: &mut TestAppCon
     })
     .unwrap();
 }
+
+#[gpui_kit::test]
+fn panel_shared_start_keeps_scoped_saved_retry_when_chat_is_other_and_hidden(
+    cx: &mut TestAppContext,
+) {
+    use rig::test_utils::{MockCompletionModel, MockStreamEvent};
+
+    let f = fixture(cx);
+    let thread = cx
+        .update_window(f.window, |_, window, cx| {
+            f.view.update(cx, |view, cx| {
+                let project = view
+                    .workspace
+                    .project_command(
+                        "b1b-project",
+                        ProjectCommand::Create {
+                            title: "B1b scoped writing".into(),
+                        },
+                    )
+                    .unwrap()
+                    .writes[0]
+                    .after
+                    .id
+                    .clone();
+                view.workspace
+                    .project_command(
+                        "b1b-document",
+                        ProjectCommand::LinkDocument {
+                            project: project.clone(),
+                            note: f.a.id.clone(),
+                        },
+                    )
+                    .unwrap();
+                let context = view
+                    .workspace
+                    .ensure_writing_context("b1b-context", &f.a.id, Some(&project))
+                    .unwrap();
+                let thread = context.conversation.unwrap();
+                view.open_note_in_context(&f.a.id, None, Some(&project), window, cx);
+                view.select_writing_thread(f.a.id.clone(), thread.clone(), window, cx);
+                view.workspace
+                    .post_message(&thread, "B1b frozen scoped direction")
+                    .unwrap();
+                view.workspace
+                    .post_message(&f.chat_b, "B1b unrelated chat must stay outside")
+                    .unwrap();
+                view.set_chat(ChatTarget::Thread(f.chat_b.clone()), window, cx);
+                view.layout.close(TileKind::Chat);
+                view.writing.general_feedback.update(cx, |editor, cx| {
+                    editor.set_value("B1b frozen feedback", window, cx)
+                });
+                let mut settings = view.workspace.settings().unwrap();
+                settings.provider = "Copilot".into();
+                settings.model = "b1b-unoffered".into();
+                settings.auth_file = None;
+                settings.credentials_dir = None;
+                view.workspace.configure(settings).unwrap();
+                view.copilot_models = vec!["b1b-only-offered".into()];
+                view.refresh();
+                cx.notify();
+                thread
+            })
+        })
+        .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| window.click("rewrite-note", cx))
+        .unwrap();
+    cx.run_until_parked();
+    let snapshot = cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert!(
+            view.worker.is_none(),
+            "catalogue refusal must not access a provider"
+        );
+        assert!(view.notice.contains("not offered by GitHub Copilot"));
+        assert!(view.notice.contains("b1b-only-offered"));
+        assert!(
+            view.notice
+                .contains("Retry rewrite uses these same saved inputs")
+        );
+        assert_eq!(view.notice_tone(), Tone::Warning);
+        let request = view.latest_note_writing_request(&f.a.id).unwrap();
+        let snapshot = view.workspace.writing_request(&request.id).unwrap();
+        assert_eq!(snapshot.thread, thread);
+        assert_eq!(snapshot.general_feedback, "B1b frozen feedback");
+        assert!(snapshot.setup.as_ref().unwrap().chat.is_some());
+        snapshot
+    });
+    let before_retry = cx
+        .update_window(f.window, |_, window, cx| {
+            f.view.update(cx, |view, cx| {
+                view.workspace
+                    .post_message(&thread, "B1b later chat is not captured")
+                    .unwrap();
+                view.writing.general_feedback.update(cx, |editor, cx| {
+                    editor.set_value("B1b unsent next feedback", window, cx)
+                });
+                let records = view.workspace.records().unwrap();
+                let receipts = view.workspace.store.receipts().unwrap();
+                cx.notify();
+                (records, receipts)
+            })
+        })
+        .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| window.click("retry-rewrite", cx))
+        .unwrap();
+    cx.run_until_parked();
+    let prepared = cx
+        .update_window(f.window, |_, _, cx| {
+            f.view.update(cx, |view, _| {
+                assert_eq!(view.workspace.records().unwrap(), before_retry.0);
+                assert_eq!(view.workspace.store.receipts().unwrap(), before_retry.1);
+                assert_eq!(
+                    view.workspace
+                        .writing_request(&snapshot.request_message)
+                        .unwrap(),
+                    snapshot
+                );
+                assert_eq!(view.chat, ChatTarget::Thread(f.chat_b.clone()));
+                assert!(!view.layout.contains(TileKind::Chat));
+                // Consume the same real panel request with the shared preparer and
+                // scripted runtime. No alternate desktop driver/provider hook.
+                let mut settings = view.workspace.settings().unwrap();
+                settings.provider = "Codex".into();
+                settings.model = "gpt-6.1-sol".into();
+                settings.effort = "medium".into();
+                view.workspace.configure(settings).unwrap();
+                let start = view
+                    .writing
+                    .rewrite_run_start(
+                        &view.workspace,
+                        &snapshot.request_message,
+                        view.note_writing_scope.as_deref(),
+                        vec![],
+                    )
+                    .unwrap();
+                view.workspace.prepare_thread_run(start).unwrap()
+            })
+        })
+        .unwrap();
+    let run_id = prepared.prepared.run_id().to_owned();
+    let model = MockCompletionModel::from_stream_turns([
+        vec![
+            MockStreamEvent::tool_call(
+                "b1b-prepare",
+                "prepare_changes",
+                serde_json::json!({
+                    "request_key": "b1b-whole-note",
+                    "request": snapshot.change_request("B1b proposed complete note").unwrap(),
+                    "writing": {"quotations": [], "requirements_reported": []}
+                }),
+            ),
+            MockStreamEvent::final_response_with_total_tokens(1),
+        ],
+        vec![
+            MockStreamEvent::text("B1b whole-note proposal is ready for exact review."),
+            MockStreamEvent::final_response_with_total_tokens(1),
+        ],
+    ]);
+    let observed = model.clone();
+    let result = tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .unwrap()
+        .block_on(brn_ai::threads::run_prepared_scripted(
+            prepared.prepared,
+            model,
+        ))
+        .unwrap();
+    assert_eq!(result.run_id, run_id);
+    assert!(matches!(
+        result.answer.terminal,
+        brn_ai::AiTerminal::Completed
+    ));
+    let delivered = serde_json::to_string(&observed.requests()).unwrap();
+    assert!(delivered.contains("B1b frozen scoped direction"));
+    assert!(delivered.contains("B1b frozen feedback"));
+    for excluded in [
+        "B1b unrelated chat must stay outside",
+        "B1b later chat is not captured",
+        "B1b unsent next feedback",
+    ] {
+        assert!(
+            !delivered.contains(excluded),
+            "saved retry delivered {excluded}"
+        );
+    }
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        let record = view.workspace.store.record(&run_id).unwrap().unwrap();
+        let RecordData::Run(run) = record.data else {
+            panic!("prepared Run")
+        };
+        assert_eq!(run.thread, thread);
+        assert_eq!(
+            run.instruction.as_deref(),
+            Some(snapshot.request_message.as_str())
+        );
+        assert_eq!(run.state, RunState::Completed);
+        let candidates = view.workspace.candidates().unwrap();
+        assert_eq!(candidates.len(), 1);
+        assert!(candidates[0].request.inputs.iter().any(|input| {
+            input.record == snapshot.request_message
+        }));
+        assert!(candidates[0].request.writes.iter().any(|write| {
+            write.id == f.a.id && matches!(&write.data, RecordData::Note(note) if note.markdown == "B1b proposed complete note")
+        }));
+
+        assert_eq!(view.workspace.store.note(&f.a.id).unwrap().unwrap(), f.a);
+        assert_eq!(
+            view.workspace
+                .writing_request(&snapshot.request_message)
+                .unwrap(),
+            snapshot
+        );
+        assert_eq!(view.chat, ChatTarget::Thread(f.chat_b.clone()));
+        assert!(!view.layout.contains(TileKind::Chat));
+        assert_eq!(
+            view.writing.general_feedback.read(cx).value().as_ref(),
+            "B1b unsent next feedback"
+        );
+    });
+}
+
+#[gpui_kit::test]
+fn saved_retry_refuses_wrong_displayed_note_scope_and_archived_context_without_writes(
+    cx: &mut TestAppContext,
+) {
+    let f = fixture(cx);
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            let project = view
+                .workspace
+                .project_command(
+                    "b1b-refusal-project",
+                    ProjectCommand::Create {
+                        title: "B1b refusal scope".into(),
+                    },
+                )
+                .unwrap()
+                .writes[0]
+                .after
+                .id
+                .clone();
+            view.workspace
+                .project_command(
+                    "b1b-refusal-document",
+                    ProjectCommand::LinkDocument {
+                        project: project.clone(),
+                        note: f.a.id.clone(),
+                    },
+                )
+                .unwrap();
+            let context = view
+                .workspace
+                .ensure_writing_context("b1b-refusal-context", &f.a.id, Some(&project))
+                .unwrap();
+            let thread = context.conversation.unwrap();
+            let snapshot = view
+                .workspace
+                .snapshot_writing_request_with_feedback(
+                    "b1b-refusal-request",
+                    &f.a.id,
+                    f.a.version,
+                    &thread,
+                    &[],
+                    "B1b preserved saved feedback",
+                )
+                .unwrap();
+            // Raw saved evidence still exists; UI start must use the existing
+            // contextual reader, independently of a provider-selection failure.
+            assert!(
+                view.workspace
+                    .writing_request(&snapshot.request_message)
+                    .is_ok()
+            );
+            for wrong_note in [&f.b.id, &f.a.id] {
+                view.open_note(wrong_note, None, window, cx);
+                view.writing.general_feedback.update(cx, |editor, cx| {
+                    editor.set_value("B1b preserved unsent feedback", window, cx)
+                });
+                let before = (
+                    view.workspace.records().unwrap(),
+                    view.workspace.store.receipts().unwrap(),
+                );
+                view.retry_rewrite(snapshot.request_message.clone(), cx);
+                assert!(view.worker.is_none());
+                assert!(
+                    view.notice
+                        .contains("unavailable in this displayed context")
+                );
+                assert!(
+                    !view.notice.contains("Choose a provider"),
+                    "context refusal precedes selection"
+                );
+                assert_eq!(view.workspace.records().unwrap(), before.0);
+                assert_eq!(view.workspace.store.receipts().unwrap(), before.1);
+                assert_eq!(
+                    view.writing.general_feedback.read(cx).value().as_ref(),
+                    "B1b preserved unsent feedback"
+                );
+            }
+            view.open_note_in_context(&f.a.id, None, Some(&project), window, cx);
+            let replacement = view
+                .workspace
+                .new_writing_conversation("b1b-explicit-new", &f.a.id, Some(&project))
+                .unwrap()
+                .conversation
+                .unwrap();
+            assert_ne!(replacement, thread);
+            let before = (
+                view.workspace.records().unwrap(),
+                view.workspace.store.receipts().unwrap(),
+            );
+            view.retry_rewrite(snapshot.request_message.clone(), cx);
+            assert!(
+                view.notice
+                    .contains("unavailable in this displayed context")
+            );
+            assert_eq!(view.workspace.records().unwrap(), before.0);
+            assert_eq!(view.workspace.store.receipts().unwrap(), before.1);
+            view.workspace
+                .select_writing_conversation("b1b-explicit-return", &f.a.id, &thread)
+                .unwrap();
+            view.workspace
+                .archive_chat("b1b-refusal-archive", &thread)
+                .unwrap();
+            let before = (
+                view.workspace.records().unwrap(),
+                view.workspace.store.receipts().unwrap(),
+            );
+            view.retry_rewrite(snapshot.request_message.clone(), cx);
+            assert!(view.worker.is_none());
+            assert_eq!(view.workspace.records().unwrap(), before.0);
+            assert_eq!(view.workspace.store.receipts().unwrap(), before.1);
+            assert_eq!(
+                view.workspace
+                    .writing_request(&snapshot.request_message)
+                    .unwrap(),
+                snapshot
+            );
+            assert!(
+                view.workspace
+                    .store
+                    .record(&thread)
+                    .unwrap()
+                    .unwrap()
+                    .archived
+            );
+        });
+    })
+    .unwrap();
+}

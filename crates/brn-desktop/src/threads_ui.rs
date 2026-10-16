@@ -1041,7 +1041,7 @@ impl ThreadsUi {
             .update(cx, |editor, cx| editor.set_value(text, window, cx));
         cx.notify();
     }
-    /// The first linked thread inherits this note's unsent draft, never another's.
+    /// The resolved writing conversation inherits this note's unsent draft, never another's.
     fn adopt_writing_thread(&mut self, note: &str) {
         let Some(thread) = self.writing_threads.get(note).cloned() else {
             return;
@@ -1792,24 +1792,25 @@ impl ThreadsUi {
         cx.notify();
     }
     fn retry_rewrite(&mut self, message: String, cx: &mut Context<Self>) {
-        match self.workspace.writing_request(&message) {
-            Ok(snapshot) => {
-                let changed = snapshot.current_inputs().iter().any(|input| {
-                    self.workspace
-                        .store
-                        .record(&input.record)
-                        .ok()
-                        .flatten()
-                        .is_none_or(|record| record.archived || record.version != input.version)
-                });
-                if changed {
-                    self.warn("Saved rewrite context changed. Feedback is preserved; Reload saved note, then request a new Rewrite with AI.");
-                    cx.notify();
-                    return;
+        let request = self.writing.rewrite_run_start(
+            &self.workspace,
+            &message,
+            self.note_writing_scope.as_deref(),
+            self.copilot_models.clone(),
+        );
+        match request {
+            Ok(request) => {
+                if self.begin_run_start(cx) {
+                    self.start_request(
+                        request,
+                        None,
+                        "Retry from the note",
+                        "Finished. The result is in the note.",
+                        cx,
+                    );
                 }
-                self.start_run("Rewrite the saved document using the captured feedback and selected chat; prepare a whole-note proposal for review.".into(), snapshot.thread, vec![], Some(brn_ai::threads::OwnerRequest::RewriteNote { request_message: message }), cx);
                 if self.worker.is_none() {
-                    // The reason start_run gave keeps its tone.
+                    // The reason start_request gave keeps its tone.
                     let tone = self.notice_tone();
                     let text = format!(
                         "Rewrite request saved; AI has not started. {} Retry rewrite uses these same saved inputs.",
@@ -1818,10 +1819,26 @@ impl ThreadsUi {
                     self.set_notice(tone, text);
                 }
             }
-            Err(error) => self.fail(error.to_string()),
+            Err(RewriteStartError::StaleInputs) => {
+                self.warn("Saved rewrite context changed. Feedback is preserved; Reload saved note, then request a new Rewrite with AI.");
+                cx.notify();
+                return;
+            }
+            Err(RewriteStartError::Context(error)) => self.fail(error.to_string()),
         }
         self.refresh();
         cx.notify();
+    }
+    /// Refuse a competing worker before preparation; refresh before matching
+    /// a chat queue claim or dispatching the panel's exact saved request.
+    fn begin_run_start(&mut self, cx: &mut Context<Self>) -> bool {
+        if let Some(worker) = &self.worker {
+            self.warn(worker.kind.busy_notice());
+            cx.notify();
+            return false;
+        }
+        self.refresh();
+        true
     }
     fn start_run(
         &mut self,
@@ -1831,21 +1848,9 @@ impl ThreadsUi {
         owner_request: Option<brn_ai::threads::OwnerRequest>,
         cx: &mut Context<Self>,
     ) {
-        if let Some(worker) = &self.worker {
-            self.warn(worker.kind.busy_notice());
-            cx.notify();
+        if !self.begin_run_start(cx) {
             return;
         }
-        self.refresh();
-        let writing = matches!(
-            &owner_request,
-            Some(brn_ai::threads::OwnerRequest::RewriteNote { .. })
-        );
-        let continuation = if writing {
-            "Retry from the note"
-        } else {
-            "Continue from the chat"
-        };
         let queued = self
             .queue_state()
             .pending
@@ -1867,6 +1872,25 @@ impl ThreadsUi {
             trace: brn_ai::threads::TraceLevel::Off,
             offered_copilot_models: Some(self.copilot_models.clone()),
         };
+        self.start_request(
+            request,
+            context_edit_note,
+            "Continue from the chat",
+            "Finished. The answer and saved changes are in this chat.",
+            cx,
+        );
+    }
+    /// One host path for a typed app start: selection/search/preparation and
+    /// the existing prepared worker. Presentation text comes from the caller.
+    fn start_request(
+        &mut self,
+        request: ThreadRunStart,
+        context_edit_note: Option<(String, u64)>,
+        continuation: &'static str,
+        completed: &'static str,
+        cx: &mut Context<Self>,
+    ) {
+        let thread = request.thread.clone();
         let prepared = match self.workspace.prepare_thread_run(request) {
             Ok(prepared) => {
                 if prepared.search_status != "available" {
@@ -1943,14 +1967,9 @@ impl ThreadsUi {
                             .collect::<String>();
                         (
                             match r.answer.terminal {
-                                brn_ai::AiTerminal::Completed => Ok(format!(
-                                    "{}{notices}",
-                                    if writing {
-                                        "Finished. The result is in the note."
-                                    } else {
-                                        "Finished. The answer and saved changes are in this chat."
-                                    }
-                                )),
+                                brn_ai::AiTerminal::Completed => {
+                                    Ok(format!("{completed}{notices}"))
+                                }
                                 brn_ai::AiTerminal::Interrupted => Err(format!(
                                     "Interrupted. The queue is paused; Resume when ready.{notices}"
                                 )),

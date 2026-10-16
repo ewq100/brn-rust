@@ -25,4 +25,6 @@ tempfile = { version = "3", optional = true }
 uuid = { version = "1", features = ["v4"] }
 
 [dev-dependencies]
+brn-ai = { path = "../brn-ai", features = ["scripted-runs"] }
+rig = { version = "=0.44.0", default-features = false, features = ["test-utils"] }
 tempfile = "3"
