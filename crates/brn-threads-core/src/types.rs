@@ -281,6 +281,7 @@ pub enum RecordData {
     Settings(WorkspaceSettings),
     ChatControl(ChatControl),
     Project(crate::Project),
+    WritingSetup(crate::WritingSetup),
 }
 
 /// Host recovery/control state; model tools cannot edit or read this record.

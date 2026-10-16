@@ -32,6 +32,10 @@ INSERT OR IGNORE INTO workspace_profile(id,purpose) VALUES(1,'owner');
 CREATE TABLE IF NOT EXISTS receipt_actors(operation TEXT PRIMARY KEY REFERENCES receipts(operation), actor TEXT NOT NULL);
 ";
 
+/// A setup keeps its identity through archive/Undo; absence and general scope
+/// have one normalized SQL key. Nonempty scope IDs are checked by the writer.
+pub(crate) const WRITING_SCHEMA: &str = "CREATE UNIQUE INDEX IF NOT EXISTS one_writing_setup ON records(json_extract(body,'$.data.WritingSetup.note'), COALESCE(json_extract(body,'$.data.WritingSetup.chat'),'')) WHERE json_type(body,'$.data.WritingSetup') IS NOT NULL;";
+
 /// Applies the schema steps a version-`from` database is missing, ending at
 /// the current schema. The caller owns the transaction.
 pub(crate) fn upgrade_steps(tx: &Connection, from: i64) -> Result<()> {
@@ -41,6 +45,9 @@ pub(crate) fn upgrade_steps(tx: &Connection, from: i64) -> Result<()> {
     }
     if from < 6 {
         tx.execute_batch(CALLER_SCHEMA)?;
+    }
+    if from < 7 {
+        tx.execute_batch(WRITING_SCHEMA)?;
     }
     tx.pragma_update(None, "user_version", crate::store::SCHEMA_VERSION)?;
     Ok(())
@@ -72,7 +79,7 @@ pub(crate) fn upgrade_connection(
     database: &Path,
     chosen: Option<&Path>,
 ) -> Result<()> {
-    validate_schema(conn, &[3, 4, 5])?;
+    validate_schema(conn, &[3, 4, 5, 6])?;
     let from: i64 = conn.pragma_query_value(None, "user_version", |r| r.get(0))?;
     let workspace = database
         .parent()
@@ -91,8 +98,8 @@ pub(crate) fn upgrade_connection(
         "SELECT json_extract(body,'$.data.Settings.backup_directory') FROM records WHERE json_type(body,'$.data.Settings') IS NOT NULL AND json_extract(body,'$.archived')=0 LIMIT 1", [], |r| r.get(0)
     ).optional()?.flatten();
     let folder = chosen.or_else(|| remembered.as_deref().map(Path::new)).ok_or_else(|| Error::UnsafeDirectory(
-        if from == 5 {
-            format!("Schema 5 needs an external pre-upgrade backup folder. Run: brn --data-dir {} upgrade --backup-directory ABSOLUTE_FOLDER", workspace.display())
+        if from >= 5 {
+            format!("Schema {from} needs an external pre-upgrade backup folder. Run: brn --data-dir {} upgrade --backup-directory ABSOLUTE_FOLDER", workspace.display())
         } else {
             format!("Schema 3/4 needs an external pre-upgrade backup folder. Run: brn --data-dir {} upgrade --backup-directory ABSOLUTE_FOLDER", workspace.display())
         }

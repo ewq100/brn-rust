@@ -60,6 +60,7 @@ pub(super) fn other_items_line(removed: &[Record]) -> Option<String> {
         RecordData::Run(_) => Some(5),
         RecordData::ChatControl(_) => Some(6),
         RecordData::Settings(_) => Some(7),
+        RecordData::WritingSetup(_) => None,
     };
     let found: Vec<usize> = removed.iter().filter_map(|r| kind(&r.data)).collect();
     if found.is_empty() {

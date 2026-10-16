@@ -173,6 +173,7 @@ fn oversize_context_fails_without_truncation_and_fake_snapshot_refused() {
         n.markdown = "Invented evidence".into();
     }
     let fake = WritingSnapshot {
+        setup: None,
         request_message: operation.creation_id(0),
         thread: thread.id.clone(),
         note: fake_note,
@@ -522,5 +523,17 @@ fn oversized_general_feedback_refuses_without_partial_request_or_note_write() {
     );
     assert_eq!(app.records().unwrap(), before);
     assert!(app.messages(&thread.id).unwrap().is_empty());
+    assert_eq!(app.store.record(&note.id).unwrap().unwrap(), note);
+}
+
+#[test]
+fn new_requests_capture_v2_setup_without_changing_the_note() {
+    let (_dir, mut app, note, thread) = setup();
+    let snapshot = app
+        .snapshot_writing_request("v2", &note.id, note.version, &thread.id, &[])
+        .unwrap();
+    let text = snapshot.message_text().unwrap();
+    let value: serde_json::Value = serde_json::from_str(&text).unwrap();
+    assert_eq!(value["version"], 2);
     assert_eq!(app.store.record(&note.id).unwrap().unwrap(), note);
 }

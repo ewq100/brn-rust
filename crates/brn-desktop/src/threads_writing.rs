@@ -3356,6 +3356,7 @@ impl ThreadsUi {
                     RecordData::Asset(_) => "Retain a meaningful figure".into(),
                     RecordData::Run(_) => "Save work progress".into(),
                     RecordData::Settings(_) => "Change workspace settings".into(),
+                    RecordData::WritingSetup(_) => "Change writing setup".into(),
                     RecordData::ChatControl(_) => "Change chat controls".into(),
                     RecordData::Project(_) => "Change project configuration".into(),
                 }));

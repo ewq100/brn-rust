@@ -16,7 +16,7 @@ pub const DATA_MARKER: &str = ".brn-threads-data";
 pub const DERIVED_DIRECTORY: &str = "derived";
 const IDENTITY: &str = "BRN Threads SQLite v1\n";
 pub(crate) const APPLICATION_ID: i64 = 0x42525448;
-pub(crate) const SCHEMA_VERSION: i64 = 6;
+pub(crate) const SCHEMA_VERSION: i64 = 7;
 pub struct Store {
     pub(crate) conn: Connection,
     directory: PathBuf,
@@ -156,6 +156,7 @@ impl Store {
             tx.execute_batch(crate::upgrade::CHAT_SCHEMA)?;
             tx.execute_batch(crate::upgrade::PROJECT_SCHEMA)?;
             tx.execute_batch(crate::upgrade::CALLER_SCHEMA)?;
+            tx.execute_batch(crate::upgrade::WRITING_SCHEMA)?;
             // Written before commit: no committed state shows a test-intended
             // workspace as an owner workspace.
             if let OpenMode::Create(purpose) = mode {
@@ -1092,7 +1093,7 @@ fn open_existing_database(database: &Path, upgrade: bool) -> Result<Connection> 
         }
     })?;
     let schema: i64 = conn.pragma_query_value(None, "user_version", |r| r.get(0))?;
-    if matches!(schema, 3..=5) {
+    if matches!(schema, 3..=6) {
         if !upgrade {
             let app: i64 = conn.pragma_query_value(None, "application_id", |r| r.get(0))?;
             if app == APPLICATION_ID {
@@ -1189,6 +1190,9 @@ fn validate_request(operation: &OperationId, request: &ChangeRequest) -> Result<
             return Err(Error::Invalid(
                 "creation ID must be preassigned by this operation".into(),
             ));
+        }
+        if let RecordData::WritingSetup(setup) = &write.data {
+            setup.validate()?;
         }
         if let RecordData::Note(note) = &write.data
             && note.import.as_ref().is_some_and(|import| import.full_note)
@@ -1310,7 +1314,21 @@ pub(crate) fn apply_on(
         return Err(Error::Invalid("candidate retired".into()));
     }
     let prepared = prepared_on(tx, operation)?;
-    let context_rows = if authority.chat_binding.is_some() {
+    let writing_markers = writing_markers_on(tx, &prepared.request)?;
+    for required in &writing_markers {
+        if !prepared.request.inputs.contains(required) {
+            return Err(Error::Invalid(
+                "Writing setup Current input cannot be removed or downgraded".into(),
+            ));
+        }
+    }
+    let needs_context = authority.chat_binding.is_some()
+        || prepared
+            .request
+            .writes
+            .iter()
+            .any(|w| matches!(w.data, RecordData::WritingSetup(_)));
+    let context_rows = if needs_context {
         let mut query = tx.prepare("SELECT body FROM records ORDER BY rowid")?;
         query
             .query_map([], |r| r.get::<_, String>(0))?
@@ -1320,12 +1338,12 @@ pub(crate) fn apply_on(
         vec![]
     };
     let mut projected_scope = context_rows.clone();
-    if authority.chat_binding.is_some() {
+    if needs_context {
         for w in &prepared.request.writes {
             projected_scope.retain(|r| r.id != w.id);
             projected_scope.push(Record {
                 id: w.id.clone(),
-                version: w.expected_version.unwrap_or(0),
+                version: w.expected_version.unwrap_or(0).saturating_add(1),
                 archived: w.archived,
                 data: w.data.clone(),
             });
@@ -1364,9 +1382,7 @@ pub(crate) fn apply_on(
             });
         }
     }
-    if !matches!(authority.scope, crate::types::Scope::Owner)
-        && !writing_markers_on(tx, &prepared.request)?.is_empty()
-    {
+    if !matches!(authority.scope, crate::types::Scope::Owner) && !writing_markers.is_empty() {
         return Ok(ApplyOutcome::NeedsReview {
             denied: prepared
                 .request
@@ -1433,7 +1449,7 @@ pub(crate) fn apply_on(
             rows.retain(|r| r.id != w.id);
             rows.push(Record {
                 id: w.id.clone(),
-                version: w.expected_version.unwrap_or(0),
+                version: w.expected_version.unwrap_or(0).saturating_add(1),
                 archived: w.archived,
                 data: w.data.clone(),
             });
@@ -1457,6 +1473,11 @@ pub(crate) fn apply_on(
             }
         }
     }
+    crate::writing::validate_setup_writes(
+        &prepared.request.writes,
+        &context_rows,
+        &projected_scope,
+    )?;
     let mut stale = vec![];
     let mut guarded = vec![];
     let mut denied = vec![];
@@ -1487,7 +1508,7 @@ pub(crate) fn apply_on(
         let mut required = BTreeSet::new();
         if matches!(
             write.data,
-            RecordData::ChatControl(_) | RecordData::Project(_)
+            RecordData::ChatControl(_) | RecordData::Project(_) | RecordData::WritingSetup(_)
         ) {
             required.insert(Capability::Configure);
         }
@@ -1545,7 +1566,7 @@ pub(crate) fn apply_on(
             if !crate::context::visible(
                 &Record {
                     id: write.id.clone(),
-                    version: write.expected_version.unwrap_or(0),
+                    version: write.expected_version.unwrap_or(0).saturating_add(1),
                     archived: write.archived,
                     data: write.data.clone(),
                 },
@@ -2591,9 +2612,18 @@ fn writing_markers_on(conn: &Connection, request: &ChangeRequest) -> Result<Vec<
             .optional()?;
         if let Some(body) = body {
             let record: Record = serde_json::from_str(&body)?;
-            if matches!(record.data, RecordData::Message(message) if message.role == crate::WRITING_REQUEST_ROLE)
+            if matches!(&record.data, RecordData::Message(message) if message.role == crate::WRITING_REQUEST_ROLE)
             {
                 markers.push(input.clone());
+                if let Ok(snapshot) = WritingSnapshot::from_message(&record)
+                    && request
+                        .writes
+                        .iter()
+                        .any(|w| w.id == snapshot.note.id && matches!(w.data, RecordData::Note(_)))
+                    && let Some(setup) = snapshot.setup
+                {
+                    markers.push(setup.input);
+                }
             }
         }
     }

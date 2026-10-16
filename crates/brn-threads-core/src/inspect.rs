@@ -36,7 +36,7 @@ pub struct CandidateRow {
     pub replacement_of: Option<OperationId>,
 }
 /// The `RecordData` variant names accepted as a record kind filter.
-pub const RECORD_KINDS: [&str; 12] = [
+pub const RECORD_KINDS: [&str; 13] = [
     "Note",
     "Thread",
     "Action",
@@ -49,6 +49,7 @@ pub const RECORD_KINDS: [&str; 12] = [
     "Settings",
     "ChatControl",
     "Project",
+    "WritingSetup",
 ];
 /// `hash, retired, undo_of, replacement_of` of one operations row.
 type OperationRow = (Option<String>, i64, Option<String>, Option<String>);
@@ -307,15 +308,42 @@ impl Store {
         let mut stmt = self.conn.prepare(
             "SELECT pos,body FROM (SELECT (SELECT MIN(v.rowid) FROM revisions v WHERE v.id=r.id) AS pos, r.body AS body FROM records r WHERE json_type(r.body,'$.data.Message') IS NOT NULL AND json_extract(r.body,'$.data.Message.thread')=?1 AND json_extract(r.body,'$.archived')=0) WHERE pos>?2 ORDER BY pos LIMIT ?3",
         )?;
-        let rows: Vec<(i64, String)> = stmt
-            .query_map(params![thread, after, fetch], |r| {
-                Ok((r.get(0)?, r.get(1)?))
-            })?
-            .collect::<std::result::Result<_, _>>()?;
-        let rows = rows
-            .into_iter()
-            .map(|(pos, body)| Ok((pos, decode(&body)?)))
-            .collect::<Result<Vec<_>>>()?;
+        let mut cursor = after;
+        let mut rows = Vec::new();
+        let mut context = None;
+        // Filtering before the visible page boundary preserves cursors even
+        // when a moved chat has more than a page of old scoped requests.
+        loop {
+            let batch: Vec<(i64, String)> = stmt
+                .query_map(params![thread, cursor, fetch], |r| {
+                    Ok((r.get(0)?, r.get(1)?))
+                })?
+                .collect::<std::result::Result<_, _>>()?;
+            let complete = batch.len() < fetch as usize;
+            for (pos, body) in batch {
+                cursor = pos;
+                let record: Record = decode(&body)?;
+                if scoped_writing_request(&record) {
+                    if context.is_none() {
+                        context = Some(self.records()?);
+                    }
+                    if !record_in_chat(
+                        &record,
+                        context.as_ref().expect("loaded scope"),
+                        Some(thread),
+                    ) {
+                        continue;
+                    }
+                }
+                rows.push((pos, record));
+                if rows.len() > limit {
+                    break;
+                }
+            }
+            if complete || rows.len() > limit {
+                break;
+            }
+        }
         Ok(split(rows, limit))
     }
     /// The operation allocated under exactly this host key; never allocates.

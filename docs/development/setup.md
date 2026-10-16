@@ -23,6 +23,8 @@ Keep compiler/dependency changes separately scoped and qualified. Native GPUI ta
 
 Use a task-owned Cargo target directory or a known compatible shared cache, plus a fresh explicit absolute BRN `--data-dir` outside Git. Use synthetic material. The core checks directory marker, application ID and supported schema before opening; incompatible old BRN data refuses without migration.
 
+CW1 uses schema **7** for separate scoped writing configuration. CLI opens of schema 3–6 refuse unchanged with `upgrade_required`; only explicit `upgrade --backup-directory ABSOLUTE_DIR` upgrades after an external verified backup. The desktop retains backup-first open using its remembered folder. Old backups upgrade only their unpublished restore copy. Preserve the pre-upgrade backup when rolling back source: older executables refuse schema 7 rather than downgrade it.
+
 Build the maintained intake helper before Mac workspace tests:
 
 ```sh

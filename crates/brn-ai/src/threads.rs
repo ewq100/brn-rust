@@ -361,6 +361,7 @@ fn parse_valid(name: &str, args: &Value) -> bool {
                             | RecordData::Asset(_)
                             | RecordData::Message(_)
                             | RecordData::ChatControl(_)
+                            | RecordData::WritingSetup(_)
                     ) && !matches!(&w.data,RecordData::Thread(t) if t.state==ThreadState::Resolved)
                 })
         }),
@@ -633,6 +634,8 @@ fn read_records(scope: &Scope, args: ReadArgs) -> AiResult<Value> {
     let mut rows = Vec::new();
     for record in store.records_for_chat(Some(&scope.chat)).map_err(storage)? {
         if record.archived
+            || matches!(record.data, RecordData::WritingSetup(_))
+            || scoped_writing_request(&record)
             || matches!(&record.data,RecordData::Note(n) if n.superseded_by.is_some())
         {
             continue;
@@ -660,6 +663,7 @@ fn read_records(scope: &Scope, args: ReadArgs) -> AiResult<Value> {
                     | RecordData::Settings(_)
                     | RecordData::Asset(_)
                     | RecordData::ChatControl(_)
+                    | RecordData::WritingSetup(_)
             )
         {
             continue;
@@ -910,7 +914,10 @@ fn check_scope(scope: &Scope, store: &Store, request: &ChangeRequest) -> AiResul
         }
         if matches!(
             write.data,
-            RecordData::ChatControl(_) | RecordData::Settings(_) | RecordData::Project(_)
+            RecordData::ChatControl(_)
+                | RecordData::Settings(_)
+                | RecordData::Project(_)
+                | RecordData::WritingSetup(_)
         ) {
             return Err(rejected());
         }
@@ -1636,6 +1643,7 @@ fn chat_messages<'a>(history: &[Receipt], records: &'a [Record], chat: &str) -> 
     let mut messages = records
         .iter()
         .filter(|r| !r.archived && matches!(&r.data, RecordData::Message(m) if m.thread == chat))
+        .filter(|r| !scoped_writing_request(r))
         .collect::<Vec<_>>();
     messages.sort_by_key(|r| positions.get(r.id.as_str()).copied().unwrap_or_default());
     messages
@@ -2012,6 +2020,22 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
                     .map_err(storage)?
             {
                 return Err(rejected());
+            }
+            snapshot
+                .validate_saved_setup(&store)
+                .map_err(|_| rejected())?;
+            if let Some(setup) = &snapshot.setup {
+                if writing_request_scope(&records, &request.thread).map_err(|_| rejected())?
+                    != setup.chat
+                {
+                    return Err(rejected());
+                }
+                for reference in &setup.references {
+                    if !store.record(&reference.note).map_err(storage)?.is_some_and(|r| !r.archived && matches!(&r.data, RecordData::Note(n) if n.superseded_by.is_none()))
+                        || !store.revision_visible_in_chat(&reference.note, reference.version, Some(&request.thread)).map_err(storage)? {
+                        return Err(rejected());
+                    }
+                }
             }
             // Serialized record-shaped payloads are evidence only after matching
             // exact canonical revisions and the active captured versions.

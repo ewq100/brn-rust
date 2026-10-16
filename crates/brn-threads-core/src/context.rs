@@ -96,7 +96,17 @@ pub fn visible(record: &Record, records: &[Record], chat: Option<&str>) -> bool 
                 linked(&l.from, &mut seen.clone()) && linked(&l.to, &mut seen.clone())
             }
             RecordData::Thread(_) => scope_allowed(&r.id, rows, chat),
-            RecordData::Message(m) => scope_allowed(&m.thread, rows, chat),
+            RecordData::Message(m) => {
+                scope_allowed(&m.thread, rows, chat)
+                    && (!crate::writing::scoped_writing_request(r)
+                        || WritingSnapshot::from_message(r).is_ok_and(|snapshot| {
+                            let scope = match chat {
+                                Some(chat) => crate::writing_request_scope(rows, chat),
+                                None => Ok(None),
+                            };
+                            scope.is_ok_and(|scope| snapshot.setup.is_some_and(|s| s.chat == scope))
+                        }))
+            }
             RecordData::Run(r) => {
                 Some(r.thread.as_str()) == chat
                     && !project_scope(rows, chat).is_some_and(|p| p.archived)
@@ -131,6 +141,13 @@ pub fn visible(record: &Record, records: &[Record], chat: Option<&str>) -> bool 
             }
             RecordData::Project(_) => {
                 project_scope(rows, chat).is_some_and(|p| !p.archived && p.id == r.id)
+            }
+            RecordData::WritingSetup(setup) => {
+                let scope = match chat {
+                    Some(chat) => crate::writing_request_scope(rows, chat),
+                    None => Ok(None),
+                };
+                scope.is_ok_and(|scope| setup.chat == scope) && linked(&setup.note, seen)
             }
             RecordData::Settings(_) | RecordData::ChatControl(_) => false,
         }
@@ -184,6 +201,7 @@ impl Store {
 pub(crate) fn chat_private(rows: &[Record], chat: &str) -> bool {
     rows.iter().any(|r| {
         matches!(&r.data, RecordData::Note(n) if n.chat.as_deref() == Some(chat))
+            || matches!(&r.data, RecordData::WritingSetup(s) if s.chat.as_deref() == Some(chat))
             || matches!(&r.data, RecordData::Thread(t) if r.id == chat && t.private_context)
     })
 }

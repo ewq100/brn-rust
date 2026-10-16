@@ -33,7 +33,7 @@ impl StagedRestore {
     fn create(backup: &Path, destination: &Path) -> Result<Self> {
         let source =
             Connection::open_with_flags(backup, rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY)?;
-        validate_schema(&source, &[3, 4, 5, crate::store::SCHEMA_VERSION])?;
+        validate_schema(&source, &[3, 4, 5, 6, crate::store::SCHEMA_VERSION])?;
         Self::prepare(destination)?.copy_from(&source)
     }
 

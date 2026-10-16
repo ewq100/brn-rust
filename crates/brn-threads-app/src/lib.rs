@@ -34,7 +34,7 @@ pub use knowledge::{
 };
 pub use review_groups::{ReviewGroup, ReviewGroups};
 pub use topics::{TopicEntry, Topics};
-pub use writing::{WritingComment, WritingCommentInput};
+pub use writing::{WritingComment, WritingCommentInput, WritingReferenceState, WritingSetupView};
 #[derive(Debug, thiserror::Error)]
 pub enum AppError {
     #[error(transparent)]
@@ -283,10 +283,12 @@ impl Workspace {
             .collect())
     }
     pub fn messages(&self, thread: &str) -> AppResult<Vec<Record>> {
-        let mut rows: Vec<_> = self
-            .records()?
-            .into_iter()
+        let records = self.records()?;
+        let mut rows: Vec<_> = records
+            .iter()
             .filter(|r| !r.archived && matches!(&r.data,RecordData::Message(m) if m.thread==thread))
+            .filter(|r| !scoped_writing_request(r) || record_in_chat(r, &records, Some(thread)))
+            .cloned()
             .collect();
         // Receipt insertion order is durable and total even when wall-clock
         // timestamps tie or the clock moves backwards. Message edits retain creation order.

@@ -91,7 +91,7 @@ fn assert_upgrade_required(envelope: &Value) {
     assert_eq!(envelope["retry"], "refuse");
     assert_eq!(
         envelope["error"]["details"],
-        serde_json::json!({"schema_found": 5, "schema_required": 6})
+        serde_json::json!({"schema_found": 5, "schema_required": 7})
     );
     let message = envelope["error"]["message"].as_str().unwrap();
     assert!(
@@ -197,7 +197,7 @@ fn upgrade_backs_up_first_and_the_upgraded_store_works() {
     );
     assert_eq!(upgraded["status"], "ok", "{upgraded}");
     assert_eq!(upgraded["authority"]["workspace_purpose"], Value::Null);
-    assert_eq!(user_version(&data), 6);
+    assert_eq!(user_version(&data), 7);
     let files: Vec<PathBuf> = std::fs::read_dir(&backups)
         .unwrap()
         .map(|e| e.unwrap().path())
@@ -205,7 +205,7 @@ fn upgrade_backs_up_first_and_the_upgraded_store_works() {
     assert_eq!(files.len(), 1, "{files:?}");
     let name = files[0].file_name().unwrap().to_str().unwrap();
     assert!(
-        name.starts_with("brn-before-schema-6-") && name.ends_with(".sqlite3"),
+        name.starts_with("brn-before-schema-7-") && name.ends_with(".sqlite3"),
         "{name}"
     );
     // The verified backup is the schema-5 store: the old binary restores it.
@@ -247,12 +247,12 @@ fn upgrade_backs_up_first_and_the_upgraded_store_works() {
     );
     assert_eq!(again["status"], "ok");
     assert_eq!(std::fs::read_dir(&backups).unwrap().count(), 1);
-    // A schema-5 build refuses schema 6: the upgraded store and a fresh one.
+    // A schema-5 build refuses schema 7: the upgraded store and a fresh one.
     let refused = old(&root, &binary, false, &data, &["notes"]);
     assert_ne!(refused.code, 0, "{}", refused.stdout);
     let fresh = root.join("fresh");
     ok(&root, &fresh, &["init"]);
-    assert_eq!(user_version(&fresh), 6);
+    assert_eq!(user_version(&fresh), 7);
     let refused = old(&root, &binary, false, &fresh, &["notes"]);
     assert_ne!(refused.code, 0, "{}", refused.stdout);
 }

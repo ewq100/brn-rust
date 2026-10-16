@@ -76,6 +76,7 @@ pub(super) fn rewrite_fixture(
     owner_write(&mut store, "writing-feedback", writes);
     let op = store.allocate_operation("saved-writing-request").unwrap();
     let snapshot = WritingSnapshot {
+        setup: None,
         request_message: op.creation_id(0),
         thread: request.thread.clone(),
         note,
@@ -652,4 +653,142 @@ async fn prose_only_rewrite_fails_and_saved_request_remains_available_for_retry(
         snapshot
     );
     assert!(store.candidates().unwrap().is_empty());
+}
+
+#[test]
+fn setup_configuration_is_never_model_readable_or_model_writable() {
+    let (_root, request, note) = super::tests::fixture();
+    let mut store = Store::open(&request.data_dir).unwrap();
+    let op = store.allocate_operation("private-configuration").unwrap();
+    let setup = WritingSetup {
+        note,
+        chat: None,
+        brief: Some("Owner setup metadata".into()),
+        references: vec![],
+    };
+    owner_write(
+        &mut store,
+        "private-configuration",
+        vec![Put {
+            id: op.creation_id(0),
+            expected_version: None,
+            archived: false,
+            data: RecordData::WritingSetup(setup.clone()),
+        }],
+    );
+    let (scope, _) = begin(&request).unwrap();
+    for ids in [vec![], vec![op.creation_id(0)]] {
+        let records = read_records(&scope, ReadArgs { ids, query: None }).unwrap();
+        assert!(!records.to_string().contains("Owner setup metadata"));
+        assert!(!records.to_string().contains("WritingSetup"));
+    }
+    assert!(!parse_valid(
+        "prepare_changes",
+        &json!({"request_key":"forged-config","request":{"reason":"model config","writes":[{"id":"new","expected_version":null,"archived":false,"data":{"WritingSetup":setup}}],"inputs":[]}})
+    ));
+}
+
+#[test]
+fn v2_model_request_uses_canonical_metadata_without_reference_content_and_refuses_revocation() {
+    let (_root, mut request, mut snapshot) = rewrite_fixture(false, 0);
+    let mut store = Store::open(&request.data_dir).unwrap();
+    let reference_op = store.allocate_operation("v2-reference").unwrap();
+    owner_write(
+        &mut store,
+        "v2-reference",
+        vec![Put {
+            id: reference_op.creation_id(0),
+            expected_version: None,
+            archived: false,
+            data: RecordData::Note(Note::working(
+                "Secret reference title",
+                "REFERENCE CONTENT NOT CAPTURED",
+            )),
+        }],
+    );
+    let setup_op = store.allocate_operation("v2-setup").unwrap();
+    owner_write(
+        &mut store,
+        "v2-setup",
+        vec![Put {
+            id: setup_op.creation_id(0),
+            expected_version: None,
+            archived: false,
+            data: RecordData::WritingSetup(WritingSetup {
+                note: snapshot.note.id.clone(),
+                chat: None,
+                brief: Some("Use concise prose".into()),
+                references: vec![WritingReference {
+                    note: reference_op.creation_id(0),
+                    purpose: WritingPurpose::Style,
+                }],
+            }),
+        }],
+    );
+    let marker = store.allocate_operation("v2-marker").unwrap();
+    snapshot.request_message = marker.creation_id(0);
+    snapshot.setup = Some(WritingSnapshotSetup {
+        chat: None,
+        input: RevisionInput {
+            record: setup_op.creation_id(0),
+            version: 1,
+            expectation: InputExpectation::Current,
+        },
+        brief: Some("Use concise prose".into()),
+        references: vec![WritingReferenceVersion {
+            note: reference_op.creation_id(0),
+            version: 1,
+            purpose: WritingPurpose::Style,
+        }],
+    });
+    owner_write(
+        &mut store,
+        "v2-marker",
+        vec![Put {
+            id: snapshot.request_message.clone(),
+            expected_version: None,
+            archived: false,
+            data: RecordData::Message(Message {
+                thread: request.thread.clone(),
+                role: WRITING_REQUEST_ROLE.into(),
+                text: snapshot.message_text().unwrap(),
+            }),
+        }],
+    );
+    request.owner_request = Some(OwnerRequest::RewriteNote {
+        request_message: snapshot.request_message.clone(),
+    });
+    let (scope, input) = begin(&request).unwrap();
+    assert!(input.contains("Use concise prose"));
+    assert!(input.contains(&reference_op.creation_id(0)));
+    assert!(!input.contains("REFERENCE CONTENT NOT CAPTURED"));
+    assert!(!input.contains("Secret reference title"));
+    drop(scope);
+    let writing_request = request.owner_request.take();
+    request.prompt = "Ordinary chat without writing setup".into();
+    let (ordinary_scope, history) = begin(&request).unwrap();
+    assert!(!history.contains("Use concise prose"));
+    let read = read_records(
+        &ordinary_scope,
+        ReadArgs {
+            ids: vec![snapshot.request_message.clone()],
+            query: None,
+        },
+    )
+    .unwrap();
+    assert!(!read.to_string().contains("Use concise prose"));
+    drop(ordinary_scope);
+    request.owner_request = writing_request;
+    let reference = store.record(&reference_op.creation_id(0)).unwrap().unwrap();
+    owner_write(
+        &mut store,
+        "archive-reference",
+        vec![Put {
+            id: reference.id,
+            expected_version: Some(1),
+            archived: true,
+            data: reference.data,
+        }],
+    );
+    assert!(begin(&request).is_err());
 }

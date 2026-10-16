@@ -18,6 +18,18 @@ pub struct WritingCommentInput {
     pub quote: String,
     pub body: String,
 }
+/// Owner view of a configured link. Unavailable references have no copied title/content.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct WritingReferenceState {
+    pub reference: WritingReference,
+    /// None means "no longer available here"; do not fetch its title or content.
+    pub version: Option<u64>,
+}
+#[derive(Debug, Clone)]
+pub struct WritingSetupView {
+    pub record: Option<Record>,
+    pub references: Vec<WritingReferenceState>,
+}
 #[derive(Debug, Serialize, Deserialize)]
 struct Addressed {
     version: u8,
@@ -26,6 +38,78 @@ struct Addressed {
     comments: Vec<Record>,
 }
 impl Workspace {
+    /// Read exactly this host-selected writing context, never another setup on a shared Note.
+    pub fn writing_setup(&self, note: &str, chat: Option<&str>) -> AppResult<WritingSetupView> {
+        self.writing_note(note, None)?;
+        let rows = self.records()?;
+        let scope = writing_setup_scope(&rows, chat)?;
+        if !rows
+            .iter()
+            .any(|r| r.id == note && record_in_chat(r, &rows, scope.as_deref()))
+        {
+            return Err(AppError::Invalid(
+                "Working Note is unavailable in this writing scope".into(),
+            ));
+        }
+        let record = rows.iter().find(|r| !r.archived && matches!(&r.data, RecordData::WritingSetup(s) if s.note == note && s.chat == scope)).cloned();
+        let references = record
+            .as_ref()
+            .map(|r| match &r.data {
+                RecordData::WritingSetup(setup) => setup
+                    .references
+                    .iter()
+                    .map(|reference| {
+                        let version = rows.iter().find(|r| {
+                            r.id == reference.note && !r.archived
+                                && matches!(&r.data, RecordData::Note(n) if n.superseded_by.is_none())
+                                && record_in_chat(r, &rows, scope.as_deref())
+                        }).map(|r| r.version);
+                        WritingReferenceState { reference: reference.clone(), version }
+                    })
+                    .collect(),
+                _ => unreachable!(),
+            })
+            .unwrap_or_default();
+        Ok(WritingSetupView { record, references })
+    }
+    /// Owner-only versioned configuration. None means no active setup; an archived
+    /// identity is reused after Undo, so each context always has one record.
+    pub fn set_writing_setup(
+        &mut self,
+        key: &str,
+        expected_version: Option<u64>,
+        setup: &WritingSetup,
+    ) -> AppResult<Receipt> {
+        let operation = self.writing_operation("setup", key, (expected_version, setup))?;
+        if let Some(receipt) = self.writing_replay(&operation)? {
+            return Ok(receipt);
+        }
+        let rows = self.records()?;
+        let scope = writing_setup_scope(&rows, setup.chat.as_deref())?;
+        let mut setup = setup.clone();
+        setup.chat = scope.clone();
+        let current = rows.iter().find(|r| matches!(&r.data, RecordData::WritingSetup(s) if s.note == setup.note && s.chat == scope));
+        if current.filter(|r| !r.archived).map(|r| r.version) != expected_version {
+            return Err(AppError::Invalid(
+                "Writing setup changed; reload before saving".into(),
+            ));
+        }
+        self.writing_commit(
+            &operation,
+            ChangeRequest {
+                reason: "Owner updated scoped writing setup".into(),
+                writes: vec![Put {
+                    id: current
+                        .map(|r| r.id.clone())
+                        .unwrap_or_else(|| operation.creation_id(0)),
+                    expected_version: current.map(|r| r.version),
+                    archived: false,
+                    data: RecordData::WritingSetup(setup.clone()),
+                }],
+                inputs: vec![],
+            },
+        )
+    }
     fn writing_operation(
         &mut self,
         kind: &str,
@@ -235,6 +319,7 @@ impl Workspace {
                 ));
             }
         }
+        snapshot.validate_saved_setup(&self.store)?;
         Ok(snapshot)
     }
     /// Persist exact saved note, selected pending feedback and all posted chat before generation.
@@ -302,7 +387,57 @@ impl Workspace {
             })
             .collect::<AppResult<Vec<_>>>()?;
         let messages = self.messages(thread)?.into_iter().filter(|record| matches!(&record.data,RecordData::Message(message) if matches!(message.role.as_str(),"owner" | "assistant"))).collect();
+        let rows = self.records()?;
+        let scope = writing_request_scope(&rows, thread)?;
+        let view = self.writing_setup(note, scope.as_deref())?;
+        let stored = rows.iter().find(
+            |r| matches!(&r.data, RecordData::WritingSetup(s) if s.note == note && s.chat == scope),
+        );
+        let active = view.record.as_ref();
+        let setup = active
+            .and_then(|r| match &r.data {
+                RecordData::WritingSetup(s) => Some(s.clone()),
+                _ => None,
+            })
+            .unwrap_or(WritingSetup {
+                note: note.into(),
+                chat: scope.clone(),
+                brief: None,
+                references: vec![],
+            });
+        let setup_id = stored
+            .map(|r| r.id.clone())
+            .unwrap_or_else(|| operation.creation_id(1));
+        let setup_version = active
+            .map(|r| r.version)
+            .unwrap_or_else(|| stored.map(|r| r.version + 1).unwrap_or(1));
+        let new_setup = active.is_none().then(|| Put {
+            id: setup_id.clone(),
+            expected_version: stored.map(|r| r.version),
+            archived: false,
+            data: RecordData::WritingSetup(setup.clone()),
+        });
         let snapshot = WritingSnapshot {
+            setup: Some(WritingSnapshotSetup {
+                chat: scope,
+                brief: setup.brief,
+                input: RevisionInput {
+                    record: setup_id.clone(),
+                    version: setup_version,
+                    expectation: InputExpectation::Current,
+                },
+                references: view
+                    .references
+                    .into_iter()
+                    .filter_map(|r| {
+                        r.version.map(|version| WritingReferenceVersion {
+                            note: r.reference.note,
+                            version,
+                            purpose: r.reference.purpose,
+                        })
+                    })
+                    .collect(),
+            }),
             request_message: operation.creation_id(0),
             thread: thread.into(),
             note: note_record,
@@ -312,25 +447,50 @@ impl Workspace {
         };
         let text = snapshot.message_text()?;
         let mut inputs = snapshot.current_inputs();
-        inputs.retain(|input| input.record != snapshot.request_message);
+        inputs.retain(|input| {
+            input.record != snapshot.request_message
+                && !(new_setup.is_some() && input.record == setup_id)
+        });
         inputs.extend(current_records([&thread_record, &link]));
-        self.writing_commit(
+        let mut writes = vec![Put {
+            id: snapshot.request_message.clone(),
+            expected_version: None,
+            archived: false,
+            data: RecordData::Message(Message {
+                thread: thread.into(),
+                role: WRITING_REQUEST_ROLE.into(),
+                text,
+            }),
+        }];
+        writes.extend(new_setup);
+        // Bind exact reference revisions without claiming they must stay current.
+        // CW2 adds only references actually read to candidates and rechecks all Apply visibility.
+        inputs.extend(
+            snapshot
+                .setup
+                .iter()
+                .flat_map(|s| s.references.iter())
+                .map(|r| RevisionInput {
+                    record: r.note.clone(),
+                    version: r.version,
+                    expectation: InputExpectation::Historical,
+                }),
+        );
+        if let Some(project) = project_scope(&rows, Some(thread)) {
+            inputs.extend(current_records([project]));
+        }
+        let owner = HostAuthority::owner("owner writing interaction")
+            .for_chat(thread, self.store.chat_has_private_context(thread)?);
+        self.store.prepare_owner(
             &operation,
-            ChangeRequest {
+            &ChangeRequest {
                 reason: "Owner saved exact writing rewrite context before generation".into(),
-                writes: vec![Put {
-                    id: snapshot.request_message.clone(),
-                    expected_version: None,
-                    archived: false,
-                    data: RecordData::Message(Message {
-                        thread: thread.into(),
-                        role: WRITING_REQUEST_ROLE.into(),
-                        text,
-                    }),
-                }],
+                writes,
                 inputs,
             },
+            &owner,
         )?;
+        applied_receipt(self.store.apply(&operation, &owner)?)?;
         Ok(snapshot)
     }
     fn addressed_proof(&self, proof: &Addressed) -> AppResult<WritingSnapshot> {

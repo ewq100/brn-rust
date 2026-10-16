@@ -456,6 +456,7 @@ fn title(record: &Record) -> String {
         RecordData::Link(l) => l.relation.clone(),
         RecordData::Asset(_) => "Figure".into(),
         RecordData::Settings(_) => "Workspace settings".into(),
+        RecordData::WritingSetup(_) => "Writing setup".into(),
         RecordData::ChatControl(_) => "Chat controls".into(),
         RecordData::Project(p) => p.title.clone(),
     }

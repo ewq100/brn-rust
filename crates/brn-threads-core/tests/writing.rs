@@ -89,6 +89,7 @@ fn fixture() -> (
     );
     let op = store.allocate_operation("snapshot").unwrap();
     let snapshot = WritingSnapshot {
+        setup: None,
         request_message: op.creation_id(0),
         thread: thread.clone(),
         note: store.record(&note).unwrap().unwrap(),
