@@ -1665,7 +1665,7 @@ fn panel_shared_start_keeps_scoped_saved_retry_when_chat_is_other_and_hidden(
 }
 
 #[gpui_kit::test]
-fn saved_retry_refuses_wrong_displayed_note_scope_and_archived_context_without_writes(
+fn saved_retry_refuses_wrong_displayed_context_and_preserves_archived_state_at_offline_selection(
     cx: &mut TestAppContext,
 ) {
     let f = fixture(cx);
@@ -1773,6 +1773,12 @@ fn saved_retry_refuses_wrong_displayed_note_scope_and_archived_context_without_w
             );
             view.retry_rewrite(snapshot.request_message.clone(), cx);
             assert!(view.worker.is_none());
+            // Archived saved context remains readable; this offline fixture
+            // stops at provider selection, not an archive-specific retry gate.
+            assert_eq!(
+                view.notice,
+                "Rewrite request saved; AI has not started. Choose a provider and model in Settings before asking BRN. Retry rewrite uses these same saved inputs."
+            );
             assert_eq!(view.workspace.records().unwrap(), before.0);
             assert_eq!(view.workspace.store.receipts().unwrap(), before.1);
             assert_eq!(

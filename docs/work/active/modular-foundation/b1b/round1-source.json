@@ -1,0 +1,80 @@
+{
+  "BUILD_NEED": {
+    "command_after_grant": "cargo test -p brn-desktop --features native-ui,native-test-support --locked --offline saved_retry_refuses_wrong_displayed_context_and_preserves_archived_state_at_offline_selection -- --nocapture",
+    "scope": "One renamed native fixture on actual corrected candidate; no broad normal-lane repeat. One omission variant only after separate explicit allocation."
+  },
+  "actual_HEAD": "601e95d343fcc9bf86edda832b06eb35ac6f4657",
+  "base": "5e98b0157a70076f2fe69346f1496cccc869bc78",
+  "branch": "work/b1b-20261016",
+  "commit_status": "Unstaged/uncommitted precision correction; approved production at actual HEAD is frozen.",
+  "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+  "guard_recheck": {
+    "expected_seed": "replace contextual saved-request reader with raw saved-request reader at one panel call only",
+    "limit": "<=180s or proportional safe compile limit, within original cumulative <=1800s B1b slice cap",
+    "status": "proposal only, NOT granted or executed",
+    "target_source": "future disposable fixed source and distinct target; never candidate alias",
+    "used_seconds": 0,
+    "variant_count": 1
+  },
+  "historical_artifacts_unchanged": {
+    "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc/docs/work/active/modular-foundation/b1b/source-preparation.json": "01b366bc79794bd7d7ea9ab01d3e3b88dfa43c79f6d9fa536cba87026e23df5d",
+    "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc/docs/work/active/modular-foundation/b1b/verification.json": "7f64637a03775329ce3227b74c30ef9c4ac60b2a821d57f1da28ecfacf2bf2e6",
+    "/private/tmp/brn-b1b-source-20261016/before-context-refusal-fixture.patch": "97df04a50de5ae3a4d9d8c93188122469962a4001558f7813a0d4016ab7eba26",
+    "/private/tmp/brn-b1b-window1-20261016/guard-recheck-proposal.json": "3ba45d4bdcf7a671e14b16f1af3f799b625c9adb9bedfa4f9fd8e4c8c836c5a6"
+  },
+  "kind": "B1b round1 precision-only source follow-up; unexecuted",
+  "notice_basis": [
+    "threads_focus_tests.rs::configure_offline_fixture selects offline-fixture",
+    "brn-threads-app/src/run.rs::resolve_run_selection returns Provider before preparation",
+    "threads_ui.rs::start_request Selection warning",
+    "threads_ui.rs::retry_rewrite wraps unchanged selection notice"
+  ],
+  "precision_source_patch": {
+    "path": "/private/tmp/brn-b1b-round1-20261017/precision-source.patch",
+    "sha256": "c3ef4419f43c6a86d60096b89668ce2614bd4b334e4665d5055552169a08ab9c"
+  },
+  "previous_source_manifest": {
+    "all_production_manifest_lock_bytes_unchanged": true,
+    "count": 295,
+    "only_changed_path": "crates/brn-desktop/src/threads_writing_tests.rs",
+    "reference": "verification.json:production_manifest",
+    "unchanged_count": 294
+  },
+  "recorded_utc": "2026-10-16T21:11:53.898683+00:00",
+  "report": {
+    "bytes": 3079,
+    "path": "docs/work/active/modular-foundation/b1b/opus-review-round1.md",
+    "sha256": "e9869a6c27dda1ded84cb2a7766ac596c30c0cbabdf4429306b70979b9342ab4",
+    "verbatim": true
+  },
+  "resource_authority": "D1A sole heavy slot; no Cargo/build/test/lint/metadata/mutant/headless/process polling in follow-up",
+  "reviewed_tree": "d7ce499feabb3da63dca9c77306c77f378aa4081",
+  "runtime_status": "Exact notice chosen from existing source; new assertion and renamed fixture NOT executed. No new source acceptance or compiled qualification.",
+  "source_fingerprint_encoding": "sha256 of UTF-8 JSON mapping path to sha256, sorted keys, separators comma/colon, no newline",
+  "source_fingerprint_sha256": "ffcc9df9231bcb4a5d7cefc03ac4ea5eafaac0ae093fae3ebc369e5f543fa8c0",
+  "source_hashes": {
+    "Cargo.lock": "b742357ec641f357c7beecc14bcc3c81657a039f01bb6fcd397dac6413d0d313",
+    "crates/brn-desktop/Cargo.toml": "5b21d2ccb2121a53c02c603d70a2d9be513c88ff86ec7e27435a12c31e7ed8f7",
+    "crates/brn-desktop/src/threads_ui.rs": "bd03c560faeecdfb3e73440e9f1da83a3e944b3ea18965b79713942fcae06aeb",
+    "crates/brn-desktop/src/threads_writing_tests.rs": "a05c3756f5a72fe11b8bfc30b07ed6316afb213963f711ba621bbe657d2f7c1e",
+    "crates/brn-threads-app/src/lib.rs": "1221b3fb1e7ff004f2d27125062655fba1b870d5d95e7daa2747aa729b1262b2",
+    "crates/brn-writing-ui/src/native.rs": "71c227263750c49085b3e89a80d455f45b65e4634175432d0a532e85f249acdb"
+  },
+  "static_checks": {
+    "direct_pinned_rustfmt": "rustup run 1.98.1 rustfmt --edition 2024 --config skip_children=true --check crates/brn-desktop/src/threads_writing_tests.rs (passed)",
+    "git_diff_check": "passed; repeated after final documents",
+    "receipt_script_correction": "Initial static receipt assertion treated all 295 historical manifest entries as production-only; that manifest includes the deliberately changed test. Corrected check requires exactly that one test mismatch, 294 unchanged entries. No source/guard adjustment."
+  },
+  "test_preservation": {
+    "before_test_sha256": "f91bac5f41553d20bca0785acac8dcec371f4fc419ac93ce1eb3c99fd42c7e06",
+    "current_fixture_name": "saved_retry_refuses_wrong_displayed_context_and_preserves_archived_state_at_offline_selection",
+    "current_test_sha256": "a05c3756f5a72fe11b8bfc30b07ed6316afb213963f711ba621bbe657d2f7c1e",
+    "historical_fixture_name": "saved_retry_refuses_wrong_displayed_note_scope_and_archived_context_without_writes",
+    "only_rename_plus_exact_notice_addition": true,
+    "original_all_assertions_retained": true,
+    "pre_B1b_prefix_bytes": 57827,
+    "pre_B1b_prefix_sha256": "97582c5af8dd28ae6b949d0b05c9781190d810184a680b9ead48f1d048bfa251",
+    "prefix_unchanged": true,
+    "wrong_note_scope_changed_conversation_unchanged": true
+  }
+}
