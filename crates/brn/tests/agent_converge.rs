@@ -137,7 +137,8 @@ fn archive_with_a_working_run_records_a_change() {
         .iter()
         .any(|c| c["kind"] == "Run"));
     let runs = ok(&root, &data, &["runs", "--thread", &chat]);
-    assert_ne!(runs["runs"][0]["state"], "working");
+    // An outside stop reads back as Interrupted, never Cancelled.
+    assert_eq!(runs["runs"][0]["state"], "interrupted");
     assert_unchanged(&root, &data, &["archive", "--thread", &chat], &chat);
 }
 

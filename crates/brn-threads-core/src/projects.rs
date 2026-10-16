@@ -706,6 +706,7 @@ impl Store {
             }
         }
         // Fence every affected live invocation and pause saved work, preserving messages.
+        let mut ended = vec![];
         for r in &rows {
             if let RecordData::Run(run) = &r.data
                 && run.state == RunState::Working
@@ -720,7 +721,7 @@ impl Store {
                     .fence
                     .checked_add(1)
                     .ok_or_else(|| Error::Invalid("run fence overflow".into()))?;
-
+                ended.push((w.id.clone(), run.clone()));
                 writes.insert(w.id.clone(), w);
             }
         }
@@ -786,9 +787,19 @@ impl Store {
                 }
             }
         }
+        // The owner acted on the project, not in these chats: each stopped Run
+        // leaves its notice and reviews, inside a trashed chat's own write.
+        let mut writes: Vec<Put> = writes.into_values().collect();
+        crate::run_attention::ended_run_attention(
+            &mut writes,
+            &ended,
+            true,
+            |id| crate::store::record_on(&tx, id),
+            |operations| crate::run_attention::active_candidates_on(&tx, operations),
+        )?;
         let request = ChangeRequest {
             reason: "Owner project operation".into(),
-            writes: writes.into_values().collect(),
+            writes,
             inputs: vec![],
         };
         if let (true, Some(record)) = (converge, converge_target(command))

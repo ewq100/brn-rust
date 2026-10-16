@@ -99,7 +99,13 @@ mode, closes and validates it, and flushes before exclusive hard-link publicatio
 Occupied paths are refused before copying and rechecked by exclusive publication.
 Relative paths are resolved internally without changing process cwd. The final
 filename never names the in-progress copy. Ordinary failures clean only the owned
-stage; process termination can leave a recognizable `.brn-backup-stage-*` directory.
+stage; process termination can leave a recognizable `.brn-backup-stage-*` directory
+(restore: `.brn-restore-stage-*`, whose `workspace/` is renamed into place). Each
+stage holds a `.brn-stage` marker that names its kind and that the creating process
+keeps OS-locked. On Unix, the next backup (or restore) into the same folder removes
+direct-child stages of its kind whose exact name, real-directory type, marker text
+and free lock show they were abandoned; it never follows symlinks. Markerless
+stages from older builds are left for the owner to delete.
 A post-publication parent-flush failure leaves the complete final file intact.
 Filesystems without hard-link publication fail explicitly; no overwrite/copy fallback.
  `restore(backup, fresh_absolute_directory)` validates

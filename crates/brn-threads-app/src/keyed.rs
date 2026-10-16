@@ -123,7 +123,12 @@ impl Workspace {
         let RecordData::Source(found) = &source.data else {
             unreachable!()
         };
-        if !same_source(&found.locator, source_reference) || found.chat.as_deref() != scope {
+        // Locators are canonical real paths; an older spelling of the file still matches.
+        if !brn_threads_core::same_locator(
+            &found.locator,
+            &brn_threads_core::canonical_locator(source_reference),
+        ) || found.chat.as_deref() != scope
+        {
             return Err(Error::ImmutableRequest.into());
         }
         let digest: String = Sha256::digest(source_bytes)
@@ -158,13 +163,4 @@ impl Workspace {
             &HostAuthority::owner("full-note import request"),
         )?))
     }
-}
-
-/// Whether a stored Source locator names the same file as `reference`. This
-/// branch stores the raw `--source`, so the match is exact. When it merges
-/// with the daily-workflow branch (which stores canonical paths: "count one
-/// file as one source regardless of path spelling", `344331f2` at review),
-/// this becomes `same_locator(stored, &canonical_locator(reference))`.
-fn same_source(stored: &str, reference: &str) -> bool {
-    stored == reference
 }

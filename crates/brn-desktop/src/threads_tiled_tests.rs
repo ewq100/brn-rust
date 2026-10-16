@@ -71,6 +71,22 @@ fn click(cx: &mut TestAppContext, f: &Fixture, id: impl Into<String>) {
     cx.run_until_parked();
 }
 
+/// Choose a popup menu row by its accessible label, as a mouse user would.
+fn choose(cx: &mut TestAppContext, f: &Fixture, label: &str) {
+    cx.update_window(f.window, |_, window, cx| {
+        let mut menu = window.within("popup-menu");
+        let index = (0..60usize)
+            .find(|index| {
+                menu.try_find(*index)
+                    .is_some_and(|row| row.label() == Some(label))
+            })
+            .unwrap_or_else(|| panic!("menu row {label} not found"));
+        menu.click(index, cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
+}
+
 fn query(cx: &mut TestAppContext, f: &Fixture, value: &str) {
     cx.update_window(f.window, |_, window, cx| {
         f.view
@@ -108,9 +124,14 @@ fn assert_in_window(window: &Window, f: &Fixture, id: &str) {
 fn reveal(cx: &mut TestAppContext, f: &Fixture, container: &str, target: &str) {
     // Exercise real scrolling rather than counting an offscreen test element as accessible.
     for _ in 0..20 {
+        // Wholly inside the scroller, so a click at its center lands on it.
         let visible = cx
             .update_window(f.window, |_, window, _| {
-                window.find(target.to_owned()).visible()
+                let shown = window.find(target.to_owned());
+                let (item, frame) = (shown.bounds(), window.find(container.to_owned()).bounds());
+                shown.visible()
+                    && item.origin.y >= frame.origin.y
+                    && item.origin.y + item.size.height <= frame.origin.y + frame.size.height
             })
             .unwrap();
         if visible {
@@ -324,7 +345,13 @@ fn action_status_tile_writes_one_checked_receipt_and_history_undo_compensates(
     })
     .unwrap();
     let before = cx.read(|cx| f.view.read(cx).workspace.history().unwrap().len());
-    click(cx, &f, format!("wait-action-{}", action.id));
+    // Waiting moved into the task row's ⋯; Confirm done is the main action.
+    cx.update_window(f.window, |_, window, _| {
+        assert!(window.find(format!("done-action-{}", action.id)).visible());
+    })
+    .unwrap();
+    click(cx, &f, format!("task-menu-{}", action.id));
+    choose(cx, &f, "Waiting");
     let receipt = cx.read(|cx| {
         let view = f.view.read(cx);
         let current = view.workspace.store.record(&action.id).unwrap().unwrap();
@@ -473,6 +500,72 @@ fn empty_tiles_explain_home_search_actions_and_history_without_starting_work(
     .unwrap();
 }
 
+/// Gives a new chat a synthetic question so it needs the owner.
+fn ask_owner(view: &mut ThreadsUi, title: &str) {
+    let asked = view.workspace.new_thread(title).unwrap();
+    view.workspace
+        .owner_change(
+            "tiled-attention",
+            &ChangeRequest {
+                reason: "Synthetic attention".into(),
+                inputs: vec![],
+                writes: vec![Put {
+                    id: asked.id.clone(),
+                    expected_version: Some(asked.version),
+                    archived: false,
+                    data: RecordData::Thread(Thread {
+                        private_context: false,
+                        context_epoch: 0,
+                        title: title.into(),
+                        state: ThreadState::Open,
+                        attention: vec![Attention {
+                            kind: AttentionKind::Question,
+                            reason: "Choose the renewal date".into(),
+                            record: None,
+                        }],
+                    }),
+                }],
+            },
+        )
+        .unwrap();
+    view.refresh();
+}
+
+#[gpui_kit::test]
+fn compact_chrome_shortens_the_needs_badge_and_keeps_its_full_name(cx: &mut TestAppContext) {
+    let mut widths = vec![];
+    for width in [1260., 900.] {
+        let f = fixture(cx, false, width, 700.);
+        update(cx, &f, |view, _, cx| {
+            ask_owner(view, "Needs a decision");
+            cx.notify();
+        });
+        cx.update_window(f.window, |_, window, _| {
+            let badge = window.find("needs-badge");
+            assert_eq!(badge.label(), Some("1 needs you"), "{width}");
+            assert_in_window(window, &f, "needs-badge");
+            widths.push(badge.bounds().size.width);
+            let search = window.find("launcher");
+            assert_eq!(search.label(), Some("Search notes, chats and commands"));
+            if width < 1000. {
+                assert!(
+                    search.bounds().size.width <= px(32.),
+                    "{:?}",
+                    search.bounds()
+                );
+            } else {
+                assert!(
+                    search.bounds().size.width >= px(150.),
+                    "{:?}",
+                    search.bounds()
+                );
+            }
+        })
+        .unwrap();
+    }
+    assert!(widths[1] < widths[0], "Compact reads ● 1: {widths:?}");
+}
+
 #[gpui_kit::test]
 fn narrow_settings_and_global_controls_remain_reachable_by_scrolling(cx: &mut TestAppContext) {
     let f = fixture(cx, false, 850., 600.);
@@ -488,11 +581,27 @@ fn narrow_settings_and_global_controls_remain_reachable_by_scrolling(cx: &mut Te
             "history",
             "settings",
             "status-layout",
-            "status-theme",
             "status-keys",
+            "open-beside",
         ] {
             assert_in_window(window, &f, id);
         }
+        // Compact chrome: icon controls keep their full accessible names.
+        assert!(window.try_find("status-theme").is_none());
+        let search = window.find("launcher");
+        assert_eq!(search.label(), Some("Search notes, chats and commands"));
+        assert!(
+            search.bounds().size.width <= px(32.),
+            "{:?}",
+            search.bounds()
+        );
+        let beside = window.find("open-beside");
+        assert_eq!(beside.label(), Some("Open beside"));
+        assert!(
+            beside.bounds().size.width <= px(32.),
+            "{:?}",
+            beside.bounds()
+        );
     })
     .unwrap();
     reveal(cx, &f, "tile-row", "composer-add");
@@ -595,6 +704,221 @@ fn search_pages_show_exact_counts_context_and_ignore_superseded_queries(cx: &mut
     cx.update_window(f.window, |_, window, cx| {
         assert!(window.find("search-empty").visible());
         assert!(f.view.read(cx).results.error.is_none());
+    })
+    .unwrap();
+}
+
+fn message_id(view: &ThreadsUi, chat: &str, text: &str) -> String {
+    view.workspace
+        .messages(chat)
+        .unwrap()
+        .into_iter()
+        .find(|r| matches!(&r.data, RecordData::Message(m) if m.text == text))
+        .unwrap()
+        .id
+}
+
+/// F-UI1 (round 5 native recheck, section F): typing "berth" in Notes lists
+/// the saved chat reply under "In chats" with its chat, role and highlighted
+/// snippet; activating it opens the chat scrolled to that Message; after
+/// Archive the hit stays, labelled Archived (owner decision 3).
+#[gpui_kit::test]
+fn notes_search_lists_saved_chat_messages_and_opens_their_chat(cx: &mut TestAppContext) {
+    let f = fixture(cx, false, 1400., 1100.);
+    let berth = "Berth survey reply draft 1.4 m";
+    let mut chat = String::new();
+    let mut message = String::new();
+    update(cx, &f, |view, _, _| {
+        chat = view.workspace.new_thread("Replies").unwrap().id;
+        view.workspace.post_message(&chat, berth).unwrap();
+        // Enough later Messages that the transcript opens far below it.
+        for i in 0..30 {
+            view.workspace
+                .post_message(
+                    &chat,
+                    &format!(
+                        "Later unrelated message {i}. {}",
+                        "Filler words. ".repeat(20)
+                    ),
+                )
+                .unwrap();
+        }
+        message = message_id(view, &chat, berth);
+        view.refresh();
+    });
+    click(cx, &f, "open-notes");
+    query(cx, &f, "berth");
+    cx.update_window(f.window, |_, window, cx| {
+        let view = f.view.read(cx);
+        assert!(view.hits.is_empty());
+        assert_eq!(view.results.message_hits().len(), 1);
+        // Before: only the note-text empty state, nothing for the Message.
+        assert!(window.find("search-empty").visible());
+        assert!(window.find("search-chats").visible());
+        assert!(window.find("search-chats-status").visible());
+        assert_eq!(window.find("chat-hit-0").label(), Some("Replies · You"));
+        assert_eq!(window.find("chat-hit-0-snippet").label(), Some(berth));
+        assert!(window.try_find("chat-hit-0-archived").is_none());
+        // Chat Messages never count as note hits.
+        let page = view.results.page.clone().unwrap();
+        assert_eq!((page.total, page.message_total), (0, 1));
+    })
+    .unwrap();
+    // Archived: the same hit, labelled (owner decision 3).
+    update(cx, &f, |view, _, cx| view.resolve_thread(&chat, cx));
+    query(cx, &f, "berth survey");
+    cx.update_window(f.window, |_, window, _| {
+        assert_eq!(
+            window.find("chat-hit-0").label(),
+            Some("Replies · You · Archived")
+        );
+        assert!(window.find("chat-hit-0-archived").visible());
+    })
+    .unwrap();
+    reveal(cx, &f, "notes-list", "chat-hit-0");
+    click(cx, &f, "chat-hit-0");
+    cx.update_window(f.window, |_, window, cx| {
+        let view = f.view.read(cx);
+        assert_eq!(view.chat, ChatTarget::Thread(chat.clone()));
+        assert!(view.reveal_message.borrow().is_none(), "revealed once");
+        let row = window.find(format!("chat-message-{message}"));
+        assert!(row.visible(), "the transcript shows the matching Message");
+    })
+    .unwrap();
+}
+
+/// F-UI1: note hits and chat Messages page independently.
+#[gpui_kit::test]
+fn note_hits_and_chat_messages_page_independently(cx: &mut TestAppContext) {
+    let f = fixture(cx, false, 1400., 1100.);
+    update(cx, &f, |view, _, _| {
+        for i in 0..14 {
+            view.workspace
+                .new_note(
+                    &format!("Curlew {i:02}"),
+                    &format!("A curlew sighting {i}."),
+                )
+                .unwrap();
+        }
+        let chat = view.workspace.new_thread("Field chat").unwrap().id;
+        for i in 0..14 {
+            view.workspace
+                .post_message(&chat, &format!("Curlew seen at the marsh, entry {i}"))
+                .unwrap();
+        }
+        view.refresh();
+    });
+    click(cx, &f, "open-notes");
+    query(cx, &f, "curlew");
+    let pages = |cx: &mut TestAppContext| {
+        cx.read(|cx| {
+            let results = &f.view.read(cx).results;
+            let notes = results.page.clone().unwrap();
+            let chats = results.chats.clone().unwrap();
+            (
+                (notes.total, notes.offset, notes.hits.len()),
+                (chats.message_total, chats.offset, chats.messages.len()),
+            )
+        })
+    };
+    assert_eq!(pages(cx), ((14, 0, 12), (14, 0, 12)));
+    reveal(cx, &f, "notes-list", "search-chats-next");
+    click(cx, &f, "search-chats-next");
+    assert_eq!(pages(cx), ((14, 0, 12), (14, 12, 2)));
+    cx.read(|cx| assert_eq!(f.view.read(cx).hits.len(), 12, "note hits stay"));
+    reveal(cx, &f, "notes-list", "search-next");
+    click(cx, &f, "search-next");
+    assert_eq!(pages(cx), ((14, 12, 2), (14, 12, 2)));
+    reveal(cx, &f, "notes-list", "search-chats-previous");
+    click(cx, &f, "search-chats-previous");
+    assert_eq!(pages(cx), ((14, 12, 2), (14, 0, 12)));
+    // While a notes page loads, chat paging stays available and "In chats"
+    // stays in view; with both lanes paging, the group shows its own
+    // loading line rather than disappearing. Nothing answers until parked.
+    reveal(cx, &f, "notes-list", "search-previous");
+    cx.update_window(f.window, |_, window, cx| {
+        window.click("search-previous", cx);
+        window.render_frame(cx);
+        assert!(window.find("search-status").visible(), "notes are loading");
+        assert!(window.find("search-chats").visible());
+        let next = window.find("search-chats-next");
+        assert_eq!(next.label(), Some("Next →"), "not waiting on notes");
+        // The note hits gave way to their loading line: scroll to the chats'
+        // Next without letting either request answer.
+        for _ in 0..20 {
+            let (item, frame) = (
+                window.find("search-chats-next").bounds(),
+                window.find("notes-list").bounds(),
+            );
+            if window.find("search-chats-next").visible()
+                && item.top() >= frame.top()
+                && item.bottom() <= frame.bottom()
+            {
+                break;
+            }
+            let up = if item.top() < frame.top() {
+                120.
+            } else {
+                -120.
+            };
+            window.scroll(
+                "notes-list",
+                gpui_kit::ScrollDelta::Pixels(point(px(0.), px(up))),
+                cx,
+            );
+        }
+        window.click("search-chats-next", cx);
+        window.render_frame(cx);
+        assert!(window.find("search-chats").visible(), "both lanes paging");
+        assert_eq!(
+            window.find("search-chats-status").label(),
+            Some("Searching chats…")
+        );
+    })
+    .unwrap();
+    cx.run_until_parked();
+    assert_eq!(pages(cx), ((14, 0, 12), (14, 12, 2)));
+    // A new query starts both lanes at their first page.
+    query(cx, &f, "curlew sighting");
+    cx.read(|cx| {
+        let results = &f.view.read(cx).results;
+        assert_eq!(results.page.as_ref().unwrap().offset, 0);
+        assert_eq!(results.chats.as_ref().unwrap().offset, 0);
+    });
+}
+
+/// Owner decision 3: a note hit from an archived chat carries the same
+/// Archived chip as a Message hit, never a different wording. The Notes
+/// search has no project scope, where the service lists such notes, so the
+/// hit's `archived` field is set here directly.
+#[gpui_kit::test]
+fn an_archived_chats_note_hit_reads_archived_like_its_messages(cx: &mut TestAppContext) {
+    let f = fixture(cx, false, 1400., 1100.);
+    update(cx, &f, |view, _, _| {
+        view.workspace
+            .new_note("Curlew attachment", "A curlew at berth 4.")
+            .unwrap();
+        view.refresh();
+    });
+    click(cx, &f, "open-notes");
+    query(cx, &f, "curlew");
+    cx.update_window(f.window, |_, window, _| {
+        assert_eq!(window.find("hit-0").label(), Some("Curlew attachment"));
+        assert!(window.try_find("hit-0-archived").is_none());
+    })
+    .unwrap();
+    update(cx, &f, |view, _, cx| {
+        view.hits[0].archived = true;
+        cx.notify();
+    });
+    cx.update_window(f.window, |_, window, cx| {
+        window.render_frame(cx);
+        assert_eq!(
+            window.find("hit-0").label(),
+            Some("Curlew attachment · Archived")
+        );
+        assert_eq!(window.find("hit-0-archived").label(), Some("Archived"));
+        assert!(window.find("hit-0-archived").visible());
     })
     .unwrap();
 }

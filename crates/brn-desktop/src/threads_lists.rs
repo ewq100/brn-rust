@@ -3,7 +3,7 @@
 use super::layout::{Preset, TileKind};
 use super::state::linked;
 use super::theme::ThemeId;
-use brn_threads_app::{Receipt, Record, RecordData, ThreadState};
+use brn_threads_app::{ActionState, Receipt, Record, RecordData, ThreadState};
 use std::collections::{BTreeMap, BTreeSet};
 
 /// Latest receipt position and commit time for records and the threads their
@@ -70,6 +70,245 @@ pub(super) fn day_number(stamp: &str) -> Option<i64> {
     let doy = (153 * mp + 2) / 5 + day - 1;
     let doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;
     Some(era * 146_097 + doe - 719_468)
+}
+
+/// A commit time as people read it, in this Mac's time zone: "Today 22:47",
+/// "14 Oct, 22:47", or "14 Oct 2025, 22:47" in another year. Callers keep
+/// the raw ISO value (UTC) in the tooltip; an unreadable stamp is returned
+/// unchanged.
+pub(super) fn human_time(stamp: &str) -> String {
+    let now = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map_or(0, |elapsed| elapsed.as_secs() as i64);
+    human_time_at(stamp, now, local_offset)
+}
+
+/// `human_time` at `now` (UTC seconds) with `offset` giving the zone's
+/// seconds east of UTC at an instant. A date without a time of day is shown
+/// as written.
+pub(super) fn human_time_at(stamp: &str, now: i64, offset: impl Fn(i64) -> i64) -> String {
+    const MONTHS: [&str; 12] = [
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+    ];
+    let Some(utc_day) = day_number(stamp) else {
+        return stamp.to_owned();
+    };
+    let clock = stamp.get(10..16).filter(|rest| {
+        let bytes = rest.as_bytes();
+        matches!(bytes[0], b'T' | b' ')
+            && bytes[3] == b':'
+            && [1, 2, 4, 5].iter().all(|&i| bytes[i].is_ascii_digit())
+    });
+    let today = (now + offset(now)).div_euclid(86_400);
+    // `clock` has checked its digits.
+    let (day, minutes) = match clock {
+        Some(clock) => {
+            let hours: i64 = clock[1..3].parse().unwrap_or_default();
+            let mins: i64 = clock[4..6].parse().unwrap_or_default();
+            let seconds = stamp
+                .get(16..19)
+                .filter(|rest| rest.starts_with(':'))
+                .and_then(|rest| rest[1..].parse::<i64>().ok())
+                .unwrap_or_default();
+            let epoch = utc_day * 86_400 + hours * 3_600 + mins * 60 + seconds;
+            let local = epoch + offset(epoch);
+            (
+                local.div_euclid(86_400),
+                Some(local.rem_euclid(86_400) / 60),
+            )
+        }
+        None => (utc_day, None),
+    };
+    let (year, month, date) = civil_from_days(day);
+    let when = if day == today {
+        "Today".to_owned()
+    } else if year == civil_from_days(today).0 {
+        format!("{date} {}", MONTHS[(month - 1) as usize])
+    } else {
+        format!("{date} {} {year}", MONTHS[(month - 1) as usize])
+    };
+    match minutes {
+        Some(minutes) if day == today => {
+            format!("{when} {:02}:{:02}", minutes / 60, minutes % 60)
+        }
+        Some(minutes) => format!("{when}, {:02}:{:02}", minutes / 60, minutes % 60),
+        None => when,
+    }
+}
+
+/// Seconds east of UTC in this Mac's time zone at `epoch` (UTC seconds),
+/// from the C library's `localtime_r`, so each date gets its own daylight
+/// saving. UTC (0) when the system can't say.
+#[cfg(unix)]
+#[allow(
+    clippy::useless_conversion,
+    clippy::unnecessary_fallible_conversions,
+    reason = "`c_long` is 64 bits on 64-bit macOS and Linux, 32 bits on 32-bit targets"
+)]
+fn local_offset(epoch: i64) -> i64 {
+    use std::ffi::{c_char, c_int, c_long};
+    // `struct tm` as macOS and glibc lay it out; only `gmtoff` is read.
+    #[repr(C)]
+    #[allow(dead_code, reason = "fields mirror struct tm; only gmtoff is read")]
+    struct Tm {
+        sec: c_int,
+        min: c_int,
+        hour: c_int,
+        mday: c_int,
+        mon: c_int,
+        year: c_int,
+        wday: c_int,
+        yday: c_int,
+        isdst: c_int,
+        gmtoff: c_long,
+        zone: *const c_char,
+    }
+    unsafe extern "C" {
+        fn localtime_r(time: *const c_long, out: *mut Tm) -> *mut Tm;
+    }
+    // `time_t` is `long` on macOS and Linux; where `long` is 32 bits, an
+    // instant it can't hold reads as UTC.
+    let Some(time) = c_long::try_from(epoch).ok() else {
+        return 0;
+    };
+    let mut out = std::mem::MaybeUninit::<Tm>::zeroed();
+    // SAFETY: both pointers are valid for the call; `localtime_r` only reads
+    // `time` and writes the zeroed `out`, which it fully initializes when it
+    // returns non-null.
+    let filled = unsafe { localtime_r(&time, out.as_mut_ptr()) };
+    if filled.is_null() {
+        return 0;
+    }
+    // SAFETY: `localtime_r` succeeded, so `out` is initialized.
+    i64::from(unsafe { out.assume_init() }.gmtoff)
+}
+
+/// Without the C library's `localtime_r` (Windows), times read as UTC, the
+/// documented fallback.
+#[cfg(not(unix))]
+fn local_offset(_epoch: i64) -> i64 {
+    0
+}
+
+/// The civil (year, month, day) of a day number (days since 1970-01-01).
+fn civil_from_days(day: i64) -> (i64, i64, i64) {
+    let z = day + 719_468;
+    let era = z.div_euclid(146_097);
+    let doe = z - era * 146_097;
+    let yoe = (doe - doe / 1460 + doe / 36_524 - doe / 146_096) / 365;
+    let doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
+    let mp = (5 * doy + 2) / 153;
+    let date = doy - (153 * mp + 2) / 5 + 1;
+    let month = if mp < 10 { mp + 3 } else { mp - 9 };
+    (yoe + era * 400 + i64::from(month <= 2), month, date)
+}
+
+/// The UTC calendar year of a day number.
+#[cfg(test)]
+fn civil_year(day: i64) -> i64 {
+    civil_from_days(day).0
+}
+
+/// Bookkeeping that writes only chat controls (queue set-up and recovery on
+/// every launch). Changes groups it under Background and Home leaves it out;
+/// a change that needs refresh is never background.
+pub(super) fn is_background(receipt: &Receipt) -> bool {
+    receipt.needs_refresh.is_empty()
+        && !receipt.writes.is_empty()
+        && receipt
+            .writes
+            .iter()
+            .all(|write| matches!(write.after.data, RecordData::ChatControl(_)))
+}
+
+/// A recorded reason as the owner reads it: chat-control bookkeeping drops
+/// its "Chat control: " prefix. The recorded reason itself is unchanged.
+pub(super) fn receipt_reason(reason: &str) -> String {
+    let Some(rest) = reason.strip_prefix("Chat control: ") else {
+        return reason.to_owned();
+    };
+    let mut chars = rest.chars();
+    match chars.next() {
+        Some(first) => first.to_uppercase().chain(chars).collect(),
+        None => reason.to_owned(),
+    }
+}
+
+/// The notes, chats, tasks, projects and sources a change touched, by title:
+/// "A", "A, B" or "A, B and N more".
+pub(super) fn affected_titles(receipt: &Receipt) -> String {
+    let mut titles: Vec<String> = vec![];
+    for write in &receipt.writes {
+        let title = match &write.after.data {
+            RecordData::Note(note) => note.title.as_str(),
+            RecordData::Thread(thread) => thread.title.as_str(),
+            RecordData::Action(action) => action.description.as_str(),
+            RecordData::Project(project) => project.title.as_str(),
+            RecordData::Source(source) => source.label.as_str(),
+            RecordData::Settings(_) => "Workspace settings",
+            _ => continue,
+        };
+        let title = title.split_whitespace().collect::<Vec<_>>().join(" ");
+        if !title.is_empty() && !titles.contains(&title) {
+            titles.push(title);
+        }
+    }
+    match titles.as_slice() {
+        [] => String::new(),
+        [a] => a.clone(),
+        [a, b] => format!("{a}, {b}"),
+        [a, b, rest @ ..] => format!("{a}, {b} and {} more", rest.len()),
+    }
+}
+
+/// A task state change offered from its row.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) enum TaskStep {
+    Accept,
+    ConfirmDone,
+    Waiting,
+    MarkOpen,
+    Cancel,
+}
+impl TaskStep {
+    pub(super) fn label(self) -> &'static str {
+        match self {
+            Self::Accept => "Accept task",
+            Self::ConfirmDone => "Confirm done",
+            Self::Waiting => "Waiting",
+            Self::MarkOpen => "Mark open",
+            Self::Cancel => "Cancel task",
+        }
+    }
+    pub(super) fn state(self) -> ActionState {
+        match self {
+            Self::Accept | Self::MarkOpen => ActionState::Open,
+            Self::ConfirmDone => ActionState::Done,
+            Self::Waiting => ActionState::Waiting,
+            Self::Cancel => ActionState::Cancelled,
+        }
+    }
+    /// The reason each change records, in the Tasks vocabulary.
+    pub(super) fn reason(self) -> &'static str {
+        match self {
+            Self::Accept | Self::MarkOpen => "Owner opened a task",
+            Self::ConfirmDone => "Owner confirmed a task is done",
+            Self::Waiting => "Owner marked a task waiting",
+            Self::Cancel => "Owner cancelled a task",
+        }
+    }
+}
+
+/// An open task's one visible main action and its row ⋯ items, which hold
+/// only changes of state, Cancel task last. Done and Cancelled offer none.
+pub(super) fn task_steps(state: &ActionState) -> (Option<TaskStep>, Vec<TaskStep>) {
+    use TaskStep::*;
+    match state {
+        ActionState::Suggested => (Some(Accept), vec![Waiting, ConfirmDone, Cancel]),
+        ActionState::Open => (Some(ConfirmDone), vec![Waiting, Cancel]),
+        ActionState::Waiting => (Some(ConfirmDone), vec![MarkOpen, Cancel]),
+        ActionState::Done | ActionState::Cancelled => (None, vec![]),
+    }
 }
 
 pub(super) fn today() -> i64 {
@@ -152,6 +391,30 @@ pub(super) fn sidebar<'a>(rows: &'a [ThreadRow], current: Option<&str>) -> Sideb
     }
 }
 
+/// Why Recent chats lists no chat, so its empty state stays true.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) enum RecentEmpty {
+    /// The workspace has no chats.
+    NoChats,
+    /// Every remaining chat is listed under Needs you.
+    OthersNeedYou,
+    /// Every chat is archived.
+    AllArchived,
+}
+impl Sidebar<'_> {
+    pub(super) fn recent_empty(&self) -> Option<RecentEmpty> {
+        if !self.open.is_empty() {
+            None
+        } else if self.total == 0 {
+            Some(RecentEmpty::NoChats)
+        } else if !self.needs.is_empty() {
+            Some(RecentEmpty::OthersNeedYou)
+        } else {
+            Some(RecentEmpty::AllArchived)
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(super) enum ThreadFilter {
     All,
@@ -182,12 +445,12 @@ impl ThreadFilter {
     }
     pub(super) fn label(self) -> &'static str {
         match self {
-            Self::All => "all",
-            Self::Open => "open",
-            Self::Resolved => "archived",
-            Self::NeedsYou => "needs you",
-            Self::LinkedNote => "linked note",
-            Self::HasAction => "has task",
+            Self::All => "All",
+            Self::Open => "Open",
+            Self::Resolved => "Archived",
+            Self::NeedsYou => "Needs you",
+            Self::LinkedNote => "Linked note",
+            Self::HasAction => "Has task",
         }
     }
     fn accepts(self, row: &ThreadRow) -> bool {
@@ -417,6 +680,7 @@ pub(super) enum Command {
     Keys,
 }
 impl Command {
+    /// Destinations are named, never "Open tile: …".
     pub(super) fn label(self) -> String {
         match self {
             Self::NewThread => "New chat".into(),
@@ -425,28 +689,27 @@ impl Command {
             Self::Save => "Save note".into(),
             Self::Layout(preset) => format!("Layout: {}", preset.label()),
             Self::Theme(theme) => format!("Theme: {} · {}", theme.label(), theme.description()),
-            Self::OpenTile(TileKind::History) => "Changes".into(),
-            Self::OpenTile(TileKind::Actions) => "Tasks".into(),
-            Self::OpenTile(TileKind::Settings) => "Settings".into(),
-            Self::OpenTile(TileKind::Overview) => "Home".into(),
-            Self::OpenTile(kind) => format!("Open tile: {}", kind.label()),
+            Self::OpenTile(TileKind::Note) => "Current note".into(),
+            Self::OpenTile(TileKind::Chat) => "Current chat".into(),
+            Self::OpenTile(kind) => kind.label().into(),
             Self::Keys => "Keys and mouse".into(),
         }
     }
-    pub(super) fn shortcut(self) -> &'static str {
-        match self {
-            Self::NewThread => "⌘T",
-            Self::NewNote => "⌘N",
-            Self::Rewrite => "⌘⇧R",
-            Self::Save => "⌘S",
-            Self::Layout(Preset::Write) => "⌥1",
-            Self::Layout(Preset::Chat) => "⌥2",
-            Self::Layout(Preset::Solo) => "⌥3",
-            Self::OpenTile(TileKind::Threads) => "⌘\\",
-            Self::OpenTile(TileKind::Settings) => "⌘,",
-            Self::OpenTile(TileKind::Overview) => "⌘0",
-            _ => "",
-        }
+    /// The bound keystroke, shown in launcher rows with Kit's `Kbd`.
+    pub(super) fn keystroke(self) -> Option<&'static str> {
+        Some(match self {
+            Self::NewThread => "cmd-t",
+            Self::NewNote => "cmd-n",
+            Self::Rewrite => "cmd-shift-r",
+            Self::Save => "cmd-s",
+            Self::Layout(Preset::Write) => "alt-1",
+            Self::Layout(Preset::Chat) => "alt-2",
+            Self::Layout(Preset::Solo) => "alt-3",
+            Self::OpenTile(TileKind::Threads) => "cmd-\\",
+            Self::OpenTile(TileKind::Settings) => "cmd-,",
+            Self::OpenTile(TileKind::Overview) => "cmd-0",
+            _ => return None,
+        })
     }
     pub(super) fn all() -> Vec<Self> {
         let mut out = vec![Self::NewThread, Self::NewNote, Self::Rewrite, Self::Save];
@@ -461,6 +724,7 @@ impl Command {
                 TileKind::Note,
                 TileKind::Chat,
                 TileKind::Linked,
+                TileKind::Projects,
                 TileKind::History,
                 TileKind::Actions,
                 TileKind::Settings,
@@ -484,27 +748,88 @@ pub(super) enum LaunchItem {
         id: String,
         title: String,
     },
+    /// A saved chat Message the owner search matched; opens its chat.
+    Message {
+        chat: String,
+        message: String,
+        chat_title: String,
+        role: String,
+        snippet: String,
+        highlights: Vec<std::ops::Range<usize>>,
+        archived: bool,
+    },
     Command(Command),
 }
 impl LaunchItem {
+    /// The visible text; the group heading and kind icon name the kind.
     pub(super) fn label(&self) -> String {
+        match self {
+            Self::Thread { title, .. } | Self::Note { title, .. } => title.clone(),
+            Self::Message { snippet, .. } => snippet.clone(),
+            Self::Command(command) => command.label(),
+        }
+    }
+    /// Muted text after the label: a Message's chat and who wrote it.
+    pub(super) fn meta(&self) -> Option<String> {
+        match self {
+            Self::Message {
+                chat_title, role, ..
+            } => Some(format!(
+                "{chat_title} · {}",
+                super::search_view::role_label(role)
+            )),
+            _ => None,
+        }
+    }
+    /// The announced name keeps the kind and the archived state.
+    pub(super) fn accessible_label(&self) -> String {
         match self {
             Self::Thread {
                 title, resolved, ..
             } => format!(
-                "chat · {title}{}",
+                "Chat: {title}{}",
                 if *resolved { " · archived" } else { "" }
             ),
-            Self::Note { title, .. } => format!("note · {title}"),
+            Self::Note { title, .. } => format!("Note: {title}"),
+            Self::Message {
+                chat_title,
+                role,
+                snippet,
+                archived,
+                ..
+            } => format!(
+                "Message in {chat_title}, {}: {snippet}{}",
+                super::search_view::role_label(role),
+                if *archived { " · archived" } else { "" }
+            ),
             Self::Command(command) => command.label(),
+        }
+    }
+    /// Results are ordered chats, notes, commands, then chat messages, so
+    /// headings follow order.
+    pub(super) fn group(&self) -> &'static str {
+        match self {
+            Self::Thread { .. } => "Chats",
+            Self::Note { .. } => "Notes",
+            Self::Message { .. } => "In chats",
+            Self::Command(_) => "Commands",
         }
     }
 }
 pub(super) const LAUNCH_LIMIT: usize = 20;
 
 /// Empty queries show recent work then commands; otherwise every thread
-/// (including resolved), note and command whose label matches.
-pub(super) fn launcher(query: &str, threads: &[ThreadRow], notes: &[NoteRow]) -> Vec<LaunchItem> {
+/// (including resolved), note and command whose label matches (at most
+/// `LAUNCH_LIMIT`), then the owner search's matching chat Messages
+/// (`messages`, as the Notes search lists them under "In chats"). The
+/// Messages arrive after the label matches, so they come last: an answer
+/// landing never moves a row the selection or ↵ already points at.
+pub(super) fn launcher(
+    query: &str,
+    threads: &[ThreadRow],
+    notes: &[NoteRow],
+    messages: &[brn_threads_app::ChatMessageHit],
+) -> Vec<LaunchItem> {
     let query = query.trim().to_lowercase();
     let thread = |row: &ThreadRow| LaunchItem::Thread {
         id: row.id.clone(),
@@ -528,13 +853,27 @@ pub(super) fn launcher(query: &str, threads: &[ThreadRow], notes: &[NoteRow]) ->
             .take(LAUNCH_LIMIT)
             .collect();
     }
+    let matches = |item: &LaunchItem| item.accessible_label().to_lowercase().contains(&query);
+    let message = |hit: &brn_threads_app::ChatMessageHit| LaunchItem::Message {
+        chat: hit.chat.clone(),
+        message: hit.message.clone(),
+        chat_title: hit.chat_title.clone(),
+        role: hit.role.clone(),
+        snippet: hit.snippet.clone(),
+        highlights: hit.highlights.clone(),
+        archived: hit.archived,
+    };
     threads
         .iter()
         .map(thread)
         .chain(notes.iter().map(note))
         .chain(Command::all().into_iter().map(LaunchItem::Command))
-        .filter(|item| item.label().to_lowercase().contains(&query))
+        .filter(matches)
         .take(LAUNCH_LIMIT)
+        // The search already matched these; their text need not contain
+        // the query verbatim. The request asks for at most
+        // `LAUNCH_MESSAGES`.
+        .chain(messages.iter().map(message))
         .collect()
 }
 
@@ -612,6 +951,106 @@ mod tests {
         assert_eq!(day_number("2026-10-12T19:40:31.118Z"), Some(20_738));
         assert_eq!(day_number("2024-03-01"), Some(19_783));
         assert_eq!(day_number("garbage"), None);
+        for (stamp, year) in [
+            ("1970-01-01", 1970),
+            ("2024-02-29", 2024),
+            ("2024-12-31", 2024),
+            ("2025-01-01", 2025),
+            ("2026-10-14", 2026),
+        ] {
+            assert_eq!(civil_year(day_number(stamp).unwrap()), year, "{stamp}");
+        }
+    }
+
+    #[test]
+    fn human_times_read_as_today_or_a_short_local_date() {
+        // 14 Oct 2026, 21:00 UTC.
+        let now = day_number("2026-10-14").unwrap() * 86_400 + 21 * 3_600;
+        let utc = |_: i64| 0;
+        for (stamp, shown) in [
+            ("2026-10-14T19:47:03.118Z", "Today 19:47"),
+            ("2026-10-13T08:05:00Z", "13 Oct, 08:05"),
+            ("2026-03-01T00:00:00Z", "1 Mar, 00:00"),
+            ("2025-12-31T23:59:59Z", "31 Dec 2025, 23:59"),
+            ("2026-10-14", "Today"),
+            ("2026-10-02", "2 Oct"),
+            ("garbage", "garbage"),
+            ("", ""),
+        ] {
+            assert_eq!(human_time_at(stamp, now, utc), shown, "{stamp}");
+        }
+        // UTC+3 (EEST): the clock and the day move with the zone, and "now"
+        // (00:00 on 15 Oct there) is a new local day.
+        let eest = |_: i64| 3 * 3_600;
+        for (stamp, shown) in [
+            ("2026-10-14T19:47:03.118Z", "14 Oct, 22:47"),
+            ("2026-10-14T21:30:00Z", "Today 00:30"),
+            ("2025-12-31T22:30:00Z", "1 Jan, 01:30"),
+            ("2026-10-15", "Today"),
+        ] {
+            assert_eq!(human_time_at(stamp, now, eest), shown, "{stamp}");
+        }
+        // Each instant gets its own offset (daylight saving).
+        let summer = |epoch: i64| {
+            if epoch >= day_number("2026-10-25").unwrap() * 86_400 {
+                2 * 3_600
+            } else {
+                3 * 3_600
+            }
+        };
+        assert_eq!(
+            human_time_at("2026-10-30T10:00:00Z", now, summer),
+            "30 Oct, 12:00"
+        );
+    }
+
+    #[test]
+    fn bookkeeping_and_reasons_read_as_the_owner_sees_them() {
+        assert_eq!(
+            receipt_reason("Chat control: recover paused queue"),
+            "Recover paused queue"
+        );
+        assert_eq!(receipt_reason("Saved the brief"), "Saved the brief");
+        let control = record(
+            "control",
+            RecordData::ChatControl(ChatControl {
+                queue: vec![],
+                pending: None,
+                paused: false,
+                quiet: false,
+            }),
+        );
+        let only = |writes: Vec<Record>| {
+            receipt(
+                &format!("bookkeeping-{}", writes.len()),
+                "owner:x",
+                "2026-10-14T10:00:00Z",
+                writes.into_iter().map(|after| (None, after)).collect(),
+            )
+        };
+        assert!(is_background(&only(vec![control.clone()])));
+        let mut refresh = only(vec![control.clone()]);
+        refresh.needs_refresh = vec!["n".into()];
+        assert!(
+            !is_background(&refresh),
+            "needs refresh is never background"
+        );
+        assert!(!is_background(&only(vec![
+            control.clone(),
+            note("n", "Brief", false)
+        ])));
+        assert!(!is_background(&only(vec![])));
+        assert_eq!(
+            affected_titles(&only(vec![
+                note("a", "Brief", false),
+                control,
+                note("b", "Plan", false),
+                note("c", "Brief", false),
+                note("d", "Notes", false),
+                note("e", "More", false),
+            ])),
+            "Brief, Plan and 2 more"
+        );
     }
 
     #[test]
@@ -666,6 +1105,37 @@ mod tests {
                 .iter()
                 .all(|row| row.id != "done")
         );
+        assert_eq!(bar.recent_empty(), None);
+    }
+
+    #[test]
+    fn recent_chats_says_no_chats_yet_only_without_chats() {
+        let empty = |records: &[Record]| {
+            let rows = thread_rows(records, &Activity::new(&[]));
+            sidebar(&rows, None).recent_empty()
+        };
+        assert_eq!(empty(&[]), Some(RecentEmpty::NoChats));
+        let needs = thread(
+            "n",
+            "Delivery update",
+            ThreadState::Open,
+            Some("Run failed"),
+        );
+        let archived = thread("a", "Old question", ThreadState::Resolved, None);
+        assert_eq!(
+            empty(std::slice::from_ref(&needs)),
+            Some(RecentEmpty::OthersNeedYou)
+        );
+        assert_eq!(
+            empty(&[needs, archived.clone()]),
+            Some(RecentEmpty::OthersNeedYou)
+        );
+        assert_eq!(
+            empty(std::slice::from_ref(&archived)),
+            Some(RecentEmpty::AllArchived)
+        );
+        let open = thread("o", "Plan", ThreadState::Open, None);
+        assert_eq!(empty(&[archived, open]), None);
     }
 
     #[test]
@@ -788,14 +1258,23 @@ mod tests {
         let activity = Activity::default();
         let threads = thread_rows(&records, &activity);
         let notes = note_rows(&records, &activity);
-        let items = launcher("renewal", &threads, &notes);
+        let items = launcher("renewal", &threads, &notes, &[]);
         assert_eq!(items.len(), 2);
-        assert_eq!(items[0].label(), "chat · Renewal date · archived");
+        assert_eq!(items[0].label(), "Renewal date");
+        assert_eq!(items[0].accessible_label(), "Chat: Renewal date · archived");
+        assert_eq!(items[0].group(), "Chats");
+        assert_eq!(items[1].accessible_label(), "Note: Renewal contract");
+        assert_eq!(items[1].group(), "Notes");
+        assert_eq!(
+            launcher("archived", &threads, &notes, &[]),
+            [items[0].clone()],
+            "the archived state stays searchable"
+        );
         assert!(
-            launcher("raba", &threads, &notes)
+            launcher("raba", &threads, &notes, &[])
                 .contains(&LaunchItem::Command(Command::Theme(ThemeId::Raba)))
         );
-        let empty = launcher("", &threads, &notes);
+        let empty = launcher("", &threads, &notes, &[]);
         assert!(
             !empty
                 .iter()
@@ -803,6 +1282,102 @@ mod tests {
             "resolved stay out of recent"
         );
         assert!(empty.contains(&LaunchItem::Command(Command::NewThread)));
-        assert_eq!(Command::Layout(Preset::Chat).shortcut(), "⌥2");
+        assert_eq!(Command::Layout(Preset::Chat).keystroke(), Some("alt-2"));
+        assert_eq!(Command::Keys.keystroke(), None);
+    }
+
+    /// F-UI1: the launcher lists the owner search's chat Messages under
+    /// "In chats", after every label match, with an archived label.
+    #[test]
+    fn launcher_lists_matching_chat_messages_after_the_label_matches() {
+        let records = vec![note("n", "Berth plan", false)];
+        let activity = Activity::default();
+        let notes = note_rows(&records, &activity);
+        let hit = |message: &str, snippet: &str, archived: bool| ChatMessageHit {
+            message: message.into(),
+            version: 1,
+            chat: "chat".into(),
+            chat_title: "Replies".into(),
+            role: "owner".into(),
+            snippet: snippet.into(),
+            highlights: vec![std::ops::Range { start: 0, end: 5 }],
+            archived,
+        };
+        // The service matched both; the second snippet lacks the word.
+        let messages = [
+            hit("m1", "Berth survey reply draft 1.4 m", false),
+            hit("m2", "Survey reply, kept", true),
+        ];
+        let items = launcher("berth", &[], &notes, &messages);
+        let groups: Vec<_> = items.iter().map(LaunchItem::group).collect();
+        assert_eq!(groups, ["Notes", "In chats", "In chats"]);
+        assert_eq!(items[1].label(), "Berth survey reply draft 1.4 m");
+        assert_eq!(items[1].meta().as_deref(), Some("Replies · You"));
+        assert_eq!(
+            items[1].accessible_label(),
+            "Message in Replies, You: Berth survey reply draft 1.4 m"
+        );
+        assert_eq!(
+            items[2].accessible_label(),
+            "Message in Replies, You: Survey reply, kept · archived"
+        );
+        assert!(matches!(
+            &items[2],
+            LaunchItem::Message { chat, message, archived: true, .. } if chat == "chat" && message == "m2"
+        ));
+        // Without a search answer nothing is invented.
+        assert!(
+            launcher("berth", &[], &[], &[]).is_empty(),
+            "no label matches and no Messages"
+        );
+        // A word that is a command and also in saved chat text (the theme
+        // names are everyday Estonian words): the command keeps its row
+        // when the search answers, so ↵ and the selection never move to a
+        // Message that arrived later.
+        let before = launcher("raba", &[], &notes, &[]);
+        let theme = LaunchItem::Command(Command::Theme(ThemeId::Raba));
+        assert_eq!(before.first(), Some(&theme));
+        let raba = [hit("m3", "Raba walk on Saturday", false)];
+        let after = launcher("raba", &[], &notes, &raba);
+        assert_eq!(after[..before.len()], before[..], "earlier rows stay put");
+        assert_eq!(after.first(), Some(&theme));
+        let groups: Vec<_> = after.iter().map(LaunchItem::group).collect();
+        assert_eq!(groups, ["Commands", "In chats"]);
+        assert!(matches!(
+            after.last(),
+            Some(LaunchItem::Message { message, .. }) if message == "m3"
+        ));
+    }
+
+    #[test]
+    fn launcher_commands_name_every_destination_including_projects() {
+        let labels: Vec<String> = Command::all().into_iter().map(Command::label).collect();
+        for destination in [
+            "Notes",
+            "Connections",
+            "All chats",
+            "Chats",
+            "Current note",
+            "Current chat",
+            "Linked work",
+            "Projects",
+            "Changes",
+            "Tasks",
+            "Settings",
+            "Home",
+        ] {
+            assert!(
+                labels.iter().any(|label| label == destination),
+                "{destination}"
+            );
+        }
+        assert!(
+            labels.iter().all(|label| !label.starts_with("Open tile:")),
+            "{labels:?}"
+        );
+        assert_eq!(
+            launcher("projects", &[], &[], &[]),
+            [LaunchItem::Command(Command::OpenTile(TileKind::Projects))]
+        );
     }
 }

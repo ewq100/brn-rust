@@ -1,0 +1,54 @@
+{
+  "verdict": "APPROVED",
+  "findings": [
+    {
+      "id": "A-R1",
+      "label": "Lock is now mandatory for staging",
+      "severity": "non-blocking",
+      "confidence": "likely",
+      "detail": "stage.rs mark() turns a File::lock() failure into a StageDir::create error. Backup or restore to a mount that supports hard links or rename but not flock (for example macOS NFS with nolocks, ENOTSUP) now fails where it used to succeed. It fails closed.",
+      "action": "If lock() returns Unsupported, keep the stage without a marker (the sweep then skips it, as before), or document the lock requirement next to the hard-link requirement in the core README."
+    },
+    {
+      "id": "A-R2",
+      "label": "Nested content is deleted with an abandoned stage",
+      "severity": "non-blocking",
+      "confidence": "confirmed",
+      "detail": "sweep_abandoned removes the whole stage tree without looking inside it. A backup file or restore target the owner placed inside a stage folder, or a data folder opened from a killed restore's <stage>/workspace, is deleted by the next sweep in that parent. Every trigger needs the owner to pick a hidden UUID-named folder on purpose.",
+      "action": "Refuse backup and restore destinations with a stage-prefixed ancestor in StagedBackup::create and StagedRestore::prepare. Add the same check in Store::open or a README line for data folders."
+    },
+    {
+      "id": "A-R3",
+      "label": "A partial removal can become permanent debris",
+      "severity": "non-blocking",
+      "confidence": "confirmed",
+      "detail": "remove_dir_all deletes in directory order, so an I/O error partway through can remove .brn-stage first, leaving a markerless partial stage that no later sweep removes. Sweep errors are silent.",
+      "action": "Remove the other entries first and the marker last, or record this as a limitation."
+    },
+    {
+      "id": "A-R4",
+      "label": "The SIGKILL test can hang or orphan its child",
+      "severity": "non-blocking",
+      "confidence": "confirmed",
+      "detail": "a_sigkilled_backup_process_leaves_a_stage_the_next_backup_removes reads child stdout with no deadline. A panic between spawn and kill leaves the child asleep for 60 s, holding a stage in a tempdir that is being deleted.",
+      "action": "Kill and reap the child from a drop guard, and bound the wait for BRN_STAGE_READY."
+    },
+    {
+      "id": "A-R5",
+      "label": "Verified on macOS only",
+      "severity": "non-blocking",
+      "confidence": "confirmed",
+      "detail": "The non-Unix-gated stage tests and the edited backup/restore cleanup tests run on the windows-2025 and ubuntu-24.04 CI headless legs. There, LockFileEx semantics and Drop's remove-while-locked fallback have not been exercised. verification.md does not name the OS.",
+      "action": "State macOS-only in verification.md, and treat the CI headless matrix as the gate for Windows and Linux."
+    },
+    {
+      "id": "A-R6",
+      "label": "The no-published-marker assertion was never seen failing",
+      "severity": "non-blocking",
+      "confidence": "confirmed",
+      "detail": "staging_never_exposes_ready_destination now asserts the restored folder has no .brn-stage. None of E1 to E8 stages the workspace directly in the wrapper to show that assertion failing.",
+      "action": "Optional: add that experiment to verification.md."
+    }
+  ],
+  "reviewDoc": "/Users/evokessler/repos/brn-rust/.worktrees/daily-workflow-reliability/docs/work/active/daily-workflow-reliability/round5/review-A.md"
+}

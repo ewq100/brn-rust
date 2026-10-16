@@ -1,5 +1,6 @@
 //! The workspace search index (`derived/search.sqlite`): a rebuildable mirror
-//! of current notes and links with exact and English-stemmed FTS5 lanes.
+//! of current notes and links with exact and English-stemmed FTS5 lanes,
+//! plus final chat Messages in separate tables for owner search.
 //! It is never authoritative; callers re-check core visibility on results.
 use crate::markdown_chunk::{CHUNKER_VERSION, chunks};
 use crate::{Error, Result};
@@ -18,8 +19,11 @@ pub const FILE_NAME: &str = "search.sqlite";
 const LOCK_NAME: &str = "search.lock";
 const APPLICATION_ID: i64 = 0x4252_4e53; // BRNS
 /// 2: passage IDs are never reused, so a cached vector cannot be attributed
-/// to a later passage.
-const SCHEMA_VERSION: i64 = 2;
+/// to a later passage. 3: final chat Messages, in their own tables, for owner
+/// search; a v2 index is rebuilt and the next sync backfills them. 4: an
+/// archived chat keeps its scope tag instead of `hidden` (owner decision 3),
+/// so a v3 index is rebuilt and the next full sync rescopes every chat.
+const SCHEMA_VERSION: i64 = 4;
 const DEFAULT_LANGUAGE: &str = "en";
 const NOT_OURS: &str = "derived search path holds a file that is not a BRN search index";
 /// Reciprocal-rank fusion constant.
@@ -119,6 +123,39 @@ CREATE TABLE links (
 CREATE INDEX links_src ON links(src);
 CREATE INDEX links_dst ON links(dst);
 CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);
+CREATE TABLE chats (id TEXT PRIMARY KEY, scope TEXT NOT NULL);
+CREATE TABLE messages (
+    rid INTEGER PRIMARY KEY AUTOINCREMENT,
+    id TEXT UNIQUE NOT NULL,
+    chat TEXT NOT NULL,
+    version INTEGER NOT NULL,
+    role TEXT NOT NULL CHECK(role IN ('owner', 'assistant')),
+    text TEXT NOT NULL
+);
+CREATE INDEX messages_chat ON messages(chat);
+CREATE VIRTUAL TABLE fts_message_exact USING fts5(
+    text, content = 'messages', content_rowid = 'rid',
+    tokenize = 'unicode61 remove_diacritics 2'
+);
+CREATE VIRTUAL TABLE fts_message_stem USING fts5(
+    text, content = 'messages', content_rowid = 'rid',
+    tokenize = '{stem}'
+);
+CREATE TRIGGER messages_exact_insert AFTER INSERT ON messages BEGIN
+    INSERT INTO fts_message_exact(rowid, text) VALUES (new.rid, new.text);
+END;
+CREATE TRIGGER messages_exact_delete AFTER DELETE ON messages BEGIN
+    INSERT INTO fts_message_exact(fts_message_exact, rowid, text) VALUES ('delete', old.rid, old.text);
+END;
+CREATE TRIGGER messages_stem_insert AFTER INSERT ON messages BEGIN
+    INSERT INTO fts_message_stem(rowid, text) VALUES (new.rid, new.text);
+END;
+CREATE TRIGGER messages_stem_delete AFTER DELETE ON messages BEGIN
+    INSERT INTO fts_message_stem(fts_message_stem, rowid, text) VALUES ('delete', old.rid, old.text);
+END;
+CREATE TRIGGER messages_no_update BEFORE UPDATE ON messages BEGIN
+    SELECT RAISE(ABORT, 'messages are replaced, never updated');
+END;
 "
     )
 }
@@ -141,7 +178,21 @@ const OBJECTS: &[&str] = &[
     "links_src",
     "links_dst",
     "meta",
+    "chats",
+    "messages",
+    "messages_chat",
+    "fts_message_exact",
+    "fts_message_stem",
+    "messages_exact_insert",
+    "messages_exact_delete",
+    "messages_stem_insert",
+    "messages_stem_delete",
+    "messages_no_update",
 ];
+
+/// Largest per-lane window for chat Messages, which are not collapsed per
+/// document, so owner pages can reach this many.
+pub const MAX_MESSAGE_LANE: usize = 100;
 
 /// Settings whose change makes the stored index meaningless.
 fn expected_meta() -> Vec<(&'static str, String)> {
@@ -193,6 +244,50 @@ pub struct LinkInput {
     pub relation: String,
 }
 
+/// Where a chat's Messages may appear, mirroring the core owner-search
+/// message scope. Separate from note [`Visibility`]: no note query reads it.
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub enum ChatScope {
+    General,
+    Project(String),
+    Chat(String),
+    Hidden,
+}
+
+impl ChatScope {
+    fn tag(&self) -> String {
+        match self {
+            Self::General => "general".into(),
+            Self::Project(id) => format!("project:{id}"),
+            Self::Chat(id) => format!("chat:{id}"),
+            Self::Hidden => "hidden".into(),
+        }
+    }
+}
+
+/// One final owner or assistant chat Message.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct MessageInput {
+    pub id: String,
+    pub chat: String,
+    pub version: u64,
+    /// `owner` or `assistant`; other roles are refused.
+    pub role: String,
+    pub text: String,
+}
+
+/// One matching chat Message.
+#[derive(Debug, Clone, PartialEq)]
+pub struct MessageHit {
+    pub message: String,
+    pub chat: String,
+    pub version: u64,
+    pub role: String,
+    pub text: String,
+    /// Fused reciprocal-rank score; comparable only within one result list.
+    pub score: f64,
+}
+
 /// One synchronization step up to `watermark`, applied atomically.
 #[derive(Debug, Clone, Default)]
 pub struct Changes {
@@ -206,6 +301,10 @@ pub struct Changes {
     pub remove_docs: Vec<String>,
     pub upsert_links: Vec<LinkInput>,
     pub remove_links: Vec<String>,
+    pub upsert_messages: Vec<MessageInput>,
+    pub remove_messages: Vec<String>,
+    /// The current scope of each listed chat.
+    pub chat_scopes: Vec<(String, ChatScope)>,
     pub watermark: i64,
 }
 
@@ -332,6 +431,7 @@ impl SearchIndex {
         if changes.full {
             tx.execute_batch(
                 "DELETE FROM vectors; DELETE FROM passages; DELETE FROM docs; DELETE FROM links;
+                 DELETE FROM messages; DELETE FROM chats;
                  DELETE FROM meta WHERE key = 'workspace_identity';",
             )?;
             if let Some(identity) = &changes.workspace_identity {
@@ -392,6 +492,55 @@ impl SearchIndex {
                  ON CONFLICT(id) DO UPDATE SET src = excluded.src, dst = excluded.dst,
                     relation = excluded.relation",
                 params![link.id, link.from, link.to, link.relation],
+            )?;
+        }
+        for id in &changes.remove_messages {
+            tx.execute("DELETE FROM messages WHERE id = ?1", [id])?;
+        }
+        for message in &changes.upsert_messages {
+            if !matches!(message.role.as_str(), "owner" | "assistant") {
+                return Err(Error::Invalid(
+                    "only owner and assistant messages are indexed",
+                ));
+            }
+            let version =
+                i64::try_from(message.version).map_err(|_| Error::Invalid("message version"))?;
+            let unchanged = tx
+                .query_row(
+                    "SELECT 1 FROM messages WHERE id = ?1 AND chat = ?2 AND version = ?3
+                     AND role = ?4 AND text = ?5",
+                    params![
+                        message.id,
+                        message.chat,
+                        version,
+                        message.role,
+                        message.text
+                    ],
+                    |_| Ok(()),
+                )
+                .optional()?
+                .is_some();
+            if unchanged {
+                continue;
+            }
+            // Replace-only, like passages: the FTS triggers see a delete and an insert.
+            tx.execute("DELETE FROM messages WHERE id = ?1", [&message.id])?;
+            tx.execute(
+                "INSERT INTO messages(id, chat, version, role, text) VALUES (?1, ?2, ?3, ?4, ?5)",
+                params![
+                    message.id,
+                    message.chat,
+                    version,
+                    message.role,
+                    message.text
+                ],
+            )?;
+        }
+        for (chat, scope) in &changes.chat_scopes {
+            tx.execute(
+                "INSERT INTO chats(id, scope) VALUES (?1, ?2)
+                 ON CONFLICT(id) DO UPDATE SET scope = excluded.scope",
+                params![chat, scope.tag()],
             )?;
         }
         tx.execute(
@@ -752,6 +901,106 @@ impl SearchIndex {
         })?;
         Ok(rows.collect::<rusqlite::Result<_>>()?)
     }
+
+    /// The chats whose context last admitted these documents (their
+    /// `chat:` visibility), so a note leaving a chat can re-derive that
+    /// chat's message scope.
+    pub fn doc_chats(&self, ids: &[String]) -> Result<Vec<String>> {
+        let mut stmt = self
+            .conn
+            .prepare("SELECT visibility FROM docs WHERE id = ?1")?;
+        let mut out = Vec::new();
+        for id in ids {
+            let visibility: Option<String> = stmt.query_row([id], |r| r.get(0)).optional()?;
+            out.extend(
+                visibility
+                    .as_deref()
+                    .and_then(|v| v.strip_prefix("chat:"))
+                    .map(str::to_owned),
+            );
+        }
+        Ok(out)
+    }
+
+    /// Exact and stemmed lanes over chat Messages whose chat scope is one of
+    /// `scopes`. Each lane keeps its best `per_lane` (1..=[`MAX_MESSAGE_LANE`]);
+    /// they are fused by RRF, ties broken by text, then Message ID.
+    pub fn message_hits(
+        &self,
+        query: &str,
+        scopes: &[ChatScope],
+        per_lane: usize,
+    ) -> Result<Vec<MessageHit>> {
+        check_bounds(query, per_lane, MAX_MESSAGE_LANE)?;
+        let fts = fts_query(query).ok_or(Error::Invalid("query has no search terms"))?;
+        if scopes.is_empty() {
+            return Ok(vec![]);
+        }
+        let tags = scope_tags(scopes);
+        let mut fused: BTreeMap<String, MessageHit> = BTreeMap::new();
+        for table in ["fts_message_exact", "fts_message_stem"] {
+            let mut stmt = self.conn.prepare(&format!(
+                "SELECT m.id, m.chat, m.version, m.role, m.text
+                 FROM {table} JOIN messages m ON m.rid = {table}.rowid JOIN chats c ON c.id = m.chat
+                 WHERE {table} MATCH ?1 AND c.scope IN (SELECT value FROM json_each(?2))
+                 ORDER BY bm25({table}), m.text, m.id LIMIT ?3"
+            ))?;
+            let rows = stmt.query_map(params![fts, tags, per_lane as i64], |r| {
+                Ok(MessageHit {
+                    message: r.get(0)?,
+                    chat: r.get(1)?,
+                    version: r.get::<_, i64>(2)? as u64,
+                    role: r.get(3)?,
+                    text: r.get(4)?,
+                    score: 0.0,
+                })
+            })?;
+            for (rank, row) in rows.enumerate() {
+                let hit = row?;
+                fused.entry(hit.message.clone()).or_insert(hit).score +=
+                    1.0 / (RRF_K + rank as f64 + 1.0);
+            }
+        }
+        let mut hits: Vec<MessageHit> = fused.into_values().collect();
+        hits.sort_by(|a, b| {
+            b.score
+                .total_cmp(&a.score)
+                .then_with(|| a.text.cmp(&b.text))
+                .then_with(|| a.message.cmp(&b.message))
+        });
+        Ok(hits)
+    }
+
+    /// The exact number of chat Messages in `scopes` that match `query` in
+    /// either lane.
+    pub fn message_count(&self, query: &str, scopes: &[ChatScope]) -> Result<usize> {
+        check_bounds(query, 1, MAX_MESSAGE_LANE)?;
+        let fts = fts_query(query).ok_or(Error::Invalid("query has no search terms"))?;
+        if scopes.is_empty() {
+            return Ok(0);
+        }
+        let lane = |table: &str| {
+            format!(
+                "SELECT m.id FROM {table} JOIN messages m ON m.rid = {table}.rowid
+                 JOIN chats c ON c.id = m.chat
+                 WHERE {table} MATCH ?1 AND c.scope IN (SELECT value FROM json_each(?2))"
+            )
+        };
+        let n: i64 = self.conn.query_row(
+            &format!(
+                "SELECT count(*) FROM ({} UNION {})",
+                lane("fts_message_exact"),
+                lane("fts_message_stem")
+            ),
+            params![fts, scope_tags(scopes)],
+            |r| r.get(0),
+        )?;
+        Ok(n as usize)
+    }
+}
+
+fn scope_tags(scopes: &[ChatScope]) -> String {
+    json_array(&scopes.iter().map(ChatScope::tag).collect::<Vec<_>>())
 }
 
 /// Unit length, refusing non-finite and all-zero vectors.
@@ -772,7 +1021,11 @@ pub fn unit(vector: &[f32]) -> Result<Vec<f32>> {
 
 /// Rejects empty or over-long (> 512 bytes) queries and limits outside 1..=50.
 fn check_query(query: &str, limit: usize) -> Result<()> {
-    if query.trim().is_empty() || query.len() > 512 || !(1..=50).contains(&limit) {
+    check_bounds(query, limit, 50)
+}
+
+fn check_bounds(query: &str, limit: usize, max: usize) -> Result<()> {
+    if query.trim().is_empty() || query.len() > 512 || !(1..=max).contains(&limit) {
         return Err(Error::Invalid("query length or limit"));
     }
     Ok(())

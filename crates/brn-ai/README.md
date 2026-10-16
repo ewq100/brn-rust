@@ -6,7 +6,7 @@ The production Threads runtime uses published Rig 0.44.0. No vendored Rig patch 
 
 `threads.rs` registers the production tool catalog and enforces complete-batch validation before dispatch. Unknown tools and malformed arguments fail closed with zero retries. Tool rounds and output are bounded explicitly. Conversation Message writes are host-only. Selected-note authority binds an actual owner message, exact note/version, content-edit class and current run/settings fence; decision authority binds one newly created decision. Source text and retries cannot grant authority.
 
-Nine registered tools provide current-record reading, version-aware note passages, transient source reading, packaged skills, prepared/application changes, retained progress, bounded accepted revisions and service-owned immutable candidate refresh. The same registration generates safe activity labels. Operating guidance lives in `agent/BRN.md` and packaged `agent/skills/*/SKILL.md`.
+Ten registered tools provide current-record reading, version-aware note passages, transient source reading, packaged skills, prepared/application changes, retained progress, bounded accepted revisions, service-owned immutable candidate refresh and withdrawal of the run's own obsolete proposal in its chat. The same registration generates safe activity labels. Operating guidance lives in `agent/BRN.md` and packaged `agent/skills/*/SKILL.md`.
 
 Responses routes use Rig's typed reasoning options. Copilot Chat retains its supported raw `reasoning_effort` field because Rig 0.44 does not expose verified typed generation options for that dialect.
 

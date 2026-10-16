@@ -1,0 +1,46 @@
+{
+  "verdict": "APPROVED",
+  "findings": [
+    {
+      "id": "C-R1",
+      "label": "Continue's notice puts a resumed chat in Needs you",
+      "severity": "non-blocking",
+      "confidence": "confirmed",
+      "detail": "begin() now writes the Interrupted notice for a lease-free fenced Run in the 'Start a fresh invocation' change. ThreadRow.reasons are the chat's attention reasons and needs_you() is !reasons.is_empty(), so from the new Run's start to its result the row shows 'Run interrupted. Continue starts fresh.' and a chat whose killed Run left no candidate is in Needs you. threads-behavior.md line 34 says an interruption only enters Needs you when resuming requires an owner action. verification.md records the visible effect, but its proposed doc text covers only invariants.md.",
+      "action": "Add this to slice C's integration items as a behavior-doc question for the owner and the UI branch, next to the proposed invariants.md sentence."
+    },
+    {
+      "id": "C-R2",
+      "label": "No test for a successful Continue after a kill",
+      "severity": "non-blocking",
+      "confidence": "confirmed",
+      "detail": "T6 used to run Continue in the killed chat to Completed and now runs it to Failed. By reading, finish() retires the begin-time notice on Completed (superseded includes Interrupted Runs of the chat), but a_later_run_replaces_the_notice_of_a_run_the_settings_change_cancelled starts from a Cancelled Run that begin() does not fence. The path this slice creates, a begin-time notice followed by success, has no test.",
+      "action": "Add a Completed leg to T6 that expects [Review(op)] after the new Run succeeds."
+    },
+    {
+      "id": "C-R3",
+      "label": "Limitation overstates a kept lease file",
+      "severity": "non-blocking",
+      "confidence": "confirmed",
+      "detail": "verification.md says a Run whose process dies after the liveness check gets no notice 'and its file stays until orphan recovery or a later stop removes it'. That holds for begin(), which removes only its orphans. On the service paths remove_ended_leases calls remove_free for every Run the receipt ended, so the file is removed in the same call, without a notice.",
+      "action": "Reword the slice C limitation in round5/verification.md."
+    },
+    {
+      "id": "C-R4",
+      "label": "configure and choose_backup_directory lease removal untested",
+      "severity": "non-blocking",
+      "confidence": "confirmed",
+      "detail": "Tests and guards exercise lease removal for choose_delegation (T1, T1-live) and, through the manual CLI check, pause. configure and choose_backup_directory have no lease-file assertion, and the two replay returns of import_full_scoped are unexercised. Dropping one remove_leases_ended_by call would leave the suite green.",
+      "action": "Loop T1 over the four settings wrappers, or accept the gap."
+    },
+    {
+      "id": "C-R5",
+      "label": "Full record scan before each Stop, Archive and Steer",
+      "severity": "non-blocking",
+      "confidence": "confirmed",
+      "detail": "lease_free_working_runs calls Workspace::records(), which reads and parses every record body, notes included, before each Stop, Archive and Steer. Resume already pays this through recover_orphaned_runs. The core's queue checks find Working Runs with a json_extract filter.",
+      "action": "Filter Working Runs in SQL, or accept the cost."
+    }
+  ],
+  "reviewDoc": "/Users/evokessler/repos/brn-rust/.worktrees/daily-workflow-reliability/docs/work/active/daily-workflow-reliability/round5/review-C.md"
+}

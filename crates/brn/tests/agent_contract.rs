@@ -1077,10 +1077,19 @@ fn open_edit_session_reports_edit_session_open() {
         &["begin-edit", "--note", &note, "--base", "1"],
         None,
     );
+    // Default mode prints the daily-workflow structured line, without the session.
+    assert_eq!(default.code, 1);
+    let line: Value = serde_json::from_str(default.stderr.trim()).unwrap();
     assert_eq!(
-        (default.code, default.stderr.as_str()),
-        (1, "SQLite: UNIQUE constraint failed: edit_sessions.note\n")
+        line,
+        json!({"error":{
+            "kind":"edit_session_open",
+            "message":"This note already has an open unsaved edit. Save or discard that session first; the recovery command lists it.",
+            "note":note,
+            "base_version":1,
+        }})
     );
+    assert!(!default.stderr.contains(&session));
 }
 
 fn deferred_undo_setup(root: &Root, data: &Path) -> (String, String, String) {
@@ -1218,6 +1227,37 @@ fn not_found_destination_exists_and_unsafe_directory_are_rejected() {
         "rejected",
         "unsafe_directory",
     );
+}
+
+#[test]
+fn symlinked_data_dir_is_data_folder_unusable() {
+    let root = Root::new();
+    let real = root.join("real");
+    ok(&root, &real, &["init"]);
+    let link = root.join("link");
+    std::os::unix::fs::symlink(&real, &link).unwrap();
+    let refused = call(&root, &link, &["notes"]);
+    assert_error(&refused, "rejected", "data_folder_unusable");
+    assert_eq!(refused["exit"], 6);
+    // `details` never echo the --data-dir value.
+    assert_eq!(
+        refused["error"]["details"],
+        json!({"problem":"symlink_refused"})
+    );
+    let file = root.join("file");
+    std::fs::write(&file, b"synthetic").unwrap();
+    let refused = call(&root, &file, &["init"]);
+    assert_error(&refused, "rejected", "data_folder_unusable");
+    assert_eq!(
+        refused["error"]["details"],
+        json!({"problem":"not_a_directory"})
+    );
+    // Default mode keeps the core's owner-terms message and exit 1.
+    let default = run(&root, false, &link, &["notes"], None);
+    assert_eq!(default.code, 1);
+    assert!(default
+        .stderr
+        .starts_with("BRN cannot use the data folder "));
 }
 
 #[test]

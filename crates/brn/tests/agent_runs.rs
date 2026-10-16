@@ -341,10 +341,11 @@ fn stub_killed_ask_leaves_a_working_run() {
     let deferred = call(&root, &data, &["topics-choose", "--note", &topics]);
     assert_eq!(deferred["status"], "deferred", "{deferred}");
     assert_eq!(deferred["conflict"][0]["kind"], "Run");
-    // On the owner's instruction, pause stops it; never assume Cancelled.
+    // On the owner's instruction, pause stops it: an outside stop reads
+    // back as Interrupted, never Cancelled.
     ok(&root, &data, &["pause"]);
     let all = runs(&root, &data, &["--thread", &chat]);
-    assert_ne!(all[0]["state"], "working");
+    assert_eq!(all[0]["state"], "interrupted");
     assert_eq!(all[0]["guards_writes"], false);
     assert!(runs(&root, &data, &["--state", "working"]).is_empty());
 }

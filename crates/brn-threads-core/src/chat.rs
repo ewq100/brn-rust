@@ -4,6 +4,7 @@ use crate::*;
 use rusqlite::{OptionalExtension, TransactionBehavior, params};
 use serde::Serialize;
 use sha2::{Digest, Sha256};
+use std::collections::BTreeSet;
 
 #[derive(Clone, Debug, Serialize)]
 pub enum ChatCommand {
@@ -112,7 +113,22 @@ impl Store {
         command: &ChatCommand,
         owner: &HostAuthority,
     ) -> Result<ChatCommandOutcome> {
-        match self.chat_command_body(op, command, owner, false)? {
+        self.chat_command_with_orphans(op, command, owner, &BTreeSet::new())
+    }
+
+    /// As [`Store::chat_command`]. A Working Run a Pause stops whose ID is in
+    /// `orphans` (the host found no process holding its lease) also gets the
+    /// Interrupted notice, as orphan recovery gives it. Archive never adds a
+    /// notice. `orphans` is not part of the binding: a replay returns the
+    /// recorded receipt.
+    pub fn chat_command_with_orphans(
+        &mut self,
+        op: &OperationId,
+        command: &ChatCommand,
+        owner: &HostAuthority,
+        orphans: &BTreeSet<String>,
+    ) -> Result<ChatCommandOutcome> {
+        match self.chat_command_body(op, command, owner, orphans, false)? {
             Converged::Changed(outcome) => Ok(outcome),
             Converged::Unchanged(_) => Err(Error::Invalid("no-op detection is off".into())),
         }
@@ -125,13 +141,14 @@ impl Store {
         command: &ChatCommand,
         owner: &HostAuthority,
     ) -> Result<Converged<ChatCommandOutcome>> {
-        self.chat_command_body(op, command, owner, true)
+        self.chat_command_body(op, command, owner, &BTreeSet::new(), true)
     }
     fn chat_command_body(
         &mut self,
         op: &OperationId,
         command: &ChatCommand,
         owner: &HostAuthority,
+        orphans: &BTreeSet<String>,
         converge: bool,
     ) -> Result<Converged<ChatCommandOutcome>> {
         if !matches!(owner.scope, crate::types::Scope::Owner) {
@@ -180,6 +197,10 @@ impl Store {
             .unwrap_or_default();
         let mut writes = vec![];
         let mut dispatched = None;
+        // Working Runs this command stops. Their chats get Review items for
+        // left candidates; the owner sees a live Run stop, so only an orphan
+        // a Pause stops gets the notice.
+        let mut ended = vec![];
         match command {
             ChatCommand::Bootstrap => {}
             ChatCommand::Enqueue { thread, text } => {
@@ -270,6 +291,7 @@ impl Store {
                             archived: false,
                             data: RecordData::Run(r.clone()),
                         });
+                        ended.push((id.clone(), r.clone()));
                     }
                     if let Some(text) = partial
                         .as_ref()
@@ -492,6 +514,7 @@ impl Store {
                                 .fence
                                 .checked_add(1)
                                 .ok_or_else(|| Error::Invalid("run fence exhausted".into()))?;
+                            ended.push((r.id.clone(), run.clone()));
                             writes.push(Put {
                                 id: r.id,
                                 expected_version: Some(r.version),
@@ -503,6 +526,17 @@ impl Store {
                 }
             }
         }
+        // Archive is a deliberate owner stop: it keeps existing notices and
+        // adds Review items, but never a new notice, even for an orphan
+        // (owner decision 2, 16 October 2026).
+        let notice = matches!(command, ChatCommand::Pause { .. });
+        crate::run_attention::ended_run_attention_with(
+            &mut writes,
+            &ended,
+            |id| notice && orphans.contains(id),
+            |id| record_on(&tx, id),
+            |operations| crate::run_attention::active_candidates_on(&tx, operations),
+        )?;
         if control.queue.len() + usize::from(control.pending.is_some()) > 128
             || control
                 .queue

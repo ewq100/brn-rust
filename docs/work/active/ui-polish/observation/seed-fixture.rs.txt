@@ -1,0 +1,248 @@
+//! Synthetic UI-polish observation fixture. Run as a temporary brn-threads-app
+//! example against a fresh explicit data directory; never against owner data.
+//! All content is invented for layout inspection. No provider is configured.
+use brn_threads_app::*;
+use std::collections::BTreeMap;
+
+fn put(id: &str, version: Option<u64>, archived: bool, data: RecordData) -> Put {
+    Put {
+        id: id.into(),
+        expected_version: version,
+        archived,
+        data,
+    }
+}
+
+fn change(ws: &mut Workspace, key: &str, reason: &str, writes: Vec<Put>) {
+    ws.owner_change(
+        key,
+        &ChangeRequest {
+            reason: reason.into(),
+            writes,
+            inputs: vec![],
+        },
+    )
+    .unwrap();
+}
+
+fn reply(ws: &mut Workspace, key: &str, thread: &str, text: &str) {
+    let op = ws.store.allocate_operation(key).unwrap();
+    let id = op.creation_id(0);
+    change(
+        ws,
+        key,
+        "Synthetic BRN reply",
+        vec![put(
+            &id,
+            None,
+            false,
+            RecordData::Message(Message {
+                thread: thread.into(),
+                role: "assistant".into(),
+                text: text.into(),
+            }),
+        )],
+    );
+}
+
+fn action(ws: &mut Workspace, key: &str, description: &str, state: ActionState, due: Option<&str>, evidence: Option<&str>) {
+    let op = ws.store.allocate_operation(key).unwrap();
+    let id = op.creation_id(0);
+    change(
+        ws,
+        key,
+        "Synthetic task",
+        vec![put(
+            &id,
+            None,
+            false,
+            RecordData::Action(Action {
+                kept_outside_project: false,
+                chat: None,
+                description: description.into(),
+                state,
+                internal: false,
+                evidence: evidence.map(Into::into),
+                due: due.map(Into::into),
+            }),
+        )],
+    );
+}
+
+fn created(receipt: &Receipt, pick: impl Fn(&RecordData) -> bool) -> String {
+    receipt
+        .writes
+        .iter()
+        .find(|w| w.before.is_none() && pick(&w.after.data))
+        .map(|w| w.after.id.clone())
+        .expect("created record")
+}
+
+fn long_note() -> String {
+    let mut text = String::from("# Support onboarding field guide\n\nThis synthetic guide exists to test long reading. It mixes headings, lists, a table, a quotation and very long paragraphs so line length, scrolling and outline behaviour can be inspected.\n\n");
+    let topics = [
+        "Before the first shift", "Reading the queue", "Tone and wording", "Escalation paths",
+        "Handling refunds", "Working with product", "Weekly review", "Common mistakes",
+        "Tools and shortcuts", "When to ask for help", "Measuring quality", "Closing the loop",
+    ];
+    for (i, topic) in topics.iter().enumerate() {
+        text.push_str(&format!("## {}. {topic}\n\n", i + 1));
+        for p in 0..3 {
+            text.push_str(&format!(
+                "Paragraph {p} of “{topic}”. New colleagues usually learn fastest when they can see a real example, try it once with a partner, and then repeat it alone the next day. Keep the explanation short, show the screen, and write down every question that comes up so the guide improves after each cohort. If a step depends on another team, say so plainly and link the owner rather than describing their process from memory. Unicode witness: õun, Eesti, café, naïve.\n\n"
+            ));
+        }
+        text.push_str("- Check the customer’s last three messages before replying.\n- Confirm the account and plan.\n- Summarise the problem in one sentence.\n\n");
+    }
+    text.push_str("> A good reply answers the question, names the next step and says when the customer will hear back.\n\n");
+    text.push_str("| Situation | First response | Escalate to |\n| --- | --- | --- |\n| Billing error | Apologise, confirm amount | Finance on-call |\n| Outage | Link status page | Incident lead |\n| Feature request | Thank and log | Product triage |\n\n");
+    text.push_str("A deliberately long unbroken reference for overflow testing: https://example.invalid/support/onboarding/field-guide/very/long/path/that/keeps/going/and/going/without/any/natural/break/points/at/all/0123456789abcdef\n");
+    text
+}
+
+fn main() {
+    let data = std::env::args().nth(1).expect("explicit synthetic data path");
+    let backups = std::env::args().nth(2).expect("explicit synthetic backup folder");
+    let mut ws = Workspace::open(&data).unwrap();
+
+    // Offline: no provider can start from this workspace.
+    let mut settings = ws.settings().unwrap();
+    settings.provider = "offline-fixture".into();
+    settings.auth_file = None;
+    settings.credentials_dir = None;
+    ws.configure(settings).unwrap();
+    ws.choose_delegation(DelegationChoice::MaintainOrdinaryNotes).unwrap();
+    ws.choose_backup_directory(std::path::Path::new(&backups)).unwrap();
+
+    // Ordinary notes across several letters.
+    for (title, body) in [
+        ("Analytics dashboard requirements", "Track weekly active teams, response time and resolution rate.\n\n- Owner: Data team\n- Status: draft"),
+        ("Brand voice notes", "Warm, direct, specific. Avoid jargon and exclamation marks."),
+        ("Customer interview — Lumen Studio", "Synthetic interview. They want faster exports and clearer billing."),
+        ("Customer interview — Northwind", "Synthetic interview. Onboarding took two weeks; they want templates."),
+        ("Design review checklist", "1. Problem statement\n2. Alternatives\n3. Risks\n4. Rollout"),
+        ("Hiring plan 2027", "Two support hires in Q1, one designer in Q2."),
+        ("Incident retro — export delays", "Root cause: queue saturation. Follow-ups tracked in Tasks."),
+        ("Meeting notes — weekly sync", "Discussed pilot timing, dashboard scope and the vendor decision."),
+        ("Onboarding email draft", "Welcome aboard. Here is what your first week looks like…"),
+        ("Pricing experiments", "Test annual discount at 15% vs 20% for small teams."),
+        ("Quarterly goals", "Reduce first-response time to under 2 hours. Ship templates."),
+        ("Release notes — October", "Templates beta, faster exports, clearer invoices."),
+        ("Research reading list", "Three synthetic papers on support quality measurement."),
+        ("Travel checklist", "Passport, adapters, offline maps, team dinner booking."),
+        ("Vendor comparison", "Vendor A: cheaper, slower support. Vendor B: faster, pricier."),
+    ] {
+        ws.new_note(title, body).unwrap();
+    }
+    let guide = ws.new_note("Support onboarding field guide", &long_note()).unwrap();
+
+    // Protected, confirmed decision.
+    let decision = ws.new_note("Decision — choose Vendor B for support tooling", "We choose **Vendor B**.\n\nReason: response time matters more than licence cost for the pilot.\n\nReview again after the pilot on 22 November.").unwrap();
+    let RecordData::Note(mut protected) = decision.data.clone() else { panic!() };
+    protected.protected = true;
+    protected.confirmed = true;
+    change(&mut ws, "fixture-protect", "Owner protected a decision", vec![put(&decision.id, Some(decision.version), false, RecordData::Note(protected))]);
+
+    // Writing note with comments and a pending exact candidate (scripted, not model output).
+    let source = "# A smaller pilot. A better way to learn.\n\nWe’re ready to try the new workflow with a small group. The aim is to validate our assumptions and identify potential areas for improvement.\n\n## Start with one team\n\nWe could begin on **22 November**, if testing goes well. The support team is a good place to start: they already handle the questions this should make easier.\n\n- **Keep the scope small.** One team, one workflow.\n- **Listen closely.** Capture confusing steps as they happen.\n- **Review together.** Decide what to change before expanding.\n\n> Learn enough to make the next decision.\n\n## What happens next\n\nAfter the pilot, we will review the outcomes and determine the appropriate next steps.\n\n| Check | Owner |\n| --- | --- |\n| Testing | Pilot team |\n| Friday review | Everyone |\n";
+    let note = ws.new_note("Pilot proposal", source).unwrap();
+    let wthread = ws.new_thread("Refine the pilot proposal").unwrap();
+    ws.link_writing_thread("fixture-link", &note.id, note.version, &wthread.id).unwrap();
+    ws.post_message(&wthread.id, "This is for the team. Keep it warm and direct, and don’t oversell the pilot.").unwrap();
+    let mut ids = vec![];
+    for (index, (quote, body)) in [
+        ("The aim is to validate our assumptions and identify potential areas for improvement.", "Plain language, less corporate."),
+        ("We could begin on **22 November**, if testing goes well.", "Keep the date tentative and dependent on testing."),
+        ("After the pilot, we will review the outcomes and determine the appropriate next steps.", "End with a concrete next step: a Friday review."),
+    ].into_iter().enumerate() {
+        let start = source.find(quote).unwrap();
+        let record = ws.add_writing_comment(&format!("fixture-comment-{index}"), &WritingCommentInput {
+            note: note.id.clone(), version: note.version, thread: wthread.id.clone(), range: (start, start + quote.len()), quote: quote.into(), body: body.into(),
+        }).unwrap();
+        ids.push(record.id);
+    }
+    let snapshot = ws.snapshot_writing_request("fixture-request", &note.id, note.version, &wthread.id, &ids).unwrap();
+    let revised = source
+        .replace("The aim is to validate our assumptions and identify potential areas for improvement.", "We want to see what helps, what gets in the way, and what to change.")
+        .replace("After the pilot, we will review the outcomes and determine the appropriate next steps.", "Let’s meet on Friday after the pilot to review what we learned and decide what to try next.");
+    let op = ws.store.allocate_operation("fixture-scripted-rewrite").unwrap();
+    ws.store.prepare(&op, &snapshot.change_request(&revised).unwrap()).unwrap();
+
+    // A long ordinary chat.
+    let long = ws.new_thread("Plan the Q4 support pilot").unwrap();
+    for (i, (ask, answer)) in [
+        ("What should the pilot measure?", "Three things are enough to start:\n\n1. **First-response time** — median and 90th percentile.\n2. **Resolution rate** within 48 hours.\n3. **Agent confidence**, from a two-question weekly survey.\n\nKeep the list short so the team can actually review it every Friday."),
+        ("Can you draft the Friday review agenda?", "Here is a 30-minute agenda:\n\n| Time | Item | Owner |\n| --- | --- | --- |\n| 5 min | Numbers since last week | Data |\n| 15 min | Three confusing tickets | Pilot team |\n| 10 min | Decide one change | Everyone |\n\nI kept it to one decision per week so changes stay attributable."),
+        ("How do we export the weekly numbers?", "Use the existing export command and keep the raw file outside BRN:\n\n```sh\nsupport-tool export --from 2026-11-22 --to 2026-11-29 --format csv\n```\n\nThen summarise the three numbers in the pilot note rather than pasting the whole table."),
+        ("Summarise the risks in a paragraph.", "The main risk is reading too much into one team’s results: the support team already handles the questions this workflow targets, so improvement may not transfer. A second risk is measurement drift if the survey wording changes mid-pilot. Both are manageable if we keep the scope fixed for four weeks and write down any change to the measures in the pilot note, with the date and the reason."),
+        ("And a shorter version for the email?", "We’ll try this with one team for four weeks, measure three simple things, and review every Friday before deciding whether to expand."),
+    ].into_iter().enumerate() {
+        ws.post_message(&long.id, ask).unwrap();
+        reply(&mut ws, &format!("fixture-long-reply-{i}"), &long.id, answer);
+    }
+
+    // A chat that needs the owner, with a question.
+    let ask = ws.new_thread("Confirm the pilot start date").unwrap();
+    ws.post_message(&ask.id, "Can we start the pilot on 22 November?").unwrap();
+    reply(&mut ws, "fixture-ask-reply", &ask.id, "The protected vendor decision says to review again after the pilot on 22 November, but the hiring plan moves one support hire to Q1. Should I keep 22 November as the start date, or move it to 29 November?");
+    let current = ws.store.record(&ask.id).unwrap().unwrap();
+    let RecordData::Thread(mut t) = current.data.clone() else { panic!() };
+    t.attention = vec![Attention { kind: AttentionKind::Question, reason: "Choose the pilot start date: 22 or 29 November".into(), record: None }];
+    change(&mut ws, "fixture-attention", "BRN asked a question", vec![put(&ask.id, Some(current.version), false, RecordData::Thread(t))]);
+
+    // A chat whose last run failed, with a paused waiting message.
+    let failed = ws.new_thread("Summarise the interview notes").unwrap();
+    ws.post_message(&failed.id, "Summarise both customer interviews in five bullets.").unwrap();
+    let op = ws.store.allocate_operation("fixture-failed-run").unwrap();
+    let run = op.creation_id(0);
+    change(&mut ws, "fixture-failed-run", "Synthetic host invocation", vec![put(&run, None, false, RecordData::Run(Run {
+        instruction: None, queue_claim: None, thread: failed.id.clone(), provider: "offline-fixture".into(), model: "synthetic-model".into(),
+        guide_identity: "synthetic".into(), budget: 1, effort: "medium".into(), loaded_skills: vec![], fence: 0,
+        state: RunState::Failed, progress: "Provider unavailable (synthetic failure)".into(), operations: vec![], sources: vec![],
+    }))]);
+    ws.queue_message("fixture-queue-1", &failed.id, "Then list the three most common requests.").unwrap();
+    ws.pause_queue("fixture-queue-pause").unwrap();
+
+    // Several short chats for the Recent list, and one archived chat.
+    for (i, (title, q, a)) in [
+        ("Rename the dashboard metrics", "Suggest clearer names for the dashboard metrics.", "Try “Time to first reply”, “Solved in 2 days” and “Team confidence”."),
+        ("Translate the welcome line", "Translate “Welcome aboard” to Estonian.", "“Tere tulemast meeskonda!”"),
+        ("Check the release notes tone", "Is the October release note too salesy?", "Slightly. Remove “revolutionary” and lead with the faster exports."),
+    ].into_iter().enumerate() {
+        let t = ws.new_thread(title).unwrap();
+        ws.post_message(&t.id, q).unwrap();
+        reply(&mut ws, &format!("fixture-short-{i}"), &t.id, a);
+    }
+    let old = ws.new_thread("Book the team dinner").unwrap();
+    ws.post_message(&old.id, "Find a quiet place for eight people near the office.").unwrap();
+    reply(&mut ws, "fixture-old-reply", &old.id, "Three synthetic options are listed in the travel checklist.");
+    ws.archive_chat("fixture-archive", &old.id).unwrap();
+
+    // Tasks in every state.
+    action(&mut ws, "fixture-action-1", "Send the pilot proposal to the support team", ActionState::Suggested, None, None);
+    action(&mut ws, "fixture-action-2", "Prepare the Friday review agenda", ActionState::Open, Some("2026-11-27"), None);
+    action(&mut ws, "fixture-action-3", "Wait for Finance to confirm the Vendor B licence", ActionState::Waiting, Some("2026-11-20"), None);
+    action(&mut ws, "fixture-action-4", "Draft the onboarding email", ActionState::Done, None, Some("Owner confirmed completion in BRN."));
+    action(&mut ws, "fixture-action-5", "Book a vendor demo with Vendor A", ActionState::Cancelled, None, None);
+
+    // A project with instructions, a chat and a document.
+    let created_project = ws.project_command("fixture-project", ProjectCommand::Create { title: "Website refresh".into() }).unwrap();
+    let project = created(&created_project, |d| matches!(d, RecordData::Project(_)));
+    let p = ws.store.record(&project).unwrap().unwrap();
+    ws.project_command("fixture-project-settings", ProjectCommand::Configure {
+        project: project.clone(), version: p.version, title: "Website refresh".into(),
+        instructions: "Audience: small-team buyers. Keep copy short and concrete. Use British spelling.".into(), use_brn_knowledge: true,
+    }).unwrap();
+    let pchat = created(&ws.project_command("fixture-project-chat", ProjectCommand::CreateChat { project: project.clone(), title: "Homepage headline options".into() }).unwrap(), |d| matches!(d, RecordData::Thread(_)));
+    ws.post_message(&pchat, "Give me three homepage headline options.").unwrap();
+    reply(&mut ws, "fixture-project-reply", &pchat, "1. Support that keeps up with your team\n2. Answers in hours, not days\n3. One place for every customer question");
+    ws.project_command("fixture-project-doc", ProjectCommand::CreateDocument { project: project.clone(), title: "Homepage copy draft".into(), markdown: "# Homepage\n\nSupport that keeps up with your team.".into() }).unwrap();
+
+    // A second project deleted to Trash, for restore inspection.
+    let gone = created(&ws.project_command("fixture-old-project", ProjectCommand::Create { title: "Spring campaign (old)".into() }).unwrap(), |d| matches!(d, RecordData::Project(_)));
+    ws.project_command("fixture-old-chat", ProjectCommand::CreateChat { project: gone.clone(), title: "Campaign slogans".into() }).unwrap();
+    let preview = ws.project_delete_preview(&gone).unwrap();
+    ws.project_command("fixture-old-delete", ProjectCommand::Delete { preview, actions: BTreeMap::new() }).unwrap();
+
+    println!("Synthetic workspace ready: guide={} decision={} pilot={} long_chat={} ask={} failed={} project={}", guide.id, decision.id, note.id, long.id, ask.id, failed.id, project);
+}

@@ -20,7 +20,11 @@ impl Workspace {
                 &command,
                 &HostAuthority::owner("owner chat action"),
             )? {
-                Converged::Changed(outcome) => Converged::Changed(outcome.receipt),
+                Converged::Changed(outcome) => {
+                    // As `chat_command`: a Run the archive stopped leaves no free lease.
+                    self.remove_ended_leases(&outcome.receipt);
+                    Converged::Changed(outcome.receipt)
+                }
                 Converged::Unchanged(unchanged) => Converged::Unchanged(unchanged),
             },
         )
@@ -62,10 +66,15 @@ impl Workspace {
         let op = self
             .store
             .allocate_bound_operation(&format!("project:{key}"), &binding)?;
-        Ok(self.store.project_command_converging(
+        let outcome = self.store.project_command_converging(
             &op,
             &command,
             &HostAuthority::owner("owner project action"),
-        )?)
+        )?;
+        // As `project_command`: a Run the command stopped leaves no free lease.
+        if let Converged::Changed(receipt) = &outcome {
+            self.remove_ended_leases(receipt);
+        }
+        Ok(outcome)
     }
 }

@@ -146,11 +146,33 @@ pub(super) struct Palette {
     pub(super) delete: u32,
     pub(super) comment: u32,
     pub(super) comment_strong: u32,
+    /// Separators and panel outlines; `border` stays for inputs and focus.
+    pub(super) hairline: u32,
+    /// Tone text and icon colors; each passes 4.5:1 on tile, alt, paper and
+    /// its own tint. `danger` also fills the destructive-dialog confirm.
+    pub(super) danger: u32,
+    pub(super) warning: u32,
+    pub(super) success: u32,
+    pub(super) info: u32,
+    /// Banner and chip tints; text on them is `ink`.
+    pub(super) danger_bg: u32,
+    pub(super) warning_bg: u32,
+    pub(super) success_bg: u32,
+    pub(super) info_bg: u32,
     pub(super) dark: bool,
 }
 impl Palette {
     fn derive(base: Base) -> Self {
         let toward = if base.dark { 0xffffff } else { 0x000000 };
+        // Tones share one hue per role across themes; only light or dark differs.
+        let tone = |light: u32, dark: u32| if base.dark { dark } else { light };
+        let tint = |color: u32| mix(base.tile, color, if base.dark { 0.22 } else { 0.14 });
+        let (danger, warning, success, info) = (
+            tone(0xb63629, 0xf3938b),
+            tone(0x8b5d00, 0xe3b341),
+            tone(0x2a7349, 0x6fcf97),
+            tone(0x2f6690, 0x79b8ff),
+        );
         Self {
             paper: base.paper,
             tile: base.tile,
@@ -169,6 +191,15 @@ impl Palette {
             delete: mix(base.tile, 0xd04437, if base.dark { 0.30 } else { 0.18 }),
             comment: mix(base.tile, 0xf2c14e, if base.dark { 0.28 } else { 0.42 }),
             comment_strong: mix(base.tile, 0xf2c14e, if base.dark { 0.38 } else { 0.70 }),
+            hairline: mix(base.tile, base.border, 0.45),
+            danger,
+            warning,
+            success,
+            info,
+            danger_bg: tint(danger),
+            warning_bg: tint(warning),
+            success_bg: tint(success),
+            info_bg: tint(info),
             dark: base.dark,
         }
     }
@@ -251,6 +282,64 @@ pub(super) fn apply(theme: ThemeId, cx: &mut App) {
         colors.button_primary_foreground = colors.primary_foreground;
         colors.button_primary_hover = colors.primary_hover;
         colors.button_primary_active = colors.primary_active;
+        // Tone channels feed Button::danger() and Tag; they shade like the accent.
+        let toward = if p.dark { 0xffffff } else { 0x000000 };
+        let tone = |color: u32| -> [gpui_kit::Hsla; 4] {
+            [
+                rgb(color).into(),
+                rgb(p.tile).into(),
+                rgb(mix(color, toward, 0.14)).into(),
+                rgb(mix(color, toward, 0.26)).into(),
+            ]
+        };
+        [
+            colors.danger,
+            colors.danger_foreground,
+            colors.danger_hover,
+            colors.danger_active,
+        ] = tone(p.danger);
+        [
+            colors.button_danger,
+            colors.button_danger_foreground,
+            colors.button_danger_hover,
+            colors.button_danger_active,
+        ] = tone(p.danger);
+        [
+            colors.warning,
+            colors.warning_foreground,
+            colors.warning_hover,
+            colors.warning_active,
+        ] = tone(p.warning);
+        [
+            colors.button_warning,
+            colors.button_warning_foreground,
+            colors.button_warning_hover,
+            colors.button_warning_active,
+        ] = tone(p.warning);
+        [
+            colors.success,
+            colors.success_foreground,
+            colors.success_hover,
+            colors.success_active,
+        ] = tone(p.success);
+        [
+            colors.button_success,
+            colors.button_success_foreground,
+            colors.button_success_hover,
+            colors.button_success_active,
+        ] = tone(p.success);
+        [
+            colors.info,
+            colors.info_foreground,
+            colors.info_hover,
+            colors.info_active,
+        ] = tone(p.info);
+        [
+            colors.button_info,
+            colors.button_info_foreground,
+            colors.button_info_hover,
+            colors.button_info_active,
+        ] = tone(p.info);
         colors.accent = rgb(p.active).into();
         colors.accent_foreground = rgb(p.ink).into();
         colors.muted = rgb(p.alt).into();
@@ -264,12 +353,12 @@ pub(super) fn apply(theme: ThemeId, cx: &mut App) {
         colors.popover = rgb(p.tile).into();
         colors.popover_foreground = rgb(p.ink).into();
         colors.title_bar = rgb(p.alt).into();
-        colors.title_bar_border = rgb(p.border).into();
+        colors.title_bar_border = rgb(p.hairline).into();
         colors.window_border = rgb(p.border).into();
         colors.scrollbar = rgb(p.paper).into();
         colors.sidebar = rgb(p.alt).into();
         colors.sidebar_foreground = rgb(p.ink).into();
-        colors.sidebar_border = rgb(p.border).into();
+        colors.sidebar_border = rgb(p.hairline).into();
         colors.scrollbar_thumb = rgb(p.border).into();
         colors.scrollbar_thumb_hover = rgb(p.muted).into();
     });
@@ -315,6 +404,60 @@ mod tests {
                 );
                 assert_ne!(tint, p.tile, "{} {name} is visible", theme.label());
             }
+        }
+    }
+
+    #[test]
+    fn every_theme_keeps_tones_tints_and_the_danger_fill_readable() {
+        let toward = |p: &Palette| if p.dark { 0xffffff } else { 0x000000 };
+        let at_least = |theme: ThemeId, what: &str, fg: u32, bg: u32| {
+            let ratio = contrast(fg, bg);
+            assert!(ratio >= 4.5, "{} {what}: {ratio:.2}", theme.label());
+        };
+        for theme in ThemeId::ALL {
+            let p = theme.palette();
+            // The destructive-dialog confirm: tile text on the danger fill and its hover.
+            at_least(theme, "tile on danger", p.tile, p.danger);
+            at_least(
+                theme,
+                "tile on danger hover",
+                p.tile,
+                mix(p.danger, toward(&p), 0.14),
+            );
+            let tones = [
+                ("danger", p.danger, p.danger_bg),
+                ("warning", p.warning, p.warning_bg),
+                ("success", p.success, p.success_bg),
+                ("info", p.info, p.info_bg),
+            ];
+            for (name, tone, tint) in tones {
+                for (surface, bg) in [
+                    ("tile", p.tile),
+                    ("alt", p.alt),
+                    ("paper", p.paper),
+                    ("own tint", tint),
+                ] {
+                    at_least(theme, &format!("{name} on {surface}"), tone, bg);
+                }
+                at_least(theme, &format!("ink on {name} tint"), p.ink, tint);
+                assert_ne!(tint, p.tile, "{} {name} tint is visible", theme.label());
+            }
+            for (surface, bg) in [("selection", p.selection), ("hover", p.hover)] {
+                at_least(theme, &format!("ink on {surface}"), p.ink, bg);
+            }
+            for (surface, bg) in [
+                ("tile", p.tile),
+                ("alt", p.alt),
+                ("paper", p.paper),
+                ("hover", p.hover),
+            ] {
+                at_least(theme, &format!("muted on {surface}"), p.muted, bg);
+            }
+            assert!(
+                p.hairline != p.tile && p.hairline != p.border,
+                "{} hairline sits between tile and border",
+                theme.label()
+            );
         }
     }
 

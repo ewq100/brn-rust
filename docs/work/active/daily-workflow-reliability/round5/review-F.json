@@ -1,0 +1,30 @@
+{
+  "verdict": "APPROVED",
+  "findings": [
+    {
+      "id": "F-R1",
+      "label": "Per-chat Notes scan in the message re-check",
+      "severity": "non-blocking",
+      "confidence": "likely",
+      "detail": "Snapshot::message_scope_rows (crates/brn-threads-core/src/reader.rs) runs `SELECT body FROM records WHERE json_type(body,'$.data.Note') IS NOT NULL AND json_extract(body,'$.data.Note.chat')=?1` once per distinct chat among the ranked candidates (up to 200 after RRF fusion of two 100-row lanes). No index covers $.data.Note.chat, and adding one would be a threads.sqlite3 schema change. Spot-check (Python sqlite3 3.53.4, in memory, 10,000 Note bodies of about 1.8 KB): 7.2 ms for 1 chat, 69 ms for 10, 342 ms for 50, 683 ms for 100. user_scale.rs creates no chats or Messages, so the recorded 'query p95 22.9 ms (owner path, with the message lanes)' ran with empty lanes and no re-check scans. The work stays on the search worker (the UI does not block), but agent search_notes calls queue behind it, and the desktop requests Messages on every notes search without rendering them (F-UI1).",
+      "action": "Load the Notes of all chats in one scan (for example `json_extract(body,'$.data.Note.chat') IN (SELECT value FROM json_each(?1))`), and add a user_scale case with matching Messages across many chats so the recorded p95 covers this path."
+    },
+    {
+      "id": "F-R2",
+      "label": "Resolved project chats differ from their notes",
+      "severity": "non-blocking",
+      "confidence": "confirmed",
+      "detail": "message_scope returns Project(p) for any non-archived member chat and ignores ThreadState. context::scope_allowed admits another project chat's content only when that Thread is Open. So in project search, a Resolved project chat's Messages appear while its chat-only notes do not. Nothing crosses a project boundary, but this contradicts the 'mirrors notes' wording in the reader.rs docs, the verification scope table and the proposed threads-behavior.md sentence.",
+      "action": "Note the Resolved-chat difference in the scope table and the proposed architecture sentence (or align message_scope with scope_allowed if the owner prefers parity)."
+    },
+    {
+      "id": "F-R3",
+      "label": "Stale 'agent runs' doc on owner search",
+      "severity": "non-blocking",
+      "confidence": "confirmed",
+      "detail": "SearchHandle::search (crates/brn-threads-app/src/search.rs) is still documented as 'Blocking search for the CLI and agent runs', but it, request and request_page now set messages: true and return owner Message results. Agents currently reach search only through the RunNoteSearch impl (notes_request, messages: false), so nothing leaks today.",
+      "action": "Document search/request/request_page as owner-only and point agent hosts to the RunNoteSearch impl."
+    }
+  ],
+  "reviewDoc": "/Users/evokessler/repos/brn-rust/.worktrees/daily-workflow-reliability/docs/work/active/daily-workflow-reliability/round5/review-F.md"
+}

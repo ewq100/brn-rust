@@ -42,7 +42,7 @@ pub(crate) static TEXT: &[(&str, &str, &str)] = &[
     ("runs", "List runs, optionally for one chat or state.", "brn --json --data-dir DIR runs --state working"),
     ("messages", "List one chat's messages in creation order, one page at a time.", "brn --json --data-dir DIR messages --thread CHAT --limit 20"),
     ("operation", "Show where an operation stands, by id or by a keyed command's key.", "brn --json --data-dir DIR operation --key plan-1 --command note-create"),
-    ("search", "Search current notes; page with --cursor.", "brn --json --data-dir DIR search --query 'loading depth' --limit 5"),
+    ("search", "Search current notes and saved chat messages; page either lane with --cursor (result.cursor or result.message_cursor).", "brn --json --data-dir DIR search --query 'loading depth' --limit 5"),
     ("begin-edit", "Open an edit session on a note at a base version.", "brn --json --data-dir DIR begin-edit --note N --base 2"),
     ("update-buffer", "Replace your session's unsaved text.", "brn --json --data-dir DIR update-buffer --session S --generation 1 --text-file /abs/draft.md"),
     ("save", "Save your session's text as the next note version.", "brn --json --data-dir DIR save --session S --generation 1"),
@@ -67,7 +67,7 @@ pub(crate) static TEXT: &[(&str, &str, &str)] = &[
 /// Longer notes for commands whose retries or recovery need explaining.
 pub(crate) static NOTES: &[(&str, &str)] = &[
     ("intake", "A keyed full/chat/project intake replays when bytes, path, scope and title match a committed import, without converting or sending the document again; if that import found the bytes already imported, the retry converts again and records only an observation. --thread names a chat; naming a project there attaches the document to that project, which is an owner decision (use --intent project --project ID)."),
-    ("messages", "Lists the chat's messages that are not archived, in creation order, also when the chat is archived (chat_archived says so). Partial replies appear as recorded (role assistant-partial). search's message lane (after the daily-workflow merge) differs: it leaves out archived or trashed chats and partial replies."),
+    ("messages", "Lists the chat's messages that are not archived, in creation order, also when the chat is archived (chat_archived says so). Partial replies appear as recorded (role assistant-partial). search's message lane differs: it leaves out Trashed chats and partial replies."),
     ("save", "Stale save (exit 3), only for a session your own begin-edit returned: 1. keep result.session.markdown; 2. discard --session <result.session.id> --generation <result.session.generation>; 3. begin-edit --note N --base <conflict[0].version>; 4. reapply your edit; 5. update-buffer --session NEW --generation 1 --text-file merged.md; 6. save --session NEW --generation 1."),
 ];
 
