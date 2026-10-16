@@ -321,6 +321,8 @@ impl WritingPanel {
 #[derive(Clone)]
 pub enum WritingRequest {
     OpenSetup,
+    RecheckSetup,
+    ReloadSetup,
     CloseSetup,
     SaveSetup,
     SearchReferences(Option<String>),

@@ -3866,12 +3866,74 @@ impl ThreadsUi {
             )
         })
     }
+    fn writing_setup_dirty(&self, cx: &Context<Self>) -> bool {
+        self.writing.setup.as_ref().is_some_and(|draft| {
+            draft.value(self.writing.setup_brief.read(cx).value().as_ref()) != draft.saved
+        })
+    }
     fn load_writing_setup(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        self.writing.setup_open = true;
+        if self.writing_setup_dirty(cx) {
+            self.recheck_writing_setup(window, cx);
+            return;
+        }
+        self.replace_writing_setup(window, cx);
+    }
+    fn recheck_writing_setup(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        self.reference_search_cancel = None;
+        self.reference_search_generation += 1;
+        let note = self.open_note_id().map(str::to_owned);
+        let scope = self.note_writing_scope.clone();
+        if self.writing.setup.as_ref().is_none_or(|draft| {
+            note.as_deref() != Some(draft.target.note.as_str()) || scope != draft.target.scope
+        }) {
+            if self.writing_setup_dirty(cx) {
+                self.warn("Unsaved edits remain in their original context. Return there to save, or explicitly Reload saved (discard edits) to replace this form.");
+                cx.notify();
+            } else {
+                self.replace_writing_setup(window, cx);
+            }
+            return;
+        }
+        let checked = (|| -> AppResult<bool> {
+            let fresh = setup::SetupDraft::load(
+                &self.workspace,
+                note.as_deref()
+                    .ok_or_else(|| AppError::Invalid("Open the original working Note".into()))?,
+                scope.as_deref(),
+            )?;
+            if self
+                .writing
+                .note
+                .as_ref()
+                .is_none_or(|open| open.record.version != fresh.target.note_version)
+            {
+                return Err(AppError::Invalid(
+                    "Open the current saved Note before rechecking this retained form".into(),
+                ));
+            }
+            self.writing
+                .setup
+                .as_mut()
+                .ok_or_else(|| AppError::Invalid("Open brief & references".into()))?
+                .keep_edits_after_recheck(fresh)
+        })();
+        match checked {
+            Ok(true) => self.warn("Saved setup changed. Unsaved edits retained with their original expected version; Save cannot overwrite the newer setup. Reload saved (discard edits) explicitly to use it."),
+            Ok(false) => self.inform("Unsaved brief and reference edits retained. Availability rechecked; Save explicitly to commit them. Pending additions are checked on Save."),
+            Err(_) => self.warn("Context cannot be rechecked here. Unsaved edits are retained but hidden; restore access and open the current original Note, or explicitly Reload saved (discard edits)."),
+        }
+        cx.notify();
+    }
+    fn replace_writing_setup(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         self.reference_search_cancel = None;
         self.reference_search_generation += 1;
         self.writing.setup_open = true;
         // Clear before the fallible load: no old brief/names can survive a refused context.
         self.writing.setup = None;
+        self.writing
+            .setup_brief
+            .update(cx, |input, cx| input.set_value("", window, cx));
         let loaded = self
             .open_note_id()
             .ok_or_else(|| AppError::Invalid("Open a working Note first".into()))
@@ -3916,7 +3978,7 @@ impl ThreadsUi {
             &brief,
         ) {
             Ok(_) => {
-                self.load_writing_setup(window, cx);
+                self.replace_writing_setup(window, cx);
                 self.inform("Brief & references saved for this Note and writing scope. Existing proposals keep their original inputs; request a fresh rewrite to use changes.");
             }
             Err(error) => self.warn(format!(
@@ -3938,7 +4000,22 @@ impl ThreadsUi {
             cx.notify();
             return;
         }
-        let query = self.writing.reference_query.read(cx).value().to_string();
+        let input_query = self.writing.reference_query.read(cx).value().to_string();
+        let query = if cursor.is_some() {
+            let Some(query) = self
+                .writing
+                .setup
+                .as_ref()
+                .and_then(|draft| draft.search_query.clone())
+            else {
+                self.warn("Start a reference search before requesting its next page.");
+                cx.notify();
+                return;
+            };
+            query
+        } else {
+            input_query
+        };
         if query.trim().is_empty() {
             self.warn("Enter a reference Note title or saved text.");
             cx.notify();
@@ -3953,6 +4030,7 @@ impl ThreadsUi {
         draft.next = None;
         draft.match_total = 0;
         draft.search_pending = true;
+        draft.search_query = Some(query.clone());
         self.reference_search_cancel = None;
         self.reference_search_generation += 1;
         let generation = self.reference_search_generation;
@@ -4154,10 +4232,17 @@ impl ThreadsUi {
         ) {
             Ok(note) => note.id,
             Err(_) => {
-                self.warn("Imported Note retained in its original scope; attachment is unavailable. No reference was attached or retargeted.");
+                self.warn("File import recorded in its original scope. No eligible canonical full Note was resolved; no reference was attached. Existing import records were left intact.");
                 return true;
             }
         };
+        if self.writing.setup.as_ref().is_some_and(|draft| {
+            draft.target.note == intent.target.note && draft.target.scope == intent.target.scope
+        }) && self.writing_setup_dirty(cx)
+        {
+            self.warn("Canonical Note retained in its original scope; no reference was attached. Unsaved brief and reference edits were kept. Recheck and keep edits, Save them explicitly, then Find the imported Note to attach it.");
+            return true;
+        }
         if self.open_note_id() == Some(intent.target.note.as_str())
             && self.note_writing_scope == intent.target.scope
         {
@@ -4210,8 +4295,9 @@ impl ThreadsUi {
             Ok(())
         })();
         match attachment {
-            Ok(()) => { self.load_writing_setup(window, cx); self.inform("Full Note imported and attached as a read-only reference in this writing scope. Import coverage and actual reading remain separate."); }
-            Err(_) => self.warn("Imported Note retained in its original scope; no reference was attached. Target, saved Note, setup or access changed. Open the original context and explicitly attach the available Note."),
+            Ok(()) => { self.replace_writing_setup(window, cx); self.inform("Canonical full Note attached as a read-only reference in this writing scope, whether newly imported or already retained. Import coverage and actual reading remain separate."); }
+            Err(_) if imported == intent.target.note && self.reference_import_context_displayed(intent) => self.warn("File import recorded; no reference was attached. The working Note cannot be its own reference. Unsaved form edits were retained."),
+            Err(_) => self.warn("Canonical Note retained in its original scope; no reference was attached. Attachment could not be completed. Recheck the original context before explicitly attaching the available Note; unsaved form edits were retained."),
         }
         true
     }
@@ -4260,6 +4346,11 @@ impl ThreadsUi {
     ) {
         match request {
             WritingRequest::OpenSetup => self.load_writing_setup(window, cx),
+            WritingRequest::RecheckSetup => self.recheck_writing_setup(window, cx),
+            WritingRequest::ReloadSetup => {
+                self.replace_writing_setup(window, cx);
+                self.inform("Reloaded saved brief & references; unsaved form edits were explicitly discarded.");
+            }
             WritingRequest::CloseSetup => {
                 self.writing.setup_open = false;
                 self.reference_search_generation += 1;

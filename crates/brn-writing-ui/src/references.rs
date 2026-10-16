@@ -91,15 +91,24 @@ impl<T: 'static> WritingView<'_, T> {
             .child(if evidence.complete_over_retained_text { "Requirements reading: complete over retained text" } else { "Requirements reading: partial or no exhaustive check requested" }).test_support())
             .child(metadata("Requirements reported as checked are model claims, not proof that all requirements were verified. Exact quotations establish provenance, not support for every generated claim."));
         for (index, quote) in evidence.host_verified_quotations.iter().enumerate() {
+            let source_title = evidence
+                .sources
+                .iter()
+                .find(|source| source.id == quote.id && source.version == quote.version)
+                .map_or("Checked source title unavailable", |source| {
+                    source.title.as_str()
+                });
+            let provenance = format!(
+                "Host-verified quotation · {source_title} v{} · exact UTF-8 bytes {}..{}",
+                quote.version, quote.start, quote.end
+            );
             panel = panel.child(
                 div()
                     .id(format!("writing-source-quotation-{index}"))
+                    .aria_label(provenance.clone())
                     .flex()
                     .flex_col()
-                    .child(metadata(format!(
-                        "Host-verified quotation · {} v{} · exact UTF-8 bytes {}..{}",
-                        quote.id, quote.version, quote.start, quote.end
-                    )))
+                    .child(metadata(provenance))
                     .child(quote.quote.clone())
                     .test_support(),
             );

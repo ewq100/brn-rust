@@ -71,7 +71,7 @@ pub struct ReferenceLabel {
     pub import_coverage: Option<ImportCoverage>,
 }
 /// One fallible, explicitly loaded form. A canonical token is display invalidation only.
-/// Local buffer writes do not invalidate it; any canonical change hides it until Reload.
+/// Local buffer writes do not invalidate it; any canonical change hides it until an explicit fresh recheck or discard/reload.
 pub struct SetupDraft {
     pub target: SetupTarget,
     pub observed: ViewChangeToken,
@@ -80,6 +80,8 @@ pub struct SetupDraft {
     pub labels: BTreeMap<String, ReferenceLabel>,
     pub matches: Vec<brn_threads_app::search::NoteMatch>,
     pub next: Option<String>,
+    pub search_query: Option<String>,
+    pub saved_changed: bool,
     pub match_total: usize,
     pub search_pending: bool,
     pub must_be_current: BTreeSet<String>,
@@ -122,10 +124,33 @@ impl SetupDraft {
             labels,
             matches: vec![],
             next: None,
+            search_query: None,
+            saved_changed: false,
             match_total: 0,
             search_pending: false,
             must_be_current: BTreeSet::new(),
         })
+    }
+    /// Fresh service data refreshes display only. Keep pending edits and the
+    /// original expected setup version, so rechecking cannot overwrite a newer setup.
+    pub fn keep_edits_after_recheck(&mut self, fresh: Self) -> AppResult<bool> {
+        if self.target.note != fresh.target.note || self.target.scope != fresh.target.scope {
+            return Err(AppError::Invalid(
+                "Unsaved form belongs to another writing context".into(),
+            ));
+        }
+        self.saved_changed = self.target.setup_version != fresh.target.setup_version;
+        self.target.note_version = fresh.target.note_version;
+        self.observed = fresh.observed;
+        // Only currently attached, freshly checked references retain names.
+        // Pending additions remain unnamed/unchecked until the checked Save succeeds.
+        self.labels = fresh.labels;
+        self.matches.clear();
+        self.next = None;
+        self.search_query = None;
+        self.match_total = 0;
+        self.search_pending = false;
+        Ok(self.saved_changed)
     }
     pub fn displayed(
         &self,
@@ -271,22 +296,31 @@ impl<T: 'static> WritingView<'_, T> {
                     .flex()
                     .items_center()
                     .gap_2()
+                    .flex_wrap()
                     .child(subheading("Brief & references"))
                     .child(
-                        pill("reload-writing-setup", "Reload")
-                            .on_click(self.on(cx, WritingRequest::OpenSetup)),
+                        pill("recheck-writing-setup", "Recheck and keep edits")
+                            .on_click(self.on(cx, WritingRequest::RecheckSetup)),
+                    )
+                    .child(
+                        pill("reload-writing-setup", "Reload saved (discard edits)")
+                            .on_click(self.on(cx, WritingRequest::ReloadSetup)),
                     )
                     .child(
                         pill("close-writing-setup", "Close")
                             .on_click(self.on(cx, WritingRequest::CloseSetup)),
                     ),
             );
+        panel = panel.child(metadata("Recheck keeps unsaved edits. Reload saved discards unsaved brief and reference edits in this form."));
         let Some(draft) = self.setup.as_ref().filter(|draft| {
             draft.displayed(self.workspace, self.open_note_id(), self.displayed_scope)
         }) else {
-            return panel.child(metadata("Context or saved setup changed. Reload to inspect this context; unsaved form content is not shown in another scope."))
+            return panel.child(metadata("Context or saved state changed. Your draft is retained in its original context. Recheck there to keep editing, or explicitly Reload saved (discard edits). Private draft content is not shown here."))
                 .test_support().into_any_element();
         };
+        if draft.saved_changed {
+            panel = panel.child(metadata("Saved setup changed. Your edits are retained with their original expected version; Save will refuse a conflicting overwrite. Reload saved (discard edits) explicitly to use the newer setup."));
+        }
         if self.reference_importing {
             panel = panel.child(metadata(self.progress.to_owned())).child(
                 pill("stop-writing-reference-import", "Stop import")
@@ -294,13 +328,13 @@ impl<T: 'static> WritingView<'_, T> {
             );
         }
         panel = panel.child(metadata("Optional brief: purpose, audience, tone, requirements. References are read-only; their purpose never grants permission."))
-            .child(Textarea::new(&self.setup_brief).small().aria_label("Optional writing brief: purpose, audience, tone, requirements"))
+            .child(div().id("writing-setup-brief").child(Textarea::new(&self.setup_brief).small().aria_label("Optional writing brief: purpose, audience, tone, requirements")).test_support())
             .child(metadata("Save brief & references before rewriting or importing. Attached does not mean read."));
         for (index, reference) in draft.references.iter().enumerate() {
             let saved = draft.saved.references.contains(reference);
             let label = draft.labels.get(&reference.note);
             let status = label.map_or_else(
-                || "No longer available here".to_string(),
+                || if draft.saved.references.iter().any(|saved| saved.note == reference.note) { "No longer available here / availability unchecked; Save rechecks visibility".to_string() } else { "Pending reference; availability unchecked until Save".to_string() },
                 |r| {
                     format!(
                         "{} · v{} · Available · {}",
@@ -424,6 +458,9 @@ impl<T: 'static> WritingView<'_, T> {
                 pill("find-writing-reference", "Find existing Note")
                     .on_click(self.on(cx, WritingRequest::SearchReferences(None))),
             );
+        if let Some(query) = &draft.search_query {
+            panel = panel.child(metadata(format!("Results for: {query}. Next keeps this query; Find existing Note starts a new search from the box.")));
+        }
         if draft.search_pending {
             panel = panel.child(metadata("Searching this writing scope…"));
         }

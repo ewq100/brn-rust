@@ -2389,6 +2389,12 @@ fn b3_sources_used_separates_import_reading_claims_quotes_and_changed_removed_ma
             "Requirements reading: partial or no exhaustive check requested"
         );
         assert!(window.try_find("writing-source-quotation-0").is_some());
+        let quotation = window.find("writing-source-quotation-0");
+        let RecordData::Note(note) = &source.data else {
+            panic!("source")
+        };
+        assert!(quotation.label().unwrap().contains(&note.title));
+        assert!(!quotation.label().unwrap().contains(&source.id));
         assert!(window.try_find("writing-requirement-claim-0").is_some());
     })
     .unwrap();
@@ -3050,6 +3056,560 @@ fn b3_reimport_same_bytes_attaches_existing_canonical_note_without_a_duplicate(
             assert_eq!(view.workspace.writing_setup(&f.a.id, None).unwrap().references[0].reference.note, note.id);
             assert_eq!(view.workspace.store.note(&note.id).unwrap().unwrap(), note, "re-import observation retains legitimate canonical content/version");
             assert_eq!(view.workspace.records().unwrap().iter().filter(|r| matches!(&r.data, RecordData::Note(n) if n.import.as_ref().is_some_and(|i| i.source == match &note.data { RecordData::Note(n) => n.import.as_ref().unwrap().source.clone(), _ => unreachable!() }))).count(), 1);
+            // Replay the actual observation-only receipt after its canonical Note becomes unavailable.
+            // A new import key would legitimately create a fresh Note instead.
+            let current = view.workspace.store.note(&note.id).unwrap().unwrap();
+            view.workspace.owner_change("b3-observation-archive", &ChangeRequest { reason: "Synthetic archived imported Note".into(), writes: vec![Put { id: current.id.clone(), expected_version: Some(current.version), archived: true, data: current.data.clone() }], inputs: vec![] }).unwrap();
+            view.load_writing_setup(window, cx);
+            let missing = ReferenceImportIntent { target: view.writing.setup.as_ref().unwrap().target.clone(), purpose: WritingPurpose::Evidence, key: intent.key.clone() };
+            let saved = view.workspace.writing_setup(&f.a.id, None).unwrap().record;
+            assert!(view.complete_writing_reference_import(&missing, "B3 preexisting canonical reference", &converted, window, cx));
+            assert!(view.notice.contains("No eligible canonical full Note was resolved"));
+            assert!(!view.notice.contains("Imported Note retained"));
+            assert_eq!(view.workspace.writing_setup(&f.a.id, None).unwrap().record, saved);
+            let archived = view.workspace.store.note(&note.id).unwrap().unwrap();
+            view.workspace.owner_change("b3-observation-restore", &ChangeRequest { reason: "Synthetic restore".into(), writes: vec![Put { id: archived.id.clone(), expected_version: Some(archived.version), archived: false, data: archived.data }], inputs: vec![] }).unwrap();
+            view.open_note(&note.id, None, window, cx);
+            view.load_writing_setup(window, cx);
+            let self_reference = ReferenceImportIntent { target: view.writing.setup.as_ref().unwrap().target.clone(), purpose: WritingPurpose::Evidence, key: "b3-observation-self-reference".into() };
+            assert!(view.complete_writing_reference_import(&self_reference, "B3 preexisting canonical reference", &converted, window, cx));
+            assert!(view.notice.contains("cannot be its own reference"));
+            assert!(!view.notice.contains("Target, saved Note, setup or access changed"));
+            assert!(view.workspace.writing_setup(&note.id, None).unwrap().record.is_none());
         });
     }).unwrap();
+}
+
+#[gpui_kit::test]
+fn b3_dirty_setup_survives_converted_completion_and_rechecks_without_retargeting(
+    cx: &mut TestAppContext,
+) {
+    let f = fixture(cx);
+    let (sender, receiver) = mpsc::sync_channel(4);
+    let (saved, project) = cx
+        .update_window(f.window, |_, window, cx| {
+            f.view.update(cx, |view, cx| {
+                let removed = view
+                    .workspace
+                    .new_note("Remove during conversion", "Saved reference")
+                    .unwrap();
+                let pending = view
+                    .workspace
+                    .new_note("Pending during conversion", "Pending reference")
+                    .unwrap();
+                let project = view
+                    .workspace
+                    .project_command(
+                        "b3-dirty-project",
+                        ProjectCommand::Create {
+                            title: "Other writing scope".into(),
+                        },
+                    )
+                    .unwrap()
+                    .writes[0]
+                    .after
+                    .id
+                    .clone();
+                view.workspace
+                    .project_command(
+                        "b3-dirty-project-link",
+                        ProjectCommand::LinkDocument {
+                            project: project.clone(),
+                            note: f.a.id.clone(),
+                        },
+                    )
+                    .unwrap();
+                view.workspace
+                    .set_writing_setup(
+                        "b3-dirty-initial",
+                        None,
+                        &WritingSetup {
+                            note: f.a.id.clone(),
+                            chat: None,
+                            brief: Some("Saved before conversion".into()),
+                            references: vec![
+                                WritingReference {
+                                    note: f.b.id.clone(),
+                                    purpose: WritingPurpose::Style,
+                                },
+                                WritingReference {
+                                    note: removed.id,
+                                    purpose: WritingPurpose::Evidence,
+                                },
+                            ],
+                        },
+                    )
+                    .unwrap();
+                view.open_note(&f.a.id, None, window, cx);
+                view.load_writing_setup(window, cx);
+                let page = view
+                    .workspace
+                    .search_handle()
+                    .unwrap()
+                    .request_page("Pending during conversion", None, 12, None)
+                    .wait()
+                    .unwrap();
+                assert_eq!(page.matches[0].note, pending.id);
+                view.writing.setup.as_mut().unwrap().matches = page.matches;
+                view.reference_import = Some(ReferenceImportIntent {
+                    target: view.writing.setup.as_ref().unwrap().target.clone(),
+                    purpose: WritingPurpose::Evidence,
+                    key: "b3-dirty-conversion".into(),
+                });
+                view.worker = Some(Worker {
+                    receiver,
+                    cancel: CancellationToken::new(),
+                    conversion_cancel: Arc::new(AtomicBool::new(false)),
+                    kind: WorkerKind::Import,
+                    thread: None,
+                    run_id: None,
+                });
+                view.writing
+                    .setup_brief
+                    .read(cx)
+                    .focus_handle(cx)
+                    .focus(window, cx);
+                cx.notify();
+                (
+                    view.workspace
+                        .writing_setup(&f.a.id, None)
+                        .unwrap()
+                        .record
+                        .unwrap(),
+                    project,
+                )
+            })
+        })
+        .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        window.press("cmd-a", cx);
+        window.input("Owner typed this brief during conversion", cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
+    for id in [
+        "reference-purpose-0-Requirements",
+        "remove-reference-1",
+        "attach-writing-reference-0",
+    ] {
+        b3_reveal_setup_control(cx, &f, id);
+        cx.update_window(f.window, |_, window, cx| window.click(id, cx))
+            .unwrap();
+        cx.run_until_parked();
+    }
+    let pending = cx.read(|cx| {
+        f.view
+            .read(cx)
+            .writing
+            .setup
+            .as_ref()
+            .unwrap()
+            .references
+            .clone()
+    });
+    assert_eq!(pending.len(), 2);
+    assert_eq!(pending[0].purpose, WritingPurpose::Requirements);
+    sender
+        .send(WorkerEvent::Converted {
+            result: Box::new(Ok(b3_converted_reference())),
+            title: "B3 dirty canonical import".into(),
+            chat: None,
+        })
+        .unwrap();
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            view.poll_worker(window, cx);
+            assert!(view.worker.is_none());
+            assert_eq!(
+                view.writing.setup_brief.read(cx).value().as_ref(),
+                "Owner typed this brief during conversion",
+                "Converted completion must not discard owner-entered brief text"
+            );
+            assert_eq!(
+                view.writing.setup.as_ref().unwrap().references,
+                pending,
+                "pending purpose, removal and attachment edits survive completion"
+            );
+            assert_eq!(
+                view.workspace
+                    .writing_setup(&f.a.id, None)
+                    .unwrap()
+                    .record
+                    .unwrap(),
+                saved,
+                "dirty completion must not attach or overwrite setup"
+            );
+            assert!(view.workspace.notes().unwrap().iter().any(
+                |r| matches!(&r.data, RecordData::Note(n) if n.title == "B3 dirty canonical import")
+            ));
+            assert!(view.notice.to_lowercase().contains("unsaved"));
+            view.workspace
+                .post_message(&f.chat_b, "Unrelated canonical write while dirty")
+                .unwrap();
+            cx.notify();
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, _| {
+        assert!(
+            window.try_find("writing-setup-brief").is_none(),
+            "stale labels and brief remain hidden until a fresh context check"
+        );
+        assert!(window.try_find("writing-reference-0").is_none());
+    })
+    .unwrap();
+    b3_reveal_setup_control(cx, &f, "recheck-writing-setup");
+    cx.update_window(f.window, |_, window, cx| {
+        window.click("recheck-writing-setup", cx)
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(window.try_find("writing-setup-brief").is_some());
+        f.view.update(cx, |view, cx| {
+            assert_eq!(
+                view.writing.setup_brief.read(cx).value().as_ref(),
+                "Owner typed this brief during conversion"
+            );
+            assert_eq!(view.writing.setup.as_ref().unwrap().references, pending);
+            view.open_note_in_context(&f.a.id, None, Some(&project), window, cx);
+            view.load_writing_setup(window, cx);
+            assert_eq!(view.writing.setup.as_ref().unwrap().references, pending);
+            assert!(
+                view.workspace
+                    .writing_setup(&f.a.id, Some(&project))
+                    .unwrap()
+                    .record
+                    .is_none()
+            );
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, _| {
+        assert!(window.try_find("writing-setup-brief").is_none());
+        assert!(window.try_find("writing-reference-0").is_none());
+        assert!(window.try_find("save-writing-setup").is_none());
+    })
+    .unwrap();
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            view.open_note(&f.a.id, None, window, cx);
+            let current = view.workspace.store.note(&f.a.id).unwrap().unwrap();
+            view.workspace
+                .owner_change(
+                    "b3-dirty-revoke",
+                    &ChangeRequest {
+                        reason: "Synthetic working Note access loss".into(),
+                        writes: vec![Put {
+                            id: current.id,
+                            expected_version: Some(current.version),
+                            archived: true,
+                            data: current.data,
+                        }],
+                        inputs: vec![],
+                    },
+                )
+                .unwrap();
+            view.load_writing_setup(window, cx);
+            assert_eq!(
+                view.writing.setup_brief.read(cx).value().as_ref(),
+                "Owner typed this brief during conversion"
+            );
+            assert_eq!(view.writing.setup.as_ref().unwrap().references, pending);
+            cx.notify();
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, _| {
+        assert!(window.try_find("writing-setup-brief").is_none());
+        assert!(window.try_find("writing-reference-0").is_none());
+    })
+    .unwrap();
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            let current = view.workspace.store.note(&f.a.id).unwrap().unwrap();
+            view.workspace
+                .owner_change(
+                    "b3-dirty-restore",
+                    &ChangeRequest {
+                        reason: "Synthetic working Note access restore".into(),
+                        writes: vec![Put {
+                            id: current.id,
+                            expected_version: Some(current.version),
+                            archived: false,
+                            data: current.data,
+                        }],
+                        inputs: vec![],
+                    },
+                )
+                .unwrap();
+            view.open_note(&f.a.id, None, window, cx);
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    b3_reveal_setup_control(cx, &f, "recheck-writing-setup");
+    cx.update_window(f.window, |_, window, cx| {
+        window.click("recheck-writing-setup", cx)
+    })
+    .unwrap();
+    cx.run_until_parked();
+    b3_reveal_setup_control(cx, &f, "save-writing-setup");
+    cx.update_window(f.window, |_, window, cx| {
+        window.click("save-writing-setup", cx)
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            let config = view
+                .workspace
+                .writing_setup(&f.a.id, None)
+                .unwrap()
+                .record
+                .unwrap();
+            let RecordData::WritingSetup(value) = config.data else {
+                panic!("setup")
+            };
+            assert_eq!(
+                value.brief.as_deref(),
+                Some("Owner typed this brief during conversion")
+            );
+            assert_eq!(value.references, pending);
+            assert_eq!(
+                view.workspace
+                    .writing_setup(&f.a.id, Some(&project))
+                    .unwrap()
+                    .record,
+                None
+            );
+            view.writing
+                .setup_brief
+                .read(cx)
+                .focus_handle(cx)
+                .focus(window, cx);
+        });
+        window.press("cmd-a", cx);
+        window.input("Explicitly discard this later draft", cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
+    b3_reveal_setup_control(cx, &f, "reload-writing-setup");
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(
+            window
+                .find("reload-writing-setup")
+                .label()
+                .unwrap()
+                .contains("discard"),
+            "owner sees discard semantics before clicking"
+        );
+        window.click("reload-writing-setup", cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert_eq!(
+            view.writing.setup_brief.read(cx).value().as_ref(),
+            "Owner typed this brief during conversion"
+        );
+        assert_eq!(view.writing.setup.as_ref().unwrap().references, pending);
+        assert!(view.notice.to_lowercase().contains("discard"));
+    });
+    // Recheck exposes the retained form, never permission to overwrite a newer setup.
+    let newer = cx
+        .update_window(f.window, |_, window, cx| {
+            f.view.update(cx, |view, cx| {
+                view.writing
+                    .setup_brief
+                    .read(cx)
+                    .focus_handle(cx)
+                    .focus(window, cx);
+            });
+            window.press("cmd-a", cx);
+            window.input("Keep this draft after a concurrent setup edit", cx);
+            f.view.update(cx, |view, cx| {
+                let current = view
+                    .workspace
+                    .writing_setup(&f.a.id, None)
+                    .unwrap()
+                    .record
+                    .unwrap();
+                let RecordData::WritingSetup(mut value) = current.data else {
+                    panic!("setup")
+                };
+                value.brief = Some("Newer saved owner setup".into());
+                let receipt = view
+                    .workspace
+                    .set_writing_setup("b3-dirty-concurrent", Some(current.version), &value)
+                    .unwrap();
+                cx.notify();
+                receipt
+            })
+        })
+        .unwrap();
+    cx.run_until_parked();
+    b3_reveal_setup_control(cx, &f, "recheck-writing-setup");
+    cx.update_window(f.window, |_, window, cx| {
+        window.click("recheck-writing-setup", cx)
+    })
+    .unwrap();
+    cx.run_until_parked();
+    b3_reveal_setup_control(cx, &f, "save-writing-setup");
+    let receipts = cx.read(|cx| f.view.read(cx).workspace.store.receipts().unwrap().len());
+    cx.update_window(f.window, |_, window, cx| {
+        window.click("save-writing-setup", cx)
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert_eq!(
+            view.writing.setup_brief.read(cx).value().as_ref(),
+            "Keep this draft after a concurrent setup edit"
+        );
+        assert_eq!(view.workspace.store.receipts().unwrap().len(), receipts);
+        assert_eq!(
+            view.workspace
+                .writing_setup(&f.a.id, None)
+                .unwrap()
+                .record
+                .unwrap(),
+            newer.writes[0].after
+        );
+        assert!(view.notice.contains("changed"));
+    });
+}
+
+#[gpui_kit::test]
+async fn b3_reference_next_keeps_its_query_until_owner_starts_a_new_search(
+    cx: &mut TestAppContext,
+) {
+    use gpui_kit::test::TestAppContextExt;
+    let f = fixture(cx);
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            for index in 0..14 {
+                view.workspace
+                    .new_note(
+                        &format!("PagingAlpha reference {index:02}"),
+                        "Alpha retained material",
+                    )
+                    .unwrap();
+            }
+            for index in 0..3 {
+                view.workspace
+                    .new_note(
+                        &format!("PagingBeta reference {index:02}"),
+                        "Beta retained material",
+                    )
+                    .unwrap();
+            }
+            view.open_note(&f.a.id, None, window, cx);
+            view.load_writing_setup(window, cx);
+            view.writing
+                .reference_query
+                .update(cx, |input, cx| input.set_value("PagingAlpha", window, cx));
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    b3_reveal_setup_control(cx, &f, "find-writing-reference");
+    cx.update_window(f.window, |_, window, cx| {
+        window.click("find-writing-reference", cx)
+    })
+    .unwrap();
+    cx.wait_for(f.window, Duration::from_secs(3), |_, cx| {
+        !f.view
+            .read(cx)
+            .writing
+            .setup
+            .as_ref()
+            .unwrap()
+            .search_pending
+    })
+    .await;
+    cx.read(|cx| {
+        let draft = f.view.read(cx).writing.setup.as_ref().unwrap();
+        assert_eq!(draft.matches.len(), 12);
+        assert!(draft.next.is_some());
+        assert!(
+            draft
+                .matches
+                .iter()
+                .all(|hit| hit.title.starts_with("PagingAlpha"))
+        );
+    });
+    cx.update_window(f.window, |_, window, cx| {
+        f.view
+            .read(cx)
+            .writing
+            .reference_query
+            .clone()
+            .update(cx, |input, cx| input.focus(window, cx));
+        window.press("cmd-a", cx);
+        window.input("PagingBeta", cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
+    b3_reveal_setup_control(cx, &f, "next-writing-references");
+    cx.update_window(f.window, |_, window, cx| {
+        window.click("next-writing-references", cx)
+    })
+    .unwrap();
+    cx.wait_for(f.window, Duration::from_secs(3), |_, cx| {
+        !f.view
+            .read(cx)
+            .writing
+            .setup
+            .as_ref()
+            .unwrap()
+            .search_pending
+    })
+    .await;
+    cx.read(|cx| {
+        let draft = f.view.read(cx).writing.setup.as_ref().unwrap();
+        assert_eq!(
+            draft.matches.len(),
+            2,
+            "Next continues Alpha instead of skipping Beta's first page"
+        );
+        assert!(
+            draft
+                .matches
+                .iter()
+                .all(|hit| hit.title.starts_with("PagingAlpha"))
+        );
+    });
+    b3_reveal_setup_control(cx, &f, "find-writing-reference");
+    cx.update_window(f.window, |_, window, cx| {
+        window.click("find-writing-reference", cx)
+    })
+    .unwrap();
+    cx.wait_for(f.window, Duration::from_secs(3), |_, cx| {
+        !f.view
+            .read(cx)
+            .writing
+            .setup
+            .as_ref()
+            .unwrap()
+            .search_pending
+    })
+    .await;
+    cx.read(|cx| {
+        let draft = f.view.read(cx).writing.setup.as_ref().unwrap();
+        assert_eq!(draft.matches.len(), 3);
+        assert!(draft.next.is_none());
+        assert!(
+            draft
+                .matches
+                .iter()
+                .all(|hit| hit.title.starts_with("PagingBeta"))
+        );
+    });
 }
