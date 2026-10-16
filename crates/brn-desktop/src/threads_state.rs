@@ -1,9 +1,13 @@
 //! Small presentation rules; canonical state and authority remain in the shared core.
+#[cfg(test)]
+use brn_threads_app::Comment;
 use brn_threads_app::{
-    ApplyOutcome, ChatControl, Comment, Prepared, Receipt, Record, RecordData, Run, RunState,
-    SaveOutcome, ThreadState, WorkspaceSettings,
+    ApplyOutcome, ChatControl, Prepared, Receipt, Record, RecordData, Run, RunState, SaveOutcome,
+    ThreadState, WorkspaceSettings,
 };
-use std::{collections::BTreeMap, ops::Range};
+#[cfg(test)]
+use brn_writing_ui::layout::Unlocated;
+use std::collections::BTreeMap;
 
 pub(super) fn delegation_status(settings: &WorkspaceSettings) -> &'static str {
     if !settings.delegation_chosen {
@@ -468,40 +472,10 @@ pub(super) fn save_message(outcome: &SaveOutcome) -> &'static str {
         }
     }
 }
-/// Why a comment has no place in the shown version, worded for what is
-/// true: the service unresolved it (its passage was edited away), or it is
-/// still tied to the earlier version it was written on and nothing
-/// re-anchored it. `status` is the card's line; `reason` follows
-/// "unavailable:" in labels and tooltips.
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub(super) struct Unlocated {
-    pub(super) status: String,
-    pub(super) reason: String,
-}
-pub(super) fn unlocated_reason(comment: &Comment, version: u64) -> Unlocated {
-    let tied = comment.mapped_version.unwrap_or(comment.base_version);
-    let next = "Exclude it, or select the passage and comment again.";
-    if !comment.unresolved && tied != version {
-        Unlocated {
-            status: format!("Tied to v{tied}, not re-anchored to v{version}. {next}"),
-            reason: format!("the comment is tied to v{tied}, not v{version}"),
-        }
-    } else {
-        Unlocated {
-            status: format!("Passage not found in v{version}. {next}"),
-            reason: format!("the passage is not in v{version}"),
-        }
-    }
-}
-/// Only an exact supported mapping supplies a current location. Repeated quotes
-/// and changed revisions never trigger a guessed relocation.
-pub(super) fn comment_location(
-    comment: &Comment,
-    version: u64,
-    text: &str,
-) -> Option<Range<usize>> {
-    brn_threads_app::exact_writing_range(comment, version, text).map(|(start, end)| start..end)
-}
+pub(super) use brn_writing_ui::layout::comment_location;
+#[cfg(test)]
+pub(super) use brn_writing_ui::layout::unlocated_reason;
+
 pub(super) fn linked(records: &[Record], id: &str) -> Vec<String> {
     let mut found = Vec::new();
     for record in records.iter().filter(|r| !r.archived) {
@@ -522,38 +496,8 @@ pub(super) fn linked(records: &[Record], id: &str) -> Vec<String> {
     }
     found
 }
-/// Navigation only, never a second source-of-truth representation of Markdown.
-pub(super) fn sections(text: &str) -> Vec<(String, Range<usize>)> {
-    let mut offset = 0;
-    let mut fence: Option<(char, usize)> = None;
-    let mut out = Vec::new();
-    for line in text.split_inclusive('\n') {
-        let trimmed = line.trim_start();
-        let marker = trimmed.chars().next().unwrap_or(' ');
-        let run = trimmed.chars().take_while(|c| *c == marker).count();
-        if (marker == '`' || marker == '~') && run >= 3 {
-            if fence.is_some_and(|(c, n)| c == marker && run >= n) {
-                fence = None;
-            } else if fence.is_none() {
-                fence = Some((marker, run));
-            }
-        } else if fence.is_none() {
-            let hashes = line.chars().take_while(|c| *c == '#').count();
-            if (1..=6).contains(&hashes) && line.as_bytes().get(hashes) == Some(&b' ') {
-                let title = line[hashes + 1..]
-                    .trim()
-                    .trim_end_matches('#')
-                    .trim()
-                    .to_owned();
-                if !title.is_empty() {
-                    out.push((title, offset + hashes + 1..offset + line.trim_end().len()));
-                }
-            }
-        }
-        offset += line.len();
-    }
-    out
-}
+#[cfg(test)]
+pub(super) use brn_writing_ui::layout::sections;
 #[cfg(test)]
 mod tests {
     use super::*;

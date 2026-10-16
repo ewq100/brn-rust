@@ -8,7 +8,7 @@ publish = false
 default = []
 native-ui = ["dep:gpui-kit", "dep:tempfile", "brn-writing-ui/native-ui"]
 native-retrieval = ["native-ui", "brn-threads-app/native-retrieval"]
-native-test-support = ["native-ui", "gpui-kit/test-support"]
+native-test-support = ["native-ui", "gpui-kit/test-support", "brn-writing-ui/native-test-support"]
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }

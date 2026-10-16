@@ -1242,11 +1242,12 @@ fn each_home_item_keeps_a_keyboard_route(cx: &mut TestAppContext) {
         let view = f.view.read(cx);
         assert_eq!(view.open_note_id(), Some(kept.as_str()));
         assert!(
-            view.note
+            view.writing
+                .note
                 .as_ref()
                 .is_some_and(|open| open.session.is_some())
         );
-        assert_eq!(view.note_editor.read(cx).value(), "Kept text");
+        assert_eq!(view.writing.note_editor.read(cx).value(), "Kept text");
     });
     // The review: the needs-you badge opens from the keyboard, ↓ ↵ opens
     // its chat, and Tab reaches the card's Show in note.
@@ -1271,7 +1272,7 @@ fn each_home_item_keeps_a_keyboard_route(cx: &mut TestAppContext) {
     let review = format!("thread-review-{operation}");
     assert!(tab_to(cx, &f, &review), "Tab reaches Show in note");
     press(cx, &f, "space");
-    cx.read(|cx| assert!(f.view.read(cx).review.is_some()));
+    cx.read(|cx| assert!(f.view.read(cx).writing.review.is_some()));
     // The change: ⌘K opens Changes, where each change has an Undo button.
     update(cx, &f, |view, window, cx| view.keep_review(window, cx));
     press(cx, &f, "cmd-k");

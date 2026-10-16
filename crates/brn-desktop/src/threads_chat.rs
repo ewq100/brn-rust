@@ -134,7 +134,12 @@ impl ThreadsUi {
                 this.confirm_stop_saved_run(run.clone(), window, cx)
             }))
     }
-    fn confirm_stop_saved_run(&mut self, run: String, window: &mut Window, cx: &mut Context<Self>) {
+    pub(super) fn confirm_stop_saved_run(
+        &mut self,
+        run: String,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
         let target = cx.entity().downgrade();
         self.open_dialog(window, cx, move |dialog, _, _| {
             let (target, run) = (target.clone(), run.clone());
@@ -180,6 +185,11 @@ impl ThreadsUi {
             })
     }
     pub(super) fn assets_in_chat(&self, chat: Option<&str>) -> Arc<BTreeMap<String, Arc<Image>>> {
+        #[cfg(all(test, feature = "native-test-support"))]
+        WRITING_DISPLAY_LOADS.with(|loads| {
+            let (assets, runs) = loads.get();
+            loads.set((assets + 1, runs));
+        });
         Arc::new(
             self.records
                 .iter()
@@ -192,13 +202,6 @@ impl ThreadsUi {
                 })
                 .collect(),
         )
-    }
-    pub(super) fn note_assets(&self) -> Arc<BTreeMap<String, Arc<Image>>> {
-        let chat = self.note.as_ref().and_then(|n| match &n.record.data {
-            RecordData::Note(n) => n.chat.as_deref(),
-            _ => None,
-        });
-        self.assets_in_chat(chat)
     }
     pub(super) fn pause_failed_worker(&mut self) {
         let key = format!("worker-failure:{}", uuid::Uuid::new_v4());

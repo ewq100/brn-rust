@@ -940,7 +940,7 @@ fn completed_context_edit_refreshes_saved_text_and_preserves_human_changes(
                     )
                     .unwrap();
                 if human_typing {
-                    ui.note_editor.update(cx, |editor, cx| {
+                    ui.writing.note_editor.update(cx, |editor, cx| {
                         editor.set_value("Human draft stays visible", window, cx)
                     });
                 }
@@ -958,10 +958,13 @@ fn completed_context_edit_refreshes_saved_text_and_preserves_human_changes(
                         "completion must not reopen a hidden Note panel"
                     );
                 } else if human_typing {
-                    assert_eq!(ui.note_editor.read(cx).value(), "Human draft stays visible");
+                    assert_eq!(
+                        ui.writing.note_editor.read(cx).value(),
+                        "Human draft stays visible"
+                    );
                 } else {
-                    assert_eq!(ui.note.as_ref().unwrap().record.version, 2);
-                    assert_eq!(ui.note_editor.read(cx).value(), "After edit");
+                    assert_eq!(ui.writing.note.as_ref().unwrap().record.version, 2);
+                    assert_eq!(ui.writing.note_editor.read(cx).value(), "After edit");
                 }
             })
         })

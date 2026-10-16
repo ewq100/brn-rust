@@ -7,6 +7,8 @@ publish = false
 [features]
 default = []
 native-ui = ["dep:gpui-kit"]
+native-test-support = ["native-ui", "gpui-kit/test-support"]
 
 [dependencies]
+brn-threads-app = { path = "../brn-threads-app" }
 gpui-kit = { version = "=0.7.3", optional = true }

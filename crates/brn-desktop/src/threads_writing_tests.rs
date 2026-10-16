@@ -23,8 +23,9 @@ fn adding_passage_feedback_keeps_the_document_and_does_not_start_ai(cx: &mut Tes
     cx.update_window(window, |_, window, cx| {
         view.update(cx, |view, cx| {
             view.open_note(&note.id, None, window, cx);
-            view.comment_anchor = Some((note.id.clone(), note.version, 5..9, "tere".into()));
-            view.comment_input.update(cx, |editor, cx| {
+            view.writing.comment_anchor =
+                Some((note.id.clone(), note.version, 5..9, "tere".into()));
+            view.writing.comment_input.update(cx, |editor, cx| {
                 editor.set_value("Clarify second greeting", window, cx)
             });
             view.post_comment(window, cx);
@@ -112,8 +113,9 @@ fn feedback(
     window: &mut Window,
     cx: &mut Context<ThreadsUi>,
 ) {
-    view.comment_anchor = Some((note.id.clone(), note.version, range, quote.into()));
-    view.comment_input
+    view.writing.comment_anchor = Some((note.id.clone(), note.version, range, quote.into()));
+    view.writing
+        .comment_input
         .update(cx, |editor, cx| editor.set_value(body, window, cx));
     view.post_comment(window, cx);
 }
@@ -136,13 +138,17 @@ fn keyboard_selection_shows_strip_and_comment_key_anchors_saved_passage(cx: &mut
     cx.run_until_parked();
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |view, cx| {
-            assert_eq!(view.selection.as_ref().map(|s| s.1.as_str()), Some("t"));
+            assert_eq!(
+                view.writing.selection.as_ref().map(|s| s.1.as_str()),
+                Some("t")
+            );
             assert!(
-                view.comment_anchor.is_none(),
+                view.writing.comment_anchor.is_none(),
                 "selecting never starts a comment"
             );
             assert!(
-                view.note_editor
+                view.writing
+                    .note_editor
                     .read(cx)
                     .focus_handle(cx)
                     .is_focused(window)
@@ -160,12 +166,16 @@ fn keyboard_selection_shows_strip_and_comment_key_anchors_saved_passage(cx: &mut
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |view, cx| {
             assert_eq!(
-                view.comment_anchor.as_ref().map(|anchor| anchor.3.as_str()),
+                view.writing
+                    .comment_anchor
+                    .as_ref()
+                    .map(|anchor| anchor.3.as_str()),
                 Some("te")
             );
-            assert_eq!(view.comment_anchor.as_ref().unwrap().2, 0..2);
+            assert_eq!(view.writing.comment_anchor.as_ref().unwrap().2, 0..2);
             assert!(
-                view.comment_input
+                view.writing
+                    .comment_input
                     .read(cx)
                     .focus_handle(cx)
                     .is_focused(window),
@@ -189,8 +199,8 @@ fn note_and_selected_chat_drafts_and_dirty_buffers_survive_navigation(cx: &mut T
             view.composer.update(cx, |editor, cx| {
                 editor.set_value("Chat A draft", window, cx)
             });
-            view.comment_anchor = Some((f.a.id.clone(), f.a.version, 5..9, "tere".into()));
-            view.comment_input.update(cx, |editor, cx| {
+            view.writing.comment_anchor = Some((f.a.id.clone(), f.a.version, 5..9, "tere".into()));
+            view.writing.comment_input.update(cx, |editor, cx| {
                 editor.set_value("A passage draft", window, cx)
             });
             view.select_writing_thread(f.a.id.clone(), f.chat_b.clone(), window, cx);
@@ -200,32 +210,33 @@ fn note_and_selected_chat_drafts_and_dirty_buffers_survive_navigation(cx: &mut T
             });
             view.select_writing_thread(f.a.id.clone(), f.chat_a.clone(), window, cx);
             assert_eq!(view.composer.read(cx).value().as_ref(), "Chat A draft");
-            view.note_editor.update(cx, |editor, cx| {
+            view.writing.note_editor.update(cx, |editor, cx| {
                 editor.set_value("Human unsaved õun", window, cx)
             });
             view.preserve_visible_note_input(cx);
             view.open_note(&f.b.id, None, window, cx);
-            assert!(view.comment_anchor.is_none());
-            assert!(view.comment_input.read(cx).value().is_empty());
+            assert!(view.writing.comment_anchor.is_none());
+            assert!(view.writing.comment_input.read(cx).value().is_empty());
             assert_eq!(view.composer.read(cx).value().as_ref(), "Chat A draft");
-            view.comment_input
+            view.writing
+                .comment_input
                 .update(cx, |editor, cx| editor.set_value("B draft", window, cx));
             view.open_note(&f.a.id, None, window, cx);
             assert_eq!(
-                view.note_editor.read(cx).value().as_ref(),
+                view.writing.note_editor.read(cx).value().as_ref(),
                 "Human unsaved õun"
             );
-            assert!(view.note.as_ref().unwrap().session.is_some());
-            assert_eq!(view.comment_anchor.as_ref().unwrap().2, 5..9);
+            assert!(view.writing.note.as_ref().unwrap().session.is_some());
+            assert_eq!(view.writing.comment_anchor.as_ref().unwrap().2, 5..9);
             assert_eq!(
-                view.comment_input.read(cx).value().as_ref(),
+                view.writing.comment_input.read(cx).value().as_ref(),
                 "A passage draft"
             );
             assert_eq!(view.composer.read(cx).value().as_ref(), "Chat A draft");
             view.post_comment(window, cx);
             assert!(view.workspace.writing_comments(&f.a.id).unwrap().is_empty());
             assert_eq!(
-                view.comment_input.read(cx).value().as_ref(),
+                view.writing.comment_input.read(cx).value().as_ref(),
                 "A passage draft"
             );
             assert!(view.notice.contains("Save your edit"));
@@ -247,7 +258,7 @@ fn batch_rewrite_captures_selected_chat_and_retry_keeps_saved_inputs(cx: &mut Te
         let comments=view.workspace.writing_comments(&f.a.id).unwrap();
         assert_eq!(comments.len(),2);
         assert_eq!(view.workspace.writing_threads(&f.a.id).unwrap().len(),2);
-        view.excluded_comments.insert(comments[1].record.id.clone());
+        view.writing.excluded_comments.insert(comments[1].record.id.clone());
         view.composer.update(cx,|editor,cx|editor.set_value("Unsent must stay unsent",window,cx));
         view.rewrite_note(cx);
         assert!(view.worker.is_none());
@@ -305,13 +316,13 @@ fn stale_comment_and_saved_rewrite_preserve_feedback_with_actionable_recovery(
         view.workspace.store.update_buffer(&edit.id,1,"Changed saved note").unwrap();
         assert!(matches!(view.workspace.store.save(&edit.id,1).unwrap(),SaveOutcome::Saved(_)));
         feedback(view,&f.a,"tere",5..9,"Retain stale passage",window,cx);
-        assert_eq!(view.comment_input.read(cx).value().as_ref(),"Retain stale passage");
-        assert!(view.comment_anchor.is_some());
+        assert_eq!(view.writing.comment_input.read(cx).value().as_ref(),"Retain stale passage");
+        assert!(view.writing.comment_anchor.is_some());
         assert!(view.workspace.writing_comments(&f.a.id).unwrap().is_empty());
         view.retry_rewrite(request,cx);
         assert!(view.notice.contains("Reload saved note"));
         assert!(view.worker.is_none());
-        assert_eq!(view.comment_input.read(cx).value().as_ref(),"Retain stale passage");
+        assert_eq!(view.writing.comment_input.read(cx).value().as_ref(),"Retain stale passage");
     })).unwrap();
 }
 
@@ -526,7 +537,7 @@ fn private_writing_disclosure_is_mandatory_and_wrong_displayed_scope_hides_revie
                 let candidate = view.workspace.store.prepare(&op, &request).unwrap();
                 view.open_project_note(&projects[0], &f.a.id, window, cx);
                 view.open_review(candidate.clone(), window, cx);
-                assert!(!view.review_inputs);
+                assert!(!view.writing.review_inputs);
                 (
                     projects[0].clone(),
                     projects[1].clone(),
@@ -565,8 +576,8 @@ fn private_writing_disclosure_is_mandatory_and_wrong_displayed_scope_hides_revie
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |view, cx| {
             view.keep_review(window, cx);
-            view.note_reading = false;
-            view.note_editor.update(cx, |editor, cx| {
+            view.writing.note_reading = false;
+            view.writing.note_editor.update(cx, |editor, cx| {
                 editor.set_selected_range(0..0, cx);
                 editor.focus(window, cx);
             });
@@ -582,10 +593,10 @@ fn private_writing_disclosure_is_mandatory_and_wrong_displayed_scope_hides_revie
     }
     cx.read(|cx| {
         let view = f.view.read(cx);
-        let session = view.note.as_ref().unwrap().session.as_ref().expect("real typing creates a recovery buffer");
+        let session = view.writing.note.as_ref().unwrap().session.as_ref().expect("real typing creates a recovery buffer");
         assert!(session.generation >= "cachetyping".len() as u64);
         assert!(session.markdown.contains("cachetyping"));
-        assert_eq!(session.markdown, view.note_editor.read(cx).value().to_string());
+        assert_eq!(session.markdown, view.writing.note_editor.read(cx).value().to_string());
         assert_eq!(view.workspace.store.edit_session(&session.id).unwrap(), *session);
         assert_eq!(view.workspace.store.note(&f.a.id).unwrap().unwrap().version, 1);
         assert_eq!(view.writing_review_loads, before_typing, "real typing generations must not reload/verify the workspace-wide writing batch per keystroke");
@@ -594,7 +605,7 @@ fn private_writing_disclosure_is_mandatory_and_wrong_displayed_scope_hides_revie
     // unchanged exact-candidate/context/access assertions below.
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |view, cx| {
-            let session = view.note.as_ref().unwrap().session.clone().unwrap();
+            let session = view.writing.note.as_ref().unwrap().session.clone().unwrap();
             view.discard_session(session, window, cx);
             view.open_project_note(&project, &f.a.id, window, cx);
             view.open_review(candidate.clone(), window, cx);
@@ -605,8 +616,13 @@ fn private_writing_disclosure_is_mandatory_and_wrong_displayed_scope_hides_revie
     // Candidate content is part of the cache key even when SQLite is unchanged.
     cx.update_window(f.window, |_, _window, cx| {
         f.view.update(cx, |view, cx| {
-            view.review.as_mut().unwrap().candidate.request.reason =
-                "UNBOUND PRIVATE REASON".into();
+            view.writing
+                .review
+                .as_mut()
+                .unwrap()
+                .candidate
+                .request
+                .reason = "UNBOUND PRIVATE REASON".into();
             cx.notify();
         });
     })
@@ -619,7 +635,7 @@ fn private_writing_disclosure_is_mandatory_and_wrong_displayed_scope_hides_revie
                 .contains("UNBOUND PRIVATE REASON")
         );
         f.view.update(cx, |view, cx| {
-            view.review.as_mut().unwrap().candidate = candidate.clone();
+            view.writing.review.as_mut().unwrap().candidate = candidate.clone();
             cx.notify();
         });
     })
@@ -632,12 +648,14 @@ fn private_writing_disclosure_is_mandatory_and_wrong_displayed_scope_hides_revie
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |view, cx| {
             view.open_project_note(&other, &f.a.id, window, cx);
-            view.expanded_requests.insert(private_request.clone());
-            view.review_inputs = true;
-            view.review_reading = true;
+            view.writing
+                .expanded_requests
+                .insert(private_request.clone());
+            view.writing.review_inputs = true;
+            view.writing.review_reading = true;
             view.layout.open(TileKind::Compare);
             view.apply_review(window, cx);
-            assert!(view.review.is_some());
+            assert!(view.writing.review.is_some());
             assert!(
                 view.workspace
                     .store
@@ -889,7 +907,7 @@ fn review_thread_switch_preserves_both_chat_drafts_and_the_human_buffer(cx: &mut
             view.composer.update(cx, |editor, cx| {
                 editor.set_value("B must never go to A", window, cx)
             });
-            view.note_editor.update(cx, |editor, cx| {
+            view.writing.note_editor.update(cx, |editor, cx| {
                 editor.set_value("Preserved human buffer", window, cx)
             });
             view.preserve_visible_note_input(cx);
@@ -898,7 +916,7 @@ fn review_thread_switch_preserves_both_chat_drafts_and_the_human_buffer(cx: &mut
             assert_eq!(view.writing_threads.get(&f.a.id), Some(&f.chat_a));
             assert_eq!(view.composer.read(cx).value().as_ref(), "A request draft");
             assert_eq!(
-                view.note_editor.read(cx).value().as_ref(),
+                view.writing.note_editor.read(cx).value().as_ref(),
                 "Preserved human buffer"
             );
             assert_eq!(
@@ -907,10 +925,10 @@ fn review_thread_switch_preserves_both_chat_drafts_and_the_human_buffer(cx: &mut
                 "B must never go to A"
             );
             view.apply_review(window, cx);
-            assert!(view.review.is_some());
+            assert!(view.writing.review.is_some());
             assert!(view.notice.contains("open edit"));
             assert_eq!(
-                view.note_editor.read(cx).value().as_ref(),
+                view.writing.note_editor.read(cx).value().as_ref(),
                 "Preserved human buffer"
             );
         })
@@ -951,7 +969,7 @@ fn addressed_subset_and_restart_keep_actual_apply_undo_for_each_note(cx: &mut Te
             applied_a = candidate.operation.as_str().into();
             view.open_review(candidate, window, cx);
             view.apply_review(window, cx);
-            assert!(view.review.is_none());
+            assert!(view.writing.review.is_none());
             assert!(
                 view.workspace
                     .writing_comments(&f.a.id)
@@ -965,7 +983,10 @@ fn addressed_subset_and_restart_keep_actual_apply_undo_for_each_note(cx: &mut Te
                 comments.iter().filter(|comment| comment.addressed).count(),
                 1
             );
-            assert_eq!(view.applied_rewrite.get(&f.a.id).unwrap().1, applied_a);
+            assert_eq!(
+                view.writing.applied_rewrite.get(&f.a.id).unwrap().1,
+                applied_a
+            );
             let current = view.workspace.store.note(&f.a.id).unwrap().unwrap();
             // A later request contains the same marker but is not an Apply/Undo receipt.
             view.workspace
@@ -984,8 +1005,14 @@ fn addressed_subset_and_restart_keep_actual_apply_undo_for_each_note(cx: &mut Te
             view.open_review(candidate, window, cx);
             view.apply_review(window, cx);
             view.refresh();
-            assert_eq!(view.applied_rewrite.get(&f.a.id).unwrap().1, applied_a);
-            assert_eq!(view.applied_rewrite.get(&f.b.id).unwrap().1, applied_b);
+            assert_eq!(
+                view.writing.applied_rewrite.get(&f.a.id).unwrap().1,
+                applied_a
+            );
+            assert_eq!(
+                view.writing.applied_rewrite.get(&f.b.id).unwrap().1,
+                applied_b
+            );
         })
     })
     .unwrap();
@@ -995,15 +1022,24 @@ fn addressed_subset_and_restart_keep_actual_apply_undo_for_each_note(cx: &mut Te
             cx.new(|cx| {
                 let mut view = ThreadsUi::new(reopened, f.data.clone(), window, cx);
                 view.poll = None;
-                assert_eq!(view.applied_rewrite.get(&f.a.id).unwrap().1, applied_a);
-                assert_eq!(view.applied_rewrite.get(&f.b.id).unwrap().1, applied_b);
+                assert_eq!(
+                    view.writing.applied_rewrite.get(&f.a.id).unwrap().1,
+                    applied_a
+                );
+                assert_eq!(
+                    view.writing.applied_rewrite.get(&f.b.id).unwrap().1,
+                    applied_b
+                );
                 assert!(matches!(
                     view.workspace.undo(&applied_a).unwrap(),
                     ApplyOutcome::Applied(_)
                 ));
                 view.refresh();
-                assert!(!view.applied_rewrite.contains_key(&f.a.id));
-                assert_eq!(view.applied_rewrite.get(&f.b.id).unwrap().1, applied_b);
+                assert!(!view.writing.applied_rewrite.contains_key(&f.a.id));
+                assert_eq!(
+                    view.writing.applied_rewrite.get(&f.b.id).unwrap().1,
+                    applied_b
+                );
                 assert!(
                     view.workspace
                         .writing_comments(&f.a.id)
@@ -1059,7 +1095,8 @@ fn archived_writing_chat_preserves_feedback_and_requires_explicit_unarchive(
             assert_eq!(view.workspace.writing_comments(&f.a.id).unwrap().len(), 0);
             assert!(view.notice.contains("Unarchive"));
             assert!(
-                view.comment_input
+                view.writing
+                    .comment_input
                     .read(cx)
                     .value()
                     .contains("Feedback after resolution")
@@ -1138,7 +1175,7 @@ fn narrow_workbench_scrolls_tiles_to_usable_chat_and_keeps_one_editor(cx: &mut T
     })
     .unwrap();
     cx.run_until_parked();
-    let editor = cx.read(|cx| f.view.read(cx).note_editor.clone());
+    let editor = cx.read(|cx| f.view.read(cx).writing.note_editor.clone());
     cx.update_window(f.window, |_, window, cx| {
         assert!(window.find("note-body").bounds().size.width > px(200.));
         window.scroll(
@@ -1154,7 +1191,7 @@ fn narrow_workbench_scrolls_tiles_to_usable_chat_and_keeps_one_editor(cx: &mut T
         let posted = f.view.read(cx).workspace.messages(&f.chat_a).unwrap().into_iter().find(|record| matches!(&record.data, RecordData::Message(message) if message.role == "owner")).unwrap();
         assert!(window.find(format!("chat-message-{}", posted.id)).visible());
         assert!(window.find("ask-delegate").visible());
-        assert_eq!(f.view.read(cx).note_editor, editor);
+        assert_eq!(f.view.read(cx).writing.note_editor, editor);
     })
     .unwrap();
 }
@@ -1189,26 +1226,26 @@ fn browsing_notes_keeps_selected_chat_and_replacing_main_preserves_review_text(
             let candidate_id = candidate.operation.clone();
             view.open_review(candidate, window, cx);
             view.start_review_edit(window, cx);
-            view.review_editor.update(cx, |editor, cx| {
+            view.writing.review_editor.update(cx, |editor, cx| {
                 editor.set_value("Owner's unsubmitted final text", window, cx)
             });
             view.show_tile(TileKind::Actions, window, cx);
             assert_eq!(
-                view.review.as_ref().unwrap().candidate.operation,
+                view.writing.review.as_ref().unwrap().candidate.operation,
                 candidate_id
             );
             assert_eq!(
-                view.review_editor.read(cx).value().as_ref(),
+                view.writing.review_editor.read(cx).value().as_ref(),
                 "Owner's unsubmitted final text"
             );
             view.show_tile(TileKind::Note, window, cx);
-            assert!(view.review_editing);
+            assert!(view.writing.review_editing);
             assert_eq!(
-                view.review.as_ref().unwrap().candidate.operation,
+                view.writing.review.as_ref().unwrap().candidate.operation,
                 candidate_id
             );
             assert_eq!(
-                view.review_editor.read(cx).value().as_ref(),
+                view.writing.review_editor.read(cx).value().as_ref(),
                 "Owner's unsubmitted final text"
             );
             assert_eq!(view.workspace.store.note(&f.a.id).unwrap().unwrap(), f.a);
@@ -1231,7 +1268,7 @@ fn reopening_current_review_from_solo_chat_removes_hidden_composer_focus(cx: &mu
             operation = candidate.operation.as_str().to_owned();
             view.open_review(candidate, window, cx);
             view.start_review_edit(window, cx);
-            view.review_editor.update(cx, |editor, cx| {
+            view.writing.review_editor.update(cx, |editor, cx| {
                 editor.set_value("Unsubmitted reviewed text", window, cx)
             });
             view.show_tile(TileKind::Chat, window, cx);
@@ -1258,9 +1295,14 @@ fn reopening_current_review_from_solo_chat_removes_hidden_composer_focus(cx: &mu
         let view = f.view.read(cx);
         assert_eq!(view.layout.maximized(), Some(TileKind::Note));
         assert!(!view.composer.focus_handle(cx).is_focused(window));
-        assert!(view.review_editor.focus_handle(cx).is_focused(window));
+        assert!(
+            view.writing
+                .review_editor
+                .focus_handle(cx)
+                .is_focused(window)
+        );
         assert_eq!(
-            view.review_editor.read(cx).value().as_ref(),
+            view.writing.review_editor.read(cx).value().as_ref(),
             "Unsubmitted reviewed text"
         );
     })
@@ -1292,10 +1334,10 @@ fn an_edit_already_open_elsewhere_offers_compare_and_discard(cx: &mut TestAppCon
     drop(other);
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |view, cx| {
-            view.note_editor
+            view.writing.note_editor
                 .update(cx, |editor, cx| editor.set_value("What I typed here", window, cx));
             view.preserve_visible_note_input(cx);
-            assert_eq!(view.edit_open, Some((f.a.id.clone(), f.a.version)));
+            assert_eq!(view.writing.edit_open, Some((f.a.id.clone(), f.a.version)));
             assert_eq!(
                 view.notice,
                 format!(
@@ -1306,7 +1348,7 @@ fn an_edit_already_open_elsewhere_offers_compare_and_discard(cx: &mut TestAppCon
             // Before: "Could not preserve this edit: this note already has
             // an open unsaved edit. …" and nothing to act on.
             assert!(!view.notice.contains("Could not preserve"));
-            assert!(view.note.as_ref().unwrap().session.is_none());
+            assert!(view.writing.note.as_ref().unwrap().session.is_none());
             cx.notify();
         })
     })
@@ -1373,8 +1415,8 @@ fn an_edit_already_open_elsewhere_offers_compare_and_discard(cx: &mut TestAppCon
     cx.run_until_parked();
     cx.update_window(f.window, |_, window, cx| {
         let view = f.view.read(cx);
-        assert_eq!(view.edit_open, None);
-        let session = view.note.as_ref().unwrap().session.clone().unwrap();
+        assert_eq!(view.writing.edit_open, None);
+        let session = view.writing.note.as_ref().unwrap().session.clone().unwrap();
         assert_ne!(session.id, elsewhere.id);
         assert_eq!(session.markdown, "What I typed here");
         assert!(
