@@ -1,0 +1,19 @@
+   Compiling brn-ai v0.1.0 (/private/tmp/brn-d1a-20261016-target/review2-before-source/crates/brn-ai)
+    Finished `test` profile [optimized] target(s) in 9.81s
+     Running unittests src/lib.rs (/private/tmp/brn-d1a-20261016-target/review2-before-artifacts/debug/deps/brn_ai-28a197b27edef53b)
+
+running 1 test
+
+thread 'threads::budget_tests::medium_note_batch_omits_only_visible_ids_and_never_grants_unshown_full_read' (28509727) panicked at crates/brn-ai/src/threads_budget_tests.rs:1360:5:
+Failed(AiError { kind: Other, retry_after_seconds: None, detail: Some(AiFailureDetail { origin: "context_budget", status: None, code: Some("brn_request_size_estimate_exceeded"), error_type: None, retryable: false, phase: None }) })
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test threads::budget_tests::medium_note_batch_omits_only_visible_ids_and_never_grants_unshown_full_read ... FAILED
+
+failures:
+
+failures:
+    threads::budget_tests::medium_note_batch_omits_only_visible_ids_and_never_grants_unshown_full_read
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 385 filtered out; finished in 0.02s
+
+error: test failed, to rerun pass `-p brn-ai --lib`

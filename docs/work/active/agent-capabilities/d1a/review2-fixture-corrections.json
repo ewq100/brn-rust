@@ -1,0 +1,7 @@
+{
+  "private_chat_initial_error": "checked Store requires private Note.chat to refer to an already-saved Thread; original before-focused23/4 includes one fixture error, not proof",
+  "corrected_before_receipt": "review2-before-corrected.json",
+  "first_candidate26_1": "three64KiBNotes fit as two full and one partial; no omitted row, so strengthened fixture to four visible Notes plus hidden private Note",
+  "final_before_medium_fixture_sha256": "31cb053af2393f79931dcac68b93b809e625da965c727eda4d3cdd5d22709ddf",
+  "production_before_still_exact": "d3f67954"
+}

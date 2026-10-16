@@ -16,16 +16,22 @@ impl AiError {
         if self.kind != AiErrorKind::Other {
             return None;
         }
-        match self.detail.as_ref()?.code.as_deref()? {
+        let detail = self.detail.as_ref()?;
+        match detail.code.as_deref()? {
             "context_length_exceeded" | "model_max_prompt_tokens_exceeded" => {
                 Some("The context limit was reached.")
             }
-            "brn_request_size_estimate_exceeded_unknown" => Some(
-                "The BRN request-size estimate cap was reached; the model context limit is unknown.",
-            ),
-            "brn_request_size_estimate_exceeded" => Some(
+            "brn_request_size_estimate_exceeded_unknown" if detail.origin == "context_budget" => {
+                Some(
+                    "The BRN request-size estimate cap was reached; the model context limit is unknown.",
+                )
+            }
+            "brn_request_size_estimate_exceeded" if detail.origin == "context_budget" => Some(
                 "The BRN request-size estimate reached the selected-route admission budget; model token fit is not proven.",
             ),
+            "brn_tool_result_admission_exceeded" if detail.origin == "context_budget" => {
+                Some("The BRN per-tool-result encoded admission estimate cap was reached.")
+            }
             _ => None,
         }
     }

@@ -1,0 +1,8 @@
+{
+  "baseline": "d3f67954ebf99086d1d295a50c270ce67fbd87f3",
+  "production_unchanged_when_captured": true,
+  "test_patch_sha256": "e25dd26a005f4ba239c97ac12ac7d4d495e0b3f5d4a6c9eb18e4de66ae718944",
+  "report_sha256": "7c1ed0e7ecd47b17293a1703b81e9d017ccd56ae5638f94cf96409316dd16b7f",
+  "executed": false,
+  "no_heavy_grant": "B1a owns sole slot; source-only fixtures/direct rustfmt"
+}

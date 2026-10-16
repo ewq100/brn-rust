@@ -1,0 +1,285 @@
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407/crates/brn-ai)
+   Compiling brn-threads-app v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407/crates/brn-threads-app)
+   Compiling brn v0.0.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407/crates/brn)
+    Finished `test` profile [optimized] target(s) in 9.37s
+     Running unittests src/main.rs (/private/tmp/brn-d1a-20261016-target/debug/deps/brn-60e68c9bcc5b33f5)
+
+running 26 tests
+test contract::tests::receipts_give_operation_and_changed_only_when_applied ... ok
+test contract::tests::envelopes_refuse_on_usage_and_rejected_and_never_echo_bad_keys ... ok
+test contract::tests::destinations_are_classified_as_caller_input ... ok
+test contract::tests::run_terminals_tell_sigint_from_another_writer ... ok
+test cw2_run_tests::shared_selection_retains_cli_invalid_provider_and_effort_contract ... ok
+test input::tests::a_set_cancel_flag_interrupts_before_reading ... ok
+test contract::tests::every_domain_outcome_maps_to_its_status ... ok
+test input::tests::relative_paths_and_a_reused_stdin_are_refused_at_parse ... ok
+test contract::tests::every_ai_error_kind_has_one_run_error_mapping ... ok
+test contract::tests::statuses_and_codes_are_one_to_one_and_complete ... ok
+test spec::tests::cli_keys_are_byte_identical_to_round_one ... ok
+test spec::tests::global_options_are_not_command_options_and_every_command_has_help ... ok
+test spec::tests::key_refusal_applies_only_to_commands_that_take_a_key ... ok
+test spec::tests::key_validation_matches_the_published_pattern ... ok
+test spec::tests::outcomes_list_every_label_of_the_returned_types ... ok
+test contract::tests::refusal_reasons_name_live_service_messages ... ok
+test spec::tests::required_lists_follow_the_first_use_order ... ok
+test input::tests::content_is_exact_utf8_without_nul ... ok
+test spec::tests::only_intake_has_conditional_requirements ... ok
+test spec::tests::description_is_one_line_with_the_owner_rule ... ok
+test spec::tests::text_options_have_file_variants_and_class_meanings_are_pinned ... ok
+test spec::tests::owner_marks_match_the_owner_decision_table ... ok
+test contract::tests::every_error_variant_maps_to_one_code_and_details_shape ... ok
+test contract::tests::committed_review_cleanup_is_internal_and_keeps_the_replay_class ... ok
+test input::tests::the_limit_is_inclusive_and_one_more_byte_is_refused ... ok
+test spec::tests::retry_for_agrees_with_the_description_for_every_command_and_variant ... ok
+
+test result: ok. 26 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/agent_authority.rs (/private/tmp/brn-d1a-20261016-target/debug/deps/agent_authority-df3f249d7283da09)
+
+running 5 tests
+test the_actor_option_wins_over_the_variable_and_bad_values_are_refused_before_opening ... ok
+test every_envelope_reports_authority_and_nulls_where_nothing_opened ... ok
+test a_restored_copy_of_a_test_workspace_is_an_owner_workspace ... ok
+test actors_show_in_history_and_operation_and_a_keyed_retry_keeps_the_first ... ok
+test purpose_test_is_creation_only_and_test_is_the_only_value ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.77s
+
+     Running tests/agent_bounds.rs (/private/tmp/brn-d1a-20261016-target/debug/deps/agent_bounds-dfdef7abc86768a6)
+
+running 12 tests
+test default_mode_sigterm_keeps_default_disposition ... ok
+test sigterm_during_stdin_wait_is_terminated_and_creates_nothing ... ok
+test sigint_envelopes_report_stop_sigint ... ok
+test timeout_with_time_to_spare_changes_nothing ... ok
+test timeout_values_are_refused_before_opening ... ok
+test timeout_during_fifo_wait_is_a_soft_deadline ... ok
+test sigint_then_sigterm_still_hard_stops ... ok
+test sigint_then_deadline_still_hard_stops ... ok
+test held_lock_past_deadline_hard_stops_with_one_line ... ok
+test busy_then_keyed_retry_applies_once ... ok
+test begin_edit_under_a_held_lock_is_busy ... ok
+test held_write_lock_reports_busy_and_creates_nothing ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 10.90s
+
+     Running tests/agent_contract.rs (/private/tmp/brn-d1a-20261016-target/debug/deps/agent_contract-2f672e1793bbc27c)
+
+running 23 tests
+test sigint_while_a_fifo_has_no_writer_is_interrupted ... ok
+test closed_stdout_does_not_panic ... ok
+test open_edit_session_reports_edit_session_open ... ok
+test default_mode_domain_outcomes_still_exit_zero ... ok
+test sigint_while_stdin_stays_open_is_interrupted_and_creates_nothing ... ok
+test json_success_envelope_has_every_field_and_result_matches_default_mode ... ok
+test terminal_sources_are_refused_without_blocking ... ok
+test deferred_undo_exits_4_and_keyed_retry_applies_the_same_compensation ... ok
+test keyed_keep_in_brn_retry_replays ... ok
+test symlinked_data_dir_is_data_folder_unusable ... ok
+test keyed_markdown_full_import_replays_and_title_change_conflicts ... ok
+test not_found_destination_exists_and_unsafe_directory_are_rejected ... ok
+test refuse_retry_after_an_interrupted_first_attempt_applies_once ... ok
+test ask_refused_before_the_provider_is_rejected_not_failed ... ok
+test large_text_beyond_argv_limits_is_saved_through_a_file ... ok
+test text_files_and_stdin_preserve_exact_multiline_unicode ... ok
+test unkeyed_deferred_undo_reports_duplicate ... ok
+test caller_input_mistakes_after_open_are_usage_or_rejected_not_internal ... ok
+test text_input_refusals_create_nothing ... ok
+test stale_generation_closed_and_ignored_exit_3_with_current_versions ... ok
+test usage_errors_are_json_with_stable_codes_and_create_nothing ... ok
+test machine_description_lists_every_parsed_command_and_matches_readme ... ok
+test keyed_creates_replay_and_reuse_with_other_inputs_is_refused ... ok
+
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.05s
+
+     Running tests/agent_converge.rs (/private/tmp/brn-d1a-20261016-target/debug/deps/agent_converge-6c9e5c7a8f26b959)
+
+running 5 tests
+test default_mode_unchanged_prints_the_unchanged_object ... ok
+test keyed_archive_retry_after_a_change_replays_the_original_receipt ... ok
+test archive_with_a_working_run_records_a_change ... ok
+test repeated_archive_and_resolve_are_unchanged_without_a_receipt ... ok
+test repeated_unarchive_move_link_unlink_are_unchanged ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.31s
+
+     Running tests/agent_credentials.rs (/private/tmp/brn-d1a-20261016-target/debug/deps/agent_credentials-818e2a5c5d937bcc)
+
+running 4 tests
+test refused_ask_stays_refused_and_records_nothing ... ok
+test ask_without_credentials_is_refused_before_any_commit ... ok
+test cli_created_workspace_has_no_credential_source ... ok
+test provider_intake_without_credentials_is_refused_before_conversion ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+     Running tests/agent_credentials_existing.rs (/private/tmp/brn-d1a-20261016-target/debug/deps/agent_credentials_existing-e8235f3d4a2060a9)
+
+running 1 test
+test existing_workspace_keeps_its_stored_auth_file ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/agent_discovery.rs (/private/tmp/brn-d1a-20261016-target/debug/deps/agent_discovery-f465088e78dcc664)
+
+running 11 tests
+test help_after_an_unknown_command_is_unknown_command ... ok
+test bare_and_unknown_invocations_keep_their_exits_and_help_text ... ok
+test repeated_global_options_are_repeated_option ... ok
+test every_envelope_has_contract_3_page_stop_and_authority ... ok
+test data_dir_and_timeout_are_accepted_after_the_command ... ok
+test usage_after_opening_may_initialise_a_fresh_directory ... ok
+test relative_backup_and_restore_paths_are_refused_before_opening ... ok
+test machine_mode_reads_on_missing_or_empty_dirs_are_missing_workspace ... ok
+test enum_values_are_refused_before_the_workspace_opens ... ok
+test service_ranges_and_trash_are_refused_before_opening ... ok
+test every_command_has_text_and_json_help_matching_the_description ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.42s
+
+     Running tests/agent_edits.rs (/private/tmp/brn-d1a-20261016-target/debug/deps/agent_edits-e5786afaae17193f)
+
+running 8 tests
+test edit_session_open_never_names_the_session ... ok
+test recipe_save_retry_replays_saved ... ok
+test tokens_arrive_once_by_result_or_owner_only_file_and_are_read_from_a_file_or_stdin ... ok
+test a_restored_copy_holds_its_sessions_for_the_desktop ... ok
+test reclaim_rotates_the_token_in_test_workspaces_only ... ok
+test stale_save_recovery_recipe_from_the_readme_completes ... ok
+test token_refusals_name_no_token_and_write_nothing ... ok
+test the_token_never_leaks_into_outputs_exports_backups_or_the_database ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.36s
+
+     Running tests/agent_inspect.rs (/private/tmp/brn-d1a-20261016-target/debug/deps/agent_inspect-a6998703a63c6568)
+
+running 11 tests
+test page_refusals_after_opening_name_the_cause ... ok
+test runs_page_validates_options_and_lists_nothing_on_a_fresh_workspace ... ok
+test identical_page_reads_return_identical_pages ... ok
+test read_pages_detect_a_change_between_pages ... ok
+test candidates_and_operation_report_unapplied_candidates ... ok
+test operation_lookup_refuses_bad_forms_and_never_allocates ... ok
+test records_page_by_kind_and_cursor ... ok
+test page_options_are_refused_before_opening ... ok
+test operation_by_key_finds_every_keyed_command ... ok
+test revisions_and_revision_read_page_through_a_large_note ... ok
+test history_pages_are_bounded_stable_and_filter_by_record ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.88s
+
+     Running tests/agent_lists.rs (/private/tmp/brn-d1a-20261016-target/debug/deps/agent_lists-2a4081354345278d)
+
+running 5 tests
+test seeded_review_chat_lists_its_message ... ok
+test messages_page_a_chat_in_creation_order ... ok
+test list_page_options_are_refused_before_opening ... ok
+test lists_without_page_options_are_unchanged ... ok
+test remaining_lists_page_to_their_unpaged_output ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.39s
+
+     Running tests/agent_reasons.rs (/private/tmp/brn-d1a-20261016-target/debug/deps/agent_reasons-163a85f570aaa151)
+
+running 5 tests
+test oversized_project_title_reason_is_size_limit ... ok
+test stale_project_settings_reason_is_version_mismatch ... ok
+test incomplete_project_delete_actions_reason_is_project_boundary ... ok
+test search_thread_naming_a_note_reason_is_wrong_kind ... ok
+test trashed_project_chat_reason_is_inactive_target ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+     Running tests/agent_retry.rs (/private/tmp/brn-d1a-20261016-target/debug/deps/agent_retry-066febeb9cc09a98)
+
+running 7 tests
+test knowledge_check_key_requires_seed_chat ... ok
+test keyed_undo_with_a_different_original_is_key_conflict ... ok
+test keyed_topics_create_retries_without_a_second_note ... ok
+test keyed_full_intake_retry_with_another_spelling_replays ... ok
+test keyed_keep_in_brn_with_a_different_note_is_key_conflict ... ok
+test keyed_intake_retry_replays_before_conversion_through_a_symlinked_folder ... ok
+test keyed_seed_chat_replays_and_ignores_later_findings ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+     Running tests/agent_runs.rs (/private/tmp/brn-d1a-20261016-target/debug/deps/agent_runs-55706a670437a219)
+
+running 12 tests
+test stub_ask_on_an_unknown_chat_never_contacts_the_stub ... ok
+test stub_ask_completes ... ok
+test stub_provider_error_ends_failed ... ok
+test stub_sigterm_interrupts_a_held_stream ... ok
+test configure_then_ask_reaches_the_provider ... ok
+test stub_killed_ask_leaves_a_working_run ... ok
+test stub_candidate_goes_stale_after_owner_edit ... ok
+test stub_run_receipts_carry_no_actor_and_the_cli_apply_carries_it ... ok
+test runs_page_filters_by_thread_and_state ... ok
+test stub_sigint_interrupts_a_held_stream ... ok
+test stub_model_candidate_review_apply_and_dismiss ... ok
+test stub_deadline_interrupts_a_held_stream ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.16s
+
+     Running tests/agent_upgrade.rs (/private/tmp/brn-d1a-20261016-target/debug/deps/agent_upgrade-9b7ba9bd493aae20)
+
+running 4 tests
+test a_read_on_a_schema_5_store_is_refused_and_leaves_it_byte_unchanged ... ok
+test upgrade_is_refused_while_a_schema_5_edit_is_open ... ok
+test upgrade_backs_up_first_and_the_upgraded_store_works ... ok
+test a_write_on_a_schema_5_store_is_refused_and_changes_nothing ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/data_folder.rs (/private/tmp/brn-d1a-20261016-target/debug/deps/data_folder-7fc9bcc292c619a8)
+
+running 3 tests
+test a_data_folder_on_a_read_only_disk_is_named ... ok
+test a_file_given_as_the_data_folder_is_named ... ok
+test a_symlink_to_an_empty_or_missing_folder_is_refused_as_a_symlink ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/edit_authority_guard.rs (/private/tmp/brn-d1a-20261016-target/debug/deps/edit_authority_guard-2b597b31b6d1c2ca)
+
+running 2 tests
+test every_pattern_trips_on_a_sample_and_the_bound_twins_do_not ... ok
+test the_cli_and_the_app_crate_never_call_owner_host_edit_functions ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/search_messages.rs (/private/tmp/brn-d1a-20261016-target/debug/deps/search_messages-7687b577d895aecf)
+
+running 2 tests
+test search_page_cursor_follows_the_message_lane ... ok
+test search_lists_a_saved_chat_message_with_its_chat ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+     Running tests/source_locator.rs (/private/tmp/brn-d1a-20261016-target/debug/deps/source_locator-ddb975307a60bb7f)
+
+running 2 tests
+test two_cli_useful_intakes_of_one_source_post_one_instruction ... ok
+test useful_intake_of_one_markdown_file_through_two_spellings_reuses_its_chat ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
+     Running tests/threads.rs (/private/tmp/brn-d1a-20261016-target/debug/deps/threads-330c982822e742ac)
+
+running 13 tests
+test ask_refuses_an_unknown_trace_level_before_any_provider_call ... ok
+test delegation_help_and_invalid_values_are_explicit_and_leave_data_unopened ... ok
+test explicit_directory_old_format_and_invalid_commands_refuse_without_touching_data ... ok
+test missing_storage_refuses_init_and_reads_preserving_marker_and_recovery_evidence ... ok
+test a_second_begin_edit_reports_the_open_session_as_structured_json ... ok
+test topics_connections_and_knowledge_check_commands ... ok
+test explicit_backup_inside_workspace_is_refused_and_next_open_preserves_records ... ok
+test helper_setting_is_off_by_default_explicit_and_kept_until_turned_off ... ok
+test save_recovers_across_processes_replays_and_undo_keeps_later_edit ... ok
+test explicit_delegation_choices_survive_reopen_and_pause_without_implicit_consent ... ok
+test useful_intake_for_a_project_stays_in_one_project_chat_across_retries ... ok
+test full_markdown_import_export_and_backup_are_fresh_and_readable ... ok
+test search_pages_report_exact_counts_and_reject_bad_cursors ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.38s
+

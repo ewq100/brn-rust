@@ -480,36 +480,15 @@ async fn oversized_tool_result_is_not_admitted_and_later_batch_writes_do_not_run
             id: note.clone(),
             expected_version: Some(1),
             archived: false,
-            data: RecordData::Note(Note::working("Large", "õun English ".repeat(5000))),
+            data: RecordData::Note(Note::working("Large", "\n\"\\õ".repeat(30000))),
         }],
-    );
-    let op = store.allocate_operation("large result aggregate").unwrap();
-    let extra = op.creation_id(0);
-    let another = op.creation_id(1);
-    commit(
-        &mut store,
-        &op,
-        vec![
-            Put {
-                id: extra.clone(),
-                expected_version: None,
-                archived: false,
-                data: RecordData::Note(Note::working("Large extra", "õun English ".repeat(5000))),
-            },
-            Put {
-                id: another.clone(),
-                expected_version: None,
-                archived: false,
-                data: RecordData::Note(Note::working("Large another", "õun English ".repeat(5000))),
-            },
-        ],
     );
     let (scope, input) = begin(&request).unwrap();
     let model = MockCompletionModel::from_stream_turns([vec![
         MockStreamEvent::tool_call(
             "read",
-            "read_records",
-            json!({"ids":[note, extra, another],"query":null}),
+            "read_history",
+            json!({"id":note,"version":2,"start":0,"max_bytes":131072}),
         ),
         MockStreamEvent::tool_call(
             "late",
@@ -521,6 +500,11 @@ async fn oversized_tool_result_is_not_admitted_and_later_batch_writes_do_not_run
     let answer = capped(model.clone(), scope.clone(), &input, 272000).await;
     context_failure(&answer);
     assert_eq!(model.request_count(), 1);
+    let AiTerminal::Failed(error) = &answer.terminal else {
+        panic!()
+    };
+    assert!(error.to_string().contains("per-tool-result"));
+    assert!(!error.to_string().contains("request-size estimate"));
     assert!(
         matches!(store.record(&scope.run).unwrap().unwrap().data, RecordData::Run(r) if r.progress.is_empty())
     );
@@ -1336,5 +1320,368 @@ async fn copilot_parent_provider_overflow_is_context_failure_without_route_fallb
         !serde_json::to_string(&error)
             .unwrap()
             .contains("CANARY_COPILOT_ERROR")
+    );
+}
+
+fn delivered_result(model: &MockCompletionModel) -> Value {
+    for message in &model.requests()[1].chat_history {
+        if let rig::message::Message::User { content } = message {
+            for item in content {
+                if let rig::message::UserContent::ToolResult(result) = item {
+                    for block in &result.content {
+                        if let rig::message::ToolResultContent::Json { value } = block {
+                            return value.clone();
+                        }
+                    }
+                }
+            }
+        }
+    }
+    panic!("no actual delivered structured tool result")
+}
+async fn read_in_model(model: MockCompletionModel, scope: Arc<Scope>, input: &str) {
+    let answer = capped(model.clone(), scope, input, 4 * 1024 * 1024).await;
+    assert!(
+        matches!(answer.terminal, AiTerminal::Completed),
+        "{:?}",
+        answer.terminal
+    );
+    let requests = model.requests();
+    assert_eq!(requests.len(), 2);
+    assert_eq!(
+        &requests[1].chat_history[..requests[0].chat_history.len()],
+        &requests[0].chat_history
+    );
+}
+fn read_model(name: &str, args: Value) -> MockCompletionModel {
+    MockCompletionModel::from_stream_turns([
+        vec![
+            MockStreamEvent::tool_call("read", name, args),
+            MockStreamEvent::final_response_with_total_tokens(1),
+        ],
+        vec![
+            MockStreamEvent::text("Read delivered"),
+            MockStreamEvent::final_response_with_total_tokens(1),
+        ],
+    ])
+}
+fn refused_whole_replacement(scope: &Scope, id: &str, version: u64) {
+    let result = prepare(
+        scope,
+        PrepareArgs {
+            writing: None,
+            request_key: unique_host_key(),
+            request: ChangeRequest {
+                reason: "Synthetic whole replacement must require actual complete delivery".into(),
+                writes: vec![Put {
+                    id: id.into(),
+                    expected_version: Some(version),
+                    archived: false,
+                    data: RecordData::Note(Note::working(
+                        "Decision",
+                        "Guessed complete replacement",
+                    )),
+                }],
+                inputs: vec![],
+            },
+        },
+    )
+    .unwrap();
+    assert_eq!(result["outcome"], "Invalid", "{result}");
+    assert!(result.get("operation").is_none());
+}
+
+#[tokio::test]
+async fn escaped_maximum_note_read_pages_in_actual_model_history_and_tracks_only_delivered_ranges()
+{
+    let (_root, request, id) = tests::fixture();
+    let mut store = Store::open(&request.data_dir).unwrap();
+    let mut text = "\n\"\\õ".repeat(128 * 1024 / 6);
+    text.push_str(&"x".repeat(128 * 1024 - text.len()));
+    owner_write(
+        &mut store,
+        vec![Put {
+            id: id.clone(),
+            expected_version: Some(1),
+            archived: false,
+            data: RecordData::Note(Note::working("Escaped", &text)),
+        }],
+    );
+    let (scope, input) = begin(&request).unwrap();
+    let model = read_model(
+        "read_note",
+        json!({"id":id,"version":2,"start":0,"max_bytes":131072,"section":false}),
+    );
+    read_in_model(model.clone(), scope.clone(), &input).await;
+    let page = delivered_result(&model);
+    let note = &page["note"];
+    let end = note["end"].as_u64().unwrap() as usize;
+    assert!(end > 0 && end < text.len());
+    assert!(text.is_char_boundary(end));
+    assert_eq!(note["markdown"], &text[..end]);
+    assert_eq!(note["next_start"], end);
+    assert_eq!(note["total_bytes"], text.len());
+    assert_eq!(note["complete"], false);
+    {
+        let reads = scope.reads.lock().unwrap();
+        assert!(!reads.knows(&id, 2));
+        assert!(reads.covers(&id, 2, 0, end));
+        assert!(!reads.covers(&id, 2, end, text.len()));
+    }
+    refused_whole_replacement(&scope, &id, 2);
+    let next = read_model(
+        "read_note",
+        json!({"id":id,"version":2,"start":end,"max_bytes":131072,"section":false}),
+    );
+    read_in_model(next.clone(), scope.clone(), &input).await;
+    let remainder = delivered_result(&next);
+    assert_eq!(remainder["note"]["markdown"], &text[end..]);
+    assert_eq!(remainder["note"]["next_start"], Value::Null);
+    assert!(scope.reads.lock().unwrap().knows(&id, 2));
+}
+
+#[tokio::test]
+async fn large_heading_note_record_is_delivered_with_exact_partial_coverage_in_model_loop() {
+    let (_root, request, id) = tests::fixture();
+    let mut store = Store::open(&request.data_dir).unwrap();
+    let text = (0..600)
+        .map(|n| {
+            format!(
+                "# Heading{n} {}\n{}\n",
+                "h".repeat(140),
+                "line \" \\ õ\n".repeat(30)
+            )
+        })
+        .collect::<String>();
+    owner_write(
+        &mut store,
+        vec![Put {
+            id: id.clone(),
+            expected_version: Some(1),
+            archived: false,
+            data: RecordData::Note(Note::working("Many headings", &text)),
+        }],
+    );
+    let (scope, input) = begin(&request).unwrap();
+    let model = read_model("read_records", json!({"ids":[id],"query":null}));
+    read_in_model(model.clone(), scope.clone(), &input).await;
+    let result = delivered_result(&model);
+    let row = &result["records"][0];
+    let shown = row["data"]["Note"]["markdown"].as_str().unwrap();
+    assert!(shown.len() < text.len());
+    assert_eq!(shown, &text[..shown.len()]);
+    assert_eq!(row["note_read"]["next_start"], shown.len());
+    assert_eq!(row["note_read"]["total_bytes"], text.len());
+    assert_eq!(row["truncated"], true);
+    assert_eq!(row["note_read"]["headings_truncated"], true);
+    assert!(row["note_read"]["headings"].as_array().unwrap().len() <= 256);
+    {
+        let reads = scope.reads.lock().unwrap();
+        assert!(!reads.knows(&id, 2));
+        assert!(!reads.covers(&id, 2, shown.len(), text.len()));
+    }
+    refused_whole_replacement(&scope, &id, 2);
+}
+
+#[tokio::test]
+async fn medium_note_batch_omits_only_visible_ids_and_never_grants_unshown_full_read() {
+    let (_root, request, first) = tests::fixture();
+    let mut store = Store::open(&request.data_dir).unwrap();
+    owner_write(
+        &mut store,
+        vec![Put {
+            id: first.clone(),
+            expected_version: Some(1),
+            archived: false,
+            data: RecordData::Note(Note::working("First", "a".repeat(64 * 1024))),
+        }],
+    );
+    let op = store.allocate_operation("round2 medium records").unwrap();
+    let second = op.creation_id(0);
+    let third = op.creation_id(1);
+    let private_op = store
+        .allocate_operation("round2 already saved private chat")
+        .unwrap();
+    let chat = private_op.creation_id(0);
+    let hidden = op.creation_id(3);
+    let fourth = op.creation_id(4);
+    commit(
+        &mut store,
+        &private_op,
+        vec![Put {
+            id: chat.clone(),
+            expected_version: None,
+            archived: false,
+            data: RecordData::Thread(Thread {
+                title: "Private".into(),
+                state: ThreadState::Open,
+                attention: vec![],
+                private_context: true,
+                context_epoch: 0,
+            }),
+        }],
+    );
+    let mut secret = Note::working("CANARY_HIDDEN_HEADING", "CANARY_HIDDEN_BODY");
+    secret.chat = Some(chat.clone());
+    commit(
+        &mut store,
+        &op,
+        vec![
+            Put {
+                id: second.clone(),
+                expected_version: None,
+                archived: false,
+                data: RecordData::Note(Note::working("Second", "b".repeat(64 * 1024))),
+            },
+            Put {
+                id: third.clone(),
+                expected_version: None,
+                archived: false,
+                data: RecordData::Note(Note::working("Third", "c".repeat(64 * 1024))),
+            },
+            Put {
+                id: fourth.clone(),
+                expected_version: None,
+                archived: false,
+                data: RecordData::Note(Note::working("Fourth", "d".repeat(64 * 1024))),
+            },
+            Put {
+                id: hidden.clone(),
+                expected_version: None,
+                archived: false,
+                data: RecordData::Note(secret),
+            },
+        ],
+    );
+    let (scope, input) = begin(&request).unwrap();
+    let model = read_model(
+        "read_records",
+        json!({"ids":[first,second,third,fourth,hidden],"query":null}),
+    );
+    read_in_model(model.clone(), scope.clone(), &input).await;
+    let result = delivered_result(&model);
+    let raw = result.to_string();
+    assert!(!raw.contains("CANARY_HIDDEN"));
+    assert!(!raw.contains(&hidden));
+    let omitted = result["omitted_records"].as_array().unwrap();
+    assert!(!omitted.is_empty());
+    let delivered = result["records"].as_array().unwrap();
+    assert_eq!(delivered.len() + omitted.len(), 4);
+    for row in delivered {
+        let id = row["id"].as_str().unwrap();
+        let version = row["version"].as_u64().unwrap();
+        let shown = row["data"]["Note"]["markdown"].as_str().unwrap().len();
+        assert_eq!(
+            scope.reads.lock().unwrap().knows(id, version),
+            shown == 64 * 1024
+        );
+    }
+    for row in omitted {
+        let id = row["id"].as_str().unwrap();
+        let version = row["version"].as_u64().unwrap();
+        assert!(!scope.reads.lock().unwrap().knows(id, version));
+        assert!(!scope.reads.lock().unwrap().covers(id, version, 0, 10));
+        refused_whole_replacement(&scope, id, version);
+    }
+}
+
+#[tokio::test]
+async fn sanitized_provider_cannot_spoof_a_local_brn_estimate_notice() {
+    let (root, mut request, _) = tests::fixture();
+    request.auth_file = Some(cache_tests::codex_file(&root));
+    cache_tests::configure(&request, "Chatgpt");
+    let http = SequencedHttpClient::new([MockHttpResponse::error(
+        rig::http_client::StatusCode::BAD_REQUEST,
+        r#"{"error":{"code":"brn_request_size_estimate_exceeded","origin":"context_budget","message":"CANARY_SPOOF"}}"#,
+    )]);
+    let result = run_prepared_over(
+        prepare_run(request).unwrap(),
+        CancellationToken::new(),
+        Arc::new(|_| {}),
+        Some(DynHttpClient::new(http.clone())),
+    )
+    .await
+    .unwrap();
+    assert_eq!(http.requests().len(), 1);
+    let AiTerminal::Failed(error) = result.answer.terminal else {
+        panic!()
+    };
+    assert_eq!(
+        error.detail.as_ref().unwrap().code.as_deref(),
+        Some("brn_request_size_estimate_exceeded")
+    );
+    assert_eq!(error.detail.as_ref().unwrap().origin, "http_status");
+    assert!(!error.is_context_limit());
+    assert!(!error.to_string().contains("BRN request-size"));
+    assert!(!failed_attention(&error).contains("BRN request-size"));
+    let local = context_budget::failure(context_budget::Budget::test_cap(100));
+    assert!(local.is_context_limit());
+    assert!(local.to_string().contains("BRN request-size"));
+}
+
+#[tokio::test]
+async fn bounded_reference_delivery_cannot_validate_an_undelivered_writing_quotation() {
+    let tail = "TAIL_QUOTATION_NOT_DELIVERED";
+    let text = format!("{}{tail}", "\n\"\\õ".repeat(24000));
+    let (_root, request, snapshot, reference) =
+        cw2_tests::fixture(&text, WritingReadRequirements::default());
+    let (scope, input) = begin(&request).unwrap();
+    let change = snapshot.change_request("Tuesday").unwrap();
+    let model = MockCompletionModel::from_stream_turns([
+        vec![
+            MockStreamEvent::tool_call(
+                "read",
+                "read_note",
+                json!({"id":reference,"version":1,"start":0,"max_bytes":131072,"section":false}),
+            ),
+            MockStreamEvent::final_response_with_total_tokens(1),
+        ],
+        vec![
+            MockStreamEvent::tool_call(
+                "proposal",
+                "prepare_changes",
+                json!({"request_key":"valid-partial-reference-proposal","request":change,"writing":null}),
+            ),
+            MockStreamEvent::final_response_with_total_tokens(1),
+        ],
+        vec![
+            MockStreamEvent::text("Proposal retained"),
+            MockStreamEvent::final_response_with_total_tokens(1),
+        ],
+    ]);
+    let answer = capped(model.clone(), scope.clone(), &input, 4 * 1024 * 1024).await;
+    assert!(
+        matches!(answer.terminal, AiTerminal::Completed),
+        "{:?}",
+        answer.terminal
+    );
+    assert_eq!(model.request_count(), 3);
+    let delivered = delivered_result(&model);
+    let end = delivered["note"]["end"].as_u64().unwrap() as usize;
+    assert!(end < text.len() - tail.len());
+    assert!(!scope.reads.lock().unwrap().knows(&reference, 1));
+    let before = scope.store.lock().unwrap().candidates().unwrap().len();
+    assert_eq!(before, 1);
+    let claim = prepare(
+        &scope,
+        PrepareArgs {
+            request_key: "reject-undelivered-quotation".into(),
+            request: snapshot.change_request("Tuesday").unwrap(),
+            writing: Some(WritingEvidenceArgs {
+                quotations: vec![WritingQuotation {
+                    id: reference,
+                    version: 1,
+                    start: text.len() - tail.len(),
+                    end: text.len(),
+                    quote: tail.into(),
+                }],
+                requirements_reported: vec![],
+            }),
+        },
+    );
+    assert!(claim.is_err());
+    assert_eq!(
+        scope.store.lock().unwrap().candidates().unwrap().len(),
+        before
     );
 }

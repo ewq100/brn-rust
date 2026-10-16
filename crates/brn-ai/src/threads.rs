@@ -495,7 +495,7 @@ tool!(
     ReadRecords,
     "read_records",
     ReadArgs,
-    "Read current canonical records. Exact IDs return records with explicit continuation for long text. Empty IDs lists up to 100 current Note/Thread/Action/Source/Comment/Link records; when search_notes is offered, listed notes are compact rows (id, version, title, bytes, protected, imported) without Markdown, so read a note by exact ID or read_note. Optional literal query searches saved notes and relevant discussion in the current project; earlier owner/assistant Messages are discussion evidence, not adopted decisions. Message passages have exact ID/version/UTF-8 offsets; continue with read_message. Other message roles are host metadata and unavailable. Notes longer than 128 KiB include continuation and heading offsets for read_note; never treat a truncated prefix as the whole note. Assets are metadata only.",
+    "Read current canonical records. Exact IDs return records with explicit continuation for long text. Empty IDs lists up to 100 current Note/Thread/Action/Source/Comment/Link records; when search_notes is offered, listed notes are compact rows (id, version, title, bytes, protected, imported) without Markdown, so read a note by exact ID or read_note. Optional literal query searches saved notes and relevant discussion in the current project; earlier owner/assistant Messages are discussion evidence, not adopted decisions. Message passages have exact ID/version/UTF-8 offsets; continue with read_message. Other message roles are host metadata and unavailable. Encoded result limits can shorten a Note prefix or omit visible records. note_read gives exact end/next_start/complete; omitted_records lists visible IDs and versions to retry. Long notes include bounded heading offsets and headings_truncated. Continue with read_note; never treat a partial prefix as the whole note. Assets are metadata only.",
     read_records
 );
 tool!(
@@ -545,7 +545,7 @@ tool!(
     ReadNote,
     "read_note",
     ReadNoteArgs,
-    "Read at most 128 KiB from a current saved note at an exact version and UTF-8 byte offset. Use read_records version and next_start, or an advertised heading start with section=true. Stale requires a fresh read_records; continue large sections with section=false and the returned next_start, bounded by section_end. Pending proposals are excluded.",
+    "Read at most 128 KiB from a current saved note at an exact version and UTF-8 byte offset. Encoded output limits can return fewer raw bytes; end/next_start/complete state actual coverage. Use read_records version and next_start, or an advertised heading start with section=true. Stale requires a fresh read_records; continue large sections with section=false and the returned next_start, bounded by section_end. Pending proposals are excluded.",
     read_note
 );
 tool!(
@@ -675,6 +675,96 @@ pub fn tool_activity(name: &str) -> Option<&'static str> {
 pub fn search_tool_names() -> Vec<&'static str> {
     SEARCH_TOOLS.iter().map(|(name, _)| *name).collect()
 }
+fn record_note_prefix(row: &mut Value, prefix: &str) {
+    let total = row["note_read"]["total_bytes"].as_u64().unwrap_or_default() as usize;
+    row["data"]["Note"]["markdown"] = json!(prefix);
+    row["truncated"] = json!(prefix.len() < total);
+    row["note_read"]["end"] = json!(prefix.len());
+    row["note_read"]["next_start"] = json!((prefix.len() < total).then_some(prefix.len()));
+    row["note_read"]["complete"] = json!(prefix.len() == total);
+}
+fn bounded_record_output(rows: Vec<Value>) -> AiResult<Value> {
+    // Only already-visible eligible rows reach this function. IDs/versions of
+    // omitted rows are bounded by the existing 100-row limit and permit retry.
+    let omitted = rows
+        .iter()
+        .map(|r| json!({"id":r["id"],"version":r["version"]}))
+        .collect::<Vec<_>>();
+    let mut out = json!({"records":[],"limit":100,"omitted_records":omitted});
+    for row in rows {
+        let mut candidate = out.clone();
+        candidate["omitted_records"]
+            .as_array_mut()
+            .ok_or_else(rejected)?
+            .retain(|r| r["id"] != row["id"]);
+        candidate["records"]
+            .as_array_mut()
+            .ok_or_else(rejected)?
+            .push(row);
+        let is_note = candidate["records"]
+            .as_array()
+            .and_then(|r| r.last())
+            .is_some_and(|r| r["data"]["Note"]["markdown"].is_string());
+        if !context_budget::result_fits(&candidate) && is_note {
+            let row = candidate["records"]
+                .as_array_mut()
+                .ok_or_else(rejected)?
+                .last_mut()
+                .ok_or_else(rejected)?;
+            // At most 8KiB of encoded heading entries when cropping is needed;
+            // keep exact leading entries, disclose any metadata omission.
+            if let Some(headings) = row["note_read"]["headings"].as_array_mut() {
+                let before = headings.len();
+                while serde_json::to_vec(headings).map_err(storage)?.len() > 8192 {
+                    headings.pop();
+                }
+                if headings.len() != before {
+                    row["note_read"]["headings_truncated"] = json!(true);
+                }
+            }
+            let text = row["data"]["Note"]["markdown"]
+                .as_str()
+                .ok_or_else(rejected)?
+                .to_owned();
+            let prefix = context_budget::fit_prefix(&text, |prefix| {
+                if let Some(row) = candidate["records"]
+                    .as_array_mut()
+                    .and_then(|r| r.last_mut())
+                {
+                    record_note_prefix(row, prefix);
+                }
+                context_budget::result_fits(&candidate)
+            });
+            let Some(prefix) = prefix else {
+                continue;
+            };
+            record_note_prefix(
+                candidate["records"]
+                    .as_array_mut()
+                    .and_then(|r| r.last_mut())
+                    .ok_or_else(rejected)?,
+                &prefix,
+            );
+        }
+        if context_budget::result_fits(&candidate) {
+            let partial = candidate["records"]
+                .as_array()
+                .and_then(|r| r.last())
+                .is_some_and(|r| r["truncated"] == true);
+            out = candidate;
+            // Preserve canonical order and stop after the first partial Note.
+            // Remaining visible IDs stay explicit retries, with no read grant.
+            if partial {
+                break;
+            }
+        }
+    }
+    if context_budget::result_fits(&out) {
+        Ok(out)
+    } else {
+        Err(context_budget::result_failure())
+    }
+}
 fn read_records(scope: &Scope, args: ReadArgs) -> AiResult<Value> {
     if scope
         .writing_snapshot
@@ -778,37 +868,24 @@ fn read_records(scope: &Scope, args: ReadArgs) -> AiResult<Value> {
         } else {
             MAX_NOTE_READ_BYTES
         };
-        if let RecordData::Note(note) = &record.data
-            && note.markdown.len() <= cap
-        {
-            scope
-                .reads
-                .lock()
-                .map_err(storage)?
-                .complete(&record.id, record.version);
-        }
-        if let RecordData::Note(note) = &record.data
-            && note.markdown.len() > cap
-        {
+        if let RecordData::Note(note) = &record.data {
             let prefix = truncate(&note.markdown, cap);
-            scope.reads.lock().map_err(storage)?.slice(
-                &record.id,
-                record.version,
-                0,
-                prefix.len(),
-                note.markdown.len(),
-            );
             value["data"]["Note"]["markdown"] = Value::String(prefix.to_owned());
-            value["truncated"] = Value::Bool(true);
-            let headings = note_headings(&note.markdown);
-            value["note_read"] = json!({"total_bytes":note.markdown.len(),"next_start":prefix.len(),"max_bytes":cap,"headings":headings.iter().take(256).collect::<Vec<_>>(),"headings_truncated":headings.len()>256});
+            value["truncated"] = json!(prefix.len() < note.markdown.len());
+            value["note_read"] = json!({"start":0,"end":prefix.len(),"total_bytes":note.markdown.len(),"next_start":(prefix.len()<note.markdown.len()).then_some(prefix.len()),"complete":prefix.len()==note.markdown.len(),"max_bytes":cap});
+            if prefix.len() < note.markdown.len() {
+                let headings = note_headings(&note.markdown);
+                value["note_read"]["headings"] =
+                    json!(headings.iter().take(256).collect::<Vec<_>>());
+                value["note_read"]["headings_truncated"] = json!(headings.len() > 256);
+            }
         }
         rows.push(value);
         if rows.len() == 100 {
             break;
         }
     }
-    let mut out = json!({"records":rows,"limit":100});
+    let mut out = bounded_record_output(rows)?;
     // Only listings: a note read by ID is already in context.
     if args.ids.is_empty() {
         let ids = out["records"]
@@ -819,7 +896,34 @@ fn read_records(scope: &Scope, args: ReadArgs) -> AiResult<Value> {
             .filter_map(|row| row["id"].as_str().map(str::to_owned))
             .collect::<Vec<_>>();
         if let Some(hint) = research::large_notes_hint(scope, &store, ids)? {
-            out["large_notes"] = hint;
+            let mut hinted = out.clone();
+            hinted["large_notes"] = hint;
+            if context_budget::result_fits(&hinted) {
+                out = hinted;
+            } else {
+                out["large_notes_truncated"] = json!(true);
+            }
+        }
+    }
+    if !context_budget::result_fits(&out) {
+        return Err(context_budget::result_failure());
+    }
+    // Evidence is recorded only after final encoded selection. Omitted rows,
+    // undelivered suffixes and heading metadata never grant a full-note read.
+    let mut reads = scope.reads.lock().map_err(storage)?;
+    for row in out["records"].as_array().ok_or_else(rejected)? {
+        if let (Some(id), Some(version), Some(markdown), Some(total)) = (
+            row["id"].as_str(),
+            row["version"].as_u64(),
+            row["data"]["Note"]["markdown"].as_str(),
+            row["note_read"]["total_bytes"].as_u64(),
+        ) {
+            let total = usize::try_from(total).map_err(storage)?;
+            if markdown.len() == total {
+                reads.complete(id, version);
+            } else {
+                reads.slice(id, version, 0, markdown.len(), total);
+            }
         }
     }
     Ok(out)
@@ -850,18 +954,40 @@ fn read_note(scope: &Scope, args: ReadNoteArgs) -> AiResult<Value> {
     let outcome = store
         .read_note_range(&args.id, args.version, args.start, max_bytes, args.section)
         .map_err(storage)?;
+    let mut value = serde_json::to_value(&outcome).map_err(storage)?;
+    if capped {
+        value["max_bytes"] = json!(research::HELPER_READ_BYTES);
+    }
     if let NoteReadOutcome::Read { note } = &outcome {
+        value["note"]["complete"] = json!(note.start == 0 && note.end == note.total_bytes);
+        let prefix = context_budget::fit_prefix(&note.markdown, |prefix| {
+            value["note"]["markdown"] = json!(prefix);
+            value["note"]["end"] = json!(note.start + prefix.len());
+            value["note"]["next_start"] = json!(
+                (note.start + prefix.len() < note.total_bytes).then_some(note.start + prefix.len())
+            );
+            value["note"]["complete"] = json!(note.start == 0 && prefix.len() == note.total_bytes);
+            context_budget::result_fits(&value)
+        })
+        .ok_or_else(context_budget::result_failure)?;
+        let end = note.start + prefix.len();
+        value["note"]["markdown"] = json!(prefix);
+        value["note"]["end"] = json!(end);
+        value["note"]["next_start"] = json!((end < note.total_bytes).then_some(end));
+        value["note"]["complete"] = json!(note.start == 0 && end == note.total_bytes);
+        if !context_budget::result_fits(&value) {
+            return Err(context_budget::result_failure());
+        }
         scope.reads.lock().map_err(storage)?.slice(
             &note.id,
             note.version,
             note.start,
-            note.end,
+            end,
             note.total_bytes,
         );
     }
-    let mut value = serde_json::to_value(outcome).map_err(storage)?;
-    if capped {
-        value["max_bytes"] = json!(research::HELPER_READ_BYTES);
+    if !context_budget::result_fits(&value) {
+        return Err(context_budget::result_failure());
     }
     Ok(value)
 }
@@ -3250,7 +3376,7 @@ async fn run_model_budgeted(
     if let Some(helper) = &scope.helper {
         helper.bind(cancel.clone(), emit.clone());
     }
-    let exhausted = Arc::new(AtomicBool::new(false));
+    let exhausted = Arc::new(AtomicU16::new(0));
     let preamble = run_preamble(&scope);
     let mut builder = register_tools(rig::AgentBuilder::new(model).preamble(&preamble));
     if scope.search.is_some() {
@@ -3307,8 +3433,11 @@ async fn run_model_budgeted(
         .tool_concurrency(1)
         .stream();
     let mut answer = crate::chat::collect_stream(stream, cancel.clone(), emit, limited, None).await;
-    if exhausted.load(Ordering::SeqCst) && !cancel.is_cancelled() {
-        answer.terminal = AiTerminal::Failed(context_budget::failure(budget));
+    if exhausted.load(Ordering::SeqCst) != 0 && !cancel.is_cancelled() {
+        answer.terminal = AiTerminal::Failed(context_budget::exhausted_failure(
+            budget,
+            exhausted.load(Ordering::SeqCst),
+        ));
         if let Some(trace) = &scope.trace {
             trace.stop("budget");
         }

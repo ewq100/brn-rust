@@ -395,7 +395,7 @@ pub(super) async fn run_helper_model(
 ) -> AiAnswer {
     let limited = Arc::new(AtomicBool::new(false));
     let invalid = Arc::new(AtomicBool::new(false));
-    let exhausted = Arc::new(AtomicBool::new(false));
+    let exhausted = Arc::new(AtomicU16::new(0));
     let preamble = crate::threads_guides::scout_preamble();
     let mut builder = rig::AgentBuilder::new(model)
         .preamble(&preamble)
@@ -450,8 +450,11 @@ pub(super) async fn run_helper_model(
         .tool_concurrency(1)
         .stream();
     let mut answer = crate::chat::collect_stream(stream, cancel.clone(), emit, limited, None).await;
-    if exhausted.load(Ordering::SeqCst) && !cancel.is_cancelled() {
-        answer.terminal = AiTerminal::Failed(context_budget::failure(budget));
+    if exhausted.load(Ordering::SeqCst) != 0 && !cancel.is_cancelled() {
+        answer.terminal = AiTerminal::Failed(context_budget::exhausted_failure(
+            budget,
+            exhausted.load(Ordering::SeqCst),
+        ));
         if let Some(trace) = &scope.trace {
             trace.stop("budget");
         }

@@ -108,6 +108,51 @@ pub(super) fn failure(budget: Budget) -> AiError {
         ..Default::default()
     })
 }
+pub(super) fn result_failure() -> AiError {
+    AiError::new(AiErrorKind::Other).with_detail(crate::AiFailureDetail {
+        origin: "context_budget".into(),
+        code: Some("brn_tool_result_admission_exceeded".into()),
+        ..Default::default()
+    })
+}
+pub(super) fn exhausted_failure(budget: Budget, cause: u16) -> AiError {
+    if cause == 2 {
+        result_failure()
+    } else {
+        failure(budget)
+    }
+}
+/// Rig 0.44 structured JSON is one JSON content block, serialized exactly
+/// once as its content list. This is a bounded encoded-result estimate,
+/// including the same 1KiB surcharge as the admission hook, not token proof.
+pub(super) fn result_fits(value: &Value) -> bool {
+    estimate(&rig::tool::ToolOutput::json(value.clone())) <= RESULT
+}
+/// Existing bounded read text only; never changes an admitted transcript.
+pub(super) fn fit_prefix(text: &str, mut fits: impl FnMut(&str) -> bool) -> Option<String> {
+    if fits(text) {
+        return Some(text.to_owned());
+    }
+    if !fits("") {
+        return None;
+    }
+    let boundaries = text
+        .char_indices()
+        .map(|(start, _)| start)
+        .chain(std::iter::once(text.len()))
+        .collect::<Vec<_>>();
+    let (mut low, mut high) = (0, boundaries.len() - 1);
+    while low < high {
+        let mid = low + (high - low).div_ceil(2);
+        if fits(&text[..boundaries[mid]]) {
+            low = mid;
+        } else {
+            high = mid - 1;
+        }
+    }
+    let prefix = &text[..boundaries[low]];
+    (!prefix.is_empty() || text.is_empty()).then(|| prefix.to_owned())
+}
 pub(super) fn is_limit(error: &AiError) -> bool {
     error.is_context_limit()
 }
@@ -265,7 +310,7 @@ pub(super) fn history_input(
 
 pub(super) struct BudgetHook {
     pub(super) budget: Budget,
-    pub(super) exhausted: Arc<AtomicBool>,
+    pub(super) exhausted: Arc<AtomicU16>,
     pub(super) scope: Arc<Scope>,
 }
 impl AgentHook for BudgetHook {
@@ -281,7 +326,7 @@ impl AgentHook for BudgetHook {
                 return DispatchAction::stop("run no longer current");
             }
             if !self.budget.accepts(estimate(request)) {
-                self.exhausted.store(true, Ordering::SeqCst);
+                self.exhausted.store(1, Ordering::SeqCst);
                 return DispatchAction::stop("context request estimate exhausted");
             }
         }
@@ -293,7 +338,7 @@ impl AgentHook for BudgetHook {
         {
             // Refuse the whole result before admission, never rewrite or
             // silently truncate exact evidence / already executed effects.
-            self.exhausted.store(true, Ordering::SeqCst);
+            self.exhausted.store(2, Ordering::SeqCst);
             return OutcomeAction::stop("tool result exceeds context admission estimate");
         }
         OutcomeAction::Proceed

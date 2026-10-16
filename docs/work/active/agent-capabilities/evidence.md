@@ -15,3 +15,6 @@ The [D1A receipt](d1a/README.md) records the clean bound branch/base, exact Rig 
 
 
 D1A independent round1 returned CHANGES_REQUIRED at202bf2d7. The [full report and response](d1a/review1-response.md) retain actual test-only prior-source failures for Copilot wire caps, valid maximum payload and provider overflow; corrected AI381/0/1, core13/0/0, CLI161/0/0, strict affected all-target Clippy and formatting pass. The initial correction-fixture output-limit and trace-Off failures are preserved. Fresh independent round2 and full integration qualification remain pending. Prior mutation426.870802s used/1373.129198s remaining is unchanged; supplement is deferred until the next heavy grant.
+
+
+Opus2 confirmed all round1 findings fixed and requested encoded read-result paging plus local-origin guarding. [Round2 response](d1a/review2-response.md) records exact failing-before model loops, unchanged result/request caps, delivered-only ledger evidence, omitted/private/partial coverage and CW2 quotation refusal. Corrected AI386/0/1, core13/0/0, CLI161/0/0, strict affected all-target Clippy and fmt pass. Fresh Opus3 and integration qualification remain separate; prior mutation verdicts are not promoted to the new pin.
