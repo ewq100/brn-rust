@@ -707,7 +707,7 @@ Command: `git -C /Users/evokessler/repos/brn-rust -c core.fsmonitor=false log --
       - `python3 docs/work/active/chats-and-projects/cli-witness.py target/debug/brn` exits 0 with an empty temp parent;
       - the baseline run of `agent_runs` fails (no `runs`, `stop` or `--timeout`).
 
-- [ ] R2-9. **A12: stale edits stay conflicts; `edit_session_open` never names the session (owner B3 part 1)** (design A12; appendix §A12).
+- [x] R2-9. **A12: stale edits stay conflicts; `edit_session_open` never names the session (owner B3 part 1)** (design A12; appendix §A12).
       In `contract.rs::begin_edit_error` (`:434-456`), drop the `.with("session", …)` line, so `details` = `{note, base_version}`. Keep the `Sqlite` + `recovery_buffers()` inference on this branch; at merge it maps the typed `Error::EditSessionOpen` (recorded in the merge notes).
       **C2.** The `CliError.message` and `Code::EditSessionOpen.meaning()` text: "This note has an open unsaved edit session (details.note, details.base_version). Write to it only if your own successful begin-edit returned it; otherwise report it to the owner." Default-mode text is unchanged on this branch.
       **Recipe (C7)**, verbatim in the README "Recovery recipes" (`:241`) and `AGENT_HELP`. R2-12 puts it in `save` help.

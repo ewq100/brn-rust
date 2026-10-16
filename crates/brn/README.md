@@ -143,7 +143,7 @@ Reachability from the CLI: every CLI write runs with owner authority and no run,
 | `key_conflict` | rejected | The same key with a different request. | `{key}` with `--key`, else `{}` |
 | `unsafe_directory` | rejected | Old or foreign format, missing database, symlink, non-empty restore target, backup inside the workspace. | `{}` |
 | `destination_exists` | rejected | `backup` or `export` destination already exists. | `{option: "destination"}` |
-| `edit_session_open` | rejected | `begin-edit` on a note with an open unsaved session. | `{note, session, base_version}` |
+| `edit_session_open` | rejected | `begin-edit` on a note with an open unsaved session. | `{note, base_version}` |
 | `credentials_not_configured` | rejected | Machine mode: `ask`, useful intake, or a non-Markdown/text intake on a workspace with no credential source. Nothing was committed and no provider was contacted. | `{provider}` |
 | `unavailable` | failed | Semantic search or a model folder is unusable; no native retrieval in this build; conversion unsupported on this platform or format; model install refused. | `{}` or `{reason: "model_install"}` |
 | `provider_failed` | failed | `ask` or useful intake: any other `AiErrorKind` (none is known to reach `Err` from `run` at `771116f0`; kept as a fallback); also `ConversionFailure::Provider`. | `{kind}` in snake_case |
@@ -259,7 +259,7 @@ A key names one intended change. Reuse it only to retry the same command with th
 | `runs` | no | read | — | no |
 | `operation` | no | read | — | no |
 | `search` | no | read | — | no |
-| `begin-edit` | no | refuse (`edit_session_open` names the open session) | — | no |
+| `begin-edit` | no | refuse (`edit_session_open` names the note and its base version) | — | no |
 | `update-buffer` | no | replay (an identical retry exits 0 with `Ignored`) | — | no |
 | `save` | no | replay | — | no |
 | `discard` | no | refuse (a retry is `Ignored`, exit 3) | — | no |
@@ -285,9 +285,15 @@ Keyed edge cases: different inputs under the same key give `key_conflict` (a dif
 ### Recovery recipes
 
 - **Lost response.** If `retry` is `replay`, retry the identical argv with the same `--key`. For `refuse`, read state first (`read`, `projects`, `recovery`, or check the destination): if the change is there, do not retry; if not, the identical retry performs it once. For `duplicate` without a key, inspect `notes`, `threads`, `history` or `candidates` first.
-- **Stale save** (exit 3), using only the session your own successful `begin-edit` returned: keep `result.session.markdown` (discard empties it); `discard --session S --generation G`; `begin-edit --note N --base <conflict[0].version>`; `update-buffer --session S2 --generation 1 --text-file merged.md`; `save`.
+- **Stale save** (exit 3). Use only the session your own successful `begin-edit` returned. There is no automatic rebase: stale typed work stays a conflict until you merge it.
+  1. Keep `result.session.markdown` (discard empties it).
+  2. `discard --session <result.session.id> --generation <result.session.generation>`.
+  3. `begin-edit --note N --base <conflict[0].version>`.
+  4. Reapply your edit to the current text.
+  5. `update-buffer --session NEW --generation 1 --text-file merged.md`.
+  6. `save --session NEW --generation 1`.
 - **Stale under a key** (exit 3). The key stays bound to the request that went stale, so a retry under it is `stale` or `key_conflict` again. Re-read, then make the new attempt with new inputs and a new key.
-- **`edit_session_open`** (exit 6). The note has unsaved writing in `details.session`. BRN does not record which caller opened a session. Write only to a session returned by your own successful `begin-edit`. If your `begin-edit` response was lost, you cannot prove the session is yours: do not `update-buffer`, `save` or `discard` it. Report it to the owner, or wait until `recovery` no longer lists it, then `begin-edit` again.
+- **`edit_session_open`** (exit 6). The note (`details.note`, opened at `details.base_version`) has unsaved writing in a session the envelope does not name. BRN does not record which caller opened a session. Write only to a session returned by your own successful `begin-edit`; otherwise report it to the owner, or wait until `recovery` no longer lists it, then `begin-edit` again. Known limit until round 3 (caller-bound sessions, [owner decisions](../../docs/work/active/cli-agent-contract/owner-decisions.md)): an agent that lost its `begin-edit` response cannot recover the session from the error; `recovery` still lists sessions for the owner.
 - **Deferred** (exit 4). For `conflict[].kind` `Note`, an edit session holds the note: wait until `recovery` no longer lists it, and discard it only if your own `begin-edit` opened it. For `Run`, wait until `read --id RUN` no longer shows it Working. Wait only within your own time budget, then report it to the owner: a run left Working by a killed process stays Working until it is recovered or the owner stops it. Once the guard clears, retry the same argv (same `--key`) if `retry` is `replay` or `converge`. If it is `duplicate` (unkeyed `undo` or `keep-in-brn`), a retry is a new operation and the first attempt stays as an unapplied candidate that `candidates` lists; report that to the owner (`dismiss` is an owner decision) and use `--key` next time. `topics-create` exception: run `topics-choose --note <result.note.id>`.
 - **Stopped run** (`ask`, exit 3, outcome `Interrupted`). Another writer stopped the run; `read --id <result.run>` shows what it recorded. A new `ask` is a new model turn.
 - **Killed `ask`** (the process died, for example after SIGKILL or a hard stop). Its run can stay Working: `runs --state working` lists it with `guards_writes: true`, and preference writes such as `topics-choose` come back Deferred. A new `ask` in that chat marks it `Interrupted` before it starts. On the owner's instruction only, `pause` or `archive` stops it; it then shows `Cancelled` (or `Interrupted` once the daily-workflow branch is merged). `ask` has no `--key`: after a lost `ask` response, `runs --thread T --limit 5` finds the run and `read --id RUN` shows what it recorded.
@@ -319,6 +325,7 @@ Every in-repo consumer moved to contract 2 in the same change; there is no contr
 | `terminated` | SIGTERM killed the process | machine mode: status `terminated`, exit 143, code `terminated` |
 | `--timeout` | none | global `--timeout SECONDS`; `timeout` gains `{deadline_seconds, hard}` |
 | `busy` | lock contention was `storage_error` (internal, 1) | `busy` (failed, 7) |
+| `edit_session_open` | `details` `{note, session, base_version}` | `{note, base_version}`: the open session's ID is never named (owner decision B3 part 1) |
 | Credentials | CLI-created workspaces derived `auth_file` from `CODEX_HOME` or `HOME` | no credential source until `configure`; machine-mode `credentials_not_configured` (rejected, 6) before any provider contact |
 | Retry keys | `topics-create` and `knowledge-check --seed-chat yes` duplicated; keyed intake converted (and sent non-Markdown documents to the provider) before replaying | `--key` on both (converge, replay); keyed full/chat/project intake replays before conversion |
 | Inspection | `history`, `candidates`, `records` return everything | page options and the `revisions`, `revision`, `runs`, `operation` commands; `read --limit` returns `Read` or `Stale` |
@@ -340,7 +347,7 @@ $ brn --json --data-dir "$D" note-create --key plan-1 --title Plan --text-file /
 $ brn --json --data-dir "$D" undo --operation "$OP" --key undo-1   # exit 4, "operation":"X"; after the guard clears: exit 0, Applied, "operation":"X"
 
 # Open edit session: before, "SQLite: UNIQUE constraint failed: edit_sessions.note" (exit 1); after, exit 6:
-{"error":{"code":"edit_session_open","details":{"note":"…","session":"…","base_version":2},…}}
+{"error":{"code":"edit_session_open","details":{"note":"…","base_version":2},…}}
 
 # Second export: before, exit 1; after, exit 6 with "code":"destination_exists" and "retry":"refuse".
 # Chat attachment without its chat: before, the source was read and converted first; after, "Missing --thread" before anything is read.

@@ -43,6 +43,8 @@ Agents and scripts: brn --json --data-dir DIR COMMAND ... prints one JSON envelo
   replay on retry. resolve is an alias of archive. A keyed full/chat/project intake replays when bytes,
   path, scope and title match a committed import, without converting or sending the document again;
   if that import found the bytes already imported, the retry converts again and records only an observation.
+  Stale save (exit 3): keep result.session.markdown; discard your session; begin-edit --base
+  <conflict[0].version>; reapply; update-buffer --generation 1 --text-file merged.md; save --generation 1.
   Commands marked owner_decision record an owner decision. Running the CLI does not make you the owner:
   run them only on the owner's explicit instruction for that exact operation.";
 type Result<T> = std::result::Result<T, CliError>;

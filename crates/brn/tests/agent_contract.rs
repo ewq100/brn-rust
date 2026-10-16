@@ -1052,12 +1052,14 @@ fn open_edit_session_reports_edit_session_open() {
     assert_error(&envelope, "rejected", "edit_session_open");
     assert_eq!(
         envelope["error"]["details"],
-        json!({"note":note,"session":session,"base_version":1})
+        json!({"note":note,"base_version":1})
     );
+    // Owner decision B3 part 1: the open session's ID is never named.
+    assert!(!envelope.to_string().contains(&session));
     let message = envelope["error"]["message"].as_str().unwrap();
     assert_eq!(
         message,
-        "This note has an open unsaved edit session. Write to it only if your own successful begin-edit returned it."
+        "This note has an open unsaved edit session (details.note, details.base_version). Write to it only if your own successful begin-edit returned it; otherwise report it to the owner."
     );
     assert!(!message.contains("Save or discard"));
     let default = run(

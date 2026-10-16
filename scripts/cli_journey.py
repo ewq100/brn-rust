@@ -265,8 +265,11 @@ def journey(brn, root):
     check(kept == FIXTURES['edit_late'], 'the stale result lost the unsaved text')
     busy = brn.call('begin-edit', data=workspace, note=note, base=3, expect=6)
     check(busy['error']['code'] == 'edit_session_open', 'second begin-edit was not edit_session_open')
-    # The runner may act on A2: its own successful begin-edit returned it.
-    check(busy['error']['details']['session'] == a2, 'edit_session_open names another session')
+    # Owner decision B3 part 1: the open session is never named; the runner
+    # acts on A2 only because its own successful begin-edit returned it.
+    check('session' not in busy['error']['details'] and a2 not in json.dumps(busy),
+          'edit_session_open names the open session')
+    check(busy['error']['details'] == {'note': note, 'base_version': 2}, 'edit_session_open details changed')
 
     # 10. Recover: discard A2, merge onto version 3, save version 4.
     brn.call('discard', data=workspace, session=a2, generation=1)

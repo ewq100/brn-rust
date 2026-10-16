@@ -245,7 +245,7 @@ impl Code {
             Code::KeyConflict => "The same key was used for a different request; use a new key for a new change.",
             Code::UnsafeDirectory => "Old or foreign format, missing database, symlink, non-empty restore target, or backup inside the workspace.",
             Code::DestinationExists => "The backup or export destination already exists; choose a new path.",
-            Code::EditSessionOpen => "The note has an open unsaved edit session (details.session). Write to it only if your own successful begin-edit returned it.",
+            Code::EditSessionOpen => "This note has an open unsaved edit session (details.note, details.base_version). Write to it only if your own successful begin-edit returned it; otherwise report it to the owner.",
             Code::CredentialsNotConfigured => "Machine mode: ask or a provider-backed intake on a workspace with no credential source (a workspace the CLI created and nobody configured). Nothing was committed and no provider was contacted. Run configure --provider NAME --model ID --effort LEVEL with --auth-file ABSOLUTE_FILE or --credentials-dir ABSOLUTE_DIR on the owner's instruction (details.provider names the selected provider).",
             Code::Unavailable => "A service is not available in this build or platform, for example semantic search, conversion for this format, or model installation.",
             Code::ProviderFailed => "ask or useful intake: any other AiErrorKind (none is known to reach Err from run at 771116f0; kept as a fallback); also a provider failure during document conversion. details.kind is the AiErrorKind in snake_case.",
@@ -461,8 +461,10 @@ pub(crate) fn run_error(error: brn_ai::AiError) -> CliError {
         _ => CliError::new(Code::ProviderFailed, message).with("kind", kind),
     }
 }
-/// A failed `begin-edit`: an open session on the note is reported with its
-/// identity; the default-mode text stays the original error.
+/// A failed `begin-edit`: an open session on the note is reported by note and
+/// base version, never by session ID (owner decision B3 part 1); the
+/// default-mode text stays the original error.
+pub(crate) const EDIT_SESSION_OPEN: &str = "This note has an open unsaved edit session (details.note, details.base_version). Write to it only if your own successful begin-edit returned it; otherwise report it to the owner.";
 pub(crate) fn begin_edit_error(
     store: &Store,
     note: &str,
@@ -471,13 +473,9 @@ pub(crate) fn begin_edit_error(
     if matches!(error, brn_threads_app::Error::Sqlite(_)) {
         if let Ok(sessions) = store.recovery_buffers() {
             if let Some(session) = sessions.iter().find(|s| s.note == note) {
-                let mut open = CliError::new(
-                    Code::EditSessionOpen,
-                    "This note has an open unsaved edit session. Write to it only if your own successful begin-edit returned it.",
-                )
-                .with("note", session.note.clone())
-                .with("session", session.id.clone())
-                .with("base_version", session.base_version);
+                let mut open = CliError::new(Code::EditSessionOpen, EDIT_SESSION_OPEN)
+                    .with("note", session.note.clone())
+                    .with("base_version", session.base_version);
                 open.default_text = Some(error.to_string());
                 return open;
             }
@@ -1258,10 +1256,9 @@ mod tests {
         assert_eq!(open.code, Code::EditSessionOpen);
         assert_eq!(open.default_message(), text);
         assert!(!open.message.contains("Save or discard"));
-        let session = &workspace.store.recovery_buffers().unwrap()[0];
         assert_eq!(
             Value::Object(*open.details),
-            json!({"note":note.id,"session":session.id,"base_version":1})
+            json!({"note":note.id,"base_version":1})
         );
         let other = workspace.new_note("M", "y").unwrap();
         workspace.store.begin_edit(&other.id, 1).unwrap();

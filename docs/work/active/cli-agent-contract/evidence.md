@@ -279,4 +279,13 @@ Everything ships as contract 2, with a "Changes from contract 1" table and a for
 - Verification: `agent_runs` 10 passed, 1 sandbox-blocked (`stub_sigint_interrupts_a_held_stream`, SIGINT not delivered here); the rest of `cargo test -p brn` as before; strict clippy clean.
 - Baseline: 10 of 11 fail (no `runs`, page options, `stop` or `--timeout`; the baseline `ask` on an unconfigured workspace ran and failed instead of refusing; SIGTERM killed it, exit −1). Guard: `stub_ask_on_an_unknown_chat_never_contacts_the_stub` passes at baseline (round-1 pre-provider refusal, kept).
 
+### R2-9 A12 stale edits stay conflicts; `edit_session_open` never names the session (owner B3 part 1)
+
+- CLI: `contract::begin_edit_error` drops `session` (details `{note, base_version}`; still inferred from `Sqlite` + `recovery_buffers()` on this branch, typed at merge). C2: `CliError.message` and `Code::EditSessionOpen.meaning()` read "This note has an open unsaved edit session (details.note, details.base_version). Write to it only if your own successful begin-edit returned it; otherwise report it to the owner." Default-mode text unchanged (`SQLite: UNIQUE constraint failed: edit_sessions.note`). No auto-rebase.
+- Docs: README error row, retry row, the six-step "Stale save" recipe (C7 generations), the `edit_session_open` recipe with the round-3 known limit, the before/after example and a change row; `AGENT_HELP` carries the recipe in one line.
+- Updates: `agent_contract.rs::open_edit_session_reports_edit_session_open` expects `{note, base_version}` and that the envelope contains no session ID; the `contract.rs` unit test expects the same; `cli_journey.py` asserts `'session' not in details`, that the envelope never contains A2's ID, and `details == {note, base_version: 2}`.
+- Tests `crates/brn/tests/agent_edits.rs` (3): refusal `edit_session_open_never_names_the_session` (both modes, all four streams); success `stale_save_recovery_recipe_from_the_readme_completes` (parses the README recipe's steps with `include_str!` and follows them: the version goes from 2 to 3 with the merged text; the discarded session then saves `Closed`) — guard: the recipe already worked at baseline, the test protects the documented text; retry `recipe_save_retry_replays_saved` — guard (round-1 replay). Invalid input: n/a (no new input surface).
+- Verification: `agent_edits` 3 passed; `agent_contract` 19 + 3 sandbox-blocked; unit 23; journey passed (651 checks) with an empty parent; strict clippy clean.
+- Baseline: `edit_session_open_never_names_the_session` fails ("the session ID leaked"); the two guards pass.
+
 <!-- ===================== ROUND 2 END ===================== -->
