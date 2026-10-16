@@ -3,18 +3,18 @@
 use std::ops::Range;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub(super) enum Mark {
+pub enum Mark {
     Deleted,
     Inserted,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
-pub(super) struct Tracked {
+pub struct Tracked {
     /// The candidate interleaved with deleted current text.
-    pub(super) text: String,
-    pub(super) marks: Vec<(Range<usize>, Mark)>,
-    pub(super) added: usize,
-    pub(super) removed: usize,
+    pub text: String,
+    pub marks: Vec<(Range<usize>, Mark)>,
+    pub added: usize,
+    pub removed: usize,
 }
 impl Tracked {
     fn push(&mut self, text: &str, mark: Option<Mark>) {
@@ -213,7 +213,7 @@ fn block(out: &mut Tracked, deleted: &[&str], inserted: &[&str]) {
 
 /// Word-level changes for lightly edited paragraphs; whole delete/insert
 /// paragraph blocks for heavy rewrites or beyond the work bound.
-pub(super) fn tracked(current: &str, candidate: &str) -> Tracked {
+pub fn tracked(current: &str, candidate: &str) -> Tracked {
     let mut out = Tracked::default();
     let (a, b) = (paragraphs(current), paragraphs(candidate));
     let Some(ops) = script(&a, &b) else {
@@ -242,7 +242,7 @@ pub(super) fn tracked(current: &str, candidate: &str) -> Tracked {
 }
 
 /// A short excerpt of the first changed paragraphs for a proposal card.
-pub(super) fn preview(current: &str, candidate: &str, paragraphs_shown: usize) -> Tracked {
+pub fn preview(current: &str, candidate: &str, paragraphs_shown: usize) -> Tracked {
     let full = tracked(current, candidate);
     let mut out = Tracked {
         added: full.added,

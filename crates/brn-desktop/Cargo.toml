@@ -6,7 +6,7 @@ publish = false
 
 [features]
 default = []
-native-ui = ["dep:gpui-kit", "dep:tempfile"]
+native-ui = ["dep:gpui-kit", "dep:tempfile", "brn-writing-ui/native-ui"]
 native-retrieval = ["native-ui", "brn-threads-app/native-retrieval"]
 native-test-support = ["native-ui", "gpui-kit/test-support"]
 
@@ -14,6 +14,7 @@ native-test-support = ["native-ui", "gpui-kit/test-support"]
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 brn-threads-app = { path = "../brn-threads-app" }
+brn-writing-ui = { path = "../brn-writing-ui", default-features = false }
 brn-threads-intake = { path = "../brn-threads-intake" }
 brn-ai = { path = "../brn-ai" }
 tokio = { version = "1", features = ["rt-multi-thread", "macros"] }

@@ -45,12 +45,10 @@ mod components;
 mod connections_view;
 #[path = "threads_context_actions.rs"]
 mod context_actions;
-#[path = "threads_diff.rs"]
-mod diff;
+use brn_writing_ui::diff;
 #[path = "threads_document.rs"]
 mod document;
-#[path = "threads_format.rs"]
-mod formatting;
+use brn_writing_ui::formatting;
 #[path = "threads_layout.rs"]
 mod layout;
 #[path = "threads_lists.rs"]

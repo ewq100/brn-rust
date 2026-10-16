@@ -1,0 +1,12 @@
+[package]
+name = "brn-writing-ui"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[features]
+default = []
+native-ui = ["dep:gpui-kit"]
+
+[dependencies]
+gpui-kit = { version = "=0.7.3", optional = true }

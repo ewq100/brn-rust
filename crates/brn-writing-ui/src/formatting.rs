@@ -3,7 +3,7 @@
 use std::ops::Range;
 
 #[derive(Clone, Copy, Debug)]
-pub(super) enum Format {
+pub enum Format {
     Bold,
     Italic,
     Heading,
@@ -12,11 +12,11 @@ pub(super) enum Format {
 }
 
 #[derive(Debug, PartialEq, Eq)]
-pub(super) struct Edit {
-    pub(super) range: Range<usize>,
-    pub(super) replacement: String,
+pub struct Edit {
+    pub range: Range<usize>,
+    pub replacement: String,
     /// Absolute byte range in the buffer after applying this edit.
-    pub(super) selection: Range<usize>,
+    pub selection: Range<usize>,
 }
 
 /// Return a local Markdown edit, or refuse an unsupported/unsafe selection.
@@ -25,7 +25,7 @@ pub(super) struct Edit {
 /// complete touched lines (the active line for a caret), excluding a following
 /// line when the selection ends immediately after a newline. Markdown markers
 /// remain source text; this helper neither parses nor normalizes the document.
-pub(super) fn format(text: &str, selection: Range<usize>, kind: Format) -> Option<Edit> {
+pub fn format(text: &str, selection: Range<usize>, kind: Format) -> Option<Edit> {
     if selection.start > selection.end
         || selection.end > text.len()
         || !text.is_char_boundary(selection.start)
