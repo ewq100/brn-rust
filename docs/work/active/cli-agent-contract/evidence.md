@@ -164,7 +164,7 @@ Safety: the main checkout has no tracked changes (only the owner's untracked `.v
 
 <!-- ===================== ROUND 2 BEGIN ===================== -->
 
-# Round 2 (planned; nothing implemented yet)
+# Round 2
 
 The owner asked to "fix the remaining gaps". The approved round-2 design (`design-2.md` rev 4 and its appendix, review 2 iteration 4: APPROVED, seven NITs carried forward) is a task artifact outside the repository. The ordered steps are in the [plan, Round 2](plan.md#round-2-closing-the-remaining-agent-contract-gaps). The owner's decisions are in [owner-decisions.md](owner-decisions.md).
 
@@ -201,7 +201,7 @@ Everything ships as contract 2, with a "Changes from contract 1" table and a for
   - `work/integration-ui-reliability` is absent.
 - `merge-tree --write-tree --name-only` against daily: conflict only in `crates/brn/src/main.rs`.
 
-## Evidence to be filled in by the round-2 steps
+## Evidence filled in by the round-2 steps (below)
 
 - Baseline binary built from `2537db54` (path, contract 1).
 - Per-step verification rows.
@@ -219,7 +219,7 @@ Everything ships as contract 2, with a "Changes from contract 1" table and a for
 
 - Pre-flight: worktree at `2537db54`; `git status --porcelain` showed only `owner-decisions.md` (untracked), `plan.md` and `evidence.md`. Daily tip at implementation time: `b5212618` "fix: the owner's Stop of a lease-free Run adds no notice (round 6, decision 2 applied to Stop)". `work/integration-ui-reliability` absent. BOARD.md read (no new ASK for this branch beyond the ones already answered).
 - Baseline binary: `git archive 2537db54` into `/tmp/brn-cli-agent-contract/r2-baseline/src`, `cargo build -p brn --locked --offline --target-dir /tmp/brn-cli-agent-contract/r2-baseline/target`; `/tmp/brn-cli-agent-contract/r2-baseline/target/debug/brn --json --help` reports `"contract":1`.
-- **Sandbox limit found (environment, not the change):** in this agent session a SIGINT sent to any process spawned by a non-shell parent (cargo's test harness, Python) never reaches its handler, while SIGTERM does (a Python child with its own SIGINT handler sleeps through `os.kill(pid, SIGINT)`; the same `brn` spawned by zsh gets it). The three round-1 SIGINT tests (`refuse_retry_after_an_interrupted_first_attempt_applies_once`, `sigint_while_stdin_stays_open_is_interrupted_and_creates_nothing`, `sigint_while_a_fifo_has_no_writer_is_interrupted`) therefore time out here **on the unchanged `2537db54` tree too** (checked with the change stashed). They are recorded as sandbox-blocked, not passed; CI runs them.
+- **Sandbox limit found (environment, not the change):** in this agent session a SIGINT sent to any process spawned by a non-shell parent (cargo's test harness, Python) never reaches its handler, while SIGTERM does (a Python child with its own SIGINT handler sleeps through `os.kill(pid, SIGINT)`; the same `brn` spawned by zsh gets it). The three round-1 SIGINT tests (`refuse_retry_after_an_interrupted_first_attempt_applies_once`, `sigint_while_stdin_stays_open_is_interrupted_and_creates_nothing`, `sigint_while_a_fifo_has_no_writer_is_interrupted`) therefore time out here **on the unchanged `2537db54` tree too** (checked with the change stashed). They are recorded as sandbox-blocked, not passed; CI runs them. **Corrected at R2-15:** the cause is the agent's top-level shell, not the code: run inside a `( … )` subshell, all seven SIGINT tests and the pseudo-terminal test pass (see R2-15). The per-step "sandbox-blocked" notes below refer to runs from that top-level shell.
 - Verification: `cargo test -p brn --locked --offline --test agent_discovery --test threads` 1 + 11 passed; unit tests 22 passed; `agent_contract` 19 passed, 3 sandbox-blocked (above), PTY test skipped with `BRN_SKIP_PTY_TESTS=1`; `python3 -m unittest discover -s scripts/tests` 147 OK; `cli_journey.py target/debug/brn` with a fresh `TMPDIR` parent: passed (61 steps, 650 checks), parent empty; `cargo clippy -p brn --all-targets --locked --offline -- -D warnings` clean.
 - Baseline run (`AGENT_CONTRACT_BASELINE_BIN=… --test agent_discovery`): `every_envelope_has_contract_2_page_and_stop` fails: `contract` is 1.
 
@@ -360,6 +360,110 @@ before: backup --destination relative.sqlite3  exit=0, written relative to the c
 before: search --thread NOTE                 invalid_request {option}   | after: invalid_request {option, reason: "wrong_kind"}
 ```
 
+### R2-15 full verification, baseline matrix, overlap and merge checks
+
+Code tree verified: HEAD `1f871ecd` (tree `f885f286`), base `8bef439b`. `BRN_*` unset unless shown; every cargo command `--locked --offline`; commands run inside a `( … )` subshell (see the correction under R2-1). Logs: `/private/tmp/brn-cli-agent-contract/verify/` (synthetic).
+
+| Command | Result |
+|---|---|
+| `cargo fmt --all -- --check` | clean |
+| `cargo build --workspace --locked --offline` | ok |
+| `cargo clippy --workspace --all-targets --locked --offline -- -D warnings` (as `verify-storage.sh` runs it) | clean |
+| `git diff --exit-code Cargo.lock` | clean (no new dependency) |
+| `cargo build -p brn-intake --features helper --bin brn-intake-helper` | ok |
+| `cargo build -p brn --features native-retrieval`; `cargo check -p brn -p brn-threads-app --features brn-threads-app/native-retrieval` | ok; ok |
+| `BRN_SKIP_PTY_TESTS=1 BRN_INTAKE_HELPER=target/debug/brn-intake-helper cargo test -p brn -p brn-threads-core -p brn-threads-app -p brn-desktop -p brn-ai --no-fail-fast` | 748 passed, 0 failed, 1 ignored (includes all 7 SIGINT tests) |
+| `env -u BRN_SKIP_PTY_TESTS cargo test -p brn --no-fail-fast` | 122 passed, 0 failed: `terminal_sources_are_refused_without_blocking` ran for real and passed, and every SIGINT test passed |
+| `BRN_SKIP_PTY_TESTS=1 BRN_INTAKE_HELPER=… cargo test --workspace --no-fail-fast` | 831 passed, 1 failed, 4 ignored; the failure is `brn-threads-intake --test qualification` `prepared_rust_fixtures_keep_source_and_preview_bindings_in_owned_scratch` (`Pdf preparation failed: Unavailable`; `pdftoppm` absent here; the same test failed on `8bef439b` in round 1 for the same reason; `brn-threads-intake`/`brn-intake` have no diff in `8bef439b..HEAD`). **local-env-blocked, covered by the CI macOS job, not passed** |
+| `bash scripts/verify-storage.sh` | exit 101 at that same Poppler-only test (fmt, helper build, workspace build and clippy passed first); its tail run by hand: `brn --help` 0, `brn` 1, `brn --unknown` 1, desktop `--help` 0, `--unknown` 1, `--headless-check startup` on a fresh data dir prints `Threads ready: 2 records`, exit 0 |
+| CI macOS fixture step (`mktemp -d`, `pwd -P`, `TMPDIR=… bash scripts/verify-end-to-end.sh --fixtures-only`, `rmdir`) | exit 0, journey included; `rmdir` succeeded |
+| `TMPDIR=<fresh> python3 scripts/cli_journey.py "$PWD/target/debug/brn" --evidence-dir …` | `{"journey":"passed","steps":95,"checks":1001}`, stderr 0 bytes, parent empty |
+| `python3 docs/work/active/projects/cli-witness.py target/debug/brn` | passed, 19 checks, 41 calls, parent empty |
+| `TMPDIR=<fresh> python3 docs/work/active/chats-and-projects/cli-witness.py "$PWD/target/debug/brn"` | passed; parent empty (`rmdir` ok) |
+| `python3 -m unittest discover -s scripts/tests` | 153 OK |
+| `python3 scripts/check-markdown-links.py` | 0 failures |
+| `for s in scripts/*.sh; do bash -n "$s"; done`; `git diff --check 8bef439b..HEAD` | ok; clean |
+| `git diff --stat 8bef439b..HEAD -- crates/brn-desktop crates/brn-ai` | empty |
+| `HELP` check (`git diff -U0 8bef439b -- crates/brn/src/main.rs \| grep -c '^[-+]const HELP'`) | 0; the useful-intake sub-block is untouched |
+
+**Baseline-failure matrix** (`AGENT_CONTRACT_BASELINE_BIN=/tmp/brn-cli-agent-contract/r2-baseline/target/debug/brn`, all ten new process-test files): 56 fail on an item-specific assertion, 8 are guards that pass by design. First failing assertion per test (the error code the baseline returned, or the compared value):
+
+| File | Test | At 2537db54 |
+|---|---|---|
+| `agent_bounds` | `timeout_during_fifo_wait_is_a_soft_deadline` | fails: left: 2 |
+| `agent_bounds` | `timeout_values_are_refused_before_opening` | fails: unknown_command |
+| `agent_bounds` | `sigterm_during_stdin_wait_is_terminated_and_creates_nothing` | fails: left: -1 |
+| `agent_bounds` | `default_mode_sigterm_keeps_default_disposition` | guard: passes (compatibility) |
+| `agent_bounds` | `timeout_with_time_to_spare_changes_nothing` | fails: unknown_command |
+| `agent_bounds` | `sigint_envelopes_report_stop_sigint` | fails: left: Null |
+| `agent_bounds` | `held_write_lock_reports_busy_and_creates_nothing` | fails: unknown_option |
+| `agent_bounds` | `held_lock_past_deadline_hard_stops_with_one_line` | fails: unknown_option |
+| `agent_bounds` | `busy_then_keyed_retry_applies_once` | fails: storage_error |
+| `agent_converge` | `repeated_unarchive_move_link_unlink_are_unchanged` | fails: unknown_option |
+| `agent_converge` | `default_mode_unchanged_prints_the_unchanged_object` | fails: left: "{\"operation\":\"73471982-5ddd-4e64-8240-c606de33f19a\",\"request_has |
+| `agent_converge` | `keyed_archive_retry_after_a_change_replays_the_original_receipt` | fails: unknown_option |
+| `agent_converge` | `repeated_archive_and_resolve_are_unchanged_without_a_receipt` | fails: unknown_option |
+| `agent_converge` | `archive_with_a_working_run_records_a_change` | fails: unknown_command |
+| `agent_credentials` | `provider_intake_without_credentials_is_refused_before_conversion` | fails: unknown_option |
+| `agent_credentials` | `cli_created_workspace_has_no_credential_source` | fails: left: String("/private/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/.tmps |
+| `agent_credentials` | `ask_without_credentials_is_refused_before_any_commit` | fails: unknown_option |
+| `agent_credentials` | `refused_ask_stays_refused_and_records_nothing` | fails: left: String("failed") |
+| `agent_credentials_existing` | `existing_workspace_keeps_its_stored_auth_file` | guard: passes (compatibility) |
+| `agent_discovery` | `data_dir_and_timeout_are_accepted_after_the_command` | fails: missing_data_dir |
+| `agent_discovery` | `help_after_an_unknown_command_is_unknown_command` | fails: missing_data_dir |
+| `agent_discovery` | `machine_mode_reads_on_missing_or_empty_dirs_are_missing_workspace` | fails: left: String("ok") |
+| `agent_discovery` | `repeated_global_options_are_repeated_option` | fails: unknown_option |
+| `agent_discovery` | `enum_values_are_refused_before_the_workspace_opens` | fails: ["project-settings", "--project", "p", "--base", "1", "--title", "T", "--instructions", "I |
+| `agent_discovery` | `relative_backup_and_restore_paths_are_refused_before_opening` | fails: left: String("ok") |
+| `agent_discovery` | `every_command_has_text_and_json_help_matching_the_description` | fails: left:  |
+| `agent_discovery` | `every_envelope_has_contract_2_page_and_stop` | fails: left: Number(1) |
+| `agent_discovery` | `bare_and_unknown_invocations_keep_their_exits_and_help_text` | guard: passes (compatibility) |
+| `agent_edits` | `edit_session_open_never_names_the_session` | fails: edit_session_open |
+| `agent_edits` | `recipe_save_retry_replays_saved` | guard: passes (compatibility) |
+| `agent_edits` | `stale_save_recovery_recipe_from_the_readme_completes` | guard: passes (compatibility) |
+| `agent_inspect` | `operation_lookup_refuses_bad_forms_and_never_allocates` | fails: unknown_command |
+| `agent_inspect` | `page_options_are_refused_before_opening` | fails: unknown_option |
+| `agent_inspect` | `runs_page_validates_options_and_lists_nothing_on_a_fresh_workspace` | fails: unknown_command |
+| `agent_inspect` | `read_pages_detect_a_change_between_pages` | fails: unknown_option |
+| `agent_inspect` | `page_refusals_after_opening_name_the_cause` | fails: unknown_option |
+| `agent_inspect` | `operation_by_key_finds_every_keyed_command` | fails: unknown_command |
+| `agent_inspect` | `candidates_and_operation_report_unapplied_candidates` | fails: left: Null |
+| `agent_inspect` | `identical_page_reads_return_identical_pages` | fails: left: String("refuse") |
+| `agent_inspect` | `records_page_by_kind_and_cursor` | fails: unknown_option |
+| `agent_inspect` | `revisions_and_revision_read_page_through_a_large_note` | fails: unknown_command |
+| `agent_inspect` | `history_pages_are_bounded_stable_and_filter_by_record` | fails: left: Null |
+| `agent_reasons` | `oversized_project_title_reason_is_size_limit` | fails: invalid_request |
+| `agent_reasons` | `search_thread_naming_a_note_reason_is_wrong_kind` | fails: invalid_request |
+| `agent_reasons` | `stale_project_settings_reason_is_version_mismatch` | fails: invalid_request |
+| `agent_reasons` | `incomplete_project_delete_actions_reason_is_project_boundary` | fails: invalid_request |
+| `agent_reasons` | `trashed_project_chat_reason_is_inactive_target` | fails: invalid_request |
+| `agent_retry` | `keyed_seed_chat_replays_and_ignores_later_findings` | fails: unknown_option |
+| `agent_retry` | `knowledge_check_key_requires_seed_chat` | fails: unknown_option |
+| `agent_retry` | `keyed_topics_create_retries_without_a_second_note` | fails: unknown_option |
+| `agent_retry` | `keyed_intake_retry_replays_before_conversion_through_a_symlinked_folder` | fails: left: "Reading the document…\n" |
+| `agent_retry` | `keyed_undo_with_a_different_original_is_key_conflict` | guard: passes (compatibility) |
+| `agent_retry` | `keyed_keep_in_brn_with_a_different_note_is_key_conflict` | guard: passes (compatibility) |
+| `agent_runs` | `configure_then_ask_reaches_the_provider` | fails: left: String("failed") |
+| `agent_runs` | `stub_ask_on_an_unknown_chat_never_contacts_the_stub` | guard: passes (compatibility) |
+| `agent_runs` | `stub_provider_error_ends_failed` | fails: unknown_command |
+| `agent_runs` | `stub_sigterm_interrupts_a_held_stream` | fails: left: -1 |
+| `agent_runs` | `stub_killed_ask_leaves_a_working_run` | fails: unknown_command |
+| `agent_runs` | `stub_ask_completes` | fails: unknown_command |
+| `agent_runs` | `stub_candidate_goes_stale_after_owner_edit` | fails: unknown_option |
+| `agent_runs` | `stub_sigint_interrupts_a_held_stream` | fails: left: Null |
+| `agent_runs` | `runs_page_filters_by_thread_and_state` | fails: unknown_command |
+| `agent_runs` | `stub_model_candidate_review_apply_and_dismiss` | fails: unknown_option |
+| `agent_runs` | `stub_deadline_interrupts_a_held_stream` | fails: the stub saw 0 of 1 requests |
+
+**Overlap re-check** (`git log --oneline 8bef439b..<ref> -- <every path round 2 touches>`): `codex/projects-feature`, the three `work/knowledge-*`, `codex/writing-polish`, `codex/tile-ui-polish`, `codex/writing-ux-research`, `work/subagent-design`, `work/quality-simplify`: 0 commits. `origin/codex/linux-ui-cloud` (`7075c46a`): 1 commit touching only `docs/status.md` and scripts/tests files round 2 does not edit. `work/daily-workflow-reliability` (`192cd765` "docs: record the round 6 native check", READY FOR INTEGRATION on the board) and `work/integration-ui-reliability` (`6f51d22c` "Merge commit 'a4ad9677' into work/integration-ui-reliability", now present): 16 commits in the shared app/core/CLI files; none edits `keyed.rs`, `converge.rs`, `inspect.rs`, `knowledge.rs` or `topics.rs`.
+
+**Merge checks.**
+- `git merge-tree --write-tree --name-only work/cli-agent-contract work/daily-workflow-reliability`: conflicts in `crates/brn-threads-core/src/chat.rs` (A11's hook vs daily's `chat_command_with_orphans`) and `crates/brn/src/main.rs` (the `HELP` region and the begin-edit `map_err`), as expected; `projects.rs`, app `lib.rs`/`settings.rs`, core `lib.rs` auto-merge. The same two conflicts against `work/integration-ui-reliability`.
+- BOARD.md re-read before the scratch merge (no new entry after 09:58).
+- Scratch test-merge in a **detached** worktree at `/private/tmp/brn-cli-agent-contract/r2/merge` (no scratch branch was created, which leaves less behind than the plan's `commit-tree` branch): `git merge --no-commit --no-ff work/daily-workflow-reliability`, then the recorded resolutions: one core `chat_command_body(op, command, owner, orphans, converge)` behind `chat_command`, `chat_command_with_orphans` and `chat_command_converging`; daily's `HELP` with this branch's `AGENT_HELP` and `Result<T, CliError>`; `begin_edit_error` mapping the typed `Error::EditSessionOpen` to `{note, base_version}` with daily's default-mode JSON line minus `session`; a `data_folder_unusable {problem}` arm for `Error::DataFolder`; daily `threads.rs` ~:219 asserting `session` absent; this branch's `open_edit_session_reports_edit_session_open` default-stderr expectation moved to daily's JSON line; `same_source` → `same_locator(stored, &canonical_locator(reference))`. Results: `cargo build --workspace --locked --offline` ok (CLI and desktop from one build); `cargo test -p brn -p brn-threads-core -p brn-threads-app` all passed after the `same_locator` change (`cargo test -p brn`: 129 passed, including daily's `threads`, `source_locator`, `search_messages`, `data_folder` and `keyed_intake_retry_replays_before_conversion_through_a_symlinked_folder`, which fails until `same_source` becomes `same_locator`, as predicted); `cargo clippy -p brn --all-targets -D warnings` clean; daily `docs/work/active/daily-workflow-reliability/cli-journey.py` with a fresh `/private/tmp/brn-cli-agent-contract/r2/daily-journey-root`: exit 0; this branch's journey in the merged tree: passed (95 steps), parent empty. The resolution diffs are in the artifacts folder (`merge-resolution-ours.diff`: the edits on top of the automatic merge; `merge-resolution-main.diff`: the resolved tree against daily; `merge-resolution-notes.md`). The scratch worktree was force-removed and pruned (`git merge --abort` refused because of the edited files); `git worktree list` shows no scratch tree and `git branch --list 'scratch/*'` is empty.
+- Merge-time items still to apply on the real merge: search results gain daily's `archived` on every `hits[]`/`messages[]` entry (pass-through; README "Search lanes" note to add then); outside stops read `Interrupted` (tighten the "not Working" assertions in `agent_runs.rs` and `agent_converge.rs`).
+- Safety: the main checkout has no tracked changes (only the owner's untracked `.vscode/` and `experiments/`); `main` is `a4ad9677` (moved by others, docs-only after `8bef439b`); daily is still `192cd765`; nothing was pushed, merged, tagged or published.
+
 ## Round 2 remaining gaps
 
 - `notes`, `threads`, `needs-you`, `recovery` and `projects` stay unbounded (marked `"bounded": false` without a page form); there is no `messages` listing. `operation` lists at most 64 inputs; `records`, `runs` and `candidates` pages can miss items created while paging (restart without a cursor for a full pass).
@@ -367,9 +471,20 @@ before: search --thread NOTE                 invalid_request {option}   | after:
 - Started `export`, `backup`, `restore`, `upgrade` and index builds stop only at the 3 s hard stop; a hard stop can leave a Working run, conversion scratch, a restore stage or a backup/export temporary.
 - `--trash` and service ranges (`--hops`, `--budget`) are validated after opening. `intake --intent chat --thread <PROJECT_ID>` is marked as an owner decision, not refused.
 - NeedsReview and Superseded are not reachable from CLI owner authority (R2-8 audit); they stay unit/app-tested.
-- SIGINT tests (4 round-2, 3 round-1) cannot run in this agent sandbox (SIGINT is not delivered to children of non-shell parents); the behavior was checked by hand from zsh, and CI must run them. The pseudo-terminal test needs an unsandboxed run; `prepared_rust_fixtures_keep_source_and_preview_bindings_in_owned_scratch` needs Poppler `pdftoppm` (CI macOS job).
+- Agent-environment note: SIGINT is not delivered to test children when commands run directly from the agent's top-level shell; inside a `( … )` subshell all seven SIGINT tests and the pseudo-terminal test pass (R2-15). `prepared_rust_fixtures_keep_source_and_preview_bindings_in_owned_scratch` needs Poppler `pdftoppm` (absent here; CI macOS installs it).
 - Owner-decision gaps: the desktop keeps writing receipts for no-op converges (B4 desktop surface); a lost `begin-edit` response cannot be recovered from the error and `recovery` lists session IDs for the owner (B3 part 2, round 3); CLI authority is stated, not enforced (B1, round 3 and later); desktop must choose a sign-in file for CLI-created workspaces (B2).
 - A writable Copilot cache can route Copilot traffic to any `endpoints.api`, including plain HTTP (pre-existing rig behavior; owner question below).
 - Owner questions (not blocking): should `intake --intent chat --thread <PROJECT_ID>` be refused, or keep the mark? Should the Copilot HTTP redirect go upstream, or should `validate_record` require HTTPS? Should a slice be filed for `project-delete` when the project's chat has a Run?
+
+## Round 2 report
+
+Status, reported separately: **implemented** yes (A1–A12, plan steps R2-1…R2-16, local commits on `work/cli-agent-contract` from `9dfd53ba`); **verified** yes (R2-15, with the Poppler-only intake test local-env-blocked and covered by the CI macOS job); **native-observed** not applicable (CLI only; CLI checks do not establish native UI usability; `brn-desktop --headless-check` only, no window); **owner-accepted** not requested; **merged** no (nothing pushed, no PR, no merge, tag, publish or release).
+
+- **The three highest-value improvements, done first:** A1 bounded, cursor-paginated inspection (R2-2…R2-4); A4 SIGTERM, `--timeout` and `busy` (R2-5); A3 retry identities and keyed intake that replays before conversion (R2-6). Then A10 (B2), A2, A12 (B3.1), A11 (B4), A6, A5 and A7.
+- **Machine contract:** documented in the [CLI README, "Agents and scripts"](../../../../crates/brn/README.md#agents-and-scripts) and served by `brn --json --help` and `brn --json COMMAND --help` from the same table the parser uses; `machine_description_lists_every_parsed_command_and_matches_readme` still compares the README's status, error-code, retry and owner tables with the description, and `every_command_has_text_and_json_help_matching_the_description` covers per-command help. Contract 2: every envelope has `page` and `stop` (15 keys); statuses add `terminated` (143); codes add `busy`, `terminated`, `credentials_not_configured`, `missing_workspace` and the reserved `data_folder_unusable`; outcomes add `Unchanged`, `Read`; `timeout` details gain `{deadline_seconds, hard}`; `invalid_request` details gain an optional `reason`; `edit_session_open` details drop `session`. The README "Changes from contract 1" table lists every change; the forward rule is to ignore unknown keys and treat an unknown `status` or `outcome` as non-success. Default mode changes only per README Compatibility items 6–12.
+- **Shared-service changes (⚑, each additive except A11's owner-approved hook):** core `inspect.rs` (SELECT-only pages), core `converge.rs` with `chat_command_converging`/`project_command_converging` beside unchanged functions and a private hook in `chat.rs`/`projects.rs`; app `keyed.rs`, `converge.rs`, `open_without_default_credentials` beside an unchanged `open`, `review_seed` extraction and `STARTER` visibility. No `ApplyOutcome` variant; `brn-desktop` and `brn-ai` untouched; no new dependency.
+- **Scripts read state only through documented CLI output:** `evaluate-wiki-guidance.py` no longer opens SQLite (`operation` reads); the chats-and-projects witness no longer writes SQLite. The only direct SQLite use left in tests is the lock holder of the `busy` tests, which writes nothing (design §1 exception).
+- **LIST B (options only, not implemented):** B1 workspace-scoped CLI authority (round 3 phase 1: workspace purpose, an actor on receipts, reported authority; later phases need desktop review UI and grants) and B3 part 2 caller-bound edit sessions (round 3; the ui-polish lead asked for the API before design approval). See [owner-decisions.md](owner-decisions.md). No `--purpose`, session secret, actor or authority field was added.
+- **Coordination items for the orchestrator to post on the board:** round 2 is implemented locally; the expected `chat.rs`/`main.rs` conflicts with daily `192cd765` and `work/integration-ui-reliability` `6f51d22c` were resolved in a scratch merge that built and passed (resolution notes and diffs in the artifacts folder); merge-time items: typed `EditSessionOpen` mapping, `data_folder_unusable` arm, `same_locator`, daily's `archived` search field, `Interrupted` tightening.
 
 <!-- ===================== ROUND 2 END ===================== -->

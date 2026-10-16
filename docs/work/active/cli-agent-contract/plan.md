@@ -194,7 +194,7 @@ Plus verification deliverables: `crates/brn/tests/agent_contract.rs`, `scripts/c
 
 **Worktree.** `/Users/evokessler/repos/brn-rust/.worktrees/cli-agent-contract`, branch `work/cli-agent-contract`, base `8bef439b`. Round 2 starts at HEAD `2537db54`. Commit locally after each step. Never push, open a PR, merge, rebase, tag, or touch `main` or another branch.
 
-**Status.** Planned. Nothing from round 2 is implemented yet.
+**Status.** Implemented and verified on the branch (R2-1…R2-16 ticked; see [evidence](evidence.md#round-2-report)); not merged.
 
 ## The three highest-value bounded improvements (do these first)
 
@@ -883,7 +883,7 @@ Command: `git -C /Users/evokessler/repos/brn-rust -c core.fsmonitor=false log --
       - the same runner against the baseline binary fails at its first contract-2 check;
       - `python3 scripts/check-markdown-links.py` reports 0 failures.
 
-- [ ] R2-15. **Full verification, baseline-failure matrix, overlap and merge checks** (design §4, §1.1 "End of run", C1).
+- [x] R2-15. **Full verification, baseline-failure matrix, overlap and merge checks** (design §4, §1.1 "End of run", C1).
       Run every command in "Verification commands" below from the worktree, with `--locked --offline` and `BRN_*` unset. Record the exact command, tree hash and result in `evidence.md`.
       **Baseline matrix.** For every new process test file, run it against the R2-1 baseline binary and record per test either "fails: <assertion>" or "guard: <reason>".
       **Overlap.** Re-run the overlap check for every ⚑ path against all eleven branches, and record the table.
@@ -909,7 +909,7 @@ Command: `git -C /Users/evokessler/repos/brn-rust -c core.fsmonitor=false log --
       - `git worktree list` and `git branch --list 'scratch/*'` show no scratch left;
       - `git status --porcelain` shows only task files.
 
-- [ ] R2-16. **Close-out.** Tick R2-1…R2-15 here. In `evidence.md`, write the round-2 report:
+- [x] R2-16. **Close-out.** Tick R2-1…R2-15 here. In `evidence.md`, write the round-2 report:
       - before/after command examples;
       - the machine contract summary (pointer to the README and `brn --json --help`, plus the contract-2 change table);
       - verification results;

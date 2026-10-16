@@ -201,6 +201,8 @@ Lists that can grow without bound have a bounded page form. Without page options
 - Pass `cursor` back unchanged with the same options to get the next page; it is null on the last page. Cursors are checked before the workspace opens (`invalid_value`); a well-formed cursor that does not fit (a byte offset inside a character) is `invalid_request`, and an unknown well-formed record or run cursor gives the following page or an empty one.
 - Pages never repeat an item. `history` pages follow commit order, so a receipt committed while you page appears on a later page. `records` and `runs` (ID order) and `candidates` can miss items created while you page: restart without a cursor for a full pass.
 - The envelope `page` repeats `{limit, shown, cursor, total}`; for `revision` and `read`, `shown` and `total` count bytes. `search` fills `page` too.
+- Search lanes: `search`'s `page` describes the note lane. Once the daily-workflow branch is merged, `search` also returns a message lane (`messages`, `message_total`, `message_cursor`) carried only in `result`, and owner search shows an archived chat's messages and chat-only notes with `archived: true`.
+- `runs --state` accepts both `cancelled` and `interrupted`: a run stopped from outside its chat shows `Cancelled` on this branch and `Interrupted` after that merge.
 - Text is cut: `reason`, `authority` and `progress` at 512 characters; at most 32 writes per receipt or candidate (`writes_total` has the count).
 - `guards_writes` is true for a Working run that is not archived: preference writes such as `topics-choose` come back Deferred (`conflict[].kind` `Run`) until it stops, and owner settings changes (`configure`, `delegation`, `pause`, `resume`) or archiving its chat stop it.
 
