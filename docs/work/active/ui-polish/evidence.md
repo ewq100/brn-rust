@@ -1,14 +1,14 @@
 # UI polish: evidence
 
-**Date:** 16 October 2026. **Branch:** `work/ui-polish` (local only, not pushed), base `771116f0`. Product code was at `ed8daa82` for the native observation; the record commit added only these documents, and the [fix pass](#fix-pass-native-defects-integration-findings-u7-u8-u10) commits (`3fdf5489` and its [review round 2](#fix-pass-review-round-2)) change product code after it. **Design:** [plan.md](plan.md). **Slices:** [impl-plan.md](impl-plan.md). **Detailed verification and native observation:** [verification.md](verification.md).
+**Date:** 16 October 2026. **Branch:** `work/ui-polish` (local only, not pushed), base `771116f0`. The first native observation ran on `ed8daa82`. The [fix pass](#fix-pass-native-defects-integration-findings-u7-u8-u10) commits (`3fdf5489` and its [review round 2](#fix-pass-review-round-2), `354c1940`) change product code after it. They were [rechecked natively](#native-recheck-of-the-fix-pass-354c1940) on `354c1940`. **Design:** [plan.md](plan.md). **Slices:** [impl-plan.md](impl-plan.md). **Detailed verification and native observation:** [verification.md](verification.md).
 
 Each status below is reported on its own. Being implemented or verified does not mean the change is owner-accepted or merged.
 
 | Status | State |
 |---|---|
 | Implemented | yes, slices S1–S7 plus one integration fix, all in `crates/brn-desktop` and three contract docs |
-| Verified (automated) | yes, full gate on the fix-pass tree after [review round 2](#fix-pass-review-round-2); earlier on `ed8daa82` and `9fecaea1` |
-| Native-observed | partly, with real input on the product build; the gaps are listed below |
+| Verified (automated) | yes, full gate on `354c1940` (263 / 76 / 76 / 28, clippy clean), rerun by the verify step; earlier on `ed8daa82` and `9fecaea1` |
+| Native-observed | partly, with real input on the product build: the first observation on `ed8daa82`, then a recheck of the fix pass on `354c1940`. The gaps are listed below |
 | Owner-accepted | **no** |
 | Merged / published / released | **no** |
 
@@ -79,11 +79,11 @@ The workspace test suite was not rerun: `git diff --stat 771116f0 -- crates ':!c
 
 Shots are in [`after/`](after/); [`before/`](before/) holds the baseline.
 
-**Defects seen natively** (detail in [verification.md](verification.md)); all five are fixed in the fix pass below, automated-verified and not yet re-observed:
+**Defects seen natively** (detail in [verification.md](verification.md)). All five are fixed in the fix pass below and automated-verified. The [recheck](#native-recheck-of-the-fix-pass-354c1940) saw all of them fixed natively except 5c and the menu-launched dialogs outside Projects ⋯:
 
 1. Closing with Escape a dialog opened from a ⋯ menu item loses keyboard focus until the next click.
 2. The queue strip in the narrow chat companion truncates its state to "1 waiting · Pa…".
-3. Clipping at narrow widths: the delegation card ([43](after/43-delegation-card-clipped-900-light.png)), the stacked comment draft input, Notes rows, and Navigation panel titles.
+3. Clipping at narrow widths: the delegation card (the clipped shot was replaced by the fixed card, [43](after/43-delegation-card-900-light.png)), the stacked comment draft input, Notes rows, and Navigation panel titles.
 4. Copy: Apply/Undo notices run the service reason straight into the hint. After Undo, comments read "Passage not found". The backup path appears twice. Changes times show UTC.
 5. Minor: the Settings focus ring stays on General; Continue and Send are both filled; the Note text box is about 110 pt in the busiest 900×600 state.
 
@@ -96,7 +96,7 @@ Shots are in [`after/`](after/); [`before/`](before/) holds the baseline.
 
 ## Fix pass (native defects, integration findings, U7, U8, U10)
 
-Implemented and automated-verified only; nothing in this pass was observed natively. Service strings, the shared seams, `useful_intake`, `resume_chat_queue`, `docs/status.md`, `Cargo.lock` and the manifests are unchanged.
+Implemented and automated-verified when written. The verify step later rechecked most of these items natively on `354c1940`; see [the recheck](#native-recheck-of-the-fix-pass-354c1940). Service strings, the shared seams, `useful_intake`, `resume_chat_queue`, `docs/status.md`, `Cargo.lock` and the manifests are unchanged.
 
 | Item | Fix | Tests |
 |---|---|---|
@@ -115,7 +115,7 @@ Implemented and automated-verified only; nothing in this pass was observed nativ
 | 5c Busiest Note text box | The expanded saved rewrite inputs moved out of the writing bar into their own row that gives way (to 40 pt) before the text; the bar no longer overflows the Note. `note-body` keeps 120 px. | `the_busiest_note_keeps_its_text_and_whole_bar_at_900x600` (the bar ran 160 pt out of the Note before) |
 | INT-1 Kept-edit primary | Recover edit is the filled primary; a new `WritingRow::Recover` makes Rewrite with AI and Retry ghosts "unavailable: Recover the kept edit first". | `the_four_note_banners_stay_visible_in_write_at_900x600` |
 | INT-2 Undo during an open edit | Base `771116f0` rendered no Undo while dirty (its dirty branch was exclusive); this branch had added it. Restored: `undo-writing-apply` is not rendered while the note has an open edit; Changes keeps Undo. No version check changed. | `bound_terminal_clarification_stays_in_note_and_unrelated_chat_cannot_replace_it` (hidden while dirty, back after Discard) |
-| INT-3 Edit note and Connections | The fold uses this note's measured row (labels, chip, count) instead of the widest row. In the test text system (0.6 em per character, wider than macOS fonts) a plain note needs about 706 pt for that row and the Note at 1250×860 has 687, so there they still fold in tests; with system fonts the row is narrower. Not observed natively. | `edit_note_and_connections_stay_in_the_toolbar_when_this_notes_row_fits` (1330×860: plain inline, widest folded), `note_toolbar_folds_in_order_as_the_note_narrows` |
+| INT-3 Edit note and Connections | The fold uses this note's measured row (labels, chip, count) instead of the widest row. In the test text system (0.6 em per character, wider than macOS fonts) a plain note needs about 706 pt for that row and the Note at 1250×860 has 687, so there they still fold in tests; with system fonts the row is narrower. Natively at `354c1940` and 1250×860, a plain note kept both in the row ([46](after/46-plain-note-toolbar-1250-dark-virmalised.png)). | `edit_note_and_connections_stay_in_the_toolbar_when_this_notes_row_fits` (1330×860: plain inline, widest folded), `note_toolbar_folds_in_order_as_the_note_narrows` |
 | INT-4 Stale actions at the floor | The first banner leads the stack whole with its actions pinned; only its text scrolls in a short Note. Later banners and the saved version share a box that gives way first, down to its first line. Since review round 2 the text keeps 120 px beside open comments when a banner shows and there is room, and goes below it (to 48 px) only in the measured infeasible state; see [review round 2](#fix-pass-review-round-2). | `the_banner_stack_keeps_its_budget_above_the_text_at_900x600` asserts `save-buffer-copy` and `show-current-note` in view, and `note-body` ≥ 120 px with the stale banner and open comments |
 | INT-5 Untested states | Disabled reasons (INT-1, INT-2, INT-6 tests), empty states, Link document by keyboard, the running short-window queue row, the header ⋯ Open beside submenu. | `first_run_empty_states_name_the_next_step`, `link_document_rows_are_reached_by_tab_and_pressed_by_space`, `a_short_window_keeps_a_running_queue_to_one_quiet_row`, `a_narrow_list_header_keeps_its_title_and_its_menu_opens_beside` |
 | INT-6 Disabled Show passage | Announced "Show passage “quote”, unavailable: {why}", tooltip "Show passage is unavailable: {why}". | `review_in_place_applies_exact_candidate_then_marks_addressed_and_undoes` |
@@ -126,7 +126,7 @@ Implemented and automated-verified only; nothing in this pass was observed nativ
 
 ### Fix pass review round 2
 
-The workflow review `reviews/code-review-fix.md` (uncommitted, so cited as a path; verdict CHANGES_REQUESTED) found eight issues in `3fdf5489`. All eight are fixed below. Implemented and automated-verified only; nothing here was observed natively.
+The workflow review `reviews/code-review-fix.md` (uncommitted, so cited as a path; verdict CHANGES_REQUESTED) found eight issues in `3fdf5489`. All eight are fixed below. They were implemented and automated-verified when this was written. The later native recheck did not cover FIX-1 (U10), FIX-2, FIX-3 or FIX-6's row-menu path.
 
 | Finding | Fix | Tests |
 |---|---|---|
@@ -170,6 +170,41 @@ In the busiest state the rows that never hide take 332.5 px, which leaves 83.5 p
 
 The workspace test suite was not rerun, because `git diff --stat 771116f0 -- crates ':!crates/brn-desktop'` is empty. `Cargo.lock` and the crate manifests are unchanged from `771116f0`. The shared seam files and `docs/status.md` are unchanged from `origin/main` `8bef439b`.
 
+### Native recheck of the fix pass (`354c1940`)
+
+**Automated first.** The verify step reran the full gate on `354c1940` before opening any window. Every lane passed:
+
+- `verify-desktop-shell.sh`: **263 passed**, 0 failed.
+- `native-ui`: **76**. `native-ui,native-retrieval`: **76**. Default features: **28**.
+- The four clippy lanes with `-D warnings`, fmt and `git diff --check` are clean.
+- Links: 117 files, 438 local links, 0 failures, and 472 links with 0 failures after these doc edits.
+- The workspace suite was not rerun, because nothing outside `crates/brn-desktop` changed.
+
+Detail is in [verification.md](verification.md#full-gate-on-head-354c1940).
+
+**Native, with real input.** Window use ran from 10:43:23 to 10:59:09 EEST, under the coordination Mac lock (10:43 to 10:59:21), after the parent's go-ahead. It used two scratch bundles of the product build and fresh synthetic `/private/tmp` data seeded through the shared service. The provider was `offline-fixture`, with no provider requests. Sizes were 900×600 in Sammal and Virmalised, plus 1250×860. Every window was quit, and no BRN process remains. The per-item table is in [verification.md](verification.md#recheck-of-the-fix-pass-head-354c1940).
+
+- **Fixed and rechecked natively:**
+  - native defects 1 (Projects ⋯ → Move to Trash… and Instructions & settings), 2, 3a, 3b, 3c, 3d, 4a (U8), 4b, 4c, 4d, 5a and 5b
+  - INT-2
+  - INT-3: with macOS system fonts at 1250×860, a plain note keeps Edit note and Connections, and all five format buttons, in the toolbar row. A note with three comments also keeps them, with formatting in Format ▾.
+  - INT-6's disabled-Show-passage tooltip
+- **Automated-verified only, not rechecked natively:**
+  - 5c
+  - INT-1: a restart reopened the unsaved edit as an open recoverable edit, not the kept-edit state
+  - INT-4 and FIX-2: no stale banner in the fixture. The text-floor rule is still **pending owner acceptance**.
+  - INT-5 beyond the empty states
+  - U10: needs a finishing run
+  - the Note ⋯, Chats ＋ and row-menu dialog paths of item 1
+  - FIX-3, the Windows build
+- **New native findings, not fixed:**
+  1. With a stacked comment draft open at 900×600, the writing bar's last row is clipped at the Note's bottom edge. After Undo this includes the filled "Retry saved rewrite".
+  2. While the paused queue holds a waiting message, Edit note says "unavailable: BRN is working" and the status bar says "Idle". The gating is from base; the reason wording is new.
+  3. Changes' "May need refresh" pills name a writing-request record by its raw JSON, which overflows the panel. The `title()` naming is from base.
+  4. The recoverable-edit needs-you row reads "Recov… [Unsaved]" at 170 pt.
+
+Replaced shots: 01, 04, 05, 06, 08, 11, 14, 16, 29 (now `29-chat-failed-900-dark-virmalised.png`) and 43 (now `43-delegation-card-900-light.png`). New shots: 44 to 48.
+
 ## Owner-accepted
 
 No. The owner has not reviewed the implemented UI.
@@ -180,7 +215,11 @@ No. Nothing is pushed, merged, published or released.
 
 ## Open items
 
-- **Native re-observation of the fix pass**: native defects 1–5, INT-1 to INT-6, U7, U8 and U10 are fixed and automated-verified (see Fix pass), not re-observed. INT-3 in particular depends on macOS font widths: whether a plain note keeps Edit note and Connections at 1250×860 needs a native look. INT-7 (the link check) was resolved by the record commit.
+- **Native recheck gaps:**
+  - The [recheck](#native-recheck-of-the-fix-pass-354c1940) confirmed natively: native defects 1 (Projects ⋯ paths), 2, 3a–3d, 4a–4d, 5a and 5b, plus INT-2 and INT-3.
+  - Still automated-verified only: 5c, INT-1, INT-4/FIX-2, the rest of INT-5, U10, the other menu-launched dialog paths, and the Windows build.
+  - INT-7 (the link check) was resolved by the record commit.
+- **New native findings at `354c1940`** (not fixed): the writing bar clipped under an open stacked draft at 900×600; Edit note's "BRN is working" reason while the queue is only paused; raw JSON in Changes' refresh pills; the "Recov…" needs-you row. See [verification.md](verification.md#recheck-of-the-fix-pass-head-354c1940).
 - **Fix-pass trade-offs to confirm:**
   - plan.md's height-share rule under a banner was owner-accepted on 16 October 2026 (pending when this record was written). With a Note banner shown, the text keeps 120 px beside open comments when there is room. In the measured busiest stale state at 900×600 it gets 83.5 px, above a 48 px floor, because banners, a failed run's reason and the writing bar are never hidden to meet the budget.
   - The All chats day grouping stays in UTC while times are local.
