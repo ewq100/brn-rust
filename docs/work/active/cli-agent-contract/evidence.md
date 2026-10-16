@@ -317,4 +317,12 @@ Everything ships as contract 2, with a "Changes from contract 1" table and a for
 - Verification: `cargo test -p brn` passes except the 4 sandbox-blocked SIGINT tests; strict clippy clean; journey and both witnesses passed with an empty parent; `brn --help` 0, `brn` 1, `brn --unknown` 1.
 - Baseline: the 5 new non-guard tests fail (`missing_data_dir` for `COMMAND --help` and for options after the command; relative paths reached the service); the guard passes.
 
+### R2-13 A7 finer refusal reasons (no shared-service change)
+
+- CLI: `contract::REFUSAL_REASONS` (the verbatim appendix §A7 table: `version_mismatch`, `inactive_target`, `project_boundary`, `size_limit`, `wrong_kind`; exact or prefix) and `refusal_reason`; applied to core `Error::Invalid` (inner text), `AppError::Invalid` and the CLI's own `invalid_request` texts (`--thread must name a chat`, `--project must name an active project`, `record is not a note`, review refusals) through `CliError::invalid_request`. `From<String>` stays coarse, so the useful-intake sub-block is unchanged; `code` stays `invalid_request`; no `protected` reason. README: the `invalid_request` details cell, a paragraph naming each reason and its action, and a change row.
+- Round-1 assertion updated for the additive key: `ask_refused_before_the_provider_is_rejected_not_failed` now expects `{"option":"project","reason":"inactive_target"}` for `search --project <chat>`.
+- Tests: unit drift guard `refusal_reasons_name_live_service_messages` (every literal is found in `include_str!` of `brn-threads-core/src/{projects,store,chat,steering,writing,edit,read,revision_read}.rs`, `brn-threads-app/src/{intake,decisions}.rs`, `crates/brn/src/{main,inspect}.rs`; prefix and exact matching; `From<String>` carries no reason); process `crates/brn/tests/agent_reasons.rs` (5): `stale_project_settings_reason_is_version_mismatch` (with the identical retry), `trashed_project_chat_reason_is_inactive_target` (queue to a deleted project's chat), `incomplete_project_delete_actions_reason_is_project_boundary`, `oversized_project_title_reason_is_size_limit` (1025-byte title file), `search_thread_naming_a_note_reason_is_wrong_kind` (and `read --limit` on a chat); `agent_inspect.rs` read-of-a-Thread also asserts `wrong_kind`.
+- Verification: `cargo test -p brn` passes except the 4 sandbox-blocked SIGINT tests; strict clippy clean.
+- Baseline: all 5 `agent_reasons` tests fail (no `reason`).
+
 <!-- ===================== ROUND 2 END ===================== -->

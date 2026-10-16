@@ -849,7 +849,7 @@ Command: `git -C /Users/evokessler/repos/brn-rust -c core.fsmonitor=false log --
       - `bash scripts/verify-storage.sh` tail unchanged;
       - the baseline run fails on the non-guard tests.
 
-- [ ] R2-13. **A7: finer refusal reasons, with no shared-service change** (design A7; appendix §A7).
+- [x] R2-13. **A7: finer refusal reasons, with no shared-service change** (design A7; appendix §A7).
       In `contract.rs`, add `REFUSAL_REASONS: &[(&str, Match::{Exact, Prefix}, &str)]` with the verbatim appendix §A7 table: `version_mismatch`, `inactive_target`, `project_boundary`, `size_limit`, `wrong_kind`.
       - It applies to `Error::Invalid` (match on the inner text), `AppError::Invalid`, and the CLI's own `invalid_request` texts.
       - It does not apply to `From<String>`, so the sub-block stays coarse.

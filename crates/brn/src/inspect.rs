@@ -256,7 +256,7 @@ pub(crate) fn read(
                 .record(id)?
                 .ok_or_else(|| CliError::new(Code::NotFound, "Record not found"))?;
             if !matches!(record.data, RecordData::Note(_)) {
-                return Err(CliError::new(Code::InvalidRequest, "record is not a note"));
+                return Err(CliError::invalid_request("record is not a note"));
             }
             (record.version, 0)
         }

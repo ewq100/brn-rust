@@ -485,7 +485,7 @@ fn chat_option(workspace: &Workspace, inv: &Invocation) -> Result<Option<String>
             .is_some_and(|r| !r.archived && matches!(r.data, RecordData::Project(_)))
         {
             let message = "--project must name an active project";
-            return Err(CliError::new(Code::InvalidRequest, message).with("option", "project"));
+            return Err(CliError::invalid_request(message).with("option", "project"));
         }
         return Ok(Some(project.clone()));
     }
@@ -498,7 +498,7 @@ fn chat_option(workspace: &Workspace, inv: &Invocation) -> Result<Option<String>
         .is_some_and(|r| matches!(r.data, RecordData::Thread(_)));
     if !is_chat {
         let message = "--thread must name a chat";
-        return Err(CliError::new(Code::InvalidRequest, message).with("option", "thread"));
+        return Err(CliError::invalid_request(message).with("option", "thread"));
     }
     Ok(Some(chat.clone()))
 }
@@ -703,7 +703,7 @@ fn review_error(workspace: &Workspace, inv: &Invocation, done: &str, error: AppE
     if committed {
         CliError::new(Code::Internal, message).with(done, true)
     } else {
-        CliError::new(Code::InvalidRequest, message)
+        CliError::invalid_request(message)
     }
 }
 async fn execute(inv: &Invocation, notes: &mut Annotations) -> Result<Value> {

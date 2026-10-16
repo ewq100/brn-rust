@@ -275,6 +275,133 @@ impl Code {
     }
 }
 
+/// How a refusal-reason literal matches a service message.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum Match {
+    Exact,
+    Prefix,
+}
+use Match::{Exact, Prefix};
+/// `details.reason` for `invalid_request`, from the shared service's exact
+/// refusal texts (core and app `Invalid`) and the CLI's own. An unmatched
+/// message carries no reason; `code` stays `invalid_request`.
+pub(crate) const REFUSAL_REASONS: &[(&str, Match, &str)] = &[
+    (
+        "Project changed; refresh its settings",
+        Exact,
+        "version_mismatch",
+    ),
+    (
+        "Project changed since deletion preview; refresh the removal set",
+        Exact,
+        "version_mismatch",
+    ),
+    (
+        "candidate refresh requires current input versions",
+        Exact,
+        "version_mismatch",
+    ),
+    (
+        "candidate refresh requires current target versions",
+        Exact,
+        "version_mismatch",
+    ),
+    (
+        "workspace configuration snapshot changed",
+        Exact,
+        "version_mismatch",
+    ),
+    ("Choose an active project", Exact, "inactive_target"),
+    (
+        "Choose an active chat for this attachment",
+        Exact,
+        "inactive_target",
+    ),
+    ("Choose a saved active chat", Exact, "inactive_target"),
+    ("Choose an active saved document", Exact, "inactive_target"),
+    ("Choose a project in Trash", Exact, "inactive_target"),
+    ("Restore this project before", Prefix, "inactive_target"),
+    (
+        "Restore its project before moving this chat",
+        Exact,
+        "inactive_target",
+    ),
+    (
+        "Restore this private document before keeping it in BRN",
+        Exact,
+        "inactive_target",
+    ),
+    ("Unarchive this chat before", Prefix, "inactive_target"),
+    (
+        "--project must name an active project",
+        Exact,
+        "inactive_target",
+    ),
+    (
+        "Chat must exist and belong to at most one project",
+        Exact,
+        "project_boundary",
+    ),
+    (
+        "Choose Keep outside project or Cancel for each unfinished Action",
+        Exact,
+        "project_boundary",
+    ),
+    (
+        "Independent Action cannot retain private project scope",
+        Exact,
+        "project_boundary",
+    ),
+    (
+        "A referenced figure belongs to another chat",
+        Exact,
+        "project_boundary",
+    ),
+    (
+        "An exclusive document needs Keep in BRN or another project link before removal",
+        Exact,
+        "project_boundary",
+    ),
+    (
+        "Project documents must be unique existing notes",
+        Exact,
+        "project_boundary",
+    ),
+    (
+        "Project context changes must fence current runs in the same checked group",
+        Exact,
+        "project_boundary",
+    ),
+    (
+        "Project needs a title up to 1024 bytes and instructions up to 128 KiB",
+        Exact,
+        "size_limit",
+    ),
+    ("message needs 1–131072 bytes", Exact, "size_limit"),
+    (
+        "instruction must contain 1–131072 bytes",
+        Exact,
+        "size_limit",
+    ),
+    ("Document exceeds 50 MiB", Exact, "size_limit"),
+    ("Writing context exceeds 128 KiB", Prefix, "size_limit"),
+    ("--thread must name a chat", Exact, "wrong_kind"),
+    ("editing requires a note", Exact, "wrong_kind"),
+    ("history requires a note", Exact, "wrong_kind"),
+    ("record is not a note", Exact, "wrong_kind"),
+    ("not a note", Exact, "wrong_kind"),
+    ("revision is not a note", Exact, "wrong_kind"),
+];
+pub(crate) fn refusal_reason(message: &str) -> Option<&'static str> {
+    REFUSAL_REASONS
+        .iter()
+        .find(|(text, how, _)| match how {
+            Exact => message == *text,
+            Prefix => message.starts_with(text),
+        })
+        .map(|(_, _, reason)| *reason)
+}
+
 /// Echo rule for argv tokens in error details.
 pub(crate) fn echo(token: &str) -> Option<&str> {
     let mut bytes = token.bytes();
@@ -331,6 +458,16 @@ impl CliError {
             .with_option(option)
             .with("reason", reason)
     }
+    /// `invalid_request` with `details.reason` when the message is a known refusal.
+    pub(crate) fn invalid_request(message: impl Into<String>) -> Self {
+        let message = message.into();
+        let reason = refusal_reason(&message);
+        let error = Self::new(Code::InvalidRequest, message);
+        match reason {
+            Some(reason) => error.with("reason", reason),
+            None => error,
+        }
+    }
     pub(crate) fn interrupted() -> Self {
         Self::new(Code::Interrupted, "Interrupted before operation")
     }
@@ -359,7 +496,13 @@ impl From<brn_threads_app::Error> for CliError {
             }
             Error::Io(_) => Code::IoError,
             Error::UnsafeDirectory(_) => Code::UnsafeDirectory,
-            Error::Invalid(_) => Code::InvalidRequest,
+            Error::Invalid(text) => {
+                let error = Self::new(Code::InvalidRequest, message.clone());
+                return match refusal_reason(text) {
+                    Some(reason) => error.with("reason", reason),
+                    None => error,
+                };
+            }
             Error::ImmutableRequest => Code::KeyConflict,
             Error::Missing(_) => Code::NotFound,
         };
@@ -373,7 +516,7 @@ impl From<AppError> for CliError {
             AppError::Search(e) => e.into(),
             AppError::Io(e) => e.into(),
             AppError::Json(e) => Self::new(Code::StorageError, e.to_string()),
-            AppError::Invalid(message) => Self::new(Code::InvalidRequest, message),
+            AppError::Invalid(message) => Self::invalid_request(message),
             AppError::Unavailable(message) => Self::new(Code::Unavailable, message),
         }
     }
@@ -1569,6 +1712,42 @@ mod tests {
         assert_eq!(Code::ProviderFailed.status().exit(), 7);
     }
 
+    #[test]
+    fn refusal_reasons_name_live_service_messages() {
+        let sources = [
+            include_str!("../../brn-threads-core/src/projects.rs"),
+            include_str!("../../brn-threads-core/src/store.rs"),
+            include_str!("../../brn-threads-core/src/chat.rs"),
+            include_str!("../../brn-threads-core/src/steering.rs"),
+            include_str!("../../brn-threads-core/src/writing.rs"),
+            include_str!("../../brn-threads-core/src/edit.rs"),
+            include_str!("../../brn-threads-core/src/read.rs"),
+            include_str!("../../brn-threads-core/src/revision_read.rs"),
+            include_str!("../../brn-threads-app/src/intake.rs"),
+            include_str!("../../brn-threads-app/src/decisions.rs"),
+            include_str!("main.rs"),
+            include_str!("inspect.rs"),
+        ];
+        for (text, how, reason) in REFUSAL_REASONS {
+            assert!(
+                sources.iter().any(|source| source.contains(text)),
+                "{text:?} ({reason}) is no longer a service message"
+            );
+            let sample = match how {
+                Match::Exact => text.to_string(),
+                Match::Prefix => format!("{text} something"),
+            };
+            assert_eq!(refusal_reason(&sample), Some(*reason), "{text}");
+        }
+        assert_eq!(refusal_reason("an unknown refusal"), None);
+        let core = CliError::from(brn_threads_app::Error::Invalid(
+            "Project changed; refresh its settings".into(),
+        ));
+        assert_eq!(core.details["reason"], "version_mismatch");
+        // The useful-intake sub-block's String errors stay coarse.
+        let coarse = CliError::from(String::from("--thread must name a chat"));
+        assert!(coarse.details.get("reason").is_none());
+    }
     #[test]
     fn statuses_and_codes_are_one_to_one_and_complete() {
         let mut exits: Vec<u8> = Status::ALL.iter().map(|s| s.exit()).collect();

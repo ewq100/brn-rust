@@ -1270,7 +1270,11 @@ fn ask_refused_before_the_provider_is_rejected_not_failed() {
         &["search", "--query", "x", "--project", &chat],
     );
     assert_error(&scoped, "rejected", "invalid_request");
-    assert_eq!(scoped["error"]["details"], json!({"option":"project"}));
+    // Round 2 adds details.reason (additive).
+    assert_eq!(
+        scoped["error"]["details"],
+        json!({"option":"project","reason":"inactive_target"})
+    );
     let both = call(
         &root,
         &data,

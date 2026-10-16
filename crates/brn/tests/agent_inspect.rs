@@ -436,6 +436,7 @@ fn read_pages_detect_a_change_between_pages() {
     let chat = id(&ok(&root, &data, &["thread-start", "--title", "Chat"]));
     let thread = call(&root, &data, &["read", "--id", &chat, "--limit", "4"]);
     assert_error(&thread, "rejected", "invalid_request");
+    assert_eq!(thread["error"]["details"]["reason"], "wrong_kind");
     let missing = call(
         &root,
         &data,
