@@ -38,3 +38,12 @@ Recorded 16 October 2026. The owner made these decisions in conversation with th
 ## Coordination exception
 
 B4 may add a minimal, private no-op detection hook inside the `Store` chat and project command functions, even though `work/daily-workflow-reliability` also edits them. The lead accepts the resulting merge conflict. The implementation records the expected conflict and its resolution with the other merge-resolution notes and checks them with `git merge-tree`.
+
+## After round 2b
+
+Recorded 16 October 2026, in reply to the lead's two questions:
+
+> "ok keepit , let do falloup pr"
+
+- **`projects --trash` tightening: kept.** Values other than `yes`/`no` are now refused with `invalid_value` in both modes. Before this change they listed active projects with exit 0 (README Compatibility 8).
+- **Round 3 is a follow-up PR.** This branch's PR carries rounds 1, 2 and 2b only. Caller-bound edit sessions (B3 part 2) and workspace-scoped CLI authority phase 1 (B1) go on a new branch from `main` after this PR merges, and become their own PR under the same rules. Before that design is approved, its shared-seam API is posted on the coordination board for the desktop lead.

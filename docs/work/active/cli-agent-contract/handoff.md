@@ -19,6 +19,8 @@ Written 16 October 2026, when the owner asked to wrap up and merge the reviewed 
 
 ## Left for the next agent, in priority order
 
+Items 1 and 2 (round 3) are owner-approved as a follow-up PR on a new branch from `main` after this branch merges ([owner decisions](owner-decisions.md#after-round-2b)).
+
 1. **Round 3, caller-bound edit sessions (owner B3 part 2).** `begin-edit` returns a secret that buffer, save and discard writes must present. The design must:
    - store only a hash, and never show the secret in errors, listings (including `recovery`), receipts or logs;
    - keep the secret out of argv where possible;
@@ -48,7 +50,6 @@ Written 16 October 2026, when the owner asked to wrap up and merge the reviewed 
 
 - **Security, predates this branch:** a writable Copilot cache can redirect Copilot traffic to plain HTTP. The recommendation is that `validate_record` require HTTPS, as a small separate task in `brn-ai`.
 - `brn project-delete` of a project whose chat has a Run fails with "run control changes must advance the fence". This also happens on `main`, and it needs its own slice.
-- Round 2b made `projects --trash` values other than `yes`/`no` an `invalid_value` usage error; they used to list active projects with exit 0 (README Compatibility 8). Confirm with the owner at merge.
 - Should chat intake into a project be refused? It is currently marked as an owner decision, and the recommendation is to keep the mark until B1 phase 2.
 
 ## Environment
