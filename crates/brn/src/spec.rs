@@ -187,6 +187,8 @@ pub(crate) enum Grammar {
     Enum(&'static [&'static str]),
     Int(u64, u64),
     Cursor(CursorForm),
+    /// An absolute filesystem path.
+    AbsolutePath,
     /// An existing after-open check moved before opening, with its message:
     /// a decimal that parses as an integer up to `max` (service ranges stay after opening).
     Number {
@@ -210,6 +212,7 @@ impl Grammar {
                     && value.parse::<u64>().is_ok_and(|v| (min..=max).contains(&v))
             }
             Grammar::Cursor(form) => form.accepts(value),
+            Grammar::AbsolutePath => std::path::Path::new(value).is_absolute(),
             Grammar::Number { max, .. } => value.parse::<u64>().is_ok_and(|v| v <= max),
             Grammar::Choice {
                 values,
@@ -231,6 +234,7 @@ impl Grammar {
             Grammar::Enum(values) => format!("--{option} takes {}", values.join("|")),
             Grammar::Int(min, max) => format!("--{option} takes an integer {min}..{max}"),
             Grammar::Cursor(form) => format!("--{option} takes {}", form.expected()),
+            Grammar::AbsolutePath => format!("--{option} must be an absolute path"),
         }
     }
     fn describe(self, option: &str) -> Value {
@@ -245,6 +249,7 @@ impl Grammar {
             Grammar::Number { max, .. } => {
                 json!({"option": option, "grammar": "integer", "min": 0, "max": max})
             }
+            Grammar::AbsolutePath => json!({"option": option, "grammar": "absolute_path"}),
             Grammar::Choice {
                 values,
                 ignore_case,
@@ -256,6 +261,14 @@ impl Grammar {
     }
 }
 
+/// `(command, option, names, note)`: an option that records an owner decision
+/// when it names that kind of record.
+pub(crate) const OWNER_DECISION_WHEN: &[(&str, &str, &str, &str)] = &[(
+    "intake",
+    "thread",
+    "Project",
+    "attaches the document to that project",
+)];
 pub(crate) const RUN_STATES: &[&str] =
     &["working", "interrupted", "completed", "cancelled", "failed"];
 const PAGE_100: Grammar = Grammar::Int(1, 100);
@@ -360,6 +373,12 @@ pub(crate) static VALUES: &[(&str, &str, Grammar)] = &[
     ("configure", "helper-provider", PROVIDER),
     ("configure", "effort", EFFORT),
     ("configure", "helper-effort", EFFORT),
+    // Help always said ABSOLUTE; a relative path is refused before opening.
+    ("backup", "destination", Grammar::AbsolutePath),
+    ("export", "destination", Grammar::AbsolutePath),
+    ("restore", "source", Grammar::AbsolutePath),
+    ("upgrade", "backup-directory", Grammar::AbsolutePath),
+    ("model-install", "destination", Grammar::AbsolutePath),
 ];
 
 /// The first present option whose value does not fit its grammar.
@@ -1074,48 +1093,52 @@ fn when(option: &str, equals: &str) -> Value {
     json!({"option":option,"equals":equals})
 }
 
+/// One command's entry in the machine description (also `brn --json COMMAND --help`).
+pub(crate) fn describe(spec: &Spec) -> Value {
+    let (owner, owner_options): (bool, &[&str]) = match spec.owner {
+        Owner::No => (false, &[]),
+        Owner::Yes => (true, &[]),
+        Owner::WithOptions(options) => (false, options),
+    };
+    json!({
+        "name": spec.name,
+        "alias_of": spec.alias_of,
+        "options": spec.options,
+        "required": spec.required,
+        "required_when": spec.required_when.iter().map(|r| json!({
+            "when": when(r.option, r.equals), "required": r.required,
+        })).collect::<Vec<_>>(),
+        "key": spec.keyed,
+        "owner_decision": owner,
+        "owner_decision_options": owner_options,
+        "retry": {
+            "default": spec.retry.default.as_str(),
+            "keyed": spec.retry.keyed.map(Class::as_str),
+            "variants": spec.retry.variants.iter().map(|v| json!({
+                "when": when(v.option, v.equals), "retry": v.retry.as_str(), "key": v.key,
+                "keyed": v.keyed.map(Class::as_str),
+            })).collect::<Vec<_>>(),
+        },
+        "outcomes": spec.outcomes,
+        "page": spec.page.map(|p| json!({
+            "limit": {"min": p.min, "max": p.max, "default": p.default},
+            "cursor": p.cursor.as_str(),
+        })),
+        "bounded": spec.bounded,
+        "bounded_form": spec.bounded_form,
+        "values": values_of(spec.name),
+        "key_requires": spec.key_requires.map(|(option, equals)| when(option, equals)),
+        "summary": crate::help::summary(spec.name),
+        "example": crate::help::example(spec.name),
+        "note": crate::help::note(spec.name),
+        "owner_decision_when": OWNER_DECISION_WHEN.iter().filter(|(name, ..)| *name == spec.name).map(|(_, option, names, note)| json!({"option": option, "names": names, "note": note})).collect::<Vec<_>>(),
+        "needs": spec.needs.iter().map(|(option, needs)| json!({"option": option, "needs": needs})).collect::<Vec<_>>(),
+    })
+}
+
 /// The machine description printed by `brn --json --help`.
 pub(crate) fn description() -> Value {
-    let commands: Vec<Value> = COMMANDS
-        .iter()
-        .map(|spec| {
-            let (owner, owner_options): (bool, &[&str]) = match spec.owner {
-                Owner::No => (false, &[]),
-                Owner::Yes => (true, &[]),
-                Owner::WithOptions(options) => (false, options),
-            };
-            json!({
-                "name": spec.name,
-                "alias_of": spec.alias_of,
-                "options": spec.options,
-                "required": spec.required,
-                "required_when": spec.required_when.iter().map(|r| json!({
-                    "when": when(r.option, r.equals), "required": r.required,
-                })).collect::<Vec<_>>(),
-                "key": spec.keyed,
-                "owner_decision": owner,
-                "owner_decision_options": owner_options,
-                "retry": {
-                    "default": spec.retry.default.as_str(),
-                    "keyed": spec.retry.keyed.map(Class::as_str),
-                    "variants": spec.retry.variants.iter().map(|v| json!({
-                        "when": when(v.option, v.equals), "retry": v.retry.as_str(), "key": v.key,
-                        "keyed": v.keyed.map(Class::as_str),
-                    })).collect::<Vec<_>>(),
-                },
-                "outcomes": spec.outcomes,
-                "page": spec.page.map(|p| json!({
-                    "limit": {"min": p.min, "max": p.max, "default": p.default},
-                    "cursor": p.cursor.as_str(),
-                })),
-                "bounded": spec.bounded,
-                "bounded_form": spec.bounded_form,
-                "values": values_of(spec.name),
-                "key_requires": spec.key_requires.map(|(option, equals)| when(option, equals)),
-                "needs": spec.needs.iter().map(|(option, needs)| json!({"option": option, "needs": needs})).collect::<Vec<_>>(),
-            })
-        })
-        .collect();
+    let commands: Vec<Value> = COMMANDS.iter().map(describe).collect();
     json!({
         "contract": crate::contract::CONTRACT,
         "usage": "brn [--json] --data-dir ABSOLUTE_DIRECTORY [--timeout SECONDS] COMMAND [--option VALUE]...",
@@ -1135,6 +1158,11 @@ pub(crate) fn description() -> Value {
             "encoding": "UTF-8 without NUL; bytes used exactly",
         },
         "key": {"pattern": KEY_PATTERN},
+        "global_options": [
+            {"option": "data-dir", "value": "ABSOLUTE_DIRECTORY", "required": true, "position": "anywhere in an option-name position"},
+            {"option": "timeout", "value": "SECONDS", "grammar": {"grammar": "integer", "min": 1, "max": 86400}, "required": false, "position": "anywhere in an option-name position"},
+        ],
+        "command_help": "brn [--json] COMMAND --help prints one command's help (JSON: {contract, command}); it needs no --data-dir and opens nothing.",
         "commands": commands,
     })
 }
@@ -1324,6 +1352,9 @@ mod tests {
             let object = value.as_object_mut().unwrap();
             object.remove("name");
             object.remove("alias_of");
+            // Help text differs per name; the contract fields are identical.
+            object.remove("summary");
+            object.remove("example");
         }
         assert_eq!(archive, resolve);
     }
@@ -1440,6 +1471,26 @@ mod tests {
                 spec.name
             );
         }
+    }
+
+    #[test]
+    fn global_options_are_not_command_options_and_every_command_has_help() {
+        for spec in COMMANDS {
+            for global in ["data-dir", "timeout", "help"] {
+                assert!(
+                    !spec.options.contains(&global),
+                    "{} declares {global}",
+                    spec.name
+                );
+            }
+            assert!(!crate::help::summary(spec.name).is_empty(), "{}", spec.name);
+            assert!(
+                crate::help::example(spec.name).contains(spec.name),
+                "{}",
+                spec.name
+            );
+        }
+        assert_eq!(crate::help::TEXT.len(), COMMANDS.len());
     }
 
     #[test]

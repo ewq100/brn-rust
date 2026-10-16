@@ -1,5 +1,6 @@
 //! Thin host CLI over the same checked Threads service as the desktop.
 mod contract;
+mod help;
 mod input;
 mod inspect;
 mod spec;
@@ -32,7 +33,8 @@ Agents and scripts: brn --json --data-dir DIR COMMAND ... prints one JSON envelo
   7 failed (including busy and timeout), 130 interrupted (SIGINT), 143 terminated (SIGTERM).
   Without --json, failures exit 1 and outcomes such as Stale exit 0.
   --timeout SECONDS after --data-dir bounds the call; it never hides a commit (envelope stop).
-  brn --json --help prints the machine contract (commands, options, outcomes, retry classes, error codes).
+  brn --json --help prints the machine contract (commands, options, outcomes, retry classes, error codes);
+  brn [--json] COMMAND --help prints one command's help. --data-dir and --timeout may follow the command.
   Bounded inspection: history|candidates|records --limit N [--cursor C], revisions --note ID,
   revision --note ID --version V, runs [--thread ID] [--state STATE], read --id ID --limit BYTES;
   pass result.cursor back as --cursor for the next page. operation --id OP | --key K --command NAME
@@ -45,6 +47,7 @@ Agents and scripts: brn --json --data-dir DIR COMMAND ... prints one JSON envelo
   if that import found the bytes already imported, the retry converts again and records only an observation.
   Stale save (exit 3): keep result.session.markdown; discard your session; begin-edit --base
   <conflict[0].version>; reapply; update-buffer --generation 1 --text-file merged.md; save --generation 1.
+  intake --intent chat --thread <PROJECT_ID> attaches the document to that project: an owner decision.
   Commands marked owner_decision record an owner decision. Running the CLI does not make you the owner:
   run them only on the owner's explicit instruction for that exact operation.";
 type Result<T> = std::result::Result<T, CliError>;
@@ -155,39 +158,70 @@ fn parse(
     let start = usize::from(machine);
     let mut iter = tokens.into_iter().enumerate().skip(start);
     let usage = |code, message: &str| CliError::new(code, message);
-    if iter.next().map(|(_, token)| token).as_deref() != Some("--data-dir") {
-        let message = "Supply --data-dir ABSOLUTE_DIRECTORY; run --help";
-        return Err(refuse(None, usage(Code::MissingDataDir, message)));
-    }
-    let Some((_, data)) = iter.next() else {
-        return Err(refuse(
-            None,
-            usage(Code::MissingDataDir, "Missing data directory"),
-        ));
-    };
-    let data = PathBuf::from(data);
-    if !data.is_absolute() {
-        let message = "Data directory must be absolute";
-        return Err(refuse(None, usage(Code::InvalidDataDir, message)));
-    }
+    let supply = "Supply --data-dir ABSOLUTE_DIRECTORY; run --help";
+    // Global options: --data-dir and --timeout in any option-name position.
+    let mut data: Option<PathBuf> = None;
     let mut timeout = None;
-    let mut next = iter.next();
-    while next.as_ref().is_some_and(|(_, token)| token == "--timeout") {
-        if timeout.is_some() {
-            let error = usage(Code::RepeatedOption, "Repeated option").with_option("timeout");
-            return Err(refuse(None, error));
+    let set_data = |data: &mut Option<PathBuf>,
+                    value: Option<String>|
+     -> std::result::Result<(), CliError> {
+        if data.is_some() {
+            return Err(usage(Code::RepeatedOption, "Repeated option").with_option("data-dir"));
         }
-        let Some((_, value)) = iter.next() else {
-            let error = usage(Code::MissingValue, "Missing option value").with_option("timeout");
-            return Err(refuse(None, error));
-        };
-        timeout = Some(timeout_seconds(&value).map_err(|error| refuse(None, error))?);
-        next = iter.next();
-    }
-    let Some((_, command)) = next else {
-        return Err(refuse(None, usage(Code::MissingCommand, "Missing command")));
+        let value = value.ok_or_else(|| usage(Code::MissingDataDir, "Missing data directory"))?;
+        let path = PathBuf::from(value);
+        if !path.is_absolute() {
+            return Err(usage(
+                Code::InvalidDataDir,
+                "Data directory must be absolute",
+            ));
+        }
+        *data = Some(path);
+        Ok(())
     };
+    let set_timeout =
+        |timeout: &mut Option<u64>, value: Option<String>| -> std::result::Result<(), CliError> {
+            if timeout.is_some() {
+                return Err(usage(Code::RepeatedOption, "Repeated option").with_option("timeout"));
+            }
+            let value = value.ok_or_else(|| {
+                usage(Code::MissingValue, "Missing option value").with_option("timeout")
+            })?;
+            *timeout = Some(timeout_seconds(&value)?);
+            Ok(())
+        };
+    let command = loop {
+        match iter.next() {
+            Some((_, token)) if token == "--data-dir" => {
+                let value = iter.next().map(|(_, v)| v);
+                set_data(&mut data, value).map_err(|e| refuse(None, e))?;
+            }
+            Some((_, token)) if token == "--timeout" => {
+                let value = iter.next().map(|(_, v)| v);
+                set_timeout(&mut timeout, value).map_err(|e| refuse(None, e))?;
+            }
+            // Before the command, any other option needs --data-dir first.
+            Some((_, token)) if token.starts_with("--") && data.is_none() => {
+                return Err(refuse(None, usage(Code::MissingDataDir, supply)));
+            }
+            Some((_, token)) => break Some(token),
+            None => break None,
+        }
+    };
+    let Some(command) = command else {
+        let error = match data {
+            None => usage(Code::MissingDataDir, supply),
+            Some(_) => usage(Code::MissingCommand, "Missing command"),
+        };
+        return Err(refuse(None, error));
+    };
+    let rest: Vec<(usize, String)> = iter.collect();
     let Some(spec) = spec::spec(&command) else {
+        // An unknown command without any --data-dir is still the missing data dir.
+        let named = rest.iter().any(|(_, t)| t == "--data-dir" || t == "--help");
+        if data.is_none() && !named {
+            return Err(refuse(None, usage(Code::MissingDataDir, supply)));
+        }
         let mut error = usage(Code::UnknownCommand, "Unknown command; run --help");
         if let Some(command) = contract::echo(&command) {
             error = error.with("command", command);
@@ -196,20 +230,51 @@ fn parse(
     };
     let refuse = |error: CliError| refuse(Some(spec.name), error);
     let mut options: BTreeMap<String, String> = BTreeMap::new();
+    let mut help = false;
+    let mut iter = rest.into_iter();
     while let Some((index, token)) = iter.next() {
         let Some(name) = token.strip_prefix("--") else {
             let error = usage(Code::MalformedOption, "Options need --name VALUE");
             return Err(refuse(error.with("position", index + 1)));
         };
-        let Some((_, value)) = iter.next() else {
-            let error = usage(Code::MissingValue, "Missing option value");
-            return Err(refuse(error.with_option(name)));
-        };
-        if options.insert(name.into(), value).is_some() {
-            let error = usage(Code::RepeatedOption, "Repeated option");
-            return Err(refuse(error.with_option(name)));
+        // `--help` in an option-name position takes no value.
+        if name == "help" {
+            help = true;
+            continue;
+        }
+        let value = iter.next().map(|(_, value)| value);
+        match name {
+            "data-dir" => set_data(&mut data, value).map_err(refuse)?,
+            "timeout" => set_timeout(&mut timeout, value).map_err(refuse)?,
+            _ => {
+                let Some(value) = value else {
+                    let error = usage(Code::MissingValue, "Missing option value");
+                    return Err(refuse(error.with_option(name)));
+                };
+                if options.insert(name.into(), value).is_some() {
+                    let error = usage(Code::RepeatedOption, "Repeated option");
+                    return Err(refuse(error.with_option(name)));
+                }
+            }
         }
     }
+    if help {
+        if machine {
+            contract::emit_line(&help::json(spec).to_string());
+        } else {
+            contract::emit_line(&help::text(spec));
+        }
+        return Ok(None);
+    }
+    let Some(data) = data else {
+        // As before round 2: no --data-dir at all reports no command.
+        return Err(Refused {
+            machine,
+            command: None,
+            key: None,
+            error: usage(Code::MissingDataDir, supply),
+        });
+    };
     if let Some(unknown) = options
         .keys()
         .find(|key| !spec.options.contains(&key.as_str()))

@@ -27,7 +27,9 @@ generate-plan | brn --json --data-dir /absolute/fresh/threads note-create --titl
 brn --json --help    # machine description: commands, options, required options, outcomes, retry classes, error codes
 ```
 
-`--json` is recognised only as the first argument; `--data-dir` must come next. Without `--json` the CLI behaves as before (see Compatibility). `brn --json --help` prints one JSON line, exits 0 and opens nothing. It is generated from the same command table the parser uses.
+`--json` is recognised only as the first argument. The global options `--data-dir` and `--timeout` may appear before or after the command, in any option-name position; a value is never read as an option (`--title --data-dir` is a title). Without `--json` the CLI behaves as before (see Compatibility). `brn --json --help` prints one JSON line, exits 0 and opens nothing. It is generated from the same command table the parser uses.
+
+`brn COMMAND --help` prints that command's help (summary, usage, value grammar, retry class, owner decision, outcomes, an example and notes); `brn --json COMMAND --help` prints `{"contract":2,"command":ENTRY}`, where ENTRY is the command's entry in `brn --json --help`. Neither needs `--data-dir` or opens anything; after an unknown command, `--help` is `unknown_command`.
 
 ### Envelope
 
@@ -72,6 +74,7 @@ Test harnesses on synthetic data act as the owner. The marks are documentation: 
 | `true` | `upgrade`, `model-install` | Changes a workspace schema; downloads the pinned model. |
 | options | `ask` with `--edit-note` or `--record-decision` | Grants that run authority to edit the named note, or saves a reply as a protected decision. |
 | options | `intake` with `--project` | Adds the document to the project's membership. |
+| options | `intake --intent chat --thread <PROJECT_ID>` | `--thread` naming a project attaches the document to that project (`owner_decision_when` in the description). Behavior is unchanged; prefer `--intent project --project ID`. |
 | `false` | every other command | Reads, your own edit sessions, ordinary notes and chats, `queue`, knowledge check, export, backup, restore into a fresh directory, init, intake without `--project`. |
 
 Attach a document to a project only with `--intent project --project ID`, which is an owner decision; `--thread` must name a chat. Edit a protected note (`read` shows it) only on the owner's explicit instruction: Save records an owner change.
@@ -312,6 +315,8 @@ Without `--json`, stdout bytes, stderr text and exit statuses (0 or 1) stay as b
 3. `--key` on the newly keyed commands and `--NAME-file` are accepted; refusals of the new grammar have new texts, for example `Choose either --text or --text-file`, `--key is not accepted with --intent useful`, `--NAME-file takes an absolute path or -`.
 4. `--key` must match `^[A-Za-z0-9._:-]{1,128}$`, also on project commands (`--key "trip 2026"` is now refused).
 5. `--help` prints the same text followed by a short "Agents and scripts" block.
+6. Relative paths are refused before the workspace opens for `backup --destination`, `export --destination`, `restore --source`, `upgrade --backup-directory` and `model-install --destination` (`invalid_value`, "--NAME must be an absolute path"). Help always said ABSOLUTE, and every in-repo caller passes absolute paths.
+7. `COMMAND --help` prints per-command help, and `--data-dir`/`--timeout` are accepted after the command. `brn`, `brn --unknown` and `brn notes` still exit 1 with "Supply --data-dir ABSOLUTE_DIRECTORY; run --help".
 9. New commands (`revisions`, `revision`, `runs`, `operation`), options (page options, `--timeout`, `--key` on `topics-create` and `knowledge-check --seed-chat yes`) and description keys are accepted; flag-less output of existing commands is unchanged.
 10. The "Agents and scripts" block of `--help` covers the new surface; the `HELP` text before it is byte-identical.
 11. A no-op `archive`, `resolve`, `unarchive`, `chat-move`, `project-link` or `project-unlink` prints `{"outcome":"Unchanged","record":ID,"version":V}` (exit 0) instead of a new receipt, and records nothing (owner decision B4). Checked in-repo callers make only real changes: `crates/brn/tests/agent_contract.rs` (keyed archive), `docs/work/active/chats-and-projects/cli-witness.py` (archive, unarchive) and `docs/work/active/projects/cli-witness.py` (all real changes). The desktop keeps the receipt path for now.
@@ -328,6 +333,8 @@ Every in-repo consumer moved to contract 2 in the same change; there is no contr
 | `page` | absent | always present: null, or `{limit, shown, cursor, total}` |
 | `stop` | absent | always present: null, `sigint`, `sigterm` or `deadline` |
 | `terminated` | SIGTERM killed the process | machine mode: status `terminated`, exit 143, code `terminated` |
+| Discovery | `--data-dir` first; only `brn --json --help` | `brn [--json] COMMAND --help`; global options anywhere; description keys `summary`, `example`, `note`, `values`, `owner_decision_when`, `global_options`, `command_help` |
+| Paths | relative `backup`/`export`/`restore`/`upgrade`/`model-install` paths reached the service | `invalid_value` before opening |
 | `--timeout` | none | global `--timeout SECONDS`; `timeout` gains `{deadline_seconds, hard}` |
 | `busy` | lock contention was `storage_error` (internal, 1) | `busy` (failed, 7) |
 | `edit_session_open` | `details` `{note, session, base_version}` | `{note, base_version}`: the open session's ID is never named (owner decision B3 part 1) |

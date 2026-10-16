@@ -812,7 +812,7 @@ Command: `git -C /Users/evokessler/repos/brn-rust -c core.fsmonitor=false log --
       Files: `crates/brn/src/{main.rs,spec.rs,contract.rs}`, `crates/brn/README.md`, `crates/brn/tests/{agent_discovery.rs,agent_contract.rs}`
       Verify: `cargo test -p brn --locked --offline` passes; `python3 docs/work/active/projects/cli-witness.py target/debug/brn` and the CI fixture step (R2-15) pass; the baseline run fails on the non-guard assertions.
 
-- [ ] R2-12. **A5: per-command help, global options anywhere, absolute paths, owner-decision mark** (design A5; appendix §A5).
+- [x] R2-12. **A5: per-command help, global options anywhere, absolute paths, owner-decision mark** (design A5; appendix §A5).
       **Per-command help.** `brn [--json] [--data-dir D] COMMAND [...] --help`, with `--help` in any option-name position after a known command, prints help, exits 0 and opens nothing. No `--data-dir` is needed. After an unknown command it gives `unknown_command`.
       - Text help is generated from `spec.rs`: summary, usage, required options with their `-file` forms, values (from `VALUES`), retry (default/keyed/variants), owner decision and `owner_decision_when`, outcomes, example, and a `Notes:` paragraph from a new `Spec.note: Option<&'static str>`.
       - `intake` note = the A3 replay sentence (C2). `save` note = the A12 recipe (C2/C7).

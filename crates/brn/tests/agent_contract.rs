@@ -1189,12 +1189,13 @@ fn not_found_destination_exists_and_unsafe_directory_are_rejected() {
         assert_error(&again, "rejected", "destination_exists");
         assert_eq!(again["error"]["details"], json!({"option":"destination"}));
     }
+    // Round 2: a relative destination is refused before opening.
     let relative = call(
         &root,
         &data,
         &["export", "--destination", "relative-export"],
     );
-    assert_error(&relative, "rejected", "invalid_request");
+    assert_error(&relative, "usage", "invalid_value");
     let occupied = root.join("occupied");
     std::fs::create_dir(&occupied).unwrap();
     std::fs::write(occupied.join("file"), b"synthetic").unwrap();
