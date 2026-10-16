@@ -998,8 +998,14 @@ dependencies = [
 name = "brn-writing-ui"
 version = "0.1.0"
 dependencies = [
+ "brn-ai",
  "brn-threads-app",
+ "brn-threads-intake",
  "gpui-kit",
+ "rig",
+ "serde_json",
+ "tempfile",
+ "tokio",
 ]
 
 [[package]]
