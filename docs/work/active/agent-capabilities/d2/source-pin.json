@@ -1,0 +1,20 @@
+{
+  "source_pin": "d252a505db0b2d96d3584746f92cc7401ece472a",
+  "tree": "6db3b281c197ee49f47f1816a6de73284749e77a",
+  "crates_tree": "7549da38caeeb0095617b2c9f07fe12830b1f82f",
+  "base": "8ae8a72938c071be0af4f2b8c651a3603a8a0025",
+  "branch": "work/d2-20261017",
+  "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+  "status_at_pin": "",
+  "full_base_to_pin_diff": "/private/tmp/brn-d2-20261017-artifacts/d2-base-to-source-pin.patch",
+  "full_diff_sha256": "741597f43f92ac5ec93e7416ba3fec3452c8ca219691e8004eb69b9e424e114d",
+  "precommit_receipt": "/private/tmp/brn-d2-20261017-artifacts/pin-precommit.json",
+  "precommit_receipt_sha256": "7daf0973a630a2728007ea5f5f38f66869e6a22088f66e7ae03b382d1c5e667d",
+  "precommit_staged_diff_equals_committed_diff": true,
+  "self_checks_sha256": "4d38620f9f3d8928257fb68e31d5137e2674b7915ddf6b93e6890c00e778bb79",
+  "material_files_verified": 290,
+  "material_unchanged_from_selfchecked_source": true,
+  "review_status": "pending NEW independent principal Opus1",
+  "D2_mutation": "not granted/not started",
+  "D1B_budget": "closed; no transfer"
+}
