@@ -1,0 +1,44 @@
+{
+  "artifact_observations": 209,
+  "branch": "work/b3-20261017",
+  "checkout": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+  "command_source_log_associations": 34,
+  "compiled_source_test_pin": "ba7161cca58f1a5ac65acf3639b5622a9557904a",
+  "crates_tree": "5c774f49fb0c77ececa3ad735bee629d45f83e1d",
+  "eight_path_fingerprint": "7e2c01386a2604e2fe14069060a00a7705b974d064368faad27c3997c76eb65b",
+  "full_material_fingerprint": "cebb7508365b8a52973cfec14b76a78f25c1464139eaaa668db9746d723a1518",
+  "git_blob_matches": 328,
+  "heavy": "already released; only static/docs/Git work since empty release receipt",
+  "material_source_changes": [
+    "crates/brn-desktop/src/threads_ui.rs",
+    "crates/brn-desktop/src/threads_writing_tests.rs",
+    "crates/brn-threads-app/src/intake.rs",
+    "crates/brn-threads-app/tests/import_coverage.rs",
+    "crates/brn-writing-ui/src/native.rs",
+    "crates/brn-writing-ui/src/references.rs",
+    "crates/brn-writing-ui/src/setup.rs",
+    "crates/brn-writing-ui/src/writing.rs"
+  ],
+  "mutation_seconds_used": 0,
+  "preserved_refs": {
+    "work/b1a-cw2-20261016": "5e98b0157a70076f2fe69346f1496cccc869bc78",
+    "work/b1b-20261016": "f2b060bb17080d0241143afb6fadd6ec22350f34"
+  },
+  "production_pin": "29c9cf68a7841a3a6329d0c4de7a5be7d7b347b5",
+  "production_unchanged_since_first_pin": true,
+  "recorded_utc": "2026-10-16T22:29:01.018720+00:00",
+  "review": "pending principal-owned fresh Opus; no acceptance",
+  "review_base": "f2b060bb17080d0241143afb6fadd6ec22350f34",
+  "source_ownership": "retained frozen per ownership.md pending explicit handoff",
+  "source_path_hashes": {
+    "crates/brn-desktop/src/threads_ui.rs": "e647f3158388a3506122792c267f948baa063c6b0e23ad8dc362efa984b07400",
+    "crates/brn-desktop/src/threads_writing_tests.rs": "c54bae9af2769cd3b5adb9db921f83476f92904094d1007f5751bd63121b0cbd",
+    "crates/brn-threads-app/src/intake.rs": "b514c7eac693eadc2b2bb4b94eb75fe18d79ccf1b8f72defaca6dd7c8ca2094b",
+    "crates/brn-threads-app/tests/import_coverage.rs": "8fe7755e3e74c1e4a527b355adad53d6eb9cdd122dd0f16600e63d1b410a4345",
+    "crates/brn-writing-ui/src/native.rs": "662d5903ddb76ad0cd00f475585f0ea602a3c3fb5efc0bb6711ad4f9c98cf421",
+    "crates/brn-writing-ui/src/references.rs": "1a223086ccde1e964b73f8a7e2ff775e867315f82ab2ee6ecef73555c945c5db",
+    "crates/brn-writing-ui/src/setup.rs": "350cdadaf4cc453fa661968b3655653da981248106cb3ed03bfac100c0817283",
+    "crates/brn-writing-ui/src/writing.rs": "8a1d87ed408406907bf4fee6b2739a39acf5b4ef47ac432128c2ae8b60965b9d"
+  },
+  "source_pin_tree": "3754ad17ad0600f471b26039d1cb03496022858a"
+}
