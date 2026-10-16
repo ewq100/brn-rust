@@ -49,6 +49,24 @@ pub fn replace_terminal_notice(
     });
 }
 
+/// Removes the chat's host terminal notices: Interrupted or Failed Blockers
+/// (legacy texts included) naming a Run for which `chat_run` holds. Starting
+/// a chat's next Run does this in the change that starts it (owner decision
+/// 1, 16 October 2026). Questions, reviews, conflicts and other Blockers
+/// stay, even with a notice's text. Returns whether one went.
+pub fn clear_terminal_notices(
+    attention: &mut Vec<Attention>,
+    chat_run: impl Fn(&str) -> bool,
+) -> bool {
+    let before = attention.len();
+    attention.retain(|item| {
+        item.kind != AttentionKind::Blocker
+            || !is_terminal_notice(&item.reason)
+            || !item.record.as_deref().is_some_and(&chat_run)
+    });
+    attention.len() != before
+}
+
 /// Adds the standard Review item for each candidate operation, in order,
 /// unless an attention item already names that operation.
 pub fn add_review_attention(attention: &mut Vec<Attention>, candidates: &[String]) {
@@ -354,6 +372,51 @@ mod tests {
         add_review_attention(&mut items, &["op-1".into(), "op-2".into(), "op-2".into()]);
         assert_eq!(items.len(), 2);
         assert_eq!(items[1], review("op-2"));
+    }
+
+    #[test]
+    fn clearing_terminal_notices_keeps_every_other_item() {
+        let question = Attention {
+            kind: AttentionKind::Question,
+            reason: "Which berth?".into(),
+            record: None,
+        };
+        let other = Attention {
+            kind: AttentionKind::Blocker,
+            reason: "Reconnect the shared drive".into(),
+            record: Some("run-a".into()),
+        };
+        let failed = Attention {
+            kind: AttentionKind::Blocker,
+            reason: format!("{FAILED_PREFIX}The run didn't finish."),
+            record: Some("run-b".into()),
+        };
+        let legacy = Attention {
+            kind: AttentionKind::Blocker,
+            reason: LEGACY_NOTICES[0].into(),
+            record: Some("run-c".into()),
+        };
+        // The notice's text, but not about a Run of this chat.
+        let independent = [blocker("note"), {
+            let mut unnamed = blocker("run-a");
+            unnamed.record = None;
+            unnamed
+        }];
+        let mut items = vec![
+            review("op"),
+            blocker("run-a"),
+            question.clone(),
+            failed,
+            other.clone(),
+            legacy,
+        ];
+        items.extend(independent.clone());
+        let chat_run = |id: &str| id.starts_with("run-");
+        assert!(clear_terminal_notices(&mut items, chat_run));
+        let mut kept = vec![review("op"), question, other];
+        kept.extend(independent);
+        assert_eq!(items, kept);
+        assert!(!clear_terminal_notices(&mut items, chat_run));
     }
 
     #[test]

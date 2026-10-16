@@ -835,6 +835,37 @@ fn resume_after_a_killed_queued_intake_shows_one_notice(cx: &mut TestAppContext)
     });
 }
 
+/// Owner decision 2 (16 October 2026), through the desktop's Archive pill:
+/// archiving a chat whose Run was killed adds the Review item for its
+/// proposal but no notice, and removes the free lease file.
+#[gpui_kit::test]
+fn archiving_a_killed_chat_adds_its_review_but_no_notice(cx: &mut TestAppContext) {
+    let f = fixture(cx);
+    let (chat, run, operation) = update(cx, &f, |ui, _, cx| {
+        ui.choose_delegation(DelegationChoice::MaintainOrdinaryNotes, cx);
+        let killed = killed_intake_in(ui, &f.data);
+        assert!(row(ui, &killed.0).reasons.is_empty());
+        killed
+    });
+    update(cx, &f, |ui, _, cx| ui.resolve_thread(&chat, cx));
+    update(cx, &f, |ui, _, _| {
+        let saved = ui.workspace.store.record(&chat).unwrap().unwrap();
+        assert!(saved.archived);
+        assert!(
+            matches!(&ui.workspace.store.record(&run).unwrap().unwrap().data,
+                RecordData::Run(r) if r.state == RunState::Interrupted && r.fence == 2)
+        );
+        // Before (round 5 C): the Review and "Run interrupted. Continue
+        // starts fresh.".
+        assert_eq!(
+            row(ui, &chat).reasons,
+            vec![brn_threads_app::run_attention::REVIEW_ATTENTION.to_owned()]
+        );
+        assert!(has_candidate(ui, &operation));
+        assert!(!lease_file(ui, &run).exists());
+    });
+}
+
 /// The CLI half runs first on shared synthetic data from the same build:
 /// `brn intake --intent useful --source SOURCE` with offline credentials.
 #[gpui_kit::test]

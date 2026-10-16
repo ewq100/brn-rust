@@ -18,13 +18,10 @@ impl Workspace {
         let op = self
             .store
             .allocate_bound_operation(&format!("chat-control:{key}"), &binding)?;
-        // Only a stop or an archive ends Runs.
-        let orphans = if matches!(
-            command,
-            ChatCommand::Pause { run: Some(_), .. }
-                | ChatCommand::Archive { .. }
-                | ChatCommand::ArchiveProgress { .. }
-        ) {
+        // Only a stop gives an orphan the notice. Archive ends Runs too, but
+        // as a deliberate owner stop it adds none (owner decision 2); its
+        // ended Runs' free lease files are still removed below.
+        let orphans = if matches!(command, ChatCommand::Pause { run: Some(_), .. }) {
             self.lease_free_working_runs()?
         } else {
             BTreeSet::new()

@@ -116,10 +116,11 @@ impl Store {
         self.chat_command_with_orphans(op, command, owner, &BTreeSet::new())
     }
 
-    /// As [`Store::chat_command`]. A Working Run this command stops whose ID
-    /// is in `orphans` (the host found no process holding its lease) also
-    /// gets the Interrupted notice, as orphan recovery gives it. `orphans` is
-    /// not part of the binding: a replay returns the recorded receipt.
+    /// As [`Store::chat_command`]. A Working Run a Pause stops whose ID is in
+    /// `orphans` (the host found no process holding its lease) also gets the
+    /// Interrupted notice, as orphan recovery gives it. Archive never adds a
+    /// notice. `orphans` is not part of the binding: a replay returns the
+    /// recorded receipt.
     pub fn chat_command_with_orphans(
         &mut self,
         op: &OperationId,
@@ -175,7 +176,7 @@ impl Store {
         let mut dispatched = None;
         // Working Runs this command stops. Their chats get Review items for
         // left candidates; the owner sees a live Run stop, so only an orphan
-        // gets the notice.
+        // a Pause stops gets the notice.
         let mut ended = vec![];
         match command {
             ChatCommand::Bootstrap => {}
@@ -502,10 +503,14 @@ impl Store {
                 }
             }
         }
+        // Archive is a deliberate owner stop: it keeps existing notices and
+        // adds Review items, but never a new notice, even for an orphan
+        // (owner decision 2, 16 October 2026).
+        let notice = matches!(command, ChatCommand::Pause { .. });
         crate::run_attention::ended_run_attention_with(
             &mut writes,
             &ended,
-            |id| orphans.contains(id),
+            |id| notice && orphans.contains(id),
             |id| record_on(&tx, id),
             |operations| crate::run_attention::active_candidates_on(&tx, operations),
         )?;

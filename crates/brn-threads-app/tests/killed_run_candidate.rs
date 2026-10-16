@@ -547,7 +547,7 @@ async fn resume_or_dispatch_after_a_kill_adds_the_review_and_removes_the_free_le
 }
 
 #[tokio::test(flavor = "multi_thread")]
-async fn a_later_run_replaces_the_notice_of_a_run_the_settings_change_cancelled() {
+async fn continue_after_the_settings_stop_clears_its_notice_when_the_run_starts() {
     let w = world();
     let (id, operation) = killed_intake(&w.data, &w.intake).await;
     let mut workspace = Workspace::open(&w.data).unwrap();
@@ -559,6 +559,8 @@ async fn a_later_run_replaces_the_notice_of_a_run_the_settings_change_cancelled(
         vec![review(&operation), interrupted(&id)]
     );
     let prepared = prepare_run(request(&w.data, &w.intake, "Continue", vec![])).unwrap();
+    // Owner decision 1: gone as the Run starts, not only at its result.
+    assert_eq!(attention(&workspace, &w.intake), vec![review(&operation)]);
     let result = run_prepared_scripted(
         prepared,
         MockCompletionModel::from_stream_turns([finish("The crane note waits for your review.")]),
@@ -583,7 +585,7 @@ fn stop_path(path: &str, workspace: &mut Workspace, w: &World, id: &str) -> Rece
 }
 
 #[tokio::test(flavor = "multi_thread")]
-async fn stop_archive_and_steer_of_a_killed_run_add_the_notice_and_remove_the_lease() {
+async fn stop_archive_and_steer_of_a_killed_run_review_its_candidate_and_remove_the_lease() {
     for path in ["stop", "archive", "steer"] {
         let w = world();
         let (id, operation) = killed_intake(&w.data, &w.intake).await;
@@ -595,10 +597,15 @@ async fn stop_archive_and_steer_of_a_killed_run_add_the_notice_and_remove_the_le
             (RunState::Interrupted, 2),
             "{path}"
         );
-        // No process held this Run, so it ended like an orphan. Before: only
-        // the Review, and the lease file left. The archived chat's own write
-        // carries both.
-        let expected = vec![review(&operation), interrupted(&id)];
+        // No process held this Run: Review item and lease removal, as orphan
+        // recovery gives them. Archive is a deliberate owner stop, so it adds
+        // no notice (owner decision 2; round 5 C added one). Stop and Steer
+        // add the notice. The archived chat's own write carries the Review.
+        let expected = if path == "archive" {
+            vec![review(&operation)]
+        } else {
+            vec![review(&operation), interrupted(&id)]
+        };
         assert_eq!(attention(&workspace, &w.intake), expected, "{path}");
         assert!(!lease_file(&workspace, &id).exists(), "{path}");
         assert_eq!(
@@ -634,6 +641,60 @@ fn stop_archive_and_steer_of_a_live_run_add_no_notice() {
         assert!(brn_ai::run_lease::run_is_live(&derived, &id), "{path}");
         assert!(lease_file(&workspace, &id).exists(), "{path}");
         drop(live);
+    }
+}
+
+/// Owner decision 2 (16 October 2026): archiving preserves outstanding
+/// attention and adds no new notice, even for a lease-free orphan. The
+/// Review item for the Run's unapplied proposal is still added, and its free
+/// lease file is still removed.
+#[tokio::test(flavor = "multi_thread")]
+async fn archive_keeps_existing_attention_and_adds_no_notice_for_a_killed_run() {
+    // `recovered`: the owner's Resume already recorded the orphan's notice.
+    for recovered in [false, true] {
+        for kind in ["archive", "archive-progress"] {
+            let w = world();
+            let (id, operation) = killed_intake(&w.data, &w.intake).await;
+            let mut workspace = Workspace::open(&w.data).unwrap();
+            if recovered {
+                workspace.recover_queue("startup").unwrap();
+                workspace.resume_queue("resume-1").unwrap();
+            }
+            let archive = |workspace: &mut Workspace| match kind {
+                "archive" => workspace.archive_chat("archive-1", &w.intake).unwrap(),
+                _ => workspace
+                    .archive_chat_progress("archive-1", &w.intake, &id, "Partial crane notes")
+                    .unwrap(),
+            };
+            let receipt = archive(&mut workspace);
+            let stopped = run(&workspace, &id);
+            // Interrupted, as the owner's Stop records it (review-D).
+            assert_eq!(
+                (stopped.state, stopped.fence),
+                (RunState::Interrupted, 2),
+                "{kind} {recovered}"
+            );
+            // Before (round 5 C): `[Review(op), Blocker(id)]` for the orphan.
+            // An existing notice stays; Archive adds none.
+            let expected = if recovered {
+                vec![review(&operation), interrupted(&id)]
+            } else {
+                vec![review(&operation)]
+            };
+            assert_eq!(
+                attention(&workspace, &w.intake),
+                expected,
+                "{kind} {recovered}"
+            );
+            assert!(workspace.store.record(&w.intake).unwrap().unwrap().archived);
+            assert!(!lease_file(&workspace, &id).exists(), "{kind} {recovered}");
+            assert_reviewable(&workspace, &operation);
+            // A replay returns the recorded receipt and adds nothing.
+            let receipts = workspace.history().unwrap().len();
+            assert_eq!(archive(&mut workspace), receipt);
+            assert_eq!(workspace.history().unwrap().len(), receipts);
+            assert_eq!(attention(&workspace, &w.intake), expected);
+        }
     }
 }
 
@@ -733,22 +794,57 @@ async fn project_changes_and_project_imports_leave_the_notice_and_the_review() {
     }
 }
 
+/// The applied "Start a fresh invocation" change that saved Run `run`.
+fn start_receipt(workspace: &Workspace, run: &str) -> Receipt {
+    workspace
+        .history()
+        .unwrap()
+        .into_iter()
+        .find(|r| {
+            r.reason == "Start a fresh invocation"
+                && r.writes
+                    .iter()
+                    .any(|w| w.after.id == run && w.before.is_none())
+        })
+        .expect("the Run's start")
+}
+
+/// Replays the change that started `run`: the recorded receipt, nothing new.
+fn assert_start_replays(workspace: &mut Workspace, chat: &str, run: &str) {
+    let receipt = start_receipt(workspace, run);
+    let (receipts, before) = (
+        workspace.history().unwrap().len(),
+        attention(workspace, chat),
+    );
+    assert_eq!(
+        workspace
+            .store
+            .apply(
+                &receipt.operation,
+                &HostAuthority::owner("owner started or continued a Thread")
+            )
+            .unwrap(),
+        ApplyOutcome::Applied(receipt)
+    );
+    assert_eq!(workspace.history().unwrap().len(), receipts);
+    assert_eq!(attention(workspace, chat), before);
+}
+
 #[tokio::test(flavor = "multi_thread")]
-async fn continue_in_the_killed_chat_adds_the_notice_and_removes_the_lease() {
+async fn continue_in_the_killed_chat_starts_without_a_notice_and_removes_the_lease() {
     let w = world();
     let (id, operation) = killed_intake(&w.data, &w.intake).await;
     let prepared = prepare_run(request(&w.data, &w.intake, "Continue", vec![])).unwrap();
     let continued = prepared.run_id().to_owned();
-    let workspace = Workspace::open(&w.data).unwrap();
+    let mut workspace = Workspace::open(&w.data).unwrap();
     let fenced = run(&workspace, &id);
     assert_eq!((fenced.state, fenced.fence), (RunState::Interrupted, 2));
-    // No process held the fenced Run, so it ended like an orphan. Before:
-    // only the Review, and the lease file left.
-    assert_eq!(
-        attention(&workspace, &w.intake),
-        vec![review(&operation), interrupted(&id)]
-    );
+    // Owner decision 1: starting the next Run clears the chat's notice, so
+    // the fenced orphan gets none. Before (round 5 C): `[Review(op),
+    // Blocker(id)]` until the new Run's result. The Review stays.
+    assert_eq!(attention(&workspace, &w.intake), vec![review(&operation)]);
     assert!(!lease_file(&workspace, &id).exists());
+    assert_start_replays(&mut workspace, &w.intake, &continued);
     // The new Run holds its own lease.
     let derived = workspace.store.derived_directory().unwrap();
     assert!(brn_ai::run_lease::run_is_live(&derived, &continued));
@@ -756,9 +852,98 @@ async fn continue_in_the_killed_chat_adds_the_notice_and_removes_the_lease() {
         .await
         .unwrap();
     assert!(matches!(result.answer.terminal, AiTerminal::Failed(_)));
-    // Its result replaces the notice: one per chat.
+    // Its failure records exactly one new notice.
     assert_failed_notice(&workspace, &w.intake, &continued, &operation);
     assert_reviewable(&workspace, &operation);
+}
+
+/// Owner decision 1 (16 October 2026): the notice orphan recovery recorded
+/// clears when the chat's next Run starts. Reviews and Questions stay, and a
+/// failing next Run records exactly one new notice.
+#[tokio::test(flavor = "multi_thread")]
+async fn continue_after_a_crash_clears_the_notice_when_the_next_run_starts() {
+    for outcome in ["failed", "completed"] {
+        let w = world();
+        let (id, operation) = killed_intake(&w.data, &w.intake).await;
+        let mut workspace = Workspace::open(&w.data).unwrap();
+        // Restart, then the owner's Resume recovers the orphan.
+        workspace.recover_queue("startup").unwrap();
+        workspace.resume_queue("resume-1").unwrap();
+        assert_eq!(
+            attention(&workspace, &w.intake),
+            vec![review(&operation), interrupted(&id)],
+            "{outcome}"
+        );
+        // An owner Question in the same chat.
+        let question = Attention {
+            kind: AttentionKind::Question,
+            reason: QUESTION.into(),
+            record: None,
+        };
+        let chat = workspace.store.record(&w.intake).unwrap().unwrap();
+        let RecordData::Thread(mut thread) = chat.data.clone() else {
+            panic!("Thread")
+        };
+        thread.attention.push(question.clone());
+        assert!(matches!(
+            workspace
+                .owner_change(
+                    "ask-owner",
+                    &ChangeRequest {
+                        reason: "Ask the owner".into(),
+                        writes: vec![Put {
+                            id: chat.id.clone(),
+                            expected_version: Some(chat.version),
+                            archived: false,
+                            data: RecordData::Thread(thread),
+                        }],
+                        inputs: vec![],
+                    },
+                )
+                .unwrap(),
+            ApplyOutcome::Applied(_)
+        ));
+        drop(workspace);
+        // Continue in the chat.
+        let prepared = prepare_run(request(&w.data, &w.intake, "Continue", vec![])).unwrap();
+        let continued = prepared.run_id().to_owned();
+        let mut workspace = Workspace::open(&w.data).unwrap();
+        // Before: the notice stayed until the new Run's result.
+        let kept = vec![review(&operation), question.clone()];
+        assert_eq!(attention(&workspace, &w.intake), kept, "{outcome}");
+        assert!(
+            workspace
+                .needs_you()
+                .unwrap()
+                .iter()
+                .any(|chat| chat.id == w.intake),
+            "the Review and the Question still need the owner"
+        );
+        assert_start_replays(&mut workspace, &w.intake, &continued);
+        let model = if outcome == "failed" {
+            scripted_failure()
+        } else {
+            MockCompletionModel::from_stream_turns([finish("The crane note waits for review.")])
+        };
+        let result = run_prepared_scripted(prepared, model).await.unwrap();
+        let items = attention(&workspace, &w.intake);
+        if outcome == "failed" {
+            assert!(matches!(result.answer.terminal, AiTerminal::Failed(_)));
+            // Exactly one new notice, for the new Run.
+            let notices: Vec<_> = items
+                .iter()
+                .filter(|a| a.kind == AttentionKind::Blocker)
+                .collect();
+            assert_eq!(notices.len(), 1, "{items:?}");
+            assert_eq!(notices[0].record.as_deref(), Some(continued.as_str()));
+            assert!(notices[0].reason.starts_with(FAILED_PREFIX), "{items:?}");
+            assert_eq!(items[..2], kept[..]);
+        } else {
+            assert!(matches!(result.answer.terminal, AiTerminal::Completed));
+            assert_eq!(items, kept);
+        }
+        assert_reviewable(&workspace, &operation);
+    }
 }
 
 #[test]

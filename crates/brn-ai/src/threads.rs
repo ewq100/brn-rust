@@ -2182,17 +2182,53 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
             _ => {}
         }
     }
-    // A candidate the stopped Run left stays reviewable in this chat. The new
-    // Run follows at once, so a live stopped Run gets no notice; an orphan
-    // gets the Interrupted notice, which the new Run's result then replaces.
-    brn_threads_core::run_attention::ended_run_attention_with(
+    // A candidate the stopped Run left stays reviewable in this chat.
+    brn_threads_core::run_attention::ended_run_attention(
         &mut writes,
         &ended,
-        |id| orphans.contains(id),
+        false,
         |id| Ok(records.iter().find(|r| r.id == id).cloned()),
         |operations| store.active_candidates(operations),
     )
     .map_err(storage)?;
+    // Starting this Run clears the chat's Interrupted or Failed notice in the
+    // same change (owner decision 1, 16 October 2026), so a fenced orphan
+    // gets none either. If this Run fails or is interrupted, `finish` records
+    // a new one. Reviews, Questions and other attention stay.
+    let chat_run = |id: &str| {
+        records.iter().any(|r| {
+            r.id == id && matches!(&r.data, RecordData::Run(run) if run.thread == request.thread)
+        })
+    };
+    match writes
+        .iter_mut()
+        .find(|w| w.id == request.thread && matches!(w.data, RecordData::Thread(_)))
+    {
+        Some(Put {
+            data: RecordData::Thread(thread),
+            ..
+        }) => {
+            clear_terminal_notices(&mut thread.attention, chat_run);
+        }
+        _ => {
+            if let Some(Record {
+                version,
+                data: RecordData::Thread(thread),
+                ..
+            }) = records.iter().find(|r| r.id == request.thread)
+            {
+                let mut thread = thread.clone();
+                if clear_terminal_notices(&mut thread.attention, chat_run) {
+                    writes.push(Put {
+                        id: request.thread.clone(),
+                        expected_version: Some(*version),
+                        archived: false,
+                        data: RecordData::Thread(thread),
+                    });
+                }
+            }
+        }
+    }
     let private_context = store
         .chat_has_private_context(&request.thread)
         .map_err(storage)?;
@@ -2520,7 +2556,9 @@ fn unique_host_key() -> String {
 }
 // The terminal-notice rules live in the core, so checked changes that end a
 // Run outside `finish` leave the same notice in the same change.
-use brn_threads_core::run_attention::{FAILED_PREFIX, REVIEW_ATTENTION, add_review_attention};
+use brn_threads_core::run_attention::{
+    FAILED_PREFIX, REVIEW_ATTENTION, add_review_attention, clear_terminal_notices,
+};
 pub use brn_threads_core::run_attention::{
     INTERRUPTED_ATTENTION, is_terminal_notice, replace_terminal_notice,
 };
@@ -4489,12 +4527,14 @@ mod tests {
             ));
             request.prompt = "Continue the saved work".into();
             let (fresh, _) = begin(&request).unwrap();
-            // Starting Continue alone must not claim that the blocked work succeeded.
+            // Owner decision 1 (16 October 2026): starting Continue clears only
+            // the host's notice for the earlier Run. Before: it stayed until
+            // the result. Independent items stay, even with a notice's text.
             let RecordData::Thread(started) = store.record(&request.thread).unwrap().unwrap().data
             else {
                 panic!("Thread")
             };
-            assert_eq!(started.attention.len(), retained.len() + 1);
+            assert_eq!(started.attention, retained);
             assert!(
                 finish(
                     &fresh,
