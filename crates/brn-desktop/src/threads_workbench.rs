@@ -250,6 +250,11 @@ impl ThreadsUi {
                     .writing_request(request)
                     .is_ok_and(|snapshot| snapshot.note.id == note)
             });
+        // A kept edit blocks the note (it holds no open edit then): the
+        // banner's Recover edit owns the primary.
+        if open.session.is_none() && self.recovery_blocked() {
+            return Some(WritingRow::Recover);
+        }
         Some(writing_row(
             open.session.is_some(),
             self.edit_is_stale(),
@@ -402,6 +407,8 @@ impl RunOutcome {
 /// filled primary. Rows 5 and 6 come from the recorded run outcome.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(super) enum WritingRow {
+    /// A kept edit blocks the note: Recover edit, in the banner.
+    Recover,
     /// The note changed since the edit began: Save as new note, in the banner.
     DirtyStale,
     /// Save.

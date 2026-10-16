@@ -283,6 +283,143 @@ fn a_needs_you_title_stays_beside_a_long_reason_one_line_each(cx: &mut TestAppCo
         assert_ne!(window.find(format!("thread-{long}")).selected(), Some(true));
     });
 }
+/// U8: choosing delegation or pausing maintenance says "Saved." in the
+/// owner's terms, never the recorded receipt reason.
+#[gpui_kit::test]
+fn delegation_and_maintenance_notices_never_show_a_receipt_reason(cx: &mut TestAppContext) {
+    let f = fixture(cx, 1250., 860., |_| {});
+    click(cx, &f, "home");
+    click(cx, &f, "delegation-review-first");
+    let receipts = |cx: &mut TestAppContext| {
+        cx.read(|cx| {
+            let view = f.view.read(cx);
+            (
+                view.notice.clone(),
+                view.history
+                    .iter()
+                    .map(|r| r.reason.clone())
+                    .collect::<Vec<_>>(),
+            )
+        })
+    };
+    let (notice, reasons) = receipts(cx);
+    assert_eq!(notice, "Saved.");
+    assert!(
+        reasons
+            .iter()
+            .all(|reason| !notice.contains(reason.as_str()))
+    );
+    update(cx, &f, |view, _, cx| {
+        focus_tests::settings(view, SettingsSection::Delegation, cx)
+    });
+    click(cx, &f, "maintenance-setting");
+    let (notice, reasons) = receipts(cx);
+    assert_eq!(notice, "Saved.");
+    assert!(
+        reasons
+            .iter()
+            .all(|reason| !notice.contains(reason.as_str()))
+    );
+}
+
+/// A protected note's row in the 170 pt Notes list shows the Lock whole
+/// rather than "Protect…"; it is announced as Protected.
+#[gpui_kit::test]
+fn a_narrow_notes_list_marks_protected_notes_with_the_lock(cx: &mut TestAppContext) {
+    let mut note = String::new();
+    let f = fixture(cx, 900., 600., |workspace| {
+        let record = workspace
+            .new_note("A protected decision with a long title", "Decided.")
+            .unwrap();
+        let RecordData::Note(mut data) = record.data.clone() else {
+            unreachable!()
+        };
+        data.protected = true;
+        workspace
+            .owner_change(
+                "protect-witness",
+                &ChangeRequest {
+                    reason: "Synthetic protection".into(),
+                    inputs: vec![],
+                    writes: vec![Put {
+                        id: record.id.clone(),
+                        expected_version: Some(record.version),
+                        archived: false,
+                        data: RecordData::Note(data),
+                    }],
+                },
+            )
+            .unwrap();
+        note = record.id;
+    });
+    update(cx, &f, |view, window, cx| {
+        view.apply_layout(Preset::Write, window, cx);
+        view.show_tile(TileKind::Notes, window, cx);
+    });
+    on_window(cx, &f, |window, _| {
+        let row = format!("note-{note}");
+        let frame = window.find(row.clone()).bounds();
+        let lock = window.find(format!("{row}-protected")).bounds();
+        assert!(frame.size.width < px(200.), "the narrow list: {frame:?}");
+        assert!(lock.size.width > px(8.) && lock.right() <= frame.right() + px(0.5));
+        assert!(
+            label(window, &row).ends_with("· Protected"),
+            "{}",
+            label(window, &row)
+        );
+        assert_eq!(label(window, format!("{row}-protected")), "Protected");
+    });
+}
+
+/// U7: a chat that needs you leaves Recent chats, and in each Needs-you
+/// list (the Chats panel and Home) its row keeps the chat title on its first
+/// line with the reason under it; the title-bar menu leads with the title.
+/// The reason is seeded here, not the service's wording.
+#[gpui_kit::test]
+fn needs_you_rows_keep_the_chat_title_above_the_reason_in_every_list(cx: &mut TestAppContext) {
+    let reason = "Run failed: The synthetic provider asked for a new sign-in first.";
+    let mut thread = String::new();
+    let f = fixture(cx, 1250., 860., |workspace| {
+        thread = workspace.new_thread("Venue booking").unwrap().id;
+        needs(workspace, &thread, AttentionKind::Blocker, reason, None);
+    });
+    let two_lines = |window: &mut Window, row: &str| {
+        assert_eq!(
+            label(window, row),
+            format!("Venue booking · {reason}"),
+            "{row}"
+        );
+        let title = window.find(format!("{row}-title")).bounds();
+        let second = window.find(format!("{row}-reason")).bounds();
+        assert!(title.size.width > px(60.), "{row} title: {title:?}");
+        assert!(
+            second.top() >= title.bottom() - px(1.),
+            "{row}: {title:?} {second:?}"
+        );
+    };
+    on_window(cx, &f, |window, _| {
+        assert!(
+            window.try_find(format!("thread-{thread}")).is_none(),
+            "it left Recent chats"
+        );
+        two_lines(window, &format!("attention-{thread}"));
+    });
+    click(cx, &f, "home");
+    on_window(cx, &f, |window, _| {
+        two_lines(window, &format!("home-attention-{thread}"))
+    });
+    click(cx, &f, "needs-badge");
+    on_window(cx, &f, |window, _| {
+        let item = window
+            .within("popup-menu")
+            .find(format!("needs-item-{thread}"));
+        assert!(
+            item.label().unwrap().starts_with("Venue booking · "),
+            "{:?}",
+            item.label()
+        );
+    });
+}
 fn choose_needs(cx: &mut TestAppContext, f: &Fixture, thread: &str) {
     let id = format!("needs-item-{thread}");
     on_window(cx, f, |window, cx| {
@@ -756,6 +893,86 @@ fn home_shows_the_intro_only_on_first_run(cx: &mut TestAppContext) {
             row.label()
         );
         assert_ne!(row.role(), Some(gpui_kit::Role::Button));
+    });
+}
+
+/// The reworked empty states on first run: a title, one sentence naming the
+/// next route, and at most one button.
+#[gpui_kit::test]
+fn first_run_empty_states_name_the_next_step(cx: &mut TestAppContext) {
+    let f = fixture(cx, 1250., 860., |_| {});
+    for (kind, id, text) in [
+        (
+            TileKind::Note,
+            "note-empty",
+            "No note open · Open one from Notes or ⌘K.",
+        ),
+        (
+            TileKind::Notes,
+            "notes-empty",
+            "No notes yet · Create one with ⌘N, or add information with +.",
+        ),
+        (
+            TileKind::Projects,
+            "projects-empty",
+            "No projects yet · Group related chats and documents with shared context.",
+        ),
+        (
+            TileKind::Connections,
+            "connections-empty",
+            "No note open · Open a note to see the notes and sources it links with.",
+        ),
+    ] {
+        update(cx, &f, |view, window, cx| view.show_tile(kind, window, cx));
+        on_window(cx, &f, |window, _| {
+            assert_eq!(label(window, id), text, "{kind:?}");
+        });
+    }
+    // The Note's one button is New note.
+    update(cx, &f, |view, window, cx| {
+        view.show_tile(TileKind::Note, window, cx)
+    });
+    on_window(cx, &f, |window, _| {
+        let empty = window.within("note-empty");
+        assert_eq!(empty.find("new-note").label(), Some("New note"));
+    });
+}
+
+/// In the narrow Write companion at 900×600 the pending delegation card
+/// keeps its text inside: the question on one line and each explanation
+/// wrapping within the card.
+#[gpui_kit::test]
+fn the_delegation_card_keeps_its_text_inside_a_narrow_chat(cx: &mut TestAppContext) {
+    let f = fixture(cx, 900., 600., |_| {});
+    update(cx, &f, |view, window, cx| {
+        view.apply_layout(Preset::Write, window, cx);
+        view.new_thread(window, cx);
+    });
+    on_window(cx, &f, |window, cx| {
+        assert!(f.view.read(cx).chat_narrow);
+        let card = window
+            .within("tile-chat")
+            .find("delegation-pending")
+            .bounds();
+        let question = window.find("delegation-question").bounds();
+        let line = window.find("delegation-status").bounds();
+        assert!(question.right() <= card.right(), "{question:?} in {card:?}");
+        assert_eq!(
+            label(window, "delegation-question"),
+            "How should BRN update your notes?"
+        );
+        // The last word keeps its "?": wider than the mark alone, inside.
+        let end = window.find("delegation-question-end").bounds();
+        assert!(end.size.width > px(24.), "{end:?}");
+        assert!(end.right() <= card.right() && end.bottom() <= question.bottom());
+        assert!(line.right() <= card.right());
+        for id in ["delegation-maintain-why", "delegation-review-first-why"] {
+            let why = window.find(id).bounds();
+            assert!(
+                why.left() >= card.left() && why.right() <= card.right() + px(0.5),
+                "{id} {why:?} inside {card:?}"
+            );
+        }
     });
 }
 

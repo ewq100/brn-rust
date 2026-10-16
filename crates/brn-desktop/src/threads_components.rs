@@ -506,6 +506,71 @@ pub(super) fn banner(
         .test_support()
 }
 
+/// A banner that leads a stack in a short panel: its actions sit on their
+/// own row and never leave view; when its parent is short the text keeps
+/// its first line and scrolls above them (`{id}-text`).
+pub(super) fn banner_pinned(
+    id: impl Into<SharedString>,
+    tone: Tone,
+    text: impl Into<SharedString>,
+    actions: Vec<AnyElement>,
+) -> gpui_kit::base::ObservedElement<gpui_kit::Stateful<gpui_kit::Div>> {
+    let (id, text) = (id.into(), text.into());
+    div()
+        .id(id.clone())
+        .flex()
+        .flex_col()
+        .flex_1()
+        .min_h_0()
+        .gap_1()
+        .px_3()
+        .py(px(6.))
+        .font_family(UI_FONT)
+        .text_size(UI_TEXT)
+        .bg(rgb(tone.tint()))
+        .text_color(rgb(pal().ink))
+        .aria_label(text.clone())
+        .child(
+            div()
+                .id(SharedString::from(format!("{id}-text")))
+                .flex()
+                .items_start()
+                .gap_2()
+                .min_w_0()
+                .flex_shrink(1.)
+                .min_h(BANNER_LINE)
+                .overflow_y_scroll()
+                .child(
+                    div()
+                        .id(SharedString::from(format!("{id}-tone")))
+                        .flex_shrink_0()
+                        .mt(px(2.))
+                        .aria_label(tone.word())
+                        .child(tone_icon(tone, Size::Small))
+                        .test_support(),
+                )
+                .child(div().min_w_0().child(text))
+                .test_support(),
+        )
+        .when(!actions.is_empty(), |banner| {
+            banner.child(
+                div()
+                    .flex()
+                    .flex_wrap()
+                    .flex_shrink_0()
+                    .gap_1()
+                    .children(actions),
+            )
+        })
+        .test_support()
+}
+
+/// One line of 14 px banner text.
+pub(super) const BANNER_LINE: gpui_kit::Pixels = px(20.);
+/// A pinned banner's least height: its padding, one line of text and its
+/// row of 28 px actions.
+pub(super) const BANNER_PINNED_MIN: gpui_kit::Pixels = px(6. + 20. + 4. + 28. + 6.);
+
 /// A status sentence that wraps in full, never truncated: the tone icon and
 /// text in the tone's color, or muted text when neutral (`None`). The tone is
 /// announced as `{id}-tone`.

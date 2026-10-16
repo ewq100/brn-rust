@@ -78,7 +78,7 @@ use state::{
     ComposerDestination, ComposerDrafts, ContinuePath, Severity, WorkerKind, can_continue_thread,
     comment_location, continue_path, delegation_status, latest_run, linked, outcome_message,
     owner_message_after_latest_run, recovery, refresh_hint, review_label, review_summary,
-    save_message, sections,
+    save_message, sections, unlocated_reason,
 };
 use theme::{ThemeId, pal};
 
@@ -410,6 +410,25 @@ fn save_tone(outcome: &SaveOutcome) -> Tone {
 }
 /// A finished worker's tone. The owner's own Stop is a warning; otherwise a
 /// run's recorded state decides, and work without a run succeeded.
+/// A run that ended Failed or Interrupted, as its recorded terminal text (the
+/// recovery card's reason) in that state's tone; the card's state word when
+/// nothing was recorded. Other states have no terminal notice.
+fn terminal_notice(run: &Run) -> Option<(Tone, String)> {
+    let (tone, word) = match run.state {
+        RunState::Failed => (Tone::Error, "Failed"),
+        RunState::Interrupted => (Tone::Warning, "Interrupted"),
+        _ => return None,
+    };
+    let recorded = run.progress.trim();
+    Some((
+        tone,
+        if recorded.is_empty() {
+            word.to_owned()
+        } else {
+            recorded.to_owned()
+        },
+    ))
+}
 fn finish_tone(ok: bool, stopped: bool, has_run: bool, state: Option<&RunState>) -> Tone {
     match (ok, state) {
         (false, _) if stopped => Tone::Warning,
@@ -1680,7 +1699,7 @@ impl ThreadsUi {
             })
         };
         let field = input.clone();
-        window.open_dialog(cx, move |dialog, window, cx| {
+        self.open_dialog(window, cx, move |dialog, window, cx| {
             let (ok, click) = (create.clone(), create.clone());
             dialog
                 .title("New note")
@@ -2974,16 +2993,30 @@ impl ThreadsUi {
                         .worker
                         .as_ref()
                         .is_some_and(|w| w.cancel.is_cancelled());
-                    let run_state = self
+                    let run = self
                         .worker
                         .as_ref()
                         .and_then(|w| w.run_id.as_deref())
                         .and_then(|id| self.workspace.store.record(id).ok().flatten())
                         .and_then(|r| match r.data {
-                            RecordData::Run(run) => Some(run.state),
+                            RecordData::Run(run) => Some(run),
                             _ => None,
                         });
-                    let tone = finish_tone(result.is_ok(), stopped, has_run, run_state.as_ref());
+                    let run_state = run.as_ref().map(|run| run.state.clone());
+                    let mut tone =
+                        finish_tone(result.is_ok(), stopped, has_run, run_state.as_ref());
+                    // A run that ended Failed or Interrupted reads as its
+                    // recorded terminal text, the recovery card's source, in
+                    // that state's tone, not the raw error. The owner's own
+                    // Stop keeps its short warning.
+                    let terminal = run
+                        .as_ref()
+                        .filter(|_| kind == Some(WorkerKind::Run) && !stopped)
+                        .and_then(terminal_notice);
+                    if let Some((terminal_tone, _)) = &terminal {
+                        tone = *terminal_tone;
+                    }
+                    let ok = result.is_ok();
                     if kind == Some(WorkerKind::Run) {
                         self.run_activity_status = match &run_state {
                             Some(RunState::Working) => "Work ended · status unconfirmed".into(),
@@ -3005,7 +3038,24 @@ impl ThreadsUi {
                     self.worker = None;
                     self.stream.clear();
                     self.progress.clear();
-                    let mut text = result.unwrap_or_else(|e| format!("Work stopped: {e}"));
+                    let mut text = match terminal {
+                        Some((_, recorded)) => recorded,
+                        None => result.unwrap_or_else(|e| format!("Work stopped: {e}")),
+                    };
+                    // Settings → Data shows a backup's or export's full
+                    // result line under its button; there the notice says
+                    // it once, without repeating the path.
+                    let status = text.clone();
+                    if ok
+                        && self.layout.settings_open()
+                        && self.settings_section == SettingsSection::Data
+                    {
+                        match kind {
+                            Some(WorkerKind::Backup) => text = "Full backup created.".into(),
+                            Some(WorkerKind::Export) => text = "Markdown snapshot created.".into(),
+                            _ => {}
+                        }
+                    }
                     if let Some(thread) = thread {
                         let name = self
                             .records
@@ -3018,8 +3068,8 @@ impl ThreadsUi {
                     self.set_notice(tone, text);
                     self.last_work_notice = Some((tone, self.notice.clone()));
                     match kind {
-                        Some(WorkerKind::Export) => self.export_status = self.notice.clone(),
-                        Some(WorkerKind::Backup) => self.backup_status = self.notice.clone(),
+                        Some(WorkerKind::Export) => self.export_status = status,
+                        Some(WorkerKind::Backup) => self.backup_status = status,
                         _ => {}
                     }
                     self.refresh();

@@ -394,9 +394,35 @@ pub(super) fn refresh_hint(count: usize) -> String {
         if count == 1 { "it" } else { "them" }
     )
 }
+/// Whether a change stopped work that was running: it moved a Working run
+/// to another state (Settings fence and cancel running replies).
+fn stopped_running_work(receipt: &Receipt) -> bool {
+    receipt.writes.iter().any(|write| {
+        matches!(&write.before, Some(Record { data: RecordData::Run(before), .. }) if before.state == RunState::Working)
+            && matches!(&write.after.data, RecordData::Run(after) if after.state != RunState::Working)
+    })
+}
+/// An applied change in the owner's terms. The recorded reason is service
+/// wording for Changes, never notice copy: "Saved." or "Undone.", whether
+/// running work stopped, then the refresh follow-up, each its own sentence.
+pub(super) fn applied_message(receipt: &Receipt) -> String {
+    let mut text = if receipt.undo_of.is_some() {
+        "Undone.".to_owned()
+    } else {
+        "Saved.".to_owned()
+    };
+    if stopped_running_work(receipt) {
+        text.push_str(" Running work was stopped.");
+    }
+    if !receipt.needs_refresh.is_empty() {
+        text.push(' ');
+        text.push_str(&refresh_hint(receipt.needs_refresh.len()));
+    }
+    text
+}
 pub(super) fn outcome_message(outcome: &ApplyOutcome) -> String {
     match outcome {
-        ApplyOutcome::Applied(receipt) => format!("Saved. {}{}", receipt.reason, if receipt.needs_refresh.is_empty() { String::new() } else { format!(" {}", refresh_hint(receipt.needs_refresh.len())) }),
+        ApplyOutcome::Applied(receipt) => applied_message(receipt),
         ApplyOutcome::Deferred { .. } => "Waiting for an open edit. Save or discard that edit, then retry this change.".into(),
         ApplyOutcome::Stale { .. } => "The current content changed. This proposal was preserved; compare it with the latest content before preparing a new change.".into(),
         ApplyOutcome::NeedsReview { .. } => "This change needs your review. The current notes are unchanged.".into(),
@@ -417,6 +443,31 @@ pub(super) fn save_message(outcome: &SaveOutcome) -> &'static str {
         }
         SaveOutcome::Deferred { .. } => {
             "Another edit is open for this note. Your text is preserved; finish the other edit before retrying Save."
+        }
+    }
+}
+/// Why a comment has no place in the shown version, worded for what is
+/// true: the service unresolved it (its passage was edited away), or it is
+/// still tied to the earlier version it was written on and nothing
+/// re-anchored it. `status` is the card's line; `reason` follows
+/// "unavailable:" in labels and tooltips.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(super) struct Unlocated {
+    pub(super) status: String,
+    pub(super) reason: String,
+}
+pub(super) fn unlocated_reason(comment: &Comment, version: u64) -> Unlocated {
+    let tied = comment.mapped_version.unwrap_or(comment.base_version);
+    let next = "Exclude it, or select the passage and comment again.";
+    if !comment.unresolved && tied != version {
+        Unlocated {
+            status: format!("Tied to v{tied}, not re-anchored to v{version}. {next}"),
+            reason: format!("the comment is tied to v{tied}, not v{version}"),
+        }
+    } else {
+        Unlocated {
+            status: format!("Passage not found in v{version}. {next}"),
+            reason: format!("the passage is not in v{version}"),
         }
     }
 }
@@ -1132,20 +1183,99 @@ mod tests {
             undo_of: None,
             needs_refresh,
         };
+        // The recorded reason ("Owner edit.") stays in Changes; the notice
+        // is the owner's terms, one sentence each.
         assert_eq!(
             outcome_message(&ApplyOutcome::Applied(receipt(vec![
                 "a".into(),
                 "b".into()
             ]))),
-            "Saved. Owner edit. 2 related items may need refresh. Open Changes to review them."
+            "Saved. 2 related items may need refresh. Open Changes to review them."
         );
         assert_eq!(
             outcome_message(&ApplyOutcome::Applied(receipt(vec![]))),
-            "Saved. Owner edit."
+            "Saved."
+        );
+        let mut undo = receipt(vec!["a".into()]);
+        undo.undo_of = Some(serde_json::from_str("\"synthetic-original\"").unwrap());
+        assert_eq!(
+            outcome_message(&ApplyOutcome::Applied(undo)),
+            "Undone. 1 related item may need refresh. Open Changes to review it."
+        );
+        // Settings that stopped a running reply say so; nothing else does.
+        let run = |state: RunState| Record {
+            id: "run".into(),
+            version: 1,
+            archived: false,
+            data: RecordData::Run(Run {
+                instruction: None,
+                queue_claim: None,
+                thread: "chat".into(),
+                provider: "offline-fixture".into(),
+                model: "model".into(),
+                guide_identity: "guide".into(),
+                budget: 1,
+                effort: "medium".into(),
+                loaded_skills: vec![],
+                fence: 1,
+                state,
+                progress: String::new(),
+                operations: vec![],
+                sources: vec![],
+            }),
+        };
+        let mut configured = receipt(vec![]);
+        configured.reason = "Owner configured workspace and stopped prior invocations".into();
+        assert_eq!(
+            outcome_message(&ApplyOutcome::Applied(configured.clone())),
+            "Saved."
+        );
+        configured.writes = vec![brn_threads_app::Written {
+            before: Some(run(RunState::Working)),
+            after: run(RunState::Cancelled),
+        }];
+        assert_eq!(
+            outcome_message(&ApplyOutcome::Applied(configured)),
+            "Saved. Running work was stopped."
         );
         assert_eq!(
             save_message(&SaveOutcome::Saved(receipt(vec![]))),
             "Saved. Your edit is in Changes."
+        );
+    }
+    #[test]
+    fn unlocated_comments_say_what_is_true() {
+        let comment = |base_version: u64, mapped: Option<u64>, unresolved: bool| Comment {
+            note: "note".into(),
+            base_version,
+            quote: "quick".into(),
+            range: Some((4, 9)),
+            mapped_version: mapped,
+            mapped_range: mapped.map(|_| (4, 9)),
+            body: "Sharper".into(),
+            unresolved,
+        };
+        // Written on v1 and never re-anchored (Apply then Undo made v3).
+        assert_eq!(
+            unlocated_reason(&comment(1, None, false), 3),
+            Unlocated {
+                status: "Tied to v1, not re-anchored to v3. Exclude it, or select the passage and comment again.".into(),
+                reason: "the comment is tied to v1, not v3".into(),
+            }
+        );
+        assert_eq!(
+            unlocated_reason(&comment(1, Some(2), false), 3).reason,
+            "the comment is tied to v2, not v3"
+        );
+        // The service resolved its edit and the passage is gone.
+        assert_eq!(
+            unlocated_reason(&comment(1, Some(2), true), 2),
+            Unlocated {
+                status:
+                    "Passage not found in v2. Exclude it, or select the passage and comment again."
+                        .into(),
+                reason: "the passage is not in v2".into(),
+            }
         );
     }
     #[test]

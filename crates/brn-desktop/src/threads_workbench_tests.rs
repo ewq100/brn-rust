@@ -1003,6 +1003,35 @@ fn bound_terminal_clarification_stays_in_note_and_unrelated_chat_cannot_replace_
         assert!(!f.view.read(cx).layout.contains(TileKind::Chat));
     })
     .unwrap();
+    // As on the base, an open edit hides Undo (Changes keeps it); its
+    // siblings say to save first. Discarding brings Undo back.
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            let text = format!("{} Edited here.", view.note_editor.read(cx).value());
+            view.note_editor
+                .update(cx, |editor, cx| editor.set_value(text, window, cx));
+            view.preserve_visible_note_input(cx);
+            cx.notify();
+        })
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(f.view.read(cx).note.as_ref().unwrap().session.is_some());
+        assert!(window.try_find("undo-writing-apply").is_none());
+        assert_eq!(
+            window.find("retry-rewrite").label(),
+            Some("Retry saved rewrite, unavailable: Save your edit first")
+        );
+        f.view.update(cx, |view, cx| view.discard(window, cx));
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(f.view.read(cx).note.as_ref().unwrap().session.is_none());
+        assert!(window.find("undo-writing-apply").visible());
+    })
+    .unwrap();
 
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |view, cx| {

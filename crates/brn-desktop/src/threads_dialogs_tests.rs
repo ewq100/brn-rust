@@ -337,6 +337,186 @@ fn focus_lands_inside_each_destination_panel(cx: &mut TestAppContext) {
     });
 }
 
+/// Clicking a Settings section moves focus off the section focus landed on,
+/// so the ring never marks an unselected section. A key press keeps focus on
+/// the pressed section.
+#[gpui_kit::test]
+fn a_clicked_settings_section_takes_the_focus_ring_off_general(cx: &mut TestAppContext) {
+    let f = fixture(cx, 1250., 860., |_| {});
+    update(cx, &f, |view, window, cx| {
+        view.show_tile(TileKind::Settings, window, cx)
+    });
+    next_frame(cx, &f);
+    on_window(cx, &f, |window, _| {
+        assert_eq!(
+            window.find("settings-section-general").focused(),
+            Some(true)
+        );
+    });
+    on_window(cx, &f, |window, cx| {
+        window.click("settings-section-models", cx)
+    });
+    on_window(cx, &f, |window, cx| {
+        let view = f.view.read(cx);
+        assert_eq!(view.settings_section, SettingsSection::Models);
+        assert_ne!(
+            window.find("settings-section-general").focused(),
+            Some(true)
+        );
+        assert!(
+            view.panel_body(TileKind::Settings)
+                .contains_focused(window, cx)
+        );
+    });
+    let reached = (0..12).any(|_| {
+        press(cx, &f, "tab");
+        on_window(cx, &f, |window, _| {
+            window.find("settings-section-data").focused() == Some(true)
+        })
+    });
+    assert!(reached, "Tab reaches the Data section");
+    press(cx, &f, "space");
+    on_window(cx, &f, |window, cx| {
+        assert_eq!(f.view.read(cx).settings_section, SettingsSection::Data);
+        assert_eq!(window.find("settings-section-data").focused(), Some(true));
+    });
+}
+
+/// Choose a row of the open popup menu by its accessible label.
+fn choose(cx: &mut TestAppContext, f: &Fixture, label: &str) {
+    on_window(cx, f, |window, cx| {
+        let mut menu = window.within("popup-menu");
+        let index = (0..60usize)
+            .find(|index| {
+                menu.try_find(*index)
+                    .is_some_and(|row| row.label() == Some(label))
+            })
+            .unwrap_or_else(|| panic!("menu row {label} not found"));
+        menu.click(index, cx);
+    });
+}
+
+/// A dialog opened from a ⋯ or ＋ menu item gives focus back to its panel's
+/// landing when Escape closes it, so ⌘K works without a click: the note
+/// text after Edit note… and Discard edit…, the Chats panel after New note.
+#[gpui_kit::test]
+fn escape_from_a_menu_launched_dialog_returns_focus_to_the_panel(cx: &mut TestAppContext) {
+    let mut note = String::new();
+    let f = fixture(cx, 900., 600., |workspace| {
+        note = workspace.new_note("Menu witness", "Saved text").unwrap().id;
+    });
+    update(cx, &f, |view, window, cx| {
+        view.apply_layout(Preset::Write, window, cx);
+        view.open_note(&note, None, window, cx);
+    });
+    let escape_returns = |cx: &mut TestAppContext, landing: &dyn Fn(&ThreadsUi, &Window, &App)| {
+        on_window(cx, &f, |window, cx| assert!(window.has_active_dialog(cx)));
+        press(cx, &f, "escape");
+        on_window(cx, &f, |window, cx| {
+            assert!(!window.has_active_dialog(cx));
+            landing(f.view.read(cx), window, cx);
+        });
+        press(cx, &f, "cmd-k");
+        cx.read(|cx| assert!(f.view.read(cx).launcher_open, "⌘K works"));
+        press(cx, &f, "escape");
+    };
+    let in_note_text = |view: &ThreadsUi, window: &Window, cx: &App| {
+        assert!(view.note_editor.focus_handle(cx).is_focused(window));
+    };
+    // At 900×600 Edit note… is in the Note ⋯.
+    on_window(cx, &f, |window, cx| window.click("note-menu", cx));
+    choose(cx, &f, "Edit note…");
+    escape_returns(cx, &in_note_text);
+    // A dirty note offers Discard edit…; Escape keeps the edit.
+    update(cx, &f, |view, window, cx| {
+        view.note_editor.update(cx, |editor, cx| {
+            editor.set_value("Saved text, edited", window, cx)
+        });
+        view.preserve_visible_note_input(cx);
+    });
+    on_window(cx, &f, |window, cx| window.click("note-menu", cx));
+    choose(cx, &f, "Discard edit…");
+    escape_returns(cx, &in_note_text);
+    cx.read(|cx| {
+        assert!(f.view.read(cx).note.as_ref().unwrap().session.is_some());
+    });
+    // The Chats ＋ menu's New note.
+    update(cx, &f, |view, window, cx| {
+        view.show_tile(TileKind::Threads, window, cx)
+    });
+    on_window(cx, &f, |window, cx| window.click("threads-new", cx));
+    choose(cx, &f, "New note");
+    escape_returns(cx, &|view, window, cx| {
+        assert!(view.root_focus.contains_focused(window, cx));
+        assert!(window.focused(cx).is_some());
+    });
+}
+
+/// A 170 pt list leaves Maximize to its ⋯ menu so its title stays readable,
+/// and the header ⋯'s Open beside submenu opens a split.
+#[gpui_kit::test]
+fn a_narrow_list_header_keeps_its_title_and_its_menu_opens_beside(cx: &mut TestAppContext) {
+    let f = fixture(cx, 900., 600., |workspace| {
+        workspace.new_thread("Header chat").unwrap();
+    });
+    update(cx, &f, |view, window, cx| {
+        view.apply_layout(Preset::Write, window, cx);
+        view.show_tile(TileKind::Threads, window, cx);
+    });
+    on_window(cx, &f, |window, _| {
+        assert!(window.try_find("tile-max-threads").is_none());
+        assert!(window.find("tile-close-threads").visible());
+        assert!(
+            window.find("tile-max-chat").visible(),
+            "wider panels keep it"
+        );
+        let title = window.find("tile-title-threads").bounds();
+        assert!(title.size.width > px(36.), "the title reads: {title:?}");
+    });
+    on_window(cx, &f, |window, cx| window.click("tile-menu-threads", cx));
+    choose(cx, &f, "Maximize");
+    on_window(cx, &f, |window, cx| {
+        assert_eq!(f.view.read(cx).layout.maximized(), Some(TileKind::Threads));
+        assert_eq!(
+            window.find("tile-max-threads").label(),
+            Some("Restore Chats")
+        );
+        window.click("tile-max-threads", cx);
+    });
+    cx.read(|cx| assert_eq!(f.view.read(cx).layout.maximized(), None));
+    // Open beside, from the Chat header's ⋯.
+    on_window(cx, &f, |window, cx| window.click("tile-menu-chat", cx));
+    on_window(cx, &f, |window, cx| {
+        let mut menu = window.within("popup-menu");
+        let index = (0..60usize)
+            .find(|index| {
+                menu.try_find(*index)
+                    .is_some_and(|row| row.label() == Some("Open beside"))
+            })
+            .expect("Open beside row");
+        menu.hover(index, cx);
+    });
+    on_window(cx, &f, |window, cx| {
+        let mut submenu = window.within("submenu");
+        let index = (0..60usize)
+            .find(|index| {
+                submenu
+                    .try_find(*index)
+                    .is_some_and(|row| row.label() == Some("Tasks"))
+            })
+            .expect("Tasks in the Open beside submenu");
+        submenu.click(index, cx);
+    });
+    on_window(cx, &f, |window, cx| {
+        let view = f.view.read(cx);
+        assert_eq!(
+            view.layout.area(TileKind::Actions),
+            Some(layout::Area::Beside)
+        );
+        assert!(window.find("tile-split-actions").visible());
+    });
+}
+
 /// A synthetic Working run held by a local worker in this window.
 fn working_run(cx: &mut TestAppContext, f: &Fixture, thread: &str) -> (String, CancellationToken) {
     update(cx, f, |view, _, cx| {

@@ -125,6 +125,15 @@ fn first_picker_saves_then_backs_up_and_saved_click_reloads_folder_and_uses_fres
         let ui = f.view.read(cx);
         assert!(ui.backup_status.starts_with("Full backup created at "));
         assert!(ui.export_status.contains("No export"));
+        // Settings → Data shows the path once, in its status line; the
+        // banner above says the backup was made.
+        assert!(ui.layout.settings_open());
+        assert_eq!(ui.settings_section, SettingsSection::Data);
+        assert_eq!(ui.notice, "Full backup created.");
+        assert_eq!(
+            ui.last_work_notice.as_ref().map(|(_, text)| text.as_str()),
+            Some("Full backup created.")
+        );
     });
     assert_eq!(saved_folder(&f).as_deref(), f.folder.to_str());
 }

@@ -72,53 +72,125 @@ pub(super) fn day_number(stamp: &str) -> Option<i64> {
     Some(era * 146_097 + doe - 719_468)
 }
 
-/// A commit time as people read it, in UTC like the day grouping: "Today
-/// 19:47 UTC", "14 Oct, 19:47 UTC", or "14 Oct 2025, 19:47 UTC" in another
-/// year. Callers keep the raw ISO value in the tooltip; an unreadable stamp is
-/// returned unchanged.
-pub(super) fn human_time(stamp: &str, today: i64) -> String {
+/// A commit time as people read it, in this Mac's time zone: "Today 22:47",
+/// "14 Oct, 22:47", or "14 Oct 2025, 22:47" in another year. Callers keep
+/// the raw ISO value (UTC) in the tooltip; an unreadable stamp is returned
+/// unchanged.
+pub(super) fn human_time(stamp: &str) -> String {
+    let now = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map_or(0, |elapsed| elapsed.as_secs() as i64);
+    human_time_at(stamp, now, local_offset)
+}
+
+/// `human_time` at `now` (UTC seconds) with `offset` giving the zone's
+/// seconds east of UTC at an instant. A date without a time of day is shown
+/// as written.
+pub(super) fn human_time_at(stamp: &str, now: i64, offset: impl Fn(i64) -> i64) -> String {
     const MONTHS: [&str; 12] = [
         "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
     ];
-    let Some(day) = day_number(stamp) else {
+    let Some(utc_day) = day_number(stamp) else {
         return stamp.to_owned();
     };
-    // `day_number` has checked the `YYYY-MM-DD` prefix.
-    let (year, month, date) = (&stamp[0..4], &stamp[5..7], &stamp[8..10]);
     let clock = stamp.get(10..16).filter(|rest| {
         let bytes = rest.as_bytes();
         matches!(bytes[0], b'T' | b' ')
             && bytes[3] == b':'
             && [1, 2, 4, 5].iter().all(|&i| bytes[i].is_ascii_digit())
     });
+    let today = (now + offset(now)).div_euclid(86_400);
+    // `clock` has checked its digits.
+    let (day, minutes) = match clock {
+        Some(clock) => {
+            let hours: i64 = clock[1..3].parse().unwrap_or_default();
+            let mins: i64 = clock[4..6].parse().unwrap_or_default();
+            let seconds = stamp
+                .get(16..19)
+                .filter(|rest| rest.starts_with(':'))
+                .and_then(|rest| rest[1..].parse::<i64>().ok())
+                .unwrap_or_default();
+            let epoch = utc_day * 86_400 + hours * 3_600 + mins * 60 + seconds;
+            let local = epoch + offset(epoch);
+            (
+                local.div_euclid(86_400),
+                Some(local.rem_euclid(86_400) / 60),
+            )
+        }
+        None => (utc_day, None),
+    };
+    let (year, month, date) = civil_from_days(day);
     let when = if day == today {
         "Today".to_owned()
+    } else if year == civil_from_days(today).0 {
+        format!("{date} {}", MONTHS[(month - 1) as usize])
     } else {
-        let month = MONTHS[month.parse::<usize>().map_or(0, |m| m - 1)];
-        let date = date.trim_start_matches('0');
-        if year.parse::<i64>().ok() == Some(civil_year(today)) {
-            format!("{date} {month}")
-        } else {
-            format!("{date} {month} {year}")
-        }
+        format!("{date} {} {year}", MONTHS[(month - 1) as usize])
     };
-    match clock {
-        Some(clock) if day == today => format!("{when} {} UTC", &clock[1..]),
-        Some(clock) => format!("{when}, {} UTC", &clock[1..]),
+    match minutes {
+        Some(minutes) if day == today => {
+            format!("{when} {:02}:{:02}", minutes / 60, minutes % 60)
+        }
+        Some(minutes) => format!("{when}, {:02}:{:02}", minutes / 60, minutes % 60),
         None => when,
     }
 }
 
-/// The UTC calendar year of a day number.
-fn civil_year(day: i64) -> i64 {
+/// Seconds east of UTC in this Mac's time zone at `epoch` (UTC seconds),
+/// from the C library's `localtime_r`, so each date gets its own daylight
+/// saving. UTC (0) when the system can't say.
+fn local_offset(epoch: i64) -> i64 {
+    use std::ffi::{c_char, c_int, c_long};
+    // `struct tm` as macOS and glibc lay it out; only `gmtoff` is read.
+    #[repr(C)]
+    #[allow(dead_code, reason = "fields mirror struct tm; only gmtoff is read")]
+    struct Tm {
+        sec: c_int,
+        min: c_int,
+        hour: c_int,
+        mday: c_int,
+        mon: c_int,
+        year: c_int,
+        wday: c_int,
+        yday: c_int,
+        isdst: c_int,
+        gmtoff: c_long,
+        zone: *const c_char,
+    }
+    unsafe extern "C" {
+        fn localtime_r(time: *const c_long, out: *mut Tm) -> *mut Tm;
+    }
+    // `time_t` is `long` on 64-bit macOS and Linux.
+    let time: c_long = epoch;
+    let mut out = std::mem::MaybeUninit::<Tm>::zeroed();
+    // SAFETY: both pointers are valid for the call; `localtime_r` only reads
+    // `time` and writes the zeroed `out`, which it fully initializes when it
+    // returns non-null.
+    let filled = unsafe { localtime_r(&time, out.as_mut_ptr()) };
+    if filled.is_null() {
+        return 0;
+    }
+    // SAFETY: `localtime_r` succeeded, so `out` is initialized.
+    unsafe { out.assume_init() }.gmtoff
+}
+
+/// The civil (year, month, day) of a day number (days since 1970-01-01).
+fn civil_from_days(day: i64) -> (i64, i64, i64) {
     let z = day + 719_468;
     let era = z.div_euclid(146_097);
     let doe = z - era * 146_097;
     let yoe = (doe - doe / 1460 + doe / 36_524 - doe / 146_096) / 365;
     let doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
     let mp = (5 * doy + 2) / 153;
+    let date = doy - (153 * mp + 2) / 5 + 1;
     let month = if mp < 10 { mp + 3 } else { mp - 9 };
-    yoe + era * 400 + i64::from(month <= 2)
+    (yoe + era * 400 + i64::from(month <= 2), month, date)
+}
+
+/// The UTC calendar year of a day number.
+#[cfg(test)]
+fn civil_year(day: i64) -> i64 {
+    civil_from_days(day).0
 }
 
 /// Bookkeeping that writes only chat controls (queue set-up and recovery on
@@ -816,20 +888,45 @@ mod tests {
     }
 
     #[test]
-    fn human_times_read_as_today_or_a_short_utc_date() {
-        let today = day_number("2026-10-14").unwrap();
+    fn human_times_read_as_today_or_a_short_local_date() {
+        // 14 Oct 2026, 21:00 UTC.
+        let now = day_number("2026-10-14").unwrap() * 86_400 + 21 * 3_600;
+        let utc = |_: i64| 0;
         for (stamp, shown) in [
-            ("2026-10-14T19:47:03.118Z", "Today 19:47 UTC"),
-            ("2026-10-13T08:05:00Z", "13 Oct, 08:05 UTC"),
-            ("2026-03-01T00:00:00Z", "1 Mar, 00:00 UTC"),
-            ("2025-12-31T23:59:59Z", "31 Dec 2025, 23:59 UTC"),
+            ("2026-10-14T19:47:03.118Z", "Today 19:47"),
+            ("2026-10-13T08:05:00Z", "13 Oct, 08:05"),
+            ("2026-03-01T00:00:00Z", "1 Mar, 00:00"),
+            ("2025-12-31T23:59:59Z", "31 Dec 2025, 23:59"),
             ("2026-10-14", "Today"),
             ("2026-10-02", "2 Oct"),
             ("garbage", "garbage"),
             ("", ""),
         ] {
-            assert_eq!(human_time(stamp, today), shown, "{stamp}");
+            assert_eq!(human_time_at(stamp, now, utc), shown, "{stamp}");
         }
+        // UTC+3 (EEST): the clock and the day move with the zone, and "now"
+        // (00:00 on 15 Oct there) is a new local day.
+        let eest = |_: i64| 3 * 3_600;
+        for (stamp, shown) in [
+            ("2026-10-14T19:47:03.118Z", "14 Oct, 22:47"),
+            ("2026-10-14T21:30:00Z", "Today 00:30"),
+            ("2025-12-31T22:30:00Z", "1 Jan, 01:30"),
+            ("2026-10-15", "Today"),
+        ] {
+            assert_eq!(human_time_at(stamp, now, eest), shown, "{stamp}");
+        }
+        // Each instant gets its own offset (daylight saving).
+        let summer = |epoch: i64| {
+            if epoch >= day_number("2026-10-25").unwrap() * 86_400 {
+                2 * 3_600
+            } else {
+                3 * 3_600
+            }
+        };
+        assert_eq!(
+            human_time_at("2026-10-30T10:00:00Z", now, summer),
+            "30 Oct, 12:00"
+        );
     }
 
     #[test]

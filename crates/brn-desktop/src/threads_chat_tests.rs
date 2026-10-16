@@ -278,6 +278,23 @@ fn a_failed_reply_with_a_paused_queue_names_what_stays_paused(cx: &mut TestAppCo
             "Waiting · Other chat · Check the venue"
         );
     });
+    // Continue is the chat's one filled control: Send is outline beside
+    // the card, and filled again in a chat with no card.
+    cx.read(|cx| assert!(f.view.read(cx).recovery_card_leads()));
+    let other = cx.read(|cx| {
+        f.view
+            .read(cx)
+            .thread_rows
+            .iter()
+            .find(|row| row.title == "Other chat")
+            .unwrap()
+            .id
+            .clone()
+    });
+    update(cx, &f, |view, window, cx| {
+        view.open_thread(&other, window, cx)
+    });
+    cx.read(|cx| assert!(!f.view.read(cx).recovery_card_leads()));
 }
 
 #[gpui_kit::test]
@@ -1113,8 +1130,9 @@ fn while_work_runs_send_reads_queue_at_a_wide_chat_and_replies_keep_the_measure(
     });
 }
 
-/// Below 700 pt the paused queue is one row, "N waiting · Paused" with
+/// Below 700 pt the paused queue is one row, "Paused · N waiting" with
 /// Resume queue; its disclosure shows the items. Taller windows list them.
+/// In the narrow Write companion "Paused" stays whole: the count gives way.
 #[gpui_kit::test]
 fn a_short_window_collapses_the_paused_queue_to_one_row(cx: &mut TestAppContext) {
     let seed = |workspace: &mut Workspace, _: &str, other: &str| {
@@ -1127,8 +1145,11 @@ fn a_short_window_collapses_the_paused_queue_to_one_row(cx: &mut TestAppContext)
         workspace.pause_queue("short-paused").unwrap();
     };
     let f = fixture(cx, 900., 600., seed);
+    update(cx, &f, |view, window, cx| {
+        view.apply_layout(Preset::Write, window, cx)
+    });
     on_window(cx, &f, |window, _| {
-        assert_eq!(label(window, "queue-summary"), "2 waiting · Paused");
+        assert_eq!(label(window, "queue-summary"), "Paused · 2 waiting");
         assert_eq!(label(window, "queue-resume"), "Resume queue");
         assert_eq!(label(window, "queue-disclosure"), "Show waiting messages");
         assert!(window.try_find("queue-label-0").is_none());
@@ -1138,6 +1159,11 @@ fn a_short_window_collapses_the_paused_queue_to_one_row(cx: &mut TestAppContext)
             window.find("queue-resume").bounds(),
         );
         assert!(resume.top() < summary.bottom() && summary.top() < resume.bottom());
+        // The narrow companion: "Paused" ends before Resume queue, whole.
+        assert!(window.find("tile-chat").bounds().size.width < px(400.));
+        let state = window.find("queue-summary-state").bounds();
+        assert!(state.left() >= summary.left() && state.right() <= resume.left());
+        assert!(state.size.width > px(30.), "{state:?}");
     });
     click(cx, &f, "queue-disclosure");
     on_window(cx, &f, |window, _| {
@@ -1155,10 +1181,52 @@ fn a_short_window_collapses_the_paused_queue_to_one_row(cx: &mut TestAppContext)
     let f = fixture(cx, 1250., 860., seed);
     on_window(cx, &f, |window, _| {
         assert_eq!(label(window, "queue-summary"), "Queue paused · 2 waiting");
+        assert!(window.find("queue-summary-state").visible());
         assert!(window.try_find("queue-disclosure").is_none());
         assert_eq!(
             label(window, "queue-label-0"),
             "Waiting · Other chat · Check the venue"
         );
+    });
+}
+
+/// While a reply runs, a short window's queue is one quiet row, "Queue · N
+/// waiting", with no Resume queue; its disclosure lists the waiting items.
+/// The run is held by a local worker and nothing resumes or dispatches.
+#[gpui_kit::test]
+fn a_short_window_keeps_a_running_queue_to_one_quiet_row(cx: &mut TestAppContext) {
+    let mut other = String::new();
+    let f = fixture(cx, 900., 600., |_, _, chat| other = chat.to_owned());
+    // The window is open before the run exists, so startup recovery never
+    // sees it; this window's worker holds it.
+    update(cx, &f, |view, window, cx| {
+        let run = record_run(&mut view.workspace, &f.thread, RunState::Working, "");
+        hold_worker(view, &f.thread, &run);
+        view.workspace
+            .queue_message("running-first", &other, "Check the venue")
+            .unwrap();
+        view.refresh();
+        view.apply_layout(Preset::Write, window, cx);
+        cx.notify();
+    });
+    on_window(cx, &f, |window, _| {
+        assert_eq!(label(window, "queue-summary"), "Queue · 1 waiting");
+        assert_eq!(label(window, "queue-disclosure"), "Show waiting messages");
+        assert!(window.try_find("queue-resume").is_none());
+        assert!(window.try_find("queue-label-0").is_none());
+        assert!(window.find("queue-summary-state").visible());
+    });
+    click(cx, &f, "queue-disclosure");
+    on_window(cx, &f, |window, _| {
+        assert_eq!(
+            label(window, "queue-label-0"),
+            "Waiting · Other chat · Check the venue"
+        );
+        assert!(window.find("queue-edit-0").visible());
+    });
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert!(view.worker.is_some(), "the reply keeps running");
+        assert!(!view.queue_state().paused);
     });
 }

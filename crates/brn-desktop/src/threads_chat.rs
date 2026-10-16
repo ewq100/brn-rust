@@ -136,7 +136,7 @@ impl ThreadsUi {
     }
     fn confirm_stop_saved_run(&mut self, run: String, window: &mut Window, cx: &mut Context<Self>) {
         let target = cx.entity().downgrade();
-        window.open_dialog(cx, move |dialog, _, _| {
+        self.open_dialog(window, cx, move |dialog, _, _| {
             let (target, run) = (target.clone(), run.clone());
             components::consequence_dialog(
                 dialog,
@@ -447,10 +447,43 @@ impl ThreadsUi {
                         cx.notify();
                     }))
             });
-            let summary = match (c.paused, self.short_window) {
-                (true, true) => format!("{waiting} · Paused"),
-                (true, false) => format!("Queue paused · {waiting}"),
-                (false, _) => format!("Queue · {waiting}"),
+            // The state leads and never truncates; in a narrow chat the
+            // count gives way first. The full line is the tooltip and the
+            // accessible name.
+            let state = match (c.paused, self.short_window) {
+                (true, true) => "Paused",
+                (true, false) => "Queue paused",
+                (false, _) => "Queue",
+            };
+            let summary = format!("{state} · {waiting}");
+            let summary_row = |weight: gpui_kit::FontWeight| {
+                let tooltip = summary.clone();
+                div()
+                    .id("queue-summary")
+                    .flex()
+                    .flex_1()
+                    .min_w_0()
+                    .text_size(SMALL_TEXT)
+                    .aria_label(summary.clone())
+                    .tooltip(move |window, cx| {
+                        gpui_kit::component::tooltip::Tooltip::new(tooltip.clone())
+                            .build(window, cx)
+                    })
+                    .child(
+                        div()
+                            .id("queue-summary-state")
+                            .flex_shrink_0()
+                            .font_weight(weight)
+                            .child(state)
+                            .test_support(),
+                    )
+                    .child(
+                        div()
+                            .min_w_0()
+                            .truncate()
+                            .child(format!("\u{a0}· {waiting}")),
+                    )
+                    .test_support()
             };
             // A paused queue is a warning card holding Resume queue; a running
             // one is a quiet list.
@@ -466,18 +499,7 @@ impl ThreadsUi {
                             .gap_2()
                             .children(disclosure)
                             .child(components::tone_mark("queue-panel-tone", Tone::Warning))
-                            .child(
-                                div()
-                                    .id("queue-summary")
-                                    .flex_1()
-                                    .min_w_0()
-                                    .truncate()
-                                    .text_size(SMALL_TEXT)
-                                    .font_weight(gpui_kit::FontWeight::MEDIUM)
-                                    .aria_label(summary.clone())
-                                    .child(summary)
-                                    .test_support(),
-                            )
+                            .child(summary_row(gpui_kit::FontWeight::MEDIUM))
                             .child(
                                 button("queue-resume")
                                     .label("Resume queue")
@@ -509,13 +531,7 @@ impl ThreadsUi {
                         .gap_1()
                         .children(disclosure)
                         .child(
-                            metadata(summary.clone())
-                                .id("queue-summary")
-                                .flex_1()
-                                .min_w_0()
-                                .truncate()
-                                .aria_label(summary)
-                                .test_support(),
+                            summary_row(gpui_kit::FontWeight::NORMAL).text_color(rgb(pal().muted)),
                         ),
                 )
             };

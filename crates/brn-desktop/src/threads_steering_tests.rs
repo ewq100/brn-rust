@@ -1066,6 +1066,68 @@ fn a_finish_takes_its_tone_from_its_own_recorded_run(cx: &mut TestAppContext) {
     assert_eq!(banner_tone(cx, &f).as_deref(), Some("Success"));
 }
 
+/// Gives the fixture's run its recorded terminal text, as the service does
+/// when a run ends.
+fn record_terminal(cx: &mut TestAppContext, f: &Fixture, text: &str) {
+    cx.update_window(f.window, |_, _, cx| {
+        f.view.update(cx, |ui, _| {
+            let record = ui.workspace.store.record(&f.run).unwrap().unwrap();
+            let RecordData::Run(mut run) = record.data else {
+                unreachable!()
+            };
+            run.progress = text.into();
+            ui.workspace
+                .owner_change(
+                    "synthetic-terminal-text",
+                    &ChangeRequest {
+                        reason: "Synthetic terminal text".into(),
+                        writes: vec![Put {
+                            id: f.run.clone(),
+                            expected_version: Some(record.version),
+                            archived: false,
+                            data: RecordData::Run(run),
+                        }],
+                        inputs: vec![],
+                    },
+                )
+                .unwrap();
+        })
+    })
+    .unwrap();
+}
+
+/// U10: a run that ended Failed or Interrupted reads as its recorded
+/// terminal text, the recovery card's source, in that state's tone, never
+/// the raw error. The owner's own Stop keeps its short warning. The texts
+/// are seeded here; none is the service's wording.
+#[gpui_kit::test]
+fn a_failed_or_interrupted_finish_shows_the_recorded_terminal_text(cx: &mut TestAppContext) {
+    let recorded = "Synthetic recorded terminal notice for this chat.";
+    for (state, tone) in [
+        (RunState::Failed, "Error"),
+        (RunState::Interrupted, "Warning"),
+    ] {
+        let f = fixture(cx, state.clone());
+        record_terminal(cx, &f, recorded);
+        finish(cx, &f, Err("raw provider display text".into()));
+        let shown = cx.read(|cx| f.view.read(cx).notice.clone());
+        assert_eq!(shown, format!("Work in Active destination · {recorded}"));
+        assert!(!shown.contains("raw provider"), "{shown}");
+        assert_eq!(banner_tone(cx, &f).as_deref(), Some(tone), "{state:?}");
+        let last = cx.read(|cx| f.view.read(cx).last_work_notice.clone());
+        assert_eq!(last.map(|(tone, _)| tone.word()), Some(tone));
+    }
+    // The owner stopped it: the short Stop warning, not the recorded text.
+    let f = fixture(cx, RunState::Interrupted);
+    record_terminal(cx, &f, recorded);
+    f.cancel.cancel();
+    finish(cx, &f, Err("stopped by the owner".into()));
+    let shown = cx.read(|cx| f.view.read(cx).notice.clone());
+    assert!(shown.contains("Work stopped:"), "{shown}");
+    assert!(!shown.contains(recorded), "{shown}");
+    assert_eq!(banner_tone(cx, &f).as_deref(), Some("Warning"));
+}
+
 #[gpui_kit::test]
 fn outcome_tones_and_a_direct_overwrite_never_inherit_an_older_tone(cx: &mut TestAppContext) {
     let f = fixture(cx, RunState::Completed);

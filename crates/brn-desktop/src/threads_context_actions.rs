@@ -88,7 +88,7 @@ impl ThreadsUi {
             })
         };
         let field = instruction.clone();
-        window.open_dialog(cx, move |dialog, window, cx| {
+        self.open_dialog(window, cx, move |dialog, window, cx| {
             let click = submit.clone();
             dialog
                 .title(format!("Edit {}", short(&title(&note))))
@@ -277,7 +277,7 @@ impl ThreadsUi {
             })
         };
         let field = title.clone();
-        window.open_dialog(cx, move |dialog, window, cx| {
+        self.open_dialog(window, cx, move |dialog, window, cx| {
             let click = save.clone();
             dialog
                 .title("Save as decision")

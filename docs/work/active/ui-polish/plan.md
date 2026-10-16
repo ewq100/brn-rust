@@ -297,7 +297,7 @@ All tokens and shared builders move into a new module, `crates/brn-desktop/src/t
 
   Other explanations may live in the tooltip.
 - **Explanations.** At most one sentence, shown only where the choice is made. Errors state what happened, what is safe and what to do, and "what to do" names the button the owner can see.
-- **Times.** "Today 19:47 UTC" or "14 Oct, 19:47 UTC", in UTC like the existing Today / This week grouping. The full ISO value goes in the tooltip.
+- **Times.** "Today 22:47" or "14 Oct, 22:47", in the Mac's time zone (fix pass: UTC read wrong on a UTC+3 machine). The full ISO value, in UTC, goes in the tooltip. The All chats Today / This week grouping is unchanged.
 
 | Now | Becomes |
 |---|---|
@@ -306,7 +306,7 @@ All tokens and shared builders move into a new module, `crates/brn-desktop/src/t
 | Instruction saved. Waiting for the current run to stop. (after Steer) | Message saved. Stopping the current reply, then starting yours. |
 | reviewing the candidate · approval binds this exact text · 3 captured comments stay pending until you mark them | Per proposal shape (step 3, review footer), for example "Applying saves exactly this text. 3 comments stay open until you mark them addressed." |
 | Pick a note from the notes tile or ⌘K, or create one with ⌘N. | **No note open** · Open one from Notes or ⌘K. [New note] |
-| Saved. {reason} N directly derived records may need refresh. Open What changed for the affected records and a follow-up. | Saved. {reason} N related items may need refresh. Open Changes to review them. (warning tone) |
+| Saved. {reason} N directly derived records may need refresh. Open What changed for the affected records and a follow-up. | Saved. N related items may need refresh. Open Changes to review them. (warning tone). Fix pass (U8): the recorded reason stays in Changes and never appears in a notice; Undo reads "Undone.", and a change that stopped running work adds "Running work was stopped." |
 | Your edit is recoverable. Save and comment commits it before anchoring feedback to this passage. | Save and comment saves your edit first, then comments on this passage. |
 | The current note changed since this edit began. Your text is preserved; compare, then save your text as a new note if needed. | This note changed since your edit began. Your text is kept. Compare it with the saved version below, or save your text as a new note. |
 | Your chats appear here. ⌘T starts one; chats stay in history until you archive them. | **No chats yet** · Start one with ⌘T. |
@@ -331,7 +331,7 @@ The minimum window stays 850×600. Breakpoints come from `window.viewport_size()
   - Search collapses to an icon button (tooltip "Search ⌘K").
   - The needs-you badge shows "● 1", keeping its full accessible name.
   - Open beside becomes icon-only.
-- **Note toolbar, by Note panel width.** The thresholds below are starting values; step 3 sets them from measured label widths so the toolbar stays one row at 900×600, 1050×700 (Note about 556 pt) and 1250×860 (about 687 pt).
+- **Note toolbar, by Note panel width.** The thresholds below are starting values; step 3 sets them from measured label widths so the toolbar stays one row at 900×600, 1050×700 (Note about 556 pt) and 1250×860 (about 687 pt). Since the fix pass (INT-3) the renderer measures the open note's row (its labels, status chip and comment count), so a plain note keeps Edit note and Connections at widths where the widest row folds them.
   - Always visible: Write | Read, Outline (`note-outline`), the status chip and the comment toggle.
   - Below about 760 pt: the five formatting buttons fold into a "Format ▾" menu (`format-menu`) with Heading, Bold, Italic, List and Quote.
   - Below about 620 pt: Edit note and Connections move into the Note ⋯ as "Edit note…" and "Connections".
@@ -347,7 +347,7 @@ The minimum window stays 850×600. Breakpoints come from `window.viewport_size()
   - At 300 pt or wider and idle, the controls stay on one row.
   - At every width, while work runs (Steer shown), Send (`ask-delegate`) reads "Queue", because ↵ then queues the message. Its tooltip is "Add this message to the queue ↵", and the notice after it follows the queue-notice table. While editing a queued item it keeps today's label. The row wraps only if it still does not fit.
 - **Overflow:** when the panels still overflow, a Kit `Scrollbar::horizontal(&tile_scroll)` on the existing handle makes it visible; the focused-panel reveal is kept. Write in Stacked needs 854 pt, so the scrollbar is expected only from the 850 pt minimum to 853 pt; 900×600 is the no-overflow bound that the tests check.
-- **Short:** the chat queue collapses to "2 waiting · Paused · Resume queue", with a disclosure for the items.
+- **Short:** the chat queue collapses to "Paused · 2 waiting · Resume queue", with a disclosure for the items. The state leads and never truncates; in a narrow chat the count gives way first (fix pass), with the full line as tooltip and accessible name.
 - **Overlays:**
   - The launcher is `min(580, window − 64)` wide, its height fits the results (at most 60 % of the window), and results are grouped under "Chats", "Notes" and "Commands" with kind icons instead of `chat ·` / `note ·` prefixes. Archived chats keep a neutral Archived chip, and their accessible name includes "archived".
   - Dialogs are at most window − 96 tall; the body scrolls and the buttons stay visible. Today's dialogs put their buttons in the body, so every dialog's action row moves into Kit `Dialog::footer(..)` (`gpui-component` 0.7.3 `dialog.rs`), which Kit keeps unclipped while the body scrolls (its footer test). The buttons keep their IDs.

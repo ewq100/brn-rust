@@ -575,25 +575,30 @@ impl ThreadsUi {
             let id = data.id.clone();
             let menu_id = id.clone();
             let this = this.clone();
-            let kind = match (data.protected, data.imported) {
-                (true, true) => "Protected · imported",
-                (true, false) => "Protected",
-                (false, true) => "Imported",
-                _ => "",
-            };
+            let kind = if data.imported { "Imported" } else { "" };
             let meta = match (data.inbound, kind.is_empty()) {
                 (0, _) => kind.to_owned(),
                 (n, true) => format!("← {n}"),
                 (n, false) => format!("{kind} · ← {n}"),
             };
-            row(
-                format!("{id_prefix}{id}"),
-                data.title.clone(),
-                meta,
-                current.as_deref() == Some(id.as_str()),
-            )
-            .on_click(cx.listener(move |this, _, window, cx| this.open_note(&id, None, window, cx)))
-            .context_menu(move |menu, _, _| note_menu(menu, &this, menu_id.clone()))
+            let row_id = format!("{id_prefix}{id}");
+            let mut entry = components::ListRow::new(row_id.clone(), data.title.clone())
+                .meta(meta)
+                .selected(current.as_deref() == Some(id.as_str()));
+            // The Lock alone, as in the Chats list, so a narrow list never
+            // cuts "Protected" short; it is announced and the tooltip.
+            if data.protected {
+                entry = entry.chip(
+                    "Protected",
+                    Self::protected_chip(format!("{row_id}-protected"), true),
+                );
+            }
+            entry
+                .build()
+                .on_click(
+                    cx.listener(move |this, _, window, cx| this.open_note(&id, None, window, cx)),
+                )
+                .context_menu(move |menu, _, _| note_menu(menu, &this, menu_id.clone()))
         };
         let frame = |header: gpui_kit::Div, body: gpui_kit::AnyElement| {
             div()
@@ -745,7 +750,6 @@ impl ThreadsUi {
         self.note_rows.is_empty() && self.thread_rows.iter().all(|row| row.resolved)
     }
     pub(super) fn overview_tile(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
-        let today = lists::today();
         let mut view = column();
         if self.first_run() {
             view = view.child(
@@ -861,7 +865,7 @@ impl ThreadsUi {
             let stamp = self.activity.stamp(&id).to_owned();
             note_list = note_list.child(
                 components::ListRow::new(format!("home-note-{id}"), data.title.clone())
-                    .meta(lists::human_time(&stamp, today))
+                    .meta(lists::human_time(&stamp))
                     .tooltip(timed(&data.title, &stamp))
                     .build()
                     .on_click(cx.listener(move |this, _, window, cx| {
@@ -900,7 +904,7 @@ impl ThreadsUi {
             let op = receipt.operation.as_str().to_owned();
             let reason = lists::receipt_reason(&receipt.reason);
             let mut entry = components::ListRow::new(format!("home-change-{op}"), reason.clone())
-                .meta(lists::human_time(&receipt.committed_at, today))
+                .meta(lists::human_time(&receipt.committed_at))
                 .tooltip(timed(&reason, &receipt.committed_at));
             if !receipt.needs_refresh.is_empty() {
                 entry = entry.chip(
@@ -956,7 +960,7 @@ impl ThreadsUi {
             action
                 .due
                 .as_ref()
-                .map(|due| format!("Due {}", lists::human_time(due, lists::today()))),
+                .map(|due| format!("Due {}", lists::human_time(due))),
             action.evidence.clone(),
         ]
         .into_iter()
@@ -1194,11 +1198,7 @@ impl ThreadsUi {
                                                 .child(format!("{affected} ·")),
                                         )
                                     })
-                                    .child(
-                                        div()
-                                            .flex_shrink_0()
-                                            .child(lists::human_time(&stamp, lists::today())),
-                                    )
+                                    .child(div().flex_shrink_0().child(lists::human_time(&stamp)))
                                     .tooltip(move |window, cx| {
                                         Tooltip::new(stamp.clone()).build(window, cx)
                                     })
@@ -1360,11 +1360,30 @@ impl ThreadsUi {
         let protected_line =
             metadata("Protected notes change only with your instruction or review.");
         if self.delegation_host() != Some(TileKind::Settings) {
+            // GPUI may wrap before "?", so the last word is its own unit: a
+            // narrow chat wraps "notes?" whole onto the next line.
+            let (lead, last) = DELEGATION_QUESTION
+                .rsplit_once(' ')
+                .unwrap_or(("", DELEGATION_QUESTION));
             let mut card = components::card("delegation-pending", None)
                 .child(
                     div()
+                        .id("delegation-question")
+                        .flex()
+                        .flex_wrap()
+                        .gap_x(px(4.))
                         .font_weight(gpui_kit::FontWeight::SEMIBOLD)
-                        .child(DELEGATION_QUESTION),
+                        .aria_label(DELEGATION_QUESTION)
+                        .child(div().min_w_0().child(lead))
+                        .child(
+                            div()
+                                .id("delegation-question-end")
+                                .flex_shrink_0()
+                                .whitespace_nowrap()
+                                .child(last)
+                                .test_support(),
+                        )
+                        .test_support(),
                 )
                 .child(status_line);
             for (choice, id, label, explanation, _) in options {
@@ -1386,7 +1405,16 @@ impl ThreadsUi {
                                     this.choose_delegation(choice, cx)
                                 })),
                         )
-                        .child(metadata(explanation)),
+                        // Beside the button when there is room, otherwise on
+                        // its own line, wrapping inside the card.
+                        .child(
+                            metadata(explanation)
+                                .id(format!("{id}-why"))
+                                .flex_grow(1.)
+                                .flex_basis(px(160.))
+                                .min_w_0()
+                                .test_support(),
+                        ),
                 );
             }
             return card.child(protected_line).test_support().into_any_element();
@@ -1814,10 +1842,21 @@ impl ThreadsUi {
                 button(format!("settings-section-{}", item.key()))
                     .label(item.label())
                     .selected(self.settings_section == item)
-                    .on_click(cx.listener(move |this, _, _, cx| {
-                        this.settings_section = item;
-                        cx.notify();
-                    }))
+                    .on_click(
+                        cx.listener(move |this, event: &gpui_kit::ClickEvent, window, cx| {
+                            this.settings_section = item;
+                            // Kit buttons don't take focus on a click, so the
+                            // ring would stay on the segment focus landed on.
+                            // A pointer click hands focus to the Settings body;
+                            // a key press keeps it on the pressed segment.
+                            if !event.is_keyboard() {
+                                this.panel_body(TileKind::Settings)
+                                    .clone()
+                                    .focus(window, cx);
+                            }
+                            cx.notify();
+                        }),
+                    )
             })
             .collect();
         let content = match self.settings_section {

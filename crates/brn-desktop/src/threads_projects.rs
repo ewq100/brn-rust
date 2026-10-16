@@ -581,7 +581,7 @@ impl ThreadsUi {
             })
         };
         let field = input.clone();
-        window.open_dialog(cx, move |dialog, window, cx| {
+        self.open_dialog(window, cx, move |dialog, window, cx| {
             let (ok, click) = (create.clone(), create.clone());
             dialog
                 .title(if project.is_none() {
@@ -684,7 +684,7 @@ impl ThreadsUi {
             })
         };
         let field = name.clone();
-        window.open_dialog(cx, move |dialog, window, cx| {
+        self.open_dialog(window, cx, move |dialog, window, cx| {
             let toggle = knowledge.clone();
             let on = *knowledge.read(cx);
             dialog
@@ -782,7 +782,7 @@ impl ThreadsUi {
         let error = cx.new(|_| String::new());
         // A pick list: each row is a tab stop; click it, or Tab to it and
         // press Space. ↵ chooses nothing.
-        window.open_dialog(cx, move |dialog, window, cx| {
+        self.open_dialog(window, cx, move |dialog, window, cx| {
             let mut rows = div().flex().flex_col();
             for (i, (project, label)) in choices.iter().enumerate() {
                 let (project, chat, target, error) =
@@ -860,7 +860,7 @@ impl ThreadsUi {
         let error = cx.new(|_| String::new());
         // A pick list, like Move chat: rows are tab stops and ↵ chooses
         // nothing.
-        window.open_dialog(cx, move |dialog, window, cx| {
+        self.open_dialog(window, cx, move |dialog, window, cx| {
             let mut rows = div().flex().flex_col();
             for r in &docs {
                 let (project, note, target, error) =
@@ -953,7 +953,7 @@ impl ThreadsUi {
         let choices = cx.new(|_| BTreeMap::<String, ProjectActionChoice>::new());
         let error = cx.new(|_| String::new());
         let target = cx.entity().downgrade();
-        window.open_dialog(cx, move |dialog, window, cx| {
+        self.open_dialog(window, cx, move |dialog, window, cx| {
             let line = |id: &str, label: &str, titles: Vec<String>| {
                 let text = format!("{label}: {}.", titles.join(", "));
                 div()

@@ -268,6 +268,10 @@ fn assert_draft_in(window: &Window, section: Bounds<gpui_kit::Pixels>) {
     assert!(composer.top() >= section.top(), "{composer:?} {section:?}");
     assert_in(window, "cancel-comment", section);
     assert_in(window, "post-comment", section);
+    // The whole input stays in view, never cut off by the section's cap.
+    assert_in(window, "comment-input-box", section);
+    let input = window.find("comment-input-box").bounds();
+    assert!(input.size.height >= px(56.), "{input:?}");
 }
 
 /// `primary` is the bar's last control: right after `before` on its row, or
@@ -1459,6 +1463,54 @@ fn failed_rewrite(cx: &mut TestAppContext, f: &Fixture, thread: &str, reason: &s
     });
 }
 
+/// The busiest Write state at 900×600: open comments, the expanded saved
+/// rewrite inputs and a dirty writing bar. The text keeps 120 px; the
+/// saved inputs give way first (they used to sit inside the bar and push
+/// it out of the Note), and the writing bar stays whole.
+#[gpui_kit::test]
+fn the_busiest_note_keeps_its_text_and_whole_bar_at_900x600(cx: &mut TestAppContext) {
+    let f = fixture(cx, 900., 600., TEXT);
+    commented(cx, &f, false);
+    update(cx, &f, |view, _, cx| view.rewrite_note(cx));
+    on_window(cx, &f, |window, cx| window.click("dismiss-notice", cx));
+    on_window(cx, &f, |window, cx| {
+        window.click("inspect-rewrite-inputs", cx)
+    });
+    type_edit(cx, &f, " Added.");
+    update(cx, &f, |view, _, cx| {
+        view.comments_expanded = true;
+        cx.notify();
+    });
+    on_window(cx, &f, |window, _| {
+        let tile = window.find("tile-note").bounds();
+        for id in [
+            "comments-section",
+            "writing-requests",
+            "note-unsaved-chip",
+            "save-note",
+            "note-bar",
+        ] {
+            assert!(window.find(id).visible(), "{id}");
+        }
+        // The whole bar stays in the Note with its primary.
+        for id in ["note-bar", "save-note", "note-unsaved-chip"] {
+            assert_in(window, id, tile);
+        }
+        let (text, requests) = (
+            window.find("note-body").bounds(),
+            window.find("writing-requests").bounds(),
+        );
+        assert!(text.size.height >= px(120.), "{text:?}");
+        assert!(text.bottom() <= requests.top() + px(0.5));
+        // The saved inputs gave way first, down to their heading line.
+        assert!(
+            requests.size.height >= px(40.) - px(0.5) && requests.size.height < px(220.),
+            "{requests:?}"
+        );
+        assert!(requests.bottom() <= window.find("note-bar").bounds().top() + px(0.5));
+    });
+}
+
 /// N3: below the text come the comments, the run's status and reply, then
 /// the writing bar; the text keeps 120 px and the section gives way first.
 #[gpui_kit::test]
@@ -1582,7 +1634,9 @@ fn the_banner_stack_keeps_its_budget_above_the_text_at_900x600(cx: &mut TestAppC
             stack.bottom() <= text.top() + px(0.5),
             "{stack:?} above {text:?}"
         );
-        assert!(text.size.height >= px(120.), "{text:?}");
+        // Banners are never hidden to meet the text's 120 px beside open
+        // comments, so with this whole stack the text keeps its few lines.
+        assert!(text.size.height >= px(48.), "{text:?}");
         assert_in(window, "note-bar", tile);
         for id in [
             "writing-run-status",
@@ -1592,15 +1646,23 @@ fn the_banner_stack_keeps_its_budget_above_the_text_at_900x600(cx: &mut TestAppC
         ] {
             assert_in(window, id, tile);
         }
-        // The stale banner opens the stack, its first line in view; the
-        // rest of it and the saved version scroll inside the stack.
+        // The stale banner opens the stack whole, with both its actions in
+        // view; the saved version below it keeps its label line and
+        // scrolls in its own box.
         let banner = window.find("note-stale-banner").bounds();
         assert!(window.find("note-stale-banner").visible());
         assert!(
             (banner.top() - stack.top()).abs() <= px(0.5),
             "{banner:?} in {stack:?}"
         );
-        assert!(stack.size.height >= px(48.) - px(0.5), "{stack:?}");
+        assert_in(window, "save-buffer-copy", stack);
+        assert_in(window, "show-current-note", stack);
+        let more = window.find("note-banners-more").bounds();
+        assert!(more.top() >= stack.bottom() - px(0.5) && more.bottom() <= text.top() + px(0.5));
+        assert!(more.size.height >= px(28.) - px(0.5), "{more:?}");
+        // The banner's own text keeps at least its first line.
+        let first = window.find("note-stale-banner-text").bounds();
+        assert!(first.size.height >= px(20.) - px(0.5), "{first:?}");
         assert!(window.find("comments-section-label").bounds().top() >= text.bottom() - px(0.5));
     });
     // With the bars at rest (no failed run), the same stale edit shows the

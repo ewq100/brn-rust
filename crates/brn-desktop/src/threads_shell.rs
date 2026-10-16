@@ -15,6 +15,9 @@ use gpui_kit::{
 const COMPACT_WIDTH: f32 = 1000.;
 /// Below this window height the chat queue collapses to one row.
 const SHORT_HEIGHT: f32 = 700.;
+/// Below this panel width the header leaves Maximize to its ⋯ menu: a
+/// 170 pt list then has room for its title beside ＋, ⋯ and Close.
+const NARROW_HEADER: f32 = 220.;
 fn compact(window: &Window) -> bool {
     window.viewport_size().width < px(COMPACT_WIDTH)
 }
@@ -254,7 +257,7 @@ pub(super) const KEYS: [(&str, &str); 20] = [
 impl ThreadsUi {
     pub(super) fn show_keys(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         // Information: ↵ and Esc both close it, Kit's default.
-        window.open_dialog(cx, |dialog, window, _| {
+        self.open_dialog(window, cx, |dialog, window, _| {
             let p = pal();
             dialog.title("Keys and mouse").on_ok(|_, _, _| true).child(
                 components::dialog_body("keys-help-body", window)
@@ -325,7 +328,14 @@ impl ThreadsUi {
             kind => (kind.label().into(), kind.label().into()),
         }
     }
-    fn tile_header(&self, kind: TileKind, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
+    /// A `narrow` header leaves Maximize to the ⋯ menu's Panel section, a
+    /// double-click and ⌘⇧↵, so the title keeps room to read.
+    fn tile_header(
+        &self,
+        kind: TileKind,
+        narrow: bool,
+        cx: &mut Context<Self>,
+    ) -> gpui_kit::AnyElement {
         let p = pal();
         let key = kind.key();
         let focused = self.layout.focus() == Some(kind);
@@ -414,30 +424,32 @@ impl ThreadsUi {
         });
         header
             .child(more)
-            .child(
-                components::icon_button(
-                    format!("tile-max-{key}"),
-                    if maximized {
-                        IconName::Minimize
+            .when(!narrow || maximized, |header| {
+                header.child(
+                    components::icon_button(
+                        format!("tile-max-{key}"),
+                        if maximized {
+                            IconName::Minimize
+                        } else {
+                            IconName::Maximize
+                        },
+                        // The announced name says which panel.
+                        format!(
+                            "{} {}",
+                            if maximized { "Restore" } else { "Maximize" },
+                            kind.label()
+                        ),
+                    )
+                    .tooltip(if maximized {
+                        "Restore (⌘⇧↵ · double-click header)"
                     } else {
-                        IconName::Maximize
-                    },
-                    // The announced name says which panel.
-                    format!(
-                        "{} {}",
-                        if maximized { "Restore" } else { "Maximize" },
-                        kind.label()
-                    ),
+                        "Maximize (⌘⇧↵ · double-click header)"
+                    })
+                    .on_click(cx.listener(move |this, _, window, cx| {
+                        this.relayout(window, cx, |layout| layout.toggle_maximize(kind))
+                    })),
                 )
-                .tooltip(if maximized {
-                    "Restore (⌘⇧↵ · double-click header)"
-                } else {
-                    "Maximize (⌘⇧↵ · double-click header)"
-                })
-                .on_click(cx.listener(move |this, _, window, cx| {
-                    this.relayout(window, cx, |layout| layout.toggle_maximize(kind))
-                })),
-            )
+            })
             .child(
                 components::icon_button(
                     format!("tile-close-{key}"),
@@ -542,7 +554,11 @@ impl ThreadsUi {
         self.margin_mode =
             layout::margin_mode(f32::from(window.viewport_size().width), &self.layout, false);
         let note_width = self.note_panel_width(window);
-        self.note_fit = note_width.map_or(layout::NoteFit::Full, layout::NoteFit::for_width);
+        // The toolbar folds by what this note's row needs, measured from
+        // its labels, status chip and comment count.
+        self.note_fit = note_width.map_or(layout::NoteFit::Full, |width| {
+            layout::NoteFit::for_width(width, self.note_toolbar_needs(window))
+        });
         self.review_fit = note_width.map_or(layout::ReviewFit::Full, layout::ReviewFit::for_width);
         self.chat_narrow = self
             .panel_width(TileKind::Chat, window)
@@ -612,7 +628,10 @@ impl ThreadsUi {
                 }));
             frame.style().flex_grow = Some(tile.weight);
             frame.style().flex_shrink = Some(1.);
-            let header = self.tile_header(kind, cx);
+            let narrow = self
+                .panel_width(kind, window)
+                .is_some_and(|width| width < NARROW_HEADER);
+            let header = self.tile_header(kind, narrow, cx);
             // The Note's one toolbar row; it folds controls by `note_fit`
             // rather than wrapping.
             let controls = if kind == TileKind::Note {
@@ -1491,7 +1510,12 @@ impl ThreadsUi {
     pub(super) fn focus_tile_contents(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         // Explicit navigation also reveals a panel manually scrolled away since last focus.
         self.tile_reveal = None;
-        self.focus_first = None;
+        self.focus_first = self.focus_landing(window, cx);
+        cx.notify();
+    }
+    /// Focus the focused panel's landing from the focus table. Returns the
+    /// panel whose body took focus, for the move to its first control.
+    fn focus_landing(&mut self, window: &mut Window, cx: &mut Context<Self>) -> Option<TileKind> {
         match self.layout.focus() {
             Some(TileKind::Note) => self.focus_visible_editor(window, cx),
             Some(TileKind::Chat) => self
@@ -1503,11 +1527,38 @@ impl ThreadsUi {
                 .update(cx, |input, cx| input.focus(window, cx)),
             Some(kind) => {
                 self.panel_focus[&kind].focus(window, cx);
-                self.focus_first = Some(kind);
+                return Some(kind);
             }
             None => self.focus_root(window, cx),
         }
-        cx.notify();
+        None
+    }
+    /// Open a dialog that hands focus back to something on screen when it
+    /// closes. Kit returns focus to whatever held it at open. A menu item's
+    /// handler runs while its menu holds focus, and the menu closes with
+    /// the click, so Escape would leave the keyboard nowhere. In that case
+    /// focus first moves to the focused panel's landing, which stays
+    /// rendered under the dialog; a button or field keeps its own focus.
+    pub(super) fn open_dialog(
+        &mut self,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+        build: impl Fn(
+            gpui_kit::component::dialog::Dialog,
+            &mut Window,
+            &mut App,
+        ) -> gpui_kit::component::dialog::Dialog
+        + 'static,
+    ) {
+        let in_menu = window
+            .context_stack()
+            .iter()
+            .any(|context| context.contains("PopupMenu"));
+        if in_menu || window.focused(cx).is_none() {
+            self.focus_first = None;
+            self.focus_landing(window, cx);
+        }
+        window.open_dialog(cx, build);
     }
     /// The panel body's focus handle, tracked by the element around it.
     pub(super) fn panel_body(&self, kind: TileKind) -> &gpui_kit::FocusHandle {

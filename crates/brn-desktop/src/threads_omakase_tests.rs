@@ -1022,6 +1022,34 @@ fn review_in_place_applies_exact_candidate_then_marks_addressed_and_undoes(
         );
         assert!(!view.applied_rewrite.contains_key(&note.id));
     });
+    // Undo saved a new version with the passage back. The comment stays
+    // tied to the version it was written on and nothing re-anchors it, so
+    // its card says exactly that rather than "not found".
+    let (comment, expected) = cx.read(|cx| {
+        let view = f.view.read(cx);
+        let entry = view.workspace.writing_comments(&note.id).unwrap()[0].clone();
+        let RecordData::Comment(data) = &entry.record.data else {
+            panic!("comment")
+        };
+        let version = view.note.as_ref().unwrap().record.version;
+        (
+            entry.record.id.clone(),
+            state::unlocated_reason(data, version),
+        )
+    });
+    assert!(expected.status.starts_with("Tied to v"), "{expected:?}");
+    on_window(cx, &f, |window, _| {
+        assert_eq!(
+            window.find(format!("comment-status-{comment}")).label(),
+            Some(expected.status.as_str())
+        );
+        let quote = window.find(format!("comment-quote-{comment}"));
+        let announced = quote.label().unwrap();
+        assert!(
+            announced.starts_with("Show passage “") && announced.contains(&expected.reason),
+            "{announced}"
+        );
+    });
 }
 
 #[gpui_kit::test]

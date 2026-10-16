@@ -113,11 +113,29 @@ impl MarginMode {
     }
 }
 
+/// The width each Note toolbar arrangement needs on one row, padding and
+/// borders included. The renderer measures them for the open note from its
+/// labels and its status chip and comment count (`note_toolbar_needs`), so
+/// Edit note and Connections fold only when this note's row doesn't fit.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub(super) struct NoteNeeds {
+    pub(super) full: f32,
+    pub(super) format_menu: f32,
+    pub(super) compact: f32,
+}
+impl NoteNeeds {
+    /// The widest row in the test text system, a "Protected · v12" chip and
+    /// a 12-comment toggle (797, 752 and 543 pt), plus about 12 pt.
+    pub(super) const WIDEST: Self = Self {
+        full: NoteFit::FULL,
+        format_menu: NoteFit::FORMAT_MENU,
+        compact: NoteFit::COMPACT,
+    };
+}
+
 /// How much of the Note toolbar fits on its one row, by the Note panel's
-/// width. Each threshold is the measured width its arrangement needs with a
-/// "Protected · v12" chip and a 12-comment toggle (797, 752 and 543 pt,
-/// padding and borders included), plus about 12 pt for wider versions and
-/// counts. Icons needs 315 pt, under the Note's 360 pt minimum.
+/// width and what the open note's row needs (`NoteNeeds`). Icons needs
+/// 315 pt, under the Note's 360 pt minimum.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord)]
 pub(super) enum NoteFit {
     /// Format and Outline are icon triggers, and the status chip shows its
@@ -134,12 +152,12 @@ impl NoteFit {
     pub(super) const FULL: f32 = 810.;
     pub(super) const FORMAT_MENU: f32 = 765.;
     pub(super) const COMPACT: f32 = 555.;
-    pub(super) fn for_width(width: f32) -> Self {
-        if width >= Self::FULL {
+    pub(super) fn for_width(width: f32, needs: NoteNeeds) -> Self {
+        if width >= needs.full {
             Self::Full
-        } else if width >= Self::FORMAT_MENU {
+        } else if width >= needs.format_menu {
             Self::FormatMenu
-        } else if width >= Self::COMPACT {
+        } else if width >= needs.compact {
             Self::Compact
         } else {
             Self::Icons
@@ -856,8 +874,20 @@ mod width_tests {
             (NoteFit::COMPACT - 1., NoteFit::Icons),
             (360., NoteFit::Icons),
         ] {
-            assert_eq!(NoteFit::for_width(width), fit, "{width}");
+            assert_eq!(NoteFit::for_width(width, NoteNeeds::WIDEST), fit, "{width}");
         }
+        // A plainer note's narrower row keeps Edit note and Connections at
+        // a width where the widest row folds them.
+        let plain = NoteNeeds {
+            full: 740.,
+            format_menu: 690.,
+            compact: 500.,
+        };
+        assert_eq!(NoteFit::for_width(700., plain), NoteFit::FormatMenu);
+        assert_eq!(
+            NoteFit::for_width(700., NoteNeeds::WIDEST),
+            NoteFit::Compact
+        );
         assert!(!NoteFit::Full.format_menu());
         assert!(NoteFit::FormatMenu.format_menu() && !NoteFit::FormatMenu.actions_in_menu());
         assert!(NoteFit::Compact.actions_in_menu() && !NoteFit::Compact.icons());
@@ -869,10 +899,11 @@ mod width_tests {
             let mode = margin_mode(available, &layout, false);
             panel_widths(available, &WRITE, mode.width())[1]
         };
-        assert_eq!(NoteFit::for_width(widths(1250.)), NoteFit::Compact);
-        assert_eq!(NoteFit::for_width(widths(1050.)), NoteFit::Compact);
+        let widest = |available| NoteFit::for_width(widths(available), NoteNeeds::WIDEST);
+        assert_eq!(widest(1250.), NoteFit::Compact);
+        assert_eq!(widest(1050.), NoteFit::Compact);
         // 900 pt leaves the Note about 406 pt.
-        assert_eq!(NoteFit::for_width(widths(900.)), NoteFit::Icons);
+        assert_eq!(widest(900.), NoteFit::Icons);
     }
 
     #[test]

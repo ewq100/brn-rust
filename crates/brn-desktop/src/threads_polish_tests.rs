@@ -324,6 +324,45 @@ fn note_toolbar_is_one_row_at_each_window_size_dirty_or_clean(cx: &mut TestAppCo
     }
 }
 
+/// INT-3: the toolbar folds by what this note's row needs. At a width where
+/// the widest row ("Protected · v12", 12 comments) moves Edit note and
+/// Connections into the Note ⋯, a plain note ("Working · v1", no comments)
+/// keeps both in its one-row toolbar.
+#[gpui_kit::test]
+fn edit_note_and_connections_stay_in_the_toolbar_when_this_notes_row_fits(cx: &mut TestAppContext) {
+    for (plain, f) in [
+        (true, fixture(cx, 1330., 860., "Saved text")),
+        (false, widest(cx, 1330., 860.)),
+    ] {
+        on_window(cx, &f, |window, cx| {
+            let view = f.view.read(cx);
+            let width = view.note_panel_width(window).unwrap();
+            let needs = view.note_toolbar_needs(window);
+            assert!(
+                width < layout::NoteNeeds::WIDEST.format_menu
+                    && (needs.format_menu <= width) == plain,
+                "plain {plain}: {needs:?} at {width}"
+            );
+            let bar = window.find("note-toolbar").bounds();
+            for id in ["edit-note-context", "note-connections"] {
+                assert_eq!(
+                    window.try_find(id).is_some(),
+                    plain,
+                    "plain {plain}: {id} in the toolbar"
+                );
+                if plain {
+                    assert_in(window, id, bar);
+                }
+            }
+            for id in TOOLBAR_IDS {
+                if window.try_find(id).is_some_and(|e| e.visible()) {
+                    assert_in(window, id, bar);
+                }
+            }
+        });
+    }
+}
+
 #[gpui_kit::test]
 fn format_menu_holds_five_actions_and_outline_lists_headings_in_write_and_read(
     cx: &mut TestAppContext,
@@ -401,7 +440,14 @@ fn the_four_note_banners_stay_visible_in_write_at_900x600(cx: &mut TestAppContex
             window.find("note-recover-banner-tone").label(),
             Some("Warning")
         );
+        // Recover edit is the panel's one primary; Rewrite with AI waits
+        // for it and says so.
+        assert_eq!(
+            window.find("rewrite-note").label(),
+            Some("Rewrite with AI, unavailable: Recover the kept edit first")
+        );
     });
+    assert_eq!(row(cx, &f), Some(workbench::WritingRow::Recover));
     on_window(cx, &f, |window, cx| window.click("recover-note-edit", cx));
     on_window(cx, &f, |window, _| {
         assert!(window.try_find("note-recover-banner").is_none())

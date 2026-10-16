@@ -409,6 +409,76 @@ fn project_delete_dialog_confirms_only_by_space_on_its_danger_button(cx: &mut Te
     assert!(archived(cx, &f, &p), "Space presses the focused confirm");
 }
 
+/// Escape on a dialog opened from a Projects ⋯ item gives focus back to the
+/// Projects panel (the focus table's landing), so ⌘K and Tab work at once.
+/// The menu that opened the dialog is gone by then.
+#[gpui_kit::test]
+fn escape_from_a_projects_menu_dialog_keeps_the_keyboard_working(cx: &mut TestAppContext) {
+    let f = fixture(cx);
+    create(cx, &f, "Focus trip");
+    for label in [
+        "Instructions & settings",
+        "New document",
+        "Link document…",
+        "Move to Trash…",
+    ] {
+        project_action(cx, &f, label);
+        assert!(dialog_open(cx, &f), "{label} opens a dialog");
+        press(cx, &f, "escape");
+        assert!(!dialog_open(cx, &f), "Escape closes {label}");
+        cx.update_window(f.window, |_, window, cx| {
+            let view = f.view.read(cx);
+            assert!(
+                view.panel_body(TileKind::Projects)
+                    .contains_focused(window, cx),
+                "after {label}, focus is in the Projects panel"
+            );
+        })
+        .unwrap();
+        press(cx, &f, "cmd-k");
+        cx.read(|cx| assert!(f.view.read(cx).launcher_open, "⌘K after {label}"));
+        press(cx, &f, "escape");
+        press(cx, &f, "tab");
+        cx.update_window(f.window, |_, window, cx| {
+            assert!(
+                f.view.read(cx).root_focus.contains_focused(window, cx),
+                "Tab after {label} moves within the workspace"
+            );
+        })
+        .unwrap();
+    }
+}
+
+/// Link document… is a pick list: Tab reaches a document row and Space
+/// links it; ↵ does nothing there.
+#[gpui_kit::test]
+fn link_document_rows_are_reached_by_tab_and_pressed_by_space(cx: &mut TestAppContext) {
+    let f = fixture(cx);
+    let p = create(cx, &f, "Keyboard trip");
+    project_action(cx, &f, "Link document…");
+    let row = format!("project-link-doc-{}", f.note);
+    let reached = (0..12).any(|_| {
+        press(cx, &f, "tab");
+        cx.update_window(f.window, |_, window, _| {
+            window.find(row.clone()).focused() == Some(true)
+        })
+        .unwrap()
+    });
+    assert!(reached, "Tab reaches the document row");
+    let linked = |cx: &mut TestAppContext| {
+        cx.read(|cx| {
+            let record = f.view.read(cx).workspace.store.record(&p).unwrap().unwrap();
+            matches!(&record.data, RecordData::Project(project) if project.documents == [f.note.clone()])
+        })
+    };
+    press(cx, &f, "enter");
+    assert!(dialog_open(cx, &f), "↵ leaves the pick list open");
+    assert!(!linked(cx));
+    press(cx, &f, "space");
+    assert!(!dialog_open(cx, &f));
+    assert!(linked(cx), "Space on the focused row links the document");
+}
+
 /// Project instructions are a multi-line form: ↵ adds a line, ⌘↵ saves.
 #[gpui_kit::test]
 fn project_settings_dialog_adds_a_line_on_enter_and_saves_on_cmd_enter(cx: &mut TestAppContext) {
