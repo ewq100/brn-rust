@@ -3613,3 +3613,234 @@ async fn b3_reference_next_keeps_its_query_until_owner_starts_a_new_search(
         );
     });
 }
+
+#[gpui_kit::test]
+fn b3_import_completion_keeps_another_notes_hidden_dirty_setup(cx: &mut TestAppContext) {
+    let f = fixture(cx);
+    let (sender, receiver) = mpsc::sync_channel(4);
+    let (saved_a, saved_b) = cx
+        .update_window(f.window, |_, window, cx| {
+            f.view.update(cx, |view, cx| {
+                let pending = view
+                    .workspace
+                    .new_note("Hidden B pending reference", "Retained pending material")
+                    .unwrap();
+                for (key, note, brief, references) in [
+                    ("b3-other-dirty-a", &f.a, "Clean A setup", vec![]),
+                    (
+                        "b3-other-dirty-b",
+                        &f.b,
+                        "Saved B brief",
+                        vec![WritingReference {
+                            note: f.a.id.clone(),
+                            purpose: WritingPurpose::Style,
+                        }],
+                    ),
+                ] {
+                    view.workspace
+                        .set_writing_setup(
+                            key,
+                            None,
+                            &WritingSetup {
+                                note: note.id.clone(),
+                                chat: None,
+                                brief: Some(brief.into()),
+                                references,
+                            },
+                        )
+                        .unwrap();
+                }
+                view.open_note(&f.a.id, None, window, cx);
+                view.load_writing_setup(window, cx);
+                assert!(!view.writing_setup_dirty(cx));
+                // The existing picker/worker contract is injected; conversion itself is synthetic.
+                view.reference_import = Some(ReferenceImportIntent {
+                    target: view.writing.setup.as_ref().unwrap().target.clone(),
+                    purpose: WritingPurpose::Evidence,
+                    key: "b3-other-dirty-converted".into(),
+                });
+                view.worker = Some(Worker {
+                    receiver,
+                    cancel: CancellationToken::new(),
+                    conversion_cancel: Arc::new(AtomicBool::new(false)),
+                    kind: WorkerKind::Import,
+                    thread: None,
+                    run_id: None,
+                });
+                view.open_note(&f.b.id, None, window, cx);
+                view.load_writing_setup(window, cx);
+                assert_eq!(view.writing.setup.as_ref().unwrap().target.note, f.b.id);
+                let page = view
+                    .workspace
+                    .search_handle()
+                    .unwrap()
+                    .request_page("Hidden B pending reference", None, 12, None)
+                    .wait()
+                    .unwrap();
+                assert_eq!(page.matches[0].note, pending.id);
+                view.writing.setup.as_mut().unwrap().matches = page.matches;
+                view.writing
+                    .setup_brief
+                    .read(cx)
+                    .focus_handle(cx)
+                    .focus(window, cx);
+                cx.notify();
+                (
+                    view.workspace.writing_setup(&f.a.id, None).unwrap().record,
+                    view.workspace.writing_setup(&f.b.id, None).unwrap().record,
+                )
+            })
+        })
+        .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        window.press("cmd-a", cx);
+        window.input("Private B brief typed during A conversion", cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
+    for id in [
+        "reference-purpose-0-Requirements",
+        "attach-writing-reference-0",
+    ] {
+        b3_reveal_setup_control(cx, &f, id);
+        cx.update_window(f.window, |_, window, cx| window.click(id, cx))
+            .unwrap();
+        cx.run_until_parked();
+    }
+    let pending = cx.read(|cx| {
+        let view = f.view.read(cx);
+        let draft = view.writing.setup.as_ref().unwrap();
+        assert_eq!(draft.references.len(), 2);
+        assert_eq!(draft.references[0].purpose, WritingPurpose::Requirements);
+        draft.references.clone()
+    });
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            view.open_note(&f.a.id, None, window, cx);
+            assert!(!view.writing_setup_form_current());
+            assert!(view.writing_setup_dirty(cx));
+            cx.notify();
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, _| {
+        assert!(window.try_find("writing-setup-brief").is_none());
+        assert!(window.try_find("writing-reference-0").is_none());
+        assert!(window.try_find("save-writing-setup").is_none());
+    })
+    .unwrap();
+    sender
+        .send(WorkerEvent::Converted {
+            result: Box::new(Ok(b3_converted_reference())),
+            title: "A conversion retained without attaching".into(),
+            chat: None,
+        })
+        .unwrap();
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            view.poll_worker(window, cx);
+            assert!(view.worker.is_none());
+            assert_eq!(
+                view.writing.setup_brief.read(cx).value().as_ref(),
+                "Private B brief typed during A conversion",
+                "A completion must retain the other Note's hidden dirty brief"
+            );
+            let draft = view.writing.setup.as_ref().unwrap();
+            assert_eq!(draft.target.note, f.b.id);
+            assert_eq!(draft.target.scope, None);
+            assert_eq!(draft.references, pending);
+            assert_eq!(view.workspace.writing_setup(&f.a.id, None).unwrap().record, saved_a);
+            assert_eq!(view.workspace.writing_setup(&f.b.id, None).unwrap().record, saved_b);
+            assert!(view.workspace.notes().unwrap().iter().any(|r| {
+                matches!(&r.data, RecordData::Note(n) if n.title == "A conversion retained without attaching")
+            }));
+            assert!(view.notice.contains("no reference was attached"));
+            for private in [
+                "Note B",
+                "Private B brief typed during A conversion",
+                "Hidden B pending reference",
+            ] {
+                assert!(!view.notice.contains(private));
+            }
+            cx.notify();
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, _| {
+        assert!(window.try_find("writing-setup-brief").is_none());
+        assert!(window.try_find("writing-reference-0").is_none());
+        assert!(window.try_find("attach-writing-reference-0").is_none());
+        assert!(window.try_find("save-writing-setup").is_none());
+    })
+    .unwrap();
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            view.open_note(&f.b.id, None, window, cx);
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    for id in ["recheck-writing-setup", "save-writing-setup"] {
+        b3_reveal_setup_control(cx, &f, id);
+        cx.update_window(f.window, |_, window, cx| window.click(id, cx))
+            .unwrap();
+        cx.run_until_parked();
+    }
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            let RecordData::WritingSetup(saved) = view
+                .workspace
+                .writing_setup(&f.b.id, None)
+                .unwrap()
+                .record
+                .unwrap()
+                .data
+            else {
+                panic!("B saved setup")
+            };
+            assert_eq!(
+                saved.brief.as_deref(),
+                Some("Private B brief typed during A conversion")
+            );
+            assert_eq!(saved.references, pending);
+            assert_eq!(
+                view.workspace.writing_setup(&f.a.id, None).unwrap().record,
+                saved_a
+            );
+            view.writing
+                .setup_brief
+                .read(cx)
+                .focus_handle(cx)
+                .focus(window, cx);
+        });
+        window.press("cmd-a", cx);
+        window.input("B owner explicitly discards this later edit", cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
+    b3_reveal_setup_control(cx, &f, "reload-writing-setup");
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(
+            window
+                .find("reload-writing-setup")
+                .label()
+                .unwrap()
+                .contains("discard")
+        );
+        window.click("reload-writing-setup", cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert_eq!(
+            view.writing.setup_brief.read(cx).value().as_ref(),
+            "Private B brief typed during A conversion"
+        );
+        assert_eq!(view.writing.setup.as_ref().unwrap().target.note, f.b.id);
+        assert_eq!(view.writing.setup.as_ref().unwrap().references, pending);
+    });
+}

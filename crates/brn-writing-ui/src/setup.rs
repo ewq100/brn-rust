@@ -203,7 +203,7 @@ impl SetupDraft {
             self.target.scope.as_deref(),
         ) {
             return Err(AppError::Invalid(
-                "Reference search changed; Reload before attaching".into(),
+                "Reference search changed; Recheck and keep edits before attaching".into(),
             ));
         }
         let hit = self

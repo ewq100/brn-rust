@@ -29,3 +29,17 @@ The added app helper does not share D1B's `tests/export_metadata.rs` allocation.
 The original final-window paragraph describes the earlier ba7161/29c9 verification. After principal's Opus1 correction allocation and explicit heavy grant, four production paths (native.rs/setup.rs/references.rs/threads_ui.rs) and the existing native fixture file changed. There are now fourteen B3 native fixtures, with all original assertions and pre-B3 prefixes retained. The other three Rust paths in the exact eight-path table remain unchanged from reviewed source. No new scope or metadata/lock/manifest/CI/script path was edited.
 
 Compiled corrected source/test pin def881852d1f3aa24dca03f0f2bb52145b37faf6 is frozen. [Round1 handoff](round1-handoff.md) records current checks, exact source identities and two bounded omission witnesses. The heavy slot is again explicitly released with empty precise process receipt and restored source. All eight exact Rust paths plus B3 docs/minimal status link remain retained and frozen for principal Opus2 and explicit handoff. This does not assign another implementation slice or imply local acceptance.
+
+
+## Opus2 bounded correction preparation
+
+Opus2 found B3-1b: A's import can discard a dirty form bound to B. The principal allocated only `threads_ui.rs::complete_writing_reference_import`'s dirty condition, the two Search/Attach warning strings there, `setup.rs::attach_match`'s warning, one appended native writing fixture and B3 evidence docs. These three Rust paths are the entire active correction; the other five previously owned paths remain frozen. No new path, authority, cache, dependency or route is allocated.
+
+[Round2 response / BUILD NEED](round2-response.md) and [unexecuted preparation identities](round2-preparation.json) record the before patch, separate fixed before source/target, replacement-call audit and exact candidate hashes. Existing native test bytes remain a full prefix. D2 has the sole heavy slot; source preparation ran only direct pinned rustfmt/static checks, with no Cargo/test/lint/metadata/headless/mutation/process polling. Actual before/corrected qualification and principal-owned Opus3 await a new explicit grant. The original guard allocation is closed, not reusable. No uncompiled source commit or source acceptance is claimed.
+
+
+## Opus2 correction — granted bounded verification
+
+The principal subsequently released D2 and explicitly granted B3 the sole heavy slot for this prepared three-path correction. [Actual eight command receipts](round2-checks.json) and [full finding response](round2-response.md) record genuine before failure, corrected owner path, fifteen B3 cases, library44/full native287 passed plus one existing ignored, strict native/test-support all-target lint and fmt. Preparation snapshots remain historical; no prior counts are relabelled. Source/diff/material hashes remain exactly the prepared candidate, with all prior test bytes retained.
+
+The other five original Rust paths and every manifest/lock/app/core/AI/CLI/CI/script path stayed unchanged. No new mutation is authorized or executed. The compiled material will be pinned and frozen for principal-owned Opus3; final process/release proof follows as evidence only. This does not grant another implementation slice or acceptance.

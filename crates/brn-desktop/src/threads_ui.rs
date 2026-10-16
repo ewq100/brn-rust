@@ -3996,7 +3996,9 @@ impl ThreadsUi {
         cx: &mut Context<Self>,
     ) {
         if !self.writing_setup_form_current() {
-            self.warn("Writing context changed; Reload before searching references.");
+            self.warn(
+                "Writing context changed; Recheck and keep edits before searching references.",
+            );
             cx.notify();
             return;
         }
@@ -4236,10 +4238,8 @@ impl ThreadsUi {
                 return true;
             }
         };
-        if self.writing.setup.as_ref().is_some_and(|draft| {
-            draft.target.note == intent.target.note && draft.target.scope == intent.target.scope
-        }) && self.writing_setup_dirty(cx)
-        {
+        // A hidden form in another context still owns its unsaved edits.
+        if self.writing_setup_dirty(cx) {
             self.warn("Canonical Note retained in its original scope; no reference was attached. Unsaved brief and reference edits were kept. Recheck and keep edits, Save them explicitly, then Find the imported Note to attach it.");
             return true;
         }
@@ -4376,7 +4376,7 @@ impl ThreadsUi {
                         self.warn(error.to_string());
                     }
                 } else {
-                    self.warn("Writing context changed; Reload before choosing references.");
+                    self.warn("Writing context changed; Recheck and keep edits before choosing references.");
                 }
                 cx.notify();
             }
