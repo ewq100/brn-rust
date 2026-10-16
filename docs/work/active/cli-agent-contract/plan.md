@@ -315,7 +315,7 @@ Command: `git -C /Users/evokessler/repos/brn-rust -c core.fsmonitor=false log --
 
 ## Steps
 
-- [ ] R2-1. **Record the baseline, commit the owner decisions, and lay the contract-2 foundation.**
+- [x] R2-1. **Record the baseline, commit the owner decisions, and lay the contract-2 foundation.**
       (a) Pre-flight checks:
       - `git -C /Users/evokessler/repos/brn-rust/.worktrees/cli-agent-contract status --porcelain` shows only `owner-decisions.md` (untracked), this `plan.md` and `evidence.md`.
       - HEAD is `2537db54`.
@@ -352,7 +352,7 @@ Command: `git -C /Users/evokessler/repos/brn-rust -c core.fsmonitor=false log --
       - `cargo build -p brn --locked --offline && python3 scripts/cli_journey.py "$PWD/target/debug/brn"` prints `"journey":"passed"`;
       - the baseline run of `agent_discovery` fails.
 
-- [ ] R2-2. **⚑ A1 core: SELECT-only paging functions** (design A1 "⚑ Core `inspect.rs`").
+- [x] R2-2. **⚑ A1 core: SELECT-only paging functions** (design A1 "⚑ Core `inspect.rs`").
       Read BOARD.md first. Create `crates/brn-threads-core/src/inspect.rs`:
       - **Types:** `OperationState {Applied, Prepared, Retired, Allocated}`; `OperationInfo {id, state, undo_of, replacement_of, prepared: Option<Prepared>, receipt: Option<Receipt>}`; `CandidateRow {rowid, prepared, undo_of, replacement_of}`.
       - **`impl Store` with `&self` functions:**

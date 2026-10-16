@@ -223,4 +223,10 @@ Everything ships as contract 2, with a "Changes from contract 1" table and a for
 - Verification: `cargo test -p brn --locked --offline --test agent_discovery --test threads` 1 + 11 passed; unit tests 22 passed; `agent_contract` 19 passed, 3 sandbox-blocked (above), PTY test skipped with `BRN_SKIP_PTY_TESTS=1`; `python3 -m unittest discover -s scripts/tests` 147 OK; `cli_journey.py target/debug/brn` with a fresh `TMPDIR` parent: passed (61 steps, 650 checks), parent empty; `cargo clippy -p brn --all-targets --locked --offline -- -D warnings` clean.
 - Baseline run (`AGENT_CONTRACT_BASELINE_BIN=… --test agent_discovery`): `every_envelope_has_contract_2_page_and_stop` fails: `contract` is 1.
 
+### R2-2 ⚑ core inspection pages (additive, SELECT-only)
+
+- ⚑ Shared service: new `crates/brn-threads-core/src/inspect.rs` (`OperationState`, `OperationInfo`, `CandidateRow`, `RECORD_KINDS`; `Store::{receipt_page, receipt_count, candidate_page, record_page, run_page, operation_by_host_key, operation_info}`), plus two lines in core `lib.rs` (`mod inspect;` and its `pub use`, after `mod backup;`). No transaction, no DML, not used by the desktop; the kind filter is a bound JSON path. BOARD.md read first.
+- Tests: `crates/brn-threads-core/tests/inspect.rs` (7, data written only through `Store`; n/a at baseline: new API).
+- Verification: `cargo test -p brn-threads-core --locked --offline --no-fail-fast` 119 passed, 0 failed; `cargo build --workspace --locked --offline` ok; `cargo clippy --workspace --all-targets --locked --offline -- -D warnings` clean; `git diff --stat 2537db54 -- crates/brn-threads-core/src/store.rs crates/brn-desktop crates/brn-ai` empty.
+
 <!-- ===================== ROUND 2 END ===================== -->
