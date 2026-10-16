@@ -878,3 +878,35 @@ fn a_desktop_supply_reuses_the_chat_a_cli_useful_intake_left(cx: &mut TestAppCon
         .count();
     assert!(named >= 2, "the CLI's and the desktop's Runs name it");
 }
+/// Round 5 slice F: the notes search answer the desktop receives carries a
+/// saved chat Message as its own kind, with its chat. The desktop renders
+/// only note hits for now (UI finding F-UI1), so this checks the data.
+#[gpui_kit::test]
+fn the_notes_search_answer_carries_a_saved_chat_message(cx: &mut TestAppContext) {
+    let f = fixture(cx);
+    let chat = update(cx, &f, |ui, _, _| {
+        let chat = ui.workspace.new_thread("Replies").unwrap().id;
+        ui.workspace
+            .post_message(&chat, "Berth survey reply draft 1.4 m")
+            .unwrap();
+        chat
+    });
+    update(cx, &f, |ui, window, cx| {
+        ui.search_changed("berth".into(), window, cx)
+    });
+    cx.read(|cx| {
+        let ui = f.view.read(cx);
+        let page = ui.results.page.clone().expect("answered");
+        assert_eq!((page.total, ui.hits.len()), (0, 0));
+        assert_eq!(page.message_total, 1);
+        let hit = &page.messages[0];
+        assert_eq!(
+            (
+                hit.chat.as_str(),
+                hit.chat_title.as_str(),
+                hit.role.as_str()
+            ),
+            (chat.as_str(), "Replies", "owner")
+        );
+    });
+}

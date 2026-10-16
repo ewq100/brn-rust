@@ -98,6 +98,34 @@ pub struct SearchPage {
     /// Dense coverage: `none`, `partial(n/m)`, `complete` or `failed: …`.
     #[serde(default)]
     pub semantic: String,
+    /// Matching saved chat Messages visible in this context, best first, at
+    /// the same offset as `hits`. A separate kind: never counted in `total`.
+    #[serde(default)]
+    pub messages: Vec<ChatMessageHit>,
+    /// Every visible matching Message.
+    #[serde(default)]
+    pub message_total: usize,
+    /// Set while more Messages remain: pass it as the cursor, with the same
+    /// limit. Past their end, `hits` is empty.
+    #[serde(default)]
+    pub message_cursor: Option<String>,
+}
+
+/// One saved chat Message matching an owner search, with its chat. A saved
+/// reply is text kept in BRN; it does not mean anything was sent.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct ChatMessageHit {
+    pub message: String,
+    pub version: u64,
+    pub chat: String,
+    pub chat_title: String,
+    /// `owner` or `assistant`.
+    pub role: String,
+    /// Bounded matching context from the Message.
+    pub snippet: String,
+    /// Byte ranges in `snippet` to highlight.
+    #[serde(default)]
+    pub highlights: Vec<std::ops::Range<usize>>,
 }
 
 impl From<search::SearchResults> for SearchPage {
@@ -108,6 +136,21 @@ impl From<search::SearchResults> for SearchPage {
             reachable: results.reachable,
             cursor: results.next,
             semantic: results.semantic,
+            message_total: results.message_total,
+            message_cursor: results.message_next,
+            messages: results
+                .messages
+                .into_iter()
+                .map(|m| ChatMessageHit {
+                    message: m.message,
+                    version: m.version,
+                    chat: m.chat,
+                    chat_title: m.chat_title,
+                    role: m.role,
+                    snippet: m.snippet.text,
+                    highlights: m.snippet.highlights,
+                })
+                .collect(),
             hits: results
                 .matches
                 .into_iter()
@@ -431,7 +474,8 @@ impl Workspace {
     pub fn search(&mut self, query: &str) -> AppResult<Vec<SearchHit>> {
         Ok(self.search_page(query, None, SEARCH_LIMIT, None)?.hits)
     }
-    /// One page of results visible in `chat` (`None` = general).
+    /// One page of results visible in `chat` (`None` = general): notes in
+    /// `hits` and saved chat Messages in `messages`.
     pub fn search_page(
         &mut self,
         query: &str,

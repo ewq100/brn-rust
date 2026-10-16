@@ -55,6 +55,75 @@ pub fn search_eligibility(record: &Record, rows: &[Record]) -> SearchEligibility
         .map_or(SearchEligibility::Hidden, SearchEligibility::Chat)
 }
 
+/// Where a chat's saved Messages may appear in owner search, mirroring notes:
+/// a general chat wherever general notes appear, a project chat only in its
+/// project, and a chat holding private context only in itself. This is the
+/// owner's search scope; agent runs keep [`crate::record_in_chat`].
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub enum MessageScope {
+    General,
+    Project(String),
+    Chat(String),
+    Hidden,
+}
+
+/// Message roles owner search indexes: final owner and assistant Messages,
+/// never partial progress or writing requests.
+pub const SEARCHABLE_MESSAGE_ROLES: [&str; 2] = ["owner", "assistant"];
+
+/// A current Message owner search may index; its chat's scope still applies.
+pub fn message_searchable(record: &Record) -> bool {
+    !record.archived
+        && matches!(&record.data, RecordData::Message(m) if SEARCHABLE_MESSAGE_ROLES.contains(&m.role.as_str()))
+}
+
+/// The owner-search scope of `thread`'s Messages. Archived chats (Archive,
+/// and a project Delete that moved them to Trash) are hidden. `rows` must
+/// hold the chat, every Project and the Notes saved in the chat (see
+/// [`Snapshot::message_scope_rows`]).
+pub fn message_scope(thread: &Record, rows: &[Record]) -> MessageScope {
+    if thread.archived || !matches!(thread.data, RecordData::Thread(_)) {
+        return MessageScope::Hidden;
+    }
+    if let Some(project) = crate::project_for_chat(rows, &thread.id) {
+        return if project.archived {
+            MessageScope::Hidden
+        } else {
+            MessageScope::Project(project.id.clone())
+        };
+    }
+    if crate::context::chat_private(rows, &thread.id) {
+        MessageScope::Chat(thread.id.clone())
+    } else {
+        MessageScope::General
+    }
+}
+
+/// The scopes whose Messages owner search shows in `context` (`None` =
+/// general). A project, or a chat in it, shows the project's chats, plus
+/// general chats when the project uses BRN knowledge, as for general notes;
+/// a project in Trash shows none. A general chat also shows itself. `rows`
+/// must hold every Project.
+pub fn message_scopes_for(rows: &[Record], context: Option<&str>) -> Vec<MessageScope> {
+    let Some(context) = context else {
+        return vec![MessageScope::General];
+    };
+    match crate::project_scope(rows, Some(context)) {
+        Some(project) if project.archived => vec![],
+        Some(project) => {
+            let mut scopes = vec![MessageScope::Project(project.id.clone())];
+            if matches!(&project.data, RecordData::Project(p) if p.use_brn_knowledge) {
+                scopes.push(MessageScope::General);
+            }
+            scopes
+        }
+        None => vec![
+            MessageScope::General,
+            MessageScope::Chat(context.to_owned()),
+        ],
+    }
+}
+
 pub struct StoreReader {
     conn: Connection,
     directory: PathBuf,
@@ -231,6 +300,78 @@ impl Snapshot<'_> {
                     && !matches!(&r.data, RecordData::Note(n) if n.superseded_by.is_some())
                     && crate::context::visible(r, &rows, chat)
             })
+            .map(|r| r.id.clone())
+            .collect())
+    }
+    /// The records [`message_scope`] and [`message_scopes_for`] read for
+    /// `chats`: those chats, every Project, and the Notes saved in them.
+    pub fn message_scope_rows(&self, chats: &[String]) -> Result<Vec<Record>> {
+        let mut found = BTreeMap::new();
+        let mut projects = self.tx.prepare(
+            "SELECT body FROM records WHERE json_type(body,'$.data.Project') IS NOT NULL",
+        )?;
+        for body in projects.query_map([], |r| r.get::<_, String>(0))? {
+            let r = record_from(body?)?;
+            found.insert(r.id.clone(), r);
+        }
+        let mut notes = self.tx.prepare("SELECT body FROM records WHERE json_type(body,'$.data.Note') IS NOT NULL AND json_extract(body,'$.data.Note.chat')=?1")?;
+        for chat in chats {
+            if let Some(r) = self.record(chat)? {
+                found.insert(r.id.clone(), r);
+            }
+            for body in notes.query_map([chat], |r| r.get::<_, String>(0))? {
+                let r = record_from(body?)?;
+                found.insert(r.id.clone(), r);
+            }
+        }
+        Ok(found.into_values().collect())
+    }
+    /// The Message scopes owner search shows in `context`; see
+    /// [`message_scopes_for`].
+    pub fn message_scopes(&self, context: Option<&str>) -> Result<Vec<MessageScope>> {
+        Ok(message_scopes_for(&self.message_scope_rows(&[])?, context))
+    }
+    /// Of `ids`, the Messages owner search may show in `context` (`None` =
+    /// general): current final owner and assistant Messages whose chat's
+    /// [`message_scope`] is among the context's [`message_scopes_for`].
+    pub fn searchable_messages(
+        &self,
+        ids: &[String],
+        context: Option<&str>,
+    ) -> Result<BTreeSet<String>> {
+        let mut messages = Vec::new();
+        for id in ids {
+            if let Some(record) = self.record(id)?
+                && message_searchable(&record)
+            {
+                messages.push(record);
+            }
+        }
+        let chats: Vec<String> = messages
+            .iter()
+            .filter_map(|r| match &r.data {
+                RecordData::Message(m) => Some(m.thread.clone()),
+                _ => None,
+            })
+            .collect::<BTreeSet<_>>()
+            .into_iter()
+            .collect();
+        let rows = self.message_scope_rows(&chats)?;
+        let allowed = message_scopes_for(&rows, context);
+        let shown: BTreeSet<&str> = chats
+            .iter()
+            .filter(|chat| {
+                rows.iter()
+                    .find(|r| r.id == **chat)
+                    .is_some_and(|thread| allowed.contains(&message_scope(thread, &rows)))
+            })
+            .map(String::as_str)
+            .collect();
+        Ok(messages
+            .iter()
+            .filter(
+                |r| matches!(&r.data, RecordData::Message(m) if shown.contains(m.thread.as_str())),
+            )
             .map(|r| r.id.clone())
             .collect())
     }

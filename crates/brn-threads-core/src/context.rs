@@ -175,12 +175,17 @@ impl Store {
     /// Archived unpromoted inputs still restrict information retained in chat history.
     pub fn chat_has_private_context(&self, chat: &str) -> Result<bool> {
         let rows = self.records()?;
-        Ok(crate::project_for_chat(&rows, chat).is_some()
-            || rows.iter().any(|r| {
-                matches!(&r.data, RecordData::Note(n) if n.chat.as_deref() == Some(chat))
-                    || matches!(&r.data, RecordData::Thread(t) if r.id == chat && t.private_context)
-            }))
+        Ok(crate::project_for_chat(&rows, chat).is_some() || chat_private(&rows, chat))
     }
+}
+
+/// Outside project membership, a chat holds private context when it has
+/// its own notes (archived or not) or sticky project provenance.
+pub(crate) fn chat_private(rows: &[Record], chat: &str) -> bool {
+    rows.iter().any(|r| {
+        matches!(&r.data, RecordData::Note(n) if n.chat.as_deref() == Some(chat))
+            || matches!(&r.data, RecordData::Thread(t) if r.id == chat && t.private_context)
+    })
 }
 
 /// Managed URL tokens use the same complete-identity delimiters as export.

@@ -499,3 +499,137 @@ Each case below ran with its own `HOME`, `CODEX_HOME` and `TMPDIR`, Codex config
 - `crates/brn-desktop/src/threads_ui.rs`: the `useful_intake` call plumbing above. The UI branch reruns its intake tests. Any UI test that counts owner Messages after repeated supplies of one source now sees one.
 - New public items: `SOURCE_INTAKE_INSTRUCTION`, `Workspace::post_intake_instruction`, and `brn_ai::threads::{reusable_intake_instruction, intake_instruction_to_reuse}`.
 - Proposed sentence for `docs/architecture/threads-behavior.md` (not edited here): "Useful intake uses one owner instruction from every host. A re-supply of the same source in its chat reuses the chat's latest instruction for that source unless the owner has written since."
+
+## Slice F: saved chat replies are findable in owner search
+
+### Change
+
+- **Core scope (`crates/brn-threads-core/src/reader.rs`, `context.rs`, `lib.rs`).** Owner search places a chat's Messages where its notes would appear:
+  - `MessageScope { General, Project(id), Chat(id), Hidden }` and `message_scope(thread, rows)`. An archived chat is `Hidden`; this covers Archive and a project Delete, which archives the project's chats. A chat in a project is `Project(p)`, or `Hidden` while `p` is in Trash. A chat with private context is `Chat(id)`. Every other chat is `General`.
+  - Private context is the existing `chat_has_private_context` rule outside project membership: the chat's own notes (archived or not) or sticky `Thread.private_context`. That rule now lives in a pure `context::chat_private(rows, chat)`, and `chat_has_private_context` keeps its behavior.
+  - `message_scopes_for(rows, context)`: general search shows `[General]`. A project, or a chat in it, shows `[Project(p)]`, plus `General` when `use_brn_knowledge` is on; a project in Trash shows nothing. A general chat shows `[General, Chat(itself)]`.
+  - `message_searchable(record)`: a current Message with role `owner` or `assistant` (`SEARCHABLE_MESSAGE_ROLES`). `assistant-partial` and `writing-request` are never searchable.
+  - `Snapshot::{message_scope_rows, message_scopes, searchable_messages}`. `searchable_messages` is the authority re-check for every hit, over fresh rows: the chats, every Project, and the Notes saved in those chats. Agent runs keep `record_in_chat`; nothing about them changed.
+- **Derived index (`crates/brn-retrieval/src/search_index.rs`), schema v3.** Messages live in their own tables, so no note lane, count, fact, link count or embedding job sees them. `docs.kind` still writes only `'note'`.
+  - New tables: `chats(id, scope)` and `messages(rid AUTOINCREMENT, id UNIQUE, chat, version, role CHECK owner|assistant, text)`, with `messages_chat`.
+  - New FTS tables `fts_message_exact` and `fts_message_stem` (`content='messages'`), with insert and delete triggers for both and a `messages_no_update` trigger (replace-only).
+  - `OBJECTS` lists every new name. The version bump turns a v2 file into `Found::Rebuild`: it is rebuilt in place, its sync state is cleared, and the next sync is full and backfills every Message. `threads.sqlite3` is unchanged.
+  - `ChatScope`, `MessageInput`, `MessageHit`; `Changes.{upsert_messages, remove_messages, chat_scopes}` (a full sync also clears `messages` and `chats`).
+  - `message_hits(query, scopes, per_lane ≤ MAX_MESSAGE_LANE = 100)`: RRF over the exact and stem lanes, ties broken by text then ID. `message_count(query, scopes)` is exact. `doc_chats(ids)` gives the `chat:` visibility a note had.
+- **Worker (`crates/brn-threads-app/src/search.rs`).**
+  - `sync()` upserts each changed searchable Message and removes any other changed Message. It rescopes chats from changed Threads, from the chat of each changed Note, from the chat a changed note had before (`doc_chats`, for Keep in BRN), and from changed Messages. A Project change rescopes every chat from one `records()` read.
+  - `Work::Search` gained `messages: bool`. `request_page` and `request_keyword_page` (owner, desktop, CLI) set it. `message_search()` filters by scope tags in the index, re-checks each hit with core `searchable_messages`, and drops and retries a hit whose Message version moved, as for notes.
+  - Pages share the notes' offset. `message_next` is set while more Messages remain. `cursor`/`next` stay notes-only, so the desktop's Previous/Next is unchanged.
+- **Agent tools do not see Messages.** `RunNoteSearch for SearchHandle` now calls a private `notes_request(.., messages: false)`; `search_notes` output is unchanged. This is the plan's default (Decision 5): an agent-facing chat lane would need its own scope analysis against `scope_allowed`.
+- **Page (`crates/brn-threads-app/src/lib.rs`).** `SearchPage` gained serde-default `messages: Vec<ChatMessageHit { message, version, chat, chat_title, role, snippet, highlights }>`, `message_total` and `message_cursor`. `total`, `hits`, `cursor` and `reachable` still describe notes only.
+- **CLI.** No `main.rs` change. `search` prints `encode(page)`, so its JSON gains `messages`, `message_total` and `message_cursor`. `shown` still counts note hits. `HELP` and exit codes are unchanged.
+- **Desktop.** No production change. The notes-tile search renders `page.hits` only, so Message hits reach the desktop but are not shown: UI finding F-UI1 below. One desktop test checks the data the desktop receives.
+
+A saved reply stays text in BRN: hits carry the Message's role and text, and nothing is labelled sent. No dependency, `Cargo.lock`, `threads.sqlite3` schema, `main.rs`, `HELP`, exit-code or `docs/status.md` change.
+
+### Scope table (owner search, after the fix)
+
+| Chat | General search | That project (knowledge on / off) | Another project | Itself | Another general chat |
+|---|---|---|---|---|---|
+| General chat | shown | shown / not shown | shown if its knowledge is on | shown | shown |
+| Project chat | not shown | shown / shown | not shown | shown (project scope) | not shown |
+| Chat with its own notes, or moved out of a project | not shown | not shown | not shown | shown | not shown |
+| Archived chat, or project in Trash | not shown | not shown | not shown | not shown | not shown |
+| After Unarchive or Restore | as before | as before | as before | as before | as before |
+
+### Tests and fail-before
+
+Method: the implementation was written first. Each mutation below was applied by an exact single-match replacement on a backup copy, and the tests were run and then restored. After every restore the four source files matched recorded `shasum`s. G1 is the plan's "stub fields always empty" state: owner pages never fill `messages` (`if *messages && query.is_empty()`). Guard behaviors got their own mutations. Line numbers are those of the committed files.
+
+| ID | Test | Before the fix (mutation) | After |
+|---|---|---|---|
+| F-A1 | app `search_messages.rs` `a_saved_reply_is_found_with_its_chat`: a scripted run completes with "Draft reply (not sent): …"; `messages[0]` is `assistant`, with chat and title, snippet and highlight; note hits and `total` unchanged | FAILED `:189` `left: 0, right: 1` (G1) | ok |
+| F-A2 | app `owner_messages_are_found_and_partial_progress_is_not`: Stop with partial text | FAILED `:251` `left: [], right: [(…:1, "owner")]` (G1) | ok |
+| F-A3 | app `project_chats_appear_only_in_their_project_search`: general, `Some(project)` and `Some(project chat)` for two projects, a general chat, knowledge off | FAILED `:269` `left: {}` (G1) | ok |
+| F-A4 | app `archived_and_trashed_chats_disappear_and_return_on_restore`: `archive_chat`/`unarchive_chat`, project Delete then Restore | FAILED `:294` `left: {}` (G1) | ok |
+| F-A5 | app `an_archived_chats_messages_never_crowd_out_visible_ones`: 100 archived matches rank above one visible match | FAILED `:353` `left: 0, right: 101` (G1). FAILED `:87` `left: 1, right: 0` (P3: no rescope on a Thread change; the archived chat's 100 hits fill the window and the visible one is unreachable) | ok |
+| F-A6 | app `a_private_attachment_chat_is_searchable_only_from_itself`, then the attachment kept in BRN (its `chat` cleared) | FAILED `:370` (G1). FAILED `:405` `left: {}` (P1: the chat a note left is not rescoped) | ok |
+| F-A7 | app `rebuilding_the_index_backfills_messages`: the previous build's state (synced to the current watermark, no messages, `user_version` 2 patched into the closed file), then a deleted index | FAILED `:442` `left: {}` (G1). FAILED `:442` (R2: schema stays 2) | ok |
+| F-A8 | app `agent_search_never_returns_messages`: `RunNoteSearch::search` hybrid and keyword | FAILED `:465` (G1, owner precondition). Guard: FAILED `:469` `left: (1, 0, 0, None)` (A1: agent tools receive owner Message results) | ok |
+| F-A9 | app `message_pages_follow_the_cursor`: 60 matches, limit 50 | FAILED `:495` `left: (0, 0, None, None, 0)` (G1). FAILED `:495` `left: (50, 60, None, None, 0)` (P2: message lanes keep 50 per lane) | ok |
+| F-C1 | CLI `crates/brn/tests/search_messages.rs` `search_lists_a_saved_chat_message_with_its_chat`: `thread-start`, offline `ask`, `search --query berth` (exit 0), then `--thread <other general chat>` | FAILED `:68` `left: Number(0), right: Number(1)` (G1) | ok |
+| F-D1 | desktop `threads_intake_tests.rs` `the_notes_search_answer_carries_a_saved_chat_message`: `search_changed("berth")`; `results.page.messages[0]` has the chat | FAILED `:901` `left: 0, right: 1` (G1) | ok |
+| F-R1 | retrieval `search_index.rs` `messages_are_replaced_and_removed_without_stale_terms`: inflection, replace, remove, replace-only trigger, role refusal, full resync, FTS `integrity-check` | FAILED `:687` (R1: upserts ignored). FAILED `:670` `database disk image is malformed` (R4: no FTS delete triggers) | ok |
+| F-R2 | retrieval `message_scopes_filter_hits_and_count_exactly_apart_from_notes`: six scope sets, exact counts, note lanes empty, rescope without reindex, tie order, lane bound | FAILED `:803` (R1). FAILED `:803` `left: ["mc", "mg", "mh", "mp"], right: ["mg"]` (R3: scope filter dropped) | ok |
+| F-R3 | retrieval `a_version_2_index_is_rebuilt_with_message_tables` | FAILED `:878` `left: Existing, right: Rebuilt` (R2). FAILED `:894` (R1) | ok |
+| F-S1 | core `message_search_scope.rs` `a_general_chat_is_searchable_wherever_general_notes_appear` | FAILED `:185` `left: Hidden, right: General` (C1: stubs) | ok |
+| F-S2 | core `a_project_chat_is_searchable_only_in_its_project` | FAILED `:211` (C1). FAILED `:211` `left: General` (C7: project chats scoped general) | ok |
+| F-S3 | core `a_project_without_brn_knowledge_shows_only_its_own_chats` | FAILED `:240` (C1). FAILED `:243` (C4: knowledge ignored) | ok |
+| F-S4 | core `an_archived_chat_is_hidden_until_it_is_unarchived` | FAILED `:274` (C1). FAILED `:264` `left: General, right: Hidden` (C2: archived not hidden) | ok |
+| F-S5 | core `a_deleted_project_hides_its_chats_and_restore_returns_them` | FAILED `:308` (C1). FAILED `:293` `scopes(..).is_empty()` (C3: a project in Trash keeps its scopes) | ok |
+| F-S6 | core `a_chat_moved_out_of_a_project_stays_searchable_only_from_itself` | FAILED `:320` (C1). FAILED `:339` `left: General` (C5: private context ignored) | ok |
+| F-S7 | core `a_chat_with_its_own_attachments_is_searchable_only_from_itself` (also `chat_has_private_context`) | FAILED `:368` (C1). FAILED `:368` (C5) | ok |
+| F-S8 | core `partial_progress_and_writing_requests_are_never_searchable` | FAILED `:399` (C1). FAILED `:399`, 4 IDs instead of 2 (C6: every role searchable) | ok |
+
+P3 alone passes F-A4, because core `searchable_messages` still hides the archived chat's hits. F-A5 was added so the index-side rescope has a failing test: without it, the archived chat's rows fill the 100-hit window.
+
+Build note: the first mutation pass restored files with their old mtime. Cargo then reused the P3-mutated library once, and F-A5 failed right after it was added, before a fresh build passed it. The helper now touches each restored file. Every result in this table comes from a second, complete pass with fresh builds. Every after-fix command below ran on builds made after the final restore.
+
+### F-UI1: the desktop does not show Message hits
+
+The notes-tile search (`crates/brn-desktop/src/threads_search.rs`) renders `self.hits`, which holds note hits only, and its status line uses `page.total` (notes). `page.messages` arrives but nothing renders it. Repro:
+
+1. `export HOME=… CODEX_HOME=… TMPDIR=…` (fresh), with a fresh data folder `D=/private/tmp/brn-dwr-data/r5-f-ui1/data`.
+2. `brn --data-dir $D init`, then `brn --data-dir $D configure --provider Codex --model gpt-6.1-sol --effort medium --auth-file $D/../missing-auth.json`.
+3. `brn --data-dir $D thread-start --title Replies` and note the `id`.
+4. `brn --data-dir $D ask --thread <id> --prompt "Berth survey reply draft 1.4 m"`. The run fails offline (`Failed:ReconnectNeeded`) and the owner Message is saved.
+5. `brn --data-dir $D search --query berth`: `message_total: 1`, and `messages[0]` has `chat: <id>`, `chat_title: "Replies"`, `role: "owner"`.
+6. `brn-desktop --data-dir $D`, open Notes, and type `berth` in "Filter titles and search note text". The tile shows only "No current note text matches. Try another word or clear the filter to browse.", with no status line and no result row.
+
+Headless observation of step 6, on the same synthetic content, in a temporary desktop test that was then removed: after `open-notes` and `search_changed("berth")`, `results.page.messages.len() == 1`. The only element under `search-results` was `search-empty`; there was no `search-status` and no `hit-0`. The UI branch can render `page.messages` (for example as an "In chats" block that opens `chat`) without app changes.
+
+### Manual CLI case (fresh synthetic data)
+
+`/private/tmp/brn-dwr-data/r5-f-search-messages/` used its own `HOME`, `CODEX_HOME` and `TMPDIR`, a missing auth file and `/tmp/brn-dwr-target/debug/brn`:
+
+1. `ask` in general chat "Replies" and in project chat "Crane chat": both `Failed:ReconnectNeeded`, and both owner Messages are saved.
+2. `search --query berth`: `message_total=1`, Replies [owner]. Notes `total=0 shown=0`.
+3. `search --query berth --project <Crane>`: `message_total=2`, Crane chat and Replies.
+4. `archive --thread <Replies>`, then search: `message_total=0`. `unarchive`, then search: Replies is back.
+5. A v2 index from the previous build: Python `sqlite3` dropped the message objects and set `user_version=2` while keeping `watermark=19`. The next `search` found Replies, and the file then had `user_version=3`, 2 messages and 2 chats (backfilled).
+6. A deleted `derived/search.sqlite` was re-created by the next `search`, which found Replies; exit code 0.
+7. **Observed, not part of this slice:** `project-delete` of Crane failed with `invalid request: run control changes must advance the fence` (exit 1). The project's chat had a Run from `ask`. `ProjectCommand::Delete` (`projects.rs`) archives the chat's Runs without advancing their fence, and `store.rs` requires a fence advance for an archive change; Restore does advance it. The code is the same at `771116f0`. The Trash and Restore behavior for Messages is covered by F-A4 and F-S5, whose project chats have no Run. This needs its own slice and owner decision.
+
+The case folder was deleted afterwards.
+
+### Commands and results (after the fix)
+
+| Command | Result |
+|---|---|
+| `cargo fmt --all --check` | clean |
+| `cargo clippy --workspace --all-targets --locked --offline -- -D warnings` | clean |
+| `cargo clippy -p brn-ai --features scripted-runs --all-targets --locked --offline -- -D warnings` | clean |
+| `cargo clippy --locked --offline -p brn-desktop --features native-ui,native-test-support --all-targets -- -D warnings` | clean |
+| `cargo test -p brn-threads-core --locked --offline` | all passed; `message_search_scope` 8 (new) |
+| `cargo test -p brn-retrieval --locked --offline` | lib 20, `search_index` 16 (+3) |
+| `cargo test -p brn-threads-app --locked --offline --test search_messages --test search_worker --test chat --test projects` | 9 (new), 11, 9, 8 passed |
+| `cargo test -p brn-threads-app --locked --offline --test user_scale -- --nocapture` | ok, non-strict bounds: 10,000 notes, cold build 545 ms, reopen 24.2 ms, one-note sync 0.55 ms, query p95 22.9 ms (owner path, with the message lanes; an earlier run gave 569 ms / 24.8 ms / 0.65 ms / 23.1 ms) |
+| `cargo test -p brn-threads-app --features native-retrieval --locked --offline --test search_dense` | 6 passed (native lane builds offline) |
+| `cargo build -p brn --locked --offline && cargo test -p brn --locked --offline --test search_messages --test source_locator --test threads` | 1 (new), 2, 13 passed |
+| desktop test command | 158 passed (+1), 0 failed, 1 ignored |
+| `cargo test --workspace --locked --offline --no-fail-fast` | 793 passed (+21), 1 failed (the baseline Poppler test), 6 ignored |
+| `git diff --exit-code 771116f0 -- Cargo.lock`; `git diff --check` | clean |
+
+### Limitations
+
+- The desktop shows no Message hits until the UI renders `page.messages` (F-UI1).
+- Owner pages reach the best 100 Messages (`MAX_MESSAGE_LANE`); `message_total` still counts every match. The dense (semantic) lane covers notes only.
+- The index's chat scope tag is only a prefilter, and core `searchable_messages` decides every hit. A tag that misses a change can only hide a Message that should show, never show one that should not. Every known scope change rescopes the chat: a Thread, chat-note or Project change, or Keep in BRN. A chat-only note that was never indexed (for example archived) and then loses its `chat` is the one case left; the Thread's next change or a rebuild corrects it.
+- The first open after the merge rebuilds `search.sqlite` in place (`Opened::Rebuilt`). A rollback to an older build rebuilds it again, since v3 is not v2.
+- The pre-existing project Delete refusal for project chats with a Run (manual case, step 7).
+- No native observation in this slice.
+
+### Integration items
+
+- `search.sqlite` schema v3 (rebuilt in place on first open).
+- New public items: core `MessageScope`, `SEARCHABLE_MESSAGE_ROLES`, `message_scope`, `message_scopes_for`, `message_searchable` and `Snapshot::{message_scope_rows, message_scopes, searchable_messages}`. Retrieval `ChatScope`, `MessageInput`, `MessageHit`, `MAX_MESSAGE_LANE`, the `Changes` fields and `SearchIndex::{message_hits, message_count, doc_chats}`. App `search::MessageMatch`, the `SearchResults` fields, `ChatMessageHit` and the serde-default `SearchPage` fields.
+- CLI `search` JSON gains `messages`, `message_total` and `message_cursor`. Tell work/cli-agent-contract in case its `--json` description lists output fields.
+- UI branch: F-UI1. Render `page.messages` as their own kind, open `chat` on click, and page with `message_cursor` (the same `cursor` input).
+- The knowledge-retrieval plan's projects hook "Indexing of `kind=message` for earlier-chat search" is done for owner search, through separate tables rather than `docs.kind`. Agent `search_notes` still excludes Messages.
+- Proposed sentence for `docs/architecture/threads-behavior.md` (not edited here): "Owner search also lists saved final chat Messages (owner and assistant, never partial progress) as their own kind with their chat, scoped like notes: general chats in general search, project chats only in their project's search, and a chat with private context only from itself. Archived and Trashed chats are excluded until restored. Agent note search never returns chat Messages."
+- Separate finding for a later slice: project Delete refuses when a project chat has a Run (manual case, step 7).

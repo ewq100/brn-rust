@@ -1,0 +1,525 @@
+//! Saved chat replies are findable in owner search, as their own kind with
+//! their chat. Project chats appear only in their project's search, general
+//! search shows general chats, archived and Trashed chats disappear until
+//! restored, partial progress is never found, and agent tools never see
+//! chat Messages. Synthetic data and a scripted model; no provider is
+//! contacted.
+use brn_ai::threads::{RunNoteSearch, ThreadRunRequest, prepare_run, run_prepared_scripted};
+use brn_ai::{AiTerminal, Provider, ReasoningEffort, Selection};
+use brn_retrieval::search_index::{Changes, FILE_NAME, SearchIndex};
+use brn_threads_app::*;
+use rig::test_utils::{MockCompletionModel, MockStreamEvent};
+use std::collections::{BTreeMap, BTreeSet};
+use std::path::{Path, PathBuf};
+
+const REPLY: &str = "Draft reply (not sent): the berth survey measured 1.4 m.";
+
+struct World {
+    _root: tempfile::TempDir,
+    data: PathBuf,
+    workspace: Workspace,
+}
+
+/// Offline settings: no sign-in file and no credentials, so a provider run
+/// would fail before network access.
+fn world() -> World {
+    let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let data = root.path().join("data");
+    let mut workspace = Workspace::open(&data).unwrap();
+    let settings = workspace.settings().unwrap();
+    workspace
+        .configure(WorkspaceSettings {
+            provider: "Codex".into(),
+            model: "gpt-6.1-sol".into(),
+            effort: "medium".into(),
+            auth_file: None,
+            credentials_dir: None,
+            ..settings
+        })
+        .unwrap();
+    World {
+        _root: root,
+        data,
+        workspace,
+    }
+}
+
+fn request(data: &Path, chat: &str, prompt: &str) -> ThreadRunRequest {
+    ThreadRunRequest {
+        request_message: None,
+        queue_claim: None,
+        owner_request: None,
+        data_dir: data.to_owned(),
+        thread: chat.to_owned(),
+        prompt: prompt.into(),
+        selection: Selection {
+            provider: Provider::Chatgpt,
+            model: "gpt-6.1-sol".into(),
+        },
+        effort: ReasoningEffort::Medium,
+        max_tool_rounds: 12,
+        auth_file: None,
+        credentials_dir: None,
+        sources: vec![],
+        search: None,
+        trace: brn_ai::threads::TraceLevel::Off,
+    }
+}
+
+fn finish(text: &str) -> Vec<MockStreamEvent> {
+    vec![
+        MockStreamEvent::text(text),
+        MockStreamEvent::final_response_with_total_tokens(1),
+    ]
+}
+
+/// The owner Message's ID.
+fn post(workspace: &mut Workspace, chat: &str, text: &str) -> String {
+    workspace.post_message(chat, text).unwrap().writes[0]
+        .after
+        .id
+        .clone()
+}
+
+/// The Message IDs owner search lists in `context`.
+fn found(workspace: &mut Workspace, query: &str, context: Option<&str>) -> BTreeSet<String> {
+    let page = workspace.search_page(query, context, 12, None).unwrap();
+    assert_eq!(page.message_total, page.messages.len(), "{context:?}");
+    page.messages.into_iter().map(|m| m.message).collect()
+}
+
+fn set(ids: &[&String]) -> BTreeSet<String> {
+    ids.iter().map(|id| (*id).clone()).collect()
+}
+
+fn project(workspace: &mut Workspace, title: &str) -> String {
+    workspace
+        .project_command(
+            &format!("project:{title}"),
+            ProjectCommand::Create {
+                title: title.into(),
+            },
+        )
+        .unwrap()
+        .writes
+        .into_iter()
+        .find(|w| matches!(w.after.data, RecordData::Project(_)))
+        .unwrap()
+        .after
+        .id
+}
+
+fn project_chat(workspace: &mut Workspace, project: &str, title: &str) -> String {
+    workspace
+        .project_command(
+            &format!("chat:{title}"),
+            ProjectCommand::CreateChat {
+                project: project.into(),
+                title: title.into(),
+            },
+        )
+        .unwrap()
+        .writes
+        .into_iter()
+        .find(|w| w.before.is_none() && matches!(w.after.data, RecordData::Thread(_)))
+        .unwrap()
+        .after
+        .id
+}
+
+fn knowledge(workspace: &mut Workspace, project: &str, enabled: bool) {
+    let record = workspace.store.record(project).unwrap().unwrap();
+    let RecordData::Project(p) = record.data else {
+        panic!("Project")
+    };
+    workspace
+        .project_command(
+            &format!("knowledge:{enabled}"),
+            ProjectCommand::Configure {
+                project: project.into(),
+                version: record.version,
+                title: p.title,
+                instructions: p.instructions,
+                use_brn_knowledge: enabled,
+            },
+        )
+        .unwrap();
+}
+
+fn owner_change(workspace: &mut Workspace, key: &str, puts: Vec<Put>) {
+    let outcome = workspace
+        .owner_change(
+            key,
+            &ChangeRequest {
+                reason: key.into(),
+                writes: puts,
+                inputs: vec![],
+            },
+        )
+        .unwrap();
+    assert!(matches!(outcome, ApplyOutcome::Applied(_)), "{outcome:?}");
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn a_saved_reply_is_found_with_its_chat() {
+    let mut w = world();
+    let chat = w.workspace.new_thread("Harbour replies").unwrap().id;
+    w.workspace
+        .new_note("Berth notes", "The berth survey is scheduled.")
+        .unwrap();
+    let before = w
+        .workspace
+        .search_page("berth survey", None, 12, None)
+        .unwrap();
+    assert!(before.messages.is_empty());
+    let prepared =
+        prepare_run(request(&w.data, &chat, "Please draft the harbour answer.")).unwrap();
+    let result = run_prepared_scripted(
+        prepared,
+        MockCompletionModel::from_stream_turns([finish(REPLY)]),
+    )
+    .await
+    .unwrap();
+    assert!(matches!(result.answer.terminal, AiTerminal::Completed));
+    let page = w
+        .workspace
+        .search_page("berth survey", None, 12, None)
+        .unwrap();
+    // Before: no messages; a saved reply was found only by browsing chats.
+    assert_eq!(page.message_total, 1);
+    let hit = &page.messages[0];
+    assert_eq!(
+        (
+            hit.role.as_str(),
+            hit.chat.as_str(),
+            hit.chat_title.as_str()
+        ),
+        ("assistant", chat.as_str(), "Harbour replies")
+    );
+    assert_eq!(hit.snippet, REPLY);
+    assert_eq!(&hit.snippet[hit.highlights[0].clone()], "berth");
+    let Some(Record {
+        version,
+        data: RecordData::Message(saved),
+        ..
+    }) = w.workspace.store.record(&hit.message).unwrap()
+    else {
+        panic!("the hit names a saved Message")
+    };
+    assert_eq!((saved.text.as_str(), version), (REPLY, hit.version));
+    // Notes are a separate kind: their hits and counts are unchanged.
+    let notes = |p: &SearchPage| -> Vec<String> { p.hits.iter().map(|h| h.note.clone()).collect() };
+    assert_eq!(notes(&page), notes(&before));
+    assert_eq!((page.total, page.cursor.clone()), (before.total, None));
+    assert_eq!(page.message_cursor, None);
+}
+
+#[test]
+fn owner_messages_are_found_and_partial_progress_is_not() {
+    let mut w = world();
+    let chat = w.workspace.new_thread("Dredging").unwrap().id;
+    let prepared = prepare_run(request(
+        &w.data,
+        &chat,
+        "Check the dredging depth at berth 4.",
+    ))
+    .unwrap();
+    let run = prepared.run_id().to_owned();
+    drop(prepared);
+    w.workspace
+        .stop_chat_run(
+            "stop:dredging",
+            &run,
+            Some("Partial: dredging depth unknown"),
+        )
+        .unwrap();
+    let messages = w.workspace.messages(&chat).unwrap();
+    let id = |role: &str| {
+        messages
+            .iter()
+            .find(|m| matches!(&m.data, RecordData::Message(m) if m.role == role))
+            .map(|m| m.id.clone())
+            .unwrap()
+    };
+    let (owner, partial) = (id("owner"), id("assistant-partial"));
+    let page = w.workspace.search_page("dredging", None, 12, None).unwrap();
+    let listed: Vec<_> = page
+        .messages
+        .iter()
+        .map(|m| (m.message.clone(), m.role.clone()))
+        .collect();
+    assert_eq!(listed, [(owner, "owner".to_string())]);
+    assert_eq!(page.message_total, 1);
+    assert!(!found(&mut w.workspace, "unknown", Some(&chat)).contains(&partial));
+}
+
+#[test]
+fn project_chats_appear_only_in_their_project_search() {
+    let mut w = world();
+    let ws = &mut w.workspace;
+    let p = project(ws, "Crane");
+    let pc = project_chat(ws, &p, "Crane chat");
+    let q = project(ws, "Garden");
+    let qc = project_chat(ws, &q, "Garden chat");
+    let g = ws.new_thread("General").unwrap().id;
+    let mp = post(ws, &pc, "Pontoon mooring plan for the crane");
+    let mq = post(ws, &qc, "Pontoon mooring plan for the garden");
+    let mg = post(ws, &g, "Pontoon mooring plan in general");
+    // Before: every context listed no messages.
+    assert_eq!(found(ws, "pontoon", None), set(&[&mg]));
+    assert_eq!(found(ws, "pontoon", Some(&g)), set(&[&mg]));
+    for context in [&p, &pc] {
+        assert_eq!(found(ws, "pontoon", Some(context)), set(&[&mp, &mg]));
+    }
+    for context in [&q, &qc] {
+        assert_eq!(found(ws, "pontoon", Some(context)), set(&[&mq, &mg]));
+    }
+    // Without BRN knowledge a project shows only its own chats.
+    knowledge(ws, &p, false);
+    for context in [&p, &pc] {
+        assert_eq!(found(ws, "pontoon", Some(context)), set(&[&mp]));
+    }
+    assert_eq!(found(ws, "pontoon", None), set(&[&mg]));
+}
+
+#[test]
+fn archived_and_trashed_chats_disappear_and_return_on_restore() {
+    let mut w = world();
+    let ws = &mut w.workspace;
+    let g = ws.new_thread("Replies").unwrap().id;
+    let mg = post(ws, &g, "Pontoon reply saved here");
+    let p = project(ws, "Crane");
+    let pc = project_chat(ws, &p, "Crane chat");
+    let mp = post(ws, &pc, "Pontoon reply in the project");
+    assert_eq!(found(ws, "pontoon", None), set(&[&mg]));
+    ws.archive_chat("archive:replies", &g).unwrap();
+    assert!(found(ws, "pontoon", None).is_empty());
+    assert!(found(ws, "pontoon", Some(&g)).is_empty());
+    assert_eq!(found(ws, "pontoon", Some(&p)), set(&[&mp]));
+    ws.unarchive_chat("unarchive:replies", &g).unwrap();
+    assert_eq!(found(ws, "pontoon", None), set(&[&mg]));
+    let preview = ws.project_delete_preview(&p).unwrap();
+    ws.project_command(
+        "delete:crane",
+        ProjectCommand::Delete {
+            preview,
+            actions: BTreeMap::new(),
+        },
+    )
+    .unwrap();
+    for context in [Some(p.as_str()), Some(&pc), None] {
+        assert!(!found(ws, "pontoon", context).contains(&mp), "{context:?}");
+    }
+    let version = ws.store.record(&p).unwrap().unwrap().version;
+    ws.project_command(
+        "restore:crane",
+        ProjectCommand::Restore {
+            project: p.clone(),
+            version,
+        },
+    )
+    .unwrap();
+    assert_eq!(found(ws, "pontoon", Some(&p)), set(&[&mp, &mg]));
+    assert_eq!(found(ws, "pontoon", None), set(&[&mg]));
+}
+
+/// The index drops an archived chat's Messages itself, so they cannot fill
+/// the reachable window ahead of visible ones.
+#[test]
+fn an_archived_chats_messages_never_crowd_out_visible_ones() {
+    let mut w = world();
+    let ws = &mut w.workspace;
+    let old = ws.new_thread("Old log").unwrap().id;
+    let op = ws.store.allocate_operation("old-log").unwrap();
+    let puts = (0..100)
+        .map(|i| Put {
+            id: op.creation_id(i),
+            expected_version: None,
+            archived: false,
+            data: RecordData::Message(Message {
+                thread: old.clone(),
+                role: "owner".into(),
+                text: format!("Pontoon {i:03}"),
+            }),
+        })
+        .collect();
+    owner_change(ws, "old-log", puts);
+    let current = ws.new_thread("Current").unwrap().id;
+    let m = post(
+        ws,
+        &current,
+        "Pontoon reply in the current chat, longer than every old entry",
+    );
+    assert_eq!(
+        ws.search_page("pontoon", None, 12, None)
+            .unwrap()
+            .message_total,
+        101
+    );
+    ws.archive_chat("archive:old", &old).unwrap();
+    assert_eq!(found(ws, "pontoon", None), set(&[&m]));
+}
+
+#[test]
+fn a_private_attachment_chat_is_searchable_only_from_itself() {
+    let mut w = world();
+    let ws = &mut w.workspace;
+    let private = ws.new_thread("Attachments").unwrap().id;
+    let other = ws.new_thread("Other").unwrap().id;
+    let m = post(ws, &private, "Pontoon depth from the attachment");
+    assert_eq!(found(ws, "pontoon", None), set(&[&m]));
+    let op = ws.store.allocate_operation("attachment").unwrap();
+    owner_change(
+        ws,
+        "attachment",
+        vec![Put {
+            id: op.creation_id(0),
+            expected_version: None,
+            archived: false,
+            data: RecordData::Note(Note {
+                chat: Some(private.clone()),
+                ..Note::working("Survey attachment", "Depth 1.4 m.")
+            }),
+        }],
+    );
+    assert_eq!(found(ws, "pontoon", Some(&private)), set(&[&m]));
+    for context in [None, Some(other.as_str())] {
+        assert!(found(ws, "pontoon", context).is_empty(), "{context:?}");
+    }
+    // Kept in BRN (no longer chat-only), the attachment stops making the chat private.
+    let note = ws.store.record(&op.creation_id(0)).unwrap().unwrap();
+    let RecordData::Note(mut kept) = note.data.clone() else {
+        panic!("Note")
+    };
+    kept.chat = None;
+    owner_change(
+        ws,
+        "keep",
+        vec![Put {
+            id: note.id.clone(),
+            expected_version: Some(note.version),
+            archived: false,
+            data: RecordData::Note(kept),
+        }],
+    );
+    assert_eq!(found(ws, "pontoon", None), set(&[&m]));
+}
+
+#[test]
+fn rebuilding_the_index_backfills_messages() {
+    let w = world();
+    let mut ws = w.workspace;
+    let chat = ws.new_thread("Replies").unwrap().id;
+    let m = post(&mut ws, &chat, "Pontoon reply to keep");
+    // Sync once with a worker this test can join, so the index file is closed
+    // and checkpointed afterwards.
+    let (handle, worker) = search::SearchHandle::spawn(&ws.store).unwrap();
+    let watermark = handle.search("pontoon", None, 10).unwrap().watermark;
+    drop(handle);
+    worker.join().unwrap();
+    drop(ws);
+    // The state the previous build left: synced to the current watermark,
+    // no messages, schema version 2.
+    let derived = Store::open(&w.data).unwrap().derived_directory().unwrap();
+    let (mut index, _) = SearchIndex::open(&derived).unwrap();
+    let base = index.sync_state().unwrap();
+    assert_eq!(base.as_ref().map(|s| s.watermark), Some(watermark));
+    index
+        .apply(&Changes {
+            base,
+            remove_messages: vec![m.clone()],
+            watermark,
+            ..Changes::default()
+        })
+        .unwrap();
+    drop(index);
+    let file = derived.join(FILE_NAME);
+    // Closing the last connection checkpointed the WAL into the file.
+    assert!(!derived.join(format!("{FILE_NAME}-wal")).exists());
+    set_user_version(&file, 2);
+    let mut view = Workspace::open(&w.data).unwrap();
+    // Before: an index at the current watermark never saw older messages.
+    assert_eq!(found(&mut view, "pontoon", None), set(&[&m]));
+    drop(view);
+    // A deleted index is re-created and backfilled too.
+    for suffix in ["", "-wal", "-shm"] {
+        let _ = std::fs::remove_file(format!("{}{suffix}", file.display()));
+    }
+    let mut view = Workspace::open(&w.data).unwrap();
+    assert_eq!(found(&mut view, "pontoon", None), set(&[&m]));
+}
+
+/// Writes `version` into the SQLite header's `user_version` (offset 60) of a
+/// closed, checkpointed database file.
+fn set_user_version(path: &Path, version: u32) {
+    let mut bytes = std::fs::read(path).unwrap();
+    bytes[60..64].copy_from_slice(&version.to_be_bytes());
+    std::fs::write(path, bytes).unwrap();
+}
+
+#[test]
+fn agent_search_never_returns_messages() {
+    let mut w = world();
+    let chat = w.workspace.new_thread("Replies").unwrap().id;
+    let m = post(&mut w.workspace, &chat, "Pontoon reply only in chat");
+    assert_eq!(found(&mut w.workspace, "pontoon", Some(&chat)), set(&[&m]));
+    let handle = w.workspace.search_handle().unwrap();
+    for hybrid in [true, false] {
+        let page = RunNoteSearch::search(&handle, &chat, "pontoon", 10, None, hybrid).unwrap();
+        assert_eq!(
+            (page.total, page.shown, page.results.len(), page.cursor),
+            (0, 0, 0, None)
+        );
+    }
+}
+
+#[test]
+fn message_pages_follow_the_cursor() {
+    let mut w = world();
+    let chat = w.workspace.new_thread("Log").unwrap().id;
+    let op = w.workspace.store.allocate_operation("log").unwrap();
+    let puts = (0..60)
+        .map(|i| Put {
+            id: op.creation_id(i),
+            expected_version: None,
+            archived: false,
+            data: RecordData::Message(Message {
+                thread: chat.clone(),
+                role: "owner".into(),
+                text: format!("Pontoon log entry {i:02}"),
+            }),
+        })
+        .collect();
+    owner_change(&mut w.workspace, "log", puts);
+    let first = w.workspace.search_page("pontoon", None, 50, None).unwrap();
+    assert_eq!(
+        (
+            first.messages.len(),
+            first.message_total,
+            first.message_cursor.as_deref(),
+            first.cursor.as_deref(),
+            first.hits.len(),
+        ),
+        (50, 60, Some("50"), None, 0)
+    );
+    let next = w
+        .workspace
+        .search_page("pontoon", None, 50, first.message_cursor.as_deref())
+        .unwrap();
+    assert_eq!(
+        (
+            next.offset,
+            next.messages.len(),
+            next.message_total,
+            next.message_cursor
+        ),
+        (50, 10, 60, None)
+    );
+    let all: BTreeSet<_> = first
+        .messages
+        .iter()
+        .chain(&next.messages)
+        .map(|m| m.message.clone())
+        .collect();
+    assert_eq!(all.len(), 60);
+}
