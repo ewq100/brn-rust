@@ -372,6 +372,13 @@ impl Invocation {
         }
     }
 }
+/// True when `data` does not exist or is an empty folder (no workspace marker).
+fn workspace_missing(data: &Path) -> bool {
+    match std::fs::read_dir(data) {
+        Err(error) => error.kind() == std::io::ErrorKind::NotFound,
+        Ok(mut entries) => entries.next().is_none(),
+    }
+}
 /// The explicit owner command that downloads the pinned embedding model.
 #[cfg(feature = "native-retrieval")]
 fn install_model(inv: &Invocation) -> Result<Value> {
@@ -648,6 +655,13 @@ async fn execute(inv: &Invocation, notes: &mut Annotations) -> Result<Value> {
     if inv.command == "upgrade" {
         Store::upgrade(&inv.data, Path::new(inv.arg("backup-directory")?))?;
         return Ok(json!({"upgraded":true,"data":inv.data}));
+    }
+    // Machine mode: a read never creates a workspace at a mistyped path.
+    if inv.machine && spec::retry_for(inv) == spec::Class::Read && workspace_missing(&inv.data) {
+        return Err(CliError::new(
+            Code::MissingWorkspace,
+            "No BRN workspace at --data-dir; check the path, or run init deliberately",
+        ));
     }
     // A workspace the CLI creates has no credential source until `configure`.
     let mut workspace = Workspace::open_without_default_credentials(&inv.data)?;

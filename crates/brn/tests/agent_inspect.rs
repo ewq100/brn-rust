@@ -319,6 +319,7 @@ fn records_page_by_kind_and_cursor() {
 fn runs_page_validates_options_and_lists_nothing_on_a_fresh_workspace() {
     let root = Root::new();
     let data = root.join("data");
+    ok(&root, &data, &["init"]);
     let envelope = call(&root, &data, &["runs"]);
     assert_eq!(envelope["status"], "ok", "{envelope}");
     assert_eq!(

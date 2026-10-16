@@ -187,6 +187,18 @@ pub(crate) enum Grammar {
     Enum(&'static [&'static str]),
     Int(u64, u64),
     Cursor(CursorForm),
+    /// An existing after-open check moved before opening, with its message:
+    /// a decimal that parses as an integer up to `max` (service ranges stay after opening).
+    Number {
+        max: u64,
+        message: &'static str,
+    },
+    /// An existing after-open choice moved before opening, with its message.
+    Choice {
+        values: &'static [&'static str],
+        ignore_case: bool,
+        message: &'static str,
+    },
 }
 impl Grammar {
     fn accepts(self, value: &str) -> bool {
@@ -198,10 +210,24 @@ impl Grammar {
                     && value.parse::<u64>().is_ok_and(|v| (min..=max).contains(&v))
             }
             Grammar::Cursor(form) => form.accepts(value),
+            Grammar::Number { max, .. } => value.parse::<u64>().is_ok_and(|v| v <= max),
+            Grammar::Choice {
+                values,
+                ignore_case,
+                ..
+            } => {
+                let value = if ignore_case {
+                    value.to_lowercase()
+                } else {
+                    value.to_owned()
+                };
+                values.contains(&value.as_str())
+            }
         }
     }
     fn expected(self, option: &str) -> String {
         match self {
+            Grammar::Number { message, .. } | Grammar::Choice { message, .. } => message.to_owned(),
             Grammar::Enum(values) => format!("--{option} takes {}", values.join("|")),
             Grammar::Int(min, max) => format!("--{option} takes an integer {min}..{max}"),
             Grammar::Cursor(form) => format!("--{option} takes {}", form.expected()),
@@ -216,6 +242,16 @@ impl Grammar {
             Grammar::Cursor(form) => {
                 json!({"option": option, "grammar": "cursor", "form": form.as_str()})
             }
+            Grammar::Number { max, .. } => {
+                json!({"option": option, "grammar": "integer", "min": 0, "max": max})
+            }
+            Grammar::Choice {
+                values,
+                ignore_case,
+                ..
+            } => {
+                json!({"option": option, "grammar": "enum", "values": values, "ignore_case": ignore_case})
+            }
         }
     }
 }
@@ -223,6 +259,24 @@ impl Grammar {
 pub(crate) const RUN_STATES: &[&str] =
     &["working", "interrupted", "completed", "cancelled", "failed"];
 const PAGE_100: Grammar = Grammar::Int(1, 100);
+const fn integer(message: &'static str) -> Grammar {
+    Grammar::Number {
+        max: u64::MAX,
+        message,
+    }
+}
+const BASE: Grammar = integer("--base must be an integer");
+const GENERATION: Grammar = integer("--generation must be an integer");
+const PROVIDER: Grammar = Grammar::Choice {
+    values: &["codex", "chatgpt", "copilot"],
+    ignore_case: true,
+    message: "Provider must be Codex or Copilot",
+};
+const EFFORT: Grammar = Grammar::Choice {
+    values: &["low", "medium", "high"],
+    ignore_case: false,
+    message: "Effort must be low, medium or high",
+};
 const NOTE_BYTES: Grammar = Grammar::Int(1, brn_threads_app::MAX_NOTE_READ_BYTES as u64);
 /// `(command, option, grammar)`, checked in `parse()` for every present option.
 pub(crate) static VALUES: &[(&str, &str, Grammar)] = &[
@@ -247,6 +301,65 @@ pub(crate) static VALUES: &[(&str, &str, Grammar)] = &[
     ("runs", "cursor", Grammar::Cursor(CursorForm::Id)),
     ("read", "limit", NOTE_BYTES),
     ("read", "cursor", Grammar::Cursor(CursorForm::VersionStart)),
+    // Checks that ran after opening before round 2, with the same messages.
+    ("project-settings", "base", BASE),
+    ("project-restore", "base", BASE),
+    ("begin-edit", "base", BASE),
+    ("keep-in-brn", "base", BASE),
+    ("ask", "base", BASE),
+    ("update-buffer", "generation", GENERATION),
+    ("save", "generation", GENERATION),
+    ("discard", "generation", GENERATION),
+    ("connections", "hops", integer("--hops must be an integer")),
+    ("search", "limit", integer("--limit must be an integer")),
+    (
+        "ask",
+        "budget",
+        Grammar::Number {
+            max: u16::MAX as u64,
+            message: "Invalid budget",
+        },
+    ),
+    (
+        "project-settings",
+        "knowledge",
+        Grammar::Choice {
+            values: &["yes", "no"],
+            ignore_case: false,
+            message: "--knowledge takes yes|no",
+        },
+    ),
+    (
+        "knowledge-check",
+        "seed-chat",
+        Grammar::Choice {
+            values: &["yes"],
+            ignore_case: false,
+            message: "--seed-chat takes yes",
+        },
+    ),
+    (
+        "connections",
+        "sources",
+        Grammar::Choice {
+            values: &["yes"],
+            ignore_case: false,
+            message: "--sources takes yes",
+        },
+    ),
+    (
+        "intake",
+        "intent",
+        Grammar::Choice {
+            values: &["useful", "full", "chat", "project"],
+            ignore_case: false,
+            message: "Choose useful, full, or chat with --thread",
+        },
+    ),
+    ("configure", "provider", PROVIDER),
+    ("configure", "helper-provider", PROVIDER),
+    ("configure", "effort", EFFORT),
+    ("configure", "helper-effort", EFFORT),
 ];
 
 /// The first present option whose value does not fit its grammar.
@@ -1010,7 +1123,7 @@ pub(crate) fn description() -> Value {
             "status": s.as_str(), "exit": s.exit(), "meaning": s.meaning(), "action": s.action(),
         })).collect::<Vec<_>>(),
         "errors": Code::ALL.iter().map(|c| json!({
-            "code": c.as_str(), "status": c.status().as_str(), "meaning": c.meaning(),
+            "code": c.as_str(), "status": c.status().as_str(), "meaning": c.meaning(), "reserved": c.reserved(),
         })).collect::<Vec<_>>(),
         "retry_classes": Class::ALL.iter().map(|c| json!({"retry": c.as_str(), "meaning": c.meaning()})).collect::<Vec<_>>(),
         "owner_decision_rule": OWNER_DECISION_RULE,

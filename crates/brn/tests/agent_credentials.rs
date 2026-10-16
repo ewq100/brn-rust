@@ -17,6 +17,7 @@ fn cli_created_workspace_has_no_credential_source() {
     std::fs::create_dir(root.join("home/.codex")).unwrap();
     root.file("home/.codex/auth.json", b"{}");
     let data = root.join("data");
+    ok(&root, &data, &["init"]);
     let settings = ok(&root, &data, &["settings"]);
     assert_eq!(settings["auth_file"], Value::Null, "{settings}");
     assert_eq!(settings["credentials_dir"], Value::Null);

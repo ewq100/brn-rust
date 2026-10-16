@@ -1550,6 +1550,8 @@ fn keyed_keep_in_brn_retry_replays() {
 fn keyed_markdown_full_import_replays_and_title_change_conflicts() {
     let root = Root::new();
     let data = root.join("data");
+    // Round 2: machine-mode reads never create a workspace; init does.
+    ok(&root, &data, &["init"]);
     let settings = ok(&root, &data, &["settings"]);
     if let Some(auth) = settings["auth_file"].as_str() {
         assert!(

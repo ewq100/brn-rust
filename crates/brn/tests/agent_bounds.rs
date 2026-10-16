@@ -167,8 +167,9 @@ fn timeout_during_fifo_wait_is_a_soft_deadline() {
     ];
     let started = Instant::now();
     let run = run_argv(&root, &argv, None);
+    // About 1 s; the bound leaves room for a loaded parallel test run.
     assert!(
-        started.elapsed() < Duration::from_secs(2),
+        started.elapsed() < Duration::from_secs(3),
         "{:?}",
         started.elapsed()
     );

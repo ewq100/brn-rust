@@ -119,6 +119,8 @@ pub(crate) enum Code {
     DestinationExists,
     EditSessionOpen,
     CredentialsNotConfigured,
+    MissingWorkspace,
+    DataFolderUnusable,
     Unavailable,
     ProviderFailed,
     ConversionFailed,
@@ -131,7 +133,11 @@ pub(crate) enum Code {
     Internal,
 }
 impl Code {
-    pub(crate) const ALL: [Code; 29] = [
+    /// Listed in the contract but not raised yet.
+    pub(crate) fn reserved(self) -> bool {
+        self == Code::DataFolderUnusable
+    }
+    pub(crate) const ALL: [Code; 31] = [
         Code::MissingDataDir,
         Code::InvalidDataDir,
         Code::MissingCommand,
@@ -151,6 +157,8 @@ impl Code {
         Code::DestinationExists,
         Code::EditSessionOpen,
         Code::CredentialsNotConfigured,
+        Code::MissingWorkspace,
+        Code::DataFolderUnusable,
         Code::Unavailable,
         Code::ProviderFailed,
         Code::ConversionFailed,
@@ -183,6 +191,8 @@ impl Code {
             Code::DestinationExists => "destination_exists",
             Code::EditSessionOpen => "edit_session_open",
             Code::CredentialsNotConfigured => "credentials_not_configured",
+            Code::MissingWorkspace => "missing_workspace",
+            Code::DataFolderUnusable => "data_folder_unusable",
             Code::Unavailable => "unavailable",
             Code::ProviderFailed => "provider_failed",
             Code::ConversionFailed => "conversion_failed",
@@ -215,7 +225,9 @@ impl Code {
             | Code::UnsafeDirectory
             | Code::DestinationExists
             | Code::EditSessionOpen
-            | Code::CredentialsNotConfigured => Status::Rejected,
+            | Code::CredentialsNotConfigured
+            | Code::MissingWorkspace
+            | Code::DataFolderUnusable => Status::Rejected,
             Code::Unavailable
             | Code::ProviderFailed
             | Code::ConversionFailed
@@ -247,6 +259,8 @@ impl Code {
             Code::DestinationExists => "The backup or export destination already exists; choose a new path.",
             Code::EditSessionOpen => "This note has an open unsaved edit session (details.note, details.base_version). Write to it only if your own successful begin-edit returned it; otherwise report it to the owner.",
             Code::CredentialsNotConfigured => "Machine mode: ask or a provider-backed intake on a workspace with no credential source (a workspace the CLI created and nobody configured). Nothing was committed and no provider was contacted. Run configure --provider NAME --model ID --effort LEVEL with --auth-file ABSOLUTE_FILE or --credentials-dir ABSOLUTE_DIR on the owner's instruction (details.provider names the selected provider).",
+            Code::MissingWorkspace => "Machine mode: a read command named a --data-dir that does not exist or is an empty folder. Nothing was created. Check the path, or run init deliberately.",
+            Code::DataFolderUnusable => "Reserved: the data folder cannot be used (details.problem: read_only, permission_denied, not_a_directory, symlink_refused or missing_parent). Raised once the daily-workflow branch is merged; until then a symlinked data folder is unsafe_directory.",
             Code::Unavailable => "A service is not available in this build or platform, for example semantic search, conversion for this format, or model installation.",
             Code::ProviderFailed => "ask or useful intake: any other AiErrorKind (none is known to reach Err from run at 771116f0; kept as a fallback); also a provider failure during document conversion. details.kind is the AiErrorKind in snake_case.",
             Code::ConversionFailed => "Document conversion failed; details.reason names the failure.",

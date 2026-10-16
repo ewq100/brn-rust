@@ -788,7 +788,7 @@ Command: `git -C /Users/evokessler/repos/brn-rust -c core.fsmonitor=false log --
       - `git diff --stat 8bef439b..HEAD -- crates/brn-desktop crates/brn-ai` is empty;
       - the baseline run of `agent_converge` fails.
 
-- [ ] R2-11. **A6: mistyped data directories and values before opening** (design A6; appendix §A6).
+- [x] R2-11. **A6: mistyped data directories and values before opening** (design A6; appendix §A6).
       **Machine mode.** For a read-class invocation (`retry_for == Read`, which covers unseeded `knowledge-check`, `revisions`, `revision`, `operation` and `runs`), before `Workspace::open`: if `--data-dir` doesn't exist, or is an empty directory without `DATA_MARKER` (`brn_threads_app::DATA_MARKER`), return `missing_workspace` (rejected 6, `refuse`), "No BRN workspace at --data-dir; check the path, or run init deliberately". Nothing is created. A foreign non-empty dir stays `unsafe_directory`. `init` and writes still create the workspace.
       **Default mode** is unchanged: reads create the dir. Survey and record every default-mode caller before the change: `threads.rs`, both witnesses, `verify-end-to-end-fixtures.py`, both evaluators, `live-journeys.py`. `agent_contract.rs` gets an `init` wherever it reads a fresh dir in machine mode; `cli_journey.py` already runs `init`.
       **Values before opening**, in both modes, with the same codes and messages as today's after-open checks. Extend `VALUES`:

@@ -137,7 +137,7 @@ Reachability from the CLI: every CLI write runs with owner authority and no run,
 | `unknown_option` | usage | Option not allowed for the command. | `{option, allowed}` |
 | `conflicting_options` | usage | `--NAME` with `--NAME-file`; `--key` with `--intent useful`; `--key` on `knowledge-check` without `--seed-chat yes`; `--project` with `--thread`; `--helper off` with helper options; `--edit-note` with `--record-decision`. | `{options}` |
 | `missing_option` | usage | Required option absent (checked before the workspace opens). | `{option}` |
-| `invalid_value` | usage | Bad integer, enum or yes/no value, key format, relative path, `--trace`, a page `--limit` out of range or a malformed `--cursor`, or malformed `--actions` JSON. | `{option, expected}` (`expected` is human text) |
+| `invalid_value` | usage | Bad integer, enum or yes/no value, key format, relative path, `--trace`, a page `--limit` out of range or a malformed `--cursor`, or malformed `--actions` JSON. Integer syntax and enum membership are checked before the workspace opens; service ranges (for example `--hops 1|2`, `--budget 1..32`) after it. | `{option, expected}` (`expected` is human text) |
 | `invalid_input` | usage | `--NAME-file` problem; an unreadable or empty intake source; an unreadable or malformed `--preview-file`. | `{option, reason}`, plus `max_bytes` for `too_large` |
 | `not_found` | rejected | Unknown record or operation; `read` returning null. | `{}` |
 | `invalid_request` | rejected | The shared service refused the request (core `Invalid`, app `Invalid`, including the helper-selection refusals); `--thread must name a chat`; `--project must name an active project`; a `backup` or `export` destination whose parent is missing; an `ask` or useful intake refused by the run service (`ToolRejected`, `ModelRefused`). | `{}`, `{option}`, `{option: "destination", reason: "parent_missing"}`, or `{kind}` for `ask` |
@@ -146,6 +146,8 @@ Reachability from the CLI: every CLI write runs with owner authority and no run,
 | `destination_exists` | rejected | `backup` or `export` destination already exists. | `{option: "destination"}` |
 | `edit_session_open` | rejected | `begin-edit` on a note with an open unsaved session. | `{note, base_version}` |
 | `credentials_not_configured` | rejected | Machine mode: `ask`, useful intake, or a non-Markdown/text intake on a workspace with no credential source. Nothing was committed and no provider was contacted. | `{provider}` |
+| `missing_workspace` | rejected | Machine mode: a read command (retry class `read`) named a `--data-dir` that does not exist or is an empty folder. Nothing was created. Check the path, or run `init` deliberately. Default mode still initialises the folder. | `{}` |
+| `data_folder_unusable` | rejected | Reserved (`"reserved": true` in the description): the data folder cannot be used. Raised once the daily-workflow branch is merged; until then a symlinked data folder is `unsafe_directory`. | `{problem}`: `read_only`, `permission_denied`, `not_a_directory`, `symlink_refused` or `missing_parent` |
 | `unavailable` | failed | Semantic search or a model folder is unusable; no native retrieval in this build; conversion unsupported on this platform or format; model install refused. | `{}` or `{reason: "model_install"}` |
 | `provider_failed` | failed | `ask` or useful intake: any other `AiErrorKind` (none is known to reach `Err` from `run` at `771116f0`; kept as a fallback); also `ConversionFailure::Provider`. | `{kind}` in snake_case |
 | `conversion_failed` | failed | Document conversion failed. | `{reason}` |
@@ -174,7 +176,7 @@ The #145 helper refusals keep their messages: `--helper off` with helper options
 - **Default mode.** SIGTERM keeps the default action (the process is killed, no output). A deadline before a commit prints `Stopped at the --timeout deadline (N s); nothing was committed` (exit 1); a stopped run prints its JSON (exit 0); a hard stop prints `Stopped at the --timeout deadline (N s); state unknown` (exit 1).
 - **Busy.** SQLite waits 5 s for another writer before `busy` (exit 7 in machine mode; default mode keeps SQLite's text, exit 1). A keyed retry after the lock clears applies once.
 - SIGTERM before the handler is installed, a second SIGTERM, and SIGINT before startup kill the process without an envelope.
-- Checks of required options, `intake`'s conditional requirements, option conflicts, the key pattern, `--NAME-file` sources and `--trace` run before the workspace opens. `intake --intent chat` requires `--thread`, and `--intent project` requires `--project` (`required_when` in the description), so nothing is read or converted before that refusal. Other value checks run where they always have, sometimes after a fresh directory was initialised.
+- Checks of required options, `intake`'s conditional requirements, option conflicts, the key pattern, `--NAME-file` sources, `--trace`, page options, integer syntax and enum values run before the workspace opens. `intake --intent chat` requires `--thread`, and `--intent project` requires `--project` (`required_when` in the description), so nothing is read or converted before that refusal. Service ranges and `--trash` run after opening. In machine mode a read never initialises a missing or empty directory (`missing_workspace`).
 
 ### Inspection
 
@@ -313,6 +315,7 @@ Without `--json`, stdout bytes, stderr text and exit statuses (0 or 1) stay as b
 9. New commands (`revisions`, `revision`, `runs`, `operation`), options (page options, `--timeout`, `--key` on `topics-create` and `knowledge-check --seed-chat yes`) and description keys are accepted; flag-less output of existing commands is unchanged.
 10. The "Agents and scripts" block of `--help` covers the new surface; the `HELP` text before it is byte-identical.
 11. A no-op `archive`, `resolve`, `unarchive`, `chat-move`, `project-link` or `project-unlink` prints `{"outcome":"Unchanged","record":ID,"version":V}` (exit 0) instead of a new receipt, and records nothing (owner decision B4). Checked in-repo callers make only real changes: `crates/brn/tests/agent_contract.rs` (keyed archive), `docs/work/active/chats-and-projects/cli-witness.py` (archive, unarchive) and `docs/work/active/projects/cli-witness.py` (all real changes). The desktop keeps the receipt path for now.
+8. Integer syntax (`--base`, `--generation`, `--hops`, `search --limit`, `--budget`) and enum values (`--knowledge`, `--seed-chat`, `--sources`, `--intent`, `--provider`, `--helper-provider`, `--effort`, `--helper-effort`) are refused before the workspace opens, with the same messages as before, so a refusal no longer initialises a fresh directory. Machine-mode reads on a missing or empty `--data-dir` are `missing_workspace`; default-mode reads still initialise it.
 12. A workspace the CLI creates gets `auth_file: null` instead of a derived `CODEX_HOME/auth.json` or `~/.codex/auth.json` (owner decision B2, see Credentials). Every in-repo caller that runs a provider passes `--auth-file` or `--credentials-dir` to `configure`.
 
 ### Changes from contract 1
@@ -328,6 +331,8 @@ Every in-repo consumer moved to contract 2 in the same change; there is no contr
 | `--timeout` | none | global `--timeout SECONDS`; `timeout` gains `{deadline_seconds, hard}` |
 | `busy` | lock contention was `storage_error` (internal, 1) | `busy` (failed, 7) |
 | `edit_session_open` | `details` `{note, session, base_version}` | `{note, base_version}`: the open session's ID is never named (owner decision B3 part 1) |
+| `missing_workspace` | a read on a missing or empty `--data-dir` initialised a workspace and returned `ok` | machine mode: `missing_workspace` (rejected, 6), nothing created |
+| `data_folder_unusable` | absent | reserved code, raised after the daily-workflow merge |
 | `Unchanged` | a no-op converge command appended a receipt and bumped versions | outcome `Unchanged` (ok, 0), no receipt, no version bump |
 | Credentials | CLI-created workspaces derived `auth_file` from `CODEX_HOME` or `HOME` | no credential source until `configure`; machine-mode `credentials_not_configured` (rejected, 6) before any provider contact |
 | Retry keys | `topics-create` and `knowledge-check --seed-chat yes` duplicated; keyed intake converted (and sent non-Markdown documents to the provider) before replaying | `--key` on both (converge, replay); keyed full/chat/project intake replays before conversion |
