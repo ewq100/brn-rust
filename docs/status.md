@@ -1,4 +1,4 @@
-**B3 local qualification, 17 October 2026:** persistent brief/reference and Sources-used UI is being prepared on accepted B1b base `f2b060bb`; [B3 plan and limits](work/active/modular-foundation/b3/plan.md). No build/test/review/acceptance claim; D1B retains the sole heavy slot.
+**B3 local verification, 17 October 2026:** persistent brief/reference and Sources-used UI is compiled and locally checked; [B3 evidence and limits](work/active/modular-foundation/b3/verification.md). Fresh Opus review and principal acceptance remain open. Heavy slot released; exact UI/shared scope retained frozen. Sole default-suite failure is the carried PDF Unavailable baseline.
 
 **Current principal disposition, 17 October 2026:** B1b is independently source-approved and locally accepted after clean final `d9aab018` handoff. [B1b disposition](work/active/modular-foundation/b1b/principal-disposition.md) records the precision-only test correction, one actual caught integration omission and carried PDF/hosted/native-human/owner gates. B3 is next in the writing lane; D1B proceeds in a separate checkout. No publication, combined-lane integration or main merge.
 

@@ -1805,7 +1805,7 @@ fn saved_retry_refuses_wrong_displayed_context_and_preserves_archived_state_at_o
 fn b3_brief_reference_purpose_persist_through_chats_navigation_closed_chat_and_reopen(
     cx: &mut TestAppContext,
 ) {
-    let f = fixture(cx);
+    let f = fixture_size(cx, 900., 600.);
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |view, cx| {
             view.open_note(&f.a.id, None, window, cx);
@@ -1819,19 +1819,19 @@ fn b3_brief_reference_purpose_persist_through_chats_navigation_closed_chat_and_r
         });
     }).unwrap();
     cx.run_until_parked();
-    b3_scroll_setup(cx, &f, -1000.);
+    b3_reveal_setup_control(cx, &f, "attach-writing-reference-0");
     cx.update_window(f.window, |_, window, cx| {
         window.click("attach-writing-reference-0", cx)
     })
     .unwrap();
     cx.run_until_parked();
-    b3_scroll_setup(cx, &f, 1000.);
+    b3_reveal_setup_control(cx, &f, "reference-purpose-0-Requirements");
     cx.update_window(f.window, |_, window, cx| {
         window.click("reference-purpose-0-Requirements", cx)
     })
     .unwrap();
     cx.run_until_parked();
-    b3_scroll_setup(cx, &f, -1000.);
+    b3_reveal_setup_control(cx, &f, "save-writing-setup");
     cx.update_window(f.window, |_, window, cx| {
         window.click("save-writing-setup", cx)
     })
@@ -1902,12 +1902,13 @@ fn b3_brief_reference_purpose_persist_through_chats_navigation_closed_chat_and_r
             .unwrap(),
         saved
     );
+    b3_reveal_setup_control(cx, &f, "remove-reference-0");
     cx.update_window(f.window, |_, window, cx| {
         window.click("remove-reference-0", cx)
     })
     .unwrap();
     cx.run_until_parked();
-    b3_scroll_setup(cx, &f, -1000.);
+    b3_reveal_setup_control(cx, &f, "save-writing-setup");
     cx.update_window(f.window, |_, window, cx| {
         window.click("save-writing-setup", cx)
     })
@@ -2185,6 +2186,28 @@ fn b3_full_note_import_attaches_once_and_wrong_target_completion_keeps_canonical
             assert_eq!(view.workspace.notes().unwrap().iter().filter(|r| matches!(&r.data, RecordData::Note(n) if n.title == "B3 separately retained")).count(), 1);
         });
     }).unwrap();
+}
+
+// Real wheel events to an observed control, including the drawer's compact viewport.
+fn b3_reveal_setup_control(cx: &mut TestAppContext, f: &Fixture, id: &'static str) {
+    for _ in 0..64 {
+        let delta = cx
+            .update_window(f.window, |_, window, _| {
+                let panel = window.find("writing-setup").bounds();
+                let control = window.find(id);
+                if control.visible() && panel.contains(&control.bounds().center()) {
+                    None
+                } else if control.bounds().center().y < panel.center().y {
+                    Some(20.)
+                } else {
+                    Some(-20.)
+                }
+            })
+            .unwrap();
+        let Some(delta) = delta else { return };
+        b3_scroll_setup(cx, f, delta);
+    }
+    panic!("setup control {id} remained unreachable after bounded real scrolling");
 }
 
 fn b3_scroll_setup(cx: &mut TestAppContext, f: &Fixture, delta: f32) {

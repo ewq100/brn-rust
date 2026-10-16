@@ -1,11 +1,11 @@
 {
-  "actual_HEAD": "29c9cf68a7841a3a6329d0c4de7a5be7d7b347b5",
+  "actual_HEAD": "c1eeeb19083631422bf2f296b6865720c159deae",
   "base": "f2b060bb17080d0241143afb6fadd6ec22350f34",
   "branch": "work/b3-20261017",
   "material_patch": {
     "base_index_applycheck": "passed against isolated accepted-base index; no application/staging",
-    "path": "/private/tmp/brn-b3-source-20261017/current-source.patch",
-    "sha256": "d180b418f340a365d63a31ba041f8e9a7cb9a13449f1453cf21ea498670525ee"
+    "path": "/private/tmp/brn-b3-source-20261017/final-source.patch",
+    "sha256": "7d9e0d4c753a917145d894e82478d987f6b4301f6c1fab3d3c6bc29aab2bd50f"
   },
   "prepared_app_tests": [
     "b3_import_resolution_reads_initial_observation_and_current_owner_edited_note_without_writes",
@@ -134,8 +134,8 @@
     "scripts/verify-end-to-end.sh": "cf47f13d6691d378b3b2cb821dee51f29437c698adf5d090a9cead60c0e17841",
     "scripts/verify-storage.sh": "cc84b634b6aa816050dead761f9fba0e2e69cf12f20e308c4714ad476e6daf6b"
   },
-  "recorded_utc": "2026-10-16T22:18:38.125388+00:00",
-  "source_fingerprint": "0d37d7cfcbf73aa8e32422b1e295eb48c9854c6d9667bf7895b7daf0ab53e5eb",
+  "recorded_utc": "2026-10-16T22:25:22.871350+00:00",
+  "source_fingerprint": "7e2c01386a2604e2fe14069060a00a7705b974d064368faad27c3997c76eb65b",
   "source_paths": {
     "crates/brn-desktop/src/threads_ui.rs": {
       "base_sha256": "bd03c560faeecdfb3e73440e9f1da83a3e944b3ea18965b79713942fcae06aeb",
@@ -144,8 +144,8 @@
     },
     "crates/brn-desktop/src/threads_writing_tests.rs": {
       "base_sha256": "a05c3756f5a72fe11b8bfc30b07ed6316afb213963f711ba621bbe657d2f7c1e",
-      "bytes": 125338,
-      "current_sha256": "7556eada30b846e5e494f68847286b9b705ee23bf7caf91ee2c1c5050d06938a"
+      "bytes": 126416,
+      "current_sha256": "c54bae9af2769cd3b5adb9db921f83476f92904094d1007f5751bd63121b0cbd"
     },
     "crates/brn-threads-app/src/intake.rs": {
       "base_sha256": "3d935a5ab37cbb28ef10c76502045896e95db031bf2b2815717b19f251fac034",

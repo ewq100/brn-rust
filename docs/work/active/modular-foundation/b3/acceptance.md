@@ -39,3 +39,9 @@ F22 source gate stays native-only with no dependency/manifest/lock change. No ra
 ## Additional app resolver grant
 
 Six appended `tests/import_coverage.rs` scenarios exercise the readonly helper without changing importer behavior: initial/observation-only resolution and legitimate current owner edits; exact differing SHA X/Y and old-X-after-Y with Source.external_version still Y; fabricated/unapplied receipt and hidden scope; archived Source/Note/link, superseded or moved Note and moved link; ambiguous eligible Notes; canonical scope movement. All six appended scenarios passed in the eight-test import_coverage target. No new permission policy or metadata; actual applied receipt identity and existing scope/visibility predicates remain authority. Run `cargo test -p brn-threads-app --test import_coverage --locked --offline` under the current grant, with proportional existing intake/writing integration.
+
+## Executed window outcome
+
+See [actual qualification](verification.md) and its 34-command receipt. The complete native suite passed 284 tests with one existing ignored fixture; the library passed 44. Default workspace tests completed 1,115 passed, one carried PDF failure and six ignored. App native tests passed 246 with one ignored; combined desktop state passed 55. Default F22 graphs/build/strict lint, offline CLI journey (108 steps, 1,266 checks) and fresh/reopened headless startup also passed at their recorded source pins.
+
+The persistence fixture additionally passes at 900×600 with bounded real wheel events and unchanged state assertions. That test-only supplement does not relabel the earlier full-suite execution. Native-human/IME/picker, hosted, owner, full F21 and principal acceptance remain pending. Heavy slot released; no mutation executed.

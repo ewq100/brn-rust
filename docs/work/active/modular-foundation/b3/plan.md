@@ -39,3 +39,7 @@ Later commands, only after explicit allocation: affected desktop native tests; l
 ## Granted verification window
 
 The principal explicitly released D1B and granted the sole heavy slot to B3 for serial locked/offline before, focused service/native, strict lint/format/default/native/combined and synthetic scripted acceptance gates. No mutation is granted. Candidate target `/private/tmp/brn-b3-20261017-target` belongs only to the bound checkout; before root `/private/tmp/brn-b3-before-20261017-source` and target `/private/tmp/brn-b3-before-20261017-target` are distinct. Actual command/source/log associations and failures will be retained in the verification receipt.
+
+## Window disposition
+
+Production pin `29c9cf68` and the test-only `c1eeeb19`/compact-window supplements are locally compiled/verified as described in [actual evidence](verification.md). The heavy slot is released; no mutation has run. Exact source ownership stays frozen for independent principal-owned Opus review and explicit handoff. Remaining acceptance is review/principal, hosted/native-human/IME/picker/owner/full F21/program and carried PDF tooling; this is not B3 principal acceptance or a B4 allocation.
