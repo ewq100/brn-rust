@@ -161,3 +161,56 @@ Safety: the main checkout has no tracked changes (only the owner's untracked `.v
 10. The orchestrator ran the pseudo-terminal test outside the sandbox, and it passed. `prepared_rust_fixtures_keep_source_and_preview_bindings_in_owned_scratch` still needs Poppler `pdftoppm`, so the CI macOS job must cover it.
 11. No process test reuses an Undo or keep-in-brn key for a different original (the core refuses it, `store.rs` 511–521).
 12. Merging `work/daily-workflow-reliability` needs the recorded resolution, including changing `open_edit_session_reports_edit_session_open` to assert the structured `edit_session_open` default output.
+
+<!-- ===================== ROUND 2 BEGIN ===================== -->
+
+# Round 2 (planned; nothing implemented yet)
+
+The owner asked to "fix the remaining gaps". The approved round-2 design (`design-2.md` rev 4 and its appendix, review 2 iteration 4: APPROVED, seven NITs carried forward) is a task artifact outside the repository. The ordered steps are in the [plan, Round 2](plan.md#round-2-closing-the-remaining-agent-contract-gaps). The owner's decisions are in [owner-decisions.md](owner-decisions.md).
+
+## Scope outline
+
+| Rank | Item | What changes for an agent | Shared service |
+|---|---|---|---|
+| 1 | A1 bounded inspection | Paged `history [--record]`, `candidates` and `records [--kind]`; new `revisions`, `revision`, `operation --id \| --key --command`, `runs [--thread] [--state]`; paged `read --limit [--cursor]`; envelope `page`. The wiki evaluator stops opening SQLite | ⚑ core `inspect.rs`, SELECT-only |
+| 2 | A4 bounded execution | SIGTERM → `terminated` (143); `--timeout` soft stop (`timeout`, 7) and one-line hard stop; `busy` (7); envelope `stop` | none |
+| 3 | A3 retry keys | `--key` on `topics-create` and `knowledge-check --seed-chat yes`; keyed full/chat/project intake replays before conversion | ⚑ app `keyed.rs` (additive) |
+| 4 | A10 (owner B2) | CLI-created workspaces have no credential source; `credentials_not_configured` (6) before any commit | ⚑ app `open_without_default_credentials` beside an unchanged `open` |
+| 5 | A2 offline outcomes | Test-only loopback stub for `ask` outcomes; witness without SQLite; NeedsReview/Superseded reachability audit | none |
+| 6 | A12 (owner B3.1) | `edit_session_open` details `{note, base_version}`; documented stale-edit recipe | none |
+| 7 | A11 (owner B4) | No-op archive/resolve/unarchive/chat-move/project-link/unlink → `Unchanged`, no receipt | ⚑ core `*_converging` + private hook (owner-approved exception); app `converge.rs` |
+| 8 | A6 | Machine-mode reads on a missing or empty dir → `missing_workspace` (6); enum and integer values checked before opening | none |
+| 9 | A5 | `COMMAND --help` (text and JSON); `--data-dir`/`--timeout` after the command; absolute paths required; owner mark on `intake --thread <project>` | none |
+| 10 | A7 | `invalid_request` `details.reason` | none |
+| — | A8/A9 | Review covers `8bef439b..HEAD`, explicitly including `3638a54a`, `00eaa639` and `2537db54`; PTY tests run unsandboxed or are recorded as blocked | — |
+
+Everything ships as contract 2, with a "Changes from contract 1" table and a forward rule. Default mode changes only per design §2.3 items 6–12. `HELP` and the useful-intake sub-block stay untouched. LIST B items B1 and B3 part 2 stay options-only (round 3).
+
+## Planning-time checks (16 Oct 2026)
+
+- Worktree at `2537db54`; the only untracked file is `owner-decisions.md`.
+- Overlap check (`git log --oneline 8bef439b..<branch> -- <path>` for every path round 2 touches):
+  - Nine branches are already ancestors of the base: `codex/projects-feature`, the three `work/knowledge-*`, `codex/writing-polish`, `codex/tile-ui-polish`, `codex/writing-ux-research`, `work/subagent-design` and `work/quality-simplify`.
+  - `origin/codex/linux-ui-cloud` (`7075c46a`) touches only scripts tests and docs that round 2 doesn't edit, apart from one `docs/status.md` line; `merge-tree` is clean.
+  - `work/daily-workflow-reliability` (`b76cc5a7` "docs: record the second rebase onto 8bef439b"; 29 commits) touches:
+    - core `lib.rs`, `chat.rs`, `projects.rs` and `store.rs`;
+    - app `lib.rs`, `settings.rs` (from :98), `intake.rs`, `chat.rs` and `projects.rs`;
+    - `crates/brn/src/main.rs` and `crates/brn/tests`.
+
+    Its canonical-locator commit is `344331f2` "count one file as one source regardless of path spelling".
+  - `work/integration-ui-reliability` is absent.
+- `merge-tree --write-tree --name-only` against daily: conflict only in `crates/brn/src/main.rs`.
+
+## Evidence to be filled in by the round-2 steps
+
+- Baseline binary built from `2537db54` (path, contract 1).
+- Per-step verification rows.
+- The baseline-failure matrix: each new process test either fails at `2537db54` (with the failing assertion) or is a listed guard.
+- The A2 spike result and the NeedsReview/Superseded audit.
+- Caller surveys for §2.3 items 6 and 11 and for A6.
+- The final verification table.
+- The re-run overlap table and the final daily tip.
+- `merge-tree` and scratch-merge results.
+- Round-2 before/after examples, machine-contract changes and remaining gaps.
+
+<!-- ===================== ROUND 2 END ===================== -->
