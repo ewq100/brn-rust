@@ -1,6 +1,6 @@
 # Combined C0 implementation plan
 
-**Current slice:** CW2 source `12b0d329` is reviewed and locally accepted for dependent development after explicit clean handoff `4ccece6f`. B1a and D1A are eligible with disjoint ownership and one heavy build at a time. Full qualification remains open. [Principal disposition](cw2/principal-disposition.md) supersedes historical checkpoint/hold statements below.
+**Current slice:** B1a source `60f604f5` is accepted for local dependent development after independent source review and principal reconciliation of the final LOW corrections and serial qualification. B1b follows over the accepted CW2 shared seam; D1A corrections own the sole heavy slot. [B1a disposition](b1a/principal-disposition.md) records the carried PDF and outstanding hosted/native/owner gates.
 
 **C0 goal:** establish a reviewable baseline for modular foundation plus agent-capabilities Slice 0, without production edits.
 **Architecture:** keep the checked core/app services and Rig runtime. C0 documents their seams and tests upstream reuse in an independent experiment.

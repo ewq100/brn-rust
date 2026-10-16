@@ -237,3 +237,8 @@ Final documentation commit changes no source/tests. On its completion the worker
 ## Principal CW2 local integration disposition
 
 The principal reconciled worker final `4ccece6f`, approved source `12b0d329`, all 204 Rust hashes, the verbatim Opus round-3 approval and explicit full ownership/build release. [Disposition](cw2/principal-disposition.md) accepts the contracts for local dependent development, preserves partial mutation and qualification limits, and makes B1a/D1A eligible without authorizing publication or main merge.
+
+
+## Principal B1a local disposition
+
+The principal accepted final B1a source `60f604f5` for local dependent development after verifying 295 production hashes, 21 raw command/source-manifest identities, actual harness totals and the bounded LOW review corrections. [Disposition](b1a/principal-disposition.md) separates local source acceptance from the carried PDF tooling failure, hosted CI, native human observation and owner/program qualification. B1a has explicitly released all paths and its heavy slot; D1A owns the sole heavy slot while B1b can prepare source. No publication or main merge.
