@@ -1,0 +1,15 @@
+    Checking brn-threads-core v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-threads-core)
+    Checking brn-ai v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-ai)
+    Checking brn-threads-app v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-threads-app)
+    Checking brn v0.0.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn)
+    Checking brn-desktop v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-desktop)
+error: unused variable: `window`
+   --> crates/brn-desktop/src/threads_writing_tests.rs:651:36
+    |
+651 |     cx.update_window(f.window, |_, window, cx| {
+    |                                    ^^^^^^ help: if this is intentional, prefix it with an underscore: `_window`
+    |
+    = note: `-D unused-variables` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(unused_variables)]`
+
+error: could not compile `brn-desktop` (bin "brn-desktop" test) due to 1 previous error

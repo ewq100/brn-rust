@@ -37,7 +37,11 @@ impl ThreadsUi {
                 RecordData::Run(run) => run.instruction,
                 _ => None,
             })
-            .and_then(|id| self.workspace.writing_request(&id).ok())
+            .and_then(|id| {
+                self.workspace
+                    .writing_request_in_context(&id, note, self.note_writing_scope.as_deref())
+                    .ok()
+            })
             .is_some_and(|snapshot| snapshot.note.id == note)
     }
     pub(super) fn writing_activity(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
@@ -99,6 +103,8 @@ impl ThreadsUi {
             .candidates
             .iter()
             .filter(|candidate| self.writing_candidate_note(candidate).as_deref() == Some(note))
+            .filter(|candidate| !candidate.request.writes.iter().any(|w| matches!(&w.data, RecordData::Message(m) if m.role == WRITING_EVIDENCE_ROLE))
+                || self.workspace.writing_candidate_review(candidate.operation.as_str(), self.note_writing_scope.as_deref()).is_ok())
             .collect();
         // Only the newest proposal is filled, and only while it is the
         // bar's first matching row; older ones are outline.
@@ -169,7 +175,7 @@ impl ThreadsUi {
     pub(super) fn latest_note_writing_request(&self, note: &str) -> Option<Record> {
         let thread = self.writing_threads.get(note)?;
         self.workspace.messages(thread).ok()?.into_iter().rev().find(|record| {
-            matches!(&record.data, RecordData::Message(message) if message.role == "writing-request") && self.workspace.writing_request(&record.id).is_ok_and(|snapshot| snapshot.note.id == note)
+            matches!(&record.data, RecordData::Message(message) if message.role == "writing-request") && self.workspace.writing_request_in_context(&record.id, note, self.note_writing_scope.as_deref()).is_ok()
         })
     }
     pub(super) fn latest_rewrite_applied(&self, note: &str) -> bool {
@@ -187,6 +193,8 @@ impl ThreadsUi {
             || self
                 .candidates
                 .iter()
+            .filter(|candidate| !candidate.request.writes.iter().any(|w| matches!(&w.data, RecordData::Message(m) if m.role == WRITING_EVIDENCE_ROLE))
+                || self.workspace.writing_candidate_review(candidate.operation.as_str(), self.note_writing_scope.as_deref()).is_ok())
                 .any(|candidate| self.writing_candidate_note(candidate).as_deref() == Some(note))
             || self.latest_rewrite_applied(note)
         {
@@ -274,6 +282,8 @@ impl ThreadsUi {
         let proposal = self
             .candidates
             .iter()
+            .filter(|candidate| !candidate.request.writes.iter().any(|w| matches!(&w.data, RecordData::Message(m) if m.role == WRITING_EVIDENCE_ROLE))
+                || self.workspace.writing_candidate_review(candidate.operation.as_str(), self.note_writing_scope.as_deref()).is_ok())
             .any(|candidate| self.writing_candidate_note(candidate).as_deref() == Some(note));
         let applied = self.latest_rewrite_applied(note)
             && self.applied_rewrite.get(note).is_some_and(|(request, _)| {
@@ -312,6 +322,8 @@ impl ThreadsUi {
             || self
                 .candidates
                 .iter()
+                .filter(|candidate| !candidate.request.writes.iter().any(|w| matches!(&w.data, RecordData::Message(m) if m.role == WRITING_EVIDENCE_ROLE))
+                    || self.workspace.writing_candidate_review(candidate.operation.as_str(), self.note_writing_scope.as_deref()).is_ok())
                 .any(|candidate| self.writing_candidate_note(candidate).as_deref() == Some(note))
             || self.latest_rewrite_applied(note)
         {

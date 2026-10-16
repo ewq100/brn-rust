@@ -2662,6 +2662,8 @@ impl ThreadsUi {
         let proposals = self
             .candidates
             .iter()
+            .filter(|candidate| !candidate.request.writes.iter().any(|w| matches!(&w.data, RecordData::Message(m) if m.role == WRITING_EVIDENCE_ROLE))
+                || self.workspace.writing_candidate_review(candidate.operation.as_str(), self.note_writing_scope.as_deref()).is_ok())
             .any(|candidate| self.writing_candidate_note(candidate).as_deref() == Some(&note_id));
         let Some(row) = self.writing_bar_row() else {
             return vec![];
@@ -2997,6 +2999,22 @@ impl ThreadsUi {
         let p = pal();
         let Some(review) = &self.review else {
             return div().into_any_element();
+        };
+        let has_evidence =
+            review.candidate.request.writes.iter().any(
+                |w| matches!(&w.data, RecordData::Message(m) if m.role == WRITING_EVIDENCE_ROLE),
+            );
+        let writing_evidence = if has_evidence {
+            match self.workspace.writing_candidate_review(review.candidate.operation.as_str(), self.note_writing_scope.as_deref()) {
+                Ok(evidence) => Some(evidence),
+                Err(_) => return div().id("writing-evidence-unavailable").flex().flex_col().gap_2().p_3()
+                    .aria_label("Writing proposal unavailable here. Open and review it in its matching writing context, or Refresh after restoring access.")
+                    .child("Writing proposal unavailable here. Open and review it in its matching writing context, or Refresh after restoring access.")
+                    .child(pill("close-review", "Keep for later").on_click(cx.listener(|this, _, window, cx| this.keep_review(window, cx))))
+                    .test_support().into_any_element(),
+            }
+        } else {
+            None
         };
         let fit = self.review_fit;
         let writes = &review.candidate.request.writes;
@@ -3335,6 +3353,27 @@ impl ThreadsUi {
                         .test_support(),
                 )
             });
+        if let Some(evidence) = &writing_evidence {
+            let private = evidence
+                .sources
+                .iter()
+                .filter(|source| source.private_into_wider_note)
+                .map(|source| format!("{} (v{})", source.title, source.version))
+                .collect::<Vec<_>>();
+            if !private.is_empty() {
+                let disclosure = format!(
+                    "Private sources used in this more widely visible Note: {}. Apply requires your exact review and retains private provenance.",
+                    private.join(", ")
+                );
+                details = details.child(
+                    div()
+                        .id("writing-private-disclosure")
+                        .aria_label(disclosure.clone())
+                        .child(disclosure)
+                        .test_support(),
+                );
+            }
+        }
         if self.review_inputs || review.note.is_none() {
             // The bar names the reason when the proposal has no note text.
             if review.note.is_some() {
@@ -3564,6 +3603,23 @@ impl ThreadsUi {
             .into_any_element()
     }
     pub(super) fn compare_tile(&self, _: &mut Context<Self>) -> gpui_kit::AnyElement {
+        if let Some(review) = &self.review
+            && review.candidate.request.writes.iter().any(
+                |w| matches!(&w.data, RecordData::Message(m) if m.role == WRITING_EVIDENCE_ROLE),
+            )
+            && self
+                .workspace
+                .writing_candidate_review(
+                    review.candidate.operation.as_str(),
+                    self.note_writing_scope.as_deref(),
+                )
+                .is_err()
+        {
+            return div().id("compare-evidence-unavailable").p_3()
+                .aria_label("Writing comparison unavailable in this context. Open and review the matching writing context or Refresh after restoring access.")
+                .child("Writing comparison unavailable in this context. Open and review the matching writing context or Refresh after restoring access.")
+                .test_support().into_any_element();
+        }
         if self
             .review
             .as_ref()

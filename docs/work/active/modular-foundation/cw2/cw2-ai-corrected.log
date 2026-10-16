@@ -1,0 +1,12 @@
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-ai)
+    Finished `test` profile [optimized] target(s) in 9.36s
+     Running unittests src/lib.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/brn_ai-4bdff0807a0d4cb7)
+
+running 4 tests
+test threads::cw2_tests::actual_ranges_and_quotes_are_persisted_not_declared_inputs_and_prepare_retry_is_immutable ... ok
+test threads::cw2_tests::fabricated_or_unread_quotations_are_rejected_before_a_candidate_exists ... ok
+test threads::cw2_tests::oversized_prefix_read_is_recorded_as_partial_and_ranges_can_finish_it ... ok
+test threads::cw2_tests::exhaustive_freshness_stales_but_ordinary_actual_read_edit_stays_historical ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 347 filtered out; finished in 0.06s
+

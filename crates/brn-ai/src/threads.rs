@@ -71,6 +71,9 @@ mod reads_tests;
 mod research_tests;
 
 #[cfg(test)]
+#[path = "threads_cw2_tests.rs"]
+mod cw2_tests;
+#[cfg(test)]
 #[path = "threads_search_tests.rs"]
 mod search_tests;
 #[cfg(test)]
@@ -133,6 +136,25 @@ impl PreparedThreadRun {
     pub fn run_id(&self) -> &str {
         &self.scope.run
     }
+}
+/// Native hosts share worker creation too; events and completion remain host
+/// presentation callbacks. The opaque prepared invocation is consumed once.
+pub fn spawn_prepared(
+    prepared: PreparedThreadRun,
+    cancel: CancellationToken,
+    events: Arc<dyn Fn(AiEvent) + Send + Sync>,
+    finished: Box<dyn FnOnce(AiResult<ThreadResult>) + Send>,
+) -> std::io::Result<std::thread::JoinHandle<()>> {
+    std::thread::Builder::new()
+        .name("brn-thread-run".into())
+        .spawn(move || {
+            let result = tokio::runtime::Builder::new_current_thread()
+                .enable_all()
+                .build()
+                .map_err(storage)
+                .and_then(|runtime| runtime.block_on(run_prepared(prepared, cancel, events)));
+            finished(result);
+        })
 }
 struct Scope {
     chat: String,
@@ -306,8 +328,16 @@ struct SkillArgs {
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 struct PrepareArgs {
+    #[serde(default)]
+    writing: Option<WritingEvidenceArgs>,
     request_key: String,
     request: ChangeRequest,
+}
+#[derive(Default, Deserialize, serde::Serialize, Clone, PartialEq, Eq)]
+#[serde(deny_unknown_fields)]
+struct WritingEvidenceArgs {
+    quotations: Vec<WritingQuotation>,
+    requirements_reported: Vec<WritingRequirementsClaim>,
 }
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -418,7 +448,7 @@ fn schema(name: &str) -> Value {
             json!(["summary"]),
         ),
         "prepare_changes" => object(
-            json!({"request_key":{"type":"string"},"request":object(json!({"reason":{"type":"string"},"writes":{"type":"array","items":object(json!({"id":{"type":"string"},"expected_version":{"type":["integer","null"]},"archived":{"type":"boolean"},"data":{"type":"object","description":"Exactly one typed variant: Note, Thread, Action, Source, Link, or Comment. Read current records for complete field shape. Note: title,markdown,protected,confirmed,superseded_by,import. Action: description,state (Suggested/Open/Waiting/Done/Cancelled),internal,evidence,due. New IDs use new:0, new:1 etc; references may use those same placeholders."}}),json!(["id","expected_version","archived","data"]))},"inputs":{"type":"array","items":object(json!({"record":{"type":"string"},"version":{"type":"integer"},"expectation":{"type":"string","enum":["Current","Historical"],"description":"Default Current checks this exact active version atomically at Apply. Use Historical only for an intentional citation of an accepted older revision, not current facts."}}),json!(["record","version"]))}}),json!(["reason","writes","inputs"]))}),
+            json!({"writing":{"type":["object","null"],"properties":{"quotations":{"type":"array","items":{"type":"object","properties":{"id":{"type":"string"},"version":{"type":"integer"},"start":{"type":"integer"},"end":{"type":"integer"},"quote":{"type":"string"}},"required":["id","version","start","end","quote"],"additionalProperties":false}},"requirements_reported":{"type":"array","items":{"type":"object","properties":{"claim":{"type":"string"},"quotations":{"type":"array","items":{"type":"integer"}}},"required":["claim","quotations"],"additionalProperties":false}}},"required":["quotations","requirements_reported"],"additionalProperties":false},"request_key":{"type":"string"},"request":object(json!({"reason":{"type":"string"},"writes":{"type":"array","items":object(json!({"id":{"type":"string"},"expected_version":{"type":["integer","null"]},"archived":{"type":"boolean"},"data":{"type":"object","description":"Exactly one typed variant: Note, Thread, Action, Source, Link, or Comment. Read current records for complete field shape. Note: title,markdown,protected,confirmed,superseded_by,import. Action: description,state (Suggested/Open/Waiting/Done/Cancelled),internal,evidence,due. New IDs use new:0, new:1 etc; references may use those same placeholders."}}),json!(["id","expected_version","archived","data"]))},"inputs":{"type":"array","items":object(json!({"record":{"type":"string"},"version":{"type":"integer"},"expectation":{"type":"string","enum":["Current","Historical"],"description":"Default Current checks this exact active version atomically at Apply. Use Historical only for an intentional citation of an accepted older revision, not current facts."}}),json!(["record","version"]))}}),json!(["reason","writes","inputs"]))}),
             json!(["request_key", "request"]),
         ),
         _ => unreachable!(),
@@ -626,7 +656,11 @@ pub fn search_tool_names() -> Vec<&'static str> {
     SEARCH_TOOLS.iter().map(|(name, _)| *name).collect()
 }
 fn read_records(scope: &Scope, args: ReadArgs) -> AiResult<Value> {
-    if scope.writing_snapshot.is_some() {
+    if scope
+        .writing_snapshot
+        .as_ref()
+        .is_some_and(|s| s.setup.is_none())
+    {
         return Err(rejected());
     }
     let store = scope.store.lock().map_err(storage)?;
@@ -634,6 +668,7 @@ fn read_records(scope: &Scope, args: ReadArgs) -> AiResult<Value> {
     let mut rows = Vec::new();
     for record in store.records_for_chat(Some(&scope.chat)).map_err(storage)? {
         if record.archived
+            || !writing_read_allowed(scope, &store, &record.id, record.version)?
             || matches!(record.data, RecordData::WritingSetup(_))
             || scoped_writing_request(&record)
             || matches!(&record.data,RecordData::Note(n) if n.superseded_by.is_some())
@@ -729,6 +764,13 @@ fn read_records(scope: &Scope, args: ReadArgs) -> AiResult<Value> {
             && note.markdown.len() > cap
         {
             let prefix = truncate(&note.markdown, cap);
+            scope.reads.lock().map_err(storage)?.slice(
+                &record.id,
+                record.version,
+                0,
+                prefix.len(),
+                note.markdown.len(),
+            );
             value["data"]["Note"]["markdown"] = Value::String(prefix.to_owned());
             value["truncated"] = Value::Bool(true);
             let headings = note_headings(&note.markdown);
@@ -756,14 +798,19 @@ fn read_records(scope: &Scope, args: ReadArgs) -> AiResult<Value> {
     Ok(out)
 }
 fn read_note(scope: &Scope, args: ReadNoteArgs) -> AiResult<Value> {
-    if scope.writing_snapshot.is_some() {
+    if scope
+        .writing_snapshot
+        .as_ref()
+        .is_some_and(|s| s.setup.is_none())
+    {
         return Err(rejected());
     }
     let store = scope.store.lock().map_err(storage)?;
     live(scope, &store)?;
-    if !store
-        .record_visible_in_chat(&args.id, Some(&scope.chat))
-        .map_err(storage)?
+    if !writing_read_allowed(scope, &store, &args.id, args.version)?
+        || !store
+            .record_visible_in_chat(&args.id, Some(&scope.chat))
+            .map_err(storage)?
     {
         return Err(rejected());
     }
@@ -874,23 +921,214 @@ fn remap(request: &mut ChangeRequest, op: &OperationId) -> AiResult<()> {
 // The host fixes the complete target, metadata and inputs. The model supplies
 // only the replacement Markdown and its explanation, never a broader scope.
 fn writing_request(snapshot: &WritingSnapshot, request: &ChangeRequest) -> AiResult<ChangeRequest> {
-    let [write] = request.writes.as_slice() else {
+    let writes: Vec<_> = request
+        .writes
+        .iter()
+        .filter(|w| !matches!(&w.data, RecordData::Message(m) if m.role == WRITING_EVIDENCE_ROLE))
+        .collect();
+    let [write] = writes.as_slice() else {
         return Err(rejected());
     };
     let RecordData::Note(note) = &write.data else {
         return Err(rejected());
     };
     let mut safe = snapshot.change_request(&note.markdown).map_err(storage)?;
-    if request.writes != safe.writes {
+    if writes != safe.writes.iter().collect::<Vec<_>>() {
         return Err(rejected());
     }
-    safe.reason = request.reason.clone();
+    safe.reason = if snapshot.setup.is_some() {
+        "Whole-note writing proposal for owner review".into()
+    } else {
+        request.reason.clone()
+    };
     Ok(safe)
+}
+/// Writing references are checked in their canonical setup scope; the working
+/// Note alone keeps CW1's actual selected-conversation access exception.
+fn writing_read_allowed(scope: &Scope, store: &Store, id: &str, version: u64) -> AiResult<bool> {
+    let Some(snapshot) = &scope.writing_snapshot else {
+        return Ok(true);
+    };
+    let Some(setup) = &snapshot.setup else {
+        return Ok(false);
+    };
+    let Some(record) = store.record(id).map_err(storage)? else {
+        return Ok(false);
+    };
+    if record.archived || !matches!(&record.data, RecordData::Note(n) if n.superseded_by.is_none())
+    {
+        return Ok(false);
+    }
+    let chat = if setup.references.iter().any(|r| r.note == id) {
+        setup.chat.as_deref()
+    } else {
+        Some(scope.chat.as_str())
+    };
+    store
+        .revision_visible_in_chat(id, version, chat)
+        .map_err(storage)
+}
+
+fn attach_writing_evidence(
+    scope: &Scope,
+    store: &Store,
+    snapshot: &WritingSnapshot,
+    op: &OperationId,
+    request: &mut ChangeRequest,
+    reported: WritingEvidenceArgs,
+    explanation: &str,
+) -> AiResult<()> {
+    let setup = snapshot.setup.as_ref().ok_or_else(rejected)?;
+    if let Ok(prior) = store.prepared(op) {
+        let evidence = prior
+            .request
+            .writes
+            .iter()
+            .find_map(|w| match &w.data {
+                RecordData::Message(m) if m.role == WRITING_EVIDENCE_ROLE => {
+                    serde_json::from_str::<WritingCandidateEvidence>(&m.text).ok()
+                }
+                _ => None,
+            })
+            .ok_or_else(rejected)?;
+        let safe = writing_request(snapshot, &prior.request)?;
+        if safe.writes != request.writes
+            || safe.reason != request.reason
+            || evidence.quotations != reported.quotations
+            || evidence.requirements_reported != reported.requirements_reported
+            || evidence.explanation != explanation
+        {
+            return Err(rejected());
+        }
+        check_scope(scope, store, &prior.request)?;
+        *request = prior.request;
+        return Ok(());
+    }
+    let ledger = scope.reads.lock().map_err(storage)?;
+    let mut reads = Vec::new();
+    for (id, version, bytes, complete) in ledger.shown(usize::MAX) {
+        if !writing_read_allowed(scope, store, &id, version)? {
+            return Err(rejected());
+        }
+        let Some(Record {
+            data: RecordData::Note(note),
+            ..
+        }) = store.revision(&id, version).map_err(storage)?
+        else {
+            return Err(rejected());
+        };
+        reads.push(WritingRead {
+            id: id.clone(),
+            version,
+            covered_retained_bytes: if complete {
+                note.markdown.len()
+            } else {
+                bytes.unwrap_or(0)
+            },
+            total_retained_bytes: note.markdown.len(),
+            complete,
+        });
+        // Captured working/feedback/request/setup bindings always remain Current.
+        if !request
+            .inputs
+            .iter()
+            .any(|i| i.record == id && i.version == version)
+        {
+            let current = setup.requirements.must_be_current.contains(&id)
+                || setup.requirements.exhaustive
+                    && setup
+                        .references
+                        .iter()
+                        .any(|r| r.note == id && r.purpose == WritingPurpose::Requirements);
+            request.inputs.push(RevisionInput {
+                record: id,
+                version,
+                expectation: if current {
+                    InputExpectation::Current
+                } else {
+                    InputExpectation::Historical
+                },
+            });
+        }
+    }
+    // Freshness can be required even when a budget prevented reading it.
+    for reference in &setup.references {
+        if setup.requirements.must_be_current.contains(&reference.note)
+            || setup.requirements.exhaustive && reference.purpose == WritingPurpose::Requirements
+        {
+            let input = RevisionInput {
+                record: reference.note.clone(),
+                version: reference.version,
+                expectation: InputExpectation::Current,
+            };
+            if !request.inputs.contains(&input) {
+                request.inputs.push(input);
+            }
+        }
+    }
+    if reported.quotations.len() > 128 || reported.requirements_reported.len() > 128 {
+        return Err(rejected());
+    }
+    for quote in &reported.quotations {
+        if !ledger.covers(&quote.id, quote.version, quote.start, quote.end)
+            || !research::verify_writing_quotation(store, &scope.chat, quote)
+            || !writing_read_allowed(scope, store, &quote.id, quote.version)?
+        {
+            return Err(rejected());
+        }
+    }
+    if reported.requirements_reported.iter().any(|c| {
+        c.claim.trim().is_empty()
+            || c.claim.len() > 4096
+            || c.quotations.iter().any(|i| *i >= reported.quotations.len())
+    }) {
+        return Err(rejected());
+    }
+    let evidence = WritingCandidateEvidence {
+        version: 1,
+        request_message: snapshot.request_message.clone(),
+        thread: snapshot.thread.clone(),
+        chat: setup.chat.clone(),
+        reads,
+        quotations: reported.quotations,
+        requirements_reported: reported.requirements_reported,
+        explanation: explanation.into(),
+    };
+    let text = serde_json::to_string(&evidence).map_err(storage)?;
+    if text.len() > MAX_WRITING_REQUEST_BYTES {
+        return Err(rejected());
+    }
+    request.writes.push(Put {
+        id: op.creation_id(0),
+        expected_version: None,
+        archived: false,
+        data: RecordData::Message(Message {
+            thread: snapshot.thread.clone(),
+            role: WRITING_EVIDENCE_ROLE.into(),
+            text,
+        }),
+    });
+    Ok(())
 }
 // Model proposals cannot set visibility. The host preserves existing scopes and
 // gives new records the private chat scope when private material was available.
 fn check_scope(scope: &Scope, store: &Store, request: &ChangeRequest) -> AiResult<()> {
     for input in &request.inputs {
+        if scope
+            .writing_snapshot
+            .as_ref()
+            .is_some_and(|s| s.setup.is_some())
+            && matches!(
+                store.record(&input.record).map_err(storage)?,
+                Some(Record {
+                    data: RecordData::Note(_),
+                    ..
+                })
+            )
+            && !writing_read_allowed(scope, store, &input.record, input.version)?
+        {
+            return Err(rejected());
+        }
         if !store
             .record_visible_in_chat(&input.record, Some(&scope.chat))
             .map_err(storage)?
@@ -1040,8 +1278,17 @@ fn unread_replacement(
 fn prepare(scope: &Scope, mut args: PrepareArgs) -> AiResult<Value> {
     if !parse_valid(
         "prepare_changes",
-        &json!({"request_key":args.request_key,"request":args.request}),
+        &json!({"request_key":args.request_key,"request":args.request,"writing":args.writing}),
     ) {
+        return Err(rejected());
+    }
+    let explanation = args.request.reason.clone();
+    if args.writing.is_some()
+        && scope
+            .writing_snapshot
+            .as_ref()
+            .is_none_or(|s| s.setup.is_none())
+    {
         return Err(rejected());
     }
     if let Some(snapshot) = &scope.writing_snapshot {
@@ -1069,6 +1316,19 @@ fn prepare(scope: &Scope, mut args: PrepareArgs) -> AiResult<Value> {
         &scope.source_ids,
     )?;
     bind_project_inputs(scope, &store, &mut args.request)?;
+    if let Some(snapshot) = &scope.writing_snapshot
+        && snapshot.setup.is_some()
+    {
+        attach_writing_evidence(
+            scope,
+            &store,
+            snapshot,
+            &op,
+            &mut args.request,
+            args.writing.unwrap_or_default(),
+            &explanation,
+        )?;
+    }
     if scope.writing_snapshot.is_none()
         && let Some(reason) = unread_replacement(scope, &store, &args.request)?
     {
@@ -2024,18 +2284,11 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
             snapshot
                 .validate_saved_setup(&store)
                 .map_err(|_| rejected())?;
-            if let Some(setup) = &snapshot.setup {
-                if writing_request_scope(&records, &request.thread).map_err(|_| rejected())?
+            if let Some(setup) = &snapshot.setup
+                && writing_request_scope(&records, &request.thread).map_err(|_| rejected())?
                     != setup.chat
-                {
-                    return Err(rejected());
-                }
-                for reference in &setup.references {
-                    if !store.record(&reference.note).map_err(storage)?.is_some_and(|r| !r.archived && matches!(&r.data, RecordData::Note(n) if n.superseded_by.is_none()))
-                        || !store.revision_visible_in_chat(&reference.note, reference.version, Some(&request.thread)).map_err(storage)? {
-                        return Err(rejected());
-                    }
-                }
+            {
+                return Err(rejected());
             }
             // Serialized record-shaped payloads are evidence only after matching
             // exact canonical revisions and the active captured versions.
@@ -2458,11 +2711,38 @@ fn begin(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String)> {
         }
     }
     let input = if let Some(snapshot) = &writing_snapshot {
+        // Keep canonical metadata for all later permission checks. Only a
+        // separately filtered copy reaches the model; removed IDs/titles/content
+        // never become a selected-conversation link exception.
+        let mut model_snapshot = snapshot.clone();
+        if let Some(setup) = &mut model_snapshot.setup {
+            setup.references.retain(|reference| {
+                store
+                    .record(&reference.note)
+                    .ok()
+                    .flatten()
+                    .is_some_and(|r| {
+                        !r.archived
+                            && matches!(&r.data, RecordData::Note(n) if n.superseded_by.is_none())
+                    })
+                    && store
+                        .revision_visible_in_chat(
+                            &reference.note,
+                            reference.version,
+                            setup.chat.as_deref(),
+                        )
+                        .unwrap_or(false)
+            });
+            setup
+                .requirements
+                .must_be_current
+                .retain(|id| setup.references.iter().any(|r| r.note == *id));
+        }
         format!(
-            "Current Thread: {}\nSaved writing request: {}\nExact saved note, included passage comments and complete selected posted conversation: {}\nRewrite the entire selected note Markdown using only this saved context. Preserve every non-Markdown field and the captured note version. Prepare one complete note proposal with prepare_changes. This invocation grants no direct application authority; the owner reviews and applies the exact proposal. Mutable record/source/history reads and candidate refresh are unavailable. Do not resolve comments or submit conversation drafts.",
+            "Current Thread: {}\nSaved writing request: {}\nExact saved note, included passage comments and complete selected posted conversation: {}\nRewrite the entire selected note Markdown using this saved context and visible reference evidence read with the scoped tools. Ordinary actual reference reads retain their exact Historical version; exhaustive requirements checks and owner-marked references require Current. Import coverage, retained-text coverage and requirements reported checked are distinct; top-k never proves completeness. Supply quotations and requirements claims through prepare_changes.writing, which the host verifies. Never claim all requirements verified. Preserve every non-Markdown field and the captured note version. Prepare one complete note proposal with prepare_changes. This invocation grants no direct application authority; the owner reviews and applies the exact proposal. Reference reads/search are available for v2; v1 stays frozen. Source/history reads and candidate refresh are unavailable. Do not resolve comments or submit conversation drafts.",
             request.thread,
             snapshot.request_message,
-            serde_json::to_string(snapshot).map_err(storage)?,
+            serde_json::to_string(&model_snapshot).map_err(storage)?,
         )
     } else {
         format!(
@@ -3063,6 +3343,7 @@ mod tests {
     }
     fn prepared_note(note: &str, version: u64, text: &str) -> PrepareArgs {
         PrepareArgs {
+            writing: None,
             request_key: "change".into(),
             request: ChangeRequest {
                 reason: "Selected meaningful update".into(),
@@ -4112,6 +4393,7 @@ mod tests {
         let prepared = prepare(
             &scope,
             PrepareArgs {
+                writing: None,
                 request_key: "decision".into(),
                 request: ChangeRequest {
                     reason: "Explicit owner decision".into(),

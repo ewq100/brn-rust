@@ -91,3 +91,8 @@ Baseline PDF/hosted-widget failures are disclosures under master §6, **not C0 e
 4. Run focused tests, fmt/strict lint/default and affected native lanes with baseline failures retained; bounded installed cargo-mutants on new scope/version/replay/backup/limit guards. Record exact commands, counts, limitations, changed files/signatures and local commits. Return for principal-owned independent Opus review; CW2 and integration remain pending.
 
 CW1 handoff: local implementation/corrections are committed through source/test pin `521454f2`, with independent source approvals at 690fb705 and 521454f2. Normal and focused checks, baseline failures, partial mutation classifications and all acceptance/provenance limits are in the existing evidence. The heavy slot is released; final receipt changes are documentation only. Principal owns acceptance/integration; no next-slice implementation begins here.
+
+
+## CW2 local source checkpoint
+
+Approved CW2 is implemented in the isolated lane-C branch on `3e09b979`; exact [ownership, contracts and evidence](cw2/handoff.md) remain reviewable. Failing-before visibility/disclosure receipts and corrected native 310/0/1 plus strict affected lint are retained separately. Committed-source verification/mutation and independent Opus review are pending. No acceptance, full F21/qualification, hosted CI or integration claim; other slices remain unassigned/held per existing ordering.

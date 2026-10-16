@@ -1,0 +1,376 @@
+    Checking smallvec v1.16.2
+    Checking foldhash v0.2.0
+   Compiling serde_core v1.0.229
+   Compiling serde v1.0.229
+    Checking typenum v1.20.1
+    Checking errno v0.3.14
+   Compiling rustix v1.1.5
+    Checking futures-io v0.3.34
+    Checking thiserror v2.0.21
+   Compiling libm v0.2.16
+    Checking zerofrom v0.1.8
+   Compiling num-traits v0.2.19
+    Checking tracing v0.1.44
+    Checking form_urlencoded v1.2.2
+    Checking ref-cast v1.0.27
+    Checking yoke v0.8.3
+    Checking futures-util v0.3.34
+    Checking tokio v1.53.1
+    Checking pin-project v1.1.13
+   Compiling aws-lc-rs v1.18.1
+    Checking aws-lc-sys v0.45.0
+    Checking hashbrown v0.17.1
+    Checking async-stream v0.3.6
+   Compiling crossbeam-utils v0.8.23
+    Checking objc2-encode v4.1.0
+    Checking zerovec v0.11.8
+    Checking zerotrie v0.2.5
+   Compiling objc2 v0.6.4
+    Checking parking v2.2.1
+    Checking lock_api v0.4.14
+    Checking siphasher v1.0.4
+    Checking arrayvec v0.7.8
+    Checking generic-array v0.14.7
+    Checking hashlink v0.12.2
+    Checking bytemuck v1.25.2
+   Compiling zerocopy v0.8.59
+    Checking tinystr v0.8.4
+    Checking potential_utf v0.1.6
+    Checking icu_collections v2.3.0
+    Checking rusqlite v0.40.2
+    Checking icu_locale_core v2.3.0
+   Compiling parking_lot_core v0.9.12
+    Checking block-buffer v0.10.4
+    Checking crypto-common v0.1.7
+    Checking futures-lite v2.6.1
+    Checking digest v0.10.7
+    Checking sha2 v0.10.9
+    Checking event-listener v5.4.2
+    Checking icu_provider v2.3.1
+   Compiling getrandom v0.3.4
+    Checking async-task v4.7.1
+    Checking regex-syntax v0.8.11
+    Checking event-listener-strategy v0.5.4
+    Checking icu_normalizer v2.3.0
+    Checking icu_properties v2.3.0
+    Checking core_maths v0.1.1
+   Compiling rayon-core v1.13.0
+   Compiling slotmap v1.1.1
+    Checking futures-executor v0.3.34
+    Checking futures v0.3.34
+    Checking indexmap v2.14.2
+    Checking uuid v1.26.1
+    Checking log v0.4.34
+   Compiling rustls v0.23.45
+    Checking markdown v1.0.0
+    Checking idna_adapter v1.2.2
+    Checking tracing-log v0.2.0
+    Checking idna v1.1.0
+    Checking serde_json v1.0.151
+    Checking tracing-subscriber v0.3.23
+    Checking ordered-float v5.5.0
+    Checking tracing-futures v0.2.5
+    Checking url v2.5.8
+    Checking rustls-webpki v0.103.15
+    Checking brn-retrieval v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-retrieval)
+    Checking tokio-util v0.7.19
+    Checking tower v0.5.3
+    Checking rig-http v0.44.0
+    Checking tempfile v3.27.0
+    Checking brn-threads-core v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-threads-core)
+    Checking schemars v1.2.2
+    Checking euclid v0.22.14
+    Checking tower-http v0.6.11
+    Checking concurrent-queue v2.5.0
+    Checking crossbeam-epoch v0.9.21
+    Checking h2 v0.4.19
+    Checking parking_lot v0.12.5
+    Checking aho-corasick v1.1.5
+    Checking crossbeam-deque v0.8.8
+    Checking either v1.18.0
+    Checking bitflags v1.3.2
+    Checking float-cmp v0.9.0
+   Compiling anyhow v1.0.104
+    Checking async-channel v2.5.0
+    Checking lyon_geom v1.0.19
+    Checking rand_core v0.9.5
+    Checking strict-num v0.1.1
+    Checking ttf-parser v0.25.1
+    Checking polycool v0.4.0
+    Checking arrayref v0.3.9
+    Checking weezl v0.1.12
+    Checking zune-core v0.5.3
+    Checking objc2-core-foundation v0.3.2
+    Checking block2 v0.6.2
+    Checking brn-intake v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-intake)
+    Checking quick-error v2.0.1
+    Checking byteorder v1.5.0
+    Checking regex-automata v0.4.18
+    Checking zune-jpeg v0.5.15
+   Compiling object v0.37.3
+    Checking lyon_path v1.0.19
+    Checking kurbo v0.13.1
+    Checking tiny-skia-path v0.11.4
+   Compiling pulp v0.22.3
+    Checking num-complex v0.4.6
+    Checking core-graphics-types v0.2.0
+    Checking memmap2 v0.9.11
+    Checking foreign-types-shared v0.3.1
+    Checking color_quant v1.1.0
+    Checking brn-threads-intake v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-threads-intake)
+    Checking unicode-properties v0.1.3
+    Checking objc2-foundation v0.3.2
+    Checking gimli v0.32.3
+    Checking byteorder-lite v0.1.0
+    Checking same-file v1.0.6
+    Checking unicode-bidi-mirroring v0.4.0
+    Checking reborrow v0.5.5
+    Checking unicode-ccc v0.4.0
+    Checking pulp-wasm-simd-flag v0.1.1
+    Checking unicode-script v0.5.8
+    Checking image-webp v0.2.4
+    Checking fontdb v0.23.0
+   Compiling thiserror v1.0.69
+    Checking hyper v1.11.1
+    Checking walkdir v2.5.0
+   Compiling heapless v0.9.3
+    Checking rustybuzz v0.20.1
+    Checking gif v0.14.2
+    Checking svgtypes v0.16.1
+   Compiling gpui-pre-ztracing v0.3.9
+    Checking foreign-types v0.5.0
+    Checking accesskit v0.24.1
+    Checking rayon v1.12.0
+    Checking hash32 v0.3.1
+    Checking png v0.17.16
+    Checking simplecss v0.2.2
+    Checking ppv-lite86 v0.2.21
+    Checking half v2.7.1
+    Checking hyper-util v0.1.21
+    Checking spin v0.9.9
+    Checking zune-inflate v0.2.54
+    Checking rand_chacha v0.9.0
+    Checking iana-time-zone v0.1.65
+    Checking wait-timeout v0.2.1
+    Checking roxmltree v0.21.1
+    Checking bit_field v0.10.3
+    Checking float_next_after v1.0.0
+    Checking rand v0.9.5
+    Checking new_debug_unreachable v1.0.6
+    Checking bit-vec v0.8.0
+    Checking data-url v0.3.2
+    Checking pico-args v0.5.0
+    Checking unicode-bidi v0.3.18
+    Checking addr2line v0.25.1
+    Checking quick-error v1.2.3
+    Checking xmlwriter v0.1.0
+    Checking lebe v0.5.3
+    Checking pxfm v0.1.30
+    Checking unicode-vo v0.1.0
+    Checking rustc-demangle v0.1.28
+    Checking ryu v1.0.23
+    Checking imagesize v0.14.0
+    Checking fax v0.2.7
+    Checking rusty-fork v0.3.1
+    Checking bit-set v0.8.0
+    Checking tiny-skia v0.11.4
+    Checking serde_urlencoded v0.7.1
+    Checking lyon_tessellation v1.0.22
+    Checking chrono v0.4.45
+    Checking tiff v0.11.3
+    Checking usvg v0.46.0
+    Checking flume v0.12.0
+    Checking tokio-rustls v0.26.5
+    Checking rustls-platform-verifier v0.7.1
+    Checking gpui-pre-util v0.3.9
+    Checking lyon_algorithms v1.0.21
+    Checking rand_xorshift v0.4.0
+    Checking crossbeam-queue v0.3.14
+    Checking smol_str v0.3.6
+    Checking hyper-rustls v0.27.10
+    Checking qoi v0.4.1
+    Checking rgb v0.8.53
+    Checking phf_shared v0.11.3
+    Checking hybrid-array v0.4.15
+    Checking reqwest v0.13.5
+    Checking rustc-hash v2.1.3
+    Checking pollster v0.2.5
+    Checking fixedbitset v0.5.7
+    Checking link-section v0.19.3
+    Checking mac v0.1.1
+    Checking static_assertions v1.1.0
+    Checking web-time v1.1.0
+    Checking svg_fmt v0.4.5
+    Checking atomic v0.5.3
+    Checking unarray v0.1.4
+    Checking ctor v1.0.13
+    Checking futures-concurrency v7.7.1
+    Checking futf v0.1.5
+    Checking proptest v1.11.0
+    Checking postage v0.5.0
+    Checking etagere v0.2.15
+    Checking gpui-pre-collections v0.3.9
+   Compiling objc-sys v0.3.5
+   Compiling async-io v2.6.0
+    Checking profiling v1.0.18
+    Checking gpui-pre-refineable v0.3.9
+    Checking lyon v1.0.19
+    Checking backtrace v0.3.76
+    Checking gpui-pre-sum-tree v0.3.9
+    Checking gpui-pre-shared-string v0.3.9
+    Checking strum v0.28.0
+   Compiling gpui-pre v0.3.9
+    Checking derive_more v2.1.1
+    Checking gpui-pre-http-client v0.3.9
+    Checking core-graphics v0.24.0
+    Checking resvg v0.46.0
+    Checking regex v1.13.1
+    Checking rig-reqwest v0.44.0
+    Checking gpui-pre-scheduler v0.3.9
+    Checking taffy v0.13.0
+    Checking itertools v0.14.0
+    Checking polling v3.11.0
+    Checking spin v0.10.1
+    Checking num_cpus v1.17.0
+    Checking rig-core v0.44.0
+    Checking malloc_buf v0.0.6
+    Checking precomputed-hash v0.1.1
+    Checking raw-window-handle v0.6.2
+    Checking moxcms v0.8.1
+    Checking waker-fn v1.2.0
+    Checking seahash v4.1.0
+    Checking utf-8 v0.7.6
+    Checking pollster v0.4.0
+    Checking inventory v0.3.24
+    Checking string_cache v0.8.9
+    Checking objc v0.2.7
+    Checking tendril v0.4.3
+   Compiling pathfinder_simd v0.5.6
+   Compiling markup5ever v0.12.1
+    Checking block-buffer v0.12.1
+    Checking crypto-common v0.2.2
+    Checking phf v0.11.3
+    Checking objc2-core-text v0.3.2
+    Checking piper v0.2.5
+    Checking const-oid v0.10.2
+    Checking option-ext v0.2.0
+    Checking block v0.1.6
+    Checking dirs-sys v0.4.1
+    Checking exr v1.74.2
+    Checking blocking v1.7.0
+   Compiling sha2 v0.11.0
+    Checking objc2 v0.5.2
+    Checking core-text v21.0.0
+    Checking objc2-core-graphics v0.3.2
+    Checking async-lock v3.4.2
+    Checking signal-hook-registry v1.4.8
+    Checking cpufeatures v0.3.1
+    Checking digest v0.11.3
+    Checking bstr v1.13.1
+   Compiling zed-font-kit v0.14.1-zed
+    Checking async-signal v0.2.14
+    Checking pathfinder_geometry v0.5.1
+   Compiling html5ever v0.27.0
+    Checking dirs v5.0.1
+    Checking hashbrown v0.16.1
+    Checking arc-swap v1.9.2
+    Checking float-ord v0.3.2
+    Checking globset v0.4.20
+   Compiling rust-embed-utils v8.12.0
+    Checking objc2-foundation v0.2.2
+   Compiling gpui-kit-assets v0.7.3
+    Checking triomphe v0.1.16
+   Compiling gpui-pre-apple v0.3.9
+   Compiling rust-embed-impl v8.12.0
+    Checking accesskit_consumer v0.38.0
+    Checking async-fs v2.2.0
+    Checking async-process v2.5.0
+    Checking async-net v2.0.0
+    Checking cocoa-foundation v0.2.1
+    Checking metal v0.33.0
+    Checking objc2-security v0.3.2
+    Checking xml5ever v0.18.1
+    Checking dispatch2 v0.3.1
+    Checking fluent-uri v0.1.4
+    Checking async-executor v1.14.0
+    Checking str_indices v0.4.4
+    Checking base62 v2.2.6
+    Checking mach2 v0.6.0
+    Checking unicode-segmentation v1.13.3
+    Checking cocoa v0.26.0
+    Checking ropey v2.0.0-beta.1
+    Checking markup5ever_rcdom v0.3.0
+    Checking lsp-types v0.97.0
+    Checking rust-i18n-support v4.2.3
+    Checking smol v2.0.2
+   Compiling rust-i18n v4.2.3
+    Checking itertools v0.13.0
+    Checking semver v1.0.28
+    Checking fsevent-sys v4.1.0
+    Checking notify-types v2.1.0
+    Checking rust-embed v8.12.0
+    Checking instant v0.1.13
+    Checking image v0.25.10
+    Checking unicode-linebreak v0.1.5
+   Compiling gpui-component v0.7.3
+    Checking enum-iterator v2.3.0
+    Checking notify v8.2.0
+    Checking similar v2.7.0
+    Checking objc2-app-kit v0.2.2
+    Checking unicode-width v0.2.2
+    Checking accesskit_macos v0.26.3
+    Checking objc2-metal v0.3.2
+    Checking objc2-quartz-core v0.3.2
+    Checking objc2-cloud-kit v0.3.2
+    Checking objc2-core-image v0.3.2
+    Checking objc2-core-data v0.3.2
+    Checking objc2-user-notifications v0.3.2
+    Checking objc2-core-video v0.3.2
+    Checking objc2-app-kit v0.3.2
+    Checking rig-agent v0.44.0
+    Checking rig v0.44.0
+    Checking brn-ai v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-ai)
+error: enclosing `Ok` and `?` operator are unneeded
+   --> crates/brn-ai/src/threads.rs:963:5
+    |
+963 | /     Ok(store
+964 | |         .revision_visible_in_chat(id, version, chat)
+965 | |         .map_err(storage)?)
+    | |___________________________^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#needless_question_mark
+    = note: `-D clippy::needless-question-mark` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::needless_question_mark)]`
+help: remove the enclosing `Ok` and `?` operator
+    |
+963 ~     store
+964 |         .revision_visible_in_chat(id, version, chat)
+965 ~         .map_err(storage)
+    |
+
+error: this `if` statement can be collapsed
+    --> crates/brn-ai/src/threads.rs:2278:13
+     |
+2278 | /             if let Some(setup) = &snapshot.setup {
+2279 | |                 if writing_request_scope(&records, &request.thread).map_err(|_| rejected())?
+2280 | |                     != setup.chat
+...    |
+2284 | |             }
+     | |_____________^
+     |
+     = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#collapsible_if
+     = note: `-D clippy::collapsible-if` implied by `-D warnings`
+     = help: to override `-D warnings` add `#[allow(clippy::collapsible_if)]`
+help: collapse nested if block
+     |
+2278 ~             if let Some(setup) = &snapshot.setup
+2279 ~                 && writing_request_scope(&records, &request.thread).map_err(|_| rejected())?
+2280 |                     != setup.chat
+2281 |                 {
+2282 |                     return Err(rejected());
+2283 ~                 }
+     |
+
+error: could not compile `brn-ai` (lib) due to 2 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `brn-ai` (lib test) due to 2 previous errors

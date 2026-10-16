@@ -296,6 +296,7 @@ fn reviewed_project_rewrite_applies_after_attention_but_context_movement_invalid
         let proposal = prepare(
             &scope,
             PrepareArgs {
+                writing: None,
                 request_key: "rewrite".into(),
                 request: snapshot.change_request("Tuesday").unwrap(),
             },

@@ -5,19 +5,19 @@ mod input;
 mod inspect;
 mod spec;
 mod stop;
-use brn_ai::{AiTerminal, Provider, ReasoningEffort, Selection};
+use brn_ai::{AiTerminal, Provider, ReasoningEffort};
 use brn_threads_app::*;
 use brn_threads_intake::*;
 use contract::{Annotations, CliError, Code};
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use std::{
     collections::BTreeMap,
     ffi::OsString,
     path::{Path, PathBuf},
     process::ExitCode,
     sync::{
-        atomic::{AtomicBool, Ordering},
         Arc,
+        atomic::{AtomicBool, Ordering},
     },
 };
 use tokio_util::sync::CancellationToken;
@@ -106,7 +106,7 @@ fn helper_settings(
             return Err(CliError::conflicting(
                 &["helper", "helper-provider", "helper-model", "helper-effort"],
                 "Use --helper off alone, or name the helper options",
-            ))
+            ));
         }
         None if !named => return Ok(settings.helper.clone()),
         None => {}
@@ -158,7 +158,7 @@ fn parse(
                     key: None,
                     error: CliError::new(Code::MalformedOption, "Arguments must be valid UTF-8")
                         .with("position", index + 1),
-                })
+                });
             }
         }
     }
@@ -767,16 +767,41 @@ async fn ask(
         .transpose()
         .map_err(|_| CliError::invalid_value("budget", "Invalid budget"))?
         .unwrap_or(brn_ai::threads::default_tool_rounds(!sources.is_empty()));
-    // Without a handle the search tools are not offered; the reason is reported.
-    let (search, search_status) = match workspace.search_handle() {
-        Ok(handle) => (
-            Some(Arc::new(handle) as Arc<dyn brn_ai::threads::RunNoteSearch>),
-            "available".to_owned(),
-        ),
-        Err(error) => (None, format!("unavailable: {error}")),
-    };
     stop::check()?;
     let cancel = CancellationToken::new();
+    let prepared = workspace
+        .prepare_thread_run(brn_threads_app::ThreadRunStart {
+            request_message: None,
+            queue_claim: None,
+            owner_request: if inv.command == "ask" {
+                match (inv.args.get("edit-note"), inv.args.get("record-decision")) {
+                    (Some(id), None) => Some(brn_ai::threads::OwnerRequest::EditNote {
+                        id: id.clone(),
+                        version: inv.number("base")?,
+                    }),
+                    (None, Some(value)) if value == "yes" && !inv.args.contains_key("base") => {
+                        Some(brn_ai::threads::OwnerRequest::RecordDecision)
+                    }
+                    (None, None) if !inv.args.contains_key("base") => None,
+                    _ => {
+                        return Err(CliError::conflicting(
+                            &["edit-note", "record-decision"],
+                            "Choose either --edit-note ID --base VERSION or --record-decision yes",
+                        ));
+                    }
+                }
+            } else {
+                None
+            },
+            thread,
+            prompt,
+            sources,
+            max_tool_rounds: Some(budget),
+            trace: trace_level(inv)?,
+            offered_copilot_models: None,
+        })
+        .map_err(brn_threads_app::AppError::from)?;
+    let search_status = prepared.search_status;
     let observed = cancel.clone();
     let watcher = tokio::spawn(async move {
         loop {
@@ -787,48 +812,7 @@ async fn ask(
             tokio::time::sleep(std::time::Duration::from_millis(50)).await;
         }
     });
-    let result =
-        brn_ai::threads::run(
-            brn_ai::threads::ThreadRunRequest {
-                request_message: None,
-                queue_claim: None,
-                owner_request: if inv.command == "ask" {
-                    match (inv.args.get("edit-note"), inv.args.get("record-decision")) {
-                        (Some(id), None) => Some(brn_ai::threads::OwnerRequest::EditNote {
-                            id: id.clone(),
-                            version: inv.number("base")?,
-                        }),
-                        (None, Some(value)) if value == "yes" && !inv.args.contains_key("base") => {
-                            Some(brn_ai::threads::OwnerRequest::RecordDecision)
-                        }
-                        (None, None) if !inv.args.contains_key("base") => None,
-                        _ => return Err(CliError::conflicting(
-                            &["edit-note", "record-decision"],
-                            "Choose either --edit-note ID --base VERSION or --record-decision yes",
-                        )),
-                    }
-                } else {
-                    None
-                },
-                data_dir: inv.data.clone(),
-                thread,
-                prompt,
-                selection: Selection {
-                    provider: provider(&settings.provider)?,
-                    model: settings.model,
-                },
-                effort: effort(&settings.effort)?,
-                max_tool_rounds: budget,
-                auth_file: settings.auth_file.map(PathBuf::from),
-                credentials_dir: settings.credentials_dir.map(PathBuf::from),
-                sources,
-                search,
-                trace: trace_level(inv)?,
-            },
-            cancel,
-            Arc::new(|_| {}),
-        )
-        .await;
+    let result = brn_ai::threads::run_prepared(prepared.prepared, cancel, Arc::new(|_| {})).await;
     watcher.abort();
     let result = result.map_err(contract::run_error)?;
     let failure = match &result.answer.terminal {
@@ -973,7 +957,7 @@ async fn execute(inv: &Invocation, notes: &mut Annotations) -> Result<Value> {
                             return Err(CliError::invalid_value(
                                 "knowledge",
                                 "--knowledge takes yes|no",
-                            ))
+                            ));
                         }
                     },
                 },
@@ -1082,7 +1066,7 @@ async fn execute(inv: &Invocation, notes: &mut Annotations) -> Result<Value> {
                     return Err(CliError::invalid_value(
                         "seed-chat",
                         "--seed-chat takes yes",
-                    ))
+                    ));
                 }
             };
             let mut output = encode(check)?;
@@ -1302,7 +1286,7 @@ async fn execute(inv: &Invocation, notes: &mut Annotations) -> Result<Value> {
                     return Err(CliError::invalid_value(
                         "source",
                         "Supported sources: Markdown, text, EML, PDF, DOCX, HTML, XLSX, PPTX",
-                    ))
+                    ));
                 }
             };
             let intent = match inv.arg("intent")? {
@@ -1312,7 +1296,7 @@ async fn execute(inv: &Invocation, notes: &mut Annotations) -> Result<Value> {
                     return Err(CliError::invalid_value(
                         "intent",
                         "Choose useful, full, or chat with --thread",
-                    ))
+                    ));
                 }
             };
             // A keyed full/chat/project intake whose committed import matches

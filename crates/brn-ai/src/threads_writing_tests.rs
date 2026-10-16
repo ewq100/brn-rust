@@ -110,6 +110,7 @@ pub(super) fn rewrite_fixture(
 
 fn proposal(snapshot: &WritingSnapshot) -> PrepareArgs {
     PrepareArgs {
+        writing: None,
         request_key: "whole-note".into(),
         request: snapshot.change_request("Tuesday").unwrap(),
     }
@@ -689,7 +690,7 @@ fn setup_configuration_is_never_model_readable_or_model_writable() {
 }
 
 #[test]
-fn v2_model_request_uses_canonical_metadata_without_reference_content_and_refuses_revocation() {
+fn v2_model_request_uses_canonical_metadata_without_content_and_excludes_revoked_references() {
     let (_root, mut request, mut snapshot) = rewrite_fixture(false, 0);
     let mut store = Store::open(&request.data_dir).unwrap();
     let reference_op = store.allocate_operation("v2-reference").unwrap();
@@ -728,6 +729,7 @@ fn v2_model_request_uses_canonical_metadata_without_reference_content_and_refuse
     let marker = store.allocate_operation("v2-marker").unwrap();
     snapshot.request_message = marker.creation_id(0);
     snapshot.setup = Some(WritingSnapshotSetup {
+        requirements: WritingReadRequirements::default(),
         chat: None,
         input: RevisionInput {
             record: setup_op.creation_id(0),
@@ -790,7 +792,22 @@ fn v2_model_request_uses_canonical_metadata_without_reference_content_and_refuse
             data: reference.data,
         }],
     );
-    assert!(begin(&request).is_err());
+    let (scope, input) = begin(&request).unwrap();
+    assert!(!input.contains(&reference_op.creation_id(0)));
+    assert!(!input.contains("REFERENCE CONTENT NOT CAPTURED"));
+    assert!(
+        read_note(
+            &scope,
+            ReadNoteArgs {
+                id: reference_op.creation_id(0),
+                version: 1,
+                start: 0,
+                max_bytes: 1024,
+                section: false
+            }
+        )
+        .is_err()
+    );
 }
 
 #[test]
@@ -843,6 +860,7 @@ fn ordinary_chat_setup_preserves_runtime_source_scope_and_delegated_maintenance(
         prepare(
             &scope,
             PrepareArgs {
+                writing: None,
                 request_key: "ordinary-maintenance".into(),
                 request: ChangeRequest {
                     reason: "Ordinary scoped setup must not change delegation".into(),

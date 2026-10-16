@@ -18,7 +18,10 @@ mod knowledge;
 mod projects;
 mod refresh;
 pub mod relations;
+mod run;
+pub use run::{PreparedWorkspaceRun, RunPreparationError, ThreadRunStart, resolve_run_selection};
 mod review;
+pub use review::{WritingCandidateReview, WritingSourceReview};
 mod review_groups;
 pub mod search;
 mod settings;
@@ -34,7 +37,10 @@ pub use knowledge::{
 };
 pub use review_groups::{ReviewGroup, ReviewGroups};
 pub use topics::{TopicEntry, Topics};
-pub use writing::{WritingComment, WritingCommentInput, WritingReferenceState, WritingSetupView};
+pub use writing::{
+    ActiveWritingContext, WritingComment, WritingCommentInput, WritingReferenceState,
+    WritingSetupView,
+};
 #[derive(Debug, thiserror::Error)]
 pub enum AppError {
     #[error(transparent)]

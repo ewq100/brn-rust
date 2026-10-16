@@ -1,0 +1,90 @@
+   Compiling brn-threads-core v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-threads-core)
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-ai)
+   Compiling brn-threads-app v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-threads-app)
+error[E0107]: type alias takes 1 generic argument but 2 generic arguments were supplied
+   --> crates/brn-ai/src/threads_cw2_tests.rs:288:79
+    |
+288 |     fn search(&self, _: &str, _: &str, _: usize, _: Option<&str>, _: bool) -> Result<NoteSearchPage, NoteSearchError> {
+    |                                                                               ^^^^^^               ----------------- help: remove the unnecessary generic argument
+    |                                                                               |
+    |                                                                               expected 1 generic argument
+    |
+note: type alias defined here, with 1 generic parameter: `T`
+   --> crates/brn-threads-core/src/lib.rs:100:10
+    |
+100 | pub type Result<T> = std::result::Result<T, Error>;
+    |          ^^^^^^ -
+
+error[E0053]: method `search` has an incompatible type for trait
+   --> crates/brn-ai/src/threads_cw2_tests.rs:288:79
+    |
+288 |     fn search(&self, _: &str, _: &str, _: usize, _: Option<&str>, _: bool) -> Result<NoteSearchPage, NoteSearchError> {
+    |                                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `threads::note_search::NoteSearchError`, found `brn_threads_core::Error`
+    |
+note: type in trait
+   --> crates/brn-ai/src/threads_search.rs:27:10
+    |
+ 27 |     ) -> std::result::Result<NoteSearchPage, NoteSearchError>;
+    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    = note: expected signature `fn(&SnippetSearch, &_, &_, _, std::option::Option<&_>, _) -> std::result::Result<_, threads::note_search::NoteSearchError>`
+               found signature `fn(&SnippetSearch, &_, &_, _, std::option::Option<&_>, _) -> std::result::Result<_, brn_threads_core::Error>`
+help: change the output type to match the trait
+    |
+288 -     fn search(&self, _: &str, _: &str, _: usize, _: Option<&str>, _: bool) -> Result<NoteSearchPage, NoteSearchError> {
+288 +     fn search(&self, _: &str, _: &str, _: usize, _: Option<&str>, _: bool) -> std::result::Result<threads::note_search::NoteSearchPage, threads::note_search::NoteSearchError> {
+    |
+
+error[E0107]: type alias takes 1 generic argument but 2 generic arguments were supplied
+   --> crates/brn-ai/src/threads_cw2_tests.rs:291:64
+    |
+291 | ... _: u8, _: bool) -> Result<NoteNeighbourhood, NoteSearchError> { Err(NoteSearchError::Rejected) }
+    |                        ^^^^^^                  ----------------- help: remove the unnecessary generic argument
+    |                        |
+    |                        expected 1 generic argument
+    |
+note: type alias defined here, with 1 generic parameter: `T`
+   --> crates/brn-threads-core/src/lib.rs:100:10
+    |
+100 | pub type Result<T> = std::result::Result<T, Error>;
+    |          ^^^^^^ -
+
+error[E0053]: method `connections` has an incompatible type for trait
+   --> crates/brn-ai/src/threads_cw2_tests.rs:291:64
+    |
+291 | ... &str, _: &str, _: u8, _: bool) -> Result<NoteNeighbourhood, NoteSearchError> { Err(NoteSearchError::Rejected) }
+    |                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `threads::note_search::NoteSearchError`, found `brn_threads_core::Error`
+    |
+note: type in trait
+   --> crates/brn-ai/src/threads_search.rs:34:10
+    |
+ 34 |     ) -> std::result::Result<NoteNeighbourhood, NoteSearchError>;
+    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    = note: expected signature `fn(&SnippetSearch, &_, &_, _, _) -> std::result::Result<_, threads::note_search::NoteSearchError>`
+               found signature `fn(&SnippetSearch, &_, &_, _, _) -> std::result::Result<_, brn_threads_core::Error>`
+help: change the output type to match the trait
+    |
+291 -     fn connections(&self, _: &str, _: &str, _: u8, _: bool) -> Result<NoteNeighbourhood, NoteSearchError> { Err(NoteSearchError::Rejected) }
+291 +     fn connections(&self, _: &str, _: &str, _: u8, _: bool) -> std::result::Result<threads::note_search::NoteNeighbourhood, threads::note_search::NoteSearchError> { Err(NoteSearchError::Rejected) }
+    |
+
+error[E0308]: mismatched types
+   --> crates/brn-ai/src/threads_cw2_tests.rs:291:113
+    |
+291 | ...ourhood, NoteSearchError> { Err(NoteSearchError::Rejected) }
+    |                                --- ^^^^^^^^^^^^^^^^^^^^^^^^^ expected `Error`, found `NoteSearchError`
+    |                                |
+    |                                arguments to this enum variant are incorrect
+    |
+help: the type constructed contains `threads::note_search::NoteSearchError` due to the type of the argument passed
+   --> crates/brn-ai/src/threads_cw2_tests.rs:291:109
+    |
+291 | ...ourhood, NoteSearchError> { Err(NoteSearchError::Rejected) }
+    |                                ^^^^-------------------------^
+    |                                    |
+    |                                    this argument influences the type of `Err`
+note: tuple variant defined here
+   --> /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/result.rs:566:4
+
+Some errors have detailed explanations: E0053, E0107, E0308.
+For more information about an error, try `rustc --explain E0053`.
+error: could not compile `brn-ai` (lib test) due to 5 previous errors

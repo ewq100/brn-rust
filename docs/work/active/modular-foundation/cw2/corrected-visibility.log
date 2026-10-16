@@ -1,0 +1,55 @@
+   Compiling brn-threads-core v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-threads-core)
+    Finished `test` profile [optimized] target(s) in 4.24s
+     Running tests/current_inputs.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/current_inputs-30275dd7b1051377)
+
+running 9 tests
+test missing_current_input_is_stale_and_missing_historical_revision_is_invalid ... ok
+test input_changed_before_prepare_remains_stale_and_cannot_be_owner_approved_away ... ok
+test changed_current_input_on_another_connection_stales_the_whole_group ... ok
+test self_input_checks_prestate_and_undo_does_not_reapply_current_read_requirement ... ok
+test mixed_inputs_preserve_history_and_require_every_current_read_without_duplicate_stale_ids ... ok
+test owner_replacement_preserves_current_inputs_and_explicit_historical_replacement_is_reviewable ... ok
+test undo_restores_older_provenance_without_turning_it_into_a_new_current_read ... ok
+test old_request_bytes_hash_and_applied_replay_survive_reopen_and_input_changes ... ok
+test inactive_current_inputs_stale_even_at_exact_version_but_historical_citations_apply ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests/cw2_visibility.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/cw2_visibility-c44ed706cec611e4)
+
+running 3 tests
+test archived_historical_input_is_not_apply_authority ... ok
+test owner_apply_rechecks_historical_visibility_and_restored_access_needs_explicit_review ... ok
+test visible_historical_edit_remains_applicable_while_current_edit_stales ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/writing.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/writing-73ba8ea1df657263)
+
+running 5 tests
+test historical_request_role_keeps_gate_when_current_message_is_modified ... ok
+test legacy_snapshot_defaults_general_feedback_and_empty_output_keeps_legacy_shape ... ok
+test maintenance_and_content_instruction_cannot_bypass_durable_review_and_replay ... ok
+test runtime_and_owner_replacement_cannot_remove_or_downgrade_writing_marker ... ok
+test owner_review_preserves_dirty_guards_and_exact_versions ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/writing_setup.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/writing_setup-65b0e4d6f3ac0b1f)
+
+running 12 tests
+test v1_fixed_payload_and_hash_remain_exact_and_v2_limits_count_utf8_bytes ... ok
+test v2_candidate_replacement_cannot_drop_or_downgrade_setup_current_input ... ok
+test raw_ordinary_conversation_setup_is_rejected_without_creating_private_scope ... ok
+test setup_is_owner_only_and_stale_groups_are_atomic ... ok
+test immutable_context_duplicate_identity_and_invalid_references_are_refused ... ok
+test checked_setup_mutation_requires_active_context_even_with_current_thread_input ... ok
+test knowledge_off_working_note_uses_bound_conversation_and_references_keep_project_scope ... ok
+test owner_host_schema6_open_uses_remembered_external_backup_first ... ok
+test schema6_upgrade_refuses_active_edits_and_missing_backup_before_mutation ... ok
+test upgrade_failure_after_backup_rolls_back_all_schema_changes_and_can_resume ... ok
+test deferred_setup_undo_keeps_identity_after_unrelated_conversation_attention_and_restart ... ok
+test schema6_refusal_backup_first_upgrade_reopen_and_restore_preserve_v1_candidates ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.16s
+

@@ -37,10 +37,73 @@ pub struct WritingReferenceVersion {
 /// V2 metadata only. Setup content is captured; reference content is never captured.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct WritingSnapshotSetup {
+    #[serde(default, skip_serializing_if = "WritingReadRequirements::is_default")]
+    pub requirements: WritingReadRequirements,
     pub chat: Option<String>,
     pub input: RevisionInput,
     pub brief: Option<String>,
     pub references: Vec<WritingReferenceVersion>,
+}
+/// Owner-selected freshness requirements, captured only in v2 requests.
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct WritingReadRequirements {
+    pub exhaustive: bool,
+    pub must_be_current: Vec<String>,
+}
+impl WritingReadRequirements {
+    pub fn is_default(&self) -> bool {
+        !self.exhaustive && self.must_be_current.is_empty()
+    }
+}
+pub const WRITING_CONTEXT_ROLE: &str = "writing-context";
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct WritingContextUse {
+    pub note: String,
+    pub chat: Option<String>,
+    pub thread: String,
+}
+/// Host-created provenance travels with the immutable candidate and its receipt.
+pub const WRITING_PUBLIC_REASON: &str = "Whole-note writing proposal for owner review";
+pub const WRITING_EVIDENCE_ROLE: &str = "writing-evidence";
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct WritingRead {
+    pub id: String,
+    pub version: u64,
+    pub covered_retained_bytes: usize,
+    pub total_retained_bytes: usize,
+    pub complete: bool,
+}
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct WritingQuotation {
+    pub id: String,
+    pub version: u64,
+    pub start: usize,
+    pub end: usize,
+    pub quote: String,
+}
+/// Claims are model reports, never an assertion that requirements were verified.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct WritingRequirementsClaim {
+    pub claim: String,
+    pub quotations: Vec<usize>,
+}
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct WritingCandidateEvidence {
+    pub version: u8,
+    pub request_message: String,
+    pub thread: String,
+    pub chat: Option<String>,
+    pub reads: Vec<WritingRead>,
+    pub quotations: Vec<WritingQuotation>,
+    pub requirements_reported: Vec<WritingRequirementsClaim>,
+    #[serde(default)]
+    pub explanation: String,
 }
 /// Resolve existing host scope for reads, including archived/legacy Resolved
 /// conversations. Setup never creates privacy or changes that scope.
@@ -120,7 +183,7 @@ struct Envelope {
 /// Scoped request payloads are host configuration evidence, not ordinary chat
 /// history. Dedicated writing capture is their only model-facing entry point.
 pub fn scoped_writing_request(record: &Record) -> bool {
-    matches!(&record.data, RecordData::Message(m) if m.role == WRITING_REQUEST_ROLE
+    matches!(&record.data, RecordData::Message(m) if matches!(m.role.as_str(), WRITING_EVIDENCE_ROLE | WRITING_CONTEXT_ROLE) || m.role == WRITING_REQUEST_ROLE
         && serde_json::from_str::<serde_json::Value>(&m.text).ok().is_some_and(|v| v["version"] == 2))
 }
 impl WritingSnapshot {
@@ -172,6 +235,11 @@ impl WritingSnapshot {
                 || setup.input.version == 0
                 || !ids.insert(&setup.input.record)
                 || setup.chat.as_ref().is_some_and(String::is_empty)
+                || setup
+                    .requirements
+                    .must_be_current
+                    .iter()
+                    .any(|id| !setup.references.iter().any(|r| r.note == *id))
                 || setup.references.iter().any(|r| {
                     r.version == 0
                         || r.note.is_empty()
@@ -419,6 +487,117 @@ pub(crate) fn validate_setup_writes(
                     "Reference Note is unavailable in this writing scope".into(),
                 ));
             }
+        }
+    }
+    Ok(())
+}
+
+/// Validate the host representation against the exact request/revisions before
+/// it becomes immutable. Actual read/quote admission remains the runtime's job.
+pub(crate) fn validate_candidate_evidence(
+    request: &ChangeRequest,
+    mut revision: impl FnMut(&str, u64) -> Result<Option<Record>>,
+) -> Result<()> {
+    let mut count = 0;
+    for write in &request.writes {
+        let RecordData::Message(message) = &write.data else {
+            continue;
+        };
+        if message.role != WRITING_EVIDENCE_ROLE || write.archived {
+            continue;
+        }
+        count += 1;
+        let evidence: WritingCandidateEvidence = serde_json::from_str(&message.text)?;
+        if request.reason != WRITING_PUBLIC_REASON {
+            return Err(Error::Invalid(
+                "Private writing explanation belongs only in scoped evidence".into(),
+            ));
+        }
+        let invalid = || {
+            Error::Invalid("Writing evidence must match the exact saved request, read revisions and quotations".into())
+        };
+        if count > 1
+            || evidence.version != 1
+            || evidence.thread != message.thread
+            || message.text.len() > MAX_WRITING_REQUEST_BYTES
+        {
+            return Err(invalid());
+        }
+        let marker = request
+            .inputs
+            .iter()
+            .find(|i| {
+                i.record == evidence.request_message && i.expectation == InputExpectation::Current
+            })
+            .ok_or_else(invalid)?;
+        let saved = revision(&marker.record, marker.version)?.ok_or_else(invalid)?;
+        let snapshot = WritingSnapshot::from_message(&saved)?;
+        let setup = snapshot.setup.as_ref().ok_or_else(invalid)?;
+        if snapshot.thread != evidence.thread
+            || setup.chat != evidence.chat
+            || !snapshot
+                .current_inputs()
+                .iter()
+                .all(|i| request.inputs.contains(i))
+            || !request.writes.iter().any(|w| {
+                w.id == snapshot.note.id
+                    && w.expected_version == Some(snapshot.note.version)
+                    && matches!(w.data, RecordData::Note(_))
+            })
+        {
+            return Err(invalid());
+        }
+        let mut keys = BTreeSet::new();
+        for read in &evidence.reads {
+            if !keys.insert((&read.id, read.version))
+                || read.covered_retained_bytes > read.total_retained_bytes
+                || read.complete != (read.covered_retained_bytes == read.total_retained_bytes)
+            {
+                return Err(invalid());
+            }
+            let Some(Record {
+                archived: false,
+                data: RecordData::Note(note),
+                ..
+            }) = revision(&read.id, read.version)?
+            else {
+                return Err(invalid());
+            };
+            if note.markdown.len() != read.total_retained_bytes
+                || !request
+                    .inputs
+                    .iter()
+                    .any(|i| i.record == read.id && i.version == read.version)
+            {
+                return Err(invalid());
+            }
+        }
+        for quote in &evidence.quotations {
+            let Some(Record {
+                archived: false,
+                data: RecordData::Note(note),
+                ..
+            }) = revision(&quote.id, quote.version)?
+            else {
+                return Err(invalid());
+            };
+            if quote.start >= quote.end
+                || note.markdown.get(quote.start..quote.end) != Some(quote.quote.as_str())
+                || !evidence
+                    .reads
+                    .iter()
+                    .any(|r| r.id == quote.id && r.version == quote.version)
+            {
+                return Err(invalid());
+            }
+        }
+        if evidence.requirements_reported.iter().any(|claim| {
+            claim
+                .quotations
+                .iter()
+                .any(|i| *i >= evidence.quotations.len())
+        }) {
+            return Err(invalid());
         }
     }
     Ok(())

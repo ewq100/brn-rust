@@ -346,6 +346,352 @@ fn proposal(
     (snapshot, candidate)
 }
 #[gpui_kit::test]
+fn private_writing_disclosure_is_mandatory_and_wrong_displayed_scope_hides_review_and_compare(
+    cx: &mut TestAppContext,
+) {
+    let f = fixture(cx);
+    let (project, other, reference, candidate, private_request) = cx
+        .update_window(f.window, |_, window, cx| {
+            f.view.update(cx, |view, cx| {
+                let mut projects = Vec::new();
+                for key in ["native-P1", "native-P2"] {
+                    let id = view
+                        .workspace
+                        .project_command(key, ProjectCommand::Create { title: key.into() })
+                        .unwrap()
+                        .writes[0]
+                        .after
+                        .id
+                        .clone();
+                    view.workspace
+                        .project_command(
+                            &format!("{key}-link"),
+                            ProjectCommand::LinkDocument {
+                                project: id.clone(),
+                                note: f.a.id.clone(),
+                            },
+                        )
+                        .unwrap();
+                    projects.push(id);
+                }
+                let other_context = view
+                    .workspace
+                    .ensure_writing_context("native-other-writing", &f.a.id, Some(&projects[1]))
+                    .unwrap();
+                view.workspace
+                    .snapshot_writing_request(
+                        "native-other-request",
+                        &f.a.id,
+                        1,
+                        other_context.conversation.as_deref().unwrap(),
+                        &[],
+                    )
+                    .unwrap();
+                let reference = view
+                    .workspace
+                    .new_note("PRIVATE NAMED REQUIREMENTS", "PRIVATE EXACT SOURCE QUOTE")
+                    .unwrap();
+                let RecordData::Note(mut data) = reference.data.clone() else {
+                    unreachable!()
+                };
+                data.chat = Some(projects[0].clone());
+                assert!(matches!(
+                    view.workspace
+                        .owner_change(
+                            "private-native-reference",
+                            &ChangeRequest {
+                                reason: "Synthetic private evidence".into(),
+                                writes: vec![Put {
+                                    id: reference.id.clone(),
+                                    expected_version: Some(1),
+                                    archived: false,
+                                    data: RecordData::Note(data)
+                                }],
+                                inputs: vec![]
+                            }
+                        )
+                        .unwrap(),
+                    ApplyOutcome::Applied(_)
+                ));
+                view.workspace
+                    .project_command(
+                        "native-private-link",
+                        ProjectCommand::LinkDocument {
+                            project: projects[0].clone(),
+                            note: reference.id.clone(),
+                        },
+                    )
+                    .unwrap();
+                let context = view
+                    .workspace
+                    .ensure_writing_context("native-writing", &f.a.id, Some(&projects[0]))
+                    .unwrap();
+                let thread = context.conversation.unwrap();
+                view.workspace
+                    .set_writing_setup(
+                        "native-setup",
+                        None,
+                        &WritingSetup {
+                            note: f.a.id.clone(),
+                            chat: Some(projects[0].clone()),
+                            brief: Some("PRIVATE BRIEF".into()),
+                            references: vec![WritingReference {
+                                note: reference.id.clone(),
+                                purpose: WritingPurpose::Requirements,
+                            }],
+                        },
+                    )
+                    .unwrap();
+                let snapshot = view
+                    .workspace
+                    .snapshot_writing_request_with_feedback(
+                        "native-review-request",
+                        &f.a.id,
+                        1,
+                        &thread,
+                        &[],
+                        "PRIVATE REQUEST FEEDBACK",
+                    )
+                    .unwrap();
+                let op = view
+                    .workspace
+                    .store
+                    .allocate_operation("native-evidence-candidate")
+                    .unwrap();
+                let mut request = snapshot.change_request("PRIVATE GENERATED QUOTE").unwrap();
+                request.inputs.push(RevisionInput {
+                    record: reference.id.clone(),
+                    version: 2,
+                    expectation: InputExpectation::Historical,
+                });
+                let quote = "PRIVATE EXACT SOURCE QUOTE";
+                let private_request = snapshot.request_message.clone();
+                let proof = WritingCandidateEvidence {
+                    version: 1,
+                    request_message: snapshot.request_message,
+                    thread: thread.clone(),
+                    chat: Some(projects[0].clone()),
+                    reads: vec![WritingRead {
+                        id: reference.id.clone(),
+                        version: 2,
+                        covered_retained_bytes: quote.len(),
+                        total_retained_bytes: quote.len(),
+                        complete: true,
+                    }],
+                    quotations: vec![WritingQuotation {
+                        id: reference.id.clone(),
+                        version: 2,
+                        start: 0,
+                        end: quote.len(),
+                        quote: quote.into(),
+                    }],
+                    requirements_reported: vec![],
+                    explanation: "Synthetic host explanation".into(),
+                };
+                request.writes.push(Put {
+                    id: op.creation_id(0),
+                    expected_version: None,
+                    archived: false,
+                    data: RecordData::Message(Message {
+                        thread,
+                        role: WRITING_EVIDENCE_ROLE.into(),
+                        text: serde_json::to_string(&proof).unwrap(),
+                    }),
+                });
+                let candidate = view.workspace.store.prepare(&op, &request).unwrap();
+                view.open_project_note(&projects[0], &f.a.id, window, cx);
+                view.open_review(candidate.clone(), window, cx);
+                assert!(!view.review_inputs);
+                (
+                    projects[0].clone(),
+                    projects[1].clone(),
+                    reference.id,
+                    candidate,
+                    private_request,
+                )
+            })
+        })
+        .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, _| {
+        let disclosure = window.find("writing-private-disclosure");
+        assert!(disclosure.visible());
+        assert!(
+            disclosure
+                .label()
+                .unwrap()
+                .contains("PRIVATE NAMED REQUIREMENTS")
+        );
+    })
+    .unwrap();
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            view.open_project_note(&other, &f.a.id, window, cx);
+            view.expanded_requests.insert(private_request.clone());
+            view.review_inputs = true;
+            view.review_reading = true;
+            view.layout.open(TileKind::Compare);
+            view.apply_review(window, cx);
+            assert!(view.review.is_some());
+            assert!(
+                view.workspace
+                    .store
+                    .receipt(&candidate.operation)
+                    .unwrap()
+                    .is_none()
+            );
+            assert_eq!(
+                view.workspace.store.note(&f.a.id).unwrap().unwrap().version,
+                1
+            );
+            cx.notify();
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, _| {
+        assert!(window.find("writing-evidence-unavailable").visible());
+        assert!(window.find("compare-evidence-unavailable").visible());
+        assert!(window.try_find("writing-private-disclosure").is_none());
+        let observed = format!("{:?}", gpui_kit::base::test_support::snapshots(window));
+        for private in [
+            "PRIVATE NAMED REQUIREMENTS",
+            "PRIVATE EXACT SOURCE QUOTE",
+            "PRIVATE GENERATED QUOTE",
+            "PRIVATE REQUEST FEEDBACK",
+            "PRIVATE BRIEF",
+        ] {
+            assert!(
+                !observed.contains(private),
+                "wrong displayed context exposed {private}"
+            );
+        }
+    })
+    .unwrap();
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            view.keep_review(window, cx);
+            assert_eq!(view.note_writing_scope.as_deref(), Some(other.as_str()));
+            assert_ne!(
+                view.latest_note_writing_request(&f.a.id).unwrap().id,
+                private_request
+            );
+            cx.notify();
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, _| {
+        assert!(
+            window
+                .try_find(format!("writing-proposal-{}", candidate.operation.as_str()))
+                .is_none()
+        );
+        assert_eq!(
+            window.find("writing-run-status").label(),
+            Some("Rewrite inputs saved")
+        );
+        let observed = format!("{:?}", gpui_kit::base::test_support::snapshots(window));
+        for private in [
+            "PRIVATE NAMED REQUIREMENTS",
+            "PRIVATE EXACT SOURCE QUOTE",
+            "PRIVATE GENERATED QUOTE",
+            "PRIVATE REQUEST FEEDBACK",
+            "PRIVATE BRIEF",
+            "Rewrite ready · 0 comments",
+        ] {
+            assert!(
+                !observed.contains(private),
+                "wrong-context bar/request exposed {private}"
+            );
+        }
+    })
+    .unwrap();
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            view.open_project_note(&project, &f.a.id, window, cx);
+            view.open_review(candidate.clone(), window, cx);
+            let saved = view.workspace.store.note(&reference).unwrap().unwrap();
+            assert!(matches!(
+                view.workspace
+                    .owner_change(
+                        "native-reference-revoked",
+                        &ChangeRequest {
+                            reason: "Synthetic access loss".into(),
+                            writes: vec![Put {
+                                id: reference.clone(),
+                                expected_version: Some(saved.version),
+                                archived: true,
+                                data: saved.data
+                            }],
+                            inputs: vec![]
+                        }
+                    )
+                    .unwrap(),
+                ApplyOutcome::Applied(_)
+            ));
+            view.apply_review(window, cx);
+            assert!(
+                view.workspace
+                    .store
+                    .receipt(&candidate.operation)
+                    .unwrap()
+                    .is_none()
+            );
+            cx.notify();
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, _| {
+        assert!(window.find("writing-evidence-unavailable").visible());
+        assert!(window.try_find("writing-private-disclosure").is_none());
+    })
+    .unwrap();
+    cx.update_window(f.window, |_, _window, cx| {
+        f.view.update(cx, |view, cx| {
+            let saved = view.workspace.store.note(&reference).unwrap().unwrap();
+            assert!(matches!(
+                view.workspace
+                    .owner_change(
+                        "native-reference-restored",
+                        &ChangeRequest {
+                            reason: "Restore existing access".into(),
+                            writes: vec![Put {
+                                id: reference,
+                                expected_version: Some(saved.version),
+                                archived: false,
+                                data: saved.data
+                            }],
+                            inputs: vec![]
+                        }
+                    )
+                    .unwrap(),
+                ApplyOutcome::Applied(_)
+            ));
+            assert!(
+                view.workspace
+                    .store
+                    .receipt(&candidate.operation)
+                    .unwrap()
+                    .is_none()
+            );
+            cx.notify();
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(window.find("writing-private-disclosure").visible());
+        f.view.update(cx, |view, cx| {
+            view.apply_review(window, cx);
+            assert!(view.workspace.store.receipt(&candidate.operation).unwrap().is_some());
+            assert!(matches!(view.workspace.store.note(&f.a.id).unwrap().unwrap().data, RecordData::Note(n) if n.markdown == "PRIVATE GENERATED QUOTE"));
+        });
+    }).unwrap();
+}
+
+#[gpui_kit::test]
 fn review_thread_switch_preserves_both_chat_drafts_and_the_human_buffer(cx: &mut TestAppContext) {
     let f = fixture(cx);
     cx.update_window(f.window, |_, window, cx| {

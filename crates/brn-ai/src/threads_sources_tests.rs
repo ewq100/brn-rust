@@ -141,6 +141,7 @@ async fn useful_intake_model_tools_retain_selected_figure_omissions_and_replay_w
     let first = prepare(
         &scope,
         PrepareArgs {
+            writing: None,
             request_key: "retain-map".into(),
             request: change.clone(),
         },
@@ -149,6 +150,7 @@ async fn useful_intake_model_tools_retain_selected_figure_omissions_and_replay_w
     let again = prepare(
         &scope,
         PrepareArgs {
+            writing: None,
             request_key: "retain-map".into(),
             request: change,
         },
@@ -232,6 +234,7 @@ fn damaged_figure_identity_and_unknown_transient_link_refuse_without_publication
     let result = prepare(
         &scope,
         PrepareArgs {
+            writing: None,
             request_key: "unknown-map".into(),
             request: ChangeRequest {
                 reason: "bad host reference".into(),
@@ -306,6 +309,7 @@ fn changed_source_identity_refuses_old_transient_figure_before_publication() {
         prepare(
             &scope,
             PrepareArgs {
+                writing: None,
                 request_key: "stale-map".into(),
                 request: ChangeRequest {
                     reason: "Old map".into(),
@@ -382,6 +386,7 @@ fn source_changed_after_prepare_refuses_runtime_and_core_owner_apply_atomically(
         prepare(
             &scope,
             PrepareArgs {
+                writing: None,
                 request_key: "race-map".into(),
                 request: ChangeRequest {
                     reason: "Selected map".into(),
@@ -444,6 +449,7 @@ fn committed_figure_receipt_replays_after_later_source_change() {
         prepare(
             &scope,
             PrepareArgs {
+                writing: None,
                 request_key: "committed-map".into(),
                 request: ChangeRequest {
                     reason: "Selected map".into(),
@@ -522,6 +528,7 @@ fn model_cannot_forge_host_source_report_or_fingerprint_in_same_change_group() {
             prepare(
                 &scope,
                 PrepareArgs {
+                    writing: None,
                     request_key: format!("forged-source-{kind}"),
                     request: ChangeRequest {
                         reason: "Invented source completeness".into(),
@@ -569,6 +576,7 @@ fn model_cannot_forge_host_source_report_or_fingerprint_in_same_change_group() {
         prepare(
             &scope,
             PrepareArgs {
+                writing: None,
                 request_key: "duplicate-host-source".into(),
                 request: ChangeRequest {
                     reason: "Fake parallel completeness".into(),
@@ -593,6 +601,7 @@ fn model_cannot_forge_host_source_report_or_fingerprint_in_same_change_group() {
         prepare(
             &scope,
             PrepareArgs {
+                writing: None,
                 request_key: "source-label".into(),
                 request: ChangeRequest {
                     reason: "Useful source label".into(),
@@ -637,7 +646,8 @@ fn selected_complete_second_source_cannot_hide_first_source_detected_omission() 
     request.sources = vec![first, second];
     let (scope, _) = begin(&request).unwrap();
     super::tests::read_all(&scope);
-    let prepared: Prepared = serde_json::from_value(prepare(&scope, PrepareArgs { request_key: "multiple-maps".into(), request: ChangeRequest { reason: "Selected knowledge from both sources".into(), writes: vec![Put { id: note.clone(), expected_version: Some(1), archived: false, data: RecordData::Note(Note::working("Two sources", "![First](brn-transient-asset://0/0)\n![Second](brn-transient-asset://1/0)")) }], inputs: vec![] } }).unwrap()).unwrap();
+    let prepared: Prepared = serde_json::from_value(prepare(&scope, PrepareArgs { writing: None,
+request_key: "multiple-maps".into(), request: ChangeRequest { reason: "Selected knowledge from both sources".into(), writes: vec![Put { id: note.clone(), expected_version: Some(1), archived: false, data: RecordData::Note(Note::working("Two sources", "![First](brn-transient-asset://0/0)\n![Second](brn-transient-asset://1/0)")) }], inputs: vec![] } }).unwrap()).unwrap();
     assert_eq!(
         apply(
             &scope,
@@ -685,6 +695,7 @@ fn action_source_input_guard_checks_used_source_without_blocking_unused_source()
             prepare(
                 &scope,
                 PrepareArgs {
+                    writing: None,
                     request_key: "source-action".into(),
                     request: ChangeRequest {
                         reason: "Suggested action based on used source".into(),
@@ -793,6 +804,7 @@ fn fingerprint_only_host_source_cannot_be_rewritten_by_model_without_report() {
         prepare(
             &scope,
             PrepareArgs {
+                writing: None,
                 request_key: "forged-fingerprint-only".into(),
                 request: ChangeRequest {
                     reason: "Invented fingerprint".into(),
@@ -825,6 +837,7 @@ fn fingerprint_only_host_source_cannot_be_rewritten_by_model_without_report() {
         prepare(
             &scope,
             PrepareArgs {
+                writing: None,
                 request_key: "duplicate-fingerprint-only".into(),
                 request: ChangeRequest {
                     reason: "Duplicate host evidence".into(),

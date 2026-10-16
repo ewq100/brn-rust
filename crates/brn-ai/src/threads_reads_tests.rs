@@ -4,6 +4,7 @@ fn replace(scope: &Scope, note: &str, version: u64, markdown: &str) -> Value {
     prepare(
         scope,
         PrepareArgs {
+            writing: None,
             request_key: format!("replace-{version}-{}", markdown.len()),
             request: ChangeRequest {
                 reason: "Replace the whole note".into(),
@@ -149,6 +150,7 @@ fn creating_a_note_needs_no_read() {
     let result = prepare(
         &scope,
         PrepareArgs {
+            writing: None,
             request_key: "new".into(),
             request: ChangeRequest {
                 reason: "Create a note".into(),

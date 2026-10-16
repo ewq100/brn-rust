@@ -200,6 +200,7 @@ mod tests {
         let original = prepare(
             &scope,
             PrepareArgs {
+                writing: None,
                 request_key: "old".into(),
                 request: request(&note, 2, "Old candidate", true),
             },
@@ -296,6 +297,7 @@ mod tests {
         let original = prepare(
             &old_scope,
             PrepareArgs {
+                writing: None,
                 request_key: "first".into(),
                 request: request(&note, 1, "Initial proposal", false),
             },
@@ -443,6 +445,7 @@ mod tests {
         let original = prepare(
             &scope,
             PrepareArgs {
+                writing: None,
                 request_key: "initial".into(),
                 request: request(&note, 1, "Old draft", false),
             },

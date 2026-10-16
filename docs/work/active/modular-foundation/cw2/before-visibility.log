@@ -1,0 +1,76 @@
+   Compiling libc v0.2.189
+   Compiling proc-macro2 v1.0.107
+   Compiling unicode-ident v1.0.26
+   Compiling quote v1.0.47
+   Compiling version_check v0.9.5
+   Compiling shlex v2.0.1
+   Compiling find-msvc-tools v0.1.14
+   Compiling typenum v1.20.1
+   Compiling cfg-if v1.0.5
+   Compiling vcpkg v0.2.15
+   Compiling pkg-config v0.3.34
+   Compiling getrandom v0.4.3
+   Compiling serde_core v1.0.229
+   Compiling bitflags v2.13.2
+   Compiling zmij v1.0.23
+   Compiling cc v1.5.1
+   Compiling foldhash v0.2.0
+   Compiling thiserror v2.0.21
+   Compiling generic-array v0.14.7
+   Compiling hashbrown v0.17.1
+   Compiling serde v1.0.229
+   Compiling serde_json v1.0.151
+   Compiling rustix v1.1.5
+   Compiling fallible-streaming-iterator v0.1.9
+   Compiling memchr v2.8.3
+   Compiling smallvec v1.16.2
+   Compiling hashlink v0.12.2
+   Compiling fallible-iterator v0.3.0
+   Compiling itoa v1.0.18
+   Compiling fastrand v2.5.0
+   Compiling once_cell v1.21.4
+   Compiling libsqlite3-sys v0.38.2
+   Compiling cpufeatures v0.2.17
+   Compiling errno v0.3.14
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling digest v0.10.7
+   Compiling sha2 v0.10.9
+   Compiling syn v3.0.6
+   Compiling thiserror-impl v2.0.21
+   Compiling serde_derive v1.0.229
+   Compiling uuid v1.26.1
+   Compiling tempfile v3.27.0
+   Compiling rusqlite v0.40.2
+   Compiling brn-threads-core v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-threads-core)
+    Finished `test` profile [optimized] target(s) in 14.32s
+     Running tests/cw2_visibility.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/cw2_visibility-c44ed706cec611e4)
+
+running 3 tests
+test owner_apply_rechecks_historical_visibility_and_restored_access_needs_explicit_review ... FAILED
+test archived_historical_input_is_not_apply_authority ... FAILED
+test visible_historical_edit_remains_applicable_while_current_edit_stales ... ok
+
+failures:
+
+---- owner_apply_rechecks_historical_visibility_and_restored_access_needs_explicit_review stdout ----
+
+thread 'owner_apply_rechecks_historical_visibility_and_restored_access_needs_explicit_review' (27222200) panicked at crates/brn-threads-core/tests/cw2_visibility.rs:54:9:
+assertion failed: matches!(store.apply(&op, &authority).unwrap(), ApplyOutcome::NeedsReview
+    { denied } if denied.contains(&reference))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- archived_historical_input_is_not_apply_authority stdout ----
+
+thread 'archived_historical_input_is_not_apply_authority' (27222199) panicked at crates/brn-threads-core/tests/cw2_visibility.rs:72:5:
+assertion failed: matches!(store.apply(&op, &HostAuthority::owner("exact review")).unwrap(),
+    ApplyOutcome::NeedsReview { denied } if denied.contains(&reference))
+
+
+failures:
+    archived_historical_input_is_not_apply_authority
+    owner_apply_rechecks_historical_visibility_and_restored_access_needs_explicit_review
+
+test result: FAILED. 1 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+error: test failed, to rerun pass `-p brn-threads-core --test cw2_visibility`

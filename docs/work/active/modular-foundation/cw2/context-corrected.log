@@ -1,0 +1,39 @@
+   Compiling brn-threads-app v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-threads-app)
+    Finished `test` profile [optimized] target(s) in 1.66s
+     Running tests/writing.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/writing-e5f9303e752fdcc1)
+
+running 10 tests
+test oversized_general_feedback_refuses_without_partial_request_or_note_write ... FAILED
+test empty_general_feedback_preserves_existing_replay_binding ... ok
+test new_requests_capture_v2_setup_without_changing_the_note ... ok
+test general_feedback_is_immutable_replay_bound_and_never_posted_as_chat ... FAILED
+test exact_anchor_stale_note_bad_selection_and_bound_key_refused ... ok
+test utf8_cross_paragraph_exact_selection_and_restart_keep_feedback ... ok
+test feedback_edit_stales_generated_candidate_and_only_matching_apply_can_address ... ok
+test multiple_comments_snapshot_replay_and_explicit_addressed_undo ... ok
+test oversize_context_fails_without_truncation_and_fake_snapshot_refused ... ok
+test manual_save_mapping_preserves_addressed_feedback_and_allows_later_confirmation ... ok
+
+failures:
+
+---- oversized_general_feedback_refuses_without_partial_request_or_note_write stdout ----
+
+thread 'oversized_general_feedback_refuses_without_partial_request_or_note_write' (27252053) panicked at crates/brn-threads-app/tests/writing.rs:525:5:
+assertion failed: app.messages(&thread.id).unwrap().is_empty()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- general_feedback_is_immutable_replay_bound_and_never_posted_as_chat stdout ----
+
+thread 'general_feedback_is_immutable_replay_bound_and_never_posted_as_chat' (27252048) panicked at crates/brn-threads-app/tests/writing.rs:433:5:
+assertion `left == right` failed: one prior chat message and one request only
+  left: 4
+ right: 2
+
+
+failures:
+    general_feedback_is_immutable_replay_bound_and_never_posted_as_chat
+    oversized_general_feedback_refuses_without_partial_request_or_note_write
+
+test result: FAILED. 8 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+error: test failed, to rerun pass `-p brn-threads-app --test writing`

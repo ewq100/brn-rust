@@ -505,6 +505,7 @@ struct ThreadsUi {
     attaching_chat: Option<String>,
     selected_project: Option<String>,
     note_project: Option<String>,
+    note_writing_scope: Option<String>,
     projects_trash: bool,
     /// Session-only disclosures: Done and Cancelled tasks, Background changes.
     open_sections: BTreeSet<&'static str>,
@@ -848,6 +849,7 @@ impl ThreadsUi {
             attaching_chat: None,
             selected_project: None,
             note_project: None,
+            note_writing_scope: None,
             projects_trash: false,
             open_sections: BTreeSet::new(),
             editing_queue: None,
@@ -1215,13 +1217,6 @@ impl ThreadsUi {
         let old = self.destination();
         self.save_composer(old, self.composer.read(cx).value().to_string());
         self.chat = target;
-        // Choosing a thread linked to the open note makes it that note's thread.
-        if let ChatTarget::Thread(thread) = &self.chat
-            && let Some(note) = self.open_note_id().map(str::to_owned)
-            && linked(&self.records, thread).contains(&note)
-        {
-            self.writing_threads.insert(note, thread.clone());
-        }
         let text = self.composer_drafts.text(&self.destination()).to_owned();
         self.composer
             .update(cx, |editor, cx| editor.set_value(text, window, cx));
@@ -1282,7 +1277,24 @@ impl ThreadsUi {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        self.note_project = None;
+        self.open_note_in_context(id, recovery, None, window, cx);
+    }
+    fn open_note_in_context(
+        &mut self,
+        id: &str,
+        recovery: Option<EditSession>,
+        opened_from: Option<&str>,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        let context = match self.workspace.active_writing_context(id, opened_from) {
+            Ok(context) => context,
+            Err(error) => {
+                self.warn(error.to_string());
+                cx.notify();
+                return;
+            }
+        };
         if self
             .review
             .as_ref()
@@ -1305,25 +1317,6 @@ impl ThreadsUi {
                 .into_iter()
                 .find(|session| session.note == id)
         });
-        if !self.writing_threads.contains_key(id)
-            && let Ok(threads) = self.workspace.writing_threads(id)
-            && let Some(thread) = self
-                .history
-                .iter()
-                .rev()
-                .flat_map(|receipt| receipt.writes.iter().rev())
-                .filter(|write| write.before.is_none())
-                .find_map(|write| {
-                    self.workspace
-                        .writing_request(&write.after.id)
-                        .ok()
-                        .filter(|snapshot| snapshot.note.id == id)
-                        .map(|snapshot| snapshot.thread)
-                })
-                .or_else(|| threads.first().map(|record| record.id.clone()))
-        {
-            self.writing_threads.insert(id.into(), thread);
-        }
         match self.workspace.store.note(id) {
             Ok(Some(record)) => {
                 let RecordData::Note(note) = &record.data else {
@@ -1337,6 +1330,18 @@ impl ThreadsUi {
                     record: record.clone(),
                     session: recovery,
                 });
+                self.note_writing_scope = context.scope.clone();
+                self.note_project = context.scope.clone().filter(|id| {
+                    self.records
+                        .iter()
+                        .any(|r| r.id == *id && matches!(r.data, RecordData::Project(_)))
+                });
+                if let Some(thread) = context.conversation {
+                    self.writing_threads.insert(id.into(), thread);
+                } else {
+                    self.writing_threads.remove(id);
+                }
+
                 self.selection = None;
                 self.note_editor
                     .update(cx, |editor, cx| editor.set_value(text.clone(), window, cx));
@@ -1349,15 +1354,6 @@ impl ThreadsUi {
                     .update(cx, |editor, cx| editor.set_value(feedback, window, cx));
                 self.layout.open(TileKind::Note);
                 self.refresh();
-                // Remember this note's chat without replacing the owner's selected conversation.
-                if let Some(chat) = &note.chat
-                    && self
-                        .records
-                        .iter()
-                        .any(|r| r.id == *chat && matches!(r.data, RecordData::Thread(_)))
-                {
-                    self.writing_threads.insert(id.into(), chat.clone());
-                }
                 let target = self
                     .writing_threads
                     .get(id)
@@ -1382,10 +1378,13 @@ impl ThreadsUi {
     fn open_thread(&mut self, id: &str, window: &mut Window, cx: &mut Context<Self>) {
         if let Some(note) = self.thread_note(id)
             && self.layout.contains(TileKind::Note)
-            && self.open_note_id() != Some(note.as_str())
         {
-            self.writing_threads.insert(note.clone(), id.into());
-            self.open_note(&note, None, window, cx);
+            if self.open_note_id() != Some(note.as_str()) {
+                self.open_note_in_context(&note, None, Some(id), window, cx);
+            }
+            if self.open_note_id() == Some(note.as_str()) {
+                self.select_writing_thread(note, id.into(), window, cx);
+            }
         }
         self.set_chat(ChatTarget::Thread(id.into()), window, cx);
         self.layout.open(TileKind::Chat);
@@ -1908,15 +1907,31 @@ impl ThreadsUi {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        self.note_project = self
-            .workspace
-            .store
-            .project_context_record(&thread)
-            .ok()
-            .flatten()
-            .filter(|r| !r.archived)
-            .map(|r| r.id);
-        self.writing_threads.insert(note, thread.clone());
+        if let Err(error) = self.workspace.select_writing_conversation(
+            &format!("writing-choice:{}", uuid::Uuid::new_v4()),
+            &note,
+            &thread,
+        ) {
+            self.warn(error.to_string());
+            cx.notify();
+            return;
+        }
+        match self.workspace.active_writing_context(&note, Some(&thread)) {
+            Ok(context) => {
+                self.note_writing_scope = context.scope.clone();
+                self.note_project = context.scope.filter(|id| {
+                    self.records
+                        .iter()
+                        .any(|r| r.id == *id && matches!(r.data, RecordData::Project(_)))
+                });
+                self.writing_threads.insert(note, thread.clone());
+            }
+            Err(error) => {
+                self.warn(error.to_string());
+                cx.notify();
+                return;
+            }
+        }
         self.set_chat(ChatTarget::Thread(thread), window, cx);
         self.show_tile(TileKind::Chat, window, cx);
     }
@@ -1925,23 +1940,17 @@ impl ThreadsUi {
             return;
         };
         let note = open.record.id.clone();
-        let version = open.record.version;
         let result = self
             .workspace
-            .new_document_chat(
-                &format!("Writing: {}", title(&open.record)),
+            .new_writing_conversation(
+                &format!("writing-new:{}", uuid::Uuid::new_v4()),
                 &note,
-                self.note_project.as_deref(),
+                self.note_writing_scope.as_deref(),
             )
-            .and_then(|thread| {
-                self.workspace
-                    .link_writing_thread(
-                        &format!("writing-link:{}", uuid::Uuid::new_v4()),
-                        &note,
-                        version,
-                        &thread.id,
-                    )
-                    .map(|_| thread.id)
+            .and_then(|context| {
+                context
+                    .conversation
+                    .ok_or_else(|| AppError::Invalid("Writing conversation was not created".into()))
             });
         match result {
             Ok(thread) => self.select_writing_thread(note, thread, window, cx),
@@ -1953,50 +1962,18 @@ impl ThreadsUi {
         cx.notify();
     }
     fn ensure_writing_thread(&mut self, note: &str, version: u64) -> AppResult<String> {
-        if let Some(project) = &self.note_project
-            && self.writing_threads.get(note).is_some_and(|chat| {
-                self.workspace
-                    .store
-                    .project_context_record(chat)
-                    .ok()
-                    .flatten()
-                    .is_none_or(|p| p.id != *project)
-            })
-        {
-            self.writing_threads.remove(note);
-        }
-
-        if let Some(thread) = self.writing_threads.get(note).cloned() {
-            if !self
-                .workspace
-                .store
-                .record(&thread)?
-                .is_some_and(|record| matches!(record.data, RecordData::Thread(_)))
-            {
-                return Err(AppError::Invalid("The selected chat is unavailable. Choose New chat for this note; your drafts are preserved.".into()));
-            }
-            // Continuing a resolved thread reopens it with a recorded reason.
-            self.reopen_if_resolved(&thread, "Owner continued a resolved chat with new feedback")?;
-            return Ok(thread);
-        }
-        let thread_title = format!(
-            "Writing: {}",
-            self.note
-                .as_ref()
-                .map(|open| title(&open.record))
-                .unwrap_or_else(|| note.into())
-        );
-        let thread =
-            self.workspace
-                .new_document_chat(&thread_title, note, self.note_project.as_deref())?;
-        self.workspace.link_writing_thread(
-            &format!("writing-link:{}", uuid::Uuid::new_v4()),
+        let context = self.workspace.ensure_writing_context(
+            &format!("writing-context:{}", uuid::Uuid::new_v4()),
             note,
-            version,
-            &thread.id,
+            self.note_writing_scope.as_deref(),
         )?;
-        self.writing_threads.insert(note.into(), thread.id.clone());
-        Ok(thread.id)
+        let thread = context
+            .conversation
+            .ok_or_else(|| AppError::Invalid("Writing conversation is unavailable".into()))?;
+        // The caller still captures exact saved version before comment/rewrite.
+        let _ = version;
+        self.writing_threads.insert(note.into(), thread.clone());
+        Ok(thread)
     }
     fn post_comment(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         let Some((note, version, range, quote)) = self.comment_anchor.clone() else {
@@ -2187,44 +2164,6 @@ impl ThreadsUi {
         } else {
             "Continue from the chat"
         };
-        let selection = match self.settings.provider.to_ascii_lowercase().as_str() {
-            "codex" | "chatgpt" => brn_ai::Selection {
-                provider: brn_ai::Provider::Chatgpt,
-                model: self.settings.model.clone(),
-            },
-            "copilot" => {
-                if !self.copilot_models.is_empty()
-                    && !self.copilot_models.contains(&self.settings.model)
-                {
-                    self.warn(format!(
-                        "{} is not offered by GitHub Copilot, so BRN has not started. Choose a model from the model menu: {}.",
-                        self.settings.model,
-                        self.copilot_models.join(", ")
-                    ));
-                    cx.notify();
-                    return;
-                }
-                brn_ai::Selection {
-                    provider: brn_ai::Provider::Copilot,
-                    model: self.settings.model.clone(),
-                }
-            }
-            _ => {
-                self.warn("Choose a provider and model in Settings before asking BRN.");
-                cx.notify();
-                return;
-            }
-        };
-        let effort = match self.settings.effort.as_str() {
-            "low" => brn_ai::ReasoningEffort::Low,
-            "medium" => brn_ai::ReasoningEffort::Medium,
-            "high" => brn_ai::ReasoningEffort::High,
-            _ => {
-                self.warn("Choose a supported reasoning effort in Settings.");
-                cx.notify();
-                return;
-            }
-        };
         let queued = self
             .queue_state()
             .pending
@@ -2235,32 +2174,32 @@ impl ThreadsUi {
             }
             _ => None,
         };
-        // Without a handle the search tools are not offered; say why.
-        let search = match self.workspace.search_handle() {
-            Ok(handle) => Some(Arc::new(handle) as Arc<dyn brn_ai::threads::RunNoteSearch>),
-            Err(error) => {
-                self.warn(format!("Note search is unavailable for this run: {error}"));
-                None
-            }
-        };
-        let request = brn_ai::threads::ThreadRunRequest {
+        let request = brn_threads_app::ThreadRunStart {
             request_message: queued.as_ref().and_then(|q| q.message.clone()),
             queue_claim: queued.and_then(|q| q.dispatch),
             owner_request,
-            data_dir: self.data_dir.clone(),
             thread: thread.clone(),
             prompt,
-            selection,
-            effort,
-            max_tool_rounds: brn_ai::threads::default_tool_rounds(!sources.is_empty()),
-            auth_file: self.settings.auth_file.as_ref().map(PathBuf::from),
-            credentials_dir: self.settings.credentials_dir.as_ref().map(PathBuf::from),
+            max_tool_rounds: None,
             sources,
-            search,
             trace: brn_ai::threads::TraceLevel::Off,
+            offered_copilot_models: Some(self.copilot_models.clone()),
         };
-        let prepared = match brn_ai::threads::prepare_run(request) {
-            Ok(prepared) => prepared,
+        let prepared = match self.workspace.prepare_thread_run(request) {
+            Ok(prepared) => {
+                if prepared.search_status != "available" {
+                    self.warn(format!(
+                        "Note search is {} for this run",
+                        prepared.search_status
+                    ));
+                }
+                prepared.prepared
+            }
+            Err(brn_threads_app::RunPreparationError::Selection(error)) => {
+                self.warn(error.to_string());
+                cx.notify();
+                return;
+            }
             Err(error) => {
                 self.fail(format!(
                     "Could not start. Your saved message remains available; {continuation}. {error}"
@@ -2275,35 +2214,74 @@ impl ThreadsUi {
         let cancel = CancellationToken::new();
         let worker_cancel = cancel.clone();
         let progress_sender = sender.clone();
-        let spawned = std::thread::Builder::new().name("brn-thread-run".into()).spawn(move || {
-            let outcome = tokio::runtime::Builder::new_current_thread().enable_all().build().map_err(|e| e.to_string()).and_then(|runtime| {
-                runtime.block_on(brn_ai::threads::run_prepared(prepared, worker_cancel, Arc::new(move |event| {
-                    let item = match event {
-                        brn_ai::AiEvent::Text(text) => WorkerEvent::Text(text),
-                        brn_ai::AiEvent::AnswerFinalized(text) => WorkerEvent::AnswerFinalized(text),
-                        brn_ai::AiEvent::ToolStarted { name } => WorkerEvent::Progress(brn_ai::threads::tool_activity(&name).unwrap_or("Working…").into()),
-                        brn_ai::AiEvent::Activity(text) => WorkerEvent::Activity(text),
-                        brn_ai::AiEvent::ReasoningSummary(text) => WorkerEvent::Activity(format!("reasoning summary> {text}")),
-                        brn_ai::AiEvent::BudgetProgress { model_turns: _, tool_rounds, max_tool_rounds } => WorkerEvent::Progress(format!("Working · {tool_rounds} of {max_tool_rounds} steps used")),
-                    };
-                    if matches!(item, WorkerEvent::Text(_) | WorkerEvent::AnswerFinalized(_) | WorkerEvent::Activity(_)) { let _ = progress_sender.send(item); }
-                    else { let _ = progress_sender.try_send(item); }
-                }))).map_err(|e| e.to_string())
-            });
-            let (result, terminal) = match outcome {
-                Ok(r) => {
-                    // Host notices (such as an unavailable helper) follow the outcome.
-                    let notices = r.notices.iter().map(|n| format!(" {n}")).collect::<String>();
-                    (match r.answer.terminal {
-                        brn_ai::AiTerminal::Completed => Ok(format!("{}{notices}", if writing { "Finished. The result is in the note." } else { "Finished. The answer and saved changes are in this chat." })),
-                        brn_ai::AiTerminal::Interrupted => Err(format!("Interrupted. The queue is paused; Resume when ready.{notices}")),
-                        brn_ai::AiTerminal::Failed(e) => Err(format!("{e}{notices}")),
-                    }, r.terminal_run)
+        let spawned = brn_ai::threads::spawn_prepared(
+            prepared,
+            worker_cancel,
+            Arc::new(move |event| {
+                let item = match event {
+                    brn_ai::AiEvent::Text(text) => WorkerEvent::Text(text),
+                    brn_ai::AiEvent::AnswerFinalized(text) => WorkerEvent::AnswerFinalized(text),
+                    brn_ai::AiEvent::ToolStarted { name } => WorkerEvent::Progress(
+                        brn_ai::threads::tool_activity(&name)
+                            .unwrap_or("Working…")
+                            .into(),
+                    ),
+                    brn_ai::AiEvent::Activity(text) => WorkerEvent::Activity(text),
+                    brn_ai::AiEvent::ReasoningSummary(text) => {
+                        WorkerEvent::Activity(format!("reasoning summary> {text}"))
+                    }
+                    brn_ai::AiEvent::BudgetProgress {
+                        model_turns: _,
+                        tool_rounds,
+                        max_tool_rounds,
+                    } => WorkerEvent::Progress(format!(
+                        "Working · {tool_rounds} of {max_tool_rounds} steps used"
+                    )),
+                };
+                if matches!(
+                    item,
+                    WorkerEvent::Text(_)
+                        | WorkerEvent::AnswerFinalized(_)
+                        | WorkerEvent::Activity(_)
+                ) {
+                    let _ = progress_sender.send(item);
+                } else {
+                    let _ = progress_sender.try_send(item);
                 }
-                Err(e) => (Err(e), None),
-            };
-            let _ = sender.send(WorkerEvent::RunFinished { result, terminal });
-        });
+            }),
+            Box::new(move |outcome| {
+                let outcome = outcome.map_err(|e| e.to_string());
+                let (result, terminal) = match outcome {
+                    Ok(r) => {
+                        // Host notices (such as an unavailable helper) follow the outcome.
+                        let notices = r
+                            .notices
+                            .iter()
+                            .map(|n| format!(" {n}"))
+                            .collect::<String>();
+                        (
+                            match r.answer.terminal {
+                                brn_ai::AiTerminal::Completed => Ok(format!(
+                                    "{}{notices}",
+                                    if writing {
+                                        "Finished. The result is in the note."
+                                    } else {
+                                        "Finished. The answer and saved changes are in this chat."
+                                    }
+                                )),
+                                brn_ai::AiTerminal::Interrupted => Err(format!(
+                                    "Interrupted. The queue is paused; Resume when ready.{notices}"
+                                )),
+                                brn_ai::AiTerminal::Failed(e) => Err(format!("{e}{notices}")),
+                            },
+                            r.terminal_run,
+                        )
+                    }
+                    Err(e) => (Err(e), None),
+                };
+                let _ = sender.send(WorkerEvent::RunFinished { result, terminal });
+            }),
+        );
         if let Err(error) = spawned {
             self.fail(format!(
                 "Could not start. Your saved instruction remains available; {continuation}. {error}"
@@ -2594,7 +2572,11 @@ impl ThreadsUi {
             .writes
             .iter()
             .find(|w| matches!(w.data, RecordData::Note(_)));
-        if let Some(snapshot) = &snapshot {
+        let has_evidence =
+            candidate.request.writes.iter().any(
+                |w| matches!(&w.data, RecordData::Message(m) if m.role == WRITING_EVIDENCE_ROLE),
+            );
+        if !has_evidence && let Some(snapshot) = &snapshot {
             self.writing_threads
                 .insert(snapshot.note.id.clone(), snapshot.thread.clone());
         }
@@ -2608,7 +2590,8 @@ impl ThreadsUi {
             self.review = None;
             self.open_note(note, None, window, cx);
         }
-        if let Some(snapshot) = snapshot
+        if !has_evidence
+            && let Some(snapshot) = snapshot
             && self.open_note_id() == Some(snapshot.note.id.as_str())
         {
             self.set_chat(ChatTarget::Thread(snapshot.thread), window, cx);
@@ -2728,7 +2711,25 @@ impl ThreadsUi {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        match self.workspace.review_apply(candidate.operation.as_str()) {
+        let has_evidence =
+            candidate.request.writes.iter().any(
+                |w| matches!(&w.data, RecordData::Message(m) if m.role == WRITING_EVIDENCE_ROLE),
+            );
+        if has_evidence
+            && !candidate.request.writes.iter().any(|w| {
+                Some(w.id.as_str()) == self.open_note_id() && matches!(w.data, RecordData::Note(_))
+            })
+        {
+            self.warn(
+                "Open and review this proposal in its matching writing context before applying it.",
+            );
+            cx.notify();
+            return;
+        }
+        match self.workspace.review_apply_in_context(
+            candidate.operation.as_str(),
+            self.note_writing_scope.as_deref(),
+        ) {
             Ok(outcome) => {
                 self.report_outcome(&outcome);
                 if let ApplyOutcome::Applied(receipt) = &outcome {

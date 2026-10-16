@@ -429,6 +429,33 @@ impl Store {
             ));
         }
         let original_prepared = prepared_on(&tx, original)?;
+        if original_prepared
+            .request
+            .writes
+            .iter()
+            .any(|w| matches!(&w.data, RecordData::Message(m) if m.role == WRITING_EVIDENCE_ROLE))
+            && (!original_prepared
+                .request
+                .inputs
+                .iter()
+                .all(|i| request.inputs.contains(i))
+                || original_prepared
+                    .request
+                    .writes
+                    .iter()
+                    .filter_map(|w| match &w.data {
+                        RecordData::Message(m) if m.role == WRITING_EVIDENCE_ROLE => Some(m),
+                        _ => None,
+                    })
+                    .any(|evidence| {
+                        !request
+                            .writes
+                            .iter()
+                            .any(|w| matches!(&w.data, RecordData::Message(m) if m == evidence))
+                    }))
+        {
+            return Err(Error::Invalid("Writing candidate evidence and input bindings must survive replacement; Refresh creates a new request".into()));
+        }
         for marker in writing_markers_on(&tx, &original_prepared.request)? {
             if !request.inputs.contains(&marker) {
                 return Err(Error::Invalid(
@@ -1211,6 +1238,17 @@ pub(crate) fn record_on(conn: &Connection, id: &str) -> Result<Option<Record>> {
     body.map(|body| Ok(serde_json::from_str(&body)?))
         .transpose()
 }
+fn revision_on(conn: &Connection, id: &str, version: u64) -> Result<Option<Record>> {
+    let body: Option<String> = conn
+        .query_row(
+            "SELECT body FROM revisions WHERE id=?1 AND version=?2",
+            params![id, crate::integer(version)?],
+            |r| r.get(0),
+        )
+        .optional()?;
+    body.map(|body| Ok(serde_json::from_str(&body)?))
+        .transpose()
+}
 pub(crate) fn receipt_on(conn: &Connection, operation: &OperationId) -> Result<Option<Receipt>> {
     let body: Option<String> = conn
         .query_row(
@@ -1389,7 +1427,37 @@ pub(crate) fn apply_on(
             ));
         }
     }
+    // Review authority does not widen the saved writing request's read scope.
+    // Resolve it from canonical evidence inside this same writer transaction.
+    let mut visibility_requests = vec![prepared.request.clone()];
+    let mut ancestor = operation.clone();
+    let mut seen = BTreeSet::new();
+    // A compensation (including Undo of Undo) cannot restore a writing result
+    // through a wider owner context than the original candidate's evidence.
+    while seen.insert(ancestor.as_str().to_owned()) {
+        let parent: Option<String> = tx.query_row(
+            "SELECT undo_of FROM operations WHERE id=?1",
+            [ancestor.as_str()],
+            |r| r.get(0),
+        )?;
+        let Some(parent) = parent else {
+            break;
+        };
+        ancestor = OperationId(parent);
+        visibility_requests.push(prepared_on(tx, &ancestor)?.request);
+    }
+    let mut writing_contexts = Vec::new();
+    for visibility_request in &visibility_requests {
+        for marker in writing_markers_on(tx, visibility_request)? {
+            if let Some(record) = revision_on(tx, &marker.record, marker.version)?
+                && let Ok(snapshot) = WritingSnapshot::from_message(&record)
+            {
+                writing_contexts.push((snapshot, visibility_request));
+            }
+        }
+    }
     let needs_context = authority.chat_binding.is_some()
+        || !writing_contexts.is_empty()
         || prepared
             .request
             .writes
@@ -1414,6 +1482,55 @@ pub(crate) fn apply_on(
                 archived: w.archived,
                 data: w.data.clone(),
             });
+        }
+    }
+    // Preserve the existing context-move stale outcome. A changed context is
+    // never an alternative grant for the candidate's saved evidence.
+    if !writing_contexts.is_empty() {
+        let mut changed = Vec::new();
+        for input in &prepared.request.inputs {
+            if input.expectation == InputExpectation::ChatContext
+                && !current_input_matches(tx, input)?
+            {
+                changed.push(input.record.clone());
+            }
+        }
+        if !changed.is_empty() {
+            return Ok(ApplyOutcome::Stale { records: changed });
+        }
+    }
+    for (snapshot, visibility_request) in &writing_contexts {
+        let mut denied = Vec::new();
+        for input in &visibility_request.inputs {
+            // Reference access uses canonical setup scope, preserving CW1's
+            // selected-conversation exception only for the working Note.
+            let chat = snapshot
+                .setup
+                .as_ref()
+                .filter(|s| s.references.iter().any(|r| r.note == input.record))
+                .map_or(Some(snapshot.thread.as_str()), |s| s.chat.as_deref());
+            let current = context_rows.iter().find(|r| r.id == input.record);
+            let body: Option<String> = tx
+                .query_row(
+                    "SELECT body FROM revisions WHERE id=?1 AND version=?2",
+                    params![input.record, crate::integer(input.version)?],
+                    |r| r.get(0),
+                )
+                .optional()?;
+            let historical = body
+                .map(|body| serde_json::from_str::<Record>(&body))
+                .transpose()?;
+            if current
+                .is_none_or(|r| r.archived || !crate::context::visible(r, &context_rows, chat))
+                || historical
+                    .as_ref()
+                    .is_none_or(|r| r.archived || !crate::context::visible(r, &context_rows, chat))
+            {
+                denied.push(input.record.clone());
+            }
+        }
+        if !denied.is_empty() {
+            return Ok(ApplyOutcome::NeedsReview { denied });
         }
     }
     if let Some((chat, _)) = &authority.chat_binding {
@@ -2569,6 +2686,9 @@ pub(crate) fn prepare_on(
     owner_direct: bool,
 ) -> Result<Prepared> {
     validate_request(operation, request)?;
+    crate::writing::validate_candidate_evidence(request, |id, version| {
+        revision_on(tx, id, version)
+    })?;
     let body = serde_json::to_string(request)?;
     let hash = format!("{:x}", Sha256::digest(body.as_bytes()));
     let prior: Option<Option<String>> = tx

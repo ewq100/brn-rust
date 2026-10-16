@@ -1114,6 +1114,34 @@ fn verify(store: &Store, chat: &str, citation: &Citation) -> Verdict {
     }
 }
 
+/// Writing uses the research host verifier too, then requires the exact cited
+/// bytes (research additionally supports explicitly labelled relocation).
+pub(super) fn verify_writing_quotation(
+    store: &Store,
+    chat: &str,
+    quote: &WritingQuotation,
+) -> bool {
+    if quote.quote.is_empty() || quote.quote.len() > MAX_CITED_RANGE {
+        return false;
+    }
+    let citation = Citation {
+        reference: String::new(),
+        id: quote.id.clone(),
+        version: quote.version,
+        start: quote.start,
+        end: quote.end,
+        quote: quote.quote.clone(),
+    };
+    matches!(
+        verify(store, chat, &citation),
+        Verdict::Exact
+            | Verdict::Stale {
+                relocated: None,
+                ..
+            }
+    ) && matches!(store.revision(&quote.id, quote.version), Ok(Some(Record { data: RecordData::Note(n), .. })) if n.markdown.get(quote.start..quote.end) == Some(quote.quote.as_str()))
+}
+
 fn verified_report(
     store: &Store,
     chat: &str,

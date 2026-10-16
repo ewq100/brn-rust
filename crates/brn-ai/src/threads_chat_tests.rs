@@ -236,6 +236,7 @@ fn unrelated_chat_cannot_read_private_ids_history_or_apply_new_foreign_refs() {
         let prepared = prepare(
             &scope,
             PrepareArgs {
+                writing: None,
                 request_key: format!("foreign-{index}"),
                 request: ChangeRequest {
                     reason: "Foreign reference attempt".into(),
@@ -304,6 +305,7 @@ fn private_context_scopes_generated_notes_and_binds_exact_local_source_observati
     let p = prepare(
         &scope,
         PrepareArgs {
+            writing: None,
             request_key: "local-note".into(),
             request: ChangeRequest {
                 reason: "Local generated note".into(),
@@ -400,6 +402,7 @@ fn foreign_inline_asset_urls_cannot_be_written_or_finalized_in_an_unrelated_chat
     let p = prepare(
         &scope,
         PrepareArgs {
+            writing: None,
             request_key: "foreign-picture".into(),
             request: ChangeRequest {
                 reason: "Unrelated picture".into(),

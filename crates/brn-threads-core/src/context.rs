@@ -125,6 +125,29 @@ pub(crate) fn visible_with_scope(
                 linked(&l.from, &mut seen.clone()) && linked(&l.to, &mut seen.clone())
             }
             RecordData::Thread(_) => scope_allowed(&r.id, rows, chat),
+            RecordData::Message(m)
+                if matches!(
+                    m.role.as_str(),
+                    WRITING_EVIDENCE_ROLE | WRITING_CONTEXT_ROLE
+                ) =>
+            {
+                let saved = if m.role == WRITING_EVIDENCE_ROLE {
+                    serde_json::from_str::<WritingCandidateEvidence>(&m.text)
+                        .ok()
+                        .filter(|e| e.version == 1)
+                        .map(|e| (e.thread, e.chat))
+                } else {
+                    serde_json::from_str::<WritingContextUse>(&m.text)
+                        .ok()
+                        .map(|e| (e.thread, e.chat))
+                };
+                saved.is_some_and(|(thread, saved_scope)| {
+                    thread == m.thread
+                        && scope_allowed(&thread, rows, chat)
+                        && crate::writing_setup_scope(rows, chat)
+                            .is_ok_and(|scope| scope == saved_scope)
+                })
+            }
             RecordData::Message(m) if m.role == WRITING_REQUEST_ROLE => {
                 scope_allowed(&m.thread, rows, chat)
                     && match WritingSnapshot::from_message(r) {

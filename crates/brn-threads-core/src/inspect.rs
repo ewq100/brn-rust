@@ -344,6 +344,12 @@ impl Store {
                         _ => {}
                     }
                 }
+                // Host writing metadata is not conversation history. Dedicated
+                // scoped app readers inspect candidate evidence/context instead.
+                if matches!(&record.data, RecordData::Message(m) if matches!(m.role.as_str(), WRITING_EVIDENCE_ROLE | WRITING_CONTEXT_ROLE))
+                {
+                    continue;
+                }
                 rows.push((pos, record));
                 if rows.len() > limit {
                     break;

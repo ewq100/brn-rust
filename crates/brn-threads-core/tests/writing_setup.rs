@@ -244,6 +244,7 @@ fn v1_fixed_payload_and_hash_remain_exact_and_v2_limits_count_utf8_bytes() {
     assert_eq!(old.current_inputs().len(), 2);
     let mut new = old.clone();
     new.setup = Some(WritingSnapshotSetup {
+        requirements: WritingReadRequirements::default(),
         chat: None,
         input: RevisionInput {
             record: "setup:0".into(),
@@ -472,6 +473,7 @@ fn v2_candidate_replacement_cannot_drop_or_downgrade_setup_current_input() {
         messages: vec![],
         general_feedback: String::new(),
         setup: Some(WritingSnapshotSetup {
+            requirements: WritingReadRequirements::default(),
             chat: None,
             input: RevisionInput {
                 record: setup.id.clone(),

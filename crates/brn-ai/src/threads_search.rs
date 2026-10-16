@@ -177,13 +177,23 @@ fn failed(error: NoteSearchError) -> AiError {
 /// The host search and the run's chat, after the same live-run and
 /// writing-mode checks as the other read tools. No lock is held afterwards.
 fn host(scope: &Scope) -> AiResult<(Arc<dyn RunNoteSearch>, String)> {
-    if scope.writing_snapshot.is_some() {
+    if scope
+        .writing_snapshot
+        .as_ref()
+        .is_some_and(|s| s.setup.is_none())
+    {
         return Err(rejected());
     }
     let search = scope.search.clone().ok_or_else(rejected)?;
     let store = scope.store.lock().map_err(storage)?;
     live(scope, &store)?;
-    Ok((search, scope.chat.clone()))
+    let chat = scope
+        .writing_snapshot
+        .as_ref()
+        .and_then(|s| s.setup.as_ref())
+        .and_then(|s| s.chat.clone())
+        .unwrap_or_else(|| scope.chat.clone());
+    Ok((search, chat))
 }
 
 pub(super) async fn search_notes(scope: Arc<Scope>, args: SearchNotesArgs) -> AiResult<Value> {
@@ -208,6 +218,35 @@ pub(super) async fn search_notes(scope: Arc<Scope>, args: SearchNotesArgs) -> Ai
         .collect::<Vec<_>>();
     let mut value = serde_json::to_value(page).map_err(storage)?;
     let store = scope.store.lock().map_err(storage)?;
+    live(&scope, &store)?;
+    if scope
+        .writing_snapshot
+        .as_ref()
+        .is_some_and(|s| s.setup.is_some())
+    {
+        for result in &value["results"].as_array().ok_or_else(rejected)?.clone() {
+            let id = result["id"].as_str().ok_or_else(rejected)?;
+            let version = result["version"].as_u64().ok_or_else(rejected)?;
+            if !writing_read_allowed(&scope, &store, id, version)? {
+                return Err(rejected());
+            }
+            let Some(Record {
+                data: RecordData::Note(note),
+                ..
+            }) = store.revision(id, version).map_err(storage)?
+            else {
+                return Err(rejected());
+            };
+            // Search snippets collapse whitespace and may add ellipses. Bind
+            // actual exposure to its version without inventing exact byte
+            // coverage. Exact reads are still needed for quotations/fullness.
+            scope
+                .reads
+                .lock()
+                .map_err(storage)?
+                .slice(id, version, 0, 0, note.markdown.len());
+        }
+    }
     if let Some(hint) = research::large_notes_hint(&scope, &store, ids)? {
         value["large_notes"] = hint;
     }
@@ -222,5 +261,7 @@ pub(super) async fn note_connections(scope: Arc<Scope>, args: ConnectionsArgs) -
     .await
     .map_err(storage)?
     .map_err(failed)?;
+    let store = scope.store.lock().map_err(storage)?;
+    live(&scope, &store)?;
     serde_json::to_value(neighbourhood).map_err(storage)
 }

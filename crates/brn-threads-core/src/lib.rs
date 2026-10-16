@@ -32,9 +32,12 @@ pub use revision_read::{RevisionPage, RevisionSummary};
 pub use store::{DATA_MARKER, DATABASE_FILENAME, DERIVED_DIRECTORY, Store};
 pub use types::*;
 pub use writing::{
-    MAX_WRITING_REQUEST_BYTES, WRITING_REQUEST_ROLE, WritingPurpose, WritingReference,
-    WritingReferenceVersion, WritingSetup, WritingSnapshot, WritingSnapshotSetup,
-    exact_writing_range, scoped_writing_request, writing_request_scope, writing_setup_scope,
+    MAX_WRITING_REQUEST_BYTES, WRITING_CONTEXT_ROLE, WRITING_EVIDENCE_ROLE, WRITING_PUBLIC_REASON,
+    WRITING_REQUEST_ROLE, WritingCandidateEvidence, WritingContextUse, WritingPurpose,
+    WritingQuotation, WritingRead, WritingReadRequirements, WritingReference,
+    WritingReferenceVersion, WritingRequirementsClaim, WritingSetup, WritingSnapshot,
+    WritingSnapshotSetup, exact_writing_range, scoped_writing_request, writing_request_scope,
+    writing_setup_scope,
 };
 
 #[derive(Debug, thiserror::Error)]
