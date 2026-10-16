@@ -610,3 +610,13 @@ Gates on one build in the worktree `target/`, fresh synthetic env, no provider c
 `git diff origin/main HEAD -- crates/brn-desktop crates/brn-ai` is empty.
 
 Status: **implemented** yes; **verified (automated)** yes, except the Poppler-only test (local-env-blocked); **native-observed** not applicable; **owner-accepted** no; **merged** into this branch, not into `main`.
+
+# Round 3
+
+Branch `work/cli-agent-round3`, base `origin/main` `fb1b2100`. Scope: caller-bound edit sessions (B3 part 2), workspace purpose, actor and reported authority (B1 phase 1), schema 6 with upgrade option B, the four PR #156 LOW fixes, contract 3. Design `round3/design-3.md` (APPROVED) and plan `round3/plan-3.md`, kept beside the worktree in `cli-agent-contract.artifacts/round3/`.
+
+## Round 3 precondition (design review carry-forward 1)
+
+The shared-seam API (design §9) was posted on the coordination board in the CLI section as an ASK at 14:30 on 16 October 2026. The owner answered at 14:33: "approve lets go wiht b" (API approved; schema upgrade option B). `owner-decisions.md` § Round 3 records it.
+
+Baseline binary for process comparisons: `fb1b2100` built with `CARGO_TARGET_DIR=/private/tmp/brn-r3-base-target cargo build -p brn --locked --offline` before any edit; `brn --json --help` reports `"contract":2`.
