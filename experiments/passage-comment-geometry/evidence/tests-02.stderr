@@ -1,0 +1,30 @@
+   Compiling brn-passage-comment-geometry v0.1.0 (/Users/evokessler/Documents/Codex/brn-rust/.worktrees/passage-comment-geometry/experiments/passage-comment-geometry)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.66s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/lib.rs (/private/tmp/brn-passage-geometry-target/debug/deps/brn_passage_comment_geometry-a8ef92a0494f1892)
+     Running unittests src/main.rs (/private/tmp/brn-passage-geometry-target/debug/deps/brn_passage_comment_geometry-1ed396bd3ca3a54d)
+     Running tests/geometry.rs (/private/tmp/brn-passage-geometry-target/debug/deps/geometry-0172b738b3c7f915)
+
+thread 'checked_store_save_and_comment_mapping_remain_existing_core_behavior' (11917503) panicked at tests/geometry.rs:213:98:
+called `Result::unwrap()` on an `Err` value: UnsafeDirectory("symlink directory")
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'source_change_invalidates_even_when_viewer_remaps_highlights' (11917510) panicked at tests/geometry.rs:32:9:
+previous position invalid immediately
+
+thread 'nontext_empty_and_newline_probe_never_borrow_neighbor_geometry' (11917506) panicked at tests/geometry.rs:32:9:
+previous position invalid immediately
+
+thread 'resize_rewrap_font_scroll_and_coordinate_conversion_use_current_frame' (11917509) panicked at tests/geometry.rs:32:9:
+previous position invalid immediately
+
+thread 'exact_second_occurrence_unicode_formatting_and_crlf' (11917504) panicked at tests/geometry.rs:32:9:
+previous position invalid immediately
+
+thread 'invalid_identity_quote_version_and_unmapped_syntax_never_search' (11917505) panicked at tests/geometry.rs:32:9:
+previous position invalid immediately
+
+thread 'passive_offscreen_none_then_comment_click_reveals_second_without_text_change' (11917507) panicked at tests/geometry.rs:32:9:
+previous position invalid immediately
+error: test failed, to rerun pass `--test geometry`

@@ -1,0 +1,34 @@
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 8 tests
+test checked_store_save_and_comment_mapping_remain_existing_core_behavior ... FAILED
+test source_change_invalidates_even_when_viewer_remaps_highlights ... FAILED
+test nontext_empty_and_newline_probe_never_borrow_neighbor_geometry ... FAILED
+test resize_rewrap_font_scroll_and_coordinate_conversion_use_current_frame ... FAILED
+test exact_second_occurrence_unicode_formatting_and_crlf ... FAILED
+test invalid_identity_quote_version_and_unmapped_syntax_never_search ... FAILED
+test passive_offscreen_none_then_comment_click_reveals_second_without_text_change ... FAILED
+current editor: pristine Undo stays empty; typing Undo/Redo survives viewer/comment operations; only input changes generation
+test positioning_and_reveal_do_not_modify_current_editor_undo ... ok
+
+failures:
+
+failures:
+    checked_store_save_and_comment_mapping_remain_existing_core_behavior
+    exact_second_occurrence_unicode_formatting_and_crlf
+    invalid_identity_quote_version_and_unmapped_syntax_never_search
+    nontext_empty_and_newline_probe_never_borrow_neighbor_geometry
+    passive_offscreen_none_then_comment_click_reveals_second_without_text_change
+    resize_rewrap_font_scroll_and_coordinate_conversion_use_current_frame
+    source_change_invalidates_even_when_viewer_remaps_highlights
+
+test result: FAILED. 1 passed; 7 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s

@@ -1,0 +1,11 @@
+ 4019       00:17 rustc
+ 4398       00:13 rustc
+ 4547       00:10 /Library/Developer/CommandLineTools/usr/bin/clang
+ 4548       00:10 /Library/Developer/CommandLineTools/usr/bin/clang
+ 4762       00:08 rustc
+ 5196       00:03 rustc
+ 5438       00:01 rustc
+ 5439       00:01 rustc
+ 5454       00:01 rustc
+ 5574       00:00 rustc
+98801       00:49 cargo
