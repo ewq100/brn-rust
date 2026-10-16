@@ -1038,3 +1038,60 @@ async fn native_check_store_with_a_killed_intake_and_its_candidate() {
     assert_killed(&workspace, &intake, &id, &operation);
     println!("intake chat: {intake}\nrun: {id}\noperation: {operation}");
 }
+
+/// PR #156 LOW 2: the converging twins the CLI uses for archive and
+/// chat-move remove a killed Run's free lease file, as the plain commands
+/// do; a held lease (a live worker) survives.
+#[tokio::test(flavor = "multi_thread")]
+async fn converging_archive_and_chat_move_remove_free_leases() {
+    for path in ["archive", "chat-move"] {
+        let w = world();
+        let (id, _operation) = killed_intake(&w.data, &w.intake).await;
+        let mut workspace = Workspace::open(&w.data).unwrap();
+        let outcome = match path {
+            "archive" => workspace
+                .archive_chat_converged("converge-archive", &w.intake)
+                .unwrap(),
+            _ => workspace
+                .project_command_converged(
+                    "converge-move",
+                    ProjectCommand::MoveChat {
+                        chat: w.intake.clone(),
+                        project: None,
+                    },
+                )
+                .unwrap(),
+        };
+        assert!(matches!(outcome, Converged::Changed(_)), "{path}");
+        assert_eq!(run(&workspace, &id).state, RunState::Interrupted, "{path}");
+        assert!(!lease_file(&workspace, &id).exists(), "{path}");
+    }
+    // Control: a Run whose lease is held keeps its lease file.
+    for path in ["archive", "chat-move"] {
+        let w = world();
+        let live = prepare_run(intake_request(&w.data, &w.intake)).unwrap();
+        let id = live.run_id().to_owned();
+        let mut workspace = Workspace::open(&w.data).unwrap();
+        match path {
+            "archive" => {
+                workspace
+                    .archive_chat_converged("live-archive", &w.intake)
+                    .unwrap();
+            }
+            _ => {
+                workspace
+                    .project_command_converged(
+                        "live-move",
+                        ProjectCommand::MoveChat {
+                            chat: w.intake.clone(),
+                            project: None,
+                        },
+                    )
+                    .unwrap();
+            }
+        }
+        assert_eq!(run(&workspace, &id).state, RunState::Interrupted, "{path}");
+        assert!(lease_file(&workspace, &id).exists(), "{path}");
+        drop(live);
+    }
+}

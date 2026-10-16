@@ -17,12 +17,16 @@ cli_journey = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(cli_journey)
 
 
-def envelope(command='notes', status='ok', exit_code=0, code=None):
-    return {'contract': 2, 'command': command, 'ok': exit_code == 0, 'status': status, 'exit': exit_code,
-            'outcome': None, 'operation': None, 'key': None, 'retry': 'refuse' if code else 'read',
-            'changed': [], 'conflict': None, 'result': [],
-            'error': {'code': code, 'message': 'synthetic', 'details': {}} if code else None,
-            'page': None, 'stop': None}
+def envelope(command='notes', status='ok', exit_code=0, code=None, details=None, authority=True):
+    value = {'contract': 3, 'command': command, 'ok': exit_code == 0, 'status': status, 'exit': exit_code,
+             'outcome': None, 'operation': None, 'key': None, 'retry': 'refuse' if code else 'read',
+             'changed': [], 'conflict': None, 'result': [],
+             'error': {'code': code, 'message': 'synthetic', 'details': details or {}} if code else None,
+             'page': None, 'stop': None}
+    if authority:
+        value['authority'] = {'workspace_purpose': 'test', 'cli_authority': 'full', 'enforced': False,
+                              'actor': None}
+    return value
 
 
 def stub(directory, body):
@@ -104,6 +108,8 @@ class EnvelopeChecks(unittest.TestCase):
             'one line': printing(good + good),
             'differs': printing(json.dumps(envelope(exit_code=3, status='stale')) + '\n', 0),
             'unknown status': printing(json.dumps(envelope(status='weird', exit_code=9)) + '\n', 9),
+            'contract is not 3': printing(json.dumps({**envelope(), 'contract': 2}) + '\n'),
+            'lacks authority': printing(json.dumps(envelope(authority=False)) + '\n'),
         }
         for expected, body in cases.items():
             with self.subTest(expected):
@@ -171,10 +177,30 @@ class EnvelopeChecks(unittest.TestCase):
 
 
 class RoundTwoHelperTests(unittest.TestCase):
-    def test_contract_2_statuses_and_option_names(self):
+    def test_contract_3_statuses_and_option_names(self):
         self.assertEqual(cli_journey.STATUSES['terminated'], 143)
         self.assertEqual(cli_journey.option_name('text_file'), '--text-file')
         self.assertEqual(cli_journey.option_name('command_'), '--command')
+        # Round 3: tokens travel by file, never by value.
+        self.assertEqual(cli_journey.option_name('token_file'), '--token-file')
+        self.assertEqual(cli_journey.option_name('token_out'), '--token-out')
+        self.assertEqual(cli_journey.option_name('purpose'), '--purpose')
+        self.assertEqual(cli_journey.option_name('actor'), '--actor')
+
+    def test_a_stale_token_refusal_is_an_expected_rejected_envelope(self):
+        refused = envelope(command='update-buffer', status='rejected', exit_code=6,
+                           code='session_token_invalid', details={'reason': 'mismatch'})
+        with tempfile.TemporaryDirectory() as parent, tempfile.TemporaryDirectory() as bin_dir:
+            def journey(brn, root):
+                result = brn.call('update-buffer', data=root / 'data', session='s', generation=1,
+                                  text='x', token_file=root / 'old.token', expect=6)
+                brn.check(result['error']['details'] == {'reason': 'mismatch'}, 'mismatch not reported')
+                argv = brn.steps[-1]['argv']
+                brn.check('--token-file' in argv and not any(a.startswith('brnet1_') for a in argv),
+                          'the token reached argv')
+            code, out, _ = quiet(cli_journey.run, stub(bin_dir, printing(json.dumps(refused) + '\n', 6)),
+                                 parent=parent, journey=journey)
+        self.assertEqual(code, 0, out)
 
     def test_pages_follow_the_cursor_and_require_a_mirrored_page(self):
         class Paged(cli_journey.Brn):

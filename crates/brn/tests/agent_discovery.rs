@@ -1,40 +1,49 @@
-//! Process checks of contract 2 discovery: the envelope shape, per-command
+//! Process checks of contract 3 discovery: the envelope shape, per-command
 //! help, global options, pre-open validation and missing workspaces.
 mod support;
 use serde_json::{json, Value};
 use support::*;
 
-fn contract_2(envelope: &Value) {
-    assert_eq!(envelope["contract"], 2, "{envelope}");
+fn contract_3(envelope: &Value) {
+    assert_eq!(envelope["contract"], 3, "{envelope}");
     let object = envelope.as_object().unwrap();
     assert!(object.contains_key("page"), "{envelope}");
     assert!(object.contains_key("stop"), "{envelope}");
-    assert_eq!(object.len(), 15, "{envelope}");
+    assert!(object.contains_key("authority"), "{envelope}");
+    assert_eq!(object.len(), 16, "{envelope}");
 }
 
 #[test]
-fn every_envelope_has_contract_2_page_and_stop() {
+fn every_envelope_has_contract_3_page_stop_and_authority() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = root.workspace("data");
     let created = call(
         &root,
         &data,
         &["note-create", "--title", "T", "--text", "x"],
     );
     assert_eq!(created["status"], "ok");
-    contract_2(&created);
+    contract_3(&created);
     assert_eq!(created["page"], Value::Null);
     assert_eq!(created["stop"], Value::Null);
     let usage = run_argv(&root, &["--json", "notes"], None).envelope();
     assert_error(&usage, "usage", "missing_data_dir");
-    contract_2(&usage);
+    contract_3(&usage);
     let rejected = call(&root, &data, &["read", "--id", "missing"]);
     assert_error(&rejected, "rejected", "not_found");
-    contract_2(&rejected);
+    contract_3(&rejected);
     let help = run_argv(&root, &["--json", "--help"], None);
     assert_eq!(help.code, 0);
     let description: Value = serde_json::from_str(&help.stdout).unwrap();
-    assert_eq!(description["contract"], json!(2));
+    assert_eq!(description["contract"], json!(3));
+    assert_eq!(
+        created["authority"],
+        json!({"workspace_purpose":"test","cli_authority":"full","enforced":false,"actor":null})
+    );
+    assert_eq!(
+        usage["authority"],
+        json!({"workspace_purpose":null,"cli_authority":null,"enforced":false,"actor":null})
+    );
 }
 
 #[test]
@@ -116,7 +125,15 @@ fn enum_values_are_refused_before_the_workspace_opens() {
             "--base must be an integer",
         ),
         (
-            &["save", "--session", "s", "--generation", "-1"],
+            &[
+                "save",
+                "--session",
+                "s",
+                "--generation",
+                "-1",
+                "--token-file",
+                "/abs/edit.token",
+            ],
             "generation",
             "--generation must be an integer",
         ),
@@ -225,7 +242,7 @@ fn service_ranges_and_trash_are_refused_before_opening() {
     let ranges = call(&root, &data, &["connections", "--note", "n", "--hops", "2"]);
     assert_error(&ranges, "rejected", "missing_workspace");
     // `--trash no` lists what no option lists; `--trash yes` adds trashed projects.
-    let data = root.join("data");
+    let data = root.workspace("data");
     let kept = ok(&root, &data, &["project-create", "--title", "Kept"]);
     let trashed = ok(&root, &data, &["project-create", "--title", "Trashed"]);
     let trashed = trashed["writes"][0]["after"]["id"]
@@ -264,7 +281,7 @@ fn service_ranges_and_trash_are_refused_before_opening() {
 #[test]
 fn usage_after_opening_may_initialise_a_fresh_directory() {
     let root = Root::new();
-    let source = root.join("source");
+    let source = root.workspace("source");
     let project = ok(&root, &source, &["project-create", "--title", "P"]);
     let project = project["writes"][0]["after"]["id"]
         .as_str()
@@ -277,6 +294,7 @@ fn usage_after_opening_may_initialise_a_fresh_directory() {
     );
     let preview = root.file("preview.json", preview.to_string().as_bytes());
     for json in [true, false] {
+        // creation semantics: a write on a missing folder initialises it.
         let fresh = root.join(if json { "fresh-json" } else { "fresh-plain" });
         let argv = [
             "project-delete",
@@ -299,6 +317,7 @@ fn usage_after_opening_may_initialise_a_fresh_directory() {
 
 #[test]
 fn machine_mode_reads_on_missing_or_empty_dirs_are_missing_workspace() {
+    // creation semantics: implicit creation by init and writes is the subject.
     let root = Root::new();
     let missing = root.join("missing");
     let reads: &[&[&str]] = &[
@@ -359,7 +378,7 @@ fn every_command_has_text_and_json_help_matching_the_description() {
         assert_eq!(machine.code, 0, "{name}");
         assert_eq!(machine.stdout.matches('\n').count(), 1, "{name}");
         let value: Value = serde_json::from_str(&machine.stdout).unwrap();
-        assert_eq!(value, json!({"contract": 2, "command": entry}), "{name}");
+        assert_eq!(value, json!({"contract": 3, "command": entry}), "{name}");
         let text = run_argv(&root, &[name, "--help"], None);
         assert_eq!(text.code, 0, "{name}");
         let summary = entry["summary"].as_str().unwrap();
@@ -409,7 +428,7 @@ fn every_command_has_text_and_json_help_matching_the_description() {
 #[test]
 fn data_dir_and_timeout_are_accepted_after_the_command() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = root.workspace("data");
     let d = data.to_str().unwrap();
     let created = run_argv(
         &root,
@@ -543,6 +562,19 @@ fn repeated_global_options_are_repeated_option() {
         (
             vec!["--json", "notes", "--data-dir", d, "--data-dir", d],
             "data-dir",
+        ),
+        (
+            vec![
+                "--json",
+                "--data-dir",
+                d,
+                "--actor",
+                "a1",
+                "notes",
+                "--actor",
+                "a2",
+            ],
+            "actor",
         ),
     ] {
         let envelope = run_argv(&root, &argv, None).envelope();

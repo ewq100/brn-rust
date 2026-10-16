@@ -47,3 +47,25 @@ Recorded 16 October 2026, in reply to the lead's two questions:
 
 - **`projects --trash` tightening: kept.** Values other than `yes`/`no` are now refused with `invalid_value` in both modes. Before this change they listed active projects with exit 0 (README Compatibility 8).
 - **Round 3 is a follow-up PR.** This branch's PR carries rounds 1, 2 and 2b only. Caller-bound edit sessions (B3 part 2) and workspace-scoped CLI authority phase 1 (B1) go on a new branch from `main` after this PR merges, and become their own PR under the same rules. Before that design is approved, its shared-seam API is posted on the coordination board for the desktop lead.
+
+## Round 3
+
+Recorded 16 October 2026. The owner had reviewed the round-3 API proposal, which the lead derived from the approved round-3 design and posted on the coordination board, together with the lead's options for the schema upgrade. The owner replied:
+
+> "approve lets go wiht b"
+
+- **API approved.**
+  - **Desktop:** none of its call sites change, and it keeps its in-process owner-host binding.
+  - **CLI sessions:** CLI callers use token-bound edit sessions (`begin_caller_edit`, `update_caller_buffer`, `save_caller_edit`, `discard_caller_edit`). Only the token's hash is stored.
+  - **Desktop-held sessions** appear to the CLI as `holder:"desktop"`, with no ID.
+  - **Discard and adoption:** owner-host `discard` closes any session without a token, and owner typing adopts a caller session.
+  - **Lost tokens:** `reclaim-edit` works only in test workspaces. Nothing expires.
+  - **Schema 6** adds bindings, the workspace profile and receipt actors.
+  - **Restore** removes bindings and forces purpose `owner`.
+  - **B1 phase 1:** `brn init --purpose test` at creation only, an `--actor` recorded on receipts, and reported authority with `enforced:false`.
+- **Schema upgrade: option B.** The CLI never upgrades an existing workspace as a side effect.
+  - Any CLI command on a store older than the current schema, reads included, is refused with a stable `upgrade_required` code. The refusal names the explicit, backup-first `brn upgrade --backup-directory ABSOLUTE_DIR` command.
+  - Only that explicit command upgrades a store from the CLI.
+  - The desktop keeps its current upgrade behavior.
+  - Fresh workspaces created by `init` start at the current schema.
+- **Publication:** like the earlier rounds, the round-3 follow-up PR may be opened and merged to `main` after its required checks pass, with no force-push and no bypassed checks.

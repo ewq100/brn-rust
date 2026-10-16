@@ -9,6 +9,7 @@ fn existing_workspace_keeps_its_stored_auth_file() {
     let root = Root::new();
     let home = root.join("home");
     std::env::set_var("CODEX_HOME", &home);
+    // creation semantics: the desktop's own open creates this owner workspace.
     let data = root.join("data");
     drop(brn_threads_app::Workspace::open(&data).unwrap());
     let settings = ok(&root, &data, &["settings"]);

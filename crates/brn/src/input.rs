@@ -43,29 +43,67 @@ impl Reason {
     }
 }
 
-/// Reads every pending `--NAME-file` source, in TEXT_OPTIONS order, into `--NAME`.
+/// The most bytes an edit token file may hold: the token and one newline.
+const TOKEN_MAX_BYTES: usize = 128;
+
+/// Reads every pending `--NAME-file` source, in TEXT_OPTIONS order, into
+/// `--NAME`, then the `--token-file` token into `inv.token` (never `args`).
 pub(crate) fn resolve(inv: &mut Invocation, cancel: &AtomicBool) -> Result<(), CliError> {
     for (name, source) in std::mem::take(&mut inv.pending_inputs) {
         let text = read(&format!("{name}-file"), source, cancel)?;
         inv.args.insert(name.to_owned(), text);
     }
+    if let Some(source) = inv.token_source.take() {
+        inv.token = Some(read_token(source, cancel)?);
+    }
     Ok(())
+}
+
+/// `--token-file`: at most 128 bytes, one trailing newline trimmed, then the
+/// token pattern. No message or detail repeats any of the bytes read.
+fn read_token(source: String, cancel: &AtomicBool) -> Result<brn_threads_app::EditToken, CliError> {
+    let option = "token-file";
+    let stdin = source == "-";
+    let format = || {
+        CliError::invalid_input(
+            option,
+            "token_format",
+            "--token-file: not an edit token (brnet1_ and 64 lowercase hex digits)",
+        )
+    };
+    match read_limited(source, TOKEN_MAX_BYTES, cancel)? {
+        Ok(text) => brn_threads_app::EditToken::parse(text.strip_suffix('\n').unwrap_or(&text))
+            .ok_or_else(format),
+        Err(Reason::IsTerminal) => Err(Reason::IsTerminal.error(option, stdin)),
+        Err(Reason::Unreadable | Reason::IsDirectory) => {
+            Err(Reason::Unreadable.error(option, stdin))
+        }
+        Err(_) => Err(format()),
+    }
+}
+
+fn read(option: &str, source: String, cancel: &AtomicBool) -> Result<String, CliError> {
+    let stdin = source == "-";
+    read_limited(source, MAX_BYTES, cancel)?.map_err(|reason| reason.error(option, stdin))
 }
 
 /// Reads on a detached thread so a blocked `read` or FIFO `open` cannot hide
 /// SIGINT: the handler restarts interrupted system calls.
-fn read(option: &str, source: String, cancel: &AtomicBool) -> Result<String, CliError> {
+fn read_limited(
+    source: String,
+    max: usize,
+    cancel: &AtomicBool,
+) -> Result<Result<String, Reason>, CliError> {
     if cancel.load(Ordering::SeqCst) {
         return Err(CliError::interrupted());
     }
-    let stdin = source == "-";
     let (sender, receiver) = mpsc::channel();
     std::thread::spawn(move || {
-        let _ = sender.send(read_bounded(&source));
+        let _ = sender.send(read_bounded_to(&source, max));
     });
     loop {
         match receiver.recv_timeout(Duration::from_millis(25)) {
-            Ok(result) => return result.map_err(|reason| reason.error(option, stdin)),
+            Ok(result) => return Ok(result),
             Err(RecvTimeoutError::Timeout) if cancel.load(Ordering::SeqCst) => {
                 return Err(CliError::interrupted());
             }
@@ -81,9 +119,15 @@ fn read(option: &str, source: String, cancel: &AtomicBool) -> Result<String, Cli
 }
 
 /// The exact text of `-` (stdin) or an absolute path, at most 16 MiB.
+#[cfg(test)]
 pub(crate) fn read_bounded(source: &str) -> Result<String, Reason> {
+    read_bounded_to(source, MAX_BYTES)
+}
+
+/// The exact text of `-` (stdin) or an absolute path, at most `max` bytes.
+fn read_bounded_to(source: &str, max: usize) -> Result<String, Reason> {
     let mut bytes = Vec::new();
-    let limit = MAX_BYTES as u64 + 1;
+    let limit = max as u64 + 1;
     if source == "-" {
         let stdin = std::io::stdin();
         if stdin.is_terminal() {
@@ -108,7 +152,7 @@ pub(crate) fn read_bounded(source: &str) -> Result<String, Reason> {
             .read_to_end(&mut bytes)
             .map_err(|_| Reason::Unreadable)?;
     }
-    if bytes.len() > MAX_BYTES {
+    if bytes.len() > max {
         return Err(Reason::TooLarge);
     }
     let text = String::from_utf8(bytes).map_err(|_| Reason::NotUtf8)?;

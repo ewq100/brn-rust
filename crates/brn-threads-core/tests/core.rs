@@ -2163,7 +2163,7 @@ fn a_second_edit_session_names_the_open_one_and_leaves_it_untouched() {
     let error = store.begin_edit(&a.id, 1).unwrap_err();
     assert!(!error.to_string().contains("SQLite"), "{error}");
     assert!(
-        matches!(&error, Error::EditSessionOpen { note, session, base_version }
+        matches!(&error, Error::EditSessionOpen { note, session, base_version, .. }
             if *note == a.id && *session == open.id && *base_version == 1),
         "{error:?}"
     );

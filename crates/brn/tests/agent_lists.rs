@@ -112,7 +112,7 @@ fn workspace(root: &Root, data: &Path) {
 #[test]
 fn remaining_lists_page_to_their_unpaged_output() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = root.workspace("data");
     workspace(&root, &data);
     for (command, list, extra, expected) in [
         ("notes", "notes", &[][..], Some(4)),
@@ -149,7 +149,7 @@ fn remaining_lists_page_to_their_unpaged_output() {
 #[test]
 fn lists_without_page_options_are_unchanged() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = root.workspace("data");
     workspace(&root, &data);
     for command in ["notes", "threads", "needs-you", "recovery", "projects"] {
         let envelope = call(&root, &data, &[command]);
@@ -249,7 +249,7 @@ fn roles(messages: &[Value]) -> Vec<String> {
 fn messages_page_a_chat_in_creation_order() {
     let mut root = Root::new();
     root.env = proxy_env();
-    let data = root.join("data");
+    let data = root.workspace("data");
     let stub = Stub::start(vec![answer("First answer."), answer("Second answer.")]);
     let creds = stub.credentials(&root);
     ok(
@@ -329,7 +329,7 @@ fn messages_page_a_chat_in_creation_order() {
 #[test]
 fn seeded_review_chat_lists_its_message() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = root.workspace("data");
     note(&root, &data, "N", "text");
     let seeded = ok(&root, &data, &["knowledge-check", "--seed-chat", "yes"]);
     let chat = seeded["review_chat"].as_str().unwrap();

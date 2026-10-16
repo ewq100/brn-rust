@@ -16,7 +16,7 @@ pub const DATA_MARKER: &str = ".brn-threads-data";
 pub const DERIVED_DIRECTORY: &str = "derived";
 const IDENTITY: &str = "BRN Threads SQLite v1\n";
 pub(crate) const APPLICATION_ID: i64 = 0x42525448;
-pub(crate) const SCHEMA_VERSION: i64 = 5;
+pub(crate) const SCHEMA_VERSION: i64 = 6;
 pub struct Store {
     pub(crate) conn: Connection,
     directory: PathBuf,
@@ -29,9 +29,35 @@ enum SettingsUpdate<'a> {
     Theme(&'a str),
     TopicsNote(&'a str),
 }
+/// How `open_with` treats the folder: the owner host's open (an existing
+/// older workspace is backed up and upgraded first), an open that never
+/// upgrades, or the creation of a fresh workspace with a purpose.
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum OpenMode {
+    Upgrade,
+    NoUpgrade,
+    Create(WorkspacePurpose),
+}
+/// `Store::create` on a folder that already holds a workspace.
+pub(crate) const WORKSPACE_EXISTS: &str = "A test workspace needs a new data folder";
 impl Store {
+    /// Opens or creates the workspace. An existing schema 3, 4 or 5 database
+    /// is upgraded first, after a verified backup into the remembered folder.
     pub fn open(directory: impl AsRef<Path>) -> Result<Self> {
-        let directory = directory.as_ref();
+        Self::open_with(directory.as_ref(), OpenMode::Upgrade)
+    }
+    /// `open`, except that an existing workspace below the current schema is
+    /// refused with `UpgradeRequired` before anything in the folder changes.
+    /// A missing or empty folder is still created at the current schema.
+    pub fn open_existing_without_upgrade(directory: impl AsRef<Path>) -> Result<Self> {
+        Self::open_with(directory.as_ref(), OpenMode::NoUpgrade)
+    }
+    /// Creates a fresh workspace with `purpose`, in a missing or empty folder
+    /// only; a folder that already has a workspace is refused unchanged.
+    pub fn create(directory: impl AsRef<Path>, purpose: WorkspacePurpose) -> Result<Self> {
+        Self::open_with(directory.as_ref(), OpenMode::Create(purpose))
+    }
+    fn open_with(directory: &Path, mode: OpenMode) -> Result<Self> {
         if !directory.is_absolute() {
             return Err(Error::UnsafeDirectory(
                 "an absolute explicit directory is required".into(),
@@ -60,6 +86,10 @@ impl Store {
             return Err(Error::UnsafeDirectory(
                 "nonempty directory without Threads marker".into(),
             ));
+        }
+        let creating = matches!(mode, OpenMode::Create(_));
+        if existing && creating {
+            return Err(Error::Invalid(WORKSPACE_EXISTS.into()));
         }
         if existing {
             if fs::symlink_metadata(&marker)?.file_type().is_symlink()
@@ -93,7 +123,14 @@ impl Store {
                 .create_new(true)
                 .open(&marker)
                 .and_then(|mut file| file.write_all(IDENTITY.as_bytes()))
-                .map_err(unusable)?;
+                .map_err(|cause| {
+                    // A competing creation won the marker: not a new folder.
+                    if creating && cause.kind() == std::io::ErrorKind::AlreadyExists {
+                        Error::Invalid(WORKSPACE_EXISTS.into())
+                    } else {
+                        unusable(cause)
+                    }
+                })?;
         }
         let database = directory.join(DATABASE_FILENAME);
         let mut conn = if existing {
@@ -102,7 +139,7 @@ impl Store {
             }
             // Do not allow a disappearing database to become a fresh one. The
             // same connection is validated before any mutating SQLite pragma.
-            open_existing_database(&database)?
+            open_existing_database(&database, mode == OpenMode::Upgrade)?
         } else {
             Connection::open(&database)?
         };
@@ -110,11 +147,23 @@ impl Store {
         conn.pragma_update(None, "journal_mode", "WAL")?;
         conn.pragma_update(None, "synchronous", "FULL")?;
         conn.pragma_update(None, "foreign_keys", true)?;
+        // The caller's actor for receipts of this connection (`set_actor`).
+        // Temp tables are connection-scoped and never backed up.
+        conn.execute_batch("CREATE TEMP TABLE IF NOT EXISTS caller_actor(actor TEXT NOT NULL)")?;
         if !existing {
             let tx = conn.transaction_with_behavior(TransactionBehavior::Immediate)?;
             tx.execute_batch("CREATE TABLE operations(id TEXT PRIMARY KEY, host_key TEXT UNIQUE NOT NULL, input_hash TEXT, hash TEXT, request TEXT, undo_of TEXT, replacement_of TEXT, retired INTEGER NOT NULL DEFAULT 0); CREATE TABLE candidate_targets(note TEXT PRIMARY KEY, operation TEXT NOT NULL REFERENCES operations(id)); CREATE TABLE records(id TEXT PRIMARY KEY, version INTEGER NOT NULL, body TEXT NOT NULL); CREATE UNIQUE INDEX one_workspace_settings ON records((1)) WHERE json_type(body,'$.data.Settings') IS NOT NULL; CREATE UNIQUE INDEX source_locator ON records(json_extract(body,'$.data.Source.locator')) WHERE json_type(body,'$.data.Source') IS NOT NULL; CREATE TABLE revisions(id TEXT NOT NULL, version INTEGER NOT NULL, operation TEXT NOT NULL REFERENCES operations(id), body TEXT NOT NULL, PRIMARY KEY(id,version)); CREATE TABLE receipts(operation TEXT PRIMARY KEY REFERENCES operations(id), body TEXT NOT NULL); CREATE TABLE edit_sessions(id TEXT PRIMARY KEY, note TEXT NOT NULL, base INTEGER NOT NULL, generation INTEGER NOT NULL, markdown TEXT NOT NULL, closed INTEGER NOT NULL DEFAULT 0); CREATE UNIQUE INDEX one_dirty_session ON edit_sessions(note) WHERE closed=0; CREATE TABLE derivation_inputs(operation TEXT NOT NULL, record TEXT NOT NULL, version INTEGER NOT NULL);")?;
             tx.execute_batch(crate::upgrade::CHAT_SCHEMA)?;
             tx.execute_batch(crate::upgrade::PROJECT_SCHEMA)?;
+            tx.execute_batch(crate::upgrade::CALLER_SCHEMA)?;
+            // Written before commit: no committed state shows a test-intended
+            // workspace as an owner workspace.
+            if let OpenMode::Create(purpose) = mode {
+                tx.execute(
+                    "UPDATE workspace_profile SET purpose=?1 WHERE id=1",
+                    [purpose.as_str()],
+                )?;
+            }
             tx.pragma_update(None, "application_id", APPLICATION_ID)?;
             tx.pragma_update(None, "user_version", SCHEMA_VERSION)?;
             tx.commit()?;
@@ -123,6 +172,51 @@ impl Store {
             conn,
             directory: directory.to_owned(),
         })
+    }
+    /// The workspace's purpose; a missing profile reads as `Owner`.
+    pub fn workspace_purpose(&self) -> Result<WorkspacePurpose> {
+        purpose_on(&self.conn)
+    }
+    /// Owner host only: sets the workspace's purpose. No receipt in phase 1.
+    pub fn set_workspace_purpose(&mut self, purpose: WorkspacePurpose) -> Result<()> {
+        let tx = self
+            .conn
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        tx.execute(
+            "INSERT INTO workspace_profile(id,purpose,changed_at) VALUES(1,?1,strftime('%Y-%m-%dT%H:%M:%fZ','now')) ON CONFLICT(id) DO UPDATE SET purpose=excluded.purpose, changed_at=excluded.changed_at",
+            [purpose.as_str()],
+        )?;
+        tx.commit()?;
+        Ok(())
+    }
+    /// The caller's actor name, recorded beside every receipt this
+    /// connection commits from now on; `None` records none. It is never part
+    /// of a request's identity: a replay keeps the first actor.
+    pub fn set_actor(&mut self, actor: Option<&str>) -> Result<()> {
+        if let Some(actor) = actor
+            && !actor_is_valid(actor)
+        {
+            return Err(Error::Invalid(
+                "actor must match [A-Za-z0-9._:-]{1,64}".into(),
+            ));
+        }
+        self.conn.execute("DELETE FROM temp.caller_actor", [])?;
+        if let Some(actor) = actor {
+            self.conn
+                .execute("INSERT INTO temp.caller_actor(actor) VALUES (?1)", [actor])?;
+        }
+        Ok(())
+    }
+    /// The actor recorded with an operation's receipt, if any.
+    pub fn receipt_actor(&self, operation: &OperationId) -> Result<Option<String>> {
+        Ok(self
+            .conn
+            .query_row(
+                "SELECT actor FROM receipt_actors WHERE operation=?1",
+                [&operation.0],
+                |r| r.get(0),
+            )
+            .optional()?)
     }
     pub fn directory(&self) -> &Path {
         &self.directory
@@ -968,7 +1062,27 @@ impl Store {
         Ok(outcome)
     }
 }
-fn open_existing_database(database: &Path) -> Result<Connection> {
+/// `^[A-Za-z0-9._:-]{1,64}$`.
+pub(crate) fn actor_is_valid(actor: &str) -> bool {
+    (1..=64).contains(&actor.len())
+        && actor
+            .bytes()
+            .all(|b| b.is_ascii_alphanumeric() || matches!(b, b'.' | b'_' | b':' | b'-'))
+}
+pub(crate) fn purpose_on(conn: &Connection) -> Result<WorkspacePurpose> {
+    let purpose: Option<String> = conn
+        .query_row(
+            "SELECT purpose FROM workspace_profile WHERE id=1",
+            [],
+            |r| r.get(0),
+        )
+        .optional()?;
+    Ok(match purpose.as_deref() {
+        Some("test") => WorkspacePurpose::Test,
+        _ => WorkspacePurpose::Owner,
+    })
+}
+fn open_existing_database(database: &Path, upgrade: bool) -> Result<Connection> {
     let conn = Connection::open_with_flags(database, rusqlite::OpenFlags::SQLITE_OPEN_READ_WRITE)
         .map_err(|error| {
         if !database.exists() {
@@ -978,8 +1092,20 @@ fn open_existing_database(database: &Path) -> Result<Connection> {
         }
     })?;
     let schema: i64 = conn.pragma_query_value(None, "user_version", |r| r.get(0))?;
-    if matches!(schema, 3 | 4) {
-        crate::upgrade::upgrade_connection(&conn, database, None)?;
+    if matches!(schema, 3..=5) {
+        if !upgrade {
+            let app: i64 = conn.pragma_query_value(None, "application_id", |r| r.get(0))?;
+            if app == APPLICATION_ID {
+                // Dropping the connection here leaves the folder unchanged:
+                // no pragma, schema, temp table or Settings write has run.
+                return Err(Error::UpgradeRequired {
+                    schema_found: schema,
+                    schema_required: SCHEMA_VERSION,
+                });
+            }
+        } else {
+            crate::upgrade::upgrade_connection(&conn, database, None)?;
+        }
     }
     validate_connection(&conn)?;
     Ok(conn)
@@ -2047,6 +2173,11 @@ pub(crate) fn apply_on(
         "INSERT INTO receipts(operation,body) VALUES (?1,?2)",
         params![operation.0, serde_json::to_string(&receipt)?],
     )?;
+    // The connection's caller actor, beside the receipt and in its transaction.
+    tx.execute(
+        "INSERT INTO receipt_actors(operation,actor) SELECT ?1, actor FROM temp.caller_actor",
+        [&operation.0],
+    )?;
     Ok(ApplyOutcome::Applied(receipt))
 }
 
@@ -2483,7 +2614,7 @@ mod storage_open_tests {
         // friendly path precheck that cannot close a race on its own.
         fs::remove_file(&database).unwrap();
         assert!(
-            matches!(open_existing_database(&database), Err(Error::UnsafeDirectory(message)) if message.contains("missing"))
+            matches!(open_existing_database(&database, true), Err(Error::UnsafeDirectory(message)) if message.contains("missing"))
         );
         assert!(!database.exists());
         assert_eq!(fs::read_dir(&directory).unwrap().count(), 1);

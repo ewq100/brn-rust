@@ -46,3 +46,40 @@ fn a_data_folder_on_a_read_only_disk_is_named() {
     }
     assert_refused(&data, "it is on a read-only disk");
 }
+/// PR #156 LOW 4: in machine mode a read on a symlinked data folder is
+/// `data_folder_unusable` `symlink_refused`, also when the link points to an
+/// empty folder or nowhere: never `missing_workspace`, and nothing is created.
+#[cfg(unix)]
+#[test]
+fn a_symlink_to_an_empty_or_missing_folder_is_refused_as_a_symlink() {
+    let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let empty = root.path().join("empty");
+    std::fs::create_dir(&empty).unwrap();
+    let to_empty = root.path().join("to-empty");
+    std::os::unix::fs::symlink(&empty, &to_empty).unwrap();
+    let dangling = root.path().join("dangling");
+    std::os::unix::fs::symlink(root.path().join("nowhere"), &dangling).unwrap();
+    // A folder below a symlinked ancestor counts too.
+    let below = to_empty.join("data");
+    for data in [&to_empty, &dangling, &below] {
+        let output = Command::new(env!("CARGO_BIN_EXE_brn"))
+            .arg("--json")
+            .arg("--data-dir")
+            .arg(data)
+            .arg("notes")
+            .output()
+            .unwrap();
+        let envelope: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+        assert_eq!(
+            envelope["error"]["code"], "data_folder_unusable",
+            "{envelope}"
+        );
+        assert_eq!(
+            envelope["error"]["details"],
+            serde_json::json!({"problem": "symlink_refused"})
+        );
+        assert_eq!(output.status.code(), Some(6));
+    }
+    assert_eq!(std::fs::read_dir(&empty).unwrap().count(), 0);
+    assert!(!root.path().join("nowhere").exists());
+}

@@ -35,7 +35,7 @@ impl Class {
         match self {
             Class::Read => "Changes nothing (a fresh data directory may have been initialised).",
             Class::Replay => "The retry uses the same operation identity. If that operation was applied, the retry returns its receipt (same operation) and changes nothing; a replayed receipt shows the original versions, even after later edits. If it was not applied (the first attempt was Deferred, Stale, failed, interrupted or lost before commit), the retry re-attempts exactly that request. Under that identity it applies at most once and never creates another record, message or candidate.",
-            Class::Converge => "Reaches the same end state. It may record a new operation and bump versions, but creates no new records and leaves no unapplied candidate. A no-op archive, resolve, unarchive, chat-move, project-link or project-unlink returns Unchanged and records nothing; a keyed retry of an earlier change still replays its receipt. init and upgrade on a current workspace record nothing. model-install into a destination that already holds the verified model downloads nothing and returns downloaded_bytes: 0.",
+            Class::Converge => "Reaches the same end state. It may record a new operation and bump versions, but creates no new records and leaves no unapplied candidate. A no-op archive, resolve, unarchive, chat-move, project-link or project-unlink returns Unchanged and records nothing; a keyed retry of an earlier change still replays its receipt. init and upgrade on a current workspace record nothing. For reclaim-edit, a retry reaches the same session and buffer but rotates the token: only the latest returned token is valid; discard any earlier one. model-install into a destination that already holds the verified model downloads nothing and returns downloaded_bytes: 0.",
             Class::Refuse => "At most once, never a duplicate. If the first attempt took effect, an identical retry changes nothing and returns a non-ok status (stale or rejected) instead of the original result. If it did not take effect (for example interrupted, internal, or a crash before commit), the retry performs the change once and can return ok. After a lost response, read state (read, projects, recovery, or check the destination) to tell which happened. Every usage and rejected envelope also reports refuse: the same argv meets the same refusal while the state that caused it is unchanged.",
             Class::Duplicate => "Repeats the change: another record, message, model turn or unapplied candidate. Never retry blindly.",
         }
@@ -440,6 +440,9 @@ pub(crate) static VALUES: &[(&str, &str, Grammar)] = &[
     ("export", "destination", Grammar::AbsolutePath),
     ("restore", "source", Grammar::AbsolutePath),
     ("upgrade", "backup-directory", Grammar::AbsolutePath),
+    ("init", "purpose", Grammar::Enum(&["test"])),
+    ("begin-edit", "token-out", Grammar::AbsolutePath),
+    ("reclaim-edit", "token-out", Grammar::AbsolutePath),
     ("model-install", "destination", Grammar::AbsolutePath),
 ];
 
@@ -477,6 +480,9 @@ fn values_of(command: &str) -> Vec<Value> {
 /// Text options that also accept `--NAME-file ABSOLUTE_PATH|-`, read in this order.
 pub(crate) const TEXT_OPTIONS: [&str; 5] = ["title", "text", "prompt", "instructions", "actions"];
 pub(crate) const KEY_PATTERN: &str = "^[A-Za-z0-9._:-]{1,128}$";
+pub(crate) const ACTOR_PATTERN: &str = "^[A-Za-z0-9._:-]{1,64}$";
+pub(crate) const ACTOR_ENV: &str = "BRN_ACTOR";
+pub(crate) const TOKEN_PATTERN: &str = "^brnet1_[0-9a-f]{64}$";
 pub(crate) const OWNER_DECISION_RULE: &str = "These commands record an owner decision. Running the CLI does not make a caller the owner. Run them only on the owner's explicit instruction for that exact operation.";
 
 pub(crate) const APPLY_OUTCOMES: &[&str] =
@@ -627,7 +633,21 @@ const CONFIGURE_OPTIONS: &[&str] = &[
 ];
 
 pub(crate) static COMMANDS: &[Spec] = &[
-    cmd("init", &[], &[], NO, Converge, None, NONE, &[]),
+    Spec {
+        retry: Retry {
+            default: Converge,
+            keyed: None,
+            variants: &[Variant {
+                option: "purpose",
+                equals: "test",
+                retry: Refuse,
+                key: false,
+                keyed: None,
+                receipt: None,
+            }],
+        },
+        ..cmd("init", &["purpose"], &[], NO, Converge, None, NONE, &[])
+    },
     Spec {
         page: paged(1, 100, Some(20), CursorForm::Id),
         bounded: Some(false),
@@ -854,7 +874,7 @@ pub(crate) static COMMANDS: &[Spec] = &[
     },
     cmd(
         "begin-edit",
-        &["note", "base"],
+        &["note", "base", "token-out"],
         &["note", "base"],
         NO,
         Refuse,
@@ -864,8 +884,8 @@ pub(crate) static COMMANDS: &[Spec] = &[
     ),
     cmd(
         "update-buffer",
-        &["session", "generation", "text", "text-file"],
-        &["session", "generation", "text"],
+        &["session", "generation", "text", "text-file", "token-file"],
+        &["session", "generation", "text", "token-file"],
         NO,
         Replay,
         None,
@@ -874,8 +894,8 @@ pub(crate) static COMMANDS: &[Spec] = &[
     ),
     cmd(
         "save",
-        &["session", "generation"],
-        &["session", "generation"],
+        &["session", "generation", "token-file"],
+        &["session", "generation", "token-file"],
         NO,
         Replay,
         None,
@@ -884,13 +904,23 @@ pub(crate) static COMMANDS: &[Spec] = &[
     ),
     cmd(
         "discard",
-        &["session", "generation"],
-        &["session", "generation"],
+        &["session", "generation", "token-file"],
+        &["session", "generation", "token-file"],
         NO,
         Refuse,
         None,
         NONE,
         DISCARD_OUTCOMES,
+    ),
+    cmd(
+        "reclaim-edit",
+        &["session", "token-out"],
+        &["session"],
+        NO,
+        Converge,
+        None,
+        NONE,
+        &[],
     ),
     cmd(
         "apply",
@@ -1218,7 +1248,7 @@ pub(crate) fn description() -> Value {
     let commands: Vec<Value> = COMMANDS.iter().map(describe).collect();
     json!({
         "contract": crate::contract::CONTRACT,
-        "usage": "brn [--json] --data-dir ABSOLUTE_DIRECTORY [--timeout SECONDS] COMMAND [--option VALUE]...",
+        "usage": "brn [--json] --data-dir ABSOLUTE_DIRECTORY [--timeout SECONDS] [--actor NAME] COMMAND [--option VALUE]...",
         "statuses": Status::ALL.iter().map(|s| json!({
             "status": s.as_str(), "exit": s.exit(), "meaning": s.meaning(), "action": s.action(),
         })).collect::<Vec<_>>(),
@@ -1238,7 +1268,27 @@ pub(crate) fn description() -> Value {
         "global_options": [
             {"option": "data-dir", "value": "ABSOLUTE_DIRECTORY", "required": true, "position": "anywhere in an option-name position"},
             {"option": "timeout", "value": "SECONDS", "grammar": {"grammar": "integer", "min": 1, "max": 86400}, "required": false, "position": "anywhere in an option-name position"},
+            {"option": "actor", "value": "NAME", "env": ACTOR_ENV, "grammar": {"grammar": "pattern", "pattern": ACTOR_PATTERN}, "required": false, "position": "anywhere in an option-name position"},
         ],
+        "authority": {
+            "purposes": ["owner", "test"],
+            "default": "owner",
+            "created_by": "init --purpose test",
+            "changed_by": "desktop only",
+            "restore_yields": "owner",
+            "cli_authority": {"owner": "full", "test": "full"},
+            "phase2_owner": "proposals",
+            "enforced": false,
+            "actor": {"option": "actor", "env": ACTOR_ENV, "pattern": ACTOR_PATTERN, "run_receipts": "none"},
+            "holders": {"caller": "token required", "desktop": "owner in the desktop app only"},
+            "limit": "agent overreach, not same-OS-user code",
+        },
+        "edit_token": {
+            "pattern": TOKEN_PATTERN,
+            "returned_by": ["begin-edit", "reclaim-edit"],
+            "returned_in": "result.token, or the --token-out file (owner-only, created new)",
+            "presented_with": "--token-file ABSOLUTE_FILE or --token-file - (stdin); never argv or environment",
+        },
         "command_help": "brn [--json] COMMAND --help prints one command's help (JSON: {contract, command}); it needs no --data-dir and opens nothing.",
         "commands": commands,
     })
@@ -1354,9 +1404,13 @@ mod tests {
             ("messages", &["thread"]),
             ("begin-edit", &["note", "base"]),
             ("keep-in-brn", &["note", "base"]),
-            ("update-buffer", &["session", "generation", "text"]),
-            ("save", &["session", "generation"]),
-            ("discard", &["session", "generation"]),
+            (
+                "update-buffer",
+                &["session", "generation", "text", "token-file"],
+            ),
+            ("save", &["session", "generation", "token-file"]),
+            ("discard", &["session", "generation", "token-file"]),
+            ("reclaim-edit", &["session"]),
             ("apply", &["operation"]),
             ("undo", &["operation"]),
             ("dismiss", &["operation"]),
@@ -1554,7 +1608,7 @@ mod tests {
     #[test]
     fn global_options_are_not_command_options_and_every_command_has_help() {
         for spec in COMMANDS {
-            for global in ["data-dir", "timeout", "help"] {
+            for global in ["data-dir", "timeout", "actor", "help"] {
                 assert!(
                     !spec.options.contains(&global),
                     "{} declares {global}",

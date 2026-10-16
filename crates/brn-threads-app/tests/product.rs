@@ -1438,7 +1438,7 @@ fn an_open_edit_session_is_a_typed_app_error_naming_note_and_session() {
         .unwrap_err()
         .into();
     assert!(
-        matches!(&error, AppError::Core(Error::EditSessionOpen { note: id, session, base_version })
+        matches!(&error, AppError::Core(Error::EditSessionOpen { note: id, session, base_version, .. })
             if *id == note.id && *session == open.id && *base_version == note.version),
         "{error:?}"
     );

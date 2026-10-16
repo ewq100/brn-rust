@@ -58,6 +58,28 @@ pub enum Error {
         note: String,
         session: String,
         base_version: u64,
+        holder: EditHolder,
+    },
+    /// A caller-held write presented a token that cannot write to this
+    /// session. Nothing was written. The message never carries the token.
+    #[error("{problem}")]
+    EditToken {
+        session: String,
+        problem: EditTokenProblem,
+    },
+    /// Only a test workspace allows this; nothing was written.
+    #[error(
+        "only a test workspace can reclaim a lost edit token; in this workspace the owner recovers the edit in the BRN desktop app"
+    )]
+    TestWorkspaceRequired,
+    /// An existing workspace has an older schema and this open does not
+    /// upgrade. Nothing in the folder was changed.
+    #[error(
+        "workspace schema {schema_found} needs an upgrade to schema {schema_required}; nothing was changed. Run brn upgrade --backup-directory ABSOLUTE_DIR, which backs up first"
+    )]
+    UpgradeRequired {
+        schema_found: i64,
+        schema_required: i64,
     },
     /// The data folder cannot be opened or created. The message names the
     /// folder and the reason in the owner's terms; the OS detail stays in

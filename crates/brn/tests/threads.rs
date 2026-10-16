@@ -23,11 +23,34 @@ fn json_command(data: &Path, args: &[&str]) -> Value {
 fn root() -> tempfile::TempDir {
     tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap()
 }
+/// A fresh test workspace (`init --purpose test`) for a writing test.
+fn workspace(root: &tempfile::TempDir, name: &str) -> std::path::PathBuf {
+    let data = root.path().join(name);
+    json_command(&data, &["init", "--purpose", "test"]);
+    data
+}
+/// `begin-edit --token-out`: the session ID; the token is in `token`.
+fn begin(data: &Path, note: &str, base: &str, token: &Path) -> String {
+    let session = json_command(
+        data,
+        &[
+            "begin-edit",
+            "--note",
+            note,
+            "--base",
+            base,
+            "--token-out",
+            token.to_str().unwrap(),
+        ],
+    );
+    assert_eq!(session["holder"], "caller");
+    session["id"].as_str().unwrap().to_owned()
+}
 #[test]
 fn explicit_delegation_choices_survive_reopen_and_pause_without_implicit_consent() {
     let root = root();
     let data = root.path().join("delegation");
-    let initial = json_command(&data, &["init"]);
+    let initial = json_command(&data, &["init", "--purpose", "test"]);
     assert_eq!(initial["settings"]["delegation_chosen"], false);
     assert_eq!(initial["settings"]["maintenance"], false);
     assert_eq!(
@@ -88,7 +111,7 @@ fn explicit_delegation_choices_survive_reopen_and_pause_without_implicit_consent
         json_command(&data, &["notes"])[0]["data"]["Note"]["markdown"],
         "Owner text"
     );
-    let other = root.path().join("review-first");
+    let other = workspace(&root, "review-first");
     assert_eq!(
         json_command(&other, &["delegation", "--choice", "review-first"])["outcome"],
         "Applied"
@@ -137,7 +160,7 @@ fn delegation_help_and_invalid_values_are_explicit_and_leave_data_unopened() {
 #[test]
 fn save_recovers_across_processes_replays_and_undo_keeps_later_edit() {
     let root = root();
-    let data = root.path().join("data");
+    let data = workspace(&root, "data");
     let note = json_command(
         &data,
         &["note-create", "--title", "Journey", "--text", "alpha"],
@@ -145,10 +168,9 @@ fn save_recovers_across_processes_replays_and_undo_keeps_later_edit() {
         .as_str()
         .unwrap()
         .to_owned();
-    let session = json_command(&data, &["begin-edit", "--note", &note, "--base", "1"])["id"]
-        .as_str()
-        .unwrap()
-        .to_owned();
+    let first = root.path().join("first.token");
+    let token = first.to_str().unwrap();
+    let session = begin(&data, &note, "1", &first);
     let update = json_command(
         &data,
         &[
@@ -159,21 +181,28 @@ fn save_recovers_across_processes_replays_and_undo_keeps_later_edit() {
             "1",
             "--text",
             "beta",
+            "--token-file",
+            token,
         ],
     );
     assert_eq!(update["outcome"], "Updated");
     assert_eq!(json_command(&data, &["recovery"])[0]["markdown"], "beta");
-    let saved = json_command(&data, &["save", "--session", &session, "--generation", "1"]);
+    let save = [
+        "save",
+        "--session",
+        &session,
+        "--generation",
+        "1",
+        "--token-file",
+        token,
+    ];
+    let saved = json_command(&data, &save);
     assert_eq!(saved["outcome"], "Saved");
-    assert_eq!(
-        saved,
-        json_command(&data, &["save", "--session", &session, "--generation", "1"])
-    );
+    assert_eq!(saved, json_command(&data, &save));
     let receipt = saved["receipt"]["operation"].as_str().unwrap().to_owned();
-    let session = json_command(&data, &["begin-edit", "--note", &note, "--base", "2"])["id"]
-        .as_str()
-        .unwrap()
-        .to_owned();
+    let second = root.path().join("second.token");
+    let token = second.to_str().unwrap();
+    let session = begin(&data, &note, "2", &second);
     json_command(
         &data,
         &[
@@ -184,9 +213,22 @@ fn save_recovers_across_processes_replays_and_undo_keeps_later_edit() {
             "1",
             "--text",
             "later",
+            "--token-file",
+            token,
         ],
     );
-    json_command(&data, &["save", "--session", &session, "--generation", "1"]);
+    json_command(
+        &data,
+        &[
+            "save",
+            "--session",
+            &session,
+            "--generation",
+            "1",
+            "--token-file",
+            token,
+        ],
+    );
     assert_eq!(
         json_command(&data, &["undo", "--operation", &receipt])["outcome"],
         "Stale"
@@ -199,7 +241,7 @@ fn save_recovers_across_processes_replays_and_undo_keeps_later_edit() {
 #[test]
 fn a_second_begin_edit_reports_the_open_session_as_structured_json() {
     let root = root();
-    let data = root.path().join("data");
+    let data = workspace(&root, "data");
     let note = json_command(
         &data,
         &["note-create", "--title", "Survey", "--text", "alpha"],
@@ -231,7 +273,7 @@ fn a_second_begin_edit_reports_the_open_session_as_structured_json() {
 #[test]
 fn full_markdown_import_export_and_backup_are_fresh_and_readable() {
     let root = root();
-    let data = root.path().join("data");
+    let data = workspace(&root, "data");
     let source = root.path().join("source.md");
     std::fs::write(
         &source,
@@ -352,6 +394,7 @@ fn explicit_directory_old_format_and_invalid_commands_refuse_without_touching_da
         .unwrap()
         .status
         .success());
+    // creation semantics: default-mode reads and writes initialise a fresh folder.
     let data = root.path().join("fresh");
     assert!(!command(&data, &["init", "--vault", "/tmp/old"])
         .status
@@ -369,7 +412,7 @@ fn explicit_directory_old_format_and_invalid_commands_refuse_without_touching_da
 fn missing_storage_refuses_init_and_reads_preserving_marker_and_recovery_evidence() {
     let root = root();
     let data = root.path().join("data");
-    json_command(&data, &["init"]);
+    json_command(&data, &["init", "--purpose", "test"]);
     let marker = std::fs::read(data.join(brn_threads_app::DATA_MARKER)).unwrap();
     std::fs::remove_file(data.join(brn_threads_app::DATABASE_FILENAME)).unwrap();
     std::fs::write(data.join("threads.sqlite3-wal"), b"cli WAL evidence").unwrap();
@@ -402,7 +445,7 @@ fn missing_storage_refuses_init_and_reads_preserving_marker_and_recovery_evidenc
 fn explicit_backup_inside_workspace_is_refused_and_next_open_preserves_records() {
     let root = root();
     let data = root.path().join("workspace");
-    json_command(&data, &["init"]);
+    json_command(&data, &["init", "--purpose", "test"]);
     json_command(
         &data,
         &[
@@ -428,7 +471,7 @@ fn explicit_backup_inside_workspace_is_refused_and_next_open_preserves_records()
 fn search_pages_report_exact_counts_and_reject_bad_cursors() {
     let root = root();
     let data = root.path().join("search");
-    json_command(&data, &["init"]);
+    json_command(&data, &["init", "--purpose", "test"]);
     for i in 0..14 {
         json_command(
             &data,
@@ -488,7 +531,7 @@ fn search_pages_report_exact_counts_and_reject_bad_cursors() {
 fn topics_connections_and_knowledge_check_commands() {
     let root = root();
     let data = root.path().join("topics");
-    json_command(&data, &["init"]);
+    json_command(&data, &["init", "--purpose", "test"]);
     assert_eq!(json_command(&data, &["topics"]), Value::Null);
     let created = json_command(&data, &["topics-create"]);
     assert_eq!(created["pointer"]["outcome"], "Applied");
@@ -536,7 +579,7 @@ fn topics_connections_and_knowledge_check_commands() {
 fn useful_intake_for_a_project_stays_in_one_project_chat_across_retries() {
     let root = root();
     let data = root.path().join("useful");
-    json_command(&data, &["init"]);
+    json_command(&data, &["init", "--purpose", "test"]);
     // A missing auth file makes every provider step fail before any network.
     let missing = root.path().join("missing-auth.json");
     json_command(
@@ -665,7 +708,7 @@ fn useful_intake_for_a_project_stays_in_one_project_chat_across_retries() {
 fn ask_refuses_an_unknown_trace_level_before_any_provider_call() {
     let root = root();
     let data = root.path().join("trace");
-    json_command(&data, &["init"]);
+    json_command(&data, &["init", "--purpose", "test"]);
     let chat = json_command(&data, &["thread-start", "--title", "Trace"]);
     let output = command(
         &data,
@@ -689,9 +732,11 @@ fn helper_setting_is_off_by_default_explicit_and_kept_until_turned_off() {
     let data = root.path().join("helper");
     let credentials = root.path().join("copilot-credentials");
     let credentials = credentials.to_str().unwrap();
-    assert!(json_command(&data, &["init"])["settings"]
-        .get("helper")
-        .is_none());
+    assert!(
+        json_command(&data, &["init", "--purpose", "test"])["settings"]
+            .get("helper")
+            .is_none()
+    );
     let help = Command::new(env!("CARGO_BIN_EXE_brn"))
         .arg("--help")
         .output()

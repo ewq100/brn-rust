@@ -10,7 +10,7 @@ use serde_json::{json, Map, Value};
 use std::io::Write;
 
 /// The machine contract version in every envelope and the description.
-pub(crate) const CONTRACT: u64 = 2;
+pub(crate) const CONTRACT: u64 = 3;
 
 /// Machine-mode status, one-to-one with the exit code.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -118,6 +118,9 @@ pub(crate) enum Code {
     UnsafeDirectory,
     DestinationExists,
     EditSessionOpen,
+    SessionTokenInvalid,
+    TestWorkspaceRequired,
+    UpgradeRequired,
     CredentialsNotConfigured,
     MissingWorkspace,
     DataFolderUnusable,
@@ -139,7 +142,7 @@ impl Code {
     pub(crate) fn reserved(self) -> bool {
         false
     }
-    pub(crate) const ALL: [Code; 31] = [
+    pub(crate) const ALL: [Code; 34] = [
         Code::MissingDataDir,
         Code::InvalidDataDir,
         Code::MissingCommand,
@@ -158,6 +161,9 @@ impl Code {
         Code::UnsafeDirectory,
         Code::DestinationExists,
         Code::EditSessionOpen,
+        Code::SessionTokenInvalid,
+        Code::TestWorkspaceRequired,
+        Code::UpgradeRequired,
         Code::CredentialsNotConfigured,
         Code::MissingWorkspace,
         Code::DataFolderUnusable,
@@ -192,6 +198,9 @@ impl Code {
             Code::UnsafeDirectory => "unsafe_directory",
             Code::DestinationExists => "destination_exists",
             Code::EditSessionOpen => "edit_session_open",
+            Code::SessionTokenInvalid => "session_token_invalid",
+            Code::TestWorkspaceRequired => "test_workspace_required",
+            Code::UpgradeRequired => "upgrade_required",
             Code::CredentialsNotConfigured => "credentials_not_configured",
             Code::MissingWorkspace => "missing_workspace",
             Code::DataFolderUnusable => "data_folder_unusable",
@@ -227,6 +236,9 @@ impl Code {
             | Code::UnsafeDirectory
             | Code::DestinationExists
             | Code::EditSessionOpen
+            | Code::SessionTokenInvalid
+            | Code::TestWorkspaceRequired
+            | Code::UpgradeRequired
             | Code::CredentialsNotConfigured
             | Code::MissingWorkspace
             | Code::DataFolderUnusable => Status::Rejected,
@@ -257,9 +269,12 @@ impl Code {
             Code::NotFound => "A record or operation does not exist; read returning null in machine mode.",
             Code::InvalidRequest => "The shared service refused the request as invalid for the current state, including a backup or export destination whose parent folder does not exist. For ask and useful intake (details.kind tool_rejected or model_refused): ToolRejected and ModelRefused are almost always pre-provider refusals from begin/Selection::validate; finish can also return ToolRejected after provider contact when the run record is inconsistent; the class stays invalid_request/refuse.",
             Code::KeyConflict => "The same key was used for a different request; use a new key for a new change.",
-            Code::UnsafeDirectory => "Old or foreign format, missing database, a symlinked backup or restore parent, non-empty restore target, or backup inside the workspace. A symlinked data folder is data_folder_unusable.",
+            Code::UnsafeDirectory => "Foreign or newer format, missing database, a symlinked backup or restore parent, non-empty restore target, backup inside the workspace, or an upgrade refused (no backup folder, a Working run or an open edit session; the workspace stays unchanged). An older BRN schema is upgrade_required. A symlinked data folder is data_folder_unusable.",
             Code::DestinationExists => "The backup or export destination already exists; choose a new path.",
-            Code::EditSessionOpen => "This note has an open unsaved edit session (details.note, details.base_version). Write to it only if your own successful begin-edit returned it; otherwise report it to the owner.",
+            Code::EditSessionOpen => "This note has an open unsaved edit session (details.note, details.base_version, details.holder). holder caller: a CLI caller holds its token; only that token writes to it (in a test workspace, reclaim-edit issues a new one). holder desktop: only the owner, in the BRN desktop app, can continue or close it. Otherwise report it to the owner.",
+            Code::SessionTokenInvalid => "The --token-file token cannot write to this edit session (details.reason: mismatch when another token holds it; desktop when only the owner, in the BRN desktop app, can continue or close it). Nothing was written. Report a desktop-held edit to the owner.",
+            Code::TestWorkspaceRequired => "reclaim-edit runs only in a test workspace, created with init --purpose test (details.workspace_purpose is owner). Nothing was written. Report the open edit to the owner, who recovers it in the BRN desktop app.",
+            Code::UpgradeRequired => "The workspace has an older BRN schema (details.schema_found, details.schema_required). The CLI never upgrades implicitly, and nothing in the folder was changed, reads included. On the owner's instruction run brn upgrade --backup-directory ABSOLUTE_DIR, which backs up first.",
             Code::CredentialsNotConfigured => "Machine mode: ask or a provider-backed intake on a workspace with no credential source (a workspace the CLI created and nobody configured). Nothing was committed and no provider was contacted. Run configure --provider NAME --model ID --effort LEVEL with --auth-file ABSOLUTE_FILE or --credentials-dir ABSOLUTE_DIR on the owner's instruction (details.provider names the selected provider).",
             Code::MissingWorkspace => "Machine mode: a read command named a --data-dir that does not exist or is an empty folder. Nothing was created. Check the path, or run init deliberately.",
             Code::DataFolderUnusable => "The data folder cannot be used (details.problem: read_only, permission_denied, not_a_directory, symlink_refused or missing_parent). A symlinked data folder is symlink_refused.",
@@ -388,6 +403,12 @@ pub(crate) const REFUSAL_REASONS: &[(&str, Match, &str)] = &[
     ("Document exceeds 50 MiB", Exact, "size_limit"),
     ("Writing context exceeds 128 KiB", Prefix, "size_limit"),
     ("--thread must name a chat", Exact, "wrong_kind"),
+    (
+        "A test workspace needs a new data folder",
+        Exact,
+        "workspace_exists",
+    ),
+    ("This edit is closed", Exact, "edit_closed"),
     ("editing requires a note", Exact, "wrong_kind"),
     ("history requires a note", Exact, "wrong_kind"),
     ("record is not a note", Exact, "wrong_kind"),
@@ -487,18 +508,22 @@ impl CliError {
 
 impl From<brn_threads_app::Error> for CliError {
     fn from(error: brn_threads_app::Error) -> Self {
-        use brn_threads_app::{DataFolderProblem, Error};
+        use brn_threads_app::{DataFolderProblem, EditTokenProblem, Error};
         let message = error.to_string();
         // Exhaustive on purpose: a new core variant must be mapped here.
         let code = match &error {
             // The core reports an open session itself (daily-workflow merge);
             // its session ID is never named (owner decision B3 part 1).
             Error::EditSessionOpen {
-                note, base_version, ..
+                note,
+                base_version,
+                holder,
+                ..
             } => {
                 let mut open = Self::new(Code::EditSessionOpen, EDIT_SESSION_OPEN)
                     .with("note", note.clone())
-                    .with("base_version", *base_version);
+                    .with("base_version", *base_version)
+                    .with("holder", holder_name(*holder));
                 open.default_text = Some(
                     json!({"error":{
                         "kind":"edit_session_open",
@@ -520,6 +545,26 @@ impl From<brn_threads_app::Error> for CliError {
                     DataFolderProblem::MissingParent => "missing_parent",
                 };
                 return Self::new(Code::DataFolderUnusable, message).with("problem", problem);
+            }
+            // The message names neither the token nor the session's holder secret.
+            Error::EditToken { problem, .. } => {
+                let reason = match problem {
+                    EditTokenProblem::Mismatch => "mismatch",
+                    EditTokenProblem::OwnerHost => "desktop",
+                };
+                return Self::new(Code::SessionTokenInvalid, message).with("reason", reason);
+            }
+            Error::TestWorkspaceRequired => {
+                return Self::new(Code::TestWorkspaceRequired, message)
+                    .with("workspace_purpose", "owner");
+            }
+            Error::UpgradeRequired {
+                schema_found,
+                schema_required,
+            } => {
+                return Self::new(Code::UpgradeRequired, message)
+                    .with("schema_found", *schema_found)
+                    .with("schema_required", *schema_required);
             }
             Error::Sqlite(e) if busy(e.sqlite_extended_error_code()) => Code::Busy,
             Error::Sqlite(_) | Error::Json(_) => Code::StorageError,
@@ -653,7 +698,14 @@ pub(crate) fn run_error(error: brn_ai::AiError) -> CliError {
 /// A failed `begin-edit`: an open session on the note is reported by note and
 /// base version, never by session ID (owner decision B3 part 1). The core
 /// raises `Error::EditSessionOpen` itself; lock contention stays `busy`.
-pub(crate) const EDIT_SESSION_OPEN: &str = "This note has an open unsaved edit session (details.note, details.base_version). Write to it only if your own successful begin-edit returned it; otherwise report it to the owner.";
+pub(crate) const EDIT_SESSION_OPEN: &str = "This note has an open unsaved edit session (details.note, details.base_version, details.holder). Write to it only with the token your own successful begin-edit returned; otherwise report it to the owner.";
+/// `holder` as the contract names it: `caller` or `desktop`.
+pub(crate) fn holder_name(holder: brn_threads_app::EditHolder) -> &'static str {
+    match holder {
+        brn_threads_app::EditHolder::Caller => "caller",
+        brn_threads_app::EditHolder::OwnerHost => "desktop",
+    }
+}
 pub(crate) fn begin_edit_error(error: brn_threads_app::Error) -> CliError {
     error.into()
 }
@@ -1012,6 +1064,29 @@ pub(crate) fn fill_conflicts(
     notes.conflict = Some(lookup().unwrap_or_default());
 }
 
+/// The opened workspace's purpose, set right after it opens; unset when no
+/// workspace was opened (usage errors, missing_workspace, restore, upgrade,
+/// model-install).
+static PURPOSE: std::sync::OnceLock<brn_threads_app::WorkspacePurpose> = std::sync::OnceLock::new();
+/// The caller's checked `--actor` or `BRN_ACTOR`, set at parse.
+static ACTOR: std::sync::OnceLock<String> = std::sync::OnceLock::new();
+pub(crate) fn set_purpose(purpose: brn_threads_app::WorkspacePurpose) {
+    let _ = PURPOSE.set(purpose);
+}
+pub(crate) fn set_actor(actor: &str) {
+    let _ = ACTOR.set(actor.to_owned());
+}
+/// Every envelope's `authority`: phase 1 reports, it does not enforce.
+pub(crate) fn authority() -> Value {
+    let purpose = PURPOSE.get();
+    json!({
+        "workspace_purpose": purpose.map(|p| p.as_str()),
+        "cli_authority": purpose.map(|_| "full"),
+        "enforced": false,
+        "actor": ACTOR.get(),
+    })
+}
+
 pub(crate) struct Envelope<'a> {
     pub(crate) command: Option<&'a str>,
     pub(crate) status: Status,
@@ -1057,6 +1132,7 @@ impl Envelope<'_> {
             })),
             "page": self.page,
             "stop": self.stop,
+            "authority": authority(),
         })
     }
 }
@@ -1096,6 +1172,9 @@ mod tests {
                 .map(|(_, v)| v.to_string()),
             pending_inputs: vec![],
             timeout: None,
+            token_source: None,
+            token: None,
+            actor: None,
         }
     }
     fn write(id: &str, version: u64, before: bool) -> Value {
@@ -1424,9 +1503,15 @@ mod tests {
         let dir = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
         let mut workspace = Workspace::open(dir.path().join("data")).unwrap();
         let note = workspace.new_note("N", "x").unwrap();
-        workspace.store.begin_edit(&note.id, 1).unwrap();
-        let typed = workspace.store.begin_edit(&note.id, 1).unwrap_err();
-        assert!(matches!(typed, Error::EditSessionOpen { .. }));
+        workspace.store.begin_caller_edit(&note.id, 1).unwrap();
+        let typed = workspace.store.begin_caller_edit(&note.id, 1).unwrap_err();
+        assert!(matches!(
+            typed,
+            Error::EditSessionOpen {
+                holder: brn_threads_app::EditHolder::Caller,
+                ..
+            }
+        ));
         let open = begin_edit_error(typed);
         assert_eq!(open.code, Code::EditSessionOpen);
         assert!(open
@@ -1436,7 +1521,46 @@ mod tests {
         assert!(!open.message.contains("Save or discard"));
         assert_eq!(
             Value::Object(*open.details),
-            json!({"note":note.id,"base_version":1})
+            json!({"note":note.id,"base_version":1,"holder":"caller"})
+        );
+        for (problem, reason) in [
+            (brn_threads_app::EditTokenProblem::Mismatch, "mismatch"),
+            (brn_threads_app::EditTokenProblem::OwnerHost, "desktop"),
+        ] {
+            let error = Error::EditToken {
+                session: "s".into(),
+                problem,
+            };
+            assert_eq!(
+                mapped(error),
+                (Code::SessionTokenInvalid, json!({"reason":reason}))
+            );
+        }
+        assert_eq!(
+            mapped(Error::TestWorkspaceRequired),
+            (
+                Code::TestWorkspaceRequired,
+                json!({"workspace_purpose":"owner"})
+            )
+        );
+        let upgrade = CliError::from(Error::UpgradeRequired {
+            schema_found: 5,
+            schema_required: 6,
+        });
+        assert_eq!(upgrade.code, Code::UpgradeRequired);
+        assert_eq!(upgrade.code.status().exit(), 6);
+        assert!(upgrade
+            .message
+            .contains("brn upgrade --backup-directory ABSOLUTE_DIR"));
+        assert_eq!(
+            Value::Object(*upgrade.details),
+            json!({"schema_found":5,"schema_required":6})
+        );
+        assert_eq!(
+            mapped(Error::Invalid(
+                "A test workspace needs a new data folder".into()
+            )),
+            (Code::InvalidRequest, json!({"reason":"workspace_exists"}))
         );
         let folder = |problem| Error::DataFolder {
             folder: "/synthetic".into(),
@@ -1834,7 +1958,7 @@ mod tests {
                     value["conflict"].is_array(),
                     matches!(status, Status::Stale | Status::Deferred)
                 );
-                assert_eq!(value.as_object().unwrap().len(), 15);
+                assert_eq!(value.as_object().unwrap().len(), 16);
             }
         }
         for (token, echoed) in [

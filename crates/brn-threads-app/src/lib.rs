@@ -219,12 +219,36 @@ impl Workspace {
     pub fn open_without_default_credentials(data: impl AsRef<Path>) -> AppResult<Self> {
         Self::open_with(data, settings::DefaultCredentials::None)
     }
+    /// Creates a fresh workspace with `purpose` and no credential source, in
+    /// a missing or empty folder only (`Store::create`).
+    pub fn create_without_default_credentials(
+        data: impl AsRef<Path>,
+        purpose: WorkspacePurpose,
+    ) -> AppResult<Self> {
+        Self::bootstrap(
+            Store::create(data, purpose)?,
+            settings::DefaultCredentials::None,
+        )
+    }
+    /// `open_without_default_credentials`, except that an existing workspace
+    /// below the current schema is refused with `UpgradeRequired`, unchanged
+    /// (`Store::open_existing_without_upgrade`). Bootstrap runs only after
+    /// the open succeeds.
+    pub fn open_existing_no_upgrade(data: impl AsRef<Path>) -> AppResult<Self> {
+        Self::bootstrap(
+            Store::open_existing_without_upgrade(data)?,
+            settings::DefaultCredentials::None,
+        )
+    }
     fn open_with(
         data: impl AsRef<Path>,
         credentials: settings::DefaultCredentials,
     ) -> AppResult<Self> {
+        Self::bootstrap(Store::open(data)?, credentials)
+    }
+    fn bootstrap(store: Store, credentials: settings::DefaultCredentials) -> AppResult<Self> {
         let mut workspace = Self {
-            store: Store::open(data)?,
+            store,
             search: None,
             embedder: None,
         };

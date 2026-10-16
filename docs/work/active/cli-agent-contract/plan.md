@@ -995,3 +995,20 @@ Design and plan: `../cli-agent-contract.artifacts/round2b/plan-2b.md` (outside t
 # Merge of main 9b47b285
 
 `origin/main` `9b47b285` merged with `--no-ff` as `6bdb48f8`. Conflicts in `crates/brn/src/main.rs` and `crates/brn-threads-core/src/chat.rs` were resolved per the round-2 merge-resolution notes, and every merge-time item is done: typed `edit_session_open` without `session`, `data_folder_unusable {problem}`, `same_locator`, `archived` and the message lane documented, `Interrupted` assertions. Gates (evidence "Merge of main 9b47b285"): `brn` 140 passed with the PTY test; workspace 975 passed, 1 failed (Poppler-only, local-env-blocked); desktop lanes, journeys, witnesses and reliability's journey and tests pass.
+
+# Round 3: caller-bound edit sessions and workspace purpose (phase 1)
+
+Branch `work/cli-agent-round3` from `main` `fb1b2100`. The approved design (`round3/design-3.md`) and its plan (`round3/plan-3.md`) sit in the coordination artifacts beside the worktrees; [owner decisions](owner-decisions.md#round-3) record the API approval and schema option B. The [evidence](evidence.md#round-3) records what ran.
+
+- **B3 part 2.** CLI edit sessions are caller-held: `begin-edit` returns a token once (`result.token` or a new 0600 `--token-out` file); `update-buffer`, `save` and `discard` need `--token-file`. Core stores only the token's SHA-256. The desktop keeps `begin_edit`, `update_buffer`, `save` and `discard` unchanged as owner-host functions; its typing adopts a caller session. `reclaim-edit` rotates a lost token in test workspaces only. A guard test keeps the CLI and app crates off the owner-host functions.
+- **B1 phase 1.** `init --purpose test` creates a test workspace (creation only); every other workspace, including every restored copy, is an owner workspace, and only the desktop changes purpose. `--actor`/`BRN_ACTOR` names the caller on the receipts it commits. Every envelope reports `authority {workspace_purpose, cli_authority, enforced: false, actor}`. Every in-repo CLI test, script and witness that writes uses a test workspace.
+- **Schema 6, option B.** New tables for bindings, the workspace profile and receipt actors. The CLI refuses a schema 3–5 store with `upgrade_required` before anything changes; only `upgrade --backup-directory` upgrades, backup-first. The desktop's open upgrades as before.
+- **PR #156 LOW 1–4** have their own tests; contract 3 lists its changes in the README.
+- **Final verification** (evidence "Round 3 final verification"): every gate passes from one build. Two exceptions are not passes: the Poppler-only test is local-env-blocked, and two desktop tests are a flake that also occurs on `main`.
+
+## Round 3 remaining gaps
+
+- Phase 2 (owner workspaces take CLI writes only as proposals; owner-decision commands refused there) and phase 3 (scoped grants from the desktop) need a desktop review UI: a separate assignment.
+- Receipts written inside a Run carry no actor; the Run record attributes them.
+- `set_workspace_purpose` has no caller or audit receipt yet (phase 2).
+- The CLI process tests of the schema-5 upgrade need `AGENT_CONTRACT_SCHEMA5_BIN`; without it they skip and the core tests cover the upgrade.

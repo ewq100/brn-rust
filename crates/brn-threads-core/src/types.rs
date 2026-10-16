@@ -544,6 +544,103 @@ pub struct EditSession {
     pub generation: u64,
     pub markdown: String,
     pub closed: bool,
+    /// Who may continue or close the session: the owner host (desktop),
+    /// or the caller holding its token.
+    #[serde(default)]
+    pub holder: EditHolder,
+}
+/// Who holds an edit session. A caller-held session has a token binding;
+/// every other session is held by the owner host.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub enum EditHolder {
+    /// Only the owner, in the BRN desktop app, continues or closes it.
+    #[default]
+    #[serde(rename = "desktop")]
+    OwnerHost,
+    /// The caller that received the session's token.
+    #[serde(rename = "caller")]
+    Caller,
+}
+/// The secret of a caller-held edit session: `brnet1_` and 64 lowercase hex.
+/// Only its SHA-256 is stored. It has no `Serialize` or `Display`, and its
+/// `Debug` is redacted, so it cannot reach an error, listing or log by accident.
+#[derive(Clone)]
+pub struct EditToken(String);
+impl EditToken {
+    pub const PREFIX: &'static str = "brnet1_";
+    /// Accepts exactly the published pattern `^brnet1_[0-9a-f]{64}$`.
+    pub fn parse(text: &str) -> Option<Self> {
+        let hex = text.strip_prefix(Self::PREFIX)?;
+        (hex.len() == 64 && hex.bytes().all(|b| matches!(b, b'0'..=b'9' | b'a'..=b'f')))
+            .then(|| Self(text.to_owned()))
+    }
+    /// The token text, for handing it to the caller once.
+    pub fn expose(&self) -> &str {
+        &self.0
+    }
+    /// 244 random bits from two version-4 UUIDs (OS CSPRNG).
+    pub(crate) fn generate() -> Self {
+        let mut text = String::from(Self::PREFIX);
+        for byte in uuid::Uuid::new_v4()
+            .as_bytes()
+            .iter()
+            .chain(uuid::Uuid::new_v4().as_bytes())
+        {
+            text.push_str(&format!("{byte:02x}"));
+        }
+        Self(text)
+    }
+    /// The stored form: lowercase hex of SHA-256 of the token text.
+    pub(crate) fn hash(&self) -> String {
+        use sha2::{Digest, Sha256};
+        format!("{:x}", Sha256::digest(self.0.as_bytes()))
+    }
+}
+impl std::fmt::Debug for EditToken {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("EditToken(..)")
+    }
+}
+/// A caller-held session and its token, returned once.
+#[derive(Debug, Clone)]
+pub struct IssuedEdit {
+    pub session: EditSession,
+    pub token: EditToken,
+}
+/// Why a presented token cannot write to a session.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum EditTokenProblem {
+    /// The session is caller-held, by another token.
+    Mismatch,
+    /// The session is held by the owner host; no token writes to it.
+    OwnerHost,
+}
+impl std::fmt::Display for EditTokenProblem {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match self {
+            Self::Mismatch => "the edit token does not match this edit session",
+            Self::OwnerHost => {
+                "this edit session is held by the owner in the BRN desktop app; only the owner can continue or close it"
+            }
+        })
+    }
+}
+/// What a workspace is for. Purpose is identity, set when the workspace is
+/// created; only the owner host changes it later.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum WorkspacePurpose {
+    #[default]
+    Owner,
+    Test,
+}
+impl WorkspacePurpose {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Owner => "owner",
+            Self::Test => "test",
+        }
+    }
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum BufferOutcome {

@@ -23,6 +23,29 @@ CREATE INDEX IF NOT EXISTS context_asset_source ON records(json_extract(body,'$.
 CREATE INDEX IF NOT EXISTS context_import_source ON records(json_extract(body,'$.data.Note.import.source')) WHERE json_type(body,'$.data.Note') IS NOT NULL;
 ";
 
+/// Schema 6: caller-bound edit sessions (hashes only), the workspace
+/// profile (purpose, default `owner`) and the actor beside receipts.
+pub(crate) const CALLER_SCHEMA: &str = "
+CREATE TABLE IF NOT EXISTS edit_session_bindings(session TEXT PRIMARY KEY REFERENCES edit_sessions(id), token_hash TEXT NOT NULL UNIQUE);
+CREATE TABLE IF NOT EXISTS workspace_profile(id INTEGER PRIMARY KEY CHECK(id=1), purpose TEXT NOT NULL CHECK(purpose IN ('owner','test')), changed_at TEXT);
+INSERT OR IGNORE INTO workspace_profile(id,purpose) VALUES(1,'owner');
+CREATE TABLE IF NOT EXISTS receipt_actors(operation TEXT PRIMARY KEY REFERENCES receipts(operation), actor TEXT NOT NULL);
+";
+
+/// Applies the schema steps a version-`from` database is missing, ending at
+/// the current schema. The caller owns the transaction.
+pub(crate) fn upgrade_steps(tx: &Connection, from: i64) -> Result<()> {
+    if from < 5 {
+        tx.execute_batch(CHAT_SCHEMA)?;
+        tx.execute_batch(PROJECT_SCHEMA)?;
+    }
+    if from < 6 {
+        tx.execute_batch(CALLER_SCHEMA)?;
+    }
+    tx.pragma_update(None, "user_version", crate::store::SCHEMA_VERSION)?;
+    Ok(())
+}
+
 impl Store {
     pub fn upgrade(directory: &Path, backup_directory: &Path) -> Result<()> {
         if !directory.is_absolute()
@@ -49,7 +72,8 @@ pub(crate) fn upgrade_connection(
     database: &Path,
     chosen: Option<&Path>,
 ) -> Result<()> {
-    validate_schema(conn, &[3, 4])?;
+    validate_schema(conn, &[3, 4, 5])?;
+    let from: i64 = conn.pragma_query_value(None, "user_version", |r| r.get(0))?;
     let workspace = database
         .parent()
         .ok_or_else(|| Error::UnsafeDirectory("workspace parent missing".into()))?;
@@ -67,18 +91,21 @@ pub(crate) fn upgrade_connection(
         "SELECT json_extract(body,'$.data.Settings.backup_directory') FROM records WHERE json_type(body,'$.data.Settings') IS NOT NULL AND json_extract(body,'$.archived')=0 LIMIT 1", [], |r| r.get(0)
     ).optional()?.flatten();
     let folder = chosen.or_else(|| remembered.as_deref().map(Path::new)).ok_or_else(|| Error::UnsafeDirectory(
-        format!("Schema 3/4 needs an external pre-upgrade backup folder. Run: brn --data-dir {} upgrade --backup-directory ABSOLUTE_FOLDER", workspace.display())
+        if from == 5 {
+            format!("Schema 5 needs an external pre-upgrade backup folder. Run: brn --data-dir {} upgrade --backup-directory ABSOLUTE_FOLDER", workspace.display())
+        } else {
+            format!("Schema 3/4 needs an external pre-upgrade backup folder. Run: brn --data-dir {} upgrade --backup-directory ABSOLUTE_FOLDER", workspace.display())
+        }
     ))?;
     let folder = validate_backup_directory(workspace, folder)?;
     let destination = folder.join(format!(
-        "brn-before-project-schema-5-{}.sqlite3",
+        "brn-before-schema-{}-{}.sqlite3",
+        crate::store::SCHEMA_VERSION,
         uuid::Uuid::new_v4()
     ));
     let snapshot = Connection::open_with_flags(database, OpenFlags::SQLITE_OPEN_READ_ONLY)?;
     crate::backup::StagedBackup::create(&snapshot, &destination)?.publish()?;
-    tx.execute_batch(CHAT_SCHEMA)?;
-    tx.execute_batch(PROJECT_SCHEMA)?;
-    tx.pragma_update(None, "user_version", crate::store::SCHEMA_VERSION)?;
+    upgrade_steps(&tx, from)?;
     tx.commit()?;
     validate_schema(conn, &[crate::store::SCHEMA_VERSION])
 }

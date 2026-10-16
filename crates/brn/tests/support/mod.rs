@@ -14,6 +14,14 @@ use std::{
 };
 
 const BASELINE: &str = "AGENT_CONTRACT_BASELINE_BIN";
+/// A `fb1b2100` (schema 5) `brn`, for building older-schema fixtures through
+/// documented commands. Read by the test process only, never passed on.
+const SCHEMA5: &str = "AGENT_CONTRACT_SCHEMA5_BIN";
+
+/// The schema-5 binary, when `AGENT_CONTRACT_SCHEMA5_BIN` names one.
+pub fn schema5_bin() -> Option<PathBuf> {
+    std::env::var_os(SCHEMA5).map(PathBuf::from)
+}
 
 /// True when the tests run against the pre-round-2 baseline binary.
 pub fn baseline() -> bool {
@@ -48,6 +56,15 @@ impl Root {
     pub fn join(&self, name: &str) -> PathBuf {
         self.path.join(name)
     }
+    /// A fresh test workspace (`init --purpose test`) at `name`: the folder
+    /// every writing test uses. Only test workspaces keep full CLI authority
+    /// once owner workspaces take proposals (B1 phase 2).
+    pub fn workspace(&self, name: &str) -> PathBuf {
+        let data = self.join(name);
+        let run = run(self, true, &data, &["init", "--purpose", "test"]);
+        assert_eq!(run.code, 0, "init --purpose test: {}", run.stdout);
+        data
+    }
     pub fn file(&self, name: &str, bytes: &[u8]) -> String {
         let path = self.join(name);
         std::fs::write(&path, bytes).unwrap();
@@ -55,10 +72,14 @@ impl Root {
     }
     /// A child with a clean environment: every `BRN_*` removed, homes and temp inside the root.
     pub fn command(&self, args: &[&OsStr]) -> Command {
-        let mut command = Command::new(brn());
+        self.command_with(&brn(), args)
+    }
+    /// `command` for another `brn` binary (the schema-5 fixture builder).
+    pub fn command_with(&self, binary: &Path, args: &[&OsStr]) -> Command {
+        let mut command = Command::new(binary);
         for (key, _) in std::env::vars_os() {
             let key = key.to_string_lossy();
-            if key.starts_with("BRN_") || key == BASELINE {
+            if key.starts_with("BRN_") || key == BASELINE || key == SCHEMA5 {
                 command.env_remove(&*key);
             }
         }
@@ -96,8 +117,9 @@ impl Run {
         );
         let value: Value = serde_json::from_str(&self.stdout).unwrap();
         if !baseline() {
-            assert_eq!(value["contract"], 2, "{value}");
-            assert_eq!(value.as_object().unwrap().len(), 15, "{value}");
+            assert_eq!(value["contract"], 3, "{value}");
+            assert_eq!(value.as_object().unwrap().len(), 16, "{value}");
+            assert_eq!(value["authority"]["enforced"], false, "{value}");
         }
         assert_eq!(value["exit"], self.code, "{value}");
         assert_eq!(value["ok"], self.code == 0);
@@ -190,6 +212,37 @@ pub fn note(root: &Root, data: &Path, title: &str, text: &str) -> String {
         data,
         &["note-create", "--title", title, "--text", text],
     ))
+}
+/// `begin-edit --token-out FILE`: the session and the token file's path.
+pub fn begin_edit(root: &Root, data: &Path, note: &str, base: u64) -> (Value, String) {
+    let token = root.join(&format!("token-{}", uuid_like()));
+    let token = token.to_str().unwrap().to_owned();
+    let session = ok(
+        root,
+        data,
+        &[
+            "begin-edit",
+            "--note",
+            note,
+            "--base",
+            &base.to_string(),
+            "--token-out",
+            &token,
+        ],
+    );
+    assert_eq!(session["token"], Value::Null, "{session}");
+    assert_eq!(session["holder"], "caller", "{session}");
+    (session, token)
+}
+/// A name unique within this test process.
+pub fn uuid_like() -> String {
+    use std::sync::atomic::{AtomicU64, Ordering};
+    static NEXT: AtomicU64 = AtomicU64::new(0);
+    format!(
+        "{}-{}",
+        std::process::id(),
+        NEXT.fetch_add(1, Ordering::SeqCst)
+    )
 }
 pub fn assert_error(envelope: &Value, status: &str, code: &str) {
     assert_eq!(envelope["status"], status, "{envelope}");

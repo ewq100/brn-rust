@@ -42,7 +42,7 @@ fn assert_unchanged(root: &Root, data: &Path, argv: &[&str], record: &str) {
 #[test]
 fn repeated_archive_and_resolve_are_unchanged_without_a_receipt() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = root.workspace("data");
     let chat = id(&ok(&root, &data, &["thread-start", "--title", "Chat"]));
     let first = call(&root, &data, &["archive", "--thread", &chat]);
     assert_eq!(first["outcome"], "Applied", "{first}");
@@ -59,7 +59,7 @@ fn repeated_archive_and_resolve_are_unchanged_without_a_receipt() {
 #[test]
 fn repeated_unarchive_move_link_unlink_are_unchanged() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = root.workspace("data");
     let chat = id(&ok(&root, &data, &["thread-start", "--title", "Chat"]));
     assert_unchanged(&root, &data, &["unarchive", "--thread", &chat], &chat);
     let project = call(&root, &data, &["project-create", "--title", "P"]);
@@ -104,7 +104,7 @@ fn archive_with_a_working_run_records_a_change() {
     use support::stub::{proxy_env, Reply, Stub};
     let mut root = Root::new();
     root.env = proxy_env();
-    let data = root.join("data");
+    let data = root.workspace("data");
     let stub = Stub::start(vec![Reply::Hold]);
     let creds = stub.credentials(&root);
     let configure = [
@@ -145,7 +145,7 @@ fn archive_with_a_working_run_records_a_change() {
 #[test]
 fn keyed_archive_retry_after_a_change_replays_the_original_receipt() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = root.workspace("data");
     let chat = id(&ok(&root, &data, &["thread-start", "--title", "Chat"]));
     let argv = ["archive", "--thread", chat.as_str(), "--key", "a1"];
     let first = call(&root, &data, &argv);
@@ -162,7 +162,7 @@ fn keyed_archive_retry_after_a_change_replays_the_original_receipt() {
 #[test]
 fn default_mode_unchanged_prints_the_unchanged_object() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = root.workspace("data");
     let chat = id(&ok(&root, &data, &["thread-start", "--title", "Chat"]));
     let version = version(&root, &data, &chat);
     let printed = run(&root, false, &data, &["unarchive", "--thread", &chat]);

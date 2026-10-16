@@ -27,9 +27,9 @@ generate-plan | brn --json --data-dir /absolute/fresh/threads note-create --titl
 brn --json --help    # machine description: commands, options, required options, outcomes, retry classes, error codes
 ```
 
-`--json` is recognised only as the first argument. The global options `--data-dir` and `--timeout` may appear before or after the command, in any option-name position; a value is never read as an option (`--title --data-dir` is a title). Without `--json` the CLI behaves as before (see Compatibility). `brn --json --help` prints one JSON line, exits 0 and opens nothing. It is generated from the same command table the parser uses.
+`--json` is recognised only as the first argument. The global options `--data-dir`, `--timeout` and `--actor` may appear before or after the command, in any option-name position; a value is never read as an option (`--title --data-dir` is a title). Without `--json` the CLI behaves as before (see Compatibility). `brn --json --help` prints one JSON line, exits 0 and opens nothing. It is generated from the same command table the parser uses.
 
-`brn COMMAND --help` prints that command's help (summary, usage, value grammar, retry class, owner decision, outcomes, an example and notes); `brn --json COMMAND --help` prints `{"contract":2,"command":ENTRY}`, where ENTRY is the command's entry in `brn --json --help`. Neither needs `--data-dir` or opens anything; after an unknown command, `--help` is `unknown_command`.
+`brn COMMAND --help` prints that command's help (summary, usage, value grammar, retry class, owner decision, outcomes, an example and notes); `brn --json COMMAND --help` prints `{"contract":3,"command":ENTRY}`, where ENTRY is the command's entry in `brn --json --help`. Neither needs `--data-dir` or opens anything; after an unknown command, `--help` is `unknown_command`.
 
 ### Envelope
 
@@ -37,7 +37,7 @@ stdout carries exactly one line, a compact JSON object. Every key is always pres
 
 | Field | Meaning |
 |---|---|
-| `contract` | `2`. Additive fields keep the number; a removal or change of meaning increments it (see "Changes from contract 1"). |
+| `contract` | `3`. Additive fields keep the number; a removal or change of meaning increments it (see "Changes from contract 2"). |
 | `command` | The command as invoked (`resolve` stays `resolve`). Null when parsing failed before a known command was read: `missing_data_dir`, `invalid_data_dir`, `missing_command`, `unknown_command`, and a non-UTF-8 `malformed_option`. |
 | `ok` | `true` exactly when `exit == 0`. |
 | `status`, `exit` | One status, one-to-one with the exit code (table below). |
@@ -51,16 +51,17 @@ stdout carries exactly one line, a compact JSON object. Every key is always pres
 | `error` | `{code, message, details}` when the command failed without a result. `message` is human text, not contract. Domain outcomes (`stale`, `deferred`, `needs_review`, `ask` `Failed`/`Interrupted`) carry `result` and `outcome` instead. |
 | `page` | `{limit, shown, cursor, total}` on a paged result (`search` and the Inspection pages), else null. `cursor` is null on the last page; `total` is null when not computed. |
 | `stop` | Why the command stopped early: `sigint`, `sigterm` or `deadline` (`--timeout`); null otherwise. |
+| `authority` | `{workspace_purpose, cli_authority, enforced, actor}` (Workspace purpose and actor below). `workspace_purpose` is `owner` or `test` and `cli_authority` is `full`; both are null when no workspace was opened (usage errors, `missing_workspace`, `restore`, `upgrade`, `model-install`). `enforced` is `false` in this phase: the purpose is reported, not yet enforced. `actor` echoes this invocation's `--actor`, or null. |
 
 Forward rule: ignore unknown keys. Treat an unknown `status` or `outcome` as non-success.
 
-`details` never echo option values or text content; they name options, positions, limits, record IDs and versions. An argv token is echoed in `details.option` or `details.command` only when it matches `^[a-z][a-z-]{0,39}$`. The one exception is `key` and `key_conflict`'s `details.key`, which repeat the caller's key; keys must match `^[A-Za-z0-9._:-]{1,128}$`.
+`details` never echo option values or text content; they name options, positions, limits, record IDs and versions. No envelope, message or detail ever contains an edit token, except the `result.token` that `begin-edit` and `reclaim-edit` return once. An argv token is echoed in `details.option` or `details.command` only when it matches `^[a-z][a-z-]{0,39}$`. The one exception is `key` and `key_conflict`'s `details.key`, which repeat the caller's key; keys must match `^[A-Za-z0-9._:-]{1,128}$`.
 
 ### Owner decisions
 
 > These commands record an owner decision. Running the CLI does not make a caller the owner. Run them only on the owner's explicit instruction for that exact operation.
 
-Test harnesses on synthetic data act as the owner. The marks are documentation: the CLI cannot verify who is calling, and every CLI write already runs as the owner inside the shared service.
+Test harnesses on synthetic data act as the owner, in test workspaces (`init --purpose test`). The marks are documentation: the CLI cannot verify who is calling, and every CLI write already runs as the owner inside the shared service. In this phase (B1 phase 1) the workspace purpose is recorded and reported in `authority` with `enforced: false`; owner workspaces taking CLI writes only as proposals is phase 2 (Remaining gaps).
 
 | `owner_decision` | Commands | Why |
 |---|---|---|
@@ -75,7 +76,7 @@ Test harnesses on synthetic data act as the owner. The marks are documentation: 
 | options | `ask` with `--edit-note` or `--record-decision` | Grants that run authority to edit the named note, or saves a reply as a protected decision. |
 | options | `intake` with `--project` | Adds the document to the project's membership. |
 | options | `intake --intent chat --thread <PROJECT_ID>` | `--thread` naming a project attaches the document to that project (`owner_decision_when` in the description). Behavior is unchanged; prefer `--intent project --project ID`. |
-| `false` | every other command | Reads, your own edit sessions, ordinary notes and chats, `queue`, knowledge check, export, backup, restore into a fresh directory, init, intake without `--project`. |
+| `false` | every other command | Reads, your own edit sessions (`reclaim-edit` included, test workspaces only), ordinary notes and chats, `queue`, knowledge check, export, backup, restore into a fresh directory, init, intake without `--project`. |
 
 Attach a document to a project only with `--intent project --project ID`, which is an owner decision; `--thread` must name a chat. Edit a protected note (`read` shows it) only on the owner's explicit instruction: Save records an owner change.
 
@@ -84,6 +85,14 @@ Attach a document to a project only with `--intent project --project ID`, which 
 A workspace the CLI creates (an explicit `--data-dir` that did not exist) starts with no provider credential source: `settings` shows `auth_file` and `credentials_dir` as null. Only an explicit `configure --provider NAME --model ID --effort LEVEL --auth-file ABSOLUTE_FILE` (Codex) or `--credentials-dir ABSOLUTE_DIR` (Copilot), on the owner's instruction, sets one. Workspaces that already exist, including ones the desktop created, keep their stored Settings. Desktop shows no sign-in file for such a workspace; choose one in Settings before running work.
 
 In machine mode, `ask`, useful intake and the intake of a format that needs conversion by a model (anything but Markdown and text) are refused with `credentials_not_configured` before any provider contact or commit. `ask` also runs useful intake, so the intake check fires first and the `ask` check guards both. A keyed intake retry that replays (Retries) needs no credentials. Default mode keeps the previous path, where the run reports its own failure.
+
+### Workspace purpose and actor
+
+- **Purpose.** Every workspace is an `owner` workspace unless it was created with `brn --data-dir /abs/fresh init --purpose test`. `--purpose` accepts only `test` (`invalid_value` otherwise) and only creates: a missing or empty folder becomes a test workspace; a folder that already holds a workspace is refused with `invalid_request` `{reason: "workspace_exists"}`, unchanged. Plain `init`, implicit creation, the desktop, existing workspaces, upgrades and restores are `owner`. The CLI cannot change a workspace's purpose; only the desktop can. Never create the desktop's own data folder with `--purpose test`; use a fresh throwaway folder.
+- **Restore.** Every restored copy is an `owner` workspace, whatever the backup's purpose, and its open edit sessions become `desktop`-held (`restore` reports `workspace_purpose: "owner"`). A restored copy of a test workspace takes no further test-workspace writes from agents once phase 2 applies; read it only.
+- **Actor.** The global `--actor NAME`, or the `BRN_ACTOR` variable (the option wins), names the caller: it must match `^[A-Za-z0-9._:-]{1,64}$`, else `invalid_value` `{option: "actor"}`, with `source: "env"` when it came from the variable, before anything opens. Every receipt this invocation commits records it; `history` pages and `operation` show it as `actor`. It is not identity: it is not part of a request hash or key, a keyed retry under another actor replays and keeps the first actor, and `authority.actor` echoes the current invocation. Receipts written inside a Run (`ask`, useful intake) carry no actor, because the Run record attributes them; CLI receipts in the same invocation (for example a keyed `apply` of the Run's candidate) carry it. Desktop receipts carry none.
+- **Edit holders.** Every edit session has a `holder`: `caller` means a CLI caller holds its token; `desktop` means only the owner, in the BRN desktop app, can continue or close it (this covers sessions the desktop opened, sessions the owner adopted by typing into them, and sessions in a restored copy).
+- **Limit.** This guards against agent overreach through BRN's interfaces, not against code running as the same OS user, which can open the SQLite file directly.
 
 ### Statuses
 
@@ -104,7 +113,7 @@ In machine mode, `ask`, useful intake and the intake of a format that needs conv
 
 | Commands | `outcome` | `operation` | `changed` |
 |---|---|---|---|
-| Reads (`records`, `notes`, `threads`, `needs-you`, `history`, `candidates`, `settings`, `projects`, `project-delete-preview`, `read` without `--limit`, `revisions`, `revision`, `runs`, `messages`, `operation`, `search`, `connections`, `topics`, `recovery`, `knowledge-check`) and non-receipt writes (`init`, `begin-edit`, `export`, `backup`, `restore`, `upgrade`, `model-install`, `knowledge-check --seed-chat yes`) | null | null | `[]` |
+| Reads (`records`, `notes`, `threads`, `needs-you`, `history`, `candidates`, `settings`, `projects`, `project-delete-preview`, `read` without `--limit`, `revisions`, `revision`, `runs`, `messages`, `operation`, `search`, `connections`, `topics`, `recovery`, `knowledge-check`) and non-receipt writes (`init`, `begin-edit`, `reclaim-edit`, `export`, `backup`, `restore`, `upgrade`, `model-install`, `knowledge-check --seed-chat yes`) | null | null | `[]` |
 | Project commands, `queue`, `archive`, `resolve`, `unarchive` (result is a receipt) | `Applied` | `result.operation` | the receipt's writes |
 | `archive`, `resolve`, `unarchive`, `chat-move`, `project-link`, `project-unlink` when the requested state already holds | `Unchanged` (ok, exit 0); `result` is `{outcome: "Unchanged", record, version}` with `record` the chat (archive, resolve, unarchive, chat-move) or the project (link, unlink) at its current version | null | `[]`: nothing was recorded |
 | `note-create`, `thread-start` (result is the created record) | `Applied` | the receipt's operation | the receipt's writes |
@@ -139,17 +148,20 @@ Reachability from the CLI: every CLI write runs with owner authority and no run,
 | `repeated_option` | usage | An option given twice. | `{option}` |
 | `unknown_option` | usage | Option not allowed for the command. | `{option, allowed}` |
 | `conflicting_options` | usage | `--NAME` with `--NAME-file`; `--key` with `--intent useful`; `--key` on `knowledge-check` without `--seed-chat yes`; `--project` with `--thread`; `--helper off` with helper options; `--edit-note` with `--record-decision`. | `{options}` |
-| `missing_option` | usage | Required option absent (checked before the workspace opens). | `{option}` |
+| `missing_option` | usage | Required option absent (checked before the workspace opens). A missing edit token is `{option: "token-file"}`. | `{option}` |
 | `invalid_value` | usage | Bad integer, enum or yes/no value (including `projects --trash` other than `yes` or `no`), key format, relative path, `--trace`, a page `--limit` out of range or a malformed `--cursor`, `--hops` over 255 or `--budget` over 65535, or malformed `--actions` JSON. All but `--actions` are checked before the workspace opens. | `{option, expected}` (`expected` is human text) |
-| `invalid_input` | usage | `--NAME-file` problem; an unreadable or empty intake source; an unreadable or malformed `--preview-file`. | `{option, reason}`, plus `max_bytes` for `too_large` |
+| `invalid_input` | usage | `--NAME-file` problem; a `--token-file` problem (`token_format`, `unreadable`, `is_terminal`, `stdin_reused`); an unreadable or empty intake source; an unreadable or malformed `--preview-file`. | `{option, reason}`, plus `max_bytes` for `too_large` |
 | `not_found` | rejected | Unknown record or operation; `read` returning null. | `{}` |
-| `invalid_request` | rejected | The shared service refused the request (core `Invalid`, app `Invalid`, including the helper-selection refusals); `connections --hops` outside 1..2 and `ask --budget` outside 1..32, refused before the workspace opens with the service's text; `--thread must name a chat`; `--project must name an active project`; a `backup` or `export` destination whose parent is missing; an `ask` or useful intake refused by the run service (`ToolRejected`, `ModelRefused`). | `{}`, `{option}`, `{option: "destination", reason: "parent_missing"}`, or `{kind}` for `ask`; plus `reason` when the refusal is one the contract names (below) |
+| `invalid_request` | rejected | The shared service refused the request (core `Invalid`, app `Invalid`, including the helper-selection refusals); `connections --hops` outside 1..2 and `ask --budget` outside 1..32, refused before the workspace opens with the service's text; `--thread must name a chat`; `--project must name an active project`; a `backup` or `export` destination, or a `--token-out` file, whose parent is missing; an `ask` or useful intake refused by the run service (`ToolRejected`, `ModelRefused`). | `{}`, `{option}`, `{option: "destination"\|"token-out", reason: "parent_missing"}`, or `{kind}` for `ask`; plus `reason` when the refusal is one the contract names (below) |
 | `key_conflict` | rejected | The same key with a different request. | `{key}` with `--key`, else `{}` |
-| `unsafe_directory` | rejected | Old or foreign format, missing database, a symlinked backup or restore parent, non-empty restore target, backup inside the workspace. A symlinked data folder is `data_folder_unusable`. | `{}` |
-| `destination_exists` | rejected | `backup` or `export` destination already exists. | `{option: "destination"}` |
-| `edit_session_open` | rejected | `begin-edit` on a note with an open unsaved session. Lock contention during `begin-edit` is `busy`, not this code. | `{note, base_version}` |
+| `unsafe_directory` | rejected | Foreign or newer format, missing database, a symlinked backup or restore parent, non-empty restore target, backup inside the workspace; `upgrade` refused (no backup folder, a Working run or an open edit session; the workspace stays unchanged). An older BRN schema is `upgrade_required`. A symlinked data folder is `data_folder_unusable`. | `{}` |
+| `destination_exists` | rejected | `backup` or `export` destination, or the `--token-out` file, already exists. | `{option: "destination"}` or `{option: "token-out"}` |
+| `edit_session_open` | rejected | `begin-edit` on a note with an open unsaved session. Lock contention during `begin-edit` is `busy`, not this code. | `{note, base_version, holder}`: `holder` is `caller` or `desktop`; never the session ID |
+| `session_token_invalid` | rejected | `update-buffer`, `save` or `discard` with a `--token-file` token that cannot write to the session: `mismatch` when another token holds it (for example one `reclaim-edit` replaced), `desktop` when only the owner, in the desktop app, can continue or close it. Nothing was written. | `{reason}` |
+| `test_workspace_required` | rejected | `reclaim-edit` in an owner workspace. Nothing was written; report the open edit to the owner, who recovers it in the desktop. | `{workspace_purpose: "owner"}` |
+| `upgrade_required` | rejected | Any command except `upgrade`, `restore` and `model-install` on a workspace with an older BRN schema (3, 4 or 5), reads included. The CLI never upgrades implicitly; nothing in the folder was changed. The message names `brn upgrade --backup-directory ABSOLUTE_DIR`, which backs up first. Default mode prints the message as one line, exit 1. | `{schema_found, schema_required}` |
 | `credentials_not_configured` | rejected | Machine mode: `ask`, useful intake, or a non-Markdown/text intake on a workspace with no credential source. Nothing was committed and no provider was contacted. | `{provider}` |
-| `missing_workspace` | rejected | Machine mode: a read command (retry class `read`) named a `--data-dir` that does not exist or is an empty folder. Nothing was created. Check the path, or run `init` deliberately. Default mode still initialises the folder. | `{}` |
+| `missing_workspace` | rejected | Machine mode: a read command (retry class `read`) named a `--data-dir` that does not exist or is an empty folder. Nothing was created. Check the path, or run `init` deliberately. Default mode still initialises the folder. A symlinked data folder or ancestor is never missing: it is `data_folder_unusable` `symlink_refused`, also when the link points to an empty or missing folder. | `{}` |
 | `data_folder_unusable` | rejected | The data folder cannot be used (core `Error::DataFolder`). A symlinked data folder is `symlink_refused`; the message names the folder, `details` never do. | `{problem}`: `read_only`, `permission_denied`, `not_a_directory`, `symlink_refused` or `missing_parent` |
 | `unavailable` | failed | Semantic search or a model folder is unusable; no native retrieval in this build; conversion unsupported on this platform or format; model install refused. | `{}` or `{reason: "model_install"}` |
 | `provider_failed` | failed | `ask` or useful intake: any other `AiErrorKind` (none is known to reach `Err` from `run` at `771116f0`; kept as a fallback); also `ConversionFailure::Provider`. | `{kind}` in snake_case |
@@ -162,7 +174,7 @@ Reachability from the CLI: every CLI write runs with owner authority and no run,
 | `io_error` | internal | Other I/O failures on the CLI's own paths. | `{}` |
 | `internal` | internal | Result encoding failed; input reader stopped; a committed review whose cleanup failed. | `{}`, `{applied: true}` or `{dismissed: true}` |
 
-`invalid_request` `details.reason` names the kind of refusal, from the shared service's exact texts; the code stays `invalid_request`, and an unlisted refusal has no `reason`: `version_mismatch` (a project, deletion preview, candidate or settings snapshot changed: re-read and decide), `inactive_target` (the chat, project or document is archived, trashed or missing: restore or choose another), `project_boundary` (the change would cross a project's membership rules), `size_limit` (a text over a shared-service field limit), `wrong_kind` (the ID names another kind of record, for example `--thread` naming a note). There is no `protected` reason: a model-side protected write is `needs_review`, and the CLI's owner writes may edit protected notes.
+`invalid_request` `details.reason` names the kind of refusal, from the shared service's exact texts; the code stays `invalid_request`, and an unlisted refusal has no `reason`: `version_mismatch` (a project, deletion preview, candidate or settings snapshot changed: re-read and decide), `inactive_target` (the chat, project or document is archived, trashed or missing: restore or choose another), `project_boundary` (the change would cross a project's membership rules), `size_limit` (a text over a shared-service field limit), `wrong_kind` (the ID names another kind of record, for example `--thread` naming a note), `workspace_exists` (`init --purpose test` on a folder that already holds a workspace), `edit_closed` (`reclaim-edit` of a closed session). There is no `protected` reason: a model-side protected write is `needs_review`, and the CLI's owner writes may edit protected notes.
 
 `ToolRejected` and `ModelRefused` are almost always pre-provider refusals from `begin`/`Selection::validate`; `finish` can also return `ToolRejected` after provider contact when the run record is inconsistent; the class stays `invalid_request`/`refuse`. The pre-provider refusals cover a missing, archived or closed chat, a prompt over 128 KiB, an `--edit-note` not at `--base`, a settings mismatch and a useful-intake source over 1 MiB. Real provider failures end as an `ask` terminal `Failed` (`failed`).
 
@@ -189,19 +201,19 @@ Lists that can grow without bound have a bounded page form. Without page options
 
 | Command | Options | `result` |
 |---|---|---|
-| `history` | `[--record ID] [--limit 1..100, default 20] [--cursor C]` | `{receipts, shown, cursor, total}`; each receipt is `{operation, reason, authority, committed_at, undo_of, writes, writes_total}`. `--record` keeps receipts that wrote that record; an unknown record is `not_found`. |
+| `history` | `[--record ID] [--limit 1..100, default 20] [--cursor C]` | `{receipts, shown, cursor, total}`; each receipt is `{operation, actor, reason, authority, committed_at, undo_of, writes, writes_total}`; `actor` is null for receipts from the desktop, from a Run or from before contract 3. `--record` keeps receipts that wrote that record; an unknown record is `not_found`. |
 | `candidates` | `[--limit 1..100, default 20] [--cursor C]` | `{candidates, shown, cursor, total: null}`; each is `{operation, request_hash, reason, writes, writes_total, inputs_total, undo_of, replacement_of}`, where a write's `version` is the expected version (null when it creates the record). |
 | `records` | `[--kind Note\|Thread\|…] [--limit 1..100, default 20] [--cursor ID]` | `{records, shown, cursor, total: null}`; each is `{id, kind, version, archived, title}` (title cut at 160 characters, null for kinds without one). |
 | `revisions` | `--note ID [--limit 1..32, default 32] [--cursor VERSION]` | `{id, revisions, shown, cursor}`; each revision is `{version, operation, reason, authority, committed_at}`. |
 | `revision` | `--note ID --version V [--limit 1..131072, default 65536] [--cursor BYTE]` | One accepted revision's text slice `{id, version, title, start, end, total_bytes, markdown, next_start, cursor}`; stays readable after later edits. |
 | `read` | `--id ID --limit 1..131072 [--cursor VERSION.START]` | `{outcome: "Read", note: {…}, cursor}`, or `{outcome: "Stale", id, expected_version, current_version, cursor: null}` (exit 3, `conflict` names the note) when the note changed since the first page. `--cursor` needs `--limit`; a Thread or other record is `invalid_request`. |
-| `operation` | `--id OP`, or `--key K --command NAME` | `{operation, state, undo_of, replacement_of, request_hash, reason, inputs, inputs_total, writes, writes_total, receipt, related}`. `state` is `applied`, `prepared` (an unapplied candidate), `retired` or `allocated` (the key was used but nothing was prepared). `writes` come from the receipt, else from the prepared request; `inputs` lists at most 64 `{record, version, expectation}`; `receipt` is `{committed_at, authority}` or null. `--key` finds the operation a keyed command recorded under that key (`--command` names the command; `resolve` shares `archive`'s scope, project commands share one scope). A lookup never allocates, so looking a key up does not use it. An unknown id or unused key is `not_found`; `--command` naming a command without `--key` is `invalid_value`. The envelope `key` echoes the looked-up key. |
+| `operation` | `--id OP`, or `--key K --command NAME` | `{operation, state, actor, undo_of, replacement_of, request_hash, reason, inputs, inputs_total, writes, writes_total, receipt, related}`. `state` is `applied`, `prepared` (an unapplied candidate), `retired` or `allocated` (the key was used but nothing was prepared). `writes` come from the receipt, else from the prepared request; `inputs` lists at most 64 `{record, version, expectation}`; `receipt` is `{committed_at, authority}` or null. `--key` finds the operation a keyed command recorded under that key (`--command` names the command; `resolve` shares `archive`'s scope, project commands share one scope). A lookup never allocates, so looking a key up does not use it. An unknown id or unused key is `not_found`; `--command` naming a command without `--key` is `invalid_value`. The envelope `key` echoes the looked-up key. |
 | `runs` | `[--thread ID] [--state working\|interrupted\|completed\|cancelled\|failed] [--limit 1..100, default 20] [--cursor RUN]` | `{runs, shown, cursor, total: null}`; each run is `{id, version, archived, thread, state, provider, model, effort, budget, fence, progress, operations_total, guards_writes}`. |
 | `notes` | `[--limit 1..100, default 20] [--cursor ID]` | `{notes, shown, cursor, total: null}`: current general notes (not archived, not superseded, not chat-only), the full records `notes` prints. |
 | `threads` | `[--limit 1..100, default 20] [--cursor ID]` | `{threads, shown, cursor, total: null}`: chats that are not archived, as full records. |
 | `needs-you` | `[--limit 1..100, default 20] [--cursor ID]` | `{threads, shown, cursor, total: null}`: chats with attention, archived ones included, as full records. |
 | `projects` | `[--trash yes\|no] [--limit 1..100, default 20] [--cursor ID]` | `{projects, shown, cursor, total: null}`: projects as full records; trashed ones only with `--trash yes`. |
-| `recovery` | `[--limit 1..100, default 20] [--cursor ID]` | `{sessions, shown, cursor, total: null}`: open edit sessions, exactly as `recovery` prints them (no new fields), in session ID order. |
+| `recovery` | `[--limit 1..100, default 20] [--cursor ID]` | `{sessions, shown, cursor, total: null}`: open edit sessions, exactly as `recovery` prints them, in session ID order. Each session has `holder` (`caller` or `desktop`) and never a token. |
 | `messages` | `--thread ID [--limit 1..100, default 20] [--cursor POS]` | `{thread, chat_archived, messages, shown, cursor, total: null}`: the chat's messages that are not archived, as full records in creation order (an edited message keeps its place). An archived or trashed chat is still listed (the owner's view; `chat_archived` says so). Partial replies appear as recorded (role `assistant-partial`), and so do the desktop's writing roles. `--thread` naming another kind of record is `invalid_request` `{option: "thread", reason: "wrong_kind"}`; an unknown ID is `not_found`. |
 
 - Pass `cursor` back unchanged with the same options to get the next page; it is null on the last page. Cursors are checked before the workspace opens (`invalid_value`); a well-formed cursor that does not fit (a byte offset inside a character) is `invalid_request`, and an unknown well-formed record or run cursor gives the following page or an empty one.
@@ -209,7 +221,7 @@ Lists that can grow without bound have a bounded page form. Without page options
 - A page of `notes`, `threads`, `needs-you`, `projects` or `recovery` holds exactly the items the command prints without page options, in the same order, so the concatenated pages of an unchanged workspace equal the unpaged list. These pages carry full records, so a page's size is bounded by `--limit` times the shared service's field limits (for example 1 MiB per note), not by a fixed byte count.
 - `messages` differs from `search`'s message lane: it lists a trashed chat's messages and partial replies, which the search lane leaves out.
 - The envelope `page` repeats `{limit, shown, cursor, total}`; for `revision` and `read`, `shown` and `total` count bytes. `search` fills `page` too.
-- Search lanes: `search` returns notes (`hits`, `total`, `cursor`) and saved chat messages (`messages` with `{message, version, chat, chat_title, role, snippet, highlights, archived}`, `message_total`, `message_cursor`). The envelope `page` describes the note lane only; the message lane is carried only in `result`. Both lanes page by offset through the one `--cursor` option: pass `result.cursor` or `result.message_cursor` back with the same `--limit`, and past a lane's end that lane is empty. Owner search shows an archived chat's messages and chat-only notes with `archived: true` on `hits[]` and `messages[]` (owner decision 3); partial replies and Trashed chats are left out.
+- Search lanes: `search` returns notes (`hits`, `total`, `cursor`) and saved chat messages (`messages` with `{message, version, chat, chat_title, role, snippet, highlights, archived}`, `message_total`, `message_cursor`). Both lanes page by offset through the one `--cursor` option: pass `result.cursor` or `result.message_cursor` back with the same `--limit`, and past a lane's end that lane is empty. The envelope `page` covers both lanes: `page.cursor` is `result.cursor`, else `result.message_cursor` (null only when neither lane has more), `page.shown` counts hits and messages, and `page.total` is `total + message_total`; following `page.cursor` until null reaches every note and message once. Owner search shows an archived chat's messages and chat-only notes with `archived: true` on `hits[]` and `messages[]` (owner decision 3); partial replies and Trashed chats are left out.
 - `runs --state` accepts both `cancelled` and `interrupted`: a run stopped from outside its chat (settings, delegation, `pause`, `resume`, project changes, `archive`, crash recovery) shows `Interrupted`.
 - Text is cut: `reason`, `authority` and `progress` at 512 characters; at most 32 writes per receipt or candidate (`writes_total` has the count).
 - `guards_writes` is true for a Working run that is not archived: preference writes such as `topics-choose` come back Deferred (`conflict[].kind` `Run`) until it stops, and owner settings changes (`configure`, `delegation`, `pause`, `resume`) or archiving its chat stop it.
@@ -224,6 +236,8 @@ Lists that can grow without bound have a bounded page form. Without page options
 - Sources are read before the workspace opens, so an input error or SIGINT leaves the data directory untouched.
 - 16 MiB is only the transport bound. The shared service applies smaller field limits, which return `invalid_request` after the text is read: `ask` prompt 128 KiB, `queue` text 128 KiB, project title 1024 bytes and instructions 128 KiB, useful-intake converted text 1 MiB.
 - `--text -` (without `-file`) still stores a literal `-`.
+- **Edit tokens are secret input.** `update-buffer`, `save` and `discard` require `--token-file ABSOLUTE_PATH` or `--token-file -` (stdin): at most 128 bytes, one trailing newline trimmed, then exactly `^brnet1_[0-9a-f]{64}$`. There is no argv form (`--token` is `unknown_option`) and no environment form. A relative path is `invalid_value`; a bad file is `invalid_input` with `reason` `token_format`, `unreadable` or `is_terminal`; `--token-file -` with another `-` input is `stdin_reused`. No message repeats the file's bytes.
+- `begin-edit` and `reclaim-edit` return the token once, as `result.token`. Prefer `--token-out ABSOLUTE_PATH`, which writes the token and a newline to a new owner-only (0600) file instead (`result.token` null, `result.token_file` the path), so the token stays out of transcripts. The path must not exist (`destination_exists`) and its parent must (`invalid_request` `parent_missing`), both checked before opening. If the file cannot be written after the session opened, `begin-edit` closes that new session and reports `io_error` `{closed: true}` (`{closed: false}` if closing failed too: report the note to the owner).
 
 ### Retries
 
@@ -233,13 +247,14 @@ A key names one intended change. Reuse it only to retry the same command with th
 |---|---|
 | `read` | Changes nothing (a fresh data directory may have been initialised). |
 | `replay` | The retry uses the same operation identity. If it was applied, the retry returns its receipt (same `operation`) and changes nothing; a replayed receipt shows the original versions. If it was not applied, the retry re-attempts exactly that request, at most once, and never creates another record, message or candidate. |
-| `converge` | Reaches the same end state. It may record a new operation and bump versions, but creates no new records and leaves no unapplied candidate. A no-op `archive`, `resolve`, `unarchive`, `chat-move`, `project-link` or `project-unlink` returns `Unchanged` and records nothing; a keyed retry of an earlier change still replays its receipt. |
+| `converge` | Reaches the same end state. It may record a new operation and bump versions, but creates no new records and leaves no unapplied candidate. A no-op `archive`, `resolve`, `unarchive`, `chat-move`, `project-link` or `project-unlink` returns `Unchanged` and records nothing; a keyed retry of an earlier change still replays its receipt. For `reclaim-edit`, a retry reaches the same session and buffer but rotates the token: only the latest returned token is valid; discard any earlier one. |
 | `refuse` | At most once, never a duplicate. If the first attempt took effect, an identical retry changes nothing and returns `stale` or `rejected`. If it did not, the retry performs the change once and can return `ok`. After a lost response, read state first. |
 | `duplicate` | Repeats the change: another record, message, model turn or unapplied candidate. Never retry blindly. |
 
 | Command | `--key` | Without key | With key | Owner decision |
 |---|---|---|---|---|
 | `init` | no | converge | — | no |
+| `init` (--purpose test) | no | refuse (`workspace_exists` after success) | — | no |
 | `records` | no | read | — | no |
 | `notes` | no | read | — | no |
 | `threads` | no | read | — | no |
@@ -278,10 +293,11 @@ A key names one intended change. Reuse it only to retry the same command with th
 | `messages` | no | read | — | no |
 | `operation` | no | read | — | no |
 | `search` | no | read | — | no |
-| `begin-edit` | no | refuse (`edit_session_open` names the note and its base version) | — | no |
+| `begin-edit` | no | refuse (`edit_session_open` names the note, its base version and `holder`) | — | no |
 | `update-buffer` | no | replay (an identical retry exits 0 with `Ignored`) | — | no |
 | `save` | no | replay | — | no |
 | `discard` | no | refuse (a retry is `Ignored`, exit 3) | — | no |
+| `reclaim-edit` | no | converge (same session and buffer; the token rotates) | — | no |
 | `apply` | no | replay | — | yes |
 | `dismiss` | no | replay | — | yes |
 | `undo` | yes | duplicate (a retry after Deferred applies a second compensation; the first stays as a candidate) | replay | yes |
@@ -304,15 +320,19 @@ Keyed edge cases: different inputs under the same key give `key_conflict` (a dif
 ### Recovery recipes
 
 - **Lost response.** If `retry` is `replay`, retry the identical argv with the same `--key`. For `refuse`, read state first (`read`, `projects`, `recovery`, or check the destination): if the change is there, do not retry; if not, the identical retry performs it once. For `duplicate` without a key, inspect `notes`, `threads`, `history` or `candidates` first.
-- **Stale save** (exit 3). Use only the session your own successful `begin-edit` returned. There is no automatic rebase: stale typed work stays a conflict until you merge it.
+- **Stale save** (exit 3). Use only the session your own successful `begin-edit` returned, with its token. There is no automatic rebase: stale typed work stays a conflict until you merge it.
   1. Keep `result.session.markdown` (discard empties it).
-  2. `discard --session <result.session.id> --generation <result.session.generation>`.
-  3. `begin-edit --note N --base <conflict[0].version>`.
+  2. `discard --session <result.session.id> --generation <result.session.generation> --token-file OLD.token`.
+  3. `begin-edit --note N --base <conflict[0].version> --token-out NEW.token`.
   4. Reapply your edit to the current text.
-  5. `update-buffer --session NEW --generation 1 --text-file merged.md`.
-  6. `save --session NEW --generation 1`.
+  5. `update-buffer --session NEW --generation 1 --text-file merged.md --token-file NEW.token`.
+  6. `save --session NEW --generation 1 --token-file NEW.token`.
 - **Stale under a key** (exit 3). The key stays bound to the request that went stale, so a retry under it is `stale` or `key_conflict` again. Re-read, then make the new attempt with new inputs and a new key.
-- **`edit_session_open`** (exit 6). The note (`details.note`, opened at `details.base_version`) has unsaved writing in a session the envelope does not name. BRN does not record which caller opened a session. Write only to a session returned by your own successful `begin-edit`; otherwise report it to the owner, or wait until `recovery` no longer lists it, then `begin-edit` again. Known limit until round 3 (caller-bound sessions, [owner decisions](../../docs/work/active/cli-agent-contract/owner-decisions.md)): an agent that lost its `begin-edit` response cannot recover the session from the error; `recovery` still lists sessions for the owner.
+- **`edit_session_open`** (exit 6). The note (`details.note`, opened at `details.base_version`) has unsaved writing in a session the envelope does not name. By `details.holder`:
+  - `caller`: a CLI caller holds the token. If it is your own session whose token you lost, run `reclaim-edit --session ID --token-out NEW.token` in a test workspace (`recovery` lists the ID); the old token stops working. In an owner workspace that is `test_workspace_required`: report the note to the owner, who recovers it in the desktop (typing there adopts it; Save or Discard closes it).
+  - `desktop`: only the owner, in the BRN desktop app, can continue or close it. Report it to the owner, or wait until `recovery` no longer lists it, then `begin-edit` again.
+- **`session_token_invalid`** (exit 6). `mismatch`: the token is not this session's (another token replaced it); use the latest token you received. `desktop`: the owner adopted or holds the session; stop writing to it and report it to the owner.
+- **`upgrade_required`** (exit 6). The workspace has an older schema and nothing changed. Report it; on the owner's instruction run `brn --data-dir DIR upgrade --backup-directory ABSOLUTE_DIR`, which first saves a verified backup there. It is refused while a run is Working or an edit is open: save or discard every open edit with the previous build first.
 - **Deferred** (exit 4). For `conflict[].kind` `Note`, an edit session holds the note: wait until `recovery` no longer lists it, and discard it only if your own `begin-edit` opened it. For `Run`, wait until `read --id RUN` no longer shows it Working. Wait only within your own time budget, then report it to the owner: a run left Working by a killed process stays Working until it is recovered or the owner stops it. Once the guard clears, retry the same argv (same `--key`) if `retry` is `replay` or `converge`. If it is `duplicate` (unkeyed `undo` or `keep-in-brn`), a retry is a new operation and the first attempt stays as an unapplied candidate that `candidates` lists; report that to the owner (`dismiss` is an owner decision) and use `--key` next time. `topics-create` exception: run `topics-choose --note <result.note.id>`.
 - **Stopped run** (`ask`, exit 3, outcome `Interrupted`). Another writer stopped the run; `read --id <result.run>` shows what it recorded. A new `ask` is a new model turn.
 - **Killed `ask`** (the process died, for example after SIGKILL or a hard stop). Its run can stay Working: `runs --state working` lists it with `guards_writes: true`, and preference writes such as `topics-choose` come back Deferred. A new `ask` in that chat marks it `Interrupted` before it starts. On the owner's instruction only, `pause` or `archive` stops it; it then shows `Interrupted`. `ask` has no `--key`: after a lost `ask` response, `runs --thread T --limit 5` finds the run and `read --id RUN` shows what it recorded.
@@ -332,13 +352,34 @@ Without `--json`, stdout bytes, stderr text and exit statuses (0 or 1) stay as b
 7. `COMMAND --help` prints per-command help, and `--data-dir`/`--timeout` are accepted after the command. `brn`, `brn --unknown` and `brn notes` still exit 1 with "Supply --data-dir ABSOLUTE_DIRECTORY; run --help".
 8. Integer syntax (`--base`, `--generation`, `--hops`, `search --limit`, `--budget`), enum values (`--knowledge`, `--seed-chat`, `--sources`, `--intent`, `--provider`, `--helper-provider`, `--effort`, `--helper-effort`) and the service ranges `connections --hops 1..2` and `ask --budget 1..32` are refused before the workspace opens, with the same messages as before, so a refusal no longer initialises a fresh directory. `projects --trash` takes `yes` or `no`: any other value, which used to list active projects as `no` does, is now refused with `--trash takes yes|no` (exit 1). Machine-mode reads on a missing or empty `--data-dir` are `missing_workspace`; default-mode reads still initialise it.
 9. New commands (`revisions`, `revision`, `runs`, `operation`, `messages`), options (page options, including `--limit`/`--cursor` on `notes`, `threads`, `needs-you`, `recovery` and `projects`, `--timeout`, `--key` on `topics-create` and `knowledge-check --seed-chat yes`) and description keys are accepted; flag-less output of existing commands is unchanged.
-10. The "Agents and scripts" block of `--help` covers the new surface; the `HELP` text before it is byte-identical.
+10. The "Agents and scripts" block of `--help` covers the new surface; the `HELP` text before it was byte-identical through contract 2 (contract 3: item 17).
 11. A no-op `archive`, `resolve`, `unarchive`, `chat-move`, `project-link` or `project-unlink` prints `{"outcome":"Unchanged","record":ID,"version":V}` (exit 0) instead of a new receipt, and records nothing (owner decision B4). Checked in-repo callers make only real changes: `crates/brn/tests/agent_contract.rs` (keyed archive), `docs/work/active/chats-and-projects/cli-witness.py` (archive, unarchive) and `docs/work/active/projects/cli-witness.py` (all real changes). The desktop keeps the receipt path for now.
 12. A workspace the CLI creates gets `auth_file: null` instead of a derived `CODEX_HOME/auth.json` or `~/.codex/auth.json` (owner decision B2, see Credentials). Every in-repo caller that runs a provider passes `--auth-file` or `--credentials-dir` to `configure`.
+13. The CLI never upgrades a workspace implicitly. Any command on a schema 3, 4 or 5 store, reads included, is refused before any write with `upgrade_required`, in both modes (default mode: the message line, exit 1). Only `brn upgrade --backup-directory ABSOLUTE_DIR` upgrades, backup-first. Save or discard every open edit, contract-2 CLI sessions included, with the previous build first. The desktop keeps its backup-first upgrade on open. Before, a CLI open of a schema 3/4 store upgraded it when a backup folder was remembered.
+14. Fresh workspaces start at schema 6, which a schema-5 build refuses. Upgrades from 3, 4 and 5 publish `brn-before-schema-6-<uuid>.sqlite3` (before: `brn-before-project-schema-5-<uuid>.sqlite3`). The upgrade hint keeps "Schema 3/4 needs an external pre-upgrade backup folder…" for 3/4 and adds "Schema 5 needs an external pre-upgrade backup folder…" for 5.
+15. `update-buffer`, `save` and `discard` require `--token-file`; there is no bypass. `begin-edit` prints the session with `holder`, `token` and `token_file`, and sessions in `recovery` show `holder`. The default-mode `edit_session_open` line is unchanged.
+16. Restored copies are owner workspaces whose open sessions are desktop-held; `restore` adds `workspace_purpose`.
+17. The `HELP` text names `init [--purpose test]`, the token options and `reclaim-edit`; the "Agents and scripts" block adds `--actor`, `authority`, tokens and `upgrade_required`.
+
+### Changes from contract 2
+
+Every in-repo consumer moved to contract 3 in the same change; there is no contract-2 switch.
+
+| Change | Contract 2 | Contract 3 |
+|---|---|---|
+| `contract` | `2` | `3`, in every envelope, in `brn --json --help` and in per-command help |
+| Edit writes | `update-buffer`, `save`, `discard` took `--session` alone | they require `--token-file`; a wrong or desktop-held token is `session_token_invalid` |
+| `begin-edit` | the session | the session plus `holder`, `token`, `token_file`; new `--token-out`; sessions and `edit_session_open` add `holder` |
+| New surface | none | `reclaim-edit` (test workspaces); `init --purpose test`; global `--actor`/`BRN_ACTOR`; `actor` in `history` pages and `operation` |
+| `authority` | absent | in every envelope: `{workspace_purpose, cli_authority, enforced: false, actor}`; `restore` adds `workspace_purpose` (always `owner`, sessions desktop-held) |
+| `search` `page` | described the note lane only | covers both lanes: `cursor` falls back to `message_cursor`, `shown` and `total` count both |
+| Symlinked data folder | a read on a symlink to an empty or missing folder was `missing_workspace` | always `data_folder_unusable` `{problem: "symlink_refused"}`, nothing created |
+| Codes | — | new `session_token_invalid`, `test_workspace_required`, `upgrade_required`; reasons `workspace_exists`, `edit_closed` |
+| Schema | 5; a CLI open of a 3/4 store upgraded it when a backup folder was remembered | 6, which a schema-5 build refuses; the CLI refuses 3–5 with `upgrade_required` (nothing changed) and only `upgrade --backup-directory` upgrades, backup-first |
 
 ### Changes from contract 1
 
-Every in-repo consumer moved to contract 2 in the same change; there is no contract-1 switch.
+Contract 2 replaced contract 1 the same way; there was no contract-1 switch.
 
 | Change | Contract 1 | Contract 2 |
 |---|---|---|
@@ -363,7 +404,7 @@ Every in-repo consumer moved to contract 2 in the same change; there is no contr
 
 ### Remaining gaps
 
-Known limits of this contract (for example `ask` and useful intake take no `--key`, and owner authority is stated rather than enforced at the CLI) are listed with their evidence in the [CLI agent contract evidence](../../docs/work/active/cli-agent-contract/evidence.md#round-2b-remaining-gaps).
+Known limits of this contract (for example `ask` and useful intake take no `--key`, and owner authority is stated rather than enforced at the CLI) are listed with their evidence in the [CLI agent contract evidence](../../docs/work/active/cli-agent-contract/evidence.md#round-3-remaining-gaps). Workspace authority is phase 1: the purpose is recorded and reported (`enforced: false`). Phase 2 (a separate assignment with a desktop review UI) makes CLI writes in owner workspaces proposals the owner accepts and refuses owner-decision commands there; phase 3 adds scoped, expiring grants issued from the desktop. Receipts written inside a Run carry no actor.
 
 ### Before and after
 

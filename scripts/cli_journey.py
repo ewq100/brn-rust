@@ -8,7 +8,9 @@ data under a private temporary root, and checks only the documented
 envelope and description: no SQLite access, no reads under a data
 directory, no provider calls (no `ask`, Markdown intake only). Text reaches
 `brn` through files or stdin, so the transcript holds paths and SHA-256
-digests, never content. `Brn`, `child_env()` and `FIXTURES` are reusable by
+digests, never content. Edit tokens travel only through `--token-out` and
+`--token-file` files, so no token reaches argv or the transcript. The
+journey workspace is a test workspace (`init --purpose test`). `Brn`, `child_env()` and `FIXTURES` are reusable by
 other witnesses.
 """
 import argparse
@@ -144,8 +146,11 @@ class Brn:
         self.check(isinstance(envelope, dict), 'the envelope is not an object', step)
         step.update({name: envelope.get(name) for name in ('status', 'outcome', 'operation', 'key', 'retry')})
         step['error_code'] = (envelope.get('error') or {}).get('code')
-        self.check(envelope.get('contract') == 2, 'contract is not 2', step)
+        self.check(envelope.get('contract') == 3, 'contract is not 3', step)
         self.check('page' in envelope and 'stop' in envelope, 'the envelope lacks page or stop', step)
+        authority = envelope.get('authority')
+        self.check(isinstance(authority, dict) and authority.get('enforced') is False,
+                   'the envelope lacks authority with enforced false', step)
         self.check(envelope.get('exit') == code, f'exit {envelope.get("exit")} differs from {code}', step)
         self.check(envelope.get('ok') == (code == 0), 'ok does not match exit', step)
         self.check(STATUSES.get(envelope.get('status')) == code,
@@ -223,16 +228,30 @@ def journey(brn, root):
     check = brn.check
     workspace, usage_dir = root / 'workspace', root / 'never-created'
     restored = root / 'restored'
+    tokens = root / 'tokens'
+    tokens.mkdir(mode=0o700)
+
+    def begin(note, base):
+        """`begin-edit --token-out FILE`: the session ID and its token file."""
+        path = tokens / f'edit-{len(list(tokens.iterdir()))}.token'
+        result = brn.ok('begin-edit', data=workspace, note=note, base=base, token_out=path)
+        check(result['token'] is None and result['token_file'] == str(path) and result['holder'] == 'caller',
+              'begin-edit --token-out did not return the token file')
+        check(path.stat().st_mode & 0o777 == 0o600, 'the token file is not owner-only')
+        return result['id'], str(path)
 
     # 1. Discovery.
     description = brn.describe()
-    check(description.get('contract') == 2, 'description contract is not 2')
+    check(description.get('contract') == 3, 'description contract is not 3')
+    check(description['authority']['enforced'] is False and description['authority']['default'] == 'owner',
+          'description lacks the phase-1 authority')
     commands = {c['name']: c for c in description['commands']}
     entry = brn.command_help('note-create')
-    check(entry == {'contract': 2, 'command': commands['note-create']}, 'note-create --help differs from the description')
+    check(entry == {'contract': 3, 'command': commands['note-create']}, 'note-create --help differs from the description')
     used = ['init', 'settings', 'project-create', 'project-document', 'note-create', 'read', 'begin-edit',
-            'update-buffer', 'save', 'discard', 'search', 'history', 'undo', 'candidates', 'notes',
-            'intake', 'backup', 'export', 'restore', 'projects', 'messages', 'knowledge-check']
+            'update-buffer', 'save', 'discard', 'reclaim-edit', 'search', 'history', 'undo', 'candidates',
+            'notes', 'intake', 'backup', 'export', 'restore', 'projects', 'messages', 'knowledge-check']
+    check('token-file' in commands['save']['required'], 'save does not require --token-file')
     check(all(name in commands for name in used), 'a journey command is missing from the description')
     check(len(description['statuses']) == 10, 'description does not list 10 statuses')
     check(any(v['when'] == {'option': 'intent', 'equals': 'useful'} for v in commands['intake']['retry']['variants']),
@@ -241,8 +260,13 @@ def journey(brn, root):
     check(set(owner) == {'project-create', 'project-document', 'undo'}, f'unexpected owner decisions {owner}')
     brn.notes.append({'owner_decision_commands_run_by_test_harness_on_synthetic_data': owner})
 
-    # 2. A fresh workspace with no credentials.
-    brn.call('init', data=workspace)
+    # 2. A fresh test workspace with no credentials, under a named actor.
+    init = brn.call('init', data=workspace, purpose='test', actor='journey-1')
+    check(init['retry'] == 'refuse', 'init --purpose test is not refuse')
+    check(init['authority'] == {'workspace_purpose': 'test', 'cli_authority': 'full', 'enforced': False,
+                                'actor': 'journey-1'}, f'unexpected authority {init["authority"]}')
+    again = brn.call('init', data=workspace, purpose='test', expect=6)
+    check(again['error']['details'].get('reason') == 'workspace_exists', 'a second init --purpose test was not refused')
     settings = brn.ok('settings', data=workspace)
     # A workspace the CLI creates has no credential source until `configure`.
     check(settings.get('auth_file') is None and settings.get('credentials_dir') is None,
@@ -267,13 +291,15 @@ def journey(brn, root):
           'stdin text did not round-trip exactly')
 
     # 6. Edit A with identical retries.
-    a = brn.ok('begin-edit', data=workspace, note=note, base=1)['id']
-    brn.call('update-buffer', data=workspace, session=a, generation=1, text_file=files['edit_a'])
-    retry = brn.call('update-buffer', data=workspace, session=a, generation=1, text_file=files['edit_a'])
+    a, a_token = begin(note, 1)
+    brn.call('update-buffer', data=workspace, session=a, generation=1, text_file=files['edit_a'],
+             token_file=a_token)
+    retry = brn.call('update-buffer', data=workspace, session=a, generation=1, text_file=files['edit_a'],
+                     token_file=a_token)
     check(retry['outcome'] == 'Ignored', 'identical update-buffer retry was not Ignored')
-    save_a = brn.call('save', data=workspace, session=a, generation=1)
+    save_a = brn.call('save', data=workspace, session=a, generation=1, token_file=a_token, actor='journey-1')
     check(save_a['changed'][0]['version'] == 2, 'save A did not produce version 2')
-    again = brn.call('save', data=workspace, session=a, generation=1)
+    again = brn.call('save', data=workspace, session=a, generation=1, token_file=a_token, actor='journey-2')
     check(again['operation'] == save_a['operation'], 'save retry did not replay')
 
     # 7-8. Project boundary in search; history has the save.
@@ -283,18 +309,25 @@ def journey(brn, root):
     check(all(hit['note'] != document_id for hit in general['hits']), 'general search shows the project document')
     history = brn.ok('history', data=workspace)
     check(any(receipt['operation'] == save_a['operation'] for receipt in history), 'history lacks the save')
+    # The save's receipt names its first actor; the replay under another kept it.
+    saved = [r for r in brn.ok('history', data=workspace, limit=100)['receipts']
+             if r['operation'] == save_a['operation']]
+    check(len(saved) == 1 and saved[0]['actor'] == 'journey-1', 'history does not show the save\'s actor')
+    check(brn.ok('operation', data=workspace, id=save_a['operation'])['actor'] == 'journey-1',
+          'operation does not show the save\'s actor')
     # Bounded history for one record: pages of one, in commit order.
     paged = brn.pages('history', 'receipts', data=workspace, record=note, limit=1)
     check([r['operation'] for r in paged] == [note_call['operation'], save_a['operation']],
           'paged history --record differs from the note\'s receipts')
 
     # 9. A stale save, and the open session it leaves.
-    b = brn.ok('begin-edit', data=workspace, note=note, base=2)['id']
-    brn.call('update-buffer', data=workspace, session=b, generation=1, text_file=files['edit_b'])
-    brn.call('save', data=workspace, session=b, generation=1)
-    a2 = brn.ok('begin-edit', data=workspace, note=note, base=2)['id']
-    brn.call('update-buffer', data=workspace, session=a2, generation=1, text_file=files['edit_late'])
-    stale = brn.call('save', data=workspace, session=a2, generation=1, expect=3)
+    b, b_token = begin(note, 2)
+    brn.call('update-buffer', data=workspace, session=b, generation=1, text_file=files['edit_b'], token_file=b_token)
+    brn.call('save', data=workspace, session=b, generation=1, token_file=b_token)
+    a2, a2_token = begin(note, 2)
+    brn.call('update-buffer', data=workspace, session=a2, generation=1, text_file=files['edit_late'],
+             token_file=a2_token)
+    stale = brn.call('save', data=workspace, session=a2, generation=1, token_file=a2_token, expect=3)
     check(stale['outcome'] == 'Stale', 'save of A2 was not Stale')
     check(stale['conflict'] == [{'id': note, 'kind': 'Note', 'version': 3, 'archived': False, 'open_edit': True}],
           f'unexpected stale conflict {stale["conflict"]}')
@@ -309,18 +342,24 @@ def journey(brn, root):
     # acts on A2 only because its own successful begin-edit returned it.
     check('session' not in busy['error']['details'] and a2 not in json.dumps(busy),
           'edit_session_open names the open session')
-    check(busy['error']['details'] == {'note': note, 'base_version': 2}, 'edit_session_open details changed')
+    check(busy['error']['details'] == {'note': note, 'base_version': 2, 'holder': 'caller'},
+          'edit_session_open details changed')
+    # Another session's token cannot write to A2.
+    taken = brn.call('update-buffer', data=workspace, session=a2, generation=2, text_file=files['edit_b'],
+                     token_file=b_token, expect=6)
+    check(taken['error'] == {'code': 'session_token_invalid', 'message': taken['error']['message'],
+                             'details': {'reason': 'mismatch'}}, 'a foreign token was not session_token_invalid')
 
     # 10. Recover by the README recipe: keep the buffer, discard, begin at the current version, save.
     session = stale['result']['session']
-    brn.call('discard', data=workspace, session=session['id'], generation=session['generation'])
-    c = brn.ok('begin-edit', data=workspace, note=note, base=stale['conflict'][0]['version'])['id']
-    brn.call('update-buffer', data=workspace, session=c, generation=1, text_file=files['merged'])
-    merged = brn.call('save', data=workspace, session=c, generation=1)
+    brn.call('discard', data=workspace, session=session['id'], generation=session['generation'], token_file=a2_token)
+    c, c_token = begin(note, stale['conflict'][0]['version'])
+    brn.call('update-buffer', data=workspace, session=c, generation=1, text_file=files['merged'], token_file=c_token)
+    merged = brn.call('save', data=workspace, session=c, generation=1, token_file=c_token)
     check(merged['changed'][0]['version'] == 4, 'merged save did not produce version 4')
     check(brn.ok('read', data=workspace, id=note)['data']['Note']['markdown'] == FIXTURES['merged'],
           'merged text not saved')
-    closed = brn.call('save', data=workspace, session=a2, generation=1, expect=3)
+    closed = brn.call('save', data=workspace, session=a2, generation=1, token_file=a2_token, expect=3)
     check(closed['outcome'] == 'Closed', 'save on the discarded session was not Closed')
     # Every accepted revision reassembles from bounded byte pages.
     revisions = brn.pages('revisions', 'revisions', data=workspace, note=note, limit=2)
@@ -341,7 +380,17 @@ def journey(brn, root):
           'a later page of a changed note was not Stale')
 
     # 11. A Deferred keyed undo, retried after the guard clears.
-    d = brn.ok('begin-edit', data=workspace, note=note, base=4)['id']
+    d, d_token = begin(note, 4)
+    # A lost token in a test workspace: reclaim-edit rotates it; the old one is refused.
+    new_token = tokens / 'reclaimed.token'
+    reclaimed = brn.ok('reclaim-edit', data=workspace, session=d, token_out=new_token)
+    check(reclaimed['id'] == d and reclaimed['generation'] == 0 and reclaimed['token'] is None,
+          'reclaim-edit did not keep the session')
+    old = brn.call('update-buffer', data=workspace, session=d, generation=1, text_file=files['edit_a'],
+                   token_file=d_token, expect=6)
+    check(old['error']['code'] == 'session_token_invalid' and old['error']['details'] == {'reason': 'mismatch'},
+          'the token reclaim-edit replaced still wrote')
+    d_token = str(new_token)
     deferred = brn.call('undo', data=workspace, operation=merged['operation'], key='u1', expect=4)
     check(deferred['retry'] == 'replay' and deferred['operation'], 'deferred keyed undo lacks replay identity')
     check(deferred['conflict'][0]['kind'] == 'Note', 'deferred undo does not name the note')
@@ -350,7 +399,7 @@ def journey(brn, root):
     state = brn.ok('operation', data=workspace, key='u1', command_='undo')
     check(state['state'] == 'prepared' and state['operation'] == deferred['operation'],
           'operation --key does not show the prepared compensation')
-    brn.call('discard', data=workspace, session=d, generation=0)
+    brn.call('discard', data=workspace, session=d, generation=0, token_file=d_token)
     undone = brn.call('undo', data=workspace, operation=merged['operation'], key='u1')
     check(undone['outcome'] == 'Applied' and undone['operation'] == deferred['operation'],
           'keyed undo did not apply the same compensation')
@@ -430,7 +479,9 @@ def journey(brn, root):
     brn.call('export', data=workspace, destination=export)
     occupied = brn.call('export', data=workspace, destination=export, expect=6)
     check(occupied['error']['code'] == 'destination_exists', 'second export was not destination_exists')
-    brn.call('restore', data=restored, source=backup)
+    copied = brn.ok('restore', data=restored, source=backup)
+    check(copied['workspace_purpose'] == 'owner', 'a restored copy is not an owner workspace')
+    # reads only: restored copy is an owner workspace
     check(brn.ok('notes', data=restored) == notes, 'restored notes differ')
     check(brn.ok('projects', data=restored) == projects, 'restored projects differ')
     copy = brn.ok('search', data=restored, query='curlew', project=project)

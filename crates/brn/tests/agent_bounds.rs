@@ -58,7 +58,7 @@ fn receipt_total(root: &Root, data: &Path) -> Value {
 #[test]
 fn timeout_with_time_to_spare_changes_nothing() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = root.workspace("data");
     let argv = [
         "--json",
         "--data-dir",
@@ -192,8 +192,7 @@ fn timeout_during_fifo_wait_is_a_soft_deadline() {
 #[test]
 fn held_write_lock_reports_busy_and_creates_nothing() {
     let root = Root::new();
-    let data = root.join("data");
-    ok(&root, &data, &["init"]);
+    let data = root.workspace("data");
     let before = receipt_total(&root, &data);
     let lock = HeldLock::hold(&data);
     let started = Instant::now();
@@ -224,8 +223,7 @@ fn held_write_lock_reports_busy_and_creates_nothing() {
 #[test]
 fn held_lock_past_deadline_hard_stops_with_one_line() {
     let root = Root::new();
-    let data = root.join("data");
-    ok(&root, &data, &["init"]);
+    let data = root.workspace("data");
     let before = receipt_total(&root, &data);
     let lock = HeldLock::hold(&data);
     let argv = [
@@ -261,8 +259,7 @@ fn held_lock_past_deadline_hard_stops_with_one_line() {
 #[test]
 fn busy_then_keyed_retry_applies_once() {
     let root = Root::new();
-    let data = root.join("data");
-    ok(&root, &data, &["init"]);
+    let data = root.workspace("data");
     let argv = ["note-create", "--title", "T", "--text", "x", "--key", "b1"];
     let lock = HeldLock::hold(&data);
     let busy = call(&root, &data, &argv);
@@ -311,8 +308,7 @@ fn sigint_during_busy_wait(timeout: Option<&str>, then: Option<i32>) -> (Root, R
             .next()
             .expect("SIGINT always arrived before the busy wait");
         let root = Root::new();
-        let data = root.join("data");
-        ok(&root, &data, &["init"]);
+        let data = root.workspace("data");
         let before = receipt_total(&root, &data);
         let lock = HeldLock::hold(&data);
         let mut argv = vec!["--json", "--data-dir", data.to_str().unwrap()];
@@ -372,10 +368,10 @@ fn sigint_then_deadline_still_hard_stops() {
 #[test]
 fn begin_edit_under_a_held_lock_is_busy() {
     let root = Root::new();
-    let data = root.join("data");
+    let data = root.workspace("data");
     let note = note(&root, &data, "N", "text");
     let begin = ["begin-edit", "--note", note.as_str(), "--base", "1"];
-    ok(&root, &data, &begin);
+    begin_edit(&root, &data, &note, 1);
     let lock = HeldLock::hold(&data);
     let busy = call(&root, &data, &begin);
     assert_error(&busy, "failed", "busy");
@@ -389,6 +385,6 @@ fn begin_edit_under_a_held_lock_is_busy() {
     assert_error(&open, "rejected", "edit_session_open");
     assert_eq!(
         open["error"]["details"],
-        serde_json::json!({"note": note, "base_version": 1})
+        serde_json::json!({"note": note, "base_version": 1, "holder": "caller"})
     );
 }

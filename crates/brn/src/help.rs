@@ -5,7 +5,7 @@ use serde_json::{json, Value};
 
 /// `(command, summary, example)`; every command in the table has one entry.
 pub(crate) static TEXT: &[(&str, &str, &str)] = &[
-    ("init", "Create or open the workspace and print its settings.", "brn --json --data-dir DIR init"),
+    ("init", "Create or open the workspace and print its settings. --purpose test creates a test workspace in a new folder only.", "brn --json --data-dir /abs/fresh-test init --purpose test"),
     ("records", "List every record (or one page with --limit).", "brn --json --data-dir DIR records --kind Note --limit 20"),
     ("notes", "List current general notes (or one page with --limit).", "brn --json --data-dir DIR notes --limit 20"),
     ("threads", "List chats that are not archived (or one page with --limit).", "brn --json --data-dir DIR threads --limit 20"),
@@ -43,10 +43,11 @@ pub(crate) static TEXT: &[(&str, &str, &str)] = &[
     ("messages", "List one chat's messages in creation order, one page at a time.", "brn --json --data-dir DIR messages --thread CHAT --limit 20"),
     ("operation", "Show where an operation stands, by id or by a keyed command's key.", "brn --json --data-dir DIR operation --key plan-1 --command note-create"),
     ("search", "Search current notes and saved chat messages; page either lane with --cursor (result.cursor or result.message_cursor).", "brn --json --data-dir DIR search --query 'loading depth' --limit 5"),
-    ("begin-edit", "Open an edit session on a note at a base version.", "brn --json --data-dir DIR begin-edit --note N --base 2"),
-    ("update-buffer", "Replace your session's unsaved text.", "brn --json --data-dir DIR update-buffer --session S --generation 1 --text-file /abs/draft.md"),
-    ("save", "Save your session's text as the next note version.", "brn --json --data-dir DIR save --session S --generation 1"),
-    ("discard", "Discard your session's unsaved text and close it.", "brn --json --data-dir DIR discard --session S --generation 1"),
+    ("begin-edit", "Open an edit session on a note at a base version; its token is returned once (result.token, or the new owner-only --token-out file).", "brn --json --data-dir DIR begin-edit --note N --base 2 --token-out /abs/edit.token"),
+    ("update-buffer", "Replace your session's unsaved text, with your session's token.", "brn --json --data-dir DIR update-buffer --session S --generation 1 --text-file /abs/draft.md --token-file /abs/edit.token"),
+    ("save", "Save your session's text as the next note version, with your session's token.", "brn --json --data-dir DIR save --session S --generation 1 --token-file /abs/edit.token"),
+    ("discard", "Discard your session's unsaved text and close it, with your session's token.", "brn --json --data-dir DIR discard --session S --generation 1 --token-file /abs/edit.token"),
+    ("reclaim-edit", "Test workspaces only: a new token for an open edit session whose token was lost; the earlier token stops working.", "brn --json --data-dir DIR reclaim-edit --session S --token-out /abs/new.token"),
     ("apply", "Apply one exact reviewed candidate.", "brn --json --data-dir DIR apply --operation OP"),
     ("dismiss", "Dismiss one exact candidate.", "brn --json --data-dir DIR dismiss --operation OP"),
     ("undo", "Undo an applied operation with a compensating change.", "brn --json --data-dir DIR undo --operation OP --key undo-1"),
@@ -68,7 +69,10 @@ pub(crate) static TEXT: &[(&str, &str, &str)] = &[
 pub(crate) static NOTES: &[(&str, &str)] = &[
     ("intake", "A keyed full/chat/project intake replays when bytes, path, scope and title match a committed import, without converting or sending the document again; if that import found the bytes already imported, the retry converts again and records only an observation. --thread names a chat; naming a project there attaches the document to that project, which is an owner decision (use --intent project --project ID)."),
     ("messages", "Lists the chat's messages that are not archived, in creation order, also when the chat is archived (chat_archived says so). Partial replies appear as recorded (role assistant-partial). search's message lane differs: it leaves out Trashed chats and partial replies."),
-    ("save", "Stale save (exit 3), only for a session your own begin-edit returned: 1. keep result.session.markdown; 2. discard --session <result.session.id> --generation <result.session.generation>; 3. begin-edit --note N --base <conflict[0].version>; 4. reapply your edit; 5. update-buffer --session NEW --generation 1 --text-file merged.md; 6. save --session NEW --generation 1."),
+    ("save", "Stale save (exit 3), only for a session your own begin-edit returned: 1. keep result.session.markdown; 2. discard --session <result.session.id> --generation <result.session.generation> --token-file OLD.token; 3. begin-edit --note N --base <conflict[0].version> --token-out NEW.token; 4. reapply your edit; 5. update-buffer --session NEW --generation 1 --text-file merged.md --token-file NEW.token; 6. save --session NEW --generation 1 --token-file NEW.token."),
+    ("begin-edit", "holder caller means a CLI caller holds the token; holder desktop means only the owner, in the BRN desktop app, can continue or close it. A retried begin-edit on a note whose session you opened gets edit_session_open with holder caller: in a test workspace run reclaim-edit; otherwise report the note to the owner."),
+    ("reclaim-edit", "In an owner workspace this is refused with test_workspace_required: the owner recovers the edit in the BRN desktop app. The buffer and generation are kept."),
+    ("init", "Never create the desktop's own data folder with --purpose test; use a fresh throwaway folder. A folder that already holds a workspace is refused with invalid_request reason workspace_exists. The CLI cannot change a workspace's purpose afterwards."),
 ];
 
 fn text_of(name: &str) -> (&'static str, &'static str) {

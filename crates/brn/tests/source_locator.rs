@@ -28,7 +28,7 @@ fn json_command(data: &Path, args: &[&str]) -> Value {
 fn useful_intake_of_one_markdown_file_through_two_spellings_reuses_its_chat() {
     let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
     let data = root.path().join("useful");
-    json_command(&data, &["init"]);
+    json_command(&data, &["init", "--purpose", "test"]);
     let missing = root.path().join("missing-auth.json");
     json_command(
         &data,
@@ -92,7 +92,7 @@ fn useful_intake_of_one_markdown_file_through_two_spellings_reuses_its_chat() {
 /// provider step fails offline.
 fn offline_store(root: &Path) -> std::path::PathBuf {
     let data = root.join("useful");
-    json_command(&data, &["init"]);
+    json_command(&data, &["init", "--purpose", "test"]);
     let missing = root.join("missing-auth.json");
     json_command(
         &data,
