@@ -4,6 +4,8 @@
 
 # Agent capabilities Slice 0 implementation plan
 
+**Principal disposition, 17 October:** D2 source d252a505 is independently approved; qualification ca2bd94b and [local contract acceptance](d2/principal-disposition.md) preserve the approved logic. Actual guard outcomes are3caught/1NO VERDICT at242.189064/300s, closed. B4 owns heavy; D-S/D-M remain owner gates for D3/D4. INT-D and broader qualification are separate. This supersedes earlier slice checkpoints below.
+
 **Principal disposition, 17 October:** D1B source a94b9c99 has Opus2 approval and [local contract acceptance](d1b/principal-disposition.md), preserving all qualification limits. D2 may prepare the remaining continuation delta source-only from the local acceptance commit. B3 owns the sole heavy slot; D-S/D-M remain unresolved. This supersedes the dated current-slice checkpoint below.
 
 **Current slice:** D1A remains accepted at `964567aa`. D1B corrected source a94b9c99 is frozen for fresh principal Opus2; [handoff](d1b/review1-final-handoff.md) records AI419/0/1, core15/0/0, CLI161/0/0, export5/0/0, affected lint/fmt and six actual targeted supplement catches. Original mutation verdicts remain source-bound; cumulative827.261617/1800s, heavy explicitly released. Independent approval/principal disposition/live qualification remain separate.
