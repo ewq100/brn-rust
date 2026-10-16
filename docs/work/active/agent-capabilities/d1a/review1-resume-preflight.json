@@ -1,0 +1,8 @@
+{
+  "head": "202bf2d747bca6fab16a9fffdfa55c45d24bd7eb",
+  "branch": "work/d1a-20261016",
+  "tmpdir": "/private/tmp/brn-d1a-review1-9bfvud8n",
+  "initial_cargo_rustc_test_processes": [],
+  "before_source_hashes_match": true,
+  "heavy_grant": "principal explicit after B1a ca44bd79 release"
+}

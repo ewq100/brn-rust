@@ -1,0 +1,534 @@
+{
+  "outcomes": [
+    {
+      "scenario": "Baseline",
+      "summary": "Success",
+      "log_path": "log/baseline.log",
+      "diff_path": null,
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 14.917473042,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-threads-core@0.1.0",
+            "--locked",
+            "--offline",
+            "--test=message_search_scope"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.744113084,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=brn-threads-core@0.1.0",
+            "--locked",
+            "--offline",
+            "--test=message_search_scope"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/brn-threads-core/src/projects.rs:338:9: replace Store::project_command_body -> Result<Converged<Receipt>> with Ok(Converged::new())",
+          "package": "brn-threads-core",
+          "file": "crates/brn-threads-core/src/projects.rs",
+          "function": {
+            "function_name": "Store::project_command_body",
+            "return_type": "-> Result<Converged<Receipt>>",
+            "span": {
+              "start": {
+                "line": 331,
+                "column": 5
+              },
+              "end": {
+                "line": 833,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 338,
+              "column": 9
+            },
+            "end": {
+              "line": 832,
+              "column": 40
+            }
+          },
+          "replacement": "Ok(Converged::new())",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/crates__brn-threads-core__src__projects.rs_line_338_col_9.log",
+      "diff_path": "diff/crates__brn-threads-core__src__projects.rs_line_338_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.953985625,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-threads-core@0.1.0",
+            "--locked",
+            "--offline",
+            "--test=message_search_scope"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/brn-threads-core/src/projects.rs:338:9: replace Store::project_command_body -> Result<Converged<Receipt>> with Ok(Converged::from_iter([Default::default()]))",
+          "package": "brn-threads-core",
+          "file": "crates/brn-threads-core/src/projects.rs",
+          "function": {
+            "function_name": "Store::project_command_body",
+            "return_type": "-> Result<Converged<Receipt>>",
+            "span": {
+              "start": {
+                "line": 331,
+                "column": 5
+              },
+              "end": {
+                "line": 833,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 338,
+              "column": 9
+            },
+            "end": {
+              "line": 832,
+              "column": 40
+            }
+          },
+          "replacement": "Ok(Converged::from_iter([Default::default()]))",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/crates__brn-threads-core__src__projects.rs_line_338_col_9_001.log",
+      "diff_path": "diff/crates__brn-threads-core__src__projects.rs_line_338_col_9_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.933087083,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-threads-core@0.1.0",
+            "--locked",
+            "--offline",
+            "--test=message_search_scope"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/brn-threads-core/src/projects.rs:338:9: replace Store::project_command_body -> Result<Converged<Receipt>> with Ok(Converged::new(Default::default()))",
+          "package": "brn-threads-core",
+          "file": "crates/brn-threads-core/src/projects.rs",
+          "function": {
+            "function_name": "Store::project_command_body",
+            "return_type": "-> Result<Converged<Receipt>>",
+            "span": {
+              "start": {
+                "line": 331,
+                "column": 5
+              },
+              "end": {
+                "line": 833,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 338,
+              "column": 9
+            },
+            "end": {
+              "line": 832,
+              "column": 40
+            }
+          },
+          "replacement": "Ok(Converged::new(Default::default()))",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/crates__brn-threads-core__src__projects.rs_line_338_col_9_002.log",
+      "diff_path": "diff/crates__brn-threads-core__src__projects.rs_line_338_col_9_002.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.976721167,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-threads-core@0.1.0",
+            "--locked",
+            "--offline",
+            "--test=message_search_scope"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/brn-threads-core/src/projects.rs:338:9: replace Store::project_command_body -> Result<Converged<Receipt>> with Ok(Converged::from(Default::default()))",
+          "package": "brn-threads-core",
+          "file": "crates/brn-threads-core/src/projects.rs",
+          "function": {
+            "function_name": "Store::project_command_body",
+            "return_type": "-> Result<Converged<Receipt>>",
+            "span": {
+              "start": {
+                "line": 331,
+                "column": 5
+              },
+              "end": {
+                "line": 833,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 338,
+              "column": 9
+            },
+            "end": {
+              "line": 832,
+              "column": 40
+            }
+          },
+          "replacement": "Ok(Converged::from(Default::default()))",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/crates__brn-threads-core__src__projects.rs_line_338_col_9_003.log",
+      "diff_path": "diff/crates__brn-threads-core__src__projects.rs_line_338_col_9_003.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.96070075,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-threads-core@0.1.0",
+            "--locked",
+            "--offline",
+            "--test=message_search_scope"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/brn-threads-core/src/projects.rs:580:25: replace && with || in Store::project_command_body",
+          "package": "brn-threads-core",
+          "file": "crates/brn-threads-core/src/projects.rs",
+          "function": {
+            "function_name": "Store::project_command_body",
+            "return_type": "-> Result<Converged<Receipt>>",
+            "span": {
+              "start": {
+                "line": 331,
+                "column": 5
+              },
+              "end": {
+                "line": 833,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 580,
+              "column": 25
+            },
+            "end": {
+              "line": 580,
+              "column": 27
+            }
+          },
+          "replacement": "||",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/crates__brn-threads-core__src__projects.rs_line_580_col_25.log",
+      "diff_path": "diff/crates__brn-threads-core__src__projects.rs_line_580_col_25.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.966428167,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-threads-core@0.1.0",
+            "--locked",
+            "--offline",
+            "--test=message_search_scope"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/brn-threads-core/src/projects.rs:579:25: replace && with || in Store::project_command_body",
+          "package": "brn-threads-core",
+          "file": "crates/brn-threads-core/src/projects.rs",
+          "function": {
+            "function_name": "Store::project_command_body",
+            "return_type": "-> Result<Converged<Receipt>>",
+            "span": {
+              "start": {
+                "line": 331,
+                "column": 5
+              },
+              "end": {
+                "line": 833,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 579,
+              "column": 25
+            },
+            "end": {
+              "line": 579,
+              "column": 27
+            }
+          },
+          "replacement": "||",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/crates__brn-threads-core__src__projects.rs_line_579_col_25.log",
+      "diff_path": "diff/crates__brn-threads-core__src__projects.rs_line_579_col_25.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.959515041,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-threads-core@0.1.0",
+            "--locked",
+            "--offline",
+            "--test=message_search_scope"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/brn-threads-core/src/projects.rs:578:24: delete ! in Store::project_command_body",
+          "package": "brn-threads-core",
+          "file": "crates/brn-threads-core/src/projects.rs",
+          "function": {
+            "function_name": "Store::project_command_body",
+            "return_type": "-> Result<Converged<Receipt>>",
+            "span": {
+              "start": {
+                "line": 331,
+                "column": 5
+              },
+              "end": {
+                "line": 833,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 578,
+              "column": 24
+            },
+            "end": {
+              "line": 578,
+              "column": 25
+            }
+          },
+          "replacement": "",
+          "genre": "UnaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__brn-threads-core__src__projects.rs_line_578_col_24.log",
+      "diff_path": "diff/crates__brn-threads-core__src__projects.rs_line_578_col_24.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 3.849380833,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-threads-core@0.1.0",
+            "--locked",
+            "--offline",
+            "--test=message_search_scope"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.672127125,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=brn-threads-core@0.1.0",
+            "--locked",
+            "--offline",
+            "--test=message_search_scope"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/brn-threads-core/src/projects.rs:580:38: replace != with == in Store::project_command_body",
+          "package": "brn-threads-core",
+          "file": "crates/brn-threads-core/src/projects.rs",
+          "function": {
+            "function_name": "Store::project_command_body",
+            "return_type": "-> Result<Converged<Receipt>>",
+            "span": {
+              "start": {
+                "line": 331,
+                "column": 5
+              },
+              "end": {
+                "line": 833,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 580,
+              "column": 38
+            },
+            "end": {
+              "line": 580,
+              "column": 40
+            }
+          },
+          "replacement": "==",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__brn-threads-core__src__projects.rs_line_580_col_38.log",
+      "diff_path": "diff/crates__brn-threads-core__src__projects.rs_line_580_col_38.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 4.159297417,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-threads-core@0.1.0",
+            "--locked",
+            "--offline",
+            "--test=message_search_scope"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.685915125,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=brn-threads-core@0.1.0",
+            "--locked",
+            "--offline",
+            "--test=message_search_scope"
+          ]
+        }
+      ]
+    }
+  ],
+  "total_mutants": 8,
+  "missed": 0,
+  "caught": 2,
+  "timeout": 0,
+  "unviable": 6,
+  "success": 0,
+  "start_time": "2026-10-16T19:27:53.773341Z",
+  "end_time": "2026-10-16T19:28:24.564594Z",
+  "cargo_mutants_version": "27.1.0"
+}

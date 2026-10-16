@@ -8,11 +8,29 @@ use rig::memory::{MemoryPolicy, TokenWindowMemory};
 
 pub(super) const RESPONSE: usize = 8192;
 const SAFETY: usize = 4096;
-const UNKNOWN_REQUEST_CAP: usize = 128 * 1024;
+// Host resource envelope, never a provider/model context claim. Accommodates
+// the accepted 128KiB prompt at worst-case six-byte JSON escaping, one admitted
+// result with another JSON encoding layer, retained history, 512KiB of fixed /
+// configuration overhead and response+safety reserves. The 128KiB project
+// instructions also allow a second JSON layer (eight bytes per raw byte).
+// The actual whole request is still checked; larger mandatory configuration
+// fails intact.
+const UNKNOWN_REQUEST_CAP: usize = 4 * 1024 * 1024;
+const _: () = assert!(
+    UNKNOWN_REQUEST_CAP
+        >= 6 * 128 * 1024
+            + 8 * 128 * 1024
+            + 2 * RESULT
+            + 2 * HISTORY
+            + 512 * 1024
+            + RESPONSE
+            + SAFETY
+);
 const HISTORY: usize = 32 * 1024;
 const CHUNK: usize = 8 * 1024;
 const RESULT: usize = 128 * 1024 + 4096;
-pub(super) const LIMIT_CODE: &str = "context_length_exceeded";
+const ESTIMATE_CODE: &str = "brn_request_size_estimate_exceeded";
+const UNKNOWN_ESTIMATE_CODE: &str = "brn_request_size_estimate_exceeded_unknown";
 
 #[derive(Clone, Copy)]
 pub(super) struct Budget {
@@ -76,10 +94,17 @@ impl Budget {
         }
     }
 }
-pub(super) fn failure() -> AiError {
+pub(super) fn failure(budget: Budget) -> AiError {
     AiError::new(AiErrorKind::Other).with_detail(crate::AiFailureDetail {
         origin: "context_budget".into(),
-        code: Some(LIMIT_CODE.into()),
+        code: Some(
+            if budget.context.is_some() {
+                ESTIMATE_CODE
+            } else {
+                UNKNOWN_ESTIMATE_CODE
+            }
+            .into(),
+        ),
         ..Default::default()
     })
 }
@@ -95,10 +120,11 @@ fn initial_estimate(scope: &Scope, input: &str) -> usize {
     )
 }
 pub(super) fn preflight(scope: &Scope, input: &str) -> AiResult<()> {
-    if Budget::for_scope(scope)?.accepts(initial_estimate(scope, input)) {
+    let budget = Budget::for_scope(scope)?;
+    if budget.accepts(initial_estimate(scope, input)) {
         Ok(())
     } else {
-        Err(failure())
+        Err(failure(budget))
     }
 }
 
@@ -120,10 +146,15 @@ pub(super) fn history_input(
         .enumerate()
         .flat_map(|(p, r)| r.writes.iter().map(move |w| (w.after.id.as_str(), p)))
         .collect();
+    let visible: BTreeMap<_, _> = records
+        .iter()
+        .filter(|r| !r.archived && record_in_chat(r, records, Some(&scope.chat)))
+        .map(|r| (r.id.as_str(), r))
+        .collect();
     let mut items = Vec::new();
     for r in records
         .iter()
-        .filter(|r| !r.archived && record_in_chat(r, records, Some(&scope.chat)))
+        .filter(|r| visible.contains_key(r.id.as_str()))
     {
         // begin may just have fenced an orphan. Retain its latest checked
         // progress/state instead of dropping the interrupted work.
@@ -149,24 +180,21 @@ pub(super) fn history_input(
                 let mut operations = Vec::new();
                 for op in &run.operations {
                     if let Some(receipt) = store.receipt(op).map_err(storage)? {
-                        if !receipt.writes.iter().all(|w| {
-                            records.iter().any(|current| {
-                                current.id == w.after.id
-                                    && !current.archived
-                                    && record_in_chat(current, records, Some(&scope.chat))
-                            })
-                        }) {
+                        if !receipt
+                            .writes
+                            .iter()
+                            .all(|w| visible.contains_key(w.after.id.as_str()))
+                        {
                             continue;
                         }
                         operations.push(json!({"operation":op,"receipt":{"request_hash":receipt.request_hash,"reason":receipt.reason,"writes":receipt.writes.iter().map(|w|json!({"id":w.after.id,"version":w.after.version})).collect::<Vec<_>>()}}));
                     } else if let Ok(prepared) = store.prepared(op) {
-                        if !prepared.request.writes.iter().all(|w| {
-                            records.iter().any(|current| {
-                                current.id == w.id
-                                    && !current.archived
-                                    && record_in_chat(current, records, Some(&scope.chat))
-                            })
-                        }) {
+                        if !prepared
+                            .request
+                            .writes
+                            .iter()
+                            .all(|w| visible.contains_key(w.id.as_str()))
+                        {
                             continue;
                         }
                         operations.push(json!({"operation":op,"candidate":{"request_hash":prepared.request_hash,"reason":prepared.request.reason,"targets":prepared.request.writes.iter().map(|w|json!({"id":w.id,"expected_version":w.expected_version})).collect::<Vec<_>>()}}));

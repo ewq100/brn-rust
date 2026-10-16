@@ -1,0 +1,1 @@
+{"note":"Static source inspection found cache_tests::configure binds provider/auth but does not change Settings.model. The round1 failing-first fixture patch therefore needs its new parent Copilot tests to bind the selected gpt-6-luna in Settings before begin. No behavioral result is claimed before execution; original fixture patch remains retained."}

@@ -2936,9 +2936,12 @@ const FRESH_RECOVERY: &str = "Continue starts fresh.";
 fn failed_attention(error: &AiError) -> String {
     use AiErrorKind as K;
     let (cause, recovery) = match error.kind {
-        _ if context_budget::is_limit(error) => {
-            ("The context limit was reached.", Some(FRESH_RECOVERY))
-        }
+        _ if context_budget::is_limit(error) => (
+            error
+                .context_limit_notice()
+                .unwrap_or("The request budget was reached."),
+            Some(FRESH_RECOVERY),
+        ),
         K::ReconnectNeeded => (
             "The provider account needs reconnecting.",
             Some(PROVIDER_RECOVERY),
@@ -3275,7 +3278,6 @@ async fn run_model_budgeted(
         } else {
             serde_json::json!({"reasoning_effort":effort.as_str()})
         })
-        .max_tokens(context_budget::RESPONSE as u64)
         .accept_unknown_finish_reasons(false)
         .add_hook(context_budget::BudgetHook {
             budget,
@@ -3306,7 +3308,7 @@ async fn run_model_budgeted(
         .stream();
     let mut answer = crate::chat::collect_stream(stream, cancel.clone(), emit, limited, None).await;
     if exhausted.load(Ordering::SeqCst) && !cancel.is_cancelled() {
-        answer.terminal = AiTerminal::Failed(context_budget::failure());
+        answer.terminal = AiTerminal::Failed(context_budget::failure(budget));
         if let Some(trace) = &scope.trace {
             trace.stop("budget");
         }

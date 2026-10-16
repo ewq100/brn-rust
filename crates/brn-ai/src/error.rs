@@ -5,14 +5,29 @@ use rig::providers::chatgpt::auth::AuthError;
 const MAX_DELAY_SECONDS: u64 = 365 * 24 * 60 * 60;
 
 impl AiError {
-    /// Context exhaustion keeps the existing serialized error kind. Both the
-    /// local estimator and the provider's safe code use this observable cause.
+    /// Preserve the existing terminal classification for estimated admission
+    /// and provider exhaustion; their notices distinguish the actual cause.
     pub(crate) fn is_context_limit(&self) -> bool {
-        self.kind == AiErrorKind::Other
-            && self
-                .detail
-                .as_ref()
-                .is_some_and(|d| d.code.as_deref() == Some("context_length_exceeded"))
+        self.context_limit_notice().is_some()
+    }
+    /// Local estimated admission and actual provider exhaustion share the
+    /// existing terminal category, while keeping their observable cause honest.
+    pub(crate) fn context_limit_notice(&self) -> Option<&'static str> {
+        if self.kind != AiErrorKind::Other {
+            return None;
+        }
+        match self.detail.as_ref()?.code.as_deref()? {
+            "context_length_exceeded" | "model_max_prompt_tokens_exceeded" => {
+                Some("The context limit was reached.")
+            }
+            "brn_request_size_estimate_exceeded_unknown" => Some(
+                "The BRN request-size estimate cap was reached; the model context limit is unknown.",
+            ),
+            "brn_request_size_estimate_exceeded" => Some(
+                "The BRN request-size estimate reached the selected-route admission budget; model token fit is not proven.",
+            ),
+            _ => None,
+        }
     }
     pub fn new(kind: AiErrorKind) -> Self {
         Self {
@@ -88,8 +103,11 @@ pub(crate) fn provider_code(value: &str) -> String {
 
 impl std::fmt::Display for AiError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        if self.is_context_limit() {
-            return f.write_str("The context limit was reached. Continue starts a fresh invocation with retained progress.");
+        if let Some(notice) = self.context_limit_notice() {
+            return write!(
+                f,
+                "{notice} Continue starts a fresh invocation with retained progress."
+            );
         }
         let text = match self.kind {
             AiErrorKind::QuoteNotFound => "The quotation was not found in the saved note body.",

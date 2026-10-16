@@ -1,0 +1,16 @@
+{
+  "prior_pin": "202bf2d747bca6fab16a9fffdfa55c45d24bd7eb",
+  "status": "source-only drafted; no Cargo/test/lint/mutant since heavy release; awaiting explicit grant",
+  "changed_owned_source_sha256": {
+    "crates/brn-ai/src/error.rs": "9ab6c07977bc64141f26ec35d90638189c06170bcc98719c90395512af6797e8",
+    "crates/brn-ai/src/threads.rs": "213723239543a26a4dff2d7bd46b9387cbee489fae95a789a6938bd1836c4068",
+    "crates/brn-ai/src/threads_budget_tests.rs": "7175034024e48bdfc8a57c1be58ac5cbc149bd120d29402399be6ecf299dcb18",
+    "crates/brn-ai/src/threads_context_budget.rs": "5df40f40ef85d6c8d203d13e2cb45ced3ce2ad61dfb04f640f115ac843cbca35",
+    "crates/brn-ai/src/threads_model_limits.json": "58b95516f632e0f8f8141bc49b677d596f5e184f396d9e17264276336ff69f06",
+    "crates/brn-ai/src/threads_research.rs": "24ba9612b12d92a9b80e776c56b4897bfb5cd09028389e1adb86e7bbd7b9e739",
+    "crates/brn-ai/src/threads_research_tests.rs": "4c34b9171ddbb87f15c39bd695104e0dff873564f3a06104b3365d5d0cb93d44"
+  },
+  "manifest_lock_unchanged_since_prior_pin": true,
+  "original_mutation_used_seconds": 426.87080216407776,
+  "original_mutation_remaining_seconds": 1373.1291978359222
+}

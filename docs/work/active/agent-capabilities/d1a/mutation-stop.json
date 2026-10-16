@@ -1,0 +1,35 @@
+{
+  "requested_epoch": 1792179282.703321,
+  "reason": "principal CHANGES_REQUIRED round1; stop rejected-source campaign",
+  "controller_pid": 12310,
+  "mutants_pid": 13475,
+  "mutants_group": 13475,
+  "observed_active_cargo_group": 22597,
+  "elapsed_at_stop_request": 415.2780451774597,
+  "controller_reaped": true,
+  "group_interrupt": "SIGINT sent to own cargo-mutants process group; exit1; controller completed exit0",
+  "changed_source_files": [],
+  "empty_own_process_receipt": [],
+  "verified_epoch": 1792179294.296078,
+  "charged_seconds": 426.87080216407776,
+  "remaining_seconds": 1373.1291978359222,
+  "controller_timeout_flag_note": "ledger interrupted=false means controller timeout did not fire; actual principal-requested external SIGINT is recorded here",
+  "core-fences": {
+    "total_mutants": 8,
+    "missed": 0,
+    "caught": 2,
+    "timeout": 0,
+    "unviable": 6,
+    "selected": 8
+  },
+  "ai-budget-scope": {
+    "total_mutants": 27,
+    "missed": 4,
+    "caught": 16,
+    "timeout": 0,
+    "unviable": 7,
+    "selected": 41
+  },
+  "in_flight_no_verdict": "crates/brn-ai/src/threads_search.rs:59:24: replace == with != in read_message; interrupted during Test",
+  "review_copy_sha256": "d6af742f767feed2cd85e368bf9072dd5e82a4353ba9d5a54131f83e642e9b45"
+}

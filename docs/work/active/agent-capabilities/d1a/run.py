@@ -8,14 +8,17 @@ name, *command = sys.argv[1:]
 if not command:
     raise SystemExit('run.py NAME COMMAND...')
 cwd = pathlib.Path(os.environ.get('D1A_SOURCE', root))
-tmp = pathlib.Path('/private/tmp/brn-d1a-tmpdir-path').read_text().strip()
+tmp = os.environ.get('D1A_TMPDIR') or pathlib.Path('/private/tmp/brn-d1a-tmpdir-path').read_text().strip()
 receipt = {
     'command': command, 'cwd': str(cwd),
     'accepted_base': 'b617d7842c1e668292b4f23c7b321ec195a76a1d',
     'head': subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip(),
     'diff_sha256': hashlib.sha256(subprocess.check_output(['git','diff','HEAD'],cwd=root)).hexdigest(),
     'owned_sources': {str(p.relative_to(cwd)): hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted([*(cwd/'crates/brn-ai/src').glob('*.rs'), cwd/'crates/brn-threads-core/src/projects.rs', cwd/'crates/brn-threads-core/tests/message_search_scope.rs'])},
-    'target': '/private/tmp/brn-d1a-20261016-target', 'tmpdir': tmp,
+    'target': os.environ.get('D1A_TARGET','/private/tmp/brn-d1a-20261016-target'), 'tmpdir': tmp,
+    'source_git_head': subprocess.check_output(['git','rev-parse','HEAD'],cwd=cwd,text=True).strip(),
+    'source_diff_sha256': hashlib.sha256(subprocess.check_output(['git','diff','HEAD'],cwd=cwd)).hexdigest(),
+    'request_inputs': {str(p.relative_to(cwd)): hashlib.sha256(p.read_bytes()).hexdigest() for p in [cwd/'Cargo.lock',cwd/'rust-toolchain.toml',cwd/'crates/brn-ai/Cargo.toml',cwd/'crates/brn-ai/src/threads_model_limits.json']},
     'started_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),
 }
 env = os.environ.copy()

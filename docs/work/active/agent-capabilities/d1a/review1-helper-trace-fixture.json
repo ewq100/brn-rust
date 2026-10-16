@@ -1,0 +1,1 @@
+{"cause":"new helper overflow test requested helper_traces while its setup left TraceLevel::Off; actual budget/request_count/no-unavailable assertions passed before unwrap","change":"test fixture now enables TraceLevel::Summary before begin; no production change","initial_receipt":"review1-ai-full.json"}

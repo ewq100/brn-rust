@@ -260,28 +260,59 @@ fn reserved_roles_and_private_other_chat_never_leak_through_history_query_or_exa
 #[tokio::test]
 async fn mandatory_oversize_unknown_route_stops_production_before_any_provider_request() {
     let (_root, mut request, _) = tests::fixture();
-    request.prompt = "õ".repeat(64 * 1024);
+    request.selection.provider = Provider::Copilot;
     request.selection.model = "unknown.future-model".into();
+    configure_copilot_selection(&request);
     let mut store = Store::open(&request.data_dir).unwrap();
-    let settings = store
-        .records()
-        .unwrap()
-        .into_iter()
-        .find(|r| matches!(r.data, RecordData::Settings(_)))
-        .unwrap();
-    let RecordData::Settings(mut data) = settings.data else {
+    let project = project_tests::project_command(
+        &mut store,
+        ProjectCommand::Create {
+            title: "Mandatory metadata".into(),
+        },
+    )
+    .writes[0]
+        .after
+        .clone();
+    project_tests::project_command(
+        &mut store,
+        ProjectCommand::MoveChat {
+            chat: request.thread.clone(),
+            project: Some(project.id.clone()),
+        },
+    );
+    let document = project_tests::project_command(
+        &mut store,
+        ProjectCommand::CreateDocument {
+            project: project.id,
+            title: "Document".into(),
+            markdown: "Current canonical document".into(),
+        },
+    )
+    .writes
+    .into_iter()
+    .find(|w| matches!(w.after.data, RecordData::Note(_)))
+    .unwrap()
+    .after;
+    // Generic checked canonical Note writes accept this large current title.
+    // Priority-document metadata is mandatory configuration, not old history.
+    let title = "MANDATORY õun ".repeat(400000);
+    let RecordData::Note(mut note) = document.data else {
         panic!()
     };
-    data.model = request.selection.model.clone();
-    let op = store.allocate_operation("unknown route selection").unwrap();
-    store
-        .configure_workspace(&op, &data, &HostAuthority::owner("fixture"))
-        .unwrap();
+    note.title = title.clone();
+    owner_write(
+        &mut store,
+        vec![Put {
+            id: document.id,
+            expected_version: Some(document.version),
+            archived: false,
+            data: RecordData::Note(note),
+        }],
+    );
     let prepared = prepare_run(request).unwrap();
-    assert!(prepared.input.contains("Model context limit unknown"));
     assert!(
-        prepared.input.contains(&"õ".repeat(64 * 1024)),
-        "mandatory request is intact"
+        prepared.input.contains(&title),
+        "mandatory current metadata is intact"
     );
     let run = prepared.run_id().to_owned();
     let http = SequencedHttpClient::new(Vec::<MockHttpResponse>::new());
@@ -317,7 +348,8 @@ async fn mandatory_oversize_unknown_route_stops_production_before_any_provider_r
         thread
             .attention
             .iter()
-            .any(|a| a.reason.contains("context limit")
+            .any(|a| a.reason.contains("BRN request-size estimate cap")
+                && a.reason.contains("model context limit is unknown")
                 && a.reason.contains("Continue starts fresh"))
     );
     assert!(
@@ -336,6 +368,10 @@ async fn small_budget_keeps_mandatory_input_and_stops_zero_model_calls() {
     let answer = capped(model.clone(), scope, &input, 100).await;
     context_failure(&answer);
     assert_eq!(model.request_count(), 0);
+    let AiTerminal::Failed(error) = answer.terminal else {
+        panic!()
+    };
+    assert_eq!(error.detail.as_ref().unwrap().origin, "context_budget");
 }
 
 #[tokio::test]
@@ -561,10 +597,19 @@ async fn provider_context_exceeded_and_local_limit_share_display_attention_and_t
     let AiTerminal::Failed(provider) = result.answer.terminal else {
         panic!()
     };
-    assert_eq!(provider.to_string(), context_budget::failure().to_string());
-    assert_eq!(
-        failed_attention(&provider),
-        failed_attention(&context_budget::failure())
+    let local = context_budget::failure(context_budget::Budget::test_cap(100));
+    assert!(
+        provider
+            .to_string()
+            .contains("The context limit was reached")
+    );
+    assert!(local.is_context_limit());
+    assert!(failed_attention(&local).contains("request-size estimate"));
+    assert!(failed_attention(&provider).contains("context limit"));
+    assert_ne!(
+        provider.to_string(),
+        local.to_string(),
+        "local estimate is not proof of provider exhaustion"
     );
     let trace = result.trace.unwrap();
     assert_eq!(trace.stopped.as_deref(), Some("budget"));
@@ -965,4 +1010,331 @@ fn exact_message_scope_is_fresh_across_knowledge_off_move_archive_delete_and_res
         }],
     );
     assert!(note_search::read_message(&returned, read_args(&earlier.id, 1, 0, 8192)).is_ok());
+}
+
+#[test]
+fn exact_discussion_refuses_helper_scope_even_for_an_otherwise_visible_owner_message() {
+    let (_root, request, _) = tests::fixture();
+    let record = message(&request, "owner", "CANARY_HELPER_DISCUSSION");
+    let (parent, _) = begin(&request).unwrap();
+    assert!(note_search::read_message(&parent, read_args(&record.id, 1, 0, 8192)).is_ok());
+    let helper = research::test_child_scope(&parent);
+    assert!(note_search::read_message(&helper, read_args(&record.id, 1, 0, 8192)).is_err());
+}
+
+#[test]
+fn exact_discussion_refuses_writing_scope_even_for_an_otherwise_visible_owner_message() {
+    let (_root, request, _, _) =
+        cw2_tests::fixture("Reference", WritingReadRequirements::default());
+    let record = message(&request, "owner", "CANARY_WRITING_DISCUSSION");
+    let (scope, _) = begin(&request).unwrap();
+    assert!(scope.writing_snapshot.is_some());
+    assert!(note_search::read_message(&scope, read_args(&record.id, 1, 0, 8192)).is_err());
+}
+
+#[tokio::test]
+async fn exact_tool_result_admission_boundary_reaches_the_next_real_dispatch() {
+    let (_root, request, id) = tests::fixture();
+    let mut store = Store::open(&request.data_dir).unwrap();
+    let bytes = 128 * 1024;
+    owner_write(
+        &mut store,
+        vec![Put {
+            id: id.clone(),
+            expected_version: Some(1),
+            archived: false,
+            data: RecordData::Note(Note::working("Boundary", "x".repeat(bytes))),
+        }],
+    );
+    let (scope, input) = begin(&request).unwrap();
+    let read = |version| {
+        read_note(
+            &scope,
+            ReadNoteArgs {
+                id: id.clone(),
+                version,
+                start: 0,
+                max_bytes: bytes,
+                section: false,
+            },
+        )
+        .unwrap()
+    };
+    let result_estimate = |value| {
+        serde_json::to_vec(&rig::tool::ToolOutput::json(value))
+            .unwrap()
+            .len()
+            + 1024
+    };
+    let extra = (128 * 1024 + 4096) - result_estimate(read(2));
+    assert!(extra < bytes);
+    owner_write(
+        &mut store,
+        vec![Put {
+            id: id.clone(),
+            expected_version: Some(2),
+            archived: false,
+            data: RecordData::Note(Note::working(
+                "Boundary",
+                format!("{}{}", "\n".repeat(extra), "x".repeat(bytes - extra)),
+            )),
+        }],
+    );
+    assert_eq!(result_estimate(read(3)), 128 * 1024 + 4096);
+    let model = MockCompletionModel::from_stream_turns([
+        vec![
+            MockStreamEvent::tool_call(
+                "boundary",
+                "read_note",
+                json!({"id":id,"version":3,"start":0,"max_bytes":bytes,"section":false}),
+            ),
+            MockStreamEvent::final_response_with_total_tokens(1),
+        ],
+        vec![
+            MockStreamEvent::text("Boundary admitted"),
+            MockStreamEvent::final_response_with_total_tokens(1),
+        ],
+    ]);
+    let answer = capped(model.clone(), scope, &input, 500000).await;
+    assert!(
+        matches!(answer.terminal, AiTerminal::Completed),
+        "{:?}",
+        answer.terminal
+    );
+    assert_eq!(model.request_count(), 2);
+}
+
+fn configure_copilot_selection(request: &ThreadRunRequest) {
+    cache_tests::configure(request, "Copilot");
+    let mut store = Store::open(&request.data_dir).unwrap();
+    let RecordData::Settings(mut settings) = store
+        .records()
+        .unwrap()
+        .into_iter()
+        .find_map(|r| matches!(r.data, RecordData::Settings(_)).then_some(r.data))
+        .unwrap()
+    else {
+        panic!()
+    };
+    settings.model = request.selection.model.clone();
+    let op = store.allocate_operation(&unique_host_key()).unwrap();
+    store
+        .configure_workspace(
+            &op,
+            &settings,
+            &HostAuthority::owner("synthetic selected route"),
+        )
+        .unwrap();
+}
+
+fn copilot_http(http: SequencedHttpClient) -> rig::providers::copilot::Copilot {
+    rig::providers::copilot::CopilotConfig::new("synthetic-session-token")
+        .with_base_url("https://copilot.example.invalid")
+        .connect(DynHttpClient::new(http))
+}
+fn assert_no_output_cap(body: &Value) {
+    for field in ["max_output_tokens", "max_tokens", "max_completion_tokens"] {
+        assert!(body.get(field).is_none(), "unexpected {field}: {body}");
+    }
+}
+
+#[tokio::test]
+async fn copilot_parent_chat_and_responses_keep_route_effort_and_send_no_output_cap() {
+    let (_root, mut request, _) = tests::fixture();
+    request.selection.provider = Provider::Copilot;
+    request.selection.model = "gpt-6-luna".into();
+    configure_copilot_selection(&request);
+    let (scope, input) = begin(&request).unwrap();
+    let http = SequencedHttpClient::new([
+        MockHttpResponse::error(
+            rig::http_client::StatusCode::BAD_REQUEST,
+            r#"{"error":{"code":"unsupported_api_for_model"}}"#,
+        ),
+        MockHttpResponse::success_typed(cache_tests::final_turn(), "text/event-stream"),
+    ]);
+    let answer = run_copilot(
+        &copilot_http(http.clone()),
+        request.selection.model,
+        scope,
+        &input,
+        ReasoningEffort::High,
+        4,
+        CancellationToken::new(),
+        Arc::new(|_| {}),
+    )
+    .await;
+    assert!(
+        matches!(answer.terminal, AiTerminal::Completed),
+        "{:?}",
+        answer.terminal
+    );
+    let requests = http.requests();
+    assert_eq!(requests.len(), 2);
+    assert!(requests[0].uri.ends_with("/chat/completions"));
+    assert!(requests[1].uri.ends_with("/responses"));
+    for (i, request) in requests.iter().enumerate() {
+        let body: Value = serde_json::from_slice(&request.body).unwrap();
+        assert_eq!(body["model"], "gpt-6-luna");
+        assert_no_output_cap(&body);
+        assert_eq!(
+            if i == 0 {
+                &body["reasoning_effort"]
+            } else {
+                &body["reasoning"]["effort"]
+            },
+            "high"
+        );
+    }
+}
+
+#[tokio::test]
+async fn copilot_maximum_prompt_and_read_survive_escaping_then_host_growth_refuses_without_trimming()
+ {
+    let (_root, mut request, id) = tests::fixture();
+    request.max_tool_rounds = 8;
+    request.selection.provider = Provider::Copilot;
+    request.selection.model = "gpt-6-luna".into();
+    // Six JSON bytes per control byte is the worst expansion of a valid
+    // 128KiB owner prompt; the Note is a full 128KiB bilingual UTF-8 passage.
+    request.prompt = "\u{0001}".repeat(128 * 1024);
+    configure_copilot_selection(&request);
+    let mut store = Store::open(&request.data_dir).unwrap();
+    let text = "õ".repeat(64 * 1024);
+    owner_write(
+        &mut store,
+        vec![Put {
+            id: id.clone(),
+            expected_version: Some(1),
+            archived: false,
+            data: RecordData::Note(Note::working("Large", text.clone())),
+        }],
+    );
+    let (scope, input) = begin(&request).unwrap();
+    let call = json!({"type":"function_call","id":"fc_read","call_id":"read","name":"read_note","arguments":json!({"id":id,"version":2,"start":0,"max_bytes":131072,"section":false}).to_string(),"status":"completed"});
+    let first = cache_tests::sse(&[
+        json!({"type":"response.output_item.done","output_index":0,"sequence_number":1,"item":call}),
+        json!({"type":"response.completed","sequence_number":2,"response":{"id":"r_read","object":"response","created_at":1,"status":"completed","model":"gpt-6-luna","output":[call],"tools":[],"usage":{"input_tokens":1,"output_tokens":1,"total_tokens":2}}}),
+    ]);
+    let http = SequencedHttpClient::new([
+        MockHttpResponse::success_typed(first, "text/event-stream"),
+        MockHttpResponse::success_typed(cache_tests::final_turn(), "text/event-stream"),
+    ]);
+    let answer = run_model(
+        crate::auth::copilot_completion(
+            &copilot_http(http.clone()),
+            request.selection.model.clone(),
+            true,
+        ),
+        scope.clone(),
+        &input,
+        ReasoningEffort::High,
+        8,
+        true,
+        CancellationToken::new(),
+        Arc::new(|_| {}),
+    )
+    .await;
+    assert!(
+        matches!(answer.terminal, AiTerminal::Completed),
+        "{:?}",
+        answer.terminal
+    );
+    let requests = http.requests();
+    assert_eq!(requests.len(), 2);
+    let first: Value = serde_json::from_slice(&requests[0].body).unwrap();
+    let next: Value = serde_json::from_slice(&requests[1].body).unwrap();
+    assert!(first.to_string().contains(&"\\u0001".repeat(128 * 1024)));
+    assert!(next.to_string().contains(&text));
+    assert_no_output_cap(&first);
+    assert_no_output_cap(&next);
+    // Each result is a valid full 128KiB read below the independent result
+    // admission cap. No oversized assistant text bypasses collect_stream's
+    // separate 128KiB output guard. Grow only append-only tool history.
+    let turns = (0..8)
+        .map(|round| {
+            let mut calls = (0..6)
+                .map(|call| {
+                    MockStreamEvent::tool_call(
+                        format!("grow-{round}-{call}"),
+                        "read_note",
+                        json!({"id":id,"version":2,"start":0,"max_bytes":131072,"section":false}),
+                    )
+                })
+                .collect::<Vec<_>>();
+            calls.push(MockStreamEvent::final_response_with_total_tokens(1));
+            calls
+        })
+        .collect::<Vec<_>>();
+    let growing = MockCompletionModel::from_stream_turns(turns);
+    let answer = run_model_budgeted(
+        growing.clone(),
+        scope,
+        &input,
+        ReasoningEffort::High,
+        8,
+        true,
+        CancellationToken::new(),
+        Arc::new(|_| {}),
+        context_budget::Budget::selected(Provider::Copilot, "gpt-6-luna"),
+    )
+    .await;
+    context_failure(&answer);
+    let growing_requests = growing.requests();
+    assert!(
+        growing_requests.len() > 1 && growing_requests.len() < 8,
+        "refuse before a next provider request, rather than reaching the round limit"
+    );
+    eprintln!(
+        "Synthetic unknown-route host cap: {} provider requests admitted before the next dispatch was refused",
+        growing_requests.len()
+    );
+    for pair in growing_requests.windows(2) {
+        assert_eq!(
+            &pair[1].chat_history[..pair[0].chat_history.len()],
+            &pair[0].chat_history
+        );
+        assert_eq!(pair[1].tools, pair[0].tools);
+    }
+    let AiTerminal::Failed(error) = answer.terminal else {
+        panic!()
+    };
+    assert!(error.to_string().contains("BRN request-size estimate cap"));
+    assert!(error.to_string().contains("model context limit is unknown"));
+    assert!(!error.to_string().contains("The context limit was reached"));
+}
+
+#[tokio::test]
+async fn copilot_parent_provider_overflow_is_context_failure_without_route_fallback() {
+    let (_root, mut request, _) = tests::fixture();
+    request.selection.provider = Provider::Copilot;
+    request.selection.model = "gpt-6-luna".into();
+    configure_copilot_selection(&request);
+    let (scope, input) = begin(&request).unwrap();
+    let http = SequencedHttpClient::new([MockHttpResponse::error(
+        rig::http_client::StatusCode::BAD_REQUEST,
+        r#"{"error":{"code":"model_max_prompt_tokens_exceeded","message":"CANARY_COPILOT_ERROR"}}"#,
+    )]);
+    let answer = run_copilot(
+        &copilot_http(http.clone()),
+        request.selection.model,
+        scope.clone(),
+        &input,
+        ReasoningEffort::High,
+        4,
+        CancellationToken::new(),
+        Arc::new(|_| {}),
+    )
+    .await;
+    context_failure(&answer);
+    assert_eq!(http.requests().len(), 1);
+    let AiTerminal::Failed(error) = answer.terminal else {
+        panic!()
+    };
+    assert!(error.to_string().contains("The context limit was reached"));
+    assert!(failed_attention(&error).contains("context limit"));
+    assert!(
+        !serde_json::to_string(&error)
+            .unwrap()
+            .contains("CANARY_COPILOT_ERROR")
+    );
 }

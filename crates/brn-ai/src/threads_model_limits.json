@@ -28,5 +28,6 @@
       "slug": "gpt-5.5",
       "context_window": 272000
     }
-  ]
+  ],
+  "entry_policy": "Explicit six-model ChatGPT Codex allowlist carried by this slice; not a complete catalog or automatic model discovery. gpt-6-astra and gpt-5.6-terra are intentionally omitted, so their model context remains unknown under the separate host estimate cap. No model availability or invocation authority is added."
 }
