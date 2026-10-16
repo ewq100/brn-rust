@@ -125,7 +125,7 @@
     },
     {
       "path": "crates/brn-desktop/src/threads_ui.rs",
-      "sha256": "620642250b99e1b2f80e4214dfd574186b9c7f20466efc606222f93585e350ea",
+      "sha256": "784303d897627e02391a2688c1d68744145ac7e41b52f86a199eeb06d90278ec",
       "ownership": "CW2 source/test; desktop hunk limits in handoff.md"
     },
     {
@@ -145,7 +145,7 @@
     },
     {
       "path": "crates/brn-desktop/src/threads_writing_tests.rs",
-      "sha256": "6962ac09281940c8248e91c411c83851cc0e6b42b6c3d3a8da21fee3a652407e",
+      "sha256": "62b39eb68c0a753327155bb800f1f4fd96c874d9ab9852296af5353d3d0a62ac",
       "ownership": "CW2 source/test; desktop hunk limits in handoff.md"
     },
     {
@@ -155,7 +155,7 @@
     },
     {
       "path": "crates/brn-threads-app/src/review.rs",
-      "sha256": "610e1c34f69450b84b676c4b05752c298e45fd4079234d8c2ba5d83dbec8658a",
+      "sha256": "5881da88e4a9d8e63a1d0a22918e20313039698e33f4f8e2a0a729f132ada8b2",
       "ownership": "CW2 source/test; desktop hunk limits in handoff.md"
     },
     {
@@ -210,12 +210,12 @@
     },
     {
       "path": "crates/brn-threads-core/src/lib.rs",
-      "sha256": "63d4bfb8fdca57741b642191bcd26e71906672d7c0975795630be43bc3d97435",
+      "sha256": "cf0509dea4df4f71584be681d29f8dc66f891939447cf27bf5a7e1c57f7aff1b",
       "ownership": "CW2 source/test; desktop hunk limits in handoff.md"
     },
     {
       "path": "crates/brn-threads-core/src/store.rs",
-      "sha256": "deacb0a73cef111000a452ebe4a5becf6032915ee7ab9420e95f8dfebf990a32",
+      "sha256": "83774e35dbea2eecadcbebc13181b748074d8b856729113f243e325b8327c11b",
       "ownership": "CW2 source/test; desktop hunk limits in handoff.md"
     },
     {
@@ -225,7 +225,7 @@
     },
     {
       "path": "crates/brn-threads-core/tests/cw2_visibility.rs",
-      "sha256": "2347d03aceddd93143026f3a9998fa53bb7380896dbfa63c095faed6b0e93921",
+      "sha256": "f7bcd405247875396b8b5afcdf7165764b0573737514458deeaea70a4d706f4c",
       "ownership": "CW2 source/test; desktop hunk limits in handoff.md"
     },
     {

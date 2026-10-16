@@ -1,0 +1,24 @@
+   Compiling brn-threads-app v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-threads-app)
+    Finished `test` profile [optimized] target(s) in 1.97s
+     Running unittests src/lib.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/brn_threads_app-254d35bb8e1cd57c)
+
+running 1 test
+test review::batch_work_tests::unrelated_request_routing_does_no_canonical_verification_and_hint_grants_nothing ... FAILED
+
+failures:
+
+---- review::batch_work_tests::unrelated_request_routing_does_no_canonical_verification_and_hint_grants_nothing stdout ----
+
+thread 'review::batch_work_tests::unrelated_request_routing_does_no_canonical_verification_and_hint_grants_nothing' (27848743) panicked at crates/brn-threads-app/src/review.rs:501:44:
+assertion `left == right` failed: only the displayed Note's legitimate and forged routing matches reach canonical verification
+  left: 32
+ right: 2
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    review::batch_work_tests::unrelated_request_routing_does_no_canonical_verification_and_hint_grants_nothing
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+error: test failed, to rerun pass `-p brn-threads-app --lib`

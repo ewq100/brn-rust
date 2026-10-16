@@ -29,7 +29,7 @@ mod upgrade;
 mod writing;
 pub use read::{MAX_NOTE_READ_BYTES, NoteHeading, NoteReadOutcome, NoteSlice, note_headings};
 pub use revision_read::{RevisionPage, RevisionSummary};
-pub use store::{DATA_MARKER, DATABASE_FILENAME, DERIVED_DIRECTORY, Store};
+pub use store::{DATA_MARKER, DATABASE_FILENAME, DERIVED_DIRECTORY, Store, ViewChangeToken};
 pub use types::*;
 pub use writing::{
     MAX_WRITING_REQUEST_BYTES, WRITING_CONTEXT_ROLE, WRITING_EVIDENCE_ROLE, WRITING_PUBLIC_REASON,

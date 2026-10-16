@@ -1,0 +1,51 @@
+   Compiling tracing v0.1.44
+   Compiling rig-http v0.44.0
+   Compiling tracing-log v0.2.0
+   Compiling brn-threads-core v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-threads-core)
+   Compiling h2 v0.4.19
+   Compiling gpui-pre-ztracing v0.3.9
+   Compiling tracing-futures v0.2.5
+   Compiling tracing-subscriber v0.3.23
+   Compiling gpui-pre-sum-tree v0.3.9
+   Compiling gpui-pre v0.3.9
+   Compiling hyper v1.11.1
+   Compiling hyper-util v0.1.21
+   Compiling hyper-rustls v0.27.10
+   Compiling reqwest v0.13.5
+   Compiling rig-reqwest v0.44.0
+   Compiling rig-core v0.44.0
+   Compiling gpui-pre-apple v0.3.9
+   Compiling gpui-kit-assets v0.7.3
+   Compiling gpui-base v0.7.3
+   Compiling gpui-pre-macos v0.3.9
+   Compiling gpui-pre-platform v0.3.9
+   Compiling rig-agent v0.44.0
+   Compiling rig v0.44.0
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-ai)
+   Compiling gpui-component v0.7.3
+   Compiling brn-threads-app v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-threads-app)
+   Compiling gpui-kit v0.7.3
+   Compiling brn-desktop v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-desktop)
+    Finished `test` profile [optimized] target(s) in 47.38s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/main.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/brn_desktop-e9c33ea5c56b7d8a)
+
+running 1 test
+test threads_ui::writing_tests::private_writing_disclosure_is_mandatory_and_wrong_displayed_scope_hides_review_and_compare ... FAILED
+
+failures:
+
+---- threads_ui::writing_tests::private_writing_disclosure_is_mandatory_and_wrong_displayed_scope_hides_review_and_compare stdout ----
+
+thread 'threads_ui::writing_tests::private_writing_disclosure_is_mandatory_and_wrong_displayed_scope_hides_review_and_compare' (27854182) panicked at crates/brn-desktop/src/threads_writing_tests.rs:681:59:
+called `Option::unwrap()` on a `None` value
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    threads_ui::writing_tests::private_writing_disclosure_is_mandatory_and_wrong_displayed_scope_hides_review_and_compare
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 310 filtered out; finished in 0.92s
+
+error: test failed, to rerun pass `-p brn-desktop --bin brn-desktop`

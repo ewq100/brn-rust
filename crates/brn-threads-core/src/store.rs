@@ -17,6 +17,8 @@ pub const DERIVED_DIRECTORY: &str = "derived";
 const IDENTITY: &str = "BRN Threads SQLite v1\n";
 pub(crate) const APPLICATION_ID: i64 = 0x42525448;
 pub(crate) const SCHEMA_VERSION: i64 = 7;
+/// Read-only canonical watermark, external commit version and exact pending keys.
+pub type ViewChangeToken = (u64, u64, Vec<(String, String)>);
 pub struct Store {
     pub(crate) conn: Connection,
     directory: PathBuf,
@@ -219,13 +221,26 @@ impl Store {
             )
             .optional()?)
     }
-    /// Invalidate read-only host views after local writes or external commits.
-    /// No permission decision may be authorized from this token alone.
-    pub fn change_token(&self) -> Result<(u64, u64)> {
+    /// Canonical host-view invalidation, excluding local edit-buffer writes.
+    /// Reuse Snapshot::watermark's revision signal plus the exact candidates()
+    /// eligibility/order, projecting only immutable operation/hash keys. The
+    /// pending-key scan is shallow, not globally constant-time. External commits
+    /// retain data_version fencing; this token never authorizes Apply or reads.
+    pub fn change_token(&self) -> Result<ViewChangeToken> {
+        let watermark =
+            self.conn
+                .query_row("SELECT coalesce(max(rowid), 0) FROM revisions", [], |row| {
+                    crate::read_u64(row, 0)
+                })?;
+        let mut statement = self.conn.prepare_cached("SELECT id,hash FROM operations WHERE hash IS NOT NULL AND retired=0 AND NOT EXISTS(SELECT 1 FROM receipts WHERE operation=operations.id) ORDER BY rowid")?;
+        let pending = statement
+            .query_map([], |row| Ok((row.get(0)?, row.get(1)?)))?
+            .collect::<rusqlite::Result<Vec<(String, String)>>>()?;
         Ok((
-            self.conn.total_changes(),
+            watermark,
             self.conn
                 .query_row("PRAGMA data_version", [], |row| crate::read_u64(row, 0))?,
+            pending,
         ))
     }
     pub fn directory(&self) -> &Path {

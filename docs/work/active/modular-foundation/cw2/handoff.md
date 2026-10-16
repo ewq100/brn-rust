@@ -82,3 +82,35 @@ Additional AI/app mechanical paths for existing RunNoteSearch Option<&str> scope
 The original low-5 hypothesis is now a HIGH actual privacy defect with separate source-hashed failing-before direct read_records and actual runtime search-route receipts (each 0/1/0). Only host-bound snapshot.note.id gets the actual selected conversation exception; unrelated Notes use frozen canonical None/Project/private scope. A real app SearchHandle/scripted model-delivery witness asserts selected-chat count 2 versus canonical count 1, working-Note positive access, and absence of unrelated private text/title/ID from actual tool delivery and candidate evidence.
 
 Current corrected native receipt r1-native-cache-final is 310/0/1 at its exact dirty source hash; this is headless behavioral evidence, not human observation/full F21. Focused465/0/2 is earlier affected-source evidence. Broader final verification, strict lint, final source pin and fresh independent review remain pending. Mutation original usage556.338371s, remaining1243.661629s within ONE total1800s cap; original app24caught/48missed/64unviable remains pinned f282. No core/AI mutants ran in the first controller because baseline harness setup failed. No reset, full pass, review acceptance, integration or B1a/shared-file handoff is implied.
+
+
+## Immutable correction source and completed normal verification
+
+Correction source is `144848ffd86f8705f156553aeef418de23d204a5`, crates tree `430d1746d27ec718974b96bac0dfa6845c55e025`. Principal started fresh read-only Copilot Opus round2 on that exact pin. The prior broad d4 review and f282 results are not relabelled. Numbered [round1-response](round1-response.md), all exact owned paths/hashes, source trace and original F01–F22 mapping above accompany the actual diff: f282..144848 correction; 3e09b979..144848 full CW2 foundation diff.
+
+Exact committed-source results are indexed in `r1-pin-normal-summary.json` (commands, features, source hashes and log hashes), with executed/build artifact hashes in `r1-pin-normal-artifacts.json`:
+
+| Gate | Passed / failed / ignored |
+|---|---|
+| Core + AI scripted + app + CLI libs/bins/tests | 953 / 0 / 3 |
+| Native behavior, native-ui + native-test-support | 310 / 0 / 1 |
+| Offline capability fixtures, all targets | 357 / 0 / 1 |
+| App native-retrieval | 239 / 0 / 1 |
+| Retrieval native/no assets, lib + model_download refusal fixtures | 35 / 0 / 0 |
+| Combined native-ui + native-retrieval desktop state | 95 / 0 / 0 |
+| Fresh/reopen actual desktop headless startup | 2 / 0 / 0 |
+
+Native CLI/desktop combined builds, all-affected feature-union strict Clippy and actual repository `cargo fmt --all -- --check` passed. No native model was installed/downloaded; retrieval tests use synthetic/local sources and cancelled/occupied production installer refusals only. The first small headless check accidentally overlapped lint; retained as diagnostic and superseded by successful serial `r1-pin-headless-serial`. Source remained frozen. Other normal builds/tests were serial; the process check before mutation found no Cargo/rustc/mutants children.
+
+Original mutation f282: core/AI baseline harness failures, zero mutants executed there; app136 IDs completed24caught/48missed/64unviable. All three leaked copies hash204/204 relevant Rust files to f282. `mutation-outcomes.json` retains each ID/verdict/diff/log hash/path and conservative survivor classification; no unproved equivalence or retroactive kill. Correction-pin supplement uses the original remaining1243.661629 seconds after556.338371 seconds setup/initial usage, ONE total1800 second cap. All supplemental setup is inside its controller, selected priority guards core replacement/Apply/Undo then AI scope/evidence then changed app resolver/batch. Final supplemental outcomes are pending. No new budget or complete-pass claim.
+
+Independent round2 verdict, any required corrections, final mutation receipt and integration remain principal-owned/pending. Heavy slot and shared files remain exclusively CW2 until explicit serial release. No B1a integration/handoff is implied by this source pin.
+
+
+## Cache correction normal checks and source scope
+
+Final corrected-source receipts: `r2-core-app-complete`442/0/2; `r2-native-final-source`310/0/1; strict affected all-target `r2-strict-lint-corrected`PASS; repository `r2-format`PASS. Exact commands, features and all Rust file/diff hashes remain in receipts. Unchanged AI/CLI/capability/native-retrieval/combined portions reuse144848 receipts only with that source qualification, not relabelled new-pin runs.
+
+Production changes since144848 are only Store::change_token's canonical watermark/exact pending keys/external commit token; its simple ViewChangeToken tuple alias/export (strict lint, no new framework/schema); the existing UI cache key's token type; and app request-batch exclusion before canonical verification. App test-only thread-local work counter has no production build/API effect. Core Apply/Undo/read/search guards are unchanged in this correction. Tests add real typing/many-Note/work-bound assertions inside the ONE allocated native regression, one app canonical verification-bound unit and three direct core invalidation/critical-edge journeys. Existing assertions and reviewed widget calls are untouched. No new writer hunk or desktop allocation.
+
+Mutation at correction checkpoint remains total1567.9456461259397s; any final recheck controller is limited to actual232.0543538740603s remaining and records its new pin/actual verdicts separately. Full mutation/F21/hostedCI/native-human/acceptance/integration stay open. Low raw-owner compensation replacement ancestry issue remains deferred. Shared source/heavy ownership retained; B1a still parked.

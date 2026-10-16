@@ -353,6 +353,31 @@ fn private_writing_disclosure_is_mandatory_and_wrong_displayed_scope_hides_revie
     let (project, other, reference, candidate, private_request) = cx
         .update_window(f.window, |_, window, cx| {
             f.view.update(cx, |view, cx| {
+                // Substantial unrelated writing history must not be canonically
+                // revalidated on this Note's typing path.
+                for index in 0..100 {
+                    let unrelated = view
+                        .workspace
+                        .new_note(&format!("Unrelated {index}"), "Unrelated saved body")
+                        .unwrap();
+                    view.workspace
+                        .link_writing_thread(
+                            &format!("unrelated-link-{index}"),
+                            &unrelated.id,
+                            unrelated.version,
+                            &f.chat_b,
+                        )
+                        .unwrap();
+                    view.workspace
+                        .snapshot_writing_request(
+                            &format!("unrelated-request-{index}"),
+                            &unrelated.id,
+                            unrelated.version,
+                            &f.chat_b,
+                            &[],
+                        )
+                        .unwrap();
+                }
                 let mut projects = Vec::new();
                 for key in ["native-P1", "native-P2"] {
                     let id = view
@@ -537,6 +562,46 @@ fn private_writing_disclosure_is_mandatory_and_wrong_displayed_scope_hides_revie
         loaded,
         "unchanged repeated native renders reuse one checked batch instead of rescanning records/receipts"
     );
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            view.keep_review(window, cx);
+            view.note_reading = false;
+            view.note_editor.update(cx, |editor, cx| {
+                editor.set_selected_range(0..0, cx);
+                editor.focus(window, cx);
+            });
+            cx.notify();
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    let before_typing = cx.read(|cx| f.view.read(cx).writing_review_loads);
+    for character in "cachetyping".chars() {
+        cx.simulate_input(f.window, &character.to_string());
+        cx.run_until_parked();
+    }
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        let session = view.note.as_ref().unwrap().session.as_ref().expect("real typing creates a recovery buffer");
+        assert!(session.generation >= "cachetyping".len() as u64);
+        assert!(session.markdown.contains("cachetyping"));
+        assert_eq!(session.markdown, view.note_editor.read(cx).value().to_string());
+        assert_eq!(view.workspace.store.edit_session(&session.id).unwrap(), *session);
+        assert_eq!(view.workspace.store.note(&f.a.id).unwrap().unwrap().version, 1);
+        assert_eq!(view.writing_review_loads, before_typing, "real typing generations must not reload/verify the workspace-wide writing batch per keystroke");
+    });
+    // Explicitly discard only this test's typed buffer before continuing the
+    // unchanged exact-candidate/context/access assertions below.
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            let session = view.note.as_ref().unwrap().session.clone().unwrap();
+            view.discard_session(session, window, cx);
+            view.open_project_note(&project, &f.a.id, window, cx);
+            view.open_review(candidate.clone(), window, cx);
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
     // Candidate content is part of the cache key even when SQLite is unchanged.
     cx.update_window(f.window, |_, _window, cx| {
         f.view.update(cx, |view, cx| {

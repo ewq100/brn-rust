@@ -285,3 +285,260 @@ fn revoked_v1_evidence_allows_safe_undo_but_fences_reapplying_candidate_content(
         saved_marker
     );
 }
+
+#[test]
+fn canonical_view_token_ignores_local_buffers_but_tracks_exact_candidate_pool_and_access_changes() {
+    let (_root, mut store, snapshot, reference, elsewhere) = fixture();
+    let before = store.change_token().unwrap();
+    let operation = store.allocate_operation("token-candidate").unwrap();
+    assert_eq!(
+        store.change_token().unwrap(),
+        before,
+        "allocation alone is not a prepared candidate"
+    );
+    let request = snapshot.change_request("Reviewed text").unwrap();
+    store.prepare(&operation, &request).unwrap();
+    let prepared = store.change_token().unwrap();
+    assert_ne!(prepared, before);
+    assert_eq!(
+        prepared.0, before.0,
+        "candidate preparation has no canonical revision"
+    );
+    let session = store.begin_edit(&snapshot.note.id, 1).unwrap();
+    let BufferOutcome::Updated(updated) = store
+        .update_buffer(&session.id, 1, "Real unsaved buffer")
+        .unwrap()
+    else {
+        panic!()
+    };
+    assert_eq!(
+        store.edit_session(&session.id).unwrap().markdown,
+        "Real unsaved buffer"
+    );
+    assert_eq!(
+        store.change_token().unwrap(),
+        prepared,
+        "local edit-buffer writes must not invalidate canonical evidence"
+    );
+    store.discard(&updated.id, updated.generation).unwrap();
+    assert_eq!(store.change_token().unwrap(), prepared);
+    let replacement = store.allocate_operation("token-replacement").unwrap();
+    let replacement_request = snapshot.change_request("Owner's exact edit").unwrap();
+    store
+        .replace_candidate(
+            &operation,
+            &replacement,
+            &replacement_request,
+            &HostAuthority::owner("explicit exact edit"),
+        )
+        .unwrap();
+    let replaced = store.change_token().unwrap();
+    assert_ne!(
+        replaced, prepared,
+        "same candidate count must not hide replacement"
+    );
+    assert_eq!(replaced.0, before.0);
+    store.retire(&replacement).unwrap();
+    let retired = store.change_token().unwrap();
+    assert_ne!(retired, replaced);
+    assert_eq!(retired.0, before.0);
+    let mut external = Store::open(store.directory()).unwrap();
+    change_reference(&mut external, &reference, Some(&elsewhere), false);
+    let revoked = store.change_token().unwrap();
+    assert_ne!(revoked, retired);
+    assert_ne!(
+        revoked.1, retired.1,
+        "external commit invalidates the same connection's view"
+    );
+    change_reference(&mut store, &reference, None, false);
+    assert_ne!(
+        store.change_token().unwrap(),
+        revoked,
+        "same-connection access restoration is canonical too"
+    );
+}
+
+#[test]
+fn actual_owner_candidate_apply_keeps_only_working_note_selected_conversation_exception() {
+    let (_root, mut store, mut snapshot, reference, _) = fixture();
+    let project_op = store.allocate_operation("strict-project").unwrap();
+    let project = project_op.creation_id(0);
+    commit(
+        &mut store,
+        "strict-project",
+        vec![Put {
+            id: project.clone(),
+            expected_version: None,
+            archived: false,
+            data: RecordData::Project(Project {
+                title: "Knowledge off".into(),
+                instructions: String::new(),
+                use_brn_knowledge: false,
+                chats: vec![snapshot.thread.clone()],
+                documents: vec![],
+                trash: None,
+            }),
+        }],
+    );
+    let links = store.allocate_operation("strict-links").unwrap();
+    commit(
+        &mut store,
+        "strict-links",
+        [&snapshot.note.id, &reference]
+            .into_iter()
+            .enumerate()
+            .map(|(i, id)| Put {
+                id: links.creation_id(i),
+                expected_version: None,
+                archived: false,
+                data: RecordData::Link(Link {
+                    from: snapshot.thread.clone(),
+                    to: id.clone(),
+                    relation: "discusses".into(),
+                }),
+            })
+            .collect(),
+    );
+    for id in [&snapshot.note.id, &reference] {
+        assert!(
+            store
+                .record_visible_in_chat(id, Some(&snapshot.thread))
+                .unwrap()
+        );
+        assert!(!store.record_visible_in_chat(id, Some(&project)).unwrap());
+    }
+    let setup_op = store.allocate_operation("strict-setup").unwrap();
+    let setup_id = setup_op.creation_id(0);
+    let thread = store.record(&snapshot.thread).unwrap().unwrap();
+    let owner = HostAuthority::owner("explicit scoped setup").for_chat(&snapshot.thread, true);
+    store
+        .prepare_owner(
+            &setup_op,
+            &ChangeRequest {
+                reason: "Scoped setup".into(),
+                writes: vec![Put {
+                    id: setup_id.clone(),
+                    expected_version: None,
+                    archived: false,
+                    data: RecordData::WritingSetup(WritingSetup {
+                        note: snapshot.note.id.clone(),
+                        chat: Some(project.clone()),
+                        brief: None,
+                        references: vec![],
+                    }),
+                }],
+                inputs: vec![RevisionInput {
+                    record: thread.id,
+                    version: thread.version,
+                    expectation: InputExpectation::Current,
+                }],
+            },
+            &owner,
+        )
+        .unwrap();
+    assert!(matches!(
+        store.apply(&setup_op, &owner).unwrap(),
+        ApplyOutcome::Applied(_)
+    ));
+    let marker = store.allocate_operation("strict-request").unwrap();
+    snapshot.request_message = marker.creation_id(0);
+    snapshot.setup = Some(WritingSnapshotSetup {
+        requirements: WritingReadRequirements::default(),
+        chat: Some(project),
+        input: RevisionInput {
+            record: setup_id,
+            version: 1,
+            expectation: InputExpectation::Current,
+        },
+        brief: None,
+        references: vec![],
+    });
+    commit(
+        &mut store,
+        "strict-request",
+        vec![Put {
+            id: snapshot.request_message.clone(),
+            expected_version: None,
+            archived: false,
+            data: RecordData::Message(Message {
+                thread: snapshot.thread.clone(),
+                role: WRITING_REQUEST_ROLE.into(),
+                text: snapshot.message_text().unwrap(),
+            }),
+        }],
+    );
+    let denied = store.allocate_operation("strict-denied-candidate").unwrap();
+    let mut request = snapshot
+        .change_request("Must not use unrelated selected-chat evidence")
+        .unwrap();
+    request.inputs.push(RevisionInput {
+        record: reference.clone(),
+        version: 1,
+        expectation: InputExpectation::Historical,
+    });
+    store.prepare(&denied, &request).unwrap();
+    let records = store.records().unwrap();
+    let exact = store.prepared(&denied).unwrap();
+    assert!(
+        matches!(store.apply(&denied, &HostAuthority::owner("exact owner review")).unwrap(), ApplyOutcome::NeedsReview { denied } if denied.contains(&reference) && !denied.contains(&snapshot.note.id))
+    );
+    assert_eq!(store.records().unwrap(), records);
+    assert_eq!(store.prepared(&denied).unwrap(), exact);
+    assert!(store.receipt(&denied).unwrap().is_none());
+    store.retire(&denied).unwrap();
+    let allowed = store.allocate_operation("strict-working-only").unwrap();
+    store
+        .prepare(
+            &allowed,
+            &snapshot
+                .change_request("Working-Note-only positive control")
+                .unwrap(),
+        )
+        .unwrap();
+    assert!(matches!(
+        store
+            .apply(&allowed, &HostAuthority::owner("new explicit exact review"))
+            .unwrap(),
+        ApplyOutcome::Applied(_)
+    ));
+}
+
+#[test]
+fn actual_owner_apply_rejects_archived_historical_input_even_when_current_revision_is_visible() {
+    let (_root, mut store, snapshot, reference, _) = fixture();
+    change_reference(&mut store, &reference, None, true);
+    let archived_version = store.record(&reference).unwrap().unwrap().version;
+    change_reference(&mut store, &reference, None, false);
+    assert!(
+        store
+            .record_visible_in_chat(&reference, Some(&snapshot.thread))
+            .unwrap()
+    );
+    assert!(
+        store
+            .revision(&reference, archived_version)
+            .unwrap()
+            .unwrap()
+            .archived
+    );
+    let operation = store
+        .allocate_operation("archived-history-candidate")
+        .unwrap();
+    let mut request = snapshot
+        .change_request("Exact owner-reviewed historical input")
+        .unwrap();
+    request.inputs.push(RevisionInput {
+        record: reference.clone(),
+        version: archived_version,
+        expectation: InputExpectation::Historical,
+    });
+    store.prepare(&operation, &request).unwrap();
+    let records = store.records().unwrap();
+    let candidate = store.prepared(&operation).unwrap();
+    assert!(
+        matches!(store.apply(&operation, &HostAuthority::owner("exact owner review")).unwrap(), ApplyOutcome::NeedsReview { denied } if denied.contains(&reference))
+    );
+    assert_eq!(store.records().unwrap(), records);
+    assert_eq!(store.prepared(&operation).unwrap(), candidate);
+    assert!(store.receipt(&operation).unwrap().is_none());
+}

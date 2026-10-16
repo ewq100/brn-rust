@@ -472,7 +472,7 @@ fn short(text: &str) -> String {
 }
 
 type WritingReviewCacheKey = (
-    (u64, u64),
+    ViewChangeToken,
     String,
     Option<String>,
     Option<String>,

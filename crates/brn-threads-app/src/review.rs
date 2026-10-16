@@ -1,4 +1,8 @@
 use crate::*;
+#[cfg(test)]
+thread_local! {
+    static REQUEST_VERIFICATIONS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+}
 impl Workspace {
     /// Dismiss only this unapplied proposal. Notes and unrelated questions stay intact.
     /// Retiring is durable before cleanup, so retry also repairs a lost cleanup response.
@@ -351,7 +355,7 @@ impl Workspace {
         note: &str,
         displayed: Option<&str>,
         shown: &[Prepared],
-    ) -> AppResult<((u64, u64), WritingContextReview)> {
+    ) -> AppResult<(ViewChangeToken, WritingContextReview)> {
         let token = self.store.change_token()?;
         let rows = self.records()?;
         let receipts = self.store.receipts()?;
@@ -397,11 +401,41 @@ impl Workspace {
                     .insert(candidate.operation.as_str().to_owned(), review);
             }
         }
+        #[derive(serde::Deserialize)]
+        struct EnvelopeRoute {
+            snapshot: RequestRoute,
+        }
+        #[derive(serde::Deserialize)]
+        struct RequestRoute {
+            note: NoteRoute,
+        }
+        #[derive(serde::Deserialize)]
+        struct NoteRoute {
+            id: String,
+        }
         for record in &rows {
-            if !record.archived
-                && matches!(&record.data, RecordData::Message(m) if m.role == WRITING_REQUEST_ROLE)
-                && let Ok(snapshot) = self.writing_request_in_context_from(record, &context, &rows)
+            let RecordData::Message(message) = &record.data else {
+                continue;
+            };
+            if record.archived
+                || record.version != 1
+                || message.role != WRITING_REQUEST_ROLE
+                || message.text.len() > MAX_WRITING_REQUEST_BYTES
             {
+                continue;
+            }
+            // An untrusted routing hint can only exclude unrelated work before
+            // expensive canonical verification. Every retained request still
+            // uses the same checked predicate, including its conversation.
+            let Ok(route) = serde_json::from_str::<EnvelopeRoute>(&message.text) else {
+                continue;
+            };
+            if route.snapshot.note.id != note {
+                continue;
+            }
+            #[cfg(test)]
+            REQUEST_VERIFICATIONS.with(|count| count.set(count.get() + 1));
+            if let Ok(snapshot) = self.writing_request_in_context_from(record, &context, &rows) {
                 checked.requests.insert(record.id.clone(), snapshot);
             }
         }
@@ -423,4 +457,73 @@ fn working_note_wider(rows: &[Record], note: &str, scope: Option<&str>) -> bool 
             .iter()
             .filter(|r| matches!(r.data, RecordData::Project(_)))
             .any(|p| Some(p.id.as_str()) != scope && record_in_chat(record, rows, Some(&p.id)))
+}
+
+#[cfg(test)]
+mod batch_work_tests {
+    use super::*;
+    #[test]
+    fn unrelated_request_routing_does_no_canonical_verification_and_hint_grants_nothing() {
+        let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+        let mut app =
+            Workspace::open_without_default_credentials(root.path().join("data")).unwrap();
+        let thread = app.new_thread("Synthetic writing").unwrap();
+        let mut target = None;
+        for index in 0..31 {
+            let note = app
+                .new_note(&format!("Draft {index}"), "Canonical saved body")
+                .unwrap();
+            app.link_writing_thread(&format!("link-{index}"), &note.id, note.version, &thread.id)
+                .unwrap();
+            let snapshot = app
+                .snapshot_writing_request(
+                    &format!("request-{index}"),
+                    &note.id,
+                    note.version,
+                    &thread.id,
+                    &[],
+                )
+                .unwrap();
+            if index == 0 {
+                target = Some(snapshot);
+            }
+        }
+        let target = target.unwrap();
+        let operation = app.store.allocate_operation("forged-routing-hint").unwrap();
+        let mut forged = target.clone();
+        forged.request_message = operation.creation_id(0);
+        forged.note.data = RecordData::Note(Note::working(
+            "Untrusted hint",
+            "UNTRUSTED PRIVATE SENTINEL",
+        ));
+        app.owner_change(
+            "forged-routing-hint",
+            &ChangeRequest {
+                reason: "Synthetic invalid captured payload".into(),
+                writes: vec![Put {
+                    id: forged.request_message.clone(),
+                    expected_version: None,
+                    archived: false,
+                    data: RecordData::Message(Message {
+                        thread: thread.id.clone(),
+                        role: WRITING_REQUEST_ROLE.into(),
+                        text: forged.message_text().unwrap(),
+                    }),
+                }],
+                inputs: vec![],
+            },
+        )
+        .unwrap();
+        REQUEST_VERIFICATIONS.with(|count| count.set(0));
+        let (_, checked) = app
+            .writing_context_review(&target.note.id, None, &[])
+            .unwrap();
+        assert_eq!(checked.requests.get(&target.request_message), Some(&target));
+        assert!(
+            !checked.requests.contains_key(&forged.request_message),
+            "matching an untrusted routing hint never authorizes a noncanonical snapshot"
+        );
+        assert_eq!(checked.requests.len(), 1);
+        REQUEST_VERIFICATIONS.with(|count| assert_eq!(count.get(), 2, "only the displayed Note's legitimate and forged routing matches reach canonical verification"));
+    }
 }

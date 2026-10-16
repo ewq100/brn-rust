@@ -1,0 +1,26 @@
+   Compiling brn-threads-core v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-threads-core)
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-ai)
+   Compiling brn-threads-app v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-threads-app)
+    Finished `test` profile [optimized] target(s) in 6.75s
+     Running unittests src/lib.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/brn_threads_app-254d35bb8e1cd57c)
+
+running 1 test
+test review::batch_work_tests::unrelated_request_routing_does_no_canonical_verification_and_hint_grants_nothing ... FAILED
+
+failures:
+
+---- review::batch_work_tests::unrelated_request_routing_does_no_canonical_verification_and_hint_grants_nothing stdout ----
+
+thread 'review::batch_work_tests::unrelated_request_routing_does_no_canonical_verification_and_hint_grants_nothing' (27857133) panicked at crates/brn-threads-app/src/review.rs:513:9:
+assertion `left == right` failed
+  left: None
+ right: Some(WritingSnapshot { request_message: "6a4bd89c-5832-495d-9461-1e2c5af3f23d:0", thread: "04a454de-011e-4bee-a98f-f9c91891512d:0", note: Record { id: "726c5017-7246-4eb2-8dc5-8e7d1c0eec7c:0", version: 1, archived: false, data: Note(Note { chat: None, title: "Draft 0", markdown: "Canonical saved body", protected: false, confirmed: false, superseded_by: None, import: None }) }, comments: [], messages: [], general_feedback: "", setup: Some(WritingSnapshotSetup { requirements: WritingReadRequirements { exhaustive: false, must_be_current: [] }, chat: None, input: RevisionInput { record: "6a4bd89c-5832-495d-9461-1e2c5af3f23d:1", version: 1, expectation: Current }, brief: None, references: [] }) })
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    review::batch_work_tests::unrelated_request_routing_does_no_canonical_verification_and_hint_grants_nothing
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+error: test failed, to rerun pass `-p brn-threads-app --lib`
