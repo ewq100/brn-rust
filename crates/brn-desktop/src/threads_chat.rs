@@ -131,7 +131,7 @@ impl ThreadsUi {
     pub(super) fn pause_failed_worker(&mut self) {
         let key = format!("worker-failure:{}", uuid::Uuid::new_v4());
         let result = if let Some(run) = self.worker.as_ref().and_then(|w| w.run_id.as_deref()) {
-            self.workspace.stop_chat_run(
+            self.workspace.interrupt_chat_run(
                 &key,
                 run,
                 (!self.stream.is_empty()).then_some(self.stream.as_str()),
@@ -272,7 +272,7 @@ impl ThreadsUi {
         }
         if let Some(run) = self.queue_state().pending.and_then(|q| q.run)
             && matches!(self.workspace.store.record(&run), Ok(Some(Record { data: RecordData::Run(r), .. })) if r.state == RunState::Working)
-            && let Err(e) = self.workspace.stop_chat_run(
+            && let Err(e) = self.workspace.interrupt_chat_run(
                 &format!("resume-stale:{}", uuid::Uuid::new_v4()),
                 &run,
                 None,

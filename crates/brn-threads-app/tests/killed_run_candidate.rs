@@ -357,7 +357,7 @@ async fn stop_after_a_failure_treats_a_lease_free_run_as_interrupted_work() {
         // The desktop's `pause_failed_worker` call.
         let stop = |workspace: &mut Workspace| {
             workspace
-                .stop_chat_run("worker-failure:1", &id, Some("partial text"))
+                .interrupt_chat_run("worker-failure:1", &id, Some("partial text"))
                 .unwrap()
         };
         let receipt = stop(&mut workspace);
@@ -433,7 +433,7 @@ async fn resume_after_a_killed_queued_run_leaves_one_notice_and_redispatches_onc
     );
     // The desktop's Resume: stop the pending item's stale Run, resume, dispatch.
     let receipt = workspace
-        .stop_chat_run("resume-stale:1", &id, None)
+        .interrupt_chat_run("resume-stale:1", &id, None)
         .unwrap();
     let stopped = run(&workspace, &id);
     assert_eq!((stopped.state, stopped.fence), (RunState::Interrupted, 2));
@@ -459,7 +459,7 @@ async fn resume_after_a_killed_queued_run_leaves_one_notice_and_redispatches_onc
     let receipts = workspace.history().unwrap().len();
     assert_eq!(
         workspace
-            .stop_chat_run("resume-stale:1", &id, None)
+            .interrupt_chat_run("resume-stale:1", &id, None)
             .unwrap(),
         receipt
     );
@@ -573,7 +573,9 @@ async fn continue_after_the_settings_stop_clears_its_notice_when_the_run_starts(
     assert_reviewable(&workspace, &operation);
 }
 
-/// The owner's stop, archive or steer of Run `id` in the intake chat.
+/// The owner's stop, archive or steer of Run `id` in the intake chat. "stop"
+/// is the owner's Stop (`cancel`, and the UI branch's Stop of an unattached
+/// Run).
 fn stop_path(path: &str, workspace: &mut Workspace, w: &World, id: &str) -> Receipt {
     match path {
         "stop" => workspace.stop_chat_run("stop-1", id, None).unwrap(),
@@ -598,13 +600,14 @@ async fn stop_archive_and_steer_of_a_killed_run_review_its_candidate_and_remove_
             "{path}"
         );
         // No process held this Run: Review item and lease removal, as orphan
-        // recovery gives them. Archive is a deliberate owner stop, so it adds
-        // no notice (owner decision 2; round 5 C added one). Stop and Steer
-        // add the notice. The archived chat's own write carries the Review.
-        let expected = if path == "archive" {
-            vec![review(&operation)]
-        } else {
+        // recovery gives them. The owner's Stop and Archive are deliberate,
+        // so they add no notice (owner decision 2, applied to Stop too; round
+        // 5 C added one). Steer adds it; the next Run's start clears it. The
+        // archived chat's own write carries the Review.
+        let expected = if path == "steer" {
             vec![review(&operation), interrupted(&id)]
+        } else {
+            vec![review(&operation)]
         };
         assert_eq!(attention(&workspace, &w.intake), expected, "{path}");
         assert!(!lease_file(&workspace, &id).exists(), "{path}");
@@ -618,6 +621,43 @@ async fn stop_archive_and_steer_of_a_killed_run_review_its_candidate_and_remove_
         assert_eq!(stop_path(path, &mut workspace, &w, &id), receipt, "{path}");
         assert_eq!(workspace.history().unwrap().len(), receipts);
         assert_eq!(attention(&workspace, &w.intake), expected);
+    }
+}
+
+/// Owner decision 2 applied to Stop (interpretation pending the lead's
+/// confirmation): the owner's Stop of a killed Run adds no notice, while
+/// BRN's own stops of the same Run (a failed worker, the stale queued Run
+/// before Resume) still add it. Both add the Review and remove the lease file.
+#[tokio::test(flavor = "multi_thread")]
+async fn the_owners_stop_adds_no_notice_but_brns_own_stops_still_do() {
+    for key in ["stop:1", "worker-failure:1", "resume-stale:1"] {
+        let w = world();
+        let (id, operation) = killed_intake(&w.data, &w.intake).await;
+        let mut workspace = Workspace::open(&w.data).unwrap();
+        let receipt = if key == "stop:1" {
+            workspace.stop_chat_run(key, &id, None).unwrap()
+        } else {
+            workspace.interrupt_chat_run(key, &id, None).unwrap()
+        };
+        let stopped = run(&workspace, &id);
+        assert_eq!((stopped.state, stopped.fence), (RunState::Interrupted, 2));
+        let expected = if key == "stop:1" {
+            vec![review(&operation)]
+        } else {
+            vec![review(&operation), interrupted(&id)]
+        };
+        assert_eq!(attention(&workspace, &w.intake), expected, "{key}");
+        assert!(!lease_file(&workspace, &id).exists(), "{key}");
+        assert_reviewable(&workspace, &operation);
+        let receipts = workspace.history().unwrap().len();
+        let replayed = if key == "stop:1" {
+            workspace.stop_chat_run(key, &id, None).unwrap()
+        } else {
+            workspace.interrupt_chat_run(key, &id, None).unwrap()
+        };
+        assert_eq!(replayed, receipt);
+        assert_eq!(workspace.history().unwrap().len(), receipts);
+        assert_eq!(attention(&workspace, &w.intake), expected, "{key}");
     }
 }
 

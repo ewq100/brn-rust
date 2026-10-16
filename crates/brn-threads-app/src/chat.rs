@@ -14,18 +14,29 @@ impl Workspace {
             .ok_or_else(|| AppError::Invalid("chat controls missing".into()))
     }
     fn chat_command(&mut self, key: &str, command: ChatCommand) -> AppResult<ChatCommandOutcome> {
+        self.chat_command_noting(key, command, false)
+    }
+    /// As [`Self::chat_command`]. With `notice_orphans`, a Working Run the
+    /// Pause stops that no process holds a lease for gets the Interrupted
+    /// notice, as orphan recovery gives it: BRN's own stops. The owner's Stop
+    /// and Archive are deliberate and add none (owner decision 2, 16 October
+    /// 2026). Every ended Run's free lease file is removed either way.
+    fn chat_command_noting(
+        &mut self,
+        key: &str,
+        command: ChatCommand,
+        notice_orphans: bool,
+    ) -> AppResult<ChatCommandOutcome> {
         let binding = format!("{:x}", Sha256::digest(serde_json::to_vec(&command)?));
         let op = self
             .store
             .allocate_bound_operation(&format!("chat-control:{key}"), &binding)?;
-        // Only a stop gives an orphan the notice. Archive ends Runs too, but
-        // as a deliberate owner stop it adds none (owner decision 2); its
-        // ended Runs' free lease files are still removed below.
-        let orphans = if matches!(command, ChatCommand::Pause { run: Some(_), .. }) {
-            self.lease_free_working_runs()?
-        } else {
-            BTreeSet::new()
-        };
+        let orphans =
+            if notice_orphans && matches!(command, ChatCommand::Pause { run: Some(_), .. }) {
+                self.lease_free_working_runs()?
+            } else {
+                BTreeSet::new()
+            };
         let outcome = self.store.chat_command_with_orphans(
             &op,
             &command,
@@ -138,19 +149,45 @@ impl Workspace {
             )?
             .receipt)
     }
+    /// The owner's Stop of `run`: it ends as Interrupted and the queue
+    /// pauses. A deliberate stop adds no notice, even for a Run no process
+    /// holds a lease for (owner decision 2, 16 October 2026, as for Archive);
+    /// such a Run still gets its Review items and loses its free lease file.
     pub fn stop_chat_run(
         &mut self,
         key: &str,
         run: &str,
         partial: Option<&str>,
     ) -> AppResult<Receipt> {
+        self.pause_run(key, run, partial, false)
+    }
+    /// BRN's own stop of `run`, not the owner's: a failed worker, or a stale
+    /// queued Run before Resume. As [`Self::stop_chat_run`], and a Run no
+    /// process holds a lease for also gets the Interrupted notice, as orphan
+    /// recovery gives it.
+    pub fn interrupt_chat_run(
+        &mut self,
+        key: &str,
+        run: &str,
+        partial: Option<&str>,
+    ) -> AppResult<Receipt> {
+        self.pause_run(key, run, partial, true)
+    }
+    fn pause_run(
+        &mut self,
+        key: &str,
+        run: &str,
+        partial: Option<&str>,
+        notice_orphans: bool,
+    ) -> AppResult<Receipt> {
         Ok(self
-            .chat_command(
+            .chat_command_noting(
                 key,
                 ChatCommand::Pause {
                     run: Some(run.into()),
                     partial: partial.map(str::to_owned),
                 },
+                notice_orphans,
             )?
             .receipt)
     }
