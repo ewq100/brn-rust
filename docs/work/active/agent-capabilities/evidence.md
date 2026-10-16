@@ -57,3 +57,8 @@ After explicit heavy regrant, [D1B round1 corrected checks/Opus2 brief](d1b/revi
 
 
 [D2 final source handoff](d2/final-handoff.md) pins d252a505/crates7549da38 and the complete actual8ae..pin diff. All290material hashes match selfchecks;287unrelated material files are unchanged. Heavy explicitly released after all own check processes exited, no mutation copy/controller ever started. Fresh principal Opus1/source acceptance remain pending. D2 mutation is ungranted; <=300s/fourguard proposal only, no finalized D1B time reuse.
+
+
+[D2 Opus1](d2/opus-review-round1.md) APPROVED d252 source-only with nonblocking lows. [Qualified follow-up](d2/qualification-handoff.md) pins ca2bd94b: descriptions-only production delta, strengthened actual authority positive canaries and allocated canonical documentation, single1/0/focused11/0/fullAI430/0/1 plus AI strict lint/fmtPASS. One genuine copied11/0baseline then four fixed risk variants produced3caught/1NO VERDICT (late-fence Storage unwrap, not caught). Final same300s closure/restore/reap/heavy-and-all-path release is linked separately; no D1budget reuse, acceptance or integration claim.
+
+D2 final300second closure: **242.189064026used/57.810935974unused, finalized**; five baseline/variant process groups absent,290/290copy and candidate hashes verified, heavy and all D2 paths explicitly released. Evidence-only commit follows frozen ca2bd94b/cratescbe50a42; unused time is closed, not reusable.

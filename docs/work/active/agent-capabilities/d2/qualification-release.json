@@ -1,0 +1,51 @@
+{
+  "time_utc": "2026-10-16T23:32:24.893020+00:00",
+  "source_pin": "ca2bd94b4d38e5570bb13333c970d4f1d901c179",
+  "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+  "crates_tree": "cbe50a4242f410ad770c1c14d56216866e861962",
+  "material_files_restored_in_copy": 290,
+  "candidate_material_hashes_unchanged": 290,
+  "copy_source": "/private/tmp/brn-d2-20261017-mutation-source",
+  "copy_target": "/private/tmp/brn-d2-20261017-mutation-target",
+  "controller_pid": 74382,
+  "controller_reaped": true,
+  "own_process_groups_absent": [
+    74394,
+    77917,
+    78215,
+    78354,
+    78395
+  ],
+  "process_query": [
+    "ps",
+    "-axo",
+    "pid=,ppid=,pgid=,etime=,comm="
+  ],
+  "matching_heavy_own_target_processes": [],
+  "raw_process_inventory": "/private/tmp/brn-d2-20261017-artifacts/qualification-final-processes.txt",
+  "raw_process_inventory_sha256": "6c52248646a04dfcb5fbd4b835228bf7c509b1ff03f569a2ff8a15b1f7966f5f",
+  "campaign_controller_sha256": "e90cbbe04a41a669570c74ee00b83cde08e7311c8d1c7d8609714e2df129ef4e",
+  "mutation_results_sha256": "025cce7cd7b9a7fa0668ad6d4364e0b6b0b85f48e57d0fc6c5da7e8498a935f1",
+  "mutation_outcomes": {
+    "caught": 3,
+    "no_verdict": 1,
+    "missed": 0,
+    "timeout": 0,
+    "compile_failure": 0,
+    "unexecuted": 0
+  },
+  "campaign_start_epoch": 1792193302.7039511,
+  "original_deadline_epoch": 1792193602.7039511,
+  "final_cleanup_end_epoch": 1792193544.8930151,
+  "cap_seconds": 300,
+  "final_charged_seconds": 242.1890640258789,
+  "unused_seconds_finalized": 57.810935974121094,
+  "charged_scope": "all postpin planning/setup/genuine copied baseline/4fixedvariants/restore/reap/source/process/receipt cleanup; final closure, no further campaign work",
+  "budget_closed": true,
+  "prior_D1A_D1B_time_used": 0,
+  "heavy_slot": "EXPLICITLY RELEASED NOW to principal; no further heavy command without new explicit grant",
+  "all_D2_paths": "EXPLICITLY RELEASED NOW to principal: AI/source/tests/canonical behavior/docs; only evidence-only handoff commits may follow",
+  "source_frozen": true,
+  "qualification": "original Opus1 source-only approval; principal final delta/acceptance/integration separate; no full mutation/native/live/owner/program claim",
+  "artifact_limit": "per-command binary/dep-info fingerprints captured before subsequent fixed-target compiles; earlier binary bytes are not all separately retained"
+}

@@ -1,0 +1,395 @@
+{
+  "start": {
+    "start_epoch": 1792193302.7039511,
+    "deadline_epoch": 1792193602.7039511,
+    "cap_seconds": 300,
+    "start_utc": "2026-10-16T23:28:22.703953+00:00",
+    "source_pin": "ca2bd94b4d38e5570bb13333c970d4f1d901c179",
+    "charged_scope": "ALL postpin planning/setup/fixedcopied baseline/controller/4variants/restore/reap/source/process/receiptcleanup",
+    "source_root": "/private/tmp/brn-d2-20261017-mutation-source",
+    "target": "/private/tmp/brn-d2-20261017-mutation-target",
+    "prior_D1_budgets": "CLOSED/no transfer"
+  },
+  "controller_pid": 74382,
+  "baseline": {
+    "command": [
+      "cargo",
+      "+1.98.1",
+      "test",
+      "-p",
+      "brn-ai",
+      "--features",
+      "scripted-runs",
+      "--locked",
+      "--offline",
+      "--lib",
+      "threads::continuation_tests",
+      "--",
+      "--nocapture"
+    ],
+    "source": "/private/tmp/brn-d2-20261017-mutation-source",
+    "target": "/private/tmp/brn-d2-20261017-mutation-target",
+    "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d2-mut-synthetic-exrs7bnl",
+    "start_epoch": 1792193356.372569,
+    "material_source_sha256": {
+      "crates/brn-ai/src/threads_continuation.rs": "3fdbe277db8961318cd5106da87fa1e284ea4682c645c152c4ef3bcea26ae94b",
+      "crates/brn-ai/src/threads.rs": "2bb6da98e9cd092a0c8d00d75b20eaa247b8e4f422717cceac63490eabdfd8f5",
+      "crates/brn-ai/src/threads_continuation_tests.rs": "cc02dc9e62328913c1aa98eaf39ce12cd109666c597ca394d1c015c3aba62697"
+    },
+    "pid": 74394,
+    "exit": 0,
+    "seconds": 47.83672785758972,
+    "log": "/private/tmp/brn-d2-20261017-artifacts/d2-mutation-baseline.log",
+    "log_sha256": "ca960f06c3ee78ee020efea51c2b149bdd4d236e0975b7a11b48adbdd7ed219a",
+    "summaries": [
+      [
+        "ok",
+        "11",
+        "0",
+        "0"
+      ]
+    ],
+    "artifacts": {
+      "/private/tmp/brn-d2-20261017-mutation-target/debug/deps/brn_ai-28a197b27edef53b": {
+        "sha256": "e41ab6ab187bec02c4b70cf86a97094dd788264f114706d7b691475c00767b38",
+        "bytes": 32363824,
+        "mtime_ns": 1792193403328716636
+      },
+      "/private/tmp/brn-d2-20261017-mutation-target/debug/deps/brn_ai-28a197b27edef53b.d": {
+        "sha256": "92ab10c3e8ac5fa8c891799d3439424153f15425b6fb29dbc44776bfec40f74a",
+        "bytes": 7172,
+        "mtime_ns": 1792193392411114715
+      }
+    }
+  },
+  "variants": [
+    {
+      "id": "D2-M01",
+      "risk": "actual host-recorded same-chat operation family required",
+      "test": "structured_limits_and_unowned_real_operation_refs_reject_before_progress_effect",
+      "diff": "/private/tmp/brn-d2-20261017-artifacts/D2-M01.patch",
+      "diff_sha256": "d083f8ba04290223a4ab5b6c5282c69e0c36206ad0820894297e32f78a11d4ac",
+      "verdict": "CAUGHT",
+      "result": {
+        "command": [
+          "cargo",
+          "+1.98.1",
+          "test",
+          "-p",
+          "brn-ai",
+          "--features",
+          "scripted-runs",
+          "--locked",
+          "--offline",
+          "--lib",
+          "threads::continuation_tests::structured_limits_and_unowned_real_operation_refs_reject_before_progress_effect",
+          "--",
+          "--exact",
+          "--nocapture"
+        ],
+        "source": "/private/tmp/brn-d2-20261017-mutation-source",
+        "target": "/private/tmp/brn-d2-20261017-mutation-target",
+        "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d2-mut-synthetic-oup_6fa9",
+        "start_epoch": 1792193404.225016,
+        "material_source_sha256": {
+          "crates/brn-ai/src/threads_continuation.rs": "9b6084472a539b3b6a93546a2c5e4500020b303c156db6970ed7087fdcf1284d",
+          "crates/brn-ai/src/threads.rs": "2bb6da98e9cd092a0c8d00d75b20eaa247b8e4f422717cceac63490eabdfd8f5",
+          "crates/brn-ai/src/threads_continuation_tests.rs": "cc02dc9e62328913c1aa98eaf39ce12cd109666c597ca394d1c015c3aba62697"
+        },
+        "pid": 77917,
+        "exit": 101,
+        "seconds": 12.704293727874756,
+        "log": "/private/tmp/brn-d2-20261017-artifacts/D2-M01.log",
+        "log_sha256": "e13bd30ccae3d36e9cf6683d52c88b5bf6ccda3fe866bc4327199863e165fbe7",
+        "summaries": [
+          [
+            "FAILED",
+            "0",
+            "1",
+            "0"
+          ]
+        ],
+        "artifacts": {
+          "/private/tmp/brn-d2-20261017-mutation-target/debug/deps/brn_ai-28a197b27edef53b": {
+            "sha256": "40a16f9a0eb49279cc37d728943d3848a6b664cc86f9e7d44a569d3547243724",
+            "bytes": 32347424,
+            "mtime_ns": 1792193416106970980
+          },
+          "/private/tmp/brn-d2-20261017-mutation-target/debug/deps/brn_ai-28a197b27edef53b.d": {
+            "sha256": "92ab10c3e8ac5fa8c891799d3439424153f15425b6fb29dbc44776bfec40f74a",
+            "bytes": 7172,
+            "mtime_ns": 1792193405205441147
+          }
+        }
+      },
+      "reason": "successful compile; intended behavioral assertion failure; exact failure retained for manual inspection",
+      "restored_material": true,
+      "receipt": "/private/tmp/brn-d2-20261017-artifacts/D2-M01.json",
+      "receipt_sha256": "877dfc8c4cc2a8a89a6b968cf45c889d9dc7be3b78f0d8dca6b10dd0dbd5a9fc"
+    },
+    {
+      "id": "D2-M02",
+      "risk": "persisted receipt stays Applied but later owner version must be reported different",
+      "test": "receipt_stays_applied_after_owner_edit_and_replay_preserves_the_later_text",
+      "diff": "/private/tmp/brn-d2-20261017-artifacts/D2-M02.patch",
+      "diff_sha256": "420b6400409ba5b853f9ace073b3882bab718a898ac73711edd3f8cf2d1d9c01",
+      "verdict": "CAUGHT",
+      "result": {
+        "command": [
+          "cargo",
+          "+1.98.1",
+          "test",
+          "-p",
+          "brn-ai",
+          "--features",
+          "scripted-runs",
+          "--locked",
+          "--offline",
+          "--lib",
+          "threads::continuation_tests::receipt_stays_applied_after_owner_edit_and_replay_preserves_the_later_text",
+          "--",
+          "--exact",
+          "--nocapture"
+        ],
+        "source": "/private/tmp/brn-d2-20261017-mutation-source",
+        "target": "/private/tmp/brn-d2-20261017-mutation-target",
+        "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d2-mut-synthetic-hvb87_mh",
+        "start_epoch": 1792193416.991159,
+        "material_source_sha256": {
+          "crates/brn-ai/src/threads_continuation.rs": "40c010fcff37f649f1ed7d8c120ec895b53ca4e140abf04543c9aaa5553963fa",
+          "crates/brn-ai/src/threads.rs": "2bb6da98e9cd092a0c8d00d75b20eaa247b8e4f422717cceac63490eabdfd8f5",
+          "crates/brn-ai/src/threads_continuation_tests.rs": "cc02dc9e62328913c1aa98eaf39ce12cd109666c597ca394d1c015c3aba62697"
+        },
+        "pid": 78215,
+        "exit": 101,
+        "seconds": 12.997808933258057,
+        "log": "/private/tmp/brn-d2-20261017-artifacts/D2-M02.log",
+        "log_sha256": "5554339c6570fae4413e2198cda0df9bd02c9ddd66810d0debcf48aaa2330db8",
+        "summaries": [
+          [
+            "FAILED",
+            "0",
+            "1",
+            "0"
+          ]
+        ],
+        "artifacts": {
+          "/private/tmp/brn-d2-20261017-mutation-target/debug/deps/brn_ai-28a197b27edef53b": {
+            "sha256": "4d549096b07550eb584b51db1e6d05dc6e0a937bae1d0ff9d17206c5783aa915",
+            "bytes": 32363824,
+            "mtime_ns": 1792193429218066851
+          },
+          "/private/tmp/brn-d2-20261017-mutation-target/debug/deps/brn_ai-28a197b27edef53b.d": {
+            "sha256": "92ab10c3e8ac5fa8c891799d3439424153f15425b6fb29dbc44776bfec40f74a",
+            "bytes": 7172,
+            "mtime_ns": 1792193418120002502
+          }
+        }
+      },
+      "reason": "successful compile; intended behavioral assertion failure; exact failure retained for manual inspection",
+      "restored_material": true,
+      "receipt": "/private/tmp/brn-d2-20261017-artifacts/D2-M02.json",
+      "receipt_sha256": "04fc9148e6525fff46badfe32ef0ba3c9d46cca39a5c710d755a2680ea773503"
+    },
+    {
+      "id": "D2-M03",
+      "risk": "optional continuation cannot displace mandatory current input",
+      "test": "continuation_is_optional_in_the_actual_request_and_cannot_grant_note_read",
+      "diff": "/private/tmp/brn-d2-20261017-artifacts/D2-M03.patch",
+      "diff_sha256": "38827fac39002446751ac03123d510ed4fbfe2f8728dfcaea201b7ba86bf1922",
+      "verdict": "CAUGHT",
+      "result": {
+        "command": [
+          "cargo",
+          "+1.98.1",
+          "test",
+          "-p",
+          "brn-ai",
+          "--features",
+          "scripted-runs",
+          "--locked",
+          "--offline",
+          "--lib",
+          "threads::continuation_tests::continuation_is_optional_in_the_actual_request_and_cannot_grant_note_read",
+          "--",
+          "--exact",
+          "--nocapture"
+        ],
+        "source": "/private/tmp/brn-d2-20261017-mutation-source",
+        "target": "/private/tmp/brn-d2-20261017-mutation-target",
+        "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d2-mut-synthetic-d0uy76t_",
+        "start_epoch": 1792193430.043875,
+        "material_source_sha256": {
+          "crates/brn-ai/src/threads_continuation.rs": "0deefdc1d4c99ae8c3b89f4093917dd9243eb9101fa7aa57f43b434e48fb87bd",
+          "crates/brn-ai/src/threads.rs": "2bb6da98e9cd092a0c8d00d75b20eaa247b8e4f422717cceac63490eabdfd8f5",
+          "crates/brn-ai/src/threads_continuation_tests.rs": "cc02dc9e62328913c1aa98eaf39ce12cd109666c597ca394d1c015c3aba62697"
+        },
+        "pid": 78354,
+        "exit": 101,
+        "seconds": 13.05472707748413,
+        "log": "/private/tmp/brn-d2-20261017-artifacts/D2-M03.log",
+        "log_sha256": "b83c0278f144bb07223fb32f78832b4a4fb4ee2fab81a565b685693dc7cb3433",
+        "summaries": [
+          [
+            "FAILED",
+            "0",
+            "1",
+            "0"
+          ]
+        ],
+        "artifacts": {
+          "/private/tmp/brn-d2-20261017-mutation-target/debug/deps/brn_ai-28a197b27edef53b": {
+            "sha256": "3212b2b9d2e1af04fe6a834a0a55b14635137efe8fa3101cfb3233834150cf9e",
+            "bytes": 32363824,
+            "mtime_ns": 1792193442331471650
+          },
+          "/private/tmp/brn-d2-20261017-mutation-target/debug/deps/brn_ai-28a197b27edef53b.d": {
+            "sha256": "92ab10c3e8ac5fa8c891799d3439424153f15425b6fb29dbc44776bfec40f74a",
+            "bytes": 7172,
+            "mtime_ns": 1792193430933715221
+          }
+        }
+      },
+      "reason": "successful compile; intended behavioral assertion failure; exact failure retained for manual inspection",
+      "restored_material": true,
+      "receipt": "/private/tmp/brn-d2-20261017-artifacts/D2-M03.json",
+      "receipt_sha256": "e759bf4221419b7178767f1192d85690fd23e5800de314c526c18d3a4cbc3413"
+    },
+    {
+      "id": "D2-M04",
+      "risk": "late empty objective fallback must remain behind live terminal fence",
+      "test": "budget_without_report_keeps_exact_owner_objective_and_late_finish_cannot_write",
+      "diff": "/private/tmp/brn-d2-20261017-artifacts/D2-M04.patch",
+      "diff_sha256": "9810dae29a7413ed93d18bb0f8eb32f2594e7ac18706a9bf9b43fa3cfb90d90a",
+      "verdict": "NO VERDICT",
+      "result": {
+        "command": [
+          "cargo",
+          "+1.98.1",
+          "test",
+          "-p",
+          "brn-ai",
+          "--features",
+          "scripted-runs",
+          "--locked",
+          "--offline",
+          "--lib",
+          "threads::continuation_tests::budget_without_report_keeps_exact_owner_objective_and_late_finish_cannot_write",
+          "--",
+          "--exact",
+          "--nocapture"
+        ],
+        "source": "/private/tmp/brn-d2-20261017-mutation-source",
+        "target": "/private/tmp/brn-d2-20261017-mutation-target",
+        "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d2-mut-synthetic-0c36atrw",
+        "start_epoch": 1792193443.1626408,
+        "material_source_sha256": {
+          "crates/brn-ai/src/threads_continuation.rs": "3fdbe277db8961318cd5106da87fa1e284ea4682c645c152c4ef3bcea26ae94b",
+          "crates/brn-ai/src/threads.rs": "2b261700a6e56ac084955d6e25699da6f96fa934a08f975a95b48344cba8357e",
+          "crates/brn-ai/src/threads_continuation_tests.rs": "cc02dc9e62328913c1aa98eaf39ce12cd109666c597ca394d1c015c3aba62697"
+        },
+        "pid": 78395,
+        "exit": 101,
+        "seconds": 12.838342189788818,
+        "log": "/private/tmp/brn-d2-20261017-artifacts/D2-M04.log",
+        "log_sha256": "d4165b49b1327e6264b62ed4dd8202afeb65cad59f70df89a7589b83d74836a3",
+        "summaries": [
+          [
+            "FAILED",
+            "0",
+            "1",
+            "0"
+          ]
+        ],
+        "artifacts": {
+          "/private/tmp/brn-d2-20261017-mutation-target/debug/deps/brn_ai-28a197b27edef53b": {
+            "sha256": "5ab05006f7d4992939fd6697ed7ce292d0b035770f38120b985502f2b3f48461",
+            "bytes": 32363728,
+            "mtime_ns": 1792193455178988090
+          },
+          "/private/tmp/brn-d2-20261017-mutation-target/debug/deps/brn_ai-28a197b27edef53b.d": {
+            "sha256": "92ab10c3e8ac5fa8c891799d3439424153f15425b6fb29dbc44776bfec40f74a",
+            "bytes": 7172,
+            "mtime_ns": 1792193444365256455
+          }
+        }
+      },
+      "reason": "compile or unexpected failure; no verdict",
+      "restored_material": true,
+      "receipt": "/private/tmp/brn-d2-20261017-artifacts/D2-M04.json",
+      "receipt_sha256": "7c98a274313b6289b0c64786dda319aa220093ab1a61963195d04069c0fa4e76"
+    }
+  ],
+  "copy_material_count": 290,
+  "synthetic_git": "git init -q in disposable archive only; no remote/auth/history copied",
+  "plans": [
+    {
+      "id": "D2-M01",
+      "path": "crates/brn-ai/src/threads_continuation.rs",
+      "from": "if !family(records, &scope.chat, id) {",
+      "to": "if false && !family(records, &scope.chat, id) {",
+      "test": "structured_limits_and_unowned_real_operation_refs_reject_before_progress_effect",
+      "risk": "actual host-recorded same-chat operation family required"
+    },
+    {
+      "id": "D2-M02",
+      "path": "crates/brn-ai/src/threads_continuation.rs",
+      "from": "current_match &= current.version == write.after.version;",
+      "to": "current_match &= true;",
+      "test": "receipt_stays_applied_after_owner_edit_and_replay_preserves_the_later_text",
+      "risk": "persisted receipt stays Applied but later owner version must be reported different"
+    },
+    {
+      "id": "D2-M03",
+      "path": "crates/brn-ai/src/threads_continuation.rs",
+      "from": "if context_budget::preflight(scope, &candidate).is_ok() {",
+      "to": "if true || context_budget::preflight(scope, &candidate).is_ok() {",
+      "test": "continuation_is_optional_in_the_actual_request_and_cannot_grant_note_read",
+      "risk": "optional continuation cannot displace mandatory current input"
+    },
+    {
+      "id": "D2-M04",
+      "path": "crates/brn-ai/src/threads.rs",
+      "from": "// Cancellation, settings steering or newer Continue may already have fenced this run.\n    if live(scope, &store).is_err() {",
+      "to": "// Cancellation, settings steering or newer Continue may already have fenced this run.\n    if false && live(scope, &store).is_err() {",
+      "test": "budget_without_report_keeps_exact_owner_objective_and_late_finish_cannot_write",
+      "risk": "late empty objective fallback must remain behind live terminal fence"
+    }
+  ],
+  "final_processes": [],
+  "own_process_groups": [
+    74394,
+    77917,
+    78215,
+    78354,
+    78395
+  ],
+  "copy_material_restored": true,
+  "candidate_material_unchanged": true,
+  "unexecuted_ids": [],
+  "raw_process_inventory_sha256": "465c31dceb907650591d8310c8396918686e5b40f0e6be53dcf1586bbe40ac0c",
+  "end_epoch": 1792193456.157299,
+  "charged_seconds": 153.45334792137146,
+  "remaining_seconds": 146.54665207862854,
+  "cap_seconds": 300,
+  "baseline_receipt": "/private/tmp/brn-d2-20261017-artifacts/d2-mutation-baseline.json",
+  "baseline_receipt_sha256": "25b5f9ad9d80fdc6113178e13135c123092e98c77e86609932cf3ccfdb70b7e8",
+  "raw_controller_result": "/private/tmp/brn-d2-20261017-artifacts/d2-mutation-results.json",
+  "raw_controller_result_sha256": "5915608f024c7272731511d51bceba9dd71a38f0cc7c07c0b74d3d41d50cc904",
+  "manual_outcome_review": {
+    "D2-M01": "CAUGHT: compiled; actual unowned-operation tool result lacked is_error:true, intended assertion line524 failed.",
+    "D2-M02": "CAUGHT: compiled; actual next input no longer reported current_versions_match:false after later owner edit; intended line942 assertion failed.",
+    "D2-M03": "CAUGHT: compiled; near-cap mandatory input was displaced by optional context, intended byte-identical-input assertion line590 failed.",
+    "D2-M04": "NO VERDICT: compiled, but late finish returned Storage and unwrap atline423 failed before intended assertion. Not a catch, timeout, compile failure or equivalence claim; no production source edit."
+  },
+  "outcome_counts": {
+    "caught": 3,
+    "missed": 0,
+    "no_verdict_unexpected_failure": 1,
+    "timeout": 0,
+    "compile_failure": 0,
+    "unexecuted": 0
+  },
+  "controller_measurement": "Intermediate153.45334792137146seconds excludes subsequent receipt/reap/source/process cleanup; final cumulative closure is qualification-release.json.",
+  "material_source_frozen": true
+}

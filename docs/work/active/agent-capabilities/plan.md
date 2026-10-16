@@ -1,3 +1,5 @@
+**D2 qualified checkpoint, 17 October:** Opus1 approved d252 source-only; [low follow-up handoff](d2/qualification-handoff.md) pins ca2bd94b with unchanged approved logic, description/test/doc precision, single1/0/D2focused11/0/fullAI430/0/1 and affected lint/fmtPASS. Fixed supplement3caught/1NO VERDICT is source-bound; principal acceptance/integration remain separate. This supersedes older pending-review/ungranted mutation checkpoints below.
+
 **D2 implementation checkpoint, 17 October:** [D2 review brief](d2/implementation.md) and [actual source-bound checks](d2/self-checks.json) record the remaining bounded continuation delta on accepted8ae8a729: AI430/0/1, core31/0/0, app13/0/0, CLI161/0/0 and strict affected lint/fmt pass. Material pin `d252a505` is frozen for principal review; [handoff](d2/final-handoff.md) explicitly releases heavy with an empty process receipt. Independent review/source acceptance remain pending. No D2 mutation is granted or started; prior D1B budget is closed. This supersedes the dated source-only/heavy-owner status below.
 
 # Agent capabilities Slice 0 implementation plan

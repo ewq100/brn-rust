@@ -37,3 +37,6 @@ Initial single-fixture qualification compiled but failed0/1 in a new assertion t
 [Exact follow-up receipts](opus1-low-checks.json) preserve the initial compiled0/1 fixture-shape failure plus corrected single1/0, allD2 **11/0**, full scriptedAI **430/0/1**, strict affected AI all-target Clippy-Dwarnings and workspacefmt **PASS**. The new positive canaries executed; no production defect arose. Original NeedsReview/protected Note/no-effect/fresh authority/read-ledger/system assertions all remain. No unchanged core/app/CLI/native broad rerun or new broad qualification claim.
 
 Static full-module comparison after removing only JSON schema description strings proves approved runtime logic byte-identical. All288other material hashes match d252; only one existing test changed, plus the two allocated canonical paragraphs. The precommit receipt uses actual28fdHEAD+WIP, not a fabricated future SHA. Original Opus approval remains source-only; principal reviews the final precision delta without an automatic new Opus round.
+
+
+[Qualification handoff](qualification-handoff.md) pins ca2bd94b and the actual guarded supplement: copied baseline11/0,3caught/1NO VERDICT; the late-fence variant’s Storage unwrap is not counted caught. Final release includes all receipt/reap/restore cleanup under the same300second cap. No further production changes or automatic new review loop.
