@@ -35,14 +35,15 @@
 | Round 5 F: owner search lists saved chat Messages | yes (`f5872774`) | yes (service/CLI; desktop does not render them, F-UI1) | no ([procedure](round5/native-recheck.md)) | no | no |
 | Round 5 G: runtime tool `withdraw_proposal` | yes (`7ed74f26`) | yes (scripted model) | n/a (runtime) | no | no |
 | Round 5 H: an unusable data folder is named in owner terms | yes (`28e64cdf`) | yes (CLI and headless desktop startup) | no | no | no |
-| Round 6, decision 1: a chat's notice clears when its next Run starts | yes (`7ecc43aa`) | yes ([round 6](#round-6-owner-decisions-13)) | no ([procedure](round6/native-recheck.md)) | decision yes; build no | no |
-| Round 6, decision 2: Archive adds Review items but no new notice | yes (`7ecc43aa`) | yes (service and headless desktop) | no ([procedure](round6/native-recheck.md)) | decision yes; build no | no |
+| Round 6, decision 1: a chat's notice clears when its next Run starts | yes (`7ecc43aa`) | yes ([round 6](#round-6-owner-decisions-13)) | **yes** (Continue after a crash; [native round 6](#native-round-6-observation-orchestrator-16-october-2026)) | decision yes; build no | no |
+| Round 6, decision 2: Archive adds Review items but no new notice | yes (`7ecc43aa`) | yes (service and headless desktop) | **yes** ([native round 6](#native-round-6-observation-orchestrator-16-october-2026)) | decision yes; build no | no |
 | Round 6, decision 2 applied to the owner's Stop (interpretation pending) | yes (`b5212618`, own commit) | yes | no (no native path on this branch) | no | no |
-| Round 6, decision 3: archived chats stay in owner search, labelled `archived` | yes (`747755b3`) | yes (service, CLI and headless desktop data; the desktop does not render it, F-UI1) | no ([procedure](round6/native-recheck.md)) | decision yes; build no | no |
+| Round 6, decision 3: archived chats stay in owner search, labelled `archived` | yes (`747755b3`) | yes (service, CLI and headless desktop data; the desktop does not render it, F-UI1) | **service via CLI only** (the desktop shows no hit, F-UI1; [native round 6](#native-round-6-observation-orchestrator-16-october-2026)) | decision yes; build no | no |
+| Round 5 D re-checked: a settings stop reads "Interrupted" with the notice | yes (`b037140c`) | yes | **yes** ([native round 6](#native-round-6-observation-orchestrator-16-october-2026), part B) | decision yes; build no | no |
 
 Nothing was pushed, merged or released. The branch has no upstream.
 
-**Environment:** macOS arm64, repository Rust 1.98.1 and lockfile, `CARGO_TARGET_DIR=/tmp/brn-dwr-target`, fresh synthetic data under `/private/tmp/brn-dwr-data/` (`/tmp` is a symlink and the core correctly refuses it). No provider calls, credentials, owner data or native UI use. The configured Codex auth file does not exist, so every CLI provider step fails as `ReconnectNeeded` before any network request.
+**Environment:** macOS arm64, repository Rust 1.98.1 and lockfile, `CARGO_TARGET_DIR=/tmp/brn-dwr-target`, fresh synthetic data under `/private/tmp/brn-dwr-data/` (`/tmp` is a symlink and the core correctly refuses it). No provider calls, credentials or owner data. Native UI use only in the native sections named under Evidence classes. The configured Codex auth file does not exist, so every CLI provider step fails as `ReconnectNeeded` before any network request.
 
 ## Evidence classes
 
@@ -50,7 +51,7 @@ Nothing was pushed, merged or released. The branch has no upstream.
 |---|---|
 | Automated, executed | [`cli-journey.py`](cli-journey.py) drives the real `brn` CLI through the journey and failure cases and reads SQLite read-only. `crates/brn-threads-app/tests/daily_workflow_eval.rs` drives the real runtime tools with a scripted Rig model (`run_prepared_scripted`), the real search worker and persisted state; it prints `EVAL` lines. There is also a SIGKILL backup/restore loop over an 85 MB synthetic store. Commands and results are listed at the end. |
 | Code inspection | Desktop quit/close handling, Resume/Continue paths and the useful-intake call site. These are cited by file. |
-| Native observation | **None.** The owner approved B1/B2, but this shell cannot list processes, capture the screen or drive the UI ([attempt](#native-observation-attempt-task-b-not-observed)). A manual procedure is in [Owner manual check](#owner-manual-check). |
+| Native observation | None before round 4: the sandboxed shell could not drive the UI ([attempt](#native-observation-attempt-task-b-not-observed)). Then the owner's [store checks](#owner-native-check-results-15-october-2026) and, with the sandbox off, the orchestrator's [round 4](#native-round-4-observation-orchestrator-15-october-2026) and [round 6](#native-round-6-observation-orchestrator-16-october-2026) checks. |
 | Unverified assumptions | Desktop ⌘Q skips the terminal commit (finding 1, code reading); a two-process lease check; desktop rendering of U3, U4 and U6. |
 | Not judged | Model quality: whether a real model finds both sources, phrases honest uncertainty, avoids duplicate notes on re-supply or drafts a good reply. The scripted model shows only what the host offers, enforces and persists. |
 
@@ -610,12 +611,56 @@ All checks were automated and headless. The work is not native-observed, not own
 
 **Integration risks for `work/cli-agent-contract`.** `search` JSON gains `archived` on every `messages[]` and `hits[]` entry, default `false`. Round 6 makes no `main.rs` change. `stop_chat_run` and the new `interrupt_chat_run` have no CLI caller.
 
-**Native re-check.** See [round6/native-recheck.md](round6/native-recheck.md):
+**Native re-check.** See [round6/native-recheck.md](round6/native-recheck.md) for the procedure and [Native round 6 observation](#native-round-6-observation-orchestrator-16-october-2026) for the results:
 
 - Archive of a killed chat: the Review card, no new notice, the lease file gone.
 - Settings stop: the run line reads "Interrupted", with the notice.
 - Continue after a crash: the notice clears when the Run starts, as the chat's revisions show.
 - Search: the archived Message hit is flagged; desktop rendering is still F-UI1.
+
+## Native round 6 observation (orchestrator, 16 October 2026)
+
+**Setup.** Run under the coordination board's Mac lock (`MAC-IN-USE`, 09:44–09:54), with the UI agent off the Mac.
+- *Build:* this worktree's `native-ui` debug build at `9f10665a` (code head; `f1bb1a1e` adds only the review record).
+- *Data:* fresh copies `r6-native/a` and `r6-native/b` of the two `r4-native-*` stores, and a CLI-made store `r6-native/d/data`. `HOME`, `CODEX_HOME` and `TMPDIR` pointed at empty folders, so no provider call was possible.
+- *Driving:* real clicks through the CoreGraphics helper, typing through System Events.
+- *Evidence:* screenshots `/private/tmp/brn-dwr-data/native-evidence/r6-{a,b,c,d}-*.png` (outside Git; they show the owner's desktop) and read-only copies of each store, taken after BRN closed.
+
+**A: Archive of a killed chat (decision 2).** Clicking Archive in "Information from b1-source" showed the following.
+- *On screen:*
+  - the status line "Chat archived. Work stopped and the queue is paused. Actions retain their progress.";
+  - "1 needs you", with the chat under NEEDS YOU as "Review prepared changes";
+  - the review card for "Crane arrival — reported date" with Show in note, Dismiss and Apply;
+  - **no** "Run interrupted" card, and the run line "Interrupted".
+- *How this build offers Unarchive:* three places. A header pill "Unarchive" (tooltip "Unarchive this chat"), a body button under "Archived chat · saved history remains available", and the composer line "Archived · Unarchive to reply". "Continue with current context" is still shown above them, and the composer still takes focus (U11).
+- *In the store:* the Run is `Interrupted` at fence 2 (version 3). The chat is archived; revision 2 holds exactly one Review whose `record` is the candidate operation, with no Blocker. The candidate `…:0:proposal:crane-arrival-source-capture-1` has `retired` 0, and `derived/run-leases/` is empty.
+
+**B: settings stop.** Clicking "Review changes first" showed the review card, the blocker card "Run interrupted. Continue starts fresh." and the run line **"Interrupted"**. The status line read "Saved. Owner configured workspace and stopped prior invocations" (U8, UI branch).
+
+**C: Continue after a crash (decision 1).** Clicking "Continue with current context" in the same window ended at once offline.
+- *On screen:* the review card, exactly one blocker card "Run failed: The provider account needs reconnecting. Continue when the provider is ready.", no "Run interrupted" card, and the run line "Failed". The status line read "Work in Information from b1-source · Work stopped: Reconnect this account before continuing." (U10, UI branch).
+- *Chat revisions* (`revisions` joined with `operations.request.reason`):
+
+  | Version | Written by | Attention |
+  |---|---|---|
+  | 1 | Owner started a thread | none |
+  | 2 | Owner configured workspace and stopped prior invocations | Review, Blocker "Run interrupted. Continue starts fresh." (old Run) |
+  | 3 | Start a fresh invocation | Review only |
+  | 4 | Record terminal run result | Review, Blocker "Run failed: …" (new Run `6c7b6416…:0`) |
+
+- *In the store:* the old Run is `Interrupted` at fence 2, the new Run `Failed`, the candidate unretired, and `derived/run-leases/` empty.
+
+**D: archived chat in search (decision 3).**
+- *CLI before the desktop:* `search --query berth` returned `message_total` 1, with `chat_title` "Replies", role owner and `"archived": true`.
+- *Desktop:* the Notes filter `berth` showed "0 current notes", "TITLES · 0" and "No current note text matches. Try another word or clear the filter to browse." The ⌘K palette with `berth` showed "No matching notes, chats or commands." Neither renders the Message hit (F-UI1, now covering the palette too).
+- *After closing:* `unarchive` then `search` returned the same single hit with `"archived": false`.
+
+**All store expectations in the [procedure](round6/native-recheck.md) matched, and every on-screen expectation matched.** Nothing was applied or dismissed. BRN was closed with its window button, no `brn-desktop --data-dir` process remained, and the Mac lock was removed. The owner's Stop of a lease-free Run (`b5212618`) has no native path on this branch and was not observed.
+
+**UI findings from this check (for the UI agent).**
+- **U11: an archived chat offers several next steps.** It shows Continue with current context, three Unarchive controls and a composer that accepts focus under "Archived · Unarchive to reply". The UI branch already plans to make Unarchive the single next step. Steps: part A above.
+- **U10 still reproduces on this branch** (part C). The UI branch owns it.
+- **F-UI1 includes the ⌘K palette.** The archived chat's Message matched neither the Notes filter nor the palette (an open chat's Message was not tried natively). The service answer carries it in `messages[]` with `archived`.
 
 ## Owner manual check
 
