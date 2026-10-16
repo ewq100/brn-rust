@@ -1,0 +1,11 @@
+--- crates/brn-ai/src/threads.rs
++++ ack-refresh-omitted-count
+@@ -1515,7 +1515,7 @@
+             acknowledgement["needs_refresh_total"] = json!(needs_refresh_total);
+         }
+         let refresh = json!({
+-            "records":&records[..refresh_count],"records_omitted":records.len()-refresh_count,
++            "records":&records[..refresh_count],"records_omitted":records.len(),
+             "complete":refresh_count==records.len() && (!applied || records.len()==needs_refresh_total),"follow_up":refresh["follow_up"]
+         });
+         let mut out = if applied {

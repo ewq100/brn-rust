@@ -1,0 +1,23 @@
+{
+  "pin": "4db5b357e23cb0c4466e7fd91c71cf926cad44f8",
+  "controller_session": 64547,
+  "controller_exit_code": 0,
+  "own_processes_after": [],
+  "restored_material_source_count": 294,
+  "changed_copy_source_files": [],
+  "candidate_material_diff_empty": true,
+  "prior_original_charged_seconds": 1192.5642304420471,
+  "final_supplement_charged_seconds": 195.23291897773743,
+  "total_original_charged_seconds": 1387.7971494197845,
+  "remaining_original_seconds": 412.20285058021545,
+  "original_total_cap_seconds": 1800,
+  "finalized_epoch": 1792185104.526398,
+  "deadline_epoch": 1792185516.7292485,
+  "baseline": "PASS393/0/1",
+  "targeted_outcomes": {
+    "Caught": 5
+  },
+  "heavy_released": true,
+  "new_heavy_command_requires_explicit_grant": true,
+  "no_full_campaign_or_source_acceptance_claim": true
+}

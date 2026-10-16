@@ -1,0 +1,8 @@
+{
+  "pin": "4db5b357e23cb0c4466e7fd91c71cf926cad44f8",
+  "prior_total_charged_seconds": 1192.5642304420471,
+  "remaining_at_start_seconds": 607.4357695579529,
+  "segment_started_epoch": 1792184909.293479,
+  "deadline_epoch": 1792185516.7292485,
+  "method": "all final supplement planning/controller prep/setup/baseline/build/test/restore/stop/cleanup charged from this timestamp; no prior verdict overwritten"
+}
