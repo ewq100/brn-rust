@@ -282,6 +282,11 @@ fn strip_ordered_list(body: &str) -> Option<&str> {
 mod tests {
     use super::*;
 
+    fn result_selection(text: &str, edit: &Edit) -> String {
+        let result = apply(text, edit);
+        result[edit.selection.clone()].to_owned()
+    }
+
     fn apply(text: &str, edit: &Edit) -> String {
         let mut result = text.to_owned();
         result.replace_range(edit.range.clone(), &edit.replacement);
@@ -459,6 +464,46 @@ mod tests {
     }
 
     #[test]
+    fn tab_indented_short_line_after_short_lines_is_still_code() {
+        // Line scanning must stay correct across any number of preceding
+        // lines: a tab-indented line stays code wherever it appears.
+        let text = "one\ntwo\nthree\n\tx";
+        let start = text.find('x').unwrap();
+        assert!(format(text, start..text.len(), Format::Bold).is_none());
+    }
+
+    #[test]
+    fn indented_pseudo_fences_do_not_fence_the_plain_line_between() {
+        // Four-space indented fences are literal code text, so the plain
+        // line between them stays formattable, even selected to its ends.
+        let text = "    ```\nplain\n    ```";
+        let start = text.find("plain").unwrap();
+        let edit = format(text, start..start + 5, Format::Bold).unwrap();
+        assert_eq!(apply(text, &edit), "    ```\n**plain**\n    ```");
+    }
+
+    #[test]
+    fn short_fully_marked_italic_word_still_unwraps() {
+        // The italic threshold is exactly two marker bytes: a three-byte
+        // "*a*" selection is a complete toggle, not uncertain syntax.
+        let text = "x *a* y";
+        let edit = format(text, 2..5, Format::Italic).unwrap();
+        assert_eq!(apply(text, &edit), "x a y");
+        assert_eq!(edit.selection, 2..3);
+        let edit = format("*a*", 0..3, Format::Italic).unwrap();
+        assert_eq!(apply("*a*", &edit), "a");
+    }
+
+    #[test]
+    fn fence_behind_a_container_nested_at_three_spaces_encloses() {
+        // A blockquote nested at exactly three inner spaces is still a
+        // container, so its fence encloses the following quote line.
+        let text = ">    > ```\n> word";
+        let start = text.find("word").unwrap();
+        assert!(format(text, start..start + 4, Format::Bold).is_none());
+    }
+
+    #[test]
     fn whitespace_only_multiline_selection_is_a_noop() {
         assert!(format(" \n  \n", 0..5, Format::List).is_none());
     }
@@ -495,6 +540,146 @@ mod tests {
                 assert_eq!(&text[undo.selection], "café");
             }
         }
+    }
+
+    #[test]
+    fn mid_line_selection_on_a_non_final_line_formats_in_place() {
+        // The most common case: a word inside the first of several lines.
+        let text = "first word here\nsecond line";
+        let edit = format(text, 6..10, Format::Bold).unwrap();
+        assert_eq!(apply(text, &edit), "first **word** here\nsecond line");
+        assert_eq!(result_selection(text, &edit), "word");
+        let edit = format(text, 6..10, Format::Italic).unwrap();
+        assert_eq!(apply(text, &edit), "first *word* here\nsecond line");
+    }
+
+    #[test]
+    fn one_sided_or_exact_markers_are_refused_not_mangled() {
+        // A single marker edge is uncertain syntax, never a toggle.
+        for (text, selection) in [
+            ("**partial", 0..9),
+            ("partial**", 0..9),
+            ("*partial", 0..8),
+            ("partial*", 0..8),
+            ("**", 0..2),
+            ("*", 0..1),
+        ] {
+            let kind = if text.starts_with("**") || text.ends_with("**") {
+                Format::Bold
+            } else {
+                Format::Italic
+            };
+            assert!(format(text, selection, kind).is_none(), "{text:?}");
+        }
+        // The same refusal applies when only the inner word is selected next
+        // to a one-sided marker, on either side.
+        assert!(format("say word** now", 4..8, Format::Bold).is_none());
+        assert!(format("say **word now", 6..10, Format::Bold).is_none());
+    }
+
+    #[test]
+    fn complete_markers_unwrap_at_line_start_and_on_later_lines() {
+        let edit = format("**bold**", 0..8, Format::Bold).unwrap();
+        assert_eq!(apply("**bold**", &edit), "bold");
+        assert_eq!(result_selection("**bold**", &edit), "bold");
+        let text = "abc\n**word**";
+        let edit = format(text, 6..10, Format::Bold).unwrap();
+        assert_eq!(apply(text, &edit), "abc\nword");
+        // Trailing text after the closing marker still unwraps.
+        let edit = format("**word**!", 2..6, Format::Bold).unwrap();
+        assert_eq!(apply("**word**!", &edit), "word!");
+    }
+
+    #[test]
+    fn reversed_selection_at_valid_boundaries_is_refused() {
+        // A reversed range is refused outright; at valid char boundaries it
+        // must never fall through to slicing.
+        for reversed in [Range { start: 5, end: 2 }, Range { start: 4, end: 1 }] {
+            for kind in [Format::Bold, Format::Heading, Format::Quote] {
+                assert!(format("abc\ndef", reversed.clone(), kind).is_none());
+            }
+        }
+    }
+
+    #[test]
+    fn emphasis_syntax_elsewhere_on_the_line_is_refused() {
+        // Clean selection, but a code span follows on the same line.
+        assert!(format("plain `code`", 0..5, Format::Bold).is_none());
+        assert!(format("`code` plain", 7..12, Format::Bold).is_none());
+    }
+
+    #[test]
+    fn four_space_content_inside_a_quote_is_not_a_fence_opener() {
+        // CommonMark: within a blockquote, four spaces of content indent make
+        // the fence literal code text, so a following plain quote line stays
+        // formattable instead of being treated as fenced.
+        let text = ">     ```\n> word";
+        let start = text.find("word").unwrap();
+        let edit = format(text, start..text.len(), Format::Bold).unwrap();
+        assert_eq!(apply(text, &edit), ">     ```\n> **word**");
+    }
+
+    #[test]
+    fn fence_with_info_string_encloses_following_lines() {
+        // An untouched opening fence with an info string still starts a fence.
+        let text = "```rust\nmore text";
+        let start = text.find("more text").unwrap();
+        assert!(format(text, start..text.len(), Format::Bold).is_none());
+        let text = "aaa\n```rust\nword";
+        let start = text.find("word").unwrap();
+        assert!(format(text, start..text.len(), Format::Bold).is_none());
+    }
+
+    #[test]
+    fn deeply_indented_container_content_is_untouched() {
+        // Four spaces of content indent inside a container is indented code,
+        // whatever container prefix follows it; stripping must stop there.
+        for text in [
+            ">     - word",
+            ">      > word",
+            ">     1. word",
+            "  >     - word",
+        ] {
+            let start = text.find("word").unwrap();
+            for kind in [Format::Bold, Format::Quote] {
+                assert!(format(text, start..text.len(), kind).is_none(), "{text:?}");
+            }
+        }
+    }
+
+    #[test]
+    fn three_space_indented_container_fence_still_encloses() {
+        // Up to three spaces of indent still belong to the blockquote, so
+        // its fence encloses the touched word.
+        let text = "   > ```\n   > word\n   > ```";
+        let start = text.find("word").unwrap();
+        for kind in [Format::Bold, Format::Heading] {
+            assert!(format(text, start..start + 4, kind).is_none(), "{kind:?}");
+        }
+    }
+
+    #[test]
+    fn selection_ending_inside_an_existing_prefix_anchors_at_its_start() {
+        // Removing "# one" with the selection ending inside "# " maps the
+        // selection to where the prefix began, never to a multiplied or
+        // boundary-shifted offset.
+        let text = "x\n# one";
+        let edit = format(text, 2..4, Format::Heading).unwrap();
+        assert_eq!(apply(text, &edit), "x\none");
+        assert_eq!(edit.selection, 2..2);
+    }
+
+    #[test]
+    fn multi_line_prefixes_map_selections_across_every_newline() {
+        let text = "aaa\nbbb\nccc";
+        let edit = format(text, 0..7, Format::Quote).unwrap();
+        assert_eq!(apply(text, &edit), "> aaa\n> bbb\nccc");
+        assert_eq!(&apply(text, &edit)[edit.selection.clone()], "aaa\n> bbb");
+        // A selection anchored exactly at the line break still maps through
+        // every prefix change, including the one after its own line.
+        let edit = format(text, 3..7, Format::Quote).unwrap();
+        assert_eq!(apply(text, &edit), "> aaa\n> bbb\nccc");
+        assert_eq!(&apply(text, &edit)[edit.selection.clone()], "\n> bbb");
     }
 
     #[test]
