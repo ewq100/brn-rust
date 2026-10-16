@@ -12,18 +12,18 @@ Each status is reported on its own: implemented or verified does not mean owner-
 |---|---|---|---|---|---|
 | UI polish S1–S7 and both fix passes | yes (`work/ui-polish`) | yes, on this tree | on its own builds (`ed8daa82`, recheck `354c1940`), not on this build | text-floor rule yes (16 Oct); the rest no | no |
 | Reliability rounds 1–6 | yes (`work/daily-workflow-reliability`) | yes, on this tree | on its own builds (rounds 4 and 6), not on this build | decisions 1–3 yes (16 Oct); the build no | no |
-| Test expectations for the reliability service (§1) | yes | yes | n/a | n/a | no |
-| F-UI1: "In chats" in Notes search and ⌘K (§2) | yes | yes | no | no | no |
-| U4: an edit already open elsewhere (§3) | yes | yes | no | no | no |
+| Test expectations for the reliability service (§1) | yes | yes | decisions 1 and 2 seen on `6db39420` ([native recheck](#native-observed-recheck-of-6db39420)) | n/a | no |
+| F-UI1: "In chats" in Notes search and ⌘K (§2) | yes | yes | yes, on `6db39420` ([native recheck](#native-observed-recheck-of-6db39420)) | no | no |
+| U4: an edit already open elsewhere (§3) | yes | yes | yes, on `6db39420` ([native recheck](#native-observed-recheck-of-6db39420)) | no | no |
 | Data-folder startup message (§4) | yes (test of the existing path) | yes | no | no | no |
-| U10: one recorded notice on four surfaces (§5) | yes | yes | no | no | no |
-| U11: an archived chat focuses Unarchive (§6) | yes | yes | no | no | no |
-| R1–R4 from the UI recheck (§7) | yes | yes | no | no (R1 is a lead decision of 16 Oct that the owner can overrule) | no |
+| U10: one recorded notice on four surfaces (§5) | yes | yes | yes, on `6db39420` ([native recheck](#native-observed-recheck-of-6db39420)) | no | no |
+| U11: an archived chat focuses Unarchive (§6) | yes | yes | yes on open and after ⌘K; ⌘L not tried ([native recheck](#native-observed-recheck-of-6db39420)) | no | no |
+| R1–R4 from the UI recheck (§7) | yes | yes | R1 yes; R4's Needs you row seen; R2, R3 no ([native recheck](#native-observed-recheck-of-6db39420)) | no (R1 is a lead decision of 16 Oct that the owner can overrule) | no |
 | Contract and docs (§8) | yes | link check | n/a | decisions 1–3 yes; wording no | no |
-| Fix pass 1: review findings 1–6, 8 and 9 ([Fix pass 1](#fix-pass-1-review-of-649494d6)) | yes | yes | no | no | no |
+| Fix pass 1: review findings 1–6, 8 and 9 ([Fix pass 1](#fix-pass-1-review-of-649494d6)) | yes | yes | 1, 2 and 5 yes; 3, 4, 6, 8 and 9 no ([native recheck](#native-observed-recheck-of-6db39420)) | no | no |
 | Fix pass 1: finding 7, Windows compile | no (no Windows target here); a pre-merge CI run is required | no | n/a | no | no |
 
-Nothing was pushed, merged, published or released. No Mac window was opened in this step or in fix pass 1, and `MAC-IN-USE` was not taken.
+Nothing was pushed, merged, published or released. No Mac window was opened in the integration step or in fix pass 1. The later native recheck of `6db39420` ran under `MAC-IN-USE` ([Native-observed](#native-observed-recheck-of-6db39420)).
 
 ## What changed
 
@@ -167,8 +167,49 @@ The other new tests assert text or state that did not exist before this step (th
 **Not verified:**
 
 - Windows was not compiled; no Windows target is installed. Neither this step nor fix pass 1 adds a platform-specific call, and the one Unix-only test is `#[cfg(unix)]`. On a pull request, CI runs the native-ui lanes on `macos-15` only, so the manual `ci.yml` run on the PR branch (finding 7) is the first Windows compile of this desktop code.
-- No native observation of this build. In particular, F-UI1, U4, U10, U11 and R1–R4 are automated-verified only, in the GPUI test text system, which is wider than macOS fonts.
+- No native observation in this verification run. The later [native recheck](#native-observed-recheck-of-6db39420) of `6db39420` covers F-UI1, U4, U10, U11, R1, Continue and the killed-then-archived chat; R2, R3 and the items it lists as not observed remain automated-verified only, in the GPUI test text system, which is wider than macOS fonts.
 - No two-process lease check beyond the reliability branch's in-process one.
+
+## Native-observed: recheck of 6db39420
+
+This section reports only what was seen on screen and in the stores with real synthetic input on 16 October 2026. It is not owner acceptance and nothing was merged. Shots are in [native/](native/), downscaled to 900×600, which is 1:1 with window points.
+
+**How:**
+
+- **Go-ahead and lock.** This step asked the parent for a go-ahead before opening any window. The orchestrator replied "GO" (the owner gave it in advance) and allowed a Codex store with no credentials, under conditions that were met (below). `MAC-IN-USE` was absent; this step created it at 12:25 and deleted it at 12:39:43. Windows were open from 12:26:58 to 12:37:17 (main store, quit with ⌘Q) and from 12:37:40 to 12:39:23 (continue store, quit with ⌘Q). Afterwards `pgrep` found no `brn-desktop` process and ScreenCaptureKit listed no BRN window.
+- **Build.** One `cargo build -p brn -p brn-desktop --features brn-desktop/native-ui --bins --locked --offline` at `6db39420`, in the worktree's `target/`. `brn-desktop` sha256 `fddf34e3…a6bc8`, `brn` sha256 `a8fafd90…db72`. The CLI calls during the check used that `brn`. The desktop binary ran directly with `--data-dir`, with no app bundle.
+- **Data.** Two fresh stores under `/private/tmp/brn-integration-recheck-20261016/data/`. They were seeded through the shared `Workspace` service by a temporary example ([native/recheck-seed.rs.txt](native/recheck-seed.rs.txt)), built in a `git archive` export outside Git. `HOME`, `CODEX_HOME` and `TMPDIR` pointed at empty scratch folders, which were still empty at the end.
+  - *main:* provider `offline-fixture`, no credentials. It holds the notes, a protected decision, "Pilot proposal" with two comments and a prepared rewrite, "Crane arrival plan" with a Failed rewrite Run and its recorded notice, a killed reply (a Working Run that no process holds, an unlocked lease file and one prepared proposal), the chats "Harbour berth survey" and archived "Replies" that mention "berth", "Weekend" with "Raba walk on Saturday", and a paused queue.
+  - *continue:* Codex `gpt-6.1-sol` with `auth_file` null and `credentials_dir` null. `brn settings` on a copy confirmed both before launch. It holds a Working Run left by `prepare_run`, which the delegation choice then interrupted with the notice.
+- **Input and capture.** `AXIsProcessTrusted()` returned `true`. [`input.swift`](../ui-polish/observation/input.swift) posted the clicks, keys and scrolls. Text went in through System Events `keystroke`, because the helper's Unicode typer reached the Notes filter but not the ⌘K field (a harness gap). [`wincap.swift`](../ui-polish/observation/wincap.swift) captured the BRN window only. The observation harness was neither built nor used, and nothing was compiled into `crates/` or `scripts/`.
+- **No provider call.** The main store's `offline-fixture` provider starts no Run, and none was started there. In the continue store, `lsof -i` on the BRN process showed no internet socket before Continue, in four samples over 1.2 s after it, or after the failure. With no auth file and no credentials folder, `provider_client` returns `ReconnectNeeded` before it builds any client (code reading). Sampling alone can't rule out a connection shorter than about 300 ms, but that code path opens none.
+
+**Results:**
+
+| Check | Native result on `6db39420` | Status | Shots |
+|---|---|---|---|
+| F-UI1 Notes search | "berth": "In note text · 1 match · 1–1" (Harbour logistics), then "In chats · 4 messages · 1–4". Two hits from Harbour berth survey (You, BRN) and two from Replies, each with the Archived chip; the tooltip reads "Replies · You · Archived". The archived BRN hit opened Replies, scrolled to "Saved the berth depth reply…". | **pass** | 01, 02 |
+| F-UI1 ⌘K | "berth": the Chats match "Harbour berth survey", then "In chats" with four rows, chat · role metadata, and Archived chips on the Replies rows. | **pass** | 03 |
+| ⌘K order (fix pass 1, finding 1) | "raba": "Theme: Raba · dark bog peat · red" is row 0, and "Raba walk on Saturday" (Weekend · You) comes after it once the answer lands. ↵ applied Raba ("Raba applied. It is saved for next time once no work is running.") and opened no chat. | **pass** (↓ ↵ onto a Message not tried) | 04, 05 |
+| U4 | Vendor comparison was open in Write in the desktop. Then the CLI, on the same data, ran `begin-edit --base 1` and `update-buffer` (generation 1). Typing in the desktop gave the notice "An edit of this note is already open from v1. What you typed here isn't saved." and the banner "…already open from v1 and is kept. … Compare it with the saved note, recover it, or discard it." with Recover edit, Compare and Discard edit…. **Compare:** "Compare the open edit", with "Open edit · from v1" (the CLI text) and "Saved · v1". **Discard edit…:** "Discard the edit open elsewhere?" / "Its changes since v1 will be lost. What you typed here is kept. This can't be undone." After Discard: "Discarded the open edit. What you typed here is now your unsaved edit.", with "Unsaved edit · recoverable" and Save ⌘S. `brn recovery` then listed one buffer (base 1, generation 1) holding the desktop's text. Only the first typed character reached it, because the note turns read-only at the first keystroke. | **pass** | 06–09 |
+| U10, four surfaces | **Seeded failed rewrite** (Raba): the Note's run status reads "Run failed: The provider account needs reconnecting. Continue when the provider is ready.", with the muted progress "Read the note and drafted a shorter opening." below it. The Needs you row's tooltip and the chat's Needs you card show the same text. The writing chat has no separate Failed card; the Note offers Retry saved rewrite. **Live failure** (continue store, light and Virmalised): the status line reads "Work in Plan the crane lift · Run failed: The provider account needs reconnecting. Continue when the provider is ready.". The recovery card "Failed" has the same reason line, and the Needs you card and row match. Round 6 showed "Work stopped: Reconnect this account before continuing." here. | **pass** | 10, 11, 21–23 |
+| Continue clears the notice (decision 1) | **Before:** Needs you "Run interrupted. Continue starts fresh." and the card "Interrupted" with the same reason. **After Continue:** one Needs you card "Run failed: …" and the Failed card, with no Interrupted card. **Store, read after quit:** chat v2 "Owner configured workspace and stopped prior invocations" [Blocker Interrupted, old Run], v3 "Start a fresh invocation" [], v4 "Record terminal run result" [Blocker "Run failed: …", new Run]. The old Run is Interrupted at fence 2, the new Run is Failed, and `derived/run-leases/` is empty. | **pass** | 20–22 |
+| U11 | Replies opened from search shows the header chip "Archived", one Unarchive (the banner's "Archived. Unarchive to reply."), the focus ring on Unarchive and no caret in the composer. After the launcher closed, focus was back on Unarchive. Its card reads "Not answered yet · Unarchive to continue". ⌘L and typing into the composer were not tried. | **pass** (see finding 3) | 02, 05 |
+| Killed, then archived (decision 2) | **Before Archive:** "May still be running · Reading the crane source", with Stop… and Continue (U1). **Archive:** "Chat archived. Work stopped and the queue is paused. Tasks keep their progress.", with the Needs you row "Information from cr… / Review changes to Cr…". **The chat:** the Review card "Review changes to Crane arrival — reported date +2 −0" with Show in note, Dismiss and Apply, then the Run's state card "Interrupted · Reading the crane source · Unarchive to continue" with Continue disabled. There is **no** "Run interrupted. Continue starts fresh." notice card. **Store:** chat v2 is archived and its attention is exactly one Review naming the proposal. The Run is Interrupted (fence 0→1, as seeded). The candidate is unretired and unapplied, and `derived/run-leases/` is empty. | **pass** for decision 2: the Review is the only attention item and the only actionable card. The Run's Interrupted state card also shows, because the recovery card reads Run state. | 12–15 |
+| R1, open draft at 900×600 | Pilot proposal (light) with comments open, "ready" selected and a ⌘/ draft "Name the team". The draft input and its Cancel / Add comment are whole. The writing bar is whole inside the Note, from top to bottom: Rewrite ready · 2 comments · Dismiss · Review rewrite, the overall-feedback field, Retry saved rewrite and Rewrite with AI ⌘⇧R. The text box keeps about 80 pt. Cancel closed the draft. No notice row was present in this state. | **pass** | 16 |
+| Regression: Note review | Review rewrite opened Proposal / Changes / Result. Apply gave v2 with "Applied · v2", Undo, Rewrite again and Mark 2 comments addressed, plus "Saved. 6 related items may need refresh. Open Changes to review them." Undo gave v3 with the original text, "Undone. 6 related items…" and Retry saved rewrite. | **pass** | 17, 18 |
+| Regression: lists, chat states, Settings | Chats sidebar: Recent, All · 12, Archived · 1→2, Needs you (question, failure, recoverable edit "Vendor com… ⚠ / Recover edit", Review rows) and Recent chats. Notes list and search. Chat states seen: archived, killed, interrupted and failed. Settings → General lists the five themes. | **pass**. Projects and Tasks were not opened. | 13, 19 |
+
+**Themes:** light Sammal (F-UI1, R1, review, Settings, Continue), dark Raba (U4, the Note's U10 surface, the killed chat), dark Virmalised (U10 after Continue).
+
+**Not observed:** ⌘K ↓ ↵ onto a Message hit. F-UI1 paging (only four Messages) and an archived *note* hit. U11 through ⌘L. R2 and R3. Fix pass 1 findings 3, 4, 6, 8 and 9. The busiest Note with a recorded notice (the open question above). The owner's Stop… of a killed Run (Archive was used instead). The data-folder message. Projects, Tasks and restart recovery.
+
+**New findings (native, not fixed):**
+
+1. **Notes search, In chats at 170 pt.** When the role and the Archived chip share a row, the chat title shrinks to "R…". The full name appears only in the tooltip (01).
+2. **⌘K snippet with Markdown.** For a reply containing a table, the In chats row shows raw syntax: "…Item | Owner | | --- | --- | --- | | 5 min | Numbers…" (seen while typing "pilot proposal").
+3. **Archived chats show the global queue.** The strip "Paused · 1 waiting" with Resume queue, and the Run card's "1 waiting message stays paused until you resume the queue", appear in archived chats, even though the waiting message belongs to another chat. That is a second live control beside Unarchive. Whether it fits U11 is a lead or owner call (02, 15).
+4. **A hit's snippet may not be clickable.** One click on the snippet text of a Notes-search chat hit didn't open the chat; a click on its title line did. Seen once, not isolated.
 
 ## Open items
 
@@ -191,7 +232,7 @@ The other new tests assert text or state that did not exist before this step (th
 
 **Carried from `work/ui-polish`:**
 
-- Fix-pass items not yet re-observed natively: 5c (the busiest Note), INT-1, INT-4 and U10 (they need a provider, or a state the seed fixture lacks), plus every change in this step.
+- Fix-pass items not yet re-observed natively: 5c (the busiest Note), INT-1 and INT-4 (a state the seed fixture lacks). U10 and this step's main changes were observed in the [native recheck](#native-observed-recheck-of-6db39420).
 - The All chats day grouping stays in UTC while times are local.
 - U3: Review rows can name their targets only while the candidate is still prepared.
 - `resume_chat_queue` stops a queue-claimed Working Run through `interrupt_chat_run` without checking its lease. It can stop a Run that is live in another process, and this step left it unchanged.
@@ -200,12 +241,12 @@ The other new tests assert text or state that did not exist before this step (th
 
 - **U4 and `work/cli-agent-contract` round 3.** Discard edit… discards the open edit through `Store::discard` with the session that `recovery_buffers` lists for the note. Caller-bound sessions (round 3) would make another caller's edit undiscardable without its secret. That design should say how the desktop discards or adopts an edit it did not open.
 - **The native app's startup failure is invisible outside a terminal.** An unusable data folder is reported in owner terms on stderr, but a Finder launch shows no window. A startup error window would be a product change; it was not made.
-- **R1 extends the text floor.** The owner accepted the 48 px floor under a banner (16 Oct). The lead decided on 16 Oct to apply the same floor beside an open stacked draft, so the writing bar stays whole. The owner can overrule that decision, and it is not native-observed. The board's wording of the owner's rule, "Every other state keeps 120 px", now has two exceptions: the banner stack and an open draft.
+- **R1 extends the text floor.** The owner accepted the 48 px floor under a banner (16 Oct). The lead decided on 16 Oct to apply the same floor beside an open stacked draft, so the writing bar stays whole. The owner can overrule that decision. It was native-observed on `6db39420` with system fonts: the draft input and the whole writing bar stay inside the Note. The board's wording of the owner's rule, "Every other state keeps 120 px", now has two exceptions: the banner stack and an open draft.
 
 **New in fix pass 1:**
 
 - **Windows before merge (finding 7).** Dispatch `ci.yml` on the combined PR branch and wait for its Windows and Ubuntu native-ui lanes before merging, or the owner accepts the risk explicitly.
-- **The busiest Note with a recorded notice.** In the measured state above, the writing bar ends 2.5 px below the Note at 900×600 (8.5 px on `649494d6`), with the text at its 48 px floor. The owner-accepted rule keeps the text at 48 px or more and never hides banners, failure reasons or the writing bar, so it doesn't say which row gives way when all of them are at their floor. The text-floor assertions were not lowered. It needs a native look (macOS fonts may fit) and, if it reproduces, an owner choice.
+- **The busiest Note with a recorded notice.** In the measured state above, the writing bar ends 2.5 px below the Note at 900×600 (8.5 px on `649494d6`), with the text at its 48 px floor. The owner-accepted rule keeps the text at 48 px or more and never hides banners, failure reasons or the writing bar, so it doesn't say which row gives way when all of them are at their floor. The text-floor assertions were not lowered. It needs a native look (macOS fonts may fit) and, if it reproduces, an owner choice. The native recheck did not build this state.
 - **The card's announced name** includes the progress line after the notice, because it reads every visible line. The Note's `writing-run-status` doesn't.
 - **Archived note hits** get the chip, but the desktop's Notes search runs without a project scope, so the service currently lists no note hit from an archived chat there.
 
