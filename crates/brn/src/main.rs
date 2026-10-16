@@ -1,10 +1,18 @@
 //! Thin host CLI over the same checked Threads service as the desktop.
+mod contract;
+mod help;
+mod input;
+mod inspect;
+mod spec;
+mod stop;
 use brn_ai::{AiTerminal, Provider, ReasoningEffort, Selection};
 use brn_threads_app::*;
 use brn_threads_intake::*;
+use contract::{Annotations, CliError, Code};
 use serde_json::{json, Value};
 use std::{
     collections::BTreeMap,
+    ffi::OsString,
     path::{Path, PathBuf},
     process::ExitCode,
     sync::{
@@ -18,11 +26,51 @@ extern "C" fn on_sigint(_: libc::c_int) {
     CANCEL.store(true, Ordering::SeqCst);
 }
 const HELP: &str = "BRN Threads\n\nUsage: brn --data-dir ABSOLUTE_DIRECTORY COMMAND [--option VALUE]\n\nCommands: init, records, notes, threads, needs-you, history, candidates, settings,\n  projects [--trash yes]; project-create --title TITLE [--key KEY]\n  project-chat --project ID --title TITLE; project-document --project ID --title TITLE --text MARKDOWN\n  project-settings --project ID --base VERSION --title TITLE --instructions TEXT --knowledge yes|no\n  chat-move --thread ID [--project ID|none]; project-link|project-unlink --project ID --note ID\n  project-delete-preview --project ID (save JSON for review)\n  project-delete --preview-file FILE --actions JSON [--key KEY]\n  project-restore --project ID --base VERSION\n  Project commands accept --key KEY for durable retry. Actions JSON maps each unfinished Action ID to Keep or Cancel.\n  Search/connections accept --project ID; intake --intent project --project ID imports privately.\n  intake --intent useful reuses the chat that already received the same source (in --project ID when given),\n  unless work there is still running; then it starts a new chat (reused_chat false).\n  note-create --title TITLE --text MARKDOWN\n  thread-start --title TITLE\n  read --id RECORD\n  search --query TEXT [--limit 1..50] [--cursor NEXT] [--thread CHAT]\n  connections --note ID [--hops 1|2] [--sources yes] [--thread CHAT]\n  topics; topics-create; topics-choose --note ID\n  knowledge-check [--seed-chat yes]\n  model-install --destination ABSOLUTE_FRESH_FOLDER (native builds; downloads the pinned model)\n  Semantic search uses the model folder named by BRN_EMBEDDING_MODEL_DIR.\n  begin-edit --note ID --base VERSION\n  update-buffer --session ID --generation N --text MARKDOWN\n  save|discard --session ID --generation N; recovery\n  apply|dismiss --operation ID; undo --operation ID; archive|unarchive --thread ID\n  queue --thread ID --text TEXT; keep-in-brn --note ID --base VERSION\n  ask --thread ID --prompt TEXT [--budget 1..32] [--edit-note ID --base VERSION | --record-decision yes] [--trace summary|full]\n  intake --source ABSOLUTE_FILE --intent useful|full|chat|project [--title TITLE] [--thread ID] [--project ID] [--trace summary|full]\n  configure --provider Codex|Copilot --model ID --effort low|medium|high\n    [--helper off | --helper-provider Codex|Copilot --helper-model ID --helper-effort low|medium|high\n     [--helper-auth-file FILE|--helper-credentials-dir DIR]] (read-only research helper, off by default.\n     Experimental: helper sub-agents are tested only with gpt-6-luna at high effort; other models may give unreliable results. Best for long-document digests; runs that delegate are slower)\n  delegation --choice maintain|review-first\n  pause; resume; export|backup --destination ABSOLUTE_FRESH_PATH\n  restore --source ABSOLUTE_BACKUP\n  upgrade --backup-directory ABSOLUTE_EXTERNAL_FOLDER\n\nChoose delegation before resuming maintenance. Manual work remains available while pending.\nFresh explicit data only. Originals remain external; no external messages are sent.\nReview apply and Undo are concrete owner actions. Continue uses ask on the same Thread.";
-type Result<T> = std::result::Result<T, String>;
+/// Printed after `HELP` by `--help`.
+const AGENT_HELP: &str = "
+Agents and scripts: brn --json --data-dir DIR COMMAND ... prints one JSON envelope on stdout.
+  In --json mode: exit 0 ok, 1 internal, 2 usage, 3 stale, 4 deferred, 5 needs review, 6 rejected,
+  7 failed (including busy and timeout), 130 interrupted (SIGINT), 143 terminated (SIGTERM).
+  Without --json, failures exit 1 and outcomes such as Stale exit 0.
+  --timeout SECONDS after --data-dir bounds the call; it never hides a commit (envelope stop).
+  brn --json --help prints the machine contract (commands, options, outcomes, retry classes, error codes);
+  brn [--json] COMMAND --help prints one command's help. --data-dir and --timeout may follow the command.
+  Bounded inspection: history|candidates|records|notes|threads|needs-you|recovery --limit N [--cursor C],
+  projects [--trash yes] --limit N, messages --thread ID, revisions --note ID,
+  revision --note ID --version V, runs [--thread ID] [--state STATE], read --id ID --limit BYTES;
+  pass result.cursor back as --cursor for the next page. operation --id OP | --key K --command NAME
+  shows whether an operation (or a keyed command's key) applied, without using the key.
+  Text options --title, --text, --prompt, --instructions, --actions also accept --NAME-file ABSOLUTE_FILE or --NAME-file - (stdin).
+  --key KEY makes note-create, thread-start, undo, queue, archive|resolve, unarchive, keep-in-brn,
+  intake --intent full|chat|project, topics-create, knowledge-check --seed-chat yes and project commands
+  replay on retry. resolve is an alias of archive. A keyed full/chat/project intake replays when bytes,
+  path, scope and title match a committed import, without converting or sending the document again;
+  if that import found the bytes already imported, the retry converts again and records only an observation.
+  Stale save (exit 3): keep result.session.markdown; discard your session; begin-edit --base
+  <conflict[0].version>; reapply; update-buffer --generation 1 --text-file merged.md; save --generation 1.
+  intake --intent chat --thread <PROJECT_ID> attaches the document to that project: an owner decision.
+  Commands marked owner_decision record an owner decision. Running the CLI does not make you the owner:
+  run them only on the owner's explicit instruction for that exact operation.";
+type Result<T> = std::result::Result<T, CliError>;
 struct Invocation {
     data: PathBuf,
     command: String,
     args: BTreeMap<String, String>,
+    /// A leading `--json` selects the machine contract.
+    machine: bool,
+    /// The caller's `--key`, already checked against the key pattern.
+    key: Option<String>,
+    /// `(NAME, SOURCE)` for each `--NAME-file`, read by `input::resolve`.
+    pending_inputs: Vec<(&'static str, String)>,
+    /// Global `--timeout SECONDS`, already checked to be 1..86400.
+    timeout: Option<u64>,
+}
+/// A refusal found while parsing argv, before anything is opened or read.
+struct Refused {
+    machine: bool,
+    command: Option<String>,
+    key: Option<String>,
+    error: CliError,
 }
 /// Keeps the saved helper unless the owner turns it off or names a complete new
 /// selection; a helper on the main provider reuses the main credentials unless
@@ -42,7 +90,12 @@ fn helper_settings(
     .any(|key| inv.args.contains_key(*key));
     match inv.args.get("helper").map(String::as_str) {
         Some("off") if !named => return Ok(None),
-        Some(_) => return Err("Use --helper off alone, or name the helper options".into()),
+        Some(_) => {
+            return Err(CliError::conflicting(
+                &["helper", "helper-provider", "helper-model", "helper-effort"],
+                "Use --helper off alone, or name the helper options",
+            ))
+        }
         None if !named => return Ok(settings.helper.clone()),
         None => {}
     }
@@ -67,118 +120,329 @@ fn helper_settings(
         credentials_dir,
     }))
 }
-fn parse(args: impl IntoIterator<Item = String>) -> Result<Option<Invocation>> {
-    let args: Vec<_> = args.into_iter().collect();
-    if args == ["--help"] {
-        println!("{HELP}");
+/// Reads argv against the command table. Every grammar, requirement and
+/// key check runs here, before the workspace opens or any input is read.
+fn parse(
+    args: impl IntoIterator<Item = OsString>,
+) -> std::result::Result<Option<Invocation>, Refused> {
+    let args: Vec<OsString> = args.into_iter().collect();
+    if args.len() == 1 && args[0] == "--help" {
+        contract::emit_line(&format!("{HELP}\n{AGENT_HELP}"));
         return Ok(None);
     }
-    let mut iter = args.into_iter();
-    if iter.next().as_deref() != Some("--data-dir") {
-        return Err("Supply --data-dir ABSOLUTE_DIRECTORY; run --help".into());
+    if args.len() == 2 && args[0] == "--json" && args[1] == "--help" {
+        contract::emit_line(&spec::description().to_string());
+        return Ok(None);
     }
-    let data = PathBuf::from(iter.next().ok_or("Missing data directory")?);
-    if !data.is_absolute() {
-        return Err("Data directory must be absolute".into());
-    }
-    let command = iter.next().ok_or("Missing command")?;
-    let mut options: BTreeMap<String, String> = BTreeMap::new();
-    while let Some(key) = iter.next() {
-        let Some(key) = key.strip_prefix("--") else {
-            return Err("Options need --name VALUE".into());
-        };
-        let value = iter.next().ok_or("Missing option value")?;
-        if options.insert(key.into(), value).is_some() {
-            return Err("Repeated option".into());
+    let machine = args.first().is_some_and(|arg| arg == "--json");
+    let mut tokens = Vec::with_capacity(args.len());
+    for (index, arg) in args.into_iter().enumerate() {
+        match arg.into_string() {
+            Ok(token) => tokens.push(token),
+            Err(_) => {
+                return Err(Refused {
+                    machine,
+                    command: None,
+                    key: None,
+                    error: CliError::new(Code::MalformedOption, "Arguments must be valid UTF-8")
+                        .with("position", index + 1),
+                })
+            }
         }
     }
-    let allowed: &[&str] = match command.as_str() {
-        "init" | "records" | "notes" | "threads" | "needs-you" | "history" | "candidates"
-        | "settings" | "pause" | "resume" | "recovery" | "topics" | "topics-create" => &[],
-        "projects" => &["trash"],
-        "project-create" => &["title", "key"],
-        "project-chat" => &["project", "title", "key"],
-        "project-document" => &["project", "title", "text", "key"],
-        "project-settings" => &[
-            "project",
-            "base",
-            "title",
-            "instructions",
-            "knowledge",
-            "key",
-        ],
-        "chat-move" => &["thread", "project", "key"],
-        "project-link" | "project-unlink" => &["project", "note", "key"],
-        "project-delete-preview" => &["project"],
-        "project-delete" => &["preview-file", "actions", "key"],
-        "project-restore" => &["project", "base", "key"],
-        "topics-choose" => &["note"],
-        "connections" => &["note", "hops", "sources", "thread", "project"],
-        "knowledge-check" => &["seed-chat"],
-        "model-install" => &["destination"],
-        "note-create" => &["title", "text"],
-        "thread-start" => &["title"],
-        "delegation" => &["choice"],
-        "read" => &["id"],
-        "search" => &["query", "limit", "cursor", "thread", "project"],
-        "begin-edit" => &["note", "base"],
-        "update-buffer" => &["session", "generation", "text"],
-        "save" | "discard" => &["session", "generation"],
-        "apply" | "undo" | "dismiss" => &["operation"],
-        "resolve" | "archive" | "unarchive" => &["thread"],
-        "keep-in-brn" => &["note", "base"],
-        "queue" => &["thread", "text"],
-        "ask" => &[
-            "thread",
-            "prompt",
-            "budget",
-            "edit-note",
-            "base",
-            "record-decision",
-            "trace",
-        ],
-        "intake" => &["source", "intent", "title", "thread", "project", "trace"],
-        "configure" => &[
-            "provider",
-            "model",
-            "effort",
-            "auth-file",
-            "credentials-dir",
-            "helper",
-            "helper-provider",
-            "helper-model",
-            "helper-effort",
-            "helper-auth-file",
-            "helper-credentials-dir",
-        ],
-        "export" | "backup" => &["destination"],
-        "restore" => &["source"],
-        "upgrade" => &["backup-directory"],
-        _ => return Err("Unknown command; run --help".into()),
+    let refuse = |command: Option<&str>, error: CliError| Refused {
+        machine,
+        command: command.map(str::to_owned),
+        key: None,
+        error,
     };
-    if options.keys().any(|key| !allowed.contains(&key.as_str())) {
-        return Err("Unknown option for command".into());
+    let start = usize::from(machine);
+    let mut iter = tokens.into_iter().enumerate().skip(start);
+    let usage = |code, message: &str| CliError::new(code, message);
+    let supply = "Supply --data-dir ABSOLUTE_DIRECTORY; run --help";
+    // Global options: --data-dir and --timeout in any option-name position.
+    let mut data: Option<PathBuf> = None;
+    let mut timeout = None;
+    let set_data = |data: &mut Option<PathBuf>,
+                    value: Option<String>|
+     -> std::result::Result<(), CliError> {
+        if data.is_some() {
+            return Err(usage(Code::RepeatedOption, "Repeated option").with_option("data-dir"));
+        }
+        let value = value.ok_or_else(|| usage(Code::MissingDataDir, "Missing data directory"))?;
+        let path = PathBuf::from(value);
+        if !path.is_absolute() {
+            return Err(usage(
+                Code::InvalidDataDir,
+                "Data directory must be absolute",
+            ));
+        }
+        *data = Some(path);
+        Ok(())
+    };
+    let set_timeout =
+        |timeout: &mut Option<u64>, value: Option<String>| -> std::result::Result<(), CliError> {
+            if timeout.is_some() {
+                return Err(usage(Code::RepeatedOption, "Repeated option").with_option("timeout"));
+            }
+            let value = value.ok_or_else(|| {
+                usage(Code::MissingValue, "Missing option value").with_option("timeout")
+            })?;
+            *timeout = Some(timeout_seconds(&value)?);
+            Ok(())
+        };
+    let command = loop {
+        match iter.next() {
+            Some((_, token)) if token == "--data-dir" => {
+                let value = iter.next().map(|(_, v)| v);
+                set_data(&mut data, value).map_err(|e| refuse(None, e))?;
+            }
+            Some((_, token)) if token == "--timeout" => {
+                let value = iter.next().map(|(_, v)| v);
+                set_timeout(&mut timeout, value).map_err(|e| refuse(None, e))?;
+            }
+            // Before the command, any other option needs --data-dir first.
+            Some((_, token)) if token.starts_with("--") && data.is_none() => {
+                return Err(refuse(None, usage(Code::MissingDataDir, supply)));
+            }
+            Some((_, token)) => break Some(token),
+            None => break None,
+        }
+    };
+    let Some(command) = command else {
+        let error = match data {
+            None => usage(Code::MissingDataDir, supply),
+            Some(_) => usage(Code::MissingCommand, "Missing command"),
+        };
+        return Err(refuse(None, error));
+    };
+    let rest: Vec<(usize, String)> = iter.collect();
+    let Some(spec) = spec::spec(&command) else {
+        // An unknown command without any --data-dir is still the missing data dir.
+        let named = rest.iter().any(|(_, t)| t == "--data-dir" || t == "--help");
+        if data.is_none() && !named {
+            return Err(refuse(None, usage(Code::MissingDataDir, supply)));
+        }
+        let mut error = usage(Code::UnknownCommand, "Unknown command; run --help");
+        if let Some(command) = contract::echo(&command) {
+            error = error.with("command", command);
+        }
+        return Err(refuse(None, error));
+    };
+    let refuse = |error: CliError| refuse(Some(spec.name), error);
+    let mut options: BTreeMap<String, String> = BTreeMap::new();
+    let mut help = false;
+    let mut iter = rest.into_iter();
+    while let Some((index, token)) = iter.next() {
+        let Some(name) = token.strip_prefix("--") else {
+            let error = usage(Code::MalformedOption, "Options need --name VALUE");
+            return Err(refuse(error.with("position", index + 1)));
+        };
+        // `--help` in an option-name position takes no value.
+        if name == "help" {
+            help = true;
+            continue;
+        }
+        let value = iter.next().map(|(_, value)| value);
+        match name {
+            "data-dir" => set_data(&mut data, value).map_err(refuse)?,
+            "timeout" => set_timeout(&mut timeout, value).map_err(refuse)?,
+            _ => {
+                let Some(value) = value else {
+                    let error = usage(Code::MissingValue, "Missing option value");
+                    return Err(refuse(error.with_option(name)));
+                };
+                if options.insert(name.into(), value).is_some() {
+                    let error = usage(Code::RepeatedOption, "Repeated option");
+                    return Err(refuse(error.with_option(name)));
+                }
+            }
+        }
+    }
+    if help {
+        if machine {
+            contract::emit_line(&help::json(spec).to_string());
+        } else {
+            contract::emit_line(&help::text(spec));
+        }
+        return Ok(None);
+    }
+    let Some(data) = data else {
+        // As before round 2: no --data-dir at all reports no command.
+        return Err(Refused {
+            machine,
+            command: None,
+            key: None,
+            error: usage(Code::MissingDataDir, supply),
+        });
+    };
+    if let Some(unknown) = options
+        .keys()
+        .find(|key| !spec.options.contains(&key.as_str()))
+    {
+        let error = usage(Code::UnknownOption, "Unknown option for command")
+            .with_option(unknown)
+            .with("allowed", spec.options);
+        return Err(refuse(error));
+    }
+    let key = options
+        .get("key")
+        .filter(|key| spec::key_is_valid(key))
+        .cloned();
+    let refuse = |error: CliError| Refused {
+        key: key.clone(),
+        ..refuse(error)
+    };
+    for name in spec::TEXT_OPTIONS {
+        let file = format!("{name}-file");
+        if options.contains_key(name) && options.contains_key(&file) {
+            let message = format!("Choose either --{name} or --{file}");
+            return Err(refuse(CliError::conflicting(&[name, &file], message)));
+        }
+    }
+    if let Some(variant) = spec::key_refused(spec, &options) {
+        let message = format!(
+            "--key is not accepted with --{} {}",
+            variant.option, variant.equals
+        );
+        return Err(refuse(CliError::conflicting(
+            &["key", variant.option],
+            message,
+        )));
+    }
+    if let Some((option, equals)) = spec.key_requires {
+        if options.contains_key("key") && options.get(option).map(String::as_str) != Some(equals) {
+            let message = format!("--key needs --{option} {equals}");
+            return Err(refuse(CliError::conflicting(&["key", option], message)));
+        }
+    }
+    if options.contains_key("key") && key.is_none() {
+        let message = "--key must match [A-Za-z0-9._:-]{1,128}";
+        return Err(refuse(CliError::invalid_value("key", message)));
+    }
+    let mut pending_inputs = Vec::new();
+    let mut stdin: Option<String> = None;
+    for name in spec::TEXT_OPTIONS {
+        let file = format!("{name}-file");
+        let Some(source) = options.remove(&file) else {
+            continue;
+        };
+        if source != "-" && !Path::new(&source).is_absolute() {
+            let message = format!("--{file} takes an absolute path or -");
+            return Err(refuse(
+                CliError::invalid_value(&file, message).with("expected", "absolute path or -"),
+            ));
+        }
+        if source == "-" {
+            if let Some(first) = &stdin {
+                let message = format!("--{file} -: stdin is already read by --{first}");
+                return Err(refuse(CliError::invalid_input(
+                    &file,
+                    "stdin_reused",
+                    message,
+                )));
+            }
+            stdin = Some(file.clone());
+        }
+        pending_inputs.push((name, source));
+    }
+    let given = |name: &str| {
+        options.contains_key(name) || pending_inputs.iter().any(|(pending, _)| *pending == name)
+    };
+    let conditional = spec
+        .required_when
+        .iter()
+        .filter(|rule| {
+            options
+                .get(rule.option)
+                .is_some_and(|value| value == rule.equals)
+        })
+        .flat_map(|rule| rule.required);
+    if let Some(missing) = spec
+        .required
+        .iter()
+        .chain(conditional)
+        .find(|name| !given(name))
+    {
+        return Err(refuse(CliError::missing_option(missing)));
+    }
+    if let Some((_, needs)) = spec
+        .needs
+        .iter()
+        .find(|(option, needs)| options.contains_key(*option) && !given(needs))
+    {
+        return Err(refuse(CliError::missing_option(needs)));
+    }
+    spec::check_values(spec.name, &options).map_err(refuse)?;
+    if spec.name == "operation" {
+        inspect::operation_form(&options).map_err(refuse)?;
+    }
+    if matches!(spec.name, "ask" | "intake") {
+        if let Some(trace) = options.get("trace") {
+            if !matches!(trace.as_str(), "summary" | "full") {
+                let message = "--trace takes summary or full";
+                return Err(refuse(CliError::invalid_value("trace", message)));
+            }
+        }
     }
     if command == "delegation" {
-        delegation_choice(options.get("choice").ok_or("Missing --choice")?)?;
+        delegation_choice(&options["choice"]).map_err(refuse)?;
     }
     Ok(Some(Invocation {
         data,
         command,
         args: options,
+        machine,
+        key,
+        pending_inputs,
+        timeout,
     }))
+}
+/// `--timeout SECONDS`: an integer 1..86400.
+fn timeout_seconds(value: &str) -> Result<u64> {
+    value
+        .parse::<u64>()
+        .ok()
+        .filter(|seconds| {
+            (1..=86400).contains(seconds) && value.bytes().all(|b| b.is_ascii_digit())
+        })
+        .ok_or_else(|| {
+            CliError::invalid_value("timeout", "--timeout takes an integer 1..86400 (seconds)")
+        })
 }
 impl Invocation {
     fn arg(&self, key: &str) -> Result<&str> {
         self.args
             .get(key)
             .map(String::as_str)
-            .ok_or_else(|| format!("Missing --{key}"))
+            .ok_or_else(|| CliError::missing_option(key))
     }
     fn number(&self, key: &str) -> Result<u64> {
         self.arg(key)?
             .parse()
-            .map_err(|_| format!("--{key} must be an integer"))
+            .map_err(|_| CliError::invalid_value(key, format!("--{key} must be an integer")))
+    }
+    /// The host request key: `cli-key:{command}:{KEY}` under `--key`, else
+    /// today's random key with `prefix`.
+    fn host_key(&self, prefix: &str) -> String {
+        match &self.key {
+            Some(key) => spec::cli_key(&self.command, key),
+            None => format!("{prefix}:{}", uuid::Uuid::new_v4()),
+        }
+    }
+    /// The caller's key for the shared keyed functions, or a fresh one.
+    fn owner_key(&self) -> String {
+        match &self.key {
+            Some(_) => self.host_key("cli"),
+            None => uuid::Uuid::new_v4().to_string(),
+        }
+    }
+}
+/// True when `data` does not exist or is an empty folder (no workspace marker).
+fn workspace_missing(data: &Path) -> bool {
+    match std::fs::read_dir(data) {
+        Err(error) => error.kind() == std::io::ErrorKind::NotFound,
+        Ok(mut entries) => entries.next().is_none(),
     }
 }
 /// The explicit owner command that downloads the pinned embedding model.
@@ -186,15 +450,15 @@ impl Invocation {
 fn install_model(inv: &Invocation) -> Result<Value> {
     let target = PathBuf::from(inv.arg("destination")?);
     let bytes = install_embedding_model(&target, &CANCEL, |done, total| {
-        eprint!("\rmodel {done}/{total} bytes");
-    })
-    .map_err(|e| e.to_string())?;
-    eprintln!();
+        contract::emit_err(&format!("\rmodel {done}/{total} bytes"));
+    })?;
+    contract::emit_err("\n");
     Ok(json!({"installed":target,"downloaded_bytes":bytes,"use_with":EMBEDDING_MODEL_ENV}))
 }
 #[cfg(not(feature = "native-retrieval"))]
 fn install_model(_: &Invocation) -> Result<Value> {
-    Err("This build has no native retrieval; build with --features native-retrieval".into())
+    let message = "This build has no native retrieval; build with --features native-retrieval";
+    Err(CliError::new(Code::Unavailable, message))
 }
 /// `--trace summary|full` records the run's tool use (structure only; `full`
 /// adds query text and is for synthetic evaluation data).
@@ -203,22 +467,26 @@ fn trace_level(inv: &Invocation) -> Result<brn_ai::threads::TraceLevel> {
         None => Ok(brn_ai::threads::TraceLevel::Off),
         Some("summary") => Ok(brn_ai::threads::TraceLevel::Summary),
         Some("full") => Ok(brn_ai::threads::TraceLevel::Full),
-        Some(_) => Err("--trace takes summary or full".into()),
+        Some(_) => Err(CliError::invalid_value(
+            "trace",
+            "--trace takes summary or full",
+        )),
     }
 }
 /// The owner's chosen chat context (`--thread`), which must name a chat.
 fn chat_option(workspace: &Workspace, inv: &Invocation) -> Result<Option<String>> {
     if let Some(project) = inv.args.get("project") {
         if inv.args.contains_key("thread") {
-            return Err("Choose either --project or --thread".into());
+            let message = "Choose either --project or --thread";
+            return Err(CliError::conflicting(&["project", "thread"], message));
         }
         if !workspace
             .store
-            .record(project)
-            .map_err(|e| e.to_string())?
+            .record(project)?
             .is_some_and(|r| !r.archived && matches!(r.data, RecordData::Project(_)))
         {
-            return Err("--project must name an active project".into());
+            let message = "--project must name an active project";
+            return Err(CliError::invalid_request(message).with("option", "project"));
         }
         return Ok(Some(project.clone()));
     }
@@ -227,16 +495,16 @@ fn chat_option(workspace: &Workspace, inv: &Invocation) -> Result<Option<String>
     };
     let is_chat = workspace
         .store
-        .record(chat)
-        .map_err(|e| e.to_string())?
+        .record(chat)?
         .is_some_and(|r| matches!(r.data, RecordData::Thread(_)));
     if !is_chat {
-        return Err("--thread must name a chat".into());
+        let message = "--thread must name a chat";
+        return Err(CliError::invalid_request(message).with("option", "thread"));
     }
     Ok(Some(chat.clone()))
 }
 fn encode(value: impl serde::Serialize) -> Result<Value> {
-    serde_json::to_value(value).map_err(|e| e.to_string())
+    Ok(serde_json::to_value(value)?)
 }
 fn settings_output(settings: WorkspaceSettings) -> Result<Value> {
     let chosen = settings.delegation_chosen;
@@ -249,7 +517,20 @@ fn delegation_choice(value: &str) -> Result<DelegationChoice> {
     match value {
         "maintain" => Ok(DelegationChoice::MaintainOrdinaryNotes),
         "review-first" => Ok(DelegationChoice::ReviewFirst),
-        _ => Err("Delegation choice must be maintain or review-first".into()),
+        _ => Err(CliError::invalid_value(
+            "choice",
+            "Delegation choice must be maintain or review-first",
+        )),
+    }
+}
+/// A converging command's receipt, or `{outcome: "Unchanged", record, version}`
+/// when the requested state already held and nothing was recorded.
+fn converged(outcome: Converged<Receipt>) -> Result<Value> {
+    match outcome {
+        Converged::Changed(receipt) => encode(receipt),
+        Converged::Unchanged(unchanged) => {
+            Ok(json!({"outcome":"Unchanged","record":unchanged.record,"version":unchanged.version}))
+        }
     }
 }
 fn applied(outcome: ApplyOutcome) -> Value {
@@ -266,14 +547,20 @@ fn effort(text: &str) -> Result<ReasoningEffort> {
         "low" => Ok(ReasoningEffort::Low),
         "medium" => Ok(ReasoningEffort::Medium),
         "high" => Ok(ReasoningEffort::High),
-        _ => Err("Effort must be low, medium or high".into()),
+        _ => Err(CliError::invalid_value(
+            "effort",
+            "Effort must be low, medium or high",
+        )),
     }
 }
 fn provider(text: &str) -> Result<Provider> {
     match text.to_lowercase().as_str() {
         "codex" | "chatgpt" => Ok(Provider::Chatgpt),
         "copilot" => Ok(Provider::Copilot),
-        _ => Err("Provider must be Codex or Copilot".into()),
+        _ => Err(CliError::invalid_value(
+            "provider",
+            "Provider must be Codex or Copilot",
+        )),
     }
 }
 async fn ask(
@@ -283,13 +570,15 @@ async fn ask(
     prompt: String,
     sources: Vec<brn_ai::threads::TransientSource>,
 ) -> Result<Value> {
-    let settings = workspace.settings().map_err(|e| e.to_string())?;
+    let settings = workspace.settings()?;
+    // Shared with useful intake, whose arm checks first; this also guards it.
+    contract::require_credentials(inv, &settings)?;
     let budget = inv
         .args
         .get("budget")
         .map(|n| n.parse::<u16>())
         .transpose()
-        .map_err(|_| "Invalid budget")?
+        .map_err(|_| CliError::invalid_value("budget", "Invalid budget"))?
         .unwrap_or(brn_ai::threads::default_tool_rounds(!sources.is_empty()));
     // Without a handle the search tools are not offered; the reason is reported.
     let (search, search_status) = match workspace.search_handle() {
@@ -299,6 +588,7 @@ async fn ask(
         ),
         Err(error) => (None, format!("unavailable: {error}")),
     };
+    stop::check()?;
     let cancel = CancellationToken::new();
     let observed = cancel.clone();
     let watcher = tokio::spawn(async move {
@@ -325,10 +615,10 @@ async fn ask(
                             Some(brn_ai::threads::OwnerRequest::RecordDecision)
                         }
                         (None, None) if !inv.args.contains_key("base") => None,
-                        _ => return Err(
-                            "Choose either --edit-note ID --base VERSION or --record-decision yes"
-                                .into(),
-                        ),
+                        _ => return Err(CliError::conflicting(
+                            &["edit-note", "record-decision"],
+                            "Choose either --edit-note ID --base VERSION or --record-decision yes",
+                        )),
                     }
                 } else {
                     None
@@ -353,7 +643,7 @@ async fn ask(
         )
         .await;
     watcher.abort();
-    let result = result.map_err(|e| format!("Provider run failed: {:?}", e.kind))?;
+    let result = result.map_err(contract::run_error)?;
     let failure = match &result.answer.terminal {
         AiTerminal::Failed(error) => Some(encode(error)?),
         _ => None,
@@ -376,7 +666,7 @@ async fn ask(
     Ok(output)
 }
 fn converter(kind: DocumentKind) -> Result<Converter> {
-    let executable = std::env::current_exe().map_err(|e| e.to_string())?;
+    let executable = std::env::current_exe()?;
     let helper = std::env::var_os("BRN_INTAKE_HELPER")
         .map(PathBuf::from)
         .unwrap_or_else(|| executable.with_file_name("brn-intake-helper"));
@@ -385,49 +675,79 @@ fn converter(kind: DocumentKind) -> Result<Converter> {
         helper_path: helper,
         pdf_tools: tools,
         temp_root: std::env::temp_dir()
-            .canonicalize()
-            .map_err(|e| e.to_string())?
+            .canonicalize()?
             .join("brn-threads-intake"),
         limits: brn_threads_intake::import_limits(kind),
     })
 }
-async fn execute(inv: &Invocation) -> Result<Value> {
+/// The created Record (today's output), with the receipt kept for the envelope.
+fn created(notes: &mut Annotations, receipt: Receipt) -> Result<Value> {
+    notes.operation = Some(receipt.operation.as_str().into());
+    notes.changed = contract::changed(&encode(&receipt.writes)?);
+    let record = receipt.writes.into_iter().next().map(|w| w.after);
+    encode(record.ok_or_else(|| AppError::Invalid("Empty receipt".into()))?)
+}
+/// `review_apply` and `review_dismiss` return `AppError::Invalid` only after
+/// the decision committed when their attention cleanup fails: retry the same command.
+fn review_error(workspace: &Workspace, inv: &Invocation, done: &str, error: AppError) -> CliError {
+    let AppError::Invalid(message) = error else {
+        return error.into();
+    };
+    let committed = done == "dismissed"
+        || inv.args.get("operation").is_some_and(|id| {
+            workspace
+                .store
+                .operation(id)
+                .and_then(|op| workspace.store.receipt(&op))
+                .is_ok_and(|receipt| receipt.is_some())
+        });
+    if committed {
+        CliError::new(Code::Internal, message).with(done, true)
+    } else {
+        CliError::invalid_request(message)
+    }
+}
+async fn execute(inv: &Invocation, notes: &mut Annotations) -> Result<Value> {
     if CANCEL.load(Ordering::SeqCst) {
-        return Err("Interrupted before operation".into());
+        return Err(CliError::interrupted());
     }
     if inv.command == "restore" {
-        let store = Store::restore(inv.arg("source")?, &inv.data).map_err(|e| e.to_string())?;
+        let store = Store::restore(inv.arg("source")?, &inv.data)?;
         return Ok(json!({"restored":store.directory()}));
     }
     if inv.command == "model-install" {
         return install_model(inv);
     }
     if inv.command == "upgrade" {
-        Store::upgrade(&inv.data, Path::new(inv.arg("backup-directory")?))
-            .map_err(|e| e.to_string())?;
+        Store::upgrade(&inv.data, Path::new(inv.arg("backup-directory")?))?;
         return Ok(json!({"upgraded":true,"data":inv.data}));
     }
-    let mut workspace = Workspace::open(&inv.data).map_err(|e| e.to_string())?;
+    // Machine mode: a read never creates a workspace at a mistyped path.
+    if inv.machine && spec::retry_for(inv) == spec::Class::Read && workspace_missing(&inv.data) {
+        return Err(CliError::new(
+            Code::MissingWorkspace,
+            "No BRN workspace at --data-dir; check the path, or run init deliberately",
+        ));
+    }
+    // A workspace the CLI creates has no credential source until `configure`.
+    let mut workspace = Workspace::open_without_default_credentials(&inv.data)?;
+    stop::check()?;
     // A named but unusable model folder is an error, never a silent fallback.
     if matches!(inv.command.as_str(), "search" | "ask" | "intake") {
         if let Some(Err(error)) = workspace.embedding_model_from_env() {
-            return Err(format!("Semantic search is unavailable: {error}"));
+            let message = format!("Semantic search is unavailable: {error}");
+            return Err(CliError::new(Code::Unavailable, message));
         }
     }
     let result = match inv.command.as_str() {
         "init" => {
-            json!({"ready":true,"data":inv.data,"settings":settings_output(workspace.settings().map_err(|e|e.to_string())?)?})
+            json!({"ready":true,"data":inv.data,"settings":settings_output(workspace.settings()?)?})
         }
-        "projects" => encode(
-            workspace
-                .projects(inv.args.get("trash").is_some_and(|v| v == "yes"))
-                .map_err(|e| e.to_string())?,
-        )?,
-        "project-delete-preview" => encode(
-            workspace
-                .project_delete_preview(inv.arg("project")?)
-                .map_err(|e| e.to_string())?,
-        )?,
+        "projects" if inspect::page_mode(inv) => inspect::projects(&workspace, inv, notes)?,
+        "projects" => {
+            encode(workspace.projects(inv.args.get("trash").is_some_and(|v| v == "yes"))?)?
+        }
+        "project-delete-preview" => encode(workspace.project_delete_preview(inv.arg("project")?)?)?,
         "project-create" | "project-chat" | "project-document" | "project-settings"
         | "chat-move" | "project-link" | "project-unlink" | "project-delete"
         | "project-restore" => {
@@ -452,7 +772,12 @@ async fn execute(inv: &Invocation) -> Result<Value> {
                     use_brn_knowledge: match inv.arg("knowledge")? {
                         "yes" => true,
                         "no" => false,
-                        _ => return Err("--knowledge takes yes|no".into()),
+                        _ => {
+                            return Err(CliError::invalid_value(
+                                "knowledge",
+                                "--knowledge takes yes|no",
+                            ))
+                        }
                     },
                 },
                 "chat-move" => ProjectCommand::MoveChat {
@@ -473,11 +798,17 @@ async fn execute(inv: &Invocation) -> Result<Value> {
                 },
                 "project-delete" => ProjectCommand::Delete {
                     preview: serde_json::from_slice(
-                        &std::fs::read(inv.arg("preview-file")?).map_err(|e| e.to_string())?,
+                        &std::fs::read(inv.arg("preview-file")?).map_err(|e| {
+                            CliError::invalid_input("preview-file", "unreadable", e.to_string())
+                        })?,
                     )
-                    .map_err(|e| e.to_string())?,
-                    actions: serde_json::from_str(inv.arg("actions")?)
-                        .map_err(|e| e.to_string())?,
+                    .map_err(|e| {
+                        CliError::invalid_input("preview-file", "invalid_json", e.to_string())
+                    })?,
+                    actions: serde_json::from_str(inv.arg("actions")?).map_err(|e| {
+                        let expected = "JSON object mapping Action IDs to Keep or Cancel";
+                        CliError::invalid_value("actions", e.to_string()).with("expected", expected)
+                    })?,
                 },
                 "project-restore" => ProjectCommand::Restore {
                     project: inv.arg("project")?.into(),
@@ -490,60 +821,72 @@ async fn execute(inv: &Invocation) -> Result<Value> {
                 .get("key")
                 .cloned()
                 .unwrap_or_else(|| format!("cli:{}", uuid::Uuid::new_v4()));
-            encode(
-                workspace
-                    .project_command(&key, command)
-                    .map_err(|e| e.to_string())?,
-            )?
+            match command {
+                ProjectCommand::MoveChat { .. }
+                | ProjectCommand::LinkDocument { .. }
+                | ProjectCommand::UnlinkDocument { .. } => {
+                    converged(workspace.project_command_converged(&key, command)?)?
+                }
+                command => encode(workspace.project_command(&key, command)?)?,
+            }
         }
-        "records" => encode(workspace.records().map_err(|e| e.to_string())?)?,
-        "notes" => encode(workspace.notes().map_err(|e| e.to_string())?)?,
-        "threads" => encode(workspace.threads().map_err(|e| e.to_string())?)?,
-        "needs-you" => encode(workspace.needs_you().map_err(|e| e.to_string())?)?,
-        "history" => encode(workspace.history().map_err(|e| e.to_string())?)?,
-        "candidates" => encode(workspace.candidates().map_err(|e| e.to_string())?)?,
-        "settings" => settings_output(workspace.settings().map_err(|e| e.to_string())?)?,
-        "delegation" => applied(
-            workspace
-                .choose_delegation(delegation_choice(inv.arg("choice")?)?)
-                .map_err(|e| e.to_string())?,
-        ),
-        "read" => encode(
-            workspace
-                .store
-                .record(inv.arg("id")?)
-                .map_err(|e| e.to_string())?,
+        "records" if inspect::page_mode(inv) => inspect::records(&workspace, inv, notes)?,
+        "records" => encode(workspace.records()?)?,
+        "notes" if inspect::page_mode(inv) => inspect::notes(&workspace, inv, notes)?,
+        "notes" => encode(workspace.notes()?)?,
+        "threads" if inspect::page_mode(inv) => inspect::threads(&workspace, inv, notes)?,
+        "threads" => encode(workspace.threads()?)?,
+        "needs-you" if inspect::page_mode(inv) => inspect::needs_you(&workspace, inv, notes)?,
+        "needs-you" => encode(workspace.needs_you()?)?,
+        "history" if inspect::page_mode(inv) => inspect::history(&workspace, inv, notes)?,
+        "history" => encode(workspace.history()?)?,
+        "candidates" if inspect::page_mode(inv) => inspect::candidates(&workspace, inv, notes)?,
+        "candidates" => encode(workspace.candidates()?)?,
+        "revisions" => inspect::revisions(&workspace, inv, notes)?,
+        "revision" => inspect::revision(&workspace, inv, notes)?,
+        "runs" => inspect::runs(&workspace, inv, notes)?,
+        "messages" => inspect::messages(&workspace, inv, notes)?,
+        "operation" => inspect::operation(&workspace, inv)?,
+        "settings" => settings_output(workspace.settings()?)?,
+        "delegation" => {
+            applied(workspace.choose_delegation(delegation_choice(inv.arg("choice")?)?)?)
+        }
+        "read" if inv.args.contains_key("limit") => inspect::read(&workspace, inv, notes)?,
+        "read" => encode(workspace.store.record(inv.arg("id")?)?)?,
+        "note-create" => created(
+            notes,
+            workspace.new_note_with_key(&inv.owner_key(), inv.arg("title")?, inv.arg("text")?)?,
         )?,
-        "note-create" => encode(
-            workspace
-                .new_note(inv.arg("title")?, inv.arg("text")?)
-                .map_err(|e| e.to_string())?,
+        "thread-start" => created(
+            notes,
+            workspace.new_thread_with_key(&inv.owner_key(), inv.arg("title")?)?,
         )?,
-        "thread-start" => encode(
-            workspace
-                .new_thread(inv.arg("title")?)
-                .map_err(|e| e.to_string())?,
-        )?,
-        "topics" => encode(workspace.topics().map_err(|e| e.to_string())?)?,
+        "topics" => encode(workspace.topics()?)?,
         "topics-create" => {
-            let (note, outcome) = workspace.create_topics_note().map_err(|e| e.to_string())?;
+            let (note, outcome) = match &inv.key {
+                Some(_) => workspace.create_topics_note_with_key(&inv.host_key("cli-topics"))?,
+                None => workspace.create_topics_note()?,
+            };
             json!({"note":note,"pointer":applied(outcome)})
         }
-        "topics-choose" => applied(
-            workspace
-                .choose_topics_note(inv.arg("note")?)
-                .map_err(|e| e.to_string())?,
-        ),
+        "topics-choose" => applied(workspace.choose_topics_note(inv.arg("note")?)?),
         "knowledge-check" => {
-            let check = workspace.knowledge_check().map_err(|e| e.to_string())?;
+            let check = workspace.knowledge_check()?;
             let chat = match inv.args.get("seed-chat").map(String::as_str) {
-                Some("yes") => Some(
-                    workspace
-                        .seed_knowledge_review(&check)
-                        .map_err(|e| e.to_string())?,
-                ),
+                Some("yes") if inv.key.is_some() => {
+                    let (chat, message) = workspace
+                        .seed_knowledge_review_with_key(&inv.host_key("cli-knowledge"), &check)?;
+                    notes.operation = Some(message.as_str().into());
+                    Some(chat)
+                }
+                Some("yes") => Some(workspace.seed_knowledge_review(&check)?),
                 None => None,
-                Some(_) => return Err("--seed-chat takes yes".into()),
+                Some(_) => {
+                    return Err(CliError::invalid_value(
+                        "seed-chat",
+                        "--seed-chat takes yes",
+                    ))
+                }
             };
             let mut output = encode(check)?;
             output["review_chat"] = json!(chat);
@@ -551,19 +894,19 @@ async fn execute(inv: &Invocation) -> Result<Value> {
         }
         "connections" => {
             let hops = match inv.args.get("hops") {
-                Some(_) => u8::try_from(inv.number("hops")?).map_err(|e| e.to_string())?,
+                Some(_) => u8::try_from(inv.number("hops")?)
+                    .map_err(|e| CliError::invalid_value("hops", e.to_string()))?,
                 None => 1,
             };
             let sources = match inv.args.get("sources").map(String::as_str) {
                 Some("yes") => true,
                 None => false,
-                Some(_) => return Err("--sources takes yes".into()),
+                Some(_) => return Err(CliError::invalid_value("sources", "--sources takes yes")),
             };
             let chat = chat_option(&workspace, inv)?;
-            let handle = workspace.search_handle().map_err(|e| e.to_string())?;
-            let found = handle
-                .connections(inv.arg("note")?, chat.as_deref(), hops, sources)
-                .map_err(|e| e.to_string())?;
+            let handle = workspace.search_handle()?;
+            stop::check()?;
+            let found = handle.connections(inv.arg("note")?, chat.as_deref(), hops, sources)?;
             let node = |n: &brn_threads_app::search::Neighbour| {
                 json!({"id":n.id,"version":n.version,"title":n.title,
                     "kind":format!("{:?}", n.kind).to_lowercase(),
@@ -577,19 +920,22 @@ async fn execute(inv: &Invocation) -> Result<Value> {
         }
         "search" => {
             let limit = match inv.args.get("limit") {
-                Some(_) => usize::try_from(inv.number("limit")?).map_err(|e| e.to_string())?,
+                Some(_) => usize::try_from(inv.number("limit")?)
+                    .map_err(|e| CliError::invalid_value("limit", e.to_string()))?,
                 None => 12,
             };
             let chat = chat_option(&workspace, inv)?;
-            let page = workspace
-                .search_page(
-                    inv.arg("query")?,
-                    chat.as_deref(),
-                    limit,
-                    inv.args.get("cursor").map(String::as_str),
-                )
-                .map_err(|e| e.to_string())?;
+            let page = workspace.search_page(
+                inv.arg("query")?,
+                chat.as_deref(),
+                limit,
+                inv.args.get("cursor").map(String::as_str),
+            )?;
+            stop::check()?;
             let shown = page.hits.len();
+            notes.page = Some(
+                json!({"limit": limit, "shown": shown, "cursor": page.cursor, "total": page.total}),
+            );
             let mut output = encode(page)?;
             output["shown"] = json!(shown);
             output
@@ -598,24 +944,19 @@ async fn execute(inv: &Invocation) -> Result<Value> {
             workspace
                 .store
                 .begin_edit(inv.arg("note")?, inv.number("base")?)
-                .map_err(begin_edit_error)?,
+                .map_err(contract::begin_edit_error)?,
         )?,
-        "update-buffer" => match workspace
-            .store
-            .update_buffer(
-                inv.arg("session")?,
-                inv.number("generation")?,
-                inv.arg("text")?,
-            )
-            .map_err(|e| e.to_string())?
-        {
+        "update-buffer" => match workspace.store.update_buffer(
+            inv.arg("session")?,
+            inv.number("generation")?,
+            inv.arg("text")?,
+        )? {
             BufferOutcome::Updated(session) => json!({"outcome":"Updated","session":session}),
             BufferOutcome::Ignored(session) => json!({"outcome":"Ignored","session":session}),
         },
         "save" => match workspace
             .store
-            .save(inv.arg("session")?, inv.number("generation")?)
-            .map_err(|e| e.to_string())?
+            .save(inv.arg("session")?, inv.number("generation")?)?
         {
             SaveOutcome::Saved(receipt) => json!({"outcome":"Saved","receipt":receipt}),
             SaveOutcome::Stale(session) => json!({"outcome":"Stale","session":session}),
@@ -627,72 +968,54 @@ async fn execute(inv: &Invocation) -> Result<Value> {
         },
         "discard" => match workspace
             .store
-            .discard(inv.arg("session")?, inv.number("generation")?)
-            .map_err(|e| e.to_string())?
+            .discard(inv.arg("session")?, inv.number("generation")?)?
         {
             BufferOutcome::Updated(session) => json!({"outcome":"Discarded","session":session}),
             BufferOutcome::Ignored(session) => json!({"outcome":"Ignored","session":session}),
         },
-        "recovery" => encode(
-            workspace
-                .store
-                .recovery_buffers()
-                .map_err(|e| e.to_string())?,
-        )?,
+        "recovery" if inspect::page_mode(inv) => inspect::recovery(&workspace, inv, notes)?,
+        "recovery" => encode(workspace.store.recovery_buffers()?)?,
         "apply" => applied(
             workspace
                 .review_apply(inv.arg("operation")?)
-                .map_err(|e| e.to_string())?,
+                .map_err(|e| review_error(&workspace, inv, "applied", e))?,
         ),
         "dismiss" => {
             workspace
                 .review_dismiss(inv.arg("operation")?)
-                .map_err(|e| e.to_string())?;
+                .map_err(|e| review_error(&workspace, inv, "dismissed", e))?;
             json!({"outcome":"Dismissed","operation":inv.arg("operation")?})
         }
-        "undo" => applied(
-            workspace
-                .undo(inv.arg("operation")?)
-                .map_err(|e| e.to_string())?,
-        ),
-        "resolve" | "archive" => encode(
-            workspace
-                .archive_chat(
-                    &format!("cli-archive:{}", uuid::Uuid::new_v4()),
-                    inv.arg("thread")?,
-                )
-                .map_err(|e| e.to_string())?,
+        "undo" => {
+            let (operation, outcome) =
+                workspace.undo_with_key(&inv.owner_key(), inv.arg("operation")?)?;
+            notes.operation = Some(operation.as_str().into());
+            if let ApplyOutcome::Applied(receipt) = &outcome {
+                notes.changed = contract::changed(&encode(&receipt.writes)?);
+            }
+            applied(outcome)
+        }
+        "resolve" | "archive" => converged(
+            workspace.archive_chat_converged(&inv.host_key("cli-archive"), inv.arg("thread")?)?,
         )?,
-        "unarchive" => encode(
+        "unarchive" => converged(
             workspace
-                .unarchive_chat(
-                    &format!("cli-unarchive:{}", uuid::Uuid::new_v4()),
-                    inv.arg("thread")?,
-                )
-                .map_err(|e| e.to_string())?,
+                .unarchive_chat_converged(&inv.host_key("cli-unarchive"), inv.arg("thread")?)?,
         )?,
-        "keep-in-brn" => applied(
-            workspace
-                .keep_in_brn(
-                    &format!("cli-keep:{}", uuid::Uuid::new_v4()),
-                    inv.arg("note")?,
-                    inv.number("base")?,
-                )
-                .map_err(|e| e.to_string())?,
-        ),
-        "queue" => encode(
-            workspace
-                .queue_message(
-                    &format!("cli-queue:{}", uuid::Uuid::new_v4()),
-                    inv.arg("thread")?,
-                    inv.arg("text")?,
-                )
-                .map_err(|e| e.to_string())?,
-        )?,
-        "pause" => applied(workspace.pause(true).map_err(|e| e.to_string())?),
-        "resume" => applied(workspace.pause(false).map_err(|e| e.to_string())?),
+        "keep-in-brn" => applied(workspace.keep_in_brn(
+            &inv.host_key("cli-keep"),
+            inv.arg("note")?,
+            inv.number("base")?,
+        )?),
+        "queue" => encode(workspace.queue_message(
+            &inv.host_key("cli-queue"),
+            inv.arg("thread")?,
+            inv.arg("text")?,
+        )?)?,
+        "pause" => applied(workspace.pause(true)?),
+        "resume" => applied(workspace.pause(false)?),
         "configure" => {
-            let mut settings = workspace.settings().map_err(|e| e.to_string())?;
+            let mut settings = workspace.settings()?;
             let chosen = provider(inv.arg("provider")?)?;
             settings.provider = match chosen {
                 Provider::Chatgpt => "Codex",
@@ -710,22 +1033,25 @@ async fn execute(inv: &Invocation) -> Result<Value> {
                 settings.auth_file = None;
             }
             settings.helper = helper_settings(inv, &settings)?;
-            applied(workspace.configure(settings).map_err(|e| e.to_string())?)
+            applied(workspace.configure(settings)?)
         }
         "ask" => {
-            return ask(
+            ask(
                 &mut workspace,
                 inv,
                 inv.arg("thread")?.into(),
                 inv.arg("prompt")?.into(),
                 vec![],
             )
-            .await;
+            .await?
         }
         "intake" => {
             let source = Path::new(inv.arg("source")?);
             if !source.is_absolute() {
-                return Err("Source path must be absolute".into());
+                return Err(CliError::invalid_value(
+                    "source",
+                    "Source path must be absolute",
+                ));
             }
             // Useful intake for a project stays in that project; checked before reading.
             let useful_project =
@@ -736,7 +1062,7 @@ async fn execute(inv: &Invocation) -> Result<Value> {
                 };
             let bytes =
                 brn_threads_intake::read_input_file(source, brn_intake::MAX_INPUT_BYTES, &CANCEL)
-                    .map_err(|e| e.to_string())?;
+                    .map_err(contract::source_read_error)?;
             let kind = match source
                 .extension()
                 .and_then(|s| s.to_str())
@@ -753,18 +1079,54 @@ async fn execute(inv: &Invocation) -> Result<Value> {
                 "xlsx" => DocumentKind::Xlsx,
                 "pptx" => DocumentKind::Pptx,
                 _ => {
-                    return Err(
-                        "Supported sources: Markdown, text, EML, PDF, DOCX, HTML, XLSX, PPTX"
-                            .into(),
-                    )
+                    return Err(CliError::invalid_value(
+                        "source",
+                        "Supported sources: Markdown, text, EML, PDF, DOCX, HTML, XLSX, PPTX",
+                    ))
                 }
             };
             let intent = match inv.arg("intent")? {
                 "useful" => ImportIntent::UsefulInformation,
                 "full" | "chat" | "project" => ImportIntent::FullNote,
-                _ => return Err("Choose useful, full, or chat with --thread".into()),
+                _ => {
+                    return Err(CliError::invalid_value(
+                        "intent",
+                        "Choose useful, full, or chat with --thread",
+                    ))
+                }
             };
-            let settings = workspace.settings().map_err(|e| e.to_string())?;
+            // A keyed full/chat/project intake whose committed import matches
+            // replays here, before conversion: nothing is converted or sent again.
+            if let (Some(key), ImportIntent::FullNote) = (&inv.key, intent) {
+                let scope = match inv.arg("intent")? {
+                    "chat" => Some(inv.arg("thread")?),
+                    "project" => Some(inv.arg("project")?),
+                    _ => None,
+                };
+                let title = inv
+                    .args
+                    .get("title")
+                    .map_or("Imported note", String::as_str);
+                let replayed = workspace.full_import_replay(
+                    &spec::cli_key(&inv.command, key),
+                    title,
+                    inv.arg("source")?,
+                    &bytes,
+                    scope,
+                )?;
+                if let Some(outcome) = replayed {
+                    let value = applied(outcome);
+                    contract::fill_conflicts(&workspace, inv, &value, notes);
+                    return Ok(value);
+                }
+            }
+            let settings = workspace.settings()?;
+            // Only useful intake and non-text conversion contact a provider.
+            if intent == ImportIntent::UsefulInformation
+                || !matches!(kind, DocumentKind::Markdown | DocumentKind::Text)
+            {
+                contract::require_credentials(inv, &settings)?;
+            }
             let conversion_job = brn_ai::conversion::ConversionJob {
                 converter: converter(kind)?,
                 kind,
@@ -790,13 +1152,16 @@ async fn execute(inv: &Invocation) -> Result<Value> {
                 conversion_job,
                 cancel,
                 Arc::new(AtomicBool::new(CANCEL.load(Ordering::SeqCst))),
-                Arc::new(|progress| eprintln!("{}", progress.label())),
+                Arc::new(|progress| contract::emit_err(&format!("{}\n", progress.label()))),
             )
             .await;
             watcher.abort();
-            let converted = result.map_err(|e| e.to_string())?;
+            let converted = result?;
             if CANCEL.load(Ordering::SeqCst) {
-                return Err("Import stopped before saving converted content".into());
+                return Err(CliError::new(
+                    Code::Interrupted,
+                    "Import stopped before saving converted content",
+                ));
             }
             let title = inv
                 .args
@@ -809,27 +1174,17 @@ async fn execute(inv: &Invocation) -> Result<Value> {
                 } else {
                     inv.arg("thread")?
                 };
-                return Ok(applied(
-                    workspace
-                        .attach_full(
-                            &format!("cli-attach:{}", uuid::Uuid::new_v4()),
-                            scope,
-                            title,
-                            &converted,
-                        )
-                        .map_err(|e| e.to_string())?,
-                ));
+                let value = applied(workspace.attach_full(
+                    &inv.host_key("cli-attach"),
+                    scope,
+                    title,
+                    &converted,
+                )?);
+                contract::fill_conflicts(&workspace, inv, &value, notes);
+                return Ok(value);
             }
             if intent == ImportIntent::FullNote {
-                applied(
-                    workspace
-                        .import_full(
-                            &format!("cli-import:{}", uuid::Uuid::new_v4()),
-                            title,
-                            &converted,
-                        )
-                        .map_err(|e| e.to_string())?,
-                )
+                applied(workspace.import_full(&inv.host_key("cli-import"), title, &converted)?)
             } else {
                 // A retry or re-supply reuses the chat holding the earlier outcome.
                 // While a Run there is still live, it gets a new chat instead:
@@ -838,13 +1193,11 @@ async fn execute(inv: &Invocation) -> Result<Value> {
                 let (thread, reused) = if let Some(id) = inv.args.get("thread") {
                     (id.clone(), None)
                 } else {
-                    let (chat, reused) = workspace
-                        .source_intake_chat(
-                            useful_project.as_deref(),
-                            &converted.source_reference,
-                            "Useful information intake",
-                        )
-                        .map_err(|e| e.to_string())?;
+                    let (chat, reused) = workspace.source_intake_chat(
+                        useful_project.as_deref(),
+                        &converted.source_reference,
+                        "Useful information intake",
+                    )?;
                     (chat.id, Some(reused))
                 };
                 let report = brn_threads_app::import_report(&converted);
@@ -882,36 +1235,18 @@ async fn execute(inv: &Invocation) -> Result<Value> {
         "export" => encode(
             workspace
                 .export_now(Path::new(inv.arg("destination")?))
-                .map_err(|e| e.to_string())?,
+                .map_err(|e| contract::destination_error(Path::new(&inv.args["destination"]), e))?,
         )?,
         "backup" => {
             workspace
                 .backup(Path::new(inv.arg("destination")?))
-                .map_err(|e| e.to_string())?;
+                .map_err(|e| contract::destination_error(Path::new(&inv.args["destination"]), e))?;
             json!({"backup":inv.arg("destination")?})
         }
-        _ => return Err("Unknown command".into()),
+        _ => return Err(CliError::new(Code::Internal, "Unknown command")),
     };
+    contract::fill_conflicts(&workspace, inv, &result, notes);
     Ok(result)
-}
-/// An open edit session is reported as JSON with a stable `kind` and its ids,
-/// so a caller can save or discard that session without matching text.
-fn begin_edit_error(error: brn_threads_app::Error) -> String {
-    match error {
-        brn_threads_app::Error::EditSessionOpen {
-            note,
-            session,
-            base_version,
-        } => json!({"error":{
-            "kind":"edit_session_open",
-            "message":"This note already has an open unsaved edit. Save or discard that session first; the recovery command lists it.",
-            "note":note,
-            "session":session,
-            "base_version":base_version,
-        }})
-        .to_string(),
-        error => error.to_string(),
-    }
 }
 #[tokio::main]
 async fn main() -> ExitCode {
@@ -919,21 +1254,126 @@ async fn main() -> ExitCode {
     unsafe {
         libc::signal(libc::SIGINT, on_sigint as *const () as libc::sighandler_t);
     }
-    match parse(std::env::args().skip(1)) {
+    match parse(std::env::args_os().skip(1)) {
         Ok(None) => ExitCode::SUCCESS,
-        Ok(Some(inv)) => match execute(&inv).await {
-            Ok(result) => {
-                println!("{result}");
-                ExitCode::SUCCESS
+        Ok(Some(mut inv)) => {
+            if inv.machine {
+                stop::install_sigterm();
             }
-            Err(error) => {
-                eprintln!("{error}");
-                ExitCode::FAILURE
+            if inv.machine || inv.timeout.is_some() {
+                stop::start(stop::Watch {
+                    machine: inv.machine,
+                    deadline: inv.timeout,
+                    command: inv.command.clone(),
+                    key: inv.key.clone(),
+                    retry: spec::retry_for(&inv),
+                });
             }
-        },
-        Err(error) => {
-            eprintln!("{error}");
+            let mut notes = Annotations::default();
+            let outcome = match input::resolve(&mut inv, &CANCEL) {
+                Ok(()) => execute(&inv, &mut notes).await,
+                Err(error) => Err(error),
+            };
+            finish(&inv, outcome, notes)
+        }
+        Err(refused) if refused.machine => {
+            let envelope = contract::Envelope {
+                command: refused.command.as_deref(),
+                status: refused.error.code.status(),
+                outcome: None,
+                operation: None,
+                key: refused.key.as_deref(),
+                retry: spec::Class::Refuse,
+                changed: vec![],
+                conflict: None,
+                result: Value::Null,
+                error: Some(refused.error),
+                page: None,
+                stop: None,
+            };
+            emit_envelope(envelope)
+        }
+        Err(refused) => {
+            if stop::claim_output() {
+                contract::emit_err(&format!("{}\n", refused.error.default_message()));
+            }
             ExitCode::FAILURE
         }
     }
+}
+/// Prints the result: today's output by default, one envelope with `--json`.
+fn finish(inv: &Invocation, outcome: Result<Value>, notes: Annotations) -> ExitCode {
+    let outcome = match outcome {
+        // In machine mode an unknown record is an error, not a null result.
+        Ok(Value::Null) if inv.machine && inv.command == "read" => {
+            Err(CliError::new(Code::NotFound, "Record not found"))
+        }
+        Err(error) => Err(stop::restamp(error, inv.timeout).bind_key(inv.key.as_deref())),
+        other => other,
+    };
+    if !inv.machine {
+        if !stop::claim_output() {
+            park();
+        }
+        return match outcome {
+            Ok(result) => {
+                contract::emit_line(&result.to_string());
+                ExitCode::SUCCESS
+            }
+            Err(error) => {
+                contract::emit_err(&format!("{}\n", error.default_message()));
+                ExitCode::FAILURE
+            }
+        };
+    }
+    let stop = notes.stop.unwrap_or_else(stop::reason);
+    let retry = spec::retry_for(inv);
+    let envelope = match outcome {
+        Ok(result) => {
+            let classified = contract::classify(inv, &result, &notes, stop);
+            contract::Envelope {
+                command: Some(&inv.command),
+                status: classified.status,
+                outcome: classified.outcome,
+                operation: classified.operation,
+                key: inv.key.as_deref(),
+                retry,
+                changed: classified.changed,
+                conflict: notes.conflict,
+                result,
+                error: None,
+                page: notes.page,
+                stop,
+            }
+        }
+        Err(error) => contract::Envelope {
+            command: Some(&inv.command),
+            status: error.code.status(),
+            outcome: None,
+            operation: None,
+            key: inv.key.as_deref(),
+            retry,
+            changed: vec![],
+            conflict: None,
+            result: Value::Null,
+            error: Some(error),
+            page: None,
+            stop,
+        },
+    };
+    emit_envelope(envelope)
+}
+/// The watchdog claimed the output and is ending the process; wait for it.
+fn park() -> ! {
+    loop {
+        std::thread::sleep(std::time::Duration::from_secs(60));
+    }
+}
+fn emit_envelope(envelope: contract::Envelope) -> ExitCode {
+    if !stop::claim_output() {
+        park();
+    }
+    let value = envelope.to_value();
+    contract::emit_line(&value.to_string());
+    ExitCode::from(envelope.status.exit())
 }

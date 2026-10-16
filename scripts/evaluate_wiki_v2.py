@@ -1793,8 +1793,9 @@ def prepare_arms(args, parser):
                 parser.error(f'Arm {arm["name"]}: --live needs provider, model and effort (arm option or global)')
             if arm['provider'] == 'Copilot' and not (args.credentials_dir and args.credentials_dir.is_absolute()) :
                 parser.error(f'Arm {arm["name"]}: Copilot needs an absolute --credentials-dir')
-            if arm['provider'] == 'Codex' and args.credentials_dir and not args.auth_file:
-                parser.error(f'Arm {arm["name"]}: Codex uses --auth-file, not --credentials-dir')
+            # CLI-created workspaces have no default credential source.
+            if arm['provider'] == 'Codex' and not (args.auth_file and args.auth_file.is_absolute()):
+                parser.error(f'Arm {arm["name"]}: Codex needs an absolute --auth-file')
         arm['binary_sha256'] = sha256_file(binary)
         arms.append(arm)
     return arms

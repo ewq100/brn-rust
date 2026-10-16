@@ -21,7 +21,7 @@ pub struct Topics {
     pub entries: Vec<TopicEntry>,
 }
 
-const STARTER: &str = "Topic pages for this workspace. Each topic page links the subject pages of one area; link every topic page from here.\n";
+pub(crate) const STARTER: &str = "Topic pages for this workspace. Each topic page links the subject pages of one area; link every topic page from here.\n";
 
 fn description(markdown: &str) -> String {
     let line = markdown

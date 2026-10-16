@@ -1,7 +1,7 @@
 import importlib.util
 import json
 from pathlib import Path
-import sqlite3
+import ast
 import tempfile
 import unittest
 from types import SimpleNamespace
@@ -75,23 +75,48 @@ class WikiGuidanceEvaluationTests(unittest.TestCase):
         self.assertTrue(wiki_eval.protection_preserved(before, before))
 
     def test_applied_inputs_are_available_without_request_bodies(self):
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            db = sqlite3.connect(root / 'threads.sqlite3')
-            db.executescript('CREATE TABLE operations(id TEXT, request TEXT); CREATE TABLE receipts(operation TEXT);')
-            request = {'inputs': [{'record': 'source', 'version': 2},
-                                  {'record': 'older', 'version': 1, 'expectation': 'Historical'}],
-                       'writes': [{'id': 'private', 'data': {'Settings': {'auth_file': 'SECRET'}}}]}
-            db.execute('INSERT INTO operations VALUES (?,?)', ('run:proposal', json.dumps(request)))
-            db.execute('INSERT INTO receipts VALUES (?)', ('run:proposal',))
-            db.commit()
-            db.close()
-            inspected = wiki_eval.read_operation_inputs(root, ['run:proposal'])
-            self.assertEqual(inspected[0]['inputs'][0], {'record': 'source', 'version': 2, 'expectation': 'Current'})
-            self.assertTrue(inspected[0]['applied'])
-            self.assertEqual(inspected[0]['inputs'][1]['expectation'], 'Historical')
-            self.assertNotIn('SECRET', json.dumps(inspected))
-            self.assertNotIn('writes', inspected[0])
+        class StubCli:
+            def __init__(self):
+                self.calls = []
+            def envelope(self, command, **options):
+                self.calls.append((command, options))
+                identity = options['id']
+                if identity == 'missing':
+                    return {'status': 'rejected', 'result': None, 'error': {'code': 'not_found'}}
+                if identity == 'allocated':
+                    return {'status': 'ok', 'error': None,
+                            'result': {'state': 'allocated', 'inputs': [], 'inputs_total': 0, 'writes': []}}
+                return {'status': 'ok', 'error': None, 'result': {
+                    'state': 'applied', 'inputs_total': 2,
+                    'inputs': [{'record': 'source', 'version': 2, 'expectation': 'Current'},
+                               {'record': 'older', 'version': 1, 'expectation': 'Historical'}],
+                    'writes': [{'id': 'private', 'kind': 'Settings', 'auth_file': 'SECRET'}]}}
+        cli = StubCli()
+        inspected = wiki_eval.read_operation_inputs(cli, ['run:proposal', 'missing', 'allocated'])
+        self.assertEqual([call[0] for call in cli.calls], ['operation'] * 3)
+        self.assertEqual(len(inspected), 1)
+        self.assertEqual(inspected[0]['inputs'][0], {'record': 'source', 'version': 2, 'expectation': 'Current'})
+        self.assertTrue(inspected[0]['applied'])
+        self.assertEqual(inspected[0]['inputs'][1]['expectation'], 'Historical')
+        self.assertNotIn('SECRET', json.dumps(inspected))
+        self.assertNotIn('writes', inspected[0])
+
+    def test_truncated_operation_inputs_fail_loudly(self):
+        class StubCli:
+            def envelope(self, command, **options):
+                return {'status': 'ok', 'error': None, 'result': {
+                    'state': 'prepared', 'inputs_total': 65,
+                    'inputs': [{'record': f'r{i}', 'version': 1, 'expectation': 'Current'} for i in range(64)]}}
+        with self.assertRaises(SystemExit) as raised:
+            wiki_eval.read_operation_inputs(StubCli(), ['op'])
+        self.assertIn('inputs truncated (64/65)', str(raised.exception))
+
+    def test_evaluator_does_not_import_sqlite3(self):
+        tree = ast.parse(SCRIPT.read_text())
+        imported = {alias.name for node in ast.walk(tree) if isinstance(node, (ast.Import, ast.ImportFrom))
+                    for alias in node.names}
+        modules = {node.module for node in ast.walk(tree) if isinstance(node, ast.ImportFrom)}
+        self.assertNotIn('sqlite3', imported | modules)
 
     def test_undo_requires_restoration_of_affected_content(self):
         original = note('changed', 'before')
@@ -163,5 +188,15 @@ class WikiGuidanceEvaluationTests(unittest.TestCase):
         self.assertEqual(result['verification_failure'], 'undo failed')
 
 
+    def test_live_codex_needs_an_absolute_auth_file(self):
+        executable = Path(__import__('sys').executable)
+        argv = ['evaluate-wiki-guidance.py', '--baseline-bin', str(executable), '--wiki-bin', str(executable),
+                '--helper', str(executable), '--root', '/nonexistent/eval-root', '--baseline-commit', 'a',
+                '--candidate-commit', 'b', '--live', '--provider', 'Codex', '--model', 'm', '--effort', 'low']
+        stderr = __import__('io').StringIO()
+        with patch('sys.argv', argv), patch('sys.stderr', stderr), self.assertRaises(SystemExit) as raised:
+            wiki_eval.main()
+        self.assertEqual(raised.exception.code, 2)
+        self.assertIn('Codex needs an absolute --auth-file', stderr.getvalue())
 if __name__ == '__main__':
     unittest.main()

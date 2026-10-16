@@ -548,63 +548,67 @@ impl Workspace {
     /// Starts one chat holding the findings as an owner message, for a
     /// bounded `maintain-notes` review. Returns the chat ID.
     pub fn seed_knowledge_review(&mut self, check: &KnowledgeCheck) -> AppResult<String> {
-        let total: usize = check.counts.values().sum();
-        let chat = self
-            .new_thread(&format!("Knowledge check · {total} findings"))?
-            .id;
-        let mut text = format!(
-            "Knowledge check over {} current notes and {} note links found {total} findings.\n",
-            check.notes, check.links
-        );
-        for (kind, count) in &check.counts {
-            text.push_str(&format!("- {kind:?}: {count}\n"));
-        }
-        text.push('\n');
-        let remedies: Vec<&str> = check
-            .counts
-            .keys()
-            .filter_map(|kind| remedy(*kind))
-            .collect();
-        let mut tail = String::new();
-        if !remedies.is_empty() {
-            tail.push_str(
-                "\nUsual remedies for ordinary unprotected notes, when the evidence supports them. \
-                 Protected or owner-written material goes through the conflict playbook, and never \
-                 archive or re-point a `contradicts` link without an owner decision:\n",
-            );
-            for remedy in remedies {
-                tail.push_str(&format!("- {remedy}\n"));
-            }
-        }
-        tail.push_str(
-            "\nReview these findings with the maintain-notes playbook within the run budget. \
-             Report what was inspected, corrected and left uncertain. A clean check is not proof \
-             of correctness.",
-        );
-        // Room for the omission line keeps the whole message within budget.
-        let budget = REVIEW_MESSAGE_BYTES.saturating_sub(tail.len() + 128);
-        let mut omitted = 0;
-        for finding in &check.findings {
-            let line = format!(
-                "- {:?}: {} [{}]\n",
-                finding.kind,
-                finding.detail,
-                finding.records.join(", ")
-            );
-            if omitted == 0 && text.len() + line.len() <= budget {
-                text.push_str(&line);
-            } else {
-                omitted += 1;
-            }
-        }
-        let unlisted = check.counts.values().sum::<usize>() - check.findings.len() + omitted;
-        if unlisted > 0 {
-            text.push_str(&format!(
-                "- {unlisted} more findings are not listed here; review the listed ones first.\n"
-            ));
-        }
-        text.push_str(&tail);
+        let (title, text) = review_seed(check);
+        let chat = self.new_thread(&title)?.id;
         self.post_message(&chat, &text)?;
         Ok(chat)
     }
+}
+/// The review chat's title and its owner message for `check`.
+pub(crate) fn review_seed(check: &KnowledgeCheck) -> (String, String) {
+    let total: usize = check.counts.values().sum();
+    let title = format!("Knowledge check · {total} findings");
+    let mut text = format!(
+        "Knowledge check over {} current notes and {} note links found {total} findings.\n",
+        check.notes, check.links
+    );
+    for (kind, count) in &check.counts {
+        text.push_str(&format!("- {kind:?}: {count}\n"));
+    }
+    text.push('\n');
+    let remedies: Vec<&str> = check
+        .counts
+        .keys()
+        .filter_map(|kind| remedy(*kind))
+        .collect();
+    let mut tail = String::new();
+    if !remedies.is_empty() {
+        tail.push_str(
+            "\nUsual remedies for ordinary unprotected notes, when the evidence supports them. \
+             Protected or owner-written material goes through the conflict playbook, and never \
+             archive or re-point a `contradicts` link without an owner decision:\n",
+        );
+        for remedy in remedies {
+            tail.push_str(&format!("- {remedy}\n"));
+        }
+    }
+    tail.push_str(
+        "\nReview these findings with the maintain-notes playbook within the run budget. \
+         Report what was inspected, corrected and left uncertain. A clean check is not proof \
+         of correctness.",
+    );
+    // Room for the omission line keeps the whole message within budget.
+    let budget = REVIEW_MESSAGE_BYTES.saturating_sub(tail.len() + 128);
+    let mut omitted = 0;
+    for finding in &check.findings {
+        let line = format!(
+            "- {:?}: {} [{}]\n",
+            finding.kind,
+            finding.detail,
+            finding.records.join(", ")
+        );
+        if omitted == 0 && text.len() + line.len() <= budget {
+            text.push_str(&line);
+        } else {
+            omitted += 1;
+        }
+    }
+    let unlisted = check.counts.values().sum::<usize>() - check.findings.len() + omitted;
+    if unlisted > 0 {
+        text.push_str(&format!(
+            "- {unlisted} more findings are not listed here; review the listed ones first.\n"
+        ));
+    }
+    text.push_str(&tail);
+    (title, text)
 }

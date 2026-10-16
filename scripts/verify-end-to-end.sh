@@ -33,3 +33,4 @@ if [[ "${1:-}" != "--fixtures-only" ]]; then
   cargo test --workspace --locked --offline
 fi
 python3 scripts/verify-end-to-end-fixtures.py "$CARGO_TARGET_DIR/debug"
+python3 scripts/cli_journey.py "$CARGO_TARGET_DIR/debug/brn"

@@ -216,7 +216,8 @@ fn a_second_begin_edit_reports_the_open_session_as_structured_json() {
     let error: Value = serde_json::from_str(stderr.trim()).unwrap();
     assert_eq!(error["error"]["kind"], "edit_session_open");
     assert_eq!(error["error"]["note"], note.as_str());
-    assert_eq!(error["error"]["session"], open["id"]);
+    // Owner decision B3 part 1: the open session is not named.
+    assert!(error["error"].get("session").is_none(), "{stderr}");
     assert_eq!(error["error"]["base_version"], 1);
     assert!(error["error"]["message"]
         .as_str()

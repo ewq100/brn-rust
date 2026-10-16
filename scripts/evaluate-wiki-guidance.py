@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
 """Compare two compiled BRN guidance bundles in exclusively owned synthetic state."""
 import argparse
-from contextlib import closing
 import hashlib
 import json
 import os
 from pathlib import Path
 import signal
-import sqlite3
 import subprocess
 import time
 
@@ -81,22 +79,25 @@ def unrelated_preserved(before, after, affected):
     return all(current.get(record['id']) == record for record in before if record['id'] not in affected)
 
 
-def read_operation_inputs(data_dir, operation_ids):
-    # The caller supplies only data under this run's exclusively created root.
-    # Inspect accepted/pending request lineage; never emit complete request bodies.
-    path = (data_dir / 'threads.sqlite3').resolve()
+def read_operation_inputs(cli, operation_ids):
+    # Accepted/pending request lineage through the documented `brn --json operation`
+    # read; never emit complete request bodies.
     output = []
-    with closing(sqlite3.connect(path.as_uri() + '?mode=ro', uri=True)) as database:
-        for identity in sorted(set(operation_ids)):
-            row = database.execute('SELECT request FROM operations WHERE id=?', (identity,)).fetchone()
-            if not row or not row[0]:
-                continue
-            request = json.loads(row[0])
-            inputs = [{'record': item['record'], 'version': item['version'],
-                       'expectation': item.get('expectation', 'Current')}
-                      for item in request.get('inputs', [])]
-            applied = database.execute('SELECT 1 FROM receipts WHERE operation=?', (identity,)).fetchone() is not None
-            output.append({'operation': identity, 'applied': applied, 'inputs': inputs})
+    for identity in sorted(set(operation_ids)):
+        envelope = cli.envelope('operation', id=identity)
+        if (envelope.get('error') or {}).get('code') == 'not_found':
+            continue
+        if envelope.get('status') != 'ok':
+            raise CallFailed(f'operation: {envelope.get("status")}')
+        info = envelope['result']
+        if info['state'] == 'allocated':
+            continue
+        if info['inputs_total'] > len(info['inputs']):
+            raise SystemExit(f'operation {identity}: inputs truncated ({len(info["inputs"])}/{info["inputs_total"]})')
+        inputs = [{'record': item['record'], 'version': item['version'],
+                   'expectation': item.get('expectation') or 'Current'}
+                  for item in info['inputs']]
+        output.append({'operation': identity, 'applied': info['state'] == 'applied', 'inputs': inputs})
     return output
 
 
@@ -112,6 +113,25 @@ class Cli:
         if not (parent / 'EVALUATION-OWNED').is_file() or not data.resolve().is_relative_to(parent):
             raise ValueError('CLI data must belong to this exclusively created evaluation root')
         self.environment = dict(os.environ, BRN_INTAKE_HELPER=str(helper))
+
+    def envelope(self, command, **options):
+        """One `--json` read: the envelope, whatever its exit status."""
+        args = [str(self.binary), '--json', '--data-dir', str(self.data), command]
+        for key, value in options.items():
+            args.extend(['--' + key.replace('_', '-'), str(value)])
+        started = time.monotonic()
+        try:
+            process = subprocess.run(args, capture_output=True, text=True, env=self.environment,
+                                     timeout=self.timeout, start_new_session=True)
+        except subprocess.TimeoutExpired:
+            self.commands.append({'command': command, 'seconds': round(time.monotonic() - started, 3), 'status': 'timeout'})
+            raise CallFailed(f'{command}: timeout') from None
+        self.commands.append({'command': command, 'seconds': round(time.monotonic() - started, 3),
+                              'exit': process.returncode, 'status': 'ok' if process.returncode == 0 else 'failed'})
+        try:
+            return json.loads(process.stdout)
+        except json.JSONDecodeError:
+            raise CallFailed(f'{command}: invalid JSON') from None
 
     def call(self, command, **options):
         args = [str(self.binary), '--data-dir', str(self.data), command]
@@ -151,7 +171,7 @@ def snapshot(cli):
                   for operation in record.get('data', {}).get('Run', {}).get('operations', [])}
     receipts = [receipt for receipt in cli.call('history') if receipt['operation'] in operations]
     return public_snapshot({'records': records, 'receipts': receipts, 'candidates': cli.call('candidates'),
-                            'lineage': read_operation_inputs(cli.data, operations)})
+                            'lineage': read_operation_inputs(cli, operations)})
 
 
 FILLER_SUBJECTS = [
@@ -373,6 +393,9 @@ def main():
         parser.error('Copilot requires one existing absolute credentials-dir and no auth-file')
     if args.live and args.provider == 'Codex' and args.credentials_dir:
         parser.error('Codex uses auth-file; select only one credential route')
+    # CLI-created workspaces have no default credential source.
+    if args.live and args.provider == 'Codex' and not (args.auth_file and args.auth_file.is_absolute()):
+        parser.error('Codex needs an absolute --auth-file')
     if args.timeout < 1 or args.timeout > 600:
         parser.error('Timeout must be 1..600 seconds')
     if not 0 <= args.filler <= 5000:

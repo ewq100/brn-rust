@@ -128,6 +128,29 @@ impl Store {
         owner: &HostAuthority,
         orphans: &BTreeSet<String>,
     ) -> Result<ChatCommandOutcome> {
+        match self.chat_command_body(op, command, owner, orphans, false)? {
+            Converged::Changed(outcome) => Ok(outcome),
+            Converged::Unchanged(_) => Err(Error::Invalid("no-op detection is off".into())),
+        }
+    }
+    /// `chat_command`, except that an archive or unarchive whose state already
+    /// holds returns `Unchanged` without committing anything.
+    pub fn chat_command_converging(
+        &mut self,
+        op: &OperationId,
+        command: &ChatCommand,
+        owner: &HostAuthority,
+    ) -> Result<Converged<ChatCommandOutcome>> {
+        self.chat_command_body(op, command, owner, &BTreeSet::new(), true)
+    }
+    fn chat_command_body(
+        &mut self,
+        op: &OperationId,
+        command: &ChatCommand,
+        owner: &HostAuthority,
+        orphans: &BTreeSet<String>,
+        converge: bool,
+    ) -> Result<Converged<ChatCommandOutcome>> {
         if !matches!(owner.scope, crate::types::Scope::Owner) {
             return Err(Error::Invalid(
                 "chat controls require trusted owner authority".into(),
@@ -155,10 +178,10 @@ impl Store {
                 None
             };
             tx.commit()?;
-            return Ok(ChatCommandOutcome {
+            return Ok(Converged::Changed(ChatCommandOutcome {
                 receipt,
                 dispatched,
-            });
+            }));
         }
         let previous = control_on(&tx)?;
         let id = previous
@@ -533,6 +556,12 @@ impl Store {
             archived: false,
             data: RecordData::ChatControl(control),
         });
+        if let (true, ChatCommand::Archive { thread } | ChatCommand::Unarchive { thread }) =
+            (converge, command)
+            && let Some(unchanged) = crate::converge::detect_unchanged(&tx, thread, &writes, false)?
+        {
+            return Ok(Converged::Unchanged(unchanged));
+        }
         prepare_on(
             &tx,
             op,
@@ -547,10 +576,10 @@ impl Store {
             return Err(Error::Invalid("chat control group was not applied".into()));
         };
         tx.commit()?;
-        Ok(ChatCommandOutcome {
+        Ok(Converged::Changed(ChatCommandOutcome {
             receipt,
             dispatched,
-        })
+        }))
     }
 }
 impl ChatCommand {
