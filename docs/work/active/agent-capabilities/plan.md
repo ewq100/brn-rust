@@ -1,3 +1,5 @@
+**D2 implementation checkpoint, 17 October:** [D2 review brief](d2/implementation.md) and [actual source-bound checks](d2/self-checks.json) record the remaining bounded continuation delta on accepted8ae8a729: AI430/0/1, core31/0/0, app13/0/0, CLI161/0/0 and strict affected lint/fmt pass. Independent review/source acceptance remain pending. No D2 mutation is granted or started; prior D1B budget is closed. This supersedes the dated source-only/heavy-owner status below.
+
 # Agent capabilities Slice 0 implementation plan
 
 **Principal disposition, 17 October:** D1B source a94b9c99 has Opus2 approval and [local contract acceptance](d1b/principal-disposition.md), preserving all qualification limits. D2 may prepare the remaining continuation delta source-only from the local acceptance commit. B3 owns the sole heavy slot; D-S/D-M remain unresolved. This supersedes the dated current-slice checkpoint below.

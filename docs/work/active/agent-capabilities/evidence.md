@@ -49,3 +49,8 @@ After explicit heavy regrant, [D1B round1 corrected checks/Opus2 brief](d1b/revi
 
 
 [D1B corrected handoff](d1b/review1-final-handoff.md) pins a94b9c99/crates100732a4; fresh principal Opus2 dispatched. Copied fullAI419/0/1PASS then six fixed priority variants actually caught, including new-pin M02/M07 rechecks; original a6736/2 unchanged. [Per-ID supplement](d1b/review1-mutation-results.json) retains exact diffs/commands/logs and no survivor/equivalence promotion. All288copy hashes restored and288candidate hashes unchanged; own controller/groups/heavy inventory empty. Final same-original1800s budget/release is separate and includes all cleanup. Source approval/live/native/hosted/owner/integration remain pending.
+
+
+## D2 remaining continuation delta — 17 October 2026
+
+[D2 implementation/review brief](d2/implementation.md) maps R01–R04 to existing reliability protections and eleven new actual model-loop witnesses. Exact8ae test-only before source compiled0/5 after a preserved separate fixture/compiler error. Final AI430/0/1, core31/0/0, app13/0/0, CLI161/0/0, strict affected all-target Clippy and workspacefmt pass; [source/artifact/command receipts](d2/self-checks.json) preserve initial candidate fixture failures and distinguish earlier focused test hashes from final fullAI. Only threads.rs plus new private continuation module/tests change. No state/schema/core/app/CLI/auth/summary/budget/manifest/lock changes. Immutable pin/fresh principal review and source acceptance remain separate; D2 mutation is ungranted/unstarted and D1B finalized time is not reused. Prior workspace/PDF/native/hosted/live/owner/full-program limits remain open.

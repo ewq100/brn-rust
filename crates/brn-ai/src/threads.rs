@@ -29,6 +29,11 @@ use tokio_util::sync::CancellationToken;
 mod budget_tests;
 #[path = "threads_context_budget.rs"]
 mod context_budget;
+#[path = "threads_continuation.rs"]
+mod continuation;
+#[cfg(all(test, feature = "scripted-runs"))]
+#[path = "threads_continuation_tests.rs"]
+mod continuation_tests;
 #[path = "threads_summary.rs"]
 mod summary;
 #[cfg(test)]
@@ -389,8 +394,7 @@ fn parse_valid(name: &str, args: &Value) -> bool {
             .is_ok_and(|a| crate::threads_guides::read_skill(&a.id).is_some()),
         "apply_changes" => serde_json::from_value::<ApplyArgs>(args.clone()).is_ok(),
         "withdraw_proposal" => serde_json::from_value::<WithdrawArgs>(args.clone()).is_ok(),
-        "retain_progress" => serde_json::from_value::<ProgressArgs>(args.clone())
-            .is_ok_and(|a| a.summary.len() <= 4096),
+        "retain_progress" => continuation::validate(args),
         "research" => research::validate_research(args),
         "submit_findings" => research::validate_findings(args),
         "prepare_changes" => serde_json::from_value::<PrepareArgs>(args.clone()).is_ok_and(|a| {
@@ -463,10 +467,7 @@ fn schema(name: &str) -> Value {
             json!({"operation":{"type":"string","description":"Your own unapplied candidate from this chat"}}),
             json!(["operation"]),
         ),
-        "retain_progress" => object(
-            json!({"summary":{"type":"string","maxLength":4096}}),
-            json!(["summary"]),
-        ),
+        "retain_progress" => continuation::schema(),
         "prepare_changes" => object(
             json!({"writing":{"type":["object","null"],"properties":{"quotations":{"type":"array","items":{"type":"object","properties":{"id":{"type":"string"},"version":{"type":"integer"},"start":{"type":"integer"},"end":{"type":"integer"},"quote":{"type":"string"}},"required":["id","version","start","end","quote"],"additionalProperties":false}},"requirements_reported":{"type":"array","items":{"type":"object","properties":{"claim":{"type":"string"},"quotations":{"type":"array","items":{"type":"integer"}}},"required":["claim","quotations"],"additionalProperties":false}}},"required":["quotations","requirements_reported"],"additionalProperties":false},"request_key":{"type":"string"},"request":object(json!({"reason":{"type":"string"},"writes":{"type":"array","items":object(json!({"id":{"type":"string"},"expected_version":{"type":["integer","null"]},"archived":{"type":"boolean"},"data":{"type":"object","description":"Exactly one typed variant: Note, Thread, Action, Source, Link, or Comment. Read current records for complete field shape. Note: title,markdown,protected,confirmed,superseded_by,import. Action: description,state (Suggested/Open/Waiting/Done/Cancelled),internal,evidence,due. New IDs use new:0, new:1 etc; references may use those same placeholders."}}),json!(["id","expected_version","archived","data"]))},"inputs":{"type":"array","items":object(json!({"record":{"type":"string"},"version":{"type":"integer"},"expectation":{"type":"string","enum":["Current","Historical"],"description":"Default Current checks this exact active version atomically at Apply. Use Historical only for an intentional citation of an accepted older revision, not current facts."}}),json!(["record","version"]))}}),json!(["reason","writes","inputs"]))}),
             json!(["request_key", "request"]),
@@ -590,9 +591,9 @@ tool!(
 tool!(
     RetainProgress,
     "retain_progress",
-    ProgressArgs,
-    "Retain a concise semantic progress summary for fresh Continue. Do not copy raw fetched evidence or tool transcripts.",
-    progress
+    continuation::ProgressUpdate,
+    "Retain a concise reported objective, bounded remaining work/questions and exact operation references for fresh Continue. Optional structured fields do not change legacy summary calls. Reported plans are not completion proof or authority; only checked receipts prove an operation Applied. Do not copy raw fetched evidence or tool transcripts.",
+    retain_progress
 );
 tool!(
     ReadHistory,
@@ -1982,12 +1983,35 @@ fn attention(
         .map_err(storage)?;
     Ok(())
 }
+fn retain_progress(scope: &Scope, args: continuation::ProgressUpdate) -> AiResult<Value> {
+    let (summary, references, operations) = continuation::report(scope, args)?;
+    // Only already checked members of this chat's actual operation family can
+    // be carried forward. This closes over existing identities, never grants.
+    let mut out = if references.is_empty() {
+        progress(scope, ProgressArgs { summary })?
+    } else {
+        save_progress(scope, summary, &references)?
+    };
+    out["reported_only"] = json!(true);
+    out["operations"] = json!(operations);
+    Ok(out)
+}
 fn progress(scope: &Scope, args: ProgressArgs) -> AiResult<Value> {
-    if args.summary.len() > 4096 {
+    save_progress(scope, args.summary, &[])
+}
+fn save_progress(scope: &Scope, summary: String, references: &[OperationId]) -> AiResult<Value> {
+    if summary.len() > 4096 {
         return Err(rejected());
     }
     let mut store = scope.store.lock().map_err(storage)?;
-    update_run(scope, &mut store, |run| run.progress = args.summary)?;
+    update_run(scope, &mut store, |run| {
+        run.progress = summary;
+        for operation in references {
+            if !run.operations.contains(operation) {
+                run.operations.push(operation.clone());
+            }
+        }
+    })?;
     Ok(json!({"retained":true}))
 }
 // A successful dispatch can still require owner review or leave a write unapplied.
@@ -2464,6 +2488,10 @@ async fn run_prepared_over(
     });
     // The watcher is already running, so a stop during the context build is seen.
     let input = host_intake::with_context(&scope, input, &cancel).await;
+    let (input, continuation_notice) = continuation::context(&scope, input);
+    if let Some(notice) = &continuation_notice {
+        (emit)(AiEvent::Activity(notice.clone()));
+    }
     if let Some(helper) = &scope.helper {
         helper.set_source(research::HelperSource::Provider(transport.clone()));
     }
@@ -2608,7 +2636,11 @@ async fn run_prepared_over(
             .then(|| (scope.run.clone(), scope.fence.load(Ordering::SeqCst) + 1)),
         run_id: scope.run.clone(),
         trace: finish_trace(&scope, &answer),
-        notices: notices(&scope).into_iter().chain(summary_notice).collect(),
+        notices: notices(&scope)
+            .into_iter()
+            .chain(summary_notice)
+            .chain(continuation_notice)
+            .collect(),
         answer,
         provider_resends: resends.lock().map(|r| r.clone()).unwrap_or_default(),
     })
@@ -2647,6 +2679,7 @@ pub async fn run_prepared_scripted_with_helpers(
         helper.set_source(research::HelperSource::Scripted(helpers.into()));
     }
     let input = host_intake::with_context(&scope, input, &CancellationToken::new()).await;
+    let (input, continuation_notice) = continuation::context(&scope, input);
     let context = summary::prepare(
         summary::ModelCompactor::new(
             model.clone(),
@@ -2682,7 +2715,11 @@ pub async fn run_prepared_scripted_with_helpers(
             .then(|| (scope.run.clone(), scope.fence.load(Ordering::SeqCst) + 1)),
         run_id: scope.run.clone(),
         trace: finish_trace(&scope, &answer),
-        notices: notices(&scope).into_iter().chain(context.notice).collect(),
+        notices: notices(&scope)
+            .into_iter()
+            .chain(context.notice)
+            .chain(continuation_notice)
+            .collect(),
         answer,
         provider_resends: Vec::new(),
     })
@@ -2704,6 +2741,7 @@ pub async fn run_prepared_scripted_then_abandon(
         summary_chunks,
     } = prepared;
     let input = host_intake::with_context(&scope, input, &CancellationToken::new()).await;
+    let (input, _) = continuation::context(&scope, input);
     let context = summary::prepare(
         summary::ModelCompactor::new(
             model.clone(),
@@ -3419,6 +3457,12 @@ fn finish(scope: &Scope, answer: &AiAnswer) -> AiResult<bool> {
     let RecordData::Run(mut run) = record.data else {
         return Err(rejected());
     };
+    if run.progress.is_empty()
+        && matches!(&answer.terminal, AiTerminal::Failed(error) if error.kind == AiErrorKind::ToolLimitReached || error.is_context_limit())
+        && let Some(objective) = continuation::budget_objective(scope, &store)?
+    {
+        run.progress = objective;
+    }
     run.state = match answer.terminal {
         AiTerminal::Completed => RunState::Completed,
         AiTerminal::Interrupted => RunState::Interrupted,

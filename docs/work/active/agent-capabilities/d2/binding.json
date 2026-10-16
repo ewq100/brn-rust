@@ -1,0 +1,26 @@
+{
+  "task": "D2 remaining objective/progress continuation delta; source-only",
+  "provider": "Codex through T3",
+  "model": "gpt-6.1-sol",
+  "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+  "branch": "work/d2-20261017",
+  "base": "8ae8a72938c071be0af4f2b8c651a3603a8a0025",
+  "crates": "100732a4514569fc98571d480995b39126d26305",
+  "cached_origin_main": "8f768943964a77711b26d5235df146f8efe1dc6c",
+  "initial_status": "clean",
+  "ownership": [
+    "crates/brn-ai/src/threads.rs: retain_progress/schema/validation, private prepared input, notices and budget terminal fallback only",
+    "NEW crates/brn-ai/src/threads_continuation.rs: bounded semantic progress, fresh operation projection, optional frozen context",
+    "NEW crates/brn-ai/src/threads_continuation_tests.rs: missing behavior only",
+    "d2 docs and agent-capabilities plan/evidence/minimal status link"
+  ],
+  "no_other_production_hunks_required": true,
+  "heavy_owner": "B3; no Cargo/metadata/build/test/lint/mutants/list/headless/process-slot polling allowed",
+  "D1B_mutation_finalized": {
+    "used": 827.2616174221039,
+    "unused": 972.7383825778961,
+    "no_transfer_to_D2": true
+  },
+  "D2_execution_and_mutation": "not granted/not started",
+  "preserved_ref": "work/d1b-20261017"
+}
