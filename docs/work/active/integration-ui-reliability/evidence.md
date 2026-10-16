@@ -2,7 +2,7 @@
 
 **Date:** 16 October 2026. **Branch:** `work/integration-ui-reliability`, local only with no upstream, worktree `.worktrees/integration-ui-reliability`.
 
-**Built from:** `work/ui-polish` `354c1940`, then a `--no-ff` merge of `work/daily-workflow-reliability` `192cd765` (`067470d5`), then a `--no-ff` merge of main `a4ad9677` (`6f51d22c`). The integration commit `649494d6` is on `6f51d22c`, and fix pass 1 (the nine findings of [review.md](review.md)) adds one commit on `649494d6`. `work/ui-polish` `81129f07` (docs and shots after `354c1940`) is not merged here; the record step merges it.
+**Built from:** `work/ui-polish` `354c1940`, then a `--no-ff` merge of `work/daily-workflow-reliability` `192cd765` (`067470d5`), then a `--no-ff` merge of main `a4ad9677` (`6f51d22c`). The integration commit `649494d6` is on `6f51d22c`, and fix pass 1 (the nine findings of the first review, `git show 6db39420:docs/work/active/integration-ui-reliability/review.md`) adds one commit on `649494d6`. `27a5d3c6` records the native recheck of `6db39420`. The record step then merged `work/ui-polish` `81129f07` (docs and shots only, after `354c1940`) with `--no-ff` (`64f287ef`) and committed this record and the second review ([review.md](review.md), verdict APPROVED, two non-blocking findings) on top. The final combined sha is in [Record step](#record-step-final-tree).
 
 **Sources:** [UI polish evidence](../ui-polish/evidence.md), [reliability evidence](../daily-workflow-reliability/evidence.md), the coordination board's owner decisions of 16 October 2026, and the UI branch's native recheck of `354c1940` (R1–R4, in that branch's `verification.md` at `81129f07`).
 
@@ -10,7 +10,7 @@ Each status is reported on its own: implemented or verified does not mean owner-
 
 | Item | Implemented | Automated-verified | Native-observed | Owner-accepted | Merged |
 |---|---|---|---|---|---|
-| UI polish S1–S7 and both fix passes | yes (`work/ui-polish`) | yes, on this tree | on its own builds (`ed8daa82`, recheck `354c1940`), not on this build | text-floor rule yes (16 Oct); the rest no | no |
+| UI polish S1–S7 and both fix passes | yes (`work/ui-polish`, through `81129f07`) | yes, on this tree | on its own builds (`ed8daa82`, recheck `354c1940`), not on this build | 48 px text floor under a Note banner: recorded on the board as accepted ("i accept your offer", relayed by the lead, 16 Oct), not seen first-hand by review, and the busiest state with a recorded notice is open, so **pending owner acceptance** on this build; the rest no | no |
 | Reliability rounds 1–6 | yes (`work/daily-workflow-reliability`) | yes, on this tree | on its own builds (rounds 4 and 6), not on this build | decisions 1–3 yes (16 Oct); the build no | no |
 | Test expectations for the reliability service (§1) | yes | yes | decisions 1 and 2 seen on `6db39420` ([native recheck](#native-observed-recheck-of-6db39420)) | n/a | no |
 | F-UI1: "In chats" in Notes search and ⌘K (§2) | yes | yes | yes, on `6db39420` ([native recheck](#native-observed-recheck-of-6db39420)) | no | no |
@@ -22,6 +22,7 @@ Each status is reported on its own: implemented or verified does not mean owner-
 | Contract and docs (§8) | yes | link check | n/a | decisions 1–3 yes; wording no | no |
 | Fix pass 1: review findings 1–6, 8 and 9 ([Fix pass 1](#fix-pass-1-review-of-649494d6)) | yes | yes | 1, 2 and 5 yes; 3, 4, 6, 8 and 9 no ([native recheck](#native-observed-recheck-of-6db39420)) | no | no |
 | Fix pass 1: finding 7, Windows compile | no (no Windows target here); a pre-merge CI run is required | no | n/a | no | no |
+| Record step: merge of `work/ui-polish` `81129f07` (docs and shots only) | yes (`64f287ef`) | link check and `git diff --check`; no code changed, so the gate on `6db39420` stands ([Record step](#record-step-final-tree)) | n/a | no | no |
 
 Nothing was pushed, merged, published or released. No Mac window was opened in the integration step or in fix pass 1. The later native recheck of `6db39420` ran under `MAC-IN-USE` ([Native-observed](#native-observed-recheck-of-6db39420)).
 
@@ -108,7 +109,7 @@ On this tree the archived chat already had one Unarchive (the composer banner's 
 
 ## Fix pass 1: review of 649494d6
 
-[review.md](review.md) and `review.json` (verdict NEEDS_CHANGES, one blocking finding) reviewed `649494d6`. Every product change is still in `crates/brn-desktop`; no shared seam, dependency, `Cargo.lock` or schema changed.
+The first review (verdict NEEDS_CHANGES, one blocking finding; `git show 6db39420:docs/work/active/integration-ui-reliability/review.md`) reviewed `649494d6`. The committed [review.md](review.md) and `review.json` are now the second review, of `6db39420` (APPROVED). Every product change is still in `crates/brn-desktop`; no shared seam, dependency, `Cargo.lock` or schema changed.
 
 | # | Finding | Change | Test |
 |---|---|---|---|
@@ -211,6 +212,14 @@ This section reports only what was seen on screen and in the stores with real sy
 3. **Archived chats show the global queue.** The strip "Paused · 1 waiting" with Resume queue, and the Run card's "1 waiting message stays paused until you resume the queue", appear in archived chats, even though the waiting message belongs to another chat. That is a second live control beside Unarchive. Whether it fits U11 is a lead or owner call (02, 15).
 4. **A hit's snippet may not be clickable.** One click on the snippet text of a Notes-search chat hit didn't open the chat; a click on its title line did. Seen once, not isolated.
 
+## Record step: final tree
+
+- **Merged:** `work/ui-polish` gained one commit after `354c1940`: `81129f07` "docs: record ui-polish native recheck of the fix pass on 354c1940". It changes only `docs/work/active/ui-polish/{evidence.md,verification.md}` and PNG shots under `docs/work/active/ui-polish/after/`. It was merged with `--no-ff` as `64f287ef`, with no conflict.
+- **No gate rerun:** `git diff 27a5d3c6 64f287ef -- crates scripts Cargo.toml Cargo.lock` is empty, so the code is the code of `6db39420`, and the gate in [Verification](#verification) stands for the final tree. After the merge and this record: `python3 scripts/check-markdown-links.py` gave 142 files, 624 local links, 0 failures, and `git diff --check` was clean.
+- **Second review:** [review.md](review.md) and `review.json` review `6db39420` and approve it. Its two non-blocking findings are in [Open items](#open-items): the busiest Note with a recorded notice is not under test, and Windows native-ui must compile before merge.
+- **Final combined sha:** the commit that adds this record, on `64f287ef`. The board's `work/ui-polish (lead)` section names it.
+- **Status:** implemented and automated-verified on this tree; native-observed on `6db39420` as [recorded above](#native-observed-recheck-of-6db39420) (the code is unchanged since); not owner-accepted apart from the 16 October decisions; not pushed or merged.
+
 ## Open items
 
 **From the integration decisions** (owner message, item 3):
@@ -250,7 +259,17 @@ This section reports only what was seen on screen and in the stores with real sy
 - **The card's announced name** includes the progress line after the notice, because it reads every visible line. The Note's `writing-run-status` doesn't.
 - **Archived note hits** get the chip, but the desktop's Notes search runs without a project scope, so the service currently lists no note hit from an archived chat there.
 
+**From the second review and the record step:**
+
+- **48 px text floor under a Note banner, pending owner acceptance.** In the busiest 900×600 Note state the text can drop to its 48 px floor. The board records the owner's "i accept your offer" (relayed by the lead), but the review did not see it first-hand, and the variant with a recorded notice (bar 2.5 px past the Note in the test text system) was never shown to the owner. R1's open-draft extension is a lead decision the owner can overrule.
+- **The busiest-state guard test lacks a recorded notice** (review finding 1). `failed_rewrite` seeds a Failed Run with no Blocker attention. Add the recorded-notice variant, then either let `writing-run-detail` give way in the Note (the recovery card keeps it, with a "when room allows" qualifier on the new `threads-behavior.md` sentence) or take the owner's call after a native look.
+- **Windows native-ui before merge** (review finding 2, fix pass 1 finding 7): unchanged.
+- **Poppler-only PDF test, environment gap.** `brn-threads-intake` `qualification::prepared_rust_fixtures_keep_source_and_preview_bindings_in_owned_scratch` fails here ("Pdf preparation failed: Unavailable") because Poppler isn't installed. It is counted as a failure, not a pass. It needs a run on a machine with Poppler, or CI.
+- **The four new native findings** of the recheck (In chats title at 170 pt, raw Markdown in a ⌘K snippet, the global queue strip in archived chats, a snippet click) are unfixed and go to the later polish agent.
+
 **Open questions:**
 
 - Which row gives way in the busiest Note with a recorded notice (above). This step took the conservative option and changed nothing; it is on the board under the lead's section.
+- Whether the global Resume queue strip belongs in an archived chat (native finding 3): a lead or owner call under U11.
+- How the desktop discards or adopts an edit it didn't open once caller-bound sessions land (U4 and CLI round 3, above).
 - Everything else here was settled by the board decisions and contract docs.

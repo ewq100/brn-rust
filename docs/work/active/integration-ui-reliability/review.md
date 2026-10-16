@@ -1,141 +1,112 @@
-# Combined desktop for ui-polish and reliability: F-UI1, U4, U10, U11 and R1–R4
+# Fix pass 1 on the combined desktop: launcher order, independent search lanes, U4/U10/U11 details
 
-The commit makes the desktop consume what the reliability branch now records. Saved chat Messages appear as an "In chats" group in Notes search and in ⌘K. An edit already open elsewhere is matched on the typed `EditSessionOpen` variant and offers Compare and Discard. The chat's recorded terminal notice drives the recovery card and the Note's run status as well as the status line and Needs you. An archived chat lands focus on Unarchive. Tests are updated for leases, the owner's lease-free Stop and decision 1, and the contract docs carry decisions 1–3 once. Every product change is in `crates/brn-desktop`. The gate is recorded in full with exact counts, and the Poppler-only PDF test is reported as an environment gap, not a pass.
+Fix pass 1 (`6db39420`, on `649494d6`) answers the nine findings of the first review. ⌘K now appends saved chat Message hits after every label match, so an arriving search answer never moves ↵. The two Notes search lanes wait only for their own request, using an explicit new-query flag. The Note's run status is the recorded notice alone, with the Run's progress as a muted line below it. `hold_worker` holds a `RunLease`, ⌘L in an archived chat lands on Unarchive, note and Message hits from archived chats share one Archived chip, and Changes resolves rewrite-request names on refresh. Everything stays in `crates/brn-desktop`, and the gate is recorded on this tree with the desktop and CLI from one build and the Poppler-only test reported as an environment gap.
 
-Watch for: ⌘K now puts asynchronously arriving full-text chat Message hits ahead of commands, so Enter's target changes when the search answers (confirmed, blocking). The Note's run status and the card's announced label append the agent's progress to the notice (likely, non-blocking). One live-worker test helper still holds no `RunLease` (confirmed, minor). Windows is not compiled; that is justified in the evidence, but the PR's CI runs native-ui on macOS only (confirmed).
+Watch for: the busiest 900×600 Note guard test seeds a failed rewrite with no recorded notice, which the reliability service no longer produces. With a notice, the implementer measured the writing bar 2.5 px past the Note, and the new progress line is the one row in that stack the owner rule doesn't protect (confirmed test gap, non-blocking, pending a native look and the owner). Windows native-ui is still not compiled, and the evidence makes a manual `ci.yml` run on the PR branch a merge condition (confirmed, non-blocking).
 
-**Verdict**: NEEDS_CHANGES
+**Verdict**: APPROVED
 
 ## High-level view
 
-The integration stays on the desktop side of every shared seam: `useful_intake`, both `interrupt_chat_run` call sites and `Cargo.lock` are untouched. Nothing from this step is native-observed, and the evidence says so in its own column.
+The blocking ⌘K defect is fixed at its root. `launcher` filters chats, notes and commands together, caps them at 20, then chains the Messages, so the rows the selection can already point at never move. The "raba" collision is pinned in a unit test (earlier rows unchanged after the answer) and in a window test (↵ switches the theme, ↓ ↵ opens the chat), and restoring the old order fails both.
 
-F-UI1 splits owner search into two lanes. A new query fills note hits and Messages from one answer; afterwards each lane pages with its own cursor and keeps only its own half of the response. Chat paging still waits on a notes page, and the "In chats" group can disappear while both lanes page (confirmed, minor). ⌘K reuses the hits but orders them before commands, and they arrive after the synchronous label matches, which is the blocking issue.
+The search lanes no longer infer a new query from "both lanes pending". `fresh` is set only by a both-lanes request and cleared when that request answers. Each lane's paging gates on its own `awaiting`, and "In chats" hides only while `fresh` is set. The paging test covers both interleavings the first review raised.
 
-U4 matches `AppError::Core(Error::EditSessionOpen { note, base_version, .. })` and never reads `session`. The other edit is found by note in `recovery_buffers`, and Discard goes through the generation-checked `Store::discard`. The reused confirmation reads "Discard your unsaved edit?" / "Your changes since vN will be lost", as if the owner's typing here were being discarded; only the tooltip says that text is kept (likely, copy). The evidence records that caller-bound sessions (CLI round 3) would break this Discard.
+U10 now has the notice alone in `writing-run-status`, and `RunOutcome::detail` renders the progress as `writing-run-detail` below it only when the two differ. `threads-behavior.md` says the progress follows as a separate secondary line. The card's announced name still reads its progress line, and the evidence says so. That extra row is what sits behind the busiest-state concern below.
 
-U10 takes the Blocker attention whose `record` is the Run as the reason on all four surfaces. The agent's progress stays as a secondary line on the card and as a trailing "· progress" in the Note, so two surfaces show more than the notice.
-
-U11 puts the archived composer banner in the focus table, so opening an archived chat focuses Unarchive. The test covers one Unarchive, an unavailable Continue and composer focus after Unarchive. `focus_composer` (the `FocusAsk` action and quote-into-chat) has no archived guard, so an explicit shortcut still focuses an archived chat's composer (confirmed path; whether that counts as "taking focus" is an interpretation).
-
-R2–R4 change wording and row layout. R3's `refresh_name` calls `workspace.writing_request`, a SQLite read and a JSON parse, for every "May need refresh" pill on every render of Changes. The read is confirmed; whether it costs anything noticeable is only possible. R1 is a lead decision, listed below as pending.
-
-Startup prints the core's owner-terms `DataFolder` text through `Display`, and a new test pins two problems against debug and OS wording. The native app still reports a startup failure only on stderr, with no window; the evidence lists it as an open product gap. Contract sentences appear once, decision 1 replaces the "keeps its Interrupted notice…" wording, and both currency sentences match the reliability branch's proposed text word for word.
+U4's Discard of the other edit has its own title and body. `focus_composer` routes an archived chat to the banner and then Unarchive. `archived_chip` serves both hit kinds. `refresh()` builds `refresh_names` once per history reload. Each has a test, and the changed assertions are replaced with equal or stricter ones.
 
 <details>
-<summary>Issues (9)</summary>
+<summary>Issues (2)</summary>
 
-1. **⌘K Enter target moves when chat hits arrive** (blocking). Full-text Message hits land asynchronously before commands, and the selection is a bare index. Append Messages after commands, or keep the selection by identity when the list changes, and update the launcher tests and the evidence.
-2. **Progress appended to the recorded notice**. The Note's `writing-run-status` reads "notice · progress" and the card announces "Failed · notice · progress · next". Render progress as a separate muted line in the Note as the card does, or state in the contract that progress may follow the notice.
-3. **`hold_worker` stands for a live worker without a lease**. `threads_chat_tests.rs` `hold_worker` (three tests, one of which Stops) holds no `RunLease`, and the evidence's lease table doesn't mention it. Hold a lease there, or add it to the evidence's justification beside the workbench `run_fixture`.
-4. **Chat paging is not fully independent of notes**. Chats' Previous/Next are disabled while a notes page loads, and `typing` (both lanes pending) hides the whole "In chats" group while both lanes page. Track "new query pending" explicitly instead of inferring it from both lanes.
-5. **U4 Discard dialog wording**. "Discard your unsaved edit?" / "Your changes since vN will be lost" describes the other edit as if it were the owner's typing here. Give the open-edit path its own title and body, such as "Discard the edit open elsewhere?" … "What you typed here is kept."
-6. **Focus-composer shortcut on an archived chat**. `focus_composer` still focuses an archived chat's composer. Route it to the archived banner as `focus_landing` does, or record that an explicit shortcut may focus it.
-7. **Native-ui Windows compile happens only after merge**. On a pull request, CI's native-ui lane runs on macOS only, and this branch was never compiled for Windows. Run the manual all-targets workflow on the PR branch before merging, or accept the risk explicitly.
-8. **Archived note hits read differently from archived Message hits**. Note hits from archived chats get a lowercase "archived chat" fact, while Message hits get an "Archived" chip. Use the same Archived label for both, as decision 3 says.
-9. **Store reads in the Changes render path**. `refresh_name` calls `workspace.writing_request` (SQLite read and JSON parse) for every "May need refresh" pill on every render. Resolve the names when history refreshes.
+1. **Busiest Note with a recorded notice is not under test** (non-blocking, pending). `the_banner_stack_keeps_its_budget_above_the_text_at_900x600` seeds a failed rewrite without a notice. With one, the bar measured 2.5 px past the Note. Add the recorded-notice variant to that test, and either let `writing-run-detail` give way in the Note (the card keeps it) or take the owner's call after a native look.
+2. **Windows native-ui compile before merge** (non-blocking, carried). Neither pass compiled native-ui for Windows, and PR CI runs native-ui on macOS only. Dispatch `ci.yml` on the PR branch and wait for the Windows and Ubuntu native-ui lanes before merging, or record the owner's explicit acceptance of the risk.
 
 </details>
 
 <details>
 <summary>Details</summary>
 
-### ⌘K: asynchronous chat hits take the Enter slot
+### The busiest Note with a recorded notice
 
-`lists::launcher` now chains label-matched chats, then notes, then `messages` (the owner search's Message hits, unfiltered), then label-matched commands, and truncates at 20. `LauncherSearch` clears `messages` on every keystroke and fills them when the worker answers. `launcher_index` resets to 0 on `InputEvent::Change` and isn't adjusted when the answer lands, and `run_launcher` acts on `items[launcher_index]`.
+The committed guard for the busiest stale state seeds the failure through `failed_rewrite`. That helper writes a Failed `Run` whose `progress` is the reason string and a partial reply. It adds no Blocker attention, so the Note renders `RunOutcome::Failed(progress)`, one line, not the `Recorded` notice plus detail that a real failure now produces:
 
+```rust
+// threads_review_tests.rs, failed_rewrite: the Run is all there is
+state: RunState::Failed,
+progress: reason.into(),   // "Run failed: Synthetic provider stopped…"
+// no attention item → writing_run_outcome() ≠ RunOutcome::Recorded
 ```
-keystroke "raba"  -> items: [Command Theme(Raba)]                index 0 = theme
-answer arrives    -> items: [Message "…raba…", Command Theme]    index 0 = chat
-```
 
-This is confirmed by code reading, and it has two consequences. Enter right after typing is nondeterministic: it runs the command if the answer hasn't arrived and opens a chat if it has. Once the answer has landed, any saved chat text containing the typed word beats the command. Label matches already beat commands, but those are synchronous and match titles only; full-text Message matches are far broader. Theme switching through ⌘K is an owner decision in the ui-polish plan (open question 4). The theme names (Raba, Sammal, Läänemeri, Paber) are everyday Estonian words, the fixtures' language, so collisions are likely in real use. The list also jumps on every keystroke, as Messages vanish and reappear above the commands.
+After the integration every failed or interrupted Run records a notice. A no-notice failure now exists only for legacy data, so the guard's "the bar ends the Note" assertion (confirmed) covers a state the owner will rarely see. The evidence measured the realistic state on this tree: the stale banner, open comments, a failed rewrite with a recorded provider notice and a 76-character progress, and a dirty bar. There the text is at its 48 px floor and the bar ends 2.5 px below the Note (8.5 px with `649494d6`'s inline form). The measurement used the GPUI test text system, which is wider than macOS fonts.
 
-The existing test calls `launcher("raba", …)` for `Command::Theme(Raba)`, but with `&[]` messages, so the collision is never exercised. The new test `launcher_lists_matching_chat_messages_before_commands` pins the problematic order. Appending Messages after commands keeps every earlier index stable when the answer arrives, which removes the race.
-
-### Two-lane owner search in `threads_search.rs`
-
-A single cursor carries one offset that the service applies to both kinds, so independent paging works by issuing a separate request per lane and keeping only that lane's half. `note_hits_and_chat_messages_page_independently` (14 notes and 14 Messages, each lane paged alone, Previous on chats, a new query resetting both) covers that.
-
-The lane state has two asymmetries (confirmed). `search_paging(Lanes::Chats)` disables on `results.pending()`, which is true while either lane loads, so a notes page blocks chat paging but not the reverse. `chat_results` hides the whole group when `notes.pending() && messages.pending()`, which is meant to detect a new query. It is also true when the owner pages notes while a chat page is loading, so the group and its paging row disappear until one lane answers. Both are cosmetic, but the lanes aren't quite independent. An explicit "new query pending" flag would remove both. Separately, note hits from archived chats read "archived chat" in their facts line, while Message hits carry the Archived chip.
-
-### U10: the notice leads, progress follows
-
-`Recovery::with_notice` moves the old reason (the Run's progress) to `detail` when it differs, and `RunOutcome::Recorded` does the same for the Note. Progress comes only from `retain_progress`, the agent's own summary, so it is never a second failure wording, which was U10's complaint. Two surfaces still show more than the recorded notice, though. `writing-run-status` is one string, "Run failed: … · Synthetic agent progress", in the error tone, and the card is announced as "Failed · {notice} · {progress} · {next}". The status line and Needs you show the notice alone. The Note just doesn't set the agent's text apart visually the way the card does (likely; a design call).
-
-When an owner message postdates the failed Run, the card switches to "Not answered yet" and drops the notice while Needs you keeps it. This is the existing `owner_after` rule, not new in this diff.
-
-### Lease fidelity in the updated tests
-
-`threads_chat_tests.rs` `hold_worker` is documented as "A live local worker for the chat's run, as a running reply has", but holds no lease. `queue_notices_follow_the_queue_state_and_paused_wins_after_stop` Stops through it, so the service takes the lease-free path while the test describes a live worker. Under decision 2 the owner's Stop has the same observable outcome either way. That is the evidence's argument for the workbench `run_fixture`, but this helper isn't covered by that justification (confirmed, minor). The steering, dialogs and project-delete seeds do hold a lease.
-
-### Platform coverage
-
-The commit's only platform-specific code is the `#[cfg(unix)]` data-folder test. The merged reliability code uses std `File::try_lock` and a `cfg(unix)` `O_NOFOLLOW`, and `libc` is available on every target. `brn-threads-core/src/stage.rs`'s `cfg(not(unix))` branch is compiled by PR CI's headless Windows lane. The `threads_lists.rs` fallback (ui-polish FIX-3) and every native-ui module are not: `ci.yml` runs native-ui only on `macos-15` for pull requests, and on Windows only for main or manual runs. Windows was never compiled for this branch, so a native-ui Windows break would first show after merge.
+The evidence frames this as "which row gives way when every row is at its floor isn't settled by the owner rule". That is only partly true (likely). The rule protects banners, failure reasons and the writing bar. Since this pass, the failure reason is the notice, and `writing-run-detail` is the agent's own progress, which the rule doesn't name. So there is an option inside the rule: the progress line gives way in the Note when the bar would otherwise clip, and the recovery card, which isn't under the same height budget, keeps it. The contract sentence added in this pass ("the Note's run status show[s] it as a separate, secondary line") would need a "when room allows" qualifier. This isn't blocking: the clip is 2.5 px in a wider font, the evidence records it openly, and the busiest state's layout is already waiting on the owner. The test gap should close either way, so that the next layout change in this state fails a test, not a native check.
 
 ### Requirement coverage
 
 1. Test expectations: done.
-   - Settings stop → Interrupted (reliability intake test; no desktop test expected Cancelled after a settings change).
-   - Orphans on Resume, Steer and Continue (desktop tests) and Dispatch (service `run_recovery`).
-   - Leases for live seeds, except `hold_worker` (issue 3).
-   - The owner's lease-free Stop, decision 1, and Review on Stop/Archive/Resume.
-   - Legacy text only in `LEGACY_NOTICES`; 10 tools and `brn-threads-guidance-12` (main has 11); `SCHEMA_VERSION = 4` with v2/v3 rebuild tests; canonical temp roots.
-   - No assertion line was removed; the one changed expectation (R4 row text) gains layout checks.
-2. F-UI1: done, with the ⌘K ordering defect (issue 1) and the paging asymmetry (issue 4). The group uses `section_header`, `ListRow` with role metadata and an Archived `status_chip`, `loading` and a one-sentence `empty_state` body.
-3. U4: done. Variant match, Compare and Discard, only `note` and `base_version`.
-4. Data folder: done for startup. The missing native error window is recorded as an open item.
-5. U10: done, with the progress suffix noted (issue 2).
-6. U11: done, with the shortcut path noted (issue 6).
+   - Settings stop → Interrupted.
+   - Lease-free seeds count as crashed on Resume, Steer and Continue in desktop tests, and on Dispatch in the service's `run_recovery` tests.
+   - `RunLease` is held for every live-worker seed, now including `hold_worker`. The workbench `run_fixture`'s exemption is justified in the evidence.
+   - U1's lease-free Stop, decision 1 and the Review items on Stop/Archive/Resume each have a test.
+   - The legacy notice survives only in recognition lists; 10 tools and `brn-threads-guidance-12` (main uses 11); search schema v4 with rebuild tests; canonical temp roots.
+   - No assertion was weakened. This pass's changed assertions (`writing-run-status`, the U4 body, `RunOutcome::text`) each gain an equal or stricter replacement.
+2. F-UI1: done.
+   - "In chats" shows title, role, highlighted snippet and the Archived chip.
+   - Paging is independent; activating a hit opens the chat at the Message; ⌘K shows the same service hits after the label matches.
+   - `section_header`, `ListRow`, `loading` and `empty_state` are used as plan.md describes.
+3. U4: done. The variant match goes through `AppError::Core`, never the text; Compare and Discard are offered; only `note` and `base_version` are read.
+4. Data folder: done as an owner-terms startup message through `Display`, with a test. A Finder launch shows no window; the evidence lists that as an open product gap.
+5. U10: done. All four surfaces show the recorded notice, and progress is a separate secondary line.
+6. U11: done. The archived composer takes focus neither on open nor on ⌘L; Unarchive is the single next step; Continue is unavailable.
 7. Contract and docs: done.
-   - Decision 1 replaces the proposed sentence, decision 2 covers Archive and the owner's Stop, and a decision 3 Search paragraph is added.
-   - The currency sentences at `threads-target.md:136` and `chats-and-projects/spec.md:70` match reliability's text.
-   - `status.md` gains one entry and goes from nine to ten tools; no sentence is duplicated.
-   - The evidence keeps the five statuses separate.
-8. Gate: present with exact counts.
-   - workspace: 827 passed / 1 failed / 6 ignored, the failure being the Poppler-only test reported as an environment gap;
-   - desktop shell: 292 passed / 1 ignored; native-ui: 80; native-ui with native-retrieval: 80; default features: 30;
-   - workspace and per-lane clippy, fmt, e2e fixtures, the CLI journey from the same build, headless startup, links and `Cargo.lock`: all clean.
-   - Windows is not compiled; that is justified (issue 7).
+   - Decision 1 replaces the proposed sentence, and decisions 2 and 3 appear once.
+   - The currency sentences at `threads-target.md:136` and `chats-and-projects/spec.md:70` are corrected.
+   - `docs/status.md` gains one entry.
+   - The evidence keeps implemented, verified, native-observed, owner-accepted and merged separate.
+8. Gate: present with exact counts on this tree.
+   - Workspace: 827 passed / 1 failed / 6 ignored; the failure is the Poppler-only test, reported as an environment gap.
+   - Desktop shell: 294 / 1 ignored (two more than `649494d6`, matching the two new window tests).
+   - `native-ui`: 80; `native-ui,native-retrieval`: 80; default features: 30.
+   - Workspace and per-lane clippy, fmt, e2e fixtures, the CLI journey from the same build, headless startup, links, `git diff --check` and `Cargo.lock`: all clean.
+   - Windows is not compiled; that is justified, with a merge condition (issue 2).
 
 ### Pending owner acceptance, not defects
 
-- The 48 px text floor under a Note banner in the busiest 900×600 state is listed here as pending owner acceptance. The board records "i accept your offer" (16 Oct, relayed by the lead), and `plan.md` and `ui-polish/evidence.md` now say owner-accepted, but this review did not see that acceptance first-hand.
-- R1 extends the same 48 px floor to an open stacked comment draft. It is a lead decision the owner can overrule, and it isn't native-observed.
+- The 48 px text floor under a Note banner in the busiest 900×600 state is pending owner acceptance. `docs/status.md`, `plan.md` and the board record it as accepted ("i accept your offer", relayed by the lead on 16 Oct), but this review did not see that acceptance first-hand.
+- R1, the same floor beside an open stacked comment draft, is a lead decision the owner can overrule.
+- Nothing in this build is native-observed. F-UI1, U4, U10, U11, R1–R4 and this pass are automated-verified only.
 
 ### Carried, not from this diff
 
-`resume_chat_queue` still stops a queue-claimed Working Run through `interrupt_chat_run` without a lease check, so it can stop a Run that is live in another process. Also carried:
+These are listed in the evidence and are unchanged by this pass:
 
+- `resume_chat_queue`'s lease-free stop of a queue-claimed Working Run;
 - the `project-delete` fence error;
 - the backup-sweep edge;
 - the slice H and G review notes;
-- native re-observation, still owed for 5c, INT-1, INT-4, U10 and everything in this step.
+- the U4 dependency on CLI round 3's caller-bound sessions.
 
-The evidence lists all of them.
+The archived-note chip is dormant in the desktop: its owner search is unscoped, so no chat-only note from an archived chat reaches it. The evidence says so too.
 
 </details>
 
 <details>
 <summary>File map</summary>
 
-Reviewed `649494d6` on `work/integration-ui-reliability` (integration commit on `6f51d22c`), from the diff, commit message, `evidence.md`, `ui-polish/plan.md` and the coordination board. No suite was rerun and no spot-check was needed.
+Reviewed `6db39420` on `work/integration-ui-reliability` against `649494d6` (fix pass 1), with the combined diff from `6f51d22c` as context. Inputs were the diff, the commit message, `evidence.md`, `ui-polish/plan.md`, the coordination board and the first review (`git show 6db39420:docs/work/active/integration-ui-reliability/review.md`). No suite was rerun and no spot-check was needed.
 
-- `crates/brn-desktop/src/threads_search.rs`: two-lane search state, "In chats" group, launcher search, shared `highlighted`/`role_label`.
-- `crates/brn-desktop/src/threads_lists.rs`: `LaunchItem::Message`, launcher ordering and tests.
-- `crates/brn-desktop/src/threads_shell.rs`: launcher Message rows and loading state; R2 status bar; U11 focus landing.
-- `crates/brn-desktop/src/threads_ui.rs`: new state fields, U4 error arm and `discard_session`, launcher wiring.
-- `crates/brn-desktop/src/threads_chat.rs`: one-shot transcript reveal.
-- `crates/brn-desktop/src/threads_writing.rs`: recovery card notice/detail, archived banner focus handle, U4 banner/Compare/Discard, R1 floor.
-- `crates/brn-desktop/src/threads_state.rs`: `Recovery::detail` and `with_notice`.
-- `crates/brn-desktop/src/threads_workbench.rs`: `RunOutcome::Recorded`.
-- `crates/brn-desktop/src/threads_context_actions.rs`: R2 Edit note reason.
-- `crates/brn-desktop/src/threads_tiles.rs`: R3 refresh names, R4 kept-edit rows.
-- `crates/brn-desktop/src/main.rs`: data-folder startup test.
-- `crates/brn-desktop/src/*_tests.rs`: leases, decision 1/2 tests, F-UI1, U4, U10, U11, R1–R4 tests.
-- `docs/architecture/{threads-behavior,invariants,threads-target}.md`, `docs/work/active/chats-and-projects/spec.md`, `docs/status.md`: contract text with decisions 1–3.
-- `docs/work/active/ui-polish/{plan,evidence}.md`, `docs/work/active/integration-ui-reliability/evidence.md`: text-floor status, R1 rule, integration record.
+- `crates/brn-desktop/src/threads_lists.rs`: launcher order (label matches capped, then Messages) and the "raba" unit test.
+- `crates/brn-desktop/src/threads_search.rs`: `fresh` new-query flag, per-lane paging gates, shared `archived_chip`.
+- `crates/brn-desktop/src/threads_shell.rs`: "Searching chats…" as the launcher's last line.
+- `crates/brn-desktop/src/threads_ui.rs`: `refresh_names` built in `refresh()`; archived guard in `focus_composer`.
+- `crates/brn-desktop/src/threads_tiles.rs`: `refresh_name` reads `refresh_names`.
+- `crates/brn-desktop/src/threads_workbench.rs`: `RunOutcome::text` returns the notice alone; `detail()`; `writing-run-detail` line.
+- `crates/brn-desktop/src/threads_writing.rs`: separate Discard title and body for the other open edit.
+- `crates/brn-desktop/src/threads_{chat,omakase,polish,tiled,writing}_tests.rs`: lease in `hold_worker`, ⌘L on archived chats, launcher collision, lane interleaving, archived note chip, U10 detail line, U4 body.
+- `docs/architecture/threads-behavior.md`: progress as a separate secondary line.
+- `docs/work/active/integration-ui-reliability/{evidence.md,review.md,review.json}`: fix pass record and the first review.
 
-Full diff: `git -C /Users/evokessler/repos/brn-rust/.worktrees/integration-ui-reliability show 649494d6`.
+Full diff: `git -C /Users/evokessler/repos/brn-rust/.worktrees/integration-ui-reliability diff 649494d6 6db39420`.
 
 </details>
