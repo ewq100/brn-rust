@@ -22,3 +22,10 @@ Principal retains all other core/app/AI/CLI operations, importer/converter imple
 The added app helper does not share D1B's `tests/export_metadata.rs` allocation. It performs no writes or metadata/access-policy changes, never uses Source.external_version/title/path as a substitute for the requested converted SHA, and returns only a current eligible canonical Note. Missing/ambiguous/changed/hidden results use one generic error without hidden names/IDs. The desktop leaves the successful import intact when attachment resolution refuses.
 
 **Final verification-window boundary:** heavy slot explicitly released with empty [process receipt](heavy-release.json). All eight listed Rust paths/hunks and B3 docs/minimal status link remain retained and frozen for principal-owned review and explicit handoff; no silent source-ownership release or further heavy work. Production is unchanged from `29c9cf68`; subsequent refinements are test-only, with exact execution associations in [verification](verification.md).
+
+
+## Corrected round1 window (supersedes the historical boundary above)
+
+The original final-window paragraph describes the earlier ba7161/29c9 verification. After principal's Opus1 correction allocation and explicit heavy grant, four production paths (native.rs/setup.rs/references.rs/threads_ui.rs) and the existing native fixture file changed. There are now fourteen B3 native fixtures, with all original assertions and pre-B3 prefixes retained. The other three Rust paths in the exact eight-path table remain unchanged from reviewed source. No new scope or metadata/lock/manifest/CI/script path was edited.
+
+Compiled corrected source/test pin def881852d1f3aa24dca03f0f2bb52145b37faf6 is frozen. [Round1 handoff](round1-handoff.md) records current checks, exact source identities and two bounded omission witnesses. The heavy slot is again explicitly released with empty precise process receipt and restored source. All eight exact Rust paths plus B3 docs/minimal status link remain retained and frozen for principal Opus2 and explicit handoff. This does not assign another implementation slice or imply local acceptance.
