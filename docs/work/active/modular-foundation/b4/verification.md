@@ -55,3 +55,8 @@ No native-retrieval/combined/E2E/headless broad repeat: no existing production s
 Principal-owned CI/script follow-up (not edited here): explicitly run `cargo test -p brn-writing-ui --example writing_host --features native-ui,native-test-support --locked --offline` in the native lane. A desktop dependency build or ordinary library test does not execute the example's three tests. Keep default gates with no native features; example required-features is native-ui. Launch instructions for later authorized human work: `cargo run -p brn-writing-ui --example writing_host --features native-ui --locked --offline`; this was not launched during verification.
 
 Fresh principal-owned Opus actual-diff review and local acceptance remain pending. Compiled source/test pin and final heavy/source ownership release will be added separately after this receipt; no self-acceptance/publication/integration claim.
+
+
+## Compiled pin and completed release
+
+Source/test pin c95b17a8642353641b92e2801fc242e263290bff, tree 41034f07d7d3c688e6b286396b936dfe66c7649d, crates f2b22572b8c12c8553929cba3db0a7c294a26c95. [Final handoff](handoff.md) records full acceptance/ownership map and principal-owned native CI example lane. [Release proof](heavy-release.json) confirms all 332 material hashes unchanged, reaped own children and empty heavy/controller inventories. Heavy slot explicitly released; all B4 source/test/manifest/lock hunks frozen and handed to principal for fresh Opus1/disposition. Only final evidence changed after that pin; no source acceptance or integration claim.

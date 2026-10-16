@@ -29,3 +29,6 @@ No missing-example compile error is a behavioral before proof. New host journey 
 ## Verified-window boundary
 
 The prepared implementation and exact six lock edges are locally checked as recorded in [verification](verification.md). Existing production library/services remain unchanged. The compiled source will be pinned for principal Opus1, then the heavy slot explicitly released; no further feature work is assigned. Current B4 native tests need their own explicit example lane, listed in that handoff for principal-owned CI/scripts. No mutation is authorized.
+
+
+Compiled source/test is now pinned at c95b17a8642353641b92e2801fc242e263290bff. [Handoff](handoff.md) and [release receipt](heavy-release.json) close this worker's heavy/source ownership: frozen, handed to principal for Opus1 and disposition; no further overlapping edit or build authority. No acceptance or INT-W exit is claimed.

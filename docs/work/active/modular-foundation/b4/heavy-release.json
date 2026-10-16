@@ -1,0 +1,28 @@
+{
+  "utc": "2026-10-16T23:50:20.271217+00:00",
+  "branch": "work/b4-20261017",
+  "bound_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+  "base": "c5b257fb643794e0802dd1cb4d3fee5ff3ee0edf",
+  "compiled_source_pin": "c95b17a8642353641b92e2801fc242e263290bff",
+  "tree": "41034f07d7d3c688e6b286396b936dfe66c7649d",
+  "crates_tree": "f2b22572b8c12c8553929cba3db0a7c294a26c95",
+  "material_332_match_executed_source": true,
+  "material_fingerprint": "85dbe2e458e7d080f6a70d923436de67d6e5bcc6c67ab9e8d0e6965c1e882ae7",
+  "git_status": "",
+  "heavy_processes": [],
+  "own_task_controllers_binaries": [],
+  "running_receipts": [],
+  "all_own_children_reaped": true,
+  "heavy_slot": "EXPLICITLY RELEASED to principal; no more heavy execution",
+  "source_ownership": "Frozen compiled B4 source/tests/manifest/lock/docs/status hunks handed to principal for review/disposition. No further worker edits beyond final evidence without allocation.",
+  "retained_paths": [
+    "crates/brn-writing-ui/examples/writing_host.rs",
+    "crates/brn-writing-ui/examples/writing_host/{fixture,host,journey}.rs",
+    "crates/brn-writing-ui/Cargo.toml (only allocated appended example/dev-dependencies)",
+    "Cargo.lock (only six reviewed existing-package edges)",
+    "docs/work/active/modular-foundation/b4/",
+    "docs/status.md (one minimal B4 paragraph)"
+  ],
+  "mutation": "No B4 mutation; prior B3 allowance closed and not reused",
+  "qualification": "Opus1/principal acceptance/INT-W and hosted/native-human/full F21/owner/program/PDF gates pending"
+}

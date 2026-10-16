@@ -1,0 +1,12 @@
+{
+  "utc": "2026-10-16T23:52:35.316324+00:00",
+  "purpose": "Final task-only process cleanup verification, including hashed test binaries; not a build-slot poll",
+  "all_processes_executing_own_target_paths": [],
+  "own_controllers": [],
+  "running_command_receipts": [],
+  "no_heavy_commands_after_release": true,
+  "source_pin": "c95b17a8642353641b92e2801fc242e263290bff",
+  "crates_tree": "f2b22572b8c12c8553929cba3db0a7c294a26c95",
+  "material_hashes_match": true,
+  "all_B4_source_test_manifest_lock_hunks": "Returned frozen to principal for review/disposition; only final evidence update in this worker"
+}
