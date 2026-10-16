@@ -668,7 +668,7 @@ Command: `git -C /Users/evokessler/repos/brn-rust -c core.fsmonitor=false log --
       - `cli_journey.py` passes;
       - the baseline run of `agent_credentials` fails.
 
-- [ ] R2-8. **A2: offline outcomes through a test-only stub, and the witness repair** (design A2; appendix §A2). No production change.
+- [x] R2-8. **A2: offline outcomes through a test-only stub, and the witness repair** (design A2; appendix §A2). No production change.
       (a) **Spike, at most 90 min, recorded in evidence.** Confirm four things with a throwaway test against the rig 0.44 Copilot provider:
       - a 0600 `copilot.json` `{"token":"SYNTHETIC","expires_at":4102444800,"endpoints":{"api":"http://127.0.0.1:PORT"}}` in a 0700 dir skips the token refresh;
       - with `HTTPS_PROXY`/`HTTP_PROXY`/`ALL_PROXY=http://127.0.0.1:9` and `NO_PROXY=127.0.0.1,localhost`, `endpoints.api=http://192.0.2.1` is never contacted;

@@ -2,6 +2,8 @@
 //! `brn` (or the baseline binary named by `AGENT_CONTRACT_BASELINE_BIN`, read by
 //! the test process only and never passed to children), and envelope checks.
 #![allow(dead_code)]
+#[cfg(unix)]
+pub mod stub;
 use serde_json::{json, Value};
 use std::{
     ffi::OsStr,
@@ -27,6 +29,8 @@ pub fn brn() -> PathBuf {
 pub struct Root {
     _dir: tempfile::TempDir,
     pub path: PathBuf,
+    /// Extra variables for every child (the stub's proxy settings).
+    pub env: Vec<(String, String)>,
 }
 impl Root {
     pub fn new() -> Self {
@@ -35,7 +39,11 @@ impl Root {
         for sub in ["home", "tmp"] {
             std::fs::create_dir(path.join(sub)).unwrap();
         }
-        Self { _dir: dir, path }
+        Self {
+            _dir: dir,
+            path,
+            env: vec![],
+        }
     }
     pub fn join(&self, name: &str) -> PathBuf {
         self.path.join(name)
@@ -61,6 +69,7 @@ impl Root {
             .env("TMPDIR", &tmp)
             .env("TMP", &tmp)
             .env("TEMP", &tmp)
+            .envs(self.env.iter().map(|(k, v)| (k, v)))
             .args(args);
         command
     }
