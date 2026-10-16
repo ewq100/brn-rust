@@ -384,7 +384,7 @@ Command: `git -C /Users/evokessler/repos/brn-rust -c core.fsmonitor=false log --
       Files: `crates/brn-threads-core/src/{inspect.rs,lib.rs}`, `crates/brn-threads-core/tests/inspect.rs`
       Verify: `cargo test -p brn-threads-core --locked --offline` passes; `cargo build --workspace --locked --offline` succeeds; `git -C … diff --stat 2537db54 -- crates/brn-threads-core/src/store.rs crates/brn-desktop crates/brn-ai` is empty.
 
-- [ ] R2-3. **A1 CLI: page mode, new read commands and the value table** (design A1 table; appendix §A1).
+- [x] R2-3. **A1 CLI: page mode, new read commands and the value table** (design A1 table; appendix §A1).
       **Value table.** In `spec.rs`:
       - `Grammar { Enum(&'static [&'static str]), Int(u64, u64), AbsolutePath, Key, Cursor(CursorForm), Text }`;
       - `CursorForm { Rowid /*^[0-9]{1,18}$*/, Id /*^[A-Za-z0-9._:-]{1,256}$*/, Version /*decimal ≥1*/, Byte /*decimal*/, VersionStart /*^[1-9][0-9]*\.[0-9]+$*/ }`;

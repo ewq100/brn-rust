@@ -533,6 +533,8 @@ pub(crate) struct Annotations {
     pub(crate) changed: Vec<Changed>,
     pub(crate) conflict: Option<Vec<Conflict>>,
     pub(crate) sigint: Option<bool>,
+    /// The envelope `page` of a paged result.
+    pub(crate) page: Option<Value>,
 }
 
 /// The `RecordData` variant name of an encoded record's `data`.
@@ -636,6 +638,18 @@ pub(crate) fn classify(
                 }
             }
             "dismiss" => ok(label(value)),
+            // `read --limit` returns a NoteReadOutcome; a later page of a changed note is Stale.
+            "read" if inv.args.contains_key("limit") => {
+                let outcome = label(value);
+                let status = match outcome.as_deref() {
+                    Some("Stale") => Status::Stale,
+                    _ => Status::Ok,
+                };
+                Classified {
+                    status,
+                    ..ok(outcome)
+                }
+            }
             _ => ok(None),
         },
         ReceiptAt::Root => Classified {
@@ -720,6 +734,9 @@ fn conflict_ids(inv: &Invocation, value: &Value) -> Vec<String> {
         .collect();
     ids.extend(source["run"].as_str().map(str::to_owned));
     ids.extend(source["session"]["note"].as_str().map(str::to_owned));
+    if inv.command == "read" && source["outcome"] == "Stale" {
+        ids.extend(source["id"].as_str().map(str::to_owned));
+    }
     ids
 }
 

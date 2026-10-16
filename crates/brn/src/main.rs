@@ -1,6 +1,7 @@
 //! Thin host CLI over the same checked Threads service as the desktop.
 mod contract;
 mod input;
+mod inspect;
 mod spec;
 use brn_ai::{AiTerminal, Provider, ReasoningEffort, Selection};
 use brn_threads_app::*;
@@ -29,6 +30,9 @@ Agents and scripts: brn --json --data-dir DIR COMMAND ... prints one JSON envelo
   In --json mode: exit 0 ok, 1 internal, 2 usage, 3 stale, 4 deferred, 5 needs review, 6 rejected,
   7 failed, 130 interrupted. Without --json, failures exit 1 and outcomes such as Stale exit 0.
   brn --json --help prints the machine contract (commands, options, outcomes, retry classes, error codes).
+  Bounded inspection: history|candidates|records --limit N [--cursor C], revisions --note ID,
+  revision --note ID --version V, runs [--thread ID] [--state STATE], read --id ID --limit BYTES;
+  pass result.cursor back as --cursor for the next page.
   Text options --title, --text, --prompt, --instructions, --actions also accept --NAME-file ABSOLUTE_FILE or --NAME-file - (stdin).
   --key KEY makes note-create, thread-start, undo, queue, archive|resolve, unarchive, keep-in-brn,
   intake --intent full|chat|project and project commands replay on retry. resolve is an alias of archive.
@@ -265,6 +269,14 @@ fn parse(
     {
         return Err(refuse(CliError::missing_option(missing)));
     }
+    if let Some((_, needs)) = spec
+        .needs
+        .iter()
+        .find(|(option, needs)| options.contains_key(*option) && !given(needs))
+    {
+        return Err(refuse(CliError::missing_option(needs)));
+    }
+    spec::check_values(spec.name, &options).map_err(refuse)?;
     if matches!(spec.name, "ask" | "intake") {
         if let Some(trace) = options.get("trace") {
             if !matches!(trace.as_str(), "summary" | "full") {
@@ -671,16 +683,23 @@ async fn execute(inv: &Invocation, notes: &mut Annotations) -> Result<Value> {
                 .unwrap_or_else(|| format!("cli:{}", uuid::Uuid::new_v4()));
             encode(workspace.project_command(&key, command)?)?
         }
+        "records" if inspect::page_mode(inv) => inspect::records(&workspace, inv, notes)?,
         "records" => encode(workspace.records()?)?,
         "notes" => encode(workspace.notes()?)?,
         "threads" => encode(workspace.threads()?)?,
         "needs-you" => encode(workspace.needs_you()?)?,
+        "history" if inspect::page_mode(inv) => inspect::history(&workspace, inv, notes)?,
         "history" => encode(workspace.history()?)?,
+        "candidates" if inspect::page_mode(inv) => inspect::candidates(&workspace, inv, notes)?,
         "candidates" => encode(workspace.candidates()?)?,
+        "revisions" => inspect::revisions(&workspace, inv, notes)?,
+        "revision" => inspect::revision(&workspace, inv, notes)?,
+        "runs" => inspect::runs(&workspace, inv, notes)?,
         "settings" => settings_output(workspace.settings()?)?,
         "delegation" => {
             applied(workspace.choose_delegation(delegation_choice(inv.arg("choice")?)?)?)
         }
+        "read" if inv.args.contains_key("limit") => inspect::read(&workspace, inv, notes)?,
         "read" => encode(workspace.store.record(inv.arg("id")?)?)?,
         "note-create" => created(
             notes,
@@ -751,6 +770,9 @@ async fn execute(inv: &Invocation, notes: &mut Annotations) -> Result<Value> {
                 inv.args.get("cursor").map(String::as_str),
             )?;
             let shown = page.hits.len();
+            notes.page = Some(
+                json!({"limit": limit, "shown": shown, "cursor": page.cursor, "total": page.total}),
+            );
             let mut output = encode(page)?;
             output["shown"] = json!(shown);
             output
@@ -1084,7 +1106,7 @@ fn finish(inv: &Invocation, outcome: Result<Value>, notes: Annotations) -> ExitC
                 conflict: notes.conflict,
                 result,
                 error: None,
-                page: None,
+                page: notes.page,
                 stop: None,
             }
         }

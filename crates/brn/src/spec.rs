@@ -99,6 +99,176 @@ pub(crate) struct Spec {
     pub(crate) retry: Retry,
     pub(crate) outcomes: &'static [&'static str],
     pub(crate) receipt: ReceiptAt,
+    /// Page options and cursor form, when the command pages.
+    pub(crate) page: Option<PageSpec>,
+    /// `Some(true)` for bounded page commands; `Some(false)` for lists that
+    /// return everything without page options (see `bounded_form`).
+    pub(crate) bounded: Option<bool>,
+    /// The bounded form of an unbounded list, when it has one.
+    pub(crate) bounded_form: Option<&'static str>,
+    /// `(OPTION, NEEDS)`: OPTION is accepted only together with NEEDS.
+    pub(crate) needs: &'static [(&'static str, &'static str)],
+}
+
+/// The `--limit` range and `--cursor` form of a page command.
+#[derive(Clone, Copy, Debug)]
+pub(crate) struct PageSpec {
+    pub(crate) min: u64,
+    pub(crate) max: u64,
+    pub(crate) default: Option<u64>,
+    pub(crate) cursor: CursorForm,
+}
+
+/// The syntax of an opaque page position, checked before opening.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum CursorForm {
+    /// A receipt or operation position: 1–18 digits.
+    Rowid,
+    /// A record ID: `[A-Za-z0-9._:-]{1,256}`.
+    Id,
+    /// A note version, a decimal of at least 1.
+    Version,
+    /// A byte offset, a decimal.
+    Byte,
+    /// `VERSION.START` of a paged `read`.
+    VersionStart,
+    /// The core search cursor, passed back unchanged.
+    Opaque,
+}
+impl CursorForm {
+    pub(crate) fn as_str(self) -> &'static str {
+        match self {
+            CursorForm::Rowid => "rowid",
+            CursorForm::Id => "id",
+            CursorForm::Version => "version",
+            CursorForm::Byte => "byte",
+            CursorForm::VersionStart => "version.start",
+            CursorForm::Opaque => "opaque",
+        }
+    }
+    fn accepts(self, value: &str) -> bool {
+        let digits = |v: &str, max: usize| {
+            (1..=max).contains(&v.len()) && v.bytes().all(|b| b.is_ascii_digit())
+        };
+        match self {
+            CursorForm::Rowid | CursorForm::Byte => digits(value, 18),
+            CursorForm::Id => {
+                (1..=256).contains(&value.len())
+                    && value.bytes().all(|b| {
+                        b.is_ascii_alphanumeric() || matches!(b, b'.' | b'_' | b':' | b'-')
+                    })
+            }
+            CursorForm::Version => digits(value, 18) && value.parse::<u64>().is_ok_and(|v| v >= 1),
+            CursorForm::VersionStart => value.split_once('.').is_some_and(|(v, start)| {
+                digits(v, 18) && !v.starts_with('0') && digits(start, 18)
+            }),
+            CursorForm::Opaque => !value.is_empty(),
+        }
+    }
+    fn expected(self) -> &'static str {
+        match self {
+            CursorForm::Rowid => "a position from a previous page (digits)",
+            CursorForm::Id => "a record ID from a previous page",
+            CursorForm::Version => "a note version from a previous page",
+            CursorForm::Byte => "a byte offset from a previous page",
+            CursorForm::VersionStart => "VERSION.START from a previous page",
+            CursorForm::Opaque => "the cursor from a previous page",
+        }
+    }
+}
+
+/// The value grammar of one option, checked before the workspace opens.
+#[derive(Clone, Copy, Debug)]
+pub(crate) enum Grammar {
+    Enum(&'static [&'static str]),
+    Int(u64, u64),
+    Cursor(CursorForm),
+}
+impl Grammar {
+    fn accepts(self, value: &str) -> bool {
+        match self {
+            Grammar::Enum(values) => values.contains(&value),
+            Grammar::Int(min, max) => {
+                (1..=20).contains(&value.len())
+                    && value.bytes().all(|b| b.is_ascii_digit())
+                    && value.parse::<u64>().is_ok_and(|v| (min..=max).contains(&v))
+            }
+            Grammar::Cursor(form) => form.accepts(value),
+        }
+    }
+    fn expected(self, option: &str) -> String {
+        match self {
+            Grammar::Enum(values) => format!("--{option} takes {}", values.join("|")),
+            Grammar::Int(min, max) => format!("--{option} takes an integer {min}..{max}"),
+            Grammar::Cursor(form) => format!("--{option} takes {}", form.expected()),
+        }
+    }
+    fn describe(self, option: &str) -> Value {
+        match self {
+            Grammar::Enum(values) => json!({"option": option, "grammar": "enum", "values": values}),
+            Grammar::Int(min, max) => {
+                json!({"option": option, "grammar": "integer", "min": min, "max": max})
+            }
+            Grammar::Cursor(form) => {
+                json!({"option": option, "grammar": "cursor", "form": form.as_str()})
+            }
+        }
+    }
+}
+
+pub(crate) const RUN_STATES: &[&str] =
+    &["working", "interrupted", "completed", "cancelled", "failed"];
+const PAGE_100: Grammar = Grammar::Int(1, 100);
+const NOTE_BYTES: Grammar = Grammar::Int(1, brn_threads_app::MAX_NOTE_READ_BYTES as u64);
+/// `(command, option, grammar)`, checked in `parse()` for every present option.
+pub(crate) static VALUES: &[(&str, &str, Grammar)] = &[
+    ("history", "limit", PAGE_100),
+    ("history", "cursor", Grammar::Cursor(CursorForm::Rowid)),
+    ("candidates", "limit", PAGE_100),
+    ("candidates", "cursor", Grammar::Cursor(CursorForm::Rowid)),
+    (
+        "records",
+        "kind",
+        Grammar::Enum(&brn_threads_app::RECORD_KINDS),
+    ),
+    ("records", "limit", PAGE_100),
+    ("records", "cursor", Grammar::Cursor(CursorForm::Id)),
+    ("revisions", "limit", Grammar::Int(1, 32)),
+    ("revisions", "cursor", Grammar::Cursor(CursorForm::Version)),
+    ("revision", "version", Grammar::Cursor(CursorForm::Version)),
+    ("revision", "limit", NOTE_BYTES),
+    ("revision", "cursor", Grammar::Cursor(CursorForm::Byte)),
+    ("runs", "state", Grammar::Enum(RUN_STATES)),
+    ("runs", "limit", PAGE_100),
+    ("runs", "cursor", Grammar::Cursor(CursorForm::Id)),
+    ("read", "limit", NOTE_BYTES),
+    ("read", "cursor", Grammar::Cursor(CursorForm::VersionStart)),
+];
+
+/// The first present option whose value does not fit its grammar.
+pub(crate) fn check_values(
+    command: &str,
+    options: &BTreeMap<String, String>,
+) -> Result<(), crate::contract::CliError> {
+    for (name, option, grammar) in VALUES {
+        if *name != command {
+            continue;
+        }
+        if let Some(value) = options.get(*option) {
+            if !grammar.accepts(value) {
+                let expected = grammar.expected(option);
+                return Err(crate::contract::CliError::invalid_value(option, expected));
+            }
+        }
+    }
+    Ok(())
+}
+fn values_of(command: &str) -> Vec<Value> {
+    VALUES
+        .iter()
+        .filter(|(name, _, _)| *name == command)
+        .map(|(_, option, grammar)| grammar.describe(option))
+        .collect()
 }
 
 /// Text options that also accept `--NAME-file ABSOLUTE_PATH|-`, read in this order.
@@ -115,6 +285,8 @@ pub(crate) const DISCARD_OUTCOMES: &[&str] = &["Discarded", "Ignored"];
 pub(crate) const DISMISS_OUTCOMES: &[&str] = &["Dismissed"];
 pub(crate) const RECEIPT_OUTCOMES: &[&str] = &["Applied"];
 pub(crate) const TERMINAL_OUTCOMES: &[&str] = &["Completed", "Interrupted", "Failed"];
+/// `read --limit`: a NoteReadOutcome.
+pub(crate) const READ_OUTCOMES: &[&str] = &["Read", "Stale"];
 /// `intake` returns an ApplyOutcome, or a run terminal with `--intent useful`.
 pub(crate) const INTAKE_OUTCOMES: &[&str] = &[
     "Applied",
@@ -153,6 +325,25 @@ const fn cmd(
         },
         outcomes,
         receipt,
+        page: None,
+        bounded: None,
+        bounded_form: None,
+        needs: &[],
+    }
+}
+const fn paged(min: u64, max: u64, default: Option<u64>, cursor: CursorForm) -> Option<PageSpec> {
+    Some(PageSpec {
+        min,
+        max,
+        default,
+        cursor,
+    })
+}
+/// An unbounded list with no page form.
+const fn unbounded(name: &'static str) -> Spec {
+    Spec {
+        bounded: Some(false),
+        ..read(name, &[], &[])
     }
 }
 
@@ -228,16 +419,31 @@ const CONFIGURE_OPTIONS: &[&str] = &[
 
 pub(crate) static COMMANDS: &[Spec] = &[
     cmd("init", &[], &[], NO, Converge, None, NONE, &[]),
-    read("records", &[], &[]),
-    read("notes", &[], &[]),
-    read("threads", &[], &[]),
-    read("needs-you", &[], &[]),
-    read("history", &[], &[]),
-    read("candidates", &[], &[]),
+    Spec {
+        page: paged(1, 100, Some(20), CursorForm::Id),
+        bounded: Some(false),
+        bounded_form: Some("records --limit N [--kind KIND] [--cursor ID]"),
+        ..read("records", &["kind", "limit", "cursor"], &[])
+    },
+    unbounded("notes"),
+    unbounded("threads"),
+    unbounded("needs-you"),
+    Spec {
+        page: paged(1, 100, Some(20), CursorForm::Rowid),
+        bounded: Some(false),
+        bounded_form: Some("history --limit N [--record ID] [--cursor C]"),
+        ..read("history", &["record", "limit", "cursor"], &[])
+    },
+    Spec {
+        page: paged(1, 100, Some(20), CursorForm::Rowid),
+        bounded: Some(false),
+        bounded_form: Some("candidates --limit N [--cursor C]"),
+        ..read("candidates", &["limit", "cursor"], &[])
+    },
     read("settings", &[], &[]),
     setting("pause", &[], &[]),
     setting("resume", &[], &[]),
-    read("recovery", &[], &[]),
+    unbounded("recovery"),
     read("topics", &[], &[]),
     cmd(
         "topics-create",
@@ -249,7 +455,10 @@ pub(crate) static COMMANDS: &[Spec] = &[
         ReceiptAt::NoteAndPointer,
         APPLY_OUTCOMES,
     ),
-    read("projects", &["trash"], &[]),
+    Spec {
+        bounded: Some(false),
+        ..read("projects", &["trash"], &[])
+    },
     project(
         "project-create",
         &["title", "key", "title-file"],
@@ -365,12 +574,52 @@ pub(crate) static COMMANDS: &[Spec] = &[
         RECEIPT_OUTCOMES,
     ),
     setting("delegation", &["choice"], &["choice"]),
-    read("read", &["id"], &["id"]),
-    read(
-        "search",
-        &["query", "limit", "cursor", "thread", "project"],
-        &["query"],
-    ),
+    Spec {
+        outcomes: READ_OUTCOMES,
+        page: paged(
+            1,
+            brn_threads_app::MAX_NOTE_READ_BYTES as u64,
+            None,
+            CursorForm::VersionStart,
+        ),
+        bounded: Some(false),
+        bounded_form: Some("read --id ID --limit BYTES [--cursor VERSION.START]"),
+        needs: &[("cursor", "limit")],
+        ..read("read", &["id", "limit", "cursor"], &["id"])
+    },
+    Spec {
+        page: paged(1, 32, Some(32), CursorForm::Version),
+        bounded: Some(true),
+        ..read("revisions", &["note", "limit", "cursor"], &["note"])
+    },
+    Spec {
+        page: paged(
+            1,
+            brn_threads_app::MAX_NOTE_READ_BYTES as u64,
+            Some(65536),
+            CursorForm::Byte,
+        ),
+        bounded: Some(true),
+        ..read(
+            "revision",
+            &["note", "version", "limit", "cursor"],
+            &["note", "version"],
+        )
+    },
+    Spec {
+        page: paged(1, 100, Some(20), CursorForm::Id),
+        bounded: Some(true),
+        ..read("runs", &["thread", "state", "limit", "cursor"], &[])
+    },
+    Spec {
+        page: paged(1, 50, Some(12), CursorForm::Opaque),
+        bounded: Some(true),
+        ..read(
+            "search",
+            &["query", "limit", "cursor", "thread", "project"],
+            &["query"],
+        )
+    },
     cmd(
         "begin-edit",
         &["note", "base"],
@@ -674,6 +923,14 @@ pub(crate) fn description() -> Value {
                     })).collect::<Vec<_>>(),
                 },
                 "outcomes": spec.outcomes,
+                "page": spec.page.map(|p| json!({
+                    "limit": {"min": p.min, "max": p.max, "default": p.default},
+                    "cursor": p.cursor.as_str(),
+                })),
+                "bounded": spec.bounded,
+                "bounded_form": spec.bounded_form,
+                "values": values_of(spec.name),
+                "needs": spec.needs.iter().map(|(option, needs)| json!({"option": option, "needs": needs})).collect::<Vec<_>>(),
             })
         })
         .collect();
@@ -802,6 +1059,8 @@ mod tests {
             ("thread-start", &["title"]),
             ("delegation", &["choice"]),
             ("read", &["id"]),
+            ("revisions", &["note"]),
+            ("revision", &["note", "version"]),
             ("search", &["query"]),
             ("begin-edit", &["note", "base"]),
             ("keep-in-brn", &["note", "base"]),
@@ -916,6 +1175,7 @@ mod tests {
                 "discard" => DISCARD_OUTCOMES,
                 "dismiss" => DISMISS_OUTCOMES,
                 "ask" => TERMINAL_OUTCOMES,
+                "read" => READ_OUTCOMES,
                 _ if spec.receipt == ReceiptAt::Root || spec.receipt == ReceiptAt::Arm => {
                     RECEIPT_OUTCOMES
                 }

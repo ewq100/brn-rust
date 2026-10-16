@@ -39,7 +39,7 @@ stdout carries exactly one line, a compact JSON object. Every key is always pres
 | `command` | The command as invoked (`resolve` stays `resolve`). Null when parsing failed before a known command was read: `missing_data_dir`, `invalid_data_dir`, `missing_command`, `unknown_command`, and a non-UTF-8 `malformed_option`. |
 | `ok` | `true` exactly when `exit == 0`. |
 | `status`, `exit` | One status, one-to-one with the exit code (table below). |
-| `outcome` | Domain outcome (`Applied`, `Saved`, `Updated`, `Discarded`, `Dismissed`, `Ignored`, `Stale`, `GenerationMismatch`, `Closed`, `Deferred`, `NeedsReview`, `Superseded`, `Completed`, `Interrupted`, `Failed`), or null. Null whenever `error` is set. |
+| `outcome` | Domain outcome (`Read`, `Applied`, `Saved`, `Updated`, `Discarded`, `Dismissed`, `Ignored`, `Stale`, `GenerationMismatch`, `Closed`, `Deferred`, `NeedsReview`, `Superseded`, `Completed`, `Interrupted`, `Failed`), or null. Null whenever `error` is set. |
 | `operation` | The operation this invocation applied, replayed or (for `undo`) prepared, per the outcome table below. |
 | `key` | Echo of `--key`; null when absent or not matching the key pattern. |
 | `retry` | What an identical retry of this exact invocation does to state (Retries below). Always `refuse` for `usage` and `rejected`. Never null. The status decides whether to retry; `retry` only says what a retry does. |
@@ -94,7 +94,7 @@ Attach a document to a project only with `--intent project --project ID`, which 
 
 | Commands | `outcome` | `operation` | `changed` |
 |---|---|---|---|
-| Reads (`records`, `notes`, `threads`, `needs-you`, `history`, `candidates`, `settings`, `projects`, `project-delete-preview`, `read`, `search`, `connections`, `topics`, `recovery`, `knowledge-check`) and non-receipt writes (`init`, `begin-edit`, `export`, `backup`, `restore`, `upgrade`, `model-install`, `knowledge-check --seed-chat yes`) | null | null | `[]` |
+| Reads (`records`, `notes`, `threads`, `needs-you`, `history`, `candidates`, `settings`, `projects`, `project-delete-preview`, `read` without `--limit`, `revisions`, `revision`, `runs`, `search`, `connections`, `topics`, `recovery`, `knowledge-check`) and non-receipt writes (`init`, `begin-edit`, `export`, `backup`, `restore`, `upgrade`, `model-install`, `knowledge-check --seed-chat yes`) | null | null | `[]` |
 | Project commands, `queue`, `archive`, `resolve`, `unarchive` (result is a receipt) | `Applied` | `result.operation` | the receipt's writes |
 | `note-create`, `thread-start` (result is the created record) | `Applied` | the receipt's operation | the receipt's writes |
 | `undo` | ApplyOutcome | the compensation operation, in every outcome | writes when Applied |
@@ -105,6 +105,7 @@ Attach a document to a project only with `--intent project --project ID`, which 
 | `dismiss` | `Dismissed` | null | `[]` |
 | `topics-create` | the pointer's ApplyOutcome | null (two operations) | the created Topics note, plus the pointer's writes when Applied |
 | `ask`, `intake --intent useful` | `Completed`, `Interrupted`, `Failed` | null | `[]` |
+| `read --limit` | `Read`, or `Stale` when the note changed since the page's `cursor` version | null | `[]` |
 
 ApplyOutcome `Applied` is `ok`, `Stale` and `Superseded` are `stale`, `Deferred` is `deferred`, `NeedsReview` is `needs_review`. SaveOutcome `Saved` is `ok`; `Stale`, `GenerationMismatch` and `Closed` are `stale`; `Deferred` is `deferred`. `update-buffer` `Ignored` is `ok` only when the session is open with the requested generation and exactly the supplied text (an identical retry); otherwise `stale`. `discard` `Ignored` is `stale`. A run terminal `Interrupted` is `interrupted` (exit 130) after SIGINT and `stale` otherwise. `read` of an unknown ID is `rejected` `not_found` in machine mode (default mode still prints `null`).
 
@@ -126,7 +127,7 @@ ApplyOutcome `Applied` is `ok`, `Stale` and `Superseded` are `stale`, `Deferred`
 | `unknown_option` | usage | Option not allowed for the command. | `{option, allowed}` |
 | `conflicting_options` | usage | `--NAME` with `--NAME-file`; `--key` with `--intent useful`; `--project` with `--thread`; `--helper off` with helper options; `--edit-note` with `--record-decision`. | `{options}` |
 | `missing_option` | usage | Required option absent (checked before the workspace opens). | `{option}` |
-| `invalid_value` | usage | Bad integer, enum or yes/no value, key format, relative path, `--trace`, or malformed `--actions` JSON. | `{option, expected}` (`expected` is human text) |
+| `invalid_value` | usage | Bad integer, enum or yes/no value, key format, relative path, `--trace`, a page `--limit` out of range or a malformed `--cursor`, or malformed `--actions` JSON. | `{option, expected}` (`expected` is human text) |
 | `invalid_input` | usage | `--NAME-file` problem; an unreadable or empty intake source; an unreadable or malformed `--preview-file`. | `{option, reason}`, plus `max_bytes` for `too_large` |
 | `not_found` | rejected | Unknown record or operation; `read` returning null. | `{}` |
 | `invalid_request` | rejected | The shared service refused the request (core `Invalid`, app `Invalid`, including the helper-selection refusals); `--thread must name a chat`; `--project must name an active project`; a `backup` or `export` destination whose parent is missing; an `ask` or useful intake refused by the run service (`ToolRejected`, `ModelRefused`). | `{}`, `{option}`, `{option: "destination", reason: "parent_missing"}`, or `{kind}` for `ask` |
@@ -156,6 +157,26 @@ The #145 helper refusals keep their messages: `--helper off` with helper options
 - SIGINT is observed only at these points, and then gives `interrupted` (exit 130): while waiting for `--NAME-file` input (within 25 ms, even with a blocked read or FIFO open); before the workspace opens; while reading or converting an intake source; during a model download; and as an `ask` run that ends `Interrupted`. At any other point (for example `export`, `backup`, `restore`, `upgrade`, an index build or a large `history`) the command completes and reports its normal status. SIGINT during a commit does not stop the commit. SIGTERM, and SIGINT before startup, kill the process without an envelope.
 - There is no caller time limit: bound each call with your own timeout.
 - Checks of required options, `intake`'s conditional requirements, option conflicts, the key pattern, `--NAME-file` sources and `--trace` run before the workspace opens. `intake --intent chat` requires `--thread`, and `--intent project` requires `--project` (`required_when` in the description), so nothing is read or converted before that refusal. Other value checks run where they always have, sometimes after a fresh directory was initialised.
+
+### Inspection
+
+Lists that can grow without bound have a bounded page form. Without page options `history`, `candidates` and `records` print everything, as before (`"bounded": false` in the description, with `bounded_form`); `notes`, `threads`, `needs-you`, `recovery` and `projects` have no page form yet. A page option selects page mode; the new commands always page.
+
+| Command | Options | `result` |
+|---|---|---|
+| `history` | `[--record ID] [--limit 1..100, default 20] [--cursor C]` | `{receipts, shown, cursor, total}`; each receipt is `{operation, reason, authority, committed_at, undo_of, writes, writes_total}`. `--record` keeps receipts that wrote that record; an unknown record is `not_found`. |
+| `candidates` | `[--limit 1..100, default 20] [--cursor C]` | `{candidates, shown, cursor, total: null}`; each is `{operation, request_hash, reason, writes, writes_total, inputs_total, undo_of, replacement_of}`, where a write's `version` is the expected version (null when it creates the record). |
+| `records` | `[--kind Note\|Thread\|…] [--limit 1..100, default 20] [--cursor ID]` | `{records, shown, cursor, total: null}`; each is `{id, kind, version, archived, title}` (title cut at 160 characters, null for kinds without one). |
+| `revisions` | `--note ID [--limit 1..32, default 32] [--cursor VERSION]` | `{id, revisions, shown, cursor}`; each revision is `{version, operation, reason, authority, committed_at}`. |
+| `revision` | `--note ID --version V [--limit 1..131072, default 65536] [--cursor BYTE]` | One accepted revision's text slice `{id, version, title, start, end, total_bytes, markdown, next_start, cursor}`; stays readable after later edits. |
+| `read` | `--id ID --limit 1..131072 [--cursor VERSION.START]` | `{outcome: "Read", note: {…}, cursor}`, or `{outcome: "Stale", id, expected_version, current_version, cursor: null}` (exit 3, `conflict` names the note) when the note changed since the first page. `--cursor` needs `--limit`; a Thread or other record is `invalid_request`. |
+| `runs` | `[--thread ID] [--state working\|interrupted\|completed\|cancelled\|failed] [--limit 1..100, default 20] [--cursor RUN]` | `{runs, shown, cursor, total: null}`; each run is `{id, version, archived, thread, state, provider, model, effort, budget, fence, progress, operations_total, guards_writes}`. |
+
+- Pass `cursor` back unchanged with the same options to get the next page; it is null on the last page. Cursors are checked before the workspace opens (`invalid_value`); a well-formed cursor that does not fit (a byte offset inside a character) is `invalid_request`, and an unknown well-formed record or run cursor gives the following page or an empty one.
+- Pages never repeat an item. `history` pages follow commit order, so a receipt committed while you page appears on a later page. `records` and `runs` (ID order) and `candidates` can miss items created while you page: restart without a cursor for a full pass.
+- The envelope `page` repeats `{limit, shown, cursor, total}`; for `revision` and `read`, `shown` and `total` count bytes. `search` fills `page` too.
+- Text is cut: `reason`, `authority` and `progress` at 512 characters; at most 32 writes per receipt or candidate (`writes_total` has the count).
+- `guards_writes` is true for a Working run that is not archived: writes to its chat come back Deferred until it stops.
 
 ### Text input
 
@@ -215,6 +236,9 @@ A key names one intended change. Reuse it only to retry the same command with th
 | `thread-start` | yes | duplicate | replay | no |
 | `delegation` | no | converge | — | yes |
 | `read` | no | read | — | no |
+| `revisions` | no | read | — | no |
+| `revision` | no | read | — | no |
+| `runs` | no | read | — | no |
 | `search` | no | read | — | no |
 | `begin-edit` | no | refuse (`edit_session_open` names the open session) | — | no |
 | `update-buffer` | no | replay (an identical retry exits 0 with `Ignored`) | — | no |
@@ -269,6 +293,7 @@ Every in-repo consumer moved to contract 2 in the same change; there is no contr
 | `contract` | `1` | `2`, in every envelope and in `brn --json --help` |
 | `page` | absent | always present: null, or `{limit, shown, cursor, total}` |
 | `stop` | absent | always present: null, `sigint`, `sigterm` or `deadline` |
+| Inspection | `history`, `candidates`, `records` return everything | page options and the `revisions`, `revision`, `runs` commands; `read --limit` returns `Read` or `Stale` |
 
 ### Before and after
 
