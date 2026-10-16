@@ -69,6 +69,8 @@ Allow one active candidate per note. Another thread can refer to it or request a
 
 Unsaved human writing defers a grouped autonomous change in its entirety when any member is guarded. Do not quietly apply its other members. Human Save still checks the editor's base version. The [target's change and recovery contract](threads-target.md#a-single-mechanism-for-changes-and-review) governs durable preparation, idempotent replay, dirty-buffer coordination, and compensating Undo; thread presentation does not create a second write path.
 
+**Edit sessions and workspace purpose (CLI contract 3).** A CLI caller's edit session is caller-held: `begin-edit` returns its token once, and only that token writes, saves or discards it. The desktop is the owner host: it continues or closes any session without a token, and typing into a caller's session adopts it, so a delayed caller write cannot land over newer owner typing. Sessions never expire; a lost token is recovered by the owner in the desktop, or with `reclaim-edit` in a test workspace. Every workspace is an owner workspace unless `brn init --purpose test` created it; only the desktop changes the purpose, and every restored copy is an owner workspace with desktop-held sessions. A CLI `--actor` name is recorded beside the receipts it commits (Run-written receipts carry none) and is never part of a request's identity. Phase 1 reports purpose and authority with `enforced: false`; proposals-only CLI writes in owner workspaces are phase 2.
+
 ## Runtime guidance is deliberately small
 
 The development agent follows the repository's [AGENTS.md](../../AGENTS.md). The shipped BRN agent needs separate product guidance. The production bundle contains these paths:
