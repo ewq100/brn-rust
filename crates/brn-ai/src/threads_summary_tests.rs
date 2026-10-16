@@ -342,11 +342,22 @@ async fn timeout_and_busy_cache_keep_valid_prior_with_gap_without_replacing_it()
     let (_root, request, ids) = setup();
     let next = next_request(&request);
     let data = request.data_dir.clone();
-    let first = SequencedHttpClient::new([response(&semantic(&ids[0])), done()]);
+    let unique = "Derived-only prior constraint: preserve the initial Monday requirement";
+    let mut artifact = semantic(&ids[0]);
+    artifact["objective"]["text"] = json!(unique);
+    let first = SequencedHttpClient::new([response(&artifact), done()]);
     run(request, &first).await;
     let path = cache_files(&data).pop().unwrap();
     let old = std::fs::read(&path).unwrap();
     history(&next, 20);
+    assert!(
+        !Store::open(&data)
+            .unwrap()
+            .records()
+            .unwrap()
+            .iter()
+            .any(|r| matches!(&r.data,RecordData::Message(m) if m.text.contains(unique)))
+    );
     let prepared = prepare_run(next).unwrap();
     let timeout_http = SequencedHttpClient::new([response(&semantic(&ids[0]))]);
     let gate = Gate {
@@ -373,15 +384,7 @@ async fn timeout_and_busy_cache_keep_valid_prior_with_gap_without_replacing_it()
         "synthetic-not-a-credential",
     )
     .with_account_id("synthetic");
-    let account = summary::digest(
-        serde_json::to_string(&json!([
-            config.base_url,
-            config.account_id,
-            summary::digest(config.api_key.expose().as_bytes())
-        ]))
-        .unwrap()
-        .as_bytes(),
-    );
+    let account = summary::chatgpt_identity(&config);
     let context = summary::prepare_for(
         compactor,
         prepared.input.clone(),
@@ -397,7 +400,7 @@ async fn timeout_and_busy_cache_keep_valid_prior_with_gap_without_replacing_it()
         "actual pending provider call timed out"
     );
     assert!(context.notice.is_some());
-    assert!(context.input.contains("Preserve Monday requirement"));
+    assert!(context.input.contains(unique));
     assert!(context.input.contains(&prepared.request.prompt));
     assert_eq!(std::fs::read(&path).unwrap(), old);
     let lock = std::fs::OpenOptions::new()
@@ -413,15 +416,7 @@ async fn timeout_and_busy_cache_keep_valid_prior_with_gap_without_replacing_it()
     )
     .with_account_id("synthetic")
     .connect(http.clone());
-    let account = summary::digest(
-        serde_json::to_string(&json!([
-            client.config().base_url,
-            client.config().account_id,
-            summary::digest(client.config().api_key.expose().as_bytes())
-        ]))
-        .unwrap()
-        .as_bytes(),
-    );
+    let account = summary::chatgpt_identity(client.config());
     let context = summary::prepare(
         summary::ModelCompactor::new(
             client.completion("gpt-6.1-sol"),
@@ -437,7 +432,7 @@ async fn timeout_and_busy_cache_keep_valid_prior_with_gap_without_replacing_it()
     )
     .await;
     assert!(context.notice.is_some());
-    assert!(context.input.contains("Preserve Monday requirement"));
+    assert!(context.input.contains(unique));
     assert!(http.requests().is_empty());
     assert_eq!(std::fs::read(&path).unwrap(), old);
 }
@@ -656,33 +651,37 @@ async fn derived_instructions_cannot_become_system_authority_or_note_read_eviden
     }
 }
 #[tokio::test]
-async fn frozen_summary_is_in_the_actual_dispatch_budget() {
+async fn optional_summary_degrades_to_fitting_plain_input_then_dispatches() {
     use rig::test_utils::{MockCompletionModel, MockStreamEvent};
     let (_root, request, ids) = setup();
     let prepared = prepare_run(request).unwrap();
-    let http = SequencedHttpClient::new([response(&semantic(&ids[0]))]);
-    let client = rig::providers::openai::OpenAIConfig::with_key(
-        &rig::providers::chatgpt::DIALECT,
-        "synthetic-not-a-credential",
-    )
-    .connect(http.clone());
-    let context = summary::prepare(
-        summary::ModelCompactor::new(
-            client.completion("gpt-6.1-sol"),
-            prepared.scope.clone(),
-            prepared.request.effort,
-            true,
-            CancellationToken::new(),
-        ),
-        prepared.input.clone(),
-        prepared.summary_chunks,
-        "synthetic-budget-account".into(),
-        Arc::new(|_| {}),
-    )
-    .await;
-    assert!(context.notice.is_none());
-    assert_eq!(http.requests().len(), 1);
-    assert!(context.input.contains(&prepared.request.prompt));
+    let mut artifact = semantic(&ids[0]);
+    artifact["objective"]["text"] = json!("D".repeat(950));
+    artifact["requirements"] = json!(
+        (0..6)
+            .map(|_| json!({"text":"R".repeat(950),"sources":[ids[0]],"operations":[]}))
+            .collect::<Vec<_>>()
+    );
+    assert!(serde_json::to_vec(&artifact).unwrap().len() < 8192);
+    let (mut low, mut high) = (0_usize, 256 * 1024);
+    while low < high {
+        let mid = low + (high - low).div_ceil(2);
+        let input = format!(
+            "{}\nCurrent mandatory composite request/config: {}",
+            prepared.input,
+            "x".repeat(mid)
+        );
+        if context_budget::preflight(&prepared.scope, &input).is_ok() {
+            low = mid;
+        } else {
+            high = mid - 1;
+        }
+    }
+    let plain = format!(
+        "{}\nCurrent mandatory composite request/config: {}",
+        prepared.input,
+        "x".repeat(low.saturating_sub(4096))
+    );
     let model = || {
         MockCompletionModel::from_stream_turns([vec![
             MockStreamEvent::text("Done"),
@@ -693,37 +692,127 @@ async fn frozen_summary_is_in_the_actual_dispatch_budget() {
     let answer = run_model(
         control.clone(),
         prepared.scope.clone(),
-        &prepared.input,
-        ReasoningEffort::Medium,
+        &plain,
+        prepared.request.effort,
         4,
         true,
         CancellationToken::new(),
         Arc::new(|_| {}),
     )
     .await;
-    assert!(matches!(answer.terminal, AiTerminal::Completed));
+    assert!(
+        matches!(answer.terminal, AiTerminal::Completed),
+        "control must actually fit: {:?}",
+        answer.terminal
+    );
     assert_eq!(control.request_count(), 1);
-    // Derive a synthetic cap from the actual control CompletionRequest,
-    // including the existing estimator surcharge, response and safety reserves.
-    let cap = serde_json::to_vec(&control.requests()[0]).unwrap().len()
-        + 1024
-        + context_budget::RESPONSE
-        + 4096;
+    let http = SequencedHttpClient::new([response(&artifact)]);
+    let client = rig::providers::openai::OpenAIConfig::with_key(
+        &rig::providers::chatgpt::DIALECT,
+        "synthetic",
+    )
+    .connect(http.clone());
+    let context = summary::prepare(
+        summary::ModelCompactor::new(
+            client.completion("gpt-6.1-sol"),
+            prepared.scope.clone(),
+            prepared.request.effort,
+            true,
+            CancellationToken::new(),
+        ),
+        plain.clone(),
+        prepared.summary_chunks,
+        "synthetic-budget-account".into(),
+        Arc::new(|_| {}),
+    )
+    .await;
+    assert_eq!(http.requests().len(), 1);
+    assert_eq!(
+        context.input, plain,
+        "optional summary must not consume mandatory headroom"
+    );
+    assert!(context.notice.is_some());
     let guarded = model();
-    let answer = run_model_budgeted(
+    let answer = run_model(
         guarded.clone(),
         prepared.scope,
         &context.input,
-        ReasoningEffort::Medium,
+        prepared.request.effort,
         4,
         true,
         CancellationToken::new(),
         Arc::new(|_| {}),
-        context_budget::Budget::test_cap(cap),
     )
     .await;
-    assert_eq!(guarded.request_count(), 0);
-    assert!(matches!(answer.terminal,AiTerminal::Failed(ref e) if e.is_context_limit()));
+    assert_eq!(guarded.request_count(), 1);
+    assert!(matches!(answer.terminal, AiTerminal::Completed));
+}
+#[tokio::test]
+async fn mandatory_overflow_still_refuses_before_any_provider_or_compactor_request() {
+    let (_root, request, _) = setup();
+    let mut prepared = prepare_run(request).unwrap();
+    prepared.input.push_str(&"x".repeat(512 * 1024));
+    let http = SequencedHttpClient::new([]);
+    let result = run_prepared_over(
+        prepared,
+        CancellationToken::new(),
+        Arc::new(|_| {}),
+        Some(DynHttpClient::new(http.clone())),
+    )
+    .await
+    .unwrap();
+    assert!(http.requests().is_empty());
+    assert!(matches!(result.answer.terminal,AiTerminal::Failed(ref e) if e.is_context_limit()));
+}
+#[tokio::test]
+async fn zero_optional_history_fallback_does_not_schedule_compaction() {
+    let (_root, request, _) = setup();
+    let prepared = prepare_run(request).unwrap();
+    let (records, receipts) = {
+        let store = prepared.scope.store.lock().unwrap();
+        (store.records().unwrap(), store.receipts().unwrap())
+    };
+    let (mut low, mut high) = (0_usize, 272000);
+    while low < high {
+        let mid = low + (high - low).div_ceil(2);
+        if context_budget::preflight(&prepared.scope, &"x".repeat(mid)).is_ok() {
+            low = mid;
+        } else {
+            high = mid - 1;
+        }
+    }
+    let mandatory = "x".repeat(low.saturating_sub(4096));
+    let (plain, evicted) =
+        context_budget::history_snapshot(&prepared.scope, mandatory.clone(), &records, &receipts)
+            .unwrap();
+    assert!(plain.contains("History coverage: 0/"));
+    assert!(plain.ends_with(&mandatory));
+    assert!(
+        evicted.is_empty(),
+        "zero-history fallback must not schedule a semantic request"
+    );
+    let http = SequencedHttpClient::new([]);
+    let client = rig::providers::openai::OpenAIConfig::with_key(
+        &rig::providers::chatgpt::DIALECT,
+        "synthetic",
+    )
+    .connect(http.clone());
+    let context = summary::prepare(
+        summary::ModelCompactor::new(
+            client.completion("gpt-6.1-sol"),
+            prepared.scope,
+            prepared.request.effort,
+            true,
+            CancellationToken::new(),
+        ),
+        plain.clone(),
+        evicted,
+        "synthetic-zero-history".into(),
+        Arc::new(|_| {}),
+    )
+    .await;
+    assert_eq!(context.input, plain);
+    assert!(http.requests().is_empty());
 }
 
 #[tokio::test]
@@ -734,8 +823,15 @@ async fn copilot_compaction_uses_same_chosen_account_model_effort_and_wire_witho
         let dir = root.path().join("summary-copilot-credentials");
         std::fs::DirBuilder::new().mode(0o700).create(&dir).unwrap();
         let file = dir.join("copilot.json");
-        std::fs::write(&file,json!({"token":"synthetic-not-a-credential","expires_at":i64::MAX,"endpoints":{"api":"https://copilot.example.invalid"}}).to_string()).unwrap();
+        std::fs::write(
+            &file,
+            json!({"token":"stale-exchanged","expires_at":0}).to_string(),
+        )
+        .unwrap();
         std::fs::set_permissions(&file, std::fs::Permissions::from_mode(0o600)).unwrap();
+        let bootstrap = dir.join("github-token");
+        std::fs::write(&bootstrap, "synthetic-stable-bootstrap").unwrap();
+        std::fs::set_permissions(bootstrap, std::fs::Permissions::from_mode(0o600)).unwrap();
         request.credentials_dir = Some(dir);
         request.selection.provider = Provider::Copilot;
         request.selection.model = model.into();
@@ -776,9 +872,9 @@ async fn copilot_compaction_uses_same_chosen_account_model_effort_and_wire_witho
             )
         };
         let http = if responses {
-            SequencedHttpClient::new([response(&semantic(&ids[0])), done()])
+            SequencedHttpClient::new([MockHttpResponse::success(json!({"token":"synthetic-not-a-credential","expires_at":i64::MAX,"endpoints":{"api":"https://copilot.example.invalid"}}).to_string()),response(&semantic(&ids[0])), done()])
         } else {
-            SequencedHttpClient::new([turn(semantic(&ids[0]).to_string()), turn("Done".into())])
+            SequencedHttpClient::new([MockHttpResponse::success(json!({"token":"synthetic-not-a-credential","expires_at":i64::MAX,"endpoints":{"api":"https://copilot.example.invalid"}}).to_string()),turn(semantic(&ids[0]).to_string()), turn("Done".into())])
         };
         let result = run(request, &http).await;
         assert_eq!(
@@ -786,12 +882,12 @@ async fn copilot_compaction_uses_same_chosen_account_model_effort_and_wire_witho
             "{model}: {:?}",
             result.answer.terminal
         );
-        assert_eq!(http.requests().len(), 2);
-        let a = body(&http, 0);
-        let b = body(&http, 1);
+        assert_eq!(http.requests().len(), 3);
+        let a = body(&http, 1);
+        let b = body(&http, 2);
         assert_eq!(a["model"], model);
         assert_eq!(a["model"], b["model"]);
-        for n in 0..2 {
+        for n in 1..3 {
             let req = &http.requests()[n];
             assert!(req.uri.contains(if responses {
                 "/responses"
@@ -800,7 +896,7 @@ async fn copilot_compaction_uses_same_chosen_account_model_effort_and_wire_witho
             }));
             assert_eq!(
                 req.headers.get("authorization"),
-                http.requests()[0].headers.get("authorization")
+                http.requests()[1].headers.get("authorization")
             );
             let value = body(&http, n);
             for key in [
@@ -990,4 +1086,427 @@ async fn resolved_account_change_invalidates_without_a_settings_or_history_chang
             .contains("synthetic-other-account-token")
     );
     assert!(!current.to_string().contains("other-synthetic"));
+}
+
+// Round1 witnesses use existing a673 APIs. Saved test-only before production edits.
+mod review1 {
+    use super::*;
+    fn credentials(root: &tempfile::TempDir, bootstrap: Option<&str>) -> PathBuf {
+        use std::os::unix::fs::{DirBuilderExt, PermissionsExt};
+        let dir = root.path().join("review1-copilot");
+        std::fs::DirBuilder::new().mode(0o700).create(&dir).unwrap();
+        for (name, value) in [
+            (
+                "copilot.json",
+                json!({"token":"stale-exchanged","expires_at":0}).to_string(),
+            ),
+            ("github-token", bootstrap.unwrap_or("").to_owned()),
+        ] {
+            let path = dir.join(name);
+            std::fs::write(&path, value).unwrap();
+            std::fs::set_permissions(path, std::fs::Permissions::from_mode(0o600)).unwrap();
+        }
+        dir
+    }
+    fn copilot_settings(request: &ThreadRunRequest) {
+        cache_tests::configure(request, "Copilot");
+        let mut store = Store::open(&request.data_dir).unwrap();
+        let r = store
+            .records()
+            .unwrap()
+            .into_iter()
+            .find(|r| matches!(r.data, RecordData::Settings(_)))
+            .unwrap();
+        let RecordData::Settings(mut s) = r.data else {
+            panic!()
+        };
+        s.model = request.selection.model.clone();
+        let op = store.allocate_operation(&unique_host_key()).unwrap();
+        store
+            .configure_workspace(&op, &s, &HostAuthority::owner("review1 selected route"))
+            .unwrap();
+    }
+    fn exchange(token: &str) -> MockHttpResponse {
+        MockHttpResponse::success(json!({"token":token,"expires_at":i64::MAX,"endpoints":{"api":"https://copilot.example.invalid"}}).to_string())
+    }
+    #[tokio::test]
+    async fn access_token_rotation_keeps_same_chatgpt_account_coverage() {
+        let (_root, request, ids) = setup();
+        let next = next_request(&request);
+        let auth = request.auth_file.clone().unwrap();
+        let data = request.data_dir.clone();
+        let http = SequencedHttpClient::new([response(&semantic(&ids[0])), done()]);
+        run(request, &http).await;
+        let path = cache_files(&data).pop().unwrap();
+        let before = std::fs::read(&path).unwrap();
+        std::fs::write(auth,r#"{"auth_mode":"chatgpt","tokens":{"access_token":"synthetic-refreshed-access","account_id":"synthetic"}}"#).unwrap();
+        let http = SequencedHttpClient::new([done()]);
+        let result = run(next, &http).await;
+        assert_eq!(result.answer.text, "Done");
+        assert_eq!(http.requests().len(), 1);
+        assert_eq!(result.trace.unwrap().summary.unwrap().outcome, "cached");
+        assert_eq!(std::fs::read(path).unwrap(), before);
+    }
+    #[tokio::test]
+    async fn exchanged_copilot_rotation_reuses_bootstrap_but_account_switch_invalidates() {
+        use std::os::unix::fs::PermissionsExt;
+        let (root, mut request, _) = tests::fixture();
+        request.selection.provider = Provider::Copilot;
+        request.selection.model = "gpt-6.1-codex".into();
+        request.trace = TraceLevel::Summary;
+        let dir = credentials(&root, Some("synthetic-bootstrap-one"));
+        request.credentials_dir = Some(dir.clone());
+        copilot_settings(&request);
+        let ids = history(&request, 68);
+        let next = next_request(&request);
+        let data = request.data_dir.clone();
+        let http = SequencedHttpClient::new([
+            exchange("exchanged-first"),
+            response(&semantic(&ids[0])),
+            done(),
+        ]);
+        let result = run(request, &http).await;
+        assert_eq!(result.answer.text, "Done");
+        assert_eq!(http.requests().len(), 3);
+        let path = cache_files(&data).pop().unwrap();
+        let original = std::fs::read(&path).unwrap();
+        let token = dir.join("copilot.json");
+        let mut cache: Value = serde_json::from_slice(&std::fs::read(&token).unwrap()).unwrap();
+        cache["expires_at"] = json!(0);
+        std::fs::write(&token, cache.to_string()).unwrap();
+        let http = SequencedHttpClient::new([exchange("exchanged-refreshed"), done()]);
+        let result = run(next_request(&next), &http).await;
+        assert_eq!(result.answer.text, "Done");
+        assert_eq!(http.requests().len(), 2);
+        assert_eq!(result.trace.unwrap().summary.unwrap().outcome, "cached");
+        assert_eq!(std::fs::read(&path).unwrap(), original);
+        std::fs::write(dir.join("github-token"), "synthetic-bootstrap-two").unwrap();
+        std::fs::set_permissions(
+            dir.join("github-token"),
+            std::fs::Permissions::from_mode(0o600),
+        )
+        .unwrap();
+        // Force an explicit expired-session exchange for the switched bootstrap,
+        // independently of Rig's separate bootstrap-binding check.
+        let mut cache: Value = serde_json::from_slice(&std::fs::read(&token).unwrap()).unwrap();
+        cache["expires_at"] = json!(0);
+        std::fs::write(&token, cache.to_string()).unwrap();
+        let http = SequencedHttpClient::new([
+            exchange("exchanged-other-account"),
+            response(&semantic(&ids[0])),
+            done(),
+        ]);
+        let result = run(next, &http).await;
+        assert_eq!(result.answer.text, "Done");
+        assert_eq!(http.requests().len(), 3);
+        assert_ne!(std::fs::read(&path).unwrap(), original);
+        let body = std::fs::read_to_string(path).unwrap();
+        for raw in [
+            "synthetic-bootstrap-one",
+            "synthetic-bootstrap-two",
+            "exchanged-other-account",
+        ] {
+            assert!(!body.contains(raw));
+        }
+    }
+    #[tokio::test]
+    async fn compactor_empty_chat_refusal_retries_same_model_on_responses_once() {
+        let (root, mut request, _) = tests::fixture();
+        request.selection.provider = Provider::Copilot;
+        request.selection.model = "gpt-6-luna".into();
+        request.trace = TraceLevel::Summary;
+        request.credentials_dir = Some(credentials(&root, Some("synthetic-bootstrap")));
+        copilot_settings(&request);
+        let ids = history(&request, 68);
+        let refused = || {
+            MockHttpResponse::error(
+                rig::http_client::StatusCode::BAD_REQUEST,
+                r#"{"error":{"code":"model_not_supported"}}"#,
+            )
+        };
+        let http = SequencedHttpClient::new([
+            exchange("exchanged-route"),
+            refused(),
+            response(&semantic(&ids[0])),
+            refused(),
+            done(),
+        ]);
+        let result = run(request, &http).await;
+        assert_eq!(result.answer.text, "Done");
+        assert_eq!(http.requests().len(), 5);
+        assert_eq!(result.trace.unwrap().summary.unwrap().outcome, "updated");
+        let reqs = http.requests();
+        for n in 1..5 {
+            assert!(reqs[n].uri.contains(if n % 2 == 1 {
+                "chat/completions"
+            } else {
+                "responses"
+            }));
+            assert_eq!(
+                reqs[n].headers.get("authorization"),
+                reqs[1].headers.get("authorization")
+            );
+            let value = body(&http, n);
+            assert_eq!(value["model"], "gpt-6-luna");
+            assert!(value.get("prompt_cache_key").is_none());
+            assert!(value.get("max_tokens").is_none());
+            assert!(value.get("max_completion_tokens").is_none());
+            assert!(value.get("max_output_tokens").is_none());
+        }
+        assert_eq!(body(&http, 1)["reasoning_effort"], "medium");
+        assert_eq!(body(&http, 2)["reasoning"]["effort"], "medium");
+    }
+    #[tokio::test]
+    async fn complete_validated_cache_ignores_busy_writer_lease() {
+        let (_root, request, ids) = setup();
+        let next = next_request(&request);
+        let data = request.data_dir.clone();
+        run(
+            request,
+            &SequencedHttpClient::new([response(&semantic(&ids[0])), done()]),
+        )
+        .await;
+        let path = cache_files(&data).pop().unwrap();
+        let old = std::fs::read(&path).unwrap();
+        let lock = std::fs::OpenOptions::new()
+            .read(true)
+            .write(true)
+            .open(path.with_extension("lock"))
+            .unwrap();
+        lock.try_lock().unwrap();
+        let http = SequencedHttpClient::new([done()]);
+        let result = run(next, &http).await;
+        assert_eq!(result.answer.text, "Done");
+        assert_eq!(http.requests().len(), 1);
+        assert!(result.notices.is_empty());
+        assert_eq!(result.trace.unwrap().summary.unwrap().outcome, "cached");
+        assert_eq!(std::fs::read(path).unwrap(), old);
+    }
+    #[tokio::test]
+    async fn well_formed_cache_digest_corruption_recomputes_with_other_stamps_unchanged() {
+        let (_root, request, ids) = setup();
+        let next = next_request(&request);
+        let data = request.data_dir.clone();
+        run(
+            request,
+            &SequencedHttpClient::new([response(&semantic(&ids[0])), done()]),
+        )
+        .await;
+        let path = cache_files(&data).pop().unwrap();
+        let original: Value = serde_json::from_slice(&std::fs::read(&path).unwrap()).unwrap();
+        let mut bad = original.clone();
+        bad["content_digest"] = json!("0".repeat(64));
+        assert_ne!(bad["content_digest"], original["content_digest"]);
+        for key in ["context", "first", "last", "references", "semantic"] {
+            assert_eq!(bad[key], original[key]);
+        }
+        std::fs::write(&path, bad.to_string()).unwrap();
+        let http = SequencedHttpClient::new([response(&semantic(&ids[0])), done()]);
+        let result = run(next, &http).await;
+        assert_eq!(result.answer.text, "Done");
+        assert_eq!(http.requests().len(), 2);
+        let repaired: Value = serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap();
+        assert_ne!(repaired["content_digest"], bad["content_digest"]);
+    }
+    #[tokio::test]
+    async fn unrelated_project_members_and_current_sources_do_not_invalidate() {
+        let (_root, request, ids) = setup();
+        let next = next_request(&request);
+        let data = request.data_dir.clone();
+        let mut store = Store::open(&data).unwrap();
+        let project = project_tests::project_command(
+            &mut store,
+            ProjectCommand::Create {
+                title: "Stable instructions".into(),
+            },
+        )
+        .writes
+        .into_iter()
+        .find(|w| matches!(w.after.data, RecordData::Project(_)))
+        .unwrap()
+        .after;
+        project_tests::project_command(
+            &mut store,
+            ProjectCommand::MoveChat {
+                chat: request.thread.clone(),
+                project: Some(project.id.clone()),
+            },
+        );
+        drop(store);
+        run(
+            request,
+            &SequencedHttpClient::new([response(&semantic(&ids[0])), done()]),
+        )
+        .await;
+        let path = cache_files(&data).pop().unwrap();
+        let old = std::fs::read(&path).unwrap();
+        let mut store = Store::open(&data).unwrap();
+        project_tests::project_command(
+            &mut store,
+            ProjectCommand::CreateChat {
+                project: project.id.clone(),
+                title: "Unrelated chat".into(),
+            },
+        );
+        project_tests::project_command(
+            &mut store,
+            ProjectCommand::CreateDocument {
+                project: project.id,
+                title: "Unrelated document".into(),
+                markdown: "Unrelated content".into(),
+            },
+        );
+        drop(store);
+        let http = SequencedHttpClient::new([done()]);
+        let result = run(next_request(&next), &http).await;
+        assert_eq!(result.answer.text, "Done");
+        assert_eq!(http.requests().len(), 1);
+        assert_eq!(std::fs::read(&path).unwrap(), old);
+        let mut sourced = next;
+        sourced.sources.push(TransientSource {
+            reference: "synthetic://review1-source".into(),
+            text: "Current source material".into(),
+            fingerprint: Some("source-v1".into()),
+            report: None,
+            assets: vec![],
+        });
+        let http = SequencedHttpClient::new([done()]);
+        let result = run(sourced, &http).await;
+        assert_eq!(result.answer.text, "Done");
+        assert_eq!(http.requests().len(), 1);
+        assert_eq!(std::fs::read(path).unwrap(), old);
+    }
+
+    #[tokio::test]
+    async fn compactor_context_overflow_or_partial_refusal_never_retries_responses() {
+        for partial in [false, true] {
+            let (root, mut request, _) = tests::fixture();
+            request.selection.provider = Provider::Copilot;
+            request.selection.model = "gpt-6-luna".into();
+            request.trace = TraceLevel::Summary;
+            request.credentials_dir = Some(credentials(&root, Some("synthetic-bootstrap")));
+            copilot_settings(&request);
+            history(&request, 68);
+            let data = request.data_dir.clone();
+            let failure = if partial {
+                MockHttpResponse::success_typed(
+                    cache_tests::sse(&[
+                        json!({"id":"partial","object":"chat.completion.chunk","model":"gpt-6-luna","choices":[{"index":0,"delta":{"role":"assistant","content":"partial derived output"},"finish_reason":null}]}),
+                        json!({"error":{"code":"model_not_supported","message":"PRIVATE_ERROR_CANARY"}}),
+                    ]),
+                    "text/event-stream",
+                )
+            } else {
+                MockHttpResponse::error(
+                    rig::http_client::StatusCode::BAD_REQUEST,
+                    r#"{"error":{"code":"model_max_prompt_tokens_exceeded","message":"PRIVATE_ERROR_CANARY"}}"#,
+                )
+            };
+            let chat_done = MockHttpResponse::success_typed(
+                cache_tests::sse(&[
+                    json!({"id":"chat","object":"chat.completion.chunk","model":"gpt-6-luna","choices":[{"index":0,"delta":{"role":"assistant","content":"Done"},"finish_reason":null}]}),
+                    json!({"id":"chat","object":"chat.completion.chunk","model":"gpt-6-luna","choices":[{"index":0,"delta":{},"finish_reason":"stop"}],"usage":{"prompt_tokens":10,"completion_tokens":1,"total_tokens":11}}),
+                ]),
+                "text/event-stream",
+            );
+            let http =
+                SequencedHttpClient::new([exchange("synthetic-exchanged"), failure, chat_done]);
+            let result = run(request, &http).await;
+            assert_eq!(
+                result.answer.text,
+                "Done",
+                "partial={partial}; terminal={:?}; routes={:?}",
+                result.answer.terminal,
+                http.requests().iter().map(|r| &r.uri).collect::<Vec<_>>()
+            );
+            assert_eq!(http.requests().len(), 3);
+            assert!(
+                http.requests()[1..]
+                    .iter()
+                    .all(|r| r.uri.contains("chat/completions"))
+            );
+            assert!(cache_files(&data).is_empty());
+            assert_eq!(result.trace.unwrap().summary.unwrap().outcome, "gap");
+            assert!(result.notices.iter().any(|n| n.contains("Not all history")));
+            assert!(
+                !result
+                    .notices
+                    .iter()
+                    .any(|n| n.contains("PRIVATE_ERROR_CANARY"))
+            );
+        }
+    }
+}
+
+#[tokio::test]
+async fn missing_copilot_bootstrap_leaves_summary_uncached_and_preserves_chat() {
+    use std::os::unix::fs::{DirBuilderExt, PermissionsExt};
+    let (root, mut request, _) = tests::fixture();
+    let dir = root.path().join("missing-bootstrap");
+    std::fs::DirBuilder::new().mode(0o700).create(&dir).unwrap();
+    let file = dir.join("copilot.json");
+    std::fs::write(&file,json!({"token":"synthetic-cache-only","expires_at":i64::MAX,"endpoints":{"api":"https://copilot.example.invalid"}}).to_string()).unwrap();
+    std::fs::set_permissions(file, std::fs::Permissions::from_mode(0o600)).unwrap();
+    request.credentials_dir = Some(dir);
+    request.selection.provider = Provider::Copilot;
+    request.selection.model = "gpt-6.1-codex".into();
+    request.trace = TraceLevel::Summary;
+    cache_tests::configure(&request, "Copilot");
+    {
+        let mut store = Store::open(&request.data_dir).unwrap();
+        let r = store
+            .records()
+            .unwrap()
+            .into_iter()
+            .find(|r| matches!(r.data, RecordData::Settings(_)))
+            .unwrap();
+        let RecordData::Settings(mut settings) = r.data else {
+            panic!()
+        };
+        settings.model = request.selection.model.clone();
+        let op = store.allocate_operation(&unique_host_key()).unwrap();
+        store
+            .configure_workspace(
+                &op,
+                &settings,
+                &HostAuthority::owner("synthetic cache-only account"),
+            )
+            .unwrap();
+    }
+    history(&request, 68);
+    let data = request.data_dir.clone();
+    let http = SequencedHttpClient::new([done()]);
+    let result = run(request, &http).await;
+    assert_eq!(result.answer.text, "Done");
+    assert_eq!(http.requests().len(), 1);
+    assert!(cache_files(&data).is_empty());
+    assert!(
+        result
+            .notices
+            .iter()
+            .any(|n| n.contains("Stable summary account identity unavailable"))
+    );
+    assert_eq!(
+        result.trace.unwrap().summary.unwrap().outcome,
+        "unavailable_account"
+    );
+}
+#[test]
+fn checked_bootstrap_fingerprint_is_trim_stable_and_rejects_invalid_credential() {
+    use std::os::unix::fs::PermissionsExt;
+    let (root, _, _) = tests::fixture();
+    let dir = root.path().join("fingerprint-only");
+    let auth = Auth::open(&dir).unwrap();
+    let file = dir.join("github-token");
+    assert!(auth.github_token_fingerprint().unwrap().is_none());
+    std::fs::write(&file, "  synthetic-bootstrap \n").unwrap();
+    std::fs::set_permissions(&file, std::fs::Permissions::from_mode(0o600)).unwrap();
+    let first = auth.github_token_fingerprint().unwrap().unwrap();
+    assert_eq!(first.len(), 64);
+    std::fs::write(&file, "synthetic-bootstrap").unwrap();
+    assert_eq!(auth.github_token_fingerprint().unwrap().unwrap(), first);
+    std::fs::write(&file, "other-synthetic-bootstrap").unwrap();
+    assert_ne!(auth.github_token_fingerprint().unwrap().unwrap(), first);
+    std::fs::write(&file, b"invalid\0credential").unwrap();
+    assert!(auth.github_token_fingerprint().is_err());
 }

@@ -1,5 +1,7 @@
 # D1B source-linked semantic context execution record
 
+**Current correction stage:** Explicit heavy regrant executed exact-a673 before15/7 and corrected focused25/0+FS1/0, fullAI419/0/1, core15/0/0, CLI161/0/0, export5/0/0, strict affected lint/fmt PASS. [Verified response/fresh Opus2 brief](review1-verified-response.md) and [source/artifact checks](review1-checks.json) retain initial compiler and real partial-detector failures. New immutable pin/review follow; source acceptance remains OPEN. Original mutation6/2 and534.402553319931s charged remain unchanged before supplement.
+
 **Goal:** implement existing amended Rig-first plan§5.1B/C01–C07 on accepted D1A964567aa, with canonical BRN persistence and a rebuildable untrusted semantic cache. This is its execution record, not a replacement roadmap.
 
 **Architecture:** one frozen history window from D1A, a small Rig Compactor model adapter on the selected authenticated account/model/effort, and bounded derived cache. Calls happen before chat dispatch and outside DB transactions. Raw conversation stays canonical; no automatic Rig persistence, provider transcript or Note summary store.

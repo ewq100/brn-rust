@@ -223,7 +223,7 @@ pub(super) fn history_snapshot(
                 "History coverage: 0/{total} optional entries selected because of the request estimate. Use scoped discussion tools. {}\n{mandatory}",
                 budget.disclosure()
             ),
-            evicted,
+            Vec::new(),
         ))
     }
 }

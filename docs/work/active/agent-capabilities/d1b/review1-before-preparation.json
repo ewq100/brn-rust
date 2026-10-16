@@ -1,0 +1,37 @@
+{
+  "before_material_pin": "a6736855ea5bc6af7406cf433bf60a08217a6d36",
+  "evidence_HEAD": "e2e2b5a12353366648377eb8651eb3a651b4574b",
+  "source": "/private/tmp/brn-d1b-20261017-review1-before-source",
+  "target": "/private/tmp/brn-d1b-20261017-review1-before-target",
+  "artifacts": "/private/tmp/brn-d1b-20261017-review1-before-artifacts",
+  "synthetic_Git": "exact git archive then genuine git init, no remotes/auth/history copy",
+  "test_only_patch_sha256": "6e16a07b5cbd1ee1f83c24c0ac4fe963d446d8eb512258da7a5656f4e52271c4",
+  "test_file_sha256": "d26e374980d6dd85766bf7ea15410733526aa20b8c91edbab7db4c5478100f7e",
+  "all_other_material_files_match": 287,
+  "production_changes_before_fixture_capture": false,
+  "executed": false,
+  "status": "PREPARED ONLY; no Cargo/compiler/behavioral result",
+  "expected_behavioral_failures": [
+    "optional summary headroom degradation",
+    "zero-history fallback compaction scheduling",
+    "same ChatGPT account access-token refresh",
+    "same Copilot bootstrap exchanged-token refresh",
+    "compactor empty ModelRefused Chat->Responses",
+    "fully cached busy-lease gap",
+    "unrelated project members/current sources over-invalidation"
+  ],
+  "positive_controls": [
+    "mandatory overflow zero dispatch",
+    "well-formed cached digest-only corruption",
+    "unique prior-derived failure fallback"
+  ],
+  "remaining_original_mutation_seconds": 1265.597446680069,
+  "static_fixture_revision": {
+    "reason": "Explicit expires_at=0 also before account-switch exchange, independent of Rig bootstrap binding; no execution/behavioral result. Original prepared patch/tests preserved.",
+    "patch": "/private/tmp/brn-d1b-20261017-review1-before-artifacts/test-only-before-v2.patch",
+    "patch_sha256": "ae398fbb72ba18d8a9a93a048b98e182d629565f20a570c455de6315849e27c2",
+    "test_file_sha256": "ad565b1e8307d9f5fcc4cbf8b0574d6d562c3123840e3863fa33fed5dff72fd0",
+    "all_other_material_files_match": 287,
+    "production_still_exact_a673": true
+  }
+}

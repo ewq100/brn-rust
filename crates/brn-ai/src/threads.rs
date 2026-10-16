@@ -2353,6 +2353,28 @@ async fn provider_client(
     on_resend: crate::resend::OnResend,
     cancel: &CancellationToken,
 ) -> AiResult<ProviderClient> {
+    provider_client_context(
+        selection,
+        auth_file,
+        credentials_dir,
+        cache_key,
+        transport,
+        on_resend,
+        cancel,
+    )
+    .await
+    .map(|(client, _)| client)
+}
+
+async fn provider_client_context(
+    selection: &Selection,
+    auth_file: Option<&std::path::Path>,
+    credentials_dir: Option<&std::path::Path>,
+    cache_key: Option<&str>,
+    transport: Option<DynHttpClient>,
+    on_resend: crate::resend::OnResend,
+    cancel: &CancellationToken,
+) -> AiResult<(ProviderClient, Option<String>)> {
     let http = crate::resend::ResendOnce::wrap(
         transport.unwrap_or_else(|| DynHttpClient::new(rig::rig_reqwest::shared())),
         crate::resend::RESEND_DELAY,
@@ -2363,10 +2385,29 @@ async fn provider_client(
     if let Some(file) = codex_file {
         crate::codex_auth::codex_client_pinned(file, selection, cache_key, http, cancel.clone())
             .await
+            .map(|client| (client, None))
     } else if let Some(dir) = credentials_dir {
         let auth = Auth::open(dir)?.with_http(http);
-        auth.client_pinned(selection, cache_key, cancel.clone())
-            .await
+        let bootstrap_before = if selection.provider == Provider::Copilot {
+            auth.github_token_fingerprint().ok().flatten()
+        } else {
+            None
+        };
+        let client = auth
+            .client_pinned(selection, cache_key, cancel.clone())
+            .await?;
+        // Optional context only: never bind a resolved client to a bootstrap
+        // that changed during authentication. Missing/unsafe/changing identity
+        // disables reuse, without changing authentication or chat's outcome.
+        let fingerprint = if selection.provider == Provider::Copilot {
+            auth.github_token_fingerprint()
+                .ok()
+                .flatten()
+                .filter(|after| Some(after) == bootstrap_before.as_ref())
+        } else {
+            None
+        };
+        Ok((client, fingerprint))
     } else {
         Err(AiError::new(AiErrorKind::ReconnectNeeded))
     }
@@ -2442,7 +2483,7 @@ async fn run_prepared_over(
     let client = match context_budget::preflight(&scope, &input) {
         Err(error) => Err(error),
         Ok(()) => {
-            provider_client(
+            provider_client_context(
                 &request.selection,
                 request.auth_file.as_deref(),
                 request.credentials_dir.as_deref(),
@@ -2455,20 +2496,12 @@ async fn run_prepared_over(
         }
     };
     let mut answer = match client {
-        Ok(client) => {
+        Ok((client, bootstrap)) => {
             let model = request.selection.model.clone();
             match client.inner {
                 OwnedClient::Chatgpt(client) => {
                     let config = client.config();
-                    let account = summary::digest(
-                        serde_json::to_string(&json!([
-                            config.base_url,
-                            config.account_id,
-                            summary::digest(config.api_key.expose().as_bytes())
-                        ]))
-                        .unwrap_or_default()
-                        .as_bytes(),
-                    );
+                    let account = summary::chatgpt_identity(config);
                     let context = summary::prepare(
                         summary::ModelCompactor::new(
                             client.completion(model.clone()),
@@ -2514,30 +2547,31 @@ async fn run_prepared_over(
                     }
                 }
                 OwnedClient::Copilot(client) => {
-                    let config = client.config();
-                    let account = summary::digest(
-                        serde_json::to_string(&json!([
-                            config.base_url,
-                            summary::digest(config.api_key.expose().as_bytes())
-                        ]))
-                        .unwrap_or_default()
-                        .as_bytes(),
-                    );
-                    let responses = rig::providers::copilot::wire::routes_through_responses(&model);
-                    let context = summary::prepare(
-                        summary::ModelCompactor::new(
-                            crate::auth::copilot_completion(&client, model.clone(), responses),
-                            scope.clone(),
-                            request.effort,
-                            responses,
-                            cancel.clone(),
-                        ),
-                        input,
-                        summary_chunks,
-                        account,
-                        emit.clone(),
-                    )
-                    .await;
+                    let context = if summary_chunks.is_empty() {
+                        summary::Context {
+                            input,
+                            notice: None,
+                        }
+                    } else if let Some(bootstrap) = bootstrap {
+                        let account =
+                            summary::copilot_identity(&client.config().base_url, &bootstrap);
+                        summary::prepare(
+                            summary::ModelCompactor::copilot(
+                                &client,
+                                model.clone(),
+                                scope.clone(),
+                                request.effort,
+                                cancel.clone(),
+                            ),
+                            input,
+                            summary_chunks,
+                            account,
+                            emit.clone(),
+                        )
+                        .await
+                    } else {
+                        summary::without_account(&scope, input, summary_chunks.len(), emit.clone())
+                    };
                     summary_notice = context.notice;
                     run_copilot(
                         &client,
@@ -3553,16 +3587,20 @@ async fn run_copilot_budgeted(
         .await;
         // Copilot serves some non-Codex models only on Responses and refuses the
         // chat route before any output; retry the same model there once.
-        if !responses
-            && answer.text.is_empty()
-            && matches!(&answer.terminal, AiTerminal::Failed(e) if e.kind == AiErrorKind::ModelRefused)
-            && !cancel.is_cancelled()
-        {
+        if copilot_responses_retry(responses, &answer, &cancel) {
             responses = true;
             continue;
         }
         return answer;
     }
+}
+/// One empty Chat refusal may retry the SAME Copilot model on Responses.
+/// Shared by parent/helper chat and the tool-free semantic compactor.
+fn copilot_responses_retry(responses: bool, answer: &AiAnswer, cancel: &CancellationToken) -> bool {
+    !responses
+        && answer.text.is_empty()
+        && matches!(&answer.terminal,AiTerminal::Failed(error) if error.kind==AiErrorKind::ModelRefused)
+        && !cancel.is_cancelled()
 }
 fn run_preamble(scope: &Scope) -> String {
     format!(

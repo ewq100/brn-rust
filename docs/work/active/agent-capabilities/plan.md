@@ -1,6 +1,6 @@
 # Agent capabilities Slice 0 implementation plan
 
-**Current slice:** D1A remains accepted at `964567aa`. D1B model-backed untrusted derived context is implemented in lane C on `work/d1b-20261017`; [execution record](d1b/plan.md), [implementation/review brief](d1b/implementation.md) and [actual self-checks](d1b/self-checks.json) retain exact source/result associations. Independent source review, targeted D1B mutation and principal disposition remain separate. Live semantic qualification is blocked by L.
+**Current slice:** D1A remains accepted at `964567aa`. D1B Opus1 corrections now pass [actual normal checks/fresh Opus2 brief](d1b/review1-verified-response.md): AI419/0/1, core15/0/0, CLI161/0/0, export5/0/0 and affected lint/fmt. New immutable pin, fresh independent source review and principal disposition remain separate. Original mutation results retain their source identities; live semantic qualification remains blocked by L.
 
 **Goal:** prove minimal upstream reuse and choose bounded adapters, without shipping D features.
 **Architecture:** apply Rig policies explicitly to BRN-owned history, retain checked progress/operations and add narrowly scoped adapters only in their assigned slices.
