@@ -483,6 +483,27 @@ mod tests {
     }
 
     #[test]
+    fn short_fully_marked_italic_word_still_unwraps() {
+        // The italic threshold is exactly two marker bytes: a three-byte
+        // "*a*" selection is a complete toggle, not uncertain syntax.
+        let text = "x *a* y";
+        let edit = format(text, 2..5, Format::Italic).unwrap();
+        assert_eq!(apply(text, &edit), "x a y");
+        assert_eq!(edit.selection, 2..3);
+        let edit = format("*a*", 0..3, Format::Italic).unwrap();
+        assert_eq!(apply("*a*", &edit), "a");
+    }
+
+    #[test]
+    fn fence_behind_a_container_nested_at_three_spaces_encloses() {
+        // A blockquote nested at exactly three inner spaces is still a
+        // container, so its fence encloses the following quote line.
+        let text = ">    > ```\n> word";
+        let start = text.find("word").unwrap();
+        assert!(format(text, start..start + 4, Format::Bold).is_none());
+    }
+
+    #[test]
     fn whitespace_only_multiline_selection_is_a_noop() {
         assert!(format(" \n  \n", 0..5, Format::List).is_none());
     }
@@ -571,7 +592,8 @@ mod tests {
 
     #[test]
     fn reversed_selection_at_valid_boundaries_is_refused() {
-        // Crossing line boundaries at char boundaries must not panic.
+        // A reversed range is refused outright; at valid char boundaries it
+        // must never fall through to slicing.
         for reversed in [Range { start: 5, end: 2 }, Range { start: 4, end: 1 }] {
             for kind in [Format::Bold, Format::Heading, Format::Quote] {
                 assert!(format("abc\ndef", reversed.clone(), kind).is_none());

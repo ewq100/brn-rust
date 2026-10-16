@@ -192,8 +192,9 @@ Full-file pilot on the merged-main baseline (same command shape as above,
 
 Investigation of the 21 survivors classified:
 
-- **12 genuine gaps** in required behavior, closed by new behavior tests
-  (commit `df21d6fd` plus the follow-up below): a mid-line selection on a
+- **14 genuine gaps** in required behavior, closed by behavior tests across
+  the two test commits (the first twelve in `df21d6fd`, the tab-indented
+  and pseudo-fence cases in the follow-up): a mid-line selection on a
   non-final line (the most common editing case, never exercised — the
   `line_end` arithmetic could be replaced with a panicking variant);
   one-sided, exact and neighboring-marker emphasis selections (refused, not
@@ -203,22 +204,32 @@ Investigation of the 21 survivors classified:
   content staying untouched; selections mapping across every prefix newline
   and anchoring inside removed prefixes; reversed selections at valid
   boundaries; syntax elsewhere on the line; a tab-indented short line after
-  short lines still being code.
+  short lines still being code; indented pseudo-fences leaving the plain
+  line between them formattable.
 - **3 timeouts** (`prefix_len → Some(0)`, `strip_ordered_list → Some("")/
   Some("xyzzy")`): infinite/looping replacements; the timeout budget
   terminates them. Not counted as caught behavior.
-- **4 unviable**: non-compiling `Default::default()` replacements.
+- **4 unviable**: non-compiling replacements — three `Default::default()`
+  function bodies and one deleted `safe_lines` match arm (type
+  inference failure).
 - **equivalent survivors**, each with the reason: `inline` threshold
-  `>`→`>=` and `*`→`+` (the exact-length cases where they differ cannot have
-  both marker edges, or are refused either way); `selection.end + n`→`−`
-  (the newline between the line end and any following text can never equal
-  the marker); `map_offset` `<`→`<=` and `+ new_len`→`− new_len` (reachable
-  inside-change cases always have `new_len == 0` in remove mode, and the
-  boundary case accumulates identically); `safe_lines` break `>`→`==`/`>=`
-  (`offset == target.end` is unreachable at the break because inline/block
-  targets end at the newline, not after it); `strip_containers` `>`→`>=`
-  (content indent 3 classifies identically to 0 in every consumer; probed
-  directly under both mutants).
+  `>`→`>=` (the only exact-length case with both marker edges is refused
+  either way); `selection.end + n`→`−` (the newline between the line end
+  and any following text can never equal the marker); `map_offset` `<`→`<=`
+  and `+ new_len`→`− new_len` (reachable inside-change cases always have
+  `new_len == 0` in remove mode, and the boundary case accumulates
+  identically); `safe_lines` break `>`→`==`/`>=` (`offset == target.end` is
+  unreachable at the break because inline/block targets end at the newline,
+  not after it).
+
+  The independent review of this batch rejected two of the initial
+  equivalence claims with concrete killing inputs — `inline` `2 * n`→`2 + n`
+  (a short fully-marked italic word stopped unwrapping) and
+  `strip_containers` `>`→`>=` (a fence behind a container nested at exactly
+  three inner spaces stopped enclosing). Both were verified distinguishable
+  by applying the mutations, and both are closed by the review-follow-up
+  tests `short_fully_marked_italic_word_still_unwraps` and
+  `fence_behind_a_container_nested_at_three_spaces_encloses`.
 
 Re-run after the first test commit (175 mutants, 37 min under heavy external
 machine load): **159 caught, 9 missed**, timeouts/unviable unchanged — the
@@ -226,11 +237,27 @@ machine load): **159 caught, 9 missed**, timeouts/unviable unchanged — the
 `safe_lines` offset advance (`242:30`) and pinned the true behavior of
 indented pseudo-fences.
 
-Final full re-run on the finished test set (175 mutants, 39 min, same
-external load): **160 caught, 8 missed, 4 unviable, 3 timeouts**. The eight
-missed are exactly the equivalents classified above; the two additional
-tests caught `242:30` (verified independently by applying that single
-mutation) and no previously caught mutant regressed.
+A full re-run on the intermediate test set (175 mutants, 39 min, same
+external load): **160 caught, 8 missed, 4 unviable, 3 timeouts**. The
+review-follow-up tests close two of those eight.
+
+Final full re-run on the finished test set (175 mutants, 21 min):
+**162 caught, 6 missed, 4 unviable, 3 timeouts**. The six missed are
+exactly the equivalents retained above; no previously caught mutant
+regressed and no new survivor appeared.
+
+## Independent review — second batch
+
+A second independent read-only review (reviewer agent, separate context)
+verified the test-only scope, hand-checked every new assertion against the
+source (including a validated port of the inline/safe_lines/strip_containers
+logic), and reproduced all run counts from the artifacts. Verdict: changes
+requested, with two substantive findings — both equivalence claims it
+rejected (`2 * n`→`2 + n` and `strip_containers` `>`→`>=`) were confirmed
+distinguishable by applying the mutations and are now closed by tests —
+plus two trivia findings (unviable description, a stale comment) fixed in
+this record and code. The reviewer's validated port also confirmed the
+six retained equivalence classifications.
 
 ### Deferred items resolved without code changes
 
