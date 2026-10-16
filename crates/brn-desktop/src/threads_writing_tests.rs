@@ -496,7 +496,14 @@ fn archived_writing_chat_preserves_feedback_and_requires_explicit_unarchive(
     let f = fixture(cx);
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |view, cx| {
-            let state = |view: &ThreadsUi, id: &str| match view.workspace.store.record(id).unwrap().unwrap().data {
+            let state = |view: &ThreadsUi, id: &str| match view
+                .workspace
+                .store
+                .record(id)
+                .unwrap()
+                .unwrap()
+                .data
+            {
                 RecordData::Thread(thread) => thread.state,
                 _ => unreachable!(),
             };
@@ -504,13 +511,58 @@ fn archived_writing_chat_preserves_feedback_and_requires_explicit_unarchive(
             view.select_writing_thread(f.a.id.clone(), f.chat_a.clone(), window, cx);
             view.resolve_thread(&f.chat_a, cx);
             assert_eq!(state(view, &f.chat_a), ThreadState::Open);
-            assert!(view.workspace.store.record(&f.chat_a).unwrap().unwrap().archived);
-            feedback(view, &f.a, "tere", 5..9, "Feedback after resolution", window, cx);
+            assert!(
+                view.workspace
+                    .store
+                    .record(&f.chat_a)
+                    .unwrap()
+                    .unwrap()
+                    .archived
+            );
+            feedback(
+                view,
+                &f.a,
+                "tere",
+                5..9,
+                "Feedback after resolution",
+                window,
+                cx,
+            );
             assert_eq!(view.workspace.writing_comments(&f.a.id).unwrap().len(), 0);
             assert!(view.notice.contains("Unarchive"));
-            assert!(view.comment_input.read(cx).value().contains("Feedback after resolution"));
-            assert!(view.workspace.store.record(&f.chat_a).unwrap().unwrap().archived);
-            view.reopen_thread(&f.chat_a,cx);
+            assert!(
+                view.comment_input
+                    .read(cx)
+                    .value()
+                    .contains("Feedback after resolution")
+            );
+            assert!(
+                view.workspace
+                    .store
+                    .record(&f.chat_a)
+                    .unwrap()
+                    .unwrap()
+                    .archived
+            );
+            cx.notify();
+        })
+    })
+    .unwrap();
+    cx.run_until_parked();
+    // The archived chat's only Unarchive is the composer banner's.
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(window.find("reopen-thread").visible());
+        assert!(window.try_find("chat-unarchive").is_none());
+        window.click("reopen-thread", cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            let state = |view: &ThreadsUi, id: &str| match view.workspace.store.record(id).unwrap().unwrap().data {
+                RecordData::Thread(thread) => thread.state,
+                _ => unreachable!(),
+            };
             assert!(!view.workspace.store.record(&f.chat_a).unwrap().unwrap().archived);
             view.composer.update(cx, |editor, cx| {
                 editor.set_value("Replying reopens", window, cx)
@@ -682,6 +734,135 @@ fn reopening_current_review_from_solo_chat_removes_hidden_composer_focus(cx: &mu
         assert_eq!(
             view.review_editor.read(cx).value().as_ref(),
             "Unsubmitted reviewed text"
+        );
+    })
+    .unwrap();
+}
+
+/// U4: typing starts an edit, but another edit of the note opened after this
+/// window loaded it (another window or the CLI). The typed
+/// `EditSessionOpen` names its base version; the other edit is kept and the
+/// note offers Compare (that edit beside the saved note) and Discard (the
+/// usual confirmation), which keeps what was typed here as the new edit.
+#[gpui_kit::test]
+fn an_edit_already_open_elsewhere_offers_compare_and_discard(cx: &mut TestAppContext) {
+    let f = fixture(cx);
+    cx.update_window(f.window, |_, window, cx| {
+        f.view
+            .update(cx, |view, cx| view.open_note(&f.a.id, None, window, cx))
+    })
+    .unwrap();
+    cx.run_until_parked();
+    let mut other = Workspace::open(&f.data).unwrap();
+    let elsewhere = other.store.begin_edit(&f.a.id, f.a.version).unwrap();
+    other
+        .store
+        .update_buffer(&elsewhere.id, 1, "Edit from elsewhere")
+        .unwrap();
+    drop(other);
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            view.note_editor
+                .update(cx, |editor, cx| editor.set_value("What I typed here", window, cx));
+            view.preserve_visible_note_input(cx);
+            assert_eq!(view.edit_open, Some((f.a.id.clone(), f.a.version)));
+            assert_eq!(
+                view.notice,
+                format!(
+                    "An edit of this note is already open from v{}. What you typed here isn't saved.",
+                    f.a.version
+                )
+            );
+            // Before: "Could not preserve this edit: this note already has
+            // an open unsaved edit. …" and nothing to act on.
+            assert!(!view.notice.contains("Could not preserve"));
+            assert!(view.note.as_ref().unwrap().session.is_none());
+            cx.notify();
+        })
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, _| {
+        assert!(window.find("note-edit-open-banner").visible());
+        assert!(window.try_find("note-recover-banner").is_none());
+        for id in [
+            "recover-note-edit",
+            "note-edit-open-compare",
+            "note-edit-open-discard",
+        ] {
+            assert!(
+                window.within("note-edit-open-banner").find(id).visible(),
+                "{id}"
+            );
+        }
+    })
+    .unwrap();
+    // Compare: the other edit beside the saved note.
+    cx.update_window(f.window, |_, window, cx| {
+        window.click("note-edit-open-compare", cx)
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(window.has_active_dialog(cx));
+        assert_eq!(
+            window.find("compare-open-edit-buffer").label(),
+            Some("Edit from elsewhere")
+        );
+        assert_eq!(
+            window.find("compare-open-edit-saved").label(),
+            Some("tere tere õun")
+        );
+        window.click("compare-open-edit-close", cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
+    // Discard: the existing confirmation, worded for the other edit (the
+    // owner's own Discard… says "Your changes since vN will be lost").
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(!window.has_active_dialog(cx));
+        window.click("note-edit-open-discard", cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(window.has_active_dialog(cx));
+        assert_eq!(
+            window.find("discard-note-body").label(),
+            Some(
+                format!(
+                    "Its changes since v{} will be lost. What you typed here is kept. This can't be undone.",
+                    f.a.version
+                )
+                .as_str()
+            )
+        );
+        window.click("discard-note-confirm", cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        let view = f.view.read(cx);
+        assert_eq!(view.edit_open, None);
+        let session = view.note.as_ref().unwrap().session.clone().unwrap();
+        assert_ne!(session.id, elsewhere.id);
+        assert_eq!(session.markdown, "What I typed here");
+        assert!(
+            view.workspace
+                .store
+                .edit_session(&elsewhere.id)
+                .unwrap()
+                .closed
+        );
+        assert_eq!(
+            view.notice,
+            "Discarded the open edit. What you typed here is now your unsaved edit."
+        );
+        assert!(window.try_find("note-edit-open-banner").is_none());
+        assert_eq!(
+            view.workspace.store.note(&f.a.id).unwrap().unwrap(),
+            f.a,
+            "nothing was saved"
         );
     })
     .unwrap();

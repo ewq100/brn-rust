@@ -1,4 +1,8 @@
-use crate::{Error, Result, Store, store::has_symlink_ancestor};
+use crate::{
+    Error, Result, Store,
+    stage::{self, StageDir, StageKind},
+    store::has_symlink_ancestor,
+};
 use rusqlite::Connection;
 use std::{
     fs,
@@ -23,11 +27,13 @@ impl Store {
     }
 }
 
-/// Own only the unique private directory, never the final destination. An
-/// interrupted process may leave this recognizable stage, but not a partial
-/// file under the requested backup name.
+/// Own only the unique private stage, never the final destination. Dropping
+/// it removes the stage on every error path. A killed process may leave the
+/// stage, but not a partial file under the requested backup name; the next
+/// backup into the same folder removes that abandoned stage.
 pub(crate) struct StagedBackup {
-    directory: PathBuf,
+    // Held for its Drop, which removes the stage.
+    _stage: StageDir,
     snapshot: PathBuf,
     destination: PathBuf,
 }
@@ -65,20 +71,13 @@ impl StagedBackup {
             Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
             Err(error) => return Err(error.into()),
         }
-        let directory = parent.join(format!(".brn-backup-stage-{}", uuid::Uuid::new_v4()));
-        let builder = fs::DirBuilder::new();
-        #[cfg(unix)]
-        let mut builder = builder;
-        #[cfg(unix)]
-        {
-            use std::os::unix::fs::DirBuilderExt;
-            builder.mode(0o700);
-        }
+        // Remove what killed backups left in this folder before staging ours.
+        stage::sweep_abandoned(parent, StageKind::Backup, &destination);
         // Exclusive creation establishes ownership before any SQLite work.
-        builder.create(&directory)?;
+        let stage = StageDir::create(parent, StageKind::Backup)?;
         let stage = Self {
-            snapshot: directory.join("snapshot.sqlite3"),
-            directory,
+            snapshot: stage.path().join("snapshot.sqlite3"),
+            _stage: stage,
             destination,
         };
         let mut target = Connection::open(&stage.snapshot)?;
@@ -124,15 +123,12 @@ impl StagedBackup {
     }
 }
 
-impl Drop for StagedBackup {
-    fn drop(&mut self) {
-        let _ = fs::remove_dir_all(&self.directory);
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[cfg(unix)]
+    use crate::stage::tree;
+    use crate::stage::{STAGE_MARKER, stages};
     use crate::store::validate_database;
     use crate::{ApplyOutcome, ChangeRequest, HostAuthority, Note, Put, Record, RecordData};
 
@@ -166,16 +162,22 @@ mod tests {
         let store = Store::open(root.path().join("source")).unwrap();
         let destination = root.path().join("backup.sqlite3");
         let stage = StagedBackup::create(&store.conn, &destination).unwrap();
-        let staging = stage.directory.clone();
+        let staging = stage._stage.path().to_owned();
         validate_database(&stage.snapshot).unwrap();
         assert!(
             !destination.exists(),
             "the final backup name must stay absent while staged"
         );
-        assert_eq!(stage.directory.parent(), destination.parent());
+        assert_eq!(staging.parent(), destination.parent());
+        assert!(staging.join(STAGE_MARKER).is_file());
         #[cfg(unix)]
         {
             use std::os::unix::fs::PermissionsExt;
+            // Windows locks are mandatory, so only Unix can read a held marker.
+            assert_eq!(
+                fs::read(staging.join(STAGE_MARKER)).unwrap(),
+                StageKind::Backup.marker().as_bytes()
+            );
             assert_eq!(
                 fs::metadata(&staging).unwrap().permissions().mode() & 0o777,
                 0o700
@@ -215,7 +217,7 @@ mod tests {
         fs::create_dir(&unrelated).unwrap();
         fs::write(unrelated.join("keep"), b"unrelated").unwrap();
         let stage = StagedBackup::create(&store.conn, &destination).unwrap();
-        let staging = stage.directory.clone();
+        let staging = stage._stage.path().to_owned();
         fs::write(&destination, b"claimed after staging").unwrap();
         assert!(stage.publish().is_err());
         assert_eq!(fs::read(&destination).unwrap(), b"claimed after staging");
@@ -233,7 +235,7 @@ mod tests {
         fs::create_dir(&parent).unwrap();
         let destination = parent.join("backup.sqlite3");
         let stage = StagedBackup::create(&store.conn, &destination).unwrap();
-        let staging = stage.directory.clone();
+        let staging = stage._stage.path().to_owned();
         // Write/execute permits publication and cleanup; missing read access
         // makes opening the parent for its flush fail for unprivileged users.
         fs::set_permissions(&parent, fs::Permissions::from_mode(0o300)).unwrap();
@@ -261,15 +263,24 @@ mod tests {
             .execute_batch("CREATE TABLE foreign_data(id INTEGER)")
             .unwrap();
         let destination = root.path().join("backup.sqlite3");
+        // Validation fails after the stage and its snapshot were created.
         assert!(StagedBackup::create(&foreign, &destination).is_err());
         assert!(!destination.exists());
+        assert_eq!(
+            stages(root.path(), StageKind::Backup),
+            Vec::<PathBuf>::new()
+        );
         assert_eq!(fs::read_dir(root.path()).unwrap().count(), 0);
         let store = Store::open(root.path().join("source")).unwrap();
         let stage = StagedBackup::create(&store.conn, &destination).unwrap();
-        let staging = stage.directory.clone();
+        let staging = stage._stage.path().to_owned();
         drop(stage);
         assert!(!staging.exists());
         assert!(!destination.exists());
+        assert_eq!(
+            stages(root.path(), StageKind::Backup),
+            Vec::<PathBuf>::new()
+        );
     }
 
     #[test]
@@ -295,7 +306,8 @@ mod tests {
         let buffers = store.recovery_buffers().unwrap();
         let destination = root.path().join("backup.sqlite3");
         let stage = StagedBackup::create(&store.conn, &destination).unwrap();
-        assert_eq!(fs::read_dir(&stage.directory).unwrap().count(), 1);
+        // The snapshot and the stage marker.
+        assert_eq!(fs::read_dir(stage._stage.path()).unwrap().count(), 2);
         note(&mut store, "after staging");
         store
             .update_buffer(&session.id, 2, "later source draft")
@@ -392,5 +404,189 @@ mod tests {
         assert!(!outside.join("missing").exists());
         assert_eq!(store.record(&first.id).unwrap(), Some(first));
         assert_eq!(fs::read_dir(root.path()).unwrap().count(), 4);
+    }
+
+    /// A source store and an empty backup folder outside it.
+    #[cfg(unix)]
+    fn backup_folder() -> (tempfile::TempDir, Store, PathBuf) {
+        let root = root();
+        let store = Store::open(root.path().join("source")).unwrap();
+        let folder = root.path().join("backups");
+        fs::create_dir(&folder).unwrap();
+        (root, store, folder)
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn a_killed_backups_stage_is_removed_by_the_next_backup_to_that_folder() {
+        let (_root, store, folder) = backup_folder();
+        let empty = StageDir::create(&folder, StageKind::Backup)
+            .unwrap()
+            .abandon();
+        // Killed after its snapshot was complete but before publication.
+        let StagedBackup { _stage: full, .. } =
+            StagedBackup::create(&store.conn, &folder.join("killed.sqlite3")).unwrap();
+        let full = full.abandon();
+        assert!(full.join("snapshot.sqlite3").is_file());
+        let unrelated = folder.join(".brn-backup-stage-not-owned");
+        fs::create_dir(&unrelated).unwrap();
+        fs::write(unrelated.join("keep"), b"unrelated").unwrap();
+        let destination = folder.join("backup.sqlite3");
+        store.backup(&destination).unwrap();
+        assert!(!empty.exists(), "leftover stage must be removed");
+        assert!(!full.exists(), "leftover stage must be removed");
+        validate_database(&destination).unwrap();
+        assert!(!folder.join("killed.sqlite3").exists());
+        assert_eq!(fs::read(unrelated.join("keep")).unwrap(), b"unrelated");
+        assert_eq!(stages(&folder, StageKind::Backup), vec![unrelated]);
+        assert_eq!(fs::read_dir(&folder).unwrap().count(), 2);
+    }
+
+    /// Child half of the SIGKILL test: holds a staged backup until killed.
+    #[cfg(unix)]
+    #[test]
+    #[ignore = "runs only as the child of the SIGKILL stage test"]
+    fn stage_holder_child() {
+        let Some(folder) = std::env::var_os("BRN_STAGE_CHILD_PARENT") else {
+            return;
+        };
+        let folder = PathBuf::from(folder);
+        let store = Store::open(folder.join("child-source")).unwrap();
+        let _stage = StagedBackup::create(&store.conn, &folder.join("never.sqlite3")).unwrap();
+        println!("BRN_STAGE_READY");
+        std::io::Write::flush(&mut std::io::stdout()).unwrap();
+        std::thread::sleep(Duration::from_secs(60));
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn a_sigkilled_backup_process_leaves_a_stage_the_next_backup_removes() {
+        use std::io::BufRead;
+        let (_root, store, folder) = backup_folder();
+        let mut child = std::process::Command::new(std::env::current_exe().unwrap())
+            .args([
+                "--exact",
+                "backup::tests::stage_holder_child",
+                "--ignored",
+                "--nocapture",
+                "--test-threads=1",
+            ])
+            .env("BRN_STAGE_CHILD_PARENT", &folder)
+            .stdin(std::process::Stdio::null())
+            .stdout(std::process::Stdio::piped())
+            .stderr(std::process::Stdio::null())
+            .spawn()
+            .unwrap();
+        let mut lines = std::io::BufReader::new(child.stdout.take().unwrap()).lines();
+        loop {
+            let line = lines
+                .next()
+                .expect("the child must report its stage before exiting")
+                .unwrap();
+            if line.contains("BRN_STAGE_READY") {
+                break;
+            }
+        }
+        child.kill().unwrap(); // SIGKILL
+        child.wait().unwrap();
+        assert!(!folder.join("never.sqlite3").exists());
+        let left = stages(&folder, StageKind::Backup);
+        assert_eq!(left.len(), 1, "the killed process leaves its stage");
+        let marker = fs::File::open(left[0].join(STAGE_MARKER)).unwrap();
+        marker.try_lock().expect("the OS released the killed lock");
+        drop(marker);
+        let destination = folder.join("backup.sqlite3");
+        store.backup(&destination).unwrap();
+        assert_eq!(stages(&folder, StageKind::Backup), Vec::<PathBuf>::new());
+        validate_database(&destination).unwrap();
+        assert!(
+            folder
+                .join("child-source")
+                .join(crate::DATA_MARKER)
+                .is_file()
+        );
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn a_live_stage_survives_another_backup() {
+        let (_root, store, folder) = backup_folder();
+        let live = StageDir::create(&folder, StageKind::Backup).unwrap();
+        fs::write(live.path().join("snapshot.sqlite3"), b"in progress").unwrap();
+        let before = tree(live.path());
+        store.backup(folder.join("backup.sqlite3")).unwrap();
+        assert!(live.path().is_dir(), "a held stage is never removed");
+        assert_eq!(tree(live.path()), before, "a held stage is never touched");
+        let path = live.path().to_owned();
+        drop(live);
+        assert!(!path.exists());
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn stage_named_entries_that_are_not_brn_stages_are_never_followed_or_removed() {
+        use std::os::unix::fs::symlink;
+        let (root, store, folder) = backup_folder();
+        let named = || folder.join(format!(".brn-backup-stage-{}", uuid::Uuid::new_v4()));
+        // Outside the folder: a free, valid-looking backup stage marker.
+        let outside = root.path().join("outside");
+        fs::create_dir(&outside).unwrap();
+        fs::write(outside.join(STAGE_MARKER), StageKind::Backup.marker()).unwrap();
+        fs::write(outside.join("keep"), b"outside content").unwrap();
+        symlink(&outside, named()).unwrap();
+        let no_marker = named();
+        fs::create_dir(&no_marker).unwrap();
+        fs::write(no_marker.join("keep"), b"no marker").unwrap();
+        let restore_marker = named();
+        fs::create_dir(&restore_marker).unwrap();
+        fs::write(
+            restore_marker.join(STAGE_MARKER),
+            StageKind::Restore.marker(),
+        )
+        .unwrap();
+        let linked_marker = named();
+        fs::create_dir(&linked_marker).unwrap();
+        symlink(outside.join(STAGE_MARKER), linked_marker.join(STAGE_MARKER)).unwrap();
+        fs::write(named(), b"a file with a stage name").unwrap();
+        let not_owned = folder.join(".brn-backup-stage-not-owned");
+        fs::create_dir(&not_owned).unwrap();
+        fs::write(not_owned.join(STAGE_MARKER), StageKind::Backup.marker()).unwrap();
+        let (folder_before, outside_before) = (tree(&folder), tree(&outside));
+        let destination = folder.join("backup.sqlite3");
+        store.backup(&destination).unwrap();
+        let mut folder_after = tree(&folder);
+        assert!(folder_after.remove(&destination).is_some());
+        assert_eq!(folder_after, folder_before);
+        assert_eq!(tree(&outside), outside_before);
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn a_backup_sweeps_only_its_own_parent() {
+        let root = root();
+        let store = Store::open(root.path().join("source")).unwrap();
+        let area = root.path().join("area");
+        let folder = area.join("backups");
+        let sibling = area.join("other");
+        let nested = folder.join("nested");
+        for path in [&area, &folder, &sibling, &nested] {
+            fs::create_dir_all(path).unwrap();
+        }
+        let elsewhere: Vec<_> = [&area, &sibling, &nested]
+            .into_iter()
+            .map(|parent| {
+                StageDir::create(parent, StageKind::Backup)
+                    .unwrap()
+                    .abandon()
+            })
+            .collect();
+        store.backup(folder.join("backup.sqlite3")).unwrap();
+        for stage in &elsewhere {
+            assert!(
+                stage.join(STAGE_MARKER).is_file(),
+                "{} is outside the backup's folder",
+                stage.display()
+            );
+        }
     }
 }

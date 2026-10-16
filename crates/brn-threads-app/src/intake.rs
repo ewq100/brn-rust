@@ -2,6 +2,10 @@ use crate::*;
 use brn_threads_intake::{ConversionResult, CoverageStatus, GapKind, ImportIntent};
 use std::collections::BTreeSet;
 
+/// The owner instruction for useful intake of a source, the same from the
+/// desktop and the CLI, so a reused intake chat can reuse it.
+pub const SOURCE_INTAKE_INSTRUCTION: &str = "Capture useful supported information from this source, maintaining relevant ordinary notes and source references. Preserve qualifications; do not copy the whole source as a note. Retain meaningful selected figures using the read_source host links and preserve detected omissions; unchecked coverage does not mean proven loss.";
+
 /// Preserve the converter's distinction between a detected loss and unchecked coverage.
 pub fn import_report(converted: &ConversionResult) -> ImportReport {
     ImportReport {
@@ -27,6 +31,115 @@ pub fn import_report(converted: &ConversionResult) -> ImportReport {
     }
 }
 impl Workspace {
+    /// The chat for useful intake of `locator`: the most recent open chat in
+    /// the same scope (`project`, or general when `None`) whose Run already
+    /// received this source, so a retry or re-supply lands beside the earlier
+    /// outcome. A chat whose Working Run is still live in some process is
+    /// skipped, because the next Run there would interrupt it. Otherwise a new
+    /// chat titled `title`. `true` means reused.
+    pub fn source_intake_chat(
+        &mut self,
+        project: Option<&str>,
+        locator: &str,
+        title: &str,
+    ) -> AppResult<(Record, bool)> {
+        let records = self.records()?;
+        if let Some(project) = project
+            && !records
+                .iter()
+                .any(|r| r.id == project && !r.archived && matches!(r.data, RecordData::Project(_)))
+        {
+            return Err(AppError::Invalid(
+                "Choose an active project for this source".into(),
+            ));
+        }
+        // One file is one source however its path is spelled, including a
+        // Source saved under an older spelling.
+        let sources = matching_sources(&records, &canonical_locator(locator));
+        if !sources.is_empty() {
+            // Receipt order is durable; a Run's first write is its creation.
+            let mut created = BTreeMap::new();
+            for (position, receipt) in self.history()?.into_iter().enumerate() {
+                for write in receipt.writes {
+                    if matches!(write.after.data, RecordData::Run(_)) {
+                        created.entry(write.after.id).or_insert(position);
+                    }
+                }
+            }
+            // `begin()` interrupts every Working Run in its chat. Skip a chat
+            // whose Working Run still holds its lease; an orphaned one (lease
+            // free) does not block reuse, as the next Run there recovers it.
+            // Unknown liveness counts as live.
+            let derived = self.store.derived_directory().ok();
+            let busy = |chat: &str| {
+                records.iter().any(|r| {
+                    matches!(&r.data, RecordData::Run(run) if run.thread == chat && run.state == RunState::Working)
+                        && derived
+                            .as_deref()
+                            .is_none_or(|d| brn_ai::run_lease::run_is_live(d, &r.id))
+                })
+            };
+            let reused = records
+                .iter()
+                .filter_map(|r| match &r.data {
+                    RecordData::Run(run) if run.sources.iter().any(|s| sources.contains(s.as_str())) => {
+                        Some((created.get(&r.id).copied().unwrap_or_default(), &run.thread))
+                    }
+                    _ => None,
+                })
+                .filter(|(_, chat)| {
+                    records.iter().any(|r| {
+                        r.id == **chat
+                            && !r.archived
+                            && matches!(&r.data, RecordData::Thread(t) if t.state == ThreadState::Open)
+                    }) && project_for_chat(&records, chat).map(|p| p.id.as_str()) == project
+                        && !busy(chat)
+                })
+                .max_by_key(|(position, _)| *position)
+                .and_then(|(_, chat)| records.iter().find(|r| r.id == *chat));
+            if let Some(chat) = reused {
+                return Ok((chat.clone(), true));
+            }
+        }
+        let chat = if let Some(project) = project {
+            self.project_command(
+                &format!("source-chat:{}", uuid::Uuid::new_v4()),
+                ProjectCommand::CreateChat {
+                    project: project.into(),
+                    title: title.into(),
+                },
+            )?
+            .writes
+            .into_iter()
+            .find(|w| w.before.is_none() && matches!(w.after.data, RecordData::Thread(_)))
+            .map(|w| w.after)
+            .ok_or_else(|| AppError::Invalid("Project chat was not created".into()))?
+        } else {
+            self.new_thread(title)?
+        };
+        Ok((chat, false))
+    }
+    /// Posts [`SOURCE_INTAKE_INSTRUCTION`] in `chat` before a useful intake
+    /// Run for `locator`, unless that Run reuses the chat's latest instruction
+    /// for this source: then nothing is written and the result is `None`.
+    /// New owner text since then, or another source, gets a fresh instruction.
+    pub fn post_intake_instruction(
+        &mut self,
+        chat: &str,
+        locator: &str,
+    ) -> AppResult<Option<Receipt>> {
+        if brn_ai::threads::intake_instruction_to_reuse(
+            &self.store,
+            chat,
+            SOURCE_INTAKE_INSTRUCTION,
+            &[locator],
+        )?
+        .is_some()
+        {
+            return Ok(None);
+        }
+        self.post_message(chat, SOURCE_INTAKE_INSTRUCTION).map(Some)
+    }
     pub fn import_full(
         &mut self,
         key: &str,
@@ -81,8 +194,11 @@ impl Workspace {
             .store
             .allocate_bound_operation(&format!("full-import:{key}"), &binding)?;
         let authority = HostAuthority::owner("full-note import request");
+        // A project import stops that project's Working Runs; their free
+        // lease files go with them on every applied path below.
         if self.store.receipt(&op)?.is_some() {
-            return Ok(self.store.apply(&op, &authority)?);
+            let outcome = self.store.apply(&op, &authority)?;
+            return Ok(self.remove_leases_ended_by(outcome));
         }
         if let Some(thread) = chat
             && !matches!(
@@ -102,10 +218,14 @@ impl Workspace {
             ));
         }
         if self.store.prepared(&op).is_ok() {
-            return Ok(self.store.apply(&op, &authority)?);
+            let outcome = self.store.apply(&op, &authority)?;
+            return Ok(self.remove_leases_ended_by(outcome));
         }
         let records = self.records()?;
-        let existing=records.iter().find(|record|matches!(&record.data,RecordData::Source(source) if source.locator==converted.source_reference && source.chat.as_deref()==chat));
+        // The exact real path first, then a Source saved under an older
+        // spelling of the same file; the Put below records the real path.
+        let locator = canonical_locator(&converted.source_reference);
+        let existing = find_source(&records, &locator, |source| source.chat.as_deref() == chat);
         let source_id = existing
             .map(|record| record.id.clone())
             .unwrap_or_else(|| op.creation_id(0));
@@ -139,7 +259,7 @@ impl Workspace {
         } else {
             Source {
                 chat: chat.map(str::to_owned),
-                locator: converted.source_reference.clone(),
+                locator: locator.clone(),
                 label: title.into(),
                 observed_at: observed_at.clone(),
                 external_version: None,
@@ -148,6 +268,7 @@ impl Workspace {
                 report: None,
             }
         };
+        source.locator = locator;
         source.observed_at = observed_at;
         if !previously_imported {
             source.external_version = Some(source_version);
@@ -217,6 +338,27 @@ impl Workspace {
                         unreachable!()
                     };
                     writes.extend(project_context_fences(&records, &p.chats)?);
+                    // The same Runs the fences stop: their chats get the
+                    // notice and a Review for each candidate left.
+                    let ended: Vec<_> = records
+                        .iter()
+                        .filter_map(|r| match &r.data {
+                            RecordData::Run(run)
+                                if run.state == RunState::Working
+                                    && p.chats.contains(&run.thread) =>
+                            {
+                                Some((r.id.clone(), run.clone()))
+                            }
+                            _ => None,
+                        })
+                        .collect();
+                    brn_threads_core::run_attention::ended_run_attention(
+                        &mut writes,
+                        &ended,
+                        true,
+                        |id| Ok(records.iter().find(|r| r.id == id).cloned()),
+                        |operations| self.store.active_candidates(operations),
+                    )?;
                     p.documents.push(note_id.clone());
                     writes.push(Put {
                         id: project.id,
@@ -250,7 +392,8 @@ impl Workspace {
             inputs: vec![],
         };
         self.store.prepare_owner(&op, &request, &authority)?;
-        Ok(self.store.apply(&op, &authority)?)
+        let outcome = self.store.apply(&op, &authority)?;
+        Ok(self.remove_leases_ended_by(outcome))
     }
     pub fn keep_in_brn(
         &mut self,
@@ -321,12 +464,16 @@ impl Workspace {
             });
             if let RecordData::Source(mut observation) = source.data {
                 let old_source = source.id;
-                let global = records.iter().find(|r| matches!(&r.data, RecordData::Source(s) if s.chat.is_none() && s.locator == observation.locator));
+                // The global Source for the same file, under any spelling; a
+                // new one records the real path.
+                let locator = canonical_locator(&observation.locator);
+                let global = find_source(&records, &locator, |s| s.chat.is_none());
                 let source_id = global
                     .map(|r| r.id.clone())
                     .unwrap_or_else(|| op.creation_id(0));
                 if global.is_none() {
                     observation.chat = None;
+                    observation.locator = locator;
                     writes.push(Put {
                         id: source_id.clone(),
                         expected_version: None,
@@ -398,8 +545,10 @@ impl Workspace {
                 if let RecordData::Source(observation) = &source_record.data
                     && observation.chat.is_some()
                 {
-                    let global=records.iter().find(|r|matches!(&r.data,RecordData::Source(s) if s.chat.is_none() && s.locator==observation.locator));
-                    let staged=writes.iter().find(|w|matches!(&w.data,RecordData::Source(s) if s.chat.is_none() && s.locator==observation.locator));
+                    // Staged global Sources already record the real path.
+                    let locator = canonical_locator(&observation.locator);
+                    let global = find_source(&records, &locator, |s| s.chat.is_none());
+                    let staged=writes.iter().find(|w|matches!(&w.data,RecordData::Source(s) if s.chat.is_none() && s.locator==locator));
                     let source_id = global
                         .map(|r| r.id.clone())
                         .or_else(|| staged.map(|w| w.id.clone()))
@@ -407,6 +556,7 @@ impl Workspace {
                     if global.is_none() && staged.is_none() {
                         let mut observation = observation.clone();
                         observation.chat = None;
+                        observation.locator = locator;
                         writes.push(Put {
                             id: source_id.clone(),
                             expected_version: None,

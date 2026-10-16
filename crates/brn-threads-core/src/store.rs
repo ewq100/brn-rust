@@ -37,12 +37,24 @@ impl Store {
                 "an absolute explicit directory is required".into(),
             ));
         }
-        if has_symlink_ancestor(directory)? {
-            return Err(Error::UnsafeDirectory("symlink directory".into()));
+        let unusable = |cause| data_folder_error(directory, cause);
+        match has_symlink_ancestor(directory) {
+            Ok(false) => {}
+            Ok(true) => {
+                return Err(Error::DataFolder {
+                    folder: directory.display().to_string(),
+                    problem: DataFolderProblem::SymlinkRefused,
+                    cause: std::io::Error::other("symbolic link in path"),
+                });
+            }
+            Err(Error::Io(cause)) => return Err(unusable(cause)),
+            Err(error) => return Err(error),
         }
-        fs::create_dir_all(directory)?;
+        fs::create_dir_all(directory).map_err(unusable)?;
         let marker = directory.join(DATA_MARKER);
-        let entries: Vec<_> = fs::read_dir(directory)?.collect::<std::result::Result<_, _>>()?;
+        let entries: Vec<_> = fs::read_dir(directory)
+            .and_then(|entries| entries.collect::<std::io::Result<_>>())
+            .map_err(unusable)?;
         let existing = marker.exists();
         if !existing && !entries.is_empty() {
             return Err(Error::UnsafeDirectory(
@@ -79,8 +91,9 @@ impl Store {
             fs::OpenOptions::new()
                 .write(true)
                 .create_new(true)
-                .open(&marker)?
-                .write_all(IDENTITY.as_bytes())?;
+                .open(&marker)
+                .and_then(|mut file| file.write_all(IDENTITY.as_bytes()))
+                .map_err(unusable)?;
         }
         let database = directory.join(DATABASE_FILENAME);
         let mut conn = if existing {
@@ -903,6 +916,7 @@ impl Store {
             archived: false,
             data: RecordData::Settings(next),
         }];
+        let mut ended = Vec::new();
         {
             let mut stmt = tx.prepare(
                 "SELECT body FROM records WHERE json_type(body,'$.data.Run') IS NOT NULL",
@@ -912,11 +926,14 @@ impl Store {
                 if let RecordData::Run(mut run) = record.data
                     && run.state == RunState::Working
                 {
-                    run.state = RunState::Cancelled;
+                    // The stop came from outside the chat, so the Run is
+                    // Interrupted, matching the notice its chat gets below.
+                    run.state = RunState::Interrupted;
                     run.fence = run
                         .fence
                         .checked_add(1)
                         .ok_or_else(|| Error::Invalid("run fence exhausted".into()))?;
+                    ended.push((record.id.clone(), run.clone()));
                     writes.push(Put {
                         id: record.id,
                         expected_version: Some(record.version),
@@ -926,6 +943,14 @@ impl Store {
                 }
             }
         }
+        // The stopped Runs' chats get their notice and reviews in this change.
+        crate::run_attention::ended_run_attention(
+            &mut writes,
+            &ended,
+            true,
+            |id| record_on(&tx, id),
+            |operations| crate::run_attention::active_candidates_on(&tx, operations),
+        )?;
         let request = ChangeRequest {
             reason: if theme_only {
                 "Owner chose the workspace theme".into()
@@ -1974,7 +1999,9 @@ pub(crate) fn apply_on(
         let Some(prior) = &input_change.before else {
             continue;
         };
-        if !meaningful_input_change(prior, &input_change.after) {
+        if !meaningful_input_change(prior, &input_change.after)
+            || respelled_source(prior, &input_change.after)
+        {
             continue;
         }
         // Only current directly derived revisions are affected. An observation-only
@@ -2071,6 +2098,24 @@ fn meaningful_input_change(before: &Record, after: &Record) -> bool {
     }
 }
 
+/// A Source whose only meaningful change is another spelling of the same local
+/// file (`/tmp` vs `/private/tmp`, a symlinked folder) is the same evidence,
+/// so the records derived from it need no refresh. The filesystem is read
+/// only when nothing but the locator changed.
+fn respelled_source(before: &Record, after: &Record) -> bool {
+    let (RecordData::Source(old), RecordData::Source(new)) = (&before.data, &after.data) else {
+        return false;
+    };
+    if before.archived != after.archived || old.locator == new.locator {
+        return false;
+    }
+    let mut same = old.clone();
+    same.observed_at = new.observed_at.clone();
+    same.label = new.label.clone();
+    same.locator = new.locator.clone();
+    same == *new && crate::canonical_locator(&old.locator) == crate::canonical_locator(&new.locator)
+}
+
 fn derivation_is_current(derived: &Record, current: &Record) -> bool {
     match (&derived.data, &current.data) {
         // Progress/completion changes do not erase where the task itself came
@@ -2153,6 +2198,26 @@ pub(crate) fn ensure_derived(directory: &Path) -> Result<PathBuf> {
         ));
     }
     Ok(path)
+}
+
+/// Names an unusable data folder in the owner's terms; other I/O failures
+/// keep their storage error.
+fn data_folder_error(folder: &Path, cause: std::io::Error) -> Error {
+    use std::io::ErrorKind;
+    let problem = match cause.kind() {
+        ErrorKind::ReadOnlyFilesystem => DataFolderProblem::ReadOnly,
+        ErrorKind::PermissionDenied => DataFolderProblem::PermissionDenied,
+        ErrorKind::NotADirectory => DataFolderProblem::NotAFolder,
+        // `create_dir_all` reports a file in the folder's place this way.
+        ErrorKind::AlreadyExists if !folder.is_dir() => DataFolderProblem::NotAFolder,
+        ErrorKind::NotFound => DataFolderProblem::MissingParent,
+        _ => return Error::Io(cause),
+    };
+    Error::DataFolder {
+        folder: folder.display().to_string(),
+        problem,
+        cause,
+    }
 }
 
 pub(crate) fn has_symlink_ancestor(path: &Path) -> Result<bool> {
@@ -2422,5 +2487,48 @@ mod storage_open_tests {
         );
         assert!(!database.exists());
         assert_eq!(fs::read_dir(&directory).unwrap().count(), 1);
+    }
+
+    /// Each OS failure maps to its owner reason, and the message keeps the
+    /// folder and drops the OS text. Raw codes are the same on macOS and Linux.
+    #[cfg(unix)]
+    #[test]
+    fn data_folder_failures_are_named_in_owner_terms() {
+        let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+        let file = root.path().join("file");
+        fs::write(&file, b"not a folder").unwrap();
+        let folder = root.path().join("data");
+        for (code, at, expected) in [
+            (30, &folder, DataFolderProblem::ReadOnly),
+            (13, &folder, DataFolderProblem::PermissionDenied),
+            (20, &folder, DataFolderProblem::NotAFolder),
+            (17, &file, DataFolderProblem::NotAFolder),
+            (2, &folder, DataFolderProblem::MissingParent),
+        ] {
+            let error = data_folder_error(at, std::io::Error::from_raw_os_error(code));
+            let message = error.to_string();
+            assert!(
+                message.starts_with(&format!(
+                    "BRN cannot use the data folder {}: ",
+                    at.display()
+                )),
+                "{message}"
+            );
+            assert!(!message.contains("os error"), "{message}");
+            assert!(std::error::Error::source(&error).is_some());
+            assert!(
+                matches!(&error, Error::DataFolder { problem, cause, .. } if *problem == expected && cause.raw_os_error() == Some(code)),
+                "{error:?}"
+            );
+        }
+        // An existing folder that raced into place is not "a file"; a full
+        // disk and other failures keep the storage error.
+        fs::create_dir(&folder).unwrap();
+        for (code, at) in [(17, &folder), (28, &folder)] {
+            assert!(matches!(
+                data_folder_error(at, std::io::Error::from_raw_os_error(code)),
+                Error::Io(cause) if cause.raw_os_error() == Some(code)
+            ));
+        }
     }
 }

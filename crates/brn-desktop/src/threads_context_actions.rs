@@ -1,5 +1,6 @@
 //! Explicit contextual actions, separate from ordinary chat drafts and queueing.
 use super::*;
+use gpui_kit::component::button::ButtonVariants;
 
 impl ThreadsUi {
     fn context_work_idle(&self) -> bool {
@@ -7,21 +8,45 @@ impl ThreadsUi {
         self.worker.is_none() && queue.pending.is_none() && queue.queue.is_empty()
     }
     pub(super) fn can_edit_note_context(&self) -> bool {
-        self.context_work_idle()
-            && self.review.is_none()
-            && !self.recovery_blocked()
-            && self.note.as_ref().is_some_and(|open| {
-                open.session.is_none()
-                    && !open.record.archived
-                    && self
-                        .workspace
-                        .store
-                        .record(&open.record.id)
-                        .ok()
-                        .flatten()
-                        .as_ref()
-                        == Some(&open.record)
+        self.edit_note_blocked().is_none()
+    }
+    /// Why Edit note is unavailable, in the words its disabled control shows;
+    /// `None` when the open saved note may be edited.
+    pub(super) fn edit_note_blocked(&self) -> Option<&'static str> {
+        let Some(open) = &self.note else {
+            return Some("no note is open");
+        };
+        // Saved queue work also blocks it; the reason says which (R2), as
+        // the status bar does.
+        if self.worker.is_some() {
+            Some("BRN is working")
+        } else if !self.context_work_idle() {
+            Some(if self.queue_state().paused {
+                "a queued message is paused · Resume or clear the queue"
+            } else {
+                "a queued message is about to run"
             })
+        } else if self.review.is_some() {
+            Some("finish the review first")
+        } else if self.recovery_blocked() {
+            Some("recover the kept edit first")
+        } else if open.session.is_some() {
+            Some("save or discard your edit first")
+        } else if open.record.archived {
+            Some("this note is archived")
+        } else if self
+            .workspace
+            .store
+            .record(&open.record.id)
+            .ok()
+            .flatten()
+            .as_ref()
+            != Some(&open.record)
+        {
+            Some("open the current version first")
+        } else {
+            None
+        }
     }
     pub(super) fn edit_note_authority(
         &self,
@@ -44,35 +69,81 @@ impl ThreadsUi {
             return;
         }
         let note = self.note.as_ref().unwrap().record.clone();
-        let instruction = cx
-            .new(|cx| EditorState::new(window, cx).placeholder("What should change in this note?"));
-        instruction.update(cx, |editor, cx| editor.focus(window, cx));
+        let instruction = cx.new(|cx| {
+            components::prose_editor_state(window, cx)
+                .placeholder("What should change in this note?")
+        });
         let error = cx.new(|_| String::new());
         let target = cx.entity().downgrade();
-        window.open_dialog(cx, move |dialog, _, cx| {
-            let (instruction, error, target, note) = (instruction.clone(), error.clone(), target.clone(), note.clone());
-            let submit_input = instruction.clone();
-            let submit_error = error.clone();
-            dialog.title(format!("Edit {}", short(&title(&note)))).width(px(620.)).child(
-                div().flex().flex_col().gap_3()
-                    .child(metadata(format!("BRN may edit this saved note (v{}) for this request. Other notes keep their existing protection.", note.version)))
-                    .child(div().id("context-edit-instruction").h(px(180.)).child(prose_editor(&instruction).h_full().aria_label("Note edit instruction")).test_support())
-                    .child(metadata(error.read(cx).clone()).id("context-edit-error").aria_label(error.read(cx).clone()).test_support())
-                    .child(div().flex().gap_2()
-                        .child(button("context-edit-cancel").label("Cancel").on_click(|_, window, cx| window.close_dialog(cx)))
-                        .child(button("context-edit-submit").label("Edit note").on_click(move |_, window, cx| {
-                            let prompt = submit_input.read(cx).value().to_string();
-                            let mut result = Err("This window is unavailable.".to_owned());
-                            let _ = target.update(cx, |this, cx| {
-                                result = this.submit_note_edit(&note, &prompt, window, cx).map_err(|e| e.to_string());
-                            });
-                            match result {
-                                Ok(()) => window.close_dialog(cx),
-                                Err(message) => submit_error.update(cx, |error, cx| { *error = message; cx.notify(); }),
-                            }
-                        }))),
-            )
+        // A multi-line form: ↵ adds a line; ⌘↵ (or the button) sends it.
+        let submit: components::DialogAction = {
+            let (instruction, error, note) = (instruction.clone(), error.clone(), note.clone());
+            std::rc::Rc::new(move |window, cx| {
+                let prompt = instruction.read(cx).value().to_string();
+                let mut result = Err("This window is unavailable.".to_owned());
+                let _ = target.update(cx, |this, cx| {
+                    result = this
+                        .submit_note_edit(&note, &prompt, window, cx)
+                        .map_err(|e| e.to_string());
+                });
+                match result {
+                    Ok(()) => window.close_dialog(cx),
+                    Err(message) => error.update(cx, |error, cx| {
+                        *error = message;
+                        cx.notify();
+                    }),
+                }
+            })
+        };
+        let field = instruction.clone();
+        self.open_dialog(window, cx, move |dialog, window, cx| {
+            let click = submit.clone();
+            dialog
+                .title(format!("Edit {}", short(&title(&note))))
+                .width(px(620.))
+                .on_ok(|_, _, _| false)
+                .child(
+                    components::dialog_body("context-edit-body", window).child(
+                        components::form_keys(div().flex().flex_col().gap_3(), submit.clone())
+                            .child(metadata(format!(
+                                "BRN may edit this saved note (v{}) for this request. Other notes keep their protection.",
+                                note.version
+                            )))
+                            .child(
+                                div()
+                                    .id("context-edit-instruction")
+                                    .h(px(180.))
+                                    .child(
+                                        prose_editor(&instruction)
+                                            .h_full()
+                                            .aria_label("Note edit instruction"),
+                                    )
+                                    .test_support(),
+                            )
+                            .child(components::field_error(
+                                "context-edit-error",
+                                error.read(cx).clone(),
+                            )),
+                    ).test_support(),
+                )
+                .footer(
+                    components::form_keys(components::dialog_footer(), submit.clone())
+                        .child(
+                            button("context-edit-cancel")
+                                .label("Cancel")
+                                .outline()
+                                .on_click(|_, window, cx| window.close_dialog(cx)),
+                        )
+                        .child(
+                            button("context-edit-submit")
+                                .label("Edit note")
+                                .primary()
+                                .tooltip("Send this instruction (⌘↵)")
+                                .on_click(move |_, window, cx| click(window, cx)),
+                        ),
+                )
         });
+        field.update(cx, |editor, cx| editor.focus(window, cx));
     }
     pub(super) fn submit_note_edit(
         &mut self,
@@ -163,48 +234,100 @@ impl ThreadsUi {
                 short(&self.thread_title(&reply.thread))
             ))
         });
-        let text = cx.new(|cx| EditorState::new(window, cx).default_value(reply.text.clone()));
-        title.update(cx, |input, cx| input.focus(window, cx));
+        let text = cx
+            .new(|cx| components::prose_editor_state(window, cx).default_value(reply.text.clone()));
         let error = cx.new(|_| String::new());
         let target = cx.entity().downgrade();
         let candidate = std::rc::Rc::new(std::cell::RefCell::new(None::<(String, String, String)>));
-        window.open_dialog(cx, move |dialog, _, cx| {
-            let (title, text, error, target, candidate, message) = (title.clone(), text.clone(), error.clone(), target.clone(), candidate.clone(), message.clone());
-            let (submit_title, submit_text, submit_error) = (title.clone(), text.clone(), error.clone());
-            dialog.title("Save as decision").width(px(680.)).child(
-                div().flex().flex_col().gap_3()
-                    .child(metadata("Review the title and text. Save retains this decision in BRN as protected and confirmed. Your chat and attachments stay where they are."))
-                    .child(Input::new(&title).id("decision-title"))
-                    .child(div().id("decision-text").h(px(260.)).child(prose_editor(&text).h_full().aria_label("Decision text")).test_support())
-                    .child(metadata(error.read(cx).clone()).id("decision-error").aria_label(error.read(cx).clone()).test_support())
-                    .child(div().flex().gap_2()
-                        .child(button("decision-cancel").label("Cancel").on_click(|_, window, cx| window.close_dialog(cx)))
-                        .child(button("decision-save").label("Save decision").on_click(move |_, window, cx| {
-                            let name = submit_title.read(cx).value().to_string();
-                            let markdown = submit_text.read(cx).value().to_string();
-                            // Modified previews get fresh identities; unchanged retries reuse them.
-                            let key = {
-                                let mut c = candidate.borrow_mut();
-                                if c.as_ref().is_none_or(|(t, body, _)| t != &name || body != &markdown) {
-                                    *c = Some((name.clone(), markdown.clone(), format!("decision:{}", uuid::Uuid::new_v4())));
-                                }
-                                c.as_ref().unwrap().2.clone()
-                            };
-                            let mut result = Err("This window is unavailable.".to_owned());
-                            let _ = target.update(cx, |this, cx| {
-                                result = this.workspace.save_chat_decision(&key, &message, &name, &markdown).map(|note| {
-                                    this.open_note(&note.id, None, window, cx);
-                                    this.notice = "Decision saved in BRN. Undo is available in What changed.".into();
-                                    this.refresh();
-                                    cx.notify();
-                                }).map_err(|e| e.to_string());
-                            });
-                            match result {
-                                Ok(()) => window.close_dialog(cx),
-                                Err(message) => submit_error.update(cx, |error, cx| { *error = message; cx.notify(); }),
-                            }
-                        }))),
-            )
+        // A multi-line form: ↵ in the title does nothing and adds a line in
+        // the text; ⌘↵ (or the button) saves.
+        let save: components::DialogAction = {
+            let (title, text, error) = (title.clone(), text.clone(), error.clone());
+            std::rc::Rc::new(move |window, cx| {
+                let name = title.read(cx).value().to_string();
+                let markdown = text.read(cx).value().to_string();
+                // Modified previews get fresh identities; unchanged retries reuse them.
+                let key = {
+                    let mut c = candidate.borrow_mut();
+                    if c.as_ref()
+                        .is_none_or(|(t, body, _)| t != &name || body != &markdown)
+                    {
+                        *c = Some((
+                            name.clone(),
+                            markdown.clone(),
+                            format!("decision:{}", uuid::Uuid::new_v4()),
+                        ));
+                    }
+                    c.as_ref().unwrap().2.clone()
+                };
+                let mut result = Err("This window is unavailable.".to_owned());
+                let _ = target.update(cx, |this, cx| {
+                    result = this
+                        .workspace
+                        .save_chat_decision(&key, &message, &name, &markdown)
+                        .map(|note| {
+                            this.open_note(&note.id, None, window, cx);
+                            this.confirm(
+                                "Decision saved in BRN as a protected note. Undo is in Changes.",
+                            );
+                            this.refresh();
+                            cx.notify();
+                        })
+                        .map_err(|e| e.to_string());
+                });
+                match result {
+                    Ok(()) => window.close_dialog(cx),
+                    Err(message) => error.update(cx, |error, cx| {
+                        *error = message;
+                        cx.notify();
+                    }),
+                }
+            })
+        };
+        let field = title.clone();
+        self.open_dialog(window, cx, move |dialog, window, cx| {
+            let click = save.clone();
+            dialog
+                .title("Save as decision")
+                .width(px(680.))
+                .on_ok(|_, _, _| false)
+                .child(
+                    components::dialog_body("decision-body", window).child(
+                        components::form_keys(div().flex().flex_col().gap_3(), save.clone())
+                            .child(metadata(
+                                "Check the title and text. BRN keeps the decision as a protected, confirmed note; your chat and attachments stay where they are.",
+                            ))
+                            .child(Input::new(&title).id("decision-title"))
+                            .child(
+                                div()
+                                    .id("decision-text")
+                                    .h(px(260.))
+                                    .child(prose_editor(&text).h_full().aria_label("Decision text"))
+                                    .test_support(),
+                            )
+                            .child(components::field_error(
+                                "decision-error",
+                                error.read(cx).clone(),
+                            )),
+                    ).test_support(),
+                )
+                .footer(
+                    components::form_keys(components::dialog_footer(), save.clone())
+                        .child(
+                            button("decision-cancel")
+                                .label("Cancel")
+                                .outline()
+                                .on_click(|_, window, cx| window.close_dialog(cx)),
+                        )
+                        .child(
+                            button("decision-save")
+                                .label("Save decision")
+                                .primary()
+                                .tooltip("Save decision (⌘↵)")
+                                .on_click(move |_, window, cx| click(window, cx)),
+                        ),
+                )
         });
+        field.update(cx, |input, cx| input.focus(window, cx));
     }
 }

@@ -10,10 +10,14 @@ pub use projects::{
     TrashedRecord, project_context_fences, project_document_ids, project_for_chat,
 };
 mod edit;
+pub mod locator;
+pub use locator::{canonical_locator, find_source, matching_sources, same_locator};
 mod read;
 mod reader;
 mod restore;
 mod revision_read;
+pub mod run_attention;
+mod stage;
 mod steering;
 mod store;
 mod types;
@@ -43,8 +47,51 @@ pub enum Error {
     ImmutableRequest,
     #[error("record or operation not found: {0}")]
     Missing(String),
+    /// The note already has an open edit session, which stays untouched so
+    /// the owner can compare, save or discard it.
+    #[error("this note already has an open unsaved edit")]
+    EditSessionOpen {
+        note: String,
+        session: String,
+        base_version: u64,
+    },
+    /// The data folder cannot be opened or created. The message names the
+    /// folder and the reason in the owner's terms; the OS detail stays in
+    /// `cause`, reachable through `source()` for logs.
+    #[error("BRN cannot use the data folder {folder}: {problem}")]
+    DataFolder {
+        folder: String,
+        problem: DataFolderProblem,
+        #[source]
+        cause: std::io::Error,
+    },
 }
 pub type Result<T> = std::result::Result<T, Error>;
+
+/// Why a data folder is unusable. Its text never carries OS error wording.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum DataFolderProblem {
+    ReadOnly,
+    PermissionDenied,
+    NotAFolder,
+    SymlinkRefused,
+    MissingParent,
+}
+impl std::fmt::Display for DataFolderProblem {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match self {
+            Self::ReadOnly => "it is on a read-only disk. Choose a folder you can write to.",
+            Self::PermissionDenied => {
+                "BRN does not have permission to use it. Choose a folder you own."
+            }
+            Self::NotAFolder => "that path, or part of it, is a file rather than a folder.",
+            Self::SymlinkRefused => {
+                "part of its path is a symbolic link. Choose the folder's real location."
+            }
+            Self::MissingParent => "a folder above it is missing or unavailable.",
+        })
+    }
+}
 
 pub(crate) fn integer(value: u64) -> Result<i64> {
     i64::try_from(value)
@@ -56,4 +103,7 @@ pub(crate) fn read_u64(row: &rusqlite::Row<'_>, index: usize) -> rusqlite::Resul
 }
 
 pub use context::{managed_asset_ids, project_scope, visible as record_in_chat};
-pub use reader::{SearchEligibility, Snapshot, StoreReader, search_eligibility};
+pub use reader::{
+    MessageScope, SEARCHABLE_MESSAGE_ROLES, SearchEligibility, Snapshot, StoreReader,
+    chat_is_archived, message_scope, message_scopes_for, message_searchable, search_eligibility,
+};

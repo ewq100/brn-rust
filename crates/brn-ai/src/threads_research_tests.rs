@@ -507,6 +507,62 @@ async fn helpers_are_read_only_and_cannot_spawn_helpers() {
 }
 
 #[tokio::test]
+async fn the_helper_is_never_offered_withdraw_proposal() {
+    let (_root, request, _plan) = setup();
+    let (scope, _) = begin(&request).unwrap();
+    // The parent's own proposal, prepared and not applied.
+    let draft = json!({"request_key":"draft","request":{"reason":"Draft","writes":[{"id":"new:0","expected_version":null,"archived":false,"data":{"Note":Note::working("Ferry draft","Draft.")}}],"inputs":[]}});
+    let prepared = prepare(&scope, serde_json::from_value(draft).unwrap()).unwrap();
+    let operation = prepared["operation"].as_str().unwrap().to_owned();
+    let active = |scope: &Scope| {
+        scope
+            .store
+            .lock()
+            .unwrap()
+            .candidates()
+            .unwrap()
+            .iter()
+            .any(|c| c.operation.as_str() == operation)
+    };
+    assert!(active(&scope));
+    // A helper that asks for it anyway fails without touching the proposal.
+    let helper = MockCompletionModel::from_stream_turns(vec![vec![
+        MockStreamEvent::tool_call("w", "withdraw_proposal", json!({"operation":operation})),
+        tokens(10),
+    ]]);
+    scripted(&scope, vec![Ok(helper.clone())]);
+    let out = ask(&scope, vec![question("Is the draft still needed?")]).await;
+    assert_eq!(out["reports"][0]["outcome"], "failed", "{out}");
+    assert!(!tool_names(&helper).contains(&"withdraw_proposal".to_owned()));
+    assert!(!research::HELPER_TOOLS.contains(&"withdraw_proposal"));
+    assert!(active(&scope));
+    // A direct call in a helper's scope is rejected; the parent's succeeds.
+    let child = research::test_child_scope(&scope);
+    let error = WithdrawProposal
+        .call(
+            &mut ToolContext::new().with_scope(child),
+            WithdrawArgs {
+                operation: operation.clone(),
+            },
+        )
+        .await
+        .unwrap_err();
+    assert_eq!(error.kind, AiErrorKind::ToolRejected);
+    assert!(active(&scope));
+    let withdrawn = WithdrawProposal
+        .call(
+            &mut ToolContext::new().with_scope(scope.clone()),
+            WithdrawArgs {
+                operation: operation.clone(),
+            },
+        )
+        .await
+        .unwrap();
+    assert_eq!(withdrawn["outcome"], "Withdrawn", "{withdrawn}");
+    assert!(!active(&scope));
+}
+
+#[tokio::test]
 async fn research_rejects_scope_fields_from_the_model() {
     for extra in [
         json!({"questions":[{"question":"q","focus":null,"known":[],"chat":"other"}]}),
@@ -1745,4 +1801,95 @@ async fn long_notes_carry_a_research_hint_only_when_research_is_offered() {
             }
         }
     }
+}
+
+/// From inside a helper's search, records whether the parent Run's lease is
+/// held and which Runs are Working.
+#[derive(Default)]
+struct LeaseProbe {
+    target: std::sync::OnceLock<(PathBuf, PathBuf, String)>,
+    seen: Mutex<Vec<(bool, Vec<String>)>>,
+}
+impl RunNoteSearch for LeaseProbe {
+    fn search(
+        &self,
+        chat: &str,
+        query: &str,
+        limit: usize,
+        cursor: Option<&str>,
+        hybrid: bool,
+    ) -> std::result::Result<NoteSearchPage, NoteSearchError> {
+        let (data_dir, derived, run) = self.target.get().expect("probe target set");
+        let working = Store::open(data_dir)
+            .unwrap()
+            .records()
+            .unwrap()
+            .into_iter()
+            .filter_map(|r| match r.data {
+                RecordData::Run(run) if run.state == RunState::Working => Some(r.id),
+                _ => None,
+            })
+            .collect();
+        self.seen
+            .lock()
+            .unwrap()
+            .push((crate::run_lease::run_is_live(derived, run), working));
+        FakeSearch.search(chat, query, limit, cursor, hybrid)
+    }
+    fn connections(
+        &self,
+        chat: &str,
+        note: &str,
+        hops: u8,
+        sources: bool,
+    ) -> std::result::Result<NoteNeighbourhood, NoteSearchError> {
+        FakeSearch.connections(chat, note, hops, sources)
+    }
+}
+
+/// Orphan recovery interrupts a Working Run only when its lease is free. A
+/// helper sub-run saves no Run of its own and runs under its parent's lease,
+/// so a live parent with a live helper is never taken for an orphan, and a
+/// parent that ends without finishing (a crash) still frees it.
+#[tokio::test]
+async fn a_helper_sub_run_holds_its_parent_lease_and_saves_no_run() {
+    let (_root, mut request, _) = setup();
+    let probe = Arc::new(LeaseProbe::default());
+    request.search = Some(probe.clone());
+    let (scope, _) = begin(&request).unwrap();
+    let derived = Store::open(&request.data_dir)
+        .unwrap()
+        .derived_directory()
+        .unwrap();
+    let run = scope.run.clone();
+    assert!(
+        probe
+            .target
+            .set((request.data_dir.clone(), derived.clone(), run.clone()))
+            .is_ok()
+    );
+    let helper = MockCompletionModel::from_stream_turns(vec![
+        vec![
+            MockStreamEvent::tool_call(
+                "h1",
+                "search_notes",
+                json!({"query":"ferry","limit":5,"mode":"keyword","cursor":null}),
+            ),
+            tokens(10),
+        ],
+        vec![MockStreamEvent::text("done"), tokens(1)],
+    ]);
+    scripted(&scope, vec![Ok(helper)]);
+    ask(&scope, vec![question("When does the ferry leave?")]).await;
+    assert_eq!(
+        *probe.seen.lock().unwrap(),
+        vec![(true, vec![run.clone()])],
+        "the helper searched under the live parent lease, beside no Run of its own"
+    );
+    drop(scope);
+    assert!(!crate::run_lease::run_is_live(&derived, &run));
+    assert!(matches!(
+        Store::open(&request.data_dir).unwrap().record(&run).unwrap().unwrap().data,
+        RecordData::Run(r) if r.state == RunState::Working
+    ));
 }

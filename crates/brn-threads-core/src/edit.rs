@@ -23,6 +23,22 @@ impl Store {
         let RecordData::Note(content) = base.data else {
             return Err(Error::Invalid("editing requires a note".into()));
         };
+        // One open session per note. Name it, inside this same transaction,
+        // instead of hitting the unique index; dropping `tx` writes nothing.
+        let open: Option<(String, u64)> = tx
+            .query_row(
+                "SELECT id,base FROM edit_sessions WHERE note=?1 AND closed=0",
+                [note],
+                |r| Ok((r.get(0)?, crate::read_u64(r, 1)?)),
+            )
+            .optional()?;
+        if let Some((session, base_version)) = open {
+            return Err(Error::EditSessionOpen {
+                note: note.into(),
+                session,
+                base_version,
+            });
+        }
         let session = EditSession {
             id: uuid::Uuid::new_v4().to_string(),
             note: note.into(),

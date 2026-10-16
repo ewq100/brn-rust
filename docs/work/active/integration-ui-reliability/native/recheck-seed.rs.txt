@@ -1,0 +1,250 @@
+//! Synthetic native-recheck fixture for work/integration-ui-reliability.
+//! Temporary example in a `git archive` export outside Git; never committed.
+//! All content is invented. `main` uses the offline-fixture provider with no
+//! credentials. `continue` uses Codex with no auth file and no credentials
+//! folder, so a Run fails with ReconnectNeeded before any file or network use.
+use brn_threads_app::*;
+use std::collections::BTreeMap;
+
+fn put(id: &str, version: Option<u64>, archived: bool, data: RecordData) -> Put {
+    Put { id: id.into(), expected_version: version, archived, data }
+}
+
+fn change(ws: &mut Workspace, key: &str, reason: &str, writes: Vec<Put>) {
+    ws.owner_change(key, &ChangeRequest { reason: reason.into(), writes, inputs: vec![] }).unwrap();
+}
+
+fn reply(ws: &mut Workspace, key: &str, thread: &str, text: &str) {
+    let op = ws.store.allocate_operation(key).unwrap();
+    let id = op.creation_id(0);
+    change(ws, key, "Synthetic BRN reply", vec![put(&id, None, false, RecordData::Message(Message {
+        thread: thread.into(), role: "assistant".into(), text: text.into(),
+    }))]);
+}
+
+fn action(ws: &mut Workspace, key: &str, description: &str, state: ActionState, due: Option<&str>, evidence: Option<&str>) {
+    let op = ws.store.allocate_operation(key).unwrap();
+    let id = op.creation_id(0);
+    change(ws, key, "Synthetic task", vec![put(&id, None, false, RecordData::Action(Action {
+        kept_outside_project: false, chat: None, description: description.into(), state, internal: false,
+        evidence: evidence.map(Into::into), due: due.map(Into::into),
+    }))]);
+}
+
+fn created(receipt: &Receipt, pick: impl Fn(&RecordData) -> bool) -> String {
+    receipt.writes.iter().find(|w| w.before.is_none() && pick(&w.after.data)).map(|w| w.after.id.clone()).expect("created record")
+}
+
+fn run(thread: &str, instruction: Option<String>, state: RunState, progress: &str, operations: Vec<OperationId>, provider: &str) -> RecordData {
+    RecordData::Run(Run {
+        instruction, queue_claim: None, thread: thread.into(), provider: provider.into(), model: "gpt-6.1-sol".into(),
+        guide_identity: "synthetic".into(), budget: 1, effort: "medium".into(), loaded_skills: vec![], fence: 0,
+        state, progress: progress.into(), operations, sources: vec![],
+    })
+}
+
+fn set_attention(ws: &mut Workspace, key: &str, chat: &str, attention: Vec<Attention>) {
+    let current = ws.store.record(chat).unwrap().unwrap();
+    let RecordData::Thread(mut t) = current.data.clone() else { panic!() };
+    t.attention = attention;
+    change(ws, key, "Synthetic terminal notice", vec![put(chat, Some(current.version), current.archived, RecordData::Thread(t))]);
+}
+
+fn main_store(ws: &mut Workspace, backups: &str) {
+    let mut settings = ws.settings().unwrap();
+    settings.provider = "offline-fixture".into();
+    settings.auth_file = None;
+    settings.credentials_dir = None;
+    ws.configure(settings).unwrap();
+    ws.choose_delegation(DelegationChoice::MaintainOrdinaryNotes).unwrap();
+    ws.choose_backup_directory(std::path::Path::new(backups)).unwrap();
+
+    for (title, body) in [
+        ("Analytics dashboard requirements", "Track weekly active teams, response time and resolution rate.\n\n- Owner: Data team\n- Status: draft"),
+        ("Brand voice notes", "Warm, direct, specific. Avoid jargon and exclamation marks."),
+        ("Customer interview — Northwind", "Synthetic interview. Onboarding took two weeks; they want templates."),
+        ("Design review checklist", "1. Problem statement\n2. Alternatives\n3. Risks\n4. Rollout"),
+        ("Harbour logistics", "The crane barge needs the east berth from 20 November.\n\nKeep the quay clear on the morning of the lift."),
+        ("Meeting notes — weekly sync", "Discussed pilot timing, dashboard scope and the vendor decision."),
+        ("Pricing experiments", "Test annual discount at 15% vs 20% for small teams."),
+        ("Quarterly goals", "Reduce first-response time to under 2 hours. Ship templates."),
+        ("Travel checklist", "Passport, adapters, offline maps, team dinner booking."),
+        ("Vendor comparison", "Vendor A: cheaper, slower support. Vendor B: faster, pricier."),
+    ] {
+        ws.new_note(title, body).unwrap();
+    }
+    let decision = ws.new_note("Decision — choose Vendor B for support tooling", "We choose **Vendor B**.\n\nReason: response time matters more than licence cost for the pilot.").unwrap();
+    let RecordData::Note(mut protected) = decision.data.clone() else { panic!() };
+    protected.protected = true;
+    protected.confirmed = true;
+    change(ws, "fixture-protect", "Owner protected a decision", vec![put(&decision.id, Some(decision.version), false, RecordData::Note(protected))]);
+
+    // Writing note with comments and a pending exact candidate (scripted, not model output).
+    let source = "# A smaller pilot. A better way to learn.\n\nWe’re ready to try the new workflow with a small group. The aim is to validate our assumptions and identify potential areas for improvement.\n\n## Start with one team\n\nWe could begin on **22 November**, if testing goes well.\n\n## What happens next\n\nAfter the pilot, we will review the outcomes and determine the appropriate next steps.\n";
+    let note = ws.new_note("Pilot proposal", source).unwrap();
+    let wthread = ws.new_thread("Refine the pilot proposal").unwrap();
+    ws.link_writing_thread("fixture-link", &note.id, note.version, &wthread.id).unwrap();
+    ws.post_message(&wthread.id, "This is for the team. Keep it warm and direct.").unwrap();
+    let mut ids = vec![];
+    for (index, (quote, body)) in [
+        ("The aim is to validate our assumptions and identify potential areas for improvement.", "Plain language, less corporate."),
+        ("After the pilot, we will review the outcomes and determine the appropriate next steps.", "End with a concrete next step: a Friday review."),
+    ].into_iter().enumerate() {
+        let start = source.find(quote).unwrap();
+        let record = ws.add_writing_comment(&format!("fixture-comment-{index}"), &WritingCommentInput {
+            note: note.id.clone(), version: note.version, thread: wthread.id.clone(), range: (start, start + quote.len()), quote: quote.into(), body: body.into(),
+        }).unwrap();
+        ids.push(record.id);
+    }
+    let snapshot = ws.snapshot_writing_request("fixture-request", &note.id, note.version, &wthread.id, &ids).unwrap();
+    let revised = source
+        .replace("The aim is to validate our assumptions and identify potential areas for improvement.", "We want to see what helps, what gets in the way, and what to change.")
+        .replace("After the pilot, we will review the outcomes and determine the appropriate next steps.", "Let’s meet on Friday after the pilot to review what we learned.");
+    let op = ws.store.allocate_operation("fixture-scripted-rewrite").unwrap();
+    ws.store.prepare(&op, &snapshot.change_request(&revised).unwrap()).unwrap();
+
+    // U10: a note whose rewrite Run failed, with the chat's recorded notice.
+    let crane = ws.new_note("Crane arrival plan", "# Crane arrival plan\n\nThe crane arrives on 22 November and lifts on the 23rd.\n").unwrap();
+    let cthread = ws.new_thread("Refine the crane arrival plan").unwrap();
+    ws.link_writing_thread("fixture-crane-link", &crane.id, crane.version, &cthread.id).unwrap();
+    let request = ws.snapshot_writing_request_with_feedback("fixture-crane-request", &crane.id, crane.version, &cthread.id, &[], "Make it shorter and name the lift day first.").unwrap();
+    let op = ws.store.allocate_operation("fixture-crane-run").unwrap();
+    let failed_run = op.creation_id(0);
+    change(ws, "fixture-crane-run", "Synthetic host invocation", vec![put(&failed_run, None, false,
+        run(&cthread.id, Some(request.request_message.clone()), RunState::Failed, "Read the note and drafted a shorter opening.", vec![], "offline-fixture"))]);
+    set_attention(ws, "fixture-crane-notice", &cthread.id, vec![Attention {
+        kind: AttentionKind::Blocker,
+        reason: "Run failed: The provider account needs reconnecting. Continue when the provider is ready.".into(),
+        record: Some(failed_run.clone()),
+    }]);
+
+    // Killed reply: a Working Run that no process holds, with one prepared proposal.
+    let killed = ws.new_thread("Information from crane-source").unwrap();
+    ws.post_message(&killed.id, "Capture the useful dates from the crane source.").unwrap();
+    let op = ws.store.allocate_operation("fixture-killed-run").unwrap();
+    let killed_run = op.creation_id(0);
+    let proposal = ws.store.allocate_operation(&format!("{killed_run}:proposal:crane-arrival-source-capture-1")).unwrap();
+    change(ws, "fixture-killed-run", "Synthetic host invocation", vec![put(&killed_run, None, false,
+        run(&killed.id, None, RunState::Working, "Reading the crane source", vec![proposal.clone()], "offline-fixture"))]);
+    ws.store.prepare(&proposal, &ChangeRequest {
+        reason: "Record the reported crane arrival date".into(),
+        writes: vec![put(&proposal.creation_id(0), None, false, RecordData::Note(Note::working(
+            "Crane arrival — reported date", "# Crane arrival — reported date\n\nThe source reports 22 November.\n")))],
+        inputs: vec![],
+    }).unwrap();
+    let lease = ws.store.derived_directory().unwrap().join("run-leases");
+    std::fs::create_dir_all(&lease).unwrap();
+    std::fs::write(lease.join(format!("{}.lock", killed_run.replace(':', "_"))), b"").unwrap();
+
+    // F-UI1: saved chat replies with "berth", one chat archived.
+    let harbour = ws.new_thread("Harbour berth survey").unwrap();
+    ws.post_message(&harbour.id, "What did the berth survey measure?").unwrap();
+    reply(ws, "fixture-harbour-reply", &harbour.id, "The berth survey measured 1.4 m at low tide, so the barge fits the east berth.");
+    let replies = ws.new_thread("Replies").unwrap();
+    ws.post_message(&replies.id, "Berth survey reply draft 1.4 m").unwrap();
+    reply(ws, "fixture-replies-reply", &replies.id, "Saved the berth depth reply for the harbour master.");
+    ws.archive_chat("fixture-replies-archive", &replies.id).unwrap();
+
+    let weekend = ws.new_thread("Weekend").unwrap();
+    ws.post_message(&weekend.id, "Raba walk on Saturday").unwrap();
+
+    // A long ordinary chat.
+    let long = ws.new_thread("Plan the Q4 support pilot").unwrap();
+    for (i, (ask, answer)) in [
+        ("What should the pilot measure?", "Three things are enough to start:\n\n1. **First-response time**.\n2. **Resolution rate** within 48 hours.\n3. **Agent confidence**, from a two-question weekly survey."),
+        ("Can you draft the Friday review agenda?", "| Time | Item | Owner |\n| --- | --- | --- |\n| 5 min | Numbers | Data |\n| 15 min | Three confusing tickets | Pilot team |\n| 10 min | Decide one change | Everyone |"),
+        ("And a shorter version for the email?", "We’ll try this with one team for four weeks and review every Friday."),
+    ].into_iter().enumerate() {
+        ws.post_message(&long.id, ask).unwrap();
+        reply(ws, &format!("fixture-long-reply-{i}"), &long.id, answer);
+    }
+
+    // A chat that needs the owner, with a question.
+    let ask = ws.new_thread("Confirm the pilot start date").unwrap();
+    ws.post_message(&ask.id, "Can we start the pilot on 22 November?").unwrap();
+    reply(ws, "fixture-ask-reply", &ask.id, "Should I keep 22 November as the start date, or move it to 29 November?");
+    set_attention(ws, "fixture-attention", &ask.id, vec![Attention { kind: AttentionKind::Question, reason: "Choose the pilot start date: 22 or 29 November".into(), record: None }]);
+
+    // A chat whose last run failed, with a paused waiting message (no notice: legacy state).
+    let failed = ws.new_thread("Summarise the interview notes").unwrap();
+    ws.post_message(&failed.id, "Summarise the customer interview in five bullets.").unwrap();
+    let op = ws.store.allocate_operation("fixture-failed-run").unwrap();
+    let frun = op.creation_id(0);
+    change(ws, "fixture-failed-run", "Synthetic host invocation", vec![put(&frun, None, false,
+        run(&failed.id, None, RunState::Failed, "Provider unavailable (synthetic failure)", vec![], "offline-fixture"))]);
+    ws.queue_message("fixture-queue-1", &failed.id, "Then list the three most common requests.").unwrap();
+    ws.pause_queue("fixture-queue-pause").unwrap();
+
+    for (i, (title, q, a)) in [
+        ("Rename the dashboard metrics", "Suggest clearer names for the dashboard metrics.", "Try “Time to first reply” and “Solved in 2 days”."),
+        ("Translate the welcome line", "Translate “Welcome aboard” to Estonian.", "“Tere tulemast meeskonda!”"),
+    ].into_iter().enumerate() {
+        let t = ws.new_thread(title).unwrap();
+        ws.post_message(&t.id, q).unwrap();
+        reply(ws, &format!("fixture-short-{i}"), &t.id, a);
+    }
+
+    action(ws, "fixture-action-1", "Send the pilot proposal to the support team", ActionState::Suggested, None, None);
+    action(ws, "fixture-action-2", "Prepare the Friday review agenda", ActionState::Open, Some("2026-11-27"), None);
+    action(ws, "fixture-action-3", "Wait for Finance to confirm the Vendor B licence", ActionState::Waiting, Some("2026-11-20"), None);
+    action(ws, "fixture-action-4", "Draft the onboarding email", ActionState::Done, None, Some("Owner confirmed completion in BRN."));
+
+    let created_project = ws.project_command("fixture-project", ProjectCommand::Create { title: "Website refresh".into() }).unwrap();
+    let project = created(&created_project, |d| matches!(d, RecordData::Project(_)));
+    let p = ws.store.record(&project).unwrap().unwrap();
+    ws.project_command("fixture-project-settings", ProjectCommand::Configure {
+        project: project.clone(), version: p.version, title: "Website refresh".into(),
+        instructions: "Audience: small-team buyers. Keep copy short and concrete.".into(), use_brn_knowledge: true,
+    }).unwrap();
+    let pchat = created(&ws.project_command("fixture-project-chat", ProjectCommand::CreateChat { project: project.clone(), title: "Homepage headline options".into() }).unwrap(), |d| matches!(d, RecordData::Thread(_)));
+    ws.post_message(&pchat, "Give me three homepage headline options.").unwrap();
+    reply(ws, "fixture-project-reply", &pchat, "1. Support that keeps up with your team\n2. Answers in hours, not days");
+    ws.project_command("fixture-project-doc", ProjectCommand::CreateDocument { project: project.clone(), title: "Homepage copy draft".into(), markdown: "# Homepage\n\nSupport that keeps up with your team.".into() }).unwrap();
+    let gone = created(&ws.project_command("fixture-old-project", ProjectCommand::Create { title: "Spring campaign (old)".into() }).unwrap(), |d| matches!(d, RecordData::Project(_)));
+    let preview = ws.project_delete_preview(&gone).unwrap();
+    ws.project_command("fixture-old-delete", ProjectCommand::Delete { preview, actions: BTreeMap::new() }).unwrap();
+
+    println!("main ready: pilot={} crane={} crane_chat={} failed_run={} killed_chat={} killed_run={} proposal={} harbour={} replies={} vendor_note=see-notes",
+        note.id, crane.id, cthread.id, failed_run, killed.id, killed_run, proposal.as_str(), harbour.id, replies.id);
+}
+
+fn continue_store(ws: &mut Workspace, data: &str, backups: &str) {
+    let mut settings = ws.settings().unwrap();
+    settings.provider = "Codex".into();
+    settings.model = "gpt-6.1-sol".into();
+    settings.effort = "medium".into();
+    // No credentials at all: a Run fails with ReconnectNeeded before any file or network use.
+    settings.auth_file = None;
+    settings.credentials_dir = None;
+    ws.configure(settings).unwrap();
+    ws.choose_backup_directory(std::path::Path::new(backups)).unwrap();
+    ws.new_note("Lift day checklist", "Crane, barge, quay clear, harbour master informed.").unwrap();
+    let chat = ws.new_thread("Plan the crane lift").unwrap();
+    ws.post_message(&chat.id, "List what has to be ready on lift day.").unwrap();
+    // As a killed worker leaves it: a Working Run whose lease no process holds.
+    let live = brn_ai::threads::prepare_run(brn_ai::threads::ThreadRunRequest {
+        request_message: None, queue_claim: None, owner_request: None,
+        data_dir: data.into(), thread: chat.id.clone(), prompt: "List what has to be ready on lift day.".into(),
+        selection: brn_ai::Selection { provider: brn_ai::Provider::Chatgpt, model: "gpt-6.1-sol".into() },
+        effort: brn_ai::ReasoningEffort::Medium, max_tool_rounds: 4, auth_file: None, credentials_dir: None,
+        sources: vec![], search: None, trace: brn_ai::threads::TraceLevel::Off,
+    }).unwrap();
+    let run_id = live.run_id().to_owned();
+    drop(live);
+    // Reopen so this process sees the Run, then the settings stop interrupts it with the notice.
+    let mut ws2 = Workspace::open(data).unwrap();
+    ws2.choose_delegation(DelegationChoice::MaintainOrdinaryNotes).unwrap();
+    println!("continue ready: chat={} interrupted_run={run_id}", chat.id);
+}
+
+fn main() {
+    let mode = std::env::args().nth(1).expect("main|continue");
+    let data = std::env::args().nth(2).expect("explicit synthetic data path");
+    let backups = std::env::args().nth(3).expect("explicit synthetic backup folder");
+    let mut ws = Workspace::open(&data).unwrap();
+    match mode.as_str() {
+        "main" => main_store(&mut ws, &backups),
+        "continue" => continue_store(&mut ws, &data, &backups),
+        _ => panic!("mode"),
+    }
+}

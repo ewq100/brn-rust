@@ -1,0 +1,35 @@
+{
+  "verdict": "APPROVED",
+  "findings": [
+    {
+      "id": 1,
+      "title": "Busiest Note with a recorded notice is not under test",
+      "blocking": false,
+      "confidence": "confirmed",
+      "requirement": null,
+      "status": "pending native look and owner choice",
+      "location": "crates/brn-desktop/src/threads_review_tests.rs the_banner_stack_keeps_its_budget_above_the_text_at_900x600 / failed_rewrite; threads_workbench.rs writing-run-detail",
+      "detail": "The busiest 900x600 guard seeds a failed rewrite through failed_rewrite, which writes a Failed Run with no Blocker attention, so the Note renders RunOutcome::Failed, not the recorded notice plus progress line that every real failure now produces. The evidence measured the realistic state on this tree: text at its 48 px floor and the writing bar 2.5 px past the Note (GPUI test text system, wider than macOS). The new writing-run-detail line is the agent's progress, not a failure reason, so the owner rule does not protect it and it could give way in the Note while the recovery card keeps it.",
+      "action": "Add a recorded-notice variant to the busiest-state test. Then either let writing-run-detail give way in the Note when the bar would clip (and qualify the new threads-behavior.md sentence), or take the owner's call after a native look."
+    },
+    {
+      "id": 2,
+      "title": "Windows native-ui compile before merge",
+      "blocking": false,
+      "confidence": "confirmed",
+      "requirement": 8,
+      "status": "carried from review 1 finding 7; justified in evidence with a merge condition",
+      "location": ".github/workflows/ci.yml native-ui matrix",
+      "detail": "Neither pass compiled native-ui for Windows (only aarch64-apple-darwin is installed). On a pull request, CI runs native-ui only on macos-15, so a Windows break in desktop code would first show after merge.",
+      "action": "Dispatch ci.yml on the PR branch and wait for the Windows and Ubuntu native-ui lanes before merging, or record the owner's explicit acceptance of the risk."
+    }
+  ],
+  "pending": [
+    "48 px text floor under a Note banner in the busiest 900x600 state: pending owner acceptance (recorded as accepted on the board and in status.md/plan.md via the lead; not seen first-hand).",
+    "R1: the same 48 px floor beside an open stacked comment draft is a lead decision the owner can overrule.",
+    "No native observation of the combined build; F-UI1, U4, U10, U11, R1-R4 and fix pass 1 are automated-verified only."
+  ],
+  "resolvedFromPreviousReview": [1, 2, 3, 4, 5, 6, 8, 9],
+  "reviewedCommit": "6db39420de7b09ab8d7ba231e6419ad542d7c075",
+  "reviewDoc": "/Users/evokessler/repos/brn-rust/.worktrees/integration-ui-reliability/docs/work/active/integration-ui-reliability/review.md"
+}

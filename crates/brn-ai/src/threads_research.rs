@@ -578,7 +578,20 @@ fn child_scope(parent: &Scope, slot: Arc<ScoutSlot>, provider: Provider) -> Arc<
         cache_key: scout_cache_key(provider, &parent.chat),
         helper: None,
         scout: Some(slot),
+        // The parent's Run, so the parent's lease.
+        lease: parent.lease.clone(),
     })
+}
+
+/// A helper's scope over `parent`, for tests that call a tool in it directly.
+#[cfg(test)]
+pub(super) fn test_child_scope(parent: &Scope) -> Arc<Scope> {
+    let slot = Arc::new(ScoutSlot {
+        report: Mutex::new(None),
+        done: CancellationToken::new(),
+        tokens: Arc::new(AtomicU64::new(0)),
+    });
+    child_scope(parent, slot, Provider::Chatgpt)
 }
 
 /// Today's UTC date as YYYY-MM-DD.

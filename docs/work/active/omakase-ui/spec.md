@@ -9,12 +9,12 @@ This is presentation and navigation over the existing checked services, plus qui
 - **Top bar:** brand, launcher field (⌘K), **Write / Chat / Solo** layout buttons, “N need you” badge with a menu of those threads. No numbered workspaces.
 - **Tiles** with gaps, square corners, monospace chrome and system-font prose. Each header has a title, tile controls, maximize and close. Mouse: drag a gap to resize, drag a header onto another tile to swap, double-click a header to maximize/restore, right-click a header for Maximize / Move left / Move right / Close / Open tile. Tile kinds: threads, note, chat, linked work, notes, all threads, overview (⌘0 home equivalent), Actions, What changed, Settings, compare.
 - **Layouts:** Write = threads · note · chat; Chat = threads · chat · linked work; Solo = focused tile only. Opening a tile inserts it after the focused tile; a narrow window scrolls tiles horizontally.
-- **Status bar:** run state + Stop, current note save state (click saves), layout menu, theme menu, keys/mouse help. Workspace notices appear in a dismissible line above it.
+- **Status bar:** run state + Stop, current note save state (click saves), layout menu, ~~theme menu~~, keys/mouse help. Workspace notices appear in a dismissible line above it. *Superseded by owner decision (UI polish, open question 4): the status bar has no theme control; theme lives in Settings › General and ⌘K ([UI polish plan](../ui-polish/plan.md)).*
 - **Launcher ⌘K:** notes, threads (including resolved, marked ✓) and commands (new thread/note, rewrite, save, layouts, themes, open tiles, What changed, Actions, Settings, keys). Menus and launcher rows show shortcuts.
 
 ## Themes
 
-Selectable from the status bar, launcher and Settings › General. Hover/active/selection/add/delete/comment tints are derived per theme. Text, muted and accent colors must reach 4.5:1 against tile and alternate backgrounds; the only adjustment needed is **Raba** accent `d9534b` → `df6d66` (4.0 → 4.5:1).
+~~Selectable from the status bar, launcher and Settings › General.~~ Selectable from Settings › General and the launcher (⌘K); owner decision, UI polish open question 4 ([UI polish plan](../ui-polish/plan.md)). Hover/active/selection/add/delete/comment tints are derived per theme. Text, muted and accent colors must reach 4.5:1 against tile and alternate backgrounds; the only adjustment needed is **Raba** accent `d9534b` → `df6d66` (4.0 → 4.5:1).
 
 | Theme | paper | tile | alt | border | ink | muted | accent |
 |---|---|---|---|---|---|---|---|

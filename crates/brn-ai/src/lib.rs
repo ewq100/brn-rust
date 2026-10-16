@@ -16,6 +16,7 @@ mod provider_fixture_runtime;
 #[cfg(test)]
 mod provider_formats_tests;
 mod resend;
+pub mod run_lease;
 pub mod threads;
 pub mod threads_guides;
 #[cfg(any(test, feature = "capability-spike"))]

@@ -49,21 +49,22 @@ impl TileKind {
             Self::Projects => "projects",
         }
     }
+    /// The sentence-case panel name shown in headers and menus.
     pub(super) fn label(self) -> &'static str {
         match self {
-            Self::Threads => "chats",
-            Self::Note => "note",
-            Self::Chat => "chat",
-            Self::Linked => "linked work",
-            Self::Notes => "notes",
-            Self::AllThreads => "all chats",
-            Self::Overview => "home",
-            Self::Actions => "tasks",
-            Self::History => "changes",
-            Self::Settings => "settings",
-            Self::Compare => "compare",
-            Self::Connections => "connections",
-            Self::Projects => "projects",
+            Self::Threads => "Chats",
+            Self::Note => "Note",
+            Self::Chat => "Chat",
+            Self::Linked => "Linked work",
+            Self::Notes => "Notes",
+            Self::AllThreads => "All chats",
+            Self::Overview => "Home",
+            Self::Actions => "Tasks",
+            Self::History => "Changes",
+            Self::Settings => "Settings",
+            Self::Compare => "Compare",
+            Self::Connections => "Connections",
+            Self::Projects => "Projects",
         }
     }
     pub(super) fn default_weight(self) -> f32 {
@@ -76,13 +77,220 @@ impl TileKind {
         }
     }
     /// Narrow windows scroll the tile row rather than squeezing below this.
+    /// The Note adds its comments margin on top (see `margin_mode`).
     pub(super) fn min_width(self) -> f32 {
         match self {
-            Self::Threads => 170.,
-            Self::Note | Self::Compare => 320.,
+            Self::Threads | Self::AllThreads | Self::Notes => 170.,
+            Self::Note => 360.,
+            Self::Chat => 300.,
+            Self::Compare => 320.,
             _ => 260.,
         }
     }
+}
+
+/// Gap between panels and padding around the row, as the renderer draws them.
+pub(super) const PANEL_GAP: f32 = 6.;
+
+/// Where a Note's comments sit: beside the text at a fixed margin width, or
+/// docked below it when the Note has no room.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) enum MarginMode {
+    Wide,
+    Narrow,
+    Stacked,
+}
+impl MarginMode {
+    pub(super) const WIDE: f32 = 280.;
+    pub(super) const NARROW: f32 = 220.;
+    /// Width the margin adds to the Note's minimum.
+    pub(super) fn width(self) -> f32 {
+        match self {
+            Self::Wide => Self::WIDE,
+            Self::Narrow => Self::NARROW,
+            Self::Stacked => 0.,
+        }
+    }
+}
+
+/// The width each Note toolbar arrangement needs on one row, padding and
+/// borders included. The renderer measures them for the open note from its
+/// labels and its status chip and comment count (`note_toolbar_needs`), so
+/// Edit note and Connections fold only when this note's row doesn't fit.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub(super) struct NoteNeeds {
+    pub(super) full: f32,
+    pub(super) format_menu: f32,
+    pub(super) compact: f32,
+}
+impl NoteNeeds {
+    /// The widest row in the test text system, a "Protected · v12" chip and
+    /// a 12-comment toggle (797, 752 and 543 pt), plus about 12 pt.
+    pub(super) const WIDEST: Self = Self {
+        full: NoteFit::FULL,
+        format_menu: NoteFit::FORMAT_MENU,
+        compact: NoteFit::COMPACT,
+    };
+}
+
+/// How much of the Note toolbar fits on its one row, by the Note panel's
+/// width and what the open note's row needs (`NoteNeeds`). Icons needs
+/// 315 pt, under the Note's 360 pt minimum.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord)]
+pub(super) enum NoteFit {
+    /// Format and Outline are icon triggers, and the status chip shows its
+    /// icon and version.
+    Icons,
+    /// Edit note and Connections move into the Note ⋯.
+    Compact,
+    /// The five formatting buttons fold into Format ▾.
+    FormatMenu,
+    #[default]
+    Full,
+}
+impl NoteFit {
+    pub(super) const FULL: f32 = 810.;
+    pub(super) const FORMAT_MENU: f32 = 765.;
+    pub(super) const COMPACT: f32 = 555.;
+    pub(super) fn for_width(width: f32, needs: NoteNeeds) -> Self {
+        if width >= needs.full {
+            Self::Full
+        } else if width >= needs.format_menu {
+            Self::FormatMenu
+        } else if width >= needs.compact {
+            Self::Compact
+        } else {
+            Self::Icons
+        }
+    }
+    pub(super) fn format_menu(self) -> bool {
+        self < Self::Full
+    }
+    pub(super) fn actions_in_menu(self) -> bool {
+        self < Self::FormatMenu
+    }
+    pub(super) fn icons(self) -> bool {
+        self == Self::Icons
+    }
+}
+
+/// How much of the review bar fits on its one row, by the Note panel's
+/// width. Each threshold is the measured width its arrangement needs on a
+/// protected whole-note review with a 12-comment toggle (915 and 658 pt,
+/// padding and borders included) plus a few points for wider counts; the
+/// icon arrangement needs 405 pt, so 900×600 Write (Note 406 pt) keeps one
+/// row. The exact-text footer below the review never folds.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord)]
+pub(super) enum ReviewFit {
+    /// The primary reads Apply or Approve, the Proposal label drops its
+    /// shape and the Protected chip shows only its lock.
+    Icons,
+    /// Keep for later and Dismiss move into the Note ⋯, and the +a −r counts
+    /// into the Proposal label's tooltip.
+    Compact,
+    #[default]
+    Full,
+}
+impl ReviewFit {
+    pub(super) const FULL: f32 = 920.;
+    pub(super) const COMPACT: f32 = 670.;
+    pub(super) fn for_width(width: f32) -> Self {
+        if width >= Self::FULL {
+            Self::Full
+        } else if width >= Self::COMPACT {
+            Self::Compact
+        } else {
+            Self::Icons
+        }
+    }
+    pub(super) fn actions_in_menu(self) -> bool {
+        self < Self::Full
+    }
+    pub(super) fn icons(self) -> bool {
+        self == Self::Icons
+    }
+}
+
+/// Resolve layout weights to widths the way flex does: share the space by
+/// weight, pin any panel that would fall below its minimum, and share the rest
+/// again. The Note's minimum includes `margin_width`. When even the minimums
+/// do not fit, every panel gets its minimum and the row scrolls.
+pub(super) fn panel_widths(
+    available: f32,
+    tiles: &[(TileKind, f32)],
+    margin_width: f32,
+) -> Vec<f32> {
+    let minimum = |kind: TileKind| {
+        kind.min_width()
+            + if kind == TileKind::Note {
+                margin_width
+            } else {
+                0.
+            }
+    };
+    let gaps = PANEL_GAP * (2. + tiles.len().saturating_sub(1) as f32);
+    let usable = (available - gaps).max(0.);
+    let mut pinned = vec![false; tiles.len()];
+    loop {
+        let fixed: f32 = tiles
+            .iter()
+            .zip(&pinned)
+            .filter(|(_, pinned)| **pinned)
+            .map(|((kind, _), _)| minimum(*kind))
+            .sum();
+        let weight: f32 = tiles
+            .iter()
+            .zip(&pinned)
+            .filter(|(_, pinned)| !**pinned)
+            .map(|((_, weight), _)| weight.max(0.))
+            .sum();
+        let share = |w: f32| {
+            if weight > 0. {
+                (usable - fixed).max(0.) * w.max(0.) / weight
+            } else {
+                0.
+            }
+        };
+        let mut changed = false;
+        for (index, (kind, w)) in tiles.iter().enumerate() {
+            if !pinned[index] && share(*w) < minimum(*kind) {
+                pinned[index] = true;
+                changed = true;
+            }
+        }
+        if !changed {
+            return tiles
+                .iter()
+                .zip(&pinned)
+                .map(
+                    |((kind, w), pinned)| {
+                        if *pinned { minimum(*kind) } else { share(*w) }
+                    },
+                )
+                .collect();
+        }
+    }
+}
+
+/// The widest comments placement whose minimum widths fit. Maximized and
+/// Solo give the Note the whole row; without a visible Note nothing is
+/// reserved.
+pub(super) fn margin_mode(available: f32, layout: &Layout, maximized_or_solo: bool) -> MarginMode {
+    let tiles: Vec<(TileKind, f32)> = layout
+        .visible()
+        .iter()
+        .filter(|tile| !maximized_or_solo || tile.kind == TileKind::Note)
+        .map(|tile| (tile.kind, tile.weight))
+        .collect();
+    if !tiles.iter().any(|(kind, _)| *kind == TileKind::Note) {
+        return MarginMode::Stacked;
+    }
+    let gaps = PANEL_GAP * (2. + tiles.len().saturating_sub(1) as f32);
+    let minimums: f32 = tiles.iter().map(|(kind, _)| kind.min_width()).sum::<f32>() + gaps;
+    [MarginMode::Wide, MarginMode::Narrow]
+        .into_iter()
+        .find(|mode| minimums + mode.width() <= available)
+        .unwrap_or(MarginMode::Stacked)
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -549,7 +757,7 @@ mod tests {
         layout.resize(0, 0.30);
         let tiles = layout.tiles();
         assert!((tiles[0].weight / total - 0.30).abs() < 1e-4);
-        assert_eq!(tiles[2].weight, third, "other tiles keep width");
+        assert_eq!(tiles[2].weight, third, "other panels keep width");
         let sum: f32 = tiles.iter().map(|tile| tile.weight).sum();
         assert!((sum - total).abs() < 1e-4);
         layout.resize(0, -5.);
@@ -583,6 +791,157 @@ mod tests {
             Some(TileKind::Chat),
             "settings preserves focus mode"
         );
+    }
+}
+
+#[cfg(test)]
+mod width_tests {
+    use super::*;
+
+    const WRITE: [(TileKind, f32); 3] = [
+        (TileKind::Threads, 0.62),
+        (TileKind::Note, 2.7),
+        (TileKind::Chat, 1.45),
+    ];
+
+    #[test]
+    fn write_weights_resolve_against_the_renderer_minimums() {
+        for (available, note) in [(900., 406.), (1050., 556.), (1100., 589.), (1250., 687.)] {
+            let widths = panel_widths(available, &WRITE, 0.);
+            assert!(
+                (widths[1] - note).abs() < 1.,
+                "{available}: note {}",
+                widths[1]
+            );
+            assert!(
+                widths[0] >= 170. && widths[2] >= 300.,
+                "{available}: {widths:?}"
+            );
+            let used: f32 = widths.iter().sum::<f32>() + PANEL_GAP * 4.;
+            assert!((used - available).abs() < 0.01, "{available}: {used}");
+        }
+        // A margin raises only the Note's minimum; when it cannot fit the row scrolls.
+        let narrow = panel_widths(1100., &WRITE, MarginMode::NARROW);
+        assert!(narrow[1] >= 360. + MarginMode::NARROW, "{narrow:?}");
+        assert_eq!(
+            panel_widths(900., &WRITE, MarginMode::WIDE),
+            vec![170., 640., 300.]
+        );
+    }
+
+    #[test]
+    fn margin_mode_picks_the_widest_placement_that_fits() {
+        for navigation in [TileKind::Threads, TileKind::Notes, TileKind::AllThreads] {
+            let mut layout = Layout::default();
+            layout.open(navigation);
+            assert_eq!(layout.area(navigation), Some(Area::Navigation));
+            for (available, mode) in [
+                (900., MarginMode::Stacked),
+                (1050., MarginMode::Stacked),
+                (1100., MarginMode::Narrow),
+                (1250., MarginMode::Wide),
+            ] {
+                assert_eq!(
+                    margin_mode(available, &layout, false),
+                    mode,
+                    "{navigation:?} at {available}"
+                );
+            }
+            // The worked thresholds: Wide 1134, Narrow 1074, Stacked below.
+            assert_eq!(margin_mode(1134., &layout, false), MarginMode::Wide);
+            assert_eq!(margin_mode(1133., &layout, false), MarginMode::Narrow);
+            assert_eq!(margin_mode(1074., &layout, false), MarginMode::Narrow);
+            assert_eq!(margin_mode(1073., &layout, false), MarginMode::Stacked);
+            // Solo and maximize give the Note the whole row.
+            assert_eq!(margin_mode(900., &layout, true), MarginMode::Wide);
+            layout.toggle_maximize(TileKind::Note);
+            assert_eq!(margin_mode(900., &layout, false), MarginMode::Wide);
+        }
+        let mut chat = Layout::default();
+        chat.apply(Preset::Chat);
+        assert_eq!(margin_mode(1600., &chat, false), MarginMode::Stacked);
+    }
+
+    #[test]
+    fn note_toolbar_folds_in_order_as_the_note_narrows() {
+        for (width, fit) in [
+            (1200., NoteFit::Full),
+            (NoteFit::FULL, NoteFit::Full),
+            (NoteFit::FULL - 1., NoteFit::FormatMenu),
+            (NoteFit::FORMAT_MENU, NoteFit::FormatMenu),
+            (NoteFit::FORMAT_MENU - 1., NoteFit::Compact),
+            (NoteFit::COMPACT, NoteFit::Compact),
+            (NoteFit::COMPACT - 1., NoteFit::Icons),
+            (360., NoteFit::Icons),
+        ] {
+            assert_eq!(NoteFit::for_width(width, NoteNeeds::WIDEST), fit, "{width}");
+        }
+        // A plainer note's narrower row keeps Edit note and Connections at
+        // a width where the widest row folds them.
+        let plain = NoteNeeds {
+            full: 740.,
+            format_menu: 690.,
+            compact: 500.,
+        };
+        assert_eq!(NoteFit::for_width(700., plain), NoteFit::FormatMenu);
+        assert_eq!(
+            NoteFit::for_width(700., NoteNeeds::WIDEST),
+            NoteFit::Compact
+        );
+        assert!(!NoteFit::Full.format_menu());
+        assert!(NoteFit::FormatMenu.format_menu() && !NoteFit::FormatMenu.actions_in_menu());
+        assert!(NoteFit::Compact.actions_in_menu() && !NoteFit::Compact.icons());
+        assert!(NoteFit::Icons.icons() && NoteFit::Icons.actions_in_menu());
+        // Write at 1250 (Wide margin open), 1050 and 900 pt (stacked).
+        let mut layout = Layout::default();
+        layout.open(TileKind::Threads);
+        let widths = |available| {
+            let mode = margin_mode(available, &layout, false);
+            panel_widths(available, &WRITE, mode.width())[1]
+        };
+        let widest = |available| NoteFit::for_width(widths(available), NoteNeeds::WIDEST);
+        assert_eq!(widest(1250.), NoteFit::Compact);
+        assert_eq!(widest(1050.), NoteFit::Compact);
+        // 900 pt leaves the Note about 406 pt.
+        assert_eq!(widest(900.), NoteFit::Icons);
+    }
+
+    #[test]
+    fn review_bar_folds_in_order_as_the_note_narrows() {
+        for (width, fit) in [
+            (1200., ReviewFit::Full),
+            (ReviewFit::FULL, ReviewFit::Full),
+            (ReviewFit::FULL - 1., ReviewFit::Compact),
+            (ReviewFit::COMPACT, ReviewFit::Compact),
+            (ReviewFit::COMPACT - 1., ReviewFit::Icons),
+            (360., ReviewFit::Icons),
+        ] {
+            assert_eq!(ReviewFit::for_width(width), fit, "{width}");
+        }
+        assert!(!ReviewFit::Full.actions_in_menu());
+        assert!(ReviewFit::Compact.actions_in_menu() && !ReviewFit::Compact.icons());
+        assert!(ReviewFit::Icons.icons() && ReviewFit::Icons.actions_in_menu());
+        // Write: 1250 pt (Note 687, Wide margin) folds Keep for later and
+        // Dismiss into the menu; 900 pt (Note 406) is the icon arrangement.
+        assert_eq!(
+            ReviewFit::for_width(panel_widths(1250., &WRITE, MarginMode::WIDE)[1]),
+            ReviewFit::Compact
+        );
+        assert_eq!(
+            ReviewFit::for_width(panel_widths(900., &WRITE, 0.)[1]),
+            ReviewFit::Icons
+        );
+    }
+
+    #[test]
+    fn solo_gives_the_note_the_wide_margin() {
+        for available in [900., 1050., 1100., 1250.] {
+            let mut layout = Layout::default();
+            layout.set_focus(TileKind::Note);
+            layout.apply(Preset::Solo);
+            assert_eq!(layout.maximized(), Some(TileKind::Note));
+            assert_eq!(margin_mode(available, &layout, false), MarginMode::Wide);
+        }
     }
 }
 

@@ -1,0 +1,30 @@
+{
+  "verdict": "APPROVED",
+  "findings": [
+    {
+      "severity": "non-blocking",
+      "confidence": "confirmed",
+      "label": "Selection-to-begin race remains",
+      "location": "crates/brn-threads-app/src/intake.rs:71-94; crates/brn/src/main.rs:236-251; crates/brn-ai/src/threads.rs:1787-1805",
+      "issue": "Two same-source supplies that both pass selection before either Run begins still share a chat, and the later begin() fences the earlier Run; the guard and the fence run in different transactions with search_handle() in between.",
+      "action": "Record this residual window in the evidence limitations; closing it needs a liveness check inside begin()'s write, outside Task A."
+    },
+    {
+      "severity": "non-blocking",
+      "confidence": "confirmed",
+      "label": "Older-chat fallback untested",
+      "location": "crates/brn-threads-app/tests/source_intake_chat.rs:145-180",
+      "issue": "The regression covers only fallback to a new chat, not fallback to an older non-busy chat that received the source.",
+      "action": "Optionally add a case where an older eligible chat is chosen over a newer busy one."
+    },
+    {
+      "severity": "non-blocking",
+      "confidence": "confirmed",
+      "label": "Empty chat per attempt when derived/ is unusable",
+      "location": "crates/brn-threads-app/src/intake.rs:71-78; crates/brn-ai/src/threads.rs:1735-1737",
+      "issue": "Fail-closed liveness skips a chat with a Working Run when derived/ cannot be resolved; a new chat is created and begin() then refuses on the same derived/ check, leaving an empty chat each attempt.",
+      "action": "Return the storage error before creating a chat in that case, or note it beside the existing refused-start limitation."
+    }
+  ],
+  "reviewDoc": "/Users/evokessler/repos/brn-rust/.worktrees/daily-workflow-reliability/docs/work/active/daily-workflow-reliability/task-a-review.md"
+}

@@ -6,10 +6,12 @@
 use crate::{AppError, AppResult};
 use brn_retrieval::embedding::Embedder;
 use brn_retrieval::search_index::{
-    Changes, DocInput, LinkInput, SearchIndex, SyncState, Visibility,
+    Changes, ChatScope, DocInput, LinkInput, MessageInput, SearchIndex, SyncState, Visibility,
 };
 use brn_retrieval::snippet::{Snippet, snippet};
-use brn_threads_core::{Record, RecordData, SearchEligibility, Snapshot, Store, StoreReader};
+use brn_threads_core::{
+    MessageScope, Record, RecordData, SearchEligibility, Snapshot, Store, StoreReader,
+};
 use std::{
     collections::{BTreeMap, BTreeSet},
     path::{Path, PathBuf},
@@ -62,6 +64,26 @@ pub struct NoteMatch {
     pub inbound_links: usize,
     /// Imported, or the target of a visible `source` link.
     pub evidence: bool,
+    /// Owner search only: a chat-only note whose chat is archived or legacy
+    /// Resolved, to be labelled Archived. Always false for agent searches.
+    pub archived: bool,
+}
+
+/// One saved chat Message matching an owner search. A saved reply is text in
+/// BRN; nothing about it implies it was sent anywhere.
+#[derive(Debug, Clone, PartialEq)]
+pub struct MessageMatch {
+    pub message: String,
+    pub version: u64,
+    pub chat: String,
+    pub chat_title: String,
+    /// `owner` or `assistant`.
+    pub role: String,
+    /// Up to [`SNIPPET_BYTES`] of the Message around the first matching word.
+    pub snippet: Snippet,
+    pub score: f64,
+    /// Its chat is archived or legacy Resolved, to be labelled Archived.
+    pub archived: bool,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -80,6 +102,15 @@ pub struct SearchResults {
     pub watermark: i64,
     /// Dense coverage: `none`, `partial(n/m)`, `complete` or `failed: …`.
     pub semantic: String,
+    /// Owner search only: matching saved chat Messages visible in the
+    /// context, best first, at the same offset as `matches`. Agent searches
+    /// never fill it.
+    pub messages: Vec<MessageMatch>,
+    /// Every visible matching Message.
+    pub message_total: usize,
+    /// The cursor for the next page while more Messages remain; notes past
+    /// their end are empty on that page.
+    pub message_next: Option<String>,
 }
 
 /// What a neighbour is.
@@ -144,6 +175,10 @@ enum Work {
         cursor: Option<String>,
         /// Add the dense lane when an embedding model is configured.
         hybrid: bool,
+        /// Owner search: also list matching chat Messages, and label hits
+        /// from archived chats (owner decision 3). Agent tools never set it;
+        /// both use the same core context predicate for notes.
+        owner: bool,
     },
     /// Only bring the index up to date (warm-up and measurement).
     Sync,
@@ -296,8 +331,9 @@ impl SearchHandle {
         self.request_page(query, chat, limit, None)
     }
 
-    /// Queues the page at `cursor` (from a previous answer's `next`, with the
-    /// same `limit`), or the first page.
+    /// Queues the owner's page at `cursor` (from a previous answer's `next`
+    /// or `message_next`, with the same `limit`), or the first page. It
+    /// lists matching notes and, separately, saved chat Messages.
     pub fn request_page(
         &self,
         query: &str,
@@ -305,13 +341,7 @@ impl SearchHandle {
         limit: usize,
         cursor: Option<&str>,
     ) -> SearchTicket {
-        self.results(Work::Search {
-            query: query.into(),
-            chat: chat.map(Into::into),
-            limit,
-            cursor: cursor.map(Into::into),
-            hybrid: true,
-        })
+        self.search_request(query, chat, limit, cursor, true, true)
     }
 
     /// [`Self::request_page`] with only the keyword lanes.
@@ -322,12 +352,37 @@ impl SearchHandle {
         limit: usize,
         cursor: Option<&str>,
     ) -> SearchTicket {
+        self.search_request(query, chat, limit, cursor, false, true)
+    }
+
+    /// A notes-only page for agent tools: chat Messages are owner search only.
+    fn notes_request(
+        &self,
+        query: &str,
+        chat: Option<&str>,
+        limit: usize,
+        cursor: Option<&str>,
+        hybrid: bool,
+    ) -> SearchTicket {
+        self.search_request(query, chat, limit, cursor, hybrid, false)
+    }
+
+    fn search_request(
+        &self,
+        query: &str,
+        chat: Option<&str>,
+        limit: usize,
+        cursor: Option<&str>,
+        hybrid: bool,
+        owner: bool,
+    ) -> SearchTicket {
         self.results(Work::Search {
             query: query.into(),
             chat: chat.map(Into::into),
             limit,
             cursor: cursor.map(Into::into),
-            hybrid: false,
+            hybrid,
+            owner,
         })
     }
 
@@ -380,7 +435,8 @@ impl SearchHandle {
         }
     }
 
-    /// Blocking search for the CLI and agent runs.
+    /// Blocking owner search (the CLI's). Agent hosts use the
+    /// [`brn_ai::threads::RunNoteSearch`] impl, which keeps the agent scope.
     pub fn search(
         &self,
         query: &str,
@@ -784,6 +840,9 @@ fn attempt_answer(
             next: None,
             watermark,
             semantic: dense.map_or_else(|| "none".into(), |d| d.semantic()),
+            messages: vec![],
+            message_total: 0,
+            message_next: None,
         }))),
         Work::Search {
             query,
@@ -791,6 +850,7 @@ fn attempt_answer(
             limit,
             cursor,
             hybrid,
+            owner,
         } => {
             let (nearest, semantic) = match dense {
                 Some(d) if *hybrid => {
@@ -803,7 +863,7 @@ fn attempt_answer(
                 Some(d) => (None, format!("off ({})", d.semantic())),
                 None => (None, "none".into()),
             };
-            Ok(search(
+            let Some(mut results) = search(
                 &snapshot,
                 &open.index,
                 query,
@@ -813,11 +873,30 @@ fn attempt_answer(
                 watermark,
                 last,
                 nearest.as_deref().unwrap_or_default(),
+                *owner,
             )?
-            .map(|mut results| {
-                results.semantic = semantic;
-                Answer::Results(results)
-            }))
+            else {
+                return Ok(None);
+            };
+            results.semantic = semantic;
+            if *owner {
+                let Some(found) = message_search(
+                    &snapshot,
+                    &open.index,
+                    query,
+                    chat.as_deref(),
+                    *limit,
+                    results.offset,
+                    last,
+                )?
+                else {
+                    return Ok(None);
+                };
+                results.messages = found.matches;
+                results.message_total = found.total;
+                results.message_next = found.next;
+            }
+            Ok(Some(Answer::Results(results)))
         }
         Work::Connections {
             chat,
@@ -890,6 +969,7 @@ fn search(
     watermark: i64,
     last: bool,
     dense: &[i64],
+    owner: bool,
 ) -> AppResult<Option<SearchResults>> {
     let project_rows = if chat.is_some() {
         snapshot.records()?
@@ -997,6 +1077,15 @@ fn search(
             return Ok(None);
         }
         let fact = facts.get(&hit.doc).copied().unwrap_or_default();
+        // Owner decision 3: a chat-only note keeps the scope it has while its
+        // chat is open (a project chat's notes are project documents), and
+        // owner search labels it when that chat is archived or Resolved.
+        let archived = match note.chat.as_deref() {
+            Some(owner_chat) if owner => snapshot
+                .record(owner_chat)?
+                .is_some_and(|r| brn_threads_core::chat_is_archived(&r)),
+            _ => false,
+        };
         matches.push(NoteMatch {
             note: hit.doc.clone(),
             version,
@@ -1012,6 +1101,7 @@ fn search(
             imported: note.import.is_some(),
             inbound_links: fact.inbound_links,
             evidence: evidence[i],
+            archived,
         });
     }
     let next = (start + limit < ranked.len()).then(|| (start + limit).to_string());
@@ -1023,6 +1113,108 @@ fn search(
         next,
         watermark,
         semantic: String::new(),
+        messages: vec![],
+        message_total: 0,
+        message_next: None,
+    }))
+}
+
+struct MessagePage {
+    matches: Vec<MessageMatch>,
+    total: usize,
+    next: Option<String>,
+}
+
+/// The core owner-search scope as the index stores it.
+fn chat_scope(scope: MessageScope) -> ChatScope {
+    match scope {
+        MessageScope::General => ChatScope::General,
+        MessageScope::Project(id) => ChatScope::Project(id),
+        MessageScope::Chat(id) => ChatScope::Chat(id),
+        MessageScope::Hidden => ChatScope::Hidden,
+    }
+}
+
+/// Saved chat Messages for the owner's page at `start`: the index's scope
+/// tags select candidates, and core `searchable_messages` re-checks each.
+fn message_search(
+    snapshot: &Snapshot<'_>,
+    index: &SearchIndex,
+    query: &str,
+    chat: Option<&str>,
+    limit: usize,
+    start: usize,
+    last: bool,
+) -> AppResult<Option<MessagePage>> {
+    let scopes: Vec<ChatScope> = snapshot
+        .message_scopes(chat)?
+        .into_iter()
+        .map(chat_scope)
+        .collect();
+    let ranked = index.message_hits(query, &scopes, REACHABLE)?;
+    let ids: Vec<String> = ranked.iter().map(|hit| hit.message.clone()).collect();
+    let allowed = snapshot.searchable_messages(&ids, chat)?;
+    // As for notes: a rejection means another writer moved on.
+    let rejected = ranked
+        .iter()
+        .filter(|hit| !allowed.contains(&hit.message))
+        .count();
+    let ranked: Vec<_> = ranked
+        .into_iter()
+        .filter(|hit| allowed.contains(&hit.message))
+        .take(REACHABLE)
+        .collect();
+    let total = index
+        .message_count(query, &scopes)?
+        .saturating_sub(rejected)
+        .max(ranked.len());
+    let mut matches = Vec::new();
+    for hit in ranked.iter().skip(start).take(limit) {
+        let Some(Record {
+            version,
+            data: RecordData::Message(_),
+            ..
+        }) = snapshot.record(&hit.message)?
+        else {
+            continue;
+        };
+        if version != hit.version {
+            if last {
+                return Err(AppError::Unavailable(
+                    "search index kept changing during the query".into(),
+                ));
+            }
+            return Ok(None);
+        }
+        // Read from the same snapshot, so the label follows Archive,
+        // Unarchive, Trash and Restore at once.
+        let saved_chat = snapshot.record(&hit.chat)?;
+        let archived = saved_chat
+            .as_ref()
+            .is_some_and(brn_threads_core::chat_is_archived);
+        let chat_title = match saved_chat {
+            Some(Record {
+                data: RecordData::Thread(thread),
+                ..
+            }) => thread.title,
+            _ => String::new(),
+        };
+        matches.push(MessageMatch {
+            message: hit.message.clone(),
+            version,
+            chat: hit.chat.clone(),
+            chat_title,
+            role: hit.role.clone(),
+            snippet: snippet(&hit.text, query, SNIPPET_BYTES),
+            score: hit.score,
+            archived,
+        });
+    }
+    let next = (start + limit < ranked.len()).then(|| (start + limit).to_string());
+    Ok(Some(MessagePage {
+        matches,
+        total,
+        next,
     }))
 }
 
@@ -1230,11 +1422,30 @@ fn sync(snapshot: &Snapshot<'_>, index: &mut SearchIndex, last: bool) -> AppResu
     };
     let mut notes = BTreeSet::new();
     let mut sources = Vec::new();
+    // Chats whose message scope may have changed.
+    let mut chats = BTreeSet::new();
+    let mut projects = false;
     for record in &changed {
         match &record.data {
-            RecordData::Note(_) => {
+            RecordData::Note(note) => {
                 notes.insert(record.id.clone());
+                chats.extend(note.chat.clone());
             }
+            RecordData::Message(message) if brn_threads_core::message_searchable(record) => {
+                changes.upsert_messages.push(MessageInput {
+                    id: record.id.clone(),
+                    chat: message.thread.clone(),
+                    version: record.version,
+                    role: message.role.clone(),
+                    text: message.text.clone(),
+                });
+                chats.insert(message.thread.clone());
+            }
+            RecordData::Message(_) if !full => changes.remove_messages.push(record.id.clone()),
+            RecordData::Thread(_) => {
+                chats.insert(record.id.clone());
+            }
+            RecordData::Project(_) => projects = true,
             RecordData::Source(_) => sources.push(record.id.clone()),
             RecordData::Link(link) if !record.archived => changes.upsert_links.push(LinkInput {
                 id: record.id.clone(),
@@ -1249,7 +1460,10 @@ fn sync(snapshot: &Snapshot<'_>, index: &mut SearchIndex, last: bool) -> AppResu
     // A source's context change re-derives the visibility of notes importing it.
     if !full {
         notes.extend(index.docs_importing(&sources)?);
+        // A note that left its chat (Keep in BRN) can make that chat general.
+        chats.extend(index.doc_chats(&notes.iter().cloned().collect::<Vec<_>>())?);
     }
+    rescope_chats(snapshot, &changed, full, projects, chats, &mut changes)?;
     for id in notes {
         let rows = snapshot.with_references(std::slice::from_ref(&id))?;
         let Some(record) = rows.iter().find(|r| r.id == id) else {
@@ -1285,6 +1499,59 @@ fn sync(snapshot: &Snapshot<'_>, index: &mut SearchIndex, last: bool) -> AppResu
     }
 }
 
+/// Records the current message scope of `chats`. The full branch already
+/// holds every record; any Project change rescopes every chat from one full
+/// read, since membership, Trash and Restore live on the Project.
+fn rescope_chats(
+    snapshot: &Snapshot<'_>,
+    changed: &[Record],
+    full: bool,
+    projects: bool,
+    mut chats: BTreeSet<String>,
+    changes: &mut Changes,
+) -> AppResult<()> {
+    let everything;
+    let rows: &[Record] = if full {
+        changed
+    } else if projects {
+        everything = snapshot.records()?;
+        chats.extend(
+            everything
+                .iter()
+                .filter(|r| matches!(r.data, RecordData::Thread(_)))
+                .map(|r| r.id.clone()),
+        );
+        &everything
+    } else if chats.is_empty() {
+        return Ok(());
+    } else {
+        everything = snapshot.message_scope_rows(&chats.iter().cloned().collect::<Vec<_>>())?;
+        &everything
+    };
+    // Only chats, Projects and chat notes decide a scope.
+    let rows: Vec<Record> = rows
+        .iter()
+        .filter(|r| match &r.data {
+            RecordData::Thread(_) | RecordData::Project(_) => true,
+            RecordData::Note(note) => note.chat.is_some(),
+            _ => false,
+        })
+        .cloned()
+        .collect();
+    let threads: BTreeMap<&str, &Record> = rows
+        .iter()
+        .filter(|r| matches!(r.data, RecordData::Thread(_)))
+        .map(|r| (r.id.as_str(), r))
+        .collect();
+    for chat in chats {
+        if let Some(thread) = threads.get(chat.as_str()) {
+            let scope = chat_scope(brn_threads_core::message_scope(thread, &rows));
+            changes.chat_scopes.push((chat, scope));
+        }
+    }
+    Ok(())
+}
+
 /// The derived index location for a workspace, for diagnostics and tests.
 pub fn index_path(store: &Store) -> AppResult<PathBuf> {
     Ok(store
@@ -1302,12 +1569,10 @@ impl brn_ai::threads::RunNoteSearch for SearchHandle {
         cursor: Option<&str>,
         hybrid: bool,
     ) -> Result<brn_ai::threads::NoteSearchPage, brn_ai::threads::NoteSearchError> {
-        let ticket = if hybrid {
-            self.request_page(query, Some(chat), limit, cursor)
-        } else {
-            self.request_keyword_page(query, Some(chat), limit, cursor)
-        };
-        let results = ticket.wait().map_err(agent_error)?;
+        let results = self
+            .notes_request(query, Some(chat), limit, cursor, hybrid)
+            .wait()
+            .map_err(agent_error)?;
         Ok(brn_ai::threads::NoteSearchPage {
             total: results.total,
             shown: results.matches.len(),

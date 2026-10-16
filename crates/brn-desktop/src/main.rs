@@ -77,6 +77,42 @@ mod tests {
         assert!(parse(["--data-dir".into(), "relative".into()]).is_err());
         assert!(parse(["--vault".into(), "/tmp/vault".into()]).is_err());
     }
+    /// The startup message for an unusable data folder is the core's
+    /// owner-terms `DataFolder` text, never OS or debug wording. A symlinked
+    /// folder is `SymlinkRefused`, no longer an unsafe directory.
+    #[cfg(unix)]
+    #[test]
+    fn an_unusable_data_folder_reads_in_owner_terms_at_startup() {
+        let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+        let real = root.path().join("real");
+        std::fs::create_dir(&real).unwrap();
+        let link = root.path().join("link");
+        std::os::unix::fs::symlink(&real, &link).unwrap();
+        let file = root.path().join("a-file");
+        std::fs::write(&file, b"synthetic").unwrap();
+        for (data, problem) in [
+            (
+                link.join("data"),
+                "part of its path is a symbolic link. Choose the folder's real location.",
+            ),
+            (
+                file.join("data"),
+                "that path, or part of it, is a file rather than a folder.",
+            ),
+        ] {
+            let error = launch(data.clone(), true).unwrap_err();
+            assert!(
+                error.starts_with("BRN cannot use the data folder "),
+                "{error}"
+            );
+            assert!(error.ends_with(problem), "{error}");
+            for raw in ["os error", "DataFolder", "Io(", "unsafe data directory"] {
+                assert!(!error.contains(raw), "{error}");
+            }
+            assert!(!data.exists());
+        }
+        assert_eq!(std::fs::read_dir(&real).unwrap().count(), 0);
+    }
     #[test]
     fn fresh_startup_reopens_and_refuses_other_data() {
         let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();

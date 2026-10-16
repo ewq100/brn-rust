@@ -484,7 +484,7 @@ fn formatting_controls_refuse_read_recovery_and_review_states(cx: &mut TestAppCo
                 .store
                 .prepare(
                     &operation,
-                    &snapshot.change_request("Changed candidate text").unwrap(),
+                    &snapshot.change_request("Changed proposal text").unwrap(),
                 )
                 .unwrap();
             view.open_review(candidate, window, cx);

@@ -29,13 +29,17 @@ impl Workspace {
             })
         );
         let operation = self.store.allocate_bound_operation(key, &binding)?;
-        applied_receipt(self.store.stop_and_post_with_partial(
+        let orphans = self.lease_free_working_runs()?;
+        let receipt = applied_receipt(self.store.stop_and_post_checked(
             &operation,
             run_id,
             thread,
             text,
             partial,
             &HostAuthority::owner("owner stopped and sent a new instruction"),
-        )?)
+            &orphans,
+        )?)?;
+        self.remove_ended_leases(&receipt);
+        Ok(receipt)
     }
 }

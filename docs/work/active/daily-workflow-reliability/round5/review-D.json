@@ -1,0 +1,38 @@
+{
+  "verdict": "APPROVED",
+  "findings": [
+    {
+      "id": "D-R1",
+      "label": "finish() Cancelled supersession untested",
+      "severity": "non-blocking",
+      "confidence": "confirmed",
+      "detail": "brn-ai/src/threads.rs:2474 treats a chat's earlier Cancelled Runs as superseded, which is the only path that retires a notice saved on an old Cancelled Run (the shape round 4 builds wrote). Before slice D, a_later_run_replaces_the_notice_of_a_run_the_settings_change_cancelled reached that arm; its Run is now Interrupted. No other test in brn-ai, brn-threads-app, brn or the desktop seeds a Cancelled Run with the notice and then runs finish(), so dropping '| RunState::Cancelled' there would leave the suite green. Found by reading; not mutation-tested.",
+      "action": "Add a leg that seeds the killed Run as Cancelled with the Interrupted notice, completes Continue, and expects [Review(op)]."
+    },
+    {
+      "id": "D-R2",
+      "label": "Continue model context missing from the consumer table",
+      "severity": "non-blocking",
+      "confidence": "confirmed",
+      "detail": "begin() in brn-ai/src/threads.rs:1989 sends {\"run\",\"progress\",\"state\": format!(\"{:?}\", run.state)} to the model for prior Runs with progress, so a settings-stopped Run now reads \"Interrupted\" there. Nothing branches on the value and threads_guides.rs does not mention either state, but slice D's consumer table omits it.",
+      "action": "Add the row to slice D's consumer table in round5/verification.md."
+    },
+    {
+      "id": "D-R3",
+      "label": "\"Cancels\" wording for settings stops",
+      "severity": "non-blocking",
+      "confidence": "confirmed",
+      "detail": "crates/brn-threads-core/README.md (147, 166) and crates/brn-threads-app/README.md (17) still say settings changes cancel active runs, and the test a_later_run_replaces_the_notice_of_a_run_the_settings_change_cancelled keeps its name. The proposed contract sentence covers threads-behavior.md only.",
+      "action": "List the README lines in slice D's integration items next to the proposed threads-behavior.md sentence; optionally rename the test."
+    },
+    {
+      "id": "D-R4",
+      "label": "Desktop run-line claim",
+      "severity": "non-blocking",
+      "confidence": "confirmed",
+      "detail": "The new desktop assertion recomputes format!(\"{:?}\", state) from latest_run instead of reading the drawn run-line text, so a change to how the line formats a state would leave it green. The commit says the run line 'reads Interrupted'.",
+      "action": "Reword the claim to 'the run line's latest Run is Interrupted', or assert the rendered text if the harness allows."
+    }
+  ],
+  "reviewDoc": "/Users/evokessler/repos/brn-rust/.worktrees/daily-workflow-reliability/docs/work/active/daily-workflow-reliability/round5/review-D.md"
+}

@@ -247,19 +247,18 @@ fn first_use_choices_preserve_manual_work_and_persist_explicit_policy(cx: &mut T
                     "BRN may maintain ordinary notes within your delegated scope."
                 })
             );
-            assert_eq!(
-                window.find("maintenance-setting").label(),
-                Some("Pause maintenance")
-            );
+            // The switch shows Running; switching it off pauses maintenance.
+            let switch = window.find("maintenance-setting");
+            assert_eq!(switch.label(), Some("Maintenance: Running"));
+            assert_eq!(switch.checked(), Some(true));
             window.click("maintenance-setting", cx);
         })
         .unwrap();
         cx.run_until_parked();
         cx.update_window(window, |_, window, cx| {
-            assert_eq!(
-                window.find("maintenance-setting").label(),
-                Some("Resume maintenance")
-            );
+            let switch = window.find("maintenance-setting");
+            assert_eq!(switch.label(), Some("Maintenance: Paused"));
+            assert_eq!(switch.checked(), Some(false));
             assert!(
                 window
                     .find("delegation-status")
@@ -374,7 +373,7 @@ fn composer_drafts_follow_home_and_each_thread(cx: &mut TestAppContext) {
     cx.update_window(window, |_, window, _| {
         assert_eq!(
             window.find("tile-title-chat").label(),
-            Some("chat · missing-thread")
+            Some("Chat: missing-thread")
         );
     })
     .unwrap();
@@ -439,7 +438,8 @@ fn worker_controls_match_real_cancellation_capabilities(cx: &mut TestAppContext)
                     editor.set_value("Chat waiting draft", window, cx)
                 });
                 view.ask(window, cx);
-                assert!(view.notice.contains("queue"));
+                // The queue notice says when it runs ("Queued; runs after …").
+                assert!(view.notice.starts_with("Queued"), "{}", view.notice);
                 assert_eq!(view.composer.read(cx).value().as_ref(), "");
                 assert!(
                     view.queue_state()
@@ -461,7 +461,7 @@ fn worker_controls_match_real_cancellation_capabilities(cx: &mut TestAppContext)
             assert_eq!(window.find("worker-status").label(), Some(expected_status));
             assert_eq!(
                 window.find("tile-title-chat").label(),
-                Some("chat · new chat")
+                Some("Chat: New chat")
             );
             if cancellable {
                 window.click("stop-work", cx);
@@ -604,7 +604,9 @@ fn long_coverage_details_scroll_without_hiding_note_body_or_losing_issues(cx: &m
                 "coverage must leave a usable note body"
             );
             assert!(window.find("note-import-summary").visible());
-            assert!(window.find("section-0").visible());
+            // Headings are reachable from the toolbar's Outline, not a row.
+            assert!(window.find("note-outline").visible());
+            assert!(window.try_find("section-0").is_none());
             last_origin = Some(window.find("note-coverage-detail-5").bounds().origin.y);
             window.scroll(
                 "note-coverage-details",
@@ -636,6 +638,27 @@ fn long_coverage_details_scroll_without_hiding_note_body_or_losing_issues(cx: &m
                 expected,
                 "presentation must preserve all stored issues"
             );
+        });
+        // Outline lists the note's heading; choosing it selects that line.
+        cx.update_window(window, |_, window, cx| window.click("note-outline", cx))
+            .unwrap();
+        cx.run_until_parked();
+        cx.update_window(window, |_, window, cx| {
+            let mut menu = window.within("popup-menu");
+            let index = (0..20usize)
+                .find(|index| {
+                    menu.try_find(*index)
+                        .is_some_and(|row| row.label() == Some("Purpose"))
+                })
+                .expect("Outline lists the Purpose heading");
+            menu.click(index, cx);
+        })
+        .unwrap();
+        cx.run_until_parked();
+        cx.read(|cx| {
+            let editor = view.read(cx).note_editor.read(cx);
+            let range = editor.selected_range();
+            assert_eq!(editor.value().get(range), Some("Purpose"));
         });
     }
 }

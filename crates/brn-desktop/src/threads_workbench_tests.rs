@@ -564,6 +564,31 @@ fn exact_writing_run_shows_note_stop_and_cancel_keeps_saved_request(cx: &mut Tes
 }
 
 #[gpui_kit::test]
+fn an_open_edit_keeps_save_beside_stop_while_its_rewrite_runs(cx: &mut TestAppContext) {
+    let (f, _thread, _run, _snapshot, _cancel) = run_fixture(cx, true);
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            view.note_editor.update(cx, |editor, cx| {
+                editor.set_value("Edited while BRN rewrites", window, cx)
+            });
+            view.preserve_visible_note_input(cx);
+            cx.notify();
+        })
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(window.find("save-note").visible());
+        assert!(window.find("stop-writing").visible());
+        assert!(window.find("writing-progress").visible());
+        f.view.update(cx, |view, _| {
+            assert_eq!(view.writing_bar_row(), Some(workbench::WritingRow::Dirty));
+        });
+    })
+    .unwrap();
+}
+
+#[gpui_kit::test]
 fn ordinary_chat_run_does_not_show_as_writing_activity_in_note(cx: &mut TestAppContext) {
     let (f, _thread, _run, snapshot, _cancel) = run_fixture(cx, false);
     assert!(snapshot.is_none());
@@ -656,8 +681,8 @@ fn ordinary_question_attention_survives_rewrite_and_proposal_stays_with_note(
             assert_eq!(thread.attention[0].reason, "Choose the renewal date");
             assert_eq!(thread.attention[0].record, None);
             assert_eq!(
-                view.writing_saved_status().as_deref(),
-                Some("Rewrite inputs saved · ready to retry")
+                view.writing_run_outcome().map(|outcome| outcome.text()),
+                Some("Rewrite inputs saved".into())
             );
             assert!(view.layout.contains(TileKind::Chat));
             (request, snapshot)
@@ -976,6 +1001,38 @@ fn bound_terminal_clarification_stays_in_note_and_unrelated_chat_cannot_replace_
         assert!(window.find("retry-rewrite").visible());
         assert!(window.find("undo-writing-apply").visible());
         assert!(!f.view.read(cx).layout.contains(TileKind::Chat));
+    })
+    .unwrap();
+    // As on the base, an open edit hides Undo (Changes keeps it); its
+    // siblings say to save first. Discarding brings Undo back.
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            let text = format!("{} Edited here.", view.note_editor.read(cx).value());
+            view.note_editor
+                .update(cx, |editor, cx| editor.set_value(text, window, cx));
+            view.preserve_visible_note_input(cx);
+            cx.notify();
+        })
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(f.view.read(cx).note.as_ref().unwrap().session.is_some());
+        assert!(window.try_find("undo-writing-apply").is_none());
+        assert_eq!(
+            window.find("retry-rewrite").label(),
+            Some("Retry saved rewrite, unavailable: Save your edit first")
+        );
+        f.view.update(cx, |view, cx| {
+            let session = view.note.as_ref().unwrap().session.clone().unwrap();
+            view.discard_session(session, window, cx)
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(f.view.read(cx).note.as_ref().unwrap().session.is_none());
+        assert!(window.find("undo-writing-apply").visible());
     })
     .unwrap();
 

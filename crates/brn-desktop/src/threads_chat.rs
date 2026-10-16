@@ -3,6 +3,7 @@ use super::shell::pill;
 use super::*;
 use gpui_kit::Focusable;
 use gpui_kit::component::message_scroller::{MessageScroller, MessageScrollerState};
+use gpui_kit::component::{Icon, Sizable, Size};
 
 pub(super) struct ChatScroller {
     pub state: Entity<MessageScrollerState>,
@@ -48,7 +49,7 @@ impl ThreadsUi {
         let worker = self.worker.as_ref().filter(|_| active);
         let status = worker.map_or_else(
             || format!("Activity · {}", self.run_activity_status),
-            |worker| format!("◌ {}", self.worker_status(worker)),
+            |worker| self.worker_status(worker),
         );
         let line = div()
             .id("run-line")
@@ -60,10 +61,21 @@ impl ThreadsUi {
             .text_size(SMALL_TEXT)
             .text_color(rgb(pal().muted))
             .aria_label(status.clone())
+            // Running work shows the status bar's LoaderCircle, not a glyph.
+            .when(worker.is_some(), |line| {
+                line.child(
+                    Icon::new(IconName::LoaderCircle)
+                        .with_size(Size::XSmall)
+                        .flex_shrink_0()
+                        .text_color(rgb(pal().info)),
+                )
+            })
             .child(status)
             .when(worker.is_some(), |line| {
                 line.child(
-                    pill("run-stop", "stop ⌘.")
+                    pill("run-stop", "Stop")
+                        .icon(IconName::Square)
+                        .tooltip("Stop the current work and pause the queue · ⌘.")
                         .on_click(cx.listener(|this, _, _, cx| this.cancel(cx))),
                 )
             })
@@ -99,13 +111,73 @@ impl ThreadsUi {
             .gap_2()
             .p_2()
             .border_1()
-            .border_color(rgb(pal().border))
+            .border_color(rgb(pal().hairline))
+            .rounded(components::tokens::RADIUS_CONTROL)
             .bg(rgb(pal().alt))
-            .child(heading("Activity"))
+            .child(subheading("Activity"))
             .child(steps)
             .child(line)
             .test_support()
             .into_any_element()
+    }
+    /// "Stop…" for a saved Working run this window does not hold: BRN can't
+    /// tell whether another window or the CLI still runs it, so it confirms.
+    pub(super) fn stop_saved_run_button(&self, run: &str, cx: &mut Context<Self>) -> Button {
+        let run = run.to_owned();
+        button(format!("stop-saved-run-{run}"))
+            .label("Stop…")
+            .compact()
+            .outline()
+            .h(components::tokens::COMPACT_CONTROL)
+            .tooltip("Stop this reply; asks first")
+            .on_click(cx.listener(move |this, _, window, cx| {
+                this.confirm_stop_saved_run(run.clone(), window, cx)
+            }))
+    }
+    fn confirm_stop_saved_run(&mut self, run: String, window: &mut Window, cx: &mut Context<Self>) {
+        let target = cx.entity().downgrade();
+        self.open_dialog(window, cx, move |dialog, _, _| {
+            let (target, run) = (target.clone(), run.clone());
+            components::consequence_dialog(
+                dialog,
+                "stop-saved-run",
+                "Stop this reply?",
+                "BRN can't tell whether another BRN window or the CLI is still running it. Stopping marks it stopped and pauses the queue; changes it tries to save after that are refused. You can Continue afterwards.",
+                "Stop reply",
+                std::rc::Rc::new(move |_, cx| {
+                    let _ = target.update(cx, |view, cx| view.stop_saved_run(&run, cx));
+                }),
+            )
+        });
+    }
+    /// The existing checked stop: pauses the queue, marks the Working run
+    /// Interrupted and fences it, so later writes from whoever runs it are
+    /// refused.
+    fn stop_saved_run(&mut self, run: &str, cx: &mut Context<Self>) {
+        match self.workspace.stop_chat_run(
+            &format!("stop-saved:{}", uuid::Uuid::new_v4()),
+            run,
+            None,
+        ) {
+            Ok(_) => self
+                .warn("Reply stopped. The queue is paused; Continue or Resume queue when ready."),
+            Err(e) => self.fail(format!(
+                "Could not stop this reply: {e}. It may still be running; try Stop… again."
+            )),
+        }
+        self.refresh();
+        cx.notify();
+    }
+    /// `resume_chat_queue`'s own check: the queue's pending item has a run
+    /// saved as Working, which Resume queue stops before it resumes.
+    pub(super) fn pending_run_working(&self, queue: &ChatControl) -> bool {
+        queue
+            .pending
+            .as_ref()
+            .and_then(|q| q.run.as_deref())
+            .is_some_and(|run| {
+                matches!(self.workspace.store.record(run), Ok(Some(Record { data: RecordData::Run(r), .. })) if r.state == RunState::Working)
+            })
     }
     pub(super) fn assets_in_chat(&self, chat: Option<&str>) -> Arc<BTreeMap<String, Arc<Image>>> {
         Arc::new(
@@ -131,7 +203,7 @@ impl ThreadsUi {
     pub(super) fn pause_failed_worker(&mut self) {
         let key = format!("worker-failure:{}", uuid::Uuid::new_v4());
         let result = if let Some(run) = self.worker.as_ref().and_then(|w| w.run_id.as_deref()) {
-            self.workspace.stop_chat_run(
+            self.workspace.interrupt_chat_run(
                 &key,
                 run,
                 (!self.stream.is_empty()).then_some(self.stream.as_str()),
@@ -140,9 +212,9 @@ impl ThreadsUi {
             self.workspace.recover_queue(&key)
         };
         if let Err(e) = result {
-            self.notice = format!(
+            self.fail(format!(
                 "Could not preserve interruption state: {e}. Copy visible progress before closing."
-            );
+            ));
         }
     }
     pub(super) fn queue_state(&self) -> ChatControl {
@@ -163,17 +235,14 @@ impl ThreadsUi {
         };
         let generation = self.draft_generations.entry(key.clone()).or_default();
         let Some(next) = generation.checked_add(1) else {
-            self.notice =
-                "Composer recovery counter exhausted. Copy your text before closing.".into();
+            self.fail("Composer recovery counter exhausted. Copy your text before closing.");
             return;
         };
         match self.workspace.store.save_chat_draft(&key, next, &text) {
             Ok(_) => *generation = next,
-            Err(e) => {
-                self.notice = format!(
-                    "Composer recovery could not be saved: {e}. Keep this window open or copy your text."
-                )
-            }
+            Err(e) => self.fail(format!(
+                "Composer recovery could not be saved: {e}. Keep this window open or copy your text."
+            )),
         }
     }
     fn composer_chat(&mut self, prompt: &str) -> AppResult<String> {
@@ -203,6 +272,9 @@ impl ThreadsUi {
             return;
         }
         let destination = self.destination();
+        let edited = self.editing_queue.is_some();
+        // Every waiting item ahead of the new one, in any chat.
+        let ahead = self.queue_state().queue.len();
         let result = if let Some(item) = &self.editing_queue {
             self.workspace
                 .edit_queued(
@@ -227,13 +299,29 @@ impl ThreadsUi {
                 if let Some(thread) = thread {
                     self.chat = ChatTarget::Thread(thread);
                 }
-                self.notice = "Message saved in the queue. Each item runs as a separate turn with current context.".into();
                 self.refresh();
-                if self.worker.is_none() && !self.queue_state().paused {
+                let paused = self.queue_state().paused;
+                let busy = self.worker.is_some();
+                // First match wins: Busy and Paused hold together after Stop.
+                if edited {
+                    self.inform("Queued message updated.");
+                } else if paused {
+                    self.warn("Queued. The queue is paused; Resume queue to run it.");
+                } else if busy && ahead > 0 {
+                    self.inform(format!(
+                        "Queued; runs after {ahead} waiting message{}.",
+                        if ahead == 1 { "" } else { "s" }
+                    ));
+                } else if busy {
+                    self.inform("Queued; runs after the current reply.");
+                }
+                // An idle, unpaused send never reaches this queue path: `ask`
+                // starts it directly, and `start_run` clears an earlier notice.
+                if !busy && !paused {
                     self.dispatch_next(cx);
                 }
             }
-            Err(e) => self.notice = format!("{e}. Your composer text is preserved."),
+            Err(e) => self.fail(format!("{e}. Your composer text is preserved.")),
         }
         cx.notify();
     }
@@ -255,7 +343,7 @@ impl ThreadsUi {
             }
             Ok(None) => {}
             Err(e) => {
-                self.notice = e.to_string();
+                self.fail(e.to_string());
                 let _ = self
                     .workspace
                     .pause_queue(&format!("dispatch-failed:{}", uuid::Uuid::new_v4()));
@@ -266,19 +354,19 @@ impl ThreadsUi {
     }
     pub(super) fn resume_chat_queue(&mut self, cx: &mut Context<Self>) {
         if self.worker.is_some() {
-            self.notice = "Wait for current work to stop before Resume.".into();
+            self.warn("Wait for current work to stop before Resume.");
             cx.notify();
             return;
         }
         if let Some(run) = self.queue_state().pending.and_then(|q| q.run)
             && matches!(self.workspace.store.record(&run), Ok(Some(Record { data: RecordData::Run(r), .. })) if r.state == RunState::Working)
-            && let Err(e) = self.workspace.stop_chat_run(
+            && let Err(e) = self.workspace.interrupt_chat_run(
                 &format!("resume-stale:{}", uuid::Uuid::new_v4()),
                 &run,
                 None,
             )
         {
-            self.notice = e.to_string();
+            self.fail(e.to_string());
             cx.notify();
             return;
         }
@@ -287,7 +375,7 @@ impl ThreadsUi {
             .resume_queue(&format!("resume:{}", uuid::Uuid::new_v4()))
         {
             Ok(_) => self.dispatch_next(cx),
-            Err(e) => self.notice = e.to_string(),
+            Err(e) => self.fail(e.to_string()),
         }
         cx.notify();
     }
@@ -341,23 +429,118 @@ impl ThreadsUi {
         let c = self.queue_state();
         let mut panel = div().flex().flex_col().gap_1();
         if c.pending.is_some() || !c.queue.is_empty() {
-            panel = panel.child(
+            let here = self.chat_thread().map(str::to_owned);
+            let waiting = format!("{} waiting", c.queue.len());
+            // A short window keeps the queue to its one summary row; the
+            // disclosure shows the items.
+            let collapsed = self.short_window && !self.queue_expanded;
+            let disclosure = self.short_window.then(|| {
+                let (icon, label) = if collapsed {
+                    (IconName::ChevronRight, "Show waiting messages")
+                } else {
+                    (IconName::ChevronDown, "Hide waiting messages")
+                };
+                components::icon_button("queue-disclosure", icon, label)
+                    .flex_shrink_0()
+                    .on_click(cx.listener(|this, _, _, cx| {
+                        this.queue_expanded = !this.queue_expanded;
+                        cx.notify();
+                    }))
+            });
+            // The state leads and never truncates; in a narrow chat the
+            // count gives way first. The full line is the tooltip and the
+            // accessible name.
+            let state = match (c.paused, self.short_window) {
+                (true, true) => "Paused",
+                (true, false) => "Queue paused",
+                (false, _) => "Queue",
+            };
+            let summary = format!("{state} · {waiting}");
+            let summary_row = |weight: gpui_kit::FontWeight| {
+                let tooltip = summary.clone();
                 div()
+                    .id("queue-summary")
                     .flex()
-                    .items_center()
-                    .gap_2()
-                    .child(metadata(format!(
-                        "Queue · {} waiting{}",
-                        c.queue.len(),
-                        if c.paused { " · paused" } else { "" }
-                    )))
+                    .flex_1()
+                    .min_w_0()
+                    .text_size(SMALL_TEXT)
+                    .aria_label(summary.clone())
+                    .tooltip(move |window, cx| {
+                        gpui_kit::component::tooltip::Tooltip::new(tooltip.clone())
+                            .build(window, cx)
+                    })
                     .child(
-                        pill("queue-resume", "Resume")
-                            .disabled(self.worker.is_some() || !c.paused)
-                            .on_click(cx.listener(|this, _, _, cx| this.resume_chat_queue(cx))),
-                    ),
-            );
-            for (index, q) in c.pending.iter().chain(c.queue.iter()).enumerate() {
+                        div()
+                            .id("queue-summary-state")
+                            .flex_shrink_0()
+                            .font_weight(weight)
+                            .child(state)
+                            .test_support(),
+                    )
+                    .child(
+                        div()
+                            .min_w_0()
+                            .truncate()
+                            .child(format!("\u{a0}· {waiting}")),
+                    )
+                    .test_support()
+            };
+            // A paused queue is a warning card holding Resume queue; a running
+            // one is a quiet list.
+            let mut queue = if c.paused {
+                let busy = self.worker.is_some();
+                components::card("queue-panel", Some(Tone::Warning))
+                    .gap_1()
+                    .p_2()
+                    .child(
+                        div()
+                            .flex()
+                            .items_center()
+                            .gap_2()
+                            .children(disclosure)
+                            .child(components::tone_mark("queue-panel-tone", Tone::Warning))
+                            .child(summary_row(gpui_kit::FontWeight::MEDIUM))
+                            .child(
+                                button("queue-resume")
+                                    .label("Resume queue")
+                                    .compact()
+                                    .outline()
+                                    .h(components::tokens::COMPACT_CONTROL)
+                                    .flex_shrink_0()
+                                    .disabled(busy)
+                                    .when(busy, |button| {
+                                        button
+                                            .accessibility_label(
+                                                "Resume queue, unavailable: wait for current work to stop",
+                                            )
+                                            .tooltip("Wait for current work to stop")
+                                    })
+                                    .when(!busy, |button| {
+                                        button.tooltip("Run the waiting messages in order")
+                                    })
+                                    .on_click(
+                                        cx.listener(|this, _, _, cx| this.resume_chat_queue(cx)),
+                                    ),
+                            ),
+                    )
+            } else {
+                div().id("queue-panel").flex().flex_col().gap_1().child(
+                    div()
+                        .flex()
+                        .items_center()
+                        .gap_1()
+                        .children(disclosure)
+                        .child(
+                            summary_row(gpui_kit::FontWeight::NORMAL).text_color(rgb(pal().muted)),
+                        ),
+                )
+            };
+            let items = if collapsed {
+                Vec::new()
+            } else {
+                c.pending.iter().chain(c.queue.iter()).collect()
+            };
+            for (index, q) in items.into_iter().enumerate() {
                 let edit = q.clone();
                 let remove = q.id.clone();
                 let move_id = q.id.clone();
@@ -370,35 +553,53 @@ impl ThreadsUi {
                     .position(|i| i.id == q.id)
                     .and_then(|i| i.checked_sub(1))
                     .map(|i| c.queue[i].id.clone());
-                panel = panel.child(
+                let state = if active {
+                    "Running"
+                } else if c.pending.as_ref().is_some_and(|p| p.id == q.id) {
+                    "Next"
+                } else {
+                    "Waiting"
+                };
+                // Only items from other chats name their chat.
+                let label = if here.as_deref() == Some(q.thread.as_str()) {
+                    format!("{state} · {}", short(&q.text))
+                } else {
+                    format!(
+                        "{state} · {} · {}",
+                        short(&self.thread_title(&q.thread)),
+                        short(&q.text)
+                    )
+                };
+                queue = queue.child(
                     div()
                         .id(format!("queue-card-{}", q.id))
                         .flex()
                         .items_center()
                         .gap_2()
-                        .px_2()
-                        .py_1()
+                        .px_1()
                         .child(
-                            metadata(format!(
-                                "{} · {} · {}",
-                                if active {
-                                    "running"
-                                } else if c.pending.as_ref().is_some_and(|p| p.id == q.id) {
-                                    "saved turn"
-                                } else {
-                                    "waiting"
-                                },
-                                short(&self.thread_title(&q.thread)),
-                                short(&q.text)
-                            ))
-                            .flex_1()
-                            .min_w_0()
-                            .truncate(),
+                            div()
+                                .id(format!("queue-label-{index}"))
+                                .flex_1()
+                                .min_w_0()
+                                .truncate()
+                                .text_size(SMALL_TEXT)
+                                .text_color(rgb(pal().ink))
+                                .aria_label(label.clone())
+                                .child(label)
+                                .test_support(),
                         )
                         .child(
                             pill(format!("queue-edit-{index}"), "Edit")
                                 .flex_shrink_0()
                                 .disabled(active)
+                                .when(active, |button| {
+                                    let (announced, tooltip) = components::unavailable(
+                                        "Edit",
+                                        Some("this message is running"),
+                                    );
+                                    button.accessibility_label(announced).tooltip(tooltip)
+                                })
                                 .on_click(cx.listener(move |this, _, window, cx| {
                                     this.set_chat(
                                         ChatTarget::Thread(edit.thread.clone()),
@@ -417,12 +618,19 @@ impl ThreadsUi {
                             pill(format!("queue-remove-{index}"), "Remove")
                                 .flex_shrink_0()
                                 .disabled(active)
+                                .when(active, |button| {
+                                    let (announced, tooltip) = components::unavailable(
+                                        "Remove",
+                                        Some("this message is running; Stop it first"),
+                                    );
+                                    button.accessibility_label(announced).tooltip(tooltip)
+                                })
                                 .on_click(cx.listener(move |this, _, _, cx| {
                                     if let Err(e) = this.workspace.remove_queued(
                                         &format!("remove:{}", uuid::Uuid::new_v4()),
                                         &remove,
                                     ) {
-                                        this.notice = e.to_string();
+                                        this.fail(e.to_string());
                                     }
                                     this.refresh();
                                     cx.notify();
@@ -430,24 +638,31 @@ impl ThreadsUi {
                         )
                         .when(before.is_some(), |row| {
                             row.child(
-                                pill(format!("queue-up-{index}"), "↑")
-                                    .flex_shrink_0()
-                                    .on_click(cx.listener(move |this, _, _, cx| {
+                                components::icon_button(
+                                    format!("queue-up-{index}"),
+                                    IconName::ArrowUp,
+                                    "Move up",
+                                )
+                                .flex_shrink_0()
+                                .on_click(cx.listener(
+                                    move |this, _, _, cx| {
                                         if let Err(e) = this.workspace.move_queued(
                                             &format!("move:{}", uuid::Uuid::new_v4()),
                                             &move_id,
                                             before.as_deref(),
                                         ) {
-                                            this.notice = e.to_string();
+                                            this.fail(e.to_string());
                                         }
                                         this.refresh();
                                         cx.notify();
-                                    })),
+                                    },
+                                )),
                             )
                         })
                         .test_support(),
                 );
             }
+            panel = panel.child(queue.test_support());
         }
         if let ChatTarget::Thread(chat) = &self.chat {
             for r in self.records.iter().filter(|r| {
@@ -505,8 +720,8 @@ impl ThreadsUi {
                                                 &keep,
                                                 version,
                                             ) {
-                                                Ok(o) => this.notice = outcome_message(&o),
-                                                Err(e) => this.notice = e.to_string(),
+                                                Ok(o) => this.report_outcome(&o),
+                                                Err(e) => this.fail(e.to_string()),
                                             }
                                             this.refresh();
                                             cx.notify();
@@ -525,12 +740,12 @@ impl ThreadsUi {
         cx: &mut Context<Self>,
     ) {
         if paths.len() != 1 {
-            self.notice = "Attach one supported document at a time.".into();
+            self.warn("Attach one supported document at a time.");
             cx.notify();
             return;
         }
         if self.worker.is_some() {
-            self.notice = "Finish or stop work before attaching a file.".into();
+            self.warn("Finish or stop work before attaching a file.");
             cx.notify();
             return;
         }
@@ -553,14 +768,14 @@ impl ThreadsUi {
                 );
             }
             Err(e) => {
-                self.notice = e.to_string();
+                self.fail(e.to_string());
                 cx.notify();
             }
         }
     }
     pub(super) fn choose_chat_attachment(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         if self.worker.is_some() {
-            self.notice = "Finish or stop work before attaching a file.".into();
+            self.warn("Finish or stop work before attaching a file.");
             cx.notify();
             return;
         }
@@ -578,7 +793,7 @@ impl ThreadsUi {
                 self.choose_import(ImportIntent::FullNote, window, cx);
             }
             Err(e) => {
-                self.notice = e.to_string();
+                self.fail(e.to_string());
                 cx.notify();
             }
         }
@@ -625,6 +840,20 @@ impl ThreadsUi {
                 });
                 slot.signature = signature;
             }
+            // A search hit opened this chat: show its Message once.
+            let reveal = self
+                .reveal_message
+                .borrow()
+                .clone()
+                .filter(|(chat, _)| chat == id);
+            if let Some((_, message)) = reveal {
+                if let Some(index) = messages.iter().position(|record| record.id == message) {
+                    slot.state.update(cx, |s, cx| {
+                        s.scroll_to_item(index, cx);
+                    });
+                }
+                self.reveal_message.borrow_mut().take();
+            }
             slot.state.clone()
         };
         let weak = cx.entity().downgrade();
@@ -656,16 +885,26 @@ impl ThreadsUi {
                 })
             })
             .unwrap_or_else(|| format!("message-{}", record.id));
-        let mut row = div()
-            .id(format!("chat-message-{}", record.id))
+        // The transcript keeps the reading measure: 680 px of text with 24 px
+        // gutters, centered when the chat fills the window.
+        let mut column = div()
             .flex()
             .flex_col()
             .gap_1()
-            .p_3();
+            .w_full()
+            .min_w_0()
+            .max_w(px(680.) + components::tokens::SPACE_6 * 2.)
+            .px(components::tokens::SPACE_6)
+            .py_2();
         match m.role.as_str() {
             "owner" => {
-                row = row
-                    .child(metadata("you"))
+                column = column
+                    .child(
+                        metadata("You")
+                            .h(components::tokens::ICON_CONTROL)
+                            .flex()
+                            .items_center(),
+                    )
                     .child(self.safe_message(key, m.text.clone()));
             }
             "assistant" | "assistant-partial" => {
@@ -674,31 +913,32 @@ impl ThreadsUi {
                 let save_decision = m.role == "assistant"
                     && !m.text.trim().is_empty()
                     && !self.thread_resolved(&m.thread);
-                row = row
+                column = column
                     .child(
                         div()
                             .flex()
-                            .flex_wrap()
                             .items_center()
-                            .gap_2()
-                            .child(metadata(if m.role == "assistant" {
-                                "BRN"
-                            } else {
-                                "BRN · partial, interrupted"
-                            }))
-                            .child(pill(format!("answer-copy-{}", record.id), "Copy").on_click(
-                                cx.listener(move |_, _, _, cx| {
-                                    cx.write_to_clipboard(gpui_kit::ClipboardItem::new_string(
-                                        copy.clone(),
-                                    ))
-                                }),
-                            ))
+                            .gap_1()
+                            .h(components::tokens::ICON_CONTROL)
+                            .child(
+                                metadata(if m.role == "assistant" {
+                                    "BRN"
+                                } else {
+                                    "BRN · partial, interrupted"
+                                })
+                                .flex_1()
+                                .min_w_0()
+                                .truncate(),
+                            )
                             .when(save_decision, |controls| {
                                 controls.child(
                                     pill(
                                         format!("answer-decision-{}", record.id),
-                                        "Save as decision",
+                                        "Save as decision…",
                                     )
+                                    .h(components::tokens::ICON_CONTROL)
+                                    .text_size(SMALL_TEXT)
+                                    .flex_shrink_0()
                                     .tooltip(
                                         "Review and save this reply as a protected decision in BRN",
                                     )
@@ -708,15 +948,40 @@ impl ThreadsUi {
                                         },
                                     )),
                                 )
-                            }),
+                            })
+                            .child(
+                                components::icon_button(
+                                    format!("answer-copy-{}", record.id),
+                                    IconName::Copy,
+                                    "Copy reply",
+                                )
+                                .flex_shrink_0()
+                                .on_click(cx.listener(
+                                    move |_, _, _, cx| {
+                                        cx.write_to_clipboard(gpui_kit::ClipboardItem::new_string(
+                                            copy.clone(),
+                                        ))
+                                    },
+                                )),
+                            ),
                     )
                     .child(self.safe_message(key, m.text.clone()));
             }
             "writing-request" => {
-                row = row.child(metadata("you · Rewrite with AI · saved context"));
+                column = column.child(metadata("You · Rewrite with AI · saved context"));
             }
             _ => {}
         }
-        row.test_support().into_any_element()
+        div()
+            .id(format!("chat-message-{}", record.id))
+            .flex()
+            .flex_col()
+            .w_full()
+            .when(self.layout.maximized() == Some(TileKind::Chat), |row| {
+                row.items_center()
+            })
+            .child(column)
+            .test_support()
+            .into_any_element()
     }
 }
