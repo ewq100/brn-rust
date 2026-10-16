@@ -1,0 +1,264 @@
+--- a/BRN_Rig_First_Implementation_Plan.md
++++ b/BRN_Rig_First_Implementation_Plan.md
+@@ -4,7 +4,8 @@
+ **Repository:** `ewq100/brn-rust`  
+ **Inspected main:** `7e9d0376d677ed2a46bdbcd8933f55f9e1746a02`  
+ **Inspected dependency:** published Rig `0.44.0`  
+-**Status:** Proposed implementation handoff. Source reviewed; no code, builds, provider runs, or native interaction performed for this plan. The executing agent must reconcile the current local and remote trees before editing.
++**Status:** Proposed implementation handoff. Source reviewed; no code, builds, provider runs, or native interaction performed for this plan. The executing agent must reconcile the current local and remote trees before editing.  
++**Reviewed:** 16 October 2026 against main `cafb24c2` and the three finish-first branch tips (`work/ui-polish` `40930c09`, `work/daily-workflow-reliability` `b76cc5a7`, `work/cli-agent-contract` `2537db54`), plus Rig `v0.44.0` tag sources and crates.io metadata. Amendments A1–A9 from the accompanying review are applied below. This program runs as **workstream D** of the [forward build sequence](../../../build-sequence/README.md) under the single integration lead.
+ 
+ ## 1. Objective and scope
+ 
+@@ -26,6 +27,13 @@
+ 
+ Do not add scheduled background automation, an always-running daemon, arbitrary shell/browser/computer execution, skill scripts, a marketplace, inbound MCP access to BRN, connector writes, multi-agent swarms, silent model switching, or an unrelated compiler/Rig/GUI/storage/embedding upgrade. Do not bring unpublished Rig coding-agent crates into the dependency graph.
+ 
++### Owner scope decisions required before Slices 3 and 4
++
++Two slices change scope that current canonical documents defer or exclude. Neither slice starts until the owner records the decision. Record it as a dated amendment in the canonical target, not only in this plan. Slices 0–2 do not depend on either decision. [B11]
++
++- **D-S, installable instruction skills (Slice 3).** The canonical target specifies four packaged skills in a fixed catalogue: "no general plugin loader, filesystem discovery, or autonomous instruction rewriting is required". The modular-foundation master plan (section 10, C4) also says not to "build a dynamic skill platform". The decision accepts owner-installed, instruction-only packages under Slice 3's limits. It still excludes executable content, a plugin loader and self-installation.
++- **D-M, one outbound read-only MCP connection (Slice 4).** The product vision, roadmap and target defer "broad connectors" and connector automation. The decision accepts a single opt-in, read-only, owner-configured outbound MCP connection as a narrow exception. Broad connectors stay deferred.
++
+ ## 2. Verified starting points and the reuse decision
+ 
+ The following are observations at the inspected commit, not claims about unpushed work or a future baseline.
+@@ -33,57 +41,69 @@
+ | Area | Source-backed starting point | Required direction |
+ |---|---|---|
+ | Runtime | BRN pins Rig 0.44.0 and already uses its agent/tool/stream/hook machinery. The AI package enables `agent`, `derive`, and `reqwest`. [B3, B4] | Extend this runtime. Do not build a replacement agent loop. |
+-| Conversation | Normal run input selects 40 recent messages, truncates their text, and adds earlier progress and operation results. Automatic Rig memory is disabled on this path. [B4] | Use Rig history policies with BRN-controlled context assembly and persistence. |
++| Conversation | Normal run input selects 40 recent messages, truncates their text, and adds earlier progress and operation results. Automatic Rig memory is disabled on this path. [B4] Each message is cut at 16 KiB and every earlier Run's progress is appended with no count limit, so there is no whole-request budget. [B10] | Use Rig history policies with BRN-controlled context assembly and persistence. |
++| Prompt caching | On the Codex route BRN pins `prompt_cache_key`/`session_id` to `brn-<chat id>` and keeps the request prefix append-only within a run. Tests assert this. Earlier tool results are deliberately not trimmed: trimming changes the prefix from the first trimmed item onward, and the measured cost model showed no net saving. [B9] | Budget without breaking the measured prefix contract (Slice 1A). |
++| Model limits | BRN has no source for model context-window sizes. It only classifies a provider `context_length_exceeded` failure. [B10] | Slice 0 chooses a limit source; the provider error remains the truthful backstop. |
+ | Skills | Four compiled skills are advertised and loaded by `read_skill`; intake preloads two. [B5] | Evolve the existing catalogue; instruction loading does not need an executable-plugin framework. |
+-| Continuation | BRN already has progress retention, operation receipts, stop/restart fences, and durable queue controls. [B4, B6] | Enrich and test these, rather than introducing another job store. |
++| Continuation | BRN already has progress retention, operation receipts, stop/restart fences, and durable queue controls. [B4, B6] The finish-first branches add run liveness leases with orphan recovery, one terminal notice per chat, review of a killed Run's prepared candidate, `withdraw_proposal`, a public `prepare_run` seam, and caller-keyed CLI operations. [B10] | Enrich and test these, rather than introducing another job store. Slice 2 builds only the remaining delta. |
+ | Permissions and retention | BRN requires fresh authority/version checks and explicitly excludes opaque persisted runtime/provider transcripts. [B1] | Store small BRN continuation/context records, not serialized provider histories. |
+-| Current program | The modular-foundation pack is proposed, not started. Its owner decision requires `work/ui-polish` and `work/daily-workflow-reliability` to land first. [B7] | Reconcile this dependency and shared-file ownership before production edits. |
++| Current program | The modular-foundation pack is proposed, not started. Owner decisions of 15–16 October require `work/ui-polish`, `work/daily-workflow-reliability` and `work/cli-agent-contract` to land first. [B7, B10] | Run as workstream D under the one integration lead, sharing C0 (section 3). |
+ | Rig memory | Released code offers `TokenWindowMemory`, `MemoryPolicy`, `Compactor`, and `CompactingMemory`. The wrapper's summary state is process-local; summary size is outside the window budget. [R1] | Reuse policies/interfaces; add only necessary BRN storage, trust, and budget integration. |
+ | Rig compaction | `TemplateCompactor` rolls up text; it is not semantic summarization, and its default summary converts to a system message. [R1] | Do not use it as the production intelligent-memory feature or promote untrusted history into system authority. |
+-| Rig MCP | `rig-rmcp` adapts MCP tools into dynamic Rig tools and supports registry/liveness updates. [R2] | Use the adapter and maintained SDK, not a custom protocol client. |
++| Rig MCP | `rig-rmcp` adapts MCP tools into dynamic Rig tools and supports registry/liveness updates. [R2] It depends on `rmcp` major 2 (latest 2.2.0; upstream is at 3.5.1) with only the `client` feature, so BRN stays on the 2.x line until a separately authorized Rig upgrade. [R4] | Use the adapter and maintained SDK, not a custom protocol client. Add exactly one transport feature (Slice 4). |
+ | Rig checkpoints | `AgentRun` is serializable, but includes conversation/provider content; direct driving does not automatically run configured hooks/tools/memory. [R3] | Evaluate only in a disposable experiment. Persistent raw snapshots are outside this plan. |
+ 
+ **Ownership rule:** Rig owns generic model execution, tools, history policies, and protocol adapters. BRN owns what may be read, retained, changed, approved, and shown to the owner. A general Rig facility does not replace BRN's domain checks.
+ 
+ ## 3. Sequence and coordination
+ 
+-Use one lead for shared contracts, dependency changes, schema changes, `threads.rs`, and integration. A helper may own isolated skill parsing, test fixtures, or an independent review after boundaries are agreed. No two agents edit shared runtime/core/UI files concurrently.
++Use one lead for shared contracts, dependency changes, schema changes, `threads.rs`, and integration. This is the **same integration lead (C)** as the modular-foundation program: one lead, one baseline, one ownership map and one integration ref for both programs. A helper may own isolated skill parsing, test fixtures, or an independent review after boundaries are agreed. No two agents edit shared runtime/core/UI files concurrently.
+ 
+ | Slice | Deliverable | Dependency |
+ |---|---|---|
+-| 0 | Current baseline, reuse proofs, ownership map | First; no production feature edits |
+-| 1A | Budgeted history and older-conversation access | Baseline and runtime ownership released |
++| 0 | Current baseline, reuse proofs, ownership map | Folded into the combined C0; no production feature edits. The reuse proofs may run earlier as an isolated experiment (section 4) |
++| 1A | Budgeted history and older-conversation access | C0, then CW2 in the default order below |
+ | 1B | Persistent, source-linked semantic context | 1A |
+-| 2 | Reliable objective/progress continuation | 1B and existing queue/receipt contracts |
+-| 3 | Installable instruction-only skills | 1A; can be developed independently once file ownership is separated |
+-| 4 | Opt-in, read-only MCP connection | Budgeting, runtime policy, and external-data controls established |
++| 2 | Reliable objective/progress continuation | 1B and the landed queue/receipt/recovery contracts |
++| 3 | Installable instruction-only skills | 1A and owner decision D-S. A helper may build the isolated package parsing/validation parts in parallel once file ownership is separated |
++| 4 | Opt-in, read-only MCP connection | Budgeting, runtime policy, external-data controls and owner decision D-M |
+ | 5 | Integrated qualification, removal of obsolete paths, handoff | Implemented slices; writing integration qualified against its actual available interface |
+ 
+-The default order is 0 → 1A → 1B → 2 → 3 → 4 → 5. Break implementation into reviewable local commits; these are not preassigned pull-request numbers. Publish or merge only with current authority.
++The lead's lane is serial because every item touches `threads.rs`, core schema or the lockfile. The default order is C0 → CW1 → CW2 → 1A → 1B → 2 → 3 → 4 → 5, where CW1/CW2 are the modular-foundation writing changes. CW goes first because CW1/CW2 unblock the writing UI lane, while D slices unblock nothing else. 1A then budgets the final writing-request shape once instead of twice. The owner may move 1A ahead of CW1; the cost is re-budgeting when request v2 lands. Break implementation into reviewable local commits; these are not preassigned pull-request numbers. Publish or merge only with current authority.
+ 
+ ### Coordination with modular foundation
+ 
+-Before modifying production runtime, core, app, or desktop files, establish the actual disposition of the two finish-first branches and any active writing/foundation assignment. Branch existence and an old status paragraph do not establish whether an agent is active or a change has landed.
++Owner decisions of 15–16 October: `work/ui-polish`, `work/daily-workflow-reliability` and `work/cli-agent-contract` land on `main` before C0 or any production slice. Confirm each has landed; branch existence and an old status paragraph do not establish whether an agent is active or a change has landed. Isolated `experiments/` work from a recorded snapshot may run earlier.
+ 
+-Use the shared run-start service if the foundation work has delivered it. Otherwise, coordinate a narrowly owned change with that program's lead or defer the overlapping integration. Do not independently extract another run-start service. This plan does not require completing every unrelated writing/intake milestone before isolated context tests can proceed, and it does not authorize bypassing an explicit finish-first decision.
++Use the shared run-start service delivered by CW2, which builds on the reliability branch's `prepare_run`. Do not independently extract another run-start service. This plan does not require completing every unrelated writing/intake milestone before isolated context tests can proceed, and it does not authorize bypassing an explicit finish-first decision.
+ 
+ ## 4. Slice 0 — baseline and executable reuse proof
+ 
+ Read `AGENTS.md`, current status, the canonical Threads target/behavior/invariants, development workflow/verification, the active assignment, and the actual implementation. Inspect local HEAD, worktrees, uncommitted changes, fetched main, open PRs, and ownership. The SHA above is evidence, not a reset target.
+ 
+-Record a compact capability matrix: **already implemented / reusable upstream / needs a BRN adapter / deferred**. For each proposed new component, identify existing code and the exact pinned API before creating it. Remove work already completed by newer commits from this plan.
++Record a compact capability matrix: **already implemented / reusable upstream / needs a BRN adapter / deferred**. For each proposed new component, identify existing code and the exact pinned API before creating it. Remove work already completed by newer commits from this plan. At review this applies most to Slice 2 (section 2, Continuation) and to Slice 1A's older-discussion access, which can reuse the reliability branch's scoped owner message search.
+ 
+ Build minimal credential-free checks against the resolved published dependency for:
+ 
+ - Token-window application and compactor invocation without automatic canonical message writes.
+ - MCP tool conversion, cancellation, and availability changes through Rig's adapter.
+ - A disposable `AgentRun` checkpoint round trip, including inspection of retained payloads and the difference between direct driving and hook-aware execution.
++- Prefix stability. Using Rig's scripted HTTP client, show that a history policy applied once at run start keeps every request prefix inside one run byte-identical. Also show that two runs between compaction boundaries send the same history prefix.
+ 
++These proofs may run before C0 as an isolated experiment (`experiments/r0-rig-reuse/`). That experiment uses its own manifest, lockfile and target directory, starts from a recorded `origin/main` snapshot, and changes no production or shared files, as X1 and Z1 did.
++
++Slice 0 also records four decisions with evidence:
++
++- the model-limit source (1A);
++- summary storage (1B);
++- the MCP transport (Slice 4);
++- the skill-manifest parser (Slice 3).
++
+ Prefer existing test facilities or examples. Keep experiments out of production paths. Inspect dependency/feature changes and the lockfile; enable only facilities used by the subsequent slice. Do not fork Rig to make this plan fit.
+ 
+ Run relevant existing baseline checks, including required default/native lanes where available. Record pre-existing failures rather than fixing unrelated programs. Read scripts before running them and use explicit fresh data directories.
+ 
+-**Exit:** a short active plan with baseline, file owners, verified API choices, acceptance IDs, and known blockers. Continue into the first ready implementation slice. A checkpoint incompatibility does not block context, skills, or MCP work.
++**Exit:** a short active plan at `docs/work/active/agent-capabilities/plan.md` recording verified API choices, the four decisions, D-slice owners, acceptance IDs and known blockers. It links the combined C0 baseline and ownership map rather than restating them. Continue into the first ready implementation slice. A checkpoint incompatibility does not block context, skills, or MCP work.
+ 
+ ## 5. Slice 1 — long-conversation context
+ 
+@@ -93,34 +113,63 @@
+ 
+ Retaining `.without_memory()` is acceptable when BRN deliberately applies Rig policies before invoking the agent. Success is reuse of the correct mechanism, not removal of a particular method call.
+ 
+-Budget the complete request: instructions, project configuration, skill metadata/text, current owner request, document/reference context, recent history, semantic summary, tool schemas/results, response allowance, and a safety margin. Use validated model/provider information and a tested counter where practical. Label heuristic estimates as estimates; never hard-code a universal context window or silently drop the current request. Bound tool-result growth during the run as well as at initial prompt assembly.
++Budget the complete request: instructions, project configuration, skill metadata/text, current owner request, document/reference context, recent history, earlier Runs' retained progress, semantic summary, tool schemas/results, response allowance, and a safety margin. Use validated model/provider information and a tested counter where practical. BRN has no model-limit source today. Slice 0 selects one: provider model metadata where a route exposes it, otherwise a small per-model table with a recorded source and date. Label heuristic estimates as estimates; never hard-code a universal context window or silently drop the current request. Treat a provider `context_length_exceeded` failure as the same truthful limit outcome, not a generic failure.
+ 
++**Preserve the prompt-cache contract.** [B9]
++
++- Apply the history policy once, at run start.
++- Inside a run, keep the request prefix append-only. Do not trim, summarize or rewrite earlier items.
++- Bound tool-result growth at admission instead: cap each result when it enters the transcript, as note reads already do.
++- End with the limit outcome before sending an over-limit request.
++- Across runs, move the history cut and the summary only at coarse, stable compaction boundaries, so consecutive runs share a prefix.
++- Report the cached-input share from the existing per-turn usage records.
++
++Reopening the measured no-trimming decision needs new measurement, not an assumption.
++
+ Prioritize the current owner request and applicable project configuration. Make omitted historical coverage visible. Preserve message order and tool-call/result validity when that structure is present. If mandatory content cannot fit, produce a specific limit outcome before an invalid provider request; do not secretly switch models.
+ 
+-Give the agent bounded access to older permitted discussion and exact message identities. Extend an existing read/search route where practical; add one narrowly scoped conversation read tool only if the existing API cannot express it. Conversation evidence must not appear as canonical notes or leak another project's discussion. Read selected passages instead of returning the entire conversation.
++Give the agent bounded access to older permitted discussion and exact message identities. Extend an existing read/search route where practical. The default is the scoped owner message search added by the reliability branch, together with its scope tests. Add one narrowly scoped conversation read tool only if the existing API cannot express it. Conversation evidence must not appear as canonical notes or leak another project's discussion. Read selected passages instead of returning the entire conversation.
+ 
+ ### 1B. Semantic summary and restart persistence
+ 
+-Implement a small model-backed compactor through Rig's `Compactor` interface or an equivalently narrow adapter using that interface's contract. Use the current selected provider/model/effort for runtime compaction by default; no hidden secondary provider. Record its calls and usage. Live development qualification still needs current provider authority.
++Implement a small model-backed compactor through Rig's `Compactor` interface or an equivalently narrow adapter using that interface's contract. Use the current selected provider/model/effort for runtime compaction by default; no hidden secondary provider. An explicit, owner-visible compaction model on the same account is an owner option, not a default. For example, the existing experimental helper-model setting could serve. Record its calls and usage. Send compaction as its own request without the chat's prompt-cache key. Live development qualification still needs current provider authority.
+ 
+ A summary should preserve the objective, relevant requirements, unresolved questions, proposals versus accepted outcomes, and references to the saved messages and actual operation receipts. Treat claims about acceptance as evidence to verify, never as authorization created by the summarizer. Host-owned identity/coverage/version stamps must be calculated outside the model.
+ 
+ Persist only a bounded derived summary and its coverage identity through BRN's existing checked storage facilities. Reuse existing appropriate records/cache mechanisms; introduce minimal storage changes only when needed. Do not overload an ordinary knowledge Note or create another conversation database. Indexes/exports must not accidentally treat generated summaries as source-of-truth knowledge.
+ 
++**Default storage: a derived cache.** Store the summary as a rebuildable cache in the data folder's `derived/` area, beside the search index. It is not a second conversation store.
++
++- Key it as below.
++- Exclude it from Markdown export, search indexing and backups.
++- Losing it costs repeated compaction calls, never canonical data.
++- It needs no `brn.sqlite` schema increment, so it does not contend with CW1's schema change.
++
++Use `brn.sqlite` only if Slice 0 shows a derived cache cannot meet C02/C04. That becomes a lead-owned schema increment, serialized with any other.
++
+ Key reuse to conversation identity, exact covered message range/content digest, context visibility epoch, and relevant summarizer/instruction configuration. Handle appended messages incrementally. Invalidate or safely rebuild when source content, access, deletion/restoration, or applicable configuration changes. A cold restart must not replay all compaction calls for unchanged coverage.
+ 
+ Render the result as explicitly labelled derived context under BRN's existing trust hierarchy. Do not pass the default `TextSummary` system-message conversion through unchanged. A quoted instruction, tool response, or old request must not become a fresh owner grant. Keep high-value requirements linked to exact saved messages so uncertain summaries can be checked.
+ 
+ On summarizer failure, retain valid prior summary coverage, current request, and bounded recent context, and disclose the gap. Use one documented degradation policy—not a silent second runtime or a claim that all history was considered. Never delete original saved conversation. Long calls happen outside database transactions; persist only after checking that the result still belongs to the current context generation. Cancelled or superseded summary results cannot replace newer state.
+ 
+-**Acceptance:** C01–C06. Do not count a template rollup, larger message cap, or empty storage adapter as semantic continuity.
++**Acceptance:** C01–C07. Do not count a template rollup, larger message cap, or empty storage adapter as semantic continuity.
+ 
+ ## 6. Slice 2 — recoverable multi-step work
+ 
+-Improve the current `retain_progress`, Run, queue, and receipt mechanisms. Persist a concise objective, bounded remaining-work list, open questions, and references to real prepared/applied operations. Reuse existing state where adequate; new type names or tables are not mandatory.
++Start from the landed reliability and CLI-contract work:
+ 
+-Separate model-reported progress from host-verifiable outcomes. A final model answer is not proof that a document changed, an action completed, or a queued item succeeded. Preserve truthful distinctions among finished, paused/interrupted, budget-limited, awaiting review, stale, and failed work without building a general workflow designer.
++- run leases and orphan recovery;
++- one terminal notice per chat;
++- review of a killed Run's prepared candidate;
++- "Continue starts fresh";
++- `withdraw_proposal`;
++- `request_key` retries and caller-keyed CLI operations.
+ 
++Slice 2 builds only the remaining delta. Improve the current `retain_progress`, Run, queue, and receipt mechanisms. Persist a concise objective, bounded remaining-work list, open questions, and references to real prepared/applied operations. Reuse existing state where adequate; new type names or tables are not mandatory.
++
++Separate model-reported progress from host-verifiable outcomes. A final model answer is not proof that a document changed, an action completed, or a queued item succeeded. Preserve truthful distinctions among finished, paused/interrupted, budget-limited, awaiting review, stale, and failed work without building a general workflow designer. Express these distinctions with the existing five `RunState` values plus run attention, following the reliability branch's terminal-notice and review rules. Do not add a `RunState` variant unless Slice 0 shows attention cannot represent the state. A new variant changes serialized records and needs compatibility tests.
++
+ Continue with a fresh Rig invocation under current settings, current scope, and current authorization. Re-read necessary versions. Reconcile pending operation identities against checked receipts before doing work again. Preserve the existing rule that a new invocation does not inherit an expired protected-edit grant. Do not label fresh-invocation continuation as resuming the exact previous model state.
+ 
+ A bounded owner-started task may do several steps through the existing Rig loop. This slice does not introduce unattended restart, scheduled execution, or unlimited continuation. Keep Stop, failure, archive, and recovery pausing semantics intact. Make the remaining next step understandable in the existing chat activity/progress UI.
+@@ -135,10 +184,19 @@
+ 
+ ## 7. Slice 3 — owner-installable instruction skills
+ 
+-Extend `threads_guides.rs`, existing skill files, `read_skill` validation/schema, run identity tracking, and the relevant settings/composer routes. Preserve built-in IDs and behavior. Do not mistake repository development instructions for BRN runtime skills.
++**Starts only after owner decision D-S (section 1).** Extend `threads_guides.rs`, existing skill files, `read_skill` validation/schema, run identity tracking, and the relevant settings/composer routes. Preserve built-in IDs and behavior. Do not mistake repository development instructions for BRN runtime skills.
+ 
+ Support three origins: packaged built-ins, owner-installed skills, and explicitly enabled project skills. Start with local folder import/installation and instruction/reference files only. Prefer the established `SKILL.md` frontmatter shape with `name` and `description`; use an existing maintained parser rather than implementing YAML. Describe the supported subset honestly.
+ 
++Built-in catalogue descriptions are currently hard-coded in `threads_guides.rs` and differ from each file's frontmatter; use one source.
++
++Slice 0 chooses the parser, with its lockfile delta. Either option is acceptable:
++
++- a maintained YAML crate with input-size and alias limits;
++- a strict documented subset that accepts single-line `name` and `description` keys and rejects anything else. This subset is not a YAML implementation.
++
++Extend the guidance bundle identity (`BUNDLE_VERSION`) with the frozen catalogue digest, so traces show which skills a run could load. A catalogue change alters the preamble and therefore the cached prefix, so apply it only at run start.
++
+ Discovery lists approved metadata; selection/loading uses a frozen per-run catalogue. Preserve lazy loading so all installed instructions do not inflate every prompt. Keep existing built-in preloading only where justified by current behavior. Allow an explicit composer selection as well as the existing model-led choice among enabled skills.
+ 
+ Installation must be an owner action. Model-generated skill text may be a draft, not self-installation or self-enablement. Record stable identity, origin, scope, and content digest/version for every loaded skill. Prevent shadowing of built-ins and ambiguous name collisions. An edited installed package becomes a new version; do not silently replace bytes underneath a running invocation. Disable/revocation prevents further loads; when it changes runtime policy, use existing fencing semantics.
+@@ -153,13 +211,21 @@
+ 
+ ## 8. Slice 4 — opt-in, read-only MCP client
+ 
+-This is BRN calling an external MCP server, not exposing BRN to external agents. Use `rig-rmcp`/the facade's `rmcp` support and the maintained SDK for transport/protocol work. Register adapted tools through Rig's dynamic facilities. Qualify the resolved feature/dependency graph on required targets.
++**Starts only after owner decision D-M (section 1).** This is BRN calling an external MCP server, not exposing BRN to external agents. Use `rig-rmcp`/the facade's `rmcp` support and the maintained SDK for transport/protocol work. Register adapted tools through Rig's dynamic facilities. Qualify the resolved feature/dependency graph on required targets.
+ 
+ Begin with one supported transport and a locally controlled synthetic read-only server. Choose the smallest maintained transport supported by the pinned SDK and available host; do not implement every transport or every authentication flow. Ship a usable connection/configuration path for that supported case, not only a mock test. Real account integration is separately qualified when authorized.
+ 
++Dependency facts at review [R4, R5]:
++
++- The facade's `rmcp` feature adds `rig-rmcp`, which enables only `rmcp`'s `client` feature on major 2.
++- BRN adds a direct `rmcp` 2.x dependency with exactly one transport feature.
++- Default transport: `transport-streamable-http-client-reqwest`. It uses `reqwest` ^0.13.2, already locked at 0.13.5, and adds no new major versions and no process spawning. Qualify it against a localhost synthetic server.
++- `transport-child-process` spawns executables and stays deferred under the exclusions.
++- `rmcp` 2.2.0 declares Rust 1.88, within the pinned toolchain.
++
+ The owner controls endpoint, account/credential reference, connection enablement, allowed tools, and chat/project access. Default disabled. Reuse BRN's credential facilities; do not write secrets into notes, skill packages, checkpoints, traces, or test fixtures. Do not auto-install or launch arbitrary executables. Where a local process transport is supported, clearly treat process execution as a separate owner-authorized boundary, not as sandboxing provided by MCP.
+ 
+-`readOnlyHint` is advisory, not an enforcement boundary. Expose only explicitly approved tools with known server behavior; omit write, destructive, and unknown capabilities. Read-only queries can still disclose data: do not send private notes, whole history, assets, or confidential derived queries by default. Require an explicit external-data grant for the context and destination, and make the transmitted input reviewable where its data use is not already authorized.
++`readOnlyHint` is advisory, not an enforcement boundary. Expose only explicitly approved tools with known server behavior; omit write, destructive, and unknown capabilities. Read-only queries can still disclose data: do not send private notes, whole history, assets, or confidential derived queries by default. Require an explicit external-data grant for the context and destination, and make the transmitted input reviewable where its data use is not already authorized. The grant is new host-owned authority. The lead owns it in core, it reuses the existing private/project scope predicate, and any schema change is serialized with other increments.
+ 
+ Keep schema/catalogue snapshots stable per invocation and recheck enablement before dispatch. Names must not collide with BRN tools. A changed external schema or connection identity requires revalidation rather than switching an in-flight call to a new implementation. Extend current complete-batch validation deliberately; do not bypass it to accommodate dynamic tools.
+ 
+@@ -179,10 +245,11 @@
+ |---|---|
+ | C01 | More than 60 saved messages with an early requirement: assembled context preserves the requirement or retrieves its exact source; no silent replacement by a later suggestion. |
+ | C02 | Cold restart after compaction: same source coverage reuses valid derived state; no duplicate canonical messages or unnecessary repeat summarization. |
+-| C03 | Large messages, Estonian/English text, oversized tool output, small model budget: mandatory input remains intact; the complete request is bounded under the tested counter, with estimates/omissions disclosed. |
++| C03 | Large messages, Estonian/English text, oversized tool output, small model budget: mandatory input remains intact; the complete request is bounded under the tested counter, with estimates/omissions disclosed. A provider `context_length_exceeded` failure yields the same limit outcome. |
+ | C04 | Project change, access revocation, knowledge-off, archive/delete/restore: summary, older-discussion lookup, exact IDs, snippets, and counts obey current visibility. |
+ | C05 | Malicious instructions in old conversation/source/summary: no promotion to system authority, settings change, protected grant, or unrelated project access. |
+ | C06 | Compactor timeout/failure, concurrent compaction, Stop, or changed context during a call: no stale summary publication; bounded visible degradation and later retry work. |
++| C07 | Prompt-cache prefix: within a run every request prefix is byte-identical to the previous request; across runs between compaction boundaries the history prefix is unchanged; existing cache tests still pass; cached-input share is reported per turn. |
+ | R01 | Terminate before/after prepare and after apply but before recording the returned result: operation receipts prevent duplicate mutation and incorrect success. |
+ | R02 | Resume after note edits, protection changes, or lost grant: stale work is re-read/refreshed or held for review; no inherited expired authorization. |
+ | R03 | Stop/steer/archive/restart with queued work: old callbacks cannot apply, acknowledge the wrong item, or unpause the queue. |
+@@ -197,12 +264,14 @@
+ | M04 | Timeout, disconnect, invalid result, over-limit response, retry, and Stop: bounded execution, truthful partial/error state, no fabricated empty-success result. |
+ | M05 | Injection in tool text/server metadata cannot call privileged BRN operations, change endpoint/account, or install skills; secret/payload canaries stay out of logs/backups. |
+ | I01 | Long project conversation + selected skill + optional MCP + stopped revision task + restart/Continue + exact review/Undo: end-to-end result preserves source and operation identity. |
+-| I02 | Existing protected edits, full import, drafts/comments, helper research, queue, search, export, backup/restore, and required build lanes do not regress. |
++| I02 | Existing protected edits, full import, drafts/comments, helper research, queue, search, export, backup/restore, the CLI `--json` contract and keyed operations, and required build lanes do not regress. |
+ 
+ For semantic qualification, use the same fixtures, model/account/effort, and comparable repeated runs against baseline and candidate. Track requirement retention, evidence correctness, unsupported claims, completion, latency, input/output/cached tokens, compactor/helper overhead, and explicitly incomplete coverage. Do not claim superiority from one successful run or enforce invented zero-variance latency targets. Deterministic isolation/authority/receipt tests must all pass.
+ 
+ ## 10. Slice 5 — integration and completion
+ 
++This is the agent-capabilities milestone. The writing milestone (modular-foundation INT) is separate; neither waits for the other except through shared slices such as CW2's run start.
++
+ Maintain one production route for each delivered capability. Remove the replaced fixed-history policy, obsolete wiring, stale documentation, and tests tied only to a retired mechanism once the new path is qualified. Preserve existing reader/recovery compatibility and legitimate bounded error handling; do not leave parallel production engines as silent fallbacks.
+ 
+ Keep changes inside existing responsibilities: `brn-ai` for runtime adapters; `brn-threads-app` for host coordination; `brn-threads-core` for checked persistence/authority; `brn-desktop` and CLI for thin UI surfaces; `agent/` for runtime instructions. A small module split is acceptable; a new crate/trait needs a demonstrated boundary rather than a placeholder architecture.
+@@ -238,3 +307,8 @@
+ - **R1 — memory policy and compaction:** `0xPlaygrounds/rig`, tag `v0.44.0`, `crates/rig-memory/src/lib.rs` (source blob `ee8a5462854331ac6ced156f90334f602a63aa1e`) and the core memory interfaces. The release-tag source takes precedence over unversioned examples.
+ - **R2 — MCP:** the same Rig tag, `crates/rig-rmcp/README.md` and `src/lib.rs` facade exports.
+ - **R3 — agent execution/checkpoint caveats:** the same Rig tag, `crates/rig-agent/README.md`, especially “The run protocol” (source blob `05b5ae80fb838f28eb84d361523394f5db6ed932`).
++- **B9 — prompt-cache contract:** `docs/architecture/threads-behavior.md`, “Prompt caching (Codex route)”, and `crates/brn-ai/src/threads_cache_tests.rs` at main `cafb24c2c152a150c237e00380e82f69afb7e6dc`.
++- **B10 — finish-first work at review:** `work/daily-workflow-reliability` `b76cc5a7407a89c4539be959ebd74f74e669c7ad` (`crates/brn-ai/src/{threads.rs,run_lease.rs}`, `crates/brn-threads-core/src/run_attention.rs`, `crates/brn-threads-core/src/types.rs` `RunState`, `crates/brn-threads-app/src/search.rs` and `tests/message_search_scope.rs`, `crates/brn-ai/src/error.rs`); `work/cli-agent-contract` `2537db5427eaeaa3e8585590f5a6da6e73e8be92` (`crates/brn/src/contract.rs`, keyed service functions in `crates/brn-threads-app/src/lib.rs`); `work/ui-polish` `40930c09164766d602ca478f89aeb85728ebc153`. All three were unpushed at review; revalidate after they land.
++- **B11 — canonical scope:** `docs/architecture/threads-target.md` (packaged-skill catalogue paragraph and deferred-scope list), `docs/product/BRN_PRODUCT_VISION.md` (deferred connectors), `docs/roadmap.md` (later scope) and the modular-foundation master plan section 10 C4, all at main `cafb24c2`.
++- **R4 — MCP dependency line:** Rig tag `v0.44.0` root `Cargo.toml` (`rmcp = "2"` workspace dependency) and `crates/rig-rmcp/Cargo.toml` (`rmcp` with `client` only); crates.io: `rig-rmcp` 0.44.0 and `rig-memory` 0.44.0 (MIT), `rmcp` 2.2.0 latest 2.x, 3.5.1 latest overall.
++- **R5 — rmcp transports:** crates.io `rmcp` 2.2.0 dependency and feature metadata (`reqwest` ^0.13.2 and `process-wrap` ^9 optional; `rust_version` 1.88).
