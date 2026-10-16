@@ -1,0 +1,2554 @@
+{
+  "candidate": "690fb7055eb27d6b234082ca38f3a88bd06360e6",
+  "tree": "af0e8c82832e7aae4ed26029d9cce6e816629e5d",
+  "tool": "cargo-mutants27.1.0",
+  "shared_cap_seconds": 1800,
+  "initial_window_seconds": 1651.33,
+  "initial_window_remaining_seconds": 148.67,
+  "raw_totals": {
+    "total_mutants": 211,
+    "caught": 124,
+    "missed": 47,
+    "timeout": 4,
+    "unviable": 36
+  },
+  "duplicate_mutant_names": 4,
+  "lanes": [
+    {
+      "lane": "supplement",
+      "receipt": {
+        "command": [
+          "cargo",
+          "mutants",
+          "-p",
+          "brn-threads-core",
+          "--test-package",
+          "brn-threads-core",
+          "--test-package",
+          "brn-threads-app",
+          "--output",
+          "/private/tmp/brn-cw1-20261016-evidence/corrected/mutation-supplement",
+          "--jobs",
+          "1",
+          "--timeout",
+          "60",
+          "--build-timeout",
+          "120",
+          "--cargo-arg=--locked",
+          "--cargo-arg=--offline",
+          "--cargo-arg=--test=writing_setup",
+          "--cargo-arg=--test=writing",
+          "--re",
+          "(allocate_with_binding|upgrade_connection|WritingSnapshot::message_text)"
+        ],
+        "exit": 2,
+        "seconds": 80.915,
+        "timebox_reached": false
+      },
+      "counts": {
+        "total_mutants": 9,
+        "caught": 7,
+        "missed": 1,
+        "timeout": 0,
+        "unviable": 1
+      },
+      "raw_outcomes_sha256": "7d2a81996c0851a72e92a7b489a2372fd0f668e1591a154812397ec2a3e4134b",
+      "outcomes": [
+        {
+          "name": "crates/brn-threads-core/src/store.rs:249:9: replace Store::allocate_with_binding -> Result<OperationId> with Ok(Default::default())",
+          "outcome": "Unviable",
+          "build_seconds": 2.242082584,
+          "test_seconds": 0,
+          "raw_log_sha256": "6cede16e173a19a5d63eb1669613beeed538724fe055b1675454e91371da9c1f",
+          "raw_diff_sha256": "c70e5166ab0c78394fdc92d90e0fd5e756811581095963d3ecacac694c83763c",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict.",
+          "compile_errors": [
+            "error[E0277]: the trait bound `types::OperationId: Default` is not satisfied",
+            "error: could not compile `brn-threads-core` (lib) due to 1 previous error"
+          ]
+        },
+        {
+          "name": "crates/brn-threads-core/src/store.rs:263:36: replace != with == in Store::allocate_with_binding",
+          "outcome": "CaughtMutant",
+          "build_seconds": 8.24809925,
+          "test_seconds": 0.610165125,
+          "raw_log_sha256": "60b4b13a4d999d841251134340d0eac71c7aa257f3502b59309c73426c5450df",
+          "raw_diff_sha256": "859455785cce8d56839a456a819b9022d96d2a44081c5bee62164cffd472b818",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/upgrade.rs:82:5: replace upgrade_connection -> Result<()> with Ok(())",
+          "outcome": "CaughtMutant",
+          "build_seconds": 7.708404584,
+          "test_seconds": 1.956010917,
+          "raw_log_sha256": "0aef5d81eb0089ddb72473ca56ce92baa81fcb1e14d1c6c42db33803f627537e",
+          "raw_diff_sha256": "d7945faea2ae5d478142701aea506449be068be33b1d4984ed78f89e9170cea0",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/upgrade.rs:101:17: replace >= with < in upgrade_connection",
+          "outcome": "MissedMutant",
+          "build_seconds": 7.963777458,
+          "test_seconds": 2.001122334,
+          "raw_log_sha256": "7747e14271b4b05b85f3096b234ca6745158529c6852e1631f2eff79b314ffdc",
+          "raw_diff_sha256": "93604fdaae56a99a8201b83a2db6265571388380a7fe5a9630ae350f0c76c1f5",
+          "disposition": {
+            "category": "cosmetic",
+            "reason": "Only the schema-specific backup-required error hint changes. Missing external backup still refuses before migration.",
+            "witness": null,
+            "actual_mutant_recheck": false,
+            "witness_status": null
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:189:9: replace WritingSnapshot::message_text -> Result<String> with Ok(String::new())",
+          "outcome": "CaughtMutant",
+          "build_seconds": 8.483508958,
+          "test_seconds": 0.572480583,
+          "raw_log_sha256": "178b16f89f4ac717c46e0a3f67e012996f53269cf53a4a6f834b2f30c77e53ef",
+          "raw_diff_sha256": "11038986351a4f11cccb5de7b073fb2c8441c400f80255e77abe3b8d45ba9881",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:189:9: replace WritingSnapshot::message_text -> Result<String> with Ok(\"xyzzy\".into())",
+          "outcome": "CaughtMutant",
+          "build_seconds": 8.139552042,
+          "test_seconds": 0.74485325,
+          "raw_log_sha256": "2a7ebb95374b368582dec648fbcebcc95e39c337698593df56fdb25bfb2f2f8a",
+          "raw_diff_sha256": "95f4b04cda640b62903f017914e9c60ac6db93dec0c107eb68eb93824a3e38b8",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:194:23: replace > with == in WritingSnapshot::message_text",
+          "outcome": "CaughtMutant",
+          "build_seconds": 7.418254583,
+          "test_seconds": 1.266525166,
+          "raw_log_sha256": "fea36534a5482477f0375f3961c53f8cf5a50e684a1512c4d639e6f8a3a72077",
+          "raw_diff_sha256": "29616cca3fecf479c0da44ce99a9d1bd9a1551ff71889712771526f68e43ff2a",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:194:23: replace > with < in WritingSnapshot::message_text",
+          "outcome": "CaughtMutant",
+          "build_seconds": 7.241425458,
+          "test_seconds": 0.7372545,
+          "raw_log_sha256": "dfe6ba053c94dbe2845a87b91eb40f562b9897fc1e7bde7afd1c2e259aa5f30c",
+          "raw_diff_sha256": "472fb9a35c28d2587b98474495be9ab19d3526d705dd6dd927c8f4f3b69e48f8",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:194:23: replace > with >= in WritingSnapshot::message_text",
+          "outcome": "CaughtMutant",
+          "build_seconds": 7.854557625,
+          "test_seconds": 1.844571833,
+          "raw_log_sha256": "085eb5e918de8c1069ae73644bb87f31f6f266fe112e53a023ceb6fb2e436c7f",
+          "raw_diff_sha256": "b3fd68059b63b711ae6cbfb360bb8daa2a4ea29fa9c318aef93f5c042e7b61b9",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        }
+      ]
+    },
+    {
+      "lane": "core",
+      "receipt": {
+        "command": [
+          "cargo",
+          "mutants",
+          "-p",
+          "brn-threads-core",
+          "--test-package",
+          "brn-threads-core",
+          "--test-package",
+          "brn-threads-app",
+          "--in-diff",
+          "/private/tmp/brn-cw1-20261016-evidence/corrected/guards.diff",
+          "--output",
+          "/private/tmp/brn-cw1-20261016-evidence/corrected/mutation-core",
+          "--jobs",
+          "1",
+          "--timeout",
+          "60",
+          "--build-timeout",
+          "120",
+          "--cargo-arg=--locked",
+          "--cargo-arg=--offline",
+          "--cargo-arg=--test=writing_setup",
+          "--cargo-arg=--test=writing",
+          "--file",
+          "crates/brn-threads-core/src/writing.rs",
+          "--file",
+          "crates/brn-threads-core/src/upgrade.rs",
+          "--file",
+          "crates/brn-threads-core/src/context.rs",
+          "--file",
+          "crates/brn-threads-core/src/store.rs",
+          "--file",
+          "crates/brn-threads-core/src/inspect.rs"
+        ],
+        "exit": 3,
+        "seconds": 1438.964,
+        "timebox_reached": false
+      },
+      "counts": {
+        "total_mutants": 163,
+        "caught": 99,
+        "missed": 41,
+        "timeout": 4,
+        "unviable": 19
+      },
+      "raw_outcomes_sha256": "e60f1b5619145c9560bed3ffb4038c50887965797bc66729b2f946513263882d",
+      "outcomes": [
+        {
+          "name": "crates/brn-threads-core/src/inspect.rs:307:9: replace Store::message_page -> Result<(Vec<(i64, Record)>, bool)> with Ok((vec![], true))",
+          "outcome": "Timeout",
+          "build_seconds": 7.309902708,
+          "test_seconds": 60.018177459,
+          "raw_log_sha256": "fb9628f89c13595f04efcb13e817db50f6f67fd917a9fdd0b795a95b8de37a6b",
+          "raw_diff_sha256": "06af3073d97d0f6b28a60edff6b2bbc3e3ce5771fec183f053ad63f8963abf03",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict.",
+          "disposition": {
+            "category": "detected_nontermination",
+            "reason": "A pagination variant failed to terminate under the 60-second test limit. Retained as Timeout, not relabeled caught."
+          }
+        },
+        {
+          "name": "crates/brn-threads-core/src/inspect.rs:307:9: replace Store::message_page -> Result<(Vec<(i64, Record)>, bool)> with Ok((vec![], false))",
+          "outcome": "CaughtMutant",
+          "build_seconds": 7.844407833,
+          "test_seconds": 0.737271833,
+          "raw_log_sha256": "25b98b0517cd059287e6dca62a4e49b5387b0f8a749afa3c21b9afb2d0d4e2dd",
+          "raw_diff_sha256": "cf389d0f22ee98f442773bfe9291584b582a79a8fdfc55f7cee0d8c7f76b7409",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/inspect.rs:307:9: replace Store::message_page -> Result<(Vec<(i64, Record)>, bool)> with Ok((vec![(0, Default::default())], true))",
+          "outcome": "Unviable",
+          "build_seconds": 0.977911958,
+          "test_seconds": 0,
+          "raw_log_sha256": "b042a199899b4fbb5ad321d2e478fb0165c26cf2247f7301a76ae943dd29fd41",
+          "raw_diff_sha256": "f85bf7241698cde6adaf6827accf832d95086a6f13813f8f0b6f6ad2aebc1dbb",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict.",
+          "compile_errors": [
+            "error[E0277]: the trait bound `types::Record: Default` is not satisfied",
+            "error: could not compile `brn-threads-core` (lib) due to 1 previous error"
+          ]
+        },
+        {
+          "name": "crates/brn-threads-core/src/inspect.rs:307:9: replace Store::message_page -> Result<(Vec<(i64, Record)>, bool)> with Ok((vec![(0, Default::default())], false))",
+          "outcome": "Unviable",
+          "build_seconds": 0.980609625,
+          "test_seconds": 0,
+          "raw_log_sha256": "5ccdee94136558359c6fb1b9f2b1ca421713683ddba774d487e60e8ec25d2ee3",
+          "raw_diff_sha256": "8de2b306d9d9e5a527543f2b02b56e203e9412f0e1b4d65627b33964f5edf6e3",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict.",
+          "compile_errors": [
+            "error[E0277]: the trait bound `types::Record: Default` is not satisfied",
+            "error: could not compile `brn-threads-core` (lib) due to 1 previous error"
+          ]
+        },
+        {
+          "name": "crates/brn-threads-core/src/inspect.rs:307:9: replace Store::message_page -> Result<(Vec<(i64, Record)>, bool)> with Ok((vec![(1, Default::default())], true))",
+          "outcome": "Unviable",
+          "build_seconds": 0.949752583,
+          "test_seconds": 0,
+          "raw_log_sha256": "4d4de4d441ebf824d2eb264910b10467beccaba28e5027c2d85ab2c412e19933",
+          "raw_diff_sha256": "699b176f14d04e548121bb8cfe479e7f53ccd3b58d27ac1899e6d0e61719b326",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict.",
+          "compile_errors": [
+            "error[E0277]: the trait bound `types::Record: Default` is not satisfied",
+            "error: could not compile `brn-threads-core` (lib) due to 1 previous error"
+          ]
+        },
+        {
+          "name": "crates/brn-threads-core/src/inspect.rs:307:9: replace Store::message_page -> Result<(Vec<(i64, Record)>, bool)> with Ok((vec![(1, Default::default())], false))",
+          "outcome": "Unviable",
+          "build_seconds": 0.971155708,
+          "test_seconds": 0,
+          "raw_log_sha256": "897572ccae46e406bfeea56c15c57bba2f7af84ea2e53a8731a8eb51f226f521",
+          "raw_diff_sha256": "331c72346434c3c42fa627289832555e588bff194b1120c5102393606f90ca68",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict.",
+          "compile_errors": [
+            "error[E0277]: the trait bound `types::Record: Default` is not satisfied",
+            "error: could not compile `brn-threads-core` (lib) due to 1 previous error"
+          ]
+        },
+        {
+          "name": "crates/brn-threads-core/src/inspect.rs:307:9: replace Store::message_page -> Result<(Vec<(i64, Record)>, bool)> with Ok((vec![(-1, Default::default())], true))",
+          "outcome": "Unviable",
+          "build_seconds": 0.974377208,
+          "test_seconds": 0,
+          "raw_log_sha256": "a4d6698c97f9b29b4bf3a046c457d3c4bdd836ce0e1e63e1e2dadb0f13496967",
+          "raw_diff_sha256": "57f96b1ea741e86f70746a39cced4df836bf56ae42bca6e4440c6f895d4b553f",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict.",
+          "compile_errors": [
+            "error[E0277]: the trait bound `types::Record: Default` is not satisfied",
+            "error: could not compile `brn-threads-core` (lib) due to 1 previous error"
+          ]
+        },
+        {
+          "name": "crates/brn-threads-core/src/inspect.rs:307:9: replace Store::message_page -> Result<(Vec<(i64, Record)>, bool)> with Ok((vec![(-1, Default::default())], false))",
+          "outcome": "Unviable",
+          "build_seconds": 0.988608459,
+          "test_seconds": 0,
+          "raw_log_sha256": "335d770280a3858bb4e78e7d491bd21cebaf040a85c88969ff066e1e0ad5ef0f",
+          "raw_diff_sha256": "627c2a796d6679628c88dacee16101a00a0c0cfee63a079c19705f90dc065986",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict.",
+          "compile_errors": [
+            "error[E0277]: the trait bound `types::Record: Default` is not satisfied",
+            "error: could not compile `brn-threads-core` (lib) due to 1 previous error"
+          ]
+        },
+        {
+          "name": "crates/brn-threads-core/src/inspect.rs:323:40: replace < with == in Store::message_page",
+          "outcome": "Timeout",
+          "build_seconds": 6.87283275,
+          "test_seconds": 60.042869541,
+          "raw_log_sha256": "0341b4d582578d6f83028201f70ff9156ad815e90a82a347cf4c6b92474f3260",
+          "raw_diff_sha256": "143dc3d2309bdb184190e0f800cd8285bd178ddbc8873b76861729f772da93be",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict.",
+          "disposition": {
+            "category": "detected_nontermination",
+            "reason": "A pagination variant failed to terminate under the 60-second test limit. Retained as Timeout, not relabeled caught."
+          }
+        },
+        {
+          "name": "crates/brn-threads-core/src/inspect.rs:323:40: replace < with > in Store::message_page",
+          "outcome": "Timeout",
+          "build_seconds": 7.868380084,
+          "test_seconds": 60.011241792,
+          "raw_log_sha256": "ba7d003bd273d7fbd3dbb33fd221c1ad76625026e8ce90a4fadf22f5f3ae144d",
+          "raw_diff_sha256": "bcd9e953627ea88be5e8514b9f2e363ab507f105f7b9aadaf1a1835d07f9a526",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict.",
+          "disposition": {
+            "category": "detected_nontermination",
+            "reason": "A pagination variant failed to terminate under the 60-second test limit. Retained as Timeout, not relabeled caught."
+          }
+        },
+        {
+          "name": "crates/brn-threads-core/src/inspect.rs:323:40: replace < with <= in Store::message_page",
+          "outcome": "MissedMutant",
+          "build_seconds": 7.685397333,
+          "test_seconds": 2.070743208,
+          "raw_log_sha256": "ef2741773d4275d981348e1e2cef90c72de3e4a895a3ca7cd628e4d88bf7b027",
+          "raw_diff_sha256": "05671a88ed2c95552a1bf36c51f9f524447027e8b7e4993c472da6b80582166a",
+          "disposition": {
+            "category": "genuine_fixture_gap",
+            "reason": "Existing inspect.rs ordinary-row ordering tests do not exercise mixed hidden v2 batches and visible lookahead.",
+            "witness": "scoped_message_pages_cross_filtered_batches_without_losing_visible_lookahead",
+            "actual_mutant_recheck": false,
+            "witness_status": "passed on 521454f2"
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/inspect.rs:330:41: replace match guard snapshot.setup.is_some() with true in Store::message_page",
+          "outcome": "MissedMutant",
+          "build_seconds": 6.818950625,
+          "test_seconds": 1.7237074159999999,
+          "raw_log_sha256": "b8600a16af5cdcdc20e7a4f1d4fd1a382a80647bff3e41904bf1a92dcf4458ca",
+          "raw_diff_sha256": "282aad23644f36d0501fa9ecb388b48bbe838723d67248cc32e879619a7763b7",
+          "disposition": {
+            "category": "genuine_fixture_gap",
+            "reason": "The new guard must retain existing active v1 inspection under an archived Project; Project deletion separately archives removed messages.",
+            "witness": "archived_project_with_retained_messages_keeps_v1_inspection_and_fences_v2_metadata",
+            "actual_mutant_recheck": false,
+            "witness_status": "passed on 521454f2"
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/inspect.rs:330:41: replace match guard snapshot.setup.is_some() with false in Store::message_page",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.899253042,
+          "test_seconds": 1.247398167,
+          "raw_log_sha256": "a20ff8ea69a87a8d910cede2850052459c17c11d1522201e17990801f79e49be",
+          "raw_diff_sha256": "2f9cae6369ba571912ac4c470438bc24675ccc5dc655ff45cab4f4e1ce7b47f9",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/inspect.rs:343:35: replace match guard scoped_writing_request(&record) with true in Store::message_page",
+          "outcome": "MissedMutant",
+          "build_seconds": 6.9067965000000004,
+          "test_seconds": 1.74706025,
+          "raw_log_sha256": "09eab82880b1ff2eb0e86272b7fcb3a79be71006187ff38b62ae92437601659f",
+          "raw_diff_sha256": "e0bbf543aa382822cf22cbfff14032345436509bde0e7e2136388db159f924cc",
+          "disposition": {
+            "category": "genuine_fixture_gap",
+            "reason": "Opaque legacy history must remain inspectable and invalid v2 metadata must fail closed.",
+            "witness": "malformed_legacy_history_remains_visible_but_invalid_v2_metadata_is_hidden",
+            "actual_mutant_recheck": false,
+            "witness_status": "passed on 521454f2"
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/inspect.rs:343:35: replace match guard scoped_writing_request(&record) with false in Store::message_page",
+          "outcome": "MissedMutant",
+          "build_seconds": 6.8411335,
+          "test_seconds": 1.6865754160000002,
+          "raw_log_sha256": "e374c6076c3fa4003f079511f30e98f1bdeb131a30e4488defae9cb6c0ac629f",
+          "raw_diff_sha256": "2fafeb0b755cd9301a5af85d680eec01db8fe3d0eaabde4aee4bcf2f05c4bd76",
+          "disposition": {
+            "category": "genuine_fixture_gap",
+            "reason": "Opaque legacy history must remain inspectable and invalid v2 metadata must fail closed.",
+            "witness": "malformed_legacy_history_remains_visible_but_invalid_v2_metadata_is_hidden",
+            "actual_mutant_recheck": false,
+            "witness_status": "passed on 521454f2"
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/inspect.rs:334:32: delete ! in Store::message_page",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.815025459,
+          "test_seconds": 0.722303958,
+          "raw_log_sha256": "5828437a3ba7107dc1d4a7e88592c3eb97d5c653bc059ff9f75e6520c9eea958",
+          "raw_diff_sha256": "cc98fb979340ae25acf04a9c3e5337e28be7a4e7aff8363ffa6164b019cb15d8",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/inspect.rs:348:31: replace > with == in Store::message_page",
+          "outcome": "MissedMutant",
+          "build_seconds": 6.915769875,
+          "test_seconds": 1.703095166,
+          "raw_log_sha256": "7e13170df7ef151e16c66596891192083f5b187aa0c1c98f916d500fb0ebf8a3",
+          "raw_diff_sha256": "95a7d3d1edfc73e9a4ecd983ae57e2db6af17e4b8af92bc2358c272b0f4e715d",
+          "disposition": {
+            "category": "genuine_fixture_gap",
+            "reason": "Existing inspect.rs ordinary-row ordering tests do not exercise mixed hidden v2 batches and visible lookahead.",
+            "witness": "scoped_message_pages_cross_filtered_batches_without_losing_visible_lookahead",
+            "actual_mutant_recheck": false,
+            "witness_status": "passed on 521454f2"
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/inspect.rs:348:31: replace > with < in Store::message_page",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.9890282500000005,
+          "test_seconds": 0.7385945,
+          "raw_log_sha256": "4793bdbe0e1dffcc139aa035e97dafcf5377ad3af79b8d798f76260c88a65bb9",
+          "raw_diff_sha256": "dbd0ec4db1bfa423ebc8f632c159dde96f1dd27c0961a110990dd4caeb28df22",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/inspect.rs:348:31: replace > with >= in Store::message_page",
+          "outcome": "MissedMutant",
+          "build_seconds": 6.869272833,
+          "test_seconds": 1.7226686660000001,
+          "raw_log_sha256": "4aefc115a566480cd64d429bbe3c6f128860e359a74eee5ceca0353a96b4dec7",
+          "raw_diff_sha256": "80875007160461f4d5cf434754b64e0f4f7919464892196069c254dc269ff7e2",
+          "disposition": {
+            "category": "genuine_fixture_gap",
+            "reason": "Existing inspect.rs ordinary-row ordering tests do not exercise mixed hidden v2 batches and visible lookahead.",
+            "witness": "scoped_message_pages_cross_filtered_batches_without_losing_visible_lookahead",
+            "actual_mutant_recheck": false,
+            "witness_status": "passed on 521454f2"
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/inspect.rs:352:25: replace || with && in Store::message_page",
+          "outcome": "Timeout",
+          "build_seconds": 6.886051583,
+          "test_seconds": 60.046486167,
+          "raw_log_sha256": "645c87a43d68c64ca8e21e7c175a44fe8d6660fd5d8539f6a958fa7f74fcdaaf",
+          "raw_diff_sha256": "771f977cbef0a2d36ddd74cc78534d94e039398d51f903486f3a920a4a1e23d7",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict.",
+          "disposition": {
+            "category": "detected_nontermination",
+            "reason": "A pagination variant failed to terminate under the 60-second test limit. Retained as Timeout, not relabeled caught."
+          }
+        },
+        {
+          "name": "crates/brn-threads-core/src/inspect.rs:352:39: replace > with == in Store::message_page",
+          "outcome": "MissedMutant",
+          "build_seconds": 7.657902333,
+          "test_seconds": 1.7398455419999999,
+          "raw_log_sha256": "95a0bfa8ed60294365730a0d5ed5817d67de2c076101461c1a3a84a43bc2e09d",
+          "raw_diff_sha256": "bebfa454826c0d7e9775b74e3002f8074e33d8dd66e65391adb459092827e517",
+          "disposition": {
+            "category": "genuine_fixture_gap",
+            "reason": "Existing inspect.rs ordinary-row ordering tests do not exercise mixed hidden v2 batches and visible lookahead.",
+            "witness": "scoped_message_pages_cross_filtered_batches_without_losing_visible_lookahead",
+            "actual_mutant_recheck": false,
+            "witness_status": "passed on 521454f2"
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/inspect.rs:352:39: replace > with < in Store::message_page",
+          "outcome": "MissedMutant",
+          "build_seconds": 6.750491125,
+          "test_seconds": 1.731495875,
+          "raw_log_sha256": "d955770a3c29af5d5f0b36d1d99e17ce31bd0ff0d8fdf684e4b3c2bbbbb5b9aa",
+          "raw_diff_sha256": "e1a51b74a1ac585439d9c145865115c33e851aa2cf60a021a2cc28f84c76caa0",
+          "disposition": {
+            "category": "genuine_fixture_gap",
+            "reason": "Existing inspect.rs ordinary-row ordering tests do not exercise mixed hidden v2 batches and visible lookahead.",
+            "witness": "scoped_message_pages_cross_filtered_batches_without_losing_visible_lookahead",
+            "actual_mutant_recheck": false,
+            "witness_status": "passed on 521454f2"
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/inspect.rs:352:39: replace > with >= in Store::message_page",
+          "outcome": "MissedMutant",
+          "build_seconds": 6.759978916,
+          "test_seconds": 1.989059666,
+          "raw_log_sha256": "67422363740fc16594f99cf64ab316f273781da6afb7706bb86629c3796f2484",
+          "raw_diff_sha256": "68d2f02bcd38a88e7c320db3adac434c8aaedce288e7e9a1b442a0fa2696edae",
+          "disposition": {
+            "category": "genuine_fixture_gap",
+            "reason": "Existing inspect.rs ordinary-row ordering tests do not exercise mixed hidden v2 batches and visible lookahead.",
+            "witness": "scoped_message_pages_cross_filtered_batches_without_losing_visible_lookahead",
+            "actual_mutant_recheck": false,
+            "witness_status": "passed on 521454f2"
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/context.rs:72:5: replace writing_snapshot_visible -> bool with true",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.753559,
+          "test_seconds": 1.36490625,
+          "raw_log_sha256": "b296e836e7878baab95d71836ab83a3cb9e3c7095a42273d142422fc290331e0",
+          "raw_diff_sha256": "3b42da8510a6e8da9b3a2b9df8f5cafc810cb0af22dd99cb8329f75fbb5f72e7",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/context.rs:72:5: replace writing_snapshot_visible -> bool with false",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.739236167,
+          "test_seconds": 0.736337417,
+          "raw_log_sha256": "457e1f4a7eed8a6561714a5f631bce653c66295ca997153e074e3fdb4d550488",
+          "raw_diff_sha256": "2b72a3aee961fa86cc1e70d5e3d83715af9f17317f720c44f5be9ab9fec9702a",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/context.rs:73:9: replace && with || in writing_snapshot_visible",
+          "outcome": "CaughtMutant",
+          "build_seconds": 7.1812515,
+          "test_seconds": 1.3295810000000001,
+          "raw_log_sha256": "63fca32b70876f4e6bf7cd315183156ee87345c34d106a44f592272fdec29afc",
+          "raw_diff_sha256": "4e1ce027a10358d964e9bfa25eda8efa1b745133dece6fd20b1d9faf1195bef1",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/context.rs:77:47: replace == with != in writing_snapshot_visible",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.937707416,
+          "test_seconds": 0.731569416,
+          "raw_log_sha256": "f62d0473cdaea1ed8270b1838eabd2bec570770076c89475e1398ac32be1c331",
+          "raw_diff_sha256": "7ea66b1f71576fe56bb5e762e7f31c860936d6d282754bfc28d189f1c3d1cca9",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/context.rs:81:5: replace visible -> bool with true",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.919861083,
+          "test_seconds": 1.2083840000000001,
+          "raw_log_sha256": "7860ea61e87fcbaa59405608f036e87e28067f152f4cc5c3004d2be4043ada1d",
+          "raw_diff_sha256": "bd81965b9d73c4811114c9e18fa89f13c47f51e5e40f8c3bd8aae32cae81f289",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/context.rs:81:5: replace visible -> bool with false",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.8058918330000004,
+          "test_seconds": 0.725104959,
+          "raw_log_sha256": "c55652a6c4b09a235c415b92f5d5cf5fa8b78120c1cca1adecb6f7336e818019",
+          "raw_diff_sha256": "af6e76a97fea647ef6de808ad829fed299a240554ae9c59aeab3f5280db1711b",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/context.rs:90:5: replace visible_with_scope -> bool with true",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.870192958,
+          "test_seconds": 1.188494166,
+          "raw_log_sha256": "20f2892b2a21ad3c691d3c5a723101855f8ee6bca588dd929db2be27fc9ba621",
+          "raw_diff_sha256": "f0fabbbecc58d50b6f0a13604080adacd0f7fc6cb21b0eac5caec03c55c42d9b",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/context.rs:90:5: replace visible_with_scope -> bool with false",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.859548,
+          "test_seconds": 0.735601166,
+          "raw_log_sha256": "17ffb2010c583413ba94ee106a47242dec49f45ed8dde7a63de012921baf1f1f",
+          "raw_diff_sha256": "803c0301c2f9af36a8dd380fa089d8666e3bed3f08b03c30b17b00bcbc779ab8",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/context.rs:97:9: replace visible_with_scope::visit -> bool with true",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.919227125,
+          "test_seconds": 1.181742584,
+          "raw_log_sha256": "a348623eb0f8fc3ce33c56c7c639921e9a3df27456112475f49f1c14ab4c4a5b",
+          "raw_diff_sha256": "2381fafcbf6cbe448f7c7800934f476705c8c842315d3e72a5f8e8014a6f441f",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/context.rs:97:9: replace visible_with_scope::visit -> bool with false",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.861364458,
+          "test_seconds": 0.738069625,
+          "raw_log_sha256": "83b8566e3d5839c09c9ecdbe1acf1c02dad269122f60a6c2d9d6c590a1f5b2f2",
+          "raw_diff_sha256": "1a0ce2d0c3e34244ea305758a0b5f457b8c03517b110c2c16f5451dfe1ba4a5a",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/context.rs:102:32: replace == with != in visible_with_scope::visit",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.96689575,
+          "test_seconds": 0.708093542,
+          "raw_log_sha256": "c0e54ce3f0c1d549ed0002aafef702e48c773d10b86247de64d19914d6b64305",
+          "raw_diff_sha256": "5077afa70bf48a2c9f2bc05f5968347b7f7ce82ae02d8fa9f7047b9cca340a61",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/context.rs:128:39: replace match guard m.role == WRITING_REQUEST_ROLE with true in visible_with_scope::visit",
+          "outcome": "MissedMutant",
+          "build_seconds": 6.922071209,
+          "test_seconds": 1.9435310000000001,
+          "raw_log_sha256": "461beb9ff653119c442e5cde2ab2160978154f6dda8e2368004b7e6a949f6ed2",
+          "raw_diff_sha256": "6dab1911118a2a9b78b434c80b981789205797385c56f5a35a6d191aa4b49a8f",
+          "disposition": {
+            "category": "equivalent_with_read_cost",
+            "reason": "For every non-writing-request Message, from_message rejects its role before parsing, and scoped_writing_request is false; the same scope_allowed result remains. Extra error construction only.",
+            "witness": null,
+            "actual_mutant_recheck": false,
+            "witness_status": null
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/context.rs:128:39: replace match guard m.role == WRITING_REQUEST_ROLE with false in visible_with_scope::visit",
+          "outcome": "CaughtMutant",
+          "build_seconds": 7.289331792,
+          "test_seconds": 1.4194735,
+          "raw_log_sha256": "9c25f39421c948daf8ce9abe425bd3b0d9e4e654cc946e39a016f84c8b555220",
+          "raw_diff_sha256": "5ed344812b4b16efd0a2487ce03e65df33ce76a7457f92c972032c842c5ea056",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/context.rs:128:46: replace == with != in visible_with_scope::visit",
+          "outcome": "CaughtMutant",
+          "build_seconds": 7.809009125,
+          "test_seconds": 1.062464167,
+          "raw_log_sha256": "e4dc6ebb9967e0bc2b381b6a6535e46dd87804164301ed38425c4cda58f46837",
+          "raw_diff_sha256": "20a3ee7aecbfa27fd625b5c0464aa76530e8626966c848ef7ab0493943bc213b",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/context.rs:130:21: replace && with || in visible_with_scope::visit",
+          "outcome": "CaughtMutant",
+          "build_seconds": 8.3158325,
+          "test_seconds": 1.417517791,
+          "raw_log_sha256": "440b09ce3f5ac1e8a93c0989a03ccc87b030731bc9f122446de3a356928155b1",
+          "raw_diff_sha256": "7dd9fedea3fd31a999463fb89c3c55cc7653d4f0cfcb87f98b18600efb803c39",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/context.rs:136:35: delete ! in visible_with_scope::visit",
+          "outcome": "MissedMutant",
+          "build_seconds": 6.84124625,
+          "test_seconds": 1.947333,
+          "raw_log_sha256": "1dc168e680db332efe4b366b7b9a6b35bf4dceb7e8242d2f21f4f23a0a3bf7ca",
+          "raw_diff_sha256": "30bd680b3a39f003b47934f5b4604d54de9713dfda48ea1b2d3e59761dc0f9eb",
+          "disposition": {
+            "category": "genuine_fixture_gap",
+            "reason": "The negation distinguishes legacy opaque history from invalid v2 metadata.",
+            "witness": "malformed_legacy_history_remains_visible_but_invalid_v2_metadata_is_hidden",
+            "actual_mutant_recheck": false,
+            "witness_status": "passed on 521454f2"
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/context.rs:180:21: replace && with || in visible_with_scope::visit",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.746691417,
+          "test_seconds": 1.185346,
+          "raw_log_sha256": "b71599d34d519e8d9630def3f7ed9663e5aa5e7a5f884ea1431b28bdd33a4d3b",
+          "raw_diff_sha256": "14955439586a9015982c8dcee4808bef0eedd9f4f2fb3d0f8421ae33399a0673",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/context.rs:179:51: replace == with != in visible_with_scope::visit",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.6765055,
+          "test_seconds": 0.746541208,
+          "raw_log_sha256": "095550ee0d18e5627a344131bdf86f28859d310724600a8ff8d9b62fe25974dd",
+          "raw_diff_sha256": "ee66cb49eea24c24b14b2612fb1ed45e94913c470a3f7dfd420a9f46b8ffb485",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/context.rs:190:9: replace Store::records_for_chat -> Result<Vec<Record>> with Ok(vec![])",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.783002125,
+          "test_seconds": 1.169752666,
+          "raw_log_sha256": "607375cc2eaf535cf4dfd8b4608131dbf931385e6dd2997dcc397c0a18a33dd3",
+          "raw_diff_sha256": "4302326a31905e181881d1fe9ea3d7eb5933efc4955bd66fa823e6c39c194004",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/context.rs:190:9: replace Store::records_for_chat -> Result<Vec<Record>> with Ok(vec![Default::default()])",
+          "outcome": "Unviable",
+          "build_seconds": 0.982535959,
+          "test_seconds": 0,
+          "raw_log_sha256": "36f31a025f361faaa6eb83fe449ba6b6f4266dc5a7cdaf765104f8093a6b5ff4",
+          "raw_diff_sha256": "0f015dca6297bb793c422620b1b5d7a05283cf4f5b57f504fa4023e8c8c8445d",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict.",
+          "compile_errors": [
+            "error[E0277]: the trait bound `types::Record: Default` is not satisfied",
+            "error: could not compile `brn-threads-core` (lib) due to 1 previous error"
+          ]
+        },
+        {
+          "name": "crates/brn-threads-core/src/context.rs:197:21: replace && with || in Store::records_for_chat",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.74889075,
+          "test_seconds": 1.255783875,
+          "raw_log_sha256": "df88c3b0fca6cd42b5afe4d2fe54034230b221cd1107f4ff57c4c034f5b7ae59",
+          "raw_diff_sha256": "7edf569b0a2d39576c2a0b56c6f7f9af8d8d90de6d58981e5a6db74359f54759",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/context.rs:196:21: replace && with || in Store::records_for_chat",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.951453167,
+          "test_seconds": 1.203644709,
+          "raw_log_sha256": "5f7d8e9d62f1d4f25fb5814b4a7e1ed207166dca36944552cced0b3b702713dd",
+          "raw_diff_sha256": "a709e47239d164444b7858c7eba411ebef2936b43d092c3122fcae1ec08a95c9",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/context.rs:196:24: delete ! in Store::records_for_chat",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.79173825,
+          "test_seconds": 1.112044958,
+          "raw_log_sha256": "8d409129883cb1bc0094921bac96feef08ad8dc364e41eb66970be6a94b4383c",
+          "raw_diff_sha256": "006656fee472e2be168031cdfb3eac17aef3b79eebb43d365e7636dd0059878f",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/store.rs:61:9: replace Store::open_with -> Result<Self> with Ok(Default::default())",
+          "outcome": "Unviable",
+          "build_seconds": 0.975323208,
+          "test_seconds": 0,
+          "raw_log_sha256": "378ea2726bf3ee38a9bdaaa49db333e8427af0e0986a4f000b8a60e3531e4f9e",
+          "raw_diff_sha256": "3966b29dc5a5a47212c5707d7957a2cc2372f576f227fb0e48e46f9e5d08fa70",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict.",
+          "compile_errors": [
+            "error[E0277]: the trait bound `store::Store: Default` is not satisfied",
+            "error: could not compile `brn-threads-core` (lib) due to 1 previous error; 1 warning emitted"
+          ]
+        },
+        {
+          "name": "crates/brn-threads-core/src/store.rs:615:9: replace Store::undo -> Result<ApplyOutcome> with Ok(Default::default())",
+          "outcome": "Unviable",
+          "build_seconds": 0.969273041,
+          "test_seconds": 0,
+          "raw_log_sha256": "a92638b98eaae855699ebebdfaedd6253aa0b382aa4b5246e8cdd2ea5ef5e489",
+          "raw_diff_sha256": "b33f8fcf891e34e736b22e79d117db432e5bfe5d7b2535e57c8b539dff7c1d83",
+          "reuse": "Superseded by 521454f2 changed Undo guard; all three original Undo outcomes were unviable, not passing qualification.",
+          "compile_errors": [
+            "error[E0277]: the trait bound `types::ApplyOutcome: Default` is not satisfied",
+            "error: could not compile `brn-threads-core` (lib) due to 1 previous error"
+          ]
+        },
+        {
+          "name": "crates/brn-threads-core/src/store.rs:676:21: replace && with || in Store::undo",
+          "outcome": "Unviable",
+          "build_seconds": 0.969261,
+          "test_seconds": 0,
+          "raw_log_sha256": "cab7acbf3ebdb29a9e9f15ae65f82630f95534282ae512f1c5b8d4135b6f1ad2",
+          "raw_diff_sha256": "08c89b2250d4dc23725b90957188e5dbac2809aca943b630600c354e4ac1541c",
+          "reuse": "Superseded by 521454f2 changed Undo guard; all three original Undo outcomes were unviable, not passing qualification.",
+          "compile_errors": [
+            "error: `||` operators are not supported in let chain conditions",
+            "error: could not compile `brn-threads-core` (lib) due to 1 previous error"
+          ]
+        },
+        {
+          "name": "crates/brn-threads-core/src/store.rs:675:19: replace && with || in Store::undo",
+          "outcome": "Unviable",
+          "build_seconds": 0.961164,
+          "test_seconds": 0,
+          "raw_log_sha256": "90f4ed3fdb87b042cbc035987af369054bd9276139edf1bff54155fe5bafa24f",
+          "raw_diff_sha256": "850fa3727257587d80621e432042c099d656b899817b9e34c7f7c9594100cfd5",
+          "reuse": "Superseded by 521454f2 changed Undo guard; all three original Undo outcomes were unviable, not passing qualification.",
+          "compile_errors": [
+            "error: `||` operators are not supported in let chain conditions",
+            "error: could not compile `brn-threads-core` (lib) due to 1 previous error"
+          ]
+        },
+        {
+          "name": "crates/brn-threads-core/src/store.rs:1110:5: replace open_existing_database -> Result<Connection> with Ok(Default::default())",
+          "outcome": "Unviable",
+          "build_seconds": 0.933342333,
+          "test_seconds": 0,
+          "raw_log_sha256": "aea6f52ee9f587e424fce47d1bb1b958b093ca84a355694f191c3b06c2fb95d1",
+          "raw_diff_sha256": "38db220b9ea914d98be22d21b7357e977d940e093e51489ee3289a1d357f09da",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict.",
+          "compile_errors": [
+            "error[E0277]: the trait bound `Connection: Default` is not satisfied",
+            "error: could not compile `brn-threads-core` (lib) due to 1 previous error"
+          ]
+        },
+        {
+          "name": "crates/brn-threads-core/src/store.rs:1199:5: replace validate_request -> Result<()> with Ok(())",
+          "outcome": "MissedMutant",
+          "build_seconds": 6.821269291,
+          "test_seconds": 1.940605625,
+          "raw_log_sha256": "1247576e9fb01f3e58e0467308fde70af48602fb87795d66cb979d9e4f67e7ed",
+          "raw_diff_sha256": "9cf454693bf5aca9a55f2e7e30d87a246e85716be787a73ece795eabff6f1552",
+          "disposition": {
+            "category": "excluded_existing_test_target",
+            "reason": "The selected writing/writing_setup targets exclude the existing test that directly asserts unprotected full-import prepare refusal. CW1 setup identity/reference validation also runs again at apply. This mutant was not rechecked with core.rs; the final unmutated focused run executes that target.",
+            "witness": "core.rs::full_import_is_protected_and_confirmation_requires_explicit_authority",
+            "actual_mutant_recheck": false,
+            "witness_status": null
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/store.rs:1254:5: replace apply_on -> Result<ApplyOutcome> with Ok(Default::default())",
+          "outcome": "Unviable",
+          "build_seconds": 0.953502375,
+          "test_seconds": 0,
+          "raw_log_sha256": "c4d64c81a0b7182d2bcb904aecb0d5ca2348400e5a942663e0b066de7f109acf",
+          "raw_diff_sha256": "6451bf3daa5404f409708a0c9473943a73d968f7501f447b9935b43b0e3a6b33",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict.",
+          "compile_errors": [
+            "error[E0277]: the trait bound `types::ApplyOutcome: Default` is not satisfied",
+            "error: could not compile `brn-threads-core` (lib) due to 1 previous error"
+          ]
+        },
+        {
+          "name": "crates/brn-threads-core/src/store.rs:1342:12: delete ! in apply_on",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.746821208,
+          "test_seconds": 0.728204833,
+          "raw_log_sha256": "9d394d48f0efc12fc315dbbddeee9e81ac93a8422c17e60b99381dca9a9acbb1",
+          "raw_diff_sha256": "6001ed7c49f1e2e3964e1b4a53b82c60fb90efe755c4aaf63b03431399d9917e",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/store.rs:1349:9: replace || with && in apply_on",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.751277791,
+          "test_seconds": 1.1316585,
+          "raw_log_sha256": "399681743be0a1bc440c1a13ddd630d8a9e08286dacd36ef6f593eb3c299637a",
+          "raw_diff_sha256": "53db4baf93f8ba97b8d2a3ccbf5eb96a1c1ff990a16076a6d41711e803938236",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/store.rs:1408:63: replace && with || in apply_on",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.841512167,
+          "test_seconds": 0.7326875,
+          "raw_log_sha256": "e333e5d00b8fc23a2483601f072c5a7de0bb9a9bcd2a14e940908176b9ae09b9",
+          "raw_diff_sha256": "a787be8b2633216c6cb1a3fb67db1ba89720974e7f497a9f379cbd2639f7faa5",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/store.rs:1408:8: delete ! in apply_on",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.717637167,
+          "test_seconds": 0.727275125,
+          "raw_log_sha256": "a20274f674f947ed303b75b0c1501145033e788f391f151d6fd8f74eb9d92bb9",
+          "raw_diff_sha256": "62b53e40c70651f41e21a0135a564e93ee83ed8cfe780fd4a1f287fd8834aad5",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/store.rs:1408:66: delete ! in apply_on",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.713463042,
+          "test_seconds": 1.532177666,
+          "raw_log_sha256": "ab5195465b7137b8cf332685575832ba0cdfbce01a8264994bb4a8778c0d801a",
+          "raw_diff_sha256": "eb8b1f3e746cbb0ba39dc420be1f9f33bd5b4b7afbdc2471ba57a25c646cb1d8",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/store.rs:2628:5: replace writing_markers_on -> Result<Vec<RevisionInput>> with Ok(vec![])",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.759933584,
+          "test_seconds": 1.4840194580000001,
+          "raw_log_sha256": "b0d47fda834541a63d24f9b27901b6787c69d7638773de25b7437bc0b33a2005",
+          "raw_diff_sha256": "dd26c5006b9b2792c59b73664803867b9f279ccacabde1ed3f7fab815f0d42f5",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/store.rs:2628:5: replace writing_markers_on -> Result<Vec<RevisionInput>> with Ok(vec![Default::default()])",
+          "outcome": "Unviable",
+          "build_seconds": 0.989993667,
+          "test_seconds": 0,
+          "raw_log_sha256": "94a6c9600162c5b8735785633e0658437e47bc1036ee6c21e6dd56d5a00e7ce2",
+          "raw_diff_sha256": "5634ec9fc0830bdf350419ddeb7a5445108b6231abccc1121d76b16e29e55b2c",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict.",
+          "compile_errors": [
+            "error[E0277]: the trait bound `types::RevisionInput: Default` is not satisfied",
+            "error: could not compile `brn-threads-core` (lib) due to 1 previous error"
+          ]
+        },
+        {
+          "name": "crates/brn-threads-core/src/store.rs:2650:21: replace && with || in writing_markers_on",
+          "outcome": "Unviable",
+          "build_seconds": 0.960325292,
+          "test_seconds": 0,
+          "raw_log_sha256": "64574b6542199b4cfc652fbdcfc0e57289c8ea03a6382f4d3a1b4debdf2c0f3e",
+          "raw_diff_sha256": "5008cb016a65964e045c5e0f03f467a7a4d19cb8aa171dec6a87448fbf99f665",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict.",
+          "compile_errors": [
+            "error: `||` operators are not supported in let chain conditions",
+            "error: could not compile `brn-threads-core` (lib) due to 1 previous error"
+          ]
+        },
+        {
+          "name": "crates/brn-threads-core/src/store.rs:2646:21: replace && with || in writing_markers_on",
+          "outcome": "Unviable",
+          "build_seconds": 0.958262791,
+          "test_seconds": 0,
+          "raw_log_sha256": "c3b6f502ceb8ee4f74deff7e80abb6a96becf7ec45639aaff38903025cef469a",
+          "raw_diff_sha256": "8ee7d21b56f6bbb5751c62b5ce7af0ad658b615623ad73878f535db71cdfbc21",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict.",
+          "compile_errors": [
+            "error: `||` operators are not supported in let chain conditions",
+            "error: could not compile `brn-threads-core` (lib) due to 1 previous error"
+          ]
+        },
+        {
+          "name": "crates/brn-threads-core/src/store.rs:2649:59: replace && with || in writing_markers_on",
+          "outcome": "MissedMutant",
+          "build_seconds": 6.65308925,
+          "test_seconds": 1.9051219160000001,
+          "raw_log_sha256": "43db53490442266554a2f69b934c2133ebcbbe3a766dbf7013cdad7197892235",
+          "raw_diff_sha256": "946fbd25c5f92ff73636ab684ab00cba2b5d3d4a6c705e38bcdb4b28c8f5699e",
+          "disposition": {
+            "category": "genuine_fixture_gap",
+            "reason": "Only proposals writing the captured working Note gain its setup Current dependency; unrelated Note provenance must not become dependent.",
+            "witness": "unrelated_note_write_with_request_provenance_does_not_depend_on_writing_setup",
+            "actual_mutant_recheck": false,
+            "witness_status": "passed on 521454f2"
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/store.rs:2649:39: replace == with != in writing_markers_on",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.76031725,
+          "test_seconds": 2.031805292,
+          "raw_log_sha256": "7b7fd91ba85eae5308c57a0d65cdb89843c004da19b5c0a242c224635af2d4a0",
+          "raw_diff_sha256": "9937a9da0ede05c9e24b6aeada3ddeb327749276dd64ff1ab062e962c247bdbf",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/upgrade.rs:42:5: replace upgrade_steps -> Result<()> with Ok(())",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.717086709,
+          "test_seconds": 2.17108925,
+          "raw_log_sha256": "530a72abda856fe2ac00db382bb4b339f4008ae39e5185ee8c425083ca9db28a",
+          "raw_diff_sha256": "82e3f21af760ea87283a769f86c9b0c0f99f5617dc8eefe4e7469b17485ef23f",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/upgrade.rs:49:13: replace < with == in upgrade_steps",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.904686583,
+          "test_seconds": 2.047012291,
+          "raw_log_sha256": "6c4cb86ef4000a9869a2ec0a6d1a015651b5f5a97af30183fae81a079025886c",
+          "raw_diff_sha256": "69b6a8f05d170c478644974724513e13424b3b37e2bad97ac5bbe0b9b2dab08f",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/upgrade.rs:49:13: replace < with > in upgrade_steps",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.731246125,
+          "test_seconds": 1.978444209,
+          "raw_log_sha256": "0b0f25beb3e0aa41e77e72b34f480ec787acaa81ec619677c9c88c8030246127",
+          "raw_diff_sha256": "78cac287dfc4fd513d84e2d3bde8be00a61373ca9e95b4b1346cd615d5f45528",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/upgrade.rs:49:13: replace < with <= in upgrade_steps",
+          "outcome": "MissedMutant",
+          "build_seconds": 6.714795417,
+          "test_seconds": 2.129305791,
+          "raw_log_sha256": "b33956b2cd941a7918beb54db37e1563d7ea313a6d3cdbd0d8606e2595407ab4",
+          "raw_diff_sha256": "2c1f664d50d2d826a6f377552049a4715e29e25d8819c44e418dccd9fc877850",
+          "disposition": {
+            "category": "equivalent_on_valid_supported_stores",
+            "reason": "The only additional boundary is from==7, where the unique index already exists and CREATE UNIQUE INDEX IF NOT EXISTS is idempotent; supported older stores use the same step.",
+            "witness": null,
+            "actual_mutant_recheck": false,
+            "witness_status": null
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/upgrade.rs:82:5: replace upgrade_connection -> Result<()> with Ok(())",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.682791208,
+          "test_seconds": 1.7062282500000001,
+          "raw_log_sha256": "a6ca110c3a7b3d7fb4aa32f4bbfb2dec02f894781d7571624be7b729a89cfeea",
+          "raw_diff_sha256": "d7945faea2ae5d478142701aea506449be068be33b1d4984ed78f89e9170cea0",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/upgrade.rs:101:17: replace >= with < in upgrade_connection",
+          "outcome": "MissedMutant",
+          "build_seconds": 6.698485667,
+          "test_seconds": 1.868949709,
+          "raw_log_sha256": "19f121906c1965d424589ca89b56004dbf7f1a9842f5bd673f023a00279be4a1",
+          "raw_diff_sha256": "93604fdaae56a99a8201b83a2db6265571388380a7fe5a9630ae350f0c76c1f5",
+          "disposition": {
+            "category": "cosmetic",
+            "reason": "Only the schema-specific backup-required error hint changes. Missing external backup still refuses before migration.",
+            "witness": null,
+            "actual_mutant_recheck": false,
+            "witness_status": null
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:48:5: replace writing_setup_scope -> Result<Option<String>> with Ok(None)",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.689984,
+          "test_seconds": 1.342027542,
+          "raw_log_sha256": "24595370d0cd20033f3c1f20e2ed5cc1b518b9b3b2a2c219936bdfca5680a84d",
+          "raw_diff_sha256": "4a6ec0e167b95df05ef8ef721cde87664acba000760076befacb49397fb4abe3",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:48:5: replace writing_setup_scope -> Result<Option<String>> with Ok(Some(String::new()))",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.712747833,
+          "test_seconds": 0.690697625,
+          "raw_log_sha256": "b6431c873068d00b161c2f6cc52d174f4bd09d1b825e26acb502da55aef6ac15",
+          "raw_diff_sha256": "3bc77d49a9e7f8ff0d7050b907321583e4ee04396d08b80c8ebb29349fc255e7",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:48:5: replace writing_setup_scope -> Result<Option<String>> with Ok(Some(\"xyzzy\".into()))",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.823577,
+          "test_seconds": 0.685973417,
+          "raw_log_sha256": "7882bd4ad2cb6e15511fa8d69069b75429398210b369e29f448b7efb4f966c46",
+          "raw_diff_sha256": "4300b75c4011510e63dda02c7684d42520e3fb3840eb2089b94c7c2929ea93a0",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:56:31: replace && with || in writing_setup_scope",
+          "outcome": "MissedMutant",
+          "build_seconds": 6.700276709,
+          "test_seconds": 2.423356,
+          "raw_log_sha256": "f78ada231add8ec02d1fc13035fc1adb3d34c955c3c75ff4057009247f890756",
+          "raw_diff_sha256": "ceda8791777475f83055c63df88c8f9305389d3cf67648bb4b813958f2ea7a55",
+          "disposition": {
+            "category": "genuine_fixture_gap",
+            "reason": "A missing or non-Thread/Project selected ID must not normalize into general scope.",
+            "witness": "raw_ordinary_conversation_setup_is_rejected_without_creating_private_scope",
+            "actual_mutant_recheck": false,
+            "witness_status": "passed on 521454f2"
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:56:23: replace == with != in writing_setup_scope",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.6748,
+          "test_seconds": 0.697594458,
+          "raw_log_sha256": "764d347af8cd46d63ac95c4c23a6f7df57476210cd11cbdcf3f1d8ba7642883f",
+          "raw_diff_sha256": "a6bc9ab4358cd702b5df0c456d5242fc9483712275fffc25a0a55a3e7140303d",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:64:5: replace writing_request_scope -> Result<Option<String>> with Ok(None)",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.692240708,
+          "test_seconds": 1.242649792,
+          "raw_log_sha256": "32db77e8a9c2e4e94b84b2822dbaeedfca20f19b0c2e4607eb3ff4d81b1a3351",
+          "raw_diff_sha256": "be1ec7bbeb55f080db5056054ea1e1efaa5f1808eceada96f64cffdc3d302c71",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:64:5: replace writing_request_scope -> Result<Option<String>> with Ok(Some(String::new()))",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.740628833,
+          "test_seconds": 0.716430042,
+          "raw_log_sha256": "2f756cdd4259b9faf95aa6764642dfa1acc5c527c7ba228bad7e0fe965642bba",
+          "raw_diff_sha256": "3829a255cc23a6e45c76be5a601d10621c48a2adea0f1ad03f41592ce455cb91",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:64:5: replace writing_request_scope -> Result<Option<String>> with Ok(Some(\"xyzzy\".into()))",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.656982583,
+          "test_seconds": 0.726482917,
+          "raw_log_sha256": "69eaa0ae99dcc285d17b8f2f74573d1d2d8ddc5032f3c59533a03fbf5eae2a93",
+          "raw_diff_sha256": "77613729989d7aef09189f3720e05668f9fa60df87286dec3f0e70530bf35d5f",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:67:5: replace require_active_writing_scope -> Result<()> with Ok(())",
+          "outcome": "MissedMutant",
+          "build_seconds": 6.661540084,
+          "test_seconds": 1.9274452499999999,
+          "raw_log_sha256": "b66d77fd92a88a13e19eea9cfd18d1eb44a3484fadeed844cf7def8343bc73a1",
+          "raw_diff_sha256": "e3498425393b75be4a204a25659655bd6c1264d089402fbce311261d2719825a",
+          "disposition": {
+            "category": "genuine_fixture_gap",
+            "reason": "App active-context checks previously hid the absent direct-core negative case. A Current Resolved Thread input grants no new configuration context.",
+            "witness": "checked_setup_mutation_requires_active_context_even_with_current_thread_input",
+            "actual_mutant_recheck": false,
+            "witness_status": "passed on 521454f2"
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:76:12: replace && with || in require_active_writing_scope",
+          "outcome": "MissedMutant",
+          "build_seconds": 6.664768166,
+          "test_seconds": 1.997037583,
+          "raw_log_sha256": "54e10aa0d54be4e44dc9246adff5a751582482dbffa3f7a65cd2f7c06e768730",
+          "raw_diff_sha256": "e0e78d2a67aefbeef1e65348291ffb41c582b0e13418347363968f4b85657e55",
+          "disposition": {
+            "category": "genuine_fixture_gap",
+            "reason": "App active-context checks previously hid the absent direct-core negative case. A Current Resolved Thread input grants no new configuration context.",
+            "witness": "checked_setup_mutation_requires_active_context_even_with_current_thread_input",
+            "actual_mutant_recheck": false,
+            "witness_status": "passed on 521454f2"
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:71:17: replace && with || in require_active_writing_scope",
+          "outcome": "MissedMutant",
+          "build_seconds": 6.78856825,
+          "test_seconds": 1.901057625,
+          "raw_log_sha256": "da4d44349508d9c053e0c85c562b974caa1362f65d4cf64375483cf99f5560b4",
+          "raw_diff_sha256": "426571dc98c3e4effbb270da346d68b66e842ed72774227834dee39c45ce55ed",
+          "disposition": {
+            "category": "genuine_fixture_gap",
+            "reason": "App active-context checks previously hid the absent direct-core negative case. A Current Resolved Thread input grants no new configuration context.",
+            "witness": "checked_setup_mutation_requires_active_context_even_with_current_thread_input",
+            "actual_mutant_recheck": false,
+            "witness_status": "passed on 521454f2"
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:70:17: replace && with || in require_active_writing_scope",
+          "outcome": "MissedMutant",
+          "build_seconds": 6.662065208,
+          "test_seconds": 1.9510279160000001,
+          "raw_log_sha256": "bc3a9d998da3d2df23b04878c38cf03e5f2b5e6bb8c55df258571ec188ae99e1",
+          "raw_diff_sha256": "c1671c8c5c824ac7ba25898c70c0644ae941c7979fcae9f8543c321b30253c1b",
+          "disposition": {
+            "category": "genuine_fixture_gap",
+            "reason": "App active-context checks previously hid the absent direct-core negative case. A Current Resolved Thread input grants no new configuration context.",
+            "witness": "checked_setup_mutation_requires_active_context_even_with_current_thread_input",
+            "actual_mutant_recheck": false,
+            "witness_status": "passed on 521454f2"
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:69:18: replace == with != in require_active_writing_scope",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.746511,
+          "test_seconds": 0.673280209,
+          "raw_log_sha256": "79ff4650fbe7e7776785e5ece8903e7bd67809c3fff6e7973d11dae53a562263",
+          "raw_diff_sha256": "89e79a0f46c5ca14461f20c09b69c0661333d4b1ed5a3535fdf6cb206a545893",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:70:20: delete ! in require_active_writing_scope",
+          "outcome": "CaughtMutant",
+          "build_seconds": 7.164420583,
+          "test_seconds": 0.718749708,
+          "raw_log_sha256": "21f31d654df4bf878dbf3dcb898c1015a5611ab10efd0ee16ae8af62ebb22efc",
+          "raw_diff_sha256": "c167e779925fe0817fe52caf673033ae513ec1f9c8c1dc86114ce77be9c38ae0",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:72:21: delete match arm RecordData::Thread(t) in require_active_writing_scope",
+          "outcome": "CaughtMutant",
+          "build_seconds": 7.450254042,
+          "test_seconds": 0.739196666,
+          "raw_log_sha256": "ab0453a2278427a5040dbf318d17cd4f2969a9b1f7b60d23979e713373c2107c",
+          "raw_diff_sha256": "4fe65063b7846b9ac11bf29c34f4d86d0fbd9ffee5dd89ed00449ae7eceb2f3b",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:73:21: delete match arm RecordData::Project(_) in require_active_writing_scope",
+          "outcome": "CaughtMutant",
+          "build_seconds": 7.20309725,
+          "test_seconds": 1.197390375,
+          "raw_log_sha256": "c4718e5ed76cb69b82dc5d5c2d4d204b07302c024a9b9e931b309924297aedb9",
+          "raw_diff_sha256": "3b938a9869224a4365ae8e3769dd5e1c372d537721737fed37ac0c86b5939063",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:72:54: replace == with != in require_active_writing_scope",
+          "outcome": "CaughtMutant",
+          "build_seconds": 7.248445416,
+          "test_seconds": 0.747513583,
+          "raw_log_sha256": "72bf36f7a07294d3d52b78b6e4514c7353bbd414e86859dfc1fa440c932f5ba6",
+          "raw_diff_sha256": "f856a7d91589542a62097dc9358a671f5cd84ec97a3cd6e9a833db4ebe28c0bb",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:76:15: delete ! in require_active_writing_scope",
+          "outcome": "CaughtMutant",
+          "build_seconds": 7.31660125,
+          "test_seconds": 0.676716792,
+          "raw_log_sha256": "2224d8b39215e06ac2e0801b6b52b235b15993902945f4cc182a0d6589308963",
+          "raw_diff_sha256": "49f2bded3c6f3a5d6fdaddb5bd707dfac2954fcad4e4ea131eae838286842969",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:78:12: delete ! in require_active_writing_scope",
+          "outcome": "CaughtMutant",
+          "build_seconds": 7.254140792,
+          "test_seconds": 0.712165667,
+          "raw_log_sha256": "e4e490f12273ea73df20148ceed8a279a960a73b6201644495716929a26bb72f",
+          "raw_diff_sha256": "0bb281ea5aa8fffdbd972ca7618aae9881d70de6a23d395320463c1d27a34811",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:86:9: replace WritingSetup::validate -> Result<()> with Ok(())",
+          "outcome": "CaughtMutant",
+          "build_seconds": 7.221484042,
+          "test_seconds": 1.203905833,
+          "raw_log_sha256": "306eb26bafd80f58908182e84e5a30b709a260c09c46359af5c1b7ff1b5eaeea",
+          "raw_diff_sha256": "3b562585a24ab562b764178c3bdc4dd0f609e02c887b95ff29cda08402f42789",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:93:13: replace || with && in WritingSetup::validate",
+          "outcome": "CaughtMutant",
+          "build_seconds": 7.198937875,
+          "test_seconds": 1.195831708,
+          "raw_log_sha256": "838979bf44c70acfd3083c47c22be37fd05f90692172c93b95b783d6b7169785",
+          "raw_diff_sha256": "03e5c92b8e05b46e6890560fb29f53ee7a73044831f9f35d808dcb4a678b9650",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:89:13: replace || with && in WritingSetup::validate",
+          "outcome": "CaughtMutant",
+          "build_seconds": 7.193975292,
+          "test_seconds": 1.715851667,
+          "raw_log_sha256": "d1a1eb5f7c5c12f38284a09433ce4f29da5eed1bfd9a78fbc386aca529a74093",
+          "raw_diff_sha256": "f915b9ff156321de0fe5ad3fccfca14c2696a00ae047c019de40677e81c870b2",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:88:13: replace || with && in WritingSetup::validate",
+          "outcome": "MissedMutant",
+          "build_seconds": 7.1990135,
+          "test_seconds": 1.8249716249999999,
+          "raw_log_sha256": "8903cf5914d4d107a9c07a43a3f6109d0cd231549dec29ee0ef8db8bda04b18e",
+          "raw_diff_sha256": "65387d1499ef4c3744f23fec47f2f58b9dac68a854a00d38fed65ffba6302613",
+          "disposition": {
+            "category": "redundant_checked_commit_guard",
+            "reason": "Early empty identity rejection is weakened, but valid checked stores cannot have an active empty-ID Note and canonical scope validation rejects Some(empty). Prepare error timing can differ; apply still refuses, so this is not a claim of global semantic equivalence.",
+            "witness": null,
+            "actual_mutant_recheck": false,
+            "witness_status": null
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:92:67: replace || with && in WritingSetup::validate",
+          "outcome": "CaughtMutant",
+          "build_seconds": 7.247569125,
+          "test_seconds": 1.694888959,
+          "raw_log_sha256": "273664727caf0a65e19b18c4730791fc145f03f4dfbdf3a776bcd50553260b64",
+          "raw_diff_sha256": "43cc9366e51cb3ebd556a5c4c4d6703c4cacd5e8656029b676370e73e27f6bb0",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:92:44: replace || with && in WritingSetup::validate",
+          "outcome": "MissedMutant",
+          "build_seconds": 7.32856025,
+          "test_seconds": 1.7516459580000001,
+          "raw_log_sha256": "f4584d3d9fefa85366094b6c0bba4543c0f354ce1ca152ac3d9381ea9629006b",
+          "raw_diff_sha256": "63db5e2f484608ea9d78e50a6bb392ce90d4441bb62472f0dad858a3483d6e86",
+          "disposition": {
+            "category": "genuine_fixture_gap",
+            "reason": "The original case named self-reference actually supplied duplicate references to another Note. Keep it explicitly as duplicate-reference and add a real self-reference case with no competing unique-index failure.",
+            "witness": "immutable_context_duplicate_identity_and_invalid_references_are_refused",
+            "actual_mutant_recheck": false,
+            "witness_status": "passed on 521454f2"
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:92:54: replace == with != in WritingSetup::validate",
+          "outcome": "CaughtMutant",
+          "build_seconds": 7.037757125,
+          "test_seconds": 1.448380292,
+          "raw_log_sha256": "9d88c9d5586f48d9ee52f4a296f2a7936ac54ba2785b4c9d17e3c8f93348dcb8",
+          "raw_diff_sha256": "663b8c11d23ba6871bf5af4e6a41decb5f80177e6c980ab9af2a19e5d80e82a3",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:92:70: delete ! in WritingSetup::validate",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.728323834,
+          "test_seconds": 1.211065375,
+          "raw_log_sha256": "7cdef17ba55438bcc67eaebd6f79a49894931ddde698e10846d0880337920548",
+          "raw_diff_sha256": "601a38e4ea5b057b14fa164d9266f92e6d79ceed8f00438fcb030fff987c1adb",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:93:48: replace > with == in WritingSetup::validate",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.668906542,
+          "test_seconds": 1.378489208,
+          "raw_log_sha256": "ea53a15b13662039f95499166dca7cb602d8ccfa97687dfe83fba0dcf2b97f0a",
+          "raw_diff_sha256": "9438e9edd8c4df4d7349d48b43c2eeeebce7e0e733181d309b05377056d2bf20",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:93:48: replace > with < in WritingSetup::validate",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.652336083,
+          "test_seconds": 0.736113917,
+          "raw_log_sha256": "1c051fd5c1f20cd47fa41afa58552baaeb4a34d4738e2d29c6aea7e68b6f1ab2",
+          "raw_diff_sha256": "8ccf61767061b2e2a2624c728d0ea7680c5d2f494621f7f834cb7cc21e1e7ab1",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:93:48: replace > with >= in WritingSetup::validate",
+          "outcome": "MissedMutant",
+          "build_seconds": 6.781453708,
+          "test_seconds": 1.933482917,
+          "raw_log_sha256": "3583f2ada8d109160df900f2b8c5bfad72df7cb18cd5e302111a75e3bced3c02",
+          "raw_diff_sha256": "447882cee8f4fd4b2517a6e6dd67536a3ef36c0e58296478b16240c4c962d78e",
+          "disposition": {
+            "category": "genuine_fixture_gap",
+            "reason": "The exact setup byte boundary is distinct from the immutable request envelope byte-boundary fixture.",
+            "witness": "setup_size_boundary_is_exact_and_overflow_does_not_mutate_saved_configuration",
+            "actual_mutant_recheck": false,
+            "witness_status": "passed on 521454f2"
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:123:5: replace scoped_writing_request -> bool with true",
+          "outcome": "MissedMutant",
+          "build_seconds": 6.73468975,
+          "test_seconds": 1.877356417,
+          "raw_log_sha256": "ffb99f2b767ed2fb5719d52591b048f616fb4734465e9aaa3ee64314dc83e2eb",
+          "raw_diff_sha256": "9254f38b85687bba8f94224ff0d6a727eaf38f8d0fdf11ff99ea5bf021c23ade",
+          "disposition": {
+            "category": "genuine_fixture_gap",
+            "reason": "Constant true loses opaque legacy history; constant false exposes invalid v2 metadata.",
+            "witness": "malformed_legacy_history_remains_visible_but_invalid_v2_metadata_is_hidden",
+            "actual_mutant_recheck": false,
+            "witness_status": "passed on 521454f2"
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:123:5: replace scoped_writing_request -> bool with false",
+          "outcome": "MissedMutant",
+          "build_seconds": 6.652052375,
+          "test_seconds": 2.032146042,
+          "raw_log_sha256": "1d79454be190725e322d58e2426719360881a949ca973e8f2d98c432eea92571",
+          "raw_diff_sha256": "080f7f17fb93814cbdb8c11a00b5ecec768efb5ddf4ca90c0b0f1235d3710ef9",
+          "disposition": {
+            "category": "genuine_fixture_gap",
+            "reason": "Constant true loses opaque legacy history; constant false exposes invalid v2 metadata.",
+            "witness": "malformed_legacy_history_remains_visible_but_invalid_v2_metadata_is_hidden",
+            "actual_mutant_recheck": false,
+            "witness_status": "passed on 521454f2"
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:128:9: replace WritingSnapshot::validate -> Result<()> with Ok(())",
+          "outcome": "MissedMutant",
+          "build_seconds": 6.721045417,
+          "test_seconds": 2.171177,
+          "raw_log_sha256": "aba9acfd80f4fcfdbbbe3e12582f65e55bdd5d40dc0a564507cae89356727e22",
+          "raw_diff_sha256": "a90f85526c97fe746cf4150d6b7ff3b26693d76fff3efd06f15c5e93ad3afffe",
+          "disposition": {
+            "category": "genuine_fixture_gap",
+            "reason": "Malformed captured setup inputs/references must be rejected by the public parser as well as the host loader. The witness also preserves a valid canonical v2 request.",
+            "witness": "stored_v2_context_rejects_forged_binding_and_reference_metadata",
+            "actual_mutant_recheck": false,
+            "witness_status": "passed on 521454f2"
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:175:17: replace || with && in WritingSnapshot::validate",
+          "outcome": "MissedMutant",
+          "build_seconds": 6.688502542,
+          "test_seconds": 1.9826904170000001,
+          "raw_log_sha256": "b6f9eefc78cdde60ef6a32a5ff52f52bf1c1c959c0407da39bbeebefcbe4ff7c",
+          "raw_diff_sha256": "e37ec8477866f08ae370d973e7410003d60c3961ab3b3444a0dc6b3c8c5c7396",
+          "disposition": {
+            "category": "genuine_fixture_gap",
+            "reason": "Malformed captured setup inputs/references must be rejected by the public parser as well as the host loader. The witness also preserves a valid canonical v2 request.",
+            "witness": "stored_v2_context_rejects_forged_binding_and_reference_metadata",
+            "actual_mutant_recheck": false,
+            "witness_status": "passed on 521454f2"
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:174:17: replace || with && in WritingSnapshot::validate",
+          "outcome": "MissedMutant",
+          "build_seconds": 6.63622975,
+          "test_seconds": 2.000530459,
+          "raw_log_sha256": "d56cd2b56be58a9a9df9476c81dbcab39c67aab4fc3e80a20e7f42cc00604adf",
+          "raw_diff_sha256": "496fee2a4527a6786ddfc101fb18319e759fc3717862191ee7dcc0dfd5111e58",
+          "disposition": {
+            "category": "genuine_fixture_gap",
+            "reason": "Malformed captured setup inputs/references must be rejected by the public parser as well as the host loader. The witness also preserves a valid canonical v2 request.",
+            "witness": "stored_v2_context_rejects_forged_binding_and_reference_metadata",
+            "actual_mutant_recheck": false,
+            "witness_status": "passed on 521454f2"
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:173:17: replace || with && in WritingSnapshot::validate",
+          "outcome": "MissedMutant",
+          "build_seconds": 6.918020584,
+          "test_seconds": 2.049702083,
+          "raw_log_sha256": "6b7e98c57f7ee49729353f687cc196d46e7cad57bb4695caa3551822d0a57ddb",
+          "raw_diff_sha256": "05fe27cd0494be44c76fce4b152167722165edb41fc4a8ee658d96fc4495ea54",
+          "disposition": {
+            "category": "genuine_fixture_gap",
+            "reason": "Malformed captured setup inputs/references must be rejected by the public parser as well as the host loader. The witness also preserves a valid canonical v2 request.",
+            "witness": "stored_v2_context_rejects_forged_binding_and_reference_metadata",
+            "actual_mutant_recheck": false,
+            "witness_status": "passed on 521454f2"
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:172:17: replace || with && in WritingSnapshot::validate",
+          "outcome": "MissedMutant",
+          "build_seconds": 7.1919845,
+          "test_seconds": 1.983850875,
+          "raw_log_sha256": "92f3cc1d8e99c0ca4413ed4eb1dfe76183917d9213d9951f7ad48e2a1b98f81c",
+          "raw_diff_sha256": "727d81a93e0ecfb35e2ed1da7c643c8fccf2397256aebf39697eb255ec9558c7",
+          "disposition": {
+            "category": "genuine_fixture_gap",
+            "reason": "Malformed captured setup inputs/references must be rejected by the public parser as well as the host loader. The witness also preserves a valid canonical v2 request.",
+            "witness": "stored_v2_context_rejects_forged_binding_and_reference_metadata",
+            "actual_mutant_recheck": false,
+            "witness_status": "passed on 521454f2"
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:171:17: replace || with && in WritingSnapshot::validate",
+          "outcome": "MissedMutant",
+          "build_seconds": 6.670829916,
+          "test_seconds": 1.9354605409999999,
+          "raw_log_sha256": "06e33d6627d3d3c52b3174035f042cd393eb48f9db29bc96f2969c32c5208621",
+          "raw_diff_sha256": "f0608f25aabaa00420b9055fd63d3cd2b9cb4a5aaf70495b825cd9dec16efd70",
+          "disposition": {
+            "category": "genuine_fixture_gap",
+            "reason": "Malformed captured setup inputs/references must be rejected by the public parser as well as the host loader. The witness also preserves a valid canonical v2 request.",
+            "witness": "stored_v2_context_rejects_forged_binding_and_reference_metadata",
+            "actual_mutant_recheck": false,
+            "witness_status": "passed on 521454f2"
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:171:44: replace != with == in WritingSnapshot::validate",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.716971125,
+          "test_seconds": 0.840945708,
+          "raw_log_sha256": "2cb141676db7a0c18fd31891c00ec5cbe1ef0bcc0d3ab4d62c7fb19315fb73cd",
+          "raw_diff_sha256": "65a126a944e1c35d250eca51ca611cc4eb5323205c28c8bea44632ddb7fd3450",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:172:40: replace == with != in WritingSnapshot::validate",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.666357041,
+          "test_seconds": 0.7248505,
+          "raw_log_sha256": "979d184c83722a59af88e8d3c329fcd0363e202a6064bf1c5f5cf53202932a7e",
+          "raw_diff_sha256": "07c919eeea0ee8f0ce95318c89deb603dfb82765dc252943fec7b9c0d07a4803",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:173:20: delete ! in WritingSnapshot::validate",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.596708583,
+          "test_seconds": 0.692933959,
+          "raw_log_sha256": "1f4c5d1e358f1932852c0115dc2fd48120d68eb0780db61ad936e4d92049f5a3",
+          "raw_diff_sha256": "f9478e72777402590af9fcc2a568312344415296c376f21d1b38fce71d383a18",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:179:25: replace || with && in WritingSnapshot::validate",
+          "outcome": "MissedMutant",
+          "build_seconds": 6.760568084,
+          "test_seconds": 1.8808758330000002,
+          "raw_log_sha256": "0decfbd88d3be32c3b340efb935f86cb2ac06cde877cb7e4d46d1fe97cba9c06",
+          "raw_diff_sha256": "6a29d7d048d4c93fc9a5ed5abf0acd41422cba1f364a25fa18e2255aff5e6522",
+          "disposition": {
+            "category": "genuine_fixture_gap",
+            "reason": "Malformed captured setup inputs/references must be rejected by the public parser as well as the host loader. The witness also preserves a valid canonical v2 request.",
+            "witness": "stored_v2_context_rejects_forged_binding_and_reference_metadata",
+            "actual_mutant_recheck": false,
+            "witness_status": "passed on 521454f2"
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:178:25: replace || with && in WritingSnapshot::validate",
+          "outcome": "MissedMutant",
+          "build_seconds": 7.116583583,
+          "test_seconds": 1.945999375,
+          "raw_log_sha256": "5077c465c0e8f381ac5c6030c34c0a776b64d5c0f2ad2fb81b5eec4fdd7b80c9",
+          "raw_diff_sha256": "a7f893826c371614c05e44cefbf5718446df3eb8bcce3255baabc0a1a3303f57",
+          "disposition": {
+            "category": "genuine_fixture_gap",
+            "reason": "Malformed captured setup inputs/references must be rejected by the public parser as well as the host loader. The witness also preserves a valid canonical v2 request.",
+            "witness": "stored_v2_context_rejects_forged_binding_and_reference_metadata",
+            "actual_mutant_recheck": false,
+            "witness_status": "passed on 521454f2"
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:177:25: replace || with && in WritingSnapshot::validate",
+          "outcome": "MissedMutant",
+          "build_seconds": 6.751055291,
+          "test_seconds": 1.974875417,
+          "raw_log_sha256": "02202f767c421f4122ae3db4b9c0f816033a47122c01059d25a475a7a74ef6a2",
+          "raw_diff_sha256": "32f899583f62199abb2b16f2f29d2a1a62398fd8df0a64ce8e699e1c729d53bc",
+          "disposition": {
+            "category": "genuine_fixture_gap",
+            "reason": "Malformed captured setup inputs/references must be rejected by the public parser as well as the host loader. The witness also preserves a valid canonical v2 request.",
+            "witness": "stored_v2_context_rejects_forged_binding_and_reference_metadata",
+            "actual_mutant_recheck": false,
+            "witness_status": "passed on 521454f2"
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:176:31: replace == with != in WritingSnapshot::validate",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.645490458,
+          "test_seconds": 1.173097625,
+          "raw_log_sha256": "8f1767a4f00866029dcb6dfadd782d5a2e71d86dd4e8afdffd489c1fe1a5e80f",
+          "raw_diff_sha256": "cd79293b5a7fe3bb34d972492934a48cc75ab323d8819d4e3e4266a79bbac1b7",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:178:35: replace == with != in WritingSnapshot::validate",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.73495325,
+          "test_seconds": 1.191648917,
+          "raw_log_sha256": "b4ea989d6d3c8a2e3ad07f5cd99b3968c83f3e18c719b6a47b88f733c21ab5f4",
+          "raw_diff_sha256": "a0e9e9e36e7127a1e97a58611239e2f982865989a1e5c0a2dfc02906ddd63262",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:179:28: delete ! in WritingSnapshot::validate",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.736541334,
+          "test_seconds": 1.155028292,
+          "raw_log_sha256": "80c166fe774a27dac9520cdc334524c899e9d3d0b8898444ea6ae2c8920910e4",
+          "raw_diff_sha256": "f7445122b42462f1fcd25be952a2e70297592bafa5cffd249ae6332101f749ff",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:189:9: replace WritingSnapshot::message_text -> Result<String> with Ok(String::new())",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.785220833,
+          "test_seconds": 0.514294292,
+          "raw_log_sha256": "5e247282d5b30d5cab58dd2c469caf854e2b97e33f8b030dcd72ad98b0f9e993",
+          "raw_diff_sha256": "11038986351a4f11cccb5de7b073fb2c8441c400f80255e77abe3b8d45ba9881",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:189:9: replace WritingSnapshot::message_text -> Result<String> with Ok(\"xyzzy\".into())",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.716711917,
+          "test_seconds": 0.573771,
+          "raw_log_sha256": "f1e786b53ba87ebbb46718ce3e2ee0996b0dc7ff931dcda010b75138bf25158d",
+          "raw_diff_sha256": "95f4b04cda640b62903f017914e9c60ac6db93dec0c107eb68eb93824a3e38b8",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:202:9: replace WritingSnapshot::from_message -> Result<Self> with Ok(Default::default())",
+          "outcome": "Unviable",
+          "build_seconds": 1.014882833,
+          "test_seconds": 0,
+          "raw_log_sha256": "c6744911623787614ad59997ff7f6eb532f58352c1714d8d6d505fbb08c592d0",
+          "raw_diff_sha256": "16dd88f2192a78636c97fdd8868ee07143cbc6c479dff0d728f773ebb102111b",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict.",
+          "compile_errors": [
+            "error[E0277]: the trait bound `writing::WritingSnapshot: Default` is not satisfied",
+            "error: could not compile `brn-threads-core` (lib) due to 1 previous error"
+          ]
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:220:11: replace || with && in WritingSnapshot::from_message",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.712031125,
+          "test_seconds": 2.094463333,
+          "raw_log_sha256": "8d049da535af667d8d1b282c4a9e8bda9e166cdee1aaa9867f7caf717c7d57d7",
+          "raw_diff_sha256": "81e414a303e4d7910e369ca97cf23f9b40b6196f8937e637ecaf79cf7cc95c24",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:217:12: delete ! in WritingSnapshot::from_message",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.721517792,
+          "test_seconds": 0.729048959,
+          "raw_log_sha256": "4329c97d4781ebd17a2ee50508dbae6d118338190b023c902d8e721c8cb17d8e",
+          "raw_diff_sha256": "d93a189b0e43e50e4f6f03a2196b00b655ff41483c1182f45546bcf3a4710be5",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:220:48: replace != with == in WritingSnapshot::from_message",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.760040458,
+          "test_seconds": 0.6828455,
+          "raw_log_sha256": "2de30d71cd219163ea56088f8aedbe2d2c2061e160affb7689d6e7b1f8008105",
+          "raw_diff_sha256": "f7570d6529f6b0be852270f9737c1b8ac3879b421f251036614b87d064147ad5",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:233:9: replace WritingSnapshot::validate_saved_setup -> Result<()> with Ok(())",
+          "outcome": "MissedMutant",
+          "build_seconds": 6.699088333,
+          "test_seconds": 2.002317334,
+          "raw_log_sha256": "cd83d8848d1ccc9e325e676f3e4534e22c9288f6118aecf2545a1f97659e4720",
+          "raw_diff_sha256": "11f45b8d3e4d61943288002efcad0b05afc25250ac651fd1206996e6b8d26886",
+          "disposition": {
+            "category": "genuine_fixture_gap",
+            "reason": "Well-formed metadata must still match saved setup Note/scope/brief, reference purposes/order and exact existing Note revisions. The table separates parser failures from canonical-loader failures.",
+            "witness": "stored_v2_context_rejects_forged_binding_and_reference_metadata",
+            "actual_mutant_recheck": false,
+            "witness_status": "passed on 521454f2"
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:245:13: replace || with && in WritingSnapshot::validate_saved_setup",
+          "outcome": "MissedMutant",
+          "build_seconds": 6.83183225,
+          "test_seconds": 2.102423958,
+          "raw_log_sha256": "c09793dfa0f390eb91e4a9a0ce79e90ce9942a1f119dc94ac64bab1bf4cd8369",
+          "raw_diff_sha256": "53539ddf1285d31ed601cdf0f586107416e8f81031f79b8d4055cad03ef3a14c",
+          "disposition": {
+            "category": "genuine_fixture_gap",
+            "reason": "Well-formed metadata must still match saved setup Note/scope/brief, reference purposes/order and exact existing Note revisions. The table separates parser failures from canonical-loader failures.",
+            "witness": "stored_v2_context_rejects_forged_binding_and_reference_metadata",
+            "actual_mutant_recheck": false,
+            "witness_status": "passed on 521454f2"
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:244:13: replace || with && in WritingSnapshot::validate_saved_setup",
+          "outcome": "MissedMutant",
+          "build_seconds": 6.776667208,
+          "test_seconds": 1.97214025,
+          "raw_log_sha256": "6990e52d582cb36202f88e80b114164b32c1997baba4a3e6c0c7078ef3641662",
+          "raw_diff_sha256": "4376ebdd9bf664ca842adee8962dab69c21b35fdec9692f5f92c43290c82b271",
+          "disposition": {
+            "category": "genuine_fixture_gap",
+            "reason": "Well-formed metadata must still match saved setup Note/scope/brief, reference purposes/order and exact existing Note revisions. The table separates parser failures from canonical-loader failures.",
+            "witness": "stored_v2_context_rejects_forged_binding_and_reference_metadata",
+            "actual_mutant_recheck": false,
+            "witness_status": "passed on 521454f2"
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:243:13: replace || with && in WritingSnapshot::validate_saved_setup",
+          "outcome": "MissedMutant",
+          "build_seconds": 6.691771167,
+          "test_seconds": 1.7815749589999998,
+          "raw_log_sha256": "79dab3111f5b3cae80ad1582059d6d95dd02137c5e0ae2d7ebdcb218b3d004d5",
+          "raw_diff_sha256": "5a7f122cbefc04095939855574273335b54004736da7a020e8e848c212915b1d",
+          "disposition": {
+            "category": "genuine_fixture_gap",
+            "reason": "Well-formed metadata must still match saved setup Note/scope/brief, reference purposes/order and exact existing Note revisions. The table separates parser failures from canonical-loader failures.",
+            "witness": "stored_v2_context_rejects_forged_binding_and_reference_metadata",
+            "actual_mutant_recheck": false,
+            "witness_status": "passed on 521454f2"
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:243:27: replace != with == in WritingSnapshot::validate_saved_setup",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.654881334,
+          "test_seconds": 0.684090958,
+          "raw_log_sha256": "9ff3aebc370a1349364f71cdd93f8763491b9238d4ecfc63955450add3ba56fa",
+          "raw_diff_sha256": "c097d6bc144cfbf492b807bd33c4d2e5ab69cdc5b5bb28906c8ac47db96a89de",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:244:27: replace != with == in WritingSnapshot::validate_saved_setup",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.836243209,
+          "test_seconds": 0.693161458,
+          "raw_log_sha256": "f71c0dcd452afceef17a8f90cf5a7b4d51c87956c79de83efc68b4a4617d1a91",
+          "raw_diff_sha256": "f1e27a81c7ad4b976bf5162d939b6635740bb5db87719fa37b7860cbcf6fd1fd",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:245:28: replace != with == in WritingSnapshot::validate_saved_setup",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.775688542,
+          "test_seconds": 0.684236625,
+          "raw_log_sha256": "94d9467a6d92ae5f6f4d0788c5799cfcbff6dbe509b727ce89192390c31007cf",
+          "raw_diff_sha256": "32e605cde2437c275f9afd18c9c5436220fc963a6093fc3245775c408d248b96",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:255:56: replace && with || in WritingSnapshot::validate_saved_setup",
+          "outcome": "MissedMutant",
+          "build_seconds": 6.7146387910000005,
+          "test_seconds": 1.759662667,
+          "raw_log_sha256": "acf014c8de9b77e2774cd54ea1a7971de7c75c3f77a2a43bc400101acb5aa3a0",
+          "raw_diff_sha256": "8e8e7edbb02726e18f81c9b7b610c72ef373001aed690d8d9ffee0d99a7a22b7",
+          "disposition": {
+            "category": "genuine_fixture_gap",
+            "reason": "Well-formed metadata must still match saved setup Note/scope/brief, reference purposes/order and exact existing Note revisions. The table separates parser failures from canonical-loader failures.",
+            "witness": "stored_v2_context_rejects_forged_binding_and_reference_metadata",
+            "actual_mutant_recheck": false,
+            "witness_status": "passed on 521454f2"
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:255:38: replace == with != in WritingSnapshot::validate_saved_setup",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.690452916,
+          "test_seconds": 1.145857375,
+          "raw_log_sha256": "7297059bb70f307ef964a512474a168dc058ed3cda16872d70abbaab2a2b10c6",
+          "raw_diff_sha256": "107849915328f14fe787de1889ad511419db1814a63d747172406416308b5475",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:255:69: replace == with != in WritingSnapshot::validate_saved_setup",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.704708375,
+          "test_seconds": 1.193380084,
+          "raw_log_sha256": "5f35e6d338278885b8bc5048959861355e274adb2b995ee3250683cac1087a43",
+          "raw_diff_sha256": "f4df67b187c2450a760e0d5b23e1c7153f43f02296f0f2a0c55174881d00fc09",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:261:22: replace += with -= in WritingSnapshot::validate_saved_setup",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.700302541,
+          "test_seconds": 1.244343541,
+          "raw_log_sha256": "bd4b0684f08412c2968ceca56eef5775bbcf2f3ba9f7b9d6957e410a48ccbeb8",
+          "raw_diff_sha256": "cdf2082d066e46bf2d0e3e2bb54d0004237ad101cb1975dc147af1feae6c164a",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:261:22: replace += with *= in WritingSnapshot::validate_saved_setup",
+          "outcome": "MissedMutant",
+          "build_seconds": 6.622109,
+          "test_seconds": 2.059653417,
+          "raw_log_sha256": "ce54f34a6d1a984aedc682ad3dec71473d0c7eb18a28292f758e0c462dd27965",
+          "raw_diff_sha256": "f4f0e72539cc90874e4136991bf1792cabf495383a37bf6e374cd28721ae6355",
+          "disposition": {
+            "category": "genuine_fixture_gap",
+            "reason": "Well-formed metadata must still match saved setup Note/scope/brief, reference purposes/order and exact existing Note revisions. The table separates parser failures from canonical-loader failures.",
+            "witness": "stored_v2_context_rejects_forged_binding_and_reference_metadata",
+            "actual_mutant_recheck": false,
+            "witness_status": "passed on 521454f2"
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:261:32: replace + with - in WritingSnapshot::validate_saved_setup",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.802856,
+          "test_seconds": 1.250631625,
+          "raw_log_sha256": "8161a2e6e23e7928823db3866ace6c1eb597457f2a295328764675a11ecca3db",
+          "raw_diff_sha256": "f220ce6e9f637cd596f86dddb8746e5be7c0a5a1ea3c11fea761fefb54a58b4c",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:261:32: replace + with * in WritingSnapshot::validate_saved_setup",
+          "outcome": "MissedMutant",
+          "build_seconds": 6.707921916,
+          "test_seconds": 1.689316459,
+          "raw_log_sha256": "58148544e5a597f867c7d592132a22c84358f9638eff794b9a5c9e17a83ce1c6",
+          "raw_diff_sha256": "86774b9f3fcb07d9440055667e627e50be1f61f8eed2326d2bad1d74f3c29427",
+          "disposition": {
+            "category": "equivalent_on_validated_request_domain",
+            "reason": "offset*1 under-advances by exactly one, leaving only the just-matched reference in the next search. Validated captures have unique reference IDs, so that reference cannot match the next one. Direct invalid typed snapshots can differ; real hosts first validate via from_message/message_text, whose duplicate-ID refusal is covered.",
+            "witness": null,
+            "actual_mutant_recheck": false,
+            "witness_status": null
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:262:16: delete ! in WritingSnapshot::validate_saved_setup",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.743055959,
+          "test_seconds": 1.204517375,
+          "raw_log_sha256": "610034222c096e509cdee4b87ecf6a11fdd7cf3d14c196618e3878b3e950241d",
+          "raw_diff_sha256": "68a8f9ebdce57114e732a1ebe482d45bcfd45903e3bfba80915b3685cc52b2a9",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:279:9: replace WritingSnapshot::current_inputs -> Vec<RevisionInput> with vec![]",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.758202708,
+          "test_seconds": 0.7309235,
+          "raw_log_sha256": "0c815da9fb6be9a19a30718111975bed0ef65e31205c8034ca328dbef4c6cc55",
+          "raw_diff_sha256": "45f4f4275b5863538740253947e6b7c203c765fbaaec2268d1f10e6c3ca7c02b",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:279:9: replace WritingSnapshot::current_inputs -> Vec<RevisionInput> with vec![Default::default()]",
+          "outcome": "Unviable",
+          "build_seconds": 0.961521166,
+          "test_seconds": 0,
+          "raw_log_sha256": "992db20a3d63eb7dfa86cf189cae45948d1e60b9e8b02abff45e4e82ed002ae0",
+          "raw_diff_sha256": "8a52012ede829ea222601543063e928a388ae1367016b9c575a24c11470a9a0c",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict.",
+          "compile_errors": [
+            "error[E0277]: the trait bound `types::RevisionInput: Default` is not satisfied",
+            "error: could not compile `brn-threads-core` (lib) due to 1 previous error"
+          ]
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:340:5: replace validate_setup_writes -> Result<()> with Ok(())",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.695742125,
+          "test_seconds": 1.224870583,
+          "raw_log_sha256": "bdc6c753ca27483c0dcbc99a599c0003aa76bf8613e42b26bf0af81930432f21",
+          "raw_diff_sha256": "46121e0f346f008bb669429a8f5af3364173f1b6264a5fe40993f995fec9aa35",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:340:8: delete ! in validate_setup_writes",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.672648916,
+          "test_seconds": 1.192942584,
+          "raw_log_sha256": "690420bd7a9fe29b86b5bd472cae154c94d9957c6969b9e70ccf36985d365c03",
+          "raw_diff_sha256": "128fe1162e2198d7819399f8252ebab098d1652becf3e758c713ada283f45038",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:362:44: replace && with || in validate_setup_writes",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.765366,
+          "test_seconds": 1.199901459,
+          "raw_log_sha256": "e02949acf492c9d184384d7ead4622d58fc32a031aac2c4f86ae81c999552e87",
+          "raw_diff_sha256": "99434b4297059d758302dc655088818b4e9ff917b53431fd0085dfa8e6fef43f",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:362:32: replace == with != in validate_setup_writes",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.748325959,
+          "test_seconds": 1.4468121250000001,
+          "raw_log_sha256": "441610259b0861abf9e160e9bffaf0bd8508fd8e5620847afcfa421c8b72685c",
+          "raw_diff_sha256": "98ab242005e81064221adfcfd0f6b83c9a3639fabcc1aadbd1d386449167cd7a",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:366:50: replace == with != in validate_setup_writes",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.710255541,
+          "test_seconds": 1.168628584,
+          "raw_log_sha256": "72c354150b9b072930803cc2e044175ddb21af980069774078b9ae87eedb875d",
+          "raw_diff_sha256": "5f442a80c1fb0ba7c5c7ddad440a139c38b8465403138d708605cbd89ef6f716",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:374:28: replace == with != in validate_setup_writes",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.709145375,
+          "test_seconds": 1.914005167,
+          "raw_log_sha256": "68f9f671ac523cb4e5d4b90ddf3eac6ed11ee8127640ff7df9c8c849fd32433c",
+          "raw_diff_sha256": "a411298a680d7d765560b01d14ea16da01141b62a69e336af1f37de57104cfda",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:376:17: delete match arm RecordData::WritingSetup(s) in validate_setup_writes",
+          "outcome": "Unviable",
+          "build_seconds": 0.977095625,
+          "test_seconds": 0,
+          "raw_log_sha256": "a78f67f63fa9a220c637e0a329dafe1d8eda36a694338d154fac23550b8334a3",
+          "raw_diff_sha256": "635e19d0df21473c2ed8bb5a5b5686f6c8e73551a96e98d601cf8a74f84cac61",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict.",
+          "compile_errors": [
+            "error[E0282]: type annotations needed",
+            "error: could not compile `brn-threads-core` (lib) due to 1 previous error"
+          ]
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:379:57: replace || with && in validate_setup_writes",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.705216125,
+          "test_seconds": 1.898071458,
+          "raw_log_sha256": "8ddcb577a3915ebcaecfc8e957dde7e44baaddc9a5497363d2d1e500559bf33b",
+          "raw_diff_sha256": "d19fe820df1b9d1c6b5c0cc866442a8d76c4109f73e6703e4671a058bf4a9af6",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:379:43: replace != with == in validate_setup_writes",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.699050041,
+          "test_seconds": 1.206095208,
+          "raw_log_sha256": "76b048cd4c1bfdaf12db57c5f67eacf1b6dccca882b73881a7d26df71746e110",
+          "raw_diff_sha256": "d9151d373e9ff47cf2cbbe8d3dd452ee8ded5410698dc1a1e6c756ed1535a77d",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:379:69: replace != with == in validate_setup_writes",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.889901792,
+          "test_seconds": 1.154987167,
+          "raw_log_sha256": "f35d3051aee21dbfc64d70693532017168856d90be1952045745901214e13f89",
+          "raw_diff_sha256": "1da777ab10b3ec3a6cefe57ea29cf9688c65426d58971519cf4137a90e29076e",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:387:63: replace != with == in validate_setup_writes",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.705746958,
+          "test_seconds": 0.724804333,
+          "raw_log_sha256": "e19bdec86ba59a614e84b7fe4f703709ec21865268f9cc8f8718ad7bc0c0be57",
+          "raw_diff_sha256": "90d728851643511ec4ebbcbb4fa0b383b4b32f578073e623894c96cd83c17c49",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:394:27: replace && with || in validate_setup_writes",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.754064833,
+          "test_seconds": 0.691146625,
+          "raw_log_sha256": "d348b4571bd067343209cd595bfb13eb423ef8e20c441f04ff8f08e6fd1eddba",
+          "raw_diff_sha256": "41ae62f673020f3a9cc9db4c32998732a2d1f4c7ac456fead5ad0ab4d2c4f621",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:394:64: replace != with == in validate_setup_writes",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.873196583,
+          "test_seconds": 0.793521625,
+          "raw_log_sha256": "cda1d825a6c34b2fa4a8b75af22f7fe0f9eb9302f8ec7962820fc0319a38ab38",
+          "raw_diff_sha256": "ba2acb4996b213f005614d0f18352d38b037333864d1453ffe0aae7ad0728f5f",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:404:21: replace && with || in validate_setup_writes",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.700404708,
+          "test_seconds": 1.288242916,
+          "raw_log_sha256": "fabf5a0ba7963a36c21cf4f4eeecfd59d9b7f2f0bb186f200b337b005aaca694",
+          "raw_diff_sha256": "a3c6a8c69487379ec9a3287a537eb6be674b5a291996c40fac6c96b4d3a52e81",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:403:21: replace && with || in validate_setup_writes",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.67707975,
+          "test_seconds": 1.3712494579999999,
+          "raw_log_sha256": "bac88a67252ab8af7097fb5f7b9c9caea4b2d4f49bb06d11acee1f87c98ba5af",
+          "raw_diff_sha256": "9b726ea6df9fae32fbaf47a1b4100a8dda5987d008b7f5cda80a1875433ba018",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:402:21: replace && with || in validate_setup_writes",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.675369917,
+          "test_seconds": 1.238372792,
+          "raw_log_sha256": "868c7bf3a416b764905ce5a7c65259bfdccfd0aecfad3251be8eaef910ba00d9",
+          "raw_diff_sha256": "2aea044099bf0a15d641e8639ec5b6e648e192df867ebed63fd49572449da814",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:401:22: replace == with != in validate_setup_writes",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.74495,
+          "test_seconds": 0.680617625,
+          "raw_log_sha256": "2a415c3e1673cdb7b2430be2c01006d4d12f326d8b5f6c7d2a9ee0abc3335d6a",
+          "raw_diff_sha256": "906199a97589aedf1b0b07f4084b986586841cad3b48ca5b0914d0d4b4ea64f6",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:402:24: delete ! in validate_setup_writes",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.766368,
+          "test_seconds": 0.68702975,
+          "raw_log_sha256": "aa74e0dc038aff422c9ce02a46fbb5e0f996b6ea364eb1eeaefea70bed6bafc5",
+          "raw_diff_sha256": "7cc5d492479ea8fc704a6743f6fab6889073ebc90ed4901e569cd6847667d0e9",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:407:12: delete ! in validate_setup_writes",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.682796667,
+          "test_seconds": 0.68889825,
+          "raw_log_sha256": "f380829adae913bdae718f157043e56a308fca9d5466af3ecd2ebed336794c86",
+          "raw_diff_sha256": "1a80ec6e9718133ffe704da5056cfa0a0fde8a2b0222da349c424782c7821a13",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:416:17: replace && with || in validate_setup_writes",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.779278,
+          "test_seconds": 1.192229708,
+          "raw_log_sha256": "1a111b880d15dad777b4434d4d430457dcc3ba6e116db08fe9b0f8d5a0ecf143",
+          "raw_diff_sha256": "f28159ca76606909ad63144816071eb855a5247a3a8fe14f2bc60e4c332b03aa",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:415:16: delete ! in validate_setup_writes",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.772359709,
+          "test_seconds": 1.219317417,
+          "raw_log_sha256": "1b03b4cac43f93a1c92871b77ed2b018e4c04d644aa0ab88ccd7a6d15507db2e",
+          "raw_diff_sha256": "952211606d19c08b875f1b4a94a4d6037388588ce013a852f4ed6a29d8afbd06",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:416:20: delete ! in validate_setup_writes",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.696785875,
+          "test_seconds": 1.2025885,
+          "raw_log_sha256": "c52e1373909ffcbdaf5dfb07ba5284e8a09a540f81565922a7966c93bed0a69f",
+          "raw_diff_sha256": "5e1f36b031225a097e6d2a3614837c565a754b76f6ba2c91450f885085a66559",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-core/src/writing.rs:416:80: replace == with != in validate_setup_writes",
+          "outcome": "CaughtMutant",
+          "build_seconds": 6.691769166,
+          "test_seconds": 1.34882975,
+          "raw_log_sha256": "fc804ac9782e32d58a954ddd4df1a5de2a5d246e8f1a8c0827a064c566993a26",
+          "raw_diff_sha256": "9bf523d89b27abf254f69ca7c9d6bc8050e376cfe281dfbf5244b3f2b1a827b4",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        }
+      ]
+    },
+    {
+      "lane": "app",
+      "receipt": {
+        "command": [
+          "cargo",
+          "mutants",
+          "-p",
+          "brn-threads-app",
+          "--test-package",
+          "brn-threads-core",
+          "--test-package",
+          "brn-threads-app",
+          "--in-diff",
+          "/private/tmp/brn-cw1-20261016-evidence/corrected/guards.diff",
+          "--output",
+          "/private/tmp/brn-cw1-20261016-evidence/corrected/mutation-app",
+          "--jobs",
+          "1",
+          "--timeout",
+          "60",
+          "--build-timeout",
+          "120",
+          "--cargo-arg=--locked",
+          "--cargo-arg=--offline",
+          "--cargo-arg=--test=writing_setup",
+          "--cargo-arg=--test=writing",
+          "--file",
+          "crates/brn-threads-app/src/writing.rs"
+        ],
+        "exit": 2,
+        "seconds": 131.284,
+        "timebox_reached": false
+      },
+      "counts": {
+        "total_mutants": 39,
+        "caught": 18,
+        "missed": 5,
+        "timeout": 0,
+        "unviable": 16
+      },
+      "raw_outcomes_sha256": "fe378213bfda480f28fc7f25ecab49f12488ff7f8a26cce4de0aae22565a88d6",
+      "outcomes": [
+        {
+          "name": "crates/brn-threads-app/src/writing.rs:43:9: replace Workspace::writing_setup -> AppResult<WritingSetupView> with AppResult::new()",
+          "outcome": "Unviable",
+          "build_seconds": 1.068014667,
+          "test_seconds": 0,
+          "raw_log_sha256": "6131306ba6c5ded906d5045e6334d063b20f5f6f8bec4d994f5355b9de1e6ddc",
+          "raw_diff_sha256": "39062a2bc5c1ecc5db9098bf7cd10c0ea86bc4e80c01c46e570b61b4fffb9ca7",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict.",
+          "compile_errors": [
+            "error[E0599]: the variant, associated function, or constant `new` exists for enum `Result<_, AppError>`, but its trait bounds were not satisfied",
+            "error: could not compile `brn-threads-app` (lib) due to 1 previous error"
+          ]
+        },
+        {
+          "name": "crates/brn-threads-app/src/writing.rs:43:9: replace Workspace::writing_setup -> AppResult<WritingSetupView> with AppResult::from_iter([Default::default()])",
+          "outcome": "Unviable",
+          "build_seconds": 0.669337417,
+          "test_seconds": 0,
+          "raw_log_sha256": "abf35ab651c879e99f2ed66336fa58eba0fd835fd9424ed0ab573b55100d6761",
+          "raw_diff_sha256": "7096a649d56ae72cf555b3ec05ae2defeabf0bdccb0028821764477b1219e541",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict.",
+          "compile_errors": [
+            "error[E0277]: the trait bound `Result<_, AppError>: Default` is not satisfied",
+            "error[E0277]: a value of type `WritingSetupView` cannot be built from an iterator over elements of type `_`",
+            "error: could not compile `brn-threads-app` (lib) due to 2 previous errors"
+          ]
+        },
+        {
+          "name": "crates/brn-threads-app/src/writing.rs:43:9: replace Workspace::writing_setup -> AppResult<WritingSetupView> with AppResult::new(Default::default())",
+          "outcome": "Unviable",
+          "build_seconds": 0.684352708,
+          "test_seconds": 0,
+          "raw_log_sha256": "8d081fdf615f579d76629211f19f3902d32c4fdb8ab34d0ea13a0acb691ca393",
+          "raw_diff_sha256": "e020b3bded3eaa865776578a9a8d901ac857a9a2d6a53e3af1e9d2558b285dd6",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict.",
+          "compile_errors": [
+            "error[E0599]: the variant, associated function, or constant `new` exists for enum `Result<_, AppError>`, but its trait bounds were not satisfied",
+            "error: could not compile `brn-threads-app` (lib) due to 1 previous error"
+          ]
+        },
+        {
+          "name": "crates/brn-threads-app/src/writing.rs:43:9: replace Workspace::writing_setup -> AppResult<WritingSetupView> with AppResult::from(Default::default())",
+          "outcome": "Unviable",
+          "build_seconds": 0.625923708,
+          "test_seconds": 0,
+          "raw_log_sha256": "3cd532a5b7b7d0a2bc6ff8378f2bf9dc0721bd2e5aecd2acc7c0d8eb7a55503a",
+          "raw_diff_sha256": "9223bf7495a5dcbd4438a2bf84f0537979075a497ffc6a667ebde3267ae86757",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict.",
+          "compile_errors": [
+            "error[E0277]: the trait bound `Result<WritingSetupView, AppError>: Default` is not satisfied",
+            "error: could not compile `brn-threads-app` (lib) due to 1 previous error"
+          ]
+        },
+        {
+          "name": "crates/brn-threads-app/src/writing.rs:46:12: delete ! in Workspace::writing_setup",
+          "outcome": "CaughtMutant",
+          "build_seconds": 3.3538995,
+          "test_seconds": 0.725291458,
+          "raw_log_sha256": "0fa18a9b2a7ab9d684101a40150dc8dc422c7dc539b4b6397068f002ecd9db02",
+          "raw_diff_sha256": "fbb6b9c56266cff9bf9c18a65bd0c30db7714df219f86e2470babb803b42dc1c",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-app/src/writing.rs:48:35: replace && with || in Workspace::writing_setup",
+          "outcome": "MissedMutant",
+          "build_seconds": 3.509469583,
+          "test_seconds": 2.147201583,
+          "raw_log_sha256": "5df796b447b6088dbe6216209b9c9fc64e3767ac8da96eed3fe44a274f7a42fe",
+          "raw_diff_sha256": "c73abbc02159caf461e97f98c58cf9f6cf8446fa1f84f7c5d74cc791ab42ecf9",
+          "disposition": {
+            "category": "genuine_fixture_gap",
+            "reason": "After the working link is removed in a knowledge-off Project, owner scoped setup inspection must refuse and the shared record list must omit its metadata.",
+            "witness": "project_setup_undo_fails_closed_after_conversation_move_or_working_link_removal",
+            "actual_mutant_recheck": false,
+            "witness_status": "passed on 521454f2"
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-app/src/writing.rs:48:27: replace == with != in Workspace::writing_setup",
+          "outcome": "MissedMutant",
+          "build_seconds": 3.403295083,
+          "test_seconds": 1.325728666,
+          "raw_log_sha256": "d244989a368119cca4d8d793669aeb4c89d118b39e71ebac27b56f0a920e7706",
+          "raw_diff_sha256": "5db9cadc4b773fa0e68f57f8061a1cff5101dc5c4dd99445e8eb219a9c5ebc43",
+          "disposition": {
+            "category": "genuine_fixture_gap",
+            "reason": "After the working link is removed in a knowledge-off Project, owner scoped setup inspection must refuse and the shared record list must omit its metadata.",
+            "witness": "project_setup_undo_fails_closed_after_conversation_move_or_working_link_removal",
+            "actual_mutant_recheck": false,
+            "witness_status": "passed on 521454f2"
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-app/src/writing.rs:54:55: replace && with || in Workspace::writing_setup",
+          "outcome": "CaughtMutant",
+          "build_seconds": 3.3522408329999998,
+          "test_seconds": 0.708699,
+          "raw_log_sha256": "b5384e92cd842f30aa4deb53895b7e08841458d6c703e0ca8620d518e8103b70",
+          "raw_diff_sha256": "367fa014e5847086eeb1ad463e7cd8baebfce4bf426a84a02ddc68f0b677d37e",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-app/src/writing.rs:54:43: delete ! in Workspace::writing_setup",
+          "outcome": "CaughtMutant",
+          "build_seconds": 3.47148125,
+          "test_seconds": 1.365453208,
+          "raw_log_sha256": "47753f8fe623f0d0edbfe07616bb76f21a296a87db6e9c81148e3241d9e15cd8",
+          "raw_diff_sha256": "c41adeca52e5ce760f25e29e418ff12c4f8353942dd4b0ff205e8b5239051a1b",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-app/src/writing.rs:58:17: delete match arm RecordData::WritingSetup(setup) in Workspace::writing_setup",
+          "outcome": "CaughtMutant",
+          "build_seconds": 3.379829125,
+          "test_seconds": 1.379246625,
+          "raw_log_sha256": "a72ba6e9e33f477040f9dc62f73cc0aa167887743fd6e7d7d3a1682cd76ffd8f",
+          "raw_diff_sha256": "bac53cd5da488d5101892a561aef250d11938bb7755b6ddde602fb3c47175d05",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-app/src/writing.rs:65:33: replace && with || in Workspace::writing_setup",
+          "outcome": "CaughtMutant",
+          "build_seconds": 3.527039708,
+          "test_seconds": 1.189124208,
+          "raw_log_sha256": "479e22c34062697ebf7ed38152d29670726fad92e13753e9f76fb955fed9b612",
+          "raw_diff_sha256": "0903080360ddf86c9dd7d51afdd5d0fa3fedf37dce41c2184cebe80cb4f39fd6",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-app/src/writing.rs:64:33: replace && with || in Workspace::writing_setup",
+          "outcome": "CaughtMutant",
+          "build_seconds": 3.458022,
+          "test_seconds": 1.446187542,
+          "raw_log_sha256": "23225f6b6ce9687ed24c35e90e933f3be9a94e8d1f60580e3d27ba595083c65e",
+          "raw_diff_sha256": "ae90d768a65519d60c3cfb04a9598f5a7757fab69c377be8a8a2616cfb15c522",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-app/src/writing.rs:63:52: replace && with || in Workspace::writing_setup",
+          "outcome": "CaughtMutant",
+          "build_seconds": 3.5244135,
+          "test_seconds": 1.186024459,
+          "raw_log_sha256": "a398cc9f09f8487a58d6972b5efde46b8393aa88a9b47d827a06618993fd6090",
+          "raw_diff_sha256": "af994af00060b02a82479a17d3e566416500861fe54cdaf5e2f5912ea692a670",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-app/src/writing.rs:63:34: replace == with != in Workspace::writing_setup",
+          "outcome": "CaughtMutant",
+          "build_seconds": 3.407339916,
+          "test_seconds": 1.216392833,
+          "raw_log_sha256": "47bae508c1f61624e284a9a0b5514cf4032cd20218ababcdeea8bbd6306a37b4",
+          "raw_diff_sha256": "b04079c5d9936ac8480ebc6511d06517bc90fa84658dc22ef4829caf21adaafd",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-app/src/writing.rs:63:55: delete ! in Workspace::writing_setup",
+          "outcome": "CaughtMutant",
+          "build_seconds": 3.482040917,
+          "test_seconds": 1.2585312499999999,
+          "raw_log_sha256": "75bab9dee455e9a517eeaaf85c13c00fbc0b0494b4d2beb19e531b1aae865dd7",
+          "raw_diff_sha256": "8d3cbf1458c855c033c92f208b148f71ec8a58b81d651b23ab4160c9dab78506",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-app/src/writing.rs:83:9: replace Workspace::set_writing_setup -> AppResult<Receipt> with AppResult::new()",
+          "outcome": "Unviable",
+          "build_seconds": 0.643983083,
+          "test_seconds": 0,
+          "raw_log_sha256": "d92918b33d8abb32a5f7390610c44de99f5378d1f875f1ea33a168bc7dcf8ab5",
+          "raw_diff_sha256": "9ecd3ab29beadacb290044d06574361239005374eb51d4b0fdadde4794ad73ab",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict.",
+          "compile_errors": [
+            "error[E0599]: the variant, associated function, or constant `new` exists for enum `Result<_, AppError>`, but its trait bounds were not satisfied",
+            "error: could not compile `brn-threads-app` (lib) due to 1 previous error"
+          ]
+        },
+        {
+          "name": "crates/brn-threads-app/src/writing.rs:83:9: replace Workspace::set_writing_setup -> AppResult<Receipt> with AppResult::from_iter([Default::default()])",
+          "outcome": "Unviable",
+          "build_seconds": 0.628879375,
+          "test_seconds": 0,
+          "raw_log_sha256": "f97425c18d602605cc9667bfdf1e44ee3fb0954245519bc0c425079317b25b20",
+          "raw_diff_sha256": "5390fc1f02d1afac434d733a43dec2e139fcfe3821ff8943f6c3439d253907e4",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict.",
+          "compile_errors": [
+            "error[E0277]: the trait bound `Result<_, AppError>: Default` is not satisfied",
+            "error[E0277]: a value of type `brn_threads_core::Receipt` cannot be built from an iterator over elements of type `_`",
+            "error: could not compile `brn-threads-app` (lib) due to 2 previous errors"
+          ]
+        },
+        {
+          "name": "crates/brn-threads-app/src/writing.rs:83:9: replace Workspace::set_writing_setup -> AppResult<Receipt> with AppResult::new(Default::default())",
+          "outcome": "Unviable",
+          "build_seconds": 0.674171167,
+          "test_seconds": 0,
+          "raw_log_sha256": "01b8de5136b90d850b43f81fbf3b8284af049379c47160fd30d5d1944a009701",
+          "raw_diff_sha256": "7b253b425919793bfd707107d223be3c37d0717ec17b8217b4a0f3ab2810be74",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict.",
+          "compile_errors": [
+            "error[E0599]: the variant, associated function, or constant `new` exists for enum `Result<_, AppError>`, but its trait bounds were not satisfied",
+            "error: could not compile `brn-threads-app` (lib) due to 1 previous error"
+          ]
+        },
+        {
+          "name": "crates/brn-threads-app/src/writing.rs:83:9: replace Workspace::set_writing_setup -> AppResult<Receipt> with AppResult::from(Default::default())",
+          "outcome": "Unviable",
+          "build_seconds": 0.635948417,
+          "test_seconds": 0,
+          "raw_log_sha256": "a59dc55e217c769491808c3a20673c8843b72dc682350a3021bd61fe486d13fa",
+          "raw_diff_sha256": "28e11476b2834685dcf95bf233ef861147144b5b29e7b31ba30b3bc44bc50d01",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict.",
+          "compile_errors": [
+            "error[E0277]: the trait bound `Result<brn_threads_core::Receipt, AppError>: Default` is not satisfied",
+            "error: could not compile `brn-threads-app` (lib) due to 1 previous error"
+          ]
+        },
+        {
+          "name": "crates/brn-threads-app/src/writing.rs:91:38: replace && with || in Workspace::set_writing_setup",
+          "outcome": "CaughtMutant",
+          "build_seconds": 3.5938095,
+          "test_seconds": 1.079847542,
+          "raw_log_sha256": "af0b3d6c0288f10b397852662b59c5528007b2439eb279dd0bd8fa61e261fbcf",
+          "raw_diff_sha256": "6a8b8983440170f244babd23f25548126081b6ed0cccd111459d3351d50f7e63",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-app/src/writing.rs:91:32: replace == with != in Workspace::set_writing_setup",
+          "outcome": "CaughtMutant",
+          "build_seconds": 3.3945722910000002,
+          "test_seconds": 1.084471417,
+          "raw_log_sha256": "d4b86dcda678d7dad8611be14b5a738e89a04dbaff0bb39afe1c712e9ff1bff8",
+          "raw_diff_sha256": "ad3b5691fa9293af4d0614dd3f473681ce155fd7f6ac5d5941064e3cef542195",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-app/src/writing.rs:99:63: replace != with == in Workspace::set_writing_setup",
+          "outcome": "CaughtMutant",
+          "build_seconds": 3.407134125,
+          "test_seconds": 0.94986825,
+          "raw_log_sha256": "7b1be29a7c4d88403b1b4dcdccec95cf388d17382e670f4c72306aa413785d2b",
+          "raw_diff_sha256": "8c3462ae23665a1152471c6d6d4d5d8eb385752601bb890a7c89c2973db7d173",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-app/src/writing.rs:99:31: delete ! in Workspace::set_writing_setup",
+          "outcome": "CaughtMutant",
+          "build_seconds": 3.45260025,
+          "test_seconds": 1.114516375,
+          "raw_log_sha256": "98d864bd1c4993555f2eb3b25abe54f14e0048be3d753ed4c1c79ed766d5865f",
+          "raw_diff_sha256": "2b443bcf6d3a0126a2f9b97d7409297997451f0dd77248f73717d7115e86895d",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-app/src/writing.rs:309:9: replace Workspace::writing_request -> AppResult<WritingSnapshot> with AppResult::new()",
+          "outcome": "Unviable",
+          "build_seconds": 0.680583542,
+          "test_seconds": 0,
+          "raw_log_sha256": "5af924fe07a5c64c43c5552c7093673c04e917d85c8cff6ab32eaf5f9029a41f",
+          "raw_diff_sha256": "73a4accbabdb5de49ea31e75dc93a718d9ed9befddb4d142ede18d732723065e",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict.",
+          "compile_errors": [
+            "error[E0599]: the variant, associated function, or constant `new` exists for enum `Result<_, AppError>`, but its trait bounds were not satisfied",
+            "error: could not compile `brn-threads-app` (lib) due to 1 previous error"
+          ]
+        },
+        {
+          "name": "crates/brn-threads-app/src/writing.rs:309:9: replace Workspace::writing_request -> AppResult<WritingSnapshot> with AppResult::from_iter([Default::default()])",
+          "outcome": "Unviable",
+          "build_seconds": 0.668713292,
+          "test_seconds": 0,
+          "raw_log_sha256": "5d618c3dbbf8102741bcc07d81ef7e3e296b47981b0582dd0d8db92f8e4aacb6",
+          "raw_diff_sha256": "3dc70c5bb02b7e66a71909bde4cb7d67c6bac33899477da954325b6f184e6bc2",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict.",
+          "compile_errors": [
+            "error[E0277]: the trait bound `Result<_, AppError>: Default` is not satisfied",
+            "error[E0277]: a value of type `brn_threads_core::WritingSnapshot` cannot be built from an iterator over elements of type `_`",
+            "error: could not compile `brn-threads-app` (lib) due to 2 previous errors"
+          ]
+        },
+        {
+          "name": "crates/brn-threads-app/src/writing.rs:309:9: replace Workspace::writing_request -> AppResult<WritingSnapshot> with AppResult::new(Default::default())",
+          "outcome": "Unviable",
+          "build_seconds": 0.635548333,
+          "test_seconds": 0,
+          "raw_log_sha256": "1e265649b59b20ec02c727c007b0a85c03526841b4698f3a2826dec785d7476b",
+          "raw_diff_sha256": "8503cd8b58d6406691073a24da2d319a4344b5ee5206cbfc053abb20e12d2081",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict.",
+          "compile_errors": [
+            "error[E0599]: the variant, associated function, or constant `new` exists for enum `Result<_, AppError>`, but its trait bounds were not satisfied",
+            "error: could not compile `brn-threads-app` (lib) due to 1 previous error"
+          ]
+        },
+        {
+          "name": "crates/brn-threads-app/src/writing.rs:309:9: replace Workspace::writing_request -> AppResult<WritingSnapshot> with AppResult::from(Default::default())",
+          "outcome": "Unviable",
+          "build_seconds": 0.708548584,
+          "test_seconds": 0,
+          "raw_log_sha256": "1d52345bcd981a91d04745c82e390af87481db443358f8374722b735e17bac7e",
+          "raw_diff_sha256": "474b7f5f257a0678b0871a60f429b35040de82d33d914cf984e27fa660d1f89b",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict.",
+          "compile_errors": [
+            "error[E0277]: the trait bound `Result<brn_threads_core::WritingSnapshot, AppError>: Default` is not satisfied",
+            "error: could not compile `brn-threads-app` (lib) due to 1 previous error"
+          ]
+        },
+        {
+          "name": "crates/brn-threads-app/src/writing.rs:356:9: replace Workspace::snapshot_writing_request_with_feedback -> AppResult<WritingSnapshot> with AppResult::new()",
+          "outcome": "Unviable",
+          "build_seconds": 0.63879675,
+          "test_seconds": 0,
+          "raw_log_sha256": "e05a21226c76084a3dfca02c894fdb93eec2d86e37bd9426e1efb23372ca31c5",
+          "raw_diff_sha256": "600ac32867a9cfe51e9dd89f51616c3c0610295551dae7124afd433338ea6c32",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict.",
+          "compile_errors": [
+            "error[E0599]: the variant, associated function, or constant `new` exists for enum `Result<_, AppError>`, but its trait bounds were not satisfied",
+            "error: could not compile `brn-threads-app` (lib) due to 1 previous error"
+          ]
+        },
+        {
+          "name": "crates/brn-threads-app/src/writing.rs:356:9: replace Workspace::snapshot_writing_request_with_feedback -> AppResult<WritingSnapshot> with AppResult::from_iter([Default::default()])",
+          "outcome": "Unviable",
+          "build_seconds": 0.7470895,
+          "test_seconds": 0,
+          "raw_log_sha256": "04119780c173fdb7c98ef600fc177dc59b9bce7c3640f1dc65775a0cb483dc14",
+          "raw_diff_sha256": "e379802222ffb09e2e62f0e1f47df9f85916473b2741cc15f710161944daff34",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict.",
+          "compile_errors": [
+            "error[E0277]: the trait bound `Result<_, AppError>: Default` is not satisfied",
+            "error[E0277]: a value of type `brn_threads_core::WritingSnapshot` cannot be built from an iterator over elements of type `_`",
+            "error: could not compile `brn-threads-app` (lib) due to 2 previous errors"
+          ]
+        },
+        {
+          "name": "crates/brn-threads-app/src/writing.rs:356:9: replace Workspace::snapshot_writing_request_with_feedback -> AppResult<WritingSnapshot> with AppResult::new(Default::default())",
+          "outcome": "Unviable",
+          "build_seconds": 0.745681084,
+          "test_seconds": 0,
+          "raw_log_sha256": "a21ff2ca4c526c07a29b1943c137f559906aa2a2387ceba6cedabf085e5502ac",
+          "raw_diff_sha256": "4b2c0d09f6b7f7c725e739b2205a6adf028fa96db147e9146b158a9b00260652",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict.",
+          "compile_errors": [
+            "error[E0599]: the variant, associated function, or constant `new` exists for enum `Result<_, AppError>`, but its trait bounds were not satisfied",
+            "error: could not compile `brn-threads-app` (lib) due to 1 previous error"
+          ]
+        },
+        {
+          "name": "crates/brn-threads-app/src/writing.rs:356:9: replace Workspace::snapshot_writing_request_with_feedback -> AppResult<WritingSnapshot> with AppResult::from(Default::default())",
+          "outcome": "Unviable",
+          "build_seconds": 0.67591125,
+          "test_seconds": 0,
+          "raw_log_sha256": "ee0e9a60ed5c78336a92de9b3bdeb3f4f052dc4c2287e2980a7d54d601a5e7a5",
+          "raw_diff_sha256": "02b561b51caafd600898dec11b734586663fe2155fc36cf1581dd3c902ac3443",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict.",
+          "compile_errors": [
+            "error[E0277]: the trait bound `Result<brn_threads_core::WritingSnapshot, AppError>: Default` is not satisfied",
+            "error: could not compile `brn-threads-app` (lib) due to 1 previous error"
+          ]
+        },
+        {
+          "name": "crates/brn-threads-app/src/writing.rs:406:17: delete match arm RecordData::WritingSetup(s) in Workspace::snapshot_writing_request_with_feedback",
+          "outcome": "CaughtMutant",
+          "build_seconds": 4.931513666,
+          "test_seconds": 1.249438458,
+          "raw_log_sha256": "761e72595315a0508ad2e554ba0cf9ea70118f61adce589de5de9c28be0f41d0",
+          "raw_diff_sha256": "bff3834d51558207100c77b315928fff88251b650042f837269c1059425ecda3",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-app/src/writing.rs:420:57: replace + with - in Workspace::snapshot_writing_request_with_feedback",
+          "outcome": "MissedMutant",
+          "build_seconds": 4.176423042,
+          "test_seconds": 1.308809709,
+          "raw_log_sha256": "19c5e04153a4f1c12f759a979dd0618f63032d58888a1bf2af7056d94e650273",
+          "raw_diff_sha256": "10f5fea272eff00bd437b339988f3636dd0daa066606978c0c1b46934ce28022",
+          "disposition": {
+            "category": "genuine_fixture_gap",
+            "reason": "Reactivation after Undo must bind the actual new setup revision rather than an archived or older revision.",
+            "witness": "capture_after_undo_reuses_default_setup_identity_at_its_actual_new_version",
+            "actual_mutant_recheck": false,
+            "witness_status": "passed on 521454f2"
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-app/src/writing.rs:420:57: replace + with * in Workspace::snapshot_writing_request_with_feedback",
+          "outcome": "MissedMutant",
+          "build_seconds": 4.66095925,
+          "test_seconds": 1.435366,
+          "raw_log_sha256": "a77fd62bd163215fd6a86efe3e6c6a21136c47e0eef5fa408a9f054440d0ce76",
+          "raw_diff_sha256": "68d7f31b1070254b0c5dcf05e3d46e4effdd526bcc71a1c0c8a59d540c5aaec1",
+          "disposition": {
+            "category": "genuine_fixture_gap",
+            "reason": "Reactivation after Undo must bind the actual new setup revision rather than an archived or older revision.",
+            "witness": "capture_after_undo_reuses_default_setup_identity_at_its_actual_new_version",
+            "actual_mutant_recheck": false,
+            "witness_status": "passed on 521454f2"
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-app/src/writing.rs:459:17: replace && with || in Workspace::snapshot_writing_request_with_feedback",
+          "outcome": "CaughtMutant",
+          "build_seconds": 3.972696583,
+          "test_seconds": 0.77469075,
+          "raw_log_sha256": "4592a6b55541edda7db3bb5a4ece0c5e00d096426954ad8f738a764222296553",
+          "raw_diff_sha256": "ccc9f4f24cc57cb4a37f575ad183bf87b644ee3cac577e7dc16b08e09eaeb226",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-app/src/writing.rs:458:26: replace != with == in Workspace::snapshot_writing_request_with_feedback",
+          "outcome": "CaughtMutant",
+          "build_seconds": 3.4575957920000002,
+          "test_seconds": 0.624500208,
+          "raw_log_sha256": "8d98acaf31ac0dfbfea5289ee741d44e33ca8df9945fa73e72bdbb9e65b53e14",
+          "raw_diff_sha256": "d7a5e2f402a7b9a1e3d157fb12095a0890514b4cda4864aeba672fdf8fdab1a4",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-app/src/writing.rs:459:20: delete ! in Workspace::snapshot_writing_request_with_feedback",
+          "outcome": "CaughtMutant",
+          "build_seconds": 3.827368833,
+          "test_seconds": 0.742271208,
+          "raw_log_sha256": "59d90907d8ca1dcb29bcd798c2f82b87c3b3ccbcc0a1d074b0fe6c8931a545ac",
+          "raw_diff_sha256": "44ba086b51c692533ea52f55477c51c412f003dca889429f2ccb1562047963c6",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-app/src/writing.rs:459:42: replace && with || in Workspace::snapshot_writing_request_with_feedback",
+          "outcome": "MissedMutant",
+          "build_seconds": 3.9911798750000003,
+          "test_seconds": 1.393863083,
+          "raw_log_sha256": "c8aa59bbe58a431f90b1bdc666a9c4018ca91f62f7bc900833b5d5d074baef85",
+          "raw_diff_sha256": "e49a1c95e284c0d79a6aa27107cb4fe7a2a9ba512e71f987a5ea0fa2a5c05302",
+          "disposition": {
+            "category": "genuine_fixture_gap",
+            "reason": "A delayed prepare copied from an actual app capture must retain Current Note/setup dependencies. Its replay refuses changes without creating a request or replacing its immutable prepare.",
+            "witness": "delayed_real_capture_prepare_rejects_changed_note_or_existing_setup_before_replay",
+            "actual_mutant_recheck": false,
+            "witness_status": "passed on 521454f2"
+          },
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        },
+        {
+          "name": "crates/brn-threads-app/src/writing.rs:459:58: replace == with != in Workspace::snapshot_writing_request_with_feedback",
+          "outcome": "CaughtMutant",
+          "build_seconds": 4.567322792,
+          "test_seconds": 0.726143042,
+          "raw_log_sha256": "b76bbf72863d9fb1bb2fc4b973c72f0e100f5d1e148fb132b6882c9f614b54ed",
+          "raw_diff_sha256": "ac7a74a71074e888068ba1a53ead28e7a9055a3821f216b4bd5eaaca0bd4f897",
+          "reuse": "Production function unchanged in 690fb705..521454f2. New witness tests do not retroactively change the recorded mutant verdict."
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "New witnesses are passing tests, not actual mutant rechecks; actual_mutant_recheck is false unless a separate supplemental receipt says otherwise.",
+    "Mutation scope is changed guards plus named reused replay/backup/limit functions, not a whole-repository campaign.",
+    "Old 56ca7c93 interrupted attempts remain separate and are not included.",
+    "Source rollback does not downgrade schema7."
+  ]
+}

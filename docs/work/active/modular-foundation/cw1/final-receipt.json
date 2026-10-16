@@ -1,0 +1,120 @@
+{
+  "worktree": "/Users/evokessler/.t3/worktrees/brn-rust/t3-cf730cbc",
+  "branch": "work/cw1-20261016",
+  "base": "c8b3026f582c8770c24a984111f562becf529cad",
+  "source_test_pin": "521454f2d6f4a3ef446a4e972663ac8980451499",
+  "source_test_tree": "cb8c754fa04186678f6b406cdaf7c39a851dc68f",
+  "implementation_commits": [
+    "56ca7c9361792150108d2c3a2e63817e3af8849e",
+    "690fb7055eb27d6b234082ca38f3a88bd06360e6",
+    "521454f2d6f4a3ef446a4e972663ac8980451499"
+  ],
+  "approval": {
+    "round2": "Source690fb705 approved",
+    "round3": "Focused source521454f2 approved",
+    "principal_acceptance": "pending"
+  },
+  "normal_gates": {
+    "candidate": "690fb705",
+    "default": [
+      1037,
+      1,
+      6
+    ],
+    "capability_spike": [
+      349,
+      0,
+      1
+    ],
+    "native_state": [
+      95,
+      0,
+      0
+    ],
+    "native_widgets": [
+      305,
+      1,
+      1
+    ],
+    "native_retrieval": [
+      35,
+      0,
+      0
+    ],
+    "native_app": [
+      222,
+      0,
+      1
+    ],
+    "combined_desktop_state": [
+      95,
+      0,
+      0
+    ],
+    "build_fmt_strict_lint_cli": "pass within recorded lanes",
+    "headless_startup": [
+      2,
+      0
+    ]
+  },
+  "followup": {
+    "production_change": "Store::undo only",
+    "focused": [
+      104,
+      0,
+      0
+    ],
+    "affected_strict_lint_fmt": "pass",
+    "provenance": "focused-run-provenance-521454f2.json"
+  },
+  "mutations": {
+    "shared_cap_seconds": 1800,
+    "actual_seconds": 1771.388,
+    "initial_candidate": "690fb705",
+    "initial_raw_counts": {
+      "total": 211,
+      "caught": 124,
+      "missed": 47,
+      "timeouts": 4,
+      "unviable": 36,
+      "duplicate_names": 4
+    },
+    "unique_initial_missed": 46,
+    "missed_dispositions": {
+      "genuine_fixture_gap_with_new_passing_witness_not_rechecked": 40,
+      "excluded_existing_target_not_rechecked": 1,
+      "qualified_equivalent_redundant_or_cosmetic": 5
+    },
+    "undo_candidate": "521454f2",
+    "undo_selected": 17,
+    "undo_completed": {
+      "total": 13,
+      "caught": 10,
+      "missed": 2,
+      "timeouts": 0,
+      "unviable": 1
+    },
+    "undo_interrupted_during_build": 1,
+    "undo_not_started": 3,
+    "limits": "No complete mutation pass claimed; actual verdicts retained per ID. New tests alone are not kills."
+  },
+  "acceptance": {
+    "scoped_setup_no_note_change": "implemented and service-tested",
+    "owner_version_atomicity_replay_undo_restart": "implemented and service-tested; source reviewed",
+    "v2_scope_brief_reference_identity_limit": "implemented and service-tested",
+    "v1_bytes_hash_prepares_receipts_replay": "preserved and service-tested",
+    "schema7_external_backup_refusal_interruption_restore_derived": "implemented and synthetic-tested; actual schema6 fixture/CLI receipts",
+    "comment_visibility": "unchanged; shared-Note privacy remains OPEN",
+    "independent_source_review": "round2+round3 approved exact pins",
+    "baseline_pdf_widget_failures": "OPEN, principal-owned",
+    "native_observation_live_provider_models_real_data": "not performed; outside assignment",
+    "principal_owner_acceptance_integration_merge_release": "pending/not performed"
+  },
+  "risks": [
+    "Theoretical, not confirmed reachable: a general setup whose working Note is available only via an ordinary chat Source may refuse Undo; fail-closed, no privacy grant.",
+    "Archived Project metadata fencing, per-page records reload and exact Thread-version setup-key staleness remain reviewed nonblocking limits.",
+    "Focused test run has no contemporaneous SHA in its log; retained tool/repository/filesystem provenance is explicitly reconciled."
+  ],
+  "next_seam": "CW2 consumes setup Current binding and exact reference metadata for historical read ledger/quotations, full Apply visibility and shared runtime start; not started.",
+  "heavy_slot": "Released to principal/widget diagnostic; no more CW1 builds/tests/mutants."
+}

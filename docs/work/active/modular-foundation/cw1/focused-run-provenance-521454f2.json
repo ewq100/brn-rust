@@ -1,0 +1,62 @@
+{
+  "contemporaneous_commit_stamp": false,
+  "tool_exec_session": 99304,
+  "workspace": "/Users/evokessler/.t3/worktrees/brn-rust/t3-cf730cbc",
+  "branch": "work/cw1-20261016",
+  "command": [
+    "cargo",
+    "test",
+    "-p",
+    "brn-threads-core",
+    "-p",
+    "brn-threads-app",
+    "--test",
+    "writing",
+    "--test",
+    "writing_setup",
+    "--test",
+    "core",
+    "--test",
+    "current_inputs",
+    "--test",
+    "candidate_refresh",
+    "--locked",
+    "--offline"
+  ],
+  "environment": {
+    "CARGO_TARGET_DIR": "/private/tmp/brn-c0-20261016-target",
+    "CARGO_INCREMENTAL": "0",
+    "TMPDIR": "/private/tmp/brn-cw1-20261016-fixtures",
+    "BRN_NATIVE_MODEL_DIR": "",
+    "BRN_EMBEDDING_MODEL_DIR": ""
+  },
+  "observed_later_filesystem_times": {
+    "created_utc": "2026-10-16T16:05:26.136005+00:00",
+    "modified_utc": "2026-10-16T16:05:36.230705+00:00"
+  },
+  "raw_log_sha256": "4a0f9a71a2e6311b3ea6c6a70b382631b00f684a773ec43b626e58911c79ee6e",
+  "stored_log_sha256": "147747647231fac1db1f7225f8183883359b8b802b2fe11a7ffeb0b43b57d485",
+  "counts": [
+    104,
+    0,
+    0
+  ],
+  "target_counts": [
+    10,
+    22,
+    1,
+    45,
+    9,
+    5,
+    12
+  ],
+  "later_commit": "521454f2d6f4a3ef446a4e972663ac8980451499",
+  "later_commit_time_utc": "2026-10-16T16:07:40Z",
+  "source_test_fingerprint": "source-test-fingerprint-521454f2.json",
+  "basis": [
+    "The retained tool command temporarily selected exact 690fb705 Store source for the one failing-before test, then restored corrected Store bytes in finally before running this focused command.",
+    "HEAD remained 690fb705 while the correction/tests were uncommitted; repository/tool sequence associates this run with the production later committed in 521454f2. It is not an in-log SHA stamp.",
+    "After the focused run, only a Clippy-requested nested-if collapse in the new test (same condition and assertions) plus rustfmt occurred before the commit. Affected strict lint passed the exact pinned syntax.",
+    "No production or assertion change followed the run. Current source/test bytes equal the immutable 521454f2 fingerprint. Filesystem times were observed during finalization, not presented as a contemporaneous cryptographic receipt."
+  ]
+}
