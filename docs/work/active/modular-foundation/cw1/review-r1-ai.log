@@ -1,0 +1,22 @@
+   Compiling brn-threads-core v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-cf730cbc/crates/brn-threads-core)
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-cf730cbc/crates/brn-ai)
+    Finished `test` profile [optimized] target(s) in 12.17s
+     Running unittests src/lib.rs (/private/tmp/brn-c0-20261016-target/debug/deps/brn_ai-4a6a17d75ba72bc0)
+
+running 14 tests
+test threads::writing_tests::setup_configuration_is_never_model_readable_or_model_writable ... ok
+test threads::writing_tests::ordinary_chat_setup_preserves_runtime_source_scope_and_delegated_maintenance ... ok
+test threads::writing_tests::owner_reviewed_rewrite_receipt_replays_without_reapplying_content ... ok
+test threads::writing_tests::prose_only_rewrite_fails_and_saved_request_remains_available_for_retry ... ok
+test threads::writing_tests::mock_rewrite_prepares_review_without_apply_and_finishes_without_changing_the_note ... ok
+test threads::writing_tests::rewrite_cannot_apply_an_older_ordinary_candidate ... ok
+test threads::writing_tests::rewrite_closes_mutable_reads_old_apply_refresh_and_progress_cannot_expand_scope ... ok
+test threads::writing_tests::v2_model_request_uses_canonical_metadata_without_reference_content_and_refuses_revocation ... ok
+test threads::writing_tests::rewrite_rejects_oversized_saved_context_and_preserves_request_after_failed_startup ... ok
+test threads::writing_tests::rewrite_uses_full_saved_chat_and_never_posts_synthetic_owner_messages_on_retry ... ok
+test threads::writing_tests::rewrite_forces_all_current_inputs_and_review_for_ordinary_and_protected_notes ... ok
+test threads::writing_tests::captured_note_comment_or_chat_changes_stale_owner_reviewed_apply ... ok
+test threads::writing_tests::rewrite_rejects_forged_snapshot_foreign_thread_and_transient_sources ... ok
+test threads::writing_tests::rewrite_rejects_target_metadata_and_extra_writes ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 333 filtered out; finished in 0.13s

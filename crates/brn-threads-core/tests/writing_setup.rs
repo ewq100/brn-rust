@@ -555,3 +555,230 @@ fn owner_host_schema6_open_uses_remembered_external_backup_first() {
     assert_eq!(version(&files[0]), 6);
     assert_eq!(version(&data.join(DATABASE_FILENAME)), 7);
 }
+
+#[test]
+fn knowledge_off_working_note_uses_bound_conversation_and_references_keep_project_scope() {
+    let root = root();
+    let mut store = Store::open(root.path().join("data")).unwrap();
+    let note = create(
+        &mut store,
+        "linked-general-note",
+        RecordData::Note(Note::working("Draft", "General")),
+    );
+    let reference = create(
+        &mut store,
+        "general-reference",
+        RecordData::Note(Note::working("Reference", "General evidence")),
+    );
+    let chat = create(
+        &mut store,
+        "project-chat",
+        RecordData::Thread(Thread {
+            private_context: true,
+            context_epoch: 0,
+            title: "Project".into(),
+            state: ThreadState::Open,
+            attention: vec![],
+        }),
+    );
+    let project = create(
+        &mut store,
+        "knowledge-off-project",
+        RecordData::Project(Project {
+            title: "Knowledge off".into(),
+            instructions: String::new(),
+            use_brn_knowledge: false,
+            chats: vec![chat.id.clone()],
+            documents: vec![],
+            trash: None,
+        }),
+    );
+    for (key, target) in [
+        ("working-link", &note.id),
+        ("reference-link", &reference.id),
+    ] {
+        create(
+            &mut store,
+            key,
+            RecordData::Link(Link {
+                from: chat.id.clone(),
+                to: target.clone(),
+                relation: "discusses".into(),
+            }),
+        );
+    }
+    assert!(
+        store
+            .record_visible_in_chat(&note.id, Some(&chat.id))
+            .unwrap()
+    );
+    assert!(
+        !store
+            .record_visible_in_chat(&note.id, Some(&project.id))
+            .unwrap()
+    );
+    let owner = HostAuthority::owner("explicit conversation context").for_chat(&chat.id, true);
+    let op = store.allocate_operation("checked-project-setup").unwrap();
+    let mut setup = config(&note.id);
+    setup.chat = Some(project.id.clone());
+    let request = ChangeRequest {
+        reason: "Project writing setup".into(),
+        writes: vec![Put {
+            id: op.creation_id(0),
+            expected_version: None,
+            archived: false,
+            data: RecordData::WritingSetup(setup.clone()),
+        }],
+        inputs: vec![RevisionInput {
+            record: chat.id.clone(),
+            version: chat.version,
+            expectation: InputExpectation::Current,
+        }],
+    };
+    store.prepare_owner(&op, &request, &owner).unwrap();
+    assert!(matches!(
+        store.apply(&op, &owner).unwrap(),
+        ApplyOutcome::Applied(_)
+    ));
+    setup.references.push(WritingReference {
+        note: reference.id.clone(),
+        purpose: WritingPurpose::Evidence,
+    });
+    let edit = store
+        .allocate_operation("must-not-widen-references")
+        .unwrap();
+    let mut request = request;
+    request.writes[0].expected_version = Some(1);
+    request.writes[0].data = RecordData::WritingSetup(setup);
+    store.prepare_owner(&edit, &request, &owner).unwrap();
+    assert!(store.apply(&edit, &owner).is_err());
+    let wrong = store.allocate_operation("unbound-project-setup").unwrap();
+    let mut unbound = config(&reference.id);
+    unbound.chat = Some(project.id);
+    let req = ChangeRequest {
+        reason: "Missing conversation proof".into(),
+        writes: vec![Put {
+            id: wrong.creation_id(0),
+            expected_version: None,
+            archived: false,
+            data: RecordData::WritingSetup(unbound),
+        }],
+        inputs: vec![],
+    };
+    store
+        .prepare_owner(&wrong, &req, &HostAuthority::owner("unbound"))
+        .unwrap();
+    assert!(
+        store
+            .apply(&wrong, &HostAuthority::owner("unbound"))
+            .is_err()
+    );
+}
+
+#[test]
+fn deferred_setup_undo_keeps_identity_after_unrelated_conversation_attention_and_restart() {
+    let root = root();
+    let data = root.path().join("data");
+    let mut store = Store::open(&data).unwrap();
+    let owner = HostAuthority::owner("owner");
+    let note = create(
+        &mut store,
+        "note",
+        RecordData::Note(Note::working("Draft", "Before")),
+    );
+    let chat = create(
+        &mut store,
+        "ordinary-chat",
+        RecordData::Thread(Thread {
+            private_context: false,
+            context_epoch: 0,
+            title: "General".into(),
+            state: ThreadState::Open,
+            attention: vec![],
+        }),
+    );
+    let setup = create(
+        &mut store,
+        "setup",
+        RecordData::WritingSetup(config(&note.id)),
+    );
+    let original = store.allocate_operation("owner-group").unwrap();
+    let mut changed = config(&note.id);
+    changed.brief = Some("Changed".into());
+    store
+        .prepare_owner(
+            &original,
+            &ChangeRequest {
+                reason: "Owner group".into(),
+                writes: vec![
+                    Put {
+                        id: setup.id,
+                        expected_version: Some(1),
+                        archived: false,
+                        data: RecordData::WritingSetup(changed),
+                    },
+                    Put {
+                        id: note.id.clone(),
+                        expected_version: Some(1),
+                        archived: false,
+                        data: RecordData::Note(Note::working("Draft", "After")),
+                    },
+                ],
+                inputs: vec![RevisionInput {
+                    record: chat.id.clone(),
+                    version: chat.version,
+                    expectation: InputExpectation::Current,
+                }],
+            },
+            &owner,
+        )
+        .unwrap();
+    assert!(matches!(
+        store.apply(&original, &owner).unwrap(),
+        ApplyOutcome::Applied(_)
+    ));
+    let edit = store.begin_edit(&note.id, 2).unwrap();
+    let compensation = store.allocate_operation("stable-undo").unwrap();
+    assert!(matches!(
+        store.undo(&compensation, &original, &owner).unwrap(),
+        ApplyOutcome::Deferred { .. }
+    ));
+    let prepared = store.prepared(&compensation).unwrap();
+    let mut data_chat = chat.data;
+    if let RecordData::Thread(t) = &mut data_chat {
+        t.attention.push(Attention {
+            kind: AttentionKind::Question,
+            reason: "Unrelated attention".into(),
+            record: None,
+        });
+    }
+    let attention = store.allocate_operation("attention").unwrap();
+    store
+        .prepare_owner(
+            &attention,
+            &ChangeRequest {
+                reason: "Unrelated attention".into(),
+                writes: vec![Put {
+                    id: chat.id,
+                    expected_version: Some(1),
+                    archived: false,
+                    data: data_chat,
+                }],
+                inputs: vec![],
+            },
+            &owner,
+        )
+        .unwrap();
+    store.apply(&attention, &owner).unwrap();
+    store.discard(&edit.id, edit.generation).unwrap();
+    drop(store);
+    let mut reopened = Store::open(root.path().join("data")).unwrap();
+    assert!(matches!(
+        reopened.undo(&compensation, &original, &owner).unwrap(),
+        ApplyOutcome::Applied(_)
+    ));
+    assert_eq!(reopened.prepared(&compensation).unwrap(), prepared);
+    assert!(
+        matches!(reopened.record(&note.id).unwrap().unwrap().data,RecordData::Note(n) if n.markdown=="Before")
+    );
+}

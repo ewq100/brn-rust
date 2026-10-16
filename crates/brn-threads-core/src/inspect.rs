@@ -311,6 +311,7 @@ impl Store {
         let mut cursor = after;
         let mut rows = Vec::new();
         let mut context = None;
+        let writing_scope = std::cell::OnceCell::new();
         // Filtering before the visible page boundary preserves cursors even
         // when a moved chat has more than a page of old scoped requests.
         loop {
@@ -323,16 +324,24 @@ impl Store {
             for (pos, body) in batch {
                 cursor = pos;
                 let record: Record = decode(&body)?;
-                if scoped_writing_request(&record) {
-                    if context.is_none() {
-                        context = Some(self.records()?);
-                    }
-                    if !record_in_chat(
-                        &record,
-                        context.as_ref().expect("loaded scope"),
-                        Some(thread),
-                    ) {
-                        continue;
+                if matches!(&record.data, RecordData::Message(m) if m.role == WRITING_REQUEST_ROLE)
+                {
+                    match WritingSnapshot::from_message(&record) {
+                        Ok(snapshot) if snapshot.setup.is_some() => {
+                            if context.is_none() {
+                                context = Some(self.records()?);
+                            }
+                            if !crate::context::writing_snapshot_visible(
+                                &snapshot,
+                                context.as_ref().expect("loaded scope"),
+                                Some(thread),
+                                &writing_scope,
+                            ) {
+                                continue;
+                            }
+                        }
+                        Err(_) if scoped_writing_request(&record) => continue,
+                        _ => {}
                     }
                 }
                 rows.push((pos, record));

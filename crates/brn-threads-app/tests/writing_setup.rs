@@ -93,6 +93,24 @@ fn scopes_are_separate_in_lists_search_export_and_requests_without_note_mutation
     link(&mut app, &note, &a, &ca);
     link(&mut app, &note, &b, &cb);
     let private = app.new_thread("Private writing").unwrap();
+    let mut private_data = private.data.clone();
+    if let RecordData::Thread(t) = &mut private_data {
+        t.private_context = true;
+    }
+    app.owner_change(
+        "existing-private-fixture",
+        &ChangeRequest {
+            reason: "Existing host-owned private context".into(),
+            writes: vec![Put {
+                id: private.id.clone(),
+                expected_version: Some(private.version),
+                archived: false,
+                data: private_data,
+            }],
+            inputs: vec![],
+        },
+    )
+    .unwrap();
     app.link_writing_thread("link-private", &note.id, 1, &private.id)
         .unwrap();
     let mut configs = vec![];
@@ -613,4 +631,316 @@ fn ordered_reference_versions_and_purposes_survive_reopen_and_derived_regenerati
         3
     );
     assert_eq!(app.search("Original").unwrap().len(), 1);
+}
+
+#[test]
+fn ordinary_chat_setup_read_set_capture_and_undo_keep_existing_general_identity() {
+    let (_root, mut app, note, thread) = fixture();
+    let before = snapshot(&mut app, "before-ordinary-setup", &note, &thread.id);
+    let setup = before.setup.unwrap();
+    assert_eq!(
+        app.writing_setup(&note.id, Some(&thread.id))
+            .unwrap()
+            .record
+            .unwrap()
+            .id,
+        setup.input.record
+    );
+    let receipt = app
+        .set_writing_setup(
+            "ordinary-chat",
+            Some(setup.input.version),
+            &configuration(&note.id, Some(&thread.id), "General brief", &[]),
+        )
+        .unwrap();
+    let saved = config_record(&receipt);
+    assert!(matches!(&saved.data,RecordData::WritingSetup(s) if s.chat.is_none()));
+    assert_eq!(
+        app.writing_setup(&note.id, None).unwrap().record,
+        Some(saved.clone())
+    );
+    assert!(!app.store.chat_has_private_context(&thread.id).unwrap());
+    assert_eq!(
+        message_scope(&thread, &app.records().unwrap()),
+        MessageScope::General
+    );
+    app.post_message(&thread.id, "scope-parity-search-witness")
+        .unwrap();
+    assert_eq!(
+        app.search_page("scope-parity-search-witness", None, 10, None)
+            .unwrap()
+            .message_total,
+        1
+    );
+    let after = snapshot(&mut app, "after-ordinary-setup", &note, &thread.id)
+        .setup
+        .unwrap();
+    assert_eq!(after.chat, None);
+    assert_eq!(after.input.record, saved.id);
+    assert!(matches!(
+        app.undo(receipt.operation.as_str()).unwrap(),
+        ApplyOutcome::Applied(_)
+    ));
+    assert!(!app.store.chat_has_private_context(&thread.id).unwrap());
+    assert_eq!(
+        message_scope(&thread, &app.records().unwrap()),
+        MessageScope::General
+    );
+    assert_eq!(app.store.record(&note.id).unwrap().unwrap(), note);
+}
+
+#[test]
+fn setup_creation_and_undo_cannot_make_ordinary_chat_permanently_private() {
+    let (_root, mut app, note, thread) = fixture();
+    let receipt = app
+        .set_writing_setup(
+            "new-in-chat",
+            None,
+            &configuration(&note.id, Some(&thread.id), "General brief", &[]),
+        )
+        .unwrap();
+    assert!(!app.store.chat_has_private_context(&thread.id).unwrap());
+    assert!(matches!(
+        app.undo(receipt.operation.as_str()).unwrap(),
+        ApplyOutcome::Applied(_)
+    ));
+    assert!(!app.store.chat_has_private_context(&thread.id).unwrap());
+    assert_eq!(
+        writing_request_scope(&app.records().unwrap(), &thread.id).unwrap(),
+        None
+    );
+}
+
+#[test]
+fn knowledge_off_keeps_conversation_linked_working_note_but_not_linked_references() {
+    let (_root, mut app, note, _general) = fixture();
+    let (p, c) = project(&mut app, "knowledge-off");
+    app.link_writing_thread("working-note-link", &note.id, note.version, &c)
+        .unwrap();
+    let project = app.store.record(&p).unwrap().unwrap();
+    let RecordData::Project(data) = project.data else {
+        panic!()
+    };
+    app.project_command(
+        "knowledge-off-config",
+        ProjectCommand::Configure {
+            project: p.clone(),
+            version: project.version,
+            title: data.title,
+            instructions: data.instructions,
+            use_brn_knowledge: false,
+        },
+    )
+    .unwrap();
+    assert!(
+        app.store
+            .record_visible_in_chat(&note.id, Some(&c))
+            .unwrap()
+    );
+    assert!(
+        !app.store
+            .record_visible_in_chat(&note.id, Some(&p))
+            .unwrap()
+    );
+    assert!(
+        app.writing_setup(&note.id, Some(&c))
+            .unwrap()
+            .record
+            .is_none()
+    );
+    let captured = snapshot(&mut app, "knowledge-off-capture", &note, &c);
+    let setup = captured.setup.unwrap();
+    assert_eq!(setup.chat, Some(p.clone()));
+    let reference = app
+        .new_note("General reference", "Not project knowledge")
+        .unwrap();
+    app.link_writing_thread("reference-chat-link", &reference.id, 1, &c)
+        .unwrap();
+    assert!(
+        app.store
+            .record_visible_in_chat(&reference.id, Some(&c))
+            .unwrap()
+    );
+    assert!(
+        app.set_writing_setup(
+            "strict-reference",
+            Some(setup.input.version),
+            &configuration(
+                &note.id,
+                Some(&c),
+                "Brief",
+                &[(&reference.id, WritingPurpose::Evidence)]
+            )
+        )
+        .is_err()
+    );
+    let edited = app
+        .set_writing_setup(
+            "knowledge-off-edit",
+            Some(setup.input.version),
+            &configuration(&note.id, Some(&c), "Allowed working brief", &[]),
+        )
+        .unwrap();
+    let current_chat = app.store.record(&c).unwrap().unwrap();
+    let mut attention = current_chat.data;
+    if let RecordData::Thread(t) = &mut attention {
+        t.attention.push(Attention {
+            kind: AttentionKind::Question,
+            reason: "Unrelated attention".into(),
+            record: None,
+        });
+    }
+    app.owner_change(
+        "unrelated-attention",
+        &ChangeRequest {
+            reason: "Attention must not change writing context".into(),
+            writes: vec![Put {
+                id: c.clone(),
+                expected_version: Some(current_chat.version),
+                archived: false,
+                data: attention,
+            }],
+            inputs: vec![],
+        },
+    )
+    .unwrap();
+    assert!(matches!(
+        app.undo(edited.operation.as_str()).unwrap(),
+        ApplyOutcome::Applied(_)
+    ));
+    assert_eq!(app.store.record(&note.id).unwrap().unwrap(), note);
+    assert!(
+        !app.store
+            .records_for_chat(Some(&p))
+            .unwrap()
+            .iter()
+            .any(|r| r.id == note.id)
+    );
+}
+
+#[test]
+fn inactive_conversations_keep_v1_v2_setup_inspection_but_refuse_new_writes() {
+    for (state, archived, private) in [
+        (ThreadState::Resolved, false, false),
+        (ThreadState::Open, true, false),
+        (ThreadState::Resolved, false, true),
+    ] {
+        let (_root, mut app, note, thread) = fixture();
+        if private {
+            let mut data = thread.data.clone();
+            let RecordData::Thread(t) = &mut data else {
+                panic!()
+            };
+            t.private_context = true;
+            app.owner_change(
+                "existing-private-context",
+                &ChangeRequest {
+                    reason: "Existing host privacy".into(),
+                    writes: vec![Put {
+                        id: thread.id.clone(),
+                        expected_version: Some(thread.version),
+                        archived: false,
+                        data,
+                    }],
+                    inputs: vec![],
+                },
+            )
+            .unwrap();
+        }
+        let v2 = snapshot(&mut app, "active-v2", &note, &thread.id);
+        let marker = app.store.allocate_operation("active-v1").unwrap();
+        let mut v1 = v2.clone();
+        v1.setup = None;
+        v1.request_message = marker.creation_id(0);
+        let original_v1 = v1.message_text().unwrap();
+        app.owner_change(
+            "active-v1",
+            &ChangeRequest {
+                reason: "Legacy request fixture".into(),
+                writes: vec![Put {
+                    id: v1.request_message.clone(),
+                    expected_version: None,
+                    archived: false,
+                    data: RecordData::Message(Message {
+                        thread: thread.id.clone(),
+                        role: WRITING_REQUEST_ROLE.into(),
+                        text: original_v1.clone(),
+                    }),
+                }],
+                inputs: vec![],
+            },
+        )
+        .unwrap();
+        let current = app.store.record(&thread.id).unwrap().unwrap();
+        let mut data = current.data;
+        let RecordData::Thread(t) = &mut data else {
+            panic!()
+        };
+        t.state = state;
+        app.owner_change(
+            "inactive",
+            &ChangeRequest {
+                reason: "Legacy inactive conversation".into(),
+                writes: vec![Put {
+                    id: thread.id.clone(),
+                    expected_version: Some(current.version),
+                    archived,
+                    data,
+                }],
+                inputs: vec![],
+            },
+        )
+        .unwrap();
+        assert!(
+            app.store
+                .record_visible_in_chat(&v1.request_message, Some(&thread.id))
+                .unwrap()
+        );
+        assert!(
+            app.store
+                .record_visible_in_chat(&v2.request_message, Some(&thread.id))
+                .unwrap()
+        );
+        let visible = app.store.records_for_chat(Some(&thread.id)).unwrap();
+        for id in [
+            &v1.request_message,
+            &v2.request_message,
+            &v2.setup.as_ref().unwrap().input.record,
+        ] {
+            assert!(visible.iter().any(|r| &r.id == id));
+        }
+        let messages = app.messages(&thread.id).unwrap();
+        assert_eq!(messages.len(), 2);
+        let (first, more) = app.store.message_page(&thread.id, 0, 1).unwrap();
+        assert!(more);
+        let (second, more) = app.store.message_page(&thread.id, first[0].0, 1).unwrap();
+        assert!(!more);
+        assert_eq!(first.len() + second.len(), 2);
+        assert!(
+            app.writing_setup(&note.id, Some(&thread.id))
+                .unwrap()
+                .record
+                .is_some()
+        );
+        assert!(
+            app.snapshot_writing_request("inactive-new-capture", &note.id, 1, &thread.id, &[])
+                .is_err()
+        );
+        let version = v2.setup.as_ref().unwrap().input.version;
+        assert!(
+            app.set_writing_setup(
+                "inactive-new-edit",
+                Some(version),
+                &configuration(&note.id, Some(&thread.id), "Refused", &[])
+            )
+            .is_err()
+        );
+        assert_eq!(
+            app.writing_request(&v1.request_message)
+                .unwrap()
+                .message_text()
+                .unwrap(),
+            original_v1
+        );
+    }
 }

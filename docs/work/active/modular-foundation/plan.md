@@ -1,6 +1,8 @@
 # Combined C0 implementation plan
 
-**Goal:** establish a reviewable baseline for modular foundation plus agent-capabilities Slice 0, without production edits.
+**Current slice:** CW1 (schema 7), correcting independent Opus round 1 findings on initial local candidate `56ca7c93`; C0 and CL are complete. Corrected verification/mutation and principal-owned round 2 review are pending. No CW2 or integration approval.
+
+**C0 goal:** establish a reviewable baseline for modular foundation plus agent-capabilities Slice 0, without production edits.
 **Architecture:** keep the checked core/app services and Rig runtime. C0 documents their seams and tests upstream reuse in an independent experiment.
 **Stack:** repository Rust 1.98.1 and root lockfile; Rig 0.44.0, schema 6, CLI contract 3.
 **Spec:** [build ordering](../build-sequence/README.md), [master plan](proposal/final/01-master-plan.md), [bootstrap brief](proposal/final/02-foundation-lead-prompt.md). These packs stay provenance; ordering and current owner instructions win over historical launch text.

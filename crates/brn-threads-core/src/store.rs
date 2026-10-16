@@ -660,6 +660,29 @@ impl Store {
                 .collect(),
             inputs: vec![],
         };
+        if request
+            .writes
+            .iter()
+            .any(|w| matches!(w.data, RecordData::WritingSetup(_)))
+        {
+            // Setup identity is project-wide, while a working Note may be
+            // visible only through its explicitly selected conversation link.
+            // Retain that host context for compensation without changing scope.
+            for input in prepared_on(&tx, original)?.request.inputs {
+                if matches!(
+                    input.expectation,
+                    InputExpectation::Current | InputExpectation::ChatContext
+                ) && let Some(thread) = record_on(&tx, &input.record)?
+                    && matches!(thread.data, RecordData::Thread(_))
+                {
+                    request.inputs.push(RevisionInput {
+                        record: input.record,
+                        version: input.version,
+                        expectation: InputExpectation::ChatContext,
+                    });
+                }
+            }
+        }
         for w in &mut request.writes {
             if let RecordData::Thread(next) = &mut w.data
                 && let Some(Record {
@@ -1474,9 +1497,13 @@ pub(crate) fn apply_on(
         }
     }
     crate::writing::validate_setup_writes(
-        &prepared.request.writes,
+        &prepared.request,
         &context_rows,
         &projected_scope,
+        authority
+            .chat_binding
+            .as_ref()
+            .map(|(chat, _)| chat.as_str()),
     )?;
     let mut stale = vec![];
     let mut guarded = vec![];

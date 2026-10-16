@@ -45,7 +45,7 @@ impl Workspace {
         let scope = writing_setup_scope(&rows, chat)?;
         if !rows
             .iter()
-            .any(|r| r.id == note && record_in_chat(r, &rows, scope.as_deref()))
+            .any(|r| r.id == note && record_in_chat(r, &rows, chat))
         {
             return Err(AppError::Invalid(
                 "Working Note is unavailable in this writing scope".into(),
@@ -86,6 +86,13 @@ impl Workspace {
         }
         let rows = self.records()?;
         let scope = writing_setup_scope(&rows, setup.chat.as_deref())?;
+        let conversation = setup.chat.as_deref().and_then(|id| {
+            rows.iter()
+                .find(|r| r.id == id && matches!(r.data, RecordData::Thread(_)))
+        });
+        if let Some(thread) = conversation {
+            self.writing_thread(&thread.id)?;
+        }
         let mut setup = setup.clone();
         setup.chat = scope.clone();
         let current = rows.iter().find(|r| matches!(&r.data, RecordData::WritingSetup(s) if s.note == setup.note && s.chat == scope));
@@ -106,7 +113,7 @@ impl Workspace {
                     archived: false,
                     data: RecordData::WritingSetup(setup.clone()),
                 }],
-                inputs: vec![],
+                inputs: current_records(conversation),
             },
         )
     }
@@ -389,7 +396,7 @@ impl Workspace {
         let messages = self.messages(thread)?.into_iter().filter(|record| matches!(&record.data,RecordData::Message(message) if matches!(message.role.as_str(),"owner" | "assistant"))).collect();
         let rows = self.records()?;
         let scope = writing_request_scope(&rows, thread)?;
-        let view = self.writing_setup(note, scope.as_deref())?;
+        let view = self.writing_setup(note, Some(thread))?;
         let stored = rows.iter().find(
             |r| matches!(&r.data, RecordData::WritingSetup(s) if s.note == note && s.chat == scope),
         );

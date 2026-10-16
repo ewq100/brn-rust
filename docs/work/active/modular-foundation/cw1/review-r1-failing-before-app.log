@@ -1,0 +1,52 @@
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-cf730cbc/crates/brn-ai)
+   Compiling brn-threads-app v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-cf730cbc/crates/brn-threads-app)
+    Finished `test` profile [optimized] target(s) in 6.06s
+     Running tests/writing_setup.rs (/private/tmp/brn-c0-20261016-target/debug/deps/writing_setup-809506aac4036a0b)
+
+running 11 tests
+test setup_creation_and_undo_cannot_make_ordinary_chat_permanently_private ... FAILED
+test overflow_is_explicit_and_leaves_no_default_setup_or_request ... ok
+test ordinary_chat_setup_read_set_capture_and_undo_keep_existing_general_identity ... FAILED
+test inactive_conversations_keep_v1_v2_setup_inspection_but_refuse_new_writes ... FAILED
+test knowledge_off_keeps_conversation_linked_working_note_but_not_linked_references ... FAILED
+test setup_edits_stale_v2_candidates_and_replay_does_not_recapture ... ok
+test v1_prepared_request_replay_keeps_original_bytes_hash_and_inputs ... ok
+test revoked_archived_and_missing_references_are_unavailable_and_excluded_from_capture ... ok
+test ordered_reference_versions_and_purposes_survive_reopen_and_derived_regeneration ... ok
+test checked_setup_replay_conflicts_restart_undo_and_backup_are_durable ... ok
+test scopes_are_separate_in_lists_search_export_and_requests_without_note_mutation ... ok
+
+failures:
+
+---- setup_creation_and_undo_cannot_make_ordinary_chat_permanently_private stdout ----
+
+thread 'setup_creation_and_undo_cannot_make_ordinary_chat_permanently_private' (26885620) panicked at crates/brn-threads-app/tests/writing_setup.rs:684:5:
+assertion failed: !app.store.chat_has_private_context(&thread.id).unwrap()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- ordinary_chat_setup_read_set_capture_and_undo_keep_existing_general_identity stdout ----
+
+thread 'ordinary_chat_setup_read_set_capture_and_undo_keep_existing_general_identity' (26885616) panicked at crates/brn-threads-app/tests/writing_setup.rs:627:14:
+called `Option::unwrap()` on a `None` value
+
+---- inactive_conversations_keep_v1_v2_setup_inspection_but_refuse_new_writes stdout ----
+
+thread 'inactive_conversations_keep_v1_v2_setup_inspection_but_refuse_new_writes' (26885613) panicked at crates/brn-threads-app/tests/writing_setup.rs:858:9:
+assertion failed: app.store.record_visible_in_chat(&v2.request_message,
+        Some(&thread.id)).unwrap()
+
+---- knowledge_off_keeps_conversation_linked_working_note_but_not_linked_references stdout ----
+
+thread 'knowledge_off_keeps_conversation_linked_working_note_but_not_linked_references' (26885614) panicked at crates/brn-threads-app/tests/writing_setup.rs:729:14:
+called `Result::unwrap()` on an `Err` value: Invalid("Working Note is unavailable in this writing scope")
+
+
+failures:
+    inactive_conversations_keep_v1_v2_setup_inspection_but_refuse_new_writes
+    knowledge_off_keeps_conversation_linked_working_note_but_not_linked_references
+    ordinary_chat_setup_read_set_capture_and_undo_keep_existing_general_identity
+    setup_creation_and_undo_cannot_make_ordinary_chat_permanently_private
+
+test result: FAILED. 7 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.18s
+
+error: test failed, to rerun pass `-p brn-threads-app --test writing_setup`

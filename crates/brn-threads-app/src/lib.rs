@@ -283,30 +283,21 @@ impl Workspace {
             .collect())
     }
     pub fn messages(&self, thread: &str) -> AppResult<Vec<Record>> {
-        let records = self.records()?;
-        let mut rows: Vec<_> = records
-            .iter()
-            .filter(|r| !r.archived && matches!(&r.data,RecordData::Message(m) if m.thread==thread))
-            .filter(|r| !scoped_writing_request(r) || record_in_chat(r, &records, Some(thread)))
-            .cloned()
-            .collect();
-        // Receipt insertion order is durable and total even when wall-clock
-        // timestamps tie or the clock moves backwards. Message edits retain creation order.
-        let mut order = BTreeMap::new();
-        for (receipt_order, receipt) in self.history()?.into_iter().enumerate() {
-            for (write_order, write) in receipt.writes.into_iter().enumerate() {
-                order
-                    .entry(write.after.id)
-                    .or_insert((receipt_order, write_order));
+        // The shared inspection service owns durable message order and scoped
+        // request visibility, including pages that skip another scope's data.
+        let mut messages = Vec::new();
+        let mut after = 0;
+        loop {
+            let (page, more) = self.store.message_page(thread, after, 100)?;
+            if let Some((position, _)) = page.last() {
+                after = *position;
+            }
+            messages.extend(page.into_iter().map(|(_, record)| record));
+            if !more {
+                break;
             }
         }
-        rows.sort_by_key(|row| {
-            order
-                .get(&row.id)
-                .copied()
-                .unwrap_or((usize::MAX, usize::MAX))
-        });
-        Ok(rows)
+        Ok(messages)
     }
     pub fn history(&self) -> AppResult<Vec<Receipt>> {
         Ok(self.store.receipts()?)

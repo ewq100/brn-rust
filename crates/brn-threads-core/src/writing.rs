@@ -42,38 +42,44 @@ pub struct WritingSnapshotSetup {
     pub brief: Option<String>,
     pub references: Vec<WritingReferenceVersion>,
 }
-/// Resolve a host-selected scope to its existing Project or Thread identity.
-/// Passing None explicitly selects general BRN. A private Thread never expands
-/// its saved setup into a project when the Thread subsequently moves.
+/// Resolve existing host scope for reads, including archived/legacy Resolved
+/// conversations. Setup never creates privacy or changes that scope.
 pub fn writing_setup_scope(rows: &[Record], chat: Option<&str>) -> Result<Option<String>> {
     let Some(chat) = chat else {
         return Ok(None);
     };
     if let Some(project) = crate::context::project_scope(rows, Some(chat)) {
-        if !project.archived {
-            return Ok(Some(project.id.clone()));
-        }
-    } else if rows.iter().any(|r| {
-        r.id == chat
-            && !r.archived
-            && matches!(&r.data, RecordData::Thread(t) if t.state == ThreadState::Open)
-    }) {
-        return Ok(Some(chat.into()));
+        return Ok(Some(project.id.clone()));
     }
-    Err(Error::Invalid(
-        "Writing scope is missing or inactive".into(),
-    ))
-}
-/// The scope of an existing conversation, as established by host-owned state.
-pub fn writing_request_scope(rows: &[Record], chat: &str) -> Result<Option<String>> {
-    if crate::context::project_scope(rows, Some(chat)).is_some()
-        || crate::context::chat_private(rows, chat)
+    if rows
+        .iter()
+        .any(|r| r.id == chat && matches!(r.data, RecordData::Thread(_)))
     {
-        writing_setup_scope(rows, Some(chat))
-    } else {
-        writing_setup_scope(rows, Some(chat))?;
-        Ok(None)
+        return Ok(crate::context::chat_private(rows, chat).then(|| chat.into()));
     }
+    Err(Error::Invalid("Writing scope is missing".into()))
+}
+/// Scope of the selected existing conversation; ordinary chats remain general.
+pub fn writing_request_scope(rows: &[Record], chat: &str) -> Result<Option<String>> {
+    writing_setup_scope(rows, Some(chat))
+}
+fn require_active_writing_scope(rows: &[Record], chat: Option<&str>) -> Result<()> {
+    if let Some(chat) = chat {
+        let active = rows.iter().any(|r| {
+            r.id == chat
+                && !r.archived
+                && match &r.data {
+                    RecordData::Thread(t) => t.state == ThreadState::Open,
+                    RecordData::Project(_) => true,
+                    _ => false,
+                }
+        }) && !crate::context::project_scope(rows, Some(chat))
+            .is_some_and(|p| p.archived);
+        if !active {
+            return Err(Error::Invalid("Writing scope is inactive".into()));
+        }
+    }
+    Ok(())
 }
 impl WritingSetup {
     pub(crate) fn validate(&self) -> Result<()> {
@@ -326,11 +332,39 @@ pub fn exact_writing_range(
 }
 
 pub(crate) fn validate_setup_writes(
-    writes: &[Put],
+    request: &ChangeRequest,
     before: &[Record],
     after: &[Record],
+    host_chat: Option<&str>,
 ) -> Result<()> {
-    for write in writes {
+    if !request
+        .writes
+        .iter()
+        .any(|w| matches!(w.data, RecordData::WritingSetup(_)))
+    {
+        return Ok(());
+    }
+    // The host binds the actual conversation, not an arbitrary linked chat.
+    // Persisted checked Thread inputs also retain that context over prepare
+    // replay and Undo; multiple inputs require an explicit host binding.
+    let chats: Vec<_> = request
+        .inputs
+        .iter()
+        .filter(|i| {
+            matches!(
+                i.expectation,
+                InputExpectation::Current | InputExpectation::ChatContext
+            )
+        })
+        .filter_map(|i| {
+            before
+                .iter()
+                .find(|r| r.id == i.record && matches!(r.data, RecordData::Thread(_)))
+                .map(|r| r.id.as_str())
+        })
+        .collect();
+    let chat = host_chat.or_else(|| (chats.len() == 1).then(|| chats[0]));
+    for write in &request.writes {
         let RecordData::WritingSetup(setup) = &write.data else {
             continue;
         };
@@ -355,15 +389,22 @@ pub(crate) fn validate_setup_writes(
                 "Writing setup scope must use its canonical Project identity".into(),
             ));
         }
-        let usable = |id: &str| {
+        require_active_writing_scope(after, setup.chat.as_deref())?;
+        require_active_writing_scope(after, chat)?;
+        if chat.is_some() && writing_setup_scope(after, chat)? != setup.chat {
+            return Err(Error::Invalid(
+                "Writing setup and bound conversation scopes disagree".into(),
+            ));
+        }
+        let usable = |id: &str, context: Option<&str>| {
             after.iter().any(|r| {
                 r.id == id
                     && !r.archived
                     && matches!(&r.data, RecordData::Note(n) if n.superseded_by.is_none())
-                    && crate::context::visible(r, after, setup.chat.as_deref())
+                    && crate::context::visible(r, after, context)
             })
         };
-        if !usable(&setup.note) {
+        if !usable(&setup.note, chat.or(setup.chat.as_deref())) {
             return Err(Error::Invalid(
                 "Working Note is unavailable in this writing scope".into(),
             ));
@@ -371,7 +412,7 @@ pub(crate) fn validate_setup_writes(
         for reference in &setup.references {
             // Existing unavailable links remain editable/removable and host-visible;
             // they are never copied into a new request. New links need current access.
-            if !usable(&reference.note)
+            if !usable(&reference.note, setup.chat.as_deref())
                 && !old.is_some_and(|old| old.references.iter().any(|r| r.note == reference.note))
             {
                 return Err(Error::Invalid(

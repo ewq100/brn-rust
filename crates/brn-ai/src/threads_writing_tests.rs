@@ -792,3 +792,79 @@ fn v2_model_request_uses_canonical_metadata_without_reference_content_and_refuse
     );
     assert!(begin(&request).is_err());
 }
+
+#[test]
+fn ordinary_chat_setup_preserves_runtime_source_scope_and_delegated_maintenance() {
+    let (_root, mut request, note) = super::tests::fixture();
+    let mut store = Store::open(&request.data_dir).unwrap();
+    let op = store.allocate_operation("ordinary-context-setup").unwrap();
+    let scope = writing_setup_scope(&store.records().unwrap(), Some(&request.thread)).unwrap();
+    owner_write(
+        &mut store,
+        "ordinary-context-setup",
+        vec![Put {
+            id: op.creation_id(0),
+            expected_version: None,
+            archived: false,
+            data: RecordData::WritingSetup(WritingSetup {
+                note: note.clone(),
+                chat: scope,
+                brief: Some("Ordinary brief".into()),
+                references: vec![],
+            }),
+        }],
+    );
+    request.sources = vec![TransientSource::text(
+        "https://example.invalid/cw1-public-source",
+        "Synthetic source, no fetching",
+    )];
+    let (scope, _) = begin(&request).unwrap();
+    assert!(!scope.private_context);
+    let source = scope
+        .store
+        .lock()
+        .unwrap()
+        .records()
+        .unwrap()
+        .into_iter()
+        .find(
+            |r| matches!(&r.data,RecordData::Source(s) if s.locator==request.sources[0].reference),
+        )
+        .unwrap();
+    assert!(matches!(source.data,RecordData::Source(s) if s.chat.is_none()));
+    super::tests::read_all(&scope);
+    let record = scope.store.lock().unwrap().record(&note).unwrap().unwrap();
+    let mut data = record.data;
+    let RecordData::Note(n) = &mut data else {
+        panic!()
+    };
+    n.markdown = "Preserved ordinary delegated maintenance".into();
+    let prepared: Prepared = serde_json::from_value(
+        prepare(
+            &scope,
+            PrepareArgs {
+                request_key: "ordinary-maintenance".into(),
+                request: ChangeRequest {
+                    reason: "Ordinary scoped setup must not change delegation".into(),
+                    writes: vec![Put {
+                        id: note,
+                        expected_version: Some(record.version),
+                        archived: false,
+                        data,
+                    }],
+                    inputs: vec![],
+                },
+            },
+        )
+        .unwrap(),
+    )
+    .unwrap();
+    let result = apply(
+        &scope,
+        ApplyArgs {
+            operation: prepared.operation.as_str().into(),
+        },
+    )
+    .unwrap();
+    assert_eq!(result["outcome"], "Applied");
+}

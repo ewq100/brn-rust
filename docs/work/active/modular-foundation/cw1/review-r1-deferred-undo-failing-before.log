@@ -1,0 +1,22 @@
+   Compiling brn-threads-core v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-cf730cbc/crates/brn-threads-core)
+    Finished `test` profile [optimized] target(s) in 4.84s
+     Running tests/writing_setup.rs (/private/tmp/brn-c0-20261016-target/debug/deps/writing_setup-65b0e4d6f3ac0b1f)
+
+running 1 test
+test deferred_setup_undo_keeps_identity_after_unrelated_conversation_attention_and_restart ... FAILED
+
+failures:
+
+---- deferred_setup_undo_keeps_identity_after_unrelated_conversation_attention_and_restart stdout ----
+
+thread 'deferred_setup_undo_keeps_identity_after_unrelated_conversation_attention_and_restart' (26916971) panicked at crates/brn-threads-core/tests/writing_setup.rs:777:57:
+called `Result::unwrap()` on an `Err` value: ImmutableRequest
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    deferred_setup_undo_keeps_identity_after_unrelated_conversation_attention_and_restart
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p brn-threads-core --test writing_setup`

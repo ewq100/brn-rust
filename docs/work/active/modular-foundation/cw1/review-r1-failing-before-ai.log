@@ -1,0 +1,22 @@
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-cf730cbc/crates/brn-ai)
+    Finished `test` profile [optimized] target(s) in 9.59s
+     Running unittests src/lib.rs (/private/tmp/brn-c0-20261016-target/debug/deps/brn_ai-4a6a17d75ba72bc0)
+
+running 1 test
+test threads::writing_tests::ordinary_chat_setup_preserves_runtime_source_scope_and_delegated_maintenance ... FAILED
+
+failures:
+
+---- threads::writing_tests::ordinary_chat_setup_preserves_runtime_source_scope_and_delegated_maintenance stdout ----
+
+thread 'threads::writing_tests::ordinary_chat_setup_preserves_runtime_source_scope_and_delegated_maintenance' (26890775) panicked at crates/brn-ai/src/threads_writing_tests.rs:822:5:
+assertion failed: !scope.private_context
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    threads::writing_tests::ordinary_chat_setup_preserves_runtime_source_scope_and_delegated_maintenance
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 346 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p brn-ai --lib`

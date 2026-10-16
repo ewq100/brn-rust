@@ -1,0 +1,22 @@
+   Compiling brn-threads-core v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-cf730cbc/crates/brn-threads-core)
+    Finished `test` profile [optimized] target(s) in 1.54s
+     Running tests/writing_setup.rs (/private/tmp/brn-c0-20261016-target/debug/deps/writing_setup-65b0e4d6f3ac0b1f)
+
+running 1 test
+test knowledge_off_working_note_uses_bound_conversation_and_references_keep_project_scope ... FAILED
+
+failures:
+
+---- knowledge_off_working_note_uses_bound_conversation_and_references_keep_project_scope stdout ----
+
+thread 'knowledge_off_working_note_uses_bound_conversation_and_references_keep_project_scope' (26890024) panicked at crates/brn-threads-core/tests/writing_setup.rs:640:34:
+called `Result::unwrap()` on an `Err` value: Invalid("Working Note is unavailable in this writing scope")
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    knowledge_off_working_note_uses_bound_conversation_and_references_keep_project_scope
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 8 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p brn-threads-core --test writing_setup`
