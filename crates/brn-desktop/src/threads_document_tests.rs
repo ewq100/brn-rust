@@ -503,3 +503,98 @@ fn formatting_controls_refuse_read_recovery_and_review_states(cx: &mut TestAppCo
     })
     .unwrap();
 }
+
+/// The Read view's Markdown policy is observable in the rendered plain copy:
+/// block HTML stays literal text (the default parser strips its tags), and the
+/// text of a `javascript:` link is still rendered, while images and link
+/// destinations contribute nothing. The exact string also fails if the plugin
+/// registration changes (for example both plugins becoming block parsers would
+/// render the inline tags literally). Inline HTML literalness is a visual
+/// property the plain copy excludes by design, so it stays a native check.
+#[gpui_kit::test]
+fn read_view_shows_block_html_literally_and_renders_all_link_text(cx: &mut TestAppContext) {
+    let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let data = root.path().join("document-policy");
+    let mut workspace = Workspace::open(&data).unwrap();
+    focus_tests::configure_offline_fixture(&mut workspace);
+    let note = workspace.new_note("Policy fixture", "placeholder").unwrap();
+    let note_id = note.id.clone();
+    let op = workspace.store.allocate_operation("seed-policy").unwrap();
+    let asset_id = op.creation_id(0);
+    let source = format!(
+        "Intro with <b>inline html</b>.\n\n<div>block html</div>\n\n![fig](brn-asset://{a})\n\n![gone](brn-asset://gone)\n\n[good](https://example.com) and [bad](javascript:alert(1))",
+        a = asset_id
+    );
+    workspace
+        .owner_change(
+            "seed-policy",
+            &ChangeRequest {
+                reason: "Seed asset and Markdown".into(),
+                inputs: vec![],
+                writes: vec![
+                    Put {
+                        id: asset_id.clone(),
+                        expected_version: None,
+                        archived: false,
+                        data: RecordData::Asset(Asset {
+                            note: note_id.clone(),
+                            source: None,
+                            media_type: "image/png".into(),
+                            bytes: vec![1, 2, 3],
+                        }),
+                    },
+                    Put {
+                        id: note_id.clone(),
+                        expected_version: Some(1),
+                        archived: false,
+                        data: {
+                            let mut data = note.data;
+                            if let RecordData::Note(ref mut n) = data {
+                                n.markdown = source.clone();
+                            }
+                            data
+                        },
+                    },
+                ],
+            },
+        )
+        .unwrap();
+    cx.update(gpui_kit::init);
+    let (window, view) = cx.update(|cx| {
+        gpui_kit::open_window(WindowOptions::default(), cx, |window, cx| {
+            cx.new(|cx| {
+                let mut view = ThreadsUi::new(workspace, data, window, cx);
+                view.poll = None;
+                view
+            })
+        })
+        .unwrap()
+    });
+    cx.run_until_parked();
+    cx.update_window(window, |_, window, cx| {
+        view.update(cx, |view, cx| {
+            view.open_note(&note_id, None, window, cx);
+            view.set_note_reading(true, window, cx);
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(window, |_, _window, cx| {
+        view.update(cx, |view, cx| {
+            let asset_key = format!("brn-asset://{asset_id}");
+            assert!(
+                view.note_assets().contains_key(&asset_key),
+                "the stored figure must be visible to the note's chat scope"
+            );
+            let rendered = view.note_read_view.read(cx).rendered_text();
+            assert_eq!(rendered.source(), source);
+            assert_eq!(
+                rendered.as_str(),
+                "Intro with inline html.\n<div>block html</div>\ngood and bad\n",
+                "block HTML stays literal and link text renders; the default \
+                 parser would strip the tags and drop the javascript: link text"
+            );
+        });
+    })
+    .unwrap();
+}

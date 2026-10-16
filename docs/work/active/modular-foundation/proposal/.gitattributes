@@ -1,0 +1,3 @@
+# Stored review artifacts: patch context lines and original Markdown hard breaks
+# must stay byte-exact so the patches reproduce their targets.
+* -whitespace

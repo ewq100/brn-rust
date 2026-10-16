@@ -21,28 +21,10 @@ impl ThreadsUi {
         text: String,
         thread: Option<&str>,
     ) -> TextView {
-        let assets = self.assets_in_chat(thread);
-        TextView::markdown(id, text)
-            .w_full()
-            .markdown_extensions(
-                MarkdownExtensions::default()
-                    .plugin(LiteralHtml { block: true })
-                    .plugin(LiteralHtml { block: false })
-                    .parser_revision(1),
-            )
-            .image_source(move |uri| {
-                assets
-                    .get(uri.as_ref())
-                    .cloned()
-                    .unwrap_or_else(|| Arc::new(Image::from_bytes(ImageFormat::Png, Vec::new())))
-                    .into()
-            })
-            .on_link_click(|url, _, _, cx| {
-                if url.starts_with("https://") || url.starts_with("http://") {
-                    cx.open_url(url);
-                }
-                cx.stop_propagation();
-            })
+        safe_markdown(
+            TextView::markdown(id, text).w_full(),
+            self.assets_in_chat(thread),
+        )
     }
     pub(super) fn thread_title(&self, id: &str) -> String {
         self.thread_rows
