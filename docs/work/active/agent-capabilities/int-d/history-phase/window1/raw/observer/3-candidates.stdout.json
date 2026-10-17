@@ -1,0 +1,7 @@
+{
+  "source_path": "/private/tmp/brn-int-d-history-preflight-20261017-39a67e4f/observations/3-candidates.stdout",
+  "sha256": "e469031f5c99160bb5227907401dfe3c542e60899670cebac0b557eb536be658",
+  "bytes": 964,
+  "encoding": "utf-8, reversible original bytes",
+  "text": "{\"contract\":3,\"command\":\"candidates\",\"ok\":true,\"status\":\"ok\",\"exit\":0,\"outcome\":null,\"operation\":null,\"key\":null,\"retry\":\"read\",\"changed\":[],\"conflict\":null,\"result\":{\"candidates\":[{\"operation\":\"3415e5b8-8c64-4073-b1c0-2ef4ea59e185\",\"request_hash\":\"9a4b5a325de281a9f25ba51d64dbf694cfe9a2418ce2520f89d0d72671c0928b\",\"reason\":\"Prepare only for owner review: replace undecided wording with the exact saved owner's Monday-only requirement and distinguish the later unaccepted assistant proposal. Preserve protection and unconfirmed status; no apply requested.\",\"writes\":[{\"id\":\"b080b278-f615-43b1-97df-1a399c6cb0cf:0\",\"kind\":\"Note\",\"version\":2,\"archived\":false,\"created\":false}],\"writes_total\":1,\"inputs_total\":5,\"undo_of\":null,\"replacement_of\":null}],\"shown\":1,\"cursor\":null,\"total\":null},\"error\":null,\"page\":{\"limit\":100,\"shown\":1,\"cursor\":null,\"total\":null},\"stop\":null,\"authority\":{\"workspace_purpose\":\"test\",\"cli_authority\":\"full\",\"enforced\":false,\"actor\":null}}\n"
+}

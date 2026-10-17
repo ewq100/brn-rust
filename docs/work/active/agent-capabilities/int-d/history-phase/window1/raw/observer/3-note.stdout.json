@@ -1,0 +1,7 @@
+{
+  "source_path": "/private/tmp/brn-int-d-history-preflight-20261017-39a67e4f/observations/3-note.stdout",
+  "sha256": "07fd11ffccd45a311a352d013ef1f3b0b638cef1282e090f0d3a680f253c299b",
+  "bytes": 630,
+  "encoding": "utf-8, reversible original bytes",
+  "text": "{\"contract\":3,\"command\":\"read\",\"ok\":true,\"status\":\"ok\",\"exit\":0,\"outcome\":null,\"operation\":null,\"key\":null,\"retry\":\"read\",\"changed\":[],\"conflict\":null,\"result\":{\"id\":\"b080b278-f615-43b1-97df-1a399c6cb0cf:0\",\"version\":2,\"archived\":false,\"data\":{\"Note\":{\"chat\":\"d56ba152-227d-4549-a2f8-9966164badb0:0\",\"title\":\"Aurora delivery draft\",\"markdown\":\"Synthetic Aurora delivery draft. Date remains undecided pending exact review.\\n\",\"protected\":true,\"confirmed\":false,\"superseded_by\":null,\"import\":null}}},\"error\":null,\"page\":null,\"stop\":null,\"authority\":{\"workspace_purpose\":\"test\",\"cli_authority\":\"full\",\"enforced\":false,\"actor\":null}}\n"
+}

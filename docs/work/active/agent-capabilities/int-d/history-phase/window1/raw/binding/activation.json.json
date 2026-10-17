@@ -1,0 +1,7 @@
+{
+  "source_path": "/private/tmp/brn-int-d-history-preflight-20261017-39a67e4f/activation.json",
+  "sha256": "3c7126206a5325db69ddee68c13090efc864d2efe840edea61f35945afd227d1",
+  "bytes": 328,
+  "encoding": "utf-8, reversible original bytes",
+  "text": "{\n  \"format\": \"BRN-INT-D-HISTORY-1\",\n  \"task\": \"int-d-history-phase-20261017\",\n  \"state\": \"ACTIVATED\",\n  \"source_pin\": \"39a67e4f010e39e7675c220b0df6b3a842e47c5f\",\n  \"preflight_sha256\": \"79d8c6131f405e7a2dd0bf0a29b18255e202fddcaff3bab370f47708b358b69c\",\n  \"max_starts\": 4,\n  \"issued_at\": 1792264774,\n  \"expires_at\": 1792265674\n}\n"
+}

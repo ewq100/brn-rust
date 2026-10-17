@@ -1,0 +1,7 @@
+{
+  "source_path": "/private/tmp/brn-int-d-history-window-20261017-39a67e4f-evidence/3-controller-result.json",
+  "sha256": "588a6917bb025eb316e794d880591f34609ac34c78e7c4b3b3796eeacc26b9b0",
+  "bytes": 299,
+  "encoding": "utf-8, reversible original bytes",
+  "text": "{\n  \"exit\": 0,\n  \"elapsed\": 30.205604076385498,\n  \"observer_pid\": 89976,\n  \"observer_pgid\": 89976,\n  \"stdout_sha256\": \"9571c69b770013b66b5995d9241ad2d45128fb027ff015e2ce7c323f6acc84da\",\n  \"stderr_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n  \"inventory_after\": []\n}\n"
+}

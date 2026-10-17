@@ -1,0 +1,26 @@
+{
+  "/private/tmp/brn-int-d-qualification-20261017-history-39a67e4f-r1/control/threads.sqlite3": {
+    "sha256": "cfba0bb1558e7b10fbece5469e38e829235a6e6537ee3baa6aac0d871ca28e69",
+    "bytes": 438272
+  },
+  "/private/tmp/brn-int-d-qualification-20261017-history-39a67e4f-r1/control/threads.sqlite3-wal": null,
+  "/private/tmp/brn-int-d-qualification-20261017-history-39a67e4f-r1/control/threads.sqlite3-shm": null,
+  "/private/tmp/brn-int-d-qualification-20261017-history-39a67e4f-r1/candidate/threads.sqlite3": {
+    "sha256": "bc0f5e88f7f2617939031f6e3231accf518030c584185f2c2702aad9e72199e3",
+    "bytes": 471040
+  },
+  "/private/tmp/brn-int-d-qualification-20261017-history-39a67e4f-r1/candidate/threads.sqlite3-wal": null,
+  "/private/tmp/brn-int-d-qualification-20261017-history-39a67e4f-r1/candidate/threads.sqlite3-shm": null,
+  "/private/tmp/brn-int-d-qualification-20261017-history-39a67e4f-r2/candidate/threads.sqlite3": {
+    "sha256": "d9f996896d9c38c2c37f1389d1b20cdcf4dd36b7df952fc1f87ddc01e0863895",
+    "bytes": 471040
+  },
+  "/private/tmp/brn-int-d-qualification-20261017-history-39a67e4f-r2/candidate/threads.sqlite3-wal": null,
+  "/private/tmp/brn-int-d-qualification-20261017-history-39a67e4f-r2/candidate/threads.sqlite3-shm": null,
+  "/private/tmp/brn-int-d-qualification-20261017-history-39a67e4f-r2/control/threads.sqlite3": {
+    "sha256": "d48cd6cbd72eff3710e2499070ed394ab540efd2f32eb5a09092095591e9fbd5",
+    "bytes": 438272
+  },
+  "/private/tmp/brn-int-d-qualification-20261017-history-39a67e4f-r2/control/threads.sqlite3-wal": null,
+  "/private/tmp/brn-int-d-qualification-20261017-history-39a67e4f-r2/control/threads.sqlite3-shm": null
+}

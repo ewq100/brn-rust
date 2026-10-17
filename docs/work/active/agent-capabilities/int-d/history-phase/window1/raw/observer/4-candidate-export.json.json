@@ -1,0 +1,7 @@
+{
+  "source_path": "/private/tmp/brn-int-d-history-preflight-20261017-39a67e4f/observations/4-candidate-export.json",
+  "sha256": "3b0d5e8014657c2479d567904bf814db46fa81230b4acac4ce952840266be078",
+  "bytes": 331,
+  "encoding": "utf-8, reversible original bytes",
+  "text": "{\n  \"command\": [\n    \"/private/tmp/brn-int-d-history-opus1-20261017-target/debug/deps/int_d-8d0cf15fe49e4a41\",\n    \"--exact\",\n    \"candidate_export::exact_synthetic_candidate_export_refuses_wrong_fixture_operation_and_preserves_content\",\n    \"--test-threads=1\",\n    \"--nocapture\"\n  ],\n  \"exit\": 0,\n  \"python_timeout_seconds\": 15\n}\n"
+}

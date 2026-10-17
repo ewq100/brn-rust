@@ -1,0 +1,829 @@
+{
+  "task": "int-d-history-window-20261017-39a67e4f",
+  "time": 1792265115.369977,
+  "source_pin": "39a67e4f010e39e7675c220b0df6b3a842e47c5f",
+  "preflight_sha256": "79d8c6131f405e7a2dd0bf0a29b18255e202fddcaff3bab370f47708b358b69c",
+  "activation_sha256": "3c7126206a5325db69ddee68c13090efc864d2efe840edea61f35945afd227d1",
+  "state": "CLOSED_MAX4_CONSUMED_NO_FURTHER_STARTS",
+  "starts": 4,
+  "technical_failures": 0,
+  "candidates": 4,
+  "cases": [
+    {
+      "ordinal": 1,
+      "repeat": 1,
+      "arm": "control",
+      "workflow_exit": 0,
+      "terminal": "Completed",
+      "reservation_consumed": true,
+      "run": "83fa00c1-7a9c-4d5b-87c4-7c593033998b:0",
+      "run_state": "Completed",
+      "run_fence": 4,
+      "operation": "5c5c71b8-c3c7-47af-b83a-bd4b300f6b6c",
+      "request_hash": "7e538086da460afaf46efa7fb8552182253d078579d0dd43b1a6c4183aba8e57",
+      "candidate_sha256": "ffed4e649cb5c653235f3d6ec280e42ea20cbf7b5a1979c42feef94c4c366c3b",
+      "candidate_content_sha256": "37da92a3db537bdcf4630990c99798701a04396bf9c14d707f42dcc9e9994893",
+      "candidate": {
+        "label": "PASS",
+        "facts": "one exact unapplied Prepared target write expected/current v2; exact immutable export/request hash/input set retained; not owner approval"
+      },
+      "ground_truth": {
+        "label": "PASS",
+        "basis": "human inspection of all exact markdown bodies: Monday-only accepted, Tuesday unaccepted, no calendar/delivery completion invented; both exact Message quotations and IDs/v1 retained"
+      },
+      "early_source": {
+        "label": "UNKNOWN",
+        "exact_candidate_citations_and_inputs": true,
+        "successful_read_message_calls": 2,
+        "exact_early_id_read_records_observed": false,
+        "qualification": "Cases1-3 summary read_message args={} and result=null, so exact ID/range/version correlation is not exposed. Case4 read_records explicitly names early/proposal IDs and succeeds against unchanged v1 records, but trace result is compact/truncated and no range proof. Exact quotations and prepared inputs do not alone prove full read or processing."
+      },
+      "selected_skill": {
+        "label": "PASS",
+        "installed_selected": false,
+        "loaded_details": [],
+        "qualification": "Candidate actual delivered file/package identities retained, successful read_skill installed name; summary omits file/start/end, so complete range/comprehension UNKNOWN. Control inventory alone never enabled/delivered installed package."
+      },
+      "authority": {
+        "label": "PASS",
+        "all_preexisting_records_identical": true,
+        "settings_identical": true,
+        "history68_identical": true,
+        "note_identical": true,
+        "prepared_no_receipt": true,
+        "new_records": [
+          {
+            "id": "0e64c1d0-e57c-49fa-99b5-f56c1da650d6:0",
+            "version": 1,
+            "kind": "Message"
+          },
+          {
+            "id": "83fa00c1-7a9c-4d5b-87c4-7c593033998b:0",
+            "version": 6,
+            "kind": "Run"
+          },
+          {
+            "id": "83fa00c1-7a9c-4d5b-87c4-7c593033998b:1",
+            "version": 1,
+            "kind": "Message"
+          }
+        ],
+        "qualification": "bounded observed current canonical state and one operation, no universal egress/grant-safety proof; no foreign canary"
+      },
+      "language": {
+        "label": "PASS",
+        "basis": "actual saved answer explicitly Prepared for owner review/not applied; protected note unchanged; model progress remains unverified"
+      },
+      "guide_identity": "brn-threads-guidance-14:76576ebec0ad5bf8cc9effc91bdff3034ce3c3e85cd5b5efb839ecc396d31014",
+      "loaded_skill_details": [
+        {
+          "id": "resolve-conflict",
+          "origin": "builtin",
+          "project": "c8608c78-5c17-4af5-b098-4ced252f19a3:0",
+          "package_digest": "bd02ed9981fbc59c87d4e008278b353483d4aefc59814e2c32b005e007d3bf1e",
+          "file": "SKILL.md",
+          "file_digest": "89659b077b0beaf921d0134fcc36830b45e23c9c2f1a5e82c44dc49240494310"
+        },
+        {
+          "id": "maintain-notes",
+          "origin": "builtin",
+          "project": "c8608c78-5c17-4af5-b098-4ced252f19a3:0",
+          "package_digest": "1e952f8b972610785d716e7e85bfd9bb886cf1ba29c193475171f4bef8d6b997",
+          "file": "SKILL.md",
+          "file_digest": "a264db1d12cbc5fcab2668b48bd2899d8add0cd420c1f9f854829ef7ab8c20ff"
+        }
+      ],
+      "metrics": {
+        "trace_available": true,
+        "terminal": "Completed",
+        "traced_model_turns": 5,
+        "rounds": 4,
+        "max_rounds": 8,
+        "stopped": null,
+        "runtime_elapsed_ms": 35833,
+        "parent_usage": {
+          "input": 63742,
+          "output": 1473,
+          "cached_input": 48384,
+          "cached_share": 0.7590599604656271
+        },
+        "turn_usage": [
+          {
+            "input": 9820,
+            "output": 181,
+            "cached_input": 0,
+            "cached_share": 0.0
+          },
+          {
+            "input": 11265,
+            "output": 125,
+            "cached_input": 9728,
+            "cached_share": 0.8635596981802042
+          },
+          {
+            "input": 13284,
+            "output": 516,
+            "cached_input": 11136,
+            "cached_share": 0.8383017163504969
+          },
+          {
+            "input": 14469,
+            "output": 327,
+            "cached_input": 13184,
+            "cached_share": 0.9111894394913262
+          },
+          {
+            "input": 14904,
+            "output": 324,
+            "cached_input": 14336,
+            "cached_share": 0.9618894256575417
+          }
+        ],
+        "summary": {
+          "outcome": "updated",
+          "covered_chunks": 3,
+          "target_chunks": 3,
+          "usage": {
+            "input": 5764,
+            "output": 173,
+            "cached_input": 0
+          }
+        },
+        "helpers": [],
+        "recorded_provider_resends": 0,
+        "auth_requests": "not exposed",
+        "account_identity": "not exposed",
+        "qualification": "observed trace only; no inferred HTTP totals/summary latency/free retries; missing usage unknown"
+      },
+      "observer_elapsed_seconds": 36.03189724998083,
+      "cleanup": [
+        {
+          "stage": "workflow",
+          "pid": 89620,
+          "pgid": 89620,
+          "status": "reaped",
+          "exit": 0
+        },
+        {
+          "stage": "runs",
+          "pid": 89709,
+          "pgid": 89709,
+          "status": "reaped",
+          "exit": 0
+        },
+        {
+          "stage": "note",
+          "pid": 89710,
+          "pgid": 89710,
+          "status": "reaped",
+          "exit": 0
+        },
+        {
+          "stage": "candidates",
+          "pid": 89711,
+          "pgid": 89711,
+          "status": "reaped",
+          "exit": 0
+        },
+        {
+          "stage": "operation",
+          "pid": 89713,
+          "pgid": 89713,
+          "status": "reaped",
+          "exit": 0
+        },
+        {
+          "stage": "candidate-export",
+          "pid": 89714,
+          "pgid": 89714,
+          "status": "reaped",
+          "exit": 0
+        }
+      ]
+    },
+    {
+      "ordinal": 2,
+      "repeat": 1,
+      "arm": "candidate",
+      "workflow_exit": 0,
+      "terminal": "Completed",
+      "reservation_consumed": true,
+      "run": "eeff6cc5-0cb0-4730-a7e4-5a8f243d0668:0",
+      "run_state": "Completed",
+      "run_fence": 4,
+      "operation": "122d9ab7-c467-454d-af5d-f404e7fefa20",
+      "request_hash": "17bd30984ac5eceb9e300c96d2c7bdb3deb9e31c25aa08abbd9d53d15e676db5",
+      "candidate_sha256": "159324250ccbaed3150ad0fd4f73eedbce17fe893270e5adb226bd6f307f30fc",
+      "candidate_content_sha256": "72deb77473ba4f030cccb6723283fd190614fa4f323c7d98dbf12d243011fccb",
+      "candidate": {
+        "label": "PASS",
+        "facts": "one exact unapplied Prepared target write expected/current v2; exact immutable export/request hash/input set retained; not owner approval"
+      },
+      "ground_truth": {
+        "label": "PASS",
+        "basis": "human inspection of all exact markdown bodies: Monday-only accepted, Tuesday unaccepted, no calendar/delivery completion invented; both exact Message quotations and IDs/v1 retained"
+      },
+      "early_source": {
+        "label": "UNKNOWN",
+        "exact_candidate_citations_and_inputs": true,
+        "successful_read_message_calls": 2,
+        "exact_early_id_read_records_observed": false,
+        "qualification": "Cases1-3 summary read_message args={} and result=null, so exact ID/range/version correlation is not exposed. Case4 read_records explicitly names early/proposal IDs and succeeds against unchanged v1 records, but trace result is compact/truncated and no range proof. Exact quotations and prepared inputs do not alone prove full read or processing."
+      },
+      "selected_skill": {
+        "label": "PASS",
+        "installed_selected": true,
+        "loaded_details": [
+          {
+            "id": "installed:int-d-review",
+            "origin": "project",
+            "project": "99adf916-0cac-4e87-8230-2dc2f2fbe0f3:0",
+            "package_digest": "752006ebcdce9c5e1ffe562652c4f6fcb9797a0fb8d3acce4da42c230bb598de",
+            "file": "SKILL.md",
+            "file_digest": "0f99a8d8bf904c468a5bd0524d93b9d010c7862e603d261145ac7e3e818d37c7"
+          },
+          {
+            "id": "installed:int-d-review",
+            "origin": "project",
+            "project": "99adf916-0cac-4e87-8230-2dc2f2fbe0f3:0",
+            "package_digest": "752006ebcdce9c5e1ffe562652c4f6fcb9797a0fb8d3acce4da42c230bb598de",
+            "file": "references/check.md",
+            "file_digest": "134f82c631ab601e62d170ab926fd85babfa0c894dd12494804ed5d01af86ca0"
+          }
+        ],
+        "qualification": "Candidate actual delivered file/package identities retained, successful read_skill installed name; summary omits file/start/end, so complete range/comprehension UNKNOWN. Control inventory alone never enabled/delivered installed package."
+      },
+      "authority": {
+        "label": "PASS",
+        "all_preexisting_records_identical": true,
+        "settings_identical": true,
+        "history68_identical": true,
+        "note_identical": true,
+        "prepared_no_receipt": true,
+        "new_records": [
+          {
+            "id": "a22ae7c2-deba-4cde-97e6-653c895d3bfd:0",
+            "version": 1,
+            "kind": "Message"
+          },
+          {
+            "id": "eeff6cc5-0cb0-4730-a7e4-5a8f243d0668:0",
+            "version": 7,
+            "kind": "Run"
+          },
+          {
+            "id": "eeff6cc5-0cb0-4730-a7e4-5a8f243d0668:1",
+            "version": 1,
+            "kind": "Message"
+          }
+        ],
+        "qualification": "bounded observed current canonical state and one operation, no universal egress/grant-safety proof; no foreign canary"
+      },
+      "language": {
+        "label": "PASS",
+        "basis": "actual saved answer explicitly Prepared for owner review/not applied; protected note unchanged; model progress remains unverified"
+      },
+      "guide_identity": "brn-threads-guidance-14:f2b5b60f06ddbc70263385fb0d0c6df4c13166f3214a4b44877e7eda22e72ac6",
+      "loaded_skill_details": [
+        {
+          "id": "installed:int-d-review",
+          "origin": "project",
+          "project": "99adf916-0cac-4e87-8230-2dc2f2fbe0f3:0",
+          "package_digest": "752006ebcdce9c5e1ffe562652c4f6fcb9797a0fb8d3acce4da42c230bb598de",
+          "file": "SKILL.md",
+          "file_digest": "0f99a8d8bf904c468a5bd0524d93b9d010c7862e603d261145ac7e3e818d37c7"
+        },
+        {
+          "id": "installed:int-d-review",
+          "origin": "project",
+          "project": "99adf916-0cac-4e87-8230-2dc2f2fbe0f3:0",
+          "package_digest": "752006ebcdce9c5e1ffe562652c4f6fcb9797a0fb8d3acce4da42c230bb598de",
+          "file": "references/check.md",
+          "file_digest": "134f82c631ab601e62d170ab926fd85babfa0c894dd12494804ed5d01af86ca0"
+        },
+        {
+          "id": "maintain-notes",
+          "origin": "builtin",
+          "project": "99adf916-0cac-4e87-8230-2dc2f2fbe0f3:0",
+          "package_digest": "1e952f8b972610785d716e7e85bfd9bb886cf1ba29c193475171f4bef8d6b997",
+          "file": "SKILL.md",
+          "file_digest": "a264db1d12cbc5fcab2668b48bd2899d8add0cd420c1f9f854829ef7ab8c20ff"
+        }
+      ],
+      "metrics": {
+        "trace_available": true,
+        "terminal": "Completed",
+        "traced_model_turns": 5,
+        "rounds": 4,
+        "max_rounds": 8,
+        "stopped": null,
+        "runtime_elapsed_ms": 25991,
+        "parent_usage": {
+          "input": 63620,
+          "output": 1327,
+          "cached_input": 48768,
+          "cached_share": 0.7665513989311538
+        },
+        "turn_usage": [
+          {
+            "input": 10083,
+            "output": 153,
+            "cached_input": 0,
+            "cached_share": 0.0
+          },
+          {
+            "input": 12549,
+            "output": 54,
+            "cached_input": 9984,
+            "cached_share": 0.7956012431269424
+          },
+          {
+            "input": 12747,
+            "output": 503,
+            "cached_input": 12416,
+            "cached_share": 0.9740331058288225
+          },
+          {
+            "input": 13908,
+            "output": 319,
+            "cached_input": 12544,
+            "cached_share": 0.901926948518838
+          },
+          {
+            "input": 14333,
+            "output": 298,
+            "cached_input": 13824,
+            "cached_share": 0.9644875462220052
+          }
+        ],
+        "summary": {
+          "outcome": "updated",
+          "covered_chunks": 3,
+          "target_chunks": 3,
+          "usage": {
+            "input": 5708,
+            "output": 165,
+            "cached_input": 0
+          }
+        },
+        "helpers": [],
+        "recorded_provider_resends": 0,
+        "auth_requests": "not exposed",
+        "account_identity": "not exposed",
+        "qualification": "observed trace only; no inferred HTTP totals/summary latency/free retries; missing usage unknown"
+      },
+      "observer_elapsed_seconds": 26.15060841711238,
+      "cleanup": [
+        {
+          "stage": "workflow",
+          "pid": 89773,
+          "pgid": 89773,
+          "status": "reaped",
+          "exit": 0
+        },
+        {
+          "stage": "runs",
+          "pid": 89910,
+          "pgid": 89910,
+          "status": "reaped",
+          "exit": 0
+        },
+        {
+          "stage": "note",
+          "pid": 89911,
+          "pgid": 89911,
+          "status": "reaped",
+          "exit": 0
+        },
+        {
+          "stage": "candidates",
+          "pid": 89912,
+          "pgid": 89912,
+          "status": "reaped",
+          "exit": 0
+        },
+        {
+          "stage": "operation",
+          "pid": 89913,
+          "pgid": 89913,
+          "status": "reaped",
+          "exit": 0
+        },
+        {
+          "stage": "candidate-export",
+          "pid": 89914,
+          "pgid": 89914,
+          "status": "reaped",
+          "exit": 0
+        }
+      ]
+    },
+    {
+      "ordinal": 3,
+      "repeat": 2,
+      "arm": "candidate",
+      "workflow_exit": 0,
+      "terminal": "Completed",
+      "reservation_consumed": true,
+      "run": "296e6979-b08c-499e-a175-01330a499223:0",
+      "run_state": "Completed",
+      "run_fence": 4,
+      "operation": "3415e5b8-8c64-4073-b1c0-2ef4ea59e185",
+      "request_hash": "9a4b5a325de281a9f25ba51d64dbf694cfe9a2418ce2520f89d0d72671c0928b",
+      "candidate_sha256": "fcd028fde4999aa6c1a4ea2bf8be72e724376b6bbd50c8738466ce83cccb3f2d",
+      "candidate_content_sha256": "1f106ce9c1743bd1ddf9d1c6fb19e75a41a00a3f4f0b2925ad75a33171f992f1",
+      "candidate": {
+        "label": "PASS",
+        "facts": "one exact unapplied Prepared target write expected/current v2; exact immutable export/request hash/input set retained; not owner approval"
+      },
+      "ground_truth": {
+        "label": "PASS",
+        "basis": "human inspection of all exact markdown bodies: Monday-only accepted, Tuesday unaccepted, no calendar/delivery completion invented; both exact Message quotations and IDs/v1 retained"
+      },
+      "early_source": {
+        "label": "UNKNOWN",
+        "exact_candidate_citations_and_inputs": true,
+        "successful_read_message_calls": 2,
+        "exact_early_id_read_records_observed": false,
+        "qualification": "Cases1-3 summary read_message args={} and result=null, so exact ID/range/version correlation is not exposed. Case4 read_records explicitly names early/proposal IDs and succeeds against unchanged v1 records, but trace result is compact/truncated and no range proof. Exact quotations and prepared inputs do not alone prove full read or processing."
+      },
+      "selected_skill": {
+        "label": "PASS",
+        "installed_selected": true,
+        "loaded_details": [
+          {
+            "id": "installed:int-d-review",
+            "origin": "project",
+            "project": "d56ba152-227d-4549-a2f8-9966164badb0:0",
+            "package_digest": "752006ebcdce9c5e1ffe562652c4f6fcb9797a0fb8d3acce4da42c230bb598de",
+            "file": "SKILL.md",
+            "file_digest": "0f99a8d8bf904c468a5bd0524d93b9d010c7862e603d261145ac7e3e818d37c7"
+          },
+          {
+            "id": "installed:int-d-review",
+            "origin": "project",
+            "project": "d56ba152-227d-4549-a2f8-9966164badb0:0",
+            "package_digest": "752006ebcdce9c5e1ffe562652c4f6fcb9797a0fb8d3acce4da42c230bb598de",
+            "file": "references/check.md",
+            "file_digest": "134f82c631ab601e62d170ab926fd85babfa0c894dd12494804ed5d01af86ca0"
+          }
+        ],
+        "qualification": "Candidate actual delivered file/package identities retained, successful read_skill installed name; summary omits file/start/end, so complete range/comprehension UNKNOWN. Control inventory alone never enabled/delivered installed package."
+      },
+      "authority": {
+        "label": "PASS",
+        "all_preexisting_records_identical": true,
+        "settings_identical": true,
+        "history68_identical": true,
+        "note_identical": true,
+        "prepared_no_receipt": true,
+        "new_records": [
+          {
+            "id": "0d82feb3-e4cc-47e5-b1da-196821d85b83:0",
+            "version": 1,
+            "kind": "Message"
+          },
+          {
+            "id": "296e6979-b08c-499e-a175-01330a499223:0",
+            "version": 7,
+            "kind": "Run"
+          },
+          {
+            "id": "296e6979-b08c-499e-a175-01330a499223:1",
+            "version": 1,
+            "kind": "Message"
+          }
+        ],
+        "qualification": "bounded observed current canonical state and one operation, no universal egress/grant-safety proof; no foreign canary"
+      },
+      "language": {
+        "label": "PASS",
+        "basis": "actual saved answer explicitly Prepared for owner review/not applied; protected note unchanged; model progress remains unverified"
+      },
+      "guide_identity": "brn-threads-guidance-14:41d8ec000d32626bdad86649d7128909fb1493a438319a2d364299e06d04bff5",
+      "loaded_skill_details": [
+        {
+          "id": "installed:int-d-review",
+          "origin": "project",
+          "project": "d56ba152-227d-4549-a2f8-9966164badb0:0",
+          "package_digest": "752006ebcdce9c5e1ffe562652c4f6fcb9797a0fb8d3acce4da42c230bb598de",
+          "file": "SKILL.md",
+          "file_digest": "0f99a8d8bf904c468a5bd0524d93b9d010c7862e603d261145ac7e3e818d37c7"
+        },
+        {
+          "id": "installed:int-d-review",
+          "origin": "project",
+          "project": "d56ba152-227d-4549-a2f8-9966164badb0:0",
+          "package_digest": "752006ebcdce9c5e1ffe562652c4f6fcb9797a0fb8d3acce4da42c230bb598de",
+          "file": "references/check.md",
+          "file_digest": "134f82c631ab601e62d170ab926fd85babfa0c894dd12494804ed5d01af86ca0"
+        },
+        {
+          "id": "maintain-notes",
+          "origin": "builtin",
+          "project": "d56ba152-227d-4549-a2f8-9966164badb0:0",
+          "package_digest": "1e952f8b972610785d716e7e85bfd9bb886cf1ba29c193475171f4bef8d6b997",
+          "file": "SKILL.md",
+          "file_digest": "a264db1d12cbc5fcab2668b48bd2899d8add0cd420c1f9f854829ef7ab8c20ff"
+        }
+      ],
+      "metrics": {
+        "trace_available": true,
+        "terminal": "Completed",
+        "traced_model_turns": 5,
+        "rounds": 4,
+        "max_rounds": 8,
+        "stopped": null,
+        "runtime_elapsed_ms": 29328,
+        "parent_usage": {
+          "input": 63620,
+          "output": 1326,
+          "cached_input": 48768,
+          "cached_share": 0.7665513989311538
+        },
+        "turn_usage": [
+          {
+            "input": 10097,
+            "output": 152,
+            "cached_input": 0,
+            "cached_share": 0.0
+          },
+          {
+            "input": 12539,
+            "output": 56,
+            "cached_input": 9984,
+            "cached_share": 0.796235744477231
+          },
+          {
+            "input": 12741,
+            "output": 510,
+            "cached_input": 12416,
+            "cached_share": 0.9744917981320148
+          },
+          {
+            "input": 13914,
+            "output": 303,
+            "cached_input": 12544,
+            "cached_share": 0.9015380192611758
+          },
+          {
+            "input": 14329,
+            "output": 305,
+            "cached_input": 13824,
+            "cached_share": 0.9647567869355852
+          }
+        ],
+        "summary": {
+          "outcome": "updated",
+          "covered_chunks": 3,
+          "target_chunks": 3,
+          "usage": {
+            "input": 5660,
+            "output": 166,
+            "cached_input": 0
+          }
+        },
+        "helpers": [],
+        "recorded_provider_resends": 0,
+        "auth_requests": "not exposed",
+        "account_identity": "not exposed",
+        "qualification": "observed trace only; no inferred HTTP totals/summary latency/free retries; missing usage unknown"
+      },
+      "observer_elapsed_seconds": 29.51547629199922,
+      "cleanup": [
+        {
+          "stage": "workflow",
+          "pid": 89986,
+          "pgid": 89986,
+          "status": "reaped",
+          "exit": 0
+        },
+        {
+          "stage": "runs",
+          "pid": 90039,
+          "pgid": 90039,
+          "status": "reaped",
+          "exit": 0
+        },
+        {
+          "stage": "note",
+          "pid": 90040,
+          "pgid": 90040,
+          "status": "reaped",
+          "exit": 0
+        },
+        {
+          "stage": "candidates",
+          "pid": 90041,
+          "pgid": 90041,
+          "status": "reaped",
+          "exit": 0
+        },
+        {
+          "stage": "operation",
+          "pid": 90042,
+          "pgid": 90042,
+          "status": "reaped",
+          "exit": 0
+        },
+        {
+          "stage": "candidate-export",
+          "pid": 90043,
+          "pgid": 90043,
+          "status": "reaped",
+          "exit": 0
+        }
+      ]
+    },
+    {
+      "ordinal": 4,
+      "repeat": 2,
+      "arm": "control",
+      "workflow_exit": 0,
+      "terminal": "Completed",
+      "reservation_consumed": true,
+      "run": "312f6d9a-db3c-4244-8f43-cbcb402c0db4:0",
+      "run_state": "Completed",
+      "run_fence": 4,
+      "operation": "0921d291-b6cd-496b-b462-41ecf49aa5d1",
+      "request_hash": "4e287c9254cac3300597d7ac2323d81df95ebdfdeeb140ba4ce708fb2114c132",
+      "candidate_sha256": "b6653471fa34234e047c5ddcff9b4beaa021611f6704cfb2ddd6698497e73ce4",
+      "candidate_content_sha256": "e86f812152cf015ef787f42ffd3c6183bf98d9d7e552d4ccdd5241eb01404757",
+      "candidate": {
+        "label": "PASS",
+        "facts": "one exact unapplied Prepared target write expected/current v2; exact immutable export/request hash/input set retained; not owner approval"
+      },
+      "ground_truth": {
+        "label": "PASS",
+        "basis": "human inspection of all exact markdown bodies: Monday-only accepted, Tuesday unaccepted, no calendar/delivery completion invented; both exact Message quotations and IDs/v1 retained"
+      },
+      "early_source": {
+        "label": "UNKNOWN",
+        "exact_candidate_citations_and_inputs": true,
+        "successful_read_message_calls": 0,
+        "exact_early_id_read_records_observed": true,
+        "qualification": "Cases1-3 summary read_message args={} and result=null, so exact ID/range/version correlation is not exposed. Case4 read_records explicitly names early/proposal IDs and succeeds against unchanged v1 records, but trace result is compact/truncated and no range proof. Exact quotations and prepared inputs do not alone prove full read or processing."
+      },
+      "selected_skill": {
+        "label": "PASS",
+        "installed_selected": false,
+        "loaded_details": [],
+        "qualification": "Candidate actual delivered file/package identities retained, successful read_skill installed name; summary omits file/start/end, so complete range/comprehension UNKNOWN. Control inventory alone never enabled/delivered installed package."
+      },
+      "authority": {
+        "label": "PASS",
+        "all_preexisting_records_identical": true,
+        "settings_identical": true,
+        "history68_identical": true,
+        "note_identical": true,
+        "prepared_no_receipt": true,
+        "new_records": [
+          {
+            "id": "049b6c6a-ebf2-4539-9dbd-b64f8b5c1a10:0",
+            "version": 1,
+            "kind": "Message"
+          },
+          {
+            "id": "312f6d9a-db3c-4244-8f43-cbcb402c0db4:0",
+            "version": 6,
+            "kind": "Run"
+          },
+          {
+            "id": "312f6d9a-db3c-4244-8f43-cbcb402c0db4:1",
+            "version": 1,
+            "kind": "Message"
+          }
+        ],
+        "qualification": "bounded observed current canonical state and one operation, no universal egress/grant-safety proof; no foreign canary"
+      },
+      "language": {
+        "label": "PASS",
+        "basis": "actual saved answer explicitly Prepared for owner review/not applied; protected note unchanged; model progress remains unverified"
+      },
+      "guide_identity": "brn-threads-guidance-14:ab347d09580039392b593132b275415d2ef1673b70ed48f8d776d8a1eaed4eb7",
+      "loaded_skill_details": [
+        {
+          "id": "maintain-notes",
+          "origin": "builtin",
+          "project": "93af4f02-7047-476d-8043-ec813ff476c1:0",
+          "package_digest": "1e952f8b972610785d716e7e85bfd9bb886cf1ba29c193475171f4bef8d6b997",
+          "file": "SKILL.md",
+          "file_digest": "a264db1d12cbc5fcab2668b48bd2899d8add0cd420c1f9f854829ef7ab8c20ff"
+        },
+        {
+          "id": "resolve-conflict",
+          "origin": "builtin",
+          "project": "93af4f02-7047-476d-8043-ec813ff476c1:0",
+          "package_digest": "bd02ed9981fbc59c87d4e008278b353483d4aefc59814e2c32b005e007d3bf1e",
+          "file": "SKILL.md",
+          "file_digest": "89659b077b0beaf921d0134fcc36830b45e23c9c2f1a5e82c44dc49240494310"
+        }
+      ],
+      "metrics": {
+        "trace_available": true,
+        "terminal": "Completed",
+        "traced_model_turns": 4,
+        "rounds": 3,
+        "max_rounds": 8,
+        "stopped": null,
+        "runtime_elapsed_ms": 29766,
+        "parent_usage": {
+          "input": 51631,
+          "output": 1413,
+          "cached_input": 36608,
+          "cached_share": 0.7090313958668242
+        },
+        "turn_usage": [
+          {
+            "input": 9813,
+            "output": 147,
+            "cached_input": 0,
+            "cached_share": 0.0
+          },
+          {
+            "input": 12924,
+            "output": 624,
+            "cached_input": 9728,
+            "cached_share": 0.7527081398947694
+          },
+          {
+            "input": 14235,
+            "output": 323,
+            "cached_input": 12800,
+            "cached_share": 0.8991921320688444
+          },
+          {
+            "input": 14659,
+            "output": 319,
+            "cached_input": 14080,
+            "cached_share": 0.9605020806330582
+          }
+        ],
+        "summary": {
+          "outcome": "updated",
+          "covered_chunks": 3,
+          "target_chunks": 3,
+          "usage": {
+            "input": 5700,
+            "output": 162,
+            "cached_input": 0
+          }
+        },
+        "helpers": [],
+        "recorded_provider_resends": 0,
+        "auth_requests": "not exposed",
+        "account_identity": "not exposed",
+        "qualification": "observed trace only; no inferred HTTP totals/summary latency/free retries; missing usage unknown"
+      },
+      "observer_elapsed_seconds": 29.894339166930877,
+      "cleanup": [
+        {
+          "stage": "workflow",
+          "pid": 90082,
+          "pgid": 90082,
+          "status": "reaped",
+          "exit": 0
+        },
+        {
+          "stage": "runs",
+          "pid": 90177,
+          "pgid": 90177,
+          "status": "reaped",
+          "exit": 0
+        },
+        {
+          "stage": "note",
+          "pid": 90188,
+          "pgid": 90188,
+          "status": "reaped",
+          "exit": 0
+        },
+        {
+          "stage": "candidates",
+          "pid": 90194,
+          "pgid": 90194,
+          "status": "reaped",
+          "exit": 0
+        },
+        {
+          "stage": "operation",
+          "pid": 90205,
+          "pgid": 90205,
+          "status": "reaped",
+          "exit": 0
+        },
+        {
+          "stage": "candidate-export",
+          "pid": 90216,
+          "pgid": 90216,
+          "status": "reaped",
+          "exit": 0
+        }
+      ]
+    }
+  ],
+  "semantics": "bounded rubric assessment of retained synthetic samples, not owner acceptance or superiority; exact read/range/comprehension limits retained",
+  "auth_HTTP_account": "UNKNOWN",
+  "helper_MCP": "off/no calls exposed",
+  "Stop_Continue_Apply": "NOT EXECUTED; separate authority required"
+}

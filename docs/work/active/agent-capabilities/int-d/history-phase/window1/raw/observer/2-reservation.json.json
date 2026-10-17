@@ -1,0 +1,7 @@
+{
+  "source_path": "/private/tmp/brn-int-d-history-preflight-20261017-39a67e4f/observations/2-reservation.json",
+  "sha256": "9636e7a3940cb134f24d0b59d99fa8bc01dfbf995bf12a0a421e85ea846c8850",
+  "bytes": 499,
+  "encoding": "utf-8, reversible original bytes",
+  "text": "{\"ordinal\": 2, \"phase\": \"history\", \"command\": [\"/private/tmp/brn-int-d-history-opus1-20261017-target/debug/brn\", \"--json\", \"--data-dir\", \"/private/tmp/brn-int-d-qualification-20261017-history-39a67e4f-r1/candidate\", \"--timeout\", \"120\", \"ask\", \"--thread\", \"70fcdbe9-5889-4b67-89ef-f8faaa364b9c:0\", \"--prompt-file\", \"/private/tmp/brn-int-d-history-preflight-20261017-39a67e4f/r1-candidate.txt\", \"--budget\", \"8\", \"--trace\", \"summary\"], \"reserved_before_spawn\": true, \"wall_started\": 1792264906.2818902}"
+}

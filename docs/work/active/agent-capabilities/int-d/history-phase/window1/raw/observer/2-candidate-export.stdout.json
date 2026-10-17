@@ -1,0 +1,7 @@
+{
+  "source_path": "/private/tmp/brn-int-d-history-preflight-20261017-39a67e4f/observations/2-candidate-export.stdout",
+  "sha256": "29ba52aa23b85961d33e72b7af9fc05419338273b63a61fa5389484b6f71b304",
+  "bytes": 229,
+  "encoding": "utf-8, reversible original bytes",
+  "text": "\nrunning 1 test\ntest candidate_export::exact_synthetic_candidate_export_refuses_wrong_fixture_operation_and_preserves_content ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.01s\n\n"
+}

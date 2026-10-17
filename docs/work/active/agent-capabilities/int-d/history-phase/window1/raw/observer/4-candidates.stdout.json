@@ -1,0 +1,7 @@
+{
+  "source_path": "/private/tmp/brn-int-d-history-preflight-20261017-39a67e4f/observations/4-candidates.stdout",
+  "sha256": "4888d93a985a1a9da46cd96f2d8f478d60e0abae635bc4472c740604458f7812",
+  "bytes": 959,
+  "encoding": "utf-8, reversible original bytes",
+  "text": "{\"contract\":3,\"command\":\"candidates\",\"ok\":true,\"status\":\"ok\",\"exit\":0,\"outcome\":null,\"operation\":null,\"key\":null,\"retry\":\"read\",\"changed\":[],\"conflict\":null,\"result\":{\"candidates\":[{\"operation\":\"0921d291-b6cd-496b-b462-41ecf49aa5d1\",\"request_hash\":\"4e287c9254cac3300597d7ac2323d81df95ebdfdeeb140ba4ce708fb2114c132\",\"reason\":\"Owner-requested review-only revision of the protected Aurora delivery draft, grounded in exact saved discussion. No apply authority is present; preserve protection and confirmation status and leave candidate for owner review.\",\"writes\":[{\"id\":\"6c41a85e-c75c-4839-a2b6-ed14d1fb4e6f:0\",\"kind\":\"Note\",\"version\":2,\"archived\":false,\"created\":false}],\"writes_total\":1,\"inputs_total\":5,\"undo_of\":null,\"replacement_of\":null}],\"shown\":1,\"cursor\":null,\"total\":null},\"error\":null,\"page\":{\"limit\":100,\"shown\":1,\"cursor\":null,\"total\":null},\"stop\":null,\"authority\":{\"workspace_purpose\":\"test\",\"cli_authority\":\"full\",\"enforced\":false,\"actor\":null}}\n"
+}
