@@ -1,0 +1,37 @@
+{
+  "task": "int-d-test-capture-20261017",
+  "base": "33d9e10d1676b0c54db78a54d27110326d9ceea9",
+  "material_pin": "e9607282af57203af0640b97b82310246cd39715",
+  "tree": "96922fa3cc662b0669da3c7a6d42187f98c4574e",
+  "crates_tree": "f6666cb952afde600ffc5bfa9ca463a78476afc7",
+  "branch": "work/int-d-20261017",
+  "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+  "clean_at_material_pin": true,
+  "compiled_inputs_verified_against_working_and_git": 333,
+  "mismatches": [],
+  "changed_compiled_inputs": [
+    "crates/brn-ai/src/threads.rs",
+    "crates/brn-ai/src/threads_int_d_tests.rs"
+  ],
+  "actual_full_diff": {
+    "path": "/private/tmp/brn-int-d-test-capture-20261017-evidence/base-to-material.patch",
+    "sha256": "ef1f171a2bf6c7c05df68ea5f181c928f0139329a0f9b294bf81beab445fc4a0",
+    "bytes": 357332
+  },
+  "checks": "check-index.json",
+  "final_test_binary": {
+    "path": "/private/tmp/brn-int-d-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9",
+    "sha256": "8460c5df3217954c164d25a1aeed7dff6a2628d3c57ebe5c2fca012e93627049",
+    "mtime": 1792247923.4948132,
+    "receipt_mtime": 1792247924.6990178,
+    "not_modified_after_receipt": true,
+    "dep_info": "/private/tmp/brn-int-d-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9.d",
+    "dep_info_sha256": "46e4797f460b173aa90f5bdfdc94f59c11792399ccd8158109fa11b5dfd6e034",
+    "preserved_path": "/private/tmp/brn-int-d-test-capture-20261017-evidence/final-passing-artifact/brn_ai-0a77908ed974f7b9",
+    "preserved_dep_info": "/private/tmp/brn-int-d-test-capture-20261017-evidence/final-passing-artifact/brn_ai-0a77908ed974f7b9.d"
+  },
+  "build_association": "Actual precommit33d9+WIP bytes match material input hashes; builds were not contemporaneous new-SHA invocations. Initial passes retain earlier source/artifact; final checks bind final material.",
+  "future_runner": "Not implemented; activation gate/reservation-before-Auth unexecuted. No live activation or claim of activation-ready runner.",
+  "review": "Parent NEW focused independent review required before paid capture; no self-acceptance.",
+  "timestamp": 1792248463.290642
+}
