@@ -1,5 +1,7 @@
 # INT-D / Slice5 bounded integration
 
+**17 October principal disposition:** [Corrected source accepted locally](principal-disposition.md) at b9390407 after Opus2; deterministic evidence accepted with qualifications. Live window1 closed after2starts/no candidates; real-provider I01, Stop/Continue/repeats/live exact review remain incomplete. No new provider starts or mutation authority. Earlier zero-start/preparation steps below preserve the original staged plan.
+
 Baseline and ownership are in [binding](binding.json). This executes the existing [I01/I02 registry](../proposal/amended/BRN_Rig_First_Implementation_Plan.md#9-acceptance-registry), not a new capability design. D4 is locally accepted with qualifications; writing INT-W remains a separate unmerged branch. The developing-product-feature workflow applies, with principal-owned independent milestone review and acceptance.
 
 ## Owned implementation
