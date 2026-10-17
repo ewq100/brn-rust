@@ -324,6 +324,9 @@ impl TraceCollector {
         let Some(value) = value else {
             return Value::Null;
         };
+        if tool.starts_with("mcp_") {
+            return json!({"source_identity":value.get("source_identity"),"coverage":value.get("coverage"),"untrusted":true});
+        }
         match tool {
             "search_notes" => json!({
                 "total": value.get("total"), "shown": value.get("shown"),

@@ -14,6 +14,11 @@ pub use projects::{
     TrashedRecord, project_context_fences, project_document_ids, project_for_chat,
 };
 mod edit;
+mod external_data;
+pub use external_data::{
+    ExternalDataGrant, canonical_mcp_endpoint, canonical_mcp_input, mcp_input_schema,
+    mcp_input_schema_digest,
+};
 pub mod locator;
 pub use locator::{canonical_locator, find_source, matching_sources, same_locator};
 mod read;

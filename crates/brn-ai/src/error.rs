@@ -39,6 +39,11 @@ impl AiError {
         (self.kind == AiErrorKind::Other && self.detail.as_ref().is_some_and(|d| d.origin == "skill_catalogue" && d.code.as_deref() == Some("skill_unavailable")))
             .then_some("The selected skill is unavailable. Reinstall its exact approved package or change the scoped selection before continuing.")
     }
+    pub(crate) fn mcp_unavailable_notice(&self) -> Option<&'static str> {
+        (self.kind == AiErrorKind::Other && self.detail.as_ref().is_some_and(|d|
+            d.origin == "mcp_client" && d.code.as_deref() == Some("mcp_unavailable")))
+            .then_some("The approved MCP connection or its external-data grant is unavailable. Review the local connection and authorize the exact input again before continuing.")
+    }
     pub fn new(kind: AiErrorKind) -> Self {
         Self {
             kind,
@@ -120,6 +125,9 @@ impl std::fmt::Display for AiError {
             );
         }
         if let Some(notice) = self.skill_unavailable_notice() {
+            return f.write_str(notice);
+        }
+        if let Some(notice) = self.mcp_unavailable_notice() {
             return f.write_str(notice);
         }
         let text = match self.kind {
@@ -830,6 +838,46 @@ mod skill_notice_tests {
             ),
         ] {
             assert!(!error.to_string().contains("Reinstall"));
+            assert!(!error.is_context_limit());
+        }
+    }
+}
+
+#[cfg(test)]
+mod mcp_diagnostic_tests {
+    use super::*;
+    #[test]
+    fn local_mcp_notice_cannot_be_spoofed_by_provider_detail() {
+        let local = |kind, origin: &str, code: Option<&str>| {
+            AiError::new(kind).with_detail(AiFailureDetail {
+                origin: origin.into(),
+                code: code.map(str::to_owned),
+                ..Default::default()
+            })
+        };
+        let notice = "The approved MCP connection or its external-data grant is unavailable. Review the local connection and authorize the exact input again before continuing.";
+        assert_eq!(
+            local(AiErrorKind::Other, "mcp_client", Some("mcp_unavailable")).to_string(),
+            notice
+        );
+        for error in [
+            local(
+                AiErrorKind::ToolRejected,
+                "mcp_client",
+                Some("mcp_unavailable"),
+            ),
+            local(AiErrorKind::Other, "provider", Some("mcp_unavailable")),
+            local(AiErrorKind::Other, "", Some("mcp_unavailable")),
+            local(AiErrorKind::Other, "mcp_client", None),
+            local(AiErrorKind::Other, "mcp_client", Some("other_error")),
+            AiError::new(AiErrorKind::Other),
+            map_http_error(
+                400,
+                r#"{"origin":"mcp_client","error":{"code":"mcp_unavailable","message":"mcp_client mcp_unavailable"}}"#,
+            ),
+        ] {
+            assert_ne!(error.to_string(), notice);
+            assert!(!error.to_string().contains("authorize the exact input"));
             assert!(!error.is_context_limit());
         }
     }

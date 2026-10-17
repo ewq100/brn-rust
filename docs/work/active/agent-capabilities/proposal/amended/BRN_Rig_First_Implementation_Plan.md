@@ -217,11 +217,13 @@ Begin with one supported transport and a locally controlled synthetic read-only 
 
 Dependency facts at review [R4, R5]:
 
-- The facade's `rmcp` feature adds `rig-rmcp`, which enables only `rmcp`'s `client` feature on major 2.
+- The facade's `rmcp` feature adds `rig-rmcp`, whose published non-WASM dependency explicitly requests `rmcp`'s `client` feature on major 2 but retains SDK defaults. The resolved SDK therefore also compiles server/macros/base64 and generic async-rw support; this is not a BRN server capability. BRN supports only the outbound streamable-HTTP reqwest client route.
 - BRN adds a direct `rmcp` 2.x dependency with exactly one transport feature.
 - Default transport: `transport-streamable-http-client-reqwest`. It uses `reqwest` ^0.13.2, already locked at 0.13.5, and adds no new major versions and no process spawning. Qualify it against a localhost synthetic server.
 - `transport-child-process` spawns executables and stays deferred under the exclusions.
 - `rmcp` 2.2.0 declares Rust 1.88, within the pinned toolchain.
+
+Dated source correction, 17 October 2026: the C0 client-only feature assumption above was superseded by actual published cached `rig-rmcp-0.44.0/Cargo.toml` target non-WASM dependency (the edge omits `default-features = false`) and the offline resolved graph. Direct dependency defaults cannot subtract upstream features. The [D4 graph receipt](../../d4/dependency-graph.json) records eight additions, no removals/upgrades or existing checksum changes; metadata SHA-256 is `6ad4ee204c3763eed04f402816d80d1e1be477e546d95a6ba112d702bcfda886`. Principal accepted these unused transitive modules, without a patch/fork or production server/process/alternate transport. Historical R0 protocol/cancellation proofs are unchanged and do not establish a client-only production graph.
 
 The owner controls endpoint, account/credential reference, connection enablement, allowed tools, and chat/project access. Default disabled. Reuse BRN's credential facilities; do not write secrets into notes, skill packages, checkpoints, traces, or test fixtures. Do not auto-install or launch arbitrary executables. Where a local process transport is supported, clearly treat process execution as a separate owner-authorized boundary, not as sandboxing provided by MCP.
 

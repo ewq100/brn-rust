@@ -68,13 +68,14 @@ Test harnesses on synthetic data act as the owner, in test workspaces (`init --p
 | `true` | `apply`, `dismiss` | Accept or reject one exact reviewed candidate. |
 | `true` | `undo` | Owner Undo compensation. |
 | `true` | `skill-install`, `skill-remove`, `skill-enable`, `skill-disable`, `skill-select`, `skill-clear` | Local instruction configuration and canonical scoped enablement/selection are owner decisions; installation alone never enables. |
+| `true` | `mcp-discover`, `mcp-configure`, `mcp-disable` | Anonymous local MCP discovery/approval/revocation; no data grant follows from enablement. |
 | `true` | `configure`, `delegation`, `pause`, `resume` | Provider, model, effort and helper selection; delegation policy; pausing or resuming maintenance. |
 | `true` | `project-create`, `project-chat`, `project-document`, `project-settings`, `chat-move`, `project-link`, `project-unlink`, `project-delete`, `project-restore` | Project membership, settings and instructions are owner-only configuration. |
 | `true` | `keep-in-brn` | Moves a private chat attachment into general knowledge. |
 | `true` | `archive`, `resolve`, `unarchive` | Chat archive state is owner-controlled. Archive interrupts that chat's runs and pauses saved queue work for every chat; unarchive never resumes it, and the CLI has no command that resumes the chat queue. |
 | `true` | `topics-create`, `topics-choose` | Sets the workspace's root Topics note. |
 | `true` | `upgrade`, `model-install` | Changes a workspace schema; downloads the pinned model. |
-| options | `ask` with `--edit-note` or `--record-decision` | Grants that run authority to edit the named note, or saves a reply as a protected decision. |
+| options | `ask` with `--edit-note`, `--record-decision` or `--mcp-tool` | Grants that run authority to edit the named note, saves a reply as a protected decision, or authorizes one exact transient external input. |
 | options | `intake` with `--project` | Adds the document to the project's membership. |
 | options | `intake --intent chat --thread <PROJECT_ID>` | `--thread` naming a project attaches the document to that project (`owner_decision_when` in the description). Behavior is unchanged; prefer `--intent project --project ID`. |
 | `false` | every other command | Reads, your own edit sessions (`reclaim-edit` included, test workspaces only), ordinary notes and chats, `queue`, knowledge check, export, backup, restore into a fresh directory, init, intake without `--project`. |
@@ -270,6 +271,10 @@ A key names one intended change. Reuse it only to retry the same command with th
 | `skill-disable` | no | converge | — | yes |
 | `skill-select` | no | converge | — | yes |
 | `skill-clear` | no | converge | — | yes |
+| `mcp-status` | no | read | — | no |
+| `mcp-discover` | no | converge | — | yes |
+| `mcp-configure` | no | converge | — | yes |
+| `mcp-disable` | no | converge | — | yes |
 | `settings` | no | read | — | no |
 | `pause` | no | converge | — | yes |
 | `resume` | no | converge | — | yes |
@@ -315,7 +320,7 @@ A key names one intended change. Reuse it only to retry the same command with th
 | `unarchive` | yes | converge | replay | yes |
 | `keep-in-brn` | yes | duplicate (a retry after Deferred applies under a new operation) | replay | yes |
 | `queue` | yes | duplicate | replay | no |
-| `ask` | no | duplicate (new model turn) | — | with --edit-note, --record-decision |
+| `ask` | no | duplicate (new model turn) | — | with --edit-note, --record-decision, --mcp-tool |
 | `intake` | yes | duplicate (a prepared but unapplied first attempt stays as a candidate) | replay | with --project |
 | `intake` (--intent useful) | no | duplicate (`--key` is refused) | — | with --project |
 | `configure` | no | converge | — | yes |
@@ -449,7 +454,7 @@ Owner-authorized `skills`, `skill-inspect --name NAME`, `skill-install --source 
 
 Explicit selection admits the exact SKILL.md into frozen, budgeted untrusted user context; other enabled bodies and references load lazily from the validated snapshot. Guidance cannot change permissions, scopes, checked writes or connectors. `runs` adds bounded opaque `guide_identity`, up to 16 currently permitted `loaded_skill_details`, and `loaded_skill_details_total`/`loaded_skill_details_omitted` after scope filtering. A file identity records admission of at least a portion of that exact file; it does not prove the whole file was read or processed upstream. Removed local packages do not erase permitted historical file identities; moving/deleting context hides old Project metadata and counts. No instruction bodies are stored in Run metadata.
 
-Current schema is **8**: canonical scoped skill policy, selection and delivered identities are part of SQLite snapshots. Local installed package bytes remain excluded from snapshots and Markdown exports. Restore retains exact canonical references; missing or mismatched selected bytes refuse before provider dispatch. Explicit reinstall of the exact original may satisfy a persisted binding on a fresh run; there is no name fallback, source-folder lookup, automatic enablement or download. CLI opens of schemas 3–7 refuse unchanged until explicit external-backed `upgrade`; old schema-7 executables refuse schema 8. Existing payloads, hashes and receipts are not rewritten. The contract-3 historical schema-6 notes below describe that earlier transition, not the current format.
+Current schema is **9**: canonical scoped skill policy, selection, delivered identities and optional MCP policy are part of SQLite snapshots; active external-data grants are transient only. Local installed package bytes remain excluded from snapshots and Markdown exports. Restore retains exact canonical references; missing or mismatched selected bytes refuse before provider dispatch. Explicit reinstall of the exact original may satisfy a persisted binding on a fresh run; there is no name fallback, source-folder lookup, automatic enablement or download. CLI opens of schemas 3–8 refuse unchanged until explicit external-backed `upgrade`; old schema-8 executables refuse schema 9. Existing payloads, hashes and receipts are not rewritten. The contract-3 historical schema-6 notes below describe that earlier transition, not the current format.
 
 **Retention:** installed package bytes are not included in current BRN SQLite backups or Markdown exports. Preserve originals for reinstall; same-workspace reopen retains the snapshot, but backup restore supplies only canonical work/assets/receipts and the compiled built-ins. Runtime enablement and fail-closed handling of missing restored packages are D3b work, not part of these management commands. See [D3a plan and evidence](../../docs/work/active/agent-capabilities/d3a/plan.md).
 
@@ -461,3 +466,11 @@ Frontmatter is the documented **literal, not-YAML** subset. A value runs literal
 Owner `skills` / `skill-inspect` inventory is workspace-wide installation configuration. `--project` selects only the separate canonical `policy` projection; it never filters the deliberately requested artifact inspection. `PackageInfo.scope` describes installation scope, and its `enabled:false` is the inactive installation default, not the effective scoped `policy.enabled`. Removal deliberately removes the global artifact and revokes exact matching bindings across scopes. Runtime/composer discovery and loaded provenance remain current-scope only; models cannot invoke owner management.
 
 `loaded_skill_details` records exact instruction files admitted to the run context, not proof of upstream processing. Legacy `loaded_skills` may indicate justified builtin source preloads even when dispatch later refuses; it is not delivered-file evidence or authority. Current-scope CLI/native provenance uses only the structured details.
+
+## Anonymous local MCP client
+
+`mcp-status [--thread ID]` shows current-scope approved tool metadata without connecting. `mcp-discover --endpoint http://127.0.0.1:PORT/mcp` explicitly discovers bounded untrusted metadata; it neither approves nor invokes tools. `mcp-configure --policy JSON` stores an exact reviewed `McpPolicy` (or `null` to clear). `mcp-disable` fences active use and disables subsequent dispatch. Remote/authenticated endpoints, DNS, proxies and redirects are unsupported. Only the exact fixed Empty/Query schemas are supported; `readOnlyHint` alone never approves a tool. Server initialization metadata is self-reported and cannot attest unchanged implementation or behavior.
+
+`ask ... --mcp-tool EXACT_REMOTE_NAME --mcp-input JSON` explicitly authorizes ONE exact typed transient input for this prepared invocation. Both options are required together; the host binds the current instruction/context/settings and Run fence after durable preparation. Installation, skills, policy enablement, chat prose and model/tool output cannot grant external data egress. Without a grant MCP tools are omitted and local work remains available. Continue/restart/backup/restore never recovers a grant, and a skill load that advances the Run fence invalidates it rather than silently renewing authority. Stop/disconnect cannot undo already-sent remote processing.
+
+Policy and approved digest references are canonical SQLite data; raw reviewed input and raw tool results are not automatically archived in Run metadata/traces/backups. A legitimate model-authored reply may quote received material and follows ordinary saved-message behavior; this is distinct from raw transcript retention. Full trace records safe outcome/source identity/coverage only. The supplied input is inspectable in transient owner controls and the actual provider request; it is not a credential channel.

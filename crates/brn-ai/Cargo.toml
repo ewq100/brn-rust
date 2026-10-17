@@ -19,7 +19,9 @@ required-features = ["capability-spike"]
 brn-threads-core = { path = "../brn-threads-core" }
 brn-intake = { path = "../brn-intake" }
 brn-threads-intake = { path = "../brn-threads-intake" }
-rig = { version = "=0.44.0", default-features = false, features = ["agent", "derive", "reqwest", "memory"] }
+rig = { version = "=0.44.0", default-features = false, features = ["agent", "derive", "reqwest", "memory", "rmcp"] }
+rmcp = { version = "=2.2.0", default-features = false, features = ["client", "transport-streamable-http-client-reqwest"] }
+sse-stream = "=0.2.6"
 rig-core = { version = "=0.44.0", default-features = false, features = ["rustls"] }
 rig-reqwest = { version = "=0.44.0", default-features = false, features = ["rustls"] }
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "time", "sync"] }
@@ -34,6 +36,9 @@ sha2 = "0.10"
 base64 = "0.22"
 
 [dev-dependencies]
+rmcp = { version = "=2.2.0", default-features = false, features = ["server", "transport-streamable-http-server"] }
+axum = { version = "=0.8.9", default-features = false, features = ["http1", "tokio"] }
+tokio = { version = "1", features = ["net"] }
 bytes = "1"
 tempfile = "3"
 rig = { version = "=0.44.0", default-features = false, features = ["test-utils"] }

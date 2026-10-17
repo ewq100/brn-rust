@@ -55,6 +55,11 @@ mod formatting;
 mod layout;
 #[path = "threads_lists.rs"]
 mod lists;
+#[cfg(all(test, feature = "native-test-support"))]
+#[path = "threads_mcp_tests.rs"]
+mod mcp_tests;
+#[path = "threads_mcp.rs"]
+mod mcp_view;
 #[path = "threads_projects.rs"]
 mod projects_view;
 #[path = "threads_search.rs"]
@@ -196,14 +201,16 @@ enum SettingsSection {
     Delegation,
     Data,
     Skills,
+    Mcp,
 }
 impl SettingsSection {
-    const ALL: [Self; 5] = [
+    const ALL: [Self; 6] = [
         Self::General,
         Self::Models,
         Self::Delegation,
         Self::Data,
         Self::Skills,
+        Self::Mcp,
     ];
     fn key(self) -> &'static str {
         match self {
@@ -212,6 +219,7 @@ impl SettingsSection {
             Self::Delegation => "delegation",
             Self::Data => "data",
             Self::Skills => "skills",
+            Self::Mcp => "mcp",
         }
     }
     fn label(self) -> &'static str {
@@ -221,6 +229,7 @@ impl SettingsSection {
             Self::Delegation => "Delegation",
             Self::Data => "Data",
             Self::Skills => "Skills",
+            Self::Mcp => "MCP",
         }
     }
 }
@@ -517,6 +526,7 @@ struct ThreadsUi {
     theme_pending: bool,
     settings_section: SettingsSection,
     skill_view: skills_view::SkillView,
+    mcp_view: mcp_view::McpView,
     records: Vec<Record>,
     history: Vec<Receipt>,
     candidates: Vec<Prepared>,
@@ -867,6 +877,7 @@ impl ThreadsUi {
             theme_pending: false,
             settings_section: SettingsSection::General,
             skill_view: skills_view::SkillView::default(),
+            mcp_view: mcp_view::McpView::new(window, cx),
             records: vec![],
             history: vec![],
             candidates: vec![],
@@ -1140,6 +1151,7 @@ impl ThreadsUi {
         self.thread_rows = lists::thread_rows(&self.records, &self.activity);
         self.note_rows = lists::note_rows(&self.records, &self.activity);
         self.refresh_skills();
+        self.refresh_mcp();
     }
     /// A recoverable edit exists that this view has not opened; typing would
     /// start a competing edit, so the text stays read-only until recovered.
@@ -1320,6 +1332,7 @@ impl ThreadsUi {
         self.save_composer(old, self.composer.read(cx).value().to_string());
         self.chat = target;
         self.refresh_skills();
+        self.refresh_mcp();
         let text = self.composer_drafts.text(&self.destination()).to_owned();
         self.composer
             .update(cx, |editor, cx| editor.set_value(text, window, cx));
@@ -2261,6 +2274,14 @@ impl ThreadsUi {
             .queue_state()
             .pending
             .filter(|q| q.thread == thread && q.text == prompt && q.run.is_none());
+        let reviewed = match self.take_mcp_review(&thread, &prompt, queued.is_some()) {
+            Ok(reviewed) => reviewed,
+            Err(error) => {
+                self.warn(error);
+                cx.notify();
+                return;
+            }
+        };
         let context_edit_note = match &owner_request {
             Some(brn_ai::threads::OwnerRequest::EditNote { id, version }) => {
                 Some((id.clone(), *version))
@@ -2301,6 +2322,19 @@ impl ThreadsUi {
                 cx.notify();
                 return;
             }
+        };
+        let prepared = if let Some(reviewed) = reviewed {
+            match reviewed.attach(prepared) {
+                Ok(prepared) => prepared,
+                Err(error) => {
+                    self.fail(format!("MCP input authorization refused. Your posted instruction remains available; {error}"));
+                    self.refresh();
+                    cx.notify();
+                    return;
+                }
+            }
+        } else {
+            prepared
         };
         let run_id = prepared.run_id().to_owned();
         let (sender, receiver) = mpsc::sync_channel(128);

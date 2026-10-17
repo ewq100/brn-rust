@@ -939,9 +939,11 @@ fn the_owners_stop_of_a_killed_reply_adds_its_review_but_no_notice(cx: &mut Test
     .unwrap();
     cx.run_until_parked();
     update(cx, &f, |ui, _, _| {
+        let record = ui.workspace.store.record(&run).unwrap().unwrap();
         assert!(
-            matches!(&ui.workspace.store.record(&run).unwrap().unwrap().data,
-                RecordData::Run(r) if r.state == RunState::Interrupted && r.fence == 2)
+            matches!(&record.data,
+                RecordData::Run(r) if r.state == RunState::Interrupted && r.fence == 2),
+            "actual stopped Run record/state/fence: {record:?}"
         );
         assert_eq!(
             row(ui, &chat).reasons,

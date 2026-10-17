@@ -230,6 +230,9 @@ pub struct Run {
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct WorkspaceSettings {
+    /// Owner configuration only; no invocation-local data grant is persisted.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub mcp: Option<McpPolicy>,
     /// Canonical owner policy; installation alone never enables a package.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub skills: Vec<SkillBinding>,
@@ -255,6 +258,42 @@ pub struct WorkspaceSettings {
     /// `research` tool. The parent model never chooses or changes it.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub helper: Option<HelperSettings>,
+}
+
+/// One explicitly approved anonymous local connection, disabled by default.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct McpPolicy {
+    pub endpoint: String,
+    /// Empty only for disabled configuration awaiting explicit discovery.
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub server_digest: String,
+    pub enabled: bool,
+    pub tools: Vec<McpApprovedTool>,
+    pub access: Vec<McpAccess>,
+}
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct McpApprovedTool {
+    pub name: String,
+    pub metadata_digest: String,
+    pub schema_digest: String,
+    pub contract: McpInputContract,
+}
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum McpInputContract {
+    Empty,
+    Query,
+}
+/// General excludes private/Project context. Chat means that exact chat only;
+/// Project means its current member chats, never another Project's policy.
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum McpAccess {
+    General,
+    Chat(String),
+    Project(String),
 }
 
 /// Exact content approved by the owner in one scope. Workspace bindings apply

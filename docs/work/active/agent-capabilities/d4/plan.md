@@ -1,0 +1,39 @@
+# D4 implementation checkpoint
+
+This executes section8/M01–M05 of the existing [Rig-first plan](../proposal/amended/BRN_Rig_First_Implementation_Plan.md), after principal D3b local acceptance9a88a0a9. [Binding](binding.json), [exact ownership](ownership.md), [storage/authority allocation](storage-and-allocation.md) and [acceptance map](acceptance-map.md) govern. This is one outbound MCP client, not a BRN server, plugin framework or INT-D.
+
+## Bounded result
+
+- One default-disabled anonymous canonical literal-loopback HTTP connection, fixed Empty/Query schemas, exact owner-approved known behavior/metadata/schema and chat/Project access. Read-only annotations and self-reported server digest are not implementation or remote-side-effect proof.
+- Canonical Settings policy in schema9; one nonserde, Store-instance-bound, invocation-local external-data grant for one exact owner-reviewed tool/input. Fresh actual instruction/context/settings/fence/destination/input checks at HTTP dispatch, no lock across network await and no implicit renewal/retry.
+- Actual Rig DynamicTool/rmcp SDK session/handshake/cancellation plus maintained SSE parsing after raw-body cap. Final offered definitions and input use existing whole-request/result guards. Whole invalid batches reject before local/network effects; helpers have no MCP route.
+- Frozen chosen-tool/catalogue identity before grant capture/provider start, stable in-run prefix and existing summary-key integration. Untrusted data and bounded safe outcome identity only in automatic trace/activity; no raw input/result/session archive or recovered grant.
+- Shared owner service/CLI/native status/discover/configure/disable and transient reviewed input. Native carries its exact saved review through the single durable prepare and compares actual prepared/fresh policy and context before guide/fence/grant mutation. No render-time I/O or silent review rebinding.
+
+[Reuse evidence](rig-reuse.md) and [dependency graph](dependency-graph.json) record pinned Rig0.44/rmcp2.2, published upstream defaults and separate dev HTTP-server fixtures. Accepted lock65d2aeee changes no existing identity/checksum. Production has no BRN listener, subprocess or alternate transport/auth route. No general schema validator/dependency was added.
+
+## Execution sequence and current checks
+
+1. Actual SDK/core/transport mapping and exact retained-path allocations: completed. Anonymous/typed-input/schema9 and retention decisions are documented; no extra owner question.
+2. Implementation and genuine before witnesses: completed at recorded WIP sources. Preserve format0/1, Store-instance epoch0/1, offered identity0/1, invocation Weak-drop0/1 and acknowledgement-header0/1. Native saved-review exact-WIP before1/2 isolates checked policy/context changes before prepare. Initial SDK/API/compiler/fixture failures are retained separately.
+3. Current focused correction qualification: native handoff3/0; actual SDK/runtime22/0; full scriptedAI477/0/1; real CLI MCP4/0 and app MCP3/0; core policy/format/safety31/0; strict workspace all-target Clippy passed. [Native handoff response](native-review-snapshot-evidence.md) retains the two false fixture assumptions and all initial errors.
+4. Current native state95/0 and strict native/widget lints passed. The first current full widget run failed314/1/1 at an existing killed-run Stop assertion. The allocated same-predicate diagnostic exact run1/0 and ONE suite-context diagnostic315/0/1 passed; the earlier failure remains unexplained and is explicitly carried to review ([receipt](native-stop-diagnostic.md)). Capability-spike all-targets passed455/0/1 plus3/0 fixture tests. Retrieval/combined/default/offline lanes continue serially. No source pin or overall acceptance yet. The controller pauses between commands and stops on a nonzero result.
+5. After applicable selfchecks: immutable local material/test pin, complete base..pin diff and source/artifact/check index for a NEW comprehensive principal Opus review. Keep material frozen during review. No mutation or live-provider window is granted.
+
+The original full workspace no-fail-fast command remains **1224 passed / 5 failed / 6 ignored across101 summaries, exit101**. Four new failures were omitted D4 entries in existing CLI exhaustive test tables/README retry row; the original unit29/0 and agent-contract23/0 assertions passed after those corrections. The fifth is the carried missing-pdftoppm PDF preparation failure. No broad rerun solely for green and no relabelling of that command. Its AI476/0/1 and component results stay at their actual earlier source.
+
+The exact CLI SDK journey first compiled3/1 because the new fixture used uppercase enum strings, correctly refused by the lowercase contract. Fixture-only correction passed4/0. An outer-controller stop unexpectedly ended the capability compile via session process-group cleanup; retained partial compile log is INTERRUPTED_NO_VERDICT. Its replacement command uses a distinct name. No test failure/pass is invented for it.
+
+## Recovery and limits
+
+[Schema9 evidence](schema9-evidence.md) retains actual old8/new-WIP executable, binary/dep-info and fixture hashes: old8 refuses9; newCLI refuses8 unchanged until explicit external-backed upgrade; all canonical table values and candidate/request/receipt bytes remain unchanged; source8 backup stays8; restore upgrades only the unpublished copy. Policy survives backup, transient input/grant does not. The old artifact is source90f, not fabricated as a contemporary9a88/future pin build.
+
+[Lifecycle evidence](lifecycle-evidence.md) distinguishes Store epoch, private Weak invocation gate, cancellation/deadline/Stop and admitted-but-remotely-running requests. No remote Undo or zeroization claim. Explicit reqwest protocol-NACK retry opt-out is source/config evidence; no low-level NACK was reproduced. Bounds are application/body-byte limits, not provider-token/header/TLS proof. A file/result identity or admitted portion is not proof whole-source processing.
+
+Mac synthetic tests do not qualify other platforms, hosted CI or native-human/owner/main integration. Initial D4 is synthetic localhost/scripted only; L approval does not assign an external MCP/live-provider window. D3b's90f acceptance and6ff broad1192/1PDF/6, four live completions with one unexplained preparation/no-candidate gap, absent checklist-reference/long-history/helper/summary/Continue live proof and closed3-caught/1-no-verdict/3-unexecuted mutation results stay at their original pins. Writing INT-W is a separate branch and is not integrated here. No prior mutation allowance transfers.
+
+Native retrieval uses the already cached pinned arm64 ONNX Runtime static library (measured SHA256 `d68759bf6c644dd5c6cb4e735699fba89e431b49ca588f73c11ee1c48ba838b3`) through the pinned ort-sys supported ORT_LIB_PATH branch, with ORT_SKIP_DOWNLOAD/ORT_OFFLINE/CARGO_NET_OFFLINE set. Preflight source/cache identity is recorded separately from later actual feature execution. No model asset is loaded or downloaded, and no weaker feature lane substitutes for a missing prerequisite.
+
+Current cached-ORT native retrieval command passed33/0 unit tests and2/0 download-refusal tests; the full app native-retrieval command passed247/0/1 across37 raw summaries. Both used exact required features and recorded no-download configuration. These component passes do not relabel the prior failed full workspace or constitute model inference/semantic retrieval qualification. Native CLI/combined/default/offline commands remain pending at this checkpoint.
+
+All currently scheduled normal/native/capability/retrieval/combined/default/offline commands completed, with exact results and retained earlier failures in [normal qualification](normal-qualification.md). Final formatting and current Markdown links pass. Independent review/principal acceptance remain pending; latest passing diagnostics do not explain the earlier widget failure.

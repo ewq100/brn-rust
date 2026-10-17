@@ -1,0 +1,48 @@
+# D4 source-backed retained-path proposal
+
+Status: proposal accepted with the principal’s bounded allocations on 17 October 2026; implementation and qualification are in progress. Baseline core schema8, `WorkspaceSettings` in types.rs232 and `HostAuthority`490; Store settings delta/replay in store.rs26,934–1250. Owner-only settings changes already transactionally fence live Runs/pause queues. Existing AI `Scope` captures chat privacy/context epoch, Project record/version, Settings version, Run/fence and lease; `live` rechecks those. App run.rs owns `prepare_thread_run` and one durable prepare seam. No sidecar canonical policy proposed.
+
+## Supported first connection
+
+One anonymous literal-loopback HTTP endpoint (`127.0.0.1` or `[::1]`, explicit nonzero port, bounded path, no userinfo/query/fragment/DNS/redirect/proxy), no credentials or auth reference. This is explicitly anonymous/local connectivity only; no authenticated remote production claim. Reqwest disables environment proxies/redirects, SDK transport disables automatic retries and expired-session replay. All SDK POST/GET/DELETE use the exact approved URI, checked by the adapter; session IDs remain opaque bounded header values, never alternate URLs.
+
+One frozen connection, at most8 explicitly approved known-behavior tools (readOnlyHint additionally required but not authority),32KiB aggregate catalogue,4KiB metadata/tool,2KiB schema/tool,8KiB args,32KiB text result,256KiB cumulative response-wire bytes/request, bounded deadlines/no retry/concurrency1. Final encoded tool results also pass the existing132KiB admission. Unsupported rich content/error/empty success is truthful failure. Server instructions are never adopted. Metadata changes or unknown names never auto-expand authority.
+
+## Core exact hunk request
+
+1. Add one serde-default/none-skipped `WorkspaceSettings.mcp: Option<McpPolicy>`: endpoint, enabled flag, approved exact tool metadata/schema digests and typed supported input contract, access rows bound to exact chat or Project. No raw inputs, secrets, response bodies or credential URLs. Strict bounded validation on raw checked owner replacement as well as app entry. Default None/disabled. General access is explicit, not inherited by Projects/private chats; Project access uses the actual checked chat/Project predicate; private chat authorization names exact chat. No wildcard/global private grant.
+2. Add `McpPolicyChange` and checked owner `Store::change_mcp_policy` through existing SettingsUpdate intent/replay/fresh delta machinery. Preserve this field in BOTH generic Configure normal/replay. Reuse existing live Run/settings fencing, attention and queue transaction. Disable/revoke fences before network stop/cleanup. Exact identity/tool/schema change requires explicit reapproval; no SDK refresh mutation.
+3. Add a NON-Serialize/NON-Deserialize `ExternalDataGrant` with private core fields. Checked owner constructor binds actual Working Run ID/fence, trusted instruction identity, chat privacy/context epoch, Project ID/version, Settings ID/version, exact endpoint+catalogue/tool/schema identity and SHA256 of canonical reviewed args (max8KiB). Grant is invocation-local and not recoverable/backed-up; no model-constructible HostAuthority or write capability. A fresh `Store::validate_external_dispatch` verifies all current bindings and current policy at each network tool dispatch; no grant survives Stop/restart/context/config change. Args remain transient, never canonical Message/Settings. Missing grant excludes dynamic tools and cannot block local-note work.
+4. Schema9 semantic protocol adoption is proposed: schema8 clients ignore new authority fields, so additive serde alone is insufficient. Reuse existing backup-first upgrade/old-version/restore-copy paths, add8 to admitted older versions, no SQL table/payload rewrite. Require exact schema8 old executable refusal9, currentCLI refusal8 until explicit external-backed upgrade, payload/hash preservation, source backup unchanged. Principal decides and allocates exact ranges/tests/docs/mechanical literals before edits.
+
+## Owned runtime integration
+
+`PreparedThreadRun` receives an explicit host-only authorization method AFTER one existing durable prepare, before spawn/provider dispatch; app wrapper/CLI/native review can show exact transient input and attach the checked grant to that prepared invocation. Avoid adding required fields across every existing start/request initializer. Catalogue frozen at run start and its digest extends persisted guide identity/summary key; no mutable prefix. Whole model-turn batch validates dynamic name, exact schema/args/grant before any BRN or network effect. A final transport gate checks current scope/fence/grant after awaits. Helper never receives MCP tools/authority. Dynamic callback wraps the real Rig adapter, sanitizes errors and records safe identity/outcome only after fitting/liveness; no raw external archive or inherited Note read authority.
+
+## Native request
+
+Allocate isolated desktop `threads_mcp.rs`, existing SettingsSection/state/refresh and one settings arm, bounded explicit owner grant/input-review workflow and activity/status insertion using shared app service. No network in render. Prefer existing frozen snapshot state; no UI/auth refactor. Exact callsites to be identified before patch.
+
+## Dependency/test allocation request
+
+Accept production graph as qualified in dependency-graph.json (principal17October accepted unavoidable SDK defaults). For bounded SSE HTTP adapter, request direct `sse-stream = "=0.2.6"` dependency (already locked/transitive) to use maintained parser, not custom framing. Its error/stream types also have SDK aliases; if aliases avoid direct dependency it will not be added.
+
+For actual maintained SDK HTTP synthetic server tests request dev rmcp same pinned2.2.0/defaultfalse plus `server`, `transport-streamable-http-server`; dev `axum = { version = "=0.8.9", default-features = false, features = ["http1", "tokio"] }`; dev tokio `net` feature. Cached sources inspected; axum0.8.9 and axum-core0.5.6 are new package identities, with other SDK HTTP server dependencies already in root graph except possible features. Will resolve ONLY after exact allocation and inspect full delta. No production server transport/listener/serve path. SDK `StreamableHttpService`/`LocalSessionManager` supports JSON/stateless or stateful SSE synthetic cases; no hand-built JSON-RPC server.
+
+Schema alternative requiring disposition: fixed typed `Empty`/`Query { query: String }` contracts, exact supported schema equality, serde deny_unknown_fields/UTF8 byte bounds; no general keyword interpreter. Unknown schemas remain unavailable. A general maintained validator is absent from cached sources and would require a separately authorized dependency acquisition; none is attempted.
+
+## Allocated refinements
+
+The initialization `server_digest` pins bounded self-reported `InitializeResult` metadata. It is not cryptographic server identity, implementation attestation or proof of unchanged behavior: the same anonymous endpoint may preserve metadata while changing its implementation. Changed observed metadata is refused before the reviewed tool input leaves; identical metadata is no attestation. Server instructions remain untrusted and never enter system authority.
+
+The first supported invocation offers exactly ONE chosen, owner-reviewed tool/input/call. Policy can approve up to eight tools; it does not grant egress. Repeated/multiple external calls are rejected before whole-batch effects. There is no hidden grant renewal, retry, recovered queue grant or helper route. A lazy skill load that advances the existing Run fence invalidates the grant and requires fresh owner authorization. Selected initial skill loads precede attachment.
+
+The shared unavailable notice is restricted to `Other` + origin `mcp_client` + code `mcp_unavailable`. The AI Display/attention and CLI Unavailable projection use static text, with no server/body/path/argument interpolation. Other provider/context/retry contracts are unchanged.
+
+Native exact allocated callsites inspected: `threads_ui.rs::start_run` (prepare around2281, spawn around2310), existing SettingsSection/ALL/key/label and state refresh; `threads_tiles.rs` settings arm; `threads_writing.rs::conversation_detail` one delegated status child. The transient exact input is attached after the single durable prepare. Failed attachment consumes/releases that preparation through existing terminal/lease handling, without a second Run or incorrect queue acknowledgment. No render-time networking.
+
+## Final allocation status before material pin
+
+All exact requests above were granted by the principal and applied only within their recorded bounds. The dev graph estimate of two new packages was corrected by actual cached transitive requirements: axum0.8.9, axum-core0.5.6, matchit0.8.4 and httpdate1.0.3. No existing package identity/checksum changed. CLI dev fixture reuse later changed only brn→axum/rmcp lock edges; final accepted lock65d2aeee. The direct maintained SSE constructor dependency was needed because SDK aliases do not export that constructor. No general validator or auth facility was acquired. The initial proposal language remains provenance rather than a pending expansion request.
+
+Core and native exact callsites/refinements are applied as recorded in ownership. The private Store epoch was authorized conditionally and activated only after a genuine unchanged-context before failure. Current implementation includes the one-offered-tool identity before grant capture, private weak invocation gate, and maintained reqwest retry opt-out. None expands owner authority, transport scope or serialization.

@@ -15,6 +15,8 @@ mod export;
 mod intake;
 mod keyed;
 mod knowledge;
+mod mcp;
+pub use mcp::{MCP_LIMITATIONS, McpStatus};
 mod projects;
 mod refresh;
 pub mod relations;

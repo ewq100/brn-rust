@@ -31,6 +31,10 @@ const HELP: &str = "BRN Threads\n\nUsage: brn --data-dir ABSOLUTE_DIRECTORY COMM
   skill-select --id ID|none [--project ID]; skill-clear --id ID [--project ID]
   Inventory/inspection is workspace-wide owner configuration; --project selects policy only.
   Scoped policy/selection is canonical and backed up; exact installed bytes remain local. Selected instructions load at run preparation; all others are lazy.
+  mcp-status [--thread ID]; mcp-discover --endpoint http://127.0.0.1:PORT/mcp
+  mcp-configure --policy JSON|null; mcp-disable (also fences/disconnects active use)
+  ask ... --mcp-tool EXACT_APPROVED_NAME --mcp-input JSON (one transient reviewed call)
+  Anonymous local HTTP only; remote/authenticated servers unsupported. Enablement is not an external-data grant.
   Installed skills are excluded from current BRN backups/exports; preserve originals for reinstall.
   note-create --title TITLE --text MARKDOWN\n  thread-start --title TITLE\n  read --id RECORD\n  search --query TEXT [--limit 1..50] [--cursor NEXT] [--thread CHAT]\n  connections --note ID [--hops 1|2] [--sources yes] [--thread CHAT]\n  topics; topics-create; topics-choose --note ID\n  knowledge-check [--seed-chat yes]\n  model-install --destination ABSOLUTE_FRESH_FOLDER (native builds; downloads the pinned model)\n  Semantic search uses the model folder named by BRN_EMBEDDING_MODEL_DIR.\n  begin-edit --note ID --base VERSION [--token-out ABSOLUTE_NEW_FILE] (prints the session token once)\n  update-buffer --session ID --generation N --text MARKDOWN --token-file ABSOLUTE_FILE|-\n  save|discard --session ID --generation N --token-file ABSOLUTE_FILE|-; recovery\n  reclaim-edit --session ID [--token-out ABSOLUTE_NEW_FILE] (test workspaces only)\n  apply|dismiss --operation ID; undo --operation ID; archive|unarchive --thread ID\n  queue --thread ID --text TEXT; keep-in-brn --note ID --base VERSION\n  ask --thread ID --prompt TEXT [--budget 1..32] [--edit-note ID --base VERSION | --record-decision yes] [--trace summary|full]\n  intake --source ABSOLUTE_FILE --intent useful|full|chat|project [--title TITLE] [--thread ID] [--project ID] [--trace summary|full]\n  configure --provider Codex|Copilot --model ID --effort low|medium|high\n    [--helper off | --helper-provider Codex|Copilot --helper-model ID --helper-effort low|medium|high\n     [--helper-auth-file FILE|--helper-credentials-dir DIR]] (read-only research helper, off by default.\n     Experimental: helper sub-agents are tested only with gpt-6-luna at high effort; other models may give unreliable results. Best for long-document digests; runs that delegate are slower)\n  delegation --choice maintain|review-first\n  pause; resume; export|backup --destination ABSOLUTE_FRESH_PATH\n  restore --source ABSOLUTE_BACKUP\n  upgrade --backup-directory ABSOLUTE_EXTERNAL_FOLDER\n\nChoose delegation before resuming maintenance. Manual work remains available while pending.\nFresh explicit data only. Originals remain external; no external messages are sent.\nReview apply and Undo are concrete owner actions. Continue uses ask on the same Thread.";
 /// Printed after `HELP` by `--help`.
@@ -462,6 +466,53 @@ fn parse(
             }
         }
     }
+    if spec.name == "ask" {
+        match (options.get("mcp-tool"), options.get("mcp-input")) {
+            (None, None) => {}
+            (Some(tool), Some(input)) => {
+                if tool.is_empty()
+                    || tool.len() > 64
+                    || !tool
+                        .bytes()
+                        .all(|b| b.is_ascii_alphanumeric() || b"_.-".contains(&b))
+                {
+                    return Err(refuse(CliError::invalid_value(
+                        "mcp-tool",
+                        "Use the exact owner-approved remote tool name",
+                    )));
+                }
+                if input.len() > brn_ai::mcp::MAX_ARGUMENT_BYTES
+                    || !serde_json::from_str::<Value>(input).is_ok_and(|v| v.is_object())
+                {
+                    return Err(refuse(CliError::invalid_value(
+                        "mcp-input",
+                        "MCP input must be one bounded JSON object, at most 8192 UTF-8 bytes",
+                    )));
+                }
+            }
+            _ => {
+                return Err(refuse(CliError::missing_option(
+                    if options.contains_key("mcp-tool") {
+                        "mcp-input"
+                    } else {
+                        "mcp-tool"
+                    },
+                )))
+            }
+        }
+    }
+    if spec.name == "mcp-discover" {
+        brn_ai::mcp::Endpoint::parse(&options["endpoint"]).map_err(|_|refuse(CliError::invalid_value("endpoint", "Use anonymous literal-loopback HTTP with an explicit nonzero port and path; no credentials, query, fragment, DNS or remote endpoint")))?;
+    }
+    if spec.name == "mcp-configure"
+        && (options["policy"].len() > 32 * 1024
+            || serde_json::from_str::<Option<McpPolicy>>(&options["policy"]).is_err())
+    {
+        return Err(refuse(CliError::invalid_value(
+            "policy",
+            "Policy must be bounded MCP policy JSON or null to clear; no inputs or secrets",
+        )));
+    }
     if command == "delegation" {
         delegation_choice(&options["choice"]).map_err(refuse)?;
     }
@@ -823,6 +874,15 @@ async fn ask(
             offered_copilot_models: None,
         })
         .map_err(preparation_cli_error)?;
+    let prepared = if let Some(tool) = inv.args.get("mcp-tool") {
+        let input: Value = serde_json::from_str(inv.arg("mcp-input")?)
+            .map_err(|_| CliError::invalid_value("mcp-input", "MCP input must be a JSON object"))?;
+        prepared
+            .with_external_input(tool, &input)
+            .map_err(contract::run_error)?
+    } else {
+        prepared
+    };
     let search_status = prepared.search_status;
     let observed = cancel.clone();
     let watcher = tokio::spawn(async move {
@@ -1326,6 +1386,19 @@ async fn execute(inv: &Invocation, notes: &mut Annotations) -> Result<Value> {
         )?)?,
         "pause" => applied(workspace.pause(true)?),
         "resume" => applied(workspace.pause(false)?),
+        "mcp-status" => encode(workspace.mcp_status(inv.args.get("thread").map(String::as_str))?)?,
+        "mcp-discover" => encode(Workspace::discover_mcp(inv.arg("endpoint")?).await?)?,
+        "mcp-configure" => {
+            let policy: Option<McpPolicy> =
+                serde_json::from_str(inv.arg("policy")?).map_err(|_| {
+                    CliError::invalid_value("policy", "MCP policy must be bounded JSON or null")
+                })?;
+            applied(workspace.configure_mcp(policy)?)
+        }
+        "mcp-disable" => match workspace.disable_mcp()? {
+            Some(outcome) => applied(outcome),
+            None => json!({"outcome":"Unchanged"}),
+        },
         "configure" => {
             let mut settings = workspace.settings()?;
             let chosen = provider(inv.arg("provider")?)?;
@@ -1697,6 +1770,7 @@ mod cw2_run_tests {
     fn shared_selection_retains_cli_invalid_provider_and_effort_contract() {
         for option in ["provider", "effort"] {
             let mut settings = WorkspaceSettings {
+                mcp: None,
                 skills: vec![],
                 provider: "Codex".into(),
                 model: "synthetic".into(),

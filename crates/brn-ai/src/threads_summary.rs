@@ -835,3 +835,7 @@ mod filesystem_tests {
         );
     }
 }
+
+#[cfg(all(test, feature = "scripted-runs"))]
+#[path = "threads_mcp_summary_tests.rs"]
+mod external_catalogue_tests;

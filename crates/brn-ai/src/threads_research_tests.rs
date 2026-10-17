@@ -645,8 +645,29 @@ async fn project_without_brn_knowledge_hides_global_notes_from_helpers() {
 
 #[tokio::test]
 async fn helpers_are_read_only_and_cannot_spawn_helpers() {
+    let server = crate::mcp::http_tests::TestServer::start().await;
     let (_root, request, plan) = setup();
-    let (scope, _) = begin(&request).unwrap();
+    let policy = server.policy(vec![McpAccess::General]).await;
+    let mut store = Store::open(&request.data_dir).unwrap();
+    let op = store.allocate_operation(&unique_host_key()).unwrap();
+    store
+        .change_mcp_policy(
+            &op,
+            Some(&policy),
+            &HostAuthority::owner("synthetic review"),
+        )
+        .unwrap();
+    drop(store);
+    let prepared = prepare_run(request)
+        .unwrap()
+        .with_external_input(
+            "public_read",
+            &json!({"query":"approved public helper test"}),
+        )
+        .unwrap();
+    let scope = prepared.scope.clone();
+    let external = mcp_runtime::invocation(&scope).unwrap();
+    external.connect(&CancellationToken::new()).await.unwrap();
     let write = MockCompletionModel::from_stream_turns(vec![vec![
         MockStreamEvent::tool_call(
             "w",
@@ -663,15 +684,41 @@ async fn helpers_are_read_only_and_cannot_spawn_helpers() {
         MockStreamEvent::tool_call("k", "read_skill", json!({"id":"intake"})),
         tokens(10),
     ]]);
-    scripted(&scope, vec![Ok(write.clone()), Ok(spawn), Ok(skill)]);
+    let mcp = MockCompletionModel::from_stream_turns(vec![vec![
+        MockStreamEvent::tool_call(
+            "m",
+            external.name(),
+            json!({"query":"approved public helper test"}),
+        ),
+        tokens(10),
+    ]]);
+    scripted(
+        &scope,
+        vec![Ok(write.clone()), Ok(spawn), Ok(skill), Ok(mcp.clone())],
+    );
     let out = ask(
         &scope,
-        vec![question("one"), question("two"), question("three")],
+        vec![
+            question("one"),
+            question("two"),
+            question("three"),
+            question("four"),
+        ],
     )
     .await;
     for report in out["reports"].as_array().unwrap() {
         assert_eq!(report["outcome"], "failed", "{out}");
     }
+    assert_eq!(server.state.calls.load(Ordering::SeqCst), 0);
+    assert_eq!(mcp.request_count(), 1);
+    assert!(
+        !mcp.requests()[0]
+            .tools
+            .iter()
+            .any(|t| t.name.starts_with("mcp_"))
+    );
+    mcp_runtime::cleanup(&scope).await;
+    server.stop().await;
     let store = scope.store.lock().unwrap();
     let current = store.record(&plan.id).unwrap().unwrap();
     assert_eq!(current.version, plan.version);

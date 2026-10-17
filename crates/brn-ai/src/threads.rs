@@ -47,6 +47,11 @@ mod summary_tests;
 mod history;
 #[path = "threads_intake.rs"]
 mod host_intake;
+#[path = "threads_mcp_runtime.rs"]
+mod mcp_runtime;
+#[cfg(all(test, feature = "scripted-runs"))]
+#[path = "threads_mcp_runtime_tests.rs"]
+mod mcp_tests;
 #[path = "threads_search.rs"]
 mod note_search;
 #[path = "threads_reads.rs"]
@@ -153,9 +158,68 @@ pub struct PreparedThreadRun {
     input: String,
     summary_chunks: Vec<String>,
 }
+/// Non-authoritative facts shown during an earlier host review. This is neither
+/// a grant nor serialized state; checked attachment must still construct fresh
+/// invocation-local authority. Chat control epoch excludes mutable attention.
+#[derive(Clone, PartialEq, Eq)]
+pub struct ExternalInputSnapshot {
+    pub policy_identity: String,
+    pub chat: String,
+    pub context_epoch: u64,
+    pub private_context: bool,
+    pub project_context: Option<(String, u64)>,
+}
+impl ExternalInputSnapshot {
+    /// Owner-control read only. No connection or external-data grant is created.
+    pub fn capture(store: &Store, chat: &str) -> AiResult<Self> {
+        mcp_runtime::snapshot(store, chat)
+    }
+}
 impl PreparedThreadRun {
     pub fn run_id(&self) -> &str {
         &self.scope.run
+    }
+    /// Immediate genuine host-owner review of the current prepared context,
+    /// after durable prepare and before spawn. A previously reviewed UI must use
+    /// `with_external_input_at_snapshot` instead of rebinding to current facts.
+    /// The consumed failure path ends/drops this same invocation and its lease;
+    /// it never starts another Run or acknowledges a saved queue item.
+    pub fn with_external_input(self, tool: &str, input: &Value) -> AiResult<Self> {
+        self.attach_external_input(tool, input, None)
+    }
+    /// Attach an earlier exact review without refreshing its policy/context.
+    pub fn with_external_input_at_snapshot(
+        self,
+        tool: &str,
+        input: &Value,
+        expected: &ExternalInputSnapshot,
+    ) -> AiResult<Self> {
+        self.attach_external_input(tool, input, Some(expected))
+    }
+    fn attach_external_input(
+        mut self,
+        tool: &str,
+        input: &Value,
+        expected: Option<&ExternalInputSnapshot>,
+    ) -> AiResult<Self> {
+        let attach = (|| {
+            if self.scope.external.lock().map_err(storage)?.is_some() {
+                return Err(mcp_runtime::unavailable());
+            }
+            let invocation = mcp_runtime::Invocation::prepare(&self.scope, tool, input, expected)?;
+            self.input.push_str(&invocation.context());
+            *self.scope.external.lock().map_err(storage)? = Some(invocation);
+            context_budget::preflight(&self.scope, &self.input)
+        })();
+        if let Err(error) = attach {
+            let answer = AiAnswer {
+                text: String::new(),
+                terminal: AiTerminal::Failed(error.clone()),
+            };
+            let _ = finish(&self.scope, &answer)?;
+            return Err(error);
+        }
+        Ok(self)
     }
 }
 /// Native hosts share worker creation too; events and completion remain host
@@ -178,6 +242,7 @@ pub fn spawn_prepared(
         })
 }
 struct Scope {
+    external: Mutex<Option<Arc<mcp_runtime::Invocation>>>,
     skills: Arc<crate::thread_skills::Catalogue>,
     chat: String,
     private_context: bool,
@@ -2094,6 +2159,7 @@ fn tool_outcome_label<'a>(name: &str, result: Option<&'a rig::tool::ToolResult>)
     result.status_name()
 }
 struct BatchHook {
+    external: Option<Arc<mcp_runtime::Invocation>>,
     skills: Option<Arc<crate::thread_skills::Catalogue>>,
     invalid: Arc<AtomicBool>,
     limited: Arc<AtomicBool>,
@@ -2137,6 +2203,24 @@ impl BatchHook {
 }
 impl AgentHook for BatchHook {
     async fn on_dispatch(&self, _: &HookContext, event: DispatchEvent<'_>) -> DispatchAction {
+        if let Some(name) = event
+            .tool_name()
+            .filter(|n| self.external.as_ref().is_some_and(|m| m.name() == *n))
+        {
+            if let Some(trace) = &self.trace {
+                trace.dispatch(
+                    format!("{:?}", event.id),
+                    name,
+                    "{}",
+                    self.rounds.load(Ordering::SeqCst),
+                );
+            }
+            (self.emit)(AiEvent::Activity(
+                "External MCP read: exact reviewed input dispatch requested; payload omitted."
+                    .into(),
+            ));
+            return DispatchAction::Proceed;
+        }
         if let Some(name) = event
             .tool_name()
             .filter(|name| tool_activity(name).is_some())
@@ -2187,6 +2271,28 @@ impl AgentHook for BatchHook {
     async fn on_outcome(&self, _: &HookContext, event: OutcomeEvent<'_>) -> OutcomeAction {
         if let Some(name) = event
             .tool_name()
+            .filter(|n| self.external.as_ref().is_some_and(|m| m.name() == *n))
+        {
+            let status = if event.tool_result().is_some_and(|r| r.is_success()) {
+                "success"
+            } else {
+                "error"
+            };
+            if let Some(trace) = &self.trace {
+                trace.outcome(
+                    &format!("{:?}", event.id),
+                    name,
+                    status,
+                    event.tool_result(),
+                );
+            }
+            (self.emit)(AiEvent::Activity(format!(
+                "External MCP read: {status}; external text is untrusted, no local write implied."
+            )));
+            return OutcomeAction::Proceed;
+        }
+        if let Some(name) = event
+            .tool_name()
             .filter(|name| tool_activity(name).is_some())
         {
             let status = tool_outcome_label(name, event.tool_result());
@@ -2222,29 +2328,48 @@ impl AgentHook for BatchHook {
         // instructive result; unparseable or foreign calls still end its run.
         let helper = self.allowed.is_some();
         self.turn_calls.store(0, Ordering::SeqCst);
-        if calls.iter().any(|call| {
-            call.function.invalid_arguments.is_some()
-                || self
-                    .allowed
-                    .is_some_and(|allowed| !allowed.contains(&call.function.name.as_str()))
-                || (!helper
-                    && !parse_valid(
-                        &call.function.name,
-                        &Value::Object(call.function.arguments.clone()),
-                    ))
-                || (!helper
-                    && call.function.name == "read_skill"
-                    && !self.skills.as_ref().is_some_and(|skills| {
-                        serde_json::from_value::<SkillArgs>(Value::Object(
-                            call.function.arguments.clone(),
-                        ))
-                        .is_ok_and(|a| {
-                            skills
-                                .file(&a.id, &a.path)
-                                .is_some_and(|(text, _)| text.get(a.start..).is_some())
+        let multiple_external = self
+            .external
+            .as_ref()
+            .is_some_and(|m| calls.iter().filter(|c| c.function.name == m.name()).count() > 1);
+        if multiple_external
+            || calls.iter().any(|call| {
+                call.function.invalid_arguments.is_some()
+                    || self
+                        .allowed
+                        .is_some_and(|allowed| !allowed.contains(&call.function.name.as_str()))
+                    || (!helper
+                        && !if self
+                            .external
+                            .as_ref()
+                            .is_some_and(|m| m.name() == call.function.name.as_str())
+                        {
+                            self.external.as_ref().is_some_and(|m| {
+                                m.valid_call(
+                                    &call.function.name,
+                                    &Value::Object(call.function.arguments.clone()),
+                                )
+                            })
+                        } else {
+                            parse_valid(
+                                &call.function.name,
+                                &Value::Object(call.function.arguments.clone()),
+                            )
                         })
-                    }))
-        }) {
+                    || (!helper
+                        && call.function.name == "read_skill"
+                        && !self.skills.as_ref().is_some_and(|skills| {
+                            serde_json::from_value::<SkillArgs>(Value::Object(
+                                call.function.arguments.clone(),
+                            ))
+                            .is_ok_and(|a| {
+                                skills
+                                    .file(&a.id, &a.path)
+                                    .is_some_and(|(text, _)| text.get(a.start..).is_some())
+                            })
+                        }))
+            })
+        {
             self.invalid.store(true, Ordering::SeqCst);
             if let Some(trace) = &self.trace {
                 trace.model_turn(&event.usage, self.rounds.load(Ordering::SeqCst));
@@ -2561,18 +2686,21 @@ async fn run_prepared_over(
     let mut summary_notice = None;
     let client = match context_budget::preflight(&scope, &input) {
         Err(error) => Err(error),
-        Ok(()) => {
-            provider_client_context(
-                &request.selection,
-                request.auth_file.as_deref(),
-                request.credentials_dir.as_deref(),
-                None,
-                Some(base_http.clone()),
-                on_resend.clone(),
-                &cancel,
-            )
-            .await
-        }
+        Ok(()) => match mcp_runtime::connect(&scope, &cancel).await {
+            Err(error) => Err(error),
+            Ok(()) => {
+                provider_client_context(
+                    &request.selection,
+                    request.auth_file.as_deref(),
+                    request.credentials_dir.as_deref(),
+                    None,
+                    Some(base_http.clone()),
+                    on_resend.clone(),
+                    &cancel,
+                )
+                .await
+            }
+        },
     };
     let mut answer = match client {
         Ok((client, bootstrap)) => {
@@ -2678,6 +2806,7 @@ async fn run_prepared_over(
     watcher.abort();
     // The watcher shares the Scope; waiting for it lets the lease end with the run.
     let _ = watcher.await;
+    mcp_runtime::cleanup(&scope).await;
     let committed = finish(&scope, &answer)?;
     if !committed {
         answer.terminal = AiTerminal::Interrupted;
@@ -2726,10 +2855,28 @@ pub async fn run_prepared_scripted_with_helpers(
         input,
         summary_chunks,
     } = prepared;
+    let cancel = CancellationToken::new();
+    if let Err(error) = mcp_runtime::connect(&scope, &cancel).await {
+        let answer = AiAnswer {
+            text: String::new(),
+            terminal: AiTerminal::Failed(error),
+        };
+        mcp_runtime::cleanup(&scope).await;
+        let committed = finish(&scope, &answer)?;
+        return Ok(ThreadResult {
+            terminal_run: committed
+                .then(|| (scope.run.clone(), scope.fence.load(Ordering::SeqCst) + 1)),
+            run_id: scope.run.clone(),
+            trace: finish_trace(&scope, &answer),
+            answer,
+            notices: vec![],
+            provider_resends: vec![],
+        });
+    }
     if let Some(helper) = &scope.helper {
         helper.set_source(research::HelperSource::Scripted(helpers.into()));
     }
-    let input = host_intake::with_context(&scope, input, &CancellationToken::new()).await;
+    let input = host_intake::with_context(&scope, input, &cancel).await;
     let (input, continuation_notice) = continuation::context(&scope, input);
     let context = summary::prepare(
         summary::ModelCompactor::new(
@@ -2737,7 +2884,7 @@ pub async fn run_prepared_scripted_with_helpers(
             scope.clone(),
             request.effort,
             true,
-            CancellationToken::new(),
+            cancel.clone(),
         ),
         input,
         summary_chunks,
@@ -2753,10 +2900,11 @@ pub async fn run_prepared_scripted_with_helpers(
         request.effort,
         request.max_tool_rounds,
         true,
-        CancellationToken::new(),
+        cancel.clone(),
         Arc::new(|_| {}),
     )
     .await;
+    mcp_runtime::cleanup(&scope).await;
     let committed = finish(&scope, &answer)?;
     if !committed {
         answer.terminal = AiTerminal::Interrupted;
@@ -2828,11 +2976,20 @@ fn finish_trace(scope: &Scope, answer: &AiAnswer) -> Option<RunTrace> {
     } else if matches!(&answer.terminal, AiTerminal::Failed(e) if e.is_context_limit()) {
         trace.stop("budget");
     }
-    let mut finished = trace.finish(
-        &scope.skills.identity,
-        scope.search.is_some(),
-        scope.max_rounds,
-    );
+    let identity = scope
+        .store
+        .lock()
+        .ok()
+        .and_then(|store| store.record(&scope.run).ok().flatten())
+        .and_then(|r| {
+            if let RecordData::Run(run) = r.data {
+                Some(run.guide_identity)
+            } else {
+                None
+            }
+        })
+        .unwrap_or_else(|| scope.skills.identity.clone());
+    let mut finished = trace.finish(&identity, scope.search.is_some(), scope.max_rounds);
     if let AiTerminal::Failed(error) = &answer.terminal {
         finished.failure = Some(error.clone());
     }
@@ -3379,6 +3536,7 @@ fn begin_context(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String, Ve
         .and_then(|(_, settings)| settings.helper.clone())
         .filter(|_| writing_snapshot.is_none());
     let scope = Arc::new(Scope {
+        external: Mutex::new(None),
         skills,
         chat: request.thread.clone(),
         private_context,
@@ -3474,6 +3632,9 @@ const FRESH_RECOVERY: &str = "Continue starts fresh.";
 fn failed_attention(error: &AiError) -> String {
     use AiErrorKind as K;
     let (cause, recovery) = match error.kind {
+        _ if error.mcp_unavailable_notice().is_some() => {
+            (error.mcp_unavailable_notice().unwrap(), None)
+        }
         _ if error.skill_unavailable_notice().is_some() => {
             (error.skill_unavailable_notice().unwrap(), None)
         }
@@ -3726,9 +3887,12 @@ fn copilot_responses_retry(responses: bool, answer: &AiAnswer, cancel: &Cancella
         && !cancel.is_cancelled()
 }
 fn run_preamble(scope: &Scope) -> String {
+    let external = mcp_runtime::invocation(scope)
+        .map(|m| m.catalogue_context())
+        .unwrap_or_default();
+    let preamble = scope.skills.preamble();
     format!(
-        "{}\n\nCanonical records use externally tagged data objects. Note fields: title, markdown, protected, confirmed, superseded_by (null), import (null). Thread: title, state (Open/Resolved), attention [{{kind:Question/Review/Conflict/Blocker,reason,record:null}}]. Action: description,state,internal,evidence:null,due:null. Source: locator,label,observed_at,external_version:null,outcome,gaps:[]; Link: from,to,relation. Message: thread,role,text. Comment: note,base_version,quote,range,mapped_version,mapped_range,body,unresolved. New IDs use new:0 etc. Message/Run/Settings and receipt authority are host-only.",
-        scope.skills.preamble()
+        "{preamble}{external}\n\nCanonical records use externally tagged data objects. Note fields: title, markdown, protected, confirmed, superseded_by (null), import (null). Thread: title, state (Open/Resolved), attention [{{kind:Question/Review/Conflict/Blocker,reason,record:null}}]. Action: description,state,internal,evidence:null,due:null. Source: locator,label,observed_at,external_version:null,outcome,gaps:[]; Link: from,to,relation. Message: thread,role,text. Comment: note,base_version,quote,range,mapped_version,mapped_range,body,unresolved. New IDs use new:0 etc. Message/Run/Settings and receipt authority are host-only."
     )
 }
 fn budget_tool_definitions(scope: &Scope) -> Vec<Value> {
@@ -3739,6 +3903,9 @@ fn budget_tool_definitions(scope: &Scope) -> Vec<Value> {
         if scope.helper.is_some() {
             definitions.push(json!({"name":research::Research::NAME,"description":research::Research.description(),"parameters":research::Research.parameters()}));
         }
+    }
+    if let Some(invocation) = mcp_runtime::invocation(scope) {
+        definitions.push(invocation.definition());
     }
     definitions
 }
@@ -3808,6 +3975,17 @@ async fn run_model_budgeted(
             builder = builder.tool(research::Research);
         }
     }
+    if let Some(invocation) = mcp_runtime::invocation(&scope) {
+        match invocation.dynamic() {
+            Ok(tool) => builder = builder.dynamic_tool(tool),
+            Err(error) => {
+                return AiAnswer {
+                    text: String::new(),
+                    terminal: AiTerminal::Failed(error),
+                };
+            }
+        }
+    }
     let agent = builder
         // Rig 0.44 maps portable reasoning on Responses. Its Copilot Chat
         // mapping explicitly refuses options as unverified, so retain the
@@ -3834,6 +4012,7 @@ async fn run_model_budgeted(
             scope: scope.clone(),
         })
         .add_hook(BatchHook {
+            external: mcp_runtime::invocation(&scope),
             skills: Some(scope.skills.clone()),
             invalid: invalid.clone(),
             limited: limited.clone(),
@@ -3975,6 +4154,7 @@ mod tests {
                     expected_version: None,
                     archived: false,
                     data: RecordData::Settings(WorkspaceSettings {
+                        mcp: None,
                         skills: vec![],
                         provider: "Chatgpt".into(),
                         model: "gpt-6.1-sol".into(),

@@ -6,6 +6,7 @@ use std::{
     fs,
     io::Write,
     path::{Path, PathBuf},
+    sync::Arc,
     time::Duration,
 };
 
@@ -16,11 +17,12 @@ pub const DATA_MARKER: &str = ".brn-threads-data";
 pub const DERIVED_DIRECTORY: &str = "derived";
 const IDENTITY: &str = "BRN Threads SQLite v1\n";
 pub(crate) const APPLICATION_ID: i64 = 0x42525448;
-pub(crate) const SCHEMA_VERSION: i64 = 8;
+pub(crate) const SCHEMA_VERSION: i64 = 9;
 /// Read-only canonical watermark, external commit version and exact pending keys.
 pub type ViewChangeToken = (u64, u64, Vec<(String, String)>);
 pub struct Store {
     pub(crate) conn: Connection,
+    pub(crate) external_grant_epoch: Arc<()>,
     directory: PathBuf,
 }
 enum SettingsUpdate<'a> {
@@ -31,6 +33,7 @@ enum SettingsUpdate<'a> {
     Theme(&'a str),
     TopicsNote(&'a str),
     SkillPolicy(&'a SkillPolicyChange),
+    McpPolicy(Option<&'a McpPolicy>),
 }
 /// How `open_with` treats the folder: the owner host's open (an existing
 /// older workspace is backed up and upgraded first), an open that never
@@ -175,6 +178,7 @@ impl Store {
         }
         Ok(Self {
             conn,
+            external_grant_epoch: Arc::new(()),
             directory: directory.to_owned(),
         })
     }
@@ -968,6 +972,19 @@ impl Store {
         self.update_workspace_settings(operation, SettingsUpdate::SkillPolicy(change), authority)
     }
 
+    /// Explicit owner configuration. This is never a data-egress grant.
+    pub fn change_mcp_policy(
+        &mut self,
+        operation: &OperationId,
+        policy: Option<&McpPolicy>,
+        authority: &HostAuthority,
+    ) -> Result<ApplyOutcome> {
+        if let Some(policy) = policy {
+            policy.validate()?;
+        }
+        self.update_workspace_settings(operation, SettingsUpdate::McpPolicy(policy), authority)
+    }
+
     /// Recheck the saved destination against this actual workspace at dispatch.
     pub fn validate_backup_directory(&self, directory: &Path) -> Result<PathBuf> {
         validate_backup_directory(&self.directory, directory)
@@ -1003,6 +1020,7 @@ impl Store {
             SettingsUpdate::SkillPolicy(change) => {
                 Some(serde_json::to_vec(&("skill-policy", change))?)
             }
+            SettingsUpdate::McpPolicy(policy) => Some(serde_json::to_vec(&("mcp-policy", policy))?),
             SettingsUpdate::Configure(_) => None,
         };
         if let Some(intent) = intent {
@@ -1046,6 +1064,7 @@ impl Store {
                     requested.theme = prior.theme.clone();
                     requested.topics_note = prior.topics_note.clone();
                     requested.skills = prior.skills.clone();
+                    requested.mcp = prior.mcp.clone();
                     if &requested != *prior {
                         return Err(Error::ImmutableRequest);
                     }
@@ -1063,7 +1082,9 @@ impl Store {
                         return Err(Error::ImmutableRequest);
                     }
                 }
-                SettingsUpdate::BackupDirectory(_) | SettingsUpdate::SkillPolicy(_) => {}
+                SettingsUpdate::BackupDirectory(_)
+                | SettingsUpdate::SkillPolicy(_)
+                | SettingsUpdate::McpPolicy(_) => {}
                 SettingsUpdate::Theme(theme) => {
                     if prior.theme.as_deref() != Some(theme) {
                         return Err(Error::ImmutableRequest);
@@ -1118,6 +1139,7 @@ impl Store {
                 next.theme = current_settings.theme.clone();
                 next.topics_note = current_settings.topics_note.clone();
                 next.skills = current_settings.skills.clone();
+                next.mcp = current_settings.mcp.clone();
                 next
             }
             _ => current_settings.clone(),
@@ -1191,6 +1213,14 @@ impl Store {
                     ));
                 }
                 change_skills(&mut next, change)?;
+            }
+            SettingsUpdate::McpPolicy(policy) => {
+                crate::external_data::validate_policy_context(
+                    &tx,
+                    policy,
+                    current_settings.mcp.as_ref(),
+                )?;
+                next.mcp = policy.cloned();
             }
             SettingsUpdate::Configure(_) => {}
         }
@@ -1369,7 +1399,7 @@ fn open_existing_database(database: &Path, upgrade: bool) -> Result<Connection> 
         }
     })?;
     let schema: i64 = conn.pragma_query_value(None, "user_version", |r| r.get(0))?;
-    if matches!(schema, 3..=7) {
+    if matches!(schema, 3..=8) {
         if !upgrade {
             let app: i64 = conn.pragma_query_value(None, "application_id", |r| r.get(0))?;
             if app == APPLICATION_ID {
@@ -1480,6 +1510,9 @@ fn validate_request(operation: &OperationId, request: &ChangeRequest) -> Result<
         }
         if let RecordData::Settings(settings) = &write.data {
             settings.validate_skills()?;
+            if let Some(policy) = &settings.mcp {
+                policy.validate()?;
+            }
         }
         if let RecordData::Run(run) = &write.data {
             let mut files = BTreeSet::new();
@@ -2056,6 +2089,14 @@ pub(crate) fn apply_on(
         }
         if let RecordData::Settings(settings) = &write.data {
             settings.validate_skills()?;
+            if let Some(policy) = &settings.mcp {
+                policy.validate()?;
+            }
+            let prior_policy = current.as_ref().and_then(|r| match &r.data {
+                RecordData::Settings(old) => old.mcp.as_ref(),
+                _ => None,
+            });
+            crate::external_data::validate_policy_context(tx, settings.mcp.as_ref(), prior_policy)?;
             for binding in settings.skills.iter().filter(|b| b.enabled) {
                 if let Some(project) = &binding.project
                     && !matches!(
@@ -3001,7 +3042,7 @@ fn workspace_settings_on(conn: &Connection) -> Result<Option<WorkspaceSettings>>
     })
     .transpose()
 }
-fn run_matches_settings(run: &Run, settings: &WorkspaceSettings) -> bool {
+pub(crate) fn run_matches_settings(run: &Run, settings: &WorkspaceSettings) -> bool {
     (run.provider.eq_ignore_ascii_case(&settings.provider)
         || (subscription_provider(&run.provider) && subscription_provider(&settings.provider)))
         && run.model == settings.model

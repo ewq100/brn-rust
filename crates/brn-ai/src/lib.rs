@@ -9,6 +9,8 @@ mod chat;
 pub mod codex_auth;
 pub mod conversion;
 mod error;
+#[path = "threads_mcp.rs"]
+pub mod mcp;
 #[cfg(any(test, feature = "capability-spike"))]
 mod proposal_tools;
 #[cfg(any(test, feature = "capability-spike"))]

@@ -1,0 +1,446 @@
+{
+  "metadata_receipt": "/private/tmp/brn-d4-20261017-evidence/metadata-receipt.json",
+  "added": [
+    {
+      "name": "darling",
+      "version": "0.23.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "25ae13da2f202d56bd7f91c25fba009e7717a1e4a1cc98a76d844b65ae912e9d",
+      "dependencies": [
+        "darling_core 0.23.0",
+        "darling_macro 0.23.0"
+      ]
+    },
+    {
+      "name": "darling_core",
+      "version": "0.23.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "9865a50f7c335f53564bb694ef660825eb8610e0a53d3e11bf1b0d3df31e03b0",
+      "dependencies": [
+        "ident_case",
+        "proc-macro2",
+        "quote",
+        "strsim",
+        "syn 2.0.119"
+      ]
+    },
+    {
+      "name": "darling_macro",
+      "version": "0.23.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "ac3984ec7bd6cfa798e62b4a642426a5be0e68f9401cfc2a01e3fa9ea2fcdb8d",
+      "dependencies": [
+        "darling_core 0.23.0",
+        "quote",
+        "syn 2.0.119"
+      ]
+    },
+    {
+      "name": "rig-rmcp",
+      "version": "0.44.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "44ceee55a0644c19c17e8fb423ba96bbd6173c12f7b7d4eccd44f4c92df4fe03",
+      "dependencies": [
+        "futures",
+        "rig-core",
+        "rmcp",
+        "serde_json",
+        "thiserror 2.0.21",
+        "tokio",
+        "tracing"
+      ]
+    },
+    {
+      "name": "rmcp",
+      "version": "2.2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "14db48ee17a9ba61810ab1a9c1beb7d06d8136ae39ac25a1137f10d357af01af",
+      "dependencies": [
+        "async-trait",
+        "base64 0.22.1",
+        "chrono",
+        "futures",
+        "http",
+        "pastey 0.2.3",
+        "pin-project-lite",
+        "reqwest 0.13.5",
+        "rmcp-macros",
+        "schemars",
+        "serde",
+        "serde_json",
+        "sse-stream",
+        "thiserror 2.0.21",
+        "tokio",
+        "tokio-stream",
+        "tokio-util",
+        "tracing"
+      ]
+    },
+    {
+      "name": "rmcp-macros",
+      "version": "2.2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "783d787bf21813b285f13019adc49e11af501c658890c1e519f31f937c68b7e3",
+      "dependencies": [
+        "darling 0.23.0",
+        "proc-macro2",
+        "quote",
+        "serde_json",
+        "syn 2.0.119"
+      ]
+    },
+    {
+      "name": "sse-stream",
+      "version": "0.2.6",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "c25ac7aff0abd1dbc474536e40416e1102c7dd9bfba0b9861c6d357f835dcfb4",
+      "dependencies": [
+        "bytes",
+        "futures-util",
+        "http-body",
+        "http-body-util",
+        "pin-project-lite"
+      ]
+    },
+    {
+      "name": "tokio-stream",
+      "version": "0.1.19",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "a3d06f0b082ba57c26b79407372e57cf2a1e28124f78e9479fe80322cf53420b",
+      "dependencies": [
+        "futures-core",
+        "pin-project-lite",
+        "tokio"
+      ]
+    }
+  ],
+  "removed": [],
+  "existing_checksum_changes": [],
+  "accepted_lock_sha256": "2251598743d60f386b63825d106de0bae5a63c70646fab88545a2c32cfdbf4f3",
+  "upstream_default_features": "rig-rmcp target nonwasm rmcp client edge omits default-features=false; actual rmcp defaults/server/macros/async-rw compile transitively; principal accepted17October; no BRN server route",
+  "normal_production_forbidden_features": [
+    "transport-child-process",
+    "transport-io",
+    "transport-streamable-http-server"
+  ],
+  "phase": "initial production dependency reconciliation; not a claim that dev-unified metadata is the shipping feature graph",
+  "dev_extension": {
+    "added": [
+      {
+        "name": "axum",
+        "version": "0.8.9",
+        "source": "registry+https://github.com/rust-lang/crates.io-index",
+        "checksum": "31b698c5f9a010f6573133b09e0de5408834d0c82f8d7475a89fc1867a71cd90",
+        "dependencies": [
+          "axum-core",
+          "bytes",
+          "futures-util",
+          "http",
+          "http-body",
+          "http-body-util",
+          "hyper",
+          "hyper-util",
+          "itoa",
+          "matchit",
+          "memchr",
+          "mime",
+          "percent-encoding",
+          "pin-project-lite",
+          "serde_core",
+          "sync_wrapper",
+          "tokio",
+          "tower",
+          "tower-layer",
+          "tower-service"
+        ]
+      },
+      {
+        "name": "axum-core",
+        "version": "0.5.6",
+        "source": "registry+https://github.com/rust-lang/crates.io-index",
+        "checksum": "08c78f31d7b1291f7ee735c1c6780ccde7785daae9a9206026862dab7d8792d1",
+        "dependencies": [
+          "bytes",
+          "futures-core",
+          "http",
+          "http-body",
+          "http-body-util",
+          "mime",
+          "pin-project-lite",
+          "sync_wrapper",
+          "tower-layer",
+          "tower-service"
+        ]
+      },
+      {
+        "name": "httpdate",
+        "version": "1.0.3",
+        "source": "registry+https://github.com/rust-lang/crates.io-index",
+        "checksum": "df3b46402a9d5adb4c86a0cf463f42e19994e3ee891101b1841f30a545cb49a9"
+      },
+      {
+        "name": "matchit",
+        "version": "0.8.4",
+        "source": "registry+https://github.com/rust-lang/crates.io-index",
+        "checksum": "47e1ffaa40ddd1f3ed91f717a33c8c0ee23fff369e3aa8772b9605cc1d22f4c3"
+      }
+    ],
+    "removed": [],
+    "existing_checksum_changes": [],
+    "features": {
+      "axum": [
+        "http1",
+        "tokio"
+      ],
+      "axum-core": [],
+      "hyper": [
+        "client",
+        "default",
+        "http1",
+        "http2",
+        "server"
+      ],
+      "hyper-util": [
+        "client",
+        "client-legacy",
+        "client-proxy",
+        "client-proxy-system",
+        "default",
+        "http1",
+        "http2",
+        "server",
+        "service",
+        "tokio"
+      ],
+      "rmcp": [
+        "__reqwest",
+        "base64",
+        "client",
+        "client-side-sse",
+        "default",
+        "macros",
+        "server",
+        "server-side-http",
+        "tower",
+        "transport-async-rw",
+        "transport-streamable-http-client",
+        "transport-streamable-http-client-reqwest",
+        "transport-streamable-http-server",
+        "transport-streamable-http-server-session",
+        "transport-worker",
+        "uuid"
+      ],
+      "sse-stream": [
+        "default"
+      ]
+    },
+    "lock_sha256": "a0e0e340ffbb8cdc6be62f80c64f74c46eed2917b8d9972c0a4717fe393ab88c"
+  },
+  "current_accepted_lock_sha256": "65d2aeee2a8ec2000e7825266a5f70a10725fd32c617d72ddbdf9361a1eb2a1c",
+  "public_cached_sources": [
+    {
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rig-rmcp-0.44.0/Cargo.toml",
+      "sha256": "c0af20a766887d08d22e8bc05dcc2af39b5194cc4cdf48ca0c12d2ddd8ba8a5c"
+    },
+    {
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rig-rmcp-0.44.0/src/native.rs",
+      "sha256": "26dd56aea6f3caf5640dba14132a9086174e0c4d7d0a3ac3d53ae33e0b6df607"
+    },
+    {
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rmcp-2.2.0/Cargo.toml",
+      "sha256": "789b46a65ae2afb3347f5326cdbb4cf6c016ec23ac4cd23d2ed5d1c6a8c1820e"
+    },
+    {
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rmcp-2.2.0/src/transport/streamable_http_client.rs",
+      "sha256": "13440df58181da00682f8fe66dfa3123d5eec539f0608c1cee2503a7e3daf58a"
+    },
+    {
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/axum-0.8.9/Cargo.toml",
+      "sha256": "ed35dc0f840f27c8b953d9789fff678c0f5b2f10229c8f50d70a1a5857bdd83f"
+    },
+    {
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-1.11.1/Cargo.toml",
+      "sha256": "3f2e4c17624cfba60deea65cdb566f3198340ba250cd2ab7068ab05392b5bae3"
+    },
+    {
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sse-stream-0.2.6/src/lib.rs",
+      "sha256": "3059b23ed8550af47078015fe2821490932f69fc843ce71aa36136ff2ed5cc3a"
+    }
+  ],
+  "normal_build_feature_evidence": "pending supported Cargo normal/build edge evidence; all-workspace metadata includes dev unification",
+  "normal_build_unit_evidence": {
+    "normal_build_command_receipt": "default-workspace-build.json",
+    "raw_artifact_log_sha256": "2a0fc923995e85153cff98c3b2754ef2e77ff17b3b70aa5a7a069d3fa3700cf9",
+    "unit_artifacts": [
+      {
+        "package_id": "registry+https://github.com/rust-lang/crates.io-index#sse-stream@0.2.6",
+        "target": {
+          "kind": [
+            "lib"
+          ],
+          "crate_types": [
+            "lib"
+          ],
+          "name": "sse_stream",
+          "src_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sse-stream-0.2.6/src/lib.rs",
+          "edition": "2021",
+          "doc": true,
+          "doctest": true,
+          "test": true
+        },
+        "features": [
+          "default"
+        ],
+        "filenames": [
+          "/private/tmp/brn-d4-20261017-target/debug/deps/libsse_stream-7bd56d444649b707.rlib",
+          "/private/tmp/brn-d4-20261017-target/debug/deps/libsse_stream-7bd56d444649b707.rmeta"
+        ],
+        "fresh": false,
+        "profile": {
+          "opt_level": "0",
+          "debuginfo": 0,
+          "debug_assertions": true,
+          "overflow_checks": true,
+          "test": false
+        }
+      },
+      {
+        "package_id": "registry+https://github.com/rust-lang/crates.io-index#rmcp@2.2.0",
+        "target": {
+          "kind": [
+            "lib"
+          ],
+          "crate_types": [
+            "lib"
+          ],
+          "name": "rmcp",
+          "src_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rmcp-2.2.0/src/lib.rs",
+          "edition": "2024",
+          "doc": true,
+          "doctest": true,
+          "test": true
+        },
+        "features": [
+          "__reqwest",
+          "base64",
+          "client",
+          "client-side-sse",
+          "default",
+          "macros",
+          "server",
+          "transport-async-rw",
+          "transport-streamable-http-client",
+          "transport-streamable-http-client-reqwest",
+          "transport-worker"
+        ],
+        "filenames": [
+          "/private/tmp/brn-d4-20261017-target/debug/deps/librmcp-b053c1e5a55a3dde.rlib",
+          "/private/tmp/brn-d4-20261017-target/debug/deps/librmcp-b053c1e5a55a3dde.rmeta"
+        ],
+        "fresh": false,
+        "profile": {
+          "opt_level": "0",
+          "debuginfo": 0,
+          "debug_assertions": true,
+          "overflow_checks": true,
+          "test": false
+        }
+      },
+      {
+        "package_id": "registry+https://github.com/rust-lang/crates.io-index#rig-rmcp@0.44.0",
+        "target": {
+          "kind": [
+            "lib"
+          ],
+          "crate_types": [
+            "lib"
+          ],
+          "name": "rig_rmcp",
+          "src_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rig-rmcp-0.44.0/src/lib.rs",
+          "edition": "2024",
+          "doc": true,
+          "doctest": true,
+          "test": true
+        },
+        "features": [],
+        "filenames": [
+          "/private/tmp/brn-d4-20261017-target/debug/deps/librig_rmcp-6359b051114a9ac1.rlib",
+          "/private/tmp/brn-d4-20261017-target/debug/deps/librig_rmcp-6359b051114a9ac1.rmeta"
+        ],
+        "fresh": false,
+        "profile": {
+          "opt_level": "0",
+          "debuginfo": 0,
+          "debug_assertions": true,
+          "overflow_checks": true,
+          "test": false
+        }
+      }
+    ],
+    "normal_forbidden_transport_features_absent": true,
+    "qualification": "Supported Cargo compiler-artifact feature evidence for actual normal workspace build, separate from all-workspace metadata dev unification. SDK default server/macros/async-rw may compile; there is no BRN serve/listener/process runtime route."
+  },
+  "cli_dev_extension": {
+    "command": [
+      "cargo",
+      "+1.98.1",
+      "metadata",
+      "--offline",
+      "--format-version",
+      "1"
+    ],
+    "exit": 0,
+    "seconds": 0.6438021659851074,
+    "tmpdir": "/private/tmp/brn-d4-cli-metadata-ohrk8zkb",
+    "before_lock_sha256": "a0e0e340ffbb8cdc6be62f80c64f74c46eed2917b8d9972c0a4717fe393ab88c",
+    "after_lock_sha256": "65d2aeee2a8ec2000e7825266a5f70a10725fd32c617d72ddbdf9361a1eb2a1c",
+    "metadata_sha256": "d4c0c3c5f0fbeb34fc843a6e2d806d99bf01efde622508448f9bfb8a534b6019",
+    "added": [],
+    "removed": [],
+    "changed": [
+      {
+        "identity": [
+          "brn",
+          "0.0.0",
+          null
+        ],
+        "before": {
+          "name": "brn",
+          "version": "0.0.0",
+          "dependencies": [
+            "brn-ai",
+            "brn-intake",
+            "brn-threads-app",
+            "brn-threads-intake",
+            "libc",
+            "serde",
+            "serde_json",
+            "tempfile",
+            "tokio",
+            "tokio-util",
+            "uuid"
+          ]
+        },
+        "after": {
+          "name": "brn",
+          "version": "0.0.0",
+          "dependencies": [
+            "axum",
+            "brn-ai",
+            "brn-intake",
+            "brn-threads-app",
+            "brn-threads-intake",
+            "libc",
+            "rmcp",
+            "serde",
+            "serde_json",
+            "tempfile",
+            "tokio",
+            "tokio-util",
+            "uuid"
+          ]
+        }
+      }
+    ]
+  }
+}

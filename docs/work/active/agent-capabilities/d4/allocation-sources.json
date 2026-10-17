@@ -1,0 +1,45 @@
+{
+  "qualification": "Principal source-backed exact allocations; task messages also govern. These files are not modified by this worker.",
+  "sources": [
+    {
+      "path": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/d4-unavailable-and-server-identity-allocation-20261017.md",
+      "sha256": "e9ab62dafd626f27d5784c54b07b598f37861a5dcf2526ebfffbfcde47f78060"
+    },
+    {
+      "path": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/d4-helper-native-handoff-allocation-20261017.md",
+      "sha256": "8203f2f221218495ff67e5102d1dd32f58f923794ae19de82eae8b03b48c5777"
+    },
+    {
+      "path": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/d4-ephemeral-store-grant-allocation-20261017.md",
+      "sha256": "39a1d016ce479ef3e6269a73e842026d68b098cb3a5976159da9c60d3a26f726"
+    },
+    {
+      "path": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/d4-offered-tool-identity-disposition-20261017.md",
+      "sha256": "eaa08a8b7aae4147bafad6752c17cdd68479080686aeb4c64a0744052e81d7a7"
+    },
+    {
+      "path": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/d4-invocation-cycle-disposition-20261017.md",
+      "sha256": "28162f776cb5cbcc0cc0db1749fd271dd8a1be38f6f2dfcd7a0cce0d4569fbd5"
+    },
+    {
+      "path": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/d4-http-client-retry-response-policy-disposition-20261017.md",
+      "sha256": "b8f3971b58fc578dcf4a2f5ac4bbcd3108e6c0a3b05753bd3125c82d075f5fb6"
+    },
+    {
+      "path": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/d4-cli-sdk-process-journey-allocation-20261017.md",
+      "sha256": "bb023c495de0ffc3043c4daf7415396913753c9762b13fe3c477718ab2836eae"
+    },
+    {
+      "path": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/d4-native-reviewed-snapshot-handoff-allocation-20261017.md",
+      "sha256": "5628aa05b9df02b32e5369c5c2539bf1e3b8117a34b5d0c8f4843f9abce8cc51"
+    },
+    {
+      "path": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/d4-native-stop-failure-diagnostic-allocation-20261017.md",
+      "sha256": "d869c71c8fd0227ab2d362999bc2d72b7b2540ebd158df2215feaeb60ee00e24"
+    },
+    {
+      "path": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/d4-native-stop-suite-context-diagnostic-allocation-20261017.md",
+      "sha256": "c9ca749f53eea4a731a49d56bf4e6af6dd5f35a3d85c681858cbcab9d8beca32"
+    }
+  ]
+}

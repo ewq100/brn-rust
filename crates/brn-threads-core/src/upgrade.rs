@@ -79,7 +79,7 @@ pub(crate) fn upgrade_connection(
     database: &Path,
     chosen: Option<&Path>,
 ) -> Result<()> {
-    validate_schema(conn, &[3, 4, 5, 6, 7])?;
+    validate_schema(conn, &[3, 4, 5, 6, 7, 8])?;
     let from: i64 = conn.pragma_query_value(None, "user_version", |r| r.get(0))?;
     let workspace = database
         .parent()

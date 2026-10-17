@@ -704,6 +704,28 @@ pub(crate) static COMMANDS: &[Spec] = &[
     ),
     setting("skill-select", &["id", "project"], &["id"]),
     setting("skill-clear", &["id", "project"], &["id"]),
+    read("mcp-status", &["thread"], &[]),
+    cmd(
+        "mcp-discover",
+        &["endpoint"],
+        &["endpoint"],
+        YES,
+        Converge,
+        None,
+        NONE,
+        &[],
+    ),
+    setting("mcp-configure", &["policy"], &["policy"]),
+    cmd(
+        "mcp-disable",
+        &[],
+        &[],
+        YES,
+        Converge,
+        None,
+        ReceiptAt::Field,
+        CONVERGE_OUTCOMES,
+    ),
     read("settings", &[], &[]),
     setting("pause", &[], &[]),
     setting("resume", &[], &[]),
@@ -1034,9 +1056,11 @@ pub(crate) static COMMANDS: &[Spec] = &[
             "record-decision",
             "trace",
             "prompt-file",
+            "mcp-tool",
+            "mcp-input",
         ],
         &["thread", "prompt"],
-        Owner::WithOptions(&["edit-note", "record-decision"]),
+        Owner::WithOptions(&["edit-note", "record-decision", "mcp-tool"]),
         Duplicate,
         None,
         ReceiptAt::Terminal,
@@ -1440,6 +1464,8 @@ mod tests {
             ("skill-disable", &["id", "digest"]),
             ("skill-select", &["id"]),
             ("skill-clear", &["id"]),
+            ("mcp-discover", &["endpoint"]),
+            ("mcp-configure", &["policy"]),
             ("revisions", &["note"]),
             ("revision", &["note", "version"]),
             ("search", &["query"]),
@@ -1482,6 +1508,9 @@ mod tests {
     #[test]
     fn owner_marks_match_the_owner_decision_table() {
         let yes = [
+            "mcp-discover",
+            "mcp-configure",
+            "mcp-disable",
             "skill-install",
             "skill-remove",
             "skill-enable",
@@ -1517,7 +1546,7 @@ mod tests {
             let name = described["name"].as_str().unwrap();
             assert_eq!(described["owner_decision"], yes.contains(&name), "{name}");
             let options = match name {
-                "ask" => json!(["edit-note", "record-decision"]),
+                "ask" => json!(["edit-note", "record-decision", "mcp-tool"]),
                 "intake" => json!(["project"]),
                 _ => json!([]),
             };
@@ -1564,7 +1593,7 @@ mod tests {
             let expected: &[&str] = match spec.name {
                 "apply" | "keep-in-brn" | "delegation" | "configure" | "pause" | "resume"
                 | "topics-choose" | "undo" | "topics-create" | "skill-enable" | "skill-disable"
-                | "skill-select" | "skill-clear" => APPLY_OUTCOMES,
+                | "skill-select" | "skill-clear" | "mcp-configure" => APPLY_OUTCOMES,
                 "intake" => INTAKE_OUTCOMES,
                 "save" => SAVE_OUTCOMES,
                 "update-buffer" => BUFFER_OUTCOMES,
@@ -1573,7 +1602,7 @@ mod tests {
                 "ask" => TERMINAL_OUTCOMES,
                 "read" => READ_OUTCOMES,
                 "archive" | "resolve" | "unarchive" | "chat-move" | "project-link"
-                | "project-unlink" => CONVERGE_OUTCOMES,
+                | "project-unlink" | "mcp-disable" => CONVERGE_OUTCOMES,
                 _ if spec.receipt == ReceiptAt::Root || spec.receipt == ReceiptAt::Arm => {
                     RECEIPT_OUTCOMES
                 }

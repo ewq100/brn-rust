@@ -717,6 +717,13 @@ pub(crate) fn run_error(error: brn_ai::AiError) -> CliError {
     {
         return CliError::new(Code::Unavailable, error.to_string());
     }
+    if error.kind == AiErrorKind::Other
+        && error.detail.as_ref().is_some_and(|d| {
+            d.origin == "mcp_client" && d.code.as_deref() == Some("mcp_unavailable")
+        })
+    {
+        return CliError::new(Code::Unavailable, error.to_string());
+    }
     let message = format!("Provider run failed: {:?}", error.kind);
     let kind = snake(&format!("{:?}", error.kind));
     match error.kind {
@@ -2081,6 +2088,48 @@ mod skill_run_diagnostics {
             let error = run_error(input);
             assert_ne!(error.code, Code::Unavailable);
             assert!(!error.message.contains("Reinstall"));
+        }
+    }
+}
+
+#[cfg(test)]
+mod mcp_run_diagnostics {
+    use super::*;
+    #[test]
+    fn only_exact_host_mcp_tuple_is_unavailable() {
+        use brn_ai::{AiError, AiErrorKind, AiFailureDetail};
+        let detail = |kind, origin: &str, code: Option<&str>| AiError {
+            kind,
+            retry_after_seconds: None,
+            detail: Some(Box::new(AiFailureDetail {
+                origin: origin.into(),
+                code: code.map(str::to_owned),
+                ..Default::default()
+            })),
+        };
+        let local = run_error(detail(
+            AiErrorKind::Other,
+            "mcp_client",
+            Some("mcp_unavailable"),
+        ));
+        assert_eq!(local.code, Code::Unavailable);
+        assert_eq!(local.code.status(), Status::Failed);
+        assert!(local.message.starts_with("The approved MCP connection"));
+        for error in [
+            AiError::new(AiErrorKind::Other),
+            detail(AiErrorKind::Other, "provider", Some("mcp_unavailable")),
+            detail(AiErrorKind::Other, "", Some("mcp_unavailable")),
+            detail(AiErrorKind::Other, "mcp_client", None),
+            detail(AiErrorKind::Other, "mcp_client", Some("other_error")),
+            detail(
+                AiErrorKind::ToolRejected,
+                "mcp_client",
+                Some("mcp_unavailable"),
+            ),
+        ] {
+            let mapped = run_error(error);
+            assert_ne!(mapped.code, Code::Unavailable);
+            assert!(!mapped.message.contains("authorize the exact input"));
         }
     }
 }
