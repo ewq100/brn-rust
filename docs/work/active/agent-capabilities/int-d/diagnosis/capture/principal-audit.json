@@ -1,0 +1,30 @@
+{
+  "material": "e9607282af57203af0640b97b82310246cd39715",
+  "head": "031b0bf3bacdc07eaa8a878ab4230ca3b93b04df",
+  "compiled_inputs_checked": 333,
+  "cfg_callback_blocks": 2,
+  "parent_source_after_strip_matches_base": true,
+  "old_test_prefix_unchanged": true,
+  "command_records": 5,
+  "rawcounts": {
+    "focused-initial": [
+      [
+        4,
+        0,
+        0
+      ]
+    ],
+    "scripted-clippy": [],
+    "focused-final": [
+      [
+        4,
+        0,
+        0
+      ]
+    ],
+    "scripted-clippy-final": [],
+    "format-final": []
+  },
+  "errors": [],
+  "scope": "Source/hash/count inspection only; independentfocusedreviewpending. No ignoredrunner/authactivation/reservationimplementation, livewindowclosed2starts/originalcauseUNKNOWN."
+}
