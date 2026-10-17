@@ -212,11 +212,21 @@ impl PreparedThreadRun {
             context_budget::preflight(&self.scope, &self.input)
         })();
         if let Err(error) = attach {
+            #[cfg(all(test, feature = "scripted-runs"))]
+            mcp_tests::before_attachment_finish(&self.scope);
             let answer = AiAnswer {
                 text: String::new(),
                 terminal: AiTerminal::Failed(error.clone()),
             };
-            let _ = finish(&self.scope, &answer)?;
+            if finish(&self.scope, &answer).is_err() {
+                use std::io::Write as _;
+                const NOTICE: &str = "BRN could not record this preparation's terminal state; inspect its saved Run before continuing.";
+                // A failed diagnostic write must not replace the primary refusal either.
+                let _ = writeln!(std::io::stderr().lock(), "{NOTICE}");
+                #[cfg(all(test, feature = "scripted-runs"))]
+                mcp_tests::ATTACHMENT_FINISH_NOTICES
+                    .with(|notices| notices.borrow_mut().push(NOTICE));
+            }
             return Err(error);
         }
         Ok(self)

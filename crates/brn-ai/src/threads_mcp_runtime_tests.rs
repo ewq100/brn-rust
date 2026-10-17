@@ -768,6 +768,133 @@ async fn saved_review_refusal_ends_only_its_preparation_and_preserves_queued_ins
             &run_id
         ));
         drop(crate::run_lease::RunLease::acquire(&data.join("derived"), &run_id).unwrap());
+        ATTACHMENT_FINISH_NOTICES.with(|notices| {
+            assert!(
+                notices.borrow().is_empty(),
+                "no secondary notice for successful or already-fenced finish"
+            );
+        });
         server.stop().await;
     }
+}
+
+std::thread_local! {
+    static FAIL_NEXT_ATTACHMENT_FINISH: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+    pub(super) static ATTACHMENT_FINISH_NOTICES: std::cell::RefCell<Vec<&'static str>> = const { std::cell::RefCell::new(Vec::new()) };
+}
+
+/// One test-local storage failure after a genuine refusal; production finish
+/// still executes and encounters the actually poisoned Store mutex.
+pub(super) fn before_attachment_finish(scope: &Scope) {
+    if FAIL_NEXT_ATTACHMENT_FINISH.with(|fault| fault.replace(false)) {
+        let poisoned = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            let _store = scope.store.lock().unwrap();
+            panic!("synthetic terminal persistence failure");
+        }));
+        assert!(poisoned.is_err());
+    }
+}
+
+#[tokio::test]
+async fn attachment_refusal_survives_real_finish_storage_failure_without_claiming_terminalization()
+{
+    use sha2::{Digest, Sha256};
+    let server = TestServer::start().await;
+    let (_root, mut request, _) = tests::fixture();
+    let policy = server.policy(vec![McpAccess::General]).await;
+    configure(&request, &policy);
+    let data = request.data_dir.clone();
+    let mut store = Store::open(&data).unwrap();
+    let mut control = |key: &str, command: ChatCommand| {
+        let hash = format!(
+            "{:x}",
+            Sha256::digest(serde_json::to_vec(&command).unwrap())
+        );
+        let operation = store.allocate_bound_operation(key, &hash).unwrap();
+        store
+            .chat_command(
+                &operation,
+                &command,
+                &HostAuthority::owner("synthetic queued review"),
+            )
+            .unwrap()
+    };
+    control(
+        "finish-fault-enqueue",
+        ChatCommand::Enqueue {
+            thread: request.thread.clone(),
+            text: request.prompt.clone(),
+        },
+    );
+    let queued = control("finish-fault-dispatch", ChatCommand::Dispatch)
+        .dispatched
+        .unwrap();
+    request.request_message = queued.message.clone();
+    request.queue_claim = queued.dispatch.clone();
+    let prepared = prepare_run(request).unwrap();
+    let run_id = prepared.run_id().to_owned();
+    let weak_scope = Arc::downgrade(&prepared.scope);
+    let before = store.record(&run_id).unwrap().unwrap();
+    let queue_before = serde_json::to_value(store.chat_control().unwrap()).unwrap();
+    let requests_before = server.state.requests.load(Ordering::SeqCst);
+    let model = MockCompletionModel::from_stream_turns([completed()]);
+    ATTACHMENT_FINISH_NOTICES.with(|notices| assert!(notices.borrow().is_empty()));
+    FAIL_NEXT_ATTACHMENT_FINISH.with(|fault| fault.set(true));
+    let error = match prepared.with_external_input(
+        "not_approved",
+        &json!({"query":"FINISH_FAILURE_RAW_INPUT_CANARY"}),
+    ) {
+        Ok(_) => panic!("unapproved tool must be refused"),
+        Err(error) => error,
+    };
+    assert_eq!(
+        serde_json::to_value(&error).unwrap(),
+        serde_json::to_value(mcp_runtime::unavailable()).unwrap(),
+        "secondary storage failure must not replace any primary error field"
+    );
+    ATTACHMENT_FINISH_NOTICES.with(|notices| {
+        let notices = std::mem::take(&mut *notices.borrow_mut());
+        assert_eq!(notices, vec!["BRN could not record this preparation's terminal state; inspect its saved Run before continuing."]);
+        assert!(!notices[0].contains("FINISH_FAILURE_RAW_INPUT_CANARY"));
+    });
+    assert!(weak_scope.upgrade().is_none(), "owning handles are dropped");
+    assert!(!crate::run_lease::run_is_live(
+        &data.join("derived"),
+        &run_id
+    ));
+    drop(crate::run_lease::RunLease::acquire(&data.join("derived"), &run_id).unwrap());
+    assert_eq!(
+        store.record(&run_id).unwrap().unwrap(),
+        before,
+        "failed persistence is not a terminalization claim"
+    );
+    assert!(
+        matches!(before.data, RecordData::Run(r) if r.state == RunState::Working && r.instruction == queued.message)
+    );
+    assert_eq!(
+        serde_json::to_value(store.chat_control().unwrap()).unwrap(),
+        queue_before,
+        "no acknowledgement, unpause or replacement Run"
+    );
+    assert_eq!(
+        store
+            .records()
+            .unwrap()
+            .iter()
+            .filter(|r| matches!(r.data, RecordData::Run(_)))
+            .count(),
+        1
+    );
+    assert!(
+        !serde_json::to_string(&store.records().unwrap())
+            .unwrap()
+            .contains("FINISH_FAILURE_RAW_INPUT_CANARY")
+    );
+    assert_eq!(model.request_count(), 0);
+    assert_eq!(
+        server.state.requests.load(Ordering::SeqCst),
+        requests_before
+    );
+    assert_eq!(server.state.calls.load(Ordering::SeqCst), 0);
+    server.stop().await;
 }

@@ -83,6 +83,8 @@ impl http::DispatchGate for CheckedChannel {
 }
 pub struct Connection {
     #[cfg(test)]
+    overflow: Arc<std::sync::Mutex<Option<http::RawOverflow>>>,
+    #[cfg(test)]
     retired: Arc<tokio::sync::Notify>,
     endpoint: Endpoint,
     channel: Arc<CheckedChannel>,
@@ -107,6 +109,8 @@ impl Connection {
             active: std::sync::Mutex::new(None),
         });
         let client = http::PolicyHttpClient::new(endpoint.clone(), channel.clone())?;
+        #[cfg(test)]
+        let overflow = client.overflow.clone();
         let mut config = StreamableHttpClientTransportConfig::with_uri(endpoint.uri().to_owned());
         config.retry_config = Arc::new(NeverRetry::default());
         config.reinit_on_expired_session = false;
@@ -122,7 +126,11 @@ impl Connection {
         let service = tokio::time::timeout(DEADLINE, handler.serve(transport))
             .await
             .map_err(|_| Refusal::Timeout)?
-            .map_err(|_| Refusal::Transport)?;
+            .map_err(|_error| {
+                #[cfg(test)]
+                http::setup_diagnostic("handshake", &_error);
+                Refusal::Transport
+            })?;
         let peer = service.peer().clone();
         let result = async {
             let info = peer.peer_info().ok_or(Refusal::Catalogue)?;
@@ -138,11 +146,16 @@ impl Connection {
                     PeerRequestOptions::with_timeout(DEADLINE).with_max_total_timeout(DEADLINE),
                 )
                 .await
-                .map_err(|_| Refusal::Transport)?;
-            let response = handle
-                .await_response()
-                .await
-                .map_err(|_| Refusal::Transport)?;
+                .map_err(|_error| {
+                    #[cfg(test)]
+                    http::setup_diagnostic("list_send", &_error);
+                    Refusal::Transport
+                })?;
+            let response = handle.await_response().await.map_err(|_error| {
+                #[cfg(test)]
+                http::setup_diagnostic("list_response", &_error);
+                Refusal::Transport
+            })?;
             let ServerResult::ListToolsResult(list) = response else {
                 return Err(Refusal::Catalogue);
             };
@@ -198,6 +211,8 @@ impl Connection {
         };
         Ok(Arc::new(Self {
             #[cfg(test)]
+            overflow,
+            #[cfg(test)]
             retired,
             endpoint,
             channel,
@@ -210,6 +225,10 @@ impl Connection {
             active: AtomicUsize::new(0),
             drained: tokio::sync::Notify::new(),
         }))
+    }
+    #[cfg(test)]
+    pub(super) fn raw_overflow(&self) -> Option<http::RawOverflow> {
+        *self.overflow.lock().unwrap()
     }
     #[cfg(test)]
     pub(super) async fn observed_retirement(&self) {

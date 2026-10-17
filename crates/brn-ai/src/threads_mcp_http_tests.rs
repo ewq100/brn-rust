@@ -1,4 +1,5 @@
 use super::*;
+use futures::StreamExt;
 use rmcp::{
     RoleServer, ServerHandler,
     model::*,
@@ -147,21 +148,24 @@ impl TestServer {
                             requests.requests.fetch_add(1, Ordering::SeqCst);
                             let response = next.run(request).await;
                             match requests.response_mode.load(Ordering::SeqCst) {
-                                1 => {
-                                    // Only HTTP fault framing: the real SDK service handled
-                                    // the request. No handwritten protocol/session server.
-                                    let chunks = (0..5).map(|_| {
-                                        Ok::<_, std::io::Error>(format!(
+                                mode @ (1 | 7) => {
+                                    // Prefix HTTP comments to the REAL SDK response. The
+                                    // below-limit control proves that trailing SDK data is valid.
+                                    let count = if mode == 1 { 5 } else { 1 };
+                                    let chunks = (0..count).map(|_| {
+                                        Ok::<_, axum::Error>(axum::body::Bytes::from(format!(
                                             ":{}\n\n",
                                             "c".repeat(64 * 1024)
-                                        ))
-                                    });
-                                    axum::http::Response::builder()
-                                        .header("content-type", "text/event-stream")
-                                        .body(axum::body::Body::from_stream(futures::stream::iter(
-                                            chunks,
                                         )))
-                                        .unwrap()
+                                    });
+                                    let (mut parts, body) = response.into_parts();
+                                    parts.headers.remove("content-length");
+                                    let stream = futures::stream::iter(chunks)
+                                        .chain(body.into_data_stream());
+                                    axum::http::Response::from_parts(
+                                        parts,
+                                        axum::body::Body::from_stream(stream),
+                                    )
                                 }
                                 2 => axum::http::Response::builder()
                                     .status(307)
@@ -428,7 +432,7 @@ async fn stop_deadline_and_dropped_caller_keep_sdk_cancellation_polled_until_con
 #[tokio::test]
 async fn sdk_http_streamed_comments_redirect_encoding_and_invalid_json_fail_closed() {
     let recipient = TestServer::start().await;
-    for mode in 1..=4 {
+    for mode in [0, 7, 1, 2, 3, 4] {
         let server = TestServer::start().await;
         let connection = Connection::connect(
             server.endpoint.clone(),
@@ -441,17 +445,47 @@ async fn sdk_http_streamed_comments_redirect_encoding_and_invalid_json_fail_clos
         let frozen = approved(&connection).await;
         *server.state.redirect.lock().unwrap() = recipient.endpoint.uri().to_owned();
         server.state.response_mode.store(mode, Ordering::SeqCst);
-        assert!(
-            connection
-                .invoke(
-                    &frozen,
-                    json!({"query":"reviewed public query"}),
-                    CancellationToken::new()
-                )
-                .await
-                .is_err(),
-            "HTTP fault {mode} became success"
-        );
+        let started = std::time::Instant::now();
+        let result = connection
+            .invoke(
+                &frozen,
+                json!({"query":"reviewed public query"}),
+                CancellationToken::new(),
+            )
+            .await;
+        let elapsed = started.elapsed();
+        if mode == 0 || mode == 7 {
+            let result = result.expect("fault-free SDK control must produce real data");
+            assert_eq!(result["kind"], "untrusted_external_data");
+            assert!(
+                result["text"]
+                    .as_str()
+                    .unwrap()
+                    .contains("fixture value 17")
+            );
+            assert!(connection.raw_overflow().is_none());
+        } else if mode == 1 {
+            // rmcp warns on the SSE error but retains its pending RPC until
+            // the bounded SDK deadline. Observe the actual raw guard separately.
+            assert_eq!(result.unwrap_err(), Refusal::Timeout);
+            let overflow = connection.raw_overflow().expect("actual streamed byte cap");
+            assert!(overflow.at.duration_since(started) < super::client::DEADLINE / 2);
+            assert!(overflow.admitted_bytes <= MAX_WIRE_BYTES);
+            assert!(overflow.admitted_bytes + overflow.rejected_chunk_bytes > MAX_WIRE_BYTES);
+            // All admitted bytes precede the trailing real response: the comment
+            // prefix alone exceeds the cap. No result was accepted or retried.
+            const { assert!(MAX_WIRE_BYTES < 5 * (64 * 1024 + 3)) };
+            assert!(elapsed < super::client::DEADLINE + std::time::Duration::from_secs(3));
+        } else {
+            assert_eq!(result.unwrap_err(), Refusal::Transport, "HTTP fault {mode}");
+            assert!(connection.raw_overflow().is_none());
+        }
+        if mode != 1 {
+            assert!(
+                elapsed < super::client::DEADLINE / 2,
+                "HTTP mode {mode} completed in {elapsed:?}, not promptly before the SDK deadline"
+            );
+        }
         assert_eq!(server.state.calls.load(Ordering::SeqCst), 1, "no retry");
         assert_eq!(
             recipient.state.requests.load(Ordering::SeqCst),

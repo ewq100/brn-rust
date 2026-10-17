@@ -18,6 +18,38 @@ use rmcp::{
 };
 use std::{collections::HashMap, sync::Arc, time::Duration};
 
+// Error classes only; never format an error or retain its payload/destination.
+#[cfg(test)]
+pub(super) fn setup_diagnostic(stage: &'static str, error: &(dyn std::error::Error + 'static)) {
+    use std::io::Write as _;
+    let mut source = Some(error);
+    let mut reqwest = None;
+    let mut os = None;
+    for _ in 0..8 {
+        let Some(error) = source else { break };
+        if let Some(error) = error.downcast_ref::<reqwest::Error>() {
+            reqwest = Some((
+                error.is_connect(),
+                error.is_timeout(),
+                error.is_body(),
+                error.is_request(),
+            ));
+        }
+        if let Some(error) = error.downcast_ref::<std::io::Error>() {
+            os = error.raw_os_error();
+        }
+        source = error.source();
+    }
+    let (connect, timeout, body, request) = reqwest.unwrap_or_default();
+    let _ = writeln!(
+        std::io::stderr().lock(),
+        "BRN SDK test setup: stage={stage} reqwest={} connect={connect} timeout={timeout} body={body} request={request} os_present={} os={}",
+        reqwest.is_some(),
+        os.is_some(),
+        os.unwrap_or(0)
+    );
+}
+
 /// Implemented by the checked BRN host. A model cannot deserialize this gate.
 /// It must check current policy/fence/context and exact reviewed tool input at
 /// the last synchronous boundary before each actual HTTP execute future.
@@ -25,11 +57,22 @@ pub trait DispatchGate: Send + Sync + 'static {
     fn message(&self, message: &ClientJsonRpcMessage) -> Result<(), Refusal>;
     fn channel(&self) -> Result<(), Refusal>;
 }
+#[cfg(test)]
+#[derive(Clone, Copy)]
+pub(super) struct RawOverflow {
+    pub(super) at: std::time::Instant,
+    pub(super) admitted_bytes: usize,
+    pub(super) rejected_chunk_bytes: usize,
+}
+#[cfg(test)]
+type OverflowObserver = Arc<std::sync::Mutex<Option<RawOverflow>>>;
 #[derive(Clone)]
 pub struct PolicyHttpClient {
     client: reqwest::Client,
     endpoint: Endpoint,
     gate: Arc<dyn DispatchGate>,
+    #[cfg(test)]
+    pub(super) overflow: OverflowObserver,
 }
 impl PolicyHttpClient {
     pub fn new(endpoint: Endpoint, gate: Arc<dyn DispatchGate>) -> Result<Self, Refusal> {
@@ -50,6 +93,8 @@ impl PolicyHttpClient {
             client,
             endpoint,
             gate,
+            #[cfg(test)]
+            overflow: Arc::default(),
         })
     }
     fn request(
@@ -149,7 +194,10 @@ impl PolicyHttpClient {
         }
         Ok(bytes)
     }
-    fn stream(response: Response) -> Result<BoxedSseResponse, StreamableHttpError<Refusal>> {
+    fn stream(
+        response: Response,
+        #[cfg(test)] overflow: OverflowObserver,
+    ) -> Result<BoxedSseResponse, StreamableHttpError<Refusal>> {
         if response
             .content_length()
             .is_some_and(|n| n > MAX_WIRE_BYTES as u64)
@@ -158,7 +206,18 @@ impl PolicyHttpClient {
         }
         let stream = response
             .bytes_stream()
-            .scan((0usize, false), |(used, failed), item| {
+            .scan((0usize, false), move |(used, failed), item| {
+                #[cfg(test)]
+                if !*failed
+                    && let Ok(chunk) = &item
+                    && chunk.len() > MAX_WIRE_BYTES - *used
+                {
+                    overflow.lock().unwrap().get_or_insert(RawOverflow {
+                        at: std::time::Instant::now(),
+                        admitted_bytes: *used,
+                        rejected_chunk_bytes: chunk.len(),
+                    });
+                }
                 let next = if *failed {
                     None
                 } else {
@@ -213,11 +272,11 @@ impl StreamableHttpClient for PolicyHttpClient {
         self.gate
             .message(&message)
             .map_err(StreamableHttpError::Client)?;
-        let response = self
-            .client
-            .execute(request)
-            .await
-            .map_err(|_| StreamableHttpError::Client(Refusal::Transport))?;
+        let response = self.client.execute(request).await.map_err(|_error| {
+            #[cfg(test)]
+            setup_diagnostic("post_execute", &_error);
+            StreamableHttpError::Client(Refusal::Transport)
+        })?;
         Self::response_policy(&response)?;
         let status = response.status();
         if status == reqwest::StatusCode::NOT_FOUND && session.is_some() {
@@ -242,7 +301,11 @@ impl StreamableHttpClient for PolicyHttpClient {
                 Ok(StreamableHttpPostResponse::Json(message, session))
             }
             "text/event-stream" => Ok(StreamableHttpPostResponse::Sse(
-                Self::stream(response)?,
+                Self::stream(
+                    response,
+                    #[cfg(test)]
+                    self.overflow.clone(),
+                )?,
                 session,
             )),
             _ => Err(StreamableHttpError::Client(Refusal::InvalidResult)),
@@ -279,7 +342,11 @@ impl StreamableHttpClient for PolicyHttpClient {
         {
             return Err(StreamableHttpError::Client(Refusal::Transport));
         }
-        Self::stream(response)
+        Self::stream(
+            response,
+            #[cfg(test)]
+            self.overflow.clone(),
+        )
     }
     async fn delete_session(
         &self,

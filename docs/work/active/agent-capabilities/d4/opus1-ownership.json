@@ -1,0 +1,51 @@
+{
+  "task": "D4 Opus1 bounded F1/F2 correction",
+  "record_id": "d4-opus1-20261017",
+  "existing_t3_thread": "thread:delegated-task:command%3Amcp%3A71807a36-041e-4638-b672-3410e3401592%3Adelegate-task%3Abrn-d1a-sol-20261016-round1",
+  "base_evidence": "98854f6df71808b842934e2cb09f63696a43a50d",
+  "base_material": "a5d148a3baa5452ab8fe0920f927b0d808c35240",
+  "base_crates": "3d9696cf2994cc3ef3f37691251e432389f5b3b9",
+  "initial_status": "clean",
+  "heavy_inventory": "empty",
+  "provider": "codex",
+  "model": "gpt-6.1-sol",
+  "effort": "high",
+  "report_sha256": "8240b73fc0b2edcde6f355c03f4ecb579c6e670c3b902ad550090ae3f374ef42",
+  "owned": [
+    "threads.rs attach refusal only + private cfgtest seam",
+    "threads_mcp_runtime_tests.rs",
+    "threads_mcp_http_tests.rs",
+    "d4 docs"
+  ],
+  "F3": "deferred; no native changes",
+  "allocated_paths": {
+    "crates/brn-ai/src/threads.rs": "Only attachment refusal: preserve primary and best-effort static finish Err notice; private test injection/capture.",
+    "crates/brn-ai/src/threads_mcp_runtime_tests.rs": "Private one-shot real Store poison, full primary/secondary/lease/queue/zero-egress witness; no-notice assertion on existing successful/fenced path.",
+    "crates/brn-ai/src/threads_mcp_http_tests.rs": "Real SDK comment-prefix positive/overflow, exact observable class/deadline qualification, preserved one-call/zero-recipient assertions.",
+    "crates/brn-ai/src/threads_mcp_http.rs": "Private cfg(test) per-client first raw-overflow byte/time event and bounded static POST execute error-class diagnostic only; no production control/classification/policy change.",
+    "crates/brn-ai/src/threads_mcp_client.rs": "Private cfg(test) observer constructor wiring/readout and static handshake/list error-stage diagnostics only.",
+    "docs/work/active/agent-capabilities/d4/opus1-*": "Follow-up report/response/checks/pin/handoff; original D4 evidence remains immutable."
+  },
+  "allocations": {
+    "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/d4-opus-review-round1.md": "8240b73fc0b2edcde6f355c03f4ecb579c6e670c3b902ad550090ae3f374ef42",
+    "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/d4-opus1-correction-allocation-20261017.md": "9f1a7b917461df964e38843e50c12ca027da65dced510b30ca2a2b8aafce950e",
+    "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/d4-opus1-cleanup-static-diagnostic-allocation-20261017.md": "b01f57c17cade24b2f675a3bf711c1396182c39974d52a89088bd28e1cfa75f2",
+    "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/d4-opus1-f2-sdk-stream-timeout-disposition-20261017.md": "b57d57c954b3a156663de7a778f12a1a2ce2d6422e1cd7ef56087862e3a66acf",
+    "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/d4-opus1-sdk-setup-static-diagnostic-allocation-20261017.md": "0c36c6c4df5c46e400cf748df42f1cdebf101b3e7dfd8c4cdf34948c3fc3f052"
+  },
+  "latest_before_source": {
+    "root": "/private/tmp/brn-d4-opus1-before-source",
+    "target": "/private/tmp/brn-d4-opus1-before-target",
+    "synthetic_git": "85973343cd3fd2b16bbecf478a28565016664012",
+    "production_base": "a5d148a3baa5452ab8fe0920f927b0d808c35240",
+    "archive_evidence_base": "98854f6df71808b842934e2cb09f63696a43a50d",
+    "test_only_changes": [
+      "crates/brn-ai/src/threads.rs",
+      "crates/brn-ai/src/threads_mcp_runtime_tests.rs"
+    ],
+    "qualification": "Only private cfgtest pre-finish poison hook and focused witness added; production finish(...)? unchanged. No behavioral red claimed before execution.",
+    "initial_fixture_git": "1311a2d118792b74fb04596b33220c98ae43fed6",
+    "initial_compile": "attachment-finish-before.json: E0433 incorrect private module reference, no behavior red"
+  },
+  "heavy": "Retained exclusive grant; commands serialized, no active source changes during final commands."
+}
