@@ -1134,6 +1134,8 @@ async fn absent_and_null_prepare_still_register_protected_candidates_without_app
             ]);
             turns.push(vec![MockStreamEvent::final_response_with_total_tokens(1)]);
             let model = MockCompletionModel::from_stream_turns(turns);
+            let activity = Arc::new(Mutex::new(Vec::new()));
+            let emitted = activity.clone();
             let answer = run_model(
                 model.clone(),
                 scope.clone(),
@@ -1142,7 +1144,11 @@ async fn absent_and_null_prepare_still_register_protected_candidates_without_app
                 4,
                 true,
                 CancellationToken::new(),
-                Arc::new(|_| {}),
+                Arc::new(move |event| {
+                    if let AiEvent::Activity(message) = event {
+                        emitted.lock().unwrap().push(message);
+                    }
+                }),
             )
             .await;
             assert!(
@@ -1154,10 +1160,15 @@ async fn absent_and_null_prepare_still_register_protected_candidates_without_app
                 model.request_count(),
                 if mode == "ordinary" { 4 } else { 3 }
             );
-            assert!(
-                serde_json::to_string(&model.requests())
+            assert_eq!(
+                activity
+                    .lock()
                     .unwrap()
-                    .contains("NeedsReview")
+                    .iter()
+                    .filter(|message| message.as_str() == "< apply_changes · NeedsReview")
+                    .count(),
+                1,
+                "{mode}/{explicit_null}: expected one actual NeedsReview outcome"
             );
             let store = scope.store.lock().unwrap();
             let RecordData::Run(run) = store.record(&scope.run).unwrap().unwrap().data else {

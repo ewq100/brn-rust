@@ -4,7 +4,7 @@
 |---|---|---|
 | Ordinary/v1 cannot advertise usable writing evidence | Separate exact-base Test-source before15/3, corrected offered3/0 and writing19/0 | Before mixed-batch failure stops at first ordinary order |
 | Saved-setup v2 subtree unchanged | Actual CompletionRequest equality to full shared schema; fullAI494/0/2 | No remote provider compliance claim |
-| Omitted/null still prepare; no protected Apply grant | Four real model arms register exact candidates and get NeedsReview; writing19/0 | Synthetic owner Test workspaces |
+| Omitted/null still prepare; no protected Apply grant | Prior writing19/0 registers exact candidates, no receipt, unchanged Note; its NeedsReview search was vacuous (Q1). New focused test1/0 proves one exact host Activity NeedsReview outcome in each of four arms; see [Q1 evidence](opus1/response.md) | Synthetic owner Test workspaces; old494/0/2 does not establish the exact NeedsReview outcome |
 | Forged object fails closed; entire invalid batch before effects | Direct native ToolRejected; six actual ordinary/v1/v2 mixed-batch arms reject before progress/dispatch/candidates | V2 arm tests unchanged unknown-field defense |
 | V2 quotations/requirements exact with immutable retry | CW2 real read and nonempty UTF-8 evidence9/0; fullAI | Existing host read/evidence/grant checks unchanged |
 | Offered/budget definitions match and remain frozen | Per-mode actual requests; budget34/0 with lazy skill delivery and prefix assertions | Application budget estimates remain estimates |

@@ -1,0 +1,18 @@
+{
+  "actual_command_head": "ac565a34b4ed174bde29763fd683d5b62fa46d6b",
+  "executed_binary_and_dep_info": [
+    {
+      "path": "/private/tmp/brn-int-d-ordinary-prepare-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9",
+      "sha256": "cbd234c7cce9e63d6bfbcec3dc9bcd6ef7b3186e6640fb0f3181aef51aa761f7",
+      "bytes": 43106352,
+      "copy": "/private/tmp/brn-int-d-ordinary-prepare-opus1-q1-20261017/qualified-artifacts/brn_ai-0a77908ed974f7b9"
+    },
+    {
+      "path": "/private/tmp/brn-int-d-ordinary-prepare-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9.d",
+      "sha256": "7daf2847a94feb9ab43473e9e867e7971e35c33d38be29c824d97e135ec0711f",
+      "bytes": 9514,
+      "copy": "/private/tmp/brn-int-d-ordinary-prepare-opus1-q1-20261017/qualified-artifacts/brn_ai-0a77908ed974f7b9.d"
+    }
+  ],
+  "source_association": "ac565 + exact WIP source hashes; prospective pin association only by byte equality, not future build HEAD"
+}
