@@ -1,0 +1,26 @@
+{
+  "source_pin": "a499712d96c48e36b47df43e7a281f3cfcd90636",
+  "tree": "82ca59670ec1b17a35c53c41eb446a539c151e7c",
+  "crates_tree": "d710ff8babeabb3176ac9c9f7cd223f27ef7d0ad",
+  "branch": "work/d3a-20261017",
+  "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+  "status_at_pin": [],
+  "source_frozen": true,
+  "precommit_receipt_sha256": "d14624c5f51c3b990c52ca4cc3191561084a1c459e67c128d53e6768e66c5087",
+  "mutation_supplement_started": false,
+  "original_mutation_used_seconds": 489.7552111148834,
+  "original_mutation_remaining_seconds": 1310.2447888851166,
+  "recorded_unix": 1792216685.529634,
+  "diffs": {
+    "review1": {
+      "base": "15c0574105779eb856c8738eb464126b383ff5eb",
+      "full_sha256": "d4a3baff5b22b672f212f245a830a7dd2f7f8a1ebf293e129baf2aba191eda91",
+      "material_sha256": "a419c98ae301a299ea7f3463ab1b0f42b6fb01f00f82e9113c116de21cc4a3c5"
+    },
+    "whole_d3a": {
+      "base": "59d1152b1f7576851365cc65d065ba43bb655228",
+      "full_sha256": "21bf1e923dfb1b33b9d93da9902a53135acb36685bfb980831af35d953b1e971",
+      "material_sha256": "688f4de30cab7afcbe23ac3aee5229c6cd024e5baa2abc125237501d6be38efa"
+    }
+  }
+}
