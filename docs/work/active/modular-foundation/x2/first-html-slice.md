@@ -42,3 +42,9 @@ Read complete Opus1/Opus2 and responses. B1/B2/B4 were closed by Opus2; verify B
 
 Earlier PDFUnavailable, unexplained SDK/widget failures, platform/hosted/native-human/INT-W/main/owner/program qualifications remain. No new paid start or source-quality acceptance is inferred.
 
+
+## Implementation status (17 October 2026)
+
+The candidate source is in [html1/report.md](html1/report.md). The first gate run stopped compilation correctly, because four toml-family companion packages moved alongside toml 1.1.8. On 18 October the principal approved exactly those four moves.
+
+After that, the helper and the workspace lanes were built and tested. The only remaining failure is the carried PDF `Unavailable`. Details are in [html1/check-index.json](html1/check-index.json). The candidate is awaiting fresh independent review. This is not user-facing HTML or all-document adoption.

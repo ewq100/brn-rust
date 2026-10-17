@@ -142,3 +142,37 @@ fn retained_old_email_caveat_and_partial_snapshot_remain_exact_and_readable() {
     assert_eq!(read_back, stored_bytes);
     assert_eq!(digest(&read_back), stored_hash);
 }
+
+#[test]
+fn html_converter_provenance_is_distinct_and_validates_generically() {
+    assert_ne!(HTML_CONVERTER, CONVERTER);
+    assert!(HTML_CONVERTER.contains("xberg-1.3.10"));
+    let bytes = b"<p>actual words</p>".to_vec();
+    let extraction = Extraction {
+        limits: Default::default(),
+        consumed: None,
+        schema: 1,
+        converter: HTML_CONVERTER.into(),
+        original_sha256: digest(&bytes),
+        markdown: "actual words\n".into(),
+        sources: vec![SourceNode {
+            id: "source-0".into(),
+            parent: None,
+            name: "original.html".into(),
+            media_type: "text/html".into(),
+            locator: "original".into(),
+            status: "partial".into(),
+            bytes,
+            text: "actual words\n".into(),
+        }],
+        assets: vec![],
+        occurrences: vec![],
+        gaps: vec![],
+    };
+    extraction.validate().unwrap();
+    let encoded = serde_json::to_vec(&extraction).unwrap();
+    assert_eq!(
+        serde_json::from_slice::<Extraction>(&encoded).unwrap(),
+        extraction
+    );
+}

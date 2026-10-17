@@ -18,6 +18,10 @@ pub const MAX_IMAGE_BYTES: usize = 16 * 1024 * 1024;
 pub const MAX_IMAGE_PIXELS: u64 = 32 * 1024 * 1024;
 pub const MAX_TOTAL_IMAGE_PIXELS: u64 = 64 * 1024 * 1024;
 pub const CONVERTER: &str = "brn-intake-v1/betteroffice-0.3.0/mail-parser-0.11.8";
+/// Provenance of standalone schema-1 HTML converted by maintained Xberg in the restricted
+/// `html-textual-1` profile. Hosts that match `CONVERTER` exactly do not accept it.
+pub const HTML_CONVERTER: &str =
+    "brn-intake-v1/xberg-1.3.10/html-to-markdown-rs-3.18.1/html-textual-1";
 
 /// Per-intake quotas may tighten the qualified hard profile, never enlarge it.
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]

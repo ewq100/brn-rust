@@ -99,3 +99,116 @@ fn owned_process_group_cancellation_joins_the_helper_and_descendants() {
     }
     panic!("synthetic helper process group still exists after cancellation");
 }
+
+/// Send one request to the real restricted helper (empty environment, piped protocol).
+fn restricted_html(bytes: &[u8]) -> std::process::Output {
+    let mut process = Command::new(env!("CARGO_BIN_EXE_brn-intake-helper"))
+        .env_clear()
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .unwrap();
+    let request = HelperRequest {
+        limits: None,
+        kind: "html".into(),
+        bytes: bytes.to_vec(),
+    };
+    process
+        .stdin
+        .take()
+        .unwrap()
+        .write_all(&serde_json::to_vec(&request).unwrap())
+        .unwrap();
+    process.wait_with_output().unwrap()
+}
+
+#[test]
+fn restricted_helper_converts_textual_html_with_real_xberg() {
+    let html = include_bytes!("fixtures/textual.html");
+    let output = restricted_html(html);
+    assert!(
+        output.status.success(),
+        "{} {}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let extraction: Extraction = serde_json::from_slice(&output.stdout).unwrap();
+    extraction.validate().unwrap();
+    assert_eq!(extraction.converter, brn_intake::HTML_CONVERTER);
+    assert_eq!(extraction.sources[0].bytes, html);
+    assert_eq!(extraction.original_sha256, brn_intake::digest(html));
+    assert_eq!(extraction.sources[0].media_type, "text/html");
+    let mut cursor = 0;
+    for fact in [
+        "# Tide observations",
+        "Gezeitenstr\u{f6}me",
+        "[station notes](https://example.test/notes#tides)",
+        "## Readings",
+        "- morning high",
+        "- evening low",
+        "> Readings are provisional.",
+        "```",
+        "level = 3.2",
+        "Last line.",
+    ] {
+        let offset = extraction.markdown[cursor..]
+            .find(fact)
+            .unwrap_or_else(|| panic!("missing {fact:?} in {:?}", extraction.markdown));
+        cursor += offset + fact.len();
+    }
+}
+
+#[test]
+fn restricted_helper_refuses_rich_html_before_backend_with_static_labels() {
+    for html in [
+        b"<table><tr><td>x</td></tr></table>".as_slice(),
+        b"<p><img src=\"https://x.test/a.png\"></p>",
+        b"< img src=\"x\">",
+        b"<p>a<p>b",
+    ] {
+        let output = restricted_html(html);
+        assert!(!output.status.success());
+        let response: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+        let error = response["error"].as_str().unwrap();
+        assert!(error.starts_with("HTML admission:"), "{error}");
+        assert!(!error.contains("x.test"));
+    }
+}
+
+#[test]
+fn restricted_helper_large_html_takes_the_joined_thread_path() {
+    let paragraph = "<p>tide gauge reading steady</p>\n";
+    let count = 512 * 1024 / paragraph.len() + 64;
+    let html = format!("{}<p>final marker</p>", paragraph.repeat(count));
+    assert!(html.len() >= 512 * 1024);
+    let started = std::time::Instant::now();
+    let output = restricted_html(html.as_bytes());
+    let elapsed = started.elapsed();
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stdout)
+    );
+    let extraction: Extraction = serde_json::from_slice(&output.stdout).unwrap();
+    extraction.validate().unwrap();
+    assert_eq!(
+        extraction
+            .markdown
+            .matches("tide gauge reading steady")
+            .count(),
+        count
+    );
+    // Measurement only (no hard RSS claim): the waited children's peak resident size.
+    let mut usage = unsafe { std::mem::zeroed::<libc::rusage>() };
+    assert_eq!(
+        unsafe { libc::getrusage(libc::RUSAGE_CHILDREN, &mut usage) },
+        0
+    );
+    eprintln!(
+        "large-html input_bytes={} elapsed_ms={} children_max_rss_bytes={}",
+        html.len(),
+        elapsed.as_millis(),
+        usage.ru_maxrss
+    );
+}

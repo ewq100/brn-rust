@@ -10,6 +10,7 @@ use std::{collections::BTreeMap, io::Cursor};
 
 const MAX_PACKAGE_BYTES: usize = 16 * 1024 * 1024;
 
+mod documents;
 mod pptx;
 pub mod prepared;
 
@@ -46,13 +47,20 @@ fn extract_with_budget(
         "docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         "pptx" => "application/vnd.openxmlformats-officedocument.presentationml.presentation",
         "eml" => "message/rfc822",
+        // Standalone requests only: nested EML dispatch never expands HTML.
+        "html" if source_base == 0 => documents::HTML_MEDIA,
         _ => return Err("unsupported intake kind".into()),
     };
     let mut extraction = Extraction {
         limits: budget.limits.clone(),
         consumed: None,
         schema: 1,
-        converter: CONVERTER.into(),
+        converter: if request.kind == "html" {
+            HTML_CONVERTER
+        } else {
+            CONVERTER
+        }
+        .into(),
         original_sha256: digest(&request.bytes),
         markdown: String::new(),
         sources: vec![SourceNode {
@@ -73,6 +81,8 @@ fn extract_with_budget(
         docx(&request.bytes, 0, &mut extraction, budget)?;
     } else if request.kind == "pptx" {
         pptx::extract(&request.bytes, 0, &mut extraction, budget)?;
+    } else if request.kind == "html" {
+        documents::html(&request.bytes, &mut extraction, budget)?;
     } else {
         let message = MessageParser::default()
             .parse(&request.bytes)
