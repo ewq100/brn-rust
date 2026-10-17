@@ -1,0 +1,8 @@
+{
+  "format": "BRN-INT-D-CAPTURE-ONE-START-20261017-V1",
+  "task": "int-d-capture-runner-20261017",
+  "principal_activated": true,
+  "preflight_sha256": "54c748a5768ab1b91ccb332ae75da4bb91cba6d0e165ca0bc55e9018ead40618",
+  "expires_unix": 1792253873,
+  "maximum_starts": 1
+}

@@ -1,0 +1,19 @@
+{
+  "task": "int-d-capture-one-start-20261017",
+  "checked_unix": 1792253251.60615,
+  "head": "dcfb11c2f4e784d12848f812c12e90d669e4aa60",
+  "crates": "ece765396103274c35493a26b570e5e8f32ae276",
+  "source_inputs_checked": 334,
+  "source_errors": [],
+  "all_bound_hashes_unchanged": true,
+  "owned_pgid": 53548,
+  "owned_pgid_processes": [],
+  "heavy_processes": [],
+  "process_reaped": true,
+  "workflow_invocations": 1,
+  "additional_starts": 0,
+  "lease_file_absent": true,
+  "lease_checked_by_existing_runner_api_before_result_publication": true,
+  "store_inspection": "existing runner Store::record/operation_info/context then reopened Store + run_is_live assertion; exit0/result published",
+  "heavy_provider_window_and_all_allocated_paths_released": true
+}

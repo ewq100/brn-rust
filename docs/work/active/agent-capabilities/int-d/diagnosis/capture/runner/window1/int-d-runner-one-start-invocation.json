@@ -1,0 +1,38 @@
+{
+  "task": "int-d-capture-one-start-20261017",
+  "principal_acceptance_head": "dcfb11c2f4e784d12848f812c12e90d669e4aa60",
+  "material_pin": "a65a6a61610f37f184d2b200e1d27441ee8d9cc3",
+  "preflight": "/private/tmp/brn-int-d-capture-preflight-20261017-b1-a65a6a61/preflight.json",
+  "preflight_sha256": "54c748a5768ab1b91ccb332ae75da4bb91cba6d0e165ca0bc55e9018ead40618",
+  "activation": "/private/tmp/brn-int-d-capture-preflight-20261017-b1-a65a6a61/activation.json",
+  "activation_sha256": "50c2960eaac8687047911b7b663d24263689f894f0e290b88a09e63e258fa9eb",
+  "created_unix": 1792252973,
+  "expires_unix": 1792253873,
+  "maximum_starts": 1,
+  "executable": "/private/tmp/brn-int-d-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9",
+  "executable_sha256": "c4d5d97283a8ff83dc4dea2226a7f34c0902ddf47f1f8b3e2de65a01ca4c6f1e",
+  "dep_info_sha256": "9cd8059b642415fd27b25e3808c6f56d49abd1e3f4cfc0e67aa9ead4460eaac0",
+  "argv": [
+    "--ignored",
+    "--exact",
+    "threads::int_d_tests::capture_runner::manual_one_start_prepare_diagnostic",
+    "--test-threads=1",
+    "--nocapture"
+  ],
+  "environment_references_only": {
+    "BRN_INT_D_CAPTURE_PREFLIGHT": "/private/tmp/brn-int-d-capture-preflight-20261017-b1-a65a6a61/preflight.json",
+    "BRN_INT_D_CAPTURE_ACTIVATION": "/private/tmp/brn-int-d-capture-preflight-20261017-b1-a65a6a61/activation.json"
+  },
+  "output": "/private/tmp/brn-int-d-capture-output-20261017-b1-a65a6a61",
+  "heavy_inventory": [],
+  "rounds": 8,
+  "host_deadline_seconds": 120,
+  "cancel_drain_seconds": 5,
+  "no_build_or_source_changes": true,
+  "helpers": false,
+  "MCP": false,
+  "automatic_Apply": false,
+  "retry": false,
+  "Continue": false,
+  "scope": "Single prospective safe-metadata diagnostic under owner L; not original-root-cause reconstruction, no semantic benefit/completion proof. Gate/full Auth combination remains unexecuted until this exact invocation."
+}

@@ -1,0 +1,63 @@
+{
+  "format": "INT-D-DIAGNOSTIC-RESULT-V1",
+  "run": "28bad51c-336b-4587-a5c2-1b38426eaacc:0",
+  "terminal": "interrupted",
+  "artifact": {
+    "material_pin": "a65a6a61610f37f184d2b200e1d27441ee8d9cc3",
+    "executable_sha256": "c4d5d97283a8ff83dc4dea2226a7f34c0902ddf47f1f8b3e2de65a01ca4c6f1e",
+    "dep_info_sha256": "9cd8059b642415fd27b25e3808c6f56d49abd1e3f4cfc0e67aa9ead4460eaac0",
+    "observer_sha256": "a913b23e6eb65891e3babcbc52c14b2f1ee502d7b887183d9f0abb0f74e46a42",
+    "runner_sha256": "a8e4d720ec4d61f3ebfdb0307f037bba2f492971bb0b980f8600cfe3e54e98b3",
+    "corpus_sha256": "1431d11427738fb66d6494ccb5fd695ab628d4f5d97afeb7a68dda4da7e6faa9",
+    "prompt_sha256": "523b69c7ae41795cf00e6960e7ff837172ced73b915786645383a2648e778400"
+  },
+  "capture_frames": 2,
+  "guard_failure": null,
+  "stopped": true,
+  "context": {
+    "run": "28bad51c-336b-4587-a5c2-1b38426eaacc:0",
+    "state": "Interrupted",
+    "fence": 3,
+    "settings": [
+      "98d9d303-f4e5-41a7-a0ff-342e98efa253:0",
+      4
+    ],
+    "chat": {
+      "id": "fae74c5b-b4b7-4320-802e-635946cee634:0",
+      "privacy": true,
+      "epoch": 1
+    },
+    "project": {
+      "id": "d6fa2407-4746-4079-8d25-d0084afe630b:0",
+      "version": 3
+    }
+  },
+  "canonical_effects": {
+    "target_version": 2,
+    "target_version_unchanged": true,
+    "operations": [],
+    "operations_total": 0,
+    "omitted": 0
+  },
+  "parent_trace_usage": {
+    "input": 69106,
+    "output": 990,
+    "cached_input": 56064
+  },
+  "auth_http_count": "UNKNOWN",
+  "account_identity": "UNKNOWN",
+  "summary_overhead": {
+    "outcome": "updated",
+    "covered_chunks": 3,
+    "target_chunks": 3,
+    "usage": {
+      "input": 5732,
+      "output": 169,
+      "cached_input": 0
+    }
+  },
+  "parent_model_turns": 6,
+  "provider_resends": 0,
+  "historical_cause": "UNKNOWN",
+  "semantic_benefit": "not assessed"
+}

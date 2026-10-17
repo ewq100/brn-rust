@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "/private/tmp/brn-int-d-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9",
+    "--ignored",
+    "--exact",
+    "threads::int_d_tests::capture_runner::manual_one_start_prepare_diagnostic",
+    "--test-threads=1",
+    "--nocapture"
+  ],
+  "environment_references_only": {
+    "BRN_INT_D_CAPTURE_PREFLIGHT": "/private/tmp/brn-int-d-capture-preflight-20261017-b1-a65a6a61/preflight.json",
+    "BRN_INT_D_CAPTURE_ACTIVATION": "/private/tmp/brn-int-d-capture-preflight-20261017-b1-a65a6a61/activation.json"
+  },
+  "tmpdir": "/private/tmp/brn-int-d-capture-one-start-20261017-evidence/tmp-g581pdve",
+  "wrapper_pid": 53043,
+  "launch_unix": 1792253161.704181,
+  "launch_monotonic": 703390.064554375,
+  "maximum_invocations": 1,
+  "pid": 53548,
+  "pgid": 53548,
+  "session": 53548
+}

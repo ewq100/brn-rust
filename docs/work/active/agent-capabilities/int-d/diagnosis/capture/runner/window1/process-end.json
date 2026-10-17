@@ -1,0 +1,10 @@
+{
+  "exit_code": 0,
+  "end_unix": 1792253193.741274,
+  "elapsed_seconds": 32.03658766602166,
+  "pid": 53548,
+  "pgid": 53548,
+  "reaped": true,
+  "stdout_sha256": "8475dced91bd4aa024c151e31d6fe6cea36497e62c8e8317ced259702796db9e",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

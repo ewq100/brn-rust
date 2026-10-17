@@ -1,0 +1,58 @@
+{
+  "task": "int-d-capture-one-start-20261017",
+  "assessment_unix": 1792253307.034073,
+  "material_pin": "a65a6a61610f37f184d2b200e1d27441ee8d9cc3",
+  "acceptance_head": "dcfb11c2f4e784d12848f812c12e90d669e4aa60",
+  "crates": "ece765396103274c35493a26b570e5e8f32ae276",
+  "workflow_invocations": 1,
+  "reservation_starts": 1,
+  "runner_exit": 0,
+  "capture_rubric": "PASS",
+  "safety_rubric": "PASS",
+  "late_tail": "none observed",
+  "historical_three_error_causes": "UNKNOWN",
+  "semantic_benefit": "not assessed",
+  "I01_live_completion": "INCOMPLETE",
+  "observations": {
+    "dispatch": 12,
+    "round": 6,
+    "writing": "OBJECT",
+    "writes": 1,
+    "inputs": 3,
+    "omitted_writes": 0,
+    "omitted_inputs": 0,
+    "native_kind": "other",
+    "source_kind": "tool_rejected",
+    "outcome_context": "Working/fence2 before checked Stop",
+    "final_context": "Interrupted/fence3",
+    "operations": 0,
+    "target_version": 2,
+    "target_version_unchanged": true,
+    "lease_free": true,
+    "guard_failure": null
+  },
+  "parent_usage": {
+    "input": 69106,
+    "output": 990,
+    "cached_input": 56064
+  },
+  "separate_summary_usage": {
+    "input": 5732,
+    "output": 169,
+    "cached_input": 0,
+    "outcome": "updated",
+    "covered_chunks": 3,
+    "target_chunks": 3
+  },
+  "parent_model_turns": 6,
+  "provider_resends": 0,
+  "auth_http_count": "UNKNOWN",
+  "account_identity": "UNKNOWN",
+  "limits": [
+    "Safe projection omits writing object contents and all reason/Note/quote/model-text bytes; no lost historical arguments reconstructed.",
+    "No claim that this trace uniquely localizes every ToolRejected site; non-null writing without WritingSetup is independently sufficient for refusal in the accepted handler.",
+    "One current diagnostic; no retry, Continue, Apply, comparative benefit or goal-completion assessment.",
+    "No new build/lint/test-Cargo invocation, production edit or credential inspection. Existing ignored test executable invoked once.",
+    "All old PDF/SDK/widget/platform/hosted/native-human/compatibility/INT-W/main/owner/program/live-I01 qualifications retained."
+  ]
+}
