@@ -22,3 +22,5 @@ I01 assertions are integrated semantic-invariant evidence over scripted outputs,
 ## Ownership and build conditions
 
 Only new int-d docs/corpus, `threads_int_d_tests.rs`/cfg registration and justified new app/CLI integration tests/support are allocated. Existing production, auth, core, desktop, dependencies/lock, scripts, guidance and INT-W are read-only. No schema/interface/fixture visibility edits without exact allocation. One fixed task source/target, Rust1.98.1 locked/offline/jobs1/incremental0 and fresh synthetic TMPDIR. Helper first for applicable workspace checks; no model/native downloads or GUI. No live, paid calls or credential reading in deterministic tests.
+
+Principal local acceptance: reviewed ordinary prepare production6b plus Q1 test qualification3e are accepted under [the bounded disposition](ordinary-prepare/principal-disposition.md). FullAI494/0/2 stays6b-qualified; focused four-arm exact host NeedsReview1/0 closes Q1. Live windows remain closed; fresh source-bound I01 readiness and the separately identified refresh-schema mismatch require disposition before further live activation.
