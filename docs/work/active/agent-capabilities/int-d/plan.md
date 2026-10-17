@@ -1,4 +1,4 @@
-**History-only offline preparation checkpoint:** [bounded plan](history-phase/plan.md) reuses readiness B after accepted guide14 refresh. Material db757e32 passed focused CLI/strict lint/fmt and35+10fake harness cases;2generators/4reference-only Configures/4external whole-context copies and prospective preflight67e54848 are prepared offline. No paid activation/real observer/reservation; prior windows remain closed. Parent review/audit/activation remain separate.
+**History-only harness checkpoint:** material39a67e4f passed CLI7/0, strict lint/fmt and49history+10legacy fake cases;2fresh generators/4reference-only Configures/4whole-context copies produced preflight79d8c613. [Opus2 approval and principal disposition](history-phase/principal-disposition.md) accept the harness with qualifications; a separate bounded activation is required for paid starts. Old preflight67e54848 is superseded FAILED READINESS / MUST NOT ACTIVATE. Original windows remain CLOSED.
 
 # INT-D / Slice5 bounded integration
 
