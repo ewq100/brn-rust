@@ -2067,8 +2067,15 @@ pub(crate) fn apply_on(
                         })
                     )
                 {
-                    // Existing unavailable bindings may be retained unchanged after archive.
-                    let retained = current.as_ref().is_some_and(|r| matches!(&r.data, RecordData::Settings(old) if old.skills.contains(binding)));
+                    // Retain exact inactive bindings or solely demote their selected flag.
+                    let retained = current.as_ref().is_some_and(|r| {
+                        matches!(&r.data, RecordData::Settings(old) if old.skills.contains(binding)
+                        || (!binding.selected && old.skills.iter().any(|prior| prior.selected
+                            && prior.id == binding.id
+                            && prior.digest == binding.digest
+                            && prior.project == binding.project
+                            && prior.enabled == binding.enabled)))
+                    });
                     if !retained {
                         return Err(Error::Invalid(
                             "enabled skill requires a current active Project".into(),

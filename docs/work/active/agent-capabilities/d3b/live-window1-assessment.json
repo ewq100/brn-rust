@@ -1,0 +1,310 @@
+{
+  "date": "2026-10-17T07:37:10.826361+00:00",
+  "candidate_source": "6ff0ccdbd7753b07966dbcdc655880a039ef3284",
+  "control_source": "000ed92026ccb180f2257b28b07e0525b1493f23",
+  "candidate_binary_sha256": "13c81dffdd433b3a6e42bc4d103cd442c6911bd03710dcb397b1772172068620",
+  "control_binary_sha256": "5c9579ca7562a58e22461e4792c30064241d41286cdbec42ed603345a791150b",
+  "ledger_sha256": "8927fb935cfb771e663315e774cee5667deb68323dba8a32ad03e075168e3977",
+  "workflow_starts": 4,
+  "cap_starts": 12,
+  "further_starts_planned": false,
+  "all_local_workflow_children_reaped": true,
+  "reaped_receipt": "reaped.json",
+  "route": {
+    "provider": "Codex / ChatGPT subscription",
+    "model": "gpt-6.1-sol",
+    "effort": "medium",
+    "credential_source_reference": "/Users/evokessler/.codex/auth.json via normal checked --auth-file adapter only",
+    "account_identity": "not exposed by the current normal surface; no inferred account ID",
+    "selection_authority": "principal d3b-live-route-selection-20261017.md,17 October2026",
+    "auth_validity": "NOT YET EXECUTED/VERIFIED"
+  },
+  "auth_assessment": "Original raw route.auth_validity is a prepared pre-execution value retained unchanged. Four actual authenticated checked workflows now completed on the selected route. Normal account identity and auth request count remain unexposed. No account/model/provider fallback or auth retry loop.",
+  "cases": [
+    {
+      "label": "control",
+      "pair": 1,
+      "terminal": "Completed",
+      "seconds": 25.864770290907472,
+      "model_turns": 6,
+      "usage": {
+        "input": 44491,
+        "output": 1147,
+        "cached_input": 26112
+      },
+      "per_turn_usage": [
+        {
+          "input": 5358,
+          "output": 99,
+          "cached_input": 0
+        },
+        {
+          "input": 6013,
+          "output": 21,
+          "cached_input": 5248
+        },
+        {
+          "input": 7518,
+          "output": 72,
+          "cached_input": 5888
+        },
+        {
+          "input": 7673,
+          "output": 547,
+          "cached_input": 7424
+        },
+        {
+          "input": 8921,
+          "output": 38,
+          "cached_input": 7552
+        },
+        {
+          "input": 9008,
+          "output": 370,
+          "cached_input": 0
+        }
+      ],
+      "per_turn_cached_share": [
+        0.0,
+        0.8727756527523699,
+        0.7831870178238893,
+        0.9675485468526,
+        0.8465418675036431,
+        0.0
+      ],
+      "prepared_candidates": 1,
+      "operation_ids": [
+        "9cf87598-7528-4e6e-a537-9bf890c92580"
+      ],
+      "working_note_version": 1,
+      "working_note_unchanged": true,
+      "observed_answer_preserves_12_Monday_3_percent": true,
+      "manual_read_assessment": "Answer distinguishes baseline from absent post-pilot measurements, names unresolved questions and reports proposal/review status without claiming Applied. Exact retained requirement/evidence IDs cited.",
+      "summary_trace": null,
+      "helpers_trace": [],
+      "provider_retries_reported": 0,
+      "loaded_skill_details": [],
+      "retained_sha256": "8b9e2b0ba4e45ff809a69a1efbdb15eb28dca8c3a2fe732a20393c9a9dc3ded6",
+      "unrelated_canary_absent_from_exposed_answer_call_summaries_and_loaded_metadata": true,
+      "private_positive_control_present_in_fixture": true
+    },
+    {
+      "label": "candidate",
+      "pair": 1,
+      "terminal": "Completed",
+      "seconds": 26.544432166963816,
+      "model_turns": 4,
+      "usage": {
+        "input": 34123,
+        "output": 1687,
+        "cached_input": 15104
+      },
+      "per_turn_usage": [
+        {
+          "input": 6225,
+          "output": 132,
+          "cached_input": 0
+        },
+        {
+          "input": 8610,
+          "output": 109,
+          "cached_input": 0
+        },
+        {
+          "input": 9163,
+          "output": 948,
+          "cached_input": 6144
+        },
+        {
+          "input": 10125,
+          "output": 498,
+          "cached_input": 8960
+        }
+      ],
+      "per_turn_cached_share": [
+        0.0,
+        0.0,
+        0.670522754556368,
+        0.8849382716049383
+      ],
+      "prepared_candidates": 0,
+      "operation_ids": [],
+      "working_note_version": 1,
+      "working_note_unchanged": true,
+      "observed_answer_preserves_12_Monday_3_percent": true,
+      "manual_read_assessment": "Answer distinguishes baseline from absent post-pilot measurements, names unresolved questions and reports proposal/review status without claiming Applied. Exact retained requirement/evidence IDs cited.",
+      "summary_trace": null,
+      "helpers_trace": [],
+      "provider_retries_reported": 0,
+      "loaded_skill_details": [
+        {
+          "id": "installed:document-review",
+          "origin": "project",
+          "project": "cb15c9da-695b-4d0b-97be-f6f5f19309c4:0",
+          "package_digest": "60bacda95e64020c55df1a6ab5fd6856f76c0af9256b8f5d50dfc926e79b5a0e",
+          "file": "SKILL.md",
+          "file_digest": "be8af6de3d6fb0d550aa0c4104877a1edf7744b3d473537ec9e04dc8285734f1"
+        },
+        {
+          "id": "maintain-notes",
+          "origin": "builtin",
+          "project": "cb15c9da-695b-4d0b-97be-f6f5f19309c4:0",
+          "package_digest": "1e952f8b972610785d716e7e85bfd9bb886cf1ba29c193475171f4bef8d6b997",
+          "file": "SKILL.md",
+          "file_digest": "a264db1d12cbc5fcab2668b48bd2899d8add0cd420c1f9f854829ef7ab8c20ff"
+        }
+      ],
+      "retained_sha256": "4ff602eb6eb6f4ae965965e47b95308629dcc8f1bccbebab2b39ba6be8adf17a",
+      "unrelated_canary_absent_from_exposed_answer_call_summaries_and_loaded_metadata": true,
+      "private_positive_control_present_in_fixture": true
+    },
+    {
+      "label": "control",
+      "pair": 2,
+      "terminal": "Completed",
+      "seconds": 25.765312292031012,
+      "model_turns": 6,
+      "usage": {
+        "input": 45263,
+        "output": 1334,
+        "cached_input": 39680
+      },
+      "per_turn_usage": [
+        {
+          "input": 5358,
+          "output": 99,
+          "cached_input": 5248
+        },
+        {
+          "input": 6013,
+          "output": 21,
+          "cached_input": 4608
+        },
+        {
+          "input": 7518,
+          "output": 71,
+          "cached_input": 7424
+        },
+        {
+          "input": 7672,
+          "output": 709,
+          "cached_input": 7424
+        },
+        {
+          "input": 9282,
+          "output": 39,
+          "cached_input": 5888
+        },
+        {
+          "input": 9420,
+          "output": 395,
+          "cached_input": 9088
+        }
+      ],
+      "per_turn_cached_share": [
+        0.9794699514744307,
+        0.7663395975386662,
+        0.9874966746475127,
+        0.9676746611053181,
+        0.634346046110752,
+        0.964755838641189
+      ],
+      "prepared_candidates": 1,
+      "operation_ids": [
+        "902b0c66-a513-4ee1-9cff-57fc6c2245ad"
+      ],
+      "working_note_version": 1,
+      "working_note_unchanged": true,
+      "observed_answer_preserves_12_Monday_3_percent": true,
+      "manual_read_assessment": "Answer distinguishes baseline from absent post-pilot measurements, names unresolved questions and reports proposal/review status without claiming Applied. Exact retained requirement/evidence IDs cited.",
+      "summary_trace": null,
+      "helpers_trace": [],
+      "provider_retries_reported": 0,
+      "loaded_skill_details": [],
+      "retained_sha256": "f290445bb7cac60048124d4637e8a847d3680a62bc03492e3a1c782c7ba99269",
+      "unrelated_canary_absent_from_exposed_answer_call_summaries_and_loaded_metadata": true,
+      "private_positive_control_present_in_fixture": true
+    },
+    {
+      "label": "candidate",
+      "pair": 2,
+      "terminal": "Completed",
+      "seconds": 25.373065041960217,
+      "model_turns": 4,
+      "usage": {
+        "input": 35087,
+        "output": 1580,
+        "cached_input": 28672
+      },
+      "per_turn_usage": [
+        {
+          "input": 6225,
+          "output": 132,
+          "cached_input": 5120
+        },
+        {
+          "input": 8610,
+          "output": 97,
+          "cached_input": 6144
+        },
+        {
+          "input": 9151,
+          "output": 903,
+          "cached_input": 8448
+        },
+        {
+          "input": 11101,
+          "output": 448,
+          "cached_input": 8960
+        }
+      ],
+      "per_turn_cached_share": [
+        0.8224899598393575,
+        0.713588850174216,
+        0.9231777947765272,
+        0.8071344923880731
+      ],
+      "prepared_candidates": 1,
+      "operation_ids": [
+        "d6dec3cf-f826-4a82-b25c-6d311d81ba50"
+      ],
+      "working_note_version": 1,
+      "working_note_unchanged": true,
+      "observed_answer_preserves_12_Monday_3_percent": true,
+      "manual_read_assessment": "Answer distinguishes baseline from absent post-pilot measurements, names unresolved questions and reports proposal/review status without claiming Applied. Exact retained requirement/evidence IDs cited.",
+      "summary_trace": null,
+      "helpers_trace": [],
+      "provider_retries_reported": 0,
+      "loaded_skill_details": [
+        {
+          "id": "installed:document-review",
+          "origin": "project",
+          "project": "cb15c9da-695b-4d0b-97be-f6f5f19309c4:0",
+          "package_digest": "60bacda95e64020c55df1a6ab5fd6856f76c0af9256b8f5d50dfc926e79b5a0e",
+          "file": "SKILL.md",
+          "file_digest": "be8af6de3d6fb0d550aa0c4104877a1edf7744b3d473537ec9e04dc8285734f1"
+        },
+        {
+          "id": "maintain-notes",
+          "origin": "builtin",
+          "project": "cb15c9da-695b-4d0b-97be-f6f5f19309c4:0",
+          "package_digest": "1e952f8b972610785d716e7e85bfd9bb886cf1ba29c193475171f4bef8d6b997",
+          "file": "SKILL.md",
+          "file_digest": "a264db1d12cbc5fcab2668b48bd2899d8add0cd420c1f9f854829ef7ab8c20ff"
+        }
+      ],
+      "retained_sha256": "ff84ab810ca190fcb0703b2c89fc5d158c30437a5d1610c85b805cc82a217063",
+      "unrelated_canary_absent_from_exposed_answer_call_summaries_and_loaded_metadata": true,
+      "private_positive_control_present_in_fixture": true
+    }
+  ],
+  "qualification_gaps": [
+    "Candidate1 prepare_changes returned generic 15-byte error, no saved candidate; final response truthfully states preparation failed. Summary trace retains only write/input counts, not full args/error cause. Canonical SQLite retains owner/assistant Messages and operations, not raw tool arguments/results, so no source cause can be established from these records.",
+    "Candidate selected SKILL.md delivery is present in persisted structured identities; neither candidate actually loaded its reference checklist. Scripted reference qualification remains distinct; no live reference-read success claimed.",
+    "No long-history compaction, summary provider call, helper call, Stop/restart, policy revocation, or full D1/D2 semantic qualification exercised here. Null summary and empty helpers report no such calls in exposed normal trace.",
+    "Four starts/two ordered pairs are insufficient for semantic superiority, stable latency, token-efficiency or cross-account/cache generalization.",
+    "Cached share is derived from existing normal counters; default zero when provider cached counter is omitted is not distinguishable from explicit zero.",
+    "P2 canary absent from retained answers and shown tool IDs; no full raw outbound request transcript captured, so this is narrower than deterministic HTTP privacy witnesses."
+  ],
+  "overall": "First bounded live transport/workflow window complete with a candidate preparation gap; no whole-program/S01-S04/semantic-superiority acceptance claim."
+}

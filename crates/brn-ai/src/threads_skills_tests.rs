@@ -739,3 +739,213 @@ fn disabled_or_unavailable_legacy_source_preloads_are_not_seeded_or_recorded_as_
     assert!(!run_preamble(scope).contains("Playbook intake (already loaded"));
     assert!(!run_preamble(scope).contains("Playbook maintain-notes (already loaded"));
 }
+
+#[tokio::test]
+async fn non_boundary_skill_start_refuses_direct_and_whole_mixed_batch_before_effects() {
+    let (root, request, _) = tests::fixture();
+    let info = package(&root, &request);
+    policy(&request, enabled(&info, None, false));
+    let (scope, input) = begin(&request).unwrap();
+    let start = "REFERENCE_CANARY / ".len() + 1;
+    assert!(
+        read_skill(
+            &scope,
+            SkillArgs {
+                id: info.id.clone(),
+                path: "references/check.md".into(),
+                start
+            }
+        )
+        .is_err()
+    );
+    let before = scope
+        .store
+        .lock()
+        .unwrap()
+        .record(&scope.run)
+        .unwrap()
+        .unwrap();
+    let model = MockCompletionModel::from_stream_turns([vec![
+        MockStreamEvent::tool_call(
+            "effect",
+            "retain_progress",
+            json!({"summary":"INVALID_UTF8_START_MUST_NOT_WRITE"}),
+        ),
+        MockStreamEvent::tool_call(
+            "invalid-start",
+            "read_skill",
+            json!({"id":info.id,"path":"references/check.md","start":start}),
+        ),
+        MockStreamEvent::final_response_with_default_usage(),
+    ]]);
+    let answer = run_model(
+        model.clone(),
+        scope.clone(),
+        &input,
+        request.effort,
+        4,
+        true,
+        CancellationToken::new(),
+        Arc::new(|_| {}),
+    )
+    .await;
+    assert!(
+        matches!(answer.terminal, AiTerminal::Failed(e) if e.kind == AiErrorKind::InvalidToolUse)
+    );
+    assert_eq!(model.request_count(), 1);
+    assert_eq!(
+        scope
+            .store
+            .lock()
+            .unwrap()
+            .record(&scope.run)
+            .unwrap()
+            .unwrap(),
+        before
+    );
+}
+
+#[tokio::test]
+async fn escaped_bounded_skill_reference_pages_exact_utf8_with_actual_next_start() {
+    let (root, request, _) = tests::fixture();
+    let source = root.path().join("range-package");
+    let directory = "d".repeat(64);
+    std::fs::create_dir_all(source.join("references").join(&directory)).unwrap();
+    let name = "a".repeat(64);
+    std::fs::write(
+        source.join("SKILL.md"),
+        format!("---\nname: {name}\ndescription: Bounded exact range fixture.\n---\nUse bounded reference portions.\n"),
+    )
+    .unwrap();
+    let text = format!("Õ{}", "\n".repeat(65534));
+    assert_eq!(text.len(), 65536);
+    let mut path = String::new();
+    for index in 0..15 {
+        let file = format!("references/{directory}/{index:02}{}.md", "f".repeat(59));
+        std::fs::write(
+            source.join(&file),
+            if index == 0 { text.as_str() } else { "bounded" },
+        )
+        .unwrap();
+        if index == 0 {
+            path = file;
+        }
+    }
+    let info =
+        crate::skill_packages::install(&Store::open(&request.data_dir).unwrap(), &source).unwrap();
+    assert_eq!(info.file_count, 16);
+    assert!(info.total_bytes <= 256 * 1024);
+    policy(&request, enabled(&info, None, false));
+    let (scope, input) = begin(&request).unwrap();
+    // Obtain the cursor from the production reader, not duplicated fit arithmetic.
+    let first = read_skill(
+        &scope,
+        SkillArgs {
+            id: info.id.clone(),
+            path: path.clone(),
+            start: 0,
+        },
+    )
+    .unwrap();
+    assert_eq!(first["complete"], false);
+    let next = first["next_start"].as_u64().unwrap() as usize;
+    assert!(next > 0 && next < text.len() && text.is_char_boundary(next));
+    let model = MockCompletionModel::from_stream_turns([
+        vec![
+            MockStreamEvent::tool_call(
+                "page1",
+                "read_skill",
+                json!({"id":info.id,"path":path,"start":0}),
+            ),
+            MockStreamEvent::final_response_with_default_usage(),
+        ],
+        vec![
+            MockStreamEvent::tool_call(
+                "page2",
+                "read_skill",
+                json!({"id":info.id,"path":path,"start":next}),
+            ),
+            MockStreamEvent::final_response_with_default_usage(),
+        ],
+        vec![
+            MockStreamEvent::text("Read both bounded portions"),
+            MockStreamEvent::final_response_with_default_usage(),
+        ],
+    ]);
+    let answer = run_model(
+        model.clone(),
+        scope.clone(),
+        &input,
+        request.effort,
+        4,
+        true,
+        CancellationToken::new(),
+        Arc::new(|_| {}),
+    )
+    .await;
+    assert!(
+        matches!(answer.terminal, AiTerminal::Completed),
+        "{:?}",
+        answer.terminal
+    );
+    let requests = model.requests();
+    assert_eq!(requests.len(), 3);
+    for pair in requests.windows(2) {
+        assert_eq!(
+            &pair[1].chat_history[..pair[0].chat_history.len()],
+            &pair[0].chat_history
+        );
+    }
+    let mut pages = Vec::new();
+    for message in &requests[2].chat_history {
+        if let rig::message::Message::User { content } = message {
+            for item in content {
+                if let rig::message::UserContent::ToolResult(result) = item {
+                    for block in &result.content {
+                        if let rig::message::ToolResultContent::Json { value } = block {
+                            pages.push(value.clone());
+                        }
+                    }
+                }
+            }
+        }
+    }
+    assert_eq!(pages.len(), 2);
+    assert_eq!(pages[0], first);
+    assert_eq!(pages[0]["start"], 0);
+    assert_eq!(pages[0]["end"], next);
+    assert_eq!(pages[1]["start"], next);
+    assert_eq!(pages[1]["end"], text.len());
+    assert_eq!(pages[1]["total_bytes"], text.len());
+    assert!(pages[1]["next_start"].is_null());
+    assert_eq!(
+        pages[1]["complete"], false,
+        "a resumed portion is not a whole-file read"
+    );
+    assert_eq!(pages[0]["identity"], pages[1]["identity"]);
+    assert_eq!(
+        format!(
+            "{}{}",
+            pages[0]["text"].as_str().unwrap(),
+            pages[1]["text"].as_str().unwrap()
+        ),
+        text
+    );
+    assert!(pages.iter().all(context_budget::result_fits));
+    let RecordData::Run(run) = scope
+        .store
+        .lock()
+        .unwrap()
+        .record(&scope.run)
+        .unwrap()
+        .unwrap()
+        .data
+    else {
+        panic!()
+    };
+    assert_eq!(
+        run.loaded_skill_details.len(),
+        1,
+        "one exact whole-file identity, never a full-read grant"
+    );
+}

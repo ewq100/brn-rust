@@ -1,0 +1,1599 @@
+{
+  "actual_precommit_head": "6ff0ccdbd7753b07966dbcdc655880a039ef3284",
+  "raw_root": "/private/tmp/brn-d3b-review1-candidate-artifacts",
+  "checks": [
+    {
+      "receipt": "/private/tmp/brn-d3b-review1-candidate-artifacts/ai-focused.json",
+      "receipt_sha256": "b5a8e981b9b9513cbb6a6ec83acab38421a8ba7ac917ad9d17edd5504a60141b",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "threads::skills_tests::",
+        "--locked",
+        "--offline"
+      ],
+      "exit": 0,
+      "seconds": 26.05133866693359,
+      "raw_log": "/private/tmp/brn-d3b-review1-candidate-artifacts/ai-focused.log",
+      "raw_log_sha256": "c2feb2ea88cc1a14712469c16febf65f6887c06bfbe56c03eaa88b6bec920641",
+      "raw_summary_count": 1,
+      "counts": [
+        10,
+        0,
+        0
+      ],
+      "source_receipt": "/private/tmp/brn-d3b-review1-candidate-artifacts/ai-focused-source.json",
+      "source_receipt_sha256": "a0593e2809c0a4cb908701a4436ac9b1e6b2708150df5788bbc2f238d63c089f",
+      "test_artifacts": [
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/brn_ai-28a197b27edef53b",
+          "sha256": "af129c93d97811e3bd58d04f851e0fdd2412e8b8b3cae400298e8b5c89a9f4fd",
+          "bytes": 32971824
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/brn_ai-28a197b27edef53b.d",
+          "sha256": "1efc7a09a2bfad7afb51fea55634b627b62aa576da33315bd9a6e17b1df890b7",
+          "bytes": 7754
+        }
+      ],
+      "current_hash_mismatches": [
+        "crates/brn-threads-core/tests/skill_policy.rs"
+      ],
+      "qualification": "Only the isolated core integration-test redundant-borrow correction differs where listed; all production sources and this command\u2019s compiled test files are identical. The latest full-core run covers final corrected test bytes."
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-review1-candidate-artifacts/ai-full.json",
+      "receipt_sha256": "ede38ecab4ce9af58081b6b3ee326787d32b68d7e8ce69248e44b4d9c5dc73a1",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "--tests",
+        "--locked",
+        "--offline"
+      ],
+      "exit": 0,
+      "seconds": 5.815985457971692,
+      "raw_log": "/private/tmp/brn-d3b-review1-candidate-artifacts/ai-full.log",
+      "raw_log_sha256": "773b903195453ac6d3c7580d8848e641490a7a82fdda438f2d363aa57ecec044",
+      "raw_summary_count": 1,
+      "counts": [
+        454,
+        0,
+        1
+      ],
+      "source_receipt": "/private/tmp/brn-d3b-review1-candidate-artifacts/ai-full-source.json",
+      "source_receipt_sha256": "a0593e2809c0a4cb908701a4436ac9b1e6b2708150df5788bbc2f238d63c089f",
+      "test_artifacts": [
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/brn_ai-28a197b27edef53b",
+          "sha256": "af129c93d97811e3bd58d04f851e0fdd2412e8b8b3cae400298e8b5c89a9f4fd",
+          "bytes": 32971824
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/brn_ai-28a197b27edef53b.d",
+          "sha256": "1efc7a09a2bfad7afb51fea55634b627b62aa576da33315bd9a6e17b1df890b7",
+          "bytes": 7754
+        }
+      ],
+      "current_hash_mismatches": [
+        "crates/brn-threads-core/tests/skill_policy.rs"
+      ],
+      "qualification": "Only the isolated core integration-test redundant-borrow correction differs where listed; all production sources and this command\u2019s compiled test files are identical. The latest full-core run covers final corrected test bytes."
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-review1-candidate-artifacts/app-full.json",
+      "receipt_sha256": "7c477a4b071c9a625d0e70d66e58b35421422822c6dc82a8098ca5c2c1c4f5ea",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-threads-app",
+        "--lib",
+        "--tests",
+        "--locked",
+        "--offline"
+      ],
+      "exit": 0,
+      "seconds": 59.71849112492055,
+      "raw_log": "/private/tmp/brn-d3b-review1-candidate-artifacts/app-full.log",
+      "raw_log_sha256": "02cbbb10fbe4c42b139ca82ccd539e06c8b82431be005c6f332462adb3a745f8",
+      "raw_summary_count": 35,
+      "counts": [
+        244,
+        0,
+        1
+      ],
+      "source_receipt": "/private/tmp/brn-d3b-review1-candidate-artifacts/app-full-source.json",
+      "source_receipt_sha256": "a0593e2809c0a4cb908701a4436ac9b1e6b2708150df5788bbc2f238d63c089f",
+      "test_artifacts": [
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/brn_threads_app-c988a8f11e37f029",
+          "sha256": "09c381a66dacc1f1fe3b533db2e06def62d5d743ff01d25ddad48b203b0b7f23",
+          "bytes": 5732656
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/brn_threads_app-c988a8f11e37f029.d",
+          "sha256": "54ca6325d07784e2c749d0fa9dfe00a0aa07d40e1de389f953904a34cb97c547",
+          "bytes": 2571
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/agent_eval_journeys-afc31cd69d908d34",
+          "sha256": "62079a55710b38ae77ad8263f65b449d31f88cd194a51e37e5c60317391a6408",
+          "bytes": 23852224
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/agent_eval_journeys-afc31cd69d908d34.d",
+          "sha256": "2af4d7417d11ec236a1313c585802ff853babf2ae85b0511758b6e8637874bce",
+          "bytes": 764
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/agent_journeys-aa293e56c9d2b726",
+          "sha256": "87018fbf6e7b653949d8efc95ee4d7e39a83992baad2db30a6fa7a7eea7efe9e",
+          "bytes": 23112384
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/agent_journeys-aa293e56c9d2b726.d",
+          "sha256": "b43697d4a235a9178a13f9ee892302a078355397c46143d15fea759997a9ab90",
+          "bytes": 308
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/backup_directory-79fff5246ba7c117",
+          "sha256": "b22c28234935d89668c181723a16d1eab11907c01658e4bf0b950976f27fb30f",
+          "bytes": 5317088
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/backup_directory-79fff5246ba7c117.d",
+          "sha256": "a1fea9ad1283c0c415232c8cb131e45abd9cb4ff0a693862f6c76367228f7449",
+          "bytes": 318
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/chat-6d229c59711a914c",
+          "sha256": "f2fddedfcad881b209ed83450b7cd4dd4001c514f95bd4474ebbd3b96a41d399",
+          "bytes": 6907568
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/chat-6d229c59711a914c.d",
+          "sha256": "2410d626d3d1ba149130855557ee9f46127ce31f21f99a3c7a9f5eaf0221db54",
+          "bytes": 258
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/chat_decisions-25ebcbb80a5abd71",
+          "sha256": "258b214ae3144e9e49db8dd5e9a63185c37d2310822531b653341d1ee439aaea",
+          "bytes": 5350624
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/chat_decisions-25ebcbb80a5abd71.d",
+          "sha256": "790928c618f56eac0e6ed638e2d4f03c81b048bebffcb7ef1b47b4e4969f49b8",
+          "bytes": 308
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/cw2_review-4149b5213329a9c6",
+          "sha256": "1b164ffabd7e6cc1b136f8b1639d47408872180d9b6012a9566af2f02d479a62",
+          "bytes": 23646992
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/cw2_review-4149b5213329a9c6.d",
+          "sha256": "00aa967a873e60f80ea3b8284bb16a39094141b9f9e675f5ef9562e4ba3b0aa7",
+          "bytes": 288
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/daily_workflow_eval-e40d169027f68771",
+          "sha256": "b17f089777683128b63f28eb18b7567579946bab6d11cd38ed6cc082ea3215ac",
+          "bytes": 23258064
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/daily_workflow_eval-e40d169027f68771.d",
+          "sha256": "49a0ebc03ae03e3b5024f2fd441cfe2d35458a744faea450a646b0d17411a4c7",
+          "bytes": 333
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/delegation-c1df2edf5b8adce5",
+          "sha256": "7a512b2a6a21295c1f0a2d8a65d7f5c931d501566d2bb2aea94a90ace0ef6d1e",
+          "bytes": 6394656
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/delegation-c1df2edf5b8adce5.d",
+          "sha256": "e3b0734685f09cbf4c21369f414a8d5f590f886b0e41a31d124fb236b96e1fb5",
+          "bytes": 288
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/export_metadata-23f752b11028facc",
+          "sha256": "22be6d015e161d010f9c222ae2b2b40fecbc1ea81080ae2a3b6ddc4b1b92e4e9",
+          "bytes": 6580464
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/export_metadata-23f752b11028facc.d",
+          "sha256": "a9555de70cf7dee22a2ad4568113cff15a19de0e25997882e78f9e8cf0b7f000",
+          "bytes": 313
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/host_intake-719f8b289be0d5cf",
+          "sha256": "db4b5f841a7ed06b43ec607ec6a607945f69d37631145c13a4d5aeddfae58ff2",
+          "bytes": 23330896
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/host_intake-719f8b289be0d5cf.d",
+          "sha256": "c269ea22f3da6df0b9a99b4b29a5fb442741b85657ac8cd641fcae728358ed05",
+          "bytes": 293
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/import_coverage-647f2e6524b08322",
+          "sha256": "98f5284baeff6d67b7bdceed0d2a7af067ef02271cf7d7d3c33d603808e26121",
+          "bytes": 5426096
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/import_coverage-647f2e6524b08322.d",
+          "sha256": "c9489f16f610ce0ce0de72ec4e2724b8a3bdd03a0f0bcbbe202080a843e83a3e",
+          "bytes": 313
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/keyed_owner_operations-e6ae85552ba9c0f3",
+          "sha256": "099e32b037584b765971bd1b2568f75ed24e2858e5176026742ce79a77c963f4",
+          "bytes": 6194288
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/keyed_owner_operations-e6ae85552ba9c0f3.d",
+          "sha256": "962d75393a572b2132e2ebbf4d23148a87edb5c8ce39756e6e27b345eac139e0",
+          "bytes": 348
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/killed_run_candidate-f5a872fc354f2a1f",
+          "sha256": "8e26aeb1af93e2f81f282b1cb701bdb0c49f5df943c8b3be3dc52b7c645d2786",
+          "bytes": 22438976
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/killed_run_candidate-f5a872fc354f2a1f.d",
+          "sha256": "44181a0303f0bb4e77a0725d73f8253c6a5558a9a7ad99e8c5612395ec3bdb53",
+          "bytes": 338
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/product-8d1beaaf747b75a1",
+          "sha256": "51fe4b7e4b5a347f68059d7aa6e17df22b829391e8dee9422d65f4faa7a66064",
+          "bytes": 7228816
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/product-8d1beaaf747b75a1.d",
+          "sha256": "a8f1380f5a71349e01d057d881dbb3d1bcbc1731c5f08f21d7519ac5b2166657",
+          "bytes": 273
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/projects-89dcdb40005368ce",
+          "sha256": "21dbb65eaad873afec11cd9191e199ead4fdca1ab0b272e916fe35bd6cfb38a9",
+          "bytes": 7040240
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/projects-89dcdb40005368ce.d",
+          "sha256": "660061ad51385cca41b1e89fbe55c9a1bea390a97d13e9805469dd0500467ce2",
+          "bytes": 278
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/retrieval_eval-f5f070e1d364983c",
+          "sha256": "e002fb0620144439c28891c63d29f9161488ca513e7b570bd588a80f1497543c",
+          "bytes": 7012400
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/retrieval_eval-f5f070e1d364983c.d",
+          "sha256": "1f41f5a2bfad62c38b425b68ca909bfc267ac307ffd0c20b2aa1c488d4c2528b",
+          "bytes": 808
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/run_recovery-690e93fd458fd777",
+          "sha256": "a6b8445ed145daaf0baa9e1edc52e7cd2915951949f0f66ca69757123d472e71",
+          "bytes": 6846736
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/run_recovery-690e93fd458fd777.d",
+          "sha256": "9221add02acb4a3df436adf18219e226e99e6c553de07d2ae4498a23f2afbac3",
+          "bytes": 298
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/search_dense-8f0cf2e83cff5ecd",
+          "sha256": "4f0ff2350e46d5516836c91f2a023c7ac9dbc1f7b6c4a1426e4f0410336afef0",
+          "bytes": 6450496
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/search_dense-8f0cf2e83cff5ecd.d",
+          "sha256": "430839f32e39936a7f2f8d6514524ff55a114361627b03a0c22a43dd1848bcac",
+          "bytes": 298
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/search_messages-4ee9d7b7119e6457",
+          "sha256": "d895c8929c86064ff9448633d46bce8f82fbb62c7ccaabd5f80b28c4b4391136",
+          "bytes": 23258624
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/search_messages-4ee9d7b7119e6457.d",
+          "sha256": "efd25aea02db99e0020f9c3b305a710d6ae8452ed0636c672e0fada8c9dc1079",
+          "bytes": 313
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/search_worker-ce089018352e80e5",
+          "sha256": "bbaed78935c29b4325d116c9901b59de4ca2ed90ee318e35bcb305007a9d3e84",
+          "bytes": 6520656
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/search_worker-ce089018352e80e5.d",
+          "sha256": "c74a3e0a501523d2139be23780b48f75d148d70aea229e68497c19680590fefd",
+          "bytes": 303
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/shared_run-c1f460e042519b91",
+          "sha256": "629f5194850ee1c776e5e9cb7c32dde795fd93854ec07e0bb56d124cd9adf14f",
+          "bytes": 22851520
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/shared_run-c1f460e042519b91.d",
+          "sha256": "ab560ec46c48bcb97c8553a6ed800aff730934579043955263d3629287ecb6a1",
+          "bytes": 288
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/skills-d9806e23ee0a7041",
+          "sha256": "c811b40b667c077901a3ae5048bfa8bf798f5350012f962ac8cf1387b9b6870e",
+          "bytes": 6794224
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/skills-d9806e23ee0a7041.d",
+          "sha256": "ea974a3daa3ccfaa3adfba8739f4c17270fdbb04cd126dfedd6ef615a60baed8",
+          "bytes": 819
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/source_intake_chat-fc0e7da455bfa753",
+          "sha256": "10cd979ce0ec177a2c9cc91757f16c20845cd85a887a4c331b21fc38f0eefbf3",
+          "bytes": 22474768
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/source_intake_chat-fc0e7da455bfa753.d",
+          "sha256": "a016410e797282884a3a4157c8f3d418b473660e6a85f7fca59902cd3cd32e57",
+          "bytes": 328
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/steering-653a376bf778ec2a",
+          "sha256": "9585b12fd0a26fdf79c70c0a309565c602ff4fc4512fce427fd3c66e5c05981d",
+          "bytes": 5321344
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/steering-653a376bf778ec2a.d",
+          "sha256": "23e85050de365dfe4c7945ed9955e9e86dac8bcd0caecacbafce2f051a791e50",
+          "bytes": 278
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/synthetic_baseline-ea024e8cb7b8de95",
+          "sha256": "9ed618f36017ca378a30640eebf24a175eb245823602d24372c32a18e024780b",
+          "bytes": 6730592
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/synthetic_baseline-ea024e8cb7b8de95.d",
+          "sha256": "b2759ddf9400d77d322f622bff78173cd6c91680b991a76354d3b0053bdd7ec7",
+          "bytes": 867
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/thread_lifecycle-3e5a4cd05f5ed585",
+          "sha256": "8af0269f8bfaac464014070829f48c0d4349f0eb86b89fee00abe73e124d040d",
+          "bytes": 5277824
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/thread_lifecycle-3e5a4cd05f5ed585.d",
+          "sha256": "2454263bae6fcec6b49f9d22f4e4586eea16980aa55d6a4da83c94fed6878ab2",
+          "bytes": 318
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/topics_knowledge-cdf97f0c38b138c1",
+          "sha256": "1c2d3bad88813eb29609f0c6e70391c93a018a5cba0ff676f706c8fd301f4e4d",
+          "bytes": 6190384
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/topics_knowledge-cdf97f0c38b138c1.d",
+          "sha256": "17bc2391aa99a365b1abfa60f08b7808e721940c7b6500c11b59f02badad3179",
+          "bytes": 318
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/user_scale-502959ef30d7885b",
+          "sha256": "4aa0ccbe9f439b89d3ff120b2d6d5df4887b9b11b7b5ef0355fd10b0ee87d357",
+          "bytes": 6424880
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/user_scale-502959ef30d7885b.d",
+          "sha256": "57356bfeafa9038baa02c30cd463a4bff9742b708e113f471de728b169e26a95",
+          "bytes": 288
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/wiki_eval_seed-22823373806e32b4",
+          "sha256": "9e48e783fc80a77c3016bc6a3a6ae7dfedb9b11775a5d3075893ef318cea0707",
+          "bytes": 6240672
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/wiki_eval_seed-22823373806e32b4.d",
+          "sha256": "c66f575f994d80a8f591cd3733448a217581bec636c6e3910ef091d14fea6bc0",
+          "bytes": 501
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/withdraw_proposal-a5d01c3f8d177c22",
+          "sha256": "75e8b43954ba759d51908ad1d9e41b6531dca73ac4db450d0f6483aedca8cda5",
+          "bytes": 22089232
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/withdraw_proposal-a5d01c3f8d177c22.d",
+          "sha256": "5c2357545d4ae4c515cc40054e2f2182f71b9c3cbfb32d97aecfd07a7367efeb",
+          "bytes": 323
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/workspace_purpose-be268aa67bd01e02",
+          "sha256": "f6af6825750cff0a196c0a5ed4a551f5d7dfa429149d26bd4d5a7a53ef61e397",
+          "bytes": 5197488
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/workspace_purpose-be268aa67bd01e02.d",
+          "sha256": "65c7308fa56a6205acd88835b72c2fe56ac425a46eb89e4dbd60e73bb13395ae",
+          "bytes": 323
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/writing-264e212abab448cb",
+          "sha256": "9c99b2b5c5474af40c5e30cbee4351ac30010b5a572e13dd8ee6e40d91d95949",
+          "bytes": 5738864
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/writing-264e212abab448cb.d",
+          "sha256": "745c8b608ea6ef594850d8e2826acd8d68b861ac98cbcd98eb93717d6b3db043",
+          "bytes": 273
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/writing_context-492379e739bec000",
+          "sha256": "276f5f8d362c076d6fb44e11845c8764bbf6aedac40c9c42b0645a8150bc0c96",
+          "bytes": 6180208
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/writing_context-492379e739bec000.d",
+          "sha256": "6280e5f92d3fe0d699556606223c2dcdda1a7e44f2b26dc7b71c670c94c61a96",
+          "bytes": 313
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/writing_setup-c058baa7cd92b18a",
+          "sha256": "5d42bdc3cbfb3fca4e5622af57590af032b3009182cecfa49a9fcd89b299060b",
+          "bytes": 7416384
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/writing_setup-c058baa7cd92b18a.d",
+          "sha256": "f603d02f9765f4197a9f465b1c2d326f5d1c9952a3b1fd5a39393a556107507a",
+          "bytes": 303
+        }
+      ],
+      "current_hash_mismatches": [
+        "crates/brn-threads-core/tests/skill_policy.rs"
+      ],
+      "qualification": "Only the isolated core integration-test redundant-borrow correction differs where listed; all production sources and this command\u2019s compiled test files are identical. The latest full-core run covers final corrected test bytes."
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-review1-candidate-artifacts/cli-full.json",
+      "receipt_sha256": "810d353b3d6e54db875decfd3e11321cd8a682d604c46b347bea7570d4d92213",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn",
+        "--locked",
+        "--offline"
+      ],
+      "exit": 0,
+      "seconds": 47.68959037505556,
+      "raw_log": "/private/tmp/brn-d3b-review1-candidate-artifacts/cli-full.log",
+      "raw_log_sha256": "4ccbd54f38c099f3cceea074b3a0bc78c8cb14732f8dfd6b2fb9023a9e4c7756",
+      "raw_summary_count": 21,
+      "counts": [
+        172,
+        0,
+        0
+      ],
+      "source_receipt": "/private/tmp/brn-d3b-review1-candidate-artifacts/cli-full-source.json",
+      "source_receipt_sha256": "a0593e2809c0a4cb908701a4436ac9b1e6b2708150df5788bbc2f238d63c089f",
+      "test_artifacts": [
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/brn-bec4baf73fad495e",
+          "sha256": "d2880720806721fbf9cbec0947e2345574d561661c44e7dc0bcca9fb21b8b095",
+          "bytes": 6556688
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/brn-bec4baf73fad495e.d",
+          "sha256": "4715862b81b539f29860979fbbc63d88e377dd830fb923bbe54ce88810a2b459",
+          "bytes": 2400
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/agent_authority-c285414125fe47b8",
+          "sha256": "a5b81f79cb2972fbcbbef239d7c6fa120079e25c3bef98ab850edeeecd37be9f",
+          "bytes": 1369712
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/agent_authority-c285414125fe47b8.d",
+          "sha256": "a30fe1bfbeb1083f4e61f4f39b9b9f268d2f4b7f86f41c0d3b45578991a8224a",
+          "bytes": 550
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/agent_bounds-7f18226714d37257",
+          "sha256": "11bba9325613cc2812f5b4df5e7f5290d0a93ae227018b2344d8650c0493b81e",
+          "bytes": 1391600
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/agent_bounds-7f18226714d37257.d",
+          "sha256": "932942fa38068655b40f3f2e0d11cebde3edde202b4a61cf32c5eced7eab92f8",
+          "bytes": 535
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/agent_contract-ac43c406c5e58bb5",
+          "sha256": "91d13451fc8e8bae4101ebee98cee0b679aeca156ed029acdacbe4206d7a3084",
+          "bytes": 1564352
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/agent_contract-ac43c406c5e58bb5.d",
+          "sha256": "a01baea9c0e77062f3205f2e83f1fa757b5436646edfb1b7bc507fcb266fe0c9",
+          "bytes": 638
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/agent_converge-182d5ceab264ca6d",
+          "sha256": "db20f46793753a42a8f4c09eccda7496f0eef618f067b87d50ad42cedded56ab",
+          "bytes": 1463024
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/agent_converge-182d5ceab264ca6d.d",
+          "sha256": "54d570d5bda73027a1977c1bf616ae7d325d6acbc9f006e7834df0e4db0fbdff",
+          "bytes": 545
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/agent_credentials-bc177dfbd79d2284",
+          "sha256": "059c1721188922791e4bab34b710f4d25a0b96bc20ac54d39efbf10babb7e8c6",
+          "bytes": 1334560
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/agent_credentials-bc177dfbd79d2284.d",
+          "sha256": "e1dc2cb865eec598208f4d858cc853f2655f40727b2c9fdd758465882453ba1d",
+          "bytes": 560
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/agent_credentials_existing-bc0bddf53f3da436",
+          "sha256": "94825bd058503e680e42d617542e3fd290c7129dbcd58dfda1615ed47a7294b8",
+          "bytes": 5308640
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/agent_credentials_existing-bc0bddf53f3da436.d",
+          "sha256": "aaded845b42d1f36992a0b25a167998506d3715399490fdfce5d5897aca039ac",
+          "bytes": 605
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/agent_discovery-5d6e5bce7ded58f1",
+          "sha256": "698034e34fce205a58ca45c8e52f3ec553185f91facb26198ed2e7723faefbcd",
+          "bytes": 1408256
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/agent_discovery-5d6e5bce7ded58f1.d",
+          "sha256": "db984fac57e308ed7d9e7da4ea5a487f630dad74b1540cc3d1976b2fe1ac2fd9",
+          "bytes": 550
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/agent_edits-e887131405225777",
+          "sha256": "0fc940e70a9af233e86219af420a568ef0bfbee9e9c93933826be59f559e0386",
+          "bytes": 1512736
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/agent_edits-e887131405225777.d",
+          "sha256": "db08ad9c0bdf4ce3315bda4220ab91d19d94b8a15f3e1e7bcef9823b4ed6b97c",
+          "bytes": 621
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/agent_inspect-7ce472d312e83696",
+          "sha256": "b065acd2072f2e902d2e2d81305c820e1eadc6a24f093fb5313683b9e2d7823f",
+          "bytes": 1428640
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/agent_inspect-7ce472d312e83696.d",
+          "sha256": "edb73f1abf870392db5c9e74a79e6586dfca6ded0e7e51ec49ce77eea85b332f",
+          "bytes": 540
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/agent_lists-b69903df2caf7f16",
+          "sha256": "571ccd5bb2e583e5ae9d5bc2cc57c7832dfdf470e6d1f07542d25933c71ad28f",
+          "bytes": 1541216
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/agent_lists-b69903df2caf7f16.d",
+          "sha256": "1c69f93f98af86df49592676e3c4b2d9afa5286f967e6c753b0887d21444b46c",
+          "bytes": 530
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/agent_reasons-2b139ade1ee14477",
+          "sha256": "9f1c305e1b7f64041cac9696c1a7e208b3c3fd3c855303a5fca20ae5b583c2e6",
+          "bytes": 1330272
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/agent_reasons-2b139ade1ee14477.d",
+          "sha256": "189c768789b153c52a24f9cae7c43e8e174056b1b46919a7da46386eb2bf1c0a",
+          "bytes": 540
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/agent_retry-d63f0c601900c6ba",
+          "sha256": "bf38265479446602af72726a2293f8029f28391103ed5ce37b07d2153ee62419",
+          "bytes": 1365968
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/agent_retry-d63f0c601900c6ba.d",
+          "sha256": "dcad91eb6abc7be79c1621fea23dd7b1d9a0a3eaf220cb45ea9301a31a78443a",
+          "bytes": 530
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/agent_runs-862184c40f2bc584",
+          "sha256": "1a1e896fcac8ba1fb304e1d57d290566b7917aae41827a32f60149e7885e48c7",
+          "bytes": 1590064
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/agent_runs-862184c40f2bc584.d",
+          "sha256": "cb3e9e7d38c752d70105eeeb1a9217ccdaa39afb3106111f6ccce85de2fba85f",
+          "bytes": 1264
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/agent_upgrade-51e83afc036b7b6e",
+          "sha256": "3203dc17c26deebb6dd13a3900d21229ca1848c5835202920b60b76748a95d45",
+          "bytes": 1390000
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/agent_upgrade-51e83afc036b7b6e.d",
+          "sha256": "0928b4b0f524cea61bb93d203efad1238934e1e2a04ecf5de3e472552132a45d",
+          "bytes": 540
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/data_folder-34d6e34da454cff2",
+          "sha256": "d60a3d5a45e548baf2ccefa76a5de9a08522b93263ec83c997800f342803783e",
+          "bytes": 1260512
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/data_folder-34d6e34da454cff2.d",
+          "sha256": "dc3addb02cab0f52d77c5df067db897ef77dad9567b8df571f9da4102c695908",
+          "bytes": 333
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/edit_authority_guard-d370a6158f389e41",
+          "sha256": "8fc1849fe0049a0f7ce5eb8c91af40a4bf7eac368f505ce28631b041c4dad303",
+          "bytes": 965376
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/edit_authority_guard-d370a6158f389e41.d",
+          "sha256": "239962fb7499ddec8ae5b8c57d4398ee17e4b38de3968312c2ff4d0be16d5790",
+          "bytes": 396
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/search_messages-1cecf7fd2391f822",
+          "sha256": "d0e762720a4397160f8e603df796f6e108ba8c56c9c679ad58f86795805dc282",
+          "bytes": 1262368
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/search_messages-1cecf7fd2391f822.d",
+          "sha256": "7397756872e83d8d94713eafd69de158d3d48811d9c48342cd21b8a760c82122",
+          "bytes": 353
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/skill_packages-8a5c1e63f80940fe",
+          "sha256": "085e3d89116227b083b4c947d7af88fdc896fa25de8202d76178abfa22e96644",
+          "bytes": 1395472
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/skill_packages-8a5c1e63f80940fe.d",
+          "sha256": "55ebf5dded1b2faa5b62ce1e9cd06be3ca606090ea22e31ef57b09b772672708",
+          "bytes": 545
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/source_locator-324a50665733db45",
+          "sha256": "ece98ce3acecf01c3c3de5a117ad0912eeed7d5b8c07c1d478877e073fbd6d9b",
+          "bytes": 1960464
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/source_locator-324a50665733db45.d",
+          "sha256": "189476130bdb2c7727f4f4a2dbb7fcefa53fddc2595faf7755b51f9fc897a43e",
+          "bytes": 348
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/threads-c2ab485e591a6f27",
+          "sha256": "18bd1393088ffe23fa7f4732af9bdfba11d7a6b3ef378b842c8cb90c6e4f37ec",
+          "bytes": 2081072
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/threads-c2ab485e591a6f27.d",
+          "sha256": "ed708fe1503e572202c901b6d5bea926423406c22d84dfc7696ec061ec3683d4",
+          "bytes": 313
+        }
+      ],
+      "current_hash_mismatches": [
+        "crates/brn-threads-core/tests/skill_policy.rs"
+      ],
+      "qualification": "Only the isolated core integration-test redundant-borrow correction differs where listed; all production sources and this command\u2019s compiled test files are identical. The latest full-core run covers final corrected test bytes."
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-review1-candidate-artifacts/clippy-affected-corrected.json",
+      "receipt_sha256": "0437e5dd5a8eca6817221524321be95e175bf6a77db0f1e8ac8ed9d1c5ba68e0",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "clippy",
+        "-p",
+        "brn-threads-core",
+        "-p",
+        "brn-ai",
+        "-p",
+        "brn-threads-app",
+        "-p",
+        "brn",
+        "--features",
+        "brn-ai/scripted-runs",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "seconds": 3.88203345797956,
+      "raw_log": "/private/tmp/brn-d3b-review1-candidate-artifacts/clippy-affected-corrected.log",
+      "raw_log_sha256": "8d89cd5d3265abf4235f899a5f38039bbe0abab5cbc1787f507af58a97717254",
+      "raw_summary_count": 0,
+      "counts": null,
+      "source_receipt": "/private/tmp/brn-d3b-review1-candidate-artifacts/clippy-affected-corrected-source.json",
+      "source_receipt_sha256": "1c4fa727e689284b563044430c169d71a676acd8dd8e29d823a464e0d815a490",
+      "test_artifacts": [],
+      "current_hash_mismatches": [],
+      "qualification": "Only the isolated core integration-test redundant-borrow correction differs where listed; all production sources and this command\u2019s compiled test files are identical. The latest full-core run covers final corrected test bytes."
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-review1-candidate-artifacts/clippy-affected.json",
+      "receipt_sha256": "f16074d618a543f4ce5d6446464005241b0717e15ea73e6362252aad05590367",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "clippy",
+        "-p",
+        "brn-threads-core",
+        "-p",
+        "brn-ai",
+        "-p",
+        "brn-threads-app",
+        "-p",
+        "brn",
+        "--features",
+        "brn-ai/scripted-runs",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 101,
+      "seconds": 8.9975793750491,
+      "raw_log": "/private/tmp/brn-d3b-review1-candidate-artifacts/clippy-affected.log",
+      "raw_log_sha256": "7404b0003fba46dc0157fd16fbc238ca5488b17652a47637d79c4871826516ff",
+      "raw_summary_count": 0,
+      "counts": null,
+      "source_receipt": "/private/tmp/brn-d3b-review1-candidate-artifacts/clippy-affected-source.json",
+      "source_receipt_sha256": "efad47200ed2e9e0836629a2e9a54fd3fd03a670975dec8872f2eef80afedfb3",
+      "test_artifacts": [],
+      "current_hash_mismatches": [
+        "crates/brn-threads-core/tests/skill_policy.rs"
+      ],
+      "qualification": "Only the isolated core integration-test redundant-borrow correction differs where listed; all production sources and this command\u2019s compiled test files are identical. The latest full-core run covers final corrected test bytes."
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-review1-candidate-artifacts/clippy-native.json",
+      "receipt_sha256": "3531982c7782dce56e730f11efbf01beed2eb2461d71cb38465f91399c33e9f7",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "clippy",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "seconds": 8.622556542046368,
+      "raw_log": "/private/tmp/brn-d3b-review1-candidate-artifacts/clippy-native.log",
+      "raw_log_sha256": "c3d03f6aa6ab28cdd9452f5efc52671136984d4801da60ea25dda82668c5bea2",
+      "raw_summary_count": 0,
+      "counts": null,
+      "source_receipt": "/private/tmp/brn-d3b-review1-candidate-artifacts/clippy-native-source.json",
+      "source_receipt_sha256": "1c4fa727e689284b563044430c169d71a676acd8dd8e29d823a464e0d815a490",
+      "test_artifacts": [],
+      "current_hash_mismatches": [],
+      "qualification": "Only the isolated core integration-test redundant-borrow correction differs where listed; all production sources and this command\u2019s compiled test files are identical. The latest full-core run covers final corrected test bytes."
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-review1-candidate-artifacts/core-focused.json",
+      "receipt_sha256": "b88a6404a961b16b252169a62e13948fdf9a43b4748888767c03830b4a7689c4",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-threads-core",
+        "--test",
+        "skill_policy"
+      ],
+      "exit": 0,
+      "seconds": 7.2392817080253735,
+      "raw_log": "/private/tmp/brn-d3b-review1-candidate-artifacts/core-focused.log",
+      "raw_log_sha256": "33633e79ae76c7a519af9d20b93c77c1570c13a3cd5ff2743044df0bc1b4c6a6",
+      "raw_summary_count": 1,
+      "counts": [
+        3,
+        0,
+        0
+      ],
+      "source_receipt": "/private/tmp/brn-d3b-review1-candidate-artifacts/core-focused-source.json",
+      "source_receipt_sha256": "a0593e2809c0a4cb908701a4436ac9b1e6b2708150df5788bbc2f238d63c089f",
+      "test_artifacts": [
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/skill_policy-c92372093c5add22",
+          "sha256": "078b83112dd79ea5f14b11acf90082d4ca8f76ab74e0400da74d2369bc043a9d",
+          "bytes": 4360848
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/skill_policy-c92372093c5add22.d",
+          "sha256": "3b750806a89d41ef00653c892999cad1e714fadb6d9f3512a18cf9b1b57203e6",
+          "bytes": 301
+        }
+      ],
+      "current_hash_mismatches": [
+        "crates/brn-threads-core/tests/skill_policy.rs"
+      ],
+      "qualification": "Only the isolated core integration-test redundant-borrow correction differs where listed; all production sources and this command\u2019s compiled test files are identical. The latest full-core run covers final corrected test bytes."
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-review1-candidate-artifacts/core-full-lint-corrected.json",
+      "receipt_sha256": "ae5ea9518fd44777a129b21e62c23b7f44e3414e213f5a158e73800802bbd3bb",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-threads-core",
+        "--lib",
+        "--tests",
+        "--locked",
+        "--offline"
+      ],
+      "exit": 0,
+      "seconds": 9.877880749991164,
+      "raw_log": "/private/tmp/brn-d3b-review1-candidate-artifacts/core-full-lint-corrected.log",
+      "raw_log_sha256": "c9fa0d13d986036930739c64dc9956cc8f5c9855ff6ffe1d0e2ef0c23b54634a",
+      "raw_summary_count": 22,
+      "counts": [
+        208,
+        0,
+        1
+      ],
+      "source_receipt": "/private/tmp/brn-d3b-review1-candidate-artifacts/core-full-lint-corrected-source.json",
+      "source_receipt_sha256": "1c4fa727e689284b563044430c169d71a676acd8dd8e29d823a464e0d815a490",
+      "test_artifacts": [
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/brn_threads_core-5ab07307dacd34a2",
+          "sha256": "8e5165f50f5580ab93b35a36ad54f72459b75a80a00aed1253f3df9a8ebe9008",
+          "bytes": 4384144
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/brn_threads_core-5ab07307dacd34a2.d",
+          "sha256": "bd880e0ba056332654c44cfd478fcb9658e03906fd942b4f28977e51ed891a36",
+          "bytes": 2512
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/backup_directory-2089f50d87f151a8",
+          "sha256": "9747a891b1c6eef25d06ff6caa9724c972a9ebc7c500d12ed2fa0a44d967afd7",
+          "bytes": 4287408
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/backup_directory-2089f50d87f151a8.d",
+          "sha256": "a4bfdf1f0312884001568e7e8c09619fa137133b38fffa4b774b711cc28c4f7e",
+          "bytes": 321
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/candidate_refresh-ea3d079ed014aefd",
+          "sha256": "0fb9a1155fa61f199a41a5ddc9fbccddce03ac9bce2188919d22aa02aa4f96ea",
+          "bytes": 4180128
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/candidate_refresh-ea3d079ed014aefd.d",
+          "sha256": "55fea4a7b07cdc5eed7737aadad776c74961b9d937a0d2ae6f1212020e86443b",
+          "bytes": 326
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/chat_format-35bf03a17119da52",
+          "sha256": "9cb3f0624903c9b9949ca9f7131eba92021325bbfe92dfe2f39d0d5ce1b2245c",
+          "bytes": 1138608
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/chat_format-35bf03a17119da52.d",
+          "sha256": "802bebdb5fba84d720368b73d797af29c5647be0ae9545bd3d8f11712fd07bb7",
+          "bytes": 296
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/chat_storage-465bec76b00d7e2a",
+          "sha256": "3276bab8f931e6c854cfb98f400442dcdcc8b6180a3694100e99de21e27ceceb",
+          "bytes": 4237232
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/chat_storage-465bec76b00d7e2a.d",
+          "sha256": "857412e66b9f8a1179b12f3905710df6fa280d4fd1bf0e9600be04959eafcad9",
+          "bytes": 301
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/converge-c367ccfe952750a9",
+          "sha256": "7aec53e0417b66f87190e5f647586f962d125bf8d1db51c0fafc8faf0ed44ed6",
+          "bytes": 4475792
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/converge-c367ccfe952750a9.d",
+          "sha256": "260110b2f7a4081d426cd9e801b68b20d63c397bccaf2a94955faa4050da5669",
+          "bytes": 281
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/core-a92a6c8a19fcaaba",
+          "sha256": "f9db44b61c7ec97318cae6c1b1cefa2f98fadaa1c3e21df3dd13fdefb6f096af",
+          "bytes": 4864896
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/core-a92a6c8a19fcaaba.d",
+          "sha256": "66c66a6b7e99975f98e674ad21dbc6aac3a4d1fbf1d3777c38f000b87f538522",
+          "bytes": 261
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/current_inputs-30275dd7b1051377",
+          "sha256": "47528e56b85c16f52f8f7b5c7ba4fb9af7523cfb9a84dd80f0f2ff2017ad159f",
+          "bytes": 4294672
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/current_inputs-30275dd7b1051377.d",
+          "sha256": "c68620627c49c80a8d8026b8affc753b33ee3de58f14cde9696cdc381debdc41",
+          "bytes": 311
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/cw2_visibility-c44ed706cec611e4",
+          "sha256": "758b81bc5cd545eeb4a3c24b58b5c624e50b3ac81497fd6f9bc299c3b79e0041",
+          "bytes": 4402608
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/cw2_visibility-c44ed706cec611e4.d",
+          "sha256": "28d0fd58af73b3ac0f2f1818d347ebc356f0b865f400311895a56911db2a76b5",
+          "bytes": 311
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/data_folder-a2b5f2e75c1963f4",
+          "sha256": "8baec0c51ee8ae4b7dfb32936fd1a7a1ba70e901abf2c13d20e529a7ffd068e1",
+          "bytes": 2873728
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/data_folder-a2b5f2e75c1963f4.d",
+          "sha256": "69d9c4dade73a9fbcd25b0f3949b4957d678c225998dba184159eb790572e04e",
+          "bytes": 296
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/delegation-787970028070e840",
+          "sha256": "ddb7f938f3ff7c55fa08b7fd36904d569aaa0581ea3e5f3bc8832ed49ef75d9b",
+          "bytes": 4411776
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/delegation-787970028070e840.d",
+          "sha256": "c152ebd539ece67644178443257def39139cbd94a38857c4a890ac155dfa14be",
+          "bytes": 291
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/edit_tokens-e2da867d3c450bc3",
+          "sha256": "6b59f3363273e98757b5b1035082e6f161015ab7c53acec6e1c9f1e9e17352a8",
+          "bytes": 4451472
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/edit_tokens-e2da867d3c450bc3.d",
+          "sha256": "3fd9bdcded67504563f7faea7037796426cf63602af8506a1915e7405b19205e",
+          "bytes": 296
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/inspect-01fb7e5b73c948b1",
+          "sha256": "5454e19dd7e1883319e08163bf9d6a9ccbee8b5195e6c306ba7251cdc932cb59",
+          "bytes": 4485312
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/inspect-01fb7e5b73c948b1.d",
+          "sha256": "3d8ae7ef9f183fdd9ae4f8296b3063e4bba79c0f5b3a6d771d1e5660fb3558d2",
+          "bytes": 276
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/message_search_scope-c7984490840f664d",
+          "sha256": "bf86b54e317cb1a06821986e652cf04789c8b83a0e5ffe1098237c21f5c8622a",
+          "bytes": 4579376
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/message_search_scope-c7984490840f664d.d",
+          "sha256": "bf1eccc709d4956ee79d6d8d4d264c8f3ea39fac4a51808661cafe467c4f058b",
+          "bytes": 341
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/note_read-8424c12766320ea4",
+          "sha256": "e596fc8d15da92030c20ee6e588735c41bea4e06ff12b5642dc2f8030c6cc4c3",
+          "bytes": 4182208
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/note_read-8424c12766320ea4.d",
+          "sha256": "20be9da7f4be93f4f026394fa1ea6fdf4ca05a97973ee25b0aa7e3913e4f89ab",
+          "bytes": 286
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/project_format-cb748f22c2a683ac",
+          "sha256": "c1cde01e6bb769f872a5116b312dcda49e770a6f40e7c26a24167b0a40fb5b84",
+          "bytes": 4176464
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/project_format-cb748f22c2a683ac.d",
+          "sha256": "7adbc1ca7be87ed9e9b839b252356b2b430b2accb3744a011956c71416bfdda4",
+          "bytes": 311
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/revision_read-57f2b4fb6b3309b4",
+          "sha256": "65ffee63d902bf6e8339ddd42b4bee13e2a37f9877210dff45b658c87247fa9f",
+          "bytes": 4111296
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/revision_read-57f2b4fb6b3309b4.d",
+          "sha256": "d0e58258667480a5a9350dc2836c0e4b36347a2e047d0a0161e607efacf6ec94",
+          "bytes": 306
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/search_reader-4e447b456675c629",
+          "sha256": "ab2362bc4e7655fb0d6e320d042fc1fcc335f1a47e6a4b238468376c1c2de5c9",
+          "bytes": 4276896
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/search_reader-4e447b456675c629.d",
+          "sha256": "9a7df431d32cc7668c02a177b09100573e4a9258b30949e55e4dc11df1499a5d",
+          "bytes": 306
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/skill_policy-c92372093c5add22",
+          "sha256": "078b83112dd79ea5f14b11acf90082d4ca8f76ab74e0400da74d2369bc043a9d",
+          "bytes": 4360848
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/skill_policy-c92372093c5add22.d",
+          "sha256": "3b750806a89d41ef00653c892999cad1e714fadb6d9f3512a18cf9b1b57203e6",
+          "bytes": 301
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/steering-33954485fdc90b2b",
+          "sha256": "5668db73fd994f27d1354806c262749be0e76dd469c3a793fab9c248e54829e8",
+          "bytes": 4236384
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/steering-33954485fdc90b2b.d",
+          "sha256": "15b8c00d2f8062b4d2a58be68a825efee4587358c2fdd22b3f96121537166ce0",
+          "bytes": 281
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/writing-73ba8ea1df657263",
+          "sha256": "3b55b5dcde20aa474038944e8872ae670554148aaab604868e6293ed1bb3e9a0",
+          "bytes": 4323488
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/writing-73ba8ea1df657263.d",
+          "sha256": "7fabfe95acbbb9880fec7c85001faf42658832ca4dda13d64ef6b86293cff9b5",
+          "bytes": 276
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/writing_setup-65b0e4d6f3ac0b1f",
+          "sha256": "39806662968a91a4b01965462130e743ee937c0cf89b32d56255868b04908d05",
+          "bytes": 4641888
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/writing_setup-65b0e4d6f3ac0b1f.d",
+          "sha256": "ade99364d66e557f682b4a2fd95a30b699aab54be2bd08b96c0c5d6baa3fafb8",
+          "bytes": 306
+        }
+      ],
+      "current_hash_mismatches": [],
+      "qualification": "Only the isolated core integration-test redundant-borrow correction differs where listed; all production sources and this command\u2019s compiled test files are identical. The latest full-core run covers final corrected test bytes."
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-review1-candidate-artifacts/core-full.json",
+      "receipt_sha256": "8bc44daf923e2e100e4d65a3fb28c37e671fa91832a5098c825e594df0add424",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-threads-core",
+        "--lib",
+        "--tests",
+        "--locked",
+        "--offline"
+      ],
+      "exit": 0,
+      "seconds": 22.235804833006114,
+      "raw_log": "/private/tmp/brn-d3b-review1-candidate-artifacts/core-full.log",
+      "raw_log_sha256": "9ddd2e54de1f69cc0eb240985b73ac3bbcb81493f1356865481f17cc0386dffa",
+      "raw_summary_count": 22,
+      "counts": [
+        208,
+        0,
+        1
+      ],
+      "source_receipt": "/private/tmp/brn-d3b-review1-candidate-artifacts/core-full-source.json",
+      "source_receipt_sha256": "a0593e2809c0a4cb908701a4436ac9b1e6b2708150df5788bbc2f238d63c089f",
+      "test_artifacts": [
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/brn_threads_core-5ab07307dacd34a2",
+          "sha256": "8e5165f50f5580ab93b35a36ad54f72459b75a80a00aed1253f3df9a8ebe9008",
+          "bytes": 4384144
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/brn_threads_core-5ab07307dacd34a2.d",
+          "sha256": "bd880e0ba056332654c44cfd478fcb9658e03906fd942b4f28977e51ed891a36",
+          "bytes": 2512
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/backup_directory-2089f50d87f151a8",
+          "sha256": "9747a891b1c6eef25d06ff6caa9724c972a9ebc7c500d12ed2fa0a44d967afd7",
+          "bytes": 4287408
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/backup_directory-2089f50d87f151a8.d",
+          "sha256": "a4bfdf1f0312884001568e7e8c09619fa137133b38fffa4b774b711cc28c4f7e",
+          "bytes": 321
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/candidate_refresh-ea3d079ed014aefd",
+          "sha256": "0fb9a1155fa61f199a41a5ddc9fbccddce03ac9bce2188919d22aa02aa4f96ea",
+          "bytes": 4180128
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/candidate_refresh-ea3d079ed014aefd.d",
+          "sha256": "55fea4a7b07cdc5eed7737aadad776c74961b9d937a0d2ae6f1212020e86443b",
+          "bytes": 326
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/chat_format-35bf03a17119da52",
+          "sha256": "9cb3f0624903c9b9949ca9f7131eba92021325bbfe92dfe2f39d0d5ce1b2245c",
+          "bytes": 1138608
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/chat_format-35bf03a17119da52.d",
+          "sha256": "802bebdb5fba84d720368b73d797af29c5647be0ae9545bd3d8f11712fd07bb7",
+          "bytes": 296
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/chat_storage-465bec76b00d7e2a",
+          "sha256": "3276bab8f931e6c854cfb98f400442dcdcc8b6180a3694100e99de21e27ceceb",
+          "bytes": 4237232
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/chat_storage-465bec76b00d7e2a.d",
+          "sha256": "857412e66b9f8a1179b12f3905710df6fa280d4fd1bf0e9600be04959eafcad9",
+          "bytes": 301
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/converge-c367ccfe952750a9",
+          "sha256": "7aec53e0417b66f87190e5f647586f962d125bf8d1db51c0fafc8faf0ed44ed6",
+          "bytes": 4475792
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/converge-c367ccfe952750a9.d",
+          "sha256": "260110b2f7a4081d426cd9e801b68b20d63c397bccaf2a94955faa4050da5669",
+          "bytes": 281
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/core-a92a6c8a19fcaaba",
+          "sha256": "f9db44b61c7ec97318cae6c1b1cefa2f98fadaa1c3e21df3dd13fdefb6f096af",
+          "bytes": 4864896
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/core-a92a6c8a19fcaaba.d",
+          "sha256": "66c66a6b7e99975f98e674ad21dbc6aac3a4d1fbf1d3777c38f000b87f538522",
+          "bytes": 261
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/current_inputs-30275dd7b1051377",
+          "sha256": "47528e56b85c16f52f8f7b5c7ba4fb9af7523cfb9a84dd80f0f2ff2017ad159f",
+          "bytes": 4294672
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/current_inputs-30275dd7b1051377.d",
+          "sha256": "c68620627c49c80a8d8026b8affc753b33ee3de58f14cde9696cdc381debdc41",
+          "bytes": 311
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/cw2_visibility-c44ed706cec611e4",
+          "sha256": "758b81bc5cd545eeb4a3c24b58b5c624e50b3ac81497fd6f9bc299c3b79e0041",
+          "bytes": 4402608
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/cw2_visibility-c44ed706cec611e4.d",
+          "sha256": "28d0fd58af73b3ac0f2f1818d347ebc356f0b865f400311895a56911db2a76b5",
+          "bytes": 311
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/data_folder-a2b5f2e75c1963f4",
+          "sha256": "8baec0c51ee8ae4b7dfb32936fd1a7a1ba70e901abf2c13d20e529a7ffd068e1",
+          "bytes": 2873728
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/data_folder-a2b5f2e75c1963f4.d",
+          "sha256": "69d9c4dade73a9fbcd25b0f3949b4957d678c225998dba184159eb790572e04e",
+          "bytes": 296
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/delegation-787970028070e840",
+          "sha256": "ddb7f938f3ff7c55fa08b7fd36904d569aaa0581ea3e5f3bc8832ed49ef75d9b",
+          "bytes": 4411776
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/delegation-787970028070e840.d",
+          "sha256": "c152ebd539ece67644178443257def39139cbd94a38857c4a890ac155dfa14be",
+          "bytes": 291
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/edit_tokens-e2da867d3c450bc3",
+          "sha256": "6b59f3363273e98757b5b1035082e6f161015ab7c53acec6e1c9f1e9e17352a8",
+          "bytes": 4451472
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/edit_tokens-e2da867d3c450bc3.d",
+          "sha256": "3fd9bdcded67504563f7faea7037796426cf63602af8506a1915e7405b19205e",
+          "bytes": 296
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/inspect-01fb7e5b73c948b1",
+          "sha256": "5454e19dd7e1883319e08163bf9d6a9ccbee8b5195e6c306ba7251cdc932cb59",
+          "bytes": 4485312
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/inspect-01fb7e5b73c948b1.d",
+          "sha256": "3d8ae7ef9f183fdd9ae4f8296b3063e4bba79c0f5b3a6d771d1e5660fb3558d2",
+          "bytes": 276
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/message_search_scope-c7984490840f664d",
+          "sha256": "bf86b54e317cb1a06821986e652cf04789c8b83a0e5ffe1098237c21f5c8622a",
+          "bytes": 4579376
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/message_search_scope-c7984490840f664d.d",
+          "sha256": "bf1eccc709d4956ee79d6d8d4d264c8f3ea39fac4a51808661cafe467c4f058b",
+          "bytes": 341
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/note_read-8424c12766320ea4",
+          "sha256": "e596fc8d15da92030c20ee6e588735c41bea4e06ff12b5642dc2f8030c6cc4c3",
+          "bytes": 4182208
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/note_read-8424c12766320ea4.d",
+          "sha256": "20be9da7f4be93f4f026394fa1ea6fdf4ca05a97973ee25b0aa7e3913e4f89ab",
+          "bytes": 286
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/project_format-cb748f22c2a683ac",
+          "sha256": "c1cde01e6bb769f872a5116b312dcda49e770a6f40e7c26a24167b0a40fb5b84",
+          "bytes": 4176464
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/project_format-cb748f22c2a683ac.d",
+          "sha256": "7adbc1ca7be87ed9e9b839b252356b2b430b2accb3744a011956c71416bfdda4",
+          "bytes": 311
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/revision_read-57f2b4fb6b3309b4",
+          "sha256": "65ffee63d902bf6e8339ddd42b4bee13e2a37f9877210dff45b658c87247fa9f",
+          "bytes": 4111296
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/revision_read-57f2b4fb6b3309b4.d",
+          "sha256": "d0e58258667480a5a9350dc2836c0e4b36347a2e047d0a0161e607efacf6ec94",
+          "bytes": 306
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/search_reader-4e447b456675c629",
+          "sha256": "ab2362bc4e7655fb0d6e320d042fc1fcc335f1a47e6a4b238468376c1c2de5c9",
+          "bytes": 4276896
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/search_reader-4e447b456675c629.d",
+          "sha256": "9a7df431d32cc7668c02a177b09100573e4a9258b30949e55e4dc11df1499a5d",
+          "bytes": 306
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/skill_policy-c92372093c5add22",
+          "sha256": "078b83112dd79ea5f14b11acf90082d4ca8f76ab74e0400da74d2369bc043a9d",
+          "bytes": 4360848
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/skill_policy-c92372093c5add22.d",
+          "sha256": "3b750806a89d41ef00653c892999cad1e714fadb6d9f3512a18cf9b1b57203e6",
+          "bytes": 301
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/steering-33954485fdc90b2b",
+          "sha256": "5668db73fd994f27d1354806c262749be0e76dd469c3a793fab9c248e54829e8",
+          "bytes": 4236384
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/steering-33954485fdc90b2b.d",
+          "sha256": "15b8c00d2f8062b4d2a58be68a825efee4587358c2fdd22b3f96121537166ce0",
+          "bytes": 281
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/writing-73ba8ea1df657263",
+          "sha256": "3b55b5dcde20aa474038944e8872ae670554148aaab604868e6293ed1bb3e9a0",
+          "bytes": 4323488
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/writing-73ba8ea1df657263.d",
+          "sha256": "7fabfe95acbbb9880fec7c85001faf42658832ca4dda13d64ef6b86293cff9b5",
+          "bytes": 276
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/writing_setup-65b0e4d6f3ac0b1f",
+          "sha256": "39806662968a91a4b01965462130e743ee937c0cf89b32d56255868b04908d05",
+          "bytes": 4641888
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/writing_setup-65b0e4d6f3ac0b1f.d",
+          "sha256": "ade99364d66e557f682b4a2fd95a30b699aab54be2bd08b96c0c5d6baa3fafb8",
+          "bytes": 306
+        }
+      ],
+      "current_hash_mismatches": [
+        "crates/brn-threads-core/tests/skill_policy.rs"
+      ],
+      "qualification": "Only the isolated core integration-test redundant-borrow correction differs where listed; all production sources and this command\u2019s compiled test files are identical. The latest full-core run covers final corrected test bytes."
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-review1-candidate-artifacts/default-build.json",
+      "receipt_sha256": "3e6caa877a4a093dd466ba3836a0b644816634843aa95da8c8a45b882c9c038f",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "build",
+        "--workspace",
+        "--locked",
+        "--offline"
+      ],
+      "exit": 0,
+      "seconds": 7.782255957950838,
+      "raw_log": "/private/tmp/brn-d3b-review1-candidate-artifacts/default-build.log",
+      "raw_log_sha256": "bd4389c5873b75fd525a4f8d40074d46f327f187a21c9442ed254bbbe7cc29a8",
+      "raw_summary_count": 0,
+      "counts": null,
+      "source_receipt": "/private/tmp/brn-d3b-review1-candidate-artifacts/default-build-source.json",
+      "source_receipt_sha256": "1c4fa727e689284b563044430c169d71a676acd8dd8e29d823a464e0d815a490",
+      "test_artifacts": [],
+      "current_hash_mismatches": [],
+      "qualification": "Only the isolated core integration-test redundant-borrow correction differs where listed; all production sources and this command\u2019s compiled test files are identical. The latest full-core run covers final corrected test bytes."
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-review1-candidate-artifacts/doc-links-final.json",
+      "receipt_sha256": "78d2b9234f967bbda3e0e06a214ff29644045476d23c0c88cd7f3d0ab4c516e0",
+      "command": [
+        "python3",
+        "scripts/check-markdown-links.py"
+      ],
+      "exit": 0,
+      "seconds": 0.42329283303115517,
+      "raw_log": "/private/tmp/brn-d3b-review1-candidate-artifacts/doc-links-final.log",
+      "raw_log_sha256": "97afad1fbd0a8e2d91e3ab37ece9c81d8f58105b110047ddd359125d1cf8b375",
+      "raw_summary_count": 0,
+      "counts": null,
+      "source_receipt": "/private/tmp/brn-d3b-review1-candidate-artifacts/doc-links-final-source.json",
+      "source_receipt_sha256": "df3e7a42306ebdb94e598978e32842ce35c26f76e2918de2667f1ff305ae65d5",
+      "test_artifacts": [],
+      "current_hash_mismatches": [],
+      "qualification": "Only the isolated core integration-test redundant-borrow correction differs where listed; all production sources and this command\u2019s compiled test files are identical. The latest full-core run covers final corrected test bytes."
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-review1-candidate-artifacts/doc-links.json",
+      "receipt_sha256": "971a72af6576a7018317e8b8b5c1f90dab88fdd308174391cea8d4f5177a76da",
+      "command": [
+        "python3",
+        "scripts/check-markdown-links.py"
+      ],
+      "exit": 0,
+      "seconds": 0.397601917036809,
+      "raw_log": "/private/tmp/brn-d3b-review1-candidate-artifacts/doc-links.log",
+      "raw_log_sha256": "3b0bc5a97da50c22a43b704c6e2c12cfabe7658b2671f07aae8e245b1a360685",
+      "raw_summary_count": 0,
+      "counts": null,
+      "source_receipt": "/private/tmp/brn-d3b-review1-candidate-artifacts/doc-links-source.json",
+      "source_receipt_sha256": "1c4fa727e689284b563044430c169d71a676acd8dd8e29d823a464e0d815a490",
+      "test_artifacts": [],
+      "current_hash_mismatches": [],
+      "qualification": "Only the isolated core integration-test redundant-borrow correction differs where listed; all production sources and this command\u2019s compiled test files are identical. The latest full-core run covers final corrected test bytes."
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-review1-candidate-artifacts/fmt.json",
+      "receipt_sha256": "77974af7bf8b1f55c7bcad365426b2413976124633ffd0c527578e5216726a0a",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit": 0,
+      "seconds": 1.9467680410016328,
+      "raw_log": "/private/tmp/brn-d3b-review1-candidate-artifacts/fmt.log",
+      "raw_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_summary_count": 0,
+      "counts": null,
+      "source_receipt": "/private/tmp/brn-d3b-review1-candidate-artifacts/fmt-source.json",
+      "source_receipt_sha256": "1c4fa727e689284b563044430c169d71a676acd8dd8e29d823a464e0d815a490",
+      "test_artifacts": [],
+      "current_hash_mismatches": [],
+      "qualification": "Only the isolated core integration-test redundant-borrow correction differs where listed; all production sources and this command\u2019s compiled test files are identical. The latest full-core run covers final corrected test bytes."
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-review1-candidate-artifacts/helper-build-corrected.json",
+      "receipt_sha256": "419633b8c0cfc4880a0a01c3ea45e789f0d65aa48b223ece151655f85c38c3c1",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "build",
+        "-p",
+        "brn-intake",
+        "--features",
+        "helper",
+        "--bin",
+        "brn-intake-helper",
+        "--locked",
+        "--offline"
+      ],
+      "exit": 0,
+      "seconds": 0.3445385000668466,
+      "raw_log": "/private/tmp/brn-d3b-review1-candidate-artifacts/helper-build-corrected.log",
+      "raw_log_sha256": "f1d0e587f4eaf9c5f6803d3e9210c0e1b536942252f03191c763f7b78b97cc4a",
+      "raw_summary_count": 0,
+      "counts": null,
+      "source_receipt": "/private/tmp/brn-d3b-review1-candidate-artifacts/helper-build-corrected-source.json",
+      "source_receipt_sha256": "a0593e2809c0a4cb908701a4436ac9b1e6b2708150df5788bbc2f238d63c089f",
+      "test_artifacts": [],
+      "current_hash_mismatches": [
+        "crates/brn-threads-core/tests/skill_policy.rs"
+      ],
+      "qualification": "Only the isolated core integration-test redundant-borrow correction differs where listed; all production sources and this command\u2019s compiled test files are identical. The latest full-core run covers final corrected test bytes."
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-review1-candidate-artifacts/helper-build.json",
+      "receipt_sha256": "b225f4344b9683b3315684e19e5341a904cb64891fcdad221a54ff372280e081",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "build",
+        "-p",
+        "brn-intake-helper",
+        "--locked",
+        "--offline"
+      ],
+      "exit": 101,
+      "seconds": 0.42695916700176895,
+      "raw_log": "/private/tmp/brn-d3b-review1-candidate-artifacts/helper-build.log",
+      "raw_log_sha256": "f5a01adf8288f45dda847600ddefa192e00affab1d3e3eb9af723c79b1895388",
+      "raw_summary_count": 0,
+      "counts": null,
+      "source_receipt": "/private/tmp/brn-d3b-review1-candidate-artifacts/helper-build-source.json",
+      "source_receipt_sha256": "a0593e2809c0a4cb908701a4436ac9b1e6b2708150df5788bbc2f238d63c089f",
+      "test_artifacts": [],
+      "current_hash_mismatches": [
+        "crates/brn-threads-core/tests/skill_policy.rs"
+      ],
+      "qualification": "Only the isolated core integration-test redundant-borrow correction differs where listed; all production sources and this command\u2019s compiled test files are identical. The latest full-core run covers final corrected test bytes."
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-review1-candidate-artifacts/native-focused.json",
+      "receipt_sha256": "4fbf3ec75831a541170729076fa86bd42d7959448989d703daf5d07297914247",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "threads_ui::skills_tests::"
+      ],
+      "exit": 0,
+      "seconds": 37.330842084018514,
+      "raw_log": "/private/tmp/brn-d3b-review1-candidate-artifacts/native-focused.log",
+      "raw_log_sha256": "c8a20dbf46d116fd4e3f33ecd7e154e7f37496c57a0cd94b52bddbc8895f8363",
+      "raw_summary_count": 1,
+      "counts": [
+        2,
+        0,
+        0
+      ],
+      "source_receipt": "/private/tmp/brn-d3b-review1-candidate-artifacts/native-focused-source.json",
+      "source_receipt_sha256": "a0593e2809c0a4cb908701a4436ac9b1e6b2708150df5788bbc2f238d63c089f",
+      "test_artifacts": [
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/brn_desktop-64d021fbd43861a5",
+          "sha256": "877784d7a2effc8eaed7f0d74bce42afc5c366d350ace8ecb2d8a0df2af790ba",
+          "bytes": 72028368
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/brn_desktop-64d021fbd43861a5.d",
+          "sha256": "1c36a89aed5fc0bc4629960f16b4260e26e20ac046e64cfd4d3593c59b62192e",
+          "bytes": 5111
+        }
+      ],
+      "current_hash_mismatches": [
+        "crates/brn-threads-core/tests/skill_policy.rs"
+      ],
+      "qualification": "Only the isolated core integration-test redundant-borrow correction differs where listed; all production sources and this command\u2019s compiled test files are identical. The latest full-core run covers final corrected test bytes."
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-review1-candidate-artifacts/native-full.json",
+      "receipt_sha256": "886e0a23f7f769bfc3e21d8a2259d142237e1edaf7c3ac1fa12ca413d3709827",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "--locked",
+        "--offline"
+      ],
+      "exit": 0,
+      "seconds": 9.844573708018288,
+      "raw_log": "/private/tmp/brn-d3b-review1-candidate-artifacts/native-full.log",
+      "raw_log_sha256": "23d097db48e4be8abf6c523a50dddae25bd6e046a2a3f3ebfebba106cd31bbf5",
+      "raw_summary_count": 1,
+      "counts": [
+        312,
+        0,
+        1
+      ],
+      "source_receipt": "/private/tmp/brn-d3b-review1-candidate-artifacts/native-full-source.json",
+      "source_receipt_sha256": "efad47200ed2e9e0836629a2e9a54fd3fd03a670975dec8872f2eef80afedfb3",
+      "test_artifacts": [
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/brn_desktop-64d021fbd43861a5",
+          "sha256": "877784d7a2effc8eaed7f0d74bce42afc5c366d350ace8ecb2d8a0df2af790ba",
+          "bytes": 72028368
+        },
+        {
+          "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/brn_desktop-64d021fbd43861a5.d",
+          "sha256": "1c36a89aed5fc0bc4629960f16b4260e26e20ac046e64cfd4d3593c59b62192e",
+          "bytes": 5111
+        }
+      ],
+      "current_hash_mismatches": [
+        "crates/brn-threads-core/tests/skill_policy.rs"
+      ],
+      "qualification": "Only the isolated core integration-test redundant-borrow correction differs where listed; all production sources and this command\u2019s compiled test files are identical. The latest full-core run covers final corrected test bytes."
+    }
+  ],
+  "counts_qualification": "Do not sum repeats/focused runs as distinct acceptance tests. Selected final broad lanes total1390passed/0failed/4ignored across core,AI,app,CLI,native; no full-workspace test rerun."
+}

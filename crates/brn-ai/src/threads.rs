@@ -3417,9 +3417,9 @@ fn begin_context(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String, Ve
     let input = format!("{input}{}", scope.skills.selected_context());
     let (input, summary_chunks) =
         context_budget::history_snapshot(&scope, input, &records, &history)?;
-    // Delivery provenance follows initial encoded admission, never a failed load.
-    if context_budget::preflight(&scope, &input).is_ok() {
-        let identities = scope.skills.initial_identities();
+    // Identities follow initial encoded admission, not proof of upstream processing.
+    let identities = scope.skills.initial_identities();
+    if !identities.is_empty() && context_budget::preflight(&scope, &input).is_ok() {
         let mut store = scope.store.lock().map_err(storage)?;
         update_run(&scope, &mut store, |run| {
             for identity in &identities {

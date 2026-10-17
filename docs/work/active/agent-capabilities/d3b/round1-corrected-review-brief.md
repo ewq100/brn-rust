@@ -1,0 +1,35 @@
+# D3b corrected source — fresh Opus round 2 brief
+
+Review the complete local descendant of original D3b base `000ed92026ccb180f2257b28b07e0525b1493f23` and its bounded correction delta from `6ff0ccdbd7753b07966dbcdc655880a039ef3284`. The immutable commit/tree/crates identities and actual complete diff hashes are sent immediately after local commit; compiled checks ran at actual HEAD6ff plus the recorded WIP, not a fabricated future SHA. [Qualified source hashes](round1-qualified-wip.json) must match the new pin.
+
+Original requirements and allocations remain in [original review brief](review-brief.md), [acceptance map](acceptance.md), [plan](plan.md) and [storage/allocations](storage-and-allocation.md). Preserve D3a typed package errors/atomic FS handling, four built-ins, schema8 semantic upgrade/refusal, canonical policy/provenance retention with absent local bytes failing closed, exact selected admission, lazy frozen catalogue, scope/trust/checked authority, batch no-effect precedence, budgets/cache/summary/continuation/recovery/Stop and platform handling. Installation never enables; global owner inventory is distinct from scoped runtime policy. No D4, dependency/lock/auth/schema/type/backup changes or publication authority.
+
+Read [full verbatim Opus1](opus-review-round1.md), [all finding dispositions](opus-review-round1-response.md), and [exact correction ownership/before evidence](round1-correction-scope.md). All original findings and objections remain available; no reviewer mutation/live-pending sentence discards later source6ff evidence. Principal independently audited original273 material hashes/52 normal receipts/13 preserved paths/nine artifacts/full diff with zero errors; reviewer did not audit those counts.
+
+Material corrections are only three production hunks:
+
+1. Native `refresh_skills` adds an absent current-scope disabled inventory row regardless of bindings elsewhere. It never copies other-scope policy or enables runtime discovery. New native flow proves P1 selected policy remains intact/private while general and P2 can independently enable the global artifact.
+2. Core retains exact unchanged inactive bindings **OR** solely demotes true→false selection with exact ID/digest/Project/enabled. Unrelated Configure/replay preserves unchanged inactive selected policy. New selected-prior identity/digest/scope demotion negatives, post-deselect reselect refusal, disable/clear and unchanged-record assertions exercise actual checked owner paths.
+3. Initial AI Run metadata update is skipped only for an empty actual initial identity list. Legacy flags/fence and selected/admitted details remain protected by existing tests.
+
+G1 adds coverage, no range production fix: invalid multibyte start refuses the direct reader and the actual whole mixed batch before its progress effect; a valid16-file package with one64KiB escape-dense reference forces actual bounded partial delivery. Captured model requests preserve prefix, exact UTF-8 start/end/next_start/complete and unchanged file identity; combined delivered portions equal the source. Identity records a portion of that exact file, not a whole-read grant/provider-processing claim. Docs explain this and explicit built-in digest drift recovery. One allocated no-op core fixture assignment is removed; original raw-owner test assertions remain unchanged.
+
+Before evidence on separate exact6ff production source+target: core0/1 (twice, strengthened fixture), native0/1 at intended defects; valid new range suite10/0 confirms existing guards. Preserved nonproof attempts: native unqualified exact filter0tests, initial AI9/1 rejected a bodyless new fixture before its budget path. Candidate initially used a wrong helper package selector (command failure, corrected maintained helper command passed); strict Clippy found one redundant borrow in the new test closure. Both attempts remain raw. Only that test borrow changed afterward; full core208/0/1 and strict lint reran. Other completed suites have identical production and compiled test inputs; unrelated core-test hash difference is listed per receipt, not concealed.
+
+| Corrected normal lane | Passed | Failed | Ignored |
+| --- | ---: | ---: | ---: |
+| Core lib/tests, final test bytes | 208 | 0 | 1 |
+| Full AI scripted lib/tests | 454 | 0 | 1 |
+| Full app lib/tests | 244 | 0 | 1 |
+| Full CLI | 172 | 0 | 0 |
+| Native UI/state/widgets | 312 | 0 | 1 |
+
+Focused core3/0, AI10/0 and native2/0 also passed; do not double-count them. Strict affected core/AI/app/CLI and native all-target Clippy `-D warnings`, default workspace build, workspace fmt and document links pass. [Command/log/count/artifact index](round1-check-index.json), [before index](round1-before-check-index.json), [current production artifacts](round1-production-artifacts.json) retain actual paths/hashes. Rust1.98.1, locked/offline, fresh synthetic temp paths, same literal candidate source/target; baseline and mutation copies have separate targets and genuine local Git context.
+
+No whole-workspace test repeat for this bounded correction. The source6ff full workspace1192/1/6 (sole carried PDF preparation Unavailable/missing pdftoppm), capability, native-retrieval combined build and offline end-to-end journey remain qualified at6ff. New default/native/common runtime guards are exercised by the lanes above. Native-human, hosted, owner/full-program acceptance remain open; only aarch64-apple-darwin is exercised, unsupported paths remain statically qualified.
+
+Source6ff first live window used the explicit Codex subscription/gpt-6.1-sol/medium checked route, four total starts, all Completed and unchanged working Note. Controls prepared2 candidates; candidates prepared1. Candidate1's generic15-byte prepare failure and truthful no-saved-change answer remain an unresolved qualification gap: full prepare args/cause are not retained. Neither candidate loaded the package reference checklist. Account identity/auth request count are unexposed; no summary/helper call or long-history qualification, no semantic superiority/full-S01–S04/live-program claim. No new live starts during corrections. [Dated assessment](live-window1-assessment.json).
+
+The sole original D3b mutation allowance is CLOSED at898.4337389169959/900s;1.5662610830040649s unused is not transferred/reset. Source6ff actual3CAUGHT (raw nonblank policy, fresh Configure preservation, missing-selected preflight), M04 timed out during compilation with no verdict, M05–07 unexecuted. [Raw-source outcomes](mutation-6ff-outcomes.json), [cleanup/reap](mutation-6ff-cleanup.json). No corrected-pin mutation qualification or retroactive catches.
+
+Residuals preserved: admission before final dispatch is not upstream-processing proof; non-Open chats conservatively omit historical provenance; bounded CLI N+1; global Settings/no-op fencing; D3a initial-folder crash/race and remaining FS/platform/human qualification limits. No broad redesign or hidden fallback. Independent source approval, principal local acceptance/integration, main/publication/release are separate.

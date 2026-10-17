@@ -259,7 +259,7 @@ fn project_selection_is_exact_and_clear_remains_available_after_archive() {
         .change_skill_policy(&op, &select, &HostAuthority::owner("owner"))
         .unwrap();
     assert!(settings(&store).skills[0].selected);
-    let mut write = Put {
+    let write = Put {
         id: project.id.clone(),
         expected_version: Some(project.version),
         archived: true,
@@ -278,12 +278,142 @@ fn project_selection_is_exact_and_clear_remains_available_after_archive() {
         )
         .unwrap();
     store.apply(&op, &HostAuthority::owner("owner")).unwrap();
+    // An unrelated Configure must preserve an unchanged unavailable selection.
+    let mut configured = settings(&store);
+    assert!(configured.skills[0].selected);
+    configured.model = "fresh configured model".into();
+    let configure = store
+        .allocate_operation("configure inactive selected policy")
+        .unwrap();
+    store
+        .configure_workspace(&configure, &configured, &HostAuthority::owner("owner"))
+        .unwrap();
+    assert_eq!(settings(&store).skills, configured.skills);
+    assert!(matches!(
+        store
+            .configure_workspace(&configure, &configured, &HostAuthority::owner("retry"))
+            .unwrap(),
+        ApplyOutcome::Applied(_)
+    ));
+    let reject_raw = |store: &mut Store, invalid: SkillBinding| {
+        let current = store
+            .records()
+            .unwrap()
+            .into_iter()
+            .find(|r| matches!(r.data, RecordData::Settings(_)))
+            .unwrap();
+        let mut requested = settings(store);
+        requested.skills = vec![invalid];
+        let raw = store
+            .allocate_operation(&uuid::Uuid::new_v4().to_string())
+            .unwrap();
+        store
+            .prepare_owner(
+                &raw,
+                &ChangeRequest {
+                    reason: "inactive policy cannot acquire new identity or selection".into(),
+                    writes: vec![Put {
+                        id: current.id.clone(),
+                        expected_version: Some(current.version),
+                        archived: false,
+                        data: RecordData::Settings(requested),
+                    }],
+                    inputs: vec![],
+                },
+                &HostAuthority::owner("owner"),
+            )
+            .unwrap();
+        assert!(store.apply(&raw, &HostAuthority::owner("owner")).is_err());
+        assert_eq!(store.record(&current.id).unwrap().unwrap(), current);
+    };
+    for invalid in [
+        SkillBinding {
+            digest: "b".repeat(64),
+            ..b.clone()
+        },
+        SkillBinding {
+            id: "installed:another".into(),
+            ..b.clone()
+        },
+        SkillBinding {
+            project: Some("missing-project".into()),
+            ..b.clone()
+        },
+    ] {
+        reject_raw(&mut store, invalid);
+    }
+    let deselect = SkillPolicyChange::Select {
+        id: None,
+        digest: None,
+        project: b.project.clone(),
+    };
+    let deselect_op = store
+        .allocate_operation("deselect inactive project")
+        .unwrap();
+    let deselected = store
+        .change_skill_policy(&deselect_op, &deselect, &HostAuthority::owner("owner"))
+        .expect("deselecting retained inactive policy is monotone");
+    assert!(matches!(deselected, ApplyOutcome::Applied(_)));
+    assert_eq!(
+        store
+            .change_skill_policy(&deselect_op, &deselect, &HostAuthority::owner("retry"))
+            .unwrap(),
+        deselected
+    );
+    assert_eq!(
+        settings(&store).skills,
+        vec![SkillBinding {
+            selected: false,
+            ..b.clone()
+        }]
+    );
+    reject_raw(
+        &mut store,
+        SkillBinding {
+            selected: true,
+            ..b.clone()
+        },
+    );
+    let current = store
+        .records()
+        .unwrap()
+        .into_iter()
+        .find(|r| matches!(r.data, RecordData::Settings(_)))
+        .unwrap();
+    let enable = store.allocate_operation("inactive enable").unwrap();
+    assert!(
+        store
+            .change_skill_policy(
+                &enable,
+                &SkillPolicyChange::Set(b.clone()),
+                &HostAuthority::owner("owner")
+            )
+            .is_err()
+    );
+    assert_eq!(store.record(&current.id).unwrap().unwrap(), current);
     let op = store.allocate_operation("inactive select").unwrap();
     assert!(
         store
             .change_skill_policy(&op, &select, &HostAuthority::owner("owner"))
             .is_err()
     );
+    let disable = store.allocate_operation("disable inactive").unwrap();
+    assert!(matches!(
+        store
+            .change_skill_policy(
+                &disable,
+                &SkillPolicyChange::Set(SkillBinding {
+                    enabled: false,
+                    selected: false,
+                    ..b.clone()
+                }),
+                &HostAuthority::owner("owner")
+            )
+            .unwrap(),
+        ApplyOutcome::Applied(_)
+    ));
+    assert!(!settings(&store).skills[0].enabled);
+    assert!(!settings(&store).skills[0].selected);
     let op = store.allocate_operation("clear inactive").unwrap();
     store
         .change_skill_policy(
@@ -296,6 +426,6 @@ fn project_selection_is_exact_and_clear_remains_available_after_archive() {
         )
         .unwrap();
     assert!(settings(&store).skills.is_empty());
-    write.archived = false; // Keep a named positive control: archived project data was retained.
+    // Positive control: archived project data remains retained.
     assert!(store.record(&write.id).unwrap().unwrap().archived);
 }

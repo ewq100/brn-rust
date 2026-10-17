@@ -1,0 +1,37 @@
+{
+  "source_pin": "6ff0ccdbd7753b07966dbcdc655880a039ef3284",
+  "controller_session_reaped": 1835,
+  "observer_session_reaped": 32230,
+  "material_hashes_each": 273,
+  "mismatches": {
+    "candidate": [],
+    "copy": []
+  },
+  "copied_git_status": "",
+  "candidate_git_status": "?? docs/work/active/agent-capabilities/d3b/opus-review-round1-response.md\n?? docs/work/active/agent-capabilities/d3b/opus-review-round1.md\n",
+  "matching_processes": [],
+  "raw_log_hashes": {
+    "baseline-cli.log": "ccb4d3c6ffe8fe1ecb2e2556cf72c8f2f6bef6fe568501183d0378b6f8186d22",
+    "baseline-app.log": "e7b10aa5b9f5ab1603adb117cca2b460652a3ef3a07b12949d3f8e93f3983a77",
+    "baseline-core.log": "6b21d53e53ba89a06d782563e18bf5c7d251cddb7be67f0df43dca646a5b3319",
+    "M01.log": "aa8d3dfbad8ac96f377205e9b94a0555912ba20ab110f201ae5cff7d87a358ab",
+    "M03.log": "8bc8602cdb05469b942d5fba39e993b8f0c22c92df346a50f8cdbf76629e7ecf",
+    "M02.log": "29f2e0ebbaad17aeaac282f4e3f7fe9acf8a848611c2c3c867c0beebec7b59c4",
+    "baseline-ai.log": "e4b84bbe8f20dd53b0d4e262c75871f5fd33ac72f616f1a913122755ca02d9a1",
+    "M04.log": "f3b38158f869ab42119bb846edcc5d3b080bf0cee35943a4af3119045cbcb9fb"
+  },
+  "start_monotonic": 672737.089215708,
+  "cleanup_end_monotonic": 673635.522954625,
+  "charged_seconds": 898.4337389169959,
+  "remaining_seconds": 1.5662610830040649,
+  "counts": {
+    "caught": 3,
+    "timeout_no_verdict": 1,
+    "unexecuted_budget": 3
+  },
+  "qualifications": [
+    "Candidate git status contains only the explicitly requested verbatim review and response docs,not material edits. final.json material_candidate_unchanged flag compares whole git status and is false for this docs-only reason; all273 material hashes are unchanged.",
+    "Dep-info may use paths relative to the recorded copied command source_root; literal source-root substring absence is not proof of another source root.",
+    "M04 interrupted during compilation: no behavioral verdict. M05,M06,M07 unexecuted. No corrected-pin mutation evidence."
+  ]
+}

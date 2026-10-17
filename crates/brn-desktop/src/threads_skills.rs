@@ -67,13 +67,7 @@ impl ThreadsUi {
                     Err(e) => (vec![], Some(e.to_string())),
                 };
                 for info in &inventory {
-                    if !rows.iter().any(|s| s.id == info.id)
-                        && !self
-                            .settings
-                            .skills
-                            .iter()
-                            .any(|b| b.id == info.id && b.project != project)
-                    {
+                    if !rows.iter().any(|s| s.id == info.id) {
                         rows.push(SkillStatus {
                             id: info.id.clone(),
                             description: info.description.clone(),
