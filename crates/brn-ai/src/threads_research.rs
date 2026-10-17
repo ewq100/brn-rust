@@ -427,6 +427,7 @@ pub(super) async fn run_helper_model(
             scope: scope.clone(),
         })
         .add_hook(BatchHook {
+            prepare: PrepareChanges::without_evidence(),
             external: None,
             skills: None,
             invalid: invalid.clone(),

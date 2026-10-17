@@ -518,3 +518,114 @@ fn unavailable_required_current_reference_returns_safe_invalid_before_allocating
         );
     }
 }
+
+#[tokio::test]
+async fn v2_model_prepare_preserves_nonempty_evidence_and_exact_retry() {
+    use rig::test_utils::{MockCompletionModel, MockStreamEvent};
+    let (_root, request, snapshot, reference) = fixture(
+        "First Ω requirement.\nSecond requirement.\n",
+        WritingReadRequirements::default(),
+    );
+    Store::open(&request.data_dir)
+        .unwrap()
+        .set_workspace_purpose(WorkspacePurpose::Test)
+        .unwrap();
+    let (scope, input) = begin(&request).unwrap();
+    let original = scope
+        .store
+        .lock()
+        .unwrap()
+        .record(&snapshot.note.id)
+        .unwrap()
+        .unwrap();
+    let mut model_args = args(&snapshot);
+    model_args.writing = Some(WritingEvidenceArgs {
+        quotations: vec![WritingQuotation {
+            id: reference.clone(),
+            version: 1,
+            start: 0,
+            end: "First Ω".len(),
+            quote: "First Ω".into(),
+        }],
+        requirements_reported: vec![WritingRequirementsClaim {
+            claim: "First requirement reported checked".into(),
+            quotations: vec![0],
+        }],
+    });
+    let call = json!({"request_key":model_args.request_key,"request":model_args.request,"writing":model_args.writing});
+    let read_args = json!({"id":reference,"version":1,"start":0,"max_bytes":20,"section":false});
+    let model = MockCompletionModel::from_stream_turns([
+        vec![
+            MockStreamEvent::tool_call("read", "read_note", read_args),
+            MockStreamEvent::final_response_with_total_tokens(1),
+        ],
+        vec![
+            MockStreamEvent::tool_call("first", "prepare_changes", call.clone()),
+            MockStreamEvent::final_response_with_total_tokens(1),
+        ],
+        vec![
+            MockStreamEvent::tool_call("retry", "prepare_changes", call),
+            MockStreamEvent::final_response_with_total_tokens(1),
+        ],
+        vec![MockStreamEvent::final_response_with_total_tokens(1)],
+    ]);
+    let observations = Arc::new(Mutex::new(Vec::new()));
+    let captured = observations.clone();
+    let seen_scope = scope.clone();
+    let answer = run_model(
+        model.clone(),
+        scope.clone(),
+        &input,
+        ReasoningEffort::Medium,
+        4,
+        true,
+        CancellationToken::new(),
+        Arc::new(move |e| {
+            if matches!(e,AiEvent::Activity(ref s) if s=="< prepare_changes · success") {
+                let store = seen_scope.store.lock().unwrap();
+                let RecordData::Run(run) = store.record(&seen_scope.run).unwrap().unwrap().data
+                else {
+                    panic!()
+                };
+                assert_eq!(run.operations.len(), 1);
+                captured
+                    .lock()
+                    .unwrap()
+                    .push(store.prepared(&run.operations[0]).unwrap());
+            }
+        }),
+    )
+    .await;
+    assert!(
+        matches!(answer.terminal, AiTerminal::Completed),
+        "{:?}",
+        answer.terminal
+    );
+    assert_eq!(model.request_count(), 4);
+    let observed = observations.lock().unwrap();
+    assert_eq!(observed.len(), 2);
+    assert_eq!(observed[0], observed[1]);
+    let proof = evidence(&observed[0]);
+    assert_eq!(
+        proof.quotations,
+        model_args.writing.as_ref().unwrap().quotations
+    );
+    assert_eq!(
+        proof.requirements_reported,
+        model_args.writing.as_ref().unwrap().requirements_reported
+    );
+    let coverage = proof.reads.iter().find(|r| r.id == reference).unwrap();
+    assert!(!coverage.complete && coverage.covered_retained_bytes > 0);
+    assert!(
+        observed[0]
+            .request
+            .inputs
+            .iter()
+            .any(|i| i.record == reference
+                && i.version == 1
+                && i.expectation == InputExpectation::Historical)
+    );
+    let store = scope.store.lock().unwrap();
+    assert_eq!(store.record(&snapshot.note.id).unwrap().unwrap(), original);
+    assert!(store.receipt(&observed[0].operation).unwrap().is_none());
+}

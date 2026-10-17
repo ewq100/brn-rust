@@ -1,0 +1,14 @@
+{
+  "executed_binary": {
+    "path": "/private/tmp/brn-int-d-ordinary-prepare-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9",
+    "sha256": "e70442d30859e4e7ecb8fcf404d7d2ce66ff1e6497a756954b86e7d129faed8b",
+    "bytes": 43140224
+  },
+  "dep_info": {
+    "path": "/private/tmp/brn-int-d-ordinary-prepare-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9.d",
+    "sha256": "7daf2847a94feb9ab43473e9e867e7971e35c33d38be29c824d97e135ec0711f",
+    "bytes": 9514
+  },
+  "all_other_receipt_artifacts": "Present inventory only; not asserted produced or executed by this command.",
+  "source_association": "Actual command HEAD5352 + WIP hashes; later pin association requires equality of all334 inputs."
+}

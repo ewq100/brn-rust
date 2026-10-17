@@ -887,3 +887,289 @@ fn ordinary_chat_setup_preserves_runtime_source_scope_and_delegated_maintenance(
     .unwrap();
     assert_eq!(result["outcome"], "Applied");
 }
+
+fn contract_scope(mode: &str) -> (tempfile::TempDir, ThreadRunRequest, Arc<Scope>, String) {
+    let (root, request) = match mode {
+        "ordinary" => {
+            let (root, request, _) = tests::fixture();
+            (root, request)
+        }
+        "v1" => {
+            let (root, request, _) = rewrite_fixture(true, 0);
+            (root, request)
+        }
+        "v2" => {
+            let (root, request, _, _) =
+                cw2_tests::fixture("First Ω requirement.\n", WritingReadRequirements::default());
+            (root, request)
+        }
+        _ => panic!("unknown synthetic mode"),
+    };
+    Store::open(&request.data_dir)
+        .unwrap()
+        .set_workspace_purpose(WorkspacePurpose::Test)
+        .unwrap();
+    let (scope, input) = begin(&request).unwrap();
+    (root, request, scope, input)
+}
+async fn offered_prepare_contract(mode: &str) {
+    use rig::test_utils::{MockCompletionModel, MockStreamEvent};
+    let (_root, _, scope, input) = contract_scope(mode);
+    let model = MockCompletionModel::from_stream_turns([vec![
+        MockStreamEvent::final_response_with_total_tokens(1),
+    ]]);
+    let _answer = run_model(
+        model.clone(),
+        scope.clone(),
+        &input,
+        ReasoningEffort::Medium,
+        4,
+        true,
+        CancellationToken::new(),
+        Arc::new(|_| {}),
+    )
+    .await;
+    assert_eq!(model.request_count(), 1);
+    let requests = model.requests();
+    assert_eq!(
+        serde_json::to_value(&requests[0].tools).unwrap(),
+        json!(budget_tool_definitions(&scope)),
+        "budget and runtime must use the same definitions"
+    );
+    let offered = &requests[0]
+        .tools
+        .iter()
+        .find(|t| t.name == "prepare_changes")
+        .unwrap()
+        .parameters;
+    let full = schema("prepare_changes");
+    let mut expected = full.clone();
+    if mode != "v2" {
+        expected["properties"]["writing"] = json!({"type":"null"});
+    }
+    assert_eq!(
+        *offered, expected,
+        "actual {mode} CompletionRequest must match its supported writing contract"
+    );
+}
+#[tokio::test]
+async fn ordinary_offered_prepare_contract() {
+    offered_prepare_contract("ordinary").await;
+}
+#[tokio::test]
+async fn v1_offered_prepare_contract() {
+    offered_prepare_contract("v1").await;
+}
+#[tokio::test]
+async fn v2_offered_prepare_contract() {
+    offered_prepare_contract("v2").await;
+}
+
+#[tokio::test]
+async fn prepare_contract_serializes_on_codex_and_strict_copilot_responses() {
+    use rig::test_utils::{MockHttpResponse, SequencedHttpClient};
+    for mode in ["ordinary", "v1", "v2"] {
+        for copilot in [false, true] {
+            let (_root, request, scope, input) = contract_scope(mode);
+            let http = SequencedHttpClient::new([MockHttpResponse::success_typed(
+                cache_tests::final_turn(),
+                "text/event-stream",
+            )]);
+            let model = if copilot {
+                let client = rig::providers::copilot::CopilotConfig::new("synthetic-session-token")
+                    .with_base_url("https://copilot.example.invalid")
+                    .connect(DynHttpClient::new(http.clone()));
+                crate::auth::copilot_completion(&client, request.selection.model.clone(), true)
+                    .into()
+            } else {
+                let client = rig::providers::openai::OpenAIConfig::with_key(
+                    &rig::providers::chatgpt::DIALECT,
+                    "synthetic-not-a-credential",
+                )
+                .connect(DynHttpClient::new(http.clone()));
+                rig_core::DynModel::<rig_core::operation::Completion>::from(
+                    client.responses(request.selection.model.clone()),
+                )
+            };
+            let _answer = run_model(
+                model,
+                scope.clone(),
+                &input,
+                ReasoningEffort::Medium,
+                4,
+                true,
+                CancellationToken::new(),
+                Arc::new(|_| {}),
+            )
+            .await;
+            assert_eq!(http.requests().len(), 1);
+            let requests = http.requests();
+            assert!(requests[0].uri.ends_with("/responses"));
+            let body: Value = serde_json::from_slice(&requests[0].body).unwrap();
+            assert_eq!(body["model"], "gpt-6.1-sol");
+            assert_eq!(body["reasoning"]["effort"], "medium");
+            let tool = body["tools"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .find(|t| t["name"] == "prepare_changes")
+                .unwrap();
+            assert_eq!(tool["strict"], copilot);
+            if mode == "v2" {
+                assert_eq!(
+                    tool["parameters"]["properties"]["writing"],
+                    schema("prepare_changes")["properties"]["writing"]
+                );
+            } else {
+                assert_eq!(
+                    tool["parameters"]["properties"]["writing"],
+                    json!({"type":"null"})
+                );
+            }
+            assert_eq!(
+                tool["parameters"]["required"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .any(|v| v == "writing"),
+                copilot
+            );
+            if !copilot {
+                assert_eq!(
+                    tool["parameters"],
+                    PrepareChanges::for_scope(&scope).parameters()
+                );
+            }
+            for field in ["max_output_tokens", "max_tokens", "max_completion_tokens"] {
+                assert!(body.get(field).is_none());
+            }
+        }
+    }
+}
+
+#[tokio::test]
+async fn absent_and_null_prepare_still_register_protected_candidates_without_apply_authority() {
+    use rig::test_utils::{MockCompletionModel, MockStreamEvent};
+    for mode in ["ordinary", "v1"] {
+        for explicit_null in [false, true] {
+            let (root, request, note, change) = if mode == "ordinary" {
+                let (root, request, note) = tests::fixture();
+                let mut store = Store::open(&request.data_dir).unwrap();
+                store.set_workspace_purpose(WorkspacePurpose::Test).unwrap();
+                let record = store.record(&note).unwrap().unwrap();
+                let RecordData::Note(mut data) = record.data else {
+                    panic!()
+                };
+                data.protected = true;
+                owner_write(
+                    &mut store,
+                    "protect-contract",
+                    vec![Put {
+                        id: note.clone(),
+                        expected_version: Some(record.version),
+                        archived: false,
+                        data: RecordData::Note(data),
+                    }],
+                );
+                let record = store.record(&note).unwrap().unwrap();
+                let RecordData::Note(mut data) = record.data else {
+                    panic!()
+                };
+                data.markdown = "Tuesday proposed only".into();
+                let change = ChangeRequest {
+                    reason: "Synthetic protected proposal".into(),
+                    writes: vec![Put {
+                        id: note.clone(),
+                        expected_version: Some(record.version),
+                        archived: false,
+                        data: RecordData::Note(data),
+                    }],
+                    inputs: vec![],
+                };
+                (root, request, note, change)
+            } else {
+                let (root, request, snapshot) = rewrite_fixture(true, 0);
+                Store::open(&request.data_dir)
+                    .unwrap()
+                    .set_workspace_purpose(WorkspacePurpose::Test)
+                    .unwrap();
+                let change = snapshot.change_request("Tuesday proposed only").unwrap();
+                (root, request, snapshot.note.id.clone(), change)
+            };
+            let _root = root;
+            let (scope, input) = begin(&request).unwrap();
+            let original = scope.store.lock().unwrap().record(&note).unwrap().unwrap();
+            let operation = scope
+                .store
+                .lock()
+                .unwrap()
+                .allocate_operation(&format!("{}:proposal:supported-contract", scope.run))
+                .unwrap();
+            let mut args = json!({"request_key":"supported-contract","request":change});
+            if explicit_null {
+                args["writing"] = Value::Null;
+            }
+            let mut turns = vec![];
+            if mode == "ordinary" {
+                turns.push(vec![
+                    MockStreamEvent::tool_call(
+                        "read",
+                        "read_records",
+                        json!({"ids":[note],"query":null}),
+                    ),
+                    MockStreamEvent::final_response_with_total_tokens(1),
+                ]);
+            }
+            turns.push(vec![
+                MockStreamEvent::tool_call("prepare", "prepare_changes", args),
+                MockStreamEvent::final_response_with_total_tokens(1),
+            ]);
+            turns.push(vec![
+                MockStreamEvent::tool_call(
+                    "apply",
+                    "apply_changes",
+                    json!({"operation":operation.as_str()}),
+                ),
+                MockStreamEvent::final_response_with_total_tokens(1),
+            ]);
+            turns.push(vec![MockStreamEvent::final_response_with_total_tokens(1)]);
+            let model = MockCompletionModel::from_stream_turns(turns);
+            let answer = run_model(
+                model.clone(),
+                scope.clone(),
+                &input,
+                ReasoningEffort::Medium,
+                4,
+                true,
+                CancellationToken::new(),
+                Arc::new(|_| {}),
+            )
+            .await;
+            assert!(
+                matches!(answer.terminal, AiTerminal::Completed),
+                "{mode}/{explicit_null}: {:?}",
+                answer.terminal
+            );
+            assert_eq!(
+                model.request_count(),
+                if mode == "ordinary" { 4 } else { 3 }
+            );
+            assert!(
+                serde_json::to_string(&model.requests())
+                    .unwrap()
+                    .contains("NeedsReview")
+            );
+            let store = scope.store.lock().unwrap();
+            let RecordData::Run(run) = store.record(&scope.run).unwrap().unwrap().data else {
+                panic!()
+            };
+            assert_eq!(run.operations, vec![operation.clone()]);
+            assert_eq!(
+                store.prepared(&operation).unwrap().request.writes,
+                change.writes
+            );
+            assert!(store.receipt(&operation).unwrap().is_none());
+            assert_eq!(store.record(&note).unwrap().unwrap(), original);
+        }
+    }
+}

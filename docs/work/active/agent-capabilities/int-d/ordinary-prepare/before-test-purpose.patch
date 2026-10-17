@@ -1,0 +1,64 @@
+diff --git a/crates/brn-ai/src/threads_writing_tests.rs b/crates/brn-ai/src/threads_writing_tests.rs
+index 6dfd486..a6fa429 100644
+--- a/crates/brn-ai/src/threads_writing_tests.rs
++++ b/crates/brn-ai/src/threads_writing_tests.rs
+@@ -887,3 +887,59 @@ fn ordinary_chat_setup_preserves_runtime_source_scope_and_delegated_maintenance(
+     .unwrap();
+     assert_eq!(result["outcome"], "Applied");
+ }
++
++fn contract_scope(mode: &str) -> (tempfile::TempDir, ThreadRunRequest, Arc<Scope>, String) {
++    let (root, request) = match mode {
++        "ordinary" => { let (root, request, _) = tests::fixture(); (root, request) },
++        "v1" => { let (root, request, _) = rewrite_fixture(true, 0); (root, request) },
++        "v2" => { let (root, request, _, _) = cw2_tests::fixture("First Ω requirement.\n", WritingReadRequirements::default()); (root, request) },
++        _ => panic!("unknown synthetic mode"),
++    };
++    Store::open(&request.data_dir).unwrap().set_workspace_purpose(WorkspacePurpose::Test).unwrap();
++    let (scope, input) = begin(&request).unwrap();
++    (root, request, scope, input)
++}
++async fn offered_prepare_contract(mode: &str) {
++    use rig::test_utils::{MockCompletionModel, MockStreamEvent};
++    let (_root, _, scope, input) = contract_scope(mode);
++    let model = MockCompletionModel::from_stream_turns([vec![MockStreamEvent::final_response_with_total_tokens(1)]]);
++    let _answer = run_model(model.clone(), scope, &input, ReasoningEffort::Medium, 4, true, CancellationToken::new(), Arc::new(|_|{})).await;
++    assert_eq!(model.request_count(), 1);
++    let requests = model.requests();
++    let offered = &requests[0].tools.iter().find(|t| t.name == "prepare_changes").unwrap().parameters;
++    let full = schema("prepare_changes");
++    let mut expected = full.clone();
++    if mode != "v2" { expected["properties"]["writing"] = json!({"type":"null"}); }
++    assert_eq!(*offered, expected, "actual {mode} CompletionRequest must match its supported writing contract");
++}
++#[tokio::test]
++async fn ordinary_offered_prepare_contract() { offered_prepare_contract("ordinary").await; }
++#[tokio::test]
++async fn v1_offered_prepare_contract() { offered_prepare_contract("v1").await; }
++#[tokio::test]
++async fn v2_offered_prepare_contract() { offered_prepare_contract("v2").await; }
++
++#[tokio::test]
++async fn unsupported_writing_object_rejects_whole_batch_before_progress() {
++    use rig::test_utils::{MockCompletionModel, MockStreamEvent};
++    for mode in ["ordinary", "v1"] {
++        for progress_first in [false,true] {
++            let (_root, _, scope, input) = contract_scope(mode);
++            let change = json!({"writing":{"quotations":[],"requirements_reported":[]},"request_key":"unsupported-writing-contract","request":{"reason":"Synthetic contract witness","writes":[{"id":"new:0","expected_version":null,"archived":false,"data":{"Note":{"title":"Synthetic","markdown":"Monday","protected":false,"confirmed":false,"superseded_by":null,"import":null}}}],"inputs":[]}});
++            assert!(parse_valid("prepare_changes", &change), "typed defense intentionally remains context independent");
++            let bad = MockStreamEvent::tool_call("bad", "prepare_changes", change);
++            let progress = MockStreamEvent::tool_call("progress", "retain_progress", json!({"summary":"MUST_NOT_BE_PERSISTED"}));
++            let mut batch = if progress_first {vec![progress,bad]} else {vec![bad,progress]};
++            batch.push(MockStreamEvent::final_response_with_total_tokens(1));
++            let model = MockCompletionModel::from_stream_turns([batch,vec![MockStreamEvent::final_response_with_total_tokens(1)]]);
++            let events=Arc::new(Mutex::new(Vec::new()));let seen=events.clone();
++            let answer=run_model(model.clone(),scope.clone(),&input,ReasoningEffort::Medium,4,true,CancellationToken::new(),Arc::new(move |e| {if let AiEvent::Activity(s)=e {seen.lock().unwrap().push(s);}})).await;
++            assert!(matches!(answer.terminal,AiTerminal::Failed(AiError {kind:AiErrorKind::InvalidToolUse,..})), "{mode}/{progress_first}: {:?}",answer.terminal);
++            assert_eq!(model.request_count(),1);
++            assert!(!events.lock().unwrap().iter().any(|s|s.starts_with("> ")),"whole batch must fail before dispatch");
++            let store=scope.store.lock().unwrap();let record=store.record(&scope.run).unwrap().unwrap();
++            let RecordData::Run(run)=record.data else {panic!()};
++            assert!(run.progress.is_empty());assert!(run.operations.is_empty());assert!(store.candidates().unwrap().is_empty());
++        }
++    }
++}

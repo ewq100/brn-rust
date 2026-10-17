@@ -1,0 +1,17 @@
+{
+  "task": "int-d-ordinary-prepare-contract-fix-20261017",
+  "head": "5352b4484a67588e7614130f3e3d6f3a6701a0e5",
+  "crates": "ece765396103274c35493a26b570e5e8f32ae276",
+  "origin_main": "8f768943964a77711b26d5235df146f8efe1dc6c",
+  "branch": "work/int-d-20261017",
+  "clean": true,
+  "heavy": [],
+  "unix": 1792253937.1472619,
+  "preserved": {
+    "/private/tmp/brn-int-d-ordinary-prepare-20261017/preserved/brn_ai-0a77908ed974f7b9.d": "9cd8059b642415fd27b25e3808c6f56d49abd1e3f4cfc0e67aa9ead4460eaac0",
+    "/private/tmp/brn-int-d-ordinary-prepare-20261017/preserved/brn_ai-0a77908ed974f7b9": "c4d5d97283a8ff83dc4dea2226a7f34c0902ddf47f1f8b3e2de65a01ca4c6f1e"
+  },
+  "candidate_target": "/private/tmp/brn-int-d-ordinary-prepare-20261017-target",
+  "before_source": "/private/tmp/brn-int-d-ordinary-prepare-before-source",
+  "before_target": "/private/tmp/brn-int-d-ordinary-prepare-before-target"
+}

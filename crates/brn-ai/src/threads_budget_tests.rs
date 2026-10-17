@@ -511,14 +511,17 @@ async fn oversized_tool_result_is_not_admitted_and_later_batch_writes_do_not_run
     // valid canonical reader as the oversized-result source.
     let exhausted = Arc::new(AtomicU16::new(0));
     let budget = context_budget::Budget::test_cap(4 * 1024 * 1024);
-    let agent = register_tools(rig::AgentBuilder::new(model.clone()))
-        .tool(OversizedBudgetResult)
-        .add_hook(context_budget::BudgetHook {
-            budget,
-            exhausted: exhausted.clone(),
-            scope: scope.clone(),
-        })
-        .build();
+    let agent = register_tools(
+        rig::AgentBuilder::new(model.clone()),
+        PrepareChanges::for_scope(&scope),
+    )
+    .tool(OversizedBudgetResult)
+    .add_hook(context_budget::BudgetHook {
+        budget,
+        exhausted: exhausted.clone(),
+        scope: scope.clone(),
+    })
+    .build();
     let stream = agent
         .prompt(input.as_str())
         .tool_context(ToolContext::new().with_scope(scope.clone()))
@@ -2214,4 +2217,63 @@ fn overflowing_compact_metadata_acknowledges_exact_identity_and_omissions() {
 #[test]
 fn encoded_capacity_that_cannot_fit_one_utf8_character_returns_no_passage() {
     assert_eq!(context_budget::fit_prefix("õ", str::is_empty), None);
+}
+
+#[tokio::test]
+async fn scoped_prepare_definition_stays_frozen_after_lazy_skill_delivery() {
+    let (_root, request, _) = tests::fixture();
+    Store::open(&request.data_dir)
+        .unwrap()
+        .set_workspace_purpose(WorkspacePurpose::Test)
+        .unwrap();
+    let (scope, input) = begin(&request).unwrap();
+    let model = MockCompletionModel::from_stream_turns([
+        vec![
+            MockStreamEvent::tool_call("skill", "read_skill", json!({"id":"maintain-notes"})),
+            MockStreamEvent::final_response_with_total_tokens(1),
+        ],
+        vec![
+            MockStreamEvent::tool_call(
+                "progress",
+                "retain_progress",
+                json!({"summary":"Synthetic unverified plan"}),
+            ),
+            MockStreamEvent::final_response_with_total_tokens(1),
+        ],
+        vec![MockStreamEvent::final_response_with_total_tokens(1)],
+    ]);
+    let answer = run_model(
+        model.clone(),
+        scope.clone(),
+        &input,
+        ReasoningEffort::Medium,
+        4,
+        true,
+        CancellationToken::new(),
+        Arc::new(|_| {}),
+    )
+    .await;
+    assert!(matches!(answer.terminal, AiTerminal::Completed));
+    assert_eq!(model.request_count(), 3);
+    let requests = model.requests();
+    for request in &requests {
+        assert_eq!(
+            serde_json::to_value(&request.tools).unwrap(),
+            json!(budget_tool_definitions(&scope))
+        );
+        assert_eq!(request.tools, requests[0].tools);
+    }
+    let store = scope.store.lock().unwrap();
+    let RecordData::Run(run) = store.record(&scope.run).unwrap().unwrap().data else {
+        panic!()
+    };
+    assert!(
+        run.loaded_skill_details
+            .iter()
+            .any(|d| d.id == "maintain-notes" && d.file == "SKILL.md")
+    );
+    assert!(
+        run.fence > 1,
+        "actual lazy delivery occurred without changing offered schemas"
+    );
 }

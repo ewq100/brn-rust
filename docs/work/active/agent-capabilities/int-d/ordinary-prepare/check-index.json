@@ -1,0 +1,443 @@
+{
+  "task": "int-d-ordinary-prepare-contract-fix-20261017",
+  "normal_checks_only": true,
+  "no_live_or_mutants": true,
+  "artifact_inventory_note": "Receipt artifacts inventory includes present files, potentially stale. The Running line identifies actual executable. Executed full-AI binary/.d are explicitly bound; old failed before/INTD/CLI binary copies retained in scratch. No future SHA claimed as build HEAD.",
+  "checks": [
+    {
+      "label": "before-offered",
+      "receipt": "docs/work/active/agent-capabilities/int-d/ordinary-prepare/checks/before-offered/receipt.json",
+      "receipt_sha256": "f9f8c657fb99dd27569e488c47e8e196470437767323451598c8920e3da64480",
+      "exit_code": 101,
+      "summaries": [
+        "test result: FAILED. 1 passed; 2 failed; 0 ignored; 0 measured; 488 filtered out; finished in 0.03s"
+      ],
+      "source_unchanged": true,
+      "input_count": 295,
+      "raw_sha256": "f53f53351e575c3be5bc591af5923ed59e5811e09a5043c418c5dba4d229cb8f",
+      "source_vs_current": {
+        "crates/brn-ai/src/threads.rs": {
+          "receipt": "a913b23e6eb65891e3babcbc52c14b2f1ee502d7b887183d9f0abb0f74e46a42",
+          "current": "4d4245b785933f625fe760b71fdd099295da96eb233d32bb24cc9b7af00c29ef"
+        },
+        "crates/brn-ai/src/threads_budget_tests.rs": {
+          "receipt": "fde4d557be4c9abb149a17258806a628f42f8c1a8e8f98c7d628f32beb8f45b8",
+          "current": "0f2dfb458c25e0746545d36d8f34f1785979b89e7d0b1d24a799e014f99a89ab"
+        },
+        "crates/brn-ai/src/threads_cw2_tests.rs": {
+          "receipt": "21b52a6d3818ff8300ebbaa939c1f4d1ec4a38f54ef5b4ce0386c6a33ef542c0",
+          "current": "758f4ec88e6aaf3b2b04e5d950b1fcb98568a2cb7fbe3f49bf14d2b15a21fc71"
+        },
+        "crates/brn-ai/src/threads_guides.rs": {
+          "receipt": "b575d448173a1678c30549780f844cd6c6708098a3c1a28a77cffffa1cccbbbf",
+          "current": "3f040addfc03a468b33c3609ff897e9a2d1c4aa5baafd79278aee99c83ea47a9"
+        },
+        "crates/brn-ai/src/threads_int_d_tests.rs": {
+          "receipt": "a8e4d720ec4d61f3ebfdb0307f037bba2f492971bb0b980f8600cfe3e54e98b3",
+          "current": "187d840062f862ab067137401fa7bb63d7a21ddd64dce2cb70107c4007d13b8e"
+        },
+        "crates/brn-ai/src/threads_research.rs": {
+          "receipt": "e16124b5ba0ab3e6aa9de1dc9f4692dacd2d9476654505f7e2c81a2978464f55",
+          "current": "ede862a3b29847a150742aed524a5284a90363dd4764114e9573e24486a8f3ff"
+        },
+        "crates/brn-ai/src/threads_summary_tests.rs": {
+          "receipt": "d4e24a2b4ba2b94df8e9c78073713127d925d62f1c16fb3c31fe226664aa94b5",
+          "current": "05cddc8c37f3826b4047c0f06d397d572e24d0db82a1895cbaa1aac73087cb57"
+        },
+        "crates/brn-ai/src/threads_writing_tests.rs": {
+          "receipt": "584a78b1abdc7ab57f402a3646bed013daecf94acef1dd16b6188c193e25430c",
+          "current": "7eaa14cbfd8e9c52cd8e0061615baa1e39d9d113928bcf3943c4b0f57de395de"
+        },
+        "crates/brn/tests/agent_runs.rs": {
+          "receipt": "9922e12ec86dcfc5db261fbd19b8b9126ec47caa1fc711aded4325e6e0bb72f9",
+          "current": "3c2af0131d49f8a15d10744613aa7326cffac112b9c08cac1dab6952ff36a812"
+        }
+      }
+    },
+    {
+      "label": "before-test-purpose",
+      "receipt": "docs/work/active/agent-capabilities/int-d/ordinary-prepare/checks/before-test-purpose/receipt.json",
+      "receipt_sha256": "1f97d56badc8d335216194c6a80047c392bf26217bf37db2b81b8c9c0391bf9d",
+      "exit_code": 101,
+      "summaries": [
+        "test result: FAILED. 15 passed; 3 failed; 0 ignored; 0 measured; 473 filtered out; finished in 0.26s"
+      ],
+      "source_unchanged": true,
+      "input_count": 334,
+      "raw_sha256": "4b81f040bf2a059cfc4b1e83ee6ab46e34144efc3738a3a5da1c2d91c35ce4c1",
+      "source_vs_current": {
+        "crates/brn-ai/src/threads.rs": {
+          "receipt": "a913b23e6eb65891e3babcbc52c14b2f1ee502d7b887183d9f0abb0f74e46a42",
+          "current": "4d4245b785933f625fe760b71fdd099295da96eb233d32bb24cc9b7af00c29ef"
+        },
+        "crates/brn-ai/src/threads_budget_tests.rs": {
+          "receipt": "fde4d557be4c9abb149a17258806a628f42f8c1a8e8f98c7d628f32beb8f45b8",
+          "current": "0f2dfb458c25e0746545d36d8f34f1785979b89e7d0b1d24a799e014f99a89ab"
+        },
+        "crates/brn-ai/src/threads_cw2_tests.rs": {
+          "receipt": "21b52a6d3818ff8300ebbaa939c1f4d1ec4a38f54ef5b4ce0386c6a33ef542c0",
+          "current": "758f4ec88e6aaf3b2b04e5d950b1fcb98568a2cb7fbe3f49bf14d2b15a21fc71"
+        },
+        "crates/brn-ai/src/threads_guides.rs": {
+          "receipt": "b575d448173a1678c30549780f844cd6c6708098a3c1a28a77cffffa1cccbbbf",
+          "current": "3f040addfc03a468b33c3609ff897e9a2d1c4aa5baafd79278aee99c83ea47a9"
+        },
+        "crates/brn-ai/src/threads_int_d_tests.rs": {
+          "receipt": "a8e4d720ec4d61f3ebfdb0307f037bba2f492971bb0b980f8600cfe3e54e98b3",
+          "current": "187d840062f862ab067137401fa7bb63d7a21ddd64dce2cb70107c4007d13b8e"
+        },
+        "crates/brn-ai/src/threads_research.rs": {
+          "receipt": "e16124b5ba0ab3e6aa9de1dc9f4692dacd2d9476654505f7e2c81a2978464f55",
+          "current": "ede862a3b29847a150742aed524a5284a90363dd4764114e9573e24486a8f3ff"
+        },
+        "crates/brn-ai/src/threads_summary_tests.rs": {
+          "receipt": "d4e24a2b4ba2b94df8e9c78073713127d925d62f1c16fb3c31fe226664aa94b5",
+          "current": "05cddc8c37f3826b4047c0f06d397d572e24d0db82a1895cbaa1aac73087cb57"
+        },
+        "crates/brn-ai/src/threads_writing_tests.rs": {
+          "receipt": "3de6f1491b8e9119c80ea4c84dd6ad7865459b71a987fbd2f6880a074d8a28ba",
+          "current": "7eaa14cbfd8e9c52cd8e0061615baa1e39d9d113928bcf3943c4b0f57de395de"
+        },
+        "crates/brn/tests/agent_runs.rs": {
+          "receipt": "9922e12ec86dcfc5db261fbd19b8b9126ec47caa1fc711aded4325e6e0bb72f9",
+          "current": "3c2af0131d49f8a15d10744613aa7326cffac112b9c08cac1dab6952ff36a812"
+        }
+      }
+    },
+    {
+      "label": "candidate-batch",
+      "receipt": "docs/work/active/agent-capabilities/int-d/ordinary-prepare/checks/candidate-batch/receipt.json",
+      "receipt_sha256": "3a85ba849e2823b9de136e4f5ae690d9eb60d3fb1b186aaf14bc78df7dcca3dd",
+      "exit_code": 0,
+      "summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 495 filtered out; finished in 0.06s"
+      ],
+      "source_unchanged": true,
+      "input_count": 334,
+      "raw_sha256": "1e6ebf2d966c196170cac48a52d620fae9ab6988a2b1133a028a568759752215",
+      "source_vs_current": {
+        "crates/brn-ai/src/threads_int_d_tests.rs": {
+          "receipt": "9d77ecd275b204766170dd85399d8ac34401cef836c84ed4908a3520d0d323b9",
+          "current": "187d840062f862ab067137401fa7bb63d7a21ddd64dce2cb70107c4007d13b8e"
+        },
+        "crates/brn/tests/agent_runs.rs": {
+          "receipt": "9922e12ec86dcfc5db261fbd19b8b9126ec47caa1fc711aded4325e6e0bb72f9",
+          "current": "3c2af0131d49f8a15d10744613aa7326cffac112b9c08cac1dab6952ff36a812"
+        }
+      }
+    },
+    {
+      "label": "candidate-budget",
+      "receipt": "docs/work/active/agent-capabilities/int-d/ordinary-prepare/checks/candidate-budget/receipt.json",
+      "receipt_sha256": "c449c55d5c39aa409488119e52cc40cf99185dfcd2ddb1ac6e7191591d13711a",
+      "exit_code": 0,
+      "summaries": [
+        "test result: ok. 34 passed; 0 failed; 0 ignored; 0 measured; 462 filtered out; finished in 1.24s"
+      ],
+      "source_unchanged": true,
+      "input_count": 334,
+      "raw_sha256": "f04dc529c074b2c805fc761bfbff7c7cd403ce994f2c22b91d21692e4427c9e2",
+      "source_vs_current": {
+        "crates/brn-ai/src/threads_int_d_tests.rs": {
+          "receipt": "9d77ecd275b204766170dd85399d8ac34401cef836c84ed4908a3520d0d323b9",
+          "current": "187d840062f862ab067137401fa7bb63d7a21ddd64dce2cb70107c4007d13b8e"
+        },
+        "crates/brn/tests/agent_runs.rs": {
+          "receipt": "9922e12ec86dcfc5db261fbd19b8b9126ec47caa1fc711aded4325e6e0bb72f9",
+          "current": "3c2af0131d49f8a15d10744613aa7326cffac112b9c08cac1dab6952ff36a812"
+        }
+      }
+    },
+    {
+      "label": "candidate-cw2",
+      "receipt": "docs/work/active/agent-capabilities/int-d/ordinary-prepare/checks/candidate-cw2/receipt.json",
+      "receipt_sha256": "cdaf707f175a2010c2efb5f51f365042e285c95a1d46797a50c9b15d599c7a09",
+      "exit_code": 0,
+      "summaries": [
+        "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 487 filtered out; finished in 0.16s"
+      ],
+      "source_unchanged": true,
+      "input_count": 334,
+      "raw_sha256": "a263a1e8bd28bb4326168514ef42ad136ba3672c5cffdc02162cf59b5add4df0",
+      "source_vs_current": {
+        "crates/brn-ai/src/threads_int_d_tests.rs": {
+          "receipt": "9d77ecd275b204766170dd85399d8ac34401cef836c84ed4908a3520d0d323b9",
+          "current": "187d840062f862ab067137401fa7bb63d7a21ddd64dce2cb70107c4007d13b8e"
+        },
+        "crates/brn/tests/agent_runs.rs": {
+          "receipt": "9922e12ec86dcfc5db261fbd19b8b9126ec47caa1fc711aded4325e6e0bb72f9",
+          "current": "3c2af0131d49f8a15d10744613aa7326cffac112b9c08cac1dab6952ff36a812"
+        }
+      }
+    },
+    {
+      "label": "candidate-guide-cache",
+      "receipt": "docs/work/active/agent-capabilities/int-d/ordinary-prepare/checks/candidate-guide-cache/receipt.json",
+      "receipt_sha256": "d14c213c984450c443d6d8ba9679754d51fcc7b30433cc65f5ba040a0fcb8ce0",
+      "exit_code": 0,
+      "summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 495 filtered out; finished in 0.09s"
+      ],
+      "source_unchanged": true,
+      "input_count": 334,
+      "raw_sha256": "54c7c0792015303befcb109823c0506cd92290add41cc59ae6a4658789404541",
+      "source_vs_current": {
+        "crates/brn-ai/src/threads_int_d_tests.rs": {
+          "receipt": "9d77ecd275b204766170dd85399d8ac34401cef836c84ed4908a3520d0d323b9",
+          "current": "187d840062f862ab067137401fa7bb63d7a21ddd64dce2cb70107c4007d13b8e"
+        },
+        "crates/brn/tests/agent_runs.rs": {
+          "receipt": "9922e12ec86dcfc5db261fbd19b8b9126ec47caa1fc711aded4325e6e0bb72f9",
+          "current": "3c2af0131d49f8a15d10744613aa7326cffac112b9c08cac1dab6952ff36a812"
+        }
+      }
+    },
+    {
+      "label": "candidate-intd",
+      "receipt": "docs/work/active/agent-capabilities/int-d/ordinary-prepare/checks/candidate-intd/receipt.json",
+      "receipt_sha256": "777d55e915705fe94ef8551a2039494aece65004ff5b96597592ed6c27d97089",
+      "exit_code": 101,
+      "summaries": [
+        "test result: FAILED. 6 passed; 1 failed; 1 ignored; 0 measured; 488 filtered out; finished in 4.44s"
+      ],
+      "source_unchanged": true,
+      "input_count": 334,
+      "raw_sha256": "fc7c7326b656881d0daf5a57ebc73c7a206c91ff7fc80f695a6862351065fa1a",
+      "source_vs_current": {
+        "crates/brn-ai/src/threads_int_d_tests.rs": {
+          "receipt": "9d77ecd275b204766170dd85399d8ac34401cef836c84ed4908a3520d0d323b9",
+          "current": "187d840062f862ab067137401fa7bb63d7a21ddd64dce2cb70107c4007d13b8e"
+        },
+        "crates/brn/tests/agent_runs.rs": {
+          "receipt": "9922e12ec86dcfc5db261fbd19b8b9126ec47caa1fc711aded4325e6e0bb72f9",
+          "current": "3c2af0131d49f8a15d10744613aa7326cffac112b9c08cac1dab6952ff36a812"
+        }
+      }
+    },
+    {
+      "label": "candidate-intd-final",
+      "receipt": "docs/work/active/agent-capabilities/int-d/ordinary-prepare/checks/candidate-intd-final/receipt.json",
+      "receipt_sha256": "44ef23b620d25dbe6beab88c77b86e5f20fb25e267e3b770685a173c280fce36",
+      "exit_code": 0,
+      "summaries": [
+        "test result: ok. 7 passed; 0 failed; 1 ignored; 0 measured; 488 filtered out; finished in 4.35s"
+      ],
+      "source_unchanged": true,
+      "input_count": 334,
+      "raw_sha256": "21865cb2b25ecdc997ef8b875abbd695f5d9330eef0f2a22b8940cf4e0ac312e",
+      "source_vs_current": {
+        "crates/brn/tests/agent_runs.rs": {
+          "receipt": "9922e12ec86dcfc5db261fbd19b8b9126ec47caa1fc711aded4325e6e0bb72f9",
+          "current": "3c2af0131d49f8a15d10744613aa7326cffac112b9c08cac1dab6952ff36a812"
+        }
+      }
+    },
+    {
+      "label": "candidate-observer-exact",
+      "receipt": "docs/work/active/agent-capabilities/int-d/ordinary-prepare/checks/candidate-observer-exact/receipt.json",
+      "receipt_sha256": "80dee4e5c17e445c83164f1a79589590e8e69b05c29b82d42c137bcab5a82a97",
+      "exit_code": 0,
+      "summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 495 filtered out; finished in 0.09s"
+      ],
+      "source_unchanged": true,
+      "input_count": 334,
+      "raw_sha256": "77c5398747e072ac10db72ee5a28b2422f34311da16dc08ba6025d666c9474e9",
+      "source_vs_current": {
+        "crates/brn-ai/src/threads_int_d_tests.rs": {
+          "receipt": "888b9ec20634748dc2195053e8c268d433e70697e0c08487f1528a4469b42439",
+          "current": "187d840062f862ab067137401fa7bb63d7a21ddd64dce2cb70107c4007d13b8e"
+        },
+        "crates/brn/tests/agent_runs.rs": {
+          "receipt": "9922e12ec86dcfc5db261fbd19b8b9126ec47caa1fc711aded4325e6e0bb72f9",
+          "current": "3c2af0131d49f8a15d10744613aa7326cffac112b9c08cac1dab6952ff36a812"
+        }
+      }
+    },
+    {
+      "label": "candidate-offered",
+      "receipt": "docs/work/active/agent-capabilities/int-d/ordinary-prepare/checks/candidate-offered/receipt.json",
+      "receipt_sha256": "589d96ad5bcaf45e502b3b7c8c76edad27c0d6401aa9090c758b41e4ceff8475",
+      "exit_code": 0,
+      "summaries": [
+        "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 493 filtered out; finished in 0.04s"
+      ],
+      "source_unchanged": true,
+      "input_count": 334,
+      "raw_sha256": "fd53c51394c11f3d1ca75a0ad57c404dab60731cb2849621d14d56f182b7eed2",
+      "source_vs_current": {
+        "crates/brn-ai/src/threads_int_d_tests.rs": {
+          "receipt": "9d77ecd275b204766170dd85399d8ac34401cef836c84ed4908a3520d0d323b9",
+          "current": "187d840062f862ab067137401fa7bb63d7a21ddd64dce2cb70107c4007d13b8e"
+        },
+        "crates/brn-ai/src/threads_summary_tests.rs": {
+          "receipt": "8ce8c0742eb3249bd2a9d56eff600f635b5842278940650df95d4f61c2f0474e",
+          "current": "05cddc8c37f3826b4047c0f06d397d572e24d0db82a1895cbaa1aac73087cb57"
+        },
+        "crates/brn/tests/agent_runs.rs": {
+          "receipt": "9922e12ec86dcfc5db261fbd19b8b9126ec47caa1fc711aded4325e6e0bb72f9",
+          "current": "3c2af0131d49f8a15d10744613aa7326cffac112b9c08cac1dab6952ff36a812"
+        }
+      }
+    },
+    {
+      "label": "candidate-writing",
+      "receipt": "docs/work/active/agent-capabilities/int-d/ordinary-prepare/checks/candidate-writing/receipt.json",
+      "receipt_sha256": "cb90fd07d74944fdf3cb2467c74f803a1adf2176466e3961ff981c8adc2ec1b0",
+      "exit_code": 0,
+      "summaries": [
+        "test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 477 filtered out; finished in 0.33s"
+      ],
+      "source_unchanged": true,
+      "input_count": 334,
+      "raw_sha256": "d353b400495a9e65eb7eedaa42ec1f95d8c622c007f602ad5ebe1db4639b449a",
+      "source_vs_current": {
+        "crates/brn-ai/src/threads_int_d_tests.rs": {
+          "receipt": "9d77ecd275b204766170dd85399d8ac34401cef836c84ed4908a3520d0d323b9",
+          "current": "187d840062f862ab067137401fa7bb63d7a21ddd64dce2cb70107c4007d13b8e"
+        },
+        "crates/brn/tests/agent_runs.rs": {
+          "receipt": "9922e12ec86dcfc5db261fbd19b8b9126ec47caa1fc711aded4325e6e0bb72f9",
+          "current": "3c2af0131d49f8a15d10744613aa7326cffac112b9c08cac1dab6952ff36a812"
+        }
+      }
+    },
+    {
+      "label": "cli-contracts",
+      "receipt": "docs/work/active/agent-capabilities/int-d/ordinary-prepare/checks/cli-contracts/receipt.json",
+      "receipt_sha256": "fd9062b30cd4e4b2b59286bd613224a2a8255455b3d90080fc0e87178d2eb3db",
+      "exit_code": 101,
+      "summaries": [
+        "test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.41s",
+        "test result: FAILED. 14 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.80s"
+      ],
+      "source_unchanged": true,
+      "input_count": 334,
+      "raw_sha256": "7f15868ebf3ff9b9edcd78933fb17f8d493d22f07db9fc198e7203c49935d3e1",
+      "source_vs_current": {
+        "crates/brn/tests/agent_runs.rs": {
+          "receipt": "9922e12ec86dcfc5db261fbd19b8b9126ec47caa1fc711aded4325e6e0bb72f9",
+          "current": "3c2af0131d49f8a15d10744613aa7326cffac112b9c08cac1dab6952ff36a812"
+        }
+      }
+    },
+    {
+      "label": "cli-guide-exact",
+      "receipt": "docs/work/active/agent-capabilities/int-d/ordinary-prepare/checks/cli-guide-exact/receipt.json",
+      "receipt_sha256": "43b86312c2c76cb3ec41c45a63df7fe5e618906030286081c5e28350b4f39903",
+      "exit_code": 0,
+      "summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 14 filtered out; finished in 0.94s"
+      ],
+      "source_unchanged": true,
+      "input_count": 334,
+      "raw_sha256": "61fd9dd72d3c2bc15e529d4839a2cffad07b9342f92ff38870ac1b0af9060e50",
+      "source_vs_current": {}
+    },
+    {
+      "label": "doc-links",
+      "receipt": "docs/work/active/agent-capabilities/int-d/ordinary-prepare/checks/doc-links/receipt.json",
+      "receipt_sha256": "87508f21ddfc0a9bb222ac9a0290e7989b6b6e59f192bdeffb7051620ed8a8bb",
+      "exit_code": 0,
+      "summaries": [],
+      "source_unchanged": true,
+      "input_count": 334,
+      "raw_sha256": "4df57672f5767172250c01d9c8537f143c60135a2e92944c2b76451dc4a57213",
+      "source_vs_current": {}
+    },
+    {
+      "label": "format",
+      "receipt": "docs/work/active/agent-capabilities/int-d/ordinary-prepare/checks/format/receipt.json",
+      "receipt_sha256": "d5a45f942784df4d72593b30b84ab39752e0a4ae391b952c57a3e9fe0d6135d9",
+      "exit_code": 0,
+      "summaries": [],
+      "source_unchanged": true,
+      "input_count": 334,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_vs_current": {}
+    },
+    {
+      "label": "full-ai",
+      "receipt": "docs/work/active/agent-capabilities/int-d/ordinary-prepare/checks/full-ai/receipt.json",
+      "receipt_sha256": "50badae424d7365830110fe6cddcd092c65fa5f084101161fe09fdf818fbcb31",
+      "exit_code": 0,
+      "summaries": [
+        "test result: ok. 494 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 37.56s"
+      ],
+      "source_unchanged": true,
+      "input_count": 334,
+      "raw_sha256": "6b574d2e7d2234d8cf72241dbcedd98a40e1ee5651a57bc46da344f971f516c0",
+      "source_vs_current": {
+        "crates/brn/tests/agent_runs.rs": {
+          "receipt": "9922e12ec86dcfc5db261fbd19b8b9126ec47caa1fc711aded4325e6e0bb72f9",
+          "current": "3c2af0131d49f8a15d10744613aa7326cffac112b9c08cac1dab6952ff36a812"
+        }
+      }
+    },
+    {
+      "label": "shared-run",
+      "receipt": "docs/work/active/agent-capabilities/int-d/ordinary-prepare/checks/shared-run/receipt.json",
+      "receipt_sha256": "61febd3c5ab045af826299c0f72c2219175a260cff9125d94658c0dfa61f849e",
+      "exit_code": 0,
+      "summaries": [
+        "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s"
+      ],
+      "source_unchanged": true,
+      "input_count": 334,
+      "raw_sha256": "7dacc71358ce30800eb19073f980d106fb0f24f47108b3d808da287294a37792",
+      "source_vs_current": {
+        "crates/brn/tests/agent_runs.rs": {
+          "receipt": "9922e12ec86dcfc5db261fbd19b8b9126ec47caa1fc711aded4325e6e0bb72f9",
+          "current": "3c2af0131d49f8a15d10744613aa7326cffac112b9c08cac1dab6952ff36a812"
+        }
+      }
+    },
+    {
+      "label": "strict-ai",
+      "receipt": "docs/work/active/agent-capabilities/int-d/ordinary-prepare/checks/strict-ai/receipt.json",
+      "receipt_sha256": "ca2b44b7b06334d3f8aa735917804c94dba78effacd9c0ccd6dd30d1820b3f65",
+      "exit_code": 101,
+      "summaries": [],
+      "source_unchanged": true,
+      "input_count": 334,
+      "raw_sha256": "ee7fe3fbd11355451fb0db17d83ceda99d323ed6dab89ead66eaaf161c7b2723",
+      "source_vs_current": {
+        "crates/brn-ai/src/threads_int_d_tests.rs": {
+          "receipt": "6606d24e494c5d0756f91afee9233376c5a6c894b0f46b2ad6f06e85f0b3efd5",
+          "current": "187d840062f862ab067137401fa7bb63d7a21ddd64dce2cb70107c4007d13b8e"
+        },
+        "crates/brn/tests/agent_runs.rs": {
+          "receipt": "9922e12ec86dcfc5db261fbd19b8b9126ec47caa1fc711aded4325e6e0bb72f9",
+          "current": "3c2af0131d49f8a15d10744613aa7326cffac112b9c08cac1dab6952ff36a812"
+        }
+      }
+    },
+    {
+      "label": "strict-ai-final",
+      "receipt": "docs/work/active/agent-capabilities/int-d/ordinary-prepare/checks/strict-ai-final/receipt.json",
+      "receipt_sha256": "e618e6222c9c0ec5d4de27b00f41cb1e064961ff3b5b23a773e6de7b26ad9551",
+      "exit_code": 0,
+      "summaries": [],
+      "source_unchanged": true,
+      "input_count": 334,
+      "raw_sha256": "412f5faf2b864c21fe098d0b45bd066569f01ea395e6b7fc14fe37629fd26401",
+      "source_vs_current": {
+        "crates/brn/tests/agent_runs.rs": {
+          "receipt": "9922e12ec86dcfc5db261fbd19b8b9126ec47caa1fc711aded4325e6e0bb72f9",
+          "current": "3c2af0131d49f8a15d10744613aa7326cffac112b9c08cac1dab6952ff36a812"
+        }
+      }
+    },
+    {
+      "label": "doc-links-final",
+      "receipt": "docs/work/active/agent-capabilities/int-d/ordinary-prepare/checks/doc-links-final/receipt.json",
+      "receipt_sha256": "ae3a37e4d6b2f6c2a3a839fa9dbadd757b8e0069a5ff9700206fd63230ce8b0c",
+      "exit_code": 0,
+      "summaries": [],
+      "source_unchanged": true,
+      "input_count": 334,
+      "raw_sha256": "fae12c36358804b4e0dca863c302f50f8925b6a6bd22464f5b4c5f960d065177",
+      "source_vs_current": {}
+    }
+  ]
+}

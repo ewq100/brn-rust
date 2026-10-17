@@ -883,9 +883,7 @@ async fn offline_prepare_signature_and_existing_activity_do_not_identify_histori
         .await;
         assert_eq!(
             model.request_count(),
-            if mode == "object" {
-                4
-            } else if mode == "stopped" {
+            if mode == "object" || mode == "stopped" {
                 2
             } else {
                 3
@@ -897,13 +895,24 @@ async fn offline_prepare_signature_and_existing_activity_do_not_identify_histori
             .unwrap()
             .finish("offline diagnostic", false, 4);
         assert_eq!(trace.dropped_calls, 0);
-        assert_ne!(trace.stopped.as_deref(), Some("invalid_batch"));
+        if mode == "object" {
+            assert_eq!(trace.stopped.as_deref(), Some("invalid_batch"));
+            assert!(matches!(
+                answer.terminal,
+                AiTerminal::Failed(AiError {
+                    kind: AiErrorKind::InvalidToolUse,
+                    ..
+                })
+            ));
+        } else {
+            assert_ne!(trace.stopped.as_deref(), Some("invalid_batch"));
+        }
         let calls = trace
             .calls
             .iter()
             .filter(|c| c.tool == "prepare_changes")
             .collect::<Vec<_>>();
-        assert_eq!(calls.len(), if mode == "object" { 2 } else { 1 });
+        assert_eq!(calls.len(), if mode == "object" { 0 } else { 1 });
         let denied = mode == "object" || mode == "stopped";
         for call in &calls {
             assert_eq!(call.args, json!({"writes":{"Note":1},"inputs":3}));
@@ -918,8 +927,12 @@ async fn offline_prepare_signature_and_existing_activity_do_not_identify_histori
             // The maintained native adapter retains a typed source but deliberately
             // gives the model only generic feedback. This is not a second driver.
             let mut cx = ToolContext::new().with_scope(scope.clone());
-            let native =
-                rig::tool::ErasedTool::execute(&PrepareChanges, args.to_string(), &mut cx).await;
+            let native = rig::tool::ErasedTool::execute(
+                &PrepareChanges::for_scope(&scope),
+                args.to_string(),
+                &mut cx,
+            )
+            .await;
             assert_eq!(native.output().as_text(), Some("the tool failed"));
             let error = native.error().unwrap();
             assert_eq!(error.kind(), rig::tool::ToolErrorKind::Other);
@@ -934,9 +947,10 @@ async fn offline_prepare_signature_and_existing_activity_do_not_identify_histori
             );
             if mode == "object" {
                 assert!(
-                    serde_json::to_string(&model.requests()[2])
+                    !serde_json::to_string(&model.requests())
                         .unwrap()
-                        .contains("the tool failed")
+                        .contains("the tool failed"),
+                    "the invalid batch never dispatches the handler or its generic feedback"
                 );
             }
         }
@@ -946,34 +960,33 @@ async fn offline_prepare_signature_and_existing_activity_do_not_identify_histori
             .filter_map(|s| s.strip_prefix("> prepare_changes "))
             .collect::<Vec<_>>();
         assert_eq!(dispatch.len(), calls.len());
-        let shown: Value = serde_json::from_str(dispatch[0]).unwrap();
-        let classification = match shown.get("writing") {
-            None => "absent",
-            Some(Value::Null) => "null",
-            Some(Value::Object(_)) => "object",
-            _ => panic!(),
-        };
-        assert_eq!(
-            classification,
-            if mode == "stopped" { "absent" } else { mode }
-        );
-        assert_eq!(shown["request"]["inputs"], args["request"]["inputs"]);
-        assert_eq!(
-            shown["request"]["writes"][0]["data"],
-            "[record content omitted]"
-        );
-        if mode == "object" {
-            assert!(dispatch[1].ends_with(" … [arguments truncated]"));
-            assert!(serde_json::from_str::<Value>(dispatch[1]).is_err());
-            assert!(!dispatch[1].contains("\"writing\""));
+        let (classification, shown) = if mode == "object" {
             assert!(
-                [&note, &messages[0], &messages[1]]
-                    .iter()
-                    .any(|id| !dispatch[1].contains(id.as_str()))
+                dispatch.is_empty(),
+                "unsupported writing must fail before Activity/handler dispatch"
             );
-        }
-        let long_id_visibility = (mode == "object")
-            .then(|| [&note, &messages[0], &messages[1]].map(|id| dispatch[1].contains(id)));
+            ("not_dispatched", Value::Null)
+        } else {
+            let shown: Value = serde_json::from_str(dispatch[0]).unwrap();
+            let classification = match shown.get("writing") {
+                None => "absent",
+                Some(Value::Null) => "null",
+                _ => panic!("only supported ordinary arguments dispatched"),
+            };
+            assert_eq!(
+                classification,
+                if mode == "stopped" { "absent" } else { mode }
+            );
+            assert_eq!(shown["request"]["inputs"], args["request"]["inputs"]);
+            assert_eq!(
+                shown["request"]["writes"][0]["data"],
+                "[record content omitted]"
+            );
+            (classification, shown)
+        };
+        // Long ordinary-object Activity was measured at a65; the new contract
+        // rejects the first such batch, so no short/long prepare frame is emitted.
+        let long_id_visibility: Option<[bool; 3]> = None;
         drop(activity);
         let persisted = finish(&scope, &answer).unwrap();
         assert_eq!(persisted, mode != "stopped");
@@ -1010,7 +1023,7 @@ async fn offline_prepare_signature_and_existing_activity_do_not_identify_histori
             "prepare_outcomes":calls.iter().map(|c|&c.outcome).collect::<Vec<_>>(),
             "error_bytes":calls.iter().filter(|c|c.outcome=="error").map(|c|c.bytes).collect::<Vec<_>>(),
             "short_activity_writing":classification,"short_activity_inputs":shown["request"]["inputs"],
-            "long_activity_writing":if mode=="object" {"not observable: truncated"} else {"not exercised"},
+            "long_activity_writing":if mode=="object" {"not dispatched: invalid batch"} else {"not exercised"},
             "long_activity_input_id_visible":long_id_visibility,
             "typed_direct_error":if denied {Some("ToolRejected")} else {None},
             "registered_operations":run.operations.len(),"candidates":candidates.len(),
@@ -1244,6 +1257,10 @@ async fn capture_matches_real_prepare_outcomes_and_stops_before_same_batch_apply
             .unwrap()
             .allocate_operation(&format!("{}:proposal:{request_key}", scope.run))
             .unwrap();
+        if mode == "object-long" {
+            let error = prepare(&scope, serde_json::from_value(args.clone()).unwrap()).unwrap_err();
+            assert_eq!(error.kind, AiErrorKind::ToolRejected);
+        }
         if mode == "apply-first" {
             prepare(&scope, serde_json::from_value(args.clone()).unwrap()).unwrap();
         }
@@ -1341,11 +1358,20 @@ async fn capture_matches_real_prepare_outcomes_and_stops_before_same_batch_apply
             emit,
         )
         .await;
-        assert!(did_stop.load(Ordering::SeqCst));
+        assert_eq!(did_stop.load(Ordering::SeqCst), mode != "object-long");
+        if mode == "object-long" {
+            assert!(matches!(
+                answer.terminal,
+                AiTerminal::Failed(AiError {
+                    kind: AiErrorKind::InvalidToolUse,
+                    ..
+                })
+            ));
+        }
         assert_eq!(model.request_count(), 1);
-        assert!(!finish(&scope, &answer).unwrap());
+        assert_eq!(finish(&scope, &answer).unwrap(), mode == "object-long");
         let rows = captured.lock().unwrap();
-        if mode == "apply-first" {
+        if mode == "apply-first" || mode == "object-long" {
             assert!(rows.is_empty());
         } else {
             assert_eq!(rows.len(), 2);
@@ -1430,7 +1456,14 @@ async fn capture_matches_real_prepare_outcomes_and_stops_before_same_batch_apply
         let RecordData::Run(run) = store.record(&scope.run).unwrap().unwrap().data else {
             panic!()
         };
-        assert_eq!(run.state, RunState::Interrupted);
+        assert_eq!(
+            run.state,
+            if mode == "object-long" {
+                RunState::Failed
+            } else {
+                RunState::Interrupted
+            }
+        );
         assert_eq!(run.fence, 2);
         assert!(
             !serde_json::to_string(&store.records().unwrap())
@@ -1443,7 +1476,7 @@ async fn capture_matches_real_prepare_outcomes_and_stops_before_same_batch_apply
             assert_eq!(run.operations, vec![op.clone()]);
             assert_eq!(store.prepared(&op).unwrap().operation, op);
         }
-        facts.push(json!({"mode":mode,"mock_requests":model.request_count(),"capture":*rows,"guarded_interrupted_fence":run.fence,"note_and_note_receipts_unchanged":true}));
+        facts.push(json!({"mode":mode,"mock_requests":model.request_count(),"capture":*rows,"saved_state":run.state,"saved_fence":run.fence,"checked_stop":did_stop.load(Ordering::SeqCst),"note_and_note_receipts_unchanged":true}));
     }
     println!(
         "INT_D_TEST_CAPTURE_FACTS {}",
@@ -2836,7 +2869,8 @@ mod capture_runner {
                 .allocate_operation(&format!("{}:proposal:runner-proposal", scope.run))
                 .unwrap();
             if mode == "prepare-failure" {
-                args["writing"] = json!({"quotations":[],"requirements_reported":[]});
+                args["request"]["inputs"][0]["record"] = json!(op.creation_id(99));
+                assert!(parse_valid("prepare_changes", &args));
             }
             if matches!(
                 mode,

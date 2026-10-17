@@ -1,0 +1,10 @@
+# Ordinary prepare correction — bounded plan
+
+Task int-d-ordinary-prepare-contract-fix-20261017, Codex gpt-6.1-sol/high. Base5352b448, frozen a65 material; same bound checkout/branch. [Contract map](../diagnosis/ordinary-prepare-contract.md) and current user allocation define the complete option. Original three errors remain UNKNOWN. No live, mutation or dependency authority.
+
+1. Preserve consumed runner binary/.d; verify empty heavy inventory and all binding facts. Create exact-base genuine synthetic Git before-copy with a distinct fixed target. Append actual offered-schema and whole-batch no-effect tests before production changes; retain source/test diff, every failure, binary/.d and logs.
+2. Scoped immutable PrepareChanges metadata, same value at registration/budget/batch validation; null-only ordinary/v1, unchanged saved-setup v2 subtree. Keep typed and handler defenses and all host permissions. One mechanical helper hook initializer; guide12→13 with exact label assertions only.
+3. Focused ordinary/v1/v2 model/wire/candidate/evidence/budget/cache/prefix/helper/capture verification; full scripted AI once; proportional CLI contracts, strict affected lint/fmt/docs. Preserve all new failures before correction. No compiled input edits during Cargo.
+4. Freeze local source/test pin, complete base/a65 deltas and source/artifact association for NEW principal review; source acceptance remains principal-owned. Evidence-only clean handoff and explicit heavy/all-path release.
+
+Owned: threads.rs allocated prepare/catalogue/batch integration and in-file tests; threads_research.rs only initializer; threads_guides.rs only version/label; allocated writing/CW2/budget/summary/INT-D test hunks; new ordinary-prepare docs. No core/app/native/CLI production/auth/transport/schema/manifests/lock/scripts/capture observer/ignored runner edits. Old preflights/windows remain closed and stale after new artifacts. Existing SDK/widget/PDF/platform/INT-W/main/owner/program/I01 qualifications remain.

@@ -667,13 +667,51 @@ tool!(
     "Load a fixed BRN playbook; loading guidance never changes permission.",
     read_skill
 );
-tool!(
-    PrepareChanges,
-    "prepare_changes",
-    PrepareArgs,
-    "Prepare an immutable atomic change group. No write occurs here. Reuse request_key for a retry of the same request. New IDs are new:N placeholders. Canonical record shapes are listed in the system guide.",
-    prepare
-);
+#[derive(Clone, Copy)]
+struct PrepareChanges {
+    writing_evidence: bool,
+}
+impl PrepareChanges {
+    fn for_scope(scope: &Scope) -> Self {
+        Self {
+            writing_evidence: scope
+                .writing_snapshot
+                .as_ref()
+                .is_some_and(|snapshot| snapshot.setup.is_some()),
+        }
+    }
+    fn without_evidence() -> Self {
+        Self {
+            writing_evidence: false,
+        }
+    }
+    fn accepts_writing(&self, args: &Value) -> bool {
+        self.writing_evidence || args.get("writing").is_none_or(Value::is_null)
+    }
+}
+impl Tool for PrepareChanges {
+    const NAME: &'static str = "prepare_changes";
+    type Args = PrepareArgs;
+    type Output = Value;
+    type Error = AiError;
+    fn description(&self) -> String {
+        "Prepare an immutable atomic change group. No write occurs here. Reuse request_key for a retry of the same request. New IDs are new:N placeholders. Canonical record shapes are listed in the system guide.".into()
+    }
+    fn parameters(&self) -> Value {
+        let mut parameters = schema(Self::NAME);
+        if !self.writing_evidence {
+            parameters["properties"]["writing"] = json!({"type":"null"});
+        }
+        parameters
+    }
+    async fn call(&self, cx: &mut ToolContext, args: PrepareArgs) -> AiResult<Value> {
+        let scope = scope(cx)?;
+        if scope.scout.is_some() && !research::HELPER_TOOLS.contains(&Self::NAME) {
+            return Err(rejected());
+        }
+        prepare(scope.as_ref(), args)
+    }
+}
 tool!(
     ApplyChanges,
     "apply_changes",
@@ -721,12 +759,15 @@ fn refresh_candidate(scope: &Scope, args: RefreshArgs) -> AiResult<Value> {
 
 // One declaration registers actual tools and supplies payload-free activity.
 macro_rules! runtime_catalog {
-    ($(($tool:ident, $activity:literal)),+ $(,)?) => {
-        fn register_tools(builder: rig::AgentBuilder<rig::agent::NoToolConfig>) -> rig::AgentBuilder<rig::agent::WithBuilderTools> {
-            builder$(.tool($tool))+
+    (@instance $prepare:ident, $tool:ident) => { $tool };
+    (@instance $prepare:ident, $tool:ident, $constructor:expr) => { ($constructor)($prepare) };
+    ($(($tool:ident, $activity:literal $(, $constructor:expr)?)),+ $(,)?) => {
+        fn register_tools(builder: rig::AgentBuilder<rig::agent::NoToolConfig>, prepare: PrepareChanges) -> rig::AgentBuilder<rig::agent::WithBuilderTools> {
+            builder$(.tool(runtime_catalog!(@instance prepare, $tool $(, $constructor)?)))+
         }
-        fn core_budget_definitions() -> Vec<Value> {
-            vec![$(json!({"name":<$tool as Tool>::NAME,"description":$tool.description(),"parameters":$tool.parameters()})),+]
+        fn core_budget_definitions(prepare: PrepareChanges) -> Vec<Value> {
+            vec![$({let tool = runtime_catalog!(@instance prepare, $tool $(, $constructor)?);
+                json!({"name":<$tool as Tool>::NAME,"description":tool.description(),"parameters":tool.parameters()})}),+]
         }
         fn core_tool_activity(name: &str) -> Option<&'static str> {
             match name { $(<$tool as Tool>::NAME => Some($activity),)+ _ => None }
@@ -741,7 +782,9 @@ runtime_catalog!(
     (ReadNote, "Reading a note passage…"),
     (ReadSource, "Reading supplied source evidence…"),
     (ReadSkill, "Loading a work guide…"),
-    (PrepareChanges, "Preparing a proposed change…"),
+    (PrepareChanges, "Preparing a proposed change…", |prepare| {
+        prepare
+    }),
     (ApplyChanges, "Checking and applying a change…"),
     (RetainProgress, "Saving useful progress…"),
     (ReadHistory, "Inspecting an accepted note revision…"),
@@ -2176,6 +2219,7 @@ fn tool_outcome_label<'a>(name: &str, result: Option<&'a rig::tool::ToolResult>)
     result.status_name()
 }
 struct BatchHook {
+    prepare: PrepareChanges,
     external: Option<Arc<mcp_runtime::Invocation>>,
     skills: Option<Arc<crate::thread_skills::Catalogue>>,
     invalid: Arc<AtomicBool>,
@@ -2392,10 +2436,10 @@ impl AgentHook for BatchHook {
                                 )
                             })
                         } else {
-                            parse_valid(
-                                &call.function.name,
-                                &Value::Object(call.function.arguments.clone()),
-                            )
+                            let args = Value::Object(call.function.arguments.clone());
+                            parse_valid(&call.function.name, &args)
+                                && (call.function.name != PrepareChanges::NAME
+                                    || self.prepare.accepts_writing(&args))
                         })
                     || (!helper
                         && call.function.name == "read_skill"
@@ -3937,7 +3981,7 @@ fn run_preamble(scope: &Scope) -> String {
     )
 }
 fn budget_tool_definitions(scope: &Scope) -> Vec<Value> {
-    let mut definitions = core_budget_definitions();
+    let mut definitions = core_budget_definitions(PrepareChanges::for_scope(scope));
     if scope.search.is_some() {
         definitions.push(json!({"name":SearchNotes::NAME,"description":SearchNotes.description(),"parameters":SearchNotes.parameters()}));
         definitions.push(json!({"name":NoteConnections::NAME,"description":NoteConnections.description(),"parameters":NoteConnections.parameters()}));
@@ -4009,7 +4053,8 @@ async fn run_model_budgeted(
     }
     let exhausted = Arc::new(AtomicU16::new(0));
     let preamble = run_preamble(&scope);
-    let mut builder = register_tools(rig::AgentBuilder::new(model).preamble(&preamble));
+    let prepare = PrepareChanges::for_scope(&scope);
+    let mut builder = register_tools(rig::AgentBuilder::new(model).preamble(&preamble), prepare);
     if scope.search.is_some() {
         builder = builder.tool(SearchNotes).tool(NoteConnections);
         if scope.helper.is_some() {
@@ -4053,6 +4098,7 @@ async fn run_model_budgeted(
             scope: scope.clone(),
         })
         .add_hook(BatchHook {
+            prepare,
             external: mcp_runtime::invocation(&scope),
             skills: Some(scope.skills.clone()),
             invalid: invalid.clone(),
@@ -6372,5 +6418,101 @@ mod tests {
         )
         .await;
         assert!(matches!(answer.terminal, AiTerminal::Interrupted));
+    }
+    #[tokio::test]
+    async fn unsupported_writing_object_rejects_whole_batch_before_progress() {
+        use rig::test_utils::{MockCompletionModel, MockStreamEvent};
+        for mode in ["ordinary", "v1", "v2"] {
+            for progress_first in [false, true] {
+                let (_root, request) = match mode {
+                    "ordinary" => {
+                        let (root, request, _) = fixture();
+                        (root, request)
+                    }
+                    "v1" => {
+                        let (root, request, _) = writing_tests::rewrite_fixture(true, 0);
+                        (root, request)
+                    }
+                    _ => {
+                        let (root, request, _, _) = cw2_tests::fixture(
+                            "First Ω requirement.\n",
+                            WritingReadRequirements::default(),
+                        );
+                        (root, request)
+                    }
+                };
+                Store::open(&request.data_dir)
+                    .unwrap()
+                    .set_workspace_purpose(WorkspacePurpose::Test)
+                    .unwrap();
+                let (scope, input) = begin(&request).unwrap();
+                let mut change = json!({"writing":{"quotations":[],"requirements_reported":[]},"request_key":"unsupported-writing-contract","request":{"reason":"Synthetic contract witness","writes":[{"id":"new:0","expected_version":null,"archived":false,"data":{"Note":{"title":"Synthetic","markdown":"Monday","protected":false,"confirmed":false,"superseded_by":null,"import":null}}}],"inputs":[]}});
+                if mode == "v2" {
+                    change["writing"]["unknown"] = true.into();
+                }
+                assert_eq!(
+                    parse_valid("prepare_changes", &change),
+                    mode != "v2",
+                    "typed defense intentionally remains context independent"
+                );
+                let bad = MockStreamEvent::tool_call("bad", "prepare_changes", change);
+                let progress = MockStreamEvent::tool_call(
+                    "progress",
+                    "retain_progress",
+                    json!({"summary":"MUST_NOT_BE_PERSISTED"}),
+                );
+                let mut batch = if progress_first {
+                    vec![progress, bad]
+                } else {
+                    vec![bad, progress]
+                };
+                batch.push(MockStreamEvent::final_response_with_total_tokens(1));
+                let model = MockCompletionModel::from_stream_turns([
+                    batch,
+                    vec![MockStreamEvent::final_response_with_total_tokens(1)],
+                ]);
+                let events = Arc::new(Mutex::new(Vec::new()));
+                let seen = events.clone();
+                let answer = run_model(
+                    model.clone(),
+                    scope.clone(),
+                    &input,
+                    ReasoningEffort::Medium,
+                    4,
+                    true,
+                    CancellationToken::new(),
+                    Arc::new(move |e| {
+                        if let AiEvent::Activity(s) = e {
+                            seen.lock().unwrap().push(s);
+                        }
+                    }),
+                )
+                .await;
+                assert!(
+                    matches!(
+                        answer.terminal,
+                        AiTerminal::Failed(AiError {
+                            kind: AiErrorKind::InvalidToolUse,
+                            ..
+                        })
+                    ),
+                    "{mode}/{progress_first}: {:?}",
+                    answer.terminal
+                );
+                assert_eq!(model.request_count(), 1);
+                assert!(
+                    !events.lock().unwrap().iter().any(|s| s.starts_with("> ")),
+                    "whole batch must fail before dispatch"
+                );
+                let store = scope.store.lock().unwrap();
+                let record = store.record(&scope.run).unwrap().unwrap();
+                let RecordData::Run(run) = record.data else {
+                    panic!()
+                };
+                assert!(run.progress.is_empty());
+                assert!(run.operations.is_empty());
+                assert!(store.candidates().unwrap().is_empty());
+            }
+        }
     }
 }

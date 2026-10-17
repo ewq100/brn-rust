@@ -1558,3 +1558,74 @@ async fn frozen_skill_catalogue_reuses_summary_until_exact_availability_identity
         body(&changed, 1)["instructions"]
     );
 }
+
+#[tokio::test]
+async fn guide13_recomputes_prior_stamp_summary_then_reuses_unchanged_stamp() {
+    use rig::test_utils::{MockCompletionModel, MockStreamEvent};
+    let (_root, request, ids) = setup();
+    Store::open(&request.data_dir)
+        .unwrap()
+        .set_workspace_purpose(WorkspacePurpose::Test)
+        .unwrap();
+    let prepared = prepare_run(request).unwrap();
+    assert!(!prepared.summary_chunks.is_empty());
+    let scope = prepared.scope.clone();
+    let current = scope.skills.identity.clone();
+    assert!(current.starts_with("brn-threads-guidance-13:"));
+    let prior = current.replacen("brn-threads-guidance-13:", "brn-threads-guidance-12:", 1);
+    let mut old_cache_key = None;
+    for (stamp, cached) in [
+        (&prior, false),
+        (&prior, true),
+        (&current, false),
+        (&current, true),
+    ] {
+        {
+            let mut store = scope.store.lock().unwrap();
+            let RecordData::Run(run) = store.record(&scope.run).unwrap().unwrap().data else {
+                panic!()
+            };
+            if run.guide_identity != *stamp {
+                update_run(&scope, &mut store, |run| {
+                    run.guide_identity = stamp.clone();
+                    run.fence += 1;
+                })
+                .unwrap();
+            }
+        }
+        let turns = if cached {
+            vec![]
+        } else {
+            vec![vec![
+                MockStreamEvent::text(semantic(&ids[0]).to_string()),
+                MockStreamEvent::final_response_with_total_tokens(1),
+            ]]
+        };
+        let model = MockCompletionModel::from_stream_turns(turns);
+        let context = summary::prepare(
+            summary::ModelCompactor::new(
+                model.clone(),
+                scope.clone(),
+                ReasoningEffort::Medium,
+                true,
+                CancellationToken::new(),
+            ),
+            prepared.input.clone(),
+            prepared.summary_chunks.clone(),
+            "synthetic-guide-stamp-account".into(),
+            Arc::new(|_| {}),
+        )
+        .await;
+        assert!(context.notice.is_none());
+        assert!(context.input.contains("UNTRUSTED DERIVED CONTEXT"));
+        assert_eq!(model.request_count(), usize::from(!cached));
+        let files = cache_files(&prepared.request.data_dir);
+        assert_eq!(files.len(), 1);
+        let entry: Value = serde_json::from_slice(&std::fs::read(&files[0]).unwrap()).unwrap();
+        if stamp == &prior {
+            old_cache_key = Some(entry["context"].clone());
+        } else {
+            assert_ne!(Some(entry["context"].clone()), old_cache_key);
+        }
+    }
+}
