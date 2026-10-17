@@ -160,3 +160,87 @@ fn actual_lock_permission_denied_is_io_error_not_caller_refusal() {
     assert_eq!(value["error"]["code"], "io_error");
     assert_eq!(run(&root, true, &data, &["skills"]).code, 0);
 }
+
+#[test]
+fn damaged_stored_package_is_not_an_actionable_digest_conflict() {
+    let root = Root::new();
+    let data = root.workspace("data");
+    package(&root, &data);
+    let valid = run(
+        &root,
+        true,
+        &data,
+        &["skill-inspect", "--name", "document-review"],
+    );
+    assert_eq!(valid.code, 0, "{}", valid.stdout);
+    let digest = valid.envelope()["result"]["info"]["digest"]
+        .as_str()
+        .unwrap()
+        .to_owned();
+    let path = data.join("skills/document-review.json");
+    let original = std::fs::read(&path).unwrap();
+    let other = root.join("other-package");
+    std::fs::create_dir(&other).unwrap();
+    std::fs::write(
+        other.join("SKILL.md"),
+        "---\nname: other-review\ndescription: Another review.\n---\nSeparate instructions.\n",
+    )
+    .unwrap();
+    let mut changed: serde_json::Value = serde_json::from_slice(&original).unwrap();
+    let text = changed["files"]["SKILL.md"].as_str().unwrap();
+    changed["files"]["SKILL.md"] = serde_json::json!(format!("{text}\nValid changed body.\n"));
+    // Malformed JSON and well-formed bytes with a stale digest are both stored
+    // damage, not a removable version conflict with an inspectable new digest.
+    for bytes in [b"not JSON".to_vec(), serde_json::to_vec(&changed).unwrap()] {
+        std::fs::write(&path, &bytes).unwrap();
+        for args in [
+            vec!["skills"],
+            vec!["skill-inspect", "--name", "document-review"],
+            vec![
+                "skill-remove",
+                "--name",
+                "document-review",
+                "--digest",
+                digest.as_str(),
+            ],
+            vec!["skill-install", "--source", other.to_str().unwrap()],
+        ] {
+            let result = run(&root, true, &data, &args);
+            assert_eq!(result.code, 6, "{args:?}: {}", result.stdout);
+            let value = result.envelope();
+            assert_eq!(value["status"], "rejected");
+            assert_eq!(value["error"]["code"], "invalid_request");
+            assert!(
+                value["error"]["details"].get("reason").is_none(),
+                "stored damage must not recommend digest-conflict recovery: {value}"
+            );
+            assert_eq!(std::fs::read(&path).unwrap(), bytes);
+            assert!(!data.join("skills/other-review.json").exists());
+        }
+    }
+    std::fs::write(&path, original).unwrap();
+    assert_eq!(
+        run(
+            &root,
+            true,
+            &data,
+            &["skill-inspect", "--name", "document-review"]
+        )
+        .code,
+        0
+    );
+    let removed = run(
+        &root,
+        true,
+        &data,
+        &[
+            "skill-remove",
+            "--name",
+            "document-review",
+            "--digest",
+            &digest,
+        ],
+    );
+    assert_eq!(removed.code, 0, "{}", removed.stdout);
+    assert_eq!(removed.envelope()["result"]["removed"], true);
+}

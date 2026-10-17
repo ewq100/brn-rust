@@ -312,7 +312,7 @@ impl Catalog {
             || package.info.digest != artifact.digest
             || package.info.name != name
         {
-            return Err(conflict());
+            return Err(bad("installed package identity/digest mismatch"));
         }
         Ok(Some(package))
     }

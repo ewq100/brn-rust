@@ -382,9 +382,15 @@ fn well_formed_body_digest_and_file_name_binding_refuse_without_deletion() {
         assert!(validate(artifact.files.clone(), false).is_ok());
         let changed = serde_json::to_vec(&artifact).unwrap();
         disk::write(&path, &changed).unwrap();
+        let error = inspect(&store, "document-review").unwrap_err();
         assert!(
-            inspect(&store, "document-review").is_err(),
-            "name change: {change_name}"
+            !matches!(
+                error
+                    .get_ref()
+                    .and_then(|e| e.downcast_ref::<PackageRefusal>()),
+                Some(PackageRefusal::DigestConflict)
+            ),
+            "stored package damage is not an actionable digest conflict (name change: {change_name}): {error}"
         );
         assert!(list(&store).is_err());
         assert!(remove(&store, "document-review", &info.digest).is_err());
