@@ -1,0 +1,66 @@
+{
+  "activation_ready": false,
+  "paid_starts": 0,
+  "activation_created": false,
+  "blockers": [
+    "No principal activation/review yet; ignored runner never executed."
+  ],
+  "preflight_prepared": true,
+  "reference_only_configure_count": 1,
+  "preflight": "/private/tmp/brn-int-d-capture-preflight-20261017-9d3741e6/preflight.json",
+  "sha256": "befbd639c2c699fd27502a9cb70a618ce00154987dbdbcd49574a85ea2d5b85f",
+  "generation_command": [
+    "/private/tmp/brn-int-d-20261017-target/debug/deps/int_d-8d0cf15fe49e4a41",
+    "--exact",
+    "checked_source_labelled_pair_reopens_through_cli_with_explicit_scoped_selection",
+    "--test-threads=1",
+    "--nocapture"
+  ],
+  "canonical_read_command": [
+    "/private/tmp/brn-int-d-20261017-target/debug/brn",
+    "--json",
+    "--data-dir",
+    "/private/tmp/brn-int-d-qualification-20261017-runner-9d3741e6/control",
+    "--timeout",
+    "2",
+    "records"
+  ],
+  "main_wal_shm_after_final_local_inspection": {
+    "main": "e26d55cd59c1f5ecd528ee27cfbfca61db31c084338c0fdc79e868802bd923ee",
+    "wal": null,
+    "shm": null
+  },
+  "artifacts": {
+    "cli": {
+      "path": "/private/tmp/brn-int-d-20261017-target/debug/brn",
+      "hashed_artifact": "/private/tmp/brn-int-d-20261017-target/debug/deps/brn-f4074be051a4fb89",
+      "sha256": "7089c3b7ccec599d38a1f816e3c7c8bb842cdc2de299ed5e0fdd69aa437a5800",
+      "mtime": 1792250612.272138,
+      "receipt_mtime": 1792250613.4640517,
+      "not_modified_after_receipt": true,
+      "dep_info": "/private/tmp/brn-int-d-20261017-target/debug/deps/brn-f4074be051a4fb89.d",
+      "dep_info_sha256": "01483c7430f5f4f5b414a3eb5e5c445effe70676685903920545601c753d9e54",
+      "association": "Exact executable bytehash matches hashed Cargo artifact; not itself a Running test target"
+    },
+    "generator": {
+      "path": "/private/tmp/brn-int-d-20261017-target/debug/deps/int_d-8d0cf15fe49e4a41",
+      "sha256": "c76a9c4e3a6d9913cfe20706734702ba6fad732373551b0c80e2843b97723345",
+      "mtime": 1792250602.7342331,
+      "receipt_mtime": 1792250613.4640517,
+      "not_modified_after_receipt": true,
+      "dep_info": "/private/tmp/brn-int-d-20261017-target/debug/deps/int_d-8d0cf15fe49e4a41.d",
+      "dep_info_sha256": "6c0073fbc84e17071ea7a91fe4713cddf81b03964da4710f5794d12c4ae51ae2"
+    },
+    "runner": {
+      "path": "/private/tmp/brn-int-d-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9",
+      "sha256": "ebfcbd6a504f2d31ed2360d09d94a1e444cb20e920880baf486d985ab633e164",
+      "mtime": 1792250523.7125673,
+      "receipt_mtime": 1792250529.042387,
+      "not_modified_after_receipt": true,
+      "dep_info": "/private/tmp/brn-int-d-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9.d",
+      "dep_info_sha256": "9cd8059b642415fd27b25e3808c6f56d49abd1e3f4cfc0e67aa9ead4460eaac0"
+    }
+  },
+  "purpose_evidence": "Actual checked Test-purpose generator; future gate checks Store purpose again.",
+  "earlier_O3": "This one new preparer is executed prospectively only; old preparer remains unexecuted at its old pin."
+}

@@ -1,0 +1,20 @@
+{
+  "task": "int-d-capture-runner-20261017",
+  "base": "f0c2ae65b432fc87f45fa8618035106ddad3b239",
+  "material_pin": "9d3741e6df54d2ff8f48dbf4d534210450d6f611",
+  "tree": "4044b78e265fb1121d7910443fa8c8e1de4aa851",
+  "crates": "d6a6454bb377f4a2cb7cef2611a640de5be4dc69",
+  "inputs": 334,
+  "full_diff": "/private/tmp/brn-int-d-capture-runner-20261017-evidence/base-to-material.patch",
+  "full_diff_sha256": "94a097dea49406a0b7a177da2c807cfaee86fa339bf0b726532aad5cc8cb0ef9",
+  "source_artifact_association": "Final check actual f0c+WIP334bytes now verified identical to Git pin; no contemporaneous new-SHA build claim.",
+  "normal_checks": [
+    "runner-focused-shaped:6/0/1ignored",
+    "runner-scripted-clippy-shaped:exit0",
+    "runner-cli-generator:4/0",
+    "runner-format:exit0"
+  ],
+  "runner_positively_invoked": false,
+  "paid_starts": 0,
+  "timestamp": 1792250889.016025
+}

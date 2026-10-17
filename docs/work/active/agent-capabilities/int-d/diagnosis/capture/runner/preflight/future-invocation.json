@@ -1,0 +1,26 @@
+{
+  "current_permission": "OFFLINE ONLY; DO NOT EXECUTE",
+  "requires_new_principal_activation_and_review": true,
+  "executable": "/private/tmp/brn-int-d-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9",
+  "argv": [
+    "--ignored",
+    "--exact",
+    "threads::int_d_tests::capture_runner::manual_one_start_prepare_diagnostic",
+    "--test-threads=1",
+    "--nocapture"
+  ],
+  "environment_references_only": {
+    "BRN_INT_D_CAPTURE_PREFLIGHT": "/private/tmp/brn-int-d-capture-preflight-20261017-9d3741e6/preflight.json",
+    "BRN_INT_D_CAPTURE_ACTIVATION": "/private/tmp/brn-int-d-capture-preflight-20261017-9d3741e6/activation.json"
+  },
+  "activation_file_exists": false,
+  "maximum_future_starts_proposed": 1,
+  "rounds": 8,
+  "host_deadline_seconds": 120,
+  "maximum_cancel_drain_seconds": 5,
+  "helpers": false,
+  "mcp": false,
+  "apply": false,
+  "continue": false,
+  "retry": false
+}
