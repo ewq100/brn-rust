@@ -1,0 +1,47 @@
+{
+  "source_pin": "15c0574105779eb856c8738eb464126b383ff5eb",
+  "evidence_HEAD": "51832e2914adab3a63733fb97279cb3c39109977",
+  "crates_tree": "12e25fc77e3bf6f6f8038bb00e21f1a6250d87d3",
+  "branch": "work/d3a-20261017",
+  "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+  "status_at_release": [],
+  "campaign_start_unix": 1792215318.234582,
+  "cleanup_end_unix": 1792215807.989793,
+  "original_cap_seconds": 1800,
+  "charged_seconds": 489.7552111148834,
+  "remaining_original_seconds": 1310.2447888851166,
+  "charge_includes": "All post-pin campaign planning/version/help/list/archive/setup failures/baseline/controller/three seeds/restore/hash/reap/process checks/evidence cleanup and first evidence commit. Final receipt archival/notification are reporting only, no further heavy work.",
+  "automatic": {
+    "selected": 14,
+    "caught": 12,
+    "missed": 2,
+    "unviable": 0,
+    "timeout": 0,
+    "incomplete": 0,
+    "unselected_listed": 250
+  },
+  "manual_seeds": {
+    "selected": 3,
+    "caught": 3,
+    "missed": 0,
+    "no_verdict": 0
+  },
+  "baseline": "actual9/0 before generated campaign",
+  "source_files_hash_verified": 306,
+  "copy_restored": true,
+  "candidate_material_unchanged": true,
+  "reaped_process_groups": [
+    61259,
+    61233,
+    67981,
+    74096,
+    74147
+  ],
+  "own_group_members": [],
+  "global_precise_heavy_processes": [],
+  "heavy_slot": "EXPLICITLY RELEASED",
+  "all_D3a_paths": "EXPLICITLY RELEASED",
+  "source_frozen": true,
+  "pending": "Opus1 disposition before bounded portability/tamper qualification correction; no acceptance. Same remaining original budget only if later explicitly granted; no new cap.",
+  "raw_summary_sha256": "c651cdc2ebfc62d4f9ed6b359aec03062e6c359f122414aac04198e83a55ec9f"
+}
