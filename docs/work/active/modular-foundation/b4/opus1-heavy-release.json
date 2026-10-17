@@ -1,0 +1,59 @@
+{
+  "utc": "2026-10-17T00:08:59.894148+00:00",
+  "source_pin": "4a8b9690428f79f5806ba998429aa2edfb699d9d",
+  "source_tree": "dc12ea1f291a0512046ac4f8d79379d6a838a110",
+  "crates_tree": "bdace41c4ee22af8180c32085cfeef1d376b2c95",
+  "branch": "work/b4-20261017",
+  "root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+  "task_target": "/private/tmp/brn-b4-20261017-target",
+  "before_source": "/private/tmp/brn-b4-opus1-before-20261017-source",
+  "before_target": "/private/tmp/brn-b4-opus1-before-20261017-target",
+  "material_count": 332,
+  "material_fingerprint": "3d784297cafb1ad752f73b0ae5e32538974dfce0e8c66f2e0bd20759a3bc9397",
+  "all_material_hashes_match_checked_pin": true,
+  "heavy_processes": [],
+  "own_controllers": [],
+  "running_command_receipts": [],
+  "collector_ancestors_excluded": [
+    1,
+    14616,
+    14628,
+    15761,
+    15762,
+    55224,
+    55281
+  ],
+  "own_children_reaped": true,
+  "before_production_changed": false,
+  "before_test_only_patch_preserved": true,
+  "original_review_verbatim": true,
+  "tool_identities": {
+    "rustc": {
+      "path": "/Users/evokessler/.cargo/bin/rustc",
+      "sha256": "ec1b9233e7f72990ecd8e62063fa7f6c3dfc2bec8e97f88bff165f9100ac696a"
+    },
+    "cargo": {
+      "path": "/Users/evokessler/.cargo/bin/cargo",
+      "sha256": "ec1b9233e7f72990ecd8e62063fa7f6c3dfc2bec8e97f88bff165f9100ac696a"
+    },
+    "rustfmt": {
+      "path": "/Users/evokessler/.cargo/bin/rustfmt",
+      "sha256": "ec1b9233e7f72990ecd8e62063fa7f6c3dfc2bec8e97f88bff165f9100ac696a"
+    },
+    "pdftotext": {
+      "path": "/Users/evokessler/.local/bin/pdftotext",
+      "sha256": "47dc9f7013c900875f09faf1f8788269b6a422adb2e0dd5218590b7731f328a7"
+    },
+    "pdfimages": {
+      "path": "/Users/evokessler/.local/bin/pdfimages",
+      "sha256": "adc3b7f3e43a78bcb497d99e3c388ea010351febc6236ff2dd9dbf8a1fde85a7"
+    },
+    "pdftoppm": {
+      "path": null,
+      "sha256": null
+    }
+  },
+  "heavy_slot": "EXPLICITLY RELEASED",
+  "all_B4_production_test_manifest_lock_CI_script_shared_path_ownership": "EXPLICITLY RELEASED TO PRINCIPAL; source frozen for Opus2",
+  "no_retained_writer": true
+}
