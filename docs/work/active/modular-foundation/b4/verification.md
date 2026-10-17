@@ -1,5 +1,7 @@
 # B4 local verification and review handoff preparation
 
+**Current correction:** [Opus1 response and new checks](opus1-response.md) supersede the original action-wiring/lint-harness claims. The table below retains c95 evidence; it is not relabelled as corrected-source execution. [Native lane](principal-native-lane.md) now records verified `test = true` automatic example coverage.
+
 Bound `work/b4-20261017` at accepted B3 base `c5b257fb643794e0802dd1cb4d3fee5ff3ee0edf` in `/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc`. Provider OpenAI/Codex, model gpt-6.1-sol. [Original requirements/plan and exact ownership](plan.md), [all actual commands and source/artifact hashes](checks.json), [whole lock reconciliation](lock-reconciliation.json), [exact lock delta](lock.patch).
 
 ## Implemented independence witness
@@ -22,7 +24,7 @@ Rust/cargo 1.98.1, locked/offline after reconciliation, CARGO_INCREMENTAL=0 and 
 | Explicit example native/test-support test lane | 3 passed /0 failed /0 ignored |
 | Native writing library | 44 passed |
 | Native desktop regression | 287 passed /0 failed /1 existing ignored |
-| Native writing all-target strict Clippy (includes example/test harness) | Passed, -D warnings |
+| Native writing all-target strict Clippy at c95 (ordinary example binary only) | Passed, -D warnings; journey test harness was not linted (Opus1 LOW) |
 | Native desktop strict all-target Clippy | Passed, -D warnings |
 | Host normal+dev dependency tree | Passed; no brn-desktop |
 | Default workspace normal/features trees | Passed; zero GPUI |
@@ -30,7 +32,7 @@ Rust/cargo 1.98.1, locked/offline after reconciliation, CARGO_INCREMENTAL=0 and 
 | Full default workspace tests, --no-fail-fast | 1115 passed /1 failed /6 ignored; sole carried qualification PDF Unavailable |
 | Workspace fmt / local Markdown links / diff whitespace | Passed |
 
-The new real-owner-event journey selects a saved passage with keyboard events, clicks the shared comment/Post/Rewrite/Review/Apply/Undo controls, checks persisted feedback and exact scoped request, actual scripted model input, host evidence/quotation, unchanged saved document until Apply, exact applied Markdown and durable Undo/editor refresh. The source has a complete retained-text read but remains partial-original coverage; normal Rewrite does not falsely claim an exhaustive requirements check. The other native witness checks real typing -> recoverable dirty guard -> owner Save, then notify-only access loss hides the entire panel. The ordinary fixture witness drops/reopens the real Workspace, verifies setup/context persistence, then drops only its own TempDir and checks cleanup.
+The new real-owner-event journey selects a saved passage with keyboard events, clicks the shared comment/Post/Rewrite/Review/Apply/Undo controls, checks persisted feedback and exact scoped request, actual scripted model input, host evidence/quotation, unchanged saved document until Apply, exact applied Markdown and durable Undo/editor refresh. The source has a complete retained-text read but remains partial-original coverage; normal Rewrite does not falsely claim an exhaustive requirements check. The other native witness checks real typing -> recoverable dirty guard -> owner Save, then notify-only access loss hides the entire panel. It asserts after run_until_parked; it does not prove first-edit ordering before render. That ordering is a source-code observation only. The ordinary fixture witness drops/reopens the real Workspace, verifies setup/context persistence, then drops only its own TempDir and checks cleanup. Real macOS GUI quit/destructor cleanup remains unqualified.
 
 All pre-B4 tests/assertions/IDs/events remain byte-identical. The 326 protected original material inputs match accepted B3; only the allocated library manifest and lock change, plus four new example sources. Final 332-input fingerprint `85dbe2e458e7d080f6a70d923436de67d6e5bcc6c67ab9e8d0e6965c1e882ae7`. The actual precommit HEAD and material maps, not an invented future SHA, associate every execution with source.
 
@@ -40,7 +42,7 @@ All pre-B4 tests/assertions/IDs/events remain byte-identical. The 326 protected 
 
 - First compile SIGBUS during recursive GPUI test macro expansion. A wildcard import exposed the test macro alongside Rust's built-in test attribute. Explicit imports removed the failure; no dependency/compiler patch or upgrade.
 - First compiled journey expected exhaustive completeness from a normal Rewrite. Existing service code requires an explicit exhaustive request. The corrected fixture asserts that request/overall completeness are false while retaining complete source-read, quotation and partial-original assertions. No existing test assertion was changed.
-- Initial all-host test could not observe host-unavailable because its test-support marker was missing. The marker was added; refusal/hidden-panel assertions remain. Shared keyboard/context-menu action forwarding was completed in the host.
+- Initial all-host test could not observe host-unavailable because its test-support marker was missing. The marker was added; refusal/hidden-panel assertions remain. The earlier claim here that keyboard/context-menu forwarding was complete was incorrect: Opus1 found missing key context/listeners at c95. See the [bounded correction response](opus1-response.md) for the actual correction and later evidence.
 - Initial strict lint found an unnecessary borrow in fixture Workspace::open. Removed in fixture/reopen code, with final host tests/build/lint rerun on the corrected bytes.
 - The full default suite failed only prepared_rust_fixtures_keep_source_and_preview_bindings_in_owned_scratch at qualification.rs:470: Pdf preparation failed: Unavailable. Actual pdftotext/pdfimages identities are retained; pdftoppm is absent. No skip, wrapper or rerun-to-green.
 
@@ -52,7 +54,7 @@ F18 is locally characterized by the real host journey and actual built native bi
 
 No native-retrieval/combined/E2E/headless broad repeat: no existing production source, feature definitions, external package identity or retrieval contract changed; the newly used development features already exist in the desktop test closure. INT-W and any stronger combined qualification belong to principal. Native-human/IME/real picker/actual GUI launch, live provider/converter, hosted/full F21, owner/program/principal acceptance and PDF tooling remain open. D1B/D2 are not integrated. No mutation was granted or run; B3's 217.265250/600 allocation is closed and unused time is not transferred.
 
-Principal-owned CI/script follow-up (not edited here): explicitly run `cargo test -p brn-writing-ui --example writing_host --features native-ui,native-test-support --locked --offline` in the native lane. A desktop dependency build or ordinary library test does not execute the example's three tests. Keep default gates with no native features; example required-features is native-ui. Launch instructions for later authorized human work: `cargo run -p brn-writing-ui --example writing_host --features native-ui --locked --offline`; this was not launched during verification.
+Historical c95 CI/script request (applied by principal at 50fa; superseded only after automatic example-test coverage is verified in the [correction response](opus1-response.md)): explicitly run `cargo test -p brn-writing-ui --example writing_host --features native-ui,native-test-support --locked --offline` in the native lane. A desktop dependency build or ordinary library test does not execute the example's three tests. Keep default gates with no native features; example required-features is native-ui. Launch instructions for later authorized human work: `cargo run -p brn-writing-ui --example writing_host --features native-ui --locked --offline`; this was not launched during verification.
 
 Fresh principal-owned Opus actual-diff review and local acceptance remain pending. Compiled source/test pin and final heavy/source ownership release will be added separately after this receipt; no self-acceptance/publication/integration claim.
 

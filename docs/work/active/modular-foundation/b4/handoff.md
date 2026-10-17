@@ -1,5 +1,7 @@
 # B4 compiled development-host handoff for principal Opus1
 
+Historical c95 handoff. [Opus1 findings and bounded correction](opus1-response.md) supersede action-wiring, test-harness lint and native-lane claims below; c95 counts/binaries retain their original identity. First-dirty assertions are post-park evidence, and GUI quit cleanup is unqualified.
+
 **Compiled source/test pin:** `c95b17a8642353641b92e2801fc242e263290bff`.
 
 - Tree: `41034f07d7d3c688e6b286396b936dfe66c7649d`.

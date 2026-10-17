@@ -12,7 +12,6 @@ cargo build -p brn-intake --features helper --bin brn-intake-helper --locked --o
 cargo build -p brn-writing-ui --features native-ui --locked --offline
 cargo clippy -p brn-writing-ui --features native-ui,native-test-support --all-targets --locked --offline -- -D warnings
 cargo test -p brn-writing-ui --features native-ui,native-test-support --locked --offline
-cargo test -p brn-writing-ui --example writing_host --features native-ui,native-test-support --locked --offline
 cargo build -p brn-desktop --features native-ui,native-test-support --locked --offline
 cargo clippy -p brn-desktop --features native-ui,native-test-support --all-targets --locked --offline -- -D warnings
 cargo test -p brn-desktop --features native-ui,native-test-support --locked --offline

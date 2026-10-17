@@ -537,7 +537,12 @@ impl Render for WritingHost {
         let view = self.view();
         let controls = view.note_controls(cx);
         let body = view.note_tile(window, cx);
-        div().id("writing-host").size_full().flex().flex_col().bg(rgb(p.tile))
+        div().id("writing-host").key_context("WritingHost")
+            .on_action(cx.listener(|this, _: &Save, window, cx| this.dispatch(WritingRequest::Save, window, cx)))
+            .on_action(cx.listener(|this, _: &CommentSelection, window, cx| this.dispatch(WritingRequest::CommentSelection, window, cx)))
+            .on_action(cx.listener(|this, _: &Rewrite, window, cx| this.dispatch(WritingRequest::Rewrite, window, cx)))
+            .on_action(cx.listener(|this, _: &AskAboutSelection, window, cx| this.dispatch(WritingRequest::AskSelection, window, cx)))
+            .size_full().flex().flex_col().bg(rgb(p.tile))
             .child(div().p_2().text_sm().child("Writing UI development host · synthetic disposable documents · scripted offline provider"))
             .child(div().id("host-notice").p_2().child(self.notice.clone()).test_support())
             .child(div().flex().items_center().gap_1().p_1().children(controls))

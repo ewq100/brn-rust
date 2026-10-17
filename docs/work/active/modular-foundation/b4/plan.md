@@ -32,3 +32,7 @@ The prepared implementation and exact six lock edges are locally checked as reco
 
 
 Compiled source/test is now pinned at c95b17a8642353641b92e2801fc242e263290bff. [Handoff](handoff.md) and [release receipt](heavy-release.json) close this worker's heavy/source ownership: frozen, handed to principal for Opus1 and disposition; no further overlapping edit or build authority. No acceptance or INT-W exit is claimed.
+
+## Opus1 bounded correction
+
+Principal reallocated only host render key-context/action listeners, two existing journey extensions (keyboard/actions and immediate Apply editor assertion), manifest example test=true and conditional removal of redundant 50fa CI/script example test lines after verifying automatic coverage. [Full review response](opus1-response.md) records genuine separate-root behavioral before proof, corrected local counts and exact limitations. No shared-library/desktop/runtime changes or new dependency/lock delta. New immutable pin goes to principal Opus2; all paths and sole heavy return after pin/reap, without self-acceptance.

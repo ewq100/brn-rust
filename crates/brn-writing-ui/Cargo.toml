@@ -15,6 +15,7 @@ gpui-kit = { version = "=0.7.3", optional = true }
 
 [[example]]
 name = "writing_host"
+test = true
 required-features = ["native-ui"]
 
 [dev-dependencies]
