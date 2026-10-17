@@ -12,7 +12,7 @@
 - [x] New app skills.rs + minimal lib module and Workspace wrappers over its checked Store.directory. New CLI skills/skill-inspect/skill-install/skill-remove through that owner service, existing envelope/help/spec/owner-decision rules; install stays inactive. No actor-name authority or key/replay receipt invention.
 - [x] Synthetic document-review SKILL.md/reference example, not a fifth built-in. Focused parser/path/hostile FS/collision/rollback/concurrency/reopen/service/CLI tests. Preserve existing assertions.
 - [x] Focused then full affected AI/app/CLI, helper-first default workspace checks as proportional, strict affected all-target Clippy/fmt and relevant capability fixture. Known PDF Unavailable/native/live gates remain explicit; no GUI or native broad rebuild for management-only changes.
-- [ ] Freeze immutable compiled source/test pin with original-base diff and source/artifact/log receipts for fresh principal Opus. Only then one <=1800s cumulative targeted D3a mutation campaign using installed cargo-mutants, changed guards only, passing genuine copied baseline, fixed independent source+target, all setup/list/cleanup charged. Prior budgets closed. Release heavy/all paths after restored hashes and reaped processes.
+- [x] Freeze immutable compiled source/test pin with original-base diff and source/artifact/log receipts for fresh principal Opus. Only then one <=1800s cumulative targeted D3a mutation campaign using installed cargo-mutants, changed guards only, passing genuine copied baseline, fixed independent source+target, all setup/list/cleanup charged. Prior budgets closed. Release heavy/all paths after restored hashes and reaped processes.
 
 ## Supported bounded subset and design choices
 
@@ -28,3 +28,6 @@ Meaningful failure risks: source files replaced during import, installed artifac
 
 
 Principal exact core allocation after actual5/3package failures: store.rs::open_with workspace-entry allowlist/type condition only, literal skills real-directory admission with all symlink/other-entry/marker/adoption guards intact; append data_folder.rs focused witness. Before exact-base compiled0/1 at real-skills reopen; original AI5/3 includes two same-path failures plus unrelated aggregate-fixture expectation error. No schema/backup/store operation changes. Source/app/CLI/retention proofs must reopen through this actual core path.
+
+
+Post-pin campaign at15c: actual copied baseline9/0;14generated=12caught/2MISSED and3manualFSseeds=3caught. Allsource restored; surviving identity/moved-recheck gaps and non-supported-target compile risk are retained in [qualification notes](qualification-notes.md). Pending principal Opus disposition/corrections; no acceptance or broad mutation-pass claim. Final original-cap budget/release follows actual cleanup receipt.

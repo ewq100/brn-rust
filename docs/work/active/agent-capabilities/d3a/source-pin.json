@@ -1,0 +1,16 @@
+{
+  "source_pin": "15c0574105779eb856c8738eb464126b383ff5eb",
+  "tree": "b5ec4ac29a5480b2d1ac312b7b2750bcb04b0737",
+  "crates_tree": "12e25fc77e3bf6f6f8038bb00e21f1a6250d87d3",
+  "base": "59d1152b1f7576851365cc65d065ba43bb655228",
+  "branch": "work/d3a-20261017",
+  "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+  "status_at_pin": [],
+  "full_base_to_pin_diff_sha256": "00ae450d8f2dfa34b0ffa6d937dbd760506af912b7a0104e223db892b80f80e9",
+  "material_base_to_pin_diff_sha256": "8b022a0330a373ca380a6738da9b2e27c1bfc59d3f3a25c75dc73b80a5008bba",
+  "precommit_receipt": "/private/tmp/brn-d3a-20261017-artifacts/precommit.json",
+  "precommit_receipt_sha256": "5f6625ee7ddd6d99d86ac4388d071516d4264464a54c7770b345e5a5a5b3bc33",
+  "source_frozen": true,
+  "mutation_started": false,
+  "receipt_at_unix": 1792215310.252975
+}
