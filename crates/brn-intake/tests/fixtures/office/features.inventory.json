@@ -1,0 +1,89 @@
+{
+  "inventory_version": 1,
+  "fixture": "features",
+  "status": {"authorship": "MANUALLY_AUTHORED_SOURCE_FACTS", "review": "PENDING_PARENT_REVIEW", "behavior": "UNEXECUTED"},
+  "source": {
+    "path": "crates/brn-intake/tests/fixtures/features.docx",
+    "sha256": "04db9ac31374868d55d0ff579f23ad5bc558fb9fe9a2363305498817e335ea6d",
+    "basis": "Full P1/P2 author scripts plus manual bounded XML/chart/relationship inspection; no extractor output.",
+    "author_inputs": [
+      {"commit": "3a3aa7ac6f2a70815ffc778a694663f729203a79", "path": "experiments/architecture-reassessment/p1-office-mime/fixtures.py", "sha256": "2fbfd8c401266f2ec43a201b6d7e25b16ff6449873559f073d95a4dfeb9fee5d"},
+      {"commit": "3a3aa7ac6f2a70815ffc778a694663f729203a79", "path": "experiments/architecture-reassessment/p2-api-check/fixtures.py", "sha256": "4a80324e70740bb021245cb29ccba9b51ce239a8f6094784a81d9f5defb7d5b1"}
+    ],
+    "part_sha256": {
+      "word/document.xml": "c315eaca7c750a54b09e195d5152c18ef94354a087649b086e216ae825ec019e",
+      "word/_rels/document.xml.rels": "ab78316d3806f6050cfec3a3c8819ab8512b7ae1900608bcc985eba15ebdf52e",
+      "word/header1.xml": "ac23af10458d65e63bf6e36814ab805d3b6daba2dabf261c2af45c4242556ab5",
+      "word/footer1.xml": "682396ffd8cf39e380adb61976bd9b35f0941d2eb58e5d98fa46a08b00c1aa45",
+      "word/numbering.xml": "70976f19cbcd896e51890859fe6ecb3467a5a7ad0c040160fedc5a1993cb09ce",
+      "word/styles.xml": "02d71a68ddb92c055e84526d6a9e45700be3872781ababf759241694bc30e384",
+      "word/charts/chart1.xml": "a2f7f63b088a248a134059cf3ca986700329a42f15b27fb2d738004b055f587d",
+      "docProps/core.xml": "d14be8284e406d14dc2a576b19f15e7f637b955f9e27a3d9ed871ec99606f7ba"
+    }
+  },
+  "namespaces": {
+    "wordprocessing": "http://schemas.openxmlformats.org/wordprocessingml/2006/main",
+    "drawing": "http://schemas.openxmlformats.org/drawingml/2006/main",
+    "wordprocessing_drawing": "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing",
+    "package_relationships": "http://schemas.openxmlformats.org/package/2006/relationships",
+    "picture": "http://schemas.openxmlformats.org/drawingml/2006/picture",
+    "chart": "http://schemas.openxmlformats.org/drawingml/2006/chart",
+    "relationships": "http://schemas.openxmlformats.org/officeDocument/2006/relationships",
+    "body_prefixes": {"wordprocessing": "w", "picture": "pic", "chart": "c"},
+    "header_footer_wordprocessing_prefix": "w"
+  },
+  "comparison_projection": {
+    "keys": "Hand-authored inventory keys, not BRN block IDs; source_child counts direct story paragraphs/tables from 1, excluding sectPr.",
+    "story_order": ["body", "header-default", "footer-default"],
+    "story_order_basis": "Comparison serialization only; section 1 links header/footer. No OPC global story order or current rendering order asserted.",
+    "wording": "Compare all wording and ordered objects/cells. Title metadata is not interchangeable with description, preceding prose or chart series name.",
+    "runtime_rendering": "UNKNOWN: Markdown/DTO IDs/ranges/diagnostics/story emission await T1/T3; no observed gap classification."
+  },
+  "stories": [
+    {"key": "body", "kind": "body", "part": "word/document.xml", "blocks": [
+      {"key": "body-1", "source_child": 1, "kind": "title", "style": "Title", "text": "Harbor water-saving pilot"},
+      {"key": "body-2", "source_child": 2, "kind": "paragraph", "text": "Decision: extend the pilot to Pier B on 15 October 2026. Owner: Mira. The chart is evidence, not decoration."},
+      {"key": "body-3", "source_child": 3, "kind": "table", "table": "table-1"},
+      {"key": "body-4", "source_child": 4, "kind": "paragraph", "text": "Water use before and after"},
+      {"key": "body-5", "source_child": 5, "kind": "figure", "occurrence": "figure-1"},
+      {"key": "body-6", "source_child": 6, "kind": "paragraph", "text": "Same chart for operations handoff"},
+      {"key": "body-7", "source_child": 7, "kind": "figure", "occurrence": "figure-2"},
+      {"key": "body-8", "source_child": 8, "kind": "native_chart", "chart": "chart-1"}
+    ]},
+    {"key": "header-default", "kind": "header", "part": "word/header1.xml", "section": 1, "relationship_id": "rId9", "blocks": [
+      {"key": "header-1", "source_child": 1, "kind": "paragraph", "style": "Header", "text": "Internal synthetic briefing — review date 12 October 2026"}
+    ]},
+    {"key": "footer-default", "kind": "footer", "part": "word/footer1.xml", "section": 1, "relationship_id": "rId10", "blocks": [
+      {"key": "footer-1", "source_child": 1, "kind": "paragraph", "style": "Footer", "text": "Footer constraint: budget capped at EUR 4,000."}
+    ]}
+  ],
+  "tables": [{"key": "table-1", "block": "body-3", "rows": 3, "grid_columns": 3, "cells": [
+    {"address": "R1C1", "text": "Site", "row_span": 1, "column_span": 1},
+    {"address": "R1C2", "text": "Before", "row_span": 1, "column_span": 1},
+    {"address": "R1C3", "text": "After", "row_span": 1, "column_span": 1},
+    {"address": "R2C1", "text": "Pier A", "row_span": 1, "column_span": 1},
+    {"address": "R2C2", "text": "120 L/day", "row_span": 1, "column_span": 1},
+    {"address": "R2C3", "text": "72 L/day", "row_span": 1, "column_span": 1},
+    {"address": "R3C1", "text": "Pier B", "row_span": 1, "column_span": 1},
+    {"address": "R3C2", "text": "Pending", "row_span": 1, "column_span": 1},
+    {"address": "R3C3", "text": "Pending", "row_span": 1, "column_span": 1}
+  ]}],
+  "figures": [
+    {"key": "figure-1", "block": "body-5", "part": "word/document.xml", "paragraph": 4, "drawing": 1, "docpr_id": "1", "name": "primary-chart", "title": "Water use before and after", "description": "120 to 72 litres/day, a 40% reduction", "relationship_id": "rId11", "relationship_target": "media/image1.png", "asset": "asset-1", "caption_block": "body-4", "caption_basis": "P1 authored immediately preceding paragraph, not formal Caption style."},
+    {"key": "figure-2", "block": "body-7", "part": "word/document.xml", "paragraph": 6, "drawing": 1, "docpr_id": "2", "name": "repeated-chart", "title": "Same chart for operations handoff", "description": null, "relationship_id": "rId11", "relationship_target": "media/image1.png", "asset": "asset-1", "caption_block": "body-6", "caption_basis": "Preceding authored paragraph. P2 deliberately removes descr; do not copy figure-1 description or report a source description here."}
+  ],
+  "assets": [{"key": "asset-1", "part": "word/media/image1.png", "sha256": "f76dd37920a0fc5889b1d53a0c448f7ec6c619ed8200eef5d31621e36ca4d61d", "bytes": 19936, "media_type": "image/png", "png_ihdr_pixels": [900, 500], "authored_image_labels": ["Harbor pilot: measured water use (litres/day)", "Before", "120", "After", "72", "Result: 40% less water. Source: synthetic pilot, 6 Oct 2026."], "label_basis": "P1 script; exact retained water-use.png bytes, not visual/OCR verification."}],
+  "charts": [{
+    "key": "chart-1", "block": "body-8", "part": "word/charts/chart1.xml", "source_paragraph": 7, "docpr_id": "900", "name": "Native inspection chart", "title": "Chart title must stay separate", "description": null,
+    "relationship_id": "rIdP2Chart", "relationship_target": "charts/chart1.xml", "kind": "clustered column", "series": [{"name": "Available inspection slots", "categories": ["12 October", "13 October"], "cached_values": ["2", "0"]}],
+    "source_formulas": ["Sheet1!$B$1", "Sheet1!$A$2:$A$3", "Sheet1!$B$2:$B$3"],
+    "external_data": {"relationship_id": "rId1", "auto_update": "0", "chart_rels_part_present": false, "embedded_workbook_present": false},
+    "boundary": "P2 copies only chart XML from P1 PPTX; saved cache is source evidence, no workbook resolution or formula evaluation. docPr title is not chart series text."
+  }],
+  "notes": [], "links": [], "fields": [], "bookmarks": [], "lists": [], "revisions": [], "comments": [],
+  "absent_classes": ["tracked insertions/deletions", "comments/references", "footnotes/endnotes", "hyperlinks", "merged cells", "nested tables", "document list paragraphs", "DOCX embeddings", "content controls", "text boxes", "OMML"],
+  "coverage_requirements": ["Preserve all story wording, nine addressed cells and two separately bound occurrences of one PNG.", "Keep native chart distinct from image occurrences; source cache and chart title must not silently disappear or replace one another."],
+  "observed_gaps": null,
+  "conditional_gaps": [{"objects": ["chart-1"], "condition": "Native chart or its full factual/provenance evidence is not represented", "requirement": "Located native-chart omission/source-review gap, not complete chart extraction; exact current diagnostic unknown."}, {"objects": ["figure-1", "figure-2"], "condition": "Required occurrence/caption/title binding unavailable", "requirement": "Located gap; never guessed image join or invented second description."}],
+  "excluded_package_support": ["Styles/fonts/theme/settings and unused numbering definitions are not story content.", "Empty customXml bibliography Sources and package thumbnail are not source figures.", "Producer core metadata: creator python-docx, revision 1, created/modified 2013-12-23T23:15:00Z; other core text fields empty."]
+}

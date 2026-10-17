@@ -1,0 +1,170 @@
+{
+  "inventory_version": 1,
+  "fixture": "prefix-variation",
+  "status": {"authorship": "MANUALLY_AUTHORED_SOURCE_FACTS", "review": "PENDING_PARENT_REVIEW", "behavior": "UNEXECUTED"},
+  "source": {
+    "path": "crates/brn-intake/tests/fixtures/prefix-variation.docx",
+    "sha256": "7c2c8f4f4866db174495ad616d6995f002b63479d3ba3a22b182fb8151493709",
+    "basis": "Hand-authored Harbor semantic inventory reused because full P2 author script changes only body w/pic prefixes and asserts expanded-tree equality; independently compared bounded XML. No extractor output.",
+    "author_inputs": [
+      {"commit": "3a3aa7ac6f2a70815ffc778a694663f729203a79", "path": "experiments/architecture-reassessment/p1-office-mime/fixtures.py", "sha256": "2fbfd8c401266f2ec43a201b6d7e25b16ff6449873559f073d95a4dfeb9fee5d"},
+      {"commit": "3a3aa7ac6f2a70815ffc778a694663f729203a79", "path": "experiments/architecture-reassessment/p2-api-check/fixtures.py", "sha256": "4a80324e70740bb021245cb29ccba9b51ce239a8f6094784a81d9f5defb7d5b1"}
+    ],
+    "part_sha256": {
+      "word/document.xml": "f9c0e70b5156338bcf4d1012e0322c8ddd3956ef820420a5a6d7390090136deb",
+      "word/_rels/document.xml.rels": "d1a8528495dfb453a3e80b49117bbe375211d2f3f12f51eede39682dc268ef5c",
+      "word/header1.xml": "ac23af10458d65e63bf6e36814ab805d3b6daba2dabf261c2af45c4242556ab5",
+      "word/footer1.xml": "682396ffd8cf39e380adb61976bd9b35f0941d2eb58e5d98fa46a08b00c1aa45",
+      "word/numbering.xml": "70976f19cbcd896e51890859fe6ecb3467a5a7ad0c040160fedc5a1993cb09ce",
+      "word/styles.xml": "02d71a68ddb92c055e84526d6a9e45700be3872781ababf759241694bc30e384",
+      "docProps/core.xml": "d14be8284e406d14dc2a576b19f15e7f637b955f9e27a3d9ed871ec99606f7ba"
+    }
+  },
+  "namespaces": {
+    "wordprocessing": "http://schemas.openxmlformats.org/wordprocessingml/2006/main",
+    "drawing": "http://schemas.openxmlformats.org/drawingml/2006/main",
+    "wordprocessing_drawing": "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing",
+    "package_relationships": "http://schemas.openxmlformats.org/package/2006/relationships",
+    "picture": "http://schemas.openxmlformats.org/drawingml/2006/picture",
+    "relationships": "http://schemas.openxmlformats.org/officeDocument/2006/relationships",
+    "body_prefixes": {"wordprocessing": "xw", "picture": "xpic"},
+    "header_footer_wordprocessing_prefix": "w"
+  },
+  "comparison_projection": {
+    "keys": "Hand-authored inventory keys, not BRN block IDs. source_child is 1-based direct story child order, counting paragraphs and tables, excluding sectPr.",
+    "story_order": [
+      "body",
+      "header-default",
+      "footer-default"
+    ],
+    "story_order_basis": "Explicit comparison serialization, not an OPC global reading order or observed renderer order. Header/footer attach to section 1; preserve each story and local order.",
+    "wording": "Compare complete text and ordered objects/cells, not substring presence. Title style need not imply an invented heading depth; retain title role.",
+    "runtime_rendering": "UNKNOWN: Markdown delimiters, DTO IDs/locators, byte ranges, diagnostic wording and actual story emission order await T1/T3.",
+    "namespace_equivalence": "Expanded element/attribute tree equals Harbor body; header/footer remain w:. Prefix spelling cannot change expected wording/order/figures."
+  },
+  "stories": [
+    {
+      "key": "body",
+      "kind": "body",
+      "part": "word/document.xml",
+      "blocks": [
+        {"key": "body-1", "source_child": 1, "kind": "title", "style": "Title", "text": "Harbor water-saving pilot"},
+        {"key": "body-2", "source_child": 2, "kind": "paragraph", "text": "Decision: extend the pilot to Pier B on 15 October 2026. Owner: Mira. The chart is evidence, not decoration."},
+        {"key": "body-3", "source_child": 3, "kind": "table", "table": "table-1"},
+        {"key": "body-4", "source_child": 4, "kind": "paragraph", "text": "Water use before and after"},
+        {"key": "body-5", "source_child": 5, "kind": "figure", "occurrence": "figure-1"},
+        {"key": "body-6", "source_child": 6, "kind": "paragraph", "text": "Same chart for operations handoff"},
+        {"key": "body-7", "source_child": 7, "kind": "figure", "occurrence": "figure-2"}
+      ]
+    },
+    {
+      "key": "header-default",
+      "kind": "header",
+      "part": "word/header1.xml",
+      "section": 1,
+      "relationship_id": "rId9",
+      "blocks": [
+        {"key": "header-1", "source_child": 1, "kind": "paragraph", "style": "Header", "text": "Internal synthetic briefing — review date 12 October 2026"}
+      ]
+    },
+    {
+      "key": "footer-default",
+      "kind": "footer",
+      "part": "word/footer1.xml",
+      "section": 1,
+      "relationship_id": "rId10",
+      "blocks": [
+        {"key": "footer-1", "source_child": 1, "kind": "paragraph", "style": "Footer", "text": "Footer constraint: budget capped at EUR 4,000."}
+      ]
+    }
+  ],
+  "tables": [
+    {
+      "key": "table-1",
+      "block": "body-3",
+      "rows": 3,
+      "grid_columns": 3,
+      "cells": [
+        {"address": "R1C1", "text": "Site", "row_span": 1, "column_span": 1},
+        {"address": "R1C2", "text": "Before", "row_span": 1, "column_span": 1},
+        {"address": "R1C3", "text": "After", "row_span": 1, "column_span": 1},
+        {"address": "R2C1", "text": "Pier A", "row_span": 1, "column_span": 1},
+        {"address": "R2C2", "text": "120 L/day", "row_span": 1, "column_span": 1},
+        {"address": "R2C3", "text": "72 L/day", "row_span": 1, "column_span": 1},
+        {"address": "R3C1", "text": "Pier B", "row_span": 1, "column_span": 1},
+        {"address": "R3C2", "text": "Pending", "row_span": 1, "column_span": 1},
+        {"address": "R3C3", "text": "Pending", "row_span": 1, "column_span": 1}
+      ]
+    }
+  ],
+  "figures": [
+    {"key": "figure-1", "block": "body-5", "part": "word/document.xml", "paragraph": 4, "drawing": 1, "docpr_id": "1", "name": "primary-chart", "title": "Water use before and after", "description": "120 to 72 litres/day, a 40% reduction", "relationship_id": "rId11", "relationship_target": "media/image1.png", "asset": "asset-1", "caption_block": "body-4", "caption_basis": "Authored immediately preceding paragraph, not a Caption-style or schema caption field."},
+    {"key": "figure-2", "block": "body-7", "part": "word/document.xml", "paragraph": 6, "drawing": 1, "docpr_id": "2", "name": "repeated-chart", "title": "Same chart for operations handoff", "description": "120 to 72 litres/day, a 40% reduction", "relationship_id": "rId11", "relationship_target": "media/image1.png", "asset": "asset-1", "caption_block": "body-6", "caption_basis": "Authored immediately preceding paragraph; distinct occurrence despite identical media."}
+  ],
+  "assets": [
+    {
+      "key": "asset-1",
+      "part": "word/media/image1.png",
+      "sha256": "f76dd37920a0fc5889b1d53a0c448f7ec6c619ed8200eef5d31621e36ca4d61d",
+      "bytes": 19936,
+      "media_type": "image/png",
+      "png_ihdr_pixels": [
+        900,
+        500
+      ],
+      "authored_image_labels": [
+        "Harbor pilot: measured water use (litres/day)",
+        "Before",
+        "120",
+        "After",
+        "72",
+        "Result: 40% less water. Source: synthetic pilot, 6 Oct 2026."
+      ],
+      "label_basis": "P1 author script; embedded bytes equal retained water-use.png. No visual/OCR verification."
+    }
+  ],
+  "notes": [],
+  "links": [],
+  "fields": [],
+  "bookmarks": [],
+  "lists": [],
+  "revisions": [],
+  "comments": [],
+  "charts": [],
+  "absent_classes": [
+    "tracked insertions/deletions",
+    "comments/references",
+    "footnotes/endnotes",
+    "hyperlinks",
+    "native chart",
+    "merged cells",
+    "nested tables",
+    "document list paragraphs",
+    "DOCX embeddings",
+    "content controls",
+    "text boxes",
+    "OMML"
+  ],
+  "coverage_requirements": [
+    "Preserve all three story texts and nine addressed cells.",
+    "Preserve both source figure occurrences bound to the same exact PNG; do not deduplicate occurrences.",
+    "Keep title, description and caption wording distinct; do not invent missing metadata.",
+    "Same full semantic inventory as Harbor despite xw/xpic body prefixes; no expected empty body or source-level image loss."
+  ],
+  "observed_gaps": null,
+  "conditional_gaps": [
+    {
+      "objects": [
+        "figure-1",
+        "figure-2"
+      ],
+      "condition": "Required image or source/caption/metadata binding cannot be represented",
+      "requirement": "Located honest gap rather than guessed join or silent complete result; exact current diagnostic unknown."
+    }
+  ],
+  "excluded_package_support": [
+    "Styles/fonts/theme/settings and unused numbering definitions are not substantive story blocks.",
+    "Empty customXml bibliography Sources and package thumbnail are not source figures.",
+    "Producer core metadata is not prose: creator python-docx, revision 1, created/modified 2013-12-23T23:15:00Z; other core text fields empty."
+  ]
+}
