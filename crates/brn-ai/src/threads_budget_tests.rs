@@ -2263,6 +2263,36 @@ async fn scoped_prepare_definition_stays_frozen_after_lazy_skill_delivery() {
         );
         assert_eq!(request.tools, requests[0].tools);
     }
+    let refresh = requests[0]
+        .tools
+        .iter()
+        .find(|t| t.name == "refresh_candidate")
+        .unwrap();
+    assert_eq!(
+        refresh.parameters["properties"]
+            .as_object()
+            .unwrap()
+            .keys()
+            .map(String::as_str)
+            .collect::<std::collections::BTreeSet<_>>(),
+        ["operation", "request_key", "request"]
+            .into_iter()
+            .collect()
+    );
+    assert_eq!(
+        refresh.parameters["required"],
+        json!(["operation", "request_key", "request"])
+    );
+    for pair in requests.windows(2) {
+        assert_eq!(
+            &pair[1].chat_history[..pair[0].chat_history.len()],
+            &pair[0].chat_history
+        );
+        assert_eq!(
+            serde_json::to_vec(&pair[1].tools).unwrap(),
+            serde_json::to_vec(&pair[0].tools).unwrap()
+        );
+    }
     let store = scope.store.lock().unwrap();
     let RecordData::Run(run) = store.record(&scope.run).unwrap().unwrap().data else {
         panic!()

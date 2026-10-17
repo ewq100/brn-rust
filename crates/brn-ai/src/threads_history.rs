@@ -111,6 +111,9 @@ pub(super) fn validate_refresh(args: &Value) -> bool {
 }
 pub(super) fn refresh_schema() -> Value {
     let mut definition = schema("prepare_changes");
+    if let Some(properties) = definition["properties"].as_object_mut() {
+        properties.remove("writing");
+    }
     definition["properties"]["operation"] = json!({"type":"string","description":"Existing unapplied candidate from this Thread's run family"});
     definition["required"] = json!(["operation", "request_key", "request"]);
     definition
@@ -457,6 +460,10 @@ mod tests {
     async fn registered_runtime_history_and_refresh_tools_apply_fresh_candidate_and_store_one_answer()
      {
         let (_root, run_request, note) = super::super::tests::fixture();
+        Store::open(&run_request.data_dir)
+            .unwrap()
+            .set_workspace_purpose(WorkspacePurpose::Test)
+            .unwrap();
         let (scope, input) = begin(&run_request).unwrap();
         super::super::tests::read_all(&scope);
         let original = prepare(
@@ -512,7 +519,7 @@ mod tests {
             ],
         ]);
         let answer = run_model(
-            model,
+            model.clone(),
             scope.clone(),
             &input,
             ReasoningEffort::Medium,
@@ -522,6 +529,28 @@ mod tests {
             Arc::new(|_| {}),
         )
         .await;
+        let requests = model.requests();
+        let definition = requests[0]
+            .tools
+            .iter()
+            .find(|t| t.name == "refresh_candidate")
+            .unwrap();
+        assert_eq!(
+            definition.parameters["properties"]
+                .as_object()
+                .unwrap()
+                .keys()
+                .map(String::as_str)
+                .collect::<std::collections::BTreeSet<_>>(),
+            ["operation", "request_key", "request"]
+                .into_iter()
+                .collect(),
+            "actual registered refresh definition must not advertise writing"
+        );
+        assert_eq!(
+            definition.parameters["required"],
+            json!(["operation", "request_key", "request"])
+        );
         assert!(matches!(answer.terminal, AiTerminal::Completed));
         assert!(finish(&scope, &answer).unwrap());
         let store = scope.store.lock().unwrap();
@@ -533,5 +562,243 @@ mod tests {
         assert!(
             matches!(&messages[0].data, RecordData::Message(message) if message.text == answer.text)
         );
+    }
+
+    #[tokio::test]
+    async fn fresh_family_protected_refresh_retries_exactly_and_still_needs_owner_review() {
+        let (_root, run_request, note) = super::super::tests::fixture();
+        {
+            let mut store = Store::open(&run_request.data_dir).unwrap();
+            store.set_workspace_purpose(WorkspacePurpose::Test).unwrap();
+            owner_edit(&mut store, &note, 1, "Protected original", true);
+        }
+        let (old_scope, _) = begin(&run_request).unwrap();
+        super::super::tests::read_all(&old_scope);
+        let original = prepare(
+            &old_scope,
+            PrepareArgs {
+                writing: None,
+                request_key: "old-family".into(),
+                request: request(&note, 2, "Old protected candidate", true),
+            },
+        )
+        .unwrap();
+        drop(old_scope);
+        {
+            let mut store = Store::open(&run_request.data_dir).unwrap();
+            owner_edit(&mut store, &note, 2, "Current protected owner text", true);
+        }
+        let (scope, input) = begin(&run_request).unwrap();
+        super::super::tests::read_all(&scope);
+        let original_note = scope.store.lock().unwrap().record(&note).unwrap().unwrap();
+        let replacement = scope
+            .store
+            .lock()
+            .unwrap()
+            .allocate_operation(&format!("{}:refresh:protected-fresh", scope.run))
+            .unwrap();
+        let fresh_request = request(&note, 3, "New protected proposal", true);
+        let args = json!({"operation":original["operation"],"request_key":"protected-fresh","request":fresh_request});
+        assert!(validate_refresh(&args));
+        let model = MockCompletionModel::from_stream_turns([
+            vec![
+                MockStreamEvent::tool_call("refresh", "refresh_candidate", args.clone()),
+                MockStreamEvent::final_response_with_total_tokens(1),
+            ],
+            vec![
+                MockStreamEvent::tool_call("retry", "refresh_candidate", args),
+                MockStreamEvent::final_response_with_total_tokens(1),
+            ],
+            vec![
+                MockStreamEvent::tool_call(
+                    "apply",
+                    "apply_changes",
+                    json!({"operation":replacement}),
+                ),
+                MockStreamEvent::final_response_with_total_tokens(1),
+            ],
+            vec![MockStreamEvent::final_response_with_total_tokens(1)],
+        ]);
+        let activity = Arc::new(Mutex::new(Vec::new()));
+        let stored = Arc::new(Mutex::new(Vec::new()));
+        let observed_activity = activity.clone();
+        let observed_stored = stored.clone();
+        let observed_scope = scope.clone();
+        let observed_replacement = replacement.clone();
+        let answer = run_model(
+            model.clone(),
+            scope.clone(),
+            &input,
+            ReasoningEffort::Medium,
+            4,
+            true,
+            CancellationToken::new(),
+            Arc::new(move |event| {
+                if let AiEvent::Activity(label) = event {
+                    if label == "< refresh_candidate · success" {
+                        observed_stored.lock().unwrap().push(
+                            observed_scope
+                                .store
+                                .lock()
+                                .unwrap()
+                                .prepared(&observed_replacement)
+                                .unwrap(),
+                        );
+                    }
+                    observed_activity.lock().unwrap().push(label);
+                }
+            }),
+        )
+        .await;
+        assert!(matches!(answer.terminal, AiTerminal::Completed));
+        assert_eq!(model.request_count(), 4);
+        assert_eq!(
+            activity
+                .lock()
+                .unwrap()
+                .iter()
+                .filter(|s| s.as_str() == "< apply_changes · NeedsReview")
+                .count(),
+            1
+        );
+        let stored = stored.lock().unwrap();
+        assert_eq!(stored.len(), 2);
+        assert_eq!(
+            stored[0], stored[1],
+            "identical refresh retry preserves exact immutable candidate"
+        );
+        assert_eq!(stored[0].request.writes, fresh_request.writes);
+        let store = scope.store.lock().unwrap();
+        assert_eq!(store.prepared(&replacement).unwrap(), stored[0]);
+        assert_eq!(
+            store
+                .operation_info(original["operation"].as_str().unwrap())
+                .unwrap()
+                .state,
+            brn_threads_core::OperationState::Retired
+        );
+        assert_eq!(
+            store.operation_info(replacement.as_str()).unwrap().state,
+            brn_threads_core::OperationState::Prepared
+        );
+        assert!(store.receipt(&replacement).unwrap().is_none());
+        assert_eq!(store.record(&note).unwrap().unwrap(), original_note);
+        let RecordData::Run(run) = store.record(&scope.run).unwrap().unwrap().data else {
+            panic!()
+        };
+        assert!(run.operations.contains(&replacement));
+    }
+
+    #[tokio::test]
+    async fn forged_refresh_writing_rejects_both_batch_orders_before_effects() {
+        for writing in [
+            Value::Null,
+            json!({"quotations":[],"requirements_reported":[]}),
+        ] {
+            for progress_first in [false, true] {
+                let (_root, run_request, note) = super::super::tests::fixture();
+                Store::open(&run_request.data_dir)
+                    .unwrap()
+                    .set_workspace_purpose(WorkspacePurpose::Test)
+                    .unwrap();
+                let (scope, input) = begin(&run_request).unwrap();
+                super::super::tests::read_all(&scope);
+                let prepared = prepare(
+                    &scope,
+                    PrepareArgs {
+                        writing: None,
+                        request_key: "before-invalid-refresh".into(),
+                        request: request(&note, 1, "Prior candidate", false),
+                    },
+                )
+                .unwrap();
+                let operation = prepared["operation"].as_str().unwrap();
+                let (
+                    original_note,
+                    original_prepared,
+                    original_operations,
+                    original_progress,
+                    candidate_count,
+                ) = {
+                    let store = scope.store.lock().unwrap();
+                    let RecordData::Run(run) = store.record(&scope.run).unwrap().unwrap().data
+                    else {
+                        panic!()
+                    };
+                    (
+                        store.record(&note).unwrap().unwrap(),
+                        store
+                            .prepared(&store.operation(operation).unwrap())
+                            .unwrap(),
+                        run.operations,
+                        run.progress,
+                        store.candidates().unwrap().len(),
+                    )
+                };
+                let args = json!({"operation":operation,"request_key":"must-not-register","request":request(&note,1,"Must not prepare",false),"writing":writing});
+                assert!(!parse_valid("refresh_candidate", &args));
+                let bad = MockStreamEvent::tool_call("forged", "refresh_candidate", args);
+                let progress = MockStreamEvent::tool_call(
+                    "progress",
+                    "retain_progress",
+                    json!({"summary":"MUST_NOT_RETAIN_REFRESH_BATCH"}),
+                );
+                let mut batch = if progress_first {
+                    vec![progress, bad]
+                } else {
+                    vec![bad, progress]
+                };
+                batch.push(MockStreamEvent::final_response_with_total_tokens(1));
+                let model = MockCompletionModel::from_stream_turns([batch]);
+                let activity = Arc::new(Mutex::new(Vec::new()));
+                let seen = activity.clone();
+                let answer = run_model(
+                    model.clone(),
+                    scope.clone(),
+                    &input,
+                    ReasoningEffort::Medium,
+                    4,
+                    true,
+                    CancellationToken::new(),
+                    Arc::new(move |e| {
+                        if let AiEvent::Activity(s) = e {
+                            seen.lock().unwrap().push(s);
+                        }
+                    }),
+                )
+                .await;
+                assert!(
+                    matches!(
+                        answer.terminal,
+                        AiTerminal::Failed(AiError {
+                            kind: AiErrorKind::InvalidToolUse,
+                            ..
+                        })
+                    ),
+                    "{writing}/{progress_first}: {:?}",
+                    answer.terminal
+                );
+                assert_eq!(model.request_count(), 1);
+                assert!(!activity.lock().unwrap().iter().any(|s| s.starts_with("> ")));
+                let store = scope.store.lock().unwrap();
+                let RecordData::Run(run) = store.record(&scope.run).unwrap().unwrap().data else {
+                    panic!()
+                };
+                assert_eq!(run.progress, original_progress);
+                assert_eq!(run.operations, original_operations);
+                assert_eq!(store.candidates().unwrap().len(), candidate_count);
+                assert_eq!(
+                    store.prepared(&original_prepared.operation).unwrap(),
+                    original_prepared
+                );
+                assert_eq!(store.record(&note).unwrap().unwrap(), original_note);
+                assert!(
+                    store
+                        .receipt(&original_prepared.operation)
+                        .unwrap()
+                        .is_none()
+                );
+            }
+        }
     }
 }

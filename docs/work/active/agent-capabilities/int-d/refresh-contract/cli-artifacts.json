@@ -1,0 +1,38 @@
+[
+  {
+    "path": "/private/tmp/brn-int-d-refresh-contract-20261017-target/debug/brn",
+    "copy": "/private/tmp/brn-int-d-refresh-contract-20261017/final-artifacts/brn",
+    "sha256": "1f66cf323051ef75b7a225cf8dcf88f911add03657675d25fddd6dbacf49e280",
+    "bytes": 32712352
+  },
+  {
+    "path": "/private/tmp/brn-int-d-refresh-contract-20261017-target/debug/deps/agent_contract-db3eeabc390c2b41",
+    "copy": "/private/tmp/brn-int-d-refresh-contract-20261017/final-artifacts/agent_contract-db3eeabc390c2b41",
+    "sha256": "b621519bc2f1657922f6d73bcda704272602c8c2cbd29f20b457d678a82620f2",
+    "bytes": 1564624
+  },
+  {
+    "path": "/private/tmp/brn-int-d-refresh-contract-20261017-target/debug/deps/agent_contract-db3eeabc390c2b41.d",
+    "copy": "/private/tmp/brn-int-d-refresh-contract-20261017/final-artifacts/agent_contract-db3eeabc390c2b41.d",
+    "sha256": "e451ce6e7a08fb6427017231ef6e62bdb7e3b708c0cd81890e4fae0cbc220b28",
+    "bytes": 695
+  },
+  {
+    "path": "/private/tmp/brn-int-d-refresh-contract-20261017-target/debug/deps/agent_runs-4e0b6e32104dc48a.d",
+    "copy": "/private/tmp/brn-int-d-refresh-contract-20261017/final-artifacts/agent_runs-4e0b6e32104dc48a.d",
+    "sha256": "a5fd2ef1296faf54c66540d62ace72c4ec642721301b4ecda64e533c29fbf655",
+    "bytes": 1321
+  },
+  {
+    "path": "/private/tmp/brn-int-d-refresh-contract-20261017-target/debug/deps/agent_runs-4e0b6e32104dc48a",
+    "copy": "/private/tmp/brn-int-d-refresh-contract-20261017/final-artifacts/agent_runs-4e0b6e32104dc48a",
+    "sha256": "b42cfb8954327ff01c3637232b2f69108fab629fad336503f641cd2005ea6a95",
+    "bytes": 1589776
+  },
+  {
+    "normal_binary_matching_cargo_artifact": "/private/tmp/brn-int-d-refresh-contract-20261017-target/debug/deps/brn-f4074be051a4fb89",
+    "path": "/private/tmp/brn-int-d-refresh-contract-20261017-target/debug/deps/brn-f4074be051a4fb89.d",
+    "copy": "/private/tmp/brn-int-d-refresh-contract-20261017/final-artifacts/brn-f4074be051a4fb89.d",
+    "sha256": "ccced5e84b613c19941bad4acf9376f2f1545912d3ac833cd73803ef86ba347e"
+  }
+]

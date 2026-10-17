@@ -1,0 +1,158 @@
+{
+  "checks": [
+    {
+      "label": "before-registered",
+      "receipt_sha256": "6dcb6570fbbc71eadb4714fa706accd924523bf17b76ca80c6e19152c30e1f51",
+      "exit_code": 101,
+      "summaries": [
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 495 filtered out; finished in 0.02s"
+      ],
+      "raw_sha256": "59a3aa451a5067f2c10e58f51ddc768102b3cee8784924cabd12fd6ba973f679",
+      "source_unchanged": true,
+      "source_vs_final": {
+        "crates/brn-ai/src/threads_budget_tests.rs": {
+          "receipt": "0f2dfb458c25e0746545d36d8f34f1785979b89e7d0b1d24a799e014f99a89ab",
+          "final": "f35d3dfafd48cbdabb611358cec2825528db1696bac1eb9ed888da31b4befa50"
+        },
+        "crates/brn-ai/src/threads_guides.rs": {
+          "receipt": "3f040addfc03a468b33c3609ff897e9a2d1c4aa5baafd79278aee99c83ea47a9",
+          "final": "525b0f91720c65aeec253a3337b7f69a58216d3e2c464dc0e9db9c56b82b588b"
+        },
+        "crates/brn-ai/src/threads_history.rs": {
+          "receipt": "f21acbee9b65347f3cc323d22b4cd7d7f22e74988d5753774f5d48de63eea6e2",
+          "final": "a86726908f268af22c743a4922777b2dd2354206e22bb07ccbc46427fa6f1567"
+        },
+        "crates/brn-ai/src/threads_summary_tests.rs": {
+          "receipt": "05cddc8c37f3826b4047c0f06d397d572e24d0db82a1895cbaa1aac73087cb57",
+          "final": "7efde03c6d45c96e524da6fcdf8bb1e236326b068406423b91d435469fc6b059"
+        },
+        "crates/brn-ai/src/threads_writing_tests.rs": {
+          "receipt": "bb2e271ba08dfe2c6cf36d34b44714f768acab54d803d44db627c99a83d3673a",
+          "final": "45356bae20a65db9d238fd831b51a870926f574e62829067a542169b29fc6991"
+        },
+        "crates/brn/tests/agent_runs.rs": {
+          "receipt": "3c2af0131d49f8a15d10744613aa7326cffac112b9c08cac1dab6952ff36a812",
+          "final": "69a12f6460d2e1dbca4e1d1c02038bdc9c594f873432391b752a7806abe8f2e3"
+        }
+      }
+    },
+    {
+      "label": "candidate-budget",
+      "receipt_sha256": "484d399cbae673e31333d0b6997aef7ce1bcc7a60807877a66bbb3a3106343ec",
+      "exit_code": 0,
+      "summaries": [
+        "test result: ok. 34 passed; 0 failed; 0 ignored; 0 measured; 464 filtered out; finished in 1.33s"
+      ],
+      "raw_sha256": "aa1b97bee532833546105fa274d06e1e8a3901394379fcdb65316abe57d81eef",
+      "source_unchanged": true,
+      "source_vs_final": {}
+    },
+    {
+      "label": "candidate-guide-cache",
+      "receipt_sha256": "a9284e6132db607b1a36134df0e16b430bd52bac911db699a0fa142df6bca425",
+      "exit_code": 0,
+      "summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 497 filtered out; finished in 0.08s"
+      ],
+      "raw_sha256": "6e5b4254f711481a91c76c031c29513af828c52fcfb7483726050f14951586e0",
+      "source_unchanged": true,
+      "source_vs_final": {}
+    },
+    {
+      "label": "candidate-history",
+      "receipt_sha256": "82cba7a2f1371532bf4c64aafc69a1528350ef8c55b0739312d5c82d5d2a6250",
+      "exit_code": 0,
+      "summaries": [
+        "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 492 filtered out; finished in 0.10s"
+      ],
+      "raw_sha256": "2abc7e35eaad368faee8ef963319f4e2176b99dc9f2c2eaa983715797ac16203",
+      "source_unchanged": true,
+      "source_vs_final": {
+        "crates/brn/tests/agent_runs.rs": {
+          "receipt": "c68d20af9b942c0dd79e4238226695affeb733f77913112ee81d0c2da4fcda27",
+          "final": "69a12f6460d2e1dbca4e1d1c02038bdc9c594f873432391b752a7806abe8f2e3"
+        },
+        "crates/brn/tests/support/mod.rs": {
+          "receipt": "7b1890e76acbe953b709cbf0b2daf5f8c0eea794230253dd0260fde8c989957b",
+          "final": "6bcf9ab737f124ee32a21ec37e0e1c031a79bef5441258033fbb42f229768346"
+        },
+        "crates/brn/tests/support/stub.rs": {
+          "receipt": "22fc19a52007537cf156b653de35bf046aa20d27dfdbaa9036f9c38bf1aea33b",
+          "final": "464783dfed50443b653dd7bbd85e622b401015c5af3744b54cdf84ad57c5c299"
+        }
+      }
+    },
+    {
+      "label": "candidate-writing",
+      "receipt_sha256": "9ef8ea82d49bcbdbb6d078d068bae830f6a0a717e72341f85871469d008c5a4b",
+      "exit_code": 0,
+      "summaries": [
+        "test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 479 filtered out; finished in 0.36s"
+      ],
+      "raw_sha256": "cf9e7acdc74523b4dcea8768b91e2871f40c5c06abc68288e6219a02b62bc014",
+      "source_unchanged": true,
+      "source_vs_final": {}
+    },
+    {
+      "label": "cli-contract",
+      "receipt_sha256": "430bb027f8ef1b4b666243639d3695cb52dd5405ee2210e992eb631b338ac3f9",
+      "exit_code": 0,
+      "summaries": [
+        "test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.47s"
+      ],
+      "raw_sha256": "73f9fcf2e3dd025158757a45295787bafcd6f6e1fac4db9f79f048e28e11853d",
+      "source_unchanged": true,
+      "source_vs_final": {}
+    },
+    {
+      "label": "cli-provenance",
+      "receipt_sha256": "3c5a0bdd1d8167fb5faa8ae78e2fcad81fbc86975b1af7249053b8ab782ccf6d",
+      "exit_code": 0,
+      "summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 14 filtered out; finished in 0.90s"
+      ],
+      "raw_sha256": "4145bd02b4d9a6bd119d641e81c2253823d0a307123b989c19405b62e27d5796",
+      "source_unchanged": true,
+      "source_vs_final": {}
+    },
+    {
+      "label": "format",
+      "receipt_sha256": "01f24c741ea15cb01e2921fa1e54542c267dffde3c60471f8a98c64d539f7c14",
+      "exit_code": 0,
+      "summaries": [],
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_unchanged": true,
+      "source_vs_final": {}
+    },
+    {
+      "label": "full-ai",
+      "receipt_sha256": "00ca38dd2ec9158be8b32b71418b1afeb88d10c020ad44ebd902064ac2098746",
+      "exit_code": 0,
+      "summaries": [
+        "test result: ok. 496 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 36.43s"
+      ],
+      "raw_sha256": "73e6f42ed0bde3bec7233865eb2537bf0abdf167b22b38d607ba55f28fffebf9",
+      "source_unchanged": true,
+      "source_vs_final": {}
+    },
+    {
+      "label": "strict-ai",
+      "receipt_sha256": "0a968bf61d7c2b5930ba5812dac9affc23ef04a7acafcaf540bc5ca975ef89fb",
+      "exit_code": 0,
+      "summaries": [],
+      "raw_sha256": "bea855c5345bf1106d638befa9451dac20245fb5cba6c786f5b95a0f17c540d9",
+      "source_unchanged": true,
+      "source_vs_final": {}
+    },
+    {
+      "label": "doc-links",
+      "receipt_sha256": "fdaaaedaf4c2e525afc155795ebb0288f65039ae934c878c5206138e7cf41f8a",
+      "exit_code": 0,
+      "summaries": [],
+      "raw_sha256": "ba00d0a04910ccf6873a641c2fa33dadf97e8aa32ebe8bac709c1081c307a13f",
+      "source_unchanged": true,
+      "source_vs_final": {}
+    }
+  ],
+  "artifact_note": "Per-command artifact arrays are present inventory. Actual Running lines identify executables; before/fullAI/CLI copies separately bound. Actual build HEAD88+WIP, not future pin."
+}

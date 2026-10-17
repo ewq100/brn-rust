@@ -1,0 +1,3 @@
+# Actual before witness
+
+Exact88 production, synthetic Git2a3365fb, separate fixed source/target in binding.json. Only threads_history.rs private test differs: fresh Test purpose, keep MockCompletionModel handle, inspect the actual first registered CompletionRequest. It compiled and ran0passed/1failed/495filtered: advertised keys include operation/request/request_key/**writing**, expected exactly three supported keys. This is behavioral metadata red, not compile/API absence; raw log/source334/binary/library/.d retained and copied. No before strict-wire execution is claimed; maintained normal+strict serialization is qualified on candidate separately. Source unchanged during command. No historical prepare-cause inference.

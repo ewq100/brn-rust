@@ -1040,6 +1040,47 @@ async fn prepare_contract_serializes_on_codex_and_strict_copilot_responses() {
                     PrepareChanges::for_scope(&scope).parameters()
                 );
             }
+            let refresh = body["tools"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .find(|t| t["name"] == "refresh_candidate")
+                .unwrap();
+            assert_eq!(refresh["strict"], copilot);
+            assert_eq!(
+                refresh["parameters"]["properties"]
+                    .as_object()
+                    .unwrap()
+                    .keys()
+                    .map(String::as_str)
+                    .collect::<std::collections::BTreeSet<_>>(),
+                ["operation", "request_key", "request"]
+                    .into_iter()
+                    .collect()
+            );
+            assert_eq!(
+                refresh["parameters"]["required"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .map(|v| v.as_str().unwrap())
+                    .collect::<std::collections::BTreeSet<_>>(),
+                ["operation", "request_key", "request"]
+                    .into_iter()
+                    .collect()
+            );
+            assert_eq!(
+                refresh["parameters"]["properties"]["request"],
+                tool["parameters"]["properties"]["request"]
+            );
+            assert_eq!(
+                refresh["parameters"]["properties"]["request_key"],
+                tool["parameters"]["properties"]["request_key"]
+            );
+            assert_eq!(
+                refresh["parameters"]["properties"]["operation"]["type"],
+                "string"
+            );
             for field in ["max_output_tokens", "max_tokens", "max_completion_tokens"] {
                 assert!(body.get(field).is_none());
             }

@@ -1,0 +1,4 @@
+{
+  "encoding": "utf-8",
+  "raw": "    Finished `test` profile [optimized] target(s) in 0.40s\n     Running unittests src/lib.rs (/private/tmp/brn-int-d-refresh-contract-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9)\n\nrunning 1 test\ntest threads::summary_tests::guide14_recomputes_prior_stamp_summary_then_reuses_unchanged_stamp ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 497 filtered out; finished in 0.08s\n\n"
+}
