@@ -1,0 +1,43 @@
+{
+  "task": "int-d-offline-prepare-diagnostic-20261017",
+  "material_pin": "c558aadc1de495f98e04894c9ebd24a93b508fa5",
+  "tree": "be07ef29a075560fe6c32276253531332807d04d",
+  "crates_tree": "60c3b06b11a7dc94a33fa2386f84ab7c0ed4adec",
+  "base": "7dc8536040b8ea6ab38c708af87140f9a62857f5",
+  "branch": "work/int-d-20261017",
+  "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+  "clean_at_pin": true,
+  "diff_sha256": "f97e363687977a65769ce446b7d8faa865f98f5008b8f55fe061584a1bc33523",
+  "full_diff_path": "/private/tmp/brn-int-d-offline-prepare-diagnostic-20261017-evidence/material-diff.patch",
+  "compiled_input_count": 333,
+  "all_compiled_inputs_match_git": true,
+  "existing_test_prefix_and332other_inputs_unchanged": true,
+  "precommit_source_association": "7dc85360+WIP; exact file hashes now matched to pin, not a fabricated contemporaneous new-SHA build",
+  "artifact": {
+    "path": "/private/tmp/brn-int-d-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9",
+    "sha256": "c7765d2a0871f547327c618cdcc9b7d14ce0c0f46c85de447ee9ef17304586c2",
+    "mtime": 1792246652.131726,
+    "receipt_mtime": 1792246653.215016,
+    "not_modified_after_receipt": true,
+    "dep_info": "/private/tmp/brn-int-d-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9.d",
+    "dep_info_sha256": "46e4797f460b173aa90f5bdfdc94f59c11792399ccd8158109fa11b5dfd6e034",
+    "preserved_path": "/private/tmp/brn-int-d-offline-prepare-diagnostic-20261017-evidence/passing-artifact/brn_ai-0a77908ed974f7b9",
+    "preserved_dep_info": "/private/tmp/brn-int-d-offline-prepare-diagnostic-20261017-evidence/passing-artifact/brn_ai-0a77908ed974f7b9.d"
+  },
+  "verification": {
+    "focused_corrected": [
+      1,
+      0,
+      0
+    ],
+    "focused_initial_fixture_failure": [
+      0,
+      1,
+      0
+    ],
+    "scripted_all_target_clippy": 0,
+    "fmt_final": 0
+  },
+  "historical_prepare_cause": "UNKNOWN",
+  "timestamp": 1792246848.098442
+}
