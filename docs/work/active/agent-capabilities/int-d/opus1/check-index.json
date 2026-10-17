@@ -1,0 +1,378 @@
+{
+  "task": "int-d-opus1-20261017",
+  "checks": [
+    {
+      "name": "s2-stale-before",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn",
+        "--test",
+        "int_d",
+        "candidate_export::stale_current_target_is_refused_before_export_output_creation",
+        "--",
+        "--exact",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "exit": 101,
+      "counts": [
+        [
+          0,
+          1,
+          0
+        ]
+      ],
+      "seconds": 291.0413818359375,
+      "source_root": "/private/tmp/brn-int-d-opus1-before-source",
+      "precommit_head": "0af2f302fee34576ac30b8106672c1200e6f883e",
+      "tracked_diff_sha256": "40128b2eec723a1be3349f98897464c76787ad32aa5fe513716137e9d754e7d7",
+      "source_unchanged": true,
+      "source_input_count": 333,
+      "files": [
+        {
+          "path": "raw/s2-stale-before.json",
+          "sha256": "2f4460ad830d62141d251effb8334ddb41315f65bf5c6d1f8f9f4f85b66e7856"
+        },
+        {
+          "path": "raw/s2-stale-before.log.json",
+          "sha256": "36884cf8e3d65380a16278d17586f841768a06462ee5a15c79d4491347ae2644",
+          "decoded_log_sha256": "898ea364f087aa69b39e735a10364deabe594a7eeb58344a61be6ff31687e49b"
+        },
+        {
+          "path": "raw/s2-stale-before-artifacts.json",
+          "sha256": "fe77b632970620fec5bae947070c17f064f3437f71437f35a5cb5466de7d5891"
+        }
+      ]
+    },
+    {
+      "name": "cli-int-d-corrected",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn",
+        "--test",
+        "int_d",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "exit": 0,
+      "counts": [
+        [
+          4,
+          0,
+          0
+        ]
+      ],
+      "seconds": 4.171526908874512,
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "precommit_head": "c6d3f54bd13f1c75d2d344bf61c9ca6fbdfdf713",
+      "tracked_diff_sha256": "16dc2746016f360f8ed7a1f37417abc8ba1fd597ce3ae3b58d6979ffdaa637a7",
+      "source_unchanged": true,
+      "source_input_count": 333,
+      "files": [
+        {
+          "path": "raw/cli-int-d-corrected.json",
+          "sha256": "260df189e4f84c58500ab79c27bcae0b130c3fabf2c5c42ec629bf258d1a1498"
+        },
+        {
+          "path": "raw/cli-int-d-corrected.log.json",
+          "sha256": "1a7c3aec76d63c39c1bbea48b361402e72b37c7f21a0422074a6e3de74c6f5ff",
+          "decoded_log_sha256": "b4269eb221620f475af14ee03a7e9944c78ed004f79c7c98e45b0cf56b037322"
+        },
+        {
+          "path": "raw/cli-int-d-corrected-artifacts.json",
+          "sha256": "10346722629d53e140460b50a20e758fc7c9ad4ec29b03d616316ea040b4003a"
+        }
+      ]
+    },
+    {
+      "name": "ai-int-d-selected-positive",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "threads::int_d_tests",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "exit": 0,
+      "counts": [
+        [
+          1,
+          0,
+          0
+        ]
+      ],
+      "seconds": 80.16851997375488,
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "precommit_head": "c6d3f54bd13f1c75d2d344bf61c9ca6fbdfdf713",
+      "tracked_diff_sha256": "fa0aacb810c0f58ccb904a2a34cdd68a8c4904e954e7f8dffddace3ce28fbce7",
+      "source_unchanged": true,
+      "source_input_count": 333,
+      "files": [
+        {
+          "path": "raw/ai-int-d-selected-positive.json",
+          "sha256": "4578eb9bc756ab7ae4ac797bbcc794c21420956db64c44e7082ae5fded7552a7"
+        },
+        {
+          "path": "raw/ai-int-d-selected-positive.log.json",
+          "sha256": "15e57478f333cf268d39375842da76542a2cf75aa4f2bb70a0a4597668ff4918",
+          "decoded_log_sha256": "a35dc02c7b8e82e11709a26f5d3bc2ef5663b70bcd7b1f6e83bc17229ff69e09"
+        },
+        {
+          "path": "raw/ai-int-d-selected-positive-artifacts.json",
+          "sha256": "e32368138f660409fc412fdd9e74239322802030ca03a73bc23cc1b979c8b5f8"
+        }
+      ]
+    },
+    {
+      "name": "app-int-d-selected-positive",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-threads-app",
+        "--test",
+        "int_d",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "exit": 0,
+      "counts": [
+        [
+          1,
+          0,
+          0
+        ]
+      ],
+      "seconds": 4.98747706413269,
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "precommit_head": "c6d3f54bd13f1c75d2d344bf61c9ca6fbdfdf713",
+      "tracked_diff_sha256": "fa0aacb810c0f58ccb904a2a34cdd68a8c4904e954e7f8dffddace3ce28fbce7",
+      "source_unchanged": true,
+      "source_input_count": 333,
+      "files": [
+        {
+          "path": "raw/app-int-d-selected-positive.json",
+          "sha256": "4dbe0ab5c6b7a1b0a704de83031c15c7962f927581b88a3cc12106e5fb14967c"
+        },
+        {
+          "path": "raw/app-int-d-selected-positive.log.json",
+          "sha256": "54c96de8614e9fab1441f49fcb7a06b6bd929aaf5cb6221a7cb97c171ebfa288",
+          "decoded_log_sha256": "31cee2fca288e29f920b5a28c4d235f55c9dee8d32de4c189f641346c1b1b363"
+        },
+        {
+          "path": "raw/app-int-d-selected-positive-artifacts.json",
+          "sha256": "74cb6cec26c9d3fa35f21e6904b8ed795a056591e55ab940ee3c5963e20d2345"
+        }
+      ]
+    },
+    {
+      "name": "strict-workspace-corrected",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "clippy",
+        "--workspace",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "counts": [],
+      "seconds": 5.890266180038452,
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "precommit_head": "c6d3f54bd13f1c75d2d344bf61c9ca6fbdfdf713",
+      "tracked_diff_sha256": "fa0aacb810c0f58ccb904a2a34cdd68a8c4904e954e7f8dffddace3ce28fbce7",
+      "source_unchanged": true,
+      "source_input_count": 333,
+      "files": [
+        {
+          "path": "raw/strict-workspace-corrected.json",
+          "sha256": "fa3160826da524a26b6c9ada547ceab8047df19f8172d30e76cdc74922c6bef4"
+        },
+        {
+          "path": "raw/strict-workspace-corrected.log.json",
+          "sha256": "268be59e57aff5677cd3f08d41d121983f36a7b5f0adae9fadb3631c8a38bad9",
+          "decoded_log_sha256": "8ec18f169d4b83523e9d16eabf8e2a385c2b82d9ed08c205d02572a6b80a50c2"
+        },
+        {
+          "path": "raw/strict-workspace-corrected-artifacts.json",
+          "sha256": "5c748622166cd3d000905c03d5022ebb963231349406649a8cbba40bca58f613"
+        }
+      ]
+    },
+    {
+      "name": "strict-scripted-corrected",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "clippy",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "counts": [],
+      "seconds": 1.2800030708312988,
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "precommit_head": "c6d3f54bd13f1c75d2d344bf61c9ca6fbdfdf713",
+      "tracked_diff_sha256": "fa0aacb810c0f58ccb904a2a34cdd68a8c4904e954e7f8dffddace3ce28fbce7",
+      "source_unchanged": true,
+      "source_input_count": 333,
+      "files": [
+        {
+          "path": "raw/strict-scripted-corrected.json",
+          "sha256": "539fbc15f8ba7753e89bad238e88116836fe3bf014d45240312d14e438b09286"
+        },
+        {
+          "path": "raw/strict-scripted-corrected.log.json",
+          "sha256": "3d89fcbf7f215397bc602f802597733eff72a093edd110c2050ff5f6715dea75",
+          "decoded_log_sha256": "1f5d1f30ac99bafc6ae4f3a6e3926d41bd64248d449ee315ab1b0c220f655234"
+        },
+        {
+          "path": "raw/strict-scripted-corrected-artifacts.json",
+          "sha256": "fdf8a237efbe5056260595ef37d121becbc40e3faf1d951816104a5407840709"
+        }
+      ]
+    },
+    {
+      "name": "format-corrected",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit": 0,
+      "counts": [],
+      "seconds": 1.783444881439209,
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "precommit_head": "c6d3f54bd13f1c75d2d344bf61c9ca6fbdfdf713",
+      "tracked_diff_sha256": "fa0aacb810c0f58ccb904a2a34cdd68a8c4904e954e7f8dffddace3ce28fbce7",
+      "source_unchanged": true,
+      "source_input_count": 333,
+      "files": [
+        {
+          "path": "raw/format-corrected.json",
+          "sha256": "de937f5913eacf051c12a33519ce607fafe4160f07d80d6ea0022717c6117119"
+        },
+        {
+          "path": "raw/format-corrected.log.json",
+          "sha256": "050fa1a3df6f0cff133f6e773c8014eb37061a3aa6506feaeb8b7755e2422d53",
+          "decoded_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "raw/format-corrected-artifacts.json",
+          "sha256": "0402a49a5bb916658b588258c2ab2a17c079e529db5593dfa9d439e9770da13f"
+        }
+      ]
+    },
+    {
+      "name": "doc-links-corrected",
+      "command": [
+        "python3",
+        "scripts/check-markdown-links.py"
+      ],
+      "exit": 0,
+      "counts": [],
+      "seconds": 0.46718692779541016,
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "precommit_head": "c6d3f54bd13f1c75d2d344bf61c9ca6fbdfdf713",
+      "source_unchanged": true,
+      "source_input_count": 333,
+      "files": [
+        {
+          "path": "raw/doc-links-corrected.json",
+          "sha256": "9a89d5f53040bc5023621dad236110fb74496ef9e2c4f6e17da0cb4945f6053e"
+        },
+        {
+          "path": "raw/doc-links-corrected.log.json",
+          "sha256": "5c775e017fd4c337c536383f30691bee17f32e5e21bccae2531aec011e27a14d",
+          "decoded_log_sha256": "3c2070d9550621d980719530e18199f860f1f5409e87ce0dcc9550e28f9cde11"
+        },
+        {
+          "path": "raw/doc-links-corrected-artifacts.json",
+          "sha256": "b2d2ec088f2e008ee05a2d27bc376be4f15ee30d4fd4d79bf9a8f6dcbc0b90a5"
+        }
+      ]
+    },
+    {
+      "name": "doc-links-final",
+      "command": [
+        "python3",
+        "scripts/check-markdown-links.py"
+      ],
+      "exit": 0,
+      "counts": [],
+      "seconds": 0.38500404357910156,
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "precommit_head": "c6d3f54bd13f1c75d2d344bf61c9ca6fbdfdf713",
+      "source_unchanged": true,
+      "source_input_count": 333,
+      "files": [
+        {
+          "path": "raw/doc-links-final.json",
+          "sha256": "f3afd8151a0dad62047edbf6ddf38b6176731522b9cc115629dd69971a746130"
+        },
+        {
+          "path": "raw/doc-links-final.log.json",
+          "sha256": "7799174ecdea264ec61f0b516a8e616d94287d832c71e87b1f3b787536f280af",
+          "decoded_log_sha256": "af5e8c4ad83925c847681169dcdb7838927e0c3c764cc28b80ba8fe00c04091d"
+        },
+        {
+          "path": "raw/doc-links-final-artifacts.json",
+          "sha256": "010c64fd348eb6c6f1e8ee66a3b7800142eb89cbaf50e403f7d5804277781094"
+        }
+      ]
+    }
+  ],
+  "local_fake_harness": {
+    "path": "harness-corrected-final.json",
+    "sha256": "cbc3dac9e113bb16b99ee87194e5d820bd89bc3bb5f0753dc09bc27cebbd9ac7",
+    "cases": 10,
+    "live_provider_starts": 0,
+    "auth_starts": 0
+  },
+  "qualification": "Counts overlap; do not sum as unique cases. Old exporter behavior0/1 is intended before witness; all corrected commands pass. Artifact rows for non-Running CLI/desktop/helper are retained byte associations only, not new independent build/test outcomes. Tracked diff hash omits untracked docs;333 material hashes identify actual compiled inputs. Commands ran at c6d+WIP, not a fabricated future commit.",
+  "static_script_checks": {
+    "path": "raw/script-static-checks.json",
+    "sha256": "67688e4f70987ac5499cc2747ae3d81b1db14bbc486227ded20c679628d8b9a1",
+    "includes_preserved_mistaken_help_attempt": true
+  },
+  "raw_log_representation": "Raw stdout/stderr text JSON-escaped reversibly to preserve exact bytes/SHA while keeping repository whitespace checks. Original scratch .log bytes unchanged; raw_text.encode(UTF8) restores original log_sha256 from command receipt. No whitespace normalization."
+}

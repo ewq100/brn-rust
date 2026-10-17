@@ -1,0 +1,88 @@
+{
+  "head_at_audit": "c6d3f54bd13f1c75d2d344bf61c9ca6fbdfdf713",
+  "production_source_hashes": {
+    "crates/brn-ai/src/lib.rs": "9faa585f53ac6dd2d140e61b735e19815ea99c2e19064e58694e06b163bb25cc",
+    "crates/brn-ai/src/threads.rs": "f0bb60812d713be88586b952f9f9f55334e1cb74a5b997a8f6c8be1fed780f47",
+    "crates/brn-ai/src/threads_context_budget.rs": "390f40230101d7877d6e72acd3eeb13538b33d17001df7b67aee239dd7c2d357",
+    "crates/brn-ai/src/threads_summary.rs": "a13b68c7c817bfe9b4473edcecdb76f4971a2ee155d53883d681f3170b2f828e",
+    "crates/brn-ai/src/threads_continuation.rs": "3fdbe277db8961318cd5106da87fa1e284ea4682c645c152c4ef3bcea26ae94b",
+    "crates/brn-ai/src/threads_skills.rs": "bb2246bba529982dc10c51159ad9226125dc703e73f13b90ac3e1effb172c1c8",
+    "crates/brn-ai/src/threads_guides.rs": "b575d448173a1678c30549780f844cd6c6708098a3c1a28a77cffffa1cccbbbf",
+    "crates/brn-ai/src/threads_search.rs": "5fc049cdcc76386e666cc41204fdb8fc8c10d60af3279cf31967ad407fce4a6d",
+    "crates/brn-ai/src/threads_mcp_client.rs": "226366b1cc0efa9fe7f432683dd51a8bd8e2e464d4a1481bd072a078f9c2cfef",
+    "crates/brn-threads-app/src/run.rs": "7d3583e8a8b8952adab7fdf06dd79274bc0a1d93f3dfd80f0abe575bc6f77716",
+    "crates/brn/src/main.rs": "230054b37b1b033a8bee2a3cab464743123d90e50f6a35bf8c4615c256c88178",
+    "crates/brn-desktop/src/threads_ui.rs": "6867d7be3c968c909ee9f761b1edccfaab929f713f65e43ee746ddd2743efe47"
+  },
+  "retired_history_source": "b617d7842c1e668292b4f23c7b321ec195a76a1d",
+  "old_take40_line": 2481,
+  "old_snippet": "    for record in messages\n        .into_iter()\n        .rev()\n        .take(40)\n        .collect::<Vec<_>>()\n        .into_iter()\n        .rev()\n    {\n        if let RecordData::Message(message) = &record.data {\n            retained.push(json!({\"role\":message.role,\"text\":truncate(&message.text,16*1024)}));\n        }\n    }",
+  "old_snippet_sha256": "eb998e5d95b8b837cc6cea947d958c6921a9321e83283947a47dc985a8a52b5d",
+  "current_identifier_search": {
+    "command": [
+      "rg",
+      "-n",
+      "take\\(40\\)|RawAgentRun|AgentRun",
+      "crates/brn-ai/src",
+      "crates/brn/src",
+      "crates/brn-threads-app/src",
+      "crates/brn-desktop/src"
+    ],
+    "exit": 1,
+    "matches": "",
+    "qualification": "No literal matches in scoped production/test source trees, not a formal semantic proof. Other bounded16KiB uses separately classified."
+  },
+  "original_continue_prompt_check": "POSTHOC ONLY; formal before-activation individual hash not recorded; no Continue executed",
+  "continue_prompts": [
+    {
+      "ordinal": 1,
+      "path": "/private/tmp/brn-int-d-qualification-20261017-window1-f1a5624f/history-r1-control-continue.txt",
+      "sha256": "837f7830d3baed8985af320ab16371c7793380f7a3a115eae5bfc9a685a48abe",
+      "executed": false
+    },
+    {
+      "ordinal": 2,
+      "path": "/private/tmp/brn-int-d-qualification-20261017-window1-f1a5624f/history-r1-candidate-continue.txt",
+      "sha256": "837f7830d3baed8985af320ab16371c7793380f7a3a115eae5bfc9a685a48abe",
+      "executed": false
+    },
+    {
+      "ordinal": 3,
+      "path": "/private/tmp/brn-int-d-qualification-20261017-window1-f1a5624f/history-r2-candidate-continue.txt",
+      "sha256": "837f7830d3baed8985af320ab16371c7793380f7a3a115eae5bfc9a685a48abe",
+      "executed": false
+    },
+    {
+      "ordinal": 4,
+      "path": "/private/tmp/brn-int-d-qualification-20261017-window1-f1a5624f/history-r2-control-continue.txt",
+      "sha256": "837f7830d3baed8985af320ab16371c7793380f7a3a115eae5bfc9a685a48abe",
+      "executed": false
+    },
+    {
+      "ordinal": 5,
+      "path": "/private/tmp/brn-int-d-qualification-20261017-window1-f1a5624f/stop-continue-r1-control-continue.txt",
+      "sha256": "837f7830d3baed8985af320ab16371c7793380f7a3a115eae5bfc9a685a48abe",
+      "executed": false
+    },
+    {
+      "ordinal": 6,
+      "path": "/private/tmp/brn-int-d-qualification-20261017-window1-f1a5624f/stop-continue-r1-candidate-continue.txt",
+      "sha256": "837f7830d3baed8985af320ab16371c7793380f7a3a115eae5bfc9a685a48abe",
+      "executed": false
+    },
+    {
+      "ordinal": 7,
+      "path": "/private/tmp/brn-int-d-qualification-20261017-window1-f1a5624f/stop-continue-r2-candidate-continue.txt",
+      "sha256": "837f7830d3baed8985af320ab16371c7793380f7a3a115eae5bfc9a685a48abe",
+      "executed": false
+    },
+    {
+      "ordinal": 8,
+      "path": "/private/tmp/brn-int-d-qualification-20261017-window1-f1a5624f/stop-continue-r2-control-continue.txt",
+      "sha256": "837f7830d3baed8985af320ab16371c7793380f7a3a115eae5bfc9a685a48abe",
+      "executed": false
+    }
+  ],
+  "original_preflight_sha256": "0148ad45fa1ed0cb38d7bd52274546bf13b5f06ddb64633ca713f95a5617547d",
+  "timestamp": 1792244689.4897
+}

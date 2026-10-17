@@ -1,0 +1,35 @@
+{
+  "scripts": [
+    {
+      "script": "docs/work/active/agent-capabilities/int-d/prepare-qualification.py",
+      "sha256": "35f5d72a4bdb9333b6f428f9808bc22fd19badd44b841610bb1373ca64f8f3f5",
+      "ast_parse": true,
+      "help_exit": 0,
+      "help_sha256": "de75aacdf2b79eb24a890ecd85a8f0cebcef7b169599d8ebebc7570b1767acc6"
+    },
+    {
+      "script": "docs/work/active/agent-capabilities/int-d/observe-workflow.py",
+      "sha256": "ceafbe431fd9d459de60b33c62947322303a5ed73b98967cecfbfe5fdc8c10e3",
+      "ast_parse": true,
+      "help_exit": 0,
+      "help_sha256": "6c47f862f6145e6fc72097e03897537ed782b7aa02a6ac2fd82fdd95c50d3853"
+    },
+    {
+      "script": "docs/work/active/agent-capabilities/int-d/check-observer.py",
+      "sha256": "3d74c579bba60b7c25949ff81a77ad17bc0f1ad9c07808872816cbbc9462ff68",
+      "ast_parse": true,
+      "help": "not an argparse CLI; not invoked again; prior actual ten-case harness result qualifies behavior"
+    }
+  ],
+  "provider_auth_starts": 0,
+  "qualification": "AST and two supported --help calls only; no future real preflight generated or activated. Ten-case local fake-process receipt is separate.",
+  "prior_attempt": {
+    "exit": 1,
+    "stage": "mistaken --help on check-observer.py",
+    "error": "subprocess.TimeoutExpired after5s",
+    "cause": "checker executes local fake harness and does not implement --help",
+    "outcome": "incomplete local fake harness attempt; not a passing run, no BRN/provider/auth process; no owned fake/observer process remained in precise postcheck",
+    "source_change": "none",
+    "check": "static-attempt-process-check.json"
+  }
+}

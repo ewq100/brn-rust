@@ -1,0 +1,51 @@
+{
+  "task": "int-d-opus1-20261017",
+  "provider": "codex",
+  "model": "gpt-6.1-sol",
+  "effort": "high",
+  "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+  "branch": "work/int-d-20261017",
+  "base": "c6d3f54bd13f1c75d2d344bf61c9ca6fbdfdf713",
+  "material_baseline": "f1a5624f096efc956f5b3e771ba0670bd30e952d",
+  "heavy_inventory": [],
+  "review_sha256": "05a0b834e59fe2bd5fe4e69e2ddaf4a39a70adff2b62a1bcebc1bb97dae8d5e8",
+  "live_artifacts_before_rebuild": [
+    {
+      "original": {
+        "path": "/private/tmp/brn-int-d-20261017-target/debug/deps/int_d-8d0cf15fe49e4a41",
+        "sha256": "01c129beecc1d3dc165ffee9e0783cfa6fc828d36e72a58802bbbe89ac935c40",
+        "mtime": 1792243042.178388,
+        "receipt_mtime": 1792243043.4217474,
+        "not_modified_after_receipt": true,
+        "dep_info": "/private/tmp/brn-int-d-20261017-target/debug/deps/int_d-8d0cf15fe49e4a41.d",
+        "dep_info_sha256": "6c0073fbc84e17071ea7a91fe4713cddf81b03964da4710f5794d12c4ae51ae2"
+      },
+      "preserved_binary": "/private/tmp/brn-int-d-opus1-20261017-evidence/original-live-artifacts/int_d-8d0cf15fe49e4a41-01c129beecc1",
+      "preserved_dep_info": "/private/tmp/brn-int-d-opus1-20261017-evidence/original-live-artifacts/int_d-8d0cf15fe49e4a41-01c129beecc1.d",
+      "sha256": "01c129beecc1d3dc165ffee9e0783cfa6fc828d36e72a58802bbbe89ac935c40",
+      "dep_info_sha256": "6c0073fbc84e17071ea7a91fe4713cddf81b03964da4710f5794d12c4ae51ae2"
+    },
+    {
+      "original": {
+        "path": "/private/tmp/brn-int-d-20261017-target/debug/brn",
+        "hashed_artifact": "/private/tmp/brn-int-d-20261017-target/debug/deps/brn-f4074be051a4fb89",
+        "sha256": "62a066c55424fd140dfcd588c2630db0ed663da50815035a1f372a757137be74",
+        "mtime": 1792241737.0453422,
+        "receipt_mtime": 1792243043.4217474,
+        "not_modified_after_receipt": true,
+        "dep_info": "/private/tmp/brn-int-d-20261017-target/debug/deps/brn-f4074be051a4fb89.d",
+        "dep_info_sha256": "01483c7430f5f4f5b414a3eb5e5c445effe70676685903920545601c753d9e54",
+        "association": "Exact executable bytehash matches hashed Cargo artifact; not itself a Running test target"
+      },
+      "preserved_binary": "/private/tmp/brn-int-d-opus1-20261017-evidence/original-live-artifacts/brn-62a066c55424",
+      "preserved_dep_info": "/private/tmp/brn-int-d-opus1-20261017-evidence/original-live-artifacts/brn-62a066c55424.d",
+      "sha256": "62a066c55424fd140dfcd588c2630db0ed663da50815035a1f372a757137be74",
+      "dep_info_sha256": "01483c7430f5f4f5b414a3eb5e5c445effe70676685903920545601c753d9e54"
+    }
+  ],
+  "original_artifact_receipt": "/private/tmp/brn-int-d-20261017-evidence/cli-corpus-and-export-final-artifacts.json",
+  "original_artifact_receipt_sha256": "172bc5dc78df86a13d719b4667e2e50994ff8a1b0c6d0187778ccf77db99b941",
+  "qualification": "Original actual c2ec+WIP build receipt binds f1a via333input hashes; preserved original live bytes, no contemporary corrected-source claim.",
+  "additional_live_starts_authorized": 0,
+  "timestamp": 1792244170.3973062
+}

@@ -1,0 +1,62 @@
+diff --git a/crates/brn/tests/support/int_d.rs b/crates/brn/tests/support/int_d.rs
+index 6b098a8..7d17697 100644
+--- a/crates/brn/tests/support/int_d.rs
++++ b/crates/brn/tests/support/int_d.rs
+@@ -279,3 +279,57 @@ fn exact_synthetic_candidate_export_refuses_wrong_fixture_operation_and_preserve
+     .is_err());
+     assert!(!output.exists());
+ }
++
++fn version_fixture() -> (tempfile::TempDir, Workspace, Record, Prepared, std::path::PathBuf) {
++    let fixture = tempfile::Builder::new().prefix("brn-int-d-qualification-20261017-version-").tempdir_in("/private/tmp").unwrap();
++    let data = fixture.path().join("candidate");
++    let mut app = Workspace::create_without_default_credentials(&data, WorkspacePurpose::Test).unwrap();
++    let note = app.new_note("Synthetic version fixture", "Original version one").unwrap();
++    let op = app.store.allocate_operation("int-d-version-export").unwrap();
++    let mut revised = match note.data.clone() { RecordData::Note(n) => n, _ => panic!() };
++    revised.markdown = "Prepared Monday version".into();
++    let prepared = app.store.prepare_owner(&op, &ChangeRequest {reason:"Synthetic exact-version candidate".into(), writes:vec![Put {id:note.id.clone(),expected_version:Some(note.version),archived:false,data:RecordData::Note(revised)}],inputs:vec![]},&HostAuthority::owner("Synthetic candidate control")).unwrap();
++    let manifest=json!({"corpus_version":"BRN-INT-D-20261017-1","cases":[{"case":"candidate","data_dir":data,"note":note.id,"note_version":note.version,"history_messages":[]}]});
++    std::fs::write(fixture.path().join("manifest.json"),serde_json::to_vec(&manifest).unwrap()).unwrap();
++    let guard=tempfile::Builder::new().prefix("brn-int-d-candidate-export-20261017-version-").tempdir_in("/private/tmp").unwrap();
++    let output=guard.path().to_owned();guard.close().unwrap();
++    (fixture,app,note,prepared,output)
++}
++
++#[test]
++fn stale_current_target_is_refused_before_export_output_creation() {
++    let (fixture,mut app,note,prepared,output)=version_fixture();
++    let identity=json!({"qualification":"synthetic stale-version witness, no provider"});
++    let positive=export(fixture.path(),"candidate",prepared.operation.as_str(),&output,&identity).unwrap();
++    assert_eq!(positive["target_current"]["version"],note.version);
++    std::fs::remove_dir_all(&output).unwrap();
++    let mut edited=match note.data.clone(){RecordData::Note(n)=>n,_=>panic!()};edited.markdown="Owner changed current version".into();
++    app.owner_change("int-d-owner-edit-after-prepare",&ChangeRequest {reason:"Actual checked owner edit".into(),writes:vec![Put{id:note.id.clone(),expected_version:Some(note.version),archived:false,data:RecordData::Note(edited)}],inputs:vec![]}).unwrap();
++    let current=app.store.record(&note.id).unwrap().unwrap();assert_eq!(current.version,note.version+1);
++    assert_eq!(app.store.operation_info(prepared.operation.as_str()).unwrap().state,OperationState::Prepared);
++    let result=export(fixture.path(),"candidate",prepared.operation.as_str(),&output,&identity);
++    assert!(result.is_err(),"stale current target v{} vs prepared {:?} must refuse; got {result:?}",current.version,prepared.request.writes[0].expected_version);
++    assert!(!output.exists());
++    assert_eq!(app.store.record(&note.id).unwrap().unwrap(),current);
++    assert_eq!(app.store.prepared(&prepared.operation).unwrap(),prepared);
++    std::fs::create_dir(&output).unwrap();std::fs::write(output.join("owner-sentinel"),b"preserve occupied output").unwrap();
++    assert!(export(fixture.path(),"candidate",prepared.operation.as_str(),&output,&identity).is_err());
++    assert_eq!(std::fs::read(output.join("owner-sentinel")).unwrap(),b"preserve occupied output");
++    std::fs::remove_dir_all(&output).unwrap();
++}
++
++#[test]
++fn applied_and_retired_candidates_are_refused_without_export_or_source_changes() {
++    for applied in [true,false] {
++        let (fixture,mut app,note,prepared,output)=version_fixture();
++        if applied {assert!(matches!(app.store.apply(&prepared.operation,&HostAuthority::owner("Synthetic actual owner Apply")).unwrap(),ApplyOutcome::Applied(_)));}
++        else {app.review_dismiss(prepared.operation.as_str()).unwrap();}
++        let info=app.store.operation_info(prepared.operation.as_str()).unwrap();
++        assert_eq!(info.state,if applied {OperationState::Applied}else{OperationState::Retired});
++        let before=app.store.record(&note.id).unwrap().unwrap();
++        assert!(export(fixture.path(),"candidate",prepared.operation.as_str(),&output,&json!({"qualification":"terminal candidate negative"})).is_err());
++        assert!(!output.exists());
++        assert_eq!(app.store.record(&note.id).unwrap().unwrap(),before);
++        assert_eq!(app.store.operation_info(prepared.operation.as_str()).unwrap().state,info.state);
++    }
++}

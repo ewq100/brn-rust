@@ -1,0 +1,5 @@
+{
+  "encoding": "utf-8",
+  "raw_sha256": "b4269eb221620f475af14ee03a7e9944c78ed004f79c7c98e45b0cf56b037322",
+  "raw_text": "   Compiling brn v0.0.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407/crates/brn)\n    Finished `test` profile [optimized] target(s) in 2.89s\n     Running tests/int_d.rs (/private/tmp/brn-int-d-20261017-target/debug/deps/int_d-8d0cf15fe49e4a41)\n\nrunning 4 tests\ntest candidate_export::applied_and_retired_candidates_are_refused_without_export_or_source_changes ... ok\ntest candidate_export::exact_synthetic_candidate_export_refuses_wrong_fixture_operation_and_preserves_content ... ok\ntest candidate_export::stale_current_target_is_refused_before_export_output_creation ... ok\ntest checked_source_labelled_pair_reopens_through_cli_with_explicit_scoped_selection ... ok\n\ntest result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.66s\n\n"
+}

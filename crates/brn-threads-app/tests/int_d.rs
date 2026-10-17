@@ -38,6 +38,13 @@ fn tools(calls: Vec<MockStreamEvent>) -> Vec<MockStreamEvent> {
     out.push(MockStreamEvent::final_response_with_total_tokens(1));
     out
 }
+fn selected_chat_input(request: &rig::completion::CompletionRequest, body: &str) {
+    assert!(request.chat_history.iter().any(|message| matches!(message,
+        rig::message::Message::User {content} if content.iter().any(|item|
+            matches!(item, rig::message::UserContent::Text(text) if text.text.contains(body))))));
+    assert!(request.chat_history.iter().all(|message| !matches!(message,
+        rig::message::Message::System {content} if content.contains("INT_D_SELECTED_BODY"))));
+}
 #[tokio::test]
 async fn abandoned_selected_skill_candidate_survives_restore_without_package_and_exact_owner_review_undo()
  {
@@ -173,6 +180,18 @@ async fn abandoned_selected_skill_candidate_survives_restore_without_package_and
         .await
         .unwrap();
     assert_eq!(model.request_count(), 4);
+    selected_chat_input(&model.requests()[0], c["skill_body"].as_str().unwrap());
+    let RecordData::Run(initial_run) = app.store.record(&abandoned).unwrap().unwrap().data else {
+        panic!()
+    };
+    assert!(
+        initial_run
+            .loaded_skill_details
+            .iter()
+            .any(|d| d.id == installed.id
+                && d.package_digest == installed.digest
+                && d.file == "SKILL.md")
+    );
     let candidates = app.store.candidates().unwrap();
     assert_eq!(candidates.len(), 1);
     let candidate = candidates[0].clone();
@@ -251,6 +270,19 @@ async fn abandoned_selected_skill_candidate_survives_restore_without_package_and
         .unwrap();
     assert!(matches!(result.answer.terminal, AiTerminal::Completed));
     assert_eq!(model.request_count(), 2);
+    selected_chat_input(&model.requests()[0], c["skill_body"].as_str().unwrap());
+    let RecordData::Run(resumed_run) = restored.store.record(&result.run_id).unwrap().unwrap().data
+    else {
+        panic!()
+    };
+    assert!(
+        resumed_run
+            .loaded_skill_details
+            .iter()
+            .any(|d| d.id == installed.id
+                && d.package_digest == installed.digest
+                && d.file == "SKILL.md")
+    );
     assert!(
         serde_json::to_string(&model.requests()[1])
             .unwrap()

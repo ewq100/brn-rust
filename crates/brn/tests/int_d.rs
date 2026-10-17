@@ -2,6 +2,7 @@
 //! Checked shared-corpus construction + real CLI roundtrip. With an explicit
 //! fresh task-owned output, this SAME tested builder prepares qualification
 //! fixtures; it never starts a provider or opens an owner credential source.
+#[cfg(target_os = "macos")]
 #[path = "support/int_d.rs"]
 mod candidate_export;
 mod support;

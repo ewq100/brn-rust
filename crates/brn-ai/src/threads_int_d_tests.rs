@@ -491,6 +491,16 @@ async fn long_project_summary_selected_skill_optional_sdk_stop_cold_continue_exa
         assert!(stopped.terminal_run.is_none());
         let chat = chat_bodies(&http);
         assert_eq!(chat.len(), 4);
+        assert!(
+            chat[0]["input"]
+                .to_string()
+                .contains(c["skill_body"].as_str().unwrap())
+        );
+        assert!(
+            !chat[0]["instructions"]
+                .to_string()
+                .contains("INT_D_SELECTED_BODY")
+        );
         prefix(&chat);
         raw_prefix(&http);
         let early = output(&chat[1], "early");
@@ -567,6 +577,11 @@ async fn long_project_summary_selected_skill_optional_sdk_stop_cold_continue_exa
                 .contains(c["remaining_work"].as_str().unwrap())
         );
         assert!(saved.operations.contains(&candidate.operation));
+        assert!(
+            saved.loaded_skill_details.iter().any(|d| d.id == info.id
+                && d.package_digest == info.digest
+                && d.file == "SKILL.md")
+        );
         assert!(saved.loaded_skill_details.iter().any(|d| d.id == info.id
             && d.package_digest == info.digest
             && d.file == "references/check.md"));
@@ -608,6 +623,16 @@ async fn long_project_summary_selected_skill_optional_sdk_stop_cold_continue_exa
         assert!(matches!(resumed.answer.terminal, AiTerminal::Completed));
         let resume_chat = chat_bodies(&resumed_http);
         assert_eq!(resume_chat.len(), 2);
+        assert!(
+            resume_chat[0]["input"]
+                .to_string()
+                .contains(c["skill_body"].as_str().unwrap())
+        );
+        assert!(
+            !resume_chat[0]["instructions"]
+                .to_string()
+                .contains("INT_D_SELECTED_BODY")
+        );
         prefix(&resume_chat);
         raw_prefix(&resumed_http);
         assert!(
@@ -631,7 +656,26 @@ async fn long_project_summary_selected_skill_optional_sdk_stop_cold_continue_exa
                 .outcome,
             if external { "updated" } else { "cached" }
         );
+        println!(
+            "INT_D_SUMMARY_ACCOUNTING {}",
+            json!({"mcp":external,
+            "warm":{"summary":warm_result.trace.as_ref().unwrap().summary,"captured_summary_requests":bodies(&warm).len()-chat_bodies(&warm).len()},
+            "cold":{"summary":stopped.trace.as_ref().unwrap().summary,"captured_summary_requests":bodies(&http).len()-chat_bodies(&http).len()},
+            "continue":{"summary":resumed.trace.as_ref().unwrap().summary,"captured_summary_requests":bodies(&resumed_http).len()-resume_chat.len()}})
+        );
         let mut store = Store::open(&request.data_dir).unwrap();
+        let RecordData::Run(resumed_run) = store.record(&resumed.run_id).unwrap().unwrap().data
+        else {
+            panic!()
+        };
+        assert!(
+            resumed_run
+                .loaded_skill_details
+                .iter()
+                .any(|d| d.id == info.id
+                    && d.package_digest == info.digest
+                    && d.file == "SKILL.md")
+        );
         assert_eq!(store.record(&note).unwrap().unwrap(), original);
         assert_eq!(store.prepared(&candidate.operation).unwrap(), candidate);
         let owner = HostAuthority::owner("Exact INT-D candidate reviewed by owner");

@@ -1,0 +1,5 @@
+{
+  "encoding": "utf-8",
+  "raw_sha256": "31cee2fca288e29f920b5a28c4d235f55c9dee8d32de4c189f641346c1b1b363",
+  "raw_text": "   Compiling brn-threads-app v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407/crates/brn-threads-app)\n    Finished `test` profile [optimized] target(s) in 3.95s\n     Running tests/int_d.rs (/private/tmp/brn-int-d-20261017-target/debug/deps/int_d-5e4677bac93bc6f6)\n\nrunning 1 test\ntest abandoned_selected_skill_candidate_survives_restore_without_package_and_exact_owner_review_undo ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s\n\n"
+}

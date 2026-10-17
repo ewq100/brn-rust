@@ -1,0 +1,14 @@
+{
+  "original_material": "f1a5624f096efc956f5b3e771ba0670bd30e952d",
+  "original_input_count": 333,
+  "current_input_count": 333,
+  "changed_inputs": [
+    "crates/brn/tests/int_d.rs",
+    "crates/brn/tests/support/int_d.rs",
+    "crates/brn-ai/src/threads_int_d_tests.rs",
+    "crates/brn-threads-app/tests/int_d.rs"
+  ],
+  "all_other_329_inputs_unchanged": true,
+  "production_core_auth_native_manifests_lock_guidance_unchanged": true,
+  "compiled_input_qualification": "Only four originally new INT-D Rust tests changed; original production test registration is unchanged. Three owned scripts changed separately. No source from INT-W or other worktrees."
+}

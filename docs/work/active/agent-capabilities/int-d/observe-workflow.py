@@ -91,8 +91,24 @@ def main():
     if a.ordinal < 1 or a.ordinal > len(plan["workflows"]):
         p.error("unknown case ordinal")
     case = plan["workflows"][a.ordinal - 1]
+    if sha(plan["corpus"]) != plan["corpus_sha256"]:
+        p.error("fixed corpus changed")
+    if sha(case["manifest"]) != case["manifest_sha256"]:
+        p.error("fixture manifest changed")
+    manifest = json.loads(Path(case["manifest"]).read_text())
+    if case["facts"] not in manifest["cases"]:
+        p.error("fixture identity is absent from the bound manifest")
+    if sha(Path(case["facts"]["data_dir"]) / "threads.sqlite3") != case["initial_database_sha256"]:
+        p.error("initial case database changed; no replacement/reuse")
     if sha(case["prompt"]) != case["prompt_sha256"]:
         p.error("fixed prompt changed")
+    if sha(case["continue_prompt"]) != case["continue_prompt_sha256"]:
+        p.error("fixed Continue prompt changed")
+    if case["stop_observer"] is not None:
+        expected_poll = [plan["compiled_artifacts"]["binary"]["path"], "--json", "--data-dir",
+                         case["facts"]["data_dir"], "--timeout", "2", "candidates", "--limit", "100"]
+        if case["stop_observer"]["poll_command"] != expected_poll or not 0 < case["stop_observer"]["python_timeout_seconds"] <= 3:
+            p.error("poll must be the bound local inspection with CLI timeout2 and Python timeout<=3")
     out = a.preflight.parent / "observations"
     out.mkdir(exist_ok=True, mode=0o700)
     ledger_file = out / "ledger.json"
@@ -107,8 +123,17 @@ def main():
            and not k.startswith("AGENT_CONTRACT_")}
     env.update(HOME=str(home), CODEX_HOME=str(home / ".codex"),
                BRN_NATIVE_MODEL_DIR="", BRN_EMBEDDING_MODEL_DIR="")
+    def inspection_timeout(stage, cmd, timeout):
+        event = {"stage": stage, "kind": "timeout", "command": cmd, "timeout_seconds": timeout,
+                 "outcome": "harness_failure; stop window, no retry or Continue"}
+        save(out / f"{a.ordinal}-harness-failure.json", event)
+        return event
     def local(label, cmd, timeout=10):
-        r = subprocess.run(cmd, env=env, capture_output=True, timeout=timeout)
+        try:
+            r = subprocess.run(cmd, env=env, capture_output=True, timeout=timeout)
+        except subprocess.TimeoutExpired:
+            inspection_timeout(label, cmd, timeout)
+            raise SystemExit("local inspection timed out; window stopped") from None
         (out / f"{a.ordinal}-{label}.stdout").write_bytes(r.stdout)
         (out / f"{a.ordinal}-{label}.stderr").write_bytes(r.stderr)
         save(out / f"{a.ordinal}-{label}.json", {"command": cmd, "exit": r.returncode})
@@ -119,11 +144,13 @@ def main():
     binary = case["ask_command"][0]
     data = case["facts"]["data_dir"]
     common = [binary, "--json", "--data-dir", data, "--timeout", "2"]
-    def workflow(label, cmd, observe):
+    def workflow(label, cmd, observe, follows_stop=None):
         if len(ledger["starts"]) >= 12:
             raise SystemExit("12-start ceiling reached")
         row = {"ordinal": a.ordinal, "phase": label, "command": cmd,
                "reserved_before_spawn": True, "wall_started": time.time()}
+        if follows_stop is not None:
+            row["continuation_measurement"] = "after observed Stop" if follows_stop else "non-Stop Continue; Stop stage missed"
         ledger["starts"].append(row)
         save(ledger_file, ledger)  # failures/interruptions consume a start too
         began = time.monotonic()
@@ -135,8 +162,15 @@ def main():
                 child = subprocess.Popen(cmd, env=env, stdout=stdout, stderr=stderr)
                 while child.poll() is None and time.monotonic() - began < 120:
                     if observe:
-                        poll = subprocess.run(common + ["candidates", "--limit", "100"], env=env,
-                                              capture_output=True, timeout=3)
+                        poll_cmd = case["stop_observer"]["poll_command"]
+                        poll_timeout = case["stop_observer"]["python_timeout_seconds"]
+                        row["actual_poll_command"] = poll_cmd
+                        row["poll_python_timeout_seconds"] = poll_timeout
+                        try:
+                            poll = subprocess.run(poll_cmd, env=env, capture_output=True, timeout=poll_timeout)
+                        except subprocess.TimeoutExpired:
+                            row["harness_failure"] = inspection_timeout("candidate_poll", poll_cmd, poll_timeout)
+                            raise SystemExit("candidate inspection timed out; window stopped") from None
                         if poll.returncode == 0:
                             body = json.loads(poll.stdout)
                             candidates = body.get("result", {}).get("candidates", [])
@@ -180,9 +214,14 @@ def main():
                               BRN_INT_D_INSPECT_IDENTITY=json.dumps({"source_pin": plan["source_pin"],
                                   "preflight_sha256": sha(a.preflight), "corpus_sha256": plan["corpus_sha256"],
                                   "compiled_artifacts": plan["compiled_artifacts"]}))
-            export_run = subprocess.run([plan["compiled_artifacts"]["generator"]["path"], "--exact",
+            export_cmd = [plan["compiled_artifacts"]["generator"]["path"], "--exact",
                 "candidate_export::exact_synthetic_candidate_export_refuses_wrong_fixture_operation_and_preserves_content",
-                "--test-threads=1", "--nocapture"], env=export_env, capture_output=True, timeout=15)
+                "--test-threads=1", "--nocapture"]
+            try:
+                export_run = subprocess.run(export_cmd, env=export_env, capture_output=True, timeout=15)
+            except subprocess.TimeoutExpired:
+                inspection_timeout("candidate_export", export_cmd, 15)
+                raise SystemExit("candidate export timed out; window stopped") from None
             (out / f"{a.ordinal}-{label}-candidate-export.log").write_bytes(export_run.stdout + export_run.stderr)
             row["candidate_inspection"] = {"exit": export_run.returncode, "output": str(export_output),
                                            "operation": candidate["operation"], "request_hash": candidate["request_hash"],
@@ -195,7 +234,7 @@ def main():
             raise SystemExit("actual unsuccessful workflow retained; stop window, no retry/fallback")
     workflow("ask", case["ask_command"], case["stop_observer"] is not None)
     if case["continue_command"] is not None:
-        workflow("continue", case["continue_command"], False)
+        workflow("continue", case["continue_command"], False, follows_stop=bool(ledger["starts"][-1].get("stop_signal_sent")))
     ledger["finished_cases"].append(a.ordinal)
     save(ledger_file, ledger)
     print("Case observed; semantic assessment and exact owner review remain required.")

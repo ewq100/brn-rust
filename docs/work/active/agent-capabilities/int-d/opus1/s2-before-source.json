@@ -1,0 +1,9 @@
+{
+  "base": "c6d3f54bd13f1c75d2d344bf61c9ca6fbdfdf713",
+  "source_root": "/private/tmp/brn-int-d-opus1-before-source",
+  "target": "/private/tmp/brn-int-d-opus1-before-target",
+  "production_and_existing_exporter_unchanged": true,
+  "original_exporter_sha256": "83aac1043665b69b02b723e7a3310466ae4f038d7732450166a60c67a58e42c4",
+  "test_only_patch_sha256": "40128b2eec723a1be3349f98897464c76787ad32aa5fe513716137e9d754e7d7",
+  "synthetic_git_head": "0af2f302fee34576ac30b8106672c1200e6f883e"
+}

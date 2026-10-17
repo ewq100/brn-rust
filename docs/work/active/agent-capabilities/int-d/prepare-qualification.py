@@ -104,25 +104,29 @@ def main():
                 cont = output / f"{group}-r{repeat}-{arm}-continue.txt"
                 cont.write_text(corpus["continue_prompt"] + "\n")
                 common = [str(a.binary.resolve()), "--json", "--data-dir", case["data_dir"], "--timeout", "120"]
+                inspect = [str(a.binary.resolve()), "--json", "--data-dir", case["data_dir"], "--timeout", "2"]
+                poll = inspect + ["candidates", "--limit", "100"]
                 ask = common + ["ask", "--thread", case["chat"], "--prompt-file", str(prompt), "--budget", "8", "--trace", "summary"]
                 workflows.append({"ordinal": len(workflows) + 1, "group": group, "repeat": repeat,
                                   "arm": arm, "facts": case, "prompt": str(prompt), "prompt_sha256": sha(prompt),
+                                  "continue_prompt": str(cont), "continue_prompt_sha256": sha(cont),
+                                  "manifest": str(pair / "manifest.json"), "manifest_sha256": sha(pair / "manifest.json"),
                                   "initial_database_sha256": sha(Path(case["data_dir"]) / "threads.sqlite3"),
                                   "configure_command": common + ["configure", "--provider", "Codex", "--model", "gpt-6.1-sol",
                                       "--effort", "medium", "--auth-file", "/Users/evokessler/.codex/auth.json"],
                                   "ask_command": ask,
                                   "stop_observer": None if group == "history" else {
-                                      "poll_command": common + ["candidates", "--limit", "100"],
+                                      "poll_command": poll, "python_timeout_seconds": 3,
                                       "interval_seconds": 1, "maximum_polls": 120,
                                       "target": case["note"], "signal": "SIGINT to owned ask PID only",
                                       "stage_gap": "If process already ended or no exact candidate observed, record gap; no retry or fabricated Stop"},
                                   "continue_command": None if group == "history" else common + ["ask", "--thread", case["chat"],
                                       "--prompt-file", str(cont), "--budget", "8", "--trace", "summary"],
-                                  "inspect_commands": [common + ["runs", "--thread", case["chat"]],
-                                                       common + ["read", "--id", case["note"]]],
+                                  "inspect_commands": [inspect + ["runs", "--thread", case["chat"]],
+                                                       inspect + ["read", "--id", case["note"]]],
                                   "review": "Inspect exact operation/hash/source/current Note before owner Apply/replay/Undo. No blanket auto-approval."})
     report = {"state": "PREPARED_NOT_ACTIVATED", "live_workflow_starts": 0,
-              "source_pin": a.pin, "source_root": str(root), "corpus_sha256": sha(corpus_path),
+              "source_pin": a.pin, "source_root": str(root), "corpus": str(corpus_path), "corpus_sha256": sha(corpus_path),
               "preparer_sha256": sha(__file__),
               "observer_sha256": sha(Path(__file__).with_name("observe-workflow.py")),
               "compiled_artifacts": pinned,
