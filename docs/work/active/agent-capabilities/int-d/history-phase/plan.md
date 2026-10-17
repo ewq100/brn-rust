@@ -1,3 +1,5 @@
+**Opus1 correction checkpoint:** B1/M1 REQUEST_CHANGES; old preflight67e54848 must not activate. [Bounded correction plan](opus1/plan.md) and [response](opus1/response.md) own the new test/harness evidence, fresh material/preparation and all LOW dispositions. No paid activation.
+
 # History-only offline preparation
 
 Task `int-d-history-phase-offline-20261017`, same bound checkout/branch; [binding](binding.json). Sole heavy is offline only. No activation, reservation, Auth/provider workflow, credential inspection, delegation or production change.

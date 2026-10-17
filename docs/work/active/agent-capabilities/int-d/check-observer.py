@@ -169,6 +169,9 @@ def main():
 
 
 
+# PRIVATE fake-subprocess fault injection only; never a normal observer input.
+INJECTION = "import importlib.util,sys,os,pathlib,time,subprocess\nobserver=sys.argv.pop(1);spec=importlib.util.spec_from_file_location('observer',observer);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)\nroot=pathlib.Path(os.environ['INT_D_HISTORY_FAKE_ROOT']);mode=os.environ['INT_D_HISTORY_FAKE_MODE'];wait=subprocess.Popen.wait;communicate=subprocess.Popen.communicate;counts={};fired=set()\ndef barrier(path):\n    end=time.monotonic()+3\n    while not path.exists() and time.monotonic()<end:time.sleep(.01)\n    assert path.exists()\ndef observed_wait(self,*a,**kw):\n    args=self.args if isinstance(self.args,list) else []\n    if str(root/'fake-cli') in args:\n        counts[self.pid]=counts.get(self.pid,0)+1\n        if mode=='interrupt' and 'ask' in args and mode not in fired:\n            fired.add(mode);barrier(root/'ask-pid');raise KeyboardInterrupt('UNSAFE_EXCEPTION_PAYLOAD_CANARY')\n        code=wait(self,*a,**kw)\n        targeted=('ask' in args and mode in ('cleanup-runtime','primary-and-cleanup')) or ('runs' in args and mode=='local-cleanup-runtime')\n        if targeted and sys._getframe(1).f_code.co_name=='group_reap':raise RuntimeError('UNSAFE_EXCEPTION_PAYLOAD_CANARY')\n        return code\n    return wait(self,*a,**kw)\ndef observed_communicate(self,*a,**kw):\n    args=self.args if isinstance(self.args,list) else []\n    if mode=='local-interrupt' and 'runs' in args and str(root/'fake-cli') in args and mode not in fired:\n        fired.add(mode);barrier(root/'inspection-entered');raise KeyboardInterrupt('UNSAFE_EXCEPTION_PAYLOAD_CANARY')\n    return communicate(self,*a,**kw)\nsubprocess.Popen.wait=observed_wait;subprocess.Popen.communicate=observed_communicate\nsave=m.save;writes=0\ndef observed_save(path,value):\n    global writes\n    if path.name=='ledger.json':\n        writes+=1\n        if (mode=='ledger-write-error' and writes>=2) or mode=='first-ledger-write-error':raise PermissionError('UNSAFE_EXCEPTION_PAYLOAD_CANARY')\n    if mode=='failure-write-error' and path.name.endswith('-harness-failure.json'):raise PermissionError('UNSAFE_EXCEPTION_PAYLOAD_CANARY')\n    return save(path,value)\nm.save=observed_save\nm.history_main()\n"
+
 HISTORY_FAKE = r'''#!/usr/bin/env python3
 import json,os,pathlib,signal,sys
 root=pathlib.Path(os.environ['INT_D_HISTORY_FAKE_ROOT']);mode=os.environ['INT_D_HISTORY_FAKE_MODE'];args=sys.argv[1:]
@@ -186,18 +189,25 @@ if 'ask' in args:
     assert (root/'observations'/f'{ordinal}-reservation.json').exists()
     with (root/'actual-starts').open('a') as f:f.write(str(ordinal)+'\n')
     (root/'ask-pid').write_text(str(os.getpid()))
-    if mode in ('failure','timeout-exit'):emit({'terminal':'ToolLimitReached'});raise SystemExit(7)
+    if mode in ('failure','timeout-exit','failure-write-error'):emit({'terminal':'ToolLimitReached'});raise SystemExit(7)
     if mode=='malformed-ask':print('not-json');raise SystemExit(0)
+    if mode=='workflow-list':print('[]');raise SystemExit(0)
+    if mode in ('workflow-result-list','primary-and-cleanup'):emit([]);raise SystemExit(0)
+    if mode=='interrupt':signal.pause()
     emit({'terminal':'Completed','trace':{'model_turns':1,'rounds':0,'usage':{'input':100,'output':10,'cached_input':25},'turn_usage':[],'helpers':[],'summary':{'outcome':'cached'}}})
 elif 'configure' in args or 'continue' in args:raise SystemExit('forbidden fake configure/Continue')
 elif 'runs' in args:
     (root/'inspection-entered').write_text('local inspection')
-    if mode=='inspection-timeout':signal.pause()
+    if mode in ('inspection-timeout','local-interrupt'):signal.pause()
     if mode=='inspection-failure':raise SystemExit(9)
-    if mode=='malformed-inspection':print('not-json')
+    if mode=='inspection-list':print('[]')
+    elif mode=='inspection-result-list':emit([])
+    elif mode=='malformed-inspection':print('not-json')
     else:emit({'runs':[]})
 elif 'read' in args:emit({'id':facts['note'],'version':3 if mode=='authority-failure' else 2})
 elif 'candidates' in args:
+    if mode=='candidate-item-list':emit({'candidates':[[]]});raise SystemExit(0)
+    if mode=='candidate-write-list':emit({'candidates':[{'writes':[[]]}]});raise SystemExit(0)
     emit({'candidates':[{'operation':'synthetic-op','request_hash':'synthetic-hash','writes':[{'id':facts['note']}]}] if mode.startswith('export-') else []})
 elif 'operation' in args:emit({'state':'prepared','receipt':None})
 else:raise SystemExit('unrecognized fake command')
@@ -214,6 +224,10 @@ def check_history():
     prep = importlib.util.module_from_spec(spec); spec.loader.exec_module(prep)
     rows = []
     modes = ["four-order", "failure", "timeout-exit", "spawn-failure", "malformed-ask", "inspection-failure", "inspection-timeout", "malformed-inspection", "export-success", "export-failure", "export-timeout", "authority-failure", "occupied-output", "duplicate", "cap", "wrong-order", "missing-activation", "old-activation", "expired-activation", "malformed-activation", "wrong-type-activation"]
+    modes += ["workflow-list", "workflow-result-list", "inspection-list", "inspection-result-list",
+              "candidate-item-list", "candidate-write-list", "cleanup-runtime", "primary-and-cleanup",
+              "local-cleanup-runtime", "interrupt", "local-interrupt", "failure-write-error",
+              "ledger-write-error", "first-ledger-write-error"]
     modes += ["changed-" + n for n in ("source", "script", "artifact", "depinfo", "corpus", "prompt", "method", "rubric", "manifest", "main", "wal", "shm", "context", "authref")]
     with tempfile.TemporaryDirectory(prefix="brn-int-d-history-fakes-", dir="/private/tmp") as temp:
         base = Path(temp)
@@ -275,6 +289,14 @@ def check_history():
                 if mode=='cap':(root/'observations/ledger.json').write_text(json.dumps({'starts':[{'ordinal':n} for n in range(1,5)],'finished_cases':[],'window_failed':False}))
             env=dict(os.environ,INT_D_HISTORY_FAKE_ROOT=str(root),INT_D_HISTORY_FAKE_MODE=mode)
             command=[sys.executable,str(scripts/'observe-workflow.py'),'--preflight',str(preflight),'--activation',str(activation),'--ordinal']
+            injected = {"cleanup-runtime", "primary-and-cleanup", "local-cleanup-runtime",
+                        "interrupt", "local-interrupt", "failure-write-error",
+                        "ledger-write-error", "first-ledger-write-error"}
+            if mode in injected:
+                launcher = root / "private-test-injection.py"
+                launcher.write_text(INJECTION)
+                command = [sys.executable, str(launcher), str(scripts / "observe-workflow.py"),
+                           "--preflight", str(preflight), "--activation", str(activation), "--ordinal"]
             ordinals=range(1,5) if mode=='four-order' else [1]
             runs=[]
             for ordinal in ordinals:
@@ -282,7 +304,19 @@ def check_history():
             ledger_path=root/'observations/ledger.json';ledger=json.loads(ledger_path.read_text()) if ledger_path.exists() else None
             starts=(root/'actual-starts').read_text().splitlines() if (root/'actual-starts').exists() else []
             refusal=mode.startswith('changed-') or mode in ('occupied-output','cap','wrong-order','missing-activation','old-activation','expired-activation','malformed-activation','wrong-type-activation')
-            if refusal:
+            if mode in ("ledger-write-error", "first-ledger-write-error"):
+                failure = json.loads((root / "observations/1-harness-failure.json").read_text())
+                assert failure["harness_failure"]["class"] == "PermissionError"
+                assert failure["harness_failure"]["stage"] in ("reservation_sync", "ledger_persistence")
+                assert (root / "observations/1-reservation.json").exists()
+                assert starts == ([] if mode == "first-ledger-write-error" else ['1'])
+                assert not ledger or not ledger['finished_cases']
+                assert runs[0]['exit'] != 0 and "evidence persistence failed" in runs[0]['stderr']
+                before_ledger = ledger_path.read_bytes() if ledger_path.exists() else None
+                next_run = subprocess.run(command+['2'],env=env,capture_output=True,timeout=5)
+                assert next_run.returncode != 0
+                assert (ledger_path.read_bytes() if ledger_path.exists() else None) == before_ledger
+            elif refusal:
                 assert runs[0]['exit']!=0 and not starts,(mode,runs)
             elif mode in ('four-order','duplicate','export-success'):
                 assert all(r['exit']==0 for r in runs),(mode,runs)
@@ -296,6 +330,25 @@ def check_history():
                 # Fail-fast also denies the NEXT predeclared case, not just retry.
                 next_run=subprocess.run(command+['2'],env=env,capture_output=True,timeout=5)
                 assert next_run.returncode!=0 and json.loads(ledger_path.read_text())==ledger
+            if not refusal and mode not in ("four-order", "duplicate", "export-success", "ledger-write-error", "first-ledger-write-error"):
+                failure_path = root / "observations/1-harness-failure.json"
+                if mode == "failure-write-error":
+                    assert not failure_path.exists() and ledger['window_failed']
+                    assert "evidence persistence failed" in runs[0]['stderr']
+                else:
+                    assert failure_path.exists()
+                    saved = json.loads(failure_path.read_text())
+                    assert saved['harness_failure'] == ledger['starts'][0]['harness_failure']
+                if mode in ("cleanup-runtime", "primary-and-cleanup", "local-cleanup-runtime"):
+                    start = ledger['starts'][0]
+                    events = [start['harness_failure']] + start.get('secondary_failures', [])
+                    assert any(e['class']=='RuntimeError' and e['stage'].startswith('cleanup_') for e in events)
+                    if mode == "primary-and-cleanup":assert start['harness_failure']['class']=='AttributeError'
+                    assert not ledger['finished_cases']
+                if mode in ("interrupt", "local-interrupt"):
+                    assert runs[0]['exit']==130
+                    assert ledger['starts'][0]['harness_failure']['class']=='KeyboardInterrupt'
+            assert 'UNSAFE_EXCEPTION_PAYLOAD_CANARY' not in json.dumps(ledger) + json.dumps(runs)
             if ledger and mode!='cap':
                 retry=subprocess.run(command+['1'],env=env,capture_output=True,timeout=5)
                 assert retry.returncode!=0 and json.loads(ledger_path.read_text())==ledger
@@ -307,7 +360,13 @@ def check_history():
             if mode=='changed-script':shutil.copyfile(source/'check-observer.py',scripts/'check-observer.py')
             if mode=='export-success':
                 exported=Path(ledger['starts'][0]['candidate_inspection']['output']);(exported/'candidate.json').unlink();exported.rmdir()
-            rows.append({'case':mode,'runs':runs,'actual_fake_starts':len(starts),'ledger':ledger,'normal_Auth_or_provider_starts':0})
+            after_starts = (root/'actual-starts').read_text().splitlines() if (root/'actual-starts').exists() else []
+            assert after_starts == starts, "next/retry probe must not spawn another fake ask"
+            if (root/'ask-pid').exists():
+                try:os.killpg(int((root/'ask-pid').read_text()),0)
+                except ProcessLookupError:pass
+                else:raise AssertionError('owned fake ask group survived final handling')
+            rows.append({'case':mode,'runs':runs,'actual_fake_starts':len(starts),'ledger':ledger,'durable_reservation_exists':(root/'observations/1-reservation.json').exists(),'persisted_failure':json.loads((root/'observations/1-harness-failure.json').read_text()) if (root/'observations/1-harness-failure.json').exists() else None,'normal_Auth_or_provider_starts':0})
     return {'qualification':'offline fake CLI subprocesses and synthetic Git only, not a BRN/provider/Auth/activation proof','cases':rows,'live_starts':0}
 
 

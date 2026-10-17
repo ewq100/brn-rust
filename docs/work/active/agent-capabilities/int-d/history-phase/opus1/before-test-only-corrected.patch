@@ -1,0 +1,267 @@
+diff --git a/crates/brn/tests/int_d.rs b/crates/brn/tests/int_d.rs
+index 6b9044e9..e75cfa4a 100644
+--- a/crates/brn/tests/int_d.rs
++++ b/crates/brn/tests/int_d.rs
+@@ -453,3 +453,262 @@ fn closed_copy_metadata_interoperates_for_both_history_arms() {
+         assert!(!refused.exists());
+     }
+ }
++
++/// Real normal-CLI/Rig prepare, not owner prepare: the runtime adds the exact
++/// Thread revision ChatContext and current Project inputs before persistence.
++#[cfg(target_os = "macos")]
++#[test]
++fn runtime_project_candidate_exports_host_context_inputs_without_apply() {
++    use std::{ffi::OsStr, process::Stdio, time::Duration};
++    use support::stub::{answer, proxy_env, tool, Stub};
++    let mut root = Root::new();
++    root.env = proxy_env();
++    let fixture = tempfile::Builder::new()
++        .prefix("brn-int-d-qualification-20261017-runtime-export-")
++        .tempdir_in("/private/tmp")
++        .unwrap();
++    let data = fixture.path().join("candidate");
++    let mut app =
++        Workspace::create_without_default_credentials(&data, WorkspacePurpose::Test).unwrap();
++    app.choose_delegation(DelegationChoice::ReviewFirst)
++        .unwrap();
++    let project = project_row(
++        app.project_command(
++            "export-project",
++            ProjectCommand::Create {
++                title: "Synthetic runtime export".into(),
++            },
++        )
++        .unwrap(),
++        "project",
++    );
++    let chat = project_row(
++        app.project_command(
++            "export-chat",
++            ProjectCommand::CreateChat {
++                project: project.id.clone(),
++                title: "Synthetic discussion".into(),
++            },
++        )
++        .unwrap(),
++        "chat",
++    );
++    let note = project_row(
++        app.project_command(
++            "export-note",
++            ProjectCommand::CreateDocument {
++                project: project.id.clone(),
++                title: "Synthetic protected draft".into(),
++                markdown: "Monday remains pending exact review.\n".into(),
++            },
++        )
++        .unwrap(),
++        "note",
++    );
++    let RecordData::Note(mut content) = note.data.clone() else {
++        panic!()
++    };
++    content.protected = true;
++    app.owner_change(
++        "export-protection",
++        &ChangeRequest {
++            reason: "Synthetic exact review".into(),
++            writes: vec![Put {
++                id: note.id.clone(),
++                expected_version: Some(1),
++                archived: false,
++                data: RecordData::Note(content.clone()),
++            }],
++            inputs: vec![],
++        },
++    )
++    .unwrap();
++    let receipt = app
++        .post_message(&chat.id, "Delivery is Monday only / ainult esmaspäeval.")
++        .unwrap();
++    let message = receipt
++        .writes
++        .iter()
++        .find(|w| matches!(w.after.data, RecordData::Message(_)))
++        .unwrap()
++        .after
++        .clone();
++    let original = app.store.record(&note.id).unwrap().unwrap();
++    content.markdown =
++        "Delivery: Monday only / ainult esmaspäeval. Prepared, not applied.\n".into();
++    let request = json!({"reason":"Synthetic exact source revision","writes":[{"id":note.id,"expected_version":2,"archived":false,"data":{"Note":content}}],"inputs":[{"record":note.id,"version":2},{"record":message.id,"version":message.version}]});
++    drop(app);
++    let stub = Stub::start(vec![
++        tool(
++            "read-note",
++            "read_note",
++            json!({"id":note.id,"version":2,"start":0,"max_bytes":4096,"section":false}),
++        ),
++        tool(
++            "read-message",
++            "read_message",
++            json!({"id":message.id,"version":1,"start":0,"max_bytes":4096}),
++        ),
++        tool(
++            "prepare",
++            "prepare_changes",
++            json!({"request_key":"runtime-export","request":request}),
++        ),
++        answer("Prepared for exact owner review; nothing applied."),
++    ]);
++    let credentials = stub.credentials(&root);
++    ok(
++        &root,
++        &data,
++        &[
++            "configure",
++            "--provider",
++            "Copilot",
++            "--model",
++            "synthetic",
++            "--effort",
++            "low",
++            "--credentials-dir",
++            credentials.to_str().unwrap(),
++        ],
++    );
++    let asked = support::call(
++        &root,
++        &data,
++        &[
++            "ask",
++            "--thread",
++            &chat.id,
++            "--prompt",
++            "Prepare the exact protected Monday draft for review.",
++            "--budget",
++            "8",
++        ],
++    );
++    assert_eq!(asked["outcome"], "Completed", "{asked}");
++    assert_eq!(stub.requests().len(), 4);
++    let mut app = Workspace::open_existing_no_upgrade(&data).unwrap();
++    let candidates = app.candidates().unwrap();
++    assert_eq!(candidates.len(), 1);
++    let prepared = candidates[0].clone();
++    let context = prepared
++        .request
++        .inputs
++        .iter()
++        .find(|i| i.record == chat.id)
++        .unwrap();
++    assert_eq!(context.expectation, InputExpectation::ChatContext);
++    assert!(matches!(
++        app.store
++            .revision(&context.record, context.version)
++            .unwrap()
++            .unwrap()
++            .data,
++        RecordData::Thread(_)
++    ));
++    assert!(prepared
++        .request
++        .inputs
++        .iter()
++        .any(|i| i.record == project.id
++            && i.expectation == InputExpectation::Current
++            && i.version == app.store.record(&project.id).unwrap().unwrap().version));
++    assert!(prepared
++        .request
++        .inputs
++        .iter()
++        .any(|i| i.record == message.id
++            && i.expectation == InputExpectation::Current
++            && i.version == 1));
++    assert_eq!(
++        prepared.request.writes[0].data,
++        RecordData::Note(content.clone())
++    );
++    assert!(app.records().unwrap().iter().any(
++        |r| matches!(&r.data,RecordData::Run(run) if run.operations.contains(&prepared.operation))
++    ));
++    assert_eq!(app.store.record(&note.id).unwrap().unwrap(), original);
++    assert!(app
++        .store
++        .operation_info(prepared.operation.as_str())
++        .unwrap()
++        .receipt
++        .is_none());
++    // A real checked same-context title update advances Thread.version after
++    // prepare; the original ChatContext revision must remain exportable.
++    let same_context = app.store.record(&chat.id).unwrap().unwrap();
++    let RecordData::Thread(mut renamed) = same_context.data.clone() else {
++        panic!()
++    };
++    renamed.title = "Same synthetic context, revised title".into();
++    app.owner_change(
++        "export-same-context-title",
++        &ChangeRequest {
++            reason: "Exercise revision versus context epoch semantics".into(),
++            writes: vec![Put {
++                id: chat.id.clone(),
++                expected_version: Some(same_context.version),
++                archived: false,
++                data: RecordData::Thread(renamed),
++            }],
++            inputs: vec![],
++        },
++    )
++    .unwrap();
++    let current_chat = app.store.record(&chat.id).unwrap().unwrap();
++    let old_chat = app
++        .store
++        .revision(&chat.id, context.version)
++        .unwrap()
++        .unwrap();
++    let (RecordData::Thread(current), RecordData::Thread(old)) =
++        (&current_chat.data, &old_chat.data)
++    else {
++        panic!()
++    };
++    assert_eq!(current.context_epoch, old.context_epoch);
++    assert!(current_chat.version > context.version);
++    drop(app);
++    let manifest = json!({"corpus_version":"BRN-INT-D-20261017-1","cases":[{"case":"candidate","data_dir":data,"note":note.id,"note_version":2,"chat":chat.id,"project":project.id,"history_messages":[message.id]}]});
++    std::fs::write(
++        fixture.path().join("manifest.json"),
++        serde_json::to_vec(&manifest).unwrap(),
++    )
++    .unwrap();
++    let output = tempfile::Builder::new()
++        .prefix("brn-int-d-candidate-export-20261017-runtime-")
++        .tempdir_in("/private/tmp")
++        .unwrap();
++    let output_path = output.path().to_owned();
++    output.close().unwrap();
++    let mut command=root.command_with(&std::env::current_exe().unwrap(),&[OsStr::new("--exact"),OsStr::new("candidate_export::exact_synthetic_candidate_export_refuses_wrong_fixture_operation_and_preserves_content"),OsStr::new("--test-threads=1"),OsStr::new("--nocapture")]);
++    command.env("BRN_INT_D_INSPECT_ROOT",fixture.path()).env("BRN_INT_D_INSPECT_ARM","candidate").env("BRN_INT_D_INSPECT_OPERATION",prepared.operation.as_str()).env("BRN_INT_D_INSPECT_OUTPUT",&output_path).env("BRN_INT_D_INSPECT_IDENTITY",json!({"source_pin":"0000000000000000000000000000000000000000","purpose":"offline real runtime witness; source association in command receipt"}).to_string()).stdout(Stdio::piped()).stderr(Stdio::piped());
++    let exported = support::wait_output(command.spawn().unwrap(), Duration::from_secs(15));
++    assert_eq!(
++        exported.code, 0,
++        "real runtime export must accept host-added context: {} {}",
++        exported.stdout, exported.stderr
++    );
++    let saved: Value =
++        serde_json::from_slice(&std::fs::read(output_path.join("candidate.json")).unwrap())
++            .unwrap();
++    assert_eq!(saved["request_hash"], prepared.request_hash);
++    assert_eq!(saved["prepared"], serde_json::to_value(&prepared).unwrap());
++    assert_eq!(
++        saved["prepared"]["request"]["writes"][0]["data"]["Note"]["markdown"],
++        content.markdown
++    );
++    assert_eq!(
++        saved["exact_inputs"].as_array().unwrap().len(),
++        prepared.request.inputs.len()
++    );
++    assert_eq!(saved["automatic_apply"], false);
++    let app = Workspace::open_existing_no_upgrade(&data).unwrap();
++    assert_eq!(app.store.record(&note.id).unwrap().unwrap(), original);
++    assert!(app
++        .store
++        .operation_info(prepared.operation.as_str())
++        .unwrap()
++        .receipt
++        .is_none());
++}

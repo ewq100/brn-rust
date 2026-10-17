@@ -1,0 +1,91 @@
+[
+  {
+    "label": "before-runtime",
+    "receipt": "docs/work/active/agent-capabilities/int-d/history-phase/opus1/checks/before-runtime/receipt.json",
+    "sha256": "74f9445a25e72f2722e54985f2e82086775a52e1b3241f58868b324f69b3eae1",
+    "exit": 101,
+    "counts": [
+      "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 5 filtered out; finished in 0.58s"
+    ],
+    "raw_sha256": "c2e23bd3b2667b48295d058e4d9f75973f6ff1028b097110a4f8dc1606fac6a6",
+    "source_unchanged": true,
+    "scripts_unchanged": true
+  },
+  {
+    "label": "before-runtime-corrected-fixture",
+    "receipt": "docs/work/active/agent-capabilities/int-d/history-phase/opus1/checks/before-runtime-corrected-fixture/receipt.json",
+    "sha256": "0ab53ef5d5bf26acc3d6d88d317938b7b01def390c212d2f7a8227db2b72eee6",
+    "exit": 101,
+    "counts": [
+      "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 5 filtered out; finished in 0.00s",
+      "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 5 filtered out; finished in 0.53s"
+    ],
+    "raw_sha256": "46841a115c0557b549c6df639e23888b7e1eef4fdc876c31dcf493d8bdf0c698",
+    "source_unchanged": true,
+    "scripts_unchanged": true
+  },
+  {
+    "label": "candidate-cli",
+    "receipt": "docs/work/active/agent-capabilities/int-d/history-phase/opus1/checks/candidate-cli/receipt.json",
+    "sha256": "1cd3aade896c0658b01a346fc9a918e8302cfd70aa090cc0f965d7ea9ba0e11b",
+    "exit": 0,
+    "counts": [
+      "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.31s"
+    ],
+    "raw_sha256": "8bf4e7a62b2cbd836c2ef889e2b13a41ca0839ac9c594d1d9fe21e99231eec0d",
+    "source_unchanged": true,
+    "scripts_unchanged": true
+  },
+  {
+    "label": "cli-final",
+    "receipt": "docs/work/active/agent-capabilities/int-d/history-phase/opus1/checks/cli-final/receipt.json",
+    "sha256": "0dfe52403548d33db183a0bf9bb03653652e0fc5f5e18e6bd3276eca3a4e1aa6",
+    "exit": 0,
+    "counts": [
+      "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.03s"
+    ],
+    "raw_sha256": "23f8e7d45be76411a2c4a8273a989b9cba5e1c8545a8b1d9136894be81beb786",
+    "source_unchanged": true,
+    "scripts_unchanged": true
+  },
+  {
+    "label": "format",
+    "receipt": "docs/work/active/agent-capabilities/int-d/history-phase/opus1/checks/format/receipt.json",
+    "sha256": "b45b8b7ae38c8d365e8445fb8bc13945bfb282c424ed7d3a89817e7bc0280d7a",
+    "exit": 0,
+    "counts": [],
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_unchanged": true,
+    "scripts_unchanged": true
+  },
+  {
+    "label": "history-matrix",
+    "receipt": "docs/work/active/agent-capabilities/int-d/history-phase/opus1/checks/history-matrix/receipt.json",
+    "sha256": "e02ea959f6958eb92ebc4fa7c09730e3e60bdc43d2549f7d20965a69e3449ae9",
+    "exit": 0,
+    "counts": [],
+    "raw_sha256": "d0c5814c8e856da77677350b904541066960886c5ac3b39232bb9566fa7bba67",
+    "source_unchanged": true,
+    "scripts_unchanged": true
+  },
+  {
+    "label": "legacy-matrix",
+    "receipt": "docs/work/active/agent-capabilities/int-d/history-phase/opus1/checks/legacy-matrix/receipt.json",
+    "sha256": "db8f370ac9811a17590475f70d0b8c2f5bba8e52462cad548c2c40fce88a6783",
+    "exit": 0,
+    "counts": [],
+    "raw_sha256": "d6f7ea39220c38f917daa2043ab98929d5754fa311d515041d5745c5e2171aa4",
+    "source_unchanged": true,
+    "scripts_unchanged": true
+  },
+  {
+    "label": "strict-cli",
+    "receipt": "docs/work/active/agent-capabilities/int-d/history-phase/opus1/checks/strict-cli/receipt.json",
+    "sha256": "3083605bf3f1335f6becf6920998a662a93cc4cf0ac7ac4ebebe0aebf2bd66a1",
+    "exit": 0,
+    "counts": [],
+    "raw_sha256": "13843624f2bb0c13b53f4aeb4eddb4fbae50b099e08f3090913d4dbfc26ee6df",
+    "source_unchanged": true,
+    "scripts_unchanged": true
+  }
+]

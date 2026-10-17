@@ -28,6 +28,59 @@ fn owned_root(path: &Path, prefix: &str, exists: bool) -> std::result::Result<()
     Ok(())
 }
 
+// Host-added runtime inputs are distinct from model-declared Note/Message
+// reads. ChatContext names a Thread REVISION, not a context_epoch number.
+fn context_input_allowed(
+    app: &Workspace,
+    case: &Value,
+    input: &RevisionInput,
+    revision: &Record,
+) -> std::result::Result<(), String> {
+    let chat_id = case["chat"].as_str().ok_or("missing exact chat")?;
+    let project_id = case["project"].as_str().ok_or("missing exact Project")?;
+    if input.record != revision.id || input.version != revision.version {
+        return Err("input revision identity mismatch".into());
+    }
+    if input.record != chat_id && input.record != project_id {
+        return Err("input is outside the explicit corpus".into());
+    }
+    let project = app
+        .store
+        .project_context_record(chat_id)
+        .map_err(|_| "cannot inspect exact Project context")?
+        .ok_or("missing exact Project context")?;
+    if project.id != project_id
+        || project.archived
+        || !matches!(project.data, RecordData::Project(_))
+    {
+        return Err("input is outside the exact current Project context".into());
+    }
+    if input.record == chat_id {
+        let current = app
+            .store
+            .record(chat_id)
+            .map_err(|_| "cannot inspect chat")?
+            .ok_or("missing chat")?;
+        let (RecordData::Thread(old), RecordData::Thread(now)) = (&revision.data, &current.data)
+        else {
+            return Err("ChatContext requires exact Thread revision".into());
+        };
+        if input.expectation != InputExpectation::ChatContext
+            || current.archived
+            || old.context_epoch != now.context_epoch
+            || old.private_context != now.private_context
+        {
+            return Err("chat input is not the same live context".into());
+        }
+    } else if input.expectation != InputExpectation::Current
+        || input.version != project.version
+        || !matches!(revision.data, RecordData::Project(_))
+    {
+        return Err("Project input must be exact and current".into());
+    }
+    Ok(())
+}
+
 fn export(
     fixture: &Path,
     arm: &str,
@@ -100,19 +153,19 @@ fn export(
         .ok_or("missing history identities")?;
     let mut inputs = vec![];
     for input in &prepared.request.inputs {
+        let revision = app
+            .store
+            .revision(&input.record, input.version)
+            .map_err(|_| "input read failed")?
+            .ok_or("missing exact input version")?;
         if input.record != target
             && !allowed
                 .iter()
                 .any(|id| id.as_str() == Some(input.record.as_str()))
         {
-            return Err("input is outside the explicit corpus".into());
+            context_input_allowed(&app, case, input, &revision)?;
         }
-        inputs.push(
-            app.store
-                .revision(&input.record, input.version)
-                .map_err(|_| "input read failed")?
-                .ok_or("missing exact input version")?,
-        );
+        inputs.push(revision);
     }
     let value = json!({"kind":"INT-D synthetic exact candidate inspection; NOT owner approval",
         "source_artifact_identity":identity,"exporter_executable":std::env::current_exe().map_err(|_| "missing executable")?,
@@ -688,4 +741,202 @@ pub(super) fn metadata_copy_context(
     )
     .map_err(|_| "metadata output failed")?;
     Ok(value)
+}
+
+#[test]
+fn runtime_context_inputs_are_confined_to_exact_identity_kind_version_and_expectation() {
+    let root = tempfile::tempdir().unwrap();
+    let mut app =
+        Workspace::create_without_default_credentials(root.path(), WorkspacePurpose::Test).unwrap();
+    let project = super::project_row(
+        app.project_command(
+            "context-project",
+            ProjectCommand::Create {
+                title: "Public context".into(),
+            },
+        )
+        .unwrap(),
+        "project",
+    );
+    let chat = super::project_row(
+        app.project_command(
+            "context-chat",
+            ProjectCommand::CreateChat {
+                project: project.id.clone(),
+                title: "Public chat".into(),
+            },
+        )
+        .unwrap(),
+        "chat",
+    );
+    let other = super::project_row(
+        app.project_command(
+            "other-project",
+            ProjectCommand::Create {
+                title: "Other synthetic context".into(),
+            },
+        )
+        .unwrap(),
+        "project",
+    );
+    let foreign_chat = super::project_row(
+        app.project_command(
+            "other-chat",
+            ProjectCommand::CreateChat {
+                project: other.id.clone(),
+                title: "Other synthetic chat".into(),
+            },
+        )
+        .unwrap(),
+        "chat",
+    );
+    let note = app
+        .new_note("Wrong kind control", "Public synthetic only")
+        .unwrap();
+    let project = app.store.record(&project.id).unwrap().unwrap();
+    let old_chat = app.store.record(&chat.id).unwrap().unwrap();
+    let case = json!({"chat":chat.id,"project":project.id});
+    let c = RevisionInput {
+        record: chat.id.clone(),
+        version: old_chat.version,
+        expectation: InputExpectation::ChatContext,
+    };
+    let p = RevisionInput {
+        record: project.id.clone(),
+        version: project.version,
+        expectation: InputExpectation::Current,
+    };
+    assert!(context_input_allowed(&app, &case, &c, &old_chat).is_ok());
+    assert!(context_input_allowed(&app, &case, &p, &project).is_ok());
+    // A checked attention/title-only Thread update advances its version but
+    // does not change context. This historical revision must remain eligible.
+    let RecordData::Thread(mut thread) = old_chat.data.clone() else {
+        panic!()
+    };
+    thread.title = "Renamed public chat".into();
+    app.owner_change(
+        "rename-chat",
+        &ChangeRequest {
+            reason: "Same context, new Thread version".into(),
+            writes: vec![Put {
+                id: chat.id.clone(),
+                expected_version: Some(old_chat.version),
+                archived: false,
+                data: RecordData::Thread(thread),
+            }],
+            inputs: vec![],
+        },
+    )
+    .unwrap();
+    assert!(app.store.record(&chat.id).unwrap().unwrap().version > c.version);
+    assert!(context_input_allowed(&app, &case, &c, &old_chat).is_ok());
+    for expectation in [InputExpectation::Current, InputExpectation::Historical] {
+        assert!(context_input_allowed(
+            &app,
+            &case,
+            &RevisionInput {
+                expectation,
+                ..c.clone()
+            },
+            &old_chat
+        )
+        .is_err());
+    }
+    assert!(context_input_allowed(
+        &app,
+        &case,
+        &RevisionInput {
+            version: c.version + 99,
+            ..c.clone()
+        },
+        &old_chat
+    )
+    .is_err());
+    assert!(context_input_allowed(
+        &app,
+        &case,
+        &RevisionInput {
+            record: foreign_chat.id.clone(),
+            version: foreign_chat.version,
+            expectation: InputExpectation::ChatContext
+        },
+        &foreign_chat
+    )
+    .is_err());
+    assert!(context_input_allowed(
+        &app,
+        &json!({"chat":note.id,"project":project.id}),
+        &RevisionInput {
+            record: note.id.clone(),
+            version: note.version,
+            expectation: InputExpectation::ChatContext
+        },
+        &note
+    )
+    .is_err());
+    for expectation in [InputExpectation::Historical, InputExpectation::ChatContext] {
+        assert!(context_input_allowed(
+            &app,
+            &case,
+            &RevisionInput {
+                expectation,
+                ..p.clone()
+            },
+            &project
+        )
+        .is_err());
+    }
+    assert!(context_input_allowed(
+        &app,
+        &case,
+        &RevisionInput {
+            record: other.id.clone(),
+            version: other.version,
+            expectation: InputExpectation::Current
+        },
+        &other
+    )
+    .is_err());
+    assert!(context_input_allowed(
+        &app,
+        &json!({"chat":chat.id,"project":note.id}),
+        &RevisionInput {
+            record: note.id.clone(),
+            version: note.version,
+            expectation: InputExpectation::Current
+        },
+        &note
+    )
+    .is_err());
+    assert!(context_input_allowed(
+        &app,
+        &case,
+        &RevisionInput {
+            version: p.version + 99,
+            ..p.clone()
+        },
+        &project
+    )
+    .is_err());
+    let RecordData::Project(mut changed) = project.data.clone() else {
+        panic!()
+    };
+    changed.title = "Changed current Project".into();
+    app.owner_change(
+        "rename-project",
+        &ChangeRequest {
+            reason: "Stale Project negative".into(),
+            writes: vec![Put {
+                id: project.id.clone(),
+                expected_version: Some(project.version),
+                archived: false,
+                data: RecordData::Project(changed),
+            }],
+            inputs: vec![],
+        },
+    )
+    .unwrap();
+    assert!(context_input_allowed(&app, &case, &p, &project).is_err());
+    assert!(app.candidates().unwrap().is_empty());
+    assert_eq!(app.store.record(&note.id).unwrap().unwrap(), note);
 }

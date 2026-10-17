@@ -1,0 +1,46 @@
+{
+  "task": "int-d-history-phase-opus1-corrections-20261017",
+  "head": "e32fdac6fc4cb3b627eec6fe59ff73816fab7b4e",
+  "branch": "work/int-d-20261017",
+  "initial_clean": true,
+  "heavy_inventory": [],
+  "old_artifacts": [
+    {
+      "source": "/private/tmp/brn-int-d-history-phase-20261017-target/debug/brn",
+      "copy": "/private/tmp/brn-int-d-history-opus1-20261017/binary-path-1f66cf323051-brn",
+      "sha256": "1f66cf323051ef75b7a225cf8dcf88f911add03657675d25fddd6dbacf49e280"
+    },
+    {
+      "source": "/private/tmp/brn-int-d-history-phase-20261017-target/debug/deps/brn-f4074be051a4fb89.d",
+      "copy": "/private/tmp/brn-int-d-history-opus1-20261017/binary-dep_info-9f4c346d5a8c-brn-f4074be051a4fb89.d",
+      "sha256": "9f4c346d5a8c3a16c3946382522809a9f90b2272b42b6d134420292fc51536cf"
+    },
+    {
+      "source": "/private/tmp/brn-int-d-history-phase-20261017-target/debug/deps/int_d-8d0cf15fe49e4a41",
+      "copy": "/private/tmp/brn-int-d-history-opus1-20261017/generator-path-2dd139892bde-int_d-8d0cf15fe49e4a41",
+      "sha256": "2dd139892bde495d5d6a245c27eae0edf7384756016bb450dd9ff2849fd9f6ce"
+    },
+    {
+      "source": "/private/tmp/brn-int-d-history-phase-20261017-target/debug/deps/int_d-8d0cf15fe49e4a41.d",
+      "copy": "/private/tmp/brn-int-d-history-opus1-20261017/generator-dep_info-bf1bfd91affb-int_d-8d0cf15fe49e4a41.d",
+      "sha256": "bf1bfd91affbbac5faf1eeaa3ff6c00147d7389ba947e7183379e89c7c1936cf"
+    }
+  ],
+  "old26_original_and_unique_copies_verified": true,
+  "old_fixture_file_hashes": {
+    "/private/tmp/brn-int-d-qualification-20261017-history-db757e32-r1/control/threads.sqlite3": "b595b187de69519b5060c1bb5e0dd66cb5fd286546499e5685315dad95271c58",
+    "/private/tmp/brn-int-d-qualification-20261017-history-db757e32-r1/control/threads.sqlite3-wal": null,
+    "/private/tmp/brn-int-d-qualification-20261017-history-db757e32-r1/control/threads.sqlite3-shm": null,
+    "/private/tmp/brn-int-d-qualification-20261017-history-db757e32-r1/candidate/threads.sqlite3": "61afc72edd7ac585709131a88961a3e740fe686fc9dd9548e18dddb4eeac05de",
+    "/private/tmp/brn-int-d-qualification-20261017-history-db757e32-r1/candidate/threads.sqlite3-wal": null,
+    "/private/tmp/brn-int-d-qualification-20261017-history-db757e32-r1/candidate/threads.sqlite3-shm": null,
+    "/private/tmp/brn-int-d-qualification-20261017-history-db757e32-r2/candidate/threads.sqlite3": "be4f6684b41518676d9b48923716e58408339af9fd8ae18852ba265096b46771",
+    "/private/tmp/brn-int-d-qualification-20261017-history-db757e32-r2/candidate/threads.sqlite3-wal": null,
+    "/private/tmp/brn-int-d-qualification-20261017-history-db757e32-r2/candidate/threads.sqlite3-shm": null,
+    "/private/tmp/brn-int-d-qualification-20261017-history-db757e32-r2/control/threads.sqlite3": "92a52815813dc6084d34e6e181fbb65e85a4b6412537c3a97b14efdd7dc90064",
+    "/private/tmp/brn-int-d-qualification-20261017-history-db757e32-r2/control/threads.sqlite3-wal": null,
+    "/private/tmp/brn-int-d-qualification-20261017-history-db757e32-r2/control/threads.sqlite3-shm": null,
+    "/private/tmp/brn-int-d-history-preflight-20261017-db757e32/preflight.json": "67e548483d3493e764fea7f2769aab1a081703343521bc90c8dc28e4eb89690b"
+  },
+  "no_Store_open": true
+}

@@ -22,6 +22,8 @@
     "D1A/B causality",
     "universal or semantic superiority"
   ],
-  "technical_stop": "first workflow/spawn/auth/timeout/inspection/export/harness/authority failure; no retry/replacement",
-  "normal_completed_without_candidate": "objective FAIL; next predeclared row only if activation still valid"
+  "technical_stop": "first workflow/spawn/auth/timeout/inspection/export/harness/authority failure, >1 target candidates, any post-reservation ordinary exception/interruption or cleanup/persistence failure; no retry/replacement",
+  "normal_completed_without_candidate": "objective FAIL; next predeclared row only if activation still valid",
+  "evidence_failure": "STOP; persisted static primary/secondary class+stage where writable; unavailable storage or unresolved cleanup never implies successful evidence/reaping",
+  "automatic_authority_postcheck_limit": "target ID/version and Prepared/no receipt only; principal assesses settings/other operations/grants/content"
 }

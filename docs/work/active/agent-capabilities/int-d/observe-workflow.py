@@ -348,15 +348,37 @@ def history_main():
     # create_new plus file+directory fsync precedes even process spawn failure.
     with (out / f"{a.ordinal}-reservation.json").open("x") as f:
         json.dump(row, f); f.flush(); os.fsync(f.fileno())
-    directory = os.open(out, os.O_RDONLY)
-    try:
-        os.fsync(directory)
-    finally:
-        os.close(directory)
-    ledger["starts"].append(row)
-    save(out / "ledger.json", ledger)
     began = time.monotonic()
     child = None
+    local_children = []
+    interrupted = False
+    completed_case = False
+    stage = "reservation_sync"
+    ledger["starts"].append(row)
+    def failure(error, at):
+        nonlocal interrupted
+        interrupted = interrupted or isinstance(error, KeyboardInterrupt)
+        # Fixed class vocabulary, never exception Display/body/URL or a custom
+        # exception's arbitrary class name. The first cause is never replaced.
+        classes = {"AttributeError", "RuntimeError", "KeyboardInterrupt", "OSError",
+                   "ValueError", "KeyError", "TypeError", "TimeoutError",
+                   "FileNotFoundError", "FileExistsError", "PermissionError",
+                   "InterruptedError", "BrokenPipeError", "SystemExit"}
+        name = type(error).__name__
+        event = {"stage": at, "class": name if name in classes else "Exception",
+                 "outcome": "STOP ENTIRE WINDOW; no retry/Continue/replacement"}
+        if "harness_failure" not in row:
+            row["harness_failure"] = event
+        else:
+            row.setdefault("secondary_failures", []).append(event)
+        ledger["window_failed"] = True
+        ledger["finished_cases"] = [n for n in ledger["finished_cases"] if n != a.ordinal]
+    def notice():
+        try:
+            event = row.get("secondary_failures", [row["harness_failure"]])[-1]
+            print("History observer evidence persistence failed: " + event["class"] + "; window stopped.", file=__import__("sys").stderr)
+        except BaseException:
+            pass  # unavailable stderr is not a successful evidence write
     def group_reap(process):
         for sig, wait in ((signal.SIGINT, 3), (signal.SIGTERM, 2), (signal.SIGKILL, 2)):
             try:
@@ -365,7 +387,6 @@ def history_main():
                 pass
             try:
                 code = process.wait(timeout=wait)
-                # Descendants, if any, must not survive a completed group leader.
                 try:
                     os.killpg(process.pid, signal.SIGKILL)
                 except ProcessLookupError:
@@ -374,23 +395,39 @@ def history_main():
             except subprocess.TimeoutExpired:
                 continue
         raise RuntimeError("owned process did not reap")
-    stage = "workflow_spawn"
     def local(label, cmd, timeout=3, local_env=None):
         nonlocal stage
         stage = label
         process = subprocess.Popen(cmd, env=local_env or env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, start_new_session=True)
+        local_children.append((label, process))
         try:
             stdout, stderr = process.communicate(timeout=timeout)
         except subprocess.TimeoutExpired:
-            group_reap(process)
-            raise TimeoutError(label) from None
+            raise TimeoutError(label) from None  # finalization still owns child
         (out / f"{a.ordinal}-{label}.stdout").write_bytes(stdout)
         (out / f"{a.ordinal}-{label}.stderr").write_bytes(stderr)
         save(out / f"{a.ordinal}-{label}.json", {"command": cmd, "exit": process.returncode, "python_timeout_seconds": timeout})
         if process.returncode != 0:
             raise ValueError(label + " failed")
         return stdout
+    def persist_failed():
+        # Independent attempts: failure evidence must not suppress ledger write,
+        # nor may cleanup/persistence failure leave a successful finished row.
+        for label, path, value in (
+                ("failure_persistence", out / f"{a.ordinal}-harness-failure.json", row),
+                ("ledger_persistence", out / "ledger.json", ledger)):
+            try:
+                save(path, value)
+            except BaseException as error:
+                failure(error, label)
+                notice()
     try:
+        directory = os.open(out, os.O_RDONLY)
+        try:
+            os.fsync(directory)
+        finally:
+            os.close(directory)
+        save(out / "ledger.json", ledger)
         with (out / f"{a.ordinal}-ask.stdout").open("xb") as stdout, (out / f"{a.ordinal}-ask.stderr").open("xb") as stderr:
             child = subprocess.Popen(case["ask_command"], env=env, stdout=stdout, stderr=stderr, start_new_session=True)
             row["pid"] = child.pid; row["pgid"] = child.pid
@@ -398,9 +435,9 @@ def history_main():
                 stage = "workflow_wait"
                 row["exit"] = child.wait(timeout=120)
             except subprocess.TimeoutExpired:
-                row["cleanup_exit"] = group_reap(child)
                 raise TimeoutError("workflow deadline; cleanup is not checked Stop") from None
         row["elapsed_seconds"] = time.monotonic() - began
+        stage = "workflow_metrics"
         row["exposed_metrics"] = exposed_metrics((out / f"{a.ordinal}-ask.stdout").read_bytes())
         if row["exit"] != 0:
             raise ValueError("unsuccessful workflow")
@@ -440,18 +477,39 @@ def history_main():
             row["candidate_inspection"] = {"output": str(export_output), "sha256": sha(export_output / "candidate.json"), "operation": c["operation"], "request_hash": c["request_hash"], "automatic_apply": False}
         else:
             row["objective_gap"] = "Completed without exact candidate; not objective success or retry authority"
-        ledger["finished_cases"].append(a.ordinal)
-    except (OSError, ValueError, KeyError, TypeError, TimeoutError) as error:
-        # Static class only: no arbitrary exception/provider payload interpolation.
-        row["harness_failure"] = {"stage": stage, "class": type(error).__name__, "outcome": "STOP ENTIRE WINDOW; no retry/Continue/replacement"}
-        ledger["window_failed"] = True
-        save(out / f"{a.ordinal}-harness-failure.json", row["harness_failure"])
+        completed_case = True
+    except BaseException as error:
+        failure(error, stage)
     finally:
-        if child is not None:
-            row["cleanup_exit"] = group_reap(child)
-            row["owned_group_reaped"] = True
+        owned = ([ ("workflow", child) ] if child is not None else []) + local_children
+        cleanup = []
+        for label, process in owned:
+            status = {"stage": label, "pid": process.pid, "pgid": process.pid,
+                      "status": "unresolved"}
+            try:
+                code = group_reap(process)
+                status.update(status="reaped", exit=code)
+                if label == "workflow":
+                    row["cleanup_exit"] = code
+                    row["owned_group_reaped"] = True
+            except BaseException as error:
+                if label == "workflow":
+                    row["owned_group_reaped"] = False
+                failure(error, "cleanup_" + label)
+            finally:
+                cleanup.append(status)
+        row["cleanup"] = cleanup
         row["elapsed_seconds_including_cleanup"] = time.monotonic() - began
-        save(out / "ledger.json", ledger)
+        if completed_case and not ledger["window_failed"]:
+            ledger["finished_cases"].append(a.ordinal)
+            try:
+                save(out / "ledger.json", ledger)
+            except BaseException as error:
+                failure(error, "ledger_persistence")
+        if ledger["window_failed"]:
+            persist_failed()
+    if interrupted:
+        raise SystemExit(130)  # consumed start, saved STOP, never continue
     if ledger["window_failed"]:
         raise SystemExit("History window stopped; bounded failure preserved.")
     print("History case reaped; exact semantic/owner review remains separate.")
