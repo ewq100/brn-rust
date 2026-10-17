@@ -1,0 +1,33 @@
+{
+  "task": "int-d-opus1-20261017",
+  "material_pin": "b93904076026536750d392b617e80f065744afa8",
+  "crates_tree": "5993744077569483e0b88f2edd71f1b1ac8b096b",
+  "branch": "work/int-d-20261017",
+  "compiled_inputs_verified": 333,
+  "script_inputs_verified": 3,
+  "original_live_artifacts_and_exact_dep_info_copies_verified": 2,
+  "corrected_running_test_artifacts_and_dep_info_copies_verified": 3,
+  "before_source_root": "/private/tmp/brn-int-d-opus1-before-source",
+  "before_target": "/private/tmp/brn-int-d-opus1-before-target",
+  "before_source_and_test_only_patch_unchanged": true,
+  "before_fixture_qualification": "before source intentionally retains the exact test-only patch for reproducibility; no mutant/source restoration campaign occurred",
+  "all_owned_exec_sessions_reaped": [
+    61399,
+    14220,
+    55452,
+    51712,
+    26995,
+    98164,
+    24317,
+    50783,
+    59760,
+    15164
+  ],
+  "precise_heavy_target_harness_inventory": [],
+  "new_provider_starts": 0,
+  "existing_window_starts": 2,
+  "existing_window_still_closed": true,
+  "new_mutations": 0,
+  "release": "EXPLICITLY RELEASE sole heavy slot and all INT-D test/script/doc paths to principal. Material remains frozen for fresh Opus2; evidence-only local handoff commit follows. No further Cargo/test/live/mutant/source work authorized by this task.",
+  "timestamp": 1792245239.373308
+}
