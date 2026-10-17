@@ -7,7 +7,9 @@
 //! models, a single fully quoted `href` attribute on `a`, a small entity set and no comments,
 //! declarations, raw-text elements, tables, images or embedded resources. Everything else is
 //! refused before any backend work. Tier 1 is unreachable because Xberg forces document
-//! structure, which the upstream router always sends to tier 2.
+//! structure, which the upstream router sends to tier 2. Input without any `<` takes
+//! upstream's `fast_text_only` path before tier 2 (no DOM, no document structure); its output
+//! is integrity-checked like every other result.
 //!
 //! The scanner uses only `std`, so it can be qualified independently of the backend graph.
 
@@ -42,7 +44,8 @@ pub struct Admitted {
     pub tokens: Vec<ScanToken>,
     /// Maximum element depth reached (a void element counts one level below its parent).
     pub depth: usize,
-    /// Count of `<` bytes, the basis of the conservative node bound.
+    /// Count of `<` bytes, the basis of the conservative node bound (test facts only).
+    #[cfg(test)]
     pub lt_count: usize,
     pub elements: usize,
     pub text_bytes: usize,
@@ -51,6 +54,8 @@ pub struct Admitted {
     pub links: usize,
     root_html: bool,
     root_content: bool,
+    /// One `body` at most: the WHATWG builder merges a second body, astral-tl keeps two.
+    body_seen: bool,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -185,10 +190,13 @@ pub fn admit(bytes: &[u8], max_text_bytes: usize) -> Result<Admitted, &'static s
     if node_bound > MAX_NODES {
         return Err(refusal::NODES);
     }
+    #[cfg(test)]
     let mut out = Admitted {
         lt_count,
         ..Admitted::default()
     };
+    #[cfg(not(test))]
+    let mut out = Admitted::default();
     let mut stack: Vec<Open> = Vec::new();
     let mut at = 0usize;
     while at < bytes.len() {
@@ -392,6 +400,12 @@ fn admit_child(stack: &[Open], child: Element, out: &mut Admitted) -> Result<(),
         } else {
             out.root_content = true;
         }
+    }
+    if child.name == "body" {
+        if out.body_seen {
+            return Err(refusal::CONTENT_MODEL);
+        }
+        out.body_seen = true;
     }
     let parent_model = parent.map_or(Model::Flow, |open| open.element.model);
     let ok = match child.name {
@@ -664,6 +678,10 @@ mod tests {
         assert_eq!(no("<html><body>x</body></html><p>y</p>"), r::CONTENT_MODEL);
         assert_eq!(no("<body>x</body>"), r::CONTENT_MODEL);
         assert_eq!(no("<html><p>x</p></html>"), r::CONTENT_MODEL);
+        assert_eq!(
+            no("<html><body>a</body><body>b</body></html>"),
+            r::CONTENT_MODEL
+        );
         assert_eq!(no("x <"), r::TAG_SYNTAX);
         assert_eq!(no("1 <3"), r::TAG_SYNTAX);
         assert_eq!(no("a > b"), r::TEXT_SYNTAX);
