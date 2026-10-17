@@ -1,0 +1,78 @@
+[
+  {
+    "ordinal": 1,
+    "repeat": 1,
+    "arm": "control",
+    "data_dir": "/private/tmp/brn-int-d-qualification-20261017-history-db757e32-r1/control",
+    "database": {
+      "threads.sqlite3": {
+        "sha256": "b595b187de69519b5060c1bb5e0dd66cb5fd286546499e5685315dad95271c58",
+        "bytes": 380928
+      },
+      "threads.sqlite3-wal": null,
+      "threads.sqlite3-shm": null
+    },
+    "settings_version": 4,
+    "policy_sha256": "34e43ec3435fba0236a34f53e1616361a0acfb2aebe2d1a3e9b78a62abe13993",
+    "context_sha256": "685c12d8be46e4650c0c8e99c348047b569d87e96269148eecf1e2fa4a43ad58",
+    "manifest_sha256": "0a5c0b3b7268c62e74a1b09bffea06f09953c6f855be50b4b51227d0505a00d3",
+    "prompt_sha256": "ef76c8be1560d81ef85804ae14c439e015b80cd4821387ec3fee3cf8cc38155e"
+  },
+  {
+    "ordinal": 2,
+    "repeat": 1,
+    "arm": "candidate",
+    "data_dir": "/private/tmp/brn-int-d-qualification-20261017-history-db757e32-r1/candidate",
+    "database": {
+      "threads.sqlite3": {
+        "sha256": "61afc72edd7ac585709131a88961a3e740fe686fc9dd9548e18dddb4eeac05de",
+        "bytes": 389120
+      },
+      "threads.sqlite3-wal": null,
+      "threads.sqlite3-shm": null
+    },
+    "settings_version": 6,
+    "policy_sha256": "97ae76fe42c75db8015db2f7bcd7beb9e46dadd67e4fee32451d7f9b5bcccda8",
+    "context_sha256": "276c0d24e42c9cbb7deeacb9a4fb958726aafe0011080031af73f078da808c75",
+    "manifest_sha256": "0a5c0b3b7268c62e74a1b09bffea06f09953c6f855be50b4b51227d0505a00d3",
+    "prompt_sha256": "3a147bb38796f4c9759f89a927d2e9f072d1526cbb22639c8efec081752fb6c0"
+  },
+  {
+    "ordinal": 3,
+    "repeat": 2,
+    "arm": "candidate",
+    "data_dir": "/private/tmp/brn-int-d-qualification-20261017-history-db757e32-r2/candidate",
+    "database": {
+      "threads.sqlite3": {
+        "sha256": "be4f6684b41518676d9b48923716e58408339af9fd8ae18852ba265096b46771",
+        "bytes": 389120
+      },
+      "threads.sqlite3-wal": null,
+      "threads.sqlite3-shm": null
+    },
+    "settings_version": 6,
+    "policy_sha256": "eff2755ca1f1ee804841740f16c1422a433c1e6bd77d2fe1387909b44d34853f",
+    "context_sha256": "8a9bc35fbce057ba2b1bfd2fd805e4ce78e487a8ed2a454d238e2de1112a849b",
+    "manifest_sha256": "43e9913492f9a5b17e0cd8fee2867045f0e242b46a90fe898867cdd105b9a087",
+    "prompt_sha256": "d4f560d2dede62e3de11956596556fbeed2c9378948fb8399c73e945f524594c"
+  },
+  {
+    "ordinal": 4,
+    "repeat": 2,
+    "arm": "control",
+    "data_dir": "/private/tmp/brn-int-d-qualification-20261017-history-db757e32-r2/control",
+    "database": {
+      "threads.sqlite3": {
+        "sha256": "92a52815813dc6084d34e6e181fbb65e85a4b6412537c3a97b14efdd7dc90064",
+        "bytes": 380928
+      },
+      "threads.sqlite3-wal": null,
+      "threads.sqlite3-shm": null
+    },
+    "settings_version": 4,
+    "policy_sha256": "34e43ec3435fba0236a34f53e1616361a0acfb2aebe2d1a3e9b78a62abe13993",
+    "context_sha256": "4c7dd95d9d0a3eea75d654112e850f89ae7c92ebf9d3f4acd9b08f037855dd32",
+    "manifest_sha256": "43e9913492f9a5b17e0cd8fee2867045f0e242b46a90fe898867cdd105b9a087",
+    "prompt_sha256": "19d2ac8224c9a7929f928b897fe2d4689c93265fd7dcfc250d79f93ccade081b"
+  }
+]

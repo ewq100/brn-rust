@@ -1,0 +1,13 @@
+# History phase offline handoff
+
+Task `int-d-history-phase-offline-20261017`, same bound work/int-d. Material **db757e321967b93b800bd80a122a90d37f0ebb77**, tree **4903768478c227b82f7f77ed87395a437677338d**, crates **c0f6d86e5d6416666fd84e23d12508af5cf72a9b**; subsequent commit documentation only. Baseb28..material complete diff SHA **9d8bfddbc316bfb8cfbdf890f9b66c92fe1f71bd64fb48de41216f576c698cb7**. All334 Git/working inputs and3script hashes frozen; only2test files appended, other332/production unchanged, old Rust and legacy-main prefixes exact. [Pin](source-pin.json), [scope](scope-audit.json), [review brief](review-brief.md).
+
+[Checks](check-index.json): CLI5/0 at initial new test bytes; final strengthened reader1/0/4filtered; strict CLI all-target Clippy and fmt0; final35fake-history and10legacy fake cases, zero Auth/provider starts. All exact/raw/source/artifact receipts retained; old5/0 not relabelled later test hash, initial33fake run's timing/start-hash limitation disclosed. No broad AI/workspace/native/retrieval/mutants.
+
+[Actual preparation](preparation.md): exactly2pinned generators/4reference-only owner configuration saves/4external copy tests;39child commands all0; no postpin failures/retries. Both-arm whole-context Python/Rust equality including actual Settings field-order SHA; original DB/WAL/SHM triples unchanged, initial manifests/authNone state preserved separately from overlays. No credential-file read or Auth/provider workflow.
+
+NEW0700 preflight `/private/tmp/brn-int-d-history-preflight-20261017-db757e32/preflight.json`, SHA **67e548483d3493e764fea7f2769aab1a081703343521bc90c8dc28e4eb89690b**, fixed r1C/P,r2P/C/max4/8rounds120s, allStop/Continue/configureNone. No activation/reservation/real output exists. **Parent NEW independent harness/preflight review/audit and separate explicit activation required. No paid starts authorized by this handoff.**
+
+[Release](release.json): all recorded owned PIDs/PGIDs reaped, precise heavy/controller inventory empty; source/scripts/artifacts/.d and all4original final triples unchanged. **ALL paths and SOLE HEAVY RELEASED**, no provider window held. Only this evidence-only local commit follows. No push/PR/merge/release/GUI/ownerdata. [Original artifact preservation](preservation-final.json) records supplemental basename collision correction honestly; originals unchanged.
+
+Original3errors UNKNOWN, historical windows closed/no unused authority; I01 semantic/comparable/liveStopContinue/exact owner liveApply incomplete. SDK/widget unexplained/PDF/platform/hosted/native-human/compatibility/INT-W/main/owner/program qualifications remain. Source/product/program acceptance belongs to principal; none claimed here.

@@ -1,4 +1,4 @@
-**History-only offline preparation checkpoint:** [bounded plan](history-phase/plan.md) reuses readiness B after accepted guide14 refresh. Explicit history-only harness, whole-context closed-copy interoperability and fixed C/P then P/C preflight are being qualified offline. No paid activation/real observer/reservation; prior windows remain closed. Parent review/audit/activation remain separate.
+**History-only offline preparation checkpoint:** [bounded plan](history-phase/plan.md) reuses readiness B after accepted guide14 refresh. Material db757e32 passed focused CLI/strict lint/fmt and35+10fake harness cases;2generators/4reference-only Configures/4external whole-context copies and prospective preflight67e54848 are prepared offline. No paid activation/real observer/reservation; prior windows remain closed. Parent review/audit/activation remain separate.
 
 # INT-D / Slice5 bounded integration
 
