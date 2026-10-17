@@ -107,6 +107,8 @@ fn html_config() -> xberg::ExtractionConfig {
         exclude_selectors: Vec::new(),
         base_url: None,
         wrap: false,
+        // Email autolinks omit `mailto:`. Keep explicit destinations for href integrity.
+        autolinks: false,
         // Literal source text such as `*star*` or `_u_` must stay literal, not become Markdown
         // emphasis. The extraction-level `escape_markdown` does not reach pre-rendered HTML.
         escape_asterisks: true,
@@ -352,9 +354,18 @@ fn integrity(admitted: &Admitted, markdown: &str) -> Result<(), &'static str> {
             advance(&plain, &mut cursor, &word)?;
         }
     }
+    // The pinned destination serializer adds `&amp;` before entity-shaped references.
+    // Undo exactly that one ampersand layer for href comparison, without decoding URL
+    // entities: literal `&copy;` and `&#169;` must stay distinct. Word comparison above
+    // remains separate so literal text/code containing `&amp;` keeps its existing checks.
+    let href_plain = if plain.contains("&amp;") {
+        std::borrow::Cow::Owned(plain.replace("&amp;", "&"))
+    } else {
+        std::borrow::Cow::Borrowed(plain.as_ref())
+    };
     let mut cursor = 0usize;
     for href in html_admission::hrefs(admitted) {
-        advance(&plain, &mut cursor, href)?;
+        advance(&href_plain, &mut cursor, href)?;
     }
     Ok(())
 }
@@ -768,6 +779,7 @@ mod tests {
         assert_eq!(html.max_input_size, Some(8 * 1024 * 1024));
         assert_eq!(html.max_depth, Some(128));
         assert!(html.include_document_structure && !html.extract_metadata);
+        assert!(!html.autolinks);
     }
 
     // ---- X2 review round 1: A5 executor, B4e tagless path, A6 literal text, B3 corpus. ----
@@ -1205,6 +1217,105 @@ mod tests {
             let (result, backend) = run(html);
             assert!(result.unwrap_err().starts_with("HTML admission:"), "{html}");
             assert_eq!(backend, 0, "{html}");
+        }
+    }
+    // Round-2 witnesses, identical on unchanged 695 production and corrected production.
+    fn r2_href_witness(source: &str, expected: &str) {
+        let admitted = html_admission::admit(source.as_bytes(), MAX_TEXT_BYTES).unwrap();
+        corroborate(source, &admitted).unwrap();
+        let before = calls();
+        let markdown = convert(source.as_bytes()).unwrap();
+        assert_eq!(calls() - before, 1);
+        assert_eq!(
+            integrity(&admitted, &markdown),
+            Ok(()),
+            "valid backend serialization must retain the admitted href: {markdown:?}"
+        );
+        assert_eq!(markdown.trim_end(), expected);
+    }
+
+    #[test]
+    fn r2_email_autolink_retains_admitted_mailto_target() {
+        r2_href_witness(
+            r#"<p><a href="mailto:ops@example.test">ops@example.test</a></p>"#,
+            "[ops@example.test](mailto:ops@example.test)",
+        );
+    }
+
+    #[test]
+    fn r2_entity_shaped_href_retains_admitted_target() {
+        r2_href_witness(
+            r#"<p><a href="https://x.test/?v=&amp;copy;">go</a></p>"#,
+            "[go](https://x.test/?v=&amp;copy;)",
+        );
+    }
+
+    #[test]
+    fn r2_href_serialization_keeps_named_numeric_and_literal_spellings() {
+        for (raw, serialized) in [
+            ("&amp;copy;", "&amp;copy;"),
+            ("&amp;#169;", "&amp;#169;"),
+            ("&amp;#xA9;", "&amp;#xA9;"),
+            ("&amp;#X1F600;", "&amp;#X1F600;"),
+            ("&amp;amp;copy;", "&amp;amp;copy;"),
+            ("&amp;amp;", "&amp;amp;"),
+            ("&amp;notAnEntity;", "&notAnEntity;"),
+            ("&amp;copy", "&copy"),
+            ("&amp;#xZZ;", "&#xZZ;"),
+            ("a=1&amp;b=2", "a=1&b=2"),
+        ] {
+            let source = format!("<p><a href=\"https://x.test/?v={raw}\">go</a></p>");
+            let expected = format!("[go](https://x.test/?v={serialized})");
+            r2_href_witness(&source, &expected);
+        }
+        r2_href_witness(
+            r#"<p><a href="https://x.test/plain">https://x.test/plain</a></p>"#,
+            "[https://x.test/plain](https://x.test/plain)",
+        );
+    }
+
+    #[test]
+    fn r2_mixed_repeated_hrefs_keep_order_multiplicity_and_literal_values() {
+        let source = concat!(
+            "<p>literal &amp;copy; and &amp;amp;copy;</p>",
+            "<p><a href=\"mailto:ops@example.test\">first</a> ",
+            "<a href=\"https://x.test/?v=&amp;copy;\">second</a> ",
+            "<a href=\"https://x.test/?v=&amp;copy;\">third</a> ",
+            "<a href=\"https://x.test/?v=&amp;#169;\">fourth</a></p>"
+        );
+        let start = window();
+        let (result, backend) = run(source);
+        let markdown = result.unwrap().markdown;
+        assert_eq!(backend, 1);
+        assert!(window() - start <= 2 * markdown.len());
+        assert_eq!(
+            md_text(markdown.lines().next().unwrap()),
+            "literal &copy; and &amp;copy;"
+        );
+        ordered(
+            &markdown,
+            &[
+                "[first](mailto:ops@example.test)",
+                "[second](https://x.test/?v=&amp;copy;)",
+                "[third](https://x.test/?v=&amp;copy;)",
+                "[fourth](https://x.test/?v=&amp;#169;)",
+            ],
+        );
+        let admitted = html_admission::admit(source.as_bytes(), MAX_TEXT_BYTES).unwrap();
+        let prefix = "literal &copy; and &amp;copy; first second third fourth ";
+        for targets in [
+            // One repeated target missing.
+            "mailto:ops@example.test https://x.test/?v=&amp;copy; https://x.test/?v=&amp;#169;",
+            // The distinct targets are reordered, while visible words stay in source order.
+            "https://x.test/?v=&amp;copy; https://x.test/?v=&amp;copy; mailto:ops@example.test https://x.test/?v=&amp;#169;",
+            // Entity text in a URL is literal; equal decoded Unicode is not an equal URL.
+            "mailto:ops@example.test https://x.test/?v=© https://x.test/?v=© https://x.test/?v=©",
+            "mailto:ops@example.test https://x.test/?v=&amp;#169; https://x.test/?v=&amp;#169; https://x.test/?v=&amp;copy;",
+        ] {
+            assert_eq!(
+                integrity(&admitted, &format!("{prefix}{targets}")),
+                Err(refusal::INTEGRITY)
+            );
         }
     }
 }

@@ -452,5 +452,11 @@
   "targets": "Original target/target-before and helper/brn/desktop binaries/.d deleted; hashes only. Newly built round-1 correction artifacts are separately retained in opus1 evidence.",
   "sandbox": "Existing scratch sandbox-denies.log copied byte-for-byte to logs/sandbox-denies.log; positive control was also silent, so inconclusive.",
   "diff-.txt.gz": "Stray gzip expands to zero bytes, a historical tooling artifact with an empty name; retained, not source-comparison evidence."
+ },
+ "log_representation_qualification_20261018": {
+  "applies_to": "37 historical command raw_log_sha256 fields in this index; not opus1/opus2 byte-preserving gzip evidence",
+  "raw_log_sha256": "Identifies original scratch-log bytes, with full /Users/evokessler/ paths.",
+  "repository_gzip": "Historical repository copies shortened /Users/evokessler/ to ~/ before compression. Decompressed repository bytes need that path expansion before comparison with original raw_log_sha256.",
+  "verification": "All 37 repository command copies match their original raw digest after ~/ -> /Users/evokessler/ expansion. Original gzip bytes and raw hashes preserved."
  }
 }
