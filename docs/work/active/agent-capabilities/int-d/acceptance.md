@@ -19,7 +19,7 @@ This checkpoint qualifies the actual local capability stack descended from `c2ec
 | F04–F12/F14/F16/F18/F21 | Current CW1/CW2 core/app/AI tests above; baseline writing host contracts | Actual base contains accepted CW1/CW2; separate later INT-W is not combined. No new native UI/context production change. Native-human/full writing milestone remains separate. |
 | F05/F15/F20 | Native editor/IME/visible complete workflow | No GUI/human observation authorized/executed; existing native test receipts stay historical and qualified. |
 | F13/F22 | Retrieval optional/native and default GPUI-free required hosted platforms | No retrieval/ranking/native production edit. Current default Mac build executed; hosted Linux/Windows/platform builds are pending, not inferred from Mac. Existing native/retrieval artifacts may be cited only at their actual source. |
-| I01 live semantics | [Prepared method](live-method.md), fixed corpus/preparer/observer and pinned actual executable | **NOT ACTIVATED, zero live starts**. Same-binary configuration comparison only,12 total-start ceiling including failure/Stop/Continue,8 rounds/120s; no MCP live qualification. |
+| I01 live semantics | [Prepared method](live-method.md), fixed corpus/preparer/observer and pinned actual executable | **Pinned preparer executed4real fresh pairs/8stores; NOT ACTIVATED, zero live starts**. Same-binary configuration comparison only,12 total-start ceiling including failure/Stop/Continue,8 rounds/120s; no MCP live qualification. |
 
 ## Preserved unsuccessful attempts and qualifications
 

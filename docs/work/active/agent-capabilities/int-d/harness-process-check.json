@@ -1,0 +1,289 @@
+{
+  "qualification": "local fake CLI process harness only; no BRN/provider/auth calls; not runtime semantic evidence",
+  "head_at_check": "c2eca56353152bea22df82337d2ef6f9c461a34f",
+  "observer_sha256": "b7b718524b688318fb7a1052c6d33ece9b377df5e52bfefdc9edd3c3bc43fde1",
+  "test_sha256": "c3740e00faed340cd1ec97a8dc3bcb578a1a5e2b4c0657ea724e300dbfffd43d",
+  "cases": [
+    {
+      "case": "stop",
+      "exit": 0,
+      "repeat_exit": 2,
+      "reserved_starts": 2,
+      "fake_ask_processes": 2,
+      "ledger": {
+        "starts": [
+          {
+            "ordinal": 1,
+            "phase": "ask",
+            "command": [
+              "/private/tmp/brn-int-d-observer-process-65n9j5ty/stop-brn-int-d-observer-process-65n9j5ty/fake-cli",
+              "--json",
+              "--data-dir",
+              "/private/tmp/brn-int-d-observer-process-65n9j5ty/stop-brn-int-d-observer-process-65n9j5ty/candidate",
+              "--timeout",
+              "120",
+              "ask",
+              "--thread",
+              "synthetic-chat",
+              "--prompt-file",
+              "/private/tmp/brn-int-d-observer-process-65n9j5ty/stop-brn-int-d-observer-process-65n9j5ty/ask.txt",
+              "--budget",
+              "8",
+              "--trace",
+              "summary"
+            ],
+            "reserved_before_spawn": true,
+            "wall_started": 1792242995.0213041,
+            "stop_signal_sent": true,
+            "exit": 130,
+            "elapsed_seconds": 0.05908020900096744,
+            "observed_candidate": {
+              "operation": "synthetic-op",
+              "request_hash": "synthetic-hash",
+              "writes": [
+                {
+                  "id": "synthetic-note",
+                  "version": 1
+                }
+              ]
+            },
+            "stop_stage": "actual candidate observed",
+            "exposed_metrics": {
+              "trace_available": true,
+              "terminal": "Interrupted",
+              "traced_model_turns": 2,
+              "rounds": 1,
+              "max_rounds": null,
+              "stopped": null,
+              "runtime_elapsed_ms": null,
+              "parent_usage": {
+                "input": 100,
+                "output": 10,
+                "cached_input": 50,
+                "cached_share": 0.5
+              },
+              "turn_usage": [],
+              "summary": null,
+              "helpers": [],
+              "recorded_provider_resends": 0,
+              "auth_requests": "not exposed",
+              "account_identity": "not exposed",
+              "qualification": "observed trace only; no inferred HTTP totals/summary latency/free retries; missing usage unknown"
+            },
+            "candidate_inspection": {
+              "exit": 0,
+              "output": "/private/tmp/brn-int-d-candidate-export-20261017-stop-brn-int-d-observer-process-65n9j5ty-1-ask",
+              "operation": "synthetic-op",
+              "request_hash": "synthetic-hash",
+              "automatic_apply": false
+            }
+          },
+          {
+            "ordinal": 1,
+            "phase": "continue",
+            "command": [
+              "/private/tmp/brn-int-d-observer-process-65n9j5ty/stop-brn-int-d-observer-process-65n9j5ty/fake-cli",
+              "--json",
+              "--data-dir",
+              "/private/tmp/brn-int-d-observer-process-65n9j5ty/stop-brn-int-d-observer-process-65n9j5ty/candidate",
+              "--timeout",
+              "120",
+              "ask",
+              "--thread",
+              "synthetic-chat",
+              "--prompt-file",
+              "/private/tmp/brn-int-d-observer-process-65n9j5ty/stop-brn-int-d-observer-process-65n9j5ty/continue.txt",
+              "--budget",
+              "8",
+              "--trace",
+              "summary"
+            ],
+            "reserved_before_spawn": true,
+            "wall_started": 1792242995.280607,
+            "exit": 0,
+            "elapsed_seconds": 1.0024182089837268,
+            "observed_candidate": null,
+            "stop_stage": "not observed; gap if Stop case",
+            "exposed_metrics": {
+              "trace_available": true,
+              "terminal": "Completed",
+              "traced_model_turns": 1,
+              "rounds": 0,
+              "max_rounds": null,
+              "stopped": null,
+              "runtime_elapsed_ms": null,
+              "parent_usage": {
+                "input": 100,
+                "output": 10,
+                "cached_input": 25,
+                "cached_share": 0.25
+              },
+              "turn_usage": [],
+              "summary": null,
+              "helpers": [],
+              "recorded_provider_resends": 0,
+              "auth_requests": "not exposed",
+              "account_identity": "not exposed",
+              "qualification": "observed trace only; no inferred HTTP totals/summary latency/free retries; missing usage unknown"
+            },
+            "candidate_inspection": {
+              "exit": 0,
+              "output": "/private/tmp/brn-int-d-candidate-export-20261017-stop-brn-int-d-observer-process-65n9j5ty-1-continue",
+              "operation": "synthetic-op",
+              "request_hash": "synthetic-hash",
+              "automatic_apply": false
+            }
+          }
+        ],
+        "finished_cases": [
+          1
+        ]
+      },
+      "stderr": "",
+      "stdout": "Case observed; semantic assessment and exact owner review remain required.\n"
+    },
+    {
+      "case": "failure",
+      "exit": 1,
+      "repeat_exit": 2,
+      "reserved_starts": 1,
+      "fake_ask_processes": 1,
+      "ledger": {
+        "starts": [
+          {
+            "ordinal": 1,
+            "phase": "ask",
+            "command": [
+              "/private/tmp/brn-int-d-observer-process-65n9j5ty/failure-brn-int-d-observer-process-65n9j5ty/fake-cli",
+              "--json",
+              "--data-dir",
+              "/private/tmp/brn-int-d-observer-process-65n9j5ty/failure-brn-int-d-observer-process-65n9j5ty/candidate",
+              "--timeout",
+              "120",
+              "ask",
+              "--thread",
+              "synthetic-chat",
+              "--prompt-file",
+              "/private/tmp/brn-int-d-observer-process-65n9j5ty/failure-brn-int-d-observer-process-65n9j5ty/ask.txt",
+              "--budget",
+              "8",
+              "--trace",
+              "summary"
+            ],
+            "reserved_before_spawn": true,
+            "wall_started": 1792242996.763922,
+            "exit": 7,
+            "elapsed_seconds": 1.047318041906692,
+            "observed_candidate": null,
+            "stop_stage": "not observed; gap if Stop case",
+            "exposed_metrics": {
+              "trace_available": false,
+              "terminal": "Failed:fixture",
+              "counters": "unknown"
+            },
+            "candidate_inspection_gap": "no unique exact target candidate; no body substituted or automatic Apply"
+          }
+        ],
+        "finished_cases": []
+      },
+      "stderr": "actual unsuccessful workflow retained; stop window, no retry/fallback\n",
+      "stdout": ""
+    },
+    {
+      "case": "spawn-failure",
+      "exit": 1,
+      "repeat_exit": 2,
+      "reserved_starts": 1,
+      "fake_ask_processes": 0,
+      "ledger": {
+        "starts": [
+          {
+            "ordinal": 1,
+            "phase": "ask",
+            "command": [
+              "/private/tmp/brn-int-d-observer-process-65n9j5ty/spawn-failure-brn-int-d-observer-process-65n9j5ty/absent-executable",
+              "--json",
+              "--data-dir",
+              "/private/tmp/brn-int-d-observer-process-65n9j5ty/spawn-failure-brn-int-d-observer-process-65n9j5ty/candidate",
+              "--timeout",
+              "120",
+              "ask",
+              "--thread",
+              "synthetic-chat",
+              "--prompt-file",
+              "/private/tmp/brn-int-d-observer-process-65n9j5ty/spawn-failure-brn-int-d-observer-process-65n9j5ty/ask.txt",
+              "--budget",
+              "8",
+              "--trace",
+              "summary"
+            ],
+            "reserved_before_spawn": true,
+            "wall_started": 1792242998.279534,
+            "elapsed_seconds": 0.001541667035780847,
+            "observed_candidate": null,
+            "stop_stage": "not observed; gap if Stop case",
+            "exposed_metrics": {
+              "trace_available": false,
+              "qualification": "no complete normal envelope; counters unknown"
+            }
+          }
+        ],
+        "finished_cases": []
+      },
+      "stderr": "Traceback (most recent call last):\n  File \"/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407/docs/work/active/agent-capabilities/int-d/observe-workflow.py\", line 205, in <module>\n    main()\n    ~~~~^^\n  File \"/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407/docs/work/active/agent-capabilities/int-d/observe-workflow.py\", line 196, in main\n    workflow(\"ask\", case[\"ask_command\"], case[\"stop_observer\"] is not None)\n    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407/docs/work/active/agent-capabilities/int-d/observe-workflow.py\", line 135, in workflow\n    child = subprocess.Popen(cmd, env=env, stdout=stdout, stderr=stderr)\n  File \"/Users/evokessler/.local/Cellar/python@3.14/3.14.8/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py\", line 1039, in __init__\n    self._execute_child(args, executable, preexec_fn, close_fds,\n    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n                        pass_fds, cwd, env,\n                        ^^^^^^^^^^^^^^^^^^^\n    ...<5 lines>...\n                        gid, gids, uid, umask,\n                        ^^^^^^^^^^^^^^^^^^^^^^\n                        start_new_session, process_group)\n                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/evokessler/.local/Cellar/python@3.14/3.14.8/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py\", line 1990, in _execute_child\n    raise child_exception_type(errno_num, err_msg, err_filename)\nFileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/brn-int-d-observer-process-65n9j5ty/spawn-failure-brn-int-d-observer-process-65n9j5ty/absent-executable'\n",
+      "stdout": ""
+    },
+    {
+      "case": "cap",
+      "exit": 1,
+      "repeat_exit": 1,
+      "reserved_starts": 12,
+      "fake_ask_processes": 0,
+      "ledger": {
+        "starts": [
+          {
+            "ordinal": 0
+          },
+          {
+            "ordinal": 0
+          },
+          {
+            "ordinal": 0
+          },
+          {
+            "ordinal": 0
+          },
+          {
+            "ordinal": 0
+          },
+          {
+            "ordinal": 0
+          },
+          {
+            "ordinal": 0
+          },
+          {
+            "ordinal": 0
+          },
+          {
+            "ordinal": 0
+          },
+          {
+            "ordinal": 0
+          },
+          {
+            "ordinal": 0
+          },
+          {
+            "ordinal": 0
+          }
+        ],
+        "finished_cases": []
+      },
+      "stderr": "12-start ceiling reached\n",
+      "stdout": ""
+    }
+  ],
+  "live_workflow_starts": 0,
+  "auth_starts": 0
+}

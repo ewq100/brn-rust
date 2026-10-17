@@ -1,0 +1,23 @@
+{
+  "material": "f1a5624f096efc956f5b3e771ba0670bd30e952d",
+  "tree": "1a25f36ae22e52b3f383bbd88ced36ebe2b194df",
+  "crates": "14039d3929bf575c9859524e0357912609447a12",
+  "base": "c2eca56353152bea22df82337d2ef6f9c461a34f",
+  "base_to_material_diff": "/private/tmp/brn-int-d-20261017-evidence/base-to-material.diff",
+  "base_to_material_diff_sha256": "67fafc5d8a4e549fbf93304a3e67c9aac2fe03e07e2e182d5f697c04d5340260",
+  "compiled_inputs_match_git": 333,
+  "precommit_command_source_association": "Actual c2eca563+WIP receipts/hash maps are retained; not contemporaneous pin builds.",
+  "qualification_of_late_snapshot": "precommit-source-association.json finished after commit and records f1a5624f + empty staged diff. Its filename is misleading; preserved as actual. The explicit base..material diff and333 Git hashes above govern. No preceding staged-diff proof claimed.",
+  "artifact_receipt": "/private/tmp/brn-int-d-20261017-evidence/pinned-artifacts.json",
+  "artifact_receipt_sha256": "17c4cec0f87b56efb6f91a4d9e653ecb417411a3269d853a2da9fa81e113dcac",
+  "preflight": "/private/tmp/brn-int-d-qualification-20261017-window1-f1a5624f/preflight.json",
+  "preflight_sha256": "0148ad45fa1ed0cb38d7bd52274546bf13b5f06ddb64633ca713f95a5617547d",
+  "preparer_executed": "Pinned actual tested CLI generator4fresh pairs/8stores; each generation exact test1/0; no ask/auth/configured credential commands",
+  "fixture_cases": 8,
+  "maximum_proposed_starts": 12,
+  "actual_live_starts": 0,
+  "activation": "NOT GRANTED",
+  "source_frozen": true,
+  "writing_INT_W": "separate; not imported",
+  "timestamp": 1792243349.658509
+}
