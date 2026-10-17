@@ -1021,3 +1021,508 @@ async fn offline_prepare_signature_and_existing_activity_do_not_identify_histori
         json!({"cases":facts,"historical_cause":"UNKNOWN","live_starts":0})
     );
 }
+
+// Only the identically cfg-gated parent hooks call these passive observers.
+// The callback owns any retention; neither canonical state nor model output changes.
+const CAPTURE_PREFIX: &str = "INT_D_TEST_CAPTURE_V1 ";
+const CAPTURE_BYTES: usize = 2048;
+const CAPTURE_ARGS_BYTES: usize = 1024 * 1024;
+
+fn capture_id(value: Option<&Value>) -> Option<&str> {
+    let text = value?.as_str()?;
+    let (base, index) = text.rsplit_once(':')?;
+    if text.len() > 64
+        || index.is_empty()
+        || index.len() > 20
+        || !index.bytes().all(|b| b.is_ascii_digit())
+    {
+        return None;
+    }
+    let uuid = base.len() == 36
+        && base.bytes().enumerate().all(|(i, b)| {
+            if [8, 13, 18, 23].contains(&i) {
+                b == b'-'
+            } else {
+                b.is_ascii_digit() || (b'a'..=b'f').contains(&b)
+            }
+        });
+    (uuid || (base == "new" && index.parse::<u8>().is_ok_and(|i| i < 64))).then_some(text)
+}
+fn capture_rows(value: Option<&Value>, writes: bool) -> Value {
+    let Some(rows) = value.and_then(Value::as_array) else {
+        return json!({"total":null,"shown":[],"omitted":null});
+    };
+    let limit = if writes { 2 } else { 4 };
+    let shown = rows
+        .iter()
+        .take(limit)
+        .filter_map(|row| {
+            let id = capture_id(row.get(if writes { "id" } else { "record" }))?;
+            if writes {
+                let version = row.get("expected_version")?;
+                if !version.is_null() && version.as_u64().is_none() {
+                    return None;
+                }
+                let kind = row
+                    .get("data")
+                    .and_then(Value::as_object)
+                    .filter(|o| o.len() == 1)
+                    .and_then(|o| o.keys().next())
+                    .map(String::as_str);
+                let kind = match kind {
+                    Some("Note") => "Note",
+                    Some("Thread") => "Thread",
+                    Some("Action") => "Action",
+                    Some("Source") => "Source",
+                    Some("Link") => "Link",
+                    Some("Comment") => "Comment",
+                    _ => "UNKNOWN",
+                };
+                Some(json!({"id":id,"expected_version":version,"kind":kind}))
+            } else {
+                let version = row.get("version")?.as_u64()?;
+                let expectation = match row.get("expectation") {
+                    None => "Current",
+                    Some(Value::String(s)) if s == "Current" => "Current",
+                    Some(Value::String(s)) if s == "Historical" => "Historical",
+                    Some(Value::String(s)) if s == "ChatContext" => "ChatContext",
+                    _ => "UNKNOWN",
+                };
+                Some(json!({"record":id,"version":version,"expectation":expectation}))
+            }
+        })
+        .collect::<Vec<_>>();
+    json!({"total":rows.len(),"omitted":rows.len()-shown.len(),"shown":shown})
+}
+fn capture_arguments(id: u64, round: u16, raw: Option<&str>) -> Value {
+    use sha2::{Digest, Sha256};
+    let parsed = raw
+        .filter(|s| s.len() <= CAPTURE_ARGS_BYTES)
+        .and_then(|s| serde_json::from_str::<Value>(s).ok())
+        .filter(Value::is_object);
+    let args = parsed.as_ref();
+    let writing = match args {
+        None => "UNKNOWN",
+        Some(a) => match a.get("writing") {
+            None => "ABSENT",
+            Some(Value::Null) => "NULL",
+            Some(Value::Object(_)) => "OBJECT",
+            _ => "OTHER",
+        },
+    };
+    let key = args
+        .and_then(|a| a.get("request_key"))
+        .and_then(Value::as_str);
+    let key = key.map(|s| {
+        json!({"bytes":s.len(),"sha256":(s.len()<=128)
+        .then(||format!("{:x}",Sha256::digest(s.as_bytes())))})
+    });
+    json!({"event":"dispatch","dispatch":id,"round":round,
+        "arguments":if args.is_some(){"PARSED"}else if raw.is_some_and(|s|s.len()>CAPTURE_ARGS_BYTES){"UNAVAILABLE_SIZE"}else{"UNAVAILABLE_PARSE"},
+        "writing":writing,"request_key":key,
+        "writes":capture_rows(args.and_then(|a|a.get("request")).and_then(|a|a.get("writes")),true),
+        "inputs":capture_rows(args.and_then(|a|a.get("request")).and_then(|a|a.get("inputs")),false)})
+}
+fn capture_emit(emit: &Arc<dyn Fn(AiEvent) + Send + Sync>, mut value: Value) {
+    let mut text = format!("{CAPTURE_PREFIX}{value}");
+    if text.len() > CAPTURE_BYTES {
+        value = json!({"event":value.get("event"),"dispatch":value.get("dispatch"),"round":value.get("round"),
+            "arguments":"OMITTED_CAP","writing":"UNKNOWN","request_key":null,
+            "writes":{"total":value["writes"]["total"],"shown":[],"omitted":value["writes"]["total"]},
+            "inputs":{"total":value["inputs"]["total"],"shown":[],"omitted":value["inputs"]["total"]}});
+        text = format!("{CAPTURE_PREFIX}{value}");
+    }
+    (emit)(AiEvent::Activity(text));
+}
+pub(super) fn capture_dispatch(
+    emit: &Arc<dyn Fn(AiEvent) + Send + Sync>,
+    event: &DispatchEvent<'_>,
+    round: u16,
+) {
+    capture_emit(
+        emit,
+        capture_arguments(event.id.as_u64(), round, event.tool_args()),
+    );
+}
+fn capture_result(result: Option<&rig::tool::ToolResult>) -> Value {
+    use std::error::Error as _;
+    let error = result.and_then(|r| r.error().or_else(|| r.refusal()));
+    let source = error
+        .and_then(|e| e.source())
+        .and_then(|e| e.downcast_ref::<AiError>());
+    json!({"status":result.map(|r|r.status_name()).unwrap_or("UNKNOWN"),
+        "native_kind":error.map(|e|e.kind().as_str()).unwrap_or(if result.is_some(){"NONE"}else{"UNKNOWN"}),
+        "source_kind":source.map(|e|json!(e.kind)).unwrap_or(json!(if result.is_none() || error.is_some(){"UNKNOWN"}else{"NONE"}))})
+}
+pub(super) fn capture_outcome(
+    emit: &Arc<dyn Fn(AiEvent) + Send + Sync>,
+    event: &OutcomeEvent<'_>,
+    round: u16,
+) {
+    let mut value = capture_result(event.tool_result());
+    value["event"] = json!("outcome");
+    value["dispatch"] = json!(event.id.as_u64());
+    value["round"] = json!(round);
+    capture_emit(emit, value);
+}
+
+#[tokio::test]
+async fn capture_matches_real_prepare_outcomes_and_stops_before_same_batch_apply() {
+    use rig::test_utils::{MockCompletionModel, MockStreamEvent};
+    let mut facts = vec![];
+    for mode in ["absent", "null", "object-long", "apply-first"] {
+        let (_root, mut request, note) = tests::fixture();
+        request.trace = TraceLevel::Full;
+        let mut store = Store::open(&request.data_dir).unwrap();
+        let old = store.record(&note).unwrap().unwrap();
+        let RecordData::Note(mut data) = old.data else {
+            panic!()
+        };
+        data.protected = true;
+        data.markdown = "CAPTURE_ORIGINAL_BODY_CANARY".into();
+        save(
+            &mut store,
+            vec![Put {
+                id: note.clone(),
+                expected_version: Some(old.version),
+                archived: false,
+                data: RecordData::Note(data),
+            }],
+        );
+        let original = store.record(&note).unwrap().unwrap();
+        let mut c = corpus();
+        c["history_messages"] = json!(2);
+        let ids = history(&mut store, &request.thread, &c);
+        let before_receipts = store
+            .receipts()
+            .unwrap()
+            .into_iter()
+            .filter(|r| r.writes.iter().any(|w| w.after.id == note))
+            .collect::<Vec<_>>();
+        drop(store);
+        let (scope, input) = begin(&request).unwrap();
+        tests::read_all(&scope);
+        assert!(scope.owner_request.is_none() && scope.writing_snapshot.is_none());
+        let RecordData::Note(mut revised) = original.data.clone() else {
+            panic!()
+        };
+        revised.markdown = "CAPTURE_PROPOSED_BODY_CANARY".repeat(500);
+        let inputs = vec![
+            RevisionInput {
+                record: note.clone(),
+                version: original.version,
+                expectation: InputExpectation::Current,
+            },
+            RevisionInput {
+                record: ids[0].clone(),
+                version: 1,
+                expectation: InputExpectation::Current,
+            },
+            RevisionInput {
+                record: ids[1].clone(),
+                version: 1,
+                expectation: InputExpectation::Current,
+            },
+        ];
+        let request_key = "CAPTURE_REQUEST_KEY_CANARY";
+        let mut args = json!({"request_key":request_key,"request":ChangeRequest {
+            reason:"CAPTURE_REASON_CANARY".repeat(500),
+            writes:vec![Put {id:note.clone(),expected_version:Some(original.version),archived:false,data:RecordData::Note(revised)}],
+            inputs:inputs.clone(),
+        }});
+        if mode == "null" {
+            args["writing"] = Value::Null;
+        }
+        if mode == "object-long" {
+            args["writing"] = json!({"quotations":[{"id":note,"version":original.version,"start":0,"end":1,"quote":"CAPTURE_QUOTE_CANARY".repeat(500)}],
+                "requirements_reported":[{"claim":"CAPTURE_CLAIM_CANARY","quotations":[0]}]});
+        }
+        assert!(args.to_string().len() > 2048 && parse_valid("prepare_changes", &args));
+        let op = scope
+            .store
+            .lock()
+            .unwrap()
+            .allocate_operation(&format!("{}:proposal:{request_key}", scope.run))
+            .unwrap();
+        if mode == "apply-first" {
+            prepare(&scope, serde_json::from_value(args.clone()).unwrap()).unwrap();
+        }
+        let calls = if mode == "apply-first" {
+            vec![MockStreamEvent::tool_call(
+                "apply",
+                "apply_changes",
+                json!({"operation":op.as_str()}),
+            )]
+        } else {
+            vec![
+                MockStreamEvent::tool_call("prepare", "prepare_changes", args.clone()),
+                MockStreamEvent::tool_call(
+                    "apply",
+                    "apply_changes",
+                    json!({"operation":op.as_str()}),
+                ),
+            ]
+        };
+        let mut turn = calls;
+        turn.push(MockStreamEvent::final_response_with_total_tokens(1));
+        let model = MockCompletionModel::from_stream_turns([
+            turn,
+            vec![
+                MockStreamEvent::text("must not request another turn"),
+                MockStreamEvent::final_response_with_total_tokens(1),
+            ],
+        ]);
+        let cancel = CancellationToken::new();
+        let stop = cancel.clone();
+        let captured = Arc::new(Mutex::new(Vec::new()));
+        let captured_out = captured.clone();
+        let did_stop = Arc::new(AtomicBool::new(false));
+        let stopped = did_stop.clone();
+        let owned_scope = scope.clone();
+        let emit = Arc::new(move |event| {
+            let AiEvent::Activity(text) = event else {
+                return;
+            };
+            let first_prepare_outcome = if let Some(raw) = text.strip_prefix(CAPTURE_PREFIX) {
+                assert!(text.len() <= CAPTURE_BYTES);
+                for secret in [
+                    "CAPTURE_ORIGINAL_BODY_CANARY",
+                    "CAPTURE_PROPOSED_BODY_CANARY",
+                    "CAPTURE_QUOTE_CANARY",
+                    "CAPTURE_CLAIM_CANARY",
+                    "CAPTURE_REASON_CANARY",
+                    "CAPTURE_REQUEST_KEY_CANARY",
+                ] {
+                    assert!(!text.contains(secret));
+                }
+                let row: Value = serde_json::from_str(raw).unwrap();
+                let outcome = row["event"] == "outcome";
+                let mut rows = captured_out.lock().unwrap();
+                assert!(rows.len() < 4);
+                rows.push(row);
+                outcome
+            } else {
+                false
+            };
+            // The reservation/host action is this invocation's test caller, never
+            // a decision made by tool text. The pre-apply guard also covers an
+            // apply-first batch, with no preceding prepare outcome.
+            if (first_prepare_outcome || text.starts_with("> apply_changes "))
+                && !stopped.swap(true, Ordering::SeqCst)
+            {
+                let mut store = owned_scope.store.lock().unwrap();
+                let operation = store
+                    .allocate_operation("capture-stop-first-outcome-or-before-apply")
+                    .unwrap();
+                assert!(matches!(
+                    store
+                        .stop_and_post(
+                            &operation,
+                            &owned_scope.run,
+                            &owned_scope.chat,
+                            "Synthetic capture stopped; no Apply authorized",
+                            &HostAuthority::owner("Capture offline Stop guard")
+                        )
+                        .unwrap(),
+                    ApplyOutcome::Applied(_)
+                ));
+                drop(store);
+                stop.cancel();
+            }
+        });
+        let answer = run_model(
+            model.clone(),
+            scope.clone(),
+            &input,
+            ReasoningEffort::Medium,
+            4,
+            true,
+            cancel,
+            emit,
+        )
+        .await;
+        assert!(did_stop.load(Ordering::SeqCst));
+        assert_eq!(model.request_count(), 1);
+        assert!(!finish(&scope, &answer).unwrap());
+        let rows = captured.lock().unwrap();
+        if mode == "apply-first" {
+            assert!(rows.is_empty());
+        } else {
+            assert_eq!(rows.len(), 2);
+            let (dispatch, outcome) = (&rows[0], &rows[1]);
+            assert_eq!(dispatch["event"], "dispatch");
+            assert_eq!(outcome["event"], "outcome");
+            assert_eq!(dispatch["dispatch"], outcome["dispatch"]);
+            assert_eq!(dispatch["round"], outcome["round"]);
+            assert!(dispatch["dispatch"].is_u64());
+            assert_eq!(dispatch["round"], 1);
+            assert_eq!(dispatch["arguments"], "PARSED");
+            assert_eq!(
+                dispatch["writing"],
+                match mode {
+                    "absent" => "ABSENT",
+                    "null" => "NULL",
+                    _ => "OBJECT",
+                }
+            );
+            assert_eq!(dispatch["inputs"]["total"], 3);
+            assert_eq!(dispatch["inputs"]["omitted"], 0);
+            assert_eq!(dispatch["inputs"]["shown"],json!(inputs.iter().map(|i|json!({"record":i.record,"version":i.version,"expectation":"Current"})).collect::<Vec<_>>()));
+            assert_eq!(
+                dispatch["writes"]["shown"],
+                json!([{"id":note,"expected_version":original.version,"kind":"Note"}])
+            );
+            assert_eq!(dispatch["request_key"]["bytes"], request_key.len());
+            use sha2::Digest;
+            assert_eq!(
+                dispatch["request_key"]["sha256"],
+                format!("{:x}", sha2::Sha256::digest(request_key.as_bytes()))
+            );
+            assert_eq!(
+                outcome["status"],
+                if mode == "object-long" {
+                    "error"
+                } else {
+                    "success"
+                }
+            );
+            assert_eq!(
+                outcome["native_kind"],
+                if mode == "object-long" {
+                    "other"
+                } else {
+                    "NONE"
+                }
+            );
+            assert_eq!(
+                outcome["source_kind"],
+                if mode == "object-long" {
+                    "tool_rejected"
+                } else {
+                    "NONE"
+                }
+            );
+        }
+        let trace = scope
+            .trace
+            .as_ref()
+            .unwrap()
+            .finish("capture offline", false, 4);
+        let serialized = serde_json::to_string(&trace).unwrap();
+        assert!(!serialized.contains(CAPTURE_PREFIX) && !serialized.contains("source_kind"));
+        assert!(!trace.calls.iter().any(|c| c.tool == "apply_changes"
+            && matches!(
+                c.outcome.as_str(),
+                "Applied" | "NeedsReview" | "Deferred" | "Stale"
+            )));
+        let store = scope.store.lock().unwrap();
+        assert_eq!(store.record(&note).unwrap().unwrap(), original);
+        assert_eq!(
+            store
+                .receipts()
+                .unwrap()
+                .into_iter()
+                .filter(|r| r.writes.iter().any(|w| w.after.id == note))
+                .collect::<Vec<_>>(),
+            before_receipts
+        );
+        assert!(store.receipt(&op).unwrap().is_none());
+        let RecordData::Run(run) = store.record(&scope.run).unwrap().unwrap().data else {
+            panic!()
+        };
+        assert_eq!(run.state, RunState::Interrupted);
+        assert_eq!(run.fence, 2);
+        assert!(
+            !serde_json::to_string(&store.records().unwrap())
+                .unwrap()
+                .contains(CAPTURE_PREFIX)
+        );
+        if mode == "object-long" {
+            assert!(run.operations.is_empty() && store.candidates().unwrap().is_empty());
+        } else {
+            assert_eq!(run.operations, vec![op.clone()]);
+            assert_eq!(store.prepared(&op).unwrap().operation, op);
+        }
+        facts.push(json!({"mode":mode,"mock_requests":model.request_count(),"capture":*rows,"guarded_interrupted_fence":run.fence,"note_and_note_receipts_unchanged":true}));
+    }
+    println!(
+        "INT_D_TEST_CAPTURE_FACTS {}",
+        json!({"cases":facts,"historical_cause":"UNKNOWN","live_starts":0})
+    );
+}
+
+#[test]
+fn capture_projection_refuses_unavailable_or_unsafe_metadata_without_raw_fallback() {
+    assert_eq!(
+        capture_result(None),
+        json!({"status":"UNKNOWN","native_kind":"UNKNOWN","source_kind":"UNKNOWN"})
+    );
+    let foreign = rig::tool::ToolResult::failed(rig::tool::ToolExecutionError::from_error(
+        std::io::Error::other("CAPTURE_PRIVATE_ERROR_CANARY"),
+    ));
+    let storage = rig::tool::ToolResult::failed(rig::tool::ToolExecutionError::from_error(
+        AiError::new(AiErrorKind::Storage),
+    ));
+    assert_eq!(
+        capture_result(Some(&foreign)),
+        json!({"status":"error","native_kind":"other","source_kind":"UNKNOWN"})
+    );
+    assert_eq!(
+        capture_result(Some(&storage)),
+        json!({"status":"error","native_kind":"other","source_kind":"storage"})
+    );
+    assert!(
+        !capture_result(Some(&foreign))
+            .to_string()
+            .contains("CAPTURE_PRIVATE_ERROR_CANARY")
+    );
+
+    let rows = Arc::new(Mutex::new(Vec::new()));
+    let out = rows.clone();
+    let emit: Arc<dyn Fn(AiEvent) + Send + Sync> = Arc::new(move |e| {
+        if let AiEvent::Activity(s) = e {
+            assert!(s.len() <= CAPTURE_BYTES);
+            out.lock().unwrap().push(s);
+        }
+    });
+    for raw in [None, Some("{broken"), Some("null")] {
+        capture_emit(&emit, capture_arguments(1, 1, raw));
+    }
+    let huge = "X".repeat(CAPTURE_ARGS_BYTES + 1);
+    capture_emit(&emit, capture_arguments(2, 2, Some(&huge)));
+    let id = "01234567-89ab-cdef-0123-456789abcdef:0";
+    let bad = "https://never-resolve.invalid/CAPTURE_UNSAFE_ID_CANARY";
+    let args = json!({"request_key":"CAPTURE_KEY_CANARY".repeat(100),"writing":"CAPTURE_OTHER_CANARY","request":{
+        "reason":"CAPTURE_REASON_CANARY","writes":[{"id":bad,"expected_version":null,"data":{"CAPTURE_KIND_CANARY":{}}}],
+        "inputs":(0..12).map(|_|json!({"record":id,"version":u64::MAX,"expectation":"Historical"})).collect::<Vec<_>>()}});
+    capture_emit(&emit, capture_arguments(3, 3, Some(&args.to_string())));
+    let rows = rows.lock().unwrap();
+    assert_eq!(rows.len(), 5);
+    let values = rows
+        .iter()
+        .map(|s| serde_json::from_str::<Value>(s.strip_prefix(CAPTURE_PREFIX).unwrap()).unwrap())
+        .collect::<Vec<_>>();
+    for v in &values[..4] {
+        assert_eq!(v["writing"], "UNKNOWN");
+        assert!(v["inputs"]["total"].is_null());
+    }
+    assert_eq!(values[3]["arguments"], "UNAVAILABLE_SIZE");
+    assert_eq!(values[4]["writing"], "OTHER");
+    assert!(values[4]["request_key"]["sha256"].is_null());
+    assert_eq!(values[4]["writes"]["total"], 1);
+    assert_eq!(values[4]["writes"]["omitted"], 1);
+    assert_eq!(values[4]["inputs"]["total"], 12);
+    assert_eq!(values[4]["inputs"]["shown"].as_array().unwrap().len(), 4);
+    assert_eq!(values[4]["inputs"]["omitted"], 8);
+    for raw in rows.iter() {
+        for secret in [
+            bad,
+            "CAPTURE_KEY_CANARY",
+            "CAPTURE_REASON_CANARY",
+            "CAPTURE_OTHER_CANARY",
+            "CAPTURE_KIND_CANARY",
+        ] {
+            assert!(!raw.contains(secret));
+        }
+    }
+}

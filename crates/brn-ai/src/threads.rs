@@ -2250,6 +2250,18 @@ impl AgentHook for BatchHook {
                     self.rounds.load(Ordering::SeqCst),
                 );
             }
+            #[cfg(all(
+                test,
+                feature = "scripted-runs",
+                any(target_os = "macos", target_os = "linux")
+            ))]
+            if name == "prepare_changes" {
+                int_d_tests::capture_dispatch(
+                    &self.emit,
+                    &event,
+                    self.rounds.load(Ordering::SeqCst),
+                );
+            }
             let mut args = serde_json::from_str::<Value>(event.tool_args().unwrap_or("{}"))
                 .unwrap_or(Value::Null);
             if name == "prepare_changes"
@@ -2312,6 +2324,18 @@ impl AgentHook for BatchHook {
             .tool_name()
             .filter(|name| tool_activity(name).is_some())
         {
+            #[cfg(all(
+                test,
+                feature = "scripted-runs",
+                any(target_os = "macos", target_os = "linux")
+            ))]
+            if name == "prepare_changes" {
+                int_d_tests::capture_outcome(
+                    &self.emit,
+                    &event,
+                    self.rounds.load(Ordering::SeqCst),
+                );
+            }
             let status = tool_outcome_label(name, event.tool_result());
             if let Some(trace) = &self.trace {
                 trace.outcome(

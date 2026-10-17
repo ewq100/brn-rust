@@ -1,0 +1,26 @@
+{
+  "task": "int-d-test-capture-20261017",
+  "provider": "codex",
+  "model": "gpt-6.1-sol",
+  "effort": "high",
+  "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+  "branch": "work/int-d-20261017",
+  "base": "33d9e10d1676b0c54db78a54d27110326d9ceea9",
+  "clean_at_start": true,
+  "precise_heavy_inventory": [],
+  "fixed_target": "/private/tmp/brn-int-d-20261017-target",
+  "preserved_prior_artifact": {
+    "path": "/private/tmp/brn-int-d-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9",
+    "sha256": "c7765d2a0871f547327c618cdcc9b7d14ce0c0f46c85de447ee9ef17304586c2",
+    "mtime": 1792246652.131726,
+    "receipt_mtime": 1792246653.215016,
+    "not_modified_after_receipt": true,
+    "dep_info": "/private/tmp/brn-int-d-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9.d",
+    "dep_info_sha256": "46e4797f460b173aa90f5bdfdc94f59c11792399ccd8158109fa11b5dfd6e034",
+    "preserved_path": "/private/tmp/brn-int-d-offline-prepare-diagnostic-20261017-evidence/passing-artifact/brn_ai-0a77908ed974f7b9",
+    "preserved_dep_info": "/private/tmp/brn-int-d-offline-prepare-diagnostic-20261017-evidence/passing-artifact/brn_ai-0a77908ed974f7b9.d"
+  },
+  "new_preservation_root": "/private/tmp/brn-int-d-test-capture-20261017-evidence/prior-passing-artifact",
+  "live_starts_authorized": 0,
+  "timestamp": 1792247331.0493498
+}

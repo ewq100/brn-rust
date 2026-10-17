@@ -1,0 +1,151 @@
+{
+  "task": "int-d-test-capture-20261017",
+  "checks": [
+    {
+      "name": "focused-initial",
+      "exit": 0,
+      "counts": [
+        [
+          4,
+          0,
+          0
+        ]
+      ],
+      "source_count": 333,
+      "source_unchanged": true,
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "threads::int_d_tests",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "files": {
+        "raw/focused-initial.json": "f4aacbaf6244e06c6698bc1c3b74372a28863d0f6a2ca8a6ffd5ab4d14a7b535",
+        "raw/focused-initial-artifacts.json": "3fbd66e44cc0bdafb458cd7d3412511d2aa5f735cad3a07be0165e2b4fe787cb",
+        "raw/focused-initial.log.json": "933090b43a52326386a814a988b9acb4ed7b7988e9e9105ad3f28d81da7f5570"
+      }
+    },
+    {
+      "name": "scripted-clippy",
+      "exit": 0,
+      "counts": [],
+      "source_count": 333,
+      "source_unchanged": true,
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "clippy",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "files": {
+        "raw/scripted-clippy.json": "9d341fff64dc3cccec38a1c0b752324d89f77ace9f4d221937ed1bf573c1dc82",
+        "raw/scripted-clippy-artifacts.json": "b98086b53e6081120b2beb83f1e1284e381971b1857a2a880c870adfa0a6bd90",
+        "raw/scripted-clippy.log.json": "531b24c268a3d09fd50c3a2cd456b8e05cc44d9fdca6e44d84605d055d6b78d0"
+      }
+    },
+    {
+      "name": "focused-final",
+      "exit": 0,
+      "counts": [
+        [
+          4,
+          0,
+          0
+        ]
+      ],
+      "source_count": 333,
+      "source_unchanged": true,
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "threads::int_d_tests",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "files": {
+        "raw/focused-final.json": "843f026e68cc08efb82dbaa419d2a2527eb114ebf7f8a7184721c31995ad8ce8",
+        "raw/focused-final-artifacts.json": "8468f684adec98451acaa4346de49ba3a22ef3ec797e4c88f39bb1b899f544f7",
+        "raw/focused-final.log.json": "f0a6b2bbf872d87c316af575f71dc2136b21e80424d00b5ac342d4ed50165cd1"
+      }
+    },
+    {
+      "name": "scripted-clippy-final",
+      "exit": 0,
+      "counts": [],
+      "source_count": 333,
+      "source_unchanged": true,
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "clippy",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "files": {
+        "raw/scripted-clippy-final.json": "f459760ed12724586fe5f643fdea0d80a705c1701cfdebc6d4d858fc80cee9ba",
+        "raw/scripted-clippy-final-artifacts.json": "2606417daf4cceeec6b810a416c8eb9925abeba2857c9668c1222e24353ddfda",
+        "raw/scripted-clippy-final.log.json": "df93717ebd1c0bbbb6989e81be2d6672a3de2383d12031144e9c84e04dae2d3b"
+      }
+    },
+    {
+      "name": "format-final",
+      "exit": 0,
+      "counts": [],
+      "source_count": 333,
+      "source_unchanged": true,
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "files": {
+        "raw/format-final.json": "aeb2ed83ffb0f68b13d0885757d2e91b0c747542e85c32975249f60351957d24",
+        "raw/format-final-artifacts.json": "1db9a4278f4196f52989682bc34be1a995a17887e7b8caec66a1309653c07ad0",
+        "raw/format-final.log.json": "050fa1a3df6f0cff133f6e773c8014eb37061a3aa6506feaeb8b7755e2422d53"
+      }
+    }
+  ],
+  "prepin_source_correction": "raw/prepin-label-correction.json",
+  "failed_build_or_test_attempts": 0,
+  "qualification": "Every check passed at its actual33d9+WIP byte hashes. Initial passing source predates missing-result label/edge assertion correction; do not relabel. Tracked diff omits untracked docs;333 per-command input hashes govern. Raw logs reversibly JSON encoded, decoded SHA equals log_sha256. Counts overlap; not unique cases.",
+  "calls": "New capture tests native MockCompletionModel; existing combined test established synthetic auth/HTTP model fixture + controlled SDK localhost server. Zero owner-auth, paid provider or external-server starts."
+}

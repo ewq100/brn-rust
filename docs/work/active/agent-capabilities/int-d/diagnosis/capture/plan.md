@@ -1,0 +1,11 @@
+# Test-only capture qualification
+
+Task `int-d-test-capture-20261017`; same bound branch/base33d9e10d. [Binding](binding.json) records empty initial heavy inventory and verified prior passing artifact/.d copy. Preserve all references and original live/corrected evidence.
+
+Only two same-cfg-as-int_d_tests calls in ordinary prepare_changes Dispatch/Outcome branches, delegating passive bounded projection to test-module functions through existing self.emit. No new Scope/BatchHook fields, global state, registry, normal event/trace/API, auth/schema/dependency/driver or model behavior. Strip those exact blocks to recover prior threads.rs bytes. New private functions/tests and this docs directory only.
+
+Qualify actual Rig dispatch/outcome against the existing four-context diagnostic without relaxing its event/body limits, plus real checked Stop/no-Apply same-batch guards (successful prepare, failed prepare, apply-first). Projection-only adverse metadata cases cover unavailable/oversized/omitted fields, never arbitrary text. Keep every event at most2048bytes including prefix, exact safe dispatch key/round, bounded IDs/version/static kind and explicit omissions; no content/error messages. Full trace and canonical records must not acquire this capture.
+
+No ignored live runner is added in this patch: the future entry/gate/fixture preparation remains an explicit proposal pending parent review of the actual capture and a concrete future allocation. No callable env-triggered live path exists. Offline Stop guards qualify the proposed guard mechanics only; prospective activation/preflight validation remains unexecuted, not implied by a synthetic marker. No owner-Auth/paid-provider/external-network call, live fixture generator, retry/Continue, mutation or old unused-start authority. The existing combined test retains only its established synthetic auth/scripted transport and controlled SDK localhost fixture.
+
+Run only focused INT-D capture/diagnostic tests, strict scripted AI all-target Clippy and fmt with pinned1.98.1 locked/offline/jobs1, fresh TMPDIR, fixed same-source target. Preserve failures at actual source/artifact identity. Pin small test-only delta for new parent-owned focused review, then evidence-only handoff and explicit heavy/all-path release. No acceptance claim.
