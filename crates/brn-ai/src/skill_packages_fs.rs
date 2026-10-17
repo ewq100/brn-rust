@@ -16,7 +16,15 @@ fn c(name: &OsStr) -> io::Result<CString> {
 }
 fn result(fd: i32) -> io::Result<File> {
     if fd < 0 {
-        Err(io::Error::last_os_error())
+        let error = io::Error::last_os_error();
+        if matches!(error.raw_os_error(), Some(libc::ELOOP | libc::ENOTDIR)) {
+            Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "skill paths must use real non-symlink directories and files",
+            ))
+        } else {
+            Err(error)
+        }
     } else {
         // SAFETY: the successful open/dup transfers one owned descriptor.
         Ok(unsafe { File::from_raw_fd(fd) })
@@ -98,7 +106,8 @@ impl Dir {
         })?;
         let meta = file.metadata()?;
         if !meta.is_file() || meta.nlink() != 1 {
-            return Err(io::Error::other(
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
                 "package files must be regular and not hard-linked",
             ));
         }
@@ -147,12 +156,17 @@ impl Dir {
             }
             let name = unsafe { CStr::from_ptr((*entry).d_name.as_ptr()) }
                 .to_str()
-                .map_err(|_| io::Error::other("package paths must be UTF-8"))?;
+                .map_err(|_| {
+                    io::Error::new(io::ErrorKind::InvalidInput, "package paths must be UTF-8")
+                })?;
             if name == "." || name == ".." {
                 continue;
             }
             if names.len() == limit {
-                return Err(io::Error::other("package directory entry limit"));
+                return Err(io::Error::new(
+                    io::ErrorKind::InvalidInput,
+                    "package directory entry limit",
+                ));
             }
             names.push(name.to_owned());
         }

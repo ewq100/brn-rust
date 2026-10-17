@@ -439,6 +439,7 @@ pub(crate) static VALUES: &[(&str, &str, Grammar)] = &[
     ("backup", "destination", Grammar::AbsolutePath),
     ("export", "destination", Grammar::AbsolutePath),
     ("restore", "source", Grammar::AbsolutePath),
+    ("skill-install", "source", Grammar::AbsolutePath),
     ("upgrade", "backup-directory", Grammar::AbsolutePath),
     ("init", "purpose", Grammar::Enum(&["test"])),
     ("begin-edit", "token-out", Grammar::AbsolutePath),

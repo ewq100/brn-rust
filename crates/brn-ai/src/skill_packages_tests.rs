@@ -358,3 +358,102 @@ fn descriptor_anchor_does_not_follow_replaced_source_ancestor() {
     assert_eq!(list(&store).unwrap().len(), 4);
     assert!(outside.join("SKILL.md").exists());
 }
+
+#[test]
+fn well_formed_body_digest_and_file_name_binding_refuse_without_deletion() {
+    let (_root, store, source) = fixture();
+    let info = install(&store, &source).unwrap();
+    let path = store.directory().join("skills/document-review.json");
+    let original = disk::read(&path).unwrap();
+    assert_eq!(inspect(&store, "document-review").unwrap().info, info);
+    assert_eq!(list(&store).unwrap().len(), 5);
+    for change_name in [false, true] {
+        let mut artifact: Artifact = serde_json::from_slice(&original).unwrap();
+        let text = artifact.files.get_mut("SKILL.md").unwrap();
+        if change_name {
+            *text = text.replace("name: document-review", "name: different-review");
+            // Self-consistent new bytes isolate the filename/name binding guard.
+            artifact.digest = digest(&artifact.files);
+        } else {
+            text.push_str("\nA valid changed instruction body.\n");
+            // Leave the stored digest untouched; syntax alone must not refuse.
+            assert_eq!(artifact.digest, info.digest);
+        }
+        assert!(validate(artifact.files.clone(), false).is_ok());
+        let changed = serde_json::to_vec(&artifact).unwrap();
+        disk::write(&path, &changed).unwrap();
+        assert!(
+            inspect(&store, "document-review").is_err(),
+            "name change: {change_name}"
+        );
+        assert!(list(&store).is_err());
+        assert!(remove(&store, "document-review", &info.digest).is_err());
+        assert_eq!(disk::read(&path).unwrap(), changed);
+    }
+    disk::write(&path, &original).unwrap();
+    assert_eq!(inspect(&store, "document-review").unwrap().info, info);
+    assert!(remove(&store, "document-review", &info.digest).unwrap());
+}
+
+#[test]
+fn remove_rechecks_real_replacement_and_rolls_back_without_deleting_it() {
+    let (_root, store, source) = fixture();
+    let info = install(&store, &source).unwrap();
+    let path = store.directory().join("skills/document-review.json");
+    let original = disk::read(&path).unwrap();
+    assert_eq!(inspect(&store, "document-review").unwrap().info, info);
+    let mut artifact: Artifact = serde_json::from_slice(&original).unwrap();
+    artifact
+        .files
+        .get_mut("SKILL.md")
+        .unwrap()
+        .push_str("\nValid replacement body.\n");
+    assert!(validate(artifact.files.clone(), false).is_ok());
+    assert_eq!(artifact.digest, info.digest);
+    let replacement = serde_json::to_vec(&artifact).unwrap();
+    let bytes = replacement.clone();
+    let calls = std::rc::Rc::new(std::cell::Cell::new(0));
+    let observed = calls.clone();
+    struct Reset;
+    impl Drop for Reset {
+        fn drop(&mut self) {
+            BEFORE_REMOVE_RENAME.with(|slot| {
+                slot.borrow_mut().take();
+            });
+        }
+    }
+    let _reset = Reset;
+    BEFORE_REMOVE_RENAME.with(|slot| {
+        assert!(slot.borrow().is_none());
+        *slot.borrow_mut() = Some(Box::new(move |dir, name| {
+            observed.set(observed.get() + 1);
+            let mut next = dir
+                .file(
+                    ".replacement-test",
+                    libc::O_WRONLY | libc::O_CREAT | libc::O_EXCL,
+                )
+                .unwrap();
+            next.write_all(&bytes).unwrap();
+            next.sync_all().unwrap();
+            dir.unlink(name).unwrap();
+            dir.rename_exclusive(".replacement-test", name).unwrap();
+        }));
+    });
+    assert!(remove(&store, "document-review", &info.digest).is_err());
+    assert_eq!(calls.get(), 1);
+    assert_eq!(disk::read(&path).unwrap(), replacement);
+    assert!(inspect(&store, "document-review").is_err());
+    assert!(
+        disk::read_dir(store.directory().join("skills"))
+            .unwrap()
+            .all(|entry| {
+                let name = entry.unwrap().file_name();
+                !name.to_string_lossy().starts_with(".removed-") && name != ".replacement-test"
+            })
+    );
+    // Actual normal removal succeeds once the valid original is restored.
+    disk::write(&path, original).unwrap();
+    assert!(remove(&store, "document-review", &info.digest).unwrap());
+    assert!(!remove(&store, "document-review", &info.digest).unwrap());
+    assert_eq!(calls.get(), 1);
+}

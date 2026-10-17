@@ -56,12 +56,25 @@ struct Artifact {
 fn bad(message: &'static str) -> io::Error {
     io::Error::new(io::ErrorKind::InvalidInput, message)
 }
-fn conflict() -> io::Error {
-    io::Error::new(
-        io::ErrorKind::AlreadyExists,
-        "skill identity conflicts with installed bytes; inspect, remove with its exact digest, then install",
-    )
+/// Package-domain refusals, carried inside std I/O without confusing OS faults.
+#[derive(Debug, PartialEq, Eq)]
+pub enum PackageRefusal {
+    DigestConflict,
+    NotInstalled,
 }
+impl std::fmt::Display for PackageRefusal {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match self {
+            Self::DigestConflict => "skill identity conflicts with installed bytes; inspect, remove with its exact digest, then install",
+            Self::NotInstalled => "skill package not installed",
+        })
+    }
+}
+impl std::error::Error for PackageRefusal {}
+fn conflict() -> io::Error {
+    io::Error::new(io::ErrorKind::AlreadyExists, PackageRefusal::DigestConflict)
+}
+
 fn digest(files: &BTreeMap<String, String>) -> String {
     let mut h = Sha256::new();
     h.update(b"brn-instruction-package-v1\0");
@@ -261,7 +274,13 @@ impl Catalog {
                 Err(e) => return Err(e),
             }
         }
-        if bounded(dir.file(".brn-skill-packages", libc::O_RDONLY)?, 128)? != MARKER {
+        let marker = match dir.file(".brn-skill-packages", libc::O_RDONLY) {
+            Err(e) if e.kind() == io::ErrorKind::NotFound => {
+                return Err(bad("foreign skills folder; marker required"));
+            }
+            other => other?,
+        };
+        if bounded(marker, 128)? != MARKER {
             return Err(bad("foreign skills folder; marker required"));
         }
         let lock = dir.file(".lock", libc::O_RDWR | libc::O_CREAT)?;
@@ -293,7 +312,7 @@ impl Catalog {
             || package.info.digest != artifact.digest
             || package.info.name != name
         {
-            return Err(bad("installed package identity/digest mismatch"));
+            return Err(conflict());
         }
         Ok(Some(package))
     }
@@ -350,9 +369,16 @@ pub fn inspect(store: &Store, name: &str) -> io::Result<Package> {
         .map(|c| c.read(name))
         .transpose()?
         .flatten()
-        .ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "skill package not installed"))
+        .ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, PackageRefusal::NotInstalled))
 }
 static NONCE: AtomicU64 = AtomicU64::new(0);
+#[cfg(test)]
+type RemoveHook = Box<dyn FnOnce(&Dir, &str)>;
+#[cfg(test)]
+thread_local! {
+    // A scoped one-shot on this test thread only; absent from production builds.
+    static BEFORE_REMOVE_RENAME: std::cell::RefCell<Option<RemoveHook>> = const { std::cell::RefCell::new(None) };
+}
 fn transient(prefix: &str) -> String {
     format!(
         ".{prefix}-{}-{}",
@@ -396,8 +422,9 @@ pub fn install(store: &Store, source: &Path) -> io::Result<PackageInfo> {
     if outcome.is_err() {
         // Never clean a stage path replaced by an unrelated file.
         if let Ok(current) = catalog.dir.file(&stage, libc::O_RDONLY)
-            && current.metadata()?.ino() == file.metadata()?.ino()
-            && current.metadata()?.dev() == file.metadata()?.dev()
+            && let (Ok(current), Ok(owned)) = (current.metadata(), file.metadata())
+            && current.ino() == owned.ino()
+            && current.dev() == owned.dev()
         {
             let _ = catalog.dir.unlink(&stage);
         }
@@ -427,6 +454,13 @@ pub fn remove(store: &Store, name: &str, expected_digest: &str) -> io::Result<bo
     }
     let artifact = format!("{name}.json");
     let removed = transient("removed");
+    #[cfg(test)]
+    BEFORE_REMOVE_RENAME.with(|slot| {
+        let hook = slot.borrow_mut().take();
+        if let Some(hook) = hook {
+            hook(&catalog.dir, &artifact);
+        }
+    });
     catalog.dir.rename_exclusive(&artifact, &removed)?;
     // Recheck the moved bytes, so an uncooperative replacement is preserved,
     // never deleted. Exclusive rollback never overwrites a new owner file.

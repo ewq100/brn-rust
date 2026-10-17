@@ -1,3 +1,5 @@
+**Opus1 correction checkpoint:** the [full response](review1-response.md), [raw check associations](review1-checks.json) and [artifact receipt](review1-artifacts.json) supersede the original-source checkpoint below. Exact15c CLI before witness0/5 and new WIP errno-edge0/1 are preserved; corrected final scripted AI/app/CLI851/0/2, package11/0, actual service/CLI/core14/0, AI capability433/0/1 and strict affected lint/fmt pass with stated source associations. New pin/fresh principal Opus2 acceptance remain separate; original mutation verdicts and workspace1163/2/6 stay unchanged.
+
 # D3a local instruction package management
 
 17 October 2026. Implementation on `work/d3a-20261017`, exact base `59d1152b1f7576851365cc65d065ba43bb655228`, same T3-bound checkout. Provider Codex, model gpt-6.1-sol/high. D-S is approved; D-M authorizes later D4 only after D3b and prerequisites. Principal owns independent review, source acceptance and integration. This receipt does not claim those outcomes.

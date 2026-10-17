@@ -1,0 +1,37 @@
+{
+  "base": "15c0574105779eb856c8738eb464126b383ff5eb",
+  "byte_identical_paths": {
+    "Cargo.toml": "3795ab3115a3c435a698824f81fe00714191a9c70fc474498d3813e3cae39ad2",
+    "Cargo.lock": "5dab395bdbaac4d39ed29a842913580efc0a656ea95eb18d486b037724b89687",
+    "crates/brn-ai/Cargo.toml": "989fe141f1dc29e4d1b8a4a57e00c51e29be5e094731aa3b771aa06b64caba20",
+    "crates/brn/src/help.rs": "b4d8c3c665220bfed8fd6c72c877b4a1852580db0a3f5eb3be5be3e1f87326f9",
+    "crates/brn-threads-core/src/store.rs": "0448933031a988990361a8c1ed80ee05bc6eda3b5130482acd629752da1767d5",
+    "crates/brn-threads-core/tests/data_folder.rs": "75008bdd3933c2848d7b41321f9740e8f2845ac24364ab38ddbb848e2b78dd70",
+    "crates/brn-ai/src/threads_guides.rs": "3fd7f380778757f6595316f6a9d75ed2e4d114837fe29b7bbfed78e4654d7ccd",
+    "crates/brn-ai/src/threads.rs": "2bb6da98e9cd092a0c8d00d75b20eaa247b8e4f422717cceac63490eabdfd8f5",
+    "crates/brn-ai/src/auth.rs": "20d75e88230b86970e678218e74a281cc33e082d14c128a199cc753430defa55",
+    "crates/brn-ai/src/threads_context_budget.rs": "390f40230101d7877d6e72acd3eeb13538b33d17001df7b67aee239dd7c2d357",
+    "crates/brn-ai/src/threads_summary.rs": "a3e0cafe36537bf9ffa7c3c1661d40dabdaf4586d505d02232f96d7ad394aa6e",
+    "crates/brn-ai/src/threads_continuation.rs": "3fdbe277db8961318cd5106da87fa1e284ea4682c645c152c4ef3bcea26ae94b"
+  },
+  "cfg_matrix_static_only": {
+    "crates/brn-ai/src/lib.rs": {
+      "supported_cfg_occurrences": 1
+    },
+    "crates/brn-threads-app/src/lib.rs": {
+      "supported_cfg_occurrences": 2
+    },
+    "crates/brn/src/main.rs": {
+      "supported_cfg_occurrences": 5
+    },
+    "crates/brn/tests/skill_packages.rs": {
+      "supported_cfg_occurrences": 1
+    },
+    "crates/brn-threads-app/tests/skills.rs": {
+      "supported_cfg_occurrences": 1
+    }
+  },
+  "installed_target": "aarch64-apple-darwin",
+  "unavailable_preflight_before_workspace_open": true,
+  "no_cross_target_compile_claim": true
+}

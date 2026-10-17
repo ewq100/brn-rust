@@ -28,10 +28,10 @@ pub use review::{WritingCandidateReview, WritingContextReview, WritingSourceRevi
 mod review_groups;
 pub mod search;
 mod settings;
-#[cfg(unix)]
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 mod skills;
 pub use settings::HELPER_TESTED_NOTE;
-#[cfg(unix)]
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 pub use skills::{
     Package as SkillPackage, PackageInfo as SkillPackageInfo,
     RETENTION_NOTICE as SKILL_RETENTION_NOTICE,

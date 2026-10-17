@@ -900,6 +900,13 @@ async fn execute(inv: &Invocation, notes: &mut Annotations) -> Result<Value> {
     if CANCEL.load(Ordering::SeqCst) {
         return Err(CliError::interrupted());
     }
+    #[cfg(not(any(target_os = "macos", target_os = "linux")))]
+    if matches!(
+        inv.command.as_str(),
+        "skills" | "skill-inspect" | "skill-install" | "skill-remove"
+    ) {
+        return Err(contract::skills_unavailable());
+    }
     if inv.command == "restore" {
         let store = Store::restore(inv.arg("source")?, &inv.data)?;
         // Every restored copy is an owner workspace; read back from the copy.
@@ -1046,15 +1053,25 @@ async fn execute(inv: &Invocation, notes: &mut Annotations) -> Result<Value> {
         "runs" => inspect::runs(&workspace, inv, notes)?,
         "messages" => inspect::messages(&workspace, inv, notes)?,
         "operation" => inspect::operation(&workspace, inv)?,
+        #[cfg(any(target_os = "macos", target_os = "linux"))]
         "skills" => {
-            json!({"skills":workspace.skills()?,"installed_configuration_in_backup":false,"installed_configuration_in_export":false,"retention_notice":SKILL_RETENTION_NOTICE})
+            json!({"skills":workspace.skills().map_err(contract::skill_error)?,"installed_configuration_in_backup":false,"installed_configuration_in_export":false,"retention_notice":SKILL_RETENTION_NOTICE})
         }
-        "skill-inspect" => serde_json::to_value(workspace.inspect_skill(inv.arg("name")?)?)?,
-        "skill-install" => {
-            serde_json::to_value(workspace.install_skill(Path::new(inv.arg("source")?))?)?
-        }
+        #[cfg(any(target_os = "macos", target_os = "linux"))]
+        "skill-inspect" => serde_json::to_value(
+            workspace
+                .inspect_skill(inv.arg("name")?)
+                .map_err(contract::skill_error)?,
+        )?,
+        #[cfg(any(target_os = "macos", target_os = "linux"))]
+        "skill-install" => serde_json::to_value(
+            workspace
+                .install_skill(Path::new(inv.arg("source")?))
+                .map_err(contract::skill_error)?,
+        )?,
+        #[cfg(any(target_os = "macos", target_os = "linux"))]
         "skill-remove" => {
-            json!({"removed":workspace.remove_skill(inv.arg("name")?,inv.arg("digest")?)?,"retention_notice":SKILL_RETENTION_NOTICE})
+            json!({"removed":workspace.remove_skill(inv.arg("name")?,inv.arg("digest")?).map_err(contract::skill_error)?,"retention_notice":SKILL_RETENTION_NOTICE})
         }
         "settings" => settings_output(workspace.settings()?)?,
         "delegation" => {

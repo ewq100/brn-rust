@@ -17,7 +17,7 @@ mod provider_fixture_runtime;
 mod provider_formats_tests;
 mod resend;
 pub mod run_lease;
-#[cfg(unix)]
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 pub mod skill_packages;
 pub mod threads;
 pub mod threads_guides;

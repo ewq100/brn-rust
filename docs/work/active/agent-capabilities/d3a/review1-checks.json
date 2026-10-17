@@ -1,0 +1,1188 @@
+{
+  "raw_complete_source_maps_preserved": true,
+  "checks": [
+    {
+      "label": "before-cli-errors",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn",
+        "--test",
+        "skill_packages",
+        "--locked",
+        "--offline",
+        "--",
+        "--nocapture"
+      ],
+      "source": "/private/tmp/brn-d3a-20261017-review1-before-source",
+      "target": "/private/tmp/brn-d3a-20261017-review1-before-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d3a-synthetic-xnesj2x7",
+      "CARGO_INCREMENTAL": "0",
+      "start": 1792216018.942286,
+      "cargo_pid": 77380,
+      "exit": 101,
+      "seconds": 40.053524017333984,
+      "log": "/private/tmp/brn-d3a-20261017-review1-artifacts/before-cli-errors.log",
+      "log_sha256": "8153ddff90aa362787a4693076db2d8c16d8a7ea810dd9b640a81615472a3de2",
+      "summaries": [
+        [
+          "FAILED",
+          "0",
+          "5",
+          "0"
+        ]
+      ],
+      "source_unchanged": true,
+      "current_different_source_paths": [
+        "crates/brn/README.md",
+        "crates/brn-ai/src/lib.rs",
+        "crates/brn-ai/src/skill_packages.rs",
+        "crates/brn-ai/src/skill_packages_fs.rs",
+        "crates/brn-ai/src/skill_packages_tests.rs",
+        "crates/brn-threads-app/src/lib.rs",
+        "crates/brn-threads-app/src/skills.rs",
+        "crates/brn-threads-app/tests/skills.rs",
+        "crates/brn/src/contract.rs",
+        "crates/brn/src/main.rs",
+        "crates/brn/src/spec.rs",
+        "crates/brn/tests/skill_packages.rs"
+      ],
+      "raw_receipt": "/private/tmp/brn-d3a-20261017-review1-artifacts/before-cli-errors.json",
+      "raw_receipt_sha256": "3e35c6c48634f80a0f58c75dc92a49ca66669fd3e215b3171b1269246376b988"
+    },
+    {
+      "label": "before-native-errno-edge",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-threads-app",
+        "--lib",
+        "skills::tests",
+        "--locked",
+        "--offline",
+        "--",
+        "--nocapture"
+      ],
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d3a-20261017-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d3a-synthetic-ibepwbyo",
+      "CARGO_INCREMENTAL": "0",
+      "start": 1792216481.8735082,
+      "cargo_pid": 86806,
+      "exit": 101,
+      "seconds": 2.6649746894836426,
+      "log": "/private/tmp/brn-d3a-20261017-review1-artifacts/before-native-errno-edge.log",
+      "log_sha256": "ab5a2554a457c05b991f4143dad43d9f139cac35e4a64f82a588cf7c4b160ea3",
+      "summaries": [
+        [
+          "FAILED",
+          "0",
+          "1",
+          "0"
+        ]
+      ],
+      "source_unchanged": true,
+      "current_different_source_paths": [
+        "crates/brn-threads-app/src/skills.rs"
+      ],
+      "raw_receipt": "/private/tmp/brn-d3a-20261017-review1-artifacts/before-native-errno-edge.json",
+      "raw_receipt_sha256": "83d9a84f47bc129b13d2186859837eb5edab3fe63d30c9a78177c592c05c0bbe"
+    },
+    {
+      "label": "corrected-capability",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--features",
+        "capability-spike",
+        "--all-targets",
+        "--locked",
+        "--offline"
+      ],
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d3a-20261017-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d3a-synthetic-qncptwu6",
+      "CARGO_INCREMENTAL": "0",
+      "start": 1792216325.096241,
+      "cargo_pid": 85957,
+      "exit": 0,
+      "seconds": 17.75843596458435,
+      "log": "/private/tmp/brn-d3a-20261017-review1-artifacts/corrected-capability.log",
+      "log_sha256": "2a763d7442daeca8aedb0b1fd54c33dd36ec6fdcbea3f7fd7ebbc5bc1e18f1f9",
+      "summaries": [
+        [
+          "ok",
+          "430",
+          "0",
+          "1"
+        ],
+        [
+          "ok",
+          "3",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "0",
+          "0",
+          "0"
+        ]
+      ],
+      "source_unchanged": true,
+      "current_different_source_paths": [
+        "crates/brn-threads-app/src/skills.rs"
+      ],
+      "raw_receipt": "/private/tmp/brn-d3a-20261017-review1-artifacts/corrected-capability.json",
+      "raw_receipt_sha256": "58b23fbd7cc94b38b62e04c9f4279b5e8f49fec3406a4b432c0a96023fdd50ac"
+    },
+    {
+      "label": "corrected-clippy-final",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "clippy",
+        "-p",
+        "brn-ai",
+        "-p",
+        "brn-threads-app",
+        "-p",
+        "brn-threads-core",
+        "-p",
+        "brn",
+        "--all-targets",
+        "--features",
+        "brn-ai/capability-spike,brn-ai/scripted-runs",
+        "--locked",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d3a-20261017-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d3a-synthetic-ciw20cbc",
+      "CARGO_INCREMENTAL": "0",
+      "start": 1792216604.255274,
+      "cargo_pid": 89996,
+      "exit": 0,
+      "seconds": 2.4527127742767334,
+      "log": "/private/tmp/brn-d3a-20261017-review1-artifacts/corrected-clippy-final.log",
+      "log_sha256": "9740cd5a5f9e53550793d25e996ac3bccdbb7da0ed6c450ea6a55f683eeb1b95",
+      "summaries": [],
+      "source_unchanged": true,
+      "current_different_source_paths": [],
+      "raw_receipt": "/private/tmp/brn-d3a-20261017-review1-artifacts/corrected-clippy-final.json",
+      "raw_receipt_sha256": "8095fd0ce4e6a73f2ebb20ffd5587855c05f25a7b9fe9de9b5524c30da8875da"
+    },
+    {
+      "label": "corrected-clippy",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "clippy",
+        "-p",
+        "brn-ai",
+        "-p",
+        "brn-threads-app",
+        "-p",
+        "brn-threads-core",
+        "-p",
+        "brn",
+        "--all-targets",
+        "--features",
+        "brn-ai/capability-spike,brn-ai/scripted-runs",
+        "--locked",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d3a-20261017-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d3a-synthetic-73j24m3k",
+      "CARGO_INCREMENTAL": "0",
+      "start": 1792216366.568387,
+      "cargo_pid": 86190,
+      "exit": 0,
+      "seconds": 4.822994947433472,
+      "log": "/private/tmp/brn-d3a-20261017-review1-artifacts/corrected-clippy.log",
+      "log_sha256": "72547dfc15e127b37eddf4d8041fc800d989977f417ca49c70c2fa55fccc9faf",
+      "summaries": [],
+      "source_unchanged": true,
+      "current_different_source_paths": [
+        "crates/brn-threads-app/src/skills.rs"
+      ],
+      "raw_receipt": "/private/tmp/brn-d3a-20261017-review1-artifacts/corrected-clippy.json",
+      "raw_receipt_sha256": "9581e4004cecc4579b70e9eee79de3cc43c502db80f2892367a4ddc9a603b104"
+    },
+    {
+      "label": "corrected-fmt-final",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d3a-20261017-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d3a-synthetic-a4vxqftj",
+      "CARGO_INCREMENTAL": "0",
+      "start": 1792216627.110778,
+      "cargo_pid": 90326,
+      "exit": 0,
+      "seconds": 1.1628339290618896,
+      "log": "/private/tmp/brn-d3a-20261017-review1-artifacts/corrected-fmt-final.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summaries": [],
+      "source_unchanged": true,
+      "current_different_source_paths": [],
+      "raw_receipt": "/private/tmp/brn-d3a-20261017-review1-artifacts/corrected-fmt-final.json",
+      "raw_receipt_sha256": "07bd6ef2628563d73b447ea3b7ce5a6db21c399c809b59bc4b05f14faa7486b8"
+    },
+    {
+      "label": "corrected-fmt",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d3a-20261017-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d3a-synthetic-ymn_hq06",
+      "CARGO_INCREMENTAL": "0",
+      "start": 1792216405.69096,
+      "cargo_pid": 86481,
+      "exit": 0,
+      "seconds": 1.2024002075195312,
+      "log": "/private/tmp/brn-d3a-20261017-review1-artifacts/corrected-fmt.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summaries": [],
+      "source_unchanged": true,
+      "current_different_source_paths": [
+        "crates/brn-threads-app/src/skills.rs"
+      ],
+      "raw_receipt": "/private/tmp/brn-d3a-20261017-review1-artifacts/corrected-fmt.json",
+      "raw_receipt_sha256": "60f46a86c38dd671d09410a4011d0e05261747d9635291642bb0112f9025121d"
+    },
+    {
+      "label": "corrected-full-scripted-final",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "-p",
+        "brn-threads-app",
+        "-p",
+        "brn",
+        "--features",
+        "brn-ai/scripted-runs",
+        "--lib",
+        "--tests",
+        "--locked",
+        "--offline"
+      ],
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d3a-20261017-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d3a-synthetic-3av2zfjs",
+      "CARGO_INCREMENTAL": "0",
+      "start": 1792216518.6567838,
+      "cargo_pid": 86983,
+      "exit": 0,
+      "seconds": 64.16742396354675,
+      "log": "/private/tmp/brn-d3a-20261017-review1-artifacts/corrected-full-scripted-final.log",
+      "log_sha256": "e8cf1a5d0242618ea549ed5e534cdcfe363e9eef9bb1cbb92e49ca9375618570",
+      "summaries": [
+        [
+          "ok",
+          "27",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "5",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "12",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "23",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "5",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "11",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "8",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "11",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "5",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "5",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "7",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "12",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "3",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "5",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "13",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "441",
+          "0",
+          "1"
+        ],
+        [
+          "ok",
+          "2",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "8",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "9",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "3",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "5",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "15",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "11",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "16",
+          "0",
+          "1"
+        ],
+        [
+          "ok",
+          "19",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "8",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "12",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "6",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "11",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "11",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "16",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "3",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "3",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "11",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "5",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "6",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "10",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "22",
+          "0",
+          "0"
+        ]
+      ],
+      "source_unchanged": true,
+      "current_different_source_paths": [],
+      "raw_receipt": "/private/tmp/brn-d3a-20261017-review1-artifacts/corrected-full-scripted-final.json",
+      "raw_receipt_sha256": "0d0ef5b8d2024b1428a6f3166e9410fb09564b0b15940287a8594c9d7fa255e9"
+    },
+    {
+      "label": "corrected-full-scripted",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "-p",
+        "brn-threads-app",
+        "-p",
+        "brn",
+        "--features",
+        "brn-ai/scripted-runs",
+        "--lib",
+        "--tests",
+        "--locked",
+        "--offline"
+      ],
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d3a-20261017-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d3a-synthetic-uo8q39fk",
+      "CARGO_INCREMENTAL": "0",
+      "start": 1792216237.6830049,
+      "cargo_pid": 82652,
+      "exit": 0,
+      "seconds": 74.60307502746582,
+      "log": "/private/tmp/brn-d3a-20261017-review1-artifacts/corrected-full-scripted.log",
+      "log_sha256": "b07265f958237d8e0d3532fc275d9ac00dd4c4c813ca875d898b7cb8240ff72f",
+      "summaries": [
+        [
+          "ok",
+          "27",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "5",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "12",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "23",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "5",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "11",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "8",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "11",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "5",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "5",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "7",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "12",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "3",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "5",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "13",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "441",
+          "0",
+          "1"
+        ],
+        [
+          "ok",
+          "2",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "8",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "9",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "3",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "5",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "15",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "11",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "16",
+          "0",
+          "1"
+        ],
+        [
+          "ok",
+          "19",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "8",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "12",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "6",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "11",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "11",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "16",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "3",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "3",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "11",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "5",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "6",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "10",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "22",
+          "0",
+          "0"
+        ]
+      ],
+      "source_unchanged": true,
+      "current_different_source_paths": [
+        "crates/brn-threads-app/src/skills.rs"
+      ],
+      "raw_receipt": "/private/tmp/brn-d3a-20261017-review1-artifacts/corrected-full-scripted.json",
+      "raw_receipt_sha256": "a07e4f44b12c0a336e155a71fa84a637db44492d2c9639c58e9a036634279626"
+    },
+    {
+      "label": "corrected-native-errno-edge",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-threads-app",
+        "--lib",
+        "skills::tests",
+        "--locked",
+        "--offline",
+        "--",
+        "--nocapture"
+      ],
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d3a-20261017-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d3a-synthetic-n3tnp9_5",
+      "CARGO_INCREMENTAL": "0",
+      "start": 1792216495.425117,
+      "cargo_pid": 86896,
+      "exit": 0,
+      "seconds": 2.117563009262085,
+      "log": "/private/tmp/brn-d3a-20261017-review1-artifacts/corrected-native-errno-edge.log",
+      "log_sha256": "78040d5ccef8c859c5d651fb6bc86d0427e7d395d01e4428f78ceca5ed415ef6",
+      "summaries": [
+        [
+          "ok",
+          "1",
+          "0",
+          "0"
+        ]
+      ],
+      "source_unchanged": true,
+      "current_different_source_paths": [],
+      "raw_receipt": "/private/tmp/brn-d3a-20261017-review1-artifacts/corrected-native-errno-edge.json",
+      "raw_receipt_sha256": "1697880fd9a316923f505dacd295f94d8dee97039ee2af075083adb21d2d3a92"
+    },
+    {
+      "label": "corrected-package",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--lib",
+        "skill_packages",
+        "--locked",
+        "--offline",
+        "--",
+        "--nocapture"
+      ],
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d3a-20261017-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d3a-synthetic-m7gt98ef",
+      "CARGO_INCREMENTAL": "0",
+      "start": 1792216163.852903,
+      "cargo_pid": 82134,
+      "exit": 0,
+      "seconds": 13.36310601234436,
+      "log": "/private/tmp/brn-d3a-20261017-review1-artifacts/corrected-package.log",
+      "log_sha256": "2978e18c7b163a6d3a9ce8ac8f58b3dae0b32b24b43fc0371e98cea2cfef69d7",
+      "summaries": [
+        [
+          "ok",
+          "11",
+          "0",
+          "0"
+        ]
+      ],
+      "source_unchanged": true,
+      "current_different_source_paths": [
+        "crates/brn/README.md",
+        "crates/brn-threads-app/src/skills.rs",
+        "crates/brn/src/contract.rs",
+        "crates/brn/src/main.rs"
+      ],
+      "raw_receipt": "/private/tmp/brn-d3a-20261017-review1-artifacts/corrected-package.json",
+      "raw_receipt_sha256": "0236ac6f4d568b7ef73bd52e3ec881c213ff27c7e1863a73c768738e6da6f981"
+    },
+    {
+      "label": "corrected-service-cli-core",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn",
+        "-p",
+        "brn-threads-app",
+        "-p",
+        "brn-threads-core",
+        "--test",
+        "skill_packages",
+        "--test",
+        "skills",
+        "--test",
+        "data_folder",
+        "--locked",
+        "--offline",
+        "--",
+        "--nocapture"
+      ],
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d3a-20261017-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d3a-synthetic-28cc_h81",
+      "CARGO_INCREMENTAL": "0",
+      "start": 1792216195.421736,
+      "cargo_pid": 82312,
+      "exit": 0,
+      "seconds": 9.41610598564148,
+      "log": "/private/tmp/brn-d3a-20261017-review1-artifacts/corrected-service-cli-core.log",
+      "log_sha256": "d3ad565247b5d3ccf4947b9dabb3d10f00c8c1d5ae7f4d4b36dbd0282ba93fbc",
+      "summaries": [
+        [
+          "ok",
+          "3",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "5",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "5",
+          "0",
+          "0"
+        ]
+      ],
+      "source_unchanged": true,
+      "current_different_source_paths": [
+        "crates/brn/README.md",
+        "crates/brn-threads-app/src/skills.rs",
+        "crates/brn/src/contract.rs"
+      ],
+      "raw_receipt": "/private/tmp/brn-d3a-20261017-review1-artifacts/corrected-service-cli-core.json",
+      "raw_receipt_sha256": "f4a3ac14da9de9b4a85eef1fc71d1e37ddcb3f14e9b660451d54fcf27c2d2ce1"
+    }
+  ]
+}

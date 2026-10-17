@@ -1,3 +1,4 @@
+#![cfg(any(target_os = "macos", target_os = "linux"))]
 use brn_threads_app::*;
 #[test]
 fn owner_package_reopen_and_real_backup_export_retention_exclusion() {
