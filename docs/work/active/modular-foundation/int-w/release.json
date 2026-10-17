@@ -1,0 +1,15 @@
+{
+  "utc": "2026-10-17T00:50:52.696716+00:00",
+  "exact_heavy_executable_matches": [],
+  "own_heavy_controllers": [],
+  "running_receipts": [],
+  "cargo_sessions_reaped": [
+    32923,
+    78997
+  ],
+  "source_copy_or_mutant_checkout_created": false,
+  "copy_restore_required": false,
+  "cross_root_artifact_reuse": false,
+  "heavy_release": true,
+  "all_INT_W_path_ownership_release": true
+}

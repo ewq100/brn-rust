@@ -19,7 +19,7 @@ The first artifact-snapshot audit caught one superseded same-root focused-test b
 
 ## Corrected-source results
 
-All `final-*` checks use one exact332-file material fingerprint: `ab43ba50cc7ce370f329c43a8fe27d40dc41957b5248a672eb502f8d9b13558b`. Both original test prefixes remain byte-exact ([prefix receipt](final-original-prefixes.json)). No manifest/lock/CI/script bytes changed. Cargo.lock remains SHA256 `0798be049da224edbfb4ce951a80fcd20b066fba6f9632c164b111d5e30de290`.
+All final Cargo/native/runtime commands and tooling tests use the exact332-file material fingerprint: `ab43ba50cc7ce370f329c43a8fe27d40dc41957b5248a672eb502f8d9b13558b`. The two later static commands observed14 added ignored Python bytecode files (raw346-file fingerprint `458d7f0c792ced251022588a5a3bb6cc3a9347f06c8801617f2ecac7a79c8f92`); all332 original material hashes are identical. [Exact reconciliation](manifest-reconciliation.json) preserves both raw maps without deleting caches or relabelling commands. Both original test prefixes remain byte-exact ([prefix receipt](final-original-prefixes.json)). No manifest/lock/CI/script bytes changed. Cargo.lock remains SHA256 `0798be049da224edbfb4ce951a80fcd20b066fba6f9632c164b111d5e30de290`.
 
 | Actual serial command / label | Actual result |
 |---|---|
@@ -61,3 +61,7 @@ Fresh comprehensive independent Opus review and principal acceptance are pending
 ## Open qualification
 
 Native-human/GUI/IME/picker/menu/quit/first-input pre-render observation, live provider, hosted Ubuntu/macOS candidate contexts, owner/program acceptance and native pdftoppm remain unperformed/unavailable. D-lane source is not integrated. F13 ranking evaluation is inapplicable without ranking/index/model changes, while required scope/read/search checks execute. Existing ignored fixtures remain identified; no new ignore. No new mutation campaign is authorized or run.
+
+## Evidence-collector correction after the compiled pin
+
+The second collector run required all raw final manifests to have one fingerprint and stopped on the Python-generated14-file addition. The surrounding shell lacked fail-fast, so source pin0efd73f1 was committed before that documentation mismatch was reconciled. No compile/test failed and no production/test byte changed. A subsequent additive evidence-only correction validates the original332 hashes in every raw final map, verifies all14 extras are ignored `__pycache__/*.pyc`, and retains the two distinct raw fingerprints. No source pin/reset/amend, cache deletion, build repeat or future-SHA attribution. This audit attempt remains disclosed rather than reporting a falsely unconditional initial collector pass.
