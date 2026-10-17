@@ -1,0 +1,34 @@
+{
+  "time": 1792236325.844332,
+  "material_commit": "a5d148a3baa5452ab8fe0920f927b0d808c35240",
+  "crates_tree": "3d9696cf2994cc3ef3f37691251e432389f5b3b9",
+  "material_sha256_verified": 328,
+  "global_heavy_processes": [],
+  "own_controllers_or_target_processes": [],
+  "finished_sessions_reaped": [
+    50495,
+    3113,
+    40812,
+    33355,
+    30916,
+    60925,
+    82647,
+    93033
+  ],
+  "before_source_snapshots": [
+    {
+      "path": "/private/tmp/brn-d4-before-source",
+      "head": "6e8f0f15b4e7f7f50df10c2b4ad24eef1f065bb4",
+      "status": [],
+      "qualification": "Preserved before-fixture source, not a mutation source. No campaign or candidate/copy mutation occurred; no restoration or reset is performed."
+    },
+    {
+      "path": "/private/tmp/brn-d4-native-review-before-source",
+      "head": "71ca97dd4b8a096b135942f6923b0062529b7610",
+      "status": [],
+      "qualification": "Preserved before-fixture source, not a mutation source. No campaign or candidate/copy mutation occurred; no restoration or reset is performed."
+    }
+  ],
+  "mutation": "Not granted/not started; no copied mutant/controller/restore required. Prior allowances are closed, not transferred.",
+  "release": "EXPLICITLY RELEASE sole heavy slot and ALL D4 paths to principal. Material frozen for independent review; only evidence handoff is added here. No acceptance/integration/publication claim."
+}
