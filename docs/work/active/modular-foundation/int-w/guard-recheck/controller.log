@@ -1,0 +1,35 @@
+baseline-app 0 46.66203887492884 [[1, 0, 0, 2]]
+baseline-native 0 95.85726137505844 [[1, 0, 0, 288]]
+M01 101 5.427250416018069 [[0, 1, 0, 2]]
+M02 101 19.404241708107293 [[0, 1, 0, 288]]
+M03 101 16.84439312503673 [[0, 1, 0, 288]]
+{
+  "start_utc": "2026-10-17T00:55:17.139031+00:00",
+  "selection_frozen_before_baselines": true,
+  "campaign_kind": "THREE manually seeded omission rechecks; not cargo-mutants",
+  "limit_seconds": 600,
+  "used_before_this_campaign": 0,
+  "copy": "/private/tmp/brn-int-w-guard-20261017/source",
+  "target": "/private/tmp/brn-int-w-guard-20261017/target",
+  "synthetic_git": {
+    "HEAD": "34b211e0870d2dbf578320647210110f66af6c95",
+    "remotes": "",
+    "all_332_material_match": true
+  },
+  "frozen_selection_utc": "2026-10-17T00:55:18.655403+00:00",
+  "elapsed_seconds": 232.76848108298145,
+  "copy_all_332_restored": true,
+  "candidate_all_332_unchanged": true,
+  "candidate_crates_tree": "9097bafba6c0261ae14a1dee9da129d1f94fa0d1",
+  "own_pgids": [
+    63226,
+    67556,
+    69302,
+    69351,
+    69453
+  ],
+  "final_heavy_processes": [],
+  "remaining_own_group_processes": [],
+  "end_utc": "2026-10-17T00:58:23.314889+00:00",
+  "budget_exhausted": false
+}

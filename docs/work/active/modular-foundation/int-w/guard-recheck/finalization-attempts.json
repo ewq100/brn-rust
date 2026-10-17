@@ -1,0 +1,7 @@
+{
+  "attempt1": {
+    "log": "finalize-attempt1.log",
+    "sha256": "b11b251718382fac2c2666eb9637601e27a2e427a5dd027bee68102aefef8f35",
+    "issue": "Link checker ran before newly referenced release.json had been written. Evidence-only ordering corrected; no Cargo/source/test rerun or mutation verdict changed."
+  }
+}

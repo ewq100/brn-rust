@@ -1,0 +1,12 @@
+--- a/crates/brn-desktop/src/threads_lists.rs
++++ b/crates/brn-desktop/src/threads_lists.rs
+@@ -553,8 +553,7 @@
+         .filter_map(|record| match &record.data {
+             RecordData::Note(note)
+                 if note.superseded_by.is_none()
+-                    && note.chat.is_none()
+-                    && record_in_chat(record, records, None) =>
++                    && note.chat.is_none() =>
+             {
+                 Some(NoteRow {
+                     id: record.id.clone(),
