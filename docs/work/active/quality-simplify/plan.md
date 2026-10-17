@@ -1,5 +1,7 @@
 # Quality simplification batch — plan
 
+**Completion note, 17 October 2026:** the original rendering-policy batch landed in [PR #146](https://github.com/ewq100/brn-rust/pull/146). A later owner-assigned formatting batch landed in [#153](https://github.com/ewq100/brn-rust/pull/153) and closed fourteen behavior-test gaps. The original scope description below is historical; its “healthy, tested” description of `threads_format.rs` is superseded by the later [mutation evidence](evidence.md). Neither record assigns more quality work.
+
 **Goal:** One bounded code-quality pass: consolidate a genuinely duplicated
 Markdown rendering policy, strengthen the tests that protect it, and add a
 minimal cargo-mutants pilot for the touched surfaces. No product behavior
