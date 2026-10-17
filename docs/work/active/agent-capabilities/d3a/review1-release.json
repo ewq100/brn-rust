@@ -1,0 +1,47 @@
+{
+  "source_pin": "a499712d96c48e36b47df43e7a281f3cfcd90636",
+  "evidence_HEAD_before_receipt_archival": "de0e3fea08df177ab299454d173eea0d7c8a9ab3",
+  "crates_tree": "d710ff8babeabb3176ac9c9f7cd223f27ef7d0ad",
+  "branch": "work/d3a-20261017",
+  "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+  "status_at_release": [],
+  "original_cap_seconds": 1800,
+  "prior_used_seconds": 489.7552111148834,
+  "supplement_conservative_start_unix": 1792216685.529634,
+  "actual_tool_start_unix": 1792216720.120172,
+  "extra_postpin_overhead_charged_seconds": 34.590538024902344,
+  "cleanup_end_unix": 1792216972.069429,
+  "supplement_charged_seconds": 286.539794921875,
+  "total_charged_seconds": 776.2950060367584,
+  "remaining_original_seconds": 1023.7049939632416,
+  "charge_scope": "Entire conservative post-pin notification/planning/scripts/setup/list/Gitcopy/AI11baseline/two automatic variants/app1baseline/errno seed/restore/hash/reap/docs link failure+repair/evidence cleanup+evidence commit through final source/process check. Final receipt archival/notification only; no further heavy commands.",
+  "current_generated_rechecks": {
+    "selected": 2,
+    "caught": 2,
+    "missed": 0,
+    "timeout": 0,
+    "unviable": 0,
+    "incomplete": 0
+  },
+  "current_manual_errno_seed": {
+    "selected": 1,
+    "caught": 1
+  },
+  "prior_15c_verdicts": "12 caught/2 MISSED +3 manual catches UNCHANGED; new rechecks are separate a499 outcomes, not retroactive kills",
+  "material_files_hash_verified": 306,
+  "copy_restored": true,
+  "candidate_material_unchanged": true,
+  "reaped_process_groups": [
+    91050,
+    96068,
+    96092
+  ],
+  "own_group_members": [],
+  "global_precise_heavy_processes": [],
+  "own_target_test_processes": [],
+  "heavy_slot": "EXPLICITLY RELEASED",
+  "all_D3a_paths": "EXPLICITLY RELEASED",
+  "source_frozen": true,
+  "pending": "Fresh principal Opus2 disposition/acceptance/integration; retention/runtime D3b and D4 not started. No source approval claim.",
+  "supplement_summary_sha256": "f9efd32f863fdb9b30a2b8b40952cd57c655333f181b6a0e69a3aa63a0cd0701"
+}
