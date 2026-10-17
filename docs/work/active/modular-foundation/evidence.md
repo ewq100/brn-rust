@@ -1,3 +1,7 @@
+## Current INT-W qualification — 17 October 2026
+
+Accepted base `e8e98304af7c6dd871455f8081887bf6a1af3e16`, new `work/int-w-20261017`, same bound UI checkout. [Actual qualification](int-w/verification.md), [exact ownership](int-w/ownership.md), [F-case map](int-w/f-cases.md), [routes](int-w/routes.md), [prior mutation limitations](int-w/mutations.md) and [review brief](int-w/review-brief.md) retain source-qualified evidence. Two real compiled red canaries exposed general export and Notes title/count leaks for canonical-private retained-Source Notes; the exact principal-allocated fixes pass. Final default1116/1 carried PDF/6ignored, native library44+host5, desktop288/0/1, app/native247/0/1 and combined55; full literal commands/log/hash/artifact ledger preserves failures and old sources. No new mutation, schema/interface/manifest/lock/CI change. Principal comprehensive review/local acceptance and hosted/native-human/owner/full-program/PDF tooling remain pending.
+
 **Principal B4 local disposition, 17 October:** [Opus3](b4/opus-review-round3.md) APPROVED exact3515f96a; [local contract acceptance](b4/principal-disposition.md) records the same real Workspace/panel/shared runtime, final5 host journeys and strict lint/fmt, earlier source-qualified native/default checks, six existing dependency edges and returned ownership. INT-W is now eligible; full F21/native-human/hosted/owner/PDF and separate-lane integration remain open. No writing-milestone or main-merge claim.
 
 # Combined C0 evidence

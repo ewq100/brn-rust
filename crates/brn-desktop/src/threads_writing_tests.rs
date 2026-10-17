@@ -3844,3 +3844,196 @@ fn b3_import_completion_keeps_another_notes_hidden_dirty_setup(cx: &mut TestAppC
         assert_eq!(view.writing.setup.as_ref().unwrap().references, pending);
     });
 }
+/// A general-looking Note may still be private through its retained Source.
+/// Scoped lists must use canonical visibility, including title/count metadata.
+#[gpui_kit::test]
+fn int_w_general_notes_list_hides_p1_reference_with_scoped_retained_source(
+    cx: &mut TestAppContext,
+) {
+    let f = fixture(cx);
+    let p2 = cx
+        .update_window(f.window, |_, window, cx| {
+            f.view.update(cx, |view, cx| {
+                let mut projects = vec![];
+                for key in ["int-w-list-p1", "int-w-list-p2"] {
+                    let project = view
+                        .workspace
+                        .project_command(key, ProjectCommand::Create { title: key.into() })
+                        .unwrap()
+                        .writes[0]
+                        .after
+                        .id
+                        .clone();
+                    view.workspace
+                        .project_command(
+                            &format!("{key}-working"),
+                            ProjectCommand::LinkDocument {
+                                project: project.clone(),
+                                note: f.a.id.clone(),
+                            },
+                        )
+                        .unwrap();
+                    projects.push(project);
+                }
+                let op = view
+                    .workspace
+                    .store
+                    .allocate_operation("int-w-list-private-source")
+                    .unwrap();
+                let source = op.creation_id(0);
+                let RecordData::Note(mut reference) = f.b.data.clone() else {
+                    panic!("Note")
+                };
+                reference.title = "INTW PRIVATE RETAINED REFERENCE TITLE".into();
+                reference.markdown = "INTW PRIVATE RETAINED REFERENCE BODY".into();
+                assert!(
+                    reference.chat.is_none(),
+                    "retained Source, not Note.chat, defines this scope edge"
+                );
+                reference.import = Some(ImportCoverage {
+                    source: source.clone(),
+                    full_note: false,
+                    gaps: vec![],
+                    report: None,
+                });
+                assert!(matches!(
+                    view.workspace
+                        .owner_change(
+                            "int-w-list-private-source",
+                            &ChangeRequest {
+                                reason: "Synthetic P1-only retained reference".into(),
+                                writes: vec![
+                                    Put {
+                                        id: source,
+                                        expected_version: None,
+                                        archived: false,
+                                        data: RecordData::Source(Source {
+                                            chat: Some(projects[0].clone()),
+                                            locator: "synthetic:int-w-private".into(),
+                                            label: "INTW PRIVATE SOURCE LABEL".into(),
+                                            observed_at: "synthetic".into(),
+                                            external_version: None,
+                                            outcome: "Retained synthetic evidence".into(),
+                                            gaps: vec![],
+                                            report: None
+                                        })
+                                    },
+                                    Put {
+                                        id: f.b.id.clone(),
+                                        expected_version: Some(f.b.version),
+                                        archived: false,
+                                        data: RecordData::Note(reference)
+                                    },
+                                    Put {
+                                        id: op.creation_id(1),
+                                        expected_version: None,
+                                        archived: false,
+                                        data: RecordData::Link(Link {
+                                            from: f.b.id.clone(),
+                                            to: f.a.id.clone(),
+                                            relation: "evidence".into(),
+                                        }),
+                                    },
+                                ],
+                                inputs: vec![],
+                            }
+                        )
+                        .unwrap(),
+                    ApplyOutcome::Applied(_)
+                ));
+                view.workspace
+                    .project_command(
+                        "int-w-list-link-reference",
+                        ProjectCommand::LinkDocument {
+                            project: projects[0].clone(),
+                            note: f.b.id.clone(),
+                        },
+                    )
+                    .unwrap();
+                view.workspace
+                    .set_writing_setup(
+                        "int-w-list-setup",
+                        None,
+                        &WritingSetup {
+                            note: f.a.id.clone(),
+                            chat: Some(projects[0].clone()),
+                            brief: Some("INTW PRIVATE LIST BRIEF".into()),
+                            references: vec![WritingReference {
+                                note: f.b.id.clone(),
+                                purpose: WritingPurpose::Evidence,
+                            }],
+                        },
+                    )
+                    .unwrap();
+                assert!(
+                    view.workspace
+                        .store
+                        .record_visible_in_chat(&f.b.id, Some(&projects[0]))
+                        .unwrap()
+                );
+                assert!(
+                    !view
+                        .workspace
+                        .store
+                        .record_visible_in_chat(&f.b.id, None)
+                        .unwrap()
+                );
+                assert!(
+                    !view
+                        .workspace
+                        .store
+                        .record_visible_in_chat(&f.b.id, Some(&projects[1]))
+                        .unwrap()
+                );
+                view.refresh();
+                view.open_note_in_context(&f.a.id, None, None, window, cx);
+                focus_tests::solo(view, TileKind::Notes, cx);
+                projects[1].clone()
+            })
+        })
+        .unwrap();
+    cx.run_until_parked();
+    for displayed in [None, Some(p2.as_str())] {
+        cx.update_window(f.window, |_, window, cx| {
+            f.view.update(cx, |view, cx| {
+                view.open_note_in_context(&f.a.id, None, displayed, window, cx);
+                focus_tests::solo(view, TileKind::Notes, cx);
+            });
+        })
+        .unwrap();
+        cx.run_until_parked();
+        cx.update_window(f.window, |_, window, _| {
+            assert!(
+                window
+                    .try_find(format!("notes-recent-{}", f.a.id))
+                    .is_some(),
+                "visible general Note remains a real rendered positive control"
+            );
+            assert!(
+                window
+                    .try_find(format!("notes-recent-{}", f.b.id))
+                    .is_none(),
+                "general Notes UI must not reveal a P1-private retained-source reference title"
+            );
+            assert!(window.try_find(format!("notes-kept-{}", f.b.id)).is_none());
+        })
+        .unwrap();
+        cx.read(|cx| {
+            assert!(
+                f.view.read(cx).note_rows.iter().all(|row| row.id != f.b.id),
+                "general Notes count/title rows must exclude the hidden reference"
+            );
+            assert_eq!(
+                f.view
+                    .read(cx)
+                    .note_rows
+                    .iter()
+                    .find(|row| row.id == f.a.id)
+                    .unwrap()
+                    .inbound,
+                0,
+                "a hidden reference must not contribute an inbound count to a visible Note"
+            )
+        });
+    }
+}

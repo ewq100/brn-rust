@@ -32,16 +32,26 @@ pub fn publish(store: &Store, destination: &Path) -> AppResult<ExportManifest> {
         .prefix(".brn-export-")
         .tempdir_in(parent)?;
     // A single SELECT holds a consistent committed view across all canonical rows.
-    let records = store
-        .records()?
+    let full_snapshot = store.records()?;
+    // General-looking Notes may still be private through a retained Source.
+    // Decide eligibility against the complete snapshot before omitting private
+    // metadata. Keep only IDs so large retained assets are not cloned.
+    let general_notes = full_snapshot
+        .iter()
+        .filter(|r| {
+            !r.archived
+                && matches!(&r.data, RecordData::Note(n) if n.superseded_by.is_none() && n.chat.is_none())
+                && record_in_chat(r, &full_snapshot, None)
+        })
+        .map(|r| r.id.clone())
+        .collect::<std::collections::BTreeSet<_>>();
+    let records = full_snapshot
         .into_iter()
         .filter(|r| !matches!(&r.data,RecordData::Source(s) if s.chat.is_some()))
         .collect::<Vec<_>>();
     let notes: Vec<_> = records
         .iter()
-        .filter(|r| {
-            !r.archived && matches!(&r.data,RecordData::Note(n) if n.superseded_by.is_none() && n.chat.is_none())
-        })
+        .filter(|r| general_notes.contains(&r.id))
         .collect();
     let mut manifest = ExportManifest {
         format: "BRN Threads Markdown snapshot 1".into(),

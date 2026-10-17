@@ -1,0 +1,43 @@
+{
+  "reason": "compiler-artifact",
+  "package_id": "path+file:///Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc/crates/brn-writing-ui#0.1.0",
+  "manifest_path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc/crates/brn-writing-ui/Cargo.toml",
+  "target": {
+    "kind": [
+      "example"
+    ],
+    "crate_types": [
+      "bin"
+    ],
+    "name": "writing_host",
+    "src_path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc/crates/brn-writing-ui/examples/writing_host.rs",
+    "edition": "2024",
+    "required-features": [
+      "native-ui"
+    ],
+    "doc": false,
+    "doctest": false,
+    "test": true
+  },
+  "profile": {
+    "opt_level": "0",
+    "debuginfo": 0,
+    "debug_assertions": true,
+    "overflow_checks": true,
+    "test": true
+  },
+  "features": [
+    "default",
+    "native-test-support",
+    "native-ui"
+  ],
+  "filenames": [
+    "/private/tmp/brn-int-w-20261017-target/debug/examples/libwriting_host-1ba382925be42471.rmeta"
+  ],
+  "executable": null,
+  "fresh": false,
+  "depinfo": "/private/tmp/brn-int-w-20261017-target/debug/examples/writing_host-1ba382925be42471.d",
+  "depinfo_sha256": "4d6d6cb5c2b341d9ecf91293afd2cb681f97b5891ac41813e4f5a399c83a99ad",
+  "depinfo_includes_journey": true,
+  "journey_sha256": "8296e8ffac0a752ba271b1ea5794958ac1c133937eb8296887a9f604872652a7"
+}

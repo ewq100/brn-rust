@@ -1,0 +1,19 @@
+   Compiling brn-threads-app v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc/crates/brn-threads-app)
+    Finished `test` profile [optimized] target(s) in 2.10s
+     Running tests/cw2_review.rs (/private/tmp/brn-int-w-20261017-target/debug/deps/cw2_review-d4d0c2da036154fd)
+
+running 1 test
+
+thread 'int_w_f21_private_context_never_enters_p2_or_general_delivery' (29996114) panicked at crates/brn-threads-app/tests/cw2_review.rs:1213:21:
+general export leaked INTW_P1_TITLE
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test int_w_f21_private_context_never_enters_p2_or_general_delivery ... FAILED
+
+failures:
+
+failures:
+    int_w_f21_private_context_never_enters_p2_or_general_delivery
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 2 filtered out; finished in 0.12s
+
+error: test failed, to rerun pass `-p brn-threads-app --test cw2_review`
