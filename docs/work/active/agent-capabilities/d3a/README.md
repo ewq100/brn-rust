@@ -1,3 +1,5 @@
+**Principal local acceptance:** [Disposition](principal-disposition.md) accepts source9b8acf66 after [Opus3 approval](opus-review-round3.md). Final affected852/0/2 and strict lint/fmt pass. D3b runtime/scoped selection and retention/recovery remain next; earlier checkpoints below retain their original pins and are superseded for current acceptance status.
+
 **Opus1 correction checkpoint:** the [full response](review1-response.md), [raw check associations](review1-checks.json) and [artifact receipt](review1-artifacts.json) supersede the original-source checkpoint below. Exact15c CLI before witness0/5 and new WIP errno-edge0/1 are preserved; corrected final scripted AI/app/CLI851/0/2, package11/0, actual service/CLI/core14/0, AI capability433/0/1 and strict affected lint/fmt pass with stated source associations. New pin/fresh principal Opus2 acceptance remain separate; original mutation verdicts and workspace1163/2/6 stay unchanged.
 
 # D3a local instruction package management

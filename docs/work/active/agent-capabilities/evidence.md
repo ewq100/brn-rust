@@ -1,3 +1,5 @@
+**Principal D3a local disposition, 17 October 2026:** [Accepted for dependent development](d3a/principal-disposition.md) at source9b8acf66 with Opus3 approval, final852/0/2 and strict affected lint/fmt. The1800s mutation allowance closes at776.295006s used,1023.704994s unused; old survivors and later pin-specific catches remain distinct. D3b owns full scoped runtime S01–S04 and retention/recovery reconciliation, with no inherited budget or authority.
+
 **Owner decisions, 17 October 2026:** affirmative Approve D-S and Approve D-M are recorded in [the dated decision receipt](owner-decisions-20261017.md) and canonical target. They remove only those scope gates, not dependency, test, independent-review, live-provider/owner-data or publication gates. D3a is the next bounded slice from accepted D2; D4 waits D3b. No implementation result is implied.
 
 # Slice 0 evidence
