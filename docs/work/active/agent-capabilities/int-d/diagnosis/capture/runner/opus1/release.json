@@ -1,0 +1,28 @@
+{
+  "task": "int-d-runner-opus1-b1-20261017",
+  "material_pin": "a65a6a61610f37f184d2b200e1d27441ee8d9cc3",
+  "crates": "ece765396103274c35493a26b570e5e8f32ae276",
+  "timestamp": 1792252477.2079859,
+  "precise_heavy_inventory": [],
+  "reaped_command_sessions": [
+    10624,
+    99052,
+    37538,
+    24524,
+    89963,
+    44698
+  ],
+  "source_inputs_verified": 334,
+  "old_preflight_all_files_byte_hashes_unchanged": true,
+  "old_fixture_main": {
+    "main": "e26d55cd59c1f5ecd528ee27cfbfca61db31c084338c0fdc79e868802bd923ee",
+    "wal": null,
+    "shm": null
+  },
+  "new_preflight_sha256": "54c748a5768ab1b91ccb332ae75da4bb91cba6d0e165ca0bc55e9018ead40618",
+  "ignored_runner_or_Auth_or_provider_starts": 0,
+  "generation_or_configure_count": 0,
+  "activation_or_reservation_created": false,
+  "release": "Explicitly release sole heavy AND ALL allocated paths; material remains frozen for parent NEW focused Opus2. Evidence-only final commit follows.",
+  "qualification": "Whole-context closed-copy proof, metadata-only rebind. Original3errors UNKNOWN, old2start windowclosed, no new budget/activation; all existing program/platform/SDKwidget/PDF/INTW/main/live quals retained."
+}

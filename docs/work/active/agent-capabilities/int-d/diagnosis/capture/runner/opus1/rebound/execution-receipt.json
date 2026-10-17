@@ -1,0 +1,17 @@
+{
+  "command": [
+    "python3",
+    "docs/work/active/agent-capabilities/int-d/diagnosis/capture/runner/opus1/rebind-preflight.py",
+    "--pin",
+    "a65a6a61610f37f184d2b200e1d27441ee8d9cc3",
+    "--receipt",
+    "/private/tmp/brn-int-d-runner-opus1-b1-20261017-evidence/b1-interop-after.json",
+    "--artifacts",
+    "/private/tmp/brn-int-d-runner-opus1-b1-20261017-evidence/b1-interop-after-artifacts.json"
+  ],
+  "exit": 0,
+  "stdout_sha256": "180ac7bb79d3abe0112d0a5f78746c35d6a589308dbcaa6ed65ebe293334702f",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "no_Store_or_CLI_or_Auth_or_provider_invocation": true,
+  "source_material_unchanged": true
+}
