@@ -1,164 +1,167 @@
-# X2 Office1: DOCX/PPTX common-adapter slice (source-only proposal)
+# X2 Office1: corrected DOCX/PPTX implementation slice
 
-18 October 2026. Branch `work/x2-office-prep-20261018` at `bbf107e370a5c5dc35a7588e97c477d5639401a6`. This is a proposal, not an allocation or code authority. The HTML component at that commit is under independent review elsewhere and is not assumed accepted. Nothing was compiled, resolved or run. Every fact below is a static reading anchored in [source-map.json](source-map.json) (pinned versions, checksums, file and line anchors, file hashes). Scope context: [owner scope](../owner-scope-all-documents.md), [source1b API](../source1b/api.md), [resources](../source1b/resources.md), [next allocation](../source1b/next-allocation.md), [HTML slice](../first-html-slice.md).
+18 October 2026. Source-only correction of `adc841a274dc7f9029ce61f876259638c25d931c`, on the same isolated `work/x2-office-prep-20261018` checkout. Original HTML candidate/base: `bbf107e370a5c5dc35a7588e97c477d5639401a6`; HTML is **not assumed approved**. The [full round-1 review](opus1/opus-review-round1.md) is retained verbatim; [response](opus1/response.md) answers all nine corrections. Original proposal remains in Git.
 
-## Result
+**Goal:** preserve all current schema-1/schema-2 behavior while moving all eight current document kinds to the owner-approved Xberg boundary. **Architecture:** keep the existing restricted helper, BRN DTO validation and checked host services. First measure DOCX current-reader and real-Xberg behavior against independent inventories; production projection follows measured gaps and a separate exact allocation. **Stack:** repository Rust/lock authority, Xberg 1.3.10, BetterOffice 0.3.0, BRN ZIP 8.6.0 versus Xberg ZIP 9.0.5. **Spec:** [owner all-document scope](../owner-scope-all-documents.md), [API](../source1b/api.md), [resources](../source1b/resources.md), [next allocation](../source1b/next-allocation.md), and the canonical [target](../../../../../architecture/threads-target.md), [behavior](../../../../../architecture/threads-behavior.md), [invariants](../../../../../architecture/invariants.md).
 
-1. Admission is boundable with a maintained seam. `ExtractionConfig.security_limits` (public `xberg::SecurityLimits`) plus ZIP 9.0.5 declared-size reads cap bytes, counts, depth and text before Xberg allocates. Three config pins and one small count-only XML scan are needed. No STOP on admission.
-2. The contract mapping is not closable from Xberg 1.3.10 output. Seven evidence classes are unavailable (S1 to S7 below), including byte ranges for figure occurrences. The smallest metadata-only projector that closes them is a projection of the typed BetterOffice models the helper already admits. That projector is close to the size of today's evidence layer, and Xberg would then contribute mainly body text. A behavior-preserving drop-in DOCX/PPTX replacement does not exist in this release.
-3. One owner choice is real, not hypothetical (D-OFFICE, section 5). It is needed only before production promotion. It does not hold the first allocation.
-4. First allocation O1 is DOCX-only and test-led: independent complete inventories, conformance of the current reader against them, then a real-Xberg differential under a test-only dependency. It adds no production facade. PPTX is O2 and carries extra STOPs.
-5. The PDF resource request is one upstream-seam list (section 6). It does not gate Office.
+Only docs are authorized now. No Cargo/resolution/build/test/provider/network/GUI work; no delegation or heavy slot. O1 coding requires HTML acceptance, heavy availability and the parent's separate allocation. No new owner choice is ready or asked. The old D-OFFICE binary/recommendation to retain BetterOffice as the all-document solution is withdrawn. Existing production routes stay until qualified replacement; that sequencing grants no permanent fallback.
 
-## 1. Field mapping and the named projector
+## 1. Actual result mapping; parity remains unproven
 
-Status words: exact (usable as is), partial, unavailable. "Current" means the code at this commit: schema 1 `helper.rs`, schema 2 `helper/prepared.rs` and `prepared/pptx.rs` (anchors B01 to B07).
+[Source map](source-map.json) records versions, file hashes and anchors. `ExtractedDocument.content`, optional `document`, `images`, `pages`, `uris`, `revisions`, `processing_warnings` are the public result path. Request `include_document_structure = true`. Public field existence and the intrinsic mappings below are source facts; **every behavior/parity claim is predicted/unproven until executed inventory comparison**. No parsing flattened Markdown to recover provenance.
 
-### DOCX
-
-| Evidence class | Current contract | Xberg 1.3.10 field | Status |
-|---|---|---|---|
-| Body text, order | accepted-revision Markdown from `docx_edit` | `ExtractedDocument.content`, `document` nodes (needs `include_document_structure`) | exact order; parity must be proven on inventories |
-| Revisions | accepted view only | text follows the accepted convention; `revisions` list (kind, author, timestamp, delta, paragraph index) | exact text, richer audit list; anchor is a paragraph index only (X25) |
-| Headings | outline level, capped at 6, source level kept as metadata | style-name derived level | partial: depth above 6 and numbered headings differ |
-| Lists | marker label, level | ordered flag, nesting; marker text not emitted | partial |
-| Tables | `R{r}C{c}` address, row and grid spans, nested-table gap | `Table.cells` string grid; spans repeated or blanked (X06) | text exact, spans unavailable (S3) |
-| Footnotes, endnotes | scoped label, inline `[^label]` at the reference, NOTEREF gaps | definition nodes and `FootnoteReference` relationships keyed `fn{id}`/`en{id}` | text and association exact; inline position and NOTEREF unavailable (S4) |
-| Comments | text, id, author, date, ranges, parent, resolved | text only on a Footnote-layer node; reference found by scanning text for `[cmt:` (X04, X05) | unavailable (S2); the text scan is not admissible provenance |
-| Links | `href` per inline | `AnnotationKind::Link` with offsets in node text, plus `uris` | exact |
-| Headers, footers | "Document section" metadata | `content_layer` Header/Footer | exact; story ids unavailable |
-| Figures | `ImageOccurrence` byte range in the Markdown, locator (anchor, rId, part), decoded PNG/JPEG asset | Image node (`image_index`, description), `ExtractedImage.source_path` (target path, not rId), all placeholders `![alt](image)` | ranges unavailable (S1); rId unavailable; part is resolvable from the target path |
-| Omitted content | one gap per unsupported element, chart, SmartArt | a few warnings, otherwise silent drops | unavailable (S6) |
-| Locator | `story/{story}/block/{block.id}` | content-derived node ids, paragraph index | unavailable as a stable BRN locator (S7 below covers the prefix case) |
-
-S7: Xberg's body parser matches the qualified element name literally (`w:p`, `w:tbl`; X30). A package whose main namespace has another prefix is not recognised. `prefix-variation.docx` uses `xw:`. The source reading predicts empty body text with no gap. The current reader handles it and discloses the image join honestly (`maintained.rs:111`). This is a silent-loss witness, to be executed in O1 step 3.
-
-### PPTX
-
-| Evidence class | Current contract | Xberg 1.3.10 field | Status |
-|---|---|---|---|
-| Slide order | presentation order, part path | slide order from presentation rels; per-slide `PageContent` with `pages` config | order exact, part path unavailable |
-| Hidden slides | "Slide N (hidden)", hidden shapes | `PageInfo.hidden = None`; text included silently (X21) | unavailable |
-| Shapes, groups, ids, omitted inventory | per shape id and path, omitted-element gaps | none; structure is rebuilt from slide Markdown (X22) | unavailable |
-| Text, bullets | per paragraph, bullet char or autonumber declaration | text exact; marker and declaration lost | partial |
-| Tables | rows with spans | strings via Markdown re-parse | text exact, spans unavailable (S3) |
-| Notes | body of the notes page; "other notes shapes" gap | `PageContent.speaker_notes` | body exact, other-shapes gap unavailable |
-| Comments | id, author id, x/y EMU, slide part, text | `DocumentRevision{Comment}`: slide index, author name, date, text (X24) | partial: id, x/y, part unavailable |
-| Pictures | bound to the shape by rId and part, decoded asset | bytes in visual order, `source_path = None` (X21) | binding unavailable (S1/S5); Xberg re-reads each referenced image on every slide (X19) |
-| Charts, SmartArt, math | gap: "factual content unavailable" | chart text, diagram text, OMML to LaTeX | new content class: needs located provenance and a gap-wording decision, never silent |
-| Layout, master, background | located gaps | none | unavailable |
-
-### Named projector
-
-`OoxmlEvidence` (`DocxEvidence`, `PptxEvidence`). Metadata only. It projects the typed models the helper already links and admits: `docx_parse` wire plus `docx_edit::structured` export, and `pptx_parse::PptxPackage`. It carries ids, anchors, spans, comment metadata, note reference positions, picture part and rId, hidden state, omitted-element and unsupported diagnostics. It carries no text, renders no Markdown, adds no XML reader, never parses Xberg's Markdown and is never a fallback. It binds to Xberg output only by ordinal alignment checked against byte-equal paragraph or cell text. Any mismatch refuses the request.
-
-Seams that no projector can close, because they need Xberg to emit data it drops:
-
-- S1: unique image identity or byte ranges into `content`. The current renderer injects one token per image and reads ranges from the match. Xberg nodes carry no ranges (X26) and every placeholder is identical.
-- S2: DOCX comment date, resolved flag, parent, anchor ranges.
-- S3: table spans (DOCX and PPTX).
-- S4: footnote reference position inside a paragraph, NOTEREF.
-- S5: PPTX hidden state, shape and part identity, picture rId, comment position, omitted inventory.
-- S6: a completeness inventory of unrepresented content.
-- S7: namespace-prefix independence.
-
-The smallest upstream seam that removes S1 to S7 together is a rich conversion result: source part and id per node, content byte ranges, span-bearing grids, comment and revision metadata, and an unrepresented-element list. The HTML plan reached the same conclusion for its table and image ambiguity ([next allocation](../source1b/next-allocation.md)). Not proposed here: a BRN-side Markdown renderer over Xberg nodes, or any text scan. Both would be a second reader.
-
-## 2. Pre-operation admission
-
-Order, all before `xberg::extract`:
-
-1. Exact kind. BRN passes exactly two MIME strings (`...wordprocessingml.document`, `...presentationml.presentation`) and no filename. `ooxml_opc::detect_package_kind` (O02) must return Docx or Pptx on the admitted parts. Xberg itself also accepts macro-enabled, template and slideshow strings (X09, X10); BRN refuses them. Legacy OLE conversion needs the legacy MIME (X28), which BRN never passes.
-2. Existing `admit_package` (B02), unchanged: entry count against `max_package_parts`, then `ooxml_opc::unzip_parts_with_limits` with the remaining `max_expanded_bytes` (O01): safe paths, duplicate normalised paths, at most 5000 entries, inflation with `take(remaining+1)`, no prefix success. Its parts map is kept. BRN, not Xberg, reads image bytes from it and dedupes through the existing `image_asset` and `add_asset`.
-3. Existing typed parse under the existing `ParseLimits` (B03, B04): 200,000 events, depth 128, DOCTYPE refused (O03, O04), shape, paragraph, run and comment caps. It runs first because the projector needs it, and it admits every part it reads.
-4. The only new admission code: a count-only scan of the XML parts that Xberg DOM-parses and step 3 may not read (`docProps/core|app|custom.xml`, `word/theme/theme1.xml`, `word/styles.xml`, PPTX comment authors, chart and diagram parts; X13, X14, X23). It uses `quick-xml` 0.41.0, already a helper dependency, counts events and depth, and refuses DOCTYPE. Estimated 80 lines, no namespace strings (checker B12). It exists because roxmltree, as Xberg calls it, has no node cap. It must not narrow today's accepted envelope: boundary fixtures just under and over the ceiling are tests, not assumptions.
-5. `SecurityLimits` mapping, every value from the request's `IntakeLimits`, none from Xberg defaults:
-
-| Field | Value | Reason |
+| DOCX evidence | Current BRN schema 1 + 2 | Xberg 1.3.10 mapping and limit |
 |---|---|---|
-| `max_files_in_archive` | remaining `max_package_parts` | same count semantics as step 2 |
-| `max_archive_size` | remaining `max_expanded_bytes` (default 16 MiB) | declared total, checked after every entry (X16); ZIP 9.0.5 then refuses reads past the declared size (Z01, Z02) |
-| `max_compression_ratio` | very large | BRN has no ratio gate today. The 100:1 default (X16, whole-archive check at line 417) would refuse inputs accepted today |
-| `max_xml_depth`, `max_nesting_depth` | 128 | existing |
-| `max_content_size`, `max_entity_length` | `MAX_TEXT_BYTES` (8 MiB) | the 1 MiB entity default would narrow long text runs |
-| `max_table_cells` | at least 2048 x 256 | the 100,000 default would narrow large tables |
-| `max_iterations` | above the scan ceiling | backstop only; the scan is authoritative |
-| `max_pages` (PPTX) | remaining `max_package_parts` | slide count, enforced before per-slide work (X20) |
+| Text/order/revisions | Accepted-revision export; ordered blocks and story/block locators | `content`, semantic Heading/Paragraph/ListItem/Table/Image nodes; `revisions` with kind/author/time/delta and paragraph-index anchor. Accepted-view and order parity unproven; empty paragraphs drop, notes/comments inject markers. No BRN story/block identity implied by content-derived node IDs. |
+| Headings/lists | Level, source-level metadata; marker label/nesting | Style-derived heading level, ordered flag/nesting, annotations; source numbering/level parity unproven. |
+| Tables | Addresses, typed rows, grid/row spans, nested-table gaps, `block_id` binding | `Table.cells` and semantic grid from strings. Parser knows `gridSpan`/`vMerge`, but DOCX does not pass spans into public `GridCell.row_span/col_span` (S3). Text/placement unproven. |
+| Notes | Scoped fn/en labels and inline reference; NOTEREF cached value plus explicit unresolved-association gap | Footnote definitions and relationships keyed `fn{id}`/`en{id}`. Inline `[^id]` exists but collides between fn/en and with literal text; per-paragraph association excludes table references. Multi-paragraph notes join with spaces. NOTEREF handling unknown (S4). |
+| Comments | Text + id/author/date/ranges/parent/resolved in section context | Dedicated Comment nodes/references, text in Footnote layer. Parser `Comment` has id/author/paragraphs; author not emitted, other metadata not parsed. Reference builder scans `[cmt:` text, so literal collisions are possible (S2). |
+| Links | Per-inline href and exact visible wording | Link annotations with node-text offsets and `uris`; external/internal relationship mapping exists. Wording, offsets and scope parity unproven. Missing bookmarks are ordinary warnings, not automatic refusals. |
+| Headers/footers | Document section metadata and story locators | `content_layer` Header/Footer; paragraphs join with newlines. Relationships plus conventional orphan header/footer sweep differ from current stories. Story identity and parity unproven. |
+| Figures/captions | Repeated occurrence identity, Markdown byte range, anchor/rId/part locator, alt/caption and decoded PNG/JPEG | **Occurrence identity already public:** Image node `image_index` (drawing index), `attributes.image_uri`, `ExtractedImage.image_index/source_path/description`. Target path, not rId. No byte range into `content`; caption association and BRN source locator unproven (S1). |
+| Completeness/location | Located omitted-element/chart/SmartArt/unsupported gaps and exact source occurrences | Sparse warnings, silent optional drops, paragraph-index revision anchors. No complete unrepresented inventory (S6). Namespace handling is S7, below. |
 
-6. Config pins: `max_archive_depth = 0` (default is 3 and recurses into `word/embeddings` or `ppt/embeddings`; X07, X08; `harbor.pptx` carries `Microsoft_Excel_Sheet1.xlsx`, a ready witness), `images = None`, `strict_parse = true`, plus every HTML-slice pin (B09: no cache, no timeout, concurrency 1, post-processing off, OCR off, no URL or local-file input). DOCX adds `include_document_structure = true`. PPTX adds `pages = Some(extract_pages)` for per-slide notes.
-7. After return: exactly one result, no errors, no `processing_warnings`, no `children`; text at most `MAX_TEXT_BYTES` before append.
-
-Exact maintained seam. The fixed 100 MiB constants (X12, X18) are inert once `max_archive_size` is at most 16 MiB: no entry can declare more, and ZIP 9.0.5 errors past the declared size. DOCX also refuses any member declared above 100 MiB before it reads (X11). This is a pre-read gate, not a post-hoc page, RSS or timeout claim. The prior "100 MiB read can truncate" statement applies only to a caller that leaves the 500 MiB default (corrections list in the source map).
-
-Residual, stated without a memory claim: the zip crate allocates the central directory before any caller count check (BRN's own `ZipArchive::new` does too); roxmltree DOM size follows from the step 3 and 4 event ceilings, not from a hard limit.
-
-STOP, with the smallest decision: PPTX figure bytes through Xberg. It re-reads and clones each referenced image on every slide with no aggregate cap (X19); `max_images_per_page` is PDF-only. Resolution inside this plan: Xberg never reads Office image bytes (`images = None`); BRN reads them from the admitted parts. That keeps S1/S5 as the open item rather than a resource gap. No custom ZIP or XML framework, fork, global allocator or sandbox relaxation is proposed.
-
-## 3. Writable hunks to request later (no edits now)
-
-Promotion hunks, used only after D-OFFICE. O1 uses a test-only dependency instead.
-
-| Path | Hunk |
+| PPTX evidence (explicitly O2) | Xberg mapping and limit; all parity unproven |
 |---|---|
-| `crates/brn-intake/Cargo.toml` | O1: `[dev-dependencies] xberg = { version = "=1.3.10", default-features = false, features = ["html", "office"] }` and one `[[test]] required-features = ["helper"]`. Promotion: the optional row `features = ["html"]` becomes `["html", "office"]`. No new direct dependency; `quick-xml`, `zip`, `image`, `libc` are already helper rows |
-| Root `Cargo.lock` (principal) | Up to 33 added identities, all with checksums equal to the source1b ledger (zero mismatches, statically) and listed in the source map. New beside old: zip 9.0.5 beside 8.6.0, quick-xml 0.42.0 beside 0.41.0, cfb 0.15.0 beside 0.14.0. Probably already locked (the scratch graph was seeded from X1): libc, smallvec, either, itertools, unicode-ident, uuid, syn. The figure is an upper bound. The principal's offline metadata on the exact manifest gives the real set |
-| Existing-package moves | None beyond the six approved HTML moves (serde_json, serde_spanned, toml, toml_datetime, toml_parser, toml_writer). Anything else is a STOP before compile. Record effective feature unions (flate2 backends, zip features) with `cargo tree -e features` before the first build |
-| `helper/documents.rs` | Split `html_config()` into a shared pinned base plus the HTML overrides; add `office_config(limits)`; share `block_on` and `BACKEND_CALLS` |
-| NEW `helper/documents/office_admission.rs` | MIME table, `detect_package_kind` check, `SecurityLimits` mapping, count-only XML scan |
-| NEW `helper/documents/docx.rs` | pinned call, private `DocxRead`, `DocxEvidence`. PPTX is a later sibling file |
-| `helper.rs`, `helper/prepared.rs` | DOCX arm `if source_base == 0` only. Nested EML attachments stay on the current reader until the EML gate, as the HTML arm does. Prepared DOCX reads the same adapter |
-| `lib.rs`, host `threads-intake/src/lib.rs` | The host accepts exactly `CONVERTER` (B10). Any new provenance string is a coordinated host hunk. Stored receipts keep their old strings |
+| Presentation order / source part | `PageContent`/slide pages exist, but parser and fallback sort by numeric slide filename, **not** `sldIdLst`. `quay.pptx`: rId7→slide9 then rId8→slide2; source predicts reversed order. |
+| Hidden slides/shapes / shape IDs | Public `PageInfo.hidden` is hard-coded `None`; parser does not read `show`. Shape IDs/omitted inventory are not supplied. Quay slide9 `show="0"` plus order is a future O2 witness, not an executed red result (S5). |
+| Text/bullets/tables | Slide Markdown; common structure rebuilt from it (`include_structure: false`). Bullet declarations/shape identity/spans not preserved by string-grid path; text/order unproven. |
+| Notes/comments | `speaker_notes`; Comment revisions with slide index/author/date/text. Other-notes-shape gaps, comment ID/author ID/x-y/part missing; notes parity unproven. |
+| Pictures/captions | Public image index and page fields; `ExtractedImage.source_path` exists but is `None`. Shape/rId/part/caption binding unproven. Disable image reads; preserve BRN's admitted image path only after identity proof. |
+| Charts/SmartArt/math/layout/master | Some chart/diagram/LaTeX text is emitted. No complete located omitted inventory; preserve current gap policy and source evidence rather than silently treating new text as complete. |
 
-Office aggregate. `office` is the only gate that contains DOCX and PPTX; there is no narrower feature (pins in the source map, X29). It also compiles DOC, PPT, RTF, ODT, ODP, EPUB, FictionBook, LaTeX, RST, Org, OPML, Typst, BibTeX, DBF and Jupyter. They are reachable only by MIME. BRN admits two strings and registers nothing custom. A test passes other MIME strings (`docm`, `pptm`, `dotx`, `ppsx`, legacy OLE) and asserts zero backend calls through the existing call counter.
+S1–S7 correction registry: S1 lacks content ranges, **not image occurrence identity**; S2 comment metadata is a genuine parser/output gap; S3 spans have public fields but DOCX does not populate them; S4 inline note position is ambiguous, not absent; S5 hidden/source-path public fields exist but are unpopulated, other shape/comment facts are missing; S6 complete unrepresented inventory is absent; S7 prefix loss is a source prediction. The plain quick-xml `Reader` matches raw qualified `w:` names. In `prefix-variation.docx`, namespace-resolved `word/document.xml` has 15 `xw:p`, 1 `xw:tbl`, 9 `xw:tc`, 2 `xw:drawing`; header/footer use `w:`. Predict **body** loss while header/footer text may remain. Existing `maintained` prefix test proves only its image-gap assertion, not complete current-reader text parity.
 
-Separate gates, unchanged: email (mail-parser 0.11.9 against the locked 0.11.8, `CONVERTER` string, host matcher) and Excel (tokio 1.53.2 against 1.53.1). The static closure shows neither is pulled by `office`. The six shared HTML moves stay audited. Any further root checksum or source work is mapped before compile. HTML uses the same private adapter and boundary: no second service, protocol or backend flag. Retirement checker (B12): the adapter source may not contain `roxmltree::` or the OOXML namespace strings. Xberg's own transitive roxmltree is not scanned.
+The proposed metadata-only `OoxmlEvidence`/`DocxEvidence`/`PptxEvidence` projector is withdrawn from O1. Byte-equal alignment needs the full BetterOffice wire parse **and** structured export. Fingerprints do not remove that reader. Injected note/comment markers, dropped empty paragraphs, joined stories/notes and orphan parts make that alignment invalid on ordinary inputs. No full current reader may hide behind a facade and count as Xberg completion.
 
-## 4. Test order, filters, retirement criteria
+Bounded routes to assess **after O1 observations**, with principal-owned exact allocation/review:
 
-Counts must be nonzero in the log. Baselines recorded for HTML at this commit (not rerun by me): `documents` lib filter 15 passed, `brn-intake --features helper --all-targets` 83 passed in 6 results ([check index](../html1/check-index.json)).
+- DOCX spans through existing `NATIVE_TABLE_GRID_ATTRIBUTE` into public `GridCell` fields (small).
+- PPTX presentation order and populated public hidden/source-path fields (small).
+- Structured note/comment offsets or annotations instead of ambiguous markers (small–medium); comment metadata (medium).
+- Namespace-resolved matching (mechanical but wide); per-node content byte ranges (medium).
+- A BRN renderer over Xberg semantic nodes can produce schema blocks/Markdown/occurrence ranges without rereading the package. It is not automatically a second reader; source completeness and output semantics still require an exact reviewed design. No such renderer is granted here.
 
-| Step | What | Filter or command (fixed names) |
-|---|---|---|
-| T0 | Independent complete inventories, authored before any code from raw OPC XML by a committed script (precedent: `make-quay.py`). DOCX: `harbor`, `features`, `prefix-variation`, `footnotes`. PPTX (O2): `harbor`, `quay`. Existing complete inventory: `harbor-process.inventory.json` only | script plus JSON, reviewed against the fixtures |
-| T1 | Current reader against the inventories through the real restricted helper. May expose existing gaps; those are findings, not failures of the plan | `--test maintained`, `--test pptx`, `--lib helper::prepared::tests`, `-p brn-threads-intake --test qualification` |
-| T2 | Admission only, no Xberg: MIME and kind refusal, ceiling boundaries for every mapped limit, the four hostile fixtures (`hostile-dtd`, `-inflate`, `-members`, `-path`), duplicate and alias members, relationship counts, event pool | new `office_admission` tests |
-| T3 | Real `xberg::extract` per fixture against the inventories. Full ordered sets, never word or keyword presence. Executes S1 to S7 as assertions. Embedded-object witness on `harbor.pptx` with depth 0 against the default. Prefix witness on `prefix-variation.docx`. Hidden-slide witness on `quay.pptx` (`show="0"`) | new `office_xberg_*` tests |
-| T4 | Real restricted executable with the adapter compiled: no file, network or child canaries, bounded pipes and process group, cleanup, CPU 10 s and NOFILE 64 headroom with two parses | `--test restricted_helper` additions |
-| T5 | HTML requalification on the union: the three HTML cases in `restricted_helper`, `protocol::html_converter_provenance_is_distinct_and_validates_generically`, `documents` filter, all-targets, all at least at the recorded counts | as listed |
-| T6 | Host and retirement, only after parity | `scripts/check-intake-retirement.py`; `-p brn-ai conversion::tests` nonzero including the PDF and fixed-Luna mock |
+These are maintained/upstream or limited audited patch seams, not a proposed framework/fork. Network/publication/patch authority is separate. A missing DTO field alone does not force quality loss or an owner choice. O1 measurements select the next code path.
 
-Existing fixtures have no tracked changes, no comments, no `vMerge` or `rowSpan`, and no DOCX embedding (survey in the source map). T3 builds those synthetically with `ooxml_opc::rezip_parts`, as `pptx.rs` already does. Repeated figures use `harbor.docx` (two drawings, one media) and `quay.pptx`. Notes and `gridSpan` use `footnotes.docx`; tables use `footnotes.docx` and `quay.pptx`. Fixed Luna and the checked service stay unchanged.
+## 2. Pre-operation limits: candidates, remaining STOPs
 
-Retire the current DOCX or PPTX reader only when all hold:
+O1 T2 exercises **existing** `helper::extract(HelperRequest)` and `helper::prepared::prepare(HelperRequest)`; both reach private `admit_package`. The real executable uses the same JSON `HelperRequest`, with `--prepare` selecting schema 2 (`bin/brn-intake-helper.rs:59–83`). No public test API, production `office_admission` or cfg-test registration is needed. Construct the proposed `SecurityLimits` **inside the differential test**. Do not change current admission in O1.
 
-1. Every inventory item, including S1 to S7, is satisfied by the replacement and executed.
-2. The schema-2 route keeps its block identity, table binding by `block_id`, replay and Undo (verified by the host qualification suite).
-3. Nested attachments are served by the replacement.
-4. The retirement checker is extended in the same change.
+For later promotion, snapshot **before** `admit_package`:
 
-None holds today, so nothing retires in O1.
+```text
+E = limits.max_expanded_bytes - budget.expanded_bytes
+P = limits.max_package_parts - budget.package_parts
+```
 
-## 5. First coding allocation
+Use checked/prevalidated allowances. `admit_package` subsequently charges actual bytes/parts (`helper.rs:395–415`); recomputing remaining after that would double-charge this package. Input ≤ request maximum; E ≤ 16 MiB, P ≤ 512 under current hard bounds. Existing bounded OPC inflation/path/duplicate checks stay reused, and admitted parts supply BRN's image validation/deduplication. No duplicate full text conversion is proposed for the final path.
 
-O1, DOCX only. PPTX is explicitly O2.
+| Candidate field/pin | Exact proposal and evidence obligation |
+|---|---|
+| `max_archive_size`, `max_files_in_archive` | E and P from the **pre-admission** snapshot. Xberg counts central-directory declared sizes; BRN ZIP8.6/OPC measures actual inflation via `take(remaining+1)`. They are not equivalent. |
+| `max_compression_ratio` | Finite E. For positive compressed size and declared total ≤ E, member/aggregate ratios cannot exceed E. Source excludes zero-uncompressed members from its per-member ratio branch: empty valid members must pass; nonzero uncompressed + zero compressed gives infinity and refusal. Test these boundaries; do not describe every zero compressed member as malformed. |
+| `max_content_size`, `max_entity_length` | E, **not** rendered 8 MiB. DOCX accounts body/instructions/deleted text/notes/comments before rendering. Prove pass/count semantics and near-boundaries; final BRN rendered text still ≤ `MAX_TEXT_BYTES`. |
+| `max_table_cells` | E as a conservative aggregate bound: each counted source cell consumes XML bytes (closing `w:tc`), not BRN's per-table 2048×256. Verify nested/multi-table and any repeated parses before promoting this derivation. |
+| `max_iterations` | Candidate checked E + P (event bytes + EOF per part). Count actual budget calls, repeated passes, note/comment nested parsers and shared header targets at coding/fixture boundary; this is **not a proven bound**. A required multiplier needs evidence/review, not automatic quota raising. |
+| XML/nesting | Candidate 128, current parse depth. Existing 200,000-event policies have different per-document/per-part pools; boundary fixtures must establish equivalent acceptance, not silently impose a new aggregate gate. |
+| `max_pages` (O2) | Candidate P; slide-count check precedes per-slide work. No post-hoc page count, RSS or timeout claim. |
+| recursion/images | `max_archive_depth=0`; `images=None`, `captioning=None`, `qr_codes=Some(false)`, embedded-image OCR off. `needs_image_data()` must stay false; placeholders remain enabled. Source shows no Office image read/clone then; PPTX repeated-image work is avoided, not fixed. `from_bytes` still copies input. |
 
-- Step 1 (useful under every outcome): T0 and T1. Files: 4 inventory JSON, 1 generator script, extensions to `tests/maintained.rs` or a new `tests/docx_inventory.rs`, synthetic-fixture helper.
-- Step 2: T2 plus the O1 manifest hunk and the principal's lock reconciliation.
-- Step 3: T3 under the test-only dependency. Its output is a table of executed facts and one yes or no per class S1 to S7.
-- Gate: promotion hunks from section 3 and T4 to T6 run only if D-OFFICE resolves to a path that keeps the contract. If not, O1 ends with Steps 1 to 3 merged and nothing else. This avoids an empty facade and an unused or narrowing production DOCX path.
+**Inconsistent ZIP members:** source1b requires rejecting truncated/inconsistent members. O1 must measure central-declared uncompressed size versus actual inflated size in **both directions**, for required and optional XML/image parts, preserving valid CRC where possible to isolate the size defect. BRN ZIP8.6 may accept these malformed packages; ZIP9 only bounds reads above declaration and Xberg may silently skip failed optional reads (`if let Ok`: comments/numbering/notes/styles/theme). Larger-than-actual declarations can also trigger Xberg total gates despite BRN accepting actual bytes. Proposed later correction: compare every admitted non-directory member's actual length with its central declaration before Xberg; handle directory declaration semantics explicitly in the boundary cases. This is a future hunk, not present behavior. Capture actual baseline before claiming narrowing or non-narrowing. Refusing previously accepted **malformed** packages implements the stated consistency contract; no evidence yet proves valid-input acceptance unchanged. Local-header zero sizes with a valid data descriptor/central directory are valid ZIP and are a separate positive test, not a central mismatch.
 
-Estimated scope: about 8 test and fixture files, roughly 600 to 800 test lines, one manifest hunk, no production source before the gate, zero changes to Luna, the checked service, the host or the CLI. Promotion adds two new source files and three small hunks (section 3). O1 should start from the reviewed HTML commit rather than `bbf107e3`, because the manifest line and `documents.rs` may change in that review.
+**XML before upstream allocation:** `SecurityLimits` does not budget every XML parser. A later narrow count-only quick-xml scan must cover the complete selected Xberg read set from admitted bytes before XML Strings/DOMs: DOCX document, document relationships, numbering/comments/footnotes/endnotes, relationship-targeted headers/footers **and conventional orphan `word/headerN.xml`/`footerN.xml`**, styles, theme, docProps core/app/custom; O2 presentation/rels, slides/rels, notes/rels, comments/authors, reachable chart/diagram XML and metadata. Resolve targets using maintained OPC facilities. Count actual expanded bytes/parts/relationships, events/depth, reject DTD/entity expansion and escaping relationships; external links stay inert evidence, not fetched. Do not parse/re-render text. Exact scan coverage and acceptance equivalence need boundary tests and a separate production allocation. `strict_parse` is consumed by `core/extractor/lenient.rs:58`, **not Office protection**. Library comments/defaults are not runtime proof. Existing image signature/dimension/decoded-byte/pixel/aggregate caps must precede decode/retention, not follow Xberg copies.
 
-D-OFFICE, the one consequential owner choice: given S1 to S7, may BetterOffice 0.3.0 (already a pinned, maintained OOXML adapter) remain the Office adapter inside the shared document boundary while Xberg serves HTML, XLSX, EML and PDF, with Xberg Office revisited when a rich-result seam exists? The alternative is to require Xberg as the sole DOCX/PPTX source, which waits on the upstream seam in section 1 or accepts a stated narrowing of the evidence list. My recommendation is the first option. It adds no bespoke projector, 33 packages or duplicate major versions, and it loses nothing. The owner scope asks for a maintained adapter and no silent quality loss; BetterOffice meets both and Xberg Office currently does not. Decide before promotion. Steps 1 to 3 give the measurements either way.
+The fixed 100 MiB reads are statically inert **if** all central declared totals ≤ E ≤ 16 MiB, consistency has been established, and security validation runs on every handle before its first read (DOCX constructor, metadata reopen, PPTX from_bytes do). This corrects the earlier broad truncation claim; it does **not** close resource qualification. ZIP central-directory allocation occurs before entry-count checks, bounded by input geometry rather than P. The count scan itself needs already inflated parts. Existing admission, current-reader wire/export, Xberg parse and metadata reopen inflate separately; repeated reads/shared references multiply work. This is bounded-work analysis to be measured, never a hard heap/RSS guarantee. roxmltree has no configured node cap in these calls. PPTX OMML uses `with_defaults()` (1 MiB entity/1024 depth), an O2 potential narrowing seam.
 
-## 6. PDF next resource (from the existing audit only)
+**Concrete promotion STOPs:** prove scan read-set/pass counts and same valid-input envelope; pre-admit inconsistent members; classify silent optional-read losses; close roxmltree/preallocation proof and real restricted-helper CPU/NOFILE behavior. Where a maintained call cannot carry the required bound, request its narrow caller-budget/error propagation patch (or a demonstrated platform enforcement decision) before promotion. No general ZIP/XML framework, global allocator, sandbox relaxation, or claim that size caps alone close these STOPs.
 
-One request, not code. Ask upstream (xberg and xberg-native-pdf) for a caller-bounded profile:
+**Warnings:** no generic `processing_warnings` rejection. O1 records exact `(source,message)` classes and the source item, then compares the current BRN gap/refusal policy. Known source templates (X39/X41) start this classification:
 
-1. The page-count path passes `LoadOptions.max_decompressed_size` through lopdf's existing `load_mem_with_options` (xberg `extractors/pdf/mod.rs:238`).
-2. Native Brotli honours `max_output_bytes` (`decoders/brotli.rs:11`).
-3. `PdfRenderSession::open` and `NativeDocument::from_bytes` accept parser options (`pdf/render.rs:958`, `pdf/native/mod.rs:81`, `document/open.rs:22`).
-4. The session exposes page geometry and float `render_page_fit` (`rendering/mod.rs:436`).
-5. No eager image fallback after enumeration failure (`pdf/native/images.rs:44,640`).
+| Source / exact message template class | Proposed current-policy mapping to verify in O1 |
+|---|---|
+| `relationships` / `{total} cross-reference target(s) could not be resolved and were dropped from the document structure: {listed}{suffix}` | Missing bookmark/reference gap; ordinary document remains usable/partial. |
+| `docx` / `Comment reference id {id} has no matching entry in comments.xml; the comment text was dropped` | Missing-comment-definition gap, not a new generic refusal. |
+| `docx` / `Could not map w:sym character code {code:?} in font {font:?}; inserted a placeholder` | Text-loss gap; no invented symbol. |
+| `docx` / `A DOCX field instruction (w:fldChar begin) was never closed with a matching separate/end; trailing body content may have been treated as field instruction text and dropped` | Field/trailing-content gap, subject to current malformed-input rules. |
+| `docx` / `{title} relationship target '{path}' could not be read; that {lower} was dropped` | Dropped-story gap retaining target path (`title` Header/Footer, `lower` header/footer). |
 
-Decision needed: pursue that upstream patch, or name an enforceable platform bound. I did not verify any macOS memory rlimit and make no claim about one. This STOP does not block Office, XLSX or EML work.
+Carry the source location actually available; missing required location evidence is a promotion gap, never guessed. These mappings require current-reader comparison; refuse only when an existing BRN malformed/limit/validation rule warrants it. Sparse warnings cannot prove completeness. Unknown/unmapped warning classes block **promotion**, not silently pass or create a new generic production refusal. Result errors, unexpected children, text/output/DTO budget failure remain explicit gates.
+
+## 3. Exact writable scope to request later
+
+O1 manifest hunk (not edited now), retaining the existing optional Xberg HTML row:
+
+```toml
+[features]
+# add beside the existing default/helper entries
+office-differential = ["helper", "xberg/office"]
+
+[[test]]
+name = "office_differential"
+path = "tests/office_differential.rs"
+required-features = ["office-differential"]
+```
+
+No unconditional Xberg dev-dependency: resolver 2 unifies its features into helper test binaries under ordinary `--all-targets` and workspace tests. The nondefault test feature leaves ordinary CI/shipped helper's HTML graph unchanged; it is **not** a user-facing backend option/fallback. Explicit differential builds compile Office into the helper graph, so requalify HTML both in the ordinary HTML-only graph and the explicit union. Feature presence is not runtime route replacement.
+
+Root lock remains principal-owned. The old **33 identities are a rough ledger-derived upper bound**, not 33 additions. Nine are possible compatible movements of existing names: libc .2.189→.2.190; either 1.18→1.19; equivalent 1.0.2→1.0.3; smallvec 1.16.2→1.16.3; unicode-ident 1.0.26→1.0.27; uuid 1.26.1→1.28; deranged .5.8→.5.9; powerfmt .2.0→.2.1; syn **3.0.6→3.0.9**. Preserve locked versions when lower bounds permit (Xberg libc .2.189, either/uuid `1`; nix, if reachable, libc .2.186). Any further existing-package move beyond the six shared HTML moves is a STOP before compile. Syn **2.0.119** coexists with syn **3.0.6**; strum_macros .27.2/.28.0 requires syn **2.0**, not syn 3. Nix .31.3 is possible over-approximation, not established Office reachability. ZIP9/quick-xml .42/cfb .15 coexist with root versions; other additions depend on actual resolution. Source map labels every candidate; copied ledger checksums are provenance references, not an independent audit.
+
+Before future compile: exact root resolution and effective features against helper/default/native/retrieval graphs; preserve the six audited HTML moves; match **all** actual additions to audited package sources/checksums and disclose newly enabled source. `typst-utils .15.1/build.rs` can invoke `git rev-parse HEAD`; strum_macros .27.2 (possible new) and .28.0 (already locked) are proc macros. Nix has a build script **if actually reachable**. Use existing source1b audit; inspect activated build-script/proc-macro/flate2/ZIP union, not just new package names. No metadata/tree/compile now. Email mail-parser .11.9/.11.8 and Excel Tokio 1.53.2/1.53.1 stay separate gates.
+
+Only after O1 and an exact promotion grant: `helper/documents.rs` shared pinned config/executor, a bounded `documents/office_admission.rs` and actual DOCX adapter/renderer or approved upstream seam; schema-1 `helper.rs` and schema-2 `helper/prepared.rs` route hunks, converter provenance/host exact matcher, real restricted tests and retirement checker. These are a **scope map, not a ready projector design**. PPTX adapter/prepared hunks follow O2 evidence. Exact DOCX/PPTX MIME + `detect_package_kind` admission; never macro/template/slideshow/legacy OLE strings or custom registry. The `office` aggregate also compiles DOC/PPT/RTF/ODT/ODP/EPUB/FictionBook/LaTeX/RST/Org/OPML/Typst/BibTeX/DBF/Jupyter paths; compilation grants no dispatch. Production namespace/`roxmltree::` bans stay in the existing retirement checker. Same private adapter/boundary, no second service/protocol/backend flag. Luna, checked services and saved receipts stay fixed.
+
+## 4. First coding allocation: substantive DOCX differential (O1)
+
+After HTML accepted + heavy free + separate grant, use the accepted HTML pin (this proposal's manifest/config anchors may need rebasing). No production Office switch. Approximately eight test/fixture files and 600–800 Rust test/support lines plus exact manifest/root-lock reconciliation:
+
+| Step | Exact files and action |
+|---|---|
+| T0 | Four **hand-authored, reviewed** JSON inventories in `crates/brn-intake/tests/fixtures/office/`: `harbor.inventory.json`, `features.inventory.json`, `prefix-variation.inventory.json`, `footnotes.inventory.json`. Derive from authored inputs/known fixture content, not new extractor output. Reuse the existing `crates/brn-threads-intake/tests/fixtures/harbor-process.inventory.json` and DOCX. Namespace-resolving raw XML script is a cross-check only, never the sole oracle. O2 uses `make-quay.py` authored inputs. |
+| T1 | New `tests/docx_inventory.rs` (helper-gated): `current_docx_inventory_*` compare ordered complete schema-1/2 wording, blocks/stories, table cells/spans, links, notes, comments/revisions, figures/locators/assets/gaps, including **harbor-process**. Public `helper::extract`/`helper::prepared::prepare` only. Complete inventory assertions, not keyword hits. |
+| T2 | `current_office_admission_*` in that same test uses existing public helper entrypoints, tightened request limits, existing four hostile DOCX fixtures, synthetic duplicates/aliases/escape/DTD/expansion/part/relationship/event cases. `office_limits_*` in `office_differential.rs` constructs candidate limits in test and observes real Xberg boundaries, declared/actual lies both directions, zero compressed/valid empty/data-descriptor members, aggregate multi-table/content/pass cases. No new production admission or public testing facade. |
+| T3 | New `tests/office_differential.rs`: `office_xberg_docx_*` calls **real `xberg::extract`**, bytes + exact DOCX MIME, pinned config and proposed limits, compares the same full inventories including **harbor-process**. Executes S1–S7 classifications with permanent assertions of **observed** gaps and captures warning classes/optional-read loss. Test support: `tests/support/office.rs` for bounded synthetic OPC fixtures and small explicit comparison helpers. No framework. |
+| Registry | `tests/fixtures/office/parity-registry.json` records per-fixture/class fulfilled/unmet promotion criteria and observed classifications. Gap assertions can pass with an unmet criterion; they do not claim parity. Update deliberately with later fixes; never add always-red required CI then weaken/delete it. Current-reader fidelity failures are preserved/reported without production fixes under O1; compiler errors are not behavior-red evidence. |
+
+Existing fixture source hashes/inventories travel. Namespace-aware cross-check confirms no revisions/comments/`vMerge`/`rowSpan`/DOCX embeddings in the surveyed fixtures. Add bounded synthetic authored cases for accepted/deleted revisions, comment metadata/ranges, same-ID fn/en plus literal markers/table refs/NOTEREF, empty and orphan stories, merged/nested/multiple tables, repeated identical figure captions/targets. Existing repeated figures: harbor DOCX (two drawings/one media); notes/gridSpan: footnotes DOCX. O2 keeps harbor/quay PPTX including embedded XLSX, hidden state and presentation-order witness. Class presence alone is not fidelity proof.
+
+### Future command order (none executed here)
+
+Run serially with task-owned targets and repository toolchain after root/source audit. Ordinary HTML-only helper must precede host tests. These existing filters are source-present/nonzero: maintained 17, pptx 12, restricted_helper 6, qualification 11 (static counts, not results); lib prepared/protocol/AI filters are source-present. For new filters require a logged count >0 and inspect named tests; no zero-test success.
+
+```sh
+cargo build -p brn-intake --features helper --bin brn-intake-helper --locked --offline
+cargo test -p brn-intake --features helper --test maintained --locked --offline
+cargo test -p brn-intake --features helper --test pptx --locked --offline
+cargo test -p brn-intake --features helper --lib helper::prepared::tests --locked --offline
+cargo test -p brn-intake --features helper --test docx_inventory current_docx_inventory --locked --offline
+cargo test -p brn-intake --features helper --test docx_inventory current_office_admission --locked --offline
+cargo test -p brn-intake --features helper --test restricted_helper --locked --offline
+cargo test -p brn-intake --features helper --test protocol html_converter_provenance_is_distinct_and_validates_generically --locked --offline
+cargo test -p brn-intake --features helper --lib documents --locked --offline
+cargo test -p brn-intake --features helper --all-targets --locked --offline
+cargo build -p brn-intake --features office-differential --bin brn-intake-helper --locked --offline
+cargo test -p brn-intake --features office-differential --test office_differential office_limits --locked --offline
+cargo test -p brn-intake --features office-differential --test office_differential office_xberg_docx --locked --offline
+cargo test -p brn-intake --features office-differential --test restricted_helper --locked --offline
+cargo test -p brn-intake --features office-differential --test protocol html_converter_provenance_is_distinct_and_validates_generically --locked --offline
+cargo test -p brn-intake --features office-differential --lib documents --locked --offline
+cargo test -p brn-intake --features office-differential --all-targets --locked --offline
+```
+
+O1 union helper still runs the **current** production Office route; its no-access success does not qualify Xberg Office runtime. It does requalify actual Xberg HTML on the feature union. After rebuild of the exact intended helper graph and explicit `BRN_INTAKE_HELPER` binding, host regression commands are `cargo test -p brn-threads-intake --test qualification --locked --offline` and `cargo test -p brn-ai --lib conversion::tests --locked --offline` (nonzero, actual PDF/fixed-Luna mock and carried Poppler/environment qualifications preserved). Do not equate mocks with live Luna proof.
+
+Later T4–T6 promotion: actual Xberg Office inside the unchanged restricted executable, both schemas, synthetic file/live-loopback denial, no extra access/child route, bounded pipes, PGID cancel/reap/cleanup and CPU10/NOFILE64; all prior HTML graphs; host table `block_id`, source/occurrence/location/asset binding, private/protected save, versions, replay/Undo, originals-removed offline retention. Retirement only after **every** independent inventory item and unmet registry gate closes, nested EML attachments use the qualified replacement, and `scripts/check-intake-retirement.py` is extended/run in the same allocation. Do not retire/assert cutover from new API types or class-presence tests. No reader retires in O1. Further code path/patch/renderer allocation remains principal-owned; owner choice arises only if evidence rules out behavior-preserving routes.
+
+## 5. PDF advisory, independent of Office
+
+Existing audit only; unchanged five-seam resource request, **not a resolution or owner question**:
+
+1. Page-count `extractors/pdf/mod.rs:238` plain `load_mem` should pass lopdf 0.45.0 `LoadOptions.max_decompressed_size` through `load_mem_with_options`.
+2. Native Brotli decoder must honor `max_output_bytes` (`decoders/brotli.rs:12–18`).
+3. Caller parser options through `PdfRenderSession::open`, `NativeDocument::from_bytes` and document open.
+4. Expose session page geometry and float `render_page_fit` for caller pixel admission.
+5. Avoid eager image fallback after enumeration failure.
+
+Pursue an exactly allocated maintained patch or demonstrate platform enforcement before PDF promotion; no memory-rlimit claim. This advisory STOP does not block independent Office. No new PDF research, compile or upstream request here.

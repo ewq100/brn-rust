@@ -1,34 +1,15 @@
-# X2 Office1 preparation handoff
+# X2 Office1 corrected source-plan handoff
 
-18 October 2026. Task: Kiro Sonnet 5.5 bounded next-family preparation for the owner-approved all-document Xberg integration. Source-only. Docs only.
+18 October 2026. Same allocated checkout and branch `work/x2-office-prep-20261018`; correction started at `adc841a274dc7f9029ce61f876259638c25d931c`, tree `cfda69ae9d6ee827b9f5ca9ecdf49474f46579a1`. Original HTML base `bbf107e370a5c5dc35a7588e97c477d5639401a6` is not assumed accepted. Codex resumed after the actual Kiro monthly-limit failure `8deffe4f-72c0-4d41-9395-cd988a49d29c`; no Kiro retry/probe or paid call.
 
-## What exists
+The [corrected slice](implementation-slice.md) and [source map](source-map.json) supersede the original source claims; the old proposal remains in Git. The [full review](opus1/opus-review-round1.md) is preserved verbatim with SHA-256 `935bbe3c3bc1fe5e9bf9ec398305f77350d832794a1447eb445ecbe293e96c96`. [Response](opus1/response.md), [static checks](opus1/checks.json) and [correction handoff](opus1/handoff.md) cover the nine corrections and significant advisories.
 
-- [implementation-slice.md](implementation-slice.md): the one slice proposal, six sections as asked.
-- [source-map.json](source-map.json): pinned versions and checksums, 36 Xberg/ZIP/BetterOffice anchors and 13 BRN anchors with file hashes, fixture survey, the upper-bound list of 33 root-lock additions with checksums, three corrections to earlier audit statements, and the explicit list of unexecuted limits.
+The next proposed allocation is **O1 DOCX inventories/current-reader parity/existing admission/real-Xberg differential**, only after HTML approval, heavy availability and the parent's separate grant. It makes no production Office switch. `office-differential=["helper","xberg/office"]` is an explicit nondefault test feature; no unconditional Office dev-dependency. Public helper/protocol paths already cover admission. No production facade/testing API is needed.
 
-## Branch and custody
+The metadata-only BetterOffice alignment facade and D-OFFICE recommendation are withdrawn. Image occurrence identity and public span/hidden/source-path fields are distinguished from missing/unpopulated facts. Bounded Xberg patches and a semantic-node renderer remain engineering routes for review after actual measurements. No owner choice is ready. Goal remains Xberg across all eight current kinds, preserving existing supported behavior; PPTX remains explicit O2.
 
-Branch `work/x2-office-prep-20261018` was absent, created with `git switch -c` at `bbf107e370a5c5dc35a7588e97c477d5639401a6` in the allocated worktree `t3-d611a161`. The worktree was clean at start. No other worktree or ref was touched. The commit that holds these three files is recorded by Git (`git log -1` on the branch). The three paths above are the only paths written.
+Open promotion limits are concrete: declared/actual ZIP consistency and baseline malformed acceptance, complete XML scan/read-set/pass counts without valid-input narrowing, warning classes and silent optional losses, roxmltree/central-directory allocation and repeated inflation, actual restricted Xberg Office qualification, full inventory/host/nested-attachment parity, exact root graph and activated build source. Finite limits are source proposals, not runtime proof. The PDF five-seam request stays advisory/unresolved and does not gate Office.
 
-## What was checked
+Only the three authored Office docs and four `opus1/` evidence files were written. No production/test/fixture/manifest/lock/CI changes, new worktree, delegation, Cargo/metadata/build/test/lint/formatter/helper/Store/CLI/Auth/provider/network/download/GUI/mutants or slot polling. Checks are Git/text/hash/bounded existing-fixture XML/doc links/whitespace only. The final commit/tree and delta are reported from Git at delivery; no self-referential receipt hash is claimed.
 
-Text, Git, hash and link checks only. File hashes in the source map were computed at reading time. Relative links in the two documents were resolved against the tree. Nothing was compiled, resolved, tested, linted, formatted or run. No Store, CLI, Auth, provider, network, GUI, download or mutants work. No heavy slot was held, none is held now, no process is running, and nothing was delegated.
-
-## Findings the principal should read first
-
-1. Xberg 1.3.10 cannot supply the current DOCX/PPTX evidence contract. Seven classes are unavailable (S1 to S7 in section 1), among them byte ranges for figure occurrences, DOCX comment metadata, table spans, PPTX hidden state and picture binding. One of them, namespace-prefix independence, is a predicted silent loss on the existing `prefix-variation.docx` fixture. It is source-read, not executed.
-2. Admission is boundable with a maintained seam (`SecurityLimits` plus ZIP 9.0.5 declared-size reads). Three pins matter: `max_archive_depth = 0` (the default of 3 recurses into embedded objects), `images = None`, and a ratio limit large enough not to refuse inputs accepted today.
-3. The smallest projector for the unavailable set is most of today's evidence layer. That makes D-OFFICE a real owner choice. It is needed only before production promotion and does not block O1.
-4. No existing fixture has tracked changes, comments, `vMerge`/`rowSpan` or a DOCX embedding. Only `harbor-process.docx` has a complete independent inventory.
-5. Three earlier source1b statements are corrected in the source map (PPTX hidden state, DOCX rId, fixed 100 MiB truncation).
-
-## Not claimed
-
-No implementation grant, no code authority, no source acceptance, no review, no PR, push or merge. HTML at `bbf107e3` stays under its independent review and is not assumed accepted. The parent's implementation grant follows its own component gate.
-
-## Next principal actions
-
-1. Decide D-OFFICE, or release O1 steps 1 to 3 without waiting.
-2. Run the offline metadata on the exact manifest if O1 step 2 is released, and compare each added identity with the source-map list.
-3. Choose the PDF seam route in section 6, independent of Office.
+All seven allocated documentation paths are released to the parent. No heavy slot was acquired or is held; no build/helper/worker child was started. No further source or test work is authorized by this handoff. Parent independently verifies/reviews, then may issue exact O1 coding authority. Source-plan correction is implemented and statically checked only; build/runtime verification, native observation, owner acceptance, Office promotion, publication and merge are not claimed.

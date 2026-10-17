@@ -1,6 +1,6 @@
 {
- "schema": "x2-office1-source-map/1",
- "association": "Static source reading only. Nothing compiled, executed, resolved or measured. Hashes are of the files named at the time of reading.",
+ "schema": "x2-office1-source-map/2",
+ "association": "Source-only correction after Opus round 1. File SHA-256 values recomputed from the exact local sources, not ledger claims. No Cargo, resolution, extractor, test or resource measurement. Intrinsic field mappings are source facts; all behavior parity remains predicted/unproven.",
  "base": {
   "branch": "work/x2-office-prep-20261018",
   "commit": "bbf107e370a5c5dc35a7588e97c477d5639401a6",
@@ -14,11 +14,18 @@
    "features_now": [
     "html"
    ],
-   "features_proposed": [
-    "html",
-    "office"
-   ],
-   "narrower_docx_pptx_feature": "none (Cargo.toml features table has only `office`; docx/pptx extractors are cfg(feature=\"office\") at src/extractors/mod.rs:128,178)"
+   "features_proposed": {
+    "ordinary_helper": [
+     "html"
+    ],
+    "explicit_nondefault_office_differential": [
+     "html",
+     "office"
+    ],
+    "production_promotion": "separate exact grant after observed parity/resource closure"
+   },
+   "narrower_docx_pptx_feature": "none (Cargo.toml features table has only `office`; docx/pptx extractors are cfg(feature=\"office\") at src/extractors/mod.rs:128,178)",
+   "office_feature_includes": "cfb, flate2, roxmltree, zip, quick-xml, biblatex, biblib, org, dbase, typst-syntax, mathemascii, html-escape, html, notebook; more formats compile than DOCX/PPTX are admitted"
   },
   "xberg_zip": {
    "name": "zip",
@@ -83,7 +90,7 @@
    "note": "xberg office uses 0.21.1, already locked; only transitive, never named in BRN source"
   },
   "html_candidate_lock_sha256": "8b7a8ac078e5334119c4a497df362d111b644c164a01fc6f15a9645ce73db8dc",
-  "html_approved_existing_moves": [
+  "html_six_existing_moves_audited_in_prior_work": [
    "serde_json 1.0.151->1.0.154",
    "serde_spanned 1.1.1->1.1.2",
    "toml 1.1.6->1.1.8",
@@ -115,7 +122,7 @@
    "file": "extractors/docx.rs",
    "lines": "1087-1177",
    "sha256": "75d9eaabf1f62fdc523e7be6241df18a43c78e002387339573c32ee069ed801a",
-   "claim": "Image bytes read only if config.needs_image_data(); otherwise ExtractedImage has empty data and source_path = relationship target path (not rId). Each drawing re-reads its member; no dedupe."
+   "claim": "DOCX Image node and ExtractedImage share drawing image_index; image_uri/source_path carry relationship target, not rId; public occurrence identity exists, content byte ranges do not. Image bytes read only if needs_image_data()."
   },
   {
    "id": "X04",
@@ -139,7 +146,7 @@
    "file": "extractors/docx.rs",
    "lines": "319-322",
    "sha256": "75d9eaabf1f62fdc523e7be6241df18a43c78e002387339573c32ee069ed801a",
-   "claim": "Table cells go through to_cell_grid(): gridSpan/vMerge cells repeated or blanked in a string grid; spans not retained."
+   "claim": "DOCX to_cell_grid string grid leaves covered spans blank; DOCX does not populate existing public GridCell span fields. Text/placement parity is unproven."
   },
   {
    "id": "X07",
@@ -219,7 +226,7 @@
    "file": "extractors/security.rs",
    "lines": "314-430",
    "sha256": "76ba605e16e8d39adc091aa826be236a01d639c9983f4f593f9045df25601d76",
-   "claim": "ZipBombValidator: declared sizes via by_index_raw; aggregate max_archive_size checked after every entry; per-member ratio only >= 1 MiB; whole-archive ratio always (line 417)."
+   "claim": "ZipBombValidator sums central-directory declared sizes via by_index_raw and checks max_archive_size each entry. Nonzero uncompressed + zero compressed -> infinite ratio refusal; zero/zero empty member skips that branch. Whole-archive ratio checked only when total compressed >0."
   },
   {
    "id": "X17",
@@ -243,7 +250,7 @@
    "file": "extraction/pptx/container.rs",
    "lines": "342-355",
    "sha256": "7499fd15d4b2f8f1127a998e6121a44ed2db328ea8f75719ef365d5a3769a955",
-   "claim": "get_slide_images re-reads and clones every image referenced by every slide; no cross-slide dedupe or aggregate cap."
+   "claim": "get_slide_images rereads/clones each reference without cross-slide dedupe; with needs_image_data false no call, so concern is avoided, not repaired."
   },
   {
    "id": "X20",
@@ -259,7 +266,7 @@
    "file": "extraction/pptx/mod.rs",
    "lines": "302,351",
    "sha256": "c528823a470b8c252ce465faf50ee46c66e1aef5dcafd711b4b0e683f195b9da",
-   "claim": "PPTX ExtractedImage.source_path = None; PageInfo.hidden = None (hidden slides are included silently)."
+   "claim": "Public source_path and hidden fields already exist but PPTX emits None. Hidden/order behavior unproven; numeric-order source prediction is wrong for quay."
   },
   {
    "id": "X22",
@@ -331,7 +338,7 @@
    "file": "extraction/docx/parser.rs",
    "lines": "2494-2500,2609",
    "sha256": "40581a1d9f2d1aa853e9a6e5446a67c23a8cf8fe90b316f974d7324dd37f3035",
-   "claim": "Body parser matches the qualified element name literally (`w:p`, `w:tbl`, 123 literal `w:` arms), not the namespace. A package whose main namespace uses another prefix (fixture prefix-variation.docx uses `xw:`) is not recognised."
+   "claim": "Plain quick-xml Reader matches literal qualified w: names, no namespace resolver. Source predicts prefix-variation body loss; header/footer use w: and may remain. No executed differential."
   },
   {
    "id": "Z01",
@@ -355,7 +362,7 @@
    "file": "lib.rs",
    "lines": "29,72-118",
    "sha256": "e55efcfbd475ab39b0eff13589dc0f1236dc271ec1f2c773ac7a40a2094d5ba8",
-   "claim": "betteroffice-opc: MAX_ENTRY_COUNT 5000; unzip_parts_with_limits rejects unsafe/duplicate-normalized paths and inflates with take(remaining+1)."
+   "claim": "BRN ZIP8.6/OPC caps actual inflated bytes via take(remaining+1), safe/duplicate-normalized paths and <=5000 entries; does not compare actual bytes with central declared uncompressed size."
   },
   {
    "id": "O02",
@@ -380,6 +387,158 @@
    "lines": "15-31,427",
    "sha256": "b94c00c190833d1d6a139d81711762a117a1977551207c82781444a364b1c2ac",
    "claim": "betteroffice-pptx-parse ParseLimits default 4,000,000 events; Event::DocType refused; package.rs:602 chart pool."
+  },
+  {
+   "id": "X31",
+   "crate": "xberg",
+   "file": "extraction/docx/parser.rs",
+   "lines": "2226-2320,2379-2390",
+   "sha256": "40581a1d9f2d1aa853e9a6e5446a67c23a8cf8fe90b316f974d7324dd37f3035",
+   "claim": "Constructor validates before styles/theme reads. Optional styles/theme/comments/numbering/notes read errors can be silently skipped; declared/actual mismatch needs T2 both directions."
+  },
+  {
+   "id": "X32",
+   "crate": "xberg",
+   "file": "extraction/docx/parser.rs",
+   "lines": "2491,2835-2873,2918-2955,3038,3200,3322-3342,3456,3516",
+   "sha256": "40581a1d9f2d1aa853e9a6e5446a67c23a8cf8fe90b316f974d7324dd37f3035",
+   "claim": "Shared budget counts body/instrText/deleted text/notes/comments, cell closes and nested loops. Candidate E+P iterations must count passes/EOFs/shared targets at coding time; not a proven bound."
+  },
+  {
+   "id": "X33",
+   "crate": "xberg",
+   "file": "extractors/docx.rs",
+   "lines": "216-235,352-408,420-485",
+   "sha256": "75d9eaabf1f62fdc523e7be6241df18a43c78e002387339573c32ee069ed801a",
+   "claim": "Empty paragraphs dropped; node image_index/image_uri exists; note/comment paragraphs join with spaces and header/footer paragraphs join with newlines. Full BetterOffice text-equal metadata facade is invalid."
+  },
+  {
+   "id": "X34",
+   "crate": "xberg",
+   "file": "types/document_structure.rs",
+   "lines": "263-312,538-565",
+   "sha256": "50edddf897a852dceb872bf95c3085a1361451d0dc57f849449d20204b68a4b9",
+   "claim": "DocumentNode has annotations/attributes/page/layer but no content range. GridCell already exposes row_span/col_span; field existence is not population proof."
+  },
+  {
+   "id": "X35",
+   "crate": "xberg",
+   "file": "extraction/pptx/parser.rs",
+   "lines": "878-915",
+   "sha256": "c348535cf679feb834577b70050f761ae7e1138342c2d0dec93404b8e4866802",
+   "claim": "parse_presentation_rels collects slide relationships then sorts by numeric filename, not sldIdLst; source predicts wrong quay order."
+  },
+  {
+   "id": "X36",
+   "crate": "xberg",
+   "file": "extraction/pptx/container.rs",
+   "lines": "78,143-175,214-350",
+   "sha256": "7499fd15d4b2f8f1127a998e6121a44ed2db328ea8f75719ef365d5a3769a955",
+   "claim": "from_bytes clones input; fallback slide paths numeric-sort; reads dynamic slide/rels/chart/diagram/image targets. Image calls excluded with extract_images false."
+  },
+  {
+   "id": "X37",
+   "crate": "xberg",
+   "file": "core/config/extraction/core.rs",
+   "lines": "1129-1146",
+   "sha256": "fd9e2afd7b0fc3153e5984d96e6618691b6648ccb388b002f4f6c7e6b6f77142",
+   "claim": "needs_image_data depends on explicit images, captioning, qr_codes and embedded-image OCR. Pin all off; images=None alone is insufficient as a general claim."
+  },
+  {
+   "id": "X38",
+   "crate": "xberg",
+   "file": "core/extractor/lenient.rs",
+   "lines": "58",
+   "sha256": "022d3808161ea1d0c2b3ded31b1822e000d7e86364e3ef8288fd6cab4965be54",
+   "claim": "strict_parse consumed in lenient XML dispatch; not protection for DOCX/PPTX."
+  },
+  {
+   "id": "X39",
+   "crate": "xberg",
+   "file": "extraction/docx/parser.rs",
+   "lines": "227-236,2123-2133,2285-2293,3163-3171,3353-3363",
+   "sha256": "40581a1d9f2d1aa853e9a6e5446a67c23a8cf8fe90b316f974d7324dd37f3035",
+   "claim": "Comment parser only id/author/paragraphs; missing comment, unmapped symbol, unclosed field, unreadable header/footer warning classes must map to existing BRN located gaps/refusal rules, never generic warning refusal."
+  },
+  {
+   "id": "X40",
+   "crate": "xberg",
+   "file": "types/internal.rs",
+   "lines": "61",
+   "sha256": "928eca5136b77f3161a7e293c033966ba1cdbe1252c41e0fe251203587fbd8a9",
+   "claim": "NATIVE_TABLE_GRID_ATTRIBUTE existing seam used by native PDF for rich grids; bounded DOCX span patch candidate."
+  },
+  {
+   "id": "Z03",
+   "crate": "zip-8.6.0",
+   "file": "src/crc32.rs",
+   "lines": "42-85",
+   "sha256": "3d833e6be0d808fa8fb6ebe518c9237b88ff05d7952b581e6ca28ea803b7428e",
+   "claim": "ZIP8.6 CRC reader delegates read_to_end, no declared-output cap; OPC take enforces actual expansion."
+  },
+  {
+   "id": "Z04",
+   "crate": "zip-9.0.5",
+   "file": "src/read/zip_archive.rs",
+   "lines": "246-298",
+   "sha256": "7f759e879808173a8cb905132e879653c802bae19df4bdddb29d8cf6c54aba68",
+   "claim": "ZIP9 central-directory allocation bounded by directory/input geometry before caller part-count gate; no hard heap limit."
+  },
+  {
+   "id": "F01",
+   "crate": "xberg-1.3.10",
+   "file": "Cargo.toml",
+   "lines": "features.office; dependencies.libc/either/uuid/strum",
+   "sha256": "667be0e1155f63324222f5bc94f37fd3a25b2c4d4b39cab81e9d61ecefdb69f4",
+   "claim": "Office aggregate, libc .2.189 and either/uuid 1 requirements; compatible locked versions should remain."
+  },
+  {
+   "id": "F02",
+   "crate": "typst-utils-0.15.1",
+   "file": "build.rs",
+   "lines": "1-24",
+   "sha256": "6718b5615b3acf0e599c60ac0d092cbcc1ff675bab6d4810451efd571cea1748",
+   "claim": "Build script can invoke git rev-parse HEAD; disclose activated build source before future compile, separate from runtime helper."
+  },
+  {
+   "id": "F03",
+   "crate": "strum_macros-0.27.2",
+   "file": "Cargo.toml",
+   "lines": "lib; dependencies.syn",
+   "sha256": "81f142576c960feb48f1ce061489096fbe3beb8d3c3c3c7f45a998d5cd62c49c",
+   "claim": "Possible added proc-macro .27.2 uses syn2, not syn3."
+  },
+  {
+   "id": "F04",
+   "crate": "strum_macros-0.28.0",
+   "file": "Cargo.toml",
+   "lines": "lib; dependencies.syn",
+   "sha256": "49ce289db377f9e8b25772ccd2121263f05fe908072b9adaccd3bb1e095e3f4c",
+   "claim": "Already locked proc-macro .28.0 uses syn2, not syn3."
+  },
+  {
+   "id": "F05",
+   "crate": "nix-0.31.3",
+   "file": "Cargo.toml",
+   "lines": "package.build; dependencies.libc",
+   "sha256": "36654c48d8a7941649b643d42b15750a0dd024095f8670b3e928c503339eefe6",
+   "claim": "Possible over-approximation only: build script and libc .2.186 lower bound, no Office reachability established."
+  },
+  {
+   "id": "X41",
+   "crate": "xberg",
+   "file": "extraction/derive/mod.rs",
+   "lines": "30-84",
+   "sha256": "4bb0090b6b0a17cfa5bede5831fc89c32b29ec45b8c7812c141fc7fd627a2405",
+   "claim": "Unresolved relationship keys produce source=relationships warning with dropped targets; exact class maps to existing BRN gap policy, not generic refusal."
+  },
+  {
+   "id": "X42",
+   "crate": "xberg",
+   "file": "extractors/pdf/extraction.rs",
+   "lines": "64-76",
+   "sha256": "62f571ac818b1bc3b4affe8c47b13fcc142892a81792b3d3bdfa7cde62c384a8",
+   "claim": "Native PDF encodes rich grid via existing internal native-table-grid attribute; bounded DOCX population seam candidate, no BRN package reread required."
   }
  ],
  "brn_anchors": [
@@ -395,7 +554,7 @@
    "file": "crates/brn-intake/src/helper.rs",
    "lines": "395-415",
    "sha256": "3de9a292ffe9cc24ece3c038d605d75a89fb8aba51cccca8002821789a9b6468",
-   "claim": "admit_package: zip entry count vs max_package_parts; ooxml_opc unzip with remaining max_expanded_bytes; returns the parts map."
+   "claim": "admit_package checks remaining part/actual expansion allowances then charges package_parts and expanded_bytes. Snapshot E/P before calling; post-admission remaining would double-charge."
   },
   {
    "id": "B03",
@@ -430,7 +589,7 @@
    "file": "crates/brn-intake/src/prepared.rs",
    "lines": "32-80,167-310",
    "sha256": "2f4befbe98c32c9dd3028a879e8a856d34c72f3339340838e77ec6e8cdd0c1d1",
-   "claim": "BlockContent, PreparedCell (address, spans), PreparedDocument::validate budgets."
+   "claim": "PreparedCell spans and table binding validation; 2048 rows/256 cells per row are PER TABLE, not document aggregate."
   },
   {
    "id": "B08",
@@ -472,7 +631,35 @@
    "file": "crates/brn-intake/Cargo.toml",
    "lines": "8-40",
    "sha256": "2235209c8acd8de345669b4c60775cb7063d17f277975db97728ace28124837e",
-   "claim": "helper feature, xberg row (features html), quick-xml 0.41.0 / zip 8.6.0 / betteroffice 0.3.0 rows."
+   "claim": "Current helper -> optional Xberg HTML only; no Office feature. Proposed nondefault office-differential=[helper,xberg/office] plus test required-features, no unconditional Xberg dev-dependency."
+  },
+  {
+   "id": "B14",
+   "file": "crates/brn-intake/src/bin/brn-intake-helper.rs",
+   "lines": "59-83,95-153",
+   "sha256": "7297061f1cfa3c635f4338db9c29a9af90fbb6a068f7326b3fa9c1a017ced44e",
+   "claim": "Existing JSON HelperRequest -> public helper::extract or --prepare -> helper::prepared::prepare. Native restrictions before input, CPU10/NOFILE64; O1 requires no production testing facade."
+  },
+  {
+   "id": "B15",
+   "file": ".github/workflows/ci.yml",
+   "lines": "74-76,91",
+   "sha256": "fe3282d8466cbed9203e0f12f997f1e24e2744b08707d589b73df8ff26fc07eb",
+   "claim": "Ordinary shipped/helper-test/workspace graphs must stay HTML-only; unconditional Office dev-dependency would unify tests. Explicit nondefault differential graph separately requalifies HTML."
+  },
+  {
+   "id": "B16",
+   "file": "crates/brn-intake/tests/maintained.rs",
+   "lines": "93-126",
+   "sha256": "06595f3a95e969db0b20e03fa0515ad8997011d01c308038506d07bd980a8e2c",
+   "claim": "Existing hostile tests call public helper::extract; prefix test asserts image join gap, not full text fidelity."
+  },
+  {
+   "id": "B17",
+   "file": "crates/brn-threads-intake/tests/fixtures/harbor-process.inventory.json",
+   "lines": "1-27",
+   "sha256": "cf048f03d70c13cec8b0679889fb7aa93ce1fc27d106fc206137ab53f6c19b52",
+   "claim": "Existing independent process inventory reused by both T1 and T3; richer ordered comparisons augment rather than treat keyword presence as fidelity."
   }
  ],
  "fixtures": [
@@ -507,8 +694,15 @@
    "parts": 20,
    "media_parts": 1,
    "embeddings": [],
-   "counts": {},
-   "has_comments_part": false
+   "counts": {
+    "paragraphs": 15,
+    "tables": 1,
+    "table_cells": 9,
+    "drawings": 2
+   },
+   "has_comments_part": false,
+   "count_scope": "word/document.xml only, expanded namespace identity; raw xw: prefix is not the identity",
+   "prediction": "Body loss predicted, header/footer w: text may remain; no extraction run."
   },
   {
    "path": "crates/brn-threads-intake/tests/fixtures/luna/footnotes.docx",
@@ -563,208 +757,141 @@
     "tables": 1,
     "hidden_slide": 1
    },
-   "has_comments_part": false
+   "has_comments_part": false,
+   "presentation_order": [
+    {
+     "rid": "rId7",
+     "part": "ppt/slides/slide9.xml",
+     "show": "0"
+    },
+    {
+     "rid": "rId8",
+     "part": "ppt/slides/slide2.xml"
+    }
+   ],
+   "xberg_prediction": "Numeric sort returns slide2 then slide9; hidden=None. Future O2 witness only, not executed red."
   }
  ],
- "office_feature_added_identities_upper_bound": {
-  "method": "Transitive closure of xberg's office-feature direct deps (cfb, flate2, roxmltree, zip, quick-xml, biblatex, biblib, org, dbase, typst-syntax, mathemascii, html-escape) over source1b/package-ledger.json normal_build_rows edges, minus (name,version) pairs already in the HTML-candidate root Cargo.lock.",
-  "caveats": [
-   "Over-approximation: ledger edges are the full union profile, not office alone.",
-   "Scratch resolution was seeded from X1, not the root lock; several entries (for example libc, smallvec, unicode-ident, either, itertools, uuid) may resolve to versions already locked.",
-   "Real count exists only after principal's offline cargo metadata on the exact manifest."
-  ],
-  "checksum_mismatches_against_ledger": 0,
-  "count": 33,
-  "packages": [
-   {
-    "name": "alemat",
-    "version": "0.8.0",
-    "checksum": "dd7e2d7078d450141ac25e1db3bb458e8646b68ac9fedc00fbb15a69425d44c5"
-   },
-   {
-    "name": "biblatex",
-    "version": "0.12.0",
-    "checksum": "591eba69b7c085632e22ca03606f0bbea68d53bbe26c8962e2d549af20c6a561"
-   },
-   {
-    "name": "biblib",
-    "version": "0.10.0",
-    "checksum": "87f05d76c710ca31d0b637840b041b2a4eb49cd535c031a0ada878471b9ccf13"
-   },
-   {
-    "name": "bufrw",
-    "version": "0.2.0",
-    "checksum": "394c22b416e3981206df472c3bcbbf9ae130883619aefc2199e6087517af1bba"
-   },
-   {
-    "name": "cfb",
-    "version": "0.15.0",
-    "checksum": "0f13298d9178622b7916ec5d01d470425c04273c8ed07e87b1c38b34c4f4612b"
-   },
-   {
-    "name": "compact_str",
-    "version": "0.10.0",
-    "checksum": "79fcda08c33bb58b97008b2cdada6622500e949e060f5913361763121abd2416"
-   },
-   {
-    "name": "dbase",
-    "version": "0.8.0",
-    "checksum": "abde818b4b82df61e01348c2b4610c221bcecb97cb7f567da086edf295d8d126"
-   },
-   {
-    "name": "deranged",
-    "version": "0.5.9",
-    "checksum": "9e9de72ce2ad1f90dc62fa25f0f430ef85eb4b0d8fa0be4f30373bc40a21d28e"
-   },
-   {
-    "name": "ecow",
-    "version": "0.2.6",
-    "checksum": "78e4f79b296fbaab6ce2e22d52cb4c7f010fe0ebe7a32e34fa25885fd797bd02"
-   },
-   {
-    "name": "either",
-    "version": "1.19.0",
-    "checksum": "0e9c71c2167ca323c882b99918929403426e2373ea17242ff5653e0d5e1058be"
-   },
-   {
-    "name": "equivalent",
-    "version": "1.0.3",
-    "checksum": "00d174d5400e5e8fd687ad1049e2f578285fa914201b1af7e8b112a4546bd826"
-   },
-   {
-    "name": "itertools",
-    "version": "0.15.0",
-    "checksum": "8b4baf93f58d4425749ca49a51c50ebab072c5df6994d08fed93541c331481dc"
-   },
-   {
-    "name": "libc",
-    "version": "0.2.190",
-    "checksum": "ce5d3ddc6d3fa000eb1536d85e147bfe31aacaba692ed6a876f95cb7c855be78"
-   },
-   {
-    "name": "mathemascii",
-    "version": "0.4.0",
-    "checksum": "5edd9e0cc9e4404ea4e2b9da76dc78c6193516ac3f9276c7151e7e2e87eae24f"
-   },
-   {
-    "name": "nix",
-    "version": "0.31.3",
-    "checksum": "cf20d2fde8ff38632c426f1165ed7436270b44f199fc55284c38276f9db47c3d"
-   },
-   {
-    "name": "org",
-    "version": "0.3.1",
-    "checksum": "cfdf547b633735ad9d67353aba48b3e685ab5ffb3195aaa9a1b1d8613e11b98c"
-   },
-   {
-    "name": "powerfmt",
-    "version": "0.2.1",
-    "checksum": "4a6394b9e965e73d0a289ee54f589087e2c676aedf60885baf52c76b771e4958"
-   },
-   {
-    "name": "quick-xml",
-    "version": "0.42.0",
-    "checksum": "41b1177fdf999d2321d3fb46ff47159d9c1fb9ad66a4879f8c50a0b504615e9b"
-   },
-   {
-    "name": "regex-lite",
-    "version": "0.1.9",
-    "checksum": "cab834c73d247e67f4fae452806d17d3c7501756d98c8808d7c9c7aa7d18f973"
-   },
-   {
-    "name": "roman-numerals-rs",
-    "version": "3.1.0",
-    "checksum": "c85cd47a33a4510b1424fe796498e174c6a9cf94e606460ef022a19f3e4ff85e"
-   },
-   {
-    "name": "smallvec",
-    "version": "1.16.3",
-    "checksum": "5b3dc8af474f516a851ff4bd12db780f948b9250ad37211e4eec0bccea54e01b"
-   },
-   {
-    "name": "strum",
-    "version": "0.27.2",
-    "checksum": "af23d6f6c1a224baef9d3f61e287d2761385a5b88fdab4eb4c6f11aeb54c4bcf"
-   },
-   {
-    "name": "strum_macros",
-    "version": "0.27.2",
-    "checksum": "7695ce3845ea4b33927c055a39dc438a45b059f7c1b3d91d38d10355fb8cbca7"
-   },
-   {
-    "name": "syn",
-    "version": "3.0.9",
-    "checksum": "d78c8dee4c7bf0e14673097256fed6142ce9d3b85a408189d07482442145823b"
-   },
-   {
-    "name": "thin-vec",
-    "version": "0.2.21",
-    "checksum": "d6a4b9ba8738cb4a4f399d37e266becfd475e75eb73425b87a05a2f2039ba63e"
-   },
-   {
-    "name": "typst-syntax",
-    "version": "0.15.1",
-    "checksum": "92a20d79df5d10c7fb0b4f7c18e4b2671edfc21e5ed9ad9894e18cccefd1c70f"
-   },
-   {
-    "name": "typst-timing",
-    "version": "0.15.1",
-    "checksum": "ab6ee5110f671a23164c61caa85dbc476043d503103dedd36f16d93f970f3f59"
-   },
-   {
-    "name": "typst-utils",
-    "version": "0.15.1",
-    "checksum": "b33ad1675497b45ae9d960a16e95207c35c2c46330d1a6249a9a977670c8c160"
-   },
-   {
-    "name": "unicode-ident",
-    "version": "1.0.27",
-    "checksum": "a2c754d6c33795a1c324727428e5a7dedb5b06195f9890bdbcba760d3e246563"
-   },
-   {
-    "name": "unicode-math-class",
-    "version": "0.1.0",
-    "checksum": "7d246cf599d5fae3c8d56e04b20eb519adb89a8af8d0b0fbcded369aa3647d65"
-   },
-   {
-    "name": "unscanny",
-    "version": "0.1.0",
-    "checksum": "e9df2af067a7953e9c3831320f35c1cc0600c30d44d9f7a12b01db1cd88d6b47"
-   },
-   {
-    "name": "uuid",
-    "version": "1.28.0",
-    "checksum": "7cc1186384beb7dd8eedea376413fd654937285ea6c9cfbb928dc3043ea4b606"
-   },
-   {
-    "name": "zip",
-    "version": "9.0.5",
-    "checksum": "6e04976da629d3b04204ba8105b396a193af8ad2583b2c79bfb3ab8af580a11e"
-   }
-  ]
- },
  "corrections_to_prior_docs": [
   {
    "doc": "source1b/api.md PPTX row",
-   "prior": "slide pages/hidden state",
-   "actual": "PageInfo.hidden is hard-coded None and source_path is None for PPTX images (extraction/pptx/mod.rs:302,351). Hidden state, part path and picture rId are not exposed."
+   "actual": "Public hidden/source_path fields exist but PPTX populates None; numeric filename sorting does not preserve presentation order (quay source witness)."
   },
   {
    "doc": "source1b/api.md DOCX row",
-   "prior": "images include source_path/rId lookup",
-   "actual": "The rId is used only to look up the relationship target; output carries the target path string, not the rId (extractors/docx.rs:1087-1177)."
+   "actual": "Target path, not rId emitted. Public image_index occurrence identity exists. No content byte ranges; all contract parity unproven."
   },
   {
    "doc": "source1b/resources.md ZIP9 row",
-   "prior": "fixed 100 MiB XML reads can truncate",
-   "actual": "DOCX refuses any member declared above 100 MiB before reading (parser.rs:2156-2195). PPTX has no such precheck, but with max_archive_size at the BRN ceiling no member can declare above it, so the 100 MiB take() is inert. Truncation needs a caller that leaves the 500 MiB default."
+   "actual": "100MiB takes inert if consistent central totals <=E<=16MiB and validators before each handle read. Does not close DOM/optional-drop/resource STOPs."
   }
  ],
  "unexecuted_limits": [
-  "No compile, test, resolution, metadata, RSS, CPU or latency measurement. HTML component tests were not rerun.",
-  "Field visibility of ExtractionConfig.security_limits / max_archive_depth / images / pages is read from source inside the crate and the public re-export at lib.rs:297; the first compile confirms it.",
-  "BetterOffice docx event budget is read as per-parse (xml.rs:144) and pptx as per-part with a chart pool (package.rs:602); the exact acceptance envelope the XML scan must not narrow is confirmed by boundary fixtures at coding time.",
-  "ZIP 9.0.5 behaviour is read, not run. The central-directory allocation precedes any caller count check.",
-  "No claim that DOM allocation is bounded by a hard memory limit; roxmltree has no node cap in the options Xberg passes."
- ]
+  "No Cargo/metadata/resolution/build/test/lint/formatter/extractor/helper/provider/network/GUI/RSS/CPU/latency measurement.",
+  "No actual differential/current-reader inventory parity; predictions remain predictions; no Office cutover, HTML acceptance or owner-choice conclusion.",
+  "SecurityLimits E/P mapping and finite values source-proposed only; actual pass count, ordinary warning mappings, declared/actual baseline and valid-input acceptance need O1.",
+  "Current reader may have existing bugs; O1 preserves assertions/reports without production edits. Compiler failure is not behavior-red evidence.",
+  "No hard heap bound: ZIP central directory before part gate, roxmltree without node cap, repeated parses/inflations multiply work.",
+  "O1 test feature changes only explicitly selected graph; union helper still current Office route. Real Xberg Office restricted qualification deferred.",
+  "Actual root graph/checksums/new enabled build-script/proc-macro/source closure principal-owned before compile.",
+  "PDF five-seam request advisory/unresolved, independent of Office. No memory rlimit claim."
+ ],
+ "correction_binding": {
+  "branch": "work/x2-office-prep-20261018",
+  "starting_commit": "adc841a274dc7f9029ce61f876259638c25d931c",
+  "starting_tree": "cfda69ae9d6ee827b9f5ca9ecdf49474f46579a1",
+  "local_remote_baseline": "origin/main 57c710ccec2b007c4d8a25c9f1d1b5c1c539907c (local ref only; no fetch)",
+  "review_report_sha256": "935bbe3c3bc1fe5e9bf9ec398305f77350d832794a1447eb445ecbe293e96c96",
+  "provider": "Codex resumed after actual Kiro monthly-limit failure 8deffe4f-72c0-4d41-9395-cd988a49d29c; no retry/probe"
+ },
+ "fixture_inventory_method": {
+  "oracle": "Hand-authored reviewed JSON from author inputs/known fixtures; existing harbor-process inventory reused; make-quay.py for O2 authored inputs. Never output from the replacement extractor.",
+  "crosscheck": "Read-only bounded existing ZIP XML parsed by expanded namespace identity; prefix counts and quay order confirmed during correction. XML cross-check is not the sole oracle.",
+  "qualified_absences": "Across the seven listed fixtures, namespace-aware scan found no Word ins/del, comments parts, vMerge/rowSpan or DOCX word/embeddings. Does not cover arbitrary files or prove parser behavior."
+ },
+ "office_feature_candidate_identities": {
+  "method": "Prior 33-identity rough over-approximation from source1b full-union ledger edges minus exact root identities. No resolution or acquisition repeated.",
+  "rough_candidate_count": 33,
+  "possible_compatible_movement_count": 9,
+  "other_candidate_identity_count": 24,
+  "actual_additions": "unknown until principal exact root resolution; nix may be absent",
+  "existing_movement_policy": "Preserve root versions where lower bounds satisfied. No move beyond six shared HTML moves without principal STOP. syn2.0.119 and syn3.0.6 distinguished; strum_macros syn2 requirement does not justify moving syn3.",
+  "checksums": "All listed checksums are prior ledger provenance, not an independent checksum comparison. Actual root additions/source activation must be audited before compile.",
+  "packages": [
+   {"name": "alemat", "version": "0.8.0", "checksum": "dd7e2d7078d450141ac25e1db3bb458e8646b68ac9fedc00fbb15a69425d44c5", "root_versions": [], "classification": "possible addition"},
+   {"name": "biblatex", "version": "0.12.0", "checksum": "591eba69b7c085632e22ca03606f0bbea68d53bbe26c8962e2d549af20c6a561", "root_versions": [], "classification": "possible addition"},
+   {"name": "biblib", "version": "0.10.0", "checksum": "87f05d76c710ca31d0b637840b041b2a4eb49cd535c031a0ada878471b9ccf13", "root_versions": [], "classification": "possible addition"},
+   {"name": "bufrw", "version": "0.2.0", "checksum": "394c22b416e3981206df472c3bcbbf9ae130883619aefc2199e6087517af1bba", "root_versions": [], "classification": "possible addition"},
+   {"name": "cfb", "version": "0.15.0", "checksum": "0f13298d9178622b7916ec5d01d470425c04273c8ed07e87b1c38b34c4f4612b", "root_versions": ["0.14.0"], "classification": "possible added identity beside locked version(s)"},
+   {"name": "compact_str", "version": "0.10.0", "checksum": "79fcda08c33bb58b97008b2cdada6622500e949e060f5913361763121abd2416", "root_versions": ["0.9.1"], "classification": "possible added identity beside locked version(s)"},
+   {"name": "dbase", "version": "0.8.0", "checksum": "abde818b4b82df61e01348c2b4610c221bcecb97cb7f567da086edf295d8d126", "root_versions": [], "classification": "possible addition"},
+   {"name": "deranged", "version": "0.5.9", "checksum": "9e9de72ce2ad1f90dc62fa25f0f430ef85eb4b0d8fa0be4f30373bc40a21d28e", "root_versions": ["0.5.8"], "classification": "possible existing compatible version movement; preserve locked version / STOP if moved"},
+   {"name": "ecow", "version": "0.2.6", "checksum": "78e4f79b296fbaab6ce2e22d52cb4c7f010fe0ebe7a32e34fa25885fd797bd02", "root_versions": [], "classification": "possible addition"},
+   {"name": "either", "version": "1.19.0", "checksum": "0e9c71c2167ca323c882b99918929403426e2373ea17242ff5653e0d5e1058be", "root_versions": ["1.18.0"], "classification": "possible existing compatible version movement; preserve locked version / STOP if moved"},
+   {"name": "equivalent", "version": "1.0.3", "checksum": "00d174d5400e5e8fd687ad1049e2f578285fa914201b1af7e8b112a4546bd826", "root_versions": ["1.0.2"], "classification": "possible existing compatible version movement; preserve locked version / STOP if moved"},
+   {"name": "itertools", "version": "0.15.0", "checksum": "8b4baf93f58d4425749ca49a51c50ebab072c5df6994d08fed93541c331481dc", "root_versions": ["0.11.0", "0.13.0", "0.14.0"], "classification": "possible added identity beside locked version(s)"},
+   {"name": "libc", "version": "0.2.190", "checksum": "ce5d3ddc6d3fa000eb1536d85e147bfe31aacaba692ed6a876f95cb7c855be78", "root_versions": ["0.2.189"], "classification": "possible existing compatible version movement; preserve locked version / STOP if moved"},
+   {"name": "mathemascii", "version": "0.4.0", "checksum": "5edd9e0cc9e4404ea4e2b9da76dc78c6193516ac3f9276c7151e7e2e87eae24f", "root_versions": [], "classification": "possible addition"},
+   {"name": "nix", "version": "0.31.3", "checksum": "cf20d2fde8ff38632c426f1165ed7436270b44f199fc55284c38276f9db47c3d", "root_versions": [], "classification": "possible over-approximation; not established reachable"},
+   {"name": "org", "version": "0.3.1", "checksum": "cfdf547b633735ad9d67353aba48b3e685ab5ffb3195aaa9a1b1d8613e11b98c", "root_versions": [], "classification": "possible addition"},
+   {"name": "powerfmt", "version": "0.2.1", "checksum": "4a6394b9e965e73d0a289ee54f589087e2c676aedf60885baf52c76b771e4958", "root_versions": ["0.2.0"], "classification": "possible existing compatible version movement; preserve locked version / STOP if moved"},
+   {"name": "quick-xml", "version": "0.42.0", "checksum": "41b1177fdf999d2321d3fb46ff47159d9c1fb9ad66a4879f8c50a0b504615e9b", "root_versions": ["0.41.0"], "classification": "possible added identity beside locked version(s)"},
+   {"name": "regex-lite", "version": "0.1.9", "checksum": "cab834c73d247e67f4fae452806d17d3c7501756d98c8808d7c9c7aa7d18f973", "root_versions": [], "classification": "possible addition"},
+   {"name": "roman-numerals-rs", "version": "3.1.0", "checksum": "c85cd47a33a4510b1424fe796498e174c6a9cf94e606460ef022a19f3e4ff85e", "root_versions": [], "classification": "possible addition"},
+   {"name": "smallvec", "version": "1.16.3", "checksum": "5b3dc8af474f516a851ff4bd12db780f948b9250ad37211e4eec0bccea54e01b", "root_versions": ["1.16.2"], "classification": "possible existing compatible version movement; preserve locked version / STOP if moved"},
+   {"name": "strum", "version": "0.27.2", "checksum": "af23d6f6c1a224baef9d3f61e287d2761385a5b88fdab4eb4c6f11aeb54c4bcf", "root_versions": ["0.28.0"], "classification": "possible added identity beside locked version(s)"},
+   {"name": "strum_macros", "version": "0.27.2", "checksum": "7695ce3845ea4b33927c055a39dc438a45b059f7c1b3d91d38d10355fb8cbca7", "root_versions": ["0.28.0"], "classification": "possible added identity beside locked version(s)"},
+   {"name": "syn", "version": "3.0.9", "checksum": "d78c8dee4c7bf0e14673097256fed6142ce9d3b85a408189d07482442145823b", "root_versions": ["2.0.119", "3.0.6"], "classification": "possible existing compatible version movement; preserve locked version / STOP if moved"},
+   {"name": "thin-vec", "version": "0.2.21", "checksum": "d6a4b9ba8738cb4a4f399d37e266becfd475e75eb73425b87a05a2f2039ba63e", "root_versions": [], "classification": "possible addition"},
+   {"name": "typst-syntax", "version": "0.15.1", "checksum": "92a20d79df5d10c7fb0b4f7c18e4b2671edfc21e5ed9ad9894e18cccefd1c70f", "root_versions": [], "classification": "possible addition"},
+   {"name": "typst-timing", "version": "0.15.1", "checksum": "ab6ee5110f671a23164c61caa85dbc476043d503103dedd36f16d93f970f3f59", "root_versions": [], "classification": "possible addition"},
+   {"name": "typst-utils", "version": "0.15.1", "checksum": "b33ad1675497b45ae9d960a16e95207c35c2c46330d1a6249a9a977670c8c160", "root_versions": [], "classification": "possible addition"},
+   {"name": "unicode-ident", "version": "1.0.27", "checksum": "a2c754d6c33795a1c324727428e5a7dedb5b06195f9890bdbcba760d3e246563", "root_versions": ["1.0.26"], "classification": "possible existing compatible version movement; preserve locked version / STOP if moved"},
+   {"name": "unicode-math-class", "version": "0.1.0", "checksum": "7d246cf599d5fae3c8d56e04b20eb519adb89a8af8d0b0fbcded369aa3647d65", "root_versions": [], "classification": "possible addition"},
+   {"name": "unscanny", "version": "0.1.0", "checksum": "e9df2af067a7953e9c3831320f35c1cc0600c30d44d9f7a12b01db1cd88d6b47", "root_versions": [], "classification": "possible addition"},
+   {"name": "uuid", "version": "1.28.0", "checksum": "7cc1186384beb7dd8eedea376413fd654937285ea6c9cfbb928dc3043ea4b606", "root_versions": ["1.26.1"], "classification": "possible existing compatible version movement; preserve locked version / STOP if moved"},
+   {"name": "zip", "version": "9.0.5", "checksum": "6e04976da629d3b04204ba8105b396a193af8ad2583b2c79bfb3ab8af580a11e", "root_versions": ["8.6.0"], "classification": "possible added identity beside locked version(s)"}
+  ]
+ },
+ "mapping_classes": {
+  "S1": "DOCX per-occurrence image_index + image_uri/source_path are public; content byte range absent. Caption/source locator parity unproven.",
+  "S2": "DOCX comment metadata genuinely dropped/absent; author parsed but not emitted; literal marker scanning cannot establish provenance.",
+  "S3": "Public GridCell spans already exist, DOCX current string-grid path does not populate; bounded native-grid patch candidate.",
+  "S4": "Inline note marker position exists but ambiguous across fn/en/literal text; per-paragraph association skips tables; NOTEREF unknown.",
+  "S5": "PPTX public hidden/source_path exist but None; numeric slide order wrong by source for quay; shape/comment positioning/inventory gaps remain.",
+  "S6": "Complete unrepresented inventory missing; sparse warnings insufficient.",
+  "S7": "Raw qualified-name matching predicts prefix body loss, not executed. Header/footer may survive."
+ },
+ "withdrawn_designs": [
+  "Metadata-only OoxmlEvidence facade bound by BetterOffice byte-equal text: requires full current reader and fails ordinary notes/comments/empty/joined/orphan stories; outside O1.",
+  "D-OFFICE false binary and recommendation to retain BetterOffice as all-document solution: withdrawn. No owner choice ready.",
+  "BRN renderer over Xberg semantic nodes is automatically a second reader: false; it does not reread package, needs principal exact allocation/review."
+ ],
+ "admission_candidate": {
+  "snapshot": "E/P pre-admit_package remaining expansion/parts, never after charged",
+  "limits": {
+   "max_archive_size": "E",
+   "max_files_in_archive": "P",
+   "max_compression_ratio": "E (zero compressed/empty positive tests)",
+   "max_content_size": "E, not rendered MAX_TEXT_BYTES",
+   "max_entity_length": "E",
+   "max_table_cells": "E conservative aggregate; verify passes",
+   "max_iterations": "checked E+P candidate only, count all loop passes/EOF/shared targets",
+   "max_xml_depth": 128,
+   "max_nesting_depth": 128
+  },
+  "t2": "Current public helper path only; SecurityLimits test-constructed. Test central declared==actual both size-lie directions; required/optional parts, zero compressed/nonzero declared, valid empty and descriptor-local-zero cases. No production admission edit in O1.",
+  "future_consistency_hunk": "Actual admitted non-directory length must equal central declaration; directory semantics boundary tested. Previous acceptance of malformed members measured, no valid-input non-narrowing claim.",
+  "read_set": "All Xberg-selected XML before String/DOM allocation: DOCX document/rels/numbering/comments/notes, relationship headers/footers AND conventional orphan headerN/footerN, styles/theme/docProps; O2 presentation/rels/slides/rels/notes/rels/comments/authors/charts/diagrams/metadata. Count bytes/parts/relationships/events/depth; no text reader.",
+  "warnings": "Map exact source/message class to existing BRN located gap/refusal. Ordinary missing bookmark/comment not generic refusal. Unknown class blocks promotion; optional silent drops need inventory evidence.",
+  "resource_stops": [
+   "scan coverage, pass count and valid-input envelope unproven",
+   "optional read errors silently dropped",
+   "central metadata before P gate, roxmltree no caller node cap",
+   "repeated inflation/input cloning multiplies work; no heap/RSS proof",
+   "real restricted Office backend unqualified",
+   "O2 OMML with_defaults potential narrowing"
+  ],
+  "test_feature": "office-differential=[helper,xberg/office], required-features on office_differential integration test; no unconditional Office dev-dependency, no production backend switch"
+ }
 }

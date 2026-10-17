@@ -1,0 +1,92 @@
+{
+  "scope": "Static source-only checks; not build/test/runtime verification or independent approval.",
+  "binding": {
+    "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161",
+    "branch": "work/x2-office-prep-20261018",
+    "starting_head": "adc841a274dc7f9029ce61f876259638c25d931c",
+    "starting_tree": "cfda69ae9d6ee827b9f5ca9ecdf49474f46579a1",
+    "local_origin_main": "57c710ccec2b007c4d8a25c9f1d1b5c1c539907c",
+    "no_fetch": true
+  },
+  "full_instruction_inputs_read": [
+    {
+      "path": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/x2-office-kiro-preparation-20261018-prompt.md",
+      "sha256": "4e7692814b8f84a3d51b451ba7ccbe7198dd1461f73943a3e1000ce671482155"
+    },
+    {
+      "path": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/x2-office-kiro-opus1-corrections-allocation-20261018.md",
+      "sha256": "9f958b4ca2d143c4dfb3f83e731439a6171fd7d9189ed59680ec33a1c1acfd80"
+    },
+    {
+      "path": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/x2-office-kiro-plan-review-round1.md",
+      "sha256": "935bbe3c3bc1fe5e9bf9ec398305f77350d832794a1447eb445ecbe293e96c96"
+    }
+  ],
+  "checks": {
+    "source_map_json": "parsed",
+    "source_anchor_hashes": {
+      "checked": 72,
+      "mismatches": 0
+    },
+    "fixture_hashes": {
+      "checked": 7,
+      "mismatches": 0
+    },
+    "full_verbatim_review": {
+      "equal_to_external_report": true,
+      "sha256": "935bbe3c3bc1fe5e9bf9ec398305f77350d832794a1447eb445ecbe293e96c96"
+    },
+    "all_nine_response_rows": true,
+    "candidate_ledger": {
+      "rough_identities": 33,
+      "possible_compatible_movements": 9,
+      "actual_resolution": "unexecuted",
+      "checksum_independence": "ledger references only; no independent package audit repeated"
+    },
+    "markdown_links": {
+      "files": 363,
+      "local_links": 1645,
+      "failures": 0,
+      "command": "python3 scripts/check-markdown-links.py"
+    },
+    "git_diff_check": "pass",
+    "outside_allocated_paths_changed": [],
+    "root_Cargo_lock_unchanged_sha256": "8b7a8ac078e5334119c4a497df362d111b644c164a01fc6f15a9645ce73db8dc",
+    "existing_test_attributes_static_only": {
+      "maintained": 17,
+      "pptx": 12,
+      "restricted_helper": 6,
+      "qualification": 11
+    },
+    "prefix_document_expanded_namespace_counts": {
+      "p": 15,
+      "tbl": 1,
+      "tc": 9,
+      "drawing": 2
+    },
+    "quay_xml_crosscheck": "sldIdLst rId7 slide9(show=0), rId8 slide2; source numeric-sort/hidden=None prediction, no extractor execution",
+    "fixture_absence_crosscheck": "Seven listed ZIPs only, namespace-aware: no Word ins/del, comments parts, vMerge/rowSpan or DOCX embeddings."
+  },
+  "artifact_hashes_excluding_this_receipt": {
+    "docs/work/active/modular-foundation/x2/office1/handoff.md": "604c4c958e0c9705584ecfc08d4bc212cf069a7e69ff0090b8665eef06ba4b7c",
+    "docs/work/active/modular-foundation/x2/office1/implementation-slice.md": "7a7b7b797538ada41410979e681d4b80ac17864585340f4ae55bac22469ba5a2",
+    "docs/work/active/modular-foundation/x2/office1/opus1/handoff.md": "842e5f6540b5d5adf0fad0862a8169a4e676b04f4d529bddfe2f0a997ffd4c24",
+    "docs/work/active/modular-foundation/x2/office1/opus1/opus-review-round1.md": "935bbe3c3bc1fe5e9bf9ec398305f77350d832794a1447eb445ecbe293e96c96",
+    "docs/work/active/modular-foundation/x2/office1/opus1/response.md": "602080fae37ce0b482a684f6f8ad1d9cc193b6c8ba60eeab61124c484f180bee",
+    "docs/work/active/modular-foundation/x2/office1/source-map.json": "f14cbf3d17c1242c88bf91804f9df9307caca963d89c3ccb52e79db3490b3bff"
+  },
+  "initial_link_check": "Two missing checks.json links while this receipt had not yet been authored; final whole-repository link check passed after receipt creation.",
+  "not_executed": [
+    "Cargo",
+    "metadata/resolution",
+    "build/test/lint/formatter",
+    "extractor/helper",
+    "Store/CLI/Auth/provider/network/download/GUI",
+    "mutants",
+    "slot polling",
+    "delegation"
+  ],
+  "unresolved": "O1 current-reader/differential and exact root graph; scan/pass/valid-input envelope, declared/actual and warning policies, roxmltree/resource/restricted Office qualification, S1-S7 full parity and later host/retirement gates. PDF advisory unresolved. HTML not assumed accepted.",
+  "release": "All seven allocated docs paths released; no heavy held; no build/helper/worker child started. Final commit/tree are Git outputs at delivery, not self-hashed here.",
+  "transient_authoring_errors": "First receipt-hash refresh used relative path against absolute root and raised ValueError after the doc edit; corrected to absolute paths and revalidated all receipt hashes. No source/build/test operation involved."
+}
