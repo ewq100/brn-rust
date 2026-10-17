@@ -1,0 +1,15 @@
+{
+  "task": "int-d-capture-runner-20261017",
+  "base": "f0c2ae65b432fc87f45fa8618035106ddad3b239",
+  "crates": "f6666cb952afde600ffc5bfa9ca463a78476afc7",
+  "branch": "work/int-d-20261017",
+  "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+  "provider": "codex",
+  "model": "gpt-6.1-sol",
+  "effort": "high",
+  "initial_heavy_inventory": [],
+  "old_binary_and_dep_info_preserved": "/private/tmp/brn-int-d-capture-runner-20261017-evidence/prior-passing-artifact",
+  "scratch": "/private/tmp/brn-int-d-capture-runner-20261017-evidence",
+  "live_starts_authorized": 0,
+  "timestamp": 1792249225.1403499
+}

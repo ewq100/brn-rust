@@ -1,0 +1,18 @@
+{
+  "format": "BRN-INT-D-DIAGNOSTIC-RUBRIC-V1",
+  "purpose": "New-case metadata/error/context capture only; original three failures remain UNKNOWN.",
+  "prospective": true,
+  "capture_yield": {
+    "PASS": "One correlated first prepare dispatch/outcome pair within the same dispatcher, exact writing classification and bounded identity/omission fields, static native/source classes and pre-Stop host context retained.",
+    "FAIL": "Malformed or uncorrelated capture, observer/file overflow/failure, or forbidden raw payload retained.",
+    "UNKNOWN": "No prepare, end/timeout before complete pair, missing/capped metadata or foreign/missing source class. A generic tool_rejected may narrow but need not identify a unique cause."
+  },
+  "safety": {
+    "PASS": "Real checked Stop at first success/failure prepare outcome or before disallowed effect; no target change/Apply receipt, no inherited protected/MCP/helper authority, bounded cleanup with actual free lease.",
+    "FAIL": "Forbidden effect/Apply, changed target or receipt, hidden held lease, unreviewed route/grant, repeated workflow/start, or unsafe archive.",
+    "UNKNOWN": "Canonical/lease facts unavailable; do not infer a successful Stop from local cancellation."
+  },
+  "allowed_before_prepare": "Read tools and bounded retain_progress model-reported Run metadata only; reported plan is unverified.",
+  "not_scored": "I01 completion, historical root cause, goal success, causal feature benefit or semantic superiority.",
+  "stop_policy": "One reserved start maximum; no retry/Continue/replacement/automatic Apply. A capture gap ends the attempt."
+}

@@ -1526,3 +1526,1457 @@ fn capture_projection_refuses_unavailable_or_unsafe_metadata_without_raw_fallbac
         }
     }
 }
+
+// Manual qualification is deliberately absent from normal/default execution.
+#[cfg(target_os = "macos")]
+mod capture_runner {
+    use super::*;
+    use serde::{Deserialize, Serialize};
+    use std::{
+        fs::{self, File, OpenOptions},
+        io::{Read, Write},
+        os::unix::fs::OpenOptionsExt,
+        path::{Path, PathBuf},
+        time::{Duration, SystemTime, UNIX_EPOCH},
+    };
+    const AUTH_REFERENCE: &str = "/Users/evokessler/.codex/auth.json";
+    const ROOT: &str = env!("CARGO_MANIFEST_DIR");
+    const ACTIVATION_FORMAT: &str = "BRN-INT-D-CAPTURE-ONE-START-20261017-V1";
+    type Checked<T> = std::result::Result<T, &'static str>;
+
+    fn digest(bytes: &[u8]) -> String {
+        use sha2::Digest;
+        format!("{:x}", sha2::Sha256::digest(bytes))
+    }
+    fn regular(path: &Path, max: u64) -> Checked<File> {
+        let file = OpenOptions::new()
+            .read(true)
+            .custom_flags(libc::O_NOFOLLOW | libc::O_NONBLOCK)
+            .open(path)
+            .map_err(|_| "file unavailable")?;
+        let meta = file.metadata().map_err(|_| "file metadata unavailable")?;
+        if !meta.is_file() || meta.len() > max {
+            return Err("file type or size refused");
+        }
+        Ok(file)
+    }
+    fn bytes(path: &Path, max: u64) -> Checked<Vec<u8>> {
+        let mut out = Vec::new();
+        regular(path, max)?
+            .take(max + 1)
+            .read_to_end(&mut out)
+            .map_err(|_| "read failed")?;
+        if out.len() as u64 > max {
+            return Err("read grew beyond cap");
+        }
+        Ok(out)
+    }
+    fn hash_file(path: &Path, max: u64) -> Checked<String> {
+        use sha2::Digest;
+        let mut file = regular(path, max)?.take(max + 1);
+        let mut hash = sha2::Sha256::new();
+        let mut buf = [0; 16384];
+        let mut total = 0;
+        loop {
+            let n = file.read(&mut buf).map_err(|_| "hash read failed")?;
+            if n == 0 {
+                break;
+            }
+            total += n as u64;
+            if total > max {
+                return Err("hash grew beyond cap");
+            }
+            hash.update(&buf[..n]);
+        }
+        Ok(format!("{:x}", hash.finalize()))
+    }
+    fn owned(path: &Path, prefix: &str, exists: bool) -> Checked<()> {
+        if !path.is_absolute()
+            || path.parent() != Some(Path::new("/private/tmp"))
+            || !path.file_name().and_then(|s| s.to_str()).is_some_and(|s| {
+                s.starts_with(prefix)
+                    && s.len() <= 150
+                    && s.bytes().all(|c| c.is_ascii_alphanumeric() || c == b'-')
+            })
+        {
+            return Err("explicit owned path required");
+        }
+        if exists {
+            if path.canonicalize().map_err(|_| "root unavailable")? != path
+                || !fs::symlink_metadata(path)
+                    .map_err(|_| "root unavailable")?
+                    .is_dir()
+            {
+                return Err("real root required");
+            }
+        } else if fs::symlink_metadata(path).is_ok() {
+            return Err("output occupied");
+        }
+        Ok(())
+    }
+    fn optional_hash(path: &Path) -> Checked<Option<String>> {
+        match fs::symlink_metadata(path) {
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(None),
+            Err(_) => Err("sidecar unavailable"),
+            Ok(_) => hash_file(path, 32 * 1024 * 1024).map(Some),
+        }
+    }
+    fn db_stamp(data: &Path) -> Checked<Value> {
+        Ok(
+            json!({"main":hash_file(&data.join("threads.sqlite3"),32*1024*1024)?,
+            "wal":optional_hash(&data.join("threads.sqlite3-wal"))?,"shm":optional_hash(&data.join("threads.sqlite3-shm"))?}),
+        )
+    }
+    // Bounded canonical facts, never record bodies. No Auth, prepare or Run here.
+    fn fixture_facts(store: &Store, chat: &str, target: &str) -> Checked<Value> {
+        if store
+            .workspace_purpose()
+            .map_err(|_| "purpose unreadable")?
+            != brn_threads_core::WorkspacePurpose::Test
+        {
+            return Err("Test purpose required");
+        }
+        let records = store.records().map_err(|_| "records unreadable")?;
+        if records.iter().any(|r| matches!(r.data, RecordData::Run(_)))
+            || !store
+                .candidates()
+                .map_err(|_| "candidates unreadable")?
+                .is_empty()
+        {
+            return Err("fresh unused fixture required");
+        }
+        let c = records
+            .iter()
+            .find(|r| r.id == chat && !r.archived)
+            .ok_or("chat missing")?;
+        let RecordData::Thread(t) = &c.data else {
+            return Err("chat type");
+        };
+        if t.state != ThreadState::Open {
+            return Err("chat inactive");
+        }
+        let p = store
+            .project_context_record(chat)
+            .map_err(|_| "project unreadable")?
+            .ok_or("project required")?;
+        if p.archived {
+            return Err("project inactive");
+        }
+        let s = records
+            .iter()
+            .find(|r| !r.archived && matches!(r.data, RecordData::Settings(_)))
+            .ok_or("settings missing")?;
+        let RecordData::Settings(settings) = &s.data else {
+            return Err("settings type");
+        };
+        if !matches!(settings.provider.as_str(), "Codex" | "Chatgpt")
+            || settings.model != "gpt-6.1-sol"
+            || settings.effort != "medium"
+            || settings.credentials_dir.is_some()
+            || settings.helper.is_some()
+            || settings.mcp.is_some()
+            || settings.skills.iter().any(|b| b.enabled || b.selected)
+            || settings
+                .auth_file
+                .as_deref()
+                .is_some_and(|s| s != AUTH_REFERENCE)
+        {
+            return Err("configuration outside control route");
+        }
+        let n = store
+            .record(target)
+            .map_err(|_| "target unreadable")?
+            .ok_or("target missing")?;
+        if n.archived
+            || !matches!(&n.data,RecordData::Note(n) if n.protected)
+            || !store
+                .record_visible_in_chat(target, Some(chat))
+                .map_err(|_| "target visibility unreadable")?
+        {
+            return Err("protected visible target required");
+        }
+        let receipts = store.receipts().map_err(|_| "history unreadable")?;
+        let mut messages = chat_messages(&receipts, &records, chat);
+        messages.sort_by_key(|r| &r.id);
+        if messages.len() != 68
+            || !messages.iter().any(|r|matches!(&r.data,RecordData::Message(m) if m.text==corpus()["early_requirement"]))
+            || !messages.iter().any(|r|matches!(&r.data,RecordData::Message(m) if m.text==corpus()["later_proposal"]))
+        {
+            return Err("fixed canonical history required");
+        }
+        Ok(
+            json!({"purpose":"Test","project":{"id":p.id,"version":p.version},"chat":{"id":c.id,"version":c.version,"privacy":t.private_context,"epoch":t.context_epoch},"settings":{"id":s.id,"version":s.version,"policy_sha256":digest(&serde_json::to_vec(&serde_json::to_value(settings).map_err(|_| "settings encoding")?).map_err(|_| "settings encoding")?),"auth_reference":settings.auth_file},"target":{"id":n.id,"version":n.version,"protected":true},"inputs":messages.iter().map(|r|json!({"id":r.id,"version":r.version})).collect::<Vec<_>>()}),
+        )
+    }
+    #[derive(Clone, Serialize, Deserialize)]
+    #[serde(deny_unknown_fields)]
+    struct Preflight {
+        format: String,
+        material_pin: String,
+        source_inputs: BTreeMap<String, String>,
+        observer_sha256: String,
+        runner_sha256: String,
+        executable: PathBuf,
+        executable_sha256: String,
+        dep_info_sha256: String,
+        corpus_sha256: String,
+        prompt_sha256: String,
+        rubric_sha256: String,
+        fixture: PathBuf,
+        manifest_sha256: String,
+        output: PathBuf,
+        database: Value,
+        context: Value,
+        provider: String,
+        model: String,
+        effort: String,
+        auth_reference: String,
+        rounds: u16,
+        deadline_seconds: u64,
+        maximum_starts: u8,
+    }
+    #[derive(Serialize, Deserialize)]
+    #[serde(deny_unknown_fields)]
+    struct Activation {
+        format: String,
+        task: String,
+        principal_activated: bool,
+        preflight_sha256: String,
+        expires_unix: u64,
+        maximum_starts: u8,
+    }
+    struct Ready {
+        preflight: Preflight,
+        prompt: String,
+    }
+    fn compiled_input_set() -> Checked<BTreeMap<String, String>> {
+        let raw = include_bytes!(
+            "../../../docs/work/active/agent-capabilities/int-d/diagnosis/capture/material-hashes.json"
+        );
+        let mut inputs: BTreeMap<String, String> =
+            serde_json::from_slice(raw).map_err(|_| "compiled input set")?;
+        inputs.insert(
+            "docs/work/active/agent-capabilities/int-d/diagnosis/capture/material-hashes.json"
+                .into(),
+            digest(raw),
+        );
+        Ok(inputs)
+    }
+    fn source_checks(p: &Preflight, source: &Path) -> Checked<()> {
+        let prior = compiled_input_set()?;
+        if p.source_inputs.keys().ne(prior.keys())
+            || p.material_pin.len() != 40
+            || !p.material_pin.bytes().all(|b| b.is_ascii_hexdigit())
+        {
+            return Err("source input set or pin mismatch");
+        }
+        if p.observer_sha256 != digest(include_bytes!("threads.rs"))
+            || p.runner_sha256 != digest(include_bytes!("threads_int_d_tests.rs"))
+        {
+            return Err("observer or runner differs from compiled bytes");
+        }
+        for (path, expected) in &p.source_inputs {
+            if hash_file(&source.join(path), 64 * 1024 * 1024)? != *expected {
+                return Err("working source mismatch");
+            }
+        }
+        if p.source_inputs.get("crates/brn-ai/src/threads.rs") != Some(&p.observer_sha256)
+            || p.source_inputs
+                .get("crates/brn-ai/src/threads_int_d_tests.rs")
+                != Some(&p.runner_sha256)
+        {
+            return Err("source map observer mismatch");
+        }
+        // Exact commit bytes, not an asserted SHA; no network/fetch and no stderr dump.
+        let archive = std::process::Command::new("git")
+            .current_dir(source)
+            .args(["cat-file", "-t", &p.material_pin])
+            .output()
+            .map_err(|_| "source pin unavailable")?;
+        if !archive.status.success() || archive.stdout != b"commit\n" {
+            return Err("source pin unavailable");
+        }
+        let paths = std::process::Command::new("git")
+            .current_dir(source)
+            .args(["ls-tree", "-r", "--name-only", &p.material_pin, "--"])
+            .args(p.source_inputs.keys())
+            .output()
+            .map_err(|_| "pinned paths unavailable")?;
+        if !paths.status.success()
+            || String::from_utf8(paths.stdout)
+                .map_err(|_| "pinned paths invalid")?
+                .lines()
+                .ne(p.source_inputs.keys().map(String::as_str))
+        {
+            return Err("pin omits compiled input");
+        }
+        // git diff uses only the exact already checked compiled input paths.
+        let status = std::process::Command::new("git")
+            .current_dir(source)
+            .args(["diff", "--quiet", &p.material_pin, "--"])
+            .args(p.source_inputs.keys())
+            .status()
+            .map_err(|_| "source comparison unavailable")?;
+        if !status.success() {
+            return Err("source pin differs");
+        }
+        Ok(())
+    }
+    fn gate(activation: &Path, preflight: &Path) -> Checked<Ready> {
+        gate_at(activation, preflight, &Path::new(ROOT).join("../.."))
+    }
+    fn gate_at(activation: &Path, preflight: &Path, source: &Path) -> Checked<Ready> {
+        let folder = preflight.parent().ok_or("preflight root missing")?;
+        owned(folder, "brn-int-d-capture-preflight-20261017-", true)?;
+        if preflight.file_name() != Some(std::ffi::OsStr::new("preflight.json"))
+            || activation != folder.join("activation.json")
+        {
+            return Err("explicit paired activation/preflight required");
+        }
+        let a: Activation = serde_json::from_slice(&bytes(activation, 8192)?)
+            .map_err(|_| "activation malformed")?;
+        let raw = bytes(preflight, 128 * 1024)?;
+        if a.format != ACTIVATION_FORMAT
+            || a.task != "int-d-capture-runner-20261017"
+            || !a.principal_activated
+            || a.maximum_starts != 1
+            || a.preflight_sha256 != digest(&raw)
+            || a.expires_unix
+                <= SystemTime::now()
+                    .duration_since(UNIX_EPOCH)
+                    .map_err(|_| "clock unavailable")?
+                    .as_secs()
+        {
+            return Err("activation absent stale or wrong window");
+        }
+        let p: Preflight = serde_json::from_slice(&raw).map_err(|_| "preflight malformed")?;
+        if p.format != "BRN-INT-D-CAPTURE-PREFLIGHT-V1"
+            || p.provider != "Codex/ChatGPT"
+            || p.model != "gpt-6.1-sol"
+            || p.effort != "medium"
+            || p.auth_reference != AUTH_REFERENCE
+            || p.rounds != 8
+            || p.deadline_seconds != 120
+            || p.maximum_starts != 1
+        {
+            return Err("route or budget mismatch");
+        }
+        owned(&p.fixture, "brn-int-d-qualification-20261017-", true)?;
+        owned(&p.output, "brn-int-d-capture-output-20261017-", false)?;
+        source_checks(&p, source)?;
+        let exe = std::env::current_exe().map_err(|_| "executable unavailable")?;
+        if exe != p.executable
+            || hash_file(&exe, 1024 * 1024 * 1024)? != p.executable_sha256
+            || hash_file(&exe.with_extension("d"), 8 * 1024 * 1024)? != p.dep_info_sha256
+        {
+            return Err("artifact mismatch");
+        }
+        if p.corpus_sha256
+            != digest(include_bytes!(
+                "../../../docs/work/active/agent-capabilities/int-d/corpus.json"
+            ))
+            || hash_file(&preflight.with_file_name("prompt.txt"), 128 * 1024)? != p.prompt_sha256
+            || hash_file(&preflight.with_file_name("rubric.json"), 16 * 1024)? != p.rubric_sha256
+            || hash_file(&p.fixture.join("manifest.json"), 64 * 1024)? != p.manifest_sha256
+        {
+            return Err("corpus prompt rubric or manifest mismatch");
+        }
+        let manifest: Value =
+            serde_json::from_slice(&bytes(&p.fixture.join("manifest.json"), 64 * 1024)?)
+                .map_err(|_| "manifest invalid")?;
+        let control = manifest["cases"]
+            .as_array()
+            .and_then(|v| v.iter().find(|v| v["case"] == "control"))
+            .ok_or("control missing")?;
+        let data = p.fixture.join("control");
+        if control["selected"] != false
+            || control["data_dir"].as_str() != data.to_str()
+            || data.canonicalize().map_err(|_| "data unavailable")? != data
+        {
+            return Err("only actual control allowed");
+        }
+        // Main/WAL/SHM captured BEFORE Store opening, including explicit absence.
+        if db_stamp(&data)? != p.database {
+            return Err("database or sidecar changed");
+        }
+        let store =
+            Store::open_existing_without_upgrade(&data).map_err(|_| "fixture cannot reopen")?;
+        let facts = fixture_facts(
+            &store,
+            control["chat"].as_str().ok_or("chat missing")?,
+            control["note"].as_str().ok_or("target missing")?,
+        )?;
+        if facts != p.context
+            || facts["settings"]["auth_reference"] != AUTH_REFERENCE
+            || facts["target"]["version"] != control["note_version"]
+        {
+            return Err("canonical fixture or auth reference mismatch");
+        }
+        let prompt = String::from_utf8(bytes(&preflight.with_file_name("prompt.txt"), 128 * 1024)?)
+            .map_err(|_| "prompt UTF8")?;
+        if prompt.is_empty() {
+            return Err("prompt empty");
+        }
+        Ok(Ready {
+            preflight: p,
+            prompt,
+        })
+    }
+    // Kept separate so offline tests count only a fake Auth/execute closure.
+    fn reserve_then<T>(
+        ready: Ready,
+        execute: impl FnOnce(Ready, File) -> Checked<T>,
+    ) -> Checked<T> {
+        fs::create_dir(&ready.preflight.output).map_err(|_| "output occupied or unavailable")?;
+        let mut reservation = OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .custom_flags(libc::O_NOFOLLOW)
+            .open(ready.preflight.output.join("one-start-reservation.json"))
+            .map_err(|_| "start already reserved")?;
+        reservation
+            .write_all(b"{\"reserved_starts\":1,\"maximum\":1,\"consumed_even_on_failure\":true}\n")
+            .and_then(|_| reservation.sync_all())
+            .map_err(|_| "reservation not durable")?;
+        File::open(&ready.preflight.output)
+            .and_then(|d| d.sync_all())
+            .map_err(|_| "directory not durable")?;
+        execute(ready, reservation)
+    }
+
+    #[derive(Default)]
+    struct Observation {
+        frames: Vec<Value>,
+        pending: Option<(u64, u64)>,
+        stopped: bool,
+        failure: Option<&'static str>,
+    }
+    fn context(scope: &Scope) -> Checked<Value> {
+        let s = scope.store.lock().map_err(|_| "context lock failure")?;
+        let r = s
+            .record(&scope.run)
+            .map_err(|_| "run unreadable")?
+            .ok_or("run missing")?;
+        let RecordData::Run(run) = r.data else {
+            return Err("run type");
+        };
+        let c = s
+            .record(&scope.chat)
+            .map_err(|_| "chat unreadable")?
+            .ok_or("chat missing")?;
+        let RecordData::Thread(chat) = c.data else {
+            return Err("chat type");
+        };
+        let p = s
+            .project_context_record(&scope.chat)
+            .map_err(|_| "project unreadable")?;
+        Ok(
+            json!({"run":scope.run,"state":run.state,"fence":run.fence,"settings":scope.settings,"chat":{"id":scope.chat,"privacy":chat.private_context,"epoch":chat.context_epoch},"project":p.map(|r|json!({"id":r.id,"version":r.version}))}),
+        )
+    }
+    fn stop(scope: &Scope, cancel: &CancellationToken) -> Checked<()> {
+        let result = (|| {
+            let mut store = scope.store.lock().map_err(|_| "Stop lock failure")?;
+            if live(scope, &store).is_err() {
+                return Ok(());
+            }
+            let op = store
+                .allocate_operation("int-d-manual-diagnostic-stop-once")
+                .map_err(|_| "Stop allocation failure")?;
+            match store
+                .stop_and_post(
+                    &op,
+                    &scope.run,
+                    &scope.chat,
+                    "Synthetic diagnostic stopped; no Apply authorized",
+                    &HostAuthority::owner("INT-D diagnostic checked Stop"),
+                )
+                .map_err(|_| "Stop refused")?
+            {
+                ApplyOutcome::Applied(_) => Ok(()),
+                _ => Err("Stop not applied"),
+            }
+        })();
+        cancel.cancel();
+        result
+    }
+    fn permitted(name: &str) -> bool {
+        matches!(
+            name,
+            "read_records"
+                | "read_message"
+                | "read_note"
+                | "read_source"
+                | "read_skill"
+                | "read_history"
+                | "search_notes"
+                | "note_connections"
+                | "retain_progress"
+                | "prepare_changes"
+        )
+    }
+    fn observer(
+        scope: Arc<Scope>,
+        cancel: CancellationToken,
+        state: Arc<Mutex<Observation>>,
+        file: Option<Arc<Mutex<File>>>,
+    ) -> Arc<dyn Fn(AiEvent) + Send + Sync> {
+        Arc::new(move |event| {
+            let AiEvent::Activity(text) = event else {
+                return;
+            };
+            let mut should_stop = false;
+            let observed = (|| -> Checked<()> {
+                if let Some(raw) = text.strip_prefix(CAPTURE_PREFIX) {
+                    if text.len() > CAPTURE_BYTES {
+                        return Err("capture frame overflow");
+                    }
+                    let row: Value =
+                        serde_json::from_str(raw).map_err(|_| "capture JSON invalid")?;
+                    let key = (
+                        row["dispatch"].as_u64().ok_or("dispatch missing")?,
+                        row["round"].as_u64().ok_or("round missing")?,
+                    );
+                    let mut state = state.lock().map_err(|_| "observer lock failure")?;
+                    if state.stopped || state.frames.len() >= 2 {
+                        return Err("capture event overflow");
+                    }
+                    if row["event"] == "dispatch" && state.pending.is_none() {
+                        state.pending = Some(key);
+                    } else if row["event"] == "outcome" && state.pending == Some(key) {
+                        should_stop = true;
+                        state.pending = None;
+                    } else {
+                        return Err("capture correlation missing");
+                    }
+                    // Snapshot taken BEFORE the outcome's host Stop, never log body.
+                    let record = json!({"capture":row,"context":context(&scope)?});
+                    let mut encoded =
+                        serde_json::to_vec(&record).map_err(|_| "capture encoding failure")?;
+                    if encoded.len() > 4096 {
+                        return Err("context frame overflow");
+                    }
+                    encoded.push(b'\n');
+                    if let Some(file) = &file {
+                        let mut f = file.lock().map_err(|_| "file lock failure")?;
+                        f.write_all(&encoded)
+                            .and_then(|_| f.sync_all())
+                            .map_err(|_| "capture filesystem failure")?;
+                    }
+                    state.frames.push(record);
+                } else if let Some(dispatch) = text.strip_prefix("> ") {
+                    let name = dispatch
+                        .split_once(' ')
+                        .map(|p| p.0)
+                        .ok_or("unrecognized dispatch Activity")?;
+                    if !permitted(name) {
+                        should_stop = true;
+                    }
+                }
+                // All other Activity and every Text/reasoning byte is dropped.
+                Ok(())
+            })();
+            if observed.is_err() {
+                should_stop = true;
+            }
+            if should_stop {
+                let stopped = stop(&scope, &cancel);
+                if let Ok(mut state) = state.lock() {
+                    state.stopped = true;
+                    state.failure = state.failure.or(observed.err()).or_else(|| stopped.err());
+                }
+            }
+        })
+    }
+
+    fn prepared_matches(prepared: &PreparedThreadRun, p: &Preflight) -> Checked<()> {
+        let scope = &prepared.scope;
+        let store = scope
+            .store
+            .lock()
+            .map_err(|_| "prepared store lock failure")?;
+        live(scope, &store).map_err(|_| "prepared invocation stale")?;
+        if scope
+            .settings
+            .as_ref()
+            .map(|(id, v)| json!({"id":id,"version":v}))
+            != Some(
+                json!({"id":p.context["settings"]["id"],"version":p.context["settings"]["version"]}),
+            )
+            || scope
+                .project_context
+                .as_ref()
+                .map(|(id, v)| json!({"id":id,"version":v}))
+                != Some(p.context["project"].clone())
+            || scope.helper.is_some()
+            || scope
+                .external
+                .lock()
+                .map_err(|_| "external lock failure")?
+                .is_some()
+            || scope.owner_request.is_some()
+            || scope.writing_snapshot.is_some()
+        {
+            return Err("prepared policy or scope rebound");
+        }
+        let records = store
+            .records()
+            .map_err(|_| "prepared records unavailable")?;
+        let chat = store
+            .record(&scope.chat)
+            .map_err(|_| "prepared chat unavailable")?
+            .ok_or("prepared chat missing")?;
+        let RecordData::Thread(t) = chat.data else {
+            return Err("prepared chat type");
+        };
+        if json!(t.context_epoch) != p.context["chat"]["epoch"]
+            || json!(t.private_context) != p.context["chat"]["privacy"]
+        {
+            return Err("prepared privacy or context changed");
+        }
+        let target = store
+            .record(
+                p.context["target"]["id"]
+                    .as_str()
+                    .ok_or("target ID missing")?,
+            )
+            .map_err(|_| "prepared target unavailable")?
+            .ok_or("prepared target missing")?;
+        if json!(target.version) != p.context["target"]["version"]
+            || target.archived
+            || !matches!(target.data,RecordData::Note(n) if n.protected)
+        {
+            return Err("prepared target changed");
+        }
+        let history = store
+            .receipts()
+            .map_err(|_| "prepared history unavailable")?;
+        let mut inputs = chat_messages(&history, &records, &scope.chat)
+            .into_iter()
+            .filter(|r| r.id != scope.instruction)
+            .map(|r| json!({"id":r.id,"version":r.version}))
+            .collect::<Vec<_>>();
+        inputs.sort_by_key(|r| r["id"].as_str().unwrap_or_default().to_owned());
+        if json!(inputs) != p.context["inputs"] {
+            return Err("prepared historical inputs changed");
+        }
+        Ok(())
+    }
+
+    #[tokio::test]
+    #[ignore = "ONE future principal activation and pinned preflight required; NO permission from --ignored"]
+    async fn manual_one_start_prepare_diagnostic() {
+        // Missing/malformed paths fail before any Store, prepare_run or Auth.
+        let activation = std::env::var_os("BRN_INT_D_CAPTURE_ACTIVATION")
+            .map(PathBuf::from)
+            .expect("explicit future activation required");
+        let preflight = std::env::var_os("BRN_INT_D_CAPTURE_PREFLIGHT")
+            .map(PathBuf::from)
+            .expect("explicit prospective preflight required");
+        let ready =
+            gate(&activation, &preflight).expect("activation/preflight refused before Auth");
+        let (ready, _reservation) = reserve_then(ready, |r, f| Ok((r, f)))
+            .expect("one start reservation refused before Auth");
+        let p = &ready.preflight;
+        let frames = Arc::new(Mutex::new(
+            OpenOptions::new()
+                .write(true)
+                .create_new(true)
+                .open(p.output.join("safe-events.jsonl"))
+                .unwrap_or_else(|_| panic!("fresh event output required")),
+        ));
+        // Normal checked route, one durable prepare; no credential reader here.
+        let prepared = prepare_run(ThreadRunRequest {
+            request_message: None,
+            queue_claim: None,
+            owner_request: None,
+            data_dir: p.fixture.join("control"),
+            thread: p.context["chat"]["id"].as_str().unwrap().into(),
+            prompt: ready.prompt,
+            selection: Selection {
+                provider: Provider::Chatgpt,
+                model: p.model.clone(),
+            },
+            effort: ReasoningEffort::Medium,
+            max_tool_rounds: 8,
+            auth_file: Some(AUTH_REFERENCE.into()),
+            credentials_dir: None,
+            sources: vec![],
+            search: None,
+            trace: TraceLevel::Summary,
+        })
+        .unwrap_or_else(|_| panic!("reserved preparation refused; never retry"));
+        if prepared_matches(&prepared, p).is_err() {
+            let _ = stop(&prepared.scope, &CancellationToken::new());
+            drop(prepared);
+            panic!("reserved prepared snapshot refused before Auth; no retry");
+        }
+        let scope = prepared.scope.clone();
+        let run = scope.run.clone();
+        let data = p.fixture.join("control");
+        let state = Arc::new(Mutex::new(Observation::default()));
+        let cancel = CancellationToken::new();
+        let emit = observer(
+            scope.clone(),
+            cancel.clone(),
+            state.clone(),
+            Some(frames.clone()),
+        );
+        let mut worker = tokio::spawn(run_prepared(prepared, cancel.clone(), emit));
+        let (terminal, usage, summary_usage, model_turns, resends) =
+            match tokio::time::timeout(Duration::from_secs(120), &mut worker).await {
+                Ok(Ok(Ok(result))) => {
+                    let kind = match result.answer.terminal {
+                        AiTerminal::Completed => "completed",
+                        AiTerminal::Interrupted => "interrupted",
+
+                        AiTerminal::Failed(_) => "failed",
+                    };
+                    let (usage, summary, turns) = result
+                        .trace
+                        .map(|t| (t.usage, t.summary, Some(t.model_turns)))
+                        .unwrap_or((None, None, None));
+                    (
+                        kind,
+                        usage,
+                        summary,
+                        turns,
+                        Some(result.provider_resends.len()),
+                    )
+                }
+                Ok(_) => {
+                    let _ = stop(&scope, &cancel);
+                    ("worker_failure", None, None, None, None)
+                }
+                Err(_) => {
+                    let _ = stop(&scope, &cancel);
+                    if tokio::time::timeout(Duration::from_secs(5), &mut worker)
+                        .await
+                        .is_err()
+                    {
+                        worker.abort();
+                        let _ = worker.await;
+                    }
+                    ("host_timeout", None, None, None, None)
+                }
+            };
+        if let Err(failure) = stop(&scope, &cancel)
+            && let Ok(mut s) = state.lock()
+        {
+            s.failure = s.failure.or(Some(failure));
+        } // End/no prepare is a gap, never a second start.
+        let final_context = context(&scope).expect("final facts unavailable; preserve reservation");
+        let effects = {
+            let store = scope
+                .store
+                .lock()
+                .unwrap_or_else(|_| panic!("diagnostic lock unavailable"));
+            let target = store
+                .record(p.context["target"]["id"].as_str().unwrap())
+                .unwrap_or_else(|_| panic!("final target unavailable"))
+                .unwrap();
+            let RecordData::Run(r) = store
+                .record(&run)
+                .unwrap_or_else(|_| panic!("final Run unavailable"))
+                .unwrap()
+                .data
+            else {
+                panic!("saved Run type")
+            };
+            let operations = r
+                .operations
+                .iter()
+                .take(8)
+                .map(|id| {
+                    let info = store
+                        .operation_info(id.as_str())
+                        .unwrap_or_else(|_| panic!("final operation unavailable"));
+                    let state = match info.state {
+                        brn_threads_core::OperationState::Applied => "Applied",
+                        brn_threads_core::OperationState::Prepared => "Prepared",
+                        brn_threads_core::OperationState::Retired => "Retired",
+                        brn_threads_core::OperationState::Allocated => "Allocated",
+                    };
+                    json!({"id":id,"state":state,"receipt":info.receipt.is_some()})
+                })
+                .collect::<Vec<_>>();
+            json!({"target_version":target.version,"target_version_unchanged":json!(target.version)==p.context["target"]["version"],"operations":operations,"operations_total":r.operations.len(),"omitted":r.operations.len().saturating_sub(8)})
+        };
+        let observed = state
+            .lock()
+            .unwrap_or_else(|_| panic!("diagnostic lock unavailable"));
+        let result = json!({"format":"INT-D-DIAGNOSTIC-RESULT-V1","run":run,"terminal":terminal,"artifact":{"material_pin":p.material_pin,"executable_sha256":p.executable_sha256,"dep_info_sha256":p.dep_info_sha256,"observer_sha256":p.observer_sha256,"runner_sha256":p.runner_sha256,"corpus_sha256":p.corpus_sha256,"prompt_sha256":p.prompt_sha256},"capture_frames":observed.frames.len(),"guard_failure":observed.failure,"stopped":observed.stopped,"context":final_context,"canonical_effects":effects,"parent_trace_usage":usage,"auth_http_count":"UNKNOWN","account_identity":"UNKNOWN","summary_overhead":summary_usage,"parent_model_turns":model_turns,"provider_resends":resends,"historical_cause":"UNKNOWN","semantic_benefit":"not assessed"});
+        drop(observed);
+        drop(scope);
+        drop(frames);
+        drop(state);
+        let store = Store::open_existing_without_upgrade(&data)
+            .unwrap_or_else(|_| panic!("post-run inspection unavailable"));
+        assert!(
+            !crate::run_lease::run_is_live(
+                &store
+                    .derived_directory()
+                    .unwrap_or_else(|_| panic!("derived lease path unavailable")),
+                &run
+            ),
+            "lease still held; no retry"
+        );
+        let mut out = OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(p.output.join("result.json"))
+            .unwrap_or_else(|_| panic!("result must be fresh"));
+        out.write_all(
+            &serde_json::to_vec_pretty(&result)
+                .unwrap_or_else(|_| panic!("result encoding unavailable")),
+        )
+        .and_then(|_| out.sync_all())
+        .unwrap_or_else(|_| panic!("result unavailable; preserve reservation"));
+    }
+
+    #[test]
+    fn activation_gate_checks_real_files_context_and_reserves_before_fake_auth_once() {
+        let files = tempfile::Builder::new()
+            .prefix("brn-int-d-capture-preflight-20261017-guard-")
+            .tempdir_in("/private/tmp")
+            .unwrap();
+        let pair = tempfile::Builder::new()
+            .prefix("brn-int-d-qualification-20261017-guard-")
+            .tempdir_in("/private/tmp")
+            .unwrap();
+        let source = tempfile::tempdir_in("/private/tmp").unwrap();
+        let sources = compiled_input_set().unwrap();
+        let actual = Path::new(ROOT).join("../..");
+        let mut hashes = BTreeMap::new();
+        for path in sources.keys() {
+            let to = source.path().join(path);
+            fs::create_dir_all(to.parent().unwrap()).unwrap();
+            fs::copy(actual.join(path), &to).unwrap();
+            hashes.insert(path.clone(), hash_file(&to, 64 * 1024 * 1024).unwrap());
+        }
+        for args in [
+            vec!["init", "--quiet"],
+            vec!["add", "."],
+            vec![
+                "-c",
+                "user.name=Offline fixture",
+                "-c",
+                "user.email=fixture@invalid",
+                "commit",
+                "--quiet",
+                "-m",
+                "Synthetic compiled input snapshot",
+            ],
+        ] {
+            assert!(
+                std::process::Command::new("git")
+                    .current_dir(source.path())
+                    .args(args)
+                    .status()
+                    .unwrap()
+                    .success()
+            );
+        }
+        let pin = String::from_utf8(
+            std::process::Command::new("git")
+                .current_dir(source.path())
+                .args(["rev-parse", "HEAD"])
+                .output()
+                .unwrap()
+                .stdout,
+        )
+        .unwrap()
+        .trim()
+        .to_owned();
+        let control = pair.path().join("control");
+        let mut store = Store::create(&control, brn_threads_core::WorkspacePurpose::Test).unwrap();
+        let (_base, request, _) = tests::fixture();
+        let src = Store::open(&request.data_dir).unwrap();
+        let mut settings = src
+            .records()
+            .unwrap()
+            .into_iter()
+            .find_map(|r| {
+                if let RecordData::Settings(s) = r.data {
+                    Some(s)
+                } else {
+                    None
+                }
+            })
+            .unwrap();
+        settings.auth_file = Some(AUTH_REFERENCE.into());
+        let op = store.allocate_operation("runner-guard-settings").unwrap();
+        let request = ChangeRequest {
+            reason: "Offline initial settings".into(),
+            writes: vec![Put {
+                id: op.creation_id(0),
+                expected_version: None,
+                archived: false,
+                data: RecordData::Settings(settings),
+            }],
+            inputs: vec![],
+        };
+        store
+            .prepare_owner(
+                &op,
+                &request,
+                &HostAuthority::owner("Offline settings fixture"),
+            )
+            .unwrap();
+        assert!(matches!(
+            store
+                .apply(&op, &HostAuthority::owner("Offline settings fixture"))
+                .unwrap(),
+            ApplyOutcome::Applied(_)
+        ));
+        fn command(
+            store: &mut Store,
+            key: &str,
+            command: brn_threads_core::ProjectCommand,
+        ) -> Receipt {
+            let binding = digest(&serde_json::to_vec(&command).unwrap());
+            let op = store.allocate_bound_operation(key, &binding).unwrap();
+            store
+                .project_command(
+                    &op,
+                    &command,
+                    &HostAuthority::owner("Offline synthetic guard"),
+                )
+                .unwrap()
+        }
+        let project = command(
+            &mut store,
+            "runner-guard-project",
+            brn_threads_core::ProjectCommand::Create {
+                title: "Public synthetic Aurora".into(),
+            },
+        )
+        .writes
+        .into_iter()
+        .find(|w| matches!(w.after.data, RecordData::Project(_)))
+        .unwrap()
+        .after
+        .id;
+        let chat = command(
+            &mut store,
+            "runner-guard-chat",
+            brn_threads_core::ProjectCommand::CreateChat {
+                project: project.clone(),
+                title: "Public discussion".into(),
+            },
+        )
+        .writes
+        .into_iter()
+        .find(|w| matches!(w.after.data, RecordData::Thread(_)))
+        .unwrap()
+        .after
+        .id;
+        let note = command(
+            &mut store,
+            "runner-guard-note",
+            brn_threads_core::ProjectCommand::CreateDocument {
+                project,
+                title: "Public draft".into(),
+                markdown: corpus()["original_note"].as_str().unwrap().into(),
+            },
+        )
+        .writes
+        .into_iter()
+        .find(|w| matches!(w.after.data, RecordData::Note(_)))
+        .unwrap()
+        .after;
+        let RecordData::Note(mut n) = note.data else {
+            panic!()
+        };
+        n.protected = true;
+        save(
+            &mut store,
+            vec![Put {
+                id: note.id.clone(),
+                expected_version: Some(note.version),
+                archived: false,
+                data: RecordData::Note(n),
+            }],
+        );
+        history(&mut store, &chat, &corpus());
+        let context = fixture_facts(&store, &chat, &note.id).unwrap();
+        let version = context["target"]["version"].as_u64().unwrap();
+        drop(store);
+        let manifest = json!({"cases":[{"case":"control","selected":false,"data_dir":control,"chat":chat,"note":note.id,"note_version":version}]});
+        fs::write(pair.path().join("manifest.json"), manifest.to_string()).unwrap();
+        fs::write(
+            files.path().join("prompt.txt"),
+            "Fixed public synthetic request\n",
+        )
+        .unwrap();
+        fs::write(
+            files.path().join("rubric.json"),
+            "{\"capture\":\"PASS/FAIL/UNKNOWN\"}",
+        )
+        .unwrap();
+        let output = PathBuf::from(format!(
+            "/private/tmp/brn-int-d-capture-output-20261017-guard-{}",
+            uuid_like_key()
+        ));
+        let exe = std::env::current_exe().unwrap();
+        let mut p = Preflight {
+            format: "BRN-INT-D-CAPTURE-PREFLIGHT-V1".into(),
+            material_pin: pin,
+            source_inputs: hashes,
+            observer_sha256: digest(include_bytes!("threads.rs")),
+            runner_sha256: digest(include_bytes!("threads_int_d_tests.rs")),
+            executable: exe.clone(),
+            executable_sha256: hash_file(&exe, 1024 * 1024 * 1024).unwrap(),
+            dep_info_sha256: hash_file(&exe.with_extension("d"), 8 * 1024 * 1024).unwrap(),
+            corpus_sha256: digest(include_bytes!(
+                "../../../docs/work/active/agent-capabilities/int-d/corpus.json"
+            )),
+            prompt_sha256: hash_file(&files.path().join("prompt.txt"), 128 * 1024).unwrap(),
+            rubric_sha256: hash_file(&files.path().join("rubric.json"), 16 * 1024).unwrap(),
+            fixture: pair.path().into(),
+            manifest_sha256: hash_file(&pair.path().join("manifest.json"), 64 * 1024).unwrap(),
+            output: output.clone(),
+            database: db_stamp(&control).unwrap(),
+            context,
+            provider: "Codex/ChatGPT".into(),
+            model: "gpt-6.1-sol".into(),
+            effort: "medium".into(),
+            auth_reference: AUTH_REFERENCE.into(),
+            rounds: 8,
+            deadline_seconds: 120,
+            maximum_starts: 1,
+        };
+        let pf = files.path().join("preflight.json");
+        let activation = files.path().join("activation.json");
+        let write_gate = |p: &Preflight| {
+            let b = serde_json::to_vec(p).unwrap();
+            fs::write(&pf, &b).unwrap();
+            let a = Activation {
+                format: ACTIVATION_FORMAT.into(),
+                task: "int-d-capture-runner-20261017".into(),
+                principal_activated: true,
+                preflight_sha256: digest(&b),
+                expires_unix: SystemTime::now()
+                    .duration_since(UNIX_EPOCH)
+                    .unwrap()
+                    .as_secs()
+                    + 3600,
+                maximum_starts: 1,
+            };
+            fs::write(&activation, serde_json::to_vec(&a).unwrap()).unwrap();
+        };
+        let calls = AtomicUsize::new(0);
+        let attempt = || -> Checked<()> {
+            let ready = gate_at(&activation, &pf, source.path())?;
+            reserve_then(ready, |ready, _file| {
+                assert!(
+                    ready
+                        .preflight
+                        .output
+                        .join("one-start-reservation.json")
+                        .is_file()
+                );
+                calls.fetch_add(1, Ordering::SeqCst);
+                Err("fake Auth refused; consumed")
+            })
+        };
+        assert!(attempt().is_err()); // both files missing
+        write_gate(&p);
+        fs::write(&activation, "[]").unwrap();
+        assert!(attempt().is_err());
+        write_gate(&p);
+        let mut a: Value = serde_json::from_slice(&fs::read(&activation).unwrap()).unwrap();
+        a["format"] = json!("original-two-start-window");
+        fs::write(&activation, a.to_string()).unwrap();
+        assert!(attempt().is_err());
+        for field in [
+            "task",
+            "principal_activated",
+            "preflight_sha256",
+            "expires_unix",
+            "maximum_starts",
+        ] {
+            write_gate(&p);
+            let mut a: Value = serde_json::from_slice(&fs::read(&activation).unwrap()).unwrap();
+            a[field] = match field {
+                "principal_activated" => json!(false),
+                "expires_unix" => json!(0),
+                "maximum_starts" => json!(2),
+                _ => json!("wrong"),
+            };
+            fs::write(&activation, a.to_string()).unwrap();
+            assert!(attempt().is_err(), "{field}");
+        }
+        for field in [
+            "material_pin",
+            "source_inputs",
+            "observer_sha256",
+            "runner_sha256",
+            "executable_sha256",
+            "dep_info_sha256",
+            "corpus_sha256",
+            "prompt_sha256",
+            "rubric_sha256",
+            "manifest_sha256",
+            "provider",
+            "model",
+            "effort",
+            "auth_reference",
+            "rounds",
+            "deadline_seconds",
+            "maximum_starts",
+            "database",
+            "context",
+        ] {
+            let mut bad = serde_json::to_value(&p).unwrap();
+            if field == "source_inputs" {
+                bad[field]["Cargo.lock"] = json!("wrong");
+            } else if matches!(field, "rounds" | "deadline_seconds" | "maximum_starts") {
+                bad[field] = json!(2);
+            } else if matches!(field, "database" | "context") {
+                bad[field] = json!({"changed":true});
+            } else {
+                bad[field] = json!("wrong");
+            }
+            let bad: Preflight = serde_json::from_value(bad).unwrap();
+            write_gate(&bad);
+            assert!(attempt().is_err(), "{field}");
+        }
+        for sidecar in ["threads.sqlite3-wal", "threads.sqlite3-shm"] {
+            write_gate(&p);
+            let path = control.join(sidecar);
+            let old = fs::read(&path).ok();
+            fs::write(&path, b"changed sidecar").unwrap();
+            assert!(attempt().is_err());
+            if let Some(old) = old {
+                fs::write(&path, old).unwrap();
+            } else {
+                fs::remove_file(&path).unwrap();
+            }
+        }
+        write_gate(&p);
+        let db = control.join("threads.sqlite3");
+        let original = fs::read(&db).unwrap();
+        let mut changed = original.clone();
+        changed[100] ^= 1;
+        fs::write(&db, &changed).unwrap();
+        assert!(attempt().is_err());
+        fs::write(&db, original).unwrap();
+        // Canonical purpose/type/version mismatch are checked independently of file hashes.
+        let mut altered = Store::open_existing_without_upgrade(&control).unwrap();
+        altered
+            .set_workspace_purpose(brn_threads_core::WorkspacePurpose::Owner)
+            .unwrap();
+        drop(altered);
+        let mut bad = p.clone();
+        bad.database = db_stamp(&control).unwrap();
+        write_gate(&bad);
+        assert!(attempt().is_err());
+        let mut altered = Store::open_existing_without_upgrade(&control).unwrap();
+        altered
+            .set_workspace_purpose(brn_threads_core::WorkspacePurpose::Test)
+            .unwrap();
+        drop(altered);
+        p.database = db_stamp(&control).unwrap();
+        for key in ["target", "chat", "project", "settings"] {
+            let mut bad = p.clone();
+            bad.context[key]["version"] = json!(9999);
+            write_gate(&bad);
+            assert!(attempt().is_err());
+        }
+        write_gate(&p);
+        fs::create_dir(&output).unwrap();
+        assert!(attempt().is_err());
+        fs::remove_dir(&output).unwrap();
+        assert_eq!(calls.load(Ordering::SeqCst), 0);
+        // First complete fake gate is actual files/Store/Git validation, not Auth.
+        // It may create sidecars while reading; pre-call stamp was already checked.
+        let ready = gate_at(&activation, &pf, source.path()).unwrap();
+        assert!(
+            reserve_then(ready, |ready, _| -> Checked<()> {
+                assert!(
+                    ready
+                        .preflight
+                        .output
+                        .join("one-start-reservation.json")
+                        .is_file()
+                );
+                calls.fetch_add(1, Ordering::SeqCst);
+                let p = &ready.preflight;
+                let prepared = prepare_run(ThreadRunRequest {
+                    request_message: None,
+                    queue_claim: None,
+                    owner_request: None,
+                    data_dir: p.fixture.join("control"),
+                    thread: p.context["chat"]["id"].as_str().unwrap().into(),
+                    prompt: ready.prompt,
+                    selection: Selection {
+                        provider: Provider::Chatgpt,
+                        model: p.model.clone(),
+                    },
+                    effort: ReasoningEffort::Medium,
+                    max_tool_rounds: 8,
+                    auth_file: Some(AUTH_REFERENCE.into()),
+                    credentials_dir: None,
+                    sources: vec![],
+                    search: None,
+                    trace: TraceLevel::Summary,
+                })
+                .unwrap();
+                prepared_matches(&prepared, p).unwrap();
+                let mut changed = p.clone();
+                changed.context["chat"]["epoch"] = json!(9999);
+                assert!(prepared_matches(&prepared, &changed).is_err());
+                let mut changed = p.clone();
+                changed.context["settings"]["version"] = json!(9999);
+                assert!(prepared_matches(&prepared, &changed).is_err());
+                stop(&prepared.scope, &CancellationToken::new()).unwrap();
+                drop(prepared);
+                Err("fake Auth refusal")
+            })
+            .is_err()
+        );
+        assert_eq!(calls.load(Ordering::SeqCst), 1);
+        assert!(attempt().is_err());
+        assert_eq!(calls.load(Ordering::SeqCst), 1);
+        // Direct duplicate reservation also cannot reach the fake closure.
+        assert!(
+            reserve_then(
+                Ready {
+                    preflight: p,
+                    prompt: "public".into()
+                },
+                |_, _| {
+                    calls.fetch_add(1, Ordering::SeqCst);
+                    Ok(())
+                }
+            )
+            .is_err()
+        );
+        assert_eq!(calls.load(Ordering::SeqCst), 1);
+        fs::remove_dir_all(output).unwrap();
+    }
+    fn uuid_like_key() -> String {
+        unique_host_key()
+            .bytes()
+            .filter(|c| c.is_ascii_alphanumeric())
+            .map(char::from)
+            .collect()
+    }
+
+    #[tokio::test]
+    async fn runner_observer_allows_reported_progress_but_fences_all_proposal_effects() {
+        use rig::test_utils::{MockCompletionModel, MockStreamEvent};
+        let mut names = tool_names();
+        names.extend(search_tool_names());
+        for name in names {
+            assert!(
+                permitted(name)
+                    || matches!(
+                        name,
+                        "apply_changes" | "withdraw_proposal" | "refresh_candidate"
+                    ),
+                "runtime catalogue changed: {name}"
+            );
+            assert!(tool_activity(name).is_some());
+        }
+        for mode in [
+            "prepare-success",
+            "prepare-failure",
+            "apply_changes",
+            "withdraw_proposal",
+            "refresh_candidate",
+            "filesystem-failure",
+            "missing-correlation",
+            "event-overflow",
+        ] {
+            let (_root, request, note) = tests::fixture();
+            let mut store = Store::open(&request.data_dir).unwrap();
+            let old = store.record(&note).unwrap().unwrap();
+            let RecordData::Note(mut n) = old.data else {
+                panic!()
+            };
+            n.protected = true;
+            save(
+                &mut store,
+                vec![Put {
+                    id: note.clone(),
+                    expected_version: Some(old.version),
+                    archived: false,
+                    data: RecordData::Note(n),
+                }],
+            );
+            let before = store.record(&note).unwrap().unwrap();
+            drop(store);
+            let (scope, input) = begin(&request).unwrap();
+            tests::read_all(&scope);
+            let RecordData::Note(mut revised) = before.data.clone() else {
+                panic!()
+            };
+            revised.markdown = "RUNNER_PROPOSED_BODY_CANARY".into();
+            let change = ChangeRequest {
+                reason: "RUNNER_REASON_CANARY".into(),
+                writes: vec![Put {
+                    id: note.clone(),
+                    expected_version: Some(before.version),
+                    archived: false,
+                    data: RecordData::Note(revised),
+                }],
+                inputs: vec![RevisionInput {
+                    record: note.clone(),
+                    version: before.version,
+                    expectation: InputExpectation::Current,
+                }],
+            };
+            let mut args = json!({"request_key":"runner-proposal","request":change});
+            let op = scope
+                .store
+                .lock()
+                .unwrap()
+                .allocate_operation(&format!("{}:proposal:runner-proposal", scope.run))
+                .unwrap();
+            if mode == "prepare-failure" {
+                args["writing"] = json!({"quotations":[],"requirements_reported":[]});
+            }
+            if matches!(
+                mode,
+                "apply_changes" | "withdraw_proposal" | "refresh_candidate"
+            ) {
+                prepare(&scope, serde_json::from_value(args.clone()).unwrap()).unwrap();
+            }
+            let effects_before = scope.store.lock().unwrap().receipts().unwrap();
+            let effect = match mode {
+                "apply_changes" | "withdraw_proposal" => {
+                    MockStreamEvent::tool_call("effect", mode, json!({"operation":op.as_str()}))
+                }
+                "refresh_candidate" => MockStreamEvent::tool_call(
+                    "effect",
+                    mode,
+                    json!({"operation":op.as_str(),"request_key":"replacement","request":change}),
+                ),
+                _ => MockStreamEvent::tool_call("prepare", "prepare_changes", args),
+            };
+            let model = MockCompletionModel::from_stream_turns([vec![
+                MockStreamEvent::tool_call(
+                    "progress",
+                    "retain_progress",
+                    json!({"summary":"RUNNER_REPORTED_PLAN_CANARY"}),
+                ),
+                effect,
+                MockStreamEvent::tool_call(
+                    "apply",
+                    "apply_changes",
+                    json!({"operation":op.as_str()}),
+                ),
+                MockStreamEvent::final_response_with_total_tokens(1),
+            ]]);
+            let state = Arc::new(Mutex::new(Observation::default()));
+            let cancel = CancellationToken::new();
+            let file = if mode == "filesystem-failure" {
+                Some(Arc::new(Mutex::new(File::open("/dev/null").unwrap())))
+            } else {
+                None
+            };
+            let emit = observer(scope.clone(), cancel.clone(), state.clone(), file);
+            if mode == "missing-correlation" {
+                emit(AiEvent::Activity(format!(
+                    "{CAPTURE_PREFIX}{}",
+                    json!({"event":"outcome","dispatch":99,"round":1,"status":"error","native_kind":"other","source_kind":"UNKNOWN"})
+                )));
+            }
+            if mode == "event-overflow" {
+                let frame = format!(
+                    "{CAPTURE_PREFIX}{}",
+                    json!({"event":"dispatch","dispatch":99,"round":1})
+                );
+                emit(AiEvent::Activity(frame.clone()));
+                emit(AiEvent::Activity(frame));
+            }
+            let answer = run_model(
+                model.clone(),
+                scope.clone(),
+                &input,
+                ReasoningEffort::Medium,
+                4,
+                true,
+                cancel.clone(),
+                emit,
+            )
+            .await;
+            assert!(cancel.is_cancelled());
+            assert!(!finish(&scope, &answer).unwrap());
+            let state = state.lock().unwrap();
+            assert!(state.stopped);
+            if mode.starts_with("prepare-") {
+                assert_eq!(state.frames.len(), 2);
+                assert_eq!(state.frames[0]["context"]["state"], "Working");
+                assert_eq!(state.frames[1]["context"]["state"], "Working");
+                assert_eq!(
+                    state.frames[0]["capture"]["dispatch"],
+                    state.frames[1]["capture"]["dispatch"]
+                );
+                assert_eq!(
+                    state.frames[1]["capture"]["status"],
+                    if mode == "prepare-success" {
+                        "success"
+                    } else {
+                        "error"
+                    }
+                );
+                assert_eq!(
+                    state.frames[1]["capture"]["source_kind"],
+                    if mode == "prepare-success" {
+                        "NONE"
+                    } else {
+                        "tool_rejected"
+                    }
+                );
+            }
+            let store = scope.store.lock().unwrap();
+            assert_eq!(store.record(&note).unwrap().unwrap(), before);
+            assert!(store.receipt(&op).unwrap().is_none());
+            if matches!(
+                mode,
+                "apply_changes" | "withdraw_proposal" | "refresh_candidate"
+            ) {
+                assert_eq!(store.prepared(&op).unwrap().operation, op);
+                assert!(
+                    store.operation_info(op.as_str()).unwrap().state
+                        == brn_threads_core::OperationState::Prepared
+                );
+            }
+            let RecordData::Run(run) = store.record(&scope.run).unwrap().unwrap().data else {
+                panic!()
+            };
+            assert_eq!(run.state, RunState::Interrupted);
+            if !matches!(mode, "missing-correlation" | "event-overflow") {
+                assert!(run.progress.contains("RUNNER_REPORTED_PLAN_CANARY"));
+            }
+            assert_eq!(
+                store
+                    .receipts()
+                    .unwrap()
+                    .iter()
+                    .filter(|r| r.writes.iter().any(|w| w.after.id == note))
+                    .count(),
+                effects_before
+                    .iter()
+                    .filter(|r| r.writes.iter().any(|w| w.after.id == note))
+                    .count()
+            );
+            for frame in &state.frames {
+                assert!(
+                    !frame.to_string().contains("RUNNER_PROPOSED_BODY_CANARY")
+                        && !frame.to_string().contains("RUNNER_REASON_CANARY")
+                );
+            }
+            assert!(model.request_count() <= 1);
+            let run_id = scope.run.clone();
+            let derived = store.derived_directory().unwrap();
+            drop(store);
+            drop(state);
+            drop(scope);
+            assert!(!crate::run_lease::run_is_live(&derived, &run_id));
+        }
+    }
+}

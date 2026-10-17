@@ -1,0 +1,50 @@
+{
+  "captured_at": 1792250068.417645,
+  "receipt_sha256": "adf10ea7f13b00f1925c7d797e37f45eef2642fdc4e444537b153d1fc4b98c23",
+  "source_fingerprints_in": "/private/tmp/brn-int-d-capture-runner-20261017-evidence/runner-focused-bound.json",
+  "artifacts": [
+    {
+      "path": "/private/tmp/brn-int-d-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9",
+      "sha256": "fadfd2d8b5faa9b8558b42424180700f82321004468e50ef3420dc8f1c7e0d0a",
+      "mtime": 1792250066.5925536,
+      "receipt_mtime": 1792250068.256297,
+      "not_modified_after_receipt": true,
+      "dep_info": "/private/tmp/brn-int-d-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9.d",
+      "dep_info_sha256": "9cd8059b642415fd27b25e3808c6f56d49abd1e3f4cfc0e67aa9ead4460eaac0"
+    },
+    {
+      "path": "/private/tmp/brn-int-d-20261017-target/debug/brn",
+      "hashed_artifact": "/private/tmp/brn-int-d-20261017-target/debug/deps/brn-f4074be051a4fb89",
+      "sha256": "62a066c55424fd140dfcd588c2630db0ed663da50815035a1f372a757137be74",
+      "mtime": 1792241737.0453422,
+      "receipt_mtime": 1792250068.256297,
+      "not_modified_after_receipt": true,
+      "dep_info": "/private/tmp/brn-int-d-20261017-target/debug/deps/brn-f4074be051a4fb89.d",
+      "dep_info_sha256": "01483c7430f5f4f5b414a3eb5e5c445effe70676685903920545601c753d9e54",
+      "association": "Exact executable bytehash matches hashed Cargo artifact; not itself a Running test target"
+    },
+    {
+      "path": "/private/tmp/brn-int-d-20261017-target/debug/brn-desktop",
+      "hashed_artifact": "/private/tmp/brn-int-d-20261017-target/debug/deps/brn_desktop-cb9bb578d6f48795",
+      "sha256": "ab5545d76f9c6fbb79750788cee10984410fa5edbfeba5d10ee22ec0a7681814",
+      "mtime": 1792242247.5505116,
+      "receipt_mtime": 1792250068.256297,
+      "not_modified_after_receipt": true,
+      "dep_info": "/private/tmp/brn-int-d-20261017-target/debug/deps/brn_desktop-cb9bb578d6f48795.d",
+      "dep_info_sha256": "2abe504e72643443376067363bf79cc32d1bd70daaa6c14046c8771559692a58",
+      "association": "Exact executable bytehash matches hashed Cargo artifact; not itself a Running test target"
+    },
+    {
+      "path": "/private/tmp/brn-int-d-20261017-target/debug/brn-intake-helper",
+      "hashed_artifact": "/private/tmp/brn-int-d-20261017-target/debug/deps/brn_intake_helper-fefbd456d571cd1c",
+      "sha256": "bd2991d4d53beaa29b1123d7aa736445090c2633c65b0ee065534a1b5745a79b",
+      "mtime": 1792242114.787057,
+      "receipt_mtime": 1792250068.256297,
+      "not_modified_after_receipt": true,
+      "dep_info": "/private/tmp/brn-int-d-20261017-target/debug/deps/brn_intake_helper-fefbd456d571cd1c.d",
+      "dep_info_sha256": "1bb46afab7cb0d0bc71661310b676320aa88969559ff0204cf154254911a0514",
+      "association": "Exact executable bytehash matches hashed Cargo artifact; not itself a Running test target"
+    }
+  ],
+  "qualification": "Only not_modified_after_receipt=true associates the captured file to that run; later artifacts are not relabelled."
+}
