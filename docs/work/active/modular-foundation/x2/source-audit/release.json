@@ -1,0 +1,45 @@
+{
+  "task": "x2-pinned-source-audit-20261017",
+  "time_utc": "2026-10-17T20:09:18.228742+00:00",
+  "head_before_handoff": "98b80e98895bd9a39a4b8f05f09b29152657c45c",
+  "crates": "bdc0a22a29e1aec741a78916ae5d0a7748531864",
+  "rootlock_sha256": "65d2aeee2a8ec2000e7825266a5f70a10725fd32c617d72ddbdf9361a1eb2a1c",
+  "material334_and_scripts3_errors": [],
+  "x1_copy135_errors": [],
+  "authorized_five_doc_changes": {
+    "docs/work/active/modular-foundation/x2/formats.md": {
+      "before98b": "aa080fc57a6a236e5352767549462559a71d8ac600dcd94e1c65acd2a655b9ef",
+      "after": "0199632ce6a80355410f9d8d2b89cad351e1b5f1d9b152a4d08a02bb0267298e"
+    },
+    "docs/work/active/modular-foundation/x2/allocation.md": {
+      "before98b": "9ccd855328a9848f92043c380cc2e04e07e837028a8705515e0c0092ddd82364",
+      "after": "a2a9a713a536fd2d1f6a63287854fc13f1dbc81b43df14d671d9f69a31a5c6a9"
+    },
+    "docs/work/active/modular-foundation/x2/source-map.md": {
+      "before98b": "d5bfcecc03086f572692157e556f3474e42329f178868b66a1db1a66d6e0f469",
+      "after": "e4c28083e4c02990ad2f4ebf2a16f09147a26a6483ab7973596147aac9e07c24"
+    },
+    "docs/work/active/modular-foundation/x2/plan.md": {
+      "before98b": "f52c2aa3c877fe959a5a5464a1321646297cc8365b2f5d0fb0d8cf3420d95443",
+      "after": "9336d4c927611532c774ec91471038f9ae9a9d1d70b342e13e8d519cfc495282"
+    },
+    "docs/work/active/modular-foundation/x2/acceptance.md": {
+      "before98b": "14ba16fe82ef745f7011f818351cf383a2570c503b725c965c1bc82389575fc9",
+      "after": "12bd03e1018e9ac2f79f3dfb581505ea104aedd59d4fa42f12b6262911f74b10"
+    }
+  },
+  "relative_and_local_link_errors": [],
+  "precise_heavy_inventory": [],
+  "own_controller_and_fetch_pgid6942": [],
+  "fetch_count": 1,
+  "compilation_commands": 0,
+  "build_scripts_executed": false,
+  "root_resolution": false,
+  "broader_resolution": false,
+  "runtime_extractions": 0,
+  "provider_or_auth_calls": 0,
+  "dependency_slot": "RELEASED",
+  "all_allocated_paths": "RELEASED after docs-only handoff commit; no work continues without new allocation",
+  "compiled_source_and_intd_scripts_unchanged": true,
+  "original_plan98b_preserved_in_git": true
+}

@@ -1,0 +1,3998 @@
+{
+  "association": "Historical X1 target-filtered metadata, source archives freshly verified; NOT current root resolved/unit graph or full semantic audit of every file",
+  "rows": [
+    {
+      "name": "adler2",
+      "version": "2.0.1",
+      "checksum": "320119579fcad9c21884f5c4861d16174d0e06250625266f50fe6898340abefa",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "320119579fcad9c21884f5c4861d16174d0e06250625266f50fe6898340abefa",
+      "source_tree_digest": "c70b697e96b971360d7811a6a71c4330fe516699bdf8be3e69a638ad14a97195",
+      "file_count": 13
+    },
+    {
+      "name": "aes",
+      "version": "0.9.3",
+      "checksum": "35f0f96ce78e38c3dc6d8948aa8163d06385be74000f3c7a95bf1eef35d3ea32",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "35f0f96ce78e38c3dc6d8948aa8163d06385be74000f3c7a95bf1eef35d3ea32",
+      "source_tree_digest": "06b64bb23c38267c1e1d8d624e9080fb9c4dcd16e2e7fd9b6c8a3f02302c5651",
+      "file_count": 41
+    },
+    {
+      "name": "ahash",
+      "version": "0.8.12",
+      "checksum": "5a15f179cd60c4584b8a8c596927aadc462e27f2ca70c04e0071964a73ba7a75",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "compile-time-rng",
+        "const-random",
+        "default",
+        "getrandom",
+        "runtime-rng",
+        "serde",
+        "std"
+      ],
+      "archive_sha256": "5a15f179cd60c4584b8a8c596927aadc462e27f2ca70c04e0071964a73ba7a75",
+      "source_tree_digest": "78af6f5f1012e7bf0527e59041eb1a244111385544e147ea8749742fb0b8b189",
+      "file_count": 24
+    },
+    {
+      "name": "aho-corasick",
+      "version": "1.1.5",
+      "checksum": "c982642fa9e8606056828ee9a8505737230110bb1099153c79efe865c59d12ba",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "perf-literal",
+        "std"
+      ],
+      "archive_sha256": "c982642fa9e8606056828ee9a8505737230110bb1099153c79efe865c59d12ba",
+      "source_tree_digest": "0fbe4e0b4158cd2f0f13c6d96a15fedbac6d3af91a01a1359671d6f97aabed71",
+      "file_count": 48
+    },
+    {
+      "name": "aligned-vec",
+      "version": "0.6.4",
+      "checksum": "dc890384c8602f339876ded803c97ad529f3842aba97f6392b3dba0dd171769b",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "std"
+      ],
+      "archive_sha256": "dc890384c8602f339876ded803c97ad529f3842aba97f6392b3dba0dd171769b",
+      "source_tree_digest": "9162ff3cc0e07aa9cd7d3c4c4f952d5cbb6f09201f3c90b649fc70f3492356b6",
+      "file_count": 9
+    },
+    {
+      "name": "aligned",
+      "version": "0.4.3",
+      "checksum": "ee4508988c62edf04abd8d92897fca0c2995d907ce1dfeaf369dac3716a40685",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "ee4508988c62edf04abd8d92897fca0c2995d907ce1dfeaf369dac3716a40685",
+      "source_tree_digest": "f101a685af594e1fd6e40226b0cc30fbc3434821f26cab1c102ea1683e2e292a",
+      "file_count": 12
+    },
+    {
+      "name": "alloc-no-stdlib",
+      "version": "2.0.4",
+      "checksum": "cc7bb162ec39d46ab1ca8c77bf72e890535becd1751bb45f64c597edb4c8c6b3",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "cc7bb162ec39d46ab1ca8c77bf72e890535becd1751bb45f64c597edb4c8c6b3",
+      "source_tree_digest": "ea85d4886a703c43cc1892350e5687290eae57ad0ec06590f10dcc64874804a7",
+      "file_count": 20
+    },
+    {
+      "name": "alloc-no-stdlib",
+      "version": "3.0.0",
+      "checksum": "c2fb6cfd47bf496ff64095c20eaba0c201404ee38714d4142fcfa1dc334fcc7a",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "c2fb6cfd47bf496ff64095c20eaba0c201404ee38714d4142fcfa1dc334fcc7a",
+      "source_tree_digest": "7664b1b6b0e2d10fc8f29517e973138f0f90d7a3c0724d82e183c14d159bd701",
+      "file_count": 20
+    },
+    {
+      "name": "alloc-stdlib",
+      "version": "0.2.4",
+      "checksum": "0e76a019e91224d279006ff972f1e984179a6e9feb050adba6ce8274aef23195",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "0e76a019e91224d279006ff972f1e984179a6e9feb050adba6ce8274aef23195",
+      "source_tree_digest": "5bb6db382eec768f2797be001bea0daa3c376c0b80b2f3770d9e8ee6da4888d0",
+      "file_count": 12
+    },
+    {
+      "name": "alloc-stdlib",
+      "version": "0.3.0",
+      "checksum": "0b5c1865780388bfa186411ab5f247819487fc4864c6e9c3106611fa347586e1",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "0b5c1865780388bfa186411ab5f247819487fc4864c6e9c3106611fa347586e1",
+      "source_tree_digest": "d18ed7b2265611a83b09eaa525e7c38256d00a5952744383990fb63cae4fa085",
+      "file_count": 12
+    },
+    {
+      "name": "anyhow",
+      "version": "1.0.104",
+      "checksum": "330a5ed07fa54e4702c9d6c4174f74427fc0ef6e214bbd677ae50a5099946470",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "std"
+      ],
+      "archive_sha256": "330a5ed07fa54e4702c9d6c4174f74427fc0ef6e214bbd677ae50a5099946470",
+      "source_tree_digest": "67acb8cd8cdfea35354aaef2f03935882b23e6eb89d3b783e0b4a19f805fd8fa",
+      "file_count": 54
+    },
+    {
+      "name": "arg_enum_proc_macro",
+      "version": "0.3.4",
+      "checksum": "0ae92a5119aa49cdbcf6b9f893fe4e1d98b04ccbf82ee0584ad948a44a734dea",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "0ae92a5119aa49cdbcf6b9f893fe4e1d98b04ccbf82ee0584ad948a44a734dea",
+      "source_tree_digest": "d7a84e57816108c03eaf9f2097c75c890b739d2d37d7b5338a3235b14668ede4",
+      "file_count": 12
+    },
+    {
+      "name": "arrayref",
+      "version": "0.3.9",
+      "checksum": "76a2e8124351fda1ef8aaaa3bbd7ebbcb486bbcd4225aca0aa0d84bb2db8fecb",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "76a2e8124351fda1ef8aaaa3bbd7ebbcb486bbcd4225aca0aa0d84bb2db8fecb",
+      "source_tree_digest": "0660ff96464db72bd0ec86447cce5520e72b9ed3e1f0de411d1a77a7ae13c2c5",
+      "file_count": 13
+    },
+    {
+      "name": "arrayvec",
+      "version": "0.7.8",
+      "checksum": "d3fb67a6e08acf24fdeccbac2cb6ac4305825bd1f117462e0e6f2f193345ad56",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "std"
+      ],
+      "archive_sha256": "d3fb67a6e08acf24fdeccbac2cb6ac4305825bd1f117462e0e6f2f193345ad56",
+      "source_tree_digest": "f7fb091d552ec177e72bcd0890f23d0fb7d085d299b052cb91f18f3019254c6e",
+      "file_count": 22
+    },
+    {
+      "name": "as-slice",
+      "version": "0.2.1",
+      "checksum": "516b6b4f0e40d50dcda9365d53964ec74560ad4284da2e7fc97122cd83174516",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "516b6b4f0e40d50dcda9365d53964ec74560ad4284da2e7fc97122cd83174516",
+      "source_tree_digest": "a4b333e0c1ddaa62391f94eeb2a0766309a269a0c619b99d78977eadc65e230b",
+      "file_count": 10
+    },
+    {
+      "name": "astral-tl",
+      "version": "0.8.0",
+      "checksum": "04d4bb5df351abb6758a04240b0193794ddaf34a7c0b9452fab3c25dcce39e88",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "04d4bb5df351abb6758a04240b0193794ddaf34a7c0b9452fab3c25dcce39e88",
+      "source_tree_digest": "57b9b256f0d7066bb53af1207f4cb0477e47a3f01a68df939b319813f55575da",
+      "file_count": 35
+    },
+    {
+      "name": "async-trait",
+      "version": "0.1.92",
+      "checksum": "82f6aeea286b8eb4dd3431a1be1b59d290ace00f5bfd8e2a159bc2a05e2c1667",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "82f6aeea286b8eb4dd3431a1be1b59d290ace00f5bfd8e2a159bc2a05e2c1667",
+      "source_tree_digest": "44cf90c52160febc864c1d8a1fb061fe453088be0617b9b93bdfd0815a68ed32",
+      "file_count": 53
+    },
+    {
+      "name": "autocfg",
+      "version": "1.5.1",
+      "checksum": "f2032f911046de80f0a198e0901378627c33f59ea0ac00e363d481118bd70a53",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "f2032f911046de80f0a198e0901378627c33f59ea0ac00e363d481118bd70a53",
+      "source_tree_digest": "43b8a4c4dc9b355ee65971d70adf1eb5b4c96545a8e43efeef26cf40bd6e00fa",
+      "file_count": 23
+    },
+    {
+      "name": "av-scenechange",
+      "version": "0.14.1",
+      "checksum": "0f321d77c20e19b92c39e7471cf986812cbb46659d2af674adc4331ef3f18394",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "0f321d77c20e19b92c39e7471cf986812cbb46659d2af674adc4331ef3f18394",
+      "source_tree_digest": "ed76f0a7aa4eb8741061c19ef45c7b69c80f0297fdc9b99572118a9b560fb98a",
+      "file_count": 72
+    },
+    {
+      "name": "av1-grain",
+      "version": "0.2.5",
+      "checksum": "8cfddb07216410377231960af4fcab838eaa12e013417781b78bd95ee22077f8",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "create",
+        "default",
+        "diff",
+        "estimate",
+        "nom",
+        "num-rational",
+        "parse",
+        "v_frame"
+      ],
+      "archive_sha256": "8cfddb07216410377231960af4fcab838eaa12e013417781b78bd95ee22077f8",
+      "source_tree_digest": "90267f5acc816a732b4812dedd39ffcaa00ac67125d1ef065c90f859530f4548",
+      "file_count": 24
+    },
+    {
+      "name": "avif-serialize",
+      "version": "0.8.9",
+      "checksum": "e7178fe5f7d460b13895ebb9dcb28a3a6216d2df2574a0806cb51b555d297f38",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "e7178fe5f7d460b13895ebb9dcb28a3a6216d2df2574a0806cb51b555d297f38",
+      "source_tree_digest": "6f7ddce8e6ecc13868ad2673082e8c2d48f45339d9b7428dd41367f0e7e6d535",
+      "file_count": 10
+    },
+    {
+      "name": "base64",
+      "version": "0.23.1",
+      "checksum": "ac07cdecf99051d9a5238b80f35af32cdeba5b336e55d957b318b50137e18da5",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "alloc",
+        "default",
+        "simd-unsafe",
+        "std"
+      ],
+      "archive_sha256": "ac07cdecf99051d9a5238b80f35af32cdeba5b336e55d957b318b50137e18da5",
+      "source_tree_digest": "44354c87295552571f808cb8ab2a94d4f2681551f10e06d4014bf421f47cc063",
+      "file_count": 39
+    },
+    {
+      "name": "bit_field",
+      "version": "0.10.3",
+      "checksum": "1e4b40c7323adcfc0a41c4b88143ed58346ff65a288fc144329c5c45e05d70c6",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "1e4b40c7323adcfc0a41c4b88143ed58346ff65a288fc144329c5c45e05d70c6",
+      "source_tree_digest": "74cf8c68c00bd48c9b6a2e9063a38cfda33a210ae39e03d361ddedb1fceca11f",
+      "file_count": 14
+    },
+    {
+      "name": "bitflags",
+      "version": "2.13.2",
+      "checksum": "3ded4057c258ba199e2d26386d3af3780957ecaee6c4ef4041c6b4b8b97c0b06",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "3ded4057c258ba199e2d26386d3af3780957ecaee6c4ef4041c6b4b8b97c0b06",
+      "source_tree_digest": "219065a0377879218dcbce7f6410b8f50ff794dd6ce100618bcfa28ac033e72d",
+      "file_count": 64
+    },
+    {
+      "name": "bitstream-io",
+      "version": "4.10.0",
+      "checksum": "7eff00be299a18769011411c9def0d827e8f2d7bf0c3dbf53633147a8867fd1f",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "alloc",
+        "default",
+        "std"
+      ],
+      "archive_sha256": "7eff00be299a18769011411c9def0d827e8f2d7bf0c3dbf53633147a8867fd1f",
+      "source_tree_digest": "01392d2bb59cb4109c513b3f2748be239e4abf36f0f9248388308cfa6920fc68",
+      "file_count": 26
+    },
+    {
+      "name": "bitvec",
+      "version": "1.1.1",
+      "checksum": "ddcec3d12c579d40898fe0a9a358a803c23e9c52ca3c425707f81c9436211837",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "alloc",
+        "atomic",
+        "default",
+        "std"
+      ],
+      "archive_sha256": "ddcec3d12c579d40898fe0a9a358a803c23e9c52ca3c425707f81c9436211837",
+      "source_tree_digest": "773e5071e06a80f1d92191333726043462098368b1b5e4c68bd22693deeb4d33",
+      "file_count": 238
+    },
+    {
+      "name": "blake3",
+      "version": "1.8.7",
+      "checksum": "6d9e454fc11f76977dc803893aff6304ed33d6a26efae8696573bea74baa27ae",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "std"
+      ],
+      "archive_sha256": "6d9e454fc11f76977dc803893aff6304ed33d6a26efae8696573bea74baa27ae",
+      "source_tree_digest": "6ddd06623d8668f0cf26e36cdd7107014e744e9476679d9e284ded8d86618426",
+      "file_count": 80
+    },
+    {
+      "name": "block-buffer",
+      "version": "0.12.1",
+      "checksum": "d2f6c7dbe95a6ed67ad9f18e57daf93a2f034c524b99fd2b76d18fdfeb6660aa",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "d2f6c7dbe95a6ed67ad9f18e57daf93a2f034c524b99fd2b76d18fdfeb6660aa",
+      "source_tree_digest": "3d5c9011631e2f2dcec96b28f9d92cec08dba9260bfda1049bdaeeef02f9158b",
+      "file_count": 12
+    },
+    {
+      "name": "block-padding",
+      "version": "0.4.2",
+      "checksum": "710f1dd022ef4e93f8a438b4ba958de7f64308434fa6a87104481645cc30068b",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "710f1dd022ef4e93f8a438b4ba958de7f64308434fa6a87104481645cc30068b",
+      "source_tree_digest": "00265e2dc23456b2007b832aa5a5739ca760d5fccbc2685aefe0240dc03c0332",
+      "file_count": 9
+    },
+    {
+      "name": "borsh",
+      "version": "1.8.1",
+      "checksum": "553c5d846a6ba5150c65e3b1b8ec073bcf1abc20f9b7220de384a4443ea4e20a",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "std"
+      ],
+      "archive_sha256": "553c5d846a6ba5150c65e3b1b8ec073bcf1abc20f9b7220de384a4443ea4e20a",
+      "source_tree_digest": "4756b2667d969f619ccc3d87e59d7acec59d755b122b7bb32a4bf948490b172d",
+      "file_count": 95
+    },
+    {
+      "name": "brotli-decompressor",
+      "version": "5.0.3",
+      "checksum": "3a32acac15fe1967bc3986b2a6347dffc965602354ea6f450ad07e8bfd253583",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "alloc-stdlib",
+        "default",
+        "std"
+      ],
+      "archive_sha256": "3a32acac15fe1967bc3986b2a6347dffc965602354ea6f450ad07e8bfd253583",
+      "source_tree_digest": "2ab584625f443efe70f8beb8ac05f42e62e54cc0bc160fd796129a02d995b750",
+      "file_count": 37
+    },
+    {
+      "name": "brotli-decompressor",
+      "version": "6.0.1",
+      "checksum": "941cd9bd4ddab83cb46fa5a2d428f1c857b24ac78cb876cf7beb710840934bd7",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "alloc-stdlib",
+        "std"
+      ],
+      "archive_sha256": "941cd9bd4ddab83cb46fa5a2d428f1c857b24ac78cb876cf7beb710840934bd7",
+      "source_tree_digest": "d0f90e3d4ac2bf2d6b3ecfeb75bf617a5c3a2725172c2b9bba2070576410b923",
+      "file_count": 44
+    },
+    {
+      "name": "brotli",
+      "version": "9.0.0",
+      "checksum": "f8b851b75c23ca7873623d612fe49bd1989aeb03d08fb9432187eb253d3d4c6b",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "alloc-stdlib",
+        "default",
+        "std"
+      ],
+      "archive_sha256": "f8b851b75c23ca7873623d612fe49bd1989aeb03d08fb9432187eb253d3d4c6b",
+      "source_tree_digest": "9526a2ba5d9c52b10647ffa21188509ab1554392d8e89fa7da28f2952e34068f",
+      "file_count": 76
+    },
+    {
+      "name": "built",
+      "version": "0.8.1",
+      "checksum": "5c0e531d93d39c34eef561e929e8a7f86d77a5af08aac4f6d6e39976c51858e9",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "5c0e531d93d39c34eef561e929e8a7f86d77a5af08aac4f6d6e39976c51858e9",
+      "source_tree_digest": "52aca0459544bd57ba0a5e66512665c204ca929a076e9d66abc1af5fc81073ba",
+      "file_count": 18
+    },
+    {
+      "name": "bumpalo",
+      "version": "3.20.3",
+      "checksum": "72f5acc6cb2ba439de613abc23857ec3d78374d8ed5ac84e9d11336e87da8649",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default"
+      ],
+      "archive_sha256": "72f5acc6cb2ba439de613abc23857ec3d78374d8ed5ac84e9d11336e87da8649",
+      "source_tree_digest": "6ad3c30714630d06c78eb8c1972cc65c39312759c689f056ddce25a78a86975f",
+      "file_count": 20
+    },
+    {
+      "name": "bytemuck",
+      "version": "1.25.2",
+      "checksum": "95832e849adfb21180ccb6826a99da14e5d266ae5c2e668e1602cf234f153797",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "aarch64_simd",
+        "bytemuck_derive",
+        "derive",
+        "extern_crate_alloc",
+        "min_const_generics",
+        "wasm_simd"
+      ],
+      "archive_sha256": "95832e849adfb21180ccb6826a99da14e5d266ae5c2e668e1602cf234f153797",
+      "source_tree_digest": "f2068d56f0b25bb0874f49d38bfa0c642d5b272346b37c1c4a7c2e0795b98a4a",
+      "file_count": 38
+    },
+    {
+      "name": "bytemuck_derive",
+      "version": "1.12.1",
+      "checksum": "6a1f896587b6f2c069c73d2f0913e2d590c3990285cd2f0b6aa02b786b4c679c",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "6a1f896587b6f2c069c73d2f0913e2d590c3990285cd2f0b6aa02b786b4c679c",
+      "source_tree_digest": "52748df6275c30e91729a25d9c774597f215b855b55baf3cb28c6ea944cf3fd6",
+      "file_count": 13
+    },
+    {
+      "name": "byteorder-lite",
+      "version": "0.1.0",
+      "checksum": "8f1fe948ff07f4bd06c30984e69f5b4899c516a3ef74f34df92a2df2ab535495",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "std"
+      ],
+      "archive_sha256": "8f1fe948ff07f4bd06c30984e69f5b4899c516a3ef74f34df92a2df2ab535495",
+      "source_tree_digest": "5cd8e7fd02f2cb6b197b99f8f812c3763170fa1ecf3a580f1192c8f9e6d4c9f2",
+      "file_count": 8
+    },
+    {
+      "name": "byteorder",
+      "version": "1.5.0",
+      "checksum": "1fd0f2584146f6f2ef48085050886acf353beff7305ebd1ae69500e27c67f64b",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "std"
+      ],
+      "archive_sha256": "1fd0f2584146f6f2ef48085050886acf353beff7305ebd1ae69500e27c67f64b",
+      "source_tree_digest": "19f60c300a4750e1c5fc311d0abc16c8da5916357900a928606c2f570acf23a3",
+      "file_count": 14
+    },
+    {
+      "name": "bytes",
+      "version": "1.12.1",
+      "checksum": "fc652a48c352aef3ea3aed32080501cf3ef6ed5da78602a020c991775b0aff04",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "serde",
+        "std"
+      ],
+      "archive_sha256": "fc652a48c352aef3ea3aed32080501cf3ef6ed5da78602a020c991775b0aff04",
+      "source_tree_digest": "1e8624f27d1a0f178db11062cc323bfd6a29d92c5d1d4e4e199f27da70c111e7",
+      "file_count": 40
+    },
+    {
+      "name": "caseless",
+      "version": "0.2.2",
+      "checksum": "8b6fd507454086c8edfd769ca6ada439193cdb209c7681712ef6275cccbfe5d8",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "8b6fd507454086c8edfd769ca6ada439193cdb209c7681712ef6275cccbfe5d8",
+      "source_tree_digest": "229a2a8e83c6b3dbb2f5365f76fb3f0906796f5bfd366074493536b9b875def2",
+      "file_count": 11
+    },
+    {
+      "name": "cbc",
+      "version": "0.2.1",
+      "checksum": "ce2dc9ee5f88d11e0beb842c88b33c8a5cf0d1329c4b19494af42b07dbfe8896",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "block-padding",
+        "default"
+      ],
+      "archive_sha256": "ce2dc9ee5f88d11e0beb842c88b33c8a5cf0d1329c4b19494af42b07dbfe8896",
+      "source_tree_digest": "4bdd587fd50ac0dfbd2c79e068bac54f9b5a011c976607281dd66bcfc4a7fb79",
+      "file_count": 17
+    },
+    {
+      "name": "cc",
+      "version": "1.8.0",
+      "checksum": "6651c9ed80effdc7db0ff72512157f901af5e3549e341e24b1dd4887d836d838",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "parallel"
+      ],
+      "archive_sha256": "6651c9ed80effdc7db0ff72512157f901af5e3549e341e24b1dd4887d836d838",
+      "source_tree_digest": "388d8ccefe5d6aeb577eb45ebcb15d0dbbe69174dcb66429482505383df25b6c",
+      "file_count": 37
+    },
+    {
+      "name": "cfb",
+      "version": "0.14.0",
+      "checksum": "a347dcabdae9c31b0825fd6a8bed285ec9c2acb89c47827126d52fa4f59cece3",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "a347dcabdae9c31b0825fd6a8bed285ec9c2acb89c47827126d52fa4f59cece3",
+      "source_tree_digest": "afe92d723bb89b6f1a4dfb408a0da19959e64a5b8a838084c2e2c277b0254f4c",
+      "file_count": 46
+    },
+    {
+      "name": "cfg-if",
+      "version": "1.0.5",
+      "checksum": "4e7648175b45a9a48536d676f68d918270699102aa8dab5496df06904c914600",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "4e7648175b45a9a48536d676f68d918270699102aa8dab5496df06904c914600",
+      "source_tree_digest": "ca5d16fc5975021244447571ccd3d5557f14e03072d88278ede83f90a916f446",
+      "file_count": 14
+    },
+    {
+      "name": "cfg_aliases",
+      "version": "0.2.2",
+      "checksum": "f079e83a288787bcd14a6aea84cee5c87a67c5a3e660c30f557a3d24761b3527",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "f079e83a288787bcd14a6aea84cee5c87a67c5a3e660c30f557a3d24761b3527",
+      "source_tree_digest": "7adbea50fba2481ce622c3d93cb80c67bab47955af547d9aabcdc491707d02f2",
+      "file_count": 10
+    },
+    {
+      "name": "chacha20",
+      "version": "0.10.2",
+      "checksum": "65c35e4b699c7e15ccbe7ee35c005e4fc0a278d22238a2857e6ce2dadeda1b06",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "rng"
+      ],
+      "archive_sha256": "65c35e4b699c7e15ccbe7ee35c005e4fc0a278d22238a2857e6ce2dadeda1b06",
+      "source_tree_digest": "1d939baf76f15ec3f998691f49710e24c819ac067737b8084a3079e9eea239ce",
+      "file_count": 25
+    },
+    {
+      "name": "chrono",
+      "version": "0.4.45",
+      "checksum": "1aa79e62e7697b8e29b513a68abacf485adcd1fe8284a4316c5ae868e6633327",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "alloc",
+        "clock",
+        "default",
+        "iana-time-zone",
+        "js-sys",
+        "now",
+        "oldtime",
+        "std",
+        "wasm-bindgen",
+        "wasmbind",
+        "winapi",
+        "windows-link"
+      ],
+      "archive_sha256": "1aa79e62e7697b8e29b513a68abacf485adcd1fe8284a4316c5ae868e6633327",
+      "source_tree_digest": "d659fc81d161bbcd05799a31188c87112d5960c1a11a90509a2a2ec579fec67a",
+      "file_count": 51
+    },
+    {
+      "name": "cipher",
+      "version": "0.5.2",
+      "checksum": "e8cf2a2c93cd704877c0858356ed03480ff301ee950b43f1cbe4573b088bfa6c",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "block-padding"
+      ],
+      "archive_sha256": "e8cf2a2c93cd704877c0858356ed03480ff301ee950b43f1cbe4573b088bfa6c",
+      "source_tree_digest": "ee7e32c9346de92c2c635e5f255eb4867baee7ea214aba9146a91318c23acc3f",
+      "file_count": 26
+    },
+    {
+      "name": "codepage",
+      "version": "0.1.3",
+      "checksum": "bdff162541cd8b79de82e2edcc7eff3a8c2a6dc3d75152636028f96d93de3b26",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "bdff162541cd8b79de82e2edcc7eff3a8c2a6dc3d75152636028f96d93de3b26",
+      "source_tree_digest": "2f5ce528ffd341d833aa30a558830774fbc01444d88987396b8bd3e89debfc2c",
+      "file_count": 11
+    },
+    {
+      "name": "color_quant",
+      "version": "1.1.0",
+      "checksum": "3d7b894f5411737b7867f4827955924d7c254fc9f4d91a6aad6b097804b1018b",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "3d7b894f5411737b7867f4827955924d7c254fc9f4d91a6aad6b097804b1018b",
+      "source_tree_digest": "aa8545df2e507c697ed214c4bd511344dd95bf3e6c3e390674a834f413c1884e",
+      "file_count": 10
+    },
+    {
+      "name": "comrak",
+      "version": "0.56.0",
+      "checksum": "2544c4d6b6da7d54e95ac2833b464bf3dffa0666237868f2bf4ec5e11c9ba8cc",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "2544c4d6b6da7d54e95ac2833b464bf3dffa0666237868f2bf4ec5e11c9ba8cc",
+      "source_tree_digest": "3d9df880058e851cb3e1dba89233f97421806d1da85d0679b20276cf3a64b2cb",
+      "file_count": 133
+    },
+    {
+      "name": "const-oid",
+      "version": "0.10.2",
+      "checksum": "a6ef517f0926dd24a1582492c791b6a4818a4d94e789a334894aa15b0d12f55c",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "a6ef517f0926dd24a1582492c791b6a4818a4d94e789a334894aa15b0d12f55c",
+      "source_tree_digest": "949ad62c57441f343926cadd5f4112e5fb316cb7fd151cbf60a5daf46b5baa78",
+      "file_count": 22
+    },
+    {
+      "name": "const-random-macro",
+      "version": "0.1.16",
+      "checksum": "f9d839f2a20b0aee515dc581a6172f2321f96cab76c1a38a4c584a194955390e",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "f9d839f2a20b0aee515dc581a6172f2321f96cab76c1a38a4c584a194955390e",
+      "source_tree_digest": "a2e2e45d692579e5f9036d721744a518a7dac7a190ce56bf4479488868e222b9",
+      "file_count": 7
+    },
+    {
+      "name": "const-random",
+      "version": "0.1.18",
+      "checksum": "87e00182fe74b066627d63b85fd550ac2998d4b0bd86bfed477a0ae4c7c71359",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "87e00182fe74b066627d63b85fd550ac2998d4b0bd86bfed477a0ae4c7c71359",
+      "source_tree_digest": "a2a8e2d57dcffd066cf17bfe46fb7adda9dabb41f0dc8209c9c4b42022417d69",
+      "file_count": 10
+    },
+    {
+      "name": "constant_time_eq",
+      "version": "0.4.2",
+      "checksum": "3d52eff69cd5e647efe296129160853a42795992097e8af39800e1060caeea9b",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "std"
+      ],
+      "archive_sha256": "3d52eff69cd5e647efe296129160853a42795992097e8af39800e1060caeea9b",
+      "source_tree_digest": "2f41a8af42f69c70921dd513feed30dee44229c9f7235a905ba3db7b83aeac21",
+      "file_count": 24
+    },
+    {
+      "name": "core-foundation-sys",
+      "version": "0.8.7",
+      "checksum": "773648b94d0e5d620f64f280777445740e61fe701025087ec8b57f45c791888b",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "link"
+      ],
+      "archive_sha256": "773648b94d0e5d620f64f280777445740e61fe701025087ec8b57f45c791888b",
+      "source_tree_digest": "5c8a6e0a377a94e1ab851eab5d183ca97c88023e18f4425b1a0e02a232391803",
+      "file_count": 45
+    },
+    {
+      "name": "cpubits",
+      "version": "0.1.1",
+      "checksum": "15b85f9c39137c3a891689859392b1bd49812121d0d61c9caf00d46ed5ce06ae",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "15b85f9c39137c3a891689859392b1bd49812121d0d61c9caf00d46ed5ce06ae",
+      "source_tree_digest": "959a65543dc767b8f953b906be3c91ca91a5a1aa40c61612c0e07e98e528a5d4",
+      "file_count": 9
+    },
+    {
+      "name": "cpufeatures",
+      "version": "0.3.1",
+      "checksum": "5ca28b0ae3115b884660db4118d803791fd6756b6e88f39c0f3f7859060d7566",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "5ca28b0ae3115b884660db4118d803791fd6756b6e88f39c0f3f7859060d7566",
+      "source_tree_digest": "81444810a906b2f21e49d25e12167d0ff153f8ad98818f0fb6f01a821f749626",
+      "file_count": 16
+    },
+    {
+      "name": "crc32fast",
+      "version": "1.5.2",
+      "checksum": "01a7799fd6b852db0e61728dde9a204c423b44d689dbd432522543614b490e78",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "std"
+      ],
+      "archive_sha256": "01a7799fd6b852db0e61728dde9a204c423b44d689dbd432522543614b490e78",
+      "source_tree_digest": "7d03f730cf18d3147ab53f1334716f0fb018734bcc39332eceb3787ddc470931",
+      "file_count": 19
+    },
+    {
+      "name": "crossbeam-deque",
+      "version": "0.8.8",
+      "checksum": "622f3fc73690be383c7214310406f28a90e6edeadc3cea882f9d71e495b9711a",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "std"
+      ],
+      "archive_sha256": "622f3fc73690be383c7214310406f28a90e6edeadc3cea882f9d71e495b9711a",
+      "source_tree_digest": "59f726232bd90d96c431c3d2f921f99e7f04dd13fda99d7702888eca203300dc",
+      "file_count": 15
+    },
+    {
+      "name": "crossbeam-epoch",
+      "version": "0.9.21",
+      "checksum": "dc74980687109a3b14c72fd458107bf0baa1da1a1a805e178d15501ba9b86d9d",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "alloc",
+        "std"
+      ],
+      "archive_sha256": "dc74980687109a3b14c72fd458107bf0baa1da1a1a805e178d15501ba9b86d9d",
+      "source_tree_digest": "7a4d5f5fa361663bf69a59a6d678afec58174717571bfed62621014cb32a2d5b",
+      "file_count": 26
+    },
+    {
+      "name": "crossbeam-utils",
+      "version": "0.8.23",
+      "checksum": "a31eee39dddec8330830986fcd7625edb5a24ec90ea038215273bbc3adb08ac6",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "std"
+      ],
+      "archive_sha256": "a31eee39dddec8330830986fcd7625edb5a24ec90ea038215273bbc3adb08ac6",
+      "source_tree_digest": "6c63d97f344fdca6aca92f429681613c30beb9b68f6c5898ed303fd8251022b1",
+      "file_count": 32
+    },
+    {
+      "name": "crunchy",
+      "version": "0.2.4",
+      "checksum": "460fbee9c2c2f33933d720630a6a0bac33ba7053db5344fac858d4b8952d77d5",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "limit_128"
+      ],
+      "archive_sha256": "460fbee9c2c2f33933d720630a6a0bac33ba7053db5344fac858d4b8952d77d5",
+      "source_tree_digest": "3c7a98eb4b19064251a42e1689e5ff8858d9ca1ba762af848e1f0990d19be6c1",
+      "file_count": 9
+    },
+    {
+      "name": "crypto-common",
+      "version": "0.2.2",
+      "checksum": "ce6e4c961d6cd6c9a86db418387425e8bdeaf05b3c8bc1411e6dca4c252f1453",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "ce6e4c961d6cd6c9a86db418387425e8bdeaf05b3c8bc1411e6dca4c252f1453",
+      "source_tree_digest": "eda5ef0a7ed6f6684f78662feb57286df6c3772afaa74902e901398e56ff7656",
+      "file_count": 11
+    },
+    {
+      "name": "digest",
+      "version": "0.11.3",
+      "checksum": "f1dd6dbb5841937940781866fa1281a1ff7bd3bf827091440879f9994983d5c2",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "alloc",
+        "block-api",
+        "default",
+        "oid"
+      ],
+      "archive_sha256": "f1dd6dbb5841937940781866fa1281a1ff7bd3bf827091440879f9994983d5c2",
+      "source_tree_digest": "078cf20e1e1baeeffaa1de5154ed391c84cae2701d487efadc26c4585f361879",
+      "file_count": 26
+    },
+    {
+      "name": "dirs-sys",
+      "version": "0.5.0",
+      "checksum": "e01a3366d27ee9890022452ee61b2b63a67e6f13f58900b651ff5665f0bb1fab",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "e01a3366d27ee9890022452ee61b2b63a67e6f13f58900b651ff5665f0bb1fab",
+      "source_tree_digest": "1e73144cda1adb84079d397b8a75b6638b1c362e0680bee201390939c8b7242e",
+      "file_count": 11
+    },
+    {
+      "name": "dirs",
+      "version": "7.0.0",
+      "checksum": "8d57d423b3c82e89b9a24ca3091fee61f456a26edbd28d26c65906f4bc1dcd8f",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "8d57d423b3c82e89b9a24ca3091fee61f456a26edbd28d26c65906f4bc1dcd8f",
+      "source_tree_digest": "b6a69fc74658445e488a0157bc39d59dfecd5cfe39da18889afc346c0fc40b95",
+      "file_count": 14
+    },
+    {
+      "name": "displaydoc",
+      "version": "0.2.7",
+      "checksum": "c6232dd377dcc64799954cbd3a9bb882e9cdc1308ccd87b1c098f1fb2eaf82a8",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "c6232dd377dcc64799954cbd3a9bb882e9cdc1308ccd87b1c098f1fb2eaf82a8",
+      "source_tree_digest": "51a996e1568cec786f634f43c08e4cfe7df4fe75e9edefef3e837b4177a1a591",
+      "file_count": 25
+    },
+    {
+      "name": "document-features",
+      "version": "0.2.12",
+      "checksum": "d4b8a88685455ed29a21542a33abd9cb6510b6b129abadabdcef0f4c55bc8f61",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default"
+      ],
+      "archive_sha256": "d4b8a88685455ed29a21542a33abd9cb6510b6b129abadabdcef0f4c55bc8f61",
+      "source_tree_digest": "b4853d65092f56d3168380fb809456676f3fb967b20111dc16a26493b72709fe",
+      "file_count": 13
+    },
+    {
+      "name": "ecb",
+      "version": "0.2.1",
+      "checksum": "26f2a8b3e564eba0877223dc343703ad0385794e882e6d13f3a4dd5c6b1f41ac",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "block-padding",
+        "default"
+      ],
+      "archive_sha256": "26f2a8b3e564eba0877223dc343703ad0385794e882e6d13f3a4dd5c6b1f41ac",
+      "source_tree_digest": "192c201c41ae0147e2171e99d12998fa56937d63d93b2ff2d455bf19154551bf",
+      "file_count": 15
+    },
+    {
+      "name": "either",
+      "version": "1.19.0",
+      "checksum": "0e9c71c2167ca323c882b99918929403426e2373ea17242ff5653e0d5e1058be",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "std",
+        "use_std"
+      ],
+      "archive_sha256": "0e9c71c2167ca323c882b99918929403426e2373ea17242ff5653e0d5e1058be",
+      "source_tree_digest": "8f6486b9e33b6fcbb15ecfc20a9da5ebfe515658fafaa682edc5ed16378a6991",
+      "file_count": 15
+    },
+    {
+      "name": "encoding_rs",
+      "version": "0.8.42",
+      "checksum": "8e985e0451871ad22fb8d2b6b076e2028a502a0d3950998c2c5c0a4f9b5d9679",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "alloc",
+        "default"
+      ],
+      "archive_sha256": "8e985e0451871ad22fb8d2b6b076e2028a502a0d3950998c2c5c0a4f9b5d9679",
+      "source_tree_digest": "b5bba4c3b2ce7f12af001b3530bdd5442a513cba26a17503d264e9cf55285a02",
+      "file_count": 32
+    },
+    {
+      "name": "entities",
+      "version": "1.0.1",
+      "checksum": "b5320ae4c3782150d900b79807611a59a99fc9a1d61d686faafc24b93fc8d7ca",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "b5320ae4c3782150d900b79807611a59a99fc9a1d61d686faafc24b93fc8d7ca",
+      "source_tree_digest": "79bda19793066b07f4a9c2aac9340e50dd0955214e7031de950f4a9da0e4eba7",
+      "file_count": 9
+    },
+    {
+      "name": "equator-macro",
+      "version": "0.4.2",
+      "checksum": "44f23cf4b44bfce11a86ace86f8a73ffdec849c9fd00a386a53d278bd9e81fb3",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "44f23cf4b44bfce11a86ace86f8a73ffdec849c9fd00a386a53d278bd9e81fb3",
+      "source_tree_digest": "b399822db19b6d9d2166d8613e038b2607136b8de8c49f35317c6423572bc1aa",
+      "file_count": 7
+    },
+    {
+      "name": "equator",
+      "version": "0.4.2",
+      "checksum": "4711b213838dfee0117e3be6ac926007d7f433d7bbe33595975d4190cb07e6fc",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "4711b213838dfee0117e3be6ac926007d7f433d7bbe33595975d4190cb07e6fc",
+      "source_tree_digest": "7a4a834c6016e64149c92b53a8a079165af304c0823c682f6b9dde05c8fcec4d",
+      "file_count": 15
+    },
+    {
+      "name": "equivalent",
+      "version": "1.0.3",
+      "checksum": "00d174d5400e5e8fd687ad1049e2f578285fa914201b1af7e8b112a4546bd826",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "00d174d5400e5e8fd687ad1049e2f578285fa914201b1af7e8b112a4546bd826",
+      "source_tree_digest": "77697074e390e98caf56a08ae0447e7c666b95c49fed08df06bb822ab7c73e37",
+      "file_count": 10
+    },
+    {
+      "name": "exr",
+      "version": "1.74.2",
+      "checksum": "711fe42c9964295e01ee3fba3f9fe0e1d24b98886950d68efe81b1c76e21adf3",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "rayon"
+      ],
+      "archive_sha256": "711fe42c9964295e01ee3fba3f9fe0e1d24b98886950d68efe81b1c76e21adf3",
+      "source_tree_digest": "53aeb298347eac368a1228acbe4135331a61889a2fc04c9d31106551a9ba2d89",
+      "file_count": 99
+    },
+    {
+      "name": "fast_image_resize",
+      "version": "6.1.0",
+      "checksum": "e9c50201dc184ba6553da1695aac20a042efffbe2d84542cee31917c86c3ab1e",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "std"
+      ],
+      "archive_sha256": "e9c50201dc184ba6553da1695aac20a042efffbe2d84542cee31917c86c3ab1e",
+      "source_tree_digest": "000fdf83f101cad5c391c83ab072a3cfe2c5f71857b2c2e1aabef31677f0be7c",
+      "file_count": 204
+    },
+    {
+      "name": "fastrand",
+      "version": "2.5.0",
+      "checksum": "da7c62ceae207dd37ea5b845da6a0696c799f85e97da1ab5b7910be3c1c80223",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "da7c62ceae207dd37ea5b845da6a0696c799f85e97da1ab5b7910be3c1c80223",
+      "source_tree_digest": "27f41fdfaa61232ce18ee70153c900552b4ba4411046c8d6641fba1a6d1a0f72",
+      "file_count": 13
+    },
+    {
+      "name": "fax",
+      "version": "0.2.7",
+      "checksum": "caf1079563223d5d59d83c85886a56e586cfd5c1a26292e971a0fa266531ac5a",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "caf1079563223d5d59d83c85886a56e586cfd5c1a26292e971a0fa266531ac5a",
+      "source_tree_digest": "b2a6381a0a79a3fb234d930d5c8a544340cebaf6c1653019bca1e3b982709382",
+      "file_count": 22
+    },
+    {
+      "name": "fax",
+      "version": "0.3.0",
+      "checksum": "70ed8646f3993cad0585c6669ffba6f7e5440a0bfb0a1f16600cae33ce7cf307",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "70ed8646f3993cad0585c6669ffba6f7e5440a0bfb0a1f16600cae33ce7cf307",
+      "source_tree_digest": "75b7580d6cb06e44566ae8a30fb77d0b4819797b0015fbb20cd9f8ebd0968f00",
+      "file_count": 22
+    },
+    {
+      "name": "fdeflate",
+      "version": "0.3.7",
+      "checksum": "1e6853b52649d4ac5c0bd02320cddc5ba956bdb407c4b75a2c6b75bf51500f8c",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "1e6853b52649d4ac5c0bd02320cddc5ba956bdb407c4b75a2c6b75bf51500f8c",
+      "source_tree_digest": "4351471c4ccedb351d3d278dd7925a8e7556568273137c78c9df8236e6bbc05e",
+      "file_count": 16
+    },
+    {
+      "name": "fearless_simd",
+      "version": "1.1.0",
+      "checksum": "3296eb97d869113eaf148a6bdf01884e90b3828ad7ae2340b0f93362fc158611",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "std"
+      ],
+      "archive_sha256": "3296eb97d869113eaf148a6bdf01884e90b3828ad7ae2340b0f93362fc158611",
+      "source_tree_digest": "2db788322e018f1c4d5899af40574e7cafca3c1d9ecdbc212da01d7326622de5",
+      "file_count": 33
+    },
+    {
+      "name": "fearless_simd_macros",
+      "version": "0.1.0",
+      "checksum": "3e91d94c6885390b81782d7ee60fd6583b33907333a8b340de25ccf468353315",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "3e91d94c6885390b81782d7ee60fd6583b33907333a8b340de25ccf468353315",
+      "source_tree_digest": "207aac0b4ea6ae91c890887fc6342133718df90a0185ffbaddc60655896d6724",
+      "file_count": 8
+    },
+    {
+      "name": "find-msvc-tools",
+      "version": "0.1.14",
+      "checksum": "aedcfb3409746eddb02b9e19ebda1c3394f759a152e48ee875a0844d1b955484",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "aedcfb3409746eddb02b9e19ebda1c3394f759a152e48ee875a0844d1b955484",
+      "source_tree_digest": "374c47ac5267282877f4c9b8ea75e9ad43327446d2ff8e58562da04fdae7fe2d",
+      "file_count": 19
+    },
+    {
+      "name": "finl_unicode",
+      "version": "1.5.0",
+      "checksum": "80bb028c8b4148c9ee0cca68fcd9add6044e81d3619f48577ddf13a263d047a2",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "categories",
+        "default",
+        "grapheme_clusters"
+      ],
+      "archive_sha256": "80bb028c8b4148c9ee0cca68fcd9add6044e81d3619f48577ddf13a263d047a2",
+      "source_tree_digest": "7c0dc4f2ca0d522c94008090545ca035fc49393258f52989a01ec8137acc8f3c",
+      "file_count": 22
+    },
+    {
+      "name": "flate2",
+      "version": "1.1.10",
+      "checksum": "6e634e2e0ebac1ee034020da1ca582e17ffe4e0f5e985823721e168928136dcb",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "any_impl",
+        "any_zlib",
+        "default",
+        "miniz_oxide",
+        "runtime_detection",
+        "rust_backend",
+        "zlib-rs"
+      ],
+      "archive_sha256": "6e634e2e0ebac1ee034020da1ca582e17ffe4e0f5e985823721e168928136dcb",
+      "source_tree_digest": "b9759ae254ed77807447f96c8da93b7fc67a172e4f0ff161d2ef4c1208d1a928",
+      "file_count": 63
+    },
+    {
+      "name": "fnv",
+      "version": "1.0.7",
+      "checksum": "3f9eec918d3f24069decb9af1554cad7c880e2da24a9afd88aca000531ab82c1",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "std"
+      ],
+      "archive_sha256": "3f9eec918d3f24069decb9af1554cad7c880e2da24a9afd88aca000531ab82c1",
+      "source_tree_digest": "9ea67dbeacbb085123f1a457a16f8dc0711005dd3eaf47d6810c14aad0f1282b",
+      "file_count": 9
+    },
+    {
+      "name": "foldhash",
+      "version": "0.2.0",
+      "checksum": "77ce24cb58228fbb8aa041425bb1050850ac19177686ea6e0f41a70416f56fdb",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "77ce24cb58228fbb8aa041425bb1050850ac19177686ea6e0f41a70416f56fdb",
+      "source_tree_digest": "05711dc7d91562859de13b5abf1a909bde186be6338d9ed6a56914b36bd7ca01",
+      "file_count": 12
+    },
+    {
+      "name": "font-types",
+      "version": "0.12.6",
+      "checksum": "6c92d9081c7ab3bd83ef1eecdfad090f3d966e3ce74106779664114cfe1a6274",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "bytemuck",
+        "std"
+      ],
+      "archive_sha256": "6c92d9081c7ab3bd83ef1eecdfad090f3d966e3ce74106779664114cfe1a6274",
+      "source_tree_digest": "eb7a060de9984e44829e4c17cead47cbe3f9d10919d8f76d13af7d8737e28ee8",
+      "file_count": 23
+    },
+    {
+      "name": "form_urlencoded",
+      "version": "1.2.2",
+      "checksum": "cb4cb245038516f5f85277875cdaa4f7d2c9a0fa0468de06ed190163b1581fcf",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "alloc",
+        "std"
+      ],
+      "archive_sha256": "cb4cb245038516f5f85277875cdaa4f7d2c9a0fa0468de06ed190163b1581fcf",
+      "source_tree_digest": "ea8a3db13561a0900a4e59f0a70156d32ac017ceccd8e22b8a636ef6fe7c71f1",
+      "file_count": 7
+    },
+    {
+      "name": "funty",
+      "version": "2.0.0",
+      "checksum": "e6d5a32815ae3f33302d95fdcb2ce17862f8c65363dcfd29360480ba1001fc9c",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "e6d5a32815ae3f33302d95fdcb2ce17862f8c65363dcfd29360480ba1001fc9c",
+      "source_tree_digest": "57206f8b2c3a391aebba595267e0bf83767335a3947300890e43040420679c34",
+      "file_count": 5
+    },
+    {
+      "name": "getopts",
+      "version": "0.2.24",
+      "checksum": "cfe4fbac503b8d1f88e6676011885f34b7174f46e59956bba534ba83abded4df",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "unicode"
+      ],
+      "archive_sha256": "cfe4fbac503b8d1f88e6676011885f34b7174f46e59956bba534ba83abded4df",
+      "source_tree_digest": "4e7c6dbd5f15d219fe6c26b42fb1c875614b0bc203a81e1ae025c360d630330a",
+      "file_count": 15
+    },
+    {
+      "name": "getrandom",
+      "version": "0.2.17",
+      "checksum": "ff2abc00be7fca6ebc474524697ae276ad847ad0a6b3faa4bcb027e9a4614ad0",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "js",
+        "js-sys",
+        "wasm-bindgen"
+      ],
+      "archive_sha256": "ff2abc00be7fca6ebc474524697ae276ad847ad0a6b3faa4bcb027e9a4614ad0",
+      "source_tree_digest": "7caa85e30ea60d3b2b505fa515ec0d51c32a3fd37b54e24c458b95342739738e",
+      "file_count": 38
+    },
+    {
+      "name": "getrandom",
+      "version": "0.3.4",
+      "checksum": "899def5c37c4fd7b2664648c28120ecec138e4d395b459e5ca34f9cce2dd77fd",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "std",
+        "wasm_js"
+      ],
+      "archive_sha256": "899def5c37c4fd7b2664648c28120ecec138e4d395b459e5ca34f9cce2dd77fd",
+      "source_tree_digest": "2037f298a29d5f722fdc530455f36acddfeb87882899198d6b9b23b109ee4a04",
+      "file_count": 43
+    },
+    {
+      "name": "getrandom",
+      "version": "0.4.3",
+      "checksum": "300e883d756b2e4ec94e02791f39b04b522276138852cfc41d9fb7e904106099",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "std",
+        "sys_rng",
+        "wasm_js"
+      ],
+      "archive_sha256": "300e883d756b2e4ec94e02791f39b04b522276138852cfc41d9fb7e904106099",
+      "source_tree_digest": "5b0a990a1038b0f671d9785541ea930fb9a85a7b100287a5eeeb269b4682140a",
+      "file_count": 48
+    },
+    {
+      "name": "gif",
+      "version": "0.14.2",
+      "checksum": "ee8cfcc411d9adbbaba82fb72661cc1bcca13e8bba98b364e62b2dba8f960159",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "color_quant",
+        "default",
+        "raii_no_panic",
+        "std"
+      ],
+      "archive_sha256": "ee8cfcc411d9adbbaba82fb72661cc1bcca13e8bba98b364e62b2dba8f960159",
+      "source_tree_digest": "8ed0308d5ba63c83f630875e79bd3cbc1439c5345eba553dc5be0f23debcc792",
+      "file_count": 16
+    },
+    {
+      "name": "half",
+      "version": "2.7.1",
+      "checksum": "6ea2d84b969582b4b1864a92dc5d27cd2b77b622a8d79306834f1be5ba20d84b",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "alloc",
+        "default",
+        "std"
+      ],
+      "archive_sha256": "6ea2d84b969582b4b1864a92dc5d27cd2b77b622a8d79306834f1be5ba20d84b",
+      "source_tree_digest": "6d8038564ce61399696e8248945fbde047777547211b021b5f867569cf05ad5c",
+      "file_count": 24
+    },
+    {
+      "name": "harfrust",
+      "version": "0.14.0",
+      "checksum": "86aa776d6d32b072119e1f1650f4db843ff4382a4aaa6a2c9c4e35703cd377cb",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "std"
+      ],
+      "archive_sha256": "86aa776d6d32b072119e1f1650f4db843ff4382a4aaa6a2c9c4e35703cd377cb",
+      "source_tree_digest": "f2fb6e6b6daf3cb7e19a1c304f2491f2a5f210c725d5d2dd46af00357bbf3a05",
+      "file_count": 83
+    },
+    {
+      "name": "hashbrown",
+      "version": "0.17.1",
+      "checksum": "ed5909b6e89a2db4456e54cd5f673791d7eca6732202bbf2a9cc504fe2f9b84a",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "ed5909b6e89a2db4456e54cd5f673791d7eca6732202bbf2a9cc504fe2f9b84a",
+      "source_tree_digest": "e002b8d348fc5bbf8610e4e8bdebfe06f3991f02fef78e009bccc8e84e8c421a",
+      "file_count": 50
+    },
+    {
+      "name": "hayro-ccitt",
+      "version": "0.4.0",
+      "checksum": "2866f0d976e76497480b853d5e258dab6e4b89ecfe991124e08f15dfa8fd03ad",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "2866f0d976e76497480b853d5e258dab6e4b89ecfe991124e08f15dfa8fd03ad",
+      "source_tree_digest": "5ede1ee0995e327c93981f8eb807f74a9b92498f0ad8787cfe54ed99c693b20e",
+      "file_count": 11
+    },
+    {
+      "name": "hayro-jbig2",
+      "version": "0.3.1",
+      "checksum": "000e025850f4592ddcaee85640db70704151f2bafd43b6f431aa5b6a2c6a35a9",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "000e025850f4592ddcaee85640db70704151f2bafd43b6f431aa5b6a2c6a35a9",
+      "source_tree_digest": "4c6e9165f063c6cd819e800340e67c47b5896c62f1dab076d7946aeee278ad08",
+      "file_count": 32
+    },
+    {
+      "name": "hayro-jpeg2000",
+      "version": "0.4.1",
+      "checksum": "122c5f834c37a2260b9c851bb8be685cf539b2a8b94b704a931ef7d2525d5835",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "122c5f834c37a2260b9c851bb8be685cf539b2a8b94b704a931ef7d2525d5835",
+      "source_tree_digest": "c8548b09e7bb58db41749943dba41b1b4346479d45ead259d07e412abcde2cd1",
+      "file_count": 40
+    },
+    {
+      "name": "hex",
+      "version": "0.4.3",
+      "checksum": "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "alloc",
+        "default",
+        "std"
+      ],
+      "archive_sha256": "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70",
+      "source_tree_digest": "950bf82be1a8b68b0f5e7f6989f20e6475d4bcc8d459ff0a974995c7d70373e2",
+      "file_count": 16
+    },
+    {
+      "name": "html-escape",
+      "version": "0.3.0",
+      "checksum": "491194d601b4fa9fac3c9571e014070a0ad1bc3392d1bc10419695196a8b3cc3",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "std"
+      ],
+      "archive_sha256": "491194d601b4fa9fac3c9571e014070a0ad1bc3392d1bc10419695196a8b3cc3",
+      "source_tree_digest": "433ecfd5957b379a32e99da3a19bf38eca5e340449aeee945814b9afd61408e0",
+      "file_count": 24
+    },
+    {
+      "name": "html-to-markdown-rs",
+      "version": "3.18.1",
+      "checksum": "36135ae2471a090d086837db2f4794dca3bf8ca0ba288b799a0bb85dd3f0acf0",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "inline-images",
+        "metadata"
+      ],
+      "archive_sha256": "36135ae2471a090d086837db2f4794dca3bf8ca0ba288b799a0bb85dd3f0acf0",
+      "source_tree_digest": "8514f3bd8885a6c6f5a38c026f88ad8d9ff705419bf844a6bbd9b43ba11f06ab",
+      "file_count": 200
+    },
+    {
+      "name": "html5ever",
+      "version": "0.40.1",
+      "checksum": "456a1a377e608e555d22ddab27ac0114bc7a7b4199078108e34c2aeae6c9b130",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "456a1a377e608e555d22ddab27ac0114bc7a7b4199078108e34c2aeae6c9b130",
+      "source_tree_digest": "d594253a61d3b52a8290f6d347f6a1ba0f043119ec4eaf4fbc925896aad8b6bd",
+      "file_count": 35
+    },
+    {
+      "name": "hybrid-array",
+      "version": "0.4.15",
+      "checksum": "27f864f10dfb56725ce5ce5472bc52252c8f93a4ab86327122cebf62c5f59a17",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "27f864f10dfb56725ce5ce5472bc52252c8f93a4ab86327122cebf62c5f59a17",
+      "source_tree_digest": "ef8c2081c760b5d47b8362c33c563bd6aae40e02ccaf2b2651351f3b82dc355e",
+      "file_count": 24
+    },
+    {
+      "name": "iana-time-zone",
+      "version": "0.1.65",
+      "checksum": "e31bc9ad994ba00e440a8aa5c9ef0ec67d5cb5e5cb0cc7f8b744a35b389cc470",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "fallback"
+      ],
+      "archive_sha256": "e31bc9ad994ba00e440a8aa5c9ef0ec67d5cb5e5cb0cc7f8b744a35b389cc470",
+      "source_tree_digest": "31c824466f0cf0fa474c0d1d2ed827d6e83ad7d02140acabefc56564eaac6505",
+      "file_count": 37
+    },
+    {
+      "name": "icu_collections",
+      "version": "2.3.0",
+      "checksum": "fa68d21081c4a05d5a901a1c62add574c77048b6a1c67be3b50ce0b60d4ca513",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "fa68d21081c4a05d5a901a1c62add574c77048b6a1c67be3b50ce0b60d4ca513",
+      "source_tree_digest": "c3b9d6412b79168da21c6e46e019c10f82adc4d1d5d46d3e3488de111ec0100d",
+      "file_count": 75
+    },
+    {
+      "name": "icu_locale_core",
+      "version": "2.3.0",
+      "checksum": "d56e28588da92eee5c3201a6eff33fabdd49b62269c8938d4ff050ce4d900deb",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "zerovec"
+      ],
+      "archive_sha256": "d56e28588da92eee5c3201a6eff33fabdd49b62269c8938d4ff050ce4d900deb",
+      "source_tree_digest": "d4c6dc4053558797997f8e4bea8fb25cf0a35fd2078b7a18cc010079c3d3a6c1",
+      "file_count": 87
+    },
+    {
+      "name": "icu_normalizer",
+      "version": "2.3.0",
+      "checksum": "12f9cf5f235641ed274641dd81c3f28d870e276763d0797aeeab72317b1c646f",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "compiled_data"
+      ],
+      "archive_sha256": "12f9cf5f235641ed274641dd81c3f28d870e276763d0797aeeab72317b1c646f",
+      "source_tree_digest": "574dce6be55f7519164d34e81248a4d2dabad2d6cf7d5e732234d9559f2c47bb",
+      "file_count": 38
+    },
+    {
+      "name": "icu_normalizer_data",
+      "version": "2.3.0",
+      "checksum": "1563da1ed3e0b3bf3d74c9b85917ac9c56464d2f57242270c09c9e752f8021a0",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "1563da1ed3e0b3bf3d74c9b85917ac9c56464d2f57242270c09c9e752f8021a0",
+      "source_tree_digest": "d5867afeb33d360219fbb6ea4d92554e3662a4db506bc8241885d389b8f6c4cc",
+      "file_count": 16
+    },
+    {
+      "name": "icu_properties",
+      "version": "2.3.0",
+      "checksum": "7e7ca276ad3145661a65914e6daf131ca5120cd3dcee8f8f3214b8875184a148",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "compiled_data"
+      ],
+      "archive_sha256": "7e7ca276ad3145661a65914e6daf131ca5120cd3dcee8f8f3214b8875184a148",
+      "source_tree_digest": "9c431f390c844afadb15e1155af309d90752b046bf71a9b88cb8d09194eedfaf",
+      "file_count": 23
+    },
+    {
+      "name": "icu_properties_data",
+      "version": "2.3.0",
+      "checksum": "e590f038c1464a96894fd6d10127e90a8be4509f56ff7ecef851b15cee0b7caa",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "e590f038c1464a96894fd6d10127e90a8be4509f56ff7ecef851b15cee0b7caa",
+      "source_tree_digest": "d6740ec846f2a81f3c2e23c0b5247f333d5bd6beb3ea1d608add97db766e9074",
+      "file_count": 146
+    },
+    {
+      "name": "icu_provider",
+      "version": "2.3.1",
+      "checksum": "d27bbb9d3abbefac45d55f647c9de1d44aafcd1186eb91879afef17c396c3e73",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "baked"
+      ],
+      "archive_sha256": "d27bbb9d3abbefac45d55f647c9de1d44aafcd1186eb91879afef17c396c3e73",
+      "source_tree_digest": "207627c27cb0811c15edadc6f315d63a26a6785d1bb5f63608ce6d7d714d6971",
+      "file_count": 25
+    },
+    {
+      "name": "idna",
+      "version": "1.1.0",
+      "checksum": "3b0875f23caa03898994f6ddc501886a45c7d3d62d04d2d90788d47be1b1e4de",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "alloc",
+        "compiled_data",
+        "std"
+      ],
+      "archive_sha256": "3b0875f23caa03898994f6ddc501886a45c7d3d62d04d2d90788d47be1b1e4de",
+      "source_tree_digest": "8f9ecc3d5bb982202a772e0102520bb7c3aab264133de5a349f13dee6bbdcca0",
+      "file_count": 21
+    },
+    {
+      "name": "idna_adapter",
+      "version": "1.2.2",
+      "checksum": "cb68373c0d6620ef8105e855e7745e18b0d00d3bdb07fb532e434244cdb9a714",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "compiled_data"
+      ],
+      "archive_sha256": "cb68373c0d6620ef8105e855e7745e18b0d00d3bdb07fb532e434244cdb9a714",
+      "source_tree_digest": "7229af3fdd89d79ce4484247a4d28bcd3a0b6aea2e34b9ec8deda6fb9c757cb2",
+      "file_count": 9
+    },
+    {
+      "name": "image-webp",
+      "version": "0.2.4",
+      "checksum": "525e9ff3e1a4be2fbea1fdf0e98686a6d98b4d8f937e1bf7402245af1909e8c3",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "525e9ff3e1a4be2fbea1fdf0e98686a6d98b4d8f937e1bf7402245af1909e8c3",
+      "source_tree_digest": "0aeb359603540c8626cfbc2c699687bbe6883cf084ba620f45cb04e18664b064",
+      "file_count": 21
+    },
+    {
+      "name": "image",
+      "version": "0.25.10",
+      "checksum": "85ab80394333c02fe689eaf900ab500fbd0c2213da414687ebf995a65d5a6104",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "bmp",
+        "gif",
+        "jpeg",
+        "png",
+        "pnm",
+        "rayon",
+        "tiff",
+        "webp"
+      ],
+      "archive_sha256": "85ab80394333c02fe689eaf900ab500fbd0c2213da414687ebf995a65d5a6104",
+      "source_tree_digest": "e61f9512f2c0564388080a38b58105f696885d96afbc33ce7743783596b9302f",
+      "file_count": 86
+    },
+    {
+      "name": "imgref",
+      "version": "1.12.3",
+      "checksum": "6e44b0a4eaa4c82f441d50a963f2d5f05a787240aeee097597033e72accfd22f",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "deprecated"
+      ],
+      "archive_sha256": "6e44b0a4eaa4c82f441d50a963f2d5f05a787240aeee097597033e72accfd22f",
+      "source_tree_digest": "d5fd433c26c7acc324aca68766666d711da2d0cfca22cf6defa24def15ceadb8",
+      "file_count": 11
+    },
+    {
+      "name": "indexmap",
+      "version": "2.14.2",
+      "checksum": "cc4e190f5d26ca7051642629da2c52fc03bde85a03197c99408dcd291734c855",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "std"
+      ],
+      "archive_sha256": "cc4e190f5d26ca7051642629da2c52fc03bde85a03197c99408dcd291734c855",
+      "source_tree_digest": "a02f18e5cb5ce11a511f0d00714c98579d5c35395ff85c104433a46a59989c83",
+      "file_count": 43
+    },
+    {
+      "name": "infer",
+      "version": "0.22.0",
+      "checksum": "f4200d433cbd5178df7797c9c2e75b348b728e39631cf14520d1e2fc424201f4",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "alloc",
+        "cfb",
+        "default",
+        "std"
+      ],
+      "archive_sha256": "f4200d433cbd5178df7797c9c2e75b348b728e39631cf14520d1e2fc424201f4",
+      "source_tree_digest": "6a64de02983f438984bdca13bcf74d5f92e1c0ac2ae631a8a96dd1eb1c5b9d83",
+      "file_count": 26
+    },
+    {
+      "name": "inout",
+      "version": "0.2.3",
+      "checksum": "d8c0d789294fb457b791f7797a04478704788f30b407e5d0b01deaa846572d9f",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "block-padding"
+      ],
+      "archive_sha256": "d8c0d789294fb457b791f7797a04478704788f30b407e5d0b01deaa846572d9f",
+      "source_tree_digest": "8e58cfa0967a79d50385639eedfd19dba9fc22cb4e760f02dc5647346e99bd1a",
+      "file_count": 15
+    },
+    {
+      "name": "itertools",
+      "version": "0.14.0",
+      "checksum": "2b192c782037fadd9cfa75548310488aabdbf3d2da73885b31bd0abd03351285",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "use_alloc",
+        "use_std"
+      ],
+      "archive_sha256": "2b192c782037fadd9cfa75548310488aabdbf3d2da73885b31bd0abd03351285",
+      "source_tree_digest": "94ffe5b6e1514e0e3282bc074e3b210ae4bf1678ecd15cd940b9229b33930422",
+      "file_count": 88
+    },
+    {
+      "name": "itoa",
+      "version": "1.0.18",
+      "checksum": "8f42a60cbdf9a97f5d2305f08a87dc4e09308d1276d28c869c684d7777685682",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "8f42a60cbdf9a97f5d2305f08a87dc4e09308d1276d28c869c684d7777685682",
+      "source_tree_digest": "eb82b94ffd62019112c4c607a4bf5a0fb44fd81668858ee5e4d765f0fb634ebf",
+      "file_count": 14
+    },
+    {
+      "name": "jobserver",
+      "version": "0.1.35",
+      "checksum": "1c00acbd29eabad4a2392fa0e921c874934dbbf4194312ad20f04a0ed67a3cb3",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "1c00acbd29eabad4a2392fa0e921c874934dbbf4194312ad20f04a0ed67a3cb3",
+      "source_tree_digest": "e7db77e75d8ee817e8b8ad07c03bb46c87a47b9d98c9e0f145f68fbfa6bbf1cc",
+      "file_count": 21
+    },
+    {
+      "name": "jotdown",
+      "version": "0.10.0",
+      "checksum": "206bf4773a58f2a051a24fb77cb6c5eeaa84403c0dc5d072ec460ed1648db594",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "html"
+      ],
+      "archive_sha256": "206bf4773a58f2a051a24fb77cb6c5eeaa84403c0dc5d072ec460ed1648db594",
+      "source_tree_digest": "12dc65291b80af9cefeb379b676324f23483379587bcb3d2c2882d8fc41b1c6b",
+      "file_count": 19
+    },
+    {
+      "name": "jpeg-decoder",
+      "version": "0.3.2",
+      "checksum": "00810f1d8b74be64b13dbf3db89ac67740615d6c891f0e7b6179326533011a07",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "00810f1d8b74be64b13dbf3db89ac67740615d6c891f0e7b6179326533011a07",
+      "source_tree_digest": "9379394088045498e6babe911375d37657a9f9a14a62845f48419425d28d43f4",
+      "file_count": 41
+    },
+    {
+      "name": "lazy_static",
+      "version": "1.5.1",
+      "checksum": "20870f649af7073d53e38067b2a84312175d56ea15217e1b15bc83506ec50afb",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "20870f649af7073d53e38067b2a84312175d56ea15217e1b15bc83506ec50afb",
+      "source_tree_digest": "34ea33b49e335b6cc7c2e2812ad97d716a0aa805d64bf4c2f0328bda006a4080",
+      "file_count": 21
+    },
+    {
+      "name": "lebe",
+      "version": "0.5.3",
+      "checksum": "7a79a3332a6609480d7d0c9eab957bca6b455b91bb84e66d19f5ff66294b85b8",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "7a79a3332a6609480d7d0c9eab957bca6b455b91bb84e66d19f5ff66294b85b8",
+      "source_tree_digest": "da3b76eedfc5776091f672371a8d51e2c0a4b9214a767496e129ed0e6173871e",
+      "file_count": 11
+    },
+    {
+      "name": "libc",
+      "version": "0.2.190",
+      "checksum": "ce5d3ddc6d3fa000eb1536d85e147bfe31aacaba692ed6a876f95cb7c855be78",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "std"
+      ],
+      "archive_sha256": "ce5d3ddc6d3fa000eb1536d85e147bfe31aacaba692ed6a876f95cb7c855be78",
+      "source_tree_digest": "ea671b0e8c296e1853dbe145c5092653332d8bb9c7a5e41c8e946098f4ee94c8",
+      "file_count": 451
+    },
+    {
+      "name": "libm",
+      "version": "0.2.16",
+      "checksum": "b6d2cec3eae94f9f509c767b45932f1ada8350c4bdb85af2fcab4a3c14807981",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "b6d2cec3eae94f9f509c767b45932f1ada8350c4bdb85af2fcab4a3c14807981",
+      "source_tree_digest": "d42694b25f4520e874bd1b5e5023d1e0093bf470e9a102dc1f9c6bb72d284611",
+      "file_count": 155
+    },
+    {
+      "name": "libyaml-rs",
+      "version": "0.3.0",
+      "checksum": "2e126dda6f34391ab7b444f9922055facc83c07a910da3eb16f1e4d9c45dc777",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "2e126dda6f34391ab7b444f9922055facc83c07a910da3eb16f1e4d9c45dc777",
+      "source_tree_digest": "f8ff792ef476b4cf0657a37e6cef2f1a79e52c40cdecaac9329f0d5cde9d18ab",
+      "file_count": 34
+    },
+    {
+      "name": "litemap",
+      "version": "0.8.3",
+      "checksum": "47d9d19d1d6efa0109d2f65ff4c85cddd50bd572e5a00127ab10987290bcefae",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "47d9d19d1d6efa0109d2f65ff4c85cddd50bd572e5a00127ab10987290bcefae",
+      "source_tree_digest": "6338d59b2b5d98bbbac9bcc031f73ad07303a83373433bbe919026fd62beca56",
+      "file_count": 23
+    },
+    {
+      "name": "litrs",
+      "version": "1.0.1",
+      "checksum": "4744e383959f0db86ede514b809b1c53251889093803c05267acc7d4e7030d70",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "4744e383959f0db86ede514b809b1c53251889093803c05267acc7d4e7030d70",
+      "source_tree_digest": "4b54f820b1a83d11200de82dcf3d06db70bf69ccc98faa6d2b710455213e3069",
+      "file_count": 33
+    },
+    {
+      "name": "lock_api",
+      "version": "0.4.14",
+      "checksum": "224399e74b87b5f3557511d98dff8b14089b3dadafcab6bb93eab67d3aace965",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "atomic_usize",
+        "default"
+      ],
+      "archive_sha256": "224399e74b87b5f3557511d98dff8b14089b3dadafcab6bb93eab67d3aace965",
+      "source_tree_digest": "b2d6c1da6a9825c8fd264ce80f1bd55c7991f27e3372d81094b0544231dd087e",
+      "file_count": 10
+    },
+    {
+      "name": "log",
+      "version": "0.4.34",
+      "checksum": "f9f8bd3e56ce4dfc153cf470fffbfa98c7620958b312ca5c3a4b8d5181fd13c6",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "alloc",
+        "std"
+      ],
+      "archive_sha256": "f9f8bd3e56ce4dfc153cf470fffbfa98c7620958b312ca5c3a4b8d5181fd13c6",
+      "source_tree_digest": "ddb2240f5f79fa70f715b8c6c718acda69eebf44f8e4dd88dc25f8949aed2ec1",
+      "file_count": 23
+    },
+    {
+      "name": "loop9",
+      "version": "0.1.5",
+      "checksum": "0fae87c125b03c1d2c0150c90365d7d6bcc53fb73a9acaef207d2d065860f062",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "0fae87c125b03c1d2c0150c90365d7d6bcc53fb73a9acaef207d2d065860f062",
+      "source_tree_digest": "e457578ef95e5a466789091a69213254864256b402c080b3b45d5bee2f257142",
+      "file_count": 6
+    },
+    {
+      "name": "lopdf",
+      "version": "0.45.0",
+      "checksum": "bfffda0fe1ab0157e1a13c14bebd3f28671f2fccb7922f0722ec53926e6922d3",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "bfffda0fe1ab0157e1a13c14bebd3f28671f2fccb7922f0722ec53926e6922d3",
+      "source_tree_digest": "322d3dfdfcf7e7fdf0bc364c915d871699fc4da390203a3c153f0c1e4690a078",
+      "file_count": 115
+    },
+    {
+      "name": "markup5ever",
+      "version": "0.40.0",
+      "checksum": "0ab3dc68ac4a0f5719e560136778c1ee716e296030d75dbd4484e37e39e3a842",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "0ab3dc68ac4a0f5719e560136778c1ee716e296030d75dbd4484e37e39e3a842",
+      "source_tree_digest": "4a18a7b41296d63e10a4ab39ec1234501efdb9adf5008ef9dcc3279f31240c6e",
+      "file_count": 12
+    },
+    {
+      "name": "maybe-rayon",
+      "version": "0.1.1",
+      "checksum": "8ea1f30cedd69f0a2954655f7188c6a834246d2bcf1e315e2ac40c4b24dc9519",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "rayon",
+        "threads"
+      ],
+      "archive_sha256": "8ea1f30cedd69f0a2954655f7188c6a834246d2bcf1e315e2ac40c4b24dc9519",
+      "source_tree_digest": "65b3730339e7d2ac2e623b3d2e27af53adabf10a5be862e78a97dfbe52983ac4",
+      "file_count": 8
+    },
+    {
+      "name": "md-5",
+      "version": "0.11.0",
+      "checksum": "69b6441f590336821bb897fb28fc622898ccceb1d6cea3fde5ea86b090c4de98",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "alloc",
+        "default",
+        "oid"
+      ],
+      "archive_sha256": "69b6441f590336821bb897fb28fc622898ccceb1d6cea3fde5ea86b090c4de98",
+      "source_tree_digest": "08746ee029ca765b5083898fc7fb154d47b4eccb266737e650f34f1a3afc8daf",
+      "file_count": 18
+    },
+    {
+      "name": "memchr-n",
+      "version": "0.1.9",
+      "checksum": "1805571b8e7b1284ad43f27c88477840c1c0e5807c150021ac83d2228806540e",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "1805571b8e7b1284ad43f27c88477840c1c0e5807c150021ac83d2228806540e",
+      "source_tree_digest": "342ef88486f8fb318baf2d26d1460ea27f7c0d12ac022cc29766e1563bf351be",
+      "file_count": 24
+    },
+    {
+      "name": "memchr",
+      "version": "2.8.3",
+      "checksum": "cf8baf1c55e62ffcace7a9f06f4bd9cd3f0c4beb022d3b367256b91b87513d98",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "alloc",
+        "default",
+        "std"
+      ],
+      "archive_sha256": "cf8baf1c55e62ffcace7a9f06f4bd9cd3f0c4beb022d3b367256b91b87513d98",
+      "source_tree_digest": "4d8cc12ffde71c113b03b3ae3f2fb7cc43b1c41e71e18d373874dad9487e7890",
+      "file_count": 59
+    },
+    {
+      "name": "memmap2",
+      "version": "0.9.11",
+      "checksum": "d1219ed1b7f229ee7104d281dd01d6802fe28bb6e95d292942c4daacdeb798c0",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "d1219ed1b7f229ee7104d281dd01d6802fe28bb6e95d292942c4daacdeb798c0",
+      "source_tree_digest": "c129c9aabf81b0929bfc6880b26f0fc83fac570aea268441502d385576f4cd83",
+      "file_count": 16
+    },
+    {
+      "name": "mime",
+      "version": "0.3.17",
+      "checksum": "6877bb514081ee2a7ff5ef9de3281f14a4dd4bceac4c09388074a6b5df8a139a",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "6877bb514081ee2a7ff5ef9de3281f14a4dd4bceac4c09388074a6b5df8a139a",
+      "source_tree_digest": "db7b1d39890e06e25e33548de1e32b0d796adc651f1b8fef01151769e252fea2",
+      "file_count": 14
+    },
+    {
+      "name": "mime_guess",
+      "version": "2.0.5",
+      "checksum": "f7c44f8e672c00fe5308fa235f821cb4198414e1c77935c1ab6948d3fd78550e",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "rev-mappings"
+      ],
+      "archive_sha256": "f7c44f8e672c00fe5308fa235f821cb4198414e1c77935c1ab6948d3fd78550e",
+      "source_tree_digest": "139f8d68f790dcb8f00e0dc17a5a59b50402fa0c1fa2e6b90cfe23a218f6c8a9",
+      "file_count": 15
+    },
+    {
+      "name": "miniz_oxide",
+      "version": "0.8.9",
+      "checksum": "1fa76a2c86f704bdb222d66965fb3d63269ce38518b83cb0575fca855ebb6316",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "simd",
+        "simd-adler32",
+        "with-alloc"
+      ],
+      "archive_sha256": "1fa76a2c86f704bdb222d66965fb3d63269ce38518b83cb0575fca855ebb6316",
+      "source_tree_digest": "39ffe224516e4bf2cf3ccf2f1d55bdd57c8383600fdd3ba082ecd24946128db0",
+      "file_count": 23
+    },
+    {
+      "name": "miniz_oxide",
+      "version": "0.9.1",
+      "checksum": "b63fbc4a50860e98e7b2aa7804ded1db5cbc3aff9193adaff57a6931bf7c4b4c",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "simd",
+        "simd-adler32",
+        "with-alloc"
+      ],
+      "archive_sha256": "b63fbc4a50860e98e7b2aa7804ded1db5cbc3aff9193adaff57a6931bf7c4b4c",
+      "source_tree_digest": "670a511c98c8999fbf21a97eab92d1a482eab38be0bec0027b12e4b84d1b89d4",
+      "file_count": 23
+    },
+    {
+      "name": "moxcms",
+      "version": "0.8.1",
+      "checksum": "bb85c154ba489f01b25c0d36ae69a87e4a1c73a72631fc6c0eb6dde34a73e44b",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "avx",
+        "avx_luts",
+        "avx_shaper_fixed_point_paths",
+        "avx_shaper_paths",
+        "default",
+        "lut",
+        "neon",
+        "neon_luts",
+        "neon_shaper_fixed_point_paths",
+        "neon_shaper_paths",
+        "sse",
+        "sse_luts",
+        "sse_shaper_fixed_point_paths",
+        "sse_shaper_paths"
+      ],
+      "archive_sha256": "bb85c154ba489f01b25c0d36ae69a87e4a1c73a72631fc6c0eb6dde34a73e44b",
+      "source_tree_digest": "b60e0a0c5633092736ad67cc4b647a16cf90808ed427e6aaf8beae0dc5b8729b",
+      "file_count": 127
+    },
+    {
+      "name": "multiversion_no_op",
+      "version": "1.0.0",
+      "checksum": "743fb55ba31b18fb1ecef6bdc9aa2743314978ac084044301a7eee33fb99a20d",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "743fb55ba31b18fb1ecef6bdc9aa2743314978ac084044301a7eee33fb99a20d",
+      "source_tree_digest": "dda38dcfd8db7af1636277b19e9489d433ef5be8224bc6cdf2403f47aa9362e4",
+      "file_count": 9
+    },
+    {
+      "name": "new_debug_unreachable",
+      "version": "1.0.6",
+      "checksum": "650eef8c711430f1a879fdd01d4745a7deea475becfb90269c06775983bbf086",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "650eef8c711430f1a879fdd01d4745a7deea475becfb90269c06775983bbf086",
+      "source_tree_digest": "5d0c6ccc321d8162e223c82f18cae2ead9f11b8bf9de982db8e03d2bdf8c8eca",
+      "file_count": 11
+    },
+    {
+      "name": "no_std_io2",
+      "version": "0.9.4",
+      "checksum": "418abd1b6d34fbf6cae440dc874771b0525a604428704c76e48b29a5e67b8003",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "alloc",
+        "default",
+        "std"
+      ],
+      "archive_sha256": "418abd1b6d34fbf6cae440dc874771b0525a604428704c76e48b29a5e67b8003",
+      "source_tree_digest": "796ce4b444b23d0916872f3224fc37d93016433148dd08c6a86ad660852b7c19",
+      "file_count": 19
+    },
+    {
+      "name": "nom",
+      "version": "8.0.0",
+      "checksum": "df9761775871bdef83bee530e60050f7e54b1105350d6884eb0fb4f46c2f9405",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "alloc",
+        "default",
+        "std"
+      ],
+      "archive_sha256": "df9761775871bdef83bee530e60050f7e54b1105350d6884eb0fb4f46c2f9405",
+      "source_tree_digest": "a5bafee16086f87e4bb09806281fbf0f6bf6131ee484132a34487310f32c18f9",
+      "file_count": 53
+    },
+    {
+      "name": "noop_proc_macro",
+      "version": "0.3.0",
+      "checksum": "0676bb32a98c1a483ce53e500a81ad9c3d5b3f7c920c28c24e9cb0980d0b5bc8",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "0676bb32a98c1a483ce53e500a81ad9c3d5b3f7c920c28c24e9cb0980d0b5bc8",
+      "source_tree_digest": "b7208177485d828130086715f54cef25946ee824507422e6b30a033758621ad0",
+      "file_count": 9
+    },
+    {
+      "name": "num-bigint",
+      "version": "0.4.8",
+      "checksum": "c89e69e7e0f03bea5ef08013795c25018e101932225a656383bd384495ecc367",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "std"
+      ],
+      "archive_sha256": "c89e69e7e0f03bea5ef08013795c25018e101932225a656383bd384495ecc367",
+      "source_tree_digest": "fde365a7cbda3ddf113bc0d10ae9502de6d19403502a81f25ebde8f40fa83517",
+      "file_count": 53
+    },
+    {
+      "name": "num-complex",
+      "version": "0.4.6",
+      "checksum": "73f88a1307638156682bada9d7604135552957b7818057dcef22705b4d509495",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "bytemuck",
+        "default",
+        "std"
+      ],
+      "archive_sha256": "73f88a1307638156682bada9d7604135552957b7818057dcef22705b4d509495",
+      "source_tree_digest": "0bea67058381bd08ed2484500aedf0d3af480c95bdf9746df9cf118dc71e2533",
+      "file_count": 13
+    },
+    {
+      "name": "num-derive",
+      "version": "0.4.2",
+      "checksum": "ed3955f1a9c7c0c15e092f9c887db08b1fc683305fdf6eb6684f22555355e202",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "ed3955f1a9c7c0c15e092f9c887db08b1fc683305fdf6eb6684f22555355e202",
+      "source_tree_digest": "2a9930fef59a697fdb0117330ce498d1feb34c79df75bb5e72b5e93a14bb3b69",
+      "file_count": 22
+    },
+    {
+      "name": "num-integer",
+      "version": "0.1.47",
+      "checksum": "7ce2d95d4b3734dc35aa2f45e1aa22cd416814592a4f9d9205e11affd5b8e10b",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "i128",
+        "std"
+      ],
+      "archive_sha256": "7ce2d95d4b3734dc35aa2f45e1aa22cd416814592a4f9d9205e11affd5b8e10b",
+      "source_tree_digest": "b6d606bdd8d5c70797fbc68d062401225ac079c4b3e9d93859b25862228430a3",
+      "file_count": 17
+    },
+    {
+      "name": "num-rational",
+      "version": "0.4.2",
+      "checksum": "f83d14da390562dca69fc84082e73e548e1ad308d24accdedd2720017cb37824",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "num-bigint",
+        "std"
+      ],
+      "archive_sha256": "f83d14da390562dca69fc84082e73e548e1ad308d24accdedd2720017cb37824",
+      "source_tree_digest": "8829ad81ff8c8bb4e285a459bb5f387e4378fe9c6518eb81f804f3e91c5d0d1f",
+      "file_count": 10
+    },
+    {
+      "name": "num-traits",
+      "version": "0.2.19",
+      "checksum": "071dfc062690e90b734c0b2273ce72ad0ffa95f0c74596bc250dcfd960262841",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "i128",
+        "std"
+      ],
+      "archive_sha256": "071dfc062690e90b734c0b2273ce72ad0ffa95f0c74596bc250dcfd960262841",
+      "source_tree_digest": "343bf3acec0b2a1a1dac0412db0bb8d03f980aa32e77578eb218ec377a9f77bd",
+      "file_count": 29
+    },
+    {
+      "name": "num_cpus",
+      "version": "1.17.0",
+      "checksum": "91df4bbde75afed763b708b7eee1e8e7651e02d97f6d5dd763e89367e957b23b",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "91df4bbde75afed763b708b7eee1e8e7651e02d97f6d5dd763e89367e957b23b",
+      "source_tree_digest": "b4c8ff64cb39ec2f1214d24ccfdda814fbb8b61d2d7883812af2691d7260eb06",
+      "file_count": 32
+    },
+    {
+      "name": "once_cell",
+      "version": "1.21.4",
+      "checksum": "9f7c3e4beb33f85d45ae3e3a1792185706c8e16d043238c593331cc7cd313b50",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "alloc",
+        "default",
+        "race",
+        "std"
+      ],
+      "archive_sha256": "9f7c3e4beb33f85d45ae3e3a1792185706c8e16d043238c593331cc7cd313b50",
+      "source_tree_digest": "b6e4d2b22def8eb72b6c32d860cdd151e4ed238dc10c7203d70a896d8f2d9860",
+      "file_count": 29
+    },
+    {
+      "name": "option-ext",
+      "version": "0.2.0",
+      "checksum": "04744f49eae99ab78e0d5c0b603ab218f515ea8cfe5a456d7629ad883a3b6e7d",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "04744f49eae99ab78e0d5c0b603ab218f515ea8cfe5a456d7629ad883a3b6e7d",
+      "source_tree_digest": "64d2c5897efefa8d728b94b621cf8a0224ebaa776b307108ec03273fcc17b518",
+      "file_count": 8
+    },
+    {
+      "name": "parking_lot",
+      "version": "0.12.5",
+      "checksum": "93857453250e3077bd71ff98b6a65ea6621a19bb0f559a85248955ac12c45a1a",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default"
+      ],
+      "archive_sha256": "93857453250e3077bd71ff98b6a65ea6621a19bb0f559a85248955ac12c45a1a",
+      "source_tree_digest": "a716addb60c0803609c68effaf49553c438a98fe4b38316a0075c6d3d4dc4323",
+      "file_count": 28
+    },
+    {
+      "name": "parking_lot_core",
+      "version": "0.9.12",
+      "checksum": "2621685985a2ebf1c516881c026032ac7deafcda1a2c9b7850dc81e3dfcb64c1",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "2621685985a2ebf1c516881c026032ac7deafcda1a2c9b7850dc81e3dfcb64c1",
+      "source_tree_digest": "6fb456ae2f2a8896260b30ef02b3ddcc9fdb974821e54e7c4a3c8a376aba9414",
+      "file_count": 24
+    },
+    {
+      "name": "paste",
+      "version": "1.0.15",
+      "checksum": "57c0d7b74b563b49d38dae00a0c37d4d6de9b432382b2892f0574ddcae73fd0a",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "57c0d7b74b563b49d38dae00a0c37d4d6de9b432382b2892f0574ddcae73fd0a",
+      "source_tree_digest": "b093222c72fe42b4535c11f4e4d125763364834e7a6f4b8925df1710b57f1d27",
+      "file_count": 47
+    },
+    {
+      "name": "pastey",
+      "version": "0.1.1",
+      "checksum": "35fb2e5f958ec131621fdd531e9fc186ed768cbe395337403ae56c17a74c68ec",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "35fb2e5f958ec131621fdd531e9fc186ed768cbe395337403ae56c17a74c68ec",
+      "source_tree_digest": "ba7c6d6873f652ae58b10d725b6874dd131e2f66c83c9cc5a58b91588de2ad1f",
+      "file_count": 21
+    },
+    {
+      "name": "pastey",
+      "version": "0.2.3",
+      "checksum": "2ee67f1008b1ba2321834326597b8e186293b049a023cdef258527550b9935b4",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "2ee67f1008b1ba2321834326597b8e186293b049a023cdef258527550b9935b4",
+      "source_tree_digest": "7aa9cc826b5da220c45d0739654b507e1fc7829edc8cc7f73a40e09312195527",
+      "file_count": 13
+    },
+    {
+      "name": "percent-encoding",
+      "version": "2.3.2",
+      "checksum": "9b4f627cb1b25917193a259e49bdad08f671f8d9708acfd5fe0a8c1455d87220",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "alloc",
+        "std"
+      ],
+      "archive_sha256": "9b4f627cb1b25917193a259e49bdad08f671f8d9708acfd5fe0a8c1455d87220",
+      "source_tree_digest": "c9b236ab666aecf4438ae1faa86a08be8bb4476debfadcd3ef7b0f1896d90438",
+      "file_count": 8
+    },
+    {
+      "name": "phf",
+      "version": "0.14.0",
+      "checksum": "010378780309880b08997fae13be7834dba947d36393bd372f2b1556deb2a2f6",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "macros",
+        "phf_macros",
+        "std"
+      ],
+      "archive_sha256": "010378780309880b08997fae13be7834dba947d36393bd372f2b1556deb2a2f6",
+      "source_tree_digest": "cc05c2a7cc88f660224d3c47e6c8d2b9030c8aadedd96865264f24e63398a5a2",
+      "file_count": 12
+    },
+    {
+      "name": "phf_codegen",
+      "version": "0.14.0",
+      "checksum": "41b585a510fb76fdebead6897982ef2a03a21d8e6cbcca904999742a4afc6ffe",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "41b585a510fb76fdebead6897982ef2a03a21d8e6cbcca904999742a4afc6ffe",
+      "source_tree_digest": "c9b945f67772d4ec05c22b2d1836d525cccc13a70c6a76a7d7e5917e7be1c403",
+      "file_count": 8
+    },
+    {
+      "name": "phf_generator",
+      "version": "0.14.0",
+      "checksum": "aeb62e0959d5a1bebc965f4d15d9e2b7cea002b6b0f5ba8cde6cc26738467100",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "aeb62e0959d5a1bebc965f4d15d9e2b7cea002b6b0f5ba8cde6cc26738467100",
+      "source_tree_digest": "41f3eef4ac30000eadeb9068eae499ff27d941c013a4da44d11e4c30dfbde2b0",
+      "file_count": 11
+    },
+    {
+      "name": "phf_macros",
+      "version": "0.14.0",
+      "checksum": "5fa8d0ca26d424d27630da600c6624696e7dec8bf7b3b492b383c5dc49e5e085",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "5fa8d0ca26d424d27630da600c6624696e7dec8bf7b3b492b383c5dc49e5e085",
+      "source_tree_digest": "e0b85b3e80ca175dc50b0c06a5885abff26d43968262f4bb31eb691edfe2071e",
+      "file_count": 9
+    },
+    {
+      "name": "phf_shared",
+      "version": "0.14.0",
+      "checksum": "c6fd9027e2d9319be6349febd1db4e8d02aa544921200c9b777720ac34a3aa89",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "std"
+      ],
+      "archive_sha256": "c6fd9027e2d9319be6349febd1db4e8d02aa544921200c9b777720ac34a3aa89",
+      "source_tree_digest": "12d082717ed18c7101fe34f077e505772371f89b7be50f19f8eae9b30f970681",
+      "file_count": 10
+    },
+    {
+      "name": "pin-project-lite",
+      "version": "0.2.17",
+      "checksum": "a89322df9ebe1c1578d689c92318e070967d1042b512afbe49518723f4e6d5cd",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "a89322df9ebe1c1578d689c92318e070967d1042b512afbe49518723f4e6d5cd",
+      "source_tree_digest": "7633c3a8184812edcf4c48d74b86209b6e02edff22b067dca6513d97467db0db",
+      "file_count": 81
+    },
+    {
+      "name": "png",
+      "version": "0.18.1",
+      "checksum": "60769b8b31b2a9f263dae2776c37b1b28ae246943cf719eb6946a1db05128a61",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "60769b8b31b2a9f263dae2776c37b1b28ae246943cf719eb6946a1db05128a61",
+      "source_tree_digest": "63a0254ac90b387a4a4188b4ad1149c15261ea5d75deb47c140570891de332d3",
+      "file_count": 39
+    },
+    {
+      "name": "potential_utf",
+      "version": "0.1.6",
+      "checksum": "d83eb9bc6d8e5cf568e7a1101d60ee05e81ed50ea106026f3d18deeb046d7661",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "zerovec"
+      ],
+      "archive_sha256": "d83eb9bc6d8e5cf568e7a1101d60ee05e81ed50ea106026f3d18deeb046d7661",
+      "source_tree_digest": "34dcbc9e3017f4b85821230dadc3e13daa37c0d539693ea522f15bcc2f67748d",
+      "file_count": 10
+    },
+    {
+      "name": "precomputed-hash",
+      "version": "0.1.1",
+      "checksum": "925383efa346730478fb4838dbe9137d2a47675ad789c546d150a6e1dd4ab31c",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "925383efa346730478fb4838dbe9137d2a47675ad789c546d150a6e1dd4ab31c",
+      "source_tree_digest": "c59b6400173a9ea3e9e002ae678a314f26a1a4f9dffa23e6659843d1c705ed36",
+      "file_count": 5
+    },
+    {
+      "name": "proc-macro2",
+      "version": "1.0.107",
+      "checksum": "985e7ec9bb745e6ce6535b544d84d6cd6f7ad8bd711c398938ae983b91a766d9",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "proc-macro"
+      ],
+      "archive_sha256": "985e7ec9bb745e6ce6535b544d84d6cd6f7ad8bd711c398938ae983b91a766d9",
+      "source_tree_digest": "ee793c83b55353af8accd7e6c65fbbc686eee2aefcb4717852e4223d31247c45",
+      "file_count": 33
+    },
+    {
+      "name": "profiling-procmacros",
+      "version": "1.0.18",
+      "checksum": "4488a4a36b9a4ba6b9334a32a39971f77c1436ec82c38707bce707699cc3bbcb",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "4488a4a36b9a4ba6b9334a32a39971f77c1436ec82c38707bce707699cc3bbcb",
+      "source_tree_digest": "d20e9943e5f18eff3f61579d58fab535dea15453a41d8887aa22d1e10acb95dd",
+      "file_count": 6
+    },
+    {
+      "name": "profiling",
+      "version": "1.0.18",
+      "checksum": "3d595e54a326bc53c1c197b32d295e14b169e3cfeaa8dc82b529f947fba6bcf5",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "procmacros",
+        "profiling-procmacros"
+      ],
+      "archive_sha256": "3d595e54a326bc53c1c197b32d295e14b169e3cfeaa8dc82b529f947fba6bcf5",
+      "source_tree_digest": "d28a5c5ee43ca5c77b0db6954340a3d1c15050be06f77dd547f3ff37e2f9bbc4",
+      "file_count": 13
+    },
+    {
+      "name": "pulldown-cmark-escape",
+      "version": "0.11.0",
+      "checksum": "007d8adb5ddab6f8e3f491ac63566a7d5002cc7ed73901f72057943fa71ae1ae",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "007d8adb5ddab6f8e3f491ac63566a7d5002cc7ed73901f72057943fa71ae1ae",
+      "source_tree_digest": "8394731ad7fe25c002aad22a355870b9740816a8d96bf64548f32281e4d2810e",
+      "file_count": 6
+    },
+    {
+      "name": "pulldown-cmark",
+      "version": "0.13.4",
+      "checksum": "e9f068eba8e7071c5f9511831b44f32c740d5adf574e990f946ddb53db2f314e",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "getopts",
+        "html",
+        "pulldown-cmark-escape"
+      ],
+      "archive_sha256": "e9f068eba8e7071c5f9511831b44f32c740d5adf574e990f946ddb53db2f314e",
+      "source_tree_digest": "1fb8009b1ddf4ab9000475147f0c0ddc531efecc41c66407a50c380ac7ca772d",
+      "file_count": 49
+    },
+    {
+      "name": "pulp-wasm-simd-flag",
+      "version": "0.1.1",
+      "checksum": "1d8f70e07b9c3962945a74e59ca1c511bba65b6419468acc217c457d93f3c740",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "relaxed-simd"
+      ],
+      "archive_sha256": "1d8f70e07b9c3962945a74e59ca1c511bba65b6419468acc217c457d93f3c740",
+      "source_tree_digest": "e6908f58b2a2051802e0a8d51ecf05ccc574de39d64f97b64e74ad78b430fea9",
+      "file_count": 6
+    },
+    {
+      "name": "pulp",
+      "version": "0.22.3",
+      "checksum": "046aa45b989642ec2e4717c8e72d677b13edd831a4d3b6cf37d9a3e54912496a",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "relaxed-simd",
+        "std",
+        "x86-v3"
+      ],
+      "archive_sha256": "046aa45b989642ec2e4717c8e72d677b13edd831a4d3b6cf37d9a3e54912496a",
+      "source_tree_digest": "f60f68abd2081290a9ae03387153be4ae48e389ea415031e87be2b232a2cfdd1",
+      "file_count": 38
+    },
+    {
+      "name": "pxfm",
+      "version": "0.1.30",
+      "checksum": "d55d956fa96f5ec02be2e13af0e20391a5aa83d6a074e3ad368959d0fab299ea",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "d55d956fa96f5ec02be2e13af0e20391a5aa83d6a074e3ad368959d0fab299ea",
+      "source_tree_digest": "5cadc695fe98e5c13dbc68b34ab64353dd127c823f5d9ac012072881135d3d60",
+      "file_count": 266
+    },
+    {
+      "name": "qcms",
+      "version": "0.3.0",
+      "checksum": "edecfcd5d755a5e5d98e24cf43113e7cdaec5a070edd0f6b250c03a573da30fa",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "cmyk",
+        "default",
+        "iccv4-enabled"
+      ],
+      "archive_sha256": "edecfcd5d755a5e5d98e24cf43113e7cdaec5a070edd0f6b250c03a573da30fa",
+      "source_tree_digest": "9d32be2121113a5b7881176b19993df0c8643f17574e952df466de13896c9362",
+      "file_count": 16
+    },
+    {
+      "name": "quick-error",
+      "version": "2.0.1",
+      "checksum": "a993555f31e5a609f617c12db6250dedcac1b0a85076912c436e6fc9b2c8e6a3",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "a993555f31e5a609f617c12db6250dedcac1b0a85076912c436e6fc9b2c8e6a3",
+      "source_tree_digest": "c3dbdef110f4eecb3bf356fc3e0cdb05aad61219623deb91d575e1acbd869ee1",
+      "file_count": 13
+    },
+    {
+      "name": "quick-xml",
+      "version": "0.42.0",
+      "checksum": "41b1177fdf999d2321d3fb46ff47159d9c1fb9ad66a4879f8c50a0b504615e9b",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default"
+      ],
+      "archive_sha256": "41b1177fdf999d2321d3fb46ff47159d9c1fb9ad66a4879f8c50a0b504615e9b",
+      "source_tree_digest": "f0be86dd56f18cee6a331b999a77d255a0826988ba90b38bb3e1256a4a07497b",
+      "file_count": 44
+    },
+    {
+      "name": "quote",
+      "version": "1.0.47",
+      "checksum": "1fbf4db142a473a8d80c26bbf18454ed458bf8d26c8219c331daecfdbd079001",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "proc-macro"
+      ],
+      "archive_sha256": "1fbf4db142a473a8d80c26bbf18454ed458bf8d26c8219c331daecfdbd079001",
+      "source_tree_digest": "608bf46e13612b2721911c92a9fe9b1b9234e436d498826e351a65e20d12f2d0",
+      "file_count": 35
+    },
+    {
+      "name": "radium",
+      "version": "0.7.0",
+      "checksum": "dc33ff2d4973d518d823d61aa239014831e521c75da58e3df4840d3f47749d09",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "dc33ff2d4973d518d823d61aa239014831e521c75da58e3df4840d3f47749d09",
+      "source_tree_digest": "8ac4d2885aaa06852842f3e24d7c8552b9e34869bbe6c9bd0f1dd985dc228da7",
+      "file_count": 10
+    },
+    {
+      "name": "rand",
+      "version": "0.10.3",
+      "checksum": "65c9fb96cbc91e3478eaae79a69fcd3f1ae4ad052e471fe6732fff548984b4af",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "alloc",
+        "default",
+        "std",
+        "std_rng",
+        "sys_rng",
+        "thread_rng"
+      ],
+      "archive_sha256": "65c9fb96cbc91e3478eaae79a69fcd3f1ae4ad052e471fe6732fff548984b4af",
+      "source_tree_digest": "d58466489336e413334fcb343183e4bb221e490d6de7c3441c99d87c289b5c1c",
+      "file_count": 38
+    },
+    {
+      "name": "rand_core",
+      "version": "0.10.1",
+      "checksum": "63b8176103e19a2643978565ca18b50549f6101881c443590420e4dc998a3c69",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "63b8176103e19a2643978565ca18b50549f6101881c443590420e4dc998a3c69",
+      "source_tree_digest": "da31c380f7501fef2a48bd8ae9cb0f374a1e3bd353f5cf1e050919e0337bde41",
+      "file_count": 19
+    },
+    {
+      "name": "rangemap",
+      "version": "1.8.0",
+      "checksum": "a611d15b50743feb4c76b7d03edcb0e64f399c26961e4efe6975bc398be6aa3d",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "a611d15b50743feb4c76b7d03edcb0e64f399c26961e4efe6975bc398be6aa3d",
+      "source_tree_digest": "0734951bbdbc13fc1d79a43177de151afc71a00119dafe03aee843632ed7ad20",
+      "file_count": 21
+    },
+    {
+      "name": "rav1e",
+      "version": "0.8.1",
+      "checksum": "43b6dd56e85d9483277cde964fd1bdb0428de4fec5ebba7540995639a21cb32b",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "threading",
+        "wasm",
+        "wasm-bindgen"
+      ],
+      "archive_sha256": "43b6dd56e85d9483277cde964fd1bdb0428de4fec5ebba7540995639a21cb32b",
+      "source_tree_digest": "ff89dfea0b8f2d3e5935cdb7a3f459f5edbd1910b438ef7603f60a39dfc013f2",
+      "file_count": 222
+    },
+    {
+      "name": "ravif",
+      "version": "0.13.0",
+      "checksum": "e52310197d971b0f5be7fe6b57530dcd27beb35c1b013f29d66c1ad73fbbcc45",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "threading"
+      ],
+      "archive_sha256": "e52310197d971b0f5be7fe6b57530dcd27beb35c1b013f29d66c1ad73fbbcc45",
+      "source_tree_digest": "4cd916a55600514d0969bfc00e96a7cdceed48df234420c21bdfcb7f9c04eaa8",
+      "file_count": 10
+    },
+    {
+      "name": "rayon-core",
+      "version": "1.13.0",
+      "checksum": "22e18b0f0062d30d4230b2e85ff77fdfe4326feb054b9783a3460d8435c8ab91",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "22e18b0f0062d30d4230b2e85ff77fdfe4326feb054b9783a3460d8435c8ab91",
+      "source_tree_digest": "d51c0e54490ef09da8f704a3b1bf786c411615321c02b97a0f4d2aed2ba247b4",
+      "file_count": 42
+    },
+    {
+      "name": "rayon",
+      "version": "1.12.0",
+      "checksum": "fb39b166781f92d482534ef4b4b1b2568f42613b53e5b6c160e24cfbfa30926d",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "fb39b166781f92d482534ef4b4b1b2568f42613b53e5b6c160e24cfbfa30926d",
+      "source_tree_digest": "c3c583506b4bc25a33cde99cc17444cbee625e32528cb89fa09e97863677efbe",
+      "file_count": 127
+    },
+    {
+      "name": "read-fonts",
+      "version": "0.45.0",
+      "checksum": "8a5b7bed3d16ab428d8fa533640ab805ff50e7ad8a4d00649de1259e70023282",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "std"
+      ],
+      "archive_sha256": "8a5b7bed3d16ab428d8fa533640ab805ff50e7ad8a4d00649de1259e70023282",
+      "source_tree_digest": "816493b82feb4cb8388f470782cce59b771feaddda5695798966623a66074283",
+      "file_count": 231
+    },
+    {
+      "name": "reborrow",
+      "version": "0.5.5",
+      "checksum": "03251193000f4bd3b042892be858ee50e8b3719f2b08e5833ac4353724632430",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default"
+      ],
+      "archive_sha256": "03251193000f4bd3b042892be858ee50e8b3719f2b08e5833ac4353724632430",
+      "source_tree_digest": "531043f403474e4da716c73037d2e596a25275e25bd2fd0d475cb1b43066a182",
+      "file_count": 6
+    },
+    {
+      "name": "regex-automata",
+      "version": "0.4.18",
+      "checksum": "ad8553b9b26413251cbf30e620595c7a41b3887f03da04579c0e6b0d6a06b4b2",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "alloc",
+        "dfa-onepass",
+        "hybrid",
+        "meta",
+        "nfa-backtrack",
+        "nfa-pikevm",
+        "nfa-thompson",
+        "perf-inline",
+        "perf-literal",
+        "perf-literal-multisubstring",
+        "perf-literal-substring",
+        "std",
+        "syntax",
+        "unicode",
+        "unicode-age",
+        "unicode-bool",
+        "unicode-case",
+        "unicode-gencat",
+        "unicode-perl",
+        "unicode-script",
+        "unicode-segment",
+        "unicode-word-boundary"
+      ],
+      "archive_sha256": "ad8553b9b26413251cbf30e620595c7a41b3887f03da04579c0e6b0d6a06b4b2",
+      "source_tree_digest": "0f110359f8d058bf1a629d72c5084314650f670fab7e38e2fde2d7c9eabfbe82",
+      "file_count": 107
+    },
+    {
+      "name": "regex-syntax",
+      "version": "0.8.11",
+      "checksum": "d6f6ff9a378485b298a5286656da665ba74413d36db0979633275d2e708145d4",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "std",
+        "unicode",
+        "unicode-age",
+        "unicode-bool",
+        "unicode-case",
+        "unicode-gencat",
+        "unicode-perl",
+        "unicode-script",
+        "unicode-segment"
+      ],
+      "archive_sha256": "d6f6ff9a378485b298a5286656da665ba74413d36db0979633275d2e708145d4",
+      "source_tree_digest": "1ad439f4485e36353e50341142add3c7146e8b80fcfafcf4a405e37d844b65dd",
+      "file_count": 42
+    },
+    {
+      "name": "regex",
+      "version": "1.13.1",
+      "checksum": "f020237b6c8eed93db2e2cb53c00c60a8e1bc73da7d073199a1180401450218d",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "perf",
+        "perf-backtrack",
+        "perf-cache",
+        "perf-dfa",
+        "perf-inline",
+        "perf-literal",
+        "perf-onepass",
+        "std",
+        "unicode",
+        "unicode-age",
+        "unicode-bool",
+        "unicode-case",
+        "unicode-gencat",
+        "unicode-perl",
+        "unicode-script",
+        "unicode-segment"
+      ],
+      "archive_sha256": "f020237b6c8eed93db2e2cb53c00c60a8e1bc73da7d073199a1180401450218d",
+      "source_tree_digest": "0740f56f53d0a11e7909321dc7891055fa034a133fd5a097e2f99ddadfce69af",
+      "file_count": 55
+    },
+    {
+      "name": "rgb",
+      "version": "0.8.53",
+      "checksum": "47b34b781b31e5d73e9fbc8689c70551fd1ade9a19e3e28cfec8580a79290cc4",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "47b34b781b31e5d73e9fbc8689c70551fd1ade9a19e3e28cfec8580a79290cc4",
+      "source_tree_digest": "90a07382d274881f0b48ed10f5b1ce98f520a2bb2c27bf5dd0fb24c558ab0fb4",
+      "file_count": 30
+    },
+    {
+      "name": "rmp-serde",
+      "version": "1.3.1",
+      "checksum": "72f81bee8c8ef9b577d1681a70ebbc962c232461e397b22c208c43c04b67a155",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "72f81bee8c8ef9b577d1681a70ebbc962c232461e397b22c208c43c04b67a155",
+      "source_tree_digest": "21dcfea6c77bc779a5b60d8d3139da72b61a8f705b40be9a623e7a6dad6a7147",
+      "file_count": 18
+    },
+    {
+      "name": "rmp",
+      "version": "0.8.15",
+      "checksum": "4ba8be72d372b2c9b35542551678538b562e7cf86c3315773cae48dfbfe7790c",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "std"
+      ],
+      "archive_sha256": "4ba8be72d372b2c9b35542551678538b562e7cf86c3315773cae48dfbfe7790c",
+      "source_tree_digest": "53ade46c7b76d5970b327abd9776f0da1e048431328b3cc3d2badee51baead6b",
+      "file_count": 55
+    },
+    {
+      "name": "rustc-hash",
+      "version": "2.1.3",
+      "checksum": "6b1e7f9a428571be2dc5bc0505c13fb6bf936822b894ec87abf8a08a4e51742d",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "std"
+      ],
+      "archive_sha256": "6b1e7f9a428571be2dc5bc0505c13fb6bf936822b894ec87abf8a08a4e51742d",
+      "source_tree_digest": "633b55fa7201eb1314c62d13697d3d1603248c1240048f5bb91a808c64b08b79",
+      "file_count": 14
+    },
+    {
+      "name": "rustversion",
+      "version": "1.0.23",
+      "checksum": "cf54715a573b99ac80df0bc206da022bcd442c974952c7b9720069370852e21f",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "cf54715a573b99ac80df0bc206da022bcd442c974952c7b9720069370852e21f",
+      "source_tree_digest": "8406ec8a64c8a8ecadbcca95887ba618f225d35349097ea5b596fa687b646e7d",
+      "file_count": 39
+    },
+    {
+      "name": "ryu",
+      "version": "1.0.23",
+      "checksum": "9774ba4a74de5f7b1c1451ed6cd5285a32eddb5cccb8cc655a4e50009e06477f",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "9774ba4a74de5f7b1c1451ed6cd5285a32eddb5cccb8cc655a4e50009e06477f",
+      "source_tree_digest": "4ae6e19314d8aefb48f68d5a1aa7a2f6433f64fe1cd2603a2c0794b58411477d",
+      "file_count": 38
+    },
+    {
+      "name": "scopeguard",
+      "version": "1.2.0",
+      "checksum": "94143f37725109f92c262ed2cf5e59bce7498c01bcc1502d7b9afe439a4e9f49",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "94143f37725109f92c262ed2cf5e59bce7498c01bcc1502d7b9afe439a4e9f49",
+      "source_tree_digest": "a1764dd47e1d71a33f9c4b6fb8b21243496ab88842139987d10d963ed5ebab4c",
+      "file_count": 11
+    },
+    {
+      "name": "serde",
+      "version": "1.0.229",
+      "checksum": "4148590afebada386688f18773da617792bf2ef03ffc1e4cbd2b1d45b023e0ba",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "alloc",
+        "default",
+        "derive",
+        "serde_derive",
+        "std"
+      ],
+      "archive_sha256": "4148590afebada386688f18773da617792bf2ef03ffc1e4cbd2b1d45b023e0ba",
+      "source_tree_digest": "fe5bc562588100795b4762806a908bb725cb190b99703e61ba6051735aec2777",
+      "file_count": 33
+    },
+    {
+      "name": "serde_core",
+      "version": "1.0.229",
+      "checksum": "67dca2c9c51e58a4791a4b1ed58308b39c64224d349a935ab5039aa360942a48",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "alloc",
+        "result",
+        "std"
+      ],
+      "archive_sha256": "67dca2c9c51e58a4791a4b1ed58308b39c64224d349a935ab5039aa360942a48",
+      "source_tree_digest": "d85b951b88b709d6d938b9e06f7d020e29ea9df01636147157b7384a222a0e4f",
+      "file_count": 27
+    },
+    {
+      "name": "serde_derive",
+      "version": "1.0.229",
+      "checksum": "e7a5d71263a5a7d47b41f6b3f06ba276f10cc18b0931f1799f710578e2309348",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default"
+      ],
+      "archive_sha256": "e7a5d71263a5a7d47b41f6b3f06ba276f10cc18b0931f1799f710578e2309348",
+      "source_tree_digest": "084983f088f5ca3d1e7562253cd62adf95bbc1a07b22ef7574147d58f3a1023f",
+      "file_count": 36
+    },
+    {
+      "name": "serde_json",
+      "version": "1.0.154",
+      "checksum": "e7e9cc8b1b85264074fbcc02a88680c4096b1e47df8f739dceb03bf482f04bd6",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "alloc",
+        "default",
+        "float_roundtrip",
+        "indexmap",
+        "preserve_order",
+        "raw_value",
+        "std"
+      ],
+      "archive_sha256": "e7e9cc8b1b85264074fbcc02a88680c4096b1e47df8f739dceb03bf482f04bd6",
+      "source_tree_digest": "335579029219f20b8031b0a378576a12b2786665bed910683b074ef43ba9e46d",
+      "file_count": 90
+    },
+    {
+      "name": "serde_spanned",
+      "version": "1.1.2",
+      "checksum": "4e7523beb55eece201a2356bee0bbca0d1ab466c14c07703b2e0ee6d42cb0c2c",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "alloc",
+        "serde",
+        "std"
+      ],
+      "archive_sha256": "4e7523beb55eece201a2356bee0bbca0d1ab466c14c07703b2e0ee6d42cb0c2c",
+      "source_tree_digest": "32289c1919bc120136d27b39b9e2d40c3e438defebe672fbab2ce8f70d827aa2",
+      "file_count": 10
+    },
+    {
+      "name": "serde_toon_format",
+      "version": "0.2.0",
+      "checksum": "83047917cd35d3cf33b1cfa3085e048546c8fb0f1f86ab90aa8e680196679fc3",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default"
+      ],
+      "archive_sha256": "83047917cd35d3cf33b1cfa3085e048546c8fb0f1f86ab90aa8e680196679fc3",
+      "source_tree_digest": "57f5a87f27a89040dbca62d542b1c861240e1c8c70b4721f3bb2fe073cdb4604",
+      "file_count": 110
+    },
+    {
+      "name": "sha2",
+      "version": "0.11.1",
+      "checksum": "47d7069beb7d6ac7b9acd1039986e73443f24234f41074da099d6f994ac9ad19",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "alloc",
+        "default",
+        "oid"
+      ],
+      "archive_sha256": "47d7069beb7d6ac7b9acd1039986e73443f24234f41074da099d6f994ac9ad19",
+      "source_tree_digest": "3c077cbcebdf0a7737feb66000fda9b5e380793d1e48f2cffe6c7f46db6e6982",
+      "file_count": 47
+    },
+    {
+      "name": "sharded-slab",
+      "version": "0.1.7",
+      "checksum": "f40ca3c46823713e0d4209592e8d6e826aa57e928f09752619fc696c499637f6",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "f40ca3c46823713e0d4209592e8d6e826aa57e928f09752619fc696c499637f6",
+      "source_tree_digest": "e75533725c38ce2af58796b3eb6ee144a5bbcdae78197f5cca9e9cfb73459a41",
+      "file_count": 37
+    },
+    {
+      "name": "shlex",
+      "version": "2.0.1",
+      "checksum": "f8fadd59c855ef2080decdef8ff161eb6661b86933c9d82e5ba29dc602a55aba",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "std"
+      ],
+      "archive_sha256": "f8fadd59c855ef2080decdef8ff161eb6661b86933c9d82e5ba29dc602a55aba",
+      "source_tree_digest": "e6a936c18bdb1e14bc4791a593dcaf43e73f09fa08f58f03495703c64b7b929f",
+      "file_count": 13
+    },
+    {
+      "name": "simd-adler32",
+      "version": "0.3.10",
+      "checksum": "3a219298ac11a56ea9a6d2120044824d6f01aeb034955e7af7bc16858527deea",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "const-generics",
+        "default",
+        "std"
+      ],
+      "archive_sha256": "3a219298ac11a56ea9a6d2120044824d6f01aeb034955e7af7bc16858527deea",
+      "source_tree_digest": "9fc8c5a4536277eace7d116d3531a9f07d75c67637900776b24f4eae038307e2",
+      "file_count": 22
+    },
+    {
+      "name": "simd_helpers",
+      "version": "0.1.0",
+      "checksum": "95890f873bec569a0362c235787f3aca6e1e887302ba4840839bcc6459c42da6",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "95890f873bec569a0362c235787f3aca6e1e887302ba4840839bcc6459c42da6",
+      "source_tree_digest": "7b361c6f6baf32d9baf33d39ec80036472a375245075b7d279cfb47eff1155bf",
+      "file_count": 7
+    },
+    {
+      "name": "simdutf8",
+      "version": "0.1.5",
+      "checksum": "e3a9fe34e3e7a50316060351f37187a3f546bce95496156754b601a5fa71b76e",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "aarch64_neon",
+        "public_imp"
+      ],
+      "archive_sha256": "e3a9fe34e3e7a50316060351f37187a3f546bce95496156754b601a5fa71b76e",
+      "source_tree_digest": "11877e9c6d088b37aaef41486b131bcab01b4c657c37dd5cd554d3be2b983b54",
+      "file_count": 26
+    },
+    {
+      "name": "siphasher",
+      "version": "1.0.4",
+      "checksum": "33f4fe9184a62d842c9ef383018f3306d8ba224fd9d836f56d7288308847c256",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "std"
+      ],
+      "archive_sha256": "33f4fe9184a62d842c9ef383018f3306d8ba224fd9d836f56d7288308847c256",
+      "source_tree_digest": "33e2a3bdbf9bf821100401c1e1726248574b3b09f9366dbbbc7e1b2deabc545d",
+      "file_count": 17
+    },
+    {
+      "name": "skrifa",
+      "version": "0.48.0",
+      "checksum": "a5213b4825bac3587046330052d61bfac7bd3bd0d203c758d7c2ef726fcea034",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "autohint_shaping",
+        "default",
+        "std"
+      ],
+      "archive_sha256": "a5213b4825bac3587046330052d61bfac7bd3bd0d203c758d7c2ef726fcea034",
+      "source_tree_digest": "a4af2cd47aa6f8231ec4585b840c71420760d1873240c4a2a17e9132069cfc3d",
+      "file_count": 89
+    },
+    {
+      "name": "smallvec",
+      "version": "1.16.3",
+      "checksum": "5b3dc8af474f516a851ff4bd12db780f948b9250ad37211e4eec0bccea54e01b",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "const_generics"
+      ],
+      "archive_sha256": "5b3dc8af474f516a851ff4bd12db780f948b9250ad37211e4eec0bccea54e01b",
+      "source_tree_digest": "7af9726ade6f0bf2dc46092eff99d695cf6a420f80100a37f2660974fea7022a",
+      "file_count": 11
+    },
+    {
+      "name": "smol_str",
+      "version": "0.3.6",
+      "checksum": "4aaa7368fcf4852a4c2dd92df0cace6a71f2091ca0a23391ce7f3a31833f1523",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "std"
+      ],
+      "archive_sha256": "4aaa7368fcf4852a4c2dd92df0cace6a71f2091ca0a23391ce7f3a31833f1523",
+      "source_tree_digest": "69875068b29ac3f68d8adf121c2d04d7ee5f1c5bddd4e3684f68a589049b1c0b",
+      "file_count": 15
+    },
+    {
+      "name": "stable_deref_trait",
+      "version": "1.2.1",
+      "checksum": "6ce2be8dc25455e1f91df71bfa12ad37d7af1092ae736f3a6cd0e37bc7810596",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "alloc"
+      ],
+      "archive_sha256": "6ce2be8dc25455e1f91df71bfa12ad37d7af1092ae736f3a6cd0e37bc7810596",
+      "source_tree_digest": "626e86bb558c78c7fe8a07a2074198d6e751d24736df84b9d5679ae36e0b7886",
+      "file_count": 9
+    },
+    {
+      "name": "strict-num",
+      "version": "0.1.1",
+      "checksum": "6637bab7722d379c8b41ba849228d680cc12d0a45ba1fa2b48f2a30577a06731",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "6637bab7722d379c8b41ba849228d680cc12d0a45ba1fa2b48f2a30577a06731",
+      "source_tree_digest": "adcfdc63183f232c3e05fbf5b34a1ec013109887c5d70000f44bf2f7fc3209f0",
+      "file_count": 9
+    },
+    {
+      "name": "string_cache",
+      "version": "0.11.0",
+      "checksum": "ffa8a5dbe8b3f0bbe29d4c3225daafaeead63afdc1b65fc4c01a1384166038e6",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "ffa8a5dbe8b3f0bbe29d4c3225daafaeead63afdc1b65fc4c01a1384166038e6",
+      "source_tree_digest": "801da507626ef8d9fb05d497b41cb39d728c3e068563374b4b136cbe89e9ecc9",
+      "file_count": 16
+    },
+    {
+      "name": "string_cache_codegen",
+      "version": "0.11.2",
+      "checksum": "928dcdf75e47626b3617a976ec205d9f057584c371c1f23b782129268d0e6edc",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "928dcdf75e47626b3617a976ec205d9f057584c371c1f23b782129268d0e6edc",
+      "source_tree_digest": "504181cdcfd96fe785ff3df76b94c657a4d91bc4b905b3ebca052b27284182f6",
+      "file_count": 7
+    },
+    {
+      "name": "stringprep",
+      "version": "0.1.5",
+      "checksum": "7b4df3d392d81bd458a8a621b8bffbd2302a12ffe288a9d931670948749463b1",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "7b4df3d392d81bd458a8a621b8bffbd2302a12ffe288a9d931670948749463b1",
+      "source_tree_digest": "3a020ad45feea357177152e22811974c8657f924b214ea80c5e5e4b470b8f164",
+      "file_count": 14
+    },
+    {
+      "name": "subsetter",
+      "version": "0.2.6",
+      "checksum": "38803281d1c23166c5ebcb455439a5d2afe711cc909cf88af72448c297756ad6",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "38803281d1c23166c5ebcb455439a5d2afe711cc909cf88af72448c297756ad6",
+      "source_tree_digest": "6bd093105391e9d6ec46672a9dcdd13fb80b81c460196802fa76d94ca5836617",
+      "file_count": 38
+    },
+    {
+      "name": "syn",
+      "version": "2.0.119",
+      "checksum": "872831b642d1a07999a962a351ed35b955ea2cfc8f3862091e2a240a84f17297",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "clone-impls",
+        "default",
+        "derive",
+        "extra-traits",
+        "fold",
+        "full",
+        "parsing",
+        "printing",
+        "proc-macro",
+        "visit-mut"
+      ],
+      "archive_sha256": "872831b642d1a07999a962a351ed35b955ea2cfc8f3862091e2a240a84f17297",
+      "source_tree_digest": "c73afaca38c11781e988c2b9557e9785a42a503ecfc965a22baecd0727792ac7",
+      "file_count": 105
+    },
+    {
+      "name": "syn",
+      "version": "3.0.9",
+      "checksum": "d78c8dee4c7bf0e14673097256fed6142ce9d3b85a408189d07482442145823b",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "clone-impls",
+        "default",
+        "derive",
+        "extra-traits",
+        "fold",
+        "full",
+        "parsing",
+        "printing",
+        "proc-macro",
+        "visit",
+        "visit-mut"
+      ],
+      "archive_sha256": "d78c8dee4c7bf0e14673097256fed6142ce9d3b85a408189d07482442145823b",
+      "source_tree_digest": "43a3374f37d100aeb550d9205c7dd82ca53bcbc81af5de4afd3038ad60acef19",
+      "file_count": 104
+    },
+    {
+      "name": "synstructure",
+      "version": "0.14.0",
+      "checksum": "901704edd0dfe137f1987838ee4f259e4e063c31371bdb423f7ae38ec6f77f02",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "proc-macro"
+      ],
+      "archive_sha256": "901704edd0dfe137f1987838ee4f259e4e063c31371bdb423f7ae38ec6f77f02",
+      "source_tree_digest": "e4eba4c231d63b2efcc5947ad24bed88042449dc3470703e16d3b7bc8605f6ec",
+      "file_count": 8
+    },
+    {
+      "name": "tap",
+      "version": "1.0.1",
+      "checksum": "55937e1799185b12863d447f42597ed69d9928686b8d88a1df17376a097d8369",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "55937e1799185b12863d447f42597ed69d9928686b8d88a1df17376a097d8369",
+      "source_tree_digest": "31cacd9856b123bfc73a36efaf43f4c04708620ee875728c0c749ea6e24cfc3a",
+      "file_count": 9
+    },
+    {
+      "name": "tendril",
+      "version": "0.5.1",
+      "checksum": "5fed54709c5b3a53d09bb1c113ea4f5ceafd1e772ddcb0030a82e1d56c087b08",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "5fed54709c5b3a53d09bb1c113ea4f5ceafd1e772ddcb0030a82e1d56c087b08",
+      "source_tree_digest": "53b3618559d337131430c2b8fee9b73b2f828a550d51153d7dd6101cd15cc244",
+      "file_count": 18
+    },
+    {
+      "name": "thiserror-impl",
+      "version": "2.0.21",
+      "checksum": "fe5197923287db20a58125f0bc85c062f7f2c892de97b18c356f9efb14b28524",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "fe5197923287db20a58125f0bc85c062f7f2c892de97b18c356f9efb14b28524",
+      "source_tree_digest": "2c91fd9754200bc1db9ff39a4105de023ac01dc639e85adbcf5fef509414145d",
+      "file_count": 17
+    },
+    {
+      "name": "thiserror",
+      "version": "2.0.21",
+      "checksum": "09e52cb86a36cede5cb101bf8908837b3e4c6e5e59fe7fd85c23fb56200d189e",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "std"
+      ],
+      "archive_sha256": "09e52cb86a36cede5cb101bf8908837b3e4c6e5e59fe7fd85c23fb56200d189e",
+      "source_tree_digest": "edbc8e35e5d912571d852096237667fd06acb74cd02d1066380cc15c6d34efb0",
+      "file_count": 105
+    },
+    {
+      "name": "thread_local",
+      "version": "1.1.10",
+      "checksum": "1ad99c4c6d32803332c548b1af0540b357b3f5fc0be8f6c6bfe8b2e6ae784070",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "1ad99c4c6d32803332c548b1af0540b357b3f5fc0be8f6c6bfe8b2e6ae784070",
+      "source_tree_digest": "a9f3db18f56e3ee5c2dbe7dc0831ee60013b65d6ffc9ab3fb09e72008ff75ca6",
+      "file_count": 14
+    },
+    {
+      "name": "tiff",
+      "version": "0.11.3",
+      "checksum": "b63feaf3343d35b6ca4d50483f94843803b0f51634937cc2ec519fc32232bc52",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "deflate",
+        "fax",
+        "jpeg",
+        "lzw"
+      ],
+      "archive_sha256": "b63feaf3343d35b6ca4d50483f94843803b0f51634937cc2ec519fc32232bc52",
+      "source_tree_digest": "b97454c4e35f92dbb8dc9fe5c0a2facaa57d47c33b805419ba746deb73c4fd02",
+      "file_count": 45
+    },
+    {
+      "name": "tiny-keccak",
+      "version": "2.0.2",
+      "checksum": "2c9d3793400a45f954c52e73d068316d76b6f4e36977e3fcebb13a2721e80237",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "shake"
+      ],
+      "archive_sha256": "2c9d3793400a45f954c52e73d068316d76b6f4e36977e3fcebb13a2721e80237",
+      "source_tree_digest": "86f290695027cfd37668a001c985d9428a03fdad6947a2dc0ad6a5545205a3c4",
+      "file_count": 32
+    },
+    {
+      "name": "tiny-skia-path",
+      "version": "0.12.0",
+      "checksum": "edca365c3faccca67d06593c5980fa6c57687de727a03131735bb85f01fdeeb9",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "std"
+      ],
+      "archive_sha256": "edca365c3faccca67d06593c5980fa6c57687de727a03131735bb85f01fdeeb9",
+      "source_tree_digest": "c925de52c83e217d7c440a40720041f71c1f8a76f4d03a2da1559b68baa382de",
+      "file_count": 19
+    },
+    {
+      "name": "tiny-skia",
+      "version": "0.12.0",
+      "checksum": "47ffee5eaaf5527f630fb0e356b90ebdec84d5d18d937c5e440350f88c5a91ea",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "png-format",
+        "simd",
+        "std"
+      ],
+      "archive_sha256": "47ffee5eaaf5527f630fb0e356b90ebdec84d5d18d937c5e440350f88c5a91ea",
+      "source_tree_digest": "c0025682e996aa2adb5c2e1cb945b5840562c8cf2889219dabce91e16e8aa096",
+      "file_count": 200
+    },
+    {
+      "name": "tinystr",
+      "version": "0.8.4",
+      "checksum": "b1e27c91459209c2986af3dcf603a5a74a4368754ce37414f59acc971167f643",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "zerovec"
+      ],
+      "archive_sha256": "b1e27c91459209c2986af3dcf603a5a74a4368754ce37414f59acc971167f643",
+      "source_tree_digest": "3b3dc58703959ea83eab883f325aa8fa2a0b795988809a3c343ec53a88aef83b",
+      "file_count": 22
+    },
+    {
+      "name": "tinyvec",
+      "version": "1.13.3",
+      "checksum": "fd3ca314f692efd6c868f8408f53fe444634a845f96c028b97d35f6a1f79f0ee",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "alloc",
+        "default"
+      ],
+      "archive_sha256": "fd3ca314f692efd6c868f8408f53fe444634a845f96c028b97d35f6a1f79f0ee",
+      "source_tree_digest": "5cea5fe2df19ebce0fe8a522b7a2f32b86d8da9d2cbf26950dac3f90d6db1990",
+      "file_count": 38
+    },
+    {
+      "name": "toml",
+      "version": "1.1.8+spec-1.1.0",
+      "checksum": "20489e00e4d8741d6be680764cc12e270655e375a20d1011e844a9c3379e678d",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "display",
+        "parse",
+        "serde",
+        "std"
+      ],
+      "archive_sha256": "20489e00e4d8741d6be680764cc12e270655e375a20d1011e844a9c3379e678d",
+      "source_tree_digest": "323e2aba84f1366ba86b993bf9a590949432232ec28697685425e0920c89477e",
+      "file_count": 46
+    },
+    {
+      "name": "toml_datetime",
+      "version": "1.1.2+spec-1.1.0",
+      "checksum": "2b86d767906c6c42421dcba507eb9d203e779497710a47782a224bb871653053",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "alloc",
+        "serde",
+        "std"
+      ],
+      "archive_sha256": "2b86d767906c6c42421dcba507eb9d203e779497710a47782a224bb871653053",
+      "source_tree_digest": "4d4e6d3c11fe08b152d64bfb02905322e0edfe14ff6d3d53832eec20f6d6cc19",
+      "file_count": 11
+    },
+    {
+      "name": "toml_parser",
+      "version": "1.1.5+spec-1.1.0",
+      "checksum": "baa693a8032d7e1cada7d0041e96126df243179ff061456783ac7f12bda4744c",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "alloc",
+        "std"
+      ],
+      "archive_sha256": "baa693a8032d7e1cada7d0041e96126df243179ff061456783ac7f12bda4744c",
+      "source_tree_digest": "e91124b431f037ed789a7eae971587f9c96705796e1001d762d0dcca87890e84",
+      "file_count": 22
+    },
+    {
+      "name": "toml_writer",
+      "version": "1.1.3+spec-1.1.0",
+      "checksum": "06bdbd8cfc056b8d2e2e85f29b56a3bdbecb527cef81eb39e3e7b98af4652770",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "alloc",
+        "std"
+      ],
+      "archive_sha256": "06bdbd8cfc056b8d2e2e85f29b56a3bdbecb527cef81eb39e3e7b98af4652770",
+      "source_tree_digest": "2aa5ba1e196a0a5a331f55c3687611c8bd3b4b3553efde0e17215ca599fbc52e",
+      "file_count": 13
+    },
+    {
+      "name": "tracing-attributes",
+      "version": "0.1.31",
+      "checksum": "7490cfa5ec963746568740651ac6781f701c9c5ea257c58e057f3ba8cf69e8da",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "7490cfa5ec963746568740651ac6781f701c9c5ea257c58e057f3ba8cf69e8da",
+      "source_tree_digest": "bdfbe06f36b6f04aad6ecdaf305717e77288f1750181e7e2ca827375a46ed0ac",
+      "file_count": 30
+    },
+    {
+      "name": "tracing-core",
+      "version": "0.1.36",
+      "checksum": "db97caf9d906fbde555dd62fa95ddba9eecfd14cb388e4f491a66d74cd5fb79a",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "once_cell",
+        "std"
+      ],
+      "archive_sha256": "db97caf9d906fbde555dd62fa95ddba9eecfd14cb388e4f491a66d74cd5fb79a",
+      "source_tree_digest": "bb42aaeafec41b30094bd48d23d02cea3aeacebceddf5fa44b2f36396a32a74a",
+      "file_count": 28
+    },
+    {
+      "name": "tracing-subscriber",
+      "version": "0.3.23",
+      "checksum": "cb7f578e5945fb242538965c2d0b04418d38ec25c79d160cd279bf0731c8d319",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "alloc",
+        "registry",
+        "sharded-slab",
+        "std",
+        "thread_local"
+      ],
+      "archive_sha256": "cb7f578e5945fb242538965c2d0b04418d38ec25c79d160cd279bf0731c8d319",
+      "source_tree_digest": "ab33425ec1b70cc75156c7696620033668472a3500f039a12770fd868e15418f",
+      "file_count": 87
+    },
+    {
+      "name": "tracing",
+      "version": "0.1.44",
+      "checksum": "63e71662fa4b2a2c3a26f570f037eb95bb1f85397f3cd8076caed2f026a6d100",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "attributes",
+        "default",
+        "std",
+        "tracing-attributes"
+      ],
+      "archive_sha256": "63e71662fa4b2a2c3a26f570f037eb95bb1f85397f3cd8076caed2f026a6d100",
+      "source_tree_digest": "40ecdc42a36c706a403d36004292e77d81597161b192ae6d3adf787c8da349ec",
+      "file_count": 93
+    },
+    {
+      "name": "typed-arena",
+      "version": "2.0.2",
+      "checksum": "6af6ae20167a9ece4bcb41af5b80f8a1f1df981f6391189ce00fd257af04126a",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "std"
+      ],
+      "archive_sha256": "6af6ae20167a9ece4bcb41af5b80f8a1f1df981f6391189ce00fd257af04126a",
+      "source_tree_digest": "f9f7b54fc0b1f50c8ddeddd815ec236c7e7d35945330b319821f3e38d4297222",
+      "file_count": 11
+    },
+    {
+      "name": "typenum",
+      "version": "1.20.1",
+      "checksum": "b6f5e870be6c3b371b77fe0ee0bafb859fa4964b4404c27de1d380043c4dda20",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "const-generics"
+      ],
+      "archive_sha256": "b6f5e870be6c3b371b77fe0ee0bafb859fa4964b4404c27de1d380043c4dda20",
+      "source_tree_digest": "b366964addd932fe130b8d1bcdda26eb0f4901410c326c8722b95da41d60e5f4",
+      "file_count": 26
+    },
+    {
+      "name": "unicase",
+      "version": "2.10.0",
+      "checksum": "357cc3acc6a036009fd6c973ed009037c732d60d0b4f6c673e9041497482a28f",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "357cc3acc6a036009fd6c973ed009037c732d60d0b4f6c673e9041497482a28f",
+      "source_tree_digest": "c4e6b54db389d85bdbc33d3f5391b1dae52d40ce5023101300fda072656685cd",
+      "file_count": 13
+    },
+    {
+      "name": "unicode-bidi",
+      "version": "0.3.18",
+      "checksum": "5c1cb5db39152898a79168971543b1cb5020dff7fe43c8dc468b0885f5e29df5",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "hardcoded-data",
+        "std"
+      ],
+      "archive_sha256": "5c1cb5db39152898a79168971543b1cb5020dff7fe43c8dc468b0885f5e29df5",
+      "source_tree_digest": "12bd38b3b24b2c7ec79b0085dc0a3fd5b1b023f3b5867281a33f44ff4548d8d5",
+      "file_count": 24
+    },
+    {
+      "name": "unicode-ident",
+      "version": "1.0.27",
+      "checksum": "a2c754d6c33795a1c324727428e5a7dedb5b06195f9890bdbcba760d3e246563",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "a2c754d6c33795a1c324727428e5a7dedb5b06195f9890bdbcba760d3e246563",
+      "source_tree_digest": "81e05565e7fbd0098fa681da71973a1593f4ee16422d62996ae0103c9a9b12dd",
+      "file_count": 26
+    },
+    {
+      "name": "unicode-normalization",
+      "version": "0.1.25",
+      "checksum": "5fd4f6878c9cb28d874b009da9e8d183b5abc80117c40bbd187a1fde336be6e8",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "std"
+      ],
+      "archive_sha256": "5fd4f6878c9cb28d874b009da9e8d183b5abc80117c40bbd187a1fde336be6e8",
+      "source_tree_digest": "6f487faaea709289704dd7bc97197bc8a2917ec905de32a79ddc3649987cb001",
+      "file_count": 25
+    },
+    {
+      "name": "unicode-properties",
+      "version": "0.1.4",
+      "checksum": "7df058c713841ad818f1dc5d3fd88063241cc61f49f5fbea4b951e8cf5a8d71d",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "emoji",
+        "general-category"
+      ],
+      "archive_sha256": "7df058c713841ad818f1dc5d3fd88063241cc61f49f5fbea4b951e8cf5a8d71d",
+      "source_tree_digest": "933ef76e4078544eaa5168e903846ebc220a9f1fd674c33638a62121cd94fb56",
+      "file_count": 15
+    },
+    {
+      "name": "unicode-width",
+      "version": "0.2.2",
+      "checksum": "b4ac048d71ede7ee76d585517add45da530660ef4390e49b098733c6e897f254",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "cjk",
+        "default"
+      ],
+      "archive_sha256": "b4ac048d71ede7ee76d585517add45da530660ef4390e49b098733c6e897f254",
+      "source_tree_digest": "0a4e2e45b9f8a0c1b4fff3c40b1de6dcc0b6b3a064b1713e9ef9bd3c50d80429",
+      "file_count": 15
+    },
+    {
+      "name": "url",
+      "version": "2.5.8",
+      "checksum": "ff67a8a4397373c3ef660812acab3268222035010ab8680ec4215f38ba3d0eed",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "std"
+      ],
+      "archive_sha256": "ff67a8a4397373c3ef660812acab3268222035010ab8680ec4215f38ba3d0eed",
+      "source_tree_digest": "a34b23bd262aca2406055ed7fef6253a9c7b657e412b7ab2d55c33482de27c67",
+      "file_count": 19
+    },
+    {
+      "name": "urlencoding",
+      "version": "2.1.3",
+      "checksum": "daf8dba3b7eb870caf1ddeed7bc9d2a049f3cfdfae7cb521b087cc33ae4c49da",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "daf8dba3b7eb870caf1ddeed7bc9d2a049f3cfdfae7cb521b087cc33ae4c49da",
+      "source_tree_digest": "275882eeae7d48f54976dece4f4731841b3a74cd3a167501c9f177e3c2c3f55d",
+      "file_count": 10
+    },
+    {
+      "name": "utf8_iter",
+      "version": "1.0.4",
+      "checksum": "b6c140620e7ffbb22c2dee59cafe6084a59b5ffc27a8859a5f0d494b5d52b6be",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "b6c140620e7ffbb22c2dee59cafe6084a59b5ffc27a8859a5f0d494b5d52b6be",
+      "source_tree_digest": "5c720bc54cd12a962afab270094a44960a264f9d451484eb74ff560f45484371",
+      "file_count": 11
+    },
+    {
+      "name": "uuid",
+      "version": "1.28.0",
+      "checksum": "7cc1186384beb7dd8eedea376413fd654937285ea6c9cfbb928dc3043ea4b606",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "js",
+        "rng",
+        "std",
+        "v4"
+      ],
+      "archive_sha256": "7cc1186384beb7dd8eedea376413fd654937285ea6c9cfbb928dc3043ea4b606",
+      "source_tree_digest": "7a57c60f5d11e65b1bb5b949716cfa25359b00b17ea54462e61d9945a1f16c4f",
+      "file_count": 30
+    },
+    {
+      "name": "v_escape-base",
+      "version": "0.1.0",
+      "checksum": "f1212fce830b75af194b578e55b3db9049f2c8c45f58d397fb25602fdb50fb3d",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "alloc",
+        "bytes",
+        "default",
+        "fmt",
+        "std",
+        "string"
+      ],
+      "archive_sha256": "f1212fce830b75af194b578e55b3db9049f2c8c45f58d397fb25602fdb50fb3d",
+      "source_tree_digest": "c02cdd7c57899718361db5c559bdc930dc859c4d2b6f4fee5b74ff377c6494b3",
+      "file_count": 22
+    },
+    {
+      "name": "v_frame",
+      "version": "0.3.9",
+      "checksum": "666b7727c8875d6ab5db9533418d7c764233ac9c0cff1d469aec8fa127597be2",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "666b7727c8875d6ab5db9533418d7c764233ac9c0cff1d469aec8fa127597be2",
+      "source_tree_digest": "f4e20fa3219626aedb48b6194fcc693641cfc90e20ffd6c5ee58a0da80d0ffb2",
+      "file_count": 16
+    },
+    {
+      "name": "v_htmlescape",
+      "version": "0.17.0",
+      "checksum": "befb3d53c9e3ec641417685896cbc8cc5bd264d6a2e190c56aaef1af24740d99",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "alloc",
+        "bytes",
+        "default",
+        "fmt",
+        "std",
+        "string"
+      ],
+      "archive_sha256": "befb3d53c9e3ec641417685896cbc8cc5bd264d6a2e190c56aaef1af24740d99",
+      "source_tree_digest": "cc30187f9b8e0600b1afd29ee7437d9c66ad03ad618c558b139af867108f0449",
+      "file_count": 10
+    },
+    {
+      "name": "version_check",
+      "version": "0.9.5",
+      "checksum": "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a",
+      "source_tree_digest": "12b7f8b050873ada46368d909bfd39b82b01708c8032071bf9eb270f6daef6bc",
+      "file_count": 13
+    },
+    {
+      "name": "wasm-bindgen-macro-support",
+      "version": "0.2.129",
+      "checksum": "6f501a8bc3719dba86ef8ae4728879c08001bea749eb1333ac5b91e040e2a6b7",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "6f501a8bc3719dba86ef8ae4728879c08001bea749eb1333ac5b91e040e2a6b7",
+      "source_tree_digest": "0b70d05b30a73d52894c450a74ca11094b64dc62bc0491af2b0d585b1dd89004",
+      "file_count": 14
+    },
+    {
+      "name": "wasm-bindgen-macro",
+      "version": "0.2.129",
+      "checksum": "2e29d0c35b16e224a7eeb5cd2d25e3e1968fbd65604117b44d3b789d00ee8535",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "2e29d0c35b16e224a7eeb5cd2d25e3e1968fbd65604117b44d3b789d00ee8535",
+      "source_tree_digest": "a6ea6aacf01b221bc24160cee86da76de39fb0fd5388dd19e19af859c73c147c",
+      "file_count": 9
+    },
+    {
+      "name": "wasm-bindgen-shared",
+      "version": "0.2.129",
+      "checksum": "23f0c9c52aa7cd7d77769a4cfe2a9adb1b331f489a41d912ce14513d5ab995c6",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "23f0c9c52aa7cd7d77769a4cfe2a9adb1b331f489a41d912ce14513d5ab995c6",
+      "source_tree_digest": "5dceb7141c69ea0f69eb10ca30c370d3fc8359aab2d061132825d4b019e834b7",
+      "file_count": 11
+    },
+    {
+      "name": "wasm-bindgen",
+      "version": "0.2.129",
+      "checksum": "9bb54f33acc68fd454578d9820b0bde1a1a3d17aa17bb7b6595806d02886d409",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "std"
+      ],
+      "archive_sha256": "9bb54f33acc68fd454578d9820b0bde1a1a3d17aa17bb7b6595806d02886d409",
+      "source_tree_digest": "b56f44019cace008df0372193b64a3a1eedf45b7b97db0e31d1fd63c7e4a731a",
+      "file_count": 26
+    },
+    {
+      "name": "web-time",
+      "version": "1.1.0",
+      "checksum": "5a6580f308b1fad9207618087a65c04e7a10bc77e02c8e84e9b00dd4b12fa0bb",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "5a6580f308b1fad9207618087a65c04e7a10bc77e02c8e84e9b00dd4b12fa0bb",
+      "source_tree_digest": "3039afef16a8e3865be21a903e3755c9c4050ab3407d676213945b06caf26fe6",
+      "file_count": 15
+    },
+    {
+      "name": "web_atoms",
+      "version": "0.3.0",
+      "checksum": "7572660c8890448ba236b7376f27e389c6a7e1c70195622faced601f855c0ada",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "7572660c8890448ba236b7376f27e389c6a7e1c70195622faced601f855c0ada",
+      "source_tree_digest": "53f9ddcbcb073232ee839f51f356029a308faa400328ff0063841dbf2f61d0bb",
+      "file_count": 10
+    },
+    {
+      "name": "weezl",
+      "version": "0.1.12",
+      "checksum": "a28ac98ddc8b9274cb41bb4d9d4d5c425b6020c50c46f25559911905610b4a88",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "alloc",
+        "default",
+        "std"
+      ],
+      "archive_sha256": "a28ac98ddc8b9274cb41bb4d9d4d5c425b6020c50c46f25559911905610b4a88",
+      "source_tree_digest": "d185aba9202e2964e3c156a4207e033c3de3fe791b2de9e5aaf54836a63d202d",
+      "file_count": 25
+    },
+    {
+      "name": "weezl",
+      "version": "0.2.1",
+      "checksum": "d4ca08e5ef825b65b056d9efbd95c8750683f0a6d0466d02e96dc2e4e360f3d2",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "alloc",
+        "default",
+        "std"
+      ],
+      "archive_sha256": "d4ca08e5ef825b65b056d9efbd95c8750683f0a6d0466d02e96dc2e4e360f3d2",
+      "source_tree_digest": "d1e07ded31676989b43b1f4b0a4acb799c568a793bdbb817e0ac2662998325da",
+      "file_count": 33
+    },
+    {
+      "name": "winnow",
+      "version": "1.0.4",
+      "checksum": "23b97319f7b8343df12cc98938e5c3eb436064524c8d2b4e30a1d3a36eecdf81",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "23b97319f7b8343df12cc98938e5c3eb436064524c8d2b4e30a1d3a36eecdf81",
+      "source_tree_digest": "504be06d69c95b7cd34fda44cc5d53756b0f9c6fde16beb71ee1c0b6fa2f69b2",
+      "file_count": 107
+    },
+    {
+      "name": "writeable",
+      "version": "0.6.4",
+      "checksum": "3ad82d2a33cdc9674dc7465672f271e096168fcdbe0f799d9e6db8c5892679dc",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "3ad82d2a33cdc9674dc7465672f271e096168fcdbe0f799d9e6db8c5892679dc",
+      "source_tree_digest": "a51c8958fe82221910760723a50e5f31e91c0e91d38c494355ae8c8a7ec546fc",
+      "file_count": 21
+    },
+    {
+      "name": "wyz",
+      "version": "0.5.1",
+      "checksum": "05f360fc0b24296329c78fda852a1e9ae82de9cf7b27dae4b7f62f118f77b9ed",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "05f360fc0b24296329c78fda852a1e9ae82de9cf7b27dae4b7f62f118f77b9ed",
+      "source_tree_digest": "782b6e5b4bf95fe6d5c8aafb490db2dfa75320598decd7b01589d69042ee9a90",
+      "file_count": 12
+    },
+    {
+      "name": "xberg-native-pdf",
+      "version": "1.3.10",
+      "checksum": "c574e362d731d6c66c47275ec6b16e3acccef3c2fd465da973bcf424cd6fa1fc",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default"
+      ],
+      "archive_sha256": "c574e362d731d6c66c47275ec6b16e3acccef3c2fd465da973bcf424cd6fa1fc",
+      "source_tree_digest": "cf4c410f31b9bb47a82bdab973a3170f5d2bb3198f474d6ddc3eb62ae441fb34",
+      "file_count": 344
+    },
+    {
+      "name": "xberg",
+      "version": "1.3.10",
+      "checksum": "f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "html",
+        "image-encode",
+        "pdf",
+        "pdf-native"
+      ],
+      "archive_sha256": "f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d",
+      "source_tree_digest": "59ebd512cea7f99398e7e690e3490dfa7087e1003c82a11e1f64f139e829d736",
+      "file_count": 764
+    },
+    {
+      "name": "y4m",
+      "version": "0.8.0",
+      "checksum": "7a5a4b21e1a62b67a2970e6831bc091d7b87e119e7f9791aef9702e3bef04448",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "7a5a4b21e1a62b67a2970e6831bc091d7b87e119e7f9791aef9702e3bef04448",
+      "source_tree_digest": "bbcd1a933796d673cb0eb45f1547c28b36e72f269f5e4c7f4d79861269610dfe",
+      "file_count": 12
+    },
+    {
+      "name": "yaml_serde",
+      "version": "0.10.7",
+      "checksum": "33b729a08a9a6be689bbad3e2bf8015926db54b6622cc89c3a5f7dc174b9e918",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "std"
+      ],
+      "archive_sha256": "33b729a08a9a6be689bbad3e2bf8015926db54b6622cc89c3a5f7dc174b9e918",
+      "source_tree_digest": "fca9e83c09a47e1a21d38ec52b70814dee2e10c4791fb31881a3c1f71479ad83",
+      "file_count": 43
+    },
+    {
+      "name": "yoke-derive",
+      "version": "0.8.4",
+      "checksum": "ec8ebde2db3681e8c9980cc27822030e68752690ddfa9473e739aeb4dbde6d71",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "ec8ebde2db3681e8c9980cc27822030e68752690ddfa9473e739aeb4dbde6d71",
+      "source_tree_digest": "1e2389bfd95bd765fffe2d31f80fd2f2997937c433fb631141dc0e4374b3f1b2",
+      "file_count": 10
+    },
+    {
+      "name": "yoke",
+      "version": "0.8.3",
+      "checksum": "709fe23a0424b6a435d82152b1bd3fdfb0833487d5fa90d05d42762a9891fef5",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "alloc",
+        "default",
+        "derive",
+        "zerofrom"
+      ],
+      "archive_sha256": "709fe23a0424b6a435d82152b1bd3fdfb0833487d5fa90d05d42762a9891fef5",
+      "source_tree_digest": "6c0daae58fc04129e4053bd58053c14bafeb2e19817c2a383ca9e83201c12565",
+      "file_count": 18
+    },
+    {
+      "name": "zerocopy-derive",
+      "version": "0.8.63",
+      "checksum": "863ad3ac83293fb4d740aedbfdc9240dd8d1a50c1099acd76ce80ce7c7230c7f",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "863ad3ac83293fb4d740aedbfdc9240dd8d1a50c1099acd76ce80ce7c7230c7f",
+      "source_tree_digest": "815b84ce968b71714dd0bc70a38800d432a14eb3607509a70bda823bf54f159f",
+      "file_count": 175
+    },
+    {
+      "name": "zerocopy",
+      "version": "0.8.63",
+      "checksum": "e5fe1f8f1b06191a00962174c61aa5005e0bb391a6d80d07e24d115c01a92ed8",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "derive",
+        "simd",
+        "zerocopy-derive"
+      ],
+      "archive_sha256": "e5fe1f8f1b06191a00962174c61aa5005e0bb391a6d80d07e24d115c01a92ed8",
+      "source_tree_digest": "a8c7fda426c67aeb189dd1e1fae3ba040d3ef61ec231e4f6955da78d72942af5",
+      "file_count": 409
+    },
+    {
+      "name": "zerofrom-derive",
+      "version": "0.1.8",
+      "checksum": "f75b4683f6c7f45248d4d64056a24298c6281e0993356d7d1b4a1a962ef10d4a",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "f75b4683f6c7f45248d4d64056a24298c6281e0993356d7d1b4a1a962ef10d4a",
+      "source_tree_digest": "8ede578c4e0f18c319bbdc00c567cca6f7b8c194c14a146c5200292bd9ecb59f",
+      "file_count": 9
+    },
+    {
+      "name": "zerofrom",
+      "version": "0.1.8",
+      "checksum": "0ec05a11813ea801ff6d75110ad09cd0824ddba17dfe17128ea0d5f68e6c5272",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "alloc",
+        "derive"
+      ],
+      "archive_sha256": "0ec05a11813ea801ff6d75110ad09cd0824ddba17dfe17128ea0d5f68e6c5272",
+      "source_tree_digest": "a17ddcc5b96826cc25dd1357ccb2866abfc3cdce90350cad496a2040f7ad9eb6",
+      "file_count": 9
+    },
+    {
+      "name": "zerotrie",
+      "version": "0.2.5",
+      "checksum": "4ea269c3bd32f0a32c321907a2ae912ba6f4649bb0fc764a15627e99a7095a3f",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "yoke",
+        "zerofrom"
+      ],
+      "archive_sha256": "4ea269c3bd32f0a32c321907a2ae912ba6f4649bb0fc764a15627e99a7095a3f",
+      "source_tree_digest": "3023c760dd33426142b0ef2ec994b06ad2b18733ce84380d2bfd743c8a713e20",
+      "file_count": 39
+    },
+    {
+      "name": "zerovec-derive",
+      "version": "0.11.6",
+      "checksum": "34df6fc39dbd26ddc9c10e6a2984476e13acce22e64e4487636ef494369225da",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "34df6fc39dbd26ddc9c10e6a2984476e13acce22e64e4487636ef494369225da",
+      "source_tree_digest": "017ccffa4834626b3e9feebfd1227c95149e19ebc70de802bc36c047c063f561",
+      "file_count": 18
+    },
+    {
+      "name": "zerovec",
+      "version": "0.11.8",
+      "checksum": "bb0464e17806c1d976d5cba29399c7f08e516e279e2ba493f63123b5fca67dd8",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "derive",
+        "yoke"
+      ],
+      "archive_sha256": "bb0464e17806c1d976d5cba29399c7f08e516e279e2ba493f63123b5fca67dd8",
+      "source_tree_digest": "0a0a08cae5ee001632961e3e12b7bf605cfe63f7e7599730650fd3cd92433b27",
+      "file_count": 67
+    },
+    {
+      "name": "zlib-rs",
+      "version": "0.6.8",
+      "checksum": "b268e58e7c693d7c271f93ffc4ba3b380412554231c85bf61ca7af91042a4112",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "rust-allocator",
+        "std"
+      ],
+      "archive_sha256": "b268e58e7c693d7c271f93ffc4ba3b380412554231c85bf61ca7af91042a4112",
+      "source_tree_digest": "f036f0245a85d8ebf95a43c337e3371aff044b38299d21545015586269470273",
+      "file_count": 53
+    },
+    {
+      "name": "zmij",
+      "version": "1.0.23",
+      "checksum": "29666d0abbfad1e3dc4dcf6144730dd3a3ab225bbbdac83319345b1b44ccfc1b",
+      "source_available": true,
+      "archive_available": true,
+      "features": [],
+      "archive_sha256": "29666d0abbfad1e3dc4dcf6144730dd3a3ab225bbbdac83319345b1b44ccfc1b",
+      "source_tree_digest": "e0d264523399b1b9f1c8c3a7beaa8ecf326f788e37115dd14a80b44bfd42bd5f",
+      "file_count": 17
+    },
+    {
+      "name": "zune-core",
+      "version": "0.5.3",
+      "checksum": "d56377fd46368984a170bc5aac5567e52ca5da874caa60bea39fcbca78fb658b",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "std"
+      ],
+      "archive_sha256": "d56377fd46368984a170bc5aac5567e52ca5da874caa60bea39fcbca78fb658b",
+      "source_tree_digest": "ffb7f5d7afdbeaf94f6a930fb8813dd520d246e676f58c2f97f38577d58e6b3f",
+      "file_count": 27
+    },
+    {
+      "name": "zune-inflate",
+      "version": "0.2.54",
+      "checksum": "73ab332fe2f6680068f3582b16a24f90ad7096d5d39b974d1c0aff0125116f02",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "simd-adler32",
+        "zlib"
+      ],
+      "archive_sha256": "73ab332fe2f6680068f3582b16a24f90ad7096d5d39b974d1c0aff0125116f02",
+      "source_tree_digest": "eb32c5ed232eb27d811b9c3c662514e4a4c6a898bef7bad44a81e5c0388319df",
+      "file_count": 16
+    },
+    {
+      "name": "zune-jpeg",
+      "version": "0.5.15",
+      "checksum": "27bc9d5b815bc103f142aa054f561d9187d191692ec7c2d1e2b4737f8dbd7296",
+      "source_available": true,
+      "archive_available": true,
+      "features": [
+        "default",
+        "neon",
+        "std",
+        "x86"
+      ],
+      "archive_sha256": "27bc9d5b815bc103f142aa054f561d9187d191692ec7c2d1e2b4737f8dbd7296",
+      "source_tree_digest": "3238ab8aadc23402c18d0ae8974ced03c7099fc6a888b97d678e9a2a93c3d23f",
+      "file_count": 39
+    }
+  ],
+  "mismatches": []
+}

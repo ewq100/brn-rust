@@ -1,0 +1,44 @@
+[
+  {
+    "name": "xberg",
+    "version": "1.3.10",
+    "source": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10",
+    "archive": "/Users/evokessler/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10.crate",
+    "archive_sha256": "f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d",
+    "lock_checksum": "f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d",
+    "cargo_checksum_file_present": false,
+    "archive_file_entries": 764,
+    "archive_to_source_mismatches": [],
+    "all_files_hashed": 765,
+    "normalized_manifest_sha256": "667be0e1155f63324222f5bc94f37fd3a25b2c4d4b39cab81e9d61ecefdb69f4",
+    "original_manifest_sha256": "9748e86620ba3227fe51b14a7b7e42efb6f3877e2879d3d22339da4d90c9dbe2"
+  },
+  {
+    "name": "xberg-native-pdf",
+    "version": "1.3.10",
+    "source": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-native-pdf-1.3.10",
+    "archive": "/Users/evokessler/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/xberg-native-pdf-1.3.10.crate",
+    "archive_sha256": "c574e362d731d6c66c47275ec6b16e3acccef3c2fd465da973bcf424cd6fa1fc",
+    "lock_checksum": "c574e362d731d6c66c47275ec6b16e3acccef3c2fd465da973bcf424cd6fa1fc",
+    "cargo_checksum_file_present": false,
+    "archive_file_entries": 344,
+    "archive_to_source_mismatches": [],
+    "all_files_hashed": 345,
+    "normalized_manifest_sha256": "742311b085a594c6754ab2d71fd932f89da484811afb3ddbf8d6b562f44fdb43",
+    "original_manifest_sha256": "dec74064f3d8c20d7ef660f7e2fe893fbc2d8fedb673365ce51a6b0bbb1a122d"
+  },
+  {
+    "name": "lopdf",
+    "version": "0.45.0",
+    "source": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/lopdf-0.45.0",
+    "archive": "/Users/evokessler/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/lopdf-0.45.0.crate",
+    "archive_sha256": "bfffda0fe1ab0157e1a13c14bebd3f28671f2fccb7922f0722ec53926e6922d3",
+    "lock_checksum": "bfffda0fe1ab0157e1a13c14bebd3f28671f2fccb7922f0722ec53926e6922d3",
+    "cargo_checksum_file_present": false,
+    "archive_file_entries": 115,
+    "archive_to_source_mismatches": [],
+    "all_files_hashed": 116,
+    "normalized_manifest_sha256": "271a88255c99418241b9beae196ebb857eda8a9e5fb03c6ae954d2b6d2290aff",
+    "original_manifest_sha256": "326dd4f426a1951a505aff239fc5db29e267e242408cebf9918ffb8c5ffbbe63"
+  }
+]
