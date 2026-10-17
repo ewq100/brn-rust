@@ -1,0 +1,5 @@
+{
+  "encoding": "exact UTF-8 bytes encoded as JSON string; no trimming",
+  "sha256": "e7df7cf4ca60c9426252d0fef5dfeaee8c6cdd7f0772e94f4816671aa9b4f93f",
+  "text": "   Compiling brn v0.0.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407/crates/brn)\n    Finished `test` profile [optimized] target(s) in 3.05s\n     Running tests/int_d.rs (/private/tmp/brn-int-d-history-phase-20261017-target/debug/deps/int_d-8d0cf15fe49e4a41)\n\nrunning 1 test\ntest closed_copy_metadata_interoperates_for_both_history_arms ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.67s\n\n"
+}

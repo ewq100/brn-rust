@@ -240,5 +240,226 @@ def main():
     print("Case observed; semantic assessment and exact owner review remain required.")
 
 
+
+# History-only has a distinct activation and ledger; no legacy configuration,
+# polling Stop, Continue or automatic owner Apply can enter this path.
+def history_main():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("int_d_preparation", Path(__file__).with_name("prepare-qualification.py"))
+    preparation = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(preparation)
+    p = argparse.ArgumentParser(description="One activated, fixed history-only case")
+    p.add_argument("--preflight", type=Path, required=True)
+    p.add_argument("--activation", type=Path, required=True)
+    p.add_argument("--ordinal", type=int, required=True)
+    a = p.parse_args()
+    def refuse(message):
+        p.error(message)
+    try:
+        plan = preparation.bounded_json(a.preflight)
+        approval = preparation.bounded_json(a.activation, 8192)
+        now = time.time()
+        keys = {"format", "task", "state", "source_pin", "preflight_sha256", "max_starts", "issued_at", "expires_at"}
+        if set(approval) != keys or approval["format"] != preparation.HISTORY_FORMAT or approval["task"] != preparation.HISTORY_TASK \
+                or approval["state"] != "ACTIVATED" or approval["source_pin"] != plan["source_pin"] \
+                or approval["preflight_sha256"] != sha(a.preflight) or type(approval["max_starts"]) is not int or approval["max_starts"] != 4 \
+                or type(approval["issued_at"]) is not int or type(approval["expires_at"]) is not int \
+                or not approval["issued_at"] <= now < approval["expires_at"] <= approval["issued_at"] + 900:
+            refuse("missing/stale/old or inexact history activation")
+        if plan["format"] != preparation.HISTORY_FORMAT or plan["phase"] != "history-only" or plan["task"] != preparation.HISTORY_TASK \
+                or plan["limits"] != {"total_workflow_starts": 4, "max_tool_rounds_each": 8, "host_timeout_seconds_each": 120} \
+                or plan["route"] != {"provider": "Codex", "model": "gpt-6.1-sol", "effort": "medium", "auth_reference": preparation.AUTH_REFERENCE}:
+            refuse("inexact phase/route/limits")
+        if a.preflight.parent.is_symlink() or a.preflight.parent.resolve() != a.preflight.parent \
+                or a.preflight.parent.stat().st_mode & 0o077 or a.activation.parent != a.preflight.parent:
+            refuse("real private preflight directory required")
+        preparation.verify_source(plan["source_root"], plan["source_pin"], plan["source_inputs"])
+        scripts = {str(Path(__file__).with_name(n).resolve()) for n in ("prepare-qualification.py", "observe-workflow.py", "check-observer.py")}
+        if set(plan["scripts"]) != scripts:
+            refuse("exact three scripts required")
+        for path, digest in plan["scripts"].items():
+            if sha(path) != digest:
+                refuse("script changed")
+            relative = str(Path(path).relative_to(plan["source_root"]))
+            if hashlib.sha256(subprocess.check_output(["git", "show", plan["source_pin"] + ":" + relative], cwd=plan["source_root"])).hexdigest() != digest:
+                refuse("script not pinned")
+        if set(plan["compiled_artifacts"]) != {"binary", "generator"}:
+            refuse("exact binary/exporter required")
+        for row in plan["compiled_artifacts"].values():
+            if sha(row["path"]) != row["sha256"] or sha(row["dep_info"]) != row["dep_info_sha256"]:
+                refuse("artifact/dep-info changed")
+        if set(plan["bound_method"]) != {str(a.preflight.parent / n) for n in ("method.md", "rubric.json")}:
+            refuse("exact method/rubric required")
+        for path, digest in plan["bound_method"].items():
+            if sha(path) != digest:
+                refuse("method/rubric changed")
+        if sha(plan["corpus"]) != plan["corpus_sha256"]:
+            refuse("corpus changed")
+        corpus = preparation.bounded_json(plan["corpus"])
+        if [(r["repeat"], r["arm"]) for r in plan["workflows"]] != preparation.HISTORY_ORDER or not 1 <= a.ordinal <= 4:
+            refuse("fixed four-case order required")
+        binary = plan["compiled_artifacts"]["binary"]["path"]
+        for ordinal, r in enumerate(plan["workflows"], 1):
+            expected = [binary, "--json", "--data-dir", r["facts"]["data_dir"], "--timeout", "120", "ask", "--thread", r["facts"]["chat"], "--prompt-file", r["prompt"], "--budget", "8", "--trace", "summary"]
+            if r["ordinal"] != ordinal or any(r[k] is not None for k in ("stop_observer", "continue_command", "configure_command")) or r["ask_command"] != expected:
+                refuse("no alternate commands, configuration, Stop or Continue")
+        case = plan["workflows"][a.ordinal - 1]
+        # Only a not-yet-mutated case is stamped: completed previous cases may
+        # legitimately differ. Bound raw context/manifest files remain immutable.
+        for r in plan["workflows"]:
+            for key in ("prompt", "manifest"):
+                if sha(r[key]) != r[key + "_sha256"]:
+                    refuse("prompt/manifest changed")
+            if Path(r["prompt"]).read_text() != preparation.history_prompt(r["facts"]["note"]):
+                refuse("prompt semantics changed")
+            for key in ("context", "records"):
+                if sha(r[key + "_path"]) != r[key + "_sha256"]:
+                    refuse("canonical metadata changed")
+            manifest = preparation.bounded_json(r["manifest"])
+            if r["facts"] not in manifest["cases"]:
+                refuse("wrong manifest arm")
+            context = preparation.history_context(preparation.bounded_json(r["records_path"]), r["facts"], corpus)
+            if context != r["context"] or preparation.bounded_json(r["context_path"]) != context:
+                refuse("canonical context/auth reference changed")
+        if preparation.stamp_database(case["facts"]["data_dir"]) != case["database"]:
+            refuse("main/WAL/SHM changed before first checked live open")
+        out = Path(plan["output_namespace"])
+        if out != a.preflight.parent / "observations" or out.is_symlink():
+            refuse("inexact output namespace")
+        if out.exists():
+            if out.resolve() != out or not (out / "ledger.json").is_file():
+                refuse("occupied output without a ledger")
+            ledger = preparation.bounded_json(out / "ledger.json", 256 * 1024)
+        else:
+            ledger = {"starts": [], "finished_cases": [], "window_failed": False}
+        if ledger.get("window_failed") or ledger["finished_cases"] != list(range(1, a.ordinal)) \
+                or len(ledger["starts"]) != a.ordinal - 1 or len(ledger["starts"]) >= 4:
+            refuse("failed window, duplicate, order or cap refusal")
+        if out.exists() and any((out / f"{a.ordinal}-reservation.json").exists() for _ in [0]):
+            refuse("start already consumed")
+    except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError):
+        refuse("invalid bounded preflight or activation binding")
+    out.mkdir(mode=0o700, exist_ok=True)
+    home = out / "synthetic-home"
+    home.mkdir(mode=0o700, exist_ok=True)
+    env = {k: v for k, v in os.environ.items() if not k.startswith(("BRN_", "AGENT_CONTRACT_"))}
+    env.update(HOME=str(home), CODEX_HOME=str(home / ".codex"), BRN_NATIVE_MODEL_DIR="", BRN_EMBEDDING_MODEL_DIR="")
+    row = {"ordinal": a.ordinal, "phase": "history", "command": case["ask_command"], "reserved_before_spawn": True, "wall_started": time.time()}
+    # create_new plus file+directory fsync precedes even process spawn failure.
+    with (out / f"{a.ordinal}-reservation.json").open("x") as f:
+        json.dump(row, f); f.flush(); os.fsync(f.fileno())
+    directory = os.open(out, os.O_RDONLY)
+    try:
+        os.fsync(directory)
+    finally:
+        os.close(directory)
+    ledger["starts"].append(row)
+    save(out / "ledger.json", ledger)
+    began = time.monotonic()
+    child = None
+    def group_reap(process):
+        for sig, wait in ((signal.SIGINT, 3), (signal.SIGTERM, 2), (signal.SIGKILL, 2)):
+            try:
+                os.killpg(process.pid, sig)
+            except ProcessLookupError:
+                pass
+            try:
+                code = process.wait(timeout=wait)
+                # Descendants, if any, must not survive a completed group leader.
+                try:
+                    os.killpg(process.pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+                return code
+            except subprocess.TimeoutExpired:
+                continue
+        raise RuntimeError("owned process did not reap")
+    stage = "workflow_spawn"
+    def local(label, cmd, timeout=3, local_env=None):
+        nonlocal stage
+        stage = label
+        process = subprocess.Popen(cmd, env=local_env or env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, start_new_session=True)
+        try:
+            stdout, stderr = process.communicate(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            group_reap(process)
+            raise TimeoutError(label) from None
+        (out / f"{a.ordinal}-{label}.stdout").write_bytes(stdout)
+        (out / f"{a.ordinal}-{label}.stderr").write_bytes(stderr)
+        save(out / f"{a.ordinal}-{label}.json", {"command": cmd, "exit": process.returncode, "python_timeout_seconds": timeout})
+        if process.returncode != 0:
+            raise ValueError(label + " failed")
+        return stdout
+    try:
+        with (out / f"{a.ordinal}-ask.stdout").open("xb") as stdout, (out / f"{a.ordinal}-ask.stderr").open("xb") as stderr:
+            child = subprocess.Popen(case["ask_command"], env=env, stdout=stdout, stderr=stderr, start_new_session=True)
+            row["pid"] = child.pid; row["pgid"] = child.pid
+            try:
+                stage = "workflow_wait"
+                row["exit"] = child.wait(timeout=120)
+            except subprocess.TimeoutExpired:
+                row["cleanup_exit"] = group_reap(child)
+                raise TimeoutError("workflow deadline; cleanup is not checked Stop") from None
+        row["elapsed_seconds"] = time.monotonic() - began
+        row["exposed_metrics"] = exposed_metrics((out / f"{a.ordinal}-ask.stdout").read_bytes())
+        if row["exit"] != 0:
+            raise ValueError("unsuccessful workflow")
+        stage = "workflow_envelope"
+        envelope = preparation.bounded_json(out / f"{a.ordinal}-ask.stdout")
+        if envelope.get("status") != "ok" or envelope.get("result", {}).get("terminal") != "Completed":
+            raise ValueError("malformed or non-Completed workflow")
+        common = [binary, "--json", "--data-dir", case["facts"]["data_dir"], "--timeout", "2"]
+        snapshots = {}
+        for name, argv in (("runs", ["runs", "--thread", case["facts"]["chat"]]), ("note", ["read", "--id", case["facts"]["note"]]), ("candidates", ["candidates", "--limit", "100"])):
+            snapshots[name] = json.loads(local(name, common + argv))
+            if snapshots[name].get("status") != "ok" or not isinstance(snapshots[name].get("result"), dict):
+                raise ValueError("malformed inspection envelope")
+        note = snapshots["note"]["result"]
+        if note["id"] != case["facts"]["note"] or note["version"] != 2:
+            raise ValueError("target identity/version changed; authority invariant")
+        candidates = snapshots["candidates"]["result"]["candidates"]
+        if not isinstance(candidates, list):
+            raise ValueError("malformed candidates")
+        target = [c for c in candidates if any(w.get("id") == case["facts"]["note"] for w in c["writes"])]
+        if len(target) > 1:
+            raise ValueError("ambiguous target candidates")
+        if target:
+            c = target[0]
+            operation = json.loads(local("operation", common + ["operation", "--id", c["operation"]]))
+            if operation.get("status") != "ok" or operation.get("result", {}).get("state") != "prepared" or operation["result"].get("receipt") is not None:
+                raise ValueError("operation is not unapplied Prepared")
+            export_output = Path("/private/tmp") / f"brn-int-d-candidate-export-20261017-history-{plan['source_pin'][:8]}-{a.ordinal}"
+            export_env = dict(env, BRN_INT_D_INSPECT_ROOT=str(Path(case["facts"]["data_dir"]).parent), BRN_INT_D_INSPECT_ARM=case["arm"],
+                              BRN_INT_D_INSPECT_OPERATION=c["operation"], BRN_INT_D_INSPECT_OUTPUT=str(export_output),
+                              BRN_INT_D_INSPECT_IDENTITY=json.dumps({"source_pin": plan["source_pin"], "preflight_sha256": sha(a.preflight), "compiled_artifacts": plan["compiled_artifacts"], "corpus_sha256": plan["corpus_sha256"]}))
+            cmd = [plan["compiled_artifacts"]["generator"]["path"], "--exact", "candidate_export::exact_synthetic_candidate_export_refuses_wrong_fixture_operation_and_preserves_content", "--test-threads=1", "--nocapture"]
+            local("candidate-export", cmd, timeout=15, local_env=export_env)
+            exported = preparation.bounded_json(export_output / "candidate.json", 1024 * 1024)
+            if exported["operation"] != c["operation"] or exported["request_hash"] != c["request_hash"] or exported["target_current"]["version"] != 2 or exported["automatic_apply"] is not False:
+                raise ValueError("exported candidate identity mismatch")
+            row["candidate_inspection"] = {"output": str(export_output), "sha256": sha(export_output / "candidate.json"), "operation": c["operation"], "request_hash": c["request_hash"], "automatic_apply": False}
+        else:
+            row["objective_gap"] = "Completed without exact candidate; not objective success or retry authority"
+        ledger["finished_cases"].append(a.ordinal)
+    except (OSError, ValueError, KeyError, TypeError, TimeoutError) as error:
+        # Static class only: no arbitrary exception/provider payload interpolation.
+        row["harness_failure"] = {"stage": stage, "class": type(error).__name__, "outcome": "STOP ENTIRE WINDOW; no retry/Continue/replacement"}
+        ledger["window_failed"] = True
+        save(out / f"{a.ordinal}-harness-failure.json", row["harness_failure"])
+    finally:
+        if child is not None:
+            row["cleanup_exit"] = group_reap(child)
+            row["owned_group_reaped"] = True
+        row["elapsed_seconds_including_cleanup"] = time.monotonic() - began
+        save(out / "ledger.json", ledger)
+    if ledger["window_failed"]:
+        raise SystemExit("History window stopped; bounded failure preserved.")
+    print("History case reaped; exact semantic/owner review remains separate.")
+
+
 if __name__ == "__main__":
-    main()
+    import sys
+    if "--preflight" in sys.argv and json.loads(Path(sys.argv[sys.argv.index("--preflight") + 1]).read_text()).get("phase") == "history-only":
+        history_main()
+    else:
+        main()

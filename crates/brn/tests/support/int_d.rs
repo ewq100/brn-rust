@@ -465,3 +465,227 @@ fn applied_and_retired_candidates_are_refused_without_export_or_source_changes()
         );
     }
 }
+
+// Offline-only reader of CLOSED fixture copies. Never opens the original
+// qualification root and never calls Auth, configure, prepare or a workflow.
+pub(super) fn metadata_copy_context(
+    copied: &Path,
+    expected_path: &Path,
+    output: &Path,
+) -> std::result::Result<Value, String> {
+    use std::io::Write;
+    use std::process::{Command, Stdio};
+    owned_root(copied, "brn-int-d-metadata-copy-20261017-", true)?;
+    owned_root(output, "brn-int-d-metadata-result-20261017-", false)?;
+    if expected_path.parent() != Some(Path::new("/private/tmp"))
+        || !expected_path
+            .file_name()
+            .and_then(|n| n.to_str())
+            .is_some_and(|n| n.starts_with("brn-int-d-metadata-expected-20261017-"))
+        || expected_path
+            .canonicalize()
+            .map_err(|_| "missing expected context")?
+            != expected_path
+        || !std::fs::symlink_metadata(expected_path)
+            .map_err(|_| "missing expected context")?
+            .is_file()
+        || std::fs::metadata(expected_path)
+            .map_err(|_| "missing expected context")?
+            .len()
+            > 65536
+    {
+        return Err("bounded explicit real expected-context file required".into());
+    }
+    fn real_tree(path: &Path, count: &mut usize) -> std::result::Result<(), String> {
+        *count += 1;
+        if *count > 128 {
+            return Err("copy tree exceeds bound".into());
+        }
+        let kind = std::fs::symlink_metadata(path).map_err(|_| "copy metadata unavailable")?;
+        if kind.is_dir() && !kind.file_type().is_symlink() {
+            for entry in std::fs::read_dir(path).map_err(|_| "copy directory unavailable")? {
+                real_tree(&entry.map_err(|_| "copy entry unavailable")?.path(), count)?;
+            }
+        } else if !kind.is_file() || kind.file_type().is_symlink() {
+            return Err("copy must contain only real directories and regular files".into());
+        }
+        Ok(())
+    }
+    real_tree(copied, &mut 0)?;
+    let expected: Value =
+        serde_json::from_slice(&std::fs::read(expected_path).map_err(|_| "expected read failed")?)
+            .map_err(|_| "invalid expected JSON")?;
+    if expected
+        .as_object()
+        .is_none_or(|o| o.len() != 2 || !o.contains_key("facts") || !o.contains_key("context"))
+    {
+        return Err("only facts/context metadata is supported".into());
+    }
+    let f = &expected["facts"];
+    let arm = f["case"].as_str().ok_or("missing case")?;
+    if !matches!(arm, "control" | "candidate") || f["selected"] != (arm == "candidate") {
+        return Err("wrong corpus arm".into());
+    }
+    let original = Path::new(f["data_dir"].as_str().ok_or("missing original identity")?);
+    if original.file_name().and_then(|n| n.to_str()) != Some(arm)
+        || original.parent().and_then(Path::parent) != Some(Path::new("/private/tmp"))
+        || !original
+            .parent()
+            .and_then(Path::file_name)
+            .and_then(|n| n.to_str())
+            .is_some_and(|n| n.starts_with("brn-int-d-qualification-20261017-"))
+    {
+        return Err("explicit original case identity required, never opened".into());
+    }
+    let app =
+        Workspace::open_existing_no_upgrade(copied.join("data")).map_err(|_| "copy cannot open")?;
+    if app
+        .store
+        .workspace_purpose()
+        .map_err(|_| "purpose unavailable")?
+        != WorkspacePurpose::Test
+        || !app
+            .candidates()
+            .map_err(|_| "candidate inspection failed")?
+            .is_empty()
+    {
+        return Err("fresh Test-purpose copy required".into());
+    }
+    let records = app.records().map_err(|_| "records unavailable")?;
+    if records.len() > 256 || records.iter().any(|r| matches!(r.data, RecordData::Run(_))) {
+        return Err("bounded no-Run copy required".into());
+    }
+    let record = |id: &str| {
+        records
+            .iter()
+            .find(|r| r.id == id && !r.archived)
+            .ok_or("context record unavailable")
+    };
+    let chat = record(f["chat"].as_str().ok_or("missing chat")?)?;
+    let RecordData::Thread(t) = &chat.data else {
+        return Err("wrong chat type".into());
+    };
+    let project = app
+        .store
+        .project_context_record(&chat.id)
+        .map_err(|_| "project context unavailable")?
+        .ok_or("project required")?;
+    if project.archived || project.id != f["project"] || t.state != ThreadState::Open {
+        return Err("active same-Project chat required".into());
+    }
+    let target = record(f["note"].as_str().ok_or("missing target")?)?;
+    if target.version != 2
+        || f["note_version"] != 2
+        || !matches!(&target.data, RecordData::Note(n) if n.protected)
+        || !app
+            .store
+            .record_visible_in_chat(&target.id, Some(&chat.id))
+            .map_err(|_| "target context unavailable")?
+    {
+        return Err("protected visible target v2 required".into());
+    }
+    let settings_record = records
+        .iter()
+        .find(|r| !r.archived && matches!(r.data, RecordData::Settings(_)))
+        .ok_or("settings unavailable")?;
+    let RecordData::Settings(s) = &settings_record.data else {
+        unreachable!()
+    };
+    if s.provider != "Codex"
+        || s.model != "gpt-6.1-sol"
+        || s.effort != "medium"
+        || s.auth_file.as_deref() != Some("/Users/evokessler/.codex/auth.json")
+        || s.credentials_dir.is_some()
+        || s.helper.is_some()
+        || s.mcp.is_some()
+    {
+        return Err("exact reference-only route required".into());
+    }
+    let wanted = if arm == "candidate" {
+        vec![SkillBinding {
+            id: f["skill_id"].as_str().ok_or("missing package")?.into(),
+            digest: f["skill_digest"].as_str().ok_or("missing digest")?.into(),
+            project: Some(project.id.clone()),
+            enabled: true,
+            selected: true,
+        }]
+    } else {
+        vec![]
+    };
+    if s.skills != wanted {
+        return Err("wrong scoped package policy".into());
+    }
+    let package = app
+        .inspect_skill(
+            f["skill_id"]
+                .as_str()
+                .ok_or("missing package")?
+                .strip_prefix("installed:")
+                .ok_or("wrong installed identity")?,
+        )
+        .map_err(|_| "installed package unavailable")?;
+    if package.info.id != f["skill_id"] || package.info.digest != f["skill_digest"] {
+        return Err("package bytes differ".into());
+    }
+    let c: Value = serde_json::from_str(super::CORPUS).map_err(|_| "corpus unavailable")?;
+    let ids = f["history_messages"].as_array().ok_or("missing history")?;
+    if ids.len() != 68 {
+        return Err("68 inputs required".into());
+    }
+    let mut inputs = vec![];
+    for (index, id) in ids.iter().enumerate() {
+        let r = record(id.as_str().ok_or("invalid input ID")?)?;
+        let RecordData::Message(m) = &r.data else {
+            return Err("wrong input type".into());
+        };
+        if r.version != 1
+            || m.thread != chat.id
+            || (index == 0 && (m.text != c["early_requirement"] || r.id != f["early_message"]))
+            || (index == 40 && (m.text != c["later_proposal"] || r.id != f["proposal_message"]))
+        {
+            return Err("canonical input differs".into());
+        }
+        inputs.push(json!({"id":r.id,"version":r.version}));
+    }
+    inputs.sort_by(|a, b| a["id"].as_str().cmp(&b["id"].as_str()));
+    if inputs.windows(2).any(|w| w[0] == w[1]) {
+        return Err("duplicate input".into());
+    }
+    // Mac-only test helper, no new dependency: SHA256 the ACTUAL Rust serialized
+    // Settings bytes using the platform utility, never re-order keys in Python.
+    let bytes = serde_json::to_vec(&serde_json::to_value(s).map_err(|_| "settings value failed")?)
+        .map_err(|_| "settings encoding failed")?;
+    let mut hash = Command::new("/usr/bin/shasum")
+        .args(["-a", "256"])
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .spawn()
+        .map_err(|_| "hash utility unavailable")?;
+    hash.stdin
+        .take()
+        .ok_or("hash input unavailable")?
+        .write_all(&bytes)
+        .map_err(|_| "hash write failed")?;
+    let hash = hash.wait_with_output().map_err(|_| "hash process failed")?;
+    if !hash.status.success() {
+        return Err("hash process refused".into());
+    }
+    let digest = String::from_utf8(hash.stdout).map_err(|_| "invalid hash output")?;
+    let digest = digest.split_whitespace().next().ok_or("missing hash")?;
+    let actual = json!({"purpose":"Test","project":{"id":project.id,"version":project.version},
+        "chat":{"id":chat.id,"version":chat.version,"privacy":t.private_context,"epoch":t.context_epoch},
+        "settings":{"id":settings_record.id,"version":settings_record.version,"policy_sha256":digest,"auth_reference":s.auth_file},
+        "target":{"id":target.id,"version":target.version,"protected":true},"inputs":inputs,
+        "package":{"id":package.info.id,"digest":package.info.digest,"selected":arm=="candidate","bindings":wanted}});
+    if actual != expected["context"] {
+        return Err("whole Python/Rust canonical context mismatch".into());
+    }
+    let value = json!({"context":actual,"copy_root":copied,"original_data_opened":false});
+    std::fs::create_dir(output).map_err(|_| "fresh output required")?;
+    std::fs::write(
+        output.join("context.json"),
+        serde_json::to_vec_pretty(&value).map_err(|_| "metadata encoding failed")?,
+    )
+    .map_err(|_| "metadata output failed")?;
+    Ok(value)
+}

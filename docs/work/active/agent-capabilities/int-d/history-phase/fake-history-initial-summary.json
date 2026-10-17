@@ -1,0 +1,176 @@
+{
+  "source_pin": "not yet committed; actual b28f4c0c+WIP",
+  "raw_log": "/private/tmp/brn-int-d-history-phase-20261017/fake-history-attempt1.log",
+  "raw_sha256": "7b259592c30f58271f28b0ecf511a670199c406091aa69c761d340ebdbdce34e",
+  "elapsed": "not recorded for initial fake command",
+  "cases": [
+    {
+      "case": "four-order",
+      "exit": 0,
+      "fake_starts": 4
+    },
+    {
+      "case": "failure",
+      "exit": 1,
+      "fake_starts": 1
+    },
+    {
+      "case": "timeout-exit",
+      "exit": 1,
+      "fake_starts": 1
+    },
+    {
+      "case": "spawn-failure",
+      "exit": 1,
+      "fake_starts": 0
+    },
+    {
+      "case": "malformed-ask",
+      "exit": 1,
+      "fake_starts": 1
+    },
+    {
+      "case": "inspection-failure",
+      "exit": 1,
+      "fake_starts": 1
+    },
+    {
+      "case": "inspection-timeout",
+      "exit": 1,
+      "fake_starts": 1
+    },
+    {
+      "case": "malformed-inspection",
+      "exit": 1,
+      "fake_starts": 1
+    },
+    {
+      "case": "export-success",
+      "exit": 0,
+      "fake_starts": 1
+    },
+    {
+      "case": "export-failure",
+      "exit": 1,
+      "fake_starts": 1
+    },
+    {
+      "case": "export-timeout",
+      "exit": 1,
+      "fake_starts": 1
+    },
+    {
+      "case": "authority-failure",
+      "exit": 1,
+      "fake_starts": 1
+    },
+    {
+      "case": "occupied-output",
+      "exit": 2,
+      "fake_starts": 0
+    },
+    {
+      "case": "duplicate",
+      "exit": 0,
+      "fake_starts": 1
+    },
+    {
+      "case": "cap",
+      "exit": 2,
+      "fake_starts": 0
+    },
+    {
+      "case": "wrong-order",
+      "exit": 2,
+      "fake_starts": 0
+    },
+    {
+      "case": "missing-activation",
+      "exit": 2,
+      "fake_starts": 0
+    },
+    {
+      "case": "old-activation",
+      "exit": 2,
+      "fake_starts": 0
+    },
+    {
+      "case": "expired-activation",
+      "exit": 2,
+      "fake_starts": 0
+    },
+    {
+      "case": "malformed-activation",
+      "exit": 2,
+      "fake_starts": 0
+    },
+    {
+      "case": "changed-source",
+      "exit": 2,
+      "fake_starts": 0
+    },
+    {
+      "case": "changed-script",
+      "exit": 2,
+      "fake_starts": 0
+    },
+    {
+      "case": "changed-artifact",
+      "exit": 2,
+      "fake_starts": 0
+    },
+    {
+      "case": "changed-depinfo",
+      "exit": 2,
+      "fake_starts": 0
+    },
+    {
+      "case": "changed-corpus",
+      "exit": 2,
+      "fake_starts": 0
+    },
+    {
+      "case": "changed-prompt",
+      "exit": 2,
+      "fake_starts": 0
+    },
+    {
+      "case": "changed-rubric",
+      "exit": 2,
+      "fake_starts": 0
+    },
+    {
+      "case": "changed-manifest",
+      "exit": 2,
+      "fake_starts": 0
+    },
+    {
+      "case": "changed-main",
+      "exit": 2,
+      "fake_starts": 0
+    },
+    {
+      "case": "changed-wal",
+      "exit": 2,
+      "fake_starts": 0
+    },
+    {
+      "case": "changed-shm",
+      "exit": 2,
+      "fake_starts": 0
+    },
+    {
+      "case": "changed-context",
+      "exit": 2,
+      "fake_starts": 0
+    },
+    {
+      "case": "changed-authref",
+      "exit": 2,
+      "fake_starts": 0
+    }
+  ],
+  "live_workflow_starts": 0,
+  "scope": "fake subprocesses only; initial preparer later received pinned method/rubric byte check; not real readiness",
+  "script_association": "Initial command ran before the preparer pinned-method check. Per-script start hash was not recorded for this first fake invocation; final source-labelled fake requalification will provide it. No earlier run is relabelled."
+}

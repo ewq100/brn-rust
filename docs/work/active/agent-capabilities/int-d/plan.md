@@ -1,3 +1,5 @@
+**History-only offline preparation checkpoint:** [bounded plan](history-phase/plan.md) reuses readiness B after accepted guide14 refresh. Explicit history-only harness, whole-context closed-copy interoperability and fixed C/P then P/C preflight are being qualified offline. No paid activation/real observer/reservation; prior windows remain closed. Parent review/audit/activation remain separate.
+
 # INT-D / Slice5 bounded integration
 
 **Refresh contract correction checkpoint:** separately allocated [refresh-schema removal and guide14 compatibility update](refresh-contract/plan.md) preserve strict typed/handler authority and all ordinary/v2 prepare evidence. Actual before registered metadata witness is0/1; corrected history6/0, writing19/0, budget34/0, cache1/0 and one full scripted AI496/0/2 are source-bound evidence, with independent review/acceptance pending. No phaseB fixture/preflight or live authority follows.

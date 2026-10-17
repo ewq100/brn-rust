@@ -1,0 +1,1443 @@
+{
+  "qualification": "offline fake CLI subprocesses and synthetic Git only, not a BRN/provider/Auth/activation proof",
+  "cases": [
+    {
+      "case": "four-order",
+      "runs": [
+        {
+          "ordinal": 1,
+          "exit": 0,
+          "stderr": "",
+          "stdout": "History case reaped; exact semantic/owner review remains separate.\n"
+        },
+        {
+          "ordinal": 2,
+          "exit": 0,
+          "stderr": "",
+          "stdout": "History case reaped; exact semantic/owner review remains separate.\n"
+        },
+        {
+          "ordinal": 3,
+          "exit": 0,
+          "stderr": "",
+          "stdout": "History case reaped; exact semantic/owner review remains separate.\n"
+        },
+        {
+          "ordinal": 4,
+          "exit": 0,
+          "stderr": "",
+          "stdout": "History case reaped; exact semantic/owner review remains separate.\n"
+        }
+      ],
+      "actual_fake_starts": 4,
+      "ledger": {
+        "starts": [
+          {
+            "ordinal": 1,
+            "phase": "history",
+            "command": [
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/four-order/fake-cli",
+              "--json",
+              "--data-dir",
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/four-order/r1-control",
+              "--timeout",
+              "120",
+              "ask",
+              "--thread",
+              "chat-1",
+              "--prompt-file",
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/four-order/1.txt",
+              "--budget",
+              "8",
+              "--trace",
+              "summary"
+            ],
+            "reserved_before_spawn": true,
+            "wall_started": 1792260969.180672,
+            "pid": 45538,
+            "pgid": 45538,
+            "exit": 0,
+            "elapsed_seconds": 1.2567449999041855,
+            "exposed_metrics": {
+              "trace_available": true,
+              "terminal": "Completed",
+              "traced_model_turns": 1,
+              "rounds": 0,
+              "max_rounds": null,
+              "stopped": null,
+              "runtime_elapsed_ms": null,
+              "parent_usage": {
+                "input": 100,
+                "output": 10,
+                "cached_input": 25,
+                "cached_share": 0.25
+              },
+              "turn_usage": [],
+              "summary": {
+                "outcome": "cached"
+              },
+              "helpers": [],
+              "recorded_provider_resends": 0,
+              "auth_requests": "not exposed",
+              "account_identity": "not exposed",
+              "qualification": "observed trace only; no inferred HTTP totals/summary latency/free retries; missing usage unknown"
+            },
+            "objective_gap": "Completed without exact candidate; not objective success or retry authority",
+            "cleanup_exit": 0,
+            "owned_group_reaped": true,
+            "elapsed_seconds_including_cleanup": 1.6257826249348
+          },
+          {
+            "ordinal": 2,
+            "phase": "history",
+            "command": [
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/four-order/fake-cli",
+              "--json",
+              "--data-dir",
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/four-order/r1-candidate",
+              "--timeout",
+              "120",
+              "ask",
+              "--thread",
+              "chat-2",
+              "--prompt-file",
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/four-order/2.txt",
+              "--budget",
+              "8",
+              "--trace",
+              "summary"
+            ],
+            "reserved_before_spawn": true,
+            "wall_started": 1792260970.992331,
+            "pid": 45550,
+            "pgid": 45550,
+            "exit": 0,
+            "elapsed_seconds": 0.04564720904454589,
+            "exposed_metrics": {
+              "trace_available": true,
+              "terminal": "Completed",
+              "traced_model_turns": 1,
+              "rounds": 0,
+              "max_rounds": null,
+              "stopped": null,
+              "runtime_elapsed_ms": null,
+              "parent_usage": {
+                "input": 100,
+                "output": 10,
+                "cached_input": 25,
+                "cached_share": 0.25
+              },
+              "turn_usage": [],
+              "summary": {
+                "outcome": "cached"
+              },
+              "helpers": [],
+              "recorded_provider_resends": 0,
+              "auth_requests": "not exposed",
+              "account_identity": "not exposed",
+              "qualification": "observed trace only; no inferred HTTP totals/summary latency/free retries; missing usage unknown"
+            },
+            "objective_gap": "Completed without exact candidate; not objective success or retry authority",
+            "cleanup_exit": 0,
+            "owned_group_reaped": true,
+            "elapsed_seconds_including_cleanup": 0.6953015839681029
+          },
+          {
+            "ordinal": 3,
+            "phase": "history",
+            "command": [
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/four-order/fake-cli",
+              "--json",
+              "--data-dir",
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/four-order/r2-candidate",
+              "--timeout",
+              "120",
+              "ask",
+              "--thread",
+              "chat-3",
+              "--prompt-file",
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/four-order/3.txt",
+              "--budget",
+              "8",
+              "--trace",
+              "summary"
+            ],
+            "reserved_before_spawn": true,
+            "wall_started": 1792260972.730122,
+            "pid": 45561,
+            "pgid": 45561,
+            "exit": 0,
+            "elapsed_seconds": 0.04585454205516726,
+            "exposed_metrics": {
+              "trace_available": true,
+              "terminal": "Completed",
+              "traced_model_turns": 1,
+              "rounds": 0,
+              "max_rounds": null,
+              "stopped": null,
+              "runtime_elapsed_ms": null,
+              "parent_usage": {
+                "input": 100,
+                "output": 10,
+                "cached_input": 25,
+                "cached_share": 0.25
+              },
+              "turn_usage": [],
+              "summary": {
+                "outcome": "cached"
+              },
+              "helpers": [],
+              "recorded_provider_resends": 0,
+              "auth_requests": "not exposed",
+              "account_identity": "not exposed",
+              "qualification": "observed trace only; no inferred HTTP totals/summary latency/free retries; missing usage unknown"
+            },
+            "objective_gap": "Completed without exact candidate; not objective success or retry authority",
+            "cleanup_exit": 0,
+            "owned_group_reaped": true,
+            "elapsed_seconds_including_cleanup": 0.26239124999847263
+          },
+          {
+            "ordinal": 4,
+            "phase": "history",
+            "command": [
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/four-order/fake-cli",
+              "--json",
+              "--data-dir",
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/four-order/r2-control",
+              "--timeout",
+              "120",
+              "ask",
+              "--thread",
+              "chat-4",
+              "--prompt-file",
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/four-order/4.txt",
+              "--budget",
+              "8",
+              "--trace",
+              "summary"
+            ],
+            "reserved_before_spawn": true,
+            "wall_started": 1792260974.630058,
+            "pid": 45574,
+            "pgid": 45574,
+            "exit": 0,
+            "elapsed_seconds": 0.04430887498892844,
+            "exposed_metrics": {
+              "trace_available": true,
+              "terminal": "Completed",
+              "traced_model_turns": 1,
+              "rounds": 0,
+              "max_rounds": null,
+              "stopped": null,
+              "runtime_elapsed_ms": null,
+              "parent_usage": {
+                "input": 100,
+                "output": 10,
+                "cached_input": 25,
+                "cached_share": 0.25
+              },
+              "turn_usage": [],
+              "summary": {
+                "outcome": "cached"
+              },
+              "helpers": [],
+              "recorded_provider_resends": 0,
+              "auth_requests": "not exposed",
+              "account_identity": "not exposed",
+              "qualification": "observed trace only; no inferred HTTP totals/summary latency/free retries; missing usage unknown"
+            },
+            "objective_gap": "Completed without exact candidate; not objective success or retry authority",
+            "cleanup_exit": 0,
+            "owned_group_reaped": true,
+            "elapsed_seconds_including_cleanup": 0.15341041598003358
+          }
+        ],
+        "finished_cases": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "window_failed": false
+      },
+      "normal_Auth_or_provider_starts": 0
+    },
+    {
+      "case": "failure",
+      "runs": [
+        {
+          "ordinal": 1,
+          "exit": 1,
+          "stderr": "History window stopped; bounded failure preserved.\n",
+          "stdout": ""
+        }
+      ],
+      "actual_fake_starts": 1,
+      "ledger": {
+        "starts": [
+          {
+            "ordinal": 1,
+            "phase": "history",
+            "command": [
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/failure/fake-cli",
+              "--json",
+              "--data-dir",
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/failure/r1-control",
+              "--timeout",
+              "120",
+              "ask",
+              "--thread",
+              "chat-1",
+              "--prompt-file",
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/failure/1.txt",
+              "--budget",
+              "8",
+              "--trace",
+              "summary"
+            ],
+            "reserved_before_spawn": true,
+            "wall_started": 1792260976.35125,
+            "pid": 45590,
+            "pgid": 45590,
+            "exit": 7,
+            "elapsed_seconds": 0.664485750021413,
+            "exposed_metrics": {
+              "trace_available": false,
+              "terminal": "ToolLimitReached",
+              "counters": "unknown"
+            },
+            "harness_failure": {
+              "stage": "workflow_wait",
+              "class": "ValueError",
+              "outcome": "STOP ENTIRE WINDOW; no retry/Continue/replacement"
+            },
+            "cleanup_exit": 7,
+            "owned_group_reaped": true,
+            "elapsed_seconds_including_cleanup": 0.6691865830216557
+          }
+        ],
+        "finished_cases": [],
+        "window_failed": true
+      },
+      "normal_Auth_or_provider_starts": 0
+    },
+    {
+      "case": "timeout-exit",
+      "runs": [
+        {
+          "ordinal": 1,
+          "exit": 1,
+          "stderr": "History window stopped; bounded failure preserved.\n",
+          "stdout": ""
+        }
+      ],
+      "actual_fake_starts": 1,
+      "ledger": {
+        "starts": [
+          {
+            "ordinal": 1,
+            "phase": "history",
+            "command": [
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/timeout-exit/fake-cli",
+              "--json",
+              "--data-dir",
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/timeout-exit/r1-control",
+              "--timeout",
+              "120",
+              "ask",
+              "--thread",
+              "chat-1",
+              "--prompt-file",
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/timeout-exit/1.txt",
+              "--budget",
+              "8",
+              "--trace",
+              "summary"
+            ],
+            "reserved_before_spawn": true,
+            "wall_started": 1792260979.718695,
+            "pid": 45646,
+            "pgid": 45646,
+            "exit": 7,
+            "elapsed_seconds": 0.31728425004985183,
+            "exposed_metrics": {
+              "trace_available": false,
+              "terminal": "ToolLimitReached",
+              "counters": "unknown"
+            },
+            "harness_failure": {
+              "stage": "workflow_wait",
+              "class": "ValueError",
+              "outcome": "STOP ENTIRE WINDOW; no retry/Continue/replacement"
+            },
+            "cleanup_exit": 7,
+            "owned_group_reaped": true,
+            "elapsed_seconds_including_cleanup": 0.3207459159893915
+          }
+        ],
+        "finished_cases": [],
+        "window_failed": true
+      },
+      "normal_Auth_or_provider_starts": 0
+    },
+    {
+      "case": "spawn-failure",
+      "runs": [
+        {
+          "ordinal": 1,
+          "exit": 1,
+          "stderr": "History window stopped; bounded failure preserved.\n",
+          "stdout": ""
+        }
+      ],
+      "actual_fake_starts": 0,
+      "ledger": {
+        "starts": [
+          {
+            "ordinal": 1,
+            "phase": "history",
+            "command": [
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/spawn-failure/fake-cli",
+              "--json",
+              "--data-dir",
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/spawn-failure/r1-control",
+              "--timeout",
+              "120",
+              "ask",
+              "--thread",
+              "chat-1",
+              "--prompt-file",
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/spawn-failure/1.txt",
+              "--budget",
+              "8",
+              "--trace",
+              "summary"
+            ],
+            "reserved_before_spawn": true,
+            "wall_started": 1792260981.470252,
+            "harness_failure": {
+              "stage": "workflow_spawn",
+              "class": "FileNotFoundError",
+              "outcome": "STOP ENTIRE WINDOW; no retry/Continue/replacement"
+            },
+            "elapsed_seconds_including_cleanup": 0.0018346660071983933
+          }
+        ],
+        "finished_cases": [],
+        "window_failed": true
+      },
+      "normal_Auth_or_provider_starts": 0
+    },
+    {
+      "case": "malformed-ask",
+      "runs": [
+        {
+          "ordinal": 1,
+          "exit": 1,
+          "stderr": "History window stopped; bounded failure preserved.\n",
+          "stdout": ""
+        }
+      ],
+      "actual_fake_starts": 1,
+      "ledger": {
+        "starts": [
+          {
+            "ordinal": 1,
+            "phase": "history",
+            "command": [
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/malformed-ask/fake-cli",
+              "--json",
+              "--data-dir",
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/malformed-ask/r1-control",
+              "--timeout",
+              "120",
+              "ask",
+              "--thread",
+              "chat-1",
+              "--prompt-file",
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/malformed-ask/1.txt",
+              "--budget",
+              "8",
+              "--trace",
+              "summary"
+            ],
+            "reserved_before_spawn": true,
+            "wall_started": 1792260982.9966578,
+            "pid": 45685,
+            "pgid": 45685,
+            "exit": 0,
+            "elapsed_seconds": 0.8003379999427125,
+            "exposed_metrics": {
+              "trace_available": false,
+              "qualification": "no complete normal envelope; counters unknown"
+            },
+            "harness_failure": {
+              "stage": "workflow_envelope",
+              "class": "JSONDecodeError",
+              "outcome": "STOP ENTIRE WINDOW; no retry/Continue/replacement"
+            },
+            "cleanup_exit": 0,
+            "owned_group_reaped": true,
+            "elapsed_seconds_including_cleanup": 0.800875167013146
+          }
+        ],
+        "finished_cases": [],
+        "window_failed": true
+      },
+      "normal_Auth_or_provider_starts": 0
+    },
+    {
+      "case": "inspection-failure",
+      "runs": [
+        {
+          "ordinal": 1,
+          "exit": 1,
+          "stderr": "History window stopped; bounded failure preserved.\n",
+          "stdout": ""
+        }
+      ],
+      "actual_fake_starts": 1,
+      "ledger": {
+        "starts": [
+          {
+            "ordinal": 1,
+            "phase": "history",
+            "command": [
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/inspection-failure/fake-cli",
+              "--json",
+              "--data-dir",
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/inspection-failure/r1-control",
+              "--timeout",
+              "120",
+              "ask",
+              "--thread",
+              "chat-1",
+              "--prompt-file",
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/inspection-failure/1.txt",
+              "--budget",
+              "8",
+              "--trace",
+              "summary"
+            ],
+            "reserved_before_spawn": true,
+            "wall_started": 1792260989.2377448,
+            "pid": 45710,
+            "pgid": 45710,
+            "exit": 0,
+            "elapsed_seconds": 0.44358341698534787,
+            "exposed_metrics": {
+              "trace_available": true,
+              "terminal": "Completed",
+              "traced_model_turns": 1,
+              "rounds": 0,
+              "max_rounds": null,
+              "stopped": null,
+              "runtime_elapsed_ms": null,
+              "parent_usage": {
+                "input": 100,
+                "output": 10,
+                "cached_input": 25,
+                "cached_share": 0.25
+              },
+              "turn_usage": [],
+              "summary": {
+                "outcome": "cached"
+              },
+              "helpers": [],
+              "recorded_provider_resends": 0,
+              "auth_requests": "not exposed",
+              "account_identity": "not exposed",
+              "qualification": "observed trace only; no inferred HTTP totals/summary latency/free retries; missing usage unknown"
+            },
+            "harness_failure": {
+              "stage": "runs",
+              "class": "ValueError",
+              "outcome": "STOP ENTIRE WINDOW; no retry/Continue/replacement"
+            },
+            "cleanup_exit": 0,
+            "owned_group_reaped": true,
+            "elapsed_seconds_including_cleanup": 0.770068124984391
+          }
+        ],
+        "finished_cases": [],
+        "window_failed": true
+      },
+      "normal_Auth_or_provider_starts": 0
+    },
+    {
+      "case": "inspection-timeout",
+      "runs": [
+        {
+          "ordinal": 1,
+          "exit": 1,
+          "stderr": "History window stopped; bounded failure preserved.\n",
+          "stdout": ""
+        }
+      ],
+      "actual_fake_starts": 1,
+      "ledger": {
+        "starts": [
+          {
+            "ordinal": 1,
+            "phase": "history",
+            "command": [
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/inspection-timeout/fake-cli",
+              "--json",
+              "--data-dir",
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/inspection-timeout/r1-control",
+              "--timeout",
+              "120",
+              "ask",
+              "--thread",
+              "chat-1",
+              "--prompt-file",
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/inspection-timeout/1.txt",
+              "--budget",
+              "8",
+              "--trace",
+              "summary"
+            ],
+            "reserved_before_spawn": true,
+            "wall_started": 1792260993.3997598,
+            "pid": 45730,
+            "pgid": 45730,
+            "exit": 0,
+            "elapsed_seconds": 0.2048247919883579,
+            "exposed_metrics": {
+              "trace_available": true,
+              "terminal": "Completed",
+              "traced_model_turns": 1,
+              "rounds": 0,
+              "max_rounds": null,
+              "stopped": null,
+              "runtime_elapsed_ms": null,
+              "parent_usage": {
+                "input": 100,
+                "output": 10,
+                "cached_input": 25,
+                "cached_share": 0.25
+              },
+              "turn_usage": [],
+              "summary": {
+                "outcome": "cached"
+              },
+              "helpers": [],
+              "recorded_provider_resends": 0,
+              "auth_requests": "not exposed",
+              "account_identity": "not exposed",
+              "qualification": "observed trace only; no inferred HTTP totals/summary latency/free retries; missing usage unknown"
+            },
+            "harness_failure": {
+              "stage": "runs",
+              "class": "TimeoutError",
+              "outcome": "STOP ENTIRE WINDOW; no retry/Continue/replacement"
+            },
+            "cleanup_exit": 0,
+            "owned_group_reaped": true,
+            "elapsed_seconds_including_cleanup": 3.4260662499582395
+          }
+        ],
+        "finished_cases": [],
+        "window_failed": true
+      },
+      "normal_Auth_or_provider_starts": 0
+    },
+    {
+      "case": "malformed-inspection",
+      "runs": [
+        {
+          "ordinal": 1,
+          "exit": 1,
+          "stderr": "History window stopped; bounded failure preserved.\n",
+          "stdout": ""
+        }
+      ],
+      "actual_fake_starts": 1,
+      "ledger": {
+        "starts": [
+          {
+            "ordinal": 1,
+            "phase": "history",
+            "command": [
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/malformed-inspection/fake-cli",
+              "--json",
+              "--data-dir",
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/malformed-inspection/r1-control",
+              "--timeout",
+              "120",
+              "ask",
+              "--thread",
+              "chat-1",
+              "--prompt-file",
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/malformed-inspection/1.txt",
+              "--budget",
+              "8",
+              "--trace",
+              "summary"
+            ],
+            "reserved_before_spawn": true,
+            "wall_started": 1792260999.509813,
+            "pid": 45749,
+            "pgid": 45749,
+            "exit": 0,
+            "elapsed_seconds": 0.6298447500448674,
+            "exposed_metrics": {
+              "trace_available": true,
+              "terminal": "Completed",
+              "traced_model_turns": 1,
+              "rounds": 0,
+              "max_rounds": null,
+              "stopped": null,
+              "runtime_elapsed_ms": null,
+              "parent_usage": {
+                "input": 100,
+                "output": 10,
+                "cached_input": 25,
+                "cached_share": 0.25
+              },
+              "turn_usage": [],
+              "summary": {
+                "outcome": "cached"
+              },
+              "helpers": [],
+              "recorded_provider_resends": 0,
+              "auth_requests": "not exposed",
+              "account_identity": "not exposed",
+              "qualification": "observed trace only; no inferred HTTP totals/summary latency/free retries; missing usage unknown"
+            },
+            "harness_failure": {
+              "stage": "runs",
+              "class": "JSONDecodeError",
+              "outcome": "STOP ENTIRE WINDOW; no retry/Continue/replacement"
+            },
+            "cleanup_exit": 0,
+            "owned_group_reaped": true,
+            "elapsed_seconds_including_cleanup": 0.8264443749794737
+          }
+        ],
+        "finished_cases": [],
+        "window_failed": true
+      },
+      "normal_Auth_or_provider_starts": 0
+    },
+    {
+      "case": "export-success",
+      "runs": [
+        {
+          "ordinal": 1,
+          "exit": 0,
+          "stderr": "",
+          "stdout": "History case reaped; exact semantic/owner review remains separate.\n"
+        }
+      ],
+      "actual_fake_starts": 1,
+      "ledger": {
+        "starts": [
+          {
+            "ordinal": 1,
+            "phase": "history",
+            "command": [
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/export-success/fake-cli",
+              "--json",
+              "--data-dir",
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/export-success/r1-control",
+              "--timeout",
+              "120",
+              "ask",
+              "--thread",
+              "chat-1",
+              "--prompt-file",
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/export-success/1.txt",
+              "--budget",
+              "8",
+              "--trace",
+              "summary"
+            ],
+            "reserved_before_spawn": true,
+            "wall_started": 1792261002.824298,
+            "pid": 45772,
+            "pgid": 45772,
+            "exit": 0,
+            "elapsed_seconds": 0.5866870830068365,
+            "exposed_metrics": {
+              "trace_available": true,
+              "terminal": "Completed",
+              "traced_model_turns": 1,
+              "rounds": 0,
+              "max_rounds": null,
+              "stopped": null,
+              "runtime_elapsed_ms": null,
+              "parent_usage": {
+                "input": 100,
+                "output": 10,
+                "cached_input": 25,
+                "cached_share": 0.25
+              },
+              "turn_usage": [],
+              "summary": {
+                "outcome": "cached"
+              },
+              "helpers": [],
+              "recorded_provider_resends": 0,
+              "auth_requests": "not exposed",
+              "account_identity": "not exposed",
+              "qualification": "observed trace only; no inferred HTTP totals/summary latency/free retries; missing usage unknown"
+            },
+            "candidate_inspection": {
+              "output": "/private/tmp/brn-int-d-candidate-export-20261017-history-a9308ad3-1",
+              "sha256": "b1c2cdd79bc11391cfb5c9cf11ac24df99ed2a34d0f49791556010808b6b9118",
+              "operation": "synthetic-op",
+              "request_hash": "synthetic-hash",
+              "automatic_apply": false
+            },
+            "cleanup_exit": 0,
+            "owned_group_reaped": true,
+            "elapsed_seconds_including_cleanup": 1.2585918329423293
+          }
+        ],
+        "finished_cases": [
+          1
+        ],
+        "window_failed": false
+      },
+      "normal_Auth_or_provider_starts": 0
+    },
+    {
+      "case": "export-failure",
+      "runs": [
+        {
+          "ordinal": 1,
+          "exit": 1,
+          "stderr": "History window stopped; bounded failure preserved.\n",
+          "stdout": ""
+        }
+      ],
+      "actual_fake_starts": 1,
+      "ledger": {
+        "starts": [
+          {
+            "ordinal": 1,
+            "phase": "history",
+            "command": [
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/export-failure/fake-cli",
+              "--json",
+              "--data-dir",
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/export-failure/r1-control",
+              "--timeout",
+              "120",
+              "ask",
+              "--thread",
+              "chat-1",
+              "--prompt-file",
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/export-failure/1.txt",
+              "--budget",
+              "8",
+              "--trace",
+              "summary"
+            ],
+            "reserved_before_spawn": true,
+            "wall_started": 1792261006.426521,
+            "pid": 45796,
+            "pgid": 45796,
+            "exit": 0,
+            "elapsed_seconds": 0.4373516670893878,
+            "exposed_metrics": {
+              "trace_available": true,
+              "terminal": "Completed",
+              "traced_model_turns": 1,
+              "rounds": 0,
+              "max_rounds": null,
+              "stopped": null,
+              "runtime_elapsed_ms": null,
+              "parent_usage": {
+                "input": 100,
+                "output": 10,
+                "cached_input": 25,
+                "cached_share": 0.25
+              },
+              "turn_usage": [],
+              "summary": {
+                "outcome": "cached"
+              },
+              "helpers": [],
+              "recorded_provider_resends": 0,
+              "auth_requests": "not exposed",
+              "account_identity": "not exposed",
+              "qualification": "observed trace only; no inferred HTTP totals/summary latency/free retries; missing usage unknown"
+            },
+            "harness_failure": {
+              "stage": "candidate-export",
+              "class": "ValueError",
+              "outcome": "STOP ENTIRE WINDOW; no retry/Continue/replacement"
+            },
+            "cleanup_exit": 0,
+            "owned_group_reaped": true,
+            "elapsed_seconds_including_cleanup": 1.0960495420731604
+          }
+        ],
+        "finished_cases": [],
+        "window_failed": true
+      },
+      "normal_Auth_or_provider_starts": 0
+    },
+    {
+      "case": "export-timeout",
+      "runs": [
+        {
+          "ordinal": 1,
+          "exit": 1,
+          "stderr": "History window stopped; bounded failure preserved.\n",
+          "stdout": ""
+        }
+      ],
+      "actual_fake_starts": 1,
+      "ledger": {
+        "starts": [
+          {
+            "ordinal": 1,
+            "phase": "history",
+            "command": [
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/export-timeout/fake-cli",
+              "--json",
+              "--data-dir",
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/export-timeout/r1-control",
+              "--timeout",
+              "120",
+              "ask",
+              "--thread",
+              "chat-1",
+              "--prompt-file",
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/export-timeout/1.txt",
+              "--budget",
+              "8",
+              "--trace",
+              "summary"
+            ],
+            "reserved_before_spawn": true,
+            "wall_started": 1792261009.325142,
+            "pid": 45821,
+            "pgid": 45821,
+            "exit": 0,
+            "elapsed_seconds": 0.19098458404187113,
+            "exposed_metrics": {
+              "trace_available": true,
+              "terminal": "Completed",
+              "traced_model_turns": 1,
+              "rounds": 0,
+              "max_rounds": null,
+              "stopped": null,
+              "runtime_elapsed_ms": null,
+              "parent_usage": {
+                "input": 100,
+                "output": 10,
+                "cached_input": 25,
+                "cached_share": 0.25
+              },
+              "turn_usage": [],
+              "summary": {
+                "outcome": "cached"
+              },
+              "helpers": [],
+              "recorded_provider_resends": 0,
+              "auth_requests": "not exposed",
+              "account_identity": "not exposed",
+              "qualification": "observed trace only; no inferred HTTP totals/summary latency/free retries; missing usage unknown"
+            },
+            "harness_failure": {
+              "stage": "candidate-export",
+              "class": "TimeoutError",
+              "outcome": "STOP ENTIRE WINDOW; no retry/Continue/replacement"
+            },
+            "cleanup_exit": 0,
+            "owned_group_reaped": true,
+            "elapsed_seconds_including_cleanup": 15.731584333931096
+          }
+        ],
+        "finished_cases": [],
+        "window_failed": true
+      },
+      "normal_Auth_or_provider_starts": 0
+    },
+    {
+      "case": "authority-failure",
+      "runs": [
+        {
+          "ordinal": 1,
+          "exit": 1,
+          "stderr": "History window stopped; bounded failure preserved.\n",
+          "stdout": ""
+        }
+      ],
+      "actual_fake_starts": 1,
+      "ledger": {
+        "starts": [
+          {
+            "ordinal": 1,
+            "phase": "history",
+            "command": [
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/authority-failure/fake-cli",
+              "--json",
+              "--data-dir",
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/authority-failure/r1-control",
+              "--timeout",
+              "120",
+              "ask",
+              "--thread",
+              "chat-1",
+              "--prompt-file",
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/authority-failure/1.txt",
+              "--budget",
+              "8",
+              "--trace",
+              "summary"
+            ],
+            "reserved_before_spawn": true,
+            "wall_started": 1792261028.899295,
+            "pid": 45875,
+            "pgid": 45875,
+            "exit": 0,
+            "elapsed_seconds": 0.4246918340213597,
+            "exposed_metrics": {
+              "trace_available": true,
+              "terminal": "Completed",
+              "traced_model_turns": 1,
+              "rounds": 0,
+              "max_rounds": null,
+              "stopped": null,
+              "runtime_elapsed_ms": null,
+              "parent_usage": {
+                "input": 100,
+                "output": 10,
+                "cached_input": 25,
+                "cached_share": 0.25
+              },
+              "turn_usage": [],
+              "summary": {
+                "outcome": "cached"
+              },
+              "helpers": [],
+              "recorded_provider_resends": 0,
+              "auth_requests": "not exposed",
+              "account_identity": "not exposed",
+              "qualification": "observed trace only; no inferred HTTP totals/summary latency/free retries; missing usage unknown"
+            },
+            "harness_failure": {
+              "stage": "candidates",
+              "class": "ValueError",
+              "outcome": "STOP ENTIRE WINDOW; no retry/Continue/replacement"
+            },
+            "cleanup_exit": 0,
+            "owned_group_reaped": true,
+            "elapsed_seconds_including_cleanup": 0.559969500056468
+          }
+        ],
+        "finished_cases": [],
+        "window_failed": true
+      },
+      "normal_Auth_or_provider_starts": 0
+    },
+    {
+      "case": "occupied-output",
+      "runs": [
+        {
+          "ordinal": 1,
+          "exit": 2,
+          "stderr": "usage: observe-workflow.py [-h] --preflight PREFLIGHT --activation ACTIVATION\n                           --ordinal ORDINAL\nobserve-workflow.py: error: occupied output without a ledger\n",
+          "stdout": ""
+        }
+      ],
+      "actual_fake_starts": 0,
+      "ledger": null,
+      "normal_Auth_or_provider_starts": 0
+    },
+    {
+      "case": "duplicate",
+      "runs": [
+        {
+          "ordinal": 1,
+          "exit": 0,
+          "stderr": "",
+          "stdout": "History case reaped; exact semantic/owner review remains separate.\n"
+        }
+      ],
+      "actual_fake_starts": 1,
+      "ledger": {
+        "starts": [
+          {
+            "ordinal": 1,
+            "phase": "history",
+            "command": [
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/duplicate/fake-cli",
+              "--json",
+              "--data-dir",
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/duplicate/r1-control",
+              "--timeout",
+              "120",
+              "ask",
+              "--thread",
+              "chat-1",
+              "--prompt-file",
+              "/private/tmp/brn-int-d-history-fakes-mfcmt5x_/duplicate/1.txt",
+              "--budget",
+              "8",
+              "--trace",
+              "summary"
+            ],
+            "reserved_before_spawn": true,
+            "wall_started": 1792261033.8012009,
+            "pid": 45905,
+            "pgid": 45905,
+            "exit": 0,
+            "elapsed_seconds": 0.9471069580176845,
+            "exposed_metrics": {
+              "trace_available": true,
+              "terminal": "Completed",
+              "traced_model_turns": 1,
+              "rounds": 0,
+              "max_rounds": null,
+              "stopped": null,
+              "runtime_elapsed_ms": null,
+              "parent_usage": {
+                "input": 100,
+                "output": 10,
+                "cached_input": 25,
+                "cached_share": 0.25
+              },
+              "turn_usage": [],
+              "summary": {
+                "outcome": "cached"
+              },
+              "helpers": [],
+              "recorded_provider_resends": 0,
+              "auth_requests": "not exposed",
+              "account_identity": "not exposed",
+              "qualification": "observed trace only; no inferred HTTP totals/summary latency/free retries; missing usage unknown"
+            },
+            "objective_gap": "Completed without exact candidate; not objective success or retry authority",
+            "cleanup_exit": 0,
+            "owned_group_reaped": true,
+            "elapsed_seconds_including_cleanup": 1.296960833016783
+          }
+        ],
+        "finished_cases": [
+          1
+        ],
+        "window_failed": false
+      },
+      "normal_Auth_or_provider_starts": 0
+    },
+    {
+      "case": "cap",
+      "runs": [
+        {
+          "ordinal": 1,
+          "exit": 2,
+          "stderr": "usage: observe-workflow.py [-h] --preflight PREFLIGHT --activation ACTIVATION\n                           --ordinal ORDINAL\nobserve-workflow.py: error: failed window, duplicate, order or cap refusal\n",
+          "stdout": ""
+        }
+      ],
+      "actual_fake_starts": 0,
+      "ledger": {
+        "starts": [
+          {
+            "ordinal": 1
+          },
+          {
+            "ordinal": 2
+          },
+          {
+            "ordinal": 3
+          },
+          {
+            "ordinal": 4
+          }
+        ],
+        "finished_cases": [],
+        "window_failed": false
+      },
+      "normal_Auth_or_provider_starts": 0
+    },
+    {
+      "case": "wrong-order",
+      "runs": [
+        {
+          "ordinal": 1,
+          "exit": 2,
+          "stderr": "usage: observe-workflow.py [-h] --preflight PREFLIGHT --activation ACTIVATION\n                           --ordinal ORDINAL\nobserve-workflow.py: error: fixed four-case order required\n",
+          "stdout": ""
+        }
+      ],
+      "actual_fake_starts": 0,
+      "ledger": null,
+      "normal_Auth_or_provider_starts": 0
+    },
+    {
+      "case": "missing-activation",
+      "runs": [
+        {
+          "ordinal": 1,
+          "exit": 2,
+          "stderr": "usage: observe-workflow.py [-h] --preflight PREFLIGHT --activation ACTIVATION\n                           --ordinal ORDINAL\nobserve-workflow.py: error: invalid bounded preflight or activation binding\n",
+          "stdout": ""
+        }
+      ],
+      "actual_fake_starts": 0,
+      "ledger": null,
+      "normal_Auth_or_provider_starts": 0
+    },
+    {
+      "case": "old-activation",
+      "runs": [
+        {
+          "ordinal": 1,
+          "exit": 2,
+          "stderr": "usage: observe-workflow.py [-h] --preflight PREFLIGHT --activation ACTIVATION\n                           --ordinal ORDINAL\nobserve-workflow.py: error: missing/stale/old or inexact history activation\n",
+          "stdout": ""
+        }
+      ],
+      "actual_fake_starts": 0,
+      "ledger": null,
+      "normal_Auth_or_provider_starts": 0
+    },
+    {
+      "case": "expired-activation",
+      "runs": [
+        {
+          "ordinal": 1,
+          "exit": 2,
+          "stderr": "usage: observe-workflow.py [-h] --preflight PREFLIGHT --activation ACTIVATION\n                           --ordinal ORDINAL\nobserve-workflow.py: error: missing/stale/old or inexact history activation\n",
+          "stdout": ""
+        }
+      ],
+      "actual_fake_starts": 0,
+      "ledger": null,
+      "normal_Auth_or_provider_starts": 0
+    },
+    {
+      "case": "malformed-activation",
+      "runs": [
+        {
+          "ordinal": 1,
+          "exit": 2,
+          "stderr": "usage: observe-workflow.py [-h] --preflight PREFLIGHT --activation ACTIVATION\n                           --ordinal ORDINAL\nobserve-workflow.py: error: invalid bounded preflight or activation binding\n",
+          "stdout": ""
+        }
+      ],
+      "actual_fake_starts": 0,
+      "ledger": null,
+      "normal_Auth_or_provider_starts": 0
+    },
+    {
+      "case": "wrong-type-activation",
+      "runs": [
+        {
+          "ordinal": 1,
+          "exit": 2,
+          "stderr": "usage: observe-workflow.py [-h] --preflight PREFLIGHT --activation ACTIVATION\n                           --ordinal ORDINAL\nobserve-workflow.py: error: missing/stale/old or inexact history activation\n",
+          "stdout": ""
+        }
+      ],
+      "actual_fake_starts": 0,
+      "ledger": null,
+      "normal_Auth_or_provider_starts": 0
+    },
+    {
+      "case": "changed-source",
+      "runs": [
+        {
+          "ordinal": 1,
+          "exit": 2,
+          "stderr": "usage: observe-workflow.py [-h] --preflight PREFLIGHT --activation ACTIVATION\n                           --ordinal ORDINAL\nobserve-workflow.py: error: invalid bounded preflight or activation binding\n",
+          "stdout": ""
+        }
+      ],
+      "actual_fake_starts": 0,
+      "ledger": null,
+      "normal_Auth_or_provider_starts": 0
+    },
+    {
+      "case": "changed-script",
+      "runs": [
+        {
+          "ordinal": 1,
+          "exit": 2,
+          "stderr": "usage: observe-workflow.py [-h] --preflight PREFLIGHT --activation ACTIVATION\n                           --ordinal ORDINAL\nobserve-workflow.py: error: script changed\n",
+          "stdout": ""
+        }
+      ],
+      "actual_fake_starts": 0,
+      "ledger": null,
+      "normal_Auth_or_provider_starts": 0
+    },
+    {
+      "case": "changed-artifact",
+      "runs": [
+        {
+          "ordinal": 1,
+          "exit": 2,
+          "stderr": "usage: observe-workflow.py [-h] --preflight PREFLIGHT --activation ACTIVATION\n                           --ordinal ORDINAL\nobserve-workflow.py: error: artifact/dep-info changed\n",
+          "stdout": ""
+        }
+      ],
+      "actual_fake_starts": 0,
+      "ledger": null,
+      "normal_Auth_or_provider_starts": 0
+    },
+    {
+      "case": "changed-depinfo",
+      "runs": [
+        {
+          "ordinal": 1,
+          "exit": 2,
+          "stderr": "usage: observe-workflow.py [-h] --preflight PREFLIGHT --activation ACTIVATION\n                           --ordinal ORDINAL\nobserve-workflow.py: error: artifact/dep-info changed\n",
+          "stdout": ""
+        }
+      ],
+      "actual_fake_starts": 0,
+      "ledger": null,
+      "normal_Auth_or_provider_starts": 0
+    },
+    {
+      "case": "changed-corpus",
+      "runs": [
+        {
+          "ordinal": 1,
+          "exit": 2,
+          "stderr": "usage: observe-workflow.py [-h] --preflight PREFLIGHT --activation ACTIVATION\n                           --ordinal ORDINAL\nobserve-workflow.py: error: corpus changed\n",
+          "stdout": ""
+        }
+      ],
+      "actual_fake_starts": 0,
+      "ledger": null,
+      "normal_Auth_or_provider_starts": 0
+    },
+    {
+      "case": "changed-prompt",
+      "runs": [
+        {
+          "ordinal": 1,
+          "exit": 2,
+          "stderr": "usage: observe-workflow.py [-h] --preflight PREFLIGHT --activation ACTIVATION\n                           --ordinal ORDINAL\nobserve-workflow.py: error: prompt/manifest changed\n",
+          "stdout": ""
+        }
+      ],
+      "actual_fake_starts": 0,
+      "ledger": null,
+      "normal_Auth_or_provider_starts": 0
+    },
+    {
+      "case": "changed-method",
+      "runs": [
+        {
+          "ordinal": 1,
+          "exit": 2,
+          "stderr": "usage: observe-workflow.py [-h] --preflight PREFLIGHT --activation ACTIVATION\n                           --ordinal ORDINAL\nobserve-workflow.py: error: method/rubric changed\n",
+          "stdout": ""
+        }
+      ],
+      "actual_fake_starts": 0,
+      "ledger": null,
+      "normal_Auth_or_provider_starts": 0
+    },
+    {
+      "case": "changed-rubric",
+      "runs": [
+        {
+          "ordinal": 1,
+          "exit": 2,
+          "stderr": "usage: observe-workflow.py [-h] --preflight PREFLIGHT --activation ACTIVATION\n                           --ordinal ORDINAL\nobserve-workflow.py: error: method/rubric changed\n",
+          "stdout": ""
+        }
+      ],
+      "actual_fake_starts": 0,
+      "ledger": null,
+      "normal_Auth_or_provider_starts": 0
+    },
+    {
+      "case": "changed-manifest",
+      "runs": [
+        {
+          "ordinal": 1,
+          "exit": 2,
+          "stderr": "usage: observe-workflow.py [-h] --preflight PREFLIGHT --activation ACTIVATION\n                           --ordinal ORDINAL\nobserve-workflow.py: error: prompt/manifest changed\n",
+          "stdout": ""
+        }
+      ],
+      "actual_fake_starts": 0,
+      "ledger": null,
+      "normal_Auth_or_provider_starts": 0
+    },
+    {
+      "case": "changed-main",
+      "runs": [
+        {
+          "ordinal": 1,
+          "exit": 2,
+          "stderr": "usage: observe-workflow.py [-h] --preflight PREFLIGHT --activation ACTIVATION\n                           --ordinal ORDINAL\nobserve-workflow.py: error: main/WAL/SHM changed before first checked live open\n",
+          "stdout": ""
+        }
+      ],
+      "actual_fake_starts": 0,
+      "ledger": null,
+      "normal_Auth_or_provider_starts": 0
+    },
+    {
+      "case": "changed-wal",
+      "runs": [
+        {
+          "ordinal": 1,
+          "exit": 2,
+          "stderr": "usage: observe-workflow.py [-h] --preflight PREFLIGHT --activation ACTIVATION\n                           --ordinal ORDINAL\nobserve-workflow.py: error: main/WAL/SHM changed before first checked live open\n",
+          "stdout": ""
+        }
+      ],
+      "actual_fake_starts": 0,
+      "ledger": null,
+      "normal_Auth_or_provider_starts": 0
+    },
+    {
+      "case": "changed-shm",
+      "runs": [
+        {
+          "ordinal": 1,
+          "exit": 2,
+          "stderr": "usage: observe-workflow.py [-h] --preflight PREFLIGHT --activation ACTIVATION\n                           --ordinal ORDINAL\nobserve-workflow.py: error: main/WAL/SHM changed before first checked live open\n",
+          "stdout": ""
+        }
+      ],
+      "actual_fake_starts": 0,
+      "ledger": null,
+      "normal_Auth_or_provider_starts": 0
+    },
+    {
+      "case": "changed-context",
+      "runs": [
+        {
+          "ordinal": 1,
+          "exit": 2,
+          "stderr": "usage: observe-workflow.py [-h] --preflight PREFLIGHT --activation ACTIVATION\n                           --ordinal ORDINAL\nobserve-workflow.py: error: canonical metadata changed\n",
+          "stdout": ""
+        }
+      ],
+      "actual_fake_starts": 0,
+      "ledger": null,
+      "normal_Auth_or_provider_starts": 0
+    },
+    {
+      "case": "changed-authref",
+      "runs": [
+        {
+          "ordinal": 1,
+          "exit": 2,
+          "stderr": "usage: observe-workflow.py [-h] --preflight PREFLIGHT --activation ACTIVATION\n                           --ordinal ORDINAL\nobserve-workflow.py: error: canonical context/auth reference changed\n",
+          "stdout": ""
+        }
+      ],
+      "actual_fake_starts": 0,
+      "ledger": null,
+      "normal_Auth_or_provider_starts": 0
+    }
+  ],
+  "live_starts": 0
+}

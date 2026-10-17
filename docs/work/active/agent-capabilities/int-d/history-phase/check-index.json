@@ -1,0 +1,72 @@
+[
+  {
+    "label": "cli-intd",
+    "receipt": "docs/work/active/agent-capabilities/int-d/history-phase/checks/cli-intd/receipt.json",
+    "sha256": "a9810fa31112eae434f37f51eb7378679ee4b5eff5aba29bdb3de495e2d38cdc",
+    "exit": 0,
+    "summaries": [
+      "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.03s"
+    ],
+    "source_unchanged": true,
+    "raw_sha256": "9725e78505ab2789b537d7e04b7897a6a58911d9536d5e0fded417838aa8a530",
+    "raw_record": "docs/work/active/agent-capabilities/int-d/history-phase/checks/cli-intd/raw-log.json",
+    "raw_record_encoding": "JSON text field, decode before checking raw_sha256"
+  },
+  {
+    "label": "metadata-final",
+    "receipt": "docs/work/active/agent-capabilities/int-d/history-phase/checks/metadata-final/receipt.json",
+    "sha256": "a76460ada3e1d2f6f7df7f5932ce7a3e371382083d88219776ea33187bb09d40",
+    "exit": 0,
+    "summaries": [
+      "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.67s"
+    ],
+    "source_unchanged": true,
+    "raw_sha256": "e7df7cf4ca60c9426252d0fef5dfeaee8c6cdd7f0772e94f4816671aa9b4f93f",
+    "raw_record": "docs/work/active/agent-capabilities/int-d/history-phase/checks/metadata-final/raw-log.json",
+    "raw_record_encoding": "JSON text field, decode before checking raw_sha256"
+  },
+  {
+    "label": "strict-cli",
+    "receipt": "docs/work/active/agent-capabilities/int-d/history-phase/checks/strict-cli/receipt.json",
+    "sha256": "ef9dd3a10947d06ae518a91b6344861df1c16b17c745372b755c69cdc5c609b8",
+    "exit": 0,
+    "summaries": [],
+    "source_unchanged": true,
+    "raw_sha256": "4b564edf4b4e3d6bbafec2cb2bd0bb478959bc0b8adf2c6317769a57f2562d7b",
+    "raw_record": "docs/work/active/agent-capabilities/int-d/history-phase/checks/strict-cli/raw.log",
+    "raw_record_encoding": "raw UTF-8 bytes"
+  },
+  {
+    "label": "format-final",
+    "receipt": "docs/work/active/agent-capabilities/int-d/history-phase/checks/format-final/receipt.json",
+    "sha256": "3559e1e79c9e5777119460d52d728a4438e5174e056bc1a8a94140dd03331e88",
+    "exit": 0,
+    "summaries": [],
+    "source_unchanged": true,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "raw_record": "docs/work/active/agent-capabilities/int-d/history-phase/checks/format-final/raw.log",
+    "raw_record_encoding": "raw UTF-8 bytes"
+  },
+  {
+    "label": "fake-history-final",
+    "receipt": "docs/work/active/agent-capabilities/int-d/history-phase/checks/fake-history-final/receipt.json",
+    "sha256": "aad64972560364fd8f8e0e7db1086bc368734139d2528d6cc2eb03edc2acd173",
+    "exit": 0,
+    "summaries": [],
+    "source_unchanged": true,
+    "raw_sha256": "b48bc5141c71d1a49cfe8613ac627ab0f7b24665ef60a201e9b646d59803004c",
+    "raw_record": "docs/work/active/agent-capabilities/int-d/history-phase/checks/fake-history-final/raw.log",
+    "raw_record_encoding": "raw UTF-8 bytes"
+  },
+  {
+    "label": "fake-legacy",
+    "receipt": "docs/work/active/agent-capabilities/int-d/history-phase/checks/fake-legacy/receipt.json",
+    "sha256": "9ee47a739cf007f39813236e0a866b9ec1f70e88d46e3e88418409de456053c7",
+    "exit": 0,
+    "summaries": [],
+    "source_unchanged": true,
+    "raw_sha256": "b9f2cab7de8cc160c35eccf409944b5891cdb58b85f9d5206e787abc9b25a309",
+    "raw_record": "docs/work/active/agent-capabilities/int-d/history-phase/checks/fake-legacy/raw.log",
+    "raw_record_encoding": "raw UTF-8 bytes"
+  }
+]
