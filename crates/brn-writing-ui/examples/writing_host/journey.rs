@@ -360,14 +360,14 @@ fn editor_shortcuts_open_saved_passage_comment_save_and_rewrite(cx: &mut TestApp
         assert_eq!(saved.markdown, edited);
         assert!(host.last_run.is_none());
     });
-    cx.update_window(window, |_, window, cx| window.press("cmd-shift-enter", cx))
+    cx.update_window(window, |_, window, cx| window.press("cmd-shift-r", cx))
         .unwrap();
     cx.run_until_parked();
     cx.read(|cx| {
         let host = view.read(cx);
         assert!(
             host.last_run.is_some(),
-            "cmd-shift-enter must reach the existing shared scripted start: {}",
+            "cmd-shift-r must reach the existing shared scripted start: {}",
             host.notice
         );
         assert_eq!(host.workspace.candidates().unwrap().len(), 1);

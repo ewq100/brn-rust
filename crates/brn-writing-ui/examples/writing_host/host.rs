@@ -556,6 +556,6 @@ pub fn bindings() -> [gpui_kit::KeyBinding; 3] {
     [
         gpui_kit::KeyBinding::new("cmd-s", Save, Some("WritingHost")),
         gpui_kit::KeyBinding::new("cmd-/", CommentSelection, Some("WritingHost")),
-        gpui_kit::KeyBinding::new("cmd-shift-enter", Rewrite, Some("WritingHost")),
+        gpui_kit::KeyBinding::new("cmd-shift-r", Rewrite, Some("WritingHost")),
     ]
 }
