@@ -1,5 +1,27 @@
 # BRN Threads status
 
+## Current repository snapshot — 17 October 2026
+
+**Inspected main:** [`8f768943964a77711b26d5235df146f8efe1dc6c`](https://github.com/ewq100/brn-rust/commit/8f768943964a77711b26d5235df146f8efe1dc6c), after [PR #157](https://github.com/ewq100/brn-rust/pull/157). This snapshot reconciles repository state; it does not start a proposed program or change owner acceptance. Check current Git/CI again when starting another assignment.
+
+| Work | Current repository state |
+|---|---|
+| UI polish and daily-workflow reliability | Merged together in [#155](https://github.com/ewq100/brn-rust/pull/155), `9b47b285`. The older local-only descriptions below are dated receipts. |
+| CLI machine contract, rounds 1–2 | Merged in [#156](https://github.com/ewq100/brn-rust/pull/156), `fb1b2100`. |
+| Caller-bound CLI edits and schema 6 | Merged in [#157](https://github.com/ewq100/brn-rust/pull/157), `8f768943`. |
+| Runtime, intake and quality improvements | Rust/Luna intake [#144](https://github.com/ewq100/brn-rust/pull/144), experimental helpers [#145](https://github.com/ewq100/brn-rust/pull/145), Markdown policy consolidation [#146](https://github.com/ewq100/brn-rust/pull/146) and formatting mutation tests [#153](https://github.com/ewq100/brn-rust/pull/153) are merged. Their measured outcomes remain scoped to their recorded fixtures/revisions. |
+| Foundation and Rig-first programs | Remain proposed in the repository. The [build sequence](work/active/build-sequence/README.md) Stage 0 merge prerequisite is met; C0 and later work still need the applicable assignment. |
+| Passage-comment positioning | Draft [#149](https://github.com/ewq100/brn-rust/pull/149) is an isolated reference; owner direction remains **do not merge**. |
+| Strategic programming review | [Assessment and recommended follow-up](development/strategic-programming-review-2026-10-17.md); persistent guidance in [AGENTS.md](../AGENTS.md), [workflow](development/workflow.md) and the [strategic guide](development/strategic-programming.md). This documentation change implements no production refactor or CI repair. |
+
+**Latest inspected main CI is not fully green.** In [run 38908335265](https://github.com/ewq100/brn-rust/actions/runs/38908335265), three of the four required contexts passed. [Native UI build and state (macos-15)](https://github.com/ewq100/brn-rust/actions/runs/38908335265/job/116997504049) failed in `an_edit_already_open_elsewhere_offers_compare_and_discard`: 305 widget tests passed, 1 failed, 1 ignored. The native build, lint and native-state steps passed; the later headless driver was skipped after the widget failure. The [round-3 evidence](work/active/cli-agent-contract/evidence.md#round-3) already records intermittent failures in this confirmation path and a Stop confirmation test. Root cause and repair remain unverified. Optional Windows and Linux native-retrieval failures also remain visible; no all-platform success is claimed.
+
+**Next quality priority:** investigate and repair the confirmation-test failure using the original conditions and unchanged behavior assertions, then verify the required native lane. The shared-dialog path is a hypothesis for investigation, not a proven diagnosis. Existing native/owner qualification limits remain in their task evidence; this snapshot grants no release or real-data authority.
+
+## Dated implementation and verification records
+
+The entries below preserve what their authors knew at the named revision/date. Their old “active”, “not merged”, “not pushed” and pending-publication statements are historical; the current snapshot and Git/CI determine present repository state. Test results and acceptance are still evidence only for the candidate actually examined.
+
 **UI polish and daily-workflow reliability, combined locally, 16 October 2026:** the local branch `work/integration-ui-reliability` combines [`work/ui-polish`](work/active/ui-polish/evidence.md) (slices S1–S7 and two fix passes) and [`work/daily-workflow-reliability`](work/active/daily-workflow-reliability/evidence.md) (rounds 1–6: run leases and orphan recovery, one terminal notice per chat, Interrupted for stops from outside a chat, source-chat reuse, owner search over saved chat Messages, `withdraw_proposal` and bundle `brn-threads-guidance-12`, owner-terms data-folder errors) with main `a4ad9677`. It adds the desktop work that needs both: an "In chats" search group and ⌘K hits, Compare/Discard for an edit already open elsewhere, one recorded notice on every failure surface, and Unarchive as an archived chat's focus. The branch also carries `work/ui-polish` `81129f07` (docs and shots). Its state is kept apart ([integration evidence](work/active/integration-ui-reliability/evidence.md)):
 
 - **Implemented and automated-verified** on the combined tree. The workspace gives 827 passed, 1 failed and 6 ignored; the failure is the Poppler-only PDF test, an environment gap. The desktop shell gives 294 passed and 1 ignored, both native-ui lanes 80 each, and default features 30. Windows native-ui has not been compiled.

@@ -1,0 +1,71 @@
+# Strategic programming
+
+This guide expands [AGENTS.md](../../AGENTS.md) and the [workflow](workflow.md). It is standing engineering guidance, not a feature assignment or new permission. The [canonical target](../architecture/threads-target.md) and [invariants](../architecture/invariants.md) continue to own BRN's behavior.
+
+## Goal
+
+Deliver the requested behavior while keeping subsequent changes understandable and safe. A useful design improvement removes something a caller must know, a policy that must be changed in several places, an invalid state that must be repaired, or a production route that must be maintained twice.
+
+Invest during ordinary work when there is a demonstrated benefit. Do not wait for a separate cleanup campaign to fix a small design problem directly caused or exposed by the assignment. Equally, do not expand every bug fix into a rewrite. State a concrete follow-up when the necessary work exceeds the assigned scope or another agent owns the boundary.
+
+## Before a meaningful change
+
+Inspect the current source and all relevant consumers. Identify the owner of the rule, the state it depends on, and the boundary through which callers reach it. Search for existing implementations before creating another one. Use the pinned dependencies as the starting point for reuse research; verify the actual API and behavior, not only a package description.
+
+For a material new abstraction or contested design, compare the simplest viable approaches briefly. Include caller effort, adapter code, dependencies, testability, failure/recovery semantics and the old code that can be removed. Write the decision in the existing task plan or affected architecture document. Small obvious repairs need no options essay.
+
+## Design rules
+
+| Concern | BRN rule | Useful evidence |
+|---|---|---|
+| Shared policy | Provider/request configuration, writing-context selection and other cross-host decisions belong to their shared owner. Hosts retain presentation, input and platform-specific effects. | A second real consumer uses the same operation without copying its policy. |
+| Module depth | An interface should hide meaningful decisions and expose a small set of useful operations. A new crate or trait must earn its interface and build cost. | Name what callers no longer have to understand; prove the supported consumer boundary. |
+| UI state | Group values that must change together. Use enums/transition functions for lifecycles where they eliminate invalid combinations or repeated cleanup. | Defined events, outcomes and invariants; tests for the consequential transitions. |
+| Effects | Keep deterministic decisions separable from provider, filesystem, persistence and GPUI effects when that makes the affected behavior easier to verify. | The decision can be tested without duplicating the integration; real boundary tests still exist. |
+| Reuse | Prefer a maintained existing facility when it reduces total ownership cost and satisfies the contract. Small custom code remains valid when the adapter would be worse. | Actual API/fixture evidence and a bounded adapter; no parallel interpreter or unnecessary framework. |
+| Retirement | A replacement removes its obsolete route, callers, configuration and implementation-only tests. Supported saved-data readers and recovery are not dead merely because normal fixtures do not reach them. | Caller/feature inventory, compatibility evidence and retained behavior tests. Temporary coexistence has a reason and removal trigger. |
+
+BRN's checked state changes, authority, version checks, replay and Undo remain owned by the existing core/service boundaries. A UI reducer cannot become a second persistence or authorization engine. Derived search storage is legitimate; do not confuse it with a second canonical state owner.
+
+Prefer local ownership improvements over an application-wide reducer, generic event bus, universal `common` crate or speculative plugin layer. Similar syntax alone does not establish shared responsibility. A larger cohesive implementation can have a simpler interface than many small mutually dependent files.
+
+## What counts as done
+
+For a material change, the existing review/handoff should answer these questions in a few sentences:
+
+1. What owner-visible behavior changed, and which contract remains protected?
+2. What became easier to understand or change? If complexity was added, what present requirement justifies it?
+3. What obsolete path was removed, or why must it remain temporarily?
+4. What evidence checks the behavior, boundary and relevant failure modes? What remains unverified?
+5. Is consequential debt deferred? Identify the affected boundary, consequence, responsible task/lane and revisit trigger.
+
+There is no requirement to delete code or add an abstraction in every PR. A small change that fits a healthy boundary may need only a short explanation. Independent review must challenge unnecessary layering and duplicated rules as well as incorrect behavior. A repeated defect should prompt inspection of its shared cause before another local guard is added.
+
+## Checks that keep improvements in place
+
+Use the [verification guide](verification.md) and existing tools first. Rust visibility/types, maintained test facilities and the existing provider/intake retirement checks already provide useful protection. When a change establishes an important boundary, consider a cheap check that fails when it is crossed: for example a forbidden UI dependency in the core, a real independent writing host, or absence of a retired entry point. Check all relevant manifest sections/features rather than relying on a name search that misses aliases or optional paths.
+
+Checks need specific diagnostic messages and a clear owner. Exceptions or changed baselines must be visible and justified in review; they must not silently erase regressions. Extend existing tooling where sufficient. Do not build an architecture analysis platform for a few rules.
+
+Test desired behavior using independently specified expectations. Use examples for known bugs, transition/sequence tests for ordering, fault injection for interrupted effects, and mutation testing for suspiciously weak guard assertions. A complete transition table covers the defined model; it is not proof of every possible execution or native interaction.
+
+Retain separate evidence for real rendering, focus, selection, scrolling and OS behavior. Investigate flaky tests as defects in the product or test harness until evidence identifies the cause. Record reruns and original failures; repeated execution until green is not a repair.
+
+## Review whether change is getting easier
+
+At an assigned milestone, or when the same category of regression recurs, review the affected area using evidence already collected. Keep the record small and select only justified follow-up work.
+
+| Signal | Question |
+|---|---|
+| Change spread | For comparable changes, must agents understand/edit fewer unrelated modules and repeat fewer decisions? |
+| Duplicated ownership | Does each replaced policy have one remaining production owner? Are temporary exceptions being retired at their trigger? |
+| Regressions | Which defects escaped or reopened? What shared design or test weakness allowed them? |
+| Feedback reliability | What are the relevant local/CI times, retries, flaky and ignored cases? Is verification getting slower without stronger evidence? |
+| Qualification | Which required journeys are automated, native-observed, owner-accepted or still outstanding on the relevant revision? |
+| Deferred debt | Did the promised revisit condition arrive? Is the consequence still real? Close obsolete items instead of accumulating them. |
+
+Use lines, file sizes, dependency counts, test counts and coverage to locate questions, not as quotas. Do not establish a composite quality score without an interpretation that supports a real decision. Do not claim a trend from a single snapshot or compare test timings across different machines/features as if they were controlled measurements.
+
+## Basis
+
+The policy combines BRN's existing shared-service and retirement rules with John Ousterhout's [continuous design investment](https://web.stanford.edu/~ouster/cgi-bin/cs190-winter18/lecture.php?topic=working) and [information-hiding modules](https://web.stanford.edu/~ouster/cgi-bin/cs190-winter18/lecture.php?topic=modularDesign). Martin Fowler's [Yagni](https://martinfowler.com/bliki/Yagni.html) distinguishes maintaining changeable code from building speculative capabilities. Birgitta Böckeler's [reported experience with maintainability checks for coding agents](https://www.martinfowler.com/articles/sensors-for-coding-agents.html) supports combining executable rules with contextual design review; it is one application's experience, not a measured guarantee for BRN.

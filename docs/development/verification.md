@@ -15,7 +15,17 @@ The [canonical acceptance journeys](../architecture/threads-target.md#acceptance
 | Runtime guides and thread behavior | Representative success/boundary scenarios, actual skill loading and bundle identity, quiet routine outcomes, exact attention reasons, separate Action completion and fresh-invocation continuation. |
 | Component reuse or removal | Relevant component tests plus coherent removal of obsolete routes, commands, helpers, and tests; retained dependency fixes remain verified. |
 
-Use the repository pin (currently Rust 1.98.1) and lockfile. Compiler/dependency changes require separate qualification; this cleanup assigns no upgrade. Source inspection is not a passing build or native result. Default workspace checks do not cover optional native features. Run focused checks as needed; repeat broad checks only for relevant changes or a concrete unresolved risk. No zero-test or self-skipped run counts as proof.
+Use the repository pin (currently Rust 1.98.1) and lockfile. Compiler/dependency changes need applicable task scope and relevant qualification. Source inspection is not a passing build or native result. Default workspace checks do not cover optional native features. Run focused checks as needed; repeat broad checks only for relevant changes or a concrete unresolved risk. No zero-test or self-skipped run counts as proof.
+
+## Behavior and architecture evidence
+
+Follow the [strategic programming guide](strategic-programming.md). A regression test should expose the original bug when practical; document the limitation when the old behavior cannot safely or deterministically be reproduced. Preserve distinct boundary, feature and failure cases when consolidating tests. Test or line counts do not establish equivalence.
+
+For a stateful component, use its specified states/events to check legal transitions, rejected events and invariants. Add sequence/property tests when ordering is the risk, and controlled fault tests for persistence or external effects. The reference expectation must come from the behavior contract rather than calling the production transition function to compute its own expected answer. Reducer tests do not verify event wiring, focus, scrolling, rendering or OS integration; retain the applicable integration and native journeys.
+
+Use targeted mutation testing when it can expose weak assertions around changed high-consequence decisions. Bound the scope/runtime and report meaningful survivors, equivalent cases with reasons, unviable mutations and incomplete work separately. Follow any more specific current task requirements. There is no repository-wide mutation or 100% coverage gate.
+
+Prefer Rust types/visibility, existing retirement checks, manifest/dependency checks and real consumer builds for architecture promises. Add a cheap check alongside a meaningful new boundary when justified, with an actionable failure message. Do not silently suppress a finding, relax a baseline or introduce a no-op check to achieve green. Any justified exception belongs in the review with its reason and impact.
 
 ## CI and integration
 

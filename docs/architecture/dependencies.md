@@ -9,7 +9,7 @@
 | Provider runtime | Published Rig 0.44.0 and retained provider/auth transports | `brn-ai` owns bounded runtime/tools; no vendored Rig patch |
 | Native surface | GPUI Kit 0.7.3 (gpui-pre 0.3.9) | `brn-desktop` optional native UI/test features; native observation remains separate |
 | Conversion | BetterOffice 0.3.0, mail-parser 0.11.8, bounded image/HTML decoding; Poppler executables for PDF | `brn-intake` restricted helper and `brn-threads-intake` transient adapter |
-| Search | SQLite FTS5; optional FastEmbed 7.1.0/ONNX and explicit model installer | `brn-retrieval` derived index; current application search uses keyword retrieval |
+| Search | SQLite FTS5; optional FastEmbed 7.1.0/ONNX and explicit model installer | `brn-retrieval` derived index; keyword search plus the optional native dense lane and explicitly installed model |
 | Entry points | Thin commands and native host | `brn` and `brn-desktop` call the shared service |
 
 Default builds keep optional native graphs out. Provider, converter and retrieval types do not replace the core's authority contract. Retained capability fixtures and [runtime qualification](../archive/threads-rebuild/evidence.md#rig-044-runtime-integration) remain relevant when those boundaries change.

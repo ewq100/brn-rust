@@ -1,6 +1,6 @@
 # BRN Threads architecture overview
 
-The [canonical Threads target](threads-target.md) owns the detailed architecture. This page is a navigation summary. The [behavior design](threads-behavior.md) supplies concrete thread and packaged runtime-guide defaults. The SQLite Threads core, runtime and native workspace are implemented. Phase 1 hardening, including remembered backup folder, merged through PR #120 at `3a3aa7a`; the current assignment is [pre-release cleanup](../work/active/pre-release-cleanup/plan.md). See [status](../status.md) for verification and acceptance limits.
+The [canonical Threads target](threads-target.md) owns the detailed architecture. This page is a navigation summary. The [behavior design](threads-behavior.md) supplies concrete thread and packaged runtime-guide defaults. The SQLite Threads core, runtime and native workspace are implemented. See the current snapshot in [status](../status.md) for the repository baseline, proposed/assigned work and verification/acceptance limits. Historical cleanup and milestone records do not define the current assignment.
 
 ## One state owner
 

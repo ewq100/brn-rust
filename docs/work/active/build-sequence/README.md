@@ -2,6 +2,8 @@
 
 **Status: proposed sequencing, prepared 16 October 2026 from main `cafb24c2`.** This file orders work that is already proposed. It assigns nothing and grants no implementation, merge or release authority. [Status](../../../status.md) remains the source of truth for current work.
 
+**Checkpoint, 17 October 2026:** the Stage 0 merge prerequisite is satisfied at main `8f768943`: UI/reliability landed together in [#155](https://github.com/ewq100/brn-rust/pull/155), CLI rounds 1–2 in [#156](https://github.com/ewq100/brn-rust/pull/156), and CLI round 3 in [#157](https://github.com/ewq100/brn-rust/pull/157). The latest inspected main native-widget lane failed; see the [current status](../../../status.md#current-repository-snapshot--17-october-2026). C0 and later slices remain proposed until assigned. The old branch-ahead counts below are the pre-merge snapshot, not outstanding work. Standing design/health guidance is now in the [strategic programming guide](../../../development/strategic-programming.md).
+
 **Owner decisions recorded here:**
 
 - 15 October: `work/ui-polish` and `work/daily-workflow-reliability` land before the big work.
@@ -33,7 +35,7 @@
 
 Each branch's own agent lands it with the [landing message](#land-a-finish-first-branch). Branches land in whichever order they finish, and the later branch resolves only the overlapping hunks. If two are ready together, land `ui-polish` and `cli-agent-contract` first, because they share no files, and then reliability.
 
-**Gate:** all three on `main`. Before that, only two things may start:
+**Original Stage 0 gate (merge prerequisite now met):** all three on `main`. Before it was met, only two things could start:
 
 - the optional isolated experiment R0 (Rig reuse proofs; [message](#optional-now-r0-rig-reuse-proofs));
 - the housekeeping step H0 below.
@@ -65,7 +67,7 @@ One integration lead (C) runs the modular-foundation C0 and the agent-capabiliti
 - records the four Slice 0 decisions: model-limit source, summary storage, MCP transport and skill-manifest parser;
 - obtains owner decision O1 (below);
 - records a test-suite baseline: test counts per crate and feature set, wall time per required lane, the slowest tests, and any flaky or ignored tests;
-- writes the **deletion list** for slice CL (below). For every item it states the evidence that the item is unused, retired or duplicated, and the test that proves removal changes no behavior.
+- writes the **deletion list** for slice CL (below). For every item it states caller/feature and saved-data evidence that the item is unused, retired or duplicated, plus the checks preserving supported behavior after removal.
 
 ## Stage 1b — CL, cleanup in the quiet window
 
@@ -80,7 +82,7 @@ Between C0 and CW1 the whole tree has a single editor: the three branches have l
 Rules:
 
 - No behavior change and no refactor beyond what removal needs.
-- Keep saved-data readers, recovery and backup paths, and safety checks even when they look redundant. Removing any of them needs a failing-before test showing it is unreachable.
+- Keep supported saved-data readers, recovery and backup paths, and safety checks even when they look redundant. Any removal needs explicit caller/feature and compatibility evidence plus checks preserving required behavior. A passing test or absent fixture alone does not prove a path unreachable; a regression test should detect the unsafe change it is intended to prevent.
 - All four required lanes stay green. The record states deleted lines and tests, and test-time before and after.
 - Time-box CL. Items that turn into refactors move to the slice that owns that code.
 
@@ -136,7 +138,7 @@ graph LR
 
 ## Tests, cleanup and mutation testing in every slice
 
-These rules apply to every slice from CL onward, in all lanes.
+These execution rules apply to every slice from CL onward, in all lanes. The standing [strategic programming](../../../development/strategic-programming.md) and [verification](../../../development/verification.md) guidance also applies to meaningful work outside this proposed program.
 
 **Replace means remove.** A slice that replaces a mechanism also deletes the old route, its wiring and tests tied only to it. This is the "one production route" rule in both plans; this sequence makes it a slice exit condition. Examples:
 
@@ -155,7 +157,7 @@ Do not run a separate repository-wide test audit.
 
 **Targeted mutation testing.** Use `cargo-mutants` as a local development tool, as in the [quality-simplify pilot](../quality-simplify/evidence.md): `cargo install cargo-mutants --locked`, with no manifest or lockfile change.
 
-- **Scope.** Each lead-lane slice, and any slice that adds a guard, runs it only on its own changed guard code: `--in-diff` or file and function filters.
+- **Scope.** Each slice reviews its changed high-consequence guards and runs mutations where they provide new evidence: `--in-diff` or file and function filters. Record why a slice has no useful mutation target instead of running a ritual sweep. Follow any more specific requirement in the actual assignment.
 - **What counts as a guard:** code where one flipped condition causes data loss, a permission leak or a false success:
   - version and expected-version checks;
   - the scope predicate (`context::visible`) and private/project fencing;
@@ -165,7 +167,7 @@ Do not run a separate repository-wide test audit.
   - Undo conflict checks;
   - from D: budget admission and the limit outcome, summary invalidation keys, skill path confinement, and the MCP allowlist and dispatch recheck.
 - **Running it.** Use `--locked --offline`, a per-mutant timeout, and disposable output outside the checkout. Time-box to about 30 minutes per slice. Use synthetic fixtures only; no provider calls.
-- **Survivors.** Classify every missed mutant: fix it with a test, mark it equivalent with a reason, or accept it as visual-only or cosmetic. Unviable mutants and struct-field "drag" mutants are listed but are not gaps (see the pilot's quirk note).
+- **Survivors.** Classify every missed mutant: fix a meaningful gap with a behavior test, justify equivalence, or identify the remaining native/visual check. List unviable mutations separately and record incomplete work when the budget expires. Inspect unexpectedly selected struct-field "drag" mutants on their merits; the pilot's styling cases are not a universal exemption for field mutations.
 - **CI.** Mutation testing stays out of required CI: it is too slow and noisy for a gate. INT-W and INT-D report the aggregate result.
 
 ## Owner decisions
@@ -334,9 +336,9 @@ two proposed programs. Read at current origin/main:
    whether the X1, Z1 and #149 results still hold on your integration ref.
 7. Record the test baseline (counts per crate and feature set, wall time per
    required lane, slowest tests, flaky or ignored tests). Write the slice CL
-   deletion list: each item with evidence that it is unused, retired or
-   duplicated, and the test that proves removal changes no behavior. Do not
-   delete anything in C0.
+   deletion list: each item with caller/feature and saved-data evidence that
+   it is unused, retired or duplicated, plus checks preserving supported
+   behavior after removal. Do not delete anything in C0.
 8. Do not implement CL, CW or any D slice. Commit a C0 integration ref that
    adds no new failing or skipped required tests, and record it.
 

@@ -3,15 +3,26 @@
 ## Start here
 
 1. Confirm branch, HEAD, remote baseline and unrelated changes; use an isolated task checkout.
-2. Read [status](docs/status.md) and the plan for the current user assignment. The [cleanup record](docs/work/active/pre-release-cleanup/plan.md) explains this repository simplification; it does not assign future work.
-3. For implementation or architecture review, read the [Threads target](docs/architecture/threads-target.md), [behavior contract](docs/architecture/threads-behavior.md) and [invariants](docs/architecture/invariants.md), then relevant source.
+2. Read the current snapshot in [status](docs/status.md) and the plan for the current user assignment. Check their branch/merge claims against Git before resuming work; dated evidence and proposed plans do not assign work.
+3. For implementation or architecture review, read the [architecture overview](docs/architecture/overview.md), [invariants](docs/architecture/invariants.md), affected sections of the [Threads target](docs/architecture/threads-target.md) and [behavior contract](docs/architecture/threads-behavior.md), then relevant source and callers.
 4. For environment, checks or integration, use [setup](docs/development/setup.md), [verification](docs/development/verification.md) and [workflow](docs/development/workflow.md).
 
 ## Current authority
 
-Current user instructions define the assignment. For the 11 October 2026 cleanup, the owner authorized isolated worktrees, GPT-6.1 Sol implementation helpers, independent review and publication/merge after required CI without routine reauthorization. Historical permission does not assign unrelated work. Native observation is explicitly deferred; release and real user-data access remain outside the cleanup.
+Current user instructions define the assignment. Existing authorization continues within that assignment without routine reauthorization; it does not assign unrelated work. Publication, merge, release, provider access, real user data and native interaction follow the applicable assignment. Historical cleanup permissions remain in the [cleanup record](docs/work/active/pre-release-cleanup/plan.md), not a standing grant for new work.
 
 The canonical target owns product requirements. Update affected summaries with justified contract corrections. Resolve routine implementation choices within the assignment; ask only for an unresolved consequential product choice or authority outside it. [Archived evidence](docs/archive/README.md) preserves provenance and historical instructions, which do not assign new work.
+
+## Strategic programming
+
+Optimize for correct owner outcomes and the ease of the next change. Follow the [strategic programming guide](docs/development/strategic-programming.md) for meaningful code and architecture changes.
+
+- Identify the behavior's owner, callers, authoritative state and existing implementation before extending it. Check pinned libraries and platform facilities before adding custom machinery; judge the complete adapter and maintenance cost.
+- Make bounded design improvements in the affected code when they remove a demonstrated source of complexity. Address repeated causes at their shared owner. A wider refactor belongs in an explicit follow-up; neither unrelated cleanup nor a refactor quota is required.
+- Prefer modules that hide decisions behind a small useful interface. Keep workflow policy in shared services and coherent UI state under explicit owners. Use typed states and transitions where they remove invalid combinations or repeated coordination. File splitting alone is not modularity; speculative frameworks and pass-through layers need a concrete present benefit.
+- Replacing a mechanism includes retiring its obsolete production route, wiring and implementation-only tests. Preserve supported saved-data, recovery and compatibility obligations. Explain any necessary temporary coexistence and its removal trigger.
+- Protect behavior and important boundaries with proportionate tests and existing checks. Tests must distinguish correct from incorrect outcomes; counts, coverage, smaller files and fewer lines are diagnostic signals, not completion criteria. Native interaction remains separate from headless state tests.
+- Independent review checks responsibility placement, caller complexity, reuse, retirement and behavior preservation. For material changes, report what became easier, any justified complexity/debt, and the evidence. Reconcile current status after integration; do not leave dated branch claims presented as current.
 
 ## Working boundaries
 
